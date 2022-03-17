@@ -29,7 +29,7 @@ import cn.taketoday.context.ApplicationListener;
  *
  * @author Sam Brannen
  * @author Oliver Drotbohm
- * @since 5.3.3
+ * @since 4.0
  */
 class ApplicationEventsApplicationListener implements ApplicationListener<ApplicationEvent> {
 

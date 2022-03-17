@@ -136,7 +136,7 @@ public @interface TestExecutionListeners {
    * for backwards compatibility.
    *
    * @see MergeMode
-   * @since 4.1
+   * @since 4.0
    */
   MergeMode mergeMode() default MergeMode.REPLACE_DEFAULTS;
 
@@ -146,7 +146,7 @@ public @interface TestExecutionListeners {
    * {@code @TestExecutionListeners} is declared on a class that does
    * <strong>not</strong> inherit listeners from a superclass.
    *
-   * @since 4.1
+   * @since 4.0
    */
   enum MergeMode {
 

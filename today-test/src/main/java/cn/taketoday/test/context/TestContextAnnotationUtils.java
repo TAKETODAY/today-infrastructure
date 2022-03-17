@@ -26,7 +26,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Predicate;
 
-import cn.taketoday.core.SpringProperties;
+import cn.taketoday.lang.TodayStrategies;
 import cn.taketoday.core.annotation.AnnotatedElementUtils;
 import cn.taketoday.core.annotation.AnnotationUtils;
 import cn.taketoday.core.annotation.MergedAnnotation;
@@ -35,7 +35,7 @@ import cn.taketoday.core.annotation.MergedAnnotationPredicates;
 import cn.taketoday.core.annotation.MergedAnnotations;
 import cn.taketoday.core.annotation.MergedAnnotations.SearchStrategy;
 import cn.taketoday.core.annotation.RepeatableContainers;
-import cn.taketoday.core.style.ToStringCreator;
+import cn.taketoday.core.style.ToStringBuilder;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.test.context.NestedTestConfiguration.EnclosingConfiguration;
@@ -71,7 +71,7 @@ import cn.taketoday.util.ObjectUtils;
  * @see AnnotationUtils
  * @see AnnotatedElementUtils
  * @see AnnotationDescriptor
- * @since 5.3, though originally since 4.0 as {@link cn.taketoday.test.util.MetaAnnotationUtils}
+ * @since 4.0, though originally since 4.0 as {@link cn.taketoday.test.util.MetaAnnotationUtils}
  */
 public abstract class TestContextAnnotationUtils {
 
@@ -92,7 +92,7 @@ public abstract class TestContextAnnotationUtils {
    * @param annotationType the type of annotation to look for
    * @return {@code true} if a matching annotation is present
    * @see #findMergedAnnotation(Class, Class)
-   * @since 5.3.3
+   * @since 4.0
    */
   public static boolean hasAnnotation(Class<?> clazz, Class<? extends Annotation> annotationType) {
     return (findMergedAnnotation(clazz, annotationType) != null);
@@ -436,7 +436,7 @@ public abstract class TestContextAnnotationUtils {
   private static EnclosingConfiguration getDefaultEnclosingConfigurationMode() {
     EnclosingConfiguration defaultConfigurationMode = defaultEnclosingConfigurationMode;
     if (defaultConfigurationMode == null) {
-      String value = SpringProperties.getProperty(NestedTestConfiguration.ENCLOSING_CONFIGURATION_PROPERTY_NAME);
+      String value = TodayStrategies.getProperty(NestedTestConfiguration.ENCLOSING_CONFIGURATION_PROPERTY_NAME);
       EnclosingConfiguration enclosingConfigurationMode = EnclosingConfiguration.from(value);
       defaultConfigurationMode =
               (enclosingConfigurationMode != null ? enclosingConfigurationMode : EnclosingConfiguration.INHERIT);
@@ -589,7 +589,7 @@ public abstract class TestContextAnnotationUtils {
      */
     @Override
     public String toString() {
-      return new ToStringCreator(this)
+      return new ToStringBuilder(this)
               .append("rootDeclaringClass", this.rootDeclaringClass.getName())
               .append("declaringClass", this.declaringClass.getName())
               .append("annotation", this.annotation)

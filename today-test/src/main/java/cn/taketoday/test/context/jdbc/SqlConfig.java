@@ -64,7 +64,7 @@ import cn.taketoday.test.context.transaction.TransactionalTestExecutionListener;
  * @author Sam Brannen
  * @author Tadaya Tsuyukubo
  * @see Sql
- * @since 4.1
+ * @since 4.0
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
@@ -175,7 +175,7 @@ public @interface SqlConfig {
    *
    * @see cn.taketoday.jdbc.datasource.init.ScriptUtils#DEFAULT_COMMENT_PREFIXES
    * @see #commentPrefix
-   * @since 5.2
+   * @since 4.0
    */
   String[] commentPrefixes() default {};
 

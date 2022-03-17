@@ -46,12 +46,11 @@ public interface CacheAwareContextLoaderDelegate {
    * System property used to configure the fully qualified class name of the
    * default {@code CacheAwareContextLoaderDelegate}.
    * <p>May alternatively be configured via the
-   * {@link cn.taketoday.core.SpringProperties} mechanism.
+   * {@link cn.taketoday.lang.TodayStrategies} mechanism.
    * <p>If this property is not defined, the
    * {@link DefaultCacheAwareContextLoaderDelegate
    * DefaultCacheAwareContextLoaderDelegate} will be used as the default.
    *
-   * @since 5.3.11
    */
   String DEFAULT_CACHE_AWARE_CONTEXT_LOADER_DELEGATE_PROPERTY_NAME =
           "spring.test.context.default.CacheAwareContextLoaderDelegate";
@@ -75,7 +74,7 @@ public interface CacheAwareContextLoaderDelegate {
    * @return {@code true} if the application context has been loaded
    * @see #loadContext
    * @see #closeContext
-   * @since 5.2
+   * @since 4.0
    */
   default boolean isContextLoaded(MergedContextConfiguration mergedContextConfiguration) {
     return false;
@@ -119,7 +118,7 @@ public interface CacheAwareContextLoaderDelegate {
    * is not part of a hierarchy
    * @see #isContextLoaded
    * @see #loadContext
-   * @since 4.1
+   * @since 4.0
    */
   void closeContext(MergedContextConfiguration mergedContextConfiguration, @Nullable HierarchyMode hierarchyMode);
 

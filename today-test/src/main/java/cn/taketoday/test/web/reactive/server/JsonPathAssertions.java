@@ -144,7 +144,7 @@ public class JsonPathAssertions {
   /**
    * Delegates to {@link JsonPathExpectationsHelper#assertValue(String, Matcher)}.
    *
-   * @since 5.1
+   * @since 4.0
    */
   public <T> WebTestClient.BodyContentSpec value(Matcher<? super T> matcher) {
     this.pathHelper.assertValue(this.content, matcher);
@@ -154,7 +154,7 @@ public class JsonPathAssertions {
   /**
    * Delegates to {@link JsonPathExpectationsHelper#assertValue(String, Matcher, Class)}.
    *
-   * @since 5.1
+   * @since 4.0
    */
   public <T> WebTestClient.BodyContentSpec value(Matcher<? super T> matcher, Class<T> targetType) {
     this.pathHelper.assertValue(this.content, matcher, targetType);
@@ -164,7 +164,7 @@ public class JsonPathAssertions {
   /**
    * Consume the result of the JSONPath evaluation.
    *
-   * @since 5.1
+   * @since 4.0
    */
   @SuppressWarnings("unchecked")
   public <T> WebTestClient.BodyContentSpec value(Consumer<T> consumer) {
@@ -176,7 +176,7 @@ public class JsonPathAssertions {
   /**
    * Consume the result of the JSONPath evaluation and provide a target class.
    *
-   * @since 5.1
+   * @since 4.0
    */
   @SuppressWarnings("unchecked")
   public <T> WebTestClient.BodyContentSpec value(Consumer<T> consumer, Class<T> targetType) {

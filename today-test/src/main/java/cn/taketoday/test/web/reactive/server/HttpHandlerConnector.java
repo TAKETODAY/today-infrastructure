@@ -162,7 +162,7 @@ public class HttpHandlerConnector implements ClientHttpConnector {
    * Therefore in tests without a server the exception is wrapped and allowed
    * to propagate so the application is alerted.
    *
-   * @since 5.2.2
+   * @since 4.0
    */
   @SuppressWarnings("serial")
   public static final class FailureAfterResponseCompletedException extends RuntimeException {

@@ -28,7 +28,7 @@ import cn.taketoday.test.context.TestContext;
  *
  * @author Frank Scheffler
  * @author Sam Brannen
- * @since 5.2
+ * @since 4.0
  */
 @SuppressWarnings("serial")
 public abstract class TestContextEvent extends ApplicationEvent {

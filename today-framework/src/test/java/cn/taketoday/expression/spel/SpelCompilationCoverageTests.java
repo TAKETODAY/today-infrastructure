@@ -58,7 +58,7 @@ import static org.assertj.core.api.InstanceOfAssertFactories.BOOLEAN;
  * Checks SpelCompiler behavior. This should cover compilation all compiled node types.
  *
  * @author Andy Clement
- * @since 4.1
+ * @since 4.0
  */
 public class SpelCompilationCoverageTests extends AbstractExpressionTests {
 

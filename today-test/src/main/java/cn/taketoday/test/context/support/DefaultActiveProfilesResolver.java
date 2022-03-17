@@ -39,7 +39,7 @@ import static cn.taketoday.test.context.TestContextAnnotationUtils.findAnnotatio
  * @author Sam Brannen
  * @see ActiveProfiles
  * @see ActiveProfilesResolver
- * @since 4.1
+ * @since 4.0
  */
 public class DefaultActiveProfilesResolver implements ActiveProfilesResolver {
 

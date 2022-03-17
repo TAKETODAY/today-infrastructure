@@ -43,7 +43,7 @@ import cn.taketoday.web.context.WebApplicationContext;
  *
  * @author Rossen Stoyanchev
  * @see MockMvcConfigurerAdapter
- * @since 4.1
+ * @since 4.0
  */
 public interface MockMvcConfigurer {
 

@@ -29,7 +29,7 @@ import cn.taketoday.lang.Nullable;
  * <p>Primarily intended for use within the framework.
  *
  * @author Sam Brannen
- * @since 5.3
+ * @since 4.0
  */
 @FunctionalInterface
 public interface PropertyProvider {

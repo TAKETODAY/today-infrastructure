@@ -99,7 +99,7 @@ import cn.taketoday.test.annotation.Rollback;
  * @author Sam Brannen
  * @see EnclosingConfiguration#INHERIT
  * @see EnclosingConfiguration#OVERRIDE
- * @since 5.3
+ * @since 4.0
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
@@ -119,7 +119,7 @@ public @interface NestedTestConfiguration {
    * an inner test class will be <em>inherited</em> according to
    * {@link EnclosingConfiguration#INHERIT} semantics by default.
    * <p>May alternatively be configured via the
-   * {@link cn.taketoday.core.SpringProperties SpringProperties}
+   * {@link cn.taketoday.lang.TodayStrategies TodayStrategies}
    * mechanism.
    *
    * @see #value

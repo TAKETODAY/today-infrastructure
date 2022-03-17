@@ -58,7 +58,7 @@ import cn.taketoday.util.ObjectUtils;
  * @see #loadBeanDefinitions(GenericApplicationContext, MergedContextConfiguration)
  * @see GenericXmlContextLoader
  * @see GenericGroovyXmlContextLoader
- * @since 3.1
+ *@since 4.0
  */
 public class AnnotationConfigContextLoader extends AbstractGenericContextLoader {
 

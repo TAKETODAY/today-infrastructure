@@ -39,7 +39,7 @@ public class ToStringBuilder {
   static final DefaultValueStyler DEFAULT_VALUE_STYLER = new DefaultValueStyler();
 
   /**
-   * Default ToStringStyler instance used by this ToStringCreator.
+   * Default ToStringStyler instance used by this ToStringBuilder.
    */
   private static final ToStringStyler DEFAULT_TO_STRING_STYLER =
           new DefaultToStringStyler(DEFAULT_VALUE_STYLER);
@@ -53,7 +53,7 @@ public class ToStringBuilder {
   private boolean styledFirstField;
 
   /**
-   * Create a ToStringCreator for the given object.
+   * Create a ToStringBuilder for the given object.
    *
    * @param obj the object to be stringified
    */
@@ -62,7 +62,7 @@ public class ToStringBuilder {
   }
 
   /**
-   * Create a ToStringCreator for the given object, using the provided style.
+   * Create a ToStringBuilder for the given object, using the provided style.
    *
    * @param obj the object to be stringified
    * @param styler the ValueStyler encapsulating pretty-print instructions
@@ -72,7 +72,7 @@ public class ToStringBuilder {
   }
 
   /**
-   * Create a ToStringCreator for the given object, using the provided style.
+   * Create a ToStringBuilder for the given object, using the provided style.
    *
    * @param obj the object to be stringified
    * @param styler the ToStringStyler encapsulating pretty-print instructions
@@ -195,7 +195,7 @@ public class ToStringBuilder {
   }
 
   /**
-   * Return the String representation that this ToStringCreator built.
+   * Return the String representation that this ToStringBuilder built.
    */
   @Override
   public String toString() {

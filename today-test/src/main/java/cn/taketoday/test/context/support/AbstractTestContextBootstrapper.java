@@ -38,6 +38,7 @@ import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
 import cn.taketoday.core.io.support.SpringFactoriesLoader;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.lang.TodayStrategies;
 import cn.taketoday.test.context.BootstrapContext;
 import cn.taketoday.test.context.CacheAwareContextLoaderDelegate;
 import cn.taketoday.test.context.ContextConfiguration;
@@ -77,7 +78,7 @@ import cn.taketoday.util.StringUtils;
  * @author Sam Brannen
  * @author Juergen Hoeller
  * @author Phillip Webb
- * @since 4.1
+ * @since 4.0
  */
 public abstract class AbstractTestContextBootstrapper implements TestContextBootstrapper {
 
@@ -185,7 +186,7 @@ public abstract class AbstractTestContextBootstrapper implements TestContextBoot
     List<TestExecutionListener> listeners = new ArrayList<>(classes.size());
     for (Class<? extends TestExecutionListener> listenerClass : classes) {
       try {
-        listeners.add(BeanUtils.instantiateClass(listenerClass));
+        listeners.add(BeanUtils.newInstance(listenerClass));
       }
       catch (BeanInstantiationException ex) {
         if (ex.getCause() instanceof NoClassDefFoundError) {
@@ -242,14 +243,14 @@ public abstract class AbstractTestContextBootstrapper implements TestContextBoot
    *
    * @return an <em>unmodifiable</em> list of names of default {@code TestExecutionListener}
    * classes
-   * @see SpringFactoriesLoader#loadFactoryNames
+   * @see TodayStrategies#getStrategiesNames
    */
   protected List<String> getDefaultTestExecutionListenerClassNames() {
     List<String> classNames =
-            SpringFactoriesLoader.loadFactoryNames(TestExecutionListener.class, getClass().getClassLoader());
+            TodayStrategies.getStrategiesNames(TestExecutionListener.class, getClass().getClassLoader());
     if (logger.isInfoEnabled()) {
       logger.info(String.format("Loaded default TestExecutionListener class names from location [%s]: %s",
-              SpringFactoriesLoader.FACTORIES_RESOURCE_LOCATION, classNames));
+              TodayStrategies.STRATEGIES_LOCATION, classNames));
     }
     return Collections.unmodifiableList(classNames);
   }
@@ -459,7 +460,7 @@ public abstract class AbstractTestContextBootstrapper implements TestContextBoot
       logger.trace(String.format("Using ContextLoader class [%s] for test class [%s]",
               contextLoaderClass.getName(), testClass.getName()));
     }
-    return BeanUtils.instantiateClass(contextLoaderClass, ContextLoader.class);
+    return BeanUtils.newInstance(contextLoaderClass, ContextLoader.class);
   }
 
   /**

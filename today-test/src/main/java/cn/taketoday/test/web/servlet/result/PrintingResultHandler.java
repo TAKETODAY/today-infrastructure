@@ -26,7 +26,7 @@ import java.util.Enumeration;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import cn.taketoday.core.style.ToStringCreator;
+import cn.taketoday.core.style.ToStringBuilder;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.MediaType;
 import cn.taketoday.lang.Nullable;
@@ -272,7 +272,7 @@ public class PrintingResultHandler implements ResultHandler {
     String[] cookieStrings = new String[cookies.length];
     for (int i = 0; i < cookies.length; i++) {
       Cookie cookie = cookies[i];
-      cookieStrings[i] = new ToStringCreator(cookie)
+      cookieStrings[i] = new ToStringBuilder(cookie)
               .append("name", cookie.getName())
               .append("value", cookie.getValue())
               .append("comment", cookie.getComment())

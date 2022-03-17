@@ -27,7 +27,6 @@ import cn.taketoday.core.NestedRuntimeException;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.mock.web.MockServletConfig;
 import cn.taketoday.test.web.servlet.setup.DefaultMockMvcBuilder;
-import cn.taketoday.web.context.WebApplicationContext;
 import jakarta.servlet.Filter;
 import jakarta.servlet.ServletException;
 
@@ -37,7 +36,7 @@ import jakarta.servlet.ServletException;
  *
  * <p>{@link DefaultMockMvcBuilder},
  * which derives from this class, provides a concrete {@code build} method,
- * and delegates to abstract methods to obtain a {@link WebApplicationContext}.
+ * and delegates to abstract methods to obtain a {@link WebServletApplicationContext}.
  *
  * @author Rossen Stoyanchev
  * @author Rob Winch
@@ -48,14 +47,14 @@ import jakarta.servlet.ServletException;
 public abstract class MockMvcBuilderSupport {
 
   /**
-   * Delegates to {@link #createMockMvc(Filter[], MockServletConfig, WebApplicationContext, RequestBuilder, List, List, List)}
+   * Delegates to {@link #createMockMvc(Filter[], MockServletConfig, WebServletApplicationContext, RequestBuilder, List, List, List)}
    * for creation of the {@link MockMvc} instance and configures that instance
    * with the supplied {@code defaultResponseCharacterEncoding}.
    *
    * @since 4.0
    */
   protected final MockMvc createMockMvc(Filter[] filters, MockServletConfig servletConfig,
-          WebApplicationContext webAppContext, @Nullable RequestBuilder defaultRequestBuilder,
+          WebServletApplicationContext webAppContext, @Nullable RequestBuilder defaultRequestBuilder,
           @Nullable Charset defaultResponseCharacterEncoding,
           List<ResultMatcher> globalResultMatchers, List<ResultHandler> globalResultHandlers,
           @Nullable List<DispatcherServletCustomizer> dispatcherServletCustomizers) {
@@ -66,7 +65,7 @@ public abstract class MockMvcBuilderSupport {
   }
 
   protected final MockMvc createMockMvc(Filter[] filters, MockServletConfig servletConfig,
-          WebApplicationContext webAppContext, @Nullable RequestBuilder defaultRequestBuilder,
+          WebServletApplicationContext webAppContext, @Nullable RequestBuilder defaultRequestBuilder,
           List<ResultMatcher> globalResultMatchers, List<ResultHandler> globalResultHandlers,
           @Nullable List<DispatcherServletCustomizer> dispatcherServletCustomizers) {
 

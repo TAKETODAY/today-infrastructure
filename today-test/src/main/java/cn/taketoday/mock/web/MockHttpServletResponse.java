@@ -278,7 +278,7 @@ public class MockHttpServletResponse implements HttpServletResponse {
    * @see #getContentAsString()
    * @see #setCharacterEncoding(String)
    * @see #setContentType(String)
-   * @since 5.2
+   * @since 4.0
    */
   public String getContentAsString(Charset fallbackCharset) throws UnsupportedEncodingException {
     if (this.characterEncodingSet) {
@@ -746,7 +746,6 @@ public class MockHttpServletResponse implements HttpServletResponse {
    *
    * @param cookie the {@code Cookie} to set
    * @see #addCookie(Cookie)
-   * @since 5.1.10
    */
   private void setCookie(Cookie cookie) {
     Assert.notNull(cookie, "Cookie must not be null");

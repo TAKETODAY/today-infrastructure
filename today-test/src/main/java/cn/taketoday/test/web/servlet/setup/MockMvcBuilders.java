@@ -22,7 +22,7 @@ package cn.taketoday.test.web.servlet.setup;
 
 import cn.taketoday.test.web.servlet.MockMvc;
 import cn.taketoday.test.web.servlet.MockMvcBuilder;
-import cn.taketoday.web.context.WebApplicationContext;
+import cn.taketoday.web.servlet.WebServletApplicationContext;
 
 /**
  * The main class to import in order to access all available {@link MockMvcBuilder MockMvcBuilders}.
@@ -33,7 +33,7 @@ import cn.taketoday.web.context.WebApplicationContext;
  *
  * @author Rossen Stoyanchev
  * @author Sam Brannen
- * @see #webAppContextSetup(WebApplicationContext)
+ * @see #webAppContextSetup(WebServletApplicationContext)
  * @see #standaloneSetup(Object...)
  * @since 4.0
  */
@@ -44,13 +44,13 @@ public final class MockMvcBuilders {
 
   /**
    * Build a {@link MockMvc} instance using the given, fully initialized
-   * (i.e., <em>refreshed</em>) {@link WebApplicationContext}.
+   * (i.e., <em>refreshed</em>) {@link WebServletApplicationContext}.
    * <p>The {@link cn.taketoday.web.servlet.DispatcherServlet DispatcherServlet}
    * will use the context to discover Spring MVC infrastructure and application
    * controllers in it. The context must have been configured with a
    * {@link jakarta.servlet.ServletContext ServletContext}.
    */
-  public static DefaultMockMvcBuilder webAppContextSetup(WebApplicationContext context) {
+  public static DefaultMockMvcBuilder webAppContextSetup(WebServletApplicationContext context) {
     return new DefaultMockMvcBuilder(context);
   }
 

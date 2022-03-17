@@ -71,7 +71,7 @@ public interface RequestExpectationManager {
    * @param timeout how long to wait for all expecations to be met
    * @throws AssertionError if not all expectations are met by the specified
    * timeout, or if any expectation fails at any time before that.
-   * @since 5.3.4
+   * @since 4.0
    */
   void verify(Duration timeout);
 

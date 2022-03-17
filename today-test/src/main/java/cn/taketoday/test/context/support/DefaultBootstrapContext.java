@@ -20,7 +20,7 @@
 
 package cn.taketoday.test.context.support;
 
-import cn.taketoday.core.style.ToStringCreator;
+import cn.taketoday.core.style.ToStringBuilder;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.test.context.BootstrapContext;
 import cn.taketoday.test.context.CacheAwareContextLoaderDelegate;
@@ -29,7 +29,7 @@ import cn.taketoday.test.context.CacheAwareContextLoaderDelegate;
  * Default implementation of the {@link BootstrapContext} interface.
  *
  * @author Sam Brannen
- * @since 4.1
+ * @since 4.0
  */
 public class DefaultBootstrapContext implements BootstrapContext {
 
@@ -71,7 +71,7 @@ public class DefaultBootstrapContext implements BootstrapContext {
    */
   @Override
   public String toString() {
-    return new ToStringCreator(this)//
+    return new ToStringBuilder(this)//
             .append("testClass", this.testClass.getName())//
             .append("cacheAwareContextLoaderDelegate", this.cacheAwareContextLoaderDelegate.getClass().getName())//
             .toString();

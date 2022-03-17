@@ -79,7 +79,7 @@ import cn.taketoday.test.context.web.WebDelegatingSmartContextLoader;
  * @see ActiveProfiles
  * @see ContextConfigurationAttributes
  * @see MergedContextConfiguration
- * @since 3.1
+ *@since 4.0
  */
 public interface SmartContextLoader extends ContextLoader {
 

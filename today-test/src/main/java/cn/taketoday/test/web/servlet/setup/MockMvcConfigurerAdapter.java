@@ -28,7 +28,7 @@ import cn.taketoday.web.context.WebApplicationContext;
  * An empty method implementation of {@link MockMvcConfigurer}.
  *
  * @author Rossen Stoyanchev
- * @since 4.1
+ * @since 4.0
  */
 public abstract class MockMvcConfigurerAdapter implements MockMvcConfigurer {
 

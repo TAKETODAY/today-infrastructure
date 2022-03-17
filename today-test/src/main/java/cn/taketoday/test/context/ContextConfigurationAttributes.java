@@ -27,7 +27,7 @@ import java.util.Arrays;
 
 import cn.taketoday.context.ApplicationContextInitializer;
 import cn.taketoday.core.annotation.AnnotationAttributes;
-import cn.taketoday.core.style.ToStringCreator;
+import cn.taketoday.core.style.ToStringBuilder;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ObjectUtils;
@@ -42,7 +42,7 @@ import cn.taketoday.util.StringUtils;
  * @see ContextConfiguration
  * @see SmartContextLoader#processContextConfiguration(ContextConfigurationAttributes)
  * @see MergedContextConfiguration
- * @since 3.1
+ * @since 4.0
  */
 public class ContextConfigurationAttributes {
 
@@ -54,13 +54,13 @@ public class ContextConfigurationAttributes {
 
   private final Class<?> declaringClass;
 
-  private Class<?>[] classes = new Class<?>[0];
+  private Class<?>[] classes;
 
-  private String[] locations = new String[0];
+  private String[] locations;
 
   private final boolean inheritLocations;
 
-  private final Class<? extends ApplicationContextInitializer<?>>[] initializers;
+  private final Class<? extends ApplicationContextInitializer>[] initializers;
 
   private final boolean inheritInitializers;
 
@@ -74,7 +74,6 @@ public class ContextConfigurationAttributes {
    *
    * @param declaringClass the test class that declared {@code @ContextConfiguration},
    * either explicitly or implicitly
-   * @since 4.0
    */
   @SuppressWarnings("unchecked")
   public ContextConfigurationAttributes(Class<?> declaringClass) {
@@ -108,7 +107,7 @@ public class ContextConfigurationAttributes {
   public ContextConfigurationAttributes(Class<?> declaringClass, AnnotationAttributes annAttrs) {
     this(declaringClass, annAttrs.getStringArray("locations"), annAttrs.getClassArray("classes"),
             annAttrs.getBoolean("inheritLocations"),
-						annAttrs.getClassArray("initializers"),
+            annAttrs.getClassArray("initializers"),
             annAttrs.getBoolean("inheritInitializers"), annAttrs.getString("name"), annAttrs.getClass("loader"));
   }
 
@@ -130,7 +129,7 @@ public class ContextConfigurationAttributes {
    */
   public ContextConfigurationAttributes(
           Class<?> declaringClass, String[] locations, Class<?>[] classes, boolean inheritLocations,
-          Class<? extends ApplicationContextInitializer<?>>[] initializers,
+          Class<? extends ApplicationContextInitializer>[] initializers,
           boolean inheritInitializers, Class<? extends ContextLoader> contextLoaderClass) {
 
     this(declaringClass, locations, classes, inheritLocations, initializers, inheritInitializers, null,
@@ -156,7 +155,7 @@ public class ContextConfigurationAttributes {
    */
   public ContextConfigurationAttributes(
           Class<?> declaringClass, String[] locations, Class<?>[] classes, boolean inheritLocations,
-          Class<? extends ApplicationContextInitializer<?>>[] initializers,
+          Class<? extends ApplicationContextInitializer>[] initializers,
           boolean inheritInitializers, @Nullable String name, Class<? extends ContextLoader> contextLoaderClass) {
 
     Assert.notNull(declaringClass, "'declaringClass' must not be null");
@@ -296,9 +295,8 @@ public class ContextConfigurationAttributes {
    * {@link ContextConfiguration @ContextConfiguration}.
    *
    * @return the {@code ApplicationContextInitializer} classes
-   * @since 4.0
    */
-  public Class<? extends ApplicationContextInitializer<?>>[] getInitializers() {
+  public Class<? extends ApplicationContextInitializer>[] getInitializers() {
     return this.initializers;
   }
 
@@ -307,7 +305,6 @@ public class ContextConfigurationAttributes {
    * {@link ContextConfiguration @ContextConfiguration}.
    *
    * @return the {@code inheritInitializers} flag
-   * @since 4.0
    */
   public boolean isInheritInitializers() {
     return this.inheritInitializers;
@@ -319,7 +316,6 @@ public class ContextConfigurationAttributes {
    *
    * @return the name of the context hierarchy level or {@code null} if not applicable
    * @see ContextConfiguration#name()
-   * @since 4.0
    */
   @Nullable
   public String getName() {
@@ -386,7 +382,7 @@ public class ContextConfigurationAttributes {
    */
   @Override
   public String toString() {
-    return new ToStringCreator(this)
+    return new ToStringBuilder(this)
             .append("declaringClass", this.declaringClass.getName())
             .append("classes", ObjectUtils.nullSafeToString(this.classes))
             .append("locations", ObjectUtils.nullSafeToString(this.locations))

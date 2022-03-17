@@ -90,7 +90,7 @@ public abstract class TypeFilterUtils {
         case CUSTOM -> {
           Assert.isAssignable(TypeFilter.class, filterClass,
                   "@ComponentScan CUSTOM type filter requires a TypeFilter implementation");
-          TypeFilter filter = ParserStrategyUtils.instantiateClass(filterClass, TypeFilter.class, loadingContext);
+          TypeFilter filter = ParserStrategyUtils.newInstance(filterClass, TypeFilter.class, loadingContext);
           typeFilters.add(filter);
         }
         default -> throw new IllegalArgumentException("Filter type not supported with Class value: " + filterType);

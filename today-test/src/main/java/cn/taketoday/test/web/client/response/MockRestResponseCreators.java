@@ -130,7 +130,7 @@ public abstract class MockRestResponseCreators {
    * Variant of {@link #withStatus(HttpStatus)} for a custom HTTP status code.
    *
    * @param status the response status
-   * @since 5.3.17
+   * @since 4.0
    */
   public static DefaultResponseCreator withRawStatus(int status) {
     return new DefaultResponseCreator(status);
@@ -141,7 +141,7 @@ public abstract class MockRestResponseCreators {
    * <p>For example, one could use this to simulate a {@code SocketTimeoutException}.
    *
    * @param ex the {@code Exception} to be thrown at HTTP call time
-   * @since 5.2.2
+   * @since 4.0
    */
   public static ResponseCreator withException(IOException ex) {
     return request -> {

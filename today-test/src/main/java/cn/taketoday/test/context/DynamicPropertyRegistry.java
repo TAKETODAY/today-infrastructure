@@ -30,7 +30,7 @@ import java.util.function.Supplier;
  * @author Phillip Webb
  * @author Sam Brannen
  * @see DynamicPropertySource
- * @since 5.2.5
+ * @since 4.0
  */
 public interface DynamicPropertyRegistry {
 

@@ -43,7 +43,7 @@ import java.lang.annotation.Target;
  * @author Sam Brannen
  * @see ApplicationEvents
  * @see ApplicationEventsTestExecutionListener
- * @since 5.3.3
+ * @since 4.0
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)

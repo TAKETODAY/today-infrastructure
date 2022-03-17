@@ -108,7 +108,7 @@ public class XpathExpectationsHelper {
    * Parse the content, evaluate the XPath expression as a {@link NodeList},
    * and assert it with the given {@code Matcher<NodeList>}.
    *
-   * @since 5.2.2
+   * @since 4.0
    */
   public void assertNodeList(byte[] content, @Nullable String encoding, Matcher<? super NodeList> matcher)
           throws Exception {
@@ -225,7 +225,7 @@ public class XpathExpectationsHelper {
    * @param targetClass the target class, one of Number, String, Boolean,
    * org.w3c.Node, or NodeList
    * @throws Exception if content parsing or expression evaluation fails
-   * @since 5.1
+   * @since 4.0
    */
   @Nullable
   public <T> T evaluateXpath(byte[] content, @Nullable String encoding, Class<T> targetClass) throws Exception {

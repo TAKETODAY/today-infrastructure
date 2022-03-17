@@ -35,10 +35,8 @@ import cn.taketoday.test.context.junit.jupiter.web.SpringJUnitWebConfig;
 import cn.taketoday.test.context.support.AbstractContextLoader;
 import cn.taketoday.test.context.support.AnnotationConfigContextLoader;
 import cn.taketoday.test.context.support.DelegatingSmartContextLoader;
-import cn.taketoday.test.context.support.GenericGroovyXmlContextLoader;
 import cn.taketoday.test.context.support.GenericXmlContextLoader;
 import cn.taketoday.test.context.web.AnnotationConfigWebContextLoader;
-import cn.taketoday.test.context.web.GenericGroovyXmlWebContextLoader;
 import cn.taketoday.test.context.web.GenericXmlWebContextLoader;
 import cn.taketoday.test.context.web.WebAppConfiguration;
 import cn.taketoday.test.context.web.WebDelegatingSmartContextLoader;
@@ -165,7 +163,7 @@ public @interface ContextConfiguration {
    * @see cn.taketoday.context.annotation.Configuration
    * @see AnnotationConfigContextLoader
    * @see #inheritLocations
-   * @since 3.1
+   * @since 4.0
    */
   Class<?>[] classes() default {};
 
@@ -186,7 +184,7 @@ public @interface ContextConfiguration {
    * @see #loader
    * @since 4.0
    */
-  Class<? extends ApplicationContextInitializer<?>>[] initializers() default {};
+  Class<? extends ApplicationContextInitializer>[] initializers() default {};
 
   /**
    * Whether or not {@linkplain #locations resource locations} or

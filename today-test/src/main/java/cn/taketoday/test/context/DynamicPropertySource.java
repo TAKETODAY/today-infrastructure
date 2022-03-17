@@ -95,7 +95,7 @@ import cn.taketoday.test.annotation.DirtiesContext;
  * @see TestPropertySource
  * @see cn.taketoday.core.env.PropertySource
  * @see DirtiesContext
- * @since 5.2.5
+ * @since 4.0
  */
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)

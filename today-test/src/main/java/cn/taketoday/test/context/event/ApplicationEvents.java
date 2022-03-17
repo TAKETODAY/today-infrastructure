@@ -51,7 +51,7 @@ import cn.taketoday.test.context.TestExecutionListeners;
  * @see RecordApplicationEvents
  * @see ApplicationEventsTestExecutionListener
  * @see cn.taketoday.context.ApplicationEvent
- * @since 5.3.3
+ * @since 4.0
  */
 public interface ApplicationEvents {
 

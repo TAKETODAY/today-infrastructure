@@ -28,10 +28,10 @@ import java.util.Collections;
 import java.util.List;
 
 import cn.taketoday.lang.Assert;
+import cn.taketoday.test.web.servlet.MockMvc;
 import cn.taketoday.test.web.servlet.setup.MockMvcBuilders;
 import cn.taketoday.test.web.servlet.setup.MockMvcConfigurer;
-import cn.taketoday.test.web.servlet.MockMvc;
-import cn.taketoday.web.context.WebApplicationContext;
+import cn.taketoday.web.servlet.WebServletApplicationContext;
 
 /**
  * Support class that simplifies the creation of a {@link WebConnection} that
@@ -68,24 +68,24 @@ public abstract class MockMvcWebConnectionBuilderSupport<T extends MockMvcWebCon
   }
 
   /**
-   * Create a new instance using the supplied {@link WebApplicationContext}.
+   * Create a new instance using the supplied {@link WebServletApplicationContext}.
    *
    * @param context the {@code WebApplicationContext} to create a {@code MockMvc}
    * instance from; never {@code null}
    */
-  protected MockMvcWebConnectionBuilderSupport(WebApplicationContext context) {
+  protected MockMvcWebConnectionBuilderSupport(WebServletApplicationContext context) {
     this(MockMvcBuilders.webAppContextSetup(context).build());
   }
 
   /**
-   * Create a new instance using the supplied {@link WebApplicationContext}
+   * Create a new instance using the supplied {@link WebServletApplicationContext}
    * and {@link MockMvcConfigurer}.
    *
    * @param context the {@code WebApplicationContext} to create a {@code MockMvc}
    * instance from; never {@code null}
    * @param configurer the MockMvcConfigurer to apply; never {@code null}
    */
-  protected MockMvcWebConnectionBuilderSupport(WebApplicationContext context, MockMvcConfigurer configurer) {
+  protected MockMvcWebConnectionBuilderSupport(WebServletApplicationContext context, MockMvcConfigurer configurer) {
     this(MockMvcBuilders.webAppContextSetup(context).apply(configurer).build());
   }
 

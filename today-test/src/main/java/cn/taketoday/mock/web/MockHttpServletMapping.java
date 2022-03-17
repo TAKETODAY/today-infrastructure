@@ -32,7 +32,7 @@ import jakarta.servlet.http.MappingMatch;
  * requirement.
  *
  * @author Rossen Stoyanchev
- * @since 5.3.4
+ * @since 4.0
  */
 public class MockHttpServletMapping implements HttpServletMapping {
 

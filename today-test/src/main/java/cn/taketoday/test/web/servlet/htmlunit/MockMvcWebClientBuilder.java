@@ -27,6 +27,7 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.test.web.servlet.setup.MockMvcConfigurer;
 import cn.taketoday.test.web.servlet.MockMvc;
 import cn.taketoday.web.context.WebApplicationContext;
+import cn.taketoday.web.servlet.WebServletApplicationContext;
 
 /**
  * {@code MockMvcWebClientBuilder} simplifies the creation of an HtmlUnit
@@ -54,11 +55,11 @@ public class MockMvcWebClientBuilder extends MockMvcWebConnectionBuilderSupport<
     super(mockMvc);
   }
 
-  protected MockMvcWebClientBuilder(WebApplicationContext context) {
+  protected MockMvcWebClientBuilder(WebServletApplicationContext context) {
     super(context);
   }
 
-  protected MockMvcWebClientBuilder(WebApplicationContext context, MockMvcConfigurer configurer) {
+  protected MockMvcWebClientBuilder(WebServletApplicationContext context, MockMvcConfigurer configurer) {
     super(context, configurer);
   }
 
@@ -76,27 +77,27 @@ public class MockMvcWebClientBuilder extends MockMvcWebConnectionBuilderSupport<
 
   /**
    * Create a new {@code MockMvcWebClientBuilder} based on the supplied
-   * {@link WebApplicationContext}.
+   * {@link WebServletApplicationContext}.
    *
    * @param context the {@code WebApplicationContext} to create a {@link MockMvc}
    * instance from; never {@code null}
    * @return the MockMvcWebClientBuilder to customize
    */
-  public static MockMvcWebClientBuilder webAppContextSetup(WebApplicationContext context) {
+  public static MockMvcWebClientBuilder webAppContextSetup(WebServletApplicationContext context) {
     Assert.notNull(context, "WebApplicationContext must not be null");
     return new MockMvcWebClientBuilder(context);
   }
 
   /**
    * Create a new {@code MockMvcWebClientBuilder} based on the supplied
-   * {@link WebApplicationContext} and {@link MockMvcConfigurer}.
+   * {@link WebServletApplicationContext} and {@link MockMvcConfigurer}.
    *
    * @param context the {@code WebApplicationContext} to create a {@link MockMvc}
    * instance from; never {@code null}
    * @param configurer the {@code MockMvcConfigurer} to apply; never {@code null}
    * @return the MockMvcWebClientBuilder to customize
    */
-  public static MockMvcWebClientBuilder webAppContextSetup(WebApplicationContext context, MockMvcConfigurer configurer) {
+  public static MockMvcWebClientBuilder webAppContextSetup(WebServletApplicationContext context, MockMvcConfigurer configurer) {
     Assert.notNull(context, "WebApplicationContext must not be null");
     Assert.notNull(configurer, "MockMvcConfigurer must not be null");
     return new MockMvcWebClientBuilder(context, configurer);

@@ -29,7 +29,7 @@ import cn.taketoday.test.context.TestContextBootstrapper;
  * <p>Uses {@link DelegatingSmartContextLoader} as the default {@link ContextLoader}.
  *
  * @author Sam Brannen
- * @since 4.1
+ * @since 4.0
  */
 public class DefaultTestContextBootstrapper extends AbstractTestContextBootstrapper {
 

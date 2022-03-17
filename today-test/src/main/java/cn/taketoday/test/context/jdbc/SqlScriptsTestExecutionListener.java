@@ -96,7 +96,7 @@ import cn.taketoday.util.StringUtils;
  * @see TransactionalTestExecutionListener
  * @see cn.taketoday.jdbc.datasource.init.ResourceDatabasePopulator
  * @see cn.taketoday.jdbc.datasource.init.ScriptUtils
- * @since 4.1
+ * @since 4.0
  */
 public class SqlScriptsTestExecutionListener extends AbstractTestExecutionListener {
 
@@ -300,7 +300,7 @@ public class SqlScriptsTestExecutionListener extends AbstractTestExecutionListen
    * proxies as necessary to compare the target instances.
    *
    * @see TransactionSynchronizationUtils#unwrapResourceIfNecessary(Object)
-   * @since 5.3.4
+   * @since 4.0
    */
   private static boolean sameDataSource(DataSource ds1, DataSource ds2) {
     return TransactionSynchronizationUtils.unwrapResourceIfNecessary(ds1)

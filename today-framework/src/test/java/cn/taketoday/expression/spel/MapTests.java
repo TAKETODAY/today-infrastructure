@@ -39,7 +39,7 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
  * Test usage of inline maps.
  *
  * @author Andy Clement
- * @since 4.1
+ * @since 4.0
  */
 public class MapTests extends AbstractExpressionTests {
 

@@ -40,7 +40,7 @@ import cn.taketoday.util.MimeType;
  *
  * @author Eric Deandrea
  * @author Rossen Stoyanchev
- * @since 5.1
+ * @since 4.0
  */
 public class XpathAssertions {
 
@@ -111,7 +111,7 @@ public class XpathAssertions {
   /**
    * Delegates to {@link XpathExpectationsHelper#assertString(byte[], String, Matcher)}.
    *
-   * @since 5.1
+   * @since 4.0
    */
   public WebTestClient.BodyContentSpec string(Matcher<? super String> matcher) {
     return assertWith(() -> this.xpathHelper.assertString(getContent(), getCharset(), matcher));
@@ -120,7 +120,7 @@ public class XpathAssertions {
   /**
    * Delegates to {@link XpathExpectationsHelper#assertNumber(byte[], String, Matcher)}.
    *
-   * @since 5.1
+   * @since 4.0
    */
   public WebTestClient.BodyContentSpec number(Matcher<? super Double> matcher) {
     return assertWith(() -> this.xpathHelper.assertNumber(getContent(), getCharset(), matcher));
@@ -129,7 +129,7 @@ public class XpathAssertions {
   /**
    * Delegates to {@link XpathExpectationsHelper#assertNodeCount(byte[], String, Matcher)}.
    *
-   * @since 5.1
+   * @since 4.0
    */
   public WebTestClient.BodyContentSpec nodeCount(Matcher<? super Integer> matcher) {
     return assertWith(() -> this.xpathHelper.assertNodeCount(getContent(), getCharset(), matcher));
@@ -138,7 +138,7 @@ public class XpathAssertions {
   /**
    * Consume the result of the XPath evaluation as a String.
    *
-   * @since 5.1
+   * @since 4.0
    */
   public WebTestClient.BodyContentSpec string(Consumer<String> consumer) {
     return assertWith(() -> {
@@ -150,7 +150,7 @@ public class XpathAssertions {
   /**
    * Consume the result of the XPath evaluation as a Double.
    *
-   * @since 5.1
+   * @since 4.0
    */
   public WebTestClient.BodyContentSpec number(Consumer<Double> consumer) {
     return assertWith(() -> {
@@ -162,7 +162,7 @@ public class XpathAssertions {
   /**
    * Consume the count of nodes as result of the XPath evaluation.
    *
-   * @since 5.1
+   * @since 4.0
    */
   public WebTestClient.BodyContentSpec nodeCount(Consumer<Integer> consumer) {
     return assertWith(() -> {

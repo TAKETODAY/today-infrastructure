@@ -29,13 +29,13 @@ import cn.taketoday.web.context.WebApplicationContext;
  * Simple wrapper around a {@link DefaultMockMvcBuilder}.
  *
  * @author Rossen Stoyanchev
- * @since 5.3
+ * @since 4.0
  */
 class ApplicationContextMockMvcSpec extends AbstractMockMvcServerSpec<ApplicationContextMockMvcSpec> {
 
   private final DefaultMockMvcBuilder mockMvcBuilder;
 
-  public ApplicationContextMockMvcSpec(WebApplicationContext context) {
+  public ApplicationContextMockMvcSpec(WebServletApplicationContext context) {
     this.mockMvcBuilder = MockMvcBuilders.webAppContextSetup(context);
   }
 

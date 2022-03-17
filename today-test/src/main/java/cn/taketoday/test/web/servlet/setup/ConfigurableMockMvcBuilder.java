@@ -38,7 +38,7 @@ import jakarta.servlet.Filter;
  * @param <B> a self reference to the builder type
  * @author Rossen Stoyanchev
  * @author Sam Brannen
- * @since 4.1
+ * @since 4.0
  */
 public interface ConfigurableMockMvcBuilder<B extends ConfigurableMockMvcBuilder<B>> extends MockMvcBuilder {
 
@@ -100,7 +100,7 @@ public interface ConfigurableMockMvcBuilder<B extends ConfigurableMockMvcBuilder
    * encouraged to override this method.
    *
    * @param defaultResponseCharacterEncoding the default response character encoding
-   * @since 5.3.10
+   * @since 4.0
    */
   default <T extends B> T defaultResponseCharacterEncoding(Charset defaultResponseCharacterEncoding) {
     throw new UnsupportedOperationException("defaultResponseCharacterEncoding is not supported by this MockMvcBuilder");
@@ -138,7 +138,7 @@ public interface ConfigurableMockMvcBuilder<B extends ConfigurableMockMvcBuilder
    * customizing any {@link cn.taketoday.web.servlet.DispatcherServlet}
    * property.
    *
-   * @since 5.3
+   * @since 4.0
    */
   <T extends B> T addDispatcherServletCustomizer(DispatcherServletCustomizer customizer);
 

@@ -68,7 +68,7 @@ public interface ContextCache {
   /**
    * System property used to configure the maximum size of the {@link ContextCache}
    * as a positive integer. May alternatively be configured via the
-   * {@link cn.taketoday.core.SpringProperties} mechanism.
+   * {@link cn.taketoday.lang.TodayStrategies} mechanism.
    * <p>Note that implementations of {@code ContextCache} are not required to
    * actually support a maximum cache size. Consult the documentation of the
    * corresponding implementation for details.

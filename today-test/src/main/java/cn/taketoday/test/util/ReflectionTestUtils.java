@@ -458,7 +458,7 @@ public abstract class ReflectionTestUtils {
    * @see ReflectionUtils#makeAccessible(Method)
    * @see ReflectionUtils#invokeMethod(Method, Object, Object[])
    * @see ReflectionUtils#handleReflectionException(Exception)
-   * @since 5.2
+   * @since 4.0
    */
   @Nullable
   public static <T> T invokeMethod(Class<?> targetClass, String name, Object... args) {
@@ -487,7 +487,7 @@ public abstract class ReflectionTestUtils {
    * @see ReflectionUtils#makeAccessible(Method)
    * @see ReflectionUtils#invokeMethod(Method, Object, Object[])
    * @see ReflectionUtils#handleReflectionException(Exception)
-   * @since 5.2
+   * @since 4.0
    */
   @SuppressWarnings("unchecked")
   @Nullable

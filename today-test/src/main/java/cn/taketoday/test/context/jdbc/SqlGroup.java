@@ -40,7 +40,7 @@ import java.lang.annotation.Target;
  *
  * @author Sam Brannen
  * @see Sql
- * @since 4.1
+ * @since 4.0
  */
 @Target({ ElementType.TYPE, ElementType.METHOD })
 @Retention(RetentionPolicy.RUNTIME)

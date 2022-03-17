@@ -161,7 +161,7 @@ public class ContentRequestMatchers {
    * Variant of {@link #formData(MultiValueMap)} that matches the given subset
    * of expected form parameters.
    *
-   * @since 5.3
+   * @since 4.0
    */
   public RequestMatcher formDataContains(Map<String, String> expected) {
     MultiValueMap<String, String> multiValueMap = new LinkedMultiValueMap<>(expected.size());
@@ -205,7 +205,7 @@ public class ContentRequestMatchers {
    * library to parse the multipart data and it must be on the test classpath.
    *
    * @param expectedMap the expected multipart values
-   * @since 5.3
+   * @since 4.0
    */
   public RequestMatcher multipartData(MultiValueMap<String, ?> expectedMap) {
     return multipartData(expectedMap, true);
@@ -216,7 +216,7 @@ public class ContentRequestMatchers {
    * only for a subset of the actual values.
    *
    * @param expectedMap the expected multipart values
-   * @since 5.3
+   * @since 4.0
    */
   public RequestMatcher multipartDataContains(Map<String, ?> expectedMap) {
     MultiValueMap<String, Object> map = new LinkedMultiValueMap<>(expectedMap.size());

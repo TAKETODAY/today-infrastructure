@@ -73,7 +73,7 @@ import cn.taketoday.test.context.junit.jupiter.web.SpringJUnitWebConfig;
  * @see ContextHierarchy @ContextHierarchy
  * @see ActiveProfiles @ActiveProfiles
  * @see TestPropertySource @TestPropertySource
- * @since 5.2
+ * @since 4.0
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
@@ -92,7 +92,7 @@ public @interface TestConstructor {
    * constructors will be autowired according to {@link AutowireMode#ANNOTATED}
    * semantics by default.
    * <p>May alternatively be configured via the
-   * {@link cn.taketoday.core.SpringProperties SpringProperties}
+   * {@link cn.taketoday.lang.TodayStrategies TodayStrategies}
    * mechanism.
    * <p>As of Spring Framework 5.3, this property may also be configured as a
    * <a href="https://junit.org/junit5/docs/current/user-guide/#running-tests-config-params">JUnit
@@ -153,7 +153,7 @@ public @interface TestConstructor {
      * @param name the name of the enum constant to retrieve
      * @return the corresponding enum constant or {@code null} if not found
      * @see AutowireMode#valueOf(String)
-     * @since 5.3
+     * @since 4.0
      */
     @Nullable
     public static AutowireMode from(@Nullable String name) {

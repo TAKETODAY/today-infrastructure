@@ -71,7 +71,7 @@ public class HeaderAssertions {
   /**
    * Expect a header with the given name to match the given long value.
    *
-   * @since 5.3
+   * @since 4.0
    */
   public WebTestClient.ResponseSpec valueEquals(String headerName, long value) {
     String actual = getHeaders().getFirst(headerName);
@@ -87,7 +87,7 @@ public class HeaderAssertions {
    * the specified header, or if the supplied {@code value} does not match the
    * primary header value.
    *
-   * @since 5.3
+   * @since 4.0
    */
   public WebTestClient.ResponseSpec valueEqualsDate(String headerName, long value) {
     this.exchangeResult.assertWithDiagnostics(() -> {
@@ -126,7 +126,7 @@ public class HeaderAssertions {
    *
    * @param name the header name
    * @param patterns one or more regex patterns, one per expected value
-   * @since 5.3
+   * @since 4.0
    */
   public WebTestClient.ResponseSpec valuesMatch(String name, String... patterns) {
     this.exchangeResult.assertWithDiagnostics(() -> {
@@ -151,7 +151,7 @@ public class HeaderAssertions {
    *
    * @param name the header name
    * @param matcher the matcher to use
-   * @since 5.1
+   * @since 4.0
    */
   public WebTestClient.ResponseSpec value(String name, Matcher<? super String> matcher) {
     String value = getHeaders().getFirst(name);
@@ -167,7 +167,7 @@ public class HeaderAssertions {
    *
    * @param name the header name
    * @param matcher the matcher to use
-   * @since 5.3
+   * @since 4.0
    */
   public WebTestClient.ResponseSpec values(String name, Matcher<? super Iterable<String>> matcher) {
     List<String> values = getHeaders().get(name);
@@ -183,7 +183,7 @@ public class HeaderAssertions {
    *
    * @param name the header name
    * @param consumer the consumer to use
-   * @since 5.1
+   * @since 4.0
    */
   public WebTestClient.ResponseSpec value(String name, Consumer<String> consumer) {
     String value = getRequiredValue(name);
@@ -196,7 +196,7 @@ public class HeaderAssertions {
    *
    * @param name the header name
    * @param consumer the consumer to use
-   * @since 5.3
+   * @since 4.0
    */
   public WebTestClient.ResponseSpec values(String name, Consumer<List<String>> consumer) {
     List<String> values = getRequiredValues(name);
@@ -311,7 +311,7 @@ public class HeaderAssertions {
   /**
    * Expect a "Location" header with the given value.
    *
-   * @since 5.3
+   * @since 4.0
    */
   public WebTestClient.ResponseSpec location(String location) {
     return assertHeader("Location", URI.create(location), getHeaders().getLocation());

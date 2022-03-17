@@ -149,7 +149,7 @@ public class InjectionMetadata {
    * @param elements the elements to inject (possibly empty)
    * @param clazz the target class
    * @return a new {@link #InjectionMetadata(Class, Collection)} instance
-   * @since 5.2
+   * @since 4.0
    */
   public static InjectionMetadata forElements(Collection<InjectedElement> elements, Class<?> clazz) {
     return (elements.isEmpty() ? new InjectionMetadata(clazz, Collections.emptyList()) :

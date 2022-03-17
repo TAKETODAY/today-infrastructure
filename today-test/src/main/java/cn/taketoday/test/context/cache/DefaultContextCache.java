@@ -35,7 +35,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.ConfigurableApplicationContext;
-import cn.taketoday.core.style.ToStringCreator;
+import cn.taketoday.core.style.ToStringBuilder;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.test.annotation.DirtiesContext.HierarchyMode;
@@ -305,7 +305,7 @@ public class DefaultContextCache implements ContextCache {
    */
   @Override
   public String toString() {
-    return new ToStringCreator(this)
+    return new ToStringBuilder(this)
             .append("size", size())
             .append("maxSize", getMaxSize())
             .append("parentContextCount", getParentContextCount())

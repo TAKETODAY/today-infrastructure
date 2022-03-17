@@ -388,7 +388,7 @@ public class StatusResultMatchers {
   /**
    * Assert the response status code is {@code HttpStatus.PAYLOAD_TOO_LARGE} (413).
    *
-   * @since 4.1
+   * @since 4.0
    */
   public ResultMatcher isPayloadTooLarge() {
     return matcher(HttpStatus.PAYLOAD_TOO_LARGE);
@@ -408,7 +408,7 @@ public class StatusResultMatchers {
   /**
    * Assert the response status code is {@code HttpStatus.REQUEST_URI_TOO_LONG} (414).
    *
-   * @since 4.1
+   * @since 4.0
    */
   public ResultMatcher isUriTooLong() {
     return matcher(HttpStatus.URI_TOO_LONG);
@@ -507,7 +507,7 @@ public class StatusResultMatchers {
   /**
    * Assert the response status code is {@code HttpStatus.TOO_EARLY} (425).
    *
-   * @since 5.2
+   * @since 4.0
    */
   public ResultMatcher isTooEarly() {
     return matcher(HttpStatus.valueOf(425));

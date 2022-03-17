@@ -408,7 +408,7 @@ public class MBeanExporter extends MBeanRegistrationSupport implements MBeanExpo
    * This callback is only required for resolution of bean names in the
    * {@link #setBeans(Map) "beans"} {@link Map} and for
    * autodetection of MBeans (in the latter case, a
-   * {@code ListableBeanFactory} is required).
+   * {@code BeanFactory} is required).
    *
    * @see #setBeans
    * @see #setAutodetect

@@ -50,7 +50,7 @@ import static cn.taketoday.test.context.TestContextAnnotationUtils.findAnnotatio
  * @author Michail Nikolaev
  * @see ActiveProfiles
  * @see ActiveProfilesResolver
- * @since 4.1
+ * @since 4.0
  */
 abstract class ActiveProfilesUtils {
 
@@ -101,7 +101,7 @@ abstract class ActiveProfilesUtils {
       }
       else {
         try {
-          resolver = BeanUtils.instantiateClass(resolverClass, ActiveProfilesResolver.class);
+          resolver = BeanUtils.newInstance(resolverClass, ActiveProfilesResolver.class);
         }
         catch (Exception ex) {
           String msg = String.format("Could not instantiate ActiveProfilesResolver of type [%s] " +

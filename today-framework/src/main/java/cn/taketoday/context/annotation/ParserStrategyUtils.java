@@ -60,7 +60,7 @@ abstract class ParserStrategyUtils {
    * invoked if they are implemented by the given object.
    */
   @SuppressWarnings("unchecked")
-  static <T> T instantiateClass(
+  static <T> T newInstance(
           Class<?> clazz, Class<T> assignableTo, BootstrapContext loadingContext) {
 
     Assert.notNull(clazz, "Class must not be null");

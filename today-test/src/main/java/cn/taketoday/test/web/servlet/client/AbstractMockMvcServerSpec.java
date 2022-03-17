@@ -37,7 +37,7 @@ import jakarta.servlet.Filter;
  *
  * @param <B> the type of the concrete sub-class spec
  * @author Rossen Stoyanchev
- * @since 5.3
+ * @since 4.0
  */
 abstract class AbstractMockMvcServerSpec<B extends MockMvcWebTestClient.MockMvcServerSpec<B>>
         implements MockMvcWebTestClient.MockMvcServerSpec<B> {

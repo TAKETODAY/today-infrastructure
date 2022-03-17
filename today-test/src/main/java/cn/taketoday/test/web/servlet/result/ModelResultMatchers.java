@@ -159,7 +159,7 @@ public class ModelResultMatchers {
   /**
    * Assert a field error code for a model attribute using exact String match.
    *
-   * @since 4.1
+   * @since 4.0
    */
   public ResultMatcher attributeHasFieldErrorCode(String name, String fieldName, String error) {
     return mvcResult -> {
@@ -176,7 +176,7 @@ public class ModelResultMatchers {
   /**
    * Assert a field error code for a model attribute using a {@link Matcher}.
    *
-   * @since 4.1
+   * @since 4.0
    */
   public ResultMatcher attributeHasFieldErrorCode(String name, String fieldName,
           Matcher<? super String> matcher) {

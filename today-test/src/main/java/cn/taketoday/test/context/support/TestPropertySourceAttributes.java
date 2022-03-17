@@ -29,10 +29,11 @@ import java.util.List;
 
 import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.core.io.ClassPathResource;
-import cn.taketoday.core.log.LogMessage;
-import cn.taketoday.core.style.ToStringCreator;
+import cn.taketoday.core.io.ResourceLoader;
+import cn.taketoday.core.style.ToStringBuilder;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.logging.LogMessage;
 import cn.taketoday.test.context.TestPropertySource;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.ObjectUtils;
@@ -50,7 +51,7 @@ import cn.taketoday.util.StringUtils;
  * @author Phillip Webb
  * @see TestPropertySource
  * @see MergedTestPropertySources
- * @since 4.1
+ * @since 4.0
  */
 class TestPropertySourceAttributes {
 
@@ -84,7 +85,7 @@ class TestPropertySourceAttributes {
    * {@link TestPropertySource#inheritProperties} flags and that the two
    * underlying annotations were declared on the same class.
    *
-   * @since 5.2
+   * @since 4.0
    */
   void mergeWith(TestPropertySourceAttributes attributes) {
     Assert.state(attributes.declaringClass == this.declaringClass,
@@ -160,7 +161,7 @@ class TestPropertySourceAttributes {
       logger.error(msg);
       throw new IllegalStateException(msg);
     }
-    String prefixedResourcePath = ResourceUtils.CLASSPATH_URL_PREFIX + resourcePath;
+    String prefixedResourcePath = ResourceLoader.CLASSPATH_URL_PREFIX + resourcePath;
     if (logger.isInfoEnabled()) {
       logger.info(String.format("Detected default properties file \"%s\" for test class [%s]",
               prefixedResourcePath, testClass.getName()));
@@ -265,7 +266,7 @@ class TestPropertySourceAttributes {
    */
   @Override
   public String toString() {
-    return new ToStringCreator(this)
+    return new ToStringBuilder(this)
             .append("declaringClass", this.declaringClass.getName())
             .append("locations", this.locations)
             .append("inheritLocations", this.inheritLocations)

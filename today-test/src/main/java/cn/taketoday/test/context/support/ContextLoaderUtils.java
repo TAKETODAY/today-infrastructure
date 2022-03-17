@@ -55,7 +55,7 @@ import static cn.taketoday.test.context.TestContextAnnotationUtils.findAnnotatio
  * @see ContextConfigurationAttributes
  * @see ContextConfiguration
  * @see ContextHierarchy
- * @since 3.1
+ *@since 4.0
  */
 abstract class ContextLoaderUtils {
 

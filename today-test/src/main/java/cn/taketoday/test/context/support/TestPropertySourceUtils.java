@@ -46,7 +46,7 @@ import cn.taketoday.core.env.PropertySource;
 import cn.taketoday.core.env.PropertySources;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.core.io.ResourceLoader;
-import cn.taketoday.core.io.support.ResourcePropertySource;
+import cn.taketoday.core.io.ResourcePropertySource;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.test.context.TestContextAnnotationUtils;
@@ -65,7 +65,7 @@ import cn.taketoday.util.StringUtils;
  * @author Anatoliy Korovin
  * @author Phillip Webb
  * @see TestPropertySource
- * @since 4.1
+ * @since 4.0
  */
 public abstract class TestPropertySourceUtils {
 
@@ -73,7 +73,7 @@ public abstract class TestPropertySourceUtils {
    * The name of the {@link MapPropertySource} created from <em>inlined properties</em>.
    *
    * @see #addInlinedPropertiesToEnvironment
-   * @since 4.1.5
+   * @since 4.0
    */
   public static final String INLINED_PROPERTIES_PROPERTY_SOURCE_NAME = "Inlined Test Properties";
 
@@ -189,7 +189,7 @@ public abstract class TestPropertySourceUtils {
    * @see ResourcePropertySource
    * @see TestPropertySource#locations
    * @see #addPropertiesFilesToEnvironment(ConfigurableEnvironment, ResourceLoader, String...)
-   * @since 4.1.5
+   * @since 4.0
    */
   public static void addPropertiesFilesToEnvironment(ConfigurableApplicationContext context, String... locations) {
     Assert.notNull(context, "'context' must not be null");
@@ -248,7 +248,6 @@ public abstract class TestPropertySourceUtils {
    * potentially empty but never {@code null}
    * @see TestPropertySource#properties
    * @see #addInlinedPropertiesToEnvironment(ConfigurableEnvironment, String[])
-   * @since 4.1.5
    */
   public static void addInlinedPropertiesToEnvironment(ConfigurableApplicationContext context, String... inlinedProperties) {
     Assert.notNull(context, "'context' must not be null");
@@ -271,7 +270,7 @@ public abstract class TestPropertySourceUtils {
    * @see #INLINED_PROPERTIES_PROPERTY_SOURCE_NAME
    * @see TestPropertySource#properties
    * @see #convertInlinedPropertiesToMap
-   * @since 4.1.5
+   * @since 4.0
    */
   public static void addInlinedPropertiesToEnvironment(ConfigurableEnvironment environment, String... inlinedProperties) {
     Assert.notNull(environment, "'environment' must not be null");
@@ -307,7 +306,7 @@ public abstract class TestPropertySourceUtils {
    * @throws IllegalStateException if a given key-value pair cannot be parsed, or if
    * a given inlined property contains multiple key-value pairs
    * @see #addInlinedPropertiesToEnvironment(ConfigurableEnvironment, String[])
-   * @since 4.1.5
+   * @since 4.0
    */
   public static Map<String, Object> convertInlinedPropertiesToMap(String... inlinedProperties) {
     Assert.notNull(inlinedProperties, "'inlinedProperties' must not be null");

@@ -25,7 +25,7 @@ import java.util.Arrays;
 
 import cn.taketoday.core.annotation.AnnotationAttributes;
 import cn.taketoday.core.annotation.AnnotationUtils;
-import cn.taketoday.core.style.ToStringCreator;
+import cn.taketoday.core.style.ToStringBuilder;
 import cn.taketoday.jdbc.datasource.init.ScriptUtils;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
@@ -39,7 +39,7 @@ import cn.taketoday.test.context.TestContextAnnotationUtils;
  *
  * @author Sam Brannen
  * @see SqlConfig
- * @since 4.1
+ * @since 4.0
  */
 class MergedSqlConfig {
 
@@ -181,7 +181,7 @@ class MergedSqlConfig {
    * Get the prefixes that identify single-line comments within the SQL scripts.
    *
    * @see SqlConfig#commentPrefixes()
-   * @since 5.2
+   * @since 4.0
    */
   String[] getCommentPrefixes() {
     return this.commentPrefixes;
@@ -219,7 +219,7 @@ class MergedSqlConfig {
    */
   @Override
   public String toString() {
-    return new ToStringCreator(this)
+    return new ToStringBuilder(this)
             .append("dataSource", this.dataSource)
             .append("transactionManager", this.transactionManager)
             .append("transactionMode", this.transactionMode)

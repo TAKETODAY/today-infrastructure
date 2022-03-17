@@ -37,6 +37,7 @@ import cn.taketoday.web.context.request.async.WebAsyncUtils;
 import cn.taketoday.web.servlet.DispatcherServlet;
 import cn.taketoday.web.servlet.HandlerExecutionChain;
 import cn.taketoday.web.servlet.ModelAndView;
+import cn.taketoday.web.servlet.WebServletApplicationContext;
 import cn.taketoday.web.util.WebUtils;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.ServletRequest;
@@ -60,7 +61,7 @@ final class TestDispatcherServlet extends DispatcherServlet {
   /**
    * Create a new instance with the given web application context.
    */
-  public TestDispatcherServlet(WebApplicationContext webApplicationContext) {
+  public TestDispatcherServlet(WebServletApplicationContext webApplicationContext) {
     super(webApplicationContext);
   }
 

@@ -24,15 +24,16 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import cn.taketoday.context.annotation.AnnotatedBeanDefinitionReader;
-import cn.taketoday.test.context.support.AbstractContextLoader;
-import cn.taketoday.test.context.support.AnnotationConfigContextLoaderUtils;
 import cn.taketoday.test.context.ContextConfiguration;
 import cn.taketoday.test.context.ContextConfigurationAttributes;
 import cn.taketoday.test.context.ContextLoader;
 import cn.taketoday.test.context.MergedContextConfiguration;
 import cn.taketoday.test.context.SmartContextLoader;
+import cn.taketoday.test.context.support.AbstractContextLoader;
+import cn.taketoday.test.context.support.AnnotationConfigContextLoaderUtils;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.web.context.support.GenericWebApplicationContext;
+import cn.taketoday.web.context.support.GenericWebServletApplicationContext;
 
 /**
  * Concrete implementation of {@link AbstractGenericWebContextLoader} that loads
@@ -57,9 +58,8 @@ import cn.taketoday.web.context.support.GenericWebApplicationContext;
  * @author Sam Brannen
  * @see #processContextConfiguration(ContextConfigurationAttributes)
  * @see #detectDefaultConfigurationClasses(Class)
- * @see #loadBeanDefinitions(GenericWebApplicationContext, WebMergedContextConfiguration)
+ * @see #loadBeanDefinitions(GenericWebServletApplicationContext, WebMergedContextConfiguration)
  * @see GenericXmlWebContextLoader
- * @see GenericGroovyXmlWebContextLoader
  * @since 4.0
  */
 public class AnnotationConfigWebContextLoader extends AbstractGenericWebContextLoader {
@@ -166,7 +166,7 @@ public class AnnotationConfigWebContextLoader extends AbstractGenericWebContextL
    */
   @Override
   protected void loadBeanDefinitions(
-          GenericWebApplicationContext context, WebMergedContextConfiguration webMergedConfig) {
+          GenericWebServletApplicationContext context, WebMergedContextConfiguration webMergedConfig) {
 
     Class<?>[] annotatedClasses = webMergedConfig.getClasses();
     if (logger.isDebugEnabled()) {

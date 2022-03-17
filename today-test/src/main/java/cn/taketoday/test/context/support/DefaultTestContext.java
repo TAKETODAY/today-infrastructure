@@ -27,13 +27,15 @@ import java.util.function.Function;
 
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.ConfigurableApplicationContext;
-import cn.taketoday.core.style.ToStringCreator;
+import cn.taketoday.core.AttributeAccessor;
+import cn.taketoday.core.style.ToStringBuilder;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.test.annotation.DirtiesContext.HierarchyMode;
 import cn.taketoday.test.context.CacheAwareContextLoaderDelegate;
 import cn.taketoday.test.context.MergedContextConfiguration;
 import cn.taketoday.test.context.TestContext;
+import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.StringUtils;
 
 /**
@@ -109,7 +111,7 @@ public class DefaultTestContext implements TestContext {
    * and stored in the context cache
    * @see #getApplicationContext()
    * @see CacheAwareContextLoaderDelegate#isContextLoaded
-   * @since 5.2
+   * @since 4.0
    */
   @Override
   public boolean hasApplicationContext() {
@@ -219,6 +221,15 @@ public class DefaultTestContext implements TestContext {
   }
 
   @Override
+  public void copyAttributesFrom(AttributeAccessor source) {
+    Assert.notNull(source, "Source must not be null");
+    Map<String, Object> attributes = source.getAttributes();
+    if (CollectionUtils.isNotEmpty(attributes)) {
+      attributes.putAll(attributes);
+    }
+  }
+
+  @Override
   @Nullable
   public Object removeAttribute(String name) {
     Assert.notNull(name, "Name must not be null");
@@ -232,10 +243,20 @@ public class DefaultTestContext implements TestContext {
   }
 
   @Override
-  public String[] attributeNames() {
+  public String[] getAttributeNames() {
     synchronized(this.attributes) {
       return StringUtils.toStringArray(this.attributes.keySet());
     }
+  }
+
+  @Override
+  public boolean isEmpty() {
+    return attributes.isEmpty();
+  }
+
+  @Override
+  public Map<String, Object> getAttributes() {
+    return attributes;
   }
 
   /**
@@ -243,7 +264,7 @@ public class DefaultTestContext implements TestContext {
    */
   @Override
   public String toString() {
-    return new ToStringCreator(this)
+    return new ToStringBuilder(this)
             .append("testClass", this.testClass)
             .append("testInstance", this.testInstance)
             .append("testMethod", this.testMethod)

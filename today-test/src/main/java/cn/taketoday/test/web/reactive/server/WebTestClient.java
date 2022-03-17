@@ -494,7 +494,7 @@ public interface WebTestClient {
      *
      * @param consumer the consumer to apply to entity responses
      * @return the builder
-     * @since 5.3.5
+     * @since 4.0
      */
     Builder entityExchangeResultConsumer(Consumer<EntityExchangeResult<?>> consumer);
 
@@ -504,7 +504,6 @@ public interface WebTestClient {
      * {@code ExchangeStrategies}.
      *
      * @param configurer the configurer to apply
-     * @since 5.1.13
      */
     Builder codecs(Consumer<ClientCodecConfigurer> configurer);
 
@@ -742,7 +741,7 @@ public interface WebTestClient {
      *
      * @param body the value to write to the request body
      * @return spec for further declaration of the request
-     * @since 5.2
+     * @since 4.0
      */
     RequestHeadersSpec<?> bodyValue(Object body);
 
@@ -768,7 +767,7 @@ public interface WebTestClient {
      * @param <T> the type of the elements contained in the publisher
      * @param <S> the type of the {@code Publisher}
      * @return spec for further declaration of the request
-     * @since 5.2
+     * @since 4.0
      */
     <T, S extends Publisher<T>> RequestHeadersSpec<?> body(
             S publisher, ParameterizedTypeReference<T> elementTypeRef);
@@ -783,7 +782,7 @@ public interface WebTestClient {
      * {@code Publisher} via {@link ReactiveAdapterRegistry}
      * @param elementClass the class of elements contained in the producer
      * @return spec for further declaration of the request
-     * @since 5.2
+     * @since 4.0
      */
     RequestHeadersSpec<?> body(Object producer, Class<?> elementClass);
 
@@ -797,7 +796,7 @@ public interface WebTestClient {
      * {@code Publisher} via {@link ReactiveAdapterRegistry}
      * @param elementTypeRef the type reference of elements contained in the producer
      * @return spec for further declaration of the request
-     * @since 5.2
+     * @since 4.0
      */
     RequestHeadersSpec<?> body(Object producer, ParameterizedTypeReference<?> elementTypeRef);
 
@@ -885,7 +884,7 @@ public interface WebTestClient {
     /**
      * Assertions on the cookies of the response.
      *
-     * @since 5.3
+     * @since 4.0
      */
     CookieAssertions expectCookie();
 
@@ -967,7 +966,7 @@ public interface WebTestClient {
     /**
      * Assert the extracted body with a {@link Matcher}.
      *
-     * @since 5.1
+     * @since 4.0
      */
     <T extends S> T value(Matcher<? super B> matcher);
 
@@ -975,14 +974,14 @@ public interface WebTestClient {
      * Transform the extracted the body with a function, e.g. extracting a
      * property, and assert the mapped value with a {@link Matcher}.
      *
-     * @since 5.1
+     * @since 4.0
      */
     <T extends S, R> T value(Function<B, R> bodyMapper, Matcher<? super R> matcher);
 
     /**
      * Assert the extracted body with a {@link Consumer}.
      *
-     * @since 5.1
+     * @since 4.0
      */
     <T extends S> T value(Consumer<B> consumer);
 
@@ -1071,7 +1070,6 @@ public interface WebTestClient {
      * @param expectedJson the expected JSON content
      * @param strict enables strict checking if {@code true}
      * @see #json(String)
-     * @since 5.3.16
      */
     BodyContentSpec json(String expectedJson, boolean strict);
 
@@ -1085,7 +1083,7 @@ public interface WebTestClient {
      *
      * @param expectedXml the expected JSON content.
      * @see XmlExpectationsHelper#assertXmlEqual(String, String)
-     * @since 5.1
+     * @since 4.0
      */
     BodyContentSpec xml(String expectedXml);
 
@@ -1110,7 +1108,7 @@ public interface WebTestClient {
      * @param expression the XPath expression
      * @param args arguments to parameterize the expression
      * @see #xpath(String, Map, Object...)
-     * @since 5.1
+     * @since 4.0
      */
     default XpathAssertions xpath(String expression, Object... args) {
       return xpath(expression, null, args);
@@ -1125,7 +1123,7 @@ public interface WebTestClient {
      * @param expression the XPath expression
      * @param namespaces the namespaces to use
      * @param args arguments to parameterize the expression
-     * @since 5.1
+     * @since 4.0
      */
     XpathAssertions xpath(String expression, @Nullable Map<String, String> namespaces, Object... args);
 

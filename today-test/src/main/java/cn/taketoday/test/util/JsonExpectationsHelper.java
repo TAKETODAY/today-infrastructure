@@ -29,7 +29,7 @@ import org.skyscreamer.jsonassert.JSONAssert;
  * href="https://jsonassert.skyscreamer.org/">JSONassert</a> library.
  *
  * @author Sebastien Deleuze
- * @since 4.1
+ * @since 4.0
  */
 public class JsonExpectationsHelper {
 
@@ -42,7 +42,7 @@ public class JsonExpectationsHelper {
    * @param expected the expected JSON content
    * @param actual the actual JSON content
    * @see #assertJsonEqual(String, String, boolean)
-   * @since 4.1
+   * @since 4.0
    */
   public void assertJsonEqual(String expected, String actual) throws Exception {
     assertJsonEqual(expected, actual, false);
@@ -76,7 +76,7 @@ public class JsonExpectationsHelper {
    * @param expected the expected JSON content
    * @param actual the actual JSON content
    * @see #assertJsonNotEqual(String, String, boolean)
-   * @since 4.1
+   * @since 4.0
    */
   public void assertJsonNotEqual(String expected, String actual) throws Exception {
     assertJsonNotEqual(expected, actual, false);

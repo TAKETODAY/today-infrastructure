@@ -84,7 +84,7 @@ public abstract class AssertionErrors {
    *
    * @param message a message that describes the reason for the failure
    * @param condition the condition to test for
-   * @since 5.2.1
+   * @since 4.0
    */
   public static void assertFalse(String message, boolean condition) {
     if (condition) {
@@ -98,7 +98,7 @@ public abstract class AssertionErrors {
    *
    * @param message a message that describes the reason for the failure
    * @param object the object to check
-   * @since 5.2.1
+   * @since 4.0
    */
   public static void assertNull(String message, @Nullable Object object) {
     assertTrue(message, object == null);
@@ -110,7 +110,6 @@ public abstract class AssertionErrors {
    *
    * @param message a message that describes the reason for the failure
    * @param object the object to check
-   * @since 5.1.8
    */
   public static void assertNotNull(String message, @Nullable Object object) {
     assertTrue(message, object != null);

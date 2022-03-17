@@ -22,7 +22,7 @@ package cn.taketoday.expression.spel.testdata;
 
 /**
  * @author Andy Clement
- * @since 4.1.2
+ * @since 4.0.2
  */
 public class PersonInOtherPackage {
 

@@ -32,7 +32,7 @@ import cn.taketoday.util.StringUtils;
  *
  * @author Phillip Webb
  * @author Sam Brannen
- * @since 5.2.5
+ * @since 4.0
  */
 class DynamicValuesPropertySource extends EnumerablePropertySource<Map<String, Supplier<Object>>> {
 

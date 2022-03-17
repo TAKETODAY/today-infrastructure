@@ -186,7 +186,7 @@ public abstract class AbstractApplicationContextTests extends AbstractBeanFactor
 
   @Test
   public void beanAutomaticallyHearsEvents() throws Exception {
-    //String[] listenerNames = ((ListableBeanFactory) applicationContext).getBeanDefinitionNames(ApplicationListener.class);
+    //String[] listenerNames = ((BeanFactory) applicationContext).getBeanDefinitionNames(ApplicationListener.class);
     //assertTrue("listeners include beanThatListens", Arrays.asList(listenerNames).contains("beanThatListens"));
     BeanThatListens b = (BeanThatListens) applicationContext.getBean("beanThatListens");
     b.zero();

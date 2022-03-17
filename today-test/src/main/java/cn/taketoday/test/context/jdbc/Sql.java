@@ -66,7 +66,7 @@ import cn.taketoday.test.context.transaction.TransactionalTestExecutionListener;
  * @see TransactionalTestExecutionListener
  * @see cn.taketoday.jdbc.datasource.init.ResourceDatabasePopulator
  * @see cn.taketoday.jdbc.datasource.init.ScriptUtils
- * @since 4.1
+ * @since 4.0
  */
 @Target({ ElementType.TYPE, ElementType.METHOD })
 @Retention(RetentionPolicy.RUNTIME)

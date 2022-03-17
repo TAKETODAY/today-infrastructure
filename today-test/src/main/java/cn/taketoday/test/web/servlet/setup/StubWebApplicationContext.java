@@ -232,7 +232,7 @@ class StubWebApplicationContext implements WebApplicationContext {
   }
 
   //---------------------------------------------------------------------
-  // Implementation of ListableBeanFactory interface
+  // Implementation of BeanFactory interface
   //---------------------------------------------------------------------
 
   @Override
@@ -403,17 +403,17 @@ class StubWebApplicationContext implements WebApplicationContext {
 
     @Override
     public <T> T createBean(Class<T> beanClass) {
-      return BeanUtils.instantiateClass(beanClass);
+      return BeanUtils.newInstance(beanClass);
     }
 
     @Override
     public Object createBean(Class<?> beanClass, int autowireMode, boolean dependencyCheck) {
-      return BeanUtils.instantiateClass(beanClass);
+      return BeanUtils.newInstance(beanClass);
     }
 
     @Override
     public Object autowire(Class<?> beanClass, int autowireMode, boolean dependencyCheck) {
-      return BeanUtils.instantiateClass(beanClass);
+      return BeanUtils.newInstance(beanClass);
     }
 
     @Override

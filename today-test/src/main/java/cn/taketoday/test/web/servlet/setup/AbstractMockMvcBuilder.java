@@ -37,7 +37,7 @@ import cn.taketoday.test.web.servlet.ResultMatcher;
 import cn.taketoday.test.web.servlet.request.ConfigurableSmartRequestBuilder;
 import cn.taketoday.test.web.servlet.request.MockMvcRequestBuilders;
 import cn.taketoday.test.web.servlet.request.RequestPostProcessor;
-import cn.taketoday.web.context.WebApplicationContext;
+import cn.taketoday.web.servlet.WebServletApplicationContext;
 import jakarta.servlet.Filter;
 import jakarta.servlet.ServletContext;
 
@@ -47,7 +47,7 @@ import jakarta.servlet.ServletContext;
  * global result actions.
  *
  * <p>Subclasses can use different strategies to prepare the Spring
- * {@code WebApplicationContext} that will be passed to the
+ * {@code WebServletApplicationContext} that will be passed to the
  * {@code DispatcherServlet}.
  *
  * @param <B> a self reference to the builder type
@@ -106,7 +106,6 @@ public abstract class AbstractMockMvcBuilder<B extends AbstractMockMvcBuilder<B>
    * Define the default character encoding to be applied to every response.
    *
    * @param defaultResponseCharacterEncoding the default response character encoding
-   * @since 5.3.10
    */
   @Override
   public final <T extends B> T defaultResponseCharacterEncoding(Charset defaultResponseCharacterEncoding) {
@@ -156,7 +155,7 @@ public abstract class AbstractMockMvcBuilder<B extends AbstractMockMvcBuilder<B>
   @Override
   @SuppressWarnings("rawtypes")
   public final MockMvc build() {
-    WebApplicationContext wac = initWebAppContext();
+    WebServletApplicationContext wac = initWebAppContext();
     ServletContext servletContext = wac.getServletContext();
     MockServletConfig mockServletConfig = new MockServletConfig(servletContext);
 
@@ -180,10 +179,10 @@ public abstract class AbstractMockMvcBuilder<B extends AbstractMockMvcBuilder<B>
   }
 
   /**
-   * A method to obtain the {@code WebApplicationContext} to be passed to the
+   * A method to obtain the {@code WebServletApplicationContext} to be passed to the
    * {@code DispatcherServlet}. Invoked from {@link #build()} before the
    * {@link MockMvc} instance is created.
    */
-  protected abstract WebApplicationContext initWebAppContext();
+  protected abstract WebServletApplicationContext initWebAppContext();
 
 }

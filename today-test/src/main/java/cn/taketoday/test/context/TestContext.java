@@ -64,7 +64,7 @@ public interface TestContext extends AttributeAccessor, Serializable {
    *
    * @return {@code true} if the application context has already been loaded
    * @see #getApplicationContext()
-   * @since 5.2
+   * @since 4.0
    */
   default boolean hasApplicationContext() {
     return false;
@@ -94,7 +94,7 @@ public interface TestContext extends AttributeAccessor, Serializable {
    * @param eventFactory factory for lazy creation of the {@code ApplicationEvent}
    * @see #hasApplicationContext()
    * @see #getApplicationContext()
-   * @since 5.2
+   * @since 4.0
    */
   default void publishEvent(Function<TestContext, ? extends ApplicationEvent> eventFactory) {
     if (hasApplicationContext()) {

@@ -23,7 +23,7 @@ package cn.taketoday.test.context.web;
 import java.util.Set;
 
 import cn.taketoday.context.ApplicationContextInitializer;
-import cn.taketoday.core.style.ToStringCreator;
+import cn.taketoday.core.style.ToStringBuilder;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.test.context.CacheAwareContextLoaderDelegate;
 import cn.taketoday.test.context.ActiveProfiles;
@@ -74,7 +74,7 @@ public class WebMergedContextConfiguration extends MergedContextConfiguration {
    * an empty string will be used.
    *
    * @param resourceBasePath the resource path to the root directory of the web application
-   * @since 4.1
+   * @since 4.0
    */
   public WebMergedContextConfiguration(MergedContextConfiguration mergedConfig, String resourceBasePath) {
     super(mergedConfig);
@@ -105,10 +105,10 @@ public class WebMergedContextConfiguration extends MergedContextConfiguration {
    * @param cacheAwareContextLoaderDelegate a cache-aware context loader
    * delegate with which to retrieve the parent context
    * @param parent the parent configuration or {@code null} if there is no parent
-   * @since 4.1
+   * @since 4.0
    */
   public WebMergedContextConfiguration(Class<?> testClass, @Nullable String[] locations, @Nullable Class<?>[] classes,
-          @Nullable Set<Class<? extends ApplicationContextInitializer<?>>> contextInitializerClasses,
+          @Nullable Set<Class<? extends ApplicationContextInitializer>> contextInitializerClasses,
           @Nullable String[] activeProfiles, @Nullable String[] propertySourceLocations, @Nullable String[] propertySourceProperties,
           String resourceBasePath, ContextLoader contextLoader,
           CacheAwareContextLoaderDelegate cacheAwareContextLoaderDelegate, @Nullable MergedContextConfiguration parent) {
@@ -145,7 +145,7 @@ public class WebMergedContextConfiguration extends MergedContextConfiguration {
    * @since 4.0
    */
   public WebMergedContextConfiguration(Class<?> testClass, @Nullable String[] locations, @Nullable Class<?>[] classes,
-          @Nullable Set<Class<? extends ApplicationContextInitializer<?>>> contextInitializerClasses,
+          @Nullable Set<Class<? extends ApplicationContextInitializer>> contextInitializerClasses,
           @Nullable String[] activeProfiles, @Nullable String[] propertySourceLocations, @Nullable String[] propertySourceProperties,
           @Nullable Set<ContextCustomizer> contextCustomizers, String resourceBasePath, ContextLoader contextLoader,
           CacheAwareContextLoaderDelegate cacheAwareContextLoaderDelegate, @Nullable MergedContextConfiguration parent) {
@@ -206,7 +206,7 @@ public class WebMergedContextConfiguration extends MergedContextConfiguration {
    */
   @Override
   public String toString() {
-    return new ToStringCreator(this)
+    return new ToStringBuilder(this)
             .append("testClass", getTestClass())
             .append("locations", ObjectUtils.nullSafeToString(getLocations()))
             .append("classes", ObjectUtils.nullSafeToString(getClasses()))

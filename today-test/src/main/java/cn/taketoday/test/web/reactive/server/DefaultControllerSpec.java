@@ -65,7 +65,7 @@ class DefaultControllerSpec extends AbstractMockServerSpec<WebTestClient.Control
   private static List<Object> instantiateIfNecessary(Object[] specified) {
     List<Object> instances = new ArrayList<>(specified.length);
     for (Object obj : specified) {
-      instances.add(obj instanceof Class ? BeanUtils.instantiateClass((Class<?>) obj) : obj);
+      instances.add(obj instanceof Class ? BeanUtils.newInstance((Class<?>) obj) : obj);
     }
     return instances;
   }

@@ -78,7 +78,7 @@ import jakarta.servlet.Filter;
  * </pre>
  *
  * @author Rossen Stoyanchev
- * @since 5.3
+ * @since 4.0
  */
 public interface MockMvcWebTestClient {
 

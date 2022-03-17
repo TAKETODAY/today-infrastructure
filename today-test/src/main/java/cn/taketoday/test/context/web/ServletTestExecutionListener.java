@@ -23,7 +23,7 @@ package cn.taketoday.test.context.web;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import cn.taketoday.beans.factory.config.ConfigurableListableBeanFactory;
+import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.core.Conventions;
@@ -32,19 +32,17 @@ import cn.taketoday.lang.Assert;
 import cn.taketoday.mock.web.MockHttpServletRequest;
 import cn.taketoday.mock.web.MockHttpServletResponse;
 import cn.taketoday.mock.web.MockServletContext;
-import cn.taketoday.test.context.support.AbstractTestExecutionListener;
-import cn.taketoday.test.context.support.DependencyInjectionTestExecutionListener;
 import cn.taketoday.test.context.TestContext;
 import cn.taketoday.test.context.TestExecutionListener;
-import cn.taketoday.web.context.WebApplicationContext;
-import cn.taketoday.web.context.request.RequestAttributes;
-import cn.taketoday.web.context.request.RequestContextHolder;
-import cn.taketoday.web.context.request.ServletWebRequest;
+import cn.taketoday.test.context.support.AbstractTestExecutionListener;
+import cn.taketoday.test.context.support.DependencyInjectionTestExecutionListener;
+import cn.taketoday.web.RequestContextHolder;
+import cn.taketoday.web.servlet.WebServletApplicationContext;
 import jakarta.servlet.ServletContext;
 
 /**
  * {@code TestExecutionListener} which provides mock Servlet API support to
- * {@link WebApplicationContext WebApplicationContexts} loaded by the <em>Spring
+ * {@link WebServletApplicationContext WebServletApplicationContext} loaded by the <em>Spring
  * TestContext Framework</em>.
  *
  * <p>Specifically, {@code ServletTestExecutionListener} sets up thread-local
@@ -72,7 +70,7 @@ public class ServletTestExecutionListener extends AbstractTestExecutionListener 
   /**
    * Attribute name for a {@link TestContext} attribute which indicates
    * whether or not the {@code ServletTestExecutionListener} should {@linkplain
-   * RequestContextHolder#resetRequestAttributes() reset} Spring Web's
+   * RequestContextHolder#remove() reset} Spring Web's
    * {@code RequestContextHolder} in {@link #afterTestMethod(TestContext)}.
    * <p>Permissible values include {@link Boolean#TRUE} and {@link Boolean#FALSE}.
    */
@@ -94,8 +92,6 @@ public class ServletTestExecutionListener extends AbstractTestExecutionListener 
    * in Spring Web's {@link RequestContextHolder} was created by the TestContext
    * framework.
    * <p>Permissible values include {@link Boolean#TRUE} and {@link Boolean#FALSE}.
-   *
-   * @since 4.0
    */
   public static final String CREATED_BY_THE_TESTCONTEXT_FRAMEWORK = Conventions.getQualifiedAttributeName(
           ServletTestExecutionListener.class, "createdByTheTestContextFramework");
@@ -106,8 +102,6 @@ public class ServletTestExecutionListener extends AbstractTestExecutionListener 
    * {@code true}, activation occurs when the {@linkplain TestContext#getTestClass()
    * test class} is annotated with {@link WebAppConfiguration @WebAppConfiguration}.
    * <p>Permissible values include {@link Boolean#TRUE} and {@link Boolean#FALSE}.
-   *
-   * @since 4.0
    */
   public static final String ACTIVATE_LISTENER = Conventions.getQualifiedAttributeName(
           ServletTestExecutionListener.class, "activateListener");
@@ -154,7 +148,7 @@ public class ServletTestExecutionListener extends AbstractTestExecutionListener 
    * If the {@link #RESET_REQUEST_CONTEXT_HOLDER_ATTRIBUTE} in the supplied
    * {@code TestContext} has a value of {@link Boolean#TRUE}, this method will
    * (1) clean up thread-local state after each test method by {@linkplain
-   * RequestContextHolder#resetRequestAttributes() resetting} Spring Web's
+   * RequestContextHolder#remove() resetting} Spring Web's
    * {@code RequestContextHolder} and (2) ensure that new mocks are injected
    * into the test instance for subsequent tests by setting the
    * {@link DependencyInjectionTestExecutionListener#REINJECT_DEPENDENCIES_ATTRIBUTE}
@@ -171,7 +165,7 @@ public class ServletTestExecutionListener extends AbstractTestExecutionListener 
       if (logger.isDebugEnabled()) {
         logger.debug(String.format("Resetting RequestContextHolder for test context %s.", testContext));
       }
-      RequestContextHolder.resetRequestAttributes();
+      RequestContextHolder.remove();
       testContext.setAttribute(DependencyInjectionTestExecutionListener.REINJECT_DEPENDENCIES_ATTRIBUTE,
               Boolean.TRUE);
     }
@@ -195,7 +189,7 @@ public class ServletTestExecutionListener extends AbstractTestExecutionListener 
 
     ApplicationContext context = testContext.getApplicationContext();
 
-    if (context instanceof WebApplicationContext wac) {
+    if (context instanceof WebServletApplicationContext wac) {
       ServletContext servletContext = wac.getServletContext();
       Assert.state(servletContext instanceof MockServletContext, () -> String.format(
               "The WebApplicationContext for test context %s must be configured with a MockServletContext.",
@@ -218,9 +212,9 @@ public class ServletTestExecutionListener extends AbstractTestExecutionListener 
       testContext.setAttribute(RESET_REQUEST_CONTEXT_HOLDER_ATTRIBUTE, Boolean.TRUE);
 
       if (wac instanceof ConfigurableApplicationContext configurableApplicationContext) {
-        ConfigurableListableBeanFactory bf = configurableApplicationContext.getBeanFactory();
-        bf.registerResolvableDependency(MockHttpServletResponse.class, response);
-        bf.registerResolvableDependency(ServletWebRequest.class, servletWebRequest);
+        ConfigurableBeanFactory bf = configurableApplicationContext.getBeanFactory();
+        bf.registerDependency(MockHttpServletResponse.class, response);
+        bf.registerDependency(ServletWebRequest.class, servletWebRequest);
       }
     }
   }

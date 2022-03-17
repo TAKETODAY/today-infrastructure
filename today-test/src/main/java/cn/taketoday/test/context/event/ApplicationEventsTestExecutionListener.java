@@ -23,7 +23,7 @@ package cn.taketoday.test.context.event;
 import java.io.Serializable;
 
 import cn.taketoday.beans.factory.ObjectFactory;
-import cn.taketoday.beans.factory.config.ConfigurableListableBeanFactory;
+import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.support.AbstractApplicationContext;
 import cn.taketoday.core.Conventions;
@@ -48,7 +48,7 @@ import cn.taketoday.test.context.support.AbstractTestExecutionListener;
  * @author Sam Brannen
  * @see ApplicationEvents
  * @see ApplicationEventsHolder
- * @since 5.3.3
+ * @since 4.0
  */
 public class ApplicationEventsTestExecutionListener extends AbstractTestExecutionListener {
 
@@ -115,8 +115,8 @@ public class ApplicationEventsTestExecutionListener extends AbstractTestExecutio
         aac.addApplicationListener(new ApplicationEventsApplicationListener());
 
         // Register ApplicationEvents as a resolvable dependency for @Autowired support in test classes.
-        ConfigurableListableBeanFactory beanFactory = aac.getBeanFactory();
-        beanFactory.registerResolvableDependency(ApplicationEvents.class, new ApplicationEventsObjectFactory());
+        ConfigurableBeanFactory beanFactory = aac.getBeanFactory();
+        beanFactory.registerDependency(ApplicationEvents.class, new ApplicationEventsObjectFactory());
       }
     }
   }

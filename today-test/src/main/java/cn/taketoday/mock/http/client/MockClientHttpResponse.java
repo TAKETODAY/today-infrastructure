@@ -51,7 +51,7 @@ public class MockClientHttpResponse extends MockHttpInputMessage implements Clie
    * Variant of {@link #MockClientHttpResponse(byte[], HttpStatus)} with a
    * custom HTTP status code.
    *
-   * @since 5.3.17
+   * @since 4.0
    */
   public MockClientHttpResponse(byte[] body, int statusCode) {
     super(body);
@@ -71,7 +71,7 @@ public class MockClientHttpResponse extends MockHttpInputMessage implements Clie
    * Variant of {@link #MockClientHttpResponse(InputStream, HttpStatus)} with a
    * custom HTTP status code.
    *
-   * @since 5.3.17
+   * @since 4.0
    */
   public MockClientHttpResponse(InputStream body, int statusCode) {
     super(body);

@@ -20,7 +20,7 @@
 
 package cn.taketoday.test.context.cache;
 
-import cn.taketoday.core.SpringProperties;
+import cn.taketoday.lang.TodayStrategies;
 import cn.taketoday.util.StringUtils;
 
 /**
@@ -33,7 +33,7 @@ public abstract class ContextCacheUtils {
 
   /**
    * Retrieve the maximum size of the {@link ContextCache}.
-   * <p>Uses {@link SpringProperties} to retrieve a system property or Spring
+   * <p>Uses {@link TodayStrategies} to retrieve a system property or Spring
    * property named {@code spring.test.context.cache.maxSize}.
    * <p>Falls back to the value of the {@link ContextCache#DEFAULT_MAX_CONTEXT_CACHE_SIZE}
    * if no such property has been set or if the property is not an integer.
@@ -43,7 +43,7 @@ public abstract class ContextCacheUtils {
    */
   public static int retrieveMaxCacheSize() {
     try {
-      String maxSize = SpringProperties.getProperty(ContextCache.MAX_CONTEXT_CACHE_SIZE_PROPERTY_NAME);
+      String maxSize = TodayStrategies.getProperty(ContextCache.MAX_CONTEXT_CACHE_SIZE_PROPERTY_NAME);
       if (StringUtils.hasText(maxSize)) {
         return Integer.parseInt(maxSize.trim());
       }

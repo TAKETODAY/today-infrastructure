@@ -182,7 +182,7 @@ public class ExchangeResult {
    * Return the HTTP status code (potentially non-standard and not resolvable
    * through the {@link HttpStatus} enum) as an integer.
    *
-   * @since 5.1.10
+   * @since 4.0
    */
   public int getRawStatusCode() {
     return this.response.getRawStatusCode();
@@ -219,7 +219,7 @@ public class ExchangeResult {
    * further assertions on the state of the server response.
    *
    * @see MockMvcWebTestClient#resultActionsFor(ExchangeResult)
-   * @since 5.3
+   * @since 4.0
    */
   @Nullable
   public Object getMockServerResult() {

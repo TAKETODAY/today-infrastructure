@@ -24,7 +24,7 @@ import java.time.DateTimeException;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 
-import cn.taketoday.core.style.ToStringCreator;
+import cn.taketoday.core.style.ToStringBuilder;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.StringUtils;
@@ -37,7 +37,7 @@ import jakarta.servlet.http.Cookie;
  * @author Vedran Pavic
  * @author Juergen Hoeller
  * @author Sam Brannen
- * @since 5.1
+ * @since 4.0
  */
 public class MockCookie extends Cookie {
 
@@ -63,7 +63,6 @@ public class MockCookie extends Cookie {
   /**
    * Set the "Expires" attribute for this cookie.
    *
-   * @since 5.1.11
    */
   public void setExpires(@Nullable ZonedDateTime expires) {
     this.expires = expires;
@@ -73,7 +72,6 @@ public class MockCookie extends Cookie {
    * Get the "Expires" attribute for this cookie.
    *
    * @return the "Expires" attribute for this cookie, or {@code null} if not set
-   * @since 5.1.11
    */
   @Nullable
   public ZonedDateTime getExpires() {
@@ -161,7 +159,7 @@ public class MockCookie extends Cookie {
 
   @Override
   public String toString() {
-    return new ToStringCreator(this)
+    return new ToStringBuilder(this)
             .append("name", getName())
             .append("value", getValue())
             .append("Path", getPath())
@@ -172,8 +170,7 @@ public class MockCookie extends Cookie {
             .append("HttpOnly", isHttpOnly())
             .append("SameSite", this.sameSite)
             .append("Max-Age", getMaxAge())
-            .append("Expires", (this.expires != null ?
-                                DateTimeFormatter.RFC_1123_DATE_TIME.format(this.expires) : null))
+            .append("Expires", expires != null ? DateTimeFormatter.RFC_1123_DATE_TIME.format(this.expires) : null)
             .toString();
   }
 

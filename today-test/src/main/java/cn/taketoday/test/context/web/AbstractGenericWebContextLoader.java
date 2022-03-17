@@ -23,7 +23,7 @@ package cn.taketoday.test.context.web;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import cn.taketoday.beans.factory.support.DefaultListableBeanFactory;
+import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.context.annotation.AnnotationConfigUtils;
@@ -32,17 +32,17 @@ import cn.taketoday.core.io.FileSystemResourceLoader;
 import cn.taketoday.core.io.ResourceLoader;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.mock.web.MockServletContext;
-import cn.taketoday.test.context.support.AbstractContextLoader;
 import cn.taketoday.test.context.ContextLoader;
 import cn.taketoday.test.context.MergedContextConfiguration;
 import cn.taketoday.test.context.SmartContextLoader;
-import cn.taketoday.web.context.WebApplicationContext;
-import cn.taketoday.web.context.support.GenericWebApplicationContext;
+import cn.taketoday.test.context.support.AbstractContextLoader;
+import cn.taketoday.web.context.support.GenericWebServletApplicationContext;
+import cn.taketoday.web.servlet.WebServletApplicationContext;
 import jakarta.servlet.ServletContext;
 
 /**
  * Abstract, generic extension of {@link AbstractContextLoader} that loads a
- * {@link GenericWebApplicationContext}.
+ * {@link GenericWebServletApplicationContext}.
  *
  * <p>If instances of concrete subclasses are invoked via the
  * {@link SmartContextLoader SmartContextLoader}
@@ -70,25 +70,25 @@ public abstract class AbstractGenericWebContextLoader extends AbstractContextLoa
   // SmartContextLoader
 
   /**
-   * Load a Spring {@link WebApplicationContext} from the supplied
+   * Load a Spring {@link WebServletApplicationContext} from the supplied
    * {@link MergedContextConfiguration}.
    * <p>Implementation details:
    * <ul>
    * <li>Calls {@link #validateMergedContextConfiguration(WebMergedContextConfiguration)}
    * to allow subclasses to validate the supplied configuration before proceeding.</li>
-   * <li>Creates a {@link GenericWebApplicationContext} instance.</li>
+   * <li>Creates a {@link GenericWebServletApplicationContext} instance.</li>
    * <li>If the supplied {@code MergedContextConfiguration} references a
    * {@linkplain MergedContextConfiguration#getParent() parent configuration},
    * the corresponding {@link MergedContextConfiguration#getParentApplicationContext()
    * ApplicationContext} will be retrieved and
-   * {@linkplain GenericWebApplicationContext#setParent(ApplicationContext) set as the parent}
+   * {@linkplain GenericWebServletApplicationContext#setParent(ApplicationContext) set as the parent}
    * for the context created by this method.</li>
    * <li>Delegates to {@link #configureWebResources} to create the
-   * {@link MockServletContext} and set it in the {@code WebApplicationContext}.</li>
+   * {@link MockServletContext} and set it in the {@code WebServletApplicationContext}.</li>
    * <li>Calls {@link #prepareContext} to allow for customizing the context
    * before bean definitions are loaded.</li>
    * <li>Calls {@link #customizeBeanFactory} to allow for customizing the
-   * context's {@code DefaultListableBeanFactory}.</li>
+   * context's {@code StandardBeanFactory}.</li>
    * <li>Delegates to {@link #loadBeanDefinitions} to populate the context
    * from the locations or classes in the supplied {@code MergedContextConfiguration}.</li>
    * <li>Delegates to {@link AnnotationConfigUtils} for
@@ -102,24 +102,24 @@ public abstract class AbstractGenericWebContextLoader extends AbstractContextLoa
    *
    * @return a new web application context
    * @see SmartContextLoader#loadContext(MergedContextConfiguration)
-   * @see GenericWebApplicationContext
+   * @see GenericWebServletApplicationContext
    */
   @Override
   public final ConfigurableApplicationContext loadContext(MergedContextConfiguration mergedConfig) throws Exception {
     Assert.isTrue(mergedConfig instanceof WebMergedContextConfiguration,
-            () -> String.format("Cannot load WebApplicationContext from non-web merged context configuration %s. " +
+            () -> String.format("Cannot load WebServletApplicationContext from non-web merged context configuration %s. " +
                     "Consider annotating your test class with @WebAppConfiguration.", mergedConfig));
 
     WebMergedContextConfiguration webMergedConfig = (WebMergedContextConfiguration) mergedConfig;
 
     if (logger.isDebugEnabled()) {
-      logger.debug(String.format("Loading WebApplicationContext for merged context configuration %s.",
+      logger.debug(String.format("Loading WebServletApplicationContext for merged context configuration %s.",
               webMergedConfig));
     }
 
     validateMergedContextConfiguration(webMergedConfig);
 
-    GenericWebApplicationContext context = new GenericWebApplicationContext();
+    GenericWebServletApplicationContext context = new GenericWebServletApplicationContext();
 
     ApplicationContext parent = mergedConfig.getParentApplicationContext();
     if (parent != null) {
@@ -127,7 +127,7 @@ public abstract class AbstractGenericWebContextLoader extends AbstractContextLoa
     }
     configureWebResources(context, webMergedConfig);
     prepareContext(context, webMergedConfig);
-    customizeBeanFactory(context.getDefaultListableBeanFactory(), webMergedConfig);
+    customizeBeanFactory(context.getBeanFactory(), webMergedConfig);
     loadBeanDefinitions(context, webMergedConfig);
     AnnotationConfigUtils.registerAnnotationConfigProcessors(context);
     customizeContext(context, webMergedConfig);
@@ -171,67 +171,67 @@ public abstract class AbstractGenericWebContextLoader extends AbstractContextLoa
    * {@link FileSystemResourceLoader} will be used.</li>
    * <li>A {@code MockServletContext} will be created using the resource base
    * path and resource loader.</li>
-   * <li>The supplied {@link GenericWebApplicationContext} is then stored in
+   * <li>The supplied {@link GenericWebServletApplicationContext} is then stored in
    * the {@code MockServletContext} under the
-   * {@link WebApplicationContext#ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE} key.</li>
+   * {@link WebServletApplicationContext#ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE} key.</li>
    * <li>Finally, the {@code MockServletContext} is set in the
-   * {@code WebApplicationContext}.</li>
+   * {@code WebServletApplicationContext}.</li>
    * </ul>
    *
    * @param context the web application context for which to configure the web resources
    * @param webMergedConfig the merged context configuration to use to load the web application context
    */
-  protected void configureWebResources(GenericWebApplicationContext context,
+  protected void configureWebResources(GenericWebServletApplicationContext context,
           WebMergedContextConfiguration webMergedConfig) {
 
     ApplicationContext parent = context.getParent();
 
-    // If the WebApplicationContext has no parent or the parent is not a WebApplicationContext,
-    // set the current context as the root WebApplicationContext:
-    if (!(parent instanceof WebApplicationContext)) {
+    // If the WebServletApplicationContext has no parent or the parent is not a WebServletApplicationContext,
+    // set the current context as the root WebServletApplicationContext:
+    if (!(parent instanceof WebServletApplicationContext)) {
       String resourceBasePath = webMergedConfig.getResourceBasePath();
       ResourceLoader resourceLoader = (resourceBasePath.startsWith(ResourceLoader.CLASSPATH_URL_PREFIX) ?
                                        new DefaultResourceLoader() : new FileSystemResourceLoader());
       ServletContext servletContext = new MockServletContext(resourceBasePath, resourceLoader);
-      servletContext.setAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE, context);
+      servletContext.setAttribute(WebServletApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE, context);
       context.setServletContext(servletContext);
     }
     else {
       ServletContext servletContext = null;
-      // Find the root WebApplicationContext
+      // Find the root WebServletApplicationContext
       while (parent != null) {
-        if (parent instanceof WebApplicationContext && !(parent.getParent() instanceof WebApplicationContext)) {
-          servletContext = ((WebApplicationContext) parent).getServletContext();
+        if (parent instanceof WebServletApplicationContext && !(parent.getParent() instanceof WebServletApplicationContext)) {
+          servletContext = ((WebServletApplicationContext) parent).getServletContext();
           break;
         }
         parent = parent.getParent();
       }
-      Assert.state(servletContext != null, "Failed to find root WebApplicationContext in the context hierarchy");
+      Assert.state(servletContext != null, "Failed to find root WebServletApplicationContext in the context hierarchy");
       context.setServletContext(servletContext);
     }
   }
 
   /**
-   * Customize the internal bean factory of the {@code WebApplicationContext}
+   * Customize the internal bean factory of the {@code WebServletApplicationContext}
    * created by this context loader.
    * <p>The default implementation is empty but can be overridden in subclasses
-   * to customize {@code DefaultListableBeanFactory}'s standard settings.
+   * to customize {@code StandardBeanFactory}'s standard settings.
    *
    * @param beanFactory the bean factory created by this context loader
    * @param webMergedConfig the merged context configuration to use to load the
    * web application context
    * @see #loadContext(MergedContextConfiguration)
-   * @see DefaultListableBeanFactory#setAllowBeanDefinitionOverriding
-   * @see DefaultListableBeanFactory#setAllowEagerClassLoading
-   * @see DefaultListableBeanFactory#setAllowCircularReferences
-   * @see DefaultListableBeanFactory#setAllowRawInjectionDespiteWrapping
+   * @see StandardBeanFactory#setAllowBeanDefinitionOverriding
+   * @see StandardBeanFactory#setAllowEagerClassLoading
+   * @see StandardBeanFactory#setAllowCircularReferences
+   * @see StandardBeanFactory#setAllowRawInjectionDespiteWrapping
    */
   protected void customizeBeanFactory(
-          DefaultListableBeanFactory beanFactory, WebMergedContextConfiguration webMergedConfig) {
+          StandardBeanFactory beanFactory, WebMergedContextConfiguration webMergedConfig) {
   }
 
   /**
-   * Load bean definitions into the supplied {@link GenericWebApplicationContext context}
+   * Load bean definitions into the supplied {@link GenericWebServletApplicationContext context}
    * from the locations or classes in the supplied {@code WebMergedContextConfiguration}.
    * <p>Concrete subclasses must provide an appropriate implementation.
    *
@@ -241,10 +241,10 @@ public abstract class AbstractGenericWebContextLoader extends AbstractContextLoa
    * @see #loadContext(MergedContextConfiguration)
    */
   protected abstract void loadBeanDefinitions(
-          GenericWebApplicationContext context, WebMergedContextConfiguration webMergedConfig);
+          GenericWebServletApplicationContext context, WebMergedContextConfiguration webMergedConfig);
 
   /**
-   * Customize the {@link GenericWebApplicationContext} created by this context
+   * Customize the {@link GenericWebServletApplicationContext} created by this context
    * loader <i>after</i> bean definitions have been loaded into the context but
    * <i>before</i> the context is refreshed.
    * <p>The default implementation simply delegates to
@@ -257,7 +257,7 @@ public abstract class AbstractGenericWebContextLoader extends AbstractContextLoa
    * @see #customizeContext(ConfigurableApplicationContext, MergedContextConfiguration)
    */
   protected void customizeContext(
-          GenericWebApplicationContext context, WebMergedContextConfiguration webMergedConfig) {
+          GenericWebServletApplicationContext context, WebMergedContextConfiguration webMergedConfig) {
 
     super.customizeContext(context, webMergedConfig);
   }

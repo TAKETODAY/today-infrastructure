@@ -36,7 +36,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
  * Assertions on cookies of the response.
  *
  * @author Rossen Stoyanchev
- * @since 5.3
+ * @since 4.0
  */
 public class CookieAssertions {
 

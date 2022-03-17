@@ -197,7 +197,7 @@ public abstract class MockRestRequestMatchers {
   /**
    * Assert that the given request header does not exist.
    *
-   * @since 5.2
+   * @since 4.0
    */
   public static RequestMatcher headerDoesNotExist(String name) {
     return request -> {

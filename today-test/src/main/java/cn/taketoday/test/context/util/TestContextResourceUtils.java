@@ -45,7 +45,7 @@ import cn.taketoday.util.StringUtils;
  * @see cn.taketoday.core.io.FileSystemResource
  * @see cn.taketoday.core.io.UrlResource
  * @see cn.taketoday.core.io.ResourceLoader
- * @since 4.1
+ * @since 4.0
  */
 public abstract class TestContextResourceUtils {
 
@@ -94,7 +94,7 @@ public abstract class TestContextResourceUtils {
    * @see #convertToResources
    * @see ResourceUtils#CLASSPATH_URL_PREFIX
    * @see ResourceUtils#FILE_URL_PREFIX
-   * @since 5.2
+   * @since 4.0
    */
   public static String[] convertToClasspathResourcePaths(Class<?> clazz, boolean preservePlaceholders, String... paths) {
     String[] convertedPaths = new String[paths.length];

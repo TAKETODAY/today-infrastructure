@@ -113,7 +113,7 @@ class BeanFactoryUtilsTests {
             BeanFactoryUtils.beanNamesForTypeIncludingAncestors(this.listableBeanFactory, IndexedTestBean.class));
     assertThat(names.size()).isEqualTo(1);
     assertThat(names.contains("indexedBean")).isTrue();
-    // Distinguish from default ListableBeanFactory behavior
+    // Distinguish from default BeanFactory behavior
     assertThat(listableBeanFactory.getBeanNamesForType(IndexedTestBean.class).size() == 0).isTrue();
   }
 
@@ -288,7 +288,7 @@ class BeanFactoryUtilsTests {
             BeanFactoryUtils.beanNamesForAnnotationIncludingAncestors(this.listableBeanFactory, TestAnnotation.class));
     assertThat(names.size()).isEqualTo(1);
     assertThat(names.contains("annotatedBean")).isTrue();
-    // Distinguish from default ListableBeanFactory behavior
+    // Distinguish from default BeanFactory behavior
     assertThat(listableBeanFactory.getBeanNamesForAnnotation(TestAnnotation.class).size() == 0).isTrue();
   }
 

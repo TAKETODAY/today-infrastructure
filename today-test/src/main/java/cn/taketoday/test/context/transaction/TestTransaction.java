@@ -40,7 +40,7 @@ import cn.taketoday.transaction.TransactionStatus;
  *
  * @author Sam Brannen
  * @see TransactionalTestExecutionListener
- * @since 4.1
+ * @since 4.0
  */
 public final class TestTransaction {
 

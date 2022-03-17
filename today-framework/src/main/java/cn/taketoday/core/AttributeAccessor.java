@@ -24,9 +24,8 @@ import java.util.Map;
 import java.util.function.Function;
 
 import cn.taketoday.lang.Assert;
-import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.CollectionUtils;
+import cn.taketoday.util.ArrayIterator;
 
 /**
  * Interface defining a generic contract for attaching and accessing metadata
@@ -84,16 +83,16 @@ public interface AttributeAccessor {
   /**
    * Return the names of all attributes.
    */
-  default String[] getAttributeNames() {
-    return CollectionUtils.toArray(attributeNames(), Constant.EMPTY_STRING_ARRAY);
-  }
+  String[] getAttributeNames();
 
   /**
    * Return the names Iterator.
    *
    * @since 4.0
    */
-  Iterator<String> attributeNames();
+  default Iterator<String> attributeNames() {
+    return new ArrayIterator<>(getAttributeNames());
+  }
 
   /**
    * Returns {@code true} if this map contains no key-value mappings.

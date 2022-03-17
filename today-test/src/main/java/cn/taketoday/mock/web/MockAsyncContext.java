@@ -153,7 +153,7 @@ public class MockAsyncContext implements AsyncContext {
 
   @Override
   public <T extends AsyncListener> T createListener(Class<T> clazz) throws ServletException {
-    return BeanUtils.instantiateClass(clazz);
+    return BeanUtils.newInstance(clazz);
   }
 
   /**

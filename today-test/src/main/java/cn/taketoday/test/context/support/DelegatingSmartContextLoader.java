@@ -36,7 +36,7 @@ import cn.taketoday.util.ClassUtils;
  * @see GenericXmlContextLoader
  * @see GenericGroovyXmlContextLoader
  * @see AnnotationConfigContextLoader
- * @since 3.1
+ *@since 4.0
  */
 public class DelegatingSmartContextLoader extends AbstractDelegatingSmartContextLoader {
 
@@ -55,7 +55,7 @@ public class DelegatingSmartContextLoader extends AbstractDelegatingSmartContext
       try {
         Class<?> loaderClass = ClassUtils.forName(GROOVY_XML_CONTEXT_LOADER_CLASS_NAME,
                 DelegatingSmartContextLoader.class.getClassLoader());
-        this.xmlLoader = (SmartContextLoader) BeanUtils.instantiateClass(loaderClass);
+        this.xmlLoader = (SmartContextLoader) BeanUtils.newInstance(loaderClass);
       }
       catch (Throwable ex) {
         throw new IllegalStateException("Failed to enable support for Groovy scripts; "

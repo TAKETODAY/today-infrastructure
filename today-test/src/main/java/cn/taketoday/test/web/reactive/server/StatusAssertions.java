@@ -203,7 +203,7 @@ public class StatusAssertions {
    * Match the response status value with a Hamcrest matcher.
    *
    * @param matcher the matcher to use
-   * @since 5.1
+   * @since 4.0
    */
   public WebTestClient.ResponseSpec value(Matcher<? super Integer> matcher) {
     int actual = this.exchangeResult.getRawStatusCode();
@@ -215,7 +215,7 @@ public class StatusAssertions {
    * Consume the response status value as an integer.
    *
    * @param consumer the consumer to use
-   * @since 5.1
+   * @since 4.0
    */
   public WebTestClient.ResponseSpec value(Consumer<Integer> consumer) {
     int actual = this.exchangeResult.getRawStatusCode();

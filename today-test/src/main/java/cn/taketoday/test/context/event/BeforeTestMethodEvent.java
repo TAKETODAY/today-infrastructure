@@ -31,7 +31,7 @@ import cn.taketoday.test.context.TestExecutionListener;
  *
  * @author Frank Scheffler
  * @see BeforeTestMethod @BeforeTestMethod
- * @since 5.2
+ * @since 4.0
  */
 @SuppressWarnings("serial")
 public class BeforeTestMethodEvent extends TestContextEvent {

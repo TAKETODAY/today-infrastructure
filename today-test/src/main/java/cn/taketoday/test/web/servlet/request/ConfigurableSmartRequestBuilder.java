@@ -28,7 +28,7 @@ import cn.taketoday.test.web.servlet.SmartRequestBuilder;
  *
  * @param <B> a self reference to the builder type
  * @author Rossen Stoyanchev
- * @since 4.1
+ * @since 4.0
  */
 public interface ConfigurableSmartRequestBuilder<B extends ConfigurableSmartRequestBuilder<B>>
         extends SmartRequestBuilder {

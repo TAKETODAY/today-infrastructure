@@ -65,7 +65,7 @@ public class DefaultResponseCreator implements ResponseCreator {
    * Protected constructor.
    * Use static factory methods in {@link MockRestResponseCreators}.
    *
-   * @since 5.3.17
+   * @since 4.0
    */
   protected DefaultResponseCreator(int statusCode) {
     this.statusCode = statusCode;

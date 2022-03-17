@@ -27,7 +27,7 @@ import cn.taketoday.lang.Nullable;
  * {@link InheritableThreadLocal}-based holder for the current {@link TransactionContext}.
  *
  * @author Sam Brannen
- * @since 4.1
+ * @since 4.0
  */
 final class TransactionContextHolder {
 

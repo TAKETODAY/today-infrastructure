@@ -156,7 +156,7 @@ public class StandaloneMockMvcBuilder extends AbstractMockMvcBuilder<StandaloneM
   private static List<Object> instantiateIfNecessary(Object[] specified) {
     List<Object> instances = new ArrayList<>(specified.length);
     for (Object obj : specified) {
-      instances.add(obj instanceof Class ? BeanUtils.instantiateClass((Class<?>) obj) : obj);
+      instances.add(obj instanceof Class ? BeanUtils.newInstance((Class<?>) obj) : obj);
     }
     return instances;
   }
@@ -320,7 +320,7 @@ public class StandaloneMockMvcBuilder extends AbstractMockMvcBuilder<StandaloneM
    * instead of String pattern matching with a {@link cn.taketoday.util.PathMatcher}.
    *
    * @param parser the parser to use
-   * @since 5.3
+   * @since 4.0
    */
   public void setPatternParser(PathPatternParser parser) {
     this.patternParser = parser;
@@ -457,7 +457,7 @@ public class StandaloneMockMvcBuilder extends AbstractMockMvcBuilder<StandaloneM
    *
    * @param servletContext the ServletContext
    * @return a map with additional MVC infrastructure object instances
-   * @since 5.1.4
+   * @since 4.0
    */
   protected Map<String, Object> extendMvcSingletons(@Nullable ServletContext servletContext) {
     return Collections.emptyMap();

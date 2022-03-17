@@ -43,7 +43,7 @@ import cn.taketoday.test.context.ContextConfigurationAttributes;
  *
  * @author Sam Brannen
  * @see ContextConfiguration#initializers
- * @since 4.1
+ * @since 4.0
  */
 abstract class ApplicationContextInitializerUtils {
 
@@ -66,11 +66,11 @@ abstract class ApplicationContextInitializerUtils {
    * superclasses if appropriate (never {@code null})
    * @since 4.0
    */
-  static Set<Class<? extends ApplicationContextInitializer<?>>> resolveInitializerClasses(
+  static Set<Class<? extends ApplicationContextInitializer>> resolveInitializerClasses(
           List<ContextConfigurationAttributes> configAttributesList) {
 
     Assert.notEmpty(configAttributesList, "ContextConfigurationAttributes List must not be empty");
-    Set<Class<? extends ApplicationContextInitializer<?>>> initializerClasses = new LinkedHashSet<>();
+    Set<Class<? extends ApplicationContextInitializer>> initializerClasses = new LinkedHashSet<>();
 
     for (ContextConfigurationAttributes configAttributes : configAttributesList) {
       if (logger.isTraceEnabled()) {

@@ -22,7 +22,7 @@ package cn.taketoday.test.context.support;
 
 import java.util.Arrays;
 
-import cn.taketoday.core.style.ToStringCreator;
+import cn.taketoday.core.style.ToStringBuilder;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.test.context.TestPropertySource;
@@ -34,7 +34,7 @@ import cn.taketoday.test.context.TestPropertySource;
  *
  * @author Sam Brannen
  * @see TestPropertySource
- * @since 4.1
+ * @since 4.0
  */
 class MergedTestPropertySources {
 
@@ -90,7 +90,7 @@ class MergedTestPropertySources {
    * instance by comparing both object's {@linkplain #getLocations() locations}
    * and {@linkplain #getProperties() properties}.
    *
-   * @since 5.3
+   * @since 4.0
    */
   @Override
   public boolean equals(@Nullable Object other) {
@@ -112,7 +112,7 @@ class MergedTestPropertySources {
    * Generate a unique hash code for all properties of this
    * {@code MergedTestPropertySources} instance.
    *
-   * @since 5.3
+   * @since 4.0
    */
   @Override
   public int hashCode() {
@@ -125,11 +125,11 @@ class MergedTestPropertySources {
    * Provide a String representation of this {@code MergedTestPropertySources}
    * instance.
    *
-   * @since 5.3
+   * @since 4.0
    */
   @Override
   public String toString() {
-    return new ToStringCreator(this)
+    return new ToStringBuilder(this)
             .append("locations", Arrays.toString(this.locations))
             .append("properties", Arrays.toString(this.properties))
             .toString();

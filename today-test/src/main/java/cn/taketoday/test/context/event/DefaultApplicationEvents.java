@@ -32,7 +32,7 @@ import cn.taketoday.context.PayloadApplicationEvent;
  *
  * @author Oliver Drotbohm
  * @author Sam Brannen
- * @since 5.3.3
+ * @since 4.0
  */
 class DefaultApplicationEvents implements ApplicationEvents {
 

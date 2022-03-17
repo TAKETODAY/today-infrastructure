@@ -49,7 +49,7 @@ import cn.taketoday.core.annotation.AliasFor;
  * @see ActiveProfilesResolver
  * @see cn.taketoday.context.ApplicationContext
  * @see cn.taketoday.context.annotation.Profile
- * @since 3.1
+ *@since 4.0
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)

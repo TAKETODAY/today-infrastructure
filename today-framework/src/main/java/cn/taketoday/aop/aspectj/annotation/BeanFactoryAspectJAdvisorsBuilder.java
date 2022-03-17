@@ -59,7 +59,7 @@ public class BeanFactoryAspectJAdvisorsBuilder {
   /**
    * Create a new BeanFactoryAspectJAdvisorsBuilder for the given BeanFactory.
    *
-   * @param beanFactory the ListableBeanFactory to scan
+   * @param beanFactory the BeanFactory to scan
    */
   public BeanFactoryAspectJAdvisorsBuilder(BeanFactory beanFactory) {
     this(beanFactory, new ReflectiveAspectJAdvisorFactory(beanFactory));
@@ -68,11 +68,11 @@ public class BeanFactoryAspectJAdvisorsBuilder {
   /**
    * Create a new BeanFactoryAspectJAdvisorsBuilder for the given BeanFactory.
    *
-   * @param beanFactory the ListableBeanFactory to scan
+   * @param beanFactory the BeanFactory to scan
    * @param advisorFactory the AspectJAdvisorFactory to build each Advisor with
    */
   public BeanFactoryAspectJAdvisorsBuilder(BeanFactory beanFactory, AspectJAdvisorFactory advisorFactory) {
-    Assert.notNull(beanFactory, "ListableBeanFactory must not be null");
+    Assert.notNull(beanFactory, "BeanFactory must not be null");
     Assert.notNull(advisorFactory, "AspectJAdvisorFactory must not be null");
     this.beanFactory = beanFactory;
     this.advisorFactory = advisorFactory;

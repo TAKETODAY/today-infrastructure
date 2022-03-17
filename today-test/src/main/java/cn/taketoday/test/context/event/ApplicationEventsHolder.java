@@ -45,7 +45,7 @@ import cn.taketoday.test.context.junit.jupiter.SpringExtension;
  * @see ApplicationEvents
  * @see RecordApplicationEvents
  * @see ApplicationEventsTestExecutionListener
- * @since 5.3.3
+ * @since 4.0
  */
 public abstract class ApplicationEventsHolder {
 

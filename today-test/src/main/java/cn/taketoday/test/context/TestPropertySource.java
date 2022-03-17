@@ -95,7 +95,7 @@ import cn.taketoday.test.context.web.AbstractGenericWebContextLoader;
  * @see cn.taketoday.core.env.Environment
  * @see cn.taketoday.core.env.PropertySource
  * @see cn.taketoday.context.annotation.PropertySource
- * @since 4.1
+ * @since 4.0
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)

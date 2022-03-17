@@ -30,7 +30,7 @@ import javax.sql.DataSource;
 import cn.taketoday.beans.BeansException;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanFactoryUtils;
-import cn.taketoday.beans.factory.ListableBeanFactory;
+import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.test.context.TestContext;
@@ -50,7 +50,7 @@ import cn.taketoday.util.StringUtils;
  *
  * @author Sam Brannen
  * @author Juergen Hoeller
- * @since 4.1
+ * @since 4.0
  */
 public abstract class TestContextTransactionUtils {
 
@@ -109,7 +109,7 @@ public abstract class TestContextTransactionUtils {
     }
 
     try {
-      if (bf instanceof ListableBeanFactory lbf) {
+      if (bf instanceof BeanFactory lbf) {
         // Look up single bean by type
         Map<String, DataSource> dataSources =
                 BeanFactoryUtils.beansOfTypeIncludingAncestors(lbf, DataSource.class);
@@ -182,7 +182,7 @@ public abstract class TestContextTransactionUtils {
     }
 
     try {
-      if (bf instanceof ListableBeanFactory lbf) {
+      if (bf instanceof BeanFactory lbf) {
         // Look up single TransactionManagementConfigurer
         Map<String, TransactionManagementConfigurer> configurers =
                 BeanFactoryUtils.beansOfTypeIncludingAncestors(lbf, TransactionManagementConfigurer.class);

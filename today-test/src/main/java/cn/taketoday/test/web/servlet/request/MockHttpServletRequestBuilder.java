@@ -322,7 +322,7 @@ public class MockHttpServletRequestBuilder
    * possibly not even well formed (for testing purposes).
    *
    * @param contentType the content type
-   * @since 4.1.2
+   * @since 4.0.2
    */
   public MockHttpServletRequestBuilder contentType(String contentType) {
     Assert.notNull(contentType, "'contentType' must not be null");
@@ -418,7 +418,7 @@ public class MockHttpServletRequestBuilder
    *
    * @param name the parameter name
    * @param values one or more values
-   * @since 5.2.2
+   * @since 4.0
    */
   public MockHttpServletRequestBuilder queryParam(String name, String... values) {
     param(name, values);
@@ -432,7 +432,7 @@ public class MockHttpServletRequestBuilder
    * name and value are encoded when they are added to the query string.
    *
    * @param params the parameters to add
-   * @since 5.2.2
+   * @since 4.0
    */
   public MockHttpServletRequestBuilder queryParams(MultiValueMap<String, String> params) {
     params(params);

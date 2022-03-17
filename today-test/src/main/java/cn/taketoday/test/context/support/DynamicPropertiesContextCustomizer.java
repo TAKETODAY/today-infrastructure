@@ -29,7 +29,7 @@ import java.util.Set;
 import java.util.function.Supplier;
 
 import cn.taketoday.context.ConfigurableApplicationContext;
-import cn.taketoday.core.env.MutablePropertySources;
+import cn.taketoday.core.env.PropertySources;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.test.context.ContextCustomizer;
 import cn.taketoday.test.context.DynamicPropertyRegistry;
@@ -44,7 +44,7 @@ import cn.taketoday.util.ReflectionUtils;
  * @author Phillip Webb
  * @author Sam Brannen
  * @see DynamicPropertiesContextCustomizerFactory
- * @since 5.2.5
+ * @since 4.0
  */
 class DynamicPropertiesContextCustomizer implements ContextCustomizer {
 
@@ -69,7 +69,7 @@ class DynamicPropertiesContextCustomizer implements ContextCustomizer {
   public void customizeContext(ConfigurableApplicationContext context,
           MergedContextConfiguration mergedConfig) {
 
-    MutablePropertySources sources = context.getEnvironment().getPropertySources();
+    PropertySources sources = context.getEnvironment().getPropertySources();
     sources.addFirst(new DynamicValuesPropertySource(PROPERTY_SOURCE_NAME, buildDynamicPropertiesMap()));
   }
 

@@ -29,14 +29,14 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 import cn.taketoday.beans.BeanUtils;
-import cn.taketoday.core.SpringProperties;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.lang.TodayStrategies;
+import cn.taketoday.test.context.TestContextAnnotationUtils.AnnotationDescriptor;
 import cn.taketoday.test.context.cache.DefaultCacheAwareContextLoaderDelegate;
 import cn.taketoday.test.context.support.DefaultBootstrapContext;
 import cn.taketoday.test.context.support.DefaultTestContextBootstrapper;
 import cn.taketoday.test.context.web.WebAppConfiguration;
 import cn.taketoday.test.context.web.WebTestContextBootstrapper;
-import cn.taketoday.test.context.TestContextAnnotationUtils.AnnotationDescriptor;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.StringUtils;
 
@@ -49,7 +49,7 @@ import cn.taketoday.util.StringUtils;
  * @see BootstrapWith
  * @see BootstrapContext
  * @see TestContextBootstrapper
- * @since 4.1
+ * @since 4.0
  */
 abstract class BootstrapUtils {
 
@@ -84,7 +84,6 @@ abstract class BootstrapUtils {
    * @param testClass the test class for which the bootstrap context should be created
    * @return a new {@code BootstrapContext}; never {@code null}
    */
-  @SuppressWarnings("unchecked")
   static BootstrapContext createBootstrapContext(Class<?> testClass) {
     CacheAwareContextLoaderDelegate cacheAwareContextLoaderDelegate = createCacheAwareContextLoaderDelegate();
     Class<? extends BootstrapContext> clazz = null;
@@ -96,27 +95,25 @@ abstract class BootstrapUtils {
       if (logger.isDebugEnabled()) {
         logger.debug(String.format("Instantiating BootstrapContext using constructor [%s]", constructor));
       }
-      return BeanUtils.instantiateClass(constructor, testClass, cacheAwareContextLoaderDelegate);
+      return BeanUtils.newInstance(constructor, new Object[] { testClass, cacheAwareContextLoaderDelegate });
     }
     catch (Throwable ex) {
       throw new IllegalStateException("Could not load BootstrapContext [" + clazz + "]", ex);
     }
   }
 
-  @SuppressWarnings("unchecked")
   private static CacheAwareContextLoaderDelegate createCacheAwareContextLoaderDelegate() {
-    String className = SpringProperties.getProperty(
+    String className = TodayStrategies.getProperty(
             CacheAwareContextLoaderDelegate.DEFAULT_CACHE_AWARE_CONTEXT_LOADER_DELEGATE_PROPERTY_NAME);
     className = (StringUtils.hasText(className) ? className.trim() :
                  DEFAULT_CACHE_AWARE_CONTEXT_LOADER_DELEGATE_CLASS_NAME);
     try {
       Class<? extends CacheAwareContextLoaderDelegate> clazz =
-              ClassUtils.forName(
-                      className, BootstrapUtils.class.getClassLoader());
+              ClassUtils.forName(className, BootstrapUtils.class.getClassLoader());
       if (logger.isDebugEnabled()) {
         logger.debug(String.format("Instantiating CacheAwareContextLoaderDelegate from class [%s]", className));
       }
-      return BeanUtils.instantiateClass(clazz, CacheAwareContextLoaderDelegate.class);
+      return BeanUtils.newInstance(clazz);
     }
     catch (Throwable ex) {
       throw new IllegalStateException("Could not create CacheAwareContextLoaderDelegate [" + className + "]", ex);
@@ -143,9 +140,9 @@ abstract class BootstrapUtils {
   static TestContextBootstrapper resolveTestContextBootstrapper(BootstrapContext bootstrapContext) {
     Class<?> testClass = bootstrapContext.getTestClass();
 
-    Class<?> clazz = null;
+    Class<TestContextBootstrapper> clazz = null;
     try {
-      clazz = resolveExplicitTestContextBootstrapper(testClass);
+      clazz = (Class<TestContextBootstrapper>) resolveExplicitTestContextBootstrapper(testClass);
       if (clazz == null) {
         clazz = resolveDefaultTestContextBootstrapper(testClass);
       }
@@ -153,8 +150,7 @@ abstract class BootstrapUtils {
         logger.debug(String.format("Instantiating TestContextBootstrapper for test class [%s] from class [%s]",
                 testClass.getName(), clazz.getName()));
       }
-      TestContextBootstrapper testContextBootstrapper =
-              BeanUtils.instantiateClass(clazz, TestContextBootstrapper.class);
+      TestContextBootstrapper testContextBootstrapper = BeanUtils.newInstance(clazz);
       testContextBootstrapper.setBootstrapContext(bootstrapContext);
       return testContextBootstrapper;
     }
@@ -196,7 +192,7 @@ abstract class BootstrapUtils {
             testClass.getName(), annotations));
   }
 
-  private static Class<?> resolveDefaultTestContextBootstrapper(Class<?> testClass) throws Exception {
+  private static Class<TestContextBootstrapper> resolveDefaultTestContextBootstrapper(Class<?> testClass) throws Exception {
     boolean webApp = TestContextAnnotationUtils.hasAnnotation(testClass, webAppConfigurationClass);
     String bootstrapperClassName = (webApp ? DEFAULT_WEB_TEST_CONTEXT_BOOTSTRAPPER_CLASS_NAME :
                                     DEFAULT_TEST_CONTEXT_BOOTSTRAPPER_CLASS_NAME);

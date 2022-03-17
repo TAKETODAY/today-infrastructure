@@ -24,7 +24,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Executable;
 
 import cn.taketoday.beans.factory.annotation.Autowired;
-import cn.taketoday.core.SpringProperties;
+import cn.taketoday.lang.TodayStrategies;
 import cn.taketoday.core.annotation.AnnotatedElementUtils;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.test.context.TestConstructor;
@@ -38,7 +38,7 @@ import cn.taketoday.test.context.TestContextAnnotationUtils;
  *
  * @author Sam Brannen
  * @see TestConstructor
- * @since 5.2
+ * @since 4.0
  */
 public abstract class TestConstructorUtils {
 
@@ -85,10 +85,10 @@ public abstract class TestConstructorUtils {
    * @param testClass the test class
    * @param fallbackPropertyProvider fallback property provider used to look up
    * the value for {@link TestConstructor#TEST_CONSTRUCTOR_AUTOWIRE_MODE_PROPERTY_NAME}
-   * if no such value is found in {@link SpringProperties}
+   * if no such value is found in {@link TodayStrategies}
    * @return {@code true} if the executable is an autowirable constructor
    * @see #isAutowirableConstructor(Constructor, Class, PropertyProvider)
-   * @since 5.3
+   * @since 4.0
    */
   public static boolean isAutowirableConstructor(Executable executable, Class<?> testClass,
           @Nullable PropertyProvider fallbackPropertyProvider) {
@@ -111,7 +111,7 @@ public abstract class TestConstructorUtils {
    * {@link TestConstructor#autowireMode() autowireMode} set to
    * {@link AutowireMode#ALL ALL}.</li>
    * <li>The default <em>test constructor autowire mode</em> has been set to
-   * {@code ALL} in {@link SpringProperties} or in the supplied fallback
+   * {@code ALL} in {@link TodayStrategies} or in the supplied fallback
    * {@link PropertyProvider} (see
    * {@link TestConstructor#TEST_CONSTRUCTOR_AUTOWIRE_MODE_PROPERTY_NAME}).</li>
    * </ol>
@@ -120,9 +120,9 @@ public abstract class TestConstructorUtils {
    * @param testClass the test class
    * @param fallbackPropertyProvider fallback property provider used to look up
    * the value for the default <em>test constructor autowire mode</em> if no
-   * such value is found in {@link SpringProperties}
+   * such value is found in {@link TodayStrategies}
    * @return {@code true} if the constructor is autowirable
-   * @since 5.3
+   * @since 4.0
    */
   public static boolean isAutowirableConstructor(Constructor<?> constructor, Class<?> testClass,
           @Nullable PropertyProvider fallbackPropertyProvider) {
@@ -140,8 +140,8 @@ public abstract class TestConstructorUtils {
       autowireMode = testConstructor.autowireMode();
     }
     else {
-      // Custom global default from SpringProperties?
-      String value = SpringProperties.getProperty(TestConstructor.TEST_CONSTRUCTOR_AUTOWIRE_MODE_PROPERTY_NAME);
+      // Custom global default from TodayStrategies?
+      String value = TodayStrategies.getProperty(TestConstructor.TEST_CONSTRUCTOR_AUTOWIRE_MODE_PROPERTY_NAME);
       autowireMode = AutowireMode.from(value);
 
       // Use fallback provider?

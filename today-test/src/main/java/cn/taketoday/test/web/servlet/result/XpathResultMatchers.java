@@ -77,7 +77,7 @@ public class XpathResultMatchers {
    * Evaluate the XPath and assert the {@link NodeList} content found with the
    * given Hamcrest {@link Matcher}.
    *
-   * @since 5.2.2
+   * @since 4.0
    */
   public ResultMatcher nodeList(Matcher<? super NodeList> matcher) {
     return result -> {

@@ -107,7 +107,7 @@ import cn.taketoday.test.context.support.AbstractTestExecutionListener;
  * @see AfterTestExecution @AfterTestExecution
  * @see AfterTestMethod @AfterTestMethod
  * @see AfterTestClass @AfterTestClass
- * @since 5.2
+ * @since 4.0
  */
 public class EventPublishingTestExecutionListener extends AbstractTestExecutionListener {
 

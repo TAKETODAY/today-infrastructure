@@ -22,18 +22,18 @@ package cn.taketoday.test.web.servlet.setup;
 
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.lang.Assert;
-import cn.taketoday.web.context.WebApplicationContext;
 import cn.taketoday.web.context.support.WebApplicationContextUtils;
+import cn.taketoday.web.servlet.WebServletApplicationContext;
 import jakarta.servlet.ServletContext;
 
 /**
  * A concrete implementation of {@link AbstractMockMvcBuilder} that provides
- * the {@link WebApplicationContext} supplied to it as a constructor argument.
+ * the {@link WebServletApplicationContext} supplied to it as a constructor argument.
  *
  * <p>In addition, if the {@link ServletContext} in the supplied
- * {@code WebApplicationContext} does not contain an entry for the
- * {@link WebApplicationContext#ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE}
- * key, the root {@code WebApplicationContext} will be detected and stored
+ * {@code WebServletApplicationContext} does not contain an entry for the
+ * {@link WebServletApplicationContext#ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE}
+ * key, the root {@code WebServletApplicationContext} will be detected and stored
  * in the {@code ServletContext} under the
  * {@code ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE} key.
  *
@@ -44,21 +44,21 @@ import jakarta.servlet.ServletContext;
  */
 public class DefaultMockMvcBuilder extends AbstractMockMvcBuilder<DefaultMockMvcBuilder> {
 
-  private final WebApplicationContext webAppContext;
+  private final WebServletApplicationContext webAppContext;
 
   /**
    * Protected constructor. Not intended for direct instantiation.
    *
-   * @see MockMvcBuilders#webAppContextSetup(WebApplicationContext)
+   * @see MockMvcBuilders#webAppContextSetup(WebServletApplicationContext)
    */
-  protected DefaultMockMvcBuilder(WebApplicationContext webAppContext) {
-    Assert.notNull(webAppContext, "WebApplicationContext is required");
-    Assert.notNull(webAppContext.getServletContext(), "WebApplicationContext must have a ServletContext");
+  protected DefaultMockMvcBuilder(WebServletApplicationContext webAppContext) {
+    Assert.notNull(webAppContext, "WebServletApplicationContext is required");
+    Assert.notNull(webAppContext.getServletContext(), "WebServletApplicationContext must have a ServletContext");
     this.webAppContext = webAppContext;
   }
 
   @Override
-  protected WebApplicationContext initWebAppContext() {
+  protected WebServletApplicationContext initWebAppContext() {
     ServletContext servletContext = this.webAppContext.getServletContext();
     Assert.state(servletContext != null, "No ServletContext");
     ApplicationContext rootWac = WebApplicationContextUtils.getWebApplicationContext(servletContext);
@@ -67,13 +67,13 @@ public class DefaultMockMvcBuilder extends AbstractMockMvcBuilder<DefaultMockMvc
       rootWac = this.webAppContext;
       ApplicationContext parent = this.webAppContext.getParent();
       while (parent != null) {
-        if (parent instanceof WebApplicationContext && !(parent.getParent() instanceof WebApplicationContext)) {
+        if (parent instanceof WebServletApplicationContext && !(parent.getParent() instanceof WebServletApplicationContext)) {
           rootWac = parent;
           break;
         }
         parent = parent.getParent();
       }
-      servletContext.setAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE, rootWac);
+      servletContext.setAttribute(WebServletApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE, rootWac);
     }
 
     return this.webAppContext;

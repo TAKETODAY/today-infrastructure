@@ -91,7 +91,7 @@ public abstract class AbstractContextLoader implements SmartContextLoader {
    * annotated classes instead of resource locations.
    *
    * @see #processLocations(Class, String...)
-   * @since 3.1
+   *@since 4.0
    */
   @Override
   public void processContextConfiguration(ContextConfigurationAttributes configAttributes) {
@@ -147,7 +147,7 @@ public abstract class AbstractContextLoader implements SmartContextLoader {
   private void invokeApplicationContextInitializers(ConfigurableApplicationContext context,
           MergedContextConfiguration mergedConfig) {
 
-    Set<Class<? extends ApplicationContextInitializer<?>>> initializerClasses =
+    Set<Class<? extends ApplicationContextInitializer>> initializerClasses =
             mergedConfig.getContextInitializerClasses();
     if (initializerClasses.isEmpty()) {
       // no ApplicationContextInitializers have been declared -> nothing to do
@@ -157,7 +157,7 @@ public abstract class AbstractContextLoader implements SmartContextLoader {
     List<ApplicationContextInitializer<ConfigurableApplicationContext>> initializerInstances = new ArrayList<>();
     Class<?> contextClass = context.getClass();
 
-    for (Class<? extends ApplicationContextInitializer<?>> initializerClass : initializerClasses) {
+    for (Class<? extends ApplicationContextInitializer> initializerClass : initializerClasses) {
       Class<?> initializerContextClass =
               GenericTypeResolver.resolveTypeArgument(initializerClass, ApplicationContextInitializer.class);
       if (initializerContextClass != null && !initializerContextClass.isInstance(context)) {
@@ -167,7 +167,7 @@ public abstract class AbstractContextLoader implements SmartContextLoader {
                         "context loader: [%s]", initializerClass.getName(), initializerContextClass.getName(),
                 contextClass.getName()));
       }
-      initializerInstances.add((ApplicationContextInitializer<ConfigurableApplicationContext>) BeanUtils.instantiateClass(initializerClass));
+      initializerInstances.add((ApplicationContextInitializer<ConfigurableApplicationContext>) BeanUtils.newInstance(initializerClass));
     }
 
     AnnotationAwareOrderComparator.sort(initializerInstances);
@@ -321,7 +321,7 @@ public abstract class AbstractContextLoader implements SmartContextLoader {
    *
    * @return the resource suffixes; never {@code null} or empty
    * @see #generateDefaultLocations(Class)
-   * @since 4.1
+   * @since 4.0
    */
   protected String[] getResourceSuffixes() {
     return new String[] { getResourceSuffix() };

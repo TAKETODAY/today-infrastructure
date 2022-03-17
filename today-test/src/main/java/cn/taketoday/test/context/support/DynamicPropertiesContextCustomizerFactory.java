@@ -40,7 +40,7 @@ import cn.taketoday.test.context.TestContextAnnotationUtils;
  * @author Phillip Webb
  * @author Sam Brannen
  * @see DynamicPropertiesContextCustomizer
- * @since 5.2.5
+ * @since 4.0
  */
 class DynamicPropertiesContextCustomizerFactory implements ContextCustomizerFactory {
 

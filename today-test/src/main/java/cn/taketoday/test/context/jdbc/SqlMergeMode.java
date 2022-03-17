@@ -46,7 +46,7 @@ import java.lang.annotation.Target;
  * @see Sql
  * @see MergeMode#MERGE
  * @see MergeMode#OVERRIDE
- * @since 5.2
+ * @since 4.0
  */
 @Target({ ElementType.TYPE, ElementType.METHOD })
 @Retention(RetentionPolicy.RUNTIME)
