@@ -68,9 +68,9 @@ import cn.taketoday.core.io.UrlBasedResource;
 import cn.taketoday.core.testfixture.io.SerializationTestUtils;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.LoggerFactory;
+import cn.taketoday.tests.sample.beans.ResourceTestBean;
 import cn.taketoday.util.FileCopyUtils;
 import cn.taketoday.util.StopWatch;
-import cn.taketoday.validation.ResourceTestBean;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;

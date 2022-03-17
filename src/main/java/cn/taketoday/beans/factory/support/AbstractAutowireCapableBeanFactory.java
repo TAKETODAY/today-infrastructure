@@ -297,8 +297,16 @@ public abstract class AbstractAutowireCapableBeanFactory
   @Nullable
   protected Object doCreateBean(
           String beanName, RootBeanDefinition merged, @Nullable Object[] args) throws BeanCreationException {
+    // Instantiate the bean.
+    BeanWrapper instanceWrapper = null;
+    if (merged.isSingleton()) {
+      instanceWrapper = factoryBeanInstanceCache.remove(beanName);
+    }
 
-    BeanWrapper instanceWrapper = createIfNecessary(beanName, merged, args);
+    if (instanceWrapper == null) {
+      instanceWrapper = createBeanInstance(beanName, merged, args);
+    }
+
     Object bean = instanceWrapper.getWrappedInstance();
 
     if (bean == NullValue.INSTANCE) {
@@ -400,19 +408,6 @@ public abstract class AbstractAutowireCapableBeanFactory
     BeanWrapperImpl beanWrapper = new BeanWrapperImpl(bean, metadata);
     initBeanWrapper(beanWrapper);
     return beanWrapper;
-  }
-
-  private BeanWrapper createIfNecessary(String beanName, RootBeanDefinition definition, @Nullable Object[] args) {
-    // Instantiate the bean.
-    BeanWrapper instanceWrapper = null;
-    if (definition.isSingleton()) {
-      instanceWrapper = factoryBeanInstanceCache.remove(beanName);
-    }
-
-    if (instanceWrapper == null) {
-      instanceWrapper = createBeanInstance(beanName, definition, args);
-    }
-    return instanceWrapper;
   }
 
   private boolean isEarlySingletonExposure(BeanDefinition definition, String beanName) {

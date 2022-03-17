@@ -25,7 +25,6 @@ import org.junit.jupiter.api.Test;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Properties;
 
 import cn.taketoday.beans.factory.BeanCreationException;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
@@ -92,9 +91,8 @@ public class FactoryMethodTests {
     XmlBeanDefinitionReader reader = new XmlBeanDefinitionReader(xbf);
     reader.loadBeanDefinitions(new ClassPathResource("factory-methods.xml", getClass()));
 
-    assertThat(xbf.getBean("null").toString()).isEqualTo("null");
-    assertThatExceptionOfType(BeanCreationException.class).isThrownBy(() ->
-            xbf.getBean("nullWithProperty"));
+    assertThat(xbf.getBean("null")).isNull();
+    assertThat(xbf.getBean("nullWithProperty")).isNull();
   }
 
   @Test

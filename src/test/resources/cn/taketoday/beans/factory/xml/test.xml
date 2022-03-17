@@ -79,7 +79,7 @@
 		<property name="initMethodDeclared"><value>true</value></property>
 	</bean>
 
-	<bean id="protectedLifecycle" class="cn.taketoday.beans.factory.parsing.xml.ProtectedLifecycleBean"
+	<bean id="protectedLifecycle" class="cn.taketoday.beans.factory.xml.ProtectedLifecycleBean"
 		  init-method="declaredInitMethod">
 		<property name="initMethodDeclared"><value>true</value></property>
 	</bean>

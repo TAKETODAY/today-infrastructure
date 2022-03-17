@@ -80,7 +80,7 @@ public class ImportAnnotationDetectionTests {
     StandardApplicationContext ctx = new StandardApplicationContext();
     ctx.register(ImportFromBean.class);
     ctx.refresh();
-    assertThat(ctx.containsBean("importFromBean")).isTrue();
+    assertThat(ctx.containsBean("importAnnotationDetectionTests.ImportFromBean")).isTrue();
     assertThat(ctx.containsBean("testBean1")).isTrue();
     assertThat(ctx.getBean("testBean1", TestBean.class).getName()).isEqualTo("1");
   }
