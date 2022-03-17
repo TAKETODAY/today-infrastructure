@@ -95,7 +95,7 @@ class InstantiationAwareBeanPostProcessorTests {
       beanFactory.addBeanPostProcessor(postProcessor);
 
       InstantiationAwareBeanPostProcessorBean bean = context.getBean(
-              "instantiationAwareBeanPostProcessorBean", InstantiationAwareBeanPostProcessorBean.class);
+              "instantiationAwareBeanPostProcessorTests.InstantiationAwareBeanPostProcessorBean", InstantiationAwareBeanPostProcessorBean.class);
 
       Object instantiationBean = context.getBean("instantiationBean");
 

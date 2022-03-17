@@ -100,6 +100,7 @@ public class BeanWrapperImpl extends AbstractNestablePropertyAccessor implements
    */
   public BeanWrapperImpl(Object object, @Nullable BeanMetadata beanMetadata) {
     super(object);
+    registerDefaultEditors();
     this.beanMetadata = beanMetadata;
   }
 

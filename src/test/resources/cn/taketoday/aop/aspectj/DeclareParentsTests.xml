@@ -9,7 +9,7 @@
 		<aop:aspect id="beforeAdviceBindingTests" ref="introduction">
 			<aop:declare-parents
 					types-matching="cn.taketoday.beans.testfixture.beans..*"
-			    implement-interface="test.mixin.Lockable"
+			    implement-interface="test.aop.Lockable"
 					default-impl="test.mixin.DefaultLockable"
 			/>
 			<aop:before
