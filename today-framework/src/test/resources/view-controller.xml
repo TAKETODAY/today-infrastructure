@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
+  Copyright © Today & 2017 - 2018 All Rights Reserved.
+  
+  DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ 
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
+ 
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+ 
+  You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ -->
+
+<!DOCTYPE Web-Configuration PUBLIC 
+            "-//TODAY BLOG//Web - Configuration DTD 2.0//CN"
+                    "https://taketoday.cn/framework/web/dtd/web-configuration-2.3.7.dtd">
+
+<!--
+    "https://taketoday.cn/framework/web/dtd/web-configuration-2.2.3.dtd">
+-->
+<Web-Configuration>
+
+    <controller prefix="/error/">
+        <action resource="400" name="BadRequest" status="400" />
+        <action resource="403" name="Forbidden" status="403"/>
+        <action resource="404" name="NotFound" status="404"/>
+        <action resource="500" name="ServerIsBusy" status="500"/>
+        <action resource="405" name="MethodNotAllowed" status="405"/>
+    </controller>
+
+    <controller>
+        <action resource="redirect:http://pipe.b3log.org/blogs/Today" name="today-blog-pipe" />
+        <action resource="redirect:https://taketoday.cn" name="today" />
+        <action resource="redirect:https://github.com" name="github" />
+        <action resource="redirect:/login" name="login.do" />
+    </controller>
+
+    <controller class="cn.taketoday.web.XMLController" name="xmlController" prefix="/xml/">
+        <action name="obj" method="obj" />
+        <action name="test" resource="test" method="test" type="forward" />
+    </controller>
+
+</Web-Configuration>
+
+
