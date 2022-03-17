@@ -11,12 +11,12 @@
   latest  4.0.0-Beta.1 -Alpha.1 -Draft.1 -SNAPSHOT
  -->
   <version>4.0.0-Draft.1</version>
-  <name>TODAY Framework Root</name>
+  <name>today-framework-parent</name>
 
   <modules>
+    <module>today-framework</module>
     <module>today-test</module>
     <module>integration-tests</module>
-    <module>today-framework</module>
   </modules>
 
   <description>
