@@ -25,8 +25,6 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
-import org.junit.jupiter.api.condition.DisabledIfSystemProperty;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.util.Collections;
@@ -173,16 +171,16 @@ class ApplicationTests {
     assertThat(this.context).isInstanceOf(AnnotationConfigServletWebServerApplicationContext.class);
   }
 
-  @Test
-  @DisabledIfEnvironmentVariable(named = "CI", matches = "true", disabledReason = "CI")
-  @DisabledIfSystemProperty(
-          named = "coverage", matches = "true", disabledReason = "don't know")
-  void defaultApplicationContextForReactiveWeb() {
-    Application application = new Application(ExampleReactiveWebConfig.class);
-    application.setApplicationType(ApplicationType.REACTIVE_WEB);
-    this.context = application.run();
-    assertThat(this.context).isInstanceOf(StandardWebServerApplicationContext.class);
-  }
+//  @Test
+//  @DisabledIfEnvironmentVariable(named = "CI", matches = "true", disabledReason = "CI")
+//  @DisabledIfSystemProperty(
+//          named = "coverage", matches = "true", disabledReason = "don't know")
+//  void defaultApplicationContextForReactiveWeb() {
+//    Application application = new Application(ExampleReactiveWebConfig.class);
+//    application.setApplicationType(ApplicationType.REACTIVE_WEB);
+//    this.context = application.run();
+//    assertThat(this.context).isInstanceOf(StandardWebServerApplicationContext.class);
+//  }
 
   @Test
   void commandLinePropertySource() {
@@ -499,7 +497,6 @@ class ApplicationTests {
 
   }
 
-  @EnableTomcatHandling
   @EnableWebMvc
   @Configuration(proxyBeanMethods = false)
   static class ExampleWebConfig {

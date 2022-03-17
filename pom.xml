@@ -13,8 +13,7 @@
   <name>TODAY Framework</name>
 
   <description>
-    A Java library for dependency injection and aspect oriented programing
-    and building high-performance web applications like Spring Boot.
+    A Java library for dependency injection and aspect oriented programing and building high-performance web applications like Spring Boot.
   </description>
 
   <inceptionYear>2017</inceptionYear>
@@ -48,6 +47,7 @@
     <persistence-api.version>1.0.2</persistence-api.version>
     <slf4j.version>1.7.25</slf4j.version>
     <spring-jdbc.version>5.2.3.RELEASE</spring-jdbc.version>
+    <reactor.version>3.4.16</reactor.version>
 
     <!--doc-->
     <site.output.dir>${project.build.directory}/staging</site.output.dir>
@@ -506,7 +506,7 @@
     <dependency>
       <groupId>io.projectreactor</groupId>
       <artifactId>reactor-core</artifactId>
-      <version>3.4.12</version>
+      <version>${reactor.version}</version>
       <scope>provided</scope>
     </dependency>
 
@@ -1047,7 +1047,7 @@
     <dependency>
       <groupId>io.projectreactor</groupId>
       <artifactId>reactor-test</artifactId>
-      <version>3.4.12</version>
+      <version>${reactor.version}</version>
       <scope>test</scope>
     </dependency>
 
@@ -1257,10 +1257,8 @@
         <version>2.22.2</version>
         <configuration>
           <argLine>
-            -DtestGroups=all
-            --add-opens java.base/java.lang=ALL-UNNAMED
-            --add-opens java.base/java.util=ALL-UNNAMED
-            --add-opens java.base/java.lang.reflect=ALL-UNNAMED
+            -DtestGroups=all --add-opens java.base/java.lang=ALL-UNNAMED --add-opens java.base/java.util=ALL-UNNAMED --add-opens
+            java.base/java.lang.reflect=ALL-UNNAMED
           </argLine>
         </configuration>
       </plugin>
@@ -1387,10 +1385,8 @@
             <version>2.22.2</version>
             <configuration>
               <argLine>
-                ${argLine} -Dcoverage=true -DtestGroups=all
-                --add-opens java.base/java.lang=ALL-UNNAMED
-                --add-opens java.base/java.util=ALL-UNNAMED
-                --add-opens java.base/java.lang.reflect=ALL-UNNAMED
+                ${argLine} -Dcoverage=true -DtestGroups=all --add-opens java.base/java.lang=ALL-UNNAMED --add-opens
+                java.base/java.util=ALL-UNNAMED --add-opens java.base/java.lang.reflect=ALL-UNNAMED
               </argLine>
             </configuration>
           </plugin>

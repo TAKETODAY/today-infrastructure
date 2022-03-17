@@ -37,16 +37,17 @@ import java.util.Map;
 import java.util.function.Consumer;
 
 import cn.taketoday.core.GenericTypeResolver;
+import cn.taketoday.core.MethodParameter;
 import cn.taketoday.core.ResolvableType;
 import cn.taketoday.core.codec.Hints;
 import cn.taketoday.http.HttpLogging;
+import cn.taketoday.http.MediaType;
 import cn.taketoday.http.server.reactive.ServerHttpRequest;
 import cn.taketoday.http.server.reactive.ServerHttpResponse;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.util.CollectionUtils;
-import cn.taketoday.http.MediaType;
 import cn.taketoday.util.MimeType;
 import cn.taketoday.util.ObjectUtils;
 
@@ -175,11 +176,11 @@ public abstract class Jackson2CodecSupport {
     List<MimeType> result = null;
     for (Map.Entry<Class<?>, Map<MimeType, ObjectMapper>> entry : getObjectMapperRegistrations().entrySet()) {
       if (entry.getKey().isAssignableFrom(elementClass)) {
-        result = (result != null ? result : new ArrayList<>(entry.getValue().size()));
+        result = result != null ? result : new ArrayList<>(entry.getValue().size());
         result.addAll(entry.getValue().keySet());
       }
     }
-    return (CollectionUtils.isEmpty(result) ? getMimeTypes() : result);
+    return CollectionUtils.isEmpty(result) ? getMimeTypes() : result;
   }
 
   protected boolean notSupportsMimeType(@Nullable MimeType mimeType) {
@@ -207,9 +208,7 @@ public abstract class Jackson2CodecSupport {
       return;
     }
     if (logger.isDebugEnabled()) {
-      String msg = "Failed to evaluate Jackson " + (type instanceof JavaType ? "de" : "") +
-              "serialization for type [" + type + "]";
-      logger.debug(msg, cause);
+      logger.debug("Failed to evaluate Jackson {}serialization for type [{}]", (type instanceof JavaType ? "de" : ""), type, cause);
     }
   }
 
@@ -218,7 +217,7 @@ public abstract class Jackson2CodecSupport {
   }
 
   protected Map<String, Object> getHints(ResolvableType resolvableType) {
-    Parameter param = getParameter(resolvableType);
+    MethodParameter param = getParameter(resolvableType);
     if (param != null) {
       HashMap<String, Object> hints = null;
       if (resolvableType.hasGenerics()) {
@@ -229,7 +228,7 @@ public abstract class Jackson2CodecSupport {
       if (annotation != null) {
         Class<?>[] classes = annotation.value();
         Assert.isTrue(classes.length == 1, JSON_VIEW_HINT_ERROR + param);
-        hints = (hints != null ? hints : new HashMap<>(1));
+        hints = hints != null ? hints : new HashMap<>(1);
         hints.put(JSON_VIEW_HINT, classes[0]);
       }
       if (hints != null) {
@@ -240,12 +239,19 @@ public abstract class Jackson2CodecSupport {
   }
 
   @Nullable
-  protected Parameter getParameter(ResolvableType type) {
-    return type.getSource() instanceof Parameter ? (Parameter) type.getSource() : null;
+  protected MethodParameter getParameter(ResolvableType type) {
+    Object source = type.getSource();
+    if (source instanceof Parameter parameter) {
+      return MethodParameter.forParameter(parameter);
+    }
+    else if (source instanceof MethodParameter methodParameter) {
+      return methodParameter;
+    }
+    return null;
   }
 
   @Nullable
-  protected abstract <A extends Annotation> A getAnnotation(Parameter parameter, Class<A> annotType);
+  protected abstract <A extends Annotation> A getAnnotation(MethodParameter parameter, Class<A> annotType);
 
   /**
    * Select an ObjectMapper to use, either the main ObjectMapper or another

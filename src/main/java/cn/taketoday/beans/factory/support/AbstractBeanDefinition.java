@@ -882,7 +882,7 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
   /**
    * Specify constructor argument values for this bean.
    */
-  public void setConstructorArgumentValues(ConstructorArgumentValues constructorArgumentValues) {
+  public void setConstructorArgumentValues(@Nullable ConstructorArgumentValues constructorArgumentValues) {
     this.constructorArgumentValues = constructorArgumentValues;
   }
 
@@ -908,7 +908,7 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
   /**
    * Specify property values for this bean, if any.
    */
-  public void setPropertyValues(PropertyValues propertyValues) {
+  public void setPropertyValues(@Nullable PropertyValues propertyValues) {
     this.propertyValues = propertyValues;
   }
 
@@ -1328,8 +1328,8 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
     sb.append("; primary=").append(this.primary);
     sb.append("; factoryBeanName=").append(this.factoryBeanName);
     sb.append("; factoryMethodName=").append(this.factoryMethodName);
-    sb.append("; initMethodNames=").append(this.initMethodNames);
-    sb.append("; destroyMethodNames=").append(this.destroyMethodNames);
+    sb.append("; initMethodNames=").append(Arrays.toString(this.initMethodNames));
+    sb.append("; destroyMethodNames=").append(Arrays.toString(this.destroyMethodNames));
     if (this.resource != null) {
       sb.append("; defined in ").append(this.resource);
     }

@@ -35,19 +35,20 @@ import org.reactivestreams.Publisher;
 
 import java.io.IOException;
 import java.lang.annotation.Annotation;
-import java.lang.reflect.Parameter;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 
+import cn.taketoday.core.MethodParameter;
 import cn.taketoday.core.ResolvableType;
 import cn.taketoday.core.codec.CodecException;
 import cn.taketoday.core.codec.EncodingException;
 import cn.taketoday.core.codec.Hints;
 import cn.taketoday.core.io.buffer.DataBuffer;
 import cn.taketoday.core.io.buffer.DataBufferFactory;
+import cn.taketoday.http.MediaType;
 import cn.taketoday.http.codec.HttpMessageEncoder;
 import cn.taketoday.http.converter.json.MappingJacksonValue;
 import cn.taketoday.http.server.reactive.ServerHttpRequest;
@@ -56,7 +57,6 @@ import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.LogFormatUtils;
-import cn.taketoday.http.MediaType;
 import cn.taketoday.util.MimeType;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -198,17 +198,20 @@ public abstract class AbstractJackson2Encoder extends Jackson2CodecSupport imple
           Object value, DataBufferFactory bufferFactory,
           ResolvableType valueType, @Nullable MimeType mimeType, @Nullable Map<String, Object> hints) {
 
+    Class<?> jsonView = null;
+    FilterProvider filters = null;
+    if (value instanceof MappingJacksonValue container) {
+      value = container.getValue();
+      valueType = ResolvableType.fromInstance(value);
+      jsonView = container.getSerializationView();
+      filters = container.getFilters();
+    }
+
     ObjectMapper mapper = selectObjectMapper(valueType, mimeType);
     if (mapper == null) {
       throw new IllegalStateException("No ObjectMapper for " + valueType);
     }
-    Class<?> jsonView = null;
-    FilterProvider filters = null;
-    if (value instanceof MappingJacksonValue mappingJacksonValue) {
-      value = mappingJacksonValue.getValue();
-      jsonView = mappingJacksonValue.getSerializationView();
-      filters = mappingJacksonValue.getFilters();
-    }
+
     ObjectWriter writer = createObjectWriter(mapper, valueType, mimeType, jsonView, hints);
     if (filters != null) {
       writer = writer.with(filters);
@@ -377,8 +380,8 @@ public abstract class AbstractJackson2Encoder extends Jackson2CodecSupport imple
   // Jackson2CodecSupport
 
   @Override
-  protected <A extends Annotation> A getAnnotation(Parameter parameter, Class<A> annotType) {
-    return parameter.getDeclaringExecutable().getAnnotation(annotType);
+  protected <A extends Annotation> A getAnnotation(MethodParameter parameter, Class<A> annotType) {
+    return parameter.getMethodAnnotation(annotType);
   }
 
 }

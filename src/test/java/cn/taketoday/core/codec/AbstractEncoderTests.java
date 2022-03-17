@@ -140,6 +140,25 @@ public abstract class AbstractEncoderTests<E extends Encoder<?>> extends Abstrac
   /**
    * Test a standard {@link Encoder#encode encode} scenario.
    *
+   * @param <T> the output type
+   * @param input the input to be provided to the encoder
+   * @param inputType the input type
+   * @param mimeType the mime type to use for decoding. May be {@code null}.
+   * @param hints the hints used for decoding. May be {@code null}.
+   * @param stepConsumer a consumer to {@linkplain StepVerifier verify} the output
+   */
+  protected <T> void testEncode(Publisher<? extends T> input, ResolvableType inputType,
+          @Nullable MimeType mimeType, @Nullable Map<String, Object> hints,
+          Consumer<StepVerifier.FirstStep<DataBuffer>> stepConsumer) {
+
+    Flux<DataBuffer> result = encoder().encode(input, this.bufferFactory, inputType, mimeType, hints);
+    StepVerifier.FirstStep<DataBuffer> step = StepVerifier.create(result);
+    stepConsumer.accept(step);
+  }
+
+  /**
+   * Test a standard {@link Encoder#encode encode} scenario.
+   *
    * @param input the input to be provided to the encoder
    * @param inputType the input type
    * @param stepConsumer a consumer to {@linkplain StepVerifier verify} the output

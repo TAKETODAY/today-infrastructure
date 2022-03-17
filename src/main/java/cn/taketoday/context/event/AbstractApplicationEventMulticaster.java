@@ -63,7 +63,7 @@ import cn.taketoday.util.ClassUtils;
  * @see SimpleApplicationEventMulticaster
  * @since 4.0
  */
-@SuppressWarnings({ "rawtypes", "unchecked" })
+@SuppressWarnings({ "rawtypes" })
 public abstract class AbstractApplicationEventMulticaster
         implements ApplicationEventMulticaster, BeanClassLoaderAware, BeanFactoryAware {
 
@@ -78,7 +78,7 @@ public abstract class AbstractApplicationEventMulticaster
   private ConfigurableBeanFactory beanFactory;
 
   @Override
-  public void setBeanClassLoader(ClassLoader classLoader) {
+  public void setBeanClassLoader(@Nullable ClassLoader classLoader) {
     this.beanClassLoader = classLoader;
   }
 

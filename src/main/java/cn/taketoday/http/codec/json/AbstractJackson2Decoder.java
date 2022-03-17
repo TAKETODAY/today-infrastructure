@@ -32,12 +32,12 @@ import org.reactivestreams.Publisher;
 
 import java.io.IOException;
 import java.lang.annotation.Annotation;
-import java.lang.reflect.Parameter;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 
+import cn.taketoday.core.MethodParameter;
 import cn.taketoday.core.ResolvableType;
 import cn.taketoday.core.codec.CodecException;
 import cn.taketoday.core.codec.DecodingException;
@@ -220,8 +220,8 @@ public abstract class AbstractJackson2Decoder
 
   @Nullable
   private Class<?> getContextClass(@Nullable ResolvableType elementType) {
-    Parameter param = elementType != null ? getParameter(elementType) : null;
-    return param != null ? param.getDeclaringExecutable().getDeclaringClass() : null;
+    MethodParameter param = elementType != null ? getParameter(elementType) : null;
+    return param != null ? param.getContainingClass() : null;
   }
 
   private void logValue(@Nullable Object value, @Nullable Map<String, Object> hints) {
@@ -267,8 +267,8 @@ public abstract class AbstractJackson2Decoder
   // Jackson2CodecSupport
 
   @Override
-  protected <A extends Annotation> A getAnnotation(Parameter parameter, Class<A> annotType) {
-    return parameter.getAnnotation(annotType);
+  protected <A extends Annotation> A getAnnotation(MethodParameter parameter, Class<A> annotType) {
+    return parameter.getMethodAnnotation(annotType);
   }
 
 }

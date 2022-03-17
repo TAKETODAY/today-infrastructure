@@ -30,7 +30,6 @@ import cn.taketoday.web.annotation.GET;
 import cn.taketoday.web.annotation.RequestMapping;
 import cn.taketoday.web.annotation.ResponseBody;
 import cn.taketoday.web.framework.WebApplication;
-import cn.taketoday.web.framework.config.EnableTomcatHandling;
 import cn.taketoday.web.socket.annotation.AfterHandshake;
 import cn.taketoday.web.socket.annotation.EndpointMapping;
 import cn.taketoday.web.socket.annotation.Message;
@@ -50,7 +49,7 @@ import lombok.NoArgsConstructor;
 @Configuration
 @Import(WebSocketApplication.AppConfig.class)
 @EnableWebSocket
-@EnableTomcatHandling
+//@EnableTomcatHandling
 @RequestMapping
 //@EnableJettyHandling
 //@EnableUndertowHandling

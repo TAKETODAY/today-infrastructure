@@ -94,7 +94,6 @@ public class Jackson2JsonEncoderTests extends AbstractEncoderTests<Jackson2JsonE
 
   @Override
   @Test
-  @SuppressWarnings("deprecation")
   public void encode() throws Exception {
     Flux<Object> input = Flux.just(new Pojo("foo", "bar"),
             new Pojo("foofoo", "barbar"),
@@ -261,6 +260,30 @@ public class Jackson2JsonEncoderTests extends AbstractEncoderTests<Jackson2JsonE
                     .consumeNextWith(expectString("{\"foo\":\"foo\",\"bar\":\"bar\"}"))
                     .verifyComplete(),
             new MimeType("application", "json", StandardCharsets.US_ASCII), null);
+  }
+
+  @Test // gh-28045
+  public void jacksonValueUnwrappedBeforeObjectMapperSelection() {
+
+    JacksonViewBean bean = new JacksonViewBean();
+    bean.setWithView1("with");
+    bean.setWithView2("with");
+    bean.setWithoutView("without");
+
+    MappingJacksonValue jacksonValue = new MappingJacksonValue(bean);
+    jacksonValue.setSerializationView(MyJacksonView1.class);
+
+    ResolvableType type = ResolvableType.fromClass(MappingJacksonValue.class);
+
+    MediaType halMediaType = MediaType.parseMediaType("application/hal+json");
+    ObjectMapper mapper = new ObjectMapper().configure(SerializationFeature.INDENT_OUTPUT, true);
+    this.encoder.registerObjectMappersForType(JacksonViewBean.class, map -> map.put(halMediaType, mapper));
+
+    testEncode(Mono.just(jacksonValue), type, halMediaType, Collections.emptyMap(), step -> step
+            .consumeNextWith(expectString("{\n  \"withView1\" : \"with\"\n}").andThen(DataBufferUtils::release))
+            .verifyComplete()
+    );
+
   }
 
   @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")

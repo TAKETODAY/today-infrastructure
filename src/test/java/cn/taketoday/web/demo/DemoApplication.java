@@ -24,13 +24,12 @@ import cn.taketoday.context.annotation.Import;
 import cn.taketoday.web.config.EnableWebMvc;
 import cn.taketoday.web.demo.config.AppConfig;
 import cn.taketoday.web.framework.WebApplication;
-import cn.taketoday.web.framework.config.EnableTomcatHandling;
 
 /**
  * @author TODAY 2021/8/29 22:22
  */
 @EnableWebMvc
-@EnableTomcatHandling
+//@EnableTomcatHandling
 @Import(AppConfig.class)
 public class DemoApplication {
 
