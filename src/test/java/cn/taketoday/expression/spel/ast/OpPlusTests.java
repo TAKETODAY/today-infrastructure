@@ -44,7 +44,7 @@ import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException
  * @author Ivo Smid
  * @author Chris Beams
  * @see OpPlus
- * @since 3.2
+ * @since 4.0
  */
 public class OpPlusTests {
 
