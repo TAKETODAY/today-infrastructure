@@ -29,14 +29,14 @@ import cn.taketoday.beans.factory.support.RootBeanDefinition;
 import cn.taketoday.context.ApplicationContextException;
 import cn.taketoday.context.annotation.AnnotationConfigUtils;
 import cn.taketoday.context.support.GenericApplicationContext;
-import cn.taketoday.orm.mybatis.AbstractMyBatisTodayTest;
+import cn.taketoday.orm.mybatis.AbstractMyBatisTest;
 import cn.taketoday.orm.mybatis.SqlSessionFactoryBean;
 import cn.taketoday.orm.mybatis.SqlSessionTemplate;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-class SqlSessionDaoSupportTest extends AbstractMyBatisTodayTest {
+class SqlSessionDaoSupportTest extends AbstractMyBatisTest {
   private SqlSessionDaoSupport sqlSessionDaoSupport;
 
   private GenericApplicationContext applicationContext;

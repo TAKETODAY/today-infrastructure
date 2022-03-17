@@ -39,7 +39,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 // tests basic usage and implementation only
 // MapperFactoryBeanTest handles testing the transactional functions in SqlSessionTemplate
-public class SqlSessionTemplateTest extends AbstractMyBatisTodayTest {
+public class SqlSessionTemplateTest extends AbstractMyBatisTest {
 
   private SqlSession sqlSessionTemplate;
 

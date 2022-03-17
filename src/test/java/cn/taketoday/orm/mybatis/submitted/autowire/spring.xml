@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
+  ~ Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+  ~
+  ~ DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+  ~
+  ~ This program is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ This program is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with this program.  If not, see [http://www.gnu.org/licenses/]
+  -->
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:jdbc="http://www.springframework.org/schema/jdbc"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+						http://www.springframework.org/schema/beans/spring-beans.xsd
+       					http://www.springframework.org/schema/jdbc http://www.springframework.org/schema/jdbc/spring-jdbc.xsd"
+    default-lazy-init="false">
+
+  <!-- 	<bean id="dataSource" class="org.hsqldb.jdbc.JDBCDataSource"> -->
+  <!-- 		<property name="url" value="jdbc:hsqldb:mem:autowire"/> -->
+  <!-- 	</bean> -->
+
+  <jdbc:embedded-database id="dataSourceFoo">
+    <jdbc:script location="classpath:cn/taketoday/orm/mybatis/submitted/autowire/database-schema-foo.sql" />
+  </jdbc:embedded-database>
+
+  <jdbc:embedded-database id="dataSourceBar">
+    <jdbc:script location="classpath:cn/taketoday/orm/mybatis/submitted/autowire/database-schema-bar.sql" />
+  </jdbc:embedded-database>
+
+
+  <bean id="sqlSessionFactoryFoo" class="cn.taketoday.orm.mybatis.SqlSessionFactoryBean">
+    <property name="dataSource" ref="dataSourceFoo" />
+  </bean>
+
+  <bean id="sqlSessionFactoryBar" class="cn.taketoday.orm.mybatis.SqlSessionFactoryBean">
+    <property name="dataSource" ref="dataSourceBar" />
+  </bean>
+
+  <!-- If we simply comment out this bean, then the test runs -->
+  <bean id="sqlSessionTemplateFoo" class="cn.taketoday.orm.mybatis.SqlSessionTemplate">
+    <constructor-arg index="0" ref="sqlSessionFactoryFoo" />
+    <constructor-arg index="1" value="SIMPLE" />
+    <constructor-arg index="2">
+      <null />
+    </constructor-arg>
+  </bean>
+
+  <bean class="cn.taketoday.orm.mybatis.mapper.MapperScannerConfigurer">
+    <property name="basePackage" value="cn.taketoday.orm.mybatis.submitted.autowire" />
+    <property name="markerInterface" value="cn.taketoday.orm.mybatis.submitted.autowire.IFoo" />
+    <property name="sqlSessionFactoryBeanName" value="sqlSessionFactoryFoo" />
+  </bean>
+
+  <bean class="cn.taketoday.orm.mybatis.mapper.MapperScannerConfigurer">
+    <property name="basePackage" value="cn.taketoday.orm.mybatis.submitted.autowire" />
+    <property name="markerInterface" value="cn.taketoday.orm.mybatis.submitted.autowire.IBar" />
+    <property name="sqlSessionFactoryBeanName" value="sqlSessionFactoryBar" />
+  </bean>
+</beans>

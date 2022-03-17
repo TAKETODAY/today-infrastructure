@@ -29,7 +29,7 @@ final class PooledMockDataSource extends MockDataSource {
 
   private int connectionCount = 0;
 
-  private LinkedList<Connection> connections = new LinkedList<>();
+  private final LinkedList<Connection> connections = new LinkedList<>();
 
   @Override
   public Connection getConnection() throws SQLException {

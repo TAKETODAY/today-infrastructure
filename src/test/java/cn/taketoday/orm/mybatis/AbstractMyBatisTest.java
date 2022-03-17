@@ -35,7 +35,7 @@ import cn.taketoday.jdbc.datasource.DataSourceTransactionManager;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.fail;
 
-public abstract class AbstractMyBatisTodayTest {
+public abstract class AbstractMyBatisTest {
 
   protected PooledMockDataSource dataSource = new PooledMockDataSource();
 

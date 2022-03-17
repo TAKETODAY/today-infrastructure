@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -17,17 +17,27 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.orm.mybatis.mapper;
 
-import org.apache.ibatis.annotations.Mapper;
+package cn.taketoday.orm.mybatis.config;
 
-import cn.taketoday.context.annotation.Scope;
-import cn.taketoday.context.annotation.ScopedProxyMode;
+import cn.taketoday.beans.factory.xml.NamespaceHandlerSupport;
 
-@Mapper
-@Scope(scopeName = "thread", proxyMode = ScopedProxyMode.TARGET_CLASS)
-public interface ScopedProxyMapper {
-  default String test() {
-    return "test";
+/**
+ * Namespace handler for the MyBatis namespace.
+ *
+ * @author Lishu Luo
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @see MapperScannerBeanDefinitionParser
+ * @since 4.0 2022/3/17 14:53
+ */
+public class MybatisNamespaceHandler extends NamespaceHandlerSupport {
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public void init() {
+    registerBeanDefinitionParser("scan", new MapperScannerBeanDefinitionParser());
   }
+
 }

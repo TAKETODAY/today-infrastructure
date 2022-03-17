@@ -9,3 +9,4 @@ http\://www.springframework.org/schema/jdbc=cn.taketoday.jdbc.config.JdbcNamespa
 http\://www.springframework.org/schema/aop=cn.taketoday.aop.config.AopNamespaceHandler
 http\://www.springframework.org/schema/cache=cn.taketoday.cache.config.CacheNamespaceHandler
 http\://www.springframework.org/schema/tx=cn.taketoday.transaction.config.TxNamespaceHandler
+http\://mybatis.org/schema/mybatis-spring=cn.taketoday.orm.mybatis.config.MybatisNamespaceHandler

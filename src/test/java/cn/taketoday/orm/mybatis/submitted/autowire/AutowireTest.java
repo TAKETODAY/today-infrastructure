@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -17,17 +17,29 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.orm.mybatis.mapper;
+package cn.taketoday.orm.mybatis.submitted.autowire;
 
-import org.apache.ibatis.annotations.Mapper;
+import org.junit.jupiter.api.Test;
 
-import cn.taketoday.context.annotation.Scope;
-import cn.taketoday.context.annotation.ScopedProxyMode;
+import cn.taketoday.context.support.ClassPathXmlApplicationContext;
 
-@Mapper
-@Scope(scopeName = "thread", proxyMode = ScopedProxyMode.TARGET_CLASS)
-public interface ScopedProxyMapper {
-  default String test() {
-    return "test";
+import static org.assertj.core.api.Assertions.assertThat;
+
+class AutowireTest {
+
+  @Test
+  void shouldReturnMapper() {
+    try (ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext(
+            "classpath:cn/taketoday/orm/mybatis/submitted/autowire/spring.xml")) {
+
+      FooMapper fooMapper = (FooMapper) context.getBean("fooMapper");
+      assertThat(fooMapper).isNotNull();
+      fooMapper.executeFoo();
+
+      BarMapper barMapper = (BarMapper) context.getBean("barMapper");
+      assertThat(barMapper).isNotNull();
+      barMapper.executeBar();
+    }
+
   }
 }

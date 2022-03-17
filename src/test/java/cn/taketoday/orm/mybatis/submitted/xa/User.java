@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -17,17 +17,34 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.orm.mybatis.mapper;
+package cn.taketoday.orm.mybatis.submitted.xa;
 
-import org.apache.ibatis.annotations.Mapper;
+public class User {
 
-import cn.taketoday.context.annotation.Scope;
-import cn.taketoday.context.annotation.ScopedProxyMode;
+  private Integer id;
+  private String name;
 
-@Mapper
-@Scope(scopeName = "thread", proxyMode = ScopedProxyMode.TARGET_CLASS)
-public interface ScopedProxyMapper {
-  default String test() {
-    return "test";
+  public User() {
+  }
+
+  public User(Integer id, String name) {
+    this.id = id;
+    this.name = name;
+  }
+
+  public String getName() {
+    return name;
+  }
+
+  public void setName(String name) {
+    this.name = name;
+  }
+
+  public Integer getId() {
+    return this.id;
+  }
+
+  public void setId(Integer id) {
+    this.id = id;
   }
 }

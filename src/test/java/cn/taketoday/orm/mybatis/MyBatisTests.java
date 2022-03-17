@@ -40,7 +40,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.fail;
 
-class MyBatisTodayTests extends AbstractMyBatisTodayTest {
+class MyBatisTests extends AbstractMyBatisTest {
 
   private SqlSession session;
 

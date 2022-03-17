@@ -68,7 +68,7 @@ class SqlSessionFactoryBeanTest {
   private static final class TestObjectWrapperFactory extends DefaultObjectWrapperFactory {
   }
 
-  private static MockDataSource dataSource = new MockDataSource();
+  private static final MockDataSource dataSource = new MockDataSource();
 
   private SqlSessionFactoryBean factoryBean;
 
@@ -527,7 +527,7 @@ class SqlSessionFactoryBeanTest {
   private static class MyLanguageDriver2 extends RawLanguageDriver {
   }
 
-  private static enum MyEnum {
+  private enum MyEnum {
   }
 
 }

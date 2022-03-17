@@ -42,7 +42,7 @@ public class AsyncAfterCompletionHelper {
    */
   static class AsyncAfterCompletionInvocationHandler implements InvocationHandler {
 
-    private Object target;
+    private final Object target;
 
     AsyncAfterCompletionInvocationHandler(Object target) {
       this.target = target;

@@ -66,7 +66,7 @@ class MapperScannerConfigurerTest {
     // an XML config file
     GenericBeanDefinition definition = new GenericBeanDefinition();
     definition.setBeanClass(MapperScannerConfigurer.class);
-    definition.getPropertyValues().add("basePackage", "org.mybatis.spring.mapper");
+    definition.getPropertyValues().add("basePackage", "cn.taketoday.orm.mybatis.mapper");
     applicationContext.registerBeanDefinition("mapperScanner", definition);
     applicationContext.getBeanFactory().registerScope("thread", new SimpleThreadScope());
 
@@ -204,7 +204,7 @@ class MapperScannerConfigurerTest {
     }
     {
       BeanDefinition definition = applicationContext.getBeanDefinition("scopedTarget.scopedProxyMapper");
-      assertThat(definition.getBeanClassName()).isEqualTo("org.mybatis.spring.mapper.MapperFactoryBean");
+      assertThat(definition.getBeanClassName()).isEqualTo("cn.taketoday.orm.mybatis.mapper.MapperFactoryBean");
       assertThat(definition.getScope()).isEqualTo("thread");
     }
     {
@@ -239,7 +239,7 @@ class MapperScannerConfigurerTest {
     for (String scopedProxyTargetBean : scopedProxyTargetBeans) {
       {
         BeanDefinition definition = applicationContext.getBeanDefinition(scopedProxyTargetBean);
-        assertThat(definition.getBeanClassName()).isEqualTo("org.mybatis.spring.mapper.MapperFactoryBean");
+        assertThat(definition.getBeanClassName()).isEqualTo("cn.taketoday.orm.mybatis.mapper.MapperFactoryBean");
         assertThat(definition.getScope()).isEqualTo("thread");
       }
       {
@@ -355,8 +355,8 @@ class MapperScannerConfigurerTest {
     definition.getPropertyValues().add("configLocation", "${configLocationProperty}");
 
     Properties props = new java.util.Properties();
-    props.put("basePackageProperty", "org.mybatis.spring.mapper");
-    props.put("configLocationProperty", "classpath:org/mybatis/spring/mybatis-config.xml");
+    props.put("basePackageProperty", "cn.taketoday.orm.mybatis.mapper");
+    props.put("configLocationProperty", "classpath:cn/taketoday/orm/mybatis/mybatis-config.xml");
     props.put("mybatis.lazy-initialization", "true");
 
     GenericBeanDefinition propertyDefinition = new GenericBeanDefinition();

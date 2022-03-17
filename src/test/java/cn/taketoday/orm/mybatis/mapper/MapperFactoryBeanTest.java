@@ -29,7 +29,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import cn.taketoday.dao.TransientDataAccessResourceException;
-import cn.taketoday.orm.mybatis.AbstractMyBatisTodayTest;
+import cn.taketoday.orm.mybatis.AbstractMyBatisTest;
 import cn.taketoday.orm.mybatis.MyBatisSystemException;
 import cn.taketoday.orm.mybatis.SqlSessionFactoryBean;
 import cn.taketoday.orm.mybatis.SqlSessionTemplate;
@@ -41,7 +41,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.fail;
 
-class MapperFactoryBeanTest extends AbstractMyBatisTodayTest {
+class MapperFactoryBeanTest extends AbstractMyBatisTest {
 
   private SqlSessionTemplate sqlSessionTemplate;
 
