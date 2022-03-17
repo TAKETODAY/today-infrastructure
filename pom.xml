@@ -4,13 +4,20 @@
 
   <modelVersion>4.0.0</modelVersion>
   <groupId>cn.taketoday</groupId>
-  <artifactId>today-framework</artifactId>
+  <artifactId>today-framework-parent</artifactId>
+  <packaging>pom</packaging>
 
   <!--
   latest  4.0.0-Beta.1 -Alpha.1 -Draft.1 -SNAPSHOT
  -->
   <version>4.0.0-Draft.1</version>
-  <name>TODAY Framework</name>
+  <name>TODAY Framework Root</name>
+
+  <modules>
+    <module>today-test</module>
+    <module>integration-tests</module>
+    <module>today-framework</module>
+  </modules>
 
   <description>
     A Java library for dependency injection and aspect oriented programing and building high-performance web applications like Spring Boot.
@@ -164,6 +171,13 @@
              jakarta
         ======================================================
     -->
+
+    <dependency>
+      <groupId>jakarta.transaction</groupId>
+      <artifactId>jakarta.transaction-api</artifactId>
+      <version>2.0.0</version>
+      <scope>provided</scope>
+    </dependency>
 
     <dependency>
       <groupId>jakarta.servlet</groupId>
@@ -1139,13 +1153,6 @@
       <groupId>org.glassfish</groupId>
       <artifactId>jakarta.el</artifactId>
       <version>4.0.2</version>
-      <scope>test</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>jakarta.transaction</groupId>
-      <artifactId>jakarta.transaction-api</artifactId>
-      <version>1.3.3</version>
       <scope>test</scope>
     </dependency>
 
