@@ -94,7 +94,7 @@ import cn.taketoday.test.context.support.AbstractTestExecutionListener;
  *
  * <h3>Asynchronous Listeners</h3>
  * <p>If you want a particular test event listener to process events asynchronously,
- * you can use Spring's {@link cn.taketoday.scheduling.annotation.Async @Async}
+ * you can use Framework's {@link cn.taketoday.scheduling.annotation.Async @Async}
  * support. For further details, consult the class-level Javadoc for
  * {@link cn.taketoday.context.event.EventListener @EventListener}.
  *

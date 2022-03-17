@@ -26,7 +26,6 @@ import java.util.concurrent.ConcurrentMap;
 
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanFactoryAware;
-import cn.taketoday.beans.factory.BeanFactoryUtils;
 import cn.taketoday.beans.factory.InitializingBean;
 import cn.taketoday.beans.factory.annotation.BeanFactoryAnnotationUtils;
 import cn.taketoday.core.NamedThreadLocal;
@@ -766,7 +765,7 @@ public abstract class TransactionAspectSupport implements BeanFactoryAware, Init
    * Concrete interceptors/aspects adapt this to their invocation mechanism.
    */
   @FunctionalInterface
-  protected interface InvocationCallback {
+  public interface InvocationCallback {
 
     @Nullable
     Object proceedWithInvocation() throws Throwable;

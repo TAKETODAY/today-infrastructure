@@ -47,7 +47,7 @@ import cn.taketoday.test.context.junit4.SpringJUnit4ClassRunner;
  * associated support classes and annotations.
  *
  * <p>In contrast to the {@link SpringJUnit4ClassRunner
- * SpringJUnit4ClassRunner}, Spring's rule-based JUnit support has the advantage
+ * SpringJUnit4ClassRunner}, Framework's rule-based JUnit support has the advantage
  * that it is independent of any {@link org.junit.runner.Runner Runner} and
  * can therefore be combined with existing alternative runners like JUnit's
  * {@code Parameterized} or third-party runners such as the {@code MockitoJUnitRunner}.

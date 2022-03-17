@@ -373,8 +373,8 @@ public class SpringJUnit4ClassRunner extends BlockJUnit4ClassRunner {
   /**
    * Perform the same logic as
    * {@link BlockJUnit4ClassRunner#withPotentialTimeout(FrameworkMethod, Object, Statement)}
-   * but with additional support for Spring's {@code @Timed} annotation.
-   * <p>Supports both Spring's {@link Timed @Timed}
+   * but with additional support for Framework's {@code @Timed} annotation.
+   * <p>Supports both Framework's {@link Timed @Timed}
    * and JUnit's {@link Test#timeout() @Test(timeout=...)} annotations, but not both
    * simultaneously.
    *
@@ -393,7 +393,7 @@ public class SpringJUnit4ClassRunner extends BlockJUnit4ClassRunner {
     long springTimeout = getSpringTimeout(frameworkMethod);
     long junitTimeout = getJUnitTimeout(frameworkMethod);
     if (springTimeout > 0 && junitTimeout > 0) {
-      String msg = String.format("Test method [%s] has been configured with Spring's @Timed(millis=%s) and " +
+      String msg = String.format("Test method [%s] has been configured with Framework's @Timed(millis=%s) and " +
               "JUnit's @Test(timeout=%s) annotations, but only one declaration of a 'timeout' is " +
               "permitted per test method.", frameworkMethod.getMethod(), springTimeout, junitTimeout);
       logger.error(msg);
@@ -487,7 +487,7 @@ public class SpringJUnit4ClassRunner extends BlockJUnit4ClassRunner {
 
   /**
    * Wrap the supplied {@link Statement} with a {@code SpringRepeat} statement.
-   * <p>Supports Spring's {@link Repeat @Repeat}
+   * <p>Supports Framework's {@link Repeat @Repeat}
    * annotation.
    *
    * @see TestAnnotationUtils#getRepeatCount(Method)

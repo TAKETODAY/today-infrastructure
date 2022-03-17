@@ -54,7 +54,7 @@ import cn.taketoday.util.StringUtils;
 
 /**
  * {@code TestExecutionListener} that provides support for executing tests
- * within <em>test-managed transactions</em> by honoring Spring's
+ * within <em>test-managed transactions</em> by honoring Framework's
  * {@link Transactional @Transactional} annotation.
  *
  * <h3>Test-managed Transactions</h3>

@@ -25,7 +25,7 @@ import java.lang.reflect.Method;
 import cn.taketoday.core.annotation.AnnotatedElementUtils;
 
 /**
- * Collection of utility methods for working with Spring's core testing annotations.
+ * Collection of utility methods for working with Framework's core testing annotations.
  *
  * @author Sam Brannen
  * @since 4.0

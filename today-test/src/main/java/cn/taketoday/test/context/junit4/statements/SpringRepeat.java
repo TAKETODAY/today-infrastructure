@@ -31,7 +31,7 @@ import cn.taketoday.test.annotation.TestAnnotationUtils;
 
 /**
  * {@code SpringRepeat} is a custom JUnit {@link Statement} which adds support
- * for Spring's {@link Repeat @Repeat}
+ * for Framework's {@link Repeat @Repeat}
  * annotation by repeating the test the specified number of times.
  *
  * @author Sam Brannen

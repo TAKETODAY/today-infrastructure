@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:cache="http://www.springframework.org/schema/cache"
+    xsi:schemaLocation="
+		http://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/cache https://www.springframework.org/schema/cache/spring-cache.xsd">
+
+
+  <!--
+  <aop:config>
+    <aop:advisor advice-ref="debugInterceptor" pointcut="execution(* *..CacheableService.*(..))" order="1"/>
+  </aop:config>
+
+  <bean id="cacheAspect" class="cn.taketoday.cache.aspectj.AnnotationCacheAspect" factory-method="aspectOf">
+    <property name="cacheManager" ref="cacheManager"/>
+    <property name="cacheOperationSources" ref="annotationSource"/>
+  </bean>
+
+  <bean id="annotationSource" class="cn.taketoday.cache.annotation.AnnotationCacheOperationSource"/>
+  -->
+
+  <cache:annotation-driven mode="aspectj" key-generator="keyGenerator" />
+
+  <bean id="keyGenerator" class="cn.taketoday.contextsupport.testfixture.cache.SomeKeyGenerator" />
+
+  <bean id="cacheManager" class="cn.taketoday.cache.support.SimpleCacheManager">
+    <property name="caches">
+      <set>
+        <bean class="cn.taketoday.cache.concurrent.ConcurrentMapCacheFactoryBean">
+          <property name="name" value="testCache" />
+        </bean>
+        <bean class="cn.taketoday.cache.concurrent.ConcurrentMapCacheFactoryBean">
+          <property name="name" value="primary" />
+        </bean>
+        <bean class="cn.taketoday.cache.concurrent.ConcurrentMapCacheFactoryBean">
+          <property name="name" value="secondary" />
+        </bean>
+      </set>
+    </property>
+  </bean>
+
+  <bean id="customKeyGenerator" class="cn.taketoday.context.testfixture.cache.SomeCustomKeyGenerator" />
+
+  <bean id="customCacheManager" class="cn.taketoday.cache.support.SimpleCacheManager">
+    <property name="caches">
+      <set>
+        <bean class="cn.taketoday.cache.concurrent.ConcurrentMapCacheFactoryBean">
+          <property name="name" value="testCache" />
+        </bean>
+      </set>
+    </property>
+  </bean>
+
+  <bean id="debugInterceptor" class="cn.taketoday.aop.interceptor.DebugInterceptor" />
+
+  <bean id="service" class="cn.taketoday.cache.config.DefaultCacheableService" />
+
+  <bean id="classService" class="cn.taketoday.cache.config.AnnotatedClassCacheableService" />
+
+</beans>

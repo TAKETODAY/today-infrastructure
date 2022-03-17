@@ -28,7 +28,7 @@ import cn.taketoday.lang.Assert;
  * {@code AopTestUtils} is a collection of AOP-related utility methods for
  * use in unit and integration testing scenarios.
  *
- * <p>For Spring's core AOP utilities, see
+ * <p>For Framework's core AOP utilities, see
  * {@link cn.taketoday.aop.support.AopUtils AopUtils} and
  * {@link cn.taketoday.aop.framework.AopProxyUtils AopProxyUtils}.
  *

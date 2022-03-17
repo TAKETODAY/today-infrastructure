@@ -47,7 +47,7 @@ import cn.taketoday.util.StringUtils;
  * <li>ORM frameworks such as JPA and Hibernate which condone the usage of
  * {@code private} or {@code protected} field access as opposed to
  * {@code public} setter methods for properties in a domain entity.</li>
- * <li>Spring's support for annotations such as
+ * <li>Framework's support for annotations such as
  * {@link cn.taketoday.beans.factory.annotation.Autowired @Autowired},
  * {@link jakarta.inject.Inject @Inject}, and
  * {@link jakarta.annotation.Resource @Resource} which provides dependency

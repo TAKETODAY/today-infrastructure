@@ -29,7 +29,7 @@ import java.lang.annotation.Target;
 /**
  * <p>Test annotation which indicates that the annotated {@code void} method
  * should be executed <em>after</em> a transaction is ended for a test method
- * configured to run within a transaction via Spring's {@code @Transactional}
+ * configured to run within a transaction via Framework's {@code @Transactional}
  * annotation.
  *
  * <p>{@code @AfterTransaction} methods declared in superclasses or as interface

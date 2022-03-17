@@ -31,7 +31,7 @@ import cn.taketoday.test.annotation.Timed;
 
 /**
  * {@code SpringFailOnTimeout} is a custom JUnit {@link Statement} which adds
- * support for Spring's {@link Timed @Timed}
+ * support for Framework's {@link Timed @Timed}
  * annotation by throwing an exception if the next statement in the execution
  * chain takes more than the specified number of milliseconds.
  *

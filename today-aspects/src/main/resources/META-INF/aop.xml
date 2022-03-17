@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+
+<!--
+	AspectJ load-time weaving config file to install common Spring aspects.
+-->
+<aspectj>
+
+  <!--
+  <weaver options="-showWeaveInfo"/>
+  -->
+
+  <aspects>
+    <aspect name="cn.taketoday.beans.factory.aspectj.AnnotationBeanConfigurerAspect" />
+    <aspect name="cn.taketoday.scheduling.aspectj.AnnotationAsyncExecutionAspect" />
+    <aspect name="cn.taketoday.transaction.aspectj.AnnotationTransactionAspect" />
+    <aspect name="cn.taketoday.transaction.aspectj.JtaAnnotationTransactionAspect" />
+    <aspect name="cn.taketoday.cache.aspectj.AnnotationCacheAspect" />
+    <aspect name="cn.taketoday.cache.aspectj.JCacheCacheAspect" />
+  </aspects>
+
+</aspectj>

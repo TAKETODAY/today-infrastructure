@@ -61,7 +61,7 @@ import cn.taketoday.core.annotation.AliasFor;
  *
  * <p>Since JUnit 5.7, JUnit Jupiter also has a condition annotation named
  * {@link org.junit.jupiter.api.condition.DisabledIf @DisabledIf}. Thus, if you
- * wish to use Spring's {@code @DisabledIf} support make sure you import the
+ * wish to use Framework's {@code @DisabledIf} support make sure you import the
  * annotation type from the correct package.
  *
  * @author Sam Brannen

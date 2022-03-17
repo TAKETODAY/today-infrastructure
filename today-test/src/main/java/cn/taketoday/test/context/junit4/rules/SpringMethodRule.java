@@ -51,7 +51,7 @@ import cn.taketoday.test.context.junit4.SpringJUnit4ClassRunner;
  * annotations.
  *
  * <p>In contrast to the {@link SpringJUnit4ClassRunner
- * SpringJUnit4ClassRunner}, Spring's rule-based JUnit support has the advantage
+ * SpringJUnit4ClassRunner}, Framework's rule-based JUnit support has the advantage
  * that it is independent of any {@link org.junit.runner.Runner Runner} and
  * can therefore be combined with existing alternative runners like JUnit's
  * {@code Parameterized} or third-party runners such as the {@code MockitoJUnitRunner}.
@@ -195,7 +195,7 @@ public class SpringMethodRule implements MethodRule {
 
   /**
    * Wrap the supplied {@link Statement} with a {@code SpringRepeat} statement.
-   * <p>Supports Spring's {@link Repeat @Repeat}
+   * <p>Supports Framework's {@link Repeat @Repeat}
    * annotation.
    *
    * @see SpringRepeat
@@ -206,7 +206,7 @@ public class SpringMethodRule implements MethodRule {
 
   /**
    * Wrap the supplied {@link Statement} with a {@code SpringFailOnTimeout} statement.
-   * <p>Supports Spring's {@link Timed @Timed}
+   * <p>Supports Framework's {@link Timed @Timed}
    * annotation.
    *
    * @see SpringFailOnTimeout

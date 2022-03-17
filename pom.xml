@@ -58,6 +58,7 @@
     <slf4j.version>1.7.25</slf4j.version>
     <spring-jdbc.version>5.2.3.RELEASE</spring-jdbc.version>
     <reactor.version>3.4.16</reactor.version>
+    <aspectj.version>1.9.8</aspectj.version>
 
     <!--doc-->
     <site.output.dir>${project.build.directory}/staging</site.output.dir>
@@ -695,21 +696,21 @@
     <dependency>
       <groupId>org.aspectj</groupId>
       <artifactId>aspectjrt</artifactId>
-      <version>1.9.8.RC3</version>
+      <version>${aspectj.version}</version>
       <scope>provided</scope>
     </dependency>
 
     <dependency>
       <groupId>org.aspectj</groupId>
       <artifactId>aspectjweaver</artifactId>
-      <version>1.9.8.RC3</version>
+      <version>${aspectj.version}</version>
       <scope>provided</scope>
     </dependency>
 
     <dependency>
       <groupId>org.aspectj</groupId>
       <artifactId>aspectjtools</artifactId>
-      <version>1.9.8.RC3</version>
+      <version>${aspectj.version}</version>
       <scope>provided</scope>
     </dependency>
 

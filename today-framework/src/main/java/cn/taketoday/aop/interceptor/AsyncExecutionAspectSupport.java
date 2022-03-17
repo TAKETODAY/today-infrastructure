@@ -312,7 +312,7 @@ public abstract class AsyncExecutionAspectSupport implements BeanFactoryAware {
    * @param method the method that was invoked
    * @param params the parameters used to invoke the method
    */
-  protected void handleError(Throwable ex, Method method, Object... params) throws Exception {
+  public void handleError(Throwable ex, Method method, Object... params) throws Exception {
     if (Future.class.isAssignableFrom(method.getReturnType())) {
       ReflectionUtils.rethrowException(ex);
     }

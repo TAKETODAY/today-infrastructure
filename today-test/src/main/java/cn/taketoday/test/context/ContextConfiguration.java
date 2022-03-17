@@ -174,7 +174,7 @@ public @interface ContextConfiguration {
    * declared initializer must be compatible with the type of {@code ApplicationContext}
    * created by the {@link SmartContextLoader} in use.
    * <p>{@code SmartContextLoader} implementations typically detect whether
-   * Spring's {@link cn.taketoday.core.Ordered Ordered} interface has been
+   * Framework's {@link cn.taketoday.core.Ordered Ordered} interface has been
    * implemented or if the @{@link cn.taketoday.core.annotation.Order Order}
    * annotation is present and sort instances accordingly prior to invoking them.
    *

@@ -35,7 +35,7 @@ import cn.taketoday.test.annotation.ProfileValueUtils;
 /**
  * {@code ProfileValueChecker} is a custom JUnit {@link Statement} that checks
  * whether a test class or test method is enabled in the current environment
- * via Spring's {@link IfProfileValue @IfProfileValue} annotation.
+ * via Framework's {@link IfProfileValue @IfProfileValue} annotation.
  *
  * @author Sam Brannen
  * @author Philippe Marschall

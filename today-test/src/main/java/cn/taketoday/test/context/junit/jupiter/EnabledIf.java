@@ -61,7 +61,7 @@ import cn.taketoday.core.annotation.AliasFor;
  *
  * <p>Since JUnit 5.7, JUnit Jupiter also has a condition annotation named
  * {@link org.junit.jupiter.api.condition.EnabledIf @EnabledIf}. Thus, if you
- * wish to use Spring's {@code @EnabledIf} support make sure you import the
+ * wish to use Framework's {@code @EnabledIf} support make sure you import the
  * annotation type from the correct package.
  *
  * @author Sam Brannen
