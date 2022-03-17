@@ -39,7 +39,7 @@ import jakarta.servlet.ServletContext;
  * @author Juergen Hoeller
  * @see MockFilterChain
  * @see PassThroughFilterChain
- * @since 1.0.2
+ * @since 4.0
  */
 public class MockFilterConfig implements FilterConfig {
 

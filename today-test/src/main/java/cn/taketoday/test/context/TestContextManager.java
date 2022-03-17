@@ -574,7 +574,7 @@ public class TestContextManager {
    */
   private static TestContext copyTestContext(TestContext testContext) {
     Constructor<? extends TestContext> constructor =
-            ClassUtils.getConstructorIfAvailable(testContext.getClass(), testContext.getClass());
+            ReflectionUtils.getConstructorIfAvailable(testContext.getClass(), testContext.getClass());
 
     if (constructor != null) {
       try {

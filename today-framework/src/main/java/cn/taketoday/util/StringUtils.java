@@ -691,6 +691,60 @@ else */
     return sb.toString();
   }
 
+  //---------------------------------------------------------------------
+  // Convenience methods for working with formatted Strings
+  //---------------------------------------------------------------------
+
+  /**
+   * Quote the given {@code String} with single quotes.
+   *
+   * @param str the input {@code String} (e.g. "myString")
+   * @return the quoted {@code String} (e.g. "'myString'"),
+   * or {@code null} if the input was {@code null}
+   * @since 4.0
+   */
+  @Nullable
+  public static String quote(@Nullable String str) {
+    return (str != null ? "'" + str + "'" : null);
+  }
+
+  /**
+   * Turn the given Object into a {@code String} with single quotes
+   * if it is a {@code String}; keeping the Object as-is else.
+   *
+   * @param obj the input Object (e.g. "myString")
+   * @return the quoted {@code String} (e.g. "'myString'"),
+   * or the input object as-is if not a {@code String}
+   * @since 4.0
+   */
+  @Nullable
+  public static Object quoteIfString(@Nullable Object obj) {
+    return obj instanceof String ? quote((String) obj) : obj;
+  }
+
+  /**
+   * Unqualify a string qualified by a '.' dot character. For example,
+   * "this.name.is.qualified", returns "qualified".
+   *
+   * @param qualifiedName the qualified name
+   * @since 4.0
+   */
+  public static String unqualify(String qualifiedName) {
+    return unqualify(qualifiedName, '.');
+  }
+
+  /**
+   * Unqualify a string qualified by a separator character. For example,
+   * "this:name:is:qualified" returns "qualified" if using a ':' separator.
+   *
+   * @param qualifiedName the qualified name
+   * @param separator the separator
+   * @since 4.0
+   */
+  public static String unqualify(String qualifiedName, char separator) {
+    return qualifiedName.substring(qualifiedName.lastIndexOf(separator) + 1);
+  }
+
   /**
    * Capitalize a {@code String}, changing the first letter to upper case as per
    * {@link Character#toUpperCase(char)}. No other letters are changed.

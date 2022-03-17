@@ -101,7 +101,7 @@ abstract class ActiveProfilesUtils {
       }
       else {
         try {
-          resolver = BeanUtils.newInstance(resolverClass, ActiveProfilesResolver.class);
+          resolver = BeanUtils.newInstance(resolverClass);
         }
         catch (Exception ex) {
           String msg = String.format("Could not instantiate ActiveProfilesResolver of type [%s] " +

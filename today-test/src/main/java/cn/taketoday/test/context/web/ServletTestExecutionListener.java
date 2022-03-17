@@ -37,6 +37,7 @@ import cn.taketoday.test.context.TestExecutionListener;
 import cn.taketoday.test.context.support.AbstractTestExecutionListener;
 import cn.taketoday.test.context.support.DependencyInjectionTestExecutionListener;
 import cn.taketoday.web.RequestContextHolder;
+import cn.taketoday.web.servlet.ServletRequestContext;
 import cn.taketoday.web.servlet.WebServletApplicationContext;
 import jakarta.servlet.ServletContext;
 
@@ -205,16 +206,15 @@ public class ServletTestExecutionListener extends AbstractTestExecutionListener 
       MockHttpServletRequest request = new MockHttpServletRequest(mockServletContext);
       request.setAttribute(CREATED_BY_THE_TESTCONTEXT_FRAMEWORK, Boolean.TRUE);
       MockHttpServletResponse response = new MockHttpServletResponse();
-      ServletWebRequest servletWebRequest = new ServletWebRequest(request, response);
 
-      RequestContextHolder.setRequestAttributes(servletWebRequest);
+      RequestContextHolder.set(new ServletRequestContext(wac, request, response));
+//      RequestContextHolder.setRequestAttributes(servletWebRequest);
       testContext.setAttribute(POPULATED_REQUEST_CONTEXT_HOLDER_ATTRIBUTE, Boolean.TRUE);
       testContext.setAttribute(RESET_REQUEST_CONTEXT_HOLDER_ATTRIBUTE, Boolean.TRUE);
 
       if (wac instanceof ConfigurableApplicationContext configurableApplicationContext) {
         ConfigurableBeanFactory bf = configurableApplicationContext.getBeanFactory();
         bf.registerDependency(MockHttpServletResponse.class, response);
-        bf.registerDependency(ServletWebRequest.class, servletWebRequest);
       }
     }
   }

@@ -313,6 +313,33 @@ class StringUtilsTests {
   }
 
   @Test
+  void quote() {
+    assertThat(StringUtils.quote("myString")).isEqualTo("'myString'");
+    assertThat(StringUtils.quote("")).isEqualTo("''");
+    assertThat(StringUtils.quote(null)).isNull();
+  }
+
+  @Test
+  void quoteIfString() {
+    assertThat(StringUtils.quoteIfString("myString")).isEqualTo("'myString'");
+    assertThat(StringUtils.quoteIfString("")).isEqualTo("''");
+    assertThat(StringUtils.quoteIfString(5)).isEqualTo(5);
+    assertThat(StringUtils.quoteIfString(null)).isNull();
+  }
+
+  @Test
+  void unqualify() {
+    String qualified = "i.am.not.unqualified";
+    assertThat(StringUtils.unqualify(qualified)).isEqualTo("unqualified");
+  }
+
+  @Test
+  void capitalize() {
+    String capitalized = "i am not capitalized";
+    assertThat(StringUtils.capitalize(capitalized)).isEqualTo("I am not capitalized");
+  }
+
+  @Test
   void uncapitalize() {
     String capitalized = "I am capitalized";
     assertThat(StringUtils.uncapitalize(capitalized)).isEqualTo("i am capitalized");

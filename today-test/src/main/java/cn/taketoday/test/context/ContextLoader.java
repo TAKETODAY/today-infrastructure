@@ -22,7 +22,6 @@ package cn.taketoday.test.context;
 
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.test.context.support.AnnotationConfigContextLoader;
-import cn.taketoday.test.context.support.GenericPropertiesContextLoader;
 import cn.taketoday.test.context.support.GenericXmlContextLoader;
 
 /**
@@ -45,14 +44,13 @@ import cn.taketoday.test.context.support.GenericXmlContextLoader;
  * <p>Spring provides the following out-of-the-box implementations:
  * <ul>
  * <li>{@link GenericXmlContextLoader GenericXmlContextLoader}</li>
- * <li>{@link GenericPropertiesContextLoader GenericPropertiesContextLoader}</li>
  * </ul>
  *
  * @author Sam Brannen
  * @author Juergen Hoeller
  * @see SmartContextLoader
  * @see AnnotationConfigContextLoader AnnotationConfigContextLoader
- * @since 2.5
+ * @since 4.0
  */
 public interface ContextLoader {
 

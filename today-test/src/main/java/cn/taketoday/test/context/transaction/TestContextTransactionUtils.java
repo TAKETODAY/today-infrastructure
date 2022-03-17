@@ -30,12 +30,10 @@ import javax.sql.DataSource;
 import cn.taketoday.beans.BeansException;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanFactoryUtils;
-import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.test.context.TestContext;
 import cn.taketoday.transaction.PlatformTransactionManager;
-import cn.taketoday.transaction.TransactionManager;
 import cn.taketoday.transaction.annotation.TransactionManagementConfigurer;
 import cn.taketoday.transaction.interceptor.DelegatingTransactionAttribute;
 import cn.taketoday.transaction.interceptor.TransactionAttribute;
@@ -109,21 +107,19 @@ public abstract class TestContextTransactionUtils {
     }
 
     try {
-      if (bf instanceof BeanFactory lbf) {
-        // Look up single bean by type
-        Map<String, DataSource> dataSources =
-                BeanFactoryUtils.beansOfTypeIncludingAncestors(lbf, DataSource.class);
-        if (dataSources.size() == 1) {
-          return dataSources.values().iterator().next();
-        }
+      // Look up single bean by type
+      Map<String, DataSource> dataSources =
+              BeanFactoryUtils.beansOfTypeIncludingAncestors(bf, DataSource.class);
+      if (dataSources.size() == 1) {
+        return dataSources.values().iterator().next();
+      }
 
-        try {
-          // look up single bean by type, with support for 'primary' beans
-          return bf.getBean(DataSource.class);
-        }
-        catch (BeansException ex) {
-          logBeansException(testContext, ex, PlatformTransactionManager.class);
-        }
+      try {
+        // look up single bean by type, with support for 'primary' beans
+        return bf.getBean(DataSource.class);
+      }
+      catch (BeansException ex) {
+        logBeansException(testContext, ex, PlatformTransactionManager.class);
       }
 
       // look up by type and default name
@@ -182,34 +178,28 @@ public abstract class TestContextTransactionUtils {
     }
 
     try {
-      if (bf instanceof BeanFactory lbf) {
-        // Look up single TransactionManagementConfigurer
-        Map<String, TransactionManagementConfigurer> configurers =
-                BeanFactoryUtils.beansOfTypeIncludingAncestors(lbf, TransactionManagementConfigurer.class);
-        Assert.state(configurers.size() <= 1,
-                "Only one TransactionManagementConfigurer may exist in the ApplicationContext");
-        if (configurers.size() == 1) {
-          TransactionManager tm = configurers.values().iterator().next().annotationDrivenTransactionManager();
-          Assert.state(tm instanceof PlatformTransactionManager, () ->
-                  "Transaction manager specified via TransactionManagementConfigurer " +
-                          "is not a PlatformTransactionManager: " + tm);
-          return (PlatformTransactionManager) tm;
-        }
+      // Look up single TransactionManagementConfigurer
+      Map<String, TransactionManagementConfigurer> configurers =
+              BeanFactoryUtils.beansOfTypeIncludingAncestors(bf, TransactionManagementConfigurer.class);
+      Assert.state(configurers.size() <= 1,
+              "Only one TransactionManagementConfigurer may exist in the ApplicationContext");
+      if (configurers.size() == 1) {
+        return configurers.values().iterator().next().annotationDrivenTransactionManager();
+      }
 
-        // Look up single bean by type
-        Map<String, PlatformTransactionManager> txMgrs =
-                BeanFactoryUtils.beansOfTypeIncludingAncestors(lbf, PlatformTransactionManager.class);
-        if (txMgrs.size() == 1) {
-          return txMgrs.values().iterator().next();
-        }
+      // Look up single bean by type
+      Map<String, PlatformTransactionManager> txMgrs =
+              BeanFactoryUtils.beansOfTypeIncludingAncestors(bf, PlatformTransactionManager.class);
+      if (txMgrs.size() == 1) {
+        return txMgrs.values().iterator().next();
+      }
 
-        try {
-          // Look up single bean by type, with support for 'primary' beans
-          return bf.getBean(PlatformTransactionManager.class);
-        }
-        catch (BeansException ex) {
-          logBeansException(testContext, ex, PlatformTransactionManager.class);
-        }
+      try {
+        // Look up single bean by type, with support for 'primary' beans
+        return bf.getBean(PlatformTransactionManager.class);
+      }
+      catch (BeansException ex) {
+        logBeansException(testContext, ex, PlatformTransactionManager.class);
       }
 
       // look up by type and default name

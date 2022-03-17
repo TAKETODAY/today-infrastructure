@@ -36,6 +36,7 @@ import cn.taketoday.core.GenericTypeResolver;
 import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
 import cn.taketoday.core.env.PropertySource;
 import cn.taketoday.core.io.ClassPathResource;
+import cn.taketoday.core.io.ResourceLoader;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.test.context.ContextConfigurationAttributes;
 import cn.taketoday.test.context.ContextCustomizer;
@@ -45,7 +46,6 @@ import cn.taketoday.test.context.SmartContextLoader;
 import cn.taketoday.test.context.util.TestContextResourceUtils;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.ObjectUtils;
-import cn.taketoday.util.ResourceUtils;
 
 /**
  * Abstract application context loader that provides a basis for all concrete
@@ -91,7 +91,7 @@ public abstract class AbstractContextLoader implements SmartContextLoader {
    * annotated classes instead of resource locations.
    *
    * @see #processLocations(Class, String...)
-   *@since 4.0
+   * @since 4.0
    */
   @Override
   public void processContextConfiguration(ContextConfigurationAttributes configAttributes) {
@@ -143,7 +143,6 @@ public abstract class AbstractContextLoader implements SmartContextLoader {
     invokeApplicationContextInitializers(context, mergedConfig);
   }
 
-  @SuppressWarnings("unchecked")
   private void invokeApplicationContextInitializers(ConfigurableApplicationContext context,
           MergedContextConfiguration mergedConfig) {
 
@@ -154,7 +153,7 @@ public abstract class AbstractContextLoader implements SmartContextLoader {
       return;
     }
 
-    List<ApplicationContextInitializer<ConfigurableApplicationContext>> initializerInstances = new ArrayList<>();
+    List<ApplicationContextInitializer> initializerInstances = new ArrayList<>();
     Class<?> contextClass = context.getClass();
 
     for (Class<? extends ApplicationContextInitializer> initializerClass : initializerClasses) {
@@ -167,11 +166,11 @@ public abstract class AbstractContextLoader implements SmartContextLoader {
                         "context loader: [%s]", initializerClass.getName(), initializerContextClass.getName(),
                 contextClass.getName()));
       }
-      initializerInstances.add((ApplicationContextInitializer<ConfigurableApplicationContext>) BeanUtils.newInstance(initializerClass));
+      initializerInstances.add((ApplicationContextInitializer) BeanUtils.newInstance(initializerClass));
     }
 
     AnnotationAwareOrderComparator.sort(initializerInstances);
-    for (ApplicationContextInitializer<ConfigurableApplicationContext> initializer : initializerInstances) {
+    for (ApplicationContextInitializer initializer : initializerInstances) {
       initializer.initialize(context);
     }
   }
@@ -254,7 +253,7 @@ public abstract class AbstractContextLoader implements SmartContextLoader {
       String resourcePath = ClassUtils.convertClassNameToResourcePath(clazz.getName()) + suffix;
       ClassPathResource classPathResource = new ClassPathResource(resourcePath);
       if (classPathResource.exists()) {
-        String prefixedResourcePath = ResourceUtils.CLASSPATH_URL_PREFIX + resourcePath;
+        String prefixedResourcePath = ResourceLoader.CLASSPATH_URL_PREFIX + resourcePath;
         if (logger.isInfoEnabled()) {
           logger.info(String.format("Detected default resource location \"%s\" for test class [%s]",
                   prefixedResourcePath, clazz.getName()));

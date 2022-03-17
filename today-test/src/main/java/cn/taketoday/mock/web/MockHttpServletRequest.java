@@ -47,14 +47,14 @@ import java.util.Set;
 import java.util.TimeZone;
 import java.util.stream.Collectors;
 
+import cn.taketoday.core.LinkedMultiValueMap;
+import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.MediaType;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.NonNull;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.LinkedCaseInsensitiveMap;
-import cn.taketoday.core.LinkedMultiValueMap;
-import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StreamUtils;
 import cn.taketoday.util.StringUtils;
@@ -89,7 +89,7 @@ import jakarta.servlet.http.Part;
  * @author Chris Beams
  * @author Sam Brannen
  * @author Brian Clozel
- * @since 1.0.2
+ * @since 4.0
  */
 public class MockHttpServletRequest implements HttpServletRequest {
 
@@ -408,9 +408,9 @@ public class MockHttpServletRequest implements HttpServletRequest {
   }
 
   private void updateContentTypeHeader() {
-    if (StringUtils.hasLength(this.contentType)) {
+    if (StringUtils.isNotEmpty(this.contentType)) {
       String value = this.contentType;
-      if (StringUtils.hasLength(this.characterEncoding) && !this.contentType.toLowerCase().contains(CHARSET_PREFIX)) {
+      if (StringUtils.isNotEmpty(this.characterEncoding) && !this.contentType.toLowerCase().contains(CHARSET_PREFIX)) {
         value += ';' + CHARSET_PREFIX + this.characterEncoding;
       }
       doAddHeaderValue(HttpHeaders.CONTENT_TYPE, value, true);

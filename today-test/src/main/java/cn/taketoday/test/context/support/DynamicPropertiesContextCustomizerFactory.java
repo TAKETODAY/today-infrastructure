@@ -58,7 +58,7 @@ class DynamicPropertiesContextCustomizerFactory implements ContextCustomizerFact
   }
 
   private void findMethods(Class<?> testClass, Set<Method> methods) {
-    methods.addAll(MethodIntrospector.selectMethods(testClass, this::isAnnotated));
+    methods.addAll(MethodIntrospector.filterMethods(testClass, this::isAnnotated));
     if (TestContextAnnotationUtils.searchEnclosingClass(testClass)) {
       findMethods(testClass.getEnclosingClass(), methods);
     }

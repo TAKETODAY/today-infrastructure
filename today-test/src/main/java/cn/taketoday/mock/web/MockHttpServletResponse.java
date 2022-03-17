@@ -45,10 +45,10 @@ import java.util.TimeZone;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.MediaType;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.LinkedCaseInsensitiveMap;
 import cn.taketoday.util.StringUtils;
-import cn.taketoday.web.util.WebUtils;
 import jakarta.servlet.ServletOutputStream;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
@@ -64,7 +64,7 @@ import jakarta.servlet.http.HttpServletResponse;
  * @author Vedran Pavic
  * @author Sebastien Deleuze
  * @author Sam Brannen
- * @since 1.0.2
+ * @since 4.0
  */
 public class MockHttpServletResponse implements HttpServletResponse {
 
@@ -82,7 +82,7 @@ public class MockHttpServletResponse implements HttpServletResponse {
 
   private boolean writerAccessAllowed = true;
 
-  private String defaultCharacterEncoding = WebUtils.DEFAULT_CHARACTER_ENCODING;
+  private String defaultCharacterEncoding = Constant.DEFAULT_ENCODING;
 
   private String characterEncoding = this.defaultCharacterEncoding;
 

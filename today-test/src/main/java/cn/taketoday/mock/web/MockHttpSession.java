@@ -47,7 +47,7 @@ import jakarta.servlet.http.HttpSessionBindingListener;
  * @author Mark Fisher
  * @author Sam Brannen
  * @author Vedran Pavic
- * @since 1.0.2
+ * @since 4.0
  */
 @SuppressWarnings("deprecation")
 public class MockHttpSession implements HttpSession {

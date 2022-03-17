@@ -49,7 +49,6 @@ import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.MimeType;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
-import cn.taketoday.web.util.WebUtils;
 import jakarta.servlet.Filter;
 import jakarta.servlet.FilterRegistration;
 import jakarta.servlet.RequestDispatcher;
@@ -87,7 +86,7 @@ import jakarta.servlet.descriptor.JspConfigDescriptor;
  * @see cn.taketoday.web.context.support.AnnotationConfigWebApplicationContext
  * @see cn.taketoday.web.context.support.XmlWebApplicationContext
  * @see cn.taketoday.web.context.support.GenericWebApplicationContext
- * @since 1.0.2
+ * @since 4.0
  */
 public class MockServletContext implements ServletContext {
 
@@ -97,6 +96,11 @@ public class MockServletContext implements ServletContext {
   private static final String TEMP_DIR_SYSTEM_PROPERTY = "java.io.tmpdir";
 
   private static final Set<SessionTrackingMode> DEFAULT_SESSION_TRACKING_MODES = new LinkedHashSet<>(4);
+  /**
+   * Standard Servlet spec context attribute that specifies a temporary
+   * directory for the current web application, of type {@code java.io.File}.
+   */
+  public static final String TEMP_DIR_CONTEXT_ATTRIBUTE = "jakarta.servlet.context.tempdir";
 
   static {
     DEFAULT_SESSION_TRACKING_MODES.add(SessionTrackingMode.COOKIE);
@@ -196,7 +200,7 @@ public class MockServletContext implements ServletContext {
     // Use JVM temp dir as ServletContext temp dir.
     String tempDir = System.getProperty(TEMP_DIR_SYSTEM_PROPERTY);
     if (tempDir != null) {
-      this.attributes.put(WebUtils.TEMP_DIR_CONTEXT_ATTRIBUTE, new File(tempDir));
+      this.attributes.put(TEMP_DIR_CONTEXT_ATTRIBUTE, new File(tempDir));
     }
 
     registerNamedDispatcher(this.defaultServletName, new MockRequestDispatcher(this.defaultServletName));
@@ -340,7 +344,7 @@ public class MockServletContext implements ServletContext {
       if (!resource.exists()) {
         return null;
       }
-      return resource.getURL();
+      return resource.getLocation();
     }
     catch (MalformedURLException ex) {
       throw ex;

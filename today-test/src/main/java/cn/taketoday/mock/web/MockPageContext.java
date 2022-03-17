@@ -52,7 +52,7 @@ import jakarta.servlet.jsp.PageContext;
  * JspWriter, request dispatching, or {@code handlePageException} calls.
  *
  * @author Juergen Hoeller
- * @since 1.0.2
+ * @since 4.0
  */
 public class MockPageContext extends PageContext {
 

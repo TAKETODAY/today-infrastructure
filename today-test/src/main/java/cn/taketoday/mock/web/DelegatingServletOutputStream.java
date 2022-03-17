@@ -35,7 +35,7 @@ import jakarta.servlet.WriteListener;
  *
  * @author Juergen Hoeller
  * @see MockHttpServletResponse
- * @since 1.0.2
+ * @since 4.0
  */
 public class DelegatingServletOutputStream extends ServletOutputStream {
 

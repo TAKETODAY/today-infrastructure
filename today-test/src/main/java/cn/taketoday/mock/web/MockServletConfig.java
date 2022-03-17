@@ -35,7 +35,7 @@ import jakarta.servlet.ServletContext;
  *
  * @author Rod Johnson
  * @author Juergen Hoeller
- * @since 1.0.2
+ * @since 4.0
  */
 public class MockServletConfig implements ServletConfig {
 

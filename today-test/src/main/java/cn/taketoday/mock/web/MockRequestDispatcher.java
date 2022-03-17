@@ -36,7 +36,7 @@ import jakarta.servlet.http.HttpServletResponseWrapper;
  * @author Juergen Hoeller
  * @author Sam Brannen
  * @see MockHttpServletRequest#getRequestDispatcher(String)
- * @since 1.0.2
+ * @since 4.0
  */
 public class MockRequestDispatcher implements RequestDispatcher {
 

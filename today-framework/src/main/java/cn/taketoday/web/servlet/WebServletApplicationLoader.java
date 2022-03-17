@@ -69,6 +69,7 @@ import jakarta.servlet.annotation.WebServlet;
  * @author TODAY <br>
  * 2019-01-12 17:28
  */
+@Deprecated
 public class WebServletApplicationLoader
         extends WebApplicationLoader implements ServletContainerInitializer {
 

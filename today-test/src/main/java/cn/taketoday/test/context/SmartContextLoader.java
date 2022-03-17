@@ -23,7 +23,6 @@ package cn.taketoday.test.context;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.test.context.support.AnnotationConfigContextLoader;
 import cn.taketoday.test.context.support.DelegatingSmartContextLoader;
-import cn.taketoday.test.context.support.GenericPropertiesContextLoader;
 import cn.taketoday.test.context.support.GenericXmlContextLoader;
 import cn.taketoday.test.context.web.AnnotationConfigWebContextLoader;
 import cn.taketoday.test.context.web.GenericXmlWebContextLoader;
@@ -68,7 +67,6 @@ import cn.taketoday.test.context.web.WebDelegatingSmartContextLoader;
  * <li>{@link DelegatingSmartContextLoader DelegatingSmartContextLoader}</li>
  * <li>{@link AnnotationConfigContextLoader AnnotationConfigContextLoader}</li>
  * <li>{@link GenericXmlContextLoader GenericXmlContextLoader}</li>
- * <li>{@link GenericPropertiesContextLoader GenericPropertiesContextLoader}</li>
  * <li>{@link WebDelegatingSmartContextLoader WebDelegatingSmartContextLoader}</li>
  * <li>{@link AnnotationConfigWebContextLoader AnnotationConfigWebContextLoader}</li>
  * <li>{@link GenericXmlWebContextLoader GenericXmlWebContextLoader}</li>

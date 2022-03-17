@@ -34,17 +34,18 @@ import cn.taketoday.core.annotation.AnnotatedElementUtils;
 import cn.taketoday.core.io.ByteArrayResource;
 import cn.taketoday.core.io.ClassPathResource;
 import cn.taketoday.core.io.Resource;
+import cn.taketoday.core.io.ResourceLoader;
 import cn.taketoday.jdbc.datasource.init.ResourceDatabasePopulator;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.NonNull;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.test.context.TestContext;
+import cn.taketoday.test.context.TestContextAnnotationUtils;
+import cn.taketoday.test.context.jdbc.SqlMergeMode.MergeMode;
 import cn.taketoday.test.context.support.AbstractTestExecutionListener;
 import cn.taketoday.test.context.transaction.TestContextTransactionUtils;
 import cn.taketoday.test.context.transaction.TransactionalTestExecutionListener;
 import cn.taketoday.test.context.util.TestContextResourceUtils;
-import cn.taketoday.test.context.TestContext;
-import cn.taketoday.test.context.TestContextAnnotationUtils;
-import cn.taketoday.test.context.jdbc.SqlMergeMode.MergeMode;
 import cn.taketoday.transaction.PlatformTransactionManager;
 import cn.taketoday.transaction.TransactionDefinition;
 import cn.taketoday.transaction.interceptor.DefaultTransactionAttribute;
@@ -54,7 +55,6 @@ import cn.taketoday.transaction.support.TransactionTemplate;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.ReflectionUtils;
-import cn.taketoday.util.ResourceUtils;
 import cn.taketoday.util.StringUtils;
 
 /**
@@ -346,7 +346,7 @@ public class SqlScriptsTestExecutionListener extends AbstractTestExecutionListen
     }
     resourcePath += ".sql";
 
-    String prefixedResourcePath = ResourceUtils.CLASSPATH_URL_PREFIX + resourcePath;
+    String prefixedResourcePath = ResourceLoader.CLASSPATH_URL_PREFIX + resourcePath;
     ClassPathResource classPathResource = new ClassPathResource(resourcePath);
 
     if (classPathResource.exists()) {

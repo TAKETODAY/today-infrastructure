@@ -19,7 +19,7 @@
  */
 package cn.taketoday.web;
 
-import cn.taketoday.context.ConfigurableApplicationContext;
+import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.web.servlet.ServletContextAware;
 
 /**
@@ -29,7 +29,7 @@ import cn.taketoday.web.servlet.ServletContextAware;
  * @author TODAY 2019-07-10 22:03
  * @see ServletContextAware#setServletContext
  */
-public interface WebApplicationContext extends ConfigurableApplicationContext {
+public interface WebApplicationContext extends ApplicationContext {
 
   /**
    * Scope identifier for request scope: "request".

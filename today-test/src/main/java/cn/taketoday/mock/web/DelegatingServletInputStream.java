@@ -35,7 +35,7 @@ import jakarta.servlet.ServletInputStream;
  *
  * @author Juergen Hoeller
  * @see MockHttpServletRequest
- * @since 1.0.2
+ * @since 4.0
  */
 public class DelegatingServletInputStream extends ServletInputStream {
 

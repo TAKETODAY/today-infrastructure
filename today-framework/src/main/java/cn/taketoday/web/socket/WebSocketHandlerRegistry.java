@@ -70,7 +70,7 @@ public class WebSocketHandlerRegistry
     }
     AnnotationHandlerFactory factory = context.getBean(AnnotationHandlerFactory.class);
 
-    ConfigurableBeanFactory beanFactory = context.getBeanFactory();
+    ConfigurableBeanFactory beanFactory = context.getBeanFactory().unwrap(ConfigurableBeanFactory.class);
     String[] definitionNames = context.getBeanDefinitionNames();
     for (String beanName : definitionNames) {
       BeanDefinition merged = beanFactory.getMergedBeanDefinition(beanName);

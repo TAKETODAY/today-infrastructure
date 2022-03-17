@@ -27,7 +27,7 @@ import java.util.List;
 import cn.taketoday.beans.BeanUtils;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.web.util.WebUtils;
+import cn.taketoday.web.servlet.ServletUtils;
 import jakarta.servlet.AsyncContext;
 import jakarta.servlet.AsyncEvent;
 import jakarta.servlet.AsyncListener;
@@ -118,7 +118,7 @@ public class MockAsyncContext implements AsyncContext {
 
   @Override
   public void complete() {
-    MockHttpServletRequest mockRequest = WebUtils.getNativeRequest(this.request, MockHttpServletRequest.class);
+    MockHttpServletRequest mockRequest = ServletUtils.getNativeRequest(this.request, MockHttpServletRequest.class);
     if (mockRequest != null) {
       mockRequest.setAsyncStarted(false);
     }

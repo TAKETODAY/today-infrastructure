@@ -106,7 +106,7 @@ abstract class AbstractExpressionEvaluatingCondition implements ExecutionConditi
       return ConditionEvaluationResult.enabled(reason);
     }
 
-    String expression = annotation.map(expressionExtractor).map(String::trim).filter(StringUtils::hasLength)
+    String expression = annotation.map(expressionExtractor).map(String::trim).filter(StringUtils::isNotEmpty)
             .orElseThrow(() -> new IllegalStateException(String.format(
                     "The expression in @%s on [%s] must not be blank", annotationType.getSimpleName(), element)));
 

@@ -52,6 +52,7 @@ import cn.taketoday.web.registry.ViewControllerHandlerRegistry;
 /**
  * @author TODAY 2019-07-10 23:12
  */
+@Deprecated
 public class WebApplicationLoader
         extends WebApplicationContextSupport implements WebApplicationInitializer {
   public static final String ENABLE_WEB_MVC_XML = "enable.webmvc.xml";
@@ -80,7 +81,7 @@ public class WebApplicationLoader
     initializerStartup(context, mvcConfiguration);
 
     context.publishEvent(new ApplicationStartedEvent(context));
-    context.registerShutdownHook();
+//    context.registerShutdownHook();
 
     System.gc();
 

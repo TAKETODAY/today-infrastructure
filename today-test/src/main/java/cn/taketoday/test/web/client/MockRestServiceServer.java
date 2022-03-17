@@ -31,7 +31,6 @@ import cn.taketoday.http.client.ClientHttpRequestFactory;
 import cn.taketoday.http.client.ClientHttpResponse;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.mock.http.client.MockClientHttpRequest;
-import cn.taketoday.test.web.servlet.MockMvc;
 import cn.taketoday.web.client.RestTemplate;
 import cn.taketoday.web.client.support.RestGatewaySupport;
 
@@ -106,7 +105,6 @@ public final class MockRestServiceServer {
    * @param count the expected count
    * @param matcher request matcher
    * @return a representation of the expectation
-   * @since 4.0
    */
   public ResponseActions expect(ExpectedCount count, RequestMatcher matcher) {
     return this.expectationManager.expectRequest(count, matcher);
@@ -130,7 +128,6 @@ public final class MockRestServiceServer {
    * @param timeout how long to wait for all expecations to be met
    * @throws AssertionError if not all expectations are met by the specified
    * timeout, or if any expectation fails at any time before that.
-   * @since 4.0
    */
   public void verify(Duration timeout) {
     this.expectationManager.verify(timeout);
@@ -146,8 +143,6 @@ public final class MockRestServiceServer {
   /**
    * Return a builder for a {@code MockRestServiceServer} that should be used
    * to reply to the given {@code RestTemplate}.
-   *
-   * @since 4.0
    */
   public static MockRestServiceServerBuilder bindTo(RestTemplate restTemplate) {
     return new DefaultBuilder(restTemplate);
@@ -156,8 +151,6 @@ public final class MockRestServiceServer {
   /**
    * Return a builder for a {@code MockRestServiceServer} that should be used
    * to reply to the given {@code RestGatewaySupport}.
-   *
-   * @since 4.0
    */
   public static MockRestServiceServerBuilder bindTo(RestGatewaySupport restGatewaySupport) {
     Assert.notNull(restGatewaySupport, "'restGatewaySupport' must not be null");
@@ -204,8 +197,6 @@ public final class MockRestServiceServer {
      * Use the {@link BufferingClientHttpRequestFactory} wrapper to buffer
      * the input and output streams, and for example, allow multiple reads
      * of the response body.
-     *
-     * @since 4.0
      */
     MockRestServiceServerBuilder bufferContent();
 
