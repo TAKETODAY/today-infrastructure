@@ -195,7 +195,6 @@ public class MutablePersistenceUnitInfo implements SmartPersistenceUnitInfo {
    *
    * @see SmartPersistenceUnitInfo#getManagedPackages()
    * @see #addManagedClassName
-   * @since 4.0
    */
   public void addManagedPackage(String packageName) {
     this.managedPackages.add(packageName);

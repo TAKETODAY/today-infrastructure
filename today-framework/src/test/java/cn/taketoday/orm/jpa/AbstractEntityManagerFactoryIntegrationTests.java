@@ -33,6 +33,7 @@ import cn.taketoday.core.io.Resource;
 import cn.taketoday.dao.DataAccessException;
 import cn.taketoday.jdbc.core.JdbcTemplate;
 import cn.taketoday.jdbc.datasource.init.ResourceDatabasePopulator;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.transaction.PlatformTransactionManager;
 import cn.taketoday.transaction.TransactionException;
 import cn.taketoday.transaction.TransactionStatus;
@@ -55,20 +56,25 @@ public abstract class AbstractEntityManagerFactoryIntegrationTests {
           "/cn/taketoday/orm/jpa/memdb.xml", "/cn/taketoday/orm/jpa/inject.xml"
   };
 
+  @Nullable
   private static ConfigurableApplicationContext applicationContext;
 
+  @Nullable
   protected EntityManagerFactory entityManagerFactory;
 
+  @Nullable
   protected EntityManager sharedEntityManager;
 
+  @Nullable
   protected PlatformTransactionManager transactionManager;
 
   protected DefaultTransactionDefinition transactionDefinition = new DefaultTransactionDefinition();
 
+  @Nullable
   protected TransactionStatus transactionStatus;
 
   private boolean complete = false;
-
+  @Nullable
   protected JdbcTemplate jdbcTemplate;
 
   private boolean zappedTables = false;
