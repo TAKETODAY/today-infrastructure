@@ -62,7 +62,7 @@ import cn.taketoday.beans.factory.config.BeanFactoryPostProcessor;
 import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.config.PropertiesFactoryBean;
 import cn.taketoday.beans.factory.config.RuntimeBeanReference;
-import cn.taketoday.beans.factory.config.SimpleThreadScope;
+import cn.taketoday.context.support.SimpleThreadScope;
 import cn.taketoday.context.ApplicationContextException;
 import cn.taketoday.context.annotation.AnnotationConfigApplicationContext;
 import cn.taketoday.context.annotation.Bean;

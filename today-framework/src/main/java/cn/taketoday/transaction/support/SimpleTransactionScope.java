@@ -28,7 +28,7 @@ import java.util.function.Supplier;
 import cn.taketoday.beans.factory.config.Scope;
 import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.config.CustomScopeConfigurer;
-import cn.taketoday.beans.factory.config.SimpleThreadScope;
+import cn.taketoday.context.support.SimpleThreadScope;
 import cn.taketoday.lang.Nullable;
 
 /**

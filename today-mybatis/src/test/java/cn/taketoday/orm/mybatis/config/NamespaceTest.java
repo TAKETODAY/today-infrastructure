@@ -81,7 +81,8 @@ class NamespaceTest {
       // with no methods are loaded
     }
     finally {
-      applicationContext.close();
+      if (applicationContext != null)
+        applicationContext.close();
     }
   }
 

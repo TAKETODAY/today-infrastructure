@@ -17,12 +17,15 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.beans.factory.config;
+package cn.taketoday.context.support;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Supplier;
 
+import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
+import cn.taketoday.beans.factory.config.CustomScopeConfigurer;
+import cn.taketoday.beans.factory.config.Scope;
 import cn.taketoday.core.NamedThreadLocal;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;

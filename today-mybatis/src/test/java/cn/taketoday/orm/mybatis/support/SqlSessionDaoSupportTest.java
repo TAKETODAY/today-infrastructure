@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -25,6 +25,7 @@ import org.junit.jupiter.api.Test;
 
 import java.sql.SQLException;
 
+import cn.taketoday.beans.factory.BeanCreationException;
 import cn.taketoday.beans.factory.support.RootBeanDefinition;
 import cn.taketoday.context.ApplicationContextException;
 import cn.taketoday.context.annotation.AnnotationConfigUtils;
@@ -87,7 +88,7 @@ class SqlSessionDaoSupportTest extends AbstractMyBatisTest {
   @Test
   void testAutowireWithNoFactoryOrSession() {
     setupContext();
-    assertThrows(ApplicationContextException.class, this::startContext);
+    assertThrows(BeanCreationException.class, this::startContext);
   }
 
   @Test
@@ -97,7 +98,7 @@ class SqlSessionDaoSupportTest extends AbstractMyBatisTest {
     setupSqlSessionFactory("factory1");
     setupSqlSessionFactory("factory2");
 
-    assertThrows(ApplicationContextException.class, this::startContext);
+    assertThrows(BeanCreationException.class, this::startContext);
   }
 
   private void setupContext() {

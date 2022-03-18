@@ -34,7 +34,7 @@ import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
 import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.beans.factory.config.ConstructorArgumentValues;
 import cn.taketoday.beans.factory.config.RuntimeBeanReference;
-import cn.taketoday.beans.factory.config.SimpleThreadScope;
+import cn.taketoday.context.support.SimpleThreadScope;
 import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.support.BeanNameGenerator;
 import cn.taketoday.beans.factory.support.GenericBeanDefinition;
