@@ -26,8 +26,9 @@ import java.io.Serial;
 
 import cn.taketoday.aop.DynamicIntroductionAdvice;
 import cn.taketoday.aop.IntroductionInterceptor;
-import cn.taketoday.aop.framework.AbstractMethodInvocation;
+import cn.taketoday.aop.ProxyMethodInvocation;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
 
 /**
  * Convenient implementation of the {@link IntroductionInterceptor} interface.
@@ -63,6 +64,7 @@ public class DelegatingIntroductionInterceptor
    * Object that actually implements the interfaces.
    * May be "this" if a subclass implements the introduced interfaces.
    */
+  @Nullable
   private Object delegate;
 
   /**
@@ -106,17 +108,18 @@ public class DelegatingIntroductionInterceptor
    * method, which handles introduced interfaces and forwarding to the target.
    */
   @Override
+  @Nullable
   public Object invoke(MethodInvocation mi) throws Throwable {
     if (isMethodOnIntroducedInterface(mi)) {
       // Using the following method rather than direct reflection, we
       // get correct handling of InvocationTargetException
       // if the introduced method throws an exception.
+      Object retVal = AopUtils.invokeJoinpointUsingReflection(this.delegate, mi.getMethod(), mi.getArguments());
 
       // Massage return value if possible: if the delegate returned itself,
       // we really want to return the proxy.
-      Object retVal = AopUtils.invokeJoinpointUsingReflection(this.delegate, mi.getMethod(), mi.getArguments());
-      if (retVal == this.delegate && mi instanceof AbstractMethodInvocation invocation) {
-        Object proxy = invocation.getProxy();
+      if (retVal == this.delegate && mi instanceof ProxyMethodInvocation) {
+        Object proxy = ((ProxyMethodInvocation) mi).getProxy();
         if (mi.getMethod().getReturnType().isInstance(proxy)) {
           retVal = proxy;
         }
@@ -135,6 +138,7 @@ public class DelegatingIntroductionInterceptor
    * that it is introduced into. This method is <strong>never</strong> called for
    * {@link MethodInvocation MethodInvocations} on the introduced interfaces.
    */
+  @Nullable
   protected Object doProceed(MethodInvocation mi) throws Throwable {
     // If we get here, just pass the invocation on.
     return mi.proceed();
