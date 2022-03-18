@@ -42,7 +42,7 @@ import cn.taketoday.web.view.ModelAndView;
  * @author Alef Arendsen
  * @author Bram Smeets
  * @see cn.taketoday.web.view.ModelAndView
- * @since 2.5
+ * @since 4.0
  */
 public abstract class ModelAndViewAssert {
 

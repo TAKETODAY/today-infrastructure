@@ -56,7 +56,7 @@ import cn.taketoday.test.context.web.ServletTestExecutionListener;
  * @see TestExecutionListener
  * @see TestContextManager
  * @see ContextConfiguration
- * @since 2.5
+ * @since 4.0
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)

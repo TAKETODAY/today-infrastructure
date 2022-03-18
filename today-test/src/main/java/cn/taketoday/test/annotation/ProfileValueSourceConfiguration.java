@@ -40,7 +40,7 @@ import java.lang.annotation.Target;
  * @see ProfileValueSource
  * @see IfProfileValue
  * @see ProfileValueUtils
- * @since 2.5
+ * @since 4.0
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)

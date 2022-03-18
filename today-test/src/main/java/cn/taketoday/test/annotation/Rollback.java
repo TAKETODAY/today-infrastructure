@@ -64,7 +64,7 @@ import cn.taketoday.test.context.transaction.TransactionalTestExecutionListener;
  * @author Sam Brannen
  * @see Commit
  * @see TransactionalTestExecutionListener
- * @since 2.5
+ * @since 4.0
  */
 @Target({ ElementType.TYPE, ElementType.METHOD })
 @Retention(RetentionPolicy.RUNTIME)

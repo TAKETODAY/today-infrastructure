@@ -34,7 +34,7 @@ import cn.taketoday.test.context.TestExecutionListener;
  *
  * @author Sam Brannen
  * @author Juergen Hoeller
- * @since 2.5
+ * @since 4.0
  */
 public class DependencyInjectionTestExecutionListener extends AbstractTestExecutionListener {
 

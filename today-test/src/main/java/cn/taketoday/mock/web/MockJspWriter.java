@@ -33,7 +33,7 @@ import jakarta.servlet.jsp.JspWriter;
  * Only necessary for testing applications when testing custom JSP tags.
  *
  * @author Juergen Hoeller
- * @since 2.5
+ * @since 4.0
  */
 public class MockJspWriter extends JspWriter {
 

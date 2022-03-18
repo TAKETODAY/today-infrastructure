@@ -95,7 +95,7 @@ import cn.taketoday.transaction.annotation.Transactional;
  * @see AfterTransaction
  * @see JdbcTestUtils
  * @see AbstractTransactionalJUnit4SpringContextTests
- * @since 2.5
+ * @since 4.0
  */
 @TestExecutionListeners(listeners = { ServletTestExecutionListener.class, DirtiesContextBeforeModesTestExecutionListener.class,
         ApplicationEventsTestExecutionListener.class, DependencyInjectionTestExecutionListener.class,

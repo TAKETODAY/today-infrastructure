@@ -91,7 +91,7 @@ import cn.taketoday.util.ReflectionUtils;
  * @see TestExecutionListeners
  * @see ContextConfiguration
  * @see ContextHierarchy
- * @since 2.5
+ * @since 4.0
  */
 public class TestContextManager {
 
