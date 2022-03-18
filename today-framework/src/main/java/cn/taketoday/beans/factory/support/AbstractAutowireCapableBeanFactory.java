@@ -464,10 +464,8 @@ public abstract class AbstractAutowireCapableBeanFactory
    * @see #applyBeanPostProcessorsAfterInitialization
    */
   public Object initializeBean(Object bean, String beanName, @Nullable RootBeanDefinition def) throws BeansException {
-    if (log.isDebugEnabled()) {
-      log.debug("Initializing bean named '{}'", beanName);
-    }
     invokeAwareMethods(bean, beanName);
+
     if (def == null || !def.isSynthetic()) {
       bean = applyBeanPostProcessorsBeforeInitialization(bean, beanName);
     }

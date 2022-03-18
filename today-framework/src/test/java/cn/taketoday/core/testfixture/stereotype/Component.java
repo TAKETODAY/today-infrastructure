@@ -30,7 +30,7 @@ import java.lang.annotation.Target;
  * Copy of the standard {@code Component} annotation for testing purposes.
  *
  * @author Mark Fisher
- * @since 2.5
+ * @since 4.0
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
