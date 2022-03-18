@@ -55,6 +55,7 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import javax.sql.DataSource;
 
+import cn.taketoday.aop.scope.ScopedProxyFactoryBean;
 import cn.taketoday.beans.Primary;
 import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.beans.factory.config.BeanDefinition;
@@ -62,12 +63,12 @@ import cn.taketoday.beans.factory.config.BeanFactoryPostProcessor;
 import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.config.PropertiesFactoryBean;
 import cn.taketoday.beans.factory.config.RuntimeBeanReference;
-import cn.taketoday.context.support.SimpleThreadScope;
 import cn.taketoday.context.ApplicationContextException;
 import cn.taketoday.context.annotation.AnnotationConfigApplicationContext;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.config.EnableAutoConfiguration;
+import cn.taketoday.context.support.SimpleThreadScope;
 import cn.taketoday.core.annotation.Order;
 import cn.taketoday.framework.config.context.PropertyPlaceholderAutoConfiguration;
 import cn.taketoday.jdbc.config.EmbeddedDataSourceConfiguration;
@@ -248,21 +249,21 @@ class MybatisAutoConfigurationTests {
     assertThat(sqlSessionFactory.getConfiguration().getMapperRegistry().getMappers()).hasSize(1);
   }
 
-//  @Test
-//  void testAutoScanWithDefaultScope() {
-//    TestPropertyValues.of("mybatis.mapper-default-scope:thread").applyTo(this.context);
-//    this.context.register(EmbeddedDataSourceConfiguration.class, MybatisBootMapperScanAutoConfiguration.class,
-//            MybatisAutoConfiguration.class, PropertyPlaceholderAutoConfiguration.class);
-//    this.context.refresh();
-//    {
-//      this.context.getBean(CityMapper.class);
-//      BeanDefinition bd = this.context.getBeanDefinition("cityMapper");
-//      assertThat(bd.getBeanClassName()).isEqualTo(ScopedProxyFactoryBean.class.getName());
-//      BeanDefinition spbd = this.context.getBeanDefinition("scopedTarget.cityMapper");
-//      assertThat(spbd.getBeanClassName()).isEqualTo(MapperFactoryBean.class.getName());
-//      assertThat(spbd.getScope()).isEqualTo("thread");
-//    }
-//  }
+  @Test
+  void testAutoScanWithDefaultScope() {
+    TestPropertyValues.of("mybatis.mapper-default-scope:thread").applyTo(this.context);
+    this.context.register(EmbeddedDataSourceConfiguration.class, MybatisBootMapperScanAutoConfiguration.class,
+            MybatisAutoConfiguration.class, PropertyPlaceholderAutoConfiguration.class);
+    this.context.refresh();
+    {
+      this.context.getBean(CityMapper.class);
+      BeanDefinition bd = this.context.getBeanDefinition("cityMapper");
+      assertThat(bd.getBeanClassName()).isEqualTo(ScopedProxyFactoryBean.class.getName());
+      BeanDefinition spbd = this.context.getBeanDefinition("scopedTarget.cityMapper");
+      assertThat(spbd.getBeanClassName()).isEqualTo(MapperFactoryBean.class.getName());
+      assertThat(spbd.getScope()).isEqualTo("thread");
+    }
+  }
 
   @Test
   void testAutoScanWithoutDefaultScope() {
