@@ -57,6 +57,7 @@ import javax.sql.DataSource;
 
 import cn.taketoday.aop.scope.ScopedProxyFactoryBean;
 import cn.taketoday.beans.Primary;
+import cn.taketoday.beans.factory.BeanCreationException;
 import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.beans.factory.config.BeanFactoryPostProcessor;
@@ -317,7 +318,7 @@ class MybatisAutoConfigurationTests {
     TestPropertyValues.of("mybatis.config-location:foo.xml", "mybatis.check-config-location=true")
             .applyTo(this.context);
     this.context.register(EmbeddedDataSourceConfiguration.class, MybatisAutoConfiguration.class);
-    assertThatExceptionOfType(ApplicationContextException.class)
+    assertThatExceptionOfType(BeanCreationException.class)
             .isThrownBy(context::refresh)
             .withMessageContaining("Error creating bean with name 'mybatisAutoConfiguration': Invocation of init method failed")
             .havingRootCause()
@@ -594,7 +595,7 @@ class MybatisAutoConfigurationTests {
             .applyTo(this.context);
     this.context.register(EmbeddedDataSourceConfiguration.class, MybatisAutoConfiguration.class);
 
-    assertThatExceptionOfType(ApplicationContextException.class)
+    assertThatExceptionOfType(BeanCreationException.class)
             .isThrownBy(context::refresh)
             .havingRootCause()
             .isInstanceOf(IllegalStateException.class)
