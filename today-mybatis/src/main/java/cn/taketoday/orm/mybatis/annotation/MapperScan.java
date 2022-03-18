@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -27,6 +27,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import cn.taketoday.beans.factory.support.AbstractBeanDefinition;
 import cn.taketoday.beans.factory.support.BeanNameGenerator;
 import cn.taketoday.context.annotation.Import;
 import cn.taketoday.orm.mybatis.mapper.MapperFactoryBean;
@@ -182,6 +183,6 @@ public @interface MapperScan {
    *
    * @return the default scope
    */
-  String defaultScope() default "";
+  String defaultScope() default AbstractBeanDefinition.SCOPE_DEFAULT;
 
 }

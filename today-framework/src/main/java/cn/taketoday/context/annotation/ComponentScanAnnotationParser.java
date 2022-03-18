@@ -122,7 +122,7 @@ class ComponentScanAnnotationParser {
       }
     });
 
-    return scanner.doScan(StringUtils.toStringArray(basePackages));
+    return scanner.collectHolders(StringUtils.toStringArray(basePackages));
   }
 
 }

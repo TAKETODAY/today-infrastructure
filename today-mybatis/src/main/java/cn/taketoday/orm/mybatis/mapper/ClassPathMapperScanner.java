@@ -204,7 +204,7 @@ public class ClassPathMapperScanner {
     delegate.scan(this::postProcessBeanDefinition, basePackages);
   }
 
-  protected void postProcessBeanDefinition(BeanDefinitionHolder holder) {
+  protected BeanDefinitionHolder postProcessBeanDefinition(BeanDefinitionHolder holder) {
     AbstractBeanDefinition definition = (AbstractBeanDefinition) holder.getBeanDefinition();
 
     boolean scopedProxy = false;
@@ -272,13 +272,10 @@ public class ClassPathMapperScanner {
       }
       if (!definition.isSingleton()) {
         BeanDefinitionRegistry registry = delegate.getRegistry();
-        BeanDefinitionHolder proxyHolder = ScopedProxyUtils.createScopedProxy(holder, registry, true);
-        if (registry.containsBeanDefinition(proxyHolder.getBeanName())) {
-          registry.removeBeanDefinition(proxyHolder.getBeanName());
-        }
-        registry.registerBeanDefinition(proxyHolder.getBeanName(), proxyHolder.getBeanDefinition());
+        return ScopedProxyUtils.createScopedProxy(holder, registry, true);
       }
     }
+    return holder;
   }
 
   protected boolean isCandidateComponent(AnnotationMetadata metadata) {
