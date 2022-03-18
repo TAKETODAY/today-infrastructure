@@ -39,12 +39,12 @@ import cn.taketoday.context.annotation.AdviceMode;
 import cn.taketoday.context.annotation.AnnotationConfigApplicationContext;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
-import cn.taketoday.context.testfixture.cache.CacheTestUtils;
-import cn.taketoday.context.testfixture.cache.SomeCustomKeyGenerator;
-import cn.taketoday.context.testfixture.cache.SomeKeyGenerator;
-import cn.taketoday.context.testfixture.cache.beans.AnnotatedClassCacheableService;
-import cn.taketoday.context.testfixture.cache.beans.CacheableService;
-import cn.taketoday.context.testfixture.cache.beans.DefaultCacheableService;
+import cn.taketoday.testfixture.cache.CacheTestUtils;
+import cn.taketoday.testfixture.cache.SomeCustomKeyGenerator;
+import cn.taketoday.testfixture.cache.SomeKeyGenerator;
+import cn.taketoday.testfixture.cache.beans.AnnotatedClassCacheableService;
+import cn.taketoday.testfixture.cache.beans.CacheableService;
+import cn.taketoday.testfixture.cache.beans.DefaultCacheableService;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

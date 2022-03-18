@@ -18,7 +18,7 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.cache.aspectj;
+package cn.taketoday.testfixture.cache;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -31,22 +31,17 @@ import cn.taketoday.aop.framework.AopProxyUtils;
 import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
 import cn.taketoday.cache.Cache;
 import cn.taketoday.cache.CacheManager;
-import cn.taketoday.cache.config.AnnotatedClassCacheableService;
-import cn.taketoday.cache.config.CacheableService;
-import cn.taketoday.cache.config.TestEntity;
 import cn.taketoday.context.ConfigurableApplicationContext;
-import cn.taketoday.testfixture.cache.SomeCustomKeyGenerator;
+import cn.taketoday.testfixture.cache.beans.AnnotatedClassCacheableService;
+import cn.taketoday.testfixture.cache.beans.CacheableService;
+import cn.taketoday.testfixture.cache.beans.TestEntity;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIOException;
 
 /**
- * Copy of the shared {@code AbstractCacheAnnotationTests}: necessary
- * due to issues with Gradle test fixtures and AspectJ configuration
- * in the Gradle build.
- *
- * <p>Abstract cache annotation tests (containing several reusable methods).
+ * Abstract cache annotation tests (containing several reusable methods).
  *
  * @author Costin Leau
  * @author Chris Beams

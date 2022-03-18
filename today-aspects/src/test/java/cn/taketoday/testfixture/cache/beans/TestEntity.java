@@ -18,26 +18,43 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.cache.aspectj;
+package cn.taketoday.testfixture.cache.beans;
 
-import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.context.support.GenericXmlApplicationContext;
-import cn.taketoday.testfixture.cache.AbstractJCacheAnnotationTests;
+import cn.taketoday.util.ObjectUtils;
 
 /**
- * @author Stephane Nicoll
- * @author Sam Brannen
+ * Simple test entity for use with caching tests.
+ *
+ * @author Michael Plod
  */
-public class JCacheAspectJNamespaceConfigTests extends AbstractJCacheAnnotationTests {
+public class TestEntity {
 
-  @Override
-  protected ApplicationContext getApplicationContext() {
-    GenericXmlApplicationContext context = new GenericXmlApplicationContext();
-    // Disallow bean definition overriding to test https://github.com/spring-projects/spring-framework/pull/27499
-    context.setAllowBeanDefinitionOverriding(false);
-    context.load("/cn/taketoday/cache/config/annotation-jcache-aspectj.xml");
-    context.refresh();
-    return context;
-  }
+	private Long id;
 
+	public Long getId() {
+		return this.id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	@Override
+	public int hashCode() {
+		return ObjectUtils.nullSafeHashCode(this.id);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (obj == this) {
+			return true;
+		}
+		if (obj == null) {
+			return false;
+		}
+		if (obj instanceof TestEntity) {
+			return ObjectUtils.nullSafeEquals(this.id, ((TestEntity) obj).id);
+		}
+		return false;
+	}
 }

@@ -18,26 +18,9 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.cache.aspectj;
+package cn.taketoday.testfixture.cache;
 
-import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.context.support.GenericXmlApplicationContext;
-import cn.taketoday.testfixture.cache.AbstractJCacheAnnotationTests;
+import cn.taketoday.cache.interceptor.SimpleKeyGenerator;
 
-/**
- * @author Stephane Nicoll
- * @author Sam Brannen
- */
-public class JCacheAspectJNamespaceConfigTests extends AbstractJCacheAnnotationTests {
-
-  @Override
-  protected ApplicationContext getApplicationContext() {
-    GenericXmlApplicationContext context = new GenericXmlApplicationContext();
-    // Disallow bean definition overriding to test https://github.com/spring-projects/spring-framework/pull/27499
-    context.setAllowBeanDefinitionOverriding(false);
-    context.load("/cn/taketoday/cache/config/annotation-jcache-aspectj.xml");
-    context.refresh();
-    return context;
-  }
-
+public class SomeKeyGenerator extends SimpleKeyGenerator {
 }

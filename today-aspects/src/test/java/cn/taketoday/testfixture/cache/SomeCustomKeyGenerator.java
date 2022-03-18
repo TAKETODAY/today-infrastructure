@@ -18,26 +18,34 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.cache.aspectj;
+package cn.taketoday.testfixture.cache;
 
-import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.context.support.GenericXmlApplicationContext;
-import cn.taketoday.testfixture.cache.AbstractJCacheAnnotationTests;
+import cn.taketoday.cache.interceptor.KeyGenerator;
+
+import java.lang.reflect.Method;
 
 /**
+ * A custom {@link KeyGenerator} that exposes the algorithm used to compute the key
+ * for convenience in test scenarios.
+ *
  * @author Stephane Nicoll
- * @author Sam Brannen
  */
-public class JCacheAspectJNamespaceConfigTests extends AbstractJCacheAnnotationTests {
+public class SomeCustomKeyGenerator implements KeyGenerator {
 
-  @Override
-  protected ApplicationContext getApplicationContext() {
-    GenericXmlApplicationContext context = new GenericXmlApplicationContext();
-    // Disallow bean definition overriding to test https://github.com/spring-projects/spring-framework/pull/27499
-    context.setAllowBeanDefinitionOverriding(false);
-    context.load("/cn/taketoday/cache/config/annotation-jcache-aspectj.xml");
-    context.refresh();
-    return context;
-  }
+	@Override
+	public Object generate(Object target, Method method, Object... params) {
+		return generateKey(method.getName(), params);
+	}
+
+	/**
+	 * @see #generate(Object, Method, Object...)
+	 */
+	public static Object generateKey(String methodName, Object... params) {
+		final StringBuilder sb = new StringBuilder(methodName);
+		for (Object param : params) {
+			sb.append(param);
+		}
+		return sb.toString();
+	}
 
 }

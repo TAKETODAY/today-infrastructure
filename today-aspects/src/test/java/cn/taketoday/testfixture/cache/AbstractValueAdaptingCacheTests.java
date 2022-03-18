@@ -18,26 +18,31 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.cache.aspectj;
+package cn.taketoday.testfixture.cache;
 
-import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.context.support.GenericXmlApplicationContext;
-import cn.taketoday.testfixture.cache.AbstractJCacheAnnotationTests;
+import org.junit.jupiter.api.Test;
+import cn.taketoday.cache.support.AbstractValueAdaptingCache;
+
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
  * @author Stephane Nicoll
- * @author Sam Brannen
  */
-public class JCacheAspectJNamespaceConfigTests extends AbstractJCacheAnnotationTests {
+public abstract class AbstractValueAdaptingCacheTests<T extends AbstractValueAdaptingCache>
+		extends AbstractCacheTests<T>  {
 
-  @Override
-  protected ApplicationContext getApplicationContext() {
-    GenericXmlApplicationContext context = new GenericXmlApplicationContext();
-    // Disallow bean definition overriding to test https://github.com/spring-projects/spring-framework/pull/27499
-    context.setAllowBeanDefinitionOverriding(false);
-    context.load("/cn/taketoday/cache/config/annotation-jcache-aspectj.xml");
-    context.refresh();
-    return context;
-  }
+	protected final static String CACHE_NAME_NO_NULL = "testCacheNoNull";
+
+	protected abstract T getCache(boolean allowNull);
+
+	@Test
+	public void testCachePutNullValueAllowNullFalse() {
+		T cache = getCache(false);
+		String key = createRandomKey();
+		assertThatIllegalArgumentException().isThrownBy(() ->
+				cache.put(key, null))
+			.withMessageContaining(CACHE_NAME_NO_NULL)
+			.withMessageContaining("is configured to not allow null values but null was provided");
+	}
 
 }

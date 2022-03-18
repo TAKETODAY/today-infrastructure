@@ -50,7 +50,7 @@ import cn.taketoday.util.ClassUtils;
 public class InstrumentationLoadTimeWeaver implements LoadTimeWeaver {
 
   private static final boolean AGENT_CLASS_PRESENT = ClassUtils.isPresent(
-          "cn.taketoday.context.classloading.InstrumentationSavingAgent",
+          "cn.taketoday.context.InstrumentationSavingAgent",
           InstrumentationLoadTimeWeaver.class.getClassLoader());
 
   @Nullable

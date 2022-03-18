@@ -18,26 +18,29 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.cache.aspectj;
+package cn.taketoday.testfixture.cache;
 
-import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.context.support.GenericXmlApplicationContext;
-import cn.taketoday.testfixture.cache.AbstractJCacheAnnotationTests;
+import java.lang.annotation.Annotation;
+
+import javax.cache.Cache;
+import javax.cache.annotation.CacheInvocationContext;
+import javax.cache.annotation.CacheResolver;
+
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
 
 /**
  * @author Stephane Nicoll
- * @author Sam Brannen
  */
-public class JCacheAspectJNamespaceConfigTests extends AbstractJCacheAnnotationTests {
+public class TestableCacheResolver implements CacheResolver {
 
   @Override
-  protected ApplicationContext getApplicationContext() {
-    GenericXmlApplicationContext context = new GenericXmlApplicationContext();
-    // Disallow bean definition overriding to test https://github.com/spring-projects/spring-framework/pull/27499
-    context.setAllowBeanDefinitionOverriding(false);
-    context.load("/cn/taketoday/cache/config/annotation-jcache-aspectj.xml");
-    context.refresh();
-    return context;
+  public <K, V> Cache<K, V> resolveCache(CacheInvocationContext<? extends Annotation> cacheInvocationContext) {
+    String cacheName = cacheInvocationContext.getCacheName();
+    @SuppressWarnings("unchecked")
+    Cache<K, V> mock = mock(Cache.class);
+    given(mock.getName()).willReturn(cacheName);
+    return mock;
   }
 
 }

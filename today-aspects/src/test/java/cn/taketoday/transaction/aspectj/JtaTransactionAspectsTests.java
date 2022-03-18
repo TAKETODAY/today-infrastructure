@@ -29,9 +29,10 @@ import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.test.context.junit.jupiter.SpringJUnitConfig;
-import cn.taketoday.transaction.testfixture.CallCountingTransactionManager;
+import cn.taketoday.testfixture.transaction.CallCountingTransactionManager;
 import jakarta.transaction.Transactional;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIOException;
 
