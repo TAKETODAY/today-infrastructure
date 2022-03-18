@@ -74,7 +74,6 @@ public class CandidateComponentsIndexer implements Processor {
 
   @Override
   public synchronized void init(ProcessingEnvironment env) {
-    System.out.println(env);
     this.stereotypesProviders = getStereotypesProviders(env);
     this.typeHelper = new TypeHelper(env);
     this.metadataStore = new MetadataStore(env);
@@ -83,7 +82,6 @@ public class CandidateComponentsIndexer implements Processor {
 
   @Override
   public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
-    System.out.println(roundEnv);
     this.metadataCollector.processing(roundEnv);
     roundEnv.getRootElements().forEach(this::processElement);
     if (roundEnv.processingOver()) {

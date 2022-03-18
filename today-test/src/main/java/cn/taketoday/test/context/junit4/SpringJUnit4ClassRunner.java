@@ -102,7 +102,7 @@ import cn.taketoday.util.ReflectionUtils;
  * @see AbstractTransactionalJUnit4SpringContextTests
  * @see SpringClassRule
  * @see SpringMethodRule
- * @since 2.5
+ * @since 4.0
  */
 public class SpringJUnit4ClassRunner extends BlockJUnit4ClassRunner {
 

@@ -35,7 +35,7 @@ import cn.taketoday.cache.config.AnnotatedClassCacheableService;
 import cn.taketoday.cache.config.CacheableService;
 import cn.taketoday.cache.config.TestEntity;
 import cn.taketoday.context.ConfigurableApplicationContext;
-import cn.taketoday.context.testfixture.cache.SomeCustomKeyGenerator;
+import cn.taketoday.testfixture.cache.SomeCustomKeyGenerator;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;

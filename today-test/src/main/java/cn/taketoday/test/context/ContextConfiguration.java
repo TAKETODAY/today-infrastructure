@@ -103,7 +103,7 @@ import cn.taketoday.test.context.web.WebDelegatingSmartContextLoader;
  * @see ContextConfigurationAttributes
  * @see MergedContextConfiguration
  * @see cn.taketoday.context.ApplicationContext ApplicationContext
- * @since 2.5
+ * @since 4.0
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
@@ -145,7 +145,7 @@ public @interface ContextConfiguration {
    * {@link #value}, but it may be used instead of {@link #value}.
    *
    * @see #inheritLocations
-   * @since 2.5
+   * @since 4.0
    */
   @AliasFor("value")
   String[] locations() default {};
@@ -238,7 +238,7 @@ public @interface ContextConfiguration {
    * }
    * </pre>
    *
-   * @since 2.5
+   * @since 4.0
    */
   boolean inheritLocations() default true;
 
@@ -302,7 +302,7 @@ public @interface ContextConfiguration {
    * {@link GenericGroovyXmlWebContextLoader GenericGroovyXmlWebContextLoader}, and
    * {@link AnnotationConfigWebContextLoader AnnotationConfigWebContextLoader}.
    *
-   * @since 2.5
+   * @since 4.0
    */
   Class<? extends ContextLoader> loader() default ContextLoader.class;
 

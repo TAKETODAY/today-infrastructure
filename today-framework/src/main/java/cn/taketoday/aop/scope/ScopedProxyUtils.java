@@ -123,12 +123,11 @@ public abstract class ScopedProxyUtils {
    * @see #isScopedTarget(String)
    */
   public static String getOriginalBeanName(@Nullable String targetBeanName) {
-    if (!isScopedTarget(targetBeanName)) {
-      throw new IllegalArgumentException(
-              "bean name '" + targetBeanName + "' does not refer to the target of a scoped proxy");
-
+    if (isScopedTarget(targetBeanName)) {
+      return targetBeanName.substring(TARGET_NAME_PREFIX_LENGTH);
     }
-    return targetBeanName.substring(TARGET_NAME_PREFIX_LENGTH);
+    throw new IllegalArgumentException(
+            "bean name '" + targetBeanName + "' does not refer to the target of a scoped proxy");
   }
 
   /**

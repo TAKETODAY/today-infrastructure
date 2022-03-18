@@ -44,7 +44,7 @@ import jakarta.transaction.Transactional;
  * for the execution of such operations.
  *
  * @author Stephane Nicoll
- * @since 4.2
+ * @since 4.0
  * @see Transactional
  * @see AnnotationTransactionAspect
  */

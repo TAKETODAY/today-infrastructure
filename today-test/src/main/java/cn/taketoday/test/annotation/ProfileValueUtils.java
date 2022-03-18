@@ -41,7 +41,7 @@ import cn.taketoday.util.StringUtils;
  * @see ProfileValueSource
  * @see ProfileValueSourceConfiguration
  * @see IfProfileValue
- * @since 2.5
+ * @since 4.0
  */
 public abstract class ProfileValueUtils {
 

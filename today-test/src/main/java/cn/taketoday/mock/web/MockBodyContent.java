@@ -35,7 +35,7 @@ import jakarta.servlet.jsp.tagext.BodyContent;
  * Only necessary for testing applications when testing custom JSP tags.
  *
  * @author Juergen Hoeller
- * @since 2.5
+ * @since 4.0
  */
 public class MockBodyContent extends BodyContent {
 

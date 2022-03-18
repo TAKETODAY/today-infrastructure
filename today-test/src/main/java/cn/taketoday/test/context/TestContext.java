@@ -45,7 +45,7 @@ import cn.taketoday.test.annotation.DirtiesContext.HierarchyMode;
  * @author Sam Brannen
  * @see TestContextManager
  * @see TestExecutionListener
- * @since 2.5
+ * @since 4.0
  */
 // Suppression required due to bug in javac in Java 8: presence of default method in a Serializable interface
 @SuppressWarnings("serial")

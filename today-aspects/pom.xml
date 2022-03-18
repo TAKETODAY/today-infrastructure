@@ -64,6 +64,14 @@
       <scope>provided</scope>
     </dependency>
 
+
+    <dependency>
+      <groupId>cn.taketoday</groupId>
+      <artifactId>today-test</artifactId>
+      <version>${project.version}</version>
+      <scope>test</scope>
+    </dependency>
+
   </dependencies>
 
   <build>
@@ -71,13 +79,13 @@
 
     <plugins>
       <plugin>
-        <groupId>org.codehaus.mojo</groupId>
+        <groupId>dev.aspectj</groupId>
         <artifactId>aspectj-maven-plugin</artifactId>
-        <version>1.14.1-SNAPSHOT</version>
+        <version>1.13.1</version>
         <configuration>
           <complianceLevel>17</complianceLevel>
-          <source>16</source>
-          <target>16</target>
+          <source>17</source>
+          <target>17</target>
           <showWeaveInfo>true</showWeaveInfo>
           <verbose>true</verbose>
           <Xlint>ignore</Xlint>

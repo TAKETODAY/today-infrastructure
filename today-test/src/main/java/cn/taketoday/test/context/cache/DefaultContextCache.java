@@ -55,7 +55,7 @@ import cn.taketoday.test.context.MergedContextConfiguration;
  * @author Sam Brannen
  * @author Juergen Hoeller
  * @see ContextCacheUtils#retrieveMaxCacheSize()
- * @since 2.5
+ * @since 4.0
  */
 public class DefaultContextCache implements ContextCache {
 

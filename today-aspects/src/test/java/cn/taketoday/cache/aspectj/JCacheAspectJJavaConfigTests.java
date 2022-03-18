@@ -33,7 +33,7 @@ import cn.taketoday.context.annotation.AdviceMode;
 import cn.taketoday.context.annotation.AnnotationConfigApplicationContext;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
-import cn.taketoday.contextsupport.testfixture.jcache.AbstractJCacheAnnotationTests;
+import cn.taketoday.testfixture.cache.AbstractJCacheAnnotationTests;
 
 /**
  * @author Stephane Nicoll

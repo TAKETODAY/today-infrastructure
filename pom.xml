@@ -20,6 +20,7 @@
     <module>today-instrument</module>
     <module>today-indexer</module>
     <module>today-aspects</module>
+    <module>today-mybatis</module>
   </modules>
 
   <description>

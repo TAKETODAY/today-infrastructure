@@ -44,7 +44,7 @@ import java.lang.annotation.Target;
  * @author Sam Brannen
  * @see cn.taketoday.transaction.annotation.Transactional
  * @see BeforeTransaction
- * @since 2.5
+ * @since 4.0
  */
 @Target({ ElementType.METHOD, ElementType.ANNOTATION_TYPE })
 @Retention(RetentionPolicy.RUNTIME)

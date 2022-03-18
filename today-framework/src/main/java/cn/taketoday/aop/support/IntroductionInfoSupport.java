@@ -24,10 +24,10 @@ import org.aopalliance.intercept.MethodInvocation;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
+import java.io.Serial;
 import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.util.LinkedHashSet;
-import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import cn.taketoday.aop.IntroductionInfo;
@@ -46,11 +46,12 @@ import cn.taketoday.util.ClassUtils;
  * @since 3.0
  */
 public class IntroductionInfoSupport implements IntroductionInfo, Serializable {
+  @Serial
   private static final long serialVersionUID = 1L;
 
   final LinkedHashSet<Class<?>> publishedInterfaces = new LinkedHashSet<>();
 
-  private transient Map<Method, Boolean> rememberedMethods = new ConcurrentHashMap<>(32);
+  private transient ConcurrentHashMap<Method, Boolean> rememberedMethods = new ConcurrentHashMap<>(32);
 
   /**
    * Suppress the specified interface, which may have been autodetected
@@ -121,6 +122,7 @@ public class IntroductionInfoSupport implements IntroductionInfo, Serializable {
    * We don't make the logger static as that would mean that subclasses
    * would use this class's log category.
    */
+  @Serial
   private void readObject(ObjectInputStream ois) throws IOException, ClassNotFoundException {
     // Rely on default serialization; just initialize state after deserialization.
     ois.defaultReadObject();

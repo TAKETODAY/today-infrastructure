@@ -97,7 +97,7 @@ import cn.taketoday.test.context.web.ServletTestExecutionListener;
  * @see EventPublishingTestExecutionListener
  * @see AbstractTransactionalJUnit4SpringContextTests
  * @see AbstractTestNGSpringContextTests
- * @since 2.5
+ * @since 4.0
  */
 @RunWith(SpringRunner.class)
 @TestExecutionListeners({ ServletTestExecutionListener.class, DirtiesContextBeforeModesTestExecutionListener.class,

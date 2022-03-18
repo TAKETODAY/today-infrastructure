@@ -35,7 +35,7 @@ import cn.taketoday.core.annotation.AliasFor;
  * 2018-07-2 20:44:15
  */
 @Component
-@Scope(Scope.PROTOTYPE)
+@Scope("prototype")
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.TYPE, ElementType.METHOD })
 public @interface Prototype {

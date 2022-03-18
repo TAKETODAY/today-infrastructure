@@ -61,7 +61,7 @@ import cn.taketoday.util.StringUtils;
  * @author Phillip Webb
  * @see #loadContext(MergedContextConfiguration)
  * @see #loadContext(String...)
- * @since 2.5
+ * @since 4.0
  */
 public abstract class AbstractGenericContextLoader extends AbstractContextLoader {
 
@@ -181,7 +181,7 @@ public abstract class AbstractGenericContextLoader extends AbstractContextLoader
    * @see ContextLoader#loadContext
    * @see GenericApplicationContext
    * @see #loadContext(MergedContextConfiguration)
-   * @since 2.5
+   * @since 4.0
    */
   @Override
   public final ConfigurableApplicationContext loadContext(String... locations) throws Exception {
@@ -231,7 +231,7 @@ public abstract class AbstractGenericContextLoader extends AbstractContextLoader
    * @see GenericApplicationContext#setResourceLoader
    * @see GenericApplicationContext#setId
    * @see #prepareContext(ConfigurableApplicationContext, MergedContextConfiguration)
-   * @since 2.5
+   * @since 4.0
    */
   protected void prepareContext(GenericApplicationContext context) {
   }
@@ -249,7 +249,7 @@ public abstract class AbstractGenericContextLoader extends AbstractContextLoader
    * @see StandardBeanFactory#setAllowEagerClassLoading
    * @see StandardBeanFactory#setAllowCircularReferences
    * @see StandardBeanFactory#setAllowRawInjectionDespiteWrapping
-   * @since 2.5
+   * @since 4.0
    */
   protected void customizeBeanFactory(StandardBeanFactory beanFactory) {
   }
@@ -286,7 +286,7 @@ public abstract class AbstractGenericContextLoader extends AbstractContextLoader
    * @see #loadContext(String...)
    * @see #loadBeanDefinitions
    * @see BeanDefinitionReader
-   * @since 2.5
+   * @since 4.0
    */
   protected abstract BeanDefinitionReader createBeanDefinitionReader(GenericApplicationContext context);
 
@@ -301,7 +301,7 @@ public abstract class AbstractGenericContextLoader extends AbstractContextLoader
    * @see #loadContext(MergedContextConfiguration)
    * @see #loadContext(String...)
    * @see #customizeContext(ConfigurableApplicationContext, MergedContextConfiguration)
-   * @since 2.5
+   * @since 4.0
    */
   protected void customizeContext(GenericApplicationContext context) {
   }

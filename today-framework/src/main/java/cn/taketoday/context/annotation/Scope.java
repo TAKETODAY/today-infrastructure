@@ -26,9 +26,9 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import cn.taketoday.beans.factory.config.CustomScopeConfigurer;
 import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
+import cn.taketoday.beans.factory.config.CustomScopeConfigurer;
 import cn.taketoday.core.annotation.AliasFor;
 import cn.taketoday.lang.Component;
 
@@ -65,20 +65,10 @@ import cn.taketoday.lang.Component;
  * @see Component
  * @since 4.0
  */
+@Documented
 @Target({ ElementType.TYPE, ElementType.METHOD })
 @Retention(RetentionPolicy.RUNTIME)
-@Documented
 public @interface Scope {
-
-  /**
-   * @since 2.1.7
-   */
-  String SINGLETON = "singleton";
-
-  /**
-   * @since 2.1.7
-   */
-  String PROTOTYPE = "prototype";
 
   /**
    * Alias for {@link #scopeName}.
@@ -86,7 +76,7 @@ public @interface Scope {
    * @see #scopeName
    */
   @AliasFor("scopeName")
-  String value() default SINGLETON;
+  String value() default "";
 
   /**
    * Specifies the name of the scope to use for the annotated component/bean.
@@ -101,7 +91,7 @@ public @interface Scope {
    * @since 4.0
    */
   @AliasFor("value")
-  String scopeName() default SINGLETON;
+  String scopeName() default "";
 
   /**
    * Specifies whether a component should be configured as a scoped proxy

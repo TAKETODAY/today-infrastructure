@@ -37,7 +37,7 @@ import cn.taketoday.util.ObjectUtils;
  * @see XmlBeanDefinitionReader
  * @see GenericGroovyXmlContextLoader
  * @see AnnotationConfigContextLoader
- * @since 2.5
+ * @since 4.0
  */
 public class GenericXmlContextLoader extends AbstractGenericContextLoader {
 

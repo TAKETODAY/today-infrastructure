@@ -39,7 +39,7 @@ import cn.taketoday.util.ClassUtils;
  * against a specific {@link ClassLoader}.
  *
  * @author Juergen Hoeller
- * @since 2.5.5
+ * @since 4.0
  * @see cn.taketoday.core.serializer.DefaultDeserializer
  */
 public class ConfigurableObjectInputStream extends ObjectInputStream {

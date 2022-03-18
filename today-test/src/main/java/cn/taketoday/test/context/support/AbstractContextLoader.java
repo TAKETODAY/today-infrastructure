@@ -67,7 +67,7 @@ import cn.taketoday.util.ObjectUtils;
  * @see #modifyLocations
  * @see #prepareContext
  * @see #customizeContext
- * @since 2.5
+ * @since 4.0
  */
 public abstract class AbstractContextLoader implements SmartContextLoader {
 
@@ -214,7 +214,7 @@ public abstract class AbstractContextLoader implements SmartContextLoader {
    * @see #modifyLocations(Class, String...)
    * @see ContextLoader#processLocations(Class, String...)
    * @see #processContextConfiguration(ContextConfigurationAttributes)
-   * @since 2.5
+   * @since 4.0
    */
   @Override
   public final String[] processLocations(Class<?> clazz, String... locations) {
@@ -242,7 +242,7 @@ public abstract class AbstractContextLoader implements SmartContextLoader {
    * @param clazz the class for which the default locations are to be generated
    * @return an array of default application context resource locations
    * @see #getResourceSuffixes()
-   * @since 2.5
+   * @since 4.0
    */
   protected String[] generateDefaultLocations(Class<?> clazz) {
     Assert.notNull(clazz, "Class must not be null");
@@ -284,7 +284,7 @@ public abstract class AbstractContextLoader implements SmartContextLoader {
    * @param clazz the class with which the locations are associated
    * @param locations the resource locations to be modified
    * @return an array of modified application context resource locations
-   * @since 2.5
+   * @since 4.0
    */
   protected String[] modifyLocations(Class<?> clazz, String... locations) {
     return TestContextResourceUtils.convertToClasspathResourcePaths(clazz, locations);
@@ -305,7 +305,7 @@ public abstract class AbstractContextLoader implements SmartContextLoader {
    * <p>Can be overridden by subclasses to change the default behavior.
    *
    * @return always {@code true} by default
-   * @since 2.5
+   * @since 4.0
    */
   protected boolean isGenerateDefaultLocations() {
     return true;
@@ -337,7 +337,7 @@ public abstract class AbstractContextLoader implements SmartContextLoader {
    * @return the resource suffix; never {@code null} or empty
    * @see #generateDefaultLocations(Class)
    * @see #getResourceSuffixes()
-   * @since 2.5
+   * @since 4.0
    */
   protected abstract String getResourceSuffix();
 

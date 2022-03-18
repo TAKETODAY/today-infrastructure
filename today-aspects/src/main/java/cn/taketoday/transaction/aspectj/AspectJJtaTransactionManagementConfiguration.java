@@ -39,7 +39,7 @@ import cn.taketoday.transaction.config.TransactionManagementConfigUtils;
  * @see TransactionManagementConfigurationSelector
  * @since 4.0
  */
-@Configuration
+@Configuration(proxyBeanMethods = false)
 @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
 public class AspectJJtaTransactionManagementConfiguration extends AspectJTransactionManagementConfiguration {
 

@@ -30,7 +30,7 @@ import cn.taketoday.util.ObjectUtils;
  *
  * @author Juergen Hoeller
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @since 2.5
+ * @since 4.0
  * @since 4.0 2022/3/7 12:30
  */
 public class BeanMetadataAttribute implements BeanMetadataElement {

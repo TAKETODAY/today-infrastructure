@@ -23,8 +23,8 @@ package cn.taketoday.aop.scope;
 import java.lang.reflect.Modifier;
 
 import cn.taketoday.aop.AopInfrastructureBean;
-import cn.taketoday.aop.framework.ProxyFactory;
 import cn.taketoday.aop.framework.ProxyConfig;
+import cn.taketoday.aop.framework.ProxyFactory;
 import cn.taketoday.aop.support.DelegatingIntroductionInterceptor;
 import cn.taketoday.aop.target.SimpleBeanTargetSource;
 import cn.taketoday.beans.factory.BeanFactory;

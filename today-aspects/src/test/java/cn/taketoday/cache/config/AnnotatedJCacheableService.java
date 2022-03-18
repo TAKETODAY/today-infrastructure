@@ -34,9 +34,9 @@ import javax.cache.annotation.CacheValue;
 
 import cn.taketoday.cache.Cache;
 import cn.taketoday.cache.interceptor.SimpleKeyGenerator;
-import cn.taketoday.contextsupport.testfixture.cache.TestableCacheKeyGenerator;
-import cn.taketoday.contextsupport.testfixture.cache.TestableCacheResolverFactory;
-import cn.taketoday.contextsupport.testfixture.jcache.JCacheableService;
+import cn.taketoday.testfixture.cache.JCacheableService;
+import cn.taketoday.testfixture.cache.TestableCacheKeyGenerator;
+import cn.taketoday.testfixture.cache.TestableCacheResolverFactory;
 
 /**
  * Repository sample with a @CacheDefaults annotation

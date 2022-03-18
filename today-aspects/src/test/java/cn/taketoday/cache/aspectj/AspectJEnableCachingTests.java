@@ -34,9 +34,9 @@ import cn.taketoday.context.annotation.AdviceMode;
 import cn.taketoday.context.annotation.AnnotationConfigApplicationContext;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
-import cn.taketoday.context.testfixture.cache.CacheTestUtils;
-import cn.taketoday.context.testfixture.cache.SomeCustomKeyGenerator;
-import cn.taketoday.context.testfixture.cache.SomeKeyGenerator;
+import cn.taketoday.testfixture.cache.CacheTestUtils;
+import cn.taketoday.testfixture.cache.SomeCustomKeyGenerator;
+import cn.taketoday.testfixture.cache.SomeKeyGenerator;
 
 /**
  * @author Stephane Nicoll

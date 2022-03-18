@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.function.Consumer;
+import java.util.function.UnaryOperator;
 
 import cn.taketoday.beans.factory.BeanDefinitionStoreException;
 import cn.taketoday.beans.factory.config.BeanDefinition;
@@ -264,7 +265,7 @@ public class ClassPathBeanDefinitionScanner extends ClassPathScanningCandidateCo
   public int scan(String... basePackages) {
     int beanCountAtScanStart = this.registry.getBeanDefinitionCount();
 
-    scan(null, basePackages);
+    scan((UnaryOperator<BeanDefinitionHolder>) null, basePackages);
 
     // Register annotation config processors, if necessary.
     if (this.includeAnnotationConfig) {
@@ -283,7 +284,7 @@ public class ClassPathBeanDefinitionScanner extends ClassPathScanningCandidateCo
    * @param basePackages the packages to check for annotated classes
    * @return set of beans registered if any for tooling registration purposes (never {@code null})
    */
-  public Set<BeanDefinitionHolder> doScan(String... basePackages) {
+  public Set<BeanDefinitionHolder> collectHolders(String... basePackages) {
     Assert.notEmpty(basePackages, "At least one base package must be specified");
     LinkedHashSet<BeanDefinitionHolder> beanDefinitions = new LinkedHashSet<>();
     scan(beanDefinitions::add, basePackages);
@@ -300,6 +301,27 @@ public class ClassPathBeanDefinitionScanner extends ClassPathScanningCandidateCo
    * @param basePackages the packages to check for annotated classes
    */
   public void scan(@Nullable Consumer<BeanDefinitionHolder> consumer, String... basePackages) {
+    if (consumer != null) {
+      scan(holder -> {
+        consumer.accept(holder);
+        return holder;
+      }, basePackages);
+    }
+    else {
+      scan((UnaryOperator<BeanDefinitionHolder>) null, basePackages);
+    }
+  }
+
+  /**
+   * Perform a scan within the specified base packages and consume the registered
+   * bean definitions.
+   * <p>This method does <i>not</i> register an annotation config processor
+   * but rather leaves this up to the caller.
+   *
+   * @param operator set of beans registered if any for tooling registration purposes
+   * @param basePackages the packages to check for annotated classes
+   */
+  public void scan(@Nullable UnaryOperator<BeanDefinitionHolder> operator, String... basePackages) {
     for (String basePackage : basePackages) {
       try {
         scanCandidateComponents(basePackage, (metadataReader, factory) -> {
@@ -318,8 +340,8 @@ public class ClassPathBeanDefinitionScanner extends ClassPathScanningCandidateCo
           if (checkCandidate(beanName, candidate)) {
             BeanDefinitionHolder holder = new BeanDefinitionHolder(candidate, beanName);
             holder = AnnotationConfigUtils.applyScopedProxyMode(scopeMetadata, holder, registry);
-            if (consumer != null) {
-              consumer.accept(holder);
+            if (operator != null) {
+              holder = operator.apply(holder);
             }
             registerBeanDefinition(holder, registry);
           }

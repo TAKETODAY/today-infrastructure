@@ -22,7 +22,7 @@ package cn.taketoday.cache.aspectj;
 
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.support.GenericXmlApplicationContext;
-import cn.taketoday.contextsupport.testfixture.jcache.AbstractJCacheAnnotationTests;
+import cn.taketoday.testfixture.cache.AbstractJCacheAnnotationTests;
 
 /**
  * @author Stephane Nicoll

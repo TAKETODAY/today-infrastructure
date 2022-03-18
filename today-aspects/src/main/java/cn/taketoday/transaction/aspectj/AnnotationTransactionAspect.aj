@@ -21,10 +21,11 @@
 package cn.taketoday.transaction.aspectj;
 
 import cn.taketoday.transaction.annotation.AnnotationTransactionAttributeSource;
+import cn.taketoday.transaction.annotation.Transactional;
 
 /**
  * Concrete AspectJ transaction aspect using Framework's
- * {@link cn.taketoday.transaction.annotation.Transactional} annotation.
+ * {@link Transactional} annotation.
  *
  * <p>When using this aspect, you <i>must</i> annotate the implementation class
  * (and/or methods within that class), <i>not</i> the interface (if any) that
@@ -44,7 +45,7 @@ import cn.taketoday.transaction.annotation.AnnotationTransactionAttributeSource;
  * @author Ramnivas Laddad
  * @author Adrian Colyer
  * @since 4.0
- * @see cn.taketoday.transaction.annotation.Transactional
+ * @see Transactional
  */
 public aspect AnnotationTransactionAspect extends AbstractTransactionAspect {
 

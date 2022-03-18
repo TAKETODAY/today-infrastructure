@@ -3,7 +3,7 @@
 
 <beans>
 
-  <bean id="transactionManager" class="cn.taketoday.tests.transaction.CallCountingTransactionManager" />
+  <bean id="transactionManager" class="cn.taketoday.testfixture.transaction.CallCountingTransactionManager" />
 
   <bean class="cn.taketoday.transaction.aspectj.AnnotationTransactionAspect" factory-method="aspectOf">
     <property name="transactionManager" ref="transactionManager" />
