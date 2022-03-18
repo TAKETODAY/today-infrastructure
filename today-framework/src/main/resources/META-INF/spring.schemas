@@ -206,6 +206,3 @@ https\://www.springframework.org/schema/tx/spring-tx-4.1.xsd=cn/taketoday/transa
 https\://www.springframework.org/schema/tx/spring-tx-4.2.xsd=cn/taketoday/transaction/config/spring-tx.xsd
 https\://www.springframework.org/schema/tx/spring-tx-4.3.xsd=cn/taketoday/transaction/config/spring-tx.xsd
 https\://www.springframework.org/schema/tx/spring-tx.xsd=cn/taketoday/transaction/config/spring-tx.xsd
-
-http\://mybatis.org/schema/mybatis-spring.xsd=cn/taketoday/orm/mybatis/config/mybatis-spring.xsd
-

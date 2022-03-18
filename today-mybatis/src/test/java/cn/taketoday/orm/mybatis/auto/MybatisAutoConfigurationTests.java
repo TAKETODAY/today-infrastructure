@@ -84,7 +84,7 @@ import cn.taketoday.orm.mybatis.auto.mapper.DateTimeMapper;
 import cn.taketoday.orm.mybatis.mapper.MapperFactoryBean;
 import cn.taketoday.orm.mybatis.mapper.MapperScannerConfigurer;
 import cn.taketoday.orm.mybatis.transaction.ManagedTransactionFactory;
-import cn.taketoday.testfixture.TestPropertyValues;
+import cn.taketoday.test.util.TestPropertyValues;
 import cn.taketoday.util.CollectionUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;

@@ -18,7 +18,7 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.testfixture;
+package cn.taketoday.test.util;
 
 import java.io.Closeable;
 import java.util.Arrays;

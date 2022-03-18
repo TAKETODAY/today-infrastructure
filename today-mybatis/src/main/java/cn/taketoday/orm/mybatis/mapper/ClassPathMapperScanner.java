@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -23,7 +23,9 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.session.SqlSessionFactory;
 
 import java.lang.annotation.Annotation;
+import java.util.Optional;
 
+import cn.taketoday.aop.scope.ScopedProxyFactoryBean;
 import cn.taketoday.aop.scope.ScopedProxyUtils;
 import cn.taketoday.beans.PropertyValues;
 import cn.taketoday.beans.factory.FactoryBean;
@@ -32,6 +34,7 @@ import cn.taketoday.beans.factory.config.BeanDefinitionHolder;
 import cn.taketoday.beans.factory.config.RuntimeBeanReference;
 import cn.taketoday.beans.factory.support.AbstractBeanDefinition;
 import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
+import cn.taketoday.beans.factory.support.RootBeanDefinition;
 import cn.taketoday.context.annotation.ClassPathBeanDefinitionScanner;
 import cn.taketoday.core.type.AnnotationMetadata;
 import cn.taketoday.core.type.filter.AnnotationTypeFilter;
@@ -204,6 +207,15 @@ public class ClassPathMapperScanner {
   protected void postProcessBeanDefinition(BeanDefinitionHolder holder) {
     AbstractBeanDefinition definition = (AbstractBeanDefinition) holder.getBeanDefinition();
 
+    boolean scopedProxy = false;
+    if (ScopedProxyFactoryBean.class.getName().equals(definition.getBeanClassName())) {
+      definition = (AbstractBeanDefinition) Optional
+              .ofNullable(((RootBeanDefinition) definition).getDecoratedDefinition())
+              .map(BeanDefinitionHolder::getBeanDefinition).orElseThrow(() -> new IllegalStateException(
+                      "The target bean definition of scoped proxy bean not found. Root bean definition[" + holder + "]"));
+      scopedProxy = true;
+    }
+
     String beanClassName = definition.getBeanClassName();
     log.debug("Creating MapperFactoryBean with name '{}' and '{}' mapperInterface",
             holder.getBeanName(), beanClassName);
@@ -252,19 +264,20 @@ public class ClassPathMapperScanner {
     }
 
     definition.setLazyInit(lazyInitialization);
-    if (BeanDefinition.SCOPE_SINGLETON.equals(definition.getScope()) && defaultScope != null) {
-      definition.setScope(defaultScope);
-    }
 
-    if (!definition.isSingleton()) {
-      BeanDefinitionRegistry registry = delegate.getRegistry();
-      BeanDefinitionHolder proxyHolder = ScopedProxyUtils.createScopedProxy(holder, registry, true);
-      if (registry.containsBeanDefinition(proxyHolder.getBeanName())) {
-        registry.removeBeanDefinition(proxyHolder.getBeanName());
+    if (!scopedProxy) {
+      if (BeanDefinition.SCOPE_SINGLETON.equals(definition.getScope()) && defaultScope != null) {
+        definition.setScope(defaultScope);
       }
-      registry.registerBeanDefinition(proxyHolder.getBeanName(), proxyHolder.getBeanDefinition());
+      if (!definition.isSingleton()) {
+        BeanDefinitionRegistry registry = delegate.getRegistry();
+        BeanDefinitionHolder proxyHolder = ScopedProxyUtils.createScopedProxy(holder, registry, true);
+        if (registry.containsBeanDefinition(proxyHolder.getBeanName())) {
+          registry.removeBeanDefinition(proxyHolder.getBeanName());
+        }
+        registry.registerBeanDefinition(proxyHolder.getBeanName(), proxyHolder.getBeanDefinition());
+      }
     }
-
   }
 
   protected boolean isCandidateComponent(AnnotationMetadata metadata) {

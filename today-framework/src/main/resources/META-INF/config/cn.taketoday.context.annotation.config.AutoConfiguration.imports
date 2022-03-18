@@ -1,4 +1,3 @@
 cn.taketoday.framework.config.context.LifecycleAutoConfiguration
 cn.taketoday.framework.config.context.MessageSourceAutoConfiguration
 cn.taketoday.framework.config.context.PropertyPlaceholderAutoConfiguration
-cn.taketoday.orm.mybatis.annotation.MybatisAutoConfiguration
