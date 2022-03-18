@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -118,15 +118,15 @@ class MapperScannerConfigurerTest {
     assertThat(Stream.of(applicationContext.getBeanDefinitionNames()).filter(x -> x.startsWith("scopedTarget")))
             .hasSize(1);
     assertThat(applicationContext.getBeanDefinition("mapperInterface").getPropertyValues().getPropertyValue("mapperInterface"))
-            .isEqualTo(MapperInterface.class);
+            .isEqualTo(MapperInterface.class.getName());
     assertThat(applicationContext.getBeanDefinition("mapperSubinterface").getPropertyValues().getPropertyValue("mapperInterface"))
-            .isEqualTo(MapperSubinterface.class);
+            .isEqualTo(MapperSubinterface.class.getName());
     assertThat(applicationContext.getBeanDefinition("mapperChildInterface").getPropertyValues().getPropertyValue("mapperInterface"))
-            .isEqualTo(MapperChildInterface.class);
+            .isEqualTo(MapperChildInterface.class.getName());
     assertThat(applicationContext.getBeanDefinition("annotatedMapper").getPropertyValues().getPropertyValue("mapperInterface"))
-            .isEqualTo(AnnotatedMapper.class);
+            .isEqualTo(AnnotatedMapper.class.getName());
     assertThat(applicationContext.getBeanDefinition("scopedTarget.scopedProxyMapper").getPropertyValues()
-            .getPropertyValue("mapperInterface")).isEqualTo(ScopedProxyMapper.class);
+            .getPropertyValue("mapperInterface")).isEqualTo(ScopedProxyMapper.class.getName());
   }
 
   @Test

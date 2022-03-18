@@ -228,6 +228,7 @@ public class ClassPathMapperScanner {
 
     PropertyValues propertyValues = definition.getPropertyValues();
     propertyValues.add("addToConfig", addToConfig);
+    propertyValues.add("mapperInterface", beanClassName);
 
     // Attribute for MockitoPostProcessor
     // https://github.com/mybatis/spring-boot-starter/issues/475
