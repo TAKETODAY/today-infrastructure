@@ -98,7 +98,7 @@ public abstract class AbstractHandlerExceptionHandler extends OrderedSupport imp
    * can change that default. Specify this setting to activate warn logging into a specific
    * category. Alternatively, override the {@link #logException} method for custom logging.
    *
-   * @see org.apache.commons.logging.LogFactory#getLog(String)
+   * @see LoggerFactory#getLogger(String)
    * @see java.util.logging.Logger#getLogger(String)
    */
   public void setWarnLogCategory(String loggerName) {
