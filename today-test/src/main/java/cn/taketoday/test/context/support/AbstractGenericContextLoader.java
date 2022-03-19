@@ -20,15 +20,14 @@
 
 package cn.taketoday.test.context.support;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import cn.taketoday.beans.factory.support.BeanDefinitionReader;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.context.annotation.AnnotationConfigUtils;
 import cn.taketoday.context.support.GenericApplicationContext;
+import cn.taketoday.logging.Logger;
+import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.test.context.ContextLoader;
 import cn.taketoday.test.context.MergedContextConfiguration;
 import cn.taketoday.test.context.SmartContextLoader;
@@ -65,7 +64,7 @@ import cn.taketoday.util.StringUtils;
  */
 public abstract class AbstractGenericContextLoader extends AbstractContextLoader {
 
-  protected static final Log logger = LogFactory.getLog(AbstractGenericContextLoader.class);
+  protected static final Logger logger = LoggerFactory.getLogger(AbstractGenericContextLoader.class);
 
   /**
    * Load a Spring ApplicationContext from the supplied {@link MergedContextConfiguration}.
@@ -105,7 +104,7 @@ public abstract class AbstractGenericContextLoader extends AbstractContextLoader
    * @return a new application context
    * @see SmartContextLoader#loadContext(MergedContextConfiguration)
    * @see GenericApplicationContext
-   *@since 4.0
+   * @since 4.0
    */
   @Override
   public final ConfigurableApplicationContext loadContext(MergedContextConfiguration mergedConfig) throws Exception {
@@ -270,7 +269,7 @@ public abstract class AbstractGenericContextLoader extends AbstractContextLoader
    * @param context the context into which the bean definitions should be loaded
    * @param mergedConfig the merged context configuration
    * @see #loadContext(MergedContextConfiguration)
-   *@since 4.0
+   * @since 4.0
    */
   protected void loadBeanDefinitions(GenericApplicationContext context, MergedContextConfiguration mergedConfig) {
     createBeanDefinitionReader(context).loadBeanDefinitions(mergedConfig.getLocations());

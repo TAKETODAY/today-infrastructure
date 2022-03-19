@@ -20,9 +20,6 @@
 
 package cn.taketoday.mock.web;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -45,6 +42,8 @@ import cn.taketoday.http.MediaType;
 import cn.taketoday.http.MediaTypeFactory;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.logging.Logger;
+import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.MimeType;
 import cn.taketoday.util.ObjectUtils;
@@ -108,7 +107,7 @@ public class MockServletContext implements ServletContext {
     DEFAULT_SESSION_TRACKING_MODES.add(SessionTrackingMode.SSL);
   }
 
-  private final Log logger = LogFactory.getLog(getClass());
+  private final Logger logger = LoggerFactory.getLogger(getClass());
 
   private final ResourceLoader resourceLoader;
 

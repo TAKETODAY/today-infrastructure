@@ -20,14 +20,13 @@
 
 package cn.taketoday.test.util;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.logging.Logger;
+import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.ReflectionUtils;
@@ -76,7 +75,7 @@ public abstract class ReflectionTestUtils {
 
   private static final String GETTER_PREFIX = "get";
 
-  private static final Log logger = LogFactory.getLog(ReflectionTestUtils.class);
+  private static final Logger logger = LoggerFactory.getLogger(ReflectionTestUtils.class);
 
   private static final boolean springAopPresent = ClassUtils.isPresent(
           "cn.taketoday.aop.framework.Advised", ReflectionTestUtils.class.getClassLoader());

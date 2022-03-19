@@ -20,20 +20,17 @@
 
 package cn.taketoday.test.context;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.function.Supplier;
 
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.logging.Logger;
+import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.test.context.junit4.rules.SpringMethodRule;
 import cn.taketoday.test.context.support.DefaultTestContextBootstrapper;
-import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.ReflectionUtils;
 
 /**
@@ -95,19 +92,14 @@ import cn.taketoday.util.ReflectionUtils;
  */
 public class TestContextManager {
 
-  private static final Log logger = LogFactory.getLog(TestContextManager.class);
+  private static final Logger logger = LoggerFactory.getLogger(TestContextManager.class);
 
   private final TestContext testContext;
 
   private final ThreadLocal<TestContext> testContextHolder = ThreadLocal.withInitial(
           // Implemented as an anonymous inner class instead of a lambda expression due to a bug
           // in Eclipse IDE: "The blank final field testContext may not have been initialized"
-          new Supplier<TestContext>() {
-            @Override
-            public TestContext get() {
-              return copyTestContext(TestContextManager.this.testContext);
-            }
-          });
+          () -> copyTestContext(TestContextManager.this.testContext));
 
   private final List<TestExecutionListener> testExecutionListeners = new ArrayList<>();
 

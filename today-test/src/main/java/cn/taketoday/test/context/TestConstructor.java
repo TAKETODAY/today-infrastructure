@@ -164,7 +164,7 @@ public @interface TestConstructor {
         return AutowireMode.valueOf(name.trim().toUpperCase());
       }
       catch (IllegalArgumentException ex) {
-        Log logger = LogFactory.getLog(AutowireMode.class);
+        Logger logger = LoggerFactory.getLogger(AutowireMode.class);
         if (logger.isDebugEnabled()) {
           logger.debug(String.format("Failed to parse autowire mode from '%s': %s", name, ex.getMessage()));
         }

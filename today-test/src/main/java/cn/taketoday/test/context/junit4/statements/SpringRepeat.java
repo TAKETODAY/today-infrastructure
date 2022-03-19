@@ -20,12 +20,12 @@
 
 package cn.taketoday.test.context.junit4.statements;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.junit.runners.model.Statement;
 
 import java.lang.reflect.Method;
 
+import cn.taketoday.logging.Logger;
+import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.test.annotation.Repeat;
 import cn.taketoday.test.annotation.TestAnnotationUtils;
 
@@ -40,7 +40,7 @@ import cn.taketoday.test.annotation.TestAnnotationUtils;
  */
 public class SpringRepeat extends Statement {
 
-  protected static final Log logger = LogFactory.getLog(SpringRepeat.class);
+  protected static final Logger logger = LoggerFactory.getLogger(SpringRepeat.class);
 
   private final Statement next;
 

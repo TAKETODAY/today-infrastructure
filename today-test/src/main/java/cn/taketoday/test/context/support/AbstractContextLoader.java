@@ -20,9 +20,6 @@
 
 package cn.taketoday.test.context.support;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -38,6 +35,8 @@ import cn.taketoday.core.env.PropertySource;
 import cn.taketoday.core.io.ClassPathResource;
 import cn.taketoday.core.io.ResourceLoader;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.logging.Logger;
+import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.test.context.ContextConfigurationAttributes;
 import cn.taketoday.test.context.ContextCustomizer;
 import cn.taketoday.test.context.ContextLoader;
@@ -53,7 +52,7 @@ import cn.taketoday.util.ObjectUtils;
  * <em>Template Method</em> based approach for {@link #processLocations processing}
  * resource locations.
  *
- * <p>As of Spring 3.1, {@code AbstractContextLoader} also provides a basis
+ * <p>{@code AbstractContextLoader} also provides a basis
  * for all concrete implementations of the {@link SmartContextLoader} SPI. For
  * backwards compatibility with the {@code ContextLoader} SPI,
  * {@link #processContextConfiguration(ContextConfigurationAttributes)} delegates
@@ -73,7 +72,7 @@ public abstract class AbstractContextLoader implements SmartContextLoader {
 
   private static final String[] EMPTY_STRING_ARRAY = new String[0];
 
-  private static final Log logger = LogFactory.getLog(AbstractContextLoader.class);
+  private static final Logger logger = LoggerFactory.getLogger(AbstractContextLoader.class);
 
   // SmartContextLoader
 

@@ -20,9 +20,6 @@
 
 package cn.taketoday.test.context.support;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -34,10 +31,11 @@ import cn.taketoday.core.style.ToStringBuilder;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.LogMessage;
+import cn.taketoday.logging.Logger;
+import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.test.context.TestPropertySource;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.ObjectUtils;
-import cn.taketoday.util.ResourceUtils;
 import cn.taketoday.util.StringUtils;
 
 /**
@@ -55,7 +53,7 @@ import cn.taketoday.util.StringUtils;
  */
 class TestPropertySourceAttributes {
 
-  private static final Log logger = LogFactory.getLog(TestPropertySourceAttributes.class);
+  private static final Logger logger = LoggerFactory.getLogger(TestPropertySourceAttributes.class);
 
   private final Class<?> declaringClass;
 

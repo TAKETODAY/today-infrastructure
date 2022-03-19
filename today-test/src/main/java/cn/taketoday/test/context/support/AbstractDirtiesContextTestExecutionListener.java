@@ -20,15 +20,14 @@
 
 package cn.taketoday.test.context.support;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import java.lang.reflect.Method;
 
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.core.annotation.AnnotatedElementUtils;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.logging.Logger;
+import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.test.annotation.DirtiesContext;
 import cn.taketoday.test.annotation.DirtiesContext.ClassMode;
 import cn.taketoday.test.annotation.DirtiesContext.HierarchyMode;
@@ -52,7 +51,7 @@ import cn.taketoday.test.context.TestContextAnnotationUtils;
  */
 public abstract class AbstractDirtiesContextTestExecutionListener extends AbstractTestExecutionListener {
 
-  private static final Log logger = LogFactory.getLog(AbstractDirtiesContextTestExecutionListener.class);
+  private static final Logger logger = LoggerFactory.getLogger(AbstractDirtiesContextTestExecutionListener.class);
 
   @Override
   public abstract int getOrder();

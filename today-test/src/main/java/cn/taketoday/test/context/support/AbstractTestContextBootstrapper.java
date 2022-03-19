@@ -20,9 +20,6 @@
 
 package cn.taketoday.test.context.support;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -38,6 +35,8 @@ import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.lang.TodayStrategies;
+import cn.taketoday.logging.Logger;
+import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.test.context.BootstrapContext;
 import cn.taketoday.test.context.CacheAwareContextLoaderDelegate;
 import cn.taketoday.test.context.ContextConfiguration;
@@ -81,7 +80,7 @@ import cn.taketoday.util.StringUtils;
  */
 public abstract class AbstractTestContextBootstrapper implements TestContextBootstrapper {
 
-  private final Log logger = LogFactory.getLog(getClass());
+  private final Logger logger = LoggerFactory.getLogger(getClass());
 
   @Nullable
   private BootstrapContext bootstrapContext;

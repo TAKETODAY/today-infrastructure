@@ -20,9 +20,6 @@
 
 package cn.taketoday.test.context.support;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -30,6 +27,8 @@ import java.util.Set;
 
 import cn.taketoday.beans.BeanUtils;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.logging.Logger;
+import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.test.context.ActiveProfiles;
 import cn.taketoday.test.context.ActiveProfilesResolver;
 import cn.taketoday.test.context.TestContextAnnotationUtils.AnnotationDescriptor;
@@ -54,7 +53,7 @@ import static cn.taketoday.test.context.TestContextAnnotationUtils.findAnnotatio
  */
 abstract class ActiveProfilesUtils {
 
-  private static final Log logger = LogFactory.getLog(ActiveProfilesUtils.class);
+  private static final Logger logger = LoggerFactory.getLogger(ActiveProfilesUtils.class);
 
   private static final DefaultActiveProfilesResolver defaultActiveProfilesResolver = new DefaultActiveProfilesResolver();
 

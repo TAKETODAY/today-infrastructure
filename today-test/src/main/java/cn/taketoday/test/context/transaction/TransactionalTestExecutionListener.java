@@ -20,9 +20,6 @@
 
 package cn.taketoday.test.context.transaction;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -36,11 +33,13 @@ import cn.taketoday.beans.factory.annotation.BeanFactoryAnnotationUtils;
 import cn.taketoday.core.annotation.AnnotatedElementUtils;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.test.context.support.AbstractTestExecutionListener;
+import cn.taketoday.logging.Logger;
+import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.test.annotation.Commit;
 import cn.taketoday.test.annotation.Rollback;
 import cn.taketoday.test.context.TestContext;
 import cn.taketoday.test.context.TestContextAnnotationUtils;
+import cn.taketoday.test.context.support.AbstractTestExecutionListener;
 import cn.taketoday.transaction.PlatformTransactionManager;
 import cn.taketoday.transaction.TransactionDefinition;
 import cn.taketoday.transaction.TransactionStatus;
@@ -152,7 +151,7 @@ import cn.taketoday.util.StringUtils;
  */
 public class TransactionalTestExecutionListener extends AbstractTestExecutionListener {
 
-  private static final Log logger = LogFactory.getLog(TransactionalTestExecutionListener.class);
+  private static final Logger logger = LoggerFactory.getLogger(TransactionalTestExecutionListener.class);
 
   // Do not require @Transactional test methods to be public.
   @SuppressWarnings("serial")

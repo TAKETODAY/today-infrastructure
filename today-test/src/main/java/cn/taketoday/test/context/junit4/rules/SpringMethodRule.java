@@ -20,28 +20,28 @@
 
 package cn.taketoday.test.context.junit4.rules;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.junit.rules.MethodRule;
 import org.junit.runners.model.FrameworkMethod;
 import org.junit.runners.model.Statement;
 
 import java.lang.reflect.Method;
 
+import cn.taketoday.logging.Logger;
+import cn.taketoday.logging.LoggerFactory;
+import cn.taketoday.test.annotation.IfProfileValue;
+import cn.taketoday.test.annotation.ProfileValueSourceConfiguration;
+import cn.taketoday.test.annotation.Repeat;
+import cn.taketoday.test.annotation.Timed;
+import cn.taketoday.test.context.TestContextBootstrapper;
+import cn.taketoday.test.context.TestContextManager;
+import cn.taketoday.test.context.TestExecutionListener;
+import cn.taketoday.test.context.junit4.SpringJUnit4ClassRunner;
 import cn.taketoday.test.context.junit4.statements.ProfileValueChecker;
 import cn.taketoday.test.context.junit4.statements.RunAfterTestMethodCallbacks;
 import cn.taketoday.test.context.junit4.statements.RunBeforeTestMethodCallbacks;
 import cn.taketoday.test.context.junit4.statements.RunPrepareTestInstanceCallbacks;
 import cn.taketoday.test.context.junit4.statements.SpringFailOnTimeout;
 import cn.taketoday.test.context.junit4.statements.SpringRepeat;
-import cn.taketoday.test.context.TestContextBootstrapper;
-import cn.taketoday.test.context.TestContextManager;
-import cn.taketoday.test.annotation.IfProfileValue;
-import cn.taketoday.test.annotation.ProfileValueSourceConfiguration;
-import cn.taketoday.test.annotation.Repeat;
-import cn.taketoday.test.annotation.Timed;
-import cn.taketoday.test.context.TestExecutionListener;
-import cn.taketoday.test.context.junit4.SpringJUnit4ClassRunner;
 
 /**
  * {@code SpringMethodRule} is a custom JUnit 4 {@link MethodRule} that
@@ -109,7 +109,7 @@ import cn.taketoday.test.context.junit4.SpringJUnit4ClassRunner;
  */
 public class SpringMethodRule implements MethodRule {
 
-  private static final Log logger = LogFactory.getLog(SpringMethodRule.class);
+  private static final Logger logger = LoggerFactory.getLogger(SpringMethodRule.class);
 
   /**
    * Apply <em>instance-level</em> and <em>method-level</em> features of

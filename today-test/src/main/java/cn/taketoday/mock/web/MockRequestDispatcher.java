@@ -20,10 +20,9 @@
 
 package cn.taketoday.mock.web;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import cn.taketoday.lang.Assert;
+import cn.taketoday.logging.Logger;
+import cn.taketoday.logging.LoggerFactory;
 import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
@@ -40,7 +39,7 @@ import jakarta.servlet.http.HttpServletResponseWrapper;
  */
 public class MockRequestDispatcher implements RequestDispatcher {
 
-  private final Log logger = LogFactory.getLog(getClass());
+  private final Logger logger = LoggerFactory.getLogger(getClass());
 
   private final String resource;
 

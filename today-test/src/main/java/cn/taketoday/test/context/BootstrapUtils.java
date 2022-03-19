@@ -20,9 +20,6 @@
 
 package cn.taketoday.test.context;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.util.LinkedHashSet;
@@ -31,6 +28,8 @@ import java.util.Set;
 import cn.taketoday.beans.BeanUtils;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.lang.TodayStrategies;
+import cn.taketoday.logging.Logger;
+import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.test.context.TestContextAnnotationUtils.AnnotationDescriptor;
 import cn.taketoday.test.context.cache.DefaultCacheAwareContextLoaderDelegate;
 import cn.taketoday.test.context.support.DefaultBootstrapContext;
@@ -70,7 +69,7 @@ abstract class BootstrapUtils {
 
   private static final Class<? extends Annotation> webAppConfigurationClass = loadWebAppConfigurationClass();
 
-  private static final Log logger = LogFactory.getLog(BootstrapUtils.class);
+  private static final Logger logger = LoggerFactory.getLogger(BootstrapUtils.class);
 
   /**
    * Create the {@code BootstrapContext} for the specified {@linkplain Class test class}.

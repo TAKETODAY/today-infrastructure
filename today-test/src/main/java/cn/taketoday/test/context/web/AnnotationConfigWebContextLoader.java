@@ -20,10 +20,9 @@
 
 package cn.taketoday.test.context.web;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import cn.taketoday.context.annotation.AnnotatedBeanDefinitionReader;
+import cn.taketoday.logging.Logger;
+import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.test.context.ContextConfiguration;
 import cn.taketoday.test.context.ContextConfigurationAttributes;
 import cn.taketoday.test.context.ContextLoader;
@@ -64,7 +63,7 @@ import cn.taketoday.web.context.support.GenericWebServletApplicationContext;
  */
 public class AnnotationConfigWebContextLoader extends AbstractGenericWebContextLoader {
 
-  private static final Log logger = LogFactory.getLog(AnnotationConfigWebContextLoader.class);
+  private static final Logger logger = LoggerFactory.getLogger(AnnotationConfigWebContextLoader.class);
 
   // SmartContextLoader
 

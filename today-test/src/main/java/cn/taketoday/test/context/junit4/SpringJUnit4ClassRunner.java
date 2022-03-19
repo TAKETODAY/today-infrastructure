@@ -20,8 +20,6 @@
 
 package cn.taketoday.test.context.junit4;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.internal.runners.model.ReflectiveCallable;
@@ -41,6 +39,17 @@ import java.util.concurrent.TimeUnit;
 
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.logging.Logger;
+import cn.taketoday.logging.LoggerFactory;
+import cn.taketoday.test.annotation.IfProfileValue;
+import cn.taketoday.test.annotation.ProfileValueSourceConfiguration;
+import cn.taketoday.test.annotation.ProfileValueUtils;
+import cn.taketoday.test.annotation.Repeat;
+import cn.taketoday.test.annotation.TestAnnotationUtils;
+import cn.taketoday.test.annotation.Timed;
+import cn.taketoday.test.context.TestContextBootstrapper;
+import cn.taketoday.test.context.TestContextManager;
+import cn.taketoday.test.context.TestExecutionListener;
 import cn.taketoday.test.context.junit4.rules.SpringClassRule;
 import cn.taketoday.test.context.junit4.rules.SpringMethodRule;
 import cn.taketoday.test.context.junit4.statements.RunAfterTestClassCallbacks;
@@ -51,15 +60,6 @@ import cn.taketoday.test.context.junit4.statements.RunBeforeTestExecutionCallbac
 import cn.taketoday.test.context.junit4.statements.RunBeforeTestMethodCallbacks;
 import cn.taketoday.test.context.junit4.statements.SpringFailOnTimeout;
 import cn.taketoday.test.context.junit4.statements.SpringRepeat;
-import cn.taketoday.test.annotation.IfProfileValue;
-import cn.taketoday.test.annotation.ProfileValueSourceConfiguration;
-import cn.taketoday.test.annotation.ProfileValueUtils;
-import cn.taketoday.test.annotation.Repeat;
-import cn.taketoday.test.annotation.TestAnnotationUtils;
-import cn.taketoday.test.context.TestContextBootstrapper;
-import cn.taketoday.test.context.TestContextManager;
-import cn.taketoday.test.annotation.Timed;
-import cn.taketoday.test.context.TestExecutionListener;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.ReflectionUtils;
 
@@ -106,7 +106,7 @@ import cn.taketoday.util.ReflectionUtils;
  */
 public class SpringJUnit4ClassRunner extends BlockJUnit4ClassRunner {
 
-  private static final Log logger = LogFactory.getLog(SpringJUnit4ClassRunner.class);
+  private static final Logger logger = LoggerFactory.getLogger(SpringJUnit4ClassRunner.class);
 
   private static final Method withRulesMethod;
 

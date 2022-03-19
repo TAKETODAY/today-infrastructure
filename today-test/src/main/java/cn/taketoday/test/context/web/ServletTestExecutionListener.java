@@ -20,15 +20,14 @@
 
 package cn.taketoday.test.context.web;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.core.Conventions;
 import cn.taketoday.core.annotation.AnnotatedElementUtils;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.logging.Logger;
+import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.mock.web.MockHttpServletRequest;
 import cn.taketoday.mock.web.MockHttpServletResponse;
 import cn.taketoday.mock.web.MockServletContext;
@@ -107,7 +106,7 @@ public class ServletTestExecutionListener extends AbstractTestExecutionListener 
   public static final String ACTIVATE_LISTENER = Conventions.getQualifiedAttributeName(
           ServletTestExecutionListener.class, "activateListener");
 
-  private static final Log logger = LogFactory.getLog(ServletTestExecutionListener.class);
+  private static final Logger logger = LoggerFactory.getLogger(ServletTestExecutionListener.class);
 
   /**
    * Returns {@code 1000}.

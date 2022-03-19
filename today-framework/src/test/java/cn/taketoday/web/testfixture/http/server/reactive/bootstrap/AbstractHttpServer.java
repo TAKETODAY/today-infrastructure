@@ -20,15 +20,14 @@
 
 package cn.taketoday.web.testfixture.http.server.reactive.bootstrap;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import java.util.LinkedHashMap;
 import java.util.Map;
 
 import cn.taketoday.http.server.reactive.ContextPathCompositeHandler;
 import cn.taketoday.http.server.reactive.HttpHandler;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.logging.Logger;
+import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.StopWatch;
 
 /**
@@ -36,7 +35,7 @@ import cn.taketoday.util.StopWatch;
  */
 public abstract class AbstractHttpServer implements HttpServer {
 
-  protected Log logger = LogFactory.getLog(getClass().getName());
+  protected Logger logger = LoggerFactory.getLogger(getClass().getName());
 
   private String host = "0.0.0.0";
 

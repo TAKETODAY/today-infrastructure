@@ -20,9 +20,6 @@
 
 package cn.taketoday.test.context.support;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.List;
@@ -31,6 +28,8 @@ import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.core.annotation.AnnotatedElementUtils;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.logging.Logger;
+import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.test.context.SmartContextLoader;
 import cn.taketoday.util.ClassUtils;
 
@@ -43,7 +42,7 @@ import cn.taketoday.util.ClassUtils;
  */
 public abstract class AnnotationConfigContextLoaderUtils {
 
-  private static final Log logger = LogFactory.getLog(AnnotationConfigContextLoaderUtils.class);
+  private static final Logger logger = LoggerFactory.getLogger(AnnotationConfigContextLoaderUtils.class);
 
   /**
    * Detect the default configuration classes for the supplied test class.

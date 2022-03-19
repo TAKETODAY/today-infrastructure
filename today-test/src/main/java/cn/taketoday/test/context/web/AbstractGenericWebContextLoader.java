@@ -20,9 +20,6 @@
 
 package cn.taketoday.test.context.web;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.ConfigurableApplicationContext;
@@ -31,6 +28,8 @@ import cn.taketoday.core.io.DefaultResourceLoader;
 import cn.taketoday.core.io.FileSystemResourceLoader;
 import cn.taketoday.core.io.ResourceLoader;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.logging.Logger;
+import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.mock.web.MockServletContext;
 import cn.taketoday.test.context.ContextLoader;
 import cn.taketoday.test.context.MergedContextConfiguration;
@@ -65,7 +64,7 @@ import jakarta.servlet.ServletContext;
  */
 public abstract class AbstractGenericWebContextLoader extends AbstractContextLoader {
 
-  protected static final Log logger = LogFactory.getLog(AbstractGenericWebContextLoader.class);
+  protected static final Logger logger = LoggerFactory.getLogger(AbstractGenericWebContextLoader.class);
 
   // SmartContextLoader
 

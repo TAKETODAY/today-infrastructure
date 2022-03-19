@@ -20,8 +20,6 @@
 
 package cn.taketoday.test.context.testng;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.testng.IHookCallBack;
 import org.testng.IHookable;
 import org.testng.ITestResult;
@@ -36,6 +34,8 @@ import java.lang.reflect.Method;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.aware.ApplicationContextAware;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.logging.Logger;
+import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.test.context.ContextConfiguration;
 import cn.taketoday.test.context.TestContext;
 import cn.taketoday.test.context.TestContextManager;
@@ -99,7 +99,7 @@ import cn.taketoday.test.context.web.ServletTestExecutionListener;
 public abstract class AbstractTestNGSpringContextTests implements IHookable, ApplicationContextAware {
 
   /** Logger available to subclasses. */
-  protected final Log logger = LogFactory.getLog(getClass());
+  protected final Logger logger = LoggerFactory.getLogger(getClass());
 
   /**
    * The {@link ApplicationContext} that was injected into this test instance

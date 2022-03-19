@@ -20,12 +20,11 @@
 
 package cn.taketoday.test.context.support;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import cn.taketoday.beans.factory.support.BeanDefinitionReader;
 import cn.taketoday.context.annotation.AnnotatedBeanDefinitionReader;
 import cn.taketoday.context.support.GenericApplicationContext;
+import cn.taketoday.logging.Logger;
+import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.test.context.ContextConfiguration;
 import cn.taketoday.test.context.ContextConfigurationAttributes;
 import cn.taketoday.test.context.ContextLoader;
@@ -57,12 +56,11 @@ import cn.taketoday.util.ObjectUtils;
  * @see #detectDefaultConfigurationClasses(Class)
  * @see #loadBeanDefinitions(GenericApplicationContext, MergedContextConfiguration)
  * @see GenericXmlContextLoader
- * @see GenericGroovyXmlContextLoader
- *@since 4.0
+ * @since 4.0
  */
 public class AnnotationConfigContextLoader extends AbstractGenericContextLoader {
 
-  private static final Log logger = LogFactory.getLog(AnnotationConfigContextLoader.class);
+  private static final Logger logger = LoggerFactory.getLogger(AnnotationConfigContextLoader.class);
 
   // SmartContextLoader
 

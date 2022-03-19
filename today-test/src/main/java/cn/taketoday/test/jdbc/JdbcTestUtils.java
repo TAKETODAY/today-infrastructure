@@ -20,11 +20,10 @@
 
 package cn.taketoday.test.jdbc;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import cn.taketoday.jdbc.core.JdbcTemplate;
 import cn.taketoday.jdbc.core.SqlParameterValue;
+import cn.taketoday.logging.Logger;
+import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.StringUtils;
 
 /**
@@ -39,12 +38,12 @@ import cn.taketoday.util.StringUtils;
  * @see cn.taketoday.jdbc.core.JdbcTemplate
  * @see cn.taketoday.jdbc.datasource.init.ScriptUtils
  * @see cn.taketoday.jdbc.datasource.init.ResourceDatabasePopulator
- * @see cn.taketoday.jdbc.datasource.init.DatabasePopulatorUtils
+ * @see cn.taketoday.jdbc.datasource.init.DatabasePopulator
  * @since 4.0
  */
 public abstract class JdbcTestUtils {
 
-  private static final Log logger = LogFactory.getLog(JdbcTestUtils.class);
+  private static final Logger logger = LoggerFactory.getLogger(JdbcTestUtils.class);
 
   /**
    * Count the rows in the given table.

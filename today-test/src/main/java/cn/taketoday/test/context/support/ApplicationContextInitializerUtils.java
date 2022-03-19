@@ -20,9 +20,6 @@
 
 package cn.taketoday.test.context.support;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -30,6 +27,8 @@ import java.util.Set;
 
 import cn.taketoday.context.ApplicationContextInitializer;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.logging.Logger;
+import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.test.context.ContextConfiguration;
 import cn.taketoday.test.context.ContextConfigurationAttributes;
 
@@ -47,7 +46,7 @@ import cn.taketoday.test.context.ContextConfigurationAttributes;
  */
 abstract class ApplicationContextInitializerUtils {
 
-  private static final Log logger = LogFactory.getLog(ApplicationContextInitializerUtils.class);
+  private static final Logger logger = LoggerFactory.getLogger(ApplicationContextInitializerUtils.class);
 
   /**
    * Resolve the set of merged {@code ApplicationContextInitializer} classes for the

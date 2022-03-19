@@ -20,12 +20,11 @@
 
 package cn.taketoday.test.context.cache;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.logging.Logger;
+import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.test.annotation.DirtiesContext.HierarchyMode;
 import cn.taketoday.test.context.CacheAwareContextLoaderDelegate;
 import cn.taketoday.test.context.ContextLoader;
@@ -45,7 +44,7 @@ import cn.taketoday.test.context.SmartContextLoader;
  */
 public class DefaultCacheAwareContextLoaderDelegate implements CacheAwareContextLoaderDelegate {
 
-  private static final Log logger = LogFactory.getLog(DefaultCacheAwareContextLoaderDelegate.class);
+  private static final Logger logger = LoggerFactory.getLogger(DefaultCacheAwareContextLoaderDelegate.class);
 
   /**
    * Default static cache of Spring application contexts.

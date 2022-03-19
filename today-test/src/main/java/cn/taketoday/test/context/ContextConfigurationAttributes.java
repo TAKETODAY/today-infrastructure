@@ -20,9 +20,6 @@
 
 package cn.taketoday.test.context;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import java.util.Arrays;
 
 import cn.taketoday.context.ApplicationContextInitializer;
@@ -30,6 +27,8 @@ import cn.taketoday.core.annotation.AnnotationAttributes;
 import cn.taketoday.core.style.ToStringBuilder;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.logging.Logger;
+import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
 
@@ -50,7 +49,7 @@ public class ContextConfigurationAttributes {
 
   private static final Class<?>[] EMPTY_CLASSES = new Class<?>[0];
 
-  private static final Log logger = LogFactory.getLog(ContextConfigurationAttributes.class);
+  private static final Logger logger = LoggerFactory.getLogger(ContextConfigurationAttributes.class);
 
   private final Class<?> declaringClass;
 

@@ -20,10 +20,9 @@
 
 package cn.taketoday.test.context.support;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import cn.taketoday.lang.Assert;
+import cn.taketoday.logging.Logger;
+import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.test.context.ActiveProfiles;
 import cn.taketoday.test.context.ActiveProfilesResolver;
 import cn.taketoday.test.context.TestContextAnnotationUtils.AnnotationDescriptor;
@@ -45,7 +44,7 @@ public class DefaultActiveProfilesResolver implements ActiveProfilesResolver {
 
   private static final String[] EMPTY_STRING_ARRAY = new String[0];
 
-  private static final Log logger = LogFactory.getLog(DefaultActiveProfilesResolver.class);
+  private static final Logger logger = LoggerFactory.getLogger(DefaultActiveProfilesResolver.class);
 
   /**
    * Resolve the <em>bean definition profiles</em> for the given {@linkplain

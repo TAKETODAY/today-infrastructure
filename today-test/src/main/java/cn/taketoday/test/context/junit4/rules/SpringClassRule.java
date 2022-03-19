@@ -20,8 +20,6 @@
 
 package cn.taketoday.test.context.junit4.rules;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.junit.rules.TestRule;
 import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
@@ -30,15 +28,17 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import cn.taketoday.lang.Assert;
+import cn.taketoday.logging.Logger;
+import cn.taketoday.logging.LoggerFactory;
+import cn.taketoday.test.annotation.IfProfileValue;
+import cn.taketoday.test.annotation.ProfileValueSourceConfiguration;
+import cn.taketoday.test.context.TestContextBootstrapper;
+import cn.taketoday.test.context.TestContextManager;
+import cn.taketoday.test.context.TestExecutionListener;
+import cn.taketoday.test.context.junit4.SpringJUnit4ClassRunner;
 import cn.taketoday.test.context.junit4.statements.ProfileValueChecker;
 import cn.taketoday.test.context.junit4.statements.RunAfterTestClassCallbacks;
 import cn.taketoday.test.context.junit4.statements.RunBeforeTestClassCallbacks;
-import cn.taketoday.test.context.TestContextBootstrapper;
-import cn.taketoday.test.context.TestContextManager;
-import cn.taketoday.test.annotation.IfProfileValue;
-import cn.taketoday.test.annotation.ProfileValueSourceConfiguration;
-import cn.taketoday.test.context.TestExecutionListener;
-import cn.taketoday.test.context.junit4.SpringJUnit4ClassRunner;
 
 /**
  * {@code SpringClassRule} is a custom JUnit {@link TestRule} that supports
@@ -93,7 +93,7 @@ import cn.taketoday.test.context.junit4.SpringJUnit4ClassRunner;
  */
 public class SpringClassRule implements TestRule {
 
-  private static final Log logger = LogFactory.getLog(SpringClassRule.class);
+  private static final Logger logger = LoggerFactory.getLogger(SpringClassRule.class);
 
   /**
    * Cache of {@code TestContextManagers} keyed by test class.

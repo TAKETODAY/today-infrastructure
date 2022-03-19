@@ -20,13 +20,12 @@
 
 package cn.taketoday.test.context.transaction;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import java.util.concurrent.atomic.AtomicInteger;
 
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.logging.Logger;
+import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.test.context.TestContext;
 import cn.taketoday.transaction.PlatformTransactionManager;
 import cn.taketoday.transaction.TransactionDefinition;
@@ -44,7 +43,7 @@ import cn.taketoday.transaction.TransactionStatus;
  */
 class TransactionContext {
 
-  private static final Log logger = LogFactory.getLog(TransactionContext.class);
+  private static final Logger logger = LoggerFactory.getLogger(TransactionContext.class);
 
   private final TestContext testContext;
 

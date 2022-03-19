@@ -20,9 +20,6 @@
 
 package cn.taketoday.test.context.jdbc;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Set;
@@ -39,6 +36,8 @@ import cn.taketoday.jdbc.datasource.init.ResourceDatabasePopulator;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.NonNull;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.logging.Logger;
+import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.test.context.TestContext;
 import cn.taketoday.test.context.TestContextAnnotationUtils;
 import cn.taketoday.test.context.jdbc.SqlMergeMode.MergeMode;
@@ -100,7 +99,7 @@ import cn.taketoday.util.StringUtils;
  */
 public class SqlScriptsTestExecutionListener extends AbstractTestExecutionListener {
 
-  private static final Log logger = LogFactory.getLog(SqlScriptsTestExecutionListener.class);
+  private static final Logger logger = LoggerFactory.getLogger(SqlScriptsTestExecutionListener.class);
 
   /**
    * Returns {@code 5000}.

@@ -20,9 +20,6 @@
 
 package cn.taketoday.test.context.support;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import java.io.IOException;
 import java.io.StringReader;
 import java.lang.annotation.Annotation;
@@ -49,6 +46,8 @@ import cn.taketoday.core.io.ResourceLoader;
 import cn.taketoday.core.io.ResourcePropertySource;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.logging.Logger;
+import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.test.context.TestContextAnnotationUtils;
 import cn.taketoday.test.context.TestPropertySource;
 import cn.taketoday.test.context.util.TestContextResourceUtils;
@@ -77,7 +76,7 @@ public abstract class TestPropertySourceUtils {
    */
   public static final String INLINED_PROPERTIES_PROPERTY_SOURCE_NAME = "Inlined Test Properties";
 
-  private static final Log logger = LogFactory.getLog(TestPropertySourceUtils.class);
+  private static final Logger logger = LoggerFactory.getLogger(TestPropertySourceUtils.class);
 
   static MergedTestPropertySources buildMergedTestPropertySources(Class<?> testClass) {
     List<TestPropertySourceAttributes> attributesList = new ArrayList<>();

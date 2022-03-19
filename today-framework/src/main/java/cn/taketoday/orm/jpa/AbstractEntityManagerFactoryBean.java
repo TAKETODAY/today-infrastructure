@@ -605,7 +605,6 @@ public abstract class AbstractEntityManagerFactoryBean implements FactoryBean<En
    * @param rawEntityManager the EntityManager to post-process
    * @see #createNativeEntityManager
    * @see JpaVendorAdapter#postProcessEntityManager
-   * @since 4.0
    */
   protected void postProcessEntityManager(EntityManager rawEntityManager) {
     JpaVendorAdapter jpaVendorAdapter = getJpaVendorAdapter();

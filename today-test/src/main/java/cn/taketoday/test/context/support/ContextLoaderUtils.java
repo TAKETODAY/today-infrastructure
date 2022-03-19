@@ -20,9 +20,6 @@
 
 package cn.taketoday.test.context.support;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -31,6 +28,8 @@ import java.util.Map;
 import java.util.Set;
 
 import cn.taketoday.lang.Assert;
+import cn.taketoday.logging.Logger;
+import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.test.context.ContextConfiguration;
 import cn.taketoday.test.context.ContextConfigurationAttributes;
 import cn.taketoday.test.context.ContextHierarchy;
@@ -55,13 +54,13 @@ import static cn.taketoday.test.context.TestContextAnnotationUtils.findAnnotatio
  * @see ContextConfigurationAttributes
  * @see ContextConfiguration
  * @see ContextHierarchy
- *@since 4.0
+ * @since 4.0
  */
 abstract class ContextLoaderUtils {
 
   static final String GENERATED_CONTEXT_HIERARCHY_LEVEL_PREFIX = "ContextHierarchyLevel#";
 
-  private static final Log logger = LogFactory.getLog(ContextLoaderUtils.class);
+  private static final Logger logger = LoggerFactory.getLogger(ContextLoaderUtils.class);
 
   /**
    * Resolve the list of lists of {@linkplain ContextConfigurationAttributes context

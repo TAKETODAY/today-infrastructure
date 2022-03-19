@@ -20,15 +20,14 @@
 
 package cn.taketoday.test.annotation;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import java.lang.reflect.Method;
 
 import cn.taketoday.core.annotation.AnnotatedElementUtils;
 import cn.taketoday.core.annotation.AnnotationUtils;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.logging.Logger;
+import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.util.StringUtils;
@@ -45,7 +44,7 @@ import cn.taketoday.util.StringUtils;
  */
 public abstract class ProfileValueUtils {
 
-  private static final Log logger = LogFactory.getLog(ProfileValueUtils.class);
+  private static final Logger logger = LoggerFactory.getLogger(ProfileValueUtils.class);
 
   /**
    * Retrieves the {@link ProfileValueSource} type for the specified

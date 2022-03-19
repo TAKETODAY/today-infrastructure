@@ -20,13 +20,13 @@
 
 package cn.taketoday.test.context.junit4;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.junit.runner.RunWith;
 
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.aware.ApplicationContextAware;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.logging.Logger;
+import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.test.context.ContextConfiguration;
 import cn.taketoday.test.context.TestContext;
 import cn.taketoday.test.context.TestContextManager;
@@ -108,7 +108,7 @@ public abstract class AbstractJUnit4SpringContextTests implements ApplicationCon
   /**
    * Logger available to subclasses.
    */
-  protected final Log logger = LogFactory.getLog(getClass());
+  protected final Logger logger = LoggerFactory.getLogger(getClass());
 
   /**
    * The {@link ApplicationContext} that was injected into this test instance

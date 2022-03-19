@@ -20,11 +20,10 @@
 
 package cn.taketoday.test.context.support;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import cn.taketoday.beans.factory.config.AutowireCapableBeanFactory;
 import cn.taketoday.core.Conventions;
+import cn.taketoday.logging.Logger;
+import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.test.context.TestContext;
 import cn.taketoday.test.context.TestExecutionListener;
 
@@ -56,7 +55,7 @@ public class DependencyInjectionTestExecutionListener extends AbstractTestExecut
   public static final String REINJECT_DEPENDENCIES_ATTRIBUTE = Conventions.getQualifiedAttributeName(
           DependencyInjectionTestExecutionListener.class, "reinjectDependencies");
 
-  private static final Log logger = LogFactory.getLog(DependencyInjectionTestExecutionListener.class);
+  private static final Logger logger = LoggerFactory.getLogger(DependencyInjectionTestExecutionListener.class);
 
   /**
    * Returns {@code 2000}.

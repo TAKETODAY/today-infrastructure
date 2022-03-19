@@ -20,8 +20,6 @@
 
 package cn.taketoday.test.context.junit.jupiter;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.junit.jupiter.api.extension.ConditionEvaluationResult;
 import org.junit.jupiter.api.extension.ExecutionCondition;
 import org.junit.jupiter.api.extension.ExtensionContext;
@@ -39,6 +37,8 @@ import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.context.support.GenericApplicationContext;
 import cn.taketoday.core.annotation.AnnotatedElementUtils;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.logging.Logger;
+import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.test.annotation.DirtiesContext;
 import cn.taketoday.test.annotation.DirtiesContext.HierarchyMode;
 import cn.taketoday.test.context.TestContextAnnotationUtils;
@@ -69,7 +69,7 @@ import cn.taketoday.util.StringUtils;
  */
 abstract class AbstractExpressionEvaluatingCondition implements ExecutionCondition {
 
-  private static final Log logger = LogFactory.getLog(AbstractExpressionEvaluatingCondition.class);
+  private static final Logger logger = LoggerFactory.getLogger(AbstractExpressionEvaluatingCondition.class);
 
   /**
    * Evaluate the expression configured via the supplied annotation type on
