@@ -105,7 +105,7 @@ import jakarta.inject.Provider;
  * {@link cn.taketoday.beans.factory.xml.XmlBeanDefinitionReader}.
  *
  * <p>
- * like Framework's StandardBeanFactory
+ * like Framework's DefaultListableBeanFactory
  *
  * @author Rod Johnson
  * @author Juergen Hoeller

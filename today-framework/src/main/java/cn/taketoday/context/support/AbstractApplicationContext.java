@@ -89,7 +89,6 @@ import cn.taketoday.core.io.ResourceConsumer;
 import cn.taketoday.core.io.ResourceLoader;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Constant;
-import cn.taketoday.lang.Experimental;
 import cn.taketoday.lang.NonNull;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.lang.TodayStrategies;
@@ -207,7 +206,6 @@ public abstract class AbstractApplicationContext
   private MessageSource messageSource;
 
   @Nullable
-  @Experimental
   private BootstrapContext bootstrapContext;
 
   /** Flag that indicates whether this context is currently active. */
@@ -244,7 +242,6 @@ public abstract class AbstractApplicationContext
    * @return the DefinitionLoadingContext for this context
    * @since 4.0
    */
-  @Experimental
   protected abstract BootstrapContext createBootstrapContext();
 
   /**
@@ -388,7 +385,7 @@ public abstract class AbstractApplicationContext
 
   @Override
   public AutowireCapableBeanFactory getAutowireCapableBeanFactory() {
-    return unwrapFactory(AutowireCapableBeanFactory.class);
+    return getBeanFactory();
   }
 
   @Override

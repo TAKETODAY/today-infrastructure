@@ -29,6 +29,7 @@ import java.util.function.Supplier;
 
 import cn.taketoday.beans.BeansException;
 import cn.taketoday.beans.PropertyValues;
+import cn.taketoday.beans.factory.config.AutowireCapableBeanFactory;
 import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.beans.factory.config.BeanDefinitionCustomizer;
 import cn.taketoday.beans.factory.config.BeanFactoryPostProcessor;
@@ -94,16 +95,17 @@ import cn.taketoday.lang.Nullable;
 public class GenericApplicationContext
         extends AbstractApplicationContext implements BeanDefinitionRegistry {
 
+  protected final StandardBeanFactory beanFactory;
+
   @Nullable
   private ResourceLoader resourceLoader;
-  private boolean customClassLoader = false;
 
-  protected final StandardBeanFactory beanFactory;
+  private boolean customClassLoader = false;
 
   private final AtomicBoolean refreshed = new AtomicBoolean();
 
   /**
-   * Default Constructor
+   * Create a new GenericApplicationContext.
    *
    * @see #registerBeanDefinition
    * @see #refresh
@@ -113,7 +115,7 @@ public class GenericApplicationContext
   }
 
   /**
-   * Create a new DefaultApplicationContext with the given StandardBeanFactory.
+   * Create a new GenericApplicationContext with the given StandardBeanFactory.
    *
    * @param beanFactory the StandardBeanFactory instance to use for this context
    * @see #registerBeanDefinition
@@ -125,7 +127,7 @@ public class GenericApplicationContext
   }
 
   /**
-   * Create a new DefaultApplicationContext with the given parent.
+   * Create a new GenericApplicationContext with the given parent.
    *
    * @param parent the parent application context
    * @see #registerBeanDefinition
@@ -137,7 +139,7 @@ public class GenericApplicationContext
   }
 
   /**
-   * Create a new DefaultApplicationContext with the given StandardBeanFactory.
+   * Create a new GenericApplicationContext with the given StandardBeanFactory.
    *
    * @param beanFactory the StandardBeanFactory instance to use for this context
    * @param parent the parent application context
@@ -199,6 +201,12 @@ public class GenericApplicationContext
   @Override
   public StandardBeanFactory getBeanFactory() {
     return beanFactory;
+  }
+
+  @Override
+  public AutowireCapableBeanFactory getAutowireCapableBeanFactory() throws IllegalStateException {
+    assertBeanFactoryActive();
+    return this.beanFactory;
   }
 
   /**

@@ -556,11 +556,11 @@ public class DefaultSingletonBeanRegistry extends DefaultAliasRegistry implement
    * @since 4.0
    */
   protected void clearSingletonCache() {
-    synchronized(this.singletonObjects) {
-      this.singletonObjects.clear();
-      this.singletonFactories.clear();
-      this.earlySingletonObjects.clear();
-      this.registeredSingletons.clear();
+    synchronized(singletonObjects) {
+      singletonObjects.clear();
+      singletonFactories.clear();
+      earlySingletonObjects.clear();
+      registeredSingletons.clear();
       this.singletonsCurrentlyInDestruction = false;
     }
   }
@@ -619,9 +619,9 @@ public class DefaultSingletonBeanRegistry extends DefaultAliasRegistry implement
 
     // Trigger destruction of contained beans...
     Set<String> containedBeans;
-    synchronized(this.containedBeanMap) {
+    synchronized(containedBeanMap) {
       // Within full synchronization in order to guarantee a disconnected Set
-      containedBeans = this.containedBeanMap.remove(beanName);
+      containedBeans = containedBeanMap.remove(beanName);
     }
     if (containedBeans != null) {
       for (String containedBeanName : containedBeans) {
@@ -631,12 +631,13 @@ public class DefaultSingletonBeanRegistry extends DefaultAliasRegistry implement
 
     // Remove destroyed bean from other beans' dependencies.
     synchronized(this.dependentBeanMap) {
-      for (Iterator<Map.Entry<String, Set<String>>> it = this.dependentBeanMap.entrySet().iterator(); it.hasNext(); ) {
-        Map.Entry<String, Set<String>> entry = it.next();
+      Iterator<Map.Entry<String, Set<String>>> iterator = dependentBeanMap.entrySet().iterator();
+      while (iterator.hasNext()) {
+        Map.Entry<String, Set<String>> entry = iterator.next();
         Set<String> dependenciesToClean = entry.getValue();
         dependenciesToClean.remove(beanName);
         if (dependenciesToClean.isEmpty()) {
-          it.remove();
+          iterator.remove();
         }
       }
     }
