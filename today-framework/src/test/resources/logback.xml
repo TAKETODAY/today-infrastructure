@@ -22,17 +22,17 @@
   <contextName>TODAY Framework</contextName>
 
   <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
-	<encoder>
-	  <pattern>
-		%red(%d{yyyy-MM-dd HH:mm:ss.SSS}) %highlight(%-5level) - %blue([%16.16t]) %cyan(%-40.40logger{40}) %4.4L - %m%n
-	  </pattern>
-	  <!-- 	<pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %5p %c{1}:%L [%t:%r] - %m%n</pattern> -->
-	</encoder>
+    <encoder>
+      <pattern>
+        %red(%d{yyyy-MM-dd HH:mm:ss.SSS}) %highlight(%-5level) - %blue([%16.16t]) %cyan(%-40.40logger{40}) %4.4L - %m%n
+      </pattern>
+      <!-- 	<pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %5p %c{1}:%L [%t:%r] - %m%n</pattern> -->
+    </encoder>
   </appender>
 
   <!-- for LoggerTest -->
   <logger name="cn.taketoday.logging" level="TRACE">
-	<appender-ref ref="STDOUT" />
+    <appender-ref ref="STDOUT" />
   </logger>
 
   <!--
@@ -44,7 +44,7 @@
   <!--  <root level="TRACE">-->
   <!--    <root level="DEBUG">-->
   <root level="INFO">
-	<appender-ref ref="STDOUT" />
+    <appender-ref ref="STDOUT" />
   </root>
 
 </configuration>
