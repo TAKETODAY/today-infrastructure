@@ -19,8 +19,6 @@
  */
 package cn.taketoday.beans.factory.config;
 
-import java.util.Map;
-
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.DisposableBean;
 import cn.taketoday.beans.factory.InitializingBean;
@@ -74,13 +72,6 @@ public interface SingletonBeanRegistry {
    * @since 2.1.2
    */
   void registerSingleton(Object bean);
-
-  /**
-   * Get all instances Map
-   *
-   * @return the map of singletons
-   */
-  Map<String, Object> getSingletons();
 
   /**
    * Return the (raw) singleton object registered under the given name.

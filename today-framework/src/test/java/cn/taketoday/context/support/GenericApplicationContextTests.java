@@ -95,8 +95,11 @@ public class GenericApplicationContextTests {
 
     ac.close();
 
-    assertThatIllegalStateException().isThrownBy(() ->
-            ac.getBean(String.class));
+    assertThatIllegalStateException()
+            .isThrownBy(() -> ac.getBean(String.class));
+
+    Object testBean = ac.getAutowireCapableBeanFactory().getBean("testBean");
+    String bean = ac.getAutowireCapableBeanFactory().getBean(String.class);
 
     assertThatIllegalStateException().isThrownBy(() -> {
       ac.getAutowireCapableBeanFactory().getBean("testBean");
