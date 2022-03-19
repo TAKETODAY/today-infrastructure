@@ -37,12 +37,12 @@ import cn.taketoday.beans.factory.support.RootBeanDefinition;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.beans.testfixture.beans.ITestBean;
 import cn.taketoday.beans.testfixture.beans.TestBean;
+import cn.taketoday.context.annotation.AnnotationConfigApplicationContext;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Scope;
+import cn.taketoday.context.annotation.ScopedProxyMode;
 import cn.taketoday.context.support.GenericApplicationContext;
-import cn.taketoday.context.support.StandardApplicationContext;
-import cn.taketoday.lang.Nullable;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -82,7 +82,7 @@ public class ScopingTests {
       beanFactory.registerScope(SCOPE, customScope);
     }
     beanFactory.registerBeanDefinition("config", new RootBeanDefinition(configClass));
-    StandardApplicationContext ctx = new StandardApplicationContext(beanFactory);
+    AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext(beanFactory);
     ctx.refresh();
     return ctx;
   }
@@ -159,7 +159,6 @@ public class ScopingTests {
     assertThat(condition).isFalse();
   }
 
-/*
   @Test
   public void testScopedProxyConfiguration() throws Exception {
     TestBean singleton = (TestBean) ctx.getBean("singletonWithScopedInterfaceDep");
@@ -192,9 +191,7 @@ public class ScopingTests {
     spouseFromBF = (ITestBean) ctx.getBean(scopedBeanName);
     assertThat(spouseFromBF.getName()).isSameAs(spouse.getName());
   }
-*/
 
-/*
   @Test
   public void testScopedProxyConfigurationWithClasses() throws Exception {
     TestBean singleton = (TestBean) ctx.getBean("singletonWithScopedClassDep");
@@ -228,7 +225,6 @@ public class ScopingTests {
     spouseFromBF = (TestBean) ctx.getBean(scopedBeanName);
     assertThat(spouseFromBF.getName()).isSameAs(spouse.getName());
   }
-*/
 
   static class Foo {
 
@@ -256,7 +252,7 @@ public class ScopingTests {
   public static class InvalidProxyOnPredefinedScopesConfiguration {
 
     @Bean
-    @Scope/*(proxyMode = ScopedProxyMode.INTERFACES)*/
+    @Scope(proxyMode = ScopedProxyMode.INTERFACES)
     public Object invalidProxyOnPredefinedScopes() {
       return new Object();
     }
@@ -320,7 +316,7 @@ public class ScopingTests {
   @Target({ ElementType.METHOD })
   @Retention(RetentionPolicy.RUNTIME)
   @Bean
-  @Scope(value = SCOPE/*, proxyMode = ScopedProxyMode.TARGET_CLASS*/)
+  @Scope(value = SCOPE, proxyMode = ScopedProxyMode.TARGET_CLASS)
   @interface MyProxiedScope {
   }
 
@@ -355,14 +351,13 @@ public class ScopingTests {
     }
 
     @Override
-    public void registerDestructionCallback(String name, Runnable callback) {
-      throw new IllegalStateException("Not supposed to be called");
+    public String getConversationId() {
+      return null;
     }
 
-    @Nullable
     @Override
-    public Object resolveContextualObject(String key) {
-      return null;
+    public void registerDestructionCallback(String name, Runnable callback) {
+      throw new IllegalStateException("Not supposed to be called");
     }
 
     @Override
@@ -370,6 +365,10 @@ public class ScopingTests {
       return beans.remove(name);
     }
 
+    @Override
+    public Object resolveContextualObject(String key) {
+      return null;
+    }
   }
 
 }

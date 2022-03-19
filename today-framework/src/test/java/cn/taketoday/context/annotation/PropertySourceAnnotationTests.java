@@ -133,7 +133,7 @@ class PropertySourceAnnotationTests {
 
   @Test
   void withUnresolvablePlaceholder() {
-    assertThatExceptionOfType(ApplicationContextException.class)
+    assertThatExceptionOfType(BeanDefinitionStoreException.class)
             .isThrownBy(() -> new StandardApplicationContext(ConfigWithUnresolvablePlaceholder.class))
             .withCauseInstanceOf(BeanDefinitionStoreException.class);
   }

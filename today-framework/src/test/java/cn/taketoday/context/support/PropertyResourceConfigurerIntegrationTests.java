@@ -32,7 +32,6 @@ import cn.taketoday.beans.factory.config.PropertyResourceConfigurer;
 import cn.taketoday.beans.factory.config.RuntimeBeanReference;
 import cn.taketoday.beans.testfixture.beans.TestBean;
 import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.context.support.StaticApplicationContext;
 import cn.taketoday.util.StringUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;

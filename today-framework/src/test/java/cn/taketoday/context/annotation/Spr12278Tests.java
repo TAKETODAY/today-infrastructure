@@ -60,7 +60,7 @@ public class Spr12278Tests {
 
   @Test
   public void componentTwoSpecificConstructorsNoHint() {
-    assertThatExceptionOfType(ApplicationContextException.class)
+    assertThatExceptionOfType(BeanCreationException.class)
             .isThrownBy(() -> new StandardApplicationContext(BaseConfiguration.class, TwoSpecificConstructorsComponent.class))
             .havingCause().isInstanceOf(BeanCreationException.class);
   }
