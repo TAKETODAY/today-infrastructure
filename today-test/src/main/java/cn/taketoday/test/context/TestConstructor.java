@@ -20,9 +20,6 @@
 
 package cn.taketoday.test.context;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Inherited;
@@ -31,6 +28,8 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.logging.Logger;
+import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.test.context.junit.jupiter.SpringExtension;
 import cn.taketoday.test.context.junit.jupiter.SpringJUnitConfig;
 import cn.taketoday.test.context.junit.jupiter.web.SpringJUnitWebConfig;
@@ -153,7 +152,6 @@ public @interface TestConstructor {
      * @param name the name of the enum constant to retrieve
      * @return the corresponding enum constant or {@code null} if not found
      * @see AutowireMode#valueOf(String)
-     * @since 4.0
      */
     @Nullable
     public static AutowireMode from(@Nullable String name) {

@@ -20,9 +20,6 @@
 
 package cn.taketoday.test.context;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Inherited;
@@ -31,13 +28,15 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.logging.Logger;
+import cn.taketoday.logging.LoggerFactory;
+import cn.taketoday.test.annotation.Commit;
+import cn.taketoday.test.annotation.DirtiesContext;
+import cn.taketoday.test.annotation.Rollback;
 import cn.taketoday.test.context.jdbc.Sql;
 import cn.taketoday.test.context.jdbc.SqlConfig;
 import cn.taketoday.test.context.jdbc.SqlMergeMode;
 import cn.taketoday.test.context.web.WebAppConfiguration;
-import cn.taketoday.test.annotation.Commit;
-import cn.taketoday.test.annotation.DirtiesContext;
-import cn.taketoday.test.annotation.Rollback;
 
 /**
  * {@code @NestedTestConfiguration} is a type-level annotation that is used to
