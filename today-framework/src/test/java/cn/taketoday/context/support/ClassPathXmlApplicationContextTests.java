@@ -141,11 +141,11 @@ public class ClassPathXmlApplicationContextTests {
   public void testContextWithInvalidValueType() throws IOException {
     ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext(
             new String[] { INVALID_VALUE_TYPE_CONTEXT }, false);
-    assertThatExceptionOfType(BeanCreationException.class).isThrownBy(
-                    context::refresh)
+    assertThatExceptionOfType(BeanCreationException.class)
+            .isThrownBy(context::refresh)
             .satisfies(ex -> {
               assertThat(ex.contains(TypeMismatchException.class)).isTrue();
-              assertThat(ex.toString()).contains("someMessageSource", "useCodeAsDefaultMessage");
+              assertThat(ex.getNestedMessage()).contains("someMessageSource", "useCodeAsDefaultMessage");
               checkExceptionFromInvalidValueType(ex);
               checkExceptionFromInvalidValueType(new ExceptionInInitializerError(ex));
               assertThat(context.isActive()).isFalse();

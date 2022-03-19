@@ -68,7 +68,7 @@ public class GenericApplicationContextTests {
     assertThat(ac.getBean("testBean")).isSameAs(ac.getBean("testBean"));
     assertThat(ac.getBean(String.class)).isSameAs(ac.getBean("testBean"));
     assertThat(ac.getBean(CharSequence.class)).isSameAs(ac.getBean("testBean"));
-    assertThat(ac.getBean("testBean")).isEqualTo(ac.toString());
+    assertThat(ac.getBean("testBean")).isNotEqualTo(ac.toString());
   }
 
   @Test
@@ -97,9 +97,6 @@ public class GenericApplicationContextTests {
 
     assertThatIllegalStateException()
             .isThrownBy(() -> ac.getBean(String.class));
-
-    Object testBean = ac.getAutowireCapableBeanFactory().getBean("testBean");
-    String bean = ac.getAutowireCapableBeanFactory().getBean(String.class);
 
     assertThatIllegalStateException().isThrownBy(() -> {
       ac.getAutowireCapableBeanFactory().getBean("testBean");

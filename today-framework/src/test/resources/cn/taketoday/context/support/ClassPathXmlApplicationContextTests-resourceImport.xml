@@ -3,16 +3,16 @@
 
 <beans>
 
-	<bean id="resource1" class="cn.taketoday.tests.sample.beans.ResourceTestBean">
-		<property name="resource">
-			<value>test.properties</value>
-		</property>
-		<property name="contextResource">
-			<value>testBeans.properties</value>
-		</property>
-		<property name="inputStream">
-			<value>classpath:cn/taketoday/beans/factory/xml/test.properties</value>
-		</property>
-	</bean>
+  <bean id="resource1" class="cn.taketoday.tests.sample.beans.ResourceTestBean">
+    <property name="resource">
+      <value>test.properties</value>
+    </property>
+    <property name="contextResource">
+      <value>testBeans.properties</value>
+    </property>
+    <property name="inputStream">
+      <value>classpath:cn/taketoday/beans/factory/xml/test.properties</value>
+    </property>
+  </bean>
 
 </beans>

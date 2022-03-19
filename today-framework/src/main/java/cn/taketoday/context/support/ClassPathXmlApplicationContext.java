@@ -24,8 +24,8 @@ import cn.taketoday.beans.BeansException;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.core.io.ClassPathResource;
 import cn.taketoday.core.io.Resource;
-import cn.taketoday.lang.Nullable;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
 
 /**
  * Standalone XML application context, taking the context definition files
@@ -36,7 +36,7 @@ import cn.taketoday.lang.Assert;
  * <p>The config location defaults can be overridden via {@link #getConfigLocations},
  * Config locations can either denote concrete files like "/myfiles/context.xml"
  * or Ant-style patterns like "/myfiles/*-context.xml" (see the
- * {@link cn.taketoday.util.AntPathMatcher} javadoc for pattern details).
+ * {@link cn.taketoday.core.AntPathMatcher} javadoc for pattern details).
  *
  * <p>Note: In case of multiple config locations, later bean definitions will
  * override ones defined in earlier loaded files. This can be leveraged to
@@ -67,8 +67,7 @@ public class ClassPathXmlApplicationContext extends AbstractXmlApplicationContex
    * @see #setConfigLocations
    * @see #afterPropertiesSet()
    */
-  public ClassPathXmlApplicationContext() {
-  }
+  public ClassPathXmlApplicationContext() { }
 
   /**
    * Create a new ClassPathXmlApplicationContext for bean-style configuration.

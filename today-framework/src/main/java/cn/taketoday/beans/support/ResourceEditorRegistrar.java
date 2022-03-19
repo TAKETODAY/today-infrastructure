@@ -43,6 +43,7 @@ import cn.taketoday.beans.propertyeditors.ReaderEditor;
 import cn.taketoday.beans.propertyeditors.URIEditor;
 import cn.taketoday.beans.propertyeditors.URLEditor;
 import cn.taketoday.core.env.PropertyResolver;
+import cn.taketoday.core.io.ContextResource;
 import cn.taketoday.core.io.PatternResourceLoader;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.core.io.ResourceArrayPropertyEditor;
@@ -105,6 +106,7 @@ public class ResourceEditorRegistrar implements PropertyEditorRegistrar {
   public void registerCustomEditors(PropertyEditorRegistry registry) {
     ResourceEditor baseEditor = new ResourceEditor(this.resourceLoader, this.propertyResolver);
     doRegisterEditor(registry, Resource.class, baseEditor);
+    doRegisterEditor(registry, ContextResource.class, baseEditor);
     doRegisterEditor(registry, InputStream.class, new InputStreamEditor(baseEditor));
     doRegisterEditor(registry, InputSource.class, new InputSourceEditor(baseEditor));
     doRegisterEditor(registry, File.class, new FileEditor(baseEditor));
