@@ -20,22 +20,20 @@
 
 package cn.taketoday.context.annotation;
 
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
 import cn.taketoday.beans.factory.BeanCreationException;
-import cn.taketoday.context.ApplicationContextException;
-import cn.taketoday.context.support.StandardApplicationContext;
 
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 /**
  * @author Stephane Nicoll
  */
 public class Spr12278Tests {
 
-  private StandardApplicationContext context;
+  private AnnotationConfigApplicationContext context;
 
   @AfterEach
   public void close() {
@@ -46,23 +44,23 @@ public class Spr12278Tests {
 
   @Test
   public void componentSingleConstructor() {
-    this.context = new StandardApplicationContext(BaseConfiguration.class,
+    this.context = new AnnotationConfigApplicationContext(BaseConfiguration.class,
             SingleConstructorComponent.class);
-    assertThat(this.context.getBean(SingleConstructorComponent.class).autowiredName).isEqualTo("foo");
+    Assertions.assertThat(this.context.getBean(SingleConstructorComponent.class).autowiredName).isEqualTo("foo");
   }
 
   @Test
   public void componentTwoConstructorsNoHint() {
-    this.context = new StandardApplicationContext(BaseConfiguration.class,
+    this.context = new AnnotationConfigApplicationContext(BaseConfiguration.class,
             TwoConstructorsComponent.class);
-    assertThat(this.context.getBean(TwoConstructorsComponent.class).name).isEqualTo("fallback");
+    Assertions.assertThat(this.context.getBean(TwoConstructorsComponent.class).name).isEqualTo("fallback");
   }
 
   @Test
   public void componentTwoSpecificConstructorsNoHint() {
-    assertThatExceptionOfType(BeanCreationException.class)
-            .isThrownBy(() -> new StandardApplicationContext(BaseConfiguration.class, TwoSpecificConstructorsComponent.class))
-            .havingCause().isInstanceOf(BeanCreationException.class);
+    assertThatExceptionOfType(BeanCreationException.class).isThrownBy(() ->
+                    new AnnotationConfigApplicationContext(BaseConfiguration.class, TwoSpecificConstructorsComponent.class))
+            .havingRootCause().isInstanceOf(NoSuchMethodException.class);
   }
 
   @Configuration

@@ -383,7 +383,7 @@ public class GenericApplicationContext
    *
    * @see #getBeanFactory()
    */
-  public void registerSingleton(String name, Class<?> clazz, PropertyValues pvs) throws BeansException {
+  public void registerSingleton(String name, Class<?> clazz, @Nullable PropertyValues pvs) throws BeansException {
     RootBeanDefinition bd = new RootBeanDefinition(clazz);
     bd.setPropertyValues(pvs);
     getBeanFactory().registerBeanDefinition(name, bd);

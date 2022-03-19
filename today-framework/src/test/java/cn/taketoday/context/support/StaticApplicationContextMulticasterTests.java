@@ -27,6 +27,7 @@ import java.util.Locale;
 import java.util.Map;
 
 import cn.taketoday.beans.PropertyValues;
+import cn.taketoday.beans.factory.support.PropertiesBeanDefinitionReader;
 import cn.taketoday.beans.testfixture.beans.TestBean;
 import cn.taketoday.context.ApplicationEvent;
 import cn.taketoday.context.ConfigurableApplicationContext;
@@ -51,7 +52,6 @@ public class StaticApplicationContextMulticasterTests extends AbstractApplicatio
 
   protected StaticApplicationContext sac;
 
-  @SuppressWarnings("deprecation")
   @Override
   protected ConfigurableApplicationContext createContext() throws Exception {
     StaticApplicationContext parent = new StaticApplicationContext();
@@ -71,8 +71,7 @@ public class StaticApplicationContextMulticasterTests extends AbstractApplicatio
     sac.registerSingleton("beanThatListens", BeanThatListens.class, new PropertyValues());
     sac.registerSingleton("aca", ACATester.class, new PropertyValues());
     sac.registerPrototype("aca-prototype", ACATester.class, new PropertyValues());
-    cn.taketoday.beans.factory.support.PropertiesBeanDefinitionReader reader =
-            new cn.taketoday.beans.factory.support.PropertiesBeanDefinitionReader(sac.getBeanFactory());
+    PropertiesBeanDefinitionReader reader = new PropertiesBeanDefinitionReader(sac.getBeanFactory());
     Resource resource = new ClassPathResource("testBeans.properties", getClass());
     reader.loadBeanDefinitions(new EncodedResource(resource, "ISO-8859-1"));
     sac.refresh();

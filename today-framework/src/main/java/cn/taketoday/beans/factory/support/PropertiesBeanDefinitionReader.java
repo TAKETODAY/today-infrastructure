@@ -79,10 +79,7 @@ import cn.taketoday.util.StringUtils;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see StandardBeanFactory
  * @since 4.0 2022/3/19 18:33
- * @deprecated common bean definition formats
- * and/or custom reader implementations
  */
-@Deprecated
 public class PropertiesBeanDefinitionReader extends AbstractBeanDefinitionReader {
 
   /**
