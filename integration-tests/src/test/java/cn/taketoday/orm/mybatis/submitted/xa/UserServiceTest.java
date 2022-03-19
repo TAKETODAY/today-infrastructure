@@ -22,11 +22,10 @@ package cn.taketoday.orm.mybatis.submitted.xa;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
-import javax.transaction.UserTransaction;
-
 import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.test.context.junit.jupiter.SpringExtension;
 import cn.taketoday.test.context.junit.jupiter.SpringJUnitConfig;
+import jakarta.transaction.UserTransaction;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
