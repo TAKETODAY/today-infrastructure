@@ -39,7 +39,6 @@ import cn.taketoday.aop.support.AopUtils;
 import cn.taketoday.aop.support.DefaultPointcutAdvisor;
 import cn.taketoday.beans.Primary;
 import cn.taketoday.beans.factory.BeanCreationException;
-import cn.taketoday.beans.factory.support.BeanDefinitionRegistryPostProcessor;
 import cn.taketoday.beans.factory.BeanDefinitionStoreException;
 import cn.taketoday.beans.factory.FactoryBean;
 import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
@@ -52,6 +51,7 @@ import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.beans.factory.config.BeanDefinitionHolder;
 import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
+import cn.taketoday.beans.factory.support.BeanDefinitionRegistryPostProcessor;
 import cn.taketoday.beans.factory.support.ChildBeanDefinition;
 import cn.taketoday.beans.factory.support.RootBeanDefinition;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
@@ -1014,16 +1014,17 @@ class ConfigurationClassPostProcessorTests {
     new ConfigurationClassPostProcessor().postProcessBeanFactory(beanFactory);
     assertThatExceptionOfType(BeanCreationException.class)
             .isThrownBy(beanFactory::preInstantiateSingletons)
-//            .havingRootCause()
-            .withMessageContaining("Circular reference");
+            .satisfies(ex -> assertThat(ex.getNestedMessage().contains("Circular reference")).isTrue());
   }
 
   @Test
   void testCircularDependencyWithApplicationContext() {
     assertThatExceptionOfType(BeanCreationException.class)
             .isThrownBy(() -> new AnnotationConfigApplicationContext(A.class, AStrich.class))
-            .havingRootCause()
-            .withMessageContaining("Circular reference");
+            .satisfies(ex -> {
+              String nestedMessage = ex.getNestedMessage();
+              assertThat(nestedMessage.contains("Circular reference")).isTrue();
+            });
   }
 
   @Test

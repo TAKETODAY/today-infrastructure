@@ -20,7 +20,6 @@
 
 package cn.taketoday.context.support;
 
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.io.FileNotFoundException;
@@ -78,7 +77,6 @@ public class PropertyResourceConfigurerIntegrationTests {
     pvs.add("location", "${user.dir}/test/${user.dir}");
     ac.registerSingleton("configurer", PropertyPlaceholderConfigurer.class, pvs);
     String userDir = getUserDir();
-    Assertions.setMaxStackTraceElementsDisplayed(1000);
     assertThatExceptionOfType(BeanInitializationException.class)
             .isThrownBy(ac::refresh)
             .withCauseInstanceOf(FileNotFoundException.class)

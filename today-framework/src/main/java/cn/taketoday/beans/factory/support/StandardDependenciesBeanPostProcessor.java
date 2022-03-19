@@ -565,8 +565,13 @@ public class StandardDependenciesBeanPostProcessor implements DependenciesBeanPo
       desc.setContainingClass(bean.getClass());
       Assert.state(beanFactory != null, "No BeanFactory available");
       DependencyResolvingContext context = new DependencyResolvingContext(null, beanFactory, beanName);
-      Object value = obtainDependencyInjector().resolve(desc, context);
-
+      Object value;
+      try {
+        value = obtainDependencyInjector().resolve(desc, context);
+      }
+      catch (BeansException ex) {
+        throw new UnsatisfiedDependencyException(null, beanName, new InjectionPoint(field), ex);
+      }
       synchronized(this) {
         if (!cached) {
           Object cachedFieldValue = null;
