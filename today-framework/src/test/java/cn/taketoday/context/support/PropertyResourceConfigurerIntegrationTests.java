@@ -20,6 +20,7 @@
 
 package cn.taketoday.context.support;
 
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.io.FileNotFoundException;
@@ -47,7 +48,6 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
  * @author Sam Brannen
  * @see cn.taketoday.beans.factory.config.PropertyResourceConfigurerTests
  */
-@SuppressWarnings("deprecation")
 public class PropertyResourceConfigurerIntegrationTests {
 
   @Test
@@ -63,7 +63,9 @@ public class PropertyResourceConfigurerIntegrationTests {
     assertThatExceptionOfType(BeanInitializationException.class)
             .isThrownBy(ac::refresh)
             .withCauseInstanceOf(FileNotFoundException.class)
-            .withMessageContaining(userDir);
+            .satisfies(ex -> {
+              assertThat(ex.getNestedMessage()).contains(userDir);
+            });
   }
 
   @Test
@@ -76,11 +78,12 @@ public class PropertyResourceConfigurerIntegrationTests {
     pvs.add("location", "${user.dir}/test/${user.dir}");
     ac.registerSingleton("configurer", PropertyPlaceholderConfigurer.class, pvs);
     String userDir = getUserDir();
+    Assertions.setMaxStackTraceElementsDisplayed(1000);
     assertThatExceptionOfType(BeanInitializationException.class)
             .isThrownBy(ac::refresh)
             .withCauseInstanceOf(FileNotFoundException.class)
-            .matches(ex -> ex.getMessage().contains(userDir + "/test/" + userDir) ||
-                    ex.getMessage().contains(userDir + "/test//" + userDir));
+            .matches(ex -> ex.getNestedMessage().contains(userDir + "/test/" + userDir) ||
+                    ex.getNestedMessage().contains(userDir + "/test//" + userDir));
   }
 
   private String getUserDir() {
@@ -103,7 +106,9 @@ public class PropertyResourceConfigurerIntegrationTests {
     ac.registerSingleton("configurer", PropertyPlaceholderConfigurer.class, pvs);
     assertThatExceptionOfType(BeanInitializationException.class)
             .isThrownBy(ac::refresh)
-            .withMessageContaining("myprop");
+            .satisfies(ex -> {
+              assertThat(ex.getNestedMessage()).contains("myprop");
+            });
   }
 
   @Test

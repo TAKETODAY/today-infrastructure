@@ -22,6 +22,7 @@ package cn.taketoday.context.annotation;
 
 import org.junit.jupiter.api.Test;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -34,9 +35,7 @@ import java.util.Properties;
 import cn.taketoday.beans.factory.BeanDefinitionStoreException;
 import cn.taketoday.beans.factory.FactoryBean;
 import cn.taketoday.beans.testfixture.beans.TestBean;
-import cn.taketoday.context.ApplicationContextException;
 import cn.taketoday.context.ConfigurableApplicationContext;
-import cn.taketoday.context.support.StandardApplicationContext;
 import cn.taketoday.core.annotation.AliasFor;
 import cn.taketoday.core.env.Environment;
 import cn.taketoday.core.env.MapPropertySource;
@@ -60,7 +59,7 @@ class PropertySourceAnnotationTests {
 
   @Test
   void withExplicitName() {
-    StandardApplicationContext ctx = new StandardApplicationContext();
+    AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
     ctx.register(ConfigWithExplicitName.class);
     ctx.refresh();
     assertThat(ctx.getEnvironment().getPropertySources().contains("p1")).as("property source p1 was not added").isTrue();
@@ -80,14 +79,14 @@ class PropertySourceAnnotationTests {
 
   @Test
   void withImplicitName() {
-    StandardApplicationContext ctx = new StandardApplicationContext(ConfigWithImplicitName.class);
+    AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext(ConfigWithImplicitName.class);
     assertThat(ctx.getEnvironment().getPropertySources().contains("class path resource [cn/taketoday/context/annotation/p1.properties]")).as("property source p1 was not added").isTrue();
     assertThat(ctx.getBean(TestBean.class).getName()).isEqualTo("p1TestBean");
   }
 
   @Test
   void withTestProfileBeans() {
-    StandardApplicationContext ctx = new StandardApplicationContext(ConfigWithTestProfileBeans.class);
+    AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext(ConfigWithTestProfileBeans.class);
     assertThat(ctx.containsBean("testBean")).isTrue();
     assertThat(ctx.containsBean("testProfileBean")).isTrue();
   }
@@ -99,7 +98,7 @@ class PropertySourceAnnotationTests {
   @Test
   void orderingIsLifo() {
     {
-      StandardApplicationContext ctx = new StandardApplicationContext();
+      AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
       ctx.register(ConfigWithImplicitName.class, P2Config.class);
       ctx.refresh();
       // p2 should 'win' as it was registered last
@@ -107,7 +106,7 @@ class PropertySourceAnnotationTests {
     }
 
     {
-      StandardApplicationContext ctx = new StandardApplicationContext();
+      AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
       ctx.register(P2Config.class, ConfigWithImplicitName.class);
       ctx.refresh();
       // p1 should 'win' as it was registered last
@@ -117,7 +116,7 @@ class PropertySourceAnnotationTests {
 
   @Test
   void withCustomFactory() {
-    StandardApplicationContext ctx = new StandardApplicationContext();
+    AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
     ctx.register(ConfigWithImplicitName.class, WithCustomFactory.class);
     ctx.refresh();
     assertThat(ctx.getBean(TestBean.class).getName()).isEqualTo("P2TESTBEAN");
@@ -125,7 +124,7 @@ class PropertySourceAnnotationTests {
 
   @Test
   void withCustomFactoryAsMeta() {
-    StandardApplicationContext ctx = new StandardApplicationContext();
+    AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
     ctx.register(ConfigWithImplicitName.class, WithCustomFactoryAsMeta.class);
     ctx.refresh();
     assertThat(ctx.getBean(TestBean.class).getName()).isEqualTo("P2TESTBEAN");
@@ -134,20 +133,20 @@ class PropertySourceAnnotationTests {
   @Test
   void withUnresolvablePlaceholder() {
     assertThatExceptionOfType(BeanDefinitionStoreException.class)
-            .isThrownBy(() -> new StandardApplicationContext(ConfigWithUnresolvablePlaceholder.class))
-            .withCauseInstanceOf(BeanDefinitionStoreException.class);
+            .isThrownBy(() -> new AnnotationConfigApplicationContext(ConfigWithUnresolvablePlaceholder.class))
+            .withCauseInstanceOf(IllegalArgumentException.class);
   }
 
   @Test
   void withUnresolvablePlaceholderAndDefault() {
-    StandardApplicationContext ctx = new StandardApplicationContext(ConfigWithUnresolvablePlaceholderAndDefault.class);
+    AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext(ConfigWithUnresolvablePlaceholderAndDefault.class);
     assertThat(ctx.getBean(TestBean.class).getName()).isEqualTo("p1TestBean");
   }
 
   @Test
   void withResolvablePlaceholder() {
     System.setProperty("path.to.properties", "cn/taketoday/context/annotation");
-    StandardApplicationContext ctx = new StandardApplicationContext(ConfigWithResolvablePlaceholder.class);
+    AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext(ConfigWithResolvablePlaceholder.class);
     assertThat(ctx.getBean(TestBean.class).getName()).isEqualTo("p1TestBean");
     System.clearProperty("path.to.properties");
   }
@@ -155,21 +154,21 @@ class PropertySourceAnnotationTests {
   @Test
   void withResolvablePlaceholderAndFactoryBean() {
     System.setProperty("path.to.properties", "cn/taketoday/context/annotation");
-    StandardApplicationContext ctx = new StandardApplicationContext(ConfigWithResolvablePlaceholderAndFactoryBean.class);
+    AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext(ConfigWithResolvablePlaceholderAndFactoryBean.class);
     assertThat(ctx.getBean(TestBean.class).getName()).isEqualTo("p1TestBean");
     System.clearProperty("path.to.properties");
   }
 
   @Test
   void withEmptyResourceLocations() {
-    assertThatExceptionOfType(ApplicationContextException.class)
-            .isThrownBy(() -> new StandardApplicationContext(ConfigWithEmptyResourceLocations.class))
-            .withCauseInstanceOf(BeanDefinitionStoreException.class);
+    assertThatExceptionOfType(BeanDefinitionStoreException.class)
+            .isThrownBy(() -> new AnnotationConfigApplicationContext(ConfigWithEmptyResourceLocations.class))
+            .withCauseInstanceOf(IllegalArgumentException.class);
   }
 
   @Test
   void withNameAndMultipleResourceLocations() {
-    StandardApplicationContext ctx = new StandardApplicationContext(ConfigWithNameAndMultipleResourceLocations.class);
+    AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext(ConfigWithNameAndMultipleResourceLocations.class);
     assertThat(ctx.getEnvironment().containsProperty("from.p1")).isTrue();
     assertThat(ctx.getEnvironment().containsProperty("from.p2")).isTrue();
     // p2 should 'win' as it was registered last
@@ -178,7 +177,7 @@ class PropertySourceAnnotationTests {
 
   @Test
   void withMultipleResourceLocations() {
-    StandardApplicationContext ctx = new StandardApplicationContext(ConfigWithMultipleResourceLocations.class);
+    AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext(ConfigWithMultipleResourceLocations.class);
     assertThat(ctx.getEnvironment().containsProperty("from.p1")).isTrue();
     assertThat(ctx.getEnvironment().containsProperty("from.p2")).isTrue();
     // p2 should 'win' as it was registered last
@@ -187,7 +186,7 @@ class PropertySourceAnnotationTests {
 
   @Test
   void withRepeatedPropertySourcesInContainerAnnotation() {
-    StandardApplicationContext ctx = new StandardApplicationContext(ConfigWithPropertySources.class);
+    AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext(ConfigWithPropertySources.class);
     assertThat(ctx.getEnvironment().containsProperty("from.p1")).isTrue();
     assertThat(ctx.getEnvironment().containsProperty("from.p2")).isTrue();
     // p2 should 'win' as it was registered last
@@ -196,7 +195,7 @@ class PropertySourceAnnotationTests {
 
   @Test
   void withRepeatedPropertySources() {
-    try (StandardApplicationContext ctx = new StandardApplicationContext(ConfigWithRepeatedPropertySourceAnnotations.class)) {
+    try (AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext(ConfigWithRepeatedPropertySourceAnnotations.class)) {
       assertThat(ctx.getEnvironment().containsProperty("from.p1")).isTrue();
       assertThat(ctx.getEnvironment().containsProperty("from.p2")).isTrue();
       // p2 should 'win' as it was registered last
@@ -210,7 +209,7 @@ class PropertySourceAnnotationTests {
     String key = "custom.config.package";
 
     System.clearProperty(key);
-    try (ConfigurableApplicationContext ctx = new StandardApplicationContext(configClass)) {
+    try (ConfigurableApplicationContext ctx = new AnnotationConfigApplicationContext(configClass)) {
       assertThat(ctx.getEnvironment().containsProperty("from.p1")).isTrue();
       assertThat(ctx.getEnvironment().containsProperty("from.p2")).isTrue();
       // p2 should 'win' as it was registered last
@@ -218,7 +217,7 @@ class PropertySourceAnnotationTests {
     }
 
     System.setProperty(key, "cn/taketoday/context/annotation");
-    try (ConfigurableApplicationContext ctx = new StandardApplicationContext(configClass)) {
+    try (ConfigurableApplicationContext ctx = new AnnotationConfigApplicationContext(configClass)) {
       assertThat(ctx.getEnvironment().containsProperty("from.p1")).isTrue();
       assertThat(ctx.getEnvironment().containsProperty("from.p2")).isTrue();
       assertThat(ctx.getEnvironment().containsProperty("from.p3")).isTrue();
@@ -232,7 +231,7 @@ class PropertySourceAnnotationTests {
 
   @Test
   void withNamedPropertySources() {
-    StandardApplicationContext ctx = new StandardApplicationContext(ConfigWithNamedPropertySources.class);
+    AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext(ConfigWithNamedPropertySources.class);
     assertThat(ctx.getEnvironment().containsProperty("from.p1")).isTrue();
     assertThat(ctx.getEnvironment().containsProperty("from.p2")).isTrue();
     // p2 should 'win' as it was registered last
@@ -241,21 +240,21 @@ class PropertySourceAnnotationTests {
 
   @Test
   void withMissingPropertySource() {
-    assertThatExceptionOfType(ApplicationContextException.class)
-            .isThrownBy(() -> new StandardApplicationContext(ConfigWithMissingPropertySource.class))
-            .withCauseInstanceOf(BeanDefinitionStoreException.class);
+    assertThatExceptionOfType(BeanDefinitionStoreException.class)
+            .isThrownBy(() -> new AnnotationConfigApplicationContext(ConfigWithMissingPropertySource.class))
+            .withCauseInstanceOf(FileNotFoundException.class);
   }
 
   @Test
   void withIgnoredPropertySource() {
-    StandardApplicationContext ctx = new StandardApplicationContext(ConfigWithIgnoredPropertySource.class);
+    AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext(ConfigWithIgnoredPropertySource.class);
     assertThat(ctx.getEnvironment().containsProperty("from.p1")).isTrue();
     assertThat(ctx.getEnvironment().containsProperty("from.p2")).isTrue();
   }
 
   @Test
   void withSameSourceImportedInDifferentOrder() {
-    StandardApplicationContext ctx = new StandardApplicationContext(ConfigWithSameSourceImportedInDifferentOrder.class);
+    AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext(ConfigWithSameSourceImportedInDifferentOrder.class);
     assertThat(ctx.getEnvironment().containsProperty("from.p1")).isTrue();
     assertThat(ctx.getEnvironment().containsProperty("from.p2")).isTrue();
     assertThat(ctx.getEnvironment().getProperty("testbean.name")).isEqualTo("p2TestBean");
@@ -264,8 +263,8 @@ class PropertySourceAnnotationTests {
   @Test
   void orderingWithAndWithoutNameAndMultipleResourceLocations() {
     // SPR-10820: p2 should 'win' as it was registered last
-    StandardApplicationContext ctxWithName = new StandardApplicationContext(ConfigWithNameAndMultipleResourceLocations.class);
-    StandardApplicationContext ctxWithoutName = new StandardApplicationContext(ConfigWithMultipleResourceLocations.class);
+    AnnotationConfigApplicationContext ctxWithName = new AnnotationConfigApplicationContext(ConfigWithNameAndMultipleResourceLocations.class);
+    AnnotationConfigApplicationContext ctxWithoutName = new AnnotationConfigApplicationContext(ConfigWithMultipleResourceLocations.class);
     assertThat(ctxWithoutName.getEnvironment().getProperty("testbean.name")).isEqualTo("p2TestBean");
     assertThat(ctxWithName.getEnvironment().getProperty("testbean.name")).isEqualTo("p2TestBean");
   }
@@ -273,14 +272,14 @@ class PropertySourceAnnotationTests {
   @Test
   void orderingWithAndWithoutNameAndFourResourceLocations() {
     // SPR-12198: p4 should 'win' as it was registered last
-    StandardApplicationContext ctxWithoutName = new StandardApplicationContext(ConfigWithFourResourceLocations.class);
+    AnnotationConfigApplicationContext ctxWithoutName = new AnnotationConfigApplicationContext(ConfigWithFourResourceLocations.class);
     assertThat(ctxWithoutName.getEnvironment().getProperty("testbean.name")).isEqualTo("p4TestBean");
   }
 
   @Test
   void orderingDoesntReplaceExisting() throws Exception {
     // SPR-12198: mySource should 'win' as it was registered manually
-    StandardApplicationContext ctxWithoutName = new StandardApplicationContext();
+    AnnotationConfigApplicationContext ctxWithoutName = new AnnotationConfigApplicationContext();
     MapPropertySource mySource = new MapPropertySource("mine", Collections.singletonMap("testbean.name", "myTestBean"));
     ctxWithoutName.getEnvironment().getPropertySources().addLast(mySource);
     ctxWithoutName.register(ConfigWithFourResourceLocations.class);
@@ -330,7 +329,7 @@ class PropertySourceAnnotationTests {
     @Bean
     FactoryBean<TestBean> testBean() {
       final String name = env.getProperty("testbean.name");
-      return new FactoryBean<TestBean>() {
+      return new FactoryBean<>() {
         @Override
         public TestBean getObject() {
           return new TestBean(name);
