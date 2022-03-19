@@ -112,11 +112,6 @@ public class XmlListableBeanFactoryTests extends AbstractBeanFactoryTests {
     assertTestBeanCount(13);
   }
 
-  protected final void assertCount(int count) {
-    String[] defnames = getBeanFactory().getBeanDefinitionNames();
-    assertThat(defnames.length == count).as("We should have " + count + " beans, not " + defnames.length).isTrue();
-  }
-
   protected void assertTestBeanCount(int count) {
     Set<String> defNames = getBeanFactory().getBeanNamesForType(TestBean.class, true, false);
     assertThat(defNames.size() == count).as("We should have " + count + " beans for class cn.taketoday.beans.testfixture.beans.TestBean, not " +

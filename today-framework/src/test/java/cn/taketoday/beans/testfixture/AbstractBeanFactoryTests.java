@@ -37,6 +37,7 @@ import cn.taketoday.beans.testfixture.beans.LifecycleBean;
 import cn.taketoday.beans.testfixture.beans.MustBeInitialized;
 import cn.taketoday.beans.testfixture.beans.TestBean;
 import cn.taketoday.beans.testfixture.beans.factory.DummyFactory;
+import cn.taketoday.util.StringUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -52,6 +53,30 @@ import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException
 public abstract class AbstractBeanFactoryTests {
 
   protected abstract BeanFactory getBeanFactory();
+
+  /**
+   * Subclasses can override this.
+   */
+  @Test
+  public void count() {
+    assertCount(13);
+  }
+
+  protected final void assertCount(int count) {
+    String[] defnames = getBeanFactory().getBeanDefinitionNames();
+    assertThat(defnames.length == count).as("We should have " + count + " beans, not " + defnames.length).isTrue();
+  }
+
+  protected void assertTestBeanCount(int count) {
+    String[] defNames = StringUtils.toStringArray(getBeanFactory().getBeanNamesForType(TestBean.class, true, false));
+    assertThat(defNames.length == count).as("We should have " + count + " beans for class cn.taketoday.beans.testfixture.beans.TestBean, not " +
+            defNames.length).isTrue();
+
+    int countIncludingFactoryBeans = count + 2;
+    String[] names = StringUtils.toStringArray(getBeanFactory().getBeanNamesForType(TestBean.class, true, true));
+    assertThat(names.length == countIncludingFactoryBeans).as("We should have " + countIncludingFactoryBeans +
+            " beans for class cn.taketoday.beans.testfixture.beans.TestBean, not " + names.length).isTrue();
+  }
 
   /**
    * Roderick bean inherits from rod, overriding name only.

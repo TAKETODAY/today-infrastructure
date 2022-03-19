@@ -43,6 +43,7 @@
       <version>${project.version}</version>
     </dependency>
 
+<!--
     <dependency>
       <groupId>org.aspectj</groupId>
       <artifactId>aspectjrt</artifactId>
@@ -63,7 +64,7 @@
       <version>${aspectj.version}</version>
       <scope>provided</scope>
     </dependency>
-
+-->
 
     <dependency>
       <groupId>cn.taketoday</groupId>
@@ -75,7 +76,7 @@
   </dependencies>
 
   <build>
-    <defaultGoal>compile</defaultGoal>
+<!--    <defaultGoal>compile</defaultGoal>-->
 
     <plugins>
       <plugin>
@@ -83,12 +84,12 @@
         <artifactId>aspectj-maven-plugin</artifactId>
         <version>1.13.1</version>
         <configuration>
-          <complianceLevel>17</complianceLevel>
+<!--          <complianceLevel>17</complianceLevel>-->
           <source>17</source>
           <target>17</target>
-          <showWeaveInfo>true</showWeaveInfo>
-          <verbose>true</verbose>
-          <Xlint>ignore</Xlint>
+<!--          <showWeaveInfo>true</showWeaveInfo>-->
+<!--          <verbose>true</verbose>-->
+<!--          <Xlint>ignore</Xlint>-->
           <encoding>UTF-8</encoding>
         </configuration>
         <executions>

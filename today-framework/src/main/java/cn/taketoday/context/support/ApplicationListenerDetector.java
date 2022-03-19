@@ -25,7 +25,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import cn.taketoday.beans.factory.config.DestructionAwareBeanPostProcessor;
 import cn.taketoday.beans.factory.InitializationBeanPostProcessor;
-import cn.taketoday.beans.factory.MergedBeanDefinitionPostProcessor;
+import cn.taketoday.beans.factory.support.MergedBeanDefinitionPostProcessor;
 import cn.taketoday.beans.factory.support.RootBeanDefinition;
 import cn.taketoday.context.event.ApplicationEventMulticaster;
 import cn.taketoday.context.ApplicationListener;

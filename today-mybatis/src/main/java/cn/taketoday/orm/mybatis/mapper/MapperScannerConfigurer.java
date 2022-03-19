@@ -26,7 +26,7 @@ import java.lang.annotation.Annotation;
 import java.util.Map;
 
 import cn.taketoday.beans.PropertyValues;
-import cn.taketoday.beans.factory.BeanDefinitionRegistryPostProcessor;
+import cn.taketoday.beans.factory.support.BeanDefinitionRegistryPostProcessor;
 import cn.taketoday.beans.factory.BeanNameAware;
 import cn.taketoday.beans.factory.InitializingBean;
 import cn.taketoday.beans.factory.config.BeanDefinition;

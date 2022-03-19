@@ -19,7 +19,7 @@
  */
 package cn.taketoday.context.annotation;
 
-import cn.taketoday.beans.factory.BeanDefinitionRegistryPostProcessor;
+import cn.taketoday.beans.factory.support.BeanDefinitionRegistryPostProcessor;
 import cn.taketoday.context.loader.BootstrapContext;
 import cn.taketoday.context.loader.ImportSelector;
 import cn.taketoday.core.type.AnnotationMetadata;

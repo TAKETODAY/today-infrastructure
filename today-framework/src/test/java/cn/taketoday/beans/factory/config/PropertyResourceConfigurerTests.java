@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -18,7 +18,7 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.beans.factory;
+package cn.taketoday.beans.factory.config;
 
 import org.junit.jupiter.api.Test;
 
@@ -34,14 +34,8 @@ import java.util.prefs.Preferences;
 import java.util.prefs.PreferencesFactory;
 
 import cn.taketoday.beans.PropertyValues;
-import cn.taketoday.beans.factory.config.BeanDefinition;
-import cn.taketoday.beans.factory.config.BeanDefinitionHolder;
-import cn.taketoday.beans.factory.config.ConstructorArgumentValues;
-import cn.taketoday.beans.factory.config.PreferencesPlaceholderConfigurer;
-import cn.taketoday.beans.factory.config.PropertyOverrideConfigurer;
-import cn.taketoday.beans.factory.config.PropertyPlaceholderConfigurer;
-import cn.taketoday.beans.factory.config.RuntimeBeanReference;
-import cn.taketoday.beans.factory.config.TypedStringValue;
+import cn.taketoday.beans.factory.BeanDefinitionStoreException;
+import cn.taketoday.beans.factory.BeanInitializationException;
 import cn.taketoday.beans.factory.support.BeanDefinitionBuilder;
 import cn.taketoday.beans.factory.support.ChildBeanDefinition;
 import cn.taketoday.beans.factory.support.ManagedList;

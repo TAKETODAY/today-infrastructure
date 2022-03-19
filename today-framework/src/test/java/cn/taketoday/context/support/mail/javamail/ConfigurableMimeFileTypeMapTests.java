@@ -24,6 +24,7 @@ import org.junit.jupiter.api.Test;
 
 import java.io.File;
 
+import cn.taketoday.context.support.mail.javamail.ConfigurableMimeFileTypeMap;
 import cn.taketoday.core.io.ClassPathResource;
 import cn.taketoday.core.io.Resource;
 

@@ -22,6 +22,8 @@ package cn.taketoday.context.support.mail.javamail;
 
 import org.junit.jupiter.api.Test;
 
+import cn.taketoday.context.support.mail.javamail.InternetAddressEditor;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 

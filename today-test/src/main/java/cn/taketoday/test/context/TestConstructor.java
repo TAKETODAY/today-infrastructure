@@ -59,7 +59,7 @@ import cn.taketoday.test.context.junit.jupiter.web.SpringJUnitWebConfig;
  * {@link SpringJUnitWebConfig @SpringJUnitWebConfig}
  * or various test-related annotations from Spring Boot Test.
  *
- * <p>As of Spring Framework 5.3, this annotation will be inherited from an
+ * <p> this annotation will be inherited from an
  * enclosing test class by default. See
  * {@link NestedTestConfiguration @NestedTestConfiguration} for details.
  *
@@ -93,7 +93,7 @@ public @interface TestConstructor {
    * <p>May alternatively be configured via the
    * {@link cn.taketoday.lang.TodayStrategies TodayStrategies}
    * mechanism.
-   * <p>As of Spring Framework 5.3, this property may also be configured as a
+   * <p> this property may also be configured as a
    * <a href="https://junit.org/junit5/docs/current/user-guide/#running-tests-config-params">JUnit
    * Platform configuration parameter</a>.
    *

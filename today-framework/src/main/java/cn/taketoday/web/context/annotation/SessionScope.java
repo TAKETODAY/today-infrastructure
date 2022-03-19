@@ -27,6 +27,8 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 import cn.taketoday.context.annotation.Scope;
+import cn.taketoday.context.annotation.ScopedProxyMode;
+import cn.taketoday.core.annotation.AliasFor;
 import cn.taketoday.web.WebApplicationContext;
 
 /**
@@ -41,7 +43,6 @@ import cn.taketoday.web.WebApplicationContext;
  * @see ApplicationScope
  * @see cn.taketoday.context.annotation.Scope
  * @see cn.taketoday.web.WebApplicationContext#SCOPE_SESSION
- * @see cn.taketoday.web.context.request.SessionScope
  * @see cn.taketoday.lang.Component
  * @see cn.taketoday.context.annotation.Bean
  * @since 4.0
@@ -51,5 +52,12 @@ import cn.taketoday.web.WebApplicationContext;
 @Documented
 @Scope(WebApplicationContext.SCOPE_SESSION)
 public @interface SessionScope {
+
+  /**
+   * Alias for {@link Scope#proxyMode}.
+   * <p>Defaults to {@link ScopedProxyMode#TARGET_CLASS}.
+   */
+  @AliasFor(annotation = Scope.class)
+  ScopedProxyMode proxyMode() default ScopedProxyMode.TARGET_CLASS;
 
 }

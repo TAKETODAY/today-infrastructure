@@ -48,16 +48,16 @@ import cn.taketoday.test.context.web.WebDelegatingSmartContextLoader;
  *
  * <h3>Supported Resource Types</h3>
  *
- * <p>Prior to Spring 3.1, only path-based resource locations (typically XML configuration
- * files) were supported. As of Spring 3.1, {@linkplain #loader context loaders} may
- * choose to support <em>either</em> path-based <em>or</em> class-based resources. As of
- * Spring 4.0.4, {@linkplain #loader context loaders} may choose to support path-based
+ * <p>only path-based resource locations (typically XML configuration
+ * files) were supported.  {@linkplain #loader context loaders} may
+ * choose to support <em>either</em> path-based <em>or</em> class-based resources.
+ * {@linkplain #loader context loaders} may choose to support path-based
  * <em>and</em> class-based resources simultaneously. Consequently
  * {@code @ContextConfiguration} can be used to declare either path-based resource
  * locations (via the {@link #locations} or {@link #value} attribute) <em>or</em>
  * component classes (via the {@link #classes} attribute). Note, however, that most
- * implementations of {@link SmartContextLoader} only support a single resource type. As
- * of Spring 4.1, path-based resource locations may be either XML configuration files or
+ * implementations of {@link SmartContextLoader} only support a single resource type.
+ * path-based resource locations may be either XML configuration files or
  * Groovy scripts (if Groovy is on the classpath). Of course, third-party frameworks may
  * choose to support additional types of path-based resources.
  *
@@ -89,9 +89,8 @@ import cn.taketoday.test.context.web.WebDelegatingSmartContextLoader;
  * <p>This annotation may be used as a <em>meta-annotation</em> to create custom
  * <em>composed annotations</em>.
  *
- * <p>As of Spring Framework 5.3, this annotation will be inherited from an
- * enclosing test class by default. See
- * {@link NestedTestConfiguration @NestedTestConfiguration} for details.
+ * <p>this annotation will be inherited from an enclosing test class by default.
+ * See {@link NestedTestConfiguration @NestedTestConfiguration} for details.
  *
  * @author Sam Brannen
  * @see SpringJUnitConfig @SpringJUnitConfig
@@ -136,8 +135,7 @@ public @interface ContextConfiguration {
    * <p>Note that the aforementioned default rules only apply for a standard
    * {@link AbstractContextLoader
    * AbstractContextLoader} subclass such as
-   * {@link GenericXmlContextLoader GenericXmlContextLoader} or
-   * {@link GenericGroovyXmlContextLoader GenericGroovyXmlContextLoader}
+   * {@link GenericXmlContextLoader GenericXmlContextLoader}
    * which are the effective default implementations used at runtime if
    * {@code locations} are configured. See the documentation for {@link #loader}
    * for further details regarding default loaders.
@@ -145,7 +143,6 @@ public @interface ContextConfiguration {
    * {@link #value}, but it may be used instead of {@link #value}.
    *
    * @see #inheritLocations
-   * @since 4.0
    */
   @AliasFor("value")
   String[] locations() default {};
@@ -163,7 +160,6 @@ public @interface ContextConfiguration {
    * @see cn.taketoday.context.annotation.Configuration
    * @see AnnotationConfigContextLoader
    * @see #inheritLocations
-   * @since 4.0
    */
   Class<?>[] classes() default {};
 
@@ -182,7 +178,6 @@ public @interface ContextConfiguration {
    * @see cn.taketoday.context.ConfigurableApplicationContext
    * @see #inheritInitializers
    * @see #loader
-   * @since 4.0
    */
   Class<? extends ApplicationContextInitializer>[] initializers() default {};
 
@@ -237,8 +232,6 @@ public @interface ContextConfiguration {
    *     // ...
    * }
    * </pre>
-   *
-   * @since 4.0
    */
   boolean inheritLocations() default true;
 
@@ -273,8 +266,6 @@ public @interface ContextConfiguration {
    *     // ...
    * }
    * </pre>
-   *
-   * @since 4.0
    */
   boolean inheritInitializers() default true;
 
@@ -296,13 +287,9 @@ public @interface ContextConfiguration {
    * of various concrete {@code SmartContextLoaders}, check out the Javadoc for
    * {@link AbstractContextLoader AbstractContextLoader},
    * {@link GenericXmlContextLoader GenericXmlContextLoader},
-   * {@link GenericGroovyXmlContextLoader GenericGroovyXmlContextLoader},
    * {@link AnnotationConfigContextLoader AnnotationConfigContextLoader},
    * {@link GenericXmlWebContextLoader GenericXmlWebContextLoader},
-   * {@link GenericGroovyXmlWebContextLoader GenericGroovyXmlWebContextLoader}, and
    * {@link AnnotationConfigWebContextLoader AnnotationConfigWebContextLoader}.
-   *
-   * @since 4.0
    */
   Class<? extends ContextLoader> loader() default ContextLoader.class;
 
@@ -315,8 +302,6 @@ public @interface ContextConfiguration {
    * can be used for <em>merging</em> or <em>overriding</em> this configuration
    * with configuration of the same name in hierarchy levels defined in superclasses.
    * See the Javadoc for {@link ContextHierarchy @ContextHierarchy} for details.
-   *
-   * @since 4.0
    */
   String name() default "";
 

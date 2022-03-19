@@ -21,7 +21,6 @@
 package cn.taketoday.beans.factory;
 
 import cn.taketoday.beans.BeansException;
-import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.lang.Nullable;
 
 /**
@@ -34,38 +33,51 @@ import cn.taketoday.lang.Nullable;
 @SuppressWarnings("serial")
 public class BeanClassLoadFailedException extends BeansException {
 
-  private final BeanDefinition beanDefinition;
   @Nullable
   private final String resourceDescription;
+
   private final String beanName;
+
+  @Nullable
+  private final String beanClassName;
 
   /**
    * Create a new CannotLoadBeanClassException.
    *
+   * @param resourceDescription description of the resource
    * that the bean definition came from
-   *
    * @param beanName the name of the bean requested
+   * @param beanClassName the name of the bean class
    * @param cause the root cause
    */
-  public BeanClassLoadFailedException(BeanDefinition def, @Nullable String beanName, ClassNotFoundException cause) {
-    super("Error loading class [" + def.getBeanClassName() + "] for bean with name '" + beanName
-            + "'" + getDesc(def) + ": problem with class file or dependent class", cause);
-    this.beanDefinition = def;
-    this.resourceDescription = def.getResourceDescription();
+  public BeanClassLoadFailedException(@Nullable String resourceDescription, String beanName,
+          @Nullable String beanClassName, ClassNotFoundException cause) {
+
+    super("Cannot find class [" + beanClassName + "] for bean with name '" + beanName + "'" +
+            (resourceDescription != null ? " defined in " + resourceDescription : ""), cause);
+    this.resourceDescription = resourceDescription;
     this.beanName = beanName;
+    this.beanClassName = beanClassName;
   }
 
   /**
    * Create a new CannotLoadBeanClassException.
    *
+   * @param resourceDescription description of the resource
+   * that the bean definition came from
+   * @param beanName the name of the bean requested
+   * @param beanClassName the name of the bean class
    * @param cause the root cause
    */
-  public BeanClassLoadFailedException(BeanDefinition def, @Nullable String beanName, LinkageError cause) {
-    super("Error loading class [" + def.getBeanClassName() + "] for bean with name '" + beanName
-            + "'" + getDesc(def) + ": problem with class file or dependent class", cause);
-    this.beanDefinition = def;
+  public BeanClassLoadFailedException(@Nullable String resourceDescription, String beanName,
+          @Nullable String beanClassName, LinkageError cause) {
+
+    super("Error loading class [" + beanClassName + "] for bean with name '" + beanName + "'" +
+            (resourceDescription != null ? " defined in " + resourceDescription : "") +
+            ": problem with class file or dependent class", cause);
+    this.resourceDescription = resourceDescription;
     this.beanName = beanName;
-    this.resourceDescription = def.getResourceDescription();
+    this.beanClassName = beanClassName;
   }
 
   /**
@@ -81,7 +93,7 @@ public class BeanClassLoadFailedException extends BeansException {
    * Return the name of the bean requested.
    */
   public String getBeanName() {
-    return beanName;
+    return this.beanName;
   }
 
   /**
@@ -89,11 +101,7 @@ public class BeanClassLoadFailedException extends BeansException {
    */
   @Nullable
   public String getBeanClassName() {
-    return this.beanDefinition.getBeanClassName();
-  }
-
-  public BeanDefinition getBeanDefinition() {
-    return beanDefinition;
+    return this.beanClassName;
   }
 
 }

@@ -68,7 +68,7 @@ import cn.taketoday.test.context.web.WebAppConfiguration;
  * <p>This annotation may be used as a <em>meta-annotation</em> to create custom
  * <em>composed annotations</em>.
  *
- * <p>As of Spring Framework 5.3, the use of this annotation typically only makes
+ * <p> the use of this annotation typically only makes
  * sense in conjunction with {@link org.junit.jupiter.api.Nested @Nested} test
  * classes in JUnit Jupiter; however, there may be other testing frameworks with
  * support for nested test classes that could also make use of this annotation.

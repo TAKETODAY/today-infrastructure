@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -31,6 +31,13 @@ import java.util.ResourceBundle;
 import cn.taketoday.beans.PropertyValues;
 import cn.taketoday.context.MessageSourceResolvable;
 import cn.taketoday.context.NoSuchMessageException;
+import cn.taketoday.context.support.DefaultMessageSourceResolvable;
+import cn.taketoday.context.support.GenericApplicationContext;
+import cn.taketoday.context.support.MessageSourceAccessor;
+import cn.taketoday.context.support.MessageSourceResourceBundle;
+import cn.taketoday.context.support.ReloadableResourceBundleMessageSource;
+import cn.taketoday.context.support.ResourceBundleMessageSource;
+import cn.taketoday.context.support.StaticApplicationContext;
 import cn.taketoday.core.i18n.LocaleContextHolder;
 
 import static org.assertj.core.api.Assertions.assertThat;

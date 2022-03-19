@@ -35,7 +35,7 @@ import java.lang.annotation.Target;
  * completely optional since {@code @TestPropertySource} is a
  * {@linkplain java.lang.annotation.Repeatable repeatable} annotation.
  *
- * <p>As of Spring Framework 5.3, this annotation will be inherited from an
+ * <p> this annotation will be inherited from an
  * enclosing test class by default. See
  * {@link NestedTestConfiguration @NestedTestConfiguration} for details.
  *

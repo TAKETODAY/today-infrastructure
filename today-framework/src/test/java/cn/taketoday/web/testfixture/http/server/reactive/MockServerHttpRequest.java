@@ -248,7 +248,6 @@ public final class MockServerHttpRequest extends AbstractServerHttpRequest {
    * @param uri the URI template for target the URL
    * @param vars variables to expand into the template
    * @return the created builder
-   * @since 5.2.7
    * @deprecated in favor of {@link #method(HttpMethod, String, Object...)}
    */
   @Deprecated

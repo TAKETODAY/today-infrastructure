@@ -48,13 +48,13 @@ import cn.taketoday.test.context.NestedTestConfiguration;
  * <p>This annotation may be used as a <em>meta-annotation</em> to create custom
  * <em>composed annotations</em>.
  *
- * <p>As of Spring Framework 5.3, this annotation will be inherited from an
+ * <p> this annotation will be inherited from an
  * enclosing test class by default. See
  * {@link NestedTestConfiguration @NestedTestConfiguration}
  * for details.
  *
  * @author Sam Brannen
- * @see cn.taketoday.web.context.WebApplicationContext
+ * @see cn.taketoday.web.servlet.WebServletApplicationContext
  * @see ContextConfiguration
  * @see ServletTestExecutionListener
  * @since 4.0

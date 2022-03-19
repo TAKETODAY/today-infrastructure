@@ -56,7 +56,7 @@ import cn.taketoday.test.context.transaction.TransactionalTestExecutionListener;
  * custom <em>composed annotations</em>. Consult the source code for
  * {@link Commit @Commit} for a concrete example.
  *
- * <p>As of Spring Framework 5.3, this annotation will be inherited from an
+ * <p> this annotation will be inherited from an
  * enclosing test class by default. See
  * {@link NestedTestConfiguration @NestedTestConfiguration}
  * for details.

@@ -56,7 +56,6 @@ import cn.taketoday.beans.factory.DisposableBean;
 import cn.taketoday.beans.factory.FactoryBean;
 import cn.taketoday.beans.factory.HierarchicalBeanFactory;
 import cn.taketoday.beans.factory.InitializationBeanPostProcessor;
-import cn.taketoday.beans.factory.MergedBeanDefinitionPostProcessor;
 import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
 import cn.taketoday.beans.factory.SmartFactoryBean;
 import cn.taketoday.beans.factory.config.BeanDefinition;
@@ -605,10 +604,10 @@ public abstract class AbstractBeanFactory
       return merged.resolveBeanClass(beanClassLoader);
     }
     catch (ClassNotFoundException ex) {
-      throw new BeanClassLoadFailedException(merged, beanName, ex);
+      throw new BeanClassLoadFailedException(merged.getResourceDescription(), beanName, beanClassName, ex);
     }
     catch (LinkageError err) {
-      throw new BeanClassLoadFailedException(merged, beanName, err);
+      throw new BeanClassLoadFailedException(merged.getResourceDescription(), beanName, beanClassName, err);
     }
   }
 

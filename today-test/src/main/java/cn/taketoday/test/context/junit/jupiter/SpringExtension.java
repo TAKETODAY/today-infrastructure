@@ -46,6 +46,7 @@ import java.lang.reflect.Modifier;
 import java.lang.reflect.Parameter;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.beans.factory.annotation.ParameterResolutionDelegate;
@@ -59,9 +60,9 @@ import cn.taketoday.test.context.TestConstructor;
 import cn.taketoday.test.context.TestContext;
 import cn.taketoday.test.context.TestContextManager;
 import cn.taketoday.test.context.event.ApplicationEvents;
+import cn.taketoday.test.context.junit.jupiter.web.SpringJUnitWebConfig;
 import cn.taketoday.test.context.support.PropertyProvider;
 import cn.taketoday.test.context.support.TestConstructorUtils;
-import cn.taketoday.test.context.junit.jupiter.web.SpringJUnitWebConfig;
 import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.util.ReflectionUtils.MethodFilter;
 
@@ -165,7 +166,7 @@ public class SpringExtension implements BeforeAllCallback, AfterAllCallback, Tes
                       testClass.getName(), Arrays.toString(methodsWithErrors)));
     }, String.class);
 
-    if (errorMessage != NO_AUTOWIRED_VIOLATIONS_DETECTED) {
+    if (!Objects.equals(errorMessage, NO_AUTOWIRED_VIOLATIONS_DETECTED)) {
       throw new IllegalStateException(errorMessage);
     }
   }

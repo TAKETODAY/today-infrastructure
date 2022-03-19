@@ -84,7 +84,7 @@ import cn.taketoday.test.context.web.AbstractGenericWebContextLoader;
  * annotation since the {@code locations} and {@code inheritLocations} attributes
  * of both annotations can lead to ambiguity during the attribute resolution
  * process.</li>
- * <li>As of Spring Framework 5.3, this annotation will be inherited from an
+ * <li> this annotation will be inherited from an
  * enclosing test class by default. See
  * {@link NestedTestConfiguration @NestedTestConfiguration} for details.</li>
  * </ul>

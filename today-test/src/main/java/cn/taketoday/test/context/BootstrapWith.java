@@ -37,7 +37,7 @@ import java.lang.annotation.Target;
  * present</em> on the current test class) will override any meta-present
  * declarations of {@code @BootstrapWith}.
  *
- * <p>As of Spring Framework 5.3, this annotation will be inherited from an
+ * <p> this annotation will be inherited from an
  * enclosing test class by default. See
  * {@link NestedTestConfiguration @NestedTestConfiguration} for details.
  *

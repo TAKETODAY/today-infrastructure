@@ -51,7 +51,7 @@ import cn.taketoday.test.context.transaction.TransactionalTestExecutionListener;
  * {@code @Commit} and {@code @Rollback} on the same test method or on the
  * same test class is unsupported and may lead to unpredictable results.
  *
- * <p>As of Spring Framework 5.3, this annotation will be inherited from an
+ * <p> this annotation will be inherited from an
  * enclosing test class by default. See
  * {@link NestedTestConfiguration @NestedTestConfiguration}
  * for details.
