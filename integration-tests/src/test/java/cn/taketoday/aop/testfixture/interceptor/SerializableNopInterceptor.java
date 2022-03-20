@@ -18,17 +18,34 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.context.annotation.config;
+package cn.taketoday.aop.testfixture.interceptor;
 
-import cn.taketoday.context.annotation.Bean;
-import cn.taketoday.context.annotation.Configuration;
+import java.io.Serializable;
 
-@Configuration(proxyBeanMethods = false)
-public class ExampleFilteredAutoConfiguration {
+/**
+ * Subclass of NopInterceptor that is serializable and
+ * can be used to test proxy serialization.
+ *
+ * @author Rod Johnson
+ */
+@SuppressWarnings("serial")
+public class SerializableNopInterceptor extends NopInterceptor implements Serializable {
 
-  @Bean
-  public String anotherExample() {
-    return "fail";
+  /**
+   * We must override this field and the related methods as
+   * otherwise count won't be serialized from the non-serializable
+   * NopInterceptor superclass.
+   */
+  private int count;
+
+  @Override
+  public int getCount() {
+    return this.count;
+  }
+
+  @Override
+  protected void increment() {
+    ++count;
   }
 
 }

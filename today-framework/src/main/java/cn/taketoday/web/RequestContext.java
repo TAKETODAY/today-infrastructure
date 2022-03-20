@@ -44,6 +44,7 @@ import java.util.TimeZone;
 import java.util.regex.Matcher;
 
 import cn.taketoday.context.ApplicationContext;
+import cn.taketoday.core.AttributeAccessor;
 import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.core.io.InputStreamSource;
 import cn.taketoday.core.io.OutputStreamSource;
@@ -56,6 +57,7 @@ import cn.taketoday.http.HttpRequest;
 import cn.taketoday.http.HttpStatus;
 import cn.taketoday.http.server.PathContainer;
 import cn.taketoday.http.server.RequestPath;
+import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.LoggerFactory;
@@ -77,8 +79,8 @@ import static cn.taketoday.lang.Constant.DEFAULT_CHARSET;
  * @author TODAY 2019-06-22 15:48
  * @since 2.3.7
  */
-public abstract class RequestContext
-        implements InputStreamSource, OutputStreamSource, Model, Flushable, HttpInputMessage, HttpRequest {
+public abstract class RequestContext implements InputStreamSource,
+        OutputStreamSource, Model, Flushable, HttpInputMessage, HttpRequest, AttributeAccessor {
 
   /**
    * Date formats as specified in the HTTP RFC.
@@ -1395,6 +1397,28 @@ public abstract class RequestContext
   public void clear() {
     getModel().clear();
   }
+
+  @Override
+  public boolean hasAttribute(String name) {
+    return getAttribute(name) != null;
+  }
+
+  @Override
+  public Map<String, Object> getAttributes() {
+    return asMap();
+  }
+
+  @Override
+  public void copyAttributesFrom(AttributeAccessor source) {
+    Assert.notNull(source, "Source must not be null");
+    if (!source.isEmpty()) {
+      for (String attributeName : source.getAttributeNames()) {
+        setAttribute(attributeName, source.getAttribute(attributeName));
+      }
+    }
+  }
+
+  //
 
   protected void resetResponseHeader() {
     if (responseHeaders != null) {

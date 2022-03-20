@@ -18,17 +18,22 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.context.annotation.config;
+package cn.taketoday.aop.testfixture;
 
-import cn.taketoday.context.annotation.Bean;
-import cn.taketoday.context.annotation.Configuration;
+/**
+ * This interface can be implemented by cacheable objects or cache entries,
+ * to enable the freshness of objects to be checked.
+ *
+ * @author Rod Johnson
+ */
+public interface TimeStamped {
 
-@Configuration(proxyBeanMethods = false)
-public class ExampleConfiguration {
-
-  @Bean
-  public String example() {
-    return "test";
-  }
+  /**
+   * Return the timestamp for this object.
+   *
+   * @return long the timestamp for this object,
+   * as returned by System.currentTimeMillis()
+   */
+  long getTimeStamp();
 
 }

@@ -18,22 +18,22 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.aop.testfixture.testfixture;
+package cn.taketoday.aop.testfixture.advice;
+
+import org.aopalliance.intercept.MethodInvocation;
+
+import cn.taketoday.aop.MethodBeforeAdvice;
 
 /**
- * This interface can be implemented by cacheable objects or cache entries,
- * to enable the freshness of objects to be checked.
+ * Simple before advice example that we can use for counting checks.
  *
  * @author Rod Johnson
  */
-public interface TimeStamped {
+@SuppressWarnings("serial")
+public class CountingBeforeAdvice extends MethodCounter implements MethodBeforeAdvice {
 
-  /**
-   * Return the timestamp for this object.
-   *
-   * @return long the timestamp for this object,
-   * as returned by System.currentTimeMillis()
-   */
-  long getTimeStamp();
-
+  @Override
+  public void before(MethodInvocation invocation) throws Throwable {
+    count(invocation.getMethod());
+  }
 }

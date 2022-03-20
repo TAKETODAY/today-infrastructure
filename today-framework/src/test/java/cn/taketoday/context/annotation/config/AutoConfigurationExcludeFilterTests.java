@@ -31,6 +31,8 @@ import cn.taketoday.context.annotation.AnnotationConfigApplicationContext;
 import cn.taketoday.context.annotation.ComponentScan;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.FilterType;
+import cn.taketoday.context.annotation.config.filtersample.ExampleConfiguration;
+import cn.taketoday.context.annotation.config.filtersample.ExampleFilteredAutoConfiguration;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;

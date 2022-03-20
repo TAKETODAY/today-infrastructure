@@ -84,7 +84,7 @@ import jakarta.servlet.descriptor.JspConfigDescriptor;
  * @see #MockServletContext(cn.taketoday.core.io.ResourceLoader)
  * @see cn.taketoday.web.context.support.AnnotationConfigWebApplicationContext
  * @see cn.taketoday.web.context.support.XmlWebApplicationContext
- * @see cn.taketoday.web.context.support.GenericWebApplicationContext
+ * @see cn.taketoday.web.context.support.GenericWebServletApplicationContext
  * @since 4.0
  */
 public class MockServletContext implements ServletContext {

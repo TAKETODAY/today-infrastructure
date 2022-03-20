@@ -21,6 +21,7 @@ package cn.taketoday.orm.mybatis.submitted.webapp_placeholder;
 
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -32,6 +33,7 @@ import cn.taketoday.test.context.web.WebAppConfiguration;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+@Disabled
 @ExtendWith(SpringExtension.class)
 @WebAppConfiguration
 @SpringJUnitConfig(locations = "file:src/test/java/cn/taketoday/orm/mybatis/submitted/webapp_placeholder/spring.xml")

@@ -18,23 +18,31 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.aop.testfixture.testfixture.advice;
+package cn.taketoday.aop.testfixture.interceptor;
 
-import org.aopalliance.intercept.MethodInvocation;
+import cn.taketoday.aop.support.DelegatingIntroductionInterceptor;
+import cn.taketoday.aop.testfixture.TimeStamped;
 
-import cn.taketoday.aop.AfterReturningAdvice;
-
-/**
- * Simple before advice example that we can use for counting checks.
- *
- * @author Rod Johnson
- */
 @SuppressWarnings("serial")
-public class CountingAfterReturningAdvice extends MethodCounter implements AfterReturningAdvice {
+public class TimestampIntroductionInterceptor extends DelegatingIntroductionInterceptor
+        implements TimeStamped {
+
+  private long ts;
+
+  public TimestampIntroductionInterceptor() {
+  }
+
+  public TimestampIntroductionInterceptor(long ts) {
+    this.ts = ts;
+  }
+
+  public void setTime(long ts) {
+    this.ts = ts;
+  }
 
   @Override
-  public void afterReturning(Object returnValue, MethodInvocation invocation) throws Throwable {
-    count(invocation.getMethod());
+  public long getTimeStamp() {
+    return ts;
   }
-}
 
+}

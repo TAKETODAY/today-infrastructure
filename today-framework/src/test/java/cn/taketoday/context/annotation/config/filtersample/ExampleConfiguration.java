@@ -18,31 +18,17 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.aop.testfixture.testfixture.interceptor;
+package cn.taketoday.context.annotation.config.filtersample;
 
-import cn.taketoday.aop.support.DelegatingIntroductionInterceptor;
-import cn.taketoday.aop.testfixture.testfixture.TimeStamped;
+import cn.taketoday.context.annotation.Bean;
+import cn.taketoday.context.annotation.Configuration;
 
-@SuppressWarnings("serial")
-public class TimestampIntroductionInterceptor extends DelegatingIntroductionInterceptor
-        implements TimeStamped {
+@Configuration(proxyBeanMethods = false)
+public class ExampleConfiguration {
 
-  private long ts;
-
-  public TimestampIntroductionInterceptor() {
-  }
-
-  public TimestampIntroductionInterceptor(long ts) {
-    this.ts = ts;
-  }
-
-  public void setTime(long ts) {
-    this.ts = ts;
-  }
-
-  @Override
-  public long getTimeStamp() {
-    return ts;
+  @Bean
+  public String example() {
+    return "test";
   }
 
 }

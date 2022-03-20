@@ -19,6 +19,7 @@
  */
 package cn.taketoday.orm.mybatis.submitted.xa;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -29,6 +30,7 @@ import jakarta.transaction.UserTransaction;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+@Disabled
 @ExtendWith(SpringExtension.class)
 @SpringJUnitConfig(locations = "classpath:cn/taketoday/orm/mybatis/submitted/xa/applicationContext.xml")
 class UserServiceTest {

@@ -18,29 +18,23 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.aop.testfixture.testfixture.advice;
+package cn.taketoday.aop.testfixture.advice;
 
-import java.io.IOException;
-import java.lang.reflect.Method;
-import java.rmi.RemoteException;
+import org.aopalliance.intercept.MethodInvocation;
 
-import cn.taketoday.aop.ThrowsAdvice;
+import cn.taketoday.aop.AfterReturningAdvice;
 
+/**
+ * Simple before advice example that we can use for counting checks.
+ *
+ * @author Rod Johnson
+ */
 @SuppressWarnings("serial")
-public class MyThrowsHandler extends MethodCounter implements ThrowsAdvice {
+public class CountingAfterReturningAdvice extends MethodCounter implements AfterReturningAdvice {
 
-  // Full method signature
-  public void afterThrowing(Method m, Object[] args, Object target, IOException ex) {
-    count("ioException");
+  @Override
+  public void afterReturning(Object returnValue, MethodInvocation invocation) throws Throwable {
+    count(invocation.getMethod());
   }
-
-  public void afterThrowing(RemoteException ex) throws Throwable {
-    count("remoteException");
-  }
-
-  /** Not valid, wrong number of arguments */
-  public void afterThrowing(Method m, Exception ex) throws Throwable {
-    throw new UnsupportedOperationException("Shouldn't be called");
-  }
-
 }
+

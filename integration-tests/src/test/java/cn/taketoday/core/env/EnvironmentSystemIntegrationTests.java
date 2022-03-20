@@ -620,6 +620,7 @@ public class EnvironmentSystemIntegrationTests {
   @Configuration
   @Import(TransitiveConfig.class)
   static class DevConfig {
+
     @Bean
     public Object devBean() {
       return new Object();

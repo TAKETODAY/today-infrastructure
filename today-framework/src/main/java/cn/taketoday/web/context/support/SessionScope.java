@@ -23,10 +23,10 @@ package cn.taketoday.web.context.support;
 import java.util.function.Supplier;
 
 import cn.taketoday.beans.factory.config.Scope;
-import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.RequestContextHolder;
+import cn.taketoday.web.RequestContextUtils;
 import cn.taketoday.web.session.WebSession;
 import cn.taketoday.web.session.WebSessionManager;
 import cn.taketoday.web.util.WebUtils;
@@ -43,18 +43,19 @@ import cn.taketoday.web.util.WebUtils;
  * @see WebSessionManager
  * @since 4.0 2022/2/21 11:40
  */
-public class SessionScope extends AbstractRequestContextScope {
+public class SessionScope extends AbstractRequestContextScope<WebSession> {
+
+  @Nullable
   private final WebSessionManager webSessionManager;
 
-  public SessionScope(WebSessionManager webSessionManager) {
-    Assert.notNull(webSessionManager, "webSessionManager is required");
+  public SessionScope(@Nullable WebSessionManager webSessionManager) {
     this.webSessionManager = webSessionManager;
   }
 
   @Override
   public String getConversationId() {
     RequestContext context = RequestContextHolder.getRequired();
-    WebSession session = webSessionManager.getSession(context, false);
+    WebSession session = getSession(context, false);
     if (session != null) {
       return session.getId();
     }
@@ -64,28 +65,69 @@ public class SessionScope extends AbstractRequestContextScope {
   @Override
   public Object get(String name, Supplier<?> objectFactory) {
     RequestContext context = RequestContextHolder.getRequired();
-    WebSession session = webSessionManager.getSession(context, false);
-    if (session != null) {
-      Object sessionMutex = WebUtils.getSessionMutex(session);
-      synchronized(sessionMutex) {
-        return super.get(name, objectFactory);
-      }
+    WebSession session = getSession(context);
+    Object sessionMutex = WebUtils.getSessionMutex(session);
+    synchronized(sessionMutex) {
+      return get(session, name, objectFactory);
     }
-    return null;
   }
 
   @Override
   @Nullable
   public Object remove(String name) {
     RequestContext context = RequestContextHolder.getRequired();
-    WebSession session = webSessionManager.getSession(context, false);
+    WebSession session = getSession(context);
     if (session != null) {
       Object sessionMutex = WebUtils.getSessionMutex(session);
       synchronized(sessionMutex) {
-        return super.remove(context, name);
+        return remove(session, name);
       }
     }
     return null;
+  }
+
+  /**
+   * Returns the current session associated with this request, or if the request
+   * does not have a session, creates one.
+   *
+   * @param context Current request
+   * @return the <code>WebSession</code> associated with this request
+   * @see #getSession(RequestContext, boolean)
+   */
+  private WebSession getSession(RequestContext context) {
+    return getSession(context, true);
+  }
+
+  /**
+   * Returns the current <code>WebSession</code> associated with this request or,
+   * if there is no current session and <code>create</code> is true, returns a new
+   * session.
+   *
+   * <p>
+   * If <code>create</code> is <code>false</code> and the request has no valid
+   * <code>WebSession</code>, this method returns <code>null</code>.
+   *
+   * <p>
+   * To make sure the session is properly maintained, you must call this method
+   * before the response is committed. If the container is using cookies to
+   * maintain session integrity and is asked to create a new session when the
+   * response is committed, an IllegalStateException is thrown.
+   *
+   * @param request Current request
+   * @param create <code>true</code> to create a new session for this request if
+   * necessary; <code>false</code> to return <code>null</code> if
+   * there's no current session
+   * @return the <code>WebSession</code> associated with this request or
+   * <code>null</code> if <code>create</code> is <code>false</code> and
+   * the request has no valid session
+   * @see #getSession(RequestContext)
+   */
+  private WebSession getSession(RequestContext request, boolean create) {
+    WebSessionManager webSessionManager = this.webSessionManager;
+    if (webSessionManager != null) {
+      return webSessionManager.getSession(request, create);
+    }
+    return RequestContextUtils.getSession(request, create);
   }
 
 }

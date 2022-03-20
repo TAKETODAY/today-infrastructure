@@ -26,6 +26,7 @@ import org.junit.jupiter.api.Test;
 
 import cn.taketoday.aop.support.AopUtils;
 import cn.taketoday.context.ApplicationContext;
+import cn.taketoday.context.annotation.AnnotatedBeanDefinitionReader;
 import cn.taketoday.context.annotation.ClassPathBeanDefinitionScanner;
 import cn.taketoday.context.annotation.ScopedProxyMode;
 import cn.taketoday.lang.Component;
@@ -36,8 +37,9 @@ import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.RequestContextHolder;
 import cn.taketoday.web.context.annotation.RequestScope;
 import cn.taketoday.web.context.annotation.SessionScope;
-import cn.taketoday.web.context.support.GenericWebApplicationContext;
+import cn.taketoday.web.context.support.GenericWebServletApplicationContext;
 import cn.taketoday.web.servlet.ServletRequestContext;
+import cn.taketoday.web.session.EnableWebSession;
 
 import static cn.taketoday.context.annotation.ScopedProxyMode.DEFAULT;
 import static cn.taketoday.context.annotation.ScopedProxyMode.INTERFACES;
@@ -289,7 +291,7 @@ class ClassPathBeanDefinitionScannerScopeIntegrationTests {
   }
 
   private ApplicationContext createContext(ScopedProxyMode scopedProxyMode) {
-    GenericWebApplicationContext context = new GenericWebApplicationContext();
+    GenericWebServletApplicationContext context = new GenericWebServletApplicationContext();
     ClassPathBeanDefinitionScanner scanner = new ClassPathBeanDefinitionScanner(context);
     scanner.setIncludeAnnotationConfig(false);
     scanner.setBeanNameGenerator((definition, registry) -> definition.getScope());
@@ -298,9 +300,16 @@ class ClassPathBeanDefinitionScannerScopeIntegrationTests {
     // Scan twice in order to find errors in the bean definition compatibility check.
     scanner.scan(getClass().getPackage().getName());
     scanner.scan(getClass().getPackage().getName());
+    AnnotatedBeanDefinitionReader reader = new AnnotatedBeanDefinitionReader(context);
+    reader.register(AppConfig1.class);
 
     context.refresh();
     return context;
+  }
+
+  @EnableWebSession
+  public static class AppConfig1 {
+
   }
 
   interface IScopedTestBean {

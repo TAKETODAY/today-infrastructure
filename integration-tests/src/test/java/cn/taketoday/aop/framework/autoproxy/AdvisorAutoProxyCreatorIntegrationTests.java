@@ -29,9 +29,9 @@ import java.util.List;
 
 import cn.taketoday.aop.support.AopUtils;
 import cn.taketoday.aop.support.StaticMethodMatcherPointcutAdvisor;
-import cn.taketoday.aop.testfixture.testfixture.advice.CountingBeforeAdvice;
-import cn.taketoday.aop.testfixture.testfixture.advice.MethodCounter;
-import cn.taketoday.aop.testfixture.testfixture.interceptor.NopInterceptor;
+import cn.taketoday.aop.testfixture.advice.CountingBeforeAdvice;
+import cn.taketoday.aop.testfixture.advice.MethodCounter;
+import cn.taketoday.aop.testfixture.interceptor.NopInterceptor;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.InitializingBean;
 import cn.taketoday.beans.testfixture.beans.ITestBean;

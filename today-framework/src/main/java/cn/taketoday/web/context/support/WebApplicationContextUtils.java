@@ -294,11 +294,10 @@ public class WebApplicationContextUtils {
    * @see StubPropertySource
    * @see cn.taketoday.core.env.ConfigurableEnvironment#getPropertySources()
    */
-  public static void initServletPropertySources(
-          PropertySources sources,
+  public static void initServletPropertySources(PropertySources sources,
           @Nullable ServletContext servletContext, @Nullable ServletConfig servletConfig) {
-
     Assert.notNull(sources, "'propertySources' must not be null");
+
     String name = StandardServletEnvironment.SERVLET_CONTEXT_PROPERTY_SOURCE_NAME;
     if (servletContext != null && sources.get(name) instanceof StubPropertySource) {
       sources.replace(name, new ServletContextPropertySource(name, servletContext));

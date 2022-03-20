@@ -18,7 +18,7 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.aop.testfixture.testfixture.advice;
+package cn.taketoday.aop.testfixture.advice;
 
 import java.io.Serializable;
 import java.lang.reflect.Method;

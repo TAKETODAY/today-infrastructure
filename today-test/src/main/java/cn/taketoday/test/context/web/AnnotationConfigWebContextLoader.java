@@ -31,7 +31,6 @@ import cn.taketoday.test.context.SmartContextLoader;
 import cn.taketoday.test.context.support.AbstractContextLoader;
 import cn.taketoday.test.context.support.AnnotationConfigContextLoaderUtils;
 import cn.taketoday.util.ObjectUtils;
-import cn.taketoday.web.context.support.GenericWebApplicationContext;
 import cn.taketoday.web.context.support.GenericWebServletApplicationContext;
 
 /**
@@ -153,7 +152,7 @@ public class AnnotationConfigWebContextLoader extends AbstractGenericWebContextL
   // AbstractGenericWebContextLoader
 
   /**
-   * Register classes in the supplied {@linkplain GenericWebApplicationContext context}
+   * Register classes in the supplied {@linkplain GenericWebServletApplicationContext context}
    * from the classes in the supplied {@link WebMergedContextConfiguration}.
    * <p>Each class must represent an <em>annotated class</em>. An
    * {@link AnnotatedBeanDefinitionReader} is used to register the appropriate

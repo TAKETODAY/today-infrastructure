@@ -33,6 +33,7 @@ import cn.taketoday.aop.support.AopUtils;
 import cn.taketoday.beans.factory.annotation.AnnotatedBeanDefinition;
 import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.context.ApplicationContext;
+import cn.taketoday.context.annotation.AnnotatedBeanDefinitionReader;
 import cn.taketoday.context.annotation.ClassPathBeanDefinitionScanner;
 import cn.taketoday.context.annotation.ScopedProxyMode;
 import cn.taketoday.context.loader.ScopeMetadata;
@@ -41,8 +42,9 @@ import cn.taketoday.mock.web.MockHttpServletResponse;
 import cn.taketoday.mock.web.MockHttpSession;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.RequestContextHolder;
-import cn.taketoday.web.context.support.GenericWebApplicationContext;
+import cn.taketoday.web.context.support.GenericWebServletApplicationContext;
 import cn.taketoday.web.servlet.ServletRequestContext;
+import cn.taketoday.web.session.EnableWebSession;
 import jakarta.inject.Named;
 import jakarta.inject.Singleton;
 
@@ -303,7 +305,7 @@ class ClassPathBeanDefinitionScannerJsr330ScopeIntegrationTests {
   }
 
   private ApplicationContext createContext(final ScopedProxyMode scopedProxyMode) {
-    GenericWebApplicationContext context = new GenericWebApplicationContext();
+    GenericWebServletApplicationContext context = new GenericWebServletApplicationContext();
     ClassPathBeanDefinitionScanner scanner = new ClassPathBeanDefinitionScanner(context);
     scanner.setIncludeAnnotationConfig(false);
     scanner.setScopeMetadataResolver(definition -> {
@@ -331,6 +333,9 @@ class ClassPathBeanDefinitionScannerJsr330ScopeIntegrationTests {
     scanner.scan(getClass().getPackage().getName());
     scanner.scan(getClass().getPackage().getName());
 
+    AnnotatedBeanDefinitionReader reader = new AnnotatedBeanDefinitionReader(context);
+    reader.register(AppConfig.class);
+
     context.registerAlias("classPathBeanDefinitionScannerJsr330ScopeIntegrationTests.SessionScopedTestBean", "session");
     context.refresh();
     return context;
@@ -341,6 +346,11 @@ class ClassPathBeanDefinitionScannerJsr330ScopeIntegrationTests {
     String getName();
 
     void setName(String name);
+  }
+
+  @EnableWebSession
+  public static class AppConfig {
+
   }
 
   public static abstract class ScopedTestBean implements IScopedTestBean {

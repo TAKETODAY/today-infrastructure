@@ -20,10 +20,31 @@
 
 package cn.taketoday.web.context.support;
 
+import java.util.function.Supplier;
+
+import cn.taketoday.lang.Nullable;
+import cn.taketoday.web.RequestContext;
+import cn.taketoday.web.RequestContextHolder;
+import cn.taketoday.web.RequestContextUtils;
+import cn.taketoday.web.WebApplicationContext;
+
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/1/19 21:40
  */
-public class RequestScope extends AbstractRequestContextScope {
+public class RequestScope extends AbstractRequestContextScope<RequestContext> {
+
+  @Override
+  public Object get(String beanName, Supplier<?> objectFactory) {
+    RequestContext context = RequestContextHolder.getRequired();
+    return get(context, beanName, objectFactory);
+  }
+
+  @Override
+  public Object remove(String name) {
+    RequestContext context = RequestContextHolder.getRequired();
+    return remove(context, name);
+  }
+
 
 }

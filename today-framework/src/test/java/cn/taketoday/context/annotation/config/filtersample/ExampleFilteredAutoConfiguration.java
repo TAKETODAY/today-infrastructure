@@ -18,22 +18,17 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.aop.testfixture.testfixture.advice;
+package cn.taketoday.context.annotation.config.filtersample;
 
-import org.aopalliance.intercept.MethodInvocation;
+import cn.taketoday.context.annotation.Bean;
+import cn.taketoday.context.annotation.config.AutoConfiguration;
 
-import cn.taketoday.aop.MethodBeforeAdvice;
+@AutoConfiguration
+public class ExampleFilteredAutoConfiguration {
 
-/**
- * Simple before advice example that we can use for counting checks.
- *
- * @author Rod Johnson
- */
-@SuppressWarnings("serial")
-public class CountingBeforeAdvice extends MethodCounter implements MethodBeforeAdvice {
-
-  @Override
-  public void before(MethodInvocation invocation) throws Throwable {
-    count(invocation.getMethod());
+  @Bean
+  public String anotherExample() {
+    return "fail";
   }
+
 }

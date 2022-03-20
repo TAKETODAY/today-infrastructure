@@ -18,34 +18,29 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.aop.testfixture.testfixture.interceptor;
+package cn.taketoday.aop.testfixture.advice;
 
-import java.io.Serializable;
+import java.io.IOException;
+import java.lang.reflect.Method;
+import java.rmi.RemoteException;
 
-/**
- * Subclass of NopInterceptor that is serializable and
- * can be used to test proxy serialization.
- *
- * @author Rod Johnson
- */
+import cn.taketoday.aop.ThrowsAdvice;
+
 @SuppressWarnings("serial")
-public class SerializableNopInterceptor extends NopInterceptor implements Serializable {
+public class MyThrowsHandler extends MethodCounter implements ThrowsAdvice {
 
-  /**
-   * We must override this field and the related methods as
-   * otherwise count won't be serialized from the non-serializable
-   * NopInterceptor superclass.
-   */
-  private int count;
-
-  @Override
-  public int getCount() {
-    return this.count;
+  // Full method signature
+  public void afterThrowing(Method m, Object[] args, Object target, IOException ex) {
+    count("ioException");
   }
 
-  @Override
-  protected void increment() {
-    ++count;
+  public void afterThrowing(RemoteException ex) throws Throwable {
+    count("remoteException");
+  }
+
+  /** Not valid, wrong number of arguments */
+  public void afterThrowing(Method m, Exception ex) throws Throwable {
+    throw new UnsupportedOperationException("Shouldn't be called");
   }
 
 }

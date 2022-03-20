@@ -23,9 +23,12 @@ package cn.taketoday.web.context.support;
 import java.util.function.Supplier;
 
 import cn.taketoday.beans.factory.config.Scope;
+import cn.taketoday.core.AttributeAccessor;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.RequestContextHolder;
+import cn.taketoday.web.RequestContextUtils;
+import cn.taketoday.web.WebApplicationContext;
 
 /**
  * Abstract {@link Scope} implementation that reads from a particular scope
@@ -40,15 +43,9 @@ import cn.taketoday.web.RequestContextHolder;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/1/19 21:31
  */
-public abstract class AbstractRequestContextScope implements Scope {
+public abstract class AbstractRequestContextScope<T extends AttributeAccessor> implements Scope {
 
-  @Override
-  public Object get(String beanName, Supplier<?> objectFactory) {
-    RequestContext context = RequestContextHolder.getRequired();
-    return get(context, beanName, objectFactory);
-  }
-
-  public Object get(RequestContext context, String beanName, Supplier<?> objectFactory) {
+  public Object get(T context, String beanName, Supplier<?> objectFactory) {
     Object scopedObject = getAttribute(beanName, context);
     if (scopedObject == null) {
       scopedObject = objectFactory.get();
@@ -65,21 +62,15 @@ public abstract class AbstractRequestContextScope implements Scope {
     return scopedObject;
   }
 
-  protected void setAttribute(RequestContext context, String beanName, Object scopedObject) {
+  protected void setAttribute(T context, String beanName, Object scopedObject) {
     context.setAttribute(beanName, scopedObject);
   }
 
-  protected Object getAttribute(String beanName, RequestContext context) {
+  protected Object getAttribute(String beanName, T context) {
     return context.getAttribute(beanName);
   }
 
-  @Override
-  public Object remove(String name) {
-    RequestContext context = RequestContextHolder.getRequired();
-    return remove(context, name);
-  }
-
-  public Object remove(RequestContext context, String name) {
+  protected Object remove(T context, String name) {
     Object scopedObject = getAttribute(name, context);
     if (scopedObject != null) {
       removeAttribute(context, name);
@@ -90,7 +81,7 @@ public abstract class AbstractRequestContextScope implements Scope {
     }
   }
 
-  protected void removeAttribute(RequestContext context, String name) {
+  protected void removeAttribute(T context, String name) {
     context.removeAttribute(name);
   }
 
@@ -98,13 +89,21 @@ public abstract class AbstractRequestContextScope implements Scope {
   public void registerDestructionCallback(String name, Runnable callback) {
     RequestContext context = RequestContextHolder.currentContext();
     // registerDestructionCallback(name, callback); TODO
+
   }
 
-  @Override
   @Nullable
+  @Override
   public Object resolveContextualObject(String key) {
-    RequestContext context = RequestContextHolder.currentContext();
-//    return context.resolveReference(key);
+    if (WebApplicationContext.SCOPE_REQUEST.equals(key)) {
+      return RequestContextHolder.get();
+    }
+    else if (WebApplicationContext.SCOPE_SESSION.equals(key)) {
+      RequestContext context = RequestContextHolder.get();
+      if (context != null) {
+        return RequestContextUtils.getSession(context, true);
+      }
+    }
     return null;
   }
 

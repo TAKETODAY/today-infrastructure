@@ -23,7 +23,6 @@ package cn.taketoday.test.context.web;
 import cn.taketoday.beans.factory.xml.XmlBeanDefinitionReader;
 import cn.taketoday.test.context.MergedContextConfiguration;
 import cn.taketoday.util.ObjectUtils;
-import cn.taketoday.web.context.support.GenericWebApplicationContext;
 import cn.taketoday.web.context.support.GenericWebServletApplicationContext;
 
 /**
@@ -34,14 +33,13 @@ import cn.taketoday.web.context.support.GenericWebServletApplicationContext;
  * {@code "-context.xml"}.
  *
  * @author Sam Brannen
- * @see GenericGroovyXmlWebContextLoader
  * @see AnnotationConfigWebContextLoader
  * @since 4.0
  */
 public class GenericXmlWebContextLoader extends AbstractGenericWebContextLoader {
 
   /**
-   * Load bean definitions into the supplied {@link GenericWebApplicationContext context}
+   * Load bean definitions into the supplied {@link GenericWebServletApplicationContext context}
    * from the locations in the supplied {@code WebMergedContextConfiguration}, using an
    * {@link XmlBeanDefinitionReader}.
    *

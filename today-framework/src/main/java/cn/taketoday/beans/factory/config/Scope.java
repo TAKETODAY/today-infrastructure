@@ -103,6 +103,7 @@ public interface Scope {
    * @throws IllegalStateException if the underlying scope is not currently active
    * @see #registerDestructionCallback
    */
+  @Nullable
   Object remove(String name);
 
   /**
