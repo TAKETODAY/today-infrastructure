@@ -93,8 +93,8 @@ public class AnnotationAwareAspectJAutoProxyCreator extends AspectJAwareAdvisorA
     // Add all the Framework advisors found according to superclass rules.
     List<Advisor> advisors = super.findCandidateAdvisors();
     // Build Advisors for all AspectJ aspects in the bean factory.
-    if (this.aspectJAdvisorsBuilder != null) {
-      advisors.addAll(this.aspectJAdvisorsBuilder.buildAspectJAdvisors());
+    if (aspectJAdvisorsBuilder != null) {
+      advisors.addAll(aspectJAdvisorsBuilder.buildAspectJAdvisors());
     }
     return advisors;
   }
@@ -109,8 +109,8 @@ public class AnnotationAwareAspectJAutoProxyCreator extends AspectJAwareAdvisorA
     // proxied by that interface and fail at runtime as the advice method is not
     // defined on the interface. We could potentially relax the restriction about
     // not advising aspects in the future.
-    return (super.isInfrastructureClass(beanClass) ||
-            (this.aspectJAdvisorFactory != null && this.aspectJAdvisorFactory.isAspect(beanClass)));
+    return super.isInfrastructureClass(beanClass)
+            || (aspectJAdvisorFactory != null && aspectJAdvisorFactory.isAspect(beanClass));
   }
 
   /**

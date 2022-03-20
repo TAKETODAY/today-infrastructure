@@ -182,7 +182,7 @@ public class WebApplicationContextUtils {
     WebSessionManager sessionManager = BeanFactoryUtils.find(
             beanFactory, WebSessionManager.BEAN_NAME, WebSessionManager.class);
     if (sessionManager == null) {
-      sessionManager = new DefaultWebSessionManager();
+      sessionManager = new DefaultWebSessionManager(null, null);
     }
 
     beanFactory.registerScope(WebApplicationContext.SCOPE_REQUEST, new RequestScope());

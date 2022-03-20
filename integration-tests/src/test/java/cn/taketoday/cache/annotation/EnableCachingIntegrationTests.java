@@ -35,6 +35,7 @@ import cn.taketoday.context.annotation.AdviceMode;
 import cn.taketoday.context.annotation.AnnotationConfigApplicationContext;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
+import cn.taketoday.core.NestedRuntimeException;
 import cn.taketoday.lang.Repository;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -66,9 +67,11 @@ class EnableCachingIntegrationTests {
     // this test is a bit fragile, but gets the job done, proving that an
     // attempt was made to look up the AJ aspect. It's due to classpath issues
     // in .integration-tests that it's not found.
-    assertThatExceptionOfType(Exception.class).isThrownBy(
-                    ctx::refresh)
-            .withMessageContaining("AspectJCachingConfiguration");
+    assertThatExceptionOfType(NestedRuntimeException.class)
+            .isThrownBy(ctx::refresh)
+            .satisfies(ex -> {
+              assertThat(ex.getNestedMessage()).contains("AspectJCachingConfiguration");
+            });
   }
 
   private void assertCacheProxying(AnnotationConfigApplicationContext ctx) {

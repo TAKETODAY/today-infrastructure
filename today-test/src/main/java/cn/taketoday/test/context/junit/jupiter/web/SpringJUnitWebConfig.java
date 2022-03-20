@@ -31,9 +31,9 @@ import java.lang.annotation.Target;
 
 import cn.taketoday.context.ApplicationContextInitializer;
 import cn.taketoday.core.annotation.AliasFor;
+import cn.taketoday.test.context.ContextConfiguration;
 import cn.taketoday.test.context.junit.jupiter.SpringExtension;
 import cn.taketoday.test.context.junit.jupiter.SpringJUnitConfig;
-import cn.taketoday.test.context.ContextConfiguration;
 import cn.taketoday.test.context.web.WebAppConfiguration;
 
 /**

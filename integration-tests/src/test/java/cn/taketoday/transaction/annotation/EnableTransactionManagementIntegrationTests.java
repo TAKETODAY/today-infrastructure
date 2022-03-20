@@ -40,6 +40,7 @@ import cn.taketoday.context.annotation.AnnotationConfigApplicationContext;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.ImportResource;
+import cn.taketoday.core.NestedRuntimeException;
 import cn.taketoday.jdbc.datasource.DataSourceTransactionManager;
 import cn.taketoday.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
 import cn.taketoday.jdbc.datasource.embedded.EmbeddedDatabaseType;
@@ -102,9 +103,12 @@ class EnableTransactionManagementIntegrationTests {
     // this test is a bit fragile, but gets the job done, proving that an
     // attempt was made to look up the AJ aspect. It's due to classpath issues
     // in .integration-tests that it's not found.
-    assertThatExceptionOfType(Exception.class)
+
+    assertThatExceptionOfType(NestedRuntimeException.class)
             .isThrownBy(ctx::refresh)
-            .withMessageContaining("AspectJJtaTransactionManagementConfiguration");
+            .satisfies(ex -> {
+              assertThat(ex.getNestedMessage()).contains("AspectJJtaTransactionManagementConfiguration");
+            });
   }
 
   @Test

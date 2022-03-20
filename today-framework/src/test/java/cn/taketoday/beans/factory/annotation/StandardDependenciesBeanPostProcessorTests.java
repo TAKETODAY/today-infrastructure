@@ -65,8 +65,10 @@ import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.config.TypedStringValue;
 import cn.taketoday.beans.factory.support.AutowireCandidateQualifier;
 import cn.taketoday.beans.factory.support.GenericBeanDefinition;
+import cn.taketoday.beans.factory.support.RequiredStatusRetriever;
 import cn.taketoday.beans.factory.support.RootBeanDefinition;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
+import cn.taketoday.beans.factory.support.StandardDependenciesBeanPostProcessor;
 import cn.taketoday.beans.testfixture.beans.ITestBean;
 import cn.taketoday.beans.testfixture.beans.IndexedTestBean;
 import cn.taketoday.beans.testfixture.beans.NestedTestBean;
@@ -82,20 +84,23 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 /**
- * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @since 4.0 2022/3/20 21:28
+ * @author Juergen Hoeller
+ * @author Mark Fisher
+ * @author Sam Brannen
+ * @author Chris Beams
+ * @author Stephane Nicoll
  */
-class AutowiredAnnotationBeanPostProcessorTests {
+public class StandardDependenciesBeanPostProcessorTests {
 
   private StandardBeanFactory bf;
 
-  private AutowiredAnnotationBeanPostProcessor bpp;
+  private StandardDependenciesBeanPostProcessor bpp;
 
   @BeforeEach
   public void setup() {
     bf = new StandardBeanFactory();
     bf.registerDependency(BeanFactory.class, bf);
-    bpp = new AutowiredAnnotationBeanPostProcessor();
+    bpp = new StandardDependenciesBeanPostProcessor();
     bpp.setBeanFactory(bf);
     bf.addBeanPostProcessor(bpp);
     bf.setAutowireCandidateResolver(new QualifierAnnotationAutowireCandidateResolver());
@@ -1242,10 +1247,10 @@ class AutowiredAnnotationBeanPostProcessorTests {
 
   @Test
   public void testObjectFactoryFieldInjection() {
-    bf.registerBeanDefinition("annotatedBean", new RootBeanDefinition(ObjectFactoryFieldInjectionBean.class));
+    bf.registerBeanDefinition("annotatedBean", new RootBeanDefinition(SupplierFieldInjectionBean.class));
     bf.registerBeanDefinition("testBean", new RootBeanDefinition(TestBean.class));
 
-    ObjectFactoryFieldInjectionBean bean = (ObjectFactoryFieldInjectionBean) bf.getBean("annotatedBean");
+    SupplierFieldInjectionBean bean = (SupplierFieldInjectionBean) bf.getBean("annotatedBean");
     assertThat(bean.getTestBean()).isSameAs(bf.getBean("testBean"));
   }
 
@@ -1260,49 +1265,49 @@ class AutowiredAnnotationBeanPostProcessorTests {
 
   @Test
   public void testObjectFactoryInjectionIntoPrototypeBean() {
-    RootBeanDefinition annotatedBeanDefinition = new RootBeanDefinition(ObjectFactoryFieldInjectionBean.class);
+    RootBeanDefinition annotatedBeanDefinition = new RootBeanDefinition(SupplierFieldInjectionBean.class);
     annotatedBeanDefinition.setScope(BeanDefinition.SCOPE_PROTOTYPE);
     bf.registerBeanDefinition("annotatedBean", annotatedBeanDefinition);
     bf.registerBeanDefinition("testBean", new RootBeanDefinition(TestBean.class));
 
-    ObjectFactoryFieldInjectionBean bean = (ObjectFactoryFieldInjectionBean) bf.getBean("annotatedBean");
+    SupplierFieldInjectionBean bean = (SupplierFieldInjectionBean) bf.getBean("annotatedBean");
     assertThat(bean.getTestBean()).isSameAs(bf.getBean("testBean"));
-    ObjectFactoryFieldInjectionBean anotherBean = (ObjectFactoryFieldInjectionBean) bf.getBean("annotatedBean");
+    SupplierFieldInjectionBean anotherBean = (SupplierFieldInjectionBean) bf.getBean("annotatedBean");
     assertThat(bean).isNotSameAs(anotherBean);
     assertThat(anotherBean.getTestBean()).isSameAs(bf.getBean("testBean"));
   }
 
   @Test
   public void testObjectFactoryQualifierInjection() {
-    bf.registerBeanDefinition("annotatedBean", new RootBeanDefinition(ObjectFactoryQualifierInjectionBean.class));
+    bf.registerBeanDefinition("annotatedBean", new RootBeanDefinition(SupplierQualifierInjectionBean.class));
     RootBeanDefinition bd = new RootBeanDefinition(TestBean.class);
     bd.addQualifier(new AutowireCandidateQualifier(Qualifier.class, "testBean"));
     bf.registerBeanDefinition("dependencyBean", bd);
     bf.registerBeanDefinition("dependencyBean2", new RootBeanDefinition(TestBean.class));
 
-    ObjectFactoryQualifierInjectionBean bean = (ObjectFactoryQualifierInjectionBean) bf.getBean("annotatedBean");
+    SupplierQualifierInjectionBean bean = (SupplierQualifierInjectionBean) bf.getBean("annotatedBean");
     assertThat(bean.getTestBean()).isSameAs(bf.getBean("dependencyBean"));
   }
 
   @Test
   public void testObjectFactoryQualifierProviderInjection() {
-    bf.registerBeanDefinition("annotatedBean", new RootBeanDefinition(ObjectFactoryQualifierInjectionBean.class));
+    bf.registerBeanDefinition("annotatedBean", new RootBeanDefinition(SupplierQualifierInjectionBean.class));
     RootBeanDefinition bd = new RootBeanDefinition(TestBean.class);
     bd.setQualifiedElement(ReflectionUtils.findMethod(getClass(), "testBeanQualifierProvider"));
     bf.registerBeanDefinition("dependencyBean", bd);
     bf.registerBeanDefinition("dependencyBean2", new RootBeanDefinition(TestBean.class));
 
-    ObjectFactoryQualifierInjectionBean bean = (ObjectFactoryQualifierInjectionBean) bf.getBean("annotatedBean");
+    SupplierQualifierInjectionBean bean = (SupplierQualifierInjectionBean) bf.getBean("annotatedBean");
     assertThat(bean.getTestBean()).isSameAs(bf.getBean("dependencyBean"));
   }
 
   @Test
   public void testObjectFactorySerialization() throws Exception {
-    bf.registerBeanDefinition("annotatedBean", new RootBeanDefinition(ObjectFactoryFieldInjectionBean.class));
+    bf.registerBeanDefinition("annotatedBean", new RootBeanDefinition(SupplierFieldInjectionBean.class));
     bf.registerBeanDefinition("testBean", new RootBeanDefinition(TestBean.class));
     bf.setSerializationId("test");
 
-    ObjectFactoryFieldInjectionBean bean = (ObjectFactoryFieldInjectionBean) bf.getBean("annotatedBean");
+    SupplierFieldInjectionBean bean = (SupplierFieldInjectionBean) bf.getBean("annotatedBean");
     assertThat(bean.getTestBean()).isSameAs(bf.getBean("testBean"));
     bean = SerializationTestUtils.serializeAndDeserialize(bean);
     assertThat(bean.getTestBean()).isSameAs(bf.getBean("testBean"));
@@ -1481,9 +1486,12 @@ class AutowiredAnnotationBeanPostProcessorTests {
 
   @Test
   public void testCustomAnnotationRequiredFieldResourceInjection() {
-    bpp.setAutowiredAnnotationType(MyAutowired.class);
-    bpp.setRequiredParameterName("optional");
-    bpp.setRequiredParameterValue(false);
+
+    RequiredStatusRetriever statusRetriever = new RequiredStatusRetriever(MyAutowired.class);
+    statusRetriever.setRequiredParameterName("optional");
+    statusRetriever.setRequiredParameterValue(false);
+    bpp.setRequiredStatusRetriever(statusRetriever);
+
     bf.registerBeanDefinition("customBean", new RootBeanDefinition(
             CustomAnnotationRequiredFieldResourceInjectionBean.class));
     TestBean tb = new TestBean();
@@ -1496,9 +1504,11 @@ class AutowiredAnnotationBeanPostProcessorTests {
 
   @Test
   public void testCustomAnnotationRequiredFieldResourceInjectionFailsWhenNoDependencyFound() {
-    bpp.setAutowiredAnnotationType(MyAutowired.class);
-    bpp.setRequiredParameterName("optional");
-    bpp.setRequiredParameterValue(false);
+    RequiredStatusRetriever statusRetriever = new RequiredStatusRetriever(MyAutowired.class);
+    statusRetriever.setRequiredParameterName("optional");
+    statusRetriever.setRequiredParameterValue(false);
+    bpp.setRequiredStatusRetriever(statusRetriever);
+
     bf.registerBeanDefinition("customBean", new RootBeanDefinition(
             CustomAnnotationRequiredFieldResourceInjectionBean.class));
     assertThatExceptionOfType(UnsatisfiedDependencyException.class).isThrownBy(() ->
@@ -1508,9 +1518,11 @@ class AutowiredAnnotationBeanPostProcessorTests {
 
   @Test
   public void testCustomAnnotationRequiredFieldResourceInjectionFailsWhenMultipleDependenciesFound() {
-    bpp.setAutowiredAnnotationType(MyAutowired.class);
-    bpp.setRequiredParameterName("optional");
-    bpp.setRequiredParameterValue(false);
+    RequiredStatusRetriever statusRetriever = new RequiredStatusRetriever(MyAutowired.class);
+    statusRetriever.setRequiredParameterName("optional");
+    statusRetriever.setRequiredParameterValue(false);
+    bpp.setRequiredStatusRetriever(statusRetriever);
+
     bf.registerBeanDefinition("customBean", new RootBeanDefinition(
             CustomAnnotationRequiredFieldResourceInjectionBean.class));
     TestBean tb1 = new TestBean();
@@ -1524,9 +1536,11 @@ class AutowiredAnnotationBeanPostProcessorTests {
 
   @Test
   public void testCustomAnnotationRequiredMethodResourceInjection() {
-    bpp.setAutowiredAnnotationType(MyAutowired.class);
-    bpp.setRequiredParameterName("optional");
-    bpp.setRequiredParameterValue(false);
+    RequiredStatusRetriever statusRetriever = new RequiredStatusRetriever(MyAutowired.class);
+    statusRetriever.setRequiredParameterName("optional");
+    statusRetriever.setRequiredParameterValue(false);
+    bpp.setRequiredStatusRetriever(statusRetriever);
+
     bf.registerBeanDefinition("customBean", new RootBeanDefinition(
             CustomAnnotationRequiredMethodResourceInjectionBean.class));
     TestBean tb = new TestBean();
@@ -1539,21 +1553,26 @@ class AutowiredAnnotationBeanPostProcessorTests {
 
   @Test
   public void testCustomAnnotationRequiredMethodResourceInjectionFailsWhenNoDependencyFound() {
-    bpp.setAutowiredAnnotationType(MyAutowired.class);
-    bpp.setRequiredParameterName("optional");
-    bpp.setRequiredParameterValue(false);
+    RequiredStatusRetriever statusRetriever = new RequiredStatusRetriever(MyAutowired.class);
+    statusRetriever.setRequiredParameterName("optional");
+    statusRetriever.setRequiredParameterValue(false);
+    bpp.setRequiredStatusRetriever(statusRetriever);
+
     bf.registerBeanDefinition("customBean", new RootBeanDefinition(
             CustomAnnotationRequiredMethodResourceInjectionBean.class));
-    assertThatExceptionOfType(UnsatisfiedDependencyException.class).isThrownBy(() ->
-                    bf.getBean("customBean"))
+
+    assertThatExceptionOfType(UnsatisfiedDependencyException.class)
+            .isThrownBy(() -> bf.getBean("customBean"))
             .satisfies(methodParameterDeclaredOn(CustomAnnotationRequiredMethodResourceInjectionBean.class));
   }
 
   @Test
   public void testCustomAnnotationRequiredMethodResourceInjectionFailsWhenMultipleDependenciesFound() {
-    bpp.setAutowiredAnnotationType(MyAutowired.class);
-    bpp.setRequiredParameterName("optional");
-    bpp.setRequiredParameterValue(false);
+    RequiredStatusRetriever statusRetriever = new RequiredStatusRetriever(MyAutowired.class);
+    statusRetriever.setRequiredParameterName("optional");
+    statusRetriever.setRequiredParameterValue(false);
+    bpp.setRequiredStatusRetriever(statusRetriever);
+
     bf.registerBeanDefinition("customBean", new RootBeanDefinition(
             CustomAnnotationRequiredMethodResourceInjectionBean.class));
     TestBean tb1 = new TestBean();
@@ -1567,9 +1586,12 @@ class AutowiredAnnotationBeanPostProcessorTests {
 
   @Test
   public void testCustomAnnotationOptionalFieldResourceInjection() {
-    bpp.setAutowiredAnnotationType(MyAutowired.class);
-    bpp.setRequiredParameterName("optional");
-    bpp.setRequiredParameterValue(false);
+    RequiredStatusRetriever statusRetriever = new RequiredStatusRetriever(MyAutowired.class);
+    statusRetriever.setRequiredParameterName("optional");
+    statusRetriever.setRequiredParameterValue(false);
+    bpp.setRequiredStatusRetriever(statusRetriever);
+    bpp.addAutowiredAnnotationType(MyAutowired.class);
+
     bf.registerBeanDefinition("customBean", new RootBeanDefinition(
             CustomAnnotationOptionalFieldResourceInjectionBean.class));
     TestBean tb = new TestBean();
@@ -1584,9 +1606,12 @@ class AutowiredAnnotationBeanPostProcessorTests {
 
   @Test
   public void testCustomAnnotationOptionalFieldResourceInjectionWhenNoDependencyFound() {
-    bpp.setAutowiredAnnotationType(MyAutowired.class);
-    bpp.setRequiredParameterName("optional");
-    bpp.setRequiredParameterValue(false);
+    RequiredStatusRetriever statusRetriever = new RequiredStatusRetriever(MyAutowired.class);
+    statusRetriever.setRequiredParameterName("optional");
+    statusRetriever.setRequiredParameterValue(false);
+    bpp.setRequiredStatusRetriever(statusRetriever);
+    bpp.addAutowiredAnnotationType(MyAutowired.class);
+
     bf.registerBeanDefinition("customBean", new RootBeanDefinition(
             CustomAnnotationOptionalFieldResourceInjectionBean.class));
 
@@ -1599,9 +1624,12 @@ class AutowiredAnnotationBeanPostProcessorTests {
 
   @Test
   public void testCustomAnnotationOptionalFieldResourceInjectionWhenMultipleDependenciesFound() {
-    bpp.setAutowiredAnnotationType(MyAutowired.class);
-    bpp.setRequiredParameterName("optional");
-    bpp.setRequiredParameterValue(false);
+    RequiredStatusRetriever statusRetriever = new RequiredStatusRetriever(MyAutowired.class);
+    statusRetriever.setRequiredParameterName("optional");
+    statusRetriever.setRequiredParameterValue(false);
+    bpp.setRequiredStatusRetriever(statusRetriever);
+    bpp.addAutowiredAnnotationType(MyAutowired.class);
+
     bf.registerBeanDefinition("customBean", new RootBeanDefinition(
             CustomAnnotationOptionalFieldResourceInjectionBean.class));
     TestBean tb1 = new TestBean();
@@ -1615,9 +1643,12 @@ class AutowiredAnnotationBeanPostProcessorTests {
 
   @Test
   public void testCustomAnnotationOptionalMethodResourceInjection() {
-    bpp.setAutowiredAnnotationType(MyAutowired.class);
-    bpp.setRequiredParameterName("optional");
-    bpp.setRequiredParameterValue(false);
+    RequiredStatusRetriever statusRetriever = new RequiredStatusRetriever(MyAutowired.class);
+    statusRetriever.setRequiredParameterName("optional");
+    statusRetriever.setRequiredParameterValue(false);
+    bpp.setRequiredStatusRetriever(statusRetriever);
+    bpp.addAutowiredAnnotationType(MyAutowired.class);
+
     bf.registerBeanDefinition("customBean", new RootBeanDefinition(
             CustomAnnotationOptionalMethodResourceInjectionBean.class));
     TestBean tb = new TestBean();
@@ -1632,9 +1663,12 @@ class AutowiredAnnotationBeanPostProcessorTests {
 
   @Test
   public void testCustomAnnotationOptionalMethodResourceInjectionWhenNoDependencyFound() {
-    bpp.setAutowiredAnnotationType(MyAutowired.class);
-    bpp.setRequiredParameterName("optional");
-    bpp.setRequiredParameterValue(false);
+    RequiredStatusRetriever statusRetriever = new RequiredStatusRetriever(MyAutowired.class);
+    statusRetriever.setRequiredParameterName("optional");
+    statusRetriever.setRequiredParameterValue(false);
+    bpp.setRequiredStatusRetriever(statusRetriever);
+    bpp.addAutowiredAnnotationType(MyAutowired.class);
+
     bf.registerBeanDefinition("customBean", new RootBeanDefinition(
             CustomAnnotationOptionalMethodResourceInjectionBean.class));
 
@@ -1647,9 +1681,12 @@ class AutowiredAnnotationBeanPostProcessorTests {
 
   @Test
   public void testCustomAnnotationOptionalMethodResourceInjectionWhenMultipleDependenciesFound() {
-    bpp.setAutowiredAnnotationType(MyAutowired.class);
-    bpp.setRequiredParameterName("optional");
-    bpp.setRequiredParameterValue(false);
+    RequiredStatusRetriever statusRetriever = new RequiredStatusRetriever(MyAutowired.class);
+    statusRetriever.setRequiredParameterName("optional");
+    statusRetriever.setRequiredParameterValue(false);
+    bpp.setRequiredStatusRetriever(statusRetriever);
+    bpp.addAutowiredAnnotationType(MyAutowired.class);
+
     bf.registerBeanDefinition("customBean", new RootBeanDefinition(
             CustomAnnotationOptionalMethodResourceInjectionBean.class));
     TestBean tb1 = new TestBean();
@@ -1862,7 +1899,7 @@ class AutowiredAnnotationBeanPostProcessorTests {
     assertThat(bean.repositoryMap.get("repo")).isSameAs(repo);
     assertThat(bean.stringRepositoryMap.get("repo")).isSameAs(repo);
 
-    assertThat(bf.getBeanNamesForType(ResolvableType.fromClassWithGenerics(Repository.class, String.class))).isEqualTo(Set.of("repo"));
+    assertThat(bf.getBeanNamesForType(ResolvableType.fromClassWithGenerics(Repository.class, String.class))).isEqualTo(new String[] { "repo" });
   }
 
   @Test
@@ -2216,8 +2253,8 @@ class AutowiredAnnotationBeanPostProcessorTests {
     GenericInterface1Impl bean1 = (GenericInterface1Impl) bf.getBean("bean1");
     GenericInterface2Impl bean2 = (GenericInterface2Impl) bf.getBean("bean2");
     assertThat(bean1.gi2).isSameAs(bean2);
-    assertThat(bf.getBeanNamesForType(ResolvableType.fromClassWithGenerics(GenericInterface1.class, String.class))).isEqualTo(Set.of("bean1"));
-    assertThat(bf.getBeanNamesForType(ResolvableType.fromClassWithGenerics(GenericInterface2.class, String.class))).isEqualTo(Set.of("bean2"));
+    assertThat(bf.getBeanNamesForType(ResolvableType.fromClassWithGenerics(GenericInterface1.class, String.class))).isEqualTo(new String[] { "bean1" });
+    assertThat(bf.getBeanNamesForType(ResolvableType.fromClassWithGenerics(GenericInterface2.class, String.class))).isEqualTo(new String[] { "bean2" });
   }
 
   @Test
@@ -2895,7 +2932,7 @@ class AutowiredAnnotationBeanPostProcessorTests {
   }
 
   @SuppressWarnings("serial")
-  public static class ObjectFactoryFieldInjectionBean implements Serializable {
+  public static class SupplierFieldInjectionBean implements Serializable {
 
     @Autowired
     private Supplier<TestBean> testBeanFactory;
@@ -2919,7 +2956,7 @@ class AutowiredAnnotationBeanPostProcessorTests {
     }
   }
 
-  public static class ObjectFactoryQualifierInjectionBean {
+  public static class SupplierQualifierInjectionBean {
 
     @Autowired
     @Qualifier("testBean")
@@ -3592,7 +3629,7 @@ class AutowiredAnnotationBeanPostProcessorTests {
 
     @SuppressWarnings("unchecked")
     public <T> T createMock(Class<T> toMock) {
-      return (T) Proxy.newProxyInstance(AutowiredAnnotationBeanPostProcessorTests.class.getClassLoader(), new Class<?>[] { toMock },
+      return (T) Proxy.newProxyInstance(StandardDependenciesBeanPostProcessorTests.class.getClassLoader(), new Class<?>[] { toMock },
               (InvocationHandler) (proxy, method, args) -> {
                 throw new UnsupportedOperationException("mocked!");
               });

@@ -194,6 +194,7 @@ public class StandardApplicationContext
   @Override
   public void setEnvironment(ConfigurableEnvironment environment) {
     super.setEnvironment(environment);
+    reader.setEnvironment(environment);
     scanner.setEnvironment(environment);
   }
 

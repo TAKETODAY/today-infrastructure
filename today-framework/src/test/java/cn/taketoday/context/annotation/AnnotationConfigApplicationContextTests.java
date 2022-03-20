@@ -90,7 +90,7 @@ public class AnnotationConfigApplicationContextTests {
   @Test
   void getBeanByType() {
     ApplicationContext context = new AnnotationConfigApplicationContext(Config.class);
-    TestBean testBean = context.getBean(TestBean.class);
+    AnnoTestBean testBean = context.getBean(AnnoTestBean.class);
     assertThat(testBean).isNotNull();
     assertThat(testBean.name).isEqualTo("foo");
   }
@@ -110,8 +110,8 @@ public class AnnotationConfigApplicationContextTests {
   void getBeanByTypeAmbiguityRaisesException() {
     ApplicationContext context = new AnnotationConfigApplicationContext(TwoTestBeanConfig.class);
     assertThatExceptionOfType(NoSuchBeanDefinitionException.class).isThrownBy(() ->
-                    context.getBean(TestBean.class))
-            .withMessageContaining("No qualifying bean of type '" + TestBean.class.getName() + "'")
+                    context.getBean(AnnoTestBean.class))
+            .withMessageContaining("No qualifying bean of type '" + AnnoTestBean.class.getName() + "'")
             .withMessageContaining("tb1")
             .withMessageContaining("tb2");
   }
@@ -146,7 +146,7 @@ public class AnnotationConfigApplicationContextTests {
   @Test
   void autowiringIsEnabledByDefault() {
     ApplicationContext context = new AnnotationConfigApplicationContext(AutowiredConfig.class);
-    assertThat(context.getBean(TestBean.class).name).isEqualTo("foo");
+    assertThat(context.getBean(AnnoTestBean.class).name).isEqualTo("foo");
   }
 
   @Test
@@ -156,7 +156,7 @@ public class AnnotationConfigApplicationContextTests {
     context.getBeanFactory().addBeanPostProcessor(new InitializationBeanPostProcessor() {
       @Override
       public Object postProcessBeforeInitialization(Object bean, String beanName) {
-        return (bean instanceof TestBean ? null : bean);
+        return (bean instanceof AnnoTestBean ? null : bean);
       }
     });
     context.getBeanFactory().addBeanPostProcessor(new InitializationBeanPostProcessor() {
@@ -415,8 +415,8 @@ public class AnnotationConfigApplicationContextTests {
   static class Config {
 
     @Bean
-    TestBean testBean() {
-      TestBean testBean = new TestBean();
+    AnnoTestBean testBean() {
+      AnnoTestBean testBean = new AnnoTestBean();
       testBean.name = "foo";
       return testBean;
     }
@@ -426,8 +426,8 @@ public class AnnotationConfigApplicationContextTests {
   static class ConfigWithCustomName {
 
     @Bean
-    TestBean testBean() {
-      return new TestBean();
+    AnnoTestBean testBean() {
+      return new AnnoTestBean();
     }
   }
 
@@ -435,13 +435,13 @@ public class AnnotationConfigApplicationContextTests {
   static class TwoTestBeanConfig {
 
     @Bean
-    TestBean tb1() {
-      return new TestBean();
+    AnnoTestBean tb1() {
+      return new AnnoTestBean();
     }
 
     @Bean
-    TestBean tb2() {
-      return new TestBean();
+    AnnoTestBean tb2() {
+      return new AnnoTestBean();
     }
   }
 
@@ -460,8 +460,8 @@ public class AnnotationConfigApplicationContextTests {
     String autowiredName;
 
     @Bean
-    TestBean testBean() {
-      TestBean testBean = new TestBean();
+    AnnoTestBean testBean() {
+      AnnoTestBean testBean = new AnnoTestBean();
       testBean.name = autowiredName;
       return testBean;
     }
@@ -549,7 +549,7 @@ public class AnnotationConfigApplicationContextTests {
   }
 }
 
-class TestBean {
+class AnnoTestBean {
 
   String name;
 
@@ -572,7 +572,7 @@ class TestBean {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    TestBean other = (TestBean) obj;
+    AnnoTestBean other = (AnnoTestBean) obj;
     if (name == null) {
       if (other.name != null) {
         return false;

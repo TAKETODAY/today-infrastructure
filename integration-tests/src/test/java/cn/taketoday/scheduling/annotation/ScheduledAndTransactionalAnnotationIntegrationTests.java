@@ -21,6 +21,7 @@
 package cn.taketoday.scheduling.annotation;
 
 import org.aspectj.lang.annotation.Aspect;
+import org.aspectj.lang.annotation.Before;
 import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.atomic.AtomicInteger;
@@ -34,6 +35,7 @@ import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.dao.annotation.PersistenceExceptionTranslationPostProcessor;
 import cn.taketoday.dao.support.PersistenceExceptionTranslator;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.lang.Repository;
 import cn.taketoday.testfixture.transaction.CallCountingTransactionManager;
 import cn.taketoday.transaction.PlatformTransactionManager;
@@ -178,7 +180,7 @@ class ScheduledAndTransactionalAnnotationIntegrationTests {
 
     private final AtomicInteger count = new AtomicInteger();
 
-    @org.aspectj.lang.annotation.Before("execution(* scheduled())")
+    @Before("execution(* scheduled())")
     public void checkTransaction() {
       this.count.incrementAndGet();
     }
@@ -218,6 +220,7 @@ class ScheduledAndTransactionalAnnotationIntegrationTests {
 
     private final AtomicInteger count = new AtomicInteger();
 
+    @Nullable
     @Autowired(required = false)
     private MyAspect myAspect;
 
