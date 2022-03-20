@@ -60,6 +60,7 @@ import cn.taketoday.core.Ordered;
 import cn.taketoday.core.PriorityOrdered;
 import cn.taketoday.core.annotation.AnnotationUtils;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Experimental;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
@@ -123,6 +124,7 @@ import cn.taketoday.util.StringUtils;
  * @see Value
  * @since 4.0 2021/12/26 14:51
  */
+@Experimental
 public class StandardDependenciesBeanPostProcessor implements DependenciesBeanPostProcessor,
         SmartInstantiationAwareBeanPostProcessor, MergedBeanDefinitionPostProcessor, PriorityOrdered, BeanFactoryAware {
 

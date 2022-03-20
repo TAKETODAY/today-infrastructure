@@ -54,13 +54,13 @@ final class DefaultClientResponseBuilder implements ClientResponse.Builder {
 
     @Override
     public HttpMethod getMethod() {
-      return HttpMethod.valueOf("UNKNOWN");
+      return HttpMethod.GET;
     }
 
     @Override
     @Deprecated
     public String getMethodValue() {
-      return "UNKNOWN";
+      return "GET";
     }
 
     @Override

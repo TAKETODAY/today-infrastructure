@@ -24,6 +24,7 @@ import java.util.function.Consumer;
 
 import cn.taketoday.beans.Primary;
 import cn.taketoday.beans.factory.annotation.AnnotatedBeanDefinition;
+import cn.taketoday.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor;
 import cn.taketoday.beans.factory.annotation.DisableDependencyInjection;
 import cn.taketoday.beans.factory.annotation.InitDestroyAnnotationBeanPostProcessor;
 import cn.taketoday.beans.factory.config.BeanDefinition;
@@ -158,7 +159,8 @@ public abstract class AnnotationConfigUtils {
     }
 
     if (!registry.containsBeanDefinition(AUTOWIRED_ANNOTATION_PROCESSOR_BEAN_NAME)) {
-      RootBeanDefinition def = new RootBeanDefinition(StandardDependenciesBeanPostProcessor.class);
+      RootBeanDefinition def = new RootBeanDefinition(AutowiredAnnotationBeanPostProcessor.class);
+//      RootBeanDefinition def = new RootBeanDefinition(StandardDependenciesBeanPostProcessor.class);
       registerPostProcessor(registry, def, AUTOWIRED_ANNOTATION_PROCESSOR_BEAN_NAME, consumer);
     }
 
