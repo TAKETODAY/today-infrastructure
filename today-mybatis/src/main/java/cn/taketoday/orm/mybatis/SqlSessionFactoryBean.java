@@ -51,7 +51,6 @@ import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.context.event.ContextRefreshedEvent;
 import cn.taketoday.context.loader.ClassPathScanningComponentProvider;
 import cn.taketoday.context.loader.MetadataReaderConsumer;
-import cn.taketoday.core.NestedIOException;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.core.type.ClassMetadata;
 import cn.taketoday.core.type.filter.AssignableTypeFilter;
@@ -562,7 +561,7 @@ public class SqlSessionFactoryBean
         targetConfiguration.setDatabaseId(databaseIdProvider.getDatabaseId(dataSource));
       }
       catch (SQLException e) {
-        throw new NestedIOException("Failed getting a databaseId", e);
+        throw new IOException("Failed getting a databaseId", e);
       }
     }
     if (cache != null) {
@@ -575,7 +574,7 @@ public class SqlSessionFactoryBean
         log.debug("Parsed configuration file: '{}'", configLocation);
       }
       catch (Exception ex) {
-        throw new NestedIOException("Failed to parse config resource: " + this.configLocation, ex);
+        throw new IOException("Failed to parse config resource: " + this.configLocation, ex);
       }
       finally {
         ErrorContext.instance().reset();
@@ -600,7 +599,7 @@ public class SqlSessionFactoryBean
             xmlMapperBuilder.parse();
           }
           catch (Exception e) {
-            throw new NestedIOException("Failed to parse mapping resource: '" + mapperLocation + "'", e);
+            throw new IOException("Failed to parse mapping resource: '" + mapperLocation + "'", e);
           }
           finally {
             ErrorContext.instance().reset();

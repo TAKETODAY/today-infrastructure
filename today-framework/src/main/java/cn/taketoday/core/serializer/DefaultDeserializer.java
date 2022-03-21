@@ -25,7 +25,6 @@ import java.io.InputStream;
 import java.io.ObjectInputStream;
 
 import cn.taketoday.core.ConfigurableObjectInputStream;
-import cn.taketoday.core.NestedIOException;
 import cn.taketoday.lang.Nullable;
 
 /**
@@ -75,7 +74,7 @@ public class DefaultDeserializer implements Deserializer<Object> {
       return objectInputStream.readObject();
     }
     catch (ClassNotFoundException ex) {
-      throw new NestedIOException("Failed to deserialize object type", ex);
+      throw new IOException("Failed to deserialize object type", ex);
     }
   }
 

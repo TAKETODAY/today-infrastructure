@@ -69,7 +69,7 @@ import cn.taketoday.lang.Nullable;
  * @see #setMinEvictableIdleTimeMillis
  * @since 4.0 2021/12/13 22:33
  */
-@SuppressWarnings({ "rawtypes", "unchecked" })
+@SuppressWarnings({ "rawtypes", "unchecked", "deprecation" })
 public class CommonsPool2TargetSource
         extends AbstractPoolingTargetSource implements PooledObjectFactory<Object> {
 
