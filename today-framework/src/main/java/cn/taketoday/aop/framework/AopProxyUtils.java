@@ -20,8 +20,6 @@
 
 package cn.taketoday.aop.framework;
 
-import java.lang.reflect.Array;
-import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -35,7 +33,6 @@ import cn.taketoday.core.DecoratingProxy;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
-import cn.taketoday.util.ObjectUtils;
 
 /**
  * Utility methods for AOP proxy factories.
@@ -61,6 +58,7 @@ public abstract class AopProxyUtils {
    * @see Advised#getTargetSource()
    * @see SingletonTargetSource#getTarget()
    */
+  @Nullable
   public static Object getSingletonTarget(Object candidate) {
     if (candidate instanceof Advised) {
       TargetSource targetSource = ((Advised) candidate).getTargetSource();
@@ -91,7 +89,7 @@ public abstract class AopProxyUtils {
       current = getSingletonTarget(current);
     }
     if (result == null) {
-      result = (AopUtils.isCglibProxy(candidate) ? candidate.getClass().getSuperclass() : candidate.getClass());
+      result = AopUtils.isCglibProxy(candidate) ? candidate.getClass().getSuperclass() : candidate.getClass();
     }
     return result;
   }
