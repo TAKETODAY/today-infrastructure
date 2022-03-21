@@ -29,6 +29,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 
 import cn.taketoday.aop.AopInvocationException;
+import cn.taketoday.aop.RawTargetAccess;
 import cn.taketoday.aop.TargetSource;
 import cn.taketoday.aop.support.AopUtils;
 import cn.taketoday.core.DecoratingProxy;
@@ -220,8 +221,11 @@ public class JdkDynamicAopProxy implements AopProxy, InvocationHandler, Serializ
       }
       // Massage return value if necessary
       Class<?> returnType;
-      if (retVal != null && retVal == target &&
-              (returnType = method.getReturnType()) != Object.class && returnType.isInstance(proxy)) {
+      if (retVal != null
+              && retVal == target
+              && (returnType = method.getReturnType()) != Object.class
+              && returnType.isInstance(proxy)
+              && !RawTargetAccess.class.isAssignableFrom(method.getDeclaringClass())) {
         // Special case: it returned "this" and the return type of the method
         // is type-compatible. Note that we can't help if the target sets
         // a reference to itself in another returned object.
