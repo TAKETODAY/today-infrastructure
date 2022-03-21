@@ -23,10 +23,10 @@ package cn.taketoday.web.handler.method;
 import com.fasterxml.jackson.annotation.JsonView;
 
 import cn.taketoday.core.MethodParameter;
+import cn.taketoday.http.MediaType;
 import cn.taketoday.http.converter.HttpMessageConverter;
 import cn.taketoday.http.converter.json.MappingJacksonValue;
 import cn.taketoday.lang.Assert;
-import cn.taketoday.http.MediaType;
 import cn.taketoday.web.RequestContext;
 
 /**
@@ -51,14 +51,13 @@ import cn.taketoday.web.RequestContext;
 public class JsonViewResponseBodyAdvice extends AbstractMappingJacksonResponseBodyAdvice {
 
   @Override
-  public boolean supports(MethodParameter returnType, Class<? extends HttpMessageConverter<?>> converterType) {
-    return super.supports(returnType, converterType) && returnType.hasMethodAnnotation(JsonView.class);
+  public boolean supports(MethodParameter returnType, HttpMessageConverter<?> converter) {
+    return super.supports(returnType, converter) && returnType.hasMethodAnnotation(JsonView.class);
   }
 
   @Override
   protected void beforeBodyWriteInternal(
-          MappingJacksonValue value, MediaType contentType,
-          MethodParameter returnType, RequestContext request) {
+          MappingJacksonValue value, MediaType contentType, MethodParameter returnType, RequestContext request) {
     JsonView ann = returnType.getMethodAnnotation(JsonView.class);
     Assert.state(ann != null, "No JsonView annotation");
 

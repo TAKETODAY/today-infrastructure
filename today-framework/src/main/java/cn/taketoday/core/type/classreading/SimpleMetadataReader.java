@@ -23,7 +23,6 @@ package cn.taketoday.core.type.classreading;
 import java.io.IOException;
 import java.io.InputStream;
 
-import cn.taketoday.core.NestedIOException;
 import cn.taketoday.core.bytecode.ClassReader;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.core.type.AnnotationMetadata;
@@ -59,7 +58,7 @@ final class SimpleMetadataReader implements MetadataReader {
         return new ClassReader(is);
       }
       catch (IllegalArgumentException ex) {
-        throw new NestedIOException(
+        throw new IOException(
                 "ASM ClassReader failed to parse class file - " +
                         "probably due to a new Java class file version that isn't supported yet: " + resource, ex);
       }

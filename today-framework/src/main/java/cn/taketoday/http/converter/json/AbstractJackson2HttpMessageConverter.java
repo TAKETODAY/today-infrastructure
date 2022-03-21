@@ -56,6 +56,7 @@ import java.util.function.Consumer;
 import cn.taketoday.core.GenericTypeResolver;
 import cn.taketoday.http.HttpInputMessage;
 import cn.taketoday.http.HttpOutputMessage;
+import cn.taketoday.http.MediaType;
 import cn.taketoday.http.converter.AbstractGenericHttpMessageConverter;
 import cn.taketoday.http.converter.HttpMessageConversionException;
 import cn.taketoday.http.converter.HttpMessageConverter;
@@ -64,7 +65,6 @@ import cn.taketoday.http.converter.HttpMessageNotWritableException;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
-import cn.taketoday.http.MediaType;
 import cn.taketoday.util.StreamUtils;
 import cn.taketoday.util.TypeUtils;
 

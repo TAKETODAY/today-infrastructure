@@ -52,7 +52,6 @@ import cn.taketoday.context.annotation.ConfigurationCondition.ConfigurationPhase
 import cn.taketoday.context.annotation.DeferredImportSelector.Group;
 import cn.taketoday.context.loader.BootstrapContext;
 import cn.taketoday.context.loader.ImportSelector;
-import cn.taketoday.core.NestedIOException;
 import cn.taketoday.core.OrderComparator;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
@@ -704,7 +703,7 @@ class ConfigurationClassParser {
         return new SourceClass(ClassUtils.forName(className, bootstrapContext.getClassLoader()));
       }
       catch (ClassNotFoundException ex) {
-        throw new NestedIOException("Failed to load class [" + className + "]", ex);
+        throw new IOException("Failed to load class [" + className + "]", ex);
       }
     }
     return new SourceClass(bootstrapContext.getMetadataReader(className));
@@ -1044,7 +1043,7 @@ class ConfigurationClassParser {
         catch (ClassNotFoundException ex) {
           // Ignore -> fall back to ASM next, except for core java types.
           if (className.startsWith("java")) {
-            throw new NestedIOException("Failed to load class [" + className + "]", ex);
+            throw new IOException("Failed to load class [" + className + "]", ex);
           }
           return new SourceClass(bootstrapContext.getMetadataReader(className));
         }

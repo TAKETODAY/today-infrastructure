@@ -50,25 +50,24 @@ public interface RequestBodyAdvice {
    * @param methodParameter the method parameter
    * @param targetType the target type, not necessarily the same as the method
    * parameter type, e.g. for {@code HttpEntity<String>}.
-   * @param converterType the selected converter type
+   * @param converter the selected converter
    * @return whether this interceptor should be invoked or not
    */
-  boolean supports(MethodParameter methodParameter, Type targetType,
-                   Class<? extends HttpMessageConverter<?>> converterType);
+  boolean supports(MethodParameter methodParameter,
+          Type targetType, HttpMessageConverter<?> converter);
 
   /**
    * Invoked second before the request body is read and converted.
    *
-   * @param inputMessage the request
+   * @param request the request
    * @param parameter the target method parameter
    * @param targetType the target type, not necessarily the same as the method
    * parameter type, e.g. for {@code HttpEntity<String>}.
-   * @param converterType the converter used to deserialize the body
+   * @param converter the converter used to deserialize the body
    * @return the input request or a new instance (never {@code null})
    */
-  HttpInputMessage beforeBodyRead(
-          HttpInputMessage inputMessage, MethodParameter parameter,
-          Type targetType, Class<? extends HttpMessageConverter<?>> converterType) throws IOException;
+  HttpInputMessage beforeBodyRead(HttpInputMessage request, MethodParameter parameter,
+          Type targetType, HttpMessageConverter<?> converter) throws IOException;
 
   /**
    * Invoked third (and last) after the request body is converted to an Object.
@@ -78,12 +77,12 @@ public interface RequestBodyAdvice {
    * @param parameter the target method parameter
    * @param targetType the target type, not necessarily the same as the method
    * parameter type, e.g. for {@code HttpEntity<String>}.
-   * @param converterType the converter used to deserialize the body
+   * @param converter the converter used to deserialize the body
    * @return the same body or a new instance
    */
-  default Object afterBodyRead(
-          Object body, HttpInputMessage inputMessage, MethodParameter parameter,
-          Type targetType, Class<? extends HttpMessageConverter<?>> converterType) {
+  default Object afterBodyRead(Object body, HttpInputMessage inputMessage,
+          MethodParameter parameter, Type targetType, HttpMessageConverter<?> converter) {
+
     return body;
   }
 
@@ -95,14 +94,13 @@ public interface RequestBodyAdvice {
    * @param parameter the method parameter
    * @param targetType the target type, not necessarily the same as the method
    * parameter type, e.g. for {@code HttpEntity<String>}.
-   * @param converterType the selected converter type
+   * @param converter the selected converter
    * @return the value to use, or {@code null} which may then raise an
    * {@code HttpMessageNotReadableException} if the argument is required
    */
   @Nullable
-  default Object handleEmptyBody(
-          @Nullable Object body, HttpInputMessage inputMessage, MethodParameter parameter,
-          Type targetType, Class<? extends HttpMessageConverter<?>> converterType) {
+  default Object handleEmptyBody(@Nullable Object body, HttpInputMessage inputMessage,
+          MethodParameter parameter, Type targetType, HttpMessageConverter<?> converter) {
     return body;
   }
 

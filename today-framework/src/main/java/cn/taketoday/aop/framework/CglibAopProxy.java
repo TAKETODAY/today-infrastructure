@@ -35,6 +35,7 @@ import java.util.Objects;
 import cn.taketoday.aop.Advisor;
 import cn.taketoday.aop.AopInvocationException;
 import cn.taketoday.aop.PointcutAdvisor;
+import cn.taketoday.aop.RawTargetAccess;
 import cn.taketoday.aop.TargetSource;
 import cn.taketoday.aop.support.AopUtils;
 import cn.taketoday.core.SmartClassLoader;
@@ -504,7 +505,7 @@ public class CglibAopProxy extends AbstractSubclassesAopProxy implements AopProx
    */
   private static Object processReturnValue(Object proxy, Object target, Method method, Object retVal) {
     // Massage return value if necessary
-    if (retVal != null && retVal == target) {
+    if (retVal != null && retVal == target && !RawTargetAccess.class.isAssignableFrom(method.getDeclaringClass())) {
       // Special case: it returned "this". Note that we can't help
       // if the target sets a reference to itself in another returned object.
       retVal = proxy;

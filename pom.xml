@@ -15,12 +15,12 @@
 
   <modules>
     <module>today-framework</module>
+    <module>today-aspects</module>
+    <module>today-indexer</module>
+    <module>today-mybatis</module>
+    <module>today-instrument</module>
     <module>today-test</module>
     <module>integration-tests</module>
-    <module>today-instrument</module>
-    <module>today-indexer</module>
-    <module>today-aspects</module>
-    <module>today-mybatis</module>
   </modules>
 
   <description>
