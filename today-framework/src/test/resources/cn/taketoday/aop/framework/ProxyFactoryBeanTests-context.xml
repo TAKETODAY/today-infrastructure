@@ -156,7 +156,7 @@
 		<property name="interfaces">
 			<list>
 				<value>cn.taketoday.beans.testfixture.beans.ITestBean</value>
-				<value>test.mixin.Lockable</value>
+				<value>test.aop.Lockable</value>
 			</list>
 		</property>
 		<property name="singleton"><value>false</value></property>

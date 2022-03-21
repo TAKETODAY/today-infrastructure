@@ -32,7 +32,6 @@ import java.util.Set;
 import cn.taketoday.beans.PropertyValues;
 import cn.taketoday.beans.factory.BeanCreationException;
 import cn.taketoday.beans.testfixture.beans.TestBean;
-import cn.taketoday.context.ApplicationContextException;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.web.context.support.ServletContextAttributeExporter;
 import cn.taketoday.web.context.support.ServletContextAttributeFactoryBean;
@@ -80,12 +79,9 @@ public class ServletContextSupportTests {
     pvs.add("attributeName", "myAttr");
     wac.registerSingleton("importedAttr", ServletContextAttributeFactoryBean.class, pvs);
 
-    assertThatExceptionOfType(ApplicationContextException.class)
+    assertThatExceptionOfType(BeanCreationException.class)
             .isThrownBy(wac::refresh)
-            .havingCause()
-            .isInstanceOf(BeanCreationException.class)
-            .havingCause()
-            .isInstanceOf(IllegalStateException.class)
+            .withCauseInstanceOf(IllegalStateException.class)
             .withMessageContaining("myAttr");
   }
 
@@ -116,13 +112,10 @@ public class ServletContextSupportTests {
     PropertyValues pvs = new PropertyValues();
     pvs.add("initParamName", "myParam");
     wac.registerSingleton("importedParam", ServletContextParameterFactoryBean.class, pvs);
-
-    assertThatExceptionOfType(ApplicationContextException.class)
+    
+    assertThatExceptionOfType(BeanCreationException.class)
             .isThrownBy(wac::refresh)
-            .havingCause()
-            .isInstanceOf(BeanCreationException.class)
-            .havingCause()
-            .isInstanceOf(IllegalStateException.class)
+            .withCauseInstanceOf(IllegalStateException.class)
             .withMessageContaining("myParam");
   }
 

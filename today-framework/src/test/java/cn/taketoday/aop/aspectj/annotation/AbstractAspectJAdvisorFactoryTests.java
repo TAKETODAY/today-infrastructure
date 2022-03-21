@@ -419,7 +419,7 @@ abstract class AbstractAspectJAdvisorFactoryTests {
 
   // TODO: Why does this test fail? It hasn't been run before, so it maybe never actually passed...
   @Test
-  @Disabled
+//  @Disabled
   void introductionWithArgumentBinding() {
     TestBean target = new TestBean();
 

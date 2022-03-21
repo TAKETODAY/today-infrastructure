@@ -6,17 +6,17 @@
 	default-init-method="initMethod1"
 	default-destroy-method="destroyMethod1">
 
-	<bean id="beanA" class="cn.taketoday.beans.factory.parsing.xml.InitDestroyBean"/>
+	<bean id="beanA" class="cn.taketoday.beans.factory.xml.InitDestroyBean"/>
 
 	<beans default-init-method="initMethod2" default-destroy-method="destroyMethod2">
-		<bean id="beanB" class="cn.taketoday.beans.factory.parsing.xml.InitDestroyBean"/>
+		<bean id="beanB" class="cn.taketoday.beans.factory.xml.InitDestroyBean"/>
 
 		<beans default-init-method="initMethod3" default-destroy-method="destroyMethod3">
-			<bean id="beanC" class="cn.taketoday.beans.factory.parsing.xml.InitDestroyBean"/>
+			<bean id="beanC" class="cn.taketoday.beans.factory.xml.InitDestroyBean"/>
 		</beans>
 
 		<beans> <!-- should fall back to outer defaults (initMethod2 and destroyMethod2) -->
-			<bean id="beanD" class="cn.taketoday.beans.factory.parsing.xml.InitDestroyBean"/>
+			<bean id="beanD" class="cn.taketoday.beans.factory.xml.InitDestroyBean"/>
 		</beans>
 	</beans>
 </beans>

@@ -1,57 +1,59 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN 2.0//EN" "https://www.springframework.org/dtd/spring-beans-2.0.dtd">
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
 
-<beans>
+  <bean id="rod1" class="cn.taketoday.beans.testfixture.beans.DependenciesBean" autowire="byType">
+    <!-- Should pick up spouse automatically -->
+  </bean>
 
-	<bean id="rod1" class="cn.taketoday.beans.testfixture.beans.DependenciesBean" autowire="byType">
-		<!-- Should pick up spouse automatically -->
-	</bean>
+  <bean id="rod1a" class="cn.taketoday.beans.testfixture.beans.DependenciesBean" autowire="autodetect">
+    <!-- Should pick up spouse automatically -->
+  </bean>
 
-	<bean id="rod1a" class="cn.taketoday.beans.testfixture.beans.DependenciesBean" autowire="autodetect">
-		<!-- Should pick up spouse automatically -->
-	</bean>
+  <bean id="rod2" class="cn.taketoday.beans.testfixture.beans.DependenciesBean" autowire="byName">
+    <!-- Should pick up spouse automatically -->
+  </bean>
 
-	<bean id="rod2" class="cn.taketoday.beans.testfixture.beans.DependenciesBean" autowire="byName">
-		<!-- Should pick up spouse automatically -->
-	</bean>
+  <bean id="rod2a" class="cn.taketoday.beans.testfixture.beans.DependenciesBean" autowire="byName">
+    <property name="spouse" ref="spouse" />
+  </bean>
 
-	<bean id="rod2a" class="cn.taketoday.beans.testfixture.beans.DependenciesBean" autowire="byName">
-		<property name="spouse" ref="spouse"/>
-	</bean>
+  <bean id="rod3" class="cn.taketoday.beans.factory.xml.ConstructorDependenciesBean" autowire="constructor">
+    <!-- Should pick up spouse automatically -->
+  </bean>
 
-	<bean id="rod3" class="cn.taketoday.beans.factory.xml.ConstructorDependenciesBean" autowire="constructor">
-		<!-- Should pick up spouse automatically -->
-	</bean>
+  <bean id="rod3a" class="cn.taketoday.beans.factory.xml.ConstructorDependenciesBean" autowire="autodetect">
+    <!-- Should pick up spouse automatically -->
+  </bean>
 
-	<bean id="rod3a" class="cn.taketoday.beans.factory.xml.ConstructorDependenciesBean" autowire="autodetect">
-		<!-- Should pick up spouse automatically -->
-	</bean>
+  <bean id="rod4" class="cn.taketoday.beans.factory.xml.ConstructorDependenciesBean" scope="prototype">
+    <!-- Should not pick up spouse automatically -->
+  </bean>
 
-	<bean id="rod4" class="cn.taketoday.beans.factory.xml.ConstructorDependenciesBean" scope="prototype">
-		<!-- Should not pick up spouse automatically -->
-	</bean>
+  <bean id="rod5" class="cn.taketoday.beans.testfixture.beans.DependenciesBean"
+      scope="prototype" autowire="constructor">
+    <!-- Should pick up spouse automatically -->
+  </bean>
 
-	<bean id="rod5" class="cn.taketoday.beans.testfixture.beans.DependenciesBean"
-			scope="prototype" autowire="constructor">
-		<!-- Should pick up spouse automatically -->
-	</bean>
+  <bean id="other" class="cn.taketoday.beans.testfixture.beans.IndexedTestBean" />
 
-	<bean id="other" class="cn.taketoday.beans.testfixture.beans.IndexedTestBean"/>
+  <bean id="parentAppCtx" class="cn.taketoday.context.support.ClassPathXmlApplicationContext">
+    <constructor-arg>
+      <value>/cn/taketoday/beans/factory/xml/XmlBeanFactoryTests-collections.xml</value>
+    </constructor-arg>
+  </bean>
 
-	<bean id="parentAppCtx" class="cn.taketoday.context.support.ClassPathXmlApplicationContext">
-		<constructor-arg>
-			<value>/cn/taketoday/beans/factory/xml/XmlBeanFactoryTests-collections.xml</value>
-		</constructor-arg>
-	</bean>
-
-	<bean id="childAppCtx" class="cn.taketoday.context.support.ClassPathXmlApplicationContext">
-		<constructor-arg>
-			<list>
-				<value>/cn/taketoday/beans/factory/xml/XmlBeanFactoryTests-constructorArg.xml</value>
-				<value>/cn/taketoday/beans/factory/xml/XmlBeanFactoryTests-initializers.xml</value>
-			</list>
-		</constructor-arg>
-		<constructor-arg><ref bean="parentAppCtx"/></constructor-arg>
-	</bean>
+  <bean id="childAppCtx" class="cn.taketoday.context.support.ClassPathXmlApplicationContext">
+    <constructor-arg>
+      <list>
+        <value>/cn/taketoday/beans/factory/xml/XmlBeanFactoryTests-constructorArg.xml</value>
+        <value>/cn/taketoday/beans/factory/xml/XmlBeanFactoryTests-initializers.xml</value>
+      </list>
+    </constructor-arg>
+    <constructor-arg>
+      <ref bean="parentAppCtx" />
+    </constructor-arg>
+  </bean>
 
 </beans>
