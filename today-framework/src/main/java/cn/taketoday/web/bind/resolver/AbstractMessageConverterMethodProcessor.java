@@ -284,8 +284,7 @@ public abstract class AbstractMessageConverterMethodProcessor
             : converter.canWrite(valueType, selectedMediaType)) {
 
           body = advice.beforeBodyWrite(
-                  body, returnType, selectedMediaType,
-                  (Class<? extends HttpMessageConverter<?>>) converter.getClass(), context);
+                  body, returnType, selectedMediaType, converter, context);
           if (body != null) {
             Object theBody = body;
             LogFormatUtils.traceDebug(

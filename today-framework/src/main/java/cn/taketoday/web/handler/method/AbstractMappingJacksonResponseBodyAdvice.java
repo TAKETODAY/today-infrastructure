@@ -21,11 +21,11 @@
 package cn.taketoday.web.handler.method;
 
 import cn.taketoday.core.MethodParameter;
+import cn.taketoday.http.MediaType;
 import cn.taketoday.http.converter.HttpMessageConverter;
 import cn.taketoday.http.converter.json.AbstractJackson2HttpMessageConverter;
 import cn.taketoday.http.converter.json.MappingJacksonValue;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.http.MediaType;
 import cn.taketoday.web.RequestContext;
 
 /**
@@ -41,21 +41,21 @@ import cn.taketoday.web.RequestContext;
 public abstract class AbstractMappingJacksonResponseBodyAdvice implements ResponseBodyAdvice<Object> {
 
   @Override
-  public boolean supports(MethodParameter returnType, Class<? extends HttpMessageConverter<?>> converterType) {
-    return AbstractJackson2HttpMessageConverter.class.isAssignableFrom(converterType);
+  public boolean supports(MethodParameter returnType, HttpMessageConverter<?> converter) {
+    return converter instanceof AbstractJackson2HttpMessageConverter;
   }
 
   @Nullable
   @Override
   public Object beforeBodyWrite(
-          @Nullable Object body, MethodParameter returnType, MediaType selectedContentType,
-          Class<? extends HttpMessageConverter<?>> selectedConverterType, RequestContext context) {
+          @Nullable Object body, MethodParameter returnType, MediaType contentType,
+          HttpMessageConverter<?> converter, RequestContext context) {
 
     if (body == null) {
       return null;
     }
     MappingJacksonValue container = getOrCreateContainer(body);
-    beforeBodyWriteInternal(container, selectedContentType, returnType, context);
+    beforeBodyWriteInternal(container, contentType, returnType, context);
     return container;
   }
 
@@ -70,8 +70,7 @@ public abstract class AbstractMappingJacksonResponseBodyAdvice implements Respon
   /**
    * Invoked only if the converter type is {@code MappingJackson2HttpMessageConverter}.
    */
-  protected abstract void beforeBodyWriteInternal(
-          MappingJacksonValue bodyContainer, MediaType contentType,
-          MethodParameter returnType, RequestContext request);
+  protected abstract void beforeBodyWriteInternal(MappingJacksonValue bodyContainer,
+          MediaType contentType, MethodParameter returnType, RequestContext request);
 
 }

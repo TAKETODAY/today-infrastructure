@@ -608,15 +608,15 @@ class ExceptionHandlerAnnotationExceptionHandlerTests {
   static class CustomResponseBodyAdvice implements ResponseBodyAdvice<Object> {
 
     @Override
-    public boolean supports(MethodParameter returnType, Class<? extends HttpMessageConverter<?>> converterType) {
+    public boolean supports(MethodParameter returnType, HttpMessageConverter<?> converter) {
       return false;
     }
 
     @Nullable
     @Override
     public Object beforeBodyWrite(@Nullable Object body,
-            MethodParameter returnType, MediaType selectedContentType,
-            Class<? extends HttpMessageConverter<?>> selectedConverterType, RequestContext context) {
+            MethodParameter returnType, MediaType contentType,
+            HttpMessageConverter<?> converter, RequestContext context) {
       return null;
     }
   }

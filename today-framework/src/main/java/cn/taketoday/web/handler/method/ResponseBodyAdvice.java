@@ -21,9 +21,9 @@
 package cn.taketoday.web.handler.method;
 
 import cn.taketoday.core.MethodParameter;
+import cn.taketoday.http.MediaType;
 import cn.taketoday.http.converter.HttpMessageConverter;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.http.MediaType;
 import cn.taketoday.web.RequestContext;
 
 /**
@@ -48,11 +48,11 @@ public interface ResponseBodyAdvice<T> {
    * and the selected {@code HttpMessageConverter} type.
    *
    * @param returnType the return type
-   * @param converterType the selected converter type
+   * @param converter the selected converter
    * @return {@code true} if {@link #beforeBodyWrite} should be invoked;
    * {@code false} otherwise
    */
-  boolean supports(MethodParameter returnType, Class<? extends HttpMessageConverter<?>> converterType);
+  boolean supports(MethodParameter returnType, HttpMessageConverter<?> converter);
 
   /**
    * Invoked after an {@code HttpMessageConverter} is selected and just before
@@ -60,15 +60,14 @@ public interface ResponseBodyAdvice<T> {
    *
    * @param body the body to be written
    * @param returnType the return type of the controller method
-   * @param selectedContentType the content type selected through content negotiation
-   * @param selectedConverterType the converter type selected to write to the response
+   * @param contentType the content type selected through content negotiation
+   * @param converter the converter selected to write to the response
    * @param context the current request context
    * @return the body that was passed in or a modified (possibly new) instance
    */
   @Nullable
-  T beforeBodyWrite(
-          @Nullable T body, MethodParameter returnType, MediaType selectedContentType,
-          Class<? extends HttpMessageConverter<?>> selectedConverterType, RequestContext context);
+  T beforeBodyWrite(@Nullable Object body, MethodParameter returnType, MediaType contentType,
+          HttpMessageConverter<?> converter, RequestContext context);
 
 }
 

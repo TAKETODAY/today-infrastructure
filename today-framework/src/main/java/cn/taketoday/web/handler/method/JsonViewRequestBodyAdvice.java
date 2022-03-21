@@ -56,16 +56,16 @@ public class JsonViewRequestBodyAdvice implements RequestBodyAdvice {
   @Override
   public boolean supports(
           MethodParameter methodParameter, Type targetType,
-          Class<? extends HttpMessageConverter<?>> converterType) {
+          HttpMessageConverter<?> converter) {
 
-    return AbstractJackson2HttpMessageConverter.class.isAssignableFrom(converterType)
+    return converter instanceof AbstractJackson2HttpMessageConverter
             && methodParameter.getParameterAnnotation(JsonView.class) != null;
   }
 
   @Override
   public HttpInputMessage beforeBodyRead(
-          HttpInputMessage inputMessage, MethodParameter methodParameter,
-          Type targetType, Class<? extends HttpMessageConverter<?>> selectedConverterType) throws IOException {
+          HttpInputMessage request, MethodParameter methodParameter,
+          Type targetType, HttpMessageConverter<?> selectedConverterType) throws IOException {
 
     JsonView ann = methodParameter.getParameterAnnotation(JsonView.class);
     Assert.state(ann != null, "No JsonView annotation");
@@ -76,7 +76,7 @@ public class JsonViewRequestBodyAdvice implements RequestBodyAdvice {
               "@JsonView only supported for request body advice with exactly 1 class argument: " + methodParameter);
     }
 
-    return new MappingJacksonInputMessage(inputMessage.getBody(), inputMessage.getHeaders(), classes[0]);
+    return new MappingJacksonInputMessage(request.getBody(), request.getHeaders(), classes[0]);
   }
 
 }

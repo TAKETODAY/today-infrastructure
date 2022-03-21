@@ -147,7 +147,6 @@ public abstract class AbstractMessageConverterParameterResolver implements Param
 
       RequestResponseBodyAdviceChain adviceChain = getAdvice();
       for (HttpMessageConverter<?> converter : this.messageConverters) {
-        Class<HttpMessageConverter<?>> converterType = (Class<HttpMessageConverter<?>>) converter.getClass();
         GenericHttpMessageConverter<?> genericConverter = converter instanceof GenericHttpMessageConverter
                                                           ? (GenericHttpMessageConverter<?>) converter : null;
         if (genericConverter != null ? genericConverter.canRead(targetType, contextClass, contentType)
@@ -155,14 +154,14 @@ public abstract class AbstractMessageConverterParameterResolver implements Param
 
           if (message.hasBody()) {
             HttpInputMessage msgToUse =
-                    adviceChain.beforeBodyRead(message, parameter, targetType, converterType);
+                    adviceChain.beforeBodyRead(message, parameter, targetType, converter);
             body = genericConverter != null
                    ? genericConverter.read(targetType, contextClass, msgToUse)
                    : ((HttpMessageConverter<T>) converter).read(targetClass, msgToUse);
-            body = adviceChain.afterBodyRead(body, msgToUse, parameter, targetType, converterType);
+            body = adviceChain.afterBodyRead(body, msgToUse, parameter, targetType, converter);
           }
           else {
-            body = adviceChain.handleEmptyBody(null, message, parameter, targetType, converterType);
+            body = adviceChain.handleEmptyBody(null, message, parameter, targetType, converter);
           }
           break;
         }
