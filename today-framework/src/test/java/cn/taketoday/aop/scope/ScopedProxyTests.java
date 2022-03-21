@@ -134,7 +134,8 @@ public class ScopedProxyTests {
     boolean condition1 = tb.getFriends() instanceof ScopedObject;
     assertThat(condition1).isTrue();
     ScopedObject scoped = (ScopedObject) tb.getFriends();
-    assertThat(scoped.getTargetObject().getClass()).isEqualTo(ArrayList.class);
+    Object targetObject = scoped.getTargetObject();
+    assertThat(targetObject.getClass()).isEqualTo(ArrayList.class);
     tb.getFriends().add("myFriend");
 
     assertThat(scope.getMap().containsKey("scopedTarget.scopedList")).isTrue();
