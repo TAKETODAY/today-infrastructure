@@ -8,8 +8,6 @@ import java.util.List;
 
 import javax.sql.DataSource;
 
-import cn.taketoday.lang.NonNull;
-
 /**
  * Created with IntelliJ IDEA. User: lars Date: 10/5/12 Time: 10:54 PM To change
  * this template use File | Settings | File Templates.
@@ -37,16 +35,14 @@ public class DefaultSessionDataSourceTest extends TestCase {
             "aLongNumber bigint)";
     sql2o.createQuery(sql).setName("testExecuteAndFetchWithNulls").executeUpdate();
 
-    sql2o.runInTransaction(new StatementRunnable() {
-      public void run(@NonNull JdbcConnection connection, Object argument) throws Throwable {
-        Query insQuery = connection.createQuery(
-                "insert into testExecWithNullsTbl (text, aNumber, aLongNumber) values(:text, :number, :lnum)");
-        insQuery.addParameter("text", "some text").addParameter("number", 2).addParameter("lnum", 10L).executeUpdate();
-        insQuery.addParameter("text", "some text").addParameter("number", (Integer) null).addParameter("lnum", 10L).executeUpdate();
-        insQuery.addParameter("text", (String) null).addParameter("number", 21).addParameter("lnum", (Long) null).executeUpdate();
-        insQuery.addParameter("text", "some text").addParameter("number", 1221).addParameter("lnum", 10).executeUpdate();
-        insQuery.addParameter("text", "some text").addParameter("number", 2311).addParameter("lnum", 12).executeUpdate();
-      }
+    sql2o.runInTransaction((connection, argument) -> {
+      Query insQuery = connection.createQuery(
+              "insert into testExecWithNullsTbl (text, aNumber, aLongNumber) values(:text, :number, :lnum)");
+      insQuery.addParameter("text", "some text").addParameter("number", 2).addParameter("lnum", 10L).executeUpdate();
+      insQuery.addParameter("text", "some text").addParameter("number", (Integer) null).addParameter("lnum", 10L).executeUpdate();
+      insQuery.addParameter("text", (String) null).addParameter("number", 21).addParameter("lnum", (Long) null).executeUpdate();
+      insQuery.addParameter("text", "some text").addParameter("number", 1221).addParameter("lnum", 10).executeUpdate();
+      insQuery.addParameter("text", "some text").addParameter("number", 2311).addParameter("lnum", 12).executeUpdate();
     });
 
     List<Entity> fetched = sql2o.createQuery("select * from testExecWithNullsTbl").fetch(Entity.class);
