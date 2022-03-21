@@ -33,7 +33,6 @@ public class ClassWithComplexConstructor {
 
   private final Dependency dependency;
 
-  @Autowired
   ClassWithComplexConstructor selfReference;
 
   @Autowired
@@ -44,6 +43,11 @@ public class ClassWithComplexConstructor {
 
   public Dependency getDependency() {
     return this.dependency;
+  }
+
+  @Autowired
+  public void setSelfReference(ClassWithComplexConstructor selfReference) {
+    this.selfReference = selfReference;
   }
 
   public void method() {

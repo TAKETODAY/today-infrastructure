@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import cn.taketoday.util.ResourceUtils;
 
@@ -90,6 +91,7 @@ class PathMatchingPatternResourceLoaderTests {
           "ResourceArrayPropertyEditor.class",
           "ResourceDecorator.class",
           "WritableResourceDecorator.class",
+          "ResourceTestUtils.class"
   };
 
   private static final String[] CLASSES_IN_JUNIT_RUNNER = new String[] { //
@@ -176,11 +178,21 @@ class PathMatchingPatternResourceLoaderTests {
           Resource[] resources, String protocol, String... filenames) throws IOException {
     if (filenames.length != resources.length) {
       // find which file is forget add
-      Set<String> filenames1 = Set.of(filenames);
-      Arrays.stream(resources)
-              .map(Resource::getName)
-              .filter(Predicate.not(filenames1::contains))
-              .forEach(System.err::println);
+      if (filenames.length < resources.length) {
+        Set<String> filenames1 = Set.of(filenames);
+        Arrays.stream(resources)
+                .map(Resource::getName)
+                .filter(Predicate.not(filenames1::contains))
+                .forEach(System.err::println);
+      }
+      else {
+        Set<String> less = Arrays.stream(resources)
+                .map(Resource::getName)
+                .collect(Collectors.toSet());
+        Arrays.stream(filenames)
+                .filter(Predicate.not(less::contains))
+                .forEach(System.err::println);
+      }
     }
     assertEquals(filenames.length, resources.length, "Correct number of files found");
     for (Resource resource : resources) {
