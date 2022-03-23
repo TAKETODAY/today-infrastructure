@@ -154,7 +154,7 @@ public abstract class AbstractBeanFactory
   private final ArrayList<BeanPostProcessor> postProcessors = new ArrayList<>();
 
   /** object from a factory-bean map @since 4.0 */
-  private final HashMap<String, Object> objectFromFactoryBeanCache = new HashMap<>();
+  private final ConcurrentHashMap<String, Object> objectFromFactoryBeanCache = new ConcurrentHashMap<>(16);
 
   /** Names of beans that have already been created at least once. */
   private final Set<String> alreadyCreated = Collections.newSetFromMap(new ConcurrentHashMap<>(256));

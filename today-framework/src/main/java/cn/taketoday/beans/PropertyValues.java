@@ -19,6 +19,7 @@
  */
 package cn.taketoday.beans;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -49,7 +50,7 @@ import cn.taketoday.util.StringUtils;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2021/12/1 14:49
  */
-public class PropertyValues implements Iterable<PropertyValue> {
+public class PropertyValues implements Iterable<PropertyValue>, Serializable {
 
   @Nullable
   private ArrayList<PropertyValue> propertyValues;

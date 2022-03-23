@@ -83,7 +83,7 @@ class PropertyPathFactoryBeanTests {
     StandardBeanFactory xbf = new StandardBeanFactory();
     new XmlBeanDefinitionReader(xbf).loadBeanDefinitions(CONTEXT);
     assertThat(xbf.getType("tb.spouse.spouse")).isNull();
-    assertThat(xbf.getBean("tb.spouse.spouse").toString()).isEqualTo("null");
+    assertThat(xbf.getBean("tb.spouse.spouse")).isNull();
   }
 
   @Test

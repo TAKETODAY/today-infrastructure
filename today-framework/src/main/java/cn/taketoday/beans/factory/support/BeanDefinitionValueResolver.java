@@ -43,6 +43,7 @@ import cn.taketoday.beans.factory.config.NamedBeanHolder;
 import cn.taketoday.beans.factory.config.RuntimeBeanNameReference;
 import cn.taketoday.beans.factory.config.RuntimeBeanReference;
 import cn.taketoday.beans.factory.config.TypedStringValue;
+import cn.taketoday.lang.NullValue;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.CollectionUtils;
@@ -150,6 +151,25 @@ class BeanDefinitionValueResolver {
                 ObjectUtils.getIdentityHexString(bd);
         return resolveInnerBean(argName, innerBeanName, bd);
       }
+      else if (value instanceof TypedStringValue typedStringValue) {
+        // Convert value to target type here.
+        Object valueObject = evaluate(typedStringValue);
+        try {
+          Class<?> resolvedTargetType = resolveTargetType(typedStringValue);
+          if (resolvedTargetType != null) {
+            return convertIfNecessary(valueObject, resolvedTargetType);
+          }
+          else {
+            return valueObject;
+          }
+        }
+        catch (Throwable ex) {
+          // Improve the message by showing the context.
+          throw new BeanCreationException(
+                  beanDefinition.getResourceDescription(), beanName,
+                  "Error converting typed String value for " + argName, ex);
+        }
+      }
       else if (value instanceof ManagedArray managedArray) {
         // May need to resolve contained runtime references.
         Class<?> elementType = managedArray.resolvedElementType;
@@ -207,25 +227,7 @@ class BeanDefinitionValueResolver {
         }
         return copy;
       }
-      else if (value instanceof TypedStringValue typedStringValue) {
-        // Convert value to target type here.
-        Object valueObject = evaluate(typedStringValue);
-        try {
-          Class<?> resolvedTargetType = resolveTargetType(typedStringValue);
-          if (resolvedTargetType != null) {
-            return convertIfNecessary(valueObject, resolvedTargetType);
-          }
-          else {
-            return valueObject;
-          }
-        }
-        catch (Throwable ex) {
-          // Improve the message by showing the context.
-          throw new BeanCreationException(
-                  beanDefinition.getResourceDescription(), beanName,
-                  "Error converting typed String value for " + argName, ex);
-        }
-      }
+
     }
     return evaluate(value);
   }
@@ -359,7 +361,7 @@ class BeanDefinitionValueResolver {
   private Object resolveInnerBean(Object argName, String innerBeanName, BeanDefinition innerDefinition) {
     RootBeanDefinition mergedDef = null;
     try {
-      mergedDef = this.beanFactory.getMergedBeanDefinition(innerBeanName, innerDefinition, this.beanDefinition);
+      mergedDef = beanFactory.getMergedBeanDefinition(innerBeanName, innerDefinition, this.beanDefinition);
 
       // Check given bean name whether it is unique. If not already unique,
       // add counter - increasing the counter until the name is unique.
@@ -381,6 +383,9 @@ class BeanDefinitionValueResolver {
       if (innerBean instanceof FactoryBean<?> factoryBean) {
         boolean synthetic = mergedDef.isSynthetic();
         innerBean = beanFactory.getObjectFromFactoryBean(factoryBean, actualInnerBeanName, !synthetic);
+      }
+      if (innerBean == NullValue.INSTANCE) {
+        innerBean = null;
       }
       return innerBean;
     }

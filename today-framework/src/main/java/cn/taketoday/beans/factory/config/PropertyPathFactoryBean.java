@@ -168,8 +168,9 @@ public class PropertyPathFactoryBean implements FactoryBean<Object>, BeanNameAwa
         throw new IllegalArgumentException(
                 "Specify 'targetObject' or 'targetBeanName' in combination with 'propertyPath'");
       }
+
       // No other properties specified: check bean name.
-      int dotIndex = (beanName != null ? beanName.indexOf('.') : -1);
+      int dotIndex = beanName != null ? beanName.indexOf('.') : -1;
       if (dotIndex == -1) {
         throw new IllegalArgumentException(
                 "Neither 'targetObject' nor 'targetBeanName' specified, and PropertyPathFactoryBean " +
