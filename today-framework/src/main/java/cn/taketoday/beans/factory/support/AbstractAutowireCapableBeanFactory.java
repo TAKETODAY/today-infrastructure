@@ -731,7 +731,7 @@ public abstract class AbstractAutowireCapableBeanFactory
     }
 
     // Candidate constructors for autowiring?
-    Constructor<?>[] constructors = determineConstructorsFromPostProcessors(beanClass, beanName);
+    Constructor<?>[] constructors = determineConstructorsFromPostProcessors(beanClass, merged, beanName);
     if (constructors != null
             || merged.getResolvedAutowireMode() == AUTOWIRE_CONSTRUCTOR
             || merged.hasConstructorArgumentValues()
@@ -838,6 +838,7 @@ public abstract class AbstractAutowireCapableBeanFactory
    * {@link SmartInstantiationAwareBeanPostProcessor SmartInstantiationAwareBeanPostProcessors}.
    *
    * @param beanClass the raw class of the bean
+   * @param merged merged bean def
    * @param beanName the name of the bean
    * @return the candidate constructors, or {@code null} if none specified
    * @throws BeansException in case of errors
@@ -845,7 +846,7 @@ public abstract class AbstractAutowireCapableBeanFactory
    */
   @Nullable
   protected Constructor<?>[] determineConstructorsFromPostProcessors(
-          @Nullable Class<?> beanClass, String beanName) throws BeansException {
+          @Nullable Class<?> beanClass, RootBeanDefinition merged, String beanName) throws BeansException {
 
     if (beanClass != null) {
       var smartInstantiation = postProcessors().smartInstantiation;
@@ -858,11 +859,13 @@ public abstract class AbstractAutowireCapableBeanFactory
         }
       }
       else {
-        Constructor<?> selected = BeanUtils.getConstructor(beanClass);
-        if (selected != null && selected.getParameterCount() > 0) {
-          return new Constructor[] { selected };
+        if (!merged.hasConstructorArgumentValues()) {
+          Constructor<?> selected = BeanUtils.getConstructor(beanClass);
+          if (selected != null && selected.getParameterCount() > 0) {
+            return new Constructor[] { selected };
+          }
+          // fallback to default constructor
         }
-        // fallback to default constructor
       }
     }
     return null;

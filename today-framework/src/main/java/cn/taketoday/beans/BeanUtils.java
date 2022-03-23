@@ -241,6 +241,25 @@ public abstract class BeanUtils {
       }
     }
 
+    return selectConstructor(ctors);
+  }
+
+  /**
+   * select a suitable {@link Constructor}.
+   *
+   * @param <T> Target type
+   * @return Suitable constructor If there isn't a suitable {@link Constructor}
+   * returns null
+   * @since 4.0
+   */
+  @Nullable
+  @SuppressWarnings("unchecked")
+  public static <T> Constructor<T> selectConstructor(Constructor<?>[] ctors) {
+    if (ctors.length == 1) {
+      // A single constructor
+      return (Constructor<T>) ctors[0];
+    }
+
     // iterate all constructors
     for (Constructor<?> constructor : ctors) {
       if (constructor.getParameterCount() == 0 // default constructor
