@@ -34,6 +34,7 @@ import java.time.temporal.Temporal;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
 
 import cn.taketoday.beans.factory.support.DependencyInjector;
@@ -80,6 +81,17 @@ public abstract class BeanUtils {
   private static final Class<? extends Annotation> Autowired = ClassUtils.resolveClassName(
           "cn.taketoday.beans.factory.annotation.Autowired", BeanUtils.class.getClassLoader());
 
+  private static final Map<Class<?>, Object> DEFAULT_TYPE_VALUES = Map.of(
+          boolean.class, false,
+          byte.class, (byte) 0,
+          short.class, (short) 0,
+          int.class, 0,
+          long.class, 0L,
+          float.class, 0F,
+          double.class, 0D,
+          char.class, '\0'
+  );
+
   /**
    * Get instance with bean class use default {@link Constructor}
    *
@@ -90,7 +102,7 @@ public abstract class BeanUtils {
    */
   public static <T> T newInstance(Class<T> beanClass) {
     Constructor<T> constructor = obtainConstructor(beanClass);
-    return newInstance(constructor, null);
+    return newInstance(constructor);
   }
 
   /**
@@ -136,15 +148,29 @@ public abstract class BeanUtils {
    * use Constructor to create bean instance
    *
    * @param constructor java reflect Constructor
-   * @param parameter initargs
+   * @param args initargs
    * @param <T> target bean type
    * @return instance create from constructor
    * @see Constructor#newInstance(Object...)
    */
-  public static <T> T newInstance(Constructor<T> constructor, @Nullable Object[] parameter) {
+  public static <T> T newInstance(Constructor<T> constructor, Object... args) {
     try {
       ReflectionUtils.makeAccessible(constructor);
-      return constructor.newInstance(parameter);
+
+      Class<?>[] parameterTypes = constructor.getParameterTypes();
+      Assert.isTrue(args.length <= parameterTypes.length, "Can't specify more arguments than constructor parameters");
+      Object[] argsWithDefaultValues = new Object[args.length];
+      for (int i = 0; i < args.length; i++) {
+        if (args[i] == null) {
+          Class<?> parameterType = parameterTypes[i];
+          argsWithDefaultValues[i] = (parameterType.isPrimitive() ? DEFAULT_TYPE_VALUES.get(parameterType) : null);
+        }
+        else {
+          argsWithDefaultValues[i] = args[i];
+        }
+      }
+
+      return constructor.newInstance(argsWithDefaultValues);
     }
     catch (InstantiationException ex) {
       throw new BeanInstantiationException(constructor, "Is it an abstract class?", ex);
