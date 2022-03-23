@@ -23,6 +23,9 @@ package cn.taketoday.aop.target;
 import java.util.HashSet;
 import java.util.Set;
 
+import cn.taketoday.aop.IntroductionAdvisor;
+import cn.taketoday.aop.support.DefaultIntroductionAdvisor;
+import cn.taketoday.aop.support.DelegatingIntroductionInterceptor;
 import cn.taketoday.beans.factory.DisposableBean;
 import cn.taketoday.core.NamedThreadLocal;
 
@@ -82,7 +85,7 @@ public class ThreadLocalTargetSource
     if (target == null) {
       if (logger.isDebugEnabled()) {
         logger.debug("No target for prototype '{}' bound to thread: creating one and binding it to thread '{}'",
-                     getTargetBeanName(), Thread.currentThread().getName());
+                getTargetBeanName(), Thread.currentThread().getName());
       }
       // Associate target with ThreadLocal.
       target = newPrototypeInstance();
@@ -130,6 +133,15 @@ public class ThreadLocalTargetSource
     synchronized(this.targetSet) {
       return this.targetSet.size();
     }
+  }
+
+  /**
+   * Return an introduction advisor mixin that allows the AOP proxy to be
+   * cast to ThreadLocalInvokerStats.
+   */
+  public IntroductionAdvisor getStatsMixin() {
+    DelegatingIntroductionInterceptor dii = new DelegatingIntroductionInterceptor(this);
+    return new DefaultIntroductionAdvisor(dii, ThreadLocalTargetSourceStats.class);
   }
 
 }
