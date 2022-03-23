@@ -141,7 +141,7 @@ class BeanUtilsTests {
   @Test
   void instantiatePrivateClassWithPrivateConstructor() throws NoSuchMethodException {
     Constructor<PrivateBeanWithPrivateConstructor> ctor = PrivateBeanWithPrivateConstructor.class.getDeclaredConstructor();
-    BeanUtils.newInstance(ctor, null);
+    BeanUtils.newInstance(ctor);
   }
 
   @Test

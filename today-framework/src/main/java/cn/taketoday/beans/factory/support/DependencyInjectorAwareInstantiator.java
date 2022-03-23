@@ -185,7 +185,7 @@ public class DependencyInjectorAwareInstantiator {
           @Nullable DependencyInjectorProvider injectorProvider, @Nullable Object[] providedArgs) {
     Constructor<T> constructor = BeanUtils.obtainConstructor(beanClass);
     if (constructor.getParameterCount() == 0) {
-      return BeanUtils.newInstance(constructor, null);
+      return BeanUtils.newInstance(constructor);
     }
     Assert.notNull(injectorProvider, "resolverProvider is required");
     return injectorProvider.getInjector().inject(constructor, providedArgs);

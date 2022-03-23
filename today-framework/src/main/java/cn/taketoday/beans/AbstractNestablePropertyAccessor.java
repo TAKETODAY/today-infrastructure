@@ -921,7 +921,7 @@ public abstract class AbstractNestablePropertyAccessor extends AbstractPropertyA
         if (Modifier.isPrivate(ctor.getModifiers())) {
           throw new IllegalAccessException("Auto-growing not allowed with private constructor: " + ctor);
         }
-        return BeanUtils.newInstance(ctor, null);
+        return BeanUtils.newInstance(ctor);
       }
     }
     catch (Throwable ex) {

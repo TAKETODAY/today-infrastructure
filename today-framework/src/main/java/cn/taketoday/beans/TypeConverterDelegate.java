@@ -98,7 +98,7 @@ public class TypeConverterDelegate {
    */
   @Nullable
   public <T> T convertIfNecessary(@Nullable String propertyName, @Nullable Object oldValue,
-                                  Object newValue, @Nullable Class<T> requiredType) throws IllegalArgumentException {
+          Object newValue, @Nullable Class<T> requiredType) throws IllegalArgumentException {
 
     return convertIfNecessary(propertyName, oldValue, newValue, requiredType, TypeDescriptor.valueOf(requiredType));
   }
@@ -201,7 +201,7 @@ public class TypeConverterDelegate {
           if (conversionAttemptEx == null && !requiredType.isInterface() && !requiredType.isEnum()) {
             try {
               Constructor<T> strCtor = requiredType.getConstructor(String.class);
-              return BeanUtils.newInstance(strCtor, new Object[] { convertedValue });
+              return BeanUtils.newInstance(strCtor, convertedValue);
             }
             catch (NoSuchMethodException ex) {
               // proceed with field lookup
@@ -363,7 +363,7 @@ public class TypeConverterDelegate {
    */
   @Nullable
   private Object doConvertValue(@Nullable Object oldValue, @Nullable Object newValue,
-                                @Nullable Class<?> requiredType, @Nullable PropertyEditor editor) {
+          @Nullable Class<?> requiredType, @Nullable PropertyEditor editor) {
 
     Object convertedValue = newValue;
 

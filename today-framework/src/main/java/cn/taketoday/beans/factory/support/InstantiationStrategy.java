@@ -94,7 +94,7 @@ public class InstantiationStrategy {
           }
         }
       }
-      return BeanUtils.newInstance(constructorToUse, null);
+      return BeanUtils.newInstance(constructorToUse);
     }
   }
 

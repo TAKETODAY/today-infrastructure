@@ -19,16 +19,26 @@
  */
 package cn.taketoday.beans.factory.xml;
 
+import java.beans.ConstructorProperties;
 import java.io.Serializable;
 import java.lang.reflect.Method;
+import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 
+import cn.taketoday.beans.BeansException;
+import cn.taketoday.beans.factory.BeanFactory;
+import cn.taketoday.beans.factory.BeanFactoryAware;
+import cn.taketoday.beans.factory.BeanNameAware;
+import cn.taketoday.beans.factory.DisposableBean;
+import cn.taketoday.beans.factory.InitializationBeanPostProcessor;
+import cn.taketoday.beans.factory.InitializingBean;
 import cn.taketoday.beans.factory.support.MethodReplacer;
 import cn.taketoday.beans.testfixture.beans.FactoryMethods;
 import cn.taketoday.beans.testfixture.beans.ITestBean;
 import cn.taketoday.beans.testfixture.beans.IndexedTestBean;
 import cn.taketoday.beans.testfixture.beans.TestBean;
+import cn.taketoday.beans.testfixture.beans.factory.DummyFactory;
 
 /**
  * Types used by {@link XmlBeanFactoryTests} and its attendant XML config files.
@@ -36,6 +46,84 @@ import cn.taketoday.beans.testfixture.beans.TestBean;
  * @author Chris Beams
  */
 final class XmlBeanFactoryTestTypes {
+}
+
+/**
+ * Simple bean used to check constructor dependency checking.
+ *
+ * @author Juergen Hoeller
+ * @since 09.11.2003
+ */
+@SuppressWarnings("serial")
+class ConstructorDependenciesBean implements Serializable {
+
+  private int age;
+
+  private String name;
+
+  private TestBean spouse1;
+
+  private TestBean spouse2;
+
+  private IndexedTestBean other;
+
+  public ConstructorDependenciesBean(int age) {
+    this.age = age;
+  }
+
+  public ConstructorDependenciesBean(String name) {
+    this.name = name;
+  }
+
+  public ConstructorDependenciesBean(TestBean spouse1) {
+    this.spouse1 = spouse1;
+  }
+
+  public ConstructorDependenciesBean(TestBean spouse1, TestBean spouse2) {
+    this.spouse1 = spouse1;
+    this.spouse2 = spouse2;
+  }
+
+  @ConstructorProperties({ "spouse", "otherSpouse", "myAge" })
+  public ConstructorDependenciesBean(TestBean spouse1, TestBean spouse2, int age) {
+    this.spouse1 = spouse1;
+    this.spouse2 = spouse2;
+    this.age = age;
+  }
+
+  public ConstructorDependenciesBean(TestBean spouse1, TestBean spouse2, IndexedTestBean other) {
+    this.spouse1 = spouse1;
+    this.spouse2 = spouse2;
+    this.other = other;
+  }
+
+  public int getAge() {
+    return age;
+  }
+
+  public String getName() {
+    return name;
+  }
+
+  public TestBean getSpouse1() {
+    return spouse1;
+  }
+
+  public TestBean getSpouse2() {
+    return spouse2;
+  }
+
+  public IndexedTestBean getOther() {
+    return other;
+  }
+
+  public void setAge(int age) {
+    this.age = age;
+  }
+
+  public void setName(String name) {
+    this.name = name;
+  }
 }
 
 class SimpleConstructorArgBean {
@@ -74,7 +162,7 @@ class SimpleConstructorArgBean {
  */
 abstract class ConstructorInjectedOverrides {
 
-  private final ITestBean tb;
+  private ITestBean tb;
 
   private String setterString;
 
@@ -167,6 +255,49 @@ class DummyDao {
 }
 
 /**
+ * @author Juergen Hoeller
+ */
+class DummyReferencer {
+
+  private TestBean testBean1;
+
+  private TestBean testBean2;
+
+  private DummyFactory dummyFactory;
+
+  public DummyReferencer() {
+  }
+
+  public DummyReferencer(DummyFactory dummyFactory) {
+    this.dummyFactory = dummyFactory;
+  }
+
+  public void setDummyFactory(DummyFactory dummyFactory) {
+    this.dummyFactory = dummyFactory;
+  }
+
+  public DummyFactory getDummyFactory() {
+    return dummyFactory;
+  }
+
+  public void setTestBean1(TestBean testBean1) {
+    this.testBean1 = testBean1;
+  }
+
+  public TestBean getTestBean1() {
+    return testBean1;
+  }
+
+  public void setTestBean2(TestBean testBean2) {
+    this.testBean2 = testBean2;
+  }
+
+  public TestBean getTestBean2() {
+    return testBean2;
+  }
+}
+
+/**
  * Fixed method replacer for String return types
  *
  * @author Rod Johnson
@@ -186,7 +317,7 @@ class FixedMethodReplacer implements MethodReplacer {
  */
 class MapAndSet {
 
-  private final Object obj;
+  private Object obj;
 
   public MapAndSet(Map<?, ?> map) {
     this.obj = map;
@@ -208,6 +339,23 @@ class MethodReplaceCandidate {
 
   public String replaceMe(String echo) {
     return echo;
+  }
+}
+
+/**
+ * Bean that exposes a simple property that can be set
+ * to a mix of references and individual values.
+ */
+class MixedCollectionBean {
+
+  private Collection<?> jumble;
+
+  public void setJumble(Collection<?> jumble) {
+    this.jumble = jumble;
+  }
+
+  public Collection<?> getJumble() {
+    return jumble;
   }
 }
 
@@ -274,6 +422,146 @@ abstract class OverrideOneMethodSubclass extends OverrideOneMethod {
   protected void doSomething(String arg) {
     // This implementation does nothing!
     // It's not overloaded
+  }
+}
+
+/**
+ * Simple test of BeanFactory initialization and lifecycle callbacks.
+ *
+ * @author Rod Johnson
+ * @author Juergen Hoeller
+ */
+class ProtectedLifecycleBean implements BeanNameAware, BeanFactoryAware, InitializingBean, DisposableBean {
+
+  protected boolean initMethodDeclared = false;
+
+  protected String beanName;
+
+  protected BeanFactory owningFactory;
+
+  protected boolean postProcessedBeforeInit;
+
+  protected boolean inited;
+
+  protected boolean initedViaDeclaredInitMethod;
+
+  protected boolean postProcessedAfterInit;
+
+  protected boolean destroyed;
+
+  public void setInitMethodDeclared(boolean initMethodDeclared) {
+    this.initMethodDeclared = initMethodDeclared;
+  }
+
+  public boolean isInitMethodDeclared() {
+    return initMethodDeclared;
+  }
+
+  @Override
+  public void setBeanName(String name) {
+    this.beanName = name;
+  }
+
+  public String getBeanName() {
+    return beanName;
+  }
+
+  @Override
+  public void setBeanFactory(BeanFactory beanFactory) {
+    this.owningFactory = beanFactory;
+  }
+
+  public void postProcessBeforeInit() {
+    if (this.inited || this.initedViaDeclaredInitMethod) {
+      throw new RuntimeException("Factory called postProcessBeforeInit after afterPropertiesSet");
+    }
+    if (this.postProcessedBeforeInit) {
+      throw new RuntimeException("Factory called postProcessBeforeInit twice");
+    }
+    this.postProcessedBeforeInit = true;
+  }
+
+  @Override
+  public void afterPropertiesSet() {
+    if (this.owningFactory == null) {
+      throw new RuntimeException("Factory didn't call setBeanFactory before afterPropertiesSet on lifecycle bean");
+    }
+    if (!this.postProcessedBeforeInit) {
+      throw new RuntimeException("Factory didn't call postProcessBeforeInit before afterPropertiesSet on lifecycle bean");
+    }
+    if (this.initedViaDeclaredInitMethod) {
+      throw new RuntimeException("Factory initialized via declared init method before initializing via afterPropertiesSet");
+    }
+    if (this.inited) {
+      throw new RuntimeException("Factory called afterPropertiesSet twice");
+    }
+    this.inited = true;
+  }
+
+  public void declaredInitMethod() {
+    if (!this.inited) {
+      throw new RuntimeException("Factory didn't call afterPropertiesSet before declared init method");
+    }
+
+    if (this.initedViaDeclaredInitMethod) {
+      throw new RuntimeException("Factory called declared init method twice");
+    }
+    this.initedViaDeclaredInitMethod = true;
+  }
+
+  public void postProcessAfterInit() {
+    if (!this.inited) {
+      throw new RuntimeException("Factory called postProcessAfterInit before afterPropertiesSet");
+    }
+    if (this.initMethodDeclared && !this.initedViaDeclaredInitMethod) {
+      throw new RuntimeException("Factory called postProcessAfterInit before calling declared init method");
+    }
+    if (this.postProcessedAfterInit) {
+      throw new RuntimeException("Factory called postProcessAfterInit twice");
+    }
+    this.postProcessedAfterInit = true;
+  }
+
+  /**
+   * Dummy business method that will fail unless the factory
+   * managed the bean's lifecycle correctly
+   */
+  public void businessMethod() {
+    if (!this.inited || (this.initMethodDeclared && !this.initedViaDeclaredInitMethod) ||
+            !this.postProcessedAfterInit) {
+      throw new RuntimeException("Factory didn't initialize lifecycle object correctly");
+    }
+  }
+
+  @Override
+  public void destroy() {
+    if (this.destroyed) {
+      throw new IllegalStateException("Already destroyed");
+    }
+    this.destroyed = true;
+  }
+
+  public boolean isDestroyed() {
+    return destroyed;
+  }
+
+  public static class PostProcessor implements InitializationBeanPostProcessor {
+
+    @Override
+    public Object postProcessBeforeInitialization(Object bean, String name) throws BeansException {
+      if (bean instanceof ProtectedLifecycleBean) {
+        ((ProtectedLifecycleBean) bean).postProcessBeforeInit();
+      }
+      return bean;
+    }
+
+    @Override
+    public Object postProcessAfterInitialization(Object bean, String name) throws BeansException {
+      if (bean instanceof ProtectedLifecycleBean) {
+        ((ProtectedLifecycleBean) bean).postProcessAfterInit();
+      }
+      return bean;
+    }
   }
 }
 
