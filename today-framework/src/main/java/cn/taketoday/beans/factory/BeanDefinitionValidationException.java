@@ -20,13 +20,11 @@
 package cn.taketoday.beans.factory;
 
 import cn.taketoday.beans.FatalBeanException;
-import cn.taketoday.beans.factory.config.BeanDefinition;
 
 /**
  * Exception thrown when the validation of a bean definition failed.
  *
  * @author TODAY 2021/9/29 10:42
- * @see BeanDefinition#validate()
  * @since 4.0
  */
 @SuppressWarnings("serial")

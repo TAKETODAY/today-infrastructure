@@ -43,6 +43,7 @@ import cn.taketoday.beans.factory.BeanClassLoadFailedException;
 import cn.taketoday.beans.factory.BeanCreationException;
 import cn.taketoday.beans.factory.BeanCurrentlyInCreationException;
 import cn.taketoday.beans.factory.BeanDefinitionStoreException;
+import cn.taketoday.beans.factory.BeanDefinitionValidationException;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanIsAbstractException;
 import cn.taketoday.beans.factory.DisposableBean;
@@ -669,10 +670,10 @@ class XmlBeanFactoryTests {
     new XmlBeanDefinitionReader(xbf).loadBeanDefinitions(COMPLEX_FACTORY_CIRCLE_CONTEXT);
     xbf.getBean("proxy1");
     // check that unused instances from autowiring got removed
-    assertThat(xbf.getSingletonCount()).isEqualTo(4);
+    assertThat(xbf.getSingletonCount()).isEqualTo(5);
     // properly create the remaining two instances
     xbf.getBean("proxy2");
-    assertThat(xbf.getSingletonCount()).isEqualTo(5);
+    assertThat(xbf.getSingletonCount()).isEqualTo(6);
   }
 
   @Test
@@ -950,7 +951,7 @@ class XmlBeanFactoryTests {
       xbf.getBean("rod2Accessor");
     }
     catch (BeanCreationException ex) {
-      assertThat(ex.toString().contains("touchy")).isTrue();
+      assertThat(ex.getNestedMessage().contains("touchy")).isTrue();
       ex.printStackTrace();
       assertThat((Object) ex.getRelatedCauses()).isNull();
     }
@@ -1389,8 +1390,10 @@ class XmlBeanFactoryTests {
     StandardBeanFactory xbf = new StandardBeanFactory();
     XmlBeanDefinitionReader reader = new XmlBeanDefinitionReader(xbf);
     reader.loadBeanDefinitions(INVALID_NO_SUCH_METHOD_CONTEXT);
-    assertThatExceptionOfType(BeanDefinitionStoreException.class).isThrownBy(() ->
-                    xbf.getBean("constructorOverrides"))
+    assertThatExceptionOfType(BeanDefinitionStoreException.class)
+            .isThrownBy(() -> xbf.getBean("constructorOverrides"))
+            .havingCause()
+            .isInstanceOf(BeanDefinitionValidationException.class)
             .withMessageContaining("bogusMethod");
   }
 
