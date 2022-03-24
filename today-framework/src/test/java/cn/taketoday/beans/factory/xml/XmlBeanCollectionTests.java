@@ -178,9 +178,10 @@ public class XmlBeanCollectionTests {
 
   @Test
   public void testInvalidBeanNameReference() throws Exception {
-    assertThatExceptionOfType(BeanCreationException.class).isThrownBy(() ->
-                    this.beanFactory.getBean("jumble2"))
-            .withCauseInstanceOf(BeanDefinitionStoreException.class)
+    assertThatExceptionOfType(BeanCreationException.class)
+            .isThrownBy(() -> this.beanFactory.getBean("jumble2"))
+            .havingCause()
+            .isInstanceOf(BeanDefinitionStoreException.class)
             .withMessageContaining("rod2");
   }
 
