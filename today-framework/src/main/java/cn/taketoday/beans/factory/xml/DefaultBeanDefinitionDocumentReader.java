@@ -208,13 +208,14 @@ public class DefaultBeanDefinitionDocumentReader implements BeanDefinitionDocume
    */
   protected void importBeanDefinitionResource(Element ele) {
     String location = ele.getAttribute(RESOURCE_ATTRIBUTE);
+    XmlReaderContext readerContext = getReaderContext();
     if (!StringUtils.hasText(location)) {
-      getReaderContext().error("Resource location must not be empty", ele);
+      readerContext.error("Resource location must not be empty", ele);
       return;
     }
 
     // Resolve system properties: e.g. "${user.dir}"
-    location = getReaderContext().getEnvironment().resolveRequiredPlaceholders(location);
+    location = readerContext.getEnvironment().resolveRequiredPlaceholders(location);
 
     Set<Resource> actualResources = new LinkedHashSet<>(4);
 
@@ -231,13 +232,13 @@ public class DefaultBeanDefinitionDocumentReader implements BeanDefinitionDocume
     // Absolute or relative?
     if (absoluteLocation) {
       try {
-        int importCount = getReaderContext().getReader().loadBeanDefinitions(location, actualResources);
+        int importCount = readerContext.getReader().loadBeanDefinitions(location, actualResources);
         if (log.isTraceEnabled()) {
           log.trace("Imported {} bean definitions from URL location [{}]", importCount, location);
         }
       }
       catch (BeanDefinitionStoreException ex) {
-        getReaderContext().error(
+        readerContext.error(
                 "Failed to import bean definitions from URL location [" + location + "]", ele, ex);
       }
     }
@@ -245,14 +246,14 @@ public class DefaultBeanDefinitionDocumentReader implements BeanDefinitionDocume
       // No URL -> considering resource location as relative to the current file.
       try {
         int importCount;
-        Resource relativeResource = getReaderContext().getResource().createRelative(location);
+        Resource relativeResource = readerContext.getResource().createRelative(location);
         if (relativeResource.exists()) {
-          importCount = getReaderContext().getReader().loadBeanDefinitions(relativeResource);
+          importCount = readerContext.getReader().loadBeanDefinitions(relativeResource);
           actualResources.add(relativeResource);
         }
         else {
-          String baseLocation = getReaderContext().getResource().getLocation().toString();
-          importCount = getReaderContext().getReader().loadBeanDefinitions(
+          String baseLocation = readerContext.getResource().getLocation().toString();
+          importCount = readerContext.getReader().loadBeanDefinitions(
                   ResourceUtils.getRelativePath(baseLocation, location), actualResources);
         }
         if (log.isTraceEnabled()) {
@@ -260,15 +261,15 @@ public class DefaultBeanDefinitionDocumentReader implements BeanDefinitionDocume
         }
       }
       catch (IOException ex) {
-        getReaderContext().error("Failed to resolve current resource location", ele, ex);
+        readerContext.error("Failed to resolve current resource location", ele, ex);
       }
       catch (BeanDefinitionStoreException ex) {
-        getReaderContext().error(
+        readerContext.error(
                 "Failed to import bean definitions from relative location [" + location + "]", ele, ex);
       }
     }
     Resource[] actResArray = actualResources.toArray(Resource.EMPTY_ARRAY);
-    getReaderContext().fireImportProcessed(location, actResArray, extractSource(ele));
+    readerContext.fireImportProcessed(location, actResArray, extractSource(ele));
   }
 
   /**

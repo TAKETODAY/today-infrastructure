@@ -77,7 +77,7 @@ public class AspectJAwareAdvisorAutoProxyCreator extends AbstractAdvisorAutoProx
     }
     List<PartiallyComparableAdvisorHolder> sorted = PartialOrder.sort(partiallyComparableAdvisors);
     if (sorted != null) {
-      List<Advisor> result = new ArrayList<>(advisors.size());
+      ArrayList<Advisor> result = new ArrayList<>(advisors.size());
       for (PartiallyComparableAdvisorHolder pcAdvisor : sorted) {
         result.add(pcAdvisor.getAdvisor());
       }
@@ -103,8 +103,8 @@ public class AspectJAwareAdvisorAutoProxyCreator extends AbstractAdvisorAutoProx
     // TODO: Consider optimization by caching the list of the aspect names
     List<Advisor> candidateAdvisors = findCandidateAdvisors();
     for (Advisor advisor : candidateAdvisors) {
-      if (advisor instanceof AspectJPointcutAdvisor &&
-              ((AspectJPointcutAdvisor) advisor).getAspectName().equals(beanName)) {
+      if (advisor instanceof AspectJPointcutAdvisor pointcutAdvisor
+              && pointcutAdvisor.getAspectName().equals(beanName)) {
         return true;
       }
     }
@@ -114,16 +114,7 @@ public class AspectJAwareAdvisorAutoProxyCreator extends AbstractAdvisorAutoProx
   /**
    * Implements AspectJ's {@link PartialComparable} interface for defining partial orderings.
    */
-  private static class PartiallyComparableAdvisorHolder implements PartialComparable {
-
-    private final Advisor advisor;
-
-    private final Comparator<Advisor> comparator;
-
-    public PartiallyComparableAdvisorHolder(Advisor advisor, Comparator<Advisor> comparator) {
-      this.advisor = advisor;
-      this.comparator = comparator;
-    }
+  private record PartiallyComparableAdvisorHolder(Advisor advisor, Comparator<Advisor> comparator) implements PartialComparable {
 
     @Override
     public int compareTo(Object obj) {
@@ -149,9 +140,8 @@ public class AspectJAwareAdvisorAutoProxyCreator extends AbstractAdvisorAutoProx
         sb.append(": order = ").append(((Ordered) this.advisor).getOrder());
         appended = true;
       }
-      if (advice instanceof AbstractAspectJAdvice) {
+      if (advice instanceof AbstractAspectJAdvice ajAdvice) {
         sb.append(!appended ? ": " : ", ");
-        AbstractAspectJAdvice ajAdvice = (AbstractAspectJAdvice) advice;
         sb.append("aspect name = ");
         sb.append(ajAdvice.getAspectName());
         sb.append(", declaration order = ");

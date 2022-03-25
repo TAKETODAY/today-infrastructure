@@ -22,8 +22,6 @@ package cn.taketoday.beans.factory.config;
 
 import cn.taketoday.beans.BeansException;
 import cn.taketoday.beans.factory.InitializationBeanPostProcessor;
-import cn.taketoday.beans.factory.config.BeanDefinition;
-import cn.taketoday.beans.factory.config.BeanPostProcessor;
 import cn.taketoday.lang.Nullable;
 
 /**
@@ -62,7 +60,7 @@ public interface InstantiationAwareBeanPostProcessor extends BeanPostProcessor {
    * @return the bean object to expose instead of a default instance of the target bean,
    * or {@code null} to proceed with default instantiation
    * @throws BeansException in case of errors
-   * @see BeanDefinition#getBeanClass()
+   * @see cn.taketoday.beans.factory.support.AbstractBeanDefinition#getBeanClass()
    */
   @Nullable
   default Object postProcessBeforeInstantiation(Class<?> beanClass, String beanName) {

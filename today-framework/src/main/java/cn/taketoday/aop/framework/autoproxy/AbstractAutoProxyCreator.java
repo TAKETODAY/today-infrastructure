@@ -223,6 +223,7 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport imp
     return this.beanFactory;
   }
 
+  @Nullable
   @Override
   public Object postProcessBeforeInstantiation(Class<?> beanClass, String beanName) {
     Object cacheKey = getCacheKey(beanClass, beanName);
@@ -353,17 +354,18 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport imp
     if (Boolean.FALSE.equals(this.advisedBeans.get(cacheKey))) {
       return bean;
     }
-    if (isInfrastructureClass(bean.getClass()) || shouldSkip(bean.getClass(), beanName)) {
+    Class<?> beanClass = bean.getClass();
+    if (isInfrastructureClass(beanClass) || shouldSkip(beanClass, beanName)) {
       this.advisedBeans.put(cacheKey, Boolean.FALSE);
       return bean;
     }
 
     // Create proxy if we have advice.
-    Object[] specificInterceptors = getAdvicesAndAdvisorsForBean(bean.getClass(), beanName, null);
+    Object[] specificInterceptors = getAdvicesAndAdvisorsForBean(beanClass, beanName, null);
     if (specificInterceptors != DO_NOT_PROXY) {
       this.advisedBeans.put(cacheKey, Boolean.TRUE);
       Object proxy = createProxy(
-              bean.getClass(), beanName, specificInterceptors, new SingletonTargetSource(bean));
+              beanClass, beanName, specificInterceptors, new SingletonTargetSource(bean));
       this.proxyTypes.put(cacheKey, proxy.getClass());
       return proxy;
     }
