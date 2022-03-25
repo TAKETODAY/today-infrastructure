@@ -96,7 +96,6 @@ public class TransactionInterceptorTests extends AbstractTransactionAspectTests 
     ti = SerializationTestUtils.serializeAndDeserialize(ti);
 
     // Check that logger survived deserialization
-    assertThat(ti.log).isNotNull();
     assertThat(ti.getTransactionManager()).isInstanceOf(SerializableTransactionManager.class);
     assertThat(ti.getTransactionAttributeSource()).isNotNull();
   }
