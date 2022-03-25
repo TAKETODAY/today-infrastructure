@@ -116,9 +116,8 @@ class BeanUtilsTests {
   void newInstanceWithOptionalPrimitiveTypes() throws NoSuchMethodException {
     Constructor<BeanWithPrimitiveTypes> constructor = getBeanWithPrimitiveTypesConstructor();
 
-    BeanWithPrimitiveTypes bean = BeanUtils.newInstance(constructor, new Object[] {
-            null, null, null, null, null, null, null, null, "foo" }
-    );
+    BeanWithPrimitiveTypes bean = BeanUtils.newInstance(constructor,
+            null, null, null, null, null, null, null, null, "foo");
 
     assertSoftly(softly -> {
       softly.assertThat(bean.isFlag()).isFalse();

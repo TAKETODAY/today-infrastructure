@@ -159,7 +159,10 @@ public abstract class BeanUtils {
    */
   public static <T> T newInstance(Constructor<T> constructor, @Nullable Object... args) {
     if (ObjectUtils.isNotEmpty(args)) {
-      Assert.isTrue(args.length <= constructor.getParameterCount(), "Can't specify more arguments than constructor parameters");
+      if (args.length > constructor.getParameterCount()) {
+        throw new BeanInstantiationException(
+                constructor, "Illegal arguments for constructor, can't specify more arguments than constructor parameters", null);
+      }
       int i = 0;
       Class<?>[] parameterTypes = null;
       for (Object arg : args) {
