@@ -40,21 +40,21 @@ import cn.taketoday.lang.Nullable;
  */
 public class TransactionContext {
 
-  private final @Nullable
-  TransactionContext parent;
+  @Nullable
+  private final TransactionContext parent;
 
-  private final Map<Object, Object> resources = new LinkedHashMap<>();
+  private final LinkedHashMap<Object, Object> resources = new LinkedHashMap<>();
 
   @Nullable
   private Set<TransactionSynchronization> synchronizations;
 
-  private volatile @Nullable
-  String currentTransactionName;
+  @Nullable
+  private volatile String currentTransactionName;
 
   private volatile boolean currentTransactionReadOnly;
 
-  private volatile @Nullable
-  Integer currentTransactionIsolationLevel;
+  @Nullable
+  private volatile Integer currentTransactionIsolationLevel;
 
   private volatile boolean actualTransactionActive;
 

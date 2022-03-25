@@ -26,6 +26,7 @@ import org.aspectj.lang.reflect.MethodSignature;
 import cn.taketoday.beans.factory.DisposableBean;
 import cn.taketoday.transaction.interceptor.TransactionAspectSupport;
 import cn.taketoday.transaction.interceptor.TransactionAttributeSource;
+import cn.taketoday.util.ExceptionUtils;
 
 /**
  * Abstract superaspect for AspectJ transaction aspects. Concrete
@@ -82,8 +83,7 @@ public abstract aspect AbstractTransactionAspect extends TransactionAspectSuppor
       throw ex;
     }
     catch (Throwable thr) {
-      Rethrower.rethrow(thr);
-      throw new IllegalStateException("Should never get here", thr);
+      throw ExceptionUtils.sneakyThrow(thr);
     }
   }
 
@@ -93,23 +93,5 @@ public abstract aspect AbstractTransactionAspect extends TransactionAspectSuppor
    * will be retrieved using Framework's TransactionAttributeSource interface.
    */
   protected abstract pointcut transactionalMethodExecution(Object txObject);
-
-
-  /**
-   * Ugly but safe workaround: We need to be able to propagate checked exceptions,
-   * despite AspectJ around advice supporting specifically declared exceptions only.
-   */
-  private static class Rethrower {
-
-    public static void rethrow(final Throwable exception) {
-      class CheckedExceptionRethrower<T extends Throwable> {
-        @SuppressWarnings("unchecked")
-        private void rethrow(Throwable exception) throws T {
-          throw (T) exception;
-        }
-      }
-      new CheckedExceptionRethrower<RuntimeException>().rethrow(exception);
-    }
-  }
 
 }
