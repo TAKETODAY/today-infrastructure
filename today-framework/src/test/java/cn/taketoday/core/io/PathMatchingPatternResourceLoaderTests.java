@@ -86,6 +86,7 @@ class PathMatchingPatternResourceLoaderTests {
           "ResourceArrayPropertyEditorTests.class",
           "ContextResource.class",
           "PathResource.class",
+          "PathResourceTests.class",
           "AbstractFileResolvingResource.class",
           "FileSystemResourceLoader$FileSystemContextResource.class",
           "ResourceArrayPropertyEditor.class",
