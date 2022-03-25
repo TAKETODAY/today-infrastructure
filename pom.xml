@@ -60,6 +60,7 @@
     <spring-jdbc.version>5.2.3.RELEASE</spring-jdbc.version>
     <reactor.version>3.4.16</reactor.version>
     <aspectj.version>1.9.8</aspectj.version>
+    <httpcomponents-core5.version>5.1.2</httpcomponents-core5.version>
 
     <!--doc-->
     <site.output.dir>${project.build.directory}/staging</site.output.dir>
@@ -573,21 +574,21 @@
     <dependency>
       <groupId>org.apache.httpcomponents.core5</groupId>
       <artifactId>httpcore5</artifactId>
-      <version>5.1.2</version>
+      <version>${httpcomponents-core5.version}</version>
       <scope>provided</scope>
     </dependency>
 
     <dependency>
       <groupId>org.apache.httpcomponents.core5</groupId>
       <artifactId>httpcore5-reactive</artifactId>
-      <version>5.1.2</version>
+      <version>${httpcomponents-core5.version}</version>
       <scope>provided</scope>
     </dependency>
 
     <dependency>
       <groupId>org.apache.httpcomponents.client5</groupId>
       <artifactId>httpclient5</artifactId>
-      <version>5.1.1</version>
+      <version>${httpcomponents-core5.version}</version>
       <scope>provided</scope>
     </dependency>
 
@@ -624,13 +625,6 @@
              ORM
         ======================================================
     -->
-
-    <dependency>
-      <groupId>org.mybatis</groupId>
-      <artifactId>mybatis</artifactId>
-      <version>3.5.9</version>
-      <scope>provided</scope>
-    </dependency>
 
     <dependency>
       <groupId>com.zaxxer</groupId>
@@ -690,7 +684,7 @@
     <dependency>
       <groupId>org.apache.commons</groupId>
       <artifactId>commons-pool2</artifactId>
-      <version>2.10.0</version>
+      <version>2.11.1</version>
       <scope>provided</scope>
     </dependency>
 
@@ -983,6 +977,13 @@
     <!-- other ORMs for performance testing -->
 
     <dependency>
+      <groupId>org.mybatis</groupId>
+      <artifactId>mybatis</artifactId>
+      <version>3.5.9</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
       <scope>test</scope>
       <groupId>org.jdbi</groupId>
       <artifactId>jdbi</artifactId>
@@ -1054,7 +1055,6 @@
         </exclusion>
       </exclusions>
     </dependency>
-
 
     <dependency>
       <groupId>org.sql2o</groupId>
@@ -1188,7 +1188,6 @@
       <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
     </repository>
   </distributionManagement>
-
 
   <build>
     <defaultGoal>compile</defaultGoal>
