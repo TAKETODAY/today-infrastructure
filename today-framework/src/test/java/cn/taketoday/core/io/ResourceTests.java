@@ -131,31 +131,31 @@ class ResourceTests {
   @Test
   void fileBasedResource() throws IOException {
     String file = getClass().getResource("Resource.class").getFile();
-    Resource resource = new FileBasedResource(file);
+    Resource resource = new FileSystemResource(file);
     doTestResource(resource);
-    assertThat(resource).isEqualTo(new FileBasedResource(file));
+    assertThat(resource).isEqualTo(new FileSystemResource(file));
   }
 
   @Test
   void fileBasedResourceWithFile() throws IOException {
     File file = new File(getClass().getResource("Resource.class").getFile());
-    Resource resource = new FileBasedResource(file);
+    Resource resource = new FileSystemResource(file);
     doTestResource(resource);
-    assertThat(resource).isEqualTo(new FileBasedResource(file));
+    assertThat(resource).isEqualTo(new FileSystemResource(file));
   }
 
   @Test
   void fileBasedResourceWithFilePath() throws Exception {
     Path filePath = Paths.get(getClass().getResource("Resource.class").toURI());
-    Resource resource = new FileBasedResource(filePath);
+    Resource resource = new FileSystemResource(filePath);
     doTestResource(resource);
-    assertThat(resource).isEqualTo(new FileBasedResource(filePath));
+    assertThat(resource).isEqualTo(new FileSystemResource(filePath));
   }
 
   @Test
   void FileBasedResourceWithPlainPath() {
-    Resource resource = new FileBasedResource("core/io/Resource.class");
-    assertThat(new FileBasedResource("context/../core/io/./Resource.class")).isEqualTo(resource);
+    Resource resource = new FileSystemResource("core/io/Resource.class");
+    assertThat(new FileSystemResource("context/../core/io/./Resource.class")).isEqualTo(resource);
   }
 
   @Test
@@ -223,9 +223,9 @@ class ResourceTests {
 
   @Test
   void FileBasedResourceWithRelativePath() throws IOException {
-    Resource resource = new FileBasedResource("dir/");
+    Resource resource = new FileSystemResource("dir/");
     Resource relative = resource.createRelative("subdir");
-    assertThat(relative).isEqualTo(new FileBasedResource("dir/subdir"));
+    assertThat(relative).isEqualTo(new FileSystemResource("dir/subdir"));
   }
 
   @Test
@@ -307,7 +307,7 @@ class ResourceTests {
 
   @Test
   void readableChannel() throws IOException {
-    Resource resource = new FileBasedResource(getClass().getResource("Resource.class").getFile());
+    Resource resource = new FileSystemResource(getClass().getResource("Resource.class").getFile());
     try (ReadableByteChannel channel = resource.readableChannel()) {
       ByteBuffer buffer = ByteBuffer.allocate((int) resource.contentLength());
       channel.read(buffer);
@@ -319,14 +319,14 @@ class ResourceTests {
   @Test
   void inputStreamNotFoundOnFileBasedResource() throws IOException {
     assertThatExceptionOfType(FileNotFoundException.class)
-            .isThrownBy(() -> new FileBasedResource(getClass().getResource("Resource.class").getFile())
+            .isThrownBy(() -> new FileSystemResource(getClass().getResource("Resource.class").getFile())
                     .createRelative("X").getInputStream());
   }
 
   @Test
   void readableChannelNotFoundOnFileBasedResource() throws IOException {
     assertThatExceptionOfType(FileNotFoundException.class)
-            .isThrownBy(() -> new FileBasedResource(
+            .isThrownBy(() -> new FileSystemResource(
                     getClass().getResource("Resource.class").getFile())
                     .createRelative("X").readableChannel());
   }

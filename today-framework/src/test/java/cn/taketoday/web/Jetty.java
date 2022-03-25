@@ -45,7 +45,7 @@ import java.util.function.Supplier;
 import javax.annotation.PreDestroy;
 
 import cn.taketoday.core.io.ClassPathResource;
-import cn.taketoday.core.io.FileBasedResource;
+import cn.taketoday.core.io.FileSystemResource;
 import cn.taketoday.framework.web.servlet.context.AnnotationConfigServletWebApplicationContext;
 import cn.taketoday.lang.Constant;
 import cn.taketoday.logging.Logger;
@@ -283,7 +283,7 @@ public class Jetty {
     if (validDocBase instanceof cn.taketoday.core.io.JarResource) {
       return JarResource.newJarResource(Resource.newResource(validDocBase.getFile()));
     }
-    if (validDocBase instanceof FileBasedResource) {
+    if (validDocBase instanceof FileSystemResource) {
       return Resource.newResource(validDocBase.getFile());
     }
     if (validDocBase instanceof ClassPathResource) {

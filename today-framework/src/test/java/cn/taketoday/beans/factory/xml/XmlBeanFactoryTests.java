@@ -64,7 +64,7 @@ import cn.taketoday.beans.testfixture.beans.TestBean;
 import cn.taketoday.beans.testfixture.beans.factory.DummyFactory;
 import cn.taketoday.core.io.ClassPathResource;
 import cn.taketoday.core.io.EncodedResource;
-import cn.taketoday.core.io.FileBasedResource;
+import cn.taketoday.core.io.FileSystemResource;
 import cn.taketoday.core.io.UrlBasedResource;
 import cn.taketoday.core.testfixture.io.SerializationTestUtils;
 import cn.taketoday.lang.Nullable;
@@ -1193,7 +1193,7 @@ class XmlBeanFactoryTests {
   void fileSystemResourceWithImport() throws URISyntaxException {
     String file = getClass().getResource(RESOURCE_CONTEXT.getPath()).toURI().getPath();
     StandardBeanFactory xbf = new StandardBeanFactory();
-    new XmlBeanDefinitionReader(xbf).loadBeanDefinitions(new FileBasedResource(file));
+    new XmlBeanDefinitionReader(xbf).loadBeanDefinitions(new FileSystemResource(file));
     // comes from "resourceImport.xml"
     xbf.getBean("resource1", ResourceTestBean.class);
     // comes from "resource.xml"

@@ -32,7 +32,7 @@ import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 
 import cn.taketoday.core.io.ClassPathResource;
-import cn.taketoday.core.io.FileBasedResource;
+import cn.taketoday.core.io.FileSystemResource;
 import cn.taketoday.core.io.JarEntryResource;
 import cn.taketoday.core.io.PathMatchingPatternResourceLoader;
 import cn.taketoday.core.io.Resource;
@@ -137,7 +137,7 @@ public abstract class ResourceUtils {
   public static Resource getResource(URL url) {
     String protocol = url.getProtocol();
     if (URL_PROTOCOL_FILE.equals(protocol)) {
-      return new FileBasedResource(URLDecoder.decode(url.getPath(), StandardCharsets.UTF_8));
+      return new FileSystemResource(URLDecoder.decode(url.getPath(), StandardCharsets.UTF_8));
     }
     if (URL_PROTOCOL_JAR.equals(protocol)) {
       return new JarEntryResource(url);
@@ -149,10 +149,10 @@ public abstract class ResourceUtils {
    * Get {@link Resource} from a file
    *
    * @param file source
-   * @return a {@link FileBasedResource}
+   * @return a {@link FileSystemResource}
    */
   public static Resource getResource(File file) {
-    return new FileBasedResource(file);
+    return new FileSystemResource(file);
   }
 
   /**

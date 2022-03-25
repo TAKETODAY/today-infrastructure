@@ -29,7 +29,7 @@ import cn.taketoday.beans.factory.support.RootBeanDefinition;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.core.io.ByteArrayResource;
 import cn.taketoday.core.io.DefaultResourceLoader;
-import cn.taketoday.core.io.FileBasedResource;
+import cn.taketoday.core.io.FileSystemResource;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.core.io.ResourceLoader;
 import freemarker.template.Configuration;
@@ -48,7 +48,7 @@ class FreeMarkerConfigurationFactoryBeanTests {
 
   @Test
   public void freeMarkerConfigurationFactoryBeanWithConfigLocation() throws Exception {
-    fcfb.setConfigLocation(new FileBasedResource("myprops.properties"));
+    fcfb.setConfigLocation(new FileSystemResource("myprops.properties"));
     Properties props = new Properties();
     props.setProperty("myprop", "/mydir");
     fcfb.setFreemarkerSettings(props);

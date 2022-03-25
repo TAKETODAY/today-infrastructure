@@ -41,7 +41,7 @@ import cn.taketoday.beans.factory.xml.XmlBeanDefinitionReader;
 import cn.taketoday.context.ApplicationListener;
 import cn.taketoday.context.MessageSource;
 import cn.taketoday.core.io.ClassPathResource;
-import cn.taketoday.core.io.FileBasedResource;
+import cn.taketoday.core.io.FileSystemResource;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.tests.sample.beans.ResourceTestBean;
 import cn.taketoday.util.FileCopyUtils;
@@ -223,9 +223,9 @@ public class ClassPathXmlApplicationContextTests {
     Service service = (Service) ctx.getBean("service");
     assertThat(service.getResources().length).isEqualTo(3);
     List<Resource> resources = Arrays.asList(service.getResources());
-    assertThat(resources.contains(new FileBasedResource(new ClassPathResource(FQ_CONTEXT_A).getFile()))).isTrue();
-    assertThat(resources.contains(new FileBasedResource(new ClassPathResource(FQ_CONTEXT_B).getFile()))).isTrue();
-    assertThat(resources.contains(new FileBasedResource(new ClassPathResource(FQ_CONTEXT_C).getFile()))).isTrue();
+    assertThat(resources.contains(new FileSystemResource(new ClassPathResource(FQ_CONTEXT_A).getFile()))).isTrue();
+    assertThat(resources.contains(new FileSystemResource(new ClassPathResource(FQ_CONTEXT_B).getFile()))).isTrue();
+    assertThat(resources.contains(new FileSystemResource(new ClassPathResource(FQ_CONTEXT_C).getFile()))).isTrue();
     ctx.close();
   }
 

@@ -670,7 +670,7 @@ public class PathMatchingPatternResourceLoader implements PatternResourceLoader 
         }
       }
       if (pathMatcher.match(fullPattern, currPath)) {
-        consumer.accept(new FileBasedResource(content));
+        consumer.accept(new FileSystemResource(content));
       }
     }
   }

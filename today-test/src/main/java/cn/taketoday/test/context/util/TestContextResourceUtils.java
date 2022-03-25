@@ -26,6 +26,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import cn.taketoday.core.io.FileSystemResource;
 import cn.taketoday.core.io.PatternResourceLoader;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.core.io.ResourceLoader;
@@ -42,7 +43,7 @@ import cn.taketoday.util.StringUtils;
  * @see cn.taketoday.util.ResourceUtils
  * @see cn.taketoday.core.io.Resource
  * @see cn.taketoday.core.io.ClassPathResource
- * @see cn.taketoday.core.io.FileBasedResource
+ * @see FileSystemResource
  * @see cn.taketoday.core.io.UrlBasedResource
  * @see cn.taketoday.core.io.ResourceLoader
  * @since 4.0

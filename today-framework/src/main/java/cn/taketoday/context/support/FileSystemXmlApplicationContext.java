@@ -22,7 +22,7 @@ package cn.taketoday.context.support;
 
 import cn.taketoday.beans.BeansException;
 import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.core.io.FileBasedResource;
+import cn.taketoday.core.io.FileSystemResource;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.lang.Nullable;
 
@@ -170,7 +170,7 @@ public class FileSystemXmlApplicationContext extends AbstractXmlApplicationConte
     if (path.startsWith("/")) {
       path = path.substring(1);
     }
-    return new FileBasedResource(path);
+    return new FileSystemResource(path);
   }
 
 }

@@ -44,7 +44,7 @@ public class FileSystemResourceLoader extends DefaultResourceLoader {
    *
    * @param path the path to the resource
    * @return the corresponding Resource handle
-   * @see FileBasedResource
+   * @see FileSystemResource
    * @see cn.taketoday.web.context.support.ServletContextResourceLoader#getResourceByPath
    */
   @Override
@@ -59,7 +59,7 @@ public class FileSystemResourceLoader extends DefaultResourceLoader {
    * FileSystemResource that explicitly expresses a context-relative path
    * through implementing the ContextResource interface.
    */
-  private static class FileSystemContextResource extends FileBasedResource implements ContextResource {
+  private static class FileSystemContextResource extends FileSystemResource implements ContextResource {
 
     public FileSystemContextResource(String path) {
       super(path);

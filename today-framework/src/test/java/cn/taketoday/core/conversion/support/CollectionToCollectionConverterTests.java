@@ -40,7 +40,7 @@ import cn.taketoday.core.TypeDescriptor;
 import cn.taketoday.core.conversion.ConversionFailedException;
 import cn.taketoday.core.conversion.ConverterNotFoundException;
 import cn.taketoday.core.io.ClassPathResource;
-import cn.taketoday.core.io.FileBasedResource;
+import cn.taketoday.core.io.FileSystemResource;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.core.io.ResourceFilter;
 import cn.taketoday.lang.Nullable;
@@ -213,7 +213,7 @@ class CollectionToCollectionConverterTests {
   void differentImpls() throws Exception {
     List<Resource> resources = new ArrayList<>();
     resources.add(new ClassPathResource("test"));
-    resources.add(new FileBasedResource("test"));
+    resources.add(new FileSystemResource("test"));
     resources.add(new TestResource());
     TypeDescriptor sourceType = TypeDescriptor.fromObject(resources);
     assertThat(conversionService.convert(resources, sourceType, new TypeDescriptor(getClass().getField("resources")))).isSameAs(resources);
@@ -224,7 +224,7 @@ class CollectionToCollectionConverterTests {
     List<Resource> resources = new ArrayList<>();
     resources.add(new ClassPathResource("test"));
     resources.add(null);
-    resources.add(new FileBasedResource("test"));
+    resources.add(new FileSystemResource("test"));
     resources.add(new TestResource());
     TypeDescriptor sourceType = TypeDescriptor.fromObject(resources);
     assertThat(conversionService.convert(resources, sourceType, new TypeDescriptor(getClass().getField("resources")))).isSameAs(resources);

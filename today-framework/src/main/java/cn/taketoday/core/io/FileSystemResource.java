@@ -58,7 +58,7 @@ import cn.taketoday.util.StringUtils;
  * @see java.nio.file.Files
  * @since 2.1.6
  */
-public class FileBasedResource extends AbstractResource implements WritableResource {
+public class FileSystemResource extends AbstractResource implements WritableResource {
 
   @Nullable
   private final File file;
@@ -66,18 +66,65 @@ public class FileBasedResource extends AbstractResource implements WritableResou
   private final String path;
   private final Path filePath;
 
-  public FileBasedResource(String path) {
-    this.file = new File(this.path = StringUtils.cleanPath(path));
-    this.filePath = file.toPath();
+  /**
+   * Create a new {@code FileBasedResource} from a file path.
+   * <p>Note: When building relative resources via {@link #createRelative},
+   * it makes a difference whether the specified resource base path here
+   * ends with a slash or not. In the case of "C:/dir1/", relative paths
+   * will be built underneath that root: e.g. relative path "dir2" &rarr;
+   * "C:/dir1/dir2". In the case of "C:/dir1", relative paths will apply
+   * at the same directory level: relative path "dir2" &rarr; "C:/dir2".
+   *
+   * @param path a file path
+   * @see #FileSystemResource(Path)
+   */
+  public FileSystemResource(String path) {
+    Assert.notNull(path, "Path must not be null");
+    this.path = StringUtils.cleanPath(path);
+    this.file = new File(path);
+    this.filePath = this.file.toPath();
   }
 
-  public FileBasedResource(File file) {
+  /**
+   * Create a new {@code FileSystemResource} from a {@link File} handle.
+   * <p>Note: When building relative resources via {@link #createRelative},
+   * the relative path will apply <i>at the same directory level</i>:
+   * e.g. new File("C:/dir1"), relative path "dir2" &rarr; "C:/dir2"!
+   * If you prefer to have relative paths built underneath the given root directory,
+   * use the {@link #FileSystemResource(String) constructor with a file path}
+   * to append a trailing slash to the root path: "C:/dir1/", which indicates
+   * this directory as root for all relative paths.
+   *
+   * @param file a File handle
+   * @see #FileSystemResource(Path)
+   * @see #getFile()
+   */
+  public FileSystemResource(File file) {
     this.file = file;
     this.filePath = file.toPath();
     this.path = StringUtils.cleanPath(file.getPath());
   }
 
-  public FileBasedResource(Path filePath) {
+  /**
+   * Create a new {@code FileSystemResource} from a {@link Path} handle,
+   * performing all file system interactions via NIO.2 instead of {@link File}.
+   * <p>In contrast to {@link PathResource}, this variant strictly follows the
+   * general {@link FileSystemResource} conventions, in particular in terms of
+   * path cleaning and {@link #createRelative(String)} handling.
+   * <p>Note: When building relative resources via {@link #createRelative},
+   * the relative path will apply <i>at the same directory level</i>:
+   * e.g. Paths.get("C:/dir1"), relative path "dir2" &rarr; "C:/dir2"!
+   * If you prefer to have relative paths built underneath the given root directory,
+   * use the {@link #FileSystemResource(String) constructor with a file path}
+   * to append a trailing slash to the root path: "C:/dir1/", which indicates
+   * this directory as root for all relative paths. Alternatively, consider
+   * using {@link PathResource#PathResource(Path)} for {@code java.nio.path.Path}
+   * resolution in {@code createRelative}, always nesting relative paths.
+   *
+   * @param filePath a Path handle to a file
+   * @see #FileSystemResource(File)
+   */
+  public FileSystemResource(Path filePath) {
     this.file = null;
     this.filePath = filePath;
     this.path = StringUtils.cleanPath(filePath.toString());
@@ -86,15 +133,15 @@ public class FileBasedResource extends AbstractResource implements WritableResou
   /**
    * Create a new {@code FileBasedResource} from a {@link FileSystem} handle,
    * locating the specified path.
-   * <p>This is an alternative to {@link #FileBasedResource(String)},
+   * <p>This is an alternative to {@link #FileSystemResource(String)},
    * performing all file system interactions via NIO.2 instead of {@link File}.
    *
    * @param fileSystem the FileSystem to locate the path within
    * @param path a file path
-   * @see #FileBasedResource(File)
+   * @see #FileSystemResource(File)
    * @since 4.0
    */
-  public FileBasedResource(FileSystem fileSystem, String path) {
+  public FileSystemResource(FileSystem fileSystem, String path) {
     Assert.notNull(path, "Path must not be null");
     Assert.notNull(fileSystem, "FileSystem must not be null");
     this.file = null;
@@ -232,8 +279,8 @@ public class FileBasedResource extends AbstractResource implements WritableResou
   public Resource createRelative(String relativePath) throws IOException {
     String pathToUse = ResourceUtils.getRelativePath(path, relativePath);
     return file != null
-           ? new FileBasedResource(pathToUse)
-           : new FileBasedResource(this.filePath.getFileSystem(), pathToUse);
+           ? new FileSystemResource(pathToUse)
+           : new FileSystemResource(this.filePath.getFileSystem(), pathToUse);
   }
 
   @Override
@@ -254,7 +301,7 @@ public class FileBasedResource extends AbstractResource implements WritableResou
     File parent = getFile();
     ArrayList<Resource> resources = new ArrayList<>(names.length);
     for (String name : names) { // this resource is a directory
-      FileBasedResource resource = new FileBasedResource(new File(parent, name));
+      FileSystemResource resource = new FileSystemResource(new File(parent, name));
       if (filter == null || filter.accept(resource)) {
         resources.add(resource);
       }
@@ -319,7 +366,7 @@ public class FileBasedResource extends AbstractResource implements WritableResou
 
   @Override
   public boolean equals(Object other) {
-    return (this == other || (other instanceof FileBasedResource && path.equals(((FileBasedResource) other).path)));
+    return (this == other || (other instanceof FileSystemResource && path.equals(((FileSystemResource) other).path)));
   }
 
   @Override

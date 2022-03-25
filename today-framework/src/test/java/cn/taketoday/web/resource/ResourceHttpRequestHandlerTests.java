@@ -33,7 +33,7 @@ import java.util.Collections;
 import java.util.List;
 
 import cn.taketoday.core.io.ClassPathResource;
-import cn.taketoday.core.io.FileBasedResource;
+import cn.taketoday.core.io.FileSystemResource;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.core.io.UrlBasedResource;
 import cn.taketoday.http.HttpMethod;
@@ -716,7 +716,7 @@ public class ResourceHttpRequestHandlerTests {
     StaticWebApplicationContext context = new StaticWebApplicationContext() {
       @Override
       public Resource getResource(String location) {
-        return new FileBasedResource("/");
+        return new FileSystemResource("/");
       }
     };
 

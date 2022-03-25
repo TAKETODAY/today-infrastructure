@@ -21,7 +21,7 @@
 package cn.taketoday.context.support;
 
 import cn.taketoday.core.conversion.Converter;
-import cn.taketoday.core.io.FileBasedResource;
+import cn.taketoday.core.io.FileSystemResource;
 import cn.taketoday.core.io.Resource;
 
 /**
@@ -31,7 +31,7 @@ public class ResourceConverter implements Converter<String, Resource> {
 
   @Override
   public Resource convert(String source) {
-    return new FileBasedResource(source + ".xml");
+    return new FileSystemResource(source + ".xml");
   }
 
 }

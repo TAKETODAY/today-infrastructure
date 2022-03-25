@@ -26,7 +26,7 @@ import java.util.HashMap;
 import java.util.Properties;
 
 import cn.taketoday.core.io.ByteArrayResource;
-import cn.taketoday.core.io.FileBasedResource;
+import cn.taketoday.core.io.FileSystemResource;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.core.io.ResourceLoader;
 import freemarker.cache.ClassTemplateLoader;
@@ -48,7 +48,7 @@ public class FreeMarkerConfigurerTests {
 
   @Test
   public void freeMarkerConfigurerWithConfigLocation() {
-    freeMarkerConfigurer.setConfigLocation(new FileBasedResource("myprops.properties"));
+    freeMarkerConfigurer.setConfigLocation(new FileSystemResource("myprops.properties"));
     Properties props = new Properties();
     props.setProperty("myprop", "/mydir");
     freeMarkerConfigurer.setFreemarkerSettings(props);

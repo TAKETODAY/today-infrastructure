@@ -115,7 +115,7 @@ public class ClassPathResource extends WritableResourceDecorator {
         delegate = ResourceUtils.getResource(url);
       }
       else {
-        delegate = new FileBasedResource(location);
+        delegate = new FileSystemResource(location);
       }
     }
     return delegate;

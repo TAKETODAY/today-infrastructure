@@ -38,7 +38,7 @@ import java.util.Set;
 import java.util.zip.GZIPOutputStream;
 
 import cn.taketoday.core.io.ClassPathResource;
-import cn.taketoday.core.io.FileBasedResource;
+import cn.taketoday.core.io.FileSystemResource;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.util.FileCopyUtils;
 
@@ -80,7 +80,7 @@ class GzipSupport implements AfterEachCallback, ParameterResolver {
     void create(String filePath) {
       try {
         Resource location = new ClassPathResource("test/", EncodedResourceResolverTests.class);
-        Resource resource = new FileBasedResource(location.createRelative(filePath).getFile());
+        Resource resource = new FileSystemResource(location.createRelative(filePath).getFile());
 
         Path gzFilePath = Paths.get(resource.getFile().getAbsolutePath() + ".gz");
         Files.deleteIfExists(gzFilePath);

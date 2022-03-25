@@ -41,7 +41,7 @@ import cn.taketoday.lang.Assert;
  * @author TODAY 2021/3/7 11:18
  * @see ByteArrayResource
  * @see ClassPathResource
- * @see FileBasedResource
+ * @see FileSystemResource
  * @see UrlBasedResource
  * @since 3.0
  */

@@ -30,7 +30,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.stream.Stream;
 
 import cn.taketoday.core.io.ClassPathResource;
-import cn.taketoday.core.io.FileBasedResource;
+import cn.taketoday.core.io.FileSystemResource;
 import cn.taketoday.core.io.UrlBasedResource;
 import cn.taketoday.framework.web.servlet.context.AnnotationConfigServletWebApplicationContext;
 import cn.taketoday.web.config.EnableWebMvc;
@@ -133,7 +133,7 @@ public class ResourceHttpRequestHandlerIntegrationTests {
     }
 
     protected void registerFileSystemLocation(String pattern, String path, ResourceHandlerRegistry registry) {
-      FileBasedResource fileSystemLocation = new FileBasedResource(path);
+      FileSystemResource fileSystemLocation = new FileSystemResource(path);
       registry.addResourceHandler(pattern).addResourceLocations(fileSystemLocation);
     }
 

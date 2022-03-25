@@ -28,15 +28,13 @@ import java.util.Map;
 import java.util.Set;
 
 import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.context.support.ClassPathXmlApplicationContext;
-import cn.taketoday.context.support.ConversionServiceFactoryBean;
 import cn.taketoday.core.TypeDescriptor;
 import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.core.conversion.Converter;
 import cn.taketoday.core.conversion.ConverterFactory;
 import cn.taketoday.core.conversion.GenericConverter;
 import cn.taketoday.core.io.ClassPathResource;
-import cn.taketoday.core.io.FileBasedResource;
+import cn.taketoday.core.io.FileSystemResource;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.tests.sample.beans.ResourceTestBean;
 
@@ -116,7 +114,7 @@ public class ConversionServiceFactoryBeanTests {
 
   @Test
   public void conversionServiceInApplicationContextWithResourceOverriding() {
-    doTestConversionServiceInApplicationContext("conversionServiceWithResourceOverriding.xml", FileBasedResource.class);
+    doTestConversionServiceInApplicationContext("conversionServiceWithResourceOverriding.xml", FileSystemResource.class);
   }
 
   private void doTestConversionServiceInApplicationContext(String fileName, Class<?> resourceClass) {

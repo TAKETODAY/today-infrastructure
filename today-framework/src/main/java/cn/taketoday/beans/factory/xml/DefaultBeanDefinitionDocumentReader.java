@@ -217,7 +217,7 @@ public class DefaultBeanDefinitionDocumentReader implements BeanDefinitionDocume
     // Resolve system properties: e.g. "${user.dir}"
     location = readerContext.getEnvironment().resolveRequiredPlaceholders(location);
 
-    Set<Resource> actualResources = new LinkedHashSet<>(4);
+    LinkedHashSet<Resource> actualResources = new LinkedHashSet<>(4);
 
     // Discover whether the location is an absolute or relative URI
     boolean absoluteLocation = false;

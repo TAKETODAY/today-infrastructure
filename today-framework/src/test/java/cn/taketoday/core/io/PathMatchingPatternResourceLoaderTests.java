@@ -49,7 +49,7 @@ class PathMatchingPatternResourceLoaderTests {
           "DescriptiveResource.class", //
           "InputStreamResource.class", //
           "ByteArrayResource.class", //
-          "FileBasedResource.class", //
+          "FileSystemResource.class", //
           "JarEntryResource.class", //
           "JarResource.class", //
           "PathMatchingPatternResourceLoader.class", //
@@ -85,6 +85,7 @@ class PathMatchingPatternResourceLoaderTests {
           "FileSystemResourceLoader.class",
           "ResourceArrayPropertyEditorTests.class",
           "ContextResource.class",
+          "PathResource.class",
           "AbstractFileResolvingResource.class",
           "FileSystemResourceLoader$FileSystemContextResource.class",
           "ResourceArrayPropertyEditor.class",
