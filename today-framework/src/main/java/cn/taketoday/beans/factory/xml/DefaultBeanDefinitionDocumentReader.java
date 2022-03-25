@@ -28,7 +28,6 @@ import org.w3c.dom.NodeList;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.LinkedHashSet;
-import java.util.Set;
 
 import cn.taketoday.beans.factory.BeanDefinitionStoreException;
 import cn.taketoday.beans.factory.config.BeanDefinitionHolder;
@@ -245,17 +244,26 @@ public class DefaultBeanDefinitionDocumentReader implements BeanDefinitionDocume
     else {
       // No URL -> considering resource location as relative to the current file.
       try {
-        int importCount;
-        Resource relativeResource = readerContext.getResource().createRelative(location);
-        if (relativeResource.exists()) {
-          importCount = readerContext.getReader().loadBeanDefinitions(relativeResource);
-          actualResources.add(relativeResource);
+        int importCount = 0;
+        boolean patternSearch = true;
+        try {
+          Resource relativeResource = readerContext.getResource().createRelative(location);
+          if (relativeResource.exists()) {
+            importCount = readerContext.getReader().loadBeanDefinitions(relativeResource);
+            actualResources.add(relativeResource);
+            patternSearch = false;
+          }
         }
-        else {
+        catch (IllegalArgumentException e) {
+          // Illegal char <*>
+        }
+
+        if (patternSearch) {
           String baseLocation = readerContext.getResource().getLocation().toString();
           importCount = readerContext.getReader().loadBeanDefinitions(
                   ResourceUtils.getRelativePath(baseLocation, location), actualResources);
         }
+
         if (log.isTraceEnabled()) {
           log.trace("Imported {} bean definitions from relative location [{}]", importCount, location);
         }
