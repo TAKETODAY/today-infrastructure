@@ -20,8 +20,6 @@
 
 package cn.taketoday.retry.backoff;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -37,6 +35,8 @@ import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.context.loader.ClassPathScanningCandidateComponentProvider;
 import cn.taketoday.core.type.filter.AssignableTypeFilter;
 import cn.taketoday.core.type.filter.RegexPatternTypeFilter;
+import cn.taketoday.logging.Logger;
+import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.retry.context.RetryContextSupport;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.SerializationUtils;
@@ -49,7 +49,7 @@ import static org.junit.Assert.assertTrue;
 @RunWith(Parameterized.class)
 public class BackOffPolicySerializationTests {
 
-  private static Log logger = LogFactory.getLog(BackOffPolicySerializationTests.class);
+  private static Logger logger = LoggerFactory.getLogger(BackOffPolicySerializationTests.class);
 
   private BackOffPolicy policy;
 

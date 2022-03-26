@@ -24,8 +24,8 @@ import java.util.List;
 
 import cn.taketoday.classify.BinaryExceptionClassifier;
 import cn.taketoday.classify.BinaryExceptionClassifierBuilder;
+import cn.taketoday.lang.Assert;
 import cn.taketoday.retry.RetryListener;
-import cn.taketoday.retry.policy.BinaryExceptionClassifierRetryPolicy;
 import cn.taketoday.retry.RetryPolicy;
 import cn.taketoday.retry.backoff.BackOffPolicy;
 import cn.taketoday.retry.backoff.ExponentialBackOffPolicy;
@@ -34,10 +34,10 @@ import cn.taketoday.retry.backoff.FixedBackOffPolicy;
 import cn.taketoday.retry.backoff.NoBackOffPolicy;
 import cn.taketoday.retry.backoff.UniformRandomBackOffPolicy;
 import cn.taketoday.retry.policy.AlwaysRetryPolicy;
+import cn.taketoday.retry.policy.BinaryExceptionClassifierRetryPolicy;
 import cn.taketoday.retry.policy.CompositeRetryPolicy;
 import cn.taketoday.retry.policy.MaxAttemptsRetryPolicy;
 import cn.taketoday.retry.policy.TimeoutRetryPolicy;
-import cn.taketoday.lang.Assert;
 
 /**
  * Fluent API to configure new instance of RetryTemplate. For detailed description of each

@@ -20,8 +20,8 @@
 package cn.taketoday.retry.support;
 
 import cn.taketoday.classify.Classifier;
-import cn.taketoday.retry.RetryCallback;
 import cn.taketoday.retry.RecoveryCallback;
+import cn.taketoday.retry.RetryCallback;
 import cn.taketoday.retry.RetryOperations;
 import cn.taketoday.retry.RetryState;
 

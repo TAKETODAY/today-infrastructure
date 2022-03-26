@@ -24,10 +24,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import cn.taketoday.beans.factory.annotation.Autowired;
-import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
-import cn.taketoday.context.annotation.Scope;
 import cn.taketoday.lang.Prototype;
 import cn.taketoday.test.context.junit4.SpringRunner;
 

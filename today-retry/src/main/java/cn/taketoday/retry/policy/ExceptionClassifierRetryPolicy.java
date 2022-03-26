@@ -26,10 +26,10 @@ import java.util.Map;
 import cn.taketoday.classify.Classifier;
 import cn.taketoday.classify.ClassifierSupport;
 import cn.taketoday.classify.SubclassClassifier;
+import cn.taketoday.lang.Assert;
 import cn.taketoday.retry.RetryContext;
 import cn.taketoday.retry.RetryPolicy;
 import cn.taketoday.retry.context.RetryContextSupport;
-import cn.taketoday.lang.Assert;
 
 /**
  * A {@link RetryPolicy} that dynamically adapts to one of a set of injected policies

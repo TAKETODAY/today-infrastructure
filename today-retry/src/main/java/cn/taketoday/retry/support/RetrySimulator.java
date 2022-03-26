@@ -24,11 +24,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import cn.taketoday.retry.RetryCallback;
-import cn.taketoday.retry.RetryPolicy;
-import cn.taketoday.retry.backoff.SleepingBackOffPolicy;
 import cn.taketoday.retry.RetryContext;
+import cn.taketoday.retry.RetryPolicy;
 import cn.taketoday.retry.backoff.ExponentialRandomBackOffPolicy;
 import cn.taketoday.retry.backoff.Sleeper;
+import cn.taketoday.retry.backoff.SleepingBackOffPolicy;
 
 /**
  * A {@link RetrySimulator} is a tool for exercising retry + backoff operations.

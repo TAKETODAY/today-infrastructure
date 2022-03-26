@@ -20,30 +20,29 @@
 
 package cn.taketoday.retry.support;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import cn.taketoday.logging.Logger;
+import cn.taketoday.logging.LoggerFactory;
+import cn.taketoday.retry.ExhaustedRetryException;
+import cn.taketoday.retry.RecoveryCallback;
 import cn.taketoday.retry.RetryCallback;
+import cn.taketoday.retry.RetryContext;
 import cn.taketoday.retry.RetryException;
 import cn.taketoday.retry.RetryListener;
+import cn.taketoday.retry.RetryOperations;
 import cn.taketoday.retry.RetryPolicy;
 import cn.taketoday.retry.RetryState;
 import cn.taketoday.retry.TerminatedRetryException;
 import cn.taketoday.retry.backoff.BackOffContext;
+import cn.taketoday.retry.backoff.BackOffInterruptedException;
 import cn.taketoday.retry.backoff.BackOffPolicy;
 import cn.taketoday.retry.backoff.NoBackOffPolicy;
+import cn.taketoday.retry.policy.MapRetryContextCache;
 import cn.taketoday.retry.policy.RetryContextCache;
 import cn.taketoday.retry.policy.SimpleRetryPolicy;
-import cn.taketoday.retry.ExhaustedRetryException;
-import cn.taketoday.retry.RecoveryCallback;
-import cn.taketoday.retry.RetryContext;
-import cn.taketoday.retry.RetryOperations;
-import cn.taketoday.retry.backoff.BackOffInterruptedException;
-import cn.taketoday.retry.policy.MapRetryContextCache;
 
 /**
  * Template class that simplifies the execution of operations with retry semantics.
@@ -88,7 +87,7 @@ public class RetryTemplate implements RetryOperations {
    */
   private static final String GLOBAL_STATE = "state.global";
 
-  protected final Log logger = LogFactory.getLog(getClass());
+  protected final Logger logger = LoggerFactory.getLogger(getClass());
 
   private volatile BackOffPolicy backOffPolicy = new NoBackOffPolicy();
 

@@ -19,13 +19,12 @@
  */
 package test.demo.config;
 
-import java.util.Properties;
-
 import cn.taketoday.beans.factory.FactoryBean;
 import cn.taketoday.beans.factory.InitializingBean;
-import cn.taketoday.context.properties.Props;
+import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.annotation.Order;
+import cn.taketoday.core.env.Environment;
 import cn.taketoday.lang.Prototype;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
@@ -54,8 +53,8 @@ public class ConfigFactoryBean implements FactoryBean<Config>, InitializingBean 
     log.info("ConfigFactoryBean.init2()");
   }
 
-  @Props(value = "info", prefix = "site.")
-  private Properties pro;
+  @Autowired
+  private Environment pro;
 
   @Override
   public Config getObject() {

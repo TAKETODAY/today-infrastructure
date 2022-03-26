@@ -24,7 +24,6 @@ import java.io.Serializable;
 
 import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.beans.factory.annotation.Value;
-import cn.taketoday.context.properties.Props;
 import cn.taketoday.lang.Prototype;
 import cn.taketoday.lang.Singleton;
 import jakarta.annotation.PostConstruct;
@@ -76,7 +75,6 @@ public final class Config implements Serializable {
   @Autowired(required = false)
   User user;
 
-  @Props(prefix = "site.admin")
   User admin;
 
   //	@Value(value = "#{user}", required = false)

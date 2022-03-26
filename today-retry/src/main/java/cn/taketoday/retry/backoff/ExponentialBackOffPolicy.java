@@ -20,9 +20,8 @@
 
 package cn.taketoday.retry.backoff;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
+import cn.taketoday.logging.Logger;
+import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.retry.RetryContext;
 import cn.taketoday.util.ClassUtils;
 
@@ -46,7 +45,7 @@ import cn.taketoday.util.ClassUtils;
 @SuppressWarnings("serial")
 public class ExponentialBackOffPolicy implements SleepingBackOffPolicy<ExponentialBackOffPolicy> {
 
-  protected final Log logger = LogFactory.getLog(this.getClass());
+  protected final Logger logger = LoggerFactory.getLogger(this.getClass());
 
   /**
    * The default 'initialInterval' value - 100 millisecs. Coupled with the default

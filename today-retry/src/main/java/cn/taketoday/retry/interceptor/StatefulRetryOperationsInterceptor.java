@@ -22,20 +22,20 @@ package cn.taketoday.retry.interceptor;
 
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 import java.util.Arrays;
 
 import cn.taketoday.classify.Classifier;
-import cn.taketoday.retry.support.DefaultRetryState;
+import cn.taketoday.lang.Assert;
+import cn.taketoday.logging.Logger;
+import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.retry.RecoveryCallback;
 import cn.taketoday.retry.RetryContext;
 import cn.taketoday.retry.RetryOperations;
 import cn.taketoday.retry.RetryState;
 import cn.taketoday.retry.policy.NeverRetryPolicy;
+import cn.taketoday.retry.support.DefaultRetryState;
 import cn.taketoday.retry.support.RetryTemplate;
-import cn.taketoday.lang.Assert;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
 
@@ -60,7 +60,7 @@ import cn.taketoday.util.StringUtils;
  */
 public class StatefulRetryOperationsInterceptor implements MethodInterceptor {
 
-  private transient final Log logger = LogFactory.getLog(getClass());
+  private transient final Logger logger = LoggerFactory.getLogger(getClass());
 
   private MethodArgumentsKeyGenerator keyGenerator;
 

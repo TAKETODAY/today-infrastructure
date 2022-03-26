@@ -39,7 +39,6 @@ import java.util.Set;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.annotation.Value;
 import cn.taketoday.beans.factory.support.DependencyInjector;
-import cn.taketoday.context.properties.Props;
 import cn.taketoday.context.support.StandardApplicationContext;
 import cn.taketoday.core.env.ConfigurableEnvironment;
 import cn.taketoday.core.env.PropertiesPropertySource;
@@ -167,8 +166,8 @@ public class ContextUtilsTest {
   public static class Config {
 
     public Config(
-            @Props(prefix = "site.admin") UserModel model, //
-            @Props(prefix = "site") Properties properties, //
+            UserModel model, //
+            Properties properties, //
             Properties emptyProperties, //
             @Value("${placeHolder}") int placeHolderEnv,
             @Value("${placeHolder}") int placeHolder,
@@ -192,7 +191,6 @@ public class ContextUtilsTest {
 
     public Config() { }
 
-    @Props
     UserModel admin;
 
     private String cdn;

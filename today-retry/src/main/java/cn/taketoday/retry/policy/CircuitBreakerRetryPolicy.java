@@ -20,13 +20,12 @@
 
 package cn.taketoday.retry.policy;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import java.util.concurrent.atomic.AtomicInteger;
 
-import cn.taketoday.retry.RetryPolicy;
+import cn.taketoday.logging.Logger;
+import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.retry.RetryContext;
+import cn.taketoday.retry.RetryPolicy;
 import cn.taketoday.retry.context.RetryContextSupport;
 
 /**
@@ -39,7 +38,7 @@ public class CircuitBreakerRetryPolicy implements RetryPolicy {
 
   public static final String CIRCUIT_SHORT_COUNT = "circuit.shortCount";
 
-  private static Log logger = LogFactory.getLog(CircuitBreakerRetryPolicy.class);
+  private static Logger logger = LoggerFactory.getLogger(CircuitBreakerRetryPolicy.class);
 
   private final RetryPolicy delegate;
 

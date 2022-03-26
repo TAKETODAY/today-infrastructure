@@ -20,8 +20,8 @@
 
 package cn.taketoday.retry.policy;
 
-import cn.taketoday.retry.RetryPolicy;
 import cn.taketoday.retry.RetryContext;
+import cn.taketoday.retry.RetryPolicy;
 
 /**
  * A {@link RetryPolicy} that always permits a retry. Can also be used as a base class for

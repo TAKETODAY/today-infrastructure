@@ -19,9 +19,6 @@
  */
 package cn.taketoday.retry.policy;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import java.util.Map;
 
 import cn.taketoday.beans.BeansException;
@@ -32,8 +29,10 @@ import cn.taketoday.expression.Expression;
 import cn.taketoday.expression.common.TemplateParserContext;
 import cn.taketoday.expression.spel.standard.SpelExpressionParser;
 import cn.taketoday.expression.spel.support.StandardEvaluationContext;
-import cn.taketoday.retry.RetryContext;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.logging.Logger;
+import cn.taketoday.logging.LoggerFactory;
+import cn.taketoday.retry.RetryContext;
 
 /**
  * Subclass of {@link SimpleRetryPolicy} that delegates to super.canRetry() and, if true,
@@ -46,7 +45,7 @@ import cn.taketoday.lang.Assert;
 @SuppressWarnings("serial")
 public class ExpressionRetryPolicy extends SimpleRetryPolicy implements BeanFactoryAware {
 
-  private static final Log logger = LogFactory.getLog(ExpressionRetryPolicy.class);
+  private static final Logger logger = LoggerFactory.getLogger(ExpressionRetryPolicy.class);
 
   private static final TemplateParserContext PARSER_CONTEXT = new TemplateParserContext();
 
@@ -123,7 +122,7 @@ public class ExpressionRetryPolicy extends SimpleRetryPolicy implements BeanFact
     }
     else {
       return super.canRetry(context)
-              && this.expression.getValue(this.evaluationContext, lastThrowable, Boolean.class);
+              && Boolean.TRUE.equals(expression.getValue(this.evaluationContext, lastThrowable, Boolean.class));
     }
   }
 

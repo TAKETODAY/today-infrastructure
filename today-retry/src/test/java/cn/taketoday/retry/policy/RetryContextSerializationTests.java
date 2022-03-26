@@ -20,8 +20,6 @@
 
 package cn.taketoday.retry.policy;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -38,6 +36,8 @@ import cn.taketoday.classify.SubclassClassifier;
 import cn.taketoday.context.loader.ClassPathScanningCandidateComponentProvider;
 import cn.taketoday.core.type.filter.AssignableTypeFilter;
 import cn.taketoday.core.type.filter.RegexPatternTypeFilter;
+import cn.taketoday.logging.Logger;
+import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.retry.RetryContext;
 import cn.taketoday.retry.RetryPolicy;
 import cn.taketoday.util.ClassUtils;
@@ -52,7 +52,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @RunWith(Parameterized.class)
 public class RetryContextSerializationTests {
 
-  private static Log logger = LogFactory.getLog(RetryContextSerializationTests.class);
+  private static Logger logger = LoggerFactory.getLogger(RetryContextSerializationTests.class);
 
   private RetryPolicy policy;
 
@@ -74,7 +74,7 @@ public class RetryContextSerializationTests {
       }
     }
     ExceptionClassifierRetryPolicy extra = new ExceptionClassifierRetryPolicy();
-    extra.setExceptionClassifier(new SubclassClassifier<Throwable, RetryPolicy>(new AlwaysRetryPolicy()));
+    extra.setExceptionClassifier(new SubclassClassifier<>(new AlwaysRetryPolicy()));
     result.add(new Object[] { extra });
     return result;
   }

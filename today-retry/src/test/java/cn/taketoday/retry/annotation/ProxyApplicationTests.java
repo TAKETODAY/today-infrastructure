@@ -24,7 +24,6 @@ import org.junit.Test;
 
 import java.net.URLClassLoader;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Set;
 import java.util.Vector;
 
@@ -67,7 +66,7 @@ public class ProxyApplicationTests {
     ConfigurableApplicationContext run = new AnnotationConfigApplicationContext(Empty.class);
     run.close();
     while (run.getParent() != null) {
-      ((ConfigurableApplicationContext) run.getParent()).close();
+      run.getParent().close();
       run = (ConfigurableApplicationContext) run.getParent();
     }
   }
@@ -76,9 +75,8 @@ public class ProxyApplicationTests {
     URLClassLoader classLoader = (URLClassLoader) getClass().getClassLoader();
     @SuppressWarnings("unchecked")
     Vector<Class<?>> classes = (Vector<Class<?>>) ReflectionTestUtils.getField(classLoader, "classes");
-    Set<Class<?>> news = new HashSet<Class<?>>();
-    for (Iterator<Class<?>> iterator = classes.iterator(); iterator.hasNext(); ) {
-      Class<?> cls = iterator.next();
+    Set<Class<?>> news = new HashSet<>();
+    for (Class<?> cls : classes) {
       if (!this.classes.contains(cls)) {
         news.add(cls);
       }

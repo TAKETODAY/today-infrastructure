@@ -21,8 +21,8 @@
 package cn.taketoday.retry.listener;
 
 import cn.taketoday.retry.RetryCallback;
-import cn.taketoday.retry.RetryListener;
 import cn.taketoday.retry.RetryContext;
+import cn.taketoday.retry.RetryListener;
 
 /**
  * Empty method implementation of {@link RetryListener}.
