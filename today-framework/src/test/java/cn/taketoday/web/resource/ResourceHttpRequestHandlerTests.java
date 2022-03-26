@@ -726,7 +726,7 @@ public class ResourceHttpRequestHandlerTests {
 
     assertThatIllegalStateException().isThrownBy(handler::afterPropertiesSet)
             .withMessage("The String-based location \"/\" should be relative to the web application root but " +
-                    "resolved to a Resource of type: class cn.taketoday.core.io.FileBasedResource. " +
+                    "resolved to a Resource of type: class cn.taketoday.core.io.FileSystemResource. " +
                     "If this is intentional, please pass it as a pre-configured Resource via setLocations.");
   }
 

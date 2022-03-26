@@ -50,12 +50,7 @@ public class SimpleThreadScope implements Scope {
   private static final Logger logger = LoggerFactory.getLogger(SimpleThreadScope.class);
 
   private final ThreadLocal<Map<String, Object>> threadScope =
-          new NamedThreadLocal<>("SimpleThreadScope") {
-            @Override
-            protected Map<String, Object> initialValue() {
-              return new HashMap<>();
-            }
-          };
+          NamedThreadLocal.withInitial("SimpleThreadScope", HashMap::new);
 
   @Override
   public Object remove(String name) {

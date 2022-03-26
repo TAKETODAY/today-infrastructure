@@ -64,8 +64,8 @@ public class NamedInheritableThreadLocal<T> extends InheritableThreadLocal<T> {
    * @since 4.0
    */
   public static <S> NamedInheritableThreadLocal<S> withInitial(String name, Supplier<? extends S> supplier) {
-    final class SuppliedNamedInheritableThreadLocal extends NamedInheritableThreadLocal<S> {
-      SuppliedNamedInheritableThreadLocal(String name) {
+    final class Supplied extends NamedInheritableThreadLocal<S> {
+      Supplied(String name) {
         super(name);
       }
 
@@ -74,7 +74,7 @@ public class NamedInheritableThreadLocal<T> extends InheritableThreadLocal<T> {
         return supplier.get();
       }
     }
-    return new SuppliedNamedInheritableThreadLocal(name);
+    return new Supplied(name);
   }
 
 }

@@ -64,8 +64,8 @@ public class NamedThreadLocal<T> extends ThreadLocal<T> {
    * @since 4.0
    */
   public static <S> ThreadLocal<S> withInitial(String name, Supplier<? extends S> supplier) {
-    final class SuppliedNamedThreadLocal extends NamedThreadLocal<S> {
-      SuppliedNamedThreadLocal(String name) {
+    final class Supplied extends NamedThreadLocal<S> {
+      Supplied(String name) {
         super(name);
       }
 
@@ -75,7 +75,7 @@ public class NamedThreadLocal<T> extends ThreadLocal<T> {
       }
     }
 
-    return new SuppliedNamedThreadLocal(name);
+    return new Supplied(name);
   }
 
 }
