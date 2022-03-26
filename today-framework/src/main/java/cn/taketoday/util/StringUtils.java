@@ -274,7 +274,7 @@ public abstract class StringUtils {
    */
   public static String[] toStringArray(@Nullable Collection<String> collection) {
     if (collection == null) {
-      return null;
+      return Constant.EMPTY_STRING_ARRAY;
     }
     return collection.toArray(new String[collection.size()]);
   }

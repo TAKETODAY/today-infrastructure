@@ -529,6 +529,9 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
    * @see #setDocumentReaderClass
    */
   protected BeanDefinitionDocumentReader createBeanDefinitionDocumentReader() {
+    if (documentReaderClass == DefaultBeanDefinitionDocumentReader.class) {
+      return new DefaultBeanDefinitionDocumentReader();
+    }
     return BeanUtils.newInstance(this.documentReaderClass);
   }
 

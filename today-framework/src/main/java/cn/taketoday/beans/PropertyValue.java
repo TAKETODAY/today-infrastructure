@@ -90,6 +90,7 @@ public class PropertyValue extends BeanMetadataAttributeAccessor implements Seri
     this.conversionNecessary = original.conversionNecessary;
     this.resolvedTokens = original.resolvedTokens;
     setSource(original.getSource());
+    copyAttributesFrom(original);
   }
 
   /**
@@ -108,6 +109,7 @@ public class PropertyValue extends BeanMetadataAttributeAccessor implements Seri
     this.conversionNecessary = original.conversionNecessary;
     this.resolvedTokens = original.resolvedTokens;
     setSource(original);
+    copyAttributesFrom(original);
   }
 
   /**
