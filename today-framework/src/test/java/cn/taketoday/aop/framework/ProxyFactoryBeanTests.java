@@ -668,7 +668,7 @@ public class ProxyFactoryBeanTests {
     ProxyFactoryBean fb = new ProxyFactoryBean();
     fb.setTarget(new TestBean());
     fb.setBeanFactory(bf);
-    Object object = fb.getObject();
+    fb.getObject();
 
     fb.setInterceptorNames("debug");
     Advised proxy = (Advised) fb.getObject();

@@ -63,22 +63,22 @@ public final class DataSize implements Comparable<DataSize>, Serializable {
   /**
    * Bytes per Kilobyte.
    */
-  private static final long BYTES_PER_KB = 1024;
+  public static final long BYTES_PER_KB = 1024;
 
   /**
    * Bytes per Megabyte.
    */
-  private static final long BYTES_PER_MB = BYTES_PER_KB * 1024;
+  public static final long BYTES_PER_MB = BYTES_PER_KB * 1024;
 
   /**
    * Bytes per Gigabyte.
    */
-  private static final long BYTES_PER_GB = BYTES_PER_MB * 1024;
+  public static final long BYTES_PER_GB = BYTES_PER_MB * 1024;
 
   /**
    * Bytes per Terabyte.
    */
-  private static final long BYTES_PER_TB = BYTES_PER_GB * 1024;
+  public static final long BYTES_PER_TB = BYTES_PER_GB * 1024;
 
   private final long bytes;
 
