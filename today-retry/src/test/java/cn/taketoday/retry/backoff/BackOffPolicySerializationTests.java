@@ -1,0 +1,89 @@
+/*
+ * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ *
+ * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ */
+
+package cn.taketoday.retry.backoff;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+import org.junit.runners.Parameterized.Parameters;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+import java.util.regex.Pattern;
+
+import cn.taketoday.beans.BeanUtils;
+import cn.taketoday.beans.factory.config.BeanDefinition;
+import cn.taketoday.context.loader.ClassPathScanningCandidateComponentProvider;
+import cn.taketoday.core.type.filter.AssignableTypeFilter;
+import cn.taketoday.core.type.filter.RegexPatternTypeFilter;
+import cn.taketoday.retry.context.RetryContextSupport;
+import cn.taketoday.util.ClassUtils;
+import cn.taketoday.util.SerializationUtils;
+
+import static org.junit.Assert.assertTrue;
+
+/**
+ * @author Dave Syer
+ */
+@RunWith(Parameterized.class)
+public class BackOffPolicySerializationTests {
+
+  private static Log logger = LogFactory.getLog(BackOffPolicySerializationTests.class);
+
+  private BackOffPolicy policy;
+
+  @Parameters(name = "{index}: {0}")
+  public static List<Object[]> policies() {
+    List<Object[]> result = new ArrayList<Object[]>();
+    ClassPathScanningCandidateComponentProvider scanner = new ClassPathScanningCandidateComponentProvider(true);
+    scanner.addIncludeFilter(new AssignableTypeFilter(BackOffPolicy.class));
+    scanner.addExcludeFilter(new RegexPatternTypeFilter(Pattern.compile(".*Test.*")));
+    scanner.addExcludeFilter(new RegexPatternTypeFilter(Pattern.compile(".*Mock.*")));
+    scanner.addExcludeFilter(new RegexPatternTypeFilter(Pattern.compile(".*Configuration.*")));
+    Set<BeanDefinition> candidates = scanner.findCandidateComponents("cn.taketoday.retry");
+    for (BeanDefinition beanDefinition : candidates) {
+      try {
+        result.add(new Object[] {
+                BeanUtils.newInstance(ClassUtils.resolveClassName(beanDefinition.getBeanClassName(), null)) });
+      }
+      catch (Exception e) {
+        logger.warn("Cannot create instance of " + beanDefinition.getBeanClassName());
+      }
+    }
+    return result;
+  }
+
+  public BackOffPolicySerializationTests(BackOffPolicy policy) {
+    this.policy = policy;
+  }
+
+  @Test
+  public void testSerializationCycleForContext() {
+    BackOffContext context = policy.start(new RetryContextSupport(null));
+    if (context != null) {
+      assertTrue(SerializationUtils.deserialize(SerializationUtils.serialize(context)) instanceof BackOffContext);
+    }
+  }
+
+}

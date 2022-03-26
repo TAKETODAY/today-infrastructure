@@ -21,6 +21,7 @@
     <module>today-instrument</module>
     <module>today-test</module>
     <module>integration-tests</module>
+    <module>today-retry</module>
   </modules>
 
   <description>
