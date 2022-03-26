@@ -22,6 +22,7 @@ package cn.taketoday.context.support;
 
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.Optional;
 
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.lang.Nullable;
@@ -38,10 +39,23 @@ public final class ApplicationContextHolder {
     return contextMap.get(applicationName);
   }
 
+  public static Optional<ApplicationContext> optional(String applicationName) {
+    return Optional.ofNullable(contextMap.get(applicationName));
+  }
+
+  public static ApplicationContext getRequired(String applicationName) {
+    ApplicationContext context = get(applicationName);
+    if (context == null) {
+      throw new IllegalStateException("No ApplicationContext: '" + applicationName + "'");
+    }
+    return context;
+  }
+
   /**
    * @return Returns: the previous ApplicationContext associated with name,
    * or null if there was no application for name.
    */
+  @Nullable
   public static ApplicationContext register(String applicationName, ApplicationContext context) {
     return contextMap.put(applicationName, context);
   }
@@ -50,10 +64,12 @@ public final class ApplicationContextHolder {
    * @return Returns: the previous ApplicationContext associated with name,
    * or null if there was no application for name.
    */
+  @Nullable
   public static ApplicationContext register(ApplicationContext context) {
     return contextMap.put(context.getApplicationName(), context);
   }
 
+  @Nullable
   public static ApplicationContext remove(String applicationName) {
     return contextMap.remove(applicationName);
   }
