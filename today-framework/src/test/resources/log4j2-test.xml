@@ -8,6 +8,7 @@
   <Loggers>
 
     <Logger name="cn.taketoday" level="warn" />
+    <Logger name="cn.taketoday.logging" level="trace" />
     <Root level="error">
       <AppenderRef ref="Console" />
     </Root>

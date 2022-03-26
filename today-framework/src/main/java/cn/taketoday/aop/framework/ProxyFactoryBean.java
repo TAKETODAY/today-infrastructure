@@ -434,42 +434,40 @@ public class ProxyFactoryBean extends ProxyCreatorSupport
    * are unaffected by such changes.
    */
   private synchronized void initializeAdvisorChain() throws AopConfigException, BeansException {
-    if (this.advisorChainInitialized) {
+    if (this.advisorChainInitialized || ObjectUtils.isEmpty(interceptorNames)) {
       return;
     }
 
-    if (ObjectUtils.isNotEmpty(interceptorNames)) {
-      if (beanFactory == null) {
-        throw new IllegalStateException("No BeanFactory available anymore (probably due to serialization) " +
-                "- cannot resolve interceptor names " + Arrays.asList(this.interceptorNames));
-      }
+    if (beanFactory == null) {
+      throw new IllegalStateException("No BeanFactory available anymore (probably due to serialization) " +
+              "- cannot resolve interceptor names " + Arrays.asList(this.interceptorNames));
+    }
 
-      // Globals can't be last unless we specified a targetSource using the property...
-      if (interceptorNames[interceptorNames.length - 1].endsWith(GLOBAL_SUFFIX)
-              && targetName == null && targetSource == EMPTY_TARGET_SOURCE) {
-        throw new AopConfigException("Target required after globals");
-      }
+    // Globals can't be last unless we specified a targetSource using the property...
+    if (interceptorNames[interceptorNames.length - 1].endsWith(GLOBAL_SUFFIX)
+            && targetName == null && targetSource == EMPTY_TARGET_SOURCE) {
+      throw new AopConfigException("Target required after globals");
+    }
 
-      // Materialize interceptor chain from bean names.
-      for (String name : interceptorNames) {
-        if (name.endsWith(GLOBAL_SUFFIX)) {
-          addGlobalAdvisors(beanFactory, name.substring(0, name.length() - GLOBAL_SUFFIX.length()));
+    // Materialize interceptor chain from bean names.
+    for (String name : interceptorNames) {
+      if (name.endsWith(GLOBAL_SUFFIX)) {
+        addGlobalAdvisors(beanFactory, name.substring(0, name.length() - GLOBAL_SUFFIX.length()));
+      }
+      else {
+        // If we get here, we need to add a named interceptor.
+        // We must check if it's a singleton or prototype.
+        Object advice;
+        if (singleton || beanFactory.isSingleton(name)) {
+          // Add the real Advisor/Advice to the chain.
+          advice = beanFactory.getBean(name);
         }
         else {
-          // If we get here, we need to add a named interceptor.
-          // We must check if it's a singleton or prototype.
-          Object advice;
-          if (singleton || beanFactory.isSingleton(name)) {
-            // Add the real Advisor/Advice to the chain.
-            advice = beanFactory.getBean(name);
-          }
-          else {
-            // It's a prototype Advice or Advisor: replace with a prototype.
-            // Avoid unnecessary creation of prototype bean just for advisor chain initialization.
-            advice = new PrototypePlaceholderAdvisor(name);
-          }
-          addAdvisorOnChainCreation(advice);
+          // It's a prototype Advice or Advisor: replace with a prototype.
+          // Avoid unnecessary creation of prototype bean just for advisor chain initialization.
+          advice = new PrototypePlaceholderAdvisor(name);
         }
+        addAdvisorOnChainCreation(advice);
       }
     }
 
