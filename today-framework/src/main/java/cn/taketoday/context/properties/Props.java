@@ -46,7 +46,7 @@ import cn.taketoday.core.annotation.AliasFor;
  * @see EnableConfigurationProperties
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ ElementType.FIELD, ElementType.TYPE, ElementType.METHOD, ElementType.PARAMETER })
+@Target({ ElementType.TYPE, ElementType.METHOD })
 @ConfigurationProperties
 public @interface Props {
 
