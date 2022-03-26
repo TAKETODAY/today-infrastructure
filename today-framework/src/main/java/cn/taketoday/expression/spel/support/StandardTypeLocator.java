@@ -22,9 +22,13 @@ package cn.taketoday.expression.spel.support;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 
+import cn.taketoday.core.DefaultAliasRegistry;
 import cn.taketoday.expression.EvaluationException;
+import cn.taketoday.expression.ExpressionException;
 import cn.taketoday.expression.TypeLocator;
 import cn.taketoday.expression.spel.SpelEvaluationException;
 import cn.taketoday.expression.spel.SpelMessage;
@@ -38,14 +42,19 @@ import cn.taketoday.util.ClassUtils;
  *
  * @author Andy Clement
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-public class StandardTypeLocator implements TypeLocator {
+public class StandardTypeLocator extends DefaultAliasRegistry implements TypeLocator {
 
   @Nullable
   private final ClassLoader classLoader;
 
-  private final ArrayList<String> knownPackagePrefixes = new ArrayList<>(1);
+  private final HashMap<String, Class<?>> classMap = new HashMap<>();
+  private final HashMap<String, String> classNameMap = new HashMap<>();
+
+  private final HashSet<String> notAClass = new HashSet<>();
+  private final ArrayList<String> packages = new ArrayList<>(1);
 
   /**
    * Create a StandardTypeLocator for the default ClassLoader
@@ -73,7 +82,7 @@ public class StandardTypeLocator implements TypeLocator {
    * @param prefix the prefix to register
    */
   public void registerImport(String prefix) {
-    this.knownPackagePrefixes.add(prefix);
+    this.packages.add(prefix);
   }
 
   /**
@@ -82,7 +91,7 @@ public class StandardTypeLocator implements TypeLocator {
    * @param prefix the prefix to remove
    */
   public void removeImport(String prefix) {
-    this.knownPackagePrefixes.remove(prefix);
+    this.packages.remove(prefix);
   }
 
   /**
@@ -91,36 +100,114 @@ public class StandardTypeLocator implements TypeLocator {
    * @return a list of registered import prefixes
    */
   public List<String> getImportPrefixes() {
-    return Collections.unmodifiableList(this.knownPackagePrefixes);
+    return Collections.unmodifiableList(this.packages);
   }
 
   /**
-   * Find a (possibly unqualified) type reference - first using the type name as-is,
-   * then trying any registered prefixes if the type name cannot be found.
+   * Import a class.
    *
-   * @param typeName the type to locate
-   * @return the class object for the type
-   * @throws EvaluationException if the type cannot be found
+   * @param name The full class name of the class to be imported
+   * @throws ExpressionException if the name does not include a ".".
+   */
+  public void importClass(String name) throws ExpressionException {
+    int i = name.lastIndexOf('.');
+    if (i <= 0) {
+      throw new ExpressionException("The name " + name + " is not a full class name");
+    }
+    String className = ClassUtils.getShortName(name);
+    classNameMap.put(className, name);
+  }
+
+  /**
+   * Import a class.
+   *
+   * @see ClassUtils#getSimpleName(String)
+   */
+  public void importClass(Class<?> classToImport) {
+    String className = classToImport.getName();
+    String simpleName = ClassUtils.getSimpleName(className);
+
+    classMap.put(simpleName, classToImport);
+    classMap.put(className, classToImport);
+
+    notAClass.remove(simpleName);
+    notAClass.remove(className);
+  }
+
+  public void registerAlias(Class<?> classToImport, String... alias) {
+    importClass(classToImport);
+    for (String alia : alias) {
+      registerAlias(classToImport.getName(), alia);
+    }
+  }
+
+  /**
+   * Resolve a class name.
+   *
+   * @param typeName The name of the class (without package name) to be resolved.
+   * @return If the class has been imported previously, with {@link #importClass}
+   * or {@link #registerImport(String)}, then its Class instance. Otherwise
+   * <code>null</code>.
+   * @throws ExpressionException if the class is abstract or is an interface, or not public.
    */
   @Override
   public Class<?> findType(String typeName) throws EvaluationException {
-    String nameToLookup = typeName;
-    try {
-      return ClassUtils.forName(nameToLookup, this.classLoader);
+    String className = classNameMap.get(typeName);
+    if (className == null) {
+      className = canonicalName(typeName);
     }
-    catch (ClassNotFoundException ey) {
-      // try any registered prefixes before giving up
+
+    Class<?> type = resolveClassFor(className);
+    if (type != null) {
+      return type;
     }
-    for (String prefix : this.knownPackagePrefixes) {
-      try {
-        nameToLookup = prefix + '.' + typeName;
-        return ClassUtils.forName(nameToLookup, this.classLoader);
-      }
-      catch (ClassNotFoundException ex) {
-        // might be a different prefix
+
+    for (String packageName : packages) {
+      String fullClassName = packageName + "." + className;
+      Class<?> c = resolveClassFor(fullClassName);
+      if (c != null) {
+        classNameMap.put(typeName, fullClassName);
+        return c;
       }
     }
     throw new SpelEvaluationException(SpelMessage.TYPE_NOT_FOUND, typeName);
+  }
+
+  @Nullable
+  private Class<?> resolveClassFor(String className) {
+    Class<?> c = classMap.get(className);
+    if (c != null) {
+      return c;
+    }
+    c = getClassFor(className);
+    if (c != null) {
+      classMap.put(className, c);
+    }
+    return c;
+  }
+
+  @Nullable
+  public Class<?> getClassFor(String className) {
+    if (!notAClass.contains(className)) {
+      String nameToLookup = className;
+      try {
+        return ClassUtils.forName(nameToLookup, classLoader);
+      }
+      catch (ClassNotFoundException ey) {
+        // try any registered prefixes before giving up
+      }
+      for (String prefix : packages) {
+        try {
+          nameToLookup = prefix + '.' + className;
+          return ClassUtils.forName(nameToLookup, classLoader);
+        }
+        catch (ClassNotFoundException ex) {
+          // might be a different prefix
+        }
+      }
+      notAClass.add(className);
+    }
+    return null;
   }
 
 }

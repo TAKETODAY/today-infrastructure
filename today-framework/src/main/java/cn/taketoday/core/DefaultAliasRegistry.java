@@ -136,7 +136,7 @@ public class DefaultAliasRegistry implements AliasRegistry {
    * @param name the target name to find aliases for
    * @param result the resulting aliases list
    */
-  private void retrieveAliases(String name, List<String> result) {
+  private void retrieveAliases(String name, ArrayList<String> result) {
     for (Map.Entry<String, String> entry : this.aliasMap.entrySet()) {
       String alias = entry.getKey();
       String registeredName = entry.getValue();

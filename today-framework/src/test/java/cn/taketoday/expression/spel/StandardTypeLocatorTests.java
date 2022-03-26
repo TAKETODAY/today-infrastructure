@@ -59,4 +59,34 @@ class StandardTypeLocatorTests {
     assertThat(locator.findType("URL")).isEqualTo(java.net.URL.class);
   }
 
+  @Test
+  void importClass() {
+    StandardTypeLocator locator = new StandardTypeLocator();
+    assertThat(locator.findType("Integer")).isEqualTo(Integer.class);
+    assertThat(locator.findType("String")).isEqualTo(String.class);
+
+    locator.importClass(A.class);
+
+    assertThat(locator.findType("A")).isEqualTo(A.class);
+
+  }
+
+  @Test
+  void registerAlias() {
+    StandardTypeLocator locator = new StandardTypeLocator();
+    assertThat(locator.findType("Integer")).isEqualTo(Integer.class);
+    assertThat(locator.findType("String")).isEqualTo(String.class);
+
+    locator.importClass(A.class);
+    locator.registerAlias("A", "a");
+    assertThat(locator.findType("a")).isEqualTo(A.class);
+
+    locator.registerAlias(B.class, "b");
+
+    assertThat(locator.findType("b")).isEqualTo(B.class);
+  }
+
+  static class A { }
+
+  static class B { }
 }
