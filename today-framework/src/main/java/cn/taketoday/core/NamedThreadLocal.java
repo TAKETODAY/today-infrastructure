@@ -20,6 +20,8 @@
 
 package cn.taketoday.core;
 
+import java.util.function.Supplier;
+
 import cn.taketoday.lang.Assert;
 
 /**
@@ -48,6 +50,32 @@ public class NamedThreadLocal<T> extends ThreadLocal<T> {
   @Override
   public String toString() {
     return this.name;
+  }
+
+  /**
+   * Creates a thread local variable. The initial value of the variable is
+   * determined by invoking the {@code get} method on the {@code Supplier}.
+   *
+   * @param <S> the type of the thread local's value
+   * @param name a descriptive name for this ThreadLocal
+   * @param supplier the supplier to be used to determine the initial value
+   * @return a new thread local variable
+   * @throws NullPointerException if the specified supplier is null
+   * @since 4.0
+   */
+  public static <S> ThreadLocal<S> withInitial(String name, Supplier<? extends S> supplier) {
+    final class SuppliedNamedThreadLocal extends NamedThreadLocal<S> {
+      SuppliedNamedThreadLocal(String name) {
+        super(name);
+      }
+
+      @Override
+      protected S initialValue() {
+        return supplier.get();
+      }
+    }
+
+    return new SuppliedNamedThreadLocal(name);
   }
 
 }
