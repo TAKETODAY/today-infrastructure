@@ -263,10 +263,10 @@ public class ContextLoader {
                       "check whether you have multiple ContextLoader* definitions in your web.xml!");
     }
 
-    servletContext.log("Initializing Framework root WebApplicationContext");
+    servletContext.log("Initializing Framework root WebServletApplicationContext");
     Logger logger = LoggerFactory.getLogger(ContextLoader.class);
     if (logger.isInfoEnabled()) {
-      logger.info("Root WebApplicationContext: initialization started");
+      logger.info("Root WebServletApplicationContext: initialization started");
     }
     long startTime = System.currentTimeMillis();
 
@@ -299,7 +299,7 @@ public class ContextLoader {
 
       if (logger.isInfoEnabled()) {
         long elapsedTime = System.currentTimeMillis() - startTime;
-        logger.info("Root WebApplicationContext initialized in " + elapsedTime + " ms");
+        logger.info("Root WebServletApplicationContext initialized in {} ms", elapsedTime);
       }
 
       return this.context;
@@ -445,8 +445,7 @@ public class ContextLoader {
    * @param servletContext current servlet context
    * @see #CONTEXT_INITIALIZER_CLASSES_PARAM
    */
-  protected List<Class<ApplicationContextInitializer>>
-  determineContextInitializerClasses(ServletContext servletContext) {
+  protected List<Class<ApplicationContextInitializer>> determineContextInitializerClasses(ServletContext servletContext) {
 
     List<Class<ApplicationContextInitializer>> classes =
             new ArrayList<>();

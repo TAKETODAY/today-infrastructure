@@ -21,6 +21,7 @@
 package cn.taketoday.web.context;
 
 import cn.taketoday.web.WebApplicationContext;
+import cn.taketoday.web.servlet.WebServletApplicationContext;
 import jakarta.servlet.ServletContextEvent;
 import jakarta.servlet.ServletContextListener;
 
@@ -31,13 +32,13 @@ import jakarta.servlet.ServletContextListener;
  * <p> {@code ContextLoaderListener} supports injecting the root web
  * application context via the {@link #ContextLoaderListener(WebApplicationContext)}
  * constructor, allowing for programmatic configuration in Servlet initializers.
- * See {@link cn.taketoday.web.WebApplicationInitializer} for usage examples.
+ * See {@link cn.taketoday.web.config.WebApplicationInitializer} for usage examples.
  *
  * @author Juergen Hoeller
  * @author Chris Beams
  * @see #setContextInitializers
- * @see cn.taketoday.web.WebApplicationInitializer
- * @since 17.02.2003
+ * @see cn.taketoday.web.config.WebApplicationInitializer
+ * @since 4.0
  */
 public class ContextLoaderListener extends ContextLoader implements ServletContextListener {
 
@@ -50,7 +51,7 @@ public class ContextLoaderListener extends ContextLoader implements ServletConte
    * as a {@code <listener>} within {@code web.xml}, where a no-arg constructor is
    * required.
    * <p>The created application context will be registered into the ServletContext under
-   * the attribute name {@link WebApplicationContext#ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE}
+   * the attribute name {@link WebServletApplicationContext#ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE}
    * and the Framework application context will be closed when the {@link #contextDestroyed}
    * lifecycle method is invoked on this listener.
    *
@@ -60,6 +61,7 @@ public class ContextLoaderListener extends ContextLoader implements ServletConte
    * @see #contextDestroyed(ServletContextEvent)
    */
   public ContextLoaderListener() {
+
   }
 
   /**
@@ -85,10 +87,10 @@ public class ContextLoaderListener extends ContextLoader implements ServletConte
    * {@code ConfigurableWebApplicationContext}, none of the above will occur under the
    * assumption that the user has performed these actions (or not) per his or her
    * specific needs.
-   * <p>See {@link cn.taketoday.web.WebApplicationInitializer} for usage examples.
+   * <p>See {@link cn.taketoday.web.config.WebApplicationInitializer} for usage examples.
    * <p>In any case, the given application context will be registered into the
    * ServletContext under the attribute name {@link
-   * WebApplicationContext#ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE} and the Framework
+   * WebServletApplicationContext#ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE} and the Framework
    * application context will be closed when the {@link #contextDestroyed} lifecycle
    * method is invoked on this listener.
    *
