@@ -134,6 +134,14 @@ public interface WebMvcConfiguration {
   default void configureHandlerRegistry(List<HandlerRegistry> handlerRegistries) { }
 
   /**
+   * Override this method to configure "default" Servlet handling.
+   *
+   * @see DefaultServletHandlerConfigurer
+   * @since 4.0
+   */
+  default void configureDefaultServletHandling(DefaultServletHandlerConfigurer configurer) { }
+
+  /**
    * Configure {@link HandlerExceptionHandler}
    * <p>
    * Override this method to configure the list of

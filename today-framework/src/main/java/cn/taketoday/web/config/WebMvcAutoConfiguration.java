@@ -179,6 +179,11 @@ public class WebMvcAutoConfiguration extends WebMvcConfigurationSupport {
   }
 
   @Override
+  protected void configureDefaultServletHandling(DefaultServletHandlerConfigurer configurer) {
+    mvcConfiguration.configureDefaultServletHandling(configurer);
+  }
+
+  @Override
   protected void extendMessageConverters(List<HttpMessageConverter<?>> converters) {
     mvcConfiguration.extendMessageConverters(converters);
   }

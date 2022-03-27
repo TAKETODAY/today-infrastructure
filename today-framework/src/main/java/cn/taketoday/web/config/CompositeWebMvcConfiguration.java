@@ -113,6 +113,18 @@ public class CompositeWebMvcConfiguration implements WebMvcConfiguration {
     }
   }
 
+  /**
+   * Override this method to configure "default" Servlet handling.
+   *
+   * @see DefaultServletHandlerConfigurer
+   */
+  @Override
+  public void configureDefaultServletHandling(DefaultServletHandlerConfigurer configurer) {
+    for (WebMvcConfiguration webMvcConfiguration : getWebMvcConfigurations()) {
+      webMvcConfiguration.configureDefaultServletHandling(configurer);
+    }
+  }
+
   @Override
   public void configureHandlerRegistry(List<HandlerRegistry> handlerRegistries) {
     for (WebMvcConfiguration webMvcConfiguration : getWebMvcConfigurations()) {

@@ -100,6 +100,7 @@ import cn.taketoday.web.view.RedirectModelManager;
 import cn.taketoday.web.view.ViewResolver;
 import cn.taketoday.web.view.ViewResolverComposite;
 import cn.taketoday.web.view.ViewReturnValueHandler;
+import jakarta.servlet.ServletContext;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
@@ -665,6 +666,35 @@ public class WebMvcConfigurationSupport extends ApplicationContextSupport {
    * @see ViewControllerRegistry
    */
   protected void addViewControllers(ViewControllerRegistry registry) { }
+
+  /**
+   * Return a handler mapping ordered at Integer.MAX_VALUE with a mapped
+   * default servlet handler. To configure "default" Servlet handling,
+   * override {@link #configureDefaultServletHandling}.
+   */
+  @Bean
+  @Nullable
+  public HandlerRegistry defaultServletHandlerRegistry() {
+    if (ServletDetector.isPresent()) {
+      if (getApplicationContext() instanceof WebServletApplicationContext context) {
+        ServletContext servletContext = context.getServletContext();
+        DefaultServletHandlerConfigurer configurer = new DefaultServletHandlerConfigurer(servletContext);
+        configureDefaultServletHandling(configurer);
+        return configurer.buildHandlerRegistry();
+      }
+    }
+
+    return null;
+  }
+
+  /**
+   * Override this method to configure "default" Servlet handling.
+   *
+   * @see DefaultServletHandlerConfigurer
+   */
+  protected void configureDefaultServletHandling(DefaultServletHandlerConfigurer configurer) {
+
+  }
 
   @Component
   @ConditionalOnMissingBean
