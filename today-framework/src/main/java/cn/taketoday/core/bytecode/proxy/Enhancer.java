@@ -194,12 +194,12 @@ public class Enhancer extends AbstractClassGenerator<Object> {
   public interface EnhancerKey {
 
     Object newInstance(String type,
-                       String[] interfaces,
-                       WeakCacheKey<CallbackFilter> filter,
-                       Type[] callbackTypes,
-                       boolean useFactory,
-                       boolean interceptDuringConstruction,
-                       Long serialVersionUID);
+            String[] interfaces,
+            WeakCacheKey<CallbackFilter> filter,
+            Type[] callbackTypes,
+            boolean useFactory,
+            boolean interceptDuringConstruction,
+            Long serialVersionUID);
   }
 
   /**
@@ -1212,8 +1212,7 @@ public class Enhancer extends AbstractClassGenerator<Object> {
       }
       group.add(method);
 
-      if (actualMethod.isBridge()) {
-
+      if (actualMethod != null && actualMethod.isBridge()) {
         Set<MethodSignature> bridges = declToBridge.get(actualMethod.getDeclaringClass());
         if (bridges == null) {
           declToBridge.put(actualMethod.getDeclaringClass(), bridges = new HashSet<>());
@@ -1483,7 +1482,7 @@ public class Enhancer extends AbstractClassGenerator<Object> {
 
       @Override
       public void visit(int version, int access, String name,
-                        String signature, String superName, String[] interfaces) { }
+              String signature, String superName, String[] interfaces) { }
 
       @Override
       public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions) {

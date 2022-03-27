@@ -336,7 +336,6 @@ public class RetryTemplate implements RetryOperations {
           return retryCallback.doWithRetry(context);
         }
         catch (Throwable e) {
-
           lastException = e;
 
           try {

@@ -221,7 +221,7 @@ public class StatefulRecoveryRetryTests {
       fail("Expected RetryException");
     }
     catch (RetryException ex) {
-      String message = ex.getMessage();
+      String message = ex.getNestedMessage();
       assertTrue("Message doesn't contain 'inconsistent': " + message, message.contains("inconsistent"));
     }
 
@@ -255,7 +255,7 @@ public class StatefulRecoveryRetryTests {
       fail("Expected RetryException");
     }
     catch (RetryException e) {
-      String message = e.getMessage();
+      String message = e.getNestedMessage();
       assertTrue("Message does not contain 'capacity': " + message, message.contains("capacity"));
     }
   }

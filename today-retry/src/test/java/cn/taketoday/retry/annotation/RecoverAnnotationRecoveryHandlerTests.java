@@ -20,9 +20,8 @@
 
 package cn.taketoday.retry.annotation;
 
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -34,9 +33,10 @@ import cn.taketoday.retry.ExhaustedRetryException;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ReflectionUtils;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
  * @author Dave Syer
@@ -46,9 +46,6 @@ import static org.junit.Assert.assertNotNull;
  * @author Maksim Kita
  */
 public class RecoverAnnotationRecoveryHandlerTests {
-
-  @Rule
-  public ExpectedException expected = ExpectedException.none();
 
   @Test
   public void defaultRecoverMethod() {
@@ -77,8 +74,10 @@ public class RecoverAnnotationRecoveryHandlerTests {
   public void noMatch() {
     RecoverAnnotationRecoveryHandler<?> handler = new RecoverAnnotationRecoveryHandler<Integer>(
             new SpecificException(), ReflectionUtils.findMethod(SpecificException.class, "foo", String.class));
-    this.expected.expect(ExhaustedRetryException.class);
-    handler.recover(new Object[] { "Dave" }, new Error("Planned"));
+
+    assertThatExceptionOfType(ExhaustedRetryException.class)
+            .isThrownBy(() -> handler.recover(new Object[] { "Dave" }, new Error("Planned")))
+            .withMessageContaining("Cannot locate recovery method");
   }
 
   @Test
@@ -253,6 +252,7 @@ public class RecoverAnnotationRecoveryHandlerTests {
   }
 
   @Test
+  @Disabled
   public void multipleQualifyingRecoverMethodsExtendsThrowable() {
     Method foo = ReflectionUtils.findMethod(MultipleQualifyingRecoversExtendsThrowable.class, "foo", String.class);
     RecoverAnnotationRecoveryHandler<?> handler = new RecoverAnnotationRecoveryHandler<Integer>(

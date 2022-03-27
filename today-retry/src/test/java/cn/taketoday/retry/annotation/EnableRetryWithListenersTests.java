@@ -72,8 +72,8 @@ public class EnableRetryWithListenersTests {
     public RetryListener listener() {
       return new RetryListenerSupport() {
         @Override
-        public <T, E extends Throwable> void close(RetryContext context, RetryCallback<T, E> callback,
-                Throwable throwable) {
+        public <T, E extends Throwable> void close(
+                RetryContext context, RetryCallback<T, E> callback, Throwable throwable) {
           count++;
         }
       };

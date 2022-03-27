@@ -68,7 +68,30 @@ public class RecoverAnnotationRecoveryHandler<T> implements MethodInvocationReco
 
   public RecoverAnnotationRecoveryHandler(Object target, Method method) {
     this.target = target;
-    init(target, method);
+    var types = new HashMap<Class<? extends Throwable>, Method>();
+    final Method failingMethod = method;
+    Retryable retryable = AnnotationUtils.findAnnotation(method, Retryable.class);
+    if (retryable != null) {
+      this.recoverMethodName = retryable.recover();
+    }
+    ReflectionUtils.doWithMethods(target.getClass(), currentMethod -> {
+      Recover recover = AnnotationUtils.findAnnotation(currentMethod, Recover.class);
+      if (recover == null) {
+        recover = findAnnotationOnTarget(target, currentMethod);
+      }
+      if (recover != null && failingMethod.getGenericReturnType() instanceof ParameterizedType
+              && currentMethod.getGenericReturnType() instanceof ParameterizedType) {
+        if (isParameterizedTypeAssignable((ParameterizedType) currentMethod.getGenericReturnType(),
+                (ParameterizedType) failingMethod.getGenericReturnType())) {
+          putToMethodsMap(currentMethod, types);
+        }
+      }
+      else if (recover != null && currentMethod.getReturnType().isAssignableFrom(failingMethod.getReturnType())) {
+        putToMethodsMap(currentMethod, types);
+      }
+    });
+    this.classifier.setTypeMap(types);
+    optionallyFilterMethodsBy(failingMethod.getReturnType());
   }
 
   @Override
@@ -194,40 +217,12 @@ public class RecoverAnnotationRecoveryHandler<T> implements MethodInvocationReco
     return false;
   }
 
-  private void init(final Object target, Method method) {
-    var types = new HashMap<Class<? extends Throwable>, Method>();
-    final Method failingMethod = method;
-    Retryable retryable = AnnotationUtils.findAnnotation(method, Retryable.class);
-    if (retryable != null) {
-      this.recoverMethodName = retryable.recover();
-    }
-    ReflectionUtils.doWithMethods(target.getClass(), currentMethod -> {
-      Recover recover = AnnotationUtils.findAnnotation(currentMethod, Recover.class);
-      if (recover == null) {
-        recover = findAnnotationOnTarget(target, currentMethod);
-      }
-      if (recover != null && failingMethod.getGenericReturnType() instanceof ParameterizedType
-              && currentMethod.getGenericReturnType() instanceof ParameterizedType) {
-        if (isParameterizedTypeAssignable((ParameterizedType) currentMethod.getGenericReturnType(),
-                (ParameterizedType) failingMethod.getGenericReturnType())) {
-          putToMethodsMap(currentMethod, types);
-        }
-      }
-      else if (recover != null && currentMethod.getReturnType().isAssignableFrom(failingMethod.getReturnType())) {
-        putToMethodsMap(currentMethod, types);
-      }
-    });
-    this.classifier.setTypeMap(types);
-    optionallyFilterMethodsBy(failingMethod.getReturnType());
-  }
-
   /**
    * Returns {@code true} if the input methodReturnType is a direct match of the
    * failingMethodReturnType. Takes nested generics into consideration as well, while
    * deciding a match.
    *
    * @return true if the parameterized return types match.
-   * @since 4.0
    */
   private boolean isParameterizedTypeAssignable(
           ParameterizedType methodReturnType, ParameterizedType failingMethodReturnType) {
@@ -260,11 +255,11 @@ public class RecoverAnnotationRecoveryHandler<T> implements MethodInvocationReco
       @SuppressWarnings("unchecked")
       Class<? extends Throwable> type = (Class<? extends Throwable>) parameterTypes[0];
       types.put(type, method);
-      RecoverAnnotationRecoveryHandler.this.methods.put(method, new SimpleMetadata(parameterTypes.length, type));
+      methods.put(method, new SimpleMetadata(parameterTypes.length, type));
     }
     else {
-      RecoverAnnotationRecoveryHandler.this.classifier.setDefaultValue(method);
-      RecoverAnnotationRecoveryHandler.this.methods.put(method, new SimpleMetadata(parameterTypes.length, null));
+      classifier.setDefaultValue(method);
+      methods.put(method, new SimpleMetadata(parameterTypes.length, null));
     }
   }
 

@@ -28,6 +28,7 @@ import cn.taketoday.retry.support.DefaultRetryState;
  *
  * @author Rob Harrop
  * @author Dave Syer
+ * @since 4.0
  */
 public interface RetryOperations {
 

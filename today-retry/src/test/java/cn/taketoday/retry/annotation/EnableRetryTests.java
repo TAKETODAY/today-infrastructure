@@ -21,7 +21,6 @@
 package cn.taketoday.retry.annotation;
 
 import org.aopalliance.intercept.MethodInterceptor;
-import org.aopalliance.intercept.MethodInvocation;
 import org.junit.Test;
 
 import java.lang.reflect.Method;
@@ -139,8 +138,7 @@ public class EnableRetryTests {
       service.service();
       fail("Expected IllegalStateException");
     }
-    catch (IllegalStateException e) {
-    }
+    catch (IllegalStateException ignored) { }
     assertEquals(1, service.getCount());
     context.close();
   }
@@ -304,17 +302,12 @@ public class EnableRetryTests {
 
         if (bean instanceof RecoverableService) {
           Advised advised = (Advised) bean;
-          advised.addAdvice(new MethodInterceptor() {
+          advised.addAdvice((MethodInterceptor) invocation -> {
 
-            @Override
-            public Object invoke(MethodInvocation invocation) throws Throwable {
-
-              if (invocation.getMethod().getName().equals("recover")) {
-                ((RecoverableService) bean).setOtherAdviceCalled();
-              }
-              return invocation.proceed();
+            if (invocation.getMethod().getName().equals("recover")) {
+              ((RecoverableService) bean).setOtherAdviceCalled();
             }
-
+            return invocation.proceed();
           });
           return bean;
         }
@@ -638,7 +631,7 @@ public class EnableRetryTests {
 
   }
 
-  private static class InterceptableService {
+  static class InterceptableService {
 
     private int count = 0;
 
@@ -655,7 +648,7 @@ public class EnableRetryTests {
 
   }
 
-  private static class ExpressionService {
+  static class ExpressionService {
 
     private int count = 0;
 
@@ -672,9 +665,12 @@ public class EnableRetryTests {
       throw new RuntimeException("this cannot be retried");
     }
 
-    @cn.taketoday.retry.annotation.Retryable(exceptionExpression = "@exceptionChecker.${retryMethod}(#root)",
-                                             maxAttemptsExpression = "@integerFiveBean", backoff = @Backoff(delayExpression = "${one}",
-                                                                                                            maxDelayExpression = "@integerFiveBean", multiplierExpression = "${onePointOne}"))
+    @cn.taketoday.retry.annotation.Retryable(
+            exceptionExpression = "@exceptionChecker.${retryMethod}(#root)",
+            maxAttemptsExpression = "@integerFiveBean",
+            backoff = @Backoff(delayExpression = "${one}",
+                               maxDelayExpression = "@integerFiveBean", multiplierExpression = "${onePointOne}")
+    )
     public void service3() {
       if (this.count++ < 8) {
         throw new RuntimeException();
@@ -688,7 +684,9 @@ public class EnableRetryTests {
       }
     }
 
-    @cn.taketoday.retry.annotation.Retryable(exceptionExpression = "message.contains('this can be retried')", include = RuntimeException.class)
+    @cn.taketoday.retry.annotation.Retryable(
+            exceptionExpression = "message.contains('this can be retried')",
+            include = RuntimeException.class)
     public void service5() {
       if (this.count++ < 11) {
         throw new RuntimeException("this can be retried");

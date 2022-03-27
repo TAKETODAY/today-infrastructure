@@ -20,8 +20,8 @@
 
 package cn.taketoday.retry.annotation;
 
-import org.junit.Test;
 import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 import java.util.HashSet;
 import java.util.List;

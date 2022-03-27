@@ -28,6 +28,7 @@ package cn.taketoday.retry;
  * @param <E> the type of exception it declares may be thrown
  * @author Rob Harrop
  * @author Dave Syer
+ * @since 4.0
  */
 public interface RetryCallback<T, E extends Throwable> {
 
