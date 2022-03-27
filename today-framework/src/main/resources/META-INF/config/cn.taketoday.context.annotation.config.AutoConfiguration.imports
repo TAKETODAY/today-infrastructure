@@ -1,3 +1,4 @@
+cn.taketoday.jdbc.config.DataSourceAutoConfiguration
 cn.taketoday.framework.config.context.LifecycleAutoConfiguration
 cn.taketoday.framework.config.context.MessageSourceAutoConfiguration
 cn.taketoday.framework.config.context.PropertyPlaceholderAutoConfiguration
