@@ -60,20 +60,6 @@
       <scope>provided</scope>
     </dependency>
 
-    <dependency>
-      <groupId>cn.taketoday</groupId>
-      <artifactId>today-test</artifactId>
-      <version>${project.version}</version>
-      <scope>test</scope>
-      <exclusions>
-        <exclusion>
-          <groupId>cn.taketoday</groupId>
-          <artifactId>today-framework</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-
-
   </dependencies>
 
 </project>
