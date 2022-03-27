@@ -84,16 +84,13 @@ public class AnnotationAwareRetryOperationsInterceptor implements IntroductionIn
 
   private static final SpelExpressionParser PARSER = new SpelExpressionParser();
 
-  private static final MethodInterceptor NULL_INTERCEPTOR = new MethodInterceptor() {
-    @Override
-    public Object invoke(MethodInvocation methodInvocation) throws Throwable {
-      throw new OperationNotSupportedException("Not supported");
-    }
+  private static final MethodInterceptor NULL_INTERCEPTOR = methodInvocation -> {
+    throw new OperationNotSupportedException("Not supported");
   };
 
   private final StandardEvaluationContext evaluationContext = new StandardEvaluationContext();
 
-  private final ConcurrentReferenceHashMap<Object, ConcurrentMap<Method, MethodInterceptor>> delegates = new ConcurrentReferenceHashMap<Object, ConcurrentMap<Method, MethodInterceptor>>();
+  private final ConcurrentReferenceHashMap<Object, ConcurrentMap<Method, MethodInterceptor>> delegates = new ConcurrentReferenceHashMap<>();
 
   private RetryContextCache retryContextCache = new MapRetryContextCache();
 
@@ -173,7 +170,7 @@ public class AnnotationAwareRetryOperationsInterceptor implements IntroductionIn
   private MethodInterceptor getDelegate(Object target, Method method) {
     ConcurrentMap<Method, MethodInterceptor> cachedMethods = this.delegates.get(target);
     if (cachedMethods == null) {
-      cachedMethods = new ConcurrentHashMap<Method, MethodInterceptor>();
+      cachedMethods = new ConcurrentHashMap<>();
     }
     MethodInterceptor delegate = cachedMethods.get(method);
     if (delegate == null) {
@@ -223,8 +220,11 @@ public class AnnotationAwareRetryOperationsInterceptor implements IntroductionIn
     RetryTemplate template = createTemplate(retryable.listeners());
     template.setRetryPolicy(getRetryPolicy(retryable));
     template.setBackOffPolicy(getBackoffPolicy(retryable.backoff()));
-    return RetryInterceptorBuilder.stateless().retryOperations(template).label(retryable.label())
-            .recoverer(getRecoverer(target, method)).build();
+    return RetryInterceptorBuilder.stateless()
+            .retryOperations(template)
+            .label(retryable.label())
+            .recoverer(getRecoverer(target, method))
+            .build();
   }
 
   private MethodInterceptor getStatefulInterceptor(Object target, Method method, Retryable retryable) {

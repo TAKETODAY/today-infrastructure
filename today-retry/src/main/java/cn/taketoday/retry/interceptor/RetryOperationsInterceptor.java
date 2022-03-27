@@ -23,12 +23,9 @@ package cn.taketoday.retry.interceptor;
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
 
-import java.util.Arrays;
-
 import cn.taketoday.aop.ProxyMethodInvocation;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.retry.RecoveryCallback;
-import cn.taketoday.retry.RetryCallback;
 import cn.taketoday.retry.RetryContext;
 import cn.taketoday.retry.RetryOperations;
 import cn.taketoday.retry.support.RetrySynchronizationManager;
@@ -50,6 +47,7 @@ import cn.taketoday.util.StringUtils;
  *
  * @author Rob Harrop
  * @author Dave Syer
+ * @since 4.0
  */
 public class RetryOperationsInterceptor implements MethodInterceptor {
 
@@ -82,14 +80,13 @@ public class RetryOperationsInterceptor implements MethodInterceptor {
     else {
       name = invocation.getMethod().toGenericString();
     }
+
     final String label = name;
 
-    RetryCallback<Object, Throwable> retryCallback = new MethodInvocationRetryCallback<Object, Throwable>(
-            invocation, label) {
+    var retryCallback = new MethodInvocationRetryCallback<>(invocation, label) {
 
       @Override
       public Object doWithRetry(RetryContext context) throws Exception {
-
         context.setAttribute(RetryContext.NAME, this.label);
 
         /*
@@ -98,10 +95,10 @@ public class RetryOperationsInterceptor implements MethodInterceptor {
          * specialise to ReflectiveMethodInvocation (but how often would another
          * implementation come along?).
          */
-        if (this.invocation instanceof ProxyMethodInvocation) {
-          context.setAttribute("___proxy___", ((ProxyMethodInvocation) this.invocation).getProxy());
+        if (this.invocation instanceof ProxyMethodInvocation proxyInv) {
+          context.setAttribute("___proxy___", proxyInv.getProxy());
           try {
-            return ((ProxyMethodInvocation) this.invocation).invocableClone().proceed();
+            return proxyInv.invocableClone().proceed();
           }
           catch (Exception e) {
             throw e;
@@ -123,11 +120,9 @@ public class RetryOperationsInterceptor implements MethodInterceptor {
     };
 
     if (this.recoverer != null) {
-      ItemRecovererCallback recoveryCallback = new ItemRecovererCallback(invocation.getArguments(),
-              this.recoverer);
+      var recoveryCallback = new ItemRecovererCallback(invocation.getArguments(), this.recoverer);
       try {
-        Object recovered = this.retryOperations.execute(retryCallback, recoveryCallback);
-        return recovered;
+        return retryOperations.execute(retryCallback, recoveryCallback);
       }
       finally {
         RetryContext context = RetrySynchronizationManager.getContext();
@@ -137,24 +132,21 @@ public class RetryOperationsInterceptor implements MethodInterceptor {
       }
     }
 
-    return this.retryOperations.execute(retryCallback);
+    return retryOperations.execute(retryCallback);
 
   }
 
   /**
    * @author Dave Syer
    */
-  private static final class ItemRecovererCallback implements RecoveryCallback<Object> {
-
-    private final Object[] args;
-
-    private final MethodInvocationRecoverer<?> recoverer;
+  private record ItemRecovererCallback(Object[] args, MethodInvocationRecoverer<?> recoverer)
+          implements RecoveryCallback<Object> {
 
     /**
      * @param args the item that failed.
      */
     private ItemRecovererCallback(Object[] args, MethodInvocationRecoverer<?> recoverer) {
-      this.args = Arrays.asList(args).toArray();
+      this.args = args.clone();
       this.recoverer = recoverer;
     }
 

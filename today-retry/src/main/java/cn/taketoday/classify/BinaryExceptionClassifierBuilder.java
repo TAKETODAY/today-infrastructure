@@ -21,7 +21,6 @@
 package cn.taketoday.classify;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import cn.taketoday.lang.Assert;
 
@@ -56,7 +55,7 @@ public class BinaryExceptionClassifierBuilder {
 
   private boolean traverseCauses = false;
 
-  private List<Class<? extends Throwable>> exceptionClasses = new ArrayList<Class<? extends Throwable>>();
+  private final ArrayList<Class<? extends Throwable>> exceptionClasses = new ArrayList<>();
 
   public BinaryExceptionClassifierBuilder retryOn(Class<? extends Throwable> throwable) {
     Assert.isTrue(isWhiteList == null || isWhiteList, "Please use only retryOn() or only notRetryOn()");

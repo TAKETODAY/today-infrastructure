@@ -28,10 +28,11 @@ import cn.taketoday.retry.RetryStatistics;
 
 /**
  * @author Dave Syer
+ * @since 4.0
  */
 public class DefaultStatisticsRepository implements StatisticsRepository {
 
-  private ConcurrentMap<String, MutableRetryStatistics> map = new ConcurrentHashMap<String, MutableRetryStatistics>();
+  private final ConcurrentMap<String, MutableRetryStatistics> map = new ConcurrentHashMap<>();
 
   private RetryStatisticsFactory factory = new DefaultRetryStatisticsFactory();
 
@@ -46,7 +47,7 @@ public class DefaultStatisticsRepository implements StatisticsRepository {
 
   @Override
   public Iterable<RetryStatistics> findAll() {
-    return new ArrayList<RetryStatistics>(map.values());
+    return new ArrayList<>(map.values());
   }
 
   @Override

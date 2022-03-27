@@ -31,6 +31,7 @@ import cn.taketoday.retry.context.RetryContextSupport;
  * use {@link ExceptionClassifierRetryPolicy}.
  *
  * @author Aleksandr Shamukov
+ * @since 4.0
  */
 @SuppressWarnings("serial")
 public class BinaryExceptionClassifierRetryPolicy implements RetryPolicy {

@@ -57,6 +57,7 @@ import cn.taketoday.util.StringUtils;
  *
  * @author Dave Syer
  * @author Gary Russell
+ * @since 4.0
  */
 public class StatefulRetryOperationsInterceptor implements MethodInterceptor {
 
@@ -154,9 +155,9 @@ public class StatefulRetryOperationsInterceptor implements MethodInterceptor {
   @Override
   public Object invoke(final MethodInvocation invocation) throws Throwable {
 
-    if (this.logger.isDebugEnabled()) {
-      this.logger.debug("Executing proxied method in stateful retry: " + invocation.getStaticPart() + "("
-              + ObjectUtils.getIdentityHexString(invocation) + ")");
+    if (logger.isDebugEnabled()) {
+      logger.debug("Executing proxied method in stateful retry: {}({})",
+              invocation.getStaticPart(), ObjectUtils.getIdentityHexString(invocation));
     }
 
     Object[] args = invocation.getArguments();
@@ -167,18 +168,17 @@ public class StatefulRetryOperationsInterceptor implements MethodInterceptor {
 
     Object key = createKey(invocation, defaultKey);
     RetryState retryState = new DefaultRetryState(key,
-            this.newMethodArgumentsIdentifier != null && this.newMethodArgumentsIdentifier.isNew(args),
-            this.rollbackClassifier);
+            newMethodArgumentsIdentifier != null && newMethodArgumentsIdentifier.isNew(args),
+            rollbackClassifier);
 
-    Object result = this.retryOperations.execute(new StatefulMethodInvocationRetryCallback(invocation, label),
-            this.recoverer != null ? new ItemRecovererCallback(args, this.recoverer) : null, retryState);
+    Object result = retryOperations.execute(new StatefulMethodInvocationRetryCallback(invocation, label),
+            recoverer != null ? new ItemRecovererCallback(args, recoverer) : null, retryState);
 
-    if (this.logger.isDebugEnabled()) {
-      this.logger.debug("Exiting proxied method in stateful retry with result: (" + result + ")");
+    if (logger.isDebugEnabled()) {
+      logger.debug("Exiting proxied method in stateful retry with result: ({})", result);
     }
 
     return result;
-
   }
 
   private Object createKey(final MethodInvocation invocation, Object defaultKey) {
@@ -230,17 +230,14 @@ public class StatefulRetryOperationsInterceptor implements MethodInterceptor {
   /**
    * @author Dave Syer
    */
-  private static final class ItemRecovererCallback implements RecoveryCallback<Object> {
-
-    private final Object[] args;
-
-    private final MethodInvocationRecoverer<?> recoverer;
+  private record ItemRecovererCallback(Object[] args, MethodInvocationRecoverer<?> recoverer)
+          implements RecoveryCallback<Object> {
 
     /**
      * @param args the item that failed.
      */
     private ItemRecovererCallback(Object[] args, MethodInvocationRecoverer<?> recoverer) {
-      this.args = Arrays.asList(args).toArray();
+      this.args = args.clone();
       this.recoverer = recoverer;
     }
 

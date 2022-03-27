@@ -28,6 +28,7 @@ import cn.taketoday.retry.RetryPolicy;
  * other policies, e.g. for test purposes as a stub.
  *
  * @author Dave Syer
+ * @since 4.0
  */
 @SuppressWarnings("serial")
 public class AlwaysRetryPolicy extends NeverRetryPolicy {

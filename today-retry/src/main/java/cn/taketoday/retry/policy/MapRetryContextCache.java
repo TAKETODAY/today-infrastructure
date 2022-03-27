@@ -30,6 +30,7 @@ import cn.taketoday.retry.RetryContext;
  * contexts is synchronized.
  *
  * @author Dave Syer
+ * @since 4.0
  */
 public class MapRetryContextCache implements RetryContextCache {
 
@@ -40,7 +41,7 @@ public class MapRetryContextCache implements RetryContextCache {
    */
   public static final int DEFAULT_CAPACITY = 4096;
 
-  private Map<Object, RetryContext> map = Collections.synchronizedMap(new HashMap<Object, RetryContext>());
+  private final Map<Object, RetryContext> map = Collections.synchronizedMap(new HashMap<>());
 
   private int capacity;
 

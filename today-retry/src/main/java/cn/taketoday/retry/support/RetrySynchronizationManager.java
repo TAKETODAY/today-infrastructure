@@ -37,10 +37,9 @@ import cn.taketoday.retry.RetryOperations;
  */
 public final class RetrySynchronizationManager {
 
-  private RetrySynchronizationManager() {
-  }
+  private RetrySynchronizationManager() { }
 
-  private static final ThreadLocal<RetryContext> context = new ThreadLocal<RetryContext>();
+  private static final ThreadLocal<RetryContext> context = new ThreadLocal<>();
 
   /**
    * Public accessor for the locally enclosing {@link RetryContext}.
@@ -48,8 +47,7 @@ public final class RetrySynchronizationManager {
    * @return the current retry context, or null if there isn't one
    */
   public static RetryContext getContext() {
-    RetryContext result = context.get();
-    return result;
+    return context.get();
   }
 
   /**

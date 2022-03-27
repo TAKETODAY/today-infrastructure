@@ -31,6 +31,7 @@ package cn.taketoday.retry.backoff;
  * @author Rob Harrop
  * @author Dave Syer
  * @author Artem Bilan
+ * @since 4.0
  */
 public class FixedBackOffPolicy extends StatelessBackOffPolicy implements SleepingBackOffPolicy<FixedBackOffPolicy> {
 

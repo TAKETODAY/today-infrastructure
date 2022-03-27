@@ -58,6 +58,7 @@ import cn.taketoday.util.ClassUtils;
  * @author Rob Harrop
  * @author Gary Russell
  * @author Aleksandr Shamukov
+ * @since 4.0
  */
 @SuppressWarnings("serial")
 public class SimpleRetryPolicy implements RetryPolicy {

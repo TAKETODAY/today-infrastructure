@@ -39,10 +39,10 @@ import cn.taketoday.context.annotation.Import;
  * @author Dave Syer
  * @since 4.0
  */
-@Target({ ElementType.METHOD, ElementType.TYPE })
+@Documented
 @Retention(RetentionPolicy.RUNTIME)
 @Import(RetryConfiguration.class)
-@Documented
+@Target({ ElementType.METHOD, ElementType.TYPE })
 public @interface Recover {
 
 }

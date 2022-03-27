@@ -47,6 +47,7 @@ import cn.taketoday.retry.RetryContext;
  * @author Jon Travis
  * @author Dave Syer
  * @author Chase Diem
+ * @since 4.0
  */
 @SuppressWarnings("serial")
 public class ExponentialRandomBackOffPolicy extends ExponentialBackOffPolicy {

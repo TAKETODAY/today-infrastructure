@@ -30,15 +30,15 @@ import cn.taketoday.retry.context.RetryContextSupport;
 
 /**
  * @author Dave Syer
+ * @since 4.0
  */
 @SuppressWarnings("serial")
 public class CircuitBreakerRetryPolicy implements RetryPolicy {
+  private static final Logger logger = LoggerFactory.getLogger(CircuitBreakerRetryPolicy.class);
 
   public static final String CIRCUIT_OPEN = "circuit.open";
 
   public static final String CIRCUIT_SHORT_COUNT = "circuit.shortCount";
-
-  private static Logger logger = LoggerFactory.getLogger(CircuitBreakerRetryPolicy.class);
 
   private final RetryPolicy delegate;
 
@@ -156,7 +156,8 @@ public class CircuitBreakerRetryPolicy implements RetryPolicy {
           retryable = this.policy.canRetry(this.context);
         }
         else if (time < this.openWindow) {
-          if (!hasAttribute(CIRCUIT_OPEN) || (Boolean) getAttribute(CIRCUIT_OPEN) == false) {
+          Object attribute = getAttribute(CIRCUIT_OPEN);
+          if (attribute == null || (attribute instanceof Boolean circuitOpen && !circuitOpen)) {
             logger.trace("Opening circuit");
             setAttribute(CIRCUIT_OPEN, true);
             this.start = System.currentTimeMillis();

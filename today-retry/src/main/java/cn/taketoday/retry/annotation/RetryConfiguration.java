@@ -22,6 +22,7 @@ package cn.taketoday.retry.annotation;
 
 import org.aopalliance.aop.Advice;
 
+import java.io.Serial;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -67,10 +68,11 @@ import cn.taketoday.util.ReflectionUtils;
  * @since 4.0
  */
 @Component
-@SuppressWarnings("serial")
 @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
 public class RetryConfiguration extends AbstractPointcutAdvisor
         implements IntroductionAdvisor, BeanFactoryAware, InitializingBean {
+  @Serial
+  private static final long serialVersionUID = 1L;
 
   private Advice advice;
 
@@ -89,12 +91,12 @@ public class RetryConfiguration extends AbstractPointcutAdvisor
   private BeanFactory beanFactory;
 
   @Override
-  public void afterPropertiesSet() throws Exception {
+  public void afterPropertiesSet() {
+    this.sleeper = findBean(Sleeper.class);
+    this.retryListeners = findBeans(RetryListener.class);
     this.retryContextCache = findBean(RetryContextCache.class);
     this.methodArgumentsKeyGenerator = findBean(MethodArgumentsKeyGenerator.class);
     this.newMethodArgumentsIdentifier = findBean(NewMethodArgumentsIdentifier.class);
-    this.retryListeners = findBeans(RetryListener.class);
-    this.sleeper = findBean(Sleeper.class);
     var retryableAnnotationTypes = new LinkedHashSet<Class<? extends Annotation>>(1);
     retryableAnnotationTypes.add(Retryable.class);
     this.pointcut = buildPointcut(retryableAnnotationTypes);
@@ -234,13 +236,7 @@ public class RetryConfiguration extends AbstractPointcutAdvisor
 
   }
 
-  private static class AnnotationMethodsResolver {
-
-    private final Class<? extends Annotation> annotationType;
-
-    public AnnotationMethodsResolver(Class<? extends Annotation> annotationType) {
-      this.annotationType = annotationType;
-    }
+  private record AnnotationMethodsResolver(Class<? extends Annotation> annotationType) {
 
     public boolean hasAnnotatedMethods(Class<?> clazz) {
       final AtomicBoolean found = new AtomicBoolean(false);

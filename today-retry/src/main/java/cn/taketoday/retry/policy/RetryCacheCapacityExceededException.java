@@ -29,6 +29,7 @@ import cn.taketoday.retry.RetryException;
  * {@link RetryContextCache} in use to determine how to increase the limit if appropriate.
  *
  * @author Dave Syer
+ * @since 4.0
  */
 @SuppressWarnings("serial")
 public class RetryCacheCapacityExceededException extends RetryException {

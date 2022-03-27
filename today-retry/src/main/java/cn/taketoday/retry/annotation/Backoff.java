@@ -47,9 +47,9 @@ import cn.taketoday.retry.backoff.ExponentialBackOffPolicy;
  * @author Gary Russell
  * @since 4.0
  */
+@Documented
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
-@Documented
 public @interface Backoff {
 
   /**
@@ -94,7 +94,6 @@ public @interface Backoff {
    * {@link #delay()}.
    *
    * @return the initial or canonical backoff period in milliseconds.
-   * @since 4.0
    */
   String delayExpression() default "";
 
@@ -105,7 +104,6 @@ public @interface Backoff {
    * is applied. Overrides {@link #maxDelay()}
    *
    * @return the maximum delay between retries (default 0 = ignored)
-   * @since 4.0
    */
   String maxDelayExpression() default "";
 
@@ -115,7 +113,6 @@ public @interface Backoff {
    *
    * @return a multiplier expression to use to calculate the next backoff delay (default
    * 0 = ignored)
-   * @since 4.0
    */
   String multiplierExpression() default "";
 

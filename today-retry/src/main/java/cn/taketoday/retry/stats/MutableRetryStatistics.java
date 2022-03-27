@@ -25,6 +25,7 @@ import cn.taketoday.retry.RetryStatistics;
 
 /**
  * @author Dave Syer
+ * @since 4.0
  */
 public interface MutableRetryStatistics extends RetryStatistics, AttributeAccessor {
 

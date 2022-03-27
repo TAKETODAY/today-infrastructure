@@ -86,8 +86,7 @@ public class BackOffPolicyBuilder {
 
   private Sleeper sleeper;
 
-  private BackOffPolicyBuilder() {
-  }
+  private BackOffPolicyBuilder() { }
 
   /**
    * Creates a new {@link BackOffPolicyBuilder} instance.

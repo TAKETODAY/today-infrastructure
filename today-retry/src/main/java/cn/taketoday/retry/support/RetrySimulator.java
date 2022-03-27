@@ -93,7 +93,7 @@ public class RetrySimulator {
     try {
       template.execute(new FailingRetryCallback());
     }
-    catch (FailingRetryException e) {
+    catch (FailingRetryException ignored) {
 
     }
     catch (Throwable e) {
@@ -119,7 +119,7 @@ public class RetrySimulator {
   @SuppressWarnings("serial")
   static class StealingSleeper implements Sleeper {
 
-    private final List<Long> sleeps = new ArrayList<Long>();
+    private final ArrayList<Long> sleeps = new ArrayList<>();
 
     public void sleep(long backOffPeriod) throws InterruptedException {
       sleeps.add(backOffPeriod);

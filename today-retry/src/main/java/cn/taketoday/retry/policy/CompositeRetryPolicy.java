@@ -21,7 +21,6 @@
 package cn.taketoday.retry.policy;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import cn.taketoday.retry.RetryContext;
@@ -34,6 +33,7 @@ import cn.taketoday.retry.context.RetryContextSupport;
  *
  * @author Dave Syer
  * @author Michael Minella
+ * @since 4.0
  */
 @SuppressWarnings("serial")
 public class CompositeRetryPolicy implements RetryPolicy {
@@ -57,7 +57,7 @@ public class CompositeRetryPolicy implements RetryPolicy {
    * @param policies the {@link RetryPolicy} policies
    */
   public void setPolicies(RetryPolicy[] policies) {
-    this.policies = Arrays.asList(policies).toArray(new RetryPolicy[policies.length]);
+    this.policies = policies.clone();
   }
 
   /**
@@ -129,7 +129,7 @@ public class CompositeRetryPolicy implements RetryPolicy {
    */
   @Override
   public RetryContext open(RetryContext parent) {
-    List<RetryContext> list = new ArrayList<RetryContext>();
+    ArrayList<RetryContext> list = new ArrayList<>();
     for (RetryPolicy policy : this.policies) {
       list.add(policy.open(parent));
     }

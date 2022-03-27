@@ -25,6 +25,7 @@ package cn.taketoday.retry.interceptor;
  * before, e.g. by examining a message flag.
  *
  * @author Dave Syer
+ * @since 4.0
  */
 public interface NewMethodArgumentsIdentifier {
 

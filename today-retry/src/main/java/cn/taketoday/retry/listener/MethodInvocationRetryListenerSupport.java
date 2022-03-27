@@ -41,23 +41,20 @@ public class MethodInvocationRetryListenerSupport implements RetryListener {
 
   public <T, E extends Throwable> void close(RetryContext context, RetryCallback<T, E> callback,
           Throwable throwable) {
-    if (callback instanceof MethodInvocationRetryCallback) {
-      MethodInvocationRetryCallback<T, E> methodInvocationRetryCallback = (MethodInvocationRetryCallback<T, E>) callback;
+    if (callback instanceof MethodInvocationRetryCallback<T, E> methodInvocationRetryCallback) {
       doClose(context, methodInvocationRetryCallback, throwable);
     }
   }
 
   public <T, E extends Throwable> void onError(RetryContext context, RetryCallback<T, E> callback,
           Throwable throwable) {
-    if (callback instanceof MethodInvocationRetryCallback) {
-      MethodInvocationRetryCallback<T, E> methodInvocationRetryCallback = (MethodInvocationRetryCallback<T, E>) callback;
+    if (callback instanceof MethodInvocationRetryCallback<T, E> methodInvocationRetryCallback) {
       doOnError(context, methodInvocationRetryCallback, throwable);
     }
   }
 
   public <T, E extends Throwable> boolean open(RetryContext context, RetryCallback<T, E> callback) {
-    if (callback instanceof MethodInvocationRetryCallback) {
-      MethodInvocationRetryCallback<T, E> methodInvocationRetryCallback = (MethodInvocationRetryCallback<T, E>) callback;
+    if (callback instanceof MethodInvocationRetryCallback<T, E> methodInvocationRetryCallback) {
       return doOpen(context, methodInvocationRetryCallback);
     }
     // in case that the callback is not for a reflective method invocation

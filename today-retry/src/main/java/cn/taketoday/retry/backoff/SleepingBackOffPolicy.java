@@ -25,6 +25,7 @@ package cn.taketoday.retry.backoff;
  * when backing off.
  *
  * @param <T> the type of the policy itself
+ * @since 4.0
  */
 public interface SleepingBackOffPolicy<T extends SleepingBackOffPolicy<T>> extends BackOffPolicy {
 

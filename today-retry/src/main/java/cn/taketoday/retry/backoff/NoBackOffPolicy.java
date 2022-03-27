@@ -30,6 +30,7 @@ package cn.taketoday.retry.backoff;
 public class NoBackOffPolicy extends StatelessBackOffPolicy {
 
   protected void doBackOff() throws BackOffInterruptedException {
+
   }
 
   @Override

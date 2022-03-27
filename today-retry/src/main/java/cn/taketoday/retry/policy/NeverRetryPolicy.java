@@ -29,6 +29,7 @@ import cn.taketoday.retry.context.RetryContextSupport;
  * used as a base class for other policies, e.g. for test purposes as a stub.
  *
  * @author Dave Syer
+ * @since 4.0
  */
 @SuppressWarnings("serial")
 public class NeverRetryPolicy implements RetryPolicy {

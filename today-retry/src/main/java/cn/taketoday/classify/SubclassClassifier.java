@@ -39,9 +39,9 @@ import java.util.concurrent.ConcurrentMap;
 @SuppressWarnings("serial")
 public class SubclassClassifier<T, C> implements Classifier<T, C> {
 
-  private ConcurrentMap<Class<? extends T>, C> classified = new ConcurrentHashMap<Class<? extends T>, C>();
+  private C defaultValue;
 
-  private C defaultValue = null;
+  private ConcurrentMap<Class<? extends T>, C> classified;
 
   /**
    * Create a {@link SubclassClassifier} with null default value.
@@ -56,7 +56,7 @@ public class SubclassClassifier<T, C> implements Classifier<T, C> {
    * @param defaultValue the default value
    */
   public SubclassClassifier(C defaultValue) {
-    this(new HashMap<Class<? extends T>, C>(), defaultValue);
+    this(new HashMap<>(), defaultValue);
   }
 
   /**
@@ -67,7 +67,7 @@ public class SubclassClassifier<T, C> implements Classifier<T, C> {
    */
   public SubclassClassifier(Map<Class<? extends T>, C> typeMap, C defaultValue) {
     super();
-    this.classified = new ConcurrentHashMap<Class<? extends T>, C>(typeMap);
+    this.classified = new ConcurrentHashMap<>(typeMap);
     this.defaultValue = defaultValue;
   }
 
@@ -89,7 +89,7 @@ public class SubclassClassifier<T, C> implements Classifier<T, C> {
    * @param map a map from type to class
    */
   public void setTypeMap(Map<Class<? extends T>, C> map) {
-    this.classified = new ConcurrentHashMap<Class<? extends T>, C>(map);
+    this.classified = new ConcurrentHashMap<>(map);
   }
 
   /**

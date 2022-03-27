@@ -32,10 +32,10 @@ import java.lang.annotation.Target;
  *
  * @author Dave Syer
  */
-@Target(ElementType.METHOD)
-@Retention(RetentionPolicy.RUNTIME)
 @Inherited
 @Documented
+@Target(ElementType.METHOD)
+@Retention(RetentionPolicy.RUNTIME)
 public @interface Classifier {
 
 }

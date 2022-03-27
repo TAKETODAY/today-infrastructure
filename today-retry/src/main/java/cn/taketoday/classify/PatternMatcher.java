@@ -20,10 +20,6 @@
 package cn.taketoday.classify;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import cn.taketoday.lang.Assert;
@@ -35,9 +31,8 @@ import cn.taketoday.lang.Assert;
  */
 public class PatternMatcher<S> {
 
-  private Map<String, S> map = new HashMap<String, S>();
-
-  private List<String> sorted = new ArrayList<String>();
+  private final Map<String, S> map;
+  private final ArrayList<String> sorted;
 
   /**
    * Initialize a new {@link PatternMatcher} with a map of patterns to values
@@ -48,14 +43,11 @@ public class PatternMatcher<S> {
     super();
     this.map = map;
     // Sort keys to start with the most specific
-    this.sorted = new ArrayList<String>(map.keySet());
-    Collections.sort(this.sorted, new Comparator<String>() {
-      @Override
-      public int compare(String o1, String o2) {
-        String s1 = o1; // .replace('?', '{');
-        String s2 = o2; // .replace('*', '}');
-        return s2.compareTo(s1);
-      }
+    this.sorted = new ArrayList<>(map.keySet());
+    this.sorted.sort((o1, o2) -> {
+      String s1 = o1; // .replace('?', '{');
+      String s2 = o2; // .replace('*', '}');
+      return s2.compareTo(s1);
     });
   }
 
@@ -216,10 +208,8 @@ public class PatternMatcher<S> {
    * @return the value whose prefix matches the given line
    */
   public S match(String line) {
-
-    S value = null;
     Assert.notNull(line, "A non-null key must be provided to match against.");
-
+    S value = null;
     for (String key : this.sorted) {
       if (PatternMatcher.match(key, line)) {
         value = this.map.get(key);

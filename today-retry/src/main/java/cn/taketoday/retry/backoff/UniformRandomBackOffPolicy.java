@@ -33,6 +33,7 @@ import java.util.Random;
  * @author Rob Harrop
  * @author Dave Syer
  * @author Tomaz Fernandes
+ * @since 4.0
  */
 public class UniformRandomBackOffPolicy extends StatelessBackOffPolicy
         implements SleepingBackOffPolicy<UniformRandomBackOffPolicy> {
@@ -51,7 +52,7 @@ public class UniformRandomBackOffPolicy extends StatelessBackOffPolicy
 
   private volatile long maxBackOffPeriod = DEFAULT_BACK_OFF_MAX_PERIOD;
 
-  private Random random = new Random(System.currentTimeMillis());
+  private final Random random = new Random(System.currentTimeMillis());
 
   private Sleeper sleeper = new ThreadWaitSleeper();
 
@@ -117,8 +118,9 @@ public class UniformRandomBackOffPolicy extends StatelessBackOffPolicy
    */
   protected void doBackOff() throws BackOffInterruptedException {
     try {
-      long delta = maxBackOffPeriod == minBackOffPeriod ? 0
-                                                        : random.nextInt((int) (maxBackOffPeriod - minBackOffPeriod));
+      long delta = maxBackOffPeriod == minBackOffPeriod
+                   ? 0
+                   : random.nextInt((int) (maxBackOffPeriod - minBackOffPeriod));
       sleeper.sleep(minBackOffPeriod + delta);
     }
     catch (InterruptedException e) {

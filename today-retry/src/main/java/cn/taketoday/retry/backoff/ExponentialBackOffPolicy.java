@@ -41,6 +41,7 @@ import cn.taketoday.util.ClassUtils;
  * @author Dave Syer
  * @author Gary Russell
  * @author Artem Bilan
+ * @since 4.0
  */
 @SuppressWarnings("serial")
 public class ExponentialBackOffPolicy implements SleepingBackOffPolicy<ExponentialBackOffPolicy> {
@@ -125,7 +126,7 @@ public class ExponentialBackOffPolicy implements SleepingBackOffPolicy<Exponenti
    * @param multiplier the multiplier
    */
   public void setMultiplier(double multiplier) {
-    this.multiplier = (multiplier > 1.0 ? multiplier : 1.0);
+    this.multiplier = Math.max(multiplier, 1.0);
   }
 
   /**
@@ -199,7 +200,7 @@ public class ExponentialBackOffPolicy implements SleepingBackOffPolicy<Exponenti
 
     private long interval;
 
-    private long maxInterval;
+    private final long maxInterval;
 
     public ExponentialBackOffContext(long interval, double multiplier, long maxInterval) {
       this.interval = interval;

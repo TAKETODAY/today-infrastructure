@@ -41,7 +41,7 @@ public class PatternMatchingClassifier<T> implements Classifier<String, T> {
    * classifier, otherwise all inputs will cause an exception.
    */
   public PatternMatchingClassifier() {
-    this(new HashMap<String, T>());
+    this(new HashMap<>());
   }
 
   /**
@@ -61,7 +61,7 @@ public class PatternMatchingClassifier<T> implements Classifier<String, T> {
    * @param values the pattern map to set
    */
   public void setPatternMap(Map<String, T> values) {
-    this.values = new PatternMatcher<T>(values);
+    this.values = new PatternMatcher<>(values);
   }
 
   /**
@@ -74,8 +74,7 @@ public class PatternMatchingClassifier<T> implements Classifier<String, T> {
    */
   @Override
   public T classify(String classifiable) {
-    T value = this.values.match(classifiable);
-    return value;
+    return values.match(classifiable);
   }
 
 }

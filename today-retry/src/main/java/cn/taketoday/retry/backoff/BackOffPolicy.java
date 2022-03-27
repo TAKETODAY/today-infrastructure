@@ -42,6 +42,7 @@ import cn.taketoday.retry.support.RetryTemplate;
  *
  * @author Rob Harrop
  * @author Dave Syer
+ * @since 4.0
  */
 public interface BackOffPolicy {
 

@@ -33,6 +33,7 @@ import cn.taketoday.retry.RetryContext;
  *
  * @author Dave Syer
  * @see MapRetryContextCache for non-soft referenced version
+ * @since 4.0
  */
 public class SoftReferenceMapRetryContextCache implements RetryContextCache {
 
@@ -43,8 +44,7 @@ public class SoftReferenceMapRetryContextCache implements RetryContextCache {
    */
   public static final int DEFAULT_CAPACITY = 4096;
 
-  private Map<Object, SoftReference<RetryContext>> map = Collections
-          .synchronizedMap(new HashMap<Object, SoftReference<RetryContext>>());
+  private final Map<Object, SoftReference<RetryContext>> map = Collections.synchronizedMap(new HashMap<>());
 
   private int capacity;
 
@@ -96,7 +96,7 @@ public class SoftReferenceMapRetryContextCache implements RetryContextCache {
               + "Do you need to re-consider the implementation of the key generator, "
               + "or the equals and hashCode of the items that failed?");
     }
-    map.put(key, new SoftReference<RetryContext>(context));
+    map.put(key, new SoftReference<>(context));
   }
 
   public void remove(Object key) {

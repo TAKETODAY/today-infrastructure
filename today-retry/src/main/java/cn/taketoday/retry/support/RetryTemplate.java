@@ -22,7 +22,6 @@ package cn.taketoday.retry.support;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
@@ -78,6 +77,7 @@ import cn.taketoday.retry.policy.SimpleRetryPolicy;
  * @author Artem Bilan
  * @author Josh Long
  * @author Aleksandr Shamukov
+ * @since 4.0
  */
 public class RetryTemplate implements RetryOperations {
 
@@ -105,7 +105,6 @@ public class RetryTemplate implements RetryOperations {
    *
    * @return a new instance of RetryTemplateBuilder with preset default behaviour, that
    * can be overwritten during manual configuration
-   * @since 4.0
    */
   public static RetryTemplateBuilder builder() {
     return new RetryTemplateBuilder();
@@ -116,7 +115,6 @@ public class RetryTemplate implements RetryOperations {
    * {@link RetryTemplateBuilder} documentation.
    *
    * @return a new instance of RetryTemplate with default behaviour
-   * @since 4.0
    */
   public static RetryTemplate defaultInstance() {
     return new RetryTemplateBuilder().build();
@@ -146,7 +144,7 @@ public class RetryTemplate implements RetryOperations {
    * @see RetryListener
    */
   public void setListeners(RetryListener[] listeners) {
-    this.listeners = Arrays.asList(listeners).toArray(new RetryListener[listeners.length]);
+    this.listeners = listeners.clone();
   }
 
   /**
@@ -165,24 +163,22 @@ public class RetryTemplate implements RetryOperations {
    * @param listener the {@link RetryListener}
    * @param index the position in the list.
    * @see #setListeners(RetryListener[])
-   * @since 4.0
    */
   public void registerListener(RetryListener listener, int index) {
-    List<RetryListener> list = new ArrayList<RetryListener>(Arrays.asList(this.listeners));
+    ArrayList<RetryListener> list = new ArrayList<>(Arrays.asList(this.listeners));
     if (index >= list.size()) {
       list.add(listener);
     }
     else {
       list.add(index, listener);
     }
-    this.listeners = list.toArray(new RetryListener[list.size()]);
+    this.listeners = list.toArray(new RetryListener[0]);
   }
 
   /**
    * Return true if at least one listener is registered.
    *
    * @return true if listeners present.
-   * @since 4.0
    */
   public boolean hasListeners() {
     return this.listeners.length > 0;
@@ -289,8 +285,8 @@ public class RetryTemplate implements RetryOperations {
 
     // Allow the retry policy to initialise itself...
     RetryContext context = open(retryPolicy, state);
-    if (this.logger.isTraceEnabled()) {
-      this.logger.trace("RetryContext retrieved: " + context);
+    if (logger.isTraceEnabled()) {
+      logger.trace("RetryContext retrieved: {}", context);
     }
 
     // Make sure the context is available globally for clients who need
@@ -301,10 +297,8 @@ public class RetryTemplate implements RetryOperations {
 
     boolean exhausted = false;
     try {
-
       // Give clients a chance to enhance the context...
       boolean running = doOpenInterceptors(retryCallback, context);
-
       if (!running) {
         throw new TerminatedRetryException("Retry terminated abnormally by interceptor before first attempt");
       }
@@ -333,8 +327,8 @@ public class RetryTemplate implements RetryOperations {
       while (canRetry(retryPolicy, context) && !context.isExhaustedOnly()) {
 
         try {
-          if (this.logger.isDebugEnabled()) {
-            this.logger.debug("Retry: count=" + context.getRetryCount());
+          if (logger.isDebugEnabled()) {
+            logger.debug("Retry: count={}", context.getRetryCount());
           }
           // Reset the last exception, so if we are successful
           // the close interceptors will not think we failed...
@@ -362,20 +356,20 @@ public class RetryTemplate implements RetryOperations {
             catch (BackOffInterruptedException ex) {
               lastException = e;
               // back off was prevented by another thread - fail the retry
-              if (this.logger.isDebugEnabled()) {
-                this.logger.debug("Abort retry because interrupted: count=" + context.getRetryCount());
+              if (logger.isDebugEnabled()) {
+                logger.debug("Abort retry because interrupted: count={}", context.getRetryCount());
               }
               throw ex;
             }
           }
 
-          if (this.logger.isDebugEnabled()) {
-            this.logger.debug("Checking for rethrow: count=" + context.getRetryCount());
+          if (logger.isDebugEnabled()) {
+            logger.debug("Checking for rethrow: count={}", context.getRetryCount());
           }
 
           if (shouldRethrow(retryPolicy, context, state)) {
-            if (this.logger.isDebugEnabled()) {
-              this.logger.debug("Rethrow in retry for policy: count=" + context.getRetryCount());
+            if (logger.isDebugEnabled()) {
+              logger.debug("Rethrow in retry for policy: count={}", context.getRetryCount());
             }
             throw RetryTemplate.<E>wrapIfNecessary(e);
           }
@@ -392,8 +386,8 @@ public class RetryTemplate implements RetryOperations {
         }
       }
 
-      if (state == null && this.logger.isDebugEnabled()) {
-        this.logger.debug("Retry failed last attempt: count=" + context.getRetryCount());
+      if (state == null && logger.isDebugEnabled()) {
+        logger.debug("Retry failed last attempt: count={}", context.getRetryCount());
       }
 
       exhausted = true;
@@ -437,7 +431,7 @@ public class RetryTemplate implements RetryOperations {
     if (state != null) {
       if (succeeded) {
         if (!context.hasAttribute(GLOBAL_STATE)) {
-          this.retryContextCache.remove(state.getKey());
+          retryContextCache.remove(state.getKey());
         }
         retryPolicy.close(context);
         context.setAttribute(RetryContext.CLOSED, true);
@@ -458,12 +452,12 @@ public class RetryTemplate implements RetryOperations {
     if (state != null) {
       Object key = state.getKey();
       if (key != null) {
-        if (context.getRetryCount() > 1 && !this.retryContextCache.containsKey(key)) {
+        if (context.getRetryCount() > 1 && !retryContextCache.containsKey(key)) {
           throw new RetryException("Inconsistent state for failed item key: cache key has changed. "
                   + "Consider whether equals() or hashCode() for the key might be inconsistent, "
                   + "or if you need to supply a better key");
         }
-        this.retryContextCache.put(key, context);
+        retryContextCache.put(key, context);
       }
     }
   }
@@ -490,14 +484,14 @@ public class RetryTemplate implements RetryOperations {
 
     // If there is no cache hit we can avoid the possible expense of the
     // cache re-hydration.
-    if (!this.retryContextCache.containsKey(key)) {
+    if (!retryContextCache.containsKey(key)) {
       // The cache is only used if there is a failure.
       return doOpenInternal(retryPolicy, state);
     }
 
-    RetryContext context = this.retryContextCache.get(key);
+    RetryContext context = retryContextCache.get(key);
     if (context == null) {
-      if (this.retryContextCache.containsKey(key)) {
+      if (retryContextCache.containsKey(key)) {
         throw new RetryException("Inconsistent state for failed item: no history found. "
                 + "Consider whether equals() or hashCode() for the item might be inconsistent, "
                 + "or if you need to supply a better ItemKeyGenerator");
@@ -550,7 +544,7 @@ public class RetryTemplate implements RetryOperations {
           throws Throwable {
     context.setAttribute(RetryContext.EXHAUSTED, true);
     if (state != null && !context.hasAttribute(GLOBAL_STATE)) {
-      this.retryContextCache.remove(state.getKey());
+      retryContextCache.remove(state.getKey());
     }
     if (recoveryCallback != null) {
       T recovered = recoveryCallback.recover(context);
@@ -558,14 +552,14 @@ public class RetryTemplate implements RetryOperations {
       return recovered;
     }
     if (state != null) {
-      this.logger.debug("Retry exhausted after last attempt with no recovery path.");
+      logger.debug("Retry exhausted after last attempt with no recovery path.");
       rethrow(context, "Retry exhausted after last attempt with no recovery path");
     }
     throw wrapIfNecessary(context.getLastThrowable());
   }
 
   protected <E extends Throwable> void rethrow(RetryContext context, String message) throws E {
-    if (this.throwLastExceptionOnExhausted) {
+    if (throwLastExceptionOnExhausted) {
       @SuppressWarnings("unchecked")
       E rethrow = (E) context.getLastThrowable();
       throw rethrow;
@@ -590,28 +584,24 @@ public class RetryTemplate implements RetryOperations {
   }
 
   private <T, E extends Throwable> boolean doOpenInterceptors(RetryCallback<T, E> callback, RetryContext context) {
-
     boolean result = true;
-
-    for (RetryListener listener : this.listeners) {
+    for (RetryListener listener : listeners) {
       result = result && listener.open(context, callback);
     }
-
     return result;
-
   }
 
   private <T, E extends Throwable> void doCloseInterceptors(RetryCallback<T, E> callback, RetryContext context,
           Throwable lastException) {
-    for (int i = this.listeners.length; i-- > 0; ) {
-      this.listeners[i].close(context, callback, lastException);
+    for (int i = listeners.length; i-- > 0; ) {
+      listeners[i].close(context, callback, lastException);
     }
   }
 
   private <T, E extends Throwable> void doOnErrorInterceptors(RetryCallback<T, E> callback, RetryContext context,
           Throwable throwable) {
-    for (int i = this.listeners.length; i-- > 0; ) {
-      this.listeners[i].onError(context, callback, throwable);
+    for (int i = listeners.length; i-- > 0; ) {
+      listeners[i].onError(context, callback, throwable);
     }
   }
 

@@ -118,7 +118,7 @@ public class ExponentialAverageRetryStatistics extends DefaultRetryStatistics {
     abort.increment();
   }
 
-  private class ExponentialAverage {
+  private static class ExponentialAverage {
 
     private final double alpha;
 

@@ -34,10 +34,10 @@ import java.lang.annotation.Target;
  * @author Gary Russell
  * @since 4.0
  */
-@Target({ ElementType.METHOD, ElementType.TYPE })
-@Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Retryable(stateful = true)
+@Retention(RetentionPolicy.RUNTIME)
+@Target({ ElementType.METHOD, ElementType.TYPE })
 public @interface CircuitBreaker {
 
   /**
@@ -73,7 +73,6 @@ public @interface CircuitBreaker {
   /**
    * @return an expression evaluated to the maximum number of attempts (including the
    * first failure), defaults to 3 Overrides {@link #maxAttempts()}.
-   * @since 4.0
    */
   String maxAttemptsExpression() default "";
 
@@ -100,7 +99,6 @@ public @interface CircuitBreaker {
    * {@link #resetTimeout()}.
    *
    * @return the timeout before an open circuit is reset in milliseconds, no default.
-   * @since 4.0
    */
   String resetTimeoutExpression() default "";
 
@@ -119,7 +117,6 @@ public @interface CircuitBreaker {
    * {@link #openTimeout()}.
    *
    * @return the timeout before an closed circuit is opened in milliseconds, no default.
-   * @since 4.0
    */
   String openTimeoutExpression() default "";
 
@@ -141,7 +138,6 @@ public @interface CircuitBreaker {
    * </pre>
    *
    * @return the expression.
-   * @since 4.0
    */
   String exceptionExpression() default "";
 

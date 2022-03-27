@@ -29,6 +29,7 @@ import cn.taketoday.retry.policy.CircuitBreakerRetryPolicy;
 
 /**
  * @author Dave Syer
+ * @since 4.0
  */
 public class StatisticsListener extends RetryListenerSupport {
 
@@ -39,8 +40,8 @@ public class StatisticsListener extends RetryListenerSupport {
   }
 
   @Override
-  public <T, E extends Throwable> void close(RetryContext context, RetryCallback<T, E> callback,
-          Throwable throwable) {
+  public <T, E extends Throwable> void close(
+          RetryContext context, RetryCallback<T, E> callback, Throwable throwable) {
     String name = getName(context);
     if (name != null) {
       if (!isExhausted(context) || isGlobal(context)) {
@@ -59,8 +60,7 @@ public class StatisticsListener extends RetryListenerSupport {
         repository.addComplete(name);
       }
       RetryStatistics stats = repository.findOne(name);
-      if (stats instanceof AttributeAccessor) {
-        AttributeAccessor accessor = (AttributeAccessor) stats;
+      if (stats instanceof AttributeAccessor accessor) {
         for (String key : new String[] { CircuitBreakerRetryPolicy.CIRCUIT_OPEN,
                 CircuitBreakerRetryPolicy.CIRCUIT_SHORT_COUNT }) {
           if (context.hasAttribute(key)) {
@@ -72,8 +72,8 @@ public class StatisticsListener extends RetryListenerSupport {
   }
 
   @Override
-  public <T, E extends Throwable> void onError(RetryContext context, RetryCallback<T, E> callback,
-          Throwable throwable) {
+  public <T, E extends Throwable> void onError(
+          RetryContext context, RetryCallback<T, E> callback, Throwable throwable) {
     String name = getName(context);
     if (name != null) {
       if (!hasState(context)) {

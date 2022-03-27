@@ -25,6 +25,7 @@ package cn.taketoday.retry.interceptor;
  *
  * @param <T> the return type
  * @author Dave Syer
+ * @since 4.0
  */
 public interface MethodInvocationRecoverer<T> {
 

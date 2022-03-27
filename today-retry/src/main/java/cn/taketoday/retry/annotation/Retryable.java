@@ -35,9 +35,9 @@ import java.lang.annotation.Target;
  * @author Maksim Kita
  * @since 4.0
  */
-@Target({ ElementType.METHOD, ElementType.TYPE })
-@Retention(RetentionPolicy.RUNTIME)
 @Documented
+@Retention(RetentionPolicy.RUNTIME)
+@Target({ ElementType.METHOD, ElementType.TYPE })
 public @interface Retryable {
 
   /**
@@ -106,7 +106,6 @@ public @interface Retryable {
   /**
    * @return an expression evaluated to the maximum number of attempts (including the
    * first failure), defaults to 3 Overrides {@link #maxAttempts()}.
-   * @since 4.0
    */
   String maxAttemptsExpression() default "";
 
@@ -131,7 +130,6 @@ public @interface Retryable {
    * </pre>
    *
    * @return the expression.
-   * @since 4.0
    */
   String exceptionExpression() default "";
 

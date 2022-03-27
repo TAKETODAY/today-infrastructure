@@ -29,6 +29,7 @@ import cn.taketoday.retry.context.RetryContextSupport;
  * started on a call to {@link #open(RetryContext)}.
  *
  * @author Dave Syer
+ * @since 4.0
  */
 @SuppressWarnings("serial")
 public class TimeoutRetryPolicy implements RetryPolicy {
@@ -82,9 +83,8 @@ public class TimeoutRetryPolicy implements RetryPolicy {
 
   private static class TimeoutRetryContext extends RetryContextSupport {
 
-    private long timeout;
-
-    private long start;
+    private final long timeout;
+    private final long start;
 
     public TimeoutRetryContext(RetryContext parent, long timeout) {
       super(parent);

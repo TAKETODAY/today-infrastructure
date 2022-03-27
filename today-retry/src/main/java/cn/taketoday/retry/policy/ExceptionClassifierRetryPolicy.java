@@ -26,7 +26,6 @@ import java.util.Map;
 import cn.taketoday.classify.Classifier;
 import cn.taketoday.classify.ClassifierSupport;
 import cn.taketoday.classify.SubclassClassifier;
-import cn.taketoday.lang.Assert;
 import cn.taketoday.retry.RetryContext;
 import cn.taketoday.retry.RetryPolicy;
 import cn.taketoday.retry.context.RetryContextSupport;
@@ -36,12 +35,13 @@ import cn.taketoday.retry.context.RetryContextSupport;
  * according to the value of the latest exception.
  *
  * @author Dave Syer
+ * @since 4.0
  */
 @SuppressWarnings("serial")
 public class ExceptionClassifierRetryPolicy implements RetryPolicy {
 
-  private Classifier<Throwable, RetryPolicy> exceptionClassifier = new ClassifierSupport<Throwable, RetryPolicy>(
-          new NeverRetryPolicy());
+  private Classifier<Throwable, RetryPolicy> exceptionClassifier =
+          new ClassifierSupport<>(new NeverRetryPolicy());
 
   /**
    * Setter for policy map used to create a classifier. Either this property or the
@@ -51,7 +51,7 @@ public class ExceptionClassifierRetryPolicy implements RetryPolicy {
    * to create a {@link Classifier} to locate a policy.
    */
   public void setPolicyMap(Map<Class<? extends Throwable>, RetryPolicy> policyMap) {
-    this.exceptionClassifier = new SubclassClassifier<Throwable, RetryPolicy>(policyMap, new NeverRetryPolicy());
+    this.exceptionClassifier = new SubclassClassifier<>(policyMap, new NeverRetryPolicy());
   }
 
   /**
@@ -117,7 +117,7 @@ public class ExceptionClassifierRetryPolicy implements RetryPolicy {
     // Dynamic: depends on the policy:
     private RetryContext context;
 
-    final private Map<RetryPolicy, RetryContext> contexts = new HashMap<RetryPolicy, RetryContext>();
+    final private HashMap<RetryPolicy, RetryContext> contexts = new HashMap<>();
 
     public ExceptionClassifierRetryContext(RetryContext parent,
             Classifier<Throwable, RetryPolicy> exceptionClassifier) {
@@ -142,7 +142,9 @@ public class ExceptionClassifierRetryPolicy implements RetryPolicy {
 
     public void registerThrowable(RetryContext context, Throwable throwable) {
       policy = exceptionClassifier.classify(throwable);
-      Assert.notNull(policy, "Could not locate policy for exception=[" + throwable + "].");
+      if (policy == null) {
+        throw new IllegalArgumentException("Could not locate policy for exception=[" + throwable + "].");
+      }
       this.context = getContext(policy, context.getParent());
       policy.registerThrowable(this.context, throwable);
     }

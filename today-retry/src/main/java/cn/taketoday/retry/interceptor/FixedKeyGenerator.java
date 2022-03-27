@@ -22,10 +22,11 @@ package cn.taketoday.retry.interceptor;
 
 /**
  * @author Dave Syer
+ * @since 4.0
  */
 public class FixedKeyGenerator implements MethodArgumentsKeyGenerator {
 
-  private String label;
+  private final String label;
 
   public FixedKeyGenerator(String label) {
     this.label = label;

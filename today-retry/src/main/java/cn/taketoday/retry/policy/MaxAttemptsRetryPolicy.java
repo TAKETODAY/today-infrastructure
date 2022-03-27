@@ -36,6 +36,8 @@ import cn.taketoday.retry.support.RetryTemplate;
  * <p>
  * Volatility of maxAttempts allows concurrent modification and does not require safe
  * publication of new instance after construction.
+ *
+ * @since 4.0
  */
 @SuppressWarnings("serial")
 public class MaxAttemptsRetryPolicy implements RetryPolicy {
@@ -99,6 +101,7 @@ public class MaxAttemptsRetryPolicy implements RetryPolicy {
 
   @Override
   public void close(RetryContext status) {
+
   }
 
   /**

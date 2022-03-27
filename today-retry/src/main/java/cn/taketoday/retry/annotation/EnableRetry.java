@@ -38,11 +38,11 @@ import cn.taketoday.context.annotation.Import;
  * @author Dave Syer
  * @since 4.0
  */
+@Documented
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 @EnableAspectJAutoProxy(proxyTargetClass = false)
 @Import(RetryConfiguration.class)
-@Documented
 public @interface EnableRetry {
 
   /**

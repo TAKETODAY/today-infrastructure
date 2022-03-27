@@ -23,6 +23,7 @@ package cn.taketoday.retry.interceptor;
  * Interface that allows method parameters to be identified and tagged by a unique key.
  *
  * @author Dave Syer
+ * @since 4.0
  */
 public interface MethodArgumentsKeyGenerator {
 

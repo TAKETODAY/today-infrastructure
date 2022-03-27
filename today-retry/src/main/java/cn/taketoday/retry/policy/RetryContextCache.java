@@ -30,6 +30,7 @@ import cn.taketoday.retry.RetryContext;
  *
  * @author Dave Syer
  * @see MapRetryContextCache
+ * @since 4.0
  */
 public interface RetryContextCache {
 

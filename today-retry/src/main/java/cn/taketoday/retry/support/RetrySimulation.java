@@ -29,12 +29,10 @@ import java.util.List;
  */
 public class RetrySimulation {
 
-  private final List<SleepSequence> sleepSequences = new ArrayList<SleepSequence>();
+  private final ArrayList<Long> sleepHistogram = new ArrayList<>();
+  private final ArrayList<SleepSequence> sleepSequences = new ArrayList<>();
 
-  private final List<Long> sleepHistogram = new ArrayList<Long>();
-
-  public RetrySimulation() {
-  }
+  public RetrySimulation() { }
 
   /**
    * Add a sequence of sleeps to the simulation.

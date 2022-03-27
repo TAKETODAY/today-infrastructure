@@ -26,6 +26,7 @@ import cn.taketoday.retry.RetryPolicy;
 
 /**
  * @author Dave Syer
+ * @since 4.0
  */
 @SuppressWarnings("serial")
 public class RetryContextSupport extends AttributeAccessorSupport implements RetryContext {

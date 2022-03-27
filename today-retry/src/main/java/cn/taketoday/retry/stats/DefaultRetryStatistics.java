@@ -27,6 +27,7 @@ import cn.taketoday.retry.RetryStatistics;
 
 /**
  * @author Dave Syer
+ * @since 4.0
  */
 @SuppressWarnings("serial")
 public class DefaultRetryStatistics extends AttributeAccessorSupport
@@ -34,18 +35,17 @@ public class DefaultRetryStatistics extends AttributeAccessorSupport
 
   private String name;
 
-  private AtomicInteger startedCount = new AtomicInteger();
+  private final AtomicInteger startedCount = new AtomicInteger();
 
-  private AtomicInteger completeCount = new AtomicInteger();
+  private final AtomicInteger completeCount = new AtomicInteger();
 
-  private AtomicInteger recoveryCount = new AtomicInteger();
+  private final AtomicInteger recoveryCount = new AtomicInteger();
 
-  private AtomicInteger errorCount = new AtomicInteger();
+  private final AtomicInteger errorCount = new AtomicInteger();
 
-  private AtomicInteger abortCount = new AtomicInteger();
+  private final AtomicInteger abortCount = new AtomicInteger();
 
-  DefaultRetryStatistics() {
-  }
+  DefaultRetryStatistics() { }
 
   public DefaultRetryStatistics(String name) {
     this.name = name;

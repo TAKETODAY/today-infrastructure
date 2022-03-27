@@ -33,7 +33,6 @@ import cn.taketoday.retry.RetryContext;
 import cn.taketoday.retry.interceptor.MethodInvocationRecoverer;
 import cn.taketoday.retry.support.RetrySynchronizationManager;
 import cn.taketoday.util.ReflectionUtils;
-import cn.taketoday.util.ReflectionUtils.MethodCallback;
 import cn.taketoday.util.StringUtils;
 
 /**
@@ -55,14 +54,15 @@ import cn.taketoday.util.StringUtils;
  * @author Nathanaël Roberts
  * @author Maksim Kita
  * @author Gary Russell
+ * @since 4.0
  */
 public class RecoverAnnotationRecoveryHandler<T> implements MethodInvocationRecoverer<T> {
 
-  private SubclassClassifier<Throwable, Method> classifier = new SubclassClassifier<Throwable, Method>();
+  private final SubclassClassifier<Throwable, Method> classifier = new SubclassClassifier<>();
 
-  private Map<Method, SimpleMetadata> methods = new HashMap<Method, SimpleMetadata>();
+  private HashMap<Method, SimpleMetadata> methods = new HashMap<>();
 
-  private Object target;
+  private final Object target;
 
   private String recoverMethodName;
 
@@ -72,6 +72,7 @@ public class RecoverAnnotationRecoveryHandler<T> implements MethodInvocationReco
   }
 
   @Override
+  @SuppressWarnings("deprecation")
   public T recover(Object[] args, Throwable cause) {
     Method method = findClosestMatch(args, cause.getClass());
     if (method == null) {
@@ -114,10 +115,7 @@ public class RecoverAnnotationRecoveryHandler<T> implements MethodInvocationReco
     try {
       return proxy.getClass().getMethod(method.getName(), method.getParameterTypes());
     }
-    catch (NoSuchMethodException e) {
-      return null;
-    }
-    catch (SecurityException e) {
+    catch (NoSuchMethodException | SecurityException e) {
       return null;
     }
   }
@@ -197,29 +195,26 @@ public class RecoverAnnotationRecoveryHandler<T> implements MethodInvocationReco
   }
 
   private void init(final Object target, Method method) {
-    final Map<Class<? extends Throwable>, Method> types = new HashMap<Class<? extends Throwable>, Method>();
+    var types = new HashMap<Class<? extends Throwable>, Method>();
     final Method failingMethod = method;
     Retryable retryable = AnnotationUtils.findAnnotation(method, Retryable.class);
     if (retryable != null) {
       this.recoverMethodName = retryable.recover();
     }
-    ReflectionUtils.doWithMethods(target.getClass(), new MethodCallback() {
-      @Override
-      public void doWith(Method method) throws IllegalArgumentException, IllegalAccessException {
-        Recover recover = AnnotationUtils.findAnnotation(method, Recover.class);
-        if (recover == null) {
-          recover = findAnnotationOnTarget(target, method);
+    ReflectionUtils.doWithMethods(target.getClass(), currentMethod -> {
+      Recover recover = AnnotationUtils.findAnnotation(currentMethod, Recover.class);
+      if (recover == null) {
+        recover = findAnnotationOnTarget(target, currentMethod);
+      }
+      if (recover != null && failingMethod.getGenericReturnType() instanceof ParameterizedType
+              && currentMethod.getGenericReturnType() instanceof ParameterizedType) {
+        if (isParameterizedTypeAssignable((ParameterizedType) currentMethod.getGenericReturnType(),
+                (ParameterizedType) failingMethod.getGenericReturnType())) {
+          putToMethodsMap(currentMethod, types);
         }
-        if (recover != null && failingMethod.getGenericReturnType() instanceof ParameterizedType
-                && method.getGenericReturnType() instanceof ParameterizedType) {
-          if (isParameterizedTypeAssignable((ParameterizedType) method.getGenericReturnType(),
-                  (ParameterizedType) failingMethod.getGenericReturnType())) {
-            putToMethodsMap(method, types);
-          }
-        }
-        else if (recover != null && method.getReturnType().isAssignableFrom(failingMethod.getReturnType())) {
-          putToMethodsMap(method, types);
-        }
+      }
+      else if (recover != null && currentMethod.getReturnType().isAssignableFrom(failingMethod.getReturnType())) {
+        putToMethodsMap(currentMethod, types);
       }
     });
     this.classifier.setTypeMap(types);
@@ -231,13 +226,11 @@ public class RecoverAnnotationRecoveryHandler<T> implements MethodInvocationReco
    * failingMethodReturnType. Takes nested generics into consideration as well, while
    * deciding a match.
    *
-   * @param methodReturnType
-   * @param failingMethodReturnType
    * @return true if the parameterized return types match.
    * @since 4.0
    */
-  private boolean isParameterizedTypeAssignable(ParameterizedType methodReturnType,
-          ParameterizedType failingMethodReturnType) {
+  private boolean isParameterizedTypeAssignable(
+          ParameterizedType methodReturnType, ParameterizedType failingMethodReturnType) {
 
     Type[] methodActualArgs = methodReturnType.getActualTypeArguments();
     Type[] failingMethodActualArgs = failingMethodReturnType.getActualTypeArguments();
@@ -248,7 +241,8 @@ public class RecoverAnnotationRecoveryHandler<T> implements MethodInvocationReco
     for (int i = startingIndex; i < methodActualArgs.length; i++) {
       Type methodArgType = methodActualArgs[i];
       Type failingMethodArgType = failingMethodActualArgs[i];
-      if (methodArgType instanceof ParameterizedType && failingMethodArgType instanceof ParameterizedType) {
+      if (methodArgType instanceof ParameterizedType
+              && failingMethodArgType instanceof ParameterizedType) {
         return isParameterizedTypeAssignable((ParameterizedType) methodArgType,
                 (ParameterizedType) failingMethodArgType);
       }
@@ -285,7 +279,7 @@ public class RecoverAnnotationRecoveryHandler<T> implements MethodInvocationReco
   }
 
   private void optionallyFilterMethodsBy(Class<?> returnClass) {
-    Map<Method, SimpleMetadata> filteredMethods = new HashMap<Method, SimpleMetadata>();
+    HashMap<Method, SimpleMetadata> filteredMethods = new HashMap<>();
     for (Method method : this.methods.keySet()) {
       if (method.getReturnType() == returnClass) {
         filteredMethods.put(method, this.methods.get(method));
@@ -296,17 +290,7 @@ public class RecoverAnnotationRecoveryHandler<T> implements MethodInvocationReco
     }
   }
 
-  private static class SimpleMetadata {
-
-    private int argCount;
-
-    private Class<? extends Throwable> type;
-
-    public SimpleMetadata(int argCount, Class<? extends Throwable> type) {
-      super();
-      this.argCount = argCount;
-      this.type = type;
-    }
+  private record SimpleMetadata(int argCount, Class<? extends Throwable> type) {
 
     public int getArgCount() {
       return this.argCount;
@@ -323,7 +307,7 @@ public class RecoverAnnotationRecoveryHandler<T> implements MethodInvocationReco
         result[0] = t;
         startArgs = 1;
       }
-      int length = result.length - startArgs > args.length ? args.length : result.length - startArgs;
+      int length = Math.min(result.length - startArgs, args.length);
       if (length == 0) {
         return result;
       }

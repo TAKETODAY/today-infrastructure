@@ -61,7 +61,7 @@ public class BackToBackPatternClassifier<C, T> implements Classifier<C, T> {
    * @param map maps pattern keys with wildcards to output values
    */
   public void setMatcherMap(Map<String, T> map) {
-    this.matcher = new PatternMatchingClassifier<T>(map);
+    this.matcher = new PatternMatchingClassifier<>(map);
   }
 
   /**
@@ -73,7 +73,7 @@ public class BackToBackPatternClassifier<C, T> implements Classifier<C, T> {
    * @param delegate the delegate object used to create a router classifier
    */
   public void setRouterDelegate(Object delegate) {
-    this.router = new ClassifierAdapter<C, String>(delegate);
+    this.router = new ClassifierAdapter<>(delegate);
   }
 
   /**

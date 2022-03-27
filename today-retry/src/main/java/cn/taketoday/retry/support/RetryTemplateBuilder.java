@@ -205,8 +205,8 @@ public class RetryTemplateBuilder {
    * @see ExponentialBackOffPolicy
    * @see ExponentialRandomBackOffPolicy
    */
-  public RetryTemplateBuilder exponentialBackoff(long initialInterval, double multiplier, long maxInterval,
-          boolean withRandom) {
+  public RetryTemplateBuilder exponentialBackoff(
+          long initialInterval, double multiplier, long maxInterval, boolean withRandom) {
     Assert.isNull(this.backOffPolicy, "You have already selected backoff policy");
     Assert.isTrue(initialInterval >= 1, "Initial interval should be >= 1");
     Assert.isTrue(multiplier > 1, "Multiplier should be > 1");
@@ -337,7 +337,6 @@ public class RetryTemplateBuilder {
    * @return this
    * @see BinaryExceptionClassifierBuilder#retryOn
    * @see BinaryExceptionClassifier
-   * @since 4.0
    */
   public RetryTemplateBuilder retryOn(List<Class<? extends Throwable>> throwables) {
     for (final Class<? extends Throwable> throwable : throwables) {
@@ -360,7 +359,6 @@ public class RetryTemplateBuilder {
    * @return this
    * @see BinaryExceptionClassifierBuilder#notRetryOn
    * @see BinaryExceptionClassifier
-   * @since 4.0
    */
   public RetryTemplateBuilder notRetryOn(List<Class<? extends Throwable>> throwables) {
     for (final Class<? extends Throwable> throwable : throwables) {
@@ -439,8 +437,10 @@ public class RetryTemplateBuilder {
 
     // Exception classifier
 
-    BinaryExceptionClassifier exceptionClassifier = this.classifierBuilder != null ? this.classifierBuilder.build()
-                                                                                   : BinaryExceptionClassifier.defaultClassifier();
+    BinaryExceptionClassifier exceptionClassifier =
+            classifierBuilder != null
+            ? classifierBuilder.build()
+            : BinaryExceptionClassifier.defaultClassifier();
 
     // Retry policy
 
@@ -449,8 +449,10 @@ public class RetryTemplateBuilder {
     }
 
     CompositeRetryPolicy finalPolicy = new CompositeRetryPolicy();
-    finalPolicy.setPolicies(new RetryPolicy[] { this.baseRetryPolicy,
-            new BinaryExceptionClassifierRetryPolicy(exceptionClassifier) });
+    finalPolicy.setPolicies(new RetryPolicy[] {
+            baseRetryPolicy,
+            new BinaryExceptionClassifierRetryPolicy(exceptionClassifier)
+    });
     retryTemplate.setRetryPolicy(finalPolicy);
 
     // Backoff policy
