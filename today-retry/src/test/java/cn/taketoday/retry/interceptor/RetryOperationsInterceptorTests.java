@@ -39,8 +39,8 @@ import cn.taketoday.aop.target.SingletonTargetSource;
 import cn.taketoday.context.support.ClassPathXmlApplicationContext;
 import cn.taketoday.retry.RetryCallback;
 import cn.taketoday.retry.RetryContext;
+import cn.taketoday.retry.RetryListener;
 import cn.taketoday.retry.listener.MethodInvocationRetryListenerSupport;
-import cn.taketoday.retry.listener.RetryListenerSupport;
 import cn.taketoday.retry.policy.NeverRetryPolicy;
 import cn.taketoday.retry.policy.SimpleRetryPolicy;
 import cn.taketoday.retry.support.RetryTemplate;
@@ -76,7 +76,7 @@ public class RetryOperationsInterceptorTests {
     this.interceptor = new RetryOperationsInterceptor();
     RetryTemplate retryTemplate = new RetryTemplate();
     final AtomicBoolean calledFirst = new AtomicBoolean();
-    retryTemplate.registerListener(new RetryListenerSupport() {
+    retryTemplate.registerListener(new RetryListener() {
 
       @Override
       public <T, E extends Throwable> boolean open(RetryContext context, RetryCallback<T, E> callback) {
@@ -93,7 +93,7 @@ public class RetryOperationsInterceptorTests {
       }
 
     });
-    retryTemplate.registerListener(new RetryListenerSupport() {
+    retryTemplate.registerListener(new RetryListener() {
 
       @Override
       public <T, E extends Throwable> boolean open(RetryContext context, RetryCallback<T, E> callback) {

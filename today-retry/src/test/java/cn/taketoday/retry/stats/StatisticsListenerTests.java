@@ -25,9 +25,9 @@ import org.junit.Test;
 import cn.taketoday.retry.RecoveryCallback;
 import cn.taketoday.retry.RetryCallback;
 import cn.taketoday.retry.RetryContext;
+import cn.taketoday.retry.RetryListener;
 import cn.taketoday.retry.RetryState;
 import cn.taketoday.retry.RetryStatistics;
-import cn.taketoday.retry.listener.RetryListenerSupport;
 import cn.taketoday.retry.policy.SimpleRetryPolicy;
 import cn.taketoday.retry.support.DefaultRetryState;
 import cn.taketoday.retry.support.RetryTemplate;
@@ -47,7 +47,7 @@ public class StatisticsListenerTests {
   @Test
   public void testStatelessSuccessful() throws Throwable {
     RetryTemplate retryTemplate = new RetryTemplate();
-    retryTemplate.setListeners(new RetryListenerSupport[] { listener });
+    retryTemplate.setListeners(new RetryListener[] { listener });
     for (int x = 1; x <= 10; x++) {
       MockRetryCallback callback = new MockRetryCallback();
       callback.setAttemptsBeforeSuccess(x);
@@ -66,7 +66,7 @@ public class StatisticsListenerTests {
   @Test
   public void testStatefulSuccessful() throws Throwable {
     RetryTemplate retryTemplate = new RetryTemplate();
-    retryTemplate.setListeners(new RetryListenerSupport[] { listener });
+    retryTemplate.setListeners(new RetryListener[] { listener });
     RetryState state = new DefaultRetryState("foo");
     for (int x = 1; x <= 10; x++) {
       MockRetryCallback callback = new MockRetryCallback();
@@ -93,7 +93,7 @@ public class StatisticsListenerTests {
   @Test
   public void testStatelessUnsuccessful() throws Throwable {
     RetryTemplate retryTemplate = new RetryTemplate();
-    retryTemplate.setListeners(new RetryListenerSupport[] { listener });
+    retryTemplate.setListeners(new RetryListener[] { listener });
     for (int x = 1; x <= 10; x++) {
       MockRetryCallback callback = new MockRetryCallback();
       callback.setAttemptsBeforeSuccess(x + 1);
@@ -116,7 +116,7 @@ public class StatisticsListenerTests {
   @Test
   public void testStatefulUnsuccessful() throws Throwable {
     RetryTemplate retryTemplate = new RetryTemplate();
-    retryTemplate.setListeners(new RetryListenerSupport[] { listener });
+    retryTemplate.setListeners(new RetryListener[] { listener });
     RetryState state = new DefaultRetryState("foo");
     for (int x = 1; x <= 10; x++) {
       MockRetryCallback callback = new MockRetryCallback();
@@ -143,7 +143,7 @@ public class StatisticsListenerTests {
   @Test
   public void testStatelessRecovery() throws Throwable {
     RetryTemplate retryTemplate = new RetryTemplate();
-    retryTemplate.setListeners(new RetryListenerSupport[] { listener });
+    retryTemplate.setListeners(new RetryListener[] { listener });
     for (int x = 1; x <= 10; x++) {
       MockRetryCallback callback = new MockRetryCallback();
       callback.setAttemptsBeforeSuccess(x + 1);
@@ -167,7 +167,7 @@ public class StatisticsListenerTests {
   @Test
   public void testStatefulRecovery() throws Throwable {
     RetryTemplate retryTemplate = new RetryTemplate();
-    retryTemplate.setListeners(new RetryListenerSupport[] { listener });
+    retryTemplate.setListeners(new RetryListener[] { listener });
     RetryState state = new DefaultRetryState("foo");
     for (int x = 1; x <= 10; x++) {
       MockRetryCallback callback = new MockRetryCallback();

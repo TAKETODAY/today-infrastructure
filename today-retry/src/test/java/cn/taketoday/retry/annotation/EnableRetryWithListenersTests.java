@@ -20,7 +20,7 @@
 
 package cn.taketoday.retry.annotation;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import cn.taketoday.context.annotation.AnnotationConfigApplicationContext;
 import cn.taketoday.context.annotation.Bean;
@@ -28,8 +28,8 @@ import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.retry.RetryCallback;
 import cn.taketoday.retry.RetryContext;
 import cn.taketoday.retry.RetryListener;
-import cn.taketoday.retry.listener.RetryListenerSupport;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
@@ -42,7 +42,8 @@ public class EnableRetryWithListenersTests {
     AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(TestConfiguration.class);
     Service service = context.getBean(Service.class);
     service.service();
-    assertEquals(1, context.getBean(TestConfiguration.class).count);
+    assertThat(context.getBean(TestConfiguration.class).count)
+            .isEqualTo(1);
     context.close();
   }
 
@@ -70,7 +71,7 @@ public class EnableRetryWithListenersTests {
 
     @Bean
     public RetryListener listener() {
-      return new RetryListenerSupport() {
+      return new RetryListener() {
         @Override
         public <T, E extends Throwable> void close(
                 RetryContext context, RetryCallback<T, E> callback, Throwable throwable) {
@@ -96,7 +97,7 @@ public class EnableRetryWithListenersTests {
 
     @Bean
     public RetryListener listener1() {
-      return new RetryListenerSupport() {
+      return new RetryListener() {
         @Override
         public <T, E extends Throwable> void close(RetryContext context, RetryCallback<T, E> callback,
                 Throwable throwable) {
@@ -107,7 +108,7 @@ public class EnableRetryWithListenersTests {
 
     @Bean
     public RetryListener listener2() {
-      return new RetryListenerSupport() {
+      return new RetryListener() {
         @Override
         public <T, E extends Throwable> void close(RetryContext context, RetryCallback<T, E> callback,
                 Throwable throwable) {

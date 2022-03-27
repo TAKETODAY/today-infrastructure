@@ -23,15 +23,15 @@ package cn.taketoday.retry.stats;
 import cn.taketoday.core.AttributeAccessor;
 import cn.taketoday.retry.RetryCallback;
 import cn.taketoday.retry.RetryContext;
+import cn.taketoday.retry.RetryListener;
 import cn.taketoday.retry.RetryStatistics;
-import cn.taketoday.retry.listener.RetryListenerSupport;
 import cn.taketoday.retry.policy.CircuitBreakerRetryPolicy;
 
 /**
  * @author Dave Syer
  * @since 4.0
  */
-public class StatisticsListener extends RetryListenerSupport {
+public class StatisticsListener implements RetryListener {
 
   private final StatisticsRepository repository;
 

@@ -44,7 +44,6 @@ import cn.taketoday.retry.backoff.ExponentialBackOffPolicy;
 import cn.taketoday.retry.backoff.Sleeper;
 import cn.taketoday.retry.interceptor.RetryInterceptorBuilder;
 import cn.taketoday.retry.interceptor.Retryable;
-import cn.taketoday.retry.listener.RetryListenerSupport;
 import cn.taketoday.retry.policy.SimpleRetryPolicy;
 import cn.taketoday.retry.support.RetryTemplate;
 
@@ -839,7 +838,7 @@ public class EnableRetryTests {
 
   }
 
-  public abstract static class OrderedListener extends RetryListenerSupport implements Ordered {
+  public abstract static class OrderedListener implements Ordered, RetryListener {
 
   }
 

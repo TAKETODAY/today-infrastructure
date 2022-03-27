@@ -20,9 +20,9 @@
 
 package cn.taketoday.retry.stats;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import cn.taketoday.context.annotation.AnnotationConfigApplicationContext;
 import cn.taketoday.context.annotation.Bean;
@@ -51,7 +51,7 @@ public class CircuitBreakerInterceptorStatisticsTests {
 
   private AnnotationConfigApplicationContext context;
 
-  @Before
+  @BeforeEach
   public void init() {
     context = new AnnotationConfigApplicationContext(TestConfiguration.class);
     this.callback = context.getBean(Service.class);
@@ -59,7 +59,7 @@ public class CircuitBreakerInterceptorStatisticsTests {
     this.callback.setAttemptsBeforeSuccess(1);
   }
 
-  @After
+  @AfterEach
   public void close() {
     if (context != null) {
       context.close();

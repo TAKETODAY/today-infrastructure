@@ -21,8 +21,8 @@ package cn.taketoday.retry.interceptor;
 
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
 import java.util.ArrayList;
@@ -37,8 +37,8 @@ import cn.taketoday.retry.ExhaustedRetryException;
 import cn.taketoday.retry.RecoveryCallback;
 import cn.taketoday.retry.RetryCallback;
 import cn.taketoday.retry.RetryContext;
+import cn.taketoday.retry.RetryListener;
 import cn.taketoday.retry.RetryOperations;
-import cn.taketoday.retry.listener.RetryListenerSupport;
 import cn.taketoday.retry.policy.AlwaysRetryPolicy;
 import cn.taketoday.retry.policy.NeverRetryPolicy;
 import cn.taketoday.retry.policy.SimpleRetryPolicy;
@@ -72,10 +72,10 @@ public class StatefulRetryOperationsInterceptorTests {
 
   private static int count;
 
-  @Before
+  @BeforeEach
   public void setUp() throws Exception {
     interceptor = new StatefulRetryOperationsInterceptor();
-    retryTemplate.registerListener(new RetryListenerSupport() {
+    retryTemplate.registerListener(new RetryListener() {
       @Override
       public <T, E extends Throwable> void close(RetryContext context, RetryCallback<T, E> callback,
               Throwable throwable) {
