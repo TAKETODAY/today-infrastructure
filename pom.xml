@@ -333,20 +333,6 @@
     </dependency>
 
     <dependency>
-      <groupId>com.googlecode.protobuf-java-format</groupId>
-      <artifactId>protobuf-java-format</artifactId>
-      <version>1.4</version>
-      <scope>provided</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>com.rometools</groupId>
-      <artifactId>rome</artifactId>
-      <version>1.16.0</version>
-      <scope>provided</scope>
-    </dependency>
-
-    <dependency>
       <groupId>commons-fileupload</groupId>
       <artifactId>commons-fileupload</artifactId>
       <version>1.4</version>

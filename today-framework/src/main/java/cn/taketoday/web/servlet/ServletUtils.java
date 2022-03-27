@@ -897,4 +897,62 @@ public abstract class ServletUtils {
       }
     }
   }
+
+  /**
+   * Return the path within the web application for the given request.
+   * <p>Detects include request URL if called within a RequestDispatcher include.
+   *
+   * @param request current HTTP request
+   * @return the path within the web application
+   */
+  public static String getPathWithinApplication(HttpServletRequest request) {
+    String contextPath = request.getContextPath();
+    String requestUri = request.getRequestURI();
+    String path = getRemainingPath(requestUri, contextPath, true);
+    if (path != null) {
+      // Normal case: URI contains context path.
+      return (StringUtils.hasText(path) ? path : "/");
+    }
+    else {
+      return requestUri;
+    }
+  }
+
+  /**
+   * Match the given "mapping" to the start of the "requestUri" and if there
+   * is a match return the extra part. This method is needed because the
+   * context path and the servlet path returned by the HttpServletRequest are
+   * stripped of semicolon content unlike the requestUri.
+   */
+  @Nullable
+  private static String getRemainingPath(String requestUri, String mapping, boolean ignoreCase) {
+    int index1 = 0;
+    int index2 = 0;
+    for (; (index1 < requestUri.length()) && (index2 < mapping.length()); index1++, index2++) {
+      char c1 = requestUri.charAt(index1);
+      char c2 = mapping.charAt(index2);
+      if (c1 == ';') {
+        index1 = requestUri.indexOf('/', index1);
+        if (index1 == -1) {
+          return null;
+        }
+        c1 = requestUri.charAt(index1);
+      }
+      if (c1 == c2 || (ignoreCase && (Character.toLowerCase(c1) == Character.toLowerCase(c2)))) {
+        continue;
+      }
+      return null;
+    }
+    if (index2 != mapping.length()) {
+      return null;
+    }
+    else if (index1 == requestUri.length()) {
+      return "";
+    }
+    else if (requestUri.charAt(index1) == ';') {
+      index1 = requestUri.indexOf('/', index1);
+    }
+    return (index1 != -1 ? requestUri.substring(index1) : "");
+  }
+
 }
