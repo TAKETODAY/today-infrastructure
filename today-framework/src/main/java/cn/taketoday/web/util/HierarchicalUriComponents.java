@@ -226,7 +226,9 @@ final class HierarchicalUriComponents extends UriComponents {
 
     StringBuilder queryBuilder = new StringBuilder();
 
-    this.queryParams.forEach((name, values) -> {
+    for (Entry<String, List<String>> entry : queryParams.entrySet()) {
+      String name = entry.getKey();
+      List<String> values = entry.getValue();
       if (CollectionUtils.isEmpty(values)) {
         if (queryBuilder.length() != 0) {
           queryBuilder.append('&');
@@ -244,29 +246,7 @@ final class HierarchicalUriComponents extends UriComponents {
           }
         }
       }
-    });
-
-//    for (Entry<String, List<String>> entry : queryParams.entrySet()) {
-//      String name = entry.getKey();
-//      List<String> values = entry.getValue();
-//      if (CollectionUtils.isEmpty(values)) {
-//        if (queryBuilder.length() != 0) {
-//          queryBuilder.append('&');
-//        }
-//        queryBuilder.append(name);
-//      }
-//      else {
-//        for (Object value : values) {
-//          if (queryBuilder.length() != 0) {
-//            queryBuilder.append('&');
-//          }
-//          queryBuilder.append(name);
-//          if (value != null) {
-//            queryBuilder.append('=').append(value);
-//          }
-//        }
-//      }
-//    }
+    }
     return queryBuilder.toString();
   }
 

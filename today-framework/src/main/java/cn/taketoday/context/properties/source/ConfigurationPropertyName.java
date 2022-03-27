@@ -246,7 +246,7 @@ public final class ConfigurationPropertyName implements Comparable<Configuration
    */
   public ConfigurationPropertyName getParent() {
     int numberOfElements = getNumberOfElements();
-    return (numberOfElements <= 1) ? EMPTY : chop(numberOfElements - 1);
+    return numberOfElements <= 1 ? EMPTY : chop(numberOfElements - 1);
   }
 
   /**
@@ -960,7 +960,7 @@ public final class ConfigurationPropertyName implements Comparable<Configuration
     }
 
     private void add(int start, int end,
-                     ElementType type, @Nullable Function<CharSequence, CharSequence> valueProcessor) {
+            ElementType type, @Nullable Function<CharSequence, CharSequence> valueProcessor) {
       if ((end - start) < 1 || type == ElementType.EMPTY) {
         return;
       }
