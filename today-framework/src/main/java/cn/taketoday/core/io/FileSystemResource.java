@@ -67,7 +67,7 @@ public class FileSystemResource extends AbstractResource implements WritableReso
   private final Path filePath;
 
   /**
-   * Create a new {@code FileBasedResource} from a file path.
+   * Create a new {@code FileSystemResource} from a file path.
    * <p>Note: When building relative resources via {@link #createRelative},
    * it makes a difference whether the specified resource base path here
    * ends with a slash or not. In the case of "C:/dir1/", relative paths
@@ -131,7 +131,7 @@ public class FileSystemResource extends AbstractResource implements WritableReso
   }
 
   /**
-   * Create a new {@code FileBasedResource} from a {@link FileSystem} handle,
+   * Create a new {@code FileSystemResource} from a {@link FileSystem} handle,
    * locating the specified path.
    * <p>This is an alternative to {@link #FileSystemResource(String)},
    * performing all file system interactions via NIO.2 instead of {@link File}.
@@ -376,7 +376,7 @@ public class FileSystemResource extends AbstractResource implements WritableReso
 
   @Override
   public String toString() {
-    return "FileBasedResource: ".concat(path);
+    return "FileSystemResource: ".concat(path);
   }
 
 }
