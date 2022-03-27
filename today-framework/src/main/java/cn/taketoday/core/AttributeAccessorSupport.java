@@ -47,7 +47,7 @@ import cn.taketoday.util.StringUtils;
  * 2020-02-22 12:47
  * @since 2.1.7
  */
-public abstract class AttributeAccessorSupport implements AttributeAccessor {
+public abstract class AttributeAccessorSupport implements AttributeAccessor, Serializable {
 
   /** Map with String keys and Object values. */
   protected Map<String, Object> attributes;
