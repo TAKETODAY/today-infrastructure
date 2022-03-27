@@ -30,8 +30,8 @@ import cn.taketoday.context.aware.ImportAware;
 import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.core.type.AnnotationMetadata;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.transaction.PlatformTransactionManager;
 import cn.taketoday.transaction.TransactionManagementConfigUtils;
+import cn.taketoday.transaction.TransactionManager;
 import cn.taketoday.transaction.event.TransactionalEventListenerFactory;
 import cn.taketoday.util.CollectionUtils;
 
@@ -53,7 +53,7 @@ public abstract class AbstractTransactionManagementConfiguration implements Impo
    * Default transaction manager, as configured through a {@link cn.taketoday.transaction.annotation.TransactionManagementConfigurer}.
    */
   @Nullable
-  protected PlatformTransactionManager txManager;
+  protected TransactionManager txManager;
 
   @Override
   public void setImportMetadata(AnnotationMetadata importMetadata) {

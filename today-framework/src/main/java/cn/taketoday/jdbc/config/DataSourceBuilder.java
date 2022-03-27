@@ -97,6 +97,7 @@ public final class DataSourceBuilder<T extends DataSource> {
 
   private final Map<DataSourceProperty, String> values = new HashMap<>();
 
+  @Nullable
   private Class<T> type;
 
   @Nullable
@@ -123,7 +124,7 @@ public final class DataSourceBuilder<T extends DataSource> {
    * @return this builder
    */
   @SuppressWarnings("unchecked")
-  public <D extends DataSource> DataSourceBuilder<D> type(Class<D> type) {
+  public <D extends DataSource> DataSourceBuilder<D> type(@Nullable Class<D> type) {
     this.type = (Class<T>) type;
     return (DataSourceBuilder<D>) this;
   }
@@ -335,7 +336,8 @@ public final class DataSourceBuilder<T extends DataSource> {
     @Nullable
     String get(T dataSource, DataSourceProperty property);
 
-    static <T extends DataSource> DataSourceProperties<T> forType(@Nullable ClassLoader classLoader, Class<T> type) {
+    static <T extends DataSource> DataSourceProperties<T> forType(
+            @Nullable ClassLoader classLoader, @Nullable Class<T> type) {
       MappedDataSourceProperties<T> mapped = MappedDataSourceProperties.forType(classLoader, type);
       return (mapped != null) ? mapped : new ReflectionDataSourceProperties<>(type);
     }
@@ -521,7 +523,7 @@ public final class DataSourceBuilder<T extends DataSource> {
 
     private final Class<T> dataSourceType;
 
-    ReflectionDataSourceProperties(Class<T> dataSourceType) {
+    ReflectionDataSourceProperties(@NonNull Class<T> dataSourceType) {
       Assert.notNull(dataSourceType, "No supported DataSource type found");
       Map<DataSourceProperty, Method> getters = new HashMap<>();
       Map<DataSourceProperty, Method> setters = new HashMap<>();
