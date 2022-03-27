@@ -25,6 +25,7 @@ package cn.taketoday.retry;
  * attempts, successes, errors (including retries), and aborts.
  *
  * @author Dave Syer
+ * @since 4.0
  */
 public interface RetryStatistics {
 

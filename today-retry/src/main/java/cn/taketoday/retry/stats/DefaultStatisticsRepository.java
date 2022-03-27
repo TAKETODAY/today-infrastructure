@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.retry.RetryStatistics;
 
 /**
@@ -40,6 +41,7 @@ public class DefaultStatisticsRepository implements StatisticsRepository {
     this.factory = factory;
   }
 
+  @Nullable
   @Override
   public RetryStatistics findOne(String name) {
     return map.get(name);

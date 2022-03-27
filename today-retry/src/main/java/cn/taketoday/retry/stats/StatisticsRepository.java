@@ -20,6 +20,7 @@
 
 package cn.taketoday.retry.stats;
 
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.retry.RetryStatistics;
 
 /**
@@ -28,6 +29,7 @@ import cn.taketoday.retry.RetryStatistics;
  */
 public interface StatisticsRepository {
 
+  @Nullable
   RetryStatistics findOne(String name);
 
   Iterable<RetryStatistics> findAll();
