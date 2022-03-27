@@ -27,6 +27,7 @@ package cn.taketoday.retry;
  * needed.
  *
  * @author Dave Syer
+ * @since 4.0
  */
 public interface RetryState {
 

@@ -237,12 +237,9 @@ public class StatefulRecoveryRetryTests {
     this.retryTemplate.setRetryPolicy(new SimpleRetryPolicy(1));
     this.retryTemplate.setRetryContextCache(new MapRetryContextCache(1));
 
-    RetryCallback<Object, Exception> callback = new RetryCallback<Object, Exception>() {
-      @Override
-      public Object doWithRetry(RetryContext context) throws Exception {
-        StatefulRecoveryRetryTests.this.count++;
-        throw new RuntimeException("Barf!");
-      }
+    RetryCallback<Object, Exception> callback = context -> {
+      StatefulRecoveryRetryTests.this.count++;
+      throw new RuntimeException("Barf!");
     };
 
     try {
@@ -259,7 +256,7 @@ public class StatefulRecoveryRetryTests {
     }
     catch (RetryException e) {
       String message = e.getMessage();
-      assertTrue("Message does not contain 'capacity': " + message, message.indexOf("capacity") >= 0);
+      assertTrue("Message does not contain 'capacity': " + message, message.contains("capacity"));
     }
   }
 

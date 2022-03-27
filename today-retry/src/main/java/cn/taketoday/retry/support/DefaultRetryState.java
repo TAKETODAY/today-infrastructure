@@ -27,6 +27,7 @@ import cn.taketoday.retry.RetryState;
 
 /**
  * @author Dave Syer
+ * @since 4.0
  */
 public class DefaultRetryState implements RetryState {
 

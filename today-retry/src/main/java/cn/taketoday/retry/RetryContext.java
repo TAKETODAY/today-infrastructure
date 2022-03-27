@@ -27,6 +27,7 @@ import cn.taketoday.core.AttributeAccessor;
  * used to alter the course of the retry, e.g. force an early termination.
  *
  * @author Dave Syer
+ * @since 4.0
  */
 public interface RetryContext extends AttributeAccessor {
 
