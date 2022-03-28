@@ -83,7 +83,7 @@ import jakarta.persistence.PersistenceException;
  * @author Juergen Hoeller
  * @author Costin Leau
  * @see HibernateJpaVendorAdapter
- * @see Session#setFlushMode
+ * @see Session#setHibernateFlushMode
  * @see org.hibernate.Transaction#setTimeout
  * @since 4.0
  */
@@ -353,10 +353,9 @@ public class HibernateJpaDialect extends DefaultJpaDialect {
       this.readOnly = readOnly;
     }
 
-    @SuppressWarnings("deprecation")
     public void resetSessionState() {
       if (this.previousFlushMode != null) {
-        this.session.setFlushMode(this.previousFlushMode);
+        this.session.setHibernateFlushMode(this.previousFlushMode);
       }
       LogicalConnectionImplementor logicalConnection;
       if (needsConnectionReset

@@ -69,8 +69,7 @@ class CacheRemoveAllInterceptor extends AbstractCacheInterceptor<CacheRemoveAllO
   protected void removeAll(CacheOperationInvocationContext<CacheRemoveAllOperation> context) {
     Cache cache = resolveCache(context);
     if (logger.isTraceEnabled()) {
-      logger.trace("Invalidating entire cache '" + cache.getName() + "' for operation " +
-              context.getOperation());
+      logger.trace("Invalidating entire cache '{}' for operation {}", cache.getName(), context.getOperation());
     }
     doClear(cache, context.getOperation().isEarlyRemove());
   }

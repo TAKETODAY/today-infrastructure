@@ -70,8 +70,7 @@ class CacheRemoveEntryInterceptor extends AbstractKeyCacheInterceptor<CacheRemov
     Object key = generateKey(context);
     Cache cache = resolveCache(context);
     if (logger.isTraceEnabled()) {
-      logger.trace("Invalidating key [" + key + "] on cache '" + cache.getName() +
-              "' for operation " + context.getOperation());
+      logger.trace("Invalidating key [{}] on cache '{}' for operation {}", key, cache.getName(), context.getOperation());
     }
     doEvict(cache, key, context.getOperation().isEarlyRemove());
   }
