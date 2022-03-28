@@ -55,11 +55,25 @@ public final class ScheduledTask {
 
   /**
    * Trigger cancellation of this scheduled task.
+   * <p>This variant will force interruption of the task if still running.
+   *
+   * @see #cancel(boolean)
    */
   public void cancel() {
+    cancel(true);
+  }
+
+  /**
+   * Trigger cancellation of this scheduled task.
+   *
+   * @param mayInterruptIfRunning whether to force interruption of the task
+   * if still running (specify {@code false} to allow the task to complete)
+   * @see ScheduledFuture#cancel(boolean)
+   */
+  public void cancel(boolean mayInterruptIfRunning) {
     ScheduledFuture<?> future = this.future;
     if (future != null) {
-      future.cancel(true);
+      future.cancel(mayInterruptIfRunning);
     }
   }
 
