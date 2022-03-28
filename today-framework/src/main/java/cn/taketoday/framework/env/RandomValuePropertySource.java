@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -18,7 +18,7 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.core.env;
+package cn.taketoday.framework.env;
 
 import java.util.OptionalInt;
 import java.util.OptionalLong;
@@ -26,7 +26,12 @@ import java.util.Random;
 import java.util.UUID;
 import java.util.function.Function;
 
+import cn.taketoday.core.env.ConfigurableEnvironment;
+import cn.taketoday.core.env.PropertySource;
+import cn.taketoday.core.env.PropertySources;
+import cn.taketoday.core.env.StandardEnvironment;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.logging.LogMessage;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.DigestUtils;
@@ -56,11 +61,9 @@ import cn.taketoday.util.StringUtils;
  * @author Dave Syer
  * @author Matt Benson
  * @author Madhura Bhave
- * @author TODAY 2021/10/5 23:53
  * @since 4.0
  */
 public class RandomValuePropertySource extends PropertySource<Random> {
-  private static final Logger log = LoggerFactory.getLogger(RandomValuePropertySource.class);
 
   /**
    * Name of the random {@link PropertySource}.
@@ -68,6 +71,8 @@ public class RandomValuePropertySource extends PropertySource<Random> {
   public static final String RANDOM_PROPERTY_SOURCE_NAME = "random";
 
   private static final String PREFIX = "random.";
+
+  private static final Logger logger = LoggerFactory.getLogger(RandomValuePropertySource.class);
 
   public RandomValuePropertySource() {
     this(RANDOM_PROPERTY_SOURCE_NAME);
@@ -82,7 +87,7 @@ public class RandomValuePropertySource extends PropertySource<Random> {
     if (!name.startsWith(PREFIX)) {
       return null;
     }
-    log.trace("Generating random property for '{}'", name);
+    logger.trace(LogMessage.format("Generating random property for '%s'", name));
     return getRandomValue(name.substring(PREFIX.length()));
   }
 
@@ -140,7 +145,7 @@ public class RandomValuePropertySource extends PropertySource<Random> {
   }
 
   public static void addToEnvironment(ConfigurableEnvironment environment) {
-    addToEnvironment(environment, log);
+    addToEnvironment(environment, logger);
   }
 
   static void addToEnvironment(ConfigurableEnvironment environment, Logger logger) {
@@ -161,9 +166,12 @@ public class RandomValuePropertySource extends PropertySource<Random> {
   }
 
   static final class Range<T extends Number> {
-    private final T min;
-    private final T max;
+
     private final String value;
+
+    private final T min;
+
+    private final T max;
 
     private Range(String value, T min, T max) {
       this.value = value;

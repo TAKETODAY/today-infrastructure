@@ -50,7 +50,7 @@ import cn.taketoday.util.ClassUtils;
  * @author Stephane Nicoll
  * @author Nidhi Desai
  * @see #get(ClassLoader)
- * @since 1.0.0
+ * @since 4.0
  */
 public enum EmbeddedDatabaseConnection {
 

@@ -730,7 +730,7 @@ class MergedAnnotationsTests {
   @Test
   void getWithTypeHierarchyWithLocalAliasesThatConflictWithAttributesInMetaAnnotationByConvention() {
     MergedAnnotation<?> annotation = MergedAnnotations.from(
-            SpringApplicationConfigurationClass.class, SearchStrategy.TYPE_HIERARCHY).get(
+            ApplicationConfigurationClass.class, SearchStrategy.TYPE_HIERARCHY).get(
             ContextConfiguration.class);
     assertThat(annotation.getStringArray("locations")).isEmpty();
     assertThat(annotation.getStringArray("value")).isEmpty();
@@ -2147,12 +2147,12 @@ class MergedAnnotationsTests {
   @Test
   void asAnnotationAttributesReturnsPopulatedAnnotationAttributes() {
     MergedAnnotation<?> annotation = MergedAnnotations.from(
-            SpringApplicationConfigurationClass.class).get(
-            SpringApplicationConfiguration.class);
+            ApplicationConfigurationClass.class).get(
+            ApplicationConfiguration.class);
     AnnotationAttributes attributes = annotation.asAnnotationAttributes(
             Adapt.CLASS_TO_STRING);
     assertThat(attributes).containsEntry("classes", new String[] { Number.class.getName() });
-    assertThat(attributes.annotationType()).isEqualTo(SpringApplicationConfiguration.class);
+    assertThat(attributes.annotationType()).isEqualTo(ApplicationConfiguration.class);
   }
 
   // @formatter:off
@@ -2459,7 +2459,7 @@ class MergedAnnotationsTests {
 
   @ContextConfiguration
   @Retention(RetentionPolicy.RUNTIME)
-  @interface SpringApplicationConfiguration {
+  @interface ApplicationConfiguration {
 
     @AliasFor(annotation = ContextConfiguration.class, attribute = "locations")
     String[] locations() default { };
@@ -2713,8 +2713,8 @@ class MergedAnnotationsTests {
   static class AliasForBasedSinglePackageComponentScanClass {
   }
 
-  @SpringApplicationConfiguration(Number.class)
-  static class SpringApplicationConfigurationClass {
+  @ApplicationConfiguration(Number.class)
+  static class ApplicationConfigurationClass {
   }
 
   @Resource(name = "x")

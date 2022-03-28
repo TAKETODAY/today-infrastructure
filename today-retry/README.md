@@ -535,7 +535,7 @@ on AOP classes that need to be declared in your project. If your application is 
 resolved by using the Spring Boot starter for AOP. For example, for Gradle, add the following line to your `build.gradle` file:
 
 ```
-    runtime('cn.taketoday.boot:spring-boot-starter-aop')
+    runtime('cn.taketoday.framework:spring-boot-starter-aop')
 ```
 
 For non-Boot apps, you need to declare a runtime dependency on the latest version of AspectJ's `aspectjweaver` module. For example, for
