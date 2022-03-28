@@ -33,6 +33,7 @@ import javax.cache.annotation.CacheResult;
 
 import cn.taketoday.cache.interceptor.CacheOperationInvoker;
 import cn.taketoday.cache.jcache.interceptor.JCacheAspectSupport;
+import cn.taketoday.util.ExceptionUtils;
 
 /**
  * Concrete AspectJ cache aspect using JSR-107 standard annotations.
@@ -73,8 +74,7 @@ public aspect JCacheCacheAspect extends JCacheAspectSupport {
       return execute(aspectJInvoker, thisJoinPoint.getTarget(), method, thisJoinPoint.getArgs());
     }
     catch (CacheOperationInvoker.ThrowableWrapper th) {
-      AnyThrow.throwUnchecked(th.getOriginal());
-      return null; // never reached
+      throw ExceptionUtils.sneakyThrow(th.getOriginal());
     }
   }
 

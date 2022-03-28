@@ -29,6 +29,7 @@ import cn.taketoday.beans.factory.DisposableBean;
 import cn.taketoday.cache.interceptor.CacheAspectSupport;
 import cn.taketoday.cache.interceptor.CacheOperationInvoker;
 import cn.taketoday.cache.interceptor.CacheOperationSource;
+import cn.taketoday.util.ExceptionUtils;
 
 /**
  * Abstract superaspect for AspectJ cache aspects. Concrete subaspects will implement the
@@ -84,8 +85,7 @@ public abstract aspect AbstractCacheAspect extends CacheAspectSupport implements
       return execute(aspectJInvoker, thisJoinPoint.getTarget(), method, thisJoinPoint.getArgs());
     }
     catch (CacheOperationInvoker.ThrowableWrapper th) {
-      AnyThrow.throwUnchecked(th.getOriginal());
-      return null; // never reached
+      throw ExceptionUtils.sneakyThrow(th.getOriginal());
     }
   }
 
