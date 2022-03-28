@@ -48,6 +48,7 @@ import cn.taketoday.context.annotation.Role;
 import cn.taketoday.core.OrderComparator;
 import cn.taketoday.core.annotation.AnnotationUtils;
 import cn.taketoday.lang.Component;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.retry.RetryListener;
 import cn.taketoday.retry.backoff.Sleeper;
 import cn.taketoday.retry.interceptor.MethodArgumentsKeyGenerator;
@@ -106,6 +107,7 @@ public class RetryConfiguration extends AbstractPointcutAdvisor
     }
   }
 
+  @Nullable
   private <T> List<T> findBeans(Class<? extends T> type) {
     if (beanFactory.getBeanNamesForType(type).size() > 0) {
       ArrayList<T> list = new ArrayList<>(beanFactory.getBeansOfType(type, false, false).values());
@@ -115,6 +117,7 @@ public class RetryConfiguration extends AbstractPointcutAdvisor
     return null;
   }
 
+  @Nullable
   private <T> T findBean(Class<? extends T> type) {
     if (beanFactory.getBeanNamesForType(type, false, false).size() == 1) {
       return beanFactory.getBean(type);

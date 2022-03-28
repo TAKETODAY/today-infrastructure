@@ -140,7 +140,7 @@ public class AnnotationAwareRetryOperationsInterceptor implements IntroductionIn
    * @param globalListeners the default listeners
    */
   public void setListeners(Collection<RetryListener> globalListeners) {
-    ArrayList<RetryListener> retryListeners = new ArrayList<RetryListener>(globalListeners);
+    ArrayList<RetryListener> retryListeners = new ArrayList<>(globalListeners);
     AnnotationAwareOrderComparator.sort(retryListeners);
     this.globalListeners = retryListeners.toArray(new RetryListener[0]);
   }

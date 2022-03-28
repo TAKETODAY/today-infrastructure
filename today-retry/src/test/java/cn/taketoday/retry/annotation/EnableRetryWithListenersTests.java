@@ -82,7 +82,7 @@ public class EnableRetryWithListenersTests {
 
   }
 
-  @Configuration
+  @Configuration(proxyBeanMethods = false)
   @EnableRetry(proxyTargetClass = true)
   protected static class TestConfigurationMultipleListeners {
 

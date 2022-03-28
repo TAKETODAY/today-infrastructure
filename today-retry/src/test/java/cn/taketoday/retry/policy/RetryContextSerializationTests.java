@@ -58,7 +58,7 @@ public class RetryContextSerializationTests {
 
   @Parameters(name = "{index}: {0}")
   public static List<Object[]> policies() {
-    List<Object[]> result = new ArrayList<Object[]>();
+    List<Object[]> result = new ArrayList<>();
     ClassPathScanningCandidateComponentProvider scanner = new ClassPathScanningCandidateComponentProvider(true);
     scanner.addIncludeFilter(new AssignableTypeFilter(RetryPolicy.class));
     scanner.addExcludeFilter(new RegexPatternTypeFilter(Pattern.compile(".*Test.*")));
