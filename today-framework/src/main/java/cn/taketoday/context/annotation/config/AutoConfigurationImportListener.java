@@ -29,7 +29,7 @@ import cn.taketoday.context.aware.EnvironmentAware;
 import cn.taketoday.context.aware.ResourceLoaderAware;
 
 /**
- * Listener that can be registered with {@code spring.factories} to receive details of
+ * Listener that can be registered with {@code today-strategies.properties} to receive details of
  * imported auto-configurations.
  * <p>
  * An {@link AutoConfigurationImportListener} may implement any of the following

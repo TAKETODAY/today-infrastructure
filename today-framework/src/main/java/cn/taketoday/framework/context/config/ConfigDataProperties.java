@@ -40,13 +40,13 @@ import cn.taketoday.util.ObjectUtils;
  *
  * @author Phillip Webb
  * @author Madhura Bhave
+ * @since 4.0
  */
 class ConfigDataProperties {
 
   private static final ConfigurationPropertyName NAME = ConfigurationPropertyName.of("context.config");
 
-  private static final ConfigurationPropertyName LEGACY_PROFILES_NAME = ConfigurationPropertyName
-          .of("spring.profiles");
+  private static final ConfigurationPropertyName LEGACY_PROFILES_NAME = ConfigurationPropertyName.of("context.profiles");
 
   private static final Bindable<ConfigDataProperties> BINDABLE_PROPERTIES = Bindable.of(ConfigDataProperties.class);
 
@@ -54,6 +54,7 @@ class ConfigDataProperties {
 
   private final List<ConfigDataLocation> imports;
 
+  @Nullable
   private final Activate activate;
 
   /**
@@ -62,7 +63,7 @@ class ConfigDataProperties {
    * @param imports the imports requested
    * @param activate the activate properties
    */
-  ConfigDataProperties(@Name("import") List<ConfigDataLocation> imports, Activate activate) {
+  ConfigDataProperties(@Name("import") @Nullable List<ConfigDataLocation> imports, @Nullable Activate activate) {
     this.imports = (imports != null) ? imports : Collections.emptyList();
     this.activate = activate;
   }
@@ -83,7 +84,7 @@ class ConfigDataProperties {
    * @param activationContext the activation context
    * @return {@code true} if the config data property source is active
    */
-  boolean isActive(ConfigDataActivationContext activationContext) {
+  boolean isActive(@Nullable ConfigDataActivationContext activationContext) {
     return this.activate == null || this.activate.isActive(activationContext);
   }
 
@@ -97,7 +98,7 @@ class ConfigDataProperties {
   }
 
   ConfigDataProperties withLegacyProfiles(String[] legacyProfiles, @Nullable ConfigurationProperty property) {
-    if (this.activate != null && !ObjectUtils.isEmpty(this.activate.onProfile)) {
+    if (this.activate != null && ObjectUtils.isNotEmpty(this.activate.onProfile)) {
       throw new InvalidConfigDataPropertyException(property, false, NAME.append("activate.on-profile"), null);
     }
     return new ConfigDataProperties(this.imports, new Activate(this.activate.onCloudPlatform, legacyProfiles));
@@ -110,14 +111,13 @@ class ConfigDataProperties {
    * @param binder the binder used to bind the properties
    * @return a {@link ConfigDataProperties} instance or {@code null}
    */
+  @Nullable
   static ConfigDataProperties get(Binder binder) {
     LegacyProfilesBindHandler legacyProfilesBindHandler = new LegacyProfilesBindHandler();
-    String[] legacyProfiles = binder.bind(LEGACY_PROFILES_NAME, BINDABLE_STRING_ARRAY, legacyProfilesBindHandler)
-            .orElse(null);
-    ConfigDataProperties properties = binder.bind(NAME, BINDABLE_PROPERTIES, new ConfigDataLocationBindHandler())
-            .orElse(null);
-    if (!ObjectUtils.isEmpty(legacyProfiles)) {
-      properties = (properties != null)
+    String[] legacyProfiles = binder.bind(LEGACY_PROFILES_NAME, BINDABLE_STRING_ARRAY, legacyProfilesBindHandler).orElse(null);
+    ConfigDataProperties properties = binder.bind(NAME, BINDABLE_PROPERTIES, new ConfigDataLocationBindHandler()).orElse(null);
+    if (ObjectUtils.isNotEmpty(legacyProfiles)) {
+      properties = properties != null
                    ? properties.withLegacyProfiles(legacyProfiles, legacyProfilesBindHandler.getProperty())
                    : new ConfigDataProperties(null, new Activate(null, legacyProfiles));
     }
@@ -133,8 +133,7 @@ class ConfigDataProperties {
     private ConfigurationProperty property;
 
     @Override
-    public Object onSuccess(ConfigurationPropertyName name, Bindable<?> target, BindContext context,
-            Object result) {
+    public Object onSuccess(ConfigurationPropertyName name, Bindable<?> target, BindContext context, Object result) {
       this.property = context.getConfigurationProperty();
       return result;
     }
@@ -162,7 +161,7 @@ class ConfigDataProperties {
      * @param onCloudPlatform the cloud platform required for activation
      * @param onProfile the profile expression required for activation
      */
-    Activate(CloudPlatform onCloudPlatform, String[] onProfile) {
+    Activate(@Nullable CloudPlatform onCloudPlatform, @Nullable String[] onProfile) {
       this.onProfile = onProfile;
       this.onCloudPlatform = onCloudPlatform;
     }

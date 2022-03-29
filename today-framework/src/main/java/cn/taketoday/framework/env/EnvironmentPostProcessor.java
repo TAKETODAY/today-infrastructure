@@ -20,33 +20,25 @@
 
 package cn.taketoday.framework.env;
 
-import org.apache.commons.logging.Log;
-
 import cn.taketoday.core.env.ConfigurableEnvironment;
 import cn.taketoday.core.env.Environment;
 import cn.taketoday.framework.Application;
 import cn.taketoday.framework.BootstrapContext;
 import cn.taketoday.framework.BootstrapRegistry;
 import cn.taketoday.framework.ConfigurableBootstrapContext;
-import cn.taketoday.framework.logging.DeferredLogFactory;
 
 /**
  * Allows for customization of the application's {@link Environment} prior to the
  * application context being refreshed.
  * <p>
  * EnvironmentPostProcessor implementations have to be registered in
- * {@code META-INF/spring.factories}, using the fully qualified name of this class as the
+ * {@code META-INF/today-strategies.properties}, using the fully qualified name of this class as the
  * key. Implementations may implement the {@link cn.taketoday.core.Ordered Ordered}
  * interface or use an {@link cn.taketoday.core.annotation.Order @Order} annotation
  * if they wish to be invoked in specific order.
  * <p> {@code EnvironmentPostProcessor} implementations may optionally
  * take the following constructor parameters:
  * <ul>
- * <li>{@link DeferredLogFactory} - A factory that can be used to create loggers with
- * output deferred until the application has been fully prepared (allowing the environment
- * itself to configure logging levels).</li>
- * <li>{@link Log} - A log with output deferred until the application has been fully
- * prepared (allowing the environment itself to configure logging levels).</li>
  * <li>{@link ConfigurableBootstrapContext} - A bootstrap context that can be used to
  * store objects that may be expensive to create, or need to be shared
  * ({@link BootstrapContext} or {@link BootstrapRegistry} may also be used).</li>

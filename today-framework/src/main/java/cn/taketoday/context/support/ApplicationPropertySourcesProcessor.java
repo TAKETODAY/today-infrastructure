@@ -53,6 +53,7 @@ import cn.taketoday.util.StringUtils;
  * @author TODAY 2021/10/8 22:47
  * @since 4.0
  */
+@Deprecated
 public class ApplicationPropertySourcesProcessor {
   private static final Logger log = LoggerFactory.getLogger(ApplicationPropertySourcesProcessor.class);
   static boolean snakeyamlIsPresent = ClassUtils.isPresent("org.yaml.snakeyaml.Yaml");

@@ -20,20 +20,16 @@
 
 package cn.taketoday.framework.context.config;
 
-import org.apache.commons.logging.Log;
-import cn.taketoday.framework.BootstrapContext;
-import cn.taketoday.framework.BootstrapRegistry;
-import cn.taketoday.framework.ConfigurableBootstrapContext;
-import cn.taketoday.framework.logging.DeferredLogFactory;
-
 import java.io.IOException;
+
+import cn.taketoday.logging.Logger;
 
 /**
  * Strategy class that can be used to load {@link ConfigData} for a given
- * {@link ConfigDataResource}. Implementations should be added as {@code spring.factories}
+ * {@link ConfigDataResource}. Implementations should be added as {@code today-strategies.properties}
  * entries. The following constructor parameter types are supported:
  * <ul>
- * <li>{@link Log} or {@link DeferredLogFactory} - if the loader needs deferred
+ * <li>{@link Logger} or {@link DeferredLogFactory} - if the loader needs deferred
  * logging</li>
  * <li>{@link ConfigurableBootstrapContext} - A bootstrap context that can be used to
  * store objects that may be expensive to create, or need to be shared
@@ -49,25 +45,27 @@ import java.io.IOException;
  */
 public interface ConfigDataLoader<R extends ConfigDataResource> {
 
-	/**
-	 * Returns if the specified resource can be loaded by this instance.
-	 * @param context the loader context
-	 * @param resource the resource to check.
-	 * @return if the resource is supported by this loader
-	 */
-	default boolean isLoadable(ConfigDataLoaderContext context, R resource) {
-		return true;
-	}
+  /**
+   * Returns if the specified resource can be loaded by this instance.
+   *
+   * @param context the loader context
+   * @param resource the resource to check.
+   * @return if the resource is supported by this loader
+   */
+  default boolean isLoadable(ConfigDataLoaderContext context, R resource) {
+    return true;
+  }
 
-	/**
-	 * Load {@link ConfigData} for the given resource.
-	 * @param context the loader context
-	 * @param resource the resource to load
-	 * @return the loaded config data or {@code null} if the location should be skipped
-	 * @throws IOException on IO error
-	 * @throws ConfigDataResourceNotFoundException if the resource cannot be found
-	 */
-	ConfigData load(ConfigDataLoaderContext context, R resource)
-			throws IOException, ConfigDataResourceNotFoundException;
+  /**
+   * Load {@link ConfigData} for the given resource.
+   *
+   * @param context the loader context
+   * @param resource the resource to load
+   * @return the loaded config data or {@code null} if the location should be skipped
+   * @throws IOException on IO error
+   * @throws ConfigDataResourceNotFoundException if the resource cannot be found
+   */
+  ConfigData load(ConfigDataLoaderContext context, R resource)
+          throws IOException, ConfigDataResourceNotFoundException;
 
 }

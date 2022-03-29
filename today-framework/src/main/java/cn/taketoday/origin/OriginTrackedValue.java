@@ -35,7 +35,6 @@ import cn.taketoday.util.ObjectUtils;
  */
 public class OriginTrackedValue implements OriginProvider {
 
-  @Nullable
   private final Object value;
 
   @Nullable
@@ -77,7 +76,7 @@ public class OriginTrackedValue implements OriginProvider {
   @Override
   @Nullable
   public String toString() {
-    return value != null ? this.value.toString() : null;
+    return value.toString();
   }
 
   @Nullable

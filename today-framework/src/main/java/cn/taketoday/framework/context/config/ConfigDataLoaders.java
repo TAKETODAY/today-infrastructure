@@ -20,28 +20,31 @@
 
 package cn.taketoday.framework.context.config;
 
-import org.apache.commons.logging.Log;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 import cn.taketoday.core.ResolvableType;
+import cn.taketoday.framework.BootstrapContext;
+import cn.taketoday.framework.BootstrapRegistry;
+import cn.taketoday.framework.ConfigurableBootstrapContext;
 import cn.taketoday.lang.Assert;
-import cn.taketoday.logging.LogMessage;
+import cn.taketoday.lang.Nullable;
+import cn.taketoday.lang.TodayStrategies;
 import cn.taketoday.logging.Logger;
+import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.Instantiator;
 
 /**
- * A collection of {@link ConfigDataLoader} instances loaded via {@code spring.factories}.
+ * A collection of {@link ConfigDataLoader} instances loaded via {@code today-strategies.properties}.
  *
  * @author Phillip Webb
  * @author Madhura Bhave
+ * @since 4.0
  */
 class ConfigDataLoaders {
-
-  private final Logger logger;
+  private final Logger logger = LoggerFactory.getLogger(getClass());
 
   private final List<ConfigDataLoader<?>> loaders;
 
@@ -50,31 +53,25 @@ class ConfigDataLoaders {
   /**
    * Create a new {@link ConfigDataLoaders} instance.
    *
-   * @param logFactory the deferred log factory
    * @param bootstrapContext the bootstrap context
    * @param classLoader the class loader used when loading
    */
-  ConfigDataLoaders(DeferredLogFactory logFactory, ConfigurableBootstrapContext bootstrapContext,
-          ClassLoader classLoader) {
-    this(logFactory, bootstrapContext, classLoader,
-            SpringFactoriesLoader.loadFactoryNames(ConfigDataLoader.class, classLoader));
+  ConfigDataLoaders(ConfigurableBootstrapContext bootstrapContext, @Nullable ClassLoader classLoader) {
+    this(bootstrapContext, classLoader,
+            TodayStrategies.getStrategiesNames(ConfigDataLoader.class, classLoader));
   }
 
   /**
    * Create a new {@link ConfigDataLoaders} instance.
    *
-   * @param logFactory the deferred log factory
    * @param bootstrapContext the bootstrap context
    * @param classLoader the class loader used when loading
    * @param names the {@link ConfigDataLoader} class names instantiate
    */
-  ConfigDataLoaders(DeferredLogFactory logFactory, ConfigurableBootstrapContext bootstrapContext,
-          ClassLoader classLoader, List<String> names) {
-    this.logger = logFactory.getLog(getClass());
+  ConfigDataLoaders(ConfigurableBootstrapContext bootstrapContext,
+          @Nullable ClassLoader classLoader, List<String> names) {
     Instantiator<ConfigDataLoader<?>> instantiator = new Instantiator<>(ConfigDataLoader.class,
             (availableParameters) -> {
-              availableParameters.add(Log.class, logFactory::getLog);
-              availableParameters.add(DeferredLogFactory.class, logFactory);
               availableParameters.add(ConfigurableBootstrapContext.class, bootstrapContext);
               availableParameters.add(BootstrapContext.class, bootstrapContext);
               availableParameters.add(BootstrapRegistry.class, bootstrapContext);
@@ -104,9 +101,12 @@ class ConfigDataLoaders {
    * @return the loaded {@link ConfigData}
    * @throws IOException on IO error
    */
+  @Nullable
   <R extends ConfigDataResource> ConfigData load(ConfigDataLoaderContext context, R resource) throws IOException {
     ConfigDataLoader<R> loader = getLoader(context, resource);
-    this.logger.trace(LogMessage.from(() -> "Loading " + resource + " using loader " + loader.getClass().getName()));
+    if (logger.isTraceEnabled()) {
+      logger.trace("Loading {} using loader {}", resource, loader.getClass().getName());
+    }
     return loader.load(context, resource);
   }
 

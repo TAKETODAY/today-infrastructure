@@ -20,15 +20,15 @@
 
 package cn.taketoday.framework.context.config;
 
-import cn.taketoday.framework.context.config.ConfigData.Option;
-import cn.taketoday.framework.context.config.ConfigData.PropertySourceOptions;
-import cn.taketoday.framework.origin.Origin;
-import cn.taketoday.framework.origin.OriginTrackedResource;
-import cn.taketoday.core.env.PropertySource;
-import cn.taketoday.core.io.Resource;
-
 import java.io.IOException;
 import java.util.List;
+
+import cn.taketoday.core.env.PropertySource;
+import cn.taketoday.core.io.Resource;
+import cn.taketoday.framework.context.config.ConfigData.Option;
+import cn.taketoday.framework.context.config.ConfigData.PropertySourceOptions;
+import cn.taketoday.origin.Origin;
+import cn.taketoday.origin.OriginTrackedResource;
 
 /**
  * {@link ConfigDataLoader} for {@link Resource} backed locations.
@@ -39,25 +39,24 @@ import java.util.List;
  */
 public class StandardConfigDataLoader implements ConfigDataLoader<StandardConfigDataResource> {
 
-	private static final PropertySourceOptions PROFILE_SPECIFIC = PropertySourceOptions.always(Option.PROFILE_SPECIFIC);
+  private static final PropertySourceOptions PROFILE_SPECIFIC = PropertySourceOptions.always(Option.PROFILE_SPECIFIC);
 
-	private static final PropertySourceOptions NON_PROFILE_SPECIFIC = PropertySourceOptions.ALWAYS_NONE;
+  private static final PropertySourceOptions NON_PROFILE_SPECIFIC = PropertySourceOptions.ALWAYS_NONE;
 
-	@Override
-	public ConfigData load(ConfigDataLoaderContext context, StandardConfigDataResource resource)
-			throws IOException, ConfigDataNotFoundException {
-		if (resource.isEmptyDirectory()) {
-			return ConfigData.EMPTY;
-		}
-		ConfigDataResourceNotFoundException.throwIfDoesNotExist(resource, resource.getResource());
-		StandardConfigDataReference reference = resource.getReference();
-		Resource originTrackedResource = OriginTrackedResource.of(resource.getResource(),
-				Origin.from(reference.getConfigDataLocation()));
-		String name = String.format("Config resource '%s' via location '%s'", resource,
-				reference.getConfigDataLocation());
-		List<PropertySource<?>> propertySources = reference.getPropertySourceLoader().load(name, originTrackedResource);
-		PropertySourceOptions options = (resource.getProfile() != null) ? PROFILE_SPECIFIC : NON_PROFILE_SPECIFIC;
-		return new ConfigData(propertySources, options);
-	}
+  @Override
+  public ConfigData load(ConfigDataLoaderContext context, StandardConfigDataResource resource)
+          throws IOException, ConfigDataNotFoundException {
+    if (resource.isEmptyDirectory()) {
+      return ConfigData.EMPTY;
+    }
+    ConfigDataResourceNotFoundException.throwIfDoesNotExist(resource, resource.getResource());
+    StandardConfigDataReference reference = resource.getReference();
+    Resource originTrackedResource = OriginTrackedResource.from(resource.getResource(), Origin.from(reference.getConfigDataLocation()));
+    String name = String.format("Config resource '%s' via location '%s'", resource,
+            reference.getConfigDataLocation());
+    List<PropertySource<?>> propertySources = reference.getPropertySourceLoader().load(name, originTrackedResource);
+    PropertySourceOptions options = (resource.getProfile() != null) ? PROFILE_SPECIFIC : NON_PROFILE_SPECIFIC;
+    return new ConfigData(propertySources, options);
+  }
 
 }

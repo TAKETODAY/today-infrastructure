@@ -21,4 +21,4 @@
 /**
  * Auto-configuration for the application context.
  */
-package cn.taketoday.framework.config.context;
+package cn.taketoday.framework.annotation;

@@ -39,6 +39,7 @@ class ConfigDataEnvironmentContributorPlaceholdersResolver implements Placeholde
 
   private final Iterable<ConfigDataEnvironmentContributor> contributors;
 
+  @Nullable
   private final ConfigDataActivationContext activationContext;
 
   private final boolean failOnResolveFromInactiveContributor;
@@ -49,7 +50,7 @@ class ConfigDataEnvironmentContributorPlaceholdersResolver implements Placeholde
   private final ConfigDataEnvironmentContributor activeContributor;
 
   ConfigDataEnvironmentContributorPlaceholdersResolver(Iterable<ConfigDataEnvironmentContributor> contributors,
-          ConfigDataActivationContext activationContext, @Nullable ConfigDataEnvironmentContributor activeContributor,
+          @Nullable ConfigDataActivationContext activationContext, @Nullable ConfigDataEnvironmentContributor activeContributor,
           boolean failOnResolveFromInactiveContributor) {
     this.contributors = contributors;
     this.activationContext = activationContext;

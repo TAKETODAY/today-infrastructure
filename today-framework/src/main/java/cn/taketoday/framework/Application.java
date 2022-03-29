@@ -20,14 +20,12 @@
 
 package cn.taketoday.framework;
 
-import java.io.IOException;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -36,15 +34,18 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
+import cn.taketoday.beans.factory.support.AbstractAutowireCapableBeanFactory;
+import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
+import cn.taketoday.beans.factory.support.BeanNameGenerator;
 import cn.taketoday.beans.factory.support.DependencyInjectorAwareInstantiator;
-import cn.taketoday.context.AnnotationConfigRegistry;
+import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.ApplicationContextInitializer;
 import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.context.properties.bind.Bindable;
 import cn.taketoday.context.properties.bind.Binder;
 import cn.taketoday.context.properties.source.ConfigurationPropertySources;
-import cn.taketoday.context.support.ApplicationPropertySourcesProcessor;
+import cn.taketoday.context.support.AbstractApplicationContext;
 import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
 import cn.taketoday.core.env.CommandLinePropertySource;
 import cn.taketoday.core.env.CompositePropertySource;
@@ -53,13 +54,16 @@ import cn.taketoday.core.env.Environment;
 import cn.taketoday.core.env.PropertySource;
 import cn.taketoday.core.env.PropertySources;
 import cn.taketoday.core.env.SimpleCommandLinePropertySource;
+import cn.taketoday.core.io.ResourceLoader;
 import cn.taketoday.format.support.ApplicationConversionService;
 import cn.taketoday.framework.diagnostics.ApplicationExceptionReporter;
+import cn.taketoday.framework.env.EnvironmentPostProcessor;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.lang.TodayStrategies;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
+import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ExceptionUtils;
 import cn.taketoday.util.ObjectUtils;
@@ -133,7 +137,6 @@ public class Application {
 
   @Nullable
   private Class<?> mainApplicationClass;
-  private final Class<?>[] configSources;
 
   private List<ApplicationContextInitializer> initializers;
 
@@ -148,6 +151,21 @@ public class Application {
 
   private Set<String> additionalProfiles = Collections.emptySet();
 
+  private final List<BootstrapRegistryInitializer> bootstrapRegistryInitializers;
+
+  @Nullable
+  private ResourceLoader resourceLoader;
+
+  @Nullable
+  private BeanNameGenerator beanNameGenerator;
+
+  private final Set<Class<?>> primarySources;
+
+  private Set<String> sources = new LinkedHashSet<>();
+
+  @Nullable
+  private String environmentPrefix;
+
   private boolean headless = true;
   private boolean logStartupInfo = true;
   private boolean registerShutdownHook = true;
@@ -155,10 +173,43 @@ public class Application {
 
   private boolean addConversionService = true;
 
-  public Application(Class<?>... configSources) {
-    this.configSources = configSources;
+  private boolean allowBeanDefinitionOverriding;
+
+  private boolean allowCircularReferences;
+
+  /**
+   * Create a new {@link Application} instance. The application context will load
+   * beans from the specified primary sources (see {@link Application class-level}
+   * documentation for details). The instance can be customized before calling
+   * {@link #run(String...)}.
+   *
+   * @param primarySources the primary bean sources
+   * @see #run(Class, String[])
+   * @see #Application(ResourceLoader, Class...)
+   * @see #setSources(Set)
+   */
+  public Application(Class<?>... primarySources) {
+    this(null, primarySources);
+  }
+
+  /**
+   * Create a new {@link Application} instance. The application context will load
+   * beans from the specified primary sources (see {@link Application class-level}
+   * documentation for details). The instance can be customized before calling
+   * {@link #run(String...)}.
+   *
+   * @param resourceLoader the resource loader to use
+   * @param primarySources the primary bean sources
+   * @see #run(Class, String[])
+   * @see #setSources(Set)
+   */
+  public Application(@Nullable ResourceLoader resourceLoader, Class<?>... primarySources) {
+    Assert.notNull(primarySources, "PrimarySources is required");
+    this.resourceLoader = resourceLoader;
+    this.primarySources = CollectionUtils.newLinkedHashSet(primarySources);
     this.mainApplicationClass = deduceMainApplicationClass();
     this.applicationType = ApplicationType.deduceFromClasspath();
+    this.bootstrapRegistryInitializers = TodayStrategies.get(BootstrapRegistryInitializer.class);
     setInitializers(TodayStrategies.get(ApplicationContextInitializer.class));
   }
 
@@ -228,18 +279,20 @@ public class Application {
   public ConfigurableApplicationContext run(String... args) {
     long startTime = System.nanoTime();
     ApplicationArguments arguments = new ApplicationArguments(args);
+    DefaultBootstrapContext bootstrapContext = createBootstrapContext();
+
     // prepare startup
     prepareStartup(arguments);
 
     ConfigurableApplicationContext context = null;
     ApplicationStartupListeners listeners = getStartupListeners();
-    listeners.starting(mainApplicationClass, arguments);
+    listeners.starting(bootstrapContext, mainApplicationClass, arguments);
     try {
-      ConfigurableEnvironment environment = prepareEnvironment(listeners, arguments);
+      ConfigurableEnvironment environment = prepareEnvironment(bootstrapContext, listeners, arguments);
 
       context = createApplicationContext();
       // prepare context
-      prepareContext(context, listeners, arguments, environment);
+      prepareContext(bootstrapContext, context, listeners, arguments, environment);
       // refresh context
       refreshContext(context);
       // after refresh
@@ -269,6 +322,14 @@ public class Application {
       handleRunFailure(context, ex, null);
       throw new IllegalStateException(ex);
     }
+  }
+
+  private DefaultBootstrapContext createBootstrapContext() {
+    DefaultBootstrapContext bootstrapContext = new DefaultBootstrapContext();
+    for (BootstrapRegistryInitializer initializer : bootstrapRegistryInitializers) {
+      initializer.initialize(bootstrapContext);
+    }
+    return bootstrapContext;
   }
 
   private void refreshContext(ConfigurableApplicationContext context) {
@@ -301,17 +362,25 @@ public class Application {
   }
 
   private ConfigurableEnvironment prepareEnvironment(
-          ApplicationStartupListeners listeners, ApplicationArguments applicationArguments) {
+          DefaultBootstrapContext bootstrapContext, ApplicationStartupListeners listeners, ApplicationArguments applicationArguments) {
     // Create and configure the environment
     ConfigurableEnvironment environment = getOrCreateEnvironment();
     configureEnvironment(environment, applicationArguments.getSourceArgs());
 
     ConfigurationPropertySources.attach(environment);
-    listeners.environmentPrepared(environment);
+    listeners.environmentPrepared(bootstrapContext, environment);
+
+    // load outside PropertySources
+    List<EnvironmentPostProcessor> postProcessors = getEnvironmentPostProcessors();
+    for (EnvironmentPostProcessor postProcessor : postProcessors) {
+      postProcessor.postProcessEnvironment(environment, this);
+    }
+
     DefaultPropertiesPropertySource.moveToEnd(environment);
 
     bindToApplication(environment);
 
+    ConfigurationPropertySources.attach(environment);
     return environment;
   }
 
@@ -345,15 +414,14 @@ public class Application {
     configureHeadlessProperty();
   }
 
-  private void prepareContext(
-          ConfigurableApplicationContext context, ApplicationStartupListeners listeners,
-          ApplicationArguments arguments, ConfigurableEnvironment environment) {
+  private void prepareContext(DefaultBootstrapContext bootstrapContext, ConfigurableApplicationContext context,
+          ApplicationStartupListeners listeners, ApplicationArguments arguments, ConfigurableEnvironment environment) {
     context.setEnvironment(environment);
-
     postProcessApplicationContext(context);
     applyInitializers(context);
-
     listeners.contextPrepared(context);
+    bootstrapContext.close(context);
+
     if (this.logStartupInfo) {
       logStartupInfo(context.getParent() == null);
       logStartupProfileInfo(context);
@@ -364,28 +432,68 @@ public class Application {
     beanFactory.registerSingleton(this);
     beanFactory.registerSingleton(ApplicationArguments.BEAN_NAME, arguments);
 
-    // loading context from config classes
-    if (context instanceof AnnotationConfigRegistry configRegistry) {
-      if (ObjectUtils.isNotEmpty(configSources)) {
-        if (mainApplicationClass != null) {
-          HashSet<Class<?>> classes = new HashSet<>(Set.of(configSources));
-          classes.add(mainApplicationClass);
-          for (Class<?> configSource : classes) {
-            configRegistry.register(configSource); // @since 1.0.2 import startup class
-          }
-        }
-        else {
-          for (Class<?> configSource : configSources) {
-            configRegistry.register(configSource); // @since 1.0.2 import startup class
-          }
-        }
-      }
-      else if (mainApplicationClass != null) {
-        configRegistry.register(mainApplicationClass); // @since 1.0.2 import startup class
+    if (beanFactory instanceof AbstractAutowireCapableBeanFactory) {
+      ((AbstractAutowireCapableBeanFactory) beanFactory).setAllowCircularReferences(allowCircularReferences);
+      if (beanFactory instanceof StandardBeanFactory) {
+        ((StandardBeanFactory) beanFactory).setAllowBeanDefinitionOverriding(allowBeanDefinitionOverriding);
       }
     }
 
+    // Load the sources
+    Set<Object> sources = getAllSources();
+    Assert.notEmpty(sources, "Sources must not be empty");
+    load(context, sources.toArray());
     listeners.contextLoaded(context);
+  }
+
+  /**
+   * Load beans into the application context.
+   *
+   * @param context the context to load beans into
+   * @param sources the sources to load
+   */
+  protected void load(ApplicationContext context, Object[] sources) {
+    if (log.isDebugEnabled()) {
+      log.debug("Loading source {}", StringUtils.arrayToCommaDelimitedString(sources));
+    }
+    ApplicationBeanDefinitionLoader loader = createBeanDefinitionLoader(getBeanDefinitionRegistry(context), sources);
+    if (this.beanNameGenerator != null) {
+      loader.setBeanNameGenerator(this.beanNameGenerator);
+    }
+    if (this.resourceLoader != null) {
+      loader.setResourceLoader(this.resourceLoader);
+    }
+    if (this.environment != null) {
+      loader.setEnvironment(this.environment);
+    }
+    loader.load();
+  }
+
+  /**
+   * Get the bean definition registry.
+   *
+   * @param context the application context
+   * @return the BeanDefinitionRegistry if it can be determined
+   */
+  private BeanDefinitionRegistry getBeanDefinitionRegistry(ApplicationContext context) {
+    if (context instanceof BeanDefinitionRegistry) {
+      return (BeanDefinitionRegistry) context;
+    }
+    if (context instanceof AbstractApplicationContext) {
+      return (BeanDefinitionRegistry) ((AbstractApplicationContext) context).getBeanFactory();
+    }
+    throw new IllegalStateException("Could not locate BeanDefinitionRegistry");
+  }
+
+  /**
+   * Factory method used to create the {@link ApplicationBeanDefinitionLoader}.
+   *
+   * @param registry the bean definition registry
+   * @param sources the sources to load
+   * @return the {@link ApplicationBeanDefinitionLoader} that will be used to load beans
+   */
+  protected ApplicationBeanDefinitionLoader createBeanDefinitionLoader(BeanDefinitionRegistry registry, Object[] sources) {
+    return new ApplicationBeanDefinitionLoader(registry, sources);
   }
 
   /**
@@ -452,23 +560,9 @@ public class Application {
    * @see #configureEnvironment(ConfigurableEnvironment, String[])
    */
   protected void configurePropertySources(ConfigurableEnvironment environment, String[] args) {
-    // load application.properties or application.yaml, application.yml
-    try {
-      new ApplicationPropertySourcesProcessor().postProcessEnvironment(environment);
-    }
-    catch (IOException e) {
-      throw ExceptionUtils.sneakyThrow(e);
-    }
-
     PropertySources sources = environment.getPropertySources();
     if (CollectionUtils.isNotEmpty(this.defaultProperties)) {
       DefaultPropertiesPropertySource.addOrMerge(this.defaultProperties, sources);
-    }
-
-    // load outside PropertySources
-    List<EnvironmentPostProcessor> postProcessors = getEnvironmentPostProcessors();
-    for (EnvironmentPostProcessor postProcessor : postProcessors) {
-      postProcessor.postProcessEnvironment(environment, this);
     }
 
     // CommandLine
@@ -637,6 +731,139 @@ public class Application {
   }
 
   /**
+   * Add additional items to the primary sources that will be added to an
+   * ApplicationContext when {@link #run(String...)} is called.
+   * <p>
+   * The sources here are added to those that were set in the constructor. Most users
+   * should consider using {@link #getSources()}/{@link #setSources(Set)} rather than
+   * calling this method.
+   *
+   * @param additionalPrimarySources the additional primary sources to add
+   * @see #Application(Class...)
+   * @see #getSources()
+   * @see #setSources(Set)
+   * @see #getAllSources()
+   */
+  public void addPrimarySources(Collection<Class<?>> additionalPrimarySources) {
+    this.primarySources.addAll(additionalPrimarySources);
+  }
+
+  /**
+   * Returns a mutable set of the sources that will be added to an ApplicationContext
+   * when {@link #run(String...)} is called.
+   * <p>
+   * Sources set here will be used in addition to any primary sources set in the
+   * constructor.
+   *
+   * @return the application sources.
+   * @see #Application(Class...)
+   * @see #getAllSources()
+   */
+  public Set<String> getSources() {
+    return this.sources;
+  }
+
+  /**
+   * Set additional sources that will be used to create an ApplicationContext. A source
+   * can be: a class name, package name, or an XML resource location.
+   * <p>
+   * Sources set here will be used in addition to any primary sources set in the
+   * constructor.
+   *
+   * @param sources the application sources to set
+   * @see #Application(Class...)
+   * @see #getAllSources()
+   */
+  public void setSources(Set<String> sources) {
+    Assert.notNull(sources, "Sources must not be null");
+    this.sources = new LinkedHashSet<>(sources);
+  }
+
+  /**
+   * Return an immutable set of all the sources that will be added to an
+   * ApplicationContext when {@link #run(String...)} is called. This method combines any
+   * primary sources specified in the constructor with any additional ones that have
+   * been {@link #setSources(Set) explicitly set}.
+   *
+   * @return an immutable set of all sources
+   */
+  public Set<Object> getAllSources() {
+    Set<Object> allSources = new LinkedHashSet<>();
+    if (!CollectionUtils.isEmpty(this.primarySources)) {
+      allSources.addAll(this.primarySources);
+    }
+    if (!CollectionUtils.isEmpty(this.sources)) {
+      allSources.addAll(this.sources);
+    }
+    return Collections.unmodifiableSet(allSources);
+  }
+
+  /**
+   * Sets the {@link ResourceLoader} that should be used when loading resources.
+   *
+   * @param resourceLoader the resource loader
+   */
+  public void setResourceLoader(ResourceLoader resourceLoader) {
+    Assert.notNull(resourceLoader, "ResourceLoader must not be null");
+    this.resourceLoader = resourceLoader;
+  }
+
+  /**
+   * The ResourceLoader that will be used in the ApplicationContext.
+   *
+   * @return the resourceLoader the resource loader that will be used in the
+   * ApplicationContext (or null if the default)
+   */
+  @Nullable
+  public ResourceLoader getResourceLoader() {
+    return this.resourceLoader;
+  }
+
+  /**
+   * Either the ClassLoader that will be used in the ApplicationContext (if
+   * {@link #setResourceLoader(ResourceLoader) resourceLoader} is set), or the context
+   * class loader (if not null), or the loader of the {@link ClassUtils} class.
+   *
+   * @return a ClassLoader (never null)
+   */
+  public ClassLoader getClassLoader() {
+    if (this.resourceLoader != null) {
+      return this.resourceLoader.getClassLoader();
+    }
+    return ClassUtils.getDefaultClassLoader();
+  }
+
+  /**
+   * Return a prefix that should be applied when obtaining configuration properties from
+   * the system environment.
+   *
+   * @return the environment property prefix
+   */
+  @Nullable
+  public String getEnvironmentPrefix() {
+    return this.environmentPrefix;
+  }
+
+  /**
+   * Set the prefix that should be applied when obtaining configuration properties from
+   * the system environment.
+   *
+   * @param environmentPrefix the environment property prefix to set
+   */
+  public void setEnvironmentPrefix(@Nullable String environmentPrefix) {
+    this.environmentPrefix = environmentPrefix;
+  }
+
+  /**
+   * Sets the bean name generator that should be used when generating bean names.
+   *
+   * @param beanNameGenerator the bean name generator
+   */
+  public void setBeanNameGenerator(BeanNameGenerator beanNameGenerator) {
+    this.beanNameGenerator = beanNameGenerator;
+  }
+
+  /**
    * Sets if a {@link CommandLinePropertySource} should be added to the application
    * context in order to expose arguments. Defaults to {@code true}.
    *
@@ -664,6 +891,28 @@ public class Application {
    */
   public void setAddConversionService(boolean addConversionService) {
     this.addConversionService = addConversionService;
+  }
+
+  /**
+   * Sets if bean definition overriding, by registering a definition with the same name
+   * as an existing definition, should be allowed. Defaults to {@code false}.
+   *
+   * @param allowBeanDefinitionOverriding if overriding is allowed
+   * @see StandardBeanFactory#setAllowBeanDefinitionOverriding(boolean)
+   */
+  public void setAllowBeanDefinitionOverriding(boolean allowBeanDefinitionOverriding) {
+    this.allowBeanDefinitionOverriding = allowBeanDefinitionOverriding;
+  }
+
+  /**
+   * Sets whether to allow circular references between beans and automatically try to
+   * resolve them. Defaults to {@code false}.
+   *
+   * @param allowCircularReferences if circular references are allowed
+   * @see AbstractAutowireCapableBeanFactory#setAllowCircularReferences(boolean)
+   */
+  public void setAllowCircularReferences(boolean allowCircularReferences) {
+    this.allowCircularReferences = allowCircularReferences;
   }
 
   /**
@@ -705,6 +954,17 @@ public class Application {
     for (Object key : Collections.list(defaultProperties.propertyNames())) {
       this.defaultProperties.put((String) key, defaultProperties.get(key));
     }
+  }
+
+  /**
+   * Adds {@link BootstrapRegistryInitializer} instances that can be used to initialize
+   * the {@link BootstrapRegistry}.
+   *
+   * @param bootstrapRegistryInitializer the bootstrap registry initializer to add
+   */
+  public void addBootstrapRegistryInitializer(BootstrapRegistryInitializer bootstrapRegistryInitializer) {
+    Assert.notNull(bootstrapRegistryInitializer, "BootstrapRegistryInitializer is required");
+    this.bootstrapRegistryInitializers.add(bootstrapRegistryInitializer);
   }
 
   private void handleRunFailure(

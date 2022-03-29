@@ -17,37 +17,33 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-
-package cn.taketoday.framework.config.context;
+package cn.taketoday.framework.annotation;
 
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.config.AutoConfiguration;
+import cn.taketoday.context.annotation.config.AutoConfigureOrder;
 import cn.taketoday.context.annotation.config.EnableAutoConfiguration;
 import cn.taketoday.context.condition.ConditionalOnMissingBean;
 import cn.taketoday.context.condition.SearchStrategy;
-import cn.taketoday.context.properties.EnableConfigurationProperties;
-import cn.taketoday.context.support.AbstractApplicationContext;
-import cn.taketoday.context.support.DefaultLifecycleProcessor;
+import cn.taketoday.context.support.PropertySourcesPlaceholderConfigurer;
+import cn.taketoday.core.Ordered;
 
 /**
- * {@link EnableAutoConfiguration Auto-configuration} relating to the application
- * context's lifecycle.
+ * {@link EnableAutoConfiguration Auto-configuration} for
+ * {@link PropertySourcesPlaceholderConfigurer}.
  *
- * @author Andy Wilkinson
+ * @author Phillip Webb
+ * @author Dave Syer
  * @since 4.0
  */
 @AutoConfiguration
-@EnableConfigurationProperties(LifecycleProperties.class)
-public class LifecycleAutoConfiguration {
+@AutoConfigureOrder(Ordered.HIGHEST_PRECEDENCE)
+public class PropertyPlaceholderAutoConfiguration {
 
-  @Bean(name = AbstractApplicationContext.LIFECYCLE_PROCESSOR_BEAN_NAME)
-  @ConditionalOnMissingBean(
-          search = SearchStrategy.CURRENT,
-          name = AbstractApplicationContext.LIFECYCLE_PROCESSOR_BEAN_NAME)
-  public DefaultLifecycleProcessor defaultLifecycleProcessor(LifecycleProperties properties) {
-    DefaultLifecycleProcessor lifecycleProcessor = new DefaultLifecycleProcessor();
-    lifecycleProcessor.setTimeoutPerShutdownPhase(properties.getTimeoutPerShutdownPhase().toMillis());
-    return lifecycleProcessor;
+  @Bean
+  @ConditionalOnMissingBean(search = SearchStrategy.CURRENT)
+  public static PropertySourcesPlaceholderConfigurer propertySourcesPlaceholderConfigurer() {
+    return new PropertySourcesPlaceholderConfigurer();
   }
 
 }

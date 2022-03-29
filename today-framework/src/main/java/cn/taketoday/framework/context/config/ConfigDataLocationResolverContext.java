@@ -21,6 +21,7 @@
 package cn.taketoday.framework.context.config;
 
 import cn.taketoday.context.properties.bind.Binder;
+import cn.taketoday.framework.ConfigurableBootstrapContext;
 import cn.taketoday.framework.env.EnvironmentPostProcessor;
 
 /**

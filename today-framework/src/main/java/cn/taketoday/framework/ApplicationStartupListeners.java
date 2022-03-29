@@ -52,12 +52,12 @@ class ApplicationStartupListeners {
     this.listeners = new ArrayList<>(listeners);
   }
 
-  void starting(Class<?> mainApplicationClass, ApplicationArguments arguments) {
-    doWithListeners(listener -> listener.starting(mainApplicationClass, arguments));
+  void starting(BootstrapContext bootstrapContext, Class<?> mainApplicationClass, ApplicationArguments arguments) {
+    doWithListeners(listener -> listener.starting(bootstrapContext, mainApplicationClass, arguments));
   }
 
-  void environmentPrepared(ConfigurableEnvironment environment) {
-    doWithListeners(listener -> listener.environmentPrepared(environment));
+  void environmentPrepared(BootstrapContext bootstrapContext, ConfigurableEnvironment environment) {
+    doWithListeners(listener -> listener.environmentPrepared(bootstrapContext, environment));
   }
 
   void contextPrepared(ConfigurableApplicationContext context) {

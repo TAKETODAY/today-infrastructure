@@ -20,22 +20,22 @@
 
 package cn.taketoday.framework.context.config;
 
-import org.apache.commons.logging.Log;
-import cn.taketoday.framework.ConfigurableBootstrapContext;
-import cn.taketoday.framework.DefaultBootstrapContext;
-import cn.taketoday.framework.Application;
-import cn.taketoday.framework.env.EnvironmentPostProcessor;
-import cn.taketoday.framework.logging.DeferredLogFactory;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.env.ConfigurableEnvironment;
 import cn.taketoday.core.env.Environment;
 import cn.taketoday.core.io.DefaultResourceLoader;
 import cn.taketoday.core.io.ResourceLoader;
-
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.function.Supplier;
+import cn.taketoday.framework.Application;
+import cn.taketoday.framework.ConfigurableBootstrapContext;
+import cn.taketoday.framework.DefaultBootstrapContext;
+import cn.taketoday.framework.env.EnvironmentPostProcessor;
+import cn.taketoday.lang.Nullable;
+import cn.taketoday.logging.Logger;
+import cn.taketoday.logging.LoggerFactory;
 
 /**
  * {@link EnvironmentPostProcessor} that loads and applies {@link ConfigData} to Spring's
@@ -47,129 +47,128 @@ import java.util.function.Supplier;
  * @since 4.0
  */
 public class ConfigDataEnvironmentPostProcessor implements EnvironmentPostProcessor, Ordered {
+  private static final Logger logger = LoggerFactory.getLogger(ConfigDataEnvironmentPostProcessor.class);
 
-	/**
-	 * The default order for the processor.
-	 */
-	public static final int ORDER = Ordered.HIGHEST_PRECEDENCE + 10;
+  /**
+   * The default order for the processor.
+   */
+  public static final int ORDER = Ordered.HIGHEST_PRECEDENCE + 10;
 
-	/**
-	 * Property used to determine what action to take when a
-	 * {@code ConfigDataLocationNotFoundException} is thrown.
-	 * @see ConfigDataNotFoundAction
-	 */
-	public static final String ON_LOCATION_NOT_FOUND_PROPERTY = ConfigDataEnvironment.ON_NOT_FOUND_PROPERTY;
+  /**
+   * Property used to determine what action to take when a
+   * {@code ConfigDataLocationNotFoundException} is thrown.
+   *
+   * @see ConfigDataNotFoundAction
+   */
+  public static final String ON_LOCATION_NOT_FOUND_PROPERTY = ConfigDataEnvironment.ON_NOT_FOUND_PROPERTY;
 
-	private final DeferredLogFactory logFactory;
+  private final ConfigurableBootstrapContext bootstrapContext;
 
-	private final Logger logger;
+  @Nullable
+  private final ConfigDataEnvironmentUpdateListener environmentUpdateListener;
 
-	private final ConfigurableBootstrapContext bootstrapContext;
+  public ConfigDataEnvironmentPostProcessor(ConfigurableBootstrapContext bootstrapContext) {
+    this(bootstrapContext, null);
+  }
 
-	private final ConfigDataEnvironmentUpdateListener environmentUpdateListener;
+  public ConfigDataEnvironmentPostProcessor(ConfigurableBootstrapContext bootstrapContext,
+          @Nullable ConfigDataEnvironmentUpdateListener environmentUpdateListener) {
+    this.bootstrapContext = bootstrapContext;
+    this.environmentUpdateListener = environmentUpdateListener;
+  }
 
-	public ConfigDataEnvironmentPostProcessor(DeferredLogFactory logFactory,
-			ConfigurableBootstrapContext bootstrapContext) {
-		this(logFactory, bootstrapContext, null);
-	}
+  @Override
+  public int getOrder() {
+    return ORDER;
+  }
 
-	public ConfigDataEnvironmentPostProcessor(DeferredLogFactory logFactory,
-			ConfigurableBootstrapContext bootstrapContext,
-			ConfigDataEnvironmentUpdateListener environmentUpdateListener) {
-		this.logFactory = logFactory;
-		this.logger = logFactory.getLog(getClass());
-		this.bootstrapContext = bootstrapContext;
-		this.environmentUpdateListener = environmentUpdateListener;
-	}
+  @Override
+  public void postProcessEnvironment(ConfigurableEnvironment environment, Application application) {
+    postProcessEnvironment(environment, application.getResourceLoader(), application.getAdditionalProfiles());
+  }
 
-	@Override
-	public int getOrder() {
-		return ORDER;
-	}
+  void postProcessEnvironment(ConfigurableEnvironment environment,
+          @Nullable ResourceLoader resourceLoader, Collection<String> additionalProfiles) {
+    logger.trace("Post-processing environment to add config data");
+    resourceLoader = (resourceLoader != null) ? resourceLoader : new DefaultResourceLoader();
+    getConfigDataEnvironment(environment, resourceLoader, additionalProfiles).processAndApply();
+  }
 
-	@Override
-	public void postProcessEnvironment(ConfigurableEnvironment environment, Application application) {
-		postProcessEnvironment(environment, application.getResourceLoader(), application.getAdditionalProfiles());
-	}
+  ConfigDataEnvironment getConfigDataEnvironment(ConfigurableEnvironment environment,
+          ResourceLoader resourceLoader, Collection<String> additionalProfiles) {
+    return new ConfigDataEnvironment(this.bootstrapContext, environment, resourceLoader,
+            additionalProfiles, this.environmentUpdateListener);
+  }
 
-	void postProcessEnvironment(ConfigurableEnvironment environment, ResourceLoader resourceLoader,
-			Collection<String> additionalProfiles) {
-		this.logger.trace("Post-processing environment to add config data");
-		resourceLoader = (resourceLoader != null) ? resourceLoader : new DefaultResourceLoader();
-		getConfigDataEnvironment(environment, resourceLoader, additionalProfiles).processAndApply();
-	}
+  /**
+   * Apply {@link ConfigData} post-processing to an existing {@link Environment}. This
+   * method can be useful when working with an {@link Environment} that has been created
+   * directly and not necessarily as part of a {@link Application}.
+   *
+   * @param environment the environment to apply {@link ConfigData} to
+   */
+  public static void applyTo(ConfigurableEnvironment environment) {
+    applyTo(environment, null, null, Collections.emptyList());
+  }
 
-	ConfigDataEnvironment getConfigDataEnvironment(ConfigurableEnvironment environment, ResourceLoader resourceLoader,
-			Collection<String> additionalProfiles) {
-		return new ConfigDataEnvironment(this.logFactory, this.bootstrapContext, environment, resourceLoader,
-				additionalProfiles, this.environmentUpdateListener);
-	}
+  /**
+   * Apply {@link ConfigData} post-processing to an existing {@link Environment}. This
+   * method can be useful when working with an {@link Environment} that has been created
+   * directly and not necessarily as part of a {@link Application}.
+   *
+   * @param environment the environment to apply {@link ConfigData} to
+   * @param resourceLoader the resource loader to use
+   * @param bootstrapContext the bootstrap context to use or {@code null} to use a
+   * throw-away context
+   * @param additionalProfiles any additional profiles that should be applied
+   */
+  public static void applyTo(ConfigurableEnvironment environment, ResourceLoader resourceLoader,
+          ConfigurableBootstrapContext bootstrapContext, String... additionalProfiles) {
+    applyTo(environment, resourceLoader, bootstrapContext, Arrays.asList(additionalProfiles));
+  }
 
-	/**
-	 * Apply {@link ConfigData} post-processing to an existing {@link Environment}. This
-	 * method can be useful when working with an {@link Environment} that has been created
-	 * directly and not necessarily as part of a {@link Application}.
-	 * @param environment the environment to apply {@link ConfigData} to
-	 */
-	public static void applyTo(ConfigurableEnvironment environment) {
-		applyTo(environment, null, null, Collections.emptyList());
-	}
+  /**
+   * Apply {@link ConfigData} post-processing to an existing {@link Environment}. This
+   * method can be useful when working with an {@link Environment} that has been created
+   * directly and not necessarily as part of a {@link Application}.
+   *
+   * @param environment the environment to apply {@link ConfigData} to
+   * @param resourceLoader the resource loader to use
+   * @param bootstrapContext the bootstrap context to use or {@code null} to use a
+   * throw-away context
+   * @param additionalProfiles any additional profiles that should be applied
+   */
+  public static void applyTo(ConfigurableEnvironment environment, @Nullable ResourceLoader resourceLoader,
+          @Nullable ConfigurableBootstrapContext bootstrapContext, Collection<String> additionalProfiles) {
+    if (bootstrapContext == null) {
+      bootstrapContext = new DefaultBootstrapContext();
+    }
+    ConfigDataEnvironmentPostProcessor postProcessor = new ConfigDataEnvironmentPostProcessor(bootstrapContext);
+    postProcessor.postProcessEnvironment(environment, resourceLoader, additionalProfiles);
+  }
 
-	/**
-	 * Apply {@link ConfigData} post-processing to an existing {@link Environment}. This
-	 * method can be useful when working with an {@link Environment} that has been created
-	 * directly and not necessarily as part of a {@link Application}.
-	 * @param environment the environment to apply {@link ConfigData} to
-	 * @param resourceLoader the resource loader to use
-	 * @param bootstrapContext the bootstrap context to use or {@code null} to use a
-	 * throw-away context
-	 * @param additionalProfiles any additional profiles that should be applied
-	 */
-	public static void applyTo(ConfigurableEnvironment environment, ResourceLoader resourceLoader,
-			ConfigurableBootstrapContext bootstrapContext, String... additionalProfiles) {
-		applyTo(environment, resourceLoader, bootstrapContext, Arrays.asList(additionalProfiles));
-	}
-
-	/**
-	 * Apply {@link ConfigData} post-processing to an existing {@link Environment}. This
-	 * method can be useful when working with an {@link Environment} that has been created
-	 * directly and not necessarily as part of a {@link Application}.
-	 * @param environment the environment to apply {@link ConfigData} to
-	 * @param resourceLoader the resource loader to use
-	 * @param bootstrapContext the bootstrap context to use or {@code null} to use a
-	 * throw-away context
-	 * @param additionalProfiles any additional profiles that should be applied
-	 */
-	public static void applyTo(ConfigurableEnvironment environment, ResourceLoader resourceLoader,
-			ConfigurableBootstrapContext bootstrapContext, Collection<String> additionalProfiles) {
-		DeferredLogFactory logFactory = Supplier::get;
-		bootstrapContext = (bootstrapContext != null) ? bootstrapContext : new DefaultBootstrapContext();
-		ConfigDataEnvironmentPostProcessor postProcessor = new ConfigDataEnvironmentPostProcessor(logFactory,
-				bootstrapContext);
-		postProcessor.postProcessEnvironment(environment, resourceLoader, additionalProfiles);
-	}
-
-	/**
-	 * Apply {@link ConfigData} post-processing to an existing {@link Environment}. This
-	 * method can be useful when working with an {@link Environment} that has been created
-	 * directly and not necessarily as part of a {@link Application}.
-	 * @param environment the environment to apply {@link ConfigData} to
-	 * @param resourceLoader the resource loader to use
-	 * @param bootstrapContext the bootstrap context to use or {@code null} to use a
-	 * throw-away context
-	 * @param additionalProfiles any additional profiles that should be applied
-	 * @param environmentUpdateListener optional
-	 * {@link ConfigDataEnvironmentUpdateListener} that can be used to track
-	 * {@link Environment} updates.
-	 */
-	public static void applyTo(ConfigurableEnvironment environment, ResourceLoader resourceLoader,
-			ConfigurableBootstrapContext bootstrapContext, Collection<String> additionalProfiles,
-			ConfigDataEnvironmentUpdateListener environmentUpdateListener) {
-		DeferredLogFactory logFactory = Supplier::get;
-		bootstrapContext = (bootstrapContext != null) ? bootstrapContext : new DefaultBootstrapContext();
-		ConfigDataEnvironmentPostProcessor postProcessor = new ConfigDataEnvironmentPostProcessor(logFactory,
-				bootstrapContext, environmentUpdateListener);
-		postProcessor.postProcessEnvironment(environment, resourceLoader, additionalProfiles);
-	}
+  /**
+   * Apply {@link ConfigData} post-processing to an existing {@link Environment}. This
+   * method can be useful when working with an {@link Environment} that has been created
+   * directly and not necessarily as part of a {@link Application}.
+   *
+   * @param environment the environment to apply {@link ConfigData} to
+   * @param resourceLoader the resource loader to use
+   * @param bootstrapContext the bootstrap context to use or {@code null} to use a
+   * throw-away context
+   * @param additionalProfiles any additional profiles that should be applied
+   * @param environmentUpdateListener optional
+   * {@link ConfigDataEnvironmentUpdateListener} that can be used to track
+   * {@link Environment} updates.
+   */
+  public static void applyTo(ConfigurableEnvironment environment, @Nullable ResourceLoader resourceLoader,
+          @Nullable ConfigurableBootstrapContext bootstrapContext, Collection<String> additionalProfiles,
+          ConfigDataEnvironmentUpdateListener environmentUpdateListener) {
+    if (bootstrapContext == null) {
+      bootstrapContext = new DefaultBootstrapContext();
+    }
+    ConfigDataEnvironmentPostProcessor postProcessor = new ConfigDataEnvironmentPostProcessor(bootstrapContext, environmentUpdateListener);
+    postProcessor.postProcessEnvironment(environment, resourceLoader, additionalProfiles);
+  }
 
 }

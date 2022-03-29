@@ -137,14 +137,6 @@ public final class ConfigurationProperty implements OriginProvider, Comparable<C
   }
 
   @Nullable
-  static ConfigurationProperty of(ConfigurationPropertyName name, @Nullable OriginTrackedValue value) {
-    if (value == null) {
-      return null;
-    }
-    return new ConfigurationProperty(name, value.getValue(), value.getOrigin());
-  }
-
-  @Nullable
   static ConfigurationProperty of(
           @Nullable ConfigurationPropertySource source,
           ConfigurationPropertyName name,

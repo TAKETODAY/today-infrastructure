@@ -46,16 +46,19 @@ public interface ApplicationStartupListener {
   /**
    * Called immediately when the run method has first started. Can be used for very
    * early initialization.
+   *
+   * @param bootstrapContext the bootstrap context
    */
-  default void starting(Class<?> mainApplicationClass, ApplicationArguments arguments) { }
+  default void starting(BootstrapContext bootstrapContext, Class<?> mainApplicationClass, ApplicationArguments arguments) { }
 
   /**
    * Called once the environment has been prepared, but before the
    * {@link ApplicationContext} has been created.
    *
+   * @param bootstrapContext the bootstrap context
    * @param environment the environment
    */
-  default void environmentPrepared(ConfigurableEnvironment environment) { }
+  default void environmentPrepared(BootstrapContext bootstrapContext, ConfigurableEnvironment environment) { }
 
   /**
    * Called once the {@link ApplicationContext} has been created and prepared, but

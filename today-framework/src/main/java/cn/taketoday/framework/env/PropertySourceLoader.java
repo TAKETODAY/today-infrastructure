@@ -20,15 +20,14 @@
 
 package cn.taketoday.framework.env;
 
-import cn.taketoday.core.env.PropertySource;
-import cn.taketoday.core.io.Resource;
-import cn.taketoday.core.io.support.SpringFactoriesLoader;
-
 import java.io.IOException;
 import java.util.List;
 
+import cn.taketoday.core.env.PropertySource;
+import cn.taketoday.core.io.Resource;
+
 /**
- * Strategy interface located via {@link SpringFactoriesLoader} and used to load a
+ * Strategy interface located via {@link cn.taketoday.lang.TodayStrategies} and used to load a
  * {@link PropertySource}.
  *
  * @author Dave Syer
@@ -37,22 +36,24 @@ import java.util.List;
  */
 public interface PropertySourceLoader {
 
-	/**
-	 * Returns the file extensions that the loader supports (excluding the '.').
-	 * @return the file extensions
-	 */
-	String[] getFileExtensions();
+  /**
+   * Returns the file extensions that the loader supports (excluding the '.').
+   *
+   * @return the file extensions
+   */
+  String[] getFileExtensions();
 
-	/**
-	 * Load the resource into one or more property sources. Implementations may either
-	 * return a list containing a single source, or in the case of a multi-document format
-	 * such as yaml a source for each document in the resource.
-	 * @param name the root name of the property source. If multiple documents are loaded
-	 * an additional suffix should be added to the name for each source loaded.
-	 * @param resource the resource to load
-	 * @return a list property sources
-	 * @throws IOException if the source cannot be loaded
-	 */
-	List<PropertySource<?>> load(String name, Resource resource) throws IOException;
+  /**
+   * Load the resource into one or more property sources. Implementations may either
+   * return a list containing a single source, or in the case of a multi-document format
+   * such as yaml a source for each document in the resource.
+   *
+   * @param name the root name of the property source. If multiple documents are loaded
+   * an additional suffix should be added to the name for each source loaded.
+   * @param resource the resource to load
+   * @return a list property sources
+   * @throws IOException if the source cannot be loaded
+   */
+  List<PropertySource<?>> load(String name, Resource resource) throws IOException;
 
 }

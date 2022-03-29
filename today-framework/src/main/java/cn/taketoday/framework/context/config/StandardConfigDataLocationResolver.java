@@ -23,7 +23,6 @@ package cn.taketoday.framework.context.config;
 import java.io.File;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Deque;
@@ -46,7 +45,7 @@ import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.lang.TodayStrategies;
 import cn.taketoday.logging.Logger;
-import cn.taketoday.util.ObjectUtils;
+import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.StringUtils;
 
 /**
@@ -95,7 +94,7 @@ public class StandardConfigDataLocationResolver
   }
 
   private String[] getConfigNames(Binder binder) {
-    String[] configNames = binder.bind(CONFIG_NAME_PROPERTY, String[].class).orElse(DEFAULT_CONFIG_NAMES);
+    String[] configNames = binder.bind(CONFIG_NAME_PROPERTY, String[].class).orRequired(DEFAULT_CONFIG_NAMES);
     for (String configName : configNames) {
       validateConfigName(configName);
     }
@@ -213,8 +212,8 @@ public class StandardConfigDataLocationResolver
     return references;
   }
 
-  private Set<StandardConfigDataReference> getReferencesForFile(ConfigDataLocation configDataLocation, String file,
-          String profile) {
+  private Set<StandardConfigDataReference> getReferencesForFile(
+          ConfigDataLocation configDataLocation, String file, @Nullable String profile) {
     Matcher extensionHintMatcher = EXTENSION_HINT_PATTERN.matcher(file);
     boolean extensionHintLocation = extensionHintMatcher.matches();
     if (extensionHintLocation) {
@@ -278,18 +277,20 @@ public class StandardConfigDataLocationResolver
 
   private Set<StandardConfigDataResource> resolveNonPatternEmptyDirectories(StandardConfigDataReference reference) {
     Resource resource = this.resourceLoader.getResource(reference.getDirectory());
-    return (resource instanceof ClassPathResource || !resource.exists()) ? Collections.emptySet()
-                                                                         : Collections.singleton(new StandardConfigDataResource(reference, resource, true));
+    return (resource instanceof ClassPathResource || !resource.exists())
+           ? Collections.emptySet()
+           : Collections.singleton(new StandardConfigDataResource(reference, resource, true));
   }
 
   private Set<StandardConfigDataResource> resolvePatternEmptyDirectories(StandardConfigDataReference reference) {
-    Resource[] subdirectories = this.resourceLoader.getResources(reference.getDirectory(), ResourceType.DIRECTORY);
+    List<Resource> subdirectories = resourceLoader.getResources(reference.getDirectory(), ResourceType.DIRECTORY);
     ConfigDataLocation location = reference.getConfigDataLocation();
-    if (!location.isOptional() && ObjectUtils.isEmpty(subdirectories)) {
+    if (!location.isOptional() && CollectionUtils.isEmpty(subdirectories)) {
       String message = String.format("Config data location '%s' contains no subdirectories", location);
       throw new ConfigDataLocationNotFoundException(location, message, null);
     }
-    return Arrays.stream(subdirectories).filter(Resource::exists)
+    return subdirectories.stream()
+            .filter(Resource::exists)
             .map((resource) -> new StandardConfigDataResource(reference, resource, true))
             .collect(Collectors.toCollection(LinkedHashSet::new));
   }
@@ -324,11 +325,11 @@ public class StandardConfigDataLocationResolver
   }
 
   private void logSkippingResource(StandardConfigDataReference reference) {
-    this.logger.trace(LogMessage.format("Skipping missing resource %s", reference));
+    this.logger.trace("Skipping missing resource {}", reference);
   }
 
-  private StandardConfigDataResource createConfigResourceLocation(StandardConfigDataReference reference,
-          Resource resource) {
+  private StandardConfigDataResource createConfigResourceLocation(
+          StandardConfigDataReference reference, Resource resource) {
     return new StandardConfigDataResource(reference, resource);
   }
 

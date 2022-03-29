@@ -96,7 +96,7 @@ public class Binder {
    * @param placeholdersResolver strategy to resolve any property placeholders
    */
   public Binder(Iterable<ConfigurationPropertySource> sources,
-                @Nullable PlaceholdersResolver placeholdersResolver) {
+          @Nullable PlaceholdersResolver placeholdersResolver) {
     this(sources, placeholdersResolver, null, null);
   }
 
@@ -109,8 +109,8 @@ public class Binder {
    * to use {@link ApplicationConversionService})
    */
   public Binder(Iterable<ConfigurationPropertySource> sources,
-                @Nullable PlaceholdersResolver placeholdersResolver,
-                @Nullable ConversionService conversionService) {
+          @Nullable PlaceholdersResolver placeholdersResolver,
+          @Nullable ConversionService conversionService) {
     this(sources, placeholdersResolver, conversionService, null);
   }
 
@@ -126,9 +126,9 @@ public class Binder {
    * used to call {@link ConfigurableBeanFactory#copyRegisteredEditorsTo}.
    */
   public Binder(Iterable<ConfigurationPropertySource> sources,
-                @Nullable PlaceholdersResolver placeholdersResolver,
-                @Nullable ConversionService conversionService,
-                @Nullable Consumer<PropertyEditorRegistry> propertyEditorInitializer) {
+          @Nullable PlaceholdersResolver placeholdersResolver,
+          @Nullable ConversionService conversionService,
+          @Nullable Consumer<PropertyEditorRegistry> propertyEditorInitializer) {
     this(sources, placeholdersResolver, conversionService, propertyEditorInitializer, null);
   }
 
@@ -146,10 +146,10 @@ public class Binder {
    * binding
    */
   public Binder(Iterable<ConfigurationPropertySource> sources,
-                @Nullable PlaceholdersResolver placeholdersResolver,
-                @Nullable ConversionService conversionService,
-                @Nullable Consumer<PropertyEditorRegistry> propertyEditorInitializer,
-                @Nullable BindHandler defaultBindHandler) {
+          @Nullable PlaceholdersResolver placeholdersResolver,
+          @Nullable ConversionService conversionService,
+          @Nullable Consumer<PropertyEditorRegistry> propertyEditorInitializer,
+          @Nullable BindHandler defaultBindHandler) {
     this(sources,
             placeholdersResolver,
             conversionService,
@@ -174,11 +174,11 @@ public class Binder {
    * constructor to use when binding
    */
   public Binder(Iterable<ConfigurationPropertySource> sources,
-                @Nullable PlaceholdersResolver placeholdersResolver,
-                @Nullable ConversionService conversionService,
-                @Nullable Consumer<PropertyEditorRegistry> propertyEditorInitializer,
-                @Nullable BindHandler defaultBindHandler,
-                @Nullable BindConstructorProvider constructorProvider) {
+          @Nullable PlaceholdersResolver placeholdersResolver,
+          @Nullable ConversionService conversionService,
+          @Nullable Consumer<PropertyEditorRegistry> propertyEditorInitializer,
+          @Nullable BindHandler defaultBindHandler,
+          @Nullable BindConstructorProvider constructorProvider) {
     this(sources,
             placeholdersResolver,
             conversionService != null ? Collections.singletonList(conversionService) : null,
@@ -436,7 +436,7 @@ public class Binder {
 
   @Nullable
   private <T> Object bindObject(ConfigurationPropertyName name, Bindable<T> target, BindHandler handler,
-                                Context context, boolean allowRecursiveBinding) {
+          Context context, boolean allowRecursiveBinding) {
     ConfigurationProperty property = findProperty(name, target, context);
     if (property == null && context.depth != 0 && containsNoDescendantOf(context.getSources(), name)) {
       return null;

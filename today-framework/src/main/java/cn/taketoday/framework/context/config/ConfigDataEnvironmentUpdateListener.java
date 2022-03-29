@@ -20,10 +20,11 @@
 
 package cn.taketoday.framework.context.config;
 
+import java.util.EventListener;
+
 import cn.taketoday.core.env.Environment;
 import cn.taketoday.core.env.PropertySource;
-
-import java.util.EventListener;
+import cn.taketoday.lang.Nullable;
 
 /**
  * {@link EventListener} to listen to {@link Environment} updates triggered by the
@@ -34,27 +35,29 @@ import java.util.EventListener;
  */
 public interface ConfigDataEnvironmentUpdateListener extends EventListener {
 
-	/**
-	 * A {@link ConfigDataEnvironmentUpdateListener} that does nothing.
-	 */
-	ConfigDataEnvironmentUpdateListener NONE = new ConfigDataEnvironmentUpdateListener() {
-	};
+  /**
+   * A {@link ConfigDataEnvironmentUpdateListener} that does nothing.
+   */
+  ConfigDataEnvironmentUpdateListener NONE = new ConfigDataEnvironmentUpdateListener() { };
 
-	/**
-	 * Called when a new {@link PropertySource} is added to the {@link Environment}.
-	 * @param propertySource the {@link PropertySource} that was added
-	 * @param location the original {@link ConfigDataLocation} of the source.
-	 * @param resource the {@link ConfigDataResource} of the source.
-	 */
-	default void onPropertySourceAdded(PropertySource<?> propertySource, ConfigDataLocation location,
-			ConfigDataResource resource) {
-	}
+  /**
+   * Called when a new {@link PropertySource} is added to the {@link Environment}.
+   *
+   * @param propertySource the {@link PropertySource} that was added
+   * @param location the original {@link ConfigDataLocation} of the source.
+   * @param resource the {@link ConfigDataResource} of the source.
+   */
+  default void onPropertySourceAdded(PropertySource<?> propertySource, ConfigDataLocation location,
+          @Nullable ConfigDataResource resource) {
+  }
 
-	/**
-	 * Called when {@link Environment} profiles are set.
-	 * @param profiles the profiles being set
-	 */
-	default void onSetProfiles(Profiles profiles) {
-	}
+  /**
+   * Called when {@link Environment} profiles are set.
+   *
+   * @param profiles the profiles being set
+   */
+  default void onSetProfiles(Profiles profiles) {
+
+  }
 
 }

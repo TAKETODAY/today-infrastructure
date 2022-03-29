@@ -39,7 +39,7 @@ import cn.taketoday.util.ReflectionUtils;
 
 /**
  * Utility to trigger {@link FailureAnalyzer} and {@link FailureAnalysisReporter}
- * instances loaded from {@code spring.factories}.
+ * instances loaded from {@code today-strategies.properties}.
  * <p>
  * A {@code FailureAnalyzer} that requires access to the {@link BeanFactory} in order to
  * perform its analysis can implement {@code BeanFactoryAware} to have the

@@ -23,7 +23,6 @@ package cn.taketoday.core.env;
 import java.util.Map;
 import java.util.Set;
 
-import cn.taketoday.lang.NonNull;
 import cn.taketoday.lang.Nullable;
 
 /**
@@ -60,7 +59,6 @@ public class MapPropertySource extends EnumerablePropertySource<Map<String, Obje
     return this.source.containsKey(name);
   }
 
-  @NonNull
   @Override
   public Set<String> getPropertyNames() {
     return this.source.keySet();

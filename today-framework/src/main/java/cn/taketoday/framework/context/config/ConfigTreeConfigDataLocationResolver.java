@@ -20,15 +20,15 @@
 
 package cn.taketoday.framework.context.config;
 
-import cn.taketoday.framework.context.config.LocationResourceLoader.ResourceType;
-import cn.taketoday.core.io.Resource;
-import cn.taketoday.core.io.ResourceLoader;
-import cn.taketoday.lang.Assert;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
+import cn.taketoday.core.io.Resource;
+import cn.taketoday.core.io.ResourceLoader;
+import cn.taketoday.framework.context.config.LocationResourceLoader.ResourceType;
+import cn.taketoday.lang.Assert;
 
 /**
  * {@link ConfigDataLocationResolver} for config tree locations.
@@ -39,42 +39,42 @@ import java.util.List;
  */
 public class ConfigTreeConfigDataLocationResolver implements ConfigDataLocationResolver<ConfigTreeConfigDataResource> {
 
-	private static final String PREFIX = "configtree:";
+  private static final String PREFIX = "configtree:";
 
-	private final LocationResourceLoader resourceLoader;
+  private final LocationResourceLoader resourceLoader;
 
-	public ConfigTreeConfigDataLocationResolver(ResourceLoader resourceLoader) {
-		this.resourceLoader = new LocationResourceLoader(resourceLoader);
-	}
+  public ConfigTreeConfigDataLocationResolver(ResourceLoader resourceLoader) {
+    this.resourceLoader = new LocationResourceLoader(resourceLoader);
+  }
 
-	@Override
-	public boolean isResolvable(ConfigDataLocationResolverContext context, ConfigDataLocation location) {
-		return location.hasPrefix(PREFIX);
-	}
+  @Override
+  public boolean isResolvable(ConfigDataLocationResolverContext context, ConfigDataLocation location) {
+    return location.hasPrefix(PREFIX);
+  }
 
-	@Override
-	public List<ConfigTreeConfigDataResource> resolve(ConfigDataLocationResolverContext context,
-			ConfigDataLocation location) {
-		try {
-			return resolve(location.getNonPrefixedValue(PREFIX));
-		}
-		catch (IOException ex) {
-			throw new ConfigDataLocationNotFoundException(location, ex);
-		}
-	}
+  @Override
+  public List<ConfigTreeConfigDataResource> resolve(ConfigDataLocationResolverContext context,
+          ConfigDataLocation location) {
+    try {
+      return resolve(location.getNonPrefixedValue(PREFIX));
+    }
+    catch (IOException ex) {
+      throw new ConfigDataLocationNotFoundException(location, ex);
+    }
+  }
 
-	private List<ConfigTreeConfigDataResource> resolve(String location) throws IOException {
-		Assert.isTrue(location.endsWith("/"),
-				() -> String.format("Config tree location '%s' must end with '/'", location));
-		if (!this.resourceLoader.isPattern(location)) {
-			return Collections.singletonList(new ConfigTreeConfigDataResource(location));
-		}
-		Resource[] resources = this.resourceLoader.getResources(location, ResourceType.DIRECTORY);
-		List<ConfigTreeConfigDataResource> resolved = new ArrayList<>(resources.length);
-		for (Resource resource : resources) {
-			resolved.add(new ConfigTreeConfigDataResource(resource.getFile().toPath()));
-		}
-		return resolved;
-	}
+  private List<ConfigTreeConfigDataResource> resolve(String location) throws IOException {
+    Assert.isTrue(location.endsWith("/"),
+            () -> String.format("Config tree location '%s' must end with '/'", location));
+    if (!this.resourceLoader.isPattern(location)) {
+      return Collections.singletonList(new ConfigTreeConfigDataResource(location));
+    }
+    List<Resource> resources = this.resourceLoader.getResources(location, ResourceType.DIRECTORY);
+    List<ConfigTreeConfigDataResource> resolved = new ArrayList<>(resources.size());
+    for (Resource resource : resources) {
+      resolved.add(new ConfigTreeConfigDataResource(resource.getFile().toPath()));
+    }
+    return resolved;
+  }
 
 }

@@ -22,8 +22,6 @@ package cn.taketoday.core.env;
 
 import java.util.Collection;
 
-import cn.taketoday.lang.NonNull;
-
 /**
  * A {@link PropertySource} implementation capable of interrogating its
  * underlying source object to enumerate all possible property name/value
@@ -86,7 +84,6 @@ public abstract class EnumerablePropertySource<T> extends PropertySource<T> {
    * Return the names of all properties contained by the
    * {@linkplain #getSource() source} object (never {@code null}).
    */
-  @NonNull
   public abstract Collection<String> getPropertyNames();
 
 }

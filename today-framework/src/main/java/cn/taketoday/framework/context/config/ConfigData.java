@@ -281,7 +281,7 @@ public final class ConfigData {
      * Indicates that the source is "profile specific" and should be included after
      * profile specific sibling imports.
      */
-    PROFILE_SPECIFIC;
+    PROFILE_SPECIFIC
 
   }
 

@@ -18,33 +18,18 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.framework.config.context;
-
-import java.time.Duration;
-
-import cn.taketoday.context.properties.ConfigurationProperties;
+package cn.taketoday.framework.json;
 
 /**
- * Configuration properties for lifecycle processing.
+ * Tests for {@link BasicJsonParser}.
  *
- * @author Andy Wilkinson
- * @since 4.0
+ * @author Dave Syer
  */
-@ConfigurationProperties(prefix = "context.lifecycle")
-public class LifecycleProperties {
+class BasicJsonParserTests extends AbstractJsonParserTests {
 
-  /**
-   * Timeout for the shutdown of any phase (group of SmartLifecycle beans with the same
-   * 'phase' value).
-   */
-  private Duration timeoutPerShutdownPhase = Duration.ofSeconds(30);
-
-  public Duration getTimeoutPerShutdownPhase() {
-    return this.timeoutPerShutdownPhase;
-  }
-
-  public void setTimeoutPerShutdownPhase(Duration timeoutPerShutdownPhase) {
-    this.timeoutPerShutdownPhase = timeoutPerShutdownPhase;
-  }
+	@Override
+	protected JsonParser getParser() {
+		return new BasicJsonParser();
+	}
 
 }

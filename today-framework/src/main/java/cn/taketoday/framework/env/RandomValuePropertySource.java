@@ -31,7 +31,6 @@ import cn.taketoday.core.env.PropertySource;
 import cn.taketoday.core.env.PropertySources;
 import cn.taketoday.core.env.StandardEnvironment;
 import cn.taketoday.lang.Assert;
-import cn.taketoday.logging.LogMessage;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.DigestUtils;
@@ -87,7 +86,7 @@ public class RandomValuePropertySource extends PropertySource<Random> {
     if (!name.startsWith(PREFIX)) {
       return null;
     }
-    logger.trace(LogMessage.format("Generating random property for '%s'", name));
+    logger.trace("Generating random property for '{}'", name);
     return getRandomValue(name.substring(PREFIX.length()));
   }
 
@@ -135,7 +134,9 @@ public class RandomValuePropertySource extends PropertySource<Random> {
   }
 
   private void assertPresent(boolean present, Range<?> range) {
-    Assert.state(present, () -> "Could not get random number for range '" + range + "'");
+    if (!present) {
+      throw new IllegalStateException("Could not get random number for range '" + range + "'");
+    }
   }
 
   private Object getRandomBytes() {

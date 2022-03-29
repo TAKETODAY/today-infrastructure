@@ -20,12 +20,12 @@
 
 package cn.taketoday.framework.context.config;
 
-import cn.taketoday.framework.env.ConfigTreePropertySource;
-import cn.taketoday.framework.env.ConfigTreePropertySource.Option;
-
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Collections;
+
+import cn.taketoday.framework.env.ConfigTreePropertySource;
+import cn.taketoday.framework.env.ConfigTreePropertySource.Option;
 
 /**
  * {@link ConfigDataLoader} for config tree locations.
@@ -36,14 +36,14 @@ import java.util.Collections;
  */
 public class ConfigTreeConfigDataLoader implements ConfigDataLoader<ConfigTreeConfigDataResource> {
 
-	@Override
-	public ConfigData load(ConfigDataLoaderContext context, ConfigTreeConfigDataResource resource)
-			throws IOException, ConfigDataResourceNotFoundException {
-		Path path = resource.getPath();
-		ConfigDataResourceNotFoundException.throwIfDoesNotExist(resource, path);
-		String name = "Config tree '" + path + "'";
-		ConfigTreePropertySource source = new ConfigTreePropertySource(name, path, Option.AUTO_TRIM_TRAILING_NEW_LINE);
-		return new ConfigData(Collections.singletonList(source));
-	}
+  @Override
+  public ConfigData load(ConfigDataLoaderContext context, ConfigTreeConfigDataResource resource)
+          throws IOException, ConfigDataResourceNotFoundException {
+    Path path = resource.getPath();
+    ConfigDataResourceNotFoundException.throwIfDoesNotExist(resource, path);
+    String name = "Config tree '" + path + "'";
+    ConfigTreePropertySource source = new ConfigTreePropertySource(name, path, Option.AUTO_TRIM_TRAILING_NEW_LINE);
+    return new ConfigData(Collections.singletonList(source));
+  }
 
 }

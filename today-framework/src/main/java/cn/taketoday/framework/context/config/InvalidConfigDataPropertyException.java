@@ -46,10 +46,8 @@ public class InvalidConfigDataPropertyException extends ConfigDataException {
 
   static {
     Map<ConfigurationPropertyName, ConfigurationPropertyName> warnings = new LinkedHashMap<>();
-    warnings.put(ConfigurationPropertyName.of("spring.profiles"),
-            ConfigurationPropertyName.of("context.config.activate.on-profile"));
-    warnings.put(ConfigurationPropertyName.of("spring.profiles[0]"),
-            ConfigurationPropertyName.of("context.config.activate.on-profile"));
+    warnings.put(ConfigurationPropertyName.of("context.profiles"), ConfigurationPropertyName.of("context.config.activate.on-profile"));
+    warnings.put(ConfigurationPropertyName.of("context.profiles[0]"), ConfigurationPropertyName.of("context.config.activate.on-profile"));
     WARNINGS = Collections.unmodifiableMap(warnings);
   }
 
@@ -71,10 +69,11 @@ public class InvalidConfigDataPropertyException extends ConfigDataException {
   @Nullable
   private final ConfigurationPropertyName replacement;
 
+  @Nullable
   private final ConfigDataResource location;
 
   InvalidConfigDataPropertyException(ConfigurationProperty property, boolean profileSpecific,
-          @Nullable ConfigurationPropertyName replacement, ConfigDataResource location) {
+          @Nullable ConfigurationPropertyName replacement, @Nullable ConfigDataResource location) {
     super(getMessage(property, profileSpecific, replacement, location), null);
     this.property = property;
     this.replacement = replacement;
@@ -96,6 +95,7 @@ public class InvalidConfigDataPropertyException extends ConfigDataException {
    *
    * @return the config data location or {@code null}
    */
+  @Nullable
   public ConfigDataResource getLocation() {
     return this.location;
   }
@@ -123,20 +123,22 @@ public class InvalidConfigDataPropertyException extends ConfigDataException {
   static void throwOrWarn(Logger logger, ConfigDataEnvironmentContributor contributor) {
     ConfigurationPropertySource propertySource = contributor.getConfigurationPropertySource();
     if (propertySource != null) {
-      WARNINGS.forEach((name, replacement) -> {
+      for (Map.Entry<ConfigurationPropertyName, ConfigurationPropertyName> entry : WARNINGS.entrySet()) {
+        ConfigurationPropertyName name = entry.getKey();
+        ConfigurationPropertyName replacement = entry.getValue();
         ConfigurationProperty property = propertySource.getConfigurationProperty(name);
         if (property != null) {
           logger.warn(getMessage(property, false, replacement, contributor.getResource()));
         }
-      });
+      }
       if (contributor.isFromProfileSpecificImport()
               && !contributor.hasConfigDataOption(ConfigData.Option.IGNORE_PROFILES)) {
-        PROFILE_SPECIFIC_ERRORS.forEach((name) -> {
+        for (ConfigurationPropertyName name : PROFILE_SPECIFIC_ERRORS) {
           ConfigurationProperty property = propertySource.getConfigurationProperty(name);
           if (property != null) {
             throw new InvalidConfigDataPropertyException(property, true, null, contributor.getResource());
           }
-        });
+        }
       }
     }
   }

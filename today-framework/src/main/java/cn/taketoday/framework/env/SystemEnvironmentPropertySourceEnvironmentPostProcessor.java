@@ -28,6 +28,9 @@ import cn.taketoday.core.env.PropertySource;
 import cn.taketoday.core.env.StandardEnvironment;
 import cn.taketoday.core.env.SystemEnvironmentPropertySource;
 import cn.taketoday.framework.Application;
+import cn.taketoday.lang.Nullable;
+import cn.taketoday.origin.Origin;
+import cn.taketoday.origin.OriginLookup;
 import cn.taketoday.origin.SystemEnvironmentOrigin;
 import cn.taketoday.util.StringUtils;
 
@@ -38,7 +41,7 @@ import cn.taketoday.util.StringUtils;
  * {@link SystemEnvironmentOrigin} for every system environment property.
  *
  * @author Madhura Bhave
- * @since 2.0.0
+ * @since 4.0
  */
 public class SystemEnvironmentPropertySourceEnvironmentPostProcessor implements EnvironmentPostProcessor, Ordered {
 
@@ -60,7 +63,7 @@ public class SystemEnvironmentPropertySourceEnvironmentPostProcessor implements 
 
   @SuppressWarnings("unchecked")
   private void replacePropertySource(ConfigurableEnvironment environment, String sourceName,
-          PropertySource<?> propertySource, String environmentPrefix) {
+          PropertySource<?> propertySource, @Nullable String environmentPrefix) {
     Map<String, Object> originalSource = (Map<String, Object>) propertySource.getSource();
     SystemEnvironmentPropertySource source = new OriginAwareSystemEnvironmentPropertySource(sourceName,
             originalSource, environmentPrefix);
@@ -84,12 +87,12 @@ public class SystemEnvironmentPropertySourceEnvironmentPostProcessor implements 
 
     private final String prefix;
 
-    OriginAwareSystemEnvironmentPropertySource(String name, Map<String, Object> source, String environmentPrefix) {
+    OriginAwareSystemEnvironmentPropertySource(String name, Map<String, Object> source, @Nullable String environmentPrefix) {
       super(name, source);
       this.prefix = determinePrefix(environmentPrefix);
     }
 
-    private String determinePrefix(String environmentPrefix) {
+    private String determinePrefix(@Nullable String environmentPrefix) {
       if (!StringUtils.hasText(environmentPrefix)) {
         return null;
       }

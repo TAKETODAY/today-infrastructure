@@ -20,9 +20,7 @@
 
 package cn.taketoday.framework.context.config;
 
-import org.apache.commons.logging.Log;
-
-import cn.taketoday.logging.LogMessage;
+import cn.taketoday.logging.Logger;
 
 /**
  * Action to take when an uncaught {@link ConfigDataNotFoundException} is thrown.
@@ -49,7 +47,7 @@ public enum ConfigDataNotFoundAction {
   IGNORE {
     @Override
     void handle(Logger logger, ConfigDataNotFoundException ex) {
-      logger.trace(LogMessage.format("Ignoring missing config data %s", ex.getReferenceDescription()));
+      logger.trace("Ignoring missing config data {}", ex.getReferenceDescription());
     }
 
   };

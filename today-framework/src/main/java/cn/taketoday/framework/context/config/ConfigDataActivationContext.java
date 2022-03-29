@@ -31,6 +31,7 @@ import cn.taketoday.lang.Nullable;
  * {@link ConfigDataEnvironmentContributor contributed} {@link ConfigData}.
  *
  * @author Phillip Webb
+ * @since 4.0
  */
 class ConfigDataActivationContext {
 
@@ -63,6 +64,7 @@ class ConfigDataActivationContext {
     this.profiles = profiles;
   }
 
+  @Nullable
   private CloudPlatform deduceCloudPlatform(Environment environment, Binder binder) {
     for (CloudPlatform candidate : CloudPlatform.values()) {
       if (candidate.isEnforced(binder)) {

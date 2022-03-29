@@ -108,8 +108,23 @@ public final class BindResult<T> {
    * {@code null})
    * @return the value, if bound, otherwise {@code other}
    */
-  public T orElse(T other) {
-    return (this.value != null) ? this.value : other;
+  @Nullable
+  public T orElse(@Nullable T other) {
+    return value != null ? value : other;
+  }
+
+  /**
+   * Return the object that was bound, or {@code other} if no value has been bound.
+   *
+   * @param other the value to be returned if there is no bound value
+   * @return the value, if bound, otherwise {@code other}
+   */
+  public T orRequired(T other) {
+    if (value != null) {
+      return value;
+    }
+    Assert.state(other != null, "other value is required");
+    return other;
   }
 
   /**
@@ -121,7 +136,7 @@ public final class BindResult<T> {
    * @return the value, if bound, otherwise the supplied {@code other}
    */
   public T orElseGet(Supplier<? extends T> other) {
-    return (this.value != null) ? this.value : other.get();
+    return value != null ? value : other.get();
   }
 
   /**

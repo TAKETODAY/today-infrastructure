@@ -31,26 +31,27 @@ package cn.taketoday.framework.context.config;
  */
 public abstract class ConfigDataResource {
 
-	private final boolean optional;
+  private final boolean optional;
 
-	/**
-	 * Create a new non-optional {@link ConfigDataResource} instance.
-	 */
-	public ConfigDataResource() {
-		this(false);
-	}
+  /**
+   * Create a new non-optional {@link ConfigDataResource} instance.
+   */
+  public ConfigDataResource() {
+    this(false);
+  }
 
-	/**
-	 * Create a new {@link ConfigDataResource} instance.
-	 * @param optional if the resource is optional
-	 * @since 4.0
-	 */
-	protected ConfigDataResource(boolean optional) {
-		this.optional = optional;
-	}
+  /**
+   * Create a new {@link ConfigDataResource} instance.
+   *
+   * @param optional if the resource is optional
+   * @since 4.0
+   */
+  protected ConfigDataResource(boolean optional) {
+    this.optional = optional;
+  }
 
-	boolean isOptional() {
-		return this.optional;
-	}
+  boolean isOptional() {
+    return this.optional;
+  }
 
 }

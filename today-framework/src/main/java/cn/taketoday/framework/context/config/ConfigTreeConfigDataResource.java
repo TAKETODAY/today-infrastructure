@@ -20,59 +20,59 @@
 
 package cn.taketoday.framework.context.config;
 
-import cn.taketoday.framework.env.ConfigTreePropertySource;
-import cn.taketoday.lang.Assert;
-
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Objects;
+
+import cn.taketoday.framework.env.ConfigTreePropertySource;
+import cn.taketoday.lang.Assert;
 
 /**
  * {@link ConfigDataResource} backed by a config tree directory.
  *
  * @author Madhura Bhave
  * @author Phillip Webb
- * @since 4.0
  * @see ConfigTreePropertySource
+ * @since 4.0
  */
 public class ConfigTreeConfigDataResource extends ConfigDataResource {
 
-	private final Path path;
+  private final Path path;
 
-	ConfigTreeConfigDataResource(String path) {
-		Assert.notNull(path, "Path must not be null");
-		this.path = Paths.get(path).toAbsolutePath();
-	}
+  ConfigTreeConfigDataResource(String path) {
+    Assert.notNull(path, "Path must not be null");
+    this.path = Paths.get(path).toAbsolutePath();
+  }
 
-	ConfigTreeConfigDataResource(Path path) {
-		Assert.notNull(path, "Path must not be null");
-		this.path = path.toAbsolutePath();
-	}
+  ConfigTreeConfigDataResource(Path path) {
+    Assert.notNull(path, "Path must not be null");
+    this.path = path.toAbsolutePath();
+  }
 
-	Path getPath() {
-		return this.path;
-	}
+  Path getPath() {
+    return this.path;
+  }
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) {
-			return true;
-		}
-		if (obj == null || getClass() != obj.getClass()) {
-			return false;
-		}
-		ConfigTreeConfigDataResource other = (ConfigTreeConfigDataResource) obj;
-		return Objects.equals(this.path, other.path);
-	}
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null || getClass() != obj.getClass()) {
+      return false;
+    }
+    ConfigTreeConfigDataResource other = (ConfigTreeConfigDataResource) obj;
+    return Objects.equals(this.path, other.path);
+  }
 
-	@Override
-	public int hashCode() {
-		return this.path.hashCode();
-	}
+  @Override
+  public int hashCode() {
+    return this.path.hashCode();
+  }
 
-	@Override
-	public String toString() {
-		return "config tree [" + this.path + "]";
-	}
+  @Override
+  public String toString() {
+    return "config tree [" + this.path + "]";
+  }
 
 }

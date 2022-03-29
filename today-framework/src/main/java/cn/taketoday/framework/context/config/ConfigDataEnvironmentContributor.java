@@ -59,9 +59,9 @@ import cn.taketoday.util.CollectionUtils;
  */
 class ConfigDataEnvironmentContributor implements Iterable<ConfigDataEnvironmentContributor> {
 
-  private static final ConfigData.Options EMPTY_LOCATION_OPTIONS = ConfigData.Options
-          .of(ConfigData.Option.IGNORE_IMPORTS);
+  private static final ConfigData.Options EMPTY_LOCATION_OPTIONS = ConfigData.Options.of(ConfigData.Option.IGNORE_IMPORTS);
 
+  @Nullable
   private final ConfigDataLocation location;
 
   @Nullable
@@ -101,7 +101,7 @@ class ConfigDataEnvironmentContributor implements Iterable<ConfigDataEnvironment
    */
   ConfigDataEnvironmentContributor(
           Kind kind,
-          ConfigDataLocation location,
+          @Nullable ConfigDataLocation location,
           @Nullable ConfigDataResource resource,
           boolean fromProfileSpecificImport,
           @Nullable PropertySource<?> propertySource,
@@ -129,6 +129,7 @@ class ConfigDataEnvironmentContributor implements Iterable<ConfigDataEnvironment
     return this.kind;
   }
 
+  @Nullable
   ConfigDataLocation getLocation() {
     return this.location;
   }
@@ -139,7 +140,7 @@ class ConfigDataEnvironmentContributor implements Iterable<ConfigDataEnvironment
    * @param activationContext the activation context
    * @return if the contributor is active
    */
-  boolean isActive(ConfigDataActivationContext activationContext) {
+  boolean isActive(@Nullable ConfigDataActivationContext activationContext) {
     if (this.kind == Kind.UNBOUND_IMPORT) {
       return false;
     }
@@ -509,7 +510,7 @@ class ConfigDataEnvironmentContributor implements Iterable<ConfigDataEnvironment
     /**
      * A valid location that contained nothing to load.
      */
-    EMPTY_LOCATION;
+    EMPTY_LOCATION
 
   }
 

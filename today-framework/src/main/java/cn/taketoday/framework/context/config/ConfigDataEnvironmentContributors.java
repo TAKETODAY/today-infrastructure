@@ -38,11 +38,13 @@ import cn.taketoday.context.properties.bind.Binder;
 import cn.taketoday.context.properties.bind.PlaceholdersResolver;
 import cn.taketoday.context.properties.source.ConfigurationPropertyName;
 import cn.taketoday.context.properties.source.ConfigurationPropertySource;
+import cn.taketoday.framework.ConfigurableBootstrapContext;
 import cn.taketoday.framework.context.config.ConfigDataEnvironmentContributor.ImportPhase;
 import cn.taketoday.framework.context.config.ConfigDataEnvironmentContributor.Kind;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.LogMessage;
 import cn.taketoday.logging.Logger;
+import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ObjectUtils;
 
 /**
@@ -65,14 +67,13 @@ class ConfigDataEnvironmentContributors implements Iterable<ConfigDataEnvironmen
   /**
    * Create a new {@link ConfigDataEnvironmentContributors} instance.
    *
-   * @param logFactory the log factory
    * @param bootstrapContext the bootstrap context
    * @param contributors the initial set of contributors
    */
-  ConfigDataEnvironmentContributors(DeferredLogFactory logFactory, ConfigurableBootstrapContext bootstrapContext,
+  ConfigDataEnvironmentContributors(ConfigurableBootstrapContext bootstrapContext,
           List<ConfigDataEnvironmentContributor> contributors) {
-    this.logger = logFactory.getLog(getClass());
     this.bootstrapContext = bootstrapContext;
+    this.logger = LoggerFactory.getLogger(getClass());
     this.root = ConfigDataEnvironmentContributor.of(contributors);
   }
 
@@ -195,7 +196,7 @@ class ConfigDataEnvironmentContributors implements Iterable<ConfigDataEnvironmen
    * @param options binder options to apply
    * @return a binder instance
    */
-  Binder getBinder(ConfigDataActivationContext activationContext, BinderOption... options) {
+  Binder getBinder(@Nullable ConfigDataActivationContext activationContext, BinderOption... options) {
     return getBinder(activationContext, NO_CONTRIBUTOR_FILTER, options);
   }
 
@@ -207,8 +208,8 @@ class ConfigDataEnvironmentContributors implements Iterable<ConfigDataEnvironmen
    * @param options binder options to apply
    * @return a binder instance
    */
-  Binder getBinder(ConfigDataActivationContext activationContext, Predicate<ConfigDataEnvironmentContributor> filter,
-          BinderOption... options) {
+  Binder getBinder(@Nullable ConfigDataActivationContext activationContext,
+          Predicate<ConfigDataEnvironmentContributor> filter, BinderOption... options) {
     return getBinder(activationContext, filter, asBinderOptionsSet(options));
   }
 
@@ -217,7 +218,7 @@ class ConfigDataEnvironmentContributors implements Iterable<ConfigDataEnvironmen
                                         : EnumSet.copyOf(Arrays.asList(options));
   }
 
-  private Binder getBinder(ConfigDataActivationContext activationContext,
+  private Binder getBinder(@Nullable ConfigDataActivationContext activationContext,
           Predicate<ConfigDataEnvironmentContributor> filter, Set<BinderOption> options) {
     boolean failOnInactiveSource = options.contains(BinderOption.FAIL_ON_BIND_TO_INACTIVE_SOURCE);
     Iterable<ConfigurationPropertySource> sources = () -> getBinderSources(
@@ -332,7 +333,7 @@ class ConfigDataEnvironmentContributors implements Iterable<ConfigDataEnvironmen
     /**
      * Throw an exception if an inactive contributor contains a bound value.
      */
-    FAIL_ON_BIND_TO_INACTIVE_SOURCE;
+    FAIL_ON_BIND_TO_INACTIVE_SOURCE
 
   }
 

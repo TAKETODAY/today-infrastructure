@@ -38,9 +38,9 @@ import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.support.MockEnvironment;
 import cn.taketoday.core.io.DefaultResourceLoader;
 import cn.taketoday.core.type.AnnotationMetadata;
-import cn.taketoday.framework.config.context.LifecycleAutoConfiguration;
-import cn.taketoday.framework.config.context.MessageSourceAutoConfiguration;
-import cn.taketoday.framework.config.context.PropertyPlaceholderAutoConfiguration;
+import cn.taketoday.framework.annotation.LifecycleAutoConfiguration;
+import cn.taketoday.framework.annotation.MessageSourceAutoConfiguration;
+import cn.taketoday.framework.annotation.PropertyPlaceholderAutoConfiguration;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
@@ -294,13 +294,13 @@ class AutoConfigurationImportSelectorTests {
 
   }
 
-  @EnableAutoConfiguration(excludeName = "cn.taketoday.framework.config.context.PropertyPlaceholderAutoConfiguration")
+  @EnableAutoConfiguration(excludeName = "cn.taketoday.framework.annotation.PropertyPlaceholderAutoConfiguration")
   private class EnableAutoConfigurationWithClassNameExclusions {
 
   }
 
   @EnableAutoConfiguration(exclude = PropertyPlaceholderAutoConfiguration.class,
-                           excludeName = "cn.taketoday.framework.config.context.LifecycleAutoConfiguration")
+                           excludeName = "cn.taketoday.framework.annotation.LifecycleAutoConfiguration")
   private class EnableAutoConfigurationWithClassAndClassNameExclusions {
 
   }
@@ -321,7 +321,7 @@ class AutoConfigurationImportSelectorTests {
 
   }
 
-  @EnableAutoConfiguration(excludeName = "cn.taketoday.framework.config.context.PropertyPlaceholderAutoConfiguration")
+  @EnableAutoConfiguration(excludeName = "cn.taketoday.framework.annotation.PropertyPlaceholderAutoConfiguration")
   private class ApplicationWithClassNameExclusions {
 
   }

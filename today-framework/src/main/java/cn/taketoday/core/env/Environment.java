@@ -115,7 +115,7 @@ public interface Environment extends PropertyResolver {
    * <p>Note that certain shell environments such as Bash disallow the use of the period
    * character in variable names. Assuming that {@link SystemEnvironmentPropertySource}
    * is in use, this property may be specified as an environment variable as
-   * {@code SPRING_PROFILES_ACTIVE}.
+   * {@code CONTEXT_PROFILES_ACTIVE}.
    *
    * @see ConfigurableEnvironment#setActiveProfiles
    */
@@ -127,7 +127,7 @@ public interface Environment extends PropertyResolver {
    * <p>Note that certain shell environments such as Bash disallow the use of the period
    * character in variable names. Assuming that {@link SystemEnvironmentPropertySource}
    * is in use, this property may be specified as an environment variable as
-   * {@code SPRING_PROFILES_DEFAULT}.
+   * {@code CONTEXT_PROFILES_DEFAULT}.
    *
    * @see ConfigurableEnvironment#setDefaultProfiles
    */

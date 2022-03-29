@@ -20,12 +20,12 @@
 
 package cn.taketoday.framework.env;
 
-import cn.taketoday.framework.origin.Origin;
-import cn.taketoday.framework.origin.OriginLookup;
-import cn.taketoday.framework.origin.OriginTrackedValue;
-import cn.taketoday.core.env.MapPropertySource;
-
 import java.util.Map;
+
+import cn.taketoday.core.env.MapPropertySource;
+import cn.taketoday.origin.Origin;
+import cn.taketoday.origin.OriginLookup;
+import cn.taketoday.origin.OriginTrackedValue;
 
 /**
  * {@link OriginLookup} backed by a {@link Map} containing {@link OriginTrackedValue
@@ -33,57 +33,58 @@ import java.util.Map;
  *
  * @author Madhura Bhave
  * @author Phillip Webb
- * @since 2.0.0
  * @see OriginTrackedValue
+ * @since 4.0
  */
 public final class OriginTrackedMapPropertySource extends MapPropertySource implements OriginLookup<String> {
 
-	private final boolean immutable;
+  private final boolean immutable;
 
-	/**
-	 * Create a new {@link OriginTrackedMapPropertySource} instance.
-	 * @param name the property source name
-	 * @param source the underlying map source
-	 */
-	@SuppressWarnings("rawtypes")
-	public OriginTrackedMapPropertySource(String name, Map source) {
-		this(name, source, false);
-	}
+  /**
+   * Create a new {@link OriginTrackedMapPropertySource} instance.
+   *
+   * @param name the property source name
+   * @param source the underlying map source
+   */
+  @SuppressWarnings("rawtypes")
+  public OriginTrackedMapPropertySource(String name, Map source) {
+    this(name, source, false);
+  }
 
-	/**
-	 * Create a new {@link OriginTrackedMapPropertySource} instance.
-	 * @param name the property source name
-	 * @param source the underlying map source
-	 * @param immutable if the underlying source is immutable and guaranteed not to change
-	 * @since 2.2.0
-	 */
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public OriginTrackedMapPropertySource(String name, Map source, boolean immutable) {
-		super(name, source);
-		this.immutable = immutable;
-	}
+  /**
+   * Create a new {@link OriginTrackedMapPropertySource} instance.
+   *
+   * @param name the property source name
+   * @param source the underlying map source
+   * @param immutable if the underlying source is immutable and guaranteed not to change
+   */
+  @SuppressWarnings({ "unchecked", "rawtypes" })
+  public OriginTrackedMapPropertySource(String name, Map source, boolean immutable) {
+    super(name, source);
+    this.immutable = immutable;
+  }
 
-	@Override
-	public Object getProperty(String name) {
-		Object value = super.getProperty(name);
-		if (value instanceof OriginTrackedValue) {
-			return ((OriginTrackedValue) value).getValue();
-		}
-		return value;
-	}
+  @Override
+  public Object getProperty(String name) {
+    Object value = super.getProperty(name);
+    if (value instanceof OriginTrackedValue) {
+      return ((OriginTrackedValue) value).getValue();
+    }
+    return value;
+  }
 
-	@Override
-	public Origin getOrigin(String name) {
-		Object value = super.getProperty(name);
-		if (value instanceof OriginTrackedValue) {
-			return ((OriginTrackedValue) value).getOrigin();
-		}
-		return null;
-	}
+  @Override
+  public Origin getOrigin(String name) {
+    Object value = super.getProperty(name);
+    if (value instanceof OriginTrackedValue) {
+      return ((OriginTrackedValue) value).getOrigin();
+    }
+    return null;
+  }
 
-	@Override
-	public boolean isImmutable() {
-		return this.immutable;
-	}
+  @Override
+  public boolean isImmutable() {
+    return this.immutable;
+  }
 
 }

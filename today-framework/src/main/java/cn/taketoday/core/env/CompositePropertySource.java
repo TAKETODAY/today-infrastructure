@@ -24,7 +24,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashSet;
 
-import cn.taketoday.lang.NonNull;
 import cn.taketoday.lang.Nullable;
 
 /**
@@ -75,7 +74,6 @@ public class CompositePropertySource extends EnumerablePropertySource<Object> {
     return false;
   }
 
-  @NonNull
   @Override
   public LinkedHashSet<String> getPropertyNames() {
     LinkedHashSet<String> names = new LinkedHashSet<>();

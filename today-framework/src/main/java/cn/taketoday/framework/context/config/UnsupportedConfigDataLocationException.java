@@ -29,23 +29,25 @@ package cn.taketoday.framework.context.config;
  */
 public class UnsupportedConfigDataLocationException extends ConfigDataException {
 
-	private final ConfigDataLocation location;
+  private final ConfigDataLocation location;
 
-	/**
-	 * Create a new {@link UnsupportedConfigDataLocationException} instance.
-	 * @param location the unsupported location
-	 */
-	UnsupportedConfigDataLocationException(ConfigDataLocation location) {
-		super("Unsupported config data location '" + location + "'", null);
-		this.location = location;
-	}
+  /**
+   * Create a new {@link UnsupportedConfigDataLocationException} instance.
+   *
+   * @param location the unsupported location
+   */
+  UnsupportedConfigDataLocationException(ConfigDataLocation location) {
+    super("Unsupported config data location '" + location + "'", null);
+    this.location = location;
+  }
 
-	/**
-	 * Return the unsupported location reference.
-	 * @return the unsupported location reference
-	 */
-	public ConfigDataLocation getLocation() {
-		return this.location;
-	}
+  /**
+   * Return the unsupported location reference.
+   *
+   * @return the unsupported location reference
+   */
+  public ConfigDataLocation getLocation() {
+    return this.location;
+  }
 
 }

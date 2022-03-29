@@ -36,6 +36,7 @@ import java.util.stream.Stream;
 
 import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
 
 /**
  * Simple factory used to instantiate objects by injecting available parameters.
@@ -103,7 +104,7 @@ public class Instantiator<T> {
    * @param names the class names to instantiate
    * @return a list of instantiated instances
    */
-  public List<T> instantiate(ClassLoader classLoader, Collection<String> names) {
+  public List<T> instantiate(@Nullable ClassLoader classLoader, Collection<String> names) {
     Assert.notNull(names, "Names must not be null");
     return instantiate(names.stream().map((name) -> TypeSupplier.forName(classLoader, name)));
   }
@@ -204,7 +205,7 @@ public class Instantiator<T> {
 
     abstract Class<?> get() throws ClassNotFoundException;
 
-    static TypeSupplier forName(ClassLoader classLoader, String name) {
+    static TypeSupplier forName(@Nullable ClassLoader classLoader, String name) {
       return new TypeSupplier() {
 
         @Override

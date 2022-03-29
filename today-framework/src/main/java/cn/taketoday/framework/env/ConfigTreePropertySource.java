@@ -28,6 +28,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.Map;
@@ -47,6 +48,7 @@ import cn.taketoday.origin.OriginLookup;
 import cn.taketoday.origin.OriginProvider;
 import cn.taketoday.origin.TextResourceOrigin;
 import cn.taketoday.origin.TextResourceOrigin.Location;
+import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.FileCopyUtils;
 import cn.taketoday.util.StringUtils;
 
@@ -72,7 +74,7 @@ import cn.taketoday.util.StringUtils;
  * mounts.
  *
  * @author Phillip Webb
- * @since 2.4.0
+ * @since 4.0
  */
 public class ConfigTreePropertySource extends EnumerablePropertySource<Path> implements OriginLookup<String> {
 
@@ -115,8 +117,8 @@ public class ConfigTreePropertySource extends EnumerablePropertySource<Path> imp
   }
 
   @Override
-  public String[] getPropertyNames() {
-    return this.names.clone();
+  public Collection<String> getPropertyNames() {
+    return CollectionUtils.newArrayList(names);
   }
 
   @Override

@@ -24,8 +24,10 @@ import java.io.File;
 import java.io.FilenameFilter;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import cn.taketoday.core.io.FileSystemResource;
 import cn.taketoday.core.io.PatternResourceLoader;
@@ -45,8 +47,6 @@ import cn.taketoday.util.StringUtils;
  * @since 4.0
  */
 class LocationResourceLoader {
-
-  private static final Resource[] EMPTY_RESOURCES = {};
 
   private static final Comparator<File> FILE_PATH_COMPARATOR = Comparator.comparing(File::getAbsolutePath);
 
@@ -101,36 +101,40 @@ class LocationResourceLoader {
    * @return the resources
    * @see #isPattern(String)
    */
-  Resource[] getResources(@Nullable String location, ResourceType type) {
+  List<Resource> getResources(@Nullable String location, ResourceType type) {
     validatePattern(location, type);
     String directoryPath = location.substring(0, location.indexOf("*/"));
     String fileName = location.substring(location.lastIndexOf("/") + 1);
     Resource resource = getResource(directoryPath);
     if (!resource.exists()) {
-      return EMPTY_RESOURCES;
+      return Collections.emptyList();
     }
     File file = getFile(location, resource);
     if (!file.isDirectory()) {
-      return EMPTY_RESOURCES;
+      return Collections.emptyList();
     }
     File[] subDirectories = file.listFiles(this::isVisibleDirectory);
     if (subDirectories == null) {
-      return EMPTY_RESOURCES;
+      return Collections.emptyList();
     }
     Arrays.sort(subDirectories, FILE_PATH_COMPARATOR);
     if (type == ResourceType.DIRECTORY) {
-      return Arrays.stream(subDirectories).map(FileSystemResource::new).toArray(Resource[]::new);
+      return Arrays.stream(subDirectories)
+              .map(FileSystemResource::new)
+              .collect(Collectors.toList());
     }
-    List<Resource> resources = new ArrayList<>();
+    ArrayList<Resource> resources = new ArrayList<>();
     FilenameFilter filter = (dir, name) -> name.equals(fileName);
     for (File subDirectory : subDirectories) {
       File[] files = subDirectory.listFiles(filter);
       if (files != null) {
         Arrays.sort(files, FILE_NAME_COMPARATOR);
-        Arrays.stream(files).map(FileSystemResource::new).forEach(resources::add);
+        for (File file1 : files) {
+          resources.add(new FileSystemResource(file1));
+        }
       }
     }
-    return resources.toArray(EMPTY_RESOURCES);
+    return resources;
   }
 
   private void validatePattern(String location, ResourceType type) {

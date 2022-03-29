@@ -20,28 +20,24 @@
 
 package cn.taketoday.framework.context.config;
 
-import org.apache.commons.logging.Log;
-import cn.taketoday.framework.BootstrapContext;
-import cn.taketoday.framework.BootstrapRegistry;
-import cn.taketoday.framework.ConfigurableBootstrapContext;
-import cn.taketoday.framework.context.properties.bind.Binder;
-import cn.taketoday.framework.logging.DeferredLogFactory;
+import java.util.Collections;
+import java.util.List;
+
+import cn.taketoday.context.properties.bind.Binder;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.annotation.Order;
 import cn.taketoday.core.env.Environment;
 import cn.taketoday.core.io.ResourceLoader;
-
-import java.util.Collections;
-import java.util.List;
+import cn.taketoday.framework.BootstrapContext;
+import cn.taketoday.framework.BootstrapRegistry;
+import cn.taketoday.framework.ConfigurableBootstrapContext;
 
 /**
  * Strategy interface used to resolve {@link ConfigDataLocation locations} into one or
  * more {@link ConfigDataResource resources}. Implementations should be added as a
- * {@code spring.factories} entries. The following constructor parameter types are
+ * {@code today-strategies.properties} entries. The following constructor parameter types are
  * supported:
  * <ul>
- * <li>{@link Log} or {@link DeferredLogFactory} - if the resolver needs deferred
- * logging</li>
  * <li>{@link Binder} - if the resolver needs to obtain values from the initial
  * {@link Environment}</li>
  * <li>{@link ResourceLoader} - if the resolver needs a resource loader</li>
@@ -60,42 +56,45 @@ import java.util.List;
  */
 public interface ConfigDataLocationResolver<R extends ConfigDataResource> {
 
-	/**
-	 * Returns if the specified location address can be resolved by this resolver.
-	 * @param context the location resolver context
-	 * @param location the location to check.
-	 * @return if the location is supported by this resolver
-	 */
-	boolean isResolvable(ConfigDataLocationResolverContext context, ConfigDataLocation location);
+  /**
+   * Returns if the specified location address can be resolved by this resolver.
+   *
+   * @param context the location resolver context
+   * @param location the location to check.
+   * @return if the location is supported by this resolver
+   */
+  boolean isResolvable(ConfigDataLocationResolverContext context, ConfigDataLocation location);
 
-	/**
-	 * Resolve a {@link ConfigDataLocation} into one or more {@link ConfigDataResource}
-	 * instances.
-	 * @param context the location resolver context
-	 * @param location the location that should be resolved
-	 * @return a list of {@link ConfigDataResource resources} in ascending priority order.
-	 * @throws ConfigDataLocationNotFoundException on a non-optional location that cannot
-	 * be found
-	 * @throws ConfigDataResourceNotFoundException if a resolved resource cannot be found
-	 */
-	List<R> resolve(ConfigDataLocationResolverContext context, ConfigDataLocation location)
-			throws ConfigDataLocationNotFoundException, ConfigDataResourceNotFoundException;
+  /**
+   * Resolve a {@link ConfigDataLocation} into one or more {@link ConfigDataResource}
+   * instances.
+   *
+   * @param context the location resolver context
+   * @param location the location that should be resolved
+   * @return a list of {@link ConfigDataResource resources} in ascending priority order.
+   * @throws ConfigDataLocationNotFoundException on a non-optional location that cannot
+   * be found
+   * @throws ConfigDataResourceNotFoundException if a resolved resource cannot be found
+   */
+  List<R> resolve(ConfigDataLocationResolverContext context, ConfigDataLocation location)
+          throws ConfigDataLocationNotFoundException, ConfigDataResourceNotFoundException;
 
-	/**
-	 * Resolve a {@link ConfigDataLocation} into one or more {@link ConfigDataResource}
-	 * instances based on available profiles. This method is called once profiles have
-	 * been deduced from the contributed values. By default this method returns an empty
-	 * list.
-	 * @param context the location resolver context
-	 * @param location the location that should be resolved
-	 * @param profiles profile information
-	 * @return a list of resolved locations in ascending priority order.
-	 * @throws ConfigDataLocationNotFoundException on a non-optional location that cannot
-	 * be found
-	 */
-	default List<R> resolveProfileSpecific(ConfigDataLocationResolverContext context, ConfigDataLocation location,
-			Profiles profiles) throws ConfigDataLocationNotFoundException {
-		return Collections.emptyList();
-	}
+  /**
+   * Resolve a {@link ConfigDataLocation} into one or more {@link ConfigDataResource}
+   * instances based on available profiles. This method is called once profiles have
+   * been deduced from the contributed values. By default this method returns an empty
+   * list.
+   *
+   * @param context the location resolver context
+   * @param location the location that should be resolved
+   * @param profiles profile information
+   * @return a list of resolved locations in ascending priority order.
+   * @throws ConfigDataLocationNotFoundException on a non-optional location that cannot
+   * be found
+   */
+  default List<R> resolveProfileSpecific(
+          ConfigDataLocationResolverContext context, ConfigDataLocation location, Profiles profiles) throws ConfigDataLocationNotFoundException {
+    return Collections.emptyList();
+  }
 
 }
