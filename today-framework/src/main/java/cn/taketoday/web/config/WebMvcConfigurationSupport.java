@@ -678,9 +678,11 @@ public class WebMvcConfigurationSupport extends ApplicationContextSupport {
     if (ServletDetector.isPresent()) {
       if (getApplicationContext() instanceof WebServletApplicationContext context) {
         ServletContext servletContext = context.getServletContext();
-        DefaultServletHandlerConfigurer configurer = new DefaultServletHandlerConfigurer(servletContext);
-        configureDefaultServletHandling(configurer);
-        return configurer.buildHandlerRegistry();
+        if (servletContext != null) {
+          DefaultServletHandlerConfigurer configurer = new DefaultServletHandlerConfigurer(servletContext);
+          configureDefaultServletHandling(configurer);
+          return configurer.buildHandlerRegistry();
+        }
       }
     }
 
