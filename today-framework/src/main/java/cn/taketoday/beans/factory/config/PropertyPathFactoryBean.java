@@ -118,7 +118,7 @@ public class PropertyPathFactoryBean implements FactoryBean<Object>, BeanNameAwa
    * @see #setTargetObject
    */
   public void setTargetBeanName(@Nullable String targetBeanName) {
-    this.targetBeanName = targetBeanName;
+    this.targetBeanName = StringUtils.trimAllWhitespace(targetBeanName);
   }
 
   /**
@@ -128,7 +128,7 @@ public class PropertyPathFactoryBean implements FactoryBean<Object>, BeanNameAwa
    * (e.g. "age" or "spouse.age")
    */
   public void setPropertyPath(@Nullable String propertyPath) {
-    this.propertyPath = propertyPath;
+    this.propertyPath = StringUtils.trimAllWhitespace(propertyPath);
   }
 
   /**

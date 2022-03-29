@@ -20,6 +20,7 @@
 
 package cn.taketoday.beans.factory.parsing;
 
+import org.apache.commons.logging.Log;
 import org.junit.jupiter.api.Test;
 
 import cn.taketoday.core.io.DescriptiveResource;
