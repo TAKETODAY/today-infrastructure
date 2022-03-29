@@ -26,11 +26,11 @@ import cn.taketoday.beans.factory.config.SingletonBeanRegistry;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
+import cn.taketoday.framework.context.event.ApplicationStartedEvent;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.lang.TodayStrategies;
 import cn.taketoday.util.StringUtils;
-import cn.taketoday.web.ApplicationStartedEvent;
 import cn.taketoday.web.ReturnValueHandler;
 import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.WebApplicationContextSupport;
@@ -80,7 +80,7 @@ public class WebApplicationLoader
     checkFrameworkComponents(context);
     initializerStartup(context, mvcConfiguration);
 
-    context.publishEvent(new ApplicationStartedEvent(context));
+//    context.publishEvent(new ApplicationStartedEvent(context));
 //    context.registerShutdownHook();
 
     System.gc();

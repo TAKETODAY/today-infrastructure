@@ -48,8 +48,12 @@ import cn.taketoday.beans.factory.BeanCreationException;
 import cn.taketoday.beans.factory.BeanCurrentlyInCreationException;
 import cn.taketoday.beans.factory.ObjectProvider;
 import cn.taketoday.beans.factory.UnsatisfiedDependencyException;
+import cn.taketoday.beans.factory.annotation.Autowired;
+import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.support.BeanDefinitionOverrideException;
 import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
+import cn.taketoday.beans.factory.support.BeanNameGenerator;
+import cn.taketoday.beans.factory.support.DefaultBeanNameGenerator;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.ApplicationContextException;
 import cn.taketoday.context.ApplicationContextInitializer;
@@ -57,22 +61,31 @@ import cn.taketoday.context.ApplicationEvent;
 import cn.taketoday.context.ApplicationListener;
 import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.context.annotation.AnnotationConfigApplicationContext;
+import cn.taketoday.context.annotation.AnnotationConfigUtils;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Lazy;
 import cn.taketoday.context.aware.ApplicationContextAware;
+import cn.taketoday.context.event.ApplicationEventMulticaster;
 import cn.taketoday.context.event.ContextRefreshedEvent;
+import cn.taketoday.context.event.SimpleApplicationEventMulticaster;
 import cn.taketoday.context.event.SmartApplicationListener;
+import cn.taketoday.context.support.AbstractApplicationContext;
 import cn.taketoday.context.support.MockEnvironment;
 import cn.taketoday.context.support.StaticApplicationContext;
+import cn.taketoday.core.LinkedMultiValueMap;
+import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.env.CommandLinePropertySource;
 import cn.taketoday.core.env.CompositePropertySource;
 import cn.taketoday.core.env.ConfigurableEnvironment;
 import cn.taketoday.core.env.Environment;
 import cn.taketoday.core.env.MapPropertySource;
+import cn.taketoday.core.env.Profiles;
 import cn.taketoday.core.env.PropertySource;
 import cn.taketoday.core.env.StandardEnvironment;
+import cn.taketoday.core.io.ClassPathResource;
+import cn.taketoday.core.io.DefaultResourceLoader;
 import cn.taketoday.core.io.ResourceLoader;
 import cn.taketoday.format.support.ApplicationConversionService;
 import cn.taketoday.framework.BootstrapRegistry.InstanceSupplier;
@@ -86,10 +99,13 @@ import cn.taketoday.framework.context.event.ApplicationEnvironmentPreparedEvent;
 import cn.taketoday.framework.context.event.ApplicationFailedEvent;
 import cn.taketoday.framework.context.event.ApplicationPreparedEvent;
 import cn.taketoday.framework.context.event.ApplicationReadyEvent;
+import cn.taketoday.framework.context.event.ApplicationStartedEvent;
 import cn.taketoday.framework.context.event.ApplicationStartingEvent;
+import cn.taketoday.framework.web.embedded.netty.NettyReactiveWebServerFactory;
+import cn.taketoday.framework.web.embedded.tomcat.TomcatServletWebServerFactory;
+import cn.taketoday.framework.web.reactive.context.AnnotationConfigReactiveWebServerApplicationContext;
 import cn.taketoday.framework.web.reactive.context.ReactiveWebApplicationContext;
 import cn.taketoday.framework.web.servlet.context.AnnotationConfigServletWebServerApplicationContext;
-import cn.taketoday.web.ApplicationStartedEvent;
 import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.context.ConfigurableWebEnvironment;
 import cn.taketoday.web.context.support.StandardServletEnvironment;
@@ -391,7 +407,7 @@ class ApplicationTests {
   @Test
   void defaultApplicationContextForWeb() {
     Application application = new Application(ExampleWebConfig.class);
-    application.setApplicationType(ApplicationType.SERVLET);
+    application.setApplicationType(ApplicationType.SERVLET_WEB);
     this.context = application.run();
     assertThat(this.context).isInstanceOf(AnnotationConfigServletWebServerApplicationContext.class);
   }
@@ -399,7 +415,7 @@ class ApplicationTests {
   @Test
   void defaultApplicationContextForReactiveWeb() {
     Application application = new Application(ExampleReactiveWebConfig.class);
-    application.setApplicationType(ApplicationType.REACTIVE);
+    application.setApplicationType(ApplicationType.REACTIVE_WEB);
     this.context = application.run();
     assertThat(this.context).isInstanceOf(AnnotationConfigReactiveWebServerApplicationContext.class);
   }
@@ -407,7 +423,7 @@ class ApplicationTests {
   @Test
   void environmentForWeb() {
     Application application = new Application(ExampleWebConfig.class);
-    application.setApplicationType(ApplicationType.SERVLET);
+    application.setApplicationType(ApplicationType.SERVLET_WEB);
     this.context = application.run();
     assertThat(this.context.getEnvironment()).isInstanceOf(ApplicationServletEnvironment.class);
   }
@@ -415,7 +431,7 @@ class ApplicationTests {
   @Test
   void environmentForReactiveWeb() {
     Application application = new Application(ExampleReactiveWebConfig.class);
-    application.setApplicationType(ApplicationType.REACTIVE);
+    application.setApplicationType(ApplicationType.REACTIVE_WEB);
     this.context = application.run();
     assertThat(this.context.getEnvironment()).isInstanceOf(ApplicationReactiveWebEnvironment.class);
   }
@@ -609,7 +625,7 @@ class ApplicationTests {
     ApplicationRunner applicationRunner = mock(ApplicationRunner.class);
     CommandLineRunner commandLineRunner = mock(CommandLineRunner.class);
     application.addInitializers((context) -> {
-      ConfigurableListableBeanFactory beanFactory = context.getBeanFactory();
+      ConfigurableBeanFactory beanFactory = context.getBeanFactory();
       beanFactory.registerSingleton("commandLineRunner", (CommandLineRunner) (args) -> {
         assertThat(output).contains("Started");
         commandLineRunner.run(args);

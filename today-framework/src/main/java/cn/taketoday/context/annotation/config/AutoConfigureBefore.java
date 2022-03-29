@@ -59,7 +59,6 @@ public @interface AutoConfigureBefore {
    * The names of the auto-configure classes that should have not yet been applied.
    *
    * @return the class names
-   * @since 1.2.2
    */
   String[] name() default {};
 
