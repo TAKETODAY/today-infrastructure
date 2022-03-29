@@ -195,7 +195,7 @@ class CloudPlatformTests {
 	@Test
 	void getActiveWhenHasEnforcedCloudPlatform() {
 		Environment environment = getEnvironmentWithEnvVariables(
-				Collections.singletonMap("spring.main.cloud-platform", "kubernetes"));
+				Collections.singletonMap("context.main.cloud-platform", "kubernetes"));
 		CloudPlatform platform = CloudPlatform.getActive(environment);
 		assertThat(platform).isEqualTo(CloudPlatform.KUBERNETES);
 	}
@@ -203,14 +203,14 @@ class CloudPlatformTests {
 	@Test
 	void isEnforcedWhenEnvironmentPropertyMatchesReturnsTrue() {
 		MockEnvironment environment = new MockEnvironment();
-		environment.setProperty("spring.main.cloud-platform", "kubernetes");
+		environment.setProperty("context.main.cloud-platform", "kubernetes");
 		assertThat(CloudPlatform.KUBERNETES.isEnforced(environment)).isTrue();
 	}
 
 	@Test
 	void isEnforcedWhenEnvironmentPropertyDoesNotMatchReturnsFalse() {
 		MockEnvironment environment = new MockEnvironment();
-		environment.setProperty("spring.main.cloud-platform", "heroku");
+		environment.setProperty("context.main.cloud-platform", "heroku");
 		assertThat(CloudPlatform.KUBERNETES.isEnforced(environment)).isFalse();
 	}
 
@@ -222,13 +222,13 @@ class CloudPlatformTests {
 
 	@Test
 	void isEnforcedWhenBinderPropertyMatchesReturnsTrue() {
-		Binder binder = new Binder(new MockConfigurationPropertySource("spring.main.cloud-platform", "kubernetes"));
+		Binder binder = new Binder(new MockConfigurationPropertySource("context.main.cloud-platform", "kubernetes"));
 		assertThat(CloudPlatform.KUBERNETES.isEnforced(binder)).isTrue();
 	}
 
 	@Test
 	void isEnforcedWhenBinderPropertyDoesNotMatchReturnsFalse() {
-		Binder binder = new Binder(new MockConfigurationPropertySource("spring.main.cloud-platform", "heroku"));
+		Binder binder = new Binder(new MockConfigurationPropertySource("context.main.cloud-platform", "heroku"));
 		assertThat(CloudPlatform.KUBERNETES.isEnforced(binder)).isFalse();
 	}
 
@@ -243,7 +243,7 @@ class CloudPlatformTests {
 		envVars.put("EXAMPLE_SERVICE_HOST", "---");
 		envVars.put("EXAMPLE_SERVICE_PORT", "8080");
 		Environment environment = getEnvironmentWithEnvVariables(envVars);
-		((MockEnvironment) environment).setProperty("spring.main.cloud-platform", "none");
+		((MockEnvironment) environment).setProperty("context.main.cloud-platform", "none");
 		assertThat(Stream.of(CloudPlatform.values()).filter((platform) -> platform.isActive(environment)))
 				.containsExactly(CloudPlatform.NONE);
 	}

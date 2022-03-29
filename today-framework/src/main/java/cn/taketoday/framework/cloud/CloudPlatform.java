@@ -153,7 +153,7 @@ public enum CloudPlatform {
 
   };
 
-  private static final String PROPERTY_NAME = "spring.main.cloud-platform";
+  private static final String PROPERTY_NAME = "context.main.cloud-platform";
 
   /**
    * Determines if the platform is active (i.e. the application is running in it).
@@ -168,7 +168,7 @@ public enum CloudPlatform {
 
   /**
    * Determines if the platform is enforced by looking at the
-   * {@code "spring.main.cloud-platform"} configuration property.
+   * {@code "context.main.cloud-platform"} configuration property.
    *
    * @param environment the environment
    * @return if the platform is enforced
@@ -179,7 +179,7 @@ public enum CloudPlatform {
 
   /**
    * Determines if the platform is enforced by looking at the
-   * {@code "spring.main.cloud-platform"} configuration property.
+   * {@code "context.main.cloud-platform"} configuration property.
    *
    * @param binder the binder
    * @return if the platform is enforced

@@ -49,7 +49,7 @@ public interface ApplicationStartupListener {
    *
    * @param bootstrapContext the bootstrap context
    */
-  default void starting(BootstrapContext bootstrapContext, Class<?> mainApplicationClass, ApplicationArguments arguments) { }
+  default void starting(ConfigurableBootstrapContext bootstrapContext, Class<?> mainApplicationClass, ApplicationArguments arguments) { }
 
   /**
    * Called once the environment has been prepared, but before the
@@ -58,7 +58,7 @@ public interface ApplicationStartupListener {
    * @param bootstrapContext the bootstrap context
    * @param environment the environment
    */
-  default void environmentPrepared(BootstrapContext bootstrapContext, ConfigurableEnvironment environment) { }
+  default void environmentPrepared(ConfigurableBootstrapContext bootstrapContext, ConfigurableEnvironment environment) { }
 
   /**
    * Called once the {@link ApplicationContext} has been created and prepared, but

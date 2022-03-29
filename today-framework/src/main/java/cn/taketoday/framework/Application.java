@@ -33,6 +33,7 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.support.AbstractAutowireCapableBeanFactory;
 import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
@@ -41,6 +42,7 @@ import cn.taketoday.beans.factory.support.DependencyInjectorAwareInstantiator;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.ApplicationContextInitializer;
+import cn.taketoday.context.ApplicationListener;
 import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.context.properties.bind.Bindable;
 import cn.taketoday.context.properties.bind.Binder;
@@ -54,6 +56,7 @@ import cn.taketoday.core.env.Environment;
 import cn.taketoday.core.env.PropertySource;
 import cn.taketoday.core.env.PropertySources;
 import cn.taketoday.core.env.SimpleCommandLinePropertySource;
+import cn.taketoday.core.io.DefaultResourceLoader;
 import cn.taketoday.core.io.ResourceLoader;
 import cn.taketoday.format.support.ApplicationConversionService;
 import cn.taketoday.framework.diagnostics.ApplicationExceptionReporter;
@@ -166,6 +169,12 @@ public class Application {
   @Nullable
   private String environmentPrefix;
 
+  private List<ApplicationListener<?>> listeners;
+
+  private Banner banner;
+
+  private Banner.Mode bannerMode = Banner.Mode.CONSOLE;
+
   private boolean headless = true;
   private boolean logStartupInfo = true;
   private boolean registerShutdownHook = true;
@@ -176,6 +185,7 @@ public class Application {
   private boolean allowBeanDefinitionOverriding;
 
   private boolean allowCircularReferences;
+  private boolean lazyInitialization = false;
 
   /**
    * Create a new {@link Application} instance. The application context will load
@@ -398,6 +408,19 @@ public class Application {
     }
   }
 
+  private Banner printBanner(ConfigurableEnvironment environment) {
+    if (this.bannerMode == Banner.Mode.OFF) {
+      return null;
+    }
+    ResourceLoader resourceLoader = (this.resourceLoader != null) ? this.resourceLoader
+                                                                  : new DefaultResourceLoader(null);
+    ApplicationBannerPrinter bannerPrinter = new ApplicationBannerPrinter(resourceLoader, this.banner);
+    if (this.bannerMode == Banner.Mode.LOG) {
+      return bannerPrinter.print(environment, this.mainApplicationClass, log);
+    }
+    return bannerPrinter.print(environment, this.mainApplicationClass, System.out);
+  }
+
   /**
    * Strategy method used to create the {@link ApplicationContext}. By default this
    * method will respect any explicitly set application context class or factory before
@@ -437,6 +460,10 @@ public class Application {
       if (beanFactory instanceof StandardBeanFactory) {
         ((StandardBeanFactory) beanFactory).setAllowBeanDefinitionOverriding(allowBeanDefinitionOverriding);
       }
+    }
+
+    if (this.lazyInitialization) {
+      context.addBeanFactoryPostProcessor(new LazyInitializationBeanFactoryPostProcessor());
     }
 
     // Load the sources
@@ -855,6 +882,36 @@ public class Application {
   }
 
   /**
+   * Sets the {@link ApplicationListener}s that will be applied to the SpringApplication
+   * and registered with the {@link ApplicationContext}.
+   *
+   * @param listeners the listeners to set
+   */
+  public void setListeners(Collection<? extends ApplicationListener<?>> listeners) {
+    this.listeners = new ArrayList<>(listeners);
+  }
+
+  /**
+   * Add {@link ApplicationListener}s to be applied to the SpringApplication and
+   * registered with the {@link ApplicationContext}.
+   *
+   * @param listeners the listeners to add
+   */
+  public void addListeners(ApplicationListener<?>... listeners) {
+    this.listeners.addAll(Arrays.asList(listeners));
+  }
+
+  /**
+   * Returns read-only ordered Set of the {@link ApplicationListener}s that will be
+   * applied to the SpringApplication and registered with the {@link ApplicationContext}
+   *
+   * @return the listeners
+   */
+  public Set<ApplicationListener<?>> getListeners() {
+    return asUnmodifiableOrderedSet(this.listeners);
+  }
+
+  /**
    * Sets the bean name generator that should be used when generating bean names.
    *
    * @param beanNameGenerator the bean name generator
@@ -913,6 +970,36 @@ public class Application {
    */
   public void setAllowCircularReferences(boolean allowCircularReferences) {
     this.allowCircularReferences = allowCircularReferences;
+  }
+
+  /**
+   * Sets if beans should be initialized lazily. Defaults to {@code false}.
+   *
+   * @param lazyInitialization if initialization should be lazy
+   * @see BeanDefinition#setLazyInit(boolean)
+   */
+  public void setLazyInitialization(boolean lazyInitialization) {
+    this.lazyInitialization = lazyInitialization;
+  }
+
+  /**
+   * Sets the {@link Banner} instance which will be used to print the banner when no
+   * static banner file is provided.
+   *
+   * @param banner the Banner instance to use
+   */
+  public void setBanner(Banner banner) {
+    this.banner = banner;
+  }
+
+  /**
+   * Sets the mode used to display the banner when the application runs. Defaults to
+   * {@code Banner.Mode.CONSOLE}.
+   *
+   * @param bannerMode the mode used to display the banner
+   */
+  public void setBannerMode(Banner.Mode bannerMode) {
+    this.bannerMode = bannerMode;
   }
 
   /**
