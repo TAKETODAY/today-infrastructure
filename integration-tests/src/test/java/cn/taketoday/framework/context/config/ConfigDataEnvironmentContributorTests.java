@@ -30,12 +30,13 @@ import java.util.List;
 import java.util.stream.Stream;
 
 import cn.taketoday.context.properties.source.ConfigurationPropertyName;
-import cn.taketoday.core.testfixture.env.MockPropertySource;
 import cn.taketoday.framework.cloud.CloudPlatform;
 import cn.taketoday.framework.context.config.ConfigData.Option;
 import cn.taketoday.framework.context.config.ConfigData.PropertySourceOptions;
 import cn.taketoday.framework.context.config.ConfigDataEnvironmentContributor.ImportPhase;
 import cn.taketoday.framework.context.config.ConfigDataEnvironmentContributor.Kind;
+import cn.taketoday.lang.Nullable;
+import cn.taketoday.mock.env.MockPropertySource;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -373,8 +374,8 @@ class ConfigDataEnvironmentContributorTests {
             new ConfigData(Collections.singleton(new MockPropertySource())), 0);
   }
 
-  private ConfigDataEnvironmentContributor createBoundContributor(ConfigDataResource resource, ConfigData configData,
-          int propertySourceIndex) {
+  private ConfigDataEnvironmentContributor createBoundContributor(
+          @Nullable ConfigDataResource resource, ConfigData configData, int propertySourceIndex) {
     ConfigDataEnvironmentContributor contributor = ConfigDataEnvironmentContributor.ofUnboundImport(TEST_LOCATION,
             resource, false, configData, propertySourceIndex);
     return contributor.withBoundProperties(Collections.singleton(contributor), null);

@@ -22,15 +22,16 @@ package cn.taketoday.framework.context.config;
 
 import java.io.IOException;
 
-import cn.taketoday.logging.Logger;
+import cn.taketoday.framework.BootstrapContext;
+import cn.taketoday.framework.BootstrapRegistry;
+import cn.taketoday.framework.ConfigurableBootstrapContext;
+import cn.taketoday.lang.Nullable;
 
 /**
  * Strategy class that can be used to load {@link ConfigData} for a given
  * {@link ConfigDataResource}. Implementations should be added as {@code today-strategies.properties}
  * entries. The following constructor parameter types are supported:
  * <ul>
- * <li>{@link Logger} or {@link DeferredLogFactory} - if the loader needs deferred
- * logging</li>
  * <li>{@link ConfigurableBootstrapContext} - A bootstrap context that can be used to
  * store objects that may be expensive to create, or need to be shared
  * ({@link BootstrapContext} or {@link BootstrapRegistry} may also be used).</li>
@@ -65,6 +66,7 @@ public interface ConfigDataLoader<R extends ConfigDataResource> {
    * @throws IOException on IO error
    * @throws ConfigDataResourceNotFoundException if the resource cannot be found
    */
+  @Nullable
   ConfigData load(ConfigDataLoaderContext context, R resource)
           throws IOException, ConfigDataResourceNotFoundException;
 

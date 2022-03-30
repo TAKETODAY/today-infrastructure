@@ -25,6 +25,7 @@ import org.junit.jupiter.api.Test;
 import java.io.File;
 import java.nio.file.Path;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
@@ -35,36 +36,36 @@ import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException
  */
 class ConfigTreeConfigDataResourceTests {
 
-	@Test
-	void constructorWhenPathStringIsNullThrowsException() {
-		assertThatIllegalArgumentException().isThrownBy(() -> new ConfigTreeConfigDataResource((String) null))
-				.withMessage("Path must not be null");
-	}
+  @Test
+  void constructorWhenPathStringIsNullThrowsException() {
+    assertThatIllegalArgumentException().isThrownBy(() -> new ConfigTreeConfigDataResource((String) null))
+            .withMessage("Path must not be null");
+  }
 
-	@Test
-	void constructorWhenPathIsNullThrowsException() {
-		assertThatIllegalArgumentException().isThrownBy(() -> new ConfigTreeConfigDataResource((Path) null))
-				.withMessage("Path must not be null");
-	}
+  @Test
+  void constructorWhenPathIsNullThrowsException() {
+    assertThatIllegalArgumentException().isThrownBy(() -> new ConfigTreeConfigDataResource((Path) null))
+            .withMessage("Path must not be null");
+  }
 
-	@Test
-	void equalsWhenPathIsTheSameReturnsTrue() {
-		ConfigTreeConfigDataResource location = new ConfigTreeConfigDataResource("/etc/config");
-		ConfigTreeConfigDataResource other = new ConfigTreeConfigDataResource("/etc/config");
-		assertThat(location).isEqualTo(other);
-	}
+  @Test
+  void equalsWhenPathIsTheSameReturnsTrue() {
+    ConfigTreeConfigDataResource location = new ConfigTreeConfigDataResource("/etc/config");
+    ConfigTreeConfigDataResource other = new ConfigTreeConfigDataResource("/etc/config");
+    assertThat(location).isEqualTo(other);
+  }
 
-	@Test
-	void equalsWhenPathIsDifferentReturnsFalse() {
-		ConfigTreeConfigDataResource location = new ConfigTreeConfigDataResource("/etc/config");
-		ConfigTreeConfigDataResource other = new ConfigTreeConfigDataResource("other-location");
-		assertThat(location).isNotEqualTo(other);
-	}
+  @Test
+  void equalsWhenPathIsDifferentReturnsFalse() {
+    ConfigTreeConfigDataResource location = new ConfigTreeConfigDataResource("/etc/config");
+    ConfigTreeConfigDataResource other = new ConfigTreeConfigDataResource("other-location");
+    assertThat(location).isNotEqualTo(other);
+  }
 
-	@Test
-	void toStringReturnsDescriptiveString() {
-		ConfigTreeConfigDataResource location = new ConfigTreeConfigDataResource("/etc/config");
-		assertThat(location.toString()).isEqualTo("config tree [" + new File("/etc/config").getAbsolutePath() + "]");
-	}
+  @Test
+  void toStringReturnsDescriptiveString() {
+    ConfigTreeConfigDataResource location = new ConfigTreeConfigDataResource("/etc/config");
+    assertThat(location.toString()).isEqualTo("config tree [" + new File("/etc/config").getAbsolutePath() + "]");
+  }
 
 }

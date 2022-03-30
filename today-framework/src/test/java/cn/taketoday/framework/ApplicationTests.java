@@ -233,7 +233,7 @@ class ApplicationTests {
   void logsActiveProfilesWithSingleProfile(CapturedOutput output) {
     Application application = new Application(ExampleConfig.class);
     application.setApplicationType(ApplicationType.NONE_WEB);
-    this.context = application.run("--spring.profiles.active=myprofiles");
+    this.context = application.run("--context.profiles.active=myprofiles");
     assertThat(output).contains("The following 1 profile is active: \"myprofiles\"");
   }
 
@@ -551,7 +551,7 @@ class ApplicationTests {
     application.setAdditionalProfiles("foo");
     ConfigurableEnvironment environment = new StandardEnvironment();
     application.setEnvironment(environment);
-    this.context = application.run("--spring.profiles.active=bar,spam");
+    this.context = application.run("--context.profiles.active=bar,spam");
     assertThat(environment.getActiveProfiles()).containsExactly("foo", "bar", "spam");
   }
 
@@ -1051,7 +1051,7 @@ class ApplicationTests {
   @Test
   void environmentIsConvertedIfTypeDoesNotMatch() {
     ConfigurableApplicationContext context = new Application(ExampleReactiveWebConfig.class)
-            .run("--spring.profiles.active=withApplicationType");
+            .run("--context.profiles.active=withApplicationType");
     assertThat(context).isInstanceOf(ReactiveWebApplicationContext.class);
     assertThat(context.getEnvironment()).isInstanceOf(ApplicationReactiveWebEnvironment.class);
   }

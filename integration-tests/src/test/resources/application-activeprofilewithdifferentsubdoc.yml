@@ -1,0 +1,4 @@
+---
+context.profiles: activeprofilewithdifferentsubdoc2
+foobar: baz
+---

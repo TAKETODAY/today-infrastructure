@@ -23,11 +23,12 @@ package cn.taketoday.framework.context.config;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
-import cn.taketoday.core.io.DefaultResourceLoader;
-import cn.taketoday.util.FileCopyUtils;
 
 import java.io.File;
 import java.util.List;
+
+import cn.taketoday.core.io.DefaultResourceLoader;
+import cn.taketoday.util.FileCopyUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -40,48 +41,48 @@ import static org.mockito.Mockito.mock;
  */
 class ConfigTreeConfigDataLocationResolverTests {
 
-	private ConfigTreeConfigDataLocationResolver resolver = new ConfigTreeConfigDataLocationResolver(
-			new DefaultResourceLoader());
+  private ConfigTreeConfigDataLocationResolver resolver = new ConfigTreeConfigDataLocationResolver(
+          new DefaultResourceLoader());
 
-	private ConfigDataLocationResolverContext context = mock(ConfigDataLocationResolverContext.class);
+  private ConfigDataLocationResolverContext context = mock(ConfigDataLocationResolverContext.class);
 
-	@TempDir
-	File temp;
+  @TempDir
+  File temp;
 
-	@Test
-	void isResolvableWhenPrefixMatchesReturnsTrue() {
-		assertThat(this.resolver.isResolvable(this.context, ConfigDataLocation.of("configtree:/etc/config"))).isTrue();
-	}
+  @Test
+  void isResolvableWhenPrefixMatchesReturnsTrue() {
+    assertThat(this.resolver.isResolvable(this.context, ConfigDataLocation.of("configtree:/etc/config"))).isTrue();
+  }
 
-	@Test
-	void isResolvableWhenPrefixDoesNotMatchReturnsFalse() {
-		assertThat(this.resolver.isResolvable(this.context, ConfigDataLocation.of("http://etc/config"))).isFalse();
-		assertThat(this.resolver.isResolvable(this.context, ConfigDataLocation.of("/etc/config"))).isFalse();
-	}
+  @Test
+  void isResolvableWhenPrefixDoesNotMatchReturnsFalse() {
+    assertThat(this.resolver.isResolvable(this.context, ConfigDataLocation.of("http://etc/config"))).isFalse();
+    assertThat(this.resolver.isResolvable(this.context, ConfigDataLocation.of("/etc/config"))).isFalse();
+  }
 
-	@Test
-	void resolveReturnsConfigVolumeMountLocation() {
-		List<ConfigTreeConfigDataResource> locations = this.resolver.resolve(this.context,
-				ConfigDataLocation.of("configtree:/etc/config/"));
-		assertThat(locations.size()).isEqualTo(1);
-		Assertions.assertThat(locations).extracting(Object::toString)
-				.containsExactly("config tree [" + new File("/etc/config").getAbsolutePath() + "]");
-	}
+  @Test
+  void resolveReturnsConfigVolumeMountLocation() {
+    List<ConfigTreeConfigDataResource> locations = this.resolver.resolve(this.context,
+            ConfigDataLocation.of("configtree:/etc/config/"));
+    assertThat(locations.size()).isEqualTo(1);
+    Assertions.assertThat(locations).extracting(Object::toString)
+            .containsExactly("config tree [" + new File("/etc/config").getAbsolutePath() + "]");
+  }
 
-	@Test
-	void resolveWilcardPattern() throws Exception {
-		File directoryA = new File(this.temp, "a");
-		File directoryB = new File(this.temp, "b");
-		directoryA.mkdirs();
-		directoryB.mkdirs();
-		FileCopyUtils.copy("test".getBytes(), new File(directoryA, "spring"));
-		FileCopyUtils.copy("test".getBytes(), new File(directoryB, "boot"));
-		List<ConfigTreeConfigDataResource> locations = this.resolver.resolve(this.context,
-				ConfigDataLocation.of("configtree:" + this.temp.getAbsolutePath() + "/*/"));
-		assertThat(locations.size()).isEqualTo(2);
-		Assertions.assertThat(locations).extracting(Object::toString).containsExactly(
-				"config tree [" + directoryA.getAbsolutePath() + "]",
-				"config tree [" + directoryB.getAbsolutePath() + "]");
-	}
+  @Test
+  void resolveWilcardPattern() throws Exception {
+    File directoryA = new File(this.temp, "a");
+    File directoryB = new File(this.temp, "b");
+    directoryA.mkdirs();
+    directoryB.mkdirs();
+    FileCopyUtils.copy("test".getBytes(), new File(directoryA, "spring"));
+    FileCopyUtils.copy("test".getBytes(), new File(directoryB, "boot"));
+    List<ConfigTreeConfigDataResource> locations = this.resolver.resolve(this.context,
+            ConfigDataLocation.of("configtree:" + this.temp.getAbsolutePath() + "/*/"));
+    assertThat(locations.size()).isEqualTo(2);
+    Assertions.assertThat(locations).extracting(Object::toString).containsExactly(
+            "config tree [" + directoryA.getAbsolutePath() + "]",
+            "config tree [" + directoryB.getAbsolutePath() + "]");
+  }
 
 }

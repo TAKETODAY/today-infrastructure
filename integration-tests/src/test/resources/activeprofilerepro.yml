@@ -1,0 +1,11 @@
+context.profiles.active: B
+---
+context.profiles: A
+version: A
+---
+context.profiles: B
+version: B
+---
+context.profiles: C
+version: C
+---

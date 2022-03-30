@@ -41,9 +41,11 @@ import cn.taketoday.core.io.DefaultResourceLoader;
 import cn.taketoday.core.io.ResourceLoader;
 import cn.taketoday.framework.ConfigurableBootstrapContext;
 import cn.taketoday.framework.DefaultBootstrapContext;
+import cn.taketoday.framework.MockApplicationEnvironment;
 import cn.taketoday.framework.context.config.ConfigDataEnvironmentContributor.ImportPhase;
 import cn.taketoday.framework.context.config.ConfigDataEnvironmentContributor.Kind;
 import cn.taketoday.framework.context.config.TestConfigDataEnvironmentUpdateListener.AddedPropertySource;
+import cn.taketoday.mock.env.MockPropertySource;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -194,8 +196,8 @@ class ConfigDataEnvironmentTests {
       protected ConfigDataEnvironmentContributors createContributors(
               List<ConfigDataEnvironmentContributor> contributors) {
         Map<String, Object> source = new LinkedHashMap<>();
-        source.put("spring.profiles.active", "ignore1");
-        source.put("spring.profiles.include", "ignore2");
+        source.put("context.profiles.active", "ignore1");
+        source.put("context.profiles.include", "ignore2");
         ConfigData data = new ConfigData(Collections.singleton(new MapPropertySource("test", source)),
                 ConfigData.Option.IGNORE_PROFILES);
         contributors.add(ConfigDataEnvironmentContributor.ofUnboundImport(ConfigDataLocation.of("test"),
@@ -220,7 +222,7 @@ class ConfigDataEnvironmentTests {
               List<ConfigDataEnvironmentContributor> contributors) {
         Map<String, Object> source = new LinkedHashMap<>();
         source.put("context.config.activate.on-profile", "activate");
-        source.put("spring.profiles." + property, "include");
+        source.put("context.profiles." + property, "include");
         ConfigData data = new ConfigData(Collections.singleton(new MapPropertySource("test", source)));
         contributors.add(ConfigDataEnvironmentContributor.ofUnboundImport(ConfigDataLocation.of("test"),
                 mock(ConfigDataResource.class), false, data, 0));
@@ -233,7 +235,7 @@ class ConfigDataEnvironmentTests {
   }
 
   @ParameterizedTest
-  @CsvSource({ "spring.profiles.include", "spring.profiles.include[0]" })
+  @CsvSource({ "context.profiles.include", "context.profiles.include[0]" })
   void processAndApplyIncludesProfilesFromSpringProfilesInclude(String property, TestInfo info) {
     this.environment.setProperty("context.config.location", getConfigLocation(info));
     ConfigDataEnvironment configDataEnvironment = new ConfigDataEnvironment(this.bootstrapContext,
@@ -265,8 +267,8 @@ class ConfigDataEnvironmentTests {
       protected ConfigDataEnvironmentContributors createContributors(
               List<ConfigDataEnvironmentContributor> contributors) {
         Map<String, Object> source = new LinkedHashMap<>();
-        source.put("spring.profiles.active", "ignore1");
-        source.put("spring.profiles.include", "ignore2");
+        source.put("context.profiles.active", "ignore1");
+        source.put("context.profiles.include", "ignore2");
         ConfigData data = new ConfigData(Collections.singleton(new MapPropertySource("test", source)),
                 ConfigData.Option.IGNORE_PROFILES);
         contributors.add(ConfigDataEnvironmentContributor.ofUnboundImport(ConfigDataLocation.of("test"),
@@ -281,9 +283,9 @@ class ConfigDataEnvironmentTests {
   }
 
   @Test
-  @Disabled("Disabled until spring.profiles support is dropped")
+  @Disabled("Disabled until context.profiles support is dropped")
   void processAndApplyWhenHasInvalidPropertyThrowsException() {
-    this.environment.setProperty("spring.profile", "a");
+    this.environment.setProperty("context.profile", "a");
     ConfigDataEnvironment configDataEnvironment = new ConfigDataEnvironment(this.bootstrapContext,
             this.environment, this.resourceLoader, this.additionalProfiles, null);
     assertThatExceptionOfType(InvalidConfigDataPropertyException.class)
@@ -324,18 +326,21 @@ class ConfigDataEnvironmentTests {
 
     private Binder configDataLocationResolversBinder;
 
-    TestConfigDataEnvironment(DeferredLogFactory logFactory, ConfigurableBootstrapContext bootstrapContext,
-            ConfigurableEnvironment environment, ResourceLoader resourceLoader,
-            Collection<String> additionalProfiles, ConfigDataEnvironmentUpdateListener environmentUpdateListener) {
-      super(logFactory, bootstrapContext, environment, resourceLoader, additionalProfiles,
+    TestConfigDataEnvironment(
+            ConfigurableBootstrapContext bootstrapContext,
+            ConfigurableEnvironment environment,
+            ResourceLoader resourceLoader,
+            Collection<String> additionalProfiles,
+            ConfigDataEnvironmentUpdateListener environmentUpdateListener) {
+      super(bootstrapContext, environment, resourceLoader, additionalProfiles,
               environmentUpdateListener);
     }
 
     @Override
-    protected ConfigDataLocationResolvers createConfigDataLocationResolvers(DeferredLogFactory logFactory,
+    protected ConfigDataLocationResolvers createConfigDataLocationResolvers(
             ConfigurableBootstrapContext bootstrapContext, Binder binder, ResourceLoader resourceLoader) {
       this.configDataLocationResolversBinder = binder;
-      return super.createConfigDataLocationResolvers(logFactory, bootstrapContext, binder, resourceLoader);
+      return super.createConfigDataLocationResolvers(bootstrapContext, binder, resourceLoader);
     }
 
     Binder getConfigDataLocationResolversBinder() {

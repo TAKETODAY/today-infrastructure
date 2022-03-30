@@ -265,8 +265,9 @@ class ConfigDataEnvironmentContributor implements Iterable<ConfigDataEnvironment
    * @param activationContext the activation context
    * @return a new contributor instance
    */
-  ConfigDataEnvironmentContributor withBoundProperties(Iterable<ConfigDataEnvironmentContributor> contributors,
-          ConfigDataActivationContext activationContext) {
+  ConfigDataEnvironmentContributor withBoundProperties(
+          Iterable<ConfigDataEnvironmentContributor> contributors,
+          @Nullable ConfigDataActivationContext activationContext) {
     Iterable<ConfigurationPropertySource> sources = Collections.singleton(getConfigurationPropertySource());
     PlaceholdersResolver placeholdersResolver = new ConfigDataEnvironmentContributorPlaceholdersResolver(
             contributors, activationContext, this, true);
@@ -454,7 +455,8 @@ class ConfigDataEnvironmentContributor implements Iterable<ConfigDataEnvironment
    * @param propertySourceIndex the index of the property source that should be used
    * @return a new {@link ConfigDataEnvironmentContributor} instance
    */
-  static ConfigDataEnvironmentContributor ofUnboundImport(ConfigDataLocation location, ConfigDataResource resource,
+  static ConfigDataEnvironmentContributor ofUnboundImport(
+          @Nullable ConfigDataLocation location, @Nullable ConfigDataResource resource,
           boolean profileSpecific, ConfigData configData, int propertySourceIndex) {
     PropertySource<?> propertySource = configData.getPropertySources().get(propertySourceIndex);
     ConfigData.Options options = configData.getOptions(propertySource);
@@ -549,12 +551,14 @@ class ConfigDataEnvironmentContributor implements Iterable<ConfigDataEnvironment
    */
   private final class ContributorIterator implements Iterator<ConfigDataEnvironmentContributor> {
 
+    @Nullable
     private ImportPhase phase;
 
     private Iterator<ConfigDataEnvironmentContributor> children;
 
     private Iterator<ConfigDataEnvironmentContributor> current;
 
+    @Nullable
     private ConfigDataEnvironmentContributor next;
 
     private ContributorIterator() {
@@ -578,6 +582,7 @@ class ConfigDataEnvironmentContributor implements Iterable<ConfigDataEnvironment
       return next;
     }
 
+    @Nullable
     private ConfigDataEnvironmentContributor fetchIfNecessary() {
       if (this.next != null) {
         return this.next;

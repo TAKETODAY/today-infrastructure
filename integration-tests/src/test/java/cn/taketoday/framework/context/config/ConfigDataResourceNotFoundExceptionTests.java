@@ -23,13 +23,15 @@ package cn.taketoday.framework.context.config;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
-import cn.taketoday.core.io.FileSystemResource;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 
+import cn.taketoday.core.io.FileSystemResource;
+
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
@@ -40,130 +42,130 @@ import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException
  */
 class ConfigDataResourceNotFoundExceptionTests {
 
-	private ConfigDataResource resource = new TestConfigDataResource();
+  private ConfigDataResource resource = new TestConfigDataResource();
 
-	private ConfigDataLocation location = ConfigDataLocation.of("optional:test");
+  private ConfigDataLocation location = ConfigDataLocation.of("optional:test");
 
-	private Throwable cause = new RuntimeException();
+  private Throwable cause = new RuntimeException();
 
-	private File exists;
+  private File exists;
 
-	private File missing;
+  private File missing;
 
-	@TempDir
-	File temp;
+  @TempDir
+  File temp;
 
-	@BeforeEach
-	void setup() throws IOException {
-		this.exists = new File(this.temp, "exists");
-		this.missing = new File(this.temp, "missing");
-		try (OutputStream out = new FileOutputStream(this.exists)) {
-			out.write("test".getBytes());
-		}
-	}
+  @BeforeEach
+  void setup() throws IOException {
+    this.exists = new File(this.temp, "exists");
+    this.missing = new File(this.temp, "missing");
+    try (OutputStream out = new FileOutputStream(this.exists)) {
+      out.write("test".getBytes());
+    }
+  }
 
-	@Test
-	void createWhenResourceIsNullThrowsException() {
-		assertThatIllegalArgumentException().isThrownBy(() -> new ConfigDataResourceNotFoundException(null))
-				.withMessage("Resource must not be null");
-	}
+  @Test
+  void createWhenResourceIsNullThrowsException() {
+    assertThatIllegalArgumentException().isThrownBy(() -> new ConfigDataResourceNotFoundException(null))
+            .withMessage("Resource must not be null");
+  }
 
-	@Test
-	void createWithResourceCreatesInstance() {
-		ConfigDataResourceNotFoundException exception = new ConfigDataResourceNotFoundException(this.resource);
-		assertThat(exception.getResource()).isSameAs(this.resource);
-	}
+  @Test
+  void createWithResourceCreatesInstance() {
+    ConfigDataResourceNotFoundException exception = new ConfigDataResourceNotFoundException(this.resource);
+    assertThat(exception.getResource()).isSameAs(this.resource);
+  }
 
-	@Test
-	void createWithResourceAndCauseCreatesInstance() {
-		ConfigDataResourceNotFoundException exception = new ConfigDataResourceNotFoundException(this.resource,
-				this.cause);
-		assertThat(exception.getResource()).isSameAs(this.resource);
-		assertThat(exception.getCause()).isSameAs(this.cause);
-	}
+  @Test
+  void createWithResourceAndCauseCreatesInstance() {
+    ConfigDataResourceNotFoundException exception = new ConfigDataResourceNotFoundException(this.resource,
+            this.cause);
+    assertThat(exception.getResource()).isSameAs(this.resource);
+    assertThat(exception.getCause()).isSameAs(this.cause);
+  }
 
-	@Test
-	void getResourceReturnsResource() {
-		ConfigDataResourceNotFoundException exception = new ConfigDataResourceNotFoundException(this.resource);
-		assertThat(exception.getResource()).isSameAs(this.resource);
-	}
+  @Test
+  void getResourceReturnsResource() {
+    ConfigDataResourceNotFoundException exception = new ConfigDataResourceNotFoundException(this.resource);
+    assertThat(exception.getResource()).isSameAs(this.resource);
+  }
 
-	@Test
-	void getLocationWhenHasNoLocationReturnsNull() {
-		ConfigDataResourceNotFoundException exception = new ConfigDataResourceNotFoundException(this.resource);
-		assertThat(exception.getLocation()).isNull();
-	}
+  @Test
+  void getLocationWhenHasNoLocationReturnsNull() {
+    ConfigDataResourceNotFoundException exception = new ConfigDataResourceNotFoundException(this.resource);
+    assertThat(exception.getLocation()).isNull();
+  }
 
-	@Test
-	void getLocationWhenHasLocationReturnsLocation() {
-		ConfigDataResourceNotFoundException exception = new ConfigDataResourceNotFoundException(this.resource)
-				.withLocation(this.location);
-		assertThat(exception.getLocation()).isSameAs(this.location);
-	}
+  @Test
+  void getLocationWhenHasLocationReturnsLocation() {
+    ConfigDataResourceNotFoundException exception = new ConfigDataResourceNotFoundException(this.resource)
+            .withLocation(this.location);
+    assertThat(exception.getLocation()).isSameAs(this.location);
+  }
 
-	@Test
-	void getReferenceDescriptionWhenHasNoLocationReturnsDescription() {
-		ConfigDataResourceNotFoundException exception = new ConfigDataResourceNotFoundException(this.resource);
-		assertThat(exception.getReferenceDescription()).isEqualTo("resource 'mytestresource'");
-	}
+  @Test
+  void getReferenceDescriptionWhenHasNoLocationReturnsDescription() {
+    ConfigDataResourceNotFoundException exception = new ConfigDataResourceNotFoundException(this.resource);
+    assertThat(exception.getReferenceDescription()).isEqualTo("resource 'mytestresource'");
+  }
 
-	@Test
-	void getReferenceDescriptionWhenHasLocationReturnsDescription() {
-		ConfigDataResourceNotFoundException exception = new ConfigDataResourceNotFoundException(this.resource)
-				.withLocation(this.location);
-		assertThat(exception.getReferenceDescription())
-				.isEqualTo("resource 'mytestresource' via location 'optional:test'");
-	}
+  @Test
+  void getReferenceDescriptionWhenHasLocationReturnsDescription() {
+    ConfigDataResourceNotFoundException exception = new ConfigDataResourceNotFoundException(this.resource)
+            .withLocation(this.location);
+    assertThat(exception.getReferenceDescription())
+            .isEqualTo("resource 'mytestresource' via location 'optional:test'");
+  }
 
-	@Test
-	void withLocationReturnsNewInstanceWithLocation() {
-		ConfigDataResourceNotFoundException exception = new ConfigDataResourceNotFoundException(this.resource)
-				.withLocation(this.location);
-		assertThat(exception.getLocation()).isSameAs(this.location);
-	}
+  @Test
+  void withLocationReturnsNewInstanceWithLocation() {
+    ConfigDataResourceNotFoundException exception = new ConfigDataResourceNotFoundException(this.resource)
+            .withLocation(this.location);
+    assertThat(exception.getLocation()).isSameAs(this.location);
+  }
 
-	@Test
-	void throwIfDoesNotExistWhenPathExistsDoesNothing() {
-		ConfigDataResourceNotFoundException.throwIfDoesNotExist(this.resource, this.exists.toPath());
-	}
+  @Test
+  void throwIfDoesNotExistWhenPathExistsDoesNothing() {
+    ConfigDataResourceNotFoundException.throwIfDoesNotExist(this.resource, this.exists.toPath());
+  }
 
-	@Test
-	void throwIfDoesNotExistWhenPathDoesNotExistThrowsException() {
-		assertThatExceptionOfType(ConfigDataResourceNotFoundException.class).isThrownBy(
-				() -> ConfigDataResourceNotFoundException.throwIfDoesNotExist(this.resource, this.missing.toPath()));
-	}
+  @Test
+  void throwIfDoesNotExistWhenPathDoesNotExistThrowsException() {
+    assertThatExceptionOfType(ConfigDataResourceNotFoundException.class).isThrownBy(
+            () -> ConfigDataResourceNotFoundException.throwIfDoesNotExist(this.resource, this.missing.toPath()));
+  }
 
-	@Test
-	void throwIfDoesNotExistWhenFileExistsDoesNothing() {
-		ConfigDataResourceNotFoundException.throwIfDoesNotExist(this.resource, this.exists);
+  @Test
+  void throwIfDoesNotExistWhenFileExistsDoesNothing() {
+    ConfigDataResourceNotFoundException.throwIfDoesNotExist(this.resource, this.exists);
 
-	}
+  }
 
-	@Test
-	void throwIfDoesNotExistWhenFileDoesNotExistThrowsException() {
-		assertThatExceptionOfType(ConfigDataResourceNotFoundException.class)
-				.isThrownBy(() -> ConfigDataResourceNotFoundException.throwIfDoesNotExist(this.resource, this.missing));
-	}
+  @Test
+  void throwIfDoesNotExistWhenFileDoesNotExistThrowsException() {
+    assertThatExceptionOfType(ConfigDataResourceNotFoundException.class)
+            .isThrownBy(() -> ConfigDataResourceNotFoundException.throwIfDoesNotExist(this.resource, this.missing));
+  }
 
-	@Test
-	void throwIfDoesNotExistWhenResourceExistsDoesNothing() {
-		ConfigDataResourceNotFoundException.throwIfDoesNotExist(this.resource, new FileSystemResource(this.exists));
-	}
+  @Test
+  void throwIfDoesNotExistWhenResourceExistsDoesNothing() {
+    ConfigDataResourceNotFoundException.throwIfDoesNotExist(this.resource, new FileSystemResource(this.exists));
+  }
 
-	@Test
-	void throwIfDoesNotExistWhenResourceDoesNotExistThrowsException() {
-		assertThatExceptionOfType(ConfigDataResourceNotFoundException.class)
-				.isThrownBy(() -> ConfigDataResourceNotFoundException.throwIfDoesNotExist(this.resource,
-						new FileSystemResource(this.missing)));
-	}
+  @Test
+  void throwIfDoesNotExistWhenResourceDoesNotExistThrowsException() {
+    assertThatExceptionOfType(ConfigDataResourceNotFoundException.class)
+            .isThrownBy(() -> ConfigDataResourceNotFoundException.throwIfDoesNotExist(this.resource,
+                    new FileSystemResource(this.missing)));
+  }
 
-	static class TestConfigDataResource extends ConfigDataResource {
+  static class TestConfigDataResource extends ConfigDataResource {
 
-		@Override
-		public String toString() {
-			return "mytestresource";
-		}
+    @Override
+    public String toString() {
+      return "mytestresource";
+    }
 
-	}
+  }
 
 }

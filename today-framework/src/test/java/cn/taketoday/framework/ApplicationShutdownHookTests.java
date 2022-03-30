@@ -25,15 +25,12 @@ import org.junit.jupiter.api.Test;
 
 import java.time.Duration;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CountDownLatch;
 
-import cn.taketoday.beans.BeansException;
 import cn.taketoday.beans.factory.BeanCreationException;
 import cn.taketoday.beans.factory.InitializingBean;
-import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.context.loader.BootstrapContext;
@@ -228,7 +225,7 @@ class ApplicationShutdownHookTests {
 
     @Override
     protected BootstrapContext createBootstrapContext() {
-      return null;
+      return new BootstrapContext(beanFactory, this);
     }
 
     @Override
@@ -251,7 +248,6 @@ class ApplicationShutdownHookTests {
     public StandardBeanFactory getBeanFactory() {
       return this.beanFactory;
     }
-
 
   }
 

@@ -24,6 +24,7 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
 /**
@@ -34,26 +35,26 @@ import static org.mockito.Mockito.mock;
  */
 class ConfigDataLoaderTests {
 
-	private TestConfigDataLoader loader = new TestConfigDataLoader();
+  private TestConfigDataLoader loader = new TestConfigDataLoader();
 
-	private ConfigDataLoaderContext context = mock(ConfigDataLoaderContext.class);
+  private ConfigDataLoaderContext context = mock(ConfigDataLoaderContext.class);
 
-	@Test
-	void isLoadableAlwaysReturnsTrue() {
-		assertThat(this.loader.isLoadable(this.context, new TestConfigDataResource())).isTrue();
-	}
+  @Test
+  void isLoadableAlwaysReturnsTrue() {
+    assertThat(this.loader.isLoadable(this.context, new TestConfigDataResource())).isTrue();
+  }
 
-	static class TestConfigDataLoader implements ConfigDataLoader<TestConfigDataResource> {
+  static class TestConfigDataLoader implements ConfigDataLoader<TestConfigDataResource> {
 
-		@Override
-		public ConfigData load(ConfigDataLoaderContext context, TestConfigDataResource resource) throws IOException {
-			return null;
-		}
+    @Override
+    public ConfigData load(ConfigDataLoaderContext context, TestConfigDataResource resource) throws IOException {
+      return null;
+    }
 
-	}
+  }
 
-	static class TestConfigDataResource extends ConfigDataResource {
+  static class TestConfigDataResource extends ConfigDataResource {
 
-	}
+  }
 
 }

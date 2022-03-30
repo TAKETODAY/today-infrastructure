@@ -1,0 +1,10 @@
+spring:
+  profiles:
+    active:
+      - B
+---
+
+context.profiles: "!A"
+
+version: NOT A
+

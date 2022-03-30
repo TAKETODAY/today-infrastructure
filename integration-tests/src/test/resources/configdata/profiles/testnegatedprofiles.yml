@@ -1,0 +1,17 @@
+---
+my:
+  property: fromyamlfile
+  other: notempty
+---
+context.config.activate.on-profile: dev
+my:
+  property: fromdevprofile
+---
+context.config.activate.on-profile: other
+my:
+  property: fromotherprofile
+---
+context.config.activate.on-profile: "!other"
+my:
+  property: fromnototherprofile
+  notother: foo

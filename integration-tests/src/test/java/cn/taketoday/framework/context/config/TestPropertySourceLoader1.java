@@ -20,15 +20,15 @@
 
 package cn.taketoday.framework.context.config;
 
-import cn.taketoday.framework.env.PropertySourceLoader;
-import cn.taketoday.core.env.MapPropertySource;
-import cn.taketoday.core.env.PropertySource;
-import cn.taketoday.core.io.Resource;
-
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+
+import cn.taketoday.core.env.MapPropertySource;
+import cn.taketoday.core.env.PropertySource;
+import cn.taketoday.core.io.Resource;
+import cn.taketoday.framework.env.PropertySourceLoader;
 
 /**
  * {@link PropertySourceLoader} for tests.
@@ -37,15 +37,15 @@ import java.util.Map;
  */
 class TestPropertySourceLoader1 implements PropertySourceLoader {
 
-	@Override
-	public String[] getFileExtensions() {
-		return new String[] { "custom" };
-	}
+  @Override
+  public String[] getFileExtensions() {
+    return new String[] { "custom" };
+  }
 
-	@Override
-	public List<PropertySource<?>> load(String name, Resource resource) throws IOException {
-		Map<String, Object> map = Collections.singletonMap("customloader1", "true");
-		return Collections.singletonList(new MapPropertySource(name, map));
-	}
+  @Override
+  public List<PropertySource<?>> load(String name, Resource resource) throws IOException {
+    Map<String, Object> map = Collections.singletonMap("customloader1", "true");
+    return Collections.singletonList(new MapPropertySource(name, map));
+  }
 
 }

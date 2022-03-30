@@ -22,6 +22,8 @@ package cn.taketoday.framework.context.event;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import cn.taketoday.framework.ApplicationArguments;
 import cn.taketoday.framework.DefaultBootstrapContext;
 import cn.taketoday.framework.Application;
 import cn.taketoday.framework.availability.AvailabilityChangeEvent;
@@ -73,7 +75,7 @@ class EventPublishingRunListenerTests {
 	void shouldPublishLifecycleEvents() {
 		StaticApplicationContext context = new StaticApplicationContext();
 		assertThat(this.eventListener.receivedEvents()).isEmpty();
-		this.runListener.starting(this.bootstrapContext);
+		this.runListener.starting(this.bootstrapContext, getClass(), new ApplicationArguments());
 		checkApplicationEvents(ApplicationStartingEvent.class);
 		this.runListener.environmentPrepared(this.bootstrapContext, null);
 		checkApplicationEvents(ApplicationEnvironmentPreparedEvent.class);

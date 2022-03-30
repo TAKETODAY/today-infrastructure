@@ -20,64 +20,64 @@
 
 package cn.taketoday.framework.context.config;
 
-import cn.taketoday.core.env.PropertySource;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import cn.taketoday.core.env.PropertySource;
+
 class TestConfigDataEnvironmentUpdateListener implements ConfigDataEnvironmentUpdateListener {
 
-	private final List<AddedPropertySource> addedPropertySources = new ArrayList<>();
+  private final List<AddedPropertySource> addedPropertySources = new ArrayList<>();
 
-	private Profiles profiles;
+  private Profiles profiles;
 
-	@Override
-	public void onPropertySourceAdded(PropertySource<?> propertySource, ConfigDataLocation location,
-			ConfigDataResource resource) {
-		this.addedPropertySources.add(new AddedPropertySource(propertySource, location, resource));
-	}
+  @Override
+  public void onPropertySourceAdded(PropertySource<?> propertySource, ConfigDataLocation location,
+          ConfigDataResource resource) {
+    this.addedPropertySources.add(new AddedPropertySource(propertySource, location, resource));
+  }
 
-	@Override
-	public void onSetProfiles(Profiles profiles) {
-		this.profiles = profiles;
-	}
+  @Override
+  public void onSetProfiles(Profiles profiles) {
+    this.profiles = profiles;
+  }
 
-	List<AddedPropertySource> getAddedPropertySources() {
-		return Collections.unmodifiableList(this.addedPropertySources);
-	}
+  List<AddedPropertySource> getAddedPropertySources() {
+    return Collections.unmodifiableList(this.addedPropertySources);
+  }
 
-	Profiles getProfiles() {
-		return this.profiles;
-	}
+  Profiles getProfiles() {
+    return this.profiles;
+  }
 
-	static class AddedPropertySource {
+  static class AddedPropertySource {
 
-		private final PropertySource<?> propertySource;
+    private final PropertySource<?> propertySource;
 
-		private final ConfigDataLocation location;
+    private final ConfigDataLocation location;
 
-		private final ConfigDataResource resource;
+    private final ConfigDataResource resource;
 
-		AddedPropertySource(PropertySource<?> propertySource, ConfigDataLocation location,
-				ConfigDataResource resource) {
-			this.propertySource = propertySource;
-			this.location = location;
-			this.resource = resource;
-		}
+    AddedPropertySource(PropertySource<?> propertySource, ConfigDataLocation location,
+            ConfigDataResource resource) {
+      this.propertySource = propertySource;
+      this.location = location;
+      this.resource = resource;
+    }
 
-		PropertySource<?> getPropertySource() {
-			return this.propertySource;
-		}
+    PropertySource<?> getPropertySource() {
+      return this.propertySource;
+    }
 
-		ConfigDataLocation getLocation() {
-			return this.location;
-		}
+    ConfigDataLocation getLocation() {
+      return this.location;
+    }
 
-		ConfigDataResource getResource() {
-			return this.resource;
-		}
+    ConfigDataResource getResource() {
+      return this.resource;
+    }
 
-	}
+  }
 
 }

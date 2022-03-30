@@ -20,16 +20,16 @@
 
 package cn.taketoday.framework.context.config;
 
-import cn.taketoday.framework.BootstrapContextClosedEvent;
-import cn.taketoday.framework.BootstrapRegistry.InstanceSupplier;
-import cn.taketoday.context.properties.bind.Binder;
-import cn.taketoday.context.ApplicationListener;
-import cn.taketoday.core.env.MapPropertySource;
-
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Supplier;
+
+import cn.taketoday.context.ApplicationListener;
+import cn.taketoday.context.properties.bind.Binder;
+import cn.taketoday.core.env.MapPropertySource;
+import cn.taketoday.framework.BootstrapContextClosedEvent;
+import cn.taketoday.framework.BootstrapRegistry.InstanceSupplier;
 
 /**
  * Test classes used with
@@ -41,99 +41,99 @@ import java.util.function.Supplier;
  */
 class TestConfigDataBootstrap {
 
-	static class LocationResolver implements ConfigDataLocationResolver<Resource> {
+  static class LocationResolver implements ConfigDataLocationResolver<Resource> {
 
-		@Override
-		public boolean isResolvable(ConfigDataLocationResolverContext context, ConfigDataLocation location) {
-			context.getBootstrapContext().get(Binder.class); // gh-24559
-			return location.hasPrefix("testbootstrap:");
-		}
+    @Override
+    public boolean isResolvable(ConfigDataLocationResolverContext context, ConfigDataLocation location) {
+      context.getBootstrapContext().get(Binder.class); // gh-24559
+      return location.hasPrefix("testbootstrap:");
+    }
 
-		@Override
-		public List<Resource> resolve(ConfigDataLocationResolverContext context, ConfigDataLocation location) {
-			context.getBootstrapContext().registerIfAbsent(ResolverHelper.class,
-					InstanceSupplier.from(() -> new ResolverHelper(location)));
-			ResolverHelper helper = context.getBootstrapContext().get(ResolverHelper.class);
-			return Collections.singletonList(new Resource(helper));
-		}
+    @Override
+    public List<Resource> resolve(ConfigDataLocationResolverContext context, ConfigDataLocation location) {
+      context.getBootstrapContext().registerIfAbsent(ResolverHelper.class,
+              InstanceSupplier.from(() -> new ResolverHelper(location)));
+      ResolverHelper helper = context.getBootstrapContext().get(ResolverHelper.class);
+      return Collections.singletonList(new Resource(helper));
+    }
 
-	}
+  }
 
-	static class Loader implements ConfigDataLoader<Resource> {
+  static class Loader implements ConfigDataLoader<Resource> {
 
-		@Override
-		public ConfigData load(ConfigDataLoaderContext context, Resource location) throws IOException {
-			context.getBootstrapContext().registerIfAbsent(LoaderHelper.class,
-					(bootstrapContext) -> new LoaderHelper(location, () -> bootstrapContext.get(Binder.class)));
-			LoaderHelper helper = context.getBootstrapContext().get(LoaderHelper.class);
-			context.getBootstrapContext().addCloseListener(helper);
-			return new ConfigData(
-					Collections.singleton(new MapPropertySource("loaded", Collections.singletonMap("test", "test"))));
-		}
+    @Override
+    public ConfigData load(ConfigDataLoaderContext context, Resource location) throws IOException {
+      context.getBootstrapContext().registerIfAbsent(LoaderHelper.class,
+              (bootstrapContext) -> new LoaderHelper(location, () -> bootstrapContext.get(Binder.class)));
+      LoaderHelper helper = context.getBootstrapContext().get(LoaderHelper.class);
+      context.getBootstrapContext().addCloseListener(helper);
+      return new ConfigData(
+              Collections.singleton(new MapPropertySource("loaded", Collections.singletonMap("test", "test"))));
+    }
 
-	}
+  }
 
-	static class Resource extends ConfigDataResource {
+  static class Resource extends ConfigDataResource {
 
-		private final ResolverHelper resolverHelper;
+    private final ResolverHelper resolverHelper;
 
-		Resource(ResolverHelper resolverHelper) {
-			this.resolverHelper = resolverHelper;
-		}
+    Resource(ResolverHelper resolverHelper) {
+      this.resolverHelper = resolverHelper;
+    }
 
-		@Override
-		public String toString() {
-			return "test";
-		}
+    @Override
+    public String toString() {
+      return "test";
+    }
 
-		ResolverHelper getResolverHelper() {
-			return this.resolverHelper;
-		}
+    ResolverHelper getResolverHelper() {
+      return this.resolverHelper;
+    }
 
-	}
+  }
 
-	static class ResolverHelper {
+  static class ResolverHelper {
 
-		private final ConfigDataLocation location;
+    private final ConfigDataLocation location;
 
-		ResolverHelper(ConfigDataLocation location) {
-			this.location = location;
-		}
+    ResolverHelper(ConfigDataLocation location) {
+      this.location = location;
+    }
 
-		ConfigDataLocation getLocation() {
-			return this.location;
-		}
+    ConfigDataLocation getLocation() {
+      return this.location;
+    }
 
-	}
+  }
 
-	static class LoaderHelper implements ApplicationListener<BootstrapContextClosedEvent> {
+  static class LoaderHelper implements ApplicationListener<BootstrapContextClosedEvent> {
 
-		private final Resource location;
+    private final Resource location;
 
-		private final Supplier<Binder> binder;
+    private final Supplier<Binder> binder;
 
-		LoaderHelper(Resource location, Supplier<Binder> binder) {
-			this.location = location;
-			this.binder = binder;
-		}
+    LoaderHelper(Resource location, Supplier<Binder> binder) {
+      this.location = location;
+      this.binder = binder;
+    }
 
-		Resource getLocation() {
-			return this.location;
-		}
+    Resource getLocation() {
+      return this.location;
+    }
 
-		String getBound() {
-			return this.binder.get().bind("myprop", String.class).orElse(null);
-		}
+    String getBound() {
+      return this.binder.get().bind("myprop", String.class).orElse(null);
+    }
 
-		String getProfileBound() {
-			return this.binder.get().bind("myprofileprop", String.class).orElse(null);
-		}
+    String getProfileBound() {
+      return this.binder.get().bind("myprofileprop", String.class).orElse(null);
+    }
 
-		@Override
-		public void onApplicationEvent(BootstrapContextClosedEvent event) {
-			event.getApplicationContext().getBeanFactory().registerSingleton("loaderHelper", this);
-		}
+    @Override
+    public void onApplicationEvent(BootstrapContextClosedEvent event) {
+      event.getApplicationContext().getBeanFactory().registerSingleton("loaderHelper", this);
+    }
 
-	}
+  }
 
 }

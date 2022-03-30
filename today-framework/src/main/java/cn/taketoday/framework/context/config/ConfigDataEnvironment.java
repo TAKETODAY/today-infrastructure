@@ -134,9 +134,13 @@ class ConfigDataEnvironment {
    * {@link ConfigDataEnvironmentUpdateListener} that can be used to track
    * {@link Environment} updates.
    */
-  ConfigDataEnvironment(ConfigurableBootstrapContext bootstrapContext,
-          ConfigurableEnvironment environment, ResourceLoader resourceLoader, Collection<String> additionalProfiles,
-          @Nullable ConfigDataEnvironmentUpdateListener environmentUpdateListener) {
+  ConfigDataEnvironment(
+          ConfigurableBootstrapContext bootstrapContext,
+          ConfigurableEnvironment environment,
+          ResourceLoader resourceLoader,
+          Collection<String> additionalProfiles,
+          @Nullable ConfigDataEnvironmentUpdateListener environmentUpdateListener
+  ) {
     Binder binder = Binder.get(environment);
     this.environment = environment;
     this.bootstrapContext = bootstrapContext;
