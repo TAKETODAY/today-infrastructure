@@ -319,11 +319,11 @@ public class ApplicationBuilder {
    * Flag to explicitly request a specific type of web application. Auto-detected based
    * on the classpath if not set.
    *
-   * @param webApplicationType the type of web application
+   * @param ApplicationType the type of web application
    * @return the current builder
    */
-  public ApplicationBuilder web(ApplicationType webApplicationType) {
-    this.application.setApplicationType(webApplicationType);
+  public ApplicationBuilder web(ApplicationType ApplicationType) {
+    this.application.setApplicationType(ApplicationType);
     return this;
   }
 

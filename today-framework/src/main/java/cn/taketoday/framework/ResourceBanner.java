@@ -35,6 +35,7 @@ import cn.taketoday.core.env.PropertyResolver;
 import cn.taketoday.core.env.PropertySources;
 import cn.taketoday.core.env.PropertySourcesPropertyResolver;
 import cn.taketoday.core.io.Resource;
+import cn.taketoday.framework.ansi.AnsiPropertySource;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
@@ -122,7 +123,7 @@ public class ResourceBanner implements Banner {
 
   private PropertyResolver getAnsiResolver() {
     PropertySources sources = new PropertySources();
-//    sources.addFirst(new AnsiPropertySource("ansi", true));
+    sources.addFirst(new AnsiPropertySource("ansi", true));
     return new PropertySourcesPropertyResolver(sources);
   }
 

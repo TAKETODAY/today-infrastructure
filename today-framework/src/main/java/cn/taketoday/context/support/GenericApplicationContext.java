@@ -21,7 +21,6 @@
 package cn.taketoday.context.support;
 
 import java.io.IOException;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -343,11 +342,6 @@ public class GenericApplicationContext
   @Override
   public String[] getBeanDefinitionNames() {
     return beanFactory.getBeanDefinitionNames();
-  }
-
-  @Override
-  public Iterator<String> getBeanNamesIterator() {
-    return beanFactory.getBeanNamesIterator();
   }
 
   @Override

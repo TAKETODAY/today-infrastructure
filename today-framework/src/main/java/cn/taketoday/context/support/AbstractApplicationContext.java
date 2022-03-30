@@ -1242,6 +1242,30 @@ public abstract class AbstractApplicationContext
     return getBeanFactory().getBeanNamesForType(requiredType, includeNonSingletons, allowEagerInit);
   }
 
+  @Override
+  public boolean containsBeanDefinition(String beanName) {
+    assertBeanFactoryActive();
+    return getBeanFactory().containsBeanDefinition(beanName);
+  }
+
+  @Override
+  public BeanDefinition getBeanDefinition(String beanName) throws BeansException {
+    assertBeanFactoryActive();
+    return getBeanFactory().getBeanDefinition(beanName);
+  }
+
+  @Override
+  public int getBeanDefinitionCount() {
+    assertBeanFactoryActive();
+    return getBeanFactory().getBeanDefinitionCount();
+  }
+
+  @Override
+  public String[] getBeanDefinitionNames() {
+    assertBeanFactoryActive();
+    return new String[0];
+  }
+
   // ArgumentsResolverProvider
 
   @NonNull

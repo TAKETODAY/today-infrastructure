@@ -884,7 +884,7 @@ public class Application {
   }
 
   /**
-   * Sets the {@link ApplicationListener}s that will be applied to the SpringApplication
+   * Sets the {@link ApplicationListener}s that will be applied to the Application
    * and registered with the {@link ApplicationContext}.
    *
    * @param listeners the listeners to set
@@ -894,7 +894,7 @@ public class Application {
   }
 
   /**
-   * Add {@link ApplicationListener}s to be applied to the SpringApplication and
+   * Add {@link ApplicationListener}s to be applied to the Application and
    * registered with the {@link ApplicationContext}.
    *
    * @param listeners the listeners to add
@@ -905,7 +905,7 @@ public class Application {
 
   /**
    * Returns read-only ordered Set of the {@link ApplicationListener}s that will be
-   * applied to the SpringApplication and registered with the {@link ApplicationContext}
+   * applied to the Application and registered with the {@link ApplicationContext}
    *
    * @return the listeners
    */

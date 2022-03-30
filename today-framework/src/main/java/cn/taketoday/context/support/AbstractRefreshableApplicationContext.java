@@ -21,7 +21,6 @@
 package cn.taketoday.context.support;
 
 import java.io.IOException;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -293,11 +292,6 @@ public abstract class AbstractRefreshableApplicationContext extends AbstractAppl
   @Override
   public String[] getBeanDefinitionNames() {
     return getBeanFactory().getBeanDefinitionNames();
-  }
-
-  @Override
-  public Iterator<String> getBeanNamesIterator() {
-    return getBeanFactory().getBeanNamesIterator();
   }
 
   @Override

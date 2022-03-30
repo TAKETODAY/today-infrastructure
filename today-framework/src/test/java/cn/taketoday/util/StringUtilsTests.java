@@ -24,6 +24,7 @@ import org.junit.jupiter.api.Test;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Properties;
 
 import cn.taketoday.lang.Constant;
 
@@ -87,6 +88,22 @@ class StringUtilsTests {
     assert StringUtils.cleanPath(null) == (null);
     assert StringUtils.cleanPath("").equals("");
     assert StringUtils.cleanPath("C:\\test\\").equals("C:/test/");
+  }
+
+  @Test
+  void splitArrayElementsIntoProperties() {
+    String[] input = new String[] { "key1=value1 ", "key2 =\"value2\"" };
+    Properties result = StringUtils.splitArrayElementsIntoProperties(input, "=");
+    assertThat(result.getProperty("key1")).isEqualTo("value1");
+    assertThat(result.getProperty("key2")).isEqualTo("\"value2\"");
+  }
+
+  @Test
+  void splitArrayElementsIntoPropertiesAndDeletedChars() {
+    String[] input = new String[] { "key1=value1 ", "key2 =\"value2\"" };
+    Properties result = StringUtils.splitArrayElementsIntoProperties(input, "=", "\"");
+    assertThat(result.getProperty("key1")).isEqualTo("value1");
+    assertThat(result.getProperty("key2")).isEqualTo("value2");
   }
 
   @Test

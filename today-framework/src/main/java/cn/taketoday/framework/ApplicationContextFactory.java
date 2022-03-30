@@ -59,7 +59,7 @@ public interface ApplicationContextFactory {
 
   /**
    * Creates the {@link ConfigurableApplicationContext application context} for a
-   * {@link Application}, respecting the given {@code webApplicationType}.
+   * {@link Application}, respecting the given {@code ApplicationType}.
    *
    * @param type the application type
    * @return the newly created application context
@@ -87,7 +87,7 @@ public interface ApplicationContextFactory {
    * @return the factory that will instantiate the context class
    */
   static ApplicationContextFactory from(Supplier<ConfigurableApplicationContext> supplier) {
-    return (webApplicationType) -> supplier.get();
+    return (ApplicationType) -> supplier.get();
   }
 
 }

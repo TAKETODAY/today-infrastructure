@@ -24,7 +24,6 @@ import java.lang.annotation.Annotation;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
@@ -367,12 +366,6 @@ public class SimpleJndiBeanFactory extends JndiLocatorSupport implements BeanFac
   @Override
   public String[] getBeanDefinitionNames() {
     throw new UnsupportedOperationException("SimpleJndiBeanFactory does not support getBeanDefinitionNames");
-  }
-
-  @Override
-  public Iterator<String> getBeanNamesIterator() {
-    throw new UnsupportedOperationException(
-            "SimpleJndiBeanFactory does not support getBeanNamesIterator");
   }
 
   @Override
