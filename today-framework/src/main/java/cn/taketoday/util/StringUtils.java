@@ -33,6 +33,7 @@ import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Properties;
 import java.util.Random;
 import java.util.Set;
 import java.util.StringJoiner;
@@ -202,6 +203,61 @@ public abstract class StringUtils {
   //---------------------------------------------------------------------
   // Convenience methods for working with String arrays
   //---------------------------------------------------------------------
+
+  /**
+   * Take an array of strings and split each element based on the given delimiter.
+   * A {@code Properties} instance is then generated, with the left of the delimiter
+   * providing the key, and the right of the delimiter providing the value.
+   * <p>Will trim both the key and value before adding them to the {@code Properties}.
+   *
+   * @param array the array to process
+   * @param delimiter to split each element using (typically the equals symbol)
+   * @return a {@code Properties} instance representing the array contents,
+   * or {@code null} if the array to process was {@code null} or empty
+   * @since 4.0
+   */
+  @Nullable
+  public static Properties splitArrayElementsIntoProperties(String[] array, String delimiter) {
+    return splitArrayElementsIntoProperties(array, delimiter, null);
+  }
+
+  /**
+   * Take an array of strings and split each element based on the given delimiter.
+   * A {@code Properties} instance is then generated, with the left of the
+   * delimiter providing the key, and the right of the delimiter providing the value.
+   * <p>Will trim both the key and value before adding them to the
+   * {@code Properties} instance.
+   *
+   * @param array the array to process
+   * @param delimiter to split each element using (typically the equals symbol)
+   * @param charsToDelete one or more characters to remove from each element
+   * prior to attempting the split operation (typically the quotation mark
+   * symbol), or {@code null} if no removal should occur
+   * @return a {@code Properties} instance representing the array contents,
+   * or {@code null} if the array to process was {@code null} or empty
+   * @since 4.0
+   */
+  @Nullable
+  public static Properties splitArrayElementsIntoProperties(
+          String[] array, String delimiter, @Nullable String charsToDelete) {
+
+    if (ObjectUtils.isEmpty(array)) {
+      return null;
+    }
+
+    Properties result = new Properties();
+    for (String element : array) {
+      if (charsToDelete != null) {
+        element = deleteAny(element, charsToDelete);
+      }
+      String[] splittedElement = split(element, delimiter);
+      if (splittedElement == null) {
+        continue;
+      }
+      result.setProperty(splittedElement[0].trim(), splittedElement[1].trim());
+    }
+    return result;
+  }
 
   /**
    * Tokenize the given {@code String} into a {@code String} array via a

@@ -138,6 +138,8 @@ public class Application {
   private static final String SYSTEM_PROPERTY_JAVA_AWT_HEADLESS = "java.awt.headless";
   protected final Logger log = LoggerFactory.getLogger(getClass());
 
+  static final ApplicationShutdownHook shutdownHook = new ApplicationShutdownHook();
+
   @Nullable
   private Class<?> mainApplicationClass;
 
@@ -344,7 +346,7 @@ public class Application {
 
   private void refreshContext(ConfigurableApplicationContext context) {
     if (this.registerShutdownHook) {
-      context.registerShutdownHook();
+      shutdownHook.registerApplicationContext(context);
     }
     refresh(context);
   }
@@ -1110,15 +1112,16 @@ public class Application {
    * @param exception the exception that was logged
    */
   protected void registerLoggedException(Throwable exception) {
-    ApplicationExceptionHandler handler = getApplicationExceptionHandler();
+    StartupExceptionHandler handler = getApplicationExceptionHandler();
     if (handler != null) {
       handler.registerLoggedException(exception);
     }
   }
 
-  ApplicationExceptionHandler getApplicationExceptionHandler() {
+  @Nullable
+  StartupExceptionHandler getApplicationExceptionHandler() {
     if (isMainThread(Thread.currentThread())) {
-      return ApplicationExceptionHandler.forCurrentThread();
+      return StartupExceptionHandler.forCurrentThread();
     }
     return null;
   }
@@ -1195,15 +1198,37 @@ public class Application {
   }
 
   /**
-   * Static helper that can be used to run a {@link Application} from the
-   * specified sources using default settings and user supplied arguments.
+   * Return a {@link ApplicationShutdownHandlers} instance that can be used to add
+   * or remove handlers that perform actions before the JVM is shutdown.
    *
-   * @param configClass the primary sources to load
+   * @return a {@link ApplicationShutdownHandlers} instance
+   */
+  public static ApplicationShutdownHandlers getShutdownHandlers() {
+    return shutdownHook.getHandlers();
+  }
+
+  /**
+   * Static helper that can be used to run a {@link Application} from the
+   * specified source using default settings.
+   *
+   * @param primarySource the primary source to load
    * @param args the application arguments (usually passed from a Java main method)
    * @return the running {@link ApplicationContext}
    */
-  public static ConfigurableApplicationContext run(Class<?> configClass, String... args) {
-    return new Application(configClass).run(args);
+  public static ConfigurableApplicationContext run(Class<?> primarySource, String... args) {
+    return run(new Class<?>[] { primarySource }, args);
+  }
+
+  /**
+   * Static helper that can be used to run a {@link Application} from the
+   * specified sources using default settings and user supplied arguments.
+   *
+   * @param primarySources the primary sources to load
+   * @param args the application arguments (usually passed from a Java main method)
+   * @return the running {@link ApplicationContext}
+   */
+  public static ConfigurableApplicationContext run(Class<?>[] primarySources, String[] args) {
+    return new Application(primarySources).run(args);
   }
 
   /**

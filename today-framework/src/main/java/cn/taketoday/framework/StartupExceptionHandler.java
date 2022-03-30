@@ -32,7 +32,7 @@ import java.util.Set;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/2/19 22:51
  */
-class ApplicationExceptionHandler implements Thread.UncaughtExceptionHandler {
+class StartupExceptionHandler implements Thread.UncaughtExceptionHandler {
 
   private static final Set<String> LOG_CONFIGURATION_MESSAGES = Set.of("Logback configuration error detected");
 
@@ -44,7 +44,7 @@ class ApplicationExceptionHandler implements Thread.UncaughtExceptionHandler {
 
   private int exitCode = 0;
 
-  ApplicationExceptionHandler(Thread.UncaughtExceptionHandler parent) {
+  StartupExceptionHandler(Thread.UncaughtExceptionHandler parent) {
     this.parent = parent;
   }
 
@@ -107,18 +107,18 @@ class ApplicationExceptionHandler implements Thread.UncaughtExceptionHandler {
     return false;
   }
 
-  static ApplicationExceptionHandler forCurrentThread() {
+  static StartupExceptionHandler forCurrentThread() {
     return handler.get();
   }
 
   /**
    * Thread local used to attach and track handlers.
    */
-  private static class LoggedExceptionHandlerThreadLocal extends ThreadLocal<ApplicationExceptionHandler> {
+  private static class LoggedExceptionHandlerThreadLocal extends ThreadLocal<StartupExceptionHandler> {
 
     @Override
-    protected ApplicationExceptionHandler initialValue() {
-      ApplicationExceptionHandler handler = new ApplicationExceptionHandler(
+    protected StartupExceptionHandler initialValue() {
+      StartupExceptionHandler handler = new StartupExceptionHandler(
               Thread.currentThread().getUncaughtExceptionHandler());
       Thread.currentThread().setUncaughtExceptionHandler(handler);
       return handler;
