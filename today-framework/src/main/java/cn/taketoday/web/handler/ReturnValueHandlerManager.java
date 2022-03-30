@@ -39,10 +39,10 @@ import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.web.ReturnValueHandler;
 import cn.taketoday.web.WebApplicationContextSupport;
 import cn.taketoday.web.accept.ContentNegotiationManager;
-import cn.taketoday.web.handler.method.RequestBodyAdvice;
-import cn.taketoday.web.handler.method.ResponseBodyAdvice;
 import cn.taketoday.web.bind.resolver.HttpEntityMethodProcessor;
 import cn.taketoday.web.bind.resolver.RequestResponseBodyMethodProcessor;
+import cn.taketoday.web.handler.method.RequestBodyAdvice;
+import cn.taketoday.web.handler.method.ResponseBodyAdvice;
 import cn.taketoday.web.view.RedirectModelManager;
 import cn.taketoday.web.view.ViewResolver;
 import cn.taketoday.web.view.ViewReturnValueHandler;
@@ -191,6 +191,7 @@ public class ReturnValueHandlerManager
     internalHandlers.add(modelAndViewHandler);
     internalHandlers.add(new HttpStatusReturnValueHandler());
     internalHandlers.add(new HttpHeadersReturnValueHandler());
+    internalHandlers.add(new DeferredResultReturnValueHandler());
 
     // Iterate ReturnValueHandler in runtime
     SelectableReturnValueHandler compositeHandler = new SelectableReturnValueHandler(internalHandlers);
@@ -205,6 +206,7 @@ public class ReturnValueHandlerManager
     handlers.add(modelAndViewHandler);
     handlers.add(new HttpStatusReturnValueHandler());
     handlers.add(new HttpHeadersReturnValueHandler());
+    handlers.add(new DeferredResultReturnValueHandler());
 
     List<HttpMessageConverter<?>> messageConverters = getMessageConverters();
 
