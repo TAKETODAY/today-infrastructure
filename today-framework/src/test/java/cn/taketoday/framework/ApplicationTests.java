@@ -86,6 +86,7 @@ import cn.taketoday.core.env.PropertySource;
 import cn.taketoday.core.env.StandardEnvironment;
 import cn.taketoday.core.io.ClassPathResource;
 import cn.taketoday.core.io.DefaultResourceLoader;
+import cn.taketoday.core.io.Resource;
 import cn.taketoday.core.io.ResourceLoader;
 import cn.taketoday.format.support.ApplicationConversionService;
 import cn.taketoday.framework.BootstrapRegistry.InstanceSupplier;
@@ -106,6 +107,8 @@ import cn.taketoday.framework.web.embedded.tomcat.TomcatServletWebServerFactory;
 import cn.taketoday.framework.web.reactive.context.AnnotationConfigReactiveWebServerApplicationContext;
 import cn.taketoday.framework.web.reactive.context.ReactiveWebApplicationContext;
 import cn.taketoday.framework.web.servlet.context.AnnotationConfigServletWebServerApplicationContext;
+import cn.taketoday.http.server.reactive.HttpHandler;
+import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.context.ConfigurableWebEnvironment;
 import cn.taketoday.web.context.support.StandardServletEnvironment;
@@ -275,7 +278,7 @@ class ApplicationTests {
   void triggersConfigFileApplicationListenerBeforeBinding() {
     Application application = new Application(ExampleConfig.class);
     application.setApplicationType(ApplicationType.NONE_WEB);
-    this.context = application.run("--spring.config.name=bindtoapplication");
+    this.context = application.run("--context.config.name=bindtoapplication");
     assertThat(application).hasFieldOrPropertyWithValue("bannerMode", Banner.Mode.OFF);
   }
 
@@ -768,11 +771,11 @@ class ApplicationTests {
 
   @Test
   void exitWithExplicitCodeFromException() {
-    final SpringBootExceptionHandler handler = mock(SpringBootExceptionHandler.class);
+    final StartupExceptionHandler handler = mock(StartupExceptionHandler.class);
     Application application = new Application(ExitCodeCommandLineRunConfig.class) {
 
       @Override
-      SpringBootExceptionHandler getSpringBootExceptionHandler() {
+      StartupExceptionHandler getApplicationExceptionHandler() {
         return handler;
       }
 
@@ -787,11 +790,11 @@ class ApplicationTests {
 
   @Test
   void exitWithExplicitCodeFromMappedException() {
-    final SpringBootExceptionHandler handler = mock(SpringBootExceptionHandler.class);
+    final StartupExceptionHandler handler = mock(StartupExceptionHandler.class);
     Application application = new Application(MappedExitCodeCommandLineRunConfig.class) {
 
       @Override
-      SpringBootExceptionHandler getSpringBootExceptionHandler() {
+      StartupExceptionHandler getApplicationExceptionHandler() {
         return handler;
       }
 
@@ -806,11 +809,11 @@ class ApplicationTests {
 
   @Test
   void exceptionFromRefreshIsHandledGracefully(CapturedOutput output) {
-    final SpringBootExceptionHandler handler = mock(SpringBootExceptionHandler.class);
+    final StartupExceptionHandler handler = mock(StartupExceptionHandler.class);
     Application application = new Application(RefreshFailureConfig.class) {
 
       @Override
-      SpringBootExceptionHandler getSpringBootExceptionHandler() {
+      StartupExceptionHandler getApplicationExceptionHandler() {
         return handler;
       }
 
@@ -1103,7 +1106,7 @@ class ApplicationTests {
   void relaxedBindingShouldWorkBeforeEnvironmentIsPrepared() {
     Application application = new Application(ExampleConfig.class);
     application.setApplicationType(ApplicationType.NONE_WEB);
-    this.context = application.run("--spring.config.additionalLocation=classpath:custom-config/");
+    this.context = application.run("--context.config.additionalLocation=classpath:custom-config/");
     assertThat(this.context.getEnvironment().getProperty("hello")).isEqualTo("world");
   }
 
