@@ -26,8 +26,8 @@ import java.lang.annotation.Target;
 
 import cn.taketoday.core.annotation.AliasFor;
 import cn.taketoday.http.HttpMethod;
-import cn.taketoday.lang.Constant;
 import cn.taketoday.http.MediaType;
+import cn.taketoday.lang.Constant;
 
 /**
  * @author TODAY <br>
@@ -168,4 +168,8 @@ public @interface RequestMapping {
    */
   String[] produces() default {};
 
+  /**
+   * @since 4.0
+   */
+  String[] headers() default {};
 }

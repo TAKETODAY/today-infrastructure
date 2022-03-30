@@ -52,7 +52,7 @@ public class TomcatServletWebServerFactoryCustomizer
   @Override
   public void customize(TomcatServletWebServerFactory factory) {
     ServerProperties.Tomcat tomcatProperties = this.serverProperties.getTomcat();
-    if (!ObjectUtils.isEmpty(tomcatProperties.getAdditionalTldSkipPatterns())) {
+    if (ObjectUtils.isNotEmpty(tomcatProperties.getAdditionalTldSkipPatterns())) {
       factory.getTldSkipPatterns().addAll(tomcatProperties.getAdditionalTldSkipPatterns());
     }
     if (tomcatProperties.getRedirectContextRoot() != null) {

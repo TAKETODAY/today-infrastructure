@@ -735,7 +735,7 @@ public class MockHttpServletRequestBuilder
       }
     });
 
-    if (!ObjectUtils.isEmpty(this.content) &&
+    if (ObjectUtils.isNotEmpty(this.content) &&
             !this.headers.containsKey(HttpHeaders.CONTENT_LENGTH) &&
             !this.headers.containsKey(HttpHeaders.TRANSFER_ENCODING)) {
 
@@ -773,10 +773,10 @@ public class MockHttpServletRequestBuilder
       }
     }
 
-    if (!ObjectUtils.isEmpty(this.cookies)) {
+    if (ObjectUtils.isNotEmpty(this.cookies)) {
       request.setCookies(this.cookies.toArray(new Cookie[0]));
     }
-    if (!ObjectUtils.isEmpty(this.locales)) {
+    if (ObjectUtils.isNotEmpty(this.locales)) {
       request.setPreferredLocales(this.locales);
     }
 

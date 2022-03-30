@@ -818,10 +818,10 @@ public class Application {
    */
   public Set<Object> getAllSources() {
     Set<Object> allSources = new LinkedHashSet<>();
-    if (!CollectionUtils.isEmpty(this.primarySources)) {
+    if (CollectionUtils.isNotEmpty(this.primarySources)) {
       allSources.addAll(this.primarySources);
     }
-    if (!CollectionUtils.isEmpty(this.sources)) {
+    if (CollectionUtils.isNotEmpty(this.sources)) {
       allSources.addAll(this.sources);
     }
     return Collections.unmodifiableSet(allSources);

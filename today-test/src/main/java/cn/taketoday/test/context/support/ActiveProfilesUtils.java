@@ -111,7 +111,7 @@ abstract class ActiveProfilesUtils {
       }
 
       String[] profiles = resolver.resolve(rootDeclaringClass);
-      if (!ObjectUtils.isEmpty(profiles)) {
+      if (ObjectUtils.isNotEmpty(profiles)) {
         // Prepend to the list so that we can later traverse "down" the hierarchy
         // to ensure that we retain the top-down profile registration order
         // within a test class hierarchy.

@@ -59,6 +59,7 @@ import cn.taketoday.http.server.PathContainer;
 import cn.taketoday.http.server.RequestPath;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Constant;
+import cn.taketoday.lang.NonNull;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.CollectionUtils;
@@ -518,6 +519,7 @@ public abstract class RequestContext implements InputStreamSource,
     return method;
   }
 
+  @NonNull
   @Override
   public final HttpMethod getMethod() {
     if (httpMethod == null) {

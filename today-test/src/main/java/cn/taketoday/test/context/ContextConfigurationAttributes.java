@@ -160,7 +160,7 @@ public class ContextConfigurationAttributes {
     Assert.notNull(declaringClass, "'declaringClass' must not be null");
     Assert.notNull(contextLoaderClass, "'contextLoaderClass' must not be null");
 
-    if (!ObjectUtils.isEmpty(locations) && !ObjectUtils.isEmpty(classes) && logger.isDebugEnabled()) {
+    if (ObjectUtils.isNotEmpty(locations) && ObjectUtils.isNotEmpty(classes) && logger.isDebugEnabled()) {
       logger.debug(String.format(
               "Test class [%s] has been configured with @ContextConfiguration's 'locations' (or 'value') %s " +
                       "and 'classes' %s attributes. Most SmartContextLoader implementations support " +

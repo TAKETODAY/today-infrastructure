@@ -91,7 +91,7 @@ public class ServletWebServerFactoryCustomizer
     for (WebListenerRegistrar registrar : webListenerRegistrars) {
       registrar.register(factory);
     }
-    if (!CollectionUtils.isEmpty(cookieSameSiteSuppliers)) {
+    if (CollectionUtils.isNotEmpty(cookieSameSiteSuppliers)) {
       factory.setCookieSameSiteSuppliers(cookieSameSiteSuppliers);
     }
   }

@@ -1148,7 +1148,7 @@ public class JsonContentAssert extends AbstractAssert<JsonContentAssert, CharSeq
     }
 
     void assertDoesNotHaveEmptyValue() {
-      if (!ObjectUtils.isEmpty(getValue(false))) {
+      if (ObjectUtils.isNotEmpty(getValue(false))) {
         return;
       }
       failWithMessage(getExpectedValueMessage("a non-empty value"));

@@ -127,7 +127,7 @@ public class ApplicationTestContextBootstrapper extends DefaultTestContextBootst
   protected ContextLoader resolveContextLoader(Class<?> testClass,
           List<ContextConfigurationAttributes> configAttributesList) {
     Class<?>[] classes = getClasses(testClass);
-    if (!ObjectUtils.isEmpty(classes)) {
+    if (ObjectUtils.isNotEmpty(classes)) {
       for (ContextConfigurationAttributes configAttributes : configAttributesList) {
         addConfigAttributesClasses(configAttributes, classes);
       }
@@ -290,7 +290,7 @@ public class ApplicationTestContextBootstrapper extends DefaultTestContextBootst
           List<String> propertySourceProperties) {
     Class<?> testClass = mergedConfig.getTestClass();
     String[] properties = getProperties(testClass);
-    if (!ObjectUtils.isEmpty(properties)) {
+    if (ObjectUtils.isNotEmpty(properties)) {
       // Added first so that inlined properties from @TestPropertySource take
       // precedence
       propertySourceProperties.addAll(0, Arrays.asList(properties));

@@ -274,7 +274,7 @@ public abstract class TestPropertySourceUtils {
   public static void addInlinedPropertiesToEnvironment(ConfigurableEnvironment environment, String... inlinedProperties) {
     Assert.notNull(environment, "'environment' must not be null");
     Assert.notNull(inlinedProperties, "'inlinedProperties' must not be null");
-    if (!ObjectUtils.isEmpty(inlinedProperties)) {
+    if (ObjectUtils.isNotEmpty(inlinedProperties)) {
       if (logger.isDebugEnabled()) {
         logger.debug("Adding inlined properties to environment: " +
                 ObjectUtils.nullSafeToString(inlinedProperties));

@@ -989,7 +989,7 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
   @Override
   @Nullable
   public String getInitMethodName() {
-    return (!ObjectUtils.isEmpty(this.initMethodNames) ? this.initMethodNames[0] : null);
+    return (ObjectUtils.isNotEmpty(this.initMethodNames) ? this.initMethodNames[0] : null);
   }
 
   /**

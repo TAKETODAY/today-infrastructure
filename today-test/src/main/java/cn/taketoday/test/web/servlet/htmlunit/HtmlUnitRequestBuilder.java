@@ -205,7 +205,7 @@ final class HtmlUnitRequestBuilder implements RequestBuilder, Mergeable {
 
     // cookie
     Cookie[] parentCookies = parentRequest.getCookies();
-    if (!ObjectUtils.isEmpty(parentCookies)) {
+    if (ObjectUtils.isNotEmpty(parentCookies)) {
       request.setCookies(parentCookies);
     }
 
@@ -315,7 +315,7 @@ final class HtmlUnitRequestBuilder implements RequestBuilder, Mergeable {
       Collections.addAll(cookies, parentCookies);
     }
 
-    if (!ObjectUtils.isEmpty(cookies)) {
+    if (ObjectUtils.isNotEmpty(cookies)) {
       request.setCookies(cookies.toArray(new Cookie[0]));
     }
   }

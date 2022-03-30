@@ -113,7 +113,7 @@ class AssertProviderApplicationContextInvocationHandler implements InvocationHan
 
   private Object getSourceContext(Object[] args) {
     ApplicationContext context = getStartedApplicationContext();
-    if (!ObjectUtils.isEmpty(args)) {
+    if (ObjectUtils.isNotEmpty(args)) {
       Assert.isInstanceOf((Class<?>) args[0], context);
     }
     return context;

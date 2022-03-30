@@ -42,7 +42,7 @@ public class ComponentBeanDefinitionParser extends AbstractBeanDefinitionParser 
 		factory.addPropertyValue("parent", parseComponent(element));
 
 		List<Element> childElements = DomUtils.getChildElementsByTagName(element, "component");
-		if (!CollectionUtils.isEmpty(childElements)) {
+		if (CollectionUtils.isNotEmpty(childElements)) {
 			parseChildComponents(childElements, factory);
 		}
 

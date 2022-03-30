@@ -160,7 +160,7 @@ public class Profiles implements Iterable<String> {
 
   private List<String> asUniqueItemList(Collection<String> profiles, @Nullable Collection<String> additional) {
     LinkedHashSet<String> uniqueItems = new LinkedHashSet<>();
-    if (!CollectionUtils.isEmpty(additional)) {
+    if (CollectionUtils.isNotEmpty(additional)) {
       uniqueItems.addAll(additional);
     }
     uniqueItems.addAll(profiles);

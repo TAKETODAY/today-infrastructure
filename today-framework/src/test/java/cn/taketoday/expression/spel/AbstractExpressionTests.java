@@ -181,7 +181,7 @@ public abstract class AbstractExpressionTests {
       }
     }).satisfies(ex -> {
       assertThat(ex.getMessageCode()).isEqualTo(expectedMessage);
-      if (!ObjectUtils.isEmpty(otherProperties)) {
+      if (ObjectUtils.isNotEmpty(otherProperties)) {
         // first one is expected position of the error within the string
         int pos = ((Integer) otherProperties[0]).intValue();
         assertThat(ex.getPosition()).as("position").isEqualTo(pos);
