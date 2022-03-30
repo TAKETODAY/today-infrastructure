@@ -32,7 +32,7 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.validation.BindException;
-import cn.taketoday.web.AsyncRequestTimeoutException;
+import cn.taketoday.web.context.async.AsyncRequestTimeoutException;
 import cn.taketoday.web.ErrorResponse;
 import cn.taketoday.web.ErrorResponseException;
 import cn.taketoday.web.HttpMediaTypeNotAcceptableException;

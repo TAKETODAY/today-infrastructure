@@ -18,10 +18,11 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.web;
+package cn.taketoday.web.context.async;
 
 import cn.taketoday.http.HttpStatus;
 import cn.taketoday.http.ProblemDetail;
+import cn.taketoday.web.ErrorResponse;
 
 /**
  * Exception to be thrown when an async request times out.
