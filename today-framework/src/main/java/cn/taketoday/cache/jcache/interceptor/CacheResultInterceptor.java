@@ -149,11 +149,10 @@ class CacheResultInterceptor extends AbstractKeyCacheInterceptor<CacheResultOper
     return new CacheOperationInvoker.ThrowableWrapper(clone);
   }
 
-  @SuppressWarnings("unchecked")
   @Nullable
   private static <T extends Throwable> T cloneException(T exception) {
     try {
-      return (T) SerializationUtils.deserialize(SerializationUtils.serialize(exception));
+      return SerializationUtils.clone(exception);
     }
     catch (Exception ex) {
       return null;  // exception parameter cannot be cloned
