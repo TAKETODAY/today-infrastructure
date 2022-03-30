@@ -113,7 +113,7 @@ public @interface NestedTestConfiguration {
    * {@link EnclosingConfiguration}, ignoring case. For example, the default
    * may be changed to {@link EnclosingConfiguration#OVERRIDE} by supplying
    * the following JVM system property via the command line.
-   * <pre style="code">-Dspring.test.enclosing.configuration=override</pre>
+   * <pre style="code">-Dcontext.test.enclosing.configuration=override</pre>
    * <p>If the property is not set to {@code OVERRIDE}, test configuration for
    * an inner test class will be <em>inherited</em> according to
    * {@link EnclosingConfiguration#INHERIT} semantics by default.
@@ -123,7 +123,7 @@ public @interface NestedTestConfiguration {
    *
    * @see #value
    */
-  String ENCLOSING_CONFIGURATION_PROPERTY_NAME = "spring.test.enclosing.configuration";
+  String ENCLOSING_CONFIGURATION_PROPERTY_NAME = "context.test.enclosing.configuration";
 
   /**
    * Configures the {@link EnclosingConfiguration} mode.

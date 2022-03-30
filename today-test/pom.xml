@@ -123,7 +123,7 @@
     </dependency>
 
     <dependency>
-      <groupId>selenium</groupId>
+      <groupId>org.seleniumhq.selenium</groupId>
       <artifactId>selenium-api</artifactId>
       <version>4.1.2</version>
     </dependency>

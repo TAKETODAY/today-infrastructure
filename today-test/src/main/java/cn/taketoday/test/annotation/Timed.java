@@ -26,8 +26,8 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import cn.taketoday.test.context.junit4.SpringJUnit4ClassRunner;
-import cn.taketoday.test.context.junit4.rules.SpringMethodRule;
+import cn.taketoday.test.context.junit4.ApplicationJUnit4ClassRunner;
+import cn.taketoday.test.context.junit4.rules.ApplicationMethodRule;
 import cn.taketoday.test.context.junit4.statements.SpringFailOnTimeout;
 
 /**
@@ -47,8 +47,8 @@ import cn.taketoday.test.context.junit4.statements.SpringFailOnTimeout;
  * @author Rod Johnson
  * @author Sam Brannen
  * @see Repeat
- * @see SpringJUnit4ClassRunner
- * @see SpringMethodRule
+ * @see ApplicationJUnit4ClassRunner
+ * @see ApplicationMethodRule
  * @see SpringFailOnTimeout
  * @since 4.0
  */

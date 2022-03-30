@@ -163,7 +163,7 @@ abstract class AbstractExpressionEvaluatingCondition implements ExecutionConditi
     ApplicationContext applicationContext;
 
     if (loadContext) {
-      applicationContext = SpringExtension.getApplicationContext(context);
+      applicationContext = ApplicationExtension.getApplicationContext(context);
     }
     else {
       gac = new GenericApplicationContext();

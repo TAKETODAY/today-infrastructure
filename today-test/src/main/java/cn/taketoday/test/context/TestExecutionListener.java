@@ -23,7 +23,7 @@ package cn.taketoday.test.context;
 import cn.taketoday.test.context.event.ApplicationEventsTestExecutionListener;
 import cn.taketoday.test.context.event.EventPublishingTestExecutionListener;
 import cn.taketoday.test.context.jdbc.SqlScriptsTestExecutionListener;
-import cn.taketoday.test.context.junit4.rules.SpringMethodRule;
+import cn.taketoday.test.context.junit4.rules.ApplicationMethodRule;
 import cn.taketoday.test.context.support.AbstractTestExecutionListener;
 import cn.taketoday.test.context.support.DependencyInjectionTestExecutionListener;
 import cn.taketoday.test.context.support.DirtiesContextBeforeModesTestExecutionListener;
@@ -39,8 +39,8 @@ import cn.taketoday.test.context.web.ServletTestExecutionListener;
  * <p>Note that not all testing frameworks support all lifecycle callbacks defined
  * in this API. For example, {@link #beforeTestExecution} and
  * {@link #afterTestExecution} are not supported in conjunction with JUnit 4 when
- * using the {@link SpringMethodRule
- * SpringMethodRule}.
+ * using the {@link ApplicationMethodRule
+ * ApplicationMethodRule}.
  *
  * <p>This interface provides empty {@code default} implementations for all methods.
  * Concrete implementations can therefore choose to override only those methods
@@ -107,8 +107,8 @@ public interface TestExecutionListener {
    * dependencies.
    * <p>This method should be called immediately after instantiation of the test
    * class or as soon after instantiation as possible (as is the case with the
-   * {@link SpringMethodRule
-   * SpringMethodRule}). In any case, this method must be called prior to any
+   * {@link ApplicationMethodRule
+   * ApplicationMethodRule}). In any case, this method must be called prior to any
    * framework-specific lifecycle callbacks.
    * <p>The default implementation is <em>empty</em>. Can be overridden by
    * concrete classes as necessary.

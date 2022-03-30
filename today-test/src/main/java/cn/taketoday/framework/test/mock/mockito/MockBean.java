@@ -33,12 +33,12 @@ import java.lang.annotation.Target;
 
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.core.annotation.AliasFor;
-import cn.taketoday.test.context.junit4.SpringRunner;
+import cn.taketoday.test.context.junit4.ApplicationRunner;
 
 /**
  * Annotation that can be used to add mocks to a Spring {@link ApplicationContext}. Can be
  * used as a class level annotation or on fields in either {@code @Configuration} classes,
- * or test classes that are {@link RunWith @RunWith} the {@link SpringRunner}.
+ * or test classes that are {@link RunWith @RunWith} the {@link ApplicationRunner}.
  * <p>
  * Mocks can be registered by type or by {@link #name() bean name}. When registered by
  * type, any existing single bean of a matching type (including subclasses) in the context

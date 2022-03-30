@@ -34,7 +34,7 @@ public abstract class ContextCacheUtils {
   /**
    * Retrieve the maximum size of the {@link ContextCache}.
    * <p>Uses {@link TodayStrategies} to retrieve a system property or Spring
-   * property named {@code spring.test.context.cache.maxSize}.
+   * property named {@code context.test.context.cache.maxSize}.
    * <p>Falls back to the value of the {@link ContextCache#DEFAULT_MAX_CONTEXT_CACHE_SIZE}
    * if no such property has been set or if the property is not an integer.
    *

@@ -32,7 +32,7 @@ import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.test.context.event.ApplicationEventsTestExecutionListener;
 import cn.taketoday.test.context.event.EventPublishingTestExecutionListener;
-import cn.taketoday.test.context.junit4.AbstractTransactionalJUnit4SpringContextTests;
+import cn.taketoday.test.context.junit4.AbstractTransactionalJUnit4ContextTests;
 import cn.taketoday.test.context.ContextConfiguration;
 import cn.taketoday.test.context.TestExecutionListeners;
 import cn.taketoday.test.annotation.Commit;
@@ -94,7 +94,7 @@ import cn.taketoday.transaction.annotation.Transactional;
  * @see BeforeTransaction
  * @see AfterTransaction
  * @see JdbcTestUtils
- * @see AbstractTransactionalJUnit4SpringContextTests
+ * @see AbstractTransactionalJUnit4ContextTests
  * @since 4.0
  */
 @TestExecutionListeners(listeners = { ServletTestExecutionListener.class, DirtiesContextBeforeModesTestExecutionListener.class,

@@ -27,7 +27,7 @@ import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.lang.Prototype;
-import cn.taketoday.test.context.junit4.SpringRunner;
+import cn.taketoday.test.context.junit4.ApplicationRunner;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
@@ -35,7 +35,7 @@ import static org.junit.Assert.assertThat;
 /**
  * @author Gary Russell
  */
-@RunWith(SpringRunner.class)
+@RunWith(ApplicationRunner.class)
 public class PrototypeBeanTests {
 
   @Autowired

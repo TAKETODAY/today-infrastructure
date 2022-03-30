@@ -37,8 +37,8 @@ import cn.taketoday.test.context.junit.jupiter.ApplicationJUnitConfig;
 import cn.taketoday.test.context.web.WebAppConfiguration;
 
 /**
- * {@code @SpringJUnitWebConfig} is a <em>composed annotation</em> that combines
- * {@link ExtendWith @ExtendWith(SpringExtension.class)} from JUnit Jupiter with
+ * {@code @ApplicationJUnitWebConfig} is a <em>composed annotation</em> that combines
+ * {@link ExtendWith @ExtendWith(ApplicationExtension.class)} from JUnit Jupiter with
  * {@link ContextConfiguration @ContextConfiguration} and
  * {@link WebAppConfiguration @WebAppConfiguration} from the <em>Spring TestContext
  * Framework</em>.

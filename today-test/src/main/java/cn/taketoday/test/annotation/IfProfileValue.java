@@ -28,8 +28,8 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 import cn.taketoday.test.context.ActiveProfiles;
-import cn.taketoday.test.context.junit4.AbstractJUnit4SpringContextTests;
-import cn.taketoday.test.context.junit4.SpringJUnit4ClassRunner;
+import cn.taketoday.test.context.junit4.AbstractJUnit4ContextTests;
+import cn.taketoday.test.context.junit4.ApplicationJUnit4ClassRunner;
 import cn.taketoday.test.context.junit4.statements.ProfileValueChecker;
 
 /**
@@ -97,8 +97,8 @@ import cn.taketoday.test.context.junit4.statements.ProfileValueChecker;
  * @see SystemProfileValueSource
  * @see ProfileValueSourceConfiguration
  * @see ProfileValueUtils
- * @see AbstractJUnit4SpringContextTests
- * @see SpringJUnit4ClassRunner
+ * @see AbstractJUnit4ContextTests
+ * @see ApplicationJUnit4ClassRunner
  * @see ProfileValueChecker
  * @see cn.taketoday.context.annotation.Profile
  * @see ActiveProfiles

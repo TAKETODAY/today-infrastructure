@@ -27,8 +27,8 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 import cn.taketoday.test.context.TestExecutionListener;
-import cn.taketoday.test.context.junit4.SpringJUnit4ClassRunner;
-import cn.taketoday.test.context.junit4.rules.SpringMethodRule;
+import cn.taketoday.test.context.junit4.ApplicationJUnit4ClassRunner;
+import cn.taketoday.test.context.junit4.rules.ApplicationMethodRule;
 import cn.taketoday.test.context.junit4.statements.SpringRepeat;
 
 /**
@@ -38,8 +38,8 @@ import cn.taketoday.test.context.junit4.statements.SpringRepeat;
  * <p>Note that the scope of execution to be repeated includes execution of the
  * test method itself as well as any <em>set up</em> or <em>tear down</em> of
  * the test fixture. When used with the
- * {@link SpringMethodRule
- * SpringMethodRule}, the scope additionally includes
+ * {@link ApplicationMethodRule
+ * ApplicationMethodRule}, the scope additionally includes
  * {@linkplain TestExecutionListener#prepareTestInstance
  * preparation of the test instance}.
  *
@@ -49,8 +49,8 @@ import cn.taketoday.test.context.junit4.statements.SpringRepeat;
  * @author Rod Johnson
  * @author Sam Brannen
  * @see Timed
- * @see SpringJUnit4ClassRunner
- * @see SpringMethodRule
+ * @see ApplicationJUnit4ClassRunner
+ * @see ApplicationMethodRule
  * @see SpringRepeat
  * @since 4.0
  */

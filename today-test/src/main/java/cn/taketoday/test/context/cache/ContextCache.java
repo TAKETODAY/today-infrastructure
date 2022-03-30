@@ -76,7 +76,7 @@ public interface ContextCache {
    * @see #DEFAULT_MAX_CONTEXT_CACHE_SIZE
    * @since 4.0
    */
-  String MAX_CONTEXT_CACHE_SIZE_PROPERTY_NAME = "spring.test.context.cache.maxSize";
+  String MAX_CONTEXT_CACHE_SIZE_PROPERTY_NAME = "context.test.context.cache.maxSize";
 
   /**
    * Determine whether there is a cached context for the given key.

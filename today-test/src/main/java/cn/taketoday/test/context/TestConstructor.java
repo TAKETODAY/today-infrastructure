@@ -53,10 +53,10 @@ import cn.taketoday.test.context.junit.jupiter.web.ApplicationJUnitWebConfig;
  *
  * <p>As of Spring Framework 5.2, this annotation is only supported in conjunction
  * with the {@link ApplicationExtension
- * SpringExtension} for use with JUnit Jupiter. Note that the {@code SpringExtension} is
+ * ApplicationExtension} for use with JUnit Jupiter. Note that the {@code ApplicationExtension} is
  * often automatically registered for you &mdash; for example, when using annotations such as
- * {@link ApplicationJUnitConfig @SpringJUnitConfig} and
- * {@link ApplicationJUnitWebConfig @SpringJUnitWebConfig}
+ * {@link ApplicationJUnitConfig @ApplicationJUnitConfig} and
+ * {@link ApplicationJUnitWebConfig @ApplicationJUnitWebConfig}
  * or various test-related annotations from Spring Boot Test.
  *
  * <p> this annotation will be inherited from an
@@ -65,9 +65,9 @@ import cn.taketoday.test.context.junit.jupiter.web.ApplicationJUnitWebConfig;
  *
  * @author Sam Brannen
  * @see cn.taketoday.beans.factory.annotation.Autowired @Autowired
- * @see ApplicationExtension SpringExtension
- * @see ApplicationJUnitConfig @SpringJUnitConfig
- * @see ApplicationJUnitWebConfig @SpringJUnitWebConfig
+ * @see ApplicationExtension
+ * @see ApplicationJUnitConfig @ApplicationJUnitConfig
+ * @see ApplicationJUnitWebConfig @ApplicationJUnitWebConfig
  * @see ContextConfiguration @ContextConfiguration
  * @see ContextHierarchy @ContextHierarchy
  * @see ActiveProfiles @ActiveProfiles
@@ -86,7 +86,7 @@ public @interface TestConstructor {
    * <p>Acceptable values include enum constants defined in {@link AutowireMode},
    * ignoring case. For example, the default may be changed to {@link AutowireMode#ALL}
    * by supplying the following JVM system property via the command line.
-   * <pre style="code">-Dspring.test.constructor.autowire.mode=all</pre>
+   * <pre style="code">-Dcontext.test.constructor.autowire.mode=all</pre>
    * <p>If the property is not set to {@code ALL}, parameters for test class
    * constructors will be autowired according to {@link AutowireMode#ANNOTATED}
    * semantics by default.
@@ -99,7 +99,7 @@ public @interface TestConstructor {
    *
    * @see #autowireMode
    */
-  String TEST_CONSTRUCTOR_AUTOWIRE_MODE_PROPERTY_NAME = "spring.test.constructor.autowire.mode";
+  String TEST_CONSTRUCTOR_AUTOWIRE_MODE_PROPERTY_NAME = "context.test.constructor.autowire.mode";
 
   /**
    * Flag for setting the <em>test constructor {@linkplain AutowireMode autowire

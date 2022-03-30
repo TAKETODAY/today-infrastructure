@@ -93,8 +93,8 @@ import cn.taketoday.test.context.web.WebDelegatingSmartContextLoader;
  * See {@link NestedTestConfiguration @NestedTestConfiguration} for details.
  *
  * @author Sam Brannen
- * @see ApplicationJUnitConfig @SpringJUnitConfig
- * @see ApplicationJUnitWebConfig @SpringJUnitWebConfig
+ * @see ApplicationJUnitConfig @ApplicationJUnitConfig
+ * @see ApplicationJUnitWebConfig @ApplicationJUnitWebConfig
  * @see ContextHierarchy @ContextHierarchy
  * @see ActiveProfiles @ActiveProfiles
  * @see TestPropertySource @TestPropertySource

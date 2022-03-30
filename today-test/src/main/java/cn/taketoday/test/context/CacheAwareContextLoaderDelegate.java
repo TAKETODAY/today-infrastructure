@@ -53,7 +53,7 @@ public interface CacheAwareContextLoaderDelegate {
    *
    */
   String DEFAULT_CACHE_AWARE_CONTEXT_LOADER_DELEGATE_PROPERTY_NAME =
-          "spring.test.context.default.CacheAwareContextLoaderDelegate";
+          "context.test.context.default.CacheAwareContextLoaderDelegate";
 
   /**
    * Determine if the {@linkplain ApplicationContext application context} for

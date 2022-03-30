@@ -29,7 +29,7 @@ import java.util.List;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
-import cn.taketoday.test.context.junit4.rules.SpringMethodRule;
+import cn.taketoday.test.context.junit4.rules.ApplicationMethodRule;
 import cn.taketoday.test.context.support.DefaultTestContextBootstrapper;
 import cn.taketoday.util.ReflectionUtils;
 
@@ -225,8 +225,8 @@ public class TestContextManager {
    * test methods &mdash; for example, to inject dependencies.
    * <p>This method should be called immediately after instantiation of the test
    * class or as soon after instantiation as possible (as is the case with the
-   * {@link SpringMethodRule
-   * SpringMethodRule}). In any case, this method must be called prior to any
+   * {@link ApplicationMethodRule
+   * ApplicationMethodRule}). In any case, this method must be called prior to any
    * framework-specific lifecycle callbacks.
    * <p>The managed {@link TestContext} will be updated with the supplied
    * {@code testInstance}.

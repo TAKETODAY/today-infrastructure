@@ -71,7 +71,7 @@ import cn.taketoday.test.annotation.DirtiesContext;
  *
  * <h3>Example</h3>
  * <pre class="code">
- * &#064;SpringJUnitConfig(...)
+ * &#064;ApplicationJUnitConfig(...)
  * &#064;Testcontainers
  * class ExampleIntegrationTests {
  *

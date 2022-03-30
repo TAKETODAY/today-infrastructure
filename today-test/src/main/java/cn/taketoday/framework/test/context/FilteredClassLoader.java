@@ -219,7 +219,7 @@ public class FilteredClassLoader extends URLClassLoader implements SmartClassLoa
     @Override
     public boolean test(String resourceName) {
       for (ClassPathResource hiddenResource : this.hiddenResources) {
-        if (hiddenResource.getFilename() != null && resourceName.equals(hiddenResource.getPath())) {
+        if (hiddenResource.getName() != null && resourceName.equals(hiddenResource.getPath())) {
           return true;
         }
       }

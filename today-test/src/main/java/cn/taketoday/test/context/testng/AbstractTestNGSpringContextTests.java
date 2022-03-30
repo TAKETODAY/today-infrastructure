@@ -43,7 +43,7 @@ import cn.taketoday.test.context.TestExecutionListener;
 import cn.taketoday.test.context.TestExecutionListeners;
 import cn.taketoday.test.context.event.ApplicationEventsTestExecutionListener;
 import cn.taketoday.test.context.event.EventPublishingTestExecutionListener;
-import cn.taketoday.test.context.junit4.AbstractJUnit4SpringContextTests;
+import cn.taketoday.test.context.junit4.AbstractJUnit4ContextTests;
 import cn.taketoday.test.context.support.DependencyInjectionTestExecutionListener;
 import cn.taketoday.test.context.support.DirtiesContextBeforeModesTestExecutionListener;
 import cn.taketoday.test.context.support.DirtiesContextTestExecutionListener;
@@ -90,7 +90,7 @@ import cn.taketoday.test.context.web.ServletTestExecutionListener;
  * @see DirtiesContextTestExecutionListener
  * @see EventPublishingTestExecutionListener
  * @see AbstractTransactionalTestNGSpringContextTests
- * @see AbstractJUnit4SpringContextTests
+ * @see AbstractJUnit4ContextTests
  * @since 4.0
  */
 @TestExecutionListeners({ ServletTestExecutionListener.class, DirtiesContextBeforeModesTestExecutionListener.class,

@@ -49,7 +49,7 @@ import cn.taketoday.test.context.MergedContextConfiguration;
  *
  * <p>The maximum size may be supplied as a {@linkplain #DefaultContextCache(int)
  * constructor argument} or set via a system property or Spring property named
- * {@code spring.test.context.cache.maxSize}.
+ * {@code context.test.context.cache.maxSize}.
  *
  * @author Sam Brannen
  * @author Juergen Hoeller

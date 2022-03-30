@@ -50,7 +50,7 @@ class DuplicateJsonObjectContextCustomizerFactory implements ContextCustomizerFa
 
   private static class DuplicateJsonObjectContextCustomizer implements ContextCustomizer {
 
-    private final Log logger = LogFactory.getLog(DuplicateJsonObjectContextCustomizer.class);
+    private final Logger logger = LoggerFactory.getLogger(DuplicateJsonObjectContextCustomizer.class);
 
     @Override
     public void customizeContext(ConfigurableApplicationContext context, MergedContextConfiguration mergedConfig) {

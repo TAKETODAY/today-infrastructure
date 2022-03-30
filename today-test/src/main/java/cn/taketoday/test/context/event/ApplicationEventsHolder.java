@@ -38,7 +38,7 @@ import cn.taketoday.test.context.junit.jupiter.ApplicationExtension;
  * {@link cn.taketoday.beans.factory.annotation.Autowired @Autowired}
  * into a field in the test class or injected via a parameter in test and
  * lifecycle methods when using JUnit Jupiter and the {@link
- * ApplicationExtension SpringExtension}.
+ * ApplicationExtension ApplicationExtension}.
  *
  * @author Sam Brannen
  * @author Oliver Drotbohm

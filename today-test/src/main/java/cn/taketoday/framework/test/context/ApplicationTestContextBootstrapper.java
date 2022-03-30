@@ -67,7 +67,7 @@ import cn.taketoday.util.StringUtils;
  * {@link ApplicationTest @SpringBootTest} and may also be used directly or subclassed.
  * Provides the following features over and above {@link DefaultTestContextBootstrapper}:
  * <ul>
- * <li>Uses {@link SpringBootContextLoader} as the
+ * <li>Uses {@link ApplicationContextLoader} as the
  * {@link #getDefaultContextLoaderClass(Class) default context loader}.</li>
  * <li>Automatically searches for a
  * {@link ApplicationConfiguration @SpringBootConfiguration} when required.</li>
@@ -97,7 +97,7 @@ public class ApplicationTestContextBootstrapper extends DefaultTestContextBootst
   private static final String ACTIVATE_SERVLET_LISTENER = "cn.taketoday.test."
           + "context.web.ServletTestExecutionListener.activateListener";
 
-  private static final Log logger = LogFactory.getLog(ApplicationTestContextBootstrapper.class);
+  private static final Logger logger = LoggerFactory.getLogger(ApplicationTestContextBootstrapper.class);
 
   @Override
   public TestContext buildTestContext() {
@@ -145,7 +145,7 @@ public class ApplicationTestContextBootstrapper extends DefaultTestContextBootst
 
   @Override
   protected Class<? extends ContextLoader> getDefaultContextLoaderClass(Class<?> testClass) {
-    return SpringBootContextLoader.class;
+    return ApplicationContextLoader.class;
   }
 
   @Override
@@ -172,7 +172,7 @@ public class ApplicationTestContextBootstrapper extends DefaultTestContextBootst
     ConfigurationPropertySource source = new MapConfigurationPropertySource(
             TestPropertySourceUtils.convertInlinedPropertiesToMap(configuration.getPropertySourceProperties()));
     Binder binder = new Binder(source);
-    return binder.bind("spring.main.web-application-type", Bindable.of(ApplicationType.class))
+    return binder.bind("context.main.web-application-type", Bindable.of(ApplicationType.class))
             .orElseGet(this::deduceWebApplicationType);
   }
 
@@ -364,7 +364,7 @@ public class ApplicationTestContextBootstrapper extends DefaultTestContextBootst
           Class<?>[] classes, String[] propertySourceProperties) {
     Set<ContextCustomizer> contextCustomizers = new LinkedHashSet<>(mergedConfig.getContextCustomizers());
     contextCustomizers.add(new ApplicationTestArgs(mergedConfig.getTestClass()));
-    contextCustomizers.add(new SpringBootTestWebEnvironment(mergedConfig.getTestClass()));
+    contextCustomizers.add(new ApplicationTestWebEnvironment(mergedConfig.getTestClass()));
     return new MergedContextConfiguration(mergedConfig.getTestClass(), mergedConfig.getLocations(), classes,
             mergedConfig.getContextInitializerClasses(), mergedConfig.getActiveProfiles(),
             mergedConfig.getPropertySourceLocations(), propertySourceProperties, contextCustomizers,
