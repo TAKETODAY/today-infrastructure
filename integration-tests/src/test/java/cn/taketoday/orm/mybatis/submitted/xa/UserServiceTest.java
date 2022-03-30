@@ -24,15 +24,15 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import cn.taketoday.beans.factory.annotation.Autowired;
-import cn.taketoday.test.context.junit.jupiter.SpringExtension;
-import cn.taketoday.test.context.junit.jupiter.SpringJUnitConfig;
+import cn.taketoday.test.context.junit.jupiter.ApplicationExtension;
+import cn.taketoday.test.context.junit.jupiter.ApplicationJUnitConfig;
 import jakarta.transaction.UserTransaction;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 @Disabled
-@ExtendWith(SpringExtension.class)
-@SpringJUnitConfig(locations = "classpath:cn/taketoday/orm/mybatis/submitted/xa/applicationContext.xml")
+@ExtendWith(ApplicationExtension.class)
+@ApplicationJUnitConfig(locations = "classpath:cn/taketoday/orm/mybatis/submitted/xa/applicationContext.xml")
 class UserServiceTest {
 
   @Autowired

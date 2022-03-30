@@ -25,7 +25,7 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.test.annotation.DirtiesContext;
-import cn.taketoday.test.context.junit.jupiter.SpringJUnitConfig;
+import cn.taketoday.test.context.junit.jupiter.ApplicationJUnitConfig;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -43,7 +43,7 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 class AopNamespaceHandlerAdviceOrderIntegrationTests {
 
 	@Nested
-	@SpringJUnitConfig(locations = "AopNamespaceHandlerAdviceOrderIntegrationTests-afterFirst.xml")
+	@ApplicationJUnitConfig(locations = "AopNamespaceHandlerAdviceOrderIntegrationTests-afterFirst.xml")
 	@DirtiesContext
 	class AfterAdviceFirstTests {
 
@@ -60,7 +60,7 @@ class AopNamespaceHandlerAdviceOrderIntegrationTests {
 	}
 
 	@Nested
-	@SpringJUnitConfig(locations = "AopNamespaceHandlerAdviceOrderIntegrationTests-afterLast.xml")
+	@ApplicationJUnitConfig(locations = "AopNamespaceHandlerAdviceOrderIntegrationTests-afterLast.xml")
 	@DirtiesContext
 	class AfterAdviceLastTests {
 
