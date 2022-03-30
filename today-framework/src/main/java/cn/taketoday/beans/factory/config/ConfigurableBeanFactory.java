@@ -21,6 +21,7 @@
 package cn.taketoday.beans.factory.config;
 
 import java.beans.PropertyEditor;
+import java.util.Iterator;
 
 import cn.taketoday.beans.BeansException;
 import cn.taketoday.beans.PropertyEditorRegistrar;
@@ -54,6 +55,20 @@ import cn.taketoday.lang.Nullable;
  */
 public interface ConfigurableBeanFactory
         extends HierarchicalBeanFactory, SingletonBeanRegistry, AutowireCapableBeanFactory {
+
+  /**
+   * Return a unified view over all bean names managed by this factory.
+   * <p>Includes bean definition names as well as names of manually registered
+   * singleton instances, with bean definition names consistently coming first,
+   * analogous to how type/annotation specific retrieval of bean names works.
+   *
+   * @return the composite iterator for the bean names view
+   * @see #containsBeanDefinition
+   * @see #getBeanNamesForType(Class)
+   * @see #getBeanNamesForAnnotation
+   * @since 4.0
+   */
+  Iterator<String> getBeanNamesIterator();
 
   /**
    * Destroy the given bean instance (usually a prototype instance

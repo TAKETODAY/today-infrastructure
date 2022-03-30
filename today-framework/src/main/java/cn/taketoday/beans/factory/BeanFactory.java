@@ -871,20 +871,6 @@ public interface BeanFactory extends DependencyInjectorProvider {
   String[] getBeanDefinitionNames();
 
   /**
-   * Return a unified view over all bean names managed by this factory.
-   * <p>Includes bean definition names as well as names of manually registered
-   * singleton instances, with bean definition names consistently coming first,
-   * analogous to how type/annotation specific retrieval of bean names works.
-   *
-   * @return the composite iterator for the bean names view
-   * @see #containsBeanDefinition
-   * @see #getBeanNamesForType(Class)
-   * @see #getBeanNamesForAnnotation
-   * @since 4.0
-   */
-  Iterator<String> getBeanNamesIterator();
-
-  /**
    * Get all {@link BeanDefinition}s
    *
    * @return All {@link BeanDefinition}s
