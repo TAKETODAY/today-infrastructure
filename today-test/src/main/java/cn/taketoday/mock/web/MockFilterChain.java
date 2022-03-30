@@ -50,7 +50,7 @@ import jakarta.servlet.ServletResponse;
  * @author Rossen Stoyanchev
  * @see MockFilterConfig
  * @see PassThroughFilterChain
- * @since 2.0.3
+ * @since 4.0
  */
 public class MockFilterChain implements FilterChain {
 

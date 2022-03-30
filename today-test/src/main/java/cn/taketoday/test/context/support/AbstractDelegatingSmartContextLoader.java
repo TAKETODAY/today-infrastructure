@@ -60,7 +60,7 @@ import cn.taketoday.test.context.SmartContextLoader;
  * (e.g., XML configuration files and Groovy scripts) or annotated classes,
  * but not both simultaneously.
  *
- * <p>As of Spring 3.2, a test class may optionally declare neither path-based
+ * <p>a test class may optionally declare neither path-based
  * resource locations nor annotated classes and instead declare only {@linkplain
  * ContextConfiguration#initializers application context initializers}. In such
  * cases, an attempt will still be made to detect defaults, but their absence will

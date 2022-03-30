@@ -43,7 +43,7 @@ import cn.taketoday.lang.Nullable;
  * @see ProfileValueSourceConfiguration
  * @see IfProfileValue
  * @see ProfileValueUtils
- * @since 2.0
+ * @since 4.0
  */
 public interface ProfileValueSource {
 

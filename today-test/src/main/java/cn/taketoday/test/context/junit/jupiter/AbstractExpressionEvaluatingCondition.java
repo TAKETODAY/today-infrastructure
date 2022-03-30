@@ -147,7 +147,7 @@ abstract class AbstractExpressionEvaluatingCondition implements ExecutionConditi
       DirtiesContext dirtiesContext = TestContextAnnotationUtils.findMergedAnnotation(testClass, DirtiesContext.class);
       if (dirtiesContext != null) {
         HierarchyMode hierarchyMode = dirtiesContext.hierarchyMode();
-        SpringExtension.getTestContextManager(context).getTestContext().markApplicationContextDirty(hierarchyMode);
+        ApplicationExtension.getTestContextManager(context).getTestContext().markApplicationContextDirty(hierarchyMode);
       }
     }
 

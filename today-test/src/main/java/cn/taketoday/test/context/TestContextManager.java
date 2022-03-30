@@ -200,7 +200,7 @@ public class TestContextManager {
    * @throws Exception if a registered TestExecutionListener throws an
    * exception
    * @see #getTestExecutionListeners()
-   * @since 3.0
+   * @since 4.0
    */
   public void beforeTestClass() throws Exception {
     Class<?> testClass = getTestContext().getTestClass();
@@ -482,7 +482,7 @@ public class TestContextManager {
    * @throws Exception if a registered TestExecutionListener throws an exception
    * @see #getTestExecutionListeners()
    * @see Throwable#addSuppressed(Throwable)
-   * @since 3.0
+   * @since 4.0
    */
   public void afterTestClass() throws Exception {
     Class<?> testClass = getTestContext().getTestClass();

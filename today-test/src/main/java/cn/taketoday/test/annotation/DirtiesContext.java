@@ -89,7 +89,7 @@ import cn.taketoday.test.context.support.DirtiesContextTestExecutionListener;
  * @see ContextConfiguration
  * @see DirtiesContextBeforeModesTestExecutionListener
  * @see DirtiesContextTestExecutionListener
- * @since 2.0
+ * @since 4.0
  */
 @Target({ ElementType.TYPE, ElementType.METHOD })
 @Retention(RetentionPolicy.RUNTIME)
@@ -115,7 +115,7 @@ public @interface DirtiesContext {
    * <p>Setting the class mode on an annotated test method has no meaning.
    * For method-level control, use {@link #methodMode} instead.
    *
-   * @since 3.0
+   * @since 4.0
    */
   ClassMode classMode() default ClassMode.AFTER_CLASS;
 
@@ -154,7 +154,7 @@ public @interface DirtiesContext {
    * Defines <i>modes</i> which determine how {@code @DirtiesContext} is
    * interpreted when used to annotate a test class.
    *
-   * @since 3.0
+   * @since 4.0
    */
   enum ClassMode {
 

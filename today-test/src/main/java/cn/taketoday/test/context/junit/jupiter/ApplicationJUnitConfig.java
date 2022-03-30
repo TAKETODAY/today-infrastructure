@@ -32,7 +32,7 @@ import java.lang.annotation.Target;
 import cn.taketoday.context.ApplicationContextInitializer;
 import cn.taketoday.core.annotation.AliasFor;
 import cn.taketoday.test.context.ContextConfiguration;
-import cn.taketoday.test.context.junit.jupiter.web.SpringJUnitWebConfig;
+import cn.taketoday.test.context.junit.jupiter.web.ApplicationJUnitWebConfig;
 
 /**
  * {@code @SpringJUnitConfig} is a <em>composed annotation</em> that combines
@@ -42,18 +42,18 @@ import cn.taketoday.test.context.junit.jupiter.web.SpringJUnitWebConfig;
  *
  * @author Sam Brannen
  * @see ExtendWith
- * @see SpringExtension
+ * @see ApplicationExtension
  * @see ContextConfiguration
- * @see SpringJUnitWebConfig
+ * @see ApplicationJUnitWebConfig
  * @since 4.0
  */
-@ExtendWith(SpringExtension.class)
+@ExtendWith(ApplicationExtension.class)
 @ContextConfiguration
 @Documented
 @Inherited
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
-public @interface SpringJUnitConfig {
+public @interface ApplicationJUnitConfig {
 
   /**
    * Alias for {@link ContextConfiguration#classes}.

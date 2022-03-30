@@ -42,7 +42,7 @@ import cn.taketoday.test.annotation.Timed;
  *
  * @author Sam Brannen
  * @see #evaluate()
- * @since 3.0
+ * @since 4.0
  */
 public class SpringFailOnTimeout extends Statement {
 

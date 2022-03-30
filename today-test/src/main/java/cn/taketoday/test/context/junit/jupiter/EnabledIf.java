@@ -65,7 +65,7 @@ import cn.taketoday.core.annotation.AliasFor;
  * annotation type from the correct package.
  *
  * @author Sam Brannen
- * @see SpringExtension
+ * @see ApplicationExtension
  * @see DisabledIf
  * @see org.junit.jupiter.api.Disabled
  * @see org.junit.jupiter.api.condition.EnabledIf

@@ -30,9 +30,9 @@ import java.lang.annotation.Target;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
-import cn.taketoday.test.context.junit.jupiter.SpringExtension;
-import cn.taketoday.test.context.junit.jupiter.SpringJUnitConfig;
-import cn.taketoday.test.context.junit.jupiter.web.SpringJUnitWebConfig;
+import cn.taketoday.test.context.junit.jupiter.ApplicationExtension;
+import cn.taketoday.test.context.junit.jupiter.ApplicationJUnitConfig;
+import cn.taketoday.test.context.junit.jupiter.web.ApplicationJUnitWebConfig;
 
 /**
  * {@code @TestConstructor} is a type-level annotation that is used to configure
@@ -52,11 +52,11 @@ import cn.taketoday.test.context.junit.jupiter.web.SpringJUnitWebConfig;
  * <em>composed annotations</em>.
  *
  * <p>As of Spring Framework 5.2, this annotation is only supported in conjunction
- * with the {@link SpringExtension
+ * with the {@link ApplicationExtension
  * SpringExtension} for use with JUnit Jupiter. Note that the {@code SpringExtension} is
  * often automatically registered for you &mdash; for example, when using annotations such as
- * {@link SpringJUnitConfig @SpringJUnitConfig} and
- * {@link SpringJUnitWebConfig @SpringJUnitWebConfig}
+ * {@link ApplicationJUnitConfig @SpringJUnitConfig} and
+ * {@link ApplicationJUnitWebConfig @SpringJUnitWebConfig}
  * or various test-related annotations from Spring Boot Test.
  *
  * <p> this annotation will be inherited from an
@@ -65,9 +65,9 @@ import cn.taketoday.test.context.junit.jupiter.web.SpringJUnitWebConfig;
  *
  * @author Sam Brannen
  * @see cn.taketoday.beans.factory.annotation.Autowired @Autowired
- * @see SpringExtension SpringExtension
- * @see SpringJUnitConfig @SpringJUnitConfig
- * @see SpringJUnitWebConfig @SpringJUnitWebConfig
+ * @see ApplicationExtension SpringExtension
+ * @see ApplicationJUnitConfig @SpringJUnitConfig
+ * @see ApplicationJUnitWebConfig @SpringJUnitWebConfig
  * @see ContextConfiguration @ContextConfiguration
  * @see ContextHierarchy @ContextHierarchy
  * @see ActiveProfiles @ActiveProfiles

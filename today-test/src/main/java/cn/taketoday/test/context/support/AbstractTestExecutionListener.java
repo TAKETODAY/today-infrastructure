@@ -52,7 +52,7 @@ public abstract class AbstractTestExecutionListener implements TestExecutionList
    * The default implementation is <em>empty</em>. Can be overridden by
    * subclasses as necessary.
    *
-   * @since 3.0
+   * @since 4.0
    */
   @Override
   public void beforeTestClass(TestContext testContext) throws Exception {
@@ -112,7 +112,7 @@ public abstract class AbstractTestExecutionListener implements TestExecutionList
    * The default implementation is <em>empty</em>. Can be overridden by
    * subclasses as necessary.
    *
-   * @since 3.0
+   * @since 4.0
    */
   @Override
   public void afterTestClass(TestContext testContext) throws Exception {

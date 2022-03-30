@@ -35,7 +35,6 @@ import cn.taketoday.util.ObjectUtils;
  *
  * @author Sam Brannen
  * @see XmlBeanDefinitionReader
- * @see GenericGroovyXmlContextLoader
  * @see AnnotationConfigContextLoader
  * @since 4.0
  */

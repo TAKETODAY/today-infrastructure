@@ -49,7 +49,7 @@ import cn.taketoday.util.StringUtils;
  * #getResourceBasePath() resource base path} configured via {@code @WebAppConfiguration}.
  * This allows the {@link TestContext TestContext}
  * to properly cache the corresponding {@link
- * cn.taketoday.web.context.WebApplicationContext WebApplicationContext}
+ * cn.taketoday.web.WebApplicationContext WebApplicationContext}
  * that was loaded using properties of this {@code WebMergedContextConfiguration}.
  *
  * @author Sam Brannen

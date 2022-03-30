@@ -102,7 +102,7 @@ import cn.taketoday.test.context.junit4.statements.ProfileValueChecker;
  * @see ProfileValueChecker
  * @see cn.taketoday.context.annotation.Profile
  * @see ActiveProfiles
- * @since 2.0
+ * @since 4.0
  */
 @Target({ ElementType.TYPE, ElementType.METHOD })
 @Retention(RetentionPolicy.RUNTIME)

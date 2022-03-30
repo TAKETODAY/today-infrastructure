@@ -41,7 +41,7 @@ import jakarta.servlet.ServletResponse;
  * @see Filter
  * @see Servlet
  * @see MockFilterChain
- * @since 2.0.3
+ * @since 4.0
  */
 public class PassThroughFilterChain implements FilterChain {
 

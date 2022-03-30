@@ -50,7 +50,7 @@ import cn.taketoday.test.context.junit4.statements.SpringFailOnTimeout;
  * @see SpringJUnit4ClassRunner
  * @see SpringMethodRule
  * @see SpringFailOnTimeout
- * @since 2.0
+ * @since 4.0
  */
 @Target({ ElementType.METHOD, ElementType.ANNOTATION_TYPE })
 @Retention(RetentionPolicy.RUNTIME)

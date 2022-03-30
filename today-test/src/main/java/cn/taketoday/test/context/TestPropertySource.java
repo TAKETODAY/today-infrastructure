@@ -132,7 +132,7 @@ public @interface TestPropertySource {
    * <em>absolute</em> classpath resource, for example:
    * {@code "/org/example/test.xml"}. A path which references a
    * URL (e.g., a path prefixed with
-   * {@link cn.taketoday.util.ResourceUtils#CLASSPATH_URL_PREFIX classpath:},
+   * {@link cn.taketoday.core.io.ResourceLoader#CLASSPATH_URL_PREFIX classpath:},
    * {@link cn.taketoday.util.ResourceUtils#FILE_URL_PREFIX file:},
    * {@code http:}, etc.) will be loaded using the specified resource protocol.
    * Resource location wildcards (e.g. <code>*&#42;/*.properties</code>)

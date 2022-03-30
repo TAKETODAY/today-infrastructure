@@ -96,7 +96,7 @@ public interface TestExecutionListener {
    *
    * @param testContext the test context for the test; never {@code null}
    * @throws Exception allows any exception to propagate
-   * @since 3.0
+   * @since 4.0
    */
   default void beforeTestClass(TestContext testContext) throws Exception {
   }
@@ -219,7 +219,7 @@ public interface TestExecutionListener {
    *
    * @param testContext the test context for the test; never {@code null}
    * @throws Exception allows any exception to propagate
-   * @since 3.0
+   * @since 4.0
    */
   default void afterTestClass(TestContext testContext) throws Exception {
   }

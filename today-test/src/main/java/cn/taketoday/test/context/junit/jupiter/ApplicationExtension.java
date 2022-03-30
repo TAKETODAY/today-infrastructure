@@ -60,7 +60,7 @@ import cn.taketoday.test.context.TestConstructor;
 import cn.taketoday.test.context.TestContext;
 import cn.taketoday.test.context.TestContextManager;
 import cn.taketoday.test.context.event.ApplicationEvents;
-import cn.taketoday.test.context.junit.jupiter.web.SpringJUnitWebConfig;
+import cn.taketoday.test.context.junit.jupiter.web.ApplicationJUnitWebConfig;
 import cn.taketoday.test.context.support.PropertyProvider;
 import cn.taketoday.test.context.support.TestConstructorUtils;
 import cn.taketoday.util.ReflectionUtils;
@@ -77,12 +77,12 @@ import cn.taketoday.util.ReflectionUtils.MethodFilter;
  * @author Sam Brannen
  * @see EnabledIf
  * @see DisabledIf
- * @see SpringJUnitConfig
- * @see SpringJUnitWebConfig
+ * @see ApplicationJUnitConfig
+ * @see ApplicationJUnitWebConfig
  * @see TestContextManager
  * @since 4.0
  */
-public class SpringExtension implements BeforeAllCallback, AfterAllCallback, TestInstancePostProcessor,
+public class ApplicationExtension implements BeforeAllCallback, AfterAllCallback, TestInstancePostProcessor,
         BeforeEachCallback, AfterEachCallback, BeforeTestExecutionCallback, AfterTestExecutionCallback,
         ParameterResolver {
 
@@ -90,14 +90,14 @@ public class SpringExtension implements BeforeAllCallback, AfterAllCallback, Tes
    * {@link Namespace} in which {@code TestContextManagers} are stored, keyed
    * by test class.
    */
-  private static final Namespace TEST_CONTEXT_MANAGER_NAMESPACE = Namespace.create(SpringExtension.class);
+  private static final Namespace TEST_CONTEXT_MANAGER_NAMESPACE = Namespace.create(ApplicationExtension.class);
 
   /**
    * {@link Namespace} in which {@code @Autowired} validation error messages
    * are stored, keyed by test class.
    */
   private static final Namespace AUTOWIRED_VALIDATION_NAMESPACE =
-          Namespace.create(SpringExtension.class.getName() + "#autowired.validation");
+          Namespace.create(ApplicationExtension.class.getName() + "#autowired.validation");
 
   private static final String NO_AUTOWIRED_VIOLATIONS_DETECTED = "NO AUTOWIRED VIOLATIONS DETECTED";
 
@@ -109,7 +109,7 @@ public class SpringExtension implements BeforeAllCallback, AfterAllCallback, Tes
   private static final MethodFilter autowiredTestOrLifecycleMethodFilter =
           ReflectionUtils.USER_DECLARED_METHODS
                   .and(method -> !Modifier.isPrivate(method.getModifiers()))
-                  .and(SpringExtension::isAutowiredTestOrLifecycleMethod);
+                  .and(ApplicationExtension::isAutowiredTestOrLifecycleMethod);
 
   /**
    * Delegates to {@link TestContextManager#beforeTestClass}.

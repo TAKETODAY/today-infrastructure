@@ -55,7 +55,7 @@ import jakarta.servlet.http.Part;
  * @author Eric Crampton
  * @author Arjen Poutsma
  * @see MockMultipartFile
- * @since 2.0
+ * @since 4.0
  */
 public class MockMultipartHttpServletRequest extends MockHttpServletRequest implements MultipartHttpServletRequest {
 

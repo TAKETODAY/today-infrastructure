@@ -36,7 +36,7 @@ import cn.taketoday.test.annotation.TestAnnotationUtils;
  *
  * @author Sam Brannen
  * @see #evaluate()
- * @since 3.0
+ * @since 4.0
  */
 public class SpringRepeat extends Statement {
 

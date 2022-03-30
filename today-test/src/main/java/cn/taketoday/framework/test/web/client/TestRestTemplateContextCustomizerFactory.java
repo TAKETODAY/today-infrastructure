@@ -1,0 +1,47 @@
+/*
+ * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ *
+ * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ */
+
+package cn.taketoday.framework.test.web.client;
+
+import java.util.List;
+
+import cn.taketoday.framework.test.context.ApplicationTest;
+import cn.taketoday.test.context.ContextConfigurationAttributes;
+import cn.taketoday.test.context.ContextCustomizer;
+import cn.taketoday.test.context.ContextCustomizerFactory;
+import cn.taketoday.test.context.TestContextAnnotationUtils;
+
+/**
+ * {@link ContextCustomizerFactory} for {@link TestRestTemplate}.
+ *
+ * @author Andy Wilkinson
+ * @see TestRestTemplateContextCustomizer
+ */
+class TestRestTemplateContextCustomizerFactory implements ContextCustomizerFactory {
+
+  @Override
+  public ContextCustomizer createContextCustomizer(Class<?> testClass,
+          List<ContextConfigurationAttributes> configAttributes) {
+    ApplicationTest applicationTest = TestContextAnnotationUtils.findMergedAnnotation(testClass,
+            ApplicationTest.class);
+    return (applicationTest != null) ? new TestRestTemplateContextCustomizer() : null;
+  }
+
+}
