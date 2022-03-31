@@ -24,7 +24,7 @@ import org.junit.jupiter.api.Test;
 import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.beans.testfixture.beans.Employee;
 import cn.taketoday.beans.testfixture.beans.Pet;
-import cn.taketoday.test.context.junit.jupiter.ApplicationJUnitConfig;
+import cn.taketoday.test.context.junit.jupiter.JUnitConfig;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -36,7 +36,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @since 4.1
  * @see DefaultScriptDetectionGroovySpringContextTestsContext
  */
-@ApplicationJUnitConfig
+@JUnitConfig
 // Config loaded from DefaultScriptDetectionGroovySpringContextTestsContext.groovy
 class DefaultScriptDetectionGroovySpringContextTests {
 

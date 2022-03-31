@@ -28,7 +28,7 @@ import cn.taketoday.jdbc.core.JdbcTemplate;
 import cn.taketoday.jdbc.datasource.DataSourceTransactionManager;
 import cn.taketoday.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
 import cn.taketoday.test.annotation.DirtiesContext;
-import cn.taketoday.test.context.junit.jupiter.ApplicationJUnitConfig;
+import cn.taketoday.test.context.junit.jupiter.JUnitConfig;
 import cn.taketoday.transaction.PlatformTransactionManager;
 import cn.taketoday.transaction.annotation.Transactional;
 
@@ -47,7 +47,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Sam Brannen
  * @since 4.1
  */
-@ApplicationJUnitConfig
+@JUnitConfig
 @DirtiesContext
 @Transactional(transactionManager = "txMgr1")
 @SqlConfig(dataSource = "dataSource1", transactionManager = "txMgr1")

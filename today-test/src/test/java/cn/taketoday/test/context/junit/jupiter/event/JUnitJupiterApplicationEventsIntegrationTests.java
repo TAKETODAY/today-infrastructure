@@ -32,7 +32,7 @@ import cn.taketoday.context.ApplicationEvent;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.test.context.event.ApplicationEvents;
 import cn.taketoday.test.context.event.RecordApplicationEvents;
-import cn.taketoday.test.context.junit.jupiter.ApplicationJUnitConfig;
+import cn.taketoday.test.context.junit.jupiter.JUnitConfig;
 
 import java.util.stream.Stream;
 
@@ -46,7 +46,7 @@ import static org.junit.jupiter.api.TestInstance.Lifecycle.PER_METHOD;
  * @author Sam Brannen
  * @since 5.3.3
  */
-@ApplicationJUnitConfig
+@JUnitConfig
 @RecordApplicationEvents
 class JUnitJupiterApplicationEventsIntegrationTests {
 

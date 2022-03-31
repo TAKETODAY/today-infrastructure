@@ -25,7 +25,7 @@ import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.test.context.junit.SpringJUnitJupiterTestSuite;
 import cn.taketoday.test.context.junit.jupiter.TestConfig;
 import cn.taketoday.test.context.junit.jupiter.ApplicationExtension;
-import cn.taketoday.test.context.junit.jupiter.ApplicationJUnitConfig;
+import cn.taketoday.test.context.junit.jupiter.JUnitConfig;
 
 import java.util.List;
 
@@ -42,7 +42,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Sam Brannen
  * @since 5.0
  */
-@ApplicationJUnitConfig(TestConfig.class)
+@JUnitConfig(TestConfig.class)
 abstract class GenericComicCharactersTests<T extends Character> {
 
 	@Autowired

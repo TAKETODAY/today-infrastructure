@@ -28,7 +28,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.test.context.junit.jupiter.ApplicationExtension;
-import cn.taketoday.test.context.junit.jupiter.ApplicationJUnitConfig;
+import cn.taketoday.test.context.junit.jupiter.JUnitConfig;
 import cn.taketoday.test.context.web.WebAppConfiguration;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -36,7 +36,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @Disabled
 @ExtendWith(ApplicationExtension.class)
 @WebAppConfiguration
-@ApplicationJUnitConfig(locations = "file:src/test/java/cn/taketoday/orm/mybatis/submitted/webapp_placeholder/spring.xml")
+@JUnitConfig(locations = "file:src/test/java/cn/taketoday/orm/mybatis/submitted/webapp_placeholder/spring.xml")
 class WebappPlaceholderTest {
 
   @Autowired

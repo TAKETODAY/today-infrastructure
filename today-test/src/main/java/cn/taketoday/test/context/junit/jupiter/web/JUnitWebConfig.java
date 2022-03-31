@@ -33,22 +33,21 @@ import cn.taketoday.context.ApplicationContextInitializer;
 import cn.taketoday.core.annotation.AliasFor;
 import cn.taketoday.test.context.ContextConfiguration;
 import cn.taketoday.test.context.junit.jupiter.ApplicationExtension;
-import cn.taketoday.test.context.junit.jupiter.ApplicationJUnitConfig;
+import cn.taketoday.test.context.junit.jupiter.JUnitConfig;
 import cn.taketoday.test.context.web.WebAppConfiguration;
 
 /**
  * {@code @ApplicationJUnitWebConfig} is a <em>composed annotation</em> that combines
  * {@link ExtendWith @ExtendWith(ApplicationExtension.class)} from JUnit Jupiter with
  * {@link ContextConfiguration @ContextConfiguration} and
- * {@link WebAppConfiguration @WebAppConfiguration} from the <em>Spring TestContext
- * Framework</em>.
+ * {@link WebAppConfiguration @WebAppConfiguration} from the <em>TestContext Framework</em>.
  *
  * @author Sam Brannen
  * @see ExtendWith
  * @see ApplicationExtension
  * @see ContextConfiguration
  * @see WebAppConfiguration
- * @see ApplicationJUnitConfig
+ * @see JUnitConfig
  * @since 4.0
  */
 @ExtendWith(ApplicationExtension.class)
@@ -58,7 +57,7 @@ import cn.taketoday.test.context.web.WebAppConfiguration;
 @Inherited
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
-public @interface ApplicationJUnitWebConfig {
+public @interface JUnitWebConfig {
 
   /**
    * Alias for {@link ContextConfiguration#classes}.

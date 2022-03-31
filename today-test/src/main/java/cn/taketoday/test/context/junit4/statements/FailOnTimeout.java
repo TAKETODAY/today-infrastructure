@@ -30,7 +30,7 @@ import cn.taketoday.test.annotation.TestAnnotationUtils;
 import cn.taketoday.test.annotation.Timed;
 
 /**
- * {@code SpringFailOnTimeout} is a custom JUnit {@link Statement} which adds
+ * {@code FailOnTimeout} is a custom JUnit {@link Statement} which adds
  * support for Framework's {@link Timed @Timed}
  * annotation by throwing an exception if the next statement in the execution
  * chain takes more than the specified number of milliseconds.
@@ -44,14 +44,14 @@ import cn.taketoday.test.annotation.Timed;
  * @see #evaluate()
  * @since 4.0
  */
-public class SpringFailOnTimeout extends Statement {
+public class FailOnTimeout extends Statement {
 
   private final Statement next;
 
   private final long timeout;
 
   /**
-   * Construct a new {@code SpringFailOnTimeout} statement for the supplied
+   * Construct a new {@code FailOnTimeout} statement for the supplied
    * {@code testMethod}, retrieving the configured timeout from the
    * {@code @Timed} annotation on the supplied method.
    *
@@ -59,12 +59,12 @@ public class SpringFailOnTimeout extends Statement {
    * @param testMethod the current test method
    * @see TestAnnotationUtils#getTimeout(Method)
    */
-  public SpringFailOnTimeout(Statement next, Method testMethod) {
+  public FailOnTimeout(Statement next, Method testMethod) {
     this(next, TestAnnotationUtils.getTimeout(testMethod));
   }
 
   /**
-   * Construct a new {@code SpringFailOnTimeout} statement for the supplied
+   * Construct a new {@code FailOnTimeout} statement for the supplied
    * {@code timeout}.
    * <p>If the supplied {@code timeout} is {@code 0}, the execution of the
    * {@code next} statement will not be timed.
@@ -73,7 +73,7 @@ public class SpringFailOnTimeout extends Statement {
    * @param timeout the configured {@code timeout} for the current test, in milliseconds;
    * never negative
    */
-  public SpringFailOnTimeout(Statement next, long timeout) {
+  public FailOnTimeout(Statement next, long timeout) {
     Assert.notNull(next, "next statement must not be null");
     Assert.isTrue(timeout >= 0, "timeout must be non-negative");
     this.next = next;

@@ -30,15 +30,6 @@ import cn.taketoday.test.context.TestContext;
 import cn.taketoday.test.context.TestExecutionListener;
 import cn.taketoday.test.context.TestExecutionListeners;
 import cn.taketoday.test.context.TestExecutionListeners.MergeMode;
-import cn.taketoday.test.context.event.AfterTestClassEvent;
-import cn.taketoday.test.context.event.AfterTestExecutionEvent;
-import cn.taketoday.test.context.event.AfterTestMethodEvent;
-import cn.taketoday.test.context.event.BeforeTestClassEvent;
-import cn.taketoday.test.context.event.BeforeTestExecutionEvent;
-import cn.taketoday.test.context.event.BeforeTestMethodEvent;
-import cn.taketoday.test.context.event.EventPublishingTestExecutionListener;
-import cn.taketoday.test.context.event.PrepareTestInstanceEvent;
-import cn.taketoday.test.context.event.TestContextEvent;
 import cn.taketoday.test.context.event.annotation.AfterTestClass;
 import cn.taketoday.test.context.event.annotation.AfterTestExecution;
 import cn.taketoday.test.context.event.annotation.AfterTestMethod;
@@ -46,7 +37,7 @@ import cn.taketoday.test.context.event.annotation.BeforeTestClass;
 import cn.taketoday.test.context.event.annotation.BeforeTestExecution;
 import cn.taketoday.test.context.event.annotation.BeforeTestMethod;
 import cn.taketoday.test.context.event.annotation.PrepareTestInstance;
-import cn.taketoday.test.context.junit.jupiter.ApplicationJUnitConfig;
+import cn.taketoday.test.context.junit.jupiter.JUnitConfig;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -132,7 +123,7 @@ class EagerTestExecutionEventPublishingTests {
 	}
 
 
-	@ApplicationJUnitConfig(Config.class)
+	@JUnitConfig(Config.class)
 	static class LazyTestCase1 {
 
 		@Test

@@ -26,7 +26,7 @@ import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Scope;
 import cn.taketoday.stereotype.Controller;
-import cn.taketoday.test.context.junit.jupiter.web.ApplicationJUnitWebConfig;
+import cn.taketoday.test.context.junit.jupiter.web.JUnitWebConfig;
 import cn.taketoday.test.web.servlet.MockMvc;
 import cn.taketoday.ui.Model;
 import cn.taketoday.web.bind.annotation.ControllerAdvice;
@@ -54,7 +54,7 @@ import static cn.taketoday.test.web.servlet.setup.MockMvcBuilders.webAppContextS
  * @author Sam Brannen
  * @since 5.1.12
  */
-@ApplicationJUnitWebConfig
+@JUnitWebConfig
 class ControllerAdviceIntegrationTests {
 
 	MockMvc mockMvc;

@@ -103,8 +103,6 @@ public @interface DirtiesContext {
    * <p>Defaults to {@link MethodMode#AFTER_METHOD AFTER_METHOD}.
    * <p>Setting the method mode on an annotated test class has no meaning.
    * For class-level control, use {@link #classMode} instead.
-   *
-   * @since 4.0
    */
   MethodMode methodMode() default MethodMode.AFTER_METHOD;
 
@@ -114,8 +112,6 @@ public @interface DirtiesContext {
    * <p>Defaults to {@link ClassMode#AFTER_CLASS AFTER_CLASS}.
    * <p>Setting the class mode on an annotated test method has no meaning.
    * For method-level control, use {@link #methodMode} instead.
-   *
-   * @since 4.0
    */
   ClassMode classMode() default ClassMode.AFTER_CLASS;
 
@@ -124,16 +120,12 @@ public @interface DirtiesContext {
    * configured as part of a hierarchy via
    * {@link ContextHierarchy @ContextHierarchy}.
    * <p>Defaults to {@link HierarchyMode#EXHAUSTIVE EXHAUSTIVE}.
-   *
-   * @since 4.0
    */
   HierarchyMode hierarchyMode() default HierarchyMode.EXHAUSTIVE;
 
   /**
    * Defines <i>modes</i> which determine how {@code @DirtiesContext} is
    * interpreted when used to annotate a test method.
-   *
-   * @since 4.0
    */
   enum MethodMode {
 
@@ -148,29 +140,23 @@ public @interface DirtiesContext {
      * <em>dirty</em> after the corresponding test method.
      */
     AFTER_METHOD
-	}
+  }
 
   /**
    * Defines <i>modes</i> which determine how {@code @DirtiesContext} is
    * interpreted when used to annotate a test class.
-   *
-   * @since 4.0
    */
   enum ClassMode {
 
     /**
      * The associated {@code ApplicationContext} will be marked as
      * <em>dirty</em> before the test class.
-     *
-     * @since 4.0
      */
     BEFORE_CLASS,
 
     /**
      * The associated {@code ApplicationContext} will be marked as
      * <em>dirty</em> before each test method in the class.
-     *
-     * @since 4.0
      */
     BEFORE_EACH_TEST_METHOD,
 
@@ -185,15 +171,13 @@ public @interface DirtiesContext {
      * <em>dirty</em> after the test class.
      */
     AFTER_CLASS
-	}
+  }
 
   /**
    * Defines <i>modes</i> which determine how the context cache is cleared
    * when {@code @DirtiesContext} is used in a test whose context is
    * configured as part of a hierarchy via
    * {@link ContextHierarchy @ContextHierarchy}.
-   *
-   * @since 4.0
    */
   enum HierarchyMode {
 
@@ -219,6 +203,6 @@ public @interface DirtiesContext {
      * current test.
      */
     CURRENT_LEVEL
-	}
+  }
 
 }

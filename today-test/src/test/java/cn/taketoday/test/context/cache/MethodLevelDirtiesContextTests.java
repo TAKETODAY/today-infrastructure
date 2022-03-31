@@ -29,7 +29,7 @@ import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.test.annotation.DirtiesContext;
-import cn.taketoday.test.context.junit.jupiter.ApplicationJUnitConfig;
+import cn.taketoday.test.context.junit.jupiter.JUnitConfig;
 import cn.taketoday.test.context.support.DependencyInjectionTestExecutionListener;
 import cn.taketoday.test.context.support.DirtiesContextBeforeModesTestExecutionListener;
 import cn.taketoday.test.context.support.DirtiesContextTestExecutionListener;
@@ -49,7 +49,7 @@ import static cn.taketoday.test.annotation.DirtiesContext.MethodMode.BEFORE_METH
  * @author Sam Brannen
  * @since 4.2
  */
-@ApplicationJUnitConfig
+@JUnitConfig
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class MethodLevelDirtiesContextTests {
 

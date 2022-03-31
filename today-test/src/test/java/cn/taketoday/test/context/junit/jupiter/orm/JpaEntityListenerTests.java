@@ -32,7 +32,6 @@ import cn.taketoday.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import cn.taketoday.orm.jpa.vendor.Database;
 import cn.taketoday.orm.jpa.vendor.HibernateJpaVendorAdapter;
 import cn.taketoday.test.context.jdbc.Sql;
-import cn.taketoday.test.context.junit.jupiter.ApplicationJUnitConfig;
 import cn.taketoday.test.context.junit.jupiter.orm.domain.Person;
 import cn.taketoday.test.context.junit.jupiter.orm.domain.PersonListener;
 import cn.taketoday.test.context.junit.jupiter.orm.domain.PersonRepository;

@@ -26,7 +26,6 @@ import cn.taketoday.beans.factory.annotation.Qualifier;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Primary;
-import cn.taketoday.test.context.junit.jupiter.ApplicationJUnitConfig;
 import cn.taketoday.test.context.transaction.AfterTransaction;
 import cn.taketoday.transaction.PlatformTransactionManager;
 import cn.taketoday.transaction.TransactionManager;

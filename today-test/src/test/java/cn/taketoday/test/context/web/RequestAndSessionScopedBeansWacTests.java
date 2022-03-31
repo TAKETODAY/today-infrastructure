@@ -21,12 +21,15 @@
 package cn.taketoday.test.context.web;
 
 import org.junit.jupiter.api.Test;
+
 import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.beans.testfixture.beans.TestBean;
 import cn.taketoday.mock.web.MockHttpServletRequest;
 import cn.taketoday.mock.web.MockHttpSession;
-import cn.taketoday.test.context.junit.jupiter.web.ApplicationJUnitWebConfig;
-import cn.taketoday.web.context.WebApplicationContext;
+import cn.taketoday.test.context.junit.jupiter.web.JUnitWebConfig;
+import cn.taketoday.web.servlet.WebServletApplicationContext;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Integration tests that verify support for request and session scoped beans
@@ -35,44 +38,43 @@ import cn.taketoday.web.context.WebApplicationContext;
  * @author Sam Brannen
  * @since 4.0
  */
-@ApplicationJUnitWebConfig
+@JUnitWebConfig
 class RequestAndSessionScopedBeansWacTests {
 
-	@Autowired
-	WebApplicationContext wac;
+  @Autowired
+  WebServletApplicationContext wac;
 
-	@Autowired
-	MockHttpServletRequest request;
+  @Autowired
+  MockHttpServletRequest request;
 
-	@Autowired
-	MockHttpSession session;
+  @Autowired
+  MockHttpSession session;
 
+  @Test
+  void requestScope() throws Exception {
+    String beanName = "requestScopedTestBean";
+    String contextPath = "/path";
 
-	@Test
-	void requestScope() throws Exception {
-		String beanName = "requestScopedTestBean";
-		String contextPath = "/path";
+    assertThat(request.getAttribute(beanName)).isNull();
 
-		assertThat(request.getAttribute(beanName)).isNull();
+    request.setContextPath(contextPath);
+    TestBean testBean = wac.getBean(beanName, TestBean.class);
 
-		request.setContextPath(contextPath);
-		TestBean testBean = wac.getBean(beanName, TestBean.class);
+    assertThat(testBean.getName()).isEqualTo(contextPath);
+    assertThat(request.getAttribute(beanName)).isSameAs(testBean);
+    assertThat(wac.getBean(beanName, TestBean.class)).isSameAs(testBean);
+  }
 
-		assertThat(testBean.getName()).isEqualTo(contextPath);
-		assertThat(request.getAttribute(beanName)).isSameAs(testBean);
-		assertThat(wac.getBean(beanName, TestBean.class)).isSameAs(testBean);
-	}
+  @Test
+  void sessionScope() throws Exception {
+    String beanName = "sessionScopedTestBean";
 
-	@Test
-	void sessionScope() throws Exception {
-		String beanName = "sessionScopedTestBean";
+    assertThat(session.getAttribute(beanName)).isNull();
 
-		assertThat(session.getAttribute(beanName)).isNull();
+    TestBean testBean = wac.getBean(beanName, TestBean.class);
 
-		TestBean testBean = wac.getBean(beanName, TestBean.class);
-
-		assertThat(session.getAttribute(beanName)).isSameAs(testBean);
-		assertThat(wac.getBean(beanName, TestBean.class)).isSameAs(testBean);
-	}
+    assertThat(session.getAttribute(beanName)).isSameAs(testBean);
+    assertThat(wac.getBean(beanName, TestBean.class)).isSameAs(testBean);
+  }
 
 }

@@ -31,7 +31,7 @@ import cn.taketoday.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
 import cn.taketoday.test.context.junit4.TimedTransactionalSpringRunnerTests;
 import cn.taketoday.test.transaction.TransactionAssert;
 import cn.taketoday.test.context.junit.jupiter.FailingTestCase;
-import cn.taketoday.test.context.junit.jupiter.ApplicationJUnitConfig;
+import cn.taketoday.test.context.junit.jupiter.JUnitConfig;
 import cn.taketoday.transaction.PlatformTransactionManager;
 import cn.taketoday.transaction.annotation.Propagation;
 import cn.taketoday.transaction.annotation.Transactional;
@@ -75,7 +75,7 @@ class TimedTransactionalSpringExtensionTests {
 	}
 
 
-	@ApplicationJUnitConfig
+	@JUnitConfig
 	@Transactional
 	@FailingTestCase
 	static class TestCase {

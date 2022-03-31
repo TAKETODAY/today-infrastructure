@@ -25,10 +25,8 @@ import com.gargoylesoftware.htmlunit.util.Cookie;
 import org.junit.jupiter.api.Test;
 import org.openqa.selenium.htmlunit.HtmlUnitDriver;
 import cn.taketoday.context.annotation.Configuration;
-import cn.taketoday.test.context.junit.jupiter.web.ApplicationJUnitWebConfig;
+import cn.taketoday.test.context.junit.jupiter.web.JUnitWebConfig;
 import cn.taketoday.test.web.servlet.MockMvc;
-import cn.taketoday.test.web.servlet.htmlunit.webdriver.MockMvcHtmlUnitDriverBuilder;
-import cn.taketoday.test.web.servlet.htmlunit.webdriver.WebConnectionHtmlUnitDriver;
 import cn.taketoday.test.web.servlet.setup.MockMvcBuilders;
 import cn.taketoday.web.bind.annotation.CookieValue;
 import cn.taketoday.web.bind.annotation.RequestMapping;
@@ -50,7 +48,7 @@ import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException
  * @author Sam Brannen
  * @since 4.2
  */
-@ApplicationJUnitWebConfig
+@JUnitWebConfig
 class MockMvcHtmlUnitDriverBuilderTests {
 
 	private static final String EXPECTED_BODY = "MockMvcHtmlUnitDriverBuilderTests mvc";

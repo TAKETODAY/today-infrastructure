@@ -31,7 +31,7 @@ import cn.taketoday.test.context.DynamicPropertyRegistry;
 import cn.taketoday.test.context.DynamicPropertySource;
 import cn.taketoday.test.context.NestedTestConfiguration;
 import cn.taketoday.test.context.junit.jupiter.ApplicationExtension;
-import cn.taketoday.test.context.junit.jupiter.ApplicationJUnitConfig;
+import cn.taketoday.test.context.junit.jupiter.JUnitConfig;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static cn.taketoday.test.context.NestedTestConfiguration.EnclosingConfiguration.OVERRIDE;
@@ -44,7 +44,7 @@ import static cn.taketoday.test.context.NestedTestConfiguration.EnclosingConfigu
  * @author Sam Brannen
  * @since 5.3.2
  */
-@ApplicationJUnitConfig
+@JUnitConfig
 class DynamicPropertySourceNestedTests {
 
 	private static final String TEST_CONTAINER_IP = "DynamicPropertySourceNestedTests.test.container.ip";
@@ -73,7 +73,7 @@ class DynamicPropertySourceNestedTests {
 
 	@Nested
 	@NestedTestConfiguration(OVERRIDE)
-	@ApplicationJUnitConfig(Config.class)
+	@JUnitConfig(Config.class)
 	class DynamicPropertySourceFromSuperclassTests extends DynamicPropertySourceSuperclass {
 
 		@Test
@@ -85,7 +85,7 @@ class DynamicPropertySourceNestedTests {
 
 	@Nested
 	@NestedTestConfiguration(OVERRIDE)
-	@ApplicationJUnitConfig(Config.class)
+	@JUnitConfig(Config.class)
 	class DynamicPropertySourceFromInterfaceTests implements DynamicPropertySourceInterface {
 
 		@Test
@@ -97,7 +97,7 @@ class DynamicPropertySourceNestedTests {
 
 	@Nested
 	@NestedTestConfiguration(OVERRIDE)
-	@ApplicationJUnitConfig(Config.class)
+	@JUnitConfig(Config.class)
 	class OverriddenConfigTests {
 
 		@Test

@@ -28,7 +28,7 @@ import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.test.context.NestedTestConfiguration;
 import cn.taketoday.test.context.TestConstructor;
 import cn.taketoday.test.context.junit.jupiter.ApplicationExtension;
-import cn.taketoday.test.context.junit.jupiter.ApplicationJUnitConfig;
+import cn.taketoday.test.context.junit.jupiter.JUnitConfig;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static cn.taketoday.test.context.NestedTestConfiguration.EnclosingConfiguration.INHERIT;
@@ -44,7 +44,7 @@ import static cn.taketoday.test.context.TestConstructor.AutowireMode.ANNOTATED;
  * @author Sam Brannen
  * @since 5.3
  */
-@ApplicationJUnitConfig
+@JUnitConfig
 @TestConstructor(autowireMode = ALL)
 @NestedTestConfiguration(OVERRIDE) // since INHERIT is now the global default
 class TestConstructorNestedTests {
@@ -59,7 +59,7 @@ class TestConstructorNestedTests {
 
 
 	@Nested
-	@ApplicationJUnitConfig(Config.class)
+	@JUnitConfig(Config.class)
 	@TestConstructor(autowireMode = ANNOTATED)
 	class ConfigOverriddenByDefaultTests {
 
@@ -113,7 +113,7 @@ class TestConstructorNestedTests {
 
 		@Nested
 		@NestedTestConfiguration(OVERRIDE)
-		@ApplicationJUnitConfig(Config.class)
+		@JUnitConfig(Config.class)
 		@TestConstructor(autowireMode = ANNOTATED)
 		class DoubleNestedWithOverriddenConfigTests {
 

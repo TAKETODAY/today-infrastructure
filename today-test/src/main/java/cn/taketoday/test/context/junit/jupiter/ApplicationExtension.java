@@ -60,7 +60,7 @@ import cn.taketoday.test.context.TestConstructor;
 import cn.taketoday.test.context.TestContext;
 import cn.taketoday.test.context.TestContextManager;
 import cn.taketoday.test.context.event.ApplicationEvents;
-import cn.taketoday.test.context.junit.jupiter.web.ApplicationJUnitWebConfig;
+import cn.taketoday.test.context.junit.jupiter.web.JUnitWebConfig;
 import cn.taketoday.test.context.support.PropertyProvider;
 import cn.taketoday.test.context.support.TestConstructorUtils;
 import cn.taketoday.util.ReflectionUtils;
@@ -77,14 +77,13 @@ import cn.taketoday.util.ReflectionUtils.MethodFilter;
  * @author Sam Brannen
  * @see EnabledIf
  * @see DisabledIf
- * @see ApplicationJUnitConfig
- * @see ApplicationJUnitWebConfig
+ * @see JUnitConfig
+ * @see JUnitWebConfig
  * @see TestContextManager
  * @since 4.0
  */
 public class ApplicationExtension implements BeforeAllCallback, AfterAllCallback, TestInstancePostProcessor,
-        BeforeEachCallback, AfterEachCallback, BeforeTestExecutionCallback, AfterTestExecutionCallback,
-        ParameterResolver {
+        BeforeEachCallback, AfterEachCallback, BeforeTestExecutionCallback, AfterTestExecutionCallback, ParameterResolver {
 
   /**
    * {@link Namespace} in which {@code TestContextManagers} are stored, keyed
@@ -134,7 +133,7 @@ public class ApplicationExtension implements BeforeAllCallback, AfterAllCallback
 
   /**
    * Delegates to {@link TestContextManager#prepareTestInstance}.
-   * <p>As of Spring Framework 5.3.2, this method also validates that test
+   * <p>this method also validates that test
    * methods and test lifecycle methods are not annotated with
    * {@link Autowired @Autowired}.
    */
@@ -147,8 +146,6 @@ public class ApplicationExtension implements BeforeAllCallback, AfterAllCallback
   /**
    * Validate that test methods and test lifecycle methods in the supplied
    * test class are not annotated with {@link Autowired @Autowired}.
-   *
-   * @since 4.0
    */
   private void validateAutowiredConfig(ExtensionContext context) {
     // We save the result in the ExtensionContext.Store so that we don't

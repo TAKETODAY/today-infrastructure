@@ -27,7 +27,7 @@ import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.scheduling.annotation.Async;
 import cn.taketoday.scheduling.annotation.EnableAsync;
 import cn.taketoday.test.annotation.DirtiesContext;
-import cn.taketoday.test.context.junit.jupiter.ApplicationJUnitConfig;
+import cn.taketoday.test.context.junit.jupiter.JUnitConfig;
 
 /**
  * Integration tests for applications using {@link Async @Async} methods with
@@ -40,7 +40,7 @@ import cn.taketoday.test.context.junit.jupiter.ApplicationJUnitConfig;
  * @author Sam Brannen
  * @since 5.2
  */
-@ApplicationJUnitConfig
+@JUnitConfig
 @Disabled("Only meant to be executed manually")
 class AsyncMethodsSpringTestContextIntegrationTests {
 

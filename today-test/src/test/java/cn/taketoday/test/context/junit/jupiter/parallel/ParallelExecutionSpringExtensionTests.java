@@ -31,7 +31,7 @@ import org.junit.platform.launcher.listeners.SummaryGeneratingListener;
 import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.annotation.Configuration;
-import cn.taketoday.test.context.junit.jupiter.ApplicationJUnitConfig;
+import cn.taketoday.test.context.junit.jupiter.JUnitConfig;
 
 import java.lang.reflect.Parameter;
 
@@ -69,7 +69,7 @@ class ParallelExecutionSpringExtensionTests {
 			"number of tests executed successfully").isEqualTo(NUM_TESTS);
 	}
 
-	@ApplicationJUnitConfig
+	@JUnitConfig
 	@Disabled
 	static class TestCase {
 

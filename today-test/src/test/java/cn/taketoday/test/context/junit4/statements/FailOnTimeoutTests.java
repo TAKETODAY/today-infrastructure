@@ -27,8 +27,6 @@ import org.mockito.stubbing.Answer;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import cn.taketoday.test.context.junit4.statements.SpringFailOnTimeout;
-
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.BDDMockito.willAnswer;
@@ -36,13 +34,13 @@ import static org.mockito.BDDMockito.willThrow;
 import static org.mockito.Mockito.mock;
 
 /**
- * Unit tests for {@link SpringFailOnTimeout}.
+ * Unit tests for {@link FailOnTimeout}.
  *
  * @author Igor Suhorukov
  * @author Sam Brannen
  * @since 4.3.17
  */
-public class SpringFailOnTimeoutTests {
+public class FailOnTimeoutTests {
 
 	private final Statement statement = mock(Statement.class);
 
@@ -50,13 +48,13 @@ public class SpringFailOnTimeoutTests {
 	@Test
 	public void nullNextStatement() throws Throwable {
 		assertThatIllegalArgumentException().isThrownBy(() ->
-				new SpringFailOnTimeout(null, 1));
+				new FailOnTimeout(null, 1));
 	}
 
 	@Test
 	public void negativeTimeout() throws Throwable {
 		assertThatIllegalArgumentException().isThrownBy(() ->
-				new SpringFailOnTimeout(statement, -1));
+				new FailOnTimeout(statement, -1));
 	}
 
 	@Test
@@ -64,7 +62,7 @@ public class SpringFailOnTimeoutTests {
 		willThrow(new Boom()).given(statement).evaluate();
 
 		assertThatExceptionOfType(Boom.class).isThrownBy(() ->
-				new SpringFailOnTimeout(statement, 1).evaluate());
+				new FailOnTimeout(statement, 1).evaluate());
 	}
 
 	@Test
@@ -75,13 +73,13 @@ public class SpringFailOnTimeoutTests {
 		}).given(statement).evaluate();
 
 		assertThatExceptionOfType(TimeoutException.class).isThrownBy(() ->
-		new SpringFailOnTimeout(statement, 1).evaluate());
+		new FailOnTimeout(statement, 1).evaluate());
 	}
 
 	@Test
 	public void noExceptionThrownIfNoUserExceptionAndTimeoutDoesNotOccur() throws Throwable {
 		willAnswer((Answer<Void>) invocation -> null).given(statement).evaluate();
-		new SpringFailOnTimeout(statement, 100).evaluate();
+		new FailOnTimeout(statement, 100).evaluate();
 	}
 
 	@SuppressWarnings("serial")

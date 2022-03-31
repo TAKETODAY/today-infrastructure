@@ -26,8 +26,8 @@ import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.test.context.NestedTestConfiguration;
 import cn.taketoday.test.context.junit.jupiter.ApplicationExtension;
-import cn.taketoday.test.context.junit.jupiter.ApplicationJUnitConfig;
-import cn.taketoday.test.context.junit.jupiter.web.ApplicationJUnitWebConfig;
+import cn.taketoday.test.context.junit.jupiter.JUnitConfig;
+import cn.taketoday.test.context.junit.jupiter.web.JUnitWebConfig;
 import cn.taketoday.test.context.web.WebAppConfiguration;
 import cn.taketoday.test.context.junit4.nested.NestedTestsWithSpringRulesTests;
 import cn.taketoday.web.context.WebApplicationContext;
@@ -45,7 +45,7 @@ import static cn.taketoday.test.context.NestedTestConfiguration.EnclosingConfigu
  * @see ConstructorInjectionNestedTests
  * @see NestedTestsWithSpringRulesTests
  */
-@ApplicationJUnitWebConfig(WebAppConfigurationNestedTests.Config.class)
+@JUnitWebConfig(WebAppConfigurationNestedTests.Config.class)
 @NestedTestConfiguration(OVERRIDE) // since INHERIT is now the global default
 class WebAppConfigurationNestedTests {
 
@@ -56,7 +56,7 @@ class WebAppConfigurationNestedTests {
 
 
 	@Nested
-	@ApplicationJUnitConfig(Config.class)
+	@JUnitConfig(Config.class)
 	class ConfigOverriddenByDefaultTests {
 
 		@Test
@@ -66,7 +66,7 @@ class WebAppConfigurationNestedTests {
 	}
 
 	@Nested
-	@ApplicationJUnitWebConfig(Config.class)
+	@JUnitWebConfig(Config.class)
 	class ConfigOverriddenByDefaultWebTests {
 
 		@Test
@@ -96,7 +96,7 @@ class WebAppConfigurationNestedTests {
 
 		@Nested
 		@NestedTestConfiguration(OVERRIDE)
-		@ApplicationJUnitConfig(Config.class)
+		@JUnitConfig(Config.class)
 		class DoubleNestedWithOverriddenConfigWebTests {
 
 			@Test

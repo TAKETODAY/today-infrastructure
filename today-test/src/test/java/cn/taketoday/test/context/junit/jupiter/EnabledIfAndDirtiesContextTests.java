@@ -76,7 +76,7 @@ class EnabledIfAndDirtiesContextTests {
 	}
 
 
-	@ApplicationJUnitConfig(Config.class)
+	@JUnitConfig(Config.class)
 	@EnabledIf(expression = "true", loadContext = true)
 	@DirtiesContext
 	static class EnabledAndDirtiesContextTestCase {
@@ -87,7 +87,7 @@ class EnabledIfAndDirtiesContextTests {
 		}
 	}
 
-	@ApplicationJUnitConfig(Config.class)
+	@JUnitConfig(Config.class)
 	@EnabledIf(expression = "false", loadContext = true)
 	@DirtiesContext
 	static class DisabledAndDirtiesContextTestCase {

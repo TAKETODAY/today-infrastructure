@@ -23,7 +23,7 @@ package cn.taketoday.test.context.expression;
 import org.junit.jupiter.api.Test;
 import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.beans.factory.annotation.Qualifier;
-import cn.taketoday.test.context.junit.jupiter.ApplicationJUnitConfig;
+import cn.taketoday.test.context.junit.jupiter.JUnitConfig;
 
 import java.util.Properties;
 
@@ -33,7 +33,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Andy Clement
  * @author Dave Syer
  */
-@ApplicationJUnitConfig
+@JUnitConfig
 class ExpressionUsageTests {
 
 	@Autowired

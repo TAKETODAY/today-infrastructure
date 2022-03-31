@@ -30,8 +30,8 @@ import java.lang.annotation.Target;
 import cn.taketoday.context.ApplicationContextInitializer;
 import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.core.annotation.AliasFor;
-import cn.taketoday.test.context.junit.jupiter.ApplicationJUnitConfig;
-import cn.taketoday.test.context.junit.jupiter.web.ApplicationJUnitWebConfig;
+import cn.taketoday.test.context.junit.jupiter.JUnitConfig;
+import cn.taketoday.test.context.junit.jupiter.web.JUnitWebConfig;
 import cn.taketoday.test.context.support.AbstractContextLoader;
 import cn.taketoday.test.context.support.AnnotationConfigContextLoader;
 import cn.taketoday.test.context.support.DelegatingSmartContextLoader;
@@ -93,8 +93,8 @@ import cn.taketoday.test.context.web.WebDelegatingSmartContextLoader;
  * See {@link NestedTestConfiguration @NestedTestConfiguration} for details.
  *
  * @author Sam Brannen
- * @see ApplicationJUnitConfig @ApplicationJUnitConfig
- * @see ApplicationJUnitWebConfig @ApplicationJUnitWebConfig
+ * @see JUnitConfig @ApplicationJUnitConfig
+ * @see JUnitWebConfig @ApplicationJUnitWebConfig
  * @see ContextHierarchy @ContextHierarchy
  * @see ActiveProfiles @ActiveProfiles
  * @see TestPropertySource @TestPropertySource

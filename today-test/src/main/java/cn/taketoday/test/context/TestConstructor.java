@@ -31,8 +31,8 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.test.context.junit.jupiter.ApplicationExtension;
-import cn.taketoday.test.context.junit.jupiter.ApplicationJUnitConfig;
-import cn.taketoday.test.context.junit.jupiter.web.ApplicationJUnitWebConfig;
+import cn.taketoday.test.context.junit.jupiter.JUnitConfig;
+import cn.taketoday.test.context.junit.jupiter.web.JUnitWebConfig;
 
 /**
  * {@code @TestConstructor} is a type-level annotation that is used to configure
@@ -55,8 +55,8 @@ import cn.taketoday.test.context.junit.jupiter.web.ApplicationJUnitWebConfig;
  * with the {@link ApplicationExtension
  * ApplicationExtension} for use with JUnit Jupiter. Note that the {@code ApplicationExtension} is
  * often automatically registered for you &mdash; for example, when using annotations such as
- * {@link ApplicationJUnitConfig @ApplicationJUnitConfig} and
- * {@link ApplicationJUnitWebConfig @ApplicationJUnitWebConfig}
+ * {@link JUnitConfig @ApplicationJUnitConfig} and
+ * {@link JUnitWebConfig @ApplicationJUnitWebConfig}
  * or various test-related annotations from Spring Boot Test.
  *
  * <p> this annotation will be inherited from an
@@ -66,8 +66,8 @@ import cn.taketoday.test.context.junit.jupiter.web.ApplicationJUnitWebConfig;
  * @author Sam Brannen
  * @see cn.taketoday.beans.factory.annotation.Autowired @Autowired
  * @see ApplicationExtension
- * @see ApplicationJUnitConfig @ApplicationJUnitConfig
- * @see ApplicationJUnitWebConfig @ApplicationJUnitWebConfig
+ * @see JUnitConfig @ApplicationJUnitConfig
+ * @see JUnitWebConfig @ApplicationJUnitWebConfig
  * @see ContextConfiguration @ContextConfiguration
  * @see ContextHierarchy @ContextHierarchy
  * @see ActiveProfiles @ActiveProfiles

@@ -97,7 +97,7 @@ abstract class AbstractExpressionEvaluatingCondition implements ExecutionConditi
     AnnotatedElement element = context.getElement().get();
     Optional<A> annotation = findMergedAnnotation(element, annotationType);
 
-    if (!annotation.isPresent()) {
+    if (annotation.isEmpty()) {
       String reason = String.format("%s is enabled since @%s is not present", element,
               annotationType.getSimpleName());
       if (logger.isDebugEnabled()) {
@@ -106,7 +106,9 @@ abstract class AbstractExpressionEvaluatingCondition implements ExecutionConditi
       return ConditionEvaluationResult.enabled(reason);
     }
 
-    String expression = annotation.map(expressionExtractor).map(String::trim).filter(StringUtils::isNotEmpty)
+    String expression = annotation.map(expressionExtractor)
+            .map(String::trim)
+            .filter(StringUtils::isNotEmpty)
             .orElseThrow(() -> new IllegalStateException(String.format(
                     "The expression in @%s on [%s] must not be blank", annotationType.getSimpleName(), element)));
 
@@ -142,8 +144,7 @@ abstract class AbstractExpressionEvaluatingCondition implements ExecutionConditi
     // since the DirtiesContextTestExecutionListener will never be invoked for
     // a disabled test class.
     // See https://github.com/spring-projects/spring-framework/issues/26694
-    if (loadContext && result.isDisabled() && element instanceof Class) {
-      Class<?> testClass = (Class<?>) element;
+    if (loadContext && result.isDisabled() && element instanceof Class<?> testClass) {
       DirtiesContext dirtiesContext = TestContextAnnotationUtils.findMergedAnnotation(testClass, DirtiesContext.class);
       if (dirtiesContext != null) {
         HierarchyMode hierarchyMode = dirtiesContext.hierarchyMode();

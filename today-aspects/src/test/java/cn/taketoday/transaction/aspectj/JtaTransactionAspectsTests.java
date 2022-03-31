@@ -28,7 +28,7 @@ import java.io.IOException;
 import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
-import cn.taketoday.test.context.junit.jupiter.ApplicationJUnitConfig;
+import cn.taketoday.test.context.junit.jupiter.JUnitConfig;
 import cn.taketoday.testfixture.transaction.CallCountingTransactionManager;
 import jakarta.transaction.Transactional;
 
@@ -39,7 +39,7 @@ import static org.assertj.core.api.Assertions.assertThatIOException;
 /**
  * @author Stephane Nicoll
  */
-@ApplicationJUnitConfig(JtaTransactionAspectsTests.Config.class)
+@JUnitConfig(JtaTransactionAspectsTests.Config.class)
 public class JtaTransactionAspectsTests {
 
   @Autowired

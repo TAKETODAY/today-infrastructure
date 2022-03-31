@@ -28,7 +28,7 @@ import org.junit.jupiter.api.TestMethodOrder;
 import cn.taketoday.jdbc.BadSqlGrammarException;
 import cn.taketoday.test.annotation.DirtiesContext;
 import cn.taketoday.test.context.jdbc.Sql.ExecutionPhase;
-import cn.taketoday.test.context.junit.jupiter.ApplicationJUnitConfig;
+import cn.taketoday.test.context.junit.jupiter.JUnitConfig;
 import cn.taketoday.test.context.transaction.AfterTransaction;
 
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -41,7 +41,7 @@ import static cn.taketoday.test.context.jdbc.Sql.ExecutionPhase.AFTER_TEST_METHO
  * @author Sam Brannen
  * @since 4.1
  */
-@ApplicationJUnitConfig(EmptyDatabaseConfig.class)
+@JUnitConfig(EmptyDatabaseConfig.class)
 @TestMethodOrder(MethodOrderer.MethodName.class)
 @DirtiesContext
 class TransactionalAfterTestMethodSqlScriptsTests extends AbstractTransactionalTests {

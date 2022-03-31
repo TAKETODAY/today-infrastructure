@@ -38,7 +38,7 @@ import static cn.taketoday.test.web.servlet.setup.MockMvcBuilders.webAppContextS
  * Integration tests which demonstrate use of the Spring MVC Test Framework and
  * the Spring TestContext Framework with JUnit Jupiter and the
  * {@link ApplicationExtension} (via a custom
- * {@link ApplicationJUnitWebConfig @ApplicationJUnitWebConfig} composed annotation).
+ * {@link JUnitWebConfig @ApplicationJUnitWebConfig} composed annotation).
  *
  * <p>Note how the {@link #springMvcTest(WebApplicationContext)} test method
  * has the {@link WebApplicationContext} injected as a method parameter.
@@ -51,12 +51,12 @@ import static cn.taketoday.test.web.servlet.setup.MockMvcBuilders.webAppContextS
  * @author Sam Brannen
  * @since 5.0
  * @see ApplicationExtension
- * @see ApplicationJUnitWebConfig
+ * @see JUnitWebConfig
  * @see MultipleWebRequestsSpringExtensionTests
  * @see cn.taketoday.test.context.junit.jupiter.SpringExtensionTests
  * @see cn.taketoday.test.context.junit.jupiter.ComposedSpringExtensionTests
  */
-@ApplicationJUnitWebConfig(WebConfig.class)
+@JUnitWebConfig(WebConfig.class)
 @DisplayName("Web ApplicationExtension Tests")
 class WebSpringExtensionTests {
 

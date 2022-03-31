@@ -25,7 +25,6 @@ import org.junit.Test;
 import org.junit.internal.runners.model.ReflectiveCallable;
 import org.junit.internal.runners.statements.ExpectException;
 import org.junit.internal.runners.statements.Fail;
-import org.junit.internal.runners.statements.FailOnTimeout;
 import org.junit.runner.Description;
 import org.junit.runner.notification.RunNotifier;
 import org.junit.runners.BlockJUnit4ClassRunner;
@@ -58,7 +57,7 @@ import cn.taketoday.test.context.junit4.statements.RunAfterTestMethodCallbacks;
 import cn.taketoday.test.context.junit4.statements.RunBeforeTestClassCallbacks;
 import cn.taketoday.test.context.junit4.statements.RunBeforeTestExecutionCallbacks;
 import cn.taketoday.test.context.junit4.statements.RunBeforeTestMethodCallbacks;
-import cn.taketoday.test.context.junit4.statements.SpringFailOnTimeout;
+import cn.taketoday.test.context.junit4.statements.FailOnTimeout;
 import cn.taketoday.test.context.junit4.statements.SpringRepeat;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.ReflectionUtils;
@@ -378,7 +377,7 @@ public class ApplicationJUnit4ClassRunner extends BlockJUnit4ClassRunner {
    * and JUnit's {@link Test#timeout() @Test(timeout=...)} annotations, but not both
    * simultaneously.
    *
-   * @return either a {@link SpringFailOnTimeout}, a {@link FailOnTimeout},
+   * @return either a {@link FailOnTimeout}, a {@link org.junit.internal.runners.statements.FailOnTimeout},
    * or the supplied {@link Statement} as appropriate
    * @see #getSpringTimeout(FrameworkMethod)
    * @see #getJUnitTimeout(FrameworkMethod)
@@ -400,10 +399,10 @@ public class ApplicationJUnit4ClassRunner extends BlockJUnit4ClassRunner {
       throw new IllegalStateException(msg);
     }
     else if (springTimeout > 0) {
-      statement = new SpringFailOnTimeout(next, springTimeout);
+      statement = new FailOnTimeout(next, springTimeout);
     }
     else if (junitTimeout > 0) {
-      statement = FailOnTimeout.builder().withTimeout(junitTimeout, TimeUnit.MILLISECONDS).build(next);
+      statement = org.junit.internal.runners.statements.FailOnTimeout.builder().withTimeout(junitTimeout, TimeUnit.MILLISECONDS).build(next);
     }
     else {
       statement = next;

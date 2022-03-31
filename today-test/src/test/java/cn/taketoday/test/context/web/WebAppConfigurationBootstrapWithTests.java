@@ -26,7 +26,7 @@ import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.test.context.BootstrapWith;
 import cn.taketoday.test.context.MergedContextConfiguration;
-import cn.taketoday.test.context.junit.jupiter.web.ApplicationJUnitWebConfig;
+import cn.taketoday.test.context.junit.jupiter.web.JUnitWebConfig;
 import cn.taketoday.web.context.WebApplicationContext;
 
 /**
@@ -37,7 +37,7 @@ import cn.taketoday.web.context.WebApplicationContext;
  * @author Phillip Webb
  * @since 4.3
  */
-@ApplicationJUnitWebConfig
+@JUnitWebConfig
 @BootstrapWith(WebAppConfigurationBootstrapWithTests.CustomWebTestContextBootstrapper.class)
 class WebAppConfigurationBootstrapWithTests {
 

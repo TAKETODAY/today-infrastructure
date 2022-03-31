@@ -40,7 +40,7 @@ import static cn.taketoday.test.web.servlet.setup.MockMvcBuilders.webAppContextS
  * Integration tests which demonstrate how to set up a {@link MockMvc}
  * instance in an {@link BeforeEach @BeforeEach} method with the
  * {@link ApplicationExtension} (registered via a custom
- * {@link ApplicationJUnitWebConfig @ApplicationJUnitWebConfig} composed annotation).
+ * {@link JUnitWebConfig @ApplicationJUnitWebConfig} composed annotation).
  *
  * <p>To run these tests in an IDE that does not have built-in support for the JUnit
  * Platform, simply run {@link SpringJUnitJupiterTestSuite} as a JUnit 4 test.
@@ -48,10 +48,10 @@ import static cn.taketoday.test.web.servlet.setup.MockMvcBuilders.webAppContextS
  * @author Sam Brannen
  * @since 5.0
  * @see ApplicationExtension
- * @see ApplicationJUnitWebConfig
+ * @see JUnitWebConfig
  * @see WebSpringExtensionTests
  */
-@ApplicationJUnitWebConfig(WebConfig.class)
+@JUnitWebConfig(WebConfig.class)
 class MultipleWebRequestsSpringExtensionTests {
 
 	MockMvc mockMvc;

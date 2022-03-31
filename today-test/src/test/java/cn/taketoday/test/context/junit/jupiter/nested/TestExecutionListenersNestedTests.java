@@ -28,7 +28,7 @@ import cn.taketoday.test.context.NestedTestConfiguration;
 import cn.taketoday.test.context.TestContext;
 import cn.taketoday.test.context.TestExecutionListeners;
 import cn.taketoday.test.context.junit.jupiter.ApplicationExtension;
-import cn.taketoday.test.context.junit.jupiter.ApplicationJUnitConfig;
+import cn.taketoday.test.context.junit.jupiter.JUnitConfig;
 import cn.taketoday.test.context.support.AbstractTestExecutionListener;
 
 import java.util.ArrayList;
@@ -46,7 +46,7 @@ import static cn.taketoday.test.context.NestedTestConfiguration.EnclosingConfigu
  * @author Sam Brannen
  * @since 5.3
  */
-@ApplicationJUnitConfig
+@JUnitConfig
 @TestExecutionListeners(TestExecutionListenersNestedTests.FooTestExecutionListener.class)
 @NestedTestConfiguration(OVERRIDE) // since INHERIT is now the global default
 class TestExecutionListenersNestedTests {
@@ -81,7 +81,7 @@ class TestExecutionListenersNestedTests {
 	}
 
 	@Nested
-	@ApplicationJUnitConfig(Config.class)
+	@JUnitConfig(Config.class)
 	@TestExecutionListeners(BarTestExecutionListener.class)
 	class ConfigOverriddenByDefaultTests {
 
@@ -93,7 +93,7 @@ class TestExecutionListenersNestedTests {
 
 	@Nested
 	@NestedTestConfiguration(INHERIT)
-	@ApplicationJUnitConfig(Config.class)
+	@JUnitConfig(Config.class)
 	@TestExecutionListeners(BarTestExecutionListener.class)
 	class InheritedAndExtendedConfigTests {
 
@@ -105,7 +105,7 @@ class TestExecutionListenersNestedTests {
 
 		@Nested
 		@NestedTestConfiguration(OVERRIDE)
-		@ApplicationJUnitConfig(Config.class)
+		@JUnitConfig(Config.class)
 		@TestExecutionListeners(BazTestExecutionListener.class)
 		class DoubleNestedWithOverriddenConfigTests {
 

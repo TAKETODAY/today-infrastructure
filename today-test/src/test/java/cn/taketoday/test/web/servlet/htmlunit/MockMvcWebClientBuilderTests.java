@@ -28,9 +28,8 @@ import com.gargoylesoftware.htmlunit.util.Cookie;
 
 import org.junit.jupiter.api.Test;
 import cn.taketoday.context.annotation.Configuration;
-import cn.taketoday.test.context.junit.jupiter.web.ApplicationJUnitWebConfig;
+import cn.taketoday.test.context.junit.jupiter.web.JUnitWebConfig;
 import cn.taketoday.test.web.servlet.MockMvc;
-import cn.taketoday.test.web.servlet.htmlunit.MockMvcWebClientBuilder;
 import cn.taketoday.test.web.servlet.setup.MockMvcBuilders;
 import cn.taketoday.web.bind.annotation.CookieValue;
 import cn.taketoday.web.bind.annotation.DeleteMapping;
@@ -58,7 +57,7 @@ import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException
  * @author Rossen Stoyanchev
  * @since 4.2
  */
-@ApplicationJUnitWebConfig
+@JUnitWebConfig
 class MockMvcWebClientBuilderTests {
 
 	private MockMvc mockMvc;

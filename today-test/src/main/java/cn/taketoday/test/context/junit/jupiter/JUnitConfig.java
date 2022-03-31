@@ -32,7 +32,7 @@ import java.lang.annotation.Target;
 import cn.taketoday.context.ApplicationContextInitializer;
 import cn.taketoday.core.annotation.AliasFor;
 import cn.taketoday.test.context.ContextConfiguration;
-import cn.taketoday.test.context.junit.jupiter.web.ApplicationJUnitWebConfig;
+import cn.taketoday.test.context.junit.jupiter.web.JUnitWebConfig;
 
 /**
  * {@code @ApplicationJUnitConfig} is a <em>composed annotation</em> that combines
@@ -44,7 +44,7 @@ import cn.taketoday.test.context.junit.jupiter.web.ApplicationJUnitWebConfig;
  * @see ExtendWith
  * @see ApplicationExtension
  * @see ContextConfiguration
- * @see ApplicationJUnitWebConfig
+ * @see JUnitWebConfig
  * @since 4.0
  */
 @ExtendWith(ApplicationExtension.class)
@@ -53,7 +53,7 @@ import cn.taketoday.test.context.junit.jupiter.web.ApplicationJUnitWebConfig;
 @Inherited
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
-public @interface ApplicationJUnitConfig {
+public @interface JUnitConfig {
 
   /**
    * Alias for {@link ContextConfiguration#classes}.

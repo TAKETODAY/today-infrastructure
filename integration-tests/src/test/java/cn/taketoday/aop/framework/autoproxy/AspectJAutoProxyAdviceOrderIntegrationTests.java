@@ -35,7 +35,7 @@ import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.EnableAspectJAutoProxy;
 import cn.taketoday.test.annotation.DirtiesContext;
-import cn.taketoday.test.context.junit.jupiter.ApplicationJUnitConfig;
+import cn.taketoday.test.context.junit.jupiter.JUnitConfig;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -56,7 +56,7 @@ class AspectJAutoProxyAdviceOrderIntegrationTests {
 	 * {@link After @After} advice declared as first <em>after</em> method in source code.
 	 */
 	@Nested
-	@ApplicationJUnitConfig(AfterAdviceFirstConfig.class)
+	@JUnitConfig(AfterAdviceFirstConfig.class)
 	@DirtiesContext
 	class AfterAdviceFirstTests {
 
@@ -86,7 +86,7 @@ class AspectJAutoProxyAdviceOrderIntegrationTests {
 	 * {@link cn.taketoday.aop.aspectj.autoproxy.AspectJPrecedenceComparator}.
 	 */
 	@Nested
-	@ApplicationJUnitConfig(AfterAdviceLastConfig.class)
+	@JUnitConfig(AfterAdviceLastConfig.class)
 	@DirtiesContext
 	class AfterAdviceLastTests {
 

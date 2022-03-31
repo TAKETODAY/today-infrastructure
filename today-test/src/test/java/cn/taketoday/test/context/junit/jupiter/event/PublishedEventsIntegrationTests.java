@@ -29,7 +29,7 @@ import cn.taketoday.test.context.event.BeforeTestMethodEvent;
 import cn.taketoday.test.context.event.PrepareTestInstanceEvent;
 import cn.taketoday.test.context.event.RecordApplicationEvents;
 import cn.taketoday.test.context.event.TestContextEvent;
-import cn.taketoday.test.context.junit.jupiter.ApplicationJUnitConfig;
+import cn.taketoday.test.context.junit.jupiter.JUnitConfig;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -40,7 +40,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Sam Brannen
  * @since 5.3.3
  */
-@ApplicationJUnitConfig
+@JUnitConfig
 @RecordApplicationEvents
 @ExtendWith(PublishedEventsExtension.class)
 class PublishedEventsIntegrationTests {

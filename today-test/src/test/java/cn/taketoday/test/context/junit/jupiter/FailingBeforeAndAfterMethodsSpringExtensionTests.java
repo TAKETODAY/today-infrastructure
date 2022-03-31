@@ -217,7 +217,7 @@ class FailingBeforeAndAfterMethodsSpringExtensionTests {
 	}
 
 	@FailingTestCase
-	@ApplicationJUnitConfig(DatabaseConfig.class)
+	@JUnitConfig(DatabaseConfig.class)
 	@Transactional
 	static class FailingBeforeTransactionTestCase {
 
@@ -232,7 +232,7 @@ class FailingBeforeAndAfterMethodsSpringExtensionTests {
 	}
 
 	@FailingTestCase
-	@ApplicationJUnitConfig(DatabaseConfig.class)
+	@JUnitConfig(DatabaseConfig.class)
 	@Transactional
 	static class FailingAfterTransactionTestCase {
 

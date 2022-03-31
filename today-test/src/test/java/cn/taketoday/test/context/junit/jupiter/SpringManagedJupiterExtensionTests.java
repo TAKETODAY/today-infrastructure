@@ -48,7 +48,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Sam Brannen
  * @since 5.1
  */
-@ApplicationJUnitConfig
+@JUnitConfig
 @TestInstance(Lifecycle.PER_CLASS)
 class SpringManagedJupiterExtensionTests {
 

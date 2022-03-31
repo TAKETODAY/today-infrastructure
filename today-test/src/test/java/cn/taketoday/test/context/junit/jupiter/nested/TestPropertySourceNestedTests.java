@@ -28,7 +28,7 @@ import cn.taketoday.core.env.Environment;
 import cn.taketoday.test.context.NestedTestConfiguration;
 import cn.taketoday.test.context.TestPropertySource;
 import cn.taketoday.test.context.junit.jupiter.ApplicationExtension;
-import cn.taketoday.test.context.junit.jupiter.ApplicationJUnitConfig;
+import cn.taketoday.test.context.junit.jupiter.JUnitConfig;
 
 import static cn.taketoday.test.context.NestedTestConfiguration.EnclosingConfiguration.INHERIT;
 import static cn.taketoday.test.context.NestedTestConfiguration.EnclosingConfiguration.OVERRIDE;
@@ -41,7 +41,7 @@ import static cn.taketoday.test.context.NestedTestConfiguration.EnclosingConfigu
  * @author Sam Brannen
  * @since 5.3
  */
-@ApplicationJUnitConfig(TestPropertySourceNestedTests.Config.class)
+@JUnitConfig(TestPropertySourceNestedTests.Config.class)
 @TestPropertySource(properties = "p1 = v1")
 @NestedTestConfiguration(OVERRIDE) // since INHERIT is now the global default
 class TestPropertySourceNestedTests {
@@ -73,7 +73,7 @@ class TestPropertySourceNestedTests {
 	}
 
 	@Nested
-	@ApplicationJUnitConfig(Config.class)
+	@JUnitConfig(Config.class)
 	@TestPropertySource(properties = "p2 = v2")
 	class ConfigOverriddenByDefaultTests {
 

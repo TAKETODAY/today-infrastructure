@@ -34,7 +34,7 @@ import cn.taketoday.jdbc.datasource.DataSourceTransactionManager;
 import cn.taketoday.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
 import cn.taketoday.jdbc.datasource.init.ResourceDatabasePopulator;
 import cn.taketoday.test.annotation.Commit;
-import cn.taketoday.test.context.junit.jupiter.ApplicationJUnitConfig;
+import cn.taketoday.test.context.junit.jupiter.JUnitConfig;
 import cn.taketoday.test.context.transaction.AfterTransaction;
 import cn.taketoday.test.context.transaction.BeforeTransaction;
 import cn.taketoday.test.context.transaction.TestTransaction;
@@ -61,7 +61,7 @@ import static org.assertj.core.api.Assertions.fail;
  * @author Sam Brannen
  * @since 4.1
  */
-@ApplicationJUnitConfig
+@JUnitConfig
 @Transactional
 class ProgrammaticTxMgmtTests {
 

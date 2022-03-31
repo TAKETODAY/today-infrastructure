@@ -25,8 +25,7 @@ import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
-import cn.taketoday.test.context.junit.jupiter.web.ApplicationJUnitWebConfig;
-import cn.taketoday.test.web.servlet.MockMvc;
+import cn.taketoday.test.context.junit.jupiter.web.JUnitWebConfig;
 import cn.taketoday.web.bind.annotation.GetMapping;
 import cn.taketoday.web.bind.annotation.RestController;
 import cn.taketoday.web.context.WebApplicationContext;
@@ -48,7 +47,7 @@ import static cn.taketoday.test.web.servlet.setup.MockMvcBuilders.webAppContextS
  * @author Rob Winch
  * @since 4.2
  */
-@ApplicationJUnitWebConfig
+@JUnitWebConfig
 @TestInstance(Lifecycle.PER_CLASS)
 class MockMvcReuseTests {
 

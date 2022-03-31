@@ -36,7 +36,7 @@ import cn.taketoday.beans.testfixture.beans.TestBean;
 import cn.taketoday.mock.web.MockHttpServletRequest;
 import cn.taketoday.mock.web.MockHttpServletResponse;
 import cn.taketoday.mock.web.MockHttpSession;
-import cn.taketoday.test.context.junit.jupiter.web.ApplicationJUnitWebConfig;
+import cn.taketoday.test.context.junit.jupiter.web.JUnitWebConfig;
 import cn.taketoday.web.RequestContextHolder;
 import cn.taketoday.web.servlet.ServletRequestContext;
 
@@ -51,7 +51,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Chris Beams
  * @see cn.taketoday.aop.config.AopNamespaceHandlerTests
  */
-@ApplicationJUnitWebConfig
+@JUnitWebConfig
 class AopNamespaceHandlerScopeIntegrationTests {
 
   @Autowired

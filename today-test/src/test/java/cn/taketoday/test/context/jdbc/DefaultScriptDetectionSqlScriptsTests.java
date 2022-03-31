@@ -22,7 +22,7 @@ package cn.taketoday.test.context.jdbc;
 
 import org.junit.jupiter.api.Test;
 import cn.taketoday.test.annotation.DirtiesContext;
-import cn.taketoday.test.context.junit.jupiter.ApplicationJUnitConfig;
+import cn.taketoday.test.context.junit.jupiter.JUnitConfig;
 
 /**
  * Integration tests that verify support for default SQL script detection.
@@ -30,7 +30,7 @@ import cn.taketoday.test.context.junit.jupiter.ApplicationJUnitConfig;
  * @author Sam Brannen
  * @since 4.1
  */
-@ApplicationJUnitConfig(EmptyDatabaseConfig.class)
+@JUnitConfig(EmptyDatabaseConfig.class)
 @Sql
 @DirtiesContext
 class DefaultScriptDetectionSqlScriptsTests extends AbstractTransactionalTests {

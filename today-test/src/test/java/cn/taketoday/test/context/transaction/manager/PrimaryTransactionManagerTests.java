@@ -31,7 +31,7 @@ import cn.taketoday.jdbc.datasource.DataSourceTransactionManager;
 import cn.taketoday.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
 import cn.taketoday.jdbc.datasource.init.ResourceDatabasePopulator;
 import cn.taketoday.test.annotation.DirtiesContext;
-import cn.taketoday.test.context.junit.jupiter.ApplicationJUnitConfig;
+import cn.taketoday.test.context.junit.jupiter.JUnitConfig;
 import cn.taketoday.test.context.transaction.AfterTransaction;
 import cn.taketoday.test.context.transaction.BeforeTransaction;
 import cn.taketoday.test.jdbc.JdbcTestUtils;
@@ -50,7 +50,7 @@ import javax.sql.DataSource;
  * @since 4.3
  * @see cn.taketoday.test.context.jdbc.PrimaryDataSourceTests
  */
-@ApplicationJUnitConfig
+@JUnitConfig
 @DirtiesContext
 final /* Intentionally FINAL */ class PrimaryTransactionManagerTests {
 

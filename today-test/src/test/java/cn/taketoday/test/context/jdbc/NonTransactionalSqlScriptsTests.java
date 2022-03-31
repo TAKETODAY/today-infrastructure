@@ -27,7 +27,7 @@ import org.junit.jupiter.api.TestMethodOrder;
 import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.jdbc.core.JdbcTemplate;
 import cn.taketoday.test.annotation.DirtiesContext;
-import cn.taketoday.test.context.junit.jupiter.ApplicationJUnitConfig;
+import cn.taketoday.test.context.junit.jupiter.JUnitConfig;
 import cn.taketoday.test.jdbc.JdbcTestUtils;
 
 /**
@@ -37,7 +37,7 @@ import cn.taketoday.test.jdbc.JdbcTestUtils;
  * @author Sam Brannen
  * @since 4.1
  */
-@ApplicationJUnitConfig(EmptyDatabaseConfig.class)
+@JUnitConfig(EmptyDatabaseConfig.class)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @Sql({ "schema.sql", "data.sql" })
 @DirtiesContext

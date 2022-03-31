@@ -29,7 +29,7 @@ import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.test.context.ContextConfiguration;
 import cn.taketoday.test.context.NestedTestConfiguration;
 import cn.taketoday.test.context.junit.jupiter.ApplicationExtension;
-import cn.taketoday.test.context.junit.jupiter.ApplicationJUnitConfig;
+import cn.taketoday.test.context.junit.jupiter.JUnitConfig;
 import cn.taketoday.test.context.junit4.nested.NestedTestsWithSpringRulesTests;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -46,7 +46,7 @@ import static cn.taketoday.test.context.NestedTestConfiguration.EnclosingConfigu
  * @see ConstructorInjectionNestedTests
  * @see NestedTestsWithSpringRulesTests
  */
-@ApplicationJUnitConfig(ContextConfigurationNestedTests.TopLevelConfig.class)
+@JUnitConfig(ContextConfigurationNestedTests.TopLevelConfig.class)
 @NestedTestConfiguration(OVERRIDE) // since INHERIT is now the global default
 class ContextConfigurationNestedTests {
 
@@ -65,7 +65,7 @@ class ContextConfigurationNestedTests {
 
 
 	@Nested
-	@ApplicationJUnitConfig(NestedConfig.class)
+	@JUnitConfig(NestedConfig.class)
 	class NestedTests {
 
 		@Autowired(required = false)
@@ -112,7 +112,7 @@ class ContextConfigurationNestedTests {
 
 		@Nested
 		@NestedTestConfiguration(OVERRIDE)
-		@ApplicationJUnitConfig(NestedConfig.class)
+		@JUnitConfig(NestedConfig.class)
 		class DoubleNestedWithOverriddenConfigTests {
 
 			@Autowired(required = false)

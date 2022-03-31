@@ -47,7 +47,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @see ApplicationExtension
  * @see ParameterizedTest
  */
-@ApplicationJUnitConfig(TestConfig.class)
+@JUnitConfig(TestConfig.class)
 class SpringExtensionParameterizedTests {
 
 	@ParameterizedTest

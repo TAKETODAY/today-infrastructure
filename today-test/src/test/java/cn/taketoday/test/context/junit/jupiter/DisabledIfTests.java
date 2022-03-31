@@ -46,7 +46,7 @@ import static org.assertj.core.api.Assertions.fail;
  */
 class DisabledIfTests {
 
-	@ApplicationJUnitConfig(Config.class)
+	@JUnitConfig(Config.class)
 	@TestPropertySource(properties = "foo = true")
 	@Nested
 	class DisabledIfOnMethodTests {

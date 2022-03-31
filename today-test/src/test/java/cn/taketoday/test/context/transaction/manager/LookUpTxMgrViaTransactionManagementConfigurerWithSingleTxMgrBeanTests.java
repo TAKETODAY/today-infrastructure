@@ -24,7 +24,7 @@ import org.junit.jupiter.api.Test;
 import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
-import cn.taketoday.test.context.junit.jupiter.ApplicationJUnitConfig;
+import cn.taketoday.test.context.junit.jupiter.JUnitConfig;
 import cn.taketoday.test.context.transaction.AfterTransaction;
 import cn.taketoday.transaction.TransactionManager;
 import cn.taketoday.transaction.annotation.TransactionManagementConfigurer;
@@ -40,7 +40,7 @@ import cn.taketoday.transaction.testfixture.CallCountingTransactionManager;
  * @author Sam Brannen
  * @since 5.3
  */
-@ApplicationJUnitConfig
+@JUnitConfig
 @Transactional
 class LookUpTxMgrViaTransactionManagementConfigurerWithSingleTxMgrBeanTests {
 

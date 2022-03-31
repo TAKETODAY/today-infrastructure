@@ -30,10 +30,7 @@ import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Import;
 import cn.taketoday.core.env.ConfigurableEnvironment;
 import cn.taketoday.core.env.MutablePropertySources;
-import cn.taketoday.test.context.DynamicPropertyRegistry;
-import cn.taketoday.test.context.DynamicPropertySource;
-import cn.taketoday.test.context.TestPropertySource;
-import cn.taketoday.test.context.junit.jupiter.ApplicationJUnitConfig;
+import cn.taketoday.test.context.junit.jupiter.JUnitConfig;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.TestInstance.Lifecycle.PER_CLASS;
@@ -44,7 +41,7 @@ import static org.junit.jupiter.api.TestInstance.Lifecycle.PER_CLASS;
  * @author Phillip Webb
  * @author Sam Brannen
  */
-@ApplicationJUnitConfig
+@JUnitConfig
 @TestPropertySource(properties = "test.container.ip: test")
 @TestInstance(PER_CLASS)
 @DisplayName("@DynamicPropertySource integration tests")

@@ -24,7 +24,7 @@ import org.junit.jupiter.api.Test;
 import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
-import cn.taketoday.test.context.junit.jupiter.web.ApplicationJUnitWebConfig;
+import cn.taketoday.test.context.junit.jupiter.web.JUnitWebConfig;
 import cn.taketoday.test.context.web.WebAppConfiguration;
 import cn.taketoday.web.socket.config.annotation.EnableWebSocket;
 import cn.taketoday.web.socket.server.standard.ServletServerContainerFactoryBean;
@@ -41,7 +41,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Sam Brannen
  * @since 4.3.1
  */
-@ApplicationJUnitWebConfig
+@JUnitWebConfig
 class WebSocketServletServerContainerFactoryBeanTests {
 
 	@Test

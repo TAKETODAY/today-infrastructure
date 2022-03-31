@@ -28,7 +28,7 @@ import java.lang.annotation.Target;
 
 import cn.taketoday.test.context.junit4.ApplicationJUnit4ClassRunner;
 import cn.taketoday.test.context.junit4.rules.ApplicationMethodRule;
-import cn.taketoday.test.context.junit4.statements.SpringFailOnTimeout;
+import cn.taketoday.test.context.junit4.statements.FailOnTimeout;
 
 /**
  * Test annotation for use with JUnit 4 to indicate that a test method has to finish
@@ -49,7 +49,7 @@ import cn.taketoday.test.context.junit4.statements.SpringFailOnTimeout;
  * @see Repeat
  * @see ApplicationJUnit4ClassRunner
  * @see ApplicationMethodRule
- * @see SpringFailOnTimeout
+ * @see FailOnTimeout
  * @since 4.0
  */
 @Target({ ElementType.METHOD, ElementType.ANNOTATION_TYPE })

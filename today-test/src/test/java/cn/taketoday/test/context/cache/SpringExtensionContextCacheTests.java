@@ -31,7 +31,7 @@ import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.test.annotation.DirtiesContext;
 import cn.taketoday.test.context.TestExecutionListeners;
 import cn.taketoday.test.context.junit.jupiter.ApplicationExtension;
-import cn.taketoday.test.context.junit.jupiter.ApplicationJUnitConfig;
+import cn.taketoday.test.context.junit.jupiter.JUnitConfig;
 import cn.taketoday.test.context.support.DependencyInjectionTestExecutionListener;
 import cn.taketoday.test.context.support.DirtiesContextTestExecutionListener;
 
@@ -50,7 +50,7 @@ import static cn.taketoday.test.context.cache.ContextCacheTestUtils.resetContext
  * @see ContextCacheTests
  * @see LruContextCacheTests
  */
-@ApplicationJUnitConfig(locations = "../junit4/SpringJUnit4ClassRunnerAppCtxTests-context.xml")
+@JUnitConfig(locations = "../junit4/SpringJUnit4ClassRunnerAppCtxTests-context.xml")
 @TestExecutionListeners({ DependencyInjectionTestExecutionListener.class, DirtiesContextTestExecutionListener.class })
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class SpringExtensionContextCacheTests {

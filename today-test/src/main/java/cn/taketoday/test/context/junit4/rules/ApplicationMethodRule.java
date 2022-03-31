@@ -40,7 +40,7 @@ import cn.taketoday.test.context.junit4.statements.ProfileValueChecker;
 import cn.taketoday.test.context.junit4.statements.RunAfterTestMethodCallbacks;
 import cn.taketoday.test.context.junit4.statements.RunBeforeTestMethodCallbacks;
 import cn.taketoday.test.context.junit4.statements.RunPrepareTestInstanceCallbacks;
-import cn.taketoday.test.context.junit4.statements.SpringFailOnTimeout;
+import cn.taketoday.test.context.junit4.statements.FailOnTimeout;
 import cn.taketoday.test.context.junit4.statements.SpringRepeat;
 
 /**
@@ -205,14 +205,14 @@ public class ApplicationMethodRule implements MethodRule {
   }
 
   /**
-   * Wrap the supplied {@link Statement} with a {@code SpringFailOnTimeout} statement.
+   * Wrap the supplied {@link Statement} with a {@code FailOnTimeout} statement.
    * <p>Supports Framework's {@link Timed @Timed}
    * annotation.
    *
-   * @see SpringFailOnTimeout
+   * @see FailOnTimeout
    */
   private Statement withPotentialTimeout(Statement next, Method testMethod, Object testInstance) {
-    return new SpringFailOnTimeout(next, testMethod);
+    return new FailOnTimeout(next, testMethod);
   }
 
   /**

@@ -43,7 +43,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @see ApplicationExtension
  * @see SpringJUnitJupiterConstructorInjectionTests
  */
-@ApplicationJUnitConfig(TestConfig.class)
+@JUnitConfig(TestConfig.class)
 @TestPropertySource(properties = "enigma = 42")
 class SpringJUnitJupiterAutowiredConstructorInjectionTests {
 

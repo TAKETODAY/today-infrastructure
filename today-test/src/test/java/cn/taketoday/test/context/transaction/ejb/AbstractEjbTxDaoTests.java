@@ -26,7 +26,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 import cn.taketoday.test.annotation.DirtiesContext;
 import cn.taketoday.test.annotation.DirtiesContext.ClassMode;
-import cn.taketoday.test.context.junit.jupiter.ApplicationJUnitConfig;
+import cn.taketoday.test.context.junit.jupiter.JUnitConfig;
 import cn.taketoday.test.context.transaction.ejb.dao.TestEntityDao;
 import cn.taketoday.transaction.annotation.Transactional;
 
@@ -44,7 +44,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Xavier Detant
  * @since 4.0.1
  */
-@ApplicationJUnitConfig
+@JUnitConfig
 @Transactional
 @DirtiesContext(classMode = ClassMode.AFTER_CLASS)
 @TestMethodOrder(MethodOrderer.MethodName.class)

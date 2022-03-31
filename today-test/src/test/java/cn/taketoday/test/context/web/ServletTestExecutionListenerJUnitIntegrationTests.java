@@ -24,7 +24,7 @@ import org.junit.jupiter.api.Test;
 import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.mock.web.MockHttpServletRequest;
-import cn.taketoday.test.context.junit.jupiter.web.ApplicationJUnitWebConfig;
+import cn.taketoday.test.context.junit.jupiter.web.JUnitWebConfig;
 import cn.taketoday.test.context.testng.web.ServletTestExecutionListenerTestNGIntegrationTests;
 import cn.taketoday.web.context.request.RequestContextHolder;
 import cn.taketoday.web.context.request.ServletRequestAttributes;
@@ -36,7 +36,7 @@ import cn.taketoday.web.context.request.ServletRequestAttributes;
  * @since 4.0
  * @see ServletTestExecutionListenerTestNGIntegrationTests
  */
-@ApplicationJUnitWebConfig
+@JUnitWebConfig
 class ServletTestExecutionListenerJUnitIntegrationTests {
 
 	@Configuration
