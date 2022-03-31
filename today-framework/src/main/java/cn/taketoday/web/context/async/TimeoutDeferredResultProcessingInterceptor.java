@@ -16,13 +16,13 @@
 
 package cn.taketoday.web.context.async;
 
-import cn.taketoday.web.context.request.NativeWebRequest;
+import cn.taketoday.web.RequestContext;
 
 /**
  * Sends a 503 (SERVICE_UNAVAILABLE) in case of a timeout if the response is not
- * already committed. As of 4.2.8 this is done indirectly by returning
+ * already committed. this is done indirectly by returning
  * {@link AsyncRequestTimeoutException} as the result of processing which is
- * then handled by Spring MVC's default exception handling as a 503 error.
+ * then handled by MVC's default exception handling as a 503 error.
  *
  * <p>Registered at the end, after all other interceptors and
  * therefore invoked only if no other interceptor handles the timeout.
