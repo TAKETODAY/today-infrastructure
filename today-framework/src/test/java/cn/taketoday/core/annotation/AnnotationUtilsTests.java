@@ -1330,7 +1330,7 @@ class AnnotationUtilsTests {
           SubMyRepeatableWithAdditionalLocalDeclarationsClass {
   }
 
-  enum RequestMethod {
+  enum HttpMethod {
     GET, POST
   }
 
@@ -1348,7 +1348,7 @@ class AnnotationUtilsTests {
     @AliasFor(attribute = "value")
     String[] path() default "";
 
-    RequestMethod[] method() default {};
+    HttpMethod[] method() default {};
   }
 
   /**
@@ -1356,7 +1356,7 @@ class AnnotationUtilsTests {
    * that the String arrays are overridden with single String elements.
    */
   @Retention(RetentionPolicy.RUNTIME)
-  @WebMapping(method = RequestMethod.GET, name = "")
+  @WebMapping(method = HttpMethod.GET, name = "")
   @interface Get {
 
     @AliasFor(annotation = WebMapping.class)
@@ -1371,7 +1371,7 @@ class AnnotationUtilsTests {
    * that the path is overridden by convention with single String element.
    */
   @Retention(RetentionPolicy.RUNTIME)
-  @WebMapping(method = RequestMethod.POST, name = "")
+  @WebMapping(method = HttpMethod.POST, name = "")
   @interface Post {
 
     String path() default "";
@@ -1384,7 +1384,7 @@ class AnnotationUtilsTests {
     public void handleMappedWithValueAttribute() {
     }
 
-    @WebMapping(path = "/test", name = "bar", method = { RequestMethod.GET, RequestMethod.POST })
+    @WebMapping(path = "/test", name = "bar", method = { HttpMethod.GET, HttpMethod.POST })
     public void handleMappedWithPathAttribute() {
     }
 
@@ -1403,7 +1403,7 @@ class AnnotationUtilsTests {
     /**
      * mapping is logically "equal" to handleMappedWithPathAttribute().
      */
-    @WebMapping(value = "/test", path = "/test", name = "bar", method = { RequestMethod.GET, RequestMethod.POST })
+    @WebMapping(value = "/test", path = "/test", name = "bar", method = { HttpMethod.GET, HttpMethod.POST })
     public void handleMappedWithSamePathAndValueAttributes() {
     }
 

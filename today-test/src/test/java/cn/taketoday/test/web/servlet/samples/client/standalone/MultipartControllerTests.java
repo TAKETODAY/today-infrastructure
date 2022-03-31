@@ -29,7 +29,7 @@ import cn.taketoday.test.web.reactive.server.WebTestClient;
 import cn.taketoday.test.web.servlet.client.MockMvcWebTestClient;
 import cn.taketoday.ui.Model;
 import cn.taketoday.web.bind.annotation.RequestMapping;
-import cn.taketoday.web.bind.annotation.RequestMethod;
+import cn.taketoday.web.bind.annotation.HttpMethod;
 import cn.taketoday.web.bind.annotation.RequestParam;
 import cn.taketoday.web.bind.annotation.RequestPart;
 import cn.taketoday.web.filter.OncePerRequestFilter;
@@ -289,7 +289,7 @@ public class MultipartControllerTests {
 	@Controller
 	private static class MultipartController {
 
-		@RequestMapping(value = "/multipartfile", method = RequestMethod.POST)
+		@RequestMapping(value = "/multipartfile", method = HttpMethod.POST)
 		public String processMultipartFile(@RequestParam(required = false) MultipartFile file,
 				@RequestPart(required = false) Map<String, String> json, Model model) throws IOException {
 
@@ -303,7 +303,7 @@ public class MultipartControllerTests {
 			return "redirect:/index";
 		}
 
-		@RequestMapping(value = "/multipartfilearray", method = RequestMethod.POST)
+		@RequestMapping(value = "/multipartfilearray", method = HttpMethod.POST)
 		public String processMultipartFileArray(@RequestParam(required = false) MultipartFile[] file,
 				@RequestPart(required = false) Map<String, String> json, Model model) throws IOException {
 
@@ -319,7 +319,7 @@ public class MultipartControllerTests {
 			return "redirect:/index";
 		}
 
-		@RequestMapping(value = "/multipartfilelist", method = RequestMethod.POST)
+		@RequestMapping(value = "/multipartfilelist", method = HttpMethod.POST)
 		public String processMultipartFileList(@RequestParam(required = false) List<MultipartFile> file,
 				@RequestPart(required = false) Map<String, String> json, Model model) throws IOException {
 
@@ -335,7 +335,7 @@ public class MultipartControllerTests {
 			return "redirect:/index";
 		}
 
-		@RequestMapping(value = "/optionalfile", method = RequestMethod.POST)
+		@RequestMapping(value = "/optionalfile", method = HttpMethod.POST)
 		public String processOptionalFile(@RequestParam Optional<MultipartFile> file,
 				@RequestPart Map<String, String> json, Model model) throws IOException {
 
@@ -347,7 +347,7 @@ public class MultipartControllerTests {
 			return "redirect:/index";
 		}
 
-		@RequestMapping(value = "/optionalfilearray", method = RequestMethod.POST)
+		@RequestMapping(value = "/optionalfilearray", method = HttpMethod.POST)
 		public String processOptionalFileArray(@RequestParam Optional<MultipartFile[]> file,
 				@RequestPart Map<String, String> json, Model model) throws IOException {
 
@@ -361,7 +361,7 @@ public class MultipartControllerTests {
 			return "redirect:/index";
 		}
 
-		@RequestMapping(value = "/optionalfilelist", method = RequestMethod.POST)
+		@RequestMapping(value = "/optionalfilelist", method = HttpMethod.POST)
 		public String processOptionalFileList(@RequestParam Optional<List<MultipartFile>> file,
 				@RequestPart Map<String, String> json, Model model) throws IOException {
 
@@ -375,7 +375,7 @@ public class MultipartControllerTests {
 			return "redirect:/index";
 		}
 
-		@RequestMapping(value = "/part", method = RequestMethod.POST)
+		@RequestMapping(value = "/part", method = HttpMethod.POST)
 		public String processPart(@RequestParam Part part,
 				@RequestPart Map<String, String> json, Model model) throws IOException {
 
@@ -385,7 +385,7 @@ public class MultipartControllerTests {
 			return "redirect:/index";
 		}
 
-		@RequestMapping(value = "/json", method = RequestMethod.POST)
+		@RequestMapping(value = "/json", method = HttpMethod.POST)
 		public String processMultipart(@RequestPart Map<String, String> json, Model model) {
 			model.addAttribute("json", json);
 			return "redirect:/index";

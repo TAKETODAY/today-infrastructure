@@ -3026,7 +3026,7 @@ class MergedAnnotationsTests {
           extends SubMyRepeatableWithAdditionalLocalDeclarationsClass {
   }
 
-  enum RequestMethod {
+  enum HttpMethod {
     GET, POST
   }
 
@@ -3041,11 +3041,11 @@ class MergedAnnotationsTests {
     @AliasFor(attribute = "value")
     String[] path() default "";
 
-    RequestMethod[] method() default { };
+    HttpMethod[] method() default { };
   }
 
   @Retention(RetentionPolicy.RUNTIME)
-  @RequestMapping(method = RequestMethod.GET, name = "")
+  @RequestMapping(method = HttpMethod.GET, name = "")
   @interface GetMapping {
 
     @AliasFor(annotation = RequestMapping.class)
@@ -3056,7 +3056,7 @@ class MergedAnnotationsTests {
   }
 
   @Retention(RetentionPolicy.RUNTIME)
-  @RequestMapping(method = RequestMethod.POST, name = "")
+  @RequestMapping(method = HttpMethod.POST, name = "")
   @interface PostMapping {
 
     String path() default "";
@@ -3069,8 +3069,8 @@ class MergedAnnotationsTests {
     public void handleMappedWithValueAttribute() {
     }
 
-    @RequestMapping(path = "/test", name = "bar", method = { RequestMethod.GET,
-            RequestMethod.POST })
+    @RequestMapping(path = "/test", name = "bar", method = { HttpMethod.GET,
+            HttpMethod.POST })
     public void handleMappedWithPathAttribute() {
     }
 
@@ -3087,7 +3087,7 @@ class MergedAnnotationsTests {
     }
 
     @RequestMapping(value = "/test", path = "/test", name = "bar", method = {
-            RequestMethod.GET, RequestMethod.POST })
+            HttpMethod.GET, HttpMethod.POST })
     public void handleMappedWithSamePathAndValueAttributes() {
     }
 

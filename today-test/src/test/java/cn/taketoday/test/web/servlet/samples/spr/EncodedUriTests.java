@@ -39,7 +39,7 @@ import cn.taketoday.test.web.servlet.ResultActions;
 import cn.taketoday.ui.Model;
 import cn.taketoday.web.bind.annotation.PathVariable;
 import cn.taketoday.web.bind.annotation.RequestMapping;
-import cn.taketoday.web.bind.annotation.RequestMethod;
+import cn.taketoday.web.bind.annotation.HttpMethod;
 import cn.taketoday.web.context.WebApplicationContext;
 import cn.taketoday.web.servlet.config.annotation.EnableWebMvc;
 import cn.taketoday.web.servlet.config.annotation.ViewResolverRegistry;
@@ -107,7 +107,7 @@ public class EncodedUriTests {
 	@Controller
 	private static class MyController {
 
-		@RequestMapping(value = "/circuit/{id}", method = RequestMethod.GET)
+		@RequestMapping(value = "/circuit/{id}", method = HttpMethod.GET)
 		public String getCircuit(@PathVariable String id, Model model) {
 			model.addAttribute("receivedId", id);
 			return "result";

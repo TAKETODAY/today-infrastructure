@@ -32,7 +32,7 @@ import cn.taketoday.test.context.junit.jupiter.ApplicationExtension;
 import cn.taketoday.test.context.web.WebAppConfiguration;
 import cn.taketoday.test.web.servlet.MockMvc;
 import cn.taketoday.web.bind.annotation.RequestMapping;
-import cn.taketoday.web.bind.annotation.RequestMethod;
+import cn.taketoday.web.bind.annotation.HttpMethod;
 import cn.taketoday.web.bind.annotation.ResponseBody;
 import cn.taketoday.web.context.WebApplicationContext;
 import cn.taketoday.web.servlet.config.annotation.EnableWebMvc;
@@ -92,7 +92,7 @@ public class HttpOptionsTests {
 		private final AtomicInteger counter = new AtomicInteger();
 
 
-		@RequestMapping(value = "/myUrl", method = RequestMethod.OPTIONS)
+		@RequestMapping(value = "/myUrl", method = HttpMethod.OPTIONS)
 		@ResponseBody
 		public void handle() {
 			counter.incrementAndGet();

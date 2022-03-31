@@ -50,8 +50,8 @@ import static cn.taketoday.test.web.servlet.result.MockMvcResultMatchers.content
 import static cn.taketoday.test.web.servlet.result.MockMvcResultMatchers.status;
 import static cn.taketoday.test.web.servlet.result.MockMvcResultMatchers.xpath;
 import static cn.taketoday.test.web.servlet.setup.MockMvcBuilders.standaloneSetup;
-import static cn.taketoday.web.bind.annotation.RequestMethod.GET;
-import static cn.taketoday.web.bind.annotation.RequestMethod.HEAD;
+import static cn.taketoday.web.bind.annotation.HttpMethod.GET;
+import static cn.taketoday.web.bind.annotation.HttpMethod.HEAD;
 
 /**
  * Examples of expectations on XML response content with XPath expressions.

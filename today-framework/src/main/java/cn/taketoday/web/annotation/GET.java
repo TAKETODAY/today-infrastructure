@@ -34,7 +34,7 @@ import cn.taketoday.http.MediaType;
  * methods.
  *
  * <p>Specifically, {@code @GetMapping} is a <em>composed annotation</em> that
- * acts as a shortcut for {@code @RequestMapping(method = RequestMethod.GET)}.
+ * acts as a shortcut for {@code @RequestMapping(method = HttpMethod.GET)}.
  *
  * @author TODAY <br>
  * 2018-07-01 14:09:32

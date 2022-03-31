@@ -50,7 +50,7 @@ import cn.taketoday.lang.Nullable;
  *
  * <pre class="code">
  * &#064;Retention(RetentionPolicy.RUNTIME)
- * &#064;RequestMapping(method = RequestMethod.POST)
+ * &#064;RequestMapping(method = HttpMethod.POST)
  * public &#064;interface PostMapping {
  *
  *     &#064;AliasFor(attribute = "path")
@@ -84,7 +84,7 @@ import cn.taketoday.lang.Nullable;
  * </tr>
  * <tr>
  * <td>method</td>
- * <td>RequestMethod.POST</td>
+ * <td>HttpMethod.POST</td>
  * <td>Declared in meta-annotation</td>
  * </tr>
  * </table>

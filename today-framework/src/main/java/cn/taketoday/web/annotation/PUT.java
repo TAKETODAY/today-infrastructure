@@ -38,7 +38,7 @@ import cn.taketoday.http.MediaType;
  *
  * @author TODAY <br>
  * 2018-07-01 14:07:11 2018-08-23 10:24 change add
- * <b>@ActionMapping(method = RequestMethod.PUT)
+ * <b>@ActionMapping(method = HttpMethod.PUT)
  */
 @Retention(RetentionPolicy.RUNTIME)
 @ActionMapping(method = HttpMethod.PUT)

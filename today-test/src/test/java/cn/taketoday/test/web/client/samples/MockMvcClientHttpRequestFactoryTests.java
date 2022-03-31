@@ -34,7 +34,7 @@ import cn.taketoday.test.web.client.MockMvcClientHttpRequestFactory;
 import cn.taketoday.test.web.servlet.MockMvc;
 import cn.taketoday.test.web.servlet.setup.MockMvcBuilders;
 import cn.taketoday.web.bind.annotation.RequestMapping;
-import cn.taketoday.web.bind.annotation.RequestMethod;
+import cn.taketoday.web.bind.annotation.HttpMethod;
 import cn.taketoday.web.bind.annotation.ResponseBody;
 import cn.taketoday.web.client.RestTemplate;
 import cn.taketoday.web.context.WebApplicationContext;
@@ -85,7 +85,7 @@ public class MockMvcClientHttpRequestFactoryTests {
 	@Controller
 	static class MyController {
 
-		@RequestMapping(value="/foo", method=RequestMethod.GET)
+		@RequestMapping(value="/foo", method=HttpMethod.GET)
 		@ResponseBody
 		public String handle() {
 			return "bar";

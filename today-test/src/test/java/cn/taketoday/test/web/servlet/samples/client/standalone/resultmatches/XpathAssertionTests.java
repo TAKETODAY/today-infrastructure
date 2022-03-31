@@ -47,8 +47,8 @@ import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.startsWith;
 import static cn.taketoday.test.web.servlet.result.MockMvcResultMatchers.content;
 import static cn.taketoday.test.web.servlet.result.MockMvcResultMatchers.status;
-import static cn.taketoday.web.bind.annotation.RequestMethod.GET;
-import static cn.taketoday.web.bind.annotation.RequestMethod.HEAD;
+import static cn.taketoday.web.bind.annotation.HttpMethod.GET;
+import static cn.taketoday.web.bind.annotation.HttpMethod.HEAD;
 
 /**
  * {@link MockMvcWebTestClient} equivalent of the MockMvc
