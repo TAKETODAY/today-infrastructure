@@ -34,7 +34,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * <p>
  * JUnit 4 based test class, which verifies the expected functionality of
- * {@link ApplicationRunner} in conjunction with support for application contexts
+ * {@link Runner} in conjunction with support for application contexts
  * loaded from Java {@link Properties} files. Specifically, the
  * {@link ContextConfiguration#loader() loader} attribute of {@code ContextConfiguration}
  * and the
@@ -56,7 +56,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @see cn.taketoday.test.context.support.GenericPropertiesContextLoader
  * @see SpringJUnit4ClassRunnerAppCtxTests
  */
-@RunWith(ApplicationRunner.class)
+@RunWith(Runner.class)
 @SuppressWarnings("deprecation")
 @ContextConfiguration(loader = cn.taketoday.test.context.support.GenericPropertiesContextLoader.class)
 public class PropertiesBasedSpringJUnit4ClassRunnerAppCtxTests {

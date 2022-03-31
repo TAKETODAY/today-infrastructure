@@ -22,6 +22,9 @@ package cn.taketoday.test.context.junit.jupiter.nested;
 
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+
+import javax.sql.DataSource;
+
 import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
@@ -31,19 +34,17 @@ import cn.taketoday.test.annotation.Commit;
 import cn.taketoday.test.annotation.Rollback;
 import cn.taketoday.test.context.NestedTestConfiguration;
 import cn.taketoday.test.context.junit.jupiter.ApplicationExtension;
-import cn.taketoday.test.context.junit.jupiter.SpringJUnitConfig;
+import cn.taketoday.test.context.junit.jupiter.JUnitConfig;
 import cn.taketoday.test.context.transaction.TestTransaction;
 import cn.taketoday.test.transaction.TransactionAssert;
 import cn.taketoday.transaction.TransactionManager;
 import cn.taketoday.transaction.annotation.EnableTransactionManagement;
 import cn.taketoday.transaction.annotation.Transactional;
 
-import javax.sql.DataSource;
-
-import static org.assertj.core.api.Assertions.assertThat;
 import static cn.taketoday.test.context.NestedTestConfiguration.EnclosingConfiguration.INHERIT;
 import static cn.taketoday.test.context.NestedTestConfiguration.EnclosingConfiguration.OVERRIDE;
 import static cn.taketoday.transaction.annotation.Propagation.NOT_SUPPORTED;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Integration tests that verify support for {@code @Nested} test classes using
@@ -53,137 +54,131 @@ import static cn.taketoday.transaction.annotation.Propagation.NOT_SUPPORTED;
  * @author Sam Brannen
  * @since 5.3
  */
-@SpringJUnitConfig
+@JUnitConfig
 @Transactional
 @Commit
 @NestedTestConfiguration(OVERRIDE) // since INHERIT is now the global default
 class TransactionalNestedTests {
 
-	@Test
-	void transactional(@Autowired DataSource dataSource) {
-		TransactionAssert.assertThatTransaction().isActive();
-		assertThat(dataSource).isNotNull();
-		assertCommit();
-	}
+  @Test
+  void transactional(@Autowired DataSource dataSource) {
+    TransactionAssert.assertThatTransaction().isActive();
+    assertThat(dataSource).isNotNull();
+    assertCommit();
+  }
 
+  @Nested
+  @JUnitConfig(Config.class)
+  class ConfigOverriddenByDefaultTests {
 
-	@Nested
-	@SpringJUnitConfig(Config.class)
-	class ConfigOverriddenByDefaultTests {
+    @Test
+    void notTransactional(@Autowired DataSource dataSource) {
+      TransactionAssert.assertThatTransaction().isNotActive();
+      assertThat(dataSource).isNotNull();
+    }
+  }
 
-		@Test
-		void notTransactional(@Autowired DataSource dataSource) {
-			TransactionAssert.assertThatTransaction().isNotActive();
-			assertThat(dataSource).isNotNull();
-		}
-	}
+  @Nested
+  @NestedTestConfiguration(INHERIT)
+  class InheritedConfigTests {
 
-	@Nested
-	@NestedTestConfiguration(INHERIT)
-	class InheritedConfigTests {
+    @Test
+    void transactional(@Autowired DataSource dataSource) {
+      TransactionAssert.assertThatTransaction().isActive();
+      assertThat(dataSource).isNotNull();
+      assertCommit();
+    }
 
-		@Test
-		void transactional(@Autowired DataSource dataSource) {
-			TransactionAssert.assertThatTransaction().isActive();
-			assertThat(dataSource).isNotNull();
-			assertCommit();
-		}
+    @Nested
+    class DoubleNestedWithImplicitlyInheritedConfigTests {
 
+      @Test
+      void transactional(@Autowired DataSource dataSource) {
+        TransactionAssert.assertThatTransaction().isActive();
+        assertThat(dataSource).isNotNull();
+        assertCommit();
+      }
 
-		@Nested
-		class DoubleNestedWithImplicitlyInheritedConfigTests {
+      @Nested
+      @Rollback
+      class TripleNestedWithImplicitlyInheritedConfigTests {
 
-			@Test
-			void transactional(@Autowired DataSource dataSource) {
-				TransactionAssert.assertThatTransaction().isActive();
-				assertThat(dataSource).isNotNull();
-				assertCommit();
-			}
+        @Test
+        void transactional(@Autowired DataSource dataSource) {
+          TransactionAssert.assertThatTransaction().isActive();
+          assertThat(dataSource).isNotNull();
+          assertRollback();
+        }
+      }
+    }
 
+    @Nested
+    @NestedTestConfiguration(OVERRIDE)
+    @JUnitConfig(Config.class)
+    @Transactional
+    @Rollback
+    class DoubleNestedWithOverriddenConfigTests {
 
-			@Nested
-			@Rollback
-			class TripleNestedWithImplicitlyInheritedConfigTests {
+      @Test
+      void transactional(@Autowired DataSource dataSource) {
+        TransactionAssert.assertThatTransaction().isActive();
+        assertThat(dataSource).isNotNull();
+        assertRollback();
+      }
 
-				@Test
-				void transactional(@Autowired DataSource dataSource) {
-					TransactionAssert.assertThatTransaction().isActive();
-					assertThat(dataSource).isNotNull();
-					assertRollback();
-				}
-			}
-		}
+      @Nested
+      @NestedTestConfiguration(INHERIT)
+      @Commit
+      class TripleNestedWithInheritedConfigTests {
 
-		@Nested
-		@NestedTestConfiguration(OVERRIDE)
-		@SpringJUnitConfig(Config.class)
-		@Transactional
-		@Rollback
-		class DoubleNestedWithOverriddenConfigTests {
+        @Test
+        void transactional(@Autowired DataSource dataSource) {
+          TransactionAssert.assertThatTransaction().isActive();
+          assertThat(dataSource).isNotNull();
+          assertCommit();
+        }
+      }
 
-			@Test
-			void transactional(@Autowired DataSource dataSource) {
-				TransactionAssert.assertThatTransaction().isActive();
-				assertThat(dataSource).isNotNull();
-				assertRollback();
-			}
+      @Nested
+      @NestedTestConfiguration(INHERIT)
+      class TripleNestedWithInheritedConfigAndTestInterfaceTests implements TestInterface {
 
+        @Test
+        void notTransactional(@Autowired DataSource dataSource) {
+          TransactionAssert.assertThatTransaction().isNotActive();
+          assertThat(dataSource).isNotNull();
+        }
+      }
+    }
+  }
 
-			@Nested
-			@NestedTestConfiguration(INHERIT)
-			@Commit
-			class TripleNestedWithInheritedConfigTests {
+  private void assertCommit() {
+    assertThat(TestTransaction.isFlaggedForRollback()).as("flagged for commit").isFalse();
+  }
 
-				@Test
-				void transactional(@Autowired DataSource dataSource) {
-					TransactionAssert.assertThatTransaction().isActive();
-					assertThat(dataSource).isNotNull();
-					assertCommit();
-				}
-			}
+  private void assertRollback() {
+    assertThat(TestTransaction.isFlaggedForRollback()).as("flagged for rollback").isTrue();
+  }
 
-			@Nested
-			@NestedTestConfiguration(INHERIT)
-			class TripleNestedWithInheritedConfigAndTestInterfaceTests implements TestInterface {
+  // -------------------------------------------------------------------------
 
-				@Test
-				void notTransactional(@Autowired DataSource dataSource) {
-					TransactionAssert.assertThatTransaction().isNotActive();
-					assertThat(dataSource).isNotNull();
-				}
-			}
-		}
-	}
+  @Configuration
+  @EnableTransactionManagement
+  static class Config {
 
+    @Bean
+    TransactionManager transactionManager(DataSource dataSource) {
+      return new DataSourceTransactionManager(dataSource);
+    }
 
-	private void assertCommit() {
-		assertThat(TestTransaction.isFlaggedForRollback()).as("flagged for commit").isFalse();
-	}
+    @Bean
+    DataSource dataSource() {
+      return new EmbeddedDatabaseBuilder().generateUniqueName(true).build();
+    }
+  }
 
-	private void assertRollback() {
-		assertThat(TestTransaction.isFlaggedForRollback()).as("flagged for rollback").isTrue();
-	}
-
-	// -------------------------------------------------------------------------
-
-
-	@Configuration
-	@EnableTransactionManagement
-	static class Config {
-
-		@Bean
-		TransactionManager transactionManager(DataSource dataSource) {
-			return new DataSourceTransactionManager(dataSource);
-		}
-
-		@Bean
-		DataSource dataSource() {
-			return new EmbeddedDatabaseBuilder().generateUniqueName(true).build();
-		}
-	}
-
-	@Transactional(propagation = NOT_SUPPORTED)
-	interface TestInterface {
-	}
+  @Transactional(propagation = NOT_SUPPORTED)
+  interface TestInterface {
+  }
 
 }

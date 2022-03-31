@@ -22,15 +22,15 @@ package cn.taketoday.test.context.junit4;
 
 import org.junit.runners.model.InitializationError;
 
+import cn.taketoday.test.context.TestContextManager;
 import cn.taketoday.test.context.junit4.rules.ApplicationClassRule;
 import cn.taketoday.test.context.junit4.rules.ApplicationMethodRule;
-import cn.taketoday.test.context.TestContextManager;
 
 /**
- * {@code SpringRunner} is an <em>alias</em> for the {@link ApplicationJUnit4ClassRunner}.
+ * {@code Runner} is an <em>alias</em> for the {@link JUnit4ClassRunner}.
  *
  * <p>To use this class, simply annotate a JUnit 4 based test class with
- * {@code @RunWith(SpringRunner.class)}.
+ * {@code @RunWith(Runner.class)}.
  *
  * <p>If you would like to use the Spring TestContext Framework with a runner other than
  * this one, use {@link ApplicationClassRule}
@@ -39,22 +39,22 @@ import cn.taketoday.test.context.TestContextManager;
  * <p><strong>NOTE:</strong> This class requires JUnit 4.12 or higher.
  *
  * @author Sam Brannen
- * @see ApplicationJUnit4ClassRunner
+ * @see JUnit4ClassRunner
  * @see ApplicationClassRule
  * @see ApplicationMethodRule
  * @since 4.0
  */
-public final class ApplicationRunner extends ApplicationJUnit4ClassRunner {
+public final class Runner extends JUnit4ClassRunner {
 
   /**
-   * Construct a new {@code SpringRunner} and initialize a
+   * Construct a new {@code Runner} and initialize a
    * {@link TestContextManager TestContextManager}
    * to provide Spring testing functionality to standard JUnit 4 tests.
    *
    * @param clazz the test class to be run
    * @see #createTestContextManager(Class)
    */
-  public ApplicationRunner(Class<?> clazz) throws InitializationError {
+  public Runner(Class<?> clazz) throws InitializationError {
     super(clazz);
   }
 

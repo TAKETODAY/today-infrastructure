@@ -30,13 +30,14 @@ import org.junit.jupiter.api.extension.ParameterResolver;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.api.extension.TestTemplateInvocationContext;
 import org.junit.jupiter.api.extension.TestTemplateInvocationContextProvider;
-import cn.taketoday.beans.factory.annotation.Autowired;
-import cn.taketoday.context.annotation.Bean;
-import cn.taketoday.context.annotation.Configuration;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Stream;
+
+import cn.taketoday.beans.factory.annotation.Autowired;
+import cn.taketoday.context.annotation.Bean;
+import cn.taketoday.context.annotation.Configuration;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -52,82 +53,79 @@ import static org.assertj.core.api.Assertions.assertThat;
 @TestInstance(Lifecycle.PER_CLASS)
 class SpringManagedJupiterExtensionTests {
 
-	@Autowired
-	@RegisterExtension
-	TestTemplateInvocationContextProvider provider;
+  @Autowired
+  @RegisterExtension
+  TestTemplateInvocationContextProvider provider;
 
+  @TestTemplate
+  void testTemplate(String parameter) {
+    assertThat("foo".equals(parameter) || "bar".equals(parameter)).isTrue();
+  }
 
-	@TestTemplate
-	void testTemplate(String parameter) {
-		assertThat("foo".equals(parameter) || "bar".equals(parameter)).isTrue();
-	}
+  @Configuration
+  static class Config {
 
+    @Bean
+    String foo() {
+      return "foo";
+    }
 
-	@Configuration
-	static class Config {
+    @Bean
+    String bar() {
+      return "bar";
+    }
 
-		@Bean
-		String foo() {
-			return "foo";
-		}
+    @Bean
+    TestTemplateInvocationContextProvider provider(List<String> parameters) {
+      return new StringInvocationContextProvider(parameters);
+    }
+  }
 
-		@Bean
-		String bar() {
-			return "bar";
-		}
+  private static class StringInvocationContextProvider implements TestTemplateInvocationContextProvider {
 
-		@Bean
-		TestTemplateInvocationContextProvider provider(List<String> parameters) {
-			return new StringInvocationContextProvider(parameters);
-		}
-	}
+    private final List<String> parameters;
 
-	private static class StringInvocationContextProvider implements TestTemplateInvocationContextProvider {
+    StringInvocationContextProvider(List<String> parameters) {
+      this.parameters = parameters;
+    }
 
-		private final List<String> parameters;
+    @Override
+    public boolean supportsTestTemplate(ExtensionContext context) {
+      return true;
+    }
 
+    @Override
+    public Stream<TestTemplateInvocationContext> provideTestTemplateInvocationContexts(ExtensionContext context) {
+      return this.parameters.stream().map(this::invocationContext);
+    }
 
-		StringInvocationContextProvider(List<String> parameters) {
-			this.parameters = parameters;
-		}
+    private TestTemplateInvocationContext invocationContext(String parameter) {
+      return new TestTemplateInvocationContext() {
 
-		@Override
-		public boolean supportsTestTemplate(ExtensionContext context) {
-			return true;
-		}
+        @Override
+        public String getDisplayName(int invocationIndex) {
+          return parameter;
+        }
 
-		@Override
-		public Stream<TestTemplateInvocationContext> provideTestTemplateInvocationContexts(ExtensionContext context) {
-			return this.parameters.stream().map(this::invocationContext);
-		}
+        @Override
+        public List<Extension> getAdditionalExtensions() {
+          return Collections.singletonList(new ParameterResolver() {
 
-		private TestTemplateInvocationContext invocationContext(String parameter) {
-			return new TestTemplateInvocationContext() {
+            @Override
+            public boolean supportsParameter(ParameterContext parameterContext,
+                    ExtensionContext extensionContext) {
+              return parameterContext.getParameter().getType() == String.class;
+            }
 
-				@Override
-				public String getDisplayName(int invocationIndex) {
-					return parameter;
-				}
-
-				@Override
-				public List<Extension> getAdditionalExtensions() {
-					return Collections.singletonList(new ParameterResolver() {
-
-						@Override
-						public boolean supportsParameter(ParameterContext parameterContext,
-								ExtensionContext extensionContext) {
-							return parameterContext.getParameter().getType() == String.class;
-						}
-
-						@Override
-						public Object resolveParameter(ParameterContext parameterContext,
-								ExtensionContext extensionContext) {
-							return parameter;
-						}
-					});
-				}
-			};
-		}
-	}
+            @Override
+            public Object resolveParameter(ParameterContext parameterContext,
+                    ExtensionContext extensionContext) {
+              return parameter;
+            }
+          });
+        }
+      };
+    }
+  }
 
 }

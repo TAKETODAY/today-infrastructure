@@ -25,7 +25,7 @@ import org.junit.runner.RunWith;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.ImportResource;
 import cn.taketoday.test.context.ContextConfiguration;
-import cn.taketoday.test.context.junit4.ApplicationJUnit4ClassRunner;
+import cn.taketoday.test.context.junit4.JUnit4ClassRunner;
 
 import javax.sql.DataSource;
 
@@ -41,7 +41,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @since 4.2
  * @see Spr8849Tests
  */
-@RunWith(ApplicationJUnit4ClassRunner.class)
+@RunWith(JUnit4ClassRunner.class)
 @ContextConfiguration
 public class TestClass3 {
 

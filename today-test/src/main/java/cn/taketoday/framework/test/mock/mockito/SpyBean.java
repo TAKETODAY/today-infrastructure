@@ -32,13 +32,13 @@ import java.lang.annotation.Target;
 
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.core.annotation.AliasFor;
-import cn.taketoday.test.context.junit4.ApplicationRunner;
+import cn.taketoday.test.context.junit4.Runner;
 
 /**
  * Annotation that can be used to apply Mockito spies to a Spring
  * {@link ApplicationContext}. Can be used as a class level annotation or on fields in
  * either {@code @Configuration} classes, or test classes that are
- * {@link RunWith @RunWith} the {@link ApplicationRunner}.
+ * {@link RunWith @RunWith} the {@link Runner}.
  * <p>
  * Spies can be applied by type or by {@link #name() bean name}. All beans in the context
  * of a matching type (including subclasses) will be wrapped with the spy. If no existing
@@ -51,7 +51,7 @@ import cn.taketoday.test.context.junit4.ApplicationRunner;
  * When {@code @SpyBean} is used on a field, as well as being registered in the
  * application context, the spy will also be injected into the field. Typical usage might
  * be: <pre class="code">
- * &#064;RunWith(SpringRunner.class)
+ * &#064;RunWith(Runner.class)
  * public class ExampleTests {
  *
  *     &#064;SpyBean
@@ -76,7 +76,7 @@ import cn.taketoday.test.context.junit4.ApplicationRunner;
  * }
  * </pre> If there is more than one bean of the requested type, qualifier metadata must be
  * specified at field level: <pre class="code">
- * &#064;RunWith(SpringRunner.class)
+ * &#064;RunWith(Runner.class)
  * public class ExampleTests {
  *
  *     &#064;SpyBean

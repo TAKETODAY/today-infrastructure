@@ -35,7 +35,7 @@ import cn.taketoday.transaction.annotation.Transactional;
  * @see MethodLevelTransactionalSpringRunnerTests
  * @see Transactional
  */
-@RunWith(ApplicationRunner.class)
+@RunWith(Runner.class)
 @ContextConfiguration("transactionalTests-context.xml")
 public abstract class AbstractTransactionalSpringRunnerTests {
 

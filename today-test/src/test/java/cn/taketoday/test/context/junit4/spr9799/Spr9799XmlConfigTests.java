@@ -23,7 +23,7 @@ package cn.taketoday.test.context.junit4.spr9799;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import cn.taketoday.test.context.ContextConfiguration;
-import cn.taketoday.test.context.junit4.ApplicationJUnit4ClassRunner;
+import cn.taketoday.test.context.junit4.JUnit4ClassRunner;
 
 /**
  * Integration tests used to assess claims raised in
@@ -33,7 +33,7 @@ import cn.taketoday.test.context.junit4.ApplicationJUnit4ClassRunner;
  * @since 4.0
  * @see Spr9799AnnotationConfigTests
  */
-@RunWith(ApplicationJUnit4ClassRunner.class)
+@RunWith(JUnit4ClassRunner.class)
 @ContextConfiguration
 public class Spr9799XmlConfigTests {
 

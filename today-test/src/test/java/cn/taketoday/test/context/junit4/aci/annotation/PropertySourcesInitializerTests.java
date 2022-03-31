@@ -31,7 +31,7 @@ import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.core.env.PropertySource;
 import cn.taketoday.mock.env.MockPropertySource;
 import cn.taketoday.test.context.ContextConfiguration;
-import cn.taketoday.test.context.junit4.ApplicationJUnit4ClassRunner;
+import cn.taketoday.test.context.junit4.JUnit4ClassRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -42,7 +42,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Sam Brannen
  * @since 4.1
  */
-@RunWith(ApplicationJUnit4ClassRunner.class)
+@RunWith(JUnit4ClassRunner.class)
 @ContextConfiguration(initializers = PropertySourcesInitializerTests.PropertySourceInitializer.class)
 public class PropertySourcesInitializerTests {
 

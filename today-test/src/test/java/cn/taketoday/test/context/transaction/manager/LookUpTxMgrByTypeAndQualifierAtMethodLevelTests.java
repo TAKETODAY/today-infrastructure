@@ -36,7 +36,7 @@ import cn.taketoday.transaction.testfixture.CallCountingTransactionManager;
  * @author Sam Brannen
  * @since 4.0
  */
-@SpringJUnitConfig
+@JUnitConfig
 class LookUpTxMgrByTypeAndQualifierAtMethodLevelTests {
 
 	@Autowired

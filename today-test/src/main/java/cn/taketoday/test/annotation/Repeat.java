@@ -27,7 +27,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 import cn.taketoday.test.context.TestExecutionListener;
-import cn.taketoday.test.context.junit4.ApplicationJUnit4ClassRunner;
+import cn.taketoday.test.context.junit4.JUnit4ClassRunner;
 import cn.taketoday.test.context.junit4.rules.ApplicationMethodRule;
 import cn.taketoday.test.context.junit4.statements.SpringRepeat;
 
@@ -49,7 +49,7 @@ import cn.taketoday.test.context.junit4.statements.SpringRepeat;
  * @author Rod Johnson
  * @author Sam Brannen
  * @see Timed
- * @see ApplicationJUnit4ClassRunner
+ * @see JUnit4ClassRunner
  * @see ApplicationMethodRule
  * @see SpringRepeat
  * @since 4.0

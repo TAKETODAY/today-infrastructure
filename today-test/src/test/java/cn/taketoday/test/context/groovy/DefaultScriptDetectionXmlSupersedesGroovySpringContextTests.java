@@ -22,7 +22,7 @@ package cn.taketoday.test.context.groovy;
 
 import org.junit.jupiter.api.Test;
 import cn.taketoday.beans.factory.annotation.Autowired;
-import cn.taketoday.test.context.junit.jupiter.SpringJUnitConfig;
+import cn.taketoday.test.context.junit.jupiter.JUnitConfig;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -33,7 +33,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Sam Brannen
  * @since 4.1
  */
-@SpringJUnitConfig
+@JUnitConfig
 class DefaultScriptDetectionXmlSupersedesGroovySpringContextTests {
 
 	@Autowired

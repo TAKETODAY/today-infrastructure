@@ -35,7 +35,7 @@ import cn.taketoday.test.annotation.ProfileValueSourceConfiguration;
 import cn.taketoday.test.context.TestContextBootstrapper;
 import cn.taketoday.test.context.TestContextManager;
 import cn.taketoday.test.context.TestExecutionListener;
-import cn.taketoday.test.context.junit4.ApplicationJUnit4ClassRunner;
+import cn.taketoday.test.context.junit4.JUnit4ClassRunner;
 import cn.taketoday.test.context.junit4.statements.ProfileValueChecker;
 import cn.taketoday.test.context.junit4.statements.RunAfterTestClassCallbacks;
 import cn.taketoday.test.context.junit4.statements.RunBeforeTestClassCallbacks;
@@ -46,7 +46,7 @@ import cn.taketoday.test.context.junit4.statements.RunBeforeTestClassCallbacks;
  * in standard JUnit tests by means of the {@link TestContextManager} and
  * associated support classes and annotations.
  *
- * <p>In contrast to the {@link ApplicationJUnit4ClassRunner
+ * <p>In contrast to the {@link JUnit4ClassRunner
  * SpringJUnit4ClassRunner}, Framework's rule-based JUnit support has the advantage
  * that it is independent of any {@link org.junit.runner.Runner Runner} and
  * can therefore be combined with existing alternative runners like JUnit's
@@ -88,7 +88,7 @@ import cn.taketoday.test.context.junit4.statements.RunBeforeTestClassCallbacks;
  * @see #apply(Statement, Description)
  * @see ApplicationMethodRule
  * @see TestContextManager
- * @see ApplicationJUnit4ClassRunner
+ * @see JUnit4ClassRunner
  * @since 4.0
  */
 public class ApplicationClassRule implements TestRule {

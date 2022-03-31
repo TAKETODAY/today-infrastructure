@@ -38,7 +38,7 @@ import static org.assertj.core.api.Assertions.fail;
  * {@link IfProfileValue &#064;IfProfileValue} and
  * {@link ProfileValueSourceConfiguration &#064;ProfileValueSourceConfiguration}
  * (with the <em>implicit, default {@link ProfileValueSource}</em>) annotations in
- * conjunction with the {@link ApplicationRunner}.
+ * conjunction with the {@link Runner}.
  * <p>
  * Note that {@link TestExecutionListeners &#064;TestExecutionListeners} is
  * explicitly configured with an empty list, thus disabling all default
@@ -48,7 +48,7 @@ import static org.assertj.core.api.Assertions.fail;
  * @since 2.5
  * @see HardCodedProfileValueSourceSpringRunnerTests
  */
-@RunWith(ApplicationRunner.class)
+@RunWith(Runner.class)
 @TestExecutionListeners( {})
 public class EnabledAndIgnoredSpringRunnerTests {
 

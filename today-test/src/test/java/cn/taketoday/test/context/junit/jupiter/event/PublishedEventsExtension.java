@@ -30,14 +30,14 @@ import org.junit.jupiter.api.extension.ParameterResolver;
  */
 public class PublishedEventsExtension implements ParameterResolver {
 
-	@Override
-	public boolean supportsParameter(ParameterContext parameterContext, ExtensionContext extensionContext) {
-		return PublishedEvents.class.isAssignableFrom(parameterContext.getParameter().getType());
-	}
+  @Override
+  public boolean supportsParameter(ParameterContext parameterContext, ExtensionContext extensionContext) {
+    return PublishedEvents.class.isAssignableFrom(parameterContext.getParameter().getType());
+  }
 
-	@Override
-	public PublishedEvents resolveParameter(ParameterContext parameterContext, ExtensionContext extensionContext) {
-		return new DefaultPublishedEvents();
-	}
+  @Override
+  public PublishedEvents resolveParameter(ParameterContext parameterContext, ExtensionContext extensionContext) {
+    return new DefaultPublishedEvents();
+  }
 
 }

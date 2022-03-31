@@ -22,7 +22,6 @@ package cn.taketoday.test.context.junit.jupiter.orm.domain;
 
 import cn.taketoday.stereotype.Repository;
 import cn.taketoday.transaction.annotation.Transactional;
-
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 
@@ -36,30 +35,30 @@ import jakarta.persistence.PersistenceContext;
 @Repository
 public class JpaPersonRepository implements PersonRepository {
 
-	@PersistenceContext
-	private EntityManager entityManager;
+  @PersistenceContext
+  private EntityManager entityManager;
 
-	@Override
-	public Person findById(Long id) {
-		return this.entityManager.find(Person.class, id);
-	}
+  @Override
+  public Person findById(Long id) {
+    return this.entityManager.find(Person.class, id);
+  }
 
-	@Override
-	public Person findByName(String name) {
-		return this.entityManager.createQuery("from Person where name = :name", Person.class)
-				.setParameter("name", name)
-				.getSingleResult();
-	}
+  @Override
+  public Person findByName(String name) {
+    return this.entityManager.createQuery("from Person where name = :name", Person.class)
+            .setParameter("name", name)
+            .getSingleResult();
+  }
 
-	@Override
-	public Person save(Person person) {
-		this.entityManager.persist(person);
-		return person;
-	}
+  @Override
+  public Person save(Person person) {
+    this.entityManager.persist(person);
+    return person;
+  }
 
-	@Override
-	public void remove(Person person) {
-		this.entityManager.remove(person);
-	}
+  @Override
+  public void remove(Person person) {
+    this.entityManager.remove(person);
+  }
 
 }

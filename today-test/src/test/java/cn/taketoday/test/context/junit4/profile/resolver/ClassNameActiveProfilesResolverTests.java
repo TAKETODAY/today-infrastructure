@@ -27,7 +27,7 @@ import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.test.context.ActiveProfiles;
 import cn.taketoday.test.context.ContextConfiguration;
-import cn.taketoday.test.context.junit4.ApplicationJUnit4ClassRunner;
+import cn.taketoday.test.context.junit4.JUnit4ClassRunner;
 
 import java.util.Arrays;
 
@@ -37,7 +37,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Michail Nikolaev
  * @since 4.0
  */
-@RunWith(ApplicationJUnit4ClassRunner.class)
+@RunWith(JUnit4ClassRunner.class)
 @ContextConfiguration
 @ActiveProfiles(resolver = ClassNameActiveProfilesResolver.class)
 public class ClassNameActiveProfilesResolverTests {

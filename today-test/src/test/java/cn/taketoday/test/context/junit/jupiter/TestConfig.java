@@ -36,30 +36,30 @@ import cn.taketoday.test.context.junit.jupiter.comics.Person;
 @Configuration
 public class TestConfig {
 
-	@Bean
-	Person dilbert() {
-		return new Person("Dilbert");
-	}
+  @Bean
+  Person dilbert() {
+    return new Person("Dilbert");
+  }
 
-	@Bean
-	Person wally() {
-		return new Person("Wally");
-	}
+  @Bean
+  Person wally() {
+    return new Person("Wally");
+  }
 
-	@Bean
-	Dog dogbert() {
-		return new Dog("Dogbert");
-	}
+  @Bean
+  Dog dogbert() {
+    return new Dog("Dogbert");
+  }
 
-	@Primary
-	@Bean
-	Cat catbert() {
-		return new Cat("Catbert");
-	}
+  @Primary
+  @Bean
+  Cat catbert() {
+    return new Cat("Catbert");
+  }
 
-	@Bean
-	Cat garfield() {
-		return new Cat("Garfield");
-	}
+  @Bean
+  Cat garfield() {
+    return new Cat("Garfield");
+  }
 
 }

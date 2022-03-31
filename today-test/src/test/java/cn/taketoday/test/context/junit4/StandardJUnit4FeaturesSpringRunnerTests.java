@@ -25,7 +25,7 @@ import cn.taketoday.test.context.TestExecutionListeners;
 
 /**
  * <p>
- * Simple unit test to verify that {@link ApplicationRunner} does not
+ * Simple unit test to verify that {@link Runner} does not
  * hinder correct functionality of standard JUnit 4.4+ testing features.
  * </p>
  * <p>
@@ -38,7 +38,7 @@ import cn.taketoday.test.context.TestExecutionListeners;
  * @since 2.5
  * @see StandardJUnit4FeaturesTests
  */
-@RunWith(ApplicationRunner.class)
+@RunWith(Runner.class)
 @TestExecutionListeners({})
 public class StandardJUnit4FeaturesSpringRunnerTests extends StandardJUnit4FeaturesTests {
 

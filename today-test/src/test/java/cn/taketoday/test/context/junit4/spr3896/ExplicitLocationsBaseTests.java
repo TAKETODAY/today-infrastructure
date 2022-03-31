@@ -25,7 +25,7 @@ import org.junit.runner.RunWith;
 import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.beans.testfixture.beans.Employee;
 import cn.taketoday.test.context.ContextConfiguration;
-import cn.taketoday.test.context.junit4.ApplicationJUnit4ClassRunner;
+import cn.taketoday.test.context.junit4.JUnit4ClassRunner;
 
 /**
  * JUnit 4 based integration test for verifying support for the
@@ -37,7 +37,7 @@ import cn.taketoday.test.context.junit4.ApplicationJUnit4ClassRunner;
  * @author Sam Brannen
  * @since 2.5
  */
-@RunWith(ApplicationJUnit4ClassRunner.class)
+@RunWith(JUnit4ClassRunner.class)
 @ContextConfiguration("DefaultLocationsBaseTests-context.xml")
 public class ExplicitLocationsBaseTests {
 

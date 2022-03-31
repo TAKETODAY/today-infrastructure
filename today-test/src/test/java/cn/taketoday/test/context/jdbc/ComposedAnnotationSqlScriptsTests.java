@@ -24,7 +24,7 @@ import org.junit.jupiter.api.Test;
 import cn.taketoday.core.annotation.AliasFor;
 import cn.taketoday.test.annotation.DirtiesContext;
 import cn.taketoday.test.context.jdbc.Sql.ExecutionPhase;
-import cn.taketoday.test.context.junit.jupiter.SpringJUnitConfig;
+import cn.taketoday.test.context.junit.jupiter.JUnitConfig;
 
 import java.lang.annotation.Retention;
 
@@ -38,7 +38,7 @@ import static cn.taketoday.test.context.jdbc.Sql.ExecutionPhase.BEFORE_TEST_METH
  * @author Sam Brannen
  * @since 4.3
  */
-@SpringJUnitConfig(EmptyDatabaseConfig.class)
+@JUnitConfig(EmptyDatabaseConfig.class)
 @DirtiesContext
 class ComposedAnnotationSqlScriptsTests extends AbstractTransactionalTests {
 

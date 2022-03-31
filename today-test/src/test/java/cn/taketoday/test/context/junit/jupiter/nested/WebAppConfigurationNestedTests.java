@@ -22,14 +22,15 @@ package cn.taketoday.test.context.junit.jupiter.nested;
 
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.test.context.NestedTestConfiguration;
 import cn.taketoday.test.context.junit.jupiter.ApplicationExtension;
 import cn.taketoday.test.context.junit.jupiter.JUnitConfig;
 import cn.taketoday.test.context.junit.jupiter.web.JUnitWebConfig;
-import cn.taketoday.test.context.web.WebAppConfiguration;
 import cn.taketoday.test.context.junit4.nested.NestedTestsWithSpringRulesTests;
+import cn.taketoday.test.context.web.WebAppConfiguration;
 import cn.taketoday.web.context.WebApplicationContext;
 
 import static cn.taketoday.test.context.NestedTestConfiguration.EnclosingConfiguration.INHERIT;
@@ -41,100 +42,97 @@ import static cn.taketoday.test.context.NestedTestConfiguration.EnclosingConfigu
  * {@link ApplicationExtension} in a JUnit Jupiter environment.
  *
  * @author Sam Brannen
- * @since 5.0
  * @see ConstructorInjectionNestedTests
  * @see NestedTestsWithSpringRulesTests
+ * @since 5.0
  */
 @JUnitWebConfig(WebAppConfigurationNestedTests.Config.class)
 @NestedTestConfiguration(OVERRIDE) // since INHERIT is now the global default
 class WebAppConfigurationNestedTests {
 
-	@Test
-	void test(ApplicationContext context) {
-		assertThat(context).isInstanceOf(WebApplicationContext.class);
-	}
+  @Test
+  void test(ApplicationContext context) {
+    assertThat(context).isInstanceOf(WebApplicationContext.class);
+  }
 
+  @Nested
+  @JUnitConfig(Config.class)
+  class ConfigOverriddenByDefaultTests {
 
-	@Nested
-	@JUnitConfig(Config.class)
-	class ConfigOverriddenByDefaultTests {
+    @Test
+    void test(ApplicationContext context) {
+      assertThat(context).isNotInstanceOf(WebApplicationContext.class);
+    }
+  }
 
-		@Test
-		void test(ApplicationContext context) {
-			assertThat(context).isNotInstanceOf(WebApplicationContext.class);
-		}
-	}
+  @Nested
+  @JUnitWebConfig(Config.class)
+  class ConfigOverriddenByDefaultWebTests {
 
-	@Nested
-	@JUnitWebConfig(Config.class)
-	class ConfigOverriddenByDefaultWebTests {
+    @Test
+    void test(ApplicationContext context) {
+      assertThat(context).isInstanceOf(WebApplicationContext.class);
+    }
+  }
 
-		@Test
-		void test(ApplicationContext context) {
-			assertThat(context).isInstanceOf(WebApplicationContext.class);
-		}
-	}
+  @Nested
+  @NestedTestConfiguration(INHERIT)
+  class NestedWithInheritedConfigTests {
 
-	@Nested
-	@NestedTestConfiguration(INHERIT)
-	class NestedWithInheritedConfigTests {
+    @Test
+    void test(ApplicationContext context) {
+      assertThat(context).isInstanceOf(WebApplicationContext.class);
+    }
 
-		@Test
-		void test(ApplicationContext context) {
-			assertThat(context).isInstanceOf(WebApplicationContext.class);
-		}
+    @Nested
+    class DoubleNestedWithImplicitlyInheritedConfigWebTests {
 
+      @Test
+      void test(ApplicationContext context) {
+        assertThat(context).isInstanceOf(WebApplicationContext.class);
+      }
+    }
 
-		@Nested
-		class DoubleNestedWithImplicitlyInheritedConfigWebTests {
+    @Nested
+    @NestedTestConfiguration(OVERRIDE)
+    @JUnitConfig(Config.class)
+    class DoubleNestedWithOverriddenConfigWebTests {
 
-			@Test
-			void test(ApplicationContext context) {
-				assertThat(context).isInstanceOf(WebApplicationContext.class);
-			}
-		}
+      @Test
+      void test(ApplicationContext context) {
+        assertThat(context).isNotInstanceOf(WebApplicationContext.class);
+      }
 
-		@Nested
-		@NestedTestConfiguration(OVERRIDE)
-		@JUnitConfig(Config.class)
-		class DoubleNestedWithOverriddenConfigWebTests {
+      @Nested
+      @NestedTestConfiguration(INHERIT)
+      class TripleNestedWithInheritedConfigWebTests {
 
-			@Test
-			void test(ApplicationContext context) {
-				assertThat(context).isNotInstanceOf(WebApplicationContext.class);
-			}
+        @Test
+        void test(ApplicationContext context) {
+          assertThat(context).isNotInstanceOf(WebApplicationContext.class);
+        }
+      }
 
+      @Nested
+      @NestedTestConfiguration(INHERIT)
+      class TripleNestedWithInheritedConfigAndTestInterfaceTests implements TestInterface {
 
-			@Nested
-			@NestedTestConfiguration(INHERIT)
-			class TripleNestedWithInheritedConfigWebTests {
+        @Test
+        void test(ApplicationContext context) {
+          assertThat(context).isInstanceOf(WebApplicationContext.class);
+        }
+      }
+    }
+  }
 
-				@Test
-				void test(ApplicationContext context) {
-					assertThat(context).isNotInstanceOf(WebApplicationContext.class);
-				}
-			}
+  // -------------------------------------------------------------------------
 
-			@Nested
-			@NestedTestConfiguration(INHERIT)
-			class TripleNestedWithInheritedConfigAndTestInterfaceTests implements TestInterface {
+  @Configuration
+  static class Config {
+  }
 
-				@Test
-				void test(ApplicationContext context) {
-					assertThat(context).isInstanceOf(WebApplicationContext.class);
-				}
-			}
-		}
-	}
-
-	// -------------------------------------------------------------------------
-
-	@Configuration
-	static class Config {
-	}
-
-	@WebAppConfiguration
-	interface TestInterface {
-	}
+  @WebAppConfiguration
+  interface TestInterface {
+  }
 
 }

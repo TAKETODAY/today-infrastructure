@@ -23,6 +23,10 @@ package cn.taketoday.test.context.junit.jupiter.nested;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+
+import java.util.ArrayList;
+import java.util.List;
+
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.test.context.NestedTestConfiguration;
 import cn.taketoday.test.context.TestContext;
@@ -31,12 +35,9 @@ import cn.taketoday.test.context.junit.jupiter.ApplicationExtension;
 import cn.taketoday.test.context.junit.jupiter.JUnitConfig;
 import cn.taketoday.test.context.support.AbstractTestExecutionListener;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import static org.assertj.core.api.Assertions.assertThat;
 import static cn.taketoday.test.context.NestedTestConfiguration.EnclosingConfiguration.INHERIT;
 import static cn.taketoday.test.context.NestedTestConfiguration.EnclosingConfiguration.OVERRIDE;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Integration tests that verify support for {@code @Nested} test classes using
@@ -51,145 +52,141 @@ import static cn.taketoday.test.context.NestedTestConfiguration.EnclosingConfigu
 @NestedTestConfiguration(OVERRIDE) // since INHERIT is now the global default
 class TestExecutionListenersNestedTests {
 
-	private static final String FOO = "foo";
-	private static final String BAR = "bar";
-	private static final String BAZ = "baz";
-	private static final String QUX = "qux";
+  private static final String FOO = "foo";
+  private static final String BAR = "bar";
+  private static final String BAZ = "baz";
+  private static final String QUX = "qux";
 
-	private static final List<String> listeners = new ArrayList<>();
+  private static final List<String> listeners = new ArrayList<>();
 
+  @AfterEach
+  void resetListeners() {
+    listeners.clear();
+  }
 
-	@AfterEach
-	void resetListeners() {
-		listeners.clear();
-	}
+  @Test
+  void test() {
+    assertThat(listeners).containsExactly(FOO);
+  }
 
-	@Test
-	void test() {
-		assertThat(listeners).containsExactly(FOO);
-	}
+  @Nested
+  @NestedTestConfiguration(INHERIT)
+  class InheritedConfigTests {
 
+    @Test
+    void test() {
+      assertThat(listeners).containsExactly(FOO);
+    }
+  }
 
-	@Nested
-	@NestedTestConfiguration(INHERIT)
-	class InheritedConfigTests {
+  @Nested
+  @JUnitConfig(Config.class)
+  @TestExecutionListeners(BarTestExecutionListener.class)
+  class ConfigOverriddenByDefaultTests {
 
-		@Test
-		void test() {
-			assertThat(listeners).containsExactly(FOO);
-		}
-	}
+    @Test
+    void test() {
+      assertThat(listeners).containsExactly(BAR);
+    }
+  }
 
-	@Nested
-	@JUnitConfig(Config.class)
-	@TestExecutionListeners(BarTestExecutionListener.class)
-	class ConfigOverriddenByDefaultTests {
+  @Nested
+  @NestedTestConfiguration(INHERIT)
+  @JUnitConfig(Config.class)
+  @TestExecutionListeners(BarTestExecutionListener.class)
+  class InheritedAndExtendedConfigTests {
 
-		@Test
-		void test() {
-			assertThat(listeners).containsExactly(BAR);
-		}
-	}
+    @Test
+    void test() {
+      assertThat(listeners).containsExactly(FOO, BAR);
+    }
 
-	@Nested
-	@NestedTestConfiguration(INHERIT)
-	@JUnitConfig(Config.class)
-	@TestExecutionListeners(BarTestExecutionListener.class)
-	class InheritedAndExtendedConfigTests {
+    @Nested
+    @NestedTestConfiguration(OVERRIDE)
+    @JUnitConfig(Config.class)
+    @TestExecutionListeners(BazTestExecutionListener.class)
+    class DoubleNestedWithOverriddenConfigTests {
 
-		@Test
-		void test() {
-			assertThat(listeners).containsExactly(FOO, BAR);
-		}
+      @Test
+      void test() {
+        assertThat(listeners).containsExactly(BAZ);
+      }
 
+      @Nested
+      @NestedTestConfiguration(INHERIT)
+      @TestExecutionListeners(listeners = BarTestExecutionListener.class, inheritListeners = false)
+      class TripleNestedWithInheritedConfigButOverriddenListenersTests {
 
-		@Nested
-		@NestedTestConfiguration(OVERRIDE)
-		@JUnitConfig(Config.class)
-		@TestExecutionListeners(BazTestExecutionListener.class)
-		class DoubleNestedWithOverriddenConfigTests {
+        @Test
+        void test() {
+          assertThat(listeners).containsExactly(BAR);
+        }
+      }
 
-			@Test
-			void test() {
-				assertThat(listeners).containsExactly(BAZ);
-			}
+      @Nested
+      @NestedTestConfiguration(INHERIT)
+      class TripleNestedWithInheritedConfigAndTestInterfaceTests implements TestInterface {
 
+        @Test
+        void test() {
+          assertThat(listeners).containsExactly(BAZ, QUX);
+        }
+      }
+    }
 
-			@Nested
-			@NestedTestConfiguration(INHERIT)
-			@TestExecutionListeners(listeners = BarTestExecutionListener.class, inheritListeners = false)
-			class TripleNestedWithInheritedConfigButOverriddenListenersTests {
+  }
 
-				@Test
-				void test() {
-					assertThat(listeners).containsExactly(BAR);
-				}
-			}
+  // -------------------------------------------------------------------------
 
-			@Nested
-			@NestedTestConfiguration(INHERIT)
-			class TripleNestedWithInheritedConfigAndTestInterfaceTests implements TestInterface {
+  @Configuration
+  static class Config {
+    /* no user beans required for these tests */
+  }
 
-				@Test
-				void test() {
-					assertThat(listeners).containsExactly(BAZ, QUX);
-				}
-			}
-		}
+  private static abstract class BaseTestExecutionListener extends AbstractTestExecutionListener {
 
-	}
+    protected abstract String name();
 
-	// -------------------------------------------------------------------------
+    @Override
+    public final void beforeTestClass(TestContext testContext) {
+      listeners.add(name());
+    }
+  }
 
-	@Configuration
-	static class Config {
-		/* no user beans required for these tests */
-	}
+  static class FooTestExecutionListener extends BaseTestExecutionListener {
 
-	private static abstract class BaseTestExecutionListener extends AbstractTestExecutionListener {
+    @Override
+    protected String name() {
+      return FOO;
+    }
+  }
 
-		protected abstract String name();
+  static class BarTestExecutionListener extends BaseTestExecutionListener {
 
-		@Override
-		public final void beforeTestClass(TestContext testContext) {
-			listeners.add(name());
-		}
-	}
+    @Override
+    protected String name() {
+      return BAR;
+    }
+  }
 
-	static class FooTestExecutionListener extends BaseTestExecutionListener {
+  static class BazTestExecutionListener extends BaseTestExecutionListener {
 
-		@Override
-		protected String name() {
-			return FOO;
-		}
-	}
+    @Override
+    protected String name() {
+      return BAZ;
+    }
+  }
 
-	static class BarTestExecutionListener extends BaseTestExecutionListener {
+  static class QuxTestExecutionListener extends BaseTestExecutionListener {
 
-		@Override
-		protected String name() {
-			return BAR;
-		}
-	}
+    @Override
+    protected String name() {
+      return QUX;
+    }
+  }
 
-	static class BazTestExecutionListener extends BaseTestExecutionListener {
-
-		@Override
-		protected String name() {
-			return BAZ;
-		}
-	}
-
-	static class QuxTestExecutionListener extends BaseTestExecutionListener {
-
-		@Override
-		protected String name() {
-			return QUX;
-		}
-	}
-
-	@TestExecutionListeners(QuxTestExecutionListener.class)
-	interface TestInterface {
-	}
+  @TestExecutionListeners(QuxTestExecutionListener.class)
+  interface TestInterface {
+  }
 
 }

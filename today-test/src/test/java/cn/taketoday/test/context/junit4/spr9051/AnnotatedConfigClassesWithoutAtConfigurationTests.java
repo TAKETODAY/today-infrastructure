@@ -25,7 +25,7 @@ import org.junit.runner.RunWith;
 import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.test.context.ContextConfiguration;
-import cn.taketoday.test.context.junit4.ApplicationJUnit4ClassRunner;
+import cn.taketoday.test.context.junit4.JUnit4ClassRunner;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -53,7 +53,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Phillip Webb
  * @since 4.0
  */
-@RunWith(ApplicationJUnit4ClassRunner.class)
+@RunWith(JUnit4ClassRunner.class)
 @ContextConfiguration(classes = AnnotatedConfigClassesWithoutAtConfigurationTests.AnnotatedFactoryBeans.class)
 public class AnnotatedConfigClassesWithoutAtConfigurationTests {
 

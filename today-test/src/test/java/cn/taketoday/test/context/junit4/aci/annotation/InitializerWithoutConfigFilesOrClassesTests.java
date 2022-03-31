@@ -27,7 +27,7 @@ import cn.taketoday.context.ApplicationContextInitializer;
 import cn.taketoday.context.annotation.AnnotatedBeanDefinitionReader;
 import cn.taketoday.context.support.GenericApplicationContext;
 import cn.taketoday.test.context.ContextConfiguration;
-import cn.taketoday.test.context.junit4.ApplicationJUnit4ClassRunner;
+import cn.taketoday.test.context.junit4.JUnit4ClassRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -39,7 +39,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Sam Brannen
  * @since 4.0
  */
-@RunWith(ApplicationJUnit4ClassRunner.class)
+@RunWith(JUnit4ClassRunner.class)
 @ContextConfiguration(initializers = InitializerWithoutConfigFilesOrClassesTests.EntireAppInitializer.class)
 public class InitializerWithoutConfigFilesOrClassesTests {
 

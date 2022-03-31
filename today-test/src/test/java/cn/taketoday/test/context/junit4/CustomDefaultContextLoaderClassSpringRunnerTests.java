@@ -39,7 +39,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Sam Brannen
  * @since 3.0
  */
-@RunWith(ApplicationRunner.class)
+@RunWith(Runner.class)
 @BootstrapWith(CustomDefaultContextLoaderClassSpringRunnerTests.PropertiesBasedTestContextBootstrapper.class)
 @ContextConfiguration("PropertiesBasedSpringJUnit4ClassRunnerAppCtxTests-context.properties")
 public class CustomDefaultContextLoaderClassSpringRunnerTests {

@@ -30,7 +30,7 @@ import cn.taketoday.jdbc.core.JdbcTemplate;
 import cn.taketoday.jdbc.datasource.DataSourceTransactionManager;
 import cn.taketoday.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
 import cn.taketoday.test.annotation.DirtiesContext;
-import cn.taketoday.test.context.junit.jupiter.SpringJUnitConfig;
+import cn.taketoday.test.context.junit.jupiter.JUnitConfig;
 import cn.taketoday.transaction.PlatformTransactionManager;
 
 import java.lang.reflect.InvocationHandler;
@@ -50,7 +50,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Sam Brannen
  * @since 5.3.4
  */
-@SpringJUnitConfig
+@JUnitConfig
 @DirtiesContext
 class InfrastructureProxyTransactionalSqlScriptsTests extends AbstractTransactionalTests {
 

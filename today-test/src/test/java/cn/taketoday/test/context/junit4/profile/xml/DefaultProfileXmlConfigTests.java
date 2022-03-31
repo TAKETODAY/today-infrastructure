@@ -26,13 +26,13 @@ import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.beans.testfixture.beans.Employee;
 import cn.taketoday.beans.testfixture.beans.Pet;
 import cn.taketoday.test.context.ContextConfiguration;
-import cn.taketoday.test.context.junit4.ApplicationJUnit4ClassRunner;
+import cn.taketoday.test.context.junit4.JUnit4ClassRunner;
 
 /**
  * @author Sam Brannen
  * @since 3.1
  */
-@RunWith(ApplicationJUnit4ClassRunner.class)
+@RunWith(JUnit4ClassRunner.class)
 @ContextConfiguration
 public class DefaultProfileXmlConfigTests {
 

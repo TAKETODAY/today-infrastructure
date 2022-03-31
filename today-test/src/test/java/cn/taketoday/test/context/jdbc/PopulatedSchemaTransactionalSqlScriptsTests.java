@@ -22,7 +22,7 @@ package cn.taketoday.test.context.jdbc;
 
 import org.junit.jupiter.api.Test;
 import cn.taketoday.test.annotation.DirtiesContext;
-import cn.taketoday.test.context.junit.jupiter.SpringJUnitConfig;
+import cn.taketoday.test.context.junit.jupiter.JUnitConfig;
 import cn.taketoday.test.context.transaction.AfterTransaction;
 import cn.taketoday.test.context.transaction.BeforeTransaction;
 
@@ -33,7 +33,7 @@ import cn.taketoday.test.context.transaction.BeforeTransaction;
  * @author Sam Brannen
  * @since 4.1
  */
-@SpringJUnitConfig(PopulatedSchemaDatabaseConfig.class)
+@JUnitConfig(PopulatedSchemaDatabaseConfig.class)
 @DirtiesContext
 class PopulatedSchemaTransactionalSqlScriptsTests extends AbstractTransactionalTests {
 

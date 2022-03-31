@@ -48,7 +48,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @see Transactional#transactionManager
  * @see DefaultRollbackFalseTransactionalTests
  */
-@RunWith(ApplicationRunner.class)
+@RunWith(Runner.class)
 @ContextConfiguration(classes = EmbeddedPersonDatabaseTestsConfig.class, inheritLocations = false)
 @Transactional("txMgr")
 @Rollback(false)

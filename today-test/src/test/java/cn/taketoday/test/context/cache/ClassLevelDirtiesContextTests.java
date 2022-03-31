@@ -33,7 +33,7 @@ import cn.taketoday.test.context.ContextConfiguration;
 import cn.taketoday.test.context.TestExecutionListeners;
 import cn.taketoday.test.context.junit.jupiter.ApplicationExtension;
 import cn.taketoday.test.context.junit4.JUnitTestingUtils;
-import cn.taketoday.test.context.junit4.ApplicationRunner;
+import cn.taketoday.test.context.junit4.Runner;
 import cn.taketoday.test.context.support.DependencyInjectionTestExecutionListener;
 import cn.taketoday.test.context.support.DirtiesContextBeforeModesTestExecutionListener;
 import cn.taketoday.test.context.support.DirtiesContextTestExecutionListener;
@@ -151,7 +151,7 @@ class ClassLevelDirtiesContextTests {
 
 	// -------------------------------------------------------------------
 
-	@RunWith(ApplicationRunner.class)
+	@RunWith(Runner.class)
 	@ContextConfiguration
 	// Ensure that we do not include the EventPublishingTestExecutionListener
 	// since it will access the ApplicationContext for each method in the

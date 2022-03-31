@@ -24,6 +24,7 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
+
 import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.jdbc.core.JdbcTemplate;
 import cn.taketoday.test.context.NestedTestConfiguration;
@@ -34,15 +35,15 @@ import cn.taketoday.test.context.jdbc.SqlMergeMode;
 import cn.taketoday.test.context.jdbc.SqlMergeMode.MergeMode;
 import cn.taketoday.test.context.jdbc.merging.AbstractSqlMergeModeTests;
 import cn.taketoday.test.context.junit.jupiter.ApplicationExtension;
-import cn.taketoday.test.context.junit.jupiter.SpringJUnitConfig;
+import cn.taketoday.test.context.junit.jupiter.JUnitConfig;
 import cn.taketoday.test.context.transaction.AfterTransaction;
 import cn.taketoday.test.context.transaction.BeforeTransaction;
 import cn.taketoday.test.jdbc.JdbcTestUtils;
 import cn.taketoday.transaction.annotation.Transactional;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static cn.taketoday.test.context.jdbc.SqlMergeMode.MergeMode.MERGE;
 import static cn.taketoday.test.context.jdbc.SqlMergeMode.MergeMode.OVERRIDE;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Integration tests that verify support for {@link Nested @Nested} test classes in
@@ -52,112 +53,112 @@ import static cn.taketoday.test.context.jdbc.SqlMergeMode.MergeMode.OVERRIDE;
  * @author Sam Brannen
  * @since 5.1.3
  */
-@SpringJUnitConfig(PopulatedSchemaDatabaseConfig.class)
+@JUnitConfig(PopulatedSchemaDatabaseConfig.class)
 @Transactional
 @TestInstance(Lifecycle.PER_CLASS)
 class SqlScriptNestedTests {
 
-	@Autowired
-	JdbcTemplate jdbcTemplate;
+  @Autowired
+  JdbcTemplate jdbcTemplate;
 
-	@BeforeTransaction
-	@AfterTransaction
-	void checkInitialDatabaseState() {
-		assertThat(countRowsInTable("user")).isEqualTo(0);
-	}
+  @BeforeTransaction
+  @AfterTransaction
+  void checkInitialDatabaseState() {
+    assertThat(countRowsInTable("user")).isEqualTo(0);
+  }
 
-	@Test
-	@Sql("/org/springframework/test/context/jdbc/data.sql")
-	void sqlScripts() {
-		assertThat(countRowsInTable("user")).isEqualTo(1);
-	}
+  @Test
+  @Sql("/org/springframework/test/context/jdbc/data.sql")
+  void sqlScripts() {
+    assertThat(countRowsInTable("user")).isEqualTo(1);
+  }
 
-	private int countRowsInTable(String tableName) {
-		return JdbcTestUtils.countRowsInTable(this.jdbcTemplate, tableName);
-	}
+  private int countRowsInTable(String tableName) {
+    return JdbcTestUtils.countRowsInTable(this.jdbcTemplate, tableName);
+  }
 
-	@Nested
-	class NestedTests {
+  @Nested
+  class NestedTests {
 
-		@BeforeTransaction
-		@AfterTransaction
-		void checkInitialDatabaseState() {
-			assertThat(countRowsInTable("user")).isEqualTo(0);
-		}
+    @BeforeTransaction
+    @AfterTransaction
+    void checkInitialDatabaseState() {
+      assertThat(countRowsInTable("user")).isEqualTo(0);
+    }
 
-		@Test
-		@Sql("/org/springframework/test/context/jdbc/data.sql")
-		void nestedSqlScripts() {
-			assertThat(countRowsInTable("user")).isEqualTo(1);
-		}
-	}
+    @Test
+    @Sql("/org/springframework/test/context/jdbc/data.sql")
+    void nestedSqlScripts() {
+      assertThat(countRowsInTable("user")).isEqualTo(1);
+    }
+  }
 
-	@Nested
-	@NestedTestConfiguration(EnclosingConfiguration.OVERRIDE)
-	@Sql({
-		"/org/springframework/test/context/jdbc/recreate-schema.sql",
-		"/org/springframework/test/context/jdbc/data-add-catbert.sql"
-	})
-	class NestedSqlMergeModeTests extends AbstractSqlMergeModeTests {
+  @Nested
+  @NestedTestConfiguration(EnclosingConfiguration.OVERRIDE)
+  @Sql({
+          "/org/springframework/test/context/jdbc/recreate-schema.sql",
+          "/org/springframework/test/context/jdbc/data-add-catbert.sql"
+  })
+  class NestedSqlMergeModeTests extends AbstractSqlMergeModeTests {
 
-		@Nested
-		@NestedTestConfiguration(EnclosingConfiguration.INHERIT)
-		@SqlMergeMode(MergeMode.MERGE)
-		class NestedClassLevelMergeSqlMergeModeTests {
+    @Nested
+    @NestedTestConfiguration(EnclosingConfiguration.INHERIT)
+    @SqlMergeMode(MergeMode.MERGE)
+    class NestedClassLevelMergeSqlMergeModeTests {
 
-			@Test
-			void classLevelScripts() {
-				assertUsers("Catbert");
-			}
+      @Test
+      void classLevelScripts() {
+        assertUsers("Catbert");
+      }
 
-			@Test
-			@Sql("/org/springframework/test/context/jdbc/data-add-dogbert.sql")
-			void merged() {
-				assertUsers("Catbert", "Dogbert");
-			}
+      @Test
+      @Sql("/org/springframework/test/context/jdbc/data-add-dogbert.sql")
+      void merged() {
+        assertUsers("Catbert", "Dogbert");
+      }
 
-			@Test
-			@Sql({
-				"/org/springframework/test/context/jdbc/recreate-schema.sql",
-				"/org/springframework/test/context/jdbc/data.sql",
-				"/org/springframework/test/context/jdbc/data-add-dogbert.sql",
-				"/org/springframework/test/context/jdbc/data-add-catbert.sql"
-			})
-			@SqlMergeMode(MergeMode.OVERRIDE)
-			void overridden() {
-				assertUsers("Dilbert", "Dogbert", "Catbert");
-			}
-		}
+      @Test
+      @Sql({
+              "/org/springframework/test/context/jdbc/recreate-schema.sql",
+              "/org/springframework/test/context/jdbc/data.sql",
+              "/org/springframework/test/context/jdbc/data-add-dogbert.sql",
+              "/org/springframework/test/context/jdbc/data-add-catbert.sql"
+      })
+      @SqlMergeMode(MergeMode.OVERRIDE)
+      void overridden() {
+        assertUsers("Dilbert", "Dogbert", "Catbert");
+      }
+    }
 
-		@Nested
-		@NestedTestConfiguration(EnclosingConfiguration.INHERIT)
-		@SqlMergeMode(OVERRIDE)
-		class ClassLevelOverrideSqlMergeModeTests {
+    @Nested
+    @NestedTestConfiguration(EnclosingConfiguration.INHERIT)
+    @SqlMergeMode(OVERRIDE)
+    class ClassLevelOverrideSqlMergeModeTests {
 
-			@Test
-			void classLevelScripts() {
-				assertUsers("Catbert");
-			}
+      @Test
+      void classLevelScripts() {
+        assertUsers("Catbert");
+      }
 
-			@Test
-			@Sql("/org/springframework/test/context/jdbc/data-add-dogbert.sql")
-			@SqlMergeMode(MERGE)
-			void merged() {
-				assertUsers("Catbert", "Dogbert");
-			}
+      @Test
+      @Sql("/org/springframework/test/context/jdbc/data-add-dogbert.sql")
+      @SqlMergeMode(MERGE)
+      void merged() {
+        assertUsers("Catbert", "Dogbert");
+      }
 
-			@Test
-			@Sql({
-				"/org/springframework/test/context/jdbc/recreate-schema.sql",
-				"/org/springframework/test/context/jdbc/data.sql",
-				"/org/springframework/test/context/jdbc/data-add-dogbert.sql",
-				"/org/springframework/test/context/jdbc/data-add-catbert.sql"
-			})
-			void overridden() {
-				assertUsers("Dilbert", "Dogbert", "Catbert");
-			}
-		}
+      @Test
+      @Sql({
+              "/org/springframework/test/context/jdbc/recreate-schema.sql",
+              "/org/springframework/test/context/jdbc/data.sql",
+              "/org/springframework/test/context/jdbc/data-add-dogbert.sql",
+              "/org/springframework/test/context/jdbc/data-add-catbert.sql"
+      })
+      void overridden() {
+        assertUsers("Dilbert", "Dogbert", "Catbert");
+      }
+    }
 
-	}
+  }
 
 }

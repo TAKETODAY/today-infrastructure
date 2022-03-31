@@ -28,7 +28,7 @@ import cn.taketoday.jdbc.core.JdbcTemplate;
 import cn.taketoday.jdbc.datasource.DataSourceTransactionManager;
 import cn.taketoday.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
 import cn.taketoday.test.annotation.DirtiesContext;
-import cn.taketoday.test.context.junit.jupiter.SpringJUnitConfig;
+import cn.taketoday.test.context.junit.jupiter.JUnitConfig;
 import cn.taketoday.transaction.PlatformTransactionManager;
 import cn.taketoday.transaction.annotation.Transactional;
 
@@ -49,7 +49,7 @@ import static cn.taketoday.test.transaction.TransactionAssert.assertThatTransact
  * @since 4.1
  * @see InferredDataSourceSqlScriptsTests
  */
-@SpringJUnitConfig
+@JUnitConfig
 @DirtiesContext
 class InferredDataSourceTransactionalSqlScriptsTests {
 

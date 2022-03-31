@@ -22,6 +22,11 @@ package cn.taketoday.test.context.junit.jupiter.orm;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import java.util.List;
+
+import javax.sql.DataSource;
+
 import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
@@ -32,18 +37,14 @@ import cn.taketoday.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import cn.taketoday.orm.jpa.vendor.Database;
 import cn.taketoday.orm.jpa.vendor.HibernateJpaVendorAdapter;
 import cn.taketoday.test.context.jdbc.Sql;
+import cn.taketoday.test.context.junit.jupiter.JUnitConfig;
+import cn.taketoday.test.context.junit.jupiter.orm.domain.JpaPersonRepository;
 import cn.taketoday.test.context.junit.jupiter.orm.domain.Person;
 import cn.taketoday.test.context.junit.jupiter.orm.domain.PersonListener;
 import cn.taketoday.test.context.junit.jupiter.orm.domain.PersonRepository;
-import cn.taketoday.test.context.junit.jupiter.orm.domain.JpaPersonRepository;
+import cn.taketoday.test.context.junit4.orm.HibernateSessionFlushingTests;
 import cn.taketoday.transaction.annotation.EnableTransactionManagement;
 import cn.taketoday.transaction.annotation.Transactional;
-
-import java.util.List;
-
-import javax.sql.DataSource;
-
-import cn.taketoday.test.context.junit4.orm.HibernateSessionFlushingTests;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.PersistenceContext;
@@ -55,148 +56,145 @@ import static org.assertj.core.api.Assertions.assertThat;
  * methods).
  *
  * @author Sam Brannen
- * @since 5.3.18
  * @see <a href="https://github.com/spring-projects/spring-framework/issues/28228">issue gh-28228</a>
  * @see HibernateSessionFlushingTests
  */
-@SpringJUnitConfig
+@JUnitConfig
 @Transactional
 @Sql(statements = "insert into person(id, name) values(0, 'Jane')")
 class JpaEntityListenerTests {
 
-	@PersistenceContext
-	EntityManager entityManager;
+  @PersistenceContext
+  EntityManager entityManager;
 
-	@Autowired
-	JdbcTemplate jdbcTemplate;
+  @Autowired
+  JdbcTemplate jdbcTemplate;
 
-	@Autowired
-	PersonRepository repo;
+  @Autowired
+  PersonRepository repo;
 
+  @BeforeEach
+  void setUp() {
+    assertPeople("Jane");
+    PersonListener.methodsInvoked.clear();
+  }
 
-	@BeforeEach
-	void setUp() {
-		assertPeople("Jane");
-		PersonListener.methodsInvoked.clear();
-	}
+  @Test
+  void find() {
+    Person jane = repo.findByName("Jane");
+    assertCallbacks("@PostLoad: Jane");
 
-	@Test
-	void find() {
-		Person jane = repo.findByName("Jane");
-		assertCallbacks("@PostLoad: Jane");
+    // Does not cause an additional @PostLoad
+    repo.findById(jane.getId());
+    assertCallbacks("@PostLoad: Jane");
 
-		// Does not cause an additional @PostLoad
-		repo.findById(jane.getId());
-		assertCallbacks("@PostLoad: Jane");
+    // Clear to cause a new @PostLoad
+    entityManager.clear();
+    repo.findById(jane.getId());
+    assertCallbacks("@PostLoad: Jane", "@PostLoad: Jane");
+  }
 
-		// Clear to cause a new @PostLoad
-		entityManager.clear();
-		repo.findById(jane.getId());
-		assertCallbacks("@PostLoad: Jane", "@PostLoad: Jane");
-	}
+  @Test
+  void save() {
+    Person john = repo.save(new Person("John"));
+    assertCallbacks("@PrePersist: John");
 
-	@Test
-	void save() {
-		Person john = repo.save(new Person("John"));
-		assertCallbacks("@PrePersist: John");
+    // Flush to cause a @PostPersist
+    entityManager.flush();
+    assertPeople("Jane", "John");
+    assertCallbacks("@PrePersist: John", "@PostPersist: John");
 
-		// Flush to cause a @PostPersist
-		entityManager.flush();
-		assertPeople("Jane", "John");
-		assertCallbacks("@PrePersist: John", "@PostPersist: John");
+    // Does not cause a @PostLoad
+    repo.findById(john.getId());
+    assertCallbacks("@PrePersist: John", "@PostPersist: John");
 
-		// Does not cause a @PostLoad
-		repo.findById(john.getId());
-		assertCallbacks("@PrePersist: John", "@PostPersist: John");
+    // Clear to cause a @PostLoad
+    entityManager.clear();
+    repo.findById(john.getId());
+    assertCallbacks("@PrePersist: John", "@PostPersist: John", "@PostLoad: John");
+  }
 
-		// Clear to cause a @PostLoad
-		entityManager.clear();
-		repo.findById(john.getId());
-		assertCallbacks("@PrePersist: John", "@PostPersist: John", "@PostLoad: John");
-	}
+  @Test
+  void update() {
+    Person jane = repo.findByName("Jane");
+    assertCallbacks("@PostLoad: Jane");
 
-	@Test
-	void update() {
-		Person jane = repo.findByName("Jane");
-		assertCallbacks("@PostLoad: Jane");
+    jane.setName("Jane Doe");
+    // Does not cause a @PreUpdate or @PostUpdate
+    repo.save(jane);
+    assertCallbacks("@PostLoad: Jane");
 
-		jane.setName("Jane Doe");
-		// Does not cause a @PreUpdate or @PostUpdate
-		repo.save(jane);
-		assertCallbacks("@PostLoad: Jane");
+    // Flush to cause a @PreUpdate and @PostUpdate
+    entityManager.flush();
+    assertPeople("Jane Doe");
+    assertCallbacks("@PostLoad: Jane", "@PreUpdate: Jane Doe", "@PostUpdate: Jane Doe");
+  }
 
-		// Flush to cause a @PreUpdate and @PostUpdate
-		entityManager.flush();
-		assertPeople("Jane Doe");
-		assertCallbacks("@PostLoad: Jane", "@PreUpdate: Jane Doe", "@PostUpdate: Jane Doe");
-	}
+  @Test
+  void remove() {
+    Person jane = repo.findByName("Jane");
+    assertCallbacks("@PostLoad: Jane");
 
-	@Test
-	void remove() {
-		Person jane = repo.findByName("Jane");
-		assertCallbacks("@PostLoad: Jane");
+    // Does not cause a @PostRemove
+    repo.remove(jane);
+    assertCallbacks("@PostLoad: Jane", "@PreRemove: Jane");
 
-		// Does not cause a @PostRemove
-		repo.remove(jane);
-		assertCallbacks("@PostLoad: Jane", "@PreRemove: Jane");
+    // Flush to cause a @PostRemove
+    entityManager.flush();
+    assertPeople();
+    assertCallbacks("@PostLoad: Jane", "@PreRemove: Jane", "@PostRemove: Jane");
+  }
 
-		// Flush to cause a @PostRemove
-		entityManager.flush();
-		assertPeople();
-		assertCallbacks("@PostLoad: Jane", "@PreRemove: Jane", "@PostRemove: Jane");
-	}
+  private void assertCallbacks(String... callbacks) {
+    assertThat(PersonListener.methodsInvoked).containsExactly(callbacks);
+  }
 
-	private void assertCallbacks(String... callbacks) {
-		assertThat(PersonListener.methodsInvoked).containsExactly(callbacks);
-	}
+  private void assertPeople(String... expectedNames) {
+    List<String> names = this.jdbcTemplate.queryForList("select name from person", String.class);
+    if (expectedNames.length == 0) {
+      assertThat(names).isEmpty();
+    }
+    else {
+      assertThat(names).containsExactlyInAnyOrder(expectedNames);
+    }
+  }
 
-	private void assertPeople(String... expectedNames) {
-		List<String> names = this.jdbcTemplate.queryForList("select name from person", String.class);
-		if (expectedNames.length == 0) {
-			assertThat(names).isEmpty();
-		}
-		else {
-			assertThat(names).containsExactlyInAnyOrder(expectedNames);
-		}
-	}
+  @Configuration(proxyBeanMethods = false)
+  @EnableTransactionManagement
+  static class Config {
 
+    @Bean
+    PersonRepository personRepository() {
+      return new JpaPersonRepository();
+    }
 
-	@Configuration(proxyBeanMethods = false)
-	@EnableTransactionManagement
-	static class Config {
+    @Bean
+    DataSource dataSource() {
+      return new EmbeddedDatabaseBuilder().generateUniqueName(true).build();
+    }
 
-		@Bean
-		PersonRepository personRepository() {
-			return new JpaPersonRepository();
-		}
+    @Bean
+    JdbcTemplate jdbcTemplate(DataSource dataSource) {
+      return new JdbcTemplate(dataSource);
+    }
 
-		@Bean
-		DataSource dataSource() {
-			return new EmbeddedDatabaseBuilder().generateUniqueName(true).build();
-		}
+    @Bean
+    LocalContainerEntityManagerFactoryBean entityManagerFactory(DataSource dataSource) {
+      LocalContainerEntityManagerFactoryBean emfb = new LocalContainerEntityManagerFactoryBean();
+      emfb.setDataSource(dataSource);
+      emfb.setPackagesToScan(Person.class.getPackage().getName());
+      HibernateJpaVendorAdapter hibernateJpaVendorAdapter = new HibernateJpaVendorAdapter();
+      hibernateJpaVendorAdapter.setGenerateDdl(true);
+      hibernateJpaVendorAdapter.setDatabase(Database.HSQL);
+      emfb.setJpaVendorAdapter(hibernateJpaVendorAdapter);
+      return emfb;
+    }
 
-		@Bean
-		JdbcTemplate jdbcTemplate(DataSource dataSource) {
-			return new JdbcTemplate(dataSource);
-		}
+    @Bean
+    JpaTransactionManager transactionManager(EntityManagerFactory emf) {
+      return new JpaTransactionManager(emf);
+    }
 
-		@Bean
-		LocalContainerEntityManagerFactoryBean entityManagerFactory(DataSource dataSource) {
-			LocalContainerEntityManagerFactoryBean emfb = new LocalContainerEntityManagerFactoryBean();
-			emfb.setDataSource(dataSource);
-			emfb.setPackagesToScan(Person.class.getPackage().getName());
-			HibernateJpaVendorAdapter hibernateJpaVendorAdapter = new HibernateJpaVendorAdapter();
-			hibernateJpaVendorAdapter.setGenerateDdl(true);
-			hibernateJpaVendorAdapter.setDatabase(Database.HSQL);
-			emfb.setJpaVendorAdapter(hibernateJpaVendorAdapter);
-			return emfb;
-		}
-
-		@Bean
-		JpaTransactionManager transactionManager(EntityManagerFactory emf) {
-			return new JpaTransactionManager(emf);
-		}
-
-	}
+  }
 
 }

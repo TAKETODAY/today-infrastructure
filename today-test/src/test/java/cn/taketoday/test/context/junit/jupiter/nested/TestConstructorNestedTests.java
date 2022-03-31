@@ -22,6 +22,7 @@ package cn.taketoday.test.context.junit.jupiter.nested;
 
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+
 import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
@@ -30,11 +31,11 @@ import cn.taketoday.test.context.TestConstructor;
 import cn.taketoday.test.context.junit.jupiter.ApplicationExtension;
 import cn.taketoday.test.context.junit.jupiter.JUnitConfig;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static cn.taketoday.test.context.NestedTestConfiguration.EnclosingConfiguration.INHERIT;
 import static cn.taketoday.test.context.NestedTestConfiguration.EnclosingConfiguration.OVERRIDE;
 import static cn.taketoday.test.context.TestConstructor.AutowireMode.ALL;
 import static cn.taketoday.test.context.TestConstructor.AutowireMode.ANNOTATED;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Integration tests that verify support for {@code @Nested} test classes using
@@ -49,125 +50,121 @@ import static cn.taketoday.test.context.TestConstructor.AutowireMode.ANNOTATED;
 @NestedTestConfiguration(OVERRIDE) // since INHERIT is now the global default
 class TestConstructorNestedTests {
 
-	TestConstructorNestedTests(String text) {
-		assertThat(text).isEqualTo("enigma");
-	}
+  TestConstructorNestedTests(String text) {
+    assertThat(text).isEqualTo("enigma");
+  }
 
-	@Test
-	void test() {
-	}
+  @Test
+  void test() {
+  }
 
+  @Nested
+  @JUnitConfig(Config.class)
+  @TestConstructor(autowireMode = ANNOTATED)
+  class ConfigOverriddenByDefaultTests {
 
-	@Nested
-	@JUnitConfig(Config.class)
-	@TestConstructor(autowireMode = ANNOTATED)
-	class ConfigOverriddenByDefaultTests {
+    @Autowired
+    ConfigOverriddenByDefaultTests(String text) {
+      assertThat(text).isEqualTo("enigma");
+    }
 
-		@Autowired
-		ConfigOverriddenByDefaultTests(String text) {
-			assertThat(text).isEqualTo("enigma");
-		}
+    @Test
+    void test() {
+    }
+  }
 
-		@Test
-		void test() {
-		}
-	}
+  @Nested
+  @NestedTestConfiguration(INHERIT)
+  class InheritedConfigTests {
 
-	@Nested
-	@NestedTestConfiguration(INHERIT)
-	class InheritedConfigTests {
+    InheritedConfigTests(String text) {
+      assertThat(text).isEqualTo("enigma");
+    }
 
-		InheritedConfigTests(String text) {
-			assertThat(text).isEqualTo("enigma");
-		}
+    @Test
+    void test() {
+    }
 
-		@Test
-		void test() {
-		}
+    @Nested
+    class DoubleNestedWithImplicitlyInheritedConfigTests {
 
+      DoubleNestedWithImplicitlyInheritedConfigTests(String text) {
+        assertThat(text).isEqualTo("enigma");
+      }
 
-		@Nested
-		class DoubleNestedWithImplicitlyInheritedConfigTests {
+      @Test
+      void test() {
+      }
 
-			DoubleNestedWithImplicitlyInheritedConfigTests(String text) {
-				assertThat(text).isEqualTo("enigma");
-			}
+      @Nested
+      class TripleNestedWithImplicitlyInheritedConfigTests {
 
-			@Test
-			void test() {
-			}
+        TripleNestedWithImplicitlyInheritedConfigTests(String text) {
+          assertThat(text).isEqualTo("enigma");
+        }
 
+        @Test
+        void test() {
+        }
+      }
+    }
 
-			@Nested
-			class TripleNestedWithImplicitlyInheritedConfigTests {
+    @Nested
+    @NestedTestConfiguration(OVERRIDE)
+    @JUnitConfig(Config.class)
+    @TestConstructor(autowireMode = ANNOTATED)
+    class DoubleNestedWithOverriddenConfigTests {
 
-				TripleNestedWithImplicitlyInheritedConfigTests(String text) {
-					assertThat(text).isEqualTo("enigma");
-				}
+      DoubleNestedWithOverriddenConfigTests(@Autowired String text) {
+        assertThat(text).isEqualTo("enigma");
+      }
 
-				@Test
-				void test() {
-				}
-			}
-		}
+      @Test
+      void test() {
+      }
 
-		@Nested
-		@NestedTestConfiguration(OVERRIDE)
-		@JUnitConfig(Config.class)
-		@TestConstructor(autowireMode = ANNOTATED)
-		class DoubleNestedWithOverriddenConfigTests {
+      @Nested
+      @NestedTestConfiguration(INHERIT)
+      class TripleNestedWithInheritedConfigTests {
 
-			DoubleNestedWithOverriddenConfigTests(@Autowired String text) {
-				assertThat(text).isEqualTo("enigma");
-			}
+        @Autowired
+        TripleNestedWithInheritedConfigTests(String text) {
+          assertThat(text).isEqualTo("enigma");
+        }
 
-			@Test
-			void test() {
-			}
+        @Test
+        void test() {
+        }
+      }
 
+      @Nested
+      @NestedTestConfiguration(INHERIT)
+      class TripleNestedWithInheritedConfigAndTestInterfaceTests implements TestInterface {
 
-			@Nested
-			@NestedTestConfiguration(INHERIT)
-			class TripleNestedWithInheritedConfigTests {
+        TripleNestedWithInheritedConfigAndTestInterfaceTests(String text) {
+          assertThat(text).isEqualTo("enigma");
+        }
 
-				@Autowired
-				TripleNestedWithInheritedConfigTests(String text) {
-					assertThat(text).isEqualTo("enigma");
-				}
+        @Test
+        void test() {
+        }
+      }
+    }
+  }
 
-				@Test
-				void test() {
-				}
-			}
+  // -------------------------------------------------------------------------
 
-			@Nested
-			@NestedTestConfiguration(INHERIT)
-			class TripleNestedWithInheritedConfigAndTestInterfaceTests implements TestInterface {
+  @Configuration
+  static class Config {
 
-				TripleNestedWithInheritedConfigAndTestInterfaceTests(String text) {
-					assertThat(text).isEqualTo("enigma");
-				}
+    @Bean
+    String text() {
+      return "enigma";
+    }
+  }
 
-				@Test
-				void test() {
-				}
-			}
-		}
-	}
-
-	// -------------------------------------------------------------------------
-
-	@Configuration
-	static class Config {
-
-		@Bean
-		String text() {
-			return "enigma";
-		}
-	}
-
-	@TestConstructor(autowireMode = ALL)
-	interface TestInterface {
-	}
+  @TestConstructor(autowireMode = ALL)
+  interface TestInterface {
+  }
 
 }

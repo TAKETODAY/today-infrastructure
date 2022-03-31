@@ -33,12 +33,12 @@ import java.lang.annotation.Target;
 
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.core.annotation.AliasFor;
-import cn.taketoday.test.context.junit4.ApplicationRunner;
+import cn.taketoday.test.context.junit4.Runner;
 
 /**
  * Annotation that can be used to add mocks to a Spring {@link ApplicationContext}. Can be
  * used as a class level annotation or on fields in either {@code @Configuration} classes,
- * or test classes that are {@link RunWith @RunWith} the {@link ApplicationRunner}.
+ * or test classes that are {@link RunWith @RunWith} the {@link Runner}.
  * <p>
  * Mocks can be registered by type or by {@link #name() bean name}. When registered by
  * type, any existing single bean of a matching type (including subclasses) in the context
@@ -53,7 +53,7 @@ import cn.taketoday.test.context.junit4.ApplicationRunner;
  * When {@code @MockBean} is used on a field, as well as being registered in the
  * application context, the mock will also be injected into the field. Typical usage might
  * be: <pre class="code">
- * &#064;RunWith(SpringRunner.class)
+ * &#064;RunWith(Runner.class)
  * public class ExampleTests {
  *
  *     &#064;MockBean
@@ -78,7 +78,7 @@ import cn.taketoday.test.context.junit4.ApplicationRunner;
  * }
  * </pre> If there is more than one bean of the requested type, qualifier metadata must be
  * specified at field level: <pre class="code">
- * &#064;RunWith(SpringRunner.class)
+ * &#064;RunWith(Runner.class)
  * public class ExampleTests {
  *
  *     &#064;MockBean

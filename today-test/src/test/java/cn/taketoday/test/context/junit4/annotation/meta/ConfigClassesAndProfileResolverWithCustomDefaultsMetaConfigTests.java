@@ -23,7 +23,7 @@ package cn.taketoday.test.context.junit4.annotation.meta;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import cn.taketoday.beans.factory.annotation.Autowired;
-import cn.taketoday.test.context.junit4.ApplicationJUnit4ClassRunner;
+import cn.taketoday.test.context.junit4.JUnit4ClassRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -34,7 +34,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Sam Brannen
  * @since 4.0.3
  */
-@RunWith(ApplicationJUnit4ClassRunner.class)
+@RunWith(JUnit4ClassRunner.class)
 @ConfigClassesAndProfileResolverWithCustomDefaultsMetaConfig
 public class ConfigClassesAndProfileResolverWithCustomDefaultsMetaConfigTests {
 

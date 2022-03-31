@@ -25,7 +25,7 @@ import org.junit.runner.RunWith;
 import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.beans.factory.annotation.Qualifier;
 import cn.taketoday.test.context.ContextConfiguration;
-import cn.taketoday.test.context.junit4.ApplicationJUnit4ClassRunner;
+import cn.taketoday.test.context.junit4.JUnit4ClassRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -39,7 +39,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @since 3.0
  */
 @ContextConfiguration
-@RunWith(ApplicationJUnit4ClassRunner.class)
+@RunWith(JUnit4ClassRunner.class)
 public class AutowiredQualifierTests {
 
 	@Autowired

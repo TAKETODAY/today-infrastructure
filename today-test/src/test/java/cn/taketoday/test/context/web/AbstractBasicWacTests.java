@@ -27,7 +27,7 @@ import cn.taketoday.mock.web.MockHttpServletRequest;
 import cn.taketoday.mock.web.MockHttpServletResponse;
 import cn.taketoday.mock.web.MockHttpSession;
 import cn.taketoday.mock.web.MockServletContext;
-import cn.taketoday.test.context.junit4.ApplicationRunner;
+import cn.taketoday.test.context.junit4.Runner;
 import cn.taketoday.web.context.ServletContextAware;
 import cn.taketoday.web.context.WebApplicationContext;
 import cn.taketoday.web.context.request.ServletWebRequest;
@@ -42,7 +42,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Sam Brannen
  * @since 4.0
  */
-@RunWith(ApplicationRunner.class)
+@RunWith(Runner.class)
 @WebAppConfiguration
 public abstract class AbstractBasicWacTests implements ServletContextAware {
 

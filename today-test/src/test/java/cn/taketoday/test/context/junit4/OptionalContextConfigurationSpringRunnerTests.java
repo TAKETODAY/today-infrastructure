@@ -37,7 +37,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Sam Brannen
  * @since 4.3
  */
-@RunWith(ApplicationRunner.class)
+@RunWith(Runner.class)
 public class OptionalContextConfigurationSpringRunnerTests {
 
 	@Autowired

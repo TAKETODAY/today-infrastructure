@@ -27,7 +27,7 @@ import cn.taketoday.beans.testfixture.beans.Employee;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.test.context.ContextConfiguration;
-import cn.taketoday.test.context.junit4.ApplicationJUnit4ClassRunner;
+import cn.taketoday.test.context.junit4.JUnit4ClassRunner;
 import cn.taketoday.test.context.support.DelegatingSmartContextLoader;
 
 /**
@@ -39,7 +39,7 @@ import cn.taketoday.test.context.support.DelegatingSmartContextLoader;
  * @since 3.1
  * @see DefaultConfigClassesBaseTests
  */
-@RunWith(ApplicationJUnit4ClassRunner.class)
+@RunWith(JUnit4ClassRunner.class)
 @ContextConfiguration
 public class DefaultLoaderDefaultConfigClassesBaseTests {
 

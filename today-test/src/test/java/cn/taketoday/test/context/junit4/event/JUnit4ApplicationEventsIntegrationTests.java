@@ -32,7 +32,7 @@ import cn.taketoday.context.ApplicationEvent;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.test.context.event.ApplicationEvents;
 import cn.taketoday.test.context.event.RecordApplicationEvents;
-import cn.taketoday.test.context.junit4.ApplicationRunner;
+import cn.taketoday.test.context.junit4.Runner;
 
 /**
  * Integration tests for {@link ApplicationEvents} in conjunction with JUnit 4.
@@ -40,7 +40,7 @@ import cn.taketoday.test.context.junit4.ApplicationRunner;
  * @author Sam Brannen
  * @since 5.3.3
  */
-@RunWith(ApplicationRunner.class)
+@RunWith(Runner.class)
 @RecordApplicationEvents
 public class JUnit4ApplicationEventsIntegrationTests {
 

@@ -28,12 +28,13 @@ import org.junit.platform.launcher.Launcher;
 import org.junit.platform.launcher.LauncherDiscoveryRequest;
 import org.junit.platform.launcher.core.LauncherFactory;
 import org.junit.platform.launcher.listeners.SummaryGeneratingListener;
+
+import java.lang.reflect.Parameter;
+
 import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.test.context.junit.jupiter.JUnitConfig;
-
-import java.lang.reflect.Parameter;
 
 import static org.junit.platform.engine.discovery.DiscoverySelectors.selectClass;
 import static org.junit.platform.launcher.core.LauncherDiscoveryRequestBuilder.request;
@@ -48,46 +49,46 @@ import static org.junit.platform.launcher.core.LauncherDiscoveryRequestBuilder.r
  */
 class ParallelExecutionSpringExtensionTests {
 
-	private static final int NUM_TESTS = 1000;
+  private static final int NUM_TESTS = 1000;
 
-	@RepeatedTest(10)
-	void runTestsInParallel() {
-		Launcher launcher = LauncherFactory.create();
-		SummaryGeneratingListener listener = new SummaryGeneratingListener();
-		launcher.registerTestExecutionListeners(listener);
+  @RepeatedTest(10)
+  void runTestsInParallel() {
+    Launcher launcher = LauncherFactory.create();
+    SummaryGeneratingListener listener = new SummaryGeneratingListener();
+    launcher.registerTestExecutionListeners(listener);
 
-		LauncherDiscoveryRequest request = request()//
-				.configurationParameter("junit.jupiter.conditions.deactivate", "org.junit.jupiter.engine.extension.DisabledCondition")//
-				.configurationParameter("junit.jupiter.execution.parallel.enabled", "true")//
-				.configurationParameter("junit.jupiter.execution.parallel.config.dynamic.factor", "10")//
-				.selectors(selectClass(TestCase.class))//
-				.build();
+    LauncherDiscoveryRequest request = request()//
+            .configurationParameter("junit.jupiter.conditions.deactivate", "org.junit.jupiter.engine.extension.DisabledCondition")//
+            .configurationParameter("junit.jupiter.execution.parallel.enabled", "true")//
+            .configurationParameter("junit.jupiter.execution.parallel.config.dynamic.factor", "10")//
+            .selectors(selectClass(TestCase.class))//
+            .build();
 
-		launcher.execute(request);
+    launcher.execute(request);
 
-		assertThat(listener.getSummary().getTestsSucceededCount()).as(
-			"number of tests executed successfully").isEqualTo(NUM_TESTS);
-	}
+    assertThat(listener.getSummary().getTestsSucceededCount()).as(
+            "number of tests executed successfully").isEqualTo(NUM_TESTS);
+  }
 
-	@JUnitConfig
-	@Disabled
-	static class TestCase {
+  @JUnitConfig
+  @Disabled
+  static class TestCase {
 
-		@BeforeEach
-		void beforeEach(@Autowired ApplicationContext context) {
-		}
+    @BeforeEach
+    void beforeEach(@Autowired ApplicationContext context) {
+    }
 
-		@RepeatedTest(NUM_TESTS)
-		void repeatedTest(@Autowired ApplicationContext context) {
-		}
+    @RepeatedTest(NUM_TESTS)
+    void repeatedTest(@Autowired ApplicationContext context) {
+    }
 
-		@AfterEach
-		void afterEach(@Autowired ApplicationContext context) {
-		}
+    @AfterEach
+    void afterEach(@Autowired ApplicationContext context) {
+    }
 
-		@Configuration
-		static class Config {
-		}
-	}
+    @Configuration
+    static class Config {
+    }
+  }
 
 }

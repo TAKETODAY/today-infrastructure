@@ -25,11 +25,13 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ParameterResolutionException;
 import org.junit.platform.testkit.engine.EngineTestKit;
+
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.core.SpringProperties;
 import cn.taketoday.test.context.TestConstructor;
 
+import static cn.taketoday.test.context.TestConstructor.TEST_CONSTRUCTOR_AUTOWIRE_MODE_PROPERTY_NAME;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.platform.engine.discovery.DiscoverySelectors.selectClass;
 import static org.junit.platform.testkit.engine.EventConditions.event;
@@ -37,7 +39,6 @@ import static org.junit.platform.testkit.engine.EventConditions.finishedWithFail
 import static org.junit.platform.testkit.engine.EventConditions.test;
 import static org.junit.platform.testkit.engine.TestExecutionResultConditions.instanceOf;
 import static org.junit.platform.testkit.engine.TestExecutionResultConditions.message;
-import static cn.taketoday.test.context.TestConstructor.TEST_CONSTRUCTOR_AUTOWIRE_MODE_PROPERTY_NAME;
 
 /**
  * Integration tests for {@link TestConstructor @TestConstructor} support.
@@ -47,77 +48,73 @@ import static cn.taketoday.test.context.TestConstructor.TEST_CONSTRUCTOR_AUTOWIR
  */
 class TestConstructorIntegrationTests {
 
-	@BeforeEach
-	@AfterEach
-	void clearSpringProperty() {
-		setSpringProperty(null);
-	}
+  @BeforeEach
+  @AfterEach
+  void clearSpringProperty() {
+    setSpringProperty(null);
+  }
 
-	@Test
-	void autowireModeNotSetToAll() {
-		EngineTestKit.engine("junit-jupiter")
-			.selectors(selectClass(AutomaticallyAutowiredTestCase.class))
-			.execute()
-			.testEvents()
-			.assertStatistics(stats -> stats.started(1).succeeded(0).failed(1))
-			.assertThatEvents().haveExactly(1, event(test("test"),
-				finishedWithFailure(
-					instanceOf(ParameterResolutionException.class),
-					message(msg -> msg.matches(".+for parameter \\[java\\.lang\\.String .+\\] in constructor.+")))));
-	}
+  @Test
+  void autowireModeNotSetToAll() {
+    EngineTestKit.engine("junit-jupiter")
+            .selectors(selectClass(AutomaticallyAutowiredTestCase.class))
+            .execute()
+            .testEvents()
+            .assertStatistics(stats -> stats.started(1).succeeded(0).failed(1))
+            .assertThatEvents().haveExactly(1, event(test("test"),
+                    finishedWithFailure(
+                            instanceOf(ParameterResolutionException.class),
+                            message(msg -> msg.matches(".+for parameter \\[java\\.lang\\.String .+\\] in constructor.+")))));
+  }
 
-	@Test
-	void autowireModeSetToAllViaSpringProperties() {
-		setSpringProperty("all");
+  @Test
+  void autowireModeSetToAllViaSpringProperties() {
+    setSpringProperty("all");
 
-		EngineTestKit.engine("junit-jupiter")
-			.selectors(selectClass(AutomaticallyAutowiredTestCase.class))
-			.execute()
-			.testEvents()
-			.assertStatistics(stats -> stats.started(1).succeeded(1).failed(0));
-	}
+    EngineTestKit.engine("junit-jupiter")
+            .selectors(selectClass(AutomaticallyAutowiredTestCase.class))
+            .execute()
+            .testEvents()
+            .assertStatistics(stats -> stats.started(1).succeeded(1).failed(0));
+  }
 
-	@Test
-	void autowireModeSetToAllViaJUnitPlatformConfigurationParameter() {
-		EngineTestKit.engine("junit-jupiter")
-			.selectors(selectClass(AutomaticallyAutowiredTestCase.class))
-			.configurationParameter(TEST_CONSTRUCTOR_AUTOWIRE_MODE_PROPERTY_NAME, "all")
-			.execute()
-			.testEvents()
-			.assertStatistics(stats -> stats.started(1).succeeded(1).failed(0));
-	}
+  @Test
+  void autowireModeSetToAllViaJUnitPlatformConfigurationParameter() {
+    EngineTestKit.engine("junit-jupiter")
+            .selectors(selectClass(AutomaticallyAutowiredTestCase.class))
+            .configurationParameter(TEST_CONSTRUCTOR_AUTOWIRE_MODE_PROPERTY_NAME, "all")
+            .execute()
+            .testEvents()
+            .assertStatistics(stats -> stats.started(1).succeeded(1).failed(0));
+  }
 
+  private void setSpringProperty(String flag) {
+    SpringProperties.setProperty(TEST_CONSTRUCTOR_AUTOWIRE_MODE_PROPERTY_NAME, flag);
+  }
 
-	private void setSpringProperty(String flag) {
-		SpringProperties.setProperty(TEST_CONSTRUCTOR_AUTOWIRE_MODE_PROPERTY_NAME, flag);
-	}
+  @JUnitConfig
+  @FailingTestCase
+  static class AutomaticallyAutowiredTestCase {
 
+    private final String foo;
 
-	@SpringJUnitConfig
-	@FailingTestCase
-	static class AutomaticallyAutowiredTestCase {
+    AutomaticallyAutowiredTestCase(String foo) {
+      this.foo = foo;
+    }
 
-		private final String foo;
+    @Test
+    void test() {
+      assertThat(foo).isEqualTo("bar");
+    }
 
+    @Configuration
+    static class Config {
 
-		AutomaticallyAutowiredTestCase(String foo) {
-			this.foo = foo;
-		}
-
-		@Test
-		void test() {
-			assertThat(foo).isEqualTo("bar");
-		}
-
-
-		@Configuration
-		static class Config {
-
-			@Bean
-			String foo() {
-				return "bar";
-			}
-		}
-	}
+      @Bean
+      String foo() {
+        return "bar";
+      }
+    }
+  }
 
 }

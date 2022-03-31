@@ -24,7 +24,7 @@ import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 import cn.taketoday.test.annotation.DirtiesContext;
-import cn.taketoday.test.context.junit.jupiter.SpringJUnitConfig;
+import cn.taketoday.test.context.junit.jupiter.JUnitConfig;
 
 /**
  * Transactional integration tests for {@link Sql @Sql} support.
@@ -32,7 +32,7 @@ import cn.taketoday.test.context.junit.jupiter.SpringJUnitConfig;
  * @author Sam Brannen
  * @since 4.1
  */
-@SpringJUnitConfig(EmptyDatabaseConfig.class)
+@JUnitConfig(EmptyDatabaseConfig.class)
 @TestMethodOrder(MethodOrderer.MethodName.class)
 @Sql({ "schema.sql", "data.sql" })
 @DirtiesContext

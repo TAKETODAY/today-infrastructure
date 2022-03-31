@@ -33,7 +33,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 /**
- * Unit tests for {@link ApplicationJUnit4ClassRunner}.
+ * Unit tests for {@link JUnit4ClassRunner}.
  *
  * @author Sam Brannen
  * @author Rick Evans
@@ -43,7 +43,7 @@ public class ApplicationJUnit4ClassRunnerTests {
 
   @Test
   public void checkThatExceptionsAreNotSilentlySwallowed() throws Exception {
-    ApplicationJUnit4ClassRunner runner = new ApplicationJUnit4ClassRunner(getClass()) {
+    JUnit4ClassRunner runner = new JUnit4ClassRunner(getClass()) {
 
       @Override
       protected TestContextManager createTestContextManager(Class<?> clazz) {
@@ -63,7 +63,7 @@ public class ApplicationJUnit4ClassRunnerTests {
 
   @Test
   public void getSpringTimeoutViaMetaAnnotation() throws Exception {
-    ApplicationJUnit4ClassRunner runner = new ApplicationJUnit4ClassRunner(getClass());
+    JUnit4ClassRunner runner = new JUnit4ClassRunner(getClass());
     long timeout = runner.getSpringTimeout(new FrameworkMethod(getClass().getDeclaredMethod(
             "springTimeoutWithMetaAnnotation")));
     assertThat(timeout).isEqualTo(10);
@@ -71,7 +71,7 @@ public class ApplicationJUnit4ClassRunnerTests {
 
   @Test
   public void getSpringTimeoutViaMetaAnnotationWithOverride() throws Exception {
-    ApplicationJUnit4ClassRunner runner = new ApplicationJUnit4ClassRunner(getClass());
+    JUnit4ClassRunner runner = new JUnit4ClassRunner(getClass());
     long timeout = runner.getSpringTimeout(new FrameworkMethod(getClass().getDeclaredMethod(
             "springTimeoutWithMetaAnnotationAndOverride")));
     assertThat(timeout).isEqualTo(42);

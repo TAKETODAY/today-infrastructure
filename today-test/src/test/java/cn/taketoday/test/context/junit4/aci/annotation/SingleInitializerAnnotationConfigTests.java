@@ -26,7 +26,7 @@ import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.beans.factory.annotation.Qualifier;
 import cn.taketoday.context.ApplicationContextInitializer;
 import cn.taketoday.test.context.ContextConfiguration;
-import cn.taketoday.test.context.junit4.ApplicationJUnit4ClassRunner;
+import cn.taketoday.test.context.junit4.JUnit4ClassRunner;
 import cn.taketoday.test.context.junit4.aci.FooBarAliasInitializer;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -39,7 +39,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Sam Brannen
  * @since 4.0
  */
-@RunWith(ApplicationJUnit4ClassRunner.class)
+@RunWith(JUnit4ClassRunner.class)
 @ContextConfiguration(classes = { GlobalConfig.class, DevProfileConfig.class }, initializers = FooBarAliasInitializer.class)
 public class SingleInitializerAnnotationConfigTests {
 

@@ -23,7 +23,6 @@ package cn.taketoday.test.context.junit4;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.junit.runner.Runner;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 import cn.taketoday.test.annotation.Repeat;
@@ -41,7 +40,7 @@ import static cn.taketoday.test.context.junit4.JUnitTestingUtils.runTestsAndAsse
 
 /**
  * Verifies proper handling of the following in conjunction with the
- * {@link ApplicationRunner}:
+ * {@link Runner}:
  * <ul>
  * <li>Spring's {@link Repeat @Repeat}</li>
  * <li>Spring's {@link Timed @Timed}</li>
@@ -84,8 +83,8 @@ public class RepeatedSpringRunnerTests {
 		this.expectedInvocationCount = expectedInvocationCount;
 	}
 
-	protected Class<? extends Runner> getRunnerClass() {
-		return ApplicationRunner.class;
+	protected Class<? extends org.junit.runner.Runner> getRunnerClass() {
+		return Runner.class;
 	}
 
 	@Test

@@ -31,7 +31,7 @@ import cn.taketoday.core.SpringProperties;
 import cn.taketoday.test.context.CacheAwareContextLoaderDelegate;
 import cn.taketoday.test.context.MergedContextConfiguration;
 import cn.taketoday.test.context.cache.DefaultCacheAwareContextLoaderDelegate;
-import cn.taketoday.test.context.junit.jupiter.SpringJUnitConfig;
+import cn.taketoday.test.context.junit.jupiter.JUnitConfig;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.platform.engine.discovery.DiscoverySelectors.selectClass;
@@ -64,7 +64,7 @@ class CustomDefaultCacheAwareContextLoaderDelegateTests {
 	}
 
 
-	@SpringJUnitConfig
+	@JUnitConfig
 	static class TestCase {
 
 		@Test

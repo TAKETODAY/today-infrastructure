@@ -45,7 +45,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * SpringJUnit4ClassRunnerAppCtxTests serves as a <em>proof of concept</em>
  * JUnit 4 based test class, which verifies the expected functionality of
- * {@link ApplicationRunner} in conjunction with the following:
+ * {@link Runner} in conjunction with the following:
  *
  * <ul>
  * <li>{@link ContextConfiguration @ContextConfiguration}</li>
@@ -75,7 +75,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @see RelativePathSpringJUnit4ClassRunnerAppCtxTests
  * @see InheritedConfigSpringJUnit4ClassRunnerAppCtxTests
  */
-@RunWith(ApplicationRunner.class)
+@RunWith(Runner.class)
 @ContextConfiguration
 @TestExecutionListeners(DependencyInjectionTestExecutionListener.class)
 public class SpringJUnit4ClassRunnerAppCtxTests implements ApplicationContextAware, BeanNameAware, InitializingBean {

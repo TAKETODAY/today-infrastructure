@@ -22,6 +22,7 @@ package cn.taketoday.test.context.junit.jupiter.nested;
 
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+
 import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.core.env.Environment;
@@ -46,152 +47,142 @@ import static cn.taketoday.test.context.NestedTestConfiguration.EnclosingConfigu
 @NestedTestConfiguration(OVERRIDE) // since INHERIT is now the global default
 class TestPropertySourceNestedTests {
 
-	@Autowired
-	Environment env1;
+  @Autowired
+  Environment env1;
 
+  @Test
+  void propertiesInEnvironment() {
+    assertThat(env1.getProperty("p1")).isEqualTo("v1");
+  }
 
-	@Test
-	void propertiesInEnvironment() {
-		assertThat(env1.getProperty("p1")).isEqualTo("v1");
-	}
+  @Nested
+  @NestedTestConfiguration(INHERIT)
+  class InheritedConfigTests {
 
+    @Autowired
+    Environment env2;
 
-	@Nested
-	@NestedTestConfiguration(INHERIT)
-	class InheritedConfigTests {
+    @Test
+    void propertiesInEnvironment() {
+      assertThat(env1.getProperty("p1")).isEqualTo("v1");
+      assertThat(env2.getProperty("p1")).isEqualTo("v1");
+      assertThat(env1).isSameAs(env2);
+    }
+  }
 
-		@Autowired
-		Environment env2;
+  @Nested
+  @JUnitConfig(Config.class)
+  @TestPropertySource(properties = "p2 = v2")
+  class ConfigOverriddenByDefaultTests {
 
+    @Autowired
+    Environment env2;
 
-		@Test
-		void propertiesInEnvironment() {
-			assertThat(env1.getProperty("p1")).isEqualTo("v1");
-			assertThat(env2.getProperty("p1")).isEqualTo("v1");
-			assertThat(env1).isSameAs(env2);
-		}
-	}
+    @Test
+    void propertiesInEnvironment() {
+      assertThat(env1.getProperty("p1")).isEqualTo("v1");
+      assertThat(env1).isNotSameAs(env2);
+      assertThat(env2.getProperty("p1")).isNull();
+      assertThat(env2.getProperty("p2")).isEqualTo("v2");
+    }
+  }
 
-	@Nested
-	@JUnitConfig(Config.class)
-	@TestPropertySource(properties = "p2 = v2")
-	class ConfigOverriddenByDefaultTests {
+  @Nested
+  @NestedTestConfiguration(INHERIT)
+  @TestPropertySource(properties = "p2a = v2a")
+  @TestPropertySource(properties = "p2b = v2b")
+  class InheritedAndExtendedConfigTests {
 
-		@Autowired
-		Environment env2;
+    @Autowired
+    Environment env2;
 
+    @Test
+    void propertiesInEnvironment() {
+      assertThat(env1.getProperty("p1")).isEqualTo("v1");
+      assertThat(env1).isNotSameAs(env2);
+      assertThat(env2.getProperty("p1")).isEqualTo("v1");
+      assertThat(env2.getProperty("p2a")).isEqualTo("v2a");
+      assertThat(env2.getProperty("p2b")).isEqualTo("v2b");
+    }
 
-		@Test
-		void propertiesInEnvironment() {
-			assertThat(env1.getProperty("p1")).isEqualTo("v1");
-			assertThat(env1).isNotSameAs(env2);
-			assertThat(env2.getProperty("p1")).isNull();
-			assertThat(env2.getProperty("p2")).isEqualTo("v2");
-		}
-	}
+    @Nested
+    @NestedTestConfiguration(OVERRIDE)
+    @JUnitConfig(Config.class)
+    @TestPropertySource(properties = "p3 = v3")
+    class L3WithOverriddenConfigTests {
 
-	@Nested
-	@NestedTestConfiguration(INHERIT)
-	@TestPropertySource(properties = "p2a = v2a")
-	@TestPropertySource(properties = "p2b = v2b")
-	class InheritedAndExtendedConfigTests {
+      @Autowired
+      Environment env3;
 
-		@Autowired
-		Environment env2;
+      @Test
+      void propertiesInEnvironment() {
+        assertThat(env1.getProperty("p1")).isEqualTo("v1");
+        assertThat(env1).isNotSameAs(env2);
+        assertThat(env2.getProperty("p1")).isEqualTo("v1");
+        assertThat(env2.getProperty("p2a")).isEqualTo("v2a");
+        assertThat(env2.getProperty("p2b")).isEqualTo("v2b");
+        assertThat(env2).isNotSameAs(env3);
+        assertThat(env3.getProperty("p1")).isNull();
+        assertThat(env3.getProperty("p2")).isNull();
+        assertThat(env3.getProperty("p3")).isEqualTo("v3");
+      }
 
+      @Nested
+      @NestedTestConfiguration(INHERIT)
+      @TestPropertySource(properties = { "p3 = v34", "p4 = v4" }, inheritProperties = false)
+      class L4WithInheritedConfigButOverriddenTestPropertiesTests {
 
-		@Test
-		void propertiesInEnvironment() {
-			assertThat(env1.getProperty("p1")).isEqualTo("v1");
-			assertThat(env1).isNotSameAs(env2);
-			assertThat(env2.getProperty("p1")).isEqualTo("v1");
-			assertThat(env2.getProperty("p2a")).isEqualTo("v2a");
-			assertThat(env2.getProperty("p2b")).isEqualTo("v2b");
-		}
+        @Autowired
+        Environment env4;
 
+        @Test
+        void propertiesInEnvironment() {
+          assertThat(env1.getProperty("p1")).isEqualTo("v1");
+          assertThat(env1).isNotSameAs(env2);
+          assertThat(env2.getProperty("p1")).isEqualTo("v1");
+          assertThat(env2.getProperty("p2a")).isEqualTo("v2a");
+          assertThat(env2.getProperty("p2b")).isEqualTo("v2b");
+          assertThat(env2).isNotSameAs(env3);
+          assertThat(env3.getProperty("p1")).isNull();
+          assertThat(env3.getProperty("p2")).isNull();
+          assertThat(env3.getProperty("p3")).isEqualTo("v3");
+          assertThat(env3).isNotSameAs(env4);
+          assertThat(env4.getProperty("p1")).isNull();
+          assertThat(env4.getProperty("p2")).isNull();
+          assertThat(env4.getProperty("p3")).isEqualTo("v34");
+          assertThat(env4.getProperty("p4")).isEqualTo("v4");
+        }
 
-		@Nested
-		@NestedTestConfiguration(OVERRIDE)
-		@SpringJUnitConfig(Config.class)
-		@TestPropertySource(properties = "p3 = v3")
-		class L3WithOverriddenConfigTests {
+        @Nested
+        class L5WithInheritedConfigAndTestInterfaceTests implements TestInterface {
 
-			@Autowired
-			Environment env3;
+          @Autowired
+          Environment env5;
 
+          @Test
+          void propertiesInEnvironment() {
+            assertThat(env4).isNotSameAs(env5);
+            assertThat(env5.getProperty("foo")).isEqualTo("bar");
+            assertThat(env5.getProperty("enigma")).isEqualTo("42");
+            assertThat(env5.getProperty("p1")).isNull();
+            assertThat(env5.getProperty("p2")).isNull();
+            assertThat(env5.getProperty("p3")).isEqualTo("v34");
+            assertThat(env5.getProperty("p4")).isEqualTo("v4");
+          }
+        }
+      }
+    }
+  }
 
-			@Test
-			void propertiesInEnvironment() {
-				assertThat(env1.getProperty("p1")).isEqualTo("v1");
-				assertThat(env1).isNotSameAs(env2);
-				assertThat(env2.getProperty("p1")).isEqualTo("v1");
-				assertThat(env2.getProperty("p2a")).isEqualTo("v2a");
-				assertThat(env2.getProperty("p2b")).isEqualTo("v2b");
-				assertThat(env2).isNotSameAs(env3);
-				assertThat(env3.getProperty("p1")).isNull();
-				assertThat(env3.getProperty("p2")).isNull();
-				assertThat(env3.getProperty("p3")).isEqualTo("v3");
-			}
+  // -------------------------------------------------------------------------
 
+  @Configuration
+  static class Config {
+    /* no user beans required for these tests */
+  }
 
-			@Nested
-			@NestedTestConfiguration(INHERIT)
-			@TestPropertySource(properties = {"p3 = v34", "p4 = v4"}, inheritProperties = false)
-			class L4WithInheritedConfigButOverriddenTestPropertiesTests {
-
-				@Autowired
-				Environment env4;
-
-
-				@Test
-				void propertiesInEnvironment() {
-					assertThat(env1.getProperty("p1")).isEqualTo("v1");
-					assertThat(env1).isNotSameAs(env2);
-					assertThat(env2.getProperty("p1")).isEqualTo("v1");
-					assertThat(env2.getProperty("p2a")).isEqualTo("v2a");
-					assertThat(env2.getProperty("p2b")).isEqualTo("v2b");
-					assertThat(env2).isNotSameAs(env3);
-					assertThat(env3.getProperty("p1")).isNull();
-					assertThat(env3.getProperty("p2")).isNull();
-					assertThat(env3.getProperty("p3")).isEqualTo("v3");
-					assertThat(env3).isNotSameAs(env4);
-					assertThat(env4.getProperty("p1")).isNull();
-					assertThat(env4.getProperty("p2")).isNull();
-					assertThat(env4.getProperty("p3")).isEqualTo("v34");
-					assertThat(env4.getProperty("p4")).isEqualTo("v4");
-				}
-
-				@Nested
-				class L5WithInheritedConfigAndTestInterfaceTests implements TestInterface {
-
-					@Autowired
-					Environment env5;
-
-
-					@Test
-					void propertiesInEnvironment() {
-						assertThat(env4).isNotSameAs(env5);
-						assertThat(env5.getProperty("foo")).isEqualTo("bar");
-						assertThat(env5.getProperty("enigma")).isEqualTo("42");
-						assertThat(env5.getProperty("p1")).isNull();
-						assertThat(env5.getProperty("p2")).isNull();
-						assertThat(env5.getProperty("p3")).isEqualTo("v34");
-						assertThat(env5.getProperty("p4")).isEqualTo("v4");
-					}
-				}
-			}
-		}
-	}
-
-	// -------------------------------------------------------------------------
-
-	@Configuration
-	static class Config {
-		/* no user beans required for these tests */
-	}
-
-	@TestPropertySource(properties = { "foo = bar", "enigma: 42" })
-	interface TestInterface {
-	}
+  @TestPropertySource(properties = { "foo = bar", "enigma: 42" })
+  interface TestInterface {
+  }
 
 }

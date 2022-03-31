@@ -21,13 +21,14 @@
 package cn.taketoday.test.context.junit.jupiter.defaultmethods;
 
 import org.junit.jupiter.api.Test;
-import cn.taketoday.beans.factory.annotation.Autowired;
-import cn.taketoday.test.context.junit.SpringJUnitJupiterTestSuite;
-import cn.taketoday.test.context.junit.jupiter.TestConfig;
-import cn.taketoday.test.context.junit.jupiter.ApplicationExtension;
-import cn.taketoday.test.context.junit.jupiter.SpringJUnitConfig;
 
 import java.util.List;
+
+import cn.taketoday.beans.factory.annotation.Autowired;
+import cn.taketoday.test.context.junit.SpringJUnitJupiterTestSuite;
+import cn.taketoday.test.context.junit.jupiter.ApplicationExtension;
+import cn.taketoday.test.context.junit.jupiter.JUnitConfig;
+import cn.taketoday.test.context.junit.jupiter.TestConfig;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -42,22 +43,22 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Sam Brannen
  * @since 5.0
  */
-@SpringJUnitConfig(TestConfig.class)
+@JUnitConfig(TestConfig.class)
 interface GenericComicCharactersInterfaceDefaultMethodsTests<C extends Character> {
 
-	@Test
-	default void autowiredParameterWithParameterizedList(@Autowired List<C> characters) {
-		assertThat(characters).as("Number of characters in context").hasSize(getExpectedNumCharacters());
-	}
+  @Test
+  default void autowiredParameterWithParameterizedList(@Autowired List<C> characters) {
+    assertThat(characters).as("Number of characters in context").hasSize(getExpectedNumCharacters());
+  }
 
-	@Test
-	default void autowiredParameterWithGenericBean(@Autowired C character) {
-		assertThat(character).as("Character should have been @Autowired by Spring").isNotNull();
-		assertThat(character).as("character's name").extracting(Character::getName).isEqualTo(getExpectedName());
-	}
+  @Test
+  default void autowiredParameterWithGenericBean(@Autowired C character) {
+    assertThat(character).as("Character should have been @Autowired by Spring").isNotNull();
+    assertThat(character).as("character's name").extracting(Character::getName).isEqualTo(getExpectedName());
+  }
 
-	int getExpectedNumCharacters();
+  int getExpectedNumCharacters();
 
-	String getExpectedName();
+  String getExpectedName();
 
 }

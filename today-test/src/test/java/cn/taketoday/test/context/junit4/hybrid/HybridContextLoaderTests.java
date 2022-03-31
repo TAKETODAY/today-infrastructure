@@ -27,7 +27,7 @@ import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.test.context.ContextConfiguration;
 import cn.taketoday.test.context.SmartContextLoader;
-import cn.taketoday.test.context.junit4.ApplicationJUnit4ClassRunner;
+import cn.taketoday.test.context.junit4.JUnit4ClassRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -40,7 +40,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @since 4.0.4
  * @see HybridContextLoader
  */
-@RunWith(ApplicationJUnit4ClassRunner.class)
+@RunWith(JUnit4ClassRunner.class)
 @ContextConfiguration(loader = HybridContextLoader.class)
 public class HybridContextLoaderTests {
 

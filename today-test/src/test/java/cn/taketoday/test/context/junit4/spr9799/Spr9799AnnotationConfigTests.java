@@ -24,7 +24,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.test.context.ContextConfiguration;
-import cn.taketoday.test.context.junit4.ApplicationJUnit4ClassRunner;
+import cn.taketoday.test.context.junit4.JUnit4ClassRunner;
 import cn.taketoday.test.context.web.WebAppConfiguration;
 import cn.taketoday.web.servlet.config.annotation.EnableWebMvc;
 
@@ -36,7 +36,7 @@ import cn.taketoday.web.servlet.config.annotation.EnableWebMvc;
  * @since 4.0
  * @see Spr9799XmlConfigTests
  */
-@RunWith(ApplicationJUnit4ClassRunner.class)
+@RunWith(JUnit4ClassRunner.class)
 @ContextConfiguration
 // NOTE: if we omit the @WebAppConfiguration declaration, the ApplicationContext will fail
 // to load since @EnableWebMvc requires that the context be a WebApplicationContext.

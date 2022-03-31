@@ -28,12 +28,12 @@ package cn.taketoday.test.context.junit.jupiter.orm.domain;
  */
 public interface PersonRepository {
 
-	Person findById(Long id);
+  Person findById(Long id);
 
-	Person findByName(String name);
+  Person findByName(String name);
 
-	Person save(Person person);
+  Person save(Person person);
 
-	void remove(Person person);
+  void remove(Person person);
 
 }

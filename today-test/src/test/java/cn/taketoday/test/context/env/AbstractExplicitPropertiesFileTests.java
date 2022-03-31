@@ -25,13 +25,13 @@ import org.junit.jupiter.api.Test;
 import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.core.env.Environment;
-import cn.taketoday.test.context.junit.jupiter.SpringJUnitConfig;
+import cn.taketoday.test.context.junit.jupiter.JUnitConfig;
 
 /**
  * @author Sam Brannen
  * @since 5.2
  */
-@SpringJUnitConfig
+@JUnitConfig
 abstract class AbstractExplicitPropertiesFileTests {
 
 	@Autowired

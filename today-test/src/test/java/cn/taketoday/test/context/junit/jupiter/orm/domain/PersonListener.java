@@ -39,42 +39,41 @@ import jakarta.persistence.PreUpdate;
  */
 public class PersonListener {
 
-	public static final List<String> methodsInvoked = new ArrayList<>();
+  public static final List<String> methodsInvoked = new ArrayList<>();
 
+  @PostLoad
+  public void postLoad(Person person) {
+    methodsInvoked.add("@PostLoad: " + person.getName());
+  }
 
-	@PostLoad
-	public void postLoad(Person person) {
-		methodsInvoked.add("@PostLoad: " + person.getName());
-	}
+  @PrePersist
+  public void prePersist(Person person) {
+    methodsInvoked.add("@PrePersist: " + person.getName());
+  }
 
-	@PrePersist
-	public void prePersist(Person person) {
-		methodsInvoked.add("@PrePersist: " + person.getName());
-	}
+  @PostPersist
+  public void postPersist(Person person) {
+    methodsInvoked.add("@PostPersist: " + person.getName());
+  }
 
-	@PostPersist
-	public void postPersist(Person person) {
-		methodsInvoked.add("@PostPersist: " + person.getName());
-	}
+  @PreUpdate
+  public void preUpdate(Person person) {
+    methodsInvoked.add("@PreUpdate: " + person.getName());
+  }
 
-	@PreUpdate
-	public void preUpdate(Person person) {
-		methodsInvoked.add("@PreUpdate: " + person.getName());
-	}
+  @PostUpdate
+  public void postUpdate(Person person) {
+    methodsInvoked.add("@PostUpdate: " + person.getName());
+  }
 
-	@PostUpdate
-	public void postUpdate(Person person) {
-		methodsInvoked.add("@PostUpdate: " + person.getName());
-	}
+  @PreRemove
+  public void preRemove(Person person) {
+    methodsInvoked.add("@PreRemove: " + person.getName());
+  }
 
-	@PreRemove
-	public void preRemove(Person person) {
-		methodsInvoked.add("@PreRemove: " + person.getName());
-	}
-
-	@PostRemove
-	public void postRemove(Person person) {
-		methodsInvoked.add("@PostRemove: " + person.getName());
-	}
+  @PostRemove
+  public void postRemove(Person person) {
+    methodsInvoked.add("@PostRemove: " + person.getName());
+  }
 
 }

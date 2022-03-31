@@ -21,6 +21,7 @@
 package cn.taketoday.test.context.junit.jupiter;
 
 import org.junit.jupiter.api.Test;
+
 import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.beans.factory.annotation.Value;
 import cn.taketoday.context.ApplicationContext;
@@ -30,8 +31,8 @@ import cn.taketoday.test.context.junit.SpringJUnitJupiterTestSuite;
 import cn.taketoday.test.context.junit.jupiter.comics.Dog;
 import cn.taketoday.test.context.junit.jupiter.comics.Person;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static cn.taketoday.test.context.TestConstructor.AutowireMode.ALL;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Integration tests which demonstrate support for automatically
@@ -42,50 +43,49 @@ import static cn.taketoday.test.context.TestConstructor.AutowireMode.ALL;
  * Platform, simply run {@link SpringJUnitJupiterTestSuite} as a JUnit 4 test.
  *
  * @author Sam Brannen
- * @since 5.2
  * @see ApplicationExtension
  * @see SpringJUnitJupiterAutowiredConstructorInjectionTests
  * @see SpringJUnitJupiterConstructorInjectionTests
+ * @since 5.2
  */
-@SpringJUnitConfig(TestConfig.class)
+@JUnitConfig(TestConfig.class)
 @TestPropertySource(properties = "enigma = 42")
 @TestConstructor(autowireMode = ALL)
 class TestConstructorAnnotationIntegrationTests {
 
-	final ApplicationContext applicationContext;
-	final Person dilbert;
-	final Dog dog;
-	final Integer enigma;
+  final ApplicationContext applicationContext;
+  final Person dilbert;
+  final Dog dog;
+  final Integer enigma;
 
+  TestConstructorAnnotationIntegrationTests(ApplicationContext applicationContext, Person dilbert, Dog dog,
+          @Value("${enigma}") Integer enigma) {
 
-	TestConstructorAnnotationIntegrationTests(ApplicationContext applicationContext, Person dilbert, Dog dog,
-			@Value("${enigma}") Integer enigma) {
+    this.applicationContext = applicationContext;
+    this.dilbert = dilbert;
+    this.dog = dog;
+    this.enigma = enigma;
+  }
 
-		this.applicationContext = applicationContext;
-		this.dilbert = dilbert;
-		this.dog = dog;
-		this.enigma = enigma;
-	}
+  @Test
+  void applicationContextInjected() {
+    assertThat(applicationContext).as("ApplicationContext should have been injected by Spring").isNotNull();
+    assertThat(applicationContext.getBean("dilbert", Person.class)).isEqualTo(this.dilbert);
+  }
 
-	@Test
-	void applicationContextInjected() {
-		assertThat(applicationContext).as("ApplicationContext should have been injected by Spring").isNotNull();
-		assertThat(applicationContext.getBean("dilbert", Person.class)).isEqualTo(this.dilbert);
-	}
+  @Test
+  void beansInjected() {
+    assertThat(this.dilbert).as("Dilbert should have been @Autowired by Spring").isNotNull();
+    assertThat(this.dilbert.getName()).as("Person's name").isEqualTo("Dilbert");
 
-	@Test
-	void beansInjected() {
-		assertThat(this.dilbert).as("Dilbert should have been @Autowired by Spring").isNotNull();
-		assertThat(this.dilbert.getName()).as("Person's name").isEqualTo("Dilbert");
+    assertThat(this.dog).as("Dogbert should have been @Autowired by Spring").isNotNull();
+    assertThat(this.dog.getName()).as("Dog's name").isEqualTo("Dogbert");
+  }
 
-		assertThat(this.dog).as("Dogbert should have been @Autowired by Spring").isNotNull();
-		assertThat(this.dog.getName()).as("Dog's name").isEqualTo("Dogbert");
-	}
-
-	@Test
-	void propertyPlaceholderInjected() {
-		assertThat(this.enigma).as("Enigma should have been injected via @Value by Spring").isNotNull();
-		assertThat(this.enigma).as("enigma").isEqualTo(42);
-	}
+  @Test
+  void propertyPlaceholderInjected() {
+    assertThat(this.enigma).as("Enigma should have been injected via @Value by Spring").isNotNull();
+    assertThat(this.enigma).as("enigma").isEqualTo(42);
+  }
 
 }

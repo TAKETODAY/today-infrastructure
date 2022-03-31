@@ -22,6 +22,7 @@ package cn.taketoday.test.context.junit.jupiter.nested;
 
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+
 import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.beans.factory.annotation.Qualifier;
 import cn.taketoday.context.annotation.Bean;
@@ -32,9 +33,9 @@ import cn.taketoday.test.context.junit.jupiter.ApplicationExtension;
 import cn.taketoday.test.context.junit.jupiter.JUnitConfig;
 import cn.taketoday.test.context.junit4.nested.NestedTestsWithSpringRulesTests;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static cn.taketoday.test.context.NestedTestConfiguration.EnclosingConfiguration.INHERIT;
 import static cn.taketoday.test.context.NestedTestConfiguration.EnclosingConfiguration.OVERRIDE;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Integration tests that verify support for {@code @Nested} test classes using
@@ -42,175 +43,166 @@ import static cn.taketoday.test.context.NestedTestConfiguration.EnclosingConfigu
  * {@link ApplicationExtension} in a JUnit Jupiter environment.
  *
  * @author Sam Brannen
- * @since 5.0
  * @see ConstructorInjectionNestedTests
  * @see NestedTestsWithSpringRulesTests
+ * @since 5.0
  */
 @JUnitConfig(ContextConfigurationNestedTests.TopLevelConfig.class)
 @NestedTestConfiguration(OVERRIDE) // since INHERIT is now the global default
 class ContextConfigurationNestedTests {
 
-	private static final String FOO = "foo";
-	private static final String BAR = "bar";
-	private static final String BAZ = "baz";
+  private static final String FOO = "foo";
+  private static final String BAR = "bar";
+  private static final String BAZ = "baz";
 
-	@Autowired
-	String foo;
+  @Autowired
+  String foo;
 
+  @Test
+  void topLevelTest() {
+    assertThat(foo).isEqualTo(FOO);
+  }
 
-	@Test
-	void topLevelTest() {
-		assertThat(foo).isEqualTo(FOO);
-	}
+  @Nested
+  @JUnitConfig(NestedConfig.class)
+  class NestedTests {
 
+    @Autowired(required = false)
+    @Qualifier("foo")
+    String localFoo;
 
-	@Nested
-	@JUnitConfig(NestedConfig.class)
-	class NestedTests {
+    @Autowired
+    String bar;
 
-		@Autowired(required = false)
-		@Qualifier("foo")
-		String localFoo;
+    @Test
+    void test() {
+      // In contrast to nested test classes running in JUnit 4, the foo
+      // field in the outer instance should have been injected from the
+      // test ApplicationContext for the outer instance.
+      assertThat(foo).isEqualTo(FOO);
+      assertThat(this.localFoo).as("foo bean should not be present").isNull();
+      assertThat(this.bar).isEqualTo(BAR);
+    }
+  }
 
-		@Autowired
-		String bar;
+  @Nested
+  @NestedTestConfiguration(INHERIT)
+  class NestedTestCaseWithInheritedConfigTests {
 
+    @Autowired(required = false)
+    @Qualifier("foo")
+    String localFoo;
 
-		@Test
-		void test() {
-			// In contrast to nested test classes running in JUnit 4, the foo
-			// field in the outer instance should have been injected from the
-			// test ApplicationContext for the outer instance.
-			assertThat(foo).isEqualTo(FOO);
-			assertThat(this.localFoo).as("foo bean should not be present").isNull();
-			assertThat(this.bar).isEqualTo(BAR);
-		}
-	}
+    @Autowired
+    String bar;
 
-	@Nested
-	@NestedTestConfiguration(INHERIT)
-	class NestedTestCaseWithInheritedConfigTests {
+    @Test
+    void test() {
+      // Since the configuration is inherited, the foo field in the outer instance
+      // and the bar field in the inner instance should both have been injected
+      // from the test ApplicationContext for the outer instance.
+      assertThat(foo).isEqualTo(FOO);
+      assertThat(this.localFoo).isEqualTo(FOO);
+      assertThat(this.bar).isEqualTo(FOO);
+    }
 
-		@Autowired(required = false)
-		@Qualifier("foo")
-		String localFoo;
+    @Nested
+    @NestedTestConfiguration(OVERRIDE)
+    @JUnitConfig(NestedConfig.class)
+    class DoubleNestedWithOverriddenConfigTests {
 
-		@Autowired
-		String bar;
+      @Autowired(required = false)
+      @Qualifier("foo")
+      String localFoo;
 
+      @Autowired
+      String bar;
 
-		@Test
-		void test() {
-			// Since the configuration is inherited, the foo field in the outer instance
-			// and the bar field in the inner instance should both have been injected
-			// from the test ApplicationContext for the outer instance.
-			assertThat(foo).isEqualTo(FOO);
-			assertThat(this.localFoo).isEqualTo(FOO);
-			assertThat(this.bar).isEqualTo(FOO);
-		}
+      @Test
+      void test() {
+        // In contrast to nested test classes running in JUnit 4, the foo
+        // field in the outer instance should have been injected from the
+        // test ApplicationContext for the outer instance.
+        assertThat(foo).isEqualTo(FOO);
+        assertThat(this.localFoo).as("foo bean should not be present").isNull();
+        assertThat(this.bar).isEqualTo(BAR);
+      }
 
+      @Nested
+      @NestedTestConfiguration(INHERIT)
+      class TripleNestedWithInheritedConfigTests {
 
-		@Nested
-		@NestedTestConfiguration(OVERRIDE)
-		@JUnitConfig(NestedConfig.class)
-		class DoubleNestedWithOverriddenConfigTests {
+        @Autowired(required = false)
+        @Qualifier("foo")
+        String localFoo;
 
-			@Autowired(required = false)
-			@Qualifier("foo")
-			String localFoo;
+        @Autowired
+        String bar;
 
-			@Autowired
-			String bar;
+        @Test
+        void test() {
+          assertThat(foo).isEqualTo(FOO);
+          assertThat(this.localFoo).as("foo bean should not be present").isNull();
+          assertThat(this.bar).isEqualTo(BAR);
+        }
+      }
 
+      @Nested
+      @NestedTestConfiguration(INHERIT)
+      class TripleNestedWithInheritedConfigAndTestInterfaceTests implements TestInterface {
 
-			@Test
-			void test() {
-				// In contrast to nested test classes running in JUnit 4, the foo
-				// field in the outer instance should have been injected from the
-				// test ApplicationContext for the outer instance.
-				assertThat(foo).isEqualTo(FOO);
-				assertThat(this.localFoo).as("foo bean should not be present").isNull();
-				assertThat(this.bar).isEqualTo(BAR);
-			}
+        @Autowired(required = false)
+        @Qualifier("foo")
+        String localFoo;
 
+        @Autowired
+        String bar;
 
-			@Nested
-			@NestedTestConfiguration(INHERIT)
-			class TripleNestedWithInheritedConfigTests {
+        @Autowired
+        String baz;
 
-				@Autowired(required = false)
-				@Qualifier("foo")
-				String localFoo;
+        @Test
+        void test() {
+          assertThat(foo).isEqualTo(FOO);
+          assertThat(this.localFoo).as("foo bean should not be present").isNull();
+          assertThat(this.bar).isEqualTo(BAR);
+          assertThat(this.baz).isEqualTo(BAZ);
+        }
+      }
+    }
+  }
 
-				@Autowired
-				String bar;
+  // -------------------------------------------------------------------------
 
+  @Configuration
+  static class TopLevelConfig {
 
-				@Test
-				void test() {
-					assertThat(foo).isEqualTo(FOO);
-					assertThat(this.localFoo).as("foo bean should not be present").isNull();
-					assertThat(this.bar).isEqualTo(BAR);
-				}
-			}
+    @Bean
+    String foo() {
+      return FOO;
+    }
+  }
 
-			@Nested
-			@NestedTestConfiguration(INHERIT)
-			class TripleNestedWithInheritedConfigAndTestInterfaceTests implements TestInterface {
+  @Configuration
+  static class NestedConfig {
 
-				@Autowired(required = false)
-				@Qualifier("foo")
-				String localFoo;
+    @Bean
+    String bar() {
+      return BAR;
+    }
+  }
 
-				@Autowired
-				String bar;
+  @Configuration
+  static class TestInterfaceConfig {
 
-				@Autowired
-				String baz;
+    @Bean
+    String baz() {
+      return BAZ;
+    }
+  }
 
-
-				@Test
-				void test() {
-					assertThat(foo).isEqualTo(FOO);
-					assertThat(this.localFoo).as("foo bean should not be present").isNull();
-					assertThat(this.bar).isEqualTo(BAR);
-					assertThat(this.baz).isEqualTo(BAZ);
-				}
-			}
-		}
-	}
-
-	// -------------------------------------------------------------------------
-
-	@Configuration
-	static class TopLevelConfig {
-
-		@Bean
-		String foo() {
-			return FOO;
-		}
-	}
-
-	@Configuration
-	static class NestedConfig {
-
-		@Bean
-		String bar() {
-			return BAR;
-		}
-	}
-
-	@Configuration
-	static class TestInterfaceConfig {
-
-		@Bean
-		String baz() {
-			return BAZ;
-		}
-	}
-
-	@ContextConfiguration(classes = TestInterfaceConfig.class)
-	interface TestInterface {
-	}
+  @ContextConfiguration(classes = TestInterfaceConfig.class)
+  interface TestInterface {
+  }
 
 }

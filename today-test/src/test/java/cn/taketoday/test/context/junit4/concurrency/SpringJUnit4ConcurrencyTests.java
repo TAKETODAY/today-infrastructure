@@ -33,7 +33,7 @@ import cn.taketoday.test.context.junit4.TimedTransactionalSpringRunnerTests;
 import cn.taketoday.test.context.junit4.rules.BasicAnnotationConfigWacSpringRuleTests;
 import cn.taketoday.test.context.junit4.SpringJUnit47ClassRunnerRuleTests;
 import cn.taketoday.test.context.junit4.SpringJUnit4ClassRunnerAppCtxTests;
-import cn.taketoday.test.context.junit4.ApplicationRunner;
+import cn.taketoday.test.context.junit4.Runner;
 import cn.taketoday.test.context.junit4.rules.BaseAppCtxRuleTests;
 import cn.taketoday.test.context.junit4.rules.ApplicationClassRule;
 import cn.taketoday.test.context.junit4.rules.ApplicationMethodRule;
@@ -48,7 +48,7 @@ import static cn.taketoday.core.annotation.AnnotatedElementUtils.hasAnnotation;
 import static cn.taketoday.test.context.junit4.JUnitTestingUtils.runTestsAndAssertCounters;
 
 /**
- * Concurrency tests for the {@link ApplicationRunner}, {@link ApplicationClassRule}, and
+ * Concurrency tests for the {@link Runner}, {@link ApplicationClassRule}, and
  * {@link ApplicationMethodRule} that use JUnit 4's experimental {@link ParallelComputer}
  * to execute tests in parallel.
  *

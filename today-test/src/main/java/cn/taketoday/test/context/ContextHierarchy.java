@@ -46,7 +46,7 @@ import java.lang.annotation.Target;
  * the one for the child context (i.e., the lowest context in the hierarchy).
  *
  * <pre class="code">
- * &#064;RunWith(SpringRunner.class)
+ * &#064;RunWith(Runner.class)
  * &#064;WebAppConfiguration
  * &#064;ContextHierarchy({
  *     &#064;ContextConfiguration(classes = TestAppConfig.class),
@@ -75,7 +75,7 @@ import java.lang.annotation.Target;
  * the parent context for each of the contexts loaded for the concrete subclasses.
  *
  * <pre class="code">
- * &#064;RunWith(SpringRunner.class)
+ * &#064;RunWith(Runner.class)
  * &#064;WebAppConfiguration
  * &#064;ContextConfiguration("file:src/main/webapp/WEB-INF/applicationContext.xml")
  * public abstract class AbstractWebTests {}
@@ -102,7 +102,7 @@ import java.lang.annotation.Target;
  * "/order-config.xml"}</code>.
  *
  * <pre class="code">
- * &#064;RunWith(SpringRunner.class)
+ * &#064;RunWith(Runner.class)
  * &#064;ContextHierarchy({
  *     &#064;ContextConfiguration(name = "parent", locations = "/app-config.xml"),
  *     &#064;ContextConfiguration(name = "child",  locations = "/user-config.xml")
@@ -123,7 +123,7 @@ import java.lang.annotation.Target;
  * context loaded from {@code "/app-config.xml"}.
  *
  * <pre class="code">
- * &#064;RunWith(SpringRunner.class)
+ * &#064;RunWith(Runner.class)
  * &#064;ContextHierarchy({
  *     &#064;ContextConfiguration(name = "parent", locations = "/app-config.xml"),
  *     &#064;ContextConfiguration(name = "child",  locations = "/user-config.xml")

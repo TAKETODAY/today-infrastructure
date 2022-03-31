@@ -31,7 +31,7 @@ import cn.taketoday.context.support.GenericApplicationContext;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.annotation.Order;
 import cn.taketoday.test.context.ContextConfiguration;
-import cn.taketoday.test.context.junit4.ApplicationJUnit4ClassRunner;
+import cn.taketoday.test.context.junit4.JUnit4ClassRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -46,7 +46,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Sam Brannen
  * @since 4.0
  */
-@RunWith(ApplicationJUnit4ClassRunner.class)
+@RunWith(JUnit4ClassRunner.class)
 // Note: the ordering of the config classes is intentionally: global, two, one.
 // Note: the ordering of the initializers is intentionally: two, one.
 @ContextConfiguration(classes = { OrderedInitializersAnnotationConfigTests.GlobalConfig.class, OrderedInitializersAnnotationConfigTests.ConfigTwo.class, OrderedInitializersAnnotationConfigTests.ConfigOne.class }, initializers = {

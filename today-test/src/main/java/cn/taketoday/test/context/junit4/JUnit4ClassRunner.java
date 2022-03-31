@@ -69,7 +69,7 @@ import cn.taketoday.util.ReflectionUtils;
  * {@link TestContextManager} and associated support classes and annotations.
  *
  * <p>To use this class, simply annotate a JUnit 4 based test class with
- * {@code @RunWith(SpringJUnit4ClassRunner.class)} or {@code @RunWith(SpringRunner.class)}.
+ * {@code @RunWith(SpringJUnit4ClassRunner.class)} or {@code @RunWith(Runner.class)}.
  *
  * <p>The following list constitutes all annotations currently supported directly
  * or indirectly by {@code SpringJUnit4ClassRunner}. <em>(Note that additional
@@ -95,7 +95,7 @@ import cn.taketoday.util.ReflectionUtils;
  *
  * @author Sam Brannen
  * @author Juergen Hoeller
- * @see ApplicationRunner
+ * @see Runner
  * @see TestContextManager
  * @see AbstractJUnit4ContextTests
  * @see AbstractTransactionalJUnit4ContextTests
@@ -103,17 +103,17 @@ import cn.taketoday.util.ReflectionUtils;
  * @see ApplicationMethodRule
  * @since 4.0
  */
-public class ApplicationJUnit4ClassRunner extends BlockJUnit4ClassRunner {
+public class JUnit4ClassRunner extends BlockJUnit4ClassRunner {
 
-  private static final Logger logger = LoggerFactory.getLogger(ApplicationJUnit4ClassRunner.class);
+  private static final Logger logger = LoggerFactory.getLogger(JUnit4ClassRunner.class);
 
   private static final Method withRulesMethod;
 
   static {
-    Assert.state(ClassUtils.isPresent("org.junit.internal.Throwables", ApplicationJUnit4ClassRunner.class.getClassLoader()),
+    Assert.state(ClassUtils.isPresent("org.junit.internal.Throwables", JUnit4ClassRunner.class.getClassLoader()),
             "SpringJUnit4ClassRunner requires JUnit 4.12 or higher.");
 
-    Method method = ReflectionUtils.findMethod(ApplicationJUnit4ClassRunner.class, "withRules",
+    Method method = ReflectionUtils.findMethod(JUnit4ClassRunner.class, "withRules",
             FrameworkMethod.class, Object.class, Statement.class);
     Assert.state(method != null, "SpringJUnit4ClassRunner requires JUnit 4.12 or higher");
     ReflectionUtils.makeAccessible(method);
@@ -141,7 +141,7 @@ public class ApplicationJUnit4ClassRunner extends BlockJUnit4ClassRunner {
    * @param clazz the test class to be run
    * @see #createTestContextManager(Class)
    */
-  public ApplicationJUnit4ClassRunner(Class<?> clazz) throws InitializationError {
+  public JUnit4ClassRunner(Class<?> clazz) throws InitializationError {
     super(clazz);
     if (logger.isDebugEnabled()) {
       logger.debug("SpringJUnit4ClassRunner constructor called with [" + clazz + "]");

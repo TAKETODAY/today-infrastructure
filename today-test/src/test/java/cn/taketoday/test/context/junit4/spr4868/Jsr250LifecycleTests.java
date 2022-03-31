@@ -20,8 +20,6 @@
 
 package cn.taketoday.test.context.junit4.spr4868;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -31,7 +29,7 @@ import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.test.context.ContextConfiguration;
 import cn.taketoday.test.context.TestExecutionListeners;
-import cn.taketoday.test.context.junit4.ApplicationJUnit4ClassRunner;
+import cn.taketoday.test.context.junit4.JUnit4ClassRunner;
 import cn.taketoday.test.context.support.DependencyInjectionTestExecutionListener;
 
 import jakarta.annotation.PostConstruct;
@@ -65,7 +63,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Sam Brannen
  * @since 4.0
  */
-@RunWith(ApplicationJUnit4ClassRunner.class)
+@RunWith(JUnit4ClassRunner.class)
 @TestExecutionListeners({ DependencyInjectionTestExecutionListener.class })
 @ContextConfiguration
 public class Jsr250LifecycleTests {

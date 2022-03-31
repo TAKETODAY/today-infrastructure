@@ -32,7 +32,7 @@ import static cn.taketoday.test.context.junit4.JUnitTestingUtils.runTestsAndAsse
 
 /**
  * Verifies proper handling of JUnit's {@link Test#expected() &#064;Test(expected = ...)}
- * support in conjunction with the {@link ApplicationRunner}.
+ * support in conjunction with the {@link Runner}.
  *
  * @author Sam Brannen
  * @since 3.0
@@ -42,7 +42,7 @@ public class ExpectedExceptionSpringRunnerTests {
 
 	@Test
 	public void expectedExceptions() throws Exception {
-		JUnitTestingUtils.runTestsAndAssertCounters(ApplicationRunner.class, ExpectedExceptionSpringRunnerTestCase.class, 1, 0, 1, 0, 0);
+		JUnitTestingUtils.runTestsAndAssertCounters(Runner.class, ExpectedExceptionSpringRunnerTestCase.class, 1, 0, 1, 0, 0);
 	}
 
 

@@ -23,7 +23,6 @@ package cn.taketoday.test.context.junit4;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.junit.runner.Runner;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 import cn.taketoday.test.context.ContextConfiguration;
@@ -42,7 +41,7 @@ import static cn.taketoday.test.context.junit4.JUnitTestingUtils.runTestsAndAsse
  * Integration tests which verify that '<i>before</i>' and '<i>after</i>'
  * methods of {@link TestExecutionListener TestExecutionListeners} as well as
  * {@code @BeforeTransaction} and {@code @AfterTransaction} methods can fail
- * tests run via the {@link ApplicationRunner} in a JUnit 4 environment.
+ * tests run via the {@link Runner} in a JUnit 4 environment.
  *
  * <p>See: <a href="https://jira.spring.io/browse/SPR-3960" target="_blank">SPR-3960</a>.
  *
@@ -77,8 +76,8 @@ public class FailingBeforeAndAfterMethodsSpringRunnerTests {
 		this.clazz = ClassUtils.forName(getClass().getName() + "." + testClassName, getClass().getClassLoader());
 	}
 
-	protected Class<? extends Runner> getRunnerClass() {
-		return ApplicationRunner.class;
+	protected Class<? extends org.junit.runner.Runner> getRunnerClass() {
+		return Runner.class;
 	}
 
 	@Test
@@ -148,7 +147,7 @@ public class FailingBeforeAndAfterMethodsSpringRunnerTests {
 		}
 	}
 
-	@RunWith(ApplicationRunner.class)
+	@RunWith(Runner.class)
 	public static abstract class BaseTestCase {
 
 		@Test
@@ -192,7 +191,7 @@ public class FailingBeforeAndAfterMethodsSpringRunnerTests {
 	}
 
 	@Ignore("TestCase classes are run manually by the enclosing test class")
-	@RunWith(ApplicationRunner.class)
+	@RunWith(Runner.class)
 	@ContextConfiguration("FailingBeforeAndAfterMethodsTests-context.xml")
 	@Transactional
 	public static class FailingBeforeTransactionTestCase {
@@ -208,7 +207,7 @@ public class FailingBeforeAndAfterMethodsSpringRunnerTests {
 	}
 
 	@Ignore("TestCase classes are run manually by the enclosing test class")
-	@RunWith(ApplicationRunner.class)
+	@RunWith(Runner.class)
 	@ContextConfiguration("FailingBeforeAndAfterMethodsTests-context.xml")
 	@Transactional
 	public static class FailingAfterTransactionTestCase {

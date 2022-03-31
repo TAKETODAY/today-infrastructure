@@ -38,10 +38,11 @@ import org.junit.platform.testkit.engine.EngineTestKit;
 import org.junit.platform.testkit.engine.Event;
 import org.junit.platform.testkit.engine.EventConditions;
 import org.junit.platform.testkit.engine.Events;
-import cn.taketoday.beans.factory.annotation.Autowired;
-import cn.taketoday.context.annotation.Configuration;
 
 import java.util.stream.Stream;
+
+import cn.taketoday.beans.factory.annotation.Autowired;
+import cn.taketoday.context.annotation.Configuration;
 
 import static org.assertj.core.api.Assertions.allOf;
 import static org.junit.jupiter.api.DynamicTest.dynamicTest;
@@ -62,250 +63,247 @@ import static org.junit.platform.testkit.engine.TestExecutionResultConditions.me
  */
 class AutowiredConfigurationErrorsIntegrationTests {
 
-	private static final String DISPLAY_NAME = "TEST";
+  private static final String DISPLAY_NAME = "TEST";
 
+  @ParameterizedTest
+  @ValueSource(classes = {
+          StaticAutowiredBeforeAllMethod.class,
+          StaticAutowiredAfterAllMethod.class,
+          AutowiredBeforeEachMethod.class,
+          AutowiredAfterEachMethod.class,
+          AutowiredTestMethod.class,
+          AutowiredRepeatedTestMethod.class,
+          AutowiredParameterizedTestMethod.class
+  })
+  void autowiredTestMethodsTestTemplateMethodsAndLifecyleMethods(Class<?> testClass) {
+    testEventsFor(testClass)
+            .assertStatistics(stats -> stats.started(1).succeeded(0).failed(1))
+            .assertThatEvents().haveExactly(1,
+                    event(testWithDisplayName(DISPLAY_NAME),
+                            finishedWithFailure(
+                                    instanceOf(IllegalStateException.class),
+                                    message(msg -> msg.matches(".+must not be annotated with @Autowired.+")))));
+  }
 
-	@ParameterizedTest
-	@ValueSource(classes = {
-		StaticAutowiredBeforeAllMethod.class,
-		StaticAutowiredAfterAllMethod.class,
-		AutowiredBeforeEachMethod.class,
-		AutowiredAfterEachMethod.class,
-		AutowiredTestMethod.class,
-		AutowiredRepeatedTestMethod.class,
-		AutowiredParameterizedTestMethod.class
-	})
-	void autowiredTestMethodsTestTemplateMethodsAndLifecyleMethods(Class<?> testClass) {
-		testEventsFor(testClass)
-			.assertStatistics(stats -> stats.started(1).succeeded(0).failed(1))
-			.assertThatEvents().haveExactly(1,
-				event(testWithDisplayName(DISPLAY_NAME),
-				finishedWithFailure(
-					instanceOf(IllegalStateException.class),
-					message(msg -> msg.matches(".+must not be annotated with @Autowired.+")))));
-	}
+  /**
+   * A non-autowired test method should fail the same as an autowired test
+   * method in the same class, since Spring still should not autowire the
+   * autowired test method as a "configuration method" when JUnit attempts to
+   * execute the non-autowired test method.
+   */
+  @Test
+  void autowiredAndNonAutowiredTestMethods() {
+    testEventsFor(AutowiredAndNonAutowiredTestMethods.class)
+            .assertStatistics(stats -> stats.started(2).succeeded(0).failed(2))
+            .assertThatEvents()
+            .haveExactly(1,
+                    event(testWithDisplayName("autowired(TestInfo)"),
+                            finishedWithFailure(
+                                    instanceOf(IllegalStateException.class),
+                                    message(msg -> msg.matches(".+must not be annotated with @Autowired.+")))))
+            .haveExactly(1,
+                    event(testWithDisplayName("nonAutowired(TestInfo)"),
+                            finishedWithFailure(
+                                    instanceOf(IllegalStateException.class),
+                                    message(msg -> msg.matches(".+must not be annotated with @Autowired.+")))));
+  }
 
-	/**
-	 * A non-autowired test method should fail the same as an autowired test
-	 * method in the same class, since Spring still should not autowire the
-	 * autowired test method as a "configuration method" when JUnit attempts to
-	 * execute the non-autowired test method.
-	 */
-	@Test
-	void autowiredAndNonAutowiredTestMethods() {
-		testEventsFor(AutowiredAndNonAutowiredTestMethods.class)
-			.assertStatistics(stats -> stats.started(2).succeeded(0).failed(2))
-			.assertThatEvents()
-				.haveExactly(1,
-					event(testWithDisplayName("autowired(TestInfo)"),
-					finishedWithFailure(
-						instanceOf(IllegalStateException.class),
-						message(msg -> msg.matches(".+must not be annotated with @Autowired.+")))))
-				.haveExactly(1,
-					event(testWithDisplayName("nonAutowired(TestInfo)"),
-					finishedWithFailure(
-						instanceOf(IllegalStateException.class),
-						message(msg -> msg.matches(".+must not be annotated with @Autowired.+")))));
-	}
+  @ParameterizedTest
+  @ValueSource(classes = {
+          NonStaticAutowiredBeforeAllMethod.class,
+          NonStaticAutowiredAfterAllMethod.class
+  })
+  void autowiredNonStaticClassLevelLifecyleMethods(Class<?> testClass) {
+    containerEventsFor(testClass)
+            .assertStatistics(stats -> stats.started(2).succeeded(1).failed(1))
+            .assertThatEvents().haveExactly(1,
+                    event(container(),
+                            finishedWithFailure(
+                                    instanceOf(IllegalStateException.class),
+                                    message(msg -> msg.matches(".+must not be annotated with @Autowired.+")))));
+  }
 
+  @Test
+  void autowiredTestFactoryMethod() {
+    containerEventsFor(AutowiredTestFactoryMethod.class)
+            .assertStatistics(stats -> stats.started(3).succeeded(2).failed(1))
+            .assertThatEvents().haveExactly(1,
+                    event(container(),
+                            finishedWithFailure(
+                                    instanceOf(IllegalStateException.class),
+                                    message(msg -> msg.matches(".+must not be annotated with @Autowired.+")))));
+  }
 
-	@ParameterizedTest
-	@ValueSource(classes = {
-		NonStaticAutowiredBeforeAllMethod.class,
-		NonStaticAutowiredAfterAllMethod.class
-	})
-	void autowiredNonStaticClassLevelLifecyleMethods(Class<?> testClass) {
-		containerEventsFor(testClass)
-			.assertStatistics(stats -> stats.started(2).succeeded(1).failed(1))
-			.assertThatEvents().haveExactly(1,
-				event(container(),
-				finishedWithFailure(
-					instanceOf(IllegalStateException.class),
-					message(msg -> msg.matches(".+must not be annotated with @Autowired.+")))));
-	}
+  private Events testEventsFor(Class<?> testClass) {
+    return EngineTestKit.engine("junit-jupiter")
+            .selectors(selectClass(testClass))
+            .execute()
+            .testEvents();
+  }
 
-	@Test
-	void autowiredTestFactoryMethod() {
-		containerEventsFor(AutowiredTestFactoryMethod.class)
-			.assertStatistics(stats -> stats.started(3).succeeded(2).failed(1))
-			.assertThatEvents().haveExactly(1,
-				event(container(),
-				finishedWithFailure(
-					instanceOf(IllegalStateException.class),
-					message(msg -> msg.matches(".+must not be annotated with @Autowired.+")))));
-	}
+  private Events containerEventsFor(Class<?> testClass) {
+    return EngineTestKit.engine("junit-jupiter")
+            .selectors(selectClass(testClass))
+            .execute()
+            .containerEvents();
+  }
 
-	private Events testEventsFor(Class<?> testClass) {
-		return EngineTestKit.engine("junit-jupiter")
-			.selectors(selectClass(testClass))
-			.execute()
-			.testEvents();
-	}
+  private static Condition<Event> testWithDisplayName(String displayName) {
+    return allOf(EventConditions.test(), EventConditions.displayName(displayName));
+  }
 
-	private Events containerEventsFor(Class<?> testClass) {
-		return EngineTestKit.engine("junit-jupiter")
-			.selectors(selectClass(testClass))
-			.execute()
-			.containerEvents();
-	}
+  @JUnitConfig(Config.class)
+  @FailingTestCase
+  static class StaticAutowiredBeforeAllMethod {
 
-	private static Condition<Event> testWithDisplayName(String displayName) {
-		return allOf(EventConditions.test(), EventConditions.displayName(displayName));
-	}
+    @Autowired
+    @BeforeAll
+    static void beforeAll(TestInfo testInfo) {
+    }
 
+    @Test
+    @DisplayName(DISPLAY_NAME)
+    void test() {
+    }
+  }
 
-	@SpringJUnitConfig(Config.class)
-	@FailingTestCase
-	static class StaticAutowiredBeforeAllMethod {
+  @JUnitConfig(Config.class)
+  @TestInstance(PER_CLASS)
+  @FailingTestCase
+  static class NonStaticAutowiredBeforeAllMethod {
 
-		@Autowired
-		@BeforeAll
-		static void beforeAll(TestInfo testInfo) {
-		}
+    @Autowired
+    @BeforeAll
+    void beforeAll(TestInfo testInfo) {
+    }
 
-		@Test
-		@DisplayName(DISPLAY_NAME)
-		void test() {
-		}
-	}
+    @Test
+    @DisplayName(DISPLAY_NAME)
+    void test() {
+    }
+  }
 
-	@SpringJUnitConfig(Config.class)
-	@TestInstance(PER_CLASS)
-	@FailingTestCase
-	static class NonStaticAutowiredBeforeAllMethod {
+  @JUnitConfig(Config.class)
+  @FailingTestCase
+  static class StaticAutowiredAfterAllMethod {
 
-		@Autowired
-		@BeforeAll
-		void beforeAll(TestInfo testInfo) {
-		}
+    @Test
+    @DisplayName(DISPLAY_NAME)
+    void test() {
+    }
 
-		@Test
-		@DisplayName(DISPLAY_NAME)
-		void test() {
-		}
-	}
+    @AfterAll
+    @Autowired
+    static void afterAll(TestInfo testInfo) {
+    }
+  }
 
-	@SpringJUnitConfig(Config.class)
-	@FailingTestCase
-	static class StaticAutowiredAfterAllMethod {
+  @JUnitConfig(Config.class)
+  @TestInstance(PER_CLASS)
+  @FailingTestCase
+  static class NonStaticAutowiredAfterAllMethod {
 
-		@Test
-		@DisplayName(DISPLAY_NAME)
-		void test() {
-		}
+    @Test
+    @DisplayName(DISPLAY_NAME)
+    void test() {
+    }
 
-		@AfterAll
-		@Autowired
-		static void afterAll(TestInfo testInfo) {
-		}
-	}
+    @AfterAll
+    @Autowired
+    void afterAll(TestInfo testInfo) {
+    }
+  }
 
-	@SpringJUnitConfig(Config.class)
-	@TestInstance(PER_CLASS)
-	@FailingTestCase
-	static class NonStaticAutowiredAfterAllMethod {
+  @JUnitConfig(Config.class)
+  @FailingTestCase
+  static class AutowiredBeforeEachMethod {
 
-		@Test
-		@DisplayName(DISPLAY_NAME)
-		void test() {
-		}
+    @Autowired
+    @BeforeEach
+    void beforeEach(TestInfo testInfo) {
+    }
 
-		@AfterAll
-		@Autowired
-		void afterAll(TestInfo testInfo) {
-		}
-	}
+    @Test
+    @DisplayName(DISPLAY_NAME)
+    void test() {
+    }
+  }
 
-	@SpringJUnitConfig(Config.class)
-	@FailingTestCase
-	static class AutowiredBeforeEachMethod {
+  @JUnitConfig(Config.class)
+  @FailingTestCase
+  static class AutowiredAfterEachMethod {
 
-		@Autowired
-		@BeforeEach
-		void beforeEach(TestInfo testInfo) {
-		}
+    @Test
+    @DisplayName(DISPLAY_NAME)
+    void test() {
+    }
 
-		@Test
-		@DisplayName(DISPLAY_NAME)
-		void test() {
-		}
-	}
+    @Autowired
+    @AfterEach
+    void afterEach(TestInfo testInfo) {
+    }
+  }
 
-	@SpringJUnitConfig(Config.class)
-	@FailingTestCase
-	static class AutowiredAfterEachMethod {
+  @JUnitConfig(Config.class)
+  @FailingTestCase
+  static class AutowiredTestMethod {
 
-		@Test
-		@DisplayName(DISPLAY_NAME)
-		void test() {
-		}
+    @Autowired
+    @Test
+    @DisplayName(DISPLAY_NAME)
+    void test(TestInfo testInfo) {
+    }
+  }
 
-		@Autowired
-		@AfterEach
-		void afterEach(TestInfo testInfo) {
-		}
-	}
+  @JUnitConfig(Config.class)
+  @FailingTestCase
+  static class AutowiredAndNonAutowiredTestMethods {
 
-	@SpringJUnitConfig(Config.class)
-	@FailingTestCase
-	static class AutowiredTestMethod {
+    @Autowired
+    @Test
+    void autowired(TestInfo testInfo) {
+    }
 
-		@Autowired
-		@Test
-		@DisplayName(DISPLAY_NAME)
-		void test(TestInfo testInfo) {
-		}
-	}
+    @Test
+    void nonAutowired(TestInfo testInfo) {
+    }
+  }
 
-	@SpringJUnitConfig(Config.class)
-	@FailingTestCase
-	static class AutowiredAndNonAutowiredTestMethods {
+  @JUnitConfig(Config.class)
+  @FailingTestCase
+  static class AutowiredRepeatedTestMethod {
 
-		@Autowired
-		@Test
-		void autowired(TestInfo testInfo) {
-		}
+    @Autowired
+    @RepeatedTest(value = 1, name = DISPLAY_NAME)
+    void test(TestInfo testInfo) {
+    }
+  }
 
-		@Test
-		void nonAutowired(TestInfo testInfo) {
-		}
-	}
+  @JUnitConfig(Config.class)
+  @FailingTestCase
+  static class AutowiredTestFactoryMethod {
 
-	@SpringJUnitConfig(Config.class)
-	@FailingTestCase
-	static class AutowiredRepeatedTestMethod {
+    @Autowired
+    @TestFactory
+    Stream<DynamicTest> testFactory(TestInfo testInfo) {
+      return Stream.of(dynamicTest("dynamicTest", () -> { }));
+    }
+  }
 
-		@Autowired
-		@RepeatedTest(value = 1, name = DISPLAY_NAME)
-		void test(TestInfo testInfo) {
-		}
-	}
+  @JUnitConfig(Config.class)
+  @FailingTestCase
+  static class AutowiredParameterizedTestMethod {
 
-	@SpringJUnitConfig(Config.class)
-	@FailingTestCase
-	static class AutowiredTestFactoryMethod {
+    @Autowired
+    @ParameterizedTest(name = DISPLAY_NAME)
+    @ValueSource(strings = "ignored")
+    void test(TestInfo testInfo) {
+    }
+  }
 
-		@Autowired
-		@TestFactory
-		Stream<DynamicTest> testFactory(TestInfo testInfo) {
-			return Stream.of(dynamicTest("dynamicTest", () -> {}));
-		}
-	}
-
-	@SpringJUnitConfig(Config.class)
-	@FailingTestCase
-	static class AutowiredParameterizedTestMethod {
-
-		@Autowired
-		@ParameterizedTest(name = DISPLAY_NAME)
-		@ValueSource(strings = "ignored")
-		void test(TestInfo testInfo) {
-		}
-	}
-
-	@Configuration
-	static class Config {
-	}
+  @Configuration
+  static class Config {
+  }
 
 }
 

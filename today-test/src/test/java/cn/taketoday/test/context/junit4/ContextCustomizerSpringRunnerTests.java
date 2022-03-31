@@ -41,7 +41,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Phillip Webb
  * @since 4.3
  */
-@RunWith(ApplicationRunner.class)
+@RunWith(Runner.class)
 @BootstrapWith(ContextCustomizerSpringRunnerTests.CustomTestContextBootstrapper.class)
 public class ContextCustomizerSpringRunnerTests {
 

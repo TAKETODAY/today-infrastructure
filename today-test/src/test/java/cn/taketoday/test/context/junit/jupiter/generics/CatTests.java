@@ -21,8 +21,8 @@
 package cn.taketoday.test.context.junit.jupiter.generics;
 
 import cn.taketoday.test.context.junit.SpringJUnitJupiterTestSuite;
-import cn.taketoday.test.context.junit.jupiter.comics.Cat;
 import cn.taketoday.test.context.junit.jupiter.ApplicationExtension;
+import cn.taketoday.test.context.junit.jupiter.comics.Cat;
 
 /**
  * Parameterized test class for integration tests that demonstrate support for
@@ -37,14 +37,14 @@ import cn.taketoday.test.context.junit.jupiter.ApplicationExtension;
  */
 class CatTests extends GenericComicCharactersTests<Cat> {
 
-	@Override
-	int getExpectedNumCharacters() {
-		return 2;
-	}
+  @Override
+  int getExpectedNumCharacters() {
+    return 2;
+  }
 
-	@Override
-	String getExpectedName() {
-		return "Catbert";
-	}
+  @Override
+  String getExpectedName() {
+    return "Catbert";
+  }
 
 }

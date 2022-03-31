@@ -23,7 +23,6 @@ package cn.taketoday.test.context.junit4;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.junit.runner.Runner;
 import org.junit.runners.JUnit4;
 import cn.taketoday.test.annotation.Timed;
 import cn.taketoday.test.context.TestExecutionListeners;
@@ -35,7 +34,7 @@ import static cn.taketoday.test.context.junit4.JUnitTestingUtils.runTestsAndAsse
 
 /**
  * Verifies proper handling of the following in conjunction with the
- * {@link ApplicationRunner}:
+ * {@link Runner}:
  * <ul>
  * <li>JUnit's {@link Test#timeout() @Test(timeout=...)}</li>
  * <li>Spring's {@link Timed @Timed}</li>
@@ -51,8 +50,8 @@ public class TimedSpringRunnerTests {
 		return TimedSpringRunnerTestCase.class;
 	}
 
-	protected Class<? extends Runner> getRunnerClass() {
-		return ApplicationRunner.class;
+	protected Class<? extends org.junit.runner.Runner> getRunnerClass() {
+		return Runner.class;
 	}
 
 	@Test

@@ -30,7 +30,7 @@ import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.jdbc.core.JdbcTemplate;
 import cn.taketoday.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
 import cn.taketoday.test.annotation.DirtiesContext;
-import cn.taketoday.test.context.junit.jupiter.SpringJUnitConfig;
+import cn.taketoday.test.context.junit.jupiter.JUnitConfig;
 import cn.taketoday.test.jdbc.JdbcTestUtils;
 import cn.taketoday.test.transaction.TransactionAssert;
 
@@ -43,7 +43,7 @@ import javax.sql.DataSource;
  * @author Sam Brannen
  * @since 4.1
  */
-@SpringJUnitConfig
+@JUnitConfig
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @Sql({ "schema.sql", "data.sql" })
 @DirtiesContext

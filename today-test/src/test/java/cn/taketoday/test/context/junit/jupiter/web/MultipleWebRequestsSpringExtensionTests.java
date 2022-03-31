@@ -22,19 +22,20 @@ package cn.taketoday.test.context.junit.jupiter.web;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
 import cn.taketoday.http.MediaType;
 import cn.taketoday.test.context.junit.SpringJUnitJupiterTestSuite;
 import cn.taketoday.test.context.junit.jupiter.ApplicationExtension;
 import cn.taketoday.test.web.servlet.MockMvc;
 import cn.taketoday.web.context.WebApplicationContext;
 
-import static org.hamcrest.Matchers.is;
 import static cn.taketoday.http.MediaType.APPLICATION_JSON;
 import static cn.taketoday.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static cn.taketoday.test.web.servlet.result.MockMvcResultMatchers.content;
 import static cn.taketoday.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static cn.taketoday.test.web.servlet.result.MockMvcResultMatchers.status;
 import static cn.taketoday.test.web.servlet.setup.MockMvcBuilders.webAppContextSetup;
+import static org.hamcrest.Matchers.is;
 
 /**
  * Integration tests which demonstrate how to set up a {@link MockMvc}
@@ -46,34 +47,34 @@ import static cn.taketoday.test.web.servlet.setup.MockMvcBuilders.webAppContextS
  * Platform, simply run {@link SpringJUnitJupiterTestSuite} as a JUnit 4 test.
  *
  * @author Sam Brannen
- * @since 5.0
  * @see ApplicationExtension
  * @see JUnitWebConfig
  * @see WebSpringExtensionTests
+ * @since 5.0
  */
 @JUnitWebConfig(WebConfig.class)
 class MultipleWebRequestsSpringExtensionTests {
 
-	MockMvc mockMvc;
+  MockMvc mockMvc;
 
-	@BeforeEach
-	void setUpMockMvc(WebApplicationContext wac) {
-		this.mockMvc = webAppContextSetup(wac)
-			.alwaysExpect(status().isOk())
-			.alwaysExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
-			.build();
-	}
+  @BeforeEach
+  void setUpMockMvc(WebApplicationContext wac) {
+    this.mockMvc = webAppContextSetup(wac)
+            .alwaysExpect(status().isOk())
+            .alwaysExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
+            .build();
+  }
 
-	@Test
-	void getPerson42() throws Exception {
-		this.mockMvc.perform(get("/person/42").accept(MediaType.APPLICATION_JSON))
-			.andExpect(jsonPath("$.name", is("Dilbert")));
-	}
+  @Test
+  void getPerson42() throws Exception {
+    this.mockMvc.perform(get("/person/42").accept(MediaType.APPLICATION_JSON))
+            .andExpect(jsonPath("$.name", is("Dilbert")));
+  }
 
-	@Test
-	void getPerson99() throws Exception {
-		this.mockMvc.perform(get("/person/99").accept(MediaType.APPLICATION_JSON))
-			.andExpect(jsonPath("$.name", is("Wally")));
-	}
+  @Test
+  void getPerson99() throws Exception {
+    this.mockMvc.perform(get("/person/99").accept(MediaType.APPLICATION_JSON))
+            .andExpect(jsonPath("$.name", is("Wally")));
+  }
 
 }

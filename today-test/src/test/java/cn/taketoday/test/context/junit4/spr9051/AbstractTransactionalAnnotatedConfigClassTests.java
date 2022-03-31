@@ -30,7 +30,7 @@ import cn.taketoday.jdbc.core.JdbcTemplate;
 import cn.taketoday.jdbc.datasource.DataSourceTransactionManager;
 import cn.taketoday.test.annotation.DirtiesContext;
 import cn.taketoday.test.annotation.DirtiesContext.ClassMode;
-import cn.taketoday.test.context.junit4.ApplicationJUnit4ClassRunner;
+import cn.taketoday.test.context.junit4.JUnit4ClassRunner;
 import cn.taketoday.test.context.testng.AnnotationConfigTransactionalTestNGSpringContextTests;
 import cn.taketoday.test.context.transaction.AfterTransaction;
 import cn.taketoday.test.context.transaction.BeforeTransaction;
@@ -51,7 +51,7 @@ import static cn.taketoday.transaction.support.TransactionSynchronizationManager
  * @since 4.0
  * @see AnnotationConfigTransactionalTestNGSpringContextTests
  */
-@RunWith(ApplicationJUnit4ClassRunner.class)
+@RunWith(JUnit4ClassRunner.class)
 @DirtiesContext(classMode = ClassMode.AFTER_EACH_TEST_METHOD)
 public abstract class AbstractTransactionalAnnotatedConfigClassTests {
 
