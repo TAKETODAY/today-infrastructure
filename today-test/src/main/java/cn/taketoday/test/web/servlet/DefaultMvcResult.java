@@ -24,14 +24,13 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
+import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.mock.web.MockHttpServletRequest;
 import cn.taketoday.mock.web.MockHttpServletResponse;
-import cn.taketoday.util.Assert;
-import cn.taketoday.web.servlet.FlashMap;
-import cn.taketoday.web.servlet.HandlerInterceptor;
-import cn.taketoday.web.servlet.ModelAndView;
-import cn.taketoday.web.servlet.support.RequestContextUtils;
+import cn.taketoday.web.RequestContextUtils;
+import cn.taketoday.web.interceptor.HandlerInterceptor;
+import cn.taketoday.web.view.ModelAndView;
 
 /**
  * A simple implementation of {@link MvcResult} with setters.

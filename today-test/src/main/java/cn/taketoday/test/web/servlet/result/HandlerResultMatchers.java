@@ -27,7 +27,7 @@ import java.lang.reflect.Method;
 import cn.taketoday.test.web.servlet.MvcResult;
 import cn.taketoday.test.web.servlet.ResultMatcher;
 import cn.taketoday.util.ClassUtils;
-import cn.taketoday.web.method.HandlerMethod;
+import cn.taketoday.web.handler.method.HandlerMethod;
 import cn.taketoday.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder;
 import cn.taketoday.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.MethodInvocationInfo;
 import cn.taketoday.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter;
