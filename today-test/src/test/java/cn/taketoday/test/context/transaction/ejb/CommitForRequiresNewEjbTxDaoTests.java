@@ -32,7 +32,7 @@ import cn.taketoday.test.context.transaction.ejb.dao.RequiresNewEjbTxTestEntityD
  * <em>commit</em>).
  *
  * @author Sam Brannen
- * @since 4.0.1
+ * @since 4.0
  */
 @ContextConfiguration("requires-new-tx-config.xml")
 @Commit

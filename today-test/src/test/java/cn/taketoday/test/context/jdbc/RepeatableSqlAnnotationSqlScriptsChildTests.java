@@ -33,7 +33,7 @@ import java.lang.annotation.Repeatable;
  * {@code @Sql} declarations.
  *
  * @author Sam Brannen
- * @since 5.3
+ * @since 4.0
  */
 @Sql("schema.sql")
 @Sql("data-add-catbert.sql")

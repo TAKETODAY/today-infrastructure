@@ -46,7 +46,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * that has been modified to use {@link ApplicationClassRule} and {@link ApplicationMethodRule}.
  *
  * @author Sam Brannen
- * @since 4.2
+ * @since 4.0
  */
 @RunWith(JUnit4.class)
 @ContextConfiguration(classes = EmptyDatabaseConfig.class)

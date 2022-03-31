@@ -44,7 +44,7 @@ import static org.junit.platform.testkit.engine.TestExecutionResultConditions.me
  * Integration tests for {@link TestConstructor @TestConstructor} support.
  *
  * @author Sam Brannen
- * @since 5.3
+ * @since 4.0
  */
 class TestConstructorIntegrationTests {
 

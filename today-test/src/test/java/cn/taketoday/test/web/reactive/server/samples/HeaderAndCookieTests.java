@@ -34,7 +34,7 @@ import cn.taketoday.web.bind.annotation.RestController;
  * Tests with headers and cookies.
  *
  * @author Rossen Stoyanchev
- * @since 5.0
+ * @since 4.0
  */
 class HeaderAndCookieTests {
 

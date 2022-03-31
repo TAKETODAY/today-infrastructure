@@ -33,7 +33,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Sam Brannen
- * @since 5.2
+ * @since 4.0
  */
 @ExtendWith(ApplicationExtension.class)
 @Transactional

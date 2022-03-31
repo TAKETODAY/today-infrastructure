@@ -34,7 +34,7 @@ import cn.taketoday.context.annotation.Configuration;
  * should be identical with regard to bean definitions.
  *
  * @author Sam Brannen
- * @since 3.1
+ * @since 4.0
  */
 @Configuration
 public class PojoAndStringConfig {

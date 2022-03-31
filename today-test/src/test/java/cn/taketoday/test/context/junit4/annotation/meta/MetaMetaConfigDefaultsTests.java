@@ -33,7 +33,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * overrides in {@link MetaMetaConfig}.
  *
  * @author Sam Brannen
- * @since 4.0.3
+ * @since 4.0
  */
 @RunWith(JUnit4ClassRunner.class)
 @MetaMetaConfig

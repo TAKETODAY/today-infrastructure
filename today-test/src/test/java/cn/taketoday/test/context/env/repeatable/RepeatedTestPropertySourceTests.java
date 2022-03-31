@@ -30,7 +30,7 @@ import cn.taketoday.test.context.TestPropertySource;
  * <p>Tests multiple local {@link TestPropertySource} declarations.
  *
  * @author Sam Brannen
- * @since 5.2
+ * @since 4.0
  */
 @TestPropertySource(properties = "first = repeated")
 @TestPropertySource(properties = "second = repeated")

@@ -24,7 +24,7 @@ import cn.taketoday.test.context.ActiveProfiles;
 
 /**
  * @author Sam Brannen
- * @since 4.3
+ * @since 4.0
  */
 @ActiveProfiles("dev")
 interface ActiveProfilesTestInterface {

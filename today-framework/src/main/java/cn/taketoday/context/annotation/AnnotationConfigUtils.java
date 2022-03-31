@@ -22,7 +22,6 @@ package cn.taketoday.context.annotation;
 
 import java.util.function.Consumer;
 
-import cn.taketoday.beans.Primary;
 import cn.taketoday.beans.factory.annotation.AnnotatedBeanDefinition;
 import cn.taketoday.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor;
 import cn.taketoday.beans.factory.annotation.DisableDependencyInjection;
@@ -34,7 +33,6 @@ import cn.taketoday.beans.factory.config.BeanPostProcessor;
 import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.support.RootBeanDefinition;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
-import cn.taketoday.beans.factory.support.StandardDependenciesBeanPostProcessor;
 import cn.taketoday.context.event.DefaultEventListenerFactory;
 import cn.taketoday.context.event.EventListenerMethodProcessor;
 import cn.taketoday.context.loader.ScopeMetadata;

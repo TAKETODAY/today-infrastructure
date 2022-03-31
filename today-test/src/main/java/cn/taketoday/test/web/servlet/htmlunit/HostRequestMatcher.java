@@ -56,7 +56,7 @@ import java.util.Set;
  * @author Sam Brannen
  * @see UrlRegexRequestMatcher
  * @see DelegatingWebConnection
- * @since 4.2
+ * @since 4.0
  */
 public final class HostRequestMatcher implements WebRequestMatcher {
 

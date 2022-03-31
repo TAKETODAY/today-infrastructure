@@ -33,7 +33,7 @@ import cn.taketoday.test.context.junit.jupiter.ApplicationExtension;
  * {@link TestPropertySource @TestPropertySource} as a repeatable annotation.
  *
  * @author Sam Brannen
- * @since 5.2
+ * @since 4.0
  */
 @ExtendWith(ApplicationExtension.class)
 @ContextConfiguration

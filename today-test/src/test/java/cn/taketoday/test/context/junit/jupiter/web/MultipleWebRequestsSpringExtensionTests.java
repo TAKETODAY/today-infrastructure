@@ -50,7 +50,7 @@ import static org.hamcrest.Matchers.is;
  * @see ApplicationExtension
  * @see JUnitWebConfig
  * @see WebSpringExtensionTests
- * @since 5.0
+ * @since 4.0
  */
 @JUnitWebConfig(WebConfig.class)
 class MultipleWebRequestsSpringExtensionTests {

@@ -39,7 +39,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * {@link ApplicationEvents} feature.
  *
  * @author Sam Brannen
- * @since 5.3.3
+ * @since 4.0
  */
 @JUnitConfig
 @RecordApplicationEvents

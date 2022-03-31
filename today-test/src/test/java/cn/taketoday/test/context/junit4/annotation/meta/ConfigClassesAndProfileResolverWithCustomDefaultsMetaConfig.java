@@ -38,7 +38,7 @@ import java.lang.annotation.Target;
  * with default configuration local to the composed annotation.
  *
  * @author Sam Brannen
- * @since 4.0.3
+ * @since 4.0
  */
 @ContextConfiguration
 @ActiveProfiles

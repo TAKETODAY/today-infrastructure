@@ -37,7 +37,7 @@ import cn.taketoday.test.context.junit.jupiter.ApplicationExtension;
  * system property.
  *
  * @author Sam Brannen
- * @since 4.1
+ * @since 4.0
  */
 @ExtendWith(ApplicationExtension.class)
 @ContextConfiguration

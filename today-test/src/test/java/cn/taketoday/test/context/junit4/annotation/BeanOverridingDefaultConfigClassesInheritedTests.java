@@ -34,7 +34,7 @@ import cn.taketoday.test.context.ContextConfiguration;
  * and {@link ContextConfiguration}.
  *
  * @author Sam Brannen
- * @since 3.1
+ * @since 4.0
  */
 @ContextConfiguration
 public class BeanOverridingDefaultConfigClassesInheritedTests extends DefaultConfigClassesBaseTests {

@@ -51,7 +51,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * {@link Transactional @Transactional} in a JUnit Jupiter environment.
  *
  * @author Sam Brannen
- * @since 5.1.3
+ * @since 4.0
  */
 @JUnitConfig(PopulatedSchemaDatabaseConfig.class)
 @Transactional

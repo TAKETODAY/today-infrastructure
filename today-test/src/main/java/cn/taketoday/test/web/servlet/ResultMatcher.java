@@ -68,7 +68,7 @@ public interface ResultMatcher {
    * Static method for matching with an array of result matchers.
    *
    * @param matchers the matchers
-   * @since 5.1
+   * @since 4.0
    * @deprecated as of Spring Framework 5.3.10, in favor of
    * {@link ResultActions#andExpectAll(ResultMatcher...)}
    */

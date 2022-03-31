@@ -39,7 +39,7 @@ import static org.assertj.core.api.Assertions.fail;
  * TestExecutionListeners}.
  *
  * @author Sam Brannen
- * @since 5.0
+ * @since 4.0
  * @see Throwable#getSuppressed()
  */
 class TestContextManagerSuppressedExceptionsTests {

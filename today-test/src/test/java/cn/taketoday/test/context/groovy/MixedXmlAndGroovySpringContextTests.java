@@ -36,7 +36,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * using the TestContext framework.
  *
  * @author Sam Brannen
- * @since 4.1
+ * @since 4.0
  */
 @ExtendWith(ApplicationExtension.class)
 @ContextConfiguration({ "contextA.groovy", "contextB.xml" })

@@ -38,7 +38,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * {@link Rollback @Rollback} annotation.
  *
  * @author Sam Brannen
- * @since 4.2
+ * @since 4.0
  * @see Rollback
  */
 public class RollbackOverrideDefaultRollbackFalseRollbackAnnotationTransactionalTests extends

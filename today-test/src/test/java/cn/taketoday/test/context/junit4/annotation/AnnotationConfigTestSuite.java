@@ -29,7 +29,7 @@ import org.junit.runners.Suite.SuiteClasses;
  * support in the Spring TestContext Framework.
  *
  * @author Sam Brannen
- * @since 3.1
+ * @since 4.0
  */
 @RunWith(Suite.class)
 // Note: the following 'multi-line' layout is for enhanced code readability.

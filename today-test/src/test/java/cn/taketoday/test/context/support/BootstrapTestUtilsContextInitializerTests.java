@@ -36,7 +36,7 @@ import java.util.Set;
  * Unit tests for {@link BootstrapTestUtils} involving {@link ApplicationContextInitializer}s.
  *
  * @author Sam Brannen
- * @since 3.1
+ * @since 4.0
  */
 @SuppressWarnings("unchecked")
 class BootstrapTestUtilsContextInitializerTests extends AbstractContextConfigurationUtilsTests {

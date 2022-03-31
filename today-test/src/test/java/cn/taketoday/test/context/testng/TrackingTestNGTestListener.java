@@ -29,7 +29,7 @@ import org.testng.ITestResult;
  * callback methods were called: only intended for the integration test suite.
  *
  * @author Sam Brannen
- * @since 4.2
+ * @since 4.0
  */
 public class TrackingTestNGTestListener implements ITestListener {
 

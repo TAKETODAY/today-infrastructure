@@ -28,7 +28,7 @@ import cn.taketoday.test.context.TestPropertySource;
  * with the order of the properties files reversed.
  *
  * @author Sam Brannen
- * @since 5.2
+ * @since 4.0
  */
 @TestPropertySource("second.properties")
 @TestPropertySource("first.properties")

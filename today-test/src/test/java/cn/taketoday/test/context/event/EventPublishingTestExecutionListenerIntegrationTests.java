@@ -76,7 +76,7 @@ import static org.mockito.Mockito.verify;
  *
  * @author Frank Scheffler
  * @author Sam Brannen
- * @since 5.2
+ * @since 4.0
  */
 public class EventPublishingTestExecutionListenerIntegrationTests {
 

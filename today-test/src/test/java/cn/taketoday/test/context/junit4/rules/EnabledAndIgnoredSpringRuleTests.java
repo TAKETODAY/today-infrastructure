@@ -33,7 +33,7 @@ import cn.taketoday.test.context.junit4.EnabledAndIgnoredSpringRunnerTests;
  * {@link ApplicationMethodRule}.
  *
  * @author Sam Brannen
- * @since 4.2
+ * @since 4.0
  */
 @RunWith(JUnit4.class)
 public class EnabledAndIgnoredSpringRuleTests extends EnabledAndIgnoredSpringRunnerTests {

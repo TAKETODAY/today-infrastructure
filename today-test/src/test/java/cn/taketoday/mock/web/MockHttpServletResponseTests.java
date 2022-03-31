@@ -435,7 +435,7 @@ class MockHttpServletResponseTests {
 	}
 
 	/**
-	 * @since 5.1.10
+	 * @since 4.0
 	 */
 	@Test
 	void setCookieHeader() {
@@ -450,7 +450,7 @@ class MockHttpServletResponseTests {
 	}
 
 	/**
-	 * @since 5.1.11
+	 * @since 4.0
 	 */
 	@Test
 	void setCookieHeaderWithMaxAgeAndExpiresAttributes() {
@@ -467,7 +467,7 @@ class MockHttpServletResponseTests {
 	}
 
 	/**
-	 * @since 5.1.12
+	 * @since 4.0
 	 */
 	@Test
 	void setCookieHeaderWithZeroExpiresAttribute() {
@@ -494,7 +494,7 @@ class MockHttpServletResponseTests {
 	}
 
 	/**
-	 * @since 5.1.11
+	 * @since 4.0
 	 */
 	@Test
 	void addCookieHeaderWithMaxAgeAndExpiresAttributes() {
@@ -511,7 +511,7 @@ class MockHttpServletResponseTests {
 	}
 
 	/**
-	 * @since 5.1.12
+	 * @since 4.0
 	 */
 	@Test
 	void addCookieHeaderWithMaxAgeAndZeroExpiresAttributes() {
@@ -525,7 +525,7 @@ class MockHttpServletResponseTests {
 	}
 
 	/**
-	 * @since 5.2.14
+	 * @since 4.04
 	 */
 	@Test
 	void addCookieHeaderWithExpiresAttributeWithoutMaxAgeAttribute() {

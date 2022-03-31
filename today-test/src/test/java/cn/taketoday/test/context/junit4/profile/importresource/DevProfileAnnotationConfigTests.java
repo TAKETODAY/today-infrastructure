@@ -25,7 +25,7 @@ import cn.taketoday.test.context.ActiveProfiles;
 
 /**
  * @author Juergen Hoeller
- * @since 3.1
+ * @since 4.0
  */
 @ActiveProfiles("dev")
 public class DevProfileAnnotationConfigTests extends DefaultProfileAnnotationConfigTests {

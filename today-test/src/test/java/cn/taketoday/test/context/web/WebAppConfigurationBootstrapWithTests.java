@@ -35,7 +35,7 @@ import cn.taketoday.web.context.WebApplicationContext;
  *
  * @author Sam Brannen
  * @author Phillip Webb
- * @since 4.3
+ * @since 4.0
  */
 @JUnitWebConfig
 @BootstrapWith(WebAppConfigurationBootstrapWithTests.CustomWebTestContextBootstrapper.class)

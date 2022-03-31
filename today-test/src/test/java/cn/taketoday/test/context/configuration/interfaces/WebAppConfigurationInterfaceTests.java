@@ -28,7 +28,7 @@ import cn.taketoday.web.context.WebApplicationContext;
 
 /**
  * @author Sam Brannen
- * @since 4.3
+ * @since 4.0
  */
 @ExtendWith(ApplicationExtension.class)
 class WebAppConfigurationInterfaceTests implements WebAppConfigurationTestInterface {

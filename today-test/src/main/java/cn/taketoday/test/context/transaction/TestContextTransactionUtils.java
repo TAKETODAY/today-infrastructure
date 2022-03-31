@@ -33,6 +33,7 @@ import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.test.context.TestContext;
 import cn.taketoday.transaction.PlatformTransactionManager;
+import cn.taketoday.transaction.TransactionManager;
 import cn.taketoday.transaction.annotation.TransactionManagementConfigurer;
 import cn.taketoday.transaction.interceptor.DelegatingTransactionAttribute;
 import cn.taketoday.transaction.interceptor.TransactionAttribute;
@@ -182,8 +183,13 @@ public abstract class TestContextTransactionUtils {
               BeanFactoryUtils.beansOfTypeIncludingAncestors(bf, TransactionManagementConfigurer.class);
       Assert.state(configurers.size() <= 1,
               "Only one TransactionManagementConfigurer may exist in the ApplicationContext");
+
       if (configurers.size() == 1) {
-        return configurers.values().iterator().next().annotationDrivenTransactionManager();
+        TransactionManager tm = configurers.values().iterator().next().annotationDrivenTransactionManager();
+        Assert.state(tm instanceof PlatformTransactionManager, () ->
+                "Transaction manager specified via TransactionManagementConfigurer " +
+                        "is not a PlatformTransactionManager: " + tm);
+        return (PlatformTransactionManager) tm;
       }
 
       // Look up single bean by type

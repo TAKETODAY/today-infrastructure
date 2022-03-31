@@ -36,7 +36,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * configuration classes for the declaration of {@code @ContextConfiguration}.
  *
  * @author Sam Brannen
- * @since 4.0.3
+ * @since 4.0
  */
 @RunWith(JUnit4ClassRunner.class)
 @ConfigClassesAndProfilesMetaConfig(profiles = "dev")

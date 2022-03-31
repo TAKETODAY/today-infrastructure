@@ -44,7 +44,7 @@ import static cn.taketoday.test.context.NestedTestConfiguration.EnclosingConfigu
  * @author Sam Brannen
  * @see ConstructorInjectionNestedTests
  * @see NestedTestsWithSpringRulesTests
- * @since 5.0
+ * @since 4.0
  */
 @JUnitWebConfig(WebAppConfigurationNestedTests.Config.class)
 @NestedTestConfiguration(OVERRIDE) // since INHERIT is now the global default

@@ -55,7 +55,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @see SpringExtensionTests
  * @see ApplicationExtension
  * @see RegisterExtension
- * @since 5.1
+ * @since 4.0
  */
 @ContextConfiguration(classes = TestConfig.class)
 @TestPropertySource(properties = "enigma = 42")

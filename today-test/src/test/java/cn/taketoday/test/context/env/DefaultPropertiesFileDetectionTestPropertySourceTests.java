@@ -34,7 +34,7 @@ import cn.taketoday.test.context.junit.jupiter.ApplicationExtension;
  * when {@link TestPropertySource @TestPropertySource} is <em>empty</em>.
  *
  * @author Sam Brannen
- * @since 4.1
+ * @since 4.0
  */
 @ExtendWith(ApplicationExtension.class)
 @ContextConfiguration

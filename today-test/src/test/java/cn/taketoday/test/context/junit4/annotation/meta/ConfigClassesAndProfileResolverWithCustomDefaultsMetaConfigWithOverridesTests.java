@@ -36,7 +36,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * default attribute values defined in {@link ConfigClassesAndProfileResolverWithCustomDefaultsMetaConfig}.
  *
  * @author Sam Brannen
- * @since 4.0.3
+ * @since 4.0
  */
 @RunWith(JUnit4ClassRunner.class)
 @ConfigClassesAndProfileResolverWithCustomDefaultsMetaConfig(classes = LocalDevConfig.class, resolver = DevResolver.class)

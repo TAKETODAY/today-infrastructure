@@ -57,7 +57,7 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
  *
  * @author Chris Beams
  * @author Sam Brannen
- * @since 3.1
+ * @since 4.0
  */
 @SuppressWarnings("resource")
 class EnableTransactionManagementIntegrationTests {

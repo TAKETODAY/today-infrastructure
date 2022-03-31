@@ -32,7 +32,7 @@ import java.lang.annotation.Target;
  * Mac OS.
  *
  * @author Sam Brannen
- * @since 5.0
+ * @since 4.0
  */
 @Target({ ElementType.TYPE, ElementType.METHOD })
 @Retention(RetentionPolicy.RUNTIME)

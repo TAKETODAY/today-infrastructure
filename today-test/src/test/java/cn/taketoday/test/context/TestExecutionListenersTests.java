@@ -76,7 +76,7 @@ class TestExecutionListenersTests {
 	}
 
 	/**
-	 * @since 4.1
+	 * @since 4.0
 	 */
 	@Test
 	void defaultListenersMergedWithCustomListenerPrepended() {
@@ -94,7 +94,7 @@ class TestExecutionListenersTests {
 	}
 
 	/**
-	 * @since 4.1
+	 * @since 4.0
 	 */
 	@Test
 	void defaultListenersMergedWithCustomListenerAppended() {
@@ -112,7 +112,7 @@ class TestExecutionListenersTests {
 	}
 
 	/**
-	 * @since 4.1
+	 * @since 4.0
 	 */
 	@Test
 	void defaultListenersMergedWithCustomListenerInserted() {

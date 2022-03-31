@@ -44,7 +44,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * {@link ApplicationExtension} in a JUnit Jupiter environment.
  *
  * @author Sam Brannen
- * @since 5.3
+ * @since 4.0
  */
 @ExtendWith(ApplicationExtension.class)
 @ContextHierarchy(@ContextConfiguration(classes = ContextHierarchyNestedTests.ParentConfig.class))

@@ -27,7 +27,7 @@ import cn.taketoday.web.servlet.DispatcherServlet;
  * managed by {@link MockMvc}.
  *
  * @author Stephane Nicoll
- * @since 4.3.4
+ * @since 4.0
  */
 @FunctionalInterface
 public interface DispatcherServletCustomizer {

@@ -46,7 +46,7 @@ import static cn.taketoday.test.context.NestedTestConfiguration.EnclosingConfigu
  *
  * @author Sam Brannen
  * @author Phillip Webb
- * @since 4.2
+ * @since 4.0
  */
 class BootstrapUtilsTests {
 
@@ -97,7 +97,7 @@ class BootstrapUtilsTests {
 	}
 
 	/**
-	 * @since 5.3
+	 * @since 4.0
 	 */
 	@ParameterizedTest(name = "[{index}] {0}")
 	@MethodSource
@@ -128,7 +128,7 @@ class BootstrapUtilsTests {
 	}
 
 	/**
-	 * @since 5.1
+	 * @since 4.0
 	 */
 	@Test
 	void resolveTestContextBootstrapperWithLocalDeclarationThatOverridesMetaBootstrapWithAnnotations() {

@@ -45,7 +45,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Sam Brannen
  * @see ConstructorInjectionNestedTests
  * @see NestedTestsWithSpringRulesTests
- * @since 5.0
+ * @since 4.0
  */
 @JUnitConfig(ContextConfigurationNestedTests.TopLevelConfig.class)
 @NestedTestConfiguration(OVERRIDE) // since INHERIT is now the global default

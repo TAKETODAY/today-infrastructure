@@ -43,7 +43,7 @@ import cn.taketoday.web.context.WebApplicationContext;
  * @see #webAppContextSetup(WebApplicationContext, MockMvcConfigurer)
  * @see #withDelegate(WebClient)
  * @see #build()
- * @since 4.2
+ * @since 4.0
  */
 public class MockMvcWebClientBuilder extends MockMvcWebConnectionBuilderSupport<MockMvcWebClientBuilder> {
 

@@ -20,7 +20,9 @@
 
 package cn.taketoday.transaction.annotation;
 
+import cn.taketoday.context.annotation.Primary;
 import cn.taketoday.transaction.PlatformTransactionManager;
+import cn.taketoday.transaction.TransactionManager;
 
 /**
  * Interface to be implemented by @{@link cn.taketoday.context.annotation.Configuration
@@ -38,13 +40,13 @@ import cn.taketoday.transaction.PlatformTransactionManager;
  * implementing this interface is to simply mark one of the offending
  * {@code PlatformTransactionManager} {@code @Bean} methods (or
  * {@code ReactiveTransactionManager} {@code @Bean} methods) as
- * {@link cn.taketoday.beans.Primary @Primary}.
+ * {@link Primary @Primary}.
  * This is even generally preferred since it doesn't lead to early initialization
  * of the {@code TransactionManager} bean.
  *
  * @author Chris Beams
  * @see EnableTransactionManagement
- * @see cn.taketoday.beans.Primary
+ * @see Primary
  * @see PlatformTransactionManager
  * @see cn.taketoday.transaction.ReactiveTransactionManager
  * @since 4.0
@@ -89,6 +91,6 @@ public interface TransactionManagementConfigurer {
    * @return a {@link PlatformTransactionManager} or
    * {@link cn.taketoday.transaction.ReactiveTransactionManager} implementation
    */
-  PlatformTransactionManager annotationDrivenTransactionManager();
+  TransactionManager annotationDrivenTransactionManager();
 
 }

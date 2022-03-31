@@ -74,7 +74,7 @@ import jakarta.servlet.http.HttpSession;
  * @author Sam Brannen
  * @author Rossen Stoyanchev
  * @see MockMvcWebConnection
- * @since 4.2
+ * @since 4.0
  */
 final class HtmlUnitRequestBuilder implements RequestBuilder, Mergeable {
 

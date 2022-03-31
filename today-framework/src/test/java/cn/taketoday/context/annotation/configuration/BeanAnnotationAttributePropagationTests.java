@@ -23,7 +23,7 @@ package cn.taketoday.context.annotation.configuration;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import cn.taketoday.beans.Primary;
+import cn.taketoday.context.annotation.Primary;
 import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.beans.factory.support.AbstractBeanDefinition;
 import cn.taketoday.beans.factory.support.RootBeanDefinition;

@@ -23,7 +23,6 @@ package cn.taketoday.context.annotation;
 import java.lang.annotation.Annotation;
 import java.util.function.Supplier;
 
-import cn.taketoday.beans.Primary;
 import cn.taketoday.beans.factory.annotation.AnnotatedGenericBeanDefinition;
 import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.beans.factory.config.BeanDefinitionCustomizer;

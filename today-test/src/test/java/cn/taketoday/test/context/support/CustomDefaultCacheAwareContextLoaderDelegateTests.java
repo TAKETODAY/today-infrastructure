@@ -41,7 +41,7 @@ import static org.junit.platform.engine.discovery.DiscoverySelectors.selectClass
  * via {@link SpringProperties}.
  *
  * @author sbrannen
- * @since 5.3.11
+ * @since 4.0
  */
 class CustomDefaultCacheAwareContextLoaderDelegateTests {
 

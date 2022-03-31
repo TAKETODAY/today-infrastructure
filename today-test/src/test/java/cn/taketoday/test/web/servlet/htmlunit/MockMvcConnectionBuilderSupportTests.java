@@ -56,7 +56,7 @@ import static org.mockito.Mockito.mock;
  *
  * @author Rob Winch
  * @author Rossen Stoyanchev
- * @since 4.2
+ * @since 4.0
  */
 @ExtendWith(ApplicationExtension.class)
 @ContextConfiguration

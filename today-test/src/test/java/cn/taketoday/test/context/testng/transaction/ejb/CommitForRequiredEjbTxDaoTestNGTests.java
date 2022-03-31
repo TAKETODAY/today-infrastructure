@@ -33,7 +33,7 @@ import org.testng.annotations.Test;
  * <em>commit</em>).
  *
  * @author Sam Brannen
- * @since 4.0.1
+ * @since 4.0
  */
 @Test(suiteName = "Commit for REQUIRED")
 @ContextConfiguration("/org/springframework/test/context/transaction/ejb/required-tx-config.xml")

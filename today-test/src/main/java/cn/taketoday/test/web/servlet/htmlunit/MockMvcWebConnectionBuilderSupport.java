@@ -45,7 +45,7 @@ import cn.taketoday.web.context.WebApplicationContext;
  * @param <T> a self reference to the builder type
  * @author Rob Winch
  * @author Sam Brannen
- * @since 4.2
+ * @since 4.0
  */
 public abstract class MockMvcWebConnectionBuilderSupport<T extends MockMvcWebConnectionBuilderSupport<T>> {
 
@@ -157,7 +157,7 @@ public abstract class MockMvcWebConnectionBuilderSupport<T extends MockMvcWebCon
    * @see #alwaysUseMockMvc()
    * @see #useMockMvc(WebRequestMatcher...)
    * @see #useMockMvcForHosts(String...)
-   * @since 4.3
+   * @since 4.0
    */
   protected final WebConnection createConnection(WebClient webClient) {
     Assert.notNull(webClient, "WebClient must not be null");

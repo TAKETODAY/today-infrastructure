@@ -32,7 +32,7 @@ import static java.util.Collections.singletonList;
 /**
  * @author Sam Brannen
  * @author Phillip Webb
- * @since 4.3
+ * @since 4.0
  */
 @BootstrapWith(BootstrapWithTestInterface.CustomTestContextBootstrapper.class)
 interface BootstrapWithTestInterface {

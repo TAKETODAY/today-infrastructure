@@ -30,7 +30,7 @@ import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
  * Unit tests for {@link AnnotationConfigContextLoader}.
  *
  * @author Sam Brannen
- * @since 3.1
+ * @since 4.0
  */
 class AnnotationConfigContextLoaderTests {
 
@@ -41,7 +41,7 @@ class AnnotationConfigContextLoaderTests {
 
 
 	/**
-	 * @since 4.0.4
+	 * @since 4.0
 	 */
 	@Test
 	void configMustNotContainLocations() throws Exception {

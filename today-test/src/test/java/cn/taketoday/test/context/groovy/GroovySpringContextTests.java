@@ -40,7 +40,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * Groovy script with the TestContext framework.
  *
  * @author Sam Brannen
- * @since 4.1
+ * @since 4.0
  */
 @ExtendWith(ApplicationExtension.class)
 @ContextConfiguration("context.groovy")

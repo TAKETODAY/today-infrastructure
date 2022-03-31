@@ -115,7 +115,7 @@ public abstract class AbstractMultipartHttpServletRequest extends HttpServletReq
    * {@code false} in case of a lazy-resolution request that got aborted
    * before any parameters or multipart files have been accessed
    * @see #getMultipartFiles()
-   * @since 4.3.15
+   * @since 4.0
    */
   public boolean isResolved() {
     return (this.multipartFiles != null);

@@ -32,7 +32,7 @@ import cn.taketoday.test.context.transaction.BeforeTransaction;
  * {@link SqlConfig#transactionMode} and {@link TransactionMode#ISOLATED}.
  *
  * @author Sam Brannen
- * @since 4.1
+ * @since 4.0
  */
 @JUnitConfig(PopulatedSchemaDatabaseConfig.class)
 @DirtiesContext

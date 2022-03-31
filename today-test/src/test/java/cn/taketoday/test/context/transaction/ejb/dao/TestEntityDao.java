@@ -25,7 +25,7 @@ package cn.taketoday.test.context.transaction.ejb.dao;
  *
  * @author Xavier Detant
  * @author Sam Brannen
- * @since 4.0.1
+ * @since 4.0
  */
 public interface TestEntityDao {
 

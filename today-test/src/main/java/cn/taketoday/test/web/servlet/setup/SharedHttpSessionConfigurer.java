@@ -43,7 +43,7 @@ import jakarta.servlet.http.HttpSession;
  * </pre>
  *
  * @author Rossen Stoyanchev
- * @since 5.0
+ * @since 4.0
  */
 public class SharedHttpSessionConfigurer implements MockMvcConfigurer {
 

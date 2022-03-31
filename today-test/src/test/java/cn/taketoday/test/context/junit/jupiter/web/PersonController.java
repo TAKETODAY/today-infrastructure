@@ -27,7 +27,7 @@ import cn.taketoday.web.bind.annotation.RestController;
 
 /**
  * @author Sam Brannen
- * @since 5.0
+ * @since 4.0
  */
 @RestController
 class PersonController {

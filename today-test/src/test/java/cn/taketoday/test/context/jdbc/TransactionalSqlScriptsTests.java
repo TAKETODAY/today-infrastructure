@@ -30,7 +30,7 @@ import cn.taketoday.test.context.junit.jupiter.JUnitConfig;
  * Transactional integration tests for {@link Sql @Sql} support.
  *
  * @author Sam Brannen
- * @since 4.1
+ * @since 4.0
  */
 @JUnitConfig(EmptyDatabaseConfig.class)
 @TestMethodOrder(MethodOrderer.MethodName.class)

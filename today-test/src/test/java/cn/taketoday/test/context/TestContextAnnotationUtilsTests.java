@@ -50,7 +50,7 @@ import static cn.taketoday.test.context.TestContextAnnotationUtils.searchEnclosi
  * Unit tests for {@link TestContextAnnotationUtils}.
  *
  * @author Sam Brannen
- * @since 5.3, though originally since 4.0 for the deprecated
+ * @since 4.0, though originally since 4.0 for the deprecated
  * {@link cn.taketoday.test.util.MetaAnnotationUtils} support
  * @see OverriddenMetaAnnotationAttributesTestContextAnnotationUtilsTests
  */
@@ -215,7 +215,7 @@ class TestContextAnnotationUtilsTests {
 		}
 
 		/**
-		 * @since 4.0.3
+		 * @since 4.0
 		 */
 		@Test
 		void findAnnotationDescriptorOnMetaMetaAnnotatedClass() {
@@ -224,7 +224,7 @@ class TestContextAnnotationUtilsTests {
 		}
 
 		/**
-		 * @since 4.0.3
+		 * @since 4.0
 		 */
 		@Test
 		void findAnnotationDescriptorOnMetaMetaMetaAnnotatedClass() {
@@ -233,7 +233,7 @@ class TestContextAnnotationUtilsTests {
 		}
 
 		/**
-		 * @since 4.0.3
+		 * @since 4.0
 		 */
 		@Test
 		void findAnnotationDescriptorOnAnnotatedClassWithMissingTargetMetaAnnotation() {
@@ -244,7 +244,7 @@ class TestContextAnnotationUtilsTests {
 		}
 
 		/**
-		 * @since 4.0.3
+		 * @since 4.0
 		 */
 		@Test
 		void findAnnotationDescriptorOnMetaCycleAnnotatedClassWithMissingTargetMetaAnnotation() {
@@ -435,7 +435,7 @@ class TestContextAnnotationUtilsTests {
 		}
 
 		/**
-		 * @since 4.0.3
+		 * @since 4.0
 		 */
 		@Test
 		void findAnnotationDescriptorForTypesOnMetaMetaAnnotatedClass() {
@@ -445,7 +445,7 @@ class TestContextAnnotationUtilsTests {
 		}
 
 		/**
-		 * @since 4.0.3
+		 * @since 4.0
 		 */
 		@Test
 		void findAnnotationDescriptorForTypesOnMetaMetaMetaAnnotatedClass() {
@@ -455,7 +455,7 @@ class TestContextAnnotationUtilsTests {
 		}
 
 		/**
-		 * @since 4.0.3
+		 * @since 4.0
 		 */
 		@Test
 		@SuppressWarnings("unchecked")
@@ -468,7 +468,7 @@ class TestContextAnnotationUtilsTests {
 		}
 
 		/**
-		 * @since 4.0.3
+		 * @since 4.0
 		 */
 		@Test
 		@SuppressWarnings("unchecked")

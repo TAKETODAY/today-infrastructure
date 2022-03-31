@@ -155,7 +155,7 @@ public final class MockMvc {
    * or if you need to configure the {@code DispatcherServlet}, provide a
    * {@link DispatcherServletCustomizer} to the {@code MockMvcBuilder}.
    *
-   * @since 5.1
+   * @since 4.0
    */
   public DispatcherServlet getDispatcherServlet() {
     return this.servlet;

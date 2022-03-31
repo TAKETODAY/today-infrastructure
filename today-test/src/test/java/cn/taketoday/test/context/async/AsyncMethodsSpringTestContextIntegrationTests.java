@@ -38,7 +38,7 @@ import cn.taketoday.test.context.junit.jupiter.JUnitConfig;
  * <a href="https://github.com/spring-projects/spring-framework/issues/23571">gh-23571</a>.
  *
  * @author Sam Brannen
- * @since 5.2
+ * @since 4.0
  */
 @JUnitConfig
 @Disabled("Only meant to be executed manually")

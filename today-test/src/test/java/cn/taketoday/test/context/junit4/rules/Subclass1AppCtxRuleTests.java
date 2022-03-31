@@ -32,7 +32,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * Subclass #1 of {@link BaseAppCtxRuleTests}.
  *
  * @author Sam Brannen
- * @since 4.2
+ * @since 4.0
  */
 @ContextConfiguration
 public class Subclass1AppCtxRuleTests extends BaseAppCtxRuleTests {

@@ -29,7 +29,7 @@ import cn.taketoday.test.context.TestPropertySource;
  * at multiple levels within a class hierarchy.
  *
  * @author Sam Brannen
- * @since 4.1
+ * @since 4.0
  */
 @TestPropertySource
 class ExtendedDefaultPropertiesFileDetectionTestPropertySourceTests extends

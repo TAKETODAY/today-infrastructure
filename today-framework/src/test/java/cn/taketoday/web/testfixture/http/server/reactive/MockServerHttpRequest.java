@@ -301,7 +301,7 @@ public final class MockServerHttpRequest extends AbstractServerHttpRequest {
     /**
      * Set the local address to return.
      *
-     * @since 5.2.3
+     * @since 4.0
      */
     B localAddress(InetSocketAddress localAddress);
 

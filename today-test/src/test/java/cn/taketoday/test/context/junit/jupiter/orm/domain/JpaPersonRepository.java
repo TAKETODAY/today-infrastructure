@@ -29,7 +29,7 @@ import jakarta.persistence.PersistenceContext;
  * JPA based implementation of the {@link PersonRepository} API.
  *
  * @author Sam Brannen
- * @since 5.3.18
+ * @since 4.08
  */
 @Transactional
 @Repository

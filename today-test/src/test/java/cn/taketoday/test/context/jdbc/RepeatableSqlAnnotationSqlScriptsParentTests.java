@@ -34,7 +34,7 @@ import java.lang.annotation.Repeatable;
  * handling of {@link Sql @Sql} as a {@link Repeatable} annotation.
  *
  * @author Sam Brannen
- * @since 4.1
+ * @since 4.0
  */
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @ContextConfiguration(classes = EmptyDatabaseConfig.class)

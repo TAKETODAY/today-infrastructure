@@ -38,7 +38,7 @@ import cn.taketoday.transaction.testfixture.CallCountingTransactionManager;
  * {@link TransactionManagementConfigurer} API.
  *
  * @author Sam Brannen
- * @since 5.3
+ * @since 4.0
  */
 @JUnitConfig
 @Transactional

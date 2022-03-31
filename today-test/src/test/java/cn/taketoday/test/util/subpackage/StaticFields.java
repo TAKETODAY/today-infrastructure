@@ -24,7 +24,7 @@ package cn.taketoday.test.util.subpackage;
  * Simple class with static fields; intended for use in unit tests.
  *
  * @author Sam Brannen
- * @since 4.2
+ * @since 4.0
  */
 public class StaticFields {
 

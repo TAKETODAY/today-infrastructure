@@ -26,7 +26,6 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.util.function.Supplier;
 
-import cn.taketoday.beans.Primary;
 import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.lang.Component;
 

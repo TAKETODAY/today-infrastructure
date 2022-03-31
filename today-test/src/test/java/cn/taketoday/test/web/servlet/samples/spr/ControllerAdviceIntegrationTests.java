@@ -52,7 +52,7 @@ import static cn.taketoday.test.web.servlet.setup.MockMvcBuilders.webAppContextS
  * <a href="https://github.com/spring-projects/spring-framework/issues/24017">gh-24017</a>.
  *
  * @author Sam Brannen
- * @since 5.1.12
+ * @since 4.0
  */
 @JUnitWebConfig
 class ControllerAdviceIntegrationTests {

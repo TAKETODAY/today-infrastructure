@@ -42,7 +42,7 @@ import static org.junit.platform.engine.discovery.DiscoverySelectors.selectClass
  *
  * @author Sam Brannen
  * @see DisabledIfAndDirtiesContextTests
- * @since 5.2.14
+ * @since 4.04
  */
 class EnabledIfAndDirtiesContextTests {
 

@@ -24,7 +24,7 @@ import cn.taketoday.test.context.TestPropertySource;
 
 /**
  * @author Sam Brannen
- * @since 4.3
+ * @since 4.0
  */
 @TestPropertySource(properties = { "foo = bar", "enigma: 42" })
 interface TestPropertySourceTestInterface {

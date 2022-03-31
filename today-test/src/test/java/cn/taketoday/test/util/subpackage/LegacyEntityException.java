@@ -24,7 +24,7 @@ package cn.taketoday.test.util.subpackage;
  * Exception thrown by a {@link LegacyEntity}.
  *
  * @author Sam Brannen
- * @since 4.3.1
+ * @since 4.0
  */
 @SuppressWarnings("serial")
 public class LegacyEntityException extends RuntimeException {

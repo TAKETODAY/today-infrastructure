@@ -46,7 +46,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * to provide dependency injection to a <em>parameterized test instance</em>.
  *
  * @author Sam Brannen
- * @since 4.2
+ * @since 4.0
  * @see ParameterizedDependencyInjectionTests
  */
 @RunWith(Parameterized.class)

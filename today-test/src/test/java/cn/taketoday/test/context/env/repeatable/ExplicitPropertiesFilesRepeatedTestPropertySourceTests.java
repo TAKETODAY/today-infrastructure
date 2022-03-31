@@ -32,7 +32,7 @@ import cn.taketoday.test.context.TestPropertySource;
  *
  * @author Anatoliy Korovin
  * @author Sam Brannen
- * @since 5.2
+ * @since 4.0
  */
 @TestPropertySource("first.properties")
 @TestPropertySource("second.properties")

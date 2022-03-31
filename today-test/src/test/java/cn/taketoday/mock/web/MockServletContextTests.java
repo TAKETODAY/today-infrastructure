@@ -174,7 +174,7 @@ class MockServletContextTests {
 		}
 
 		/**
-		 * @since 4.1.2
+		 * @since 4.0
 		 */
 		@Test
 		void getServletRegistration() {
@@ -182,7 +182,7 @@ class MockServletContextTests {
 		}
 
 		/**
-		 * @since 4.1.2
+		 * @since 4.0
 		 */
 		@Test
 		void getServletRegistrations() {
@@ -192,7 +192,7 @@ class MockServletContextTests {
 		}
 
 		/**
-		 * @since 4.1.2
+		 * @since 4.0
 		 */
 		@Test
 		void getFilterRegistration() {
@@ -200,7 +200,7 @@ class MockServletContextTests {
 		}
 
 		/**
-		 * @since 4.1.2
+		 * @since 4.0
 		 */
 		@Test
 		void getFilterRegistrations() {
@@ -212,7 +212,7 @@ class MockServletContextTests {
 	}
 
 	/**
-	 * @since 5.1.11
+	 * @since 4.0
 	 */
 	@Nested
 	@DisplayName("with FileSystemResourceLoader")

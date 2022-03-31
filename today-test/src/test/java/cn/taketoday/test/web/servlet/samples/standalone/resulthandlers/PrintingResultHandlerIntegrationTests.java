@@ -45,7 +45,7 @@ import static cn.taketoday.test.web.servlet.setup.MockMvcBuilders.standaloneSetu
  *
  * @author Sam Brannen
  * @author Rossen Stoyanchev
- * @since 5.3.10
+ * @since 4.0
  * @see PrintingResultHandlerSmokeTests
  * @see PrintingResultHandlerTests
  */

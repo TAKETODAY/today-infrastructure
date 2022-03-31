@@ -27,7 +27,7 @@ import cn.taketoday.context.annotation.Configuration;
  * Not an actual <em>test case</em>.
  *
  * @author Sam Brannen
- * @since 3.1
+ * @since 4.0
  * @see AnnotationConfigContextLoaderTests
  */
 public class AnnotatedFooConfigInnerClassTestCase {

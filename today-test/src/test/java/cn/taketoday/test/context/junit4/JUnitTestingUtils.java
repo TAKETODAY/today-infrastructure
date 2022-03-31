@@ -36,7 +36,7 @@ import static org.assertj.core.api.SoftAssertions.assertSoftly;
  * Collection of utilities for testing the execution of JUnit 4 based tests.
  *
  * @author Sam Brannen
- * @since 4.2
+ * @since 4.0
  * @see TrackingRunListener
  */
 public class JUnitTestingUtils {

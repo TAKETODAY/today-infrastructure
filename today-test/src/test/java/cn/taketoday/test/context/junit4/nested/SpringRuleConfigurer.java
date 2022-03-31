@@ -30,7 +30,7 @@ import cn.taketoday.test.context.junit4.rules.ApplicationMethodRule;
  * {@link ApplicationMethodRule}.
  *
  * @author Sam Brannen
- * @since 5.0
+ * @since 4.0
  */
 public abstract class SpringRuleConfigurer {
 

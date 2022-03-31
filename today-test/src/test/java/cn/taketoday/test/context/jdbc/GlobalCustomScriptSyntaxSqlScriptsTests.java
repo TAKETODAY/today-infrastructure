@@ -29,7 +29,7 @@ import cn.taketoday.test.context.ContextConfiguration;
  * {@link SqlConfig @SqlConfig} defined at the class level.
  *
  * @author Sam Brannen
- * @since 4.1
+ * @since 4.0
  */
 @ContextConfiguration(classes = EmptyDatabaseConfig.class)
 @DirtiesContext

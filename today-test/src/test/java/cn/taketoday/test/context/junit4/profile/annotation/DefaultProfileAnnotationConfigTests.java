@@ -31,7 +31,7 @@ import cn.taketoday.test.context.support.AnnotationConfigContextLoader;
 
 /**
  * @author Sam Brannen
- * @since 3.1
+ * @since 4.0
  */
 @RunWith(JUnit4ClassRunner.class)
 @ContextConfiguration(classes = { DefaultProfileConfig.class, DevProfileConfig.class }, loader = AnnotationConfigContextLoader.class)

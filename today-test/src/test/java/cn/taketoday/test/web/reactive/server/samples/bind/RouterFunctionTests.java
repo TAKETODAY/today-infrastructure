@@ -33,7 +33,7 @@ import static cn.taketoday.web.reactive.function.server.RouterFunctions.route;
  * Sample tests demonstrating "mock" server tests binding to a RouterFunction.
  *
  * @author Rossen Stoyanchev
- * @since 5.0
+ * @since 4.0
  */
 public class RouterFunctionTests {
 

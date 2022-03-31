@@ -22,7 +22,7 @@ package cn.taketoday.jdbc.config;
 
 import javax.sql.DataSource;
 
-import cn.taketoday.beans.Primary;
+import cn.taketoday.context.annotation.Primary;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Import;

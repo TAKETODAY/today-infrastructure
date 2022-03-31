@@ -51,7 +51,7 @@ import static org.junit.platform.engine.discovery.DiscoverySelectors.selectClass
  * in conjunction with JUnit Jupiter.
  *
  * @author Sam Brannen
- * @since 5.3.3
+ * @since 4.0
  */
 class ParallelApplicationEventsIntegrationTests {
 

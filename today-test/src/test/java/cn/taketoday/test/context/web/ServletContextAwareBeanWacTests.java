@@ -32,7 +32,7 @@ import static cn.taketoday.test.context.junit4.JUnitTestingUtils.runTestsAndAsse
  * <p>Yes, this test class does in fact use JUnit to run JUnit. ;)
  *
  * @author Sam Brannen
- * @since 4.0.2
+ * @since 4.0
  */
 public class ServletContextAwareBeanWacTests {
 

@@ -32,7 +32,7 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
  *
  * @author Michał Rowicki
  * @author Sam Brannen
- * @since 5.3.10
+ * @since 4.0
  */
 class SoftAssertionTests {
 

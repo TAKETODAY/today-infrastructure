@@ -37,7 +37,7 @@ import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException
  *
  * @author Vedran Pavic
  * @author Sam Brannen
- * @since 5.1
+ * @since 4.0
  */
 class MockCookieTests {
 

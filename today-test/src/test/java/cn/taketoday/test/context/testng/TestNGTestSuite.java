@@ -41,7 +41,7 @@ import org.junit.platform.suite.api.Suite;
  * </pre>
  *
  * @author Sam Brannen
- * @since 5.3.11
+ * @since 4.0
  */
 @Suite
 @IncludeEngines("testng")

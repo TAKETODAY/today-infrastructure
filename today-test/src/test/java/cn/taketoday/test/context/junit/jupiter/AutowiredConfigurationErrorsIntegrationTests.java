@@ -59,7 +59,7 @@ import static org.junit.platform.testkit.engine.TestExecutionResultConditions.me
  * JUnit Jupiter test classes.
  *
  * @author Sam Brannen
- * @since 5.3.2
+ * @since 4.0
  */
 class AutowiredConfigurationErrorsIntegrationTests {
 

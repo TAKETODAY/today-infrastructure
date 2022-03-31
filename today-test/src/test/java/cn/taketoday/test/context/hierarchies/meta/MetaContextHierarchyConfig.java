@@ -36,7 +36,7 @@ import java.lang.annotation.Target;
  * Custom context hierarchy configuration annotation.
  *
  * @author Sam Brannen
- * @since 4.0.3
+ * @since 4.0
  */
 @ContextHierarchy(@ContextConfiguration(classes = { DevConfig.class, ProductionConfig.class }))
 @ActiveProfiles("dev")

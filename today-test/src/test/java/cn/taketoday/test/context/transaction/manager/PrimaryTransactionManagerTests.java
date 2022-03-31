@@ -47,7 +47,7 @@ import javax.sql.DataSource;
  * are supported.
  *
  * @author Sam Brannen
- * @since 4.3
+ * @since 4.0
  * @see cn.taketoday.test.context.jdbc.PrimaryDataSourceTests
  */
 @JUnitConfig

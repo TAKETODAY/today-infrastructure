@@ -32,7 +32,7 @@ import java.lang.annotation.Target;
  * ConfigClassesAndProfilesWithCustomDefaultsMetaConfig} and {@link ActiveProfiles}.
  *
  * @author Sam Brannen
- * @since 4.0.3
+ * @since 4.0
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)

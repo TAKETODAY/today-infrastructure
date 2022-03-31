@@ -116,7 +116,7 @@ public class ContentResultMatchers {
    *
    * @see StandardCharsets
    * @see #encoding(String)
-   * @since 5.3.10
+   * @since 4.0
    */
   public ResultMatcher encoding(Charset characterEncoding) {
     return encoding(characterEncoding.name());
@@ -208,7 +208,7 @@ public class ContentResultMatchers {
    * ordering).
    *
    * @param jsonContent the expected JSON content
-   * @since 4.1
+   * @since 4.0
    */
   public ResultMatcher json(String jsonContent) {
     return json(jsonContent, false);
@@ -227,7 +227,7 @@ public class ContentResultMatchers {
    *
    * @param jsonContent the expected JSON content
    * @param strict enables strict checking
-   * @since 4.2
+   * @since 4.0
    */
   public ResultMatcher json(String jsonContent, boolean strict) {
     return result -> {

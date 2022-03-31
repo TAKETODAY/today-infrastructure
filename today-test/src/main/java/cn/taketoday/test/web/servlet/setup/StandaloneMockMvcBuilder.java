@@ -44,6 +44,7 @@ import cn.taketoday.util.PropertyPlaceholderHelper;
 import cn.taketoday.util.PropertyPlaceholderHelper.PlaceholderResolver;
 import cn.taketoday.util.StringValueResolver;
 import cn.taketoday.validation.Validator;
+import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.accept.ContentNegotiationManager;
 import cn.taketoday.web.context.WebApplicationContext;
 import cn.taketoday.web.context.support.WebApplicationObjectSupport;
@@ -168,7 +169,7 @@ public class StandaloneMockMvcBuilder extends AbstractMockMvcBuilder<StandaloneM
    * as Spring beans. However since the standalone setup does not load any Spring config,
    * they need to be registered explicitly here instead much like controllers.
    *
-   * @since 4.2
+   * @since 4.0
    */
   public StandaloneMockMvcBuilder setControllerAdvice(Object... controllerAdvice) {
     this.controllerAdvice = instantiateIfNecessary(controllerAdvice);
@@ -320,7 +321,7 @@ public class StandaloneMockMvcBuilder extends AbstractMockMvcBuilder<StandaloneM
    * instead of String pattern matching with a {@link cn.taketoday.util.PathMatcher}.
    *
    * @param parser the parser to use
-   * @since 5.3
+   * @since 4.0
    */
   public void setPatternParser(PathPatternParser parser) {
     this.patternParser = parser;
@@ -367,7 +368,6 @@ public class StandaloneMockMvcBuilder extends AbstractMockMvcBuilder<StandaloneM
    * can be resolved. Alternatively consider creating a test that initializes a
    * {@link WebApplicationContext}.
    *
-   * @since 4.2.8
    */
   public StandaloneMockMvcBuilder addPlaceholderValue(String name, String value) {
     this.placeholderValues.put(name, value);
@@ -378,7 +378,7 @@ public class StandaloneMockMvcBuilder extends AbstractMockMvcBuilder<StandaloneM
    * Configure factory to create a custom {@link RequestMappingHandlerMapping}.
    *
    * @param factory the factory
-   * @since 5.0
+   * @since 4.0
    */
   public StandaloneMockMvcBuilder setCustomHandlerMapping(Supplier<RequestMappingHandlerMapping> factory) {
     this.handlerMappingFactory = factory;
@@ -459,7 +459,7 @@ public class StandaloneMockMvcBuilder extends AbstractMockMvcBuilder<StandaloneM
    *
    * @param servletContext the ServletContext
    * @return a map with additional MVC infrastructure object instances
-   * @since 5.1.4
+   * @since 4.0
    */
   protected Map<String, Object> extendMvcSingletons(@Nullable ServletContext servletContext) {
     return Collections.emptyMap();

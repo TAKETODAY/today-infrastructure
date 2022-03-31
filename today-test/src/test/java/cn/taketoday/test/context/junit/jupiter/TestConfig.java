@@ -31,7 +31,7 @@ import cn.taketoday.test.context.junit.jupiter.comics.Person;
  * Demo config for tests.
  *
  * @author Sam Brannen
- * @since 5.0
+ * @since 4.0
  */
 @Configuration
 public class TestConfig {

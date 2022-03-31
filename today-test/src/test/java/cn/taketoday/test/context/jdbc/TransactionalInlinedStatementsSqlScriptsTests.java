@@ -32,7 +32,7 @@ import cn.taketoday.test.context.junit.jupiter.JUnitConfig;
  * inlined SQL {@link Sql#statements statements}.
  *
  * @author Sam Brannen
- * @since 4.2
+ * @since 4.0
  * @see TransactionalSqlScriptsTests
  */
 @JUnitConfig(EmptyDatabaseConfig.class)

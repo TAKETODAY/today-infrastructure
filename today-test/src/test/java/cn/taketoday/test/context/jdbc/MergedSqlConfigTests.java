@@ -46,7 +46,7 @@ import static cn.taketoday.test.context.jdbc.SqlConfig.TransactionMode.ISOLATED;
  * Unit tests for {@link MergedSqlConfig}.
  *
  * @author Sam Brannen
- * @since 4.1
+ * @since 4.0
  */
 class MergedSqlConfigTests {
 

@@ -24,7 +24,7 @@ package cn.taketoday.test.context.junit.jupiter.comics;
  * Demo class for tests.
  *
  * @author Sam Brannen
- * @since 5.0
+ * @since 4.0
  */
 public class Person extends Character {
 

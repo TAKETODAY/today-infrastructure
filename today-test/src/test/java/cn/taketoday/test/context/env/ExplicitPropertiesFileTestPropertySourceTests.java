@@ -34,7 +34,7 @@ import cn.taketoday.util.ClassUtils;
  * classpath and in the file system.
  *
  * @author Sam Brannen
- * @since 5.2
+ * @since 4.0
  */
 @DisplayName("Explicit properties file in @TestPropertySource")
 class ExplicitPropertiesFileTestPropertySourceTests {

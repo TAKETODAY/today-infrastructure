@@ -36,7 +36,7 @@ import static cn.taketoday.test.context.TestContextAnnotationUtils.findAnnotatio
  * <p>See <a href="https://jira.spring.io/browse/SPR-10181">SPR-10181</a>.
  *
  * @author Sam Brannen
- * @since 5.3, though originally since 4.0 for the deprecated
+ * @since 4.0, though originally since 4.0 for the deprecated
  * {@link cn.taketoday.test.util.MetaAnnotationUtils} support
  * @see TestContextAnnotationUtilsTests
  */

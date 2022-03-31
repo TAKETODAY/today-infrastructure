@@ -33,7 +33,7 @@ import javax.sql.DataSource;
  * with the schema for the 'person' table.
  *
  * @author Sam Brannen
- * @since 4.2
+ * @since 4.0
  */
 @Configuration
 public class EmbeddedPersonDatabaseTestsConfig {

@@ -27,7 +27,7 @@ package cn.taketoday.test.util.subpackage;
  * JDK dynamic proxies.
  *
  * @author Sam Brannen
- * @since 4.3
+ * @since 4.0
  */
 public interface Person {
 

@@ -30,7 +30,7 @@ import cn.taketoday.test.context.jdbc.SqlMergeMode;
  * Abstract base class for tests involving {@link SqlMergeMode @SqlMergeMode}.
  *
  * @author Sam Brannen
- * @since 5.2
+ * @since 4.0
  */
 @ContextConfiguration(classes = EmptyDatabaseConfig.class)
 @DirtiesContext

@@ -34,7 +34,7 @@ import cn.taketoday.test.context.support.DelegatingSmartContextLoader;
  * {@link DelegatingSmartContextLoader}.
  *
  * @author Sam Brannen
- * @since 3.1
+ * @since 4.0
  */
 @RunWith(JUnit4ClassRunner.class)
 @ContextConfiguration(classes = DefaultLoaderDefaultConfigClassesInheritedTests.Config.class)

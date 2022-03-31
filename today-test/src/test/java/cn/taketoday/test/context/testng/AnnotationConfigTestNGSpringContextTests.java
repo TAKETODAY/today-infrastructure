@@ -39,7 +39,7 @@ import org.testng.annotations.Test;
  * {@link Config}.
  *
  * @author Sam Brannen
- * @since 5.1
+ * @since 4.0
  */
 @ContextConfiguration
 public class AnnotationConfigTestNGSpringContextTests extends AbstractTestNGSpringContextTests {

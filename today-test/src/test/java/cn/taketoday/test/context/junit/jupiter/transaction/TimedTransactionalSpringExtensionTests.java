@@ -56,7 +56,7 @@ import static org.junit.platform.testkit.engine.TestExecutionResultConditions.me
  *
  * @author Sam Brannen
  * @see TimedTransactionalSpringRunnerTests
- * @since 5.2
+ * @since 4.0
  */
 class TimedTransactionalSpringExtensionTests {
 

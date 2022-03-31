@@ -33,7 +33,7 @@ import jakarta.persistence.PersistenceContext;
  *
  * @author Sam Brannen
  * @author Xavier Detant
- * @since 4.0.1
+ * @since 4.0
  * @see RequiredEjbTxTestEntityDao
  * @see RequiresNewEjbTxTestEntityDao
  */

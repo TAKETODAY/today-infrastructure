@@ -37,7 +37,6 @@ import cn.taketoday.aop.scope.ScopedObject;
 import cn.taketoday.aop.scope.ScopedProxyUtils;
 import cn.taketoday.aop.support.AopUtils;
 import cn.taketoday.aop.support.DefaultPointcutAdvisor;
-import cn.taketoday.beans.Primary;
 import cn.taketoday.beans.factory.BeanCreationException;
 import cn.taketoday.beans.factory.BeanDefinitionStoreException;
 import cn.taketoday.beans.factory.FactoryBean;

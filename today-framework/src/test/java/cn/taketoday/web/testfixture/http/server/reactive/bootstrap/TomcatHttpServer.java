@@ -49,7 +49,7 @@ public class TomcatHttpServer extends AbstractHttpServer {
    * Create a new Tomcat HTTP server using the {@code java.io.tmpdir} JVM
    * system property as the {@code baseDir}.
    *
-   * @since 5.2
+   * @since 4.0
    */
   public TomcatHttpServer() {
     this(new File(System.getProperty("java.io.tmpdir")).getAbsolutePath());

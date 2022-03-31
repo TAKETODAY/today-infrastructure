@@ -28,7 +28,7 @@ import cn.taketoday.transaction.support.TransactionSynchronizationManager;
  *
  * @author Sam Brannen
  * @author Phillip Webb
- * @since 5.2
+ * @since 4.0
  */
 public class TransactionAssert {
 

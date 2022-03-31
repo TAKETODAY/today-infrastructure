@@ -47,7 +47,7 @@ import static cn.taketoday.test.annotation.DirtiesContext.MethodMode.BEFORE_METH
  * {@link DirtiesContext @DirtiesContext} is used at the method level.
  *
  * @author Sam Brannen
- * @since 4.2
+ * @since 4.0
  */
 @JUnitConfig
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)

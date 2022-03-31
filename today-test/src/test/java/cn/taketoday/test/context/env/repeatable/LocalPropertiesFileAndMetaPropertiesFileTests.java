@@ -38,7 +38,7 @@ import java.lang.annotation.Target;
  *
  * @author Anatoliy Korovin
  * @author Sam Brannen
- * @since 5.2
+ * @since 4.0
  */
 @TestPropertySource("local.properties")
 @LocalPropertiesFileAndMetaPropertiesFileTests.MetaFileTestProperty

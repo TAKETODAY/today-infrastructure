@@ -33,7 +33,7 @@ import java.lang.annotation.Target;
  * but are only intended to be used internally by "real" passing tests.
  *
  * @author Sam Brannen
- * @since 5.1
+ * @since 4.0
  */
 @Target({ ElementType.TYPE, ElementType.METHOD })
 @Retention(RetentionPolicy.RUNTIME)

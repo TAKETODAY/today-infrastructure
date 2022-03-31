@@ -43,7 +43,7 @@ import org.junit.platform.suite.api.Suite;
  * </pre>
  *
  * @author Sam Brannen
- * @since 5.0
+ * @since 4.0
  */
 @Suite
 @IncludeEngines("junit-jupiter")

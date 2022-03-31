@@ -53,7 +53,7 @@ import static org.mockito.Mockito.mock;
  *
  * @author Chris Beams
  * @author Juergen Hoeller
- * @since 3.1
+ * @since 4.0
  */
 @SuppressWarnings("resource")
 class ScheduledAndTransactionalAnnotationIntegrationTests {

@@ -30,7 +30,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Sam Brannen
- * @since 4.3
+ * @since 4.0
  */
 @ExtendWith(ApplicationExtension.class)
 class ContextHierarchyInterfaceTests implements ContextHierarchyTestInterface {

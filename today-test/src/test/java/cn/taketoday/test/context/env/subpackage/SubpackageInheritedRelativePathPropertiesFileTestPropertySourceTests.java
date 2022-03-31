@@ -29,7 +29,7 @@ import cn.taketoday.test.context.env.ExplicitPropertiesFileInClasspathTestProper
  * referenced using a relative path within a parent package.
  *
  * @author Sam Brannen
- * @since 4.1
+ * @since 4.0
  */
 class SubpackageInheritedRelativePathPropertiesFileTestPropertySourceTests extends
         ExplicitPropertiesFileInClasspathTestPropertySourceTests {

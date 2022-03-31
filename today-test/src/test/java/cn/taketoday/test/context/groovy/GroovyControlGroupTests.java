@@ -39,7 +39,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * other tests in this package.
  *
  * @author Sam Brannen
- * @since 4.1
+ * @since 4.0
  */
 class GroovyControlGroupTests {
 

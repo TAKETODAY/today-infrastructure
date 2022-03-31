@@ -28,7 +28,7 @@ import cn.taketoday.test.context.junit.jupiter.JUnitConfig;
  * Integration tests that verify support for default SQL script detection.
  *
  * @author Sam Brannen
- * @since 4.1
+ * @since 4.0
  */
 @JUnitConfig(EmptyDatabaseConfig.class)
 @Sql

@@ -42,7 +42,7 @@ import cn.taketoday.util.Assert;
  * @author Sam Brannen
  * @author Juergen Hoeller
  * @see MockMvcHtmlUnitDriverBuilder
- * @since 4.2
+ * @since 4.0
  */
 public class WebConnectionHtmlUnitDriver extends HtmlUnitDriver {
 
@@ -93,7 +93,7 @@ public class WebConnectionHtmlUnitDriver extends HtmlUnitDriver {
   /**
    * Return the current {@link WebClient} in a public fashion.
    *
-   * @since 4.3
+   * @since 4.0
    */
   @Override
   public WebClient getWebClient() {

@@ -40,7 +40,7 @@ import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
  * Unit tests for {@link DelegatingSmartContextLoader}.
  *
  * @author Sam Brannen
- * @since 3.1
+ * @since 4.0
  */
 class DelegatingSmartContextLoaderTests {
 
@@ -123,7 +123,7 @@ class DelegatingSmartContextLoaderTests {
 	}
 
 	/**
-	 * @since 4.1
+	 * @since 4.0
 	 */
 	@Test
 	void loadContextWithLocationsAndConfigurationClasses() throws Exception {

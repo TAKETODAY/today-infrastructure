@@ -106,7 +106,7 @@ public abstract class AbstractMockMvcBuilder<B extends AbstractMockMvcBuilder<B>
    * Define the default character encoding to be applied to every response.
    *
    * @param defaultResponseCharacterEncoding the default response character encoding
-   * @since 5.3.10
+   * @since 4.0
    */
   @Override
   public final <T extends B> T defaultResponseCharacterEncoding(Charset defaultResponseCharacterEncoding) {

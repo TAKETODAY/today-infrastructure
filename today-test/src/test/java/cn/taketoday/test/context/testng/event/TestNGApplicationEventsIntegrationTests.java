@@ -37,7 +37,7 @@ import java.lang.reflect.Method;
  * Integration tests for {@link ApplicationEvents} in conjunction with TestNG.
  *
  * @author Sam Brannen
- * @since 5.3.3
+ * @since 4.0
  */
 @RecordApplicationEvents
 class TestNGApplicationEventsIntegrationTests extends AbstractTestNGSpringContextTests {

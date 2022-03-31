@@ -40,7 +40,7 @@ import java.util.Map;
 import java.util.TimeZone;
 
 import cn.taketoday.beans.BeanUtils;
-import cn.taketoday.beans.Primary;
+import cn.taketoday.context.annotation.Primary;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanFactoryUtils;
 import cn.taketoday.beans.factory.annotation.DisableAllDependencyInjection;

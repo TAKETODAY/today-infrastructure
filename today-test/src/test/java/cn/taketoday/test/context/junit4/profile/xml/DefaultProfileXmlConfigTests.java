@@ -30,7 +30,7 @@ import cn.taketoday.test.context.junit4.JUnit4ClassRunner;
 
 /**
  * @author Sam Brannen
- * @since 3.1
+ * @since 4.0
  */
 @RunWith(JUnit4ClassRunner.class)
 @ContextConfiguration

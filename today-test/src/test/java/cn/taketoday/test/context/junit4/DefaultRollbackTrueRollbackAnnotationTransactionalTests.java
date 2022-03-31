@@ -43,7 +43,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * via {@link Transactional @Transactional}.
  *
  * @author Sam Brannen
- * @since 4.2
+ * @since 4.0
  * @see Rollback
  * @see Transactional#transactionManager
  * @see DefaultRollbackTrueTransactionalTests

@@ -29,7 +29,7 @@ import cn.taketoday.test.web.servlet.request.RequestPostProcessor;
  * as a separate step from the {@link #buildRequest} method.
  *
  * @author Rossen Stoyanchev
- * @since 4.1
+ * @since 4.0
  */
 public interface SmartRequestBuilder extends RequestBuilder {
 

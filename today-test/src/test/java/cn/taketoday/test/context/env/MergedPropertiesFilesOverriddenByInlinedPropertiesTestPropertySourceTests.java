@@ -29,7 +29,7 @@ import cn.taketoday.test.context.TestPropertySource;
  * {@link TestPropertySource @TestPropertySource}.
  *
  * @author Sam Brannen
- * @since 4.1
+ * @since 4.0
  */
 @TestPropertySource(properties = { "explicit = inlined", "extended = inlined1", "extended = inlined2" })
 class MergedPropertiesFilesOverriddenByInlinedPropertiesTestPropertySourceTests extends

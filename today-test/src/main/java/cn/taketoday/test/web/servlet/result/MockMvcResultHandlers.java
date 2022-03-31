@@ -56,7 +56,7 @@ public abstract class MockMvcResultHandlers {
    * @see #print()
    * @see #print(OutputStream)
    * @see #print(Writer)
-   * @since 4.2
+   * @since 4.0
    */
   public static ResultHandler log() {
     return new LoggingResultHandler();
@@ -80,7 +80,7 @@ public abstract class MockMvcResultHandlers {
    * @see #print()
    * @see #print(Writer)
    * @see #log()
-   * @since 4.2
+   * @since 4.0
    */
   public static ResultHandler print(OutputStream stream) {
     return new PrintWriterPrintingResultHandler(new PrintWriter(stream, true));
@@ -92,7 +92,7 @@ public abstract class MockMvcResultHandlers {
    * @see #print()
    * @see #print(OutputStream)
    * @see #log()
-   * @since 4.2
+   * @since 4.0
    */
   public static ResultHandler print(Writer writer) {
     return new PrintWriterPrintingResultHandler(new PrintWriter(writer, true));
@@ -129,7 +129,7 @@ public abstract class MockMvcResultHandlers {
    * <p>Delegates to a {@link PrintWriterPrintingResultHandler} for
    * building the log message.
    *
-   * @since 4.2
+   * @since 4.0
    */
   private static class LoggingResultHandler implements ResultHandler {
 

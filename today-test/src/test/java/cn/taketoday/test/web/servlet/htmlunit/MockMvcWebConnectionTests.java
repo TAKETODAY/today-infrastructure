@@ -39,7 +39,7 @@ import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException
  * Integration tests for {@link MockMvcWebConnection}.
  *
  * @author Rob Winch
- * @since 4.2
+ * @since 4.0
  */
 public class MockMvcWebConnectionTests {
 

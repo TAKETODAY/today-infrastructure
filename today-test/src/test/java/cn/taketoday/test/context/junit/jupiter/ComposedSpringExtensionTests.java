@@ -49,7 +49,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @see ApplicationExtension
  * @see JUnitConfig
  * @see SpringExtensionTests
- * @since 5.0
+ * @since 4.0
  */
 @JUnitConfig(TestConfig.class)
 @DisplayName("@JUnitConfig Tests")

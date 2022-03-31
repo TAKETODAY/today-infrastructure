@@ -27,7 +27,7 @@ import cn.taketoday.test.context.jdbc.SqlConfig;
 
 /**
  * @author Sam Brannen
- * @since 4.3
+ * @since 4.0
  */
 @ContextConfiguration(classes = EmptyDatabaseConfig.class)
 @DirtiesContext

@@ -31,7 +31,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * XML config file even though a suitable Groovy script exists.
  *
  * @author Sam Brannen
- * @since 4.1
+ * @since 4.0
  */
 @JUnitConfig
 class DefaultScriptDetectionXmlSupersedesGroovySpringContextTests {

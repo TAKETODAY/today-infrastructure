@@ -31,7 +31,7 @@ import cn.taketoday.test.context.ContextConfiguration;
  * and {@link BeanOverridingDefaultConfigClassesInheritedTests.ContextConfiguration}.
  *
  * @author Sam Brannen
- * @since 3.1
+ * @since 4.0
  */
 @ContextConfiguration(classes = BeanOverridingDefaultConfigClassesInheritedTests.ContextConfiguration.class)
 public class BeanOverridingExplicitConfigClassesInheritedTests extends ExplicitConfigClassesBaseTests {

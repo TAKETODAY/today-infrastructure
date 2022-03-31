@@ -66,7 +66,7 @@ import static org.junit.platform.testkit.engine.TestExecutionResultConditions.me
  * Platform, simply run {@link SpringJUnitJupiterTestSuite} as a JUnit 4 test.
  *
  * @author Sam Brannen
- * @since 5.0
+ * @since 4.0
  */
 class FailingBeforeAndAfterMethodsSpringExtensionTests {
 

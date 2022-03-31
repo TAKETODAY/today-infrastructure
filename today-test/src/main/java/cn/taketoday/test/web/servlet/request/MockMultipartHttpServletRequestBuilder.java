@@ -79,7 +79,7 @@ public class MockMultipartHttpServletRequestBuilder extends MockHttpServletReque
    * {@link RequestPostProcessor} extension point.
    *
    * @param uri the URL
-   * @since 4.0.3
+   * @since 4.0
    */
   MockMultipartHttpServletRequestBuilder(URI uri) {
     super(HttpMethod.POST, uri);
@@ -111,7 +111,7 @@ public class MockMultipartHttpServletRequestBuilder extends MockHttpServletReque
    * Add {@link Part} components to the request.
    *
    * @param parts one or more parts to add
-   * @since 5.0
+   * @since 4.0
    */
   public MockMultipartHttpServletRequestBuilder part(Part... parts) {
     Assert.notEmpty(parts, "'parts' must not be empty");

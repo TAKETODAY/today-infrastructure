@@ -64,7 +64,7 @@ public abstract class MockMvcRequestBuilders {
    * Create a {@link MockHttpServletRequestBuilder} for a GET request.
    *
    * @param uri the URL
-   * @since 4.0.3
+   * @since 4.0
    */
   public static MockHttpServletRequestBuilder get(URI uri) {
     return new MockHttpServletRequestBuilder(HttpMethod.GET, uri);
@@ -84,7 +84,7 @@ public abstract class MockMvcRequestBuilders {
    * Create a {@link MockHttpServletRequestBuilder} for a POST request.
    *
    * @param uri the URL
-   * @since 4.0.3
+   * @since 4.0
    */
   public static MockHttpServletRequestBuilder post(URI uri) {
     return new MockHttpServletRequestBuilder(HttpMethod.POST, uri);
@@ -104,7 +104,7 @@ public abstract class MockMvcRequestBuilders {
    * Create a {@link MockHttpServletRequestBuilder} for a PUT request.
    *
    * @param uri the URL
-   * @since 4.0.3
+   * @since 4.0
    */
   public static MockHttpServletRequestBuilder put(URI uri) {
     return new MockHttpServletRequestBuilder(HttpMethod.PUT, uri);
@@ -124,7 +124,7 @@ public abstract class MockMvcRequestBuilders {
    * Create a {@link MockHttpServletRequestBuilder} for a PATCH request.
    *
    * @param uri the URL
-   * @since 4.0.3
+   * @since 4.0
    */
   public static MockHttpServletRequestBuilder patch(URI uri) {
     return new MockHttpServletRequestBuilder(HttpMethod.PATCH, uri);
@@ -144,7 +144,7 @@ public abstract class MockMvcRequestBuilders {
    * Create a {@link MockHttpServletRequestBuilder} for a DELETE request.
    *
    * @param uri the URL
-   * @since 4.0.3
+   * @since 4.0
    */
   public static MockHttpServletRequestBuilder delete(URI uri) {
     return new MockHttpServletRequestBuilder(HttpMethod.DELETE, uri);
@@ -164,7 +164,7 @@ public abstract class MockMvcRequestBuilders {
    * Create a {@link MockHttpServletRequestBuilder} for an OPTIONS request.
    *
    * @param uri the URL
-   * @since 4.0.3
+   * @since 4.0
    */
   public static MockHttpServletRequestBuilder options(URI uri) {
     return new MockHttpServletRequestBuilder(HttpMethod.OPTIONS, uri);
@@ -175,7 +175,7 @@ public abstract class MockMvcRequestBuilders {
    *
    * @param urlTemplate a URL template; the resulting URL will be encoded
    * @param uriVars zero or more URI variables
-   * @since 4.1
+   * @since 4.0
    */
   public static MockHttpServletRequestBuilder head(String urlTemplate, Object... uriVars) {
     return new MockHttpServletRequestBuilder(HttpMethod.HEAD, urlTemplate, uriVars);
@@ -185,7 +185,7 @@ public abstract class MockMvcRequestBuilders {
    * Create a {@link MockHttpServletRequestBuilder} for a HEAD request.
    *
    * @param uri the URL
-   * @since 4.1
+   * @since 4.0
    */
   public static MockHttpServletRequestBuilder head(URI uri) {
     return new MockHttpServletRequestBuilder(HttpMethod.HEAD, uri);
@@ -207,7 +207,7 @@ public abstract class MockMvcRequestBuilders {
    *
    * @param httpMethod the HTTP method (GET, POST, etc)
    * @param uri the URL
-   * @since 4.0.3
+   * @since 4.0
    */
   public static MockHttpServletRequestBuilder request(HttpMethod httpMethod, URI uri) {
     return new MockHttpServletRequestBuilder(httpMethod, uri);
@@ -218,7 +218,7 @@ public abstract class MockMvcRequestBuilders {
    *
    * @param httpMethod the HTTP method
    * @param uri the URL
-   * @since 4.3
+   * @since 4.0
    */
   public static MockHttpServletRequestBuilder request(String httpMethod, URI uri) {
     return new MockHttpServletRequestBuilder(httpMethod, uri);
@@ -229,7 +229,7 @@ public abstract class MockMvcRequestBuilders {
    *
    * @param urlTemplate a URL template; the resulting URL will be encoded
    * @param uriVars zero or more URI variables
-   * @since 5.0
+   * @since 4.0
    */
   public static MockMultipartHttpServletRequestBuilder multipart(String urlTemplate, Object... uriVars) {
     return new MockMultipartHttpServletRequestBuilder(urlTemplate, uriVars);
@@ -239,7 +239,7 @@ public abstract class MockMvcRequestBuilders {
    * Create a {@link MockMultipartHttpServletRequestBuilder} for a multipart request.
    *
    * @param uri the URL
-   * @since 5.0
+   * @since 4.0
    */
   public static MockMultipartHttpServletRequestBuilder multipart(URI uri) {
     return new MockMultipartHttpServletRequestBuilder(uri);

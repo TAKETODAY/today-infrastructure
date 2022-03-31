@@ -27,7 +27,7 @@ import cn.taketoday.test.context.TestPropertySource;
  * support with an explicitly named properties file in the classpath.
  *
  * @author Sam Brannen
- * @since 4.1
+ * @since 4.0
  */
 @TestPropertySource("explicit.properties")
 public class ExplicitPropertiesFileInClasspathTestPropertySourceTests extends AbstractExplicitPropertiesFileTests {

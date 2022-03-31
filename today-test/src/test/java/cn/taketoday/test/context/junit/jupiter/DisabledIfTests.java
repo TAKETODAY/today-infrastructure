@@ -43,7 +43,7 @@ import static org.assertj.core.api.Assertions.fail;
  * @see DisabledIfConditionTests
  * @see DisabledIf
  * @see ApplicationExtension
- * @since 5.0
+ * @since 4.0
  */
 class DisabledIfTests {
 

@@ -36,7 +36,7 @@ import static cn.taketoday.web.reactive.function.server.RouterFunctions.route;
  * Sample tests demonstrating live server integration tests.
  *
  * @author Rossen Stoyanchev
- * @since 5.0
+ * @since 4.0
  */
 public class HttpServerTests {
 

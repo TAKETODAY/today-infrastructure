@@ -42,7 +42,7 @@ import static org.mockito.Mockito.mock;
  * Unit tests for {@link SqlScriptsTestExecutionListener}.
  *
  * @author Sam Brannen
- * @since 4.1
+ * @since 4.0
  */
 class SqlScriptsTestExecutionListenerTests {
 

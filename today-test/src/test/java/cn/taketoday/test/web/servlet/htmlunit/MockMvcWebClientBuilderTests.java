@@ -55,7 +55,7 @@ import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException
  * @author Rob Winch
  * @author Sam Brannen
  * @author Rossen Stoyanchev
- * @since 4.2
+ * @since 4.0
  */
 @JUnitWebConfig
 class MockMvcWebClientBuilderTests {

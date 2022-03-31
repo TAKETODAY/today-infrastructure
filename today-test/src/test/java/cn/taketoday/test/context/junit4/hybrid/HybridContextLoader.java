@@ -40,7 +40,7 @@ import static cn.taketoday.test.context.support.AnnotationConfigContextLoaderUti
  * <p>Beans from XML configuration always override those from annotated classes.
  *
  * @author Sam Brannen
- * @since 4.0.4
+ * @since 4.0
  */
 public class HybridContextLoader extends AbstractGenericContextLoader {
 

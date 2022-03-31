@@ -28,7 +28,7 @@ import cn.taketoday.test.context.junit.jupiter.ApplicationExtension;
 
 /**
  * @author Sam Brannen
- * @since 4.3
+ * @since 4.0
  */
 @ExtendWith(ApplicationExtension.class)
 class ContextConfigurationInterfaceTests implements ContextConfigurationTestInterface {

@@ -44,7 +44,7 @@ import static cn.taketoday.test.context.support.ActiveProfilesUtils.resolveActiv
  *
  * @author Sam Brannen
  * @author Michail Nikolaev
- * @since 3.1
+ * @since 4.0
  */
 class ActiveProfilesUtilsTests extends AbstractContextConfigurationUtilsTests {
 
@@ -218,7 +218,7 @@ class ActiveProfilesUtilsTests extends AbstractContextConfigurationUtilsTests {
 	/**
 	 * This test verifies that the actual test class, not the composed annotation,
 	 * is passed to the resolver.
-	 * @since 4.0.3
+	 * @since 4.0
 	 */
 	@Test
 	void resolveActiveProfilesWithMetaAnnotationAndTestClassVerifyingResolver() {
@@ -228,7 +228,7 @@ class ActiveProfilesUtilsTests extends AbstractContextConfigurationUtilsTests {
 
 	/**
 	 * This test verifies that {@link DefaultActiveProfilesResolver} can be declared explicitly.
-	 * @since 4.1.5
+	 * @since 4.0
 	 */
 	@Test
 	void resolveActiveProfilesWithDefaultActiveProfilesResolver() {
@@ -237,7 +237,7 @@ class ActiveProfilesUtilsTests extends AbstractContextConfigurationUtilsTests {
 
 	/**
 	 * This test verifies that {@link DefaultActiveProfilesResolver} can be extended.
-	 * @since 4.1.5
+	 * @since 4.0
 	 */
 	@Test
 	void resolveActiveProfilesWithExtendedDefaultActiveProfilesResolver() {

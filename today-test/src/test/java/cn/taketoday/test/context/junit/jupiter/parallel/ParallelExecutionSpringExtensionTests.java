@@ -45,7 +45,7 @@ import static org.junit.platform.launcher.core.LauncherDiscoveryRequestBuilder.r
  * regarding concurrent access to the {@linkplain Parameter parameters} of such methods.
  *
  * @author Sam Brannen
- * @since 5.1.3
+ * @since 4.0
  */
 class ParallelExecutionSpringExtensionTests {
 

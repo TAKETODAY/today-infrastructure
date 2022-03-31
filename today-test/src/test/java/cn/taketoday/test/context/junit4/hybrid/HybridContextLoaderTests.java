@@ -37,7 +37,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * Spring Boot.
  *
  * @author Sam Brannen
- * @since 4.0.4
+ * @since 4.0
  * @see HybridContextLoader
  */
 @RunWith(JUnit4ClassRunner.class)

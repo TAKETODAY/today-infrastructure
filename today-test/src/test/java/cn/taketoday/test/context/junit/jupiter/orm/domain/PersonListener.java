@@ -35,7 +35,7 @@ import jakarta.persistence.PreUpdate;
  * Person entity listener.
  *
  * @author Sam Brannen
- * @since 5.3.18
+ * @since 4.08
  */
 public class PersonListener {
 

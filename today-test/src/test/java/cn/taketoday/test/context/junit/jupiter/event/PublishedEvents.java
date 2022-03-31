@@ -30,7 +30,7 @@ import java.util.function.Predicate;
  * <p>Copied from the Moduliths project.
  *
  * @author Oliver Drotbohm
- * @since 5.3.3
+ * @since 4.0
  */
 public interface PublishedEvents {
 

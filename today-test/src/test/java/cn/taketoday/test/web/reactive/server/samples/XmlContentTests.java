@@ -48,7 +48,7 @@ import static org.hamcrest.Matchers.startsWith;
  * Samples of tests using {@link WebTestClient} with XML content.
  *
  * @author Eric Deandrea
- * @since 5.1
+ * @since 4.0
  */
 class XmlContentTests {
 

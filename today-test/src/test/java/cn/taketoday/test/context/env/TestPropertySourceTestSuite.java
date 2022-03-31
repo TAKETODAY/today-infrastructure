@@ -34,7 +34,7 @@ import cn.taketoday.test.context.TestPropertySource;
  * to exclude tests based on a {@code "*TestSuite.class"} pattern match.
  *
  * @author Sam Brannen
- * @since 5.2
+ * @since 4.0
  */
 @Suite
 @IncludeEngines("junit-jupiter")

@@ -35,7 +35,7 @@ import cn.taketoday.web.reactive.config.EnableWebFlux;
  * declared in a Spring ApplicationContext.
  *
  * @author Rossen Stoyanchev
- * @since 5.0
+ * @since 4.0
  */
 public class ApplicationContextTests {
 

@@ -42,7 +42,7 @@ import org.junit.platform.suite.api.Suite;
  * </pre>
  *
  * @author Sam Brannen
- * @since 5.2
+ * @since 4.0
  */
 @Suite
 @SelectPackages("cn.taketoday.test.context")

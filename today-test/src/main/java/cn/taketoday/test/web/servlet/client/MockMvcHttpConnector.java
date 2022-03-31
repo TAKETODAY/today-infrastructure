@@ -74,7 +74,7 @@ import static cn.taketoday.test.web.servlet.request.MockMvcRequestBuilders.async
  * making actual requests over HTTP.
  *
  * @author Rossen Stoyanchev
- * @since 5.3
+ * @since 4.0
  */
 public class MockMvcHttpConnector implements ClientHttpConnector {
 

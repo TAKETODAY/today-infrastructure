@@ -26,7 +26,7 @@ import cn.taketoday.test.context.web.WebAppConfiguration;
 
 /**
  * @author Sam Brannen
- * @since 4.3
+ * @since 4.0
  */
 @WebAppConfiguration
 @ContextConfiguration(classes = WebAppConfigurationTestInterface.Config.class)

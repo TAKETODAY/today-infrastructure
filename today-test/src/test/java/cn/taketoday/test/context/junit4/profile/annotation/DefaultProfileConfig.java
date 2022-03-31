@@ -26,7 +26,7 @@ import cn.taketoday.context.annotation.Configuration;
 
 /**
  * @author Sam Brannen
- * @since 3.1
+ * @since 4.0
  */
 @Configuration
 public class DefaultProfileConfig {

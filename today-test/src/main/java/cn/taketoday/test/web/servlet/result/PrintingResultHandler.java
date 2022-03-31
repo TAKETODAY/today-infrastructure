@@ -264,8 +264,6 @@ public class PrintingResultHandler implements ResultHandler {
   /**
    * Print the supplied cookies in a human-readable form, assuming the
    * {@link Cookie} implementation does not provide its own {@code toString()}.
-   *
-   * @since 4.2
    */
   private void printCookies(Cookie[] cookies) {
     String[] cookieStrings = new String[cookies.length];

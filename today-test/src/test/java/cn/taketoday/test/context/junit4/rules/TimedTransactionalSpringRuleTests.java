@@ -38,7 +38,7 @@ import java.util.concurrent.TimeUnit;
  * {@link ApplicationMethodRule}.
  *
  * @author Sam Brannen
- * @since 4.2
+ * @since 4.0
  */
 @RunWith(JUnit4.class)
 public class TimedTransactionalSpringRuleTests extends TimedTransactionalSpringRunnerTests {

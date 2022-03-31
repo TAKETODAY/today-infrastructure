@@ -33,7 +33,7 @@ import cn.taketoday.test.context.junit.jupiter.comics.Dog;
  * Platform, simply run {@link SpringJUnitJupiterTestSuite} as a JUnit 4 test.
  *
  * @author Sam Brannen
- * @since 5.0
+ * @since 4.0
  */
 class DogInterfaceDefaultMethodsTests implements GenericComicCharactersInterfaceDefaultMethodsTests<Dog> {
 

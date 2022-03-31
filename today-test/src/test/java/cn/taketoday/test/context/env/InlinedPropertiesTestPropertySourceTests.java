@@ -38,7 +38,7 @@ import static cn.taketoday.test.context.support.TestPropertySourceUtils.INLINED_
  * inlined properties.
  *
  * @author Sam Brannen
- * @since 4.1
+ * @since 4.0
  */
 @ExtendWith(ApplicationExtension.class)
 @ContextConfiguration

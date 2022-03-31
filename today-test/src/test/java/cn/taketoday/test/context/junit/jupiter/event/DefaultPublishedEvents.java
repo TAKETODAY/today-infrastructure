@@ -36,7 +36,7 @@ import cn.taketoday.test.context.event.ApplicationEventsHolder;
  *
  * @author Oliver Drotbohm
  * @author Sam Brannen
- * @since 5.3.3
+ * @since 4.0
  */
 class DefaultPublishedEvents implements PublishedEvents {
 

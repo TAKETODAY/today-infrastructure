@@ -43,7 +43,7 @@ import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
  * Unit tests for {@link BootstrapTestUtils} involving {@link MergedContextConfiguration}.
  *
  * @author Sam Brannen
- * @since 3.1
+ * @since 4.0
  */
 class BootstrapTestUtilsMergedConfigTests extends AbstractContextConfigurationUtilsTests {
 
@@ -56,7 +56,7 @@ class BootstrapTestUtilsMergedConfigTests extends AbstractContextConfigurationUt
 	}
 
 	/**
-	 * @since 4.3
+	 * @since 4.0
 	 */
 	@Test
 	void buildMergedConfigWithContextConfigurationWithoutLocationsClassesOrInitializers() {
@@ -226,7 +226,7 @@ class BootstrapTestUtilsMergedConfigTests extends AbstractContextConfigurationUt
 	}
 
 	/**
-	 * @since 5.3
+	 * @since 4.0
 	 */
 	@Test
 	public void buildMergedConfigForNestedTestClassWithInheritedConfig() {
@@ -239,7 +239,7 @@ class BootstrapTestUtilsMergedConfigTests extends AbstractContextConfigurationUt
 	}
 
 	/**
-	 * @since 5.3
+	 * @since 4.0
 	 */
 	@Test
 	public void buildMergedConfigForNestedTestClassWithMergedInheritedConfig() {
@@ -252,7 +252,7 @@ class BootstrapTestUtilsMergedConfigTests extends AbstractContextConfigurationUt
 	}
 
 	/**
-	 * @since 5.3
+	 * @since 4.0
 	 */
 	@Test
 	public void buildMergedConfigForNestedTestClassWithOverriddenConfig() {
@@ -265,7 +265,7 @@ class BootstrapTestUtilsMergedConfigTests extends AbstractContextConfigurationUt
 	}
 
 	/**
-	 * @since 5.3
+	 * @since 4.0
 	 */
 	@Test
 	public void buildMergedConfigForDoubleNestedTestClassWithInheritedOverriddenConfig() {
@@ -278,7 +278,7 @@ class BootstrapTestUtilsMergedConfigTests extends AbstractContextConfigurationUt
 	}
 
 	/**
-	 * @since 5.3
+	 * @since 4.0
 	 */
 	@Test
 	public void buildMergedConfigForContextHierarchy() {
@@ -300,7 +300,7 @@ class BootstrapTestUtilsMergedConfigTests extends AbstractContextConfigurationUt
 	}
 
 	/**
-	 * @since 5.3
+	 * @since 4.0
 	 */
 	@Test
 	public void buildMergedConfigForNestedTestClassWithInheritedConfigForContextHierarchy() {
@@ -320,7 +320,7 @@ class BootstrapTestUtilsMergedConfigTests extends AbstractContextConfigurationUt
 	}
 
 	/**
-	 * @since 5.3
+	 * @since 4.0
 	 */
 	@Test
 	public void buildMergedConfigForNestedTestClassWithMergedInheritedConfigForContextHierarchy() {
@@ -339,7 +339,7 @@ class BootstrapTestUtilsMergedConfigTests extends AbstractContextConfigurationUt
 	}
 
 	/**
-	 * @since 5.3
+	 * @since 4.0
 	 */
 	@Test
 	public void buildMergedConfigForNestedTestClassWithOverriddenConfigForContextHierarchy() {
@@ -357,7 +357,7 @@ class BootstrapTestUtilsMergedConfigTests extends AbstractContextConfigurationUt
 	}
 
 	/**
-	 * @since 5.3
+	 * @since 4.0
 	 */
 	@Test
 	void buildMergedConfigWithDuplicateConfigurationOnSuperclassAndSubclass() {
@@ -368,7 +368,7 @@ class BootstrapTestUtilsMergedConfigTests extends AbstractContextConfigurationUt
 	}
 
 	/**
-	 * @since 5.3
+	 * @since 4.0
 	 */
 	@Test
 	void buildMergedConfigWithDuplicateConfigurationOnEnclosingClassAndNestedClass() {
@@ -409,7 +409,7 @@ class BootstrapTestUtilsMergedConfigTests extends AbstractContextConfigurationUt
 	}
 
 	/**
-	 * @since 5.3
+	 * @since 4.0
 	 */
 	@Test
 	void buildMergedConfigWithEmptyConfigurationOnSuperclassAndSubclass() {
@@ -441,7 +441,7 @@ class BootstrapTestUtilsMergedConfigTests extends AbstractContextConfigurationUt
 	}
 
 	/**
-	 * @since 5.3
+	 * @since 4.0
 	 */
 	@Test
 	void buildMergedConfigWithEmptyConfigurationOnEnclosingClassAndExplicitConfigOnNestedClass() {

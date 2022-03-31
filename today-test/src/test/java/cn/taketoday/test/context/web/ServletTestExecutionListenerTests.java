@@ -159,7 +159,7 @@ class ServletTestExecutionListenerTests {
 	}
 
 	/**
-	 * @since 4.3
+	 * @since 4.0
 	 */
 	@Test
 	void activateListenerWithoutExistingRequestAttributes() throws Exception {

@@ -32,7 +32,7 @@ import jakarta.annotation.PreDestroy;
  * unit tests.
  *
  * @author Sam Brannen
- * @since 3.1
+ * @since 4.0
  */
 public class Component {
 

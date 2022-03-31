@@ -28,7 +28,7 @@ import cn.taketoday.test.context.TestPropertySource;
  * repeatable annotation.
  *
  * @author Sam Brannen
- * @since 5.2
+ * @since 4.0
  */
 @MetaInlinedTestProperty
 @MetaComposedTestProperty

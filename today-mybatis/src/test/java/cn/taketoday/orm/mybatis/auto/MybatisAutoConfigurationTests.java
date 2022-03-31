@@ -56,7 +56,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import javax.sql.DataSource;
 
 import cn.taketoday.aop.scope.ScopedProxyFactoryBean;
-import cn.taketoday.beans.Primary;
+import cn.taketoday.context.annotation.Primary;
 import cn.taketoday.beans.factory.BeanCreationException;
 import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.beans.factory.config.BeanDefinition;

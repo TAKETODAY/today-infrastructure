@@ -69,7 +69,7 @@ import static cn.taketoday.test.context.junit4.JUnitTestingUtils.runTestsAndAsse
  * LONG_RUNNING} test group is enabled.
  *
  * @author Sam Brannen
- * @since 5.0
+ * @since 4.0
  * @see TestContextConcurrencyTests
  */
 public class SpringJUnit4ConcurrencyTests {

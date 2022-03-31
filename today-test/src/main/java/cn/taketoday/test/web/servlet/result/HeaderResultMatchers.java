@@ -67,7 +67,7 @@ public class HeaderResultMatchers {
    * Assert the values of the response header with the given Hamcrest
    * Iterable {@link Matcher}.
    *
-   * @since 4.3
+   * @since 4.0
    */
   public ResultMatcher stringValues(String name, Matcher<? super Iterable<String>> matcher) {
     return result -> {
@@ -86,7 +86,7 @@ public class HeaderResultMatchers {
   /**
    * Assert the values of the response header as String values.
    *
-   * @since 4.3
+   * @since 4.0
    */
   public ResultMatcher stringValues(String name, String... values) {
     return result -> {
@@ -98,7 +98,7 @@ public class HeaderResultMatchers {
   /**
    * Assert that the named response header exists.
    *
-   * @since 5.0.3
+   * @since 4.0
    */
   public ResultMatcher exists(String name) {
     return result -> assertTrue("Response should contain header '" + name + "'",
@@ -140,7 +140,7 @@ public class HeaderResultMatchers {
    * header, or if the supplied {@code value} does not match the primary value.
    *
    * @see <a href="https://tools.ietf.org/html/rfc7231#section-7.1.1.1">Section 7.1.1.1 of RFC 7231</a>
-   * @since 4.2
+   * @since 4.0
    */
   public ResultMatcher dateValue(String name, long value) {
     return result -> {

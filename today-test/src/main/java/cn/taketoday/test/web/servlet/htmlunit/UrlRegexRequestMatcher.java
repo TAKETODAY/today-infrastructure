@@ -38,7 +38,7 @@ import java.util.regex.Pattern;
  * @author Rob Winch
  * @author Sam Brannen
  * @see DelegatingWebConnection
- * @since 4.2
+ * @since 4.0
  */
 public final class UrlRegexRequestMatcher implements WebRequestMatcher {
 

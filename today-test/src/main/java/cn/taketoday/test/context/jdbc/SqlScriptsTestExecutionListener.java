@@ -237,7 +237,7 @@ public class SqlScriptsTestExecutionListener extends AbstractTestExecutionListen
     }
 
     ResourceDatabasePopulator populator = createDatabasePopulator(mergedSqlConfig);
-    populator.setScripts(scriptResources.toArray(new Resource[0]));
+    populator.setScripts(scriptResources.toArray(Resource.EMPTY_ARRAY));
     if (logger.isDebugEnabled()) {
       logger.debug("Executing SQL scripts: " + ObjectUtils.nullSafeToString(scriptResources));
     }

@@ -35,7 +35,7 @@ import static cn.taketoday.test.context.jdbc.SqlMergeMode.MergeMode.OVERRIDE;
  *
  * @author Sam Brannen
  * @author Dmitry Semukhin
- * @since 5.2
+ * @since 4.0
  */
 @Sql({ "../recreate-schema.sql", "../data-add-catbert.sql" })
 @SqlMergeMode(MERGE)

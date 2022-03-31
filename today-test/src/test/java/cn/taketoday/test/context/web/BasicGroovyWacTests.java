@@ -27,7 +27,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Sam Brannen
- * @since 4.1
+ * @since 4.0
  * @see BasicXmlWacTests
  */
 // Config loaded from BasicGroovyWacTestsContext.groovy

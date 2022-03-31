@@ -25,7 +25,7 @@ import cn.taketoday.web.bind.annotation.RequestMapping;
 
 /**
  * @author Rob Winch
- * @since 4.2
+ * @since 4.0
  */
 @Controller
 public class ForwardController {

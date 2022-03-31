@@ -49,7 +49,7 @@ import static org.mockito.Mockito.mock;
  *
  * @author Sam Brannen
  * @see DisabledIfTests
- * @since 5.0
+ * @since 4.0
  */
 class DisabledIfConditionTests {
 

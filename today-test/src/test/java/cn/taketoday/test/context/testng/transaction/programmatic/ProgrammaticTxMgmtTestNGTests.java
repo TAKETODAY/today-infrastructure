@@ -54,7 +54,7 @@ import static org.assertj.core.api.Assertions.fail;
  * class that has been modified to run with TestNG.
  *
  * @author Sam Brannen
- * @since 4.1
+ * @since 4.0
  */
 @ContextConfiguration
 public class ProgrammaticTxMgmtTestNGTests extends AbstractTransactionalTestNGSpringContextTests {

@@ -75,7 +75,7 @@ public class JsonPathResultMatchers {
    * Cross Site Script Inclusion (XSSI) attacks.
    *
    * @param prefix the string prefix prepended to the actual JSON payload
-   * @since 4.3
+   * @since 4.0
    */
   public JsonPathResultMatchers prefix(String prefix) {
     this.prefix = prefix;
@@ -102,7 +102,7 @@ public class JsonPathResultMatchers {
    *
    * @see #value(Matcher)
    * @see #value(Object)
-   * @since 4.3.15
+   * @since 4.0
    */
   public <T> ResultMatcher value(Matcher<? super T> matcher, Class<T> targetType) {
     return result -> this.jsonPathHelper.assertValue(getContent(result), matcher, targetType);
@@ -151,7 +151,7 @@ public class JsonPathResultMatchers {
    * @see #isNotEmpty()
    * @see #exists()
    * @see #doesNotExist()
-   * @since 4.2.1
+   * @since 4.0
    */
   public ResultMatcher isEmpty() {
     return result -> this.jsonPathHelper.assertValueIsEmpty(getContent(result));
@@ -166,7 +166,7 @@ public class JsonPathResultMatchers {
    * @see #isEmpty()
    * @see #exists()
    * @see #doesNotExist()
-   * @since 4.2.1
+   * @since 4.0
    */
   public ResultMatcher isNotEmpty() {
     return result -> this.jsonPathHelper.assertValueIsNotEmpty(getContent(result));
@@ -181,7 +181,7 @@ public class JsonPathResultMatchers {
    *
    * @see #exists()
    * @see #isNotEmpty()
-   * @since 5.0.3
+   * @since 4.0
    */
   public ResultMatcher hasJsonPath() {
     return result -> this.jsonPathHelper.hasJsonPath(getContent(result));
@@ -197,7 +197,7 @@ public class JsonPathResultMatchers {
    *
    * @see #doesNotExist()
    * @see #isEmpty()
-   * @since 5.0.3
+   * @since 4.0
    */
   public ResultMatcher doesNotHaveJsonPath() {
     return result -> this.jsonPathHelper.doesNotHaveJsonPath(getContent(result));
@@ -207,7 +207,7 @@ public class JsonPathResultMatchers {
    * Evaluate the JSON path expression against the response content and
    * assert that the result is a {@link String}.
    *
-   * @since 4.2.1
+   * @since 4.0
    */
   public ResultMatcher isString() {
     return result -> this.jsonPathHelper.assertValueIsString(getContent(result));
@@ -217,7 +217,7 @@ public class JsonPathResultMatchers {
    * Evaluate the JSON path expression against the response content and
    * assert that the result is a {@link Boolean}.
    *
-   * @since 4.2.1
+   * @since 4.0
    */
   public ResultMatcher isBoolean() {
     return result -> this.jsonPathHelper.assertValueIsBoolean(getContent(result));
@@ -227,7 +227,7 @@ public class JsonPathResultMatchers {
    * Evaluate the JSON path expression against the response content and
    * assert that the result is a {@link Number}.
    *
-   * @since 4.2.1
+   * @since 4.0
    */
   public ResultMatcher isNumber() {
     return result -> this.jsonPathHelper.assertValueIsNumber(getContent(result));
@@ -245,7 +245,7 @@ public class JsonPathResultMatchers {
    * Evaluate the JSON path expression against the response content and
    * assert that the result is a {@link java.util.Map}.
    *
-   * @since 4.2.1
+   * @since 4.0
    */
   public ResultMatcher isMap() {
     return result -> this.jsonPathHelper.assertValueIsMap(getContent(result));

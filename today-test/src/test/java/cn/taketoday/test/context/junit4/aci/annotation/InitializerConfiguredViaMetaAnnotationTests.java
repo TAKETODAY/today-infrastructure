@@ -51,7 +51,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * Can {@code @ContextConfiguration} in a custom annotation be merged?</a>
  *
  * @author Sam Brannen
- * @since 4.3
+ * @since 4.0
  */
 @RunWith(Runner.class)
 @InitializerConfiguredViaMetaAnnotationTests.ComposedContextConfiguration(BarConfig.class)

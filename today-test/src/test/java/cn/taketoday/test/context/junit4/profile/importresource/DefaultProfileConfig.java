@@ -27,7 +27,7 @@ import cn.taketoday.context.annotation.ImportResource;
 
 /**
  * @author Juergen Hoeller
- * @since 3.1
+ * @since 4.0
  */
 @Configuration
 @ImportResource("org/springframework/test/context/junit4/profile/importresource/import.xml")

@@ -45,7 +45,7 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
  * Integration tests for the @EnableCaching annotation.
  *
  * @author Chris Beams
- * @since 3.1
+ * @since 4.0
  */
 @SuppressWarnings("resource")
 class EnableCachingIntegrationTests {

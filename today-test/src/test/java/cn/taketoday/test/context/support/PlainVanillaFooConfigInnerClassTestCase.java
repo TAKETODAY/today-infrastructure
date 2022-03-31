@@ -24,7 +24,7 @@ package cn.taketoday.test.context.support;
  * Not an actual <em>test case</em>.
  *
  * @author Sam Brannen
- * @since 3.1
+ * @since 4.0
  * @see AnnotationConfigContextLoaderTests
  */
 public class PlainVanillaFooConfigInnerClassTestCase {

@@ -54,7 +54,7 @@ import static cn.taketoday.test.context.support.TestPropertySourceUtils.convertI
  * Unit tests for {@link TestPropertySourceUtils}.
  *
  * @author Sam Brannen
- * @since 4.1
+ * @since 4.0
  */
 class TestPropertySourceUtilsTests {
 
@@ -128,7 +128,7 @@ class TestPropertySourceUtilsTests {
 	}
 
 	/**
-	 * @since 5.3
+	 * @since 4.0
 	 */
 	@Test
 	void locationsAndPropertiesDuplicatedLocally() {
@@ -137,7 +137,7 @@ class TestPropertySourceUtilsTests {
 	}
 
 	/**
-	 * @since 5.3
+	 * @since 4.0
 	 */
 	@Test
 	void locationsAndPropertiesDuplicatedOnSuperclass() {
@@ -146,7 +146,7 @@ class TestPropertySourceUtilsTests {
 	}
 
 	/**
-	 * @since 5.3
+	 * @since 4.0
 	 */
 	@Test
 	void locationsAndPropertiesDuplicatedOnEnclosingClass() {

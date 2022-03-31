@@ -45,7 +45,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * <p>Simultaneously tests for method-level overrides via {@code @SqlConfig}.
  *
  * @author Sam Brannen
- * @since 4.1
+ * @since 4.0
  * @see MultipleDataSourcesAndTransactionManagersTransactionalSqlScriptsTests
  */
 @JUnitConfig

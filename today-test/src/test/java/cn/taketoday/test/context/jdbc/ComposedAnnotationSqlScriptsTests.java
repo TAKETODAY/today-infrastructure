@@ -36,7 +36,7 @@ import static cn.taketoday.test.context.jdbc.Sql.ExecutionPhase.BEFORE_TEST_METH
  * merged, composed annotation.
  *
  * @author Sam Brannen
- * @since 4.3
+ * @since 4.0
  */
 @JUnitConfig(EmptyDatabaseConfig.class)
 @DirtiesContext

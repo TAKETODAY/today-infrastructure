@@ -86,7 +86,7 @@ public interface ResultActions {
    * </pre>
    *
    * @see #andExpect(ResultMatcher)
-   * @since 5.3.10
+   * @since 4.0
    */
   default ResultActions andExpectAll(ResultMatcher... matchers) throws Exception {
     ExceptionCollector exceptionCollector = new ExceptionCollector();

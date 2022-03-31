@@ -35,7 +35,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  * @author Phillip Webb
  * @author Sam Brannen
- * @since 4.3
+ * @since 4.0
  */
 @RunWith(Runner.class)
 public class OptionalContextConfigurationSpringRunnerTests {

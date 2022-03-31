@@ -47,7 +47,7 @@ import static org.mockito.Mockito.mock;
  * </ul>
  *
  * @author Rossen Stoyanchev
- * @since 4.1
+ * @since 4.0
  */
 public class FrameworkExtensionTests {
 

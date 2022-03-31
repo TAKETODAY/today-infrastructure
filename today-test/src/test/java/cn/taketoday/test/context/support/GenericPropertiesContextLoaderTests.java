@@ -29,7 +29,7 @@ import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
  * Unit tests for {@link GenericPropertiesContextLoader}.
  *
  * @author Sam Brannen
- * @since 4.0.4
+ * @since 4.0
  */
 @SuppressWarnings("deprecation")
 class GenericPropertiesContextLoaderTests {

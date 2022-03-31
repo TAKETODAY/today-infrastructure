@@ -234,7 +234,7 @@ public abstract class MockMvcResultMatchers {
    * @param targetType the target type to coerce the matching value into
    * @see #jsonPath(String, Object...)
    * @see #jsonPath(String, Matcher)
-   * @since 5.2
+   * @since 4.0
    */
   public static <T> ResultMatcher jsonPath(String expression, Matcher<? super T> matcher, Class<T> targetType) {
     return new JsonPathResultMatchers(expression).value(matcher, targetType);

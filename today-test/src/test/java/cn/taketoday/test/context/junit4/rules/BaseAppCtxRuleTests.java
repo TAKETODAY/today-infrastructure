@@ -39,7 +39,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * or {@link ApplicationMethodRule} to be redeclared on subclasses.
  *
  * @author Sam Brannen
- * @since 4.2
+ * @since 4.0
  * @see Subclass1AppCtxRuleTests
  * @see Subclass2AppCtxRuleTests
  */

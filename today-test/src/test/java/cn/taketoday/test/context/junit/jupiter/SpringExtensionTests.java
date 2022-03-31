@@ -52,7 +52,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Sam Brannen
  * @see ApplicationExtension
  * @see ComposedSpringExtensionTests
- * @since 5.0
+ * @since 4.0
  */
 @ExtendWith(ApplicationExtension.class)
 @ContextConfiguration(classes = TestConfig.class)

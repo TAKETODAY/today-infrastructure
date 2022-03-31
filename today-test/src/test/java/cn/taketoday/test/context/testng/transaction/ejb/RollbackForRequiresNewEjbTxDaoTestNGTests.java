@@ -37,7 +37,7 @@ import org.testng.annotations.Test;
  * outside the scope of the test-managed transaction.
  *
  * @author Sam Brannen
- * @since 4.0.1
+ * @since 4.0
  */
 @Test(suiteName = "Rollback for REQUIRES_NEW")
 @Rollback

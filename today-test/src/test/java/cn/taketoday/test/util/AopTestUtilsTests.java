@@ -34,7 +34,7 @@ import static cn.taketoday.test.util.AopTestUtils.getUltimateTargetObject;
  * Unit tests for {@link AopTestUtils}.
  *
  * @author Sam Brannen
- * @since 4.2
+ * @since 4.0
  */
 class AopTestUtilsTests {
 

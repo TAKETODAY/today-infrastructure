@@ -50,7 +50,7 @@ import java.util.logging.Logger;
 
 import javax.sql.DataSource;
 
-import cn.taketoday.beans.Primary;
+import cn.taketoday.context.annotation.Primary;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.support.StandardApplicationContext;
 import cn.taketoday.jdbc.FeatureDetector;

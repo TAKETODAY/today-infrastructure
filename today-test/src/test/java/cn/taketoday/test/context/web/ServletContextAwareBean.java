@@ -28,7 +28,7 @@ import jakarta.servlet.ServletContext;
  * Introduced to investigate claims in SPR-11145.
  *
  * @author Sam Brannen
- * @since 4.0.2
+ * @since 4.0
  */
 public class ServletContextAwareBean implements ServletContextAware {
 

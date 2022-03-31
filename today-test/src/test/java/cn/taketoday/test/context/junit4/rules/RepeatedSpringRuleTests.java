@@ -42,7 +42,7 @@ import java.lang.annotation.RetentionPolicy;
  * {@link ApplicationMethodRule}.
  *
  * @author Sam Brannen
- * @since 4.2
+ * @since 4.0
  */
 public class RepeatedSpringRuleTests extends RepeatedSpringRunnerTests {
 

@@ -45,7 +45,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * {@link DataSource}s from {@link PlatformTransactionManager}s.
  *
  * @author Sam Brannen
- * @since 4.1
+ * @since 4.0
  * @see InferredDataSourceTransactionalSqlScriptsTests
  */
 @JUnitConfig

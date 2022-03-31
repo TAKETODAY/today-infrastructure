@@ -43,7 +43,7 @@ import static cn.taketoday.test.context.TestExecutionListeners.MergeMode.MERGE_W
  * {@link TestContext#publishEvent(java.util.function.Function)}.
  *
  * @author Sam Brannen
- * @since 5.2
+ * @since 4.0
  */
 @ExtendWith(ApplicationExtension.class)
 @TestExecutionListeners(listeners = CustomTestEventTests.CustomEventPublishingTestExecutionListener.class, mergeMode = MERGE_WITH_DEFAULTS)

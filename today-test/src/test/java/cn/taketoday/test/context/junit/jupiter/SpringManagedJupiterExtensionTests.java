@@ -47,7 +47,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * a Spring {@code ApplicationContext}.
  *
  * @author Sam Brannen
- * @since 5.1
+ * @since 4.0
  */
 @JUnitConfig
 @TestInstance(Lifecycle.PER_CLASS)

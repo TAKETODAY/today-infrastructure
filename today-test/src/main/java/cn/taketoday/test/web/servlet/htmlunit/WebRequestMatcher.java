@@ -28,7 +28,7 @@ import com.gargoylesoftware.htmlunit.WebRequest;
  * @author Rob Winch
  * @see HostRequestMatcher
  * @see UrlRegexRequestMatcher
- * @since 4.2
+ * @since 4.0
  */
 @FunctionalInterface
 public interface WebRequestMatcher {

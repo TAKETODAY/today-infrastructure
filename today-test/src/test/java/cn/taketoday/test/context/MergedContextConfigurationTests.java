@@ -44,7 +44,7 @@ import static org.mockito.Mockito.mock;
  *
  * @author Sam Brannen
  * @author Phillip Webb
- * @since 3.1
+ * @since 4.0
  */
 class MergedContextConfigurationTests {
 
@@ -408,7 +408,7 @@ class MergedContextConfigurationTests {
 	}
 
 	/**
-	 * @since 4.3
+	 * @since 4.0
 	 */
 	@Test
 	void equalsWithSameContextCustomizers() {
@@ -421,7 +421,7 @@ class MergedContextConfigurationTests {
 	}
 
 	/**
-	 * @since 4.3
+	 * @since 4.0
 	 */
 	@Test
 	void equalsWithDifferentContextCustomizers() {

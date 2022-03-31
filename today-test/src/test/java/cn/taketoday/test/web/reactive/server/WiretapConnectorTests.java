@@ -43,7 +43,7 @@ import static java.time.Duration.ofMillis;
  * Unit tests for {@link WiretapConnector}.
  *
  * @author Rossen Stoyanchev
- * @since 5.0
+ * @since 4.0
  */
 public class WiretapConnectorTests {
 

@@ -32,7 +32,7 @@ import java.lang.annotation.Target;
  * {@link TestPropertySource @TestPropertySource} used as a meta-meta-annotation.
  *
  * @author Sam Brannen
- * @since 5.2
+ * @since 4.0
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)

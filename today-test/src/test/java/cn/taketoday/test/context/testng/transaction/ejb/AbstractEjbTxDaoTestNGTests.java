@@ -39,7 +39,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  * @author Sam Brannen
  * @author Xavier Detant
- * @since 4.0.1
+ * @since 4.0
  */
 @DirtiesContext(classMode = ClassMode.AFTER_CLASS)
 public abstract class AbstractEjbTxDaoTestNGTests extends AbstractTransactionalTestNGSpringContextTests {

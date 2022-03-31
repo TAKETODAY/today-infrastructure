@@ -30,7 +30,7 @@ import java.lang.annotation.Target;
  * with {@link MetaContextHierarchyConfig @MetaContextHierarchyConfig}.
  *
  * @author Sam Brannen
- * @since 4.0.3
+ * @since 4.0
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)

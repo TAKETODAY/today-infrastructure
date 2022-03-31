@@ -30,7 +30,7 @@ import jakarta.persistence.Id;
  * Person entity.
  *
  * @author Sam Brannen
- * @since 5.3.18
+ * @since 4.08
  */
 @Entity
 @EntityListeners(PersonListener.class)

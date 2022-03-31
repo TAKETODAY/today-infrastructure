@@ -34,7 +34,7 @@ import org.testng.annotations.Test;
  * <em>commit</em>).
  *
  * @author Sam Brannen
- * @since 4.0.1
+ * @since 4.0
  */
 @Test(suiteName = "Commit for REQUIRES_NEW")
 @ContextConfiguration("/org/springframework/test/context/transaction/ejb/requires-new-tx-config.xml")

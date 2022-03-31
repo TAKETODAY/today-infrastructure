@@ -38,7 +38,7 @@ import static org.mockito.Mockito.mock;
  *
  * @author Igor Suhorukov
  * @author Sam Brannen
- * @since 4.3.17
+ * @since 4.0
  */
 public class FailOnTimeoutTests {
 

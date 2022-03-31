@@ -27,7 +27,7 @@ import cn.taketoday.test.context.ContextConfiguration;
  * script using an absolute path.
  *
  * @author Sam Brannen
- * @since 4.1
+ * @since 4.0
  * @see GroovySpringContextTests
  * @see RelativePathGroovySpringContextTests
  */

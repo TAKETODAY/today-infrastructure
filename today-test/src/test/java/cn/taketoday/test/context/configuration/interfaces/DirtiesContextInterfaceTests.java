@@ -42,7 +42,7 @@ import static cn.taketoday.test.context.junit4.JUnitTestingUtils.runTestsAndAsse
 
 /**
  * @author Sam Brannen
- * @since 4.3
+ * @since 4.0
  */
 class DirtiesContextInterfaceTests {
 

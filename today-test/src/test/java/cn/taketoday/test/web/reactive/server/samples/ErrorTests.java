@@ -38,7 +38,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * Tests with error status codes or error conditions.
  *
  * @author Rossen Stoyanchev
- * @since 5.0
+ * @since 4.0
  */
 class ErrorTests {
 

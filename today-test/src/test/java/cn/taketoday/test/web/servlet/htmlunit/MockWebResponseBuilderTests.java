@@ -44,7 +44,7 @@ import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException
  * Tests for {@link MockWebResponseBuilder}.
  *
  * @author Rob Winch
- * @since 4.2
+ * @since 4.0
  */
 public class MockWebResponseBuilderTests {
 

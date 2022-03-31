@@ -24,7 +24,7 @@ import cn.taketoday.test.annotation.DirtiesContext;
 
 /**
  * @author Sam Brannen
- * @since 4.3
+ * @since 4.0
  */
 @DirtiesContext
 interface DirtiesContextTestInterface {

@@ -50,7 +50,7 @@ import static cn.taketoday.http.MediaType.TEXT_EVENT_STREAM;
  * Annotated controllers accepting and returning typed Objects.
  *
  * @author Rossen Stoyanchev
- * @since 5.0
+ * @since 4.0
  */
 class ResponseEntityTests {
 

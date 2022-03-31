@@ -38,7 +38,7 @@ import cn.taketoday.test.context.junit4.Runner;
  * Integration tests for {@link ApplicationEvents} in conjunction with JUnit 4.
  *
  * @author Sam Brannen
- * @since 5.3.3
+ * @since 4.0
  */
 @RunWith(Runner.class)
 @RecordApplicationEvents

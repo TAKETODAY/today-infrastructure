@@ -34,7 +34,7 @@ import javax.sql.DataSource;
  * table already created.
  *
  * @author Sam Brannen
- * @since 4.1
+ * @since 4.0
  */
 @Configuration
 public class PopulatedSchemaDatabaseConfig {

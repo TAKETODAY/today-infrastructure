@@ -27,7 +27,7 @@ import jakarta.servlet.http.HttpServletRequest;
 
 /**
  * @author Rob Winch
- * @since 4.2
+ * @since 4.0
  */
 @RestController
 public class HelloController {

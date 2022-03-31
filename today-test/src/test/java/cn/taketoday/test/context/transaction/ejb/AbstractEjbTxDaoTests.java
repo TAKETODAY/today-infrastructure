@@ -42,7 +42,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  * @author Sam Brannen
  * @author Xavier Detant
- * @since 4.0.1
+ * @since 4.0
  */
 @JUnitConfig
 @Transactional

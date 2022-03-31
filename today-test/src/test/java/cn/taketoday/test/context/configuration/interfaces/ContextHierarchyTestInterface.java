@@ -26,7 +26,7 @@ import cn.taketoday.test.context.hierarchies.standard.SingleTestClassWithTwoLeve
 
 /**
  * @author Sam Brannen
- * @since 4.3
+ * @since 4.0
  */
 @ContextHierarchy({
 	@ContextConfiguration(classes = SingleTestClassWithTwoLevelContextHierarchyTests.ParentConfig.class),

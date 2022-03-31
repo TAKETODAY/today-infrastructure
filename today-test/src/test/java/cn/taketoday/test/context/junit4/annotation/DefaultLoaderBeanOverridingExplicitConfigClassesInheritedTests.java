@@ -30,7 +30,7 @@ import cn.taketoday.test.context.support.DelegatingSmartContextLoader;
  * {@link DelegatingSmartContextLoader}.
  *
  * @author Sam Brannen
- * @since 3.1
+ * @since 4.0
  */
 @ContextConfiguration(classes = DefaultLoaderBeanOverridingDefaultConfigClassesInheritedTests.Config.class)
 public class DefaultLoaderBeanOverridingExplicitConfigClassesInheritedTests extends

@@ -43,7 +43,7 @@ import static org.hamcrest.Matchers.containsString;
  *
  * @author Rossen Stoyanchev
  * @author Sam Brannen
- * @since 5.0
+ * @since 4.0
  */
 class JsonContentTests {
 

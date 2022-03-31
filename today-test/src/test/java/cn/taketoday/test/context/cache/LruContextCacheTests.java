@@ -42,7 +42,7 @@ import static org.mockito.Mockito.verify;
  * Unit tests for the LRU eviction policy in {@link DefaultContextCache}.
  *
  * @author Sam Brannen
- * @since 4.3
+ * @since 4.0
  * @see ContextCacheTests
  */
 class LruContextCacheTests {

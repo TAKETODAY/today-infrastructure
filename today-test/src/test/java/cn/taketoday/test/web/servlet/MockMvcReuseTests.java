@@ -45,7 +45,7 @@ import static cn.taketoday.test.web.servlet.setup.MockMvcBuilders.webAppContextS
  *
  * @author Sam Brannen
  * @author Rob Winch
- * @since 4.2
+ * @since 4.0
  */
 @JUnitWebConfig
 @TestInstance(Lifecycle.PER_CLASS)

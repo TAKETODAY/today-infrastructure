@@ -40,7 +40,7 @@ import static cn.taketoday.test.context.NestedTestConfiguration.EnclosingConfigu
  * {@link ApplicationExtension} in a JUnit Jupiter environment.
  *
  * @author Sam Brannen
- * @since 5.3
+ * @since 4.0
  */
 @JUnitConfig(TestPropertySourceNestedTests.Config.class)
 @TestPropertySource(properties = "p1 = v1")

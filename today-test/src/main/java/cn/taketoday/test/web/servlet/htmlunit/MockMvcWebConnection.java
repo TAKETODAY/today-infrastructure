@@ -61,7 +61,7 @@ import cn.taketoday.util.Assert;
  * @author Rob Winch
  * @author Sam Brannen
  * @see WebConnectionHtmlUnitDriver
- * @since 4.2
+ * @since 4.0
  */
 public final class MockMvcWebConnection implements WebConnection {
 

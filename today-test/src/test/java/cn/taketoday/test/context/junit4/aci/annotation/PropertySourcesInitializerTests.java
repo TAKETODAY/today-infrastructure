@@ -40,7 +40,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * custom {@link ApplicationContextInitializer} in the Spring TestContext Framework.
  *
  * @author Sam Brannen
- * @since 4.1
+ * @since 4.0
  */
 @RunWith(JUnit4ClassRunner.class)
 @ContextConfiguration(initializers = PropertySourcesInitializerTests.PropertySourceInitializer.class)

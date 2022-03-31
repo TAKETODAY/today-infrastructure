@@ -162,7 +162,7 @@ public class MockHttpServletRequestBuilder
    *
    * @param httpMethod the HTTP method (GET, POST, etc)
    * @param url the URL
-   * @since 4.0.3
+   * @since 4.0
    */
   MockHttpServletRequestBuilder(HttpMethod httpMethod, URI url) {
     this(httpMethod.name(), url);
@@ -173,7 +173,7 @@ public class MockHttpServletRequestBuilder
    *
    * @param httpMethod the HTTP method (GET, POST, etc)
    * @param url the URL
-   * @since 4.3
+   * @since 4.0
    */
   MockHttpServletRequestBuilder(String httpMethod, URI url) {
     Assert.notNull(httpMethod, "'httpMethod' is required");
@@ -258,7 +258,7 @@ public class MockHttpServletRequestBuilder
    * @param encoding the character encoding
    * @see StandardCharsets
    * @see #characterEncoding(String)
-   * @since 5.3.10
+   * @since 4.0
    */
   public MockHttpServletRequestBuilder characterEncoding(Charset encoding) {
     return this.characterEncoding(encoding.name());
@@ -322,7 +322,7 @@ public class MockHttpServletRequestBuilder
    * possibly not even well formed (for testing purposes).
    *
    * @param contentType the content type
-   * @since 4.1.2
+   * @since 4.0
    */
   public MockHttpServletRequestBuilder contentType(String contentType) {
     Assert.notNull(contentType, "'contentType' must not be null");
@@ -401,7 +401,7 @@ public class MockHttpServletRequestBuilder
    * Variant of {@link #param(String, String...)} with a {@link MultiValueMap}.
    *
    * @param params the parameters to add
-   * @since 4.2.4
+   * @since 4.0
    */
   public MockHttpServletRequestBuilder params(MultiValueMap<String, String> params) {
     params.forEach((name, values) -> {
@@ -419,7 +419,7 @@ public class MockHttpServletRequestBuilder
    *
    * @param name the parameter name
    * @param values one or more values
-   * @since 5.2.2
+   * @since 4.0
    */
   public MockHttpServletRequestBuilder queryParam(String name, String... values) {
     param(name, values);
@@ -433,7 +433,7 @@ public class MockHttpServletRequestBuilder
    * name and value are encoded when they are added to the query string.
    *
    * @param params the parameters to add
-   * @since 5.2.2
+   * @since 4.0
    */
   public MockHttpServletRequestBuilder queryParams(MultiValueMap<String, String> params) {
     params(params);
@@ -457,7 +457,7 @@ public class MockHttpServletRequestBuilder
    *
    * @param locales the locales to add
    * @see #locale(Locale)
-   * @since 4.3.6
+   * @since 4.0
    */
   public MockHttpServletRequestBuilder locale(Locale... locales) {
     Assert.notEmpty(locales, "'locales' must not be empty");

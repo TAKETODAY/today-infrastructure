@@ -28,7 +28,7 @@ import cn.taketoday.test.context.TestPropertySource;
  * files to the Spring {@code Environment} via {@link TestPropertySource @TestPropertySource}.
  *
  * @author Sam Brannen
- * @since 4.1
+ * @since 4.0
  */
 @TestPropertySource("extended.properties")
 class MergedPropertiesFilesTestPropertySourceTests extends

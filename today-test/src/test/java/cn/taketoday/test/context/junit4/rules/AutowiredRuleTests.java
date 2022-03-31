@@ -36,7 +36,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * Integration tests for an issue raised in https://jira.spring.io/browse/SPR-15927.
  *
  * @author Sam Brannen
- * @since 5.0
+ * @since 4.0
  */
 public class AutowiredRuleTests {
 

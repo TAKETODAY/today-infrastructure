@@ -39,7 +39,7 @@ import javax.sql.DataSource;
  * supported.
  *
  * @author Sam Brannen
- * @since 4.3
+ * @since 4.0
  * @see cn.taketoday.test.context.transaction.PrimaryTransactionManagerTests
  */
 @JUnitConfig

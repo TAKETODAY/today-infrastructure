@@ -30,7 +30,7 @@ import jakarta.persistence.Table;
  *
  * @author Xavier Detant
  * @author Sam Brannen
- * @since 4.0.1
+ * @since 4.0
  */
 @Entity
 @Table(name = TestEntity.TABLE_NAME)

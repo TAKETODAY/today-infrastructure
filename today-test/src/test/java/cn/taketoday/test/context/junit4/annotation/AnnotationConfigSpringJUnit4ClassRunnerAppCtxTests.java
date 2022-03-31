@@ -35,7 +35,7 @@ import cn.taketoday.test.context.junit4.SpringJUnit4ClassRunnerAppCtxTests;
  * <p>Configuration will be loaded from {@link PojoAndStringConfig}.
  *
  * @author Sam Brannen
- * @since 3.1
+ * @since 4.0
  */
 @ContextConfiguration(classes = PojoAndStringConfig.class, inheritLocations = false)
 public class AnnotationConfigSpringJUnit4ClassRunnerAppCtxTests extends SpringJUnit4ClassRunnerAppCtxTests {

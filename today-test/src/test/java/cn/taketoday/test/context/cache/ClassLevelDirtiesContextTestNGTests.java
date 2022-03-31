@@ -51,7 +51,7 @@ import static cn.taketoday.test.context.cache.ContextCacheTestUtils.resetContext
  * modified to verify behavior in conjunction with TestNG.
  *
  * @author Sam Brannen
- * @since 4.2
+ * @since 4.0
  */
 class ClassLevelDirtiesContextTestNGTests {
 

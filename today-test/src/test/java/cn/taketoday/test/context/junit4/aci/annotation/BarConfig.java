@@ -25,7 +25,7 @@ import cn.taketoday.context.annotation.Configuration;
 
 /**
  * @author Sam Brannen
- * @since 4.3
+ * @since 4.0
  */
 @Configuration
 class BarConfig {

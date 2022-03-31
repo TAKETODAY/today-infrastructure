@@ -55,7 +55,7 @@ import static org.hamcrest.Matchers.is;
  * @see MultipleWebRequestsSpringExtensionTests
  * @see cn.taketoday.test.context.junit.jupiter.SpringExtensionTests
  * @see cn.taketoday.test.context.junit.jupiter.ComposedSpringExtensionTests
- * @since 5.0
+ * @since 4.0
  */
 @JUnitWebConfig(WebConfig.class)
 @DisplayName("Web ApplicationExtension Tests")

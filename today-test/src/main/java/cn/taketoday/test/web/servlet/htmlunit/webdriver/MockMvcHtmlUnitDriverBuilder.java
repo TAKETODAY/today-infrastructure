@@ -50,7 +50,7 @@ import cn.taketoday.web.context.WebApplicationContext;
  * @see #javascriptEnabled(boolean)
  * @see #withDelegate(WebConnectionHtmlUnitDriver)
  * @see #build()
- * @since 4.2
+ * @since 4.0
  */
 public class MockMvcHtmlUnitDriverBuilder extends MockMvcWebConnectionBuilderSupport<MockMvcHtmlUnitDriverBuilder> {
 

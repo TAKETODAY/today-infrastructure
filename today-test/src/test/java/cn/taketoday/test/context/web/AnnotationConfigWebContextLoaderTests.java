@@ -31,7 +31,7 @@ import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
  * Unit tests for {@link AnnotationConfigWebContextLoader}.
  *
  * @author Sam Brannen
- * @since 4.0.4
+ * @since 4.0
  */
 class AnnotationConfigWebContextLoaderTests {
 

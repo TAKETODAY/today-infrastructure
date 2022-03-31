@@ -51,7 +51,7 @@ import static org.junit.platform.engine.discovery.DiscoverySelectors.selectClass
  * is used.
  *
  * @author Sam Brannen
- * @since 5.3.17
+ * @since 4.0
  * @see https://github.com/spring-projects/spring-framework/issues/27757
  */
 class DirtiesContextEventPublishingTests {

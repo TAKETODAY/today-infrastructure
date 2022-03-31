@@ -29,7 +29,7 @@ import cn.taketoday.test.context.TestPropertySource;
  *
  * @author Anatoliy Korovin
  * @author Sam Brannen
- * @since 5.2
+ * @since 4.0
  */
 @TestPropertySource(properties = "key1 = local value")
 @TestPropertySource(properties = "second = local override")

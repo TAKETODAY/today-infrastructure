@@ -33,7 +33,7 @@ import javax.sql.DataSource;
  * Empty database configuration class for SQL script integration tests.
  *
  * @author Sam Brannen
- * @since 4.1
+ * @since 4.0
  */
 @Configuration
 public class EmptyDatabaseConfig {

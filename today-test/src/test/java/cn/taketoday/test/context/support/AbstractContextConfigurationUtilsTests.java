@@ -52,7 +52,7 @@ import static cn.taketoday.test.context.NestedTestConfiguration.EnclosingConfigu
  * {@link BootstrapTestUtils}, and {@link ActiveProfilesUtils}.
  *
  * @author Sam Brannen
- * @since 3.1
+ * @since 4.0
  */
 abstract class AbstractContextConfigurationUtilsTests {
 

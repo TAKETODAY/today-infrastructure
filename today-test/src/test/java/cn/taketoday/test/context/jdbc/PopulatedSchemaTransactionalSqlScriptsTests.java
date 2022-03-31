@@ -31,7 +31,7 @@ import cn.taketoday.test.context.transaction.BeforeTransaction;
  * {@link Sql @Sql} support.
  *
  * @author Sam Brannen
- * @since 4.1
+ * @since 4.0
  */
 @JUnitConfig(PopulatedSchemaDatabaseConfig.class)
 @DirtiesContext

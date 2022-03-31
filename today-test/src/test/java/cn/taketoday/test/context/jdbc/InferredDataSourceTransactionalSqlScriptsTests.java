@@ -46,7 +46,7 @@ import static cn.taketoday.test.transaction.TransactionAssert.assertThatTransact
  * methods are transactional.
  *
  * @author Sam Brannen
- * @since 4.1
+ * @since 4.0
  * @see InferredDataSourceSqlScriptsTests
  */
 @JUnitConfig

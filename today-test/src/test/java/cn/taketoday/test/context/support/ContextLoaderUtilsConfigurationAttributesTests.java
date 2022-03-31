@@ -36,7 +36,7 @@ import static cn.taketoday.test.context.support.ContextLoaderUtils.resolveContex
  * Unit tests for {@link ContextLoaderUtils} involving {@link ContextConfigurationAttributes}.
  *
  * @author Sam Brannen
- * @since 3.1
+ * @since 4.0
  */
 class ContextLoaderUtilsConfigurationAttributesTests extends AbstractContextConfigurationUtilsTests {
 
@@ -158,7 +158,7 @@ class ContextLoaderUtilsConfigurationAttributesTests extends AbstractContextConf
 
 	/**
 	 * Verifies change requested in <a href="https://jira.spring.io/browse/SPR-11634">SPR-11634</a>.
-	 * @since 4.0.4
+	 * @since 4.0
 	 */
 	@Test
 	void resolveConfigAttributesWithLocationsAndClasses() {

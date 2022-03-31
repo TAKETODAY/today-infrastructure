@@ -35,7 +35,7 @@ import cn.taketoday.test.jdbc.JdbcTestUtils;
  * will persist between non-transactional test methods.
  *
  * @author Sam Brannen
- * @since 4.1
+ * @since 4.0
  */
 @JUnitConfig(EmptyDatabaseConfig.class)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)

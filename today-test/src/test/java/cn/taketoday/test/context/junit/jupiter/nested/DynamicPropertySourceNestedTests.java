@@ -43,7 +43,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * {@link ApplicationExtension} in a JUnit Jupiter environment.
  *
  * @author Sam Brannen
- * @since 5.3.2
+ * @since 4.0
  */
 @JUnitConfig
 class DynamicPropertySourceNestedTests {

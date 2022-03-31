@@ -27,7 +27,7 @@ import org.junit.jupiter.api.Test;
  *
  * @author Rob Winch
  * @author Sam Brannen
- * @since 4.2
+ * @since 4.0
  */
 public class UrlRegexRequestMatcherTests extends AbstractWebRequestMatcherTests {
 

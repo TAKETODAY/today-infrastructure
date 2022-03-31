@@ -36,7 +36,7 @@ import cn.taketoday.test.context.transaction.TransactionalTestExecutionListener;
  * outside the scope of the test-managed transaction.
  *
  * @author Sam Brannen
- * @since 4.0.1
+ * @since 4.0
  */
 @Rollback
 class RollbackForRequiresNewEjbTxDaoTests extends CommitForRequiresNewEjbTxDaoTests {

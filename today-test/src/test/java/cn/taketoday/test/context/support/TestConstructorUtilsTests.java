@@ -41,7 +41,7 @@ import static cn.taketoday.test.context.TestConstructor.AutowireMode.ANNOTATED;
  * Unit tests for {@link TestConstructorUtils}.
  *
  * @author Sam Brannen
- * @since 5.2
+ * @since 4.0
  */
 class TestConstructorUtilsTests {
 

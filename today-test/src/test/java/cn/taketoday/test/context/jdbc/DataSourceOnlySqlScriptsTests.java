@@ -41,7 +41,7 @@ import javax.sql.DataSource;
  * present in the context (i.e., no transaction manager).
  *
  * @author Sam Brannen
- * @since 4.1
+ * @since 4.0
  */
 @JUnitConfig
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)

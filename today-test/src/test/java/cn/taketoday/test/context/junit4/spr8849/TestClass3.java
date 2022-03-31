@@ -38,7 +38,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * since it should only be run as part of the test suite: {@link Spr8849Tests}.
  *
  * @author Sam Brannen
- * @since 4.2
+ * @since 4.0
  * @see Spr8849Tests
  */
 @RunWith(JUnit4ClassRunner.class)

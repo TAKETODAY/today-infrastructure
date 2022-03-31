@@ -35,7 +35,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
  * {@link SqlGroup @SqlGroup} as meta-annotations.
  *
  * @author Sam Brannen
- * @since 4.1
+ * @since 4.0
  */
 @ContextConfiguration(classes = EmptyDatabaseConfig.class)
 @DirtiesContext

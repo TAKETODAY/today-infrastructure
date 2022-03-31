@@ -56,7 +56,7 @@ import static cn.taketoday.core.testfixture.TestGroup.LONG_RUNNING;
  * Unit and integration tests for {@link DelegatingWebConnection}.
  *
  * @author Rob Winch
- * @since 4.2
+ * @since 4.0
  */
 @ExtendWith(MockitoExtension.class)
 public class DelegatingWebConnectionTests {

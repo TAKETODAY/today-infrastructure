@@ -35,7 +35,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * be rolled back automatically.
  *
  * @author Sam Brannen
- * @since 4.0.1
+ * @since 4.0
  */
 @Test(suiteName = "Rollback for REQUIRED")
 @Rollback

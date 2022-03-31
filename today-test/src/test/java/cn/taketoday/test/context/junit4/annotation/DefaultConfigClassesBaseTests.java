@@ -37,7 +37,7 @@ import cn.taketoday.test.context.support.AnnotationConfigContextLoader;
  * <p>Configuration will be loaded from {@link ContextConfiguration}.
  *
  * @author Sam Brannen
- * @since 3.1
+ * @since 4.0
  * @see DefaultLoaderDefaultConfigClassesBaseTests
  */
 @RunWith(JUnit4ClassRunner.class)

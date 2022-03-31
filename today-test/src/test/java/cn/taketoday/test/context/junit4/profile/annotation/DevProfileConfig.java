@@ -27,7 +27,7 @@ import cn.taketoday.context.annotation.Profile;
 
 /**
  * @author Sam Brannen
- * @since 3.1
+ * @since 4.0
  */
 @Profile("dev")
 @Configuration

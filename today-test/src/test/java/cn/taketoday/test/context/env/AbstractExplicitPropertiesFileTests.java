@@ -29,7 +29,7 @@ import cn.taketoday.test.context.junit.jupiter.JUnitConfig;
 
 /**
  * @author Sam Brannen
- * @since 5.2
+ * @since 4.0
  */
 @JUnitConfig
 abstract class AbstractExplicitPropertiesFileTests {

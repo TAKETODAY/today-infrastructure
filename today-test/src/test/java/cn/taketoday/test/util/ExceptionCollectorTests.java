@@ -33,7 +33,7 @@ import static org.assertj.core.api.Assertions.assertThatNoException;
  * Unit tests for {@link ExceptionCollector}.
  *
  * @author Sam Brannen
- * @since 5.3.10
+ * @since 4.0
  */
 public class ExceptionCollectorTests {
 

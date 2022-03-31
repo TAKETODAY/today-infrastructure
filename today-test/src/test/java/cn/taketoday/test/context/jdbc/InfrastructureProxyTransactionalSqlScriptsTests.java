@@ -48,7 +48,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * {@link InfrastructureProxy}.
  *
  * @author Sam Brannen
- * @since 5.3.4
+ * @since 4.0
  */
 @JUnitConfig
 @DirtiesContext

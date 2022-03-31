@@ -24,7 +24,7 @@ package cn.taketoday.test.util.subpackage;
  * Simple class with static methods; intended for use in unit tests.
  *
  * @author Sam Brannen
- * @since 5.2
+ * @since 4.0
  */
 public class StaticMethods {
 

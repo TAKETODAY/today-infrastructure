@@ -24,7 +24,7 @@ package cn.taketoday.test.context.junit.jupiter.orm.domain;
  * Person repository API.
  *
  * @author Sam Brannen
- * @since 5.3.18
+ * @since 4.08
  */
 public interface PersonRepository {
 

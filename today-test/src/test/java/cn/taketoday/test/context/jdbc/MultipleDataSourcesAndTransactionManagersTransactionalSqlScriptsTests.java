@@ -45,7 +45,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * except that the test methods are transactional.
  *
  * @author Sam Brannen
- * @since 4.1
+ * @since 4.0
  */
 @JUnitConfig
 @DirtiesContext

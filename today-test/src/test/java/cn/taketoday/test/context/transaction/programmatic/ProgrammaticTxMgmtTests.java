@@ -59,7 +59,7 @@ import static org.assertj.core.api.Assertions.fail;
  * management within the <em>Spring TestContext Framework</em>.
  *
  * @author Sam Brannen
- * @since 4.1
+ * @since 4.0
  */
 @JUnitConfig
 @Transactional

@@ -37,7 +37,7 @@ import static cn.taketoday.test.context.support.AnnotationConfigContextLoaderUti
  * Unit tests for {@link AnnotationConfigContextLoaderUtils}.
  *
  * @author Sam Brannen
- * @since 4.1.5
+ * @since 4.0
  */
 class AnnotationConfigContextLoaderUtilsTests {
 

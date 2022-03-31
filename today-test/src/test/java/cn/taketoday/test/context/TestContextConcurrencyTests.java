@@ -44,7 +44,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * are only be visible to the thread in which the mutation occurred.
  *
  * @author Sam Brannen
- * @since 5.0
+ * @since 4.0
  * @see SpringJUnit4ConcurrencyTests
  */
 class TestContextConcurrencyTests {
