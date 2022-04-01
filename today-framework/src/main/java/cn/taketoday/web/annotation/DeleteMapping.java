@@ -26,10 +26,14 @@ import java.lang.annotation.Target;
 
 import cn.taketoday.core.annotation.AliasFor;
 import cn.taketoday.http.HttpMethod;
-import cn.taketoday.lang.Constant;
-import cn.taketoday.http.MediaType;
 
 /**
+ * Annotation for mapping HTTP {@code DELETE} requests onto specific handler
+ * methods.
+ *
+ * <p>Specifically, {@code @DeleteMapping} is a <em>composed annotation</em> that
+ * acts as a shortcut for {@code @RequestMapping(method = RequestMethod.DELETE)}.
+ *
  * @author TODAY 2020/12/8 21:47
  */
 @Retention(RetentionPolicy.RUNTIME)
@@ -37,108 +41,51 @@ import cn.taketoday.http.MediaType;
 @Target({ ElementType.METHOD, ElementType.TYPE })
 public @interface DeleteMapping {
 
-  /** urls */
+  /**
+   * Alias for {@link ActionMapping#name}.
+   */
   @AliasFor(annotation = ActionMapping.class)
-  String[] value() default Constant.BLANK;
+  String name() default "";
+
+  /**
+   * Alias for {@link ActionMapping#value}.
+   */
+  @AliasFor(annotation = ActionMapping.class)
+  String[] value() default {};
 
   /**
    * Alias for {@link ActionMapping#path}.
-   *
-   * @since 4.0
    */
   @AliasFor(annotation = ActionMapping.class)
-  String[] path() default Constant.BLANK;
-
-  /** Exclude url on class */
-  @AliasFor(annotation = ActionMapping.class)
-  boolean exclude() default false;
+  String[] path() default {};
 
   /**
-   * Narrows the primary mapping by media types that can be
-   * consumed by the mapped handler. Consists of one or more
-   * media types one of which must match to the request
-   * Content-Type header.
-   * Examples:
-   * <pre>
-   * consumes = "text/plain"
-   * consumes = {"text/plain", "application/*"}
-   * consumes = MediaType.TEXT_PLAIN_VALUE
-   * </pre>
-   * Expressions can be negated by using the "!" operator,
-   * as in "!text/plain", which matches all requests with
-   * a Content-Type other than "text/plain". Supported at
-   * the type level as well as at the method level! If
-   * specified at both levels, the method level consumes
-   * condition overrides the type level condition.
-   *
-   * @see MediaType
-   * @since 3.0
+   * Combine this condition with another such as conditions from a
+   * type-level and method-level {@code @RequestMapping} annotation.
    */
   @AliasFor(annotation = ActionMapping.class)
-  String[] consumes() default {};
+  boolean combine() default true;
 
   /**
-   * The parameters of the mapped request, narrowing the primary mapping.
-   * <p>
-   * Same format for any environment: a sequence of "myParam=myValue" style
-   * expressions, with a request only mapped if each such parameter is found
-   * to have the given value. Expressions can be negated by using the
-   * "!=" operator, as in "myParam!=myValue". "myParam" style expressions
-   * are also supported, with such parameters having to be present in the
-   * request (allowed to have any value). Finally, "!myParam" style
-   * expressions indicate that the specified parameter is not supposed
-   * to be present in the request.
-   * </p>
-   * <p>
-   * <b>
-   * Supported at the type level as well as at the method level! When used
-   * at the type level, all method-level mappings inherit this parameter restriction.
-   * </b>
-   * </p>
-   *
-   * @since 3.0
+   * Alias for {@link ActionMapping#params}.
    */
   @AliasFor(annotation = ActionMapping.class)
   String[] params() default {};
 
   /**
-   * Narrows the primary mapping by media types that can be
-   * produced by the mapped handler.
-   * <p>
-   * Consists of one or more media types one of which must be chosen via content
-   * negotiation against the "acceptable" media types of the
-   * request. Typically those are extracted from the "Accept"
-   * header but may be derived from query parameters, or other.
-   * </p>
-   * <pre>
-   * Examples:
-   * produces = "text/plain"
-   * produces = {"text/plain", "application/*"}
-   * produces = MediaType.TEXT_PLAIN_VALUE
-   * produces = "text/plain;charset=UTF-8"
-   * </pre>
-   * <p>
-   * If a declared media type contains a parameter
-   * (e.g. "charset=UTF-8", "type=feed", "type=entry") and
-   * if a compatible media type from the request has that parameter too,
-   * then the parameter values must match. Otherwise if the media type
-   * from the request does not contain the parameter, it is assumed the
-   * client accepts any value.
-   * </p>
-   * <p>
-   * Expressions can be negated by using the "!" operator, as in "!text/plain",
-   * which matches all requests with a Accept other than "text/plain".
-   * </p>
-   *
-   * </p>
-   * <b>
-   * Supported at the type level as well as at the method level! If
-   * specified at both levels, the method level produces condition
-   * overrides the type level condition.
-   * </b>
-   * </p>
-   *
-   * @since 3.0
+   * Alias for {@link ActionMapping#headers}.
+   */
+  @AliasFor(annotation = ActionMapping.class)
+  String[] headers() default {};
+
+  /**
+   * Alias for {@link ActionMapping#consumes}.
+   */
+  @AliasFor(annotation = ActionMapping.class)
+  String[] consumes() default {};
+
+  /**
+   * Alias for {@link ActionMapping#produces}.
    */
   @AliasFor(annotation = ActionMapping.class)
   String[] produces() default {};

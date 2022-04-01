@@ -26,7 +26,6 @@ import java.lang.annotation.Target;
 
 import cn.taketoday.core.annotation.AliasFor;
 import cn.taketoday.http.HttpMethod;
-import cn.taketoday.lang.Constant;
 
 /**
  * @author Today <br>
@@ -37,42 +36,51 @@ import cn.taketoday.lang.Constant;
 @Target({ ElementType.METHOD, ElementType.TYPE })
 public @interface TRACE {
 
-  /** urls */
+  /**
+   * Alias for {@link ActionMapping#name}.
+   */
   @AliasFor(annotation = ActionMapping.class)
-  String[] value() default Constant.BLANK;
+  String name() default "";
+
+  /**
+   * Alias for {@link ActionMapping#value}.
+   */
+  @AliasFor(annotation = ActionMapping.class)
+  String[] value() default {};
 
   /**
    * Alias for {@link ActionMapping#path}.
-   *
-   * @since 4.0
    */
   @AliasFor(annotation = ActionMapping.class)
-  String[] path() default Constant.BLANK;
+  String[] path() default {};
 
-  /** Exclude url on class */
+  /**
+   * Combine this condition with another such as conditions from a
+   * type-level and method-level {@code @RequestMapping} annotation.
+   */
   @AliasFor(annotation = ActionMapping.class)
-  boolean exclude() default false;
+  boolean combine() default true;
 
   /**
    * Alias for {@link ActionMapping#params}.
-   *
-   * @since 4.0
    */
   @AliasFor(annotation = ActionMapping.class)
   String[] params() default {};
 
   /**
+   * Alias for {@link ActionMapping#headers}.
+   */
+  @AliasFor(annotation = ActionMapping.class)
+  String[] headers() default {};
+
+  /**
    * Alias for {@link ActionMapping#consumes}.
-   *
-   * @since 4.0
    */
   @AliasFor(annotation = ActionMapping.class)
   String[] consumes() default {};
 
   /**
    * Alias for {@link ActionMapping#produces}.
-   *
-   * @since 4.0
    */
   @AliasFor(annotation = ActionMapping.class)
   String[] produces() default {};

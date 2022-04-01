@@ -28,15 +28,46 @@ import cn.taketoday.core.annotation.AliasFor;
 import cn.taketoday.http.HttpMethod;
 import cn.taketoday.http.MediaType;
 import cn.taketoday.lang.Constant;
+import cn.taketoday.web.handler.HandlerMethodMappingNamingStrategy;
 
 /**
- * @author TODAY <br>
- * 2018-08-23 10:18
+ * Annotation for mapping web requests onto methods in request-handling classes
+ * with flexible method signatures.
+ *
+ * <p><strong>Note:</strong> This annotation can be used both at the class and
+ * at the method level. In most cases, at the method level applications will
+ * prefer to use one of the HTTP method specific variants
+ * {@link GetMapping @GetMapping}, {@link PostMapping @PostMapping},
+ * {@link PutMapping @PutMapping}, {@link DeleteMapping @DeleteMapping}, or
+ * {@link PatchMapping @PatchMapping}.</p>
+ *
+ * <p><b>NOTE:</b> When using controller interfaces (e.g. for AOP proxying),
+ * make sure to consistently put <i>all</i> your mapping annotations - such as
+ * {@code @RequestMapping} and {@code @SessionAttributes} - on
+ * the controller <i>interface</i> rather than on the implementation class.
+ *
+ * <p>
+ * like Spring's RequestMapping
+ * </p>
+ *
+ * @author TODAY
+ * @since 2018-08-23 10:18
  */
 @ActionMapping
 @Target({ ElementType.METHOD, ElementType.TYPE })
 @Retention(RetentionPolicy.RUNTIME)
 public @interface RequestMapping {
+
+  /**
+   * Assign a name to this mapping.
+   * <p><b>Supported at the type level as well as at the method level!</b>
+   * When used on both levels, a combined name is derived by concatenation
+   * with "#" as separator.
+   *
+   * @see HandlerMethodMappingNamingStrategy
+   * @since 4.0
+   */
+  String name() default "";
 
   /**
    * The primary mapping expressed by this annotation.
@@ -69,8 +100,13 @@ public @interface RequestMapping {
   @AliasFor("value")
   String[] path() default Constant.BLANK;
 
-  /** Exclude url on class */
-  boolean exclude() default false;
+  /**
+   * Combine this condition with another such as conditions from a
+   * type-level and method-level {@code @RequestMapping} annotation.
+   *
+   * @since 3.0
+   */
+  boolean combine() default true;
 
   /**
    * The HTTP request methods to map to, narrowing the primary mapping:
@@ -169,7 +205,27 @@ public @interface RequestMapping {
   String[] produces() default {};
 
   /**
+   * The headers of the mapped request, narrowing the primary mapping.
+   * <p>Same format for any environment: a sequence of "My-Header=myValue" style
+   * expressions, with a request only mapped if each such header is found
+   * to have the given value. Expressions can be negated by using the "!=" operator,
+   * as in "My-Header!=myValue". "My-Header" style expressions are also supported,
+   * with such headers having to be present in the request (allowed to have
+   * any value). Finally, "!My-Header" style expressions indicate that the
+   * specified header is <i>not</i> supposed to be present in the request.
+   * <p>Also supports media type wildcards (*), for headers such as Accept
+   * and Content-Type. For instance,
+   * <pre class="code">
+   * &#064;RequestMapping(value = "/something", headers = "content-type=text/*")
+   * </pre>
+   * will match requests with a Content-Type of "text/html", "text/plain", etc.
+   * <p><b>Supported at the type level as well as at the method level!</b>
+   * When used at the type level, all method-level mappings inherit this
+   * header restriction.
+   *
+   * @see MediaType
    * @since 4.0
    */
   String[] headers() default {};
+
 }
