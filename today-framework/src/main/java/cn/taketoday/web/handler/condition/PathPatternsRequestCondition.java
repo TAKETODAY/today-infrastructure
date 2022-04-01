@@ -167,7 +167,7 @@ public final class PathPatternsRequestCondition extends AbstractRequestCondition
       return other;
     }
     else {
-      SortedSet<PathPattern> combined = new TreeSet<>();
+      TreeSet<PathPattern> combined = new TreeSet<>();
       for (PathPattern pattern1 : this.patterns) {
         for (PathPattern pattern2 : other.patterns) {
           combined.add(pattern1.combine(pattern2));

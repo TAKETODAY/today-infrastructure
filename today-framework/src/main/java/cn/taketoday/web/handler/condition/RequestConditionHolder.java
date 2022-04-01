@@ -91,7 +91,7 @@ public final class RequestConditionHolder extends AbstractRequestCondition<Reque
     }
     else {
       assertEqualConditionTypes(this.condition, other.condition);
-      RequestCondition<?> combined = (RequestCondition<?>) this.condition.combine(other.condition);
+      RequestCondition<?> combined = (RequestCondition<?>) condition.combine(other.condition);
       return new RequestConditionHolder(combined);
     }
   }

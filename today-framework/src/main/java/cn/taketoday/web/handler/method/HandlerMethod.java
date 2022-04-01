@@ -27,6 +27,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
+import cn.taketoday.context.MessageSource;
+import cn.taketoday.core.BridgeMethodResolver;
 import cn.taketoday.core.MethodParameter;
 import cn.taketoday.core.ParameterNameDiscoverer;
 import cn.taketoday.core.ResolvableType;
@@ -44,6 +46,7 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ObjectUtils;
+import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.annotation.Produce;
 import cn.taketoday.web.annotation.ResponseBody;
@@ -82,6 +85,22 @@ public class HandlerMethod {
   /** @since 4.0 */
   @Nullable
   private volatile List<Annotation[][]> interfaceParameterAnnotations;
+
+  /**
+   * Create an instance from a bean instance and a method.
+   */
+  public HandlerMethod(Object bean, Method method) {
+    this(bean, method, null);
+  }
+
+  /**
+   * Variant of {@link #HandlerMethod(Object, Method)} that
+   * also accepts a {@link MessageSource} for use from sub-classes.
+   */
+  protected HandlerMethod(Object bean, Method method, @Nullable MessageSource messageSource) {
+    Assert.notNull(bean, "Bean is required");
+    Assert.notNull(method, "Method is required");
+  }
 
   public HandlerMethod(Method method) {
     Assert.notNull(method, "Method is required");
@@ -136,6 +155,15 @@ public class HandlerMethod {
   }
 
   // ---- useful methods
+
+  /**
+   * This method returns the type of the handler for this handler method.
+   * <p>Note that if the bean type is a CGLIB-generated class, the original
+   * user-defined class is returned.
+   */
+  public Class<?> getBeanType() {
+    return this.beanType;
+  }
 
   public boolean returnTypeIsInterface() {
     return returnType.isInterface();
