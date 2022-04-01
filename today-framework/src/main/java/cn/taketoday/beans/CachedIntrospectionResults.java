@@ -101,7 +101,8 @@ public final class CachedIntrospectionResults {
 
   private static final PropertyDescriptor[] EMPTY_PROPERTY_DESCRIPTOR_ARRAY = {};
 
-  private static final boolean shouldIntrospectorIgnoreBeanInfoClasses = TodayStrategies.getFlag(IGNORE_BEANINFO_PROPERTY_NAME);
+  private static final boolean shouldIntrospectorIgnoreBeanInfoClasses
+          = TodayStrategies.getFlag(IGNORE_BEANINFO_PROPERTY_NAME);
 
   /** Stores the BeanInfoFactory instances. */
   private static final List<BeanInfoFactory> beanInfoFactories = TodayStrategies.get(
@@ -156,20 +157,22 @@ public final class CachedIntrospectionResults {
 
       HashSet<String> readMethodNames = new HashSet<>();
 
+      boolean isClass = Class.class == beanClass;
       // This call is slow so we do it once.
       PropertyDescriptor[] pds = beanInfo.getPropertyDescriptors();
       for (PropertyDescriptor pd : pds) {
-        if (Class.class == beanClass && ("classLoader".equals(pd.getName()) || "protectionDomain".equals(pd.getName()))) {
-          // Ignore Class.getClassLoader() and getProtectionDomain() methods - nobody needs to bind to those
+        String name = pd.getName();
+        if (isClass && ("classLoader".equals(name) || "protectionDomain".equals(name))) {
+          // Only allow all name variants of Class properties
           continue;
         }
         if (logger.isTraceEnabled()) {
-          logger.trace("Found bean property '{}'{}{}", pd.getName(),
+          logger.trace("Found bean property '{}'{}{}", name,
                   (pd.getPropertyType() != null ? " of type [" + pd.getPropertyType().getName() + "]" : ""),
                   (pd.getPropertyEditorClass() != null ? "; editor [" + pd.getPropertyEditorClass().getName() + "]" : ""));
         }
         pd = buildGenericTypeAwarePropertyDescriptor(beanClass, pd);
-        propertyDescriptors.put(pd.getName(), pd);
+        propertyDescriptors.put(name, pd);
         Method readMethod = pd.getReadMethod();
         if (readMethod != null) {
           readMethodNames.add(readMethod.getName());
