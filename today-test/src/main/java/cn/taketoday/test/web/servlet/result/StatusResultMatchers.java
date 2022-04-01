@@ -23,7 +23,6 @@ package cn.taketoday.test.web.servlet.result;
 import org.hamcrest.Matcher;
 
 import cn.taketoday.http.HttpStatus;
-import cn.taketoday.http.HttpStatusCode;
 import cn.taketoday.test.web.servlet.MvcResult;
 import cn.taketoday.test.web.servlet.ResultMatcher;
 
@@ -636,7 +635,7 @@ public class StatusResultMatchers {
   /**
    * Match the expected response status to that of the HttpServletResponse.
    */
-  private ResultMatcher matcher(HttpStatusCode status) {
+  private ResultMatcher matcher(HttpStatus status) {
     return result -> assertEquals("Status", status.value(), result.getResponse().getStatus());
   }
 

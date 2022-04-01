@@ -38,7 +38,7 @@ import cn.taketoday.lang.Nullable;
  * @see <a href="https://en.wikipedia.org/wiki/List_of_HTTP_status_codes">List of HTTP status codes - Wikipedia</a>
  * @since 3.0
  */
-public enum HttpStatus {
+public enum HttpStatus implements HttpStatusCode {
 
   // 1xx Informational
 
@@ -498,6 +498,7 @@ public enum HttpStatus {
   /**
    * Return the integer value of this status code.
    */
+  @Override
   public int value() {
     return this.value;
   }
@@ -525,6 +526,7 @@ public enum HttpStatus {
    *
    * @see #series()
    */
+  @Override
   public boolean is1xxInformational() {
     return (series() == Series.INFORMATIONAL);
   }
@@ -536,6 +538,7 @@ public enum HttpStatus {
    *
    * @see #series()
    */
+  @Override
   public boolean is2xxSuccessful() {
     return (series() == Series.SUCCESSFUL);
   }
@@ -547,6 +550,7 @@ public enum HttpStatus {
    *
    * @see #series()
    */
+  @Override
   public boolean is3xxRedirection() {
     return (series() == Series.REDIRECTION);
   }
@@ -558,6 +562,7 @@ public enum HttpStatus {
    *
    * @see #series()
    */
+  @Override
   public boolean is4xxClientError() {
     return (series() == Series.CLIENT_ERROR);
   }
@@ -569,6 +574,7 @@ public enum HttpStatus {
    *
    * @see #series()
    */
+  @Override
   public boolean is5xxServerError() {
     return (series() == Series.SERVER_ERROR);
   }
@@ -582,6 +588,7 @@ public enum HttpStatus {
    * @see #is4xxClientError()
    * @see #is5xxServerError()
    */
+  @Override
   public boolean isError() {
     return (is4xxClientError() || is5xxServerError());
   }

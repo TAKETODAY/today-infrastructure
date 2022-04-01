@@ -28,10 +28,6 @@ import cn.taketoday.test.web.servlet.MvcResult;
 import cn.taketoday.test.web.servlet.ResultMatcher;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.web.handler.method.HandlerMethod;
-import cn.taketoday.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder;
-import cn.taketoday.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.MethodInvocationInfo;
-import cn.taketoday.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter;
-import cn.taketoday.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 
 import static cn.taketoday.test.util.AssertionErrors.assertEquals;
 import static cn.taketoday.test.util.AssertionErrors.assertNotNull;
