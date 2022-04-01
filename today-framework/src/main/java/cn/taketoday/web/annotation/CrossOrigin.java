@@ -23,10 +23,12 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import java.util.List;
 
-import cn.taketoday.web.cors.CorsConfiguration;
+import cn.taketoday.core.annotation.AliasFor;
 import cn.taketoday.http.HttpMethod;
 import cn.taketoday.lang.Constant;
+import cn.taketoday.web.cors.CorsConfiguration;
 
 /**
  * Annotation for permitting cross-origin requests on specific handler classes
@@ -68,7 +70,27 @@ public @interface CrossOrigin {
    *
    * @see #value
    */
+  @AliasFor("origins")
   String[] value() default {};
+
+  /**
+   * A list of origins for which cross-origin requests are allowed. Please,
+   * see {@link CorsConfiguration#setAllowedOrigins(List)} for details.
+   * <p>By default all origins are allowed unless {@link #originPatterns} is
+   * also set in which case {@code originPatterns} is used instead.
+   */
+  @AliasFor("value")
+  String[] origins() default {};
+
+  /**
+   * Alternative to {@link #origins} that supports more flexible origin
+   * patterns. Please, see {@link CorsConfiguration#setAllowedOriginPatterns(List)}
+   * for details.
+   * <p>By default this is not set.
+   *
+   * @since 4.0
+   */
+  String[] originPatterns() default {};
 
   /**
    * The list of request headers that are permitted in actual requests, possibly
