@@ -32,6 +32,7 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import cn.taketoday.beans.BeansException;
+import cn.taketoday.beans.CachedIntrospectionResults;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
 import cn.taketoday.beans.factory.ObjectSupplier;
@@ -479,6 +480,7 @@ public abstract class AbstractApplicationContext
     ReflectionUtils.clearCache();
     AnnotationUtils.clearCache();
     ResolvableType.clearCache();
+    CachedIntrospectionResults.clearClassLoader(getClassLoader());
     if (bootstrapContext != null) {
       bootstrapContext.clearCache();
     }
