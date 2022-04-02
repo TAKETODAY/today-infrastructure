@@ -46,7 +46,7 @@ import jakarta.servlet.http.Part;
  * Mock implementation of the
  * {@link cn.taketoday.web.multipart.MultipartHttpServletRequest} interface.
  *
- * <p>As of Spring 5.0, this set of mocks is designed on a Servlet 4.0 baseline.
+ * <p>@since 4.0this set of mocks is designed on a Servlet 4.0 baseline.
  *
  * <p>Useful for testing application controllers that access multipart uploads.
  * {@link MockMultipartFile} can be used to populate these mock requests with files.

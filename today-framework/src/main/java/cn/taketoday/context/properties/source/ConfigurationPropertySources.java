@@ -95,7 +95,7 @@ public final class ConfigurationPropertySources {
     PropertySource<?> attached = getAttached(sources);
     if (attached == null || !isUsingSources(attached, sources)) {
       attached = new ConfigurationPropertySourcesPropertySource(ATTACHED_PROPERTY_SOURCE_NAME,
-              new FrameworkConfigurationPropertySources(sources));
+              new DefaultConfigurationPropertySources(sources));
     }
     sources.remove(ATTACHED_PROPERTY_SOURCE_NAME);
     sources.addFirst(attached);
@@ -103,7 +103,7 @@ public final class ConfigurationPropertySources {
 
   private static boolean isUsingSources(PropertySource<?> attached, PropertySources sources) {
     return attached instanceof ConfigurationPropertySourcesPropertySource
-            && ((FrameworkConfigurationPropertySources) attached.getSource()).isUsingSources(sources);
+            && ((DefaultConfigurationPropertySources) attached.getSource()).isUsingSources(sources);
   }
 
   @Nullable
@@ -138,7 +138,7 @@ public final class ConfigurationPropertySources {
    *
    * @param source the Framework property source to adapt
    * @return an {@link Iterable} containing a single newly adapted
-   * {@link FrameworkConfigurationPropertySource}
+   * {@link DefaultConfigurationPropertySource}
    */
   public static Iterable<ConfigurationPropertySource> from(PropertySource<?> source) {
     return Collections.singleton(ConfigurationPropertySource.from(source));
@@ -156,10 +156,10 @@ public final class ConfigurationPropertySources {
    *
    * @param sources the Framework property sources to adapt
    * @return an {@link Iterable} containing newly adapted
-   * {@link FrameworkConfigurationPropertySource} instances
+   * {@link DefaultConfigurationPropertySource} instances
    */
   public static Iterable<ConfigurationPropertySource> from(Iterable<PropertySource<?>> sources) {
-    return new FrameworkConfigurationPropertySources(sources);
+    return new DefaultConfigurationPropertySources(sources);
   }
 
   private static Stream<PropertySource<?>> streamPropertySources(PropertySources sources) {

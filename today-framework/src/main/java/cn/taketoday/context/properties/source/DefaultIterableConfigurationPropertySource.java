@@ -48,7 +48,7 @@ import cn.taketoday.util.StringUtils;
 
 /**
  * {@link ConfigurationPropertySource} backed by an {@link EnumerablePropertySource}.
- * Extends {@link FrameworkConfigurationPropertySource} with full "relaxed" mapping support.
+ * Extends {@link DefaultConfigurationPropertySource} with full "relaxed" mapping support.
  * In order to use this adapter the underlying {@link PropertySource} must be fully
  * enumerable. A security restricted {@link SystemEnvironmentPropertySource} cannot be
  * adapted.
@@ -59,7 +59,7 @@ import cn.taketoday.util.StringUtils;
  * @see PropertyMapper
  * @since 4.0
  */
-class FrameworkIterableConfigurationPropertySource extends FrameworkConfigurationPropertySource
+class DefaultIterableConfigurationPropertySource extends DefaultConfigurationPropertySource
         implements IterableConfigurationPropertySource, CachingConfigurationPropertySource {
 
   private final BiPredicate<ConfigurationPropertyName, ConfigurationPropertyName> ancestorOfCheck;
@@ -69,7 +69,7 @@ class FrameworkIterableConfigurationPropertySource extends FrameworkConfiguratio
   @Nullable
   private volatile ConfigurationPropertyName[] configurationPropertyNames;
 
-  FrameworkIterableConfigurationPropertySource(
+  DefaultIterableConfigurationPropertySource(
           EnumerablePropertySource<?> propertySource, PropertyMapper... mappers) {
     super(propertySource, mappers);
     assertEnumerablePropertySource();

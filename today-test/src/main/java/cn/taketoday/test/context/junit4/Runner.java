@@ -32,7 +32,7 @@ import cn.taketoday.test.context.junit4.rules.ApplicationMethodRule;
  * <p>To use this class, simply annotate a JUnit 4 based test class with
  * {@code @RunWith(Runner.class)}.
  *
- * <p>If you would like to use the Spring TestContext Framework with a runner other than
+ * <p>If you would like to use the TestContext Framework with a runner other than
  * this one, use {@link ApplicationClassRule}
  * and {@link ApplicationMethodRule}.
  *

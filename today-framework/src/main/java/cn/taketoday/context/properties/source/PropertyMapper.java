@@ -32,16 +32,16 @@ import cn.taketoday.core.env.PropertySource;
  * <p>
  * Mappings should be provided for both {@link ConfigurationPropertyName
  * ConfigurationPropertyName} types and {@code String} based names. This allows the
- * {@link FrameworkConfigurationPropertySource} to first attempt any direct mappings (i.e.
+ * {@link DefaultConfigurationPropertySource} to first attempt any direct mappings (i.e.
  * map the {@link ConfigurationPropertyName} directly to the {@link PropertySource} name)
  * before falling back to {@link EnumerablePropertySource enumerating} property names,
  * mapping them to a {@link ConfigurationPropertyName} and checking for applicability. See
- * {@link FrameworkConfigurationPropertySource} for more details.
+ * {@link DefaultConfigurationPropertySource} for more details.
  *
  * @author Phillip Webb
  * @author Madhura Bhave
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @see FrameworkConfigurationPropertySource
+ * @see DefaultConfigurationPropertySource
  * @since 4.0
  */
 interface PropertyMapper {

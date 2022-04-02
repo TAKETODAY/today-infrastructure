@@ -157,7 +157,6 @@ public class AnnotationConfigContextLoader extends AbstractGenericContextLoader 
    * contain {@link MergedContextConfiguration#getLocations() locations}.
    *
    * @see AbstractGenericContextLoader#validateMergedContextConfiguration
-   * @since 4.0
    */
   @Override
   protected void validateMergedContextConfiguration(MergedContextConfiguration mergedConfig) {
@@ -188,9 +187,7 @@ public class AnnotationConfigContextLoader extends AbstractGenericContextLoader 
   @Override
   protected void loadBeanDefinitions(GenericApplicationContext context, MergedContextConfiguration mergedConfig) {
     Class<?>[] componentClasses = mergedConfig.getClasses();
-    if (logger.isDebugEnabled()) {
-      logger.debug("Registering component classes: " + ObjectUtils.nullSafeToString(componentClasses));
-    }
+    logger.debug("Registering component classes: {}", ObjectUtils.nullSafeToString(componentClasses));
     new AnnotatedBeanDefinitionReader(context).register(componentClasses);
   }
 

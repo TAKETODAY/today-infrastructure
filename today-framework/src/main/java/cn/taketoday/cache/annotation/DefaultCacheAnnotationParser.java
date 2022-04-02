@@ -51,7 +51,7 @@ import cn.taketoday.util.StringUtils;
  * @since 4.0
  */
 @SuppressWarnings("serial")
-public class FrameworkCacheAnnotationParser implements CacheAnnotationParser, Serializable {
+public class DefaultCacheAnnotationParser implements CacheAnnotationParser, Serializable {
 
   private static final Set<Class<? extends Annotation>> CACHE_OPERATION_ANNOTATIONS = new LinkedHashSet<>(8);
 
@@ -230,12 +230,12 @@ public class FrameworkCacheAnnotationParser implements CacheAnnotationParser, Se
 
   @Override
   public boolean equals(@Nullable Object other) {
-    return (other instanceof FrameworkCacheAnnotationParser);
+    return (other instanceof DefaultCacheAnnotationParser);
   }
 
   @Override
   public int hashCode() {
-    return FrameworkCacheAnnotationParser.class.hashCode();
+    return DefaultCacheAnnotationParser.class.hashCode();
   }
 
   /**

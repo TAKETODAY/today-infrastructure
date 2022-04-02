@@ -20,13 +20,14 @@
 
 package cn.taketoday.test.context.web;
 
+import java.io.Serial;
 import java.util.Set;
 
 import cn.taketoday.context.ApplicationContextInitializer;
 import cn.taketoday.core.style.ToStringBuilder;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.test.context.CacheAwareContextLoaderDelegate;
 import cn.taketoday.test.context.ActiveProfiles;
+import cn.taketoday.test.context.CacheAwareContextLoaderDelegate;
 import cn.taketoday.test.context.ContextConfiguration;
 import cn.taketoday.test.context.ContextConfigurationAttributes;
 import cn.taketoday.test.context.ContextCustomizer;
@@ -63,6 +64,7 @@ import cn.taketoday.util.StringUtils;
  */
 public class WebMergedContextConfiguration extends MergedContextConfiguration {
 
+  @Serial
   private static final long serialVersionUID = 7323361588604247458L;
 
   private final String resourceBasePath;
@@ -105,7 +107,6 @@ public class WebMergedContextConfiguration extends MergedContextConfiguration {
    * @param cacheAwareContextLoaderDelegate a cache-aware context loader
    * delegate with which to retrieve the parent context
    * @param parent the parent configuration or {@code null} if there is no parent
-   * @since 4.0
    */
   public WebMergedContextConfiguration(Class<?> testClass, @Nullable String[] locations, @Nullable Class<?>[] classes,
           @Nullable Set<Class<? extends ApplicationContextInitializer>> contextInitializerClasses,
@@ -142,7 +143,6 @@ public class WebMergedContextConfiguration extends MergedContextConfiguration {
    * @param cacheAwareContextLoaderDelegate a cache-aware context loader
    * delegate with which to retrieve the parent context
    * @param parent the parent configuration or {@code null} if there is no parent
-   * @since 4.0
    */
   public WebMergedContextConfiguration(Class<?> testClass, @Nullable String[] locations, @Nullable Class<?>[] classes,
           @Nullable Set<Class<? extends ApplicationContextInitializer>> contextInitializerClasses,

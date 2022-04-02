@@ -215,8 +215,11 @@ public class ApplicationContextLoader extends AbstractContextLoader {
   }
 
   private boolean isEmbeddedWebEnvironment(MergedContextConfiguration config) {
-    return MergedAnnotations.from(config.getTestClass(), SearchStrategy.TYPE_HIERARCHY).get(ApplicationTest.class)
-            .getValue("webEnvironment", WebEnvironment.class).orElse(WebEnvironment.NONE).isEmbedded();
+    return MergedAnnotations.from(config.getTestClass(), SearchStrategy.TYPE_HIERARCHY)
+            .get(ApplicationTest.class)
+            .getValue("webEnvironment", WebEnvironment.class)
+            .orElse(WebEnvironment.NONE)
+            .isEmbedded();
   }
 
   @Override

@@ -26,9 +26,9 @@ import cn.taketoday.test.context.support.GenericXmlContextLoader;
 
 /**
  * Strategy interface for loading an {@link ApplicationContext application context}
- * for an integration test managed by the Spring TestContext Framework.
+ * for an integration test managed by the TestContext Framework.
  *
- * <p><b>Note</b>: as of Spring 3.1, implement {@link SmartContextLoader} instead
+ * <p><b>Note</b>: implement {@link SmartContextLoader} instead
  * of this interface in order to provide support for annotated classes, active
  * bean definition profiles, and application context initializers.
  *
@@ -41,7 +41,7 @@ import cn.taketoday.test.context.support.GenericXmlContextLoader;
  *
  * <p>Concrete implementations must provide a {@code public} no-args constructor.
  *
- * <p>Spring provides the following out-of-the-box implementations:
+ * <p> provides the following out-of-the-box implementations:
  * <ul>
  * <li>{@link GenericXmlContextLoader GenericXmlContextLoader}</li>
  * </ul>
@@ -49,7 +49,7 @@ import cn.taketoday.test.context.support.GenericXmlContextLoader;
  * @author Sam Brannen
  * @author Juergen Hoeller
  * @see SmartContextLoader
- * @see AnnotationConfigContextLoader AnnotationConfigContextLoader
+ * @see AnnotationConfigContextLoader
  * @since 4.0
  */
 public interface ContextLoader {

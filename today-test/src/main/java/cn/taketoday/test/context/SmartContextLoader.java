@@ -30,10 +30,10 @@ import cn.taketoday.test.context.web.WebDelegatingSmartContextLoader;
 
 /**
  * Strategy interface for loading an {@link ApplicationContext application context}
- * for an integration test managed by the Spring TestContext Framework.
+ * for an integration test managed by the TestContext Framework.
  *
  * <p>The {@code SmartContextLoader} SPI supersedes the {@link ContextLoader} SPI
- * introduced in Spring 2.5: a {@code SmartContextLoader} can choose to process
+ * introduced a {@code SmartContextLoader} can choose to process
  * either resource locations or annotated classes. Furthermore, a
  * {@code SmartContextLoader} can set active bean definition profiles in the
  * context that it loads (see {@link MergedContextConfiguration#getActiveProfiles()}
@@ -62,7 +62,7 @@ import cn.taketoday.test.context.web.WebDelegatingSmartContextLoader;
  *
  * <p>Concrete implementations must provide a {@code public} no-args constructor.
  *
- * <p>Spring provides the following out-of-the-box implementations:
+ * <p>provides the following out-of-the-box implementations:
  * <ul>
  * <li>{@link DelegatingSmartContextLoader DelegatingSmartContextLoader}</li>
  * <li>{@link AnnotationConfigContextLoader AnnotationConfigContextLoader}</li>
@@ -77,7 +77,7 @@ import cn.taketoday.test.context.web.WebDelegatingSmartContextLoader;
  * @see ActiveProfiles
  * @see ContextConfigurationAttributes
  * @see MergedContextConfiguration
- *@since 4.0
+ * @since 4.0
  */
 public interface SmartContextLoader extends ContextLoader {
 

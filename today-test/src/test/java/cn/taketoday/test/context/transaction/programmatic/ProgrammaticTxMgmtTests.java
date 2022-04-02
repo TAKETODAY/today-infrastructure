@@ -57,7 +57,7 @@ import static org.assertj.core.api.Assertions.fail;
 
 /**
  * JUnit-based integration tests that verify support for programmatic transaction
- * management within the <em>Spring TestContext Framework</em>.
+ * management within the <em>TestContext Framework</em>.
  *
  * @author Sam Brannen
  * @since 4.0

@@ -35,7 +35,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Integration tests which demonstrate the composability of annotations from
- * JUnit Jupiter and the Spring TestContext Framework.
+ * JUnit Jupiter and the TestContext Framework.
  *
  * <p>Note that {@link JUnitConfig @JUnitConfig} is meta-annotated
  * with JUnit Jupiter's {@link ExtendWith @ExtendWith} <b>and</b> Spring's

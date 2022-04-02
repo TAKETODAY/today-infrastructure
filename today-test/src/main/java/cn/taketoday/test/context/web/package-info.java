@@ -19,7 +19,7 @@
  */
 
 /**
- * Web support classes for the <em>Spring TestContext Framework</em>.
+ * Web support classes for the <em>TestContext Framework</em>.
  */
 @NonNullApi
 @NonNullFields

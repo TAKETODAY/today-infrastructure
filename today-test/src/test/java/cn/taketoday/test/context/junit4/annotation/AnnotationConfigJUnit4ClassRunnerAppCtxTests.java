@@ -25,11 +25,11 @@ import cn.taketoday.test.context.junit4.JUnit4ClassRunnerAppCtxTests;
 
 /**
  * Integration tests that verify support for configuration classes in
- * the Spring TestContext Framework.
+ * the TestContext Framework.
  *
  * <p>Furthermore, by extending {@link JUnit4ClassRunnerAppCtxTests},
  * this class also verifies support for several basic features of the
- * Spring TestContext Framework. See JavaDoc in
+ * TestContext Framework. See JavaDoc in
  * {@code SpringJUnit4ClassRunnerAppCtxTests} for details.
  *
  * <p>Configuration will be loaded from {@link PojoAndStringConfig}.

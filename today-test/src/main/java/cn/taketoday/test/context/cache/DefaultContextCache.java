@@ -87,7 +87,6 @@ public class DefaultContextCache implements ContextCache {
    *
    * @see #DefaultContextCache(int)
    * @see ContextCacheUtils#retrieveMaxCacheSize()
-   * @since 4.0
    */
   public DefaultContextCache() {
     this(ContextCacheUtils.retrieveMaxCacheSize());
@@ -101,7 +100,6 @@ public class DefaultContextCache implements ContextCache {
    * @throws IllegalArgumentException if the supplied {@code maxSize} value
    * is not positive
    * @see #DefaultContextCache()
-   * @since 4.0
    */
   public DefaultContextCache(int maxSize) {
     Assert.isTrue(maxSize > 0, "'maxSize' must be positive");
@@ -289,9 +287,7 @@ public class DefaultContextCache implements ContextCache {
    */
   @Override
   public void logStatistics() {
-    if (statsLogger.isDebugEnabled()) {
-      statsLogger.debug("Spring test ApplicationContext cache statistics: " + this);
-    }
+    statsLogger.debug("Test ApplicationContext cache statistics: {}", this);
   }
 
   /**
@@ -317,8 +313,6 @@ public class DefaultContextCache implements ContextCache {
    * Simple cache implementation based on {@link LinkedHashMap} with a maximum
    * size and a <em>least recently used</em> (LRU) eviction policy that
    * properly closes application contexts.
-   *
-   * @since 4.0
    */
   @SuppressWarnings("serial")
   private class LruCache extends LinkedHashMap<MergedContextConfiguration, ApplicationContext> {

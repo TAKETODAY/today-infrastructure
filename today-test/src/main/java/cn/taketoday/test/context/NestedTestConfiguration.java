@@ -74,7 +74,7 @@ import cn.taketoday.test.context.web.WebAppConfiguration;
  * support for nested test classes that could also make use of this annotation.
  *
  * <h3>Supported Annotations</h3>
- * <p>The <em>Spring TestContext Framework</em> honors {@code @NestedTestConfiguration}
+ * <p>The <em>TestContext Framework</em> honors {@code @NestedTestConfiguration}
  * semantics for the following annotations.
  * <ul>
  * <li>{@link BootstrapWith @BootstrapWith}</li>

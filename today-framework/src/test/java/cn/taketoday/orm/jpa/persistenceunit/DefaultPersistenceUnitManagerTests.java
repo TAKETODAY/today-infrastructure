@@ -56,15 +56,15 @@ public class DefaultPersistenceUnitManagerTests {
   }
 
   private void testDefaultDomain() {
-    FrameworkPersistenceUnitInfo puInfo = buildDefaultPersistenceUnitInfo();
+    JpaPersistenceUnitInfo puInfo = buildDefaultPersistenceUnitInfo();
     assertThat(puInfo.getManagedClassNames()).contains(
             "cn.taketoday.orm.jpa.domain.Person",
             "cn.taketoday.orm.jpa.domain.DriversLicense");
   }
 
-  private FrameworkPersistenceUnitInfo buildDefaultPersistenceUnitInfo() {
+  private JpaPersistenceUnitInfo buildDefaultPersistenceUnitInfo() {
     this.manager.preparePersistenceUnitInfos();
-    return (FrameworkPersistenceUnitInfo) this.manager.obtainDefaultPersistenceUnitInfo();
+    return (JpaPersistenceUnitInfo) this.manager.obtainDefaultPersistenceUnitInfo();
   }
 
 }

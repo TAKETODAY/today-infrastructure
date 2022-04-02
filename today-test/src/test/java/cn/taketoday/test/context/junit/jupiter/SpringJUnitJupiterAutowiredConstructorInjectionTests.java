@@ -33,7 +33,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Integration tests which demonstrate support for {@link Autowired @Autowired}
- * test class constructors with the Spring TestContext Framework and JUnit Jupiter.
+ * test class constructors with the TestContext Framework and JUnit Jupiter.
  *
  * @author Sam Brannen
  * @see ApplicationExtension

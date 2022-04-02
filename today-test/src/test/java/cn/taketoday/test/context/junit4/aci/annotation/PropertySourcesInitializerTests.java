@@ -38,7 +38,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Integration tests that verify that a {@link PropertySource} can be set via a
- * custom {@link ApplicationContextInitializer} in the Spring TestContext Framework.
+ * custom {@link ApplicationContextInitializer} in the TestContext Framework.
  *
  * @author Sam Brannen
  * @since 4.0

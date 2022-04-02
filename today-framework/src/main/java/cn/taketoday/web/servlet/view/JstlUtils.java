@@ -101,7 +101,7 @@ public abstract class JstlUtils {
       Config.set(servletRequest, Config.FMT_TIME_ZONE, timeZone);
     }
     if (messageSource != null) {
-      LocalizationContext jstlContext = new FrameworkLocalizationContext(messageSource, servletRequest, request);
+      LocalizationContext jstlContext = new JstlLocalizationContext(messageSource, servletRequest, request);
       Config.set(servletRequest, Config.FMT_LOCALIZATION_CONTEXT, jstlContext);
     }
   }
@@ -147,7 +147,7 @@ public abstract class JstlUtils {
 
     MessageSource messageSource = getJstlAwareMessageSource(
             servletRequest.getServletContext(), request.getApplicationContext());
-    LocalizationContext jstlContext = new FrameworkLocalizationContext(messageSource, servletRequest, request);
+    LocalizationContext jstlContext = new JstlLocalizationContext(messageSource, servletRequest, request);
     Config.set(servletRequest, Config.FMT_LOCALIZATION_CONTEXT, jstlContext);
   }
 
@@ -185,14 +185,14 @@ public abstract class JstlUtils {
    * Framework-specific LocalizationContext adapter that merges session-scoped
    * JSTL LocalizationContext/Locale attributes with the local Framework request context.
    */
-  private static class FrameworkLocalizationContext extends LocalizationContext {
+  private static class JstlLocalizationContext extends LocalizationContext {
 
     private final MessageSource messageSource;
 
     private final HttpServletRequest request;
     private final RequestContext requestContext;
 
-    public FrameworkLocalizationContext(
+    public JstlLocalizationContext(
             MessageSource messageSource, HttpServletRequest request, RequestContext requestContext) {
       this.request = request;
       this.messageSource = messageSource;

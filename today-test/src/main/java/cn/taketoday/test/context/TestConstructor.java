@@ -51,7 +51,7 @@ import cn.taketoday.test.context.junit.jupiter.web.JUnitWebConfig;
  * <p>This annotation may be used as a <em>meta-annotation</em> to create custom
  * <em>composed annotations</em>.
  *
- * <p>As of Spring Framework 5.2, this annotation is only supported in conjunction
+ * <p>this annotation is only supported in conjunction
  * with the {@link ApplicationExtension
  * ApplicationExtension} for use with JUnit Jupiter. Note that the {@code ApplicationExtension} is
  * often automatically registered for you &mdash; for example, when using annotations such as

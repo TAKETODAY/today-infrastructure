@@ -36,7 +36,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * Integration tests that validate support for {@link ServletServerContainerFactoryBean}
  * in conjunction with {@link WebAppConfiguration @WebAppConfiguration} and the
- * Spring TestContext Framework.
+ * TestContext Framework.
  *
  * @author Sam Brannen
  * @since 4.0

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="WARN">
+  <Appenders>
+    <Console name="Console" target="SYSTEM_OUT">
+      <PatternLayout pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger{1.} - %msg%n" />
+    </Console>
+  </Appenders>
+  <Loggers>
+
+    <Logger name="cn.taketoday" level="warn" />
+    <Logger name="cn.taketoday.test.context.junit4.orm" level="info" />
+
+    <Root level="error">
+      <AppenderRef ref="Console" />
+    </Root>
+  </Loggers>
+</Configuration>

@@ -35,9 +35,9 @@ import cn.taketoday.transaction.support.TransactionSynchronizationManager;
  * @since 4.0
  */
 @SuppressWarnings("serial")
-public class FrameworkJtaSessionContext extends JTASessionContext {
+public class HibernateJtaSessionContext extends JTASessionContext {
 
-  public FrameworkJtaSessionContext(SessionFactoryImplementor factory) {
+  public HibernateJtaSessionContext(SessionFactoryImplementor factory) {
     super(factory);
   }
 

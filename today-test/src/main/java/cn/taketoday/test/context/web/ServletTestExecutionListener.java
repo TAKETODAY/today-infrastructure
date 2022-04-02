@@ -50,7 +50,7 @@ import jakarta.servlet.ServletContext;
  * #prepareTestInstance(TestContext) test instance preparation} and {@linkplain
  * #beforeTestMethod(TestContext) before each test method} and creates a {@link
  * MockHttpServletRequest}, {@link MockHttpServletResponse}, and
- * {@link ServletWebRequest} based on the {@link MockServletContext} present in
+ * {@link cn.taketoday.web.RequestContext} based on the {@link MockServletContext} present in
  * the {@code WebApplicationContext}. This listener also ensures that the
  * {@code MockHttpServletResponse} and {@code ServletWebRequest} can be injected
  * into the test instance, and once the test is complete this listener {@linkplain
@@ -88,7 +88,7 @@ public class ServletTestExecutionListener extends AbstractTestExecutionListener 
 
   /**
    * Attribute name for a request attribute which indicates that the
-   * {@link MockHttpServletRequest} stored in the {@link RequestAttributes}
+   * {@link MockHttpServletRequest} stored in the {@link cn.taketoday.web.RequestContext}
    * in Spring Web's {@link RequestContextHolder} was created by the TestContext
    * framework.
    * <p>Permissible values include {@link Boolean#TRUE} and {@link Boolean#FALSE}.
@@ -162,9 +162,7 @@ public class ServletTestExecutionListener extends AbstractTestExecutionListener 
   @Override
   public void afterTestMethod(TestContext testContext) throws Exception {
     if (Boolean.TRUE.equals(testContext.getAttribute(RESET_REQUEST_CONTEXT_HOLDER_ATTRIBUTE))) {
-      if (logger.isDebugEnabled()) {
-        logger.debug(String.format("Resetting RequestContextHolder for test context %s.", testContext));
-      }
+      logger.debug("Resetting RequestContextHolder for test context {}.", testContext);
       RequestContextHolder.remove();
       testContext.setAttribute(DependencyInjectionTestExecutionListener.REINJECT_DEPENDENCIES_ATTRIBUTE,
               Boolean.TRUE);
@@ -174,8 +172,8 @@ public class ServletTestExecutionListener extends AbstractTestExecutionListener 
   }
 
   private boolean isActivated(TestContext testContext) {
-    return (Boolean.TRUE.equals(testContext.getAttribute(ACTIVATE_LISTENER)) ||
-            AnnotatedElementUtils.hasAnnotation(testContext.getTestClass(), WebAppConfiguration.class));
+    return Boolean.TRUE.equals(testContext.getAttribute(ACTIVATE_LISTENER))
+            || AnnotatedElementUtils.hasAnnotation(testContext.getTestClass(), WebAppConfiguration.class);
   }
 
   private boolean alreadyPopulatedRequestContextHolder(TestContext testContext) {
@@ -191,15 +189,12 @@ public class ServletTestExecutionListener extends AbstractTestExecutionListener 
 
     if (context instanceof WebServletApplicationContext wac) {
       ServletContext servletContext = wac.getServletContext();
-      Assert.state(servletContext instanceof MockServletContext, () -> String.format(
-              "The WebApplicationContext for test context %s must be configured with a MockServletContext.",
-              testContext));
+      Assert.state(servletContext instanceof MockServletContext,
+              () -> String.format(
+                      "The WebApplicationContext for test context %s must be configured with a MockServletContext.", testContext));
 
-      if (logger.isDebugEnabled()) {
-        logger.debug(String.format(
-                "Setting up MockHttpServletRequest, MockHttpServletResponse, ServletWebRequest, and RequestContextHolder for test context %s.",
-                testContext));
-      }
+      logger.debug("Setting up MockHttpServletRequest, MockHttpServletResponse, ServletWebRequest, and RequestContextHolder for test context .",
+              testContext);
 
       MockServletContext mockServletContext = (MockServletContext) servletContext;
       MockHttpServletRequest request = new MockHttpServletRequest(mockServletContext);

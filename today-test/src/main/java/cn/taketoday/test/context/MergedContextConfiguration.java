@@ -20,6 +20,7 @@
 
 package cn.taketoday.test.context;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Collections;
@@ -71,14 +72,15 @@ import cn.taketoday.util.StringUtils;
  */
 public class MergedContextConfiguration implements Serializable {
 
+  @Serial
   private static final long serialVersionUID = -3290560718464957422L;
 
   private static final String[] EMPTY_STRING_ARRAY = new String[0];
 
   private static final Class<?>[] EMPTY_CLASS_ARRAY = new Class<?>[0];
 
-  private static final Set<Class<? extends ApplicationContextInitializer>> EMPTY_INITIALIZER_CLASSES =
-          Collections.emptySet();
+  private static final Set<Class<? extends ApplicationContextInitializer>>
+          EMPTY_INITIALIZER_CLASSES = Collections.emptySet();
 
   private static final Set<ContextCustomizer> EMPTY_CONTEXT_CUSTOMIZERS = Collections.emptySet();
 

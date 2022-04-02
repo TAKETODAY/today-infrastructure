@@ -29,7 +29,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Integration tests that verify support for configuration classes in
- * the Spring TestContext Framework in conjunction with the
+ * the TestContext Framework in conjunction with the
  * {@link DelegatingSmartContextLoader}.
  *
  * @author Sam Brannen

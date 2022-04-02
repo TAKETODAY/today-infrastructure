@@ -29,7 +29,7 @@ import java.lang.annotation.Target;
 
 /**
  * {@code @RecordApplicationEvents} is a class-level annotation that is used to
- * instruct the <em>Spring TestContext Framework</em> to record all
+ * instruct the <em>TestContext Framework</em> to record all
  * {@linkplain cn.taketoday.context.ApplicationEvent application events}
  * that are published in the {@link cn.taketoday.context.ApplicationContext
  * ApplicationContext} during the execution of a single test.

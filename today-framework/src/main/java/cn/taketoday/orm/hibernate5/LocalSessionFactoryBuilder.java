@@ -72,7 +72,7 @@ import jakarta.transaction.TransactionManager;
 
 /**
  * A Framework-provided extension of the standard Hibernate {@link Configuration} class,
- * adding {@link FrameworkSessionContext} as a default and providing convenient ways
+ * adding {@link HibernateSessionContext} as a default and providing convenient ways
  * to specify a JDBC {@link DataSource} and an application class loader.
  *
  * <p>This is designed for programmatic use, e.g. in {@code @Bean} factory methods;
@@ -163,7 +163,7 @@ public class LocalSessionFactoryBuilder extends Configuration {
           @Nullable DataSource dataSource, ResourceLoader resourceLoader, MetadataSources metadataSources) {
     super(metadataSources);
     Properties properties = getProperties();
-    properties.put(AvailableSettings.CURRENT_SESSION_CONTEXT_CLASS, FrameworkSessionContext.class.getName());
+    properties.put(AvailableSettings.CURRENT_SESSION_CONTEXT_CLASS, HibernateSessionContext.class.getName());
     if (dataSource != null) {
       properties.put(AvailableSettings.DATASOURCE, dataSource);
     }
@@ -227,11 +227,11 @@ public class LocalSessionFactoryBuilder extends Configuration {
    * for the given Framework {@link ConfigurableBeanFactory}.
    * <p>This enables autowiring of Hibernate attribute converters and entity listeners.
    *
-   * @see FrameworkBeanContainer
+   * @see HibernateBeanContainer
    * @see AvailableSettings#BEAN_CONTAINER
    */
   public LocalSessionFactoryBuilder setBeanContainer(ConfigurableBeanFactory beanFactory) {
-    getProperties().put(AvailableSettings.BEAN_CONTAINER, new FrameworkBeanContainer(beanFactory));
+    getProperties().put(AvailableSettings.BEAN_CONTAINER, new HibernateBeanContainer(beanFactory));
     return this;
   }
 

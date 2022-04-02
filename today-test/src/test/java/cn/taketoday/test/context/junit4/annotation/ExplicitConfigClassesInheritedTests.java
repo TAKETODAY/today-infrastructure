@@ -33,7 +33,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Integration tests that verify support for configuration classes in
- * the Spring TestContext Framework.
+ * the TestContext Framework.
  *
  * <p>Configuration will be loaded from {@link DefaultConfigClassesInheritedTests.ContextConfiguration}
  * and {@link DefaultConfigClassesBaseTests.ContextConfiguration}.

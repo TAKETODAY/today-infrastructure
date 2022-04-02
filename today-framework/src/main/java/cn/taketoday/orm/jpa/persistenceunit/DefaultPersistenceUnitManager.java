@@ -467,8 +467,8 @@ public class DefaultPersistenceUnitManager
     this.persistenceUnitInfoNames.clear();
     this.persistenceUnitInfos.clear();
 
-    List<FrameworkPersistenceUnitInfo> puis = readPersistenceUnitInfos();
-    for (FrameworkPersistenceUnitInfo pui : puis) {
+    List<JpaPersistenceUnitInfo> puis = readPersistenceUnitInfos();
+    for (JpaPersistenceUnitInfo pui : puis) {
       if (pui.getPersistenceUnitRootUrl() == null) {
         pui.setPersistenceUnitRootUrl(determineDefaultPersistenceUnitRootUrl());
       }
@@ -507,15 +507,15 @@ public class DefaultPersistenceUnitManager
    * Read all persistence unit infos from {@code persistence.xml},
    * as defined in the JPA specification.
    */
-  private List<FrameworkPersistenceUnitInfo> readPersistenceUnitInfos() {
-    List<FrameworkPersistenceUnitInfo> infos = new ArrayList<>(1);
+  private List<JpaPersistenceUnitInfo> readPersistenceUnitInfos() {
+    List<JpaPersistenceUnitInfo> infos = new ArrayList<>(1);
     String defaultName = this.defaultPersistenceUnitName;
     boolean buildDefaultUnit = (this.packagesToScan != null || this.mappingResources != null);
     boolean foundDefaultUnit = false;
 
     PersistenceUnitReader reader = new PersistenceUnitReader(this.patternResourceLoader, this.dataSourceLookup);
-    FrameworkPersistenceUnitInfo[] readInfos = reader.readPersistenceUnitInfos(this.persistenceXmlLocations);
-    for (FrameworkPersistenceUnitInfo readInfo : readInfos) {
+    JpaPersistenceUnitInfo[] readInfos = reader.readPersistenceUnitInfos(this.persistenceXmlLocations);
+    for (JpaPersistenceUnitInfo readInfo : readInfos) {
       infos.add(readInfo);
       if (defaultName != null && defaultName.equals(readInfo.getPersistenceUnitName())) {
         foundDefaultUnit = true;
@@ -541,8 +541,8 @@ public class DefaultPersistenceUnitManager
    *
    * @see #setPackagesToScan
    */
-  private FrameworkPersistenceUnitInfo buildDefaultPersistenceUnitInfo() {
-    FrameworkPersistenceUnitInfo scannedUnit = new FrameworkPersistenceUnitInfo();
+  private JpaPersistenceUnitInfo buildDefaultPersistenceUnitInfo() {
+    JpaPersistenceUnitInfo scannedUnit = new JpaPersistenceUnitInfo();
     if (this.defaultPersistenceUnitName != null) {
       scannedUnit.setPersistenceUnitName(this.defaultPersistenceUnitName);
     }
@@ -578,7 +578,7 @@ public class DefaultPersistenceUnitManager
     return scannedUnit;
   }
 
-  private void scanPackage(FrameworkPersistenceUnitInfo scannedUnit, String pkg) {
+  private void scanPackage(JpaPersistenceUnitInfo scannedUnit, String pkg) {
     if (this.componentsIndex != null) {
       Set<String> candidates = new HashSet<>();
       for (AnnotationTypeFilter filter : entityTypeFilters) {

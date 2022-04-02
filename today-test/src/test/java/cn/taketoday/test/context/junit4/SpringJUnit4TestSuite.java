@@ -47,7 +47,7 @@ import cn.taketoday.test.context.junit4.profile.xml.DevProfileXmlConfigTests;
 
 /**
  * JUnit test suite for tests involving {@link Runner} and the
- * <em>Spring TestContext Framework</em>; only intended to be run manually as a
+ * <em>TestContext Framework</em>; only intended to be run manually as a
  * convenience.
  *
  * <p>This test suite serves a dual purpose of verifying that tests run with

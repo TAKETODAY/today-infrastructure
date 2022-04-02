@@ -43,14 +43,14 @@ import cn.taketoday.util.ConcurrentReferenceHashMap.ReferenceType;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-class FrameworkConfigurationPropertySources implements Iterable<ConfigurationPropertySource> {
+class DefaultConfigurationPropertySources implements Iterable<ConfigurationPropertySource> {
 
   private final Iterable<PropertySource<?>> sources;
 
   private final ConcurrentReferenceHashMap<PropertySource<?>, ConfigurationPropertySource> cache
           = new ConcurrentReferenceHashMap<>(16, ReferenceType.SOFT);
 
-  FrameworkConfigurationPropertySources(Iterable<PropertySource<?>> sources) {
+  DefaultConfigurationPropertySources(Iterable<PropertySource<?>> sources) {
     Assert.notNull(sources, "Sources is required");
     this.sources = sources;
   }
@@ -71,7 +71,7 @@ class FrameworkConfigurationPropertySources implements Iterable<ConfigurationPro
     if (result != null && result.getUnderlyingSource() == source) {
       return result;
     }
-    result = FrameworkConfigurationPropertySource.from(source);
+    result = DefaultConfigurationPropertySource.from(source);
     if (source instanceof OriginLookup) {
       result = result.withPrefix(((OriginLookup<?>) source).getPrefix());
     }

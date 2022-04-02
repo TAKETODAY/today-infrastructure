@@ -34,7 +34,7 @@ import cn.taketoday.test.annotation.DirtiesContext.HierarchyMode;
  * {@code TestContext} encapsulates the context in which a test is executed,
  * agnostic of the actual testing framework in use.
  *
- * <p>As of Spring Framework 5.0, concrete implementations are highly encouraged
+ * <p>concrete implementations are highly encouraged
  * to implement a <em>copy constructor</em> in order to allow the immutable state
  * and attributes of a {@code TestContext} to be used as a template for additional
  * contexts created for parallel test execution. The copy constructor must accept a
@@ -64,7 +64,6 @@ public interface TestContext extends AttributeAccessor, Serializable {
    *
    * @return {@code true} if the application context has already been loaded
    * @see #getApplicationContext()
-   * @since 4.0
    */
   default boolean hasApplicationContext() {
     return false;
@@ -94,7 +93,6 @@ public interface TestContext extends AttributeAccessor, Serializable {
    * @param eventFactory factory for lazy creation of the {@code ApplicationEvent}
    * @see #hasApplicationContext()
    * @see #getApplicationContext()
-   * @since 4.0
    */
   default void publishEvent(Function<TestContext, ? extends ApplicationEvent> eventFactory) {
     if (hasApplicationContext()) {

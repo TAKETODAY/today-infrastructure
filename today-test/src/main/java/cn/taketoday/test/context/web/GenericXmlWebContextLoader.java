@@ -65,7 +65,6 @@ public class GenericXmlWebContextLoader extends AbstractGenericWebContextLoader 
    * contain {@link MergedContextConfiguration#getClasses() classes}.
    *
    * @see AbstractGenericWebContextLoader#validateMergedContextConfiguration
-   * @since 4.0
    */
   @Override
   protected void validateMergedContextConfiguration(WebMergedContextConfiguration webMergedConfig) {

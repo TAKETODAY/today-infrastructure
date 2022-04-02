@@ -31,7 +31,7 @@ import cn.taketoday.test.context.TestContextManager;
 
 /**
  * {@code RunAfterTestExecutionCallbacks} is a custom JUnit {@link Statement}
- * which allows the <em>Spring TestContext Framework</em> to be plugged into the
+ * which allows the <em>TestContext Framework</em> to be plugged into the
  * JUnit 4 execution chain by calling {@link TestContextManager#afterTestExecution
  * afterTestExecution()} on the supplied {@link TestContextManager}.
  *

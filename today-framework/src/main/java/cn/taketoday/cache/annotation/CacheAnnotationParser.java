@@ -36,7 +36,7 @@ import cn.taketoday.lang.Nullable;
  * @author Stephane Nicoll
  * @author Juergen Hoeller
  * @see AnnotationCacheOperationSource
- * @see FrameworkCacheAnnotationParser
+ * @see DefaultCacheAnnotationParser
  * @since 4.0
  */
 public interface CacheAnnotationParser {

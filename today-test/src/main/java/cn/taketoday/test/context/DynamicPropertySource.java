@@ -47,7 +47,7 @@ import cn.taketoday.test.annotation.DirtiesContext;
  * is resolved. Typically, method references are used to supply values, as in the
  * example below.
  *
- * <p>As of Spring Framework 5.3.2, dynamic properties from methods annotated with
+ * <p>dynamic properties from methods annotated with
  * {@code @DynamicPropertySource} will be <em>inherited</em> from enclosing test
  * classes, analogous to inheritance from superclasses and interfaces. See
  * {@link NestedTestConfiguration @NestedTestConfiguration} for details.

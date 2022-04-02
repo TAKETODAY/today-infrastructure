@@ -42,7 +42,7 @@ import cn.taketoday.util.StringUtils;
 
 /**
  * Utility methods for working with transactions and data access related beans
- * within the <em>Spring TestContext Framework</em>.
+ * within the <em>TestContext Framework</em>.
  *
  * <p>Mainly for internal use within the framework.
  *
@@ -172,8 +172,8 @@ public abstract class TestContextTransactionUtils {
       }
     }
     catch (BeansException ex) {
-      logger.error(String.format("Failed to retrieve transaction manager named '%s' for test context %s",
-              name, testContext), ex);
+      logger.error("Failed to retrieve transaction manager named '{}' for test context {}",
+              name, testContext, ex);
       throw ex;
     }
 
@@ -217,10 +217,8 @@ public abstract class TestContextTransactionUtils {
   }
 
   private static void logBeansException(TestContext testContext, BeansException ex, Class<?> beanType) {
-    if (logger.isDebugEnabled()) {
-      logger.debug(String.format("Caught exception while retrieving %s for test context %s",
-              beanType.getSimpleName(), testContext), ex);
-    }
+    logger.debug("Caught exception while retrieving {} for test context {}",
+            beanType.getSimpleName(), testContext, ex);
   }
 
   /**

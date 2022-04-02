@@ -102,12 +102,15 @@ public class ContextConfigurationAttributes {
    * @param declaringClass the test class that declared {@code @ContextConfiguration}
    * @param annAttrs the annotation attributes from which to retrieve the attributes
    */
-  @SuppressWarnings("unchecked")
   public ContextConfigurationAttributes(Class<?> declaringClass, AnnotationAttributes annAttrs) {
-    this(declaringClass, annAttrs.getStringArray("locations"), annAttrs.getClassArray("classes"),
+    this(declaringClass,
+            annAttrs.getStringArray("locations"),
+            annAttrs.getClassArray("classes"),
             annAttrs.getBoolean("inheritLocations"),
             annAttrs.getClassArray("initializers"),
-            annAttrs.getBoolean("inheritInitializers"), annAttrs.getString("name"), annAttrs.getClass("loader"));
+            annAttrs.getBoolean("inheritInitializers"),
+            annAttrs.getString("name"),
+            annAttrs.getClass("loader"));
   }
 
   /**
@@ -161,21 +164,20 @@ public class ContextConfigurationAttributes {
     Assert.notNull(contextLoaderClass, "'contextLoaderClass' must not be null");
 
     if (ObjectUtils.isNotEmpty(locations) && ObjectUtils.isNotEmpty(classes) && logger.isDebugEnabled()) {
-      logger.debug(String.format(
-              "Test class [%s] has been configured with @ContextConfiguration's 'locations' (or 'value') %s " +
-                      "and 'classes' %s attributes. Most SmartContextLoader implementations support " +
+      logger.debug(
+              "Test class [{}] has been configured with @ContextConfiguration's 'locations' (or 'value') {} " +
+                      "and 'classes' {} attributes. Most SmartContextLoader implementations support " +
                       "only one declaration of resources per @ContextConfiguration annotation.",
-              declaringClass.getName(), ObjectUtils.nullSafeToString(locations),
-              ObjectUtils.nullSafeToString(classes)));
+              declaringClass.getName(), ObjectUtils.nullSafeToString(locations), ObjectUtils.nullSafeToString(classes));
     }
 
-    this.declaringClass = declaringClass;
-    this.locations = locations;
     this.classes = classes;
-    this.inheritLocations = inheritLocations;
+    this.locations = locations;
     this.initializers = initializers;
+    this.declaringClass = declaringClass;
+    this.inheritLocations = inheritLocations;
     this.inheritInitializers = inheritInitializers;
-    this.name = (StringUtils.hasText(name) ? name : null);
+    this.name = StringUtils.hasText(name) ? name : null;
     this.contextLoaderClass = contextLoaderClass;
   }
 

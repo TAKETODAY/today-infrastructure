@@ -32,11 +32,11 @@ import cn.taketoday.transaction.support.TransactionSynchronization;
  * @author Juergen Hoeller
  * @since 4.0
  */
-public class FrameworkFlushSynchronization implements TransactionSynchronization {
+public class HibernateFlushSynchronization implements TransactionSynchronization {
 
   private final Session session;
 
-  public FrameworkFlushSynchronization(Session session) {
+  public HibernateFlushSynchronization(Session session) {
     this.session = session;
   }
 
@@ -47,8 +47,8 @@ public class FrameworkFlushSynchronization implements TransactionSynchronization
 
   @Override
   public boolean equals(@Nullable Object other) {
-    return (this == other || (other instanceof FrameworkFlushSynchronization
-            && this.session == ((FrameworkFlushSynchronization) other).session));
+    return (this == other || (other instanceof HibernateFlushSynchronization
+            && this.session == ((HibernateFlushSynchronization) other).session));
   }
 
   @Override

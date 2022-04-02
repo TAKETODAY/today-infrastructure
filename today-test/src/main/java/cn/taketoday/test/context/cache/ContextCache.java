@@ -28,7 +28,7 @@ import cn.taketoday.test.context.MergedContextConfiguration;
 /**
  * {@code ContextCache} defines the SPI for caching Spring
  * {@link ApplicationContext ApplicationContexts} within the
- * <em>Spring TestContext Framework</em>.
+ * <em>TestContext Framework</em>.
  *
  * <p>A {@code ContextCache} maintains a cache of {@code ApplicationContexts}
  * keyed by {@link MergedContextConfiguration} instances, potentially configured

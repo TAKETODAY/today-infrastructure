@@ -82,7 +82,7 @@ public class HibernateJpaVendorAdapter extends AbstractJpaVendorAdapter {
   private final Class<? extends EntityManager> entityManagerInterface;
 
   public HibernateJpaVendorAdapter() {
-    this.persistenceProvider = new FrameworkHibernateJpaPersistenceProvider();
+    this.persistenceProvider = new HibernateJpaPersistenceProvider();
     this.entityManagerFactoryInterface = SessionFactory.class;
     this.entityManagerInterface = Session.class;
   }

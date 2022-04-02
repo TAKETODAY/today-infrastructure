@@ -80,9 +80,7 @@ public class DependencyInjectionTestExecutionListener extends AbstractTestExecut
    */
   @Override
   public void prepareTestInstance(TestContext testContext) throws Exception {
-    if (logger.isDebugEnabled()) {
-      logger.debug("Performing dependency injection for test context [" + testContext + "].");
-    }
+    logger.debug("Performing dependency injection for test context [{}].", testContext);
     injectDependencies(testContext);
   }
 
@@ -96,9 +94,7 @@ public class DependencyInjectionTestExecutionListener extends AbstractTestExecut
   @Override
   public void beforeTestMethod(TestContext testContext) throws Exception {
     if (Boolean.TRUE.equals(testContext.getAttribute(REINJECT_DEPENDENCIES_ATTRIBUTE))) {
-      if (logger.isDebugEnabled()) {
-        logger.debug("Reinjecting dependencies for test context [" + testContext + "].");
-      }
+      logger.debug("Reinjecting dependencies for test context [{}].", testContext);
       injectDependencies(testContext);
     }
   }

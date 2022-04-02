@@ -19,7 +19,7 @@
  */
 
 /**
- * Custom JUnit 4 {@code Rules} used in the <em>Spring TestContext Framework</em>.
+ * Custom JUnit 4 {@code Rules} used in the <em>TestContext Framework</em>.
  */
 @NonNullApi
 @NonNullFields

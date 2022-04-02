@@ -19,7 +19,7 @@
  */
 
 /**
- * Support classes for integrating the <em>Spring TestContext Framework</em>
+ * Support classes for integrating the <em>TestContext Framework</em>
  * with TestNG.
  */
 @NonNullApi

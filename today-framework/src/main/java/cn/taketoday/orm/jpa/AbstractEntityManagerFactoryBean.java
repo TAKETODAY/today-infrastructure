@@ -370,14 +370,16 @@ public abstract class AbstractEntityManagerFactoryBean implements FactoryBean<En
         this.persistenceProvider = jpaVendorAdapter.getPersistenceProvider();
       }
       PersistenceUnitInfo pui = getPersistenceUnitInfo();
-      Map<String, ?> vendorPropertyMap = (pui != null ? jpaVendorAdapter.getJpaPropertyMap(pui) :
-                                          jpaVendorAdapter.getJpaPropertyMap());
+      Map<String, ?> vendorPropertyMap =
+              pui != null
+              ? jpaVendorAdapter.getJpaPropertyMap(pui)
+              : jpaVendorAdapter.getJpaPropertyMap();
       if (CollectionUtils.isNotEmpty(vendorPropertyMap)) {
-        vendorPropertyMap.forEach((key, value) -> {
-          if (!jpaPropertyMap.containsKey(key)) {
-            jpaPropertyMap.put(key, value);
+        for (Map.Entry<String, ?> entry : vendorPropertyMap.entrySet()) {
+          if (!jpaPropertyMap.containsKey(entry.getKey())) {
+            jpaPropertyMap.put(entry.getKey(), entry.getValue());
           }
-        });
+        }
       }
       if (entityManagerFactoryInterface == null) {
         this.entityManagerFactoryInterface = jpaVendorAdapter.getEntityManagerFactoryInterface();
@@ -430,9 +432,7 @@ public abstract class AbstractEntityManagerFactoryBean implements FactoryBean<En
           }
         }
       }
-      if (logger.isErrorEnabled()) {
-        logger.error("Failed to initialize JPA EntityManagerFactory: {}", ex.getMessage());
-      }
+      logger.error("Failed to initialize JPA EntityManagerFactory: {}", ex.getMessage());
       throw ex;
     }
 

@@ -26,7 +26,6 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Predicate;
 
-import cn.taketoday.lang.TodayStrategies;
 import cn.taketoday.core.annotation.AnnotatedElementUtils;
 import cn.taketoday.core.annotation.AnnotationUtils;
 import cn.taketoday.core.annotation.MergedAnnotation;
@@ -38,6 +37,7 @@ import cn.taketoday.core.annotation.RepeatableContainers;
 import cn.taketoday.core.style.ToStringBuilder;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.lang.TodayStrategies;
 import cn.taketoday.test.context.NestedTestConfiguration.EnclosingConfiguration;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.ConcurrentLruCache;
@@ -49,7 +49,7 @@ import cn.taketoday.util.ObjectUtils;
  * and {@link AnnotatedElementUtils}, while transparently honoring
  * {@link NestedTestConfiguration @NestedTestConfiguration} semantics.
  *
- * <p>Mainly for internal use within the <em>Spring TestContext Framework</em>.
+ * <p>Mainly for internal use within the <em>TestContext Framework</em>.
  *
  * <p>Whereas {@code AnnotationUtils} and {@code AnnotatedElementUtils} provide
  * utilities for <em>getting</em> or <em>finding</em> annotations,
@@ -59,7 +59,7 @@ import cn.taketoday.util.ObjectUtils;
  * additional information is encapsulated in an {@link AnnotationDescriptor}.
  *
  * <p>The additional information provided by an {@code AnnotationDescriptor} is
- * required by the <em>Spring TestContext Framework</em> in order to be able to
+ * required by the <em>TestContext Framework</em> in order to be able to
  * support class inheritance and enclosing class hierarchy traversals for
  * annotations such as {@link ContextConfiguration @ContextConfiguration},
  * {@link TestExecutionListeners @TestExecutionListeners}, and
@@ -71,7 +71,6 @@ import cn.taketoday.util.ObjectUtils;
  * @see AnnotationUtils
  * @see AnnotatedElementUtils
  * @see AnnotationDescriptor
- * @since 4.0, though originally since 4.0 as {@link cn.taketoday.test.util.MetaAnnotationUtils}
  */
 public abstract class TestContextAnnotationUtils {
 
@@ -249,7 +248,7 @@ public abstract class TestContextAnnotationUtils {
       return new AnnotationDescriptor<>(clazz, clazz.getAnnotation(annotationType));
     }
 
-    AnnotationDescriptor<T> descriptor = null;
+    AnnotationDescriptor<T> descriptor;
 
     // Declared on a composed annotation (i.e., as a meta-annotation)?
     for (Annotation composedAnn : clazz.getDeclaredAnnotations()) {

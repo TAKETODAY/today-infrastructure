@@ -40,7 +40,7 @@ import cn.taketoday.lang.Nullable;
  * @author Madhura Bhave
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see PropertyMapper
- * @see FrameworkConfigurationPropertySource
+ * @see DefaultConfigurationPropertySource
  * @since 4.0
  */
 final class SystemEnvironmentPropertyMapper implements PropertyMapper {

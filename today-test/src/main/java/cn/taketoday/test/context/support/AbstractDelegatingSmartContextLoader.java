@@ -174,10 +174,8 @@ public abstract class AbstractDelegatingSmartContextLoader implements SmartConte
       boolean xmlLoaderDetectedDefaults = configAttributes.hasLocations();
 
       if (xmlLoaderDetectedDefaults) {
-        if (logger.isInfoEnabled()) {
-          logger.info(String.format("%s detected default locations for context configuration %s.",
-                  name(getXmlLoader()), configAttributes));
-        }
+        logger.info("{} detected default locations for context configuration {}.",
+                name(getXmlLoader()), configAttributes);
       }
 
       Assert.state(!configAttributes.hasClasses(), () -> String.format(
@@ -188,10 +186,8 @@ public abstract class AbstractDelegatingSmartContextLoader implements SmartConte
       delegateProcessing(getAnnotationConfigLoader(), configAttributes);
 
       if (configAttributes.hasClasses()) {
-        if (logger.isInfoEnabled()) {
-          logger.info(String.format("%s detected default configuration classes for context configuration %s.",
-                  name(getAnnotationConfigLoader()), configAttributes));
-        }
+        logger.info("{} detected default configuration classes for context configuration {}.",
+                name(getAnnotationConfigLoader()), configAttributes);
       }
 
       Assert.state(xmlLoaderDetectedDefaults || !configAttributes.hasLocations(), () -> String.format(
@@ -262,10 +258,7 @@ public abstract class AbstractDelegatingSmartContextLoader implements SmartConte
   }
 
   private static void delegateProcessing(SmartContextLoader loader, ContextConfigurationAttributes configAttributes) {
-    if (logger.isDebugEnabled()) {
-      logger.debug(String.format("Delegating to %s to process context configuration %s.",
-              name(loader), configAttributes));
-    }
+    logger.debug("Delegating to {} to process context configuration {}.", name(loader), configAttributes);
     loader.processContextConfiguration(configAttributes);
   }
 
@@ -273,7 +266,7 @@ public abstract class AbstractDelegatingSmartContextLoader implements SmartConte
           throws Exception {
 
     if (logger.isDebugEnabled()) {
-      logger.debug(String.format("Delegating to %s to load context from %s.", name(loader), mergedConfig));
+      logger.debug("Delegating to {} to load context from {}.", name(loader), mergedConfig);
     }
     return loader.loadContext(mergedConfig);
   }

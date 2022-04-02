@@ -70,7 +70,7 @@ import cn.taketoday.test.context.web.AbstractGenericWebContextLoader;
  * {@link AbstractGenericContextLoader AbstractGenericContextLoader} or
  * {@link AbstractGenericWebContextLoader AbstractGenericWebContextLoader}
  * provides automatic support for {@code @TestPropertySource}, and this includes
- * every {@code SmartContextLoader} provided by the Spring TestContext Framework.
+ * every {@code SmartContextLoader} provided by the TestContext Framework.
  *
  * <h3>Miscellaneous</h3>
  * <ul>

@@ -56,7 +56,7 @@ import jakarta.servlet.http.HttpServletResponse;
 /**
  * Mock implementation of the {@link HttpServletResponse} interface.
  *
- * <p>As of Spring Framework 5.0, this set of mocks is designed on a Servlet 4.0 baseline.
+ * <p>this set of mocks is designed on a Servlet 4.0 baseline.
  *
  * @author Juergen Hoeller
  * @author Rod Johnson
@@ -491,7 +491,7 @@ public class MockHttpServletResponse implements HttpServletResponse {
    * Return the primary value for the given header as a String, if any.
    * Will return the first value in case of multiple values.
    * <p>As of Servlet 3.0, this method is also defined in {@link HttpServletResponse}.
-   * As of Spring 3.1, it returns a stringified value for Servlet 3.0 compatibility.
+   * it returns a stringified value for Servlet 3.0 compatibility.
    * Consider using {@link #getHeaderValue(String)} for raw Object access.
    *
    * @param name the name of the header
@@ -507,7 +507,7 @@ public class MockHttpServletResponse implements HttpServletResponse {
   /**
    * Return all values for the given header as a List of Strings.
    * <p>As of Servlet 3.0, this method is also defined in {@link HttpServletResponse}.
-   * As of Spring 3.1, it returns a List of stringified values for Servlet 3.0 compatibility.
+   * it returns a List of stringified values for Servlet 3.0 compatibility.
    * Consider using {@link #getHeaderValues(String)} for raw Object access.
    *
    * @param name the name of the header

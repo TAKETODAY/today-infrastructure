@@ -31,7 +31,7 @@ import cn.taketoday.lang.Nullable;
  * processed context configuration attributes but before the
  * {@link MergedContextConfiguration} is created.
  *
- * <p>By default, the Spring TestContext Framework will use the
+ * <p>By default, the TestContext Framework will use the
  * {@link cn.taketoday.core.io.support.SpringFactoriesLoader SpringFactoriesLoader}
  * mechanism for loading factories configured in all {@code META-INF/today-strategies.properties}
  * files on the classpath.

@@ -32,7 +32,7 @@ import cn.taketoday.test.context.junit.jupiter.ApplicationExtension;
  * the {@link ApplicationEventsTestExecutionListener}.
  *
  * <p>Although this class is {@code public}, it is only intended for use within
- * the <em>Spring TestContext Framework</em> or in the implementation of
+ * the <em>TestContext Framework</em> or in the implementation of
  * third-party extensions. Test authors should therefore allow the current
  * instance of {@code ApplicationEvents} to be
  * {@link cn.taketoday.beans.factory.annotation.Autowired @Autowired}

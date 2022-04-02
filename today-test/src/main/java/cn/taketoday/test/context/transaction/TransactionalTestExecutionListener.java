@@ -93,7 +93,7 @@ import cn.taketoday.util.StringUtils;
  * method level.
  *
  * <h3>Programmatic Transaction Management</h3>
- * <p>As of Spring Framework 4.1, it is possible to interact with test-managed
+ * <p> it is possible to interact with test-managed
  * transactions programmatically via the static methods in {@link TestTransaction}.
  * {@code TestTransaction} may be used within <em>test</em> methods,
  * <em>before</em> methods, and <em>after</em> methods.
@@ -103,7 +103,7 @@ import cn.taketoday.util.StringUtils;
  * execute certain <em>set up</em> or <em>tear down</em> code outside of a
  * transaction. {@code TransactionalTestExecutionListener} provides such
  * support for methods annotated with {@link BeforeTransaction @BeforeTransaction}
- * or {@link AfterTransaction @AfterTransaction}. As of Spring Framework 4.3,
+ * or {@link AfterTransaction @AfterTransaction}.
  * {@code @BeforeTransaction} and {@code @AfterTransaction} may also be declared
  * on Java 8 based interface default methods.
  *

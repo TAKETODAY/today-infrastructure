@@ -49,7 +49,7 @@ import jakarta.transaction.TransactionManager;
  * @since 4.0
  */
 @SuppressWarnings("serial")
-public class FrameworkSessionContext implements CurrentSessionContext {
+public class HibernateSessionContext implements CurrentSessionContext {
 
   private final SessionFactoryImplementor sessionFactory;
 
@@ -64,17 +64,17 @@ public class FrameworkSessionContext implements CurrentSessionContext {
    *
    * @param sessionFactory the SessionFactory to provide current Sessions for
    */
-  public FrameworkSessionContext(SessionFactoryImplementor sessionFactory) {
+  public HibernateSessionContext(SessionFactoryImplementor sessionFactory) {
     this.sessionFactory = sessionFactory;
     try {
       JtaPlatform jtaPlatform = sessionFactory.getServiceRegistry().getService(JtaPlatform.class);
       this.transactionManager = jtaPlatform.retrieveTransactionManager();
       if (this.transactionManager != null) {
-        this.jtaSessionContext = new FrameworkJtaSessionContext(sessionFactory);
+        this.jtaSessionContext = new HibernateJtaSessionContext(sessionFactory);
       }
     }
     catch (Exception ex) {
-      LoggerFactory.getLogger(FrameworkSessionContext.class)
+      LoggerFactory.getLogger(HibernateSessionContext.class)
               .warn("Could not introspect Hibernate JtaPlatform for FrameworkJtaSessionContext", ex);
     }
   }
@@ -95,7 +95,7 @@ public class FrameworkSessionContext implements CurrentSessionContext {
       if (!sessionHolder.isSynchronizedWithTransaction()
               && info.isSynchronizationActive()) {
         info.registerSynchronization(
-                new FrameworkSessionSynchronization(sessionHolder, sessionFactory, false));
+                new HibernateSessionSynchronization(sessionHolder, sessionFactory, false));
         sessionHolder.setSynchronizedWithTransaction(true);
         // Switch to FlushMode.AUTO, as we have to assume a thread-bound Session
         // with FlushMode.MANUAL, which needs to allow flushing within the transaction.
@@ -118,7 +118,7 @@ public class FrameworkSessionContext implements CurrentSessionContext {
         if (transactionManager.getStatus() == Status.STATUS_ACTIVE) {
           Session session = jtaSessionContext.currentSession();
           if (info.isSynchronizationActive()) {
-            info.registerSynchronization(new FrameworkFlushSynchronization(session));
+            info.registerSynchronization(new HibernateFlushSynchronization(session));
           }
           return session;
         }
@@ -135,7 +135,7 @@ public class FrameworkSessionContext implements CurrentSessionContext {
       }
       SessionHolder sessionHolder = new SessionHolder(session);
       info.registerSynchronization(
-              new FrameworkSessionSynchronization(sessionHolder, sessionFactory, true));
+              new HibernateSessionSynchronization(sessionHolder, sessionFactory, true));
       info.bindResource(sessionFactory, sessionHolder);
       sessionHolder.setSynchronizedWithTransaction(true);
       return session;

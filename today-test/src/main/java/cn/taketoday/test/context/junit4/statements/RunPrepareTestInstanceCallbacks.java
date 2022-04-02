@@ -26,7 +26,7 @@ import cn.taketoday.test.context.TestContextManager;
 
 /**
  * {@code RunPrepareTestInstanceCallbacks} is a custom JUnit {@link Statement} which
- * allows the <em>Spring TestContext Framework</em> to be plugged into the JUnit
+ * allows the <em>TestContext Framework</em> to be plugged into the JUnit
  * execution chain by calling {@link TestContextManager#prepareTestInstance(Object)
  * prepareTestInstance()} on the supplied {@link TestContextManager}.
  *

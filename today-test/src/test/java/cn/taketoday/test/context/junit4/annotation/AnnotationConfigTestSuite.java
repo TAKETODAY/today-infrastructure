@@ -26,7 +26,7 @@ import org.junit.runners.Suite.SuiteClasses;
 
 /**
  * JUnit test suite for annotation-driven <em>configuration class</em>
- * support in the Spring TestContext Framework.
+ * support in the TestContext Framework.
  *
  * @author Sam Brannen
  * @since 4.0

@@ -38,7 +38,7 @@ import java.lang.annotation.Target;
  * <p>This annotation may be used as a <em>meta-annotation</em> to create custom
  * <em>composed annotations</em>.
  *
- * <p>As of Spring Framework 4.3, {@code @BeforeTransaction} may also be
+ * <p>{@code @BeforeTransaction} may also be
  * declared on Java 8 based interface default methods.
  *
  * @author Sam Brannen

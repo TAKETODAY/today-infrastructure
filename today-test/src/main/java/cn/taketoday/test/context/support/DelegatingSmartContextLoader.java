@@ -20,52 +20,27 @@
 
 package cn.taketoday.test.context.support;
 
-import cn.taketoday.beans.BeanUtils;
 import cn.taketoday.test.context.SmartContextLoader;
-import cn.taketoday.util.ClassUtils;
 
 /**
  * {@code DelegatingSmartContextLoader} is a concrete implementation of
  * {@link AbstractDelegatingSmartContextLoader} that delegates to a
- * {@link GenericXmlContextLoader} (or a {@link GenericGroovyXmlContextLoader} if Groovy
- * is present in the classpath) and an {@link AnnotationConfigContextLoader}.
+ * {@link GenericXmlContextLoader} {@link AnnotationConfigContextLoader}.
  *
  * @author Sam Brannen
  * @see SmartContextLoader
  * @see AbstractDelegatingSmartContextLoader
  * @see GenericXmlContextLoader
- * @see GenericGroovyXmlContextLoader
  * @see AnnotationConfigContextLoader
- *@since 4.0
+ * @since 4.0
  */
 public class DelegatingSmartContextLoader extends AbstractDelegatingSmartContextLoader {
-
-  private static final String GROOVY_XML_CONTEXT_LOADER_CLASS_NAME = "cn.taketoday.test.context.support.GenericGroovyXmlContextLoader";
-
-  private static final boolean groovyPresent = ClassUtils.isPresent("groovy.lang.Closure",
-          DelegatingSmartContextLoader.class.getClassLoader())
-          && ClassUtils.isPresent(GROOVY_XML_CONTEXT_LOADER_CLASS_NAME,
-          DelegatingSmartContextLoader.class.getClassLoader());
 
   private final SmartContextLoader xmlLoader;
   private final SmartContextLoader annotationConfigLoader;
 
   public DelegatingSmartContextLoader() {
-    if (groovyPresent) {
-      try {
-        Class<?> loaderClass = ClassUtils.forName(GROOVY_XML_CONTEXT_LOADER_CLASS_NAME,
-                DelegatingSmartContextLoader.class.getClassLoader());
-        this.xmlLoader = (SmartContextLoader) BeanUtils.newInstance(loaderClass);
-      }
-      catch (Throwable ex) {
-        throw new IllegalStateException("Failed to enable support for Groovy scripts; "
-                + "could not load class: " + GROOVY_XML_CONTEXT_LOADER_CLASS_NAME, ex);
-      }
-    }
-    else {
-      this.xmlLoader = new GenericXmlContextLoader();
-    }
-
+    this.xmlLoader = new GenericXmlContextLoader();
     this.annotationConfigLoader = new AnnotationConfigContextLoader();
   }
 

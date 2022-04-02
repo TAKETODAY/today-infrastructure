@@ -43,7 +43,7 @@ import jakarta.persistence.spi.PersistenceUnitInfo;
  * @see Configuration#addPackage
  * @since 4.0
  */
-class FrameworkHibernateJpaPersistenceProvider extends HibernatePersistenceProvider {
+class HibernateJpaPersistenceProvider extends HibernatePersistenceProvider {
 
   @Override
   public EntityManagerFactory createContainerEntityManagerFactory(PersistenceUnitInfo info, Map properties) {

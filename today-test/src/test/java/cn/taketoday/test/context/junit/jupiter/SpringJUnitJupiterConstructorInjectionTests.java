@@ -35,7 +35,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * Integration tests which demonstrate support for autowiring individual
  * parameters in test class constructors using {@link Autowired @Autowired}
- * and {@link Value @Value} with the Spring TestContext Framework and JUnit Jupiter.
+ * and {@link Value @Value} with the TestContext Framework and JUnit Jupiter.
  *
  * @author Sam Brannen
  * @see ApplicationExtension

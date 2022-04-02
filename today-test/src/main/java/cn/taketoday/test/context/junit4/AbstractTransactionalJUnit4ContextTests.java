@@ -90,7 +90,7 @@ import cn.taketoday.transaction.annotation.Transactional;
  * {@link Runner}, {@link ContextConfiguration @ContextConfiguration},
  * {@link TestExecutionListeners @TestExecutionListeners}, etc.</li>
  * <li>If you wish to extend this class and use a runner other than the
- * {@link Runner}, as of Spring Framework 4.2 you can use
+ * {@link Runner}, you can use
  * {@link ApplicationClassRule ApplicationClassRule} and
  * {@link ApplicationMethodRule ApplicationMethodRule}
  * and specify your runner of choice via {@link org.junit.runner.RunWith @RunWith(...)}.</li>

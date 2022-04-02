@@ -46,7 +46,7 @@ import cn.taketoday.test.context.junit4.statements.SpringRepeat;
 /**
  * {@code ApplicationMethodRule} is a custom JUnit 4 {@link MethodRule} that
  * supports instance-level and method-level features of the
- * <em>Spring TestContext Framework</em> in standard JUnit tests by means
+ * <em>TestContext Framework</em> in standard JUnit tests by means
  * of the {@link TestContextManager} and associated support classes and
  * annotations.
  *
@@ -87,7 +87,7 @@ import cn.taketoday.test.context.junit4.statements.SpringRepeat;
  * <li>{@link IfProfileValue @IfProfileValue}</li>
  * </ul>
  *
- * <p><strong>NOTE:</strong> As of Spring Framework 4.3, this class requires JUnit 4.12 or higher.
+ * <p><strong>NOTE:</strong> this class requires JUnit 4.12 or higher.
  *
  * <p><strong>WARNING:</strong> Due to the shortcomings of JUnit rules, the
  * {@code ApplicationMethodRule}
@@ -113,7 +113,7 @@ public class ApplicationMethodRule implements MethodRule {
 
   /**
    * Apply <em>instance-level</em> and <em>method-level</em> features of
-   * the <em>Spring TestContext Framework</em> to the supplied {@code base}
+   * the <em>TestContext Framework</em> to the supplied {@code base}
    * statement.
    * <p>Specifically, this method invokes the
    * {@link TestContextManager#prepareTestInstance prepareTestInstance()},
@@ -131,7 +131,7 @@ public class ApplicationMethodRule implements MethodRule {
    * @param frameworkMethod the method which is about to be invoked on the test instance
    * @param testInstance the current test instance
    * @return a statement that wraps the supplied {@code base} with instance-level
-   * and method-level features of the Spring TestContext Framework
+   * and method-level features of the TestContext Framework
    * @see #withBeforeTestMethodCallbacks
    * @see #withAfterTestMethodCallbacks
    * @see #withPotentialRepeat

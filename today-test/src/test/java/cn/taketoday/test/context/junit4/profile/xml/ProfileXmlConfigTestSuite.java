@@ -26,7 +26,7 @@ import org.junit.runners.Suite.SuiteClasses;
 
 /**
  * JUnit test suite for <em>bean definition profile</em> support in the
- * Spring TestContext Framework with XML-based configuration.
+ * TestContext Framework with XML-based configuration.
  *
  * @author Sam Brannen
  * @since 4.0

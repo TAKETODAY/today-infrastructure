@@ -46,7 +46,7 @@ import cn.taketoday.origin.PropertySourceOrigin;
  * {@link ConfigurationPropertyName} to one or more {@code String} based names. This
  * allows fast property resolution for well formed property sources.
  * <p>
- * When possible the {@link FrameworkIterableConfigurationPropertySource} will be used in
+ * When possible the {@link DefaultIterableConfigurationPropertySource} will be used in
  * preference to this implementation since it supports full "relaxed" style resolution.
  *
  * @author Phillip Webb
@@ -54,10 +54,10 @@ import cn.taketoday.origin.PropertySourceOrigin;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see #from(PropertySource)
  * @see PropertyMapper
- * @see FrameworkIterableConfigurationPropertySource
+ * @see DefaultIterableConfigurationPropertySource
  * @since 4.0
  */
-class FrameworkConfigurationPropertySource implements ConfigurationPropertySource {
+class DefaultConfigurationPropertySource implements ConfigurationPropertySource {
 
   private static final PropertyMapper[] DEFAULT_MAPPERS = {
           DefaultPropertyMapper.INSTANCE
@@ -73,12 +73,12 @@ class FrameworkConfigurationPropertySource implements ConfigurationPropertySourc
   private final PropertyMapper[] mappers;
 
   /**
-   * Create a new {@link FrameworkConfigurationPropertySource} implementation.
+   * Create a new {@link DefaultConfigurationPropertySource} implementation.
    *
    * @param propertySource the source property source
    * @param mappers the property mappers
    */
-  FrameworkConfigurationPropertySource(PropertySource<?> propertySource, PropertyMapper... mappers) {
+  DefaultConfigurationPropertySource(PropertySource<?> propertySource, PropertyMapper... mappers) {
     Assert.notNull(propertySource, "PropertySource must not be null");
     Assert.isTrue(mappers.length > 0, "Mappers must contain at least one item");
     this.propertySource = propertySource;
@@ -147,20 +147,20 @@ class FrameworkConfigurationPropertySource implements ConfigurationPropertySourc
   }
 
   /**
-   * Create a new {@link FrameworkConfigurationPropertySource} for the specified
+   * Create a new {@link DefaultConfigurationPropertySource} for the specified
    * {@link PropertySource}.
    *
    * @param source the source Framework {@link PropertySource}
-   * @return a {@link FrameworkConfigurationPropertySource} or
-   * {@link FrameworkIterableConfigurationPropertySource} instance
+   * @return a {@link DefaultConfigurationPropertySource} or
+   * {@link DefaultIterableConfigurationPropertySource} instance
    */
-  static FrameworkConfigurationPropertySource from(PropertySource<?> source) {
+  static DefaultConfigurationPropertySource from(PropertySource<?> source) {
     Assert.notNull(source, "Source must not be null");
     PropertyMapper[] mappers = getPropertyMappers(source);
     if (isFullEnumerable(source)) {
-      return new FrameworkIterableConfigurationPropertySource((EnumerablePropertySource<?>) source, mappers);
+      return new DefaultIterableConfigurationPropertySource((EnumerablePropertySource<?>) source, mappers);
     }
-    return new FrameworkConfigurationPropertySource(source, mappers);
+    return new DefaultConfigurationPropertySource(source, mappers);
   }
 
   private static PropertyMapper[] getPropertyMappers(PropertySource<?> source) {

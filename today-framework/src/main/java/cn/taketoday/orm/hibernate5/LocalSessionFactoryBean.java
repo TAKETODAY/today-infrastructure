@@ -495,7 +495,7 @@ public class LocalSessionFactoryBean extends HibernateExceptionTranslator
    * {@link org.hibernate.resource.beans.container.spi.BeanContainer} integration for
    * it if possible. This requires a Framework {@link ConfigurableBeanFactory}.
    *
-   * @see FrameworkBeanContainer
+   * @see HibernateBeanContainer
    * @see LocalSessionFactoryBuilder#setBeanContainer
    */
   @Override

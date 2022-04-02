@@ -20,9 +20,6 @@
 
 package cn.taketoday.framework.test.context;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -157,7 +154,7 @@ public class ApplicationTestContextBootstrapper extends DefaultTestContextBootst
     mergedConfig = createModifiedConfig(mergedConfig, classes, StringUtils.toStringArray(propertySourceProperties));
     WebEnvironment webEnvironment = getWebEnvironment(mergedConfig.getTestClass());
     if (webEnvironment != null && isWebEnvironmentSupported(mergedConfig)) {
-      ApplicationType webApplicationType = getWebApplicationType(mergedConfig);
+      ApplicationType webApplicationType = getApplicationType(mergedConfig);
       if (webApplicationType == ApplicationType.SERVLET_WEB
               && (webEnvironment.isEmbedded() || webEnvironment == WebEnvironment.MOCK)) {
         mergedConfig = new WebMergedContextConfiguration(mergedConfig, determineResourceBasePath(mergedConfig));
@@ -170,7 +167,7 @@ public class ApplicationTestContextBootstrapper extends DefaultTestContextBootst
     return mergedConfig;
   }
 
-  private ApplicationType getWebApplicationType(MergedContextConfiguration configuration) {
+  private ApplicationType getApplicationType(MergedContextConfiguration configuration) {
     ConfigurationPropertySource source = new MapConfigurationPropertySource(
             TestPropertySourceUtils.convertInlinedPropertiesToMap(configuration.getPropertySourceProperties()));
     Binder binder = new Binder(source);

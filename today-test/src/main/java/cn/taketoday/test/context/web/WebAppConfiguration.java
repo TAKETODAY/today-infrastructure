@@ -33,8 +33,7 @@ import cn.taketoday.test.context.NestedTestConfiguration;
 /**
  * {@code @WebAppConfiguration} is a class-level annotation that is used to
  * declare that the {@code ApplicationContext} loaded for an integration test
- * should be a {@link cn.taketoday.web.context.WebApplicationContext
- * WebApplicationContext}.
+ * should be a {@link cn.taketoday.web.WebApplicationContext WebApplicationContext}.
  *
  * <p>The presence of {@code @WebAppConfiguration} on a test class indicates that
  * a {@code WebApplicationContext} should be loaded for the test using a default

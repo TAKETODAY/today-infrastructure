@@ -20,6 +20,7 @@
 
 package cn.taketoday.test.context.support;
 
+import java.io.Serial;
 import java.lang.reflect.Method;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -48,6 +49,7 @@ import cn.taketoday.util.StringUtils;
  */
 public class DefaultTestContext implements TestContext {
 
+  @Serial
   private static final long serialVersionUID = -5827157174866681233L;
 
   private final Map<String, Object> attributes = new ConcurrentHashMap<>(4);
@@ -111,7 +113,6 @@ public class DefaultTestContext implements TestContext {
    * and stored in the context cache
    * @see #getApplicationContext()
    * @see CacheAwareContextLoaderDelegate#isContextLoaded
-   * @since 4.0
    */
   @Override
   public boolean hasApplicationContext() {

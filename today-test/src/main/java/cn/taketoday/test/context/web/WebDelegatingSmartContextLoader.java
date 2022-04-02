@@ -20,10 +20,8 @@
 
 package cn.taketoday.test.context.web;
 
-import cn.taketoday.beans.BeanUtils;
-import cn.taketoday.test.context.support.AbstractDelegatingSmartContextLoader;
 import cn.taketoday.test.context.SmartContextLoader;
-import cn.taketoday.util.ClassUtils;
+import cn.taketoday.test.context.support.AbstractDelegatingSmartContextLoader;
 
 /**
  * {@code WebDelegatingSmartContextLoader} is a concrete implementation of
@@ -40,32 +38,11 @@ import cn.taketoday.util.ClassUtils;
  */
 public class WebDelegatingSmartContextLoader extends AbstractDelegatingSmartContextLoader {
 
-  private static final String GROOVY_XML_WEB_CONTEXT_LOADER_CLASS_NAME = "cn.taketoday.test.context.web.GenericGroovyXmlWebContextLoader";
-
-  private static final boolean groovyPresent = ClassUtils.isPresent("groovy.lang.Closure",
-          WebDelegatingSmartContextLoader.class.getClassLoader())
-          && ClassUtils.isPresent(GROOVY_XML_WEB_CONTEXT_LOADER_CLASS_NAME,
-          WebDelegatingSmartContextLoader.class.getClassLoader());
-
   private final SmartContextLoader xmlLoader;
   private final SmartContextLoader annotationConfigLoader;
 
   public WebDelegatingSmartContextLoader() {
-    if (groovyPresent) {
-      try {
-        Class<?> loaderClass = ClassUtils.forName(GROOVY_XML_WEB_CONTEXT_LOADER_CLASS_NAME,
-                WebDelegatingSmartContextLoader.class.getClassLoader());
-        this.xmlLoader = (SmartContextLoader) BeanUtils.newInstance(loaderClass);
-      }
-      catch (Throwable ex) {
-        throw new IllegalStateException("Failed to enable support for Groovy scripts; "
-                + "could not load class: " + GROOVY_XML_WEB_CONTEXT_LOADER_CLASS_NAME, ex);
-      }
-    }
-    else {
-      this.xmlLoader = new GenericXmlWebContextLoader();
-    }
-
+    this.xmlLoader = new GenericXmlWebContextLoader();
     this.annotationConfigLoader = new AnnotationConfigWebContextLoader();
   }
 

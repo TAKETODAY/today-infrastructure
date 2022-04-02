@@ -45,7 +45,7 @@ import cn.taketoday.test.context.transaction.TransactionalTestExecutionListener;
  * defines rollback semantics for the specific test method, potentially
  * overriding class-level default commit or rollback semantics.
  *
- * <p>As of Spring Framework 4.2, {@code @Commit} can be used as direct
+ * <p>{@code @Commit} can be used as direct
  * replacement for {@code @Rollback(false)}.
  *
  * <p><strong>Warning</strong>: Declaring {@code @Commit} and {@code @Rollback}

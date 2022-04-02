@@ -65,7 +65,7 @@ import cn.taketoday.util.ReflectionUtils;
 /**
  * {@code SpringJUnit4ClassRunner} is a custom extension of JUnit's
  * {@link BlockJUnit4ClassRunner} which provides functionality of the
- * <em>Spring TestContext Framework</em> to standard JUnit tests by means of the
+ * <em>TestContext Framework</em> to standard JUnit tests by means of the
  * {@link TestContextManager} and associated support classes and annotations.
  *
  * <p>To use this class, simply annotate a JUnit 4 based test class with
@@ -88,10 +88,10 @@ import cn.taketoday.util.ReflectionUtils;
  * <li>{@link IfProfileValue @IfProfileValue}</li>
  * </ul>
  *
- * <p>If you would like to use the Spring TestContext Framework with a runner
+ * <p>If you would like to use the TestContext Framework with a runner
  * other than this one, use {@link ApplicationClassRule} and {@link ApplicationMethodRule}.
  *
- * <p><strong>NOTE:</strong> As of Spring Framework 4.3, this class requires JUnit 4.12 or higher.
+ * <p><strong>NOTE:</strong> this class requires JUnit 4.12 or higher.
  *
  * @author Sam Brannen
  * @author Juergen Hoeller
@@ -218,7 +218,7 @@ public class JUnit4ClassRunner extends BlockJUnit4ClassRunner {
   /**
    * Wrap the {@link Statement} returned by the parent implementation with a
    * {@code RunAfterTestClassCallbacks} statement, thus preserving the default
-   * JUnit functionality while adding support for the Spring TestContext Framework.
+   * JUnit functionality while adding support for the TestContext Framework.
    *
    * @see RunAfterTestClassCallbacks
    */
@@ -437,7 +437,7 @@ public class JUnit4ClassRunner extends BlockJUnit4ClassRunner {
   /**
    * Wrap the supplied {@link Statement} with a {@code RunBeforeTestExecutionCallbacks}
    * statement, thus preserving the default functionality while adding support for the
-   * Spring TestContext Framework.
+   * TestContext Framework.
    *
    * @see RunBeforeTestExecutionCallbacks
    */
@@ -448,7 +448,7 @@ public class JUnit4ClassRunner extends BlockJUnit4ClassRunner {
   /**
    * Wrap the supplied {@link Statement} with a {@code RunAfterTestExecutionCallbacks}
    * statement, thus preserving the default functionality while adding support for the
-   * Spring TestContext Framework.
+   * TestContext Framework.
    *
    * @see RunAfterTestExecutionCallbacks
    */

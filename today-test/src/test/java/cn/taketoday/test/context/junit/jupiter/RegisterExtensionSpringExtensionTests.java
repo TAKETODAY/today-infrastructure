@@ -42,7 +42,7 @@ import cn.taketoday.test.context.junit.jupiter.comics.Person;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * Integration tests which demonstrate that the Spring TestContext Framework can be used
+ * Integration tests which demonstrate that the TestContext Framework can be used
  * with JUnit Jupiter by registering the {@link ApplicationExtension} via a static field.
  * Note, however, that this is not the recommended way to register the {@code ApplicationExtension}.
  *

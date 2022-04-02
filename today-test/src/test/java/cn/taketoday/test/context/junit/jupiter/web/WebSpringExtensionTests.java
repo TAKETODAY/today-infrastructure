@@ -29,7 +29,7 @@ import cn.taketoday.web.WebApplicationContext;
 
 /**
  * Integration tests which demonstrate use of the Spring MVC Test Framework and
- * the Spring TestContext Framework with JUnit Jupiter and the
+ * the TestContext Framework with JUnit Jupiter and the
  * {@link ApplicationExtension} (via a custom
  * {@link JUnitWebConfig @ApplicationJUnitWebConfig} composed annotation).
  *

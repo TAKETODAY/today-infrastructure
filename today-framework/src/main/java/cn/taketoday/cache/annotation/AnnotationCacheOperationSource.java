@@ -74,7 +74,7 @@ public class AnnotationCacheOperationSource extends AbstractFallbackCacheOperati
    */
   public AnnotationCacheOperationSource(boolean publicMethodsOnly) {
     this.publicMethodsOnly = publicMethodsOnly;
-    this.annotationParsers = Collections.singleton(new FrameworkCacheAnnotationParser());
+    this.annotationParsers = Collections.singleton(new DefaultCacheAnnotationParser());
   }
 
   /**

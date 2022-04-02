@@ -30,7 +30,7 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 /**
- * With Spring 3.1, bean id attributes (and all other id attributes across the
+ * With , bean id attributes (and all other id attributes across the
  * core schemas) are no longer typed as xsd:id, but as xsd:string.  This allows
  * for using the same bean id within nested &lt;beans&gt; elements.
  *

@@ -67,7 +67,7 @@ import jakarta.persistence.PersistenceException;
  * potentially allowing for one thread-bound Session per factory.
  * {@code SessionFactory.getCurrentSession()} is required for Hibernate
  * access code that needs to support this transaction handling mechanism,
- * with the SessionFactory being configured with {@link FrameworkSessionContext}.
+ * with the SessionFactory being configured with {@link HibernateSessionContext}.
  *
  * <p>Supports custom isolation levels, and timeouts that get applied as
  * Hibernate transaction timeouts.
@@ -303,7 +303,7 @@ public class HibernateTransactionManager extends AbstractPlatformTransactionMana
    * {@link org.hibernate.context.spi.CurrentSessionContext} implementation that stores
    * Sessions in a place other than Framework's TransactionSynchronizationManager.
    * It may also be used in combination with Framework's Open-Session-in-View support
-   * (using Framework's default {@link FrameworkSessionContext}), in which case it subtly
+   * (using Framework's default {@link HibernateSessionContext}), in which case it subtly
    * differs from the Framework-managed Session mode: The pre-bound Session will <i>not</i>
    * receive a {@code clear()} call (on rollback) or a {@code disconnect()}
    * call (on transaction completion) in such a scenario; this is rather left up

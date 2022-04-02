@@ -249,7 +249,7 @@ public final class MockServerHttpRequest extends AbstractServerHttpRequest {
    * @param uri the URI template for target the URL
    * @param vars variables to expand into the template
    * @return the created builder
-   * @deprecated as of Spring Framework 6.0 in favor of {@link #method(HttpMethod, String, Object...)}
+   * @deprecated in favor of {@link #method(HttpMethod, String, Object...)}
    */
   @Deprecated
   public static BodyBuilder method(String httpMethod, String uri, Object... vars) {

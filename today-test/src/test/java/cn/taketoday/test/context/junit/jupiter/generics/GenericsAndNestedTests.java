@@ -28,7 +28,7 @@ import cn.taketoday.test.context.junit.jupiter.comics.Dog;
 
 /**
  * Integration tests that verify support for Java generics combined with {@code @Nested}
- * test classes when used with the Spring TestContext Framework and the
+ * test classes when used with the TestContext Framework and the
  * {@link ApplicationExtension}.
  *
  * <p>

@@ -35,6 +35,7 @@ import cn.taketoday.core.env.PropertySource;
 import cn.taketoday.core.io.ClassPathResource;
 import cn.taketoday.core.io.ResourceLoader;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Constant;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.test.context.ContextConfigurationAttributes;
@@ -70,9 +71,7 @@ import cn.taketoday.util.ObjectUtils;
  */
 public abstract class AbstractContextLoader implements SmartContextLoader {
 
-  private static final String[] EMPTY_STRING_ARRAY = new String[0];
-
-  private static final Logger logger = LoggerFactory.getLogger(AbstractContextLoader.class);
+  private static final Logger log = LoggerFactory.getLogger(AbstractContextLoader.class);
 
   // SmartContextLoader
 
@@ -230,7 +229,7 @@ public abstract class AbstractContextLoader implements SmartContextLoader {
    * is the value of the first configured
    * {@linkplain #getResourceSuffixes() resource suffix} for which the
    * generated location actually exists in the classpath.
-   * <p>As of Spring 3.1, the implementation of this method adheres to the
+   * <p>the implementation of this method adheres to the
    * contract defined in the {@link SmartContextLoader} SPI. Specifically,
    * this method will <em>preemptively</em> verify that the generated default
    * location actually exists. If it does not exist, this method will log a
@@ -253,24 +252,20 @@ public abstract class AbstractContextLoader implements SmartContextLoader {
       ClassPathResource classPathResource = new ClassPathResource(resourcePath);
       if (classPathResource.exists()) {
         String prefixedResourcePath = ResourceLoader.CLASSPATH_URL_PREFIX + resourcePath;
-        if (logger.isInfoEnabled()) {
-          logger.info(String.format("Detected default resource location \"%s\" for test class [%s]",
-                  prefixedResourcePath, clazz.getName()));
-        }
+        log.info("Detected default resource location \"{}\" for test class [{}]",
+                prefixedResourcePath, clazz.getName());
         return new String[] { prefixedResourcePath };
       }
-      else if (logger.isDebugEnabled()) {
-        logger.debug(String.format("Did not detect default resource location for test class [%s]: " +
-                "%s does not exist", clazz.getName(), classPathResource));
+      else if (log.isDebugEnabled()) {
+        log.debug("Did not detect default resource location for test class [{}]: {} does not exist",
+                clazz.getName(), classPathResource);
       }
     }
 
-    if (logger.isInfoEnabled()) {
-      logger.info(String.format("Could not detect default resource locations for test class [%s]: " +
-              "no resource found for suffixes %s.", clazz.getName(), ObjectUtils.nullSafeToString(suffixes)));
-    }
+    log.info("Could not detect default resource locations for test class [{}]: " +
+            "no resource found for suffixes {}.", clazz.getName(), ObjectUtils.nullSafeToString(suffixes));
 
-    return EMPTY_STRING_ARRAY;
+    return Constant.EMPTY_STRING_ARRAY;
   }
 
   /**
@@ -293,7 +288,7 @@ public abstract class AbstractContextLoader implements SmartContextLoader {
    * Determine whether or not <em>default</em> resource locations should be
    * generated if the {@code locations} provided to
    * {@link #processLocations(Class, String...)} are {@code null} or empty.
-   * <p>As of Spring 3.1, the semantics of this method have been overloaded
+   * <p>the semantics of this method have been overloaded
    * to include detection of either default resource locations or default
    * configuration classes. Consequently, this method can also be used to
    * determine whether or not <em>default</em> configuration classes should be

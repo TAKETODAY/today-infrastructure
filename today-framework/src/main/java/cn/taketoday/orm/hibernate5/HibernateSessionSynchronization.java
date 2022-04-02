@@ -36,7 +36,7 @@ import cn.taketoday.transaction.support.TransactionSynchronizationManager;
  * @author Juergen Hoeller
  * @since 4.0
  */
-public class FrameworkSessionSynchronization implements TransactionSynchronization, Ordered {
+public class HibernateSessionSynchronization implements TransactionSynchronization, Ordered {
 
   private final SessionHolder sessionHolder;
 
@@ -46,11 +46,11 @@ public class FrameworkSessionSynchronization implements TransactionSynchronizati
 
   private boolean holderActive = true;
 
-  public FrameworkSessionSynchronization(SessionHolder sessionHolder, SessionFactory sessionFactory) {
+  public HibernateSessionSynchronization(SessionHolder sessionHolder, SessionFactory sessionFactory) {
     this(sessionHolder, sessionFactory, false);
   }
 
-  public FrameworkSessionSynchronization(SessionHolder sessionHolder, SessionFactory sessionFactory, boolean newSession) {
+  public HibernateSessionSynchronization(SessionHolder sessionHolder, SessionFactory sessionFactory, boolean newSession) {
     this.sessionHolder = sessionHolder;
     this.sessionFactory = sessionFactory;
     this.newSession = newSession;

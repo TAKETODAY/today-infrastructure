@@ -40,8 +40,6 @@ public abstract class AbstractTestExecutionListener implements TestExecutionList
    * thereby ensuring that custom listeners are ordered after default
    * listeners supplied by the framework. Can be overridden by subclasses
    * as necessary.
-   *
-   * @since 4.0
    */
   @Override
   public int getOrder() {
@@ -51,8 +49,6 @@ public abstract class AbstractTestExecutionListener implements TestExecutionList
   /**
    * The default implementation is <em>empty</em>. Can be overridden by
    * subclasses as necessary.
-   *
-   * @since 4.0
    */
   @Override
   public void beforeTestClass(TestContext testContext) throws Exception {
@@ -80,8 +76,6 @@ public abstract class AbstractTestExecutionListener implements TestExecutionList
   /**
    * The default implementation is <em>empty</em>. Can be overridden by
    * subclasses as necessary.
-   *
-   * @since 4.0
    */
   @Override
   public void beforeTestExecution(TestContext testContext) throws Exception {
@@ -91,8 +85,6 @@ public abstract class AbstractTestExecutionListener implements TestExecutionList
   /**
    * The default implementation is <em>empty</em>. Can be overridden by
    * subclasses as necessary.
-   *
-   * @since 4.0
    */
   @Override
   public void afterTestExecution(TestContext testContext) throws Exception {
@@ -111,8 +103,6 @@ public abstract class AbstractTestExecutionListener implements TestExecutionList
   /**
    * The default implementation is <em>empty</em>. Can be overridden by
    * subclasses as necessary.
-   *
-   * @since 4.0
    */
   @Override
   public void afterTestClass(TestContext testContext) throws Exception {

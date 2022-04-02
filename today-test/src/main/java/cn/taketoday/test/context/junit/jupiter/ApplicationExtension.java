@@ -67,7 +67,7 @@ import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.util.ReflectionUtils.MethodFilter;
 
 /**
- * {@code ApplicationExtension} integrates the <em>Spring TestContext Framework</em>
+ * {@code ApplicationExtension} integrates the <em>TestContext Framework</em>
  * into JUnit 5's <em>Jupiter</em> programming model.
  *
  * <p>To use this extension, simply annotate a JUnit Jupiter based test class with

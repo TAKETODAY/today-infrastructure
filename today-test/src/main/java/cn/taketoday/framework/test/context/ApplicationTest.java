@@ -35,8 +35,8 @@ import cn.taketoday.core.annotation.AliasFor;
 import cn.taketoday.core.env.Environment;
 import cn.taketoday.framework.Application;
 import cn.taketoday.framework.ApplicationArguments;
-import cn.taketoday.framework.ApplicationType;
 import cn.taketoday.framework.ApplicationConfiguration;
+import cn.taketoday.framework.ApplicationType;
 import cn.taketoday.framework.web.reactive.context.ReactiveWebApplicationContext;
 import cn.taketoday.framework.web.server.LocalServerPort;
 import cn.taketoday.framework.web.servlet.context.ServletWebServerApplicationContext;
@@ -108,7 +108,6 @@ public @interface ApplicationTest {
    * @return the application arguments to pass to the application under test.
    * @see ApplicationArguments
    * @see Application#run(String...)
-   * @since 4.0
    */
   String[] args() default {};
 

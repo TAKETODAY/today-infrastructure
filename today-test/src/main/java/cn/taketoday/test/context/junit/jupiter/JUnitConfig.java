@@ -47,12 +47,12 @@ import cn.taketoday.test.context.junit.jupiter.web.JUnitWebConfig;
  * @see JUnitWebConfig
  * @since 4.0
  */
-@ExtendWith(ApplicationExtension.class)
-@ContextConfiguration
-@Documented
 @Inherited
-@Retention(RetentionPolicy.RUNTIME)
+@Documented
+@ContextConfiguration
 @Target(ElementType.TYPE)
+@Retention(RetentionPolicy.RUNTIME)
+@ExtendWith(ApplicationExtension.class)
 public @interface JUnitConfig {
 
   /**

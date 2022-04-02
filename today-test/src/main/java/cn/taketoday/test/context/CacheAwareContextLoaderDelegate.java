@@ -23,9 +23,9 @@ package cn.taketoday.test.context;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.test.annotation.DirtiesContext.HierarchyMode;
 import cn.taketoday.test.context.cache.ContextCache;
 import cn.taketoday.test.context.cache.DefaultCacheAwareContextLoaderDelegate;
-import cn.taketoday.test.annotation.DirtiesContext.HierarchyMode;
 
 /**
  * A {@code CacheAwareContextLoaderDelegate} is responsible for {@linkplain
@@ -50,7 +50,6 @@ public interface CacheAwareContextLoaderDelegate {
    * <p>If this property is not defined, the
    * {@link DefaultCacheAwareContextLoaderDelegate
    * DefaultCacheAwareContextLoaderDelegate} will be used as the default.
-   *
    */
   String DEFAULT_CACHE_AWARE_CONTEXT_LOADER_DELEGATE_PROPERTY_NAME =
           "context.test.context.default.CacheAwareContextLoaderDelegate";

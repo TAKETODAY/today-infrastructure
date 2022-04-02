@@ -42,7 +42,7 @@ import cn.taketoday.test.context.junit4.statements.RunBeforeTestClassCallbacks;
 
 /**
  * {@code ApplicationClassRule} is a custom JUnit {@link TestRule} that supports
- * <em>class-level</em> features of the <em>Spring TestContext Framework</em>
+ * <em>class-level</em> features of the <em>TestContext Framework</em>
  * in standard JUnit tests by means of the {@link TestContextManager} and
  * associated support classes and annotations.
  *
@@ -81,7 +81,7 @@ import cn.taketoday.test.context.junit4.statements.RunBeforeTestClassCallbacks;
  * <li>{@link IfProfileValue @IfProfileValue}</li>
  * </ul>
  *
- * <p><strong>NOTE:</strong> As of Spring Framework 4.3, this class requires JUnit 4.12 or higher.
+ * <p><strong>NOTE:</strong>  this class requires JUnit 4.12 or higher.
  *
  * @author Sam Brannen
  * @author Philippe Marschall
@@ -117,7 +117,7 @@ public class ApplicationClassRule implements TestRule {
    * @param base the base {@code Statement} that this rule should be applied to
    * @param description a {@code Description} of the current test execution
    * @return a statement that wraps the supplied {@code base} with class-level
-   * features of the Spring TestContext Framework
+   * features of the TestContext Framework
    * @see #getTestContextManager
    * @see #withBeforeTestClassCallbacks
    * @see #withAfterTestClassCallbacks

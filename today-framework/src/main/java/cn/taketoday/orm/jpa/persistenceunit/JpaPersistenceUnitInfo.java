@@ -39,7 +39,7 @@ import jakarta.persistence.spi.ClassTransformer;
  * @see PersistenceUnitManager
  * @since 4.0
  */
-class FrameworkPersistenceUnitInfo extends MutablePersistenceUnitInfo {
+class JpaPersistenceUnitInfo extends MutablePersistenceUnitInfo {
 
   @Nullable
   private LoadTimeWeaver loadTimeWeaver;

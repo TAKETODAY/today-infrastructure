@@ -40,7 +40,7 @@ import jakarta.servlet.http.HttpSessionBindingListener;
 /**
  * Mock implementation of the {@link HttpSession} interface.
  *
- * <p>As of Spring 5.0, this set of mocks is designed on a Servlet 4.0 baseline.
+ * <p>@since 4.0this set of mocks is designed on a Servlet 4.0 baseline.
  *
  * @author Juergen Hoeller
  * @author Rod Johnson

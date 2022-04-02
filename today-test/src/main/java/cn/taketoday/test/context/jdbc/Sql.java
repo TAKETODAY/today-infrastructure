@@ -136,7 +136,6 @@ public @interface Sql {
    * instances of {@code @Sql} on the same class or method.
    *
    * @see #scripts
-   * @since 4.0
    */
   String[] statements() default {};
 

@@ -38,7 +38,7 @@ import java.lang.annotation.Target;
  *
  * <h4>Single Test Class with Context Hierarchy</h4>
  * <p>{@code ControllerIntegrationTests} represents a typical integration testing
- * scenario for a Spring MVC web application by declaring a context hierarchy
+ * scenario for a MVC web application by declaring a context hierarchy
  * consisting of two levels, one for the <em>root</em> {@code WebApplicationContext}
  * (with {@code TestAppConfig}) and one for the <em>dispatcher servlet</em>
  * {@code WebApplicationContext} (with {@code WebConfig}). The {@code
@@ -91,7 +91,7 @@ import java.lang.annotation.Target;
  * in order to <em>merge</em> the configuration for specific levels in a context
  * hierarchy. {@code BaseTests} defines two levels in the hierarchy, {@code parent}
  * and {@code child}. {@code ExtendedTests} extends {@code BaseTests} and instructs
- * the Spring TestContext Framework to merge the context configuration for the
+ * the TestContext Framework to merge the context configuration for the
  * {@code child} hierarchy level, simply by ensuring that the names declared via
  * {@link ContextConfiguration#name} are both {@code "child"}. The result is that
  * three application contexts will be loaded: one for {@code "/app-config.xml"},

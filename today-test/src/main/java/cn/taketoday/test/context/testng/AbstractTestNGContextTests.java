@@ -50,7 +50,7 @@ import cn.taketoday.test.context.support.DirtiesContextTestExecutionListener;
 import cn.taketoday.test.context.web.ServletTestExecutionListener;
 
 /**
- * Abstract base test class which integrates the <em>Spring TestContext Framework</em>
+ * Abstract base test class which integrates the <em>TestContext Framework</em>
  * with explicit {@link ApplicationContext} testing support in a <strong>TestNG</strong>
  * environment.
  *
@@ -93,9 +93,14 @@ import cn.taketoday.test.context.web.ServletTestExecutionListener;
  * @see AbstractJUnit4ContextTests
  * @since 4.0
  */
-@TestExecutionListeners({ ServletTestExecutionListener.class, DirtiesContextBeforeModesTestExecutionListener.class,
-        ApplicationEventsTestExecutionListener.class, DependencyInjectionTestExecutionListener.class,
-        DirtiesContextTestExecutionListener.class, EventPublishingTestExecutionListener.class })
+@TestExecutionListeners({
+        ServletTestExecutionListener.class,
+        DirtiesContextTestExecutionListener.class,
+        EventPublishingTestExecutionListener.class,
+        ApplicationEventsTestExecutionListener.class,
+        DependencyInjectionTestExecutionListener.class,
+        DirtiesContextBeforeModesTestExecutionListener.class
+})
 public abstract class AbstractTestNGContextTests implements IHookable, ApplicationContextAware {
 
   /** Logger available to subclasses. */

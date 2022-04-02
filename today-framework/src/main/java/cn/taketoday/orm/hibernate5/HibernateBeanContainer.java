@@ -77,20 +77,20 @@ import cn.taketoday.util.ConcurrentReferenceHashMap;
  * @see org.hibernate.cfg.AvailableSettings#BEAN_CONTAINER
  * @since 4.0
  */
-public final class FrameworkBeanContainer implements BeanContainer {
+public final class HibernateBeanContainer implements BeanContainer {
 
-  private static final Logger logger = LoggerFactory.getLogger(FrameworkBeanContainer.class);
+  private static final Logger logger = LoggerFactory.getLogger(HibernateBeanContainer.class);
 
   private final ConfigurableBeanFactory beanFactory;
 
-  private final ConcurrentReferenceHashMap<Object, FrameworkContainedBean<?>> beanCache = new ConcurrentReferenceHashMap<>();
+  private final ConcurrentReferenceHashMap<Object, HibernateContainedBean<?>> beanCache = new ConcurrentReferenceHashMap<>();
 
   /**
    * Instantiate a new FrameworkBeanContainer for the given bean factory.
    *
    * @param beanFactory the Framework bean factory to delegate to
    */
-  public FrameworkBeanContainer(ConfigurableBeanFactory beanFactory) {
+  public HibernateBeanContainer(ConfigurableBeanFactory beanFactory) {
     Assert.notNull(beanFactory, "ConfigurableBeanFactory is required");
     this.beanFactory = beanFactory;
   }
@@ -99,7 +99,7 @@ public final class FrameworkBeanContainer implements BeanContainer {
   @SuppressWarnings("unchecked")
   public <B> ContainedBean<B> getBean(Class<B> beanType,
           LifecycleOptions lifecycleOptions, BeanInstanceProducer fallbackProducer) {
-    FrameworkContainedBean<?> bean;
+    HibernateContainedBean<?> bean;
     if (lifecycleOptions.canUseCachedReferences()) {
       bean = this.beanCache.get(beanType);
       if (bean == null) {
@@ -110,7 +110,7 @@ public final class FrameworkBeanContainer implements BeanContainer {
     else {
       bean = createBean(beanType, lifecycleOptions, fallbackProducer);
     }
-    return (FrameworkContainedBean<B>) bean;
+    return (HibernateContainedBean<B>) bean;
   }
 
   @Override
@@ -118,7 +118,7 @@ public final class FrameworkBeanContainer implements BeanContainer {
   public <B> ContainedBean<B> getBean(String name, Class<B> beanType,
           LifecycleOptions lifecycleOptions, BeanInstanceProducer fallbackProducer) {
 
-    FrameworkContainedBean<?> bean;
+    HibernateContainedBean<?> bean;
     if (lifecycleOptions.canUseCachedReferences()) {
       bean = this.beanCache.get(name);
       if (bean == null) {
@@ -129,33 +129,33 @@ public final class FrameworkBeanContainer implements BeanContainer {
     else {
       bean = createBean(name, beanType, lifecycleOptions, fallbackProducer);
     }
-    return (FrameworkContainedBean<B>) bean;
+    return (HibernateContainedBean<B>) bean;
   }
 
   @Override
   public void stop() {
-    this.beanCache.values().forEach(FrameworkContainedBean::destroyIfNecessary);
+    this.beanCache.values().forEach(HibernateContainedBean::destroyIfNecessary);
     this.beanCache.clear();
   }
 
-  private FrameworkContainedBean<?> createBean(
+  private HibernateContainedBean<?> createBean(
           Class<?> beanType, LifecycleOptions lifecycleOptions, BeanInstanceProducer fallbackProducer) {
 
     try {
       if (lifecycleOptions.useJpaCompliantCreation()) {
-        return new FrameworkContainedBean<>(
+        return new HibernateContainedBean<>(
                 this.beanFactory.createBean(beanType, AutowireCapableBeanFactory.AUTOWIRE_CONSTRUCTOR),
                 this.beanFactory::destroyBean);
       }
       else {
-        return new FrameworkContainedBean<>(beanFactory.getBean(beanType));
+        return new HibernateContainedBean<>(beanFactory.getBean(beanType));
       }
     }
     catch (BeansException ex) {
       logger.debug("Falling back to Hibernate's default producer after bean creation failure for {}: {}",
               beanType, ex.toString());
       try {
-        return new FrameworkContainedBean<>(fallbackProducer.produceBeanInstance(beanType));
+        return new HibernateContainedBean<>(fallbackProducer.produceBeanInstance(beanType));
       }
       catch (RuntimeException ex2) {
         if (ex instanceof BeanCreationException) {
@@ -171,7 +171,7 @@ public final class FrameworkBeanContainer implements BeanContainer {
     }
   }
 
-  private FrameworkContainedBean<?> createBean(String name, Class<?> beanType,
+  private HibernateContainedBean<?> createBean(String name, Class<?> beanType,
           LifecycleOptions lifecycleOptions, BeanInstanceProducer fallbackProducer) {
     try {
       if (lifecycleOptions.useJpaCompliantCreation()) {
@@ -179,17 +179,17 @@ public final class FrameworkBeanContainer implements BeanContainer {
         beanFactory.autowireBeanProperties(bean, AutowireCapableBeanFactory.AUTOWIRE_NO);
         beanFactory.applyBeanPropertyValues(bean, name);
         bean = beanFactory.initializeBean(bean, name);
-        return new FrameworkContainedBean<>(bean, beanInstance -> beanFactory.destroyBean(name, beanInstance));
+        return new HibernateContainedBean<>(bean, beanInstance -> beanFactory.destroyBean(name, beanInstance));
       }
       else {
-        return new FrameworkContainedBean<>(beanFactory.getBean(name, beanType));
+        return new HibernateContainedBean<>(beanFactory.getBean(name, beanType));
       }
     }
     catch (BeansException ex) {
       logger.debug("Falling back to Hibernate's default producer after bean creation failure for {} with name '{}': {}",
               name, beanType, ex.toString());
       try {
-        return new FrameworkContainedBean<>(fallbackProducer.produceBeanInstance(name, beanType));
+        return new HibernateContainedBean<>(fallbackProducer.produceBeanInstance(name, beanType));
       }
       catch (RuntimeException ex2) {
         if (ex instanceof BeanCreationException) {
@@ -205,18 +205,18 @@ public final class FrameworkBeanContainer implements BeanContainer {
     }
   }
 
-  private static final class FrameworkContainedBean<B> implements ContainedBean<B> {
+  private static final class HibernateContainedBean<B> implements ContainedBean<B> {
 
     private final B beanInstance;
 
     @Nullable
     private Consumer<B> destructionCallback;
 
-    public FrameworkContainedBean(B beanInstance) {
+    public HibernateContainedBean(B beanInstance) {
       this.beanInstance = beanInstance;
     }
 
-    public FrameworkContainedBean(B beanInstance, Consumer<B> destructionCallback) {
+    public HibernateContainedBean(B beanInstance, Consumer<B> destructionCallback) {
       this.beanInstance = beanInstance;
       this.destructionCallback = destructionCallback;
     }

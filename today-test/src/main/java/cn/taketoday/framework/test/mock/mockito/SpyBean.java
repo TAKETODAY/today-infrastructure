@@ -44,7 +44,7 @@ import cn.taketoday.test.context.junit4.Runner;
  * of a matching type (including subclasses) will be wrapped with the spy. If no existing
  * bean is defined a new one will be added. Dependencies that are known to the application
  * context but are not beans (such as those
- * {@link cn.taketoday.beans.factory.config.ConfigurableBeanFactory#registerResolvableDependency(Class, Object)
+ * {@link cn.taketoday.beans.factory.config.ConfigurableBeanFactory#registerDependency(Class, Object)
  * registered directly}) will not be found and a spied bean will be added to the context
  * alongside the existing dependency.
  * <p>

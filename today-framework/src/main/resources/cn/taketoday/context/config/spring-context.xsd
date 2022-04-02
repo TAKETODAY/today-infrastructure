@@ -114,7 +114,7 @@
           <xsd:attribute name="system-properties-mode" default="ENVIRONMENT">
             <xsd:annotation>
               <xsd:documentation><![CDATA[
-	Controls how to resolve placeholders against system properties. As of Spring 3.1, this
+	Controls how to resolve placeholders against system properties. this
 	attribute value defaults to "ENVIRONMENT", indicating that resolution of placeholders
 	against system properties is handled via PropertySourcesPlaceholderConfigurer and its
 	delegation to the current Spring Environment object.

@@ -115,7 +115,7 @@ final class PersistenceUnitReader {
    * @param persistenceXmlLocation the resource location (can be a pattern)
    * @return the resulting PersistenceUnitInfo instances
    */
-  public FrameworkPersistenceUnitInfo[] readPersistenceUnitInfos(String persistenceXmlLocation) {
+  public JpaPersistenceUnitInfo[] readPersistenceUnitInfos(String persistenceXmlLocation) {
     return readPersistenceUnitInfos(new String[] { persistenceXmlLocation });
   }
 
@@ -125,9 +125,9 @@ final class PersistenceUnitReader {
    * @param persistenceXmlLocations the resource locations (can be patterns)
    * @return the resulting PersistenceUnitInfo instances
    */
-  public FrameworkPersistenceUnitInfo[] readPersistenceUnitInfos(String[] persistenceXmlLocations) {
+  public JpaPersistenceUnitInfo[] readPersistenceUnitInfos(String[] persistenceXmlLocations) {
     ErrorHandler handler = new SimpleSaxErrorHandler(logger);
-    List<FrameworkPersistenceUnitInfo> infos = new ArrayList<>(1);
+    List<JpaPersistenceUnitInfo> infos = new ArrayList<>(1);
     String resourceLocation = null;
     try {
       for (String location : persistenceXmlLocations) {
@@ -150,7 +150,7 @@ final class PersistenceUnitReader {
       throw new IllegalArgumentException("Internal error parsing persistence unit from " + resourceLocation);
     }
 
-    return infos.toArray(new FrameworkPersistenceUnitInfo[0]);
+    return infos.toArray(new JpaPersistenceUnitInfo[0]);
   }
 
   /**
@@ -169,8 +169,8 @@ final class PersistenceUnitReader {
   /**
    * Parse the validated document and add entries to the given unit info list.
    */
-  protected List<FrameworkPersistenceUnitInfo> parseDocument(
-          Resource resource, Document document, List<FrameworkPersistenceUnitInfo> infos) throws IOException {
+  protected List<JpaPersistenceUnitInfo> parseDocument(
+          Resource resource, Document document, List<JpaPersistenceUnitInfo> infos) throws IOException {
 
     Element persistence = document.getDocumentElement();
     String version = persistence.getAttribute(PERSISTENCE_VERSION);
@@ -187,10 +187,10 @@ final class PersistenceUnitReader {
   /**
    * Parse the unit info DOM element.
    */
-  protected FrameworkPersistenceUnitInfo parsePersistenceUnitInfo(
+  protected JpaPersistenceUnitInfo parsePersistenceUnitInfo(
           Element persistenceUnit, String version, @Nullable URL rootUrl) throws IOException {
 
-    FrameworkPersistenceUnitInfo unitInfo = new FrameworkPersistenceUnitInfo();
+    JpaPersistenceUnitInfo unitInfo = new JpaPersistenceUnitInfo();
 
     // set JPA version (1.0 or 2.0)
     unitInfo.setPersistenceXMLSchemaVersion(version);
@@ -254,7 +254,7 @@ final class PersistenceUnitReader {
   /**
    * Parse the {@code property} XML elements.
    */
-  protected void parseProperties(Element persistenceUnit, FrameworkPersistenceUnitInfo unitInfo) {
+  protected void parseProperties(Element persistenceUnit, JpaPersistenceUnitInfo unitInfo) {
     Element propRoot = DomUtils.getChildElementByTagName(persistenceUnit, PROPERTIES);
     if (propRoot == null) {
       return;
@@ -270,7 +270,7 @@ final class PersistenceUnitReader {
   /**
    * Parse the {@code class} XML elements.
    */
-  protected void parseManagedClasses(Element persistenceUnit, FrameworkPersistenceUnitInfo unitInfo) {
+  protected void parseManagedClasses(Element persistenceUnit, JpaPersistenceUnitInfo unitInfo) {
     List<Element> classes = DomUtils.getChildElementsByTagName(persistenceUnit, MANAGED_CLASS_NAME);
     for (Element element : classes) {
       String value = DomUtils.getTextValue(element).trim();
@@ -283,7 +283,7 @@ final class PersistenceUnitReader {
   /**
    * Parse the {@code mapping-file} XML elements.
    */
-  protected void parseMappingFiles(Element persistenceUnit, FrameworkPersistenceUnitInfo unitInfo) {
+  protected void parseMappingFiles(Element persistenceUnit, JpaPersistenceUnitInfo unitInfo) {
     List<Element> files = DomUtils.getChildElementsByTagName(persistenceUnit, MAPPING_FILE_NAME);
     for (Element element : files) {
       String value = DomUtils.getTextValue(element).trim();
@@ -296,7 +296,7 @@ final class PersistenceUnitReader {
   /**
    * Parse the {@code jar-file} XML elements.
    */
-  protected void parseJarFiles(Element persistenceUnit, FrameworkPersistenceUnitInfo unitInfo) throws IOException {
+  protected void parseJarFiles(Element persistenceUnit, JpaPersistenceUnitInfo unitInfo) throws IOException {
     List<Element> jars = DomUtils.getChildElementsByTagName(persistenceUnit, JAR_FILE_URL);
     for (Element element : jars) {
       String value = DomUtils.getTextValue(element).trim();
