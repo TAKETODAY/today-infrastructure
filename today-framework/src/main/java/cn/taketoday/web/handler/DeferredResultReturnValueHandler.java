@@ -43,7 +43,7 @@ public class DeferredResultReturnValueHandler implements ReturnValueHandler {
 
   @Override
   public boolean supportsHandler(Object handler) {
-    return true;
+    return false;
   }
 
   @Override

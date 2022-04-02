@@ -20,8 +20,6 @@
 
 package cn.taketoday.framework.test.json;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 import java.net.URL;
 import java.util.Collections;
