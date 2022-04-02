@@ -45,6 +45,7 @@ import cn.taketoday.framework.MockApplicationEnvironment;
 import cn.taketoday.framework.context.config.ConfigDataEnvironmentContributor.ImportPhase;
 import cn.taketoday.framework.context.config.ConfigDataEnvironmentContributor.Kind;
 import cn.taketoday.framework.context.config.TestConfigDataEnvironmentUpdateListener.AddedPropertySource;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.mock.env.MockPropertySource;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -289,7 +290,7 @@ class ConfigDataEnvironmentTests {
     ConfigDataEnvironment configDataEnvironment = new ConfigDataEnvironment(this.bootstrapContext,
             this.environment, this.resourceLoader, this.additionalProfiles, null);
     assertThatExceptionOfType(InvalidConfigDataPropertyException.class)
-            .isThrownBy(() -> configDataEnvironment.processAndApply());
+            .isThrownBy(configDataEnvironment::processAndApply);
   }
 
   @Test
@@ -331,7 +332,7 @@ class ConfigDataEnvironmentTests {
             ConfigurableEnvironment environment,
             ResourceLoader resourceLoader,
             Collection<String> additionalProfiles,
-            ConfigDataEnvironmentUpdateListener environmentUpdateListener) {
+            @Nullable ConfigDataEnvironmentUpdateListener environmentUpdateListener) {
       super(bootstrapContext, environment, resourceLoader, additionalProfiles,
               environmentUpdateListener);
     }

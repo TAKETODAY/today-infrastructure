@@ -26,7 +26,7 @@ import org.junit.jupiter.api.Test;
 import cn.taketoday.context.properties.source.ConfigurationProperty;
 import cn.taketoday.context.properties.source.ConfigurationPropertyName;
 import cn.taketoday.context.properties.source.ConfigurationPropertySource;
-import cn.taketoday.framework.MockOrigin;
+import cn.taketoday.origin.MockOrigin;
 import cn.taketoday.framework.context.config.ConfigDataEnvironmentContributor.Kind;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.mock.env.MockPropertySource;
