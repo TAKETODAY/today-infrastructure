@@ -20,7 +20,6 @@
 
 package cn.taketoday.framework.context.config;
 
-import org.apache.commons.logging.Log;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -43,6 +42,7 @@ import cn.taketoday.framework.BootstrapRegistry;
 import cn.taketoday.framework.BootstrapRegistry.InstanceSupplier;
 import cn.taketoday.framework.ConfigurableBootstrapContext;
 import cn.taketoday.framework.DefaultBootstrapContext;
+import cn.taketoday.logging.Logger;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -212,13 +212,13 @@ class ConfigDataLocationResolversTests {
 
   static class TestLogResolver extends TestResolver {
 
-    private final Log log;
+    private final Logger log;
 
-    TestLogResolver(Log log) {
+    TestLogResolver(Logger log) {
       this.log = log;
     }
 
-    Log getLog() {
+    Logger getLog() {
       return this.log;
     }
 
