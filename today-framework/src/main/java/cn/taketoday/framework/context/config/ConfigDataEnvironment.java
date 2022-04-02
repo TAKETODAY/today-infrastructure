@@ -202,7 +202,8 @@ class ConfigDataEnvironment {
     return Objects.requireNonNull(binder.bind(propertyName, CONFIG_DATA_LOCATION_ARRAY).orElse(other));
   }
 
-  private void addInitialImportContributors(List<ConfigDataEnvironmentContributor> initialContributors, ConfigDataLocation[] locations) {
+  private void addInitialImportContributors(
+          List<ConfigDataEnvironmentContributor> initialContributors, ConfigDataLocation[] locations) {
     for (int i = locations.length - 1; i >= 0; i--) {
       initialContributors.add(createInitialImportContributor(locations[i]));
     }
