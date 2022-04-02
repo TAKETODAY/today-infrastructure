@@ -30,7 +30,6 @@ import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.transaction.PlatformTransactionManager;
 import cn.taketoday.transaction.TransactionDefinition;
 import cn.taketoday.transaction.TransactionException;
-import cn.taketoday.transaction.TransactionManager;
 import cn.taketoday.transaction.TransactionStatus;
 import cn.taketoday.transaction.TransactionSystemException;
 

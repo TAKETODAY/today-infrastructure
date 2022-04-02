@@ -440,9 +440,10 @@ class ConfigDataEnvironmentPostProcessorIntegrationTests {
   void loadWhenHasConfigLocationAsFile() {
     String location = "file:src/test/resources/specificlocation.properties";
     ConfigurableApplicationContext context = this.application.run("--context.config.location=" + location);
-    assertThat(context.getEnvironment()).has(matchingPropertySource("Config resource 'file [" + Strings
-            .join(Arrays.asList("src", "test", "resources", "specificlocation.properties"), File.separatorChar)
-            + "]' via location '" + location + "'"));
+    assertThat(context.getEnvironment())
+            .has(matchingPropertySource("Config resource 'file [" + Strings
+                    .join(Arrays.asList("src", "test", "resources", "specificlocation.properties"), File.separatorChar)
+                    + "]' via location '" + location + "'"));
   }
 
   @Test

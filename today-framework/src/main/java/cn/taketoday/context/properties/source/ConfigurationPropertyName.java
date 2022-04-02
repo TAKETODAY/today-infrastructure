@@ -366,10 +366,9 @@ public final class ConfigurationPropertyName implements Comparable<Configuration
     if (obj == this) {
       return true;
     }
-    if (obj == null || obj.getClass() != getClass()) {
+    if (!(obj instanceof ConfigurationPropertyName other)) {
       return false;
     }
-    ConfigurationPropertyName other = (ConfigurationPropertyName) obj;
     if (getNumberOfElements() != other.getNumberOfElements()) {
       return false;
     }
@@ -601,12 +600,12 @@ public final class ConfigurationPropertyName implements Comparable<Configuration
    * {@code returnNullIfInvalid} is {@code false}
    */
   @Nullable
-  static ConfigurationPropertyName of(CharSequence name, boolean returnNullIfInvalid) {
+  static ConfigurationPropertyName of(@Nullable CharSequence name, boolean returnNullIfInvalid) {
     Elements elements = elementsOf(name, returnNullIfInvalid);
     return (elements != null) ? new ConfigurationPropertyName(elements) : null;
   }
 
-  private static Elements probablySingleElementOf(@Nullable CharSequence name) {
+  private static Elements probablySingleElementOf(CharSequence name) {
     return elementsOf(name, false, 1);
   }
 
@@ -846,12 +845,16 @@ public final class ConfigurationPropertyName implements Comparable<Configuration
       if (this.resolved != null) {
         return false;
       }
-      for (int i = 0; i < this.size; i++) {
-        ElementType type = this.type[i];
+      int size = this.size;
+      int[] end = this.end;
+      int[] start = this.start;
+      ElementType[] thisTypes = this.type;
+      for (int i = 0; i < size; i++) {
+        ElementType type = thisTypes[i];
         if (type != requiredType && type != alternativeType) {
           return false;
         }
-        if (i > 0 && this.end[i - 1] + 1 != this.start[i]) {
+        if (i > 0 && end[i - 1] + 1 != start[i]) {
           return false;
         }
       }

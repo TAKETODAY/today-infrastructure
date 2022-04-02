@@ -37,8 +37,8 @@ import cn.taketoday.framework.test.context.assertj.AssertableApplicationContext;
  * @author Phillip Webb
  * @since 4.0
  */
-public class ApplicationContextRunner extends
-        AbstractApplicationContextRunner<ApplicationContextRunner, ConfigurableApplicationContext, AssertableApplicationContext> {
+public class ApplicationContextRunner extends AbstractApplicationContextRunner<ApplicationContextRunner,
+        ConfigurableApplicationContext, AssertableApplicationContext> {
 
   /**
    * Create a new {@link ApplicationContextRunner} instance using an

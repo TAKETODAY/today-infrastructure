@@ -22,11 +22,8 @@ package cn.taketoday.web.context.support;
 
 import java.util.function.Supplier;
 
-import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.RequestContextHolder;
-import cn.taketoday.web.RequestContextUtils;
-import cn.taketoday.web.WebApplicationContext;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
@@ -45,6 +42,5 @@ public class RequestScope extends AbstractRequestContextScope<RequestContext> {
     RequestContext context = RequestContextHolder.getRequired();
     return remove(context, name);
   }
-
 
 }

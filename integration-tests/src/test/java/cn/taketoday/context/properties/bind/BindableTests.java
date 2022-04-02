@@ -150,7 +150,7 @@ class BindableTests {
     Bindable<String> bindable = Bindable.of(String.class).withExistingValue("foo").withAnnotations(annotation);
     assertThat(bindable.toString())
             .contains("type = java.lang.String, value = 'provided', annotations = array<Annotation>["
-                    + "@cn.taketoday.context.properties.bind.BindableTests.TestAnnotation()]");
+                    + "@cn.taketoday.context.properties.bind.BindableTests$TestAnnotation()]");
   }
 
   @Test

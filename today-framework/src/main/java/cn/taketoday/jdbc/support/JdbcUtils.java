@@ -38,7 +38,6 @@ import java.util.HashMap;
 import javax.sql.DataSource;
 
 import cn.taketoday.jdbc.CannotGetJdbcConnectionException;
-import cn.taketoday.jdbc.PersistenceException;
 import cn.taketoday.jdbc.datasource.DataSourceUtils;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
@@ -742,6 +741,5 @@ public abstract class JdbcUtils {
       log.warn("Could not rollback and close. Connection: {}", conn, e);
     }
   }
-
 
 }
