@@ -43,7 +43,7 @@ import cn.taketoday.test.context.jdbc.SqlScriptsTestExecutionListener;
 import cn.taketoday.test.context.support.DependencyInjectionTestExecutionListener;
 import cn.taketoday.test.context.support.DirtiesContextBeforeModesTestExecutionListener;
 import cn.taketoday.test.context.support.DirtiesContextTestExecutionListener;
-import cn.taketoday.test.context.testng.AbstractTransactionalTestNGSpringContextTests;
+import cn.taketoday.test.context.testng.AbstractTransactionalTestNGContextTests;
 import cn.taketoday.test.context.transaction.AfterTransaction;
 import cn.taketoday.test.context.transaction.TransactionalTestExecutionListener;
 import cn.taketoday.test.context.web.ServletTestExecutionListener;
@@ -111,7 +111,7 @@ import cn.taketoday.transaction.annotation.Transactional;
  * @see BeforeTransaction
  * @see AfterTransaction
  * @see JdbcTestUtils
- * @see AbstractTransactionalTestNGSpringContextTests
+ * @see AbstractTransactionalTestNGContextTests
  * @since 4.0
  */
 @TestExecutionListeners(listeners = { ServletTestExecutionListener.class, DirtiesContextBeforeModesTestExecutionListener.class,

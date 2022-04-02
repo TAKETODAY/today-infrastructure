@@ -30,9 +30,9 @@ import cn.taketoday.context.annotation.Configuration;
 @Configuration
 class BarConfig {
 
-	@Bean
-	String bar() {
-		return "bar";
-	}
+  @Bean
+  String bar() {
+    return "bar";
+  }
 
 }

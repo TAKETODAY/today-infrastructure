@@ -21,6 +21,9 @@
 package cn.taketoday.test.context.jdbc;
 
 import org.junit.jupiter.api.Test;
+
+import javax.sql.DataSource;
+
 import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
@@ -32,55 +35,53 @@ import cn.taketoday.test.context.junit.jupiter.JUnitConfig;
 import cn.taketoday.test.jdbc.JdbcTestUtils;
 import cn.taketoday.test.transaction.TransactionAssert;
 
-import javax.sql.DataSource;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Integration tests that ensure that <em>primary</em> data sources are
  * supported.
  *
  * @author Sam Brannen
+ * @see cn.taketoday.test.context.transaction.manager.PrimaryTransactionManagerTests
  * @since 4.0
- * @see cn.taketoday.test.context.transaction.PrimaryTransactionManagerTests
  */
 @JUnitConfig
 @DirtiesContext
 class PrimaryDataSourceTests {
 
-	@Configuration
-	static class Config {
+  @Configuration
+  static class Config {
 
-		@Primary
-		@Bean
-		DataSource primaryDataSource() {
-			// @formatter:off
+    @Primary
+    @Bean
+    DataSource primaryDataSource() {
+      // @formatter:off
 			return new EmbeddedDatabaseBuilder()
 					.generateUniqueName(true)
-					.addScript("classpath:/org/springframework/test/context/jdbc/schema.sql")
+					.addScript("classpath:/cn/taketoday/test/context/jdbc/schema.sql")
 					.build();
 			// @formatter:on
-		}
+    }
 
-		@Bean
-		DataSource additionalDataSource() {
-			return new EmbeddedDatabaseBuilder().generateUniqueName(true).build();
-		}
+    @Bean
+    DataSource additionalDataSource() {
+      return new EmbeddedDatabaseBuilder().generateUniqueName(true).build();
+    }
 
-	}
+  }
 
+  private JdbcTemplate jdbcTemplate;
 
-	private JdbcTemplate jdbcTemplate;
+  @Autowired
+  void setDataSource(DataSource dataSource) {
+    this.jdbcTemplate = new JdbcTemplate(dataSource);
+  }
 
-
-	@Autowired
-	void setDataSource(DataSource dataSource) {
-		this.jdbcTemplate = new JdbcTemplate(dataSource);
-	}
-
-	@Test
-	@Sql("data.sql")
-	void dataSourceTest() {
-		TransactionAssert.assertThatTransaction().isNotActive();
-		assertThat(JdbcTestUtils.countRowsInTable(this.jdbcTemplate, "user")).as("Number of rows in the 'user' table.").isEqualTo(1);
-	}
+  @Test
+  @Sql("data.sql")
+  void dataSourceTest() {
+    TransactionAssert.assertThatTransaction().isNotActive();
+    assertThat(JdbcTestUtils.countRowsInTable(this.jdbcTemplate, "user")).as("Number of rows in the 'user' table.").isEqualTo(1);
+  }
 
 }

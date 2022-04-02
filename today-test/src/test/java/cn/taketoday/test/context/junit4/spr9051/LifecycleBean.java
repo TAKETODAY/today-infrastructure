@@ -30,26 +30,25 @@ import jakarta.annotation.PostConstruct;
  */
 public class LifecycleBean {
 
-	private final String name;
+  private final String name;
 
-	private boolean initialized = false;
+  private boolean initialized = false;
 
+  public LifecycleBean(String name) {
+    this.name = name;
+  }
 
-	public LifecycleBean(String name) {
-		this.name = name;
-	}
+  public String getName() {
+    return this.name;
+  }
 
-	public String getName() {
-		return this.name;
-	}
+  @PostConstruct
+  public void init() {
+    initialized = true;
+  }
 
-	@PostConstruct
-	public void init() {
-		initialized = true;
-	}
-
-	public boolean isInitialized() {
-		return this.initialized;
-	}
+  public boolean isInitialized() {
+    return this.initialized;
+  }
 
 }

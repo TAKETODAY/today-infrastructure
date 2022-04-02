@@ -32,7 +32,7 @@ public abstract class AbstractMultipartFile implements MultipartFile {
   protected byte[] cachedBytes;
 
   @Override
-  public void save(File dest) throws IOException {
+  public void transferTo(File dest) throws IOException {
     // fix #3 Upload file not found exception
     File parentFile = dest.getParentFile();
     if (!parentFile.exists()) {

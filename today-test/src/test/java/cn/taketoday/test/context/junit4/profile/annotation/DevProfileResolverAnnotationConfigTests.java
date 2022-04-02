@@ -29,10 +29,10 @@ import cn.taketoday.test.context.ActiveProfilesResolver;
  */
 @ActiveProfiles(resolver = DevProfileResolverAnnotationConfigTests.class, inheritProfiles = false)
 public class DevProfileResolverAnnotationConfigTests extends DevProfileAnnotationConfigTests implements
-		ActiveProfilesResolver {
+        ActiveProfilesResolver {
 
-	@Override
-	public String[] resolve(Class<?> testClass) {
-		return new String[] { "dev" };
-	}
+  @Override
+  public String[] resolve(Class<?> testClass) {
+    return new String[] { "dev" };
+  }
 }

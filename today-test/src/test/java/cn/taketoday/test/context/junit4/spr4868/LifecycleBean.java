@@ -20,9 +20,8 @@
 
 package cn.taketoday.test.context.junit4.spr4868;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
+import cn.taketoday.logging.Logger;
+import cn.taketoday.logging.LoggerFactory;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 
@@ -32,17 +31,16 @@ import jakarta.annotation.PreDestroy;
  */
 class LifecycleBean {
 
-	private final Logger logger = LoggerFactory.getLogger(LifecycleBean.class);
+  private final Logger logger = LoggerFactory.getLogger(LifecycleBean.class);
 
+  @PostConstruct
+  public void init() {
+    logger.info("initializing");
+  }
 
-	@PostConstruct
-	public void init() {
-		logger.info("initializing");
-	}
-
-	@PreDestroy
-	public void destroy() {
-		logger.info("destroying");
-	}
+  @PreDestroy
+  public void destroy() {
+    logger.info("destroying");
+  }
 
 }

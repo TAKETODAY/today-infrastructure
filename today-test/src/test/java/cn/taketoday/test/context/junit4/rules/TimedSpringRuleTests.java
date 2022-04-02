@@ -25,6 +25,7 @@ import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.runner.Runner;
 import org.junit.runners.JUnit4;
+
 import cn.taketoday.test.context.TestExecutionListeners;
 import cn.taketoday.test.context.junit4.TimedSpringRunnerTests;
 
@@ -40,41 +41,39 @@ import static org.assertj.core.api.Assertions.fail;
  */
 public class TimedSpringRuleTests extends TimedSpringRunnerTests {
 
-	// All tests are in superclass.
+  // All tests are in superclass.
 
-	@Override
-	protected Class<?> getTestCase() {
-		return TimedSpringRuleTestCase.class;
-	}
+  @Override
+  protected Class<?> getTestCase() {
+    return TimedSpringRuleTestCase.class;
+  }
 
-	@Override
-	protected Class<? extends Runner> getRunnerClass() {
-		return JUnit4.class;
-	}
+  @Override
+  protected Class<? extends Runner> getRunnerClass() {
+    return JUnit4.class;
+  }
 
+  @Ignore("TestCase classes are run manually by the enclosing test class")
+  @TestExecutionListeners({})
+  public static final class TimedSpringRuleTestCase extends TimedSpringRunnerTestCase {
 
-	@Ignore("TestCase classes are run manually by the enclosing test class")
-	@TestExecutionListeners({})
-	public static final class TimedSpringRuleTestCase extends TimedSpringRunnerTestCase {
+    @ClassRule
+    public static final ApplicationClassRule applicationClassRule = new ApplicationClassRule();
 
-		@ClassRule
-		public static final ApplicationClassRule applicationClassRule = new ApplicationClassRule();
+    @Rule
+    public final ApplicationMethodRule applicationMethodRule = new ApplicationMethodRule();
 
-		@Rule
-		public final ApplicationMethodRule applicationMethodRule = new ApplicationMethodRule();
+    /**
+     * Overridden to always throw an exception, since Spring's Rule-based
+     * JUnit integration does not fail a test for duplicate configuration
+     * of timeouts.
+     */
+    @Override
+    public void springAndJUnitTimeouts() {
+      fail("intentional failure to make tests in superclass pass");
+    }
 
-
-		/**
-		 * Overridden to always throw an exception, since Spring's Rule-based
-		 * JUnit integration does not fail a test for duplicate configuration
-		 * of timeouts.
-		 */
-		@Override
-		public void springAndJUnitTimeouts() {
-			fail("intentional failure to make tests in superclass pass");
-		}
-
-		// All other tests are in superclass.
-	}
+    // All other tests are in superclass.
+  }
 
 }

@@ -22,10 +22,13 @@ package cn.taketoday.test.context.junit4.spr3896;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
 import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.beans.testfixture.beans.Employee;
 import cn.taketoday.test.context.ContextConfiguration;
 import cn.taketoday.test.context.junit4.JUnit4ClassRunner;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * JUnit 4 based integration test for verifying support for the
@@ -35,19 +38,18 @@ import cn.taketoday.test.context.junit4.JUnit4ClassRunner;
  * target="_blank">SPR-3896</a>.
  *
  * @author Sam Brannen
- * @since 2.5
+ * @since 4.0
  */
 @RunWith(JUnit4ClassRunner.class)
 @ContextConfiguration
 public class DefaultLocationsBaseTests {
 
-	@Autowired
-	protected Employee employee;
+  @Autowired
+  protected Employee employee;
 
-
-	@Test
-	public void verifyEmployeeSetFromBaseContextConfig() {
-		assertThat(this.employee).as("The employee should have been autowired.").isNotNull();
-		assertThat(this.employee.getName()).isEqualTo("John Smith");
-	}
+  @Test
+  public void verifyEmployeeSetFromBaseContextConfig() {
+    assertThat(this.employee).as("The employee should have been autowired.").isNotNull();
+    assertThat(this.employee.getName()).isEqualTo("John Smith");
+  }
 }

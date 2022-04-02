@@ -24,13 +24,12 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
-import cn.taketoday.test.annotation.Timed;
-import cn.taketoday.test.context.TestExecutionListeners;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
-import static cn.taketoday.test.context.junit4.JUnitTestingUtils.runTestsAndAssertCounters;
+import cn.taketoday.test.annotation.Timed;
+import cn.taketoday.test.context.TestExecutionListeners;
 
 /**
  * Verifies proper handling of the following in conjunction with the
@@ -41,86 +40,85 @@ import static cn.taketoday.test.context.junit4.JUnitTestingUtils.runTestsAndAsse
  * </ul>
  *
  * @author Sam Brannen
- * @since 3.0
+ * @since 4.0
  */
 @RunWith(JUnit4.class)
 public class TimedSpringRunnerTests {
 
-	protected Class<?> getTestCase() {
-		return TimedSpringRunnerTestCase.class;
-	}
+  protected Class<?> getTestCase() {
+    return TimedSpringRunnerTestCase.class;
+  }
 
-	protected Class<? extends org.junit.runner.Runner> getRunnerClass() {
-		return Runner.class;
-	}
+  protected Class<? extends org.junit.runner.Runner> getRunnerClass() {
+    return Runner.class;
+  }
 
-	@Test
-	public void timedTests() throws Exception {
-		JUnitTestingUtils.runTestsAndAssertCounters(getRunnerClass(), getTestCase(), 7, 5, 7, 0, 0);
-	}
+  @Test
+  public void timedTests() throws Exception {
+    JUnitTestingUtils.runTestsAndAssertCounters(getRunnerClass(), getTestCase(), 7, 5, 7, 0, 0);
+  }
 
+  @Ignore("TestCase classes are run manually by the enclosing test class")
+  @TestExecutionListeners({})
+  public static class TimedSpringRunnerTestCase {
 
-	@Ignore("TestCase classes are run manually by the enclosing test class")
-	@TestExecutionListeners({})
-	public static class TimedSpringRunnerTestCase {
+    // Should Pass.
+    @Test(timeout = 2000)
+    public void jUnitTimeoutWithNoOp() {
+      /* no-op */
+    }
 
-		// Should Pass.
-		@Test(timeout = 2000)
-		public void jUnitTimeoutWithNoOp() {
-			/* no-op */
-		}
+    // Should Pass.
+    @Test
+    @Timed(millis = 2000)
+    public void springTimeoutWithNoOp() {
+      /* no-op */
+    }
 
-		// Should Pass.
-		@Test
-		@Timed(millis = 2000)
-		public void springTimeoutWithNoOp() {
-			/* no-op */
-		}
+    // Should Fail due to timeout.
+    @Test(timeout = 10)
+    public void jUnitTimeoutWithSleep() throws Exception {
+      Thread.sleep(200);
+    }
 
-		// Should Fail due to timeout.
-		@Test(timeout = 10)
-		public void jUnitTimeoutWithSleep() throws Exception {
-			Thread.sleep(200);
-		}
+    // Should Fail due to timeout.
+    @Test
+    @Timed(millis = 10)
+    public void springTimeoutWithSleep() throws Exception {
+      Thread.sleep(200);
+    }
 
-		// Should Fail due to timeout.
-		@Test
-		@Timed(millis = 10)
-		public void springTimeoutWithSleep() throws Exception {
-			Thread.sleep(200);
-		}
+    // Should Fail due to timeout.
+    @Test
+    @MetaTimed
+    public void springTimeoutWithSleepAndMetaAnnotation() throws Exception {
+      Thread.sleep(200);
+    }
 
-		// Should Fail due to timeout.
-		@Test
-		@MetaTimed
-		public void springTimeoutWithSleepAndMetaAnnotation() throws Exception {
-			Thread.sleep(200);
-		}
+    // Should Fail due to timeout.
+    @Test
+    @MetaTimedWithOverride(millis = 10)
+    public void springTimeoutWithSleepAndMetaAnnotationAndOverride() throws Exception {
+      Thread.sleep(200);
+    }
 
-		// Should Fail due to timeout.
-		@Test
-		@MetaTimedWithOverride(millis = 10)
-		public void springTimeoutWithSleepAndMetaAnnotationAndOverride() throws Exception {
-			Thread.sleep(200);
-		}
+    // Should Fail due to duplicate configuration.
+    @Test(timeout = 200)
+    @Timed(millis = 200)
+    public void springAndJUnitTimeouts() {
+      /* no-op */
+    }
+  }
 
-		// Should Fail due to duplicate configuration.
-		@Test(timeout = 200)
-		@Timed(millis = 200)
-		public void springAndJUnitTimeouts() {
-			/* no-op */
-		}
-	}
+  @Timed(millis = 10)
+  @Retention(RetentionPolicy.RUNTIME)
+  private static @interface MetaTimed {
+  }
 
-	@Timed(millis = 10)
-	@Retention(RetentionPolicy.RUNTIME)
-	private static @interface MetaTimed {
-	}
-
-	@Timed(millis = 1000)
-	@Retention(RetentionPolicy.RUNTIME)
-	private static @interface MetaTimedWithOverride {
-		long millis() default 1000;
-	}
+  @Timed(millis = 1000)
+  @Retention(RetentionPolicy.RUNTIME)
+  private static @interface MetaTimedWithOverride {
+    long millis() default 1000;
+  }
 
 }

@@ -20,9 +20,10 @@
 
 package cn.taketoday.test.context.testng.transaction.ejb;
 
+import org.testng.annotations.Test;
+
 import cn.taketoday.test.annotation.Rollback;
 import cn.taketoday.test.context.transaction.TransactionalTestExecutionListener;
-import org.testng.annotations.Test;
 
 /**
  * Extension of {@link CommitForRequiresNewEjbTxDaoTestNGTests} which sets the default
@@ -43,6 +44,6 @@ import org.testng.annotations.Test;
 @Rollback
 public class RollbackForRequiresNewEjbTxDaoTestNGTests extends CommitForRequiresNewEjbTxDaoTestNGTests {
 
-	/* test methods in superclass */
+  /* test methods in superclass */
 
 }

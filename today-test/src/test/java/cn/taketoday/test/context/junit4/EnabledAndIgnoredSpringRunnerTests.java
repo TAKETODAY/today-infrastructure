@@ -25,6 +25,7 @@ import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
 import cn.taketoday.test.annotation.IfProfileValue;
 import cn.taketoday.test.annotation.ProfileValueSource;
 import cn.taketoday.test.annotation.ProfileValueSourceConfiguration;
@@ -45,60 +46,59 @@ import static org.assertj.core.api.Assertions.fail;
  * listeners.
  *
  * @author Sam Brannen
- * @since 2.5
  * @see HardCodedProfileValueSourceSpringRunnerTests
+ * @since 4.0
  */
 @RunWith(Runner.class)
-@TestExecutionListeners( {})
+@TestExecutionListeners({})
 public class EnabledAndIgnoredSpringRunnerTests {
 
-	protected static final String NAME = "EnabledAndIgnoredSpringRunnerTests.profile_value.name";
+  protected static final String NAME = "EnabledAndIgnoredSpringRunnerTests.profile_value.name";
 
-	protected static final String VALUE = "enigma";
+  protected static final String VALUE = "enigma";
 
-	protected static int numTestsExecuted = 0;
+  protected static int numTestsExecuted = 0;
 
+  @BeforeClass
+  public static void setProfileValue() {
+    numTestsExecuted = 0;
+    System.setProperty(NAME, VALUE);
+  }
 
-	@BeforeClass
-	public static void setProfileValue() {
-		numTestsExecuted = 0;
-		System.setProperty(NAME, VALUE);
-	}
+  @AfterClass
+  public static void verifyNumTestsExecuted() {
+    assertThat(numTestsExecuted).as("Verifying the number of tests executed.").isEqualTo(3);
+  }
 
-	@AfterClass
-	public static void verifyNumTestsExecuted() {
-		assertThat(numTestsExecuted).as("Verifying the number of tests executed.").isEqualTo(3);
-	}
+  @Test
+  @IfProfileValue(name = NAME, value = VALUE + "X")
+  public void testIfProfileValueDisabled() {
+    numTestsExecuted++;
+    fail("The body of a disabled test should never be executed!");
+  }
 
-	@Test
-	@IfProfileValue(name = NAME, value = VALUE + "X")
-	public void testIfProfileValueDisabled() {
-		numTestsExecuted++;
-		fail("The body of a disabled test should never be executed!");
-	}
+  @Test
+  @IfProfileValue(name = NAME, value = VALUE)
+  public void testIfProfileValueEnabledViaSingleValue() {
+    numTestsExecuted++;
+  }
 
-	@Test
-	@IfProfileValue(name = NAME, value = VALUE)
-	public void testIfProfileValueEnabledViaSingleValue() {
-		numTestsExecuted++;
-	}
+  @Test
+  @IfProfileValue(name = NAME, values = { "foo", VALUE, "bar" })
+  public void testIfProfileValueEnabledViaMultipleValues() {
+    numTestsExecuted++;
+  }
 
-	@Test
-	@IfProfileValue(name = NAME, values = { "foo", VALUE, "bar" })
-	public void testIfProfileValueEnabledViaMultipleValues() {
-		numTestsExecuted++;
-	}
+  @Test
+  public void testIfProfileValueNotConfigured() {
+    numTestsExecuted++;
+  }
 
-	@Test
-	public void testIfProfileValueNotConfigured() {
-		numTestsExecuted++;
-	}
-
-	@Test
-	@Ignore
-	public void testJUnitIgnoreAnnotation() {
-		numTestsExecuted++;
-		fail("The body of an ignored test should never be executed!");
-	}
+  @Test
+  @Ignore
+  public void testJUnitIgnoreAnnotation() {
+    numTestsExecuted++;
+    fail("The body of an ignored test should never be executed!");
+  }
 
 }

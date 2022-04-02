@@ -38,12 +38,12 @@ import cn.taketoday.test.context.junit4.BeforeAndAfterTransactionAnnotationTests
 @RunWith(JUnit4.class)
 public class BeforeAndAfterTransactionAnnotationSpringRuleTests extends BeforeAndAfterTransactionAnnotationTests {
 
-	@ClassRule
-	public static final ApplicationClassRule applicationClassRule = new ApplicationClassRule();
+  @ClassRule
+  public static final ApplicationClassRule applicationClassRule = new ApplicationClassRule();
 
-	@Rule
-	public final ApplicationMethodRule applicationMethodRule = new ApplicationMethodRule();
+  @Rule
+  public final ApplicationMethodRule applicationMethodRule = new ApplicationMethodRule();
 
-	// All tests are in superclass.
+  // All tests are in superclass.
 
 }

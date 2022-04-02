@@ -21,16 +21,19 @@
 package cn.taketoday.test.context.junit4.aci;
 
 import cn.taketoday.context.ApplicationContextInitializer;
+import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.context.support.GenericApplicationContext;
 
 /**
  * @author Sam Brannen
  * @since 4.0
  */
-public class DevProfileInitializer implements ApplicationContextInitializer<GenericApplicationContext> {
+public class DevProfileInitializer implements ApplicationContextInitializer {
 
-	@Override
-	public void initialize(GenericApplicationContext applicationContext) {
-		applicationContext.getEnvironment().setActiveProfiles("dev");
-	}
+  @Override
+  public void initialize(ConfigurableApplicationContext applicationContext) {
+    if (applicationContext instanceof GenericApplicationContext) {
+      applicationContext.getEnvironment().setActiveProfiles("dev");
+    }
+  }
 }

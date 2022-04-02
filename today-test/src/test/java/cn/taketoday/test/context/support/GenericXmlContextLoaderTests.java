@@ -21,6 +21,7 @@
 package cn.taketoday.test.context.support;
 
 import org.junit.jupiter.api.Test;
+
 import cn.taketoday.test.context.MergedContextConfiguration;
 
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
@@ -29,22 +30,21 @@ import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
  * Unit tests for {@link GenericXmlContextLoader}.
  *
  * @author Sam Brannen
- * @since 4.0
  * @see GenericXmlContextLoaderResourceLocationsTests
+ * @since 4.0
  */
 class GenericXmlContextLoaderTests {
 
-	private static final String[] EMPTY_STRING_ARRAY = new String[0];
+  private static final String[] EMPTY_STRING_ARRAY = new String[0];
 
-
-	@Test
-	void configMustNotContainAnnotatedClasses() throws Exception {
-		GenericXmlContextLoader loader = new GenericXmlContextLoader();
-		MergedContextConfiguration mergedConfig = new MergedContextConfiguration(getClass(), EMPTY_STRING_ARRAY,
-			new Class<?>[] { getClass() }, EMPTY_STRING_ARRAY, loader);
-		assertThatIllegalStateException()
-			.isThrownBy(() -> loader.loadContext(mergedConfig))
-			.withMessageContaining("does not support annotated classes");
-	}
+  @Test
+  void configMustNotContainAnnotatedClasses() throws Exception {
+    GenericXmlContextLoader loader = new GenericXmlContextLoader();
+    MergedContextConfiguration mergedConfig = new MergedContextConfiguration(getClass(), EMPTY_STRING_ARRAY,
+            new Class<?>[] { getClass() }, EMPTY_STRING_ARRAY, loader);
+    assertThatIllegalStateException()
+            .isThrownBy(() -> loader.loadContext(mergedConfig))
+            .withMessageContaining("does not support annotated classes");
+  }
 
 }

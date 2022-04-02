@@ -39,14 +39,14 @@ import java.lang.annotation.Repeatable;
 @Sql("data-add-catbert.sql")
 class RepeatableSqlAnnotationSqlScriptsChildTests extends RepeatableSqlAnnotationSqlScriptsParentTests {
 
-	@Test
-	@Order(1)
-	@Override
-	void classLevelScripts() {
-		// Should not find Dilbert, since local @Sql declarations shadow @Sql
-		// declarations on a superclass. This is due to the fact that we use
-		// "get" semantics instead of "find" semantics when searching for @Sql.
-		assertUsers("Catbert");
-	}
+  @Test
+  @Order(1)
+  @Override
+  void classLevelScripts() {
+    // Should not find Dilbert, since local @Sql declarations shadow @Sql
+    // declarations on a superclass. This is due to the fact that we use
+    // "get" semantics instead of "find" semantics when searching for @Sql.
+    assertUsers("Catbert");
+  }
 
 }

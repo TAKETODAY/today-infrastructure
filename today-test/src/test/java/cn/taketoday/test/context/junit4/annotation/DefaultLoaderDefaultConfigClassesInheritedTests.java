@@ -21,12 +21,15 @@
 package cn.taketoday.test.context.junit4.annotation;
 
 import org.junit.Test;
+
 import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.beans.testfixture.beans.Pet;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.test.context.ContextConfiguration;
 import cn.taketoday.test.context.support.DelegatingSmartContextLoader;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Integration tests that verify support for configuration classes in
@@ -39,24 +42,22 @@ import cn.taketoday.test.context.support.DelegatingSmartContextLoader;
 @ContextConfiguration
 public class DefaultLoaderDefaultConfigClassesInheritedTests extends DefaultLoaderDefaultConfigClassesBaseTests {
 
-	@Configuration
-	static class Config {
+  @Configuration
+  static class Config {
 
-		@Bean
-		public Pet pet() {
-			return new Pet("Fido");
-		}
-	}
+    @Bean
+    public Pet pet() {
+      return new Pet("Fido");
+    }
+  }
 
+  @Autowired
+  private Pet pet;
 
-	@Autowired
-	private Pet pet;
-
-
-	@Test
-	public void verifyPetSetFromExtendedContextConfig() {
-		assertThat(this.pet).as("The pet should have been autowired.").isNotNull();
-		assertThat(this.pet.getName()).isEqualTo("Fido");
-	}
+  @Test
+  public void verifyPetSetFromExtendedContextConfig() {
+    assertThat(this.pet).as("The pet should have been autowired.").isNotNull();
+    assertThat(this.pet.getName()).isEqualTo("Fido");
+  }
 
 }

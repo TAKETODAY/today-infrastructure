@@ -22,19 +22,20 @@ package cn.taketoday.test.context.junit4.spr9799;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.test.context.ContextConfiguration;
 import cn.taketoday.test.context.junit4.JUnit4ClassRunner;
 import cn.taketoday.test.context.web.WebAppConfiguration;
-import cn.taketoday.web.servlet.config.annotation.EnableWebMvc;
+import cn.taketoday.web.config.EnableWebMvc;
 
 /**
  * Integration tests used to assess claims raised in
  * <a href="https://jira.spring.io/browse/SPR-9799" target="_blank">SPR-9799</a>.
  *
  * @author Sam Brannen
- * @since 4.0
  * @see Spr9799XmlConfigTests
+ * @since 4.0
  */
 @RunWith(JUnit4ClassRunner.class)
 @ContextConfiguration
@@ -43,16 +44,15 @@ import cn.taketoday.web.servlet.config.annotation.EnableWebMvc;
 @WebAppConfiguration
 public class Spr9799AnnotationConfigTests {
 
-	@Configuration
-	@EnableWebMvc
-	static class Config {
-		/* intentionally no beans defined */
-	}
+  @Configuration
+  @EnableWebMvc
+  static class Config {
+    /* intentionally no beans defined */
+  }
 
-
-	@Test
-	public void applicationContextLoads() {
-		// no-op
-	}
+  @Test
+  public void applicationContextLoads() {
+    // no-op
+  }
 
 }

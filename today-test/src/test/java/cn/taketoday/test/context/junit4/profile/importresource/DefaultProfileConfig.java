@@ -30,12 +30,12 @@ import cn.taketoday.context.annotation.ImportResource;
  * @since 4.0
  */
 @Configuration
-@ImportResource("org/springframework/test/context/junit4/profile/importresource/import.xml")
+@ImportResource("cn/taketoday/test/context/junit4/profile/importresource/import.xml")
 public class DefaultProfileConfig {
 
-	@Bean
-	public Pet pet() {
-		return new Pet("Fido");
-	}
+  @Bean
+  public Pet pet() {
+    return new Pet("Fido");
+  }
 
 }

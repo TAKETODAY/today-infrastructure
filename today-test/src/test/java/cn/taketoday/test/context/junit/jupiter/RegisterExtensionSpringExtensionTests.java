@@ -35,7 +35,6 @@ import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.support.GenericApplicationContext;
 import cn.taketoday.test.context.ContextConfiguration;
 import cn.taketoday.test.context.TestPropertySource;
-import cn.taketoday.test.context.junit.SpringJUnitJupiterTestSuite;
 import cn.taketoday.test.context.junit.jupiter.comics.Cat;
 import cn.taketoday.test.context.junit.jupiter.comics.Dog;
 import cn.taketoday.test.context.junit.jupiter.comics.Person;

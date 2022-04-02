@@ -21,6 +21,7 @@
 package cn.taketoday.test.context.env.repeatable;
 
 import org.junit.jupiter.api.Test;
+
 import cn.taketoday.test.context.TestPropertySource;
 
 /**
@@ -38,11 +39,11 @@ import cn.taketoday.test.context.TestPropertySource;
 @TestPropertySource("second.properties")
 class ExplicitPropertiesFilesRepeatedTestPropertySourceTests extends AbstractRepeatableTestPropertySourceTests {
 
-	@Test
-	void test() {
-		assertEnvironmentValue("alpha", "omega");
-		assertEnvironmentValue("first", "1111");
-		assertEnvironmentValue("second", "2222");
-	}
+  @Test
+  void test() {
+    assertEnvironmentValue("alpha", "omega");
+    assertEnvironmentValue("first", "1111");
+    assertEnvironmentValue("second", "2222");
+  }
 
 }

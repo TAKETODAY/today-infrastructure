@@ -21,16 +21,20 @@
 package cn.taketoday.test.context.junit4.aci;
 
 import cn.taketoday.context.ApplicationContextInitializer;
+import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.context.support.GenericApplicationContext;
 
 /**
  * @author Sam Brannen
  * @since 4.0
  */
-public class FooBarAliasInitializer implements ApplicationContextInitializer<GenericApplicationContext> {
+public class FooBarAliasInitializer implements ApplicationContextInitializer {
 
-	@Override
-	public void initialize(GenericApplicationContext applicationContext) {
-		applicationContext.registerAlias("foo", "bar");
-	}
+  @Override
+  public void initialize(ConfigurableApplicationContext applicationContext) {
+    if (applicationContext instanceof GenericApplicationContext generic) {
+      generic.registerAlias("foo", "bar");
+    }
+  }
+
 }

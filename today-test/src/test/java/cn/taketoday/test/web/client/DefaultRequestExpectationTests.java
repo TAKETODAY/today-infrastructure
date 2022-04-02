@@ -21,78 +21,76 @@
 package cn.taketoday.test.web.client;
 
 import org.junit.jupiter.api.Test;
-import cn.taketoday.http.HttpMethod;
-import cn.taketoday.http.client.ClientHttpRequest;
-import cn.taketoday.mock.http.client.MockClientHttpRequest;
-import cn.taketoday.test.web.client.DefaultRequestExpectation;
-import cn.taketoday.test.web.client.RequestExpectation;
 
 import java.net.URI;
 import java.net.URISyntaxException;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import cn.taketoday.http.HttpMethod;
+import cn.taketoday.http.client.ClientHttpRequest;
+import cn.taketoday.mock.http.client.MockClientHttpRequest;
+
 import static cn.taketoday.http.HttpMethod.POST;
 import static cn.taketoday.test.web.client.ExpectedCount.once;
 import static cn.taketoday.test.web.client.ExpectedCount.twice;
 import static cn.taketoday.test.web.client.match.MockRestRequestMatchers.method;
 import static cn.taketoday.test.web.client.match.MockRestRequestMatchers.requestTo;
 import static cn.taketoday.test.web.client.response.MockRestResponseCreators.withSuccess;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 /**
  * Unit tests for {@link DefaultRequestExpectation}.
+ *
  * @author Rossen Stoyanchev
  */
 public class DefaultRequestExpectationTests {
 
+  @Test
+  public void match() throws Exception {
+    RequestExpectation expectation = new DefaultRequestExpectation(once(), requestTo("/foo"));
+    expectation.match(createRequest());
+  }
 
-	@Test
-	public void match() throws Exception {
-		RequestExpectation expectation = new DefaultRequestExpectation(once(), requestTo("/foo"));
-		expectation.match(createRequest());
-	}
+  @Test
+  public void matchWithFailedExpectation() {
+    RequestExpectation expectation = new DefaultRequestExpectation(once(), requestTo("/foo"));
+    expectation.andExpect(method(POST));
+    assertThatExceptionOfType(AssertionError.class).isThrownBy(() ->
+                    expectation.match(createRequest()))
+            .withMessageContaining("Unexpected HttpMethod expected:<POST> but was:<GET>");
+  }
 
-	@Test
-	public void matchWithFailedExpectation() {
-		RequestExpectation expectation = new DefaultRequestExpectation(once(), requestTo("/foo"));
-		expectation.andExpect(method(POST));
-		assertThatExceptionOfType(AssertionError.class).isThrownBy(() ->
-				expectation.match(createRequest()))
-			.withMessageContaining("Unexpected HttpMethod expected:<POST> but was:<GET>");
-	}
+  @Test
+  public void hasRemainingCount() {
+    RequestExpectation expectation = new DefaultRequestExpectation(twice(), requestTo("/foo"));
+    expectation.andRespond(withSuccess());
 
-	@Test
-	public void hasRemainingCount() {
-		RequestExpectation expectation = new DefaultRequestExpectation(twice(), requestTo("/foo"));
-		expectation.andRespond(withSuccess());
+    expectation.incrementAndValidate();
+    assertThat(expectation.hasRemainingCount()).isTrue();
 
-		expectation.incrementAndValidate();
-		assertThat(expectation.hasRemainingCount()).isTrue();
+    expectation.incrementAndValidate();
+    assertThat(expectation.hasRemainingCount()).isFalse();
+  }
 
-		expectation.incrementAndValidate();
-		assertThat(expectation.hasRemainingCount()).isFalse();
-	}
+  @Test
+  public void isSatisfied() {
+    RequestExpectation expectation = new DefaultRequestExpectation(twice(), requestTo("/foo"));
+    expectation.andRespond(withSuccess());
 
-	@Test
-	public void isSatisfied() {
-		RequestExpectation expectation = new DefaultRequestExpectation(twice(), requestTo("/foo"));
-		expectation.andRespond(withSuccess());
+    expectation.incrementAndValidate();
+    assertThat(expectation.isSatisfied()).isFalse();
 
-		expectation.incrementAndValidate();
-		assertThat(expectation.isSatisfied()).isFalse();
+    expectation.incrementAndValidate();
+    assertThat(expectation.isSatisfied()).isTrue();
+  }
 
-		expectation.incrementAndValidate();
-		assertThat(expectation.isSatisfied()).isTrue();
-	}
-
-
-	private ClientHttpRequest createRequest() {
-		try {
-			return new MockClientHttpRequest(HttpMethod.GET,  new URI("/foo"));
-		}
-		catch (URISyntaxException ex) {
-			throw new IllegalStateException(ex);
-		}
-	}
+  private ClientHttpRequest createRequest() {
+    try {
+      return new MockClientHttpRequest(HttpMethod.GET, new URI("/foo"));
+    }
+    catch (URISyntaxException ex) {
+      throw new IllegalStateException(ex);
+    }
+  }
 
 }

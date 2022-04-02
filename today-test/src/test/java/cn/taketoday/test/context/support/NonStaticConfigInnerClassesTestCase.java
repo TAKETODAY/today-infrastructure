@@ -26,19 +26,19 @@ import cn.taketoday.context.annotation.Configuration;
  * Not an actual <em>test case</em>.
  *
  * @author Sam Brannen
- * @since 4.0
  * @see AnnotationConfigContextLoaderTests
+ * @since 4.0
  */
 public class NonStaticConfigInnerClassesTestCase {
 
-	// Intentionally not static
-	@Configuration
-	class FooConfig {
-	}
+  // Intentionally not static
+  @Configuration
+  class FooConfig {
+  }
 
-	// Intentionally not static
-	@Configuration
-	class BarConfig {
-	}
+  // Intentionally not static
+  @Configuration
+  class BarConfig {
+  }
 
 }

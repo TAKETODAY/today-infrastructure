@@ -30,9 +30,9 @@ import cn.taketoday.context.annotation.Configuration;
 @Configuration
 class FooConfig {
 
-	@Bean
-	String foo() {
-		return "foo";
-	}
+  @Bean
+  String foo() {
+    return "foo";
+  }
 
 }

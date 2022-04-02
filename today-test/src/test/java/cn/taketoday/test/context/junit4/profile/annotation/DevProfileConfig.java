@@ -33,13 +33,13 @@ import cn.taketoday.context.annotation.Profile;
 @Configuration
 public class DevProfileConfig {
 
-	@Bean
-	public Employee employee() {
-		Employee employee = new Employee();
-		employee.setName("John Smith");
-		employee.setAge(42);
-		employee.setCompany("Acme Widgets, Inc.");
-		return employee;
-	}
+  @Bean
+  public Employee employee() {
+    Employee employee = new Employee();
+    employee.setName("John Smith");
+    employee.setAge(42);
+    employee.setCompany("Acme Widgets, Inc.");
+    return employee;
+  }
 
 }

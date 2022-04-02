@@ -21,22 +21,23 @@
 package cn.taketoday.test.context.web;
 
 import org.junit.Test;
+
 import cn.taketoday.test.context.ContextConfiguration;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Sam Brannen
- * @since 4.0
  * @see BasicXmlWacTests
+ * @since 4.0
  */
 // Config loaded from BasicGroovyWacTestsContext.groovy
 @ContextConfiguration
 public class BasicGroovyWacTests extends AbstractBasicWacTests {
 
-	@Test
-	public void groovyFooAutowired() {
-		assertThat(foo).isEqualTo("Groovy Foo");
-	}
+  @Test
+  public void groovyFooAutowired() {
+    assertThat(foo).isEqualTo("Groovy Foo");
+  }
 
 }

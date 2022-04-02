@@ -22,11 +22,14 @@ package cn.taketoday.test.context.junit4.annotation;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
 import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.beans.testfixture.beans.Employee;
 import cn.taketoday.test.context.ContextConfiguration;
 import cn.taketoday.test.context.junit4.JUnit4ClassRunner;
 import cn.taketoday.test.context.support.DelegatingSmartContextLoader;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Integration tests that verify support for configuration classes in
@@ -40,14 +43,13 @@ import cn.taketoday.test.context.support.DelegatingSmartContextLoader;
 @ContextConfiguration(classes = DefaultLoaderDefaultConfigClassesBaseTests.Config.class)
 public class DefaultLoaderExplicitConfigClassesBaseTests {
 
-	@Autowired
-	protected Employee employee;
+  @Autowired
+  protected Employee employee;
 
-
-	@Test
-	public void verifyEmployeeSetFromBaseContextConfig() {
-		assertThat(this.employee).as("The employee should have been autowired.").isNotNull();
-		assertThat(this.employee.getName()).isEqualTo("John Smith");
-	}
+  @Test
+  public void verifyEmployeeSetFromBaseContextConfig() {
+    assertThat(this.employee).as("The employee should have been autowired.").isNotNull();
+    assertThat(this.employee.getName()).isEqualTo("John Smith");
+  }
 
 }

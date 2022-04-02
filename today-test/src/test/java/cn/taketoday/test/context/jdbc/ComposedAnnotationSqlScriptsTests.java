@@ -21,15 +21,16 @@
 package cn.taketoday.test.context.jdbc;
 
 import org.junit.jupiter.api.Test;
+
+import java.lang.annotation.Retention;
+
 import cn.taketoday.core.annotation.AliasFor;
 import cn.taketoday.test.annotation.DirtiesContext;
 import cn.taketoday.test.context.jdbc.Sql.ExecutionPhase;
 import cn.taketoday.test.context.junit.jupiter.JUnitConfig;
 
-import java.lang.annotation.Retention;
-
-import static java.lang.annotation.RetentionPolicy.RUNTIME;
 import static cn.taketoday.test.context.jdbc.Sql.ExecutionPhase.BEFORE_TEST_METHOD;
+import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
  * Integration tests that verify support for using {@link Sql @Sql} as a
@@ -42,32 +43,31 @@ import static cn.taketoday.test.context.jdbc.Sql.ExecutionPhase.BEFORE_TEST_METH
 @DirtiesContext
 class ComposedAnnotationSqlScriptsTests extends AbstractTransactionalTests {
 
-	@Test
-	@ComposedSql(
-		scripts = { "drop-schema.sql", "schema.sql" },
-		statements = "INSERT INTO user VALUES('Dilbert')",
-		executionPhase = BEFORE_TEST_METHOD
-	)
-	void composedSqlAnnotation() {
-		assertNumUsers(1);
-	}
+  @Test
+  @ComposedSql(
+          scripts = { "drop-schema.sql", "schema.sql" },
+          statements = "INSERT INTO user VALUES('Dilbert')",
+          executionPhase = BEFORE_TEST_METHOD
+  )
+  void composedSqlAnnotation() {
+    assertNumUsers(1);
+  }
 
+  @Sql
+  @Retention(RUNTIME)
+  @interface ComposedSql {
 
-	@Sql
-	@Retention(RUNTIME)
-	@interface ComposedSql {
+    @AliasFor(annotation = Sql.class)
+    String[] value() default {};
 
-		@AliasFor(annotation = Sql.class)
-		String[] value() default {};
+    @AliasFor(annotation = Sql.class)
+    String[] scripts() default {};
 
-		@AliasFor(annotation = Sql.class)
-		String[] scripts() default {};
+    @AliasFor(annotation = Sql.class)
+    String[] statements() default {};
 
-		@AliasFor(annotation = Sql.class)
-		String[] statements() default {};
-
-		@AliasFor(annotation = Sql.class)
-		ExecutionPhase executionPhase();
-	}
+    @AliasFor(annotation = Sql.class)
+    ExecutionPhase executionPhase();
+  }
 
 }

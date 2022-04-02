@@ -21,6 +21,7 @@
 package cn.taketoday.test.context.jdbc;
 
 import org.junit.jupiter.api.Test;
+
 import cn.taketoday.test.annotation.DirtiesContext;
 import cn.taketoday.test.context.junit.jupiter.JUnitConfig;
 
@@ -35,15 +36,15 @@ import cn.taketoday.test.context.junit.jupiter.JUnitConfig;
 @DirtiesContext
 class DefaultScriptDetectionSqlScriptsTests extends AbstractTransactionalTests {
 
-	@Test
-	void classLevel() {
-		assertNumUsers(2);
-	}
+  @Test
+  void classLevel() {
+    assertNumUsers(2);
+  }
 
-	@Test
-	@Sql
-	void methodLevel() {
-		assertNumUsers(3);
-	}
+  @Test
+  @Sql
+  void methodLevel() {
+    assertNumUsers(3);
+  }
 
 }

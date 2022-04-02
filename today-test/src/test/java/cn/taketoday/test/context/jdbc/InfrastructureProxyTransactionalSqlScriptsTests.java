@@ -22,6 +22,14 @@ package cn.taketoday.test.context.jdbc;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
+
+import javax.sql.DataSource;
+
 import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
@@ -32,13 +40,6 @@ import cn.taketoday.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
 import cn.taketoday.test.annotation.DirtiesContext;
 import cn.taketoday.test.context.junit.jupiter.JUnitConfig;
 import cn.taketoday.transaction.PlatformTransactionManager;
-
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.lang.reflect.Proxy;
-
-import javax.sql.DataSource;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -54,78 +55,74 @@ import static org.assertj.core.api.Assertions.assertThat;
 @DirtiesContext
 class InfrastructureProxyTransactionalSqlScriptsTests extends AbstractTransactionalTests {
 
-	@BeforeEach
-	void preconditions(@Autowired DataSource dataSource, @Autowired DataSourceTransactionManager transactionManager) {
-		assertThat(dataSource).isNotEqualTo(transactionManager.getDataSource());
-		assertThat(transactionManager.getDataSource()).isNotEqualTo(dataSource);
-		assertThat(transactionManager.getDataSource()).isInstanceOf(InfrastructureProxy.class);
-	}
+  @BeforeEach
+  void preconditions(@Autowired DataSource dataSource, @Autowired DataSourceTransactionManager transactionManager) {
+    assertThat(dataSource).isNotEqualTo(transactionManager.getDataSource());
+    assertThat(transactionManager.getDataSource()).isNotEqualTo(dataSource);
+    assertThat(transactionManager.getDataSource()).isInstanceOf(InfrastructureProxy.class);
+  }
 
-	@Test
-	@Sql({ "schema.sql", "data.sql", "data-add-dogbert.sql" })
-	void methodLevelScripts() {
-		assertNumUsers(2);
-	}
+  @Test
+  @Sql({ "schema.sql", "data.sql", "data-add-dogbert.sql" })
+  void methodLevelScripts() {
+    assertNumUsers(2);
+  }
 
+  @Configuration
+  static class DatabaseConfig {
 
-	@Configuration
-	static class DatabaseConfig {
+    @Bean
+    JdbcTemplate jdbcTemplate(DataSource dataSource) {
+      return new JdbcTemplate(dataSource);
+    }
 
-		@Bean
-		JdbcTemplate jdbcTemplate(DataSource dataSource) {
-			return new JdbcTemplate(dataSource);
-		}
+    @Bean
+    PlatformTransactionManager transactionManager(DataSource dataSource) {
+      return new DataSourceTransactionManager(wrapDataSource(dataSource));
+    }
 
-		@Bean
-		PlatformTransactionManager transactionManager(DataSource dataSource) {
-			return new DataSourceTransactionManager(wrapDataSource(dataSource));
-		}
+    @Bean
+    DataSource dataSource() {
+      return new EmbeddedDatabaseBuilder()//
+              .setName("empty-sql-scripts-test-db")//
+              .build();
+    }
 
-		@Bean
-		DataSource dataSource() {
-			return new EmbeddedDatabaseBuilder()//
-					.setName("empty-sql-scripts-test-db")//
-					.build();
-		}
+  }
 
-	}
+  private static DataSource wrapDataSource(DataSource dataSource) {
+    return (DataSource) Proxy.newProxyInstance(
+            InfrastructureProxyTransactionalSqlScriptsTests.class.getClassLoader(),
+            new Class<?>[] { DataSource.class, InfrastructureProxy.class },
+            new DataSourceInvocationHandler(dataSource));
+  }
 
+  private static class DataSourceInvocationHandler implements InvocationHandler {
 
-	private static DataSource wrapDataSource(DataSource dataSource) {
-		return (DataSource) Proxy.newProxyInstance(
-			InfrastructureProxyTransactionalSqlScriptsTests.class.getClassLoader(),
-			new Class<?>[] { DataSource.class, InfrastructureProxy.class },
-			new DataSourceInvocationHandler(dataSource));
-	}
+    private final DataSource dataSource;
 
+    DataSourceInvocationHandler(DataSource dataSource) {
+      this.dataSource = dataSource;
+    }
 
-	private static class DataSourceInvocationHandler implements InvocationHandler {
-
-		private final DataSource dataSource;
-
-
-		DataSourceInvocationHandler(DataSource dataSource) {
-			this.dataSource = dataSource;
-		}
-
-		@Override
-		public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-			switch (method.getName()) {
-				case "equals":
-					return (proxy == args[0]);
-				case "hashCode":
-					return System.identityHashCode(proxy);
-				case "getWrappedObject":
-					return this.dataSource;
-				default:
-					try {
-						return method.invoke(this.dataSource, args);
-					}
-					catch (InvocationTargetException ex) {
-						throw ex.getTargetException();
-					}
-			}
-		}
-	}
+    @Override
+    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+      switch (method.getName()) {
+        case "equals":
+          return (proxy == args[0]);
+        case "hashCode":
+          return System.identityHashCode(proxy);
+        case "getWrappedObject":
+          return this.dataSource;
+        default:
+          try {
+            return method.invoke(this.dataSource, args);
+          }
+          catch (InvocationTargetException ex) {
+            throw ex.getTargetException();
+          }
+      }
+    }
+  }
 
 }

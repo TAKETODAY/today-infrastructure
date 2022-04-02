@@ -26,6 +26,10 @@ import org.junit.jupiter.api.MethodOrderer.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 import org.junit.platform.testkit.engine.EngineTestKit;
+
+import java.util.ArrayList;
+import java.util.List;
+
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.test.annotation.DirtiesContext;
 import cn.taketoday.test.annotation.DirtiesContext.MethodMode;
@@ -39,9 +43,6 @@ import cn.taketoday.test.context.event.annotation.BeforeTestMethod;
 import cn.taketoday.test.context.event.annotation.PrepareTestInstance;
 import cn.taketoday.test.context.junit.jupiter.JUnitConfig;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.platform.engine.discovery.DiscoverySelectors.selectClass;
 
@@ -51,190 +52,189 @@ import static org.junit.platform.engine.discovery.DiscoverySelectors.selectClass
  * is used.
  *
  * @author Sam Brannen
- * @since 4.0
  * @see https://github.com/spring-projects/spring-framework/issues/27757
+ * @since 4.0
  */
 class DirtiesContextEventPublishingTests {
 
-	private static final List<Class<? extends TestContextEvent>> events = new ArrayList<>();
+  private static final List<Class<? extends TestContextEvent>> events = new ArrayList<>();
 
+  @BeforeEach
+  @AfterEach
+  void resetEvents() {
+    events.clear();
+  }
 
-	@BeforeEach
-	@AfterEach
-	void resetEvents() {
-		events.clear();
-	}
+  @Test
+  void classLevelDirtiesContext() {
+    EngineTestKit.engine("junit-jupiter")//
+            .selectors(selectClass(ClassLevelDirtiesContextTestCase.class))//
+            .execute()//
+            .testEvents()//
+            .assertStatistics(stats -> stats.started(1).succeeded(1).failed(0));
 
-	@Test
-	void classLevelDirtiesContext() {
-		EngineTestKit.engine("junit-jupiter")//
-				.selectors(selectClass(ClassLevelDirtiesContextTestCase.class))//
-				.execute()//
-				.testEvents()//
-				.assertStatistics(stats -> stats.started(1).succeeded(1).failed(0));
+    assertThat(events).containsExactly(//
+            // BeforeTestClassEvent.class -- always missing for 1st test class by default
+            PrepareTestInstanceEvent.class, //
+            BeforeTestMethodEvent.class, //
+            BeforeTestExecutionEvent.class, //
+            AfterTestExecutionEvent.class, //
+            AfterTestMethodEvent.class, //
+            AfterTestClassEvent.class //
+    );
+  }
 
-		assertThat(events).containsExactly(//
-			// BeforeTestClassEvent.class -- always missing for 1st test class by default
-			PrepareTestInstanceEvent.class, //
-			BeforeTestMethodEvent.class, //
-			BeforeTestExecutionEvent.class, //
-			AfterTestExecutionEvent.class, //
-			AfterTestMethodEvent.class, //
-			AfterTestClassEvent.class //
-		);
-	}
+  @Test
+  void methodLevelAfterMethodDirtiesContext() {
+    EngineTestKit.engine("junit-jupiter")//
+            .selectors(selectClass(MethodLevelAfterMethodDirtiesContextTestCase.class))//
+            .execute()//
+            .testEvents()//
+            .assertStatistics(stats -> stats.started(1).succeeded(1).failed(0));
 
-	@Test
-	void methodLevelAfterMethodDirtiesContext() {
-		EngineTestKit.engine("junit-jupiter")//
-				.selectors(selectClass(MethodLevelAfterMethodDirtiesContextTestCase.class))//
-				.execute()//
-				.testEvents()//
-				.assertStatistics(stats -> stats.started(1).succeeded(1).failed(0));
+    assertThat(events).containsExactly(//
+            // BeforeTestClassEvent.class -- always missing for 1st test class by default
+            PrepareTestInstanceEvent.class, //
+            BeforeTestMethodEvent.class, //
+            BeforeTestExecutionEvent.class, //
+            AfterTestExecutionEvent.class, //
+            AfterTestMethodEvent.class //
+            // AfterTestClassEvent.class -- missing b/c of @DirtiestContext "after method" at the method level
+    );
+  }
 
-		assertThat(events).containsExactly(//
-			// BeforeTestClassEvent.class -- always missing for 1st test class by default
-			PrepareTestInstanceEvent.class, //
-			BeforeTestMethodEvent.class, //
-			BeforeTestExecutionEvent.class, //
-			AfterTestExecutionEvent.class, //
-			AfterTestMethodEvent.class //
-			// AfterTestClassEvent.class -- missing b/c of @DirtiestContext "after method" at the method level
-		);
-	}
+  @Test
+  void methodLevelAfterMethodDirtiesContextWithSubsequentTestMethod() {
+    EngineTestKit.engine("junit-jupiter")//
+            .selectors(selectClass(MethodLevelAfterMethodDirtiesContextWithSubsequentTestMethodTestCase.class))//
+            .execute()//
+            .testEvents()//
+            .assertStatistics(stats -> stats.started(2).succeeded(2).failed(0));
 
-	@Test
-	void methodLevelAfterMethodDirtiesContextWithSubsequentTestMethod() {
-		EngineTestKit.engine("junit-jupiter")//
-				.selectors(selectClass(MethodLevelAfterMethodDirtiesContextWithSubsequentTestMethodTestCase.class))//
-				.execute()//
-				.testEvents()//
-				.assertStatistics(stats -> stats.started(2).succeeded(2).failed(0));
+    assertThat(events).containsExactly(//
+            // BeforeTestClassEvent.class -- always missing for 1st test class by default
+            // test1()
+            PrepareTestInstanceEvent.class, //
+            BeforeTestMethodEvent.class, //
+            BeforeTestExecutionEvent.class, //
+            AfterTestExecutionEvent.class, //
+            AfterTestMethodEvent.class, //
+            // test2()
+            PrepareTestInstanceEvent.class, //
+            BeforeTestMethodEvent.class, //
+            BeforeTestExecutionEvent.class, //
+            AfterTestExecutionEvent.class, //
+            AfterTestMethodEvent.class, //
+            AfterTestClassEvent.class // b/c @DirtiestContext is not applied for test2()
+    );
+  }
 
-		assertThat(events).containsExactly(//
-			// BeforeTestClassEvent.class -- always missing for 1st test class by default
-			// test1()
-			PrepareTestInstanceEvent.class, //
-			BeforeTestMethodEvent.class, //
-			BeforeTestExecutionEvent.class, //
-			AfterTestExecutionEvent.class, //
-			AfterTestMethodEvent.class, //
-			// test2()
-			PrepareTestInstanceEvent.class, //
-			BeforeTestMethodEvent.class, //
-			BeforeTestExecutionEvent.class, //
-			AfterTestExecutionEvent.class, //
-			AfterTestMethodEvent.class, //
-			AfterTestClassEvent.class // b/c @DirtiestContext is not applied for test2()
-		);
-	}
+  @Test
+  void methodLevelBeforeMethodDirtiesContext() {
+    EngineTestKit.engine("junit-jupiter")//
+            .selectors(selectClass(MethodLevelBeforeMethodDirtiesContextTestCase.class))//
+            .execute()//
+            .testEvents()//
+            .assertStatistics(stats -> stats.started(1).succeeded(1).failed(0));
 
-	@Test
-	void methodLevelBeforeMethodDirtiesContext() {
-		EngineTestKit.engine("junit-jupiter")//
-				.selectors(selectClass(MethodLevelBeforeMethodDirtiesContextTestCase.class))//
-				.execute()//
-				.testEvents()//
-				.assertStatistics(stats -> stats.started(1).succeeded(1).failed(0));
+    assertThat(events).containsExactly(//
+            // BeforeTestClassEvent.class -- always missing for 1st test class by default
+            PrepareTestInstanceEvent.class, //
+            BeforeTestMethodEvent.class, //
+            BeforeTestExecutionEvent.class, //
+            AfterTestExecutionEvent.class, //
+            AfterTestMethodEvent.class, //
+            AfterTestClassEvent.class // b/c @DirtiestContext happens "before method" at the method level
+    );
+  }
 
-		assertThat(events).containsExactly(//
-			// BeforeTestClassEvent.class -- always missing for 1st test class by default
-			PrepareTestInstanceEvent.class, //
-			BeforeTestMethodEvent.class, //
-			BeforeTestExecutionEvent.class, //
-			AfterTestExecutionEvent.class, //
-			AfterTestMethodEvent.class, //
-			AfterTestClassEvent.class // b/c @DirtiestContext happens "before method" at the method level
-		);
-	}
+  @JUnitConfig(Config.class)
+  // add unique property to get a unique ApplicationContext
+  @TestPropertySource(properties = "DirtiesContextEventPublishingTests.key = class-level")
+  @DirtiesContext
+  static class ClassLevelDirtiesContextTestCase {
 
-	@JUnitConfig(Config.class)
-	// add unique property to get a unique ApplicationContext
-	@TestPropertySource(properties = "DirtiesContextEventPublishingTests.key = class-level")
-	@DirtiesContext
-	static class ClassLevelDirtiesContextTestCase {
+    @Test
+    void test() {
+    }
+  }
 
-		@Test
-		void test() {
-		}
-	}
+  @JUnitConfig(Config.class)
+  // add unique property to get a unique ApplicationContext
+  @TestPropertySource(properties = "DirtiesContextEventPublishingTests.key = method-level-after-method")
+  static class MethodLevelAfterMethodDirtiesContextTestCase {
 
-	@JUnitConfig(Config.class)
-	// add unique property to get a unique ApplicationContext
-	@TestPropertySource(properties = "DirtiesContextEventPublishingTests.key = method-level-after-method")
-	static class MethodLevelAfterMethodDirtiesContextTestCase {
+    @Test
+    @DirtiesContext
+    void test1() {
+    }
+  }
 
-		@Test
-		@DirtiesContext
-		void test1() {
-		}
-	}
+  @JUnitConfig(Config.class)
+  // add unique property to get a unique ApplicationContext
+  @TestPropertySource(properties = "DirtiesContextEventPublishingTests.key = method-level-after-method-with-subsequent-test-method")
+  @TestMethodOrder(DisplayName.class)
+  static class MethodLevelAfterMethodDirtiesContextWithSubsequentTestMethodTestCase {
 
-	@JUnitConfig(Config.class)
-	// add unique property to get a unique ApplicationContext
-	@TestPropertySource(properties = "DirtiesContextEventPublishingTests.key = method-level-after-method-with-subsequent-test-method")
-	@TestMethodOrder(DisplayName.class)
-	static class MethodLevelAfterMethodDirtiesContextWithSubsequentTestMethodTestCase {
+    @Test
+    @DirtiesContext
+    void test1() {
+    }
 
-		@Test
-		@DirtiesContext
-		void test1() {
-		}
+    @Test
+    void test2() {
+    }
+  }
 
-		@Test
-		void test2() {
-		}
-	}
+  @JUnitConfig(Config.class)
+  // add unique property to get a unique ApplicationContext
+  @TestPropertySource(properties = "DirtiesContextEventPublishingTests.key = method-level-before-method")
+  static class MethodLevelBeforeMethodDirtiesContextTestCase {
 
-	@JUnitConfig(Config.class)
-	// add unique property to get a unique ApplicationContext
-	@TestPropertySource(properties = "DirtiesContextEventPublishingTests.key = method-level-before-method")
-	static class MethodLevelBeforeMethodDirtiesContextTestCase {
+    @Test
+    @DirtiesContext(methodMode = MethodMode.BEFORE_METHOD)
+    void test() {
+    }
+  }
 
-		@Test
-		@DirtiesContext(methodMode = MethodMode.BEFORE_METHOD)
-		void test() {
-		}
-	}
+  @Configuration
+  static class Config {
 
-	@Configuration
-	static class Config {
+    @BeforeTestClass
+    public void beforeTestClass(BeforeTestClassEvent e) {
+      events.add(e.getClass());
+    }
 
-		@BeforeTestClass
-		public void beforeTestClass(BeforeTestClassEvent e) {
-			events.add(e.getClass());
-		}
+    @PrepareTestInstance
+    public void prepareTestInstance(PrepareTestInstanceEvent e) {
+      events.add(e.getClass());
+    }
 
-		@PrepareTestInstance
-		public void prepareTestInstance(PrepareTestInstanceEvent e) {
-			events.add(e.getClass());
-		}
+    @BeforeTestMethod
+    public void beforeTestMethod(BeforeTestMethodEvent e) {
+      events.add(e.getClass());
+    }
 
-		@BeforeTestMethod
-		public void beforeTestMethod(BeforeTestMethodEvent e) {
-			events.add(e.getClass());
-		}
+    @BeforeTestExecution
+    public void beforeTestExecution(BeforeTestExecutionEvent e) {
+      events.add(e.getClass());
+    }
 
-		@BeforeTestExecution
-		public void beforeTestExecution(BeforeTestExecutionEvent e) {
-			events.add(e.getClass());
-		}
+    @AfterTestExecution
+    public void afterTestExecution(AfterTestExecutionEvent e) {
+      events.add(e.getClass());
+    }
 
-		@AfterTestExecution
-		public void afterTestExecution(AfterTestExecutionEvent e) {
-			events.add(e.getClass());
-		}
+    @AfterTestMethod
+    public void afterTestMethod(AfterTestMethodEvent e) {
+      events.add(e.getClass());
+    }
 
-		@AfterTestMethod
-		public void afterTestMethod(AfterTestMethodEvent e) {
-			events.add(e.getClass());
-		}
+    @AfterTestClass
+    public void afterTestClass(AfterTestClassEvent e) {
+      events.add(e.getClass());
+    }
 
-		@AfterTestClass
-		public void afterTestClass(AfterTestClassEvent e) {
-			events.add(e.getClass());
-		}
-
-	}
+  }
 
 }

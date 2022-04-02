@@ -22,13 +22,14 @@ package cn.taketoday.test.context.web;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+
+import java.io.File;
+
 import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.mock.web.MockServletContext;
 import cn.taketoday.test.context.ContextConfiguration;
 import cn.taketoday.test.context.junit.jupiter.ApplicationExtension;
-import cn.taketoday.web.context.WebApplicationContext;
-
-import java.io.File;
+import cn.taketoday.web.servlet.WebServletApplicationContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -37,41 +38,40 @@ import static org.assertj.core.api.Assertions.assertThat;
  * and {@link ContextConfiguration}.
  *
  * @author Sam Brannen
- * @since 4.0
  * @see WebTestConfiguration
+ * @since 4.0
  */
 @ExtendWith(ApplicationExtension.class)
 @WebTestConfiguration
 class MetaAnnotationConfigWacTests {
 
-	@Autowired
-	WebApplicationContext wac;
+  @Autowired
+  WebServletApplicationContext wac;
 
-	@Autowired
-	MockServletContext mockServletContext;
+  @Autowired
+  MockServletContext mockServletContext;
 
-	@Autowired
-	String foo;
+  @Autowired
+  String foo;
 
+  @Test
+  void fooEnigmaAutowired() {
+    assertThat(foo).isEqualTo("enigma");
+  }
 
-	@Test
-	void fooEnigmaAutowired() {
-		assertThat(foo).isEqualTo("enigma");
-	}
+  @Test
+  void basicWacFeatures() throws Exception {
+    assertThat(wac.getServletContext()).as("ServletContext should be set in the WAC.").isNotNull();
 
-	@Test
-	void basicWacFeatures() throws Exception {
-		assertThat(wac.getServletContext()).as("ServletContext should be set in the WAC.").isNotNull();
+    assertThat(mockServletContext).as("ServletContext should have been autowired from the WAC.").isNotNull();
 
-		assertThat(mockServletContext).as("ServletContext should have been autowired from the WAC.").isNotNull();
+    Object rootWac = mockServletContext.getAttribute(WebServletApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE);
+    assertThat(rootWac).as("Root WAC must be stored in the ServletContext as: "
+            + WebServletApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE).isNotNull();
+    assertThat(rootWac).as("test WAC and Root WAC in ServletContext must be the same object.").isSameAs(wac);
+    assertThat(wac.getServletContext()).as("ServletContext instances must be the same object.").isSameAs(mockServletContext);
 
-		Object rootWac = mockServletContext.getAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE);
-		assertThat(rootWac).as("Root WAC must be stored in the ServletContext as: "
-				+ WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE).isNotNull();
-		assertThat(rootWac).as("test WAC and Root WAC in ServletContext must be the same object.").isSameAs(wac);
-		assertThat(wac.getServletContext()).as("ServletContext instances must be the same object.").isSameAs(mockServletContext);
-
-		assertThat(mockServletContext.getRealPath("index.jsp")).as("Getting real path for ServletContext resource.").isEqualTo(new File("src/main/webapp/index.jsp").getCanonicalPath());
-	}
+    assertThat(mockServletContext.getRealPath("index.jsp")).as("Getting real path for ServletContext resource.").isEqualTo(new File("src/main/webapp/index.jsp").getCanonicalPath());
+  }
 
 }

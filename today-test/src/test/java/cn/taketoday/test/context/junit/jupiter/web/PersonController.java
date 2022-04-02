@@ -21,9 +21,9 @@
 package cn.taketoday.test.context.junit.jupiter.web;
 
 import cn.taketoday.test.context.junit.jupiter.comics.Person;
-import cn.taketoday.web.bind.annotation.GetMapping;
-import cn.taketoday.web.bind.annotation.PathVariable;
-import cn.taketoday.web.bind.annotation.RestController;
+import cn.taketoday.web.annotation.GetMapping;
+import cn.taketoday.web.annotation.PathVariable;
+import cn.taketoday.web.annotation.RestController;
 
 /**
  * @author Sam Brannen

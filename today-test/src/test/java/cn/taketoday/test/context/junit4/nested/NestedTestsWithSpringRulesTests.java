@@ -22,13 +22,13 @@ package cn.taketoday.test.context.junit4.nested;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
 import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.test.context.ContextConfiguration;
 import cn.taketoday.test.context.junit4.rules.ApplicationClassRule;
 import cn.taketoday.test.context.junit4.rules.ApplicationMethodRule;
-
 import de.bechte.junit.runners.context.HierarchicalContextRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -40,60 +40,56 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  * @author Sam Brannen
  * @since 4.0
- * @see cn.taketoday.test.context.junit.jupiter.nested.NestedTestsWithSpringAndJUnitJupiterTestCase
  */
 @RunWith(HierarchicalContextRunner.class)
 @ContextConfiguration(classes = NestedTestsWithSpringRulesTests.TopLevelConfig.class)
 public class NestedTestsWithSpringRulesTests extends SpringRuleConfigurer {
 
-	@Autowired
-	String foo;
+  @Autowired
+  String foo;
 
+  @Test
+  public void topLevelTest() {
+    assertThat(foo).isEqualTo("foo");
+  }
 
-	@Test
-	public void topLevelTest() {
-		assertThat(foo).isEqualTo("foo");
-	}
+  @ContextConfiguration(classes = NestedConfig.class)
+  public class NestedTestCase extends SpringRuleConfigurer {
 
+    @Autowired
+    String bar;
 
-	@ContextConfiguration(classes = NestedConfig.class)
-	public class NestedTestCase extends SpringRuleConfigurer {
+    @Test
+    public void nestedTest() throws Exception {
+      // Note: the following would fail since TestExecutionListeners in
+      // the Spring TestContext Framework are not applied to the enclosing
+      // instance of an inner test class.
+      //
+      // assertEquals("foo", foo);
 
-		@Autowired
-		String bar;
+      assertThat(foo).as("@Autowired field in enclosing instance should be null.").isNull();
+      assertThat(bar).isEqualTo("bar");
+    }
+  }
 
+  // -------------------------------------------------------------------------
 
-		@Test
-		public void nestedTest() throws Exception {
-			// Note: the following would fail since TestExecutionListeners in
-			// the Spring TestContext Framework are not applied to the enclosing
-			// instance of an inner test class.
-			//
-			// assertEquals("foo", foo);
+  @Configuration
+  public static class TopLevelConfig {
 
-			assertThat(foo).as("@Autowired field in enclosing instance should be null.").isNull();
-			assertThat(bar).isEqualTo("bar");
-		}
-	}
+    @Bean
+    String foo() {
+      return "foo";
+    }
+  }
 
-	// -------------------------------------------------------------------------
+  @Configuration
+  public static class NestedConfig {
 
-	@Configuration
-	public static class TopLevelConfig {
-
-		@Bean
-		String foo() {
-			return "foo";
-		}
-	}
-
-	@Configuration
-	public static class NestedConfig {
-
-		@Bean
-		String bar() {
-			return "bar";
-		}
-	}
+    @Bean
+    String bar() {
+      return "bar";
+    }
+  }
 
 }

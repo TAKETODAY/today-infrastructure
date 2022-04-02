@@ -20,12 +20,12 @@
 
 package cn.taketoday.test.context.web;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.test.context.ContextConfiguration;
-
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
 
 /**
  * Custom <em>composed annotation</em> combining {@link WebAppConfiguration} and
@@ -43,8 +43,8 @@ public @interface WebTestConfiguration {
 @Configuration
 class FooConfig {
 
-	@Bean
-	public String foo() {
-		return "enigma";
-	}
+  @Bean
+  public String foo() {
+    return "enigma";
+  }
 }

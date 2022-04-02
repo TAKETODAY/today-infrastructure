@@ -26,6 +26,7 @@ import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 import org.junit.jupiter.api.extension.ExtendWith;
+
 import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.annotation.Bean;
@@ -50,107 +51,105 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 @ExtendWith(ApplicationExtension.class)
 @ContextHierarchy({
-	@ContextConfiguration(classes = DirtiesContextWithContextHierarchyTests.ParentConfig.class),
-	@ContextConfiguration(classes = DirtiesContextWithContextHierarchyTests.ChildConfig.class)
+        @ContextConfiguration(classes = DirtiesContextWithContextHierarchyTests.ParentConfig.class),
+        @ContextConfiguration(classes = DirtiesContextWithContextHierarchyTests.ChildConfig.class)
 })
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class DirtiesContextWithContextHierarchyTests {
 
-	@Autowired
-	private StringBuilder foo;
+  @Autowired
+  private StringBuilder foo;
 
-	@Autowired
-	private StringBuilder baz;
+  @Autowired
+  private StringBuilder baz;
 
-	@Autowired
-	private ApplicationContext context;
+  @Autowired
+  private ApplicationContext context;
 
+  @BeforeEach
+  void verifyContextHierarchy() {
+    assertThat(context).as("child ApplicationContext").isNotNull();
+    assertThat(context.getParent()).as("parent ApplicationContext").isNotNull();
+    assertThat(context.getParent().getParent()).as("grandparent ApplicationContext").isNull();
+  }
 
-	@BeforeEach
-	void verifyContextHierarchy() {
-		assertThat(context).as("child ApplicationContext").isNotNull();
-		assertThat(context.getParent()).as("parent ApplicationContext").isNotNull();
-		assertThat(context.getParent().getParent()).as("grandparent ApplicationContext").isNull();
-	}
+  @Test
+  @Order(1)
+  void verifyOriginalStateAndDirtyContexts() {
+    assertOriginalState();
+    reverseStringBuilders();
+  }
 
-	@Test
-	@Order(1)
-	void verifyOriginalStateAndDirtyContexts() {
-		assertOriginalState();
-		reverseStringBuilders();
-	}
+  @Test
+  @Order(2)
+  @DirtiesContext
+  void verifyContextsWereDirtiedAndTriggerExhaustiveCacheClearing() {
+    assertDirtyParentContext();
+    assertDirtyChildContext();
+  }
 
-	@Test
-	@Order(2)
-	@DirtiesContext
-	void verifyContextsWereDirtiedAndTriggerExhaustiveCacheClearing() {
-		assertDirtyParentContext();
-		assertDirtyChildContext();
-	}
+  @Test
+  @Order(3)
+  @DirtiesContext(hierarchyMode = HierarchyMode.CURRENT_LEVEL)
+  void verifyOriginalStateWasReinstatedAndDirtyContextsAndTriggerCurrentLevelCacheClearing() {
+    assertOriginalState();
+    reverseStringBuilders();
+  }
 
-	@Test
-	@Order(3)
-	@DirtiesContext(hierarchyMode = HierarchyMode.CURRENT_LEVEL)
-	void verifyOriginalStateWasReinstatedAndDirtyContextsAndTriggerCurrentLevelCacheClearing() {
-		assertOriginalState();
-		reverseStringBuilders();
-	}
+  @Test
+  @Order(4)
+  void verifyParentContextIsStillDirtyButChildContextHasBeenReinstated() {
+    assertDirtyParentContext();
+    assertCleanChildContext();
+  }
 
-	@Test
-	@Order(4)
-	void verifyParentContextIsStillDirtyButChildContextHasBeenReinstated() {
-		assertDirtyParentContext();
-		assertCleanChildContext();
-	}
+  private void reverseStringBuilders() {
+    foo.reverse();
+    baz.reverse();
+  }
 
-	private void reverseStringBuilders() {
-		foo.reverse();
-		baz.reverse();
-	}
+  private void assertOriginalState() {
+    assertCleanParentContext();
+    assertCleanChildContext();
+  }
 
-	private void assertOriginalState() {
-		assertCleanParentContext();
-		assertCleanChildContext();
-	}
+  private void assertCleanParentContext() {
+    assertThat(foo.toString()).isEqualTo("foo");
+  }
 
-	private void assertCleanParentContext() {
-		assertThat(foo.toString()).isEqualTo("foo");
-	}
+  private void assertCleanChildContext() {
+    assertThat(baz.toString()).isEqualTo("baz-child");
+  }
 
-	private void assertCleanChildContext() {
-		assertThat(baz.toString()).isEqualTo("baz-child");
-	}
+  private void assertDirtyParentContext() {
+    assertThat(foo.toString()).isEqualTo("oof");
+  }
 
-	private void assertDirtyParentContext() {
-		assertThat(foo.toString()).isEqualTo("oof");
-	}
+  private void assertDirtyChildContext() {
+    assertThat(baz.toString()).isEqualTo("dlihc-zab");
+  }
 
-	private void assertDirtyChildContext() {
-		assertThat(baz.toString()).isEqualTo("dlihc-zab");
-	}
+  @Configuration
+  static class ParentConfig {
 
+    @Bean
+    StringBuilder foo() {
+      return new StringBuilder("foo");
+    }
 
-	@Configuration
-	static class ParentConfig {
+    @Bean
+    StringBuilder baz() {
+      return new StringBuilder("baz-parent");
+    }
+  }
 
-		@Bean
-		StringBuilder foo() {
-			return new StringBuilder("foo");
-		}
+  @Configuration
+  static class ChildConfig {
 
-		@Bean
-		StringBuilder baz() {
-			return new StringBuilder("baz-parent");
-		}
-	}
-
-	@Configuration
-	static class ChildConfig {
-
-		@Bean
-		StringBuilder baz() {
-			return new StringBuilder("baz-child");
-		}
-	}
+    @Bean
+    StringBuilder baz() {
+      return new StringBuilder("baz-child");
+    }
+  }
 
 }

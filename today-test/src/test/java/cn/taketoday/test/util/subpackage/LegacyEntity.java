@@ -31,45 +31,44 @@ import cn.taketoday.core.style.ToStringBuilder;
  */
 public class LegacyEntity {
 
-	private Object collaborator = new Object() {
+  private Object collaborator = new Object() {
 
-		@Override
-		public String toString() {
-			throw new LegacyEntityException(
-				"Invoking toString() on the default collaborator causes an undesirable side effect");
-		}
-	};
+    @Override
+    public String toString() {
+      throw new LegacyEntityException(
+              "Invoking toString() on the default collaborator causes an undesirable side effect");
+    }
+  };
 
-	private Integer number;
-	private String text;
+  private Integer number;
+  private String text;
 
+  public void configure(Integer number, String text) {
+    this.number = number;
+    this.text = text;
+  }
 
-	public void configure(Integer number, String text) {
-		this.number = number;
-		this.text = text;
-	}
+  public Integer getNumber() {
+    return this.number;
+  }
 
-	public Integer getNumber() {
-		return this.number;
-	}
+  public String getText() {
+    return this.text;
+  }
 
-	public String getText() {
-		return this.text;
-	}
+  public Object getCollaborator() {
+    return this.collaborator;
+  }
 
-	public Object getCollaborator() {
-		return this.collaborator;
-	}
+  public void setCollaborator(Object collaborator) {
+    this.collaborator = collaborator;
+  }
 
-	public void setCollaborator(Object collaborator) {
-		this.collaborator = collaborator;
-	}
-
-	@Override
-	public String toString() {
-		return new ToStringBuilder(this)//
-				.append("collaborator", this.collaborator)//
-				.toString();
-	}
+  @Override
+  public String toString() {
+    return new ToStringBuilder(this)//
+            .append("collaborator", this.collaborator)//
+            .toString();
+  }
 
 }

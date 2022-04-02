@@ -13,8 +13,8 @@
 	<tx:annotation-driven />
 
 	<jdbc:embedded-database id="dataSource" type="HSQL">
-		<jdbc:script location="classpath:/org/springframework/test/context/junit4/orm/db-schema.sql"/>
-		<jdbc:script location="classpath:/org/springframework/test/context/junit4/orm/db-test-data.sql"/>
+		<jdbc:script location="classpath:/cn/taketoday/test/context/junit4/orm/db-schema.sql"/>
+		<jdbc:script location="classpath:/cn/taketoday/test/context/junit4/orm/db-test-data.sql"/>
 	</jdbc:embedded-database>
 
 	<bean id="sessionFactory" class="cn.taketoday.orm.hibernate5.LocalSessionFactoryBean"
@@ -27,8 +27,8 @@
 		</property>
 		<property name="mappingResources">
 			<list>
-				<value>org/springframework/test/context/junit4/orm/domain/Person.hbm.xml</value>
-				<value>org/springframework/test/context/junit4/orm/domain/DriversLicense.hbm.xml</value>
+				<value>cn/taketoday/test/context/junit4/orm/domain/Person.hbm.xml</value>
+				<value>cn/taketoday/test/context/junit4/orm/domain/DriversLicense.hbm.xml</value>
 			</list>
 		</property>
 	</bean>

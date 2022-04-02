@@ -22,9 +22,12 @@ package cn.taketoday.test.context.configuration.interfaces;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+
 import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.test.context.junit.jupiter.ApplicationExtension;
-import cn.taketoday.web.context.WebApplicationContext;
+import cn.taketoday.web.WebApplicationContext;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Sam Brannen
@@ -33,13 +36,12 @@ import cn.taketoday.web.context.WebApplicationContext;
 @ExtendWith(ApplicationExtension.class)
 class WebAppConfigurationInterfaceTests implements WebAppConfigurationTestInterface {
 
-	@Autowired
-	WebApplicationContext wac;
+  @Autowired
+  WebApplicationContext wac;
 
-
-	@Test
-	void wacLoaded() {
-		assertThat(wac).isNotNull();
-	}
+  @Test
+  void wacLoaded() {
+    assertThat(wac).isNotNull();
+  }
 
 }

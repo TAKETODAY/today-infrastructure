@@ -22,14 +22,15 @@ package cn.taketoday.test.context.junit4.profile.resolver;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import java.util.Arrays;
+
 import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.test.context.ActiveProfiles;
 import cn.taketoday.test.context.ContextConfiguration;
 import cn.taketoday.test.context.junit4.JUnit4ClassRunner;
-
-import java.util.Arrays;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -42,20 +43,18 @@ import static org.assertj.core.api.Assertions.assertThat;
 @ActiveProfiles(resolver = ClassNameActiveProfilesResolver.class)
 public class ClassNameActiveProfilesResolverTests {
 
-	@Configuration
-	static class Config {
+  @Configuration
+  static class Config {
 
-	}
+  }
 
+  @Autowired
+  private ApplicationContext applicationContext;
 
-	@Autowired
-	private ApplicationContext applicationContext;
-
-
-	@Test
-	public void test() {
-		assertThat(Arrays.asList(applicationContext.getEnvironment().getActiveProfiles()).contains(
-			getClass().getSimpleName().toLowerCase())).isTrue();
-	}
+  @Test
+  public void test() {
+    assertThat(Arrays.asList(applicationContext.getEnvironment().getActiveProfiles()).contains(
+            getClass().getSimpleName().toLowerCase())).isTrue();
+  }
 
 }

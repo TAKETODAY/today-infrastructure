@@ -24,14 +24,16 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
 import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
+import cn.taketoday.logging.Logger;
+import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.test.context.ContextConfiguration;
 import cn.taketoday.test.context.TestExecutionListeners;
 import cn.taketoday.test.context.junit4.JUnit4ClassRunner;
 import cn.taketoday.test.context.support.DependencyInjectionTestExecutionListener;
-
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 
@@ -68,53 +70,50 @@ import static org.assertj.core.api.Assertions.assertThat;
 @ContextConfiguration
 public class Jsr250LifecycleTests {
 
-	private final Logger logger = LoggerFactory.getLogger(Jsr250LifecycleTests.class);
+  private final Logger logger = LoggerFactory.getLogger(Jsr250LifecycleTests.class);
 
+  @Configuration
+  static class Config {
 
-	@Configuration
-	static class Config {
+    @Bean
+    public LifecycleBean lifecycleBean() {
+      return new LifecycleBean();
+    }
+  }
 
-		@Bean
-		public LifecycleBean lifecycleBean() {
-			return new LifecycleBean();
-		}
-	}
+  @Autowired
+  private LifecycleBean lifecycleBean;
 
+  @PostConstruct
+  public void beforeAllTests() {
+    logger.info("beforeAllTests()");
+  }
 
-	@Autowired
-	private LifecycleBean lifecycleBean;
+  @PreDestroy
+  public void afterTestSuite() {
+    logger.info("afterTestSuite()");
+  }
 
+  @Before
+  public void setUp() throws Exception {
+    logger.info("setUp()");
+  }
 
-	@PostConstruct
-	public void beforeAllTests() {
-		logger.info("beforeAllTests()");
-	}
+  @After
+  public void tearDown() throws Exception {
+    logger.info("tearDown()");
+  }
 
-	@PreDestroy
-	public void afterTestSuite() {
-		logger.info("afterTestSuite()");
-	}
+  @Test
+  public void test1() {
+    logger.info("test1()");
+    assertThat(lifecycleBean).isNotNull();
+  }
 
-	@Before
-	public void setUp() throws Exception {
-		logger.info("setUp()");
-	}
-
-	@After
-	public void tearDown() throws Exception {
-		logger.info("tearDown()");
-	}
-
-	@Test
-	public void test1() {
-		logger.info("test1()");
-		assertThat(lifecycleBean).isNotNull();
-	}
-
-	@Test
-	public void test2() {
-		logger.info("test2()");
-		assertThat(lifecycleBean).isNotNull();
-	}
+  @Test
+  public void test2() {
+    logger.info("test2()");
+    assertThat(lifecycleBean).isNotNull();
+  }
 
 }

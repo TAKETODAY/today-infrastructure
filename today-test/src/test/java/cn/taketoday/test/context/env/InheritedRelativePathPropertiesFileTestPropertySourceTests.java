@@ -31,8 +31,8 @@ import cn.taketoday.test.context.TestPropertySource;
  * @since 4.0
  */
 class InheritedRelativePathPropertiesFileTestPropertySourceTests extends
-		ExplicitPropertiesFileInClasspathTestPropertySourceTests {
+        ExplicitPropertiesFileInClasspathTestPropertySourceTests {
 
-	/* all tests are in superclass */
+  /* all tests are in superclass */
 
 }

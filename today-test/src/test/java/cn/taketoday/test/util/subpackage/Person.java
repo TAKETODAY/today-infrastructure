@@ -31,16 +31,16 @@ package cn.taketoday.test.util.subpackage;
  */
 public interface Person {
 
-	long getId();
+  long getId();
 
-	String getName();
+  String getName();
 
-	int getAge();
+  int getAge();
 
-	String getEyeColor();
+  String getEyeColor();
 
-	boolean likesPets();
+  boolean likesPets();
 
-	Number getFavoriteNumber();
+  Number getFavoriteNumber();
 
 }

@@ -41,7 +41,6 @@ import cn.taketoday.core.io.UrlBasedResource;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 
-import static cn.taketoday.core.io.ResourceLoader.CLASSPATH_URL_PREFIX;
 import static cn.taketoday.lang.Constant.BLANK;
 import static cn.taketoday.lang.Constant.PATH_SEPARATOR;
 
@@ -50,6 +49,8 @@ import static cn.taketoday.lang.Constant.PATH_SEPARATOR;
  * @since 2.1.6
  */
 public abstract class ResourceUtils {
+  /** Pseudo URL prefix for loading from the class path: "classpath:". */
+  public static final String CLASSPATH_URL_PREFIX = ResourceLoader.CLASSPATH_URL_PREFIX;
 
   public static final String JAR_ENTRY_URL_PREFIX = "jar:file:";
   public static final String JAR_SEPARATOR = "!/";

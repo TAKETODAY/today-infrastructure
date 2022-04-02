@@ -21,11 +21,12 @@
 package cn.taketoday.test.context.expression;
 
 import org.junit.jupiter.api.Test;
+
+import java.util.Properties;
+
 import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.beans.factory.annotation.Qualifier;
 import cn.taketoday.test.context.junit.jupiter.JUnitConfig;
-
-import java.util.Properties;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -36,49 +37,46 @@ import static org.assertj.core.api.Assertions.assertThat;
 @JUnitConfig
 class ExpressionUsageTests {
 
-	@Autowired
-	@Qualifier("derived")
-	private Properties props;
+  @Autowired
+  @Qualifier("derived")
+  private Properties props;
 
-	@Autowired
-	@Qualifier("andy2")
-	private Foo andy2;
+  @Autowired
+  @Qualifier("andy2")
+  private Foo andy2;
 
-	@Autowired
-	@Qualifier("andy")
-	private Foo andy;
+  @Autowired
+  @Qualifier("andy")
+  private Foo andy;
 
+  @Test
+  void testSpr5906() throws Exception {
+    // verify the property values have been evaluated as expressions
+    assertThat(props.getProperty("user.name")).isEqualTo("Dave");
+    assertThat(props.getProperty("username")).isEqualTo("Andy");
 
-	@Test
-	void testSpr5906() throws Exception {
-		// verify the property values have been evaluated as expressions
-		assertThat(props.getProperty("user.name")).isEqualTo("Dave");
-		assertThat(props.getProperty("username")).isEqualTo("Andy");
+    // verify the property keys have been evaluated as expressions
+    assertThat(props.getProperty("Dave")).isEqualTo("exists");
+    assertThat(props.getProperty("Andy")).isEqualTo("exists also");
+  }
 
-		// verify the property keys have been evaluated as expressions
-		assertThat(props.getProperty("Dave")).isEqualTo("exists");
-		assertThat(props.getProperty("Andy")).isEqualTo("exists also");
-	}
+  @Test
+  void testSpr5847() throws Exception {
+    assertThat(andy2.getName()).isEqualTo("Andy");
+    assertThat(andy.getName()).isEqualTo("Andy");
+  }
 
-	@Test
-	void testSpr5847() throws Exception {
-		assertThat(andy2.getName()).isEqualTo("Andy");
-		assertThat(andy.getName()).isEqualTo("Andy");
-	}
+  public static class Foo {
 
+    private String name;
 
-	public static class Foo {
+    public String getName() {
+      return name;
+    }
 
-		private String name;
-
-
-		public String getName() {
-			return name;
-		}
-
-		public void setName(String name) {
-			this.name = name;
-		}
-	}
+    public void setName(String name) {
+      this.name = name;
+    }
+  }
 
 }

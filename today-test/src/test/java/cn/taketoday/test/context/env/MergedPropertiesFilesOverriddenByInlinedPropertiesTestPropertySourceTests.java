@@ -21,7 +21,10 @@
 package cn.taketoday.test.context.env;
 
 import org.junit.jupiter.api.Test;
+
 import cn.taketoday.test.context.TestPropertySource;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Integration tests that verify support for overriding properties from
@@ -33,18 +36,18 @@ import cn.taketoday.test.context.TestPropertySource;
  */
 @TestPropertySource(properties = { "explicit = inlined", "extended = inlined1", "extended = inlined2" })
 class MergedPropertiesFilesOverriddenByInlinedPropertiesTestPropertySourceTests extends
-		MergedPropertiesFilesTestPropertySourceTests {
+        MergedPropertiesFilesTestPropertySourceTests {
 
-	@Test
-	@Override
-	void verifyPropertiesAreAvailableInEnvironment() {
-		assertThat(env.getProperty("explicit")).isEqualTo("inlined");
-	}
+  @Test
+  @Override
+  void verifyPropertiesAreAvailableInEnvironment() {
+    assertThat(env.getProperty("explicit")).isEqualTo("inlined");
+  }
 
-	@Test
-	@Override
-	void verifyExtendedPropertiesAreAvailableInEnvironment() {
-		assertThat(env.getProperty("extended")).isEqualTo("inlined2");
-	}
+  @Test
+  @Override
+  void verifyExtendedPropertiesAreAvailableInEnvironment() {
+    assertThat(env.getProperty("extended")).isEqualTo("inlined2");
+  }
 
 }

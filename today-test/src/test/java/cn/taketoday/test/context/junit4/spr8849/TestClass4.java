@@ -22,13 +22,13 @@ package cn.taketoday.test.context.junit4.spr8849;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import javax.sql.DataSource;
+
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.ImportResource;
 import cn.taketoday.test.context.ContextConfiguration;
 import cn.taketoday.test.context.junit4.JUnit4ClassRunner;
-
-import javax.sql.DataSource;
-
 import jakarta.annotation.Resource;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -38,26 +38,24 @@ import static org.assertj.core.api.Assertions.assertThat;
  * since it should only be run as part of the test suite: {@link Spr8849Tests}.
  *
  * @author Sam Brannen
- * @since 4.0
  * @see Spr8849Tests
+ * @since 4.0
  */
 @RunWith(JUnit4ClassRunner.class)
 @ContextConfiguration
 public class TestClass4 {
 
-	@Configuration
-	@ImportResource("classpath:/org/springframework/test/context/junit4/spr8849/datasource-config-with-auto-generated-db-name.xml")
-	static class Config {
-	}
+  @Configuration
+  @ImportResource("classpath:/cn/taketoday/test/context/junit4/spr8849/datasource-config-with-auto-generated-db-name.xml")
+  static class Config {
+  }
 
+  @Resource
+  DataSource dataSource;
 
-	@Resource
-	DataSource dataSource;
-
-
-	@Test
-	public void dummyTest() {
-		assertThat(dataSource).isNotNull();
-	}
+  @Test
+  public void dummyTest() {
+    assertThat(dataSource).isNotNull();
+  }
 
 }

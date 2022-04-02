@@ -21,13 +21,15 @@
 package cn.taketoday.test.context;
 
 import org.junit.jupiter.api.Test;
-import cn.taketoday.core.annotation.AliasFor;
-import cn.taketoday.test.context.TestContextAnnotationUtils.AnnotationDescriptor;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
+import cn.taketoday.core.annotation.AliasFor;
+import cn.taketoday.test.context.TestContextAnnotationUtils.AnnotationDescriptor;
+
 import static cn.taketoday.test.context.TestContextAnnotationUtils.findAnnotationDescriptor;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Unit tests for {@link TestContextAnnotationUtils} that verify support for
@@ -36,100 +38,97 @@ import static cn.taketoday.test.context.TestContextAnnotationUtils.findAnnotatio
  * <p>See <a href="https://jira.spring.io/browse/SPR-10181">SPR-10181</a>.
  *
  * @author Sam Brannen
- * @since 4.0, though originally since 4.0 for the deprecated
- * {@link cn.taketoday.test.util.MetaAnnotationUtils} support
  * @see TestContextAnnotationUtilsTests
  */
 class OverriddenMetaAnnotationAttributesTestContextAnnotationUtilsTests {
 
-	@Test
-	void contextConfigurationValue() {
-		Class<?> rootDeclaringClass = MetaValueConfigTestCase.class;
-		AnnotationDescriptor<ContextConfiguration> descriptor = findAnnotationDescriptor(rootDeclaringClass,
-			ContextConfiguration.class);
-		assertThat(descriptor).isNotNull();
-		assertThat(descriptor.getRootDeclaringClass()).isEqualTo(rootDeclaringClass);
-		assertThat(descriptor.getDeclaringClass()).isEqualTo(MetaValueConfig.class);
-		assertThat(descriptor.getAnnotationType()).isEqualTo(ContextConfiguration.class);
-		assertThat(descriptor.getAnnotation().value()).containsExactly("foo.xml");
-		assertThat(descriptor.getAnnotation().locations()).containsExactly("foo.xml");
-	}
+  @Test
+  void contextConfigurationValue() {
+    Class<?> rootDeclaringClass = MetaValueConfigTestCase.class;
+    AnnotationDescriptor<ContextConfiguration> descriptor = findAnnotationDescriptor(rootDeclaringClass,
+            ContextConfiguration.class);
+    assertThat(descriptor).isNotNull();
+    assertThat(descriptor.getRootDeclaringClass()).isEqualTo(rootDeclaringClass);
+    assertThat(descriptor.getDeclaringClass()).isEqualTo(MetaValueConfig.class);
+    assertThat(descriptor.getAnnotationType()).isEqualTo(ContextConfiguration.class);
+    assertThat(descriptor.getAnnotation().value()).containsExactly("foo.xml");
+    assertThat(descriptor.getAnnotation().locations()).containsExactly("foo.xml");
+  }
 
-	@Test
-	void overriddenContextConfigurationValue() {
-		Class<?> rootDeclaringClass = OverriddenMetaValueConfigTestCase.class;
-		AnnotationDescriptor<ContextConfiguration> descriptor = findAnnotationDescriptor(rootDeclaringClass,
-			ContextConfiguration.class);
-		assertThat(descriptor).isNotNull();
-		assertThat(descriptor.getRootDeclaringClass()).isEqualTo(rootDeclaringClass);
-		assertThat(descriptor.getDeclaringClass()).isEqualTo(MetaValueConfig.class);
-		assertThat(descriptor.getAnnotationType()).isEqualTo(ContextConfiguration.class);
-		assertThat(descriptor.getAnnotation().value()).containsExactly("bar.xml");
-		assertThat(descriptor.getAnnotation().locations()).containsExactly("bar.xml");
-	}
+  @Test
+  void overriddenContextConfigurationValue() {
+    Class<?> rootDeclaringClass = OverriddenMetaValueConfigTestCase.class;
+    AnnotationDescriptor<ContextConfiguration> descriptor = findAnnotationDescriptor(rootDeclaringClass,
+            ContextConfiguration.class);
+    assertThat(descriptor).isNotNull();
+    assertThat(descriptor.getRootDeclaringClass()).isEqualTo(rootDeclaringClass);
+    assertThat(descriptor.getDeclaringClass()).isEqualTo(MetaValueConfig.class);
+    assertThat(descriptor.getAnnotationType()).isEqualTo(ContextConfiguration.class);
+    assertThat(descriptor.getAnnotation().value()).containsExactly("bar.xml");
+    assertThat(descriptor.getAnnotation().locations()).containsExactly("bar.xml");
+  }
 
-	@Test
-	void contextConfigurationLocationsAndInheritLocations() {
-		Class<?> rootDeclaringClass = MetaLocationsConfigTestCase.class;
-		AnnotationDescriptor<ContextConfiguration> descriptor = findAnnotationDescriptor(rootDeclaringClass,
-			ContextConfiguration.class);
-		assertThat(descriptor).isNotNull();
-		assertThat(descriptor.getRootDeclaringClass()).isEqualTo(rootDeclaringClass);
-		assertThat(descriptor.getDeclaringClass()).isEqualTo(MetaLocationsConfig.class);
-		assertThat(descriptor.getAnnotationType()).isEqualTo(ContextConfiguration.class);
-		assertThat(descriptor.getAnnotation().value()).isEmpty();
-		assertThat(descriptor.getAnnotation().locations()).isEmpty();
-		assertThat(descriptor.getAnnotation().inheritLocations()).isTrue();
-	}
+  @Test
+  void contextConfigurationLocationsAndInheritLocations() {
+    Class<?> rootDeclaringClass = MetaLocationsConfigTestCase.class;
+    AnnotationDescriptor<ContextConfiguration> descriptor = findAnnotationDescriptor(rootDeclaringClass,
+            ContextConfiguration.class);
+    assertThat(descriptor).isNotNull();
+    assertThat(descriptor.getRootDeclaringClass()).isEqualTo(rootDeclaringClass);
+    assertThat(descriptor.getDeclaringClass()).isEqualTo(MetaLocationsConfig.class);
+    assertThat(descriptor.getAnnotationType()).isEqualTo(ContextConfiguration.class);
+    assertThat(descriptor.getAnnotation().value()).isEmpty();
+    assertThat(descriptor.getAnnotation().locations()).isEmpty();
+    assertThat(descriptor.getAnnotation().inheritLocations()).isTrue();
+  }
 
-	@Test
-	void overriddenContextConfigurationLocationsAndInheritLocations() {
-		Class<?> rootDeclaringClass = OverriddenMetaLocationsConfigTestCase.class;
-		AnnotationDescriptor<ContextConfiguration> descriptor = findAnnotationDescriptor(rootDeclaringClass,
-			ContextConfiguration.class);
-		assertThat(descriptor).isNotNull();
-		assertThat(descriptor.getRootDeclaringClass()).isEqualTo(rootDeclaringClass);
-		assertThat(descriptor.getDeclaringClass()).isEqualTo(MetaLocationsConfig.class);
-		assertThat(descriptor.getAnnotationType()).isEqualTo(ContextConfiguration.class);
-		assertThat(descriptor.getAnnotation().value()).containsExactly("bar.xml");
-		assertThat(descriptor.getAnnotation().locations()).containsExactly("bar.xml");
-		assertThat(descriptor.getAnnotation().inheritLocations()).isTrue();
-	}
+  @Test
+  void overriddenContextConfigurationLocationsAndInheritLocations() {
+    Class<?> rootDeclaringClass = OverriddenMetaLocationsConfigTestCase.class;
+    AnnotationDescriptor<ContextConfiguration> descriptor = findAnnotationDescriptor(rootDeclaringClass,
+            ContextConfiguration.class);
+    assertThat(descriptor).isNotNull();
+    assertThat(descriptor.getRootDeclaringClass()).isEqualTo(rootDeclaringClass);
+    assertThat(descriptor.getDeclaringClass()).isEqualTo(MetaLocationsConfig.class);
+    assertThat(descriptor.getAnnotationType()).isEqualTo(ContextConfiguration.class);
+    assertThat(descriptor.getAnnotation().value()).containsExactly("bar.xml");
+    assertThat(descriptor.getAnnotation().locations()).containsExactly("bar.xml");
+    assertThat(descriptor.getAnnotation().inheritLocations()).isTrue();
+  }
 
+  // -------------------------------------------------------------------------
 
-	// -------------------------------------------------------------------------
+  @ContextConfiguration
+  @Retention(RetentionPolicy.RUNTIME)
+  @interface MetaValueConfig {
 
-	@ContextConfiguration
-	@Retention(RetentionPolicy.RUNTIME)
-	@interface MetaValueConfig {
+    @AliasFor(annotation = ContextConfiguration.class)
+    String[] value() default "foo.xml";
+  }
 
-		@AliasFor(annotation = ContextConfiguration.class)
-		String[] value() default "foo.xml";
-	}
+  @MetaValueConfig
+  static class MetaValueConfigTestCase {
+  }
 
-	@MetaValueConfig
-	static class MetaValueConfigTestCase {
-	}
+  @MetaValueConfig("bar.xml")
+  static class OverriddenMetaValueConfigTestCase {
+  }
 
-	@MetaValueConfig("bar.xml")
-	static class OverriddenMetaValueConfigTestCase {
-	}
+  @ContextConfiguration(locations = "foo.xml", inheritLocations = false)
+  @Retention(RetentionPolicy.RUNTIME)
+  @interface MetaLocationsConfig {
 
-	@ContextConfiguration(locations = "foo.xml", inheritLocations = false)
-	@Retention(RetentionPolicy.RUNTIME)
-	@interface MetaLocationsConfig {
+    String[] locations() default {};
 
-		String[] locations() default {};
+    boolean inheritLocations();
+  }
 
-		boolean inheritLocations();
-	}
+  @MetaLocationsConfig(inheritLocations = true)
+  static class MetaLocationsConfigTestCase {
+  }
 
-	@MetaLocationsConfig(inheritLocations = true)
-	static class MetaLocationsConfigTestCase {
-	}
-
-	@MetaLocationsConfig(locations = "bar.xml", inheritLocations = true)
-	static class OverriddenMetaLocationsConfigTestCase {
-	}
+  @MetaLocationsConfig(locations = "bar.xml", inheritLocations = true)
+  static class OverriddenMetaLocationsConfigTestCase {
+  }
 
 }

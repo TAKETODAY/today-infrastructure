@@ -25,21 +25,21 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import cn.taketoday.test.context.support.DefaultTestContextBootstrapper;
-import cn.taketoday.test.context.web.WebTestContextBootstrapper;
-
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.stream.Stream;
 
+import cn.taketoday.test.context.support.DefaultTestContextBootstrapper;
+import cn.taketoday.test.context.web.WebTestContextBootstrapper;
+
+import static cn.taketoday.test.context.BootstrapUtils.resolveTestContextBootstrapper;
+import static cn.taketoday.test.context.NestedTestConfiguration.EnclosingConfiguration.INHERIT;
+import static cn.taketoday.test.context.NestedTestConfiguration.EnclosingConfiguration.OVERRIDE;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 import static org.junit.jupiter.api.Named.named;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.mockito.Mockito.mock;
-import static cn.taketoday.test.context.BootstrapUtils.resolveTestContextBootstrapper;
-import static cn.taketoday.test.context.NestedTestConfiguration.EnclosingConfiguration.INHERIT;
-import static cn.taketoday.test.context.NestedTestConfiguration.EnclosingConfiguration.OVERRIDE;
 
 /**
  * Unit tests for {@link BootstrapUtils}.
@@ -50,202 +50,203 @@ import static cn.taketoday.test.context.NestedTestConfiguration.EnclosingConfigu
  */
 class BootstrapUtilsTests {
 
-	private final CacheAwareContextLoaderDelegate delegate = mock(CacheAwareContextLoaderDelegate.class);
+  private final CacheAwareContextLoaderDelegate delegate = mock(CacheAwareContextLoaderDelegate.class);
 
-	@Test
-	void resolveTestContextBootstrapperWithEmptyBootstrapWithAnnotation() {
-		BootstrapContext bootstrapContext = BootstrapTestUtils.buildBootstrapContext(EmptyBootstrapWithAnnotationClass.class, delegate);
-		assertThatIllegalStateException().isThrownBy(() ->
-				resolveTestContextBootstrapper(bootstrapContext))
-			.withMessageContaining("Specify @BootstrapWith's 'value' attribute");
-	}
+  @Test
+  void resolveTestContextBootstrapperWithEmptyBootstrapWithAnnotation() {
+    BootstrapContext bootstrapContext = BootstrapTestUtils.buildBootstrapContext(EmptyBootstrapWithAnnotationClass.class, delegate);
+    assertThatIllegalStateException().isThrownBy(() ->
+                    resolveTestContextBootstrapper(bootstrapContext))
+            .withMessageContaining("Specify @BootstrapWith's 'value' attribute");
+  }
 
-	@Test
-	void resolveTestContextBootstrapperWithDoubleMetaBootstrapWithAnnotations() {
-		BootstrapContext bootstrapContext = BootstrapTestUtils.buildBootstrapContext(
-			DoubleMetaAnnotatedBootstrapWithAnnotationClass.class, delegate);
-		assertThatIllegalStateException().isThrownBy(() ->
-				resolveTestContextBootstrapper(bootstrapContext))
-			.withMessageContaining("Configuration error: found multiple declarations of @BootstrapWith")
-			.withMessageContaining(FooBootstrapper.class.getCanonicalName())
-			.withMessageContaining(BarBootstrapper.class.getCanonicalName());
-	}
+  @Test
+  void resolveTestContextBootstrapperWithDoubleMetaBootstrapWithAnnotations() {
+    BootstrapContext bootstrapContext = BootstrapTestUtils.buildBootstrapContext(
+            DoubleMetaAnnotatedBootstrapWithAnnotationClass.class, delegate);
+    assertThatIllegalStateException().isThrownBy(() ->
+                    resolveTestContextBootstrapper(bootstrapContext))
+            .withMessageContaining("Configuration error: found multiple declarations of @BootstrapWith")
+            .withMessageContaining(FooBootstrapper.class.getCanonicalName())
+            .withMessageContaining(BarBootstrapper.class.getCanonicalName());
+  }
 
-	@Test
-	void resolveTestContextBootstrapperForNonAnnotatedClass() {
-		assertBootstrapper(NonAnnotatedClass.class, DefaultTestContextBootstrapper.class);
-	}
+  @Test
+  void resolveTestContextBootstrapperForNonAnnotatedClass() {
+    assertBootstrapper(NonAnnotatedClass.class, DefaultTestContextBootstrapper.class);
+  }
 
-	@Test
-	void resolveTestContextBootstrapperWithDirectBootstrapWithAnnotation() {
-		assertBootstrapper(DirectBootstrapWithAnnotationClass.class, FooBootstrapper.class);
-	}
+  @Test
+  void resolveTestContextBootstrapperWithDirectBootstrapWithAnnotation() {
+    assertBootstrapper(DirectBootstrapWithAnnotationClass.class, FooBootstrapper.class);
+  }
 
-	@Test
-	void resolveTestContextBootstrapperWithInheritedBootstrapWithAnnotation() {
-		assertBootstrapper(InheritedBootstrapWithAnnotationClass.class, FooBootstrapper.class);
-	}
+  @Test
+  void resolveTestContextBootstrapperWithInheritedBootstrapWithAnnotation() {
+    assertBootstrapper(InheritedBootstrapWithAnnotationClass.class, FooBootstrapper.class);
+  }
 
-	@Test
-	void resolveTestContextBootstrapperWithMetaBootstrapWithAnnotation() {
-		assertBootstrapper(MetaAnnotatedBootstrapWithAnnotationClass.class, BarBootstrapper.class);
-	}
+  @Test
+  void resolveTestContextBootstrapperWithMetaBootstrapWithAnnotation() {
+    assertBootstrapper(MetaAnnotatedBootstrapWithAnnotationClass.class, BarBootstrapper.class);
+  }
 
-	@Test
-	void resolveTestContextBootstrapperWithDuplicatingMetaBootstrapWithAnnotations() {
-		assertBootstrapper(DuplicateMetaAnnotatedBootstrapWithAnnotationClass.class, FooBootstrapper.class);
-	}
+  @Test
+  void resolveTestContextBootstrapperWithDuplicatingMetaBootstrapWithAnnotations() {
+    assertBootstrapper(DuplicateMetaAnnotatedBootstrapWithAnnotationClass.class, FooBootstrapper.class);
+  }
 
-	/**
-	 * @since 4.0
-	 */
-	@ParameterizedTest(name = "[{index}] {0}")
-	@MethodSource
-	void resolveTestContextBootstrapperInEnclosingClassHierarchy(Class<?> testClass, Class<?> expectedBootstrapper) {
-		assertBootstrapper(testClass, expectedBootstrapper);
-	}
+  /**
+   * @since 4.0
+   */
+  @ParameterizedTest(name = "[{index}] {0}")
+  @MethodSource
+  void resolveTestContextBootstrapperInEnclosingClassHierarchy(Class<?> testClass, Class<?> expectedBootstrapper) {
+    assertBootstrapper(testClass, expectedBootstrapper);
+  }
 
-	static Stream<Arguments> resolveTestContextBootstrapperInEnclosingClassHierarchy() {
-		return Stream.of(//
-			args(OuterClass.class, FooBootstrapper.class),//
-			args(OuterClass.NestedWithInheritedBootstrapper.class, FooBootstrapper.class),//
-			args(OuterClass.NestedWithInheritedBootstrapper.DoubleNestedWithInheritedButOverriddenBootstrapper.class, EnigmaBootstrapper.class),//
-			args(OuterClass.NestedWithInheritedBootstrapper.DoubleNestedWithOverriddenBootstrapper.class, BarBootstrapper.class),//
-			args(OuterClass.NestedWithInheritedBootstrapper.DoubleNestedWithOverriddenBootstrapper.TripleNestedWithInheritedBootstrapper.class, BarBootstrapper.class),//
-			args(OuterClass.NestedWithInheritedBootstrapper.DoubleNestedWithOverriddenBootstrapper.TripleNestedWithInheritedBootstrapperButLocalOverride.class, EnigmaBootstrapper.class),//
-			// @WebAppConfiguration and default bootstrapper
-			args(WebAppConfigClass.class, WebTestContextBootstrapper.class),//
-			args(WebAppConfigClass.NestedWithInheritedWebConfig.class, WebTestContextBootstrapper.class),//
-			args(WebAppConfigClass.NestedWithInheritedWebConfig.DoubleNestedWithImplicitlyInheritedWebConfig.class, WebTestContextBootstrapper.class),//
-			args(WebAppConfigClass.NestedWithInheritedWebConfig.DoubleNestedWithOverriddenWebConfig.class, DefaultTestContextBootstrapper.class),//
-			args(WebAppConfigClass.NestedWithInheritedWebConfig.DoubleNestedWithOverriddenWebConfig.TripleNestedWithInheritedOverriddenWebConfig.class, WebTestContextBootstrapper.class),//
-			args(WebAppConfigClass.NestedWithInheritedWebConfig.DoubleNestedWithOverriddenWebConfig.TripleNestedWithInheritedOverriddenWebConfigAndTestInterface.class, DefaultTestContextBootstrapper.class)//
-		);
-	}
+  static Stream<Arguments> resolveTestContextBootstrapperInEnclosingClassHierarchy() {
+    return Stream.of(//
+            args(OuterClass.class, FooBootstrapper.class),//
+            args(OuterClass.NestedWithInheritedBootstrapper.class, FooBootstrapper.class),//
+            args(OuterClass.NestedWithInheritedBootstrapper.DoubleNestedWithInheritedButOverriddenBootstrapper.class, EnigmaBootstrapper.class),//
+            args(OuterClass.NestedWithInheritedBootstrapper.DoubleNestedWithOverriddenBootstrapper.class, BarBootstrapper.class),//
+            args(OuterClass.NestedWithInheritedBootstrapper.DoubleNestedWithOverriddenBootstrapper.TripleNestedWithInheritedBootstrapper.class, BarBootstrapper.class),//
+            args(OuterClass.NestedWithInheritedBootstrapper.DoubleNestedWithOverriddenBootstrapper.TripleNestedWithInheritedBootstrapperButLocalOverride.class, EnigmaBootstrapper.class),//
+            // @WebAppConfiguration and default bootstrapper
+            args(WebAppConfigClass.class, WebTestContextBootstrapper.class),//
+            args(WebAppConfigClass.NestedWithInheritedWebConfig.class, WebTestContextBootstrapper.class),//
+            args(WebAppConfigClass.NestedWithInheritedWebConfig.DoubleNestedWithImplicitlyInheritedWebConfig.class, WebTestContextBootstrapper.class),//
+            args(WebAppConfigClass.NestedWithInheritedWebConfig.DoubleNestedWithOverriddenWebConfig.class, DefaultTestContextBootstrapper.class),//
+            args(WebAppConfigClass.NestedWithInheritedWebConfig.DoubleNestedWithOverriddenWebConfig.TripleNestedWithInheritedOverriddenWebConfig.class, WebTestContextBootstrapper.class),//
+            args(WebAppConfigClass.NestedWithInheritedWebConfig.DoubleNestedWithOverriddenWebConfig.TripleNestedWithInheritedOverriddenWebConfigAndTestInterface.class,
+                    DefaultTestContextBootstrapper.class)//
+    );
+  }
 
-	private static Arguments args(Class<?> testClass, Class<? extends TestContextBootstrapper> expectedBootstrapper) {
-		return arguments(named(testClass.getSimpleName(), testClass), expectedBootstrapper);
-	}
+  private static Arguments args(Class<?> testClass, Class<? extends TestContextBootstrapper> expectedBootstrapper) {
+    return arguments(named(testClass.getSimpleName(), testClass), expectedBootstrapper);
+  }
 
-	/**
-	 * @since 4.0
-	 */
-	@Test
-	void resolveTestContextBootstrapperWithLocalDeclarationThatOverridesMetaBootstrapWithAnnotations() {
-		assertBootstrapper(LocalDeclarationAndMetaAnnotatedBootstrapWithAnnotationClass.class, EnigmaBootstrapper.class);
-	}
+  /**
+   * @since 4.0
+   */
+  @Test
+  void resolveTestContextBootstrapperWithLocalDeclarationThatOverridesMetaBootstrapWithAnnotations() {
+    assertBootstrapper(LocalDeclarationAndMetaAnnotatedBootstrapWithAnnotationClass.class, EnigmaBootstrapper.class);
+  }
 
-	private void assertBootstrapper(Class<?> testClass, Class<?> expectedBootstrapper) {
-		BootstrapContext bootstrapContext = BootstrapTestUtils.buildBootstrapContext(testClass, delegate);
-		TestContextBootstrapper bootstrapper = resolveTestContextBootstrapper(bootstrapContext);
-		assertThat(bootstrapper).isNotNull();
-		assertThat(bootstrapper.getClass()).isEqualTo(expectedBootstrapper);
-	}
+  private void assertBootstrapper(Class<?> testClass, Class<?> expectedBootstrapper) {
+    BootstrapContext bootstrapContext = BootstrapTestUtils.buildBootstrapContext(testClass, delegate);
+    TestContextBootstrapper bootstrapper = resolveTestContextBootstrapper(bootstrapContext);
+    assertThat(bootstrapper).isNotNull();
+    assertThat(bootstrapper.getClass()).isEqualTo(expectedBootstrapper);
+  }
 
-	// -------------------------------------------------------------------
+  // -------------------------------------------------------------------
 
-	static class FooBootstrapper extends DefaultTestContextBootstrapper {}
+  static class FooBootstrapper extends DefaultTestContextBootstrapper { }
 
-	static class BarBootstrapper extends DefaultTestContextBootstrapper {}
+  static class BarBootstrapper extends DefaultTestContextBootstrapper { }
 
-	static class EnigmaBootstrapper extends DefaultTestContextBootstrapper {}
+  static class EnigmaBootstrapper extends DefaultTestContextBootstrapper { }
 
-	@BootstrapWith(FooBootstrapper.class)
-	@Retention(RetentionPolicy.RUNTIME)
-	@interface BootWithFoo {}
+  @BootstrapWith(FooBootstrapper.class)
+  @Retention(RetentionPolicy.RUNTIME)
+  @interface BootWithFoo { }
 
-	@BootstrapWith(FooBootstrapper.class)
-	@Retention(RetentionPolicy.RUNTIME)
-	@interface BootWithFooAgain {}
+  @BootstrapWith(FooBootstrapper.class)
+  @Retention(RetentionPolicy.RUNTIME)
+  @interface BootWithFooAgain { }
 
-	@BootstrapWith(BarBootstrapper.class)
-	@Retention(RetentionPolicy.RUNTIME)
-	@interface BootWithBar {}
+  @BootstrapWith(BarBootstrapper.class)
+  @Retention(RetentionPolicy.RUNTIME)
+  @interface BootWithBar { }
 
-	// Invalid
-	@BootstrapWith
-	static class EmptyBootstrapWithAnnotationClass {}
+  // Invalid
+  @BootstrapWith
+  static class EmptyBootstrapWithAnnotationClass { }
 
-	// Invalid
-	@BootWithBar
-	@BootWithFoo
-	static class DoubleMetaAnnotatedBootstrapWithAnnotationClass {}
+  // Invalid
+  @BootWithBar
+  @BootWithFoo
+  static class DoubleMetaAnnotatedBootstrapWithAnnotationClass { }
 
-	static class NonAnnotatedClass {}
+  static class NonAnnotatedClass { }
 
-	@BootstrapWith(FooBootstrapper.class)
-	static class DirectBootstrapWithAnnotationClass {}
+  @BootstrapWith(FooBootstrapper.class)
+  static class DirectBootstrapWithAnnotationClass { }
 
-	static class InheritedBootstrapWithAnnotationClass extends DirectBootstrapWithAnnotationClass {}
+  static class InheritedBootstrapWithAnnotationClass extends DirectBootstrapWithAnnotationClass { }
 
-	@BootWithBar
-	static class MetaAnnotatedBootstrapWithAnnotationClass {}
+  @BootWithBar
+  static class MetaAnnotatedBootstrapWithAnnotationClass { }
 
-	@BootWithFoo
-	@BootWithFooAgain
-	static class DuplicateMetaAnnotatedBootstrapWithAnnotationClass {}
+  @BootWithFoo
+  @BootWithFooAgain
+  static class DuplicateMetaAnnotatedBootstrapWithAnnotationClass { }
 
-	@BootWithFoo
-	@BootWithBar
-	@BootstrapWith(EnigmaBootstrapper.class)
-	static class LocalDeclarationAndMetaAnnotatedBootstrapWithAnnotationClass {}
+  @BootWithFoo
+  @BootWithBar
+  @BootstrapWith(EnigmaBootstrapper.class)
+  static class LocalDeclarationAndMetaAnnotatedBootstrapWithAnnotationClass { }
 
-	@cn.taketoday.test.context.web.WebAppConfiguration
-	static class WebAppConfigClass {
+  @cn.taketoday.test.context.web.WebAppConfiguration
+  static class WebAppConfigClass {
 
-		@NestedTestConfiguration(INHERIT)
-		class NestedWithInheritedWebConfig {
+    @NestedTestConfiguration(INHERIT)
+    class NestedWithInheritedWebConfig {
 
-			class DoubleNestedWithImplicitlyInheritedWebConfig {
-			}
+      class DoubleNestedWithImplicitlyInheritedWebConfig {
+      }
 
-			@NestedTestConfiguration(OVERRIDE)
-			class DoubleNestedWithOverriddenWebConfig {
+      @NestedTestConfiguration(OVERRIDE)
+      class DoubleNestedWithOverriddenWebConfig {
 
-				@NestedTestConfiguration(INHERIT)
-				@cn.taketoday.test.context.web.WebAppConfiguration
-				class TripleNestedWithInheritedOverriddenWebConfig {
-				}
+        @NestedTestConfiguration(INHERIT)
+        @cn.taketoday.test.context.web.WebAppConfiguration
+        class TripleNestedWithInheritedOverriddenWebConfig {
+        }
 
-				@NestedTestConfiguration(INHERIT)
-				class TripleNestedWithInheritedOverriddenWebConfigAndTestInterface {
-				}
-			}
-		}
+        @NestedTestConfiguration(INHERIT)
+        class TripleNestedWithInheritedOverriddenWebConfigAndTestInterface {
+        }
+      }
+    }
 
-		// Intentionally not annotated with @WebAppConfiguration to ensure that
-		// TripleNestedWithInheritedOverriddenWebConfigAndTestInterface is not
-		// considered to be annotated with @WebAppConfiguration even though the
-		// enclosing class for TestInterface is annotated with @WebAppConfiguration.
-		interface TestInterface {
-		}
-	}
+    // Intentionally not annotated with @WebAppConfiguration to ensure that
+    // TripleNestedWithInheritedOverriddenWebConfigAndTestInterface is not
+    // considered to be annotated with @WebAppConfiguration even though the
+    // enclosing class for TestInterface is annotated with @WebAppConfiguration.
+    interface TestInterface {
+    }
+  }
 
-	@BootWithFoo
-	static class OuterClass {
+  @BootWithFoo
+  static class OuterClass {
 
-		@NestedTestConfiguration(INHERIT)
-		class NestedWithInheritedBootstrapper {
+    @NestedTestConfiguration(INHERIT)
+    class NestedWithInheritedBootstrapper {
 
-			@NestedTestConfiguration(INHERIT)
-			@BootstrapWith(EnigmaBootstrapper.class)
-			class DoubleNestedWithInheritedButOverriddenBootstrapper {
-			}
+      @NestedTestConfiguration(INHERIT)
+      @BootstrapWith(EnigmaBootstrapper.class)
+      class DoubleNestedWithInheritedButOverriddenBootstrapper {
+      }
 
-			@NestedTestConfiguration(OVERRIDE)
-			@BootWithBar
-			class DoubleNestedWithOverriddenBootstrapper {
+      @NestedTestConfiguration(OVERRIDE)
+      @BootWithBar
+      class DoubleNestedWithOverriddenBootstrapper {
 
-				@NestedTestConfiguration(INHERIT)
-				class TripleNestedWithInheritedBootstrapper {
-				}
+        @NestedTestConfiguration(INHERIT)
+        class TripleNestedWithInheritedBootstrapper {
+        }
 
-				@NestedTestConfiguration(INHERIT)
-				@BootstrapWith(EnigmaBootstrapper.class)
-				class TripleNestedWithInheritedBootstrapperButLocalOverride {
-				}
-			}
-		}
-	}
+        @NestedTestConfiguration(INHERIT)
+        @BootstrapWith(EnigmaBootstrapper.class)
+        class TripleNestedWithInheritedBootstrapperButLocalOverride {
+        }
+      }
+    }
+  }
 
 }

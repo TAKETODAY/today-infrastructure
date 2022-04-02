@@ -20,10 +20,6 @@
 
 package cn.taketoday.test.context;
 
-import cn.taketoday.test.context.BootstrapContext;
-import cn.taketoday.test.context.BootstrapUtils;
-import cn.taketoday.test.context.CacheAwareContextLoaderDelegate;
-import cn.taketoday.test.context.TestContextBootstrapper;
 import cn.taketoday.test.context.support.DefaultBootstrapContext;
 
 /**
@@ -35,17 +31,17 @@ import cn.taketoday.test.context.support.DefaultBootstrapContext;
  */
 public abstract class BootstrapTestUtils {
 
-	private BootstrapTestUtils() {
-		/* no-op */
-	}
+  private BootstrapTestUtils() {
+    /* no-op */
+  }
 
-	public static BootstrapContext buildBootstrapContext(Class<?> testClass,
-			CacheAwareContextLoaderDelegate cacheAwareContextLoaderDelegate) {
-		return new DefaultBootstrapContext(testClass, cacheAwareContextLoaderDelegate);
-	}
+  public static BootstrapContext buildBootstrapContext(Class<?> testClass,
+          CacheAwareContextLoaderDelegate cacheAwareContextLoaderDelegate) {
+    return new DefaultBootstrapContext(testClass, cacheAwareContextLoaderDelegate);
+  }
 
-	public static TestContextBootstrapper resolveTestContextBootstrapper(BootstrapContext bootstrapContext) {
-		return BootstrapUtils.resolveTestContextBootstrapper(bootstrapContext);
-	}
+  public static TestContextBootstrapper resolveTestContextBootstrapper(BootstrapContext bootstrapContext) {
+    return BootstrapUtils.resolveTestContextBootstrapper(bootstrapContext);
+  }
 
 }

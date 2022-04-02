@@ -20,7 +20,6 @@
 
 package cn.taketoday.test.context.junit.jupiter.defaultmethods;
 
-import cn.taketoday.test.context.junit.SpringJUnitJupiterTestSuite;
 import cn.taketoday.test.context.junit.jupiter.ApplicationExtension;
 import cn.taketoday.test.context.junit.jupiter.comics.Cat;
 
@@ -28,9 +27,6 @@ import cn.taketoday.test.context.junit.jupiter.comics.Cat;
  * Parameterized test class for integration tests that demonstrate support for
  * interface default methods and Java generics in JUnit Jupiter test classes when used
  * with the Spring TestContext Framework and the {@link ApplicationExtension}.
- *
- * <p>To run these tests in an IDE that does not have built-in support for the JUnit
- * Platform, simply run {@link SpringJUnitJupiterTestSuite} as a JUnit 4 test.
  *
  * @author Sam Brannen
  * @since 4.0

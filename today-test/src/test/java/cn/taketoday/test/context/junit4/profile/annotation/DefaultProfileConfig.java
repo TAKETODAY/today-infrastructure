@@ -31,9 +31,9 @@ import cn.taketoday.context.annotation.Configuration;
 @Configuration
 public class DefaultProfileConfig {
 
-	@Bean
-	public Pet pet() {
-		return new Pet("Fido");
-	}
+  @Bean
+  public Pet pet() {
+    return new Pet("Fido");
+  }
 
 }

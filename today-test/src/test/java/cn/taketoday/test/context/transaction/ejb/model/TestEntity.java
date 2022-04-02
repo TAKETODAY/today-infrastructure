@@ -36,37 +36,36 @@ import jakarta.persistence.Table;
 @Table(name = TestEntity.TABLE_NAME)
 public class TestEntity {
 
-	public static final String TABLE_NAME = "TEST_ENTITY";
+  public static final String TABLE_NAME = "TEST_ENTITY";
 
-	@Id
-	@Column(name = "TE_NAME", nullable = false)
-	private String name;
+  @Id
+  @Column(name = "TE_NAME", nullable = false)
+  private String name;
 
-	@Column(name = "TE_COUNT", nullable = false)
-	private int count;
+  @Column(name = "TE_COUNT", nullable = false)
+  private int count;
 
+  public TestEntity() {
+  }
 
-	public TestEntity() {
-	}
+  public TestEntity(String name, int count) {
+    this.name = name;
+    this.count = count;
+  }
 
-	public TestEntity(String name, int count) {
-		this.name = name;
-		this.count = count;
-	}
+  public String getName() {
+    return this.name;
+  }
 
-	public String getName() {
-		return this.name;
-	}
+  public void setName(String name) {
+    this.name = name;
+  }
 
-	public void setName(String name) {
-		this.name = name;
-	}
+  public int getCount() {
+    return this.count;
+  }
 
-	public int getCount() {
-		return this.count;
-	}
-
-	public void setCount(int count) {
-		this.count = count;
-	}
+  public void setCount(int count) {
+    this.count = count;
+  }
 }

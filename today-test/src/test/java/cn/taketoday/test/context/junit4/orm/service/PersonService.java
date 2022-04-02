@@ -26,12 +26,12 @@ import cn.taketoday.test.context.junit4.orm.domain.Person;
  * Person Service API.
  *
  * @author Sam Brannen
- * @since 3.0
+ * @since 4.0
  */
 public interface PersonService {
 
-	Person findByName(String name);
+  Person findByName(String name);
 
-	Person save(Person person);
+  Person save(Person person);
 
 }

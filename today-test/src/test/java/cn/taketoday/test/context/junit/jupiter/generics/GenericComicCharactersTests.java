@@ -25,10 +25,10 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 
 import cn.taketoday.beans.factory.annotation.Autowired;
-import cn.taketoday.test.context.junit.SpringJUnitJupiterTestSuite;
 import cn.taketoday.test.context.junit.jupiter.ApplicationExtension;
 import cn.taketoday.test.context.junit.jupiter.JUnitConfig;
 import cn.taketoday.test.context.junit.jupiter.TestConfig;
+import cn.taketoday.test.context.junit.jupiter.comics.Character;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -36,9 +36,6 @@ import static org.assertj.core.api.Assertions.assertThat;
  * Abstract base class for integration tests that demonstrate support for
  * Java generics in JUnit Jupiter test classes when used with the Spring TestContext
  * Framework and the {@link ApplicationExtension}.
- *
- * <p>To run these tests in an IDE that does not have built-in support for the JUnit
- * Platform, simply run {@link SpringJUnitJupiterTestSuite} as a JUnit 4 test.
  *
  * @author Sam Brannen
  * @since 4.0

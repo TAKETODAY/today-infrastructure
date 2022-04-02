@@ -21,6 +21,7 @@
 package cn.taketoday.test.context.env.repeatable;
 
 import org.junit.jupiter.api.Test;
+
 import cn.taketoday.test.context.TestPropertySource;
 
 /**
@@ -37,10 +38,10 @@ import cn.taketoday.test.context.TestPropertySource;
 @TestPropertySource(properties = "first = repeated override")
 class RepeatedTestPropertySourceTests extends AbstractRepeatableTestPropertySourceTests {
 
-	@Test
-	void test() {
-		assertEnvironmentValue("first", "repeated override");
-		assertEnvironmentValue("second", "repeated");
-	}
+  @Test
+  void test() {
+    assertEnvironmentValue("first", "repeated override");
+    assertEnvironmentValue("second", "repeated");
+  }
 
 }

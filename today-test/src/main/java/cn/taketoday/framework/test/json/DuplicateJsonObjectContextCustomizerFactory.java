@@ -29,6 +29,8 @@ import java.util.Enumeration;
 import java.util.List;
 
 import cn.taketoday.context.ConfigurableApplicationContext;
+import cn.taketoday.logging.Logger;
+import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.test.context.ContextConfigurationAttributes;
 import cn.taketoday.test.context.ContextCustomizer;
 import cn.taketoday.test.context.ContextCustomizerFactory;

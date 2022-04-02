@@ -21,7 +21,6 @@
 package cn.taketoday.test.context.transaction.ejb.dao;
 
 import cn.taketoday.test.context.transaction.ejb.model.TestEntity;
-
 import jakarta.ejb.TransactionAttribute;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -33,35 +32,34 @@ import jakarta.persistence.PersistenceContext;
  *
  * @author Sam Brannen
  * @author Xavier Detant
- * @since 4.0
  * @see RequiredEjbTxTestEntityDao
  * @see RequiresNewEjbTxTestEntityDao
+ * @since 4.0
  */
 public abstract class AbstractEjbTxTestEntityDao implements TestEntityDao {
 
-	@PersistenceContext
-	protected EntityManager entityManager;
+  @PersistenceContext
+  protected EntityManager entityManager;
 
+  protected final TestEntity getTestEntity(String name) {
+    TestEntity te = entityManager.find(TestEntity.class, name);
+    if (te == null) {
+      te = new TestEntity(name, 0);
+      entityManager.persist(te);
+    }
+    return te;
+  }
 
-	protected final TestEntity getTestEntity(String name) {
-		TestEntity te = entityManager.find(TestEntity.class, name);
-		if (te == null) {
-			te = new TestEntity(name, 0);
-			entityManager.persist(te);
-		}
-		return te;
-	}
+  protected final int getCountInternal(String name) {
+    return getTestEntity(name).getCount();
+  }
 
-	protected final int getCountInternal(String name) {
-		return getTestEntity(name).getCount();
-	}
-
-	protected final int incrementCountInternal(String name) {
-		TestEntity te = getTestEntity(name);
-		int count = te.getCount();
-		count++;
-		te.setCount(count);
-		return count;
-	}
+  protected final int incrementCountInternal(String name) {
+    TestEntity te = getTestEntity(name);
+    int count = te.getCount();
+    count++;
+    te.setCount(count);
+    return count;
+  }
 
 }

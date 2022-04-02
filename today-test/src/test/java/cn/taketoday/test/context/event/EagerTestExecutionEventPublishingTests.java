@@ -24,6 +24,10 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.platform.testkit.engine.EngineTestKit;
+
+import java.util.ArrayList;
+import java.util.List;
+
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.core.annotation.Order;
 import cn.taketoday.test.context.TestContext;
@@ -39,9 +43,6 @@ import cn.taketoday.test.context.event.annotation.BeforeTestMethod;
 import cn.taketoday.test.context.event.annotation.PrepareTestInstance;
 import cn.taketoday.test.context.junit.jupiter.JUnitConfig;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.platform.engine.discovery.DiscoverySelectors.selectClass;
 
@@ -52,142 +53,140 @@ import static org.junit.platform.engine.discovery.DiscoverySelectors.selectClass
  * specific {@code ApplicationContext}.
  *
  * @author Sam Brannen
- * @since 4.0
  * @see https://github.com/spring-projects/spring-framework/issues/27757
+ * @since 4.0
  */
 class EagerTestExecutionEventPublishingTests {
 
-	private static final List<Class<? extends TestContextEvent>> events = new ArrayList<>();
+  private static final List<Class<? extends TestContextEvent>> events = new ArrayList<>();
 
+  @BeforeEach
+  @AfterEach
+  void resetEvents() {
+    events.clear();
+  }
 
-	@BeforeEach
-	@AfterEach
-	void resetEvents() {
-		events.clear();
-	}
+  @Test
+  void beforeTestClassEventIsNotPublishedByDefaultForFirstTestClass() {
+    EngineTestKit.engine("junit-jupiter")//
+            .selectors(selectClass(LazyTestCase1.class), selectClass(LazyTestCase2.class))//
+            .execute()//
+            .testEvents()//
+            .assertStatistics(stats -> stats.started(2).succeeded(2).failed(0));
 
-	@Test
-	void beforeTestClassEventIsNotPublishedByDefaultForFirstTestClass() {
-		EngineTestKit.engine("junit-jupiter")//
-				.selectors(selectClass(LazyTestCase1.class), selectClass(LazyTestCase2.class))//
-				.execute()//
-				.testEvents()//
-				.assertStatistics(stats -> stats.started(2).succeeded(2).failed(0));
+    assertThat(events).containsExactly(//
+            // 1st test class
+            // BeforeTestClassEvent.class -- missing for 1st test class
+            PrepareTestInstanceEvent.class, //
+            BeforeTestMethodEvent.class, //
+            BeforeTestExecutionEvent.class, //
+            AfterTestExecutionEvent.class, //
+            AfterTestMethodEvent.class, //
+            AfterTestClassEvent.class, //
+            // 2nd test class
+            BeforeTestClassEvent.class, //
+            PrepareTestInstanceEvent.class, //
+            BeforeTestMethodEvent.class, //
+            BeforeTestExecutionEvent.class, //
+            AfterTestExecutionEvent.class, //
+            AfterTestMethodEvent.class, //
+            AfterTestClassEvent.class//
+    );
+  }
 
-		assertThat(events).containsExactly(//
-			// 1st test class
-			// BeforeTestClassEvent.class -- missing for 1st test class
-			PrepareTestInstanceEvent.class, //
-			BeforeTestMethodEvent.class, //
-			BeforeTestExecutionEvent.class, //
-			AfterTestExecutionEvent.class, //
-			AfterTestMethodEvent.class, //
-			AfterTestClassEvent.class, //
-			// 2nd test class
-			BeforeTestClassEvent.class, //
-			PrepareTestInstanceEvent.class, //
-			BeforeTestMethodEvent.class, //
-			BeforeTestExecutionEvent.class, //
-			AfterTestExecutionEvent.class, //
-			AfterTestMethodEvent.class, //
-			AfterTestClassEvent.class//
-		);
-	}
+  @Test
+  void beforeTestClassEventIsPublishedForAllTestClassesIfCustomListenerEagerlyLoadsContext() {
+    EngineTestKit.engine("junit-jupiter")//
+            .selectors(selectClass(EagerTestCase1.class), selectClass(EagerTestCase2.class))//
+            .execute()//
+            .testEvents()//
+            .assertStatistics(stats -> stats.started(2).succeeded(2).failed(0));
 
-	@Test
-	void beforeTestClassEventIsPublishedForAllTestClassesIfCustomListenerEagerlyLoadsContext() {
-		EngineTestKit.engine("junit-jupiter")//
-				.selectors(selectClass(EagerTestCase1.class), selectClass(EagerTestCase2.class))//
-				.execute()//
-				.testEvents()//
-				.assertStatistics(stats -> stats.started(2).succeeded(2).failed(0));
+    assertThat(events).containsExactly(//
+            // 1st test class
+            BeforeTestClassEvent.class, //
+            PrepareTestInstanceEvent.class, //
+            BeforeTestMethodEvent.class, //
+            BeforeTestExecutionEvent.class, //
+            AfterTestExecutionEvent.class, //
+            AfterTestMethodEvent.class, //
+            AfterTestClassEvent.class, //
+            // 2nd test class
+            BeforeTestClassEvent.class, //
+            PrepareTestInstanceEvent.class, //
+            BeforeTestMethodEvent.class, //
+            BeforeTestExecutionEvent.class, //
+            AfterTestExecutionEvent.class, //
+            AfterTestMethodEvent.class, //
+            AfterTestClassEvent.class//
+    );
+  }
 
-		assertThat(events).containsExactly(//
-			// 1st test class
-			BeforeTestClassEvent.class, //
-			PrepareTestInstanceEvent.class, //
-			BeforeTestMethodEvent.class, //
-			BeforeTestExecutionEvent.class, //
-			AfterTestExecutionEvent.class, //
-			AfterTestMethodEvent.class, //
-			AfterTestClassEvent.class, //
-			// 2nd test class
-			BeforeTestClassEvent.class, //
-			PrepareTestInstanceEvent.class, //
-			BeforeTestMethodEvent.class, //
-			BeforeTestExecutionEvent.class, //
-			AfterTestExecutionEvent.class, //
-			AfterTestMethodEvent.class, //
-			AfterTestClassEvent.class//
-		);
-	}
+  @JUnitConfig(Config.class)
+  static class LazyTestCase1 {
 
+    @Test
+    void test() {
+    }
+  }
 
-	@JUnitConfig(Config.class)
-	static class LazyTestCase1 {
+  static class LazyTestCase2 extends LazyTestCase1 {
+  }
 
-		@Test
-		void test() {
-		}
-	}
+  @TestExecutionListeners(listeners = EagerLoadingTestExecutionListener.class, mergeMode = MergeMode.MERGE_WITH_DEFAULTS)
+  static class EagerTestCase1 extends LazyTestCase1 {
+  }
 
-	static class LazyTestCase2 extends LazyTestCase1 {
-	}
+  static class EagerTestCase2 extends EagerTestCase1 {
+  }
 
-	@TestExecutionListeners(listeners = EagerLoadingTestExecutionListener.class, mergeMode = MergeMode.MERGE_WITH_DEFAULTS)
-	static class EagerTestCase1 extends LazyTestCase1 {
-	}
+  @Configuration
+  static class Config {
 
-	static class EagerTestCase2 extends EagerTestCase1 {
-	}
+    @BeforeTestClass
+    public void beforeTestClass(BeforeTestClassEvent e) {
+      events.add(e.getClass());
+    }
 
-	@Configuration
-	static class Config {
+    @PrepareTestInstance
+    public void prepareTestInstance(PrepareTestInstanceEvent e) {
+      events.add(e.getClass());
+    }
 
-		@BeforeTestClass
-		public void beforeTestClass(BeforeTestClassEvent e) {
-			events.add(e.getClass());
-		}
+    @BeforeTestMethod
+    public void beforeTestMethod(BeforeTestMethodEvent e) {
+      events.add(e.getClass());
+    }
 
-		@PrepareTestInstance
-		public void prepareTestInstance(PrepareTestInstanceEvent e) {
-			events.add(e.getClass());
-		}
+    @BeforeTestExecution
+    public void beforeTestExecution(BeforeTestExecutionEvent e) {
+      events.add(e.getClass());
+    }
 
-		@BeforeTestMethod
-		public void beforeTestMethod(BeforeTestMethodEvent e) {
-			events.add(e.getClass());
-		}
+    @AfterTestExecution
+    public void afterTestExecution(AfterTestExecutionEvent e) {
+      events.add(e.getClass());
+    }
 
-		@BeforeTestExecution
-		public void beforeTestExecution(BeforeTestExecutionEvent e) {
-			events.add(e.getClass());
-		}
+    @AfterTestMethod
+    public void afterTestMethod(AfterTestMethodEvent e) {
+      events.add(e.getClass());
+    }
 
-		@AfterTestExecution
-		public void afterTestExecution(AfterTestExecutionEvent e) {
-			events.add(e.getClass());
-		}
+    @AfterTestClass
+    public void afterTestClass(AfterTestClassEvent e) {
+      events.add(e.getClass());
+    }
 
-		@AfterTestMethod
-		public void afterTestMethod(AfterTestMethodEvent e) {
-			events.add(e.getClass());
-		}
+  }
 
-		@AfterTestClass
-		public void afterTestClass(AfterTestClassEvent e) {
-			events.add(e.getClass());
-		}
+  @Order(0)
+  static class EagerLoadingTestExecutionListener implements TestExecutionListener {
 
-	}
-
-	@Order(0)
-	static class EagerLoadingTestExecutionListener implements TestExecutionListener {
-
-		@Override
-		public void beforeTestClass(TestContext testContext) {
-			testContext.getApplicationContext();
-		}
-	}
+    @Override
+    public void beforeTestClass(TestContext testContext) {
+      testContext.getApplicationContext();
+    }
+  }
 
 }

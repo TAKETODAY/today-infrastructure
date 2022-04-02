@@ -24,12 +24,15 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+
 import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.core.env.Environment;
 import cn.taketoday.test.context.ContextConfiguration;
 import cn.taketoday.test.context.TestPropertySource;
 import cn.taketoday.test.context.junit.jupiter.ApplicationExtension;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Integration tests for {@link TestPropertySource @TestPropertySource}
@@ -44,33 +47,31 @@ import cn.taketoday.test.context.junit.jupiter.ApplicationExtension;
 @TestPropertySource("SystemPropertyOverridePropertiesFileTestPropertySourceTests.properties")
 class SystemPropertyOverridePropertiesFileTestPropertySourceTests {
 
-	private static final String KEY = SystemPropertyOverridePropertiesFileTestPropertySourceTests.class.getSimpleName() + ".riddle";
+  private static final String KEY = SystemPropertyOverridePropertiesFileTestPropertySourceTests.class.getSimpleName() + ".riddle";
 
-	@Autowired
-	protected Environment env;
+  @Autowired
+  protected Environment env;
 
+  @BeforeAll
+  static void setSystemProperty() {
+    System.setProperty(KEY, "override me!");
+  }
 
-	@BeforeAll
-	static void setSystemProperty() {
-		System.setProperty(KEY, "override me!");
-	}
+  @AfterAll
+  static void removeSystemProperty() {
+    System.setProperty(KEY, "");
+  }
 
-	@AfterAll
-	static void removeSystemProperty() {
-		System.setProperty(KEY, "");
-	}
+  @Test
+  void verifyPropertiesAreAvailableInEnvironment() {
+    assertThat(env.getProperty(KEY)).isEqualTo("enigma");
+  }
 
-	@Test
-	void verifyPropertiesAreAvailableInEnvironment() {
-		assertThat(env.getProperty(KEY)).isEqualTo("enigma");
-	}
+  // -------------------------------------------------------------------
 
-
-	// -------------------------------------------------------------------
-
-	@Configuration
-	static class Config {
-		/* no user beans required for these tests */
-	}
+  @Configuration
+  static class Config {
+    /* no user beans required for these tests */
+  }
 
 }

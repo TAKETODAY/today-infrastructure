@@ -34,19 +34,19 @@ import org.junit.runners.Suite.SuiteClasses;
 @RunWith(Suite.class)
 // Note: the following 'multi-line' layout is for enhanced code readability.
 @SuiteClasses({//
-AnnotationConfigSpringJUnit4ClassRunnerAppCtxTests.class,//
-	DefaultConfigClassesBaseTests.class,//
-	DefaultConfigClassesInheritedTests.class,//
-	BeanOverridingDefaultConfigClassesInheritedTests.class,//
-	ExplicitConfigClassesBaseTests.class,//
-	ExplicitConfigClassesInheritedTests.class,//
-	BeanOverridingExplicitConfigClassesInheritedTests.class,//
-	DefaultLoaderDefaultConfigClassesBaseTests.class,//
-	DefaultLoaderDefaultConfigClassesInheritedTests.class,//
-	DefaultLoaderBeanOverridingDefaultConfigClassesInheritedTests.class,//
-	DefaultLoaderExplicitConfigClassesBaseTests.class,//
-	DefaultLoaderExplicitConfigClassesInheritedTests.class,//
-	DefaultLoaderBeanOverridingExplicitConfigClassesInheritedTests.class //
+        AnnotationConfigJUnit4ClassRunnerAppCtxTests.class,//
+        DefaultConfigClassesBaseTests.class,//
+        DefaultConfigClassesInheritedTests.class,//
+        BeanOverridingDefaultConfigClassesInheritedTests.class,//
+        ExplicitConfigClassesBaseTests.class,//
+        ExplicitConfigClassesInheritedTests.class,//
+        BeanOverridingExplicitConfigClassesInheritedTests.class,//
+        DefaultLoaderDefaultConfigClassesBaseTests.class,//
+        DefaultLoaderDefaultConfigClassesInheritedTests.class,//
+        DefaultLoaderBeanOverridingDefaultConfigClassesInheritedTests.class,//
+        DefaultLoaderExplicitConfigClassesBaseTests.class,//
+        DefaultLoaderExplicitConfigClassesInheritedTests.class,//
+        DefaultLoaderBeanOverridingExplicitConfigClassesInheritedTests.class //
 })
 public class AnnotationConfigTestSuite {
 }

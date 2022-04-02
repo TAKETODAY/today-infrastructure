@@ -44,6 +44,8 @@ import cn.taketoday.framework.ApplicationType;
 import cn.taketoday.framework.test.context.ApplicationTest.WebEnvironment;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.TodayStrategies;
+import cn.taketoday.logging.Logger;
+import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.test.context.ContextConfiguration;
 import cn.taketoday.test.context.ContextConfigurationAttributes;
 import cn.taketoday.test.context.ContextCustomizer;

@@ -26,11 +26,12 @@ import org.junit.Test;
 import org.junit.rules.Timeout;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
+
+import java.util.concurrent.TimeUnit;
+
 import cn.taketoday.test.annotation.Repeat;
 import cn.taketoday.test.context.junit4.TimedTransactionalSpringRunnerTests;
 import cn.taketoday.test.transaction.TransactionAssert;
-
-import java.util.concurrent.TimeUnit;
 
 /**
  * This class is an extension of {@link TimedTransactionalSpringRunnerTests}
@@ -43,35 +44,34 @@ import java.util.concurrent.TimeUnit;
 @RunWith(JUnit4.class)
 public class TimedTransactionalSpringRuleTests extends TimedTransactionalSpringRunnerTests {
 
-	@ClassRule
-	public static final ApplicationClassRule applicationClassRule = new ApplicationClassRule();
+  @ClassRule
+  public static final ApplicationClassRule applicationClassRule = new ApplicationClassRule();
 
-	@Rule
-	public final ApplicationMethodRule applicationMethodRule = new ApplicationMethodRule();
+  @Rule
+  public final ApplicationMethodRule applicationMethodRule = new ApplicationMethodRule();
 
-	@Rule
-	public Timeout timeout = Timeout.builder().withTimeout(10, TimeUnit.SECONDS).build();
+  @Rule
+  public Timeout timeout = Timeout.builder().withTimeout(10, TimeUnit.SECONDS).build();
 
+  /**
+   * Overridden since Spring's Rule-based JUnit support cannot properly
+   * integrate with timed execution that is controlled by a third-party runner.
+   */
+  @Test(timeout = 10000)
+  @Repeat(5)
+  @Override
+  public void transactionalWithJUnitTimeout() {
+    TransactionAssert.assertThatTransaction().isNotActive();
+  }
 
-	/**
-	 * Overridden since Spring's Rule-based JUnit support cannot properly
-	 * integrate with timed execution that is controlled by a third-party runner.
-	 */
-	@Test(timeout = 10000)
-	@Repeat(5)
-	@Override
-	public void transactionalWithJUnitTimeout() {
-		TransactionAssert.assertThatTransaction().isNotActive();
-	}
+  /**
+   * {@code timeout} explicitly not declared due to presence of Timeout rule.
+   */
+  @Test
+  public void transactionalWithJUnitRuleBasedTimeout() {
+    TransactionAssert.assertThatTransaction().isActive();
+  }
 
-	/**
-	 * {@code timeout} explicitly not declared due to presence of Timeout rule.
-	 */
-	@Test
-	public void transactionalWithJUnitRuleBasedTimeout() {
-		TransactionAssert.assertThatTransaction().isActive();
-	}
-
-	// All other tests are in superclass.
+  // All other tests are in superclass.
 
 }

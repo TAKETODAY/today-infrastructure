@@ -38,6 +38,6 @@ import cn.taketoday.test.context.transaction.ejb.dao.RequiredEjbTxTestEntityDao;
 @Commit
 class CommitForRequiredEjbTxDaoTests extends AbstractEjbTxDaoTests {
 
-	/* test methods in superclass */
+  /* test methods in superclass */
 
 }

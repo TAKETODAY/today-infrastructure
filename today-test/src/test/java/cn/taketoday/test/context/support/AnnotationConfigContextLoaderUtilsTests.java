@@ -21,17 +21,17 @@
 package cn.taketoday.test.context.support;
 
 import org.junit.jupiter.api.Test;
-import cn.taketoday.context.annotation.Configuration;
-import cn.taketoday.test.context.support.AnnotationConfigContextLoaderUtils;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import cn.taketoday.context.annotation.Configuration;
+
+import static cn.taketoday.test.context.support.AnnotationConfigContextLoaderUtils.detectDefaultConfigurationClasses;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static cn.taketoday.test.context.support.AnnotationConfigContextLoaderUtils.detectDefaultConfigurationClasses;
 
 /**
  * Unit tests for {@link AnnotationConfigContextLoaderUtils}.
@@ -41,56 +41,55 @@ import static cn.taketoday.test.context.support.AnnotationConfigContextLoaderUti
  */
 class AnnotationConfigContextLoaderUtilsTests {
 
-	@Test
-	void detectDefaultConfigurationClassesWithNullDeclaringClass() {
-		assertThatIllegalArgumentException().isThrownBy(() ->
-				detectDefaultConfigurationClasses(null));
-	}
+  @Test
+  void detectDefaultConfigurationClassesWithNullDeclaringClass() {
+    assertThatIllegalArgumentException().isThrownBy(() ->
+            detectDefaultConfigurationClasses(null));
+  }
 
-	@Test
-	void detectDefaultConfigurationClassesWithoutConfigurationClass() {
-		Class<?>[] configClasses = detectDefaultConfigurationClasses(NoConfigTestCase.class);
-		assertThat(configClasses).isNotNull();
-		assertThat(configClasses.length).isEqualTo(0);
-	}
+  @Test
+  void detectDefaultConfigurationClassesWithoutConfigurationClass() {
+    Class<?>[] configClasses = detectDefaultConfigurationClasses(NoConfigTestCase.class);
+    assertThat(configClasses).isNotNull();
+    assertThat(configClasses.length).isEqualTo(0);
+  }
 
-	@Test
-	void detectDefaultConfigurationClassesWithExplicitConfigurationAnnotation() {
-		Class<?>[] configClasses = detectDefaultConfigurationClasses(ExplicitConfigTestCase.class);
-		assertThat(configClasses).isNotNull();
-		assertThat(configClasses).isEqualTo(new Class<?>[] { ExplicitConfigTestCase.Config.class });
-	}
+  @Test
+  void detectDefaultConfigurationClassesWithExplicitConfigurationAnnotation() {
+    Class<?>[] configClasses = detectDefaultConfigurationClasses(ExplicitConfigTestCase.class);
+    assertThat(configClasses).isNotNull();
+    assertThat(configClasses).isEqualTo(new Class<?>[] { ExplicitConfigTestCase.Config.class });
+  }
 
-	@Test
-	void detectDefaultConfigurationClassesWithConfigurationMetaAnnotation() {
-		Class<?>[] configClasses = detectDefaultConfigurationClasses(MetaAnnotatedConfigTestCase.class);
-		assertThat(configClasses).isNotNull();
-		assertThat(configClasses).isEqualTo(new Class<?>[] { MetaAnnotatedConfigTestCase.Config.class });
-	}
+  @Test
+  void detectDefaultConfigurationClassesWithConfigurationMetaAnnotation() {
+    Class<?>[] configClasses = detectDefaultConfigurationClasses(MetaAnnotatedConfigTestCase.class);
+    assertThat(configClasses).isNotNull();
+    assertThat(configClasses).isEqualTo(new Class<?>[] { MetaAnnotatedConfigTestCase.Config.class });
+  }
 
+  private static class NoConfigTestCase {
 
-	private static class NoConfigTestCase {
+  }
 
-	}
+  private static class ExplicitConfigTestCase {
 
-	private static class ExplicitConfigTestCase {
+    @Configuration
+    static class Config {
+    }
+  }
 
-		@Configuration
-		static class Config {
-		}
-	}
+  @Configuration
+  @Retention(RetentionPolicy.RUNTIME)
+  @Target(ElementType.TYPE)
+  private static @interface MetaConfig {
+  }
 
-	@Configuration
-	@Retention(RetentionPolicy.RUNTIME)
-	@Target(ElementType.TYPE)
-	private static @interface MetaConfig {
-	}
+  private static class MetaAnnotatedConfigTestCase {
 
-	private static class MetaAnnotatedConfigTestCase {
-
-		@MetaConfig
-		static class Config {
-		}
-	}
+    @MetaConfig
+    static class Config {
+    }
+  }
 
 }

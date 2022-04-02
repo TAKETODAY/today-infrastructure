@@ -22,6 +22,7 @@ package cn.taketoday.test.context.junit4.hybrid;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
 import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
@@ -37,48 +38,46 @@ import static org.assertj.core.api.Assertions.assertThat;
  * Spring Boot.
  *
  * @author Sam Brannen
- * @since 4.0
  * @see HybridContextLoader
+ * @since 4.0
  */
 @RunWith(JUnit4ClassRunner.class)
 @ContextConfiguration(loader = HybridContextLoader.class)
 public class HybridContextLoaderTests {
 
-	@Configuration
-	static class Config {
+  @Configuration
+  static class Config {
 
-		@Bean
-		public String fooFromJava() {
-			return "Java";
-		}
+    @Bean
+    public String fooFromJava() {
+      return "Java";
+    }
 
-		@Bean
-		public String enigma() {
-			return "enigma from Java";
-		}
-	}
+    @Bean
+    public String enigma() {
+      return "enigma from Java";
+    }
+  }
 
+  @Autowired
+  private String fooFromXml;
 
-	@Autowired
-	private String fooFromXml;
+  @Autowired
+  private String fooFromJava;
 
-	@Autowired
-	private String fooFromJava;
+  @Autowired
+  private String enigma;
 
-	@Autowired
-	private String enigma;
+  @Test
+  public void verifyContentsOfHybridApplicationContext() {
+    assertThat(fooFromXml).isEqualTo("XML");
+    assertThat(fooFromJava).isEqualTo("Java");
 
-
-	@Test
-	public void verifyContentsOfHybridApplicationContext() {
-		assertThat(fooFromXml).isEqualTo("XML");
-		assertThat(fooFromJava).isEqualTo("Java");
-
-		// Note: the XML bean definition for "enigma" always wins since
-		// ConfigurationClassBeanDefinitionReader.isOverriddenByExistingDefinition()
-		// lets XML bean definitions override those "discovered" later via an
-		// @Bean method.
-		assertThat(enigma).isEqualTo("enigma from XML");
-	}
+    // Note: the XML bean definition for "enigma" always wins since
+    // ConfigurationClassBeanDefinitionReader.isOverriddenByExistingDefinition()
+    // lets XML bean definitions override those "discovered" later via an
+    // @Bean method.
+    assertThat(enigma).isEqualTo("enigma from XML");
+  }
 
 }

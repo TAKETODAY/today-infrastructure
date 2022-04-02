@@ -21,6 +21,7 @@
 package cn.taketoday.test.context.jdbc;
 
 import org.junit.jupiter.api.Test;
+
 import cn.taketoday.test.annotation.DirtiesContext;
 import cn.taketoday.test.context.ContextConfiguration;
 
@@ -36,11 +37,11 @@ import cn.taketoday.test.context.ContextConfiguration;
 @SqlConfig(commentPrefixes = { "`", "%%" }, blockCommentStartDelimiter = "#$", blockCommentEndDelimiter = "$#", separator = "@@")
 class GlobalCustomScriptSyntaxSqlScriptsTests extends AbstractTransactionalTests {
 
-	@Test
-	@Sql(scripts = "schema.sql", config = @SqlConfig(separator = ";"))
-	@Sql("data-add-users-with-custom-script-syntax.sql")
-	void methodLevelScripts() {
-		assertNumUsers(3);
-	}
+  @Test
+  @Sql(scripts = "schema.sql", config = @SqlConfig(separator = ";"))
+  @Sql("data-add-users-with-custom-script-syntax.sql")
+  void methodLevelScripts() {
+    assertNumUsers(3);
+  }
 
 }

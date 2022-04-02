@@ -22,12 +22,13 @@ package cn.taketoday.test.context.junit4.aci.annotation;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
 import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.context.ApplicationContextInitializer;
+import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Profile;
-import cn.taketoday.context.support.GenericApplicationContext;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.annotation.Order;
 import cn.taketoday.test.context.ContextConfiguration;
@@ -49,99 +50,99 @@ import static org.assertj.core.api.Assertions.assertThat;
 @RunWith(JUnit4ClassRunner.class)
 // Note: the ordering of the config classes is intentionally: global, two, one.
 // Note: the ordering of the initializers is intentionally: two, one.
-@ContextConfiguration(classes = { OrderedInitializersAnnotationConfigTests.GlobalConfig.class, OrderedInitializersAnnotationConfigTests.ConfigTwo.class, OrderedInitializersAnnotationConfigTests.ConfigOne.class }, initializers = {
-	OrderedInitializersAnnotationConfigTests.OrderedTwoInitializer.class, OrderedInitializersAnnotationConfigTests.OrderedOneInitializer.class })
+@ContextConfiguration(
+        classes = { OrderedInitializersAnnotationConfigTests.GlobalConfig.class, OrderedInitializersAnnotationConfigTests.ConfigTwo.class, OrderedInitializersAnnotationConfigTests.ConfigOne.class },
+        initializers = {
+                OrderedInitializersAnnotationConfigTests.OrderedTwoInitializer.class, OrderedInitializersAnnotationConfigTests.OrderedOneInitializer.class })
 public class OrderedInitializersAnnotationConfigTests {
 
-	private static final String PROFILE_GLOBAL = "global";
-	private static final String PROFILE_ONE = "one";
-	private static final String PROFILE_TWO = "two";
+  private static final String PROFILE_GLOBAL = "global";
+  private static final String PROFILE_ONE = "one";
+  private static final String PROFILE_TWO = "two";
 
-	@Autowired
-	private String foo, bar, baz;
+  @Autowired
+  private String foo, bar, baz;
 
+  @Test
+  public void activeBeans() {
+    assertThat(foo).isEqualTo(PROFILE_GLOBAL);
+    assertThat(bar).isEqualTo(PROFILE_GLOBAL);
+    assertThat(baz).isEqualTo(PROFILE_TWO);
+  }
 
-	@Test
-	public void activeBeans() {
-		assertThat(foo).isEqualTo(PROFILE_GLOBAL);
-		assertThat(bar).isEqualTo(PROFILE_GLOBAL);
-		assertThat(baz).isEqualTo(PROFILE_TWO);
-	}
+  // -------------------------------------------------------------------------
 
+  @Configuration
+  static class GlobalConfig {
 
-	// -------------------------------------------------------------------------
+    @Bean
+    public String foo() {
+      return PROFILE_GLOBAL;
+    }
 
-	@Configuration
-	static class GlobalConfig {
+    @Bean
+    public String bar() {
+      return PROFILE_GLOBAL;
+    }
 
-		@Bean
-		public String foo() {
-			return PROFILE_GLOBAL;
-		}
+    @Bean
+    public String baz() {
+      return PROFILE_GLOBAL;
+    }
+  }
 
-		@Bean
-		public String bar() {
-			return PROFILE_GLOBAL;
-		}
+  @Configuration
+  @Profile(PROFILE_ONE)
+  static class ConfigOne {
 
-		@Bean
-		public String baz() {
-			return PROFILE_GLOBAL;
-		}
-	}
+    @Bean
+    public String foo() {
+      return PROFILE_ONE;
+    }
 
-	@Configuration
-	@Profile(PROFILE_ONE)
-	static class ConfigOne {
+    @Bean
+    public String bar() {
+      return PROFILE_ONE;
+    }
 
-		@Bean
-		public String foo() {
-			return PROFILE_ONE;
-		}
+    @Bean
+    public String baz() {
+      return PROFILE_ONE;
+    }
+  }
 
-		@Bean
-		public String bar() {
-			return PROFILE_ONE;
-		}
+  @Configuration
+  @Profile(PROFILE_TWO)
+  static class ConfigTwo {
 
-		@Bean
-		public String baz() {
-			return PROFILE_ONE;
-		}
-	}
+    @Bean
+    public String baz() {
+      return PROFILE_TWO;
+    }
+  }
 
-	@Configuration
-	@Profile(PROFILE_TWO)
-	static class ConfigTwo {
+  // -------------------------------------------------------------------------
 
-		@Bean
-		public String baz() {
-			return PROFILE_TWO;
-		}
-	}
+  static class OrderedOneInitializer implements ApplicationContextInitializer, Ordered {
 
-	// -------------------------------------------------------------------------
+    @Override
+    public void initialize(ConfigurableApplicationContext applicationContext) {
+      applicationContext.getEnvironment().setActiveProfiles(PROFILE_ONE);
+    }
 
-	static class OrderedOneInitializer implements ApplicationContextInitializer<GenericApplicationContext>, Ordered {
+    @Override
+    public int getOrder() {
+      return 1;
+    }
+  }
 
-		@Override
-		public void initialize(GenericApplicationContext applicationContext) {
-			applicationContext.getEnvironment().setActiveProfiles(PROFILE_ONE);
-		}
+  @Order(2)
+  static class OrderedTwoInitializer implements ApplicationContextInitializer {
 
-		@Override
-		public int getOrder() {
-			return 1;
-		}
-	}
-
-	@Order(2)
-	static class OrderedTwoInitializer implements ApplicationContextInitializer<GenericApplicationContext> {
-
-		@Override
-		public void initialize(GenericApplicationContext applicationContext) {
-			applicationContext.getEnvironment().setActiveProfiles(PROFILE_TWO);
-		}
-	}
+    @Override
+    public void initialize(ConfigurableApplicationContext applicationContext) {
+      applicationContext.getEnvironment().setActiveProfiles(PROFILE_TWO);
+    }
+  }
 
 }

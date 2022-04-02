@@ -28,7 +28,7 @@ import org.junit.platform.testkit.engine.EngineTestKit;
 
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
-import cn.taketoday.core.SpringProperties;
+import cn.taketoday.lang.TodayStrategies;
 import cn.taketoday.test.context.TestConstructor;
 
 import static cn.taketoday.test.context.TestConstructor.TEST_CONSTRUCTOR_AUTOWIRE_MODE_PROPERTY_NAME;
@@ -68,7 +68,7 @@ class TestConstructorIntegrationTests {
   }
 
   @Test
-  void autowireModeSetToAllViaSpringProperties() {
+  void autowireModeSetToAllViaTodayStrategies() {
     setSpringProperty("all");
 
     EngineTestKit.engine("junit-jupiter")
@@ -89,7 +89,7 @@ class TestConstructorIntegrationTests {
   }
 
   private void setSpringProperty(String flag) {
-    SpringProperties.setProperty(TEST_CONSTRUCTOR_AUTOWIRE_MODE_PROPERTY_NAME, flag);
+    TodayStrategies.setProperty(TEST_CONSTRUCTOR_AUTOWIRE_MODE_PROPERTY_NAME, flag);
   }
 
   @JUnitConfig

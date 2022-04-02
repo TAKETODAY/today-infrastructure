@@ -20,12 +20,12 @@
 
 package cn.taketoday.test.context.configuration.interfaces;
 
+import java.util.List;
+
 import cn.taketoday.test.context.BootstrapWith;
 import cn.taketoday.test.context.ContextCustomizer;
 import cn.taketoday.test.context.ContextCustomizerFactory;
 import cn.taketoday.test.context.support.DefaultTestContextBootstrapper;
-
-import java.util.List;
 
 import static java.util.Collections.singletonList;
 
@@ -37,14 +37,14 @@ import static java.util.Collections.singletonList;
 @BootstrapWith(BootstrapWithTestInterface.CustomTestContextBootstrapper.class)
 interface BootstrapWithTestInterface {
 
-	static class CustomTestContextBootstrapper extends DefaultTestContextBootstrapper {
+  static class CustomTestContextBootstrapper extends DefaultTestContextBootstrapper {
 
-		@Override
-		protected List<ContextCustomizerFactory> getContextCustomizerFactories() {
-			return singletonList(
-				(ContextCustomizerFactory) (testClass, configAttributes) -> (ContextCustomizer) (context,
-						mergedConfig) -> context.getBeanFactory().registerSingleton("foo", "foo"));
-		}
-	}
+    @Override
+    protected List<ContextCustomizerFactory> getContextCustomizerFactories() {
+      return singletonList(
+              (ContextCustomizerFactory) (testClass, configAttributes) -> (ContextCustomizer) (context,
+                      mergedConfig) -> context.getBeanFactory().registerSingleton("foo", "foo"));
+    }
+  }
 
 }

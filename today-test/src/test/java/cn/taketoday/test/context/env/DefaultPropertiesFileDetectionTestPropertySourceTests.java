@@ -22,12 +22,15 @@ package cn.taketoday.test.context.env;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+
 import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.core.env.Environment;
 import cn.taketoday.test.context.ContextConfiguration;
 import cn.taketoday.test.context.TestPropertySource;
 import cn.taketoday.test.context.junit.jupiter.ApplicationExtension;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Integration tests that verify detection of a default properties file
@@ -41,26 +44,24 @@ import cn.taketoday.test.context.junit.jupiter.ApplicationExtension;
 @TestPropertySource
 class DefaultPropertiesFileDetectionTestPropertySourceTests {
 
-	@Autowired
-	protected Environment env;
+  @Autowired
+  protected Environment env;
 
+  @Test
+  void verifyPropertiesAreAvailableInEnvironment() {
+    // from DefaultPropertiesFileDetectionTestPropertySourceTests.properties
+    assertEnvironmentValue("riddle", "auto detected");
+  }
 
-	@Test
-	void verifyPropertiesAreAvailableInEnvironment() {
-		// from DefaultPropertiesFileDetectionTestPropertySourceTests.properties
-		assertEnvironmentValue("riddle", "auto detected");
-	}
+  protected void assertEnvironmentValue(String key, String expected) {
+    assertThat(env.getProperty(key)).as("Value of key [" + key + "].").isEqualTo(expected);
+  }
 
-	protected void assertEnvironmentValue(String key, String expected) {
-		assertThat(env.getProperty(key)).as("Value of key [" + key + "].").isEqualTo(expected);
-	}
+  // -------------------------------------------------------------------
 
-
-	// -------------------------------------------------------------------
-
-	@Configuration
-	static class Config {
-		/* no user beans required for these tests */
-	}
+  @Configuration
+  static class Config {
+    /* no user beans required for these tests */
+  }
 
 }

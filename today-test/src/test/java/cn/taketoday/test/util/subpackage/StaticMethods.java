@@ -28,40 +28,39 @@ package cn.taketoday.test.util.subpackage;
  */
 public class StaticMethods {
 
-	public static String publicMethodValue = "public";
+  public static String publicMethodValue = "public";
 
-	private static String privateMethodValue = "private";
+  private static String privateMethodValue = "private";
 
+  public static void publicMethod(String value) {
+    publicMethodValue = value;
+  }
 
-	public static void publicMethod(String value) {
-		publicMethodValue = value;
-	}
+  public static String publicMethod() {
+    return publicMethodValue;
+  }
 
-	public static String publicMethod() {
-		return publicMethodValue;
-	}
+  @SuppressWarnings("unused")
+  private static void privateMethod(String value) {
+    privateMethodValue = value;
+  }
 
-	@SuppressWarnings("unused")
-	private static void privateMethod(String value) {
-		privateMethodValue = value;
-	}
+  @SuppressWarnings("unused")
+  private static String privateMethod() {
+    return privateMethodValue;
+  }
 
-	@SuppressWarnings("unused")
-	private static String privateMethod() {
-		return privateMethodValue;
-	}
+  public static void reset() {
+    publicMethodValue = "public";
+    privateMethodValue = "private";
+  }
 
-	public static void reset() {
-		publicMethodValue = "public";
-		privateMethodValue = "private";
-	}
+  public static String getPublicMethodValue() {
+    return publicMethodValue;
+  }
 
-	public static String getPublicMethodValue() {
-		return publicMethodValue;
-	}
-
-	public static String getPrivateMethodValue() {
-		return privateMethodValue;
-	}
+  public static String getPrivateMethodValue() {
+    return privateMethodValue;
+  }
 
 }

@@ -66,7 +66,7 @@ final class FileUploadMultipartFile
   }
 
   @Override
-  public String getFileName() {
+  public String getOriginalFilename() {
     return fileUpload.getFilename();
   }
 

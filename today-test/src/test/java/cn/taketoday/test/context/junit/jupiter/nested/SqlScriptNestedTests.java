@@ -68,7 +68,7 @@ class SqlScriptNestedTests {
   }
 
   @Test
-  @Sql("/org/springframework/test/context/jdbc/data.sql")
+  @Sql("/cn/taketoday/test/context/jdbc/data.sql")
   void sqlScripts() {
     assertThat(countRowsInTable("user")).isEqualTo(1);
   }
@@ -87,7 +87,7 @@ class SqlScriptNestedTests {
     }
 
     @Test
-    @Sql("/org/springframework/test/context/jdbc/data.sql")
+    @Sql("/cn/taketoday/test/context/jdbc/data.sql")
     void nestedSqlScripts() {
       assertThat(countRowsInTable("user")).isEqualTo(1);
     }
@@ -96,8 +96,8 @@ class SqlScriptNestedTests {
   @Nested
   @NestedTestConfiguration(EnclosingConfiguration.OVERRIDE)
   @Sql({
-          "/org/springframework/test/context/jdbc/recreate-schema.sql",
-          "/org/springframework/test/context/jdbc/data-add-catbert.sql"
+          "/cn/taketoday/test/context/jdbc/recreate-schema.sql",
+          "/cn/taketoday/test/context/jdbc/data-add-catbert.sql"
   })
   class NestedSqlMergeModeTests extends AbstractSqlMergeModeTests {
 
@@ -112,17 +112,17 @@ class SqlScriptNestedTests {
       }
 
       @Test
-      @Sql("/org/springframework/test/context/jdbc/data-add-dogbert.sql")
+      @Sql("/cn/taketoday/test/context/jdbc/data-add-dogbert.sql")
       void merged() {
         assertUsers("Catbert", "Dogbert");
       }
 
       @Test
       @Sql({
-              "/org/springframework/test/context/jdbc/recreate-schema.sql",
-              "/org/springframework/test/context/jdbc/data.sql",
-              "/org/springframework/test/context/jdbc/data-add-dogbert.sql",
-              "/org/springframework/test/context/jdbc/data-add-catbert.sql"
+              "/cn/taketoday/test/context/jdbc/recreate-schema.sql",
+              "/cn/taketoday/test/context/jdbc/data.sql",
+              "/cn/taketoday/test/context/jdbc/data-add-dogbert.sql",
+              "/cn/taketoday/test/context/jdbc/data-add-catbert.sql"
       })
       @SqlMergeMode(MergeMode.OVERRIDE)
       void overridden() {
@@ -141,7 +141,7 @@ class SqlScriptNestedTests {
       }
 
       @Test
-      @Sql("/org/springframework/test/context/jdbc/data-add-dogbert.sql")
+      @Sql("/cn/taketoday/test/context/jdbc/data-add-dogbert.sql")
       @SqlMergeMode(MERGE)
       void merged() {
         assertUsers("Catbert", "Dogbert");
@@ -149,10 +149,10 @@ class SqlScriptNestedTests {
 
       @Test
       @Sql({
-              "/org/springframework/test/context/jdbc/recreate-schema.sql",
-              "/org/springframework/test/context/jdbc/data.sql",
-              "/org/springframework/test/context/jdbc/data-add-dogbert.sql",
-              "/org/springframework/test/context/jdbc/data-add-catbert.sql"
+              "/cn/taketoday/test/context/jdbc/recreate-schema.sql",
+              "/cn/taketoday/test/context/jdbc/data.sql",
+              "/cn/taketoday/test/context/jdbc/data-add-dogbert.sql",
+              "/cn/taketoday/test/context/jdbc/data-add-catbert.sql"
       })
       void overridden() {
         assertUsers("Dilbert", "Dogbert", "Catbert");

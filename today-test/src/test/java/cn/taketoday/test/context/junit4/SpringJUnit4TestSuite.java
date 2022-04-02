@@ -24,26 +24,26 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
 
-import cn.taketoday.test.context.junit4.annotation.AnnotationConfigSpringJUnit4ClassRunnerAppCtxTests;
+import cn.taketoday.test.context.junit4.annotation.AnnotationConfigJUnit4ClassRunnerAppCtxTests;
 import cn.taketoday.test.context.junit4.annotation.BeanOverridingDefaultConfigClassesInheritedTests;
+import cn.taketoday.test.context.junit4.annotation.BeanOverridingExplicitConfigClassesInheritedTests;
 import cn.taketoday.test.context.junit4.annotation.DefaultConfigClassesBaseTests;
+import cn.taketoday.test.context.junit4.annotation.DefaultConfigClassesInheritedTests;
 import cn.taketoday.test.context.junit4.annotation.DefaultLoaderBeanOverridingDefaultConfigClassesInheritedTests;
+import cn.taketoday.test.context.junit4.annotation.DefaultLoaderBeanOverridingExplicitConfigClassesInheritedTests;
 import cn.taketoday.test.context.junit4.annotation.DefaultLoaderDefaultConfigClassesBaseTests;
 import cn.taketoday.test.context.junit4.annotation.DefaultLoaderDefaultConfigClassesInheritedTests;
 import cn.taketoday.test.context.junit4.annotation.DefaultLoaderExplicitConfigClassesBaseTests;
 import cn.taketoday.test.context.junit4.annotation.DefaultLoaderExplicitConfigClassesInheritedTests;
 import cn.taketoday.test.context.junit4.annotation.ExplicitConfigClassesBaseTests;
 import cn.taketoday.test.context.junit4.annotation.ExplicitConfigClassesInheritedTests;
+import cn.taketoday.test.context.junit4.orm.HibernateSessionFlushingTests;
 import cn.taketoday.test.context.junit4.profile.annotation.DefaultProfileAnnotationConfigTests;
 import cn.taketoday.test.context.junit4.profile.annotation.DevProfileAnnotationConfigTests;
 import cn.taketoday.test.context.junit4.profile.annotation.DevProfileResolverAnnotationConfigTests;
 import cn.taketoday.test.context.junit4.profile.xml.DefaultProfileXmlConfigTests;
-import cn.taketoday.test.context.junit4.profile.xml.DevProfileXmlConfigTests;
-import cn.taketoday.test.context.junit4.annotation.BeanOverridingExplicitConfigClassesInheritedTests;
-import cn.taketoday.test.context.junit4.annotation.DefaultConfigClassesInheritedTests;
-import cn.taketoday.test.context.junit4.annotation.DefaultLoaderBeanOverridingExplicitConfigClassesInheritedTests;
-import cn.taketoday.test.context.junit4.orm.HibernateSessionFlushingTests;
 import cn.taketoday.test.context.junit4.profile.xml.DevProfileResolverXmlConfigTests;
+import cn.taketoday.test.context.junit4.profile.xml.DevProfileXmlConfigTests;
 
 /**
  * JUnit test suite for tests involving {@link Runner} and the
@@ -59,58 +59,58 @@ import cn.taketoday.test.context.junit4.profile.xml.DevProfileResolverXmlConfigT
  * to exclude tests based on a {@code "*TestSuite.class"} pattern match.
  *
  * @author Sam Brannen
- * @since 2.5
+ * @since 4.0
  */
 @RunWith(Suite.class)
 // Note: the following 'multi-line' layout is for enhanced code readability.
 @SuiteClasses({//
-StandardJUnit4FeaturesTests.class,//
-	StandardJUnit4FeaturesSpringRunnerTests.class,//
-	SpringJUnit47ClassRunnerRuleTests.class,//
-	AnnotationConfigSpringJUnit4ClassRunnerAppCtxTests.class,//
-	DefaultConfigClassesBaseTests.class,//
-	DefaultConfigClassesInheritedTests.class,//
-	BeanOverridingDefaultConfigClassesInheritedTests.class,//
-	ExplicitConfigClassesBaseTests.class,//
-	ExplicitConfigClassesInheritedTests.class,//
-	BeanOverridingExplicitConfigClassesInheritedTests.class,//
-	DefaultLoaderDefaultConfigClassesBaseTests.class,//
-	DefaultLoaderDefaultConfigClassesInheritedTests.class,//
-	DefaultLoaderBeanOverridingDefaultConfigClassesInheritedTests.class,//
-	DefaultLoaderExplicitConfigClassesBaseTests.class,//
-	DefaultLoaderExplicitConfigClassesInheritedTests.class,//
-	DefaultLoaderBeanOverridingExplicitConfigClassesInheritedTests.class,//
-	DefaultProfileAnnotationConfigTests.class,//
-	DevProfileAnnotationConfigTests.class,//
-	DevProfileResolverAnnotationConfigTests.class,//
-	DefaultProfileXmlConfigTests.class,//
-	DevProfileXmlConfigTests.class,//
-	DevProfileResolverXmlConfigTests.class,//
-	ExpectedExceptionSpringRunnerTests.class,//
-	TimedSpringRunnerTests.class,//
-	RepeatedSpringRunnerTests.class,//
-	EnabledAndIgnoredSpringRunnerTests.class,//
-	HardCodedProfileValueSourceSpringRunnerTests.class,//
-	SpringJUnit4ClassRunnerAppCtxTests.class,//
-	ClassPathResourceSpringJUnit4ClassRunnerAppCtxTests.class,//
-	AbsolutePathSpringJUnit4ClassRunnerAppCtxTests.class,//
-	RelativePathSpringJUnit4ClassRunnerAppCtxTests.class,//
-	MultipleResourcesSpringJUnit4ClassRunnerAppCtxTests.class,//
-	InheritedConfigSpringJUnit4ClassRunnerAppCtxTests.class,//
-	PropertiesBasedSpringJUnit4ClassRunnerAppCtxTests.class,//
-	CustomDefaultContextLoaderClassSpringRunnerTests.class,//
-	ParameterizedDependencyInjectionTests.class,//
-	ConcreteTransactionalJUnit4ContextTests.class,//
-	ClassLevelTransactionalSpringRunnerTests.class,//
-	MethodLevelTransactionalSpringRunnerTests.class,//
-	DefaultRollbackTrueRollbackAnnotationTransactionalTests.class,//
-	DefaultRollbackFalseRollbackAnnotationTransactionalTests.class,//
-	RollbackOverrideDefaultRollbackTrueTransactionalTests.class,//
-	RollbackOverrideDefaultRollbackFalseTransactionalTests.class,//
-	BeforeAndAfterTransactionAnnotationTests.class,//
-	TimedTransactionalSpringRunnerTests.class,//
-	HibernateSessionFlushingTests.class //
+        StandardJUnit4FeaturesTests.class,//
+        StandardJUnit4FeaturesSpringRunnerTests.class,//
+        SpringJUnit47ClassRunnerRuleTests.class,//
+        AnnotationConfigJUnit4ClassRunnerAppCtxTests.class,//
+        DefaultConfigClassesBaseTests.class,//
+        DefaultConfigClassesInheritedTests.class,//
+        BeanOverridingDefaultConfigClassesInheritedTests.class,//
+        ExplicitConfigClassesBaseTests.class,//
+        ExplicitConfigClassesInheritedTests.class,//
+        BeanOverridingExplicitConfigClassesInheritedTests.class,//
+        DefaultLoaderDefaultConfigClassesBaseTests.class,//
+        DefaultLoaderDefaultConfigClassesInheritedTests.class,//
+        DefaultLoaderBeanOverridingDefaultConfigClassesInheritedTests.class,//
+        DefaultLoaderExplicitConfigClassesBaseTests.class,//
+        DefaultLoaderExplicitConfigClassesInheritedTests.class,//
+        DefaultLoaderBeanOverridingExplicitConfigClassesInheritedTests.class,//
+        DefaultProfileAnnotationConfigTests.class,//
+        DevProfileAnnotationConfigTests.class,//
+        DevProfileResolverAnnotationConfigTests.class,//
+        DefaultProfileXmlConfigTests.class,//
+        DevProfileXmlConfigTests.class,//
+        DevProfileResolverXmlConfigTests.class,//
+        ExpectedExceptionSpringRunnerTests.class,//
+        TimedSpringRunnerTests.class,//
+        RepeatedSpringRunnerTests.class,//
+        EnabledAndIgnoredSpringRunnerTests.class,//
+        HardCodedProfileValueSourceSpringRunnerTests.class,//
+        JUnit4ClassRunnerAppCtxTests.class,//
+        ClassPathResourceJUnit4ClassRunnerAppCtxTests.class,//
+        AbsolutePathJUnit4ClassRunnerAppCtxTests.class,//
+        RelativePathJUnit4ClassRunnerAppCtxTests.class,//
+        MultipleResourcesJUnit4ClassRunnerAppCtxTests.class,//
+        InheritedConfigJUnit4ClassRunnerAppCtxTests.class,//
+        PropertiesBasedSpringJUnit4ClassRunnerAppCtxTests.class,//
+        CustomDefaultContextLoaderClassSpringRunnerTests.class,//
+        ParameterizedDependencyInjectionTests.class,//
+        ConcreteTransactionalJUnit4ContextTests.class,//
+        ClassLevelTransactionalSpringRunnerTests.class,//
+        MethodLevelTransactionalSpringRunnerTests.class,//
+        DefaultRollbackTrueRollbackAnnotationTransactionalTests.class,//
+        DefaultRollbackFalseRollbackAnnotationTransactionalTests.class,//
+        RollbackOverrideDefaultRollbackTrueTransactionalTests.class,//
+        RollbackOverrideDefaultRollbackFalseTransactionalTests.class,//
+        BeforeAndAfterTransactionAnnotationTests.class,//
+        TimedTransactionalSpringRunnerTests.class,//
+        HibernateSessionFlushingTests.class //
 })
 public class SpringJUnit4TestSuite {
-	/* this test case consists entirely of tests loaded as a suite. */
+  /* this test case consists entirely of tests loaded as a suite. */
 }

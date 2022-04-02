@@ -21,7 +21,10 @@
 package cn.taketoday.test.context.junit4.profile.importresource;
 
 import org.junit.Test;
+
 import cn.taketoday.test.context.ActiveProfiles;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Juergen Hoeller
@@ -30,11 +33,11 @@ import cn.taketoday.test.context.ActiveProfiles;
 @ActiveProfiles("dev")
 public class DevProfileAnnotationConfigTests extends DefaultProfileAnnotationConfigTests {
 
-	@Test
-	@Override
-	public void employee() {
-		assertThat(employee).as("employee bean should be loaded for the 'dev' profile").isNotNull();
-		assertThat(employee.getName()).isEqualTo("John Smith");
-	}
+  @Test
+  @Override
+  public void employee() {
+    assertThat(employee).as("employee bean should be loaded for the 'dev' profile").isNotNull();
+    assertThat(employee.getName()).isEqualTo("John Smith");
+  }
 
 }

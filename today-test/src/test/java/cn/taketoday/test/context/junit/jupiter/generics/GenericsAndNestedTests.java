@@ -22,7 +22,6 @@ package cn.taketoday.test.context.junit.jupiter.generics;
 
 import org.junit.jupiter.api.Nested;
 
-import cn.taketoday.test.context.junit.SpringJUnitJupiterTestSuite;
 import cn.taketoday.test.context.junit.jupiter.ApplicationExtension;
 import cn.taketoday.test.context.junit.jupiter.comics.Cat;
 import cn.taketoday.test.context.junit.jupiter.comics.Dog;

@@ -23,6 +23,7 @@ package cn.taketoday.test.context.junit4.rules;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
+
 import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
@@ -39,35 +40,33 @@ import static org.assertj.core.api.Assertions.assertThat;
  * or {@link ApplicationMethodRule} to be redeclared on subclasses.
  *
  * @author Sam Brannen
- * @since 4.0
  * @see Subclass1AppCtxRuleTests
  * @see Subclass2AppCtxRuleTests
+ * @since 4.0
  */
 @ContextConfiguration
 public class BaseAppCtxRuleTests {
 
-	@ClassRule
-	public static final ApplicationClassRule applicationClassRule = new ApplicationClassRule();
+  @ClassRule
+  public static final ApplicationClassRule applicationClassRule = new ApplicationClassRule();
 
-	@Rule
-	public final ApplicationMethodRule applicationMethodRule = new ApplicationMethodRule();
+  @Rule
+  public final ApplicationMethodRule applicationMethodRule = new ApplicationMethodRule();
 
-	@Autowired
-	private String foo;
+  @Autowired
+  private String foo;
 
+  @Test
+  public void foo() {
+    assertThat(foo).isEqualTo("foo");
+  }
 
-	@Test
-	public void foo() {
-		assertThat(foo).isEqualTo("foo");
-	}
+  @Configuration
+  static class Config {
 
-
-	@Configuration
-	static class Config {
-
-		@Bean
-		public String foo() {
-			return "foo";
-		}
-	}
+    @Bean
+    public String foo() {
+      return "foo";
+    }
+  }
 }

@@ -22,6 +22,12 @@ package cn.taketoday.test.web.client.samples.matchers;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.List;
+
 import cn.taketoday.http.MediaType;
 import cn.taketoday.http.converter.HttpMessageConverter;
 import cn.taketoday.http.converter.StringHttpMessageConverter;
@@ -30,15 +36,10 @@ import cn.taketoday.test.web.Person;
 import cn.taketoday.test.web.client.MockRestServiceServer;
 import cn.taketoday.web.client.RestTemplate;
 
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.List;
-
-import static org.hamcrest.Matchers.containsString;
 import static cn.taketoday.test.web.client.match.MockRestRequestMatchers.header;
 import static cn.taketoday.test.web.client.match.MockRestRequestMatchers.requestTo;
 import static cn.taketoday.test.web.client.response.MockRestResponseCreators.withSuccess;
+import static org.hamcrest.Matchers.containsString;
 
 /**
  * Examples of defining expectations on request headers.
@@ -47,48 +48,45 @@ import static cn.taketoday.test.web.client.response.MockRestResponseCreators.wit
  */
 public class HeaderRequestMatchersIntegrationTests {
 
-	private static final String RESPONSE_BODY = "{\"name\" : \"Ludwig van Beethoven\", \"someDouble\" : \"1.6035\"}";
+  private static final String RESPONSE_BODY = "{\"name\" : \"Ludwig van Beethoven\", \"someDouble\" : \"1.6035\"}";
 
+  private MockRestServiceServer mockServer;
 
-	private MockRestServiceServer mockServer;
+  private RestTemplate restTemplate;
 
-	private RestTemplate restTemplate;
+  @BeforeEach
+  public void setup() {
+    List<HttpMessageConverter<?>> converters = new ArrayList<>();
+    converters.add(new StringHttpMessageConverter());
+    converters.add(new MappingJackson2HttpMessageConverter());
 
+    this.restTemplate = new RestTemplate();
+    this.restTemplate.setMessageConverters(converters);
 
-	@BeforeEach
-	public void setup() {
-		List<HttpMessageConverter<?>> converters = new ArrayList<>();
-		converters.add(new StringHttpMessageConverter());
-		converters.add(new MappingJackson2HttpMessageConverter());
+    this.mockServer = MockRestServiceServer.createServer(this.restTemplate);
+  }
 
-		this.restTemplate = new RestTemplate();
-		this.restTemplate.setMessageConverters(converters);
+  @Test
+  public void testString() throws Exception {
+    this.mockServer.expect(requestTo("/person/1"))
+            .andExpect(header("Accept", "application/json, application/*+json"))
+            .andRespond(withSuccess(RESPONSE_BODY, MediaType.APPLICATION_JSON));
 
-		this.mockServer = MockRestServiceServer.createServer(this.restTemplate);
-	}
+    executeAndVerify();
+  }
 
+  @Test
+  public void testStringContains() throws Exception {
+    this.mockServer.expect(requestTo("/person/1"))
+            .andExpect(header("Accept", containsString("json")))
+            .andRespond(withSuccess(RESPONSE_BODY, MediaType.APPLICATION_JSON));
 
-	@Test
-	public void testString() throws Exception {
-		this.mockServer.expect(requestTo("/person/1"))
-			.andExpect(header("Accept", "application/json, application/*+json"))
-			.andRespond(withSuccess(RESPONSE_BODY, MediaType.APPLICATION_JSON));
+    executeAndVerify();
+  }
 
-		executeAndVerify();
-	}
-
-	@Test
-	public void testStringContains() throws Exception {
-		this.mockServer.expect(requestTo("/person/1"))
-			.andExpect(header("Accept", containsString("json")))
-			.andRespond(withSuccess(RESPONSE_BODY, MediaType.APPLICATION_JSON));
-
-		executeAndVerify();
-	}
-
-	private void executeAndVerify() throws URISyntaxException {
-		this.restTemplate.getForObject(new URI("/person/1"), Person.class);
-		this.mockServer.verify();
-	}
+  private void executeAndVerify() throws URISyntaxException {
+    this.restTemplate.getForObject(new URI("/person/1"), Person.class);
+    this.mockServer.verify();
+  }
 
 }

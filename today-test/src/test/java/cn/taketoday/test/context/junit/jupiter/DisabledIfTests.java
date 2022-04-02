@@ -26,7 +26,6 @@ import org.junit.jupiter.api.Test;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.test.context.TestPropertySource;
-import cn.taketoday.test.context.junit.SpringJUnitJupiterTestSuite;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
@@ -34,9 +33,6 @@ import static org.assertj.core.api.Assertions.fail;
 /**
  * Integration tests which verify support for {@link DisabledIf @DisabledIf}
  * in conjunction with the {@link ApplicationExtension} in a JUnit Jupiter environment.
- *
- * <p>To run these tests in an IDE that does not have built-in support for the JUnit
- * Platform, simply run {@link SpringJUnitJupiterTestSuite} as a JUnit 4 test.
  *
  * @author Tadaya Tsuyukubo
  * @author Sam Brannen

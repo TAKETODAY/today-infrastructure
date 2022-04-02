@@ -22,7 +22,7 @@ package cn.taketoday.test.context.junit.jupiter.web;
 
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
-import cn.taketoday.web.servlet.config.annotation.EnableWebMvc;
+import cn.taketoday.web.config.EnableWebMvc;
 
 /**
  * @author Sam Brannen

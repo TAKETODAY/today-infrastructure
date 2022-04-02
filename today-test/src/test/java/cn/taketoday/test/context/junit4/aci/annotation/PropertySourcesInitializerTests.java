@@ -22,6 +22,7 @@ package cn.taketoday.test.context.junit4.aci.annotation;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
 import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.beans.factory.annotation.Value;
 import cn.taketoday.context.ApplicationContextInitializer;
@@ -46,42 +47,37 @@ import static org.assertj.core.api.Assertions.assertThat;
 @ContextConfiguration(initializers = PropertySourcesInitializerTests.PropertySourceInitializer.class)
 public class PropertySourcesInitializerTests {
 
-	@Configuration
-	static class Config {
+  @Configuration
+  static class Config {
 
-		@Value("${enigma}")
-		// The following can also be used to directly access the
-		// environment instead of relying on placeholder replacement.
-		// @Value("#{ environment['enigma'] }")
-		private String enigma;
+    @Value("${enigma}")
+    // The following can also be used to directly access the
+    // environment instead of relying on placeholder replacement.
+    // @Value("#{ environment['enigma'] }")
+    private String enigma;
 
+    @Bean
+    public String enigma() {
+      return enigma;
+    }
 
-		@Bean
-		public String enigma() {
-			return enigma;
-		}
+  }
 
-	}
+  @Autowired
+  private String enigma;
 
+  @Test
+  public void customPropertySourceConfiguredViaContextInitializer() {
+    assertThat(enigma).isEqualTo("foo");
+  }
 
-	@Autowired
-	private String enigma;
+  public static class PropertySourceInitializer implements ApplicationContextInitializer {
 
-
-	@Test
-	public void customPropertySourceConfiguredViaContextInitializer() {
-		assertThat(enigma).isEqualTo("foo");
-	}
-
-
-	public static class PropertySourceInitializer implements
-			ApplicationContextInitializer<ConfigurableApplicationContext> {
-
-		@Override
-		public void initialize(ConfigurableApplicationContext applicationContext) {
-			applicationContext.getEnvironment().getPropertySources().addFirst(
-				new MockPropertySource().withProperty("enigma", "foo"));
-		}
-	}
+    @Override
+    public void initialize(ConfigurableApplicationContext applicationContext) {
+      applicationContext.getEnvironment().getPropertySources().addFirst(
+              new MockPropertySource().withProperty("enigma", "foo"));
+    }
+  }
 
 }

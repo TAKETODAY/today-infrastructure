@@ -20,17 +20,18 @@
 
 package cn.taketoday.test.context.support;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+
+import java.util.stream.Stream;
+
 import cn.taketoday.core.annotation.AnnotationUtils;
+import cn.taketoday.logging.Logger;
+import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.test.context.ContextConfiguration;
 import cn.taketoday.test.context.ContextLoader;
 import cn.taketoday.util.ObjectUtils;
-
-import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Named.named;
@@ -47,90 +48,89 @@ import static org.junit.jupiter.params.provider.Arguments.arguments;
  * <em>ContextConfiguration annotation should accept not only classpath resources</em>.
  *
  * @author Sam Brannen
- * @since 2.5
+ * @since 4.0
  */
 class GenericXmlContextLoaderResourceLocationsTests {
 
-	private static final Logger logger = LoggerFactory.getLogger(GenericXmlContextLoaderResourceLocationsTests.class);
+  private static final Logger logger = LoggerFactory.getLogger(GenericXmlContextLoaderResourceLocationsTests.class);
 
+  @ParameterizedTest(name = "[{index}] {0}")
+  @MethodSource("contextConfigurationLocationsData")
+  void assertContextConfigurationLocations(Class<?> testClass, String[] expectedLocations) throws Exception {
+    ContextConfiguration contextConfig = testClass.getAnnotation(ContextConfiguration.class);
+    ContextLoader contextLoader = new GenericXmlContextLoader();
+    String[] configuredLocations = (String[]) AnnotationUtils.getValue(contextConfig);
+    String[] processedLocations = contextLoader.processLocations(testClass, configuredLocations);
 
-	@ParameterizedTest(name = "[{index}] {0}")
-	@MethodSource("contextConfigurationLocationsData")
-	void assertContextConfigurationLocations(Class<?> testClass, String[] expectedLocations) throws Exception {
-		ContextConfiguration contextConfig = testClass.getAnnotation(ContextConfiguration.class);
-		ContextLoader contextLoader = new GenericXmlContextLoader();
-		String[] configuredLocations = (String[]) AnnotationUtils.getValue(contextConfig);
-		String[] processedLocations = contextLoader.processLocations(testClass, configuredLocations);
+    if (logger.isDebugEnabled()) {
+      logger.debug("----------------------------------------------------------------------");
+      logger.debug("Configured locations: " + ObjectUtils.nullSafeToString(configuredLocations));
+      logger.debug("Expected   locations: " + ObjectUtils.nullSafeToString(expectedLocations));
+      logger.debug("Processed  locations: " + ObjectUtils.nullSafeToString(processedLocations));
+    }
 
-		if (logger.isDebugEnabled()) {
-			logger.debug("----------------------------------------------------------------------");
-			logger.debug("Configured locations: " + ObjectUtils.nullSafeToString(configuredLocations));
-			logger.debug("Expected   locations: " + ObjectUtils.nullSafeToString(expectedLocations));
-			logger.debug("Processed  locations: " + ObjectUtils.nullSafeToString(processedLocations));
-		}
+    assertThat(processedLocations).as("Verifying locations for test [" + testClass + "].").isEqualTo(expectedLocations);
+  }
 
-		assertThat(processedLocations).as("Verifying locations for test [" + testClass + "].").isEqualTo(expectedLocations);
-	}
+  static Stream<Arguments> contextConfigurationLocationsData() {
+    return Stream.of(
+            args(ClasspathNonExistentDefaultLocationsTestCase.class, array()),
 
-	static Stream<Arguments> contextConfigurationLocationsData() {
-		return Stream.of(
-			args(ClasspathNonExistentDefaultLocationsTestCase.class, array()),
+            args(ClasspathExistentDefaultLocationsTestCase.class, array(
+                    "classpath:cn/taketoday/test/context/support/GenericXmlContextLoaderResourceLocationsTests$ClasspathExistentDefaultLocationsTestCase-context.xml")),
 
-			args(ClasspathExistentDefaultLocationsTestCase.class, array(
-				"classpath:org/springframework/test/context/support/GenericXmlContextLoaderResourceLocationsTests$ClasspathExistentDefaultLocationsTestCase-context.xml")),
+            args(ImplicitClasspathLocationsTestCase.class,
+                    array("classpath:/cn/taketoday/test/context/support/context1.xml",
+                            "classpath:/cn/taketoday/test/context/support/context2.xml")),
 
-			args(ImplicitClasspathLocationsTestCase.class,
-				array("classpath:/org/springframework/test/context/support/context1.xml",
-					"classpath:/org/springframework/test/context/support/context2.xml")),
+            args(ExplicitClasspathLocationsTestCase.class, array("classpath:context.xml")),
 
-			args(ExplicitClasspathLocationsTestCase.class, array("classpath:context.xml")),
+            args(ExplicitFileLocationsTestCase.class, array("file:/testing/directory/context.xml")),
 
-			args(ExplicitFileLocationsTestCase.class, array("file:/testing/directory/context.xml")),
+            args(ExplicitUrlLocationsTestCase.class, array("https://example.com/context.xml")),
 
-			args(ExplicitUrlLocationsTestCase.class, array("https://example.com/context.xml")),
+            args(ExplicitMixedPathTypesLocationsTestCase.class,
+                    array("classpath:/cn/taketoday/test/context/support/context1.xml", "classpath:context2.xml",
+                            "classpath:/context3.xml", "file:/testing/directory/context.xml",
+                            "https://example.com/context.xml"))
+    );
+  }
 
-			args(ExplicitMixedPathTypesLocationsTestCase.class,
-				array("classpath:/org/springframework/test/context/support/context1.xml", "classpath:context2.xml",
-					"classpath:/context3.xml", "file:/testing/directory/context.xml",
-					"https://example.com/context.xml"))
-		);
-	}
+  private static Arguments args(Class<?> testClass, String[] expectedLocations) {
+    return arguments(named(testClass.getSimpleName(), testClass), expectedLocations);
+  }
 
-	private static Arguments args(Class<?> testClass, String[] expectedLocations) {
-		return arguments(named(testClass.getSimpleName(), testClass), expectedLocations);
-	}
+  private static String[] array(String... elements) {
+    return elements;
+  }
 
-	private static String[] array(String... elements) {
-		return elements;
-	}
+  @ContextConfiguration
+  class ClasspathNonExistentDefaultLocationsTestCase {
+  }
 
-	@ContextConfiguration
-	class ClasspathNonExistentDefaultLocationsTestCase {
-	}
+  @ContextConfiguration
+  class ClasspathExistentDefaultLocationsTestCase {
+  }
 
-	@ContextConfiguration
-	class ClasspathExistentDefaultLocationsTestCase {
-	}
+  @ContextConfiguration({ "context1.xml", "context2.xml" })
+  class ImplicitClasspathLocationsTestCase {
+  }
 
-	@ContextConfiguration({ "context1.xml", "context2.xml" })
-	class ImplicitClasspathLocationsTestCase {
-	}
+  @ContextConfiguration("classpath:context.xml")
+  class ExplicitClasspathLocationsTestCase {
+  }
 
-	@ContextConfiguration("classpath:context.xml")
-	class ExplicitClasspathLocationsTestCase {
-	}
+  @ContextConfiguration("file:/testing/directory/context.xml")
+  class ExplicitFileLocationsTestCase {
+  }
 
-	@ContextConfiguration("file:/testing/directory/context.xml")
-	class ExplicitFileLocationsTestCase {
-	}
+  @ContextConfiguration("https://example.com/context.xml")
+  class ExplicitUrlLocationsTestCase {
+  }
 
-	@ContextConfiguration("https://example.com/context.xml")
-	class ExplicitUrlLocationsTestCase {
-	}
-
-	@ContextConfiguration({ "context1.xml", "classpath:context2.xml", "/context3.xml",
-		"file:/testing/directory/context.xml", "https://example.com/context.xml" })
-	class ExplicitMixedPathTypesLocationsTestCase {
-	}
+  @ContextConfiguration({ "context1.xml", "classpath:context2.xml", "/context3.xml",
+          "file:/testing/directory/context.xml", "https://example.com/context.xml" })
+  class ExplicitMixedPathTypesLocationsTestCase {
+  }
 
 }

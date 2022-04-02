@@ -23,14 +23,15 @@ package cn.taketoday.test.context.junit4.aci;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
+
 import cn.taketoday.context.ApplicationContextInitializer;
-import cn.taketoday.test.context.junit4.aci.annotation.MergedInitializersAnnotationConfigTests;
-import cn.taketoday.test.context.junit4.aci.annotation.SingleInitializerAnnotationConfigTests;
-import cn.taketoday.test.context.junit4.aci.xml.MultipleInitializersXmlConfigTests;
 import cn.taketoday.test.context.junit4.aci.annotation.InitializerWithoutConfigFilesOrClassesTests;
+import cn.taketoday.test.context.junit4.aci.annotation.MergedInitializersAnnotationConfigTests;
 import cn.taketoday.test.context.junit4.aci.annotation.MultipleInitializersAnnotationConfigTests;
 import cn.taketoday.test.context.junit4.aci.annotation.OrderedInitializersAnnotationConfigTests;
 import cn.taketoday.test.context.junit4.aci.annotation.OverriddenInitializersAnnotationConfigTests;
+import cn.taketoday.test.context.junit4.aci.annotation.SingleInitializerAnnotationConfigTests;
+import cn.taketoday.test.context.junit4.aci.xml.MultipleInitializersXmlConfigTests;
 
 /**
  * Convenience test suite for integration tests that verify support for
@@ -43,13 +44,13 @@ import cn.taketoday.test.context.junit4.aci.annotation.OverriddenInitializersAnn
 @RunWith(Suite.class)
 // Note: the following 'multi-line' layout is for enhanced code readability.
 @SuiteClasses({//
-	MultipleInitializersXmlConfigTests.class,//
-	SingleInitializerAnnotationConfigTests.class,//
-	MultipleInitializersAnnotationConfigTests.class,//
-	MergedInitializersAnnotationConfigTests.class,//
-	OverriddenInitializersAnnotationConfigTests.class,//
-	OrderedInitializersAnnotationConfigTests.class,//
-	InitializerWithoutConfigFilesOrClassesTests.class //
+        MultipleInitializersXmlConfigTests.class,//
+        SingleInitializerAnnotationConfigTests.class,//
+        MultipleInitializersAnnotationConfigTests.class,//
+        MergedInitializersAnnotationConfigTests.class,//
+        OverriddenInitializersAnnotationConfigTests.class,//
+        OrderedInitializersAnnotationConfigTests.class,//
+        InitializerWithoutConfigFilesOrClassesTests.class //
 })
 public class AciTestSuite {
 }

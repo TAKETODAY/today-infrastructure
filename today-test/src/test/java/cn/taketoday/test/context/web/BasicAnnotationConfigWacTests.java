@@ -21,6 +21,7 @@
 package cn.taketoday.test.context.web;
 
 import org.junit.Test;
+
 import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
@@ -35,32 +36,32 @@ import static org.assertj.core.api.Assertions.assertThat;
 @ContextConfiguration
 public class BasicAnnotationConfigWacTests extends AbstractBasicWacTests {
 
-	@Configuration
-	static class Config {
+  @Configuration
+  static class Config {
 
-		@Bean
-		public String foo() {
-			return "enigma";
-		}
+    @Bean
+    public String foo() {
+      return "enigma";
+    }
 
-		@Bean
-		public ServletContextAwareBean servletContextAwareBean() {
-			return new ServletContextAwareBean();
-		}
-	}
+    @Bean
+    public ServletContextAwareBean servletContextAwareBean() {
+      return new ServletContextAwareBean();
+    }
+  }
 
-	@Autowired
-	protected ServletContextAwareBean servletContextAwareBean;
+  @Autowired
+  protected ServletContextAwareBean servletContextAwareBean;
 
-	@Test
-	public void fooEnigmaAutowired() {
-		assertThat(foo).isEqualTo("enigma");
-	}
+  @Test
+  public void fooEnigmaAutowired() {
+    assertThat(foo).isEqualTo("enigma");
+  }
 
-	@Test
-	public void servletContextAwareBeanProcessed() {
-		assertThat(servletContextAwareBean).isNotNull();
-		assertThat(servletContextAwareBean.servletContext).isNotNull();
-	}
+  @Test
+  public void servletContextAwareBeanProcessed() {
+    assertThat(servletContextAwareBean).isNotNull();
+    assertThat(servletContextAwareBean.servletContext).isNotNull();
+  }
 
 }

@@ -21,7 +21,10 @@
 package cn.taketoday.test.context.env;
 
 import org.junit.jupiter.api.Test;
+
 import cn.taketoday.test.context.TestPropertySource;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Integration tests that verify support for contributing additional properties
@@ -32,11 +35,11 @@ import cn.taketoday.test.context.TestPropertySource;
  */
 @TestPropertySource("extended.properties")
 class MergedPropertiesFilesTestPropertySourceTests extends
-		ExplicitPropertiesFileInClasspathTestPropertySourceTests {
+        ExplicitPropertiesFileInClasspathTestPropertySourceTests {
 
-	@Test
-	void verifyExtendedPropertiesAreAvailableInEnvironment() {
-		assertThat(env.getProperty("extended", Integer.class).intValue()).isEqualTo(42);
-	}
+  @Test
+  void verifyExtendedPropertiesAreAvailableInEnvironment() {
+    assertThat(env.getProperty("extended", Integer.class).intValue()).isEqualTo(42);
+  }
 
 }

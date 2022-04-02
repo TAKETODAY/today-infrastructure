@@ -22,6 +22,7 @@ package cn.taketoday.test.context.env;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+
 import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.core.env.ConfigurableEnvironment;
@@ -30,8 +31,8 @@ import cn.taketoday.test.context.ContextConfiguration;
 import cn.taketoday.test.context.TestPropertySource;
 import cn.taketoday.test.context.junit.jupiter.ApplicationExtension;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static cn.taketoday.test.context.support.TestPropertySourceUtils.INLINED_PROPERTIES_PROPERTY_SOURCE_NAME;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Integration tests for {@link TestPropertySource @TestPropertySource} support with
@@ -43,48 +44,46 @@ import static cn.taketoday.test.context.support.TestPropertySourceUtils.INLINED_
 @ExtendWith(ApplicationExtension.class)
 @ContextConfiguration
 @TestPropertySource(properties = { "", "foo = bar", "baz quux", "enigma: 42", "x.y.z = a=b=c",
-	"server.url = https://example.com", "key.value.1: key=value", "key.value.2 key=value", "key.value.3 key:value" })
+        "server.url = https://example.com", "key.value.1: key=value", "key.value.2 key=value", "key.value.3 key:value" })
 class InlinedPropertiesTestPropertySourceTests {
 
-	@Autowired
-	private ConfigurableEnvironment env;
+  @Autowired
+  private ConfigurableEnvironment env;
 
+  private String property(String key) {
+    return env.getProperty(key);
+  }
 
-	private String property(String key) {
-		return env.getProperty(key);
-	}
+  @Test
+  void propertiesAreAvailableInEnvironment() {
+    // Simple key/value pairs
+    assertThat(property("foo")).isEqualTo("bar");
+    assertThat(property("baz")).isEqualTo("quux");
+    assertThat(property("enigma")).isEqualTo("42");
 
-	@Test
-	void propertiesAreAvailableInEnvironment() {
-		// Simple key/value pairs
-		assertThat(property("foo")).isEqualTo("bar");
-		assertThat(property("baz")).isEqualTo("quux");
-		assertThat(property("enigma")).isEqualTo("42");
+    // Values containing key/value delimiters (":", "=", " ")
+    assertThat(property("x.y.z")).isEqualTo("a=b=c");
+    assertThat(property("server.url")).isEqualTo("https://example.com");
+    assertThat(property("key.value.1")).isEqualTo("key=value");
+    assertThat(property("key.value.2")).isEqualTo("key=value");
+    assertThat(property("key.value.3")).isEqualTo("key:value");
+  }
 
-		// Values containing key/value delimiters (":", "=", " ")
-		assertThat(property("x.y.z")).isEqualTo("a=b=c");
-		assertThat(property("server.url")).isEqualTo("https://example.com");
-		assertThat(property("key.value.1")).isEqualTo("key=value");
-		assertThat(property("key.value.2")).isEqualTo("key=value");
-		assertThat(property("key.value.3")).isEqualTo("key:value");
-	}
+  @Test
+  @SuppressWarnings("rawtypes")
+  void propertyNameOrderingIsPreservedInEnvironment() {
+    final String[] expectedPropertyNames = new String[] { "foo", "baz", "enigma", "x.y.z", "server.url",
+            "key.value.1", "key.value.2", "key.value.3" };
+    EnumerablePropertySource eps = (EnumerablePropertySource) env.getPropertySources().get(
+            INLINED_PROPERTIES_PROPERTY_SOURCE_NAME);
+    assertThat(eps.getPropertyNames()).isEqualTo(expectedPropertyNames);
+  }
 
-	@Test
-	@SuppressWarnings("rawtypes")
-	void propertyNameOrderingIsPreservedInEnvironment() {
-		final String[] expectedPropertyNames = new String[] { "foo", "baz", "enigma", "x.y.z", "server.url",
-			"key.value.1", "key.value.2", "key.value.3" };
-		EnumerablePropertySource eps = (EnumerablePropertySource) env.getPropertySources().get(
-			INLINED_PROPERTIES_PROPERTY_SOURCE_NAME);
-		assertThat(eps.getPropertyNames()).isEqualTo(expectedPropertyNames);
-	}
+  // -------------------------------------------------------------------
 
-
-	// -------------------------------------------------------------------
-
-	@Configuration
-	static class Config {
-		/* no user beans required for these tests */
-	}
+  @Configuration
+  static class Config {
+    /* no user beans required for these tests */
+  }
 
 }

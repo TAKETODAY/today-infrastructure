@@ -34,9 +34,9 @@ import org.junit.runners.Suite.SuiteClasses;
 @RunWith(Suite.class)
 // Note: the following 'multi-line' layout is for enhanced code readability.
 @SuiteClasses({//
-DefaultProfileXmlConfigTests.class,//
-	DevProfileXmlConfigTests.class,//
-	DevProfileResolverXmlConfigTests.class //
+        DefaultProfileXmlConfigTests.class,//
+        DevProfileXmlConfigTests.class,//
+        DevProfileResolverXmlConfigTests.class //
 })
 public class ProfileXmlConfigTestSuite {
 }

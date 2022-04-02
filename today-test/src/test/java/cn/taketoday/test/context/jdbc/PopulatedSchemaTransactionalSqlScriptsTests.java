@@ -21,6 +21,7 @@
 package cn.taketoday.test.context.jdbc;
 
 import org.junit.jupiter.api.Test;
+
 import cn.taketoday.test.annotation.DirtiesContext;
 import cn.taketoday.test.context.junit.jupiter.JUnitConfig;
 import cn.taketoday.test.context.transaction.AfterTransaction;
@@ -37,16 +38,16 @@ import cn.taketoday.test.context.transaction.BeforeTransaction;
 @DirtiesContext
 class PopulatedSchemaTransactionalSqlScriptsTests extends AbstractTransactionalTests {
 
-	@BeforeTransaction
-	@AfterTransaction
-	void verifyPreAndPostTransactionDatabaseState() {
-		assertNumUsers(0);
-	}
+  @BeforeTransaction
+  @AfterTransaction
+  void verifyPreAndPostTransactionDatabaseState() {
+    assertNumUsers(0);
+  }
 
-	@Test
-	@SqlGroup(@Sql("data-add-dogbert.sql"))
-	void methodLevelScripts() {
-		assertNumUsers(1);
-	}
+  @Test
+  @SqlGroup(@Sql("data-add-dogbert.sql"))
+  void methodLevelScripts() {
+    assertNumUsers(1);
+  }
 
 }

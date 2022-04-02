@@ -37,7 +37,7 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
  *
  * @author Sam Brannen
  * @author Rick Evans
- * @since 2.5
+ * @since 4.0
  */
 public class ApplicationJUnit4ClassRunnerTests {
 

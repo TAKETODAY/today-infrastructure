@@ -21,6 +21,13 @@
 package cn.taketoday.test.context.jdbc;
 
 import org.junit.jupiter.api.Test;
+
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
+import javax.sql.DataSource;
+
 import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
@@ -31,12 +38,6 @@ import cn.taketoday.test.annotation.DirtiesContext;
 import cn.taketoday.test.context.junit.jupiter.JUnitConfig;
 import cn.taketoday.transaction.PlatformTransactionManager;
 import cn.taketoday.transaction.annotation.Transactional;
-
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-
-import javax.sql.DataSource;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -53,66 +54,64 @@ import static org.assertj.core.api.Assertions.assertThat;
 @SqlConfig(dataSource = "dataSource1", transactionManager = "txMgr1")
 class MultipleDataSourcesAndTransactionManagersTransactionalSqlScriptsTests {
 
-	@Autowired
-	DataSource dataSource1;
+  @Autowired
+  DataSource dataSource1;
 
-	@Autowired
-	DataSource dataSource2;
+  @Autowired
+  DataSource dataSource2;
 
+  @Test
+  @Sql("data-add-dogbert.sql")
+  void database1() {
+    assertUsers(new JdbcTemplate(dataSource1), "Dilbert", "Dogbert");
+  }
 
-	@Test
-	@Sql("data-add-dogbert.sql")
-	void database1() {
-		assertUsers(new JdbcTemplate(dataSource1), "Dilbert", "Dogbert");
-	}
+  @Test
+  @Transactional(transactionManager = "txMgr2")
+  @Sql(scripts = "data-add-catbert.sql", config = @SqlConfig(dataSource = "dataSource2", transactionManager = "txMgr2"))
+  void database2() {
+    assertUsers(new JdbcTemplate(dataSource2), "Dilbert", "Catbert");
+  }
 
-	@Test
-	@Transactional(transactionManager = "txMgr2")
-	@Sql(scripts = "data-add-catbert.sql", config = @SqlConfig(dataSource = "dataSource2", transactionManager = "txMgr2"))
-	void database2() {
-		assertUsers(new JdbcTemplate(dataSource2), "Dilbert", "Catbert");
-	}
+  private void assertUsers(JdbcTemplate jdbcTemplate, String... users) {
+    List<String> expected = Arrays.asList(users);
+    Collections.sort(expected);
+    List<String> actual = jdbcTemplate.queryForList("select name from user", String.class);
+    Collections.sort(actual);
+    assertThat(actual).as("Users in database;").isEqualTo(expected);
+  }
 
-	private void assertUsers(JdbcTemplate jdbcTemplate, String... users) {
-		List<String> expected = Arrays.asList(users);
-		Collections.sort(expected);
-		List<String> actual = jdbcTemplate.queryForList("select name from user", String.class);
-		Collections.sort(actual);
-		assertThat(actual).as("Users in database;").isEqualTo(expected);
-	}
+  @Configuration
+  static class Config {
 
+    @Bean
+    PlatformTransactionManager txMgr1() {
+      return new DataSourceTransactionManager(dataSource1());
+    }
 
-	@Configuration
-	static class Config {
+    @Bean
+    PlatformTransactionManager txMgr2() {
+      return new DataSourceTransactionManager(dataSource2());
+    }
 
-		@Bean
-		PlatformTransactionManager txMgr1() {
-			return new DataSourceTransactionManager(dataSource1());
-		}
+    @Bean
+    DataSource dataSource1() {
+      return new EmbeddedDatabaseBuilder()//
+              .setName("database1")//
+              .addScript("classpath:/cn/taketoday/test/context/jdbc/schema.sql")//
+              .addScript("classpath:/cn/taketoday/test/context/jdbc/data.sql")//
+              .build();
+    }
 
-		@Bean
-		PlatformTransactionManager txMgr2() {
-			return new DataSourceTransactionManager(dataSource2());
-		}
+    @Bean
+    DataSource dataSource2() {
+      return new EmbeddedDatabaseBuilder()//
+              .setName("database2")//
+              .addScript("classpath:/cn/taketoday/test/context/jdbc/schema.sql")//
+              .addScript("classpath:/cn/taketoday/test/context/jdbc/data.sql")//
+              .build();
+    }
 
-		@Bean
-		DataSource dataSource1() {
-			return new EmbeddedDatabaseBuilder()//
-			.setName("database1")//
-			.addScript("classpath:/org/springframework/test/context/jdbc/schema.sql")//
-			.addScript("classpath:/org/springframework/test/context/jdbc/data.sql")//
-			.build();
-		}
-
-		@Bean
-		DataSource dataSource2() {
-			return new EmbeddedDatabaseBuilder()//
-			.setName("database2")//
-			.addScript("classpath:/org/springframework/test/context/jdbc/schema.sql")//
-			.addScript("classpath:/org/springframework/test/context/jdbc/data.sql")//
-			.build();
-		}
-
-	}
+  }
 
 }

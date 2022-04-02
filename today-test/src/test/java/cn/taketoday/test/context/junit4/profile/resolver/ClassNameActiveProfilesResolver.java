@@ -28,8 +28,8 @@ import cn.taketoday.test.context.ActiveProfilesResolver;
  */
 public class ClassNameActiveProfilesResolver implements ActiveProfilesResolver {
 
-	@Override
-	public String[] resolve(Class<?> testClass) {
-		return new String[] { testClass.getSimpleName().toLowerCase() };
-	}
+  @Override
+  public String[] resolve(Class<?> testClass) {
+    return new String[] { testClass.getSimpleName().toLowerCase() };
+  }
 }

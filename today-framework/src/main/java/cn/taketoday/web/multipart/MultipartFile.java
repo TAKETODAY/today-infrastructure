@@ -22,10 +22,21 @@ package cn.taketoday.web.multipart;
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 import cn.taketoday.core.io.InputStreamSource;
+import cn.taketoday.core.io.Resource;
+import cn.taketoday.util.FileCopyUtils;
 
 /**
+ * A representation of an uploaded file received in a multipart request.
+ *
+ * <p>The file contents are either stored in memory or temporarily on disk.
+ * In either case, the user is responsible for copying file contents to a
+ * session-level or persistent store as and if desired. The temporary storage
+ * will be cleared at the end of request processing.
+ *
  * @author TODAY <br>
  * 2018-07-11 13:02:52
  */
@@ -55,15 +66,29 @@ public interface MultipartFile extends Serializable, InputStreamSource {
   /**
    * Return the original filename in the client's file system.
    */
-  String getFileName();
+  String getOriginalFilename();
 
   /**
-   * Save upload file to server.
+   * Transfer the received file to the given destination file.
+   * <p>This may either move the file in the filesystem, copy the file in the
+   * filesystem, or save memory-held contents to the destination file. If the
+   * destination file already exists, it will be deleted first.
+   * <p>If the target file has been moved in the filesystem, this operation
+   * cannot be invoked again afterwards. Therefore, call this method just once
+   * in order to work with any storage mechanism.
+   * <p><b>NOTE:</b> Depending on the underlying provider, temporary storage
+   * may be container-dependent, including the base directory for relative
+   * destinations specified here (e.g. with Servlet multipart handling).
+   * For absolute destinations, the target file may get renamed/moved from its
+   * temporary location or newly copied, even if a temporary copy already exists.
    *
-   * @param dest the destination file path
-   * @throws IOException if an error occurs when write to dest.
+   * @param dest the destination file (typically absolute)
+   * @throws IOException in case of reading or writing errors
+   * @throws IllegalStateException if the file has already been moved
+   * in the filesystem and is not available anymore for another transfer
+   * @see jakarta.servlet.http.Part#write(String)
    */
-  void save(File dest) throws IOException;
+  void transferTo(File dest) throws IOException, IllegalStateException;
 
   /**
    * Return whether the uploaded file is empty, that is, either no file has
@@ -95,5 +120,29 @@ public interface MultipartFile extends Serializable, InputStreamSource {
    * @since 2.3.3
    */
   void delete() throws IOException;
+
+  /**
+   * Return a Resource representation of this MultipartFile. This can be used
+   * as input to the {@code RestTemplate} or the {@code WebClient} to expose
+   * content length and the filename along with the InputStream.
+   *
+   * @return this MultipartFile adapted to the Resource contract
+   * @since 4.0
+   */
+  default Resource getResource() {
+    return new MultipartFileResource(this);
+  }
+
+  /**
+   * Transfer the received file to the given destination file.
+   * <p>The default implementation simply copies the file input stream.
+   *
+   * @see #getInputStream()
+   * @see #transferTo(File)
+   * @since 4.0
+   */
+  default void transferTo(Path dest) throws IOException, IllegalStateException {
+    FileCopyUtils.copy(getInputStream(), Files.newOutputStream(dest));
+  }
 
 }

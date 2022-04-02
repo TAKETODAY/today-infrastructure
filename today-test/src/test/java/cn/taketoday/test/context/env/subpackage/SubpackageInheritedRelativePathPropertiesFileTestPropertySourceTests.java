@@ -34,6 +34,6 @@ import cn.taketoday.test.context.env.ExplicitPropertiesFileInClasspathTestProper
 class SubpackageInheritedRelativePathPropertiesFileTestPropertySourceTests extends
         ExplicitPropertiesFileInClasspathTestPropertySourceTests {
 
-	/* all tests are in superclass */
+  /* all tests are in superclass */
 
 }

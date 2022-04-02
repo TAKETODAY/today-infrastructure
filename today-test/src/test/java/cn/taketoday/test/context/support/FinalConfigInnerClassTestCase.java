@@ -26,14 +26,14 @@ import cn.taketoday.context.annotation.Configuration;
  * Not an actual <em>test case</em>.
  *
  * @author Sam Brannen
- * @since 4.0
  * @see AnnotationConfigContextLoaderTests
+ * @since 4.0
  */
 public class FinalConfigInnerClassTestCase {
 
-	// Intentionally FINAL.
-	@Configuration
-	static final class Config {
-	}
+  // Intentionally FINAL.
+  @Configuration
+  static final class Config {
+  }
 
 }

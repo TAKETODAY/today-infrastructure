@@ -48,7 +48,6 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Juergen Hoeller
  * @author Chris Beams
  * @author Sam Brannen
- * @since 19.02.2006
  */
 @DisplayName("MockServletContext unit tests")
 class MockServletContextTests {
@@ -57,7 +56,7 @@ class MockServletContextTests {
 	@DisplayName("with DefaultResourceLoader")
 	class MockServletContextWithDefaultResourceLoaderTests {
 
-		private final MockServletContext servletContext = new MockServletContext("org/springframework/mock");
+		private final MockServletContext servletContext = new MockServletContext("cn/taketoday/mock");
 
 		@Test
 		void getResourcePaths() {
@@ -219,7 +218,7 @@ class MockServletContextTests {
 	class MockServletContextWithFileSystemResourceLoaderTests {
 
 		private final MockServletContext servletContext =
-				new MockServletContext( "org/springframework/mock", new FileSystemResourceLoader());
+				new MockServletContext( "cn/taketoday/mock", new FileSystemResourceLoader());
 
 		@Test
 		void getResourcePathsWithRelativePathToWindowsCDrive() {

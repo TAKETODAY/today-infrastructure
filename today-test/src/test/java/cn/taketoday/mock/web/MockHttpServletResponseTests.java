@@ -24,6 +24,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
+import cn.taketoday.lang.Constant;
 import cn.taketoday.mock.web.MockCookie;
 import cn.taketoday.mock.web.MockHttpServletResponse;
 import cn.taketoday.web.util.WebUtils;
@@ -60,7 +61,6 @@ import static cn.taketoday.http.HttpHeaders.SET_COOKIE;
  * @author Brian Clozel
  * @author Sebastien Deleuze
  * @author Vedran Pavic
- * @since 19.02.2006
  */
 class MockHttpServletResponseTests {
 
@@ -106,7 +106,7 @@ class MockHttpServletResponseTests {
 		response.setContentType(contentType);
 		assertThat(response.getContentType()).isEqualTo(contentType);
 		assertThat(response.getHeader(CONTENT_TYPE)).isEqualTo(contentType);
-		assertThat(response.getCharacterEncoding()).isEqualTo(WebUtils.DEFAULT_CHARACTER_ENCODING);
+		assertThat(response.getCharacterEncoding()).isEqualTo(Constant.DEFAULT_ENCODING);
 	}
 
 	@Test
@@ -124,13 +124,13 @@ class MockHttpServletResponseTests {
 		response.setHeader(CONTENT_TYPE, contentType);
 		assertThat(response.getContentType()).isEqualTo(contentType);
 		assertThat(response.getHeader(CONTENT_TYPE)).isEqualTo(contentType);
-		assertThat(response.getCharacterEncoding()).isEqualTo(WebUtils.DEFAULT_CHARACTER_ENCODING);
+		assertThat(response.getCharacterEncoding()).isEqualTo(Constant.DEFAULT_ENCODING);
 
 		response = new MockHttpServletResponse();
 		response.addHeader(CONTENT_TYPE, contentType);
 		assertThat(response.getContentType()).isEqualTo(contentType);
 		assertThat(response.getHeader(CONTENT_TYPE)).isEqualTo(contentType);
-		assertThat(response.getCharacterEncoding()).isEqualTo(WebUtils.DEFAULT_CHARACTER_ENCODING);
+		assertThat(response.getCharacterEncoding()).isEqualTo(Constant.DEFAULT_ENCODING);
 	}
 
 	@Test

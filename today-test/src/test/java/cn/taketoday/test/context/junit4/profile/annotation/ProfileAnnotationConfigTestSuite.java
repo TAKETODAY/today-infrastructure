@@ -34,9 +34,9 @@ import org.junit.runners.Suite.SuiteClasses;
 @RunWith(Suite.class)
 // Note: the following 'multi-line' layout is for enhanced code readability.
 @SuiteClasses({//
-DefaultProfileAnnotationConfigTests.class,//
-	DevProfileAnnotationConfigTests.class,//
-	DevProfileResolverAnnotationConfigTests.class //
+        DefaultProfileAnnotationConfigTests.class,//
+        DevProfileAnnotationConfigTests.class,//
+        DevProfileResolverAnnotationConfigTests.class //
 })
 public class ProfileAnnotationConfigTestSuite {
 }

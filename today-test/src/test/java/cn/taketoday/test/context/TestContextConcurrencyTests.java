@@ -28,7 +28,7 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.stream.IntStream;
 
-import cn.taketoday.test.context.junit4.concurrency.SpringJUnit4ConcurrencyTests;
+import cn.taketoday.test.context.junit4.concurrency.JUnit4ConcurrencyTests;
 
 import static java.util.Arrays.stream;
 import static java.util.stream.Collectors.toCollection;
@@ -44,102 +44,99 @@ import static org.assertj.core.api.Assertions.assertThat;
  * are only be visible to the thread in which the mutation occurred.
  *
  * @author Sam Brannen
+ * @see JUnit4ConcurrencyTests
  * @since 4.0
- * @see SpringJUnit4ConcurrencyTests
  */
 class TestContextConcurrencyTests {
 
-	private static Set<String> expectedMethods = stream(TestCase.class.getDeclaredMethods())
-			.map(Method::getName)
-			.collect(toCollection(TreeSet::new));
+  private static Set<String> expectedMethods = stream(TestCase.class.getDeclaredMethods())
+          .map(Method::getName)
+          .collect(toCollection(TreeSet::new));
 
-	private static final Set<String> actualMethods = Collections.synchronizedSet(new TreeSet<>());
+  private static final Set<String> actualMethods = Collections.synchronizedSet(new TreeSet<>());
 
-	private static final TestCase testInstance = new TestCase();
+  private static final TestCase testInstance = new TestCase();
 
+  @Test
+  void invokeTestContextManagerFromConcurrentThreads() {
+    TestContextManager tcm = new TestContextManager(TestCase.class);
 
-	@Test
-	void invokeTestContextManagerFromConcurrentThreads() {
-		TestContextManager tcm = new TestContextManager(TestCase.class);
+    // Run the actual test several times in order to increase the chance of threads
+    // stepping on each others' toes by overwriting the same mutable state in the
+    // TestContext.
+    IntStream.range(1, 20).forEach(i -> {
+      actualMethods.clear();
+      // Execute TestExecutionListener in parallel, thereby simulating parallel
+      // test method execution.
+      stream(TestCase.class.getDeclaredMethods()).parallel().forEach(testMethod -> {
+        try {
+          tcm.beforeTestClass();
+          tcm.beforeTestMethod(testInstance, testMethod);
+          // no need to invoke the actual test method
+          tcm.afterTestMethod(testInstance, testMethod, null);
+          tcm.afterTestClass();
+        }
+        catch (Exception ex) {
+          throw new RuntimeException(ex);
+        }
+      });
+      assertThat(actualMethods).isEqualTo(expectedMethods);
+    });
+    assertThat(tcm.getTestContext().getAttributeNames().length).isEqualTo(0);
+  }
 
-		// Run the actual test several times in order to increase the chance of threads
-		// stepping on each others' toes by overwriting the same mutable state in the
-		// TestContext.
-		IntStream.range(1, 20).forEach(i -> {
-			actualMethods.clear();
-			// Execute TestExecutionListener in parallel, thereby simulating parallel
-			// test method execution.
-			stream(TestCase.class.getDeclaredMethods()).parallel().forEach(testMethod -> {
-				try {
-					tcm.beforeTestClass();
-					tcm.beforeTestMethod(testInstance, testMethod);
-					// no need to invoke the actual test method
-					tcm.afterTestMethod(testInstance, testMethod, null);
-					tcm.afterTestClass();
-				}
-				catch (Exception ex) {
-					throw new RuntimeException(ex);
-				}
-			});
-			assertThat(actualMethods).isEqualTo(expectedMethods);
-		});
-		assertThat(tcm.getTestContext().attributeNames().length).isEqualTo(0);
-	}
+  @TestExecutionListeners(TrackingListener.class)
+  @SuppressWarnings("unused")
+  private static class TestCase {
 
+    void test_001() {
+    }
 
-	@TestExecutionListeners(TrackingListener.class)
-	@SuppressWarnings("unused")
-	private static class TestCase {
+    void test_002() {
+    }
 
-		void test_001() {
-		}
+    void test_003() {
+    }
 
-		void test_002() {
-		}
+    void test_004() {
+    }
 
-		void test_003() {
-		}
+    void test_005() {
+    }
 
-		void test_004() {
-		}
+    void test_006() {
+    }
 
-		void test_005() {
-		}
+    void test_007() {
+    }
 
-		void test_006() {
-		}
+    void test_008() {
+    }
 
-		void test_007() {
-		}
+    void test_009() {
+    }
 
-		void test_008() {
-		}
+    void test_010() {
+    }
+  }
 
-		void test_009() {
-		}
+  private static class TrackingListener implements TestExecutionListener {
 
-		void test_010() {
-		}
-	}
+    private final ThreadLocal<String> methodName = new ThreadLocal<>();
 
-	private static class TrackingListener implements TestExecutionListener {
+    @Override
+    public void beforeTestMethod(TestContext testContext) throws Exception {
+      String name = testContext.getTestMethod().getName();
+      actualMethods.add(name);
+      testContext.setAttribute("method", name);
+      this.methodName.set(name);
+    }
 
-		private final ThreadLocal<String> methodName = new ThreadLocal<>();
+    @Override
+    public void afterTestMethod(TestContext testContext) throws Exception {
+      assertThat(testContext.getAttribute("method")).isEqualTo(this.methodName.get());
+    }
 
-
-		@Override
-		public void beforeTestMethod(TestContext testContext) throws Exception {
-			String name = testContext.getTestMethod().getName();
-			actualMethods.add(name);
-			testContext.setAttribute("method", name);
-			this.methodName.set(name);
-		}
-
-		@Override
-		public void afterTestMethod(TestContext testContext) throws Exception {
-			assertThat(testContext.getAttribute("method")).isEqualTo(this.methodName.get());
-		}
-
-	}
+  }
 
 }

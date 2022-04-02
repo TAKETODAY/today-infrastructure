@@ -20,12 +20,12 @@
 
 package cn.taketoday.test.context.env.repeatable;
 
-import cn.taketoday.test.context.TestPropertySource;
-
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+
+import cn.taketoday.test.context.TestPropertySource;
 
 /**
  * Composed annotation that declares a property via
@@ -39,10 +39,10 @@ import java.lang.annotation.Target;
 @MetaComposedTestProperty.MetaMetaInlinedTestProperty
 @interface MetaComposedTestProperty {
 
-	@Target(ElementType.TYPE)
-	@Retention(RetentionPolicy.RUNTIME)
-	@TestPropertySource(properties = "enigma = meta meta")
-	@interface MetaMetaInlinedTestProperty {
-	}
+  @Target(ElementType.TYPE)
+  @Retention(RetentionPolicy.RUNTIME)
+  @TestPropertySource(properties = "enigma = meta meta")
+  @interface MetaMetaInlinedTestProperty {
+  }
 
 }

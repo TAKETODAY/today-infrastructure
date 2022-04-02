@@ -31,64 +31,63 @@ import java.util.concurrent.atomic.AtomicInteger;
  * methods were called: only intended for the integration test suite.
  *
  * @author Sam Brannen
- * @since 3.0
+ * @since 4.0
  */
 public class TrackingRunListener extends RunListener {
 
-	private final AtomicInteger testFailureCount = new AtomicInteger();
+  private final AtomicInteger testFailureCount = new AtomicInteger();
 
-	private final AtomicInteger testStartedCount = new AtomicInteger();
+  private final AtomicInteger testStartedCount = new AtomicInteger();
 
-	private final AtomicInteger testFinishedCount = new AtomicInteger();
+  private final AtomicInteger testFinishedCount = new AtomicInteger();
 
-	private final AtomicInteger testAssumptionFailureCount = new AtomicInteger();
+  private final AtomicInteger testAssumptionFailureCount = new AtomicInteger();
 
-	private final AtomicInteger testIgnoredCount = new AtomicInteger();
+  private final AtomicInteger testIgnoredCount = new AtomicInteger();
 
+  public int getTestFailureCount() {
+    return this.testFailureCount.get();
+  }
 
-	public int getTestFailureCount() {
-		return this.testFailureCount.get();
-	}
+  public int getTestStartedCount() {
+    return this.testStartedCount.get();
+  }
 
-	public int getTestStartedCount() {
-		return this.testStartedCount.get();
-	}
+  public int getTestFinishedCount() {
+    return this.testFinishedCount.get();
+  }
 
-	public int getTestFinishedCount() {
-		return this.testFinishedCount.get();
-	}
+  public int getTestAssumptionFailureCount() {
+    return this.testAssumptionFailureCount.get();
+  }
 
-	public int getTestAssumptionFailureCount() {
-		return this.testAssumptionFailureCount.get();
-	}
+  public int getTestIgnoredCount() {
+    return this.testIgnoredCount.get();
+  }
 
-	public int getTestIgnoredCount() {
-		return this.testIgnoredCount.get();
-	}
+  @Override
+  public void testFailure(Failure failure) throws Exception {
+    this.testFailureCount.incrementAndGet();
+  }
 
-	@Override
-	public void testFailure(Failure failure) throws Exception {
-		this.testFailureCount.incrementAndGet();
-	}
+  @Override
+  public void testStarted(Description description) throws Exception {
+    this.testStartedCount.incrementAndGet();
+  }
 
-	@Override
-	public void testStarted(Description description) throws Exception {
-		this.testStartedCount.incrementAndGet();
-	}
+  @Override
+  public void testFinished(Description description) throws Exception {
+    this.testFinishedCount.incrementAndGet();
+  }
 
-	@Override
-	public void testFinished(Description description) throws Exception {
-		this.testFinishedCount.incrementAndGet();
-	}
+  @Override
+  public void testAssumptionFailure(Failure failure) {
+    this.testAssumptionFailureCount.incrementAndGet();
+  }
 
-	@Override
-	public void testAssumptionFailure(Failure failure) {
-		this.testAssumptionFailureCount.incrementAndGet();
-	}
-
-	@Override
-	public void testIgnored(Description description) throws Exception {
-		this.testIgnoredCount.incrementAndGet();
-	}
+  @Override
+  public void testIgnored(Description description) throws Exception {
+    this.testIgnoredCount.incrementAndGet();
+  }
 
 }

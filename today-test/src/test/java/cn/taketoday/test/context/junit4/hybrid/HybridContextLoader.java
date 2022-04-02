@@ -24,11 +24,11 @@ import cn.taketoday.beans.factory.support.BeanDefinitionReader;
 import cn.taketoday.beans.factory.xml.XmlBeanDefinitionReader;
 import cn.taketoday.context.annotation.AnnotatedBeanDefinitionReader;
 import cn.taketoday.context.support.GenericApplicationContext;
+import cn.taketoday.lang.Assert;
 import cn.taketoday.test.context.ContextConfigurationAttributes;
 import cn.taketoday.test.context.MergedContextConfiguration;
 import cn.taketoday.test.context.SmartContextLoader;
 import cn.taketoday.test.context.support.AbstractGenericContextLoader;
-import cn.taketoday.util.Assert;
 
 import static cn.taketoday.test.context.support.AnnotationConfigContextLoaderUtils.detectDefaultConfigurationClasses;
 
@@ -44,38 +44,38 @@ import static cn.taketoday.test.context.support.AnnotationConfigContextLoaderUti
  */
 public class HybridContextLoader extends AbstractGenericContextLoader {
 
-	@Override
-	protected void validateMergedContextConfiguration(MergedContextConfiguration mergedConfig) {
-		Assert.isTrue(mergedConfig.hasClasses() || mergedConfig.hasLocations(), getClass().getSimpleName()
-				+ " requires either classes or locations");
-	}
+  @Override
+  protected void validateMergedContextConfiguration(MergedContextConfiguration mergedConfig) {
+    Assert.isTrue(mergedConfig.hasClasses() || mergedConfig.hasLocations(), getClass().getSimpleName()
+            + " requires either classes or locations");
+  }
 
-	@Override
-	public void processContextConfiguration(ContextConfigurationAttributes configAttributes) {
-		// Detect default XML configuration files:
-		super.processContextConfiguration(configAttributes);
+  @Override
+  public void processContextConfiguration(ContextConfigurationAttributes configAttributes) {
+    // Detect default XML configuration files:
+    super.processContextConfiguration(configAttributes);
 
-		// Detect default configuration classes:
-		if (!configAttributes.hasClasses() && isGenerateDefaultLocations()) {
-			configAttributes.setClasses(detectDefaultConfigurationClasses(configAttributes.getDeclaringClass()));
-		}
-	}
+    // Detect default configuration classes:
+    if (!configAttributes.hasClasses() && isGenerateDefaultLocations()) {
+      configAttributes.setClasses(detectDefaultConfigurationClasses(configAttributes.getDeclaringClass()));
+    }
+  }
 
-	@Override
-	protected void loadBeanDefinitions(GenericApplicationContext context, MergedContextConfiguration mergedConfig) {
-		// Order doesn't matter: <bean> always wins over @Bean.
-		new XmlBeanDefinitionReader(context).loadBeanDefinitions(mergedConfig.getLocations());
-		new AnnotatedBeanDefinitionReader(context).register(mergedConfig.getClasses());
-	}
+  @Override
+  protected void loadBeanDefinitions(GenericApplicationContext context, MergedContextConfiguration mergedConfig) {
+    // Order doesn't matter: <bean> always wins over @Bean.
+    new XmlBeanDefinitionReader(context).loadBeanDefinitions(mergedConfig.getLocations());
+    new AnnotatedBeanDefinitionReader(context).register(mergedConfig.getClasses());
+  }
 
-	@Override
-	protected BeanDefinitionReader createBeanDefinitionReader(GenericApplicationContext context) {
-		throw new UnsupportedOperationException(getClass().getSimpleName() + " doesn't support this");
-	}
+  @Override
+  protected BeanDefinitionReader createBeanDefinitionReader(GenericApplicationContext context) {
+    throw new UnsupportedOperationException(getClass().getSimpleName() + " doesn't support this");
+  }
 
-	@Override
-	protected String getResourceSuffix() {
-		return "-context.xml";
-	}
+  @Override
+  protected String getResourceSuffix() {
+    return "-context.xml";
+  }
 
 }

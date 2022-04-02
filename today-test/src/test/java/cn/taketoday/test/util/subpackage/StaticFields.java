@@ -28,18 +28,17 @@ package cn.taketoday.test.util.subpackage;
  */
 public class StaticFields {
 
-	public static String publicField = "public";
+  public static String publicField = "public";
 
-	private static String privateField = "private";
+  private static String privateField = "private";
 
+  public static void reset() {
+    publicField = "public";
+    privateField = "private";
+  }
 
-	public static void reset() {
-		publicField = "public";
-		privateField = "private";
-	}
-
-	public static String getPrivateField() {
-		return privateField;
-	}
+  public static String getPrivateField() {
+    return privateField;
+  }
 
 }

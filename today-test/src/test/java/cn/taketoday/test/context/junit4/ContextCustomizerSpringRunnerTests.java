@@ -22,13 +22,14 @@ package cn.taketoday.test.context.junit4;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import java.util.List;
+
 import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.test.context.BootstrapWith;
 import cn.taketoday.test.context.ContextCustomizer;
 import cn.taketoday.test.context.ContextCustomizerFactory;
 import cn.taketoday.test.context.support.DefaultTestContextBootstrapper;
-
-import java.util.List;
 
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -45,24 +46,23 @@ import static org.assertj.core.api.Assertions.assertThat;
 @BootstrapWith(ContextCustomizerSpringRunnerTests.CustomTestContextBootstrapper.class)
 public class ContextCustomizerSpringRunnerTests {
 
-	@Autowired String foo;
+  @Autowired
+  String foo;
 
+  @Test
+  public void injectedBean() {
+    assertThat(foo).isEqualTo("foo");
+  }
 
-	@Test
-	public void injectedBean() {
-		assertThat(foo).isEqualTo("foo");
-	}
+  static class CustomTestContextBootstrapper extends DefaultTestContextBootstrapper {
 
-
-	static class CustomTestContextBootstrapper extends DefaultTestContextBootstrapper {
-
-		@Override
-		protected List<ContextCustomizerFactory> getContextCustomizerFactories() {
-			return singletonList(
-				(ContextCustomizerFactory) (testClass, configAttributes) ->
-					(ContextCustomizer) (context, mergedConfig) -> context.getBeanFactory().registerSingleton("foo", "foo")
-			);
-		}
-	}
+    @Override
+    protected List<ContextCustomizerFactory> getContextCustomizerFactories() {
+      return singletonList(
+              (ContextCustomizerFactory) (testClass, configAttributes) ->
+                      (ContextCustomizer) (context, mergedConfig) -> context.getBeanFactory().registerSingleton("foo", "foo")
+      );
+    }
+  }
 
 }

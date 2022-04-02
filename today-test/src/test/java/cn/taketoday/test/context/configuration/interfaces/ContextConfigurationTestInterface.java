@@ -31,12 +31,12 @@ import cn.taketoday.test.context.ContextConfiguration;
 @ContextConfiguration(classes = ContextConfigurationTestInterface.Config.class)
 interface ContextConfigurationTestInterface {
 
-	static class Config {
+  static class Config {
 
-		@Bean
-		Employee employee() {
-			return new Employee("Dilbert");
-		}
-	}
+    @Bean
+    Employee employee() {
+      return new Employee("Dilbert");
+    }
+  }
 
 }

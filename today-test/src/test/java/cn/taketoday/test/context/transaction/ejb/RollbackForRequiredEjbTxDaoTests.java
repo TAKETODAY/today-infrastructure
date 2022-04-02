@@ -21,6 +21,7 @@
 package cn.taketoday.test.context.transaction.ejb;
 
 import org.junit.jupiter.api.Test;
+
 import cn.taketoday.test.annotation.Rollback;
 import cn.taketoday.test.context.transaction.TransactionalTestExecutionListener;
 
@@ -40,24 +41,24 @@ import static org.assertj.core.api.Assertions.assertThat;
 @Rollback
 class RollbackForRequiredEjbTxDaoTests extends CommitForRequiredEjbTxDaoTests {
 
-	/**
-	 * Overrides parent implementation in order to change expectations to align with
-	 * behavior associated with "required" transactions on repositories/DAOs and
-	 * default rollback semantics for transactions managed by the TestContext
-	 * framework.
-	 */
-	@Test
-	@Override
-	void test3IncrementCount2() {
-		int count = dao.getCount(TEST_NAME);
-		// Expecting count=0 after test2IncrementCount1() since REQUIRED transactions
-		// participate in the existing transaction (if present), which in this case is the
-		// transaction managed by the TestContext framework which will be rolled back
-		// after each test method.
-		assertThat(count).as("Expected count=0 after test2IncrementCount1().").isEqualTo(0);
+  /**
+   * Overrides parent implementation in order to change expectations to align with
+   * behavior associated with "required" transactions on repositories/DAOs and
+   * default rollback semantics for transactions managed by the TestContext
+   * framework.
+   */
+  @Test
+  @Override
+  void test3IncrementCount2() {
+    int count = dao.getCount(TEST_NAME);
+    // Expecting count=0 after test2IncrementCount1() since REQUIRED transactions
+    // participate in the existing transaction (if present), which in this case is the
+    // transaction managed by the TestContext framework which will be rolled back
+    // after each test method.
+    assertThat(count).as("Expected count=0 after test2IncrementCount1().").isEqualTo(0);
 
-		count = dao.incrementCount(TEST_NAME);
-		assertThat(count).as("Expected count=1 now.").isEqualTo(1);
-	}
+    count = dao.incrementCount(TEST_NAME);
+    assertThat(count).as("Expected count=1 now.").isEqualTo(1);
+  }
 
 }

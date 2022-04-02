@@ -32,9 +32,9 @@ import cn.taketoday.test.context.web.WebAppConfiguration;
 @ContextConfiguration(classes = WebAppConfigurationTestInterface.Config.class)
 interface WebAppConfigurationTestInterface {
 
-	@Configuration
-	static class Config {
-		/* no user beans required for these tests */
-	}
+  @Configuration
+  static class Config {
+    /* no user beans required for these tests */
+  }
 
 }

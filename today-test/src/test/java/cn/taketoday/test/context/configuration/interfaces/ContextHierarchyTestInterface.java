@@ -29,7 +29,7 @@ import cn.taketoday.test.context.hierarchies.standard.SingleTestClassWithTwoLeve
  * @since 4.0
  */
 @ContextHierarchy({
-	@ContextConfiguration(classes = SingleTestClassWithTwoLevelContextHierarchyTests.ParentConfig.class),
-	@ContextConfiguration(classes = SingleTestClassWithTwoLevelContextHierarchyTests.ChildConfig.class) })
+        @ContextConfiguration(classes = SingleTestClassWithTwoLevelContextHierarchyTests.ParentConfig.class),
+        @ContextConfiguration(classes = SingleTestClassWithTwoLevelContextHierarchyTests.ChildConfig.class) })
 interface ContextHierarchyTestInterface {
 }

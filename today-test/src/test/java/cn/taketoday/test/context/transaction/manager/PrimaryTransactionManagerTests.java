@@ -21,6 +21,9 @@
 package cn.taketoday.test.context.transaction.manager;
 
 import org.junit.jupiter.api.Test;
+
+import javax.sql.DataSource;
+
 import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
@@ -40,82 +43,80 @@ import cn.taketoday.transaction.PlatformTransactionManager;
 import cn.taketoday.transaction.annotation.EnableTransactionManagement;
 import cn.taketoday.transaction.annotation.Transactional;
 
-import javax.sql.DataSource;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Integration tests that ensure that <em>primary</em> transaction managers
  * are supported.
  *
  * @author Sam Brannen
- * @since 4.0
  * @see cn.taketoday.test.context.jdbc.PrimaryDataSourceTests
+ * @since 4.0
  */
 @JUnitConfig
 @DirtiesContext
 final /* Intentionally FINAL */ class PrimaryTransactionManagerTests {
 
-	private final JdbcTemplate jdbcTemplate;
+  private final JdbcTemplate jdbcTemplate;
 
-	@Autowired
-	PrimaryTransactionManagerTests(DataSource dataSource1) {
-		this.jdbcTemplate = new JdbcTemplate(dataSource1);
-	}
+  @Autowired
+  PrimaryTransactionManagerTests(DataSource dataSource1) {
+    this.jdbcTemplate = new JdbcTemplate(dataSource1);
+  }
 
+  @BeforeTransaction
+  void beforeTransaction() {
+    assertNumUsers(0);
+  }
 
-	@BeforeTransaction
-	void beforeTransaction() {
-		assertNumUsers(0);
-	}
+  @AfterTransaction
+  void afterTransaction() {
+    assertNumUsers(0);
+  }
 
-	@AfterTransaction
-	void afterTransaction() {
-		assertNumUsers(0);
-	}
+  @Test
+  @Transactional
+  void transactionalTest() {
+    TransactionAssert.assertThatTransaction().isActive();
 
-	@Test
-	@Transactional
-	void transactionalTest() {
-		TransactionAssert.assertThatTransaction().isActive();
+    ClassPathResource resource = new ClassPathResource("/cn/taketoday/test/context/jdbc/data.sql");
+    new ResourceDatabasePopulator(resource).execute(jdbcTemplate.getDataSource());
 
-		ClassPathResource resource = new ClassPathResource("/org/springframework/test/context/jdbc/data.sql");
-		new ResourceDatabasePopulator(resource).execute(jdbcTemplate.getDataSource());
+    assertNumUsers(1);
+  }
 
-		assertNumUsers(1);
-	}
+  private void assertNumUsers(int expected) {
+    assertThat(JdbcTestUtils.countRowsInTable(this.jdbcTemplate, "user")).as("Number of rows in the 'user' table").isEqualTo(expected);
+  }
 
-	private void assertNumUsers(int expected) {
-		assertThat(JdbcTestUtils.countRowsInTable(this.jdbcTemplate, "user")).as("Number of rows in the 'user' table").isEqualTo(expected);
-	}
+  @Configuration
+  @EnableTransactionManagement  // SPR-17137: should not break trying to proxy the final test class
+  static class Config {
 
+    @Primary
+    @Bean
+    PlatformTransactionManager primaryTransactionManager() {
+      return new DataSourceTransactionManager(dataSource1());
+    }
 
-	@Configuration
-	@EnableTransactionManagement  // SPR-17137: should not break trying to proxy the final test class
-	static class Config {
+    @Bean
+    PlatformTransactionManager additionalTransactionManager() {
+      return new DataSourceTransactionManager(dataSource2());
+    }
 
-		@Primary
-		@Bean
-		PlatformTransactionManager primaryTransactionManager() {
-			return new DataSourceTransactionManager(dataSource1());
-		}
+    @Bean
+    DataSource dataSource1() {
+      return new EmbeddedDatabaseBuilder()
+              .generateUniqueName(true)
+              .addScript("classpath:/cn/taketoday/test/context/jdbc/schema.sql")
+              .build();
+    }
 
-		@Bean
-		PlatformTransactionManager additionalTransactionManager() {
-			return new DataSourceTransactionManager(dataSource2());
-		}
+    @Bean
+    DataSource dataSource2() {
+      return new EmbeddedDatabaseBuilder().generateUniqueName(true).build();
+    }
 
-		@Bean
-		DataSource dataSource1() {
-			return new EmbeddedDatabaseBuilder()
-					.generateUniqueName(true)
-					.addScript("classpath:/org/springframework/test/context/jdbc/schema.sql")
-					.build();
-		}
-
-		@Bean
-		DataSource dataSource2() {
-			return new EmbeddedDatabaseBuilder().generateUniqueName(true).build();
-		}
-
-	}
+  }
 
 }

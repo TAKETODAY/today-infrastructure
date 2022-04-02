@@ -115,7 +115,7 @@ public class MockMultipartFile implements MultipartFile {
   }
 
   @Override
-  public String getFileName() {
+  public String getOriginalFilename() {
     return originalFilename;
   }
 
@@ -154,7 +154,7 @@ public class MockMultipartFile implements MultipartFile {
   }
 
   @Override
-  public void save(File dest) throws IOException, IllegalStateException {
+  public void transferTo(File dest) throws IOException, IllegalStateException {
     FileCopyUtils.copy(this.content, dest);
   }
 

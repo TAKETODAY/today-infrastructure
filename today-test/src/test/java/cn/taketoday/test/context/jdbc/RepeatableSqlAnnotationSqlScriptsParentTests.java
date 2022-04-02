@@ -24,10 +24,11 @@ import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
-import cn.taketoday.test.annotation.DirtiesContext;
-import cn.taketoday.test.context.ContextConfiguration;
 
 import java.lang.annotation.Repeatable;
+
+import cn.taketoday.test.annotation.DirtiesContext;
+import cn.taketoday.test.context.ContextConfiguration;
 
 /**
  * This is a copy of {@link TransactionalSqlScriptsTests} that verifies proper
@@ -43,20 +44,20 @@ import java.lang.annotation.Repeatable;
 @DirtiesContext
 class RepeatableSqlAnnotationSqlScriptsParentTests extends AbstractTransactionalTests {
 
-	@Test
-	@Order(1)
-	void classLevelScripts() {
-		assertUsers("Dilbert");
-	}
+  @Test
+  @Order(1)
+  void classLevelScripts() {
+    assertUsers("Dilbert");
+  }
 
-	@Test
-	@Sql("drop-schema.sql")
-	@Sql("schema.sql")
-	@Sql("data.sql")
-	@Sql("data-add-dogbert.sql")
-	@Order(2)
-	void methodLevelScripts() {
-		assertUsers("Dilbert", "Dogbert");
-	}
+  @Test
+  @Sql("drop-schema.sql")
+  @Sql("schema.sql")
+  @Sql("data.sql")
+  @Sql("data-add-dogbert.sql")
+  @Order(2)
+  void methodLevelScripts() {
+    assertUsers("Dilbert", "Dogbert");
+  }
 
 }

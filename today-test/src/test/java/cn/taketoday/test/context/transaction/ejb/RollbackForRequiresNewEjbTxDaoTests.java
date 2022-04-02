@@ -41,6 +41,6 @@ import cn.taketoday.test.context.transaction.TransactionalTestExecutionListener;
 @Rollback
 class RollbackForRequiresNewEjbTxDaoTests extends CommitForRequiresNewEjbTxDaoTests {
 
-	/* test methods in superclass */
+  /* test methods in superclass */
 
 }

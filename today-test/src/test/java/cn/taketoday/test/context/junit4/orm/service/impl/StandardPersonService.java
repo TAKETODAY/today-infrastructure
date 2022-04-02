@@ -21,7 +21,7 @@
 package cn.taketoday.test.context.junit4.orm.service.impl;
 
 import cn.taketoday.beans.factory.annotation.Autowired;
-import cn.taketoday.stereotype.Service;
+import cn.taketoday.lang.Service;
 import cn.taketoday.test.context.junit4.orm.domain.Person;
 import cn.taketoday.test.context.junit4.orm.repository.PersonRepository;
 import cn.taketoday.test.context.junit4.orm.service.PersonService;
@@ -31,29 +31,28 @@ import cn.taketoday.transaction.annotation.Transactional;
  * Standard implementation of the {@link PersonService} API.
  *
  * @author Sam Brannen
- * @since 3.0
+ * @since 4.0
  */
 @Service
 @Transactional(readOnly = true)
 public class StandardPersonService implements PersonService {
 
-	private final PersonRepository personRepository;
+  private final PersonRepository personRepository;
 
+  @Autowired
+  public StandardPersonService(PersonRepository personRepository) {
+    this.personRepository = personRepository;
+  }
 
-	@Autowired
-	public StandardPersonService(PersonRepository personRepository) {
-		this.personRepository = personRepository;
-	}
+  @Override
+  public Person findByName(String name) {
+    return this.personRepository.findByName(name);
+  }
 
-	@Override
-	public Person findByName(String name) {
-		return this.personRepository.findByName(name);
-	}
-
-	@Override
-	@Transactional(readOnly = false)
-	public Person save(Person person) {
-		return this.personRepository.save(person);
-	}
+  @Override
+  @Transactional(readOnly = false)
+  public Person save(Person person) {
+    return this.personRepository.save(person);
+  }
 
 }

@@ -22,6 +22,7 @@ package cn.taketoday.test.context.junit4;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
 import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
@@ -40,23 +41,21 @@ import static org.assertj.core.api.Assertions.assertThat;
 @RunWith(Runner.class)
 public class OptionalContextConfigurationSpringRunnerTests {
 
-	@Autowired
-	String foo;
+  @Autowired
+  String foo;
 
+  @Test
+  public void contextConfigurationAnnotationIsOptional() {
+    assertThat(foo).isEqualTo("foo");
+  }
 
-	@Test
-	public void contextConfigurationAnnotationIsOptional() {
-		assertThat(foo).isEqualTo("foo");
-	}
+  @Configuration
+  static class Config {
 
-
-	@Configuration
-	static class Config {
-
-		@Bean
-		String foo() {
-			return "foo";
-		}
-	}
+    @Bean
+    String foo() {
+      return "foo";
+    }
+  }
 
 }

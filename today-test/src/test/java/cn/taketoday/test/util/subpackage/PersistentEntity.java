@@ -25,19 +25,18 @@ package cn.taketoday.test.util.subpackage;
  * unit tests.
  *
  * @author Sam Brannen
- * @since 2.5
+ * @since 4.0
  */
 public abstract class PersistentEntity {
 
-	private long id;
+  private long id;
 
+  public long getId() {
+    return this.id;
+  }
 
-	public long getId() {
-		return this.id;
-	}
-
-	protected void setId(long id) {
-		this.id = id;
-	}
+  protected void setId(long id) {
+    this.id = id;
+  }
 
 }

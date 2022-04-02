@@ -32,8 +32,8 @@ import cn.taketoday.context.annotation.Profile;
 @Profile("dev")
 class DevProfileConfig {
 
-	@Bean
-	public String baz() {
-		return "dev profile config";
-	}
+  @Bean
+  public String baz() {
+    return "dev profile config";
+  }
 }

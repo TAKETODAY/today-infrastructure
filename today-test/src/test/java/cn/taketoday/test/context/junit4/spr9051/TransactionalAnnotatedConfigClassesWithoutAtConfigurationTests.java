@@ -21,6 +21,9 @@
 package cn.taketoday.test.context.junit4.spr9051;
 
 import org.junit.Before;
+
+import javax.sql.DataSource;
+
 import cn.taketoday.beans.testfixture.beans.Employee;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
@@ -32,8 +35,6 @@ import cn.taketoday.test.context.transaction.AfterTransaction;
 import cn.taketoday.test.context.transaction.TransactionalTestExecutionListener;
 import cn.taketoday.transaction.PlatformTransactionManager;
 
-import javax.sql.DataSource;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
@@ -43,98 +44,97 @@ import static org.assertj.core.api.Assertions.assertThat;
  * for details).
  *
  * @author Sam Brannen
- * @since 4.0
  * @see Bean
  * @see TransactionalAnnotatedConfigClassWithAtConfigurationTests
+ * @since 4.0
  */
 @ContextConfiguration(classes = TransactionalAnnotatedConfigClassesWithoutAtConfigurationTests.AnnotatedFactoryBeans.class)
 public class TransactionalAnnotatedConfigClassesWithoutAtConfigurationTests extends
-		AbstractTransactionalAnnotatedConfigClassTests {
+        AbstractTransactionalAnnotatedConfigClassTests {
 
-	/**
-	 * This is intentionally <b>not</b> annotated with {@code @Configuration}.
-	 *
-	 * <p>Consequently, this class contains <i>annotated factory bean methods</i>
-	 * instead of standard singleton bean methods.
-	 */
-	// @Configuration
-	static class AnnotatedFactoryBeans {
+  /**
+   * This is intentionally <b>not</b> annotated with {@code @Configuration}.
+   *
+   * <p>Consequently, this class contains <i>annotated factory bean methods</i>
+   * instead of standard singleton bean methods.
+   */
+  // @Configuration
+  static class AnnotatedFactoryBeans {
 
-		@Bean
-		public Employee employee() {
-			Employee employee = new Employee();
-			employee.setName("John Smith");
-			employee.setAge(42);
-			employee.setCompany("Acme Widgets, Inc.");
-			return employee;
-		}
+    @Bean
+    public Employee employee() {
+      Employee employee = new Employee();
+      employee.setName("John Smith");
+      employee.setAge(42);
+      employee.setCompany("Acme Widgets, Inc.");
+      return employee;
+    }
 
-		@Bean
-		public PlatformTransactionManager transactionManager() {
-			return new DataSourceTransactionManager(dataSource());
-		}
+    @Bean
+    public PlatformTransactionManager transactionManager() {
+      return new DataSourceTransactionManager(dataSource());
+    }
 
-		/**
-		 * Since this method does not reside in a true {@code @Configuration class},
-		 * it acts as a factory method when invoked directly (e.g., from
-		 * {@link #transactionManager()}) and as a singleton bean when retrieved
-		 * through the application context (e.g., when injected into the test
-		 * instance). The result is that this method will be called twice:
-		 *
-		 * <ol>
-		 * <li>once <em>indirectly</em> by the {@link TransactionalTestExecutionListener}
-		 * when it retrieves the {@link PlatformTransactionManager} from the
-		 * application context</li>
-		 * <li>and again when the {@link DataSource} is injected into the test
-		 * instance in {@link AbstractTransactionalAnnotatedConfigClassTests#setDataSource(DataSource)}.</li>
-		 *</ol>
-		 *
-		 * Consequently, the {@link JdbcTemplate} used by this test instance and
-		 * the {@link PlatformTransactionManager} used by the Spring TestContext
-		 * Framework will operate on two different {@code DataSource} instances,
-		 * which is almost certainly not the desired or intended behavior.
-		 */
-		@Bean
-		public DataSource dataSource() {
-			return new EmbeddedDatabaseBuilder()//
-			.addScript("classpath:/org/springframework/test/jdbc/schema.sql")//
-			// Ensure that this in-memory database is only used by this class:
-			.setName(getClass().getName())//
-			.build();
-		}
+    /**
+     * Since this method does not reside in a true {@code @Configuration class},
+     * it acts as a factory method when invoked directly (e.g., from
+     * {@link #transactionManager()}) and as a singleton bean when retrieved
+     * through the application context (e.g., when injected into the test
+     * instance). The result is that this method will be called twice:
+     *
+     * <ol>
+     * <li>once <em>indirectly</em> by the {@link TransactionalTestExecutionListener}
+     * when it retrieves the {@link PlatformTransactionManager} from the
+     * application context</li>
+     * <li>and again when the {@link DataSource} is injected into the test
+     * instance in {@link AbstractTransactionalAnnotatedConfigClassTests#setDataSource(DataSource)}.</li>
+     * </ol>
+     *
+     * Consequently, the {@link JdbcTemplate} used by this test instance and
+     * the {@link PlatformTransactionManager} used by the Spring TestContext
+     * Framework will operate on two different {@code DataSource} instances,
+     * which is almost certainly not the desired or intended behavior.
+     */
+    @Bean
+    public DataSource dataSource() {
+      return new EmbeddedDatabaseBuilder()//
+              .addScript("classpath:/cn/taketoday/test/jdbc/schema.sql")//
+              // Ensure that this in-memory database is only used by this class:
+              .setName(getClass().getName())//
+              .build();
+    }
 
-	}
+  }
 
+  @Before
+  public void compareDataSources() throws Exception {
+    // NOTE: the two DataSource instances are NOT the same!
+    assertThat(dataSourceViaInjection).isNotSameAs(dataSourceFromTxManager);
+  }
 
-	@Before
-	public void compareDataSources() throws Exception {
-		// NOTE: the two DataSource instances are NOT the same!
-		assertThat(dataSourceViaInjection).isNotSameAs(dataSourceFromTxManager);
-	}
+  /**
+   * Overrides {@code afterTransaction()} in order to assert a different result.
+   *
+   * <p>See in-line comments for details.
+   *
+   * @see AbstractTransactionalAnnotatedConfigClassTests#afterTransaction()
+   * @see AbstractTransactionalAnnotatedConfigClassTests#modifyTestDataWithinTransaction()
+   */
+  @AfterTransaction
+  @Override
+  public void afterTransaction() {
+    assertThat(deletePerson(YODA)).as("Deleting yoda").isEqualTo(1);
 
-	/**
-	 * Overrides {@code afterTransaction()} in order to assert a different result.
-	 *
-	 * <p>See in-line comments for details.
-	 *
-	 * @see AbstractTransactionalAnnotatedConfigClassTests#afterTransaction()
-	 * @see AbstractTransactionalAnnotatedConfigClassTests#modifyTestDataWithinTransaction()
-	 */
-	@AfterTransaction
-	@Override
-	public void afterTransaction() {
-		assertThat(deletePerson(YODA)).as("Deleting yoda").isEqualTo(1);
-
-		// NOTE: We would actually expect that there are now ZERO entries in the
-		// person table, since the transaction is rolled back by the framework;
-		// however, since our JdbcTemplate and the transaction manager used by
-		// the Spring TestContext Framework use two different DataSource
-		// instances, our insert statements were executed in transactions that
-		// are not controlled by the test framework. Consequently, there was no
-		// rollback for the two insert statements in
-		// modifyTestDataWithinTransaction().
-		//
-		assertNumRowsInPersonTable(2, "after a transactional test method");
-	}
+    // NOTE: We would actually expect that there are now ZERO entries in the
+    // person table, since the transaction is rolled back by the framework;
+    // however, since our JdbcTemplate and the transaction manager used by
+    // the Spring TestContext Framework use two different DataSource
+    // instances, our insert statements were executed in transactions that
+    // are not controlled by the test framework. Consequently, there was no
+    // rollback for the two insert statements in
+    // modifyTestDataWithinTransaction().
+    //
+    assertNumRowsInPersonTable(2, "after a transactional test method");
+  }
 
 }

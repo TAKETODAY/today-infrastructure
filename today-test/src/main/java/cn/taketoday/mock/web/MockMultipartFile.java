@@ -26,7 +26,6 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import cn.taketoday.lang.Assert;
-import cn.taketoday.lang.NonNull;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.FileCopyUtils;
 import cn.taketoday.web.multipart.MultipartFile;
@@ -115,18 +114,13 @@ public class MockMultipartFile implements MultipartFile {
   }
 
   @Override
-  public String getFileName() {
+  public String getOriginalFilename() {
     return originalFilename;
   }
 
   @Override
-  public void save(File dest) throws IOException, IllegalStateException {
+  public void transferTo(File dest) throws IOException, IllegalStateException {
     FileCopyUtils.copy(this.content, dest);
-  }
-
-  @NonNull
-  public String getOriginalFilename() {
-    return this.originalFilename;
   }
 
   @Override

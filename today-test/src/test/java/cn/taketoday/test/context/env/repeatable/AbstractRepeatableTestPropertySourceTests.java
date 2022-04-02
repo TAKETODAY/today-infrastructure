@@ -21,12 +21,15 @@
 package cn.taketoday.test.context.env.repeatable;
 
 import org.junit.jupiter.api.extension.ExtendWith;
+
 import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.core.env.Environment;
 import cn.taketoday.test.context.ContextConfiguration;
 import cn.taketoday.test.context.TestPropertySource;
 import cn.taketoday.test.context.junit.jupiter.ApplicationExtension;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Abstract base class for integration tests involving
@@ -39,17 +42,15 @@ import cn.taketoday.test.context.junit.jupiter.ApplicationExtension;
 @ContextConfiguration
 abstract class AbstractRepeatableTestPropertySourceTests {
 
-	@Autowired
-	Environment env;
+  @Autowired
+  Environment env;
 
+  protected void assertEnvironmentValue(String key, String expected) {
+    assertThat(env.getProperty(key)).as("Value of key [" + key + "].").isEqualTo(expected);
+  }
 
-	protected void assertEnvironmentValue(String key, String expected) {
-		assertThat(env.getProperty(key)).as("Value of key [" + key + "].").isEqualTo(expected);
-	}
-
-
-	@Configuration
-	static class Config {
-	}
+  @Configuration
+  static class Config {
+  }
 
 }

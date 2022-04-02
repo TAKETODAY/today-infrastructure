@@ -22,8 +22,10 @@ package cn.taketoday.test.context.junit4.aci.annotation;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
 import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.context.ApplicationContextInitializer;
+import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.context.annotation.AnnotatedBeanDefinitionReader;
 import cn.taketoday.context.support.GenericApplicationContext;
 import cn.taketoday.test.context.ContextConfiguration;
@@ -43,22 +45,22 @@ import static org.assertj.core.api.Assertions.assertThat;
 @ContextConfiguration(initializers = InitializerWithoutConfigFilesOrClassesTests.EntireAppInitializer.class)
 public class InitializerWithoutConfigFilesOrClassesTests {
 
-	@Autowired
-	private String foo;
+  @Autowired
+  private String foo;
 
+  @Test
+  public void foo() {
+    assertThat(foo).isEqualTo("foo");
+  }
 
-	@Test
-	public void foo() {
-		assertThat(foo).isEqualTo("foo");
-	}
+  static class EntireAppInitializer implements ApplicationContextInitializer {
 
-
-	static class EntireAppInitializer implements ApplicationContextInitializer<GenericApplicationContext> {
-
-		@Override
-		public void initialize(GenericApplicationContext applicationContext) {
-			new AnnotatedBeanDefinitionReader(applicationContext).register(GlobalConfig.class);
-		}
-	}
+    @Override
+    public void initialize(ConfigurableApplicationContext applicationContext) {
+      if (applicationContext instanceof GenericApplicationContext context) {
+        new AnnotatedBeanDefinitionReader(context).register(GlobalConfig.class);
+      }
+    }
+  }
 
 }

@@ -36,7 +36,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  * @author JUnit 4.7 Team
  * @author Sam Brannen
- * @since 3.0
+ * @since 4.0
  */
 @RunWith(Runner.class)
 @TestExecutionListeners({})

@@ -26,7 +26,6 @@ import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.beans.factory.annotation.Value;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.test.context.TestPropertySource;
-import cn.taketoday.test.context.junit.SpringJUnitJupiterTestSuite;
 import cn.taketoday.test.context.junit.jupiter.comics.Dog;
 import cn.taketoday.test.context.junit.jupiter.comics.Person;
 
@@ -35,9 +34,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * Integration tests which demonstrate support for {@link Autowired @Autowired}
  * test class constructors with the Spring TestContext Framework and JUnit Jupiter.
- *
- * <p>To run these tests in an IDE that does not have built-in support for the JUnit
- * Platform, simply run {@link SpringJUnitJupiterTestSuite} as a JUnit 4 test.
  *
  * @author Sam Brannen
  * @see ApplicationExtension

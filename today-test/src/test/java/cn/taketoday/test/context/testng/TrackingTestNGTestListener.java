@@ -33,45 +33,44 @@ import org.testng.ITestResult;
  */
 public class TrackingTestNGTestListener implements ITestListener {
 
-	public int testStartCount = 0;
+  public int testStartCount = 0;
 
-	public int testSuccessCount = 0;
+  public int testSuccessCount = 0;
 
-	public int testFailureCount = 0;
+  public int testFailureCount = 0;
 
-	public int failedConfigurationsCount = 0;
+  public int failedConfigurationsCount = 0;
 
+  @Override
+  public void onFinish(ITestContext testContext) {
+    this.failedConfigurationsCount += testContext.getFailedConfigurations().size();
+  }
 
-	@Override
-	public void onFinish(ITestContext testContext) {
-		this.failedConfigurationsCount += testContext.getFailedConfigurations().size();
-	}
+  @Override
+  public void onStart(ITestContext testContext) {
+  }
 
-	@Override
-	public void onStart(ITestContext testContext) {
-	}
+  @Override
+  public void onTestFailedButWithinSuccessPercentage(ITestResult testResult) {
+  }
 
-	@Override
-	public void onTestFailedButWithinSuccessPercentage(ITestResult testResult) {
-	}
+  @Override
+  public void onTestFailure(ITestResult testResult) {
+    this.testFailureCount++;
+  }
 
-	@Override
-	public void onTestFailure(ITestResult testResult) {
-		this.testFailureCount++;
-	}
+  @Override
+  public void onTestSkipped(ITestResult testResult) {
+  }
 
-	@Override
-	public void onTestSkipped(ITestResult testResult) {
-	}
+  @Override
+  public void onTestStart(ITestResult testResult) {
+    this.testStartCount++;
+  }
 
-	@Override
-	public void onTestStart(ITestResult testResult) {
-		this.testStartCount++;
-	}
-
-	@Override
-	public void onTestSuccess(ITestResult testResult) {
-		this.testSuccessCount++;
-	}
+  @Override
+  public void onTestSuccess(ITestResult testResult) {
+    this.testSuccessCount++;
+  }
 
 }

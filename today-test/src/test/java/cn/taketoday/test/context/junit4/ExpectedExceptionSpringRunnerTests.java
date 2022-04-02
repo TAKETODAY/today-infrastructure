@@ -24,37 +24,35 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
-import cn.taketoday.test.context.TestExecutionListeners;
 
 import java.util.ArrayList;
 
-import static cn.taketoday.test.context.junit4.JUnitTestingUtils.runTestsAndAssertCounters;
+import cn.taketoday.test.context.TestExecutionListeners;
 
 /**
  * Verifies proper handling of JUnit's {@link Test#expected() &#064;Test(expected = ...)}
  * support in conjunction with the {@link Runner}.
  *
  * @author Sam Brannen
- * @since 3.0
+ * @since 4.0
  */
 @RunWith(JUnit4.class)
 public class ExpectedExceptionSpringRunnerTests {
 
-	@Test
-	public void expectedExceptions() throws Exception {
-		JUnitTestingUtils.runTestsAndAssertCounters(Runner.class, ExpectedExceptionSpringRunnerTestCase.class, 1, 0, 1, 0, 0);
-	}
+  @Test
+  public void expectedExceptions() throws Exception {
+    JUnitTestingUtils.runTestsAndAssertCounters(Runner.class, ExpectedExceptionSpringRunnerTestCase.class, 1, 0, 1, 0, 0);
+  }
 
+  @Ignore("TestCase classes are run manually by the enclosing test class")
+  @TestExecutionListeners({})
+  public static final class ExpectedExceptionSpringRunnerTestCase {
 
-	@Ignore("TestCase classes are run manually by the enclosing test class")
-	@TestExecutionListeners({})
-	public static final class ExpectedExceptionSpringRunnerTestCase {
-
-		// Should Pass.
-		@Test(expected = IndexOutOfBoundsException.class)
-		public void verifyJUnitExpectedException() {
-			new ArrayList<>().get(1);
-		}
-	}
+    // Should Pass.
+    @Test(expected = IndexOutOfBoundsException.class)
+    public void verifyJUnitExpectedException() {
+      new ArrayList<>().get(1);
+    }
+  }
 
 }

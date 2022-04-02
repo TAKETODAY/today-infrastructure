@@ -22,9 +22,6 @@ package cn.taketoday.test.context.web;
 
 import org.junit.jupiter.api.Test;
 
-import cn.taketoday.test.context.web.GenericXmlWebContextLoader;
-import cn.taketoday.test.context.web.WebMergedContextConfiguration;
-
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 
 /**
@@ -35,18 +32,17 @@ import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
  */
 class GenericXmlWebContextLoaderTests {
 
-	private static final String[] EMPTY_STRING_ARRAY = new String[0];
+  private static final String[] EMPTY_STRING_ARRAY = new String[0];
 
-
-	@Test
-	void configMustNotContainAnnotatedClasses() throws Exception {
-		GenericXmlWebContextLoader loader = new GenericXmlWebContextLoader();
-		WebMergedContextConfiguration mergedConfig = new WebMergedContextConfiguration(getClass(), EMPTY_STRING_ARRAY,
-				new Class<?>[] { getClass() }, null, EMPTY_STRING_ARRAY, EMPTY_STRING_ARRAY, EMPTY_STRING_ARRAY,
-				"resource/path", loader, null, null);
-		assertThatIllegalStateException()
-			.isThrownBy(() -> loader.loadContext(mergedConfig))
-			.withMessageContaining("does not support annotated classes");
-	}
+  @Test
+  void configMustNotContainAnnotatedClasses() throws Exception {
+    GenericXmlWebContextLoader loader = new GenericXmlWebContextLoader();
+    WebMergedContextConfiguration mergedConfig = new WebMergedContextConfiguration(getClass(), EMPTY_STRING_ARRAY,
+            new Class<?>[] { getClass() }, null, EMPTY_STRING_ARRAY, EMPTY_STRING_ARRAY, EMPTY_STRING_ARRAY,
+            "resource/path", loader, null, null);
+    assertThatIllegalStateException()
+            .isThrownBy(() -> loader.loadContext(mergedConfig))
+            .withMessageContaining("does not support annotated classes");
+  }
 
 }

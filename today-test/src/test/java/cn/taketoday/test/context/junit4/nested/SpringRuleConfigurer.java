@@ -22,6 +22,7 @@ package cn.taketoday.test.context.junit4.nested;
 
 import org.junit.ClassRule;
 import org.junit.Rule;
+
 import cn.taketoday.test.context.junit4.rules.ApplicationClassRule;
 import cn.taketoday.test.context.junit4.rules.ApplicationMethodRule;
 
@@ -34,10 +35,10 @@ import cn.taketoday.test.context.junit4.rules.ApplicationMethodRule;
  */
 public abstract class SpringRuleConfigurer {
 
-	@ClassRule
-	public static final ApplicationClassRule applicationClassRule = new ApplicationClassRule();
+  @ClassRule
+  public static final ApplicationClassRule applicationClassRule = new ApplicationClassRule();
 
-	@Rule
-	public final ApplicationMethodRule applicationMethodRule = new ApplicationMethodRule();
+  @Rule
+  public final ApplicationMethodRule applicationMethodRule = new ApplicationMethodRule();
 
 }

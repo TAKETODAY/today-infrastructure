@@ -22,6 +22,7 @@ package cn.taketoday.test.context.hierarchies.web;
 
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+
 import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.annotation.Bean;
@@ -29,7 +30,7 @@ import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.test.context.ContextConfiguration;
 import cn.taketoday.test.context.ContextHierarchy;
 import cn.taketoday.test.context.web.WebAppConfiguration;
-import cn.taketoday.web.context.WebApplicationContext;
+import cn.taketoday.web.WebApplicationContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -41,43 +42,41 @@ import static org.assertj.core.api.Assertions.assertThat;
 @ContextHierarchy(@ContextConfiguration)
 class RootWacEarTests extends EarTests {
 
-	@Configuration
-	static class RootWacConfig {
+  @Configuration
+  static class RootWacConfig {
 
-		@Bean
-		String root() {
-			return "root";
-		}
-	}
+    @Bean
+    String root() {
+      return "root";
+    }
+  }
 
+  // -------------------------------------------------------------------------
 
-	// -------------------------------------------------------------------------
+  @Autowired
+  private WebApplicationContext wac;
 
-	@Autowired
-	private WebApplicationContext wac;
+  @Autowired
+  private String ear;
 
-	@Autowired
-	private String ear;
+  @Autowired
+  private String root;
 
-	@Autowired
-	private String root;
+  @Disabled("Superseded by verifyRootWacConfig()")
+  @Test
+  @Override
+  void verifyEarConfig() {
+    /* no-op */
+  }
 
-
-	@Disabled("Superseded by verifyRootWacConfig()")
-	@Test
-	@Override
-	void verifyEarConfig() {
-		/* no-op */
-	}
-
-	@Test
-	void verifyRootWacConfig() {
-		ApplicationContext parent = wac.getParent();
-		assertThat(parent).isNotNull();
-		boolean condition = parent instanceof WebApplicationContext;
-		assertThat(condition).isFalse();
-		assertThat(ear).isEqualTo("ear");
-		assertThat(root).isEqualTo("root");
-	}
+  @Test
+  void verifyRootWacConfig() {
+    ApplicationContext parent = wac.getParent();
+    assertThat(parent).isNotNull();
+    boolean condition = parent instanceof WebApplicationContext;
+    assertThat(condition).isFalse();
+    assertThat(ear).isEqualTo("ear");
+    assertThat(root).isEqualTo("root");
+  }
 
 }

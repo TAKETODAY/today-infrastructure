@@ -20,8 +20,7 @@
 
 package cn.taketoday.test.context.web;
 
-import cn.taketoday.web.context.ServletContextAware;
-
+import cn.taketoday.web.servlet.ServletContextAware;
 import jakarta.servlet.ServletContext;
 
 /**
@@ -32,11 +31,11 @@ import jakarta.servlet.ServletContext;
  */
 public class ServletContextAwareBean implements ServletContextAware {
 
-	protected ServletContext servletContext;
+  protected ServletContext servletContext;
 
-	@Override
-	public void setServletContext(ServletContext servletContext) {
-		this.servletContext = servletContext;
-	}
+  @Override
+  public void setServletContext(ServletContext servletContext) {
+    this.servletContext = servletContext;
+  }
 
 }

@@ -21,6 +21,7 @@
 package cn.taketoday.test.context.junit4;
 
 import org.junit.runner.RunWith;
+
 import cn.taketoday.test.context.TestExecutionListeners;
 
 /**
@@ -35,13 +36,13 @@ import cn.taketoday.test.context.TestExecutionListeners;
  * </p>
  *
  * @author Sam Brannen
- * @since 2.5
  * @see StandardJUnit4FeaturesTests
+ * @since 4.0
  */
 @RunWith(Runner.class)
 @TestExecutionListeners({})
 public class StandardJUnit4FeaturesSpringRunnerTests extends StandardJUnit4FeaturesTests {
 
-	/* All tests are in the parent class... */
+  /* All tests are in the parent class... */
 
 }

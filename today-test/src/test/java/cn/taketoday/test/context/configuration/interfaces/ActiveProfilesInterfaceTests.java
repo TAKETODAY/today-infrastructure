@@ -22,12 +22,15 @@ package cn.taketoday.test.context.configuration.interfaces;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+
 import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.beans.testfixture.beans.Employee;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Profile;
 import cn.taketoday.test.context.junit.jupiter.ApplicationExtension;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Sam Brannen
@@ -36,31 +39,29 @@ import cn.taketoday.test.context.junit.jupiter.ApplicationExtension;
 @ExtendWith(ApplicationExtension.class)
 class ActiveProfilesInterfaceTests implements ActiveProfilesTestInterface {
 
-	@Autowired
-	Employee employee;
+  @Autowired
+  Employee employee;
 
+  @Test
+  void profileFromTestInterface() {
+    assertThat(employee).isNotNull();
+    assertThat(employee.getName()).isEqualTo("dev");
+  }
 
-	@Test
-	void profileFromTestInterface() {
-		assertThat(employee).isNotNull();
-		assertThat(employee.getName()).isEqualTo("dev");
-	}
+  @Configuration
+  static class Config {
 
+    @Bean
+    @Profile("dev")
+    Employee employee1() {
+      return new Employee("dev");
+    }
 
-	@Configuration
-	static class Config {
-
-		@Bean
-		@Profile("dev")
-		Employee employee1() {
-			return new Employee("dev");
-		}
-
-		@Bean
-		@Profile("prod")
-		Employee employee2() {
-			return new Employee("prod");
-		}
-	}
+    @Bean
+    @Profile("prod")
+    Employee employee2() {
+      return new Employee("prod");
+    }
+  }
 
 }

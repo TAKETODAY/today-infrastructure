@@ -22,6 +22,7 @@ package cn.taketoday.test.context.env;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+
 import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.PropertySource;
@@ -29,6 +30,8 @@ import cn.taketoday.core.env.Environment;
 import cn.taketoday.test.context.ContextConfiguration;
 import cn.taketoday.test.context.TestPropertySource;
 import cn.taketoday.test.context.junit.jupiter.ApplicationExtension;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Integration tests for {@link TestPropertySource @TestPropertySource}
@@ -45,22 +48,20 @@ import cn.taketoday.test.context.junit.jupiter.ApplicationExtension;
 @TestPropertySource("ApplicationPropertyOverridePropertiesFileTestPropertySourceTests.properties")
 class ApplicationPropertyOverridesPropertiesFileTestPropertySourceTests {
 
-	@Autowired
-	protected Environment env;
+  @Autowired
+  protected Environment env;
 
+  @Test
+  void verifyPropertiesAreAvailableInEnvironment() {
+    assertThat(env.getProperty("explicit")).isEqualTo("test override");
+  }
 
-	@Test
-	void verifyPropertiesAreAvailableInEnvironment() {
-		assertThat(env.getProperty("explicit")).isEqualTo("test override");
-	}
+  // -------------------------------------------------------------------
 
-
-	// -------------------------------------------------------------------
-
-	@Configuration
-	@PropertySource("classpath:/org/springframework/test/context/env/explicit.properties")
-	static class Config {
-		/* no user beans required for these tests */
-	}
+  @Configuration
+  @PropertySource("classpath:/cn/taketoday/test/context/env/explicit.properties")
+  static class Config {
+    /* no user beans required for these tests */
+  }
 
 }

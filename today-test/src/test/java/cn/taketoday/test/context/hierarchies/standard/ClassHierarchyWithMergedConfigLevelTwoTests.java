@@ -22,6 +22,7 @@ package cn.taketoday.test.context.hierarchies.standard;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+
 import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
@@ -39,28 +40,26 @@ import static org.assertj.core.api.Assertions.assertThat;
 @ContextHierarchy(@ContextConfiguration(name = "child", classes = ClassHierarchyWithMergedConfigLevelTwoTests.OrderConfig.class))
 class ClassHierarchyWithMergedConfigLevelTwoTests extends ClassHierarchyWithMergedConfigLevelOneTests {
 
-	@Configuration
-	static class OrderConfig {
+  @Configuration
+  static class OrderConfig {
 
-		@Autowired
-		private ClassHierarchyWithMergedConfigLevelOneTests.UserConfig userConfig;
+    @Autowired
+    private ClassHierarchyWithMergedConfigLevelOneTests.UserConfig userConfig;
 
-		@Bean
-		String order() {
-			return userConfig.user() + " + order";
-		}
-	}
+    @Bean
+    String order() {
+      return userConfig.user() + " + order";
+    }
+  }
 
+  @Autowired
+  private String order;
 
-	@Autowired
-	private String order;
-
-
-	@Test
-	@Override
-	void loadContextHierarchy() {
-		super.loadContextHierarchy();
-		assertThat(order).isEqualTo("parent + user + order");
-	}
+  @Test
+  @Override
+  void loadContextHierarchy() {
+    super.loadContextHierarchy();
+    assertThat(order).isEqualTo("parent + user + order");
+  }
 
 }

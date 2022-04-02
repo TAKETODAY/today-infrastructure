@@ -20,14 +20,14 @@
 
 package cn.taketoday.test.context.jdbc;
 
+import javax.sql.DataSource;
+
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.jdbc.core.JdbcTemplate;
 import cn.taketoday.jdbc.datasource.DataSourceTransactionManager;
 import cn.taketoday.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
 import cn.taketoday.transaction.PlatformTransactionManager;
-
-import javax.sql.DataSource;
 
 /**
  * Database configuration class for SQL script integration tests with the 'user'
@@ -39,22 +39,22 @@ import javax.sql.DataSource;
 @Configuration
 public class PopulatedSchemaDatabaseConfig {
 
-	@Bean
-	PlatformTransactionManager transactionManager() {
-		return new DataSourceTransactionManager(dataSource());
-	}
+  @Bean
+  PlatformTransactionManager transactionManager() {
+    return new DataSourceTransactionManager(dataSource());
+  }
 
-	@Bean
-	DataSource dataSource() {
-		return new EmbeddedDatabaseBuilder()//
-		.generateUniqueName(true)
-		.addScript("classpath:/org/springframework/test/context/jdbc/schema.sql") //
-		.build();
-	}
+  @Bean
+  DataSource dataSource() {
+    return new EmbeddedDatabaseBuilder()//
+            .generateUniqueName(true)
+            .addScript("classpath:/cn/taketoday/test/context/jdbc/schema.sql") //
+            .build();
+  }
 
-	@Bean
-	JdbcTemplate jdbcTemplate(DataSource dataSource) {
-		return new JdbcTemplate(dataSource);
-	}
+  @Bean
+  JdbcTemplate jdbcTemplate(DataSource dataSource) {
+    return new JdbcTemplate(dataSource);
+  }
 
 }

@@ -24,6 +24,7 @@ import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
+
 import cn.taketoday.test.context.junit4.ClassLevelDisabledSpringRunnerTests;
 
 /**
@@ -37,12 +38,12 @@ import cn.taketoday.test.context.junit4.ClassLevelDisabledSpringRunnerTests;
 @RunWith(JUnit4.class)
 public class ClassLevelDisabledSpringRuleTests extends ClassLevelDisabledSpringRunnerTests {
 
-	@ClassRule
-	public static final ApplicationClassRule applicationClassRule = new ApplicationClassRule();
+  @ClassRule
+  public static final ApplicationClassRule applicationClassRule = new ApplicationClassRule();
 
-	@Rule
-	public final ApplicationMethodRule applicationMethodRule = new ApplicationMethodRule();
+  @Rule
+  public final ApplicationMethodRule applicationMethodRule = new ApplicationMethodRule();
 
-	// All tests are in superclass.
+  // All tests are in superclass.
 
 }

@@ -22,6 +22,7 @@ package cn.taketoday.test.context.junit4.annotation.meta;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
 import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.test.context.junit4.JUnit4ClassRunner;
 
@@ -39,12 +40,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 @MetaMetaConfig
 public class MetaMetaConfigDefaultsTests {
 
-	@Autowired
-	private String foo;
+  @Autowired
+  private String foo;
 
-
-	@Test
-	public void foo() {
-		assertThat(foo).isEqualTo("Production Foo");
-	}
+  @Test
+  public void foo() {
+    assertThat(foo).isEqualTo("Production Foo");
+  }
 }

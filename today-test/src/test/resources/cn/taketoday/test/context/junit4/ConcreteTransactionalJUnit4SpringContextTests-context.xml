@@ -7,7 +7,7 @@
 	<import resource="transactionalTests-context.xml" />
 
 	<jdbc:initialize-database data-source="dataSource" >
-		<jdbc:script location="classpath:/org/springframework/test/jdbc/data.sql"/>
+		<jdbc:script location="classpath:/cn/taketoday/test/jdbc/data.sql"/>
 	</jdbc:initialize-database>
 
 	<bean id="employee" class="cn.taketoday.beans.testfixture.beans.Employee">

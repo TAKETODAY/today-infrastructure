@@ -24,11 +24,14 @@ import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
+
 import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.jdbc.core.JdbcTemplate;
 import cn.taketoday.test.annotation.DirtiesContext;
 import cn.taketoday.test.context.junit.jupiter.JUnitConfig;
 import cn.taketoday.test.jdbc.JdbcTestUtils;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Integration tests which verify that scripts executed via {@link Sql @Sql}
@@ -43,24 +46,24 @@ import cn.taketoday.test.jdbc.JdbcTestUtils;
 @DirtiesContext
 class NonTransactionalSqlScriptsTests {
 
-	@Autowired
-	JdbcTemplate jdbcTemplate;
+  @Autowired
+  JdbcTemplate jdbcTemplate;
 
-	@Test
-	@Order(1)
-	void classLevelScripts() {
-		assertNumUsers(1);
-	}
+  @Test
+  @Order(1)
+  void classLevelScripts() {
+    assertNumUsers(1);
+  }
 
-	@Test
-	@Sql("data-add-dogbert.sql")
-	@Order(2)
-	void methodLevelScripts() {
-		assertNumUsers(2);
-	}
+  @Test
+  @Sql("data-add-dogbert.sql")
+  @Order(2)
+  void methodLevelScripts() {
+    assertNumUsers(2);
+  }
 
-	void assertNumUsers(int expected) {
-		assertThat(JdbcTestUtils.countRowsInTable(jdbcTemplate, "user")).as("Number of rows in the 'user' table.").isEqualTo(expected);
-	}
+  void assertNumUsers(int expected) {
+    assertThat(JdbcTestUtils.countRowsInTable(jdbcTemplate, "user")).as("Number of rows in the 'user' table.").isEqualTo(expected);
+  }
 
 }

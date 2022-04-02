@@ -21,6 +21,7 @@
 package cn.taketoday.test.context.env;
 
 import org.junit.jupiter.api.Test;
+
 import cn.taketoday.test.context.TestPropertySource;
 
 /**
@@ -33,14 +34,14 @@ import cn.taketoday.test.context.TestPropertySource;
  */
 @TestPropertySource
 class ExtendedDefaultPropertiesFileDetectionTestPropertySourceTests extends
-		DefaultPropertiesFileDetectionTestPropertySourceTests {
+        DefaultPropertiesFileDetectionTestPropertySourceTests {
 
-	@Test
-	@Override
-	void verifyPropertiesAreAvailableInEnvironment() {
-		super.verifyPropertiesAreAvailableInEnvironment();
-		// from ExtendedDefaultPropertiesFileDetectionTestPropertySourceTests.properties
-		assertEnvironmentValue("enigma", "auto detected");
-	}
+  @Test
+  @Override
+  void verifyPropertiesAreAvailableInEnvironment() {
+    super.verifyPropertiesAreAvailableInEnvironment();
+    // from ExtendedDefaultPropertiesFileDetectionTestPropertySourceTests.properties
+    assertEnvironmentValue("enigma", "auto detected");
+  }
 
 }

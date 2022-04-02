@@ -21,6 +21,7 @@
 package cn.taketoday.test.context.junit4.rules;
 
 import org.junit.Test;
+
 import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
@@ -37,22 +38,20 @@ import static org.assertj.core.api.Assertions.assertThat;
 @ContextConfiguration
 public class Subclass1AppCtxRuleTests extends BaseAppCtxRuleTests {
 
-	@Autowired
-	private String bar;
+  @Autowired
+  private String bar;
 
+  @Test
+  public void bar() {
+    assertThat(bar).isEqualTo("bar");
+  }
 
-	@Test
-	public void bar() {
-		assertThat(bar).isEqualTo("bar");
-	}
+  @Configuration
+  static class Config {
 
-
-	@Configuration
-	static class Config {
-
-		@Bean
-		public String bar() {
-			return "bar";
-		}
-	}
+    @Bean
+    public String bar() {
+      return "bar";
+    }
+  }
 }

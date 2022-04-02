@@ -30,7 +30,6 @@ import java.util.Optional;
 
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.test.context.TestContextManager;
-import cn.taketoday.test.context.junit.SpringJUnitJupiterTestSuite;
 import cn.taketoday.util.ReflectionUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -43,9 +42,6 @@ import static org.mockito.Mockito.mock;
  * Tests for {@link DisabledIfCondition} that verify actual condition evaluation
  * results and exception handling; whereas, {@link DisabledIfTests} only tests
  * the <em>happy paths</em>.
- *
- * <p>To run these tests in an IDE that does not have built-in support for the JUnit
- * Platform, simply run {@link SpringJUnitJupiterTestSuite} as a JUnit 4 test.
  *
  * @author Sam Brannen
  * @see DisabledIfTests

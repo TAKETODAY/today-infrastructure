@@ -21,17 +21,20 @@
 package cn.taketoday.test.context.web;
 
 import org.junit.jupiter.api.Test;
+
 import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.test.context.BootstrapWith;
 import cn.taketoday.test.context.MergedContextConfiguration;
 import cn.taketoday.test.context.junit.jupiter.web.JUnitWebConfig;
-import cn.taketoday.web.context.WebApplicationContext;
+import cn.taketoday.web.servlet.WebServletApplicationContext;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * JUnit-based integration tests that verify support for loading a
- * {@link WebApplicationContext} with a custom {@link WebTestContextBootstrapper}.
+ * {@link WebServletApplicationContext} with a custom {@link WebTestContextBootstrapper}.
  *
  * @author Sam Brannen
  * @author Phillip Webb
@@ -41,33 +44,31 @@ import cn.taketoday.web.context.WebApplicationContext;
 @BootstrapWith(WebAppConfigurationBootstrapWithTests.CustomWebTestContextBootstrapper.class)
 class WebAppConfigurationBootstrapWithTests {
 
-	@Autowired
-	WebApplicationContext wac;
+  @Autowired
+  WebServletApplicationContext wac;
 
+  @Test
+  void webApplicationContextIsLoaded() {
+    // from: src/test/webapp/resources/Spring.js
+    Resource resource = wac.getResource("/resources/Spring.js");
+    assertThat(resource).isNotNull();
+    assertThat(resource.exists()).isTrue();
+  }
 
-	@Test
-	void webApplicationContextIsLoaded() {
-		// from: src/test/webapp/resources/Spring.js
-		Resource resource = wac.getResource("/resources/Spring.js");
-		assertThat(resource).isNotNull();
-		assertThat(resource.exists()).isTrue();
-	}
+  @Configuration
+  static class Config {
+  }
 
+  /**
+   * Custom {@link WebTestContextBootstrapper} that requires {@code @WebAppConfiguration}
+   * but hard codes the resource base path.
+   */
+  static class CustomWebTestContextBootstrapper extends WebTestContextBootstrapper {
 
-	@Configuration
-	static class Config {
-	}
-
-	/**
-	 * Custom {@link WebTestContextBootstrapper} that requires {@code @WebAppConfiguration}
-	 * but hard codes the resource base path.
-	 */
-	static class CustomWebTestContextBootstrapper extends WebTestContextBootstrapper {
-
-		@Override
-		protected MergedContextConfiguration processMergedContextConfiguration(MergedContextConfiguration mergedConfig) {
-			return new WebMergedContextConfiguration(mergedConfig, "src/test/webapp");
-		}
-	}
+    @Override
+    protected MergedContextConfiguration processMergedContextConfiguration(MergedContextConfiguration mergedConfig) {
+      return new WebMergedContextConfiguration(mergedConfig, "src/test/webapp");
+    }
+  }
 
 }

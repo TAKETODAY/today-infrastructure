@@ -24,8 +24,6 @@ import org.junit.Test;
 
 import cn.taketoday.test.context.junit4.JUnitTestingUtils;
 
-import static cn.taketoday.test.context.junit4.JUnitTestingUtils.runTestsAndAssertCounters;
-
 /**
  * Introduced to investigate claims in SPR-11145.
  *
@@ -36,9 +34,9 @@ import static cn.taketoday.test.context.junit4.JUnitTestingUtils.runTestsAndAsse
  */
 public class ServletContextAwareBeanWacTests {
 
-	@Test
-	public void ensureServletContextAwareBeanIsProcessedProperlyWhenExecutingJUnitManually() throws Exception {
-		JUnitTestingUtils.runTestsAndAssertCounters(BasicAnnotationConfigWacTests.class, 3, 0, 3, 0, 0);
-	}
+  @Test
+  public void ensureServletContextAwareBeanIsProcessedProperlyWhenExecutingJUnitManually() throws Exception {
+    JUnitTestingUtils.runTestsAndAssertCounters(BasicAnnotationConfigWacTests.class, 3, 0, 3, 0, 0);
+  }
 
 }

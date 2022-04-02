@@ -21,6 +21,7 @@
 package cn.taketoday.test.context.jdbc.merging;
 
 import org.junit.jupiter.api.Test;
+
 import cn.taketoday.test.context.jdbc.Sql;
 import cn.taketoday.test.context.jdbc.SqlMergeMode;
 
@@ -41,22 +42,22 @@ import static cn.taketoday.test.context.jdbc.SqlMergeMode.MergeMode.OVERRIDE;
 @SqlMergeMode(MERGE)
 class ClassLevelMergeSqlMergeModeTests extends AbstractSqlMergeModeTests {
 
-	@Test
-	void classLevelScripts() {
-		assertUsers("Catbert");
-	}
+  @Test
+  void classLevelScripts() {
+    assertUsers("Catbert");
+  }
 
-	@Test
-	@Sql("../data-add-dogbert.sql")
-	void merged() {
-		assertUsers("Catbert", "Dogbert");
-	}
+  @Test
+  @Sql("../data-add-dogbert.sql")
+  void merged() {
+    assertUsers("Catbert", "Dogbert");
+  }
 
-	@Test
-	@Sql({ "../recreate-schema.sql", "../data.sql", "../data-add-dogbert.sql", "../data-add-catbert.sql" })
-	@SqlMergeMode(OVERRIDE)
-	void overridden() {
-		assertUsers("Dilbert", "Dogbert", "Catbert");
-	}
+  @Test
+  @Sql({ "../recreate-schema.sql", "../data.sql", "../data-add-dogbert.sql", "../data-add-catbert.sql" })
+  @SqlMergeMode(OVERRIDE)
+  void overridden() {
+    assertUsers("Dilbert", "Dogbert", "Catbert");
+  }
 
 }

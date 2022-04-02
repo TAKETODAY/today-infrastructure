@@ -27,6 +27,9 @@ import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestName;
+
+import javax.sql.DataSource;
+
 import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.jdbc.core.JdbcTemplate;
 import cn.taketoday.test.context.transaction.AfterTransaction;
@@ -34,8 +37,6 @@ import cn.taketoday.test.context.transaction.BeforeTransaction;
 import cn.taketoday.test.transaction.TransactionAssert;
 import cn.taketoday.transaction.annotation.Propagation;
 import cn.taketoday.transaction.annotation.Transactional;
-
-import javax.sql.DataSource;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -45,100 +46,98 @@ import static org.assertj.core.api.Assertions.assertThat;
  * {@link AfterTransaction @AfterTransaction} behavior.
  *
  * @author Sam Brannen
- * @since 2.5
+ * @since 4.0
  */
 @Transactional
 public class BeforeAndAfterTransactionAnnotationTests extends AbstractTransactionalSpringRunnerTests {
 
-	protected static JdbcTemplate jdbcTemplate;
+  protected static JdbcTemplate jdbcTemplate;
 
-	protected static int numBeforeTransactionCalls = 0;
-	protected static int numAfterTransactionCalls = 0;
+  protected static int numBeforeTransactionCalls = 0;
+  protected static int numAfterTransactionCalls = 0;
 
-	protected boolean inTransaction = false;
+  protected boolean inTransaction = false;
 
-	@Rule
-	public final TestName testName = new TestName();
+  @Rule
+  public final TestName testName = new TestName();
 
+  @Autowired
+  public void setDataSource(DataSource dataSource) {
+    jdbcTemplate = new JdbcTemplate(dataSource);
+  }
 
-	@Autowired
-	public void setDataSource(DataSource dataSource) {
-		jdbcTemplate = new JdbcTemplate(dataSource);
-	}
+  @BeforeClass
+  public static void beforeClass() {
+    BeforeAndAfterTransactionAnnotationTests.numBeforeTransactionCalls = 0;
+    BeforeAndAfterTransactionAnnotationTests.numAfterTransactionCalls = 0;
+  }
 
+  @AfterClass
+  public static void afterClass() {
+    assertThat(countRowsInPersonTable(jdbcTemplate)).as("Verifying the final number of rows in the person table after all tests.").isEqualTo(3);
+    assertThat(BeforeAndAfterTransactionAnnotationTests.numBeforeTransactionCalls).as("Verifying the total number of calls to beforeTransaction().").isEqualTo(2);
+    assertThat(BeforeAndAfterTransactionAnnotationTests.numAfterTransactionCalls).as("Verifying the total number of calls to afterTransaction().").isEqualTo(2);
+  }
 
-	@BeforeClass
-	public static void beforeClass() {
-		BeforeAndAfterTransactionAnnotationTests.numBeforeTransactionCalls = 0;
-		BeforeAndAfterTransactionAnnotationTests.numAfterTransactionCalls = 0;
-	}
+  @BeforeTransaction
+  void beforeTransaction() {
+    TransactionAssert.assertThatTransaction().isNotActive();
+    this.inTransaction = true;
+    BeforeAndAfterTransactionAnnotationTests.numBeforeTransactionCalls++;
+    clearPersonTable(jdbcTemplate);
+    assertThat(addPerson(jdbcTemplate, YODA)).as("Adding yoda").isEqualTo(1);
+  }
 
-	@AfterClass
-	public static void afterClass() {
-		assertThat(countRowsInPersonTable(jdbcTemplate)).as("Verifying the final number of rows in the person table after all tests.").isEqualTo(3);
-		assertThat(BeforeAndAfterTransactionAnnotationTests.numBeforeTransactionCalls).as("Verifying the total number of calls to beforeTransaction().").isEqualTo(2);
-		assertThat(BeforeAndAfterTransactionAnnotationTests.numAfterTransactionCalls).as("Verifying the total number of calls to afterTransaction().").isEqualTo(2);
-	}
+  @AfterTransaction
+  void afterTransaction() {
+    TransactionAssert.assertThatTransaction().isNotActive();
+    this.inTransaction = false;
+    BeforeAndAfterTransactionAnnotationTests.numAfterTransactionCalls++;
+    assertThat(deletePerson(jdbcTemplate, YODA)).as("Deleting yoda").isEqualTo(1);
+    assertThat(countRowsInPersonTable(jdbcTemplate)).as("Verifying the number of rows in the person table after a transactional test method.").isEqualTo(0);
+  }
 
-	@BeforeTransaction
-	void beforeTransaction() {
-		TransactionAssert.assertThatTransaction().isNotActive();
-		this.inTransaction = true;
-		BeforeAndAfterTransactionAnnotationTests.numBeforeTransactionCalls++;
-		clearPersonTable(jdbcTemplate);
-		assertThat(addPerson(jdbcTemplate, YODA)).as("Adding yoda").isEqualTo(1);
-	}
+  @Before
+  public void before() {
+    assertShouldBeInTransaction();
+    long expected = (this.inTransaction ? 1
+                                        : 0);
+    assertThat(countRowsInPersonTable(jdbcTemplate)).as("Verifying the number of rows in the person table before a test method.").isEqualTo(expected);
+  }
 
-	@AfterTransaction
-	void afterTransaction() {
-		TransactionAssert.assertThatTransaction().isNotActive();
-		this.inTransaction = false;
-		BeforeAndAfterTransactionAnnotationTests.numAfterTransactionCalls++;
-		assertThat(deletePerson(jdbcTemplate, YODA)).as("Deleting yoda").isEqualTo(1);
-		assertThat(countRowsInPersonTable(jdbcTemplate)).as("Verifying the number of rows in the person table after a transactional test method.").isEqualTo(0);
-	}
+  private void assertShouldBeInTransaction() {
+    boolean shouldBeInTransaction = !testName.getMethodName().equals("nonTransactionalMethod");
+    TransactionAssert.assertThatTransaction().isInTransaction(shouldBeInTransaction);
+  }
 
-	@Before
-	public void before() {
-		assertShouldBeInTransaction();
-		long expected = (this.inTransaction ? 1
-				: 0);
-		assertThat(countRowsInPersonTable(jdbcTemplate)).as("Verifying the number of rows in the person table before a test method.").isEqualTo(expected);
-	}
+  @After
+  public void after() {
+    assertShouldBeInTransaction();
+  }
 
-	private void assertShouldBeInTransaction() {
-		boolean shouldBeInTransaction = !testName.getMethodName().equals("nonTransactionalMethod");
-		TransactionAssert.assertThatTransaction().isInTransaction(shouldBeInTransaction);
-	}
+  @Test
+  public void transactionalMethod1() {
+    TransactionAssert.assertThatTransaction().isActive();
+    assertThat(addPerson(jdbcTemplate, JANE)).as("Adding jane").isEqualTo(1);
+    assertThat(countRowsInPersonTable(jdbcTemplate)).as("Verifying the number of rows in the person table within transactionalMethod1().").isEqualTo(2);
+  }
 
-	@After
-	public void after() {
-		assertShouldBeInTransaction();
-	}
+  @Test
+  public void transactionalMethod2() {
+    TransactionAssert.assertThatTransaction().isActive();
+    assertThat(addPerson(jdbcTemplate, JANE)).as("Adding jane").isEqualTo(1);
+    assertThat(addPerson(jdbcTemplate, SUE)).as("Adding sue").isEqualTo(1);
+    assertThat(countRowsInPersonTable(jdbcTemplate)).as("Verifying the number of rows in the person table within transactionalMethod2().").isEqualTo(3);
+  }
 
-	@Test
-	public void transactionalMethod1() {
-		TransactionAssert.assertThatTransaction().isActive();
-		assertThat(addPerson(jdbcTemplate, JANE)).as("Adding jane").isEqualTo(1);
-		assertThat(countRowsInPersonTable(jdbcTemplate)).as("Verifying the number of rows in the person table within transactionalMethod1().").isEqualTo(2);
-	}
-
-	@Test
-	public void transactionalMethod2() {
-		TransactionAssert.assertThatTransaction().isActive();
-		assertThat(addPerson(jdbcTemplate, JANE)).as("Adding jane").isEqualTo(1);
-		assertThat(addPerson(jdbcTemplate, SUE)).as("Adding sue").isEqualTo(1);
-		assertThat(countRowsInPersonTable(jdbcTemplate)).as("Verifying the number of rows in the person table within transactionalMethod2().").isEqualTo(3);
-	}
-
-	@Test
-	@Transactional(propagation = Propagation.NOT_SUPPORTED)
-	public void nonTransactionalMethod() {
-		TransactionAssert.assertThatTransaction().isNotActive();
-		assertThat(addPerson(jdbcTemplate, LUKE)).as("Adding luke").isEqualTo(1);
-		assertThat(addPerson(jdbcTemplate, LEIA)).as("Adding leia").isEqualTo(1);
-		assertThat(addPerson(jdbcTemplate, YODA)).as("Adding yoda").isEqualTo(1);
-		assertThat(countRowsInPersonTable(jdbcTemplate)).as("Verifying the number of rows in the person table without a transaction.").isEqualTo(3);
-	}
+  @Test
+  @Transactional(propagation = Propagation.NOT_SUPPORTED)
+  public void nonTransactionalMethod() {
+    TransactionAssert.assertThatTransaction().isNotActive();
+    assertThat(addPerson(jdbcTemplate, LUKE)).as("Adding luke").isEqualTo(1);
+    assertThat(addPerson(jdbcTemplate, LEIA)).as("Adding leia").isEqualTo(1);
+    assertThat(addPerson(jdbcTemplate, YODA)).as("Adding yoda").isEqualTo(1);
+    assertThat(countRowsInPersonTable(jdbcTemplate)).as("Verifying the number of rows in the person table without a transaction.").isEqualTo(3);
+  }
 
 }

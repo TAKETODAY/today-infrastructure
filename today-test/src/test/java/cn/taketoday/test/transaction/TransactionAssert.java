@@ -22,6 +22,8 @@ package cn.taketoday.test.transaction;
 
 import cn.taketoday.transaction.support.TransactionSynchronizationManager;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 /**
  * Collection of assertions for tests involving transactions. Intended for
  * internal use within the Spring testing suite.
@@ -32,26 +34,26 @@ import cn.taketoday.transaction.support.TransactionSynchronizationManager;
  */
 public class TransactionAssert {
 
-	private static final TransactionAssert instance = new TransactionAssert();
+  private static final TransactionAssert instance = new TransactionAssert();
 
-	public TransactionAssert isActive() {
-		return isInTransaction(true);
-	}
+  public TransactionAssert isActive() {
+    return isInTransaction(true);
+  }
 
-	public TransactionAssert isNotActive() {
-		return isInTransaction(false);
+  public TransactionAssert isNotActive() {
+    return isInTransaction(false);
 
-	}
+  }
 
-	public TransactionAssert isInTransaction(boolean expected) {
-		assertThat(TransactionSynchronizationManager.isActualTransactionActive())
-				.as("active transaction")
-				.isEqualTo(expected);
-		return this;
-	}
+  public TransactionAssert isInTransaction(boolean expected) {
+    assertThat(TransactionSynchronizationManager.isActualTransactionActive())
+            .as("active transaction")
+            .isEqualTo(expected);
+    return this;
+  }
 
-	public static TransactionAssert assertThatTransaction() {
-		return instance;
-	}
+  public static TransactionAssert assertThatTransaction() {
+    return instance;
+  }
 
 }

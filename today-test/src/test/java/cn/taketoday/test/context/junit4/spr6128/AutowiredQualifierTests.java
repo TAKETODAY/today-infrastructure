@@ -22,6 +22,7 @@ package cn.taketoday.test.context.junit4.spr6128;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
 import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.beans.factory.annotation.Qualifier;
 import cn.taketoday.test.context.ContextConfiguration;
@@ -36,24 +37,23 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  * @author Sam Brannen
  * @author Chris Beams
- * @since 3.0
+ * @since 4.0
  */
 @ContextConfiguration
 @RunWith(JUnit4ClassRunner.class)
 public class AutowiredQualifierTests {
 
-	@Autowired
-	private String foo;
+  @Autowired
+  private String foo;
 
-	@Autowired
-	@Qualifier("customFoo")
-	private String customFoo;
+  @Autowired
+  @Qualifier("customFoo")
+  private String customFoo;
 
-
-	@Test
-	public void test() {
-		assertThat(foo).isEqualTo("normal");
-		assertThat(customFoo).isEqualTo("custom");
-	}
+  @Test
+  public void test() {
+    assertThat(foo).isEqualTo("normal");
+    assertThat(customFoo).isEqualTo("custom");
+  }
 
 }

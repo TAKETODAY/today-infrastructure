@@ -20,14 +20,14 @@
 
 package cn.taketoday.test.context.jdbc;
 
+import javax.sql.DataSource;
+
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.jdbc.core.JdbcTemplate;
 import cn.taketoday.jdbc.datasource.DataSourceTransactionManager;
 import cn.taketoday.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
 import cn.taketoday.transaction.PlatformTransactionManager;
-
-import javax.sql.DataSource;
 
 /**
  * Empty database configuration class for SQL script integration tests.
@@ -38,21 +38,21 @@ import javax.sql.DataSource;
 @Configuration
 public class EmptyDatabaseConfig {
 
-	@Bean
-	JdbcTemplate jdbcTemplate(DataSource dataSource) {
-		return new JdbcTemplate(dataSource);
-	}
+  @Bean
+  JdbcTemplate jdbcTemplate(DataSource dataSource) {
+    return new JdbcTemplate(dataSource);
+  }
 
-	@Bean
-	PlatformTransactionManager transactionManager(DataSource dataSource) {
-		return new DataSourceTransactionManager(dataSource);
-	}
+  @Bean
+  PlatformTransactionManager transactionManager(DataSource dataSource) {
+    return new DataSourceTransactionManager(dataSource);
+  }
 
-	@Bean
-	DataSource dataSource() {
-		return new EmbeddedDatabaseBuilder()//
-		.setName("empty-sql-scripts-test-db")//
-		.build();
-	}
+  @Bean
+  DataSource dataSource() {
+    return new EmbeddedDatabaseBuilder()//
+            .setName("empty-sql-scripts-test-db")//
+            .build();
+  }
 
 }

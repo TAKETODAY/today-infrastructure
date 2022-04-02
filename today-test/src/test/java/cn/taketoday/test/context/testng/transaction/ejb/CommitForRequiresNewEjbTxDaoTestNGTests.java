@@ -20,12 +20,12 @@
 
 package cn.taketoday.test.context.testng.transaction.ejb;
 
+import org.testng.annotations.Test;
+
 import cn.taketoday.test.annotation.Commit;
 import cn.taketoday.test.context.ContextConfiguration;
 import cn.taketoday.test.context.transaction.TransactionalTestExecutionListener;
 import cn.taketoday.test.context.transaction.ejb.dao.RequiresNewEjbTxTestEntityDao;
-
-import org.testng.annotations.Test;
 
 /**
  * Concrete subclass of {@link AbstractEjbTxDaoTestNGTests} which uses the
@@ -37,10 +37,10 @@ import org.testng.annotations.Test;
  * @since 4.0
  */
 @Test(suiteName = "Commit for REQUIRES_NEW")
-@ContextConfiguration("/org/springframework/test/context/transaction/ejb/requires-new-tx-config.xml")
+@ContextConfiguration("/cn/taketoday/test/context/transaction/ejb/requires-new-tx-config.xml")
 @Commit
 public class CommitForRequiresNewEjbTxDaoTestNGTests extends AbstractEjbTxDaoTestNGTests {
 
-	/* test methods in superclass */
+  /* test methods in superclass */
 
 }

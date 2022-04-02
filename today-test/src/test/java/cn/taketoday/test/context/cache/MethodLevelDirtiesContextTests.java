@@ -24,6 +24,9 @@ import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
+
+import java.util.concurrent.atomic.AtomicInteger;
+
 import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.context.annotation.Bean;
@@ -34,10 +37,8 @@ import cn.taketoday.test.context.support.DependencyInjectionTestExecutionListene
 import cn.taketoday.test.context.support.DirtiesContextBeforeModesTestExecutionListener;
 import cn.taketoday.test.context.support.DirtiesContextTestExecutionListener;
 
-import java.util.concurrent.atomic.AtomicInteger;
-
-import static org.assertj.core.api.Assertions.assertThat;
 import static cn.taketoday.test.annotation.DirtiesContext.MethodMode.BEFORE_METHOD;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Integration test which verifies correct interaction between the
@@ -53,60 +54,57 @@ import static cn.taketoday.test.annotation.DirtiesContext.MethodMode.BEFORE_METH
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class MethodLevelDirtiesContextTests {
 
-	private static final AtomicInteger contextCount = new AtomicInteger();
+  private static final AtomicInteger contextCount = new AtomicInteger();
 
+  @Autowired
+  private ConfigurableApplicationContext context;
 
-	@Autowired
-	private ConfigurableApplicationContext context;
+  @Autowired
+  private Integer count;
 
-	@Autowired
-	private Integer count;
+  @Test
+  @Order(1)
+  void basics() throws Exception {
+    performAssertions(1);
+  }
 
+  @Test
+  @Order(2)
+  @DirtiesContext(methodMode = BEFORE_METHOD)
+  void dirtyContextBeforeTestMethod() throws Exception {
+    performAssertions(2);
+  }
 
-	@Test
-	@Order(1)
-	void basics() throws Exception {
-		performAssertions(1);
-	}
+  @Test
+  @Order(3)
+  @DirtiesContext
+  void dirtyContextAfterTestMethod() throws Exception {
+    performAssertions(2);
+  }
 
-	@Test
-	@Order(2)
-	@DirtiesContext(methodMode = BEFORE_METHOD)
-	void dirtyContextBeforeTestMethod() throws Exception {
-		performAssertions(2);
-	}
+  @Test
+  @Order(4)
+  void backToBasics() throws Exception {
+    performAssertions(3);
+  }
 
-	@Test
-	@Order(3)
-	@DirtiesContext
-	void dirtyContextAfterTestMethod() throws Exception {
-		performAssertions(2);
-	}
+  private void performAssertions(int expectedContextCreationCount) throws Exception {
+    assertThat(this.context).as("context must not be null").isNotNull();
+    assertThat(this.context.isActive()).as("context must be active").isTrue();
 
-	@Test
-	@Order(4)
-	void backToBasics() throws Exception {
-		performAssertions(3);
-	}
+    assertThat(this.count).as("count must not be null").isNotNull();
+    assertThat(this.count.intValue()).as("count: ").isEqualTo(expectedContextCreationCount);
 
-	private void performAssertions(int expectedContextCreationCount) throws Exception {
-		assertThat(this.context).as("context must not be null").isNotNull();
-		assertThat(this.context.isActive()).as("context must be active").isTrue();
+    assertThat(contextCount.get()).as("context creation count: ").isEqualTo(expectedContextCreationCount);
+  }
 
-		assertThat(this.count).as("count must not be null").isNotNull();
-		assertThat(this.count.intValue()).as("count: ").isEqualTo(expectedContextCreationCount);
+  @Configuration
+  static class Config {
 
-		assertThat(contextCount.get()).as("context creation count: ").isEqualTo(expectedContextCreationCount);
-	}
-
-
-	@Configuration
-	static class Config {
-
-		@Bean
-		Integer count() {
-			return contextCount.incrementAndGet();
-		}
-	}
+    @Bean
+    Integer count() {
+      return contextCount.incrementAndGet();
+    }
+  }
 
 }

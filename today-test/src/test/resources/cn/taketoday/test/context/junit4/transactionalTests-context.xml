@@ -5,11 +5,11 @@
 		http://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans.xsd">
 
 	<jdbc:embedded-database id="dataSource" generate-name="true">
-		<jdbc:script location="classpath:/org/springframework/test/jdbc/schema.sql"/>
+		<jdbc:script location="classpath:/cn/taketoday/test/jdbc/schema.sql"/>
 	</jdbc:embedded-database>
 
 	<jdbc:embedded-database id="dataSource2" generate-name="true">
-		<jdbc:script location="classpath:/org/springframework/test/jdbc/schema.sql"/>
+		<jdbc:script location="classpath:/cn/taketoday/test/jdbc/schema.sql"/>
 	</jdbc:embedded-database>
 
 	<bean id="transactionManager" class="cn.taketoday.jdbc.datasource.DataSourceTransactionManager"

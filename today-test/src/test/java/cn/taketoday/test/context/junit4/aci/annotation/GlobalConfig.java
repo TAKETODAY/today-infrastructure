@@ -30,13 +30,13 @@ import cn.taketoday.context.annotation.Configuration;
 @Configuration
 class GlobalConfig {
 
-	@Bean
-	public String foo() {
-		return "foo";
-	}
+  @Bean
+  public String foo() {
+    return "foo";
+  }
 
-	@Bean
-	public String baz() {
-		return "global config";
-	}
+  @Bean
+  public String baz() {
+    return "global config";
+  }
 }

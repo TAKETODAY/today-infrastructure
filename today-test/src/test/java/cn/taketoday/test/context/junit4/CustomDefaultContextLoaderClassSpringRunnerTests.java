@@ -22,6 +22,7 @@ package cn.taketoday.test.context.junit4;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
 import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.beans.testfixture.beans.Pet;
 import cn.taketoday.test.context.BootstrapWith;
@@ -37,37 +38,35 @@ import static org.assertj.core.api.Assertions.assertThat;
  * default class name.
  *
  * @author Sam Brannen
- * @since 3.0
+ * @since 4.0
  */
 @RunWith(Runner.class)
 @BootstrapWith(CustomDefaultContextLoaderClassSpringRunnerTests.PropertiesBasedTestContextBootstrapper.class)
 @ContextConfiguration("PropertiesBasedSpringJUnit4ClassRunnerAppCtxTests-context.properties")
 public class CustomDefaultContextLoaderClassSpringRunnerTests {
 
-	@Autowired
-	private Pet cat;
+  @Autowired
+  private Pet cat;
 
-	@Autowired
-	private String testString;
+  @Autowired
+  private String testString;
 
+  @Test
+  public void verifyAnnotationAutowiredFields() {
+    assertThat(this.cat).as("The cat field should have been autowired.").isNotNull();
+    assertThat(this.cat.getName()).isEqualTo("Garfield");
 
-	@Test
-	public void verifyAnnotationAutowiredFields() {
-		assertThat(this.cat).as("The cat field should have been autowired.").isNotNull();
-		assertThat(this.cat.getName()).isEqualTo("Garfield");
+    assertThat(this.testString).as("The testString field should have been autowired.").isNotNull();
+    assertThat(this.testString).isEqualTo("Test String");
+  }
 
-		assertThat(this.testString).as("The testString field should have been autowired.").isNotNull();
-		assertThat(this.testString).isEqualTo("Test String");
-	}
+  public static class PropertiesBasedTestContextBootstrapper extends DefaultTestContextBootstrapper {
 
-
-	public static class PropertiesBasedTestContextBootstrapper extends DefaultTestContextBootstrapper {
-
-		@Override
-		@SuppressWarnings("deprecation")
-		protected Class<? extends ContextLoader> getDefaultContextLoaderClass(Class<?> testClass) {
-			return cn.taketoday.test.context.support.GenericPropertiesContextLoader.class;
-		}
-	}
+    @Override
+    @SuppressWarnings("deprecation")
+    protected Class<? extends ContextLoader> getDefaultContextLoaderClass(Class<?> testClass) {
+      return cn.taketoday.test.context.support.GenericPropertiesContextLoader.class;
+    }
+  }
 
 }

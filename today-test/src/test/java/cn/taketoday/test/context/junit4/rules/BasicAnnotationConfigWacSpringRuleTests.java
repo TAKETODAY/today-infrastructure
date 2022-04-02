@@ -38,12 +38,12 @@ import cn.taketoday.test.context.web.BasicAnnotationConfigWacTests;
 @RunWith(JUnit4.class)
 public class BasicAnnotationConfigWacSpringRuleTests extends BasicAnnotationConfigWacTests {
 
-	// All tests are in superclass.
+  // All tests are in superclass.
 
-	@ClassRule
-	public static final ApplicationClassRule applicationClassRule = new ApplicationClassRule();
+  @ClassRule
+  public static final ApplicationClassRule applicationClassRule = new ApplicationClassRule();
 
-	@Rule
-	public final ApplicationMethodRule applicationMethodRule = new ApplicationMethodRule();
+  @Rule
+  public final ApplicationMethodRule applicationMethodRule = new ApplicationMethodRule();
 
 }

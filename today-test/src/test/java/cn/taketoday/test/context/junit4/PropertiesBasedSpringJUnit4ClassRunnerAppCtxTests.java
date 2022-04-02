@@ -22,12 +22,13 @@ package cn.taketoday.test.context.junit4;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import java.util.Properties;
+
 import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.beans.testfixture.beans.Pet;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.test.context.ContextConfiguration;
-
-import java.util.Properties;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -47,34 +48,32 @@ import static org.assertj.core.api.Assertions.assertThat;
  * resource locations will be detected by default, this test class's dependencies will be
  * injected via {@link Autowired annotation-based autowiring} from beans defined in the
  * {@link ApplicationContext} loaded from the default classpath resource: &quot;
- * {@code /org/springframework/test/junit4/PropertiesBasedSpringJUnit4ClassRunnerAppCtxTests-context.properties}
+ * {@code /cn/taketoday/test/junit4/PropertiesBasedSpringJUnit4ClassRunnerAppCtxTests-context.properties}
  * &quot;.
  * </p>
  *
  * @author Sam Brannen
- * @since 2.5
  * @see cn.taketoday.test.context.support.GenericPropertiesContextLoader
- * @see SpringJUnit4ClassRunnerAppCtxTests
+ * @see JUnit4ClassRunnerAppCtxTests
+ * @since 4.0
  */
 @RunWith(Runner.class)
-@SuppressWarnings("deprecation")
 @ContextConfiguration(loader = cn.taketoday.test.context.support.GenericPropertiesContextLoader.class)
 public class PropertiesBasedSpringJUnit4ClassRunnerAppCtxTests {
 
-	@Autowired
-	private Pet cat;
+  @Autowired
+  private Pet cat;
 
-	@Autowired
-	private String testString;
+  @Autowired
+  private String testString;
 
+  @Test
+  public void verifyAnnotationAutowiredFields() {
+    assertThat(this.cat).as("The cat field should have been autowired.").isNotNull();
+    assertThat(this.cat.getName()).isEqualTo("Garfield");
 
-	@Test
-	public void verifyAnnotationAutowiredFields() {
-		assertThat(this.cat).as("The cat field should have been autowired.").isNotNull();
-		assertThat(this.cat.getName()).isEqualTo("Garfield");
-
-		assertThat(this.testString).as("The testString field should have been autowired.").isNotNull();
-		assertThat(this.testString).isEqualTo("Test String");
-	}
+    assertThat(this.testString).as("The testString field should have been autowired.").isNotNull();
+    assertThat(this.testString).isEqualTo("Test String");
+  }
 
 }

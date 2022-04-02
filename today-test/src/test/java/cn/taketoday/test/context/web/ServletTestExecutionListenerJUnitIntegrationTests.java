@@ -21,56 +21,57 @@
 package cn.taketoday.test.context.web;
 
 import org.junit.jupiter.api.Test;
+
 import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.mock.web.MockHttpServletRequest;
 import cn.taketoday.test.context.junit.jupiter.web.JUnitWebConfig;
 import cn.taketoday.test.context.testng.web.ServletTestExecutionListenerTestNGIntegrationTests;
-import cn.taketoday.web.context.request.RequestContextHolder;
-import cn.taketoday.web.context.request.ServletRequestAttributes;
+import cn.taketoday.web.RequestContextHolder;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * JUnit-based integration tests for {@link ServletTestExecutionListener}.
  *
  * @author Sam Brannen
- * @since 4.0
  * @see ServletTestExecutionListenerTestNGIntegrationTests
+ * @since 4.0
  */
 @JUnitWebConfig
 class ServletTestExecutionListenerJUnitIntegrationTests {
 
-	@Configuration
-	static class Config {
-		/* no beans required for this test */
-	}
+  @Configuration
+  static class Config {
+    /* no beans required for this test */
+  }
 
+  @Autowired
+  private MockHttpServletRequest servletRequest;
 
-	@Autowired
-	private MockHttpServletRequest servletRequest;
+  /**
+   * Verifies bug fix for <a href="https://jira.spring.io/browse/SPR-11626">SPR-11626</a>.
+   *
+   * @see #ensureMocksAreReinjectedBetweenTests_2
+   */
+  @Test
+  void ensureMocksAreReinjectedBetweenTests_1() {
+    assertInjectedServletRequestEqualsRequestInRequestContextHolder();
+  }
 
+  /**
+   * Verifies bug fix for <a href="https://jira.spring.io/browse/SPR-11626">SPR-11626</a>.
+   *
+   * @see #ensureMocksAreReinjectedBetweenTests_1
+   */
+  @Test
+  void ensureMocksAreReinjectedBetweenTests_2() {
+    assertInjectedServletRequestEqualsRequestInRequestContextHolder();
+  }
 
-	/**
-	 * Verifies bug fix for <a href="https://jira.spring.io/browse/SPR-11626">SPR-11626</a>.
-	 *
-	 * @see #ensureMocksAreReinjectedBetweenTests_2
-	 */
-	@Test
-	void ensureMocksAreReinjectedBetweenTests_1() {
-		assertInjectedServletRequestEqualsRequestInRequestContextHolder();
-	}
-
-	/**
-	 * Verifies bug fix for <a href="https://jira.spring.io/browse/SPR-11626">SPR-11626</a>.
-	 *
-	 * @see #ensureMocksAreReinjectedBetweenTests_1
-	 */
-	@Test
-	void ensureMocksAreReinjectedBetweenTests_2() {
-		assertInjectedServletRequestEqualsRequestInRequestContextHolder();
-	}
-
-	private void assertInjectedServletRequestEqualsRequestInRequestContextHolder() {
-		assertThat(((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest()).as("Injected ServletRequest must be stored in the RequestContextHolder").isEqualTo(servletRequest);
-	}
+  private void assertInjectedServletRequestEqualsRequestInRequestContextHolder() {
+    assertThat(RequestContextHolder.get()).as("Injected ServletRequest must be stored in the RequestContextHolder")
+            .isEqualTo(servletRequest);
+  }
 
 }

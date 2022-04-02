@@ -21,8 +21,11 @@
 package cn.taketoday.test.context.junit4.annotation;
 
 import org.junit.Test;
+
 import cn.taketoday.test.context.ContextConfiguration;
 import cn.taketoday.test.context.support.DelegatingSmartContextLoader;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Integration tests that verify support for configuration classes in
@@ -34,13 +37,13 @@ import cn.taketoday.test.context.support.DelegatingSmartContextLoader;
  */
 @ContextConfiguration(classes = DefaultLoaderBeanOverridingDefaultConfigClassesInheritedTests.Config.class)
 public class DefaultLoaderBeanOverridingExplicitConfigClassesInheritedTests extends
-		DefaultLoaderExplicitConfigClassesBaseTests {
+        DefaultLoaderExplicitConfigClassesBaseTests {
 
-	@Test
-	@Override
-	public void verifyEmployeeSetFromBaseContextConfig() {
-		assertThat(this.employee).as("The employee should have been autowired.").isNotNull();
-		assertThat(this.employee.getName()).as("The employee bean should have been overridden.").isEqualTo("Yoda");
-	}
+  @Test
+  @Override
+  public void verifyEmployeeSetFromBaseContextConfig() {
+    assertThat(this.employee).as("The employee should have been autowired.").isNotNull();
+    assertThat(this.employee.getName()).as("The employee bean should have been overridden.").isEqualTo("Yoda");
+  }
 
 }

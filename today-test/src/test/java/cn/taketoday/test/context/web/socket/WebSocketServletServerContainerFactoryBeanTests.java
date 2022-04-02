@@ -20,15 +20,15 @@
 
 package cn.taketoday.test.context.web.socket;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+
 import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.test.context.junit.jupiter.web.JUnitWebConfig;
 import cn.taketoday.test.context.web.WebAppConfiguration;
-import cn.taketoday.web.socket.config.annotation.EnableWebSocket;
-import cn.taketoday.web.socket.server.standard.ServletServerContainerFactoryBean;
-
+import cn.taketoday.web.socket.EnableWebSocket;
 import jakarta.websocket.server.ServerContainer;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -41,25 +41,25 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Sam Brannen
  * @since 4.0
  */
+@Disabled("TODO-web-socket")
 @JUnitWebConfig
 class WebSocketServletServerContainerFactoryBeanTests {
 
-	@Test
-	void servletServerContainerFactoryBeanSupport(@Autowired ServerContainer serverContainer) {
-		assertThat(serverContainer.getDefaultMaxTextMessageBufferSize()).isEqualTo(42);
-	}
+  @Test
+  void servletServerContainerFactoryBeanSupport(@Autowired ServerContainer serverContainer) {
+    assertThat(serverContainer.getDefaultMaxTextMessageBufferSize()).isEqualTo(42);
+  }
 
+  @Configuration
+  @EnableWebSocket
+  static class WebSocketConfig {
 
-	@Configuration
-	@EnableWebSocket
-	static class WebSocketConfig {
-
-		@Bean
-		ServletServerContainerFactoryBean createWebSocketContainer() {
-			ServletServerContainerFactoryBean container = new ServletServerContainerFactoryBean();
-			container.setMaxTextMessageBufferSize(42);
-			return container;
-		}
-	}
+//    @Bean
+//    ServletServerContainerFactoryBean createWebSocketContainer() {
+//      ServletServerContainerFactoryBean container = new ServletServerContainerFactoryBean();
+//      container.setMaxTextMessageBufferSize(42);
+//      return container;
+//    }
+  }
 
 }

@@ -35,7 +35,6 @@ import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.support.GenericApplicationContext;
 import cn.taketoday.test.context.ContextConfiguration;
 import cn.taketoday.test.context.TestPropertySource;
-import cn.taketoday.test.context.junit.SpringJUnitJupiterTestSuite;
 import cn.taketoday.test.context.junit.jupiter.comics.Cat;
 import cn.taketoday.test.context.junit.jupiter.comics.Dog;
 import cn.taketoday.test.context.junit.jupiter.comics.Person;
@@ -45,9 +44,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * Integration tests which demonstrate that the Spring TestContext Framework can
  * be used with JUnit Jupiter via the {@link ApplicationExtension}.
- *
- * <p>To run these tests in an IDE that does not have built-in support for the JUnit
- * Platform, simply run {@link SpringJUnitJupiterTestSuite} as a JUnit 4 test.
  *
  * @author Sam Brannen
  * @see ApplicationExtension

@@ -22,6 +22,7 @@ package cn.taketoday.test.context.configuration.interfaces;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+
 import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.test.context.junit.jupiter.ApplicationExtension;
 
@@ -34,13 +35,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 @ExtendWith(ApplicationExtension.class)
 class BootstrapWithInterfaceTests implements BootstrapWithTestInterface {
 
-	@Autowired
-	String foo;
+  @Autowired
+  String foo;
 
-
-	@Test
-	void injectedBean() {
-		assertThat(foo).isEqualTo("foo");
-	}
+  @Test
+  void injectedBean() {
+    assertThat(foo).isEqualTo("foo");
+  }
 
 }

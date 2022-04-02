@@ -22,6 +22,7 @@ package cn.taketoday.test.context.env;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+
 import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.beans.factory.annotation.Value;
 import cn.taketoday.context.annotation.Configuration;
@@ -44,22 +45,20 @@ import static org.assertj.core.api.Assertions.assertThat;
 @TestPropertySource(locations = "explicit.properties", properties = "explicit = inlined")
 class InlinedPropertiesOverridePropertiesFilesTestPropertySourceTests {
 
-	@Autowired
-	Environment env;
+  @Autowired
+  Environment env;
 
-	@Value("${explicit}")
-	String explicit;
+  @Value("${explicit}")
+  String explicit;
 
+  @Test
+  void inlinedPropertyOverridesValueFromPropertiesFile() {
+    assertThat(env.getProperty("explicit")).isEqualTo("inlined");
+    assertThat(this.explicit).isEqualTo("inlined");
+  }
 
-	@Test
-	void inlinedPropertyOverridesValueFromPropertiesFile() {
-		assertThat(env.getProperty("explicit")).isEqualTo("inlined");
-		assertThat(this.explicit).isEqualTo("inlined");
-	}
-
-
-	@Configuration
-	static class Config {
-	}
+  @Configuration
+  static class Config {
+  }
 
 }

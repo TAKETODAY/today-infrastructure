@@ -69,7 +69,7 @@ public final class ServletPartMultipartFile extends AbstractMultipartFile implem
    * Return the original filename in the client's filesystem.
    */
   @Override
-  public String getFileName() {
+  public String getOriginalFilename() {
     return part.getSubmittedFileName();
   }
 

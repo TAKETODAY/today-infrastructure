@@ -21,6 +21,7 @@
 package cn.taketoday.test.context.env.repeatable;
 
 import org.junit.jupiter.api.Test;
+
 import cn.taketoday.test.context.TestPropertySource;
 
 /**
@@ -34,12 +35,12 @@ import cn.taketoday.test.context.TestPropertySource;
 @TestPropertySource
 @TestPropertySource("local.properties")
 class DefaultPropertiesFileDetectionRepeatedTestPropertySourceTests
-		extends AbstractRepeatableTestPropertySourceTests {
+        extends AbstractRepeatableTestPropertySourceTests {
 
-	@Test
-	void test() {
-		assertEnvironmentValue("default.value", "default file");
-		assertEnvironmentValue("key1", "local file");
-	}
+  @Test
+  void test() {
+    assertEnvironmentValue("default.value", "default file");
+    assertEnvironmentValue("key1", "local file");
+  }
 
 }

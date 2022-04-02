@@ -22,13 +22,14 @@ package cn.taketoday.test.context.hierarchies.web;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+
 import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.test.context.ContextConfiguration;
 import cn.taketoday.test.context.junit.jupiter.ApplicationExtension;
-import cn.taketoday.web.context.WebApplicationContext;
+import cn.taketoday.web.servlet.WebServletApplicationContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -40,31 +41,29 @@ import static org.assertj.core.api.Assertions.assertThat;
 @ContextConfiguration
 class EarTests {
 
-	@Configuration
-	static class EarConfig {
+  @Configuration
+  static class EarConfig {
 
-		@Bean
-		String ear() {
-			return "ear";
-		}
-	}
+    @Bean
+    String ear() {
+      return "ear";
+    }
+  }
 
+  // -------------------------------------------------------------------------
 
-	// -------------------------------------------------------------------------
+  @Autowired
+  private ApplicationContext context;
 
-	@Autowired
-	private ApplicationContext context;
+  @Autowired
+  private String ear;
 
-	@Autowired
-	private String ear;
-
-
-	@Test
-	void verifyEarConfig() {
-		boolean condition = context instanceof WebApplicationContext;
-		assertThat(condition).isFalse();
-		assertThat(context.getParent()).isNull();
-		assertThat(ear).isEqualTo("ear");
-	}
+  @Test
+  void verifyEarConfig() {
+    boolean condition = context instanceof WebServletApplicationContext;
+    assertThat(condition).isFalse();
+    assertThat(context.getParent()).isNull();
+    assertThat(ear).isEqualTo("ear");
+  }
 
 }

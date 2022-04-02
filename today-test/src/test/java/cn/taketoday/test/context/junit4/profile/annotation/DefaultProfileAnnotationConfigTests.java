@@ -22,12 +22,15 @@ package cn.taketoday.test.context.junit4.profile.annotation;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
 import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.beans.testfixture.beans.Employee;
 import cn.taketoday.beans.testfixture.beans.Pet;
 import cn.taketoday.test.context.ContextConfiguration;
 import cn.taketoday.test.context.junit4.JUnit4ClassRunner;
 import cn.taketoday.test.context.support.AnnotationConfigContextLoader;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Sam Brannen
@@ -37,22 +40,21 @@ import cn.taketoday.test.context.support.AnnotationConfigContextLoader;
 @ContextConfiguration(classes = { DefaultProfileConfig.class, DevProfileConfig.class }, loader = AnnotationConfigContextLoader.class)
 public class DefaultProfileAnnotationConfigTests {
 
-	@Autowired
-	protected Pet pet;
+  @Autowired
+  protected Pet pet;
 
-	@Autowired(required = false)
-	protected Employee employee;
+  @Autowired(required = false)
+  protected Employee employee;
 
+  @Test
+  public void pet() {
+    assertThat(pet).isNotNull();
+    assertThat(pet.getName()).isEqualTo("Fido");
+  }
 
-	@Test
-	public void pet() {
-		assertThat(pet).isNotNull();
-		assertThat(pet.getName()).isEqualTo("Fido");
-	}
-
-	@Test
-	public void employee() {
-		assertThat(employee).as("employee bean should not be created for the default profile").isNull();
-	}
+  @Test
+  public void employee() {
+    assertThat(employee).as("employee bean should not be created for the default profile").isNull();
+  }
 
 }

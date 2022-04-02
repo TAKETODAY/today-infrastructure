@@ -22,20 +22,22 @@ package cn.taketoday.test.context.junit4.aci.annotation;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import cn.taketoday.beans.factory.annotation.Autowired;
-import cn.taketoday.context.ApplicationContextInitializer;
-import cn.taketoday.context.annotation.AnnotatedBeanDefinitionReader;
-import cn.taketoday.context.support.GenericApplicationContext;
-import cn.taketoday.core.annotation.AliasFor;
-import cn.taketoday.test.context.ContextConfiguration;
-import cn.taketoday.test.context.junit4.Runner;
-import cn.taketoday.test.context.support.AnnotationConfigContextLoader;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.util.List;
+
+import cn.taketoday.beans.factory.annotation.Autowired;
+import cn.taketoday.context.ApplicationContextInitializer;
+import cn.taketoday.context.ConfigurableApplicationContext;
+import cn.taketoday.context.annotation.AnnotatedBeanDefinitionReader;
+import cn.taketoday.context.support.GenericApplicationContext;
+import cn.taketoday.core.annotation.AliasFor;
+import cn.taketoday.test.context.ContextConfiguration;
+import cn.taketoday.test.context.junit4.Runner;
+import cn.taketoday.test.context.support.AnnotationConfigContextLoader;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -57,39 +59,39 @@ import static org.assertj.core.api.Assertions.assertThat;
 @InitializerConfiguredViaMetaAnnotationTests.ComposedContextConfiguration(BarConfig.class)
 public class InitializerConfiguredViaMetaAnnotationTests {
 
-	@Autowired
-	String foo;
+  @Autowired
+  String foo;
 
-	@Autowired
-	String bar;
+  @Autowired
+  String bar;
 
-	@Autowired
-	List<String> strings;
+  @Autowired
+  List<String> strings;
 
+  @Test
+  public void beansFromInitializerAndComposedAnnotation() {
+    assertThat(strings.size()).isEqualTo(2);
+    assertThat(foo).isEqualTo("foo");
+    assertThat(bar).isEqualTo("bar");
+  }
 
-	@Test
-	public void beansFromInitializerAndComposedAnnotation() {
-		assertThat(strings.size()).isEqualTo(2);
-		assertThat(foo).isEqualTo("foo");
-		assertThat(bar).isEqualTo("bar");
-	}
+  static class FooConfigInitializer implements ApplicationContextInitializer {
 
+    @Override
+    public void initialize(ConfigurableApplicationContext applicationContext) {
+      if (applicationContext instanceof GenericApplicationContext context) {
+        new AnnotatedBeanDefinitionReader(context).register(FooConfig.class);
+      }
+    }
+  }
 
-	static class FooConfigInitializer implements ApplicationContextInitializer<GenericApplicationContext> {
+  @ContextConfiguration(loader = AnnotationConfigContextLoader.class, initializers = FooConfigInitializer.class)
+  @Retention(RetentionPolicy.RUNTIME)
+  @Target(ElementType.TYPE)
+  @interface ComposedContextConfiguration {
 
-		@Override
-		public void initialize(GenericApplicationContext applicationContext) {
-			new AnnotatedBeanDefinitionReader(applicationContext).register(FooConfig.class);
-		}
-	}
-
-	@ContextConfiguration(loader = AnnotationConfigContextLoader.class, initializers = FooConfigInitializer.class)
-	@Retention(RetentionPolicy.RUNTIME)
-	@Target(ElementType.TYPE)
-	@interface ComposedContextConfiguration {
-
-		@AliasFor(annotation = ContextConfiguration.class, attribute = "classes")
-		Class<?>[] value() default {};
-	}
+    @AliasFor(annotation = ContextConfiguration.class, attribute = "classes")
+    Class<?>[] value() default {};
+  }
 
 }

@@ -21,11 +21,12 @@
 package cn.taketoday.test.context.jdbc;
 
 import org.junit.jupiter.api.Test;
-import cn.taketoday.test.annotation.DirtiesContext;
-import cn.taketoday.test.context.ContextConfiguration;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
+
+import cn.taketoday.test.annotation.DirtiesContext;
+import cn.taketoday.test.context.ContextConfiguration;
 
 import static java.lang.annotation.ElementType.METHOD;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
@@ -41,29 +42,28 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @DirtiesContext
 class MetaAnnotationSqlScriptsTests extends AbstractTransactionalTests {
 
-	@Test
-	@MetaSql
-	void metaSqlAnnotation() {
-		assertNumUsers(1);
-	}
+  @Test
+  @MetaSql
+  void metaSqlAnnotation() {
+    assertNumUsers(1);
+  }
 
-	@Test
-	@MetaSqlGroup
-	void metaSqlGroupAnnotation() {
-		assertNumUsers(1);
-	}
+  @Test
+  @MetaSqlGroup
+  void metaSqlGroupAnnotation() {
+    assertNumUsers(1);
+  }
 
+  @Sql({ "drop-schema.sql", "schema.sql", "data.sql" })
+  @Retention(RUNTIME)
+  @Target(METHOD)
+  @interface MetaSql {
+  }
 
-	@Sql({ "drop-schema.sql", "schema.sql", "data.sql" })
-	@Retention(RUNTIME)
-	@Target(METHOD)
-	@interface MetaSql {
-	}
-
-	@SqlGroup({ @Sql("drop-schema.sql"), @Sql("schema.sql"), @Sql("data.sql") })
-	@Retention(RUNTIME)
-	@Target(METHOD)
-	@interface MetaSqlGroup {
-	}
+  @SqlGroup({ @Sql("drop-schema.sql"), @Sql("schema.sql"), @Sql("data.sql") })
+  @Retention(RUNTIME)
+  @Target(METHOD)
+  @interface MetaSqlGroup {
+  }
 
 }

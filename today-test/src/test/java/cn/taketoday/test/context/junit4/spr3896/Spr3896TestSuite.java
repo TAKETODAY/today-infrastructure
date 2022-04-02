@@ -30,23 +30,23 @@ import org.junit.runners.Suite.SuiteClasses;
  * target="_blank">SPR-3896</a>.
  *
  * @author Sam Brannen
- * @since 2.5
+ * @since 4.0
  */
 @RunWith(Suite.class)
 // Note: the following 'multi-line' layout is for enhanced code readability.
 @SuiteClasses({
 
-DefaultLocationsBaseTests.class,
+        DefaultLocationsBaseTests.class,
 
-DefaultLocationsInheritedTests.class,
+        DefaultLocationsInheritedTests.class,
 
-ExplicitLocationsBaseTests.class,
+        ExplicitLocationsBaseTests.class,
 
-ExplicitLocationsInheritedTests.class,
+        ExplicitLocationsInheritedTests.class,
 
-BeanOverridingDefaultLocationsInheritedTests.class,
+        BeanOverridingDefaultLocationsInheritedTests.class,
 
-BeanOverridingExplicitLocationsInheritedTests.class
+        BeanOverridingExplicitLocationsInheritedTests.class
 
 })
 public class Spr3896TestSuite {

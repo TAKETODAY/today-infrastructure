@@ -20,13 +20,13 @@
 
 package cn.taketoday.test.context.junit4;
 
+import javax.sql.DataSource;
+
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.jdbc.datasource.DataSourceTransactionManager;
 import cn.taketoday.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
 import cn.taketoday.transaction.PlatformTransactionManager;
-
-import javax.sql.DataSource;
 
 /**
  * Shared configuration for tests that need an embedded database pre-loaded
@@ -38,17 +38,17 @@ import javax.sql.DataSource;
 @Configuration
 public class EmbeddedPersonDatabaseTestsConfig {
 
-	@Bean
-	public PlatformTransactionManager txMgr() {
-		return new DataSourceTransactionManager(dataSource());
-	}
+  @Bean
+  public PlatformTransactionManager txMgr() {
+    return new DataSourceTransactionManager(dataSource());
+  }
 
-	@Bean
-	public DataSource dataSource() {
-		return new EmbeddedDatabaseBuilder()//
-		.generateUniqueName(true)//
-		.addScript("classpath:/org/springframework/test/jdbc/schema.sql") //
-		.build();
-	}
+  @Bean
+  public DataSource dataSource() {
+    return new EmbeddedDatabaseBuilder()//
+            .generateUniqueName(true)//
+            .addScript("classpath:/cn/taketoday/test/jdbc/schema.sql") //
+            .build();
+  }
 
 }

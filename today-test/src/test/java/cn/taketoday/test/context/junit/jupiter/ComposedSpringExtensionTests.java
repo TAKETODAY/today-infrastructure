@@ -29,7 +29,6 @@ import java.util.List;
 import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.test.context.ContextConfiguration;
-import cn.taketoday.test.context.junit.SpringJUnitJupiterTestSuite;
 import cn.taketoday.test.context.junit.jupiter.comics.Person;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -41,9 +40,6 @@ import static org.assertj.core.api.Assertions.assertThat;
  * <p>Note that {@link JUnitConfig @JUnitConfig} is meta-annotated
  * with JUnit Jupiter's {@link ExtendWith @ExtendWith} <b>and</b> Spring's
  * {@link ContextConfiguration @ContextConfiguration}.
- *
- * <p>To run these tests in an IDE that does not have built-in support for the JUnit
- * Platform, simply run {@link SpringJUnitJupiterTestSuite} as a JUnit 4 test.
  *
  * @author Sam Brannen
  * @see ApplicationExtension

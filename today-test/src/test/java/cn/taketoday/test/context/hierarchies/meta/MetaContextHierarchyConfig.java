@@ -20,17 +20,17 @@
 
 package cn.taketoday.test.context.hierarchies.meta;
 
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Profile;
 import cn.taketoday.test.context.ActiveProfiles;
 import cn.taketoday.test.context.ContextConfiguration;
 import cn.taketoday.test.context.ContextHierarchy;
-
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
 
 /**
  * Custom context hierarchy configuration annotation.
@@ -49,20 +49,20 @@ public @interface MetaContextHierarchyConfig {
 @DevProfile
 class DevConfig {
 
-	@Bean
-	public String foo() {
-		return "Dev Foo";
-	}
+  @Bean
+  public String foo() {
+    return "Dev Foo";
+  }
 }
 
 @Configuration
 @ProdProfile
 class ProductionConfig {
 
-	@Bean
-	public String foo() {
-		return "Production Foo";
-	}
+  @Bean
+  public String foo() {
+    return "Production Foo";
+  }
 }
 
 @Profile("dev")

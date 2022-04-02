@@ -36,7 +36,6 @@ import cn.taketoday.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
 import cn.taketoday.test.context.TestContext;
 import cn.taketoday.test.context.TestExecutionListener;
 import cn.taketoday.test.context.TestExecutionListeners;
-import cn.taketoday.test.context.junit.SpringJUnitJupiterTestSuite;
 import cn.taketoday.test.context.transaction.AfterTransaction;
 import cn.taketoday.test.context.transaction.BeforeTransaction;
 import cn.taketoday.transaction.PlatformTransactionManager;
@@ -61,9 +60,6 @@ import static org.junit.platform.testkit.engine.TestExecutionResultConditions.me
  *
  * <p>Indirectly, this class also verifies that all {@code TestExecutionListener}
  * lifecycle callbacks are called.
- *
- * <p>To run these tests in an IDE that does not have built-in support for the JUnit
- * Platform, simply run {@link SpringJUnitJupiterTestSuite} as a JUnit 4 test.
  *
  * @author Sam Brannen
  * @since 4.0

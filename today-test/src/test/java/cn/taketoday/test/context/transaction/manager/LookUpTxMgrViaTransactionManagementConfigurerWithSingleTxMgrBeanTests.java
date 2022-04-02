@@ -21,15 +21,18 @@
 package cn.taketoday.test.context.transaction.manager;
 
 import org.junit.jupiter.api.Test;
+
 import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.test.context.junit.jupiter.JUnitConfig;
 import cn.taketoday.test.context.transaction.AfterTransaction;
+import cn.taketoday.testfixture.CallCountingTransactionManager;
 import cn.taketoday.transaction.TransactionManager;
 import cn.taketoday.transaction.annotation.TransactionManagementConfigurer;
 import cn.taketoday.transaction.annotation.Transactional;
-import cn.taketoday.transaction.testfixture.CallCountingTransactionManager;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Integration test that verifies the behavior for transaction manager lookups
@@ -44,57 +47,55 @@ import cn.taketoday.transaction.testfixture.CallCountingTransactionManager;
 @Transactional
 class LookUpTxMgrViaTransactionManagementConfigurerWithSingleTxMgrBeanTests {
 
-	@Autowired
-	CallCountingTransactionManager txManager;
+  @Autowired
+  CallCountingTransactionManager txManager;
 
-	@Autowired
-	Config config;
+  @Autowired
+  Config config;
 
+  @Test
+  void transactionalTest() {
+    assertThat(txManager.begun).isEqualTo(0);
+    assertThat(txManager.inflight).isEqualTo(0);
+    assertThat(txManager.commits).isEqualTo(0);
+    assertThat(txManager.rollbacks).isEqualTo(0);
 
-	@Test
-	void transactionalTest() {
-		assertThat(txManager.begun).isEqualTo(0);
-		assertThat(txManager.inflight).isEqualTo(0);
-		assertThat(txManager.commits).isEqualTo(0);
-		assertThat(txManager.rollbacks).isEqualTo(0);
+    CallCountingTransactionManager annotationDriven = config.annotationDriven;
+    assertThat(annotationDriven.begun).isEqualTo(1);
+    assertThat(annotationDriven.inflight).isEqualTo(1);
+    assertThat(annotationDriven.commits).isEqualTo(0);
+    assertThat(annotationDriven.rollbacks).isEqualTo(0);
+  }
 
-		CallCountingTransactionManager annotationDriven = config.annotationDriven;
-		assertThat(annotationDriven.begun).isEqualTo(1);
-		assertThat(annotationDriven.inflight).isEqualTo(1);
-		assertThat(annotationDriven.commits).isEqualTo(0);
-		assertThat(annotationDriven.rollbacks).isEqualTo(0);
-	}
+  @AfterTransaction
+  void afterTransaction() {
+    assertThat(txManager.begun).isEqualTo(0);
+    assertThat(txManager.inflight).isEqualTo(0);
+    assertThat(txManager.commits).isEqualTo(0);
+    assertThat(txManager.rollbacks).isEqualTo(0);
 
-	@AfterTransaction
-	void afterTransaction() {
-		assertThat(txManager.begun).isEqualTo(0);
-		assertThat(txManager.inflight).isEqualTo(0);
-		assertThat(txManager.commits).isEqualTo(0);
-		assertThat(txManager.rollbacks).isEqualTo(0);
+    CallCountingTransactionManager annotationDriven = config.annotationDriven;
+    assertThat(annotationDriven.begun).isEqualTo(1);
+    assertThat(annotationDriven.inflight).isEqualTo(0);
+    assertThat(annotationDriven.commits).isEqualTo(0);
+    assertThat(annotationDriven.rollbacks).isEqualTo(1);
+  }
 
-		CallCountingTransactionManager annotationDriven = config.annotationDriven;
-		assertThat(annotationDriven.begun).isEqualTo(1);
-		assertThat(annotationDriven.inflight).isEqualTo(0);
-		assertThat(annotationDriven.commits).isEqualTo(0);
-		assertThat(annotationDriven.rollbacks).isEqualTo(1);
-	}
+  @Configuration
+  static class Config implements TransactionManagementConfigurer {
 
+    final CallCountingTransactionManager annotationDriven = new CallCountingTransactionManager();
 
-	@Configuration
-	static class Config implements TransactionManagementConfigurer {
+    @Bean
+    TransactionManager txManager() {
+      return new CallCountingTransactionManager();
+    }
 
-		final CallCountingTransactionManager annotationDriven = new CallCountingTransactionManager();
+    @Override
+    public TransactionManager annotationDrivenTransactionManager() {
+      return annotationDriven;
+    }
 
-		@Bean
-		TransactionManager txManager() {
-			return new CallCountingTransactionManager();
-		}
-
-		@Override
-		public TransactionManager annotationDrivenTransactionManager() {
-			return annotationDriven;
-		}
-
-	}
+  }
 
 }

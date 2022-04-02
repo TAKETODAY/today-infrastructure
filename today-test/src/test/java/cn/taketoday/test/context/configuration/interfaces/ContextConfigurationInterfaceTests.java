@@ -22,9 +22,12 @@ package cn.taketoday.test.context.configuration.interfaces;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+
 import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.beans.testfixture.beans.Employee;
 import cn.taketoday.test.context.junit.jupiter.ApplicationExtension;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Sam Brannen
@@ -33,14 +36,13 @@ import cn.taketoday.test.context.junit.jupiter.ApplicationExtension;
 @ExtendWith(ApplicationExtension.class)
 class ContextConfigurationInterfaceTests implements ContextConfigurationTestInterface {
 
-	@Autowired
-	Employee employee;
+  @Autowired
+  Employee employee;
 
-
-	@Test
-	void profileFromTestInterface() {
-		assertThat(employee).isNotNull();
-		assertThat(employee.getName()).isEqualTo("Dilbert");
-	}
+  @Test
+  void profileFromTestInterface() {
+    assertThat(employee).isNotNull();
+    assertThat(employee.getName()).isEqualTo("Dilbert");
+  }
 
 }

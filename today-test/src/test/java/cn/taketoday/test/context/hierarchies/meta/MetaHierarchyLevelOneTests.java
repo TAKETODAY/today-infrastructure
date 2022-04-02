@@ -22,6 +22,7 @@ package cn.taketoday.test.context.hierarchies.meta;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+
 import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.test.context.junit.jupiter.ApplicationExtension;
 
@@ -35,13 +36,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 @MetaMetaContextHierarchyConfig
 class MetaHierarchyLevelOneTests {
 
-	@Autowired
-	private String foo;
+  @Autowired
+  private String foo;
 
-
-	@Test
-	void foo() {
-		assertThat(foo).isEqualTo("Dev Foo");
-	}
+  @Test
+  void foo() {
+    assertThat(foo).isEqualTo("Dev Foo");
+  }
 
 }

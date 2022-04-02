@@ -32,7 +32,6 @@ import java.util.TreeSet;
 
 /**
  * @author Juergen Hoeller
- * @since 11.11.2003
  */
 @SuppressWarnings("rawtypes")
 public class IndexedTestBean {

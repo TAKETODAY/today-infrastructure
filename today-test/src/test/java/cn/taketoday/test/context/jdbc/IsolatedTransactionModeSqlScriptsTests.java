@@ -21,6 +21,7 @@
 package cn.taketoday.test.context.jdbc;
 
 import org.junit.jupiter.api.Test;
+
 import cn.taketoday.test.annotation.DirtiesContext;
 import cn.taketoday.test.context.jdbc.SqlConfig.TransactionMode;
 import cn.taketoday.test.context.junit.jupiter.JUnitConfig;
@@ -38,20 +39,20 @@ import cn.taketoday.test.context.transaction.BeforeTransaction;
 @DirtiesContext
 class IsolatedTransactionModeSqlScriptsTests extends AbstractTransactionalTests {
 
-	@BeforeTransaction
-	void beforeTransaction() {
-		assertNumUsers(0);
-	}
+  @BeforeTransaction
+  void beforeTransaction() {
+    assertNumUsers(0);
+  }
 
-	@Test
-	@SqlGroup(@Sql(scripts = "data-add-dogbert.sql", config = @SqlConfig(transactionMode = TransactionMode.ISOLATED)))
-	void methodLevelScripts() {
-		assertNumUsers(1);
-	}
+  @Test
+  @SqlGroup(@Sql(scripts = "data-add-dogbert.sql", config = @SqlConfig(transactionMode = TransactionMode.ISOLATED)))
+  void methodLevelScripts() {
+    assertNumUsers(1);
+  }
 
-	@AfterTransaction
-	void afterTransaction() {
-		assertNumUsers(1);
-	}
+  @AfterTransaction
+  void afterTransaction() {
+    assertNumUsers(1);
+  }
 
 }

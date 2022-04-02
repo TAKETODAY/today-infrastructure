@@ -21,12 +21,15 @@
 package cn.taketoday.test.context.transaction.manager;
 
 import org.junit.jupiter.api.Test;
+
 import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.test.context.junit.jupiter.JUnitConfig;
+import cn.taketoday.testfixture.CallCountingTransactionManager;
 import cn.taketoday.transaction.PlatformTransactionManager;
-import cn.taketoday.transaction.testfixture.CallCountingTransactionManager;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Integration tests that verify the behavior requested in
@@ -38,27 +41,25 @@ import cn.taketoday.transaction.testfixture.CallCountingTransactionManager;
 @JUnitConfig
 class LookUpTxMgrNonTransactionalTests {
 
-	@Autowired
-	CallCountingTransactionManager txManager;
+  @Autowired
+  CallCountingTransactionManager txManager;
 
+  @Test
+  void nonTransactionalTest() {
+    assertThat(txManager.begun).isEqualTo(0);
+    assertThat(txManager.inflight).isEqualTo(0);
+    assertThat(txManager.commits).isEqualTo(0);
+    assertThat(txManager.rollbacks).isEqualTo(0);
+  }
 
-	@Test
-	void nonTransactionalTest() {
-		assertThat(txManager.begun).isEqualTo(0);
-		assertThat(txManager.inflight).isEqualTo(0);
-		assertThat(txManager.commits).isEqualTo(0);
-		assertThat(txManager.rollbacks).isEqualTo(0);
-	}
+  @Configuration
+  static class Config {
 
+    @Bean
+    PlatformTransactionManager transactionManager() {
+      return new CallCountingTransactionManager();
+    }
 
-	@Configuration
-	static class Config {
-
-		@Bean
-		PlatformTransactionManager transactionManager() {
-			return new CallCountingTransactionManager();
-		}
-
-	}
+  }
 
 }

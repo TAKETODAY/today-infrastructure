@@ -24,6 +24,9 @@ import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
+
+import javax.sql.DataSource;
+
 import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
@@ -34,7 +37,7 @@ import cn.taketoday.test.context.junit.jupiter.JUnitConfig;
 import cn.taketoday.test.jdbc.JdbcTestUtils;
 import cn.taketoday.test.transaction.TransactionAssert;
 
-import javax.sql.DataSource;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Integration tests for {@link Sql @Sql} support with only a {@link DataSource}
@@ -49,44 +52,42 @@ import javax.sql.DataSource;
 @DirtiesContext
 class DataSourceOnlySqlScriptsTests {
 
-	private JdbcTemplate jdbcTemplate;
+  private JdbcTemplate jdbcTemplate;
 
+  @Autowired
+  void setDataSource(DataSource dataSource) {
+    this.jdbcTemplate = new JdbcTemplate(dataSource);
+  }
 
-	@Autowired
-	void setDataSource(DataSource dataSource) {
-		this.jdbcTemplate = new JdbcTemplate(dataSource);
-	}
+  @Test
+  @Order(1)
+  void classLevelScripts() {
+    TransactionAssert.assertThatTransaction().isNotActive();
+    assertNumUsers(1);
+  }
 
-	@Test
-	@Order(1)
-	void classLevelScripts() {
-		TransactionAssert.assertThatTransaction().isNotActive();
-		assertNumUsers(1);
-	}
+  @Test
+  @Sql({ "drop-schema.sql", "schema.sql", "data.sql", "data-add-dogbert.sql" })
+  @Order(2)
+  void methodLevelScripts() {
+    TransactionAssert.assertThatTransaction().isNotActive();
+    assertNumUsers(2);
+  }
 
-	@Test
-	@Sql({ "drop-schema.sql", "schema.sql", "data.sql", "data-add-dogbert.sql" })
-	@Order(2)
-	void methodLevelScripts() {
-		TransactionAssert.assertThatTransaction().isNotActive();
-		assertNumUsers(2);
-	}
+  protected void assertNumUsers(int expected) {
+    assertThat(JdbcTestUtils.countRowsInTable(jdbcTemplate, "user")).as(
+            "Number of rows in the 'user' table.").isEqualTo(expected);
+  }
 
-	protected void assertNumUsers(int expected) {
-		assertThat(JdbcTestUtils.countRowsInTable(jdbcTemplate, "user")).as(
-			"Number of rows in the 'user' table.").isEqualTo(expected);
-	}
+  @Configuration
+  static class Config {
 
-
-	@Configuration
-	static class Config {
-
-		@Bean
-		DataSource dataSource() {
-			return new EmbeddedDatabaseBuilder()//
-					.setName("empty-sql-scripts-without-tx-mgr-test-db")//
-					.build();
-		}
-	}
+    @Bean
+    DataSource dataSource() {
+      return new EmbeddedDatabaseBuilder()//
+              .setName("empty-sql-scripts-without-tx-mgr-test-db")//
+              .build();
+    }
+  }
 
 }

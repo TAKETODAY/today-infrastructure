@@ -23,6 +23,7 @@ package cn.taketoday.test.context.jdbc;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
+
 import cn.taketoday.test.annotation.DirtiesContext;
 import cn.taketoday.test.context.junit.jupiter.JUnitConfig;
 
@@ -38,15 +39,15 @@ import cn.taketoday.test.context.junit.jupiter.JUnitConfig;
 @DirtiesContext
 class TransactionalSqlScriptsTests extends AbstractTransactionalTests {
 
-	@Test
-	void classLevelScripts() {
-		assertNumUsers(1);
-	}
+  @Test
+  void classLevelScripts() {
+    assertNumUsers(1);
+  }
 
-	@Test
-	@Sql({ "recreate-schema.sql", "data.sql", "data-add-dogbert.sql" })
-	void methodLevelScripts() {
-		assertNumUsers(2);
-	}
+  @Test
+  @Sql({ "recreate-schema.sql", "data.sql", "data-add-dogbert.sql" })
+  void methodLevelScripts() {
+    assertNumUsers(2);
+  }
 
 }

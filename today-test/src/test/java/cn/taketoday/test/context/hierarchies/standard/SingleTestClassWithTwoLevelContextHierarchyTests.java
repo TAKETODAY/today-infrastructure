@@ -22,6 +22,7 @@ package cn.taketoday.test.context.hierarchies.standard;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+
 import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.annotation.Bean;
@@ -38,60 +39,58 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 @ExtendWith(ApplicationExtension.class)
 @ContextHierarchy({
-	@ContextConfiguration(classes = SingleTestClassWithTwoLevelContextHierarchyTests.ParentConfig.class),
-	@ContextConfiguration(classes = SingleTestClassWithTwoLevelContextHierarchyTests.ChildConfig.class) })
+        @ContextConfiguration(classes = SingleTestClassWithTwoLevelContextHierarchyTests.ParentConfig.class),
+        @ContextConfiguration(classes = SingleTestClassWithTwoLevelContextHierarchyTests.ChildConfig.class) })
 public class SingleTestClassWithTwoLevelContextHierarchyTests {
 
-	@Configuration
-	public static class ParentConfig {
+  @Configuration
+  public static class ParentConfig {
 
-		@Bean
-		String foo() {
-			return "foo";
-		}
+    @Bean
+    String foo() {
+      return "foo";
+    }
 
-		@Bean
-		String baz() {
-			return "baz-parent";
-		}
-	}
+    @Bean
+    String baz() {
+      return "baz-parent";
+    }
+  }
 
-	@Configuration
-	public static class ChildConfig {
+  @Configuration
+  public static class ChildConfig {
 
-		@Bean
-		String bar() {
-			return "bar";
-		}
+    @Bean
+    String bar() {
+      return "bar";
+    }
 
-		@Bean
-		String baz() {
-			return "baz-child";
-		}
-	}
+    @Bean
+    String baz() {
+      return "baz-child";
+    }
+  }
 
+  @Autowired
+  private String foo;
 
-	@Autowired
-	private String foo;
+  @Autowired
+  private String bar;
 
-	@Autowired
-	private String bar;
+  @Autowired
+  private String baz;
 
-	@Autowired
-	private String baz;
+  @Autowired
+  private ApplicationContext context;
 
-	@Autowired
-	private ApplicationContext context;
-
-
-	@Test
-	void loadContextHierarchy() {
-		assertThat(context).as("child ApplicationContext").isNotNull();
-		assertThat(context.getParent()).as("parent ApplicationContext").isNotNull();
-		assertThat(context.getParent().getParent()).as("grandparent ApplicationContext").isNull();
-		assertThat(foo).isEqualTo("foo");
-		assertThat(bar).isEqualTo("bar");
-		assertThat(baz).isEqualTo("baz-child");
-	}
+  @Test
+  void loadContextHierarchy() {
+    assertThat(context).as("child ApplicationContext").isNotNull();
+    assertThat(context.getParent()).as("parent ApplicationContext").isNotNull();
+    assertThat(context.getParent().getParent()).as("grandparent ApplicationContext").isNull();
+    assertThat(foo).isEqualTo("foo");
+    assertThat(bar).isEqualTo("bar");
+    assertThat(baz).isEqualTo("baz-child");
+  }
 
 }

@@ -33,6 +33,7 @@ import cn.taketoday.mock.web.MockHttpSession;
 import cn.taketoday.mock.web.MockServletContext;
 import cn.taketoday.test.context.ContextConfiguration;
 import cn.taketoday.test.context.junit4.AbstractJUnit4ContextTests;
+import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.servlet.ServletContextAware;
 import cn.taketoday.web.servlet.WebServletApplicationContext;
 import jakarta.servlet.ServletContext;
@@ -77,7 +78,7 @@ public class JUnit4ContextWebTests extends AbstractJUnit4ContextTests implements
   protected MockHttpSession session;
 
   @Autowired
-  protected ServletWebRequest webRequest;
+  protected RequestContext webRequest;
 
   @Autowired
   protected String foo;

@@ -23,6 +23,11 @@ package cn.taketoday.test.context.event;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.List;
+
 import cn.taketoday.context.ApplicationEvent;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.event.EventListener;
@@ -31,12 +36,8 @@ import cn.taketoday.test.context.TestExecutionListener;
 import cn.taketoday.test.context.TestExecutionListeners;
 import cn.taketoday.test.context.junit.jupiter.ApplicationExtension;
 
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.List;
-
-import static org.assertj.core.api.Assertions.assertThat;
 import static cn.taketoday.test.context.TestExecutionListeners.MergeMode.MERGE_WITH_DEFAULTS;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Integration tests for custom event publication via
@@ -49,54 +50,51 @@ import static cn.taketoday.test.context.TestExecutionListeners.MergeMode.MERGE_W
 @TestExecutionListeners(listeners = CustomTestEventTests.CustomEventPublishingTestExecutionListener.class, mergeMode = MERGE_WITH_DEFAULTS)
 public class CustomTestEventTests {
 
-	private static final List<CustomEvent> events = new ArrayList<>();
+  private static final List<CustomEvent> events = new ArrayList<>();
 
+  @BeforeEach
+  public void clearEvents() {
+    events.clear();
+  }
 
-	@BeforeEach
-	public void clearEvents() {
-		events.clear();
-	}
+  @Test
+  public void customTestEventPublished() {
+    assertThat(events).hasSize(1);
+    CustomEvent customEvent = events.get(0);
+    assertThat(customEvent.getSource()).isEqualTo(getClass());
+    assertThat(customEvent.getTestName()).isEqualTo("customTestEventPublished");
+  }
 
-	@Test
-	public void customTestEventPublished() {
-		assertThat(events).hasSize(1);
-		CustomEvent customEvent = events.get(0);
-		assertThat(customEvent.getSource()).isEqualTo(getClass());
-		assertThat(customEvent.getTestName()).isEqualTo("customTestEventPublished");
-	}
+  @Configuration
+  static class Config {
 
+    @EventListener
+    void processCustomEvent(CustomEvent event) {
+      events.add(event);
+    }
+  }
 
-	@Configuration
-	static class Config {
+  @SuppressWarnings("serial")
+  static class CustomEvent extends ApplicationEvent {
 
-		@EventListener
-		void processCustomEvent(CustomEvent event) {
-			events.add(event);
-		}
-	}
+    private final Method testMethod;
 
-	@SuppressWarnings("serial")
-	static class CustomEvent extends ApplicationEvent {
+    public CustomEvent(Class<?> testClass, Method testMethod) {
+      super(testClass);
+      this.testMethod = testMethod;
+    }
 
-		private final Method testMethod;
+    String getTestName() {
+      return this.testMethod.getName();
+    }
+  }
 
+  static class CustomEventPublishingTestExecutionListener implements TestExecutionListener {
 
-		public CustomEvent(Class<?> testClass, Method testMethod) {
-			super(testClass);
-			this.testMethod = testMethod;
-		}
-
-		String getTestName() {
-			return this.testMethod.getName();
-		}
-	}
-
-	static class CustomEventPublishingTestExecutionListener implements TestExecutionListener {
-
-		@Override
-		public void beforeTestExecution(TestContext testContext) throws Exception {
-			testContext.publishEvent(tc -> new CustomEvent(tc.getTestClass(), tc.getTestMethod()));
-		}
-	}
+    @Override
+    public void beforeTestExecution(TestContext testContext) throws Exception {
+      testContext.publishEvent(tc -> new CustomEvent(tc.getTestClass(), tc.getTestMethod()));
+    }
+  }
 
 }

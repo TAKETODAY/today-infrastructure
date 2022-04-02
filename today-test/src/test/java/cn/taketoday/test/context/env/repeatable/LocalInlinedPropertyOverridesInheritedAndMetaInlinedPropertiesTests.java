@@ -21,12 +21,13 @@
 package cn.taketoday.test.context.env.repeatable;
 
 import org.junit.jupiter.api.Test;
-import cn.taketoday.test.context.TestPropertySource;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+
+import cn.taketoday.test.context.TestPropertySource;
 
 /**
  * Integration tests for {@link TestPropertySource @TestPropertySource} as a
@@ -40,15 +41,15 @@ import java.lang.annotation.Target;
 @LocalInlinedPropertyOverridesInheritedAndMetaInlinedPropertiesTests.Key1InlinedTestProperty
 class LocalInlinedPropertyOverridesInheritedAndMetaInlinedPropertiesTests extends AbstractClassWithTestProperty {
 
-	@Test
-	void test() {
-		assertEnvironmentValue("key1", "local");
-	}
+  @Test
+  void test() {
+    assertEnvironmentValue("key1", "local");
+  }
 
-	@Target(ElementType.TYPE)
-	@Retention(RetentionPolicy.RUNTIME)
-	@TestPropertySource(properties = "key1 = meta")
-	@interface Key1InlinedTestProperty {
-	}
+  @Target(ElementType.TYPE)
+  @Retention(RetentionPolicy.RUNTIME)
+  @TestPropertySource(properties = "key1 = meta")
+  @interface Key1InlinedTestProperty {
+  }
 
 }

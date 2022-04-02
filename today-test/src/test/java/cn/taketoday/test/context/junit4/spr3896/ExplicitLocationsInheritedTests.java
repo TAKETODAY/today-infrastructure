@@ -21,9 +21,12 @@
 package cn.taketoday.test.context.junit4.spr3896;
 
 import org.junit.Test;
+
 import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.beans.testfixture.beans.Pet;
 import cn.taketoday.test.context.ContextConfiguration;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * JUnit 4 based integration test for verifying support for the
@@ -33,18 +36,17 @@ import cn.taketoday.test.context.ContextConfiguration;
  * target="_blank">SPR-3896</a>.
  *
  * @author Sam Brannen
- * @since 2.5
+ * @since 4.0
  */
 @ContextConfiguration("DefaultLocationsInheritedTests-context.xml")
 public class ExplicitLocationsInheritedTests extends ExplicitLocationsBaseTests {
 
-	@Autowired
-	private Pet pet;
+  @Autowired
+  private Pet pet;
 
-
-	@Test
-	public void verifyPetSetFromExtendedContextConfig() {
-		assertThat(this.pet).as("The pet should have been autowired.").isNotNull();
-		assertThat(this.pet.getName()).isEqualTo("Fido");
-	}
+  @Test
+  public void verifyPetSetFromExtendedContextConfig() {
+    assertThat(this.pet).as("The pet should have been autowired.").isNotNull();
+    assertThat(this.pet.getName()).isEqualTo("Fido");
+  }
 }
