@@ -20,6 +20,7 @@
 
 package cn.taketoday.framework.context.config;
 
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.origin.Origin;
 import cn.taketoday.origin.OriginProvider;
 import cn.taketoday.util.StringUtils;
@@ -34,6 +35,7 @@ import cn.taketoday.util.StringUtils;
  * Locations can be mandatory or {@link #isOptional() optional}. Optional locations are
  * prefixed with {@code optional:}.
  *
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @author Phillip Webb
  * @since 4.0
  */
@@ -48,12 +50,13 @@ public final class ConfigDataLocation implements OriginProvider {
 
   private final String value;
 
+  @Nullable
   private final Origin origin;
 
-  private ConfigDataLocation(boolean optional, String value, Origin origin) {
+  private ConfigDataLocation(boolean optional, String value, @Nullable Origin origin) {
     this.value = value;
-    this.optional = optional;
     this.origin = origin;
+    this.optional = optional;
   }
 
   /**
@@ -100,6 +103,7 @@ public final class ConfigDataLocation implements OriginProvider {
     return this.value;
   }
 
+  @Nullable
   @Override
   public Origin getOrigin() {
     return this.origin;
@@ -110,7 +114,6 @@ public final class ConfigDataLocation implements OriginProvider {
    * {@link ConfigDataLocation} around a delimiter of {@code ";"}.
    *
    * @return the split locations
-   * @since 4.0
    */
   public ConfigDataLocation[] split() {
     return split(";");
@@ -122,13 +125,15 @@ public final class ConfigDataLocation implements OriginProvider {
    *
    * @param delimiter the delimiter to split on
    * @return the split locations
-   * @since 4.0
    */
   public ConfigDataLocation[] split(String delimiter) {
     String[] values = StringUtils.delimitedListToStringArray(toString(), delimiter);
     ConfigDataLocation[] result = new ConfigDataLocation[values.length];
     for (int i = 0; i < values.length; i++) {
-      result[i] = of(values[i]).withOrigin(getOrigin());
+      ConfigDataLocation dataLocation = of(values[i]);
+      if (dataLocation != null) {
+        result[i] = dataLocation.withOrigin(getOrigin());
+      }
     }
     return result;
   }
@@ -138,10 +143,9 @@ public final class ConfigDataLocation implements OriginProvider {
     if (this == obj) {
       return true;
     }
-    if (obj == null || getClass() != obj.getClass()) {
+    if (!(obj instanceof ConfigDataLocation other)) {
       return false;
     }
-    ConfigDataLocation other = (ConfigDataLocation) obj;
     return this.value.equals(other.value);
   }
 
@@ -161,7 +165,7 @@ public final class ConfigDataLocation implements OriginProvider {
    * @param origin the origin to set
    * @return a new {@link ConfigDataLocation} instance.
    */
-  ConfigDataLocation withOrigin(Origin origin) {
+  ConfigDataLocation withOrigin(@Nullable Origin origin) {
     return new ConfigDataLocation(this.optional, this.value, origin);
   }
 
@@ -172,13 +176,16 @@ public final class ConfigDataLocation implements OriginProvider {
    * @return a {@link ConfigDataLocation} instance or {@code null} if no location was
    * provided
    */
-  public static ConfigDataLocation of(String location) {
+  @Nullable
+  public static ConfigDataLocation of(@Nullable String location) {
     boolean optional = location != null && location.startsWith(OPTIONAL_PREFIX);
-    String value = (!optional) ? location : location.substring(OPTIONAL_PREFIX.length());
-    if (!StringUtils.hasText(value)) {
+    if (optional) {
+      location = location.substring(OPTIONAL_PREFIX.length());
+    }
+    if (!StringUtils.hasText(location)) {
       return null;
     }
-    return new ConfigDataLocation(optional, value, null);
+    return new ConfigDataLocation(optional, location, null);
   }
 
 }

@@ -70,19 +70,19 @@ class ConfigDataLocationResolvers {
    */
   ConfigDataLocationResolvers(ConfigurableBootstrapContext bootstrapContext,
           Binder binder, ResourceLoader resourceLoader, List<String> names) {
-    Instantiator<ConfigDataLocationResolver<?>> instantiator = new Instantiator<>(ConfigDataLocationResolver.class,
-            (availableParameters) -> {
-              availableParameters.add(Binder.class, binder);
-              availableParameters.add(ResourceLoader.class, resourceLoader);
-              availableParameters.add(ConfigurableBootstrapContext.class, bootstrapContext);
-              availableParameters.add(BootstrapContext.class, bootstrapContext);
-              availableParameters.add(BootstrapRegistry.class, bootstrapContext);
+    var instantiator = new Instantiator<ConfigDataLocationResolver<?>>(ConfigDataLocationResolver.class,
+            parameters -> {
+              parameters.add(Binder.class, binder);
+              parameters.add(ResourceLoader.class, resourceLoader);
+              parameters.add(ConfigurableBootstrapContext.class, bootstrapContext);
+              parameters.add(BootstrapContext.class, bootstrapContext);
+              parameters.add(BootstrapRegistry.class, bootstrapContext);
             });
     this.resolvers = reorder(instantiator.instantiate(resourceLoader.getClassLoader(), names));
   }
 
   private List<ConfigDataLocationResolver<?>> reorder(List<ConfigDataLocationResolver<?>> resolvers) {
-    List<ConfigDataLocationResolver<?>> reordered = new ArrayList<>(resolvers.size());
+    var reordered = new ArrayList<ConfigDataLocationResolver<?>>(resolvers.size());
     StandardConfigDataLocationResolver resourceResolver = null;
     for (ConfigDataLocationResolver<?> resolver : resolvers) {
       if (resolver instanceof StandardConfigDataLocationResolver) {
@@ -123,10 +123,11 @@ class ConfigDataLocationResolvers {
     return merge(resolved, profileSpecific);
   }
 
+  // TODO: replace resolveAction to list
   private List<ConfigDataResolutionResult> resolve(ConfigDataLocation location, boolean profileSpecific,
           Supplier<List<? extends ConfigDataResource>> resolveAction) {
     List<ConfigDataResource> resources = nonNullList(resolveAction.get());
-    List<ConfigDataResolutionResult> resolved = new ArrayList<>(resources.size());
+    var resolved = new ArrayList<ConfigDataResolutionResult>(resources.size());
     for (ConfigDataResource resource : resources) {
       resolved.add(new ConfigDataResolutionResult(location, resource, profileSpecific));
     }
@@ -139,7 +140,7 @@ class ConfigDataLocationResolvers {
   }
 
   private <T> List<T> merge(List<T> list1, List<T> list2) {
-    List<T> merged = new ArrayList<>(list1.size() + list2.size());
+    var merged = new ArrayList<T>(list1.size() + list2.size());
     merged.addAll(list1);
     merged.addAll(list2);
     return merged;

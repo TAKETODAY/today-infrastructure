@@ -28,7 +28,6 @@ import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.handler.method.ResolvableMethodParameter;
 import cn.taketoday.web.multipart.MultipartConfiguration;
 import cn.taketoday.web.multipart.MultipartFile;
-import cn.taketoday.web.util.WebUtils;
 
 /**
  * For Multipart {@link MultipartFile}
@@ -68,8 +67,8 @@ public abstract class AbstractMultipartResolver
   }
 
   protected Object resolveInternal(RequestContext context,
-                                   ResolvableMethodParameter parameter,
-                                   MultiValueMap<String, MultipartFile> multipartFiles) throws Throwable {
+          ResolvableMethodParameter parameter,
+          MultiValueMap<String, MultipartFile> multipartFiles) throws Throwable {
 
     List<MultipartFile> resolved = multipartFiles.get(parameter.getName());
     if (resolved != null) {
@@ -82,8 +81,8 @@ public abstract class AbstractMultipartResolver
    * @param multipartFiles none null multipart files
    */
   protected Object resolveInternal(RequestContext context,
-                                   ResolvableMethodParameter parameter,
-                                   List<MultipartFile> multipartFiles) throws Throwable {
+          ResolvableMethodParameter parameter,
+          List<MultipartFile> multipartFiles) throws Throwable {
     return null;
   }
 

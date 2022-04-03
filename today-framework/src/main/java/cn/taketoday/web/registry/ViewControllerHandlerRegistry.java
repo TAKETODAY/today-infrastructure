@@ -38,7 +38,6 @@ import cn.taketoday.core.AntPathMatcher;
 import cn.taketoday.core.ConfigurationException;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.lang.Assert;
-import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Version;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.ReflectionUtils;

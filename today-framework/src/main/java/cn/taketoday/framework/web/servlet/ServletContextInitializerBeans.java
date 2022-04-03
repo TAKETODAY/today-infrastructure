@@ -192,12 +192,7 @@ public class ServletContextInitializerBeans extends AbstractCollection<ServletCo
   }
 
   private int getOrder(Object value) {
-    return new AnnotationAwareOrderComparator() {
-      @Override
-      public int getOrder(Object obj) {
-        return super.getOrder(obj);
-      }
-    }.getOrder(value);
+    return AnnotationAwareOrderComparator.INSTANCE.getOrder(value);
   }
 
   private <T> List<Entry<String, T>> getOrderedBeansOfType(BeanFactory beanFactory, Class<T> type) {

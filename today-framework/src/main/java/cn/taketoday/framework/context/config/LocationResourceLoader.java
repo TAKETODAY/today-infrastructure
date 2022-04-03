@@ -48,9 +48,8 @@ import cn.taketoday.util.StringUtils;
  */
 class LocationResourceLoader {
 
-  private static final Comparator<File> FILE_PATH_COMPARATOR = Comparator.comparing(File::getAbsolutePath);
-
   private static final Comparator<File> FILE_NAME_COMPARATOR = Comparator.comparing(File::getName);
+  private static final Comparator<File> FILE_PATH_COMPARATOR = Comparator.comparing(File::getAbsolutePath);
 
   private final ResourceLoader resourceLoader;
 

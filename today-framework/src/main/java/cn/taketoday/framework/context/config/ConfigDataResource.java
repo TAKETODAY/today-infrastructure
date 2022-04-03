@@ -44,7 +44,6 @@ public abstract class ConfigDataResource {
    * Create a new {@link ConfigDataResource} instance.
    *
    * @param optional if the resource is optional
-   * @since 4.0
    */
   protected ConfigDataResource(boolean optional) {
     this.optional = optional;
