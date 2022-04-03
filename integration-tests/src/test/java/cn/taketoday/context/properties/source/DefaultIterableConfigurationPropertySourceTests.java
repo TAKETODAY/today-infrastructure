@@ -22,7 +22,6 @@ package cn.taketoday.context.properties.source;
 
 import org.junit.jupiter.api.Test;
 
-import java.util.Collection;
 import java.util.ConcurrentModificationException;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -263,7 +262,7 @@ class DefaultIterableConfigurationPropertySourceTests {
     }
 
     @Override
-    public Collection<String> getPropertyNames() {
+    public String[] getPropertyNames() {
       return this.propertySource.getPropertyNames();
     }
 

@@ -62,8 +62,8 @@ public class ApplicationArguments {
    * @return the option names or an empty set
    */
   public Set<String> getOptionNames() {
-    Set<String> names = this.source.getPropertyNames();
-    return Collections.unmodifiableSet(names);
+    String[] names = this.source.getPropertyNames();
+    return Set.of(names);
   }
 
   /**

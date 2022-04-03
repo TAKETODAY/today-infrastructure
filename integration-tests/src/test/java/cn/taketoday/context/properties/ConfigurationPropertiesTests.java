@@ -750,9 +750,13 @@ class ConfigurationPropertiesTests {
     removeSystemProperties();
     assertThatExceptionOfType(ConfigurationPropertiesBindException.class)
             .isThrownBy(() -> load(IgnoreUnknownFieldsFalseConfiguration.class, "name=foo", "bar=baz"))
-            .withMessageContaining("Could not bind properties to "
-                    + "'ConfigurationPropertiesTests.IgnoreUnknownFieldsFalseProperties' : "
-                    + "prefix=, ignoreInvalidFields=false, ignoreUnknownFields=false;");
+            .satisfies(e -> {
+              String nestedMessage = e.getNestedMessage();
+              assertThat(nestedMessage)
+                      .contains("Could not bind properties to "
+                              + "'ConfigurationPropertiesTests.IgnoreUnknownFieldsFalseProperties' : "
+                              + "prefix=, ignoreInvalidFields=false, ignoreUnknownFields=false;");
+            });
   }
 
   @Test
@@ -814,8 +818,12 @@ class ConfigurationPropertiesTests {
   void loadWhenConfigurationPropertiesInjectsAnotherBeanShouldNotFail() {
     assertThatExceptionOfType(ConfigurationPropertiesBindException.class)
             .isThrownBy(() -> load(OtherInjectPropertiesConfiguration.class))
-            .withMessageContaining(OtherInjectedProperties.class.getName())
-            .withMessageContaining("Failed to bind properties under 'test'");
+            .satisfies(e -> {
+              String nestedMessage = e.getNestedMessage();
+              assertThat(nestedMessage)
+                      .contains(OtherInjectedProperties.class.getName())
+                      .contains("Failed to bind properties under 'test'");
+            });
   }
 
   @Test
@@ -1204,7 +1212,7 @@ class ConfigurationPropertiesTests {
   }
 
   @Configuration(proxyBeanMethods = false)
-  @ImportResource("cn/taketoday/framework/context/properties/testProperties.xml")
+  @ImportResource("cn/taketoday/context/properties/testProperties.xml")
   static class DefaultsInXmlConfiguration {
 
   }

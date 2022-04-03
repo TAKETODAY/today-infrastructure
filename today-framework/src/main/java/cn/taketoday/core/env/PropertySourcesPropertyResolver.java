@@ -21,7 +21,6 @@
 package cn.taketoday.core.env;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Iterator;
 import java.util.Spliterator;
 import java.util.function.Consumer;
@@ -29,6 +28,7 @@ import java.util.function.Consumer;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
+import cn.taketoday.util.CollectionUtils;
 
 /**
  * {@link PropertyResolver} implementation that resolves property values against
@@ -108,7 +108,7 @@ public class PropertySourcesPropertyResolver
   protected void logKeyFound(String key, PropertySource<?> propertySource, Object value) {
     if (log.isDebugEnabled()) {
       log.debug("Found key '{}' in PropertySource '{}' with value of type {}",
-                key, propertySource.getName(), value.getClass().getSimpleName());
+              key, propertySource.getName(), value.getClass().getSimpleName());
     }
   }
 
@@ -116,9 +116,9 @@ public class PropertySourcesPropertyResolver
     ArrayList<String> ret = new ArrayList<>();
     if (propertySources != null) {
       for (PropertySource<?> propertySource : propertySources) {
-        if (propertySource instanceof EnumerablePropertySource) {
-          Collection<String> propertyNames = ((EnumerablePropertySource<?>) propertySource).getPropertyNames();
-          ret.addAll(propertyNames);
+        if (propertySource instanceof EnumerablePropertySource enumerablePropertySource) {
+          String[] propertyNames = enumerablePropertySource.getPropertyNames();
+          CollectionUtils.addAll(ret, propertyNames);
         }
       }
     }

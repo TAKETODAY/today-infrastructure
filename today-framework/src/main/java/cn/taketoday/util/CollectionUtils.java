@@ -942,6 +942,7 @@ public abstract class CollectionUtils {
    * Enumeration elements must be assignable to the type of the given array. The array
    * returned will be a different instance than the array given.
    *
+   * @see List#toArray(Object[])
    * @since 4.0
    */
   public static <A, E extends A> A[] toArray(@Nullable Enumeration<E> enumeration, A[] array) {
@@ -960,6 +961,7 @@ public abstract class CollectionUtils {
    * Iterator elements must be assignable to the type of the given array. The array
    * returned will be a different instance than the array given.
    *
+   * @see List#toArray(Object[])
    * @since 4.0
    */
   public static <A, E extends A> A[] toArray(@Nullable Iterator<E> iterator, A[] array) {

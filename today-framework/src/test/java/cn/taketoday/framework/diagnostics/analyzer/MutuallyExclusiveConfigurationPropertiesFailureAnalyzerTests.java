@@ -23,7 +23,6 @@ package cn.taketoday.framework.diagnostics.analyzer;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -137,7 +136,7 @@ class MutuallyExclusiveConfigurationPropertiesFailureAnalyzerTests {
     }
 
     @Override
-    public Collection<String> getPropertyNames() {
+    public String[] getPropertyNames() {
       return this.propertySource.getPropertyNames();
     }
 

@@ -22,7 +22,6 @@ package cn.taketoday.framework.diagnostics.analyzer;
 
 import org.junit.jupiter.api.Test;
 
-import java.util.Collection;
 import java.util.Collections;
 
 import cn.taketoday.context.properties.source.InvalidConfigurationPropertyValueException;
@@ -131,7 +130,7 @@ class InvalidConfigurationPropertyValueFailureAnalyzerTests {
     }
 
     @Override
-    public Collection<String> getPropertyNames() {
+    public String[] getPropertyNames() {
       return this.propertySource.getPropertyNames();
     }
 

@@ -21,10 +21,10 @@
 package cn.taketoday.core.env;
 
 import java.util.List;
-import java.util.Set;
 
 import cn.taketoday.lang.NonNull;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.StringUtils;
 
 /**
  * {@link CommandLinePropertySource} implementation backed by a simple String array.
@@ -115,8 +115,8 @@ public class SimpleCommandLinePropertySource extends CommandLinePropertySource<C
    */
   @NonNull
   @Override
-  public Set<String> getPropertyNames() {
-    return this.source.getOptionNames();
+  public String[] getPropertyNames() {
+    return StringUtils.toStringArray(this.source.getOptionNames());
   }
 
   @Override

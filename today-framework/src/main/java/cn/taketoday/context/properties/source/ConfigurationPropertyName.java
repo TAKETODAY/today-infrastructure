@@ -642,8 +642,9 @@ public final class ConfigurationPropertyName implements Comparable<Configuration
   }
 
   private static List<Character> getInvalidChars(Elements elements, int index) {
-    List<Character> invalidChars = new ArrayList<>();
-    for (int charIndex = 0; charIndex < elements.getLength(index); charIndex++) {
+    int length = elements.getLength(index);
+    var invalidChars = new ArrayList<Character>();
+    for (int charIndex = 0; charIndex < length; charIndex++) {
       char ch = elements.charAt(index, charIndex);
       if (!ElementsParser.isValidChar(ch, charIndex)) {
         invalidChars.add(ch);
@@ -678,8 +679,8 @@ public final class ConfigurationPropertyName implements Comparable<Configuration
    * @param elementValueProcessor a function to process element values
    * @return a {@link ConfigurationPropertyName}
    */
-  static ConfigurationPropertyName adapt(
-          CharSequence name, char separator, @Nullable Function<CharSequence, CharSequence> elementValueProcessor) {
+  static ConfigurationPropertyName adapt(CharSequence name, char separator,
+          @Nullable Function<CharSequence, CharSequence> elementValueProcessor) {
     Assert.notNull(name, "Name must not be null");
     if (name.length() == 0) {
       return EMPTY;
@@ -737,6 +738,13 @@ public final class ConfigurationPropertyName implements Comparable<Configuration
   /**
    * Allows access to the individual elements that make up the name. We store the
    * indexes in arrays rather than a list of object in order to conserve memory.
+   *
+   * @param resolved Contains any resolved elements or can be {@code null} if there aren't any.
+   * Resolved elements allow us to modify the element values in some way (or example
+   * when adapting with a mapping function, or when append has been called). Note
+   * that this array is not used as a cache, in fact, when it's not null then
+   * {@link #canShortcutWithSource} will always return false which may hurt
+   * performance.
    */
   private record Elements(CharSequence source, int size, int[] start, int[] end,
                           ElementType[] type, @Nullable CharSequence[] resolved) {

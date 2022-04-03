@@ -45,7 +45,7 @@ class ConfigurationPropertiesBindExceptionTests {
     assertThat(exception.getNestedMessage()).isEqualTo("Error creating bean with name 'example': "
             + "Could not bind properties to 'ConfigurationPropertiesBindExceptionTests.Example' : "
             + "prefix=, ignoreInvalidFields=false, ignoreUnknownFields=true; "
-            + "nested exception is java.lang.IllegalStateException");
+            + "Nested exception is java.lang.IllegalStateException");
     assertThat(exception.getBeanType()).isEqualTo(Example.class);
     assertThat(exception.getBeanName()).isEqualTo("example");
     assertThat(exception.getAnnotation()).isInstanceOf(ConfigurationProperties.class);

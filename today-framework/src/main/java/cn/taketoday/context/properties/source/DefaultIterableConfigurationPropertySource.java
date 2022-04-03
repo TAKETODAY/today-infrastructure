@@ -21,7 +21,6 @@
 package cn.taketoday.context.properties.source;
 
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.ConcurrentModificationException;
 import java.util.HashSet;
@@ -44,7 +43,6 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.origin.Origin;
 import cn.taketoday.origin.OriginLookup;
 import cn.taketoday.origin.PropertySourceOrigin;
-import cn.taketoday.util.StringUtils;
 
 /**
  * {@link ConfigurationPropertySource} backed by an {@link EnumerablePropertySource}.
@@ -174,7 +172,7 @@ class DefaultIterableConfigurationPropertySource extends DefaultConfigurationPro
   }
 
   private Mappings updateMappings(Mappings mappings) {
-    mappings.updateMappings(() -> StringUtils.toStringArray(getPropertySource().getPropertyNames()));
+    mappings.updateMappings(() -> getPropertySource().getPropertyNames());
     return mappings;
   }
 
@@ -279,7 +277,7 @@ class DefaultIterableConfigurationPropertySource extends DefaultConfigurationPro
     }
 
     private void addParents(Map<ConfigurationPropertyName, Set<ConfigurationPropertyName>> descendants,
-                            ConfigurationPropertyName name) {
+            ConfigurationPropertyName name) {
       ConfigurationPropertyName parent = name;
       while (!parent.isEmpty()) {
         add(descendants, parent, name);
@@ -295,7 +293,7 @@ class DefaultIterableConfigurationPropertySource extends DefaultConfigurationPro
       return this.mappings.getOrDefault(configurationPropertyName, Collections.emptySet());
     }
 
-    ConfigurationPropertyName[] getConfigurationPropertyNames(Collection<String> propertyNames) {
+    ConfigurationPropertyName[] getConfigurationPropertyNames(String[] propertyNames) {
       ConfigurationPropertyName[] names = this.configurationPropertyNames;
       if (names != null) {
         return names;
@@ -304,7 +302,7 @@ class DefaultIterableConfigurationPropertySource extends DefaultConfigurationPro
       if (reverseMappings == null || reverseMappings.isEmpty()) {
         return EMPTY_NAMES_ARRAY;
       }
-      names = new ConfigurationPropertyName[propertyNames.size()];
+      names = new ConfigurationPropertyName[propertyNames.length];
       int i = 0;
       for (String propertyName : propertyNames) {
         names[i++] = reverseMappings.get(propertyName);

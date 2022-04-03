@@ -20,12 +20,11 @@
 
 package cn.taketoday.web.context.support;
 
-import java.util.Collection;
-import java.util.Collections;
-
 import cn.taketoday.core.env.EnumerablePropertySource;
 import cn.taketoday.core.env.PropertySource;
+import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.CollectionUtils;
 import jakarta.servlet.ServletConfig;
 
 /**
@@ -43,8 +42,8 @@ public class ServletConfigPropertySource extends EnumerablePropertySource<Servle
   }
 
   @Override
-  public Collection<String> getPropertyNames() {
-    return Collections.list(source.getInitParameterNames());
+  public String[] getPropertyNames() {
+    return CollectionUtils.toArray(source.getInitParameterNames(), Constant.EMPTY_STRING_ARRAY);
   }
 
   @Override

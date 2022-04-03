@@ -45,7 +45,7 @@ class DefaultConfigurationPropertySourcesTests {
   @Test
   void createWhenPropertySourcesIsNullShouldThrowException() {
     assertThatIllegalArgumentException().isThrownBy(() -> new DefaultConfigurationPropertySources(null))
-            .withMessageContaining("Sources must not be null");
+            .withMessageContaining("Sources is required");
   }
 
   @Test

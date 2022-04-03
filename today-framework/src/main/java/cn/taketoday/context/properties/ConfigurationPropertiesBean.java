@@ -164,14 +164,19 @@ public final class ConfigurationPropertiesBean {
     if (applicationContext instanceof ConfigurableApplicationContext) {
       return getAll((ConfigurableApplicationContext) applicationContext);
     }
-    Map<String, ConfigurationPropertiesBean> propertiesBeans = new LinkedHashMap<>();
-    applicationContext.getBeansWithAnnotation(ConfigurationProperties.class)
-            .forEach((beanName, bean) -> propertiesBeans.put(beanName, get(applicationContext, bean, beanName)));
+
+    var propertiesBeans = new LinkedHashMap<String, ConfigurationPropertiesBean>();
+    var beansWithAnnotation = applicationContext.getBeansWithAnnotation(ConfigurationProperties.class);
+    for (Map.Entry<String, Object> entry : beansWithAnnotation.entrySet()) {
+      String beanName = entry.getKey();
+      Object bean = entry.getValue();
+      propertiesBeans.put(beanName, get(applicationContext, bean, beanName));
+    }
     return propertiesBeans;
   }
 
   private static Map<String, ConfigurationPropertiesBean> getAll(ConfigurableApplicationContext applicationContext) {
-    Map<String, ConfigurationPropertiesBean> propertiesBeans = new LinkedHashMap<>();
+    var propertiesBeans = new LinkedHashMap<String, ConfigurationPropertiesBean>();
     ConfigurableBeanFactory beanFactory = applicationContext.getBeanFactory();
     Iterator<String> beanNames = beanFactory.getBeanNamesIterator();
     while (beanNames.hasNext()) {
@@ -182,8 +187,7 @@ public final class ConfigurationPropertiesBean {
           ConfigurationPropertiesBean propertiesBean = get(applicationContext, bean, beanName);
           propertiesBeans.put(beanName, propertiesBean);
         }
-        catch (Exception ignored) {
-        }
+        catch (Exception ignored) { }
       }
     }
     return propertiesBeans;
@@ -191,7 +195,7 @@ public final class ConfigurationPropertiesBean {
 
   private static boolean isConfigurationPropertiesBean(ConfigurableBeanFactory beanFactory, String beanName) {
     try {
-      if (beanFactory.findAnnotationOnBean(beanName, ConfigurationProperties.class) != null) {
+      if (beanFactory.findAnnotationOnBean(beanName, ConfigurationProperties.class).isPresent()) {
         return true;
       }
       Method factoryMethod = findFactoryMethod(beanFactory, beanName);

@@ -28,7 +28,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.Map;
@@ -48,7 +47,6 @@ import cn.taketoday.origin.OriginLookup;
 import cn.taketoday.origin.OriginProvider;
 import cn.taketoday.origin.TextResourceOrigin;
 import cn.taketoday.origin.TextResourceOrigin.Location;
-import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.FileCopyUtils;
 import cn.taketoday.util.StringUtils;
 
@@ -109,28 +107,33 @@ public class ConfigTreePropertySource extends EnumerablePropertySource<Path> imp
 
   private ConfigTreePropertySource(String name, Path sourceDirectory, Set<Option> options) {
     super(name, sourceDirectory);
-    Assert.isTrue(Files.exists(sourceDirectory), () -> "Directory '" + sourceDirectory + "' does not exist");
-    Assert.isTrue(Files.isDirectory(sourceDirectory), () -> "File '" + sourceDirectory + "' is not a directory");
-    this.propertyFiles = PropertyFile.findAll(sourceDirectory, options);
+    if (!Files.exists(sourceDirectory)) {
+      throw new IllegalArgumentException("Directory '" + sourceDirectory + "' does not exist");
+    }
+
+    if (!Files.isDirectory(sourceDirectory)) {
+      throw new IllegalArgumentException("File '" + sourceDirectory + "' is not a directory");
+    }
     this.options = options;
+    this.propertyFiles = PropertyFile.findAll(sourceDirectory, options);
     this.names = StringUtils.toStringArray(this.propertyFiles.keySet());
   }
 
   @Override
-  public Collection<String> getPropertyNames() {
-    return CollectionUtils.newArrayList(names);
+  public String[] getPropertyNames() {
+    return names;
   }
 
   @Override
   public Value getProperty(String name) {
     PropertyFile propertyFile = this.propertyFiles.get(name);
-    return (propertyFile != null) ? propertyFile.getContent() : null;
+    return propertyFile != null ? propertyFile.getContent() : null;
   }
 
   @Override
   public Origin getOrigin(String name) {
     PropertyFile propertyFile = this.propertyFiles.get(name);
-    return (propertyFile != null) ? propertyFile.getOrigin() : null;
+    return propertyFile != null ? propertyFile.getOrigin() : null;
   }
 
   @Override
@@ -211,9 +214,9 @@ public class ConfigTreePropertySource extends EnumerablePropertySource<Path> imp
 
     static Map<String, PropertyFile> findAll(Path sourceDirectory, Set<Option> options) {
       try {
-        Map<String, PropertyFile> propertyFiles = new TreeMap<>();
+        var propertyFiles = new TreeMap<String, PropertyFile>();
         Files.find(sourceDirectory, MAX_DEPTH, PropertyFile::isPropertyFile, FileVisitOption.FOLLOW_LINKS)
-                .forEach((path) -> {
+                .forEach(path -> {
                   String name = getName(sourceDirectory.relativize(path));
                   if (StringUtils.hasText(name)) {
                     if (options.contains(Option.USE_LOWERCASE_NAMES)) {

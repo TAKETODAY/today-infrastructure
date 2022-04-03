@@ -21,10 +21,11 @@
 package cn.taketoday.core.env;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.LinkedHashSet;
 
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.CollectionUtils;
+import cn.taketoday.util.StringUtils;
 
 /**
  * Composite {@link PropertySource} implementation that iterates over a set of
@@ -75,17 +76,17 @@ public class CompositePropertySource extends EnumerablePropertySource<Object> {
   }
 
   @Override
-  public LinkedHashSet<String> getPropertyNames() {
+  public String[] getPropertyNames() {
     LinkedHashSet<String> names = new LinkedHashSet<>();
     for (PropertySource<?> propertySource : this.propertySources) {
-      if (!(propertySource instanceof EnumerablePropertySource)) {
+      if (!(propertySource instanceof EnumerablePropertySource enumerable)) {
         throw new IllegalStateException(
                 "Failed to enumerate property names due to non-enumerable property source: " + propertySource);
       }
-      Collection<String> propertyNames = ((EnumerablePropertySource<?>) propertySource).getPropertyNames();
-      names.addAll(propertyNames);
+      String[] propertyNames = enumerable.getPropertyNames();
+      CollectionUtils.addAll(names, propertyNames);
     }
-    return names;
+    return StringUtils.toStringArray(names);
   }
 
   /**

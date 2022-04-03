@@ -65,8 +65,14 @@ public abstract class ExceptionUtils {
     if (message != null) {
       sb.append(message).append("; ");
     }
-    sb.append("Nested exception is ")
-            .append(buildMessage(cause.getMessage(), cause.getCause()));
+    sb.append("Nested exception is ");
+    String nested = cause.getMessage();
+    if (nested == null) {
+      sb.append(cause);
+    }
+    else {
+      sb.append(buildMessage(cause.getMessage(), cause.getCause()));
+    }
     return sb.toString();
   }
 

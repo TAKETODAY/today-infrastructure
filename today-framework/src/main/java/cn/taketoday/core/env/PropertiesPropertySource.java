@@ -22,7 +22,6 @@ package cn.taketoday.core.env;
 
 import java.util.Map;
 import java.util.Properties;
-import java.util.Set;
 
 import cn.taketoday.lang.NonNull;
 
@@ -53,7 +52,7 @@ public class PropertiesPropertySource extends MapPropertySource {
 
   @NonNull
   @Override
-  public Set<String> getPropertyNames() {
+  public String[] getPropertyNames() {
     synchronized(this.source) {
       return super.getPropertyNames();
     }
