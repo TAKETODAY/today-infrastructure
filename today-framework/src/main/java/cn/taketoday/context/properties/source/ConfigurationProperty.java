@@ -25,7 +25,6 @@ import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.origin.Origin;
 import cn.taketoday.origin.OriginProvider;
-import cn.taketoday.origin.OriginTrackedValue;
 import cn.taketoday.util.ObjectUtils;
 
 /**

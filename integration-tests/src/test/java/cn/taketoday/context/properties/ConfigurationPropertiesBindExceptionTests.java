@@ -42,7 +42,7 @@ class ConfigurationPropertiesBindExceptionTests {
             applicationContext.getBean(Example.class), "example");
     ConfigurationPropertiesBindException exception = new ConfigurationPropertiesBindException(bean,
             new IllegalStateException());
-    assertThat(exception.getMessage()).isEqualTo("Error creating bean with name 'example': "
+    assertThat(exception.getNestedMessage()).isEqualTo("Error creating bean with name 'example': "
             + "Could not bind properties to 'ConfigurationPropertiesBindExceptionTests.Example' : "
             + "prefix=, ignoreInvalidFields=false, ignoreUnknownFields=true; "
             + "nested exception is java.lang.IllegalStateException");

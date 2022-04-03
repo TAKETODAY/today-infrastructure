@@ -121,6 +121,22 @@ public class BeanDefinitionStoreException extends FatalBeanException {
   }
 
   /**
+   * Create a new BeanDefinitionStoreException.
+   *
+   * @param beanName the name of the bean
+   * @param msg the detail message (appended to an introductory message that indicates
+   * the resource and the name of the bean)
+   * @param cause the root cause (may be {@code null})
+   * @since 4.0
+   */
+  public BeanDefinitionStoreException(
+          @Nullable Throwable cause, String beanName, String msg) {
+    super(msg, cause);
+    this.resourceDescription = null;
+    this.beanName = beanName;
+  }
+
+  /**
    * Return the description of the resource that the bean definition came from, if available.
    *
    * @since 4.0

@@ -80,6 +80,7 @@ class BeanDefinitionOverrideFailureAnalyzerTests {
       return null;
     }
     catch (BeanDefinitionOverrideException ex) {
+      ex.printStackTrace();
       return ex;
     }
   }

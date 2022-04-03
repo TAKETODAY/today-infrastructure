@@ -731,7 +731,7 @@ class ApplicationTests {
   @Test
   void wildcardSources() {
     TestApplication application = new TestApplication();
-    application.getSources().add("classpath*:cn/taketoday/boot/sample-${sample.app.test.prop}.xml");
+    application.getSources().add("classpath*:cn/taketoday/framework/sample-${sample.app.test.prop}.xml");
     application.setApplicationType(ApplicationType.NONE_WEB);
     this.context = application.run();
   }

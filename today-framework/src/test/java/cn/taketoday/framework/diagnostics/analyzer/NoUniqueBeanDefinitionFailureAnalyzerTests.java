@@ -126,7 +126,7 @@ class NoUniqueBeanDefinitionFailureAnalyzerTests {
 
   @Configuration(proxyBeanMethods = false)
   @ComponentScan(basePackageClasses = TestBean.class)
-  @ImportResource("/org/springframework/boot/diagnostics/analyzer/nounique/producer.xml")
+  @ImportResource("/cn/taketoday/framework/diagnostics/analyzer/nounique/producer.xml")
   static class DuplicateBeansProducer {
 
     @Bean
@@ -200,7 +200,7 @@ class NoUniqueBeanDefinitionFailureAnalyzerTests {
   }
 
   @Configuration(proxyBeanMethods = false)
-  @ImportResource("/org/springframework/boot/diagnostics/analyzer/nounique/consumer.xml")
+  @ImportResource("/cn/taketoday/framework/diagnostics/analyzer/nounique/consumer.xml")
   static class XmlConsumer {
 
   }

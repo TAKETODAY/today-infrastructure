@@ -1204,7 +1204,7 @@ class ConfigurationPropertiesTests {
   }
 
   @Configuration(proxyBeanMethods = false)
-  @ImportResource("org/springframework/boot/context/properties/testProperties.xml")
+  @ImportResource("cn/taketoday/framework/context/properties/testProperties.xml")
   static class DefaultsInXmlConfiguration {
 
   }
