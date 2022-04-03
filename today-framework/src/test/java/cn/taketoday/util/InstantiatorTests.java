@@ -29,9 +29,11 @@ import java.util.List;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.OverridingClassLoader;
 import cn.taketoday.core.annotation.Order;
+import cn.taketoday.util.Instantiator.FailureHandler;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
@@ -39,9 +41,9 @@ import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException
  */
 class InstantiatorTests {
 
-  private ParamA paramA = new ParamA();
+  private final ParamA paramA = new ParamA();
 
-  private ParamB paramB = new ParamB();
+  private final ParamB paramB = new ParamB();
 
   private ParamC paramC;
 
@@ -109,6 +111,15 @@ class InstantiatorTests {
             .isThrownBy(() -> createInstantiator(WithDefaultConstructor.class)
                     .instantiate(Collections.singleton(WithAdditionalConstructor.class.getName())))
             .withMessageContaining("Unable to instantiate");
+  }
+
+  @Test
+  void createWithFailureHandlerInvokesFailureHandler() {
+    assertThatIllegalStateException()
+            .isThrownBy(() -> new Instantiator<>(WithDefaultConstructor.class, (availableParameters) -> {
+            }, new CustomFailureHandler())
+                    .instantiate(Collections.singleton(WithAdditionalConstructor.class.getName())))
+            .withMessageContaining("custom failure handler message");
   }
 
   private <T> T createInstance(Class<T> type) {
@@ -181,6 +192,15 @@ class InstantiatorTests {
 
     ParamC(Class<?> type) {
       InstantiatorTests.this.paramC = this;
+    }
+
+  }
+
+  class CustomFailureHandler implements FailureHandler {
+
+    @Override
+    public void handleFailure(Class<?> type, String implementationName, Throwable failure) {
+      throw new IllegalStateException("custom failure handler message");
     }
 
   }
