@@ -42,6 +42,7 @@ import cn.taketoday.framework.BootstrapRegistry;
 import cn.taketoday.framework.BootstrapRegistry.InstanceSupplier;
 import cn.taketoday.framework.ConfigurableBootstrapContext;
 import cn.taketoday.framework.DefaultBootstrapContext;
+import cn.taketoday.logging.Logger;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -68,6 +69,16 @@ class ConfigDataLocationResolversTests {
   private Profiles profiles;
 
   private ResourceLoader resourceLoader = new DefaultResourceLoader();
+
+  @Test
+  void createWhenInjectingLogAndDeferredLogFactoryCreatesResolver() {
+    ConfigDataLocationResolvers resolvers = new ConfigDataLocationResolvers(this.bootstrapContext,
+            this.binder, this.resourceLoader, Collections.singletonList(TestLogResolver.class.getName()));
+    assertThat(resolvers.getResolvers()).hasSize(1);
+    assertThat(resolvers.getResolvers().get(0)).isExactlyInstanceOf(TestLogResolver.class);
+    TestLogResolver resolver = (TestLogResolver) resolvers.getResolvers().get(0);
+    assertThat(resolver.getLog()).isNotNull();
+  }
 
   @Test
   void createWhenInjectingBinderCreatesResolver() {
@@ -195,6 +206,20 @@ class ConfigDataLocationResolversTests {
     public List<TestConfigDataResource> resolveProfileSpecific(ConfigDataLocationResolverContext context,
             ConfigDataLocation location, Profiles profiles) {
       return Collections.singletonList(new TestConfigDataResource(this.optionalResource, this, location, true));
+    }
+
+  }
+
+  static class TestLogResolver extends TestResolver {
+
+    private final Logger log;
+
+    TestLogResolver(Logger log) {
+      this.log = log;
+    }
+
+    Logger getLog() {
+      return this.log;
     }
 
   }
