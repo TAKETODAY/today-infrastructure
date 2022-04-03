@@ -1,11 +1,11 @@
 ---
-spring:
+context:
   profiles:
     active: dev
 my:
   property: fromyamlfile
 ---
-spring:
+context:
   profiles: dev
 my:
   property: fromdevprofile

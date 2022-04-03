@@ -2,12 +2,12 @@
 my:
   property: fromyamlfile
 ---
-spring:
+context:
   profiles: dev & other
 my:
   property: devandother
 ---
-spring:
+context:
   profiles: (dev | other) & another
 my:
   property: devorotherandanother

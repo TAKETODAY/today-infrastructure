@@ -1,6 +1,6 @@
 context.profiles.active: test, another-test
 message: default
 ---
-spring:
+context:
   profiles: test,another-test
 message: multiprofile

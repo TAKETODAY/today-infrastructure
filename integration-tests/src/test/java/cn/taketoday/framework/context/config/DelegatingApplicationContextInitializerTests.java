@@ -83,15 +83,6 @@ class DelegatingApplicationContextInitializerTests {
     assertThatIllegalArgumentException().isThrownBy(() -> this.initializer.initialize(context));
   }
 
-  @Test
-  void genericNotSuitable() {
-    StaticApplicationContext context = new StaticApplicationContext();
-    TestPropertySourceUtils.addInlinedPropertiesToEnvironment(context,
-            "context.initializer.classes=" + NotSuitableInit.class.getName());
-    assertThatIllegalArgumentException().isThrownBy(() -> this.initializer.initialize(context))
-            .withMessageContaining("generic parameter");
-  }
-
   @Order(Ordered.HIGHEST_PRECEDENCE)
   static class MockInitA implements ApplicationContextInitializer {
 

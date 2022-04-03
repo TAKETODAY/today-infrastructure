@@ -3,17 +3,17 @@ my:
   property: fromyamlfile
   other: notempty
 ---
-spring:
+context:
   profiles: dev
 my:
   property: fromdevprofile
 ---
-spring:
+context:
   profiles: other
 my:
   property: fromotherprofile
 ---
-spring:
+context:
   profiles: "!other"
 my:
   property: fromnototherprofile

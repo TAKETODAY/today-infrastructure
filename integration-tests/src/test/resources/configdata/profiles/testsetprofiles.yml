@@ -1,5 +1,5 @@
 ---
-spring:
+context:
   profiles:
     active: dev
 my:

@@ -1,4 +1,4 @@
 ---
-spring:
+context:
   profiles:
     active: dev,healthcheck

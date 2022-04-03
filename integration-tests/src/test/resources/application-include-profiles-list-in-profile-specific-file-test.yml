@@ -1,4 +1,4 @@
-spring:
+context:
   profiles:
     include:
     - p

@@ -1,4 +1,4 @@
-spring:
+context:
   profiles:
     active:
       - A
@@ -7,7 +7,7 @@ spring:
 ---
 context.profiles: A
 
-spring:
+context:
   profiles:
     include:
       - C
@@ -17,7 +17,7 @@ version: A
 ---
 context.profiles: B
 
-spring:
+context:
   profiles:
     include:
       - D

@@ -3,12 +3,12 @@ my:
   property: fromyamlfile
   other: notempty
 ---
-spring:
+context:
   profiles:
 my:
   property: fromemptyprofile
 ---
-spring:
+context:
   profiles: other
 my:
   property: fromotherprofile

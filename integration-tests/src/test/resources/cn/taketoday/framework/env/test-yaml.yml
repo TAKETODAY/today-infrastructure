@@ -30,7 +30,7 @@ emptylist: []
 emptymap: {}
 ---
 
-spring:
+context:
   profiles: development
 name: Test Name
 
