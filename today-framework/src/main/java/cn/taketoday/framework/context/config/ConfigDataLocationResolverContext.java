@@ -23,6 +23,7 @@ package cn.taketoday.framework.context.config;
 import cn.taketoday.context.properties.bind.Binder;
 import cn.taketoday.framework.ConfigurableBootstrapContext;
 import cn.taketoday.framework.env.EnvironmentPostProcessor;
+import cn.taketoday.lang.Nullable;
 
 /**
  * Context provided to {@link ConfigDataLocationResolver} methods.
@@ -47,6 +48,7 @@ public interface ConfigDataLocationResolverContext {
    *
    * @return the parent location
    */
+  @Nullable
   ConfigDataResource getParent();
 
   /**

@@ -29,7 +29,6 @@ import cn.taketoday.core.ResolvableType;
 import cn.taketoday.framework.BootstrapContext;
 import cn.taketoday.framework.BootstrapRegistry;
 import cn.taketoday.framework.ConfigurableBootstrapContext;
-import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.lang.TodayStrategies;
 import cn.taketoday.logging.Logger;
@@ -81,7 +80,7 @@ class ConfigDataLoaders {
   }
 
   private List<Class<?>> getResourceTypes(List<ConfigDataLoader<?>> loaders) {
-    List<Class<?>> resourceTypes = new ArrayList<>(loaders.size());
+    var resourceTypes = new ArrayList<Class<?>>(loaders.size());
     for (ConfigDataLoader<?> loader : loaders) {
       resourceTypes.add(getResourceType(loader));
     }
@@ -119,14 +118,17 @@ class ConfigDataLoaders {
         ConfigDataLoader<R> loader = (ConfigDataLoader<R>) candidate;
         if (loader.isLoadable(context, resource)) {
           if (result != null) {
-            throw new IllegalStateException("Multiple loaders found for resource '" + resource + "' ["
-                    + candidate.getClass().getName() + "," + result.getClass().getName() + "]");
+            throw new IllegalStateException(
+                    "Multiple loaders found for resource '" + resource + "' ["
+                            + candidate.getClass().getName() + "," + result.getClass().getName() + "]");
           }
           result = loader;
         }
       }
     }
-    Assert.state(result != null, () -> "No loader found for resource '" + resource + "'");
+    if (result == null) {
+      throw new IllegalStateException("No loader found for resource '" + resource + "'");
+    }
     return result;
   }
 

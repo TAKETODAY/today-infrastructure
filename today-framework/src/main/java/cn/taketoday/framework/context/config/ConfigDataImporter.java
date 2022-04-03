@@ -77,9 +77,10 @@ class ConfigDataImporter {
    * @param locations the locations to resolve
    * @return a map of the loaded locations and data
    */
-  Map<ConfigDataResolutionResult, ConfigData> resolveAndLoad(@Nullable ConfigDataActivationContext activationContext,
-          ConfigDataLocationResolverContext locationResolverContext, ConfigDataLoaderContext loaderContext,
-          List<ConfigDataLocation> locations) {
+  Map<ConfigDataResolutionResult, ConfigData> resolveAndLoad(
+          @Nullable ConfigDataActivationContext activationContext,
+          ConfigDataLocationResolverContext locationResolverContext,
+          ConfigDataLoaderContext loaderContext, List<ConfigDataLocation> locations) {
     try {
       Profiles profiles = (activationContext != null) ? activationContext.getProfiles() : null;
       List<ConfigDataResolutionResult> resolved = resolve(locationResolverContext, profiles, locations);

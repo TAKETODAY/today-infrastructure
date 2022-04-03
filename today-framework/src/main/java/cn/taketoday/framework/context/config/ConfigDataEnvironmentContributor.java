@@ -35,6 +35,7 @@ import cn.taketoday.context.properties.bind.PlaceholdersResolver;
 import cn.taketoday.context.properties.source.ConfigurationPropertySource;
 import cn.taketoday.core.env.Environment;
 import cn.taketoday.core.env.PropertySource;
+import cn.taketoday.framework.context.config.ConfigData.Options;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
 
@@ -59,7 +60,7 @@ import cn.taketoday.util.CollectionUtils;
  */
 class ConfigDataEnvironmentContributor implements Iterable<ConfigDataEnvironmentContributor> {
 
-  private static final ConfigData.Options EMPTY_LOCATION_OPTIONS = ConfigData.Options.of(ConfigData.Option.IGNORE_IMPORTS);
+  private static final Options EMPTY_LOCATION_OPTIONS = Options.of(ConfigData.Option.IGNORE_IMPORTS);
 
   @Nullable
   private final ConfigDataLocation location;
@@ -78,7 +79,7 @@ class ConfigDataEnvironmentContributor implements Iterable<ConfigDataEnvironment
   @Nullable
   private final ConfigDataProperties properties;
 
-  private final ConfigData.Options configDataOptions;
+  private final Options configDataOptions;
 
   private final Map<ImportPhase, List<ConfigDataEnvironmentContributor>> children;
 
@@ -107,7 +108,7 @@ class ConfigDataEnvironmentContributor implements Iterable<ConfigDataEnvironment
           @Nullable PropertySource<?> propertySource,
           @Nullable ConfigurationPropertySource configurationPropertySource,
           @Nullable ConfigDataProperties properties,
-          @Nullable ConfigData.Options configDataOptions,
+          @Nullable Options configDataOptions,
           @Nullable Map<ImportPhase, List<ConfigDataEnvironmentContributor>> children) {
     this.kind = kind;
     this.location = location;
@@ -116,7 +117,7 @@ class ConfigDataEnvironmentContributor implements Iterable<ConfigDataEnvironment
     this.properties = properties;
     this.propertySource = propertySource;
     this.configurationPropertySource = configurationPropertySource;
-    this.configDataOptions = (configDataOptions != null) ? configDataOptions : ConfigData.Options.NONE;
+    this.configDataOptions = (configDataOptions != null) ? configDataOptions : Options.NONE;
     this.children = (children != null) ? children : Collections.emptyMap();
   }
 
@@ -289,9 +290,9 @@ class ConfigDataEnvironmentContributor implements Iterable<ConfigDataEnvironment
    * @param children the new children
    * @return a new contributor instance
    */
-  ConfigDataEnvironmentContributor withChildren(ImportPhase importPhase,
-          List<ConfigDataEnvironmentContributor> children) {
-    Map<ImportPhase, List<ConfigDataEnvironmentContributor>> updatedChildren = new LinkedHashMap<>(this.children);
+  ConfigDataEnvironmentContributor withChildren(
+          ImportPhase importPhase, List<ConfigDataEnvironmentContributor> children) {
+    var updatedChildren = new LinkedHashMap<>(this.children);
     updatedChildren.put(importPhase, children);
     if (importPhase == ImportPhase.AFTER_PROFILE_ACTIVATION) {
       moveProfileSpecific(updatedChildren);
@@ -302,25 +303,24 @@ class ConfigDataEnvironmentContributor implements Iterable<ConfigDataEnvironment
   }
 
   private void moveProfileSpecific(Map<ImportPhase, List<ConfigDataEnvironmentContributor>> children) {
-    List<ConfigDataEnvironmentContributor> before = children.get(ImportPhase.BEFORE_PROFILE_ACTIVATION);
-    if (!hasAnyProfileSpecificChildren(before)) {
-      return;
+    var before = children.get(ImportPhase.BEFORE_PROFILE_ACTIVATION);
+    if (hasAnyProfileSpecificChildren(before)) {
+      var updatedAfter = new ArrayList<ConfigDataEnvironmentContributor>();
+      var updatedBefore = new ArrayList<ConfigDataEnvironmentContributor>(before.size());
+      for (ConfigDataEnvironmentContributor contributor : before) {
+        updatedBefore.add(moveProfileSpecificChildren(contributor, updatedAfter));
+      }
+      updatedAfter.addAll(children.getOrDefault(ImportPhase.AFTER_PROFILE_ACTIVATION, Collections.emptyList()));
+      children.put(ImportPhase.BEFORE_PROFILE_ACTIVATION, updatedBefore);
+      children.put(ImportPhase.AFTER_PROFILE_ACTIVATION, updatedAfter);
     }
-    List<ConfigDataEnvironmentContributor> updatedBefore = new ArrayList<>(before.size());
-    List<ConfigDataEnvironmentContributor> updatedAfter = new ArrayList<>();
-    for (ConfigDataEnvironmentContributor contributor : before) {
-      updatedBefore.add(moveProfileSpecificChildren(contributor, updatedAfter));
-    }
-    updatedAfter.addAll(children.getOrDefault(ImportPhase.AFTER_PROFILE_ACTIVATION, Collections.emptyList()));
-    children.put(ImportPhase.BEFORE_PROFILE_ACTIVATION, updatedBefore);
-    children.put(ImportPhase.AFTER_PROFILE_ACTIVATION, updatedAfter);
   }
 
-  private ConfigDataEnvironmentContributor moveProfileSpecificChildren(ConfigDataEnvironmentContributor contributor,
-          List<ConfigDataEnvironmentContributor> removed) {
+  private ConfigDataEnvironmentContributor moveProfileSpecificChildren(
+          ConfigDataEnvironmentContributor contributor, List<ConfigDataEnvironmentContributor> removed) {
     for (ImportPhase importPhase : ImportPhase.values()) {
-      List<ConfigDataEnvironmentContributor> children = contributor.getChildren(importPhase);
-      List<ConfigDataEnvironmentContributor> updatedChildren = new ArrayList<>(children.size());
+      var children = contributor.getChildren(importPhase);
+      var updatedChildren = new ArrayList<ConfigDataEnvironmentContributor>(children.size());
       for (ConfigDataEnvironmentContributor child : children) {
         if (child.hasConfigDataOption(ConfigData.Option.PROFILE_SPECIFIC)) {
           removed.add(child.withoutConfigDataOption(ConfigData.Option.PROFILE_SPECIFIC));
@@ -335,14 +335,14 @@ class ConfigDataEnvironmentContributor implements Iterable<ConfigDataEnvironment
   }
 
   private boolean hasAnyProfileSpecificChildren(List<ConfigDataEnvironmentContributor> contributors) {
-    if (CollectionUtils.isEmpty(contributors)) {
-      return false;
-    }
-    for (ConfigDataEnvironmentContributor contributor : contributors) {
-      for (ImportPhase importPhase : ImportPhase.values()) {
-        if (contributor.getChildren(importPhase).stream()
-                .anyMatch((child) -> child.hasConfigDataOption(ConfigData.Option.PROFILE_SPECIFIC))) {
-          return true;
+    if (CollectionUtils.isNotEmpty(contributors)) {
+      for (ConfigDataEnvironmentContributor contributor : contributors) {
+        for (ImportPhase importPhase : ImportPhase.values()) {
+          if (contributor.getChildren(importPhase)
+                  .stream()
+                  .anyMatch((child) -> child.hasConfigDataOption(ConfigData.Option.PROFILE_SPECIFIC))) {
+            return true;
+          }
         }
       }
     }
@@ -357,20 +357,23 @@ class ConfigDataEnvironmentContributor implements Iterable<ConfigDataEnvironment
    * @param replacement the replacement node that should be used instead
    * @return a new {@link ConfigDataEnvironmentContributor} instance
    */
-  ConfigDataEnvironmentContributor withReplacement(ConfigDataEnvironmentContributor existing,
-          ConfigDataEnvironmentContributor replacement) {
+  ConfigDataEnvironmentContributor withReplacement(
+          ConfigDataEnvironmentContributor existing, ConfigDataEnvironmentContributor replacement) {
     if (this == existing) {
       return replacement;
     }
-    Map<ImportPhase, List<ConfigDataEnvironmentContributor>> updatedChildren = new LinkedHashMap<>(
-            this.children.size());
-    this.children.forEach((importPhase, contributors) -> {
-      List<ConfigDataEnvironmentContributor> updatedContributors = new ArrayList<>(contributors.size());
+
+    var updatedChildren = new LinkedHashMap<ImportPhase, List<ConfigDataEnvironmentContributor>>(children.size());
+    for (var entry : children.entrySet()) {
+      ImportPhase importPhase = entry.getKey();
+      List<ConfigDataEnvironmentContributor> contributors = entry.getValue();
+      var updatedContributors = new ArrayList<ConfigDataEnvironmentContributor>(contributors.size());
       for (ConfigDataEnvironmentContributor contributor : contributors) {
         updatedContributors.add(contributor.withReplacement(existing, replacement));
       }
       updatedChildren.put(importPhase, Collections.unmodifiableList(updatedContributors));
-    });
+    }
+
     return new ConfigDataEnvironmentContributor(this.kind, this.location, this.resource,
             this.fromProfileSpecificImport, this.propertySource, this.configurationPropertySource, this.properties,
             this.configDataOptions, updatedChildren);
@@ -410,7 +413,7 @@ class ConfigDataEnvironmentContributor implements Iterable<ConfigDataEnvironment
    * @return a new {@link ConfigDataEnvironmentContributor} instance
    */
   static ConfigDataEnvironmentContributor of(List<ConfigDataEnvironmentContributor> contributors) {
-    Map<ImportPhase, List<ConfigDataEnvironmentContributor>> children = new LinkedHashMap<>();
+    var children = new LinkedHashMap<ImportPhase, List<ConfigDataEnvironmentContributor>>();
     children.put(ImportPhase.BEFORE_PROFILE_ACTIVATION, Collections.unmodifiableList(contributors));
     return new ConfigDataEnvironmentContributor(Kind.ROOT, null, null, false, null, null, null, null, children);
   }
@@ -459,7 +462,7 @@ class ConfigDataEnvironmentContributor implements Iterable<ConfigDataEnvironment
           @Nullable ConfigDataLocation location, @Nullable ConfigDataResource resource,
           boolean profileSpecific, ConfigData configData, int propertySourceIndex) {
     PropertySource<?> propertySource = configData.getPropertySources().get(propertySourceIndex);
-    ConfigData.Options options = configData.getOptions(propertySource);
+    Options options = configData.getOptions(propertySource);
     ConfigurationPropertySource configurationPropertySource = ConfigurationPropertySource.from(propertySource);
     return new ConfigDataEnvironmentContributor(Kind.UNBOUND_IMPORT, location, resource, profileSpecific,
             propertySource, configurationPropertySource, null, options, null);

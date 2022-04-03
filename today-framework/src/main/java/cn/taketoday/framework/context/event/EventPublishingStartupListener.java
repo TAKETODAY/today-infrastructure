@@ -55,15 +55,13 @@ import cn.taketoday.util.ErrorHandler;
  * @author Chris Bono
  * @since 4.0
  */
-public class EventPublishingRunListener implements ApplicationStartupListener, Ordered {
-
-  private final Application application;
+public class EventPublishingStartupListener implements ApplicationStartupListener, Ordered {
 
   private final String[] args;
-
+  private final Application application;
   private final SimpleApplicationEventMulticaster initialMulticaster;
 
-  public EventPublishingRunListener(Application application, String[] args) {
+  public EventPublishingStartupListener(Application application, String[] args) {
     this.application = application;
     this.args = args;
     this.initialMulticaster = new SimpleApplicationEventMulticaster();
@@ -142,7 +140,7 @@ public class EventPublishingRunListener implements ApplicationStartupListener, O
 
   private static class LoggingErrorHandler implements ErrorHandler {
 
-    private static final Logger logger = LoggerFactory.getLogger(EventPublishingRunListener.class);
+    private static final Logger logger = LoggerFactory.getLogger(EventPublishingStartupListener.class);
 
     @Override
     public void handleError(Throwable throwable) {

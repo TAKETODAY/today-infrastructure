@@ -30,13 +30,6 @@ import cn.taketoday.framework.availability.AvailabilityChangeEvent;
 import cn.taketoday.context.ApplicationEvent;
 import cn.taketoday.context.ApplicationListener;
 import cn.taketoday.context.support.StaticApplicationContext;
-import cn.taketoday.framework.context.event.ApplicationContextInitializedEvent;
-import cn.taketoday.framework.context.event.ApplicationEnvironmentPreparedEvent;
-import cn.taketoday.framework.context.event.ApplicationPreparedEvent;
-import cn.taketoday.framework.context.event.ApplicationReadyEvent;
-import cn.taketoday.framework.context.event.ApplicationStartedEvent;
-import cn.taketoday.framework.context.event.ApplicationStartingEvent;
-import cn.taketoday.framework.context.event.EventPublishingRunListener;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -49,7 +42,7 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
 /**
- * Tests for {@link EventPublishingRunListener}
+ * Tests for {@link EventPublishingStartupListener}
  *
  * @author Brian Clozel
  */
@@ -59,7 +52,7 @@ class EventPublishingRunListenerTests {
 
 	private Application application;
 
-	private EventPublishingRunListener runListener;
+	private EventPublishingStartupListener runListener;
 
 	private TestApplicationListener eventListener;
 
@@ -68,7 +61,7 @@ class EventPublishingRunListenerTests {
 		this.eventListener = new TestApplicationListener();
 		this.application = mock(Application.class);
 		given(this.application.getListeners()).willReturn(Collections.singleton(this.eventListener));
-		this.runListener = new EventPublishingRunListener(this.application, null);
+		this.runListener = new EventPublishingStartupListener(this.application, null);
 	}
 
 	@Test

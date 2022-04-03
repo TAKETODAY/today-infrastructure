@@ -59,6 +59,7 @@ import cn.taketoday.core.env.SimpleCommandLinePropertySource;
 import cn.taketoday.core.io.DefaultResourceLoader;
 import cn.taketoday.core.io.ResourceLoader;
 import cn.taketoday.format.support.ApplicationConversionService;
+import cn.taketoday.framework.BootstrapRegistry.InstanceSupplier;
 import cn.taketoday.framework.diagnostics.ApplicationExceptionReporter;
 import cn.taketoday.framework.env.EnvironmentPostProcessor;
 import cn.taketoday.lang.Assert;
@@ -69,6 +70,7 @@ import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ExceptionUtils;
+import cn.taketoday.util.Instantiator;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
 
@@ -223,6 +225,7 @@ public class Application {
     this.applicationType = ApplicationType.deduceFromClasspath();
     this.bootstrapRegistryInitializers = TodayStrategies.get(BootstrapRegistryInitializer.class);
     setInitializers(TodayStrategies.get(ApplicationContextInitializer.class));
+    setListeners((Collection) TodayStrategies.get(ApplicationListener.class));
   }
 
   private Class<?> deduceMainApplicationClass() {
@@ -293,11 +296,14 @@ public class Application {
     ApplicationArguments arguments = new ApplicationArguments(args);
     DefaultBootstrapContext bootstrapContext = createBootstrapContext();
 
+    bootstrapContext.register(Application.class, InstanceSupplier.of(this));
+    bootstrapContext.register(ApplicationArguments.class, InstanceSupplier.of(arguments));
+
     // prepare startup
     prepareStartup(arguments);
 
     ConfigurableApplicationContext context = null;
-    ApplicationStartupListeners listeners = getStartupListeners();
+    ApplicationStartupListeners listeners = getStartupListeners(bootstrapContext, arguments);
     listeners.starting(bootstrapContext, mainApplicationClass, arguments);
     try {
       ConfigurableEnvironment environment = prepareEnvironment(bootstrapContext, listeners, arguments);
@@ -368,8 +374,19 @@ public class Application {
    */
   protected void afterRefresh(ConfigurableApplicationContext context, ApplicationArguments args) { }
 
-  private ApplicationStartupListeners getStartupListeners() {
-    List<ApplicationStartupListener> strategies = TodayStrategies.get(ApplicationStartupListener.class);
+  private ApplicationStartupListeners getStartupListeners(DefaultBootstrapContext bootstrapContext, ApplicationArguments arguments) {
+    var instantiator = new Instantiator<ApplicationStartupListener>(ApplicationStartupListener.class,
+            parameters -> {
+              parameters.add(Application.class, this);
+              parameters.add(Logger.class, getApplicationLog());
+              parameters.add(ApplicationArguments.class, arguments);
+              parameters.add(String[].class, arguments.getSourceArgs());
+              parameters.add(BootstrapRegistry.class, bootstrapContext);
+              parameters.add(ConfigurableBootstrapContext.class, bootstrapContext);
+            });
+
+    List<String> strategiesNames = TodayStrategies.getStrategiesNames(ApplicationStartupListener.class, getClassLoader());
+    List<ApplicationStartupListener> strategies = instantiator.instantiate(strategiesNames);
     return new ApplicationStartupListeners(log, strategies);
   }
 
@@ -716,7 +733,7 @@ public class Application {
    *
    * @return the application log
    */
-  protected Logger getApplicationLog() {
+  public Logger getApplicationLog() {
     if (this.mainApplicationClass == null) {
       return log;
     }

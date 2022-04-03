@@ -99,7 +99,8 @@ class ConfigDataLocationResolvers {
   }
 
   List<ConfigDataResolutionResult> resolve(
-          ConfigDataLocationResolverContext context, @Nullable ConfigDataLocation location, @Nullable Profiles profiles) {
+          ConfigDataLocationResolverContext context,
+          @Nullable ConfigDataLocation location, @Nullable Profiles profiles) {
     if (location == null) {
       return Collections.emptyList();
     }

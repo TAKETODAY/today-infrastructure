@@ -68,7 +68,7 @@ public class Instantiator<T> {
 
   private Map<Class<?>, Function<Class<?>, Object>> getAvailableParameters(
           Consumer<AvailableParameters> availableParameters) {
-    LinkedHashMap<Class<?>, Function<Class<?>, Object>> result = new LinkedHashMap<>();
+    var result = new LinkedHashMap<Class<?>, Function<Class<?>, Object>>();
     availableParameters.accept(new AvailableParameters() {
 
       @Override
@@ -164,6 +164,7 @@ public class Instantiator<T> {
     return args;
   }
 
+  @Nullable
   private Function<Class<?>, Object> getAvailableParameter(Class<?> parameterType) {
     for (Map.Entry<Class<?>, Function<Class<?>, Object>> entry : this.availableParameters.entrySet()) {
       if (entry.getKey().isAssignableFrom(parameterType)) {
