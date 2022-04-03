@@ -20,6 +20,8 @@
 
 package cn.taketoday.framework.diagnostics.analyzer;
 
+import java.util.Collection;
+
 import cn.taketoday.beans.BeansException;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanFactoryAware;
@@ -40,9 +42,10 @@ import cn.taketoday.util.StringUtils;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-class NoUniqueBeanDefinitionFailureAnalyzer extends AbstractInjectionFailureAnalyzer<NoUniqueBeanDefinitionException>
-        implements BeanFactoryAware {
+class NoUniqueBeanDefinitionFailureAnalyzer
+        extends AbstractInjectionFailureAnalyzer<NoUniqueBeanDefinitionException> implements BeanFactoryAware {
 
+  @Nullable
   private ConfigurableBeanFactory beanFactory;
 
   @Override
@@ -62,10 +65,13 @@ class NoUniqueBeanDefinitionFailureAnalyzer extends AbstractInjectionFailureAnal
     if (beanNames == null) {
       return null;
     }
+    ConfigurableBeanFactory beanFactory = this.beanFactory;
+    Assert.state(beanFactory != null, "No BeanFactory available");
+
     StringBuilder message = new StringBuilder();
     message.append(String.format("%s required a single bean, but %d were found:%n", description, beanNames.length));
     for (String beanName : beanNames) {
-      buildMessage(message, beanName);
+      buildMessage(message, beanName, beanFactory);
     }
     return new FailureAnalysis(message.toString(),
             "Consider marking one of the beans as @Primary, updating the consumer to"
@@ -73,9 +79,10 @@ class NoUniqueBeanDefinitionFailureAnalyzer extends AbstractInjectionFailureAnal
                     + " bean that should be consumed", cause);
   }
 
-  private void buildMessage(StringBuilder message, String beanName) {
+  private void buildMessage(StringBuilder message, String beanName, ConfigurableBeanFactory beanFactory) {
+
     try {
-      BeanDefinition definition = beanFactory.getBeanDefinition(beanName);
+      BeanDefinition definition = beanFactory.getMergedBeanDefinition(beanName);
       message.append(getDefinitionDescription(beanName, definition));
     }
     catch (NoSuchBeanDefinitionException ex) {
@@ -93,9 +100,14 @@ class NoUniqueBeanDefinitionFailureAnalyzer extends AbstractInjectionFailureAnal
 
   @Nullable
   private String[] extractBeanNames(NoUniqueBeanDefinitionException cause) {
-    if (cause.getMessage().contains("but found")) {
+    Collection<String> beanNamesFound = cause.getBeanNamesFound();
+    if (beanNamesFound != null) {
+      return StringUtils.toStringArray(beanNamesFound);
+    }
+    String nestedMessage = cause.getNestedMessage();
+    if (nestedMessage.contains("but found")) {
       return StringUtils.commaDelimitedListToStringArray(
-              cause.getMessage().substring(cause.getMessage().lastIndexOf(':') + 1).trim());
+              nestedMessage.substring(nestedMessage.lastIndexOf(':') + 1).trim());
     }
     return null;
   }
