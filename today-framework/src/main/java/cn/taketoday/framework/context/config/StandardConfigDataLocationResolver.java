@@ -45,6 +45,7 @@ import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.lang.TodayStrategies;
 import cn.taketoday.logging.Logger;
+import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.StringUtils;
 
@@ -71,7 +72,7 @@ public class StandardConfigDataLocationResolver
 
   private static final String NO_PROFILE = null;
 
-  private final Logger logger;
+  private final Logger logger = LoggerFactory.getLogger(getClass());
 
   private final List<PropertySourceLoader> propertySourceLoaders;
 
@@ -82,12 +83,10 @@ public class StandardConfigDataLocationResolver
   /**
    * Create a new {@link StandardConfigDataLocationResolver} instance.
    *
-   * @param logger the logger to use
    * @param binder a binder backed by the initial {@link Environment}
    * @param resourceLoader a {@link ResourceLoader} used to load resources
    */
-  public StandardConfigDataLocationResolver(Logger logger, Binder binder, ResourceLoader resourceLoader) {
-    this.logger = logger;
+  public StandardConfigDataLocationResolver(Binder binder, ResourceLoader resourceLoader) {
     this.propertySourceLoaders = TodayStrategies.get(PropertySourceLoader.class, getClass().getClassLoader());
     this.configNames = getConfigNames(binder);
     this.resourceLoader = new LocationResourceLoader(resourceLoader);

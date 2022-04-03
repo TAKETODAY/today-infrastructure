@@ -33,6 +33,7 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import cn.taketoday.beans.CachedIntrospectionResults;
 import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.support.AbstractAutowireCapableBeanFactory;
@@ -61,7 +62,6 @@ import cn.taketoday.core.io.ResourceLoader;
 import cn.taketoday.format.support.ApplicationConversionService;
 import cn.taketoday.framework.BootstrapRegistry.InstanceSupplier;
 import cn.taketoday.framework.diagnostics.ApplicationExceptionReporter;
-import cn.taketoday.framework.env.EnvironmentPostProcessor;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.lang.TodayStrategies;
@@ -190,6 +190,7 @@ public class Application {
 
   private boolean allowCircularReferences;
   private boolean lazyInitialization = false;
+  private boolean isCustomEnvironment = false;
 
   /**
    * Create a new {@link Application} instance. The application context will load
@@ -307,10 +308,13 @@ public class Application {
     listeners.starting(bootstrapContext, mainApplicationClass, arguments);
     try {
       ConfigurableEnvironment environment = prepareEnvironment(bootstrapContext, listeners, arguments);
+      configureIgnoreBeanInfo(environment);
+
+      Banner printedBanner = printBanner(environment);
 
       context = createApplicationContext();
       // prepare context
-      prepareContext(bootstrapContext, context, listeners, arguments, environment);
+      prepareContext(bootstrapContext, context, listeners, arguments, environment, printedBanner);
       // refresh context
       refreshContext(context);
       // after refresh
@@ -398,16 +402,21 @@ public class Application {
 
     ConfigurationPropertySources.attach(environment);
     listeners.environmentPrepared(bootstrapContext, environment);
-
-    // load outside PropertySources
-    List<EnvironmentPostProcessor> postProcessors = getEnvironmentPostProcessors();
-    for (EnvironmentPostProcessor postProcessor : postProcessors) {
-      postProcessor.postProcessEnvironment(environment, this);
-    }
-
     DefaultPropertiesPropertySource.moveToEnd(environment);
 
+    Assert.state(!environment.containsProperty("context.main.environment-prefix"),
+            "Environment prefix cannot be set via properties.");
+
     bindToApplication(environment);
+
+    if (!this.isCustomEnvironment) {
+      environment = new EnvironmentConverter(getClassLoader()).convertIfNecessary(
+              environment, switch (applicationType) {
+                case SERVLET_WEB -> ApplicationServletEnvironment.class;
+                case REACTIVE_WEB -> ApplicationReactiveWebEnvironment.class;
+                default -> ApplicationEnvironment.class;
+              });
+    }
 
     ConfigurationPropertySources.attach(environment);
     return environment;
@@ -424,6 +433,14 @@ public class Application {
     }
     catch (Exception ex) {
       throw new IllegalStateException("Cannot bind to Application", ex);
+    }
+  }
+
+  private void configureIgnoreBeanInfo(ConfigurableEnvironment environment) {
+    if (System.getProperty(CachedIntrospectionResults.IGNORE_BEANINFO_PROPERTY_NAME) == null) {
+      Boolean ignore = environment.getProperty(CachedIntrospectionResults.IGNORE_BEANINFO_PROPERTY_NAME,
+              Boolean.class, Boolean.TRUE);
+      System.setProperty(CachedIntrospectionResults.IGNORE_BEANINFO_PROPERTY_NAME, ignore.toString());
     }
   }
 
@@ -456,8 +473,13 @@ public class Application {
     configureHeadlessProperty();
   }
 
-  private void prepareContext(DefaultBootstrapContext bootstrapContext, ConfigurableApplicationContext context,
-          ApplicationStartupListeners listeners, ApplicationArguments arguments, ConfigurableEnvironment environment) {
+  private void prepareContext(
+          DefaultBootstrapContext bootstrapContext,
+          ConfigurableApplicationContext context,
+          ApplicationStartupListeners listeners,
+          ApplicationArguments arguments,
+          ConfigurableEnvironment environment, @Nullable Banner printedBanner) {
+
     context.setEnvironment(environment);
     postProcessApplicationContext(context);
     applyInitializers(context);
@@ -473,6 +495,10 @@ public class Application {
     ConfigurableBeanFactory beanFactory = context.getBeanFactory();
     beanFactory.registerSingleton(this);
     beanFactory.registerSingleton(ApplicationArguments.BEAN_NAME, arguments);
+
+    if (printedBanner != null) {
+      beanFactory.registerSingleton(Banner.BEAN_NAME, printedBanner);
+    }
 
     if (beanFactory instanceof AbstractAutowireCapableBeanFactory) {
       ((AbstractAutowireCapableBeanFactory) beanFactory).setAllowCircularReferences(allowCircularReferences);
@@ -628,10 +654,6 @@ public class Application {
     }
   }
 
-  protected List<EnvironmentPostProcessor> getEnvironmentPostProcessors() {
-    return TodayStrategies.get(EnvironmentPostProcessor.class);
-  }
-
   /**
    * Sets the factory that will be called to create the application context.
    *
@@ -773,6 +795,7 @@ public class Application {
    * @param environment the environment
    */
   public void setEnvironment(@Nullable ConfigurableEnvironment environment) {
+    this.isCustomEnvironment = true;
     this.environment = environment;
   }
 

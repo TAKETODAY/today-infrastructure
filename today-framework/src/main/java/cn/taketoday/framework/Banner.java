@@ -35,6 +35,7 @@ import cn.taketoday.core.env.Environment;
  */
 @FunctionalInterface
 public interface Banner {
+  String BEAN_NAME = "applicationBanner";
 
   /**
    * Print the banner to the specified print stream.

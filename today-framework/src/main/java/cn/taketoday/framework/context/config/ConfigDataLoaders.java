@@ -70,10 +70,10 @@ class ConfigDataLoaders {
   ConfigDataLoaders(ConfigurableBootstrapContext bootstrapContext,
           @Nullable ClassLoader classLoader, List<String> names) {
     Instantiator<ConfigDataLoader<?>> instantiator = new Instantiator<>(ConfigDataLoader.class,
-            (availableParameters) -> {
-              availableParameters.add(ConfigurableBootstrapContext.class, bootstrapContext);
-              availableParameters.add(BootstrapContext.class, bootstrapContext);
-              availableParameters.add(BootstrapRegistry.class, bootstrapContext);
+            (parameters) -> {
+              parameters.add(BootstrapContext.class, bootstrapContext);
+              parameters.add(BootstrapRegistry.class, bootstrapContext);
+              parameters.add(ConfigurableBootstrapContext.class, bootstrapContext);
             });
     this.loaders = instantiator.instantiate(classLoader, names);
     this.resourceTypes = getResourceTypes(this.loaders);

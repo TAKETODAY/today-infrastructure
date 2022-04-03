@@ -32,7 +32,6 @@ import cn.taketoday.framework.BootstrapRegistry;
 import cn.taketoday.framework.BootstrapRegistry.InstanceSupplier;
 import cn.taketoday.framework.ConfigurableBootstrapContext;
 import cn.taketoday.framework.DefaultBootstrapContext;
-import cn.taketoday.logging.Logger;
 import cn.taketoday.mock.env.MockPropertySource;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -146,8 +145,7 @@ class ConfigDataLoadersTests {
 
   static class LoggingConfigDataLoader implements ConfigDataLoader<ConfigDataResource> {
 
-    LoggingConfigDataLoader(Logger log) {
-      assertThat(log).isNotNull();
+    LoggingConfigDataLoader() {
     }
 
     @Override
