@@ -32,7 +32,6 @@ import cn.taketoday.framework.BootstrapRegistry;
 import cn.taketoday.framework.BootstrapRegistry.InstanceSupplier;
 import cn.taketoday.framework.ConfigurableBootstrapContext;
 import cn.taketoday.framework.DefaultBootstrapContext;
-import cn.taketoday.logging.Logger;
 import cn.taketoday.mock.env.MockPropertySource;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -50,12 +49,6 @@ class ConfigDataLoadersTests {
   private DefaultBootstrapContext bootstrapContext = new DefaultBootstrapContext();
 
   private ConfigDataLoaderContext context = mock(ConfigDataLoaderContext.class);
-
-  @Test
-  void createWhenLoaderHasLogParameterInjectsLog() {
-    new ConfigDataLoaders(this.bootstrapContext, null,
-            Arrays.asList(LoggingConfigDataLoader.class.getName()));
-  }
 
   @Test
   void createWhenLoaderHasDeferredLogFactoryParameterInjectsDeferredLogFactory() {
@@ -145,10 +138,6 @@ class ConfigDataLoadersTests {
   }
 
   static class LoggingConfigDataLoader implements ConfigDataLoader<ConfigDataResource> {
-
-    LoggingConfigDataLoader(Logger log) {
-      assertThat(log).isNotNull();
-    }
 
     @Override
     public ConfigData load(ConfigDataLoaderContext context, ConfigDataResource resource) throws IOException {

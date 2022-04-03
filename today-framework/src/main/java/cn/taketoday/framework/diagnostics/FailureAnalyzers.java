@@ -20,22 +20,21 @@
 
 package cn.taketoday.framework.diagnostics;
 
-import java.lang.reflect.Constructor;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanFactoryAware;
 import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.context.aware.EnvironmentAware;
-import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
+import cn.taketoday.core.env.Environment;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.lang.TodayStrategies;
-import cn.taketoday.logging.LogMessage;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
-import cn.taketoday.util.ClassUtils;
-import cn.taketoday.util.ReflectionUtils;
+import cn.taketoday.util.Instantiator;
+import cn.taketoday.util.Instantiator.FailureHandler;
+import cn.taketoday.util.StringUtils;
 
 /**
  * Utility to trigger {@link FailureAnalyzer} and {@link FailureAnalysisReporter}
@@ -61,57 +60,62 @@ final class FailureAnalyzers implements ApplicationExceptionReporter {
 
   private final List<FailureAnalyzer> analyzers;
 
-  FailureAnalyzers(ConfigurableApplicationContext context) {
-    this(context, null);
+  FailureAnalyzers(@Nullable ConfigurableApplicationContext context) {
+    this(context, TodayStrategies.getStrategiesNames(FailureAnalyzer.class, getClassLoader(context)));
   }
 
-  FailureAnalyzers(ConfigurableApplicationContext context, @Nullable ClassLoader classLoader) {
-    this.classLoader = (classLoader != null) ? classLoader : getClassLoader(context);
-    this.analyzers = loadFailureAnalyzers(context, this.classLoader);
+  FailureAnalyzers(@Nullable ConfigurableApplicationContext context, List<String> classNames) {
+    this.classLoader = getClassLoader(context);
+    this.analyzers = loadFailureAnalyzers(classNames, context);
   }
 
   @Nullable
-  private ClassLoader getClassLoader(@Nullable ConfigurableApplicationContext context) {
-    return (context != null) ? context.getClassLoader() : null;
+  private static ClassLoader getClassLoader(@Nullable ConfigurableApplicationContext context) {
+    return context != null ? context.getClassLoader() : null;
   }
 
   private List<FailureAnalyzer> loadFailureAnalyzers(
-          ConfigurableApplicationContext context, @Nullable ClassLoader classLoader) {
-    List<String> classNames = TodayStrategies.getStrategiesNames(FailureAnalyzer.class, classLoader);
-    List<FailureAnalyzer> analyzers = new ArrayList<>();
-    for (String className : classNames) {
-      try {
-        FailureAnalyzer analyzer = createAnalyzer(context, className);
-        if (analyzer != null) {
-          analyzers.add(analyzer);
-        }
-      }
-      catch (Throwable ex) {
-        logger.trace(LogMessage.format("Failed to load %s", className), ex);
-      }
-    }
-    AnnotationAwareOrderComparator.sort(analyzers);
-    return analyzers;
+          List<String> classNames, @Nullable ConfigurableApplicationContext context) {
+    var instantiator = new Instantiator<FailureAnalyzer>(FailureAnalyzer.class,
+            parameters -> {
+              if (context != null) {
+                parameters.add(BeanFactory.class, context.getBeanFactory());
+                parameters.add(Environment.class, context.getEnvironment());
+              }
+            }, new LoggingInstantiationFailureHandler());
+    List<FailureAnalyzer> analyzers = instantiator.instantiate(classLoader, classNames);
+    return handleAwareAnalyzers(analyzers, context);
   }
 
-  @Nullable
-  private FailureAnalyzer createAnalyzer(@Nullable ConfigurableApplicationContext context, String className) throws Exception {
-    Constructor<?> constructor = ClassUtils.forName(className, this.classLoader).getDeclaredConstructor();
-    ReflectionUtils.makeAccessible(constructor);
-    FailureAnalyzer analyzer = (FailureAnalyzer) constructor.newInstance();
-    if (analyzer instanceof BeanFactoryAware || analyzer instanceof EnvironmentAware) {
+  private List<FailureAnalyzer> handleAwareAnalyzers(
+          List<FailureAnalyzer> analyzers, @Nullable ConfigurableApplicationContext context) {
+    List<FailureAnalyzer> awareAnalyzers = analyzers.stream()
+            .filter((analyzer) -> analyzer instanceof BeanFactoryAware || analyzer instanceof EnvironmentAware)
+            .toList();
+    if (!awareAnalyzers.isEmpty()) {
+      String awareAnalyzerNames = StringUtils.collectionToCommaDelimitedString(awareAnalyzers.stream()
+              .map((analyzer) -> analyzer.getClass().getName()).collect(Collectors.toList()));
+      logger.warn("FailureAnalyzers [{}] implement BeanFactoryAware or EnvironmentAware."
+                      + "Support for these interfaces on FailureAnalyzers is deprecated, "
+                      + "and will be removed in a future release."
+                      + "Instead provide a constructor that accepts BeanFactory or Environment parameters.",
+              awareAnalyzerNames);
+
       if (context == null) {
-        logger.trace(LogMessage.format("Skipping %s due to missing context", className));
-        return null;
+        logger.trace("Skipping [{}] due to missing context", awareAnalyzerNames);
+        return analyzers.stream().filter((analyzer) -> !awareAnalyzers.contains(analyzer))
+                .collect(Collectors.toList());
       }
-      if (analyzer instanceof BeanFactoryAware) {
-        ((BeanFactoryAware) analyzer).setBeanFactory(context.getBeanFactory());
-      }
-      if (analyzer instanceof EnvironmentAware) {
-        ((EnvironmentAware) analyzer).setEnvironment(context.getEnvironment());
+      for (FailureAnalyzer analyzer : awareAnalyzers) {
+        if (analyzer instanceof BeanFactoryAware) {
+          ((BeanFactoryAware) analyzer).setBeanFactory(context.getBeanFactory());
+        }
+        if (analyzer instanceof EnvironmentAware) {
+          ((EnvironmentAware) analyzer).setEnvironment(context.getEnvironment());
+        }
       }
     }
-    return analyzer;
+    return analyzers;
   }
 
   @Override
@@ -130,13 +134,13 @@ final class FailureAnalyzers implements ApplicationExceptionReporter {
         }
       }
       catch (Throwable ex) {
-        logger.trace(LogMessage.format("FailureAnalyzer %s failed", analyzer), ex);
+        logger.trace("FailureAnalyzer {} failed", analyzer, ex);
       }
     }
     return null;
   }
 
-  private boolean report(@Nullable FailureAnalysis analysis, ClassLoader classLoader) {
+  private boolean report(@Nullable FailureAnalysis analysis, @Nullable ClassLoader classLoader) {
     List<FailureAnalysisReporter> reporters = TodayStrategies.get(
             FailureAnalysisReporter.class, classLoader);
     if (analysis == null || reporters.isEmpty()) {
@@ -146,6 +150,15 @@ final class FailureAnalyzers implements ApplicationExceptionReporter {
       reporter.report(analysis);
     }
     return true;
+  }
+
+  static class LoggingInstantiationFailureHandler implements FailureHandler {
+
+    @Override
+    public void handleFailure(Class<?> type, String implementationName, Throwable failure) {
+      logger.trace("Skipping {}: {}", implementationName, failure.getMessage());
+    }
+
   }
 
 }

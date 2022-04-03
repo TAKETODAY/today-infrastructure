@@ -43,6 +43,7 @@ import cn.taketoday.framework.BootstrapRegistry.InstanceSupplier;
 import cn.taketoday.framework.ConfigurableBootstrapContext;
 import cn.taketoday.framework.DefaultBootstrapContext;
 import cn.taketoday.logging.Logger;
+import cn.taketoday.logging.LoggerFactory;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -211,12 +212,7 @@ class ConfigDataLocationResolversTests {
   }
 
   static class TestLogResolver extends TestResolver {
-
-    private final Logger log;
-
-    TestLogResolver(Logger log) {
-      this.log = log;
-    }
+    private final Logger log = LoggerFactory.getLogger(TestLogResolver.class);
 
     Logger getLog() {
       return this.log;

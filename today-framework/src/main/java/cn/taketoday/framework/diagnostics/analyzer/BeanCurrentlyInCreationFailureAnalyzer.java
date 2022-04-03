@@ -28,11 +28,12 @@ import cn.taketoday.beans.factory.BeanCreationException;
 import cn.taketoday.beans.factory.BeanCurrentlyInCreationException;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanFactoryAware;
+import cn.taketoday.beans.factory.InjectionPoint;
 import cn.taketoday.beans.factory.UnsatisfiedDependencyException;
 import cn.taketoday.beans.factory.support.AbstractAutowireCapableBeanFactory;
-import cn.taketoday.beans.factory.InjectionPoint;
 import cn.taketoday.framework.diagnostics.AbstractFailureAnalyzer;
 import cn.taketoday.framework.diagnostics.FailureAnalysis;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.StringUtils;
 
 /**
@@ -43,9 +44,10 @@ import cn.taketoday.util.StringUtils;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-class BeanCurrentlyInCreationFailureAnalyzer extends AbstractFailureAnalyzer<BeanCurrentlyInCreationException>
-        implements BeanFactoryAware {
+class BeanCurrentlyInCreationFailureAnalyzer
+        extends AbstractFailureAnalyzer<BeanCurrentlyInCreationException> implements BeanFactoryAware {
 
+  @Nullable
   private AbstractAutowireCapableBeanFactory beanFactory;
 
   @Override
@@ -75,6 +77,7 @@ class BeanCurrentlyInCreationFailureAnalyzer extends AbstractFailureAnalyzer<Bea
             + "context.main.allow-circular-references to true.";
   }
 
+  @Nullable
   private DependencyCycle findCycle(Throwable rootFailure) {
     List<BeanInCycle> beansInCycle = new ArrayList<>();
     Throwable candidate = rootFailure;
@@ -162,6 +165,7 @@ class BeanCurrentlyInCreationFailureAnalyzer extends AbstractFailureAnalyzer<Bea
       return "";
     }
 
+    @Nullable
     private InjectionPoint findFailedInjectionPoint(BeanCreationException ex) {
       if (!(ex instanceof UnsatisfiedDependencyException)) {
         return null;
@@ -190,6 +194,7 @@ class BeanCurrentlyInCreationFailureAnalyzer extends AbstractFailureAnalyzer<Bea
       return this.name + this.description;
     }
 
+    @Nullable
     static BeanInCycle get(Throwable ex) {
       if (ex instanceof BeanCreationException) {
         return get((BeanCreationException) ex);
@@ -197,6 +202,7 @@ class BeanCurrentlyInCreationFailureAnalyzer extends AbstractFailureAnalyzer<Bea
       return null;
     }
 
+    @Nullable
     private static BeanInCycle get(BeanCreationException ex) {
       if (StringUtils.hasText(ex.getBeanName())) {
         return new BeanInCycle(ex);
