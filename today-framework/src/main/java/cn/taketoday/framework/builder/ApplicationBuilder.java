@@ -212,7 +212,7 @@ public class ApplicationBuilder {
     // It's not possible if embedded web server are enabled to support web contexts as
     // parents because the servlets cannot be initialized at the right point in
     // lifecycle.
-    web(ApplicationType.NONE_WEB);
+    type(ApplicationType.NONE_WEB);
 
     // Probably not interested in multiple banners
     bannerMode(Banner.Mode.OFF);
@@ -232,7 +232,7 @@ public class ApplicationBuilder {
    */
   public ApplicationBuilder parent(Class<?>... sources) {
     if (this.parent == null) {
-      this.parent = new ApplicationBuilder(sources).web(ApplicationType.NONE_WEB)
+      this.parent = new ApplicationBuilder(sources).type(ApplicationType.NONE_WEB)
               .properties(this.defaultProperties).environment(this.environment);
     }
     else {
@@ -322,7 +322,7 @@ public class ApplicationBuilder {
    * @param ApplicationType the type of web application
    * @return the current builder
    */
-  public ApplicationBuilder web(ApplicationType ApplicationType) {
+  public ApplicationBuilder type(ApplicationType ApplicationType) {
     this.application.setApplicationType(ApplicationType);
     return this;
   }

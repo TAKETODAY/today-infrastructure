@@ -142,7 +142,8 @@ public class Instantiator<T> {
   }
 
   private List<T> instantiate(Stream<TypeSupplier> typeSuppliers) {
-    List<T> instances = typeSuppliers.map(this::instantiate).collect(Collectors.toList());
+    List<T> instances = typeSuppliers.map(this::instantiate)
+            .collect(Collectors.toList());
     AnnotationAwareOrderComparator.sort(instances);
     return Collections.unmodifiableList(instances);
   }

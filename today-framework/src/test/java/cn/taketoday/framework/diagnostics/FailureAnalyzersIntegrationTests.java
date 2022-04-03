@@ -45,8 +45,8 @@ class FailureAnalyzersIntegrationTests {
 
   @Test
   void analysisIsPerformed(CapturedOutput output) {
-    assertThatExceptionOfType(Exception.class).isThrownBy(
-            () -> new ApplicationBuilder(TestConfiguration.class).web(ApplicationType.NONE_WEB).run());
+    assertThatExceptionOfType(Exception.class)
+            .isThrownBy(() -> new ApplicationBuilder(TestConfiguration.class).type(ApplicationType.NONE_WEB).run());
     assertThat(output).contains("APPLICATION FAILED TO START");
   }
 

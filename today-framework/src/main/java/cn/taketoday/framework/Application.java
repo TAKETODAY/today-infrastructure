@@ -39,7 +39,6 @@ import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.support.AbstractAutowireCapableBeanFactory;
 import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.support.BeanNameGenerator;
-import cn.taketoday.beans.factory.support.DependencyInjectorAwareInstantiator;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.ApplicationContextInitializer;
@@ -1080,8 +1079,8 @@ public class Application {
    */
   public void setDefaultProperties(Properties defaultProperties) {
     this.defaultProperties = new HashMap<>();
-    for (Object key : Collections.list(defaultProperties.propertyNames())) {
-      this.defaultProperties.put((String) key, defaultProperties.get(key));
+    for (String name : defaultProperties.stringPropertyNames()) {
+      this.defaultProperties.put(name, defaultProperties.get(name));
     }
   }
 
@@ -1096,8 +1095,8 @@ public class Application {
     this.bootstrapRegistryInitializers.add(bootstrapRegistryInitializer);
   }
 
-  private void handleRunFailure(
-          ConfigurableApplicationContext context, Throwable exception, @Nullable ApplicationStartupListeners listeners) {
+  private void handleRunFailure(ConfigurableApplicationContext context,
+          Throwable exception, @Nullable ApplicationStartupListeners listeners) {
     try {
       try {
         handleExitCode(context, exception);
@@ -1118,13 +1117,13 @@ public class Application {
   }
 
   private List<ApplicationExceptionReporter> getExceptionReporters(ConfigurableApplicationContext context) {
-    try {
-      return TodayStrategies.get(
-              ApplicationExceptionReporter.class, DependencyInjectorAwareInstantiator.forFunction(context));
-    }
-    catch (Throwable ex) {
-      return Collections.emptyList();
-    }
+    ClassLoader classLoader = getClassLoader();
+    var instantiator = new Instantiator<ApplicationExceptionReporter>(ApplicationExceptionReporter.class, parameters -> {
+      parameters.add(ConfigurableApplicationContext.class, context);
+    });
+
+    List<String> strategiesNames = TodayStrategies.getStrategiesNames(ApplicationExceptionReporter.class, classLoader);
+    return instantiator.instantiate(strategiesNames);
   }
 
   private void reportFailure(List<ApplicationExceptionReporter> exceptionReporters, Throwable failure) {
