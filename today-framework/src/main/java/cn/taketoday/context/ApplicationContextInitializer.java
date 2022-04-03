@@ -44,9 +44,17 @@ public interface ApplicationContextInitializer {
 
   /**
    * Initialize the given application context.
+   * <p>
+   * before using {@code applicationContext} you must test if context is you want.
+   * like this:
+   * <pre>
+   *  if (applicationContext instanceof GenericApplicationContext generic) {
    *
-   * @param applicationContext the application to configure
+   *  }
+   * </pre>
+   *
+   * @param context the application to configure (never {@code null})
    */
-  void initialize(ConfigurableApplicationContext applicationContext);
+  void initialize(ConfigurableApplicationContext context);
 
 }
