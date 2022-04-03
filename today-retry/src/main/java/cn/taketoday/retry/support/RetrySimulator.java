@@ -29,6 +29,7 @@ import cn.taketoday.retry.RetryPolicy;
 import cn.taketoday.retry.backoff.ExponentialRandomBackOffPolicy;
 import cn.taketoday.retry.backoff.Sleeper;
 import cn.taketoday.retry.backoff.SleepingBackOffPolicy;
+import cn.taketoday.util.ExceptionUtils;
 
 /**
  * A {@link RetrySimulator} is a tool for exercising retry + backoff operations.
@@ -97,7 +98,7 @@ public class RetrySimulator {
 
     }
     catch (Throwable e) {
-      throw new RuntimeException("Unexpected exception", e);
+      throw ExceptionUtils.sneakyThrow(e);
     }
 
     return stealingSleeper.getSleeps();

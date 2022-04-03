@@ -134,7 +134,7 @@ public class OrderComparator implements Comparator<Object> {
    * @param obj the object to check
    * @return the order value, or {@code Ordered.LOWEST_PRECEDENCE} as fallback
    */
-  protected int getOrder(@Nullable Object obj) {
+  public int getOrder(@Nullable Object obj) {
     if (obj != null) {
       Integer order = findOrder(obj);
       if (order != null) {
