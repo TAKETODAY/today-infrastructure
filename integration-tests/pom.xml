@@ -30,6 +30,12 @@
   <modelVersion>4.0.0</modelVersion>
 
   <artifactId>integration-tests</artifactId>
+
+  <properties>
+    <maven.compiler.source>17</maven.compiler.source>
+    <maven.compiler.target>17</maven.compiler.target>
+  </properties>
+
   <dependencies>
 
     <dependency>
@@ -49,6 +55,13 @@
     <dependency>
       <groupId>cn.taketoday</groupId>
       <artifactId>today-test</artifactId>
+      <version>${project.version}</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>cn.taketoday</groupId>
+      <artifactId>today-test-support</artifactId>
       <version>${project.version}</version>
       <scope>test</scope>
     </dependency>
@@ -88,11 +101,13 @@
       <scope>test</scope>
     </dependency>
 
+    <dependency>
+      <groupId>jakarta.inject</groupId>
+      <artifactId>jakarta.inject-api</artifactId>
+      <scope>test</scope>
+    </dependency>
+
   </dependencies>
 
-  <properties>
-    <maven.compiler.source>17</maven.compiler.source>
-    <maven.compiler.target>17</maven.compiler.target>
-  </properties>
 
 </project>

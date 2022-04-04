@@ -1,0 +1,303 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
+  ~ Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+  ~
+  ~ DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+  ~
+  ~ This program is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ This program is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with this program.  If not, see [http://www.gnu.org/licenses/]
+  -->
+
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>cn.taketoday</groupId>
+  <artifactId>today-framework-bom</artifactId>
+  <version>4.0.0-Draft.1</version>
+
+  <packaging>pom</packaging>
+
+  <description>TODAY Framework (Bill of Materials)</description>
+
+  <properties>
+    <!-- <skipTests>true</skipTests> -->
+
+    <java.version>17</java.version>
+    <maven.compiler.source>17</maven.compiler.source>
+    <maven.compiler.target>17</maven.compiler.target>
+
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+    <!--server-->
+    <netty.version>4.1.71.Final</netty.version>
+    <jetty.version>11.0.7</jetty.version>
+    <undertow.version>2.2.13.Final</undertow.version>
+    <embed.tomcat.version>10.0.12</embed.tomcat.version>
+    <servlet.version>5.0.0</servlet.version>
+
+    <!--codec-->
+    <fastjson.version>1.2.78</fastjson.version>
+    <jackson.version>2.13.0</jackson.version>
+
+    <commons-dbutils.version>1.7</commons-dbutils.version>
+    <embedded-db-junit.version>1.0.0</embedded-db-junit.version>
+    <guava.version>30.1-jre</guava.version>
+    <h2.version>1.4.199</h2.version>
+    <hsqldb.version>2.2.8</hsqldb.version>
+    <jdbi.version>2.78</jdbi.version>
+    <joda-time.version>2.0</joda-time.version>
+    <jooq.version>3.3.0</jooq.version>
+    <junit5.version>5.8.2</junit5.version>
+    <mockito.version>4.0.0</mockito.version>
+    <persistence-api.version>1.0.2</persistence-api.version>
+    <slf4j.version>1.7.25</slf4j.version>
+    <spring-jdbc.version>5.2.3.RELEASE</spring-jdbc.version>
+    <reactor.version>3.4.16</reactor.version>
+    <aspectj.version>1.9.9</aspectj.version>
+    <httpcomponents-core5.version>5.1.2</httpcomponents-core5.version>
+
+    <!--doc-->
+    <site.output.dir>${project.build.directory}/staging</site.output.dir>
+    <maven.site.skip>true</maven.site.skip>
+    <asciidoctorj.version>2.5.2</asciidoctorj.version>
+    <asciidoctorj.pdf.version>1.6.0</asciidoctorj.pdf.version>
+    <jruby.version>9.2.19.0</jruby.version>
+    <!-- status: DRAFT, BETA, etc., or blank for final -->
+    <status>DRAFT</status>
+    <revisiondate>${maven.build.timestamp}</revisiondate>
+
+  </properties>
+
+  <dependencyManagement>
+
+    <dependencies>
+
+      <dependency>
+        <groupId>cn.taketoday</groupId>
+        <artifactId>today-framework</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>cn.taketoday</groupId>
+        <artifactId>today-aspects</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>cn.taketoday</groupId>
+        <artifactId>today-instrument</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>cn.taketoday</groupId>
+        <artifactId>today-indexer</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>cn.taketoday</groupId>
+        <artifactId>today-mybatis</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>cn.taketoday</groupId>
+        <artifactId>today-retry</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>cn.taketoday</groupId>
+        <artifactId>today-test</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>cn.taketoday</groupId>
+        <artifactId>today-test-support</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+
+      <!-- dependencies -->
+
+
+      <!--
+          ======================================================
+               jakarta
+          ======================================================
+      -->
+
+      <dependency>
+        <groupId>jakarta.transaction</groupId>
+        <artifactId>jakarta.transaction-api</artifactId>
+        <version>2.0.0</version>
+      </dependency>
+
+      <dependency>
+        <groupId>jakarta.servlet</groupId>
+        <artifactId>jakarta.servlet-api</artifactId>
+        <version>${servlet.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>jakarta.servlet.jsp.jstl</groupId>
+        <artifactId>jakarta.servlet.jsp.jstl-api</artifactId>
+        <version>2.0.0</version>
+      </dependency>
+
+      <dependency>
+        <groupId>jakarta.servlet.jsp</groupId>
+        <artifactId>jakarta.servlet.jsp-api</artifactId>
+        <version>3.0.0</version>
+      </dependency>
+
+      <dependency>
+        <groupId>jakarta.json.bind</groupId>
+        <artifactId>jakarta.json.bind-api</artifactId>
+        <version>2.0.0</version>
+      </dependency>
+
+      <dependency>
+        <groupId>jakarta.annotation</groupId>
+        <artifactId>jakarta.annotation-api</artifactId>
+        <version>2.0.0</version>
+      </dependency>
+
+      <dependency>
+        <groupId>jakarta.inject</groupId>
+        <artifactId>jakarta.inject-api</artifactId>
+        <version>2.0.1</version>
+      </dependency>
+
+      <dependency>
+        <groupId>jakarta.websocket</groupId>
+        <artifactId>jakarta.websocket-api</artifactId>
+        <version>2.0.0</version>
+      </dependency>
+
+      <dependency>
+        <groupId>jakarta.enterprise.concurrent</groupId>
+        <artifactId>jakarta.enterprise.concurrent-api</artifactId>
+        <version>2.0.0</version>
+      </dependency>
+
+      <dependency>
+        <groupId>javax.money</groupId>
+        <artifactId>money-api</artifactId>
+        <version>1.1</version>
+      </dependency>
+
+      <dependency>
+        <groupId>jakarta.mail</groupId>
+        <artifactId>jakarta.mail-api</artifactId>
+        <version>2.0.1</version>
+      </dependency>
+
+      <dependency>
+        <groupId>jakarta.activation</groupId>
+        <artifactId>jakarta.activation-api</artifactId>
+        <version>2.0.1</version>
+      </dependency>
+
+      <dependency>
+        <groupId>com.sun.mail</groupId>
+        <artifactId>jakarta.mail</artifactId>
+        <version>2.0.1</version>
+      </dependency>
+
+      <dependency>
+        <groupId>jakarta.xml.bind</groupId>
+        <artifactId>jakarta.xml.bind-api</artifactId>
+        <version>3.0.1</version>
+      </dependency>
+
+      <!--
+      ======================================================
+              aspectj
+      ======================================================
+      -->
+      <dependency>
+        <groupId>org.aspectj</groupId>
+        <artifactId>aspectjrt</artifactId>
+        <version>${aspectj.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.aspectj</groupId>
+        <artifactId>aspectjweaver</artifactId>
+        <version>${aspectj.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.aspectj</groupId>
+        <artifactId>aspectjtools</artifactId>
+        <version>${aspectj.version}</version>
+      </dependency>
+
+      <!-- ======================================================
+                          Test
+      ======================================================= -->
+
+      <dependency>
+        <groupId>org.junit.jupiter</groupId>
+        <artifactId>junit-jupiter</artifactId>
+        <version>${junit5.version}</version>
+      </dependency>
+
+      <!--JUnit Jupiter Engine to depend on the JUnit5 engine and JUnit 5 API -->
+      <dependency>
+        <groupId>org.junit.jupiter</groupId>
+        <artifactId>junit-jupiter-engine</artifactId>
+        <version>${junit5.version}</version>
+      </dependency>
+      <!--JUnit Jupiter Engine to depend on the JUnit4 engine and JUnit 4 API  -->
+      <dependency>
+        <groupId>org.junit.vintage</groupId>
+        <artifactId>junit-vintage-engine</artifactId>
+        <version>${junit5.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.mockito</groupId>
+        <artifactId>mockito-core</artifactId>
+        <version>${mockito.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.hamcrest</groupId>
+        <artifactId>hamcrest</artifactId>
+        <version>2.2</version>
+      </dependency>
+
+      <dependency>
+        <groupId>junit</groupId>
+        <artifactId>junit</artifactId>
+        <version>4.13.2</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.assertj</groupId>
+        <artifactId>assertj-core</artifactId>
+        <version>3.22.0</version>
+      </dependency>
+
+
+    </dependencies>
+  </dependencyManagement>
+</project>
