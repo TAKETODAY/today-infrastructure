@@ -372,7 +372,7 @@ public final class ConfigurationPropertyName implements Comparable<Configuration
     if (getNumberOfElements() != other.getNumberOfElements()) {
       return false;
     }
-    if (this.elements.canShortcutWithSource(ElementType.UNIFORM)
+    if (elements.canShortcutWithSource(ElementType.UNIFORM)
             && other.elements.canShortcutWithSource(ElementType.UNIFORM)) {
       return toString().equals(other.toString());
     }
@@ -504,8 +504,9 @@ public final class ConfigurationPropertyName implements Comparable<Configuration
   public int hashCode() {
     int hashCode = this.hashCode;
     Elements elements = this.elements;
-    if (hashCode == 0 && elements.getSize() != 0) {
-      for (int elementIndex = 0; elementIndex < elements.getSize(); elementIndex++) {
+    int elementsSize = elements.getSize();
+    if (hashCode == 0 && elementsSize != 0) {
+      for (int elementIndex = 0; elementIndex < elementsSize; elementIndex++) {
         int elementHashCode = 0;
         boolean indexed = elements.getType(elementIndex).isIndexed();
         int length = elements.getLength(elementIndex);

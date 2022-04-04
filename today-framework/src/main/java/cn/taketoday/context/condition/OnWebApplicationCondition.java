@@ -22,13 +22,15 @@ package cn.taketoday.context.condition;
 
 import cn.taketoday.context.annotation.Condition;
 import cn.taketoday.context.annotation.ConditionEvaluationContext;
+import cn.taketoday.context.annotation.config.AutoConfigurationMetadata;
 import cn.taketoday.context.condition.ConditionalOnWebApplication.Type;
-import cn.taketoday.core.annotation.Order;
 import cn.taketoday.core.Ordered;
+import cn.taketoday.core.annotation.Order;
 import cn.taketoday.core.io.ResourceLoader;
 import cn.taketoday.core.type.AnnotatedTypeMetadata;
 import cn.taketoday.framework.ApplicationType;
 import cn.taketoday.framework.web.reactive.context.ConfigurableReactiveWebEnvironment;
+import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.context.ConfigurableWebEnvironment;
@@ -45,6 +47,45 @@ import cn.taketoday.web.servlet.WebServletApplicationContext;
  */
 @Order(Ordered.HIGHEST_PRECEDENCE + 20)
 class OnWebApplicationCondition extends FilteringContextCondition {
+
+  private static final String SERVLET_WEB_APPLICATION_CLASS = "cn.taketoday.web.context.support.GenericWebApplicationContext";
+  private static final String REACTIVE_WEB_APPLICATION_CLASS = "cn.taketoday.web.reactive.HandlerResult";
+
+  @Override
+  protected ConditionOutcome[] getOutcomes(
+          String[] autoConfigurationClasses, AutoConfigurationMetadata autoConfigurationMetadata) {
+    ConditionOutcome[] outcomes = new ConditionOutcome[autoConfigurationClasses.length];
+    for (int i = 0; i < outcomes.length; i++) {
+      String autoConfigurationClass = autoConfigurationClasses[i];
+      if (autoConfigurationClass != null) {
+        outcomes[i] = getOutcome(
+                autoConfigurationMetadata.get(autoConfigurationClass, "ConditionalOnWebApplication"));
+      }
+    }
+    return outcomes;
+  }
+
+  private ConditionOutcome getOutcome(String type) {
+    if (type == null) {
+      return null;
+    }
+    ConditionMessage.Builder message = ConditionMessage.forCondition(ConditionalOnWebApplication.class);
+    if (ConditionalOnWebApplication.Type.SERVLET.name().equals(type)) {
+      if (!ClassNameFilter.isPresent(SERVLET_WEB_APPLICATION_CLASS, getBeanClassLoader())) {
+        return ConditionOutcome.noMatch(message.didNotFind("servlet web application classes").atAll());
+      }
+    }
+    if (ConditionalOnWebApplication.Type.REACTIVE.name().equals(type)) {
+      if (!ClassNameFilter.isPresent(REACTIVE_WEB_APPLICATION_CLASS, getBeanClassLoader())) {
+        return ConditionOutcome.noMatch(message.didNotFind("reactive web application classes").atAll());
+      }
+    }
+    if (!ClassNameFilter.isPresent(SERVLET_WEB_APPLICATION_CLASS, getBeanClassLoader())
+            && !ClassUtils.isPresent(REACTIVE_WEB_APPLICATION_CLASS, getBeanClassLoader())) {
+      return ConditionOutcome.noMatch(message.didNotFind("reactive or servlet web application classes").atAll());
+    }
+    return null;
+  }
 
   @Override
   public ConditionOutcome getMatchOutcome(ConditionEvaluationContext context, AnnotatedTypeMetadata metadata) {

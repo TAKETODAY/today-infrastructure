@@ -202,7 +202,7 @@ public class ErrorPageFilter implements Filter, ErrorPageRegistry, Ordered {
    *
    * @param request the source request
    * @return the description
-   * @since 1.5.0
+   * @since 4.0
    */
   protected String getDescription(HttpServletRequest request) {
     String pathInfo = (request.getPathInfo() != null) ? request.getPathInfo() : "";

@@ -25,14 +25,67 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
+import cn.taketoday.beans.BeansException;
+import cn.taketoday.beans.factory.BeanClassLoaderAware;
+import cn.taketoday.beans.factory.BeanFactory;
+import cn.taketoday.beans.factory.BeanFactoryAware;
+import cn.taketoday.context.annotation.config.AutoConfigurationImportFilter;
+import cn.taketoday.context.annotation.config.AutoConfigurationMetadata;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.CollectionUtils;
 
 /**
+ * Abstract base class for a {@link ContextCondition} that also implements
+ * {@link AutoConfigurationImportFilter}.
+ *
+ * @author Phillip Webb
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/1/16 16:07
  */
-abstract class FilteringContextCondition extends ContextCondition {
+abstract class FilteringContextCondition extends ContextCondition
+        implements AutoConfigurationImportFilter, BeanFactoryAware, BeanClassLoaderAware {
+
+  private BeanFactory beanFactory;
+
+  private ClassLoader beanClassLoader;
+
+  @Override
+  public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
+    this.beanFactory = beanFactory;
+  }
+
+  protected final BeanFactory getBeanFactory() {
+    return this.beanFactory;
+  }
+
+  protected final ClassLoader getBeanClassLoader() {
+    return this.beanClassLoader;
+  }
+
+  @Override
+  public void setBeanClassLoader(ClassLoader classLoader) {
+    this.beanClassLoader = classLoader;
+  }
+
+  @Override
+  public boolean[] match(String[] autoConfigurationClasses, AutoConfigurationMetadata autoConfigurationMetadata) {
+    ConditionEvaluationReport report = ConditionEvaluationReport.find(this.beanFactory);
+    ConditionOutcome[] outcomes = getOutcomes(autoConfigurationClasses, autoConfigurationMetadata);
+    boolean[] match = new boolean[outcomes.length];
+    for (int i = 0; i < outcomes.length; i++) {
+      match[i] = (outcomes[i] == null || outcomes[i].isMatch());
+      if (!match[i] && outcomes[i] != null) {
+        logOutcome(autoConfigurationClasses[i], outcomes[i]);
+        if (report != null) {
+          report.recordConditionEvaluation(autoConfigurationClasses[i], this, outcomes[i]);
+        }
+      }
+    }
+    return match;
+  }
+
+  protected abstract ConditionOutcome[] getOutcomes(
+          String[] autoConfigurationClasses, AutoConfigurationMetadata autoConfigurationMetadata);
 
   protected final List<String> filter(
           Collection<String> classNames, ClassNameFilter classNameFilter, ClassLoader classLoader) {

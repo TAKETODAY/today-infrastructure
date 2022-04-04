@@ -41,6 +41,7 @@ import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
 import cn.taketoday.context.annotation.Condition;
 import cn.taketoday.context.annotation.ConditionEvaluationContext;
 import cn.taketoday.context.annotation.ConfigurationCondition;
+import cn.taketoday.context.annotation.config.AutoConfigurationMetadata;
 import cn.taketoday.context.condition.ConditionMessage.Style;
 import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.core.Ordered;
@@ -80,11 +81,53 @@ class OnBeanCondition extends FilteringContextCondition implements Configuration
   }
 
   @Override
+  protected final ConditionOutcome[] getOutcomes(
+          String[] autoConfigurationClasses, AutoConfigurationMetadata autoConfigurationMetadata) {
+    ConditionOutcome[] outcomes = new ConditionOutcome[autoConfigurationClasses.length];
+    for (int i = 0; i < outcomes.length; i++) {
+      String autoConfigurationClass = autoConfigurationClasses[i];
+      if (autoConfigurationClass != null) {
+        Set<String> onBeanTypes = autoConfigurationMetadata.getSet(autoConfigurationClass, "ConditionalOnBean");
+        outcomes[i] = getOutcome(onBeanTypes, ConditionalOnBean.class);
+        if (outcomes[i] == null) {
+          Set<String> onSingleCandidateTypes = autoConfigurationMetadata.getSet(
+                  autoConfigurationClass, "ConditionalOnSingleCandidate");
+          outcomes[i] = getOutcome(onSingleCandidateTypes, ConditionalOnSingleCandidate.class);
+        }
+      }
+    }
+    return outcomes;
+  }
+
+  private ConditionOutcome getOutcome(Set<String> requiredBeanTypes, Class<? extends Annotation> annotation) {
+    List<String> missing = filter(requiredBeanTypes, ClassNameFilter.MISSING, getBeanClassLoader());
+    if (!missing.isEmpty()) {
+      ConditionMessage message = ConditionMessage.forCondition(annotation)
+              .didNotFind("required type", "required types")
+              .items(Style.QUOTE, missing);
+      return ConditionOutcome.noMatch(message);
+    }
+    return null;
+  }
+
+  @Override
   public final ConditionOutcome getMatchOutcome(ConditionEvaluationContext context, AnnotatedTypeMetadata metadata) {
     ConditionMessage matchMessage = ConditionMessage.empty();
     MergedAnnotations annotations = metadata.getAnnotations();
+
     if (annotations.isPresent(ConditionalOnBean.class)) {
-      Spec<ConditionalOnBean> spec = new Spec<>(context, metadata, annotations, ConditionalOnBean.class);
+      var spec = new Spec<>(context, metadata, annotations, ConditionalOnBean.class);
+      MatchResult matchResult = getMatchingBeans(context, spec);
+      if (!matchResult.isAllMatched()) {
+        String reason = createOnBeanNoMatchReason(matchResult);
+        return ConditionOutcome.noMatch(spec.message().because(reason));
+      }
+      matchMessage = spec.message(matchMessage).found("bean", "beans").items(Style.QUOTE,
+              matchResult.getNamesOfAllMatches());
+    }
+
+    if (metadata.isAnnotated(ConditionalOnSingleCandidate.class.getName())) {
+      Spec<ConditionalOnSingleCandidate> spec = new SingleCandidateSpec(context, metadata, annotations);
       MatchResult matchResult = getMatchingBeans(context, spec);
       if (!matchResult.isAllMatched()) {
         return ConditionOutcome.noMatch(spec.message().didNotFind("any beans").atAll());
@@ -108,22 +151,6 @@ class OnBeanCondition extends FilteringContextCondition implements Configuration
                 .found("a single primary bean '" + primaryBeans.get(0) + "' from beans")
                 .items(Style.QUOTE, allBeans);
       }
-    }
-    if (metadata.isAnnotated(ConditionalOnSingleCandidate.class.getName())) {
-      Spec<ConditionalOnSingleCandidate> spec = new SingleCandidateSpec(context, metadata, annotations);
-      MatchResult matchResult = getMatchingBeans(context, spec);
-      if (!matchResult.isAllMatched()) {
-        return ConditionOutcome.noMatch(spec.message().didNotFind("any beans").atAll());
-      }
-      else if (!hasSingleAutowireCandidate(
-              context.getBeanFactory(), matchResult.getNamesOfAllMatches(), spec.getStrategy() == SearchStrategy.ALL)) {
-        return ConditionOutcome.noMatch(
-                spec.message().didNotFind("a primary bean from beans")
-                        .items(Style.QUOTE, matchResult.getNamesOfAllMatches()));
-      }
-
-      matchMessage = spec.message(matchMessage).found("a primary bean from beans")
-              .items(Style.QUOTE, matchResult.getNamesOfAllMatches());
     }
     if (metadata.isAnnotated(ConditionalOnMissingBean.class.getName())) {
       Spec<ConditionalOnMissingBean> spec = new Spec<>(

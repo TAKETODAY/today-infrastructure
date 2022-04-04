@@ -26,10 +26,12 @@ import java.util.List;
 
 import cn.taketoday.context.annotation.Condition;
 import cn.taketoday.context.annotation.ConditionEvaluationContext;
+import cn.taketoday.context.annotation.config.AutoConfigurationMetadata;
 import cn.taketoday.context.condition.ConditionMessage.Style;
 import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.type.AnnotatedTypeMetadata;
+import cn.taketoday.util.StringUtils;
 
 /**
  * {@link Condition} and that checks for the presence or absence of specific classes.
@@ -43,6 +45,48 @@ import cn.taketoday.core.type.AnnotatedTypeMetadata;
 final class OnClassCondition extends FilteringContextCondition implements Condition, Ordered {
 
   @Override
+  protected ConditionOutcome[] getOutcomes(String[] autoConfigurationClasses,
+          AutoConfigurationMetadata autoConfigurationMetadata) {
+    // Split the work and perform half in a background thread if more than one
+    // processor is available. Using a single additional thread seems to offer the
+    // best performance. More threads make things worse.
+    if (autoConfigurationClasses.length > 1 && Runtime.getRuntime().availableProcessors() > 1) {
+      return resolveOutcomesThreaded(autoConfigurationClasses, autoConfigurationMetadata);
+    }
+    else {
+      OutcomesResolver outcomesResolver = new StandardOutcomesResolver(autoConfigurationClasses, 0,
+              autoConfigurationClasses.length, autoConfigurationMetadata, getBeanClassLoader());
+      return outcomesResolver.resolveOutcomes();
+    }
+  }
+
+  private ConditionOutcome[] resolveOutcomesThreaded(
+          String[] autoConfigurationClasses, AutoConfigurationMetadata autoConfigurationMetadata) {
+    int split = autoConfigurationClasses.length / 2;
+    OutcomesResolver firstHalfResolver = createOutcomesResolver(
+            autoConfigurationClasses, 0, split, autoConfigurationMetadata);
+
+    OutcomesResolver secondHalfResolver = new StandardOutcomesResolver(
+            autoConfigurationClasses, split,
+            autoConfigurationClasses.length, autoConfigurationMetadata, getBeanClassLoader());
+
+    ConditionOutcome[] secondHalf = secondHalfResolver.resolveOutcomes();
+    ConditionOutcome[] firstHalf = firstHalfResolver.resolveOutcomes();
+    ConditionOutcome[] outcomes = new ConditionOutcome[autoConfigurationClasses.length];
+    System.arraycopy(firstHalf, 0, outcomes, 0, firstHalf.length);
+    System.arraycopy(secondHalf, 0, outcomes, split, secondHalf.length);
+    return outcomes;
+  }
+
+  private OutcomesResolver createOutcomesResolver(
+          String[] autoConfigurationClasses, int start, int end,
+          AutoConfigurationMetadata autoConfigurationMetadata) {
+    var outcomesResolver = new StandardOutcomesResolver(
+            autoConfigurationClasses, start, end, autoConfigurationMetadata, getBeanClassLoader());
+    return new ThreadedOutcomesResolver(outcomesResolver);
+  }
+
+  @Override
   public ConditionOutcome getMatchOutcome(
           ConditionEvaluationContext context, AnnotatedTypeMetadata metadata) {
     ClassLoader classLoader = context.getClassLoader();
@@ -52,7 +96,8 @@ final class OnClassCondition extends FilteringContextCondition implements Condit
       List<String> missing = filter(onClasses, ClassNameFilter.MISSING, classLoader);
       if (!missing.isEmpty()) {
         return ConditionOutcome.noMatch(ConditionMessage.forCondition(ConditionalOnClass.class)
-                .didNotFind("required class", "required classes").items(Style.QUOTE, missing));
+                .didNotFind("required class", "required classes")
+                .items(Style.QUOTE, missing));
       }
       matchMessage = matchMessage.andCondition(ConditionalOnClass.class)
               .found("required class", "required classes")
@@ -63,7 +108,8 @@ final class OnClassCondition extends FilteringContextCondition implements Condit
       List<String> present = filter(onMissingClasses, ClassNameFilter.PRESENT, classLoader);
       if (!present.isEmpty()) {
         return ConditionOutcome.noMatch(ConditionMessage.forCondition(ConditionalOnMissingClass.class)
-                .found("unwanted class", "unwanted classes").items(Style.QUOTE, present));
+                .found("unwanted class", "unwanted classes")
+                .items(Style.QUOTE, present));
       }
       matchMessage = matchMessage.andCondition(ConditionalOnMissingClass.class)
               .didNotFind("unwanted class", "unwanted classes")
@@ -94,6 +140,90 @@ final class OnClassCondition extends FilteringContextCondition implements Condit
   @Override
   public int getOrder() {
     return Ordered.HIGHEST_PRECEDENCE;
+  }
+
+  private interface OutcomesResolver {
+
+    ConditionOutcome[] resolveOutcomes();
+
+  }
+
+  private static final class ThreadedOutcomesResolver implements OutcomesResolver {
+
+    private final Thread thread;
+
+    private volatile ConditionOutcome[] outcomes;
+
+    private ThreadedOutcomesResolver(OutcomesResolver outcomesResolver) {
+      this.thread = new Thread(() -> this.outcomes = outcomesResolver.resolveOutcomes());
+      this.thread.start();
+    }
+
+    @Override
+    public ConditionOutcome[] resolveOutcomes() {
+      try {
+        this.thread.join();
+      }
+      catch (InterruptedException ex) {
+        Thread.currentThread().interrupt();
+      }
+      return this.outcomes;
+    }
+
+  }
+
+  private record StandardOutcomesResolver(
+          String[] autoConfigurationClasses, int start, int end,
+          AutoConfigurationMetadata autoConfigurationMetadata, ClassLoader beanClassLoader) implements OutcomesResolver {
+
+    @Override
+    public ConditionOutcome[] resolveOutcomes() {
+      return getOutcomes(this.autoConfigurationClasses, this.start, this.end, this.autoConfigurationMetadata);
+    }
+
+    private ConditionOutcome[] getOutcomes(
+            String[] autoConfigurationClasses, int start, int end,
+            AutoConfigurationMetadata autoConfigurationMetadata) {
+      ConditionOutcome[] outcomes = new ConditionOutcome[end - start];
+      for (int i = start; i < end; i++) {
+        String autoConfigurationClass = autoConfigurationClasses[i];
+        if (autoConfigurationClass != null) {
+          String candidates = autoConfigurationMetadata.get(autoConfigurationClass, "ConditionalOnClass");
+          if (candidates != null) {
+            outcomes[i - start] = getOutcome(candidates);
+          }
+        }
+      }
+      return outcomes;
+    }
+
+    private ConditionOutcome getOutcome(String candidates) {
+      try {
+        if (!candidates.contains(",")) {
+          return getOutcome(candidates, this.beanClassLoader);
+        }
+        for (String candidate : StringUtils.commaDelimitedListToStringArray(candidates)) {
+          ConditionOutcome outcome = getOutcome(candidate, this.beanClassLoader);
+          if (outcome != null) {
+            return outcome;
+          }
+        }
+      }
+      catch (Exception ex) {
+        // We'll get another chance later
+      }
+      return null;
+    }
+
+    private ConditionOutcome getOutcome(String className, ClassLoader classLoader) {
+      if (ClassNameFilter.MISSING.matches(className, classLoader)) {
+        return ConditionOutcome.noMatch(ConditionMessage.forCondition(ConditionalOnClass.class)
+                .didNotFind("required class")
+                .items(Style.QUOTE, className));
+      }
+      return null;
+    }
+
   }
 
 }
