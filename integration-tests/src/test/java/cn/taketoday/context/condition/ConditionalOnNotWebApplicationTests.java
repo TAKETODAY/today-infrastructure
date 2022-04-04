@@ -20,6 +20,7 @@
 
 package cn.taketoday.context.condition;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import cn.taketoday.context.annotation.Bean;
@@ -49,6 +50,7 @@ class ConditionalOnNotWebApplicationTests {
   }
 
   @Test
+  @Disabled("Reactive Web Server not supported")
   void testNotWebApplicationWithReactiveContext() {
     new ReactiveWebApplicationContextRunner()
             .withUserConfiguration(ReactiveApplicationConfig.class, NotWebApplicationConfiguration.class)

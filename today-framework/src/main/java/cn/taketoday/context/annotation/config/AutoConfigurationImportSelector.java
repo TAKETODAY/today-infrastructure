@@ -448,11 +448,12 @@ public class AutoConfigurationImportSelector
       if (autoConfigurationEntries.isEmpty()) {
         return Collections.emptyList();
       }
-      Set<String> allExclusions = autoConfigurationEntries.stream()
+      var allExclusions = autoConfigurationEntries.stream()
               .map(AutoConfigurationEntry::getExclusions)
               .flatMap(Collection::stream)
               .collect(Collectors.toSet());
-      Set<String> processedConfigurations = autoConfigurationEntries.stream()
+
+      var processedConfigurations = autoConfigurationEntries.stream()
               .map(AutoConfigurationEntry::getConfigurations)
               .flatMap(Collection::stream)
               .collect(Collectors.toCollection(LinkedHashSet::new));

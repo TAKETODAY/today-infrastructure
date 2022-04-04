@@ -28,12 +28,14 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
+import cn.taketoday.aop.scope.ScopedProxyUtils;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.HierarchicalBeanFactory;
 import cn.taketoday.beans.factory.config.BeanDefinition;
@@ -111,7 +113,7 @@ class OnBeanCondition extends FilteringContextCondition implements Configuration
   }
 
   @Override
-  public final ConditionOutcome getMatchOutcome(ConditionEvaluationContext context, AnnotatedTypeMetadata metadata) {
+  public ConditionOutcome getMatchOutcome(ConditionEvaluationContext context, AnnotatedTypeMetadata metadata) {
     ConditionMessage matchMessage = ConditionMessage.empty();
     MergedAnnotations annotations = metadata.getAnnotations();
 
@@ -179,9 +181,15 @@ class OnBeanCondition extends FilteringContextCondition implements Configuration
     Set<String> beansIgnoredByType = getNamesOfBeansIgnoredByType(
             classLoader, beanFactory, considerHierarchy, spec.getIgnoredTypes(), parameterizedContainers);
     for (String type : spec.getTypes()) {
-      Collection<String> typeMatches = getBeanNamesForType(
-              classLoader, considerHierarchy, beanFactory, type, parameterizedContainers);
-      typeMatches.removeIf(beansIgnoredByType::contains);
+      Collection<String> typeMatches = getBeanNamesForType(classLoader, considerHierarchy, beanFactory, type,
+              parameterizedContainers);
+      Iterator<String> iterator = typeMatches.iterator();
+      while (iterator.hasNext()) {
+        String match = iterator.next();
+        if (beansIgnoredByType.contains(match) || ScopedProxyUtils.isScopedTarget(match)) {
+          iterator.remove();
+        }
+      }
       if (typeMatches.isEmpty()) {
         result.recordUnmatchedType(type);
       }
@@ -220,7 +228,7 @@ class OnBeanCondition extends FilteringContextCondition implements Configuration
               classLoader, considerHierarchy, beanFactory, ignoredType, parameterizedContainers);
       result = addAll(result, ignoredNames);
     }
-    return (result != null) ? result : Collections.emptySet();
+    return result != null ? result : Collections.emptySet();
   }
 
   private Set<String> getBeanNamesForType(
@@ -236,7 +244,8 @@ class OnBeanCondition extends FilteringContextCondition implements Configuration
   }
 
   private Set<String> getBeanNamesForType(
-          BeanFactory beanFactory, boolean considerHierarchy, Class<?> type, Set<Class<?>> parameterizedContainers) {
+          BeanFactory beanFactory, boolean considerHierarchy,
+          Class<?> type, Set<Class<?>> parameterizedContainers) {
     Set<String> result = collectBeanNamesForType(
             beanFactory, considerHierarchy, type, parameterizedContainers, null);
     return result != null ? result : Collections.emptySet();
@@ -250,8 +259,8 @@ class OnBeanCondition extends FilteringContextCondition implements Configuration
       ResolvableType generic = ResolvableType.fromClassWithGenerics(container, type);
       result = addAll(result, beanFactory.getBeanNamesForType(generic, true, false));
     }
-    if (considerHierarchy && beanFactory instanceof HierarchicalBeanFactory) {
-      BeanFactory parent = ((HierarchicalBeanFactory) beanFactory).getParentBeanFactory();
+    if (considerHierarchy && beanFactory instanceof HierarchicalBeanFactory hierarchical) {
+      BeanFactory parent = hierarchical.getParentBeanFactory();
       if (parent != null) {
         result = collectBeanNamesForType(
                 parent, considerHierarchy, type, parameterizedContainers, result);
@@ -261,17 +270,18 @@ class OnBeanCondition extends FilteringContextCondition implements Configuration
   }
 
   private Set<String> getBeanNamesForAnnotation(
-          ClassLoader classLoader, ConfigurableBeanFactory beanFactory,
+          ClassLoader classLoader,
+          ConfigurableBeanFactory beanFactory,
           String type, boolean considerHierarchy) throws LinkageError {
     Set<String> result = null;
     try {
       result = collectBeanNamesForAnnotation(
-              beanFactory, resolveAnnotationType(classLoader, type), considerHierarchy, result);
+              beanFactory, resolveAnnotationType(classLoader, type), considerHierarchy, null);
     }
     catch (ClassNotFoundException ex) {
       // Continue
     }
-    return (result != null) ? result : Collections.emptySet();
+    return result != null ? result : Collections.emptySet();
   }
 
   @SuppressWarnings("unchecked")
@@ -281,12 +291,14 @@ class OnBeanCondition extends FilteringContextCondition implements Configuration
   }
 
   private Set<String> collectBeanNamesForAnnotation(
-          BeanFactory beanFactory, Class<? extends Annotation> annotationType, boolean considerHierarchy, Set<String> result) {
+          BeanFactory beanFactory,
+          Class<? extends Annotation> annotationType,
+          boolean considerHierarchy, Set<String> result) {
     result = addAll(result, beanFactory.getBeanNamesForAnnotation(annotationType));
-    if (considerHierarchy) {
-      BeanFactory parent = ((HierarchicalBeanFactory) beanFactory).getParentBeanFactory();
+    if (considerHierarchy && beanFactory instanceof HierarchicalBeanFactory hierarchical) {
+      BeanFactory parent = hierarchical.getParentBeanFactory();
       if (parent != null) {
-        result = collectBeanNamesForAnnotation(parent, annotationType, considerHierarchy, result);
+        result = collectBeanNamesForAnnotation(parent, annotationType, true, result);
       }
     }
     return result;
@@ -351,11 +363,6 @@ class OnBeanCondition extends FilteringContextCondition implements Configuration
     }
   }
 
-  private boolean hasSingleAutowireCandidate(
-          ConfigurableBeanFactory beanFactory, Set<String> beanNames, boolean considerHierarchy) {
-    return (beanNames.size() == 1 || getPrimaryBeans(beanFactory, beanNames, considerHierarchy).size() == 1);
-  }
-
   private List<String> getPrimaryBeans(
           ConfigurableBeanFactory beanFactory, Set<String> beanNames, boolean considerHierarchy) {
     ArrayList<String> primaryBeans = new ArrayList<>();
@@ -368,6 +375,7 @@ class OnBeanCondition extends FilteringContextCondition implements Configuration
     return primaryBeans;
   }
 
+  @Nullable
   private BeanDefinition findBeanDefinition(
           ConfigurableBeanFactory beanFactory, String beanName, boolean considerHierarchy) {
     if (beanFactory.containsBeanDefinition(beanName)) {
@@ -442,15 +450,15 @@ class OnBeanCondition extends FilteringContextCondition implements Configuration
       if (attributes.isEmpty()) {
         return Collections.emptySet();
       }
-      LinkedHashSet<String> result = new LinkedHashSet<>();
+      var result = new LinkedHashSet<String>();
       for (String attributeName : attributeNames) {
         List<Object> values = attributes.getOrDefault(attributeName, Collections.emptyList());
         for (Object value : values) {
-          if (value instanceof String[]) {
-            merge(result, (String[]) value);
+          if (value instanceof String[] strings) {
+            merge(result, strings);
           }
-          else if (value instanceof String) {
-            merge(result, (String) value);
+          else if (value instanceof String str) {
+            merge(result, str);
           }
         }
       }
@@ -465,7 +473,7 @@ class OnBeanCondition extends FilteringContextCondition implements Configuration
       if (classNames.isEmpty()) {
         return Collections.emptySet();
       }
-      LinkedHashSet<Class<?>> resolved = new LinkedHashSet<>(classNames.size());
+      var resolved = new LinkedHashSet<Class<?>>(classNames.size());
       for (String className : classNames) {
         try {
           resolved.add(resolve(className, this.classLoader));

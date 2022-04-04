@@ -48,6 +48,7 @@ import cn.taketoday.framework.test.context.assertj.ApplicationContextAssert;
 import cn.taketoday.framework.test.context.assertj.ApplicationContextAssertProvider;
 import cn.taketoday.framework.test.util.TestPropertyValues;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.util.ExceptionUtils;
 
 /**
  * Utility design to run an {@link ApplicationContext} and provide AssertJ style
@@ -108,7 +109,9 @@ import cn.taketoday.lang.Assert;
  * @see ApplicationContextAssert
  * @since 4.0
  */
-public abstract class AbstractApplicationContextRunner<SELF extends AbstractApplicationContextRunner<SELF, C, A>, C extends ConfigurableApplicationContext, A extends ApplicationContextAssertProvider<C>> {
+public abstract class AbstractApplicationContextRunner<
+        SELF extends AbstractApplicationContextRunner<SELF, C, A>,
+        C extends ConfigurableApplicationContext, A extends ApplicationContextAssertProvider<C>> {
 
   private final RunnerConfiguration<C> runnerConfiguration;
 
@@ -433,13 +436,8 @@ public abstract class AbstractApplicationContextRunner<SELF extends AbstractAppl
       consumer.accept(context);
     }
     catch (Throwable ex) {
-      rethrow(ex);
+      throw ExceptionUtils.sneakyThrow(ex);
     }
-  }
-
-  @SuppressWarnings("unchecked")
-  private <E extends Throwable> void rethrow(Throwable e) throws E {
-    throw (E) e;
   }
 
   /**

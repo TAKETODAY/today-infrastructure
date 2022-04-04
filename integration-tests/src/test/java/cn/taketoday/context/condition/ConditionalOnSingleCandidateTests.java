@@ -58,8 +58,7 @@ class ConditionalOnSingleCandidateTests {
 
   @Test
   void singleCandidateOneScopedProxyCandidate() {
-    this.contextRunner
-            .withUserConfiguration(AlphaScopedProxyConfiguration.class, OnBeanSingleCandidateConfiguration.class)
+    contextRunner.withUserConfiguration(AlphaScopedProxyConfiguration.class, OnBeanSingleCandidateConfiguration.class)
             .run((context) -> {
               assertThat(context).hasBean("consumer");
               assertThat(context.getBean("consumer").toString()).isEqualTo("alpha");
