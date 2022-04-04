@@ -226,8 +226,9 @@ class ConditionEvaluationReportTests {
             cn.taketoday.context.condition.config.second.SampleAutoConfiguration.class);
     context.refresh();
     ConditionEvaluationReport report = ConditionEvaluationReport.get(context.getBeanFactory());
-    assertThat(report.getConditionAndOutcomesBySource()).containsKeys(
-            "cn.taketoday.context.web.servlet.WebMvcAutoConfiguration",
+    Map<String, ConditionAndOutcomes> source = report.getConditionAndOutcomesBySource();
+    System.out.println(source);
+    assertThat(source).containsKeys(
             "cn.taketoday.context.condition.config.first.SampleAutoConfiguration",
             "cn.taketoday.context.condition.config.second.SampleAutoConfiguration");
     context.close();
