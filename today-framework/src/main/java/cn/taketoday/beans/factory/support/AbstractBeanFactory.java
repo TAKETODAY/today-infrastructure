@@ -575,32 +575,57 @@ public abstract class AbstractBeanFactory
     }
     String beanClassName = merged.getBeanClassName();
     try {
-      // TODO evaluateBeanDefinitionString
-      if (beanClassName != null && ObjectUtils.isNotEmpty(typesToMatch)) {
+
+      ClassLoader beanClassLoader = getBeanClassLoader();
+      ClassLoader dynamicLoader = beanClassLoader;
+      boolean freshResolve = false;
+
+      if (ObjectUtils.isNotEmpty(typesToMatch)) {
         // When just doing type checks (i.e. not creating an actual instance yet),
         // use the specified temporary class loader (e.g. in a weaving scenario).
         ClassLoader tempClassLoader = getTempClassLoader();
         if (tempClassLoader != null) {
+          dynamicLoader = tempClassLoader;
+          freshResolve = true;
           if (tempClassLoader instanceof DecoratingClassLoader dcl) {
             for (Class<?> typeToMatch : typesToMatch) {
               dcl.excludeClass(typeToMatch.getName());
             }
           }
-          // When resolving against a temporary class loader, exit early in order
-          // to avoid storing the resolved Class in the bean definition.
-          try {
-            return tempClassLoader.loadClass(beanClassName);
-          }
-          catch (ClassNotFoundException ex) {
-            if (log.isTraceEnabled()) {
-              log.trace("Could not load class [{}] from {}: {}", beanClassName, tempClassLoader, ex, ex);
-            }
-          }
         }
-        return ClassUtils.forName(beanClassName, tempClassLoader);
       }
 
-      ClassLoader beanClassLoader = getBeanClassLoader();
+      String className = merged.getBeanClassName();
+      if (className != null) {
+        Object evaluated = evaluateBeanDefinitionString(className, merged);
+        if (!className.equals(evaluated)) {
+          // A dynamically resolved expression, supported as of 4.0...
+          if (evaluated instanceof Class<?> clazz) {
+            return clazz;
+          }
+          else if (evaluated instanceof String str) {
+            className = str;
+            freshResolve = true;
+          }
+          else {
+            throw new IllegalStateException("Invalid class name expression result: " + evaluated);
+          }
+        }
+        if (freshResolve) {
+          // When resolving against a temporary class loader, exit early in order
+          // to avoid storing the resolved Class in the bean definition.
+          if (dynamicLoader != null) {
+            try {
+              return dynamicLoader.loadClass(className);
+            }
+            catch (ClassNotFoundException ex) {
+              log.trace("Could not load class [{}] from {}: {}", className, dynamicLoader, ex.toString());
+            }
+          }
+          return ClassUtils.forName(className, dynamicLoader);
+        }
+      }
+
       return merged.resolveBeanClass(beanClassLoader);
     }
     catch (ClassNotFoundException ex) {
