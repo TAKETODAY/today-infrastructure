@@ -229,8 +229,7 @@ class ConditionalOnMissingBeanTests {
 
   @Test
   void testOnMissingBeanConditionWithFactoryBeanInXml() {
-    this.contextRunner
-            .withUserConfiguration(FactoryBeanXmlConfiguration.class, ConditionalOnFactoryBean.class,
+    this.contextRunner.withUserConfiguration(FactoryBeanXmlConfiguration.class, ConditionalOnFactoryBean.class,
                     PropertyPlaceholderAutoConfiguration.class)
             .run((context) -> assertThat(context.getBean(ExampleBean.class).toString()).isEqualTo("fromFactory"));
   }

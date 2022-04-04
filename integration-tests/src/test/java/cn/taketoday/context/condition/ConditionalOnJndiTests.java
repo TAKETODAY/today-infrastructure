@@ -31,6 +31,7 @@ import javax.naming.Context;
 
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
+import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.core.type.AnnotatedTypeMetadata;
 import cn.taketoday.framework.test.context.runner.ApplicationContextRunner;
 
@@ -123,7 +124,8 @@ class ConditionalOnJndiTests {
     AnnotatedTypeMetadata metadata = mock(AnnotatedTypeMetadata.class);
     Map<String, Object> attributes = new HashMap<>();
     attributes.put("value", value);
-    given(metadata.getAnnotationAttributes(ConditionalOnJndi.class.getName())).willReturn(attributes);
+    MergedAnnotation<ConditionalOnJndi> annotation = MergedAnnotation.valueOf(ConditionalOnJndi.class, attributes);
+    given(metadata.getAnnotation(ConditionalOnJndi.class)).willReturn(annotation);
     return metadata;
   }
 

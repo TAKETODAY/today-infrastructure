@@ -27,6 +27,7 @@ import java.util.Collections;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.ConditionEvaluationContext;
 import cn.taketoday.context.annotation.Configuration;
+import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.core.type.AnnotatedTypeMetadata;
 import cn.taketoday.framework.test.context.runner.ApplicationContextRunner;
 import cn.taketoday.mock.env.MockEnvironment;
@@ -76,8 +77,9 @@ class ConditionalOnExpressionTests {
 
   private AnnotatedTypeMetadata mockMetaData(String value) {
     AnnotatedTypeMetadata metadata = mock(AnnotatedTypeMetadata.class);
-    given(metadata.getAnnotationAttributes(ConditionalOnExpression.class.getName()))
-            .willReturn(Collections.singletonMap("value", value));
+    MergedAnnotation<ConditionalOnExpression> annotation = MergedAnnotation.valueOf(
+            ConditionalOnExpression.class, Collections.singletonMap("value", value));
+    given(metadata.getAnnotation(ConditionalOnExpression.class)).willReturn(annotation);
     return metadata;
   }
 
