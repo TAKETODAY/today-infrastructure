@@ -29,7 +29,6 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.SortedMap;
 import java.util.TreeMap;
 
 import cn.taketoday.beans.factory.BeanFactory;
@@ -57,15 +56,13 @@ public final class ConditionEvaluationReport {
 
   private static final AncestorsMatchedCondition ANCESTOR_CONDITION = new AncestorsMatchedCondition();
 
-  private final SortedMap<String, ConditionAndOutcomes> outcomes = new TreeMap<>();
-
   private boolean addedAncestorOutcomes;
 
   private ConditionEvaluationReport parent;
 
-  private final List<String> exclusions = new ArrayList<>();
-
-  private final Set<String> unconditionalClasses = new HashSet<>();
+  private final ArrayList<String> exclusions = new ArrayList<>();
+  private final HashSet<String> unconditionalClasses = new HashSet<>();
+  private final TreeMap<String, ConditionAndOutcomes> outcomes = new TreeMap<>();
 
   /**
    * Private constructor.
@@ -138,10 +135,11 @@ public final class ConditionEvaluationReport {
     String prefix = source + "$";
     for (Map.Entry<String, ConditionAndOutcomes> entry : outcomes.entrySet()) {
       String candidateSource = entry.getKey();
-      ConditionAndOutcomes sourceOutcomes = entry.getValue();
       if (candidateSource.startsWith(prefix)) {
         ConditionOutcome outcome = ConditionOutcome.noMatch(
                 ConditionMessage.forCondition("Ancestor " + source).because("did not match"));
+
+        ConditionAndOutcomes sourceOutcomes = entry.getValue();
         sourceOutcomes.add(ANCESTOR_CONDITION, outcome);
       }
     }
@@ -225,14 +223,19 @@ public final class ConditionEvaluationReport {
       ConditionAndOutcomes sourceOutcomes = entry.getValue();
       ConditionAndOutcomes previous = previousReport.outcomes.get(source);
       if (previous == null || previous.isFullMatch() != sourceOutcomes.isFullMatch()) {
-        sourceOutcomes.forEach((conditionAndOutcome) -> delta.recordConditionEvaluation(source,
-                conditionAndOutcome.getCondition(), conditionAndOutcome.getOutcome()));
+
+        for (ConditionAndOutcome conditionAndOutcome : sourceOutcomes) {
+          delta.recordConditionEvaluation(
+                  source, conditionAndOutcome.getCondition(), conditionAndOutcome.getOutcome());
+        }
+
       }
     }
-    List<String> newExclusions = new ArrayList<>(this.exclusions);
+    var newExclusions = new ArrayList<>(this.exclusions);
     newExclusions.removeAll(previousReport.getExclusions());
     delta.recordExclusions(newExclusions);
-    List<String> newUnconditionalClasses = new ArrayList<>(this.unconditionalClasses);
+
+    var newUnconditionalClasses = new ArrayList<>(this.unconditionalClasses);
     newUnconditionalClasses.removeAll(previousReport.unconditionalClasses);
     delta.unconditionalClasses.addAll(newUnconditionalClasses);
     return delta;

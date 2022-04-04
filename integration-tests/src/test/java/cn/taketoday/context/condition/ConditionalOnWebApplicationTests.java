@@ -21,6 +21,7 @@
 package cn.taketoday.context.condition;
 
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import cn.taketoday.context.ConfigurableApplicationContext;
@@ -68,6 +69,7 @@ class ConditionalOnWebApplicationTests {
   }
 
   @Test
+  @Disabled
   void testWebApplicationWithReactiveContext() {
     AnnotationConfigReactiveWebApplicationContext context = new AnnotationConfigReactiveWebApplicationContext();
     context.register(AnyWebApplicationConfiguration.class, ServletWebApplicationConfiguration.class,

@@ -100,6 +100,7 @@ public class MergedContextConfiguration implements Serializable {
 
   private final Set<ContextCustomizer> contextCustomizers;
 
+  @Nullable
   private final ContextLoader contextLoader;
 
   @Nullable
@@ -155,7 +156,6 @@ public class MergedContextConfiguration implements Serializable {
    * @param cacheAwareContextLoaderDelegate a cache-aware context loader
    * delegate with which to retrieve the parent context
    * @param parent the parent configuration or {@code null} if there is no parent
-   * @since 4.0
    */
   public MergedContextConfiguration(Class<?> testClass, @Nullable String[] locations, @Nullable Class<?>[] classes,
           @Nullable Set<Class<? extends ApplicationContextInitializer>> contextInitializerClasses,
@@ -170,8 +170,6 @@ public class MergedContextConfiguration implements Serializable {
   /**
    * Create a new {@code MergedContextConfiguration} instance by copying
    * all fields from the supplied {@code MergedContextConfiguration}.
-   *
-   * @since 4.0
    */
   public MergedContextConfiguration(MergedContextConfiguration mergedConfig) {
     this(mergedConfig.testClass, mergedConfig.locations, mergedConfig.classes,
@@ -202,7 +200,6 @@ public class MergedContextConfiguration implements Serializable {
    * @param cacheAwareContextLoaderDelegate a cache-aware context loader
    * delegate with which to retrieve the parent context
    * @param parent the parent configuration or {@code null} if there is no parent
-   * @since 4.0
    */
   public MergedContextConfiguration(Class<?> testClass, @Nullable String[] locations, @Nullable Class<?>[] classes,
           @Nullable Set<Class<? extends ApplicationContextInitializer>> contextInitializerClasses,
@@ -240,7 +237,6 @@ public class MergedContextConfiguration implements Serializable {
    * @param cacheAwareContextLoaderDelegate a cache-aware context loader
    * delegate with which to retrieve the parent context
    * @param parent the parent configuration or {@code null} if there is no parent
-   * @since 4.0
    */
   public MergedContextConfiguration(Class<?> testClass, @Nullable String[] locations, @Nullable Class<?>[] classes,
           @Nullable Set<Class<? extends ApplicationContextInitializer>> contextInitializerClasses,
@@ -294,7 +290,6 @@ public class MergedContextConfiguration implements Serializable {
    * @return {@code true} if the {@link #getLocations() locations} array is not empty
    * @see #hasResources()
    * @see #hasClasses()
-   * @since 4.0
    */
   public boolean hasLocations() {
     return ObjectUtils.isNotEmpty(getLocations());
@@ -307,7 +302,6 @@ public class MergedContextConfiguration implements Serializable {
    * @return {@code true} if the {@link #getClasses() classes} array is not empty
    * @see #hasResources()
    * @see #hasLocations()
-   * @since 4.0
    */
   public boolean hasClasses() {
     return ObjectUtils.isNotEmpty(getClasses());
@@ -321,7 +315,6 @@ public class MergedContextConfiguration implements Serializable {
    * or the {@link #getClasses() classes} array is not empty
    * @see #hasLocations()
    * @see #hasClasses()
-   * @since 4.0
    */
   public boolean hasResources() {
     return (hasLocations() || hasClasses());
@@ -380,6 +373,7 @@ public class MergedContextConfiguration implements Serializable {
   /**
    * Get the resolved {@link ContextLoader} for the {@linkplain #getTestClass() test class}.
    */
+  @Nullable
   public ContextLoader getContextLoader() {
     return this.contextLoader;
   }
@@ -390,7 +384,6 @@ public class MergedContextConfiguration implements Serializable {
    *
    * @return the parent configuration or {@code null} if there is no parent
    * @see #getParentApplicationContext()
-   * @since 4.0
    */
   @Nullable
   public MergedContextConfiguration getParent() {
@@ -405,7 +398,6 @@ public class MergedContextConfiguration implements Serializable {
    *
    * @return the parent {@code ApplicationContext} or {@code null} if there is no parent
    * @see #getParent()
-   * @since 4.0
    */
   @Nullable
   public ApplicationContext getParentApplicationContext() {
@@ -469,7 +461,8 @@ public class MergedContextConfiguration implements Serializable {
       return false;
     }
 
-    return nullSafeClassName(this.contextLoader).equals(nullSafeClassName(otherConfig.contextLoader));
+    return nullSafeClassName(this.contextLoader)
+            .equals(nullSafeClassName(otherConfig.contextLoader));
   }
 
   /**
