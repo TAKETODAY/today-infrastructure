@@ -41,7 +41,6 @@
     <dependency>
       <groupId>cn.taketoday</groupId>
       <artifactId>today-instrument</artifactId>
-      <version>${project.version}</version>
       <scope>provided</scope>
     </dependency>
 

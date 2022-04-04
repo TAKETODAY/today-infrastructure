@@ -34,14 +34,29 @@
   <properties>
     <maven.compiler.source>17</maven.compiler.source>
     <maven.compiler.target>17</maven.compiler.target>
+    <aspectj.version>1.9.9</aspectj.version>
+
   </properties>
+
   <dependencies>
 
     <dependency>
       <groupId>cn.taketoday</groupId>
       <artifactId>today-framework</artifactId>
-      <version>${project.version}</version>
     </dependency>
+
+    <dependency>
+      <groupId>jakarta.transaction</groupId>
+      <artifactId>jakarta.transaction-api</artifactId>
+      <scope>provided</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>javax.cache</groupId>
+      <artifactId>cache-api</artifactId>
+      <scope>provided</scope>
+    </dependency>
+
 
     <dependency>
       <groupId>org.aspectj</groupId>
@@ -61,7 +76,12 @@
     <dependency>
       <groupId>cn.taketoday</groupId>
       <artifactId>today-test</artifactId>
-      <version>${project.version}</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>jakarta.servlet</groupId>
+      <artifactId>jakarta.servlet-api</artifactId>
       <scope>test</scope>
     </dependency>
 
@@ -103,16 +123,13 @@
               <version>2.22.2</version>
               <configuration>
                 <argLine>
-                  -javaagent:"${settings.localRepository}"/org/aspectj/
-                  aspectjweaver/${aspectj.version}/
-                  aspectjweaver-${aspectj.version}.jar
+                  -javaagent:"${settings.localRepository}"/org/aspectj/aspectjweaver/${aspectj.version}/aspectjweaver-${aspectj.version}.jar
                 </argLine>
                 <useSystemClassLoader>true</useSystemClassLoader>
                 <forkMode>always</forkMode>
               </configuration>
             </plugin>
       -->
-
 
     </plugins>
 

@@ -40,8 +40,6 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
-import javax.annotation.PostConstruct;
-
 import cn.taketoday.beans.factory.BeanCreationException;
 import cn.taketoday.beans.factory.FactoryBean;
 import cn.taketoday.beans.factory.InitializingBean;
@@ -97,6 +95,7 @@ import cn.taketoday.validation.Errors;
 import cn.taketoday.validation.ValidationUtils;
 import cn.taketoday.validation.Validator;
 import cn.taketoday.validation.annotation.Validated;
+import jakarta.annotation.PostConstruct;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;

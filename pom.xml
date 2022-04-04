@@ -37,34 +37,6 @@
     <java.version>17</java.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-    <!--server-->
-    <netty.version>4.1.71.Final</netty.version>
-    <jetty.version>11.0.7</jetty.version>
-    <undertow.version>2.2.13.Final</undertow.version>
-    <embed.tomcat.version>10.0.12</embed.tomcat.version>
-    <servlet.version>5.0.0</servlet.version>
-
-    <!--codec-->
-    <fastjson.version>1.2.78</fastjson.version>
-    <jackson.version>2.13.0</jackson.version>
-
-    <commons-dbutils.version>1.7</commons-dbutils.version>
-    <embedded-db-junit.version>1.0.0</embedded-db-junit.version>
-    <guava.version>30.1-jre</guava.version>
-    <h2.version>1.4.199</h2.version>
-    <hsqldb.version>2.2.8</hsqldb.version>
-    <jdbi.version>2.78</jdbi.version>
-    <joda-time.version>2.0</joda-time.version>
-    <jooq.version>3.3.0</jooq.version>
-    <junit5.version>5.8.2</junit5.version>
-    <mockito.version>4.0.0</mockito.version>
-    <persistence-api.version>1.0.2</persistence-api.version>
-    <slf4j.version>1.7.25</slf4j.version>
-    <spring-jdbc.version>5.2.3.RELEASE</spring-jdbc.version>
-    <reactor.version>3.4.16</reactor.version>
-    <aspectj.version>1.9.9</aspectj.version>
-    <httpcomponents-core5.version>5.1.2</httpcomponents-core5.version>
-
     <!--doc-->
     <site.output.dir>${project.build.directory}/staging</site.output.dir>
     <maven.site.skip>true</maven.site.skip>

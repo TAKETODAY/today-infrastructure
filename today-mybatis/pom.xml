@@ -41,20 +41,23 @@
     <dependency>
       <groupId>cn.taketoday</groupId>
       <artifactId>today-framework</artifactId>
-      <version>${project.version}</version>
     </dependency>
 
     <dependency>
       <groupId>org.mybatis</groupId>
       <artifactId>mybatis</artifactId>
-      <version>3.5.9</version>
       <scope>provided</scope>
     </dependency>
 
     <dependency>
       <groupId>cn.taketoday</groupId>
       <artifactId>today-test</artifactId>
-      <version>${project.version}</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>com.mockrunner</groupId>
+      <artifactId>mockrunner-jdbc</artifactId>
       <scope>test</scope>
     </dependency>
 

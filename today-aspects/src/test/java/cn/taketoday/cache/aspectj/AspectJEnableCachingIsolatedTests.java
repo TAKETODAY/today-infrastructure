@@ -21,7 +21,6 @@
 package cn.taketoday.cache.aspectj;
 
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import cn.taketoday.cache.CacheManager;
@@ -123,7 +122,6 @@ public class AspectJEnableCachingIsolatedTests {
   }
 
   @Test
-  @Disabled("AspectJ has some sort of caching that makes this one fail")
   public void emptyConfigSupport() {
     load(EmptyConfigSupportConfig.class);
     AnnotationCacheAspect aspect = this.ctx.getBean(AnnotationCacheAspect.class);
