@@ -28,8 +28,6 @@ import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.ibatis.type.TypeHandler;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Set;
@@ -57,6 +55,8 @@ import cn.taketoday.core.io.ResourceLoader;
 import cn.taketoday.core.type.AnnotationMetadata;
 import cn.taketoday.jdbc.config.DataSourceAutoConfiguration;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.logging.Logger;
+import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.orm.mybatis.SqlSessionFactoryBean;
 import cn.taketoday.orm.mybatis.SqlSessionTemplate;
 import cn.taketoday.orm.mybatis.mapper.MapperFactoryBean;
