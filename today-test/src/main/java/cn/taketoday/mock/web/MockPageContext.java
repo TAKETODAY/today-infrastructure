@@ -257,7 +257,7 @@ public class MockPageContext extends PageContext {
       case REQUEST_SCOPE -> this.request.getAttributeNames();
       case SESSION_SCOPE -> {
         HttpSession session = this.request.getSession(false);
-        yield (session != null ? session.getAttributeNames() : Collections.emptyEnumeration());
+        yield session != null ? session.getAttributeNames() : Collections.<String>emptyEnumeration();
       }
       case APPLICATION_SCOPE -> this.servletContext.getAttributeNames();
       default -> throw new IllegalArgumentException("Invalid scope: " + scope);
