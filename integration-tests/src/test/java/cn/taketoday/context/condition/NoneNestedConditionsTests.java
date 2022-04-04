@@ -21,100 +21,100 @@
 package cn.taketoday.context.condition;
 
 import org.junit.jupiter.api.Test;
-import cn.taketoday.framework.test.util.TestPropertyValues;
+
 import cn.taketoday.context.annotation.AnnotationConfigApplicationContext;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Condition;
-import cn.taketoday.context.annotation.ConditionContext;
+import cn.taketoday.context.annotation.ConditionEvaluationContext;
 import cn.taketoday.context.annotation.Conditional;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.core.type.AnnotatedTypeMetadata;
+import cn.taketoday.framework.test.util.TestPropertyValues;
 
-import cn.taketoday.context.condition.ConditionalOnProperty;
-import cn.taketoday.context.condition.NoneNestedConditions;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Tests for {@link NoneNestedConditions}.
  */
 class NoneNestedConditionsTests {
 
-	@Test
-	void neither() {
-		AnnotationConfigApplicationContext context = load(Config.class);
-		assertThat(context.containsBean("myBean")).isTrue();
-		context.close();
-	}
+  @Test
+  void neither() {
+    AnnotationConfigApplicationContext context = load(Config.class);
+    assertThat(context.containsBean("myBean")).isTrue();
+    context.close();
+  }
 
-	@Test
-	void propertyA() {
-		AnnotationConfigApplicationContext context = load(Config.class, "a:a");
-		assertThat(context.containsBean("myBean")).isFalse();
-		context.close();
-	}
+  @Test
+  void propertyA() {
+    AnnotationConfigApplicationContext context = load(Config.class, "a:a");
+    assertThat(context.containsBean("myBean")).isFalse();
+    context.close();
+  }
 
-	@Test
-	void propertyB() {
-		AnnotationConfigApplicationContext context = load(Config.class, "b:b");
-		assertThat(context.containsBean("myBean")).isFalse();
-		context.close();
-	}
+  @Test
+  void propertyB() {
+    AnnotationConfigApplicationContext context = load(Config.class, "b:b");
+    assertThat(context.containsBean("myBean")).isFalse();
+    context.close();
+  }
 
-	@Test
-	void both() {
-		AnnotationConfigApplicationContext context = load(Config.class, "a:a", "b:b");
-		assertThat(context.containsBean("myBean")).isFalse();
-		context.close();
-	}
+  @Test
+  void both() {
+    AnnotationConfigApplicationContext context = load(Config.class, "a:a", "b:b");
+    assertThat(context.containsBean("myBean")).isFalse();
+    context.close();
+  }
 
-	private AnnotationConfigApplicationContext load(Class<?> config, String... env) {
-		AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
-		TestPropertyValues.of(env).applyTo(context);
-		context.register(config);
-		context.refresh();
-		return context;
-	}
+  private AnnotationConfigApplicationContext load(Class<?> config, String... env) {
+    AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
+    TestPropertyValues.of(env).applyTo(context);
+    context.register(config);
+    context.refresh();
+    return context;
+  }
 
-	@Configuration(proxyBeanMethods = false)
-	@Conditional(NeitherPropertyANorPropertyBCondition.class)
-	static class Config {
+  @Configuration(proxyBeanMethods = false)
+  @Conditional(NeitherPropertyANorPropertyBCondition.class)
+  static class Config {
 
-		@Bean
-		String myBean() {
-			return "myBean";
-		}
+    @Bean
+    String myBean() {
+      return "myBean";
+    }
 
-	}
+  }
 
-	static class NeitherPropertyANorPropertyBCondition extends NoneNestedConditions {
+  static class NeitherPropertyANorPropertyBCondition extends NoneNestedConditions {
 
-		NeitherPropertyANorPropertyBCondition() {
-			super(ConfigurationPhase.PARSE_CONFIGURATION);
-		}
+    NeitherPropertyANorPropertyBCondition() {
+      super(ConfigurationPhase.PARSE_CONFIGURATION);
+    }
 
-		@ConditionalOnProperty("a")
-		static class HasPropertyA {
+    @ConditionalOnProperty("a")
+    static class HasPropertyA {
 
-		}
+    }
 
-		@ConditionalOnProperty("b")
-		static class HasPropertyB {
+    @ConditionalOnProperty("b")
+    static class HasPropertyB {
 
-		}
+    }
 
-		@Conditional(NonSpringBootCondition.class)
-		static class SubClassC {
+    @Conditional(NonSpringBootCondition.class)
+    static class SubClassC {
 
-		}
+    }
 
-	}
+  }
 
-	static class NonSpringBootCondition implements Condition {
+  static class NonSpringBootCondition implements Condition {
 
-		@Override
-		public boolean matches(ConditionContext context, AnnotatedTypeMetadata metadata) {
-			return false;
-		}
+    @Override
+    public boolean matches(ConditionEvaluationContext context, AnnotatedTypeMetadata metadata) {
+      return false;
+    }
 
-	}
+  }
 
 }

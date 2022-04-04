@@ -21,56 +21,59 @@
 package cn.taketoday.context.condition;
 
 import org.junit.jupiter.api.Test;
-import cn.taketoday.framework.cloud.CloudPlatform;
-import cn.taketoday.framework.test.context.runner.ApplicationContextRunner;
+
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
+import cn.taketoday.framework.cloud.CloudPlatform;
+import cn.taketoday.framework.test.context.runner.ApplicationContextRunner;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Tests for {@link ConditionalOnCloudPlatform @ConditionalOnCloudPlatform}.
  */
 class ConditionalOnCloudPlatformTests {
 
-	private final ApplicationContextRunner contextRunner = new ApplicationContextRunner();
+  private final ApplicationContextRunner contextRunner = new ApplicationContextRunner();
 
-	@Test
-	void outcomeWhenCloudfoundryPlatformNotPresentShouldNotMatch() {
-		this.contextRunner.withUserConfiguration(CloudFoundryPlatformConfig.class)
-				.run((context) -> assertThat(context).doesNotHaveBean("foo"));
-	}
+  @Test
+  void outcomeWhenCloudfoundryPlatformNotPresentShouldNotMatch() {
+    this.contextRunner.withUserConfiguration(CloudFoundryPlatformConfig.class)
+            .run((context) -> assertThat(context).doesNotHaveBean("foo"));
+  }
 
-	@Test
-	void outcomeWhenCloudfoundryPlatformPresentShouldMatch() {
-		this.contextRunner.withUserConfiguration(CloudFoundryPlatformConfig.class)
-				.withPropertyValues("VCAP_APPLICATION:---").run((context) -> assertThat(context).hasBean("foo"));
-	}
+  @Test
+  void outcomeWhenCloudfoundryPlatformPresentShouldMatch() {
+    this.contextRunner.withUserConfiguration(CloudFoundryPlatformConfig.class)
+            .withPropertyValues("VCAP_APPLICATION:---").run((context) -> assertThat(context).hasBean("foo"));
+  }
 
-	@Test
-	void outcomeWhenCloudfoundryPlatformPresentAndMethodTargetShouldMatch() {
-		this.contextRunner.withUserConfiguration(CloudFoundryPlatformOnMethodConfig.class)
-				.withPropertyValues("VCAP_APPLICATION:---").run((context) -> assertThat(context).hasBean("foo"));
-	}
+  @Test
+  void outcomeWhenCloudfoundryPlatformPresentAndMethodTargetShouldMatch() {
+    this.contextRunner.withUserConfiguration(CloudFoundryPlatformOnMethodConfig.class)
+            .withPropertyValues("VCAP_APPLICATION:---").run((context) -> assertThat(context).hasBean("foo"));
+  }
 
-	@Configuration(proxyBeanMethods = false)
-	@ConditionalOnCloudPlatform(CloudPlatform.CLOUD_FOUNDRY)
-	static class CloudFoundryPlatformConfig {
+  @Configuration(proxyBeanMethods = false)
+  @ConditionalOnCloudPlatform(CloudPlatform.CLOUD_FOUNDRY)
+  static class CloudFoundryPlatformConfig {
 
-		@Bean
-		String foo() {
-			return "foo";
-		}
+    @Bean
+    String foo() {
+      return "foo";
+    }
 
-	}
+  }
 
-	@Configuration(proxyBeanMethods = false)
-	static class CloudFoundryPlatformOnMethodConfig {
+  @Configuration(proxyBeanMethods = false)
+  static class CloudFoundryPlatformOnMethodConfig {
 
-		@Bean
-		@ConditionalOnCloudPlatform(CloudPlatform.CLOUD_FOUNDRY)
-		String foo() {
-			return "foo";
-		}
+    @Bean
+    @ConditionalOnCloudPlatform(CloudPlatform.CLOUD_FOUNDRY)
+    String foo() {
+      return "foo";
+    }
 
-	}
+  }
 
 }

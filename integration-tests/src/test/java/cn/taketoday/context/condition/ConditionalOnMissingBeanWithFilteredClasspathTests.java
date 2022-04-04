@@ -21,13 +21,14 @@
 package cn.taketoday.context.condition;
 
 import org.junit.jupiter.api.Test;
-import cn.taketoday.framework.test.context.runner.ApplicationContextRunner;
-import cn.taketoday.framework.testsupport.classpath.ClassPathExclusions;
-import cn.taketoday.cache.caffeine.CaffeineCacheManager;
+
+import cn.taketoday.cache.support.CaffeineCacheManager;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
+import cn.taketoday.framework.test.context.runner.ApplicationContextRunner;
+import cn.taketoday.test.classpath.ClassPathExclusions;
 
-import cn.taketoday.context.condition.ConditionalOnMissingBean;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Tests {@link ConditionalOnMissingBean @ConditionalOnMissingBean} with filtered
@@ -39,28 +40,28 @@ import cn.taketoday.context.condition.ConditionalOnMissingBean;
 @ClassPathExclusions("spring-context-support-*.jar")
 class ConditionalOnMissingBeanWithFilteredClasspathTests {
 
-	private final ApplicationContextRunner contextRunner = new ApplicationContextRunner()
-			.withUserConfiguration(OnBeanTypeConfiguration.class);
+  private final ApplicationContextRunner contextRunner = new ApplicationContextRunner()
+          .withUserConfiguration(OnBeanTypeConfiguration.class);
 
-	@Test
-	void testNameOnMissingBeanTypeWithMissingImport() {
-		this.contextRunner.run((context) -> assertThat(context).hasBean("foo"));
-	}
+  @Test
+  void testNameOnMissingBeanTypeWithMissingImport() {
+    this.contextRunner.run((context) -> assertThat(context).hasBean("foo"));
+  }
 
-	@Configuration(proxyBeanMethods = false)
-	static class OnBeanTypeConfiguration {
+  @Configuration(proxyBeanMethods = false)
+  static class OnBeanTypeConfiguration {
 
-		@Bean
-		@ConditionalOnMissingBean(
-				type = "cn.taketoday.framework.autoconfigure.condition.ConditionalOnMissingBeanWithFilteredClasspathTests.TestCacheManager")
-		String foo() {
-			return "foo";
-		}
+    @Bean
+    @ConditionalOnMissingBean(
+            type = "cn.taketoday.context.condition.ConditionalOnMissingBeanWithFilteredClasspathTests.TestCacheManager")
+    String foo() {
+      return "foo";
+    }
 
-	}
+  }
 
-	static class TestCacheManager extends CaffeineCacheManager {
+  static class TestCacheManager extends CaffeineCacheManager {
 
-	}
+  }
 
 }

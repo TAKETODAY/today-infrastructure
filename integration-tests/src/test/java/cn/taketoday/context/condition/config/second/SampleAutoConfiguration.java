@@ -20,10 +20,10 @@
 
 package cn.taketoday.context.condition.config.second;
 
-import cn.taketoday.framework.autoconfigure.AutoConfiguration;
-import cn.taketoday.framework.autoconfigure.condition.ConditionEvaluationReport;
-import cn.taketoday.framework.autoconfigure.condition.ConditionalOnProperty;
 import cn.taketoday.context.annotation.Bean;
+import cn.taketoday.context.annotation.config.AutoConfiguration;
+import cn.taketoday.context.condition.ConditionEvaluationReport;
+import cn.taketoday.context.condition.ConditionalOnProperty;
 
 /**
  * Sample auto-configuration for {@link ConditionEvaluationReport} tests.
@@ -34,9 +34,9 @@ import cn.taketoday.context.annotation.Bean;
 @ConditionalOnProperty("sample.second")
 public class SampleAutoConfiguration {
 
-	@Bean
-	public String two() {
-		return "two";
-	}
+  @Bean
+  public String two() {
+    return "two";
+  }
 
 }

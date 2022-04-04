@@ -24,16 +24,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import org.junit.jupiter.api.Test;
 
-import cn.taketoday.context.condition.OnBeanCondition.BeanTypeDeductionException;
-import cn.taketoday.context.loader.ImportSelector;
 import cn.taketoday.context.annotation.AnnotationConfigApplicationContext;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Import;
+import cn.taketoday.context.condition.OnBeanCondition.BeanTypeDeductionException;
+import cn.taketoday.context.loader.ImportSelector;
 import cn.taketoday.core.type.AnnotationMetadata;
-
-import cn.taketoday.context.condition.ConditionalOnMissingBean;
-import cn.taketoday.context.condition.OnBeanCondition;
+import cn.taketoday.test.classpath.ClassPathExclusions;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -46,54 +44,54 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 @ClassPathExclusions("jackson-core-*.jar")
 class OnBeanConditionTypeDeductionFailureTests {
 
-	@Test
-	void conditionalOnMissingBeanWithDeducedTypeThatIsPartiallyMissingFromClassPath() {
-		assertThatExceptionOfType(Exception.class)
-				.isThrownBy(() -> new AnnotationConfigApplicationContext(ImportingConfiguration.class).close())
-				.satisfies((ex) -> {
-					Throwable beanTypeDeductionException = findNestedCause(ex, BeanTypeDeductionException.class);
-					assertThat(beanTypeDeductionException).hasMessage("Failed to deduce bean type for "
-							+ OnMissingBeanConfiguration.class.getName() + ".objectMapper");
-					assertThat(findNestedCause(beanTypeDeductionException, NoClassDefFoundError.class)).isNotNull();
+  @Test
+  void conditionalOnMissingBeanWithDeducedTypeThatIsPartiallyMissingFromClassPath() {
+    assertThatExceptionOfType(Exception.class)
+            .isThrownBy(() -> new AnnotationConfigApplicationContext(ImportingConfiguration.class).close())
+            .satisfies((ex) -> {
+              Throwable beanTypeDeductionException = findNestedCause(ex, BeanTypeDeductionException.class);
+              assertThat(beanTypeDeductionException).hasMessage("Failed to deduce bean type for "
+                      + OnMissingBeanConfiguration.class.getName() + ".objectMapper");
+              assertThat(findNestedCause(beanTypeDeductionException, NoClassDefFoundError.class)).isNotNull();
 
-				});
-	}
+            });
+  }
 
-	private Throwable findNestedCause(Throwable ex, Class<? extends Throwable> target) {
-		Throwable candidate = ex;
-		while (candidate != null) {
-			if (target.isInstance(candidate)) {
-				return candidate;
-			}
-			candidate = candidate.getCause();
-		}
-		return null;
-	}
+  private Throwable findNestedCause(Throwable ex, Class<? extends Throwable> target) {
+    Throwable candidate = ex;
+    while (candidate != null) {
+      if (target.isInstance(candidate)) {
+        return candidate;
+      }
+      candidate = candidate.getCause();
+    }
+    return null;
+  }
 
-	@Configuration(proxyBeanMethods = false)
-	@Import(OnMissingBeanImportSelector.class)
-	static class ImportingConfiguration {
+  @Configuration(proxyBeanMethods = false)
+  @Import(OnMissingBeanImportSelector.class)
+  static class ImportingConfiguration {
 
-	}
+  }
 
-	@Configuration(proxyBeanMethods = false)
-	static class OnMissingBeanConfiguration {
+  @Configuration(proxyBeanMethods = false)
+  static class OnMissingBeanConfiguration {
 
-		@Bean
-		@ConditionalOnMissingBean
-		ObjectMapper objectMapper() {
-			return new ObjectMapper();
-		}
+    @Bean
+    @ConditionalOnMissingBean
+    ObjectMapper objectMapper() {
+      return new ObjectMapper();
+    }
 
-	}
+  }
 
-	static class OnMissingBeanImportSelector implements ImportSelector {
+  static class OnMissingBeanImportSelector implements ImportSelector {
 
-		@Override
-		public String[] selectImports(AnnotationMetadata importingClassMetadata) {
-			return new String[] { OnMissingBeanConfiguration.class.getName() };
-		}
+    @Override
+    public String[] selectImports(AnnotationMetadata importingClassMetadata) {
+      return new String[] { OnMissingBeanConfiguration.class.getName() };
+    }
 
-	}
+  }
 
 }

@@ -22,15 +22,15 @@ package cn.taketoday.context.condition.scan;
 
 public class ScanBean {
 
-	private final String value;
+  private final String value;
 
-	public ScanBean(String value) {
-		this.value = value;
-	}
+  public ScanBean(String value) {
+    this.value = value;
+  }
 
-	@Override
-	public String toString() {
-		return this.value;
-	}
+  @Override
+  public String toString() {
+    return this.value;
+  }
 
 }

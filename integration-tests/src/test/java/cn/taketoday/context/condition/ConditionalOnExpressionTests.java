@@ -21,18 +21,15 @@
 package cn.taketoday.context.condition;
 
 import org.junit.jupiter.api.Test;
-import cn.taketoday.framework.test.context.runner.ApplicationContextRunner;
-import cn.taketoday.context.annotation.Bean;
-import cn.taketoday.context.annotation.ConditionContext;
-import cn.taketoday.context.annotation.Configuration;
-import cn.taketoday.core.type.AnnotatedTypeMetadata;
-import cn.taketoday.mock.env.MockEnvironment;
 
 import java.util.Collections;
 
-import cn.taketoday.context.condition.ConditionOutcome;
-import cn.taketoday.context.condition.ConditionalOnExpression;
-import cn.taketoday.context.condition.OnExpressionCondition;
+import cn.taketoday.context.annotation.Bean;
+import cn.taketoday.context.annotation.ConditionEvaluationContext;
+import cn.taketoday.context.annotation.Configuration;
+import cn.taketoday.core.type.AnnotatedTypeMetadata;
+import cn.taketoday.framework.test.context.runner.ApplicationContextRunner;
+import cn.taketoday.mock.env.MockEnvironment;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
@@ -46,75 +43,75 @@ import static org.mockito.Mockito.mock;
  */
 class ConditionalOnExpressionTests {
 
-	private final ApplicationContextRunner contextRunner = new ApplicationContextRunner();
+  private final ApplicationContextRunner contextRunner = new ApplicationContextRunner();
 
-	@Test
-	void expressionIsTrue() {
-		this.contextRunner.withUserConfiguration(BasicConfiguration.class)
-				.run((context) -> assertThat(context.getBean("foo")).isEqualTo("foo"));
-	}
+  @Test
+  void expressionIsTrue() {
+    this.contextRunner.withUserConfiguration(BasicConfiguration.class)
+            .run((context) -> assertThat(context.getBean("foo")).isEqualTo("foo"));
+  }
 
-	@Test
-	void expressionEvaluatesToTrueRegistersBean() {
-		this.contextRunner.withUserConfiguration(MissingConfiguration.class)
-				.run((context) -> assertThat(context).doesNotHaveBean("foo"));
-	}
+  @Test
+  void expressionEvaluatesToTrueRegistersBean() {
+    this.contextRunner.withUserConfiguration(MissingConfiguration.class)
+            .run((context) -> assertThat(context).doesNotHaveBean("foo"));
+  }
 
-	@Test
-	void expressionEvaluatesToFalseDoesNotRegisterBean() {
-		this.contextRunner.withUserConfiguration(NullConfiguration.class)
-				.run((context) -> assertThat(context).doesNotHaveBean("foo"));
-	}
+  @Test
+  void expressionEvaluatesToFalseDoesNotRegisterBean() {
+    this.contextRunner.withUserConfiguration(NullConfiguration.class)
+            .run((context) -> assertThat(context).doesNotHaveBean("foo"));
+  }
 
-	@Test
-	void expressionEvaluationWithNoBeanFactoryDoesNotMatch() {
-		OnExpressionCondition condition = new OnExpressionCondition();
-		MockEnvironment environment = new MockEnvironment();
-		ConditionContext conditionContext = mock(ConditionContext.class);
-		given(conditionContext.getEnvironment()).willReturn(environment);
-		ConditionOutcome outcome = condition.getMatchOutcome(conditionContext, mockMetaData("invalid-spel"));
-		assertThat(outcome.isMatch()).isFalse();
-		assertThat(outcome.getMessage()).contains("invalid-spel").contains("no BeanFactory available");
-	}
+  @Test
+  void expressionEvaluationWithNoBeanFactoryDoesNotMatch() {
+    OnExpressionCondition condition = new OnExpressionCondition();
+    MockEnvironment environment = new MockEnvironment();
+    ConditionEvaluationContext evaluationContext = mock(ConditionEvaluationContext.class);
+    given(evaluationContext.getEnvironment()).willReturn(environment);
+    ConditionOutcome outcome = condition.getMatchOutcome(evaluationContext, mockMetaData("invalid-spel"));
+    assertThat(outcome.isMatch()).isFalse();
+    assertThat(outcome.getMessage()).contains("invalid-spel").contains("no BeanFactory available");
+  }
 
-	private AnnotatedTypeMetadata mockMetaData(String value) {
-		AnnotatedTypeMetadata metadata = mock(AnnotatedTypeMetadata.class);
-		given(metadata.getAnnotationAttributes(ConditionalOnExpression.class.getName()))
-				.willReturn(Collections.singletonMap("value", value));
-		return metadata;
-	}
+  private AnnotatedTypeMetadata mockMetaData(String value) {
+    AnnotatedTypeMetadata metadata = mock(AnnotatedTypeMetadata.class);
+    given(metadata.getAnnotationAttributes(ConditionalOnExpression.class.getName()))
+            .willReturn(Collections.singletonMap("value", value));
+    return metadata;
+  }
 
-	@Configuration(proxyBeanMethods = false)
-	@ConditionalOnExpression("false")
-	static class MissingConfiguration {
+  @Configuration(proxyBeanMethods = false)
+  @ConditionalOnExpression("false")
+  static class MissingConfiguration {
 
-		@Bean
-		String bar() {
-			return "bar";
-		}
+    @Bean
+    String bar() {
+      return "bar";
+    }
 
-	}
+  }
 
-	@Configuration(proxyBeanMethods = false)
-	@ConditionalOnExpression("true")
-	static class BasicConfiguration {
+  @Configuration(proxyBeanMethods = false)
+  @ConditionalOnExpression("true")
+  static class BasicConfiguration {
 
-		@Bean
-		String foo() {
-			return "foo";
-		}
+    @Bean
+    String foo() {
+      return "foo";
+    }
 
-	}
+  }
 
-	@Configuration(proxyBeanMethods = false)
-	@ConditionalOnExpression("true ? null : false")
-	static class NullConfiguration {
+  @Configuration(proxyBeanMethods = false)
+  @ConditionalOnExpression("true ? null : false")
+  static class NullConfiguration {
 
-		@Bean
-		String foo() {
-			return "foo";
-		}
+    @Bean
+    String foo() {
+      return "foo";
+    }
 
-	}
+  }
 
 }

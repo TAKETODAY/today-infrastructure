@@ -21,27 +21,27 @@
 package cn.taketoday.context.condition.scan;
 
 import cn.taketoday.beans.factory.FactoryBean;
-import cn.taketoday.util.Assert;
+import cn.taketoday.lang.Assert;
 
 class ScanFactoryBean implements FactoryBean<ScanBean> {
 
-	ScanFactoryBean(String value) {
-		Assert.state(!value.contains("$"), "value should not contain '$'");
-	}
+  ScanFactoryBean(String value) {
+    Assert.state(!value.contains("$"), "value should not contain '$'");
+  }
 
-	@Override
-	public ScanBean getObject() {
-		return new ScanBean("fromFactory");
-	}
+  @Override
+  public ScanBean getObject() {
+    return new ScanBean("fromFactory");
+  }
 
-	@Override
-	public Class<?> getObjectType() {
-		return ScanBean.class;
-	}
+  @Override
+  public Class<?> getObjectType() {
+    return ScanBean.class;
+  }
 
-	@Override
-	public boolean isSingleton() {
-		return false;
-	}
+  @Override
+  public boolean isSingleton() {
+    return false;
+  }
 
 }

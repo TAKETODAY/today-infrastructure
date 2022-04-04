@@ -21,15 +21,13 @@
 package cn.taketoday.context.condition;
 
 import org.junit.jupiter.api.Test;
-import cn.taketoday.framework.test.context.runner.ApplicationContextRunner;
+
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Conditional;
 import cn.taketoday.context.annotation.Configuration;
+import cn.taketoday.framework.test.context.runner.ApplicationContextRunner;
 
-import cn.taketoday.context.condition.AbstractNestedCondition;
-import cn.taketoday.context.condition.ConditionOutcome;
-import cn.taketoday.context.condition.ConditionalOnMissingBean;
-import cn.taketoday.context.condition.OnBeanCondition;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Tests for {@link AbstractNestedCondition}.
@@ -38,116 +36,116 @@ import cn.taketoday.context.condition.OnBeanCondition;
  */
 class AbstractNestedConditionTests {
 
-	private final ApplicationContextRunner contextRunner = new ApplicationContextRunner();
+  private final ApplicationContextRunner contextRunner = new ApplicationContextRunner();
 
-	@Test
-	void validPhase() {
-		this.contextRunner.withUserConfiguration(ValidConfig.class)
-				.run((context) -> assertThat(context).hasBean("myBean"));
-	}
+  @Test
+  void validPhase() {
+    this.contextRunner.withUserConfiguration(ValidConfig.class)
+            .run((context) -> assertThat(context).hasBean("myBean"));
+  }
 
-	@Test
-	void invalidMemberPhase() {
-		this.contextRunner.withUserConfiguration(InvalidConfig.class).run((context) -> {
-			assertThat(context).hasFailed();
-			assertThat(context.getStartupFailure().getCause()).isInstanceOf(IllegalStateException.class)
-					.hasMessageContaining("Nested condition " + InvalidNestedCondition.class.getName()
-							+ " uses a configuration phase that is inappropriate for class "
-							+ OnBeanCondition.class.getName());
-		});
-	}
+  @Test
+  void invalidMemberPhase() {
+    this.contextRunner.withUserConfiguration(InvalidConfig.class).run((context) -> {
+      assertThat(context).hasFailed();
+      assertThat(context.getStartupFailure().getCause()).isInstanceOf(IllegalStateException.class)
+              .hasMessageContaining("Nested condition " + InvalidNestedCondition.class.getName()
+                      + " uses a configuration phase that is inappropriate for class "
+                      + OnBeanCondition.class.getName());
+    });
+  }
 
-	@Test
-	void invalidNestedMemberPhase() {
-		this.contextRunner.withUserConfiguration(DoubleNestedConfig.class).run((context) -> {
-			assertThat(context).hasFailed();
-			assertThat(context.getStartupFailure().getCause()).isInstanceOf(IllegalStateException.class)
-					.hasMessageContaining("Nested condition " + DoubleNestedCondition.class.getName()
-							+ " uses a configuration phase that is inappropriate for class "
-							+ ValidNestedCondition.class.getName());
-		});
-	}
+  @Test
+  void invalidNestedMemberPhase() {
+    this.contextRunner.withUserConfiguration(DoubleNestedConfig.class).run((context) -> {
+      assertThat(context).hasFailed();
+      assertThat(context.getStartupFailure().getCause()).isInstanceOf(IllegalStateException.class)
+              .hasMessageContaining("Nested condition " + DoubleNestedCondition.class.getName()
+                      + " uses a configuration phase that is inappropriate for class "
+                      + ValidNestedCondition.class.getName());
+    });
+  }
 
-	@Configuration(proxyBeanMethods = false)
-	@Conditional(ValidNestedCondition.class)
-	static class ValidConfig {
+  @Configuration(proxyBeanMethods = false)
+  @Conditional(ValidNestedCondition.class)
+  static class ValidConfig {
 
-		@Bean
-		String myBean() {
-			return "myBean";
-		}
+    @Bean
+    String myBean() {
+      return "myBean";
+    }
 
-	}
+  }
 
-	static class ValidNestedCondition extends AbstractNestedCondition {
+  static class ValidNestedCondition extends AbstractNestedCondition {
 
-		ValidNestedCondition() {
-			super(ConfigurationPhase.REGISTER_BEAN);
-		}
+    ValidNestedCondition() {
+      super(ConfigurationPhase.REGISTER_BEAN);
+    }
 
-		@Override
-		protected ConditionOutcome getFinalMatchOutcome(MemberMatchOutcomes memberOutcomes) {
-			return ConditionOutcome.match();
-		}
+    @Override
+    protected ConditionOutcome getFinalMatchOutcome(MemberMatchOutcomes memberOutcomes) {
+      return ConditionOutcome.match();
+    }
 
-		@ConditionalOnMissingBean(name = "myBean")
-		static class MissingMyBean {
+    @ConditionalOnMissingBean(name = "myBean")
+    static class MissingMyBean {
 
-		}
+    }
 
-	}
+  }
 
-	@Configuration(proxyBeanMethods = false)
-	@Conditional(InvalidNestedCondition.class)
-	static class InvalidConfig {
+  @Configuration(proxyBeanMethods = false)
+  @Conditional(InvalidNestedCondition.class)
+  static class InvalidConfig {
 
-		@Bean
-		String myBean() {
-			return "myBean";
-		}
+    @Bean
+    String myBean() {
+      return "myBean";
+    }
 
-	}
+  }
 
-	static class InvalidNestedCondition extends AbstractNestedCondition {
+  static class InvalidNestedCondition extends AbstractNestedCondition {
 
-		InvalidNestedCondition() {
-			super(ConfigurationPhase.PARSE_CONFIGURATION);
-		}
+    InvalidNestedCondition() {
+      super(ConfigurationPhase.PARSE_CONFIGURATION);
+    }
 
-		@Override
-		protected ConditionOutcome getFinalMatchOutcome(MemberMatchOutcomes memberOutcomes) {
-			return ConditionOutcome.match();
-		}
+    @Override
+    protected ConditionOutcome getFinalMatchOutcome(MemberMatchOutcomes memberOutcomes) {
+      return ConditionOutcome.match();
+    }
 
-		@ConditionalOnMissingBean(name = "myBean")
-		static class MissingMyBean {
+    @ConditionalOnMissingBean(name = "myBean")
+    static class MissingMyBean {
 
-		}
+    }
 
-	}
+  }
 
-	@Configuration(proxyBeanMethods = false)
-	@Conditional(DoubleNestedCondition.class)
-	static class DoubleNestedConfig {
+  @Configuration(proxyBeanMethods = false)
+  @Conditional(DoubleNestedCondition.class)
+  static class DoubleNestedConfig {
 
-	}
+  }
 
-	static class DoubleNestedCondition extends AbstractNestedCondition {
+  static class DoubleNestedCondition extends AbstractNestedCondition {
 
-		DoubleNestedCondition() {
-			super(ConfigurationPhase.PARSE_CONFIGURATION);
-		}
+    DoubleNestedCondition() {
+      super(ConfigurationPhase.PARSE_CONFIGURATION);
+    }
 
-		@Override
-		protected ConditionOutcome getFinalMatchOutcome(MemberMatchOutcomes memberOutcomes) {
-			return ConditionOutcome.match();
-		}
+    @Override
+    protected ConditionOutcome getFinalMatchOutcome(MemberMatchOutcomes memberOutcomes) {
+      return ConditionOutcome.match();
+    }
 
-		@Conditional(ValidNestedCondition.class)
-		static class NestedConditionThatIsValid {
+    @Conditional(ValidNestedCondition.class)
+    static class NestedConditionThatIsValid {
 
-		}
+    }
 
-	}
+  }
 
 }

@@ -21,11 +21,12 @@
 package cn.taketoday.context.condition;
 
 import org.junit.jupiter.api.Test;
+
 import cn.taketoday.context.annotation.AnnotationConfigApplicationContext;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
 
-import cn.taketoday.context.condition.ConditionalOnMissingClass;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Tests for {@link ConditionalOnMissingClass @ConditionalOnMissingClass}.
@@ -34,54 +35,54 @@ import cn.taketoday.context.condition.ConditionalOnMissingClass;
  */
 class ConditionalOnMissingClassTests {
 
-	private final AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
+  private final AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
 
-	@Test
-	void testVanillaOnClassCondition() {
-		this.context.register(BasicConfiguration.class, FooConfiguration.class);
-		this.context.refresh();
-		assertThat(this.context.containsBean("bar")).isFalse();
-		assertThat(this.context.getBean("foo")).isEqualTo("foo");
-	}
+  @Test
+  void testVanillaOnClassCondition() {
+    this.context.register(BasicConfiguration.class, FooConfiguration.class);
+    this.context.refresh();
+    assertThat(this.context.containsBean("bar")).isFalse();
+    assertThat(this.context.getBean("foo")).isEqualTo("foo");
+  }
 
-	@Test
-	void testMissingOnClassCondition() {
-		this.context.register(MissingConfiguration.class, FooConfiguration.class);
-		this.context.refresh();
-		assertThat(this.context.containsBean("bar")).isTrue();
-		assertThat(this.context.getBean("foo")).isEqualTo("foo");
-	}
+  @Test
+  void testMissingOnClassCondition() {
+    this.context.register(MissingConfiguration.class, FooConfiguration.class);
+    this.context.refresh();
+    assertThat(this.context.containsBean("bar")).isTrue();
+    assertThat(this.context.getBean("foo")).isEqualTo("foo");
+  }
 
-	@Configuration(proxyBeanMethods = false)
-	@ConditionalOnMissingClass("cn.taketoday.framework.autoconfigure.condition.ConditionalOnMissingClassTests")
-	static class BasicConfiguration {
+  @Configuration(proxyBeanMethods = false)
+  @ConditionalOnMissingClass("cn.taketoday.context.condition.ConditionalOnMissingClassTests")
+  static class BasicConfiguration {
 
-		@Bean
-		String bar() {
-			return "bar";
-		}
+    @Bean
+    String bar() {
+      return "bar";
+    }
 
-	}
+  }
 
-	@Configuration(proxyBeanMethods = false)
-	@ConditionalOnMissingClass("FOO")
-	static class MissingConfiguration {
+  @Configuration(proxyBeanMethods = false)
+  @ConditionalOnMissingClass("FOO")
+  static class MissingConfiguration {
 
-		@Bean
-		String bar() {
-			return "bar";
-		}
+    @Bean
+    String bar() {
+      return "bar";
+    }
 
-	}
+  }
 
-	@Configuration(proxyBeanMethods = false)
-	static class FooConfiguration {
+  @Configuration(proxyBeanMethods = false)
+  static class FooConfiguration {
 
-		@Bean
-		String foo() {
-			return "foo";
-		}
+    @Bean
+    String foo() {
+      return "foo";
+    }
 
-	}
+  }
 
 }

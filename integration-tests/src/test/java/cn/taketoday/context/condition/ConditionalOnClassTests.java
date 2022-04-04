@@ -21,14 +21,15 @@
 package cn.taketoday.context.condition;
 
 import org.junit.jupiter.api.Test;
-import cn.taketoday.framework.test.context.assertj.AssertableApplicationContext;
-import cn.taketoday.framework.test.context.runner.ApplicationContextRunner;
+
+import java.util.Collection;
+
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Import;
 import cn.taketoday.context.annotation.ImportResource;
-
-import java.util.Collection;
+import cn.taketoday.framework.test.context.assertj.AssertableApplicationContext;
+import cn.taketoday.framework.test.context.runner.ApplicationContextRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -40,93 +41,93 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 class ConditionalOnClassTests {
 
-	private final ApplicationContextRunner contextRunner = new ApplicationContextRunner();
+  private final ApplicationContextRunner contextRunner = new ApplicationContextRunner();
 
-	@Test
-	void testVanillaOnClassCondition() {
-		this.contextRunner.withUserConfiguration(BasicConfiguration.class, FooConfiguration.class)
-				.run(this::hasBarBean);
-	}
+  @Test
+  void testVanillaOnClassCondition() {
+    this.contextRunner.withUserConfiguration(BasicConfiguration.class, FooConfiguration.class)
+            .run(this::hasBarBean);
+  }
 
-	@Test
-	void testMissingOnClassCondition() {
-		this.contextRunner.withUserConfiguration(MissingConfiguration.class, FooConfiguration.class).run((context) -> {
-			assertThat(context).doesNotHaveBean("bar");
-			assertThat(context).hasBean("foo");
-			assertThat(context.getBean("foo")).isEqualTo("foo");
-		});
-	}
+  @Test
+  void testMissingOnClassCondition() {
+    this.contextRunner.withUserConfiguration(MissingConfiguration.class, FooConfiguration.class).run((context) -> {
+      assertThat(context).doesNotHaveBean("bar");
+      assertThat(context).hasBean("foo");
+      assertThat(context.getBean("foo")).isEqualTo("foo");
+    });
+  }
 
-	@Test
-	void testOnClassConditionWithXml() {
-		this.contextRunner.withUserConfiguration(BasicConfiguration.class, XmlConfiguration.class)
-				.run(this::hasBarBean);
-	}
+  @Test
+  void testOnClassConditionWithXml() {
+    this.contextRunner.withUserConfiguration(BasicConfiguration.class, XmlConfiguration.class)
+            .run(this::hasBarBean);
+  }
 
-	@Test
-	void testOnClassConditionWithCombinedXml() {
-		this.contextRunner.withUserConfiguration(CombinedXmlConfiguration.class).run(this::hasBarBean);
-	}
+  @Test
+  void testOnClassConditionWithCombinedXml() {
+    this.contextRunner.withUserConfiguration(CombinedXmlConfiguration.class).run(this::hasBarBean);
+  }
 
-	@Test
-	void onClassConditionOutputShouldNotContainConditionalOnMissingClassInMessage() {
-		this.contextRunner.withUserConfiguration(BasicConfiguration.class).run((context) -> {
-			Collection<ConditionEvaluationReport.ConditionAndOutcomes> conditionAndOutcomes = ConditionEvaluationReport
-					.get(context.getSourceApplicationContext().getBeanFactory()).getConditionAndOutcomesBySource()
-					.values();
-			String message = conditionAndOutcomes.iterator().next().iterator().next().getOutcome().getMessage();
-			assertThat(message).doesNotContain("@ConditionalOnMissingClass did not find unwanted class");
-		});
-	}
+  @Test
+  void onClassConditionOutputShouldNotContainConditionalOnMissingClassInMessage() {
+    this.contextRunner.withUserConfiguration(BasicConfiguration.class).run((context) -> {
+      Collection<ConditionEvaluationReport.ConditionAndOutcomes> conditionAndOutcomes = ConditionEvaluationReport
+              .get(context.getSourceApplicationContext().getBeanFactory()).getConditionAndOutcomesBySource()
+              .values();
+      String message = conditionAndOutcomes.iterator().next().iterator().next().getOutcome().getMessage();
+      assertThat(message).doesNotContain("@ConditionalOnMissingClass did not find unwanted class");
+    });
+  }
 
-	private void hasBarBean(AssertableApplicationContext context) {
-		assertThat(context).hasBean("bar");
-		assertThat(context.getBean("bar")).isEqualTo("bar");
-	}
+  private void hasBarBean(AssertableApplicationContext context) {
+    assertThat(context).hasBean("bar");
+    assertThat(context.getBean("bar")).isEqualTo("bar");
+  }
 
-	@Configuration(proxyBeanMethods = false)
-	@ConditionalOnClass(ConditionalOnClassTests.class)
-	static class BasicConfiguration {
+  @Configuration(proxyBeanMethods = false)
+  @ConditionalOnClass(ConditionalOnClassTests.class)
+  static class BasicConfiguration {
 
-		@Bean
-		String bar() {
-			return "bar";
-		}
+    @Bean
+    String bar() {
+      return "bar";
+    }
 
-	}
+  }
 
-	@Configuration(proxyBeanMethods = false)
-	@ConditionalOnClass(name = "FOO")
-	static class MissingConfiguration {
+  @Configuration(proxyBeanMethods = false)
+  @ConditionalOnClass(name = "FOO")
+  static class MissingConfiguration {
 
-		@Bean
-		String bar() {
-			return "bar";
-		}
+    @Bean
+    String bar() {
+      return "bar";
+    }
 
-	}
+  }
 
-	@Configuration(proxyBeanMethods = false)
-	static class FooConfiguration {
+  @Configuration(proxyBeanMethods = false)
+  static class FooConfiguration {
 
-		@Bean
-		String foo() {
-			return "foo";
-		}
+    @Bean
+    String foo() {
+      return "foo";
+    }
 
-	}
+  }
 
-	@Configuration(proxyBeanMethods = false)
-	@ImportResource("cn/taketoday/framework/autoconfigure/condition/foo.xml")
-	static class XmlConfiguration {
+  @Configuration(proxyBeanMethods = false)
+  @ImportResource("cn/taketoday/framework/autoconfigure/condition/foo.xml")
+  static class XmlConfiguration {
 
-	}
+  }
 
-	@Configuration(proxyBeanMethods = false)
-	@Import(BasicConfiguration.class)
-	@ImportResource("cn/taketoday/framework/autoconfigure/condition/foo.xml")
-	static class CombinedXmlConfiguration {
+  @Configuration(proxyBeanMethods = false)
+  @Import(BasicConfiguration.class)
+  @ImportResource("cn/taketoday/framework/autoconfigure/condition/foo.xml")
+  static class CombinedXmlConfiguration {
 
-	}
+  }
 
 }

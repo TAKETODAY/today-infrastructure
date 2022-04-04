@@ -21,61 +21,60 @@
 package cn.taketoday.context.condition;
 
 import org.junit.jupiter.api.Test;
+
 import cn.taketoday.context.annotation.AnnotationConfigApplicationContext;
 import cn.taketoday.context.annotation.Bean;
-import cn.taketoday.context.annotation.ConditionContext;
+import cn.taketoday.context.annotation.ConditionEvaluationContext;
 import cn.taketoday.context.annotation.Conditional;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.core.type.AnnotatedTypeMetadata;
 
-import cn.taketoday.context.condition.ConditionOutcome;
-
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 
 /**
- * Tests for {@link SpringBootCondition}.
+ * Tests for {@link ContextCondition}.
  *
  * @author Phillip Webb
  */
 @SuppressWarnings("resource")
-class SpringBootConditionTests {
+class ContextConditionTests {
 
-	@Test
-	void sensibleClassException() {
-		assertThatIllegalStateException().isThrownBy(() -> new AnnotationConfigApplicationContext(ErrorOnClass.class))
-				.withMessageContaining("Error processing condition on " + ErrorOnClass.class.getName());
-	}
+  @Test
+  void sensibleClassException() {
+    assertThatIllegalStateException().isThrownBy(() -> new AnnotationConfigApplicationContext(ErrorOnClass.class))
+            .withMessageContaining("Error processing condition on " + ErrorOnClass.class.getName());
+  }
 
-	@Test
-	void sensibleMethodException() {
-		assertThatIllegalStateException().isThrownBy(() -> new AnnotationConfigApplicationContext(ErrorOnMethod.class))
-				.withMessageContaining("Error processing condition on " + ErrorOnMethod.class.getName() + ".myBean");
-	}
+  @Test
+  void sensibleMethodException() {
+    assertThatIllegalStateException().isThrownBy(() -> new AnnotationConfigApplicationContext(ErrorOnMethod.class))
+            .withMessageContaining("Error processing condition on " + ErrorOnMethod.class.getName() + ".myBean");
+  }
 
-	@Configuration(proxyBeanMethods = false)
-	@Conditional(AlwaysThrowsCondition.class)
-	static class ErrorOnClass {
+  @Configuration(proxyBeanMethods = false)
+  @Conditional(AlwaysThrowsCondition.class)
+  static class ErrorOnClass {
 
-	}
+  }
 
-	@Configuration(proxyBeanMethods = false)
-	static class ErrorOnMethod {
+  @Configuration(proxyBeanMethods = false)
+  static class ErrorOnMethod {
 
-		@Bean
-		@Conditional(AlwaysThrowsCondition.class)
-		String myBean() {
-			return "bean";
-		}
+    @Bean
+    @Conditional(AlwaysThrowsCondition.class)
+    String myBean() {
+      return "bean";
+    }
 
-	}
+  }
 
-	static class AlwaysThrowsCondition extends SpringBootCondition {
+  static class AlwaysThrowsCondition extends ContextCondition {
 
-		@Override
-		public ConditionOutcome getMatchOutcome(ConditionContext context, AnnotatedTypeMetadata metadata) {
-			throw new RuntimeException("Oh no!");
-		}
+    @Override
+    public ConditionOutcome getMatchOutcome(ConditionEvaluationContext context, AnnotatedTypeMetadata metadata) {
+      throw new RuntimeException("Oh no!");
+    }
 
-	}
+  }
 
 }

@@ -20,9 +20,6 @@
 
 package cn.taketoday.context.condition;
 
-import cn.taketoday.context.condition.ConditionalOnBean;
-import cn.taketoday.context.condition.ConditionalOnMissingBean;
-
 /**
  * Simple parameterized container for testing {@link ConditionalOnBean @ConditionalOnBean}
  * and {@link ConditionalOnMissingBean @ConditionalOnMissingBean}.

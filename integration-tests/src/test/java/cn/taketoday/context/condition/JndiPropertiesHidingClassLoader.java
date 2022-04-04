@@ -18,24 +18,31 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.context.condition.scan;
+package cn.taketoday.context.condition;
 
-import cn.taketoday.beans.factory.FactoryBean;
-import cn.taketoday.context.annotation.Bean;
-import cn.taketoday.context.annotation.Configuration;
+import java.io.IOException;
+import java.net.URL;
+import java.util.Collections;
+import java.util.Enumeration;
 
 /**
- * Configuration for a factory bean produced by a bean method on a configuration class
- * found via component scanning.
+ * Used as the thread context classloader to prevent {@code jndi.properties} resources
+ * found on the classpath from triggering configuration of an InitialContextFactory.
  *
  * @author Andy Wilkinson
  */
-@Configuration(proxyBeanMethods = false)
-public class ScannedFactoryBeanConfiguration {
+public class JndiPropertiesHidingClassLoader extends ClassLoader {
 
-  @Bean
-  public FactoryBean<ScanBean> exampleBeanFactoryBean() {
-    return new ScanFactoryBean("foo");
+  public JndiPropertiesHidingClassLoader(ClassLoader parent) {
+    super(parent);
+  }
+
+  @Override
+  public Enumeration<URL> getResources(String name) throws IOException {
+    if ("jndi.properties".equals(name)) {
+      return Collections.emptyEnumeration();
+    }
+    return super.getResources(name);
   }
 
 }

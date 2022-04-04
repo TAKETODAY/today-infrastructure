@@ -21,12 +21,13 @@
 package cn.taketoday.context.condition;
 
 import org.junit.jupiter.api.Test;
-import cn.taketoday.framework.test.util.TestPropertyValues;
+
 import cn.taketoday.context.annotation.AnnotationConfigApplicationContext;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
+import cn.taketoday.framework.test.util.TestPropertyValues;
 
-import cn.taketoday.context.condition.ConditionalOnResource;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Tests for {@link ConditionalOnResource @ConditionalOnResource}.
@@ -35,63 +36,63 @@ import cn.taketoday.context.condition.ConditionalOnResource;
  */
 class ConditionalOnResourceTests {
 
-	private final AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
+  private final AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
 
-	@Test
-	void testResourceExists() {
-		this.context.register(BasicConfiguration.class);
-		this.context.refresh();
-		assertThat(this.context.containsBean("foo")).isTrue();
-		assertThat(this.context.getBean("foo")).isEqualTo("foo");
-	}
+  @Test
+  void testResourceExists() {
+    this.context.register(BasicConfiguration.class);
+    this.context.refresh();
+    assertThat(this.context.containsBean("foo")).isTrue();
+    assertThat(this.context.getBean("foo")).isEqualTo("foo");
+  }
 
-	@Test
-	void testResourceExistsWithPlaceholder() {
-		TestPropertyValues.of("schema=schema.sql").applyTo(this.context);
-		this.context.register(PlaceholderConfiguration.class);
-		this.context.refresh();
-		assertThat(this.context.containsBean("foo")).isTrue();
-		assertThat(this.context.getBean("foo")).isEqualTo("foo");
-	}
+  @Test
+  void testResourceExistsWithPlaceholder() {
+    TestPropertyValues.of("schema=schema.sql").applyTo(this.context);
+    this.context.register(PlaceholderConfiguration.class);
+    this.context.refresh();
+    assertThat(this.context.containsBean("foo")).isTrue();
+    assertThat(this.context.getBean("foo")).isEqualTo("foo");
+  }
 
-	@Test
-	void testResourceNotExists() {
-		this.context.register(MissingConfiguration.class);
-		this.context.refresh();
-		assertThat(this.context.containsBean("foo")).isFalse();
-	}
+  @Test
+  void testResourceNotExists() {
+    this.context.register(MissingConfiguration.class);
+    this.context.refresh();
+    assertThat(this.context.containsBean("foo")).isFalse();
+  }
 
-	@Configuration(proxyBeanMethods = false)
-	@ConditionalOnResource(resources = "foo")
-	static class MissingConfiguration {
+  @Configuration(proxyBeanMethods = false)
+  @ConditionalOnResource("foo")
+  static class MissingConfiguration {
 
-		@Bean
-		String bar() {
-			return "bar";
-		}
+    @Bean
+    String bar() {
+      return "bar";
+    }
 
-	}
+  }
 
-	@Configuration(proxyBeanMethods = false)
-	@ConditionalOnResource(resources = "schema.sql")
-	static class BasicConfiguration {
+  @Configuration(proxyBeanMethods = false)
+  @ConditionalOnResource("schema.sql")
+  static class BasicConfiguration {
 
-		@Bean
-		String foo() {
-			return "foo";
-		}
+    @Bean
+    String foo() {
+      return "foo";
+    }
 
-	}
+  }
 
-	@Configuration(proxyBeanMethods = false)
-	@ConditionalOnResource(resources = "${schema}")
-	static class PlaceholderConfiguration {
+  @Configuration(proxyBeanMethods = false)
+  @ConditionalOnResource("${schema}")
+  static class PlaceholderConfiguration {
 
-		@Bean
-		String foo() {
-			return "foo";
-		}
+    @Bean
+    String foo() {
+      return "foo";
+    }
 
-	}
+  }
 
 }

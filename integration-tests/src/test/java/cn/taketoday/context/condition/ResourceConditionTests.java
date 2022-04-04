@@ -22,12 +22,15 @@ package cn.taketoday.context.condition;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
-import cn.taketoday.framework.test.util.TestPropertyValues;
+
 import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.context.annotation.AnnotationConfigApplicationContext;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Conditional;
 import cn.taketoday.context.annotation.Configuration;
+import cn.taketoday.framework.test.util.TestPropertyValues;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Test for {@link ResourceCondition}.
@@ -36,77 +39,77 @@ import cn.taketoday.context.annotation.Configuration;
  */
 class ResourceConditionTests {
 
-	private ConfigurableApplicationContext context;
+  private ConfigurableApplicationContext context;
 
-	@AfterEach
-	void tearDown() {
-		if (this.context != null) {
-			this.context.close();
-		}
-	}
+  @AfterEach
+  void tearDown() {
+    if (this.context != null) {
+      this.context.close();
+    }
+  }
 
-	@Test
-	void defaultResourceAndNoExplicitKey() {
-		load(DefaultLocationConfiguration.class);
-		assertThat(this.context.containsBean("foo")).isTrue();
-	}
+  @Test
+  void defaultResourceAndNoExplicitKey() {
+    load(DefaultLocationConfiguration.class);
+    assertThat(this.context.containsBean("foo")).isTrue();
+  }
 
-	@Test
-	void unknownDefaultLocationAndNoExplicitKey() {
-		load(UnknownDefaultLocationConfiguration.class);
-		assertThat(this.context.containsBean("foo")).isFalse();
-	}
+  @Test
+  void unknownDefaultLocationAndNoExplicitKey() {
+    load(UnknownDefaultLocationConfiguration.class);
+    assertThat(this.context.containsBean("foo")).isFalse();
+  }
 
-	@Test
-	void unknownDefaultLocationAndExplicitKeyToResource() {
-		load(UnknownDefaultLocationConfiguration.class, "spring.foo.test.config=logging.properties");
-		assertThat(this.context.containsBean("foo")).isTrue();
-	}
+  @Test
+  void unknownDefaultLocationAndExplicitKeyToResource() {
+    load(UnknownDefaultLocationConfiguration.class, "spring.foo.test.config=logging.properties");
+    assertThat(this.context.containsBean("foo")).isTrue();
+  }
 
-	private void load(Class<?> config, String... environment) {
-		AnnotationConfigApplicationContext applicationContext = new AnnotationConfigApplicationContext();
-		TestPropertyValues.of(environment).applyTo(applicationContext);
-		applicationContext.register(config);
-		applicationContext.refresh();
-		this.context = applicationContext;
-	}
+  private void load(Class<?> config, String... environment) {
+    AnnotationConfigApplicationContext applicationContext = new AnnotationConfigApplicationContext();
+    TestPropertyValues.of(environment).applyTo(applicationContext);
+    applicationContext.register(config);
+    applicationContext.refresh();
+    this.context = applicationContext;
+  }
 
-	@Configuration(proxyBeanMethods = false)
-	@Conditional(DefaultLocationResourceCondition.class)
-	static class DefaultLocationConfiguration {
+  @Configuration(proxyBeanMethods = false)
+  @Conditional(DefaultLocationResourceCondition.class)
+  static class DefaultLocationConfiguration {
 
-		@Bean
-		String foo() {
-			return "foo";
-		}
+    @Bean
+    String foo() {
+      return "foo";
+    }
 
-	}
+  }
 
-	@Configuration(proxyBeanMethods = false)
-	@Conditional(UnknownDefaultLocationResourceCondition.class)
-	static class UnknownDefaultLocationConfiguration {
+  @Configuration(proxyBeanMethods = false)
+  @Conditional(UnknownDefaultLocationResourceCondition.class)
+  static class UnknownDefaultLocationConfiguration {
 
-		@Bean
-		String foo() {
-			return "foo";
-		}
+    @Bean
+    String foo() {
+      return "foo";
+    }
 
-	}
+  }
 
-	static class DefaultLocationResourceCondition extends ResourceCondition {
+  static class DefaultLocationResourceCondition extends ResourceCondition {
 
-		DefaultLocationResourceCondition() {
-			super("test", "spring.foo.test.config", "classpath:/logging.properties");
-		}
+    DefaultLocationResourceCondition() {
+      super("test", "spring.foo.test.config", "classpath:/logging.properties");
+    }
 
-	}
+  }
 
-	static class UnknownDefaultLocationResourceCondition extends ResourceCondition {
+  static class UnknownDefaultLocationResourceCondition extends ResourceCondition {
 
-		UnknownDefaultLocationResourceCondition() {
-			super("test", "spring.foo.test.config", "classpath:/this-file-does-not-exist.xml");
-		}
+    UnknownDefaultLocationResourceCondition() {
+      super("test", "spring.foo.test.config", "classpath:/this-file-does-not-exist.xml");
+    }
 
-	}
+  }
 
 }

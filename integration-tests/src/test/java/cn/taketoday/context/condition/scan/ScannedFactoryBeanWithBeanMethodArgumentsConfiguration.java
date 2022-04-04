@@ -32,18 +32,18 @@ import cn.taketoday.context.annotation.Configuration;
 @Configuration(proxyBeanMethods = false)
 public class ScannedFactoryBeanWithBeanMethodArgumentsConfiguration {
 
-	@Bean
-	public Foo foo() {
-		return new Foo();
-	}
+  @Bean
+  public Foo foo() {
+    return new Foo();
+  }
 
-	@Bean
-	public ScanFactoryBean exampleBeanFactoryBean(Foo foo) {
-		return new ScanFactoryBean("foo");
-	}
+  @Bean
+  public ScanFactoryBean exampleBeanFactoryBean(Foo foo) {
+    return new ScanFactoryBean("foo");
+  }
 
-	static class Foo {
+  static class Foo {
 
-	}
+  }
 
 }
