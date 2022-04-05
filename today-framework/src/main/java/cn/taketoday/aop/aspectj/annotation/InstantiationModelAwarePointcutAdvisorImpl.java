@@ -142,16 +142,16 @@ final class InstantiationModelAwarePointcutAdvisorImpl
    */
   @Override
   public synchronized Advice getAdvice() {
-    if (this.instantiatedAdvice == null) {
+    if (instantiatedAdvice == null) {
       this.instantiatedAdvice = instantiateAdvice(this.declaredPointcut);
     }
-    return this.instantiatedAdvice;
+    return instantiatedAdvice;
   }
 
   private Advice instantiateAdvice(AspectJExpressionPointcut pointcut) {
-    Advice advice = this.aspectJAdvisorFactory.getAdvice(this.aspectJAdviceMethod, pointcut,
-            this.aspectInstanceFactory, this.declarationOrder, this.aspectName);
-    return (advice != null ? advice : EMPTY_ADVICE);
+    Advice advice = aspectJAdvisorFactory.getAdvice(aspectJAdviceMethod, pointcut,
+            aspectInstanceFactory, declarationOrder, aspectName);
+    return advice != null ? advice : EMPTY_ADVICE;
   }
 
   /**
@@ -161,7 +161,7 @@ final class InstantiationModelAwarePointcutAdvisorImpl
    */
   @Override
   public boolean isPerInstance() {
-    return (getAspectMetadata().getAjType().getPerClause().getKind() != PerClauseKind.SINGLETON);
+    return getAspectMetadata().getAjType().getPerClause().getKind() != PerClauseKind.SINGLETON;
   }
 
   /**
@@ -252,9 +252,10 @@ final class InstantiationModelAwarePointcutAdvisorImpl
 
   @Override
   public String toString() {
-    return "InstantiationModelAwarePointcutAdvisor: expression [" + getDeclaredPointcut().getExpression() +
-            "]; advice method [" + this.aspectJAdviceMethod + "]; perClauseKind=" +
-            this.aspectInstanceFactory.getAspectMetadata().getAjType().getPerClause().getKind();
+    return "InstantiationModelAwarePointcutAdvisor: expression [" +
+            getDeclaredPointcut().getExpression() + "]; advice method [" +
+            aspectJAdviceMethod + "]; perClauseKind=" +
+            aspectInstanceFactory.getAspectMetadata().getAjType().getPerClause().getKind();
   }
 
   /**
@@ -285,18 +286,19 @@ final class InstantiationModelAwarePointcutAdvisorImpl
     public boolean matches(Method method, Class<?> targetClass) {
       // We're either instantiated and matching on declared pointcut,
       // or uninstantiated matching on either pointcut...
-      return (isAspectMaterialized() && this.declaredPointcut.matches(method, targetClass)) ||
-              this.preInstantiationPointcut.getMethodMatcher().matches(method, targetClass);
+      return (isAspectMaterialized() && declaredPointcut.matches(method, targetClass))
+              || preInstantiationPointcut.getMethodMatcher().matches(method, targetClass);
     }
 
     @Override
     public boolean matches(MethodInvocation invocation) {
       // This can match only on declared pointcut.
-      return (isAspectMaterialized() && this.declaredPointcut.matches(invocation.getMethod(), invocation.getThis().getClass()));
+      return isAspectMaterialized()
+              && declaredPointcut.matches(invocation.getMethod(), invocation.getThis().getClass());
     }
 
     private boolean isAspectMaterialized() {
-      return (this.aspectInstanceFactory == null || this.aspectInstanceFactory.isMaterialized());
+      return aspectInstanceFactory == null || aspectInstanceFactory.isMaterialized();
     }
   }
 

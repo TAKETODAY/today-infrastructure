@@ -27,15 +27,15 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import cn.taketoday.beans.factory.support.BeanDefinitionRegistryPostProcessor;
 import cn.taketoday.beans.factory.InitializationBeanPostProcessor;
-import cn.taketoday.beans.factory.support.MergedBeanDefinitionPostProcessor;
 import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.beans.factory.config.BeanFactoryPostProcessor;
 import cn.taketoday.beans.factory.config.BeanPostProcessor;
 import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.support.AbstractBeanFactory;
 import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
+import cn.taketoday.beans.factory.support.BeanDefinitionRegistryPostProcessor;
+import cn.taketoday.beans.factory.support.MergedBeanDefinitionPostProcessor;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.core.OrderComparator;
 import cn.taketoday.core.Ordered;
@@ -275,8 +275,8 @@ final class PostProcessorRegistrationDelegate {
       return;
     }
     Comparator<Object> comparatorToUse = null;
-    if (beanFactory instanceof StandardBeanFactory) {
-      comparatorToUse = ((StandardBeanFactory) beanFactory).getDependencyComparator();
+    if (beanFactory instanceof StandardBeanFactory std) {
+      comparatorToUse = std.getDependencyComparator();
     }
     if (comparatorToUse == null) {
       comparatorToUse = OrderComparator.INSTANCE;
@@ -312,9 +312,9 @@ final class PostProcessorRegistrationDelegate {
   private static void registerBeanPostProcessors(
           ConfigurableBeanFactory beanFactory, List<BeanPostProcessor> postProcessors) {
 
-    if (beanFactory instanceof AbstractBeanFactory) {
+    if (beanFactory instanceof AbstractBeanFactory abstractBeanFactory) {
       // Bulk addition is more efficient against our list there
-      ((AbstractBeanFactory) beanFactory).addBeanPostProcessors(postProcessors);
+      abstractBeanFactory.addBeanPostProcessors(postProcessors);
     }
     else {
       for (BeanPostProcessor postProcessor : postProcessors) {

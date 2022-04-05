@@ -37,7 +37,6 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.HashMap;
-import java.util.Map;
 import java.util.StringTokenizer;
 
 import cn.taketoday.aop.framework.AopConfigException;
@@ -80,11 +79,11 @@ public abstract class AbstractAspectJAdvisorFactory implements AspectJAdvisorFac
    */
   @Override
   public boolean isAspect(Class<?> clazz) {
-    return (hasAspectAnnotation(clazz) && !compiledByAjc(clazz));
+    return hasAspectAnnotation(clazz) && !compiledByAjc(clazz);
   }
 
   private boolean hasAspectAnnotation(Class<?> clazz) {
-    return (AnnotationUtils.findAnnotation(clazz, Aspect.class) != null);
+    return AnnotationUtils.findAnnotation(clazz, Aspect.class) != null;
   }
 
   /**
@@ -107,10 +106,10 @@ public abstract class AbstractAspectJAdvisorFactory implements AspectJAdvisorFac
   public void validate(Class<?> aspectClass) throws AopConfigException {
     // If the parent has the annotation and isn't abstract it's an error
     Class<?> superclass = aspectClass.getSuperclass();
-    if (superclass.getAnnotation(Aspect.class) != null &&
-            !Modifier.isAbstract(superclass.getModifiers())) {
-      throw new AopConfigException("[" + aspectClass.getName() + "] cannot extend concrete aspect [" +
-              superclass.getName() + "]");
+    if (superclass.getAnnotation(Aspect.class) != null
+            && !Modifier.isAbstract(superclass.getModifiers())) {
+      throw new AopConfigException("[" + aspectClass.getName() +
+              "] cannot extend concrete aspect [" + superclass.getName() + "]");
     }
 
     AjType<?> ajType = AjTypeSystem.getAjType(aspectClass);
@@ -119,11 +118,11 @@ public abstract class AbstractAspectJAdvisorFactory implements AspectJAdvisorFac
     }
     if (ajType.getPerClause().getKind() == PerClauseKind.PERCFLOW) {
       throw new AopConfigException(aspectClass.getName() + " uses percflow instantiation model: " +
-              "This is not supported in Framework AOP.");
+              "This is not supported in AOP.");
     }
     if (ajType.getPerClause().getKind() == PerClauseKind.PERCFLOWBELOW) {
       throw new AopConfigException(aspectClass.getName() + " uses percflowbelow instantiation model: " +
-              "This is not supported in Framework AOP.");
+              "This is not supported in AOP.");
     }
   }
 
@@ -174,7 +173,7 @@ public abstract class AbstractAspectJAdvisorFactory implements AspectJAdvisorFac
 
     private static final String[] EXPRESSION_ATTRIBUTES = new String[] { "pointcut", "value" };
 
-    private static final Map<Class<?>, AspectJAnnotationType> annotationTypeMap = new HashMap<>(8);
+    private static final HashMap<Class<?>, AspectJAnnotationType> annotationTypeMap = new HashMap<>(8);
 
     static {
       annotationTypeMap.put(Pointcut.class, AspectJAnnotationType.AtPointcut);
@@ -254,6 +253,7 @@ public abstract class AbstractAspectJAdvisorFactory implements AspectJAdvisorFac
    */
   private static class AspectJAnnotationParameterNameDiscoverer extends ParameterNameDiscoverer {
 
+    @Nullable
     @Override
     public String[] getParameterNames(Executable executable) {
       if (executable instanceof Method method) {

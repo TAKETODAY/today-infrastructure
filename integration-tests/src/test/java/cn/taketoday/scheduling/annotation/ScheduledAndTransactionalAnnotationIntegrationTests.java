@@ -99,7 +99,7 @@ class ScheduledAndTransactionalAnnotationIntegrationTests {
 
   @Test
   void withAspectConfig() throws InterruptedException {
-    AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
+    var ctx = new AnnotationConfigApplicationContext();
     ctx.register(AspectConfig.class, MyRepositoryWithScheduledMethodImpl.class);
     ctx.refresh();
 
