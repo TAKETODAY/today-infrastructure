@@ -70,7 +70,7 @@ class ConfigDataLoaders {
   ConfigDataLoaders(ConfigurableBootstrapContext bootstrapContext,
           @Nullable ClassLoader classLoader, List<String> names) {
     Instantiator<ConfigDataLoader<?>> instantiator = new Instantiator<>(ConfigDataLoader.class,
-            (parameters) -> {
+            parameters -> {
               parameters.add(BootstrapContext.class, bootstrapContext);
               parameters.add(BootstrapRegistry.class, bootstrapContext);
               parameters.add(ConfigurableBootstrapContext.class, bootstrapContext);
@@ -88,7 +88,12 @@ class ConfigDataLoaders {
   }
 
   private Class<?> getResourceType(ConfigDataLoader<?> loader) {
-    return ResolvableType.fromClass(loader.getClass()).as(ConfigDataLoader.class).resolveGeneric();
+    ResolvableType resolvableType = ResolvableType.fromClass(loader.getClass());
+    Class<?> resourceType = resolvableType.as(ConfigDataLoader.class).resolveGeneric();
+    if (resourceType == null) {
+      throw new IllegalStateException("Cannot determine resource type for " + loader.getClass());
+    }
+    return resourceType;
   }
 
   /**
@@ -113,8 +118,8 @@ class ConfigDataLoaders {
   private <R extends ConfigDataResource> ConfigDataLoader<R> getLoader(ConfigDataLoaderContext context, R resource) {
     ConfigDataLoader<R> result = null;
     for (int i = 0; i < this.loaders.size(); i++) {
-      ConfigDataLoader<?> candidate = this.loaders.get(i);
       if (this.resourceTypes.get(i).isInstance(resource)) {
+        ConfigDataLoader<?> candidate = this.loaders.get(i);
         ConfigDataLoader<R> loader = (ConfigDataLoader<R>) candidate;
         if (loader.isLoadable(context, resource)) {
           if (result != null) {

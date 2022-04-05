@@ -30,6 +30,7 @@ import cn.taketoday.context.properties.bind.Binder;
 import cn.taketoday.core.env.MapPropertySource;
 import cn.taketoday.framework.BootstrapContextClosedEvent;
 import cn.taketoday.framework.BootstrapRegistry.InstanceSupplier;
+import cn.taketoday.lang.Nullable;
 
 /**
  * Test classes used with
@@ -121,10 +122,12 @@ class TestConfigDataBootstrap {
       return this.location;
     }
 
+    @Nullable
     String getBound() {
       return this.binder.get().bind("myprop", String.class).orElse(null);
     }
 
+    @Nullable
     String getProfileBound() {
       return this.binder.get().bind("myprofileprop", String.class).orElse(null);
     }

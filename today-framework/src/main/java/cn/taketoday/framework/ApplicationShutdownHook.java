@@ -211,9 +211,8 @@ class ApplicationShutdownHook implements Runnable {
       // the {@code close()} method returns.
       synchronized(ApplicationShutdownHook.class) {
         ApplicationContext applicationContext = event.getApplicationContext();
-        ApplicationShutdownHook.this.contexts.remove(applicationContext);
-        ApplicationShutdownHook.this.closedContexts
-                .add((ConfigurableApplicationContext) applicationContext);
+        contexts.remove(applicationContext);
+        closedContexts.add((ConfigurableApplicationContext) applicationContext);
       }
     }
 

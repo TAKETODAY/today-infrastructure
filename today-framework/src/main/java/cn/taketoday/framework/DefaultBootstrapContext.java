@@ -20,8 +20,8 @@
 
 package cn.taketoday.framework;
 
-import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.function.Supplier;
 
@@ -43,7 +43,8 @@ public class DefaultBootstrapContext implements ConfigurableBootstrapContext {
 
   private final Map<Class<?>, Object> instances = new HashMap<>();
 
-  private final ArrayList<ApplicationListener<BootstrapContextClosedEvent>> listeners = new ArrayList<>();
+  private final LinkedHashSet<ApplicationListener<BootstrapContextClosedEvent>>
+          listeners = new LinkedHashSet<>();
 
   @Override
   public <T> void register(Class<T> type, InstanceSupplier<T> instanceSupplier) {

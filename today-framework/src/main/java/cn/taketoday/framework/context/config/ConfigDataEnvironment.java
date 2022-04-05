@@ -26,6 +26,7 @@ import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 
 import cn.taketoday.context.properties.bind.BindException;
@@ -105,7 +106,7 @@ class ConfigDataEnvironment {
 
   private static final BinderOption[] DENY_INACTIVE_BINDING = { BinderOption.FAIL_ON_BIND_TO_INACTIVE_SOURCE };
 
-  private final Logger logger = LoggerFactory.getLogger(getClass());
+  private final Logger log = LoggerFactory.getLogger(getClass());
 
   private final ConfigDataNotFoundAction notFoundAction;
 
@@ -145,10 +146,12 @@ class ConfigDataEnvironment {
     this.environment = environment;
     this.bootstrapContext = bootstrapContext;
     this.additionalProfiles = additionalProfiles;
-    this.notFoundAction = binder.bind(ON_NOT_FOUND_PROPERTY, ConfigDataNotFoundAction.class).orRequired(ConfigDataNotFoundAction.FAIL);
+    this.notFoundAction = binder.bind(
+            ON_NOT_FOUND_PROPERTY, ConfigDataNotFoundAction.class).orRequired(ConfigDataNotFoundAction.FAIL);
     this.resolvers = createConfigDataLocationResolvers(bootstrapContext, binder, resourceLoader);
-    this.environmentUpdateListener = environmentUpdateListener != null
-                                     ? environmentUpdateListener : ConfigDataEnvironmentUpdateListener.NONE;
+    this.environmentUpdateListener = Optional.ofNullable(environmentUpdateListener).orElse(
+            ConfigDataEnvironmentUpdateListener.NONE
+    );
     this.loaders = new ConfigDataLoaders(bootstrapContext, resourceLoader.getClassLoader());
     this.contributors = createContributors(binder);
   }
@@ -159,22 +162,29 @@ class ConfigDataEnvironment {
   }
 
   private ConfigDataEnvironmentContributors createContributors(Binder binder) {
-    logger.trace("Building config data environment contributors");
+    boolean traceEnabled = log.isTraceEnabled();
+    if (traceEnabled) {
+      log.trace("Building config data environment contributors");
+    }
     PropertySources propertySources = environment.getPropertySources();
-    ArrayList<ConfigDataEnvironmentContributor> contributors = new ArrayList<>(propertySources.size() + 10);
+    var contributors = new ArrayList<ConfigDataEnvironmentContributor>(propertySources.size() + 10);
     PropertySource<?> defaultPropertySource = null;
     for (PropertySource<?> propertySource : propertySources) {
       if (DefaultPropertiesPropertySource.hasMatchingName(propertySource)) {
         defaultPropertySource = propertySource;
       }
       else {
-        logger.trace("Creating wrapped config data contributor for '{}'", propertySource.getName());
+        if (traceEnabled) {
+          log.trace("Creating wrapped config data contributor for '{}'", propertySource.getName());
+        }
         contributors.add(ConfigDataEnvironmentContributor.ofExisting(propertySource));
       }
     }
     contributors.addAll(getInitialImportContributors(binder));
     if (defaultPropertySource != null) {
-      logger.trace("Creating wrapped config data contributor for default property source");
+      if (traceEnabled) {
+        log.trace("Creating wrapped config data contributor for default property source");
+      }
       contributors.add(ConfigDataEnvironmentContributor.ofExisting(defaultPropertySource));
     }
     return createContributors(contributors);
@@ -189,13 +199,11 @@ class ConfigDataEnvironment {
   }
 
   private List<ConfigDataEnvironmentContributor> getInitialImportContributors(Binder binder) {
-    List<ConfigDataEnvironmentContributor> initialContributors = new ArrayList<>();
-    addInitialImportContributors(initialContributors, bindLocations(binder, IMPORT_PROPERTY, EMPTY_LOCATIONS));
-    addInitialImportContributors(initialContributors,
-            bindLocations(binder, ADDITIONAL_LOCATION_PROPERTY, EMPTY_LOCATIONS));
-    addInitialImportContributors(initialContributors,
-            bindLocations(binder, LOCATION_PROPERTY, DEFAULT_SEARCH_LOCATIONS));
-    return initialContributors;
+    var contributors = new ArrayList<ConfigDataEnvironmentContributor>();
+    addInitialImportContributors(contributors, bindLocations(binder, IMPORT_PROPERTY, EMPTY_LOCATIONS));
+    addInitialImportContributors(contributors, bindLocations(binder, ADDITIONAL_LOCATION_PROPERTY, EMPTY_LOCATIONS));
+    addInitialImportContributors(contributors, bindLocations(binder, LOCATION_PROPERTY, DEFAULT_SEARCH_LOCATIONS));
+    return contributors;
   }
 
   private ConfigDataLocation[] bindLocations(Binder binder, String propertyName, ConfigDataLocation[] other) {
@@ -210,7 +218,7 @@ class ConfigDataEnvironment {
   }
 
   private ConfigDataEnvironmentContributor createInitialImportContributor(ConfigDataLocation location) {
-    logger.trace("Adding initial config data import from location '{}'", location);
+    log.trace("Adding initial config data import from location '{}'", location);
     return ConfigDataEnvironmentContributor.ofInitialImport(location);
   }
 
@@ -233,14 +241,14 @@ class ConfigDataEnvironment {
 
   private ConfigDataEnvironmentContributors processInitial(ConfigDataEnvironmentContributors contributors,
           ConfigDataImporter importer) {
-    logger.trace("Processing initial config data environment contributors without activation context");
+    log.trace("Processing initial config data environment contributors without activation context");
     contributors = contributors.withProcessedImports(importer, null);
     registerBootstrapBinder(contributors, null, DENY_INACTIVE_BINDING);
     return contributors;
   }
 
   private ConfigDataActivationContext createActivationContext(Binder initialBinder) {
-    logger.trace("Creating config data activation context from initial contributions");
+    log.trace("Creating config data activation context from initial contributions");
     try {
       return new ConfigDataActivationContext(environment, initialBinder);
     }
@@ -254,7 +262,7 @@ class ConfigDataEnvironment {
 
   private ConfigDataEnvironmentContributors processWithoutProfiles(ConfigDataEnvironmentContributors contributors,
           ConfigDataImporter importer, ConfigDataActivationContext activationContext) {
-    logger.trace("Processing config data environment contributors with initial activation context");
+    log.trace("Processing config data environment contributors with initial activation context");
     contributors = contributors.withProcessedImports(importer, activationContext);
     registerBootstrapBinder(contributors, activationContext, DENY_INACTIVE_BINDING);
     return contributors;
@@ -262,7 +270,7 @@ class ConfigDataEnvironment {
 
   private ConfigDataActivationContext withProfiles(ConfigDataEnvironmentContributors contributors,
           ConfigDataActivationContext activationContext) {
-    logger.trace("Deducing profiles from current config data environment contributors");
+    log.trace("Deducing profiles from current config data environment contributors");
     Binder binder = contributors.getBinder(activationContext,
             (contributor) -> !contributor.hasConfigDataOption(ConfigData.Option.IGNORE_PROFILES),
             BinderOption.FAIL_ON_BIND_TO_INACTIVE_SOURCE);
@@ -304,7 +312,7 @@ class ConfigDataEnvironment {
 
   private ConfigDataEnvironmentContributors processWithProfiles(ConfigDataEnvironmentContributors contributors,
           ConfigDataImporter importer, ConfigDataActivationContext activationContext) {
-    logger.trace("Processing config data environment contributors with profile activation context");
+    log.trace("Processing config data environment contributors with profile activation context");
     contributors = contributors.withProcessedImports(importer, activationContext);
     registerBootstrapBinder(contributors, activationContext, ALLOW_INACTIVE_BINDING);
     return contributors;
@@ -312,13 +320,16 @@ class ConfigDataEnvironment {
 
   private void registerBootstrapBinder(ConfigDataEnvironmentContributors contributors,
           @Nullable ConfigDataActivationContext activationContext, BinderOption... binderOptions) {
-    bootstrapContext.register(Binder.class, InstanceSupplier.from(
-            () -> contributors.getBinder(activationContext, binderOptions)).withScope(BootstrapRegistry.Scope.PROTOTYPE)
+    bootstrapContext.register(Binder.class,
+            InstanceSupplier.from(() -> contributors.getBinder(activationContext, binderOptions))
+                    .withScope(BootstrapRegistry.Scope.PROTOTYPE)
     );
   }
 
-  private void applyToEnvironment(ConfigDataEnvironmentContributors contributors,
-          ConfigDataActivationContext activationContext, Set<ConfigDataLocation> loadedLocations, Set<ConfigDataLocation> optionalLocations) {
+  private void applyToEnvironment(
+          ConfigDataEnvironmentContributors contributors,
+          ConfigDataActivationContext activationContext,
+          Set<ConfigDataLocation> loadedLocations, Set<ConfigDataLocation> optionalLocations) {
     checkForInvalidProperties(contributors);
     checkMandatoryLocations(contributors, activationContext, loadedLocations, optionalLocations);
     PropertySources propertySources = environment.getPropertySources();
@@ -326,33 +337,33 @@ class ConfigDataEnvironment {
     DefaultPropertiesPropertySource.moveToEnd(propertySources);
     Profiles profiles = activationContext.getProfiles();
     if (profiles != null) {
-      boolean traceEnabled = logger.isTraceEnabled();
+      boolean traceEnabled = log.isTraceEnabled();
       if (traceEnabled) {
-        logger.trace("Setting default profiles: {}", profiles.getDefault());
+        log.trace("Setting default profiles: {}", profiles.getDefault());
       }
       environment.setDefaultProfiles(StringUtils.toStringArray(profiles.getDefault()));
       if (traceEnabled) {
-        logger.trace("Setting active profiles: {}", profiles.getActive());
+        log.trace("Setting active profiles: {}", profiles.getActive());
       }
       environment.setActiveProfiles(StringUtils.toStringArray(profiles.getActive()));
       environmentUpdateListener.onSetProfiles(profiles);
     }
     else {
-      logger.info("profiles not found");
+      log.info("profiles not found");
     }
   }
 
   private void applyContributor(ConfigDataEnvironmentContributors contributors,
           ConfigDataActivationContext activationContext, PropertySources propertySources) {
-    logger.trace("Applying config data environment contributions");
+    log.trace("Applying config data environment contributions");
     for (ConfigDataEnvironmentContributor contributor : contributors) {
       PropertySource<?> propertySource = contributor.getPropertySource();
       if (contributor.getKind() == ConfigDataEnvironmentContributor.Kind.BOUND_IMPORT && propertySource != null) {
         if (!contributor.isActive(activationContext)) {
-          logger.trace("Skipping inactive property source '{}'", propertySource.getName());
+          log.trace("Skipping inactive property source '{}'", propertySource.getName());
         }
         else {
-          logger.trace("Adding imported property source '{}'", propertySource.getName());
+          log.trace("Adding imported property source '{}'", propertySource.getName());
           propertySources.addLast(propertySource);
           environmentUpdateListener.onPropertySourceAdded(propertySource, contributor.getLocation(), contributor.getResource());
         }
@@ -362,7 +373,7 @@ class ConfigDataEnvironment {
 
   private void checkForInvalidProperties(ConfigDataEnvironmentContributors contributors) {
     for (ConfigDataEnvironmentContributor contributor : contributors) {
-      InvalidConfigDataPropertyException.throwOrWarn(logger, contributor);
+      InvalidConfigDataPropertyException.throwOrWarn(log, contributor);
     }
   }
 
@@ -384,7 +395,7 @@ class ConfigDataEnvironment {
     mandatoryLocations.removeAll(optionalLocations);
     if (!mandatoryLocations.isEmpty()) {
       for (ConfigDataLocation mandatoryLocation : mandatoryLocations) {
-        notFoundAction.handle(logger, new ConfigDataLocationNotFoundException(mandatoryLocation));
+        notFoundAction.handle(log, new ConfigDataLocationNotFoundException(mandatoryLocation));
       }
     }
   }

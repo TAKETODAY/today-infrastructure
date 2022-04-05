@@ -29,6 +29,7 @@ import cn.taketoday.core.env.Environment;
 import cn.taketoday.core.env.MapPropertySource;
 import cn.taketoday.core.env.PropertySource;
 import cn.taketoday.core.env.PropertySources;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
 
 /**
@@ -63,7 +64,7 @@ public class DefaultPropertiesPropertySource extends MapPropertySource {
    * @param propertySource the property source to check
    * @return {@code true} if the name matches
    */
-  public static boolean hasMatchingName(PropertySource<?> propertySource) {
+  public static boolean hasMatchingName(@Nullable PropertySource<?> propertySource) {
     return propertySource != null && propertySource.getName().equals(NAME);
   }
 
@@ -75,7 +76,8 @@ public class DefaultPropertiesPropertySource extends MapPropertySource {
    * @param action the action used to consume the
    * {@link DefaultPropertiesPropertySource}
    */
-  public static void ifNotEmpty(Map<String, Object> source, Consumer<DefaultPropertiesPropertySource> action) {
+  public static void ifNotEmpty(
+          @Nullable Map<String, Object> source, Consumer<DefaultPropertiesPropertySource> action) {
     if (CollectionUtils.isNotEmpty(source) && action != null) {
       action.accept(new DefaultPropertiesPropertySource(source));
     }
@@ -87,7 +89,7 @@ public class DefaultPropertiesPropertySource extends MapPropertySource {
    * @param source the {@code Map} source
    * @param sources the existing sources
    */
-  public static void addOrMerge(Map<String, Object> source, PropertySources sources) {
+  public static void addOrMerge(@Nullable Map<String, Object> source, PropertySources sources) {
     if (CollectionUtils.isNotEmpty(source)) {
       Map<String, Object> resultingSource = new HashMap<>();
       DefaultPropertiesPropertySource propertySource = new DefaultPropertiesPropertySource(resultingSource);

@@ -89,14 +89,16 @@ public class ConfigDataEnvironmentPostProcessor implements EnvironmentPostProces
 
   void postProcessEnvironment(ConfigurableEnvironment environment,
           @Nullable ResourceLoader resourceLoader, Collection<String> additionalProfiles) {
+    if (resourceLoader == null) {
+      resourceLoader = new DefaultResourceLoader();
+    }
     logger.trace("Post-processing environment to add config data");
-    resourceLoader = (resourceLoader != null) ? resourceLoader : new DefaultResourceLoader();
     getConfigDataEnvironment(environment, resourceLoader, additionalProfiles).processAndApply();
   }
 
   ConfigDataEnvironment getConfigDataEnvironment(ConfigurableEnvironment environment,
           ResourceLoader resourceLoader, Collection<String> additionalProfiles) {
-    return new ConfigDataEnvironment(this.bootstrapContext, environment, resourceLoader,
+    return new ConfigDataEnvironment(bootstrapContext, environment, resourceLoader,
             additionalProfiles, this.environmentUpdateListener);
   }
 
@@ -140,11 +142,7 @@ public class ConfigDataEnvironmentPostProcessor implements EnvironmentPostProces
    */
   public static void applyTo(ConfigurableEnvironment environment, @Nullable ResourceLoader resourceLoader,
           @Nullable ConfigurableBootstrapContext bootstrapContext, Collection<String> additionalProfiles) {
-    if (bootstrapContext == null) {
-      bootstrapContext = new DefaultBootstrapContext();
-    }
-    ConfigDataEnvironmentPostProcessor postProcessor = new ConfigDataEnvironmentPostProcessor(bootstrapContext);
-    postProcessor.postProcessEnvironment(environment, resourceLoader, additionalProfiles);
+    applyTo(environment, resourceLoader, bootstrapContext, additionalProfiles, null);
   }
 
   /**
@@ -161,13 +159,16 @@ public class ConfigDataEnvironmentPostProcessor implements EnvironmentPostProces
    * {@link ConfigDataEnvironmentUpdateListener} that can be used to track
    * {@link Environment} updates.
    */
-  public static void applyTo(ConfigurableEnvironment environment, @Nullable ResourceLoader resourceLoader,
-          @Nullable ConfigurableBootstrapContext bootstrapContext, Collection<String> additionalProfiles,
-          ConfigDataEnvironmentUpdateListener environmentUpdateListener) {
+  public static void applyTo(
+          ConfigurableEnvironment environment,
+          @Nullable ResourceLoader resourceLoader,
+          @Nullable ConfigurableBootstrapContext bootstrapContext,
+          Collection<String> additionalProfiles,
+          @Nullable ConfigDataEnvironmentUpdateListener environmentUpdateListener) {
     if (bootstrapContext == null) {
       bootstrapContext = new DefaultBootstrapContext();
     }
-    ConfigDataEnvironmentPostProcessor postProcessor = new ConfigDataEnvironmentPostProcessor(bootstrapContext, environmentUpdateListener);
+    var postProcessor = new ConfigDataEnvironmentPostProcessor(bootstrapContext, environmentUpdateListener);
     postProcessor.postProcessEnvironment(environment, resourceLoader, additionalProfiles);
   }
 
