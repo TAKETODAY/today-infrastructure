@@ -64,21 +64,21 @@ class EnableTransactionManagementIntegrationTests {
 
   @Test
   void repositoryIsNotTxProxy() {
-    AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext(Config.class);
+    var ctx = new AnnotationConfigApplicationContext(Config.class);
 
     assertThat(isTxProxy(ctx.getBean(FooRepository.class))).isFalse();
   }
 
   @Test
   void repositoryIsTxProxy_withDefaultTxManagerName() {
-    AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext(Config.class, DefaultTxManagerNameConfig.class);
+    var ctx = new AnnotationConfigApplicationContext(Config.class, DefaultTxManagerNameConfig.class);
 
     assertTxProxying(ctx);
   }
 
   @Test
   void repositoryIsTxProxy_withCustomTxManagerName() {
-    AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext(Config.class, CustomTxManagerNameConfig.class);
+    var ctx = new AnnotationConfigApplicationContext(Config.class, CustomTxManagerNameConfig.class);
 
     assertTxProxying(ctx);
   }
@@ -90,7 +90,7 @@ class EnableTransactionManagementIntegrationTests {
 
   @Test
   void repositoryIsClassBasedTxProxy() {
-    AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext(Config.class, ProxyTargetClassTxConfig.class);
+    var ctx = new AnnotationConfigApplicationContext(Config.class, ProxyTargetClassTxConfig.class);
 
     assertTxProxying(ctx);
     assertThat(AopUtils.isCglibProxy(ctx.getBean(FooRepository.class))).isTrue();
