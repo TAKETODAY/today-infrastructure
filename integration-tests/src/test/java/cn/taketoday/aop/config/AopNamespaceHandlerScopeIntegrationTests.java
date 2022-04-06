@@ -35,7 +35,6 @@ import cn.taketoday.beans.testfixture.beans.ITestBean;
 import cn.taketoday.beans.testfixture.beans.TestBean;
 import cn.taketoday.mock.web.MockHttpServletRequest;
 import cn.taketoday.mock.web.MockHttpServletResponse;
-import cn.taketoday.mock.web.MockHttpSession;
 import cn.taketoday.test.context.junit.jupiter.web.JUnitWebConfig;
 import cn.taketoday.web.RequestContextHolder;
 import cn.taketoday.web.servlet.ServletRequestContext;
@@ -112,11 +111,7 @@ class AopNamespaceHandlerScopeIntegrationTests {
 
   @Test
   void testSessionScoping() throws Exception {
-    MockHttpSession oldSession = new MockHttpSession();
-    MockHttpSession newSession = new MockHttpSession();
-
     MockHttpServletRequest request = new MockHttpServletRequest();
-    request.setSession(oldSession);
     RequestContextHolder.set(new ServletRequestContext(null, request, new MockHttpServletResponse()));
 
     assertThat(AopUtils.isAopProxy(sessionScoped)).as("Should be AOP proxy").isTrue();
@@ -134,12 +129,6 @@ class AopNamespaceHandlerScopeIntegrationTests {
 
     assertThat(sessionScoped.getName()).isEqualTo(rob);
     sessionScoped.setName(bram);
-    request.setSession(newSession);
-
-    
-    assertThat(sessionScoped.getName()).isEqualTo(rob);
-    request.setSession(oldSession);
-    assertThat(sessionScoped.getName()).isEqualTo(bram);
 
     assertThat(((Advised) sessionScoped).getAdvisors().length > 0).as("Should have advisors").isTrue();
   }
