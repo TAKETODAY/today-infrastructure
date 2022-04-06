@@ -23,7 +23,6 @@ package cn.taketoday.framework.web.context;
 import org.junit.jupiter.api.Test;
 
 import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.framework.web.context.WebServerApplicationContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;

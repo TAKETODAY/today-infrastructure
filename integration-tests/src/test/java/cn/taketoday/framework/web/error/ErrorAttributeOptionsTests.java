@@ -24,8 +24,6 @@ import org.junit.jupiter.api.Test;
 
 import java.util.EnumSet;
 
-import cn.taketoday.framework.web.error.ErrorAttributeOptions;
-
 import static cn.taketoday.framework.web.error.ErrorAttributeOptions.Include;
 import static cn.taketoday.framework.web.error.ErrorAttributeOptions.of;
 import static org.assertj.core.api.Assertions.assertThat;

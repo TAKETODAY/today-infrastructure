@@ -163,7 +163,7 @@ class ServletWebServerMvcIntegrationTests {
 
   @Configuration(proxyBeanMethods = false)
   @EnableWebMvc
-  @PropertySource("classpath:/org/springframework/boot/web/servlet/context/conf.properties")
+  @PropertySource("classpath:/cn/taketoday/boot/web/servlet/context/conf.properties")
   static class AdvancedConfig {
 
     private final Environment env;

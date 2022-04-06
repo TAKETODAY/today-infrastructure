@@ -29,17 +29,16 @@ import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.SslConnectionFactory;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.condition.DisabledOnOs;
 import org.junit.jupiter.api.condition.OS;
 
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.List;
 
-import cn.taketoday.framework.web.embedded.jetty.SslServerCustomizer;
 import cn.taketoday.framework.web.server.Http2;
 import cn.taketoday.framework.web.server.Ssl;
 import cn.taketoday.framework.web.server.WebServerException;
+import cn.taketoday.test.junit.DisabledOnOs;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;

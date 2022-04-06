@@ -30,7 +30,6 @@ import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import cn.taketoday.framework.web.embedded.undertow.FileSessionPersistence;
 import io.undertow.servlet.api.SessionPersistenceManager.PersistentSession;
 
 import static org.assertj.core.api.Assertions.assertThat;

@@ -62,13 +62,11 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicReference;
 
-import cn.taketoday.framework.testsupport.system.CapturedOutput;
-import cn.taketoday.framework.web.embedded.jetty.JettyServerCustomizer;
-import cn.taketoday.framework.web.embedded.jetty.JettyServletWebServerFactory;
-import cn.taketoday.framework.web.embedded.jetty.JettyWebServer;
+import cn.taketoday.framework.test.system.CapturedOutput;
 import cn.taketoday.framework.web.server.Compression;
 import cn.taketoday.framework.web.server.GracefulShutdownResult;
 import cn.taketoday.framework.web.server.PortInUseException;
+import cn.taketoday.framework.web.server.Shutdown;
 import cn.taketoday.framework.web.server.Ssl;
 import cn.taketoday.framework.web.server.WebServerException;
 import cn.taketoday.framework.web.servlet.server.AbstractServletWebServerFactory;

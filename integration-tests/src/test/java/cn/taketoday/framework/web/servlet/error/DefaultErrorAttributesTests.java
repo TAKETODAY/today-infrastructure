@@ -31,6 +31,8 @@ import cn.taketoday.core.MethodParameter;
 import cn.taketoday.framework.web.error.ErrorAttributeOptions;
 import cn.taketoday.framework.web.error.ErrorAttributeOptions.Include;
 import cn.taketoday.http.HttpStatus;
+import cn.taketoday.mock.web.MockHttpServletRequest;
+import cn.taketoday.mock.web.MockHttpServletResponse;
 import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.validation.BindException;
 import cn.taketoday.validation.BindingResult;
@@ -38,10 +40,7 @@ import cn.taketoday.validation.MapBindingResult;
 import cn.taketoday.validation.ObjectError;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.bind.MethodArgumentNotValidException;
-import cn.taketoday.web.mock.MockHttpServletRequest;
-import cn.taketoday.web.mock.MockHttpServletResponse;
 import cn.taketoday.web.servlet.ServletRequestContext;
-import cn.taketoday.web.view.ModelAndView;
 import jakarta.servlet.ServletException;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -89,7 +88,7 @@ class DefaultErrorAttributesTests {
   @Test
   void mvcError() {
     RuntimeException ex = new RuntimeException("Test");
-    ModelAndView modelAndView = this.errorAttributes.handleException(webRequest, ex, null);
+    Object modelAndView = this.errorAttributes.handleException(webRequest, ex, null);
     this.request.setAttribute("jakarta.servlet.error.exception", new RuntimeException("Ignored"));
     Map<String, Object> attributes = this.errorAttributes.getErrorAttributes(this.webRequest,
             ErrorAttributeOptions.of(Include.MESSAGE));

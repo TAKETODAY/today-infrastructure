@@ -37,24 +37,22 @@ import cn.taketoday.framework.web.servlet.context.AnnotationConfigServletWebServ
 import cn.taketoday.framework.web.servlet.server.ServletWebServerFactory;
 import cn.taketoday.http.HttpStatus;
 import cn.taketoday.http.ResponseEntity;
-import cn.taketoday.stereotype.Controller;
 import cn.taketoday.test.annotation.DirtiesContext;
 import cn.taketoday.test.context.ContextConfiguration;
 import cn.taketoday.test.context.MergedContextConfiguration;
-import cn.taketoday.test.context.junit.jupiter.SpringExtension;
+import cn.taketoday.test.context.junit.jupiter.ApplicationExtension;
 import cn.taketoday.test.context.support.AbstractContextLoader;
-import cn.taketoday.web.bind.annotation.RequestMapping;
-import cn.taketoday.web.bind.annotation.ResponseBody;
-import cn.taketoday.web.bind.annotation.ResponseStatus;
+import cn.taketoday.web.RequestContext;
+import cn.taketoday.web.annotation.Controller;
+import cn.taketoday.web.annotation.RequestMapping;
+import cn.taketoday.web.annotation.ResponseBody;
+import cn.taketoday.web.annotation.ResponseStatus;
 import cn.taketoday.web.client.RestTemplate;
+import cn.taketoday.web.config.EnableWebMvc;
+import cn.taketoday.web.config.InterceptorRegistry;
+import cn.taketoday.web.config.WebMvcConfiguration;
+import cn.taketoday.web.interceptor.HandlerInterceptor;
 import cn.taketoday.web.servlet.DispatcherServlet;
-import cn.taketoday.web.servlet.HandlerInterceptor;
-import cn.taketoday.web.servlet.ModelAndView;
-import cn.taketoday.web.servlet.config.annotation.EnableWebMvc;
-import cn.taketoday.web.servlet.config.annotation.InterceptorRegistry;
-import cn.taketoday.web.servlet.config.annotation.WebMvcConfigurer;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -64,7 +62,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Dave Syer
  * @author Phillip Webb
  */
-@ExtendWith(SpringExtension.class)
+@ExtendWith(ApplicationExtension.class)
 @DirtiesContext
 @ContextConfiguration(classes = ErrorPageFilterIntegrationTests.TomcatConfig.class,
                       loader = ErrorPageFilterIntegrationTests.EmbeddedWebContextLoader.class)
@@ -130,7 +128,7 @@ class ErrorPageFilterIntegrationTests {
   }
 
   @Controller
-  static class HelloWorldController implements WebMvcConfigurer {
+  static class HelloWorldController implements WebMvcConfiguration {
 
     private int status;
 
@@ -153,10 +151,10 @@ class ErrorPageFilterIntegrationTests {
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
       registry.addInterceptor(new HandlerInterceptor() {
+
         @Override
-        public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler,
-                ModelAndView modelAndView) {
-          HelloWorldController.this.setStatus(response.getStatus());
+        public void afterProcess(RequestContext context, Object handler, Object result) throws Throwable {
+          HelloWorldController.this.setStatus(context.getStatus());
           HelloWorldController.this.latch.countDown();
         }
       });

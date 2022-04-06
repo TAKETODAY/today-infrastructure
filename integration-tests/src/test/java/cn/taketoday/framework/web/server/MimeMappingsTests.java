@@ -28,8 +28,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
-import cn.taketoday.framework.web.server.MimeMappings;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 

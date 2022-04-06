@@ -27,9 +27,8 @@ import org.apache.coyote.http2.Http2Protocol;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import cn.taketoday.framework.web.embedded.tomcat.CompressionConnectorCustomizer;
 import cn.taketoday.framework.web.server.Compression;
-import cn.taketoday.util.unit.DataSize;
+import cn.taketoday.util.DataSize;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

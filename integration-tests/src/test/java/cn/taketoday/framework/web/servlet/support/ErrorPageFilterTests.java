@@ -30,8 +30,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import cn.taketoday.framework.testsupport.system.CapturedOutput;
-import cn.taketoday.framework.testsupport.system.OutputCaptureExtension;
+import cn.taketoday.framework.test.system.CapturedOutput;
+import cn.taketoday.framework.test.system.OutputCaptureExtension;
 import cn.taketoday.framework.web.server.ErrorPage;
 import cn.taketoday.http.HttpStatus;
 import cn.taketoday.mock.web.MockFilterChain;
@@ -39,12 +39,13 @@ import cn.taketoday.mock.web.MockFilterConfig;
 import cn.taketoday.mock.web.MockHttpServletRequest;
 import cn.taketoday.mock.web.MockHttpServletResponse;
 import cn.taketoday.mock.web.MockRequestDispatcher;
-import cn.taketoday.web.bind.MissingServletRequestParameterException;
-import cn.taketoday.web.context.request.async.DeferredResult;
-import cn.taketoday.web.context.request.async.StandardServletAsyncWebRequest;
-import cn.taketoday.web.context.request.async.WebAsyncManager;
-import cn.taketoday.web.context.request.async.WebAsyncUtils;
-import cn.taketoday.web.util.NestedServletException;
+import cn.taketoday.web.bind.MissingRequestParameterException;
+import cn.taketoday.web.context.async.DeferredResult;
+import cn.taketoday.web.context.async.StandardServletAsyncWebRequest;
+import cn.taketoday.web.context.async.WebAsyncManager;
+import cn.taketoday.web.context.async.WebAsyncUtils;
+import cn.taketoday.web.servlet.NestedServletException;
+import cn.taketoday.web.servlet.ServletRequestContext;
 import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.ServletRequest;
@@ -393,10 +394,10 @@ class ErrorPageFilterTests {
 
   @Test
   void nestedServletExceptionWithNoCause() throws Exception {
-    this.filter.addErrorPages(new ErrorPage(MissingServletRequestParameterException.class, "/500"));
+    this.filter.addErrorPages(new ErrorPage(MissingRequestParameterException.class, "/500"));
     this.chain = new TestFilterChain((request, response, chain) -> {
       chain.call();
-      throw new MissingServletRequestParameterException("test", "string");
+      throw new MissingRequestParameterException("test", "string");
     });
     this.filter.doFilter(this.request, this.response, this.chain);
     assertThat(((HttpServletResponseWrapper) this.chain.getResponse()).getStatus()).isEqualTo(500);
@@ -405,9 +406,9 @@ class ErrorPageFilterTests {
             .isEqualTo("Required request parameter 'test' for method parameter type string is not present");
     Map<String, Object> requestAttributes = getAttributesForDispatch("/500");
     assertThat(requestAttributes.get(RequestDispatcher.ERROR_EXCEPTION_TYPE))
-            .isEqualTo(MissingServletRequestParameterException.class);
+            .isEqualTo(MissingRequestParameterException.class);
     assertThat(requestAttributes.get(RequestDispatcher.ERROR_EXCEPTION))
-            .isInstanceOf(MissingServletRequestParameterException.class);
+            .isInstanceOf(MissingRequestParameterException.class);
     assertThat(this.request.getAttribute(RequestDispatcher.ERROR_EXCEPTION_TYPE)).isNull();
     assertThat(this.request.getAttribute(RequestDispatcher.ERROR_EXCEPTION)).isNull();
     assertThat(this.request.getAttribute(RequestDispatcher.ERROR_REQUEST_URI)).isEqualTo("/test/path");
@@ -429,8 +430,9 @@ class ErrorPageFilterTests {
     this.request.setAsyncSupported(true);
     this.request.setAsyncStarted(true);
     DeferredResult<String> result = new DeferredResult<>();
-    WebAsyncManager asyncManager = WebAsyncUtils.getAsyncManager(this.request);
-    asyncManager.setAsyncWebRequest(new StandardServletAsyncWebRequest(this.request, this.response));
+    ServletRequestContext context = new ServletRequestContext(null, request, response);
+    WebAsyncManager asyncManager = WebAsyncUtils.getAsyncManager(context);
+    asyncManager.setAsyncWebRequest(new StandardServletAsyncWebRequest(context));
     asyncManager.startDeferredResultProcessing(result);
   }
 

@@ -27,7 +27,6 @@ import java.security.NoSuchProviderException;
 
 import javax.net.ssl.KeyManager;
 
-import cn.taketoday.framework.web.embedded.undertow.SslBuilderCustomizer;
 import cn.taketoday.framework.web.server.Ssl;
 import cn.taketoday.framework.web.server.WebServerException;
 import cn.taketoday.test.util.ReflectionTestUtils;

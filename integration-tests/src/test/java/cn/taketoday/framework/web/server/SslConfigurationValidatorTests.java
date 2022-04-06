@@ -28,8 +28,6 @@ import java.io.InputStream;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 
-import cn.taketoday.framework.web.server.SslConfigurationValidator;
-
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**

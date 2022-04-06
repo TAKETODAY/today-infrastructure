@@ -37,7 +37,6 @@ import java.util.List;
 import java.util.jar.JarOutputStream;
 import java.util.zip.ZipEntry;
 
-import cn.taketoday.framework.web.embedded.tomcat.TomcatEmbeddedWebappClassLoader;
 import cn.taketoday.util.CollectionUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;

@@ -38,12 +38,9 @@ import java.util.List;
 import java.util.jar.JarOutputStream;
 import java.util.zip.ZipEntry;
 
-import cn.taketoday.framework.web.embedded.undertow.JarResourceManager;
 import cn.taketoday.util.FileCopyUtils;
 import io.undertow.server.handlers.resource.Resource;
 import io.undertow.server.handlers.resource.ResourceManager;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Tests for {@link JarResourceManager}.

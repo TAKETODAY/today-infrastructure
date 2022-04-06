@@ -23,8 +23,6 @@ package cn.taketoday.framework.web.server;
 import org.apache.coyote.http11.Http11NioProtocol;
 import org.junit.jupiter.api.Test;
 
-import cn.taketoday.framework.web.server.Compression;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**

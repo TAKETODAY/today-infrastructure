@@ -32,10 +32,6 @@ import java.util.List;
 import java.util.Map;
 
 import cn.taketoday.beans.factory.BeanFactory;
-import cn.taketoday.beans.factory.ListableBeanFactory;
-import cn.taketoday.framework.web.server.WebServerFactory;
-import cn.taketoday.framework.web.server.WebServerFactoryCustomizer;
-import cn.taketoday.framework.web.server.WebServerFactoryCustomizerBeanPostProcessor;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
@@ -53,7 +49,7 @@ class WebServerFactoryCustomizerBeanPostProcessorTests {
   private WebServerFactoryCustomizerBeanPostProcessor processor = new WebServerFactoryCustomizerBeanPostProcessor();
 
   @Mock
-  private ListableBeanFactory beanFactory;
+  private BeanFactory beanFactory;
 
   @BeforeEach
   void setup() {

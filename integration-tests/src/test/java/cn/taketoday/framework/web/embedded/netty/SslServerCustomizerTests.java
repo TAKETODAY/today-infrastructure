@@ -24,7 +24,6 @@ import org.junit.jupiter.api.Test;
 
 import java.security.NoSuchProviderException;
 
-import cn.taketoday.framework.web.embedded.netty.SslServerCustomizer;
 import cn.taketoday.framework.web.server.Ssl;
 import cn.taketoday.framework.web.server.WebServerException;
 

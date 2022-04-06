@@ -23,7 +23,6 @@ package cn.taketoday.framework.web.reactive.context;
 import org.junit.jupiter.api.Test;
 
 import cn.taketoday.core.io.Resource;
-import cn.taketoday.framework.web.reactive.context.GenericReactiveWebApplicationContext;
 
 /**
  * Tests for {@link GenericReactiveWebApplicationContext}

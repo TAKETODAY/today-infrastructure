@@ -27,7 +27,6 @@ import java.io.InputStream;
 import java.util.Properties;
 import java.util.Set;
 
-import cn.taketoday.framework.web.embedded.tomcat.TldPatterns;
 import cn.taketoday.util.StringUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;

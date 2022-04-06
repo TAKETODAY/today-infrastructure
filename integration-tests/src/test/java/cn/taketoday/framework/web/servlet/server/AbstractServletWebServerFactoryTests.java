@@ -99,12 +99,10 @@ import javax.net.ssl.SSLException;
 import cn.taketoday.core.io.ClassPathResource;
 import cn.taketoday.core.io.FileSystemResource;
 import cn.taketoday.core.io.Resource;
-import cn.taketoday.framework.system.ApplicationHome;
-import cn.taketoday.framework.system.ApplicationTemp;
-import cn.taketoday.framework.testsupport.system.CapturedOutput;
-import cn.taketoday.framework.testsupport.system.OutputCaptureExtension;
-import cn.taketoday.framework.testsupport.web.servlet.ExampleFilter;
-import cn.taketoday.framework.testsupport.web.servlet.ExampleServlet;
+import cn.taketoday.framework.ApplicationHome;
+import cn.taketoday.framework.ApplicationTemp;
+import cn.taketoday.framework.test.system.CapturedOutput;
+import cn.taketoday.framework.test.system.OutputCaptureExtension;
 import cn.taketoday.framework.web.server.Compression;
 import cn.taketoday.framework.web.server.Cookie.SameSite;
 import cn.taketoday.framework.web.server.ErrorPage;
@@ -112,6 +110,7 @@ import cn.taketoday.framework.web.server.GracefulShutdownResult;
 import cn.taketoday.framework.web.server.Http2;
 import cn.taketoday.framework.web.server.MimeMappings;
 import cn.taketoday.framework.web.server.PortInUseException;
+import cn.taketoday.framework.web.server.Shutdown;
 import cn.taketoday.framework.web.server.Ssl;
 import cn.taketoday.framework.web.server.Ssl.ClientAuth;
 import cn.taketoday.framework.web.server.SslStoreProvider;
@@ -127,6 +126,8 @@ import cn.taketoday.http.client.ClientHttpRequest;
 import cn.taketoday.http.client.ClientHttpResponse;
 import cn.taketoday.http.client.HttpComponentsClientHttpRequestFactory;
 import cn.taketoday.test.util.ReflectionTestUtils;
+import cn.taketoday.test.web.servlet.ExampleFilter;
+import cn.taketoday.test.web.servlet.ExampleServlet;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.FileCopyUtils;
 import cn.taketoday.util.StreamUtils;
@@ -667,7 +668,7 @@ public abstract class AbstractServletWebServerFactoryTests {
     this.webServer = factory.getWebServer(exampleServletRegistration());
     this.webServer.start();
     ClientHttpResponse response = getClientResponse(
-            getLocalUrl("/org/springframework/boot/SpringApplication.class"));
+            getLocalUrl("/cn/taketoday/boot/Application.class"));
     assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
   }
 

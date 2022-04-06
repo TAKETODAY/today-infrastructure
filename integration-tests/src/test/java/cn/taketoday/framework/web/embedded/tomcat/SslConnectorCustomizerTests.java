@@ -43,9 +43,8 @@ import java.util.stream.Collectors;
 
 import cn.taketoday.core.io.ClassPathResource;
 import cn.taketoday.core.io.Resource;
-import cn.taketoday.framework.testsupport.system.CapturedOutput;
-import cn.taketoday.framework.testsupport.system.OutputCaptureExtension;
-import cn.taketoday.framework.web.embedded.tomcat.SslConnectorCustomizer;
+import cn.taketoday.framework.test.system.CapturedOutput;
+import cn.taketoday.framework.test.system.OutputCaptureExtension;
 import cn.taketoday.framework.web.server.Ssl;
 import cn.taketoday.framework.web.server.SslStoreProvider;
 import cn.taketoday.framework.web.server.WebServerException;
