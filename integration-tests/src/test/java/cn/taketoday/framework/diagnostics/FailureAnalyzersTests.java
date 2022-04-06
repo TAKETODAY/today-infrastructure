@@ -27,15 +27,12 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import java.util.Arrays;
 
 import cn.taketoday.beans.factory.BeanFactory;
-import cn.taketoday.beans.factory.BeanFactoryAware;
 import cn.taketoday.context.annotation.AnnotationConfigApplicationContext;
-import cn.taketoday.context.aware.EnvironmentAware;
 import cn.taketoday.core.env.Environment;
 import cn.taketoday.framework.test.system.CapturedOutput;
 import cn.taketoday.framework.test.system.OutputCaptureExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.same;
 import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -85,19 +82,9 @@ class FailureAnalyzersTests {
   }
 
   @Test
-  void beanFactoryIsInjectedIntoBeanFactoryAwareFailureAnalyzers(CapturedOutput output) {
-    RuntimeException failure = new RuntimeException();
-    analyzeAndReport(failure, BasicFailureAnalyzer.class.getName(), StandardAwareFailureAnalyzer.class.getName());
-    then(failureAnalyzer).should().setBeanFactory(same(this.context.getBeanFactory()));
-    assertThat(output).contains("FailureAnalyzers [" + StandardAwareFailureAnalyzer.class.getName()
-            + "] implement BeanFactoryAware or EnvironmentAware.");
-  }
-
-  @Test
   void environmentIsInjectedIntoEnvironmentAwareFailureAnalyzers() {
     RuntimeException failure = new RuntimeException();
     analyzeAndReport(failure, BasicFailureAnalyzer.class.getName(), StandardAwareFailureAnalyzer.class.getName());
-    then(failureAnalyzer).should().setEnvironment(same(this.context.getEnvironment()));
   }
 
   @Test
@@ -112,15 +99,6 @@ class FailureAnalyzersTests {
   void analyzerThatFailsDuringAnalysisDoesNotPreventOtherAnalyzersFromBeingCalled() {
     RuntimeException failure = new RuntimeException();
     analyzeAndReport(failure, BrokenAnalysisFailureAnalyzer.class.getName(), BasicFailureAnalyzer.class.getName());
-    then(failureAnalyzer).should().analyze(failure);
-  }
-
-  @Test
-  void createWithNullContextSkipsAwareAnalyzers() {
-    RuntimeException failure = new RuntimeException();
-    analyzeAndReport(failure, (AnnotationConfigApplicationContext) null, BasicFailureAnalyzer.class.getName(),
-            BeanFactoryConstructorFailureAnalyzer.class.getName(),
-            EnvironmentConstructorFailureAnalyzer.class.getName(), StandardAwareFailureAnalyzer.class.getName());
     then(failureAnalyzer).should().analyze(failure);
   }
 
@@ -181,21 +159,11 @@ class FailureAnalyzersTests {
 
   }
 
-  interface AwareFailureAnalyzer extends BeanFactoryAware, EnvironmentAware, FailureAnalyzer {
+  interface AwareFailureAnalyzer extends FailureAnalyzer {
 
   }
 
   static class StandardAwareFailureAnalyzer extends BasicFailureAnalyzer implements AwareFailureAnalyzer {
-
-    @Override
-    public void setEnvironment(Environment environment) {
-      failureAnalyzer.setEnvironment(environment);
-    }
-
-    @Override
-    public void setBeanFactory(BeanFactory beanFactory) {
-      failureAnalyzer.setBeanFactory(beanFactory);
-    }
 
   }
 

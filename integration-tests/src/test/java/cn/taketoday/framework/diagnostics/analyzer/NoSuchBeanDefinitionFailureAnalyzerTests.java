@@ -29,6 +29,7 @@ import cn.taketoday.beans.FatalBeanException;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.NoUniqueBeanDefinitionException;
 import cn.taketoday.beans.factory.annotation.Qualifier;
+import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.context.annotation.AnnotationConfigApplicationContext;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
@@ -155,7 +156,7 @@ class NoSuchBeanDefinitionFailureAnalyzerTests {
   void failureAnalysisForUnmatchedQualifier() {
     FailureAnalysis analysis = analyzeFailure(createFailure(QualifiedBeanConfiguration.class));
     assertThat(analysis.getDescription())
-            .containsPattern("@org.springframework.beans.factory.annotation.Qualifier\\(\"*alpha\"*\\)");
+            .containsPattern("@cn.taketoday.beans.factory.annotation.Qualifier\\(\"*alpha\"*\\)");
   }
 
   private void assertDescriptionConstructorMissingType(FailureAnalysis analysis, Class<?> component, int index,
@@ -224,6 +225,9 @@ class NoSuchBeanDefinitionFailureAnalyzerTests {
   }
 
   private FailureAnalysis analyzeFailure(Exception failure) {
+    if (analyzer == null) {
+      analyzer = new NoSuchBeanDefinitionFailureAnalyzer(new StandardBeanFactory());
+    }
     FailureAnalysis analysis = this.analyzer.analyze(failure);
     if (analysis != null) {
       new LoggingFailureAnalysisReporter().report(analysis);
