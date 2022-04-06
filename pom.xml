@@ -57,16 +57,15 @@
     </license>
   </licenses>
 
-
   <url>https://github.com/TAKETODAY/today-framework</url>
   <organization>
-    <name>TODAY</name>
+    <name>TODAY Tech</name>
     <url>https://taketoday.cn</url>
   </organization>
 
   <developers>
     <developer>
-      <name>TODAY</name>
+      <name>Harry Yang</name>
       <url>https://taketoday.cn</url>
       <email>taketoday@foxmail.com</email>
     </developer>
@@ -74,7 +73,7 @@
 
   <scm>
     <url>https://github.com/TAKETODAY/today-framework.git</url>
-    <developerConnection>TODAY</developerConnection>
+    <developerConnection>Harry Yang</developerConnection>
     <tag>dependency-injection, aspect-oriented-programing, web-framework</tag>
   </scm>
 
