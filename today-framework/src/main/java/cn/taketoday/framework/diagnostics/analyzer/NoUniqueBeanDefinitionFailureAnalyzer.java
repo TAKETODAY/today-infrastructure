@@ -22,15 +22,11 @@ package cn.taketoday.framework.diagnostics.analyzer;
 
 import java.util.Collection;
 
-import cn.taketoday.beans.BeansException;
-import cn.taketoday.beans.factory.BeanFactory;
-import cn.taketoday.beans.factory.BeanFactoryAware;
 import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
 import cn.taketoday.beans.factory.NoUniqueBeanDefinitionException;
 import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
 import cn.taketoday.framework.diagnostics.FailureAnalysis;
-import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.StringUtils;
 
@@ -43,15 +39,12 @@ import cn.taketoday.util.StringUtils;
  * @since 4.0
  */
 class NoUniqueBeanDefinitionFailureAnalyzer
-        extends AbstractInjectionFailureAnalyzer<NoUniqueBeanDefinitionException> implements BeanFactoryAware {
+        extends AbstractInjectionFailureAnalyzer<NoUniqueBeanDefinitionException> {
 
-  @Nullable
-  private ConfigurableBeanFactory beanFactory;
+  private final ConfigurableBeanFactory beanFactory;
 
-  @Override
-  public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
-    Assert.isInstanceOf(ConfigurableBeanFactory.class, beanFactory);
-    this.beanFactory = (ConfigurableBeanFactory) beanFactory;
+  public NoUniqueBeanDefinitionFailureAnalyzer(ConfigurableBeanFactory beanFactory) {
+    this.beanFactory = beanFactory;
   }
 
   @Override
@@ -65,13 +58,10 @@ class NoUniqueBeanDefinitionFailureAnalyzer
     if (beanNames == null) {
       return null;
     }
-    ConfigurableBeanFactory beanFactory = this.beanFactory;
-    Assert.state(beanFactory != null, "No BeanFactory available");
-
     StringBuilder message = new StringBuilder();
     message.append(String.format("%s required a single bean, but %d were found:%n", description, beanNames.length));
     for (String beanName : beanNames) {
-      buildMessage(message, beanName, beanFactory);
+      buildMessage(message, beanName);
     }
     return new FailureAnalysis(message.toString(),
             "Consider marking one of the beans as @Primary, updating the consumer to"
@@ -79,8 +69,7 @@ class NoUniqueBeanDefinitionFailureAnalyzer
                     + " bean that should be consumed", cause);
   }
 
-  private void buildMessage(StringBuilder message, String beanName, ConfigurableBeanFactory beanFactory) {
-
+  private void buildMessage(StringBuilder message, String beanName) {
     try {
       BeanDefinition definition = beanFactory.getMergedBeanDefinition(beanName);
       message.append(getDefinitionDescription(beanName, definition));

@@ -46,7 +46,7 @@ import static org.junit.jupiter.api.Assertions.fail;
  */
 class BeanCurrentlyInCreationFailureAnalyzerTests {
 
-  private final BeanCurrentlyInCreationFailureAnalyzer analyzer = new BeanCurrentlyInCreationFailureAnalyzer();
+  private BeanCurrentlyInCreationFailureAnalyzer analyzer = new BeanCurrentlyInCreationFailureAnalyzer(null);
 
   @Test
   void cyclicBeanMethods() throws IOException {
@@ -153,7 +153,8 @@ class BeanCurrentlyInCreationFailureAnalyzerTests {
   }
 
   private FailureAnalysis performAnalysis(Class<?> configuration, boolean allowCircularReferences) {
-    FailureAnalysis analysis = this.analyzer.analyze(createFailure(configuration, allowCircularReferences));
+    Exception failure = createFailure(configuration, allowCircularReferences);
+    FailureAnalysis analysis = this.analyzer.analyze(failure);
     assertThat(analysis).isNotNull();
     return analysis;
   }
@@ -161,9 +162,8 @@ class BeanCurrentlyInCreationFailureAnalyzerTests {
   private Exception createFailure(Class<?> configuration, boolean allowCircularReferences) {
     try (AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext()) {
       context.register(configuration);
-      AbstractAutowireCapableBeanFactory beanFactory = (AbstractAutowireCapableBeanFactory) context
-              .getBeanFactory();
-      this.analyzer.setBeanFactory(beanFactory);
+      AbstractAutowireCapableBeanFactory beanFactory = context.getBeanFactory();
+      this.analyzer = new BeanCurrentlyInCreationFailureAnalyzer(beanFactory);
       beanFactory.setAllowCircularReferences(allowCircularReferences);
       context.refresh();
       fail("Expected failure did not occur");
@@ -174,7 +174,7 @@ class BeanCurrentlyInCreationFailureAnalyzerTests {
     }
   }
 
-  @cn.taketoday.context.annotation.Configuration(proxyBeanMethods = false)
+  @Configuration(proxyBeanMethods = false)
   static class CyclicBeanMethodsConfiguration {
 
     @Bean
@@ -182,7 +182,7 @@ class BeanCurrentlyInCreationFailureAnalyzerTests {
       return new BeanThree();
     }
 
-    @cn.taketoday.context.annotation.Configuration(proxyBeanMethods = false)
+    @Configuration(proxyBeanMethods = false)
     static class InnerConfiguration {
 
       @Bean
@@ -244,7 +244,7 @@ class BeanCurrentlyInCreationFailureAnalyzerTests {
 
   }
 
-  @cn.taketoday.context.annotation.Configuration(proxyBeanMethods = false)
+  @Configuration(proxyBeanMethods = false)
   static class CycleWithAutowiredFields {
 
     @Bean
@@ -252,7 +252,7 @@ class BeanCurrentlyInCreationFailureAnalyzerTests {
       return new BeanOne();
     }
 
-    @cn.taketoday.context.annotation.Configuration(proxyBeanMethods = false)
+    @Configuration(proxyBeanMethods = false)
     static class BeanTwoConfiguration {
 
       @SuppressWarnings("unused")
@@ -266,7 +266,7 @@ class BeanCurrentlyInCreationFailureAnalyzerTests {
 
     }
 
-    @cn.taketoday.context.annotation.Configuration(proxyBeanMethods = false)
+    @Configuration(proxyBeanMethods = false)
     static class BeanThreeConfiguration {
 
       @Bean

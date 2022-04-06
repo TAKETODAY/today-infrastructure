@@ -24,11 +24,9 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import cn.taketoday.context.aware.EnvironmentAware;
 import cn.taketoday.context.properties.source.ConfigurationPropertySources;
 import cn.taketoday.context.properties.source.InvalidConfigurationPropertyValueException;
 import cn.taketoday.core.env.ConfigurableEnvironment;
-import cn.taketoday.core.env.Environment;
 import cn.taketoday.core.env.PropertySource;
 import cn.taketoday.framework.diagnostics.AbstractFailureAnalyzer;
 import cn.taketoday.framework.diagnostics.FailureAnalysis;
@@ -47,14 +45,12 @@ import cn.taketoday.util.StringUtils;
  * @since 4.0
  */
 class InvalidConfigurationPropertyValueFailureAnalyzer
-        extends AbstractFailureAnalyzer<InvalidConfigurationPropertyValueException> implements EnvironmentAware {
+        extends AbstractFailureAnalyzer<InvalidConfigurationPropertyValueException> {
 
-  @Nullable
-  private ConfigurableEnvironment environment;
+  private final ConfigurableEnvironment environment;
 
-  @Override
-  public void setEnvironment(Environment environment) {
-    this.environment = (ConfigurableEnvironment) environment;
+  public InvalidConfigurationPropertyValueFailureAnalyzer(ConfigurableEnvironment environment) {
+    this.environment = environment;
   }
 
   @Override
@@ -81,12 +77,13 @@ class InvalidConfigurationPropertyValueFailureAnalyzer
     if (this.environment == null) {
       return Stream.empty();
     }
-    return this.environment.getPropertySources().stream()
+    return this.environment.getPropertySources()
+            .stream()
             .filter((source) -> !ConfigurationPropertySources.isAttachedConfigurationPropertySource(source));
   }
 
   private void appendDetails(StringBuilder message, InvalidConfigurationPropertyValueException cause,
-                             List<Descriptor> descriptors) {
+          List<Descriptor> descriptors) {
     Descriptor mainDescriptor = descriptors.get(0);
     message.append("Invalid value '").append(mainDescriptor.getValue()).append("' for configuration property '");
     message.append(cause.getName()).append("'");

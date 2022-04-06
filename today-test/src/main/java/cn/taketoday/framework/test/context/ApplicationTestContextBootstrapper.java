@@ -171,7 +171,7 @@ public class ApplicationTestContextBootstrapper extends DefaultTestContextBootst
     ConfigurationPropertySource source = new MapConfigurationPropertySource(
             TestPropertySourceUtils.convertInlinedPropertiesToMap(configuration.getPropertySourceProperties()));
     Binder binder = new Binder(source);
-    return binder.bind("context.main.web-application-type", Bindable.of(ApplicationType.class))
+    return binder.bind("context.main.application-type", Bindable.of(ApplicationType.class))
             .orElseGet(this::deduceWebApplicationType);
   }
 

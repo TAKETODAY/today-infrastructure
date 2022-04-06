@@ -25,10 +25,10 @@ import org.junit.jupiter.api.Test;
 import java.util.Collections;
 
 import cn.taketoday.context.properties.source.InvalidConfigurationPropertyValueException;
-import cn.taketoday.context.support.MockEnvironment;
 import cn.taketoday.core.env.EnumerablePropertySource;
 import cn.taketoday.core.env.MapPropertySource;
 import cn.taketoday.framework.diagnostics.FailureAnalysis;
+import cn.taketoday.mock.env.MockEnvironment;
 import cn.taketoday.origin.Origin;
 import cn.taketoday.origin.OriginLookup;
 
@@ -47,7 +47,7 @@ class InvalidConfigurationPropertyValueFailureAnalyzerTests {
   void analysisWithNullEnvironment() {
     InvalidConfigurationPropertyValueException failure = new InvalidConfigurationPropertyValueException(
             "test.property", "invalid", "This is not valid.");
-    FailureAnalysis analysis = new InvalidConfigurationPropertyValueFailureAnalyzer().analyze(failure);
+    FailureAnalysis analysis = new InvalidConfigurationPropertyValueFailureAnalyzer(environment).analyze(failure);
     assertThat(analysis).isNull();
   }
 
@@ -110,8 +110,7 @@ class InvalidConfigurationPropertyValueFailureAnalyzerTests {
   }
 
   private FailureAnalysis performAnalysis(InvalidConfigurationPropertyValueException failure) {
-    InvalidConfigurationPropertyValueFailureAnalyzer analyzer = new InvalidConfigurationPropertyValueFailureAnalyzer();
-    analyzer.setEnvironment(this.environment);
+    InvalidConfigurationPropertyValueFailureAnalyzer analyzer = new InvalidConfigurationPropertyValueFailureAnalyzer(environment);
     return analyzer.analyze(failure);
   }
 

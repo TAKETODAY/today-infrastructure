@@ -37,9 +37,7 @@ public final class LoggingFailureAnalysisReporter implements FailureAnalysisRepo
 
   @Override
   public void report(FailureAnalysis failureAnalysis) {
-    if (logger.isDebugEnabled()) {
-      logger.debug("Application failed to start due to an exception", failureAnalysis.getCause());
-    }
+    logger.debug("Application failed to start due to an exception", failureAnalysis.getCause());
     if (logger.isErrorEnabled()) {
       logger.error(buildMessage(failureAnalysis));
     }

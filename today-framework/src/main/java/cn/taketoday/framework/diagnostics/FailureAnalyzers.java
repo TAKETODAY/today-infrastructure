@@ -21,12 +21,10 @@
 package cn.taketoday.framework.diagnostics;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 import cn.taketoday.beans.factory.BeanFactory;
-import cn.taketoday.beans.factory.BeanFactoryAware;
+import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.ConfigurableApplicationContext;
-import cn.taketoday.context.aware.EnvironmentAware;
 import cn.taketoday.core.env.Environment;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.lang.TodayStrategies;
@@ -34,7 +32,6 @@ import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.Instantiator;
 import cn.taketoday.util.Instantiator.FailureHandler;
-import cn.taketoday.util.StringUtils;
 
 /**
  * Utility to trigger {@link FailureAnalyzer} and {@link FailureAnalysisReporter}
@@ -79,43 +76,12 @@ final class FailureAnalyzers implements ApplicationExceptionReporter {
     var instantiator = new Instantiator<FailureAnalyzer>(FailureAnalyzer.class,
             parameters -> {
               if (context != null) {
+                parameters.add(ApplicationContext.class, context);
                 parameters.add(BeanFactory.class, context.getBeanFactory());
                 parameters.add(Environment.class, context.getEnvironment());
               }
             }, new LoggingInstantiationFailureHandler());
-    List<FailureAnalyzer> analyzers = instantiator.instantiate(classLoader, classNames);
-    return handleAwareAnalyzers(analyzers, context);
-  }
-
-  private List<FailureAnalyzer> handleAwareAnalyzers(
-          List<FailureAnalyzer> analyzers, @Nullable ConfigurableApplicationContext context) {
-    List<FailureAnalyzer> awareAnalyzers = analyzers.stream()
-            .filter((analyzer) -> analyzer instanceof BeanFactoryAware || analyzer instanceof EnvironmentAware)
-            .toList();
-    if (!awareAnalyzers.isEmpty()) {
-      String awareAnalyzerNames = StringUtils.collectionToCommaDelimitedString(awareAnalyzers.stream()
-              .map((analyzer) -> analyzer.getClass().getName()).collect(Collectors.toList()));
-      logger.warn("FailureAnalyzers [{}] implement BeanFactoryAware or EnvironmentAware."
-                      + "Support for these interfaces on FailureAnalyzers is deprecated, "
-                      + "and will be removed in a future release."
-                      + "Instead provide a constructor that accepts BeanFactory or Environment parameters.",
-              awareAnalyzerNames);
-
-      if (context == null) {
-        logger.trace("Skipping [{}] due to missing context", awareAnalyzerNames);
-        return analyzers.stream().filter((analyzer) -> !awareAnalyzers.contains(analyzer))
-                .collect(Collectors.toList());
-      }
-      for (FailureAnalyzer analyzer : awareAnalyzers) {
-        if (analyzer instanceof BeanFactoryAware) {
-          ((BeanFactoryAware) analyzer).setBeanFactory(context.getBeanFactory());
-        }
-        if (analyzer instanceof EnvironmentAware) {
-          ((EnvironmentAware) analyzer).setEnvironment(context.getEnvironment());
-        }
-      }
-    }
-    return analyzers;
+    return instantiator.instantiate(classLoader, classNames);
   }
 
   @Override
@@ -141,9 +107,11 @@ final class FailureAnalyzers implements ApplicationExceptionReporter {
   }
 
   private boolean report(@Nullable FailureAnalysis analysis, @Nullable ClassLoader classLoader) {
-    List<FailureAnalysisReporter> reporters = TodayStrategies.get(
-            FailureAnalysisReporter.class, classLoader);
-    if (analysis == null || reporters.isEmpty()) {
+    if (analysis == null) {
+      return false;
+    }
+    List<FailureAnalysisReporter> reporters = TodayStrategies.get(FailureAnalysisReporter.class, classLoader);
+    if (reporters.isEmpty()) {
       return false;
     }
     for (FailureAnalysisReporter reporter : reporters) {

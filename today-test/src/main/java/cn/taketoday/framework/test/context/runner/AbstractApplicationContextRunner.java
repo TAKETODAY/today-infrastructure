@@ -46,8 +46,8 @@ import cn.taketoday.core.io.DefaultResourceLoader;
 import cn.taketoday.framework.test.context.FilteredClassLoader;
 import cn.taketoday.framework.test.context.assertj.ApplicationContextAssert;
 import cn.taketoday.framework.test.context.assertj.ApplicationContextAssertProvider;
-import cn.taketoday.framework.test.util.TestPropertyValues;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.test.util.TestPropertyValues;
 import cn.taketoday.util.ExceptionUtils;
 
 /**

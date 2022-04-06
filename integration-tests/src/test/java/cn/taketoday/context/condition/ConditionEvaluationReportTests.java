@@ -42,7 +42,7 @@ import cn.taketoday.context.annotation.Import;
 import cn.taketoday.context.condition.ConditionEvaluationReport.ConditionAndOutcome;
 import cn.taketoday.context.condition.ConditionEvaluationReport.ConditionAndOutcomes;
 import cn.taketoday.core.type.AnnotatedTypeMetadata;
-import cn.taketoday.framework.test.util.TestPropertyValues;
+import cn.taketoday.test.util.TestPropertyValues;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.web.config.WebMvcAutoConfiguration;
 
