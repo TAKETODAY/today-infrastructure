@@ -44,10 +44,12 @@ import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.ApplicationContextInitializer;
 import cn.taketoday.context.ApplicationListener;
 import cn.taketoday.context.ConfigurableApplicationContext;
+import cn.taketoday.context.annotation.AnnotationConfigUtils;
 import cn.taketoday.context.properties.bind.Bindable;
 import cn.taketoday.context.properties.bind.Binder;
 import cn.taketoday.context.properties.source.ConfigurationPropertySources;
 import cn.taketoday.context.support.AbstractApplicationContext;
+import cn.taketoday.context.support.GenericApplicationContext;
 import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
 import cn.taketoday.core.env.CommandLinePropertySource;
 import cn.taketoday.core.env.CompositePropertySource;
@@ -135,7 +137,7 @@ import cn.taketoday.util.StringUtils;
  * @since 4.0
  */
 public class Application {
-  public static final String PROPERTIES_BINDER_PREFIX = "today.main";
+  public static final String PROPERTIES_BINDER_PREFIX = "context.main";
   private static final String SYSTEM_PROPERTY_JAVA_AWT_HEADLESS = "java.awt.headless";
   protected final Logger log = LoggerFactory.getLogger(getClass());
 
@@ -409,12 +411,11 @@ public class Application {
     bindToApplication(environment);
 
     if (!this.isCustomEnvironment) {
-      environment = new EnvironmentConverter(getClassLoader()).convertIfNecessary(
-              environment, switch (applicationType) {
-                case SERVLET_WEB -> ApplicationServletEnvironment.class;
-                case REACTIVE_WEB -> ApplicationReactiveWebEnvironment.class;
-                default -> ApplicationEnvironment.class;
-              });
+      environment = EnvironmentConverter.convertIfNecessary(getClassLoader(), environment, switch (applicationType) {
+        case SERVLET_WEB -> ApplicationServletEnvironment.class;
+        case REACTIVE_WEB -> ApplicationReactiveWebEnvironment.class;
+        default -> ApplicationEnvironment.class;
+      });
     }
 
     ConfigurationPropertySources.attach(environment);
@@ -574,7 +575,18 @@ public class Application {
    * @param context the application context
    */
   protected void postProcessApplicationContext(ConfigurableApplicationContext context) {
-
+    if (this.beanNameGenerator != null) {
+      context.getBeanFactory().registerSingleton(AnnotationConfigUtils.CONFIGURATION_BEAN_NAME_GENERATOR,
+              this.beanNameGenerator);
+    }
+    if (this.resourceLoader != null) {
+      if (context instanceof GenericApplicationContext) {
+        ((GenericApplicationContext) context).setResourceLoader(this.resourceLoader);
+      }
+      if (context instanceof DefaultResourceLoader) {
+        ((DefaultResourceLoader) context).setClassLoader(this.resourceLoader.getClassLoader());
+      }
+    }
     if (this.addConversionService) {
       context.getBeanFactory().setConversionService(context.getEnvironment().getConversionService());
     }
@@ -1268,6 +1280,23 @@ public class Application {
    */
   public static ConfigurableApplicationContext run(Class<?>[] primarySources, String[] args) {
     return new Application(primarySources).run(args);
+  }
+
+  /**
+   * A basic main that can be used to launch an application. This method is useful when
+   * application sources are defined via a {@literal --context.main.sources} command line
+   * argument.
+   * <p>
+   * Most developers will want to define their own main method and call the
+   * {@link #run(Class, String...) run} method instead.
+   *
+   * @param args command line arguments
+   * @throws Exception if the application cannot be started
+   * @see Application#run(Class[], String[])
+   * @see Application#run(Class, String...)
+   */
+  public static void main(String[] args) throws Exception {
+    Application.run(new Class<?>[0], args);
   }
 
   /**

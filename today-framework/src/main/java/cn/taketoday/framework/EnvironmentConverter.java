@@ -50,18 +50,6 @@ final class EnvironmentConverter {
           StandardServletEnvironment.JNDI_PROPERTY_SOURCE_NAME
   );
 
-  private final ClassLoader classLoader;
-
-  /**
-   * Creates a new {@link EnvironmentConverter} that will use the given
-   * {@code classLoader} during conversion.
-   *
-   * @param classLoader the class loader to use
-   */
-  EnvironmentConverter(ClassLoader classLoader) {
-    this.classLoader = classLoader;
-  }
-
   /**
    * Converts the given {@code environment} to the given {@link StandardEnvironment}
    * type. If the environment is already of the same type, no conversion is performed
@@ -71,23 +59,23 @@ final class EnvironmentConverter {
    * @param type the type to convert the Environment to
    * @return the converted Environment
    */
-  StandardEnvironment convertIfNecessary(ConfigurableEnvironment environment, Class<? extends StandardEnvironment> type) {
+  static StandardEnvironment convertIfNecessary(ClassLoader classLoader, ConfigurableEnvironment environment, Class<? extends StandardEnvironment> type) {
     if (type.equals(environment.getClass())) {
       return (StandardEnvironment) environment;
     }
-    return convertEnvironment(environment, type);
+    return convertEnvironment(classLoader, environment, type);
   }
 
-  private StandardEnvironment convertEnvironment(ConfigurableEnvironment environment,
-          Class<? extends StandardEnvironment> type) {
+  static StandardEnvironment convertEnvironment(ClassLoader classLoader,
+          ConfigurableEnvironment environment, Class<? extends StandardEnvironment> type) {
     StandardEnvironment result = createEnvironment(type);
     result.setActiveProfiles(environment.getActiveProfiles());
     result.setConversionService(environment.getConversionService());
-    copyPropertySources(environment, result);
+    copyPropertySources(environment, result, classLoader);
     return result;
   }
 
-  private StandardEnvironment createEnvironment(Class<? extends StandardEnvironment> type) {
+  static StandardEnvironment createEnvironment(Class<? extends StandardEnvironment> type) {
     try {
       return type.getDeclaredConstructor().newInstance();
     }
@@ -96,8 +84,8 @@ final class EnvironmentConverter {
     }
   }
 
-  private void copyPropertySources(ConfigurableEnvironment source, StandardEnvironment target) {
-    removePropertySources(target.getPropertySources(), isServletEnvironment(target.getClass(), this.classLoader));
+  static void copyPropertySources(ConfigurableEnvironment source, StandardEnvironment target, ClassLoader classLoader) {
+    removePropertySources(target.getPropertySources(), isServletEnvironment(target.getClass(), classLoader));
     for (PropertySource<?> propertySource : source.getPropertySources()) {
       if (!SERVLET_ENVIRONMENT_SOURCE_NAMES.contains(propertySource.getName())) {
         target.getPropertySources().addLast(propertySource);
@@ -105,7 +93,7 @@ final class EnvironmentConverter {
     }
   }
 
-  private boolean isServletEnvironment(Class<?> conversionType, ClassLoader classLoader) {
+  static boolean isServletEnvironment(Class<?> conversionType, ClassLoader classLoader) {
     try {
       Class<?> webEnvironmentClass = ClassUtils.forName(CONFIGURABLE_WEB_ENVIRONMENT_CLASS, classLoader);
       return webEnvironmentClass.isAssignableFrom(conversionType);
@@ -115,8 +103,8 @@ final class EnvironmentConverter {
     }
   }
 
-  private void removePropertySources(PropertySources propertySources, boolean isServletEnvironment) {
-    Set<String> names = new HashSet<>();
+  static void removePropertySources(PropertySources propertySources, boolean isServletEnvironment) {
+    HashSet<String> names = new HashSet<>();
     for (PropertySource<?> propertySource : propertySources) {
       names.add(propertySource.getName());
     }
