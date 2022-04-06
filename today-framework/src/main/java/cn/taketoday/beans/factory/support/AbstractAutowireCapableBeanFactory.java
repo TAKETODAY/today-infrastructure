@@ -1602,8 +1602,17 @@ public abstract class AbstractAutowireCapableBeanFactory
         return result;
       }
       result = getFactoryBeanGeneric(beanType);
-      if (result.resolve() != null) {
-        return result;
+      Class<?> resolved = result.resolve();
+      if (resolved != null) {
+        if (resolved == Object.class) {
+          if (!allowInit) {
+            // initialization not allowed, so return Object.class
+            return result;
+          }
+        }
+        else {
+          return result;
+        }
       }
     }
 
