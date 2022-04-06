@@ -53,6 +53,30 @@
     </dependency>
 
     <dependency>
+      <groupId>org.aspectj</groupId>
+      <artifactId>aspectjrt</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.aspectj</groupId>
+      <artifactId>aspectjweaver</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>jakarta.servlet</groupId>
+      <artifactId>jakarta.servlet-api</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.aspectj</groupId>
+      <artifactId>aspectjtools</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
       <groupId>cn.taketoday</groupId>
       <artifactId>today-test</artifactId>
       <scope>test</scope>
