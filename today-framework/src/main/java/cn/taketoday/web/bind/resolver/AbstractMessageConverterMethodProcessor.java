@@ -245,11 +245,11 @@ public abstract class AbstractMessageConverterMethodProcessor
         }
       }
       if (mediaTypesToUse.isEmpty()) {
-        if (body != null) {
-          throw new HttpMediaTypeNotAcceptableException(producibleTypes);
-        }
         if (log.isDebugEnabled()) {
           log.debug("No match for {}, supported: {}", acceptableTypes, producibleTypes);
+        }
+        if (body != null) {
+          throw new HttpMediaTypeNotAcceptableException(producibleTypes);
         }
         return;
       }
