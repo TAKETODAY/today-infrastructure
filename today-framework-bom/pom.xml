@@ -397,6 +397,12 @@
       </dependency>
 
       <dependency>
+        <groupId>org.apache.tomcat.embed</groupId>
+        <artifactId>tomcat-embed-jasper</artifactId>
+        <version>${embed.tomcat.version}</version>
+      </dependency>
+
+      <dependency>
         <groupId>org.eclipse.jetty</groupId>
         <artifactId>jetty-webapp</artifactId>
         <version>${jetty.version}</version>
@@ -438,7 +444,6 @@
         <artifactId>jetty-alpn-server</artifactId>
         <version>${jetty.version}</version>
       </dependency>
-
 
       <!-- cache -->
 
@@ -589,6 +594,18 @@
       <dependency>
         <groupId>org.eclipse.jetty</groupId>
         <artifactId>jetty-client</artifactId>
+        <version>${jetty.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.eclipse.jetty.http2</groupId>
+        <artifactId>http2-client</artifactId>
+        <version>${jetty.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.eclipse.jetty.http2</groupId>
+        <artifactId>http2-http-client-transport</artifactId>
         <version>${jetty.version}</version>
       </dependency>
 
