@@ -10,7 +10,6 @@
   -->
 
   <aspects>
-    <aspect name="cn.taketoday.beans.factory.aspectj.AnnotationBeanConfigurerAspect" />
     <aspect name="cn.taketoday.scheduling.aspectj.AnnotationAsyncExecutionAspect" />
     <aspect name="cn.taketoday.transaction.aspectj.AnnotationTransactionAspect" />
     <aspect name="cn.taketoday.transaction.aspectj.JtaAnnotationTransactionAspect" />
