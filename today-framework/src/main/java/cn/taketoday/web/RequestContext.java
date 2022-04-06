@@ -523,7 +523,7 @@ public abstract class RequestContext implements InputStreamSource,
   @Override
   public final HttpMethod getMethod() {
     if (httpMethod == null) {
-      httpMethod = HttpMethod.from(getMethodValue());
+      httpMethod = HttpMethod.valueOf(getMethodValue());
     }
     return httpMethod;
   }

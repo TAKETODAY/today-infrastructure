@@ -78,13 +78,6 @@ public class RequestMethodsRequestConditionTests {
   }
 
   @Test
-  public void getMatchingConditionWithCustomMethod() {
-    HttpServletRequest request = new MockHttpServletRequest("PROPFIND", "");
-    assertThat(new RequestMethodsRequestCondition().getMatchingCondition(createContext(request))).isNotNull();
-    assertThat(new RequestMethodsRequestCondition(GET, POST).getMatchingCondition(createContext(request))).isNull();
-  }
-
-  @Test
   public void getMatchingConditionWithCorsPreFlight() throws Exception {
     MockHttpServletRequest request = new MockHttpServletRequest("OPTIONS", "");
     request.addHeader("Origin", "https://example.com");

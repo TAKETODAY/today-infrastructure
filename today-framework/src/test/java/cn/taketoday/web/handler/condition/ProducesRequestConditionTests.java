@@ -65,8 +65,9 @@ public class ProducesRequestConditionTests {
   @Test
   public void matchNegatedWithoutAcceptHeader() {
     ProducesRequestCondition condition = new ProducesRequestCondition("!text/plain");
+    MockHttpServletRequest request = new MockHttpServletRequest("GET", "/");
 
-    assertThat(condition.getMatchingCondition(createContext(new MockHttpServletRequest()))).isNotNull();
+    assertThat(condition.getMatchingCondition(createContext(request))).isNotNull();
     assertThat(condition.getProducibleMediaTypes()).isEqualTo(Collections.emptySet());
   }
 
@@ -164,7 +165,7 @@ public class ProducesRequestConditionTests {
     ProducesRequestCondition none = new ProducesRequestCondition(new String[0], null, manager);
     ProducesRequestCondition html = new ProducesRequestCondition(new String[] { "text/html" }, null, manager);
 
-    MockHttpServletRequest request = new MockHttpServletRequest();
+    MockHttpServletRequest request = new MockHttpServletRequest("GET", "/");
     request.addHeader("Accept", "*/*");
 
     ProducesRequestCondition noneMatch = none.getMatchingCondition(createContext(request));
@@ -363,7 +364,7 @@ public class ProducesRequestConditionTests {
   }
 
   private MockHttpServletRequest createRequest(String... headerValue) {
-    MockHttpServletRequest request = new MockHttpServletRequest();
+    MockHttpServletRequest request = new MockHttpServletRequest("GET", "/");
     Arrays.stream(headerValue).forEach(value -> request.addHeader("Accept", headerValue));
     return request;
   }
