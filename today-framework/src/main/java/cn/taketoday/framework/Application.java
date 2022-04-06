@@ -1060,7 +1060,7 @@ public class Application {
    * @param profiles the additional profiles to set
    */
   public void setAdditionalProfiles(String... profiles) {
-    this.additionalProfiles = Collections.unmodifiableSet(new LinkedHashSet<>(Arrays.asList(profiles)));
+    this.additionalProfiles = Collections.unmodifiableSet(CollectionUtils.newLinkedHashSet(profiles));
   }
 
   /**
