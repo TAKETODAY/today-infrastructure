@@ -51,9 +51,11 @@ import cn.taketoday.beans.factory.config.AutowireCapableBeanFactory;
 import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.config.DestructionAwareBeanPostProcessor;
 import cn.taketoday.beans.factory.config.NamedBeanHolder;
+import cn.taketoday.beans.factory.support.MergedBeanDefinitionPostProcessor;
+import cn.taketoday.beans.factory.support.RootBeanDefinition;
 import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.context.aware.ApplicationContextAware;
 import cn.taketoday.context.ApplicationListener;
+import cn.taketoday.context.aware.ApplicationContextAware;
 import cn.taketoday.context.event.ContextRefreshedEvent;
 import cn.taketoday.context.expression.EmbeddedValueResolverAware;
 import cn.taketoday.core.MethodIntrospector;
@@ -108,8 +110,9 @@ import cn.taketoday.util.StringUtils;
  * @see AsyncAnnotationBeanPostProcessor
  * @since 4.0
  */
-public class ScheduledAnnotationBeanPostProcessor implements ScheduledTaskHolder, Ordered, DestructionAwareBeanPostProcessor,
-        InitializationBeanPostProcessor, BeanNameAware, DisposableBean, BeanFactoryAware, ApplicationContextAware,
+public class ScheduledAnnotationBeanPostProcessor implements ScheduledTaskHolder, Ordered,
+        DestructionAwareBeanPostProcessor, InitializationBeanPostProcessor, BeanNameAware,
+        DisposableBean, BeanFactoryAware, ApplicationContextAware, MergedBeanDefinitionPostProcessor,
         EmbeddedValueResolverAware, SmartInitializingSingleton, ApplicationListener<ContextRefreshedEvent> {
 
   /**
@@ -333,6 +336,11 @@ public class ScheduledAnnotationBeanPostProcessor implements ScheduledTaskHolder
     else {
       return beanFactory.getBean(schedulerType);
     }
+  }
+
+  @Override
+  public void postProcessMergedBeanDefinition(RootBeanDefinition beanDefinition, Object bean, String beanName) {
+
   }
 
   @Override
