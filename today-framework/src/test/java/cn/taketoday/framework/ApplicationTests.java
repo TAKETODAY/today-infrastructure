@@ -41,7 +41,6 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
-
 import cn.taketoday.beans.CachedIntrospectionResults;
 import cn.taketoday.beans.factory.BeanCreationException;
 import cn.taketoday.beans.factory.BeanCurrentlyInCreationException;
@@ -312,15 +311,14 @@ class ApplicationTests {
   void customId() {
     Application application = new Application(ExampleConfig.class);
     application.setApplicationType(ApplicationType.NONE_WEB);
-    this.context = application.run("--spring.application.name=foo");
+    this.context = application.run("--application.name=foo");
     assertThat(this.context.getId()).startsWith("foo");
   }
 
   @Test
   void specificApplicationContextFactory() {
     Application application = new Application(ExampleConfig.class);
-    application
-            .setApplicationContextFactory(ApplicationContextFactory.fromClass(StaticApplicationContext.class));
+    application.setApplicationContextFactory(ApplicationContextFactory.fromClass(StaticApplicationContext.class));
     this.context = application.run();
     assertThat(this.context).isInstanceOf(StaticApplicationContext.class);
   }
@@ -517,8 +515,8 @@ class ApplicationTests {
             .get("commandLineArgs");
     assertThat(composite.getPropertySources()).hasSize(2);
     assertThat(composite.getPropertySources()).first().matches(
-            (source) -> source.getName().equals("ApplicationCommandLineArgs"),
-            "is named ApplicationCommandLineArgs");
+            (source) -> source.getName().equals("applicationCommandLineArgs"),
+            "is named applicationCommandLineArgs");
     assertThat(composite.getPropertySources()).element(1)
             .matches((source) -> source.getName().equals("commandLineArgs"), "is named commandLineArgs");
   }
