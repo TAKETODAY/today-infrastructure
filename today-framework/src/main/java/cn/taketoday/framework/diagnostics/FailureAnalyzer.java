@@ -20,11 +20,23 @@
 
 package cn.taketoday.framework.diagnostics;
 
+import cn.taketoday.beans.factory.BeanFactory;
+import cn.taketoday.context.ApplicationContext;
+import cn.taketoday.core.env.Environment;
 import cn.taketoday.lang.Nullable;
 
 /**
  * A {@code FailureAnalyzer} is used to analyze a failure and provide diagnostic
  * information that can be displayed to the user.
+ * <p>
+ * Implementations should be added as a
+ * {@code today-strategies.properties} entries. The following constructor parameter types are
+ * supported:
+ * <ul>
+ * <li>{@link BeanFactory}</li>
+ * <li>{@link Environment}</li>
+ * <li>{@link ApplicationContext}</li>
+ * </ul>
  *
  * @author Andy Wilkinson
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>

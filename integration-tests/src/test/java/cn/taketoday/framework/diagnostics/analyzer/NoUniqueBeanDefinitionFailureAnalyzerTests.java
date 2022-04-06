@@ -43,7 +43,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 class NoUniqueBeanDefinitionFailureAnalyzerTests {
 
-  private final NoUniqueBeanDefinitionFailureAnalyzer analyzer = new NoUniqueBeanDefinitionFailureAnalyzer();
+  private NoUniqueBeanDefinitionFailureAnalyzer analyzer;
 
   @Test
   void failureAnalysisForFieldConsumer() {
@@ -101,7 +101,7 @@ class NoUniqueBeanDefinitionFailureAnalyzerTests {
         context.refresh();
       }
       catch (BeanCreationException ex) {
-        this.analyzer.setBeanFactory(context.getBeanFactory());
+        analyzer = new NoUniqueBeanDefinitionFailureAnalyzer(context.getBeanFactory());
         return ex;
       }
       return null;

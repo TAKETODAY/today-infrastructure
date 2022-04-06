@@ -36,7 +36,7 @@ import cn.taketoday.core.env.ConfigurableEnvironment;
 import cn.taketoday.core.env.StandardEnvironment;
 import cn.taketoday.framework.ApplicationType;
 import cn.taketoday.framework.builder.ApplicationBuilder;
-import cn.taketoday.framework.test.util.TestPropertyValues;
+import cn.taketoday.test.util.TestPropertyValues;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;

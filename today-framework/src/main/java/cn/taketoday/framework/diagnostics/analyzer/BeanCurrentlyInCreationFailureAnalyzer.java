@@ -23,11 +23,8 @@ package cn.taketoday.framework.diagnostics.analyzer;
 import java.util.ArrayList;
 import java.util.List;
 
-import cn.taketoday.beans.BeansException;
 import cn.taketoday.beans.factory.BeanCreationException;
 import cn.taketoday.beans.factory.BeanCurrentlyInCreationException;
-import cn.taketoday.beans.factory.BeanFactory;
-import cn.taketoday.beans.factory.BeanFactoryAware;
 import cn.taketoday.beans.factory.InjectionPoint;
 import cn.taketoday.beans.factory.UnsatisfiedDependencyException;
 import cn.taketoday.beans.factory.support.AbstractAutowireCapableBeanFactory;
@@ -45,16 +42,13 @@ import cn.taketoday.util.StringUtils;
  * @since 4.0
  */
 class BeanCurrentlyInCreationFailureAnalyzer
-        extends AbstractFailureAnalyzer<BeanCurrentlyInCreationException> implements BeanFactoryAware {
+        extends AbstractFailureAnalyzer<BeanCurrentlyInCreationException> {
 
   @Nullable
-  private AbstractAutowireCapableBeanFactory beanFactory;
+  private final AbstractAutowireCapableBeanFactory beanFactory;
 
-  @Override
-  public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
-    if (beanFactory instanceof AbstractAutowireCapableBeanFactory) {
-      this.beanFactory = (AbstractAutowireCapableBeanFactory) beanFactory;
-    }
+  public BeanCurrentlyInCreationFailureAnalyzer(@Nullable AbstractAutowireCapableBeanFactory beanFactory) {
+    this.beanFactory = beanFactory;
   }
 
   @Override

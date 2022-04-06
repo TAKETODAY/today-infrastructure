@@ -28,7 +28,7 @@ import cn.taketoday.context.annotation.AnnotationConfigApplicationContext;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Conditional;
 import cn.taketoday.context.annotation.Configuration;
-import cn.taketoday.framework.test.util.TestPropertyValues;
+import cn.taketoday.test.util.TestPropertyValues;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

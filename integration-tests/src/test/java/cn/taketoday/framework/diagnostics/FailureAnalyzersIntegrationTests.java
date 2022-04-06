@@ -23,14 +23,13 @@ package cn.taketoday.framework.diagnostics;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
-import javax.annotation.PostConstruct;
-
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.framework.ApplicationType;
-import cn.taketoday.framework.CapturedOutput;
-import cn.taketoday.framework.OutputCaptureExtension;
 import cn.taketoday.framework.builder.ApplicationBuilder;
+import cn.taketoday.framework.test.system.CapturedOutput;
+import cn.taketoday.framework.test.system.OutputCaptureExtension;
 import cn.taketoday.framework.web.server.PortInUseException;
+import jakarta.annotation.PostConstruct;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;

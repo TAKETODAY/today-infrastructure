@@ -22,6 +22,7 @@ package cn.taketoday.framework.diagnostics.analyzer;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
@@ -29,15 +30,14 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import cn.taketoday.context.aware.EnvironmentAware;
 import cn.taketoday.context.properties.source.ConfigurationPropertySources;
 import cn.taketoday.context.properties.source.MutuallyExclusiveConfigurationPropertiesException;
 import cn.taketoday.core.env.ConfigurableEnvironment;
-import cn.taketoday.core.env.Environment;
 import cn.taketoday.core.env.PropertySource;
 import cn.taketoday.framework.diagnostics.AbstractFailureAnalyzer;
 import cn.taketoday.framework.diagnostics.FailureAnalysis;
 import cn.taketoday.framework.diagnostics.FailureAnalyzer;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.origin.Origin;
 import cn.taketoday.origin.OriginLookup;
 
@@ -50,13 +50,13 @@ import cn.taketoday.origin.OriginLookup;
  * @since 4.0
  */
 class MutuallyExclusiveConfigurationPropertiesFailureAnalyzer
-        extends AbstractFailureAnalyzer<MutuallyExclusiveConfigurationPropertiesException> implements EnvironmentAware {
+        extends AbstractFailureAnalyzer<MutuallyExclusiveConfigurationPropertiesException> {
 
-  private ConfigurableEnvironment environment;
+  @Nullable
+  private final ConfigurableEnvironment environment;
 
-  @Override
-  public void setEnvironment(Environment environment) {
-    this.environment = (ConfigurableEnvironment) environment;
+  public MutuallyExclusiveConfigurationPropertiesFailureAnalyzer(@Nullable ConfigurableEnvironment environment) {
+    this.environment = environment;
   }
 
   @Override
@@ -78,8 +78,9 @@ class MutuallyExclusiveConfigurationPropertiesFailureAnalyzer
 
   private List<Descriptor> getDescriptors(String propertyName) {
     return getPropertySources()
-            .filter((source) -> source.containsProperty(propertyName))
-            .map((source) -> Descriptor.get(source, propertyName)).collect(Collectors.toList());
+            .filter(source -> source.containsProperty(propertyName))
+            .map(source -> Descriptor.get(source, propertyName))
+            .collect(Collectors.toList());
   }
 
   private Stream<PropertySource<?>> getPropertySources() {
@@ -87,25 +88,25 @@ class MutuallyExclusiveConfigurationPropertiesFailureAnalyzer
       return Stream.empty();
     }
     return this.environment.getPropertySources().stream()
-            .filter((source) -> !ConfigurationPropertySources.isAttachedConfigurationPropertySource(source));
+            .filter(source -> !ConfigurationPropertySources.isAttachedConfigurationPropertySource(source));
   }
 
-  private void appendDetails(StringBuilder message, MutuallyExclusiveConfigurationPropertiesException cause,
-                             List<Descriptor> descriptors) {
-    descriptors.sort((d1, d2) -> d1.propertyName.compareTo(d2.propertyName));
+  private void appendDetails(
+          StringBuilder message, MutuallyExclusiveConfigurationPropertiesException cause, List<Descriptor> descriptors) {
+    descriptors.sort(Comparator.comparing(d -> d.propertyName));
     message.append(String.format("The following configuration properties are mutually exclusive:%n%n"));
-    sortedStrings(cause.getMutuallyExclusiveNames())
-            .forEach((name) -> message.append(String.format("\t%s%n", name)));
+    for (String name : sortedStrings(cause.getMutuallyExclusiveNames())) {
+      message.append(String.format("\t%s%n", name));
+    }
     message.append(String.format("%n"));
-    message.append(
-            String.format("However, more than one of those properties has been configured at the same time:%n%n"));
+    message.append(String.format("However, more than one of those properties has been configured at the same time:%n%n"));
     Set<String> configuredDescriptions = sortedStrings(descriptors,
-            (descriptor) -> String.format("\t%s%s%n", descriptor.propertyName,
-                    (descriptor.origin != null) ? " (originating from '" + descriptor.origin + "')" : ""));
+            descriptor -> String.format("\t%s%s%n", descriptor.propertyName,
+                    descriptor.origin != null ? " (originating from '" + descriptor.origin + "')" : ""));
     configuredDescriptions.forEach(message::append);
   }
 
-  private <S> Set<String> sortedStrings(Collection<String> input) {
+  private Set<String> sortedStrings(Collection<String> input) {
     return sortedStrings(input, Function.identity());
   }
 
@@ -117,7 +118,7 @@ class MutuallyExclusiveConfigurationPropertiesFailureAnalyzer
     return results;
   }
 
-  private record Descriptor(String propertyName, Origin origin) {
+  private record Descriptor(String propertyName, @Nullable Origin origin) {
 
     static Descriptor get(PropertySource<?> source, String propertyName) {
       Origin origin = OriginLookup.getOrigin(source, propertyName);

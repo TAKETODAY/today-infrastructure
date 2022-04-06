@@ -30,10 +30,10 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import cn.taketoday.context.properties.source.MutuallyExclusiveConfigurationPropertiesException;
-import cn.taketoday.context.support.MockEnvironment;
 import cn.taketoday.core.env.EnumerablePropertySource;
 import cn.taketoday.core.env.MapPropertySource;
 import cn.taketoday.framework.diagnostics.FailureAnalysis;
+import cn.taketoday.mock.env.MockEnvironment;
 import cn.taketoday.origin.Origin;
 import cn.taketoday.origin.OriginLookup;
 
@@ -53,7 +53,7 @@ class MutuallyExclusiveConfigurationPropertiesFailureAnalyzerTests {
     MutuallyExclusiveConfigurationPropertiesException failure = new MutuallyExclusiveConfigurationPropertiesException(
             new HashSet<>(Arrays.asList("com.example.a", "com.example.b")),
             new HashSet<>(Arrays.asList("com.example.a", "com.example.b")));
-    FailureAnalysis failureAnalysis = new MutuallyExclusiveConfigurationPropertiesFailureAnalyzer()
+    FailureAnalysis failureAnalysis = new MutuallyExclusiveConfigurationPropertiesFailureAnalyzer(environment)
             .analyze(failure);
     assertThat(failureAnalysis).isNull();
   }
@@ -116,8 +116,7 @@ class MutuallyExclusiveConfigurationPropertiesFailureAnalyzerTests {
   }
 
   private FailureAnalysis performAnalysis(MutuallyExclusiveConfigurationPropertiesException failure) {
-    MutuallyExclusiveConfigurationPropertiesFailureAnalyzer analyzer = new MutuallyExclusiveConfigurationPropertiesFailureAnalyzer();
-    analyzer.setEnvironment(this.environment);
+    MutuallyExclusiveConfigurationPropertiesFailureAnalyzer analyzer = new MutuallyExclusiveConfigurationPropertiesFailureAnalyzer(environment);
     return analyzer.analyze(failure);
   }
 

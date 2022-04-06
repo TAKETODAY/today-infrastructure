@@ -29,9 +29,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import cn.taketoday.beans.BeansException;
-import cn.taketoday.beans.factory.BeanFactory;
-import cn.taketoday.beans.factory.BeanFactoryAware;
 import cn.taketoday.beans.factory.BeanFactoryUtils;
 import cn.taketoday.beans.factory.InjectionPoint;
 import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
@@ -49,7 +46,6 @@ import cn.taketoday.core.type.classreading.CachingMetadataReaderFactory;
 import cn.taketoday.core.type.classreading.MetadataReader;
 import cn.taketoday.core.type.classreading.MetadataReaderFactory;
 import cn.taketoday.framework.diagnostics.FailureAnalysis;
-import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Component;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
@@ -63,24 +59,17 @@ import cn.taketoday.util.ClassUtils;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/2/21 10:40
  */
-class NoSuchBeanDefinitionFailureAnalyzer extends AbstractInjectionFailureAnalyzer<NoSuchBeanDefinitionException>
-        implements BeanFactoryAware {
+class NoSuchBeanDefinitionFailureAnalyzer extends AbstractInjectionFailureAnalyzer<NoSuchBeanDefinitionException> {
 
-  private ConfigurableBeanFactory beanFactory;
+  private final ConditionEvaluationReport report;
+  private final ConfigurableBeanFactory beanFactory;
+  private final MetadataReaderFactory metadataReaderFactory;
 
-  @Nullable
-  private MetadataReaderFactory metadataReaderFactory;
-
-  @Nullable
-  private ConditionEvaluationReport report;
-
-  @Override
-  public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
-    Assert.isInstanceOf(ConfigurableBeanFactory.class, beanFactory);
-    this.beanFactory = (ConfigurableBeanFactory) beanFactory;
-    this.metadataReaderFactory = new CachingMetadataReaderFactory(this.beanFactory.getBeanClassLoader());
+  NoSuchBeanDefinitionFailureAnalyzer(ConfigurableBeanFactory beanFactory) {
+    this.beanFactory = beanFactory;
     // Get early as won't be accessible once context has failed to start
-    this.report = ConditionEvaluationReport.get(this.beanFactory);
+    this.report = ConditionEvaluationReport.get(beanFactory);
+    this.metadataReaderFactory = new CachingMetadataReaderFactory(beanFactory.getBeanClassLoader());
   }
 
   @Override
@@ -161,7 +150,7 @@ class NoSuchBeanDefinitionFailureAnalyzer extends AbstractInjectionFailureAnalyz
 
   private void collectReportedConditionOutcomes(
           NoSuchBeanDefinitionException cause, List<AutoConfigurationResult> results) {
-    this.report.getConditionAndOutcomesBySource()
+    report.getConditionAndOutcomesBySource()
             .forEach((source, sourceOutcomes) -> collectReportedConditionOutcomes(cause, new Source(source),
                     sourceOutcomes, results));
   }
@@ -184,7 +173,7 @@ class NoSuchBeanDefinitionFailureAnalyzer extends AbstractInjectionFailureAnalyz
 
   private void collectExcludedAutoConfiguration(
           NoSuchBeanDefinitionException cause, List<AutoConfigurationResult> results) {
-    for (String excludedClass : this.report.getExclusions()) {
+    for (String excludedClass : report.getExclusions()) {
       Source source = new Source(excludedClass);
       BeanMethods methods = new BeanMethods(source, cause);
       for (MethodMetadata method : methods) {

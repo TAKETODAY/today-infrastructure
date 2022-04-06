@@ -31,8 +31,8 @@ import cn.taketoday.beans.factory.BeanFactoryAware;
 import cn.taketoday.context.annotation.AnnotationConfigApplicationContext;
 import cn.taketoday.context.aware.EnvironmentAware;
 import cn.taketoday.core.env.Environment;
-import cn.taketoday.framework.CapturedOutput;
-import cn.taketoday.framework.OutputCaptureExtension;
+import cn.taketoday.framework.test.system.CapturedOutput;
+import cn.taketoday.framework.test.system.OutputCaptureExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.same;

@@ -29,7 +29,7 @@ import cn.taketoday.context.annotation.ConditionEvaluationContext;
 import cn.taketoday.context.annotation.Conditional;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.core.type.AnnotatedTypeMetadata;
-import cn.taketoday.framework.test.util.TestPropertyValues;
+import cn.taketoday.test.util.TestPropertyValues;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

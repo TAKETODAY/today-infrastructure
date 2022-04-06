@@ -41,7 +41,6 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
-import javax.annotation.PostConstruct;
 
 import cn.taketoday.beans.CachedIntrospectionResults;
 import cn.taketoday.beans.factory.BeanCreationException;
@@ -112,6 +111,7 @@ import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.context.ConfigurableWebEnvironment;
 import cn.taketoday.web.context.support.StandardServletEnvironment;
+import jakarta.annotation.PostConstruct;
 import reactor.core.publisher.Mono;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -196,7 +196,7 @@ class ApplicationTests {
   void customBanner(CapturedOutput output) {
     Application application = spy(new Application(ExampleConfig.class));
     application.setApplicationType(ApplicationType.NONE_WEB);
-    this.context = application.run("--spring.banner.location=classpath:test-banner.txt");
+    this.context = application.run("--banner.location=classpath:test-banner.txt");
     assertThat(output).startsWith("Running a Test!");
   }
 
@@ -204,7 +204,7 @@ class ApplicationTests {
   void customBannerWithProperties(CapturedOutput output) {
     Application application = spy(new Application(ExampleConfig.class));
     application.setApplicationType(ApplicationType.NONE_WEB);
-    this.context = application.run("--spring.banner.location=classpath:test-banner-with-placeholder.txt",
+    this.context = application.run("--banner.location=classpath:test-banner-with-placeholder.txt",
             "--test.property=123456");
     assertThat(output).containsPattern("Running a Test!\\s+123456");
   }
@@ -1027,7 +1027,7 @@ class ApplicationTests {
   @Test
   void nonWebApplicationConfiguredViaAPropertyHasTheCorrectTypeOfContextAndEnvironment() {
     ConfigurableApplicationContext context = new Application(ExampleConfig.class)
-            .run("--context.main.web-application-type=NONE_WEB");
+            .run("--context.main.application-type=NONE_WEB");
     assertThat(context).isNotInstanceOfAny(WebApplicationContext.class, ReactiveWebApplicationContext.class);
     assertThat(context.getEnvironment()).isNotInstanceOfAny(ConfigurableWebEnvironment.class);
   }
@@ -1035,7 +1035,7 @@ class ApplicationTests {
   @Test
   void webApplicationConfiguredViaAPropertyHasTheCorrectTypeOfContextAndEnvironment() {
     ConfigurableApplicationContext context = new Application(ExampleWebConfig.class)
-            .run("--context.main.web-application-type=servlet");
+            .run("--context.main.application-type=SERVLET_WEB");
     assertThat(context).isInstanceOf(WebApplicationContext.class);
     assertThat(context.getEnvironment()).isInstanceOf(ApplicationServletEnvironment.class);
   }
@@ -1043,7 +1043,7 @@ class ApplicationTests {
   @Test
   void reactiveApplicationConfiguredViaAPropertyHasTheCorrectTypeOfContextAndEnvironment() {
     ConfigurableApplicationContext context = new Application(ExampleReactiveWebConfig.class)
-            .run("--context.main.web-application-type=reactive");
+            .run("--context.main.application-type=REACTIVE_WEB");
     assertThat(context).isInstanceOf(ReactiveWebApplicationContext.class);
     assertThat(context.getEnvironment()).isInstanceOf(ApplicationReactiveWebEnvironment.class);
   }
@@ -1051,7 +1051,7 @@ class ApplicationTests {
   @Test
   void environmentIsConvertedIfTypeDoesNotMatch() {
     ConfigurableApplicationContext context = new Application(ExampleReactiveWebConfig.class)
-            .run("--context.profiles.active=withApplicationType");
+            .run("--context.profiles.active=withwebapplicationtype");
     assertThat(context).isInstanceOf(ReactiveWebApplicationContext.class);
     assertThat(context.getEnvironment()).isInstanceOf(ApplicationReactiveWebEnvironment.class);
   }
@@ -1083,7 +1083,7 @@ class ApplicationTests {
   @Test
   void beanDefinitionOverridingCanBeEnabled() {
     assertThat(new Application(ExampleConfig.class, OverrideConfig.class)
-            .run("--context.main.allow-bean-definition-overriding=true", "--context.main.web-application-type=NONE_WEB")
+            .run("--context.main.allow-bean-definition-overriding=true", "--context.main.application-type=NONE_WEB")
             .getBean("someBean")).isEqualTo("override");
   }
 
@@ -1091,7 +1091,7 @@ class ApplicationTests {
   void circularReferencesAreDisabledByDefault() {
     assertThatExceptionOfType(UnsatisfiedDependencyException.class)
             .isThrownBy(() -> new Application(ExampleProducerConfiguration.class,
-                    ExampleConsumerConfiguration.class).run("--context.main.web-application-type=NONE_WEB"))
+                    ExampleConsumerConfiguration.class).run("--context.main.application-type=NONE_WEB"))
             .withRootCauseInstanceOf(BeanCurrentlyInCreationException.class);
   }
 
@@ -1099,7 +1099,7 @@ class ApplicationTests {
   void circularReferencesCanBeEnabled() {
     assertThatNoException().isThrownBy(
             () -> new Application(ExampleProducerConfiguration.class, ExampleConsumerConfiguration.class).run(
-                    "--context.main.web-application-type=NONE_WEB", "--context.main.allow-circular-references=true"));
+                    "--context.main.application-type=NONE_WEB", "--context.main.allow-circular-references=true"));
   }
 
   @Test
@@ -1112,28 +1112,28 @@ class ApplicationTests {
 
   @Test
   void lazyInitializationIsDisabledByDefault() {
-    assertThat(new Application(LazyInitializationConfig.class).run("--context.main.web-application-type=NONE_WEB")
+    assertThat(new Application(LazyInitializationConfig.class).run("--context.main.application-type=NONE_WEB")
             .getBean(AtomicInteger.class)).hasValue(1);
   }
 
   @Test
   void lazyInitializationCanBeEnabled() {
     assertThat(new Application(LazyInitializationConfig.class)
-            .run("--context.main.web-application-type=NONE_WEB", "--context.main.lazy-initialization=true")
+            .run("--context.main.application-type=NONE_WEB", "--context.main.lazy-initialization=true")
             .getBean(AtomicInteger.class)).hasValue(0);
   }
 
   @Test
   void lazyInitializationIgnoresBeansThatAreExplicitlyNotLazy() {
     assertThat(new Application(NotLazyInitializationConfig.class)
-            .run("--context.main.web-application-type=NONE_WEB", "--context.main.lazy-initialization=true")
+            .run("--context.main.application-type=NONE_WEB", "--context.main.lazy-initialization=true")
             .getBean(AtomicInteger.class)).hasValue(1);
   }
 
   @Test
   void lazyInitializationIgnoresLazyInitializationExcludeFilteredBeans() {
     assertThat(new Application(LazyInitializationExcludeFilterConfig.class)
-            .run("--context.main.web-application-type=NONE_WEB", "--context.main.lazy-initialization=true")
+            .run("--context.main.application-type=NONE_WEB", "--context.main.lazy-initialization=true")
             .getBean(AtomicInteger.class)).hasValue(1);
   }
 
