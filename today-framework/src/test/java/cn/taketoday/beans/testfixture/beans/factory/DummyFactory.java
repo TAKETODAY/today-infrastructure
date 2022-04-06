@@ -43,7 +43,7 @@ import cn.taketoday.beans.testfixture.beans.TestBean;
  * @since 10.03.2003
  */
 public class DummyFactory
-        implements FactoryBean<TestBean>, BeanNameAware, BeanFactoryAware, InitializingBean, DisposableBean {
+        implements FactoryBean<Object>, BeanNameAware, BeanFactoryAware, InitializingBean, DisposableBean {
 
   public static final String SINGLETON_NAME = "Factory singleton";
 
