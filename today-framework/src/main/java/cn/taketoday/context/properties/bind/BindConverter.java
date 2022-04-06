@@ -65,7 +65,7 @@ final class BindConverter {
   private final List<ConversionService> delegates;
 
   private BindConverter(@Nullable List<ConversionService> conversionServices,
-                        @Nullable Consumer<PropertyEditorRegistry> propertyEditorInitializer) {
+          @Nullable Consumer<PropertyEditorRegistry> propertyEditorInitializer) {
     ArrayList<ConversionService> delegates = new ArrayList<>();
     delegates.add(new TypeConverterConversionService(propertyEditorInitializer));
     boolean hasApplication = false;
@@ -95,6 +95,7 @@ final class BindConverter {
     return false;
   }
 
+  @Nullable
   <T> T convert(Object source, Bindable<T> target) {
     return convert(source, target.getType(), target.getAnnotations());
   }
@@ -109,6 +110,7 @@ final class BindConverter {
             new ResolvableTypeDescriptor(targetType, targetAnnotations));
   }
 
+  @Nullable
   private Object convert(Object source, TypeDescriptor sourceType, TypeDescriptor targetType) {
     ConversionException failure = null;
     for (ConversionService delegate : this.delegates) {

@@ -32,7 +32,6 @@ import java.util.Set;
 import cn.taketoday.context.properties.bind.BindException;
 import cn.taketoday.context.properties.bind.Bindable;
 import cn.taketoday.context.properties.bind.Binder;
-import cn.taketoday.context.properties.bind.PlaceholdersResolver;
 import cn.taketoday.context.properties.source.ConfigurationPropertySource;
 import cn.taketoday.core.env.ConfigurableEnvironment;
 import cn.taketoday.core.env.Environment;
@@ -281,8 +280,8 @@ class ConfigDataEnvironment {
       return activationContext.withProfiles(profiles);
     }
     catch (BindException ex) {
-      if (ex.getCause() instanceof InactiveConfigDataAccessException) {
-        throw (InactiveConfigDataAccessException) ex.getCause();
+      if (ex.getCause() instanceof InactiveConfigDataAccessException inactive) {
+        throw inactive;
       }
       throw ex;
     }
@@ -290,15 +289,14 @@ class ConfigDataEnvironment {
 
   private Collection<? extends String> getIncludedProfiles(
           ConfigDataEnvironmentContributors contributors, ConfigDataActivationContext activationContext) {
-
-    PlaceholdersResolver placeholdersResolver = new ConfigDataEnvironmentContributorPlaceholdersResolver(
+    var placeholdersResolver = new ConfigDataEnvironmentContributorPlaceholdersResolver(
             contributors, activationContext, null, true);
     LinkedHashSet<String> result = new LinkedHashSet<>();
     for (ConfigDataEnvironmentContributor contributor : contributors) {
       ConfigurationPropertySource source = contributor.getConfigurationPropertySource();
       if (source != null && !contributor.hasConfigDataOption(ConfigData.Option.IGNORE_PROFILES)) {
         Binder binder = new Binder(Collections.singleton(source), placeholdersResolver);
-        binder.bind(Profiles.INCLUDE_PROFILES, STRING_LIST).ifBound((includes) -> {
+        binder.bind(Profiles.INCLUDE_PROFILES, STRING_LIST).ifBound(includes -> {
           if (!contributor.isActive(activationContext)) {
             InactiveConfigDataAccessException.throwIfPropertyFound(contributor, Profiles.INCLUDE_PROFILES);
             InactiveConfigDataAccessException.throwIfPropertyFound(contributor, Profiles.INCLUDE_PROFILES.append("[0]"));
