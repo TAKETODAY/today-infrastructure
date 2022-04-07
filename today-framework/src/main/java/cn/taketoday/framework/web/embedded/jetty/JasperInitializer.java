@@ -31,6 +31,7 @@ import java.net.URLConnection;
 import java.net.URLStreamHandler;
 import java.net.URLStreamHandlerFactory;
 
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
 import jakarta.servlet.ServletContainerInitializer;
 
@@ -42,11 +43,13 @@ import jakarta.servlet.ServletContainerInitializer;
  */
 class JasperInitializer extends AbstractLifeCycle {
 
-  private static final String[] INITIALIZER_CLASSES = { "org.eclipse.jetty.apache.jsp.JettyJasperInitializer",
-          "org.apache.jasper.servlet.JasperInitializer" };
+  private static final String[] INITIALIZER_CLASSES = {
+          "org.eclipse.jetty.apache.jsp.JettyJasperInitializer",
+          "org.apache.jasper.servlet.JasperInitializer"
+  };
 
   private final WebAppContext context;
-
+  @Nullable
   private final ServletContainerInitializer initializer;
 
   JasperInitializer(WebAppContext context) {
@@ -54,11 +57,12 @@ class JasperInitializer extends AbstractLifeCycle {
     this.initializer = newInitializer();
   }
 
+  @Nullable
   private ServletContainerInitializer newInitializer() {
     for (String className : INITIALIZER_CLASSES) {
       try {
-        Class<?> initializerClass = ClassUtils.forName(className, null);
-        return (ServletContainerInitializer) initializerClass.getDeclaredConstructor().newInstance();
+        Class<ServletContainerInitializer> initializerClass = ClassUtils.forName(className, null);
+        return initializerClass.getDeclaredConstructor().newInstance();
       }
       catch (Exception ex) {
         // Ignore
@@ -115,6 +119,7 @@ class JasperInitializer extends AbstractLifeCycle {
   private static class WarUrlStreamHandlerFactory implements URLStreamHandlerFactory {
 
     @Override
+    @Nullable
     public URLStreamHandler createURLStreamHandler(String protocol) {
       if ("war".equals(protocol)) {
         return new WarUrlStreamHandler();

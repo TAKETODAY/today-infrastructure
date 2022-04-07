@@ -43,6 +43,7 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ClassUtils;
+import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.PropertyMapper;
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.ServletException;
@@ -283,7 +284,7 @@ public abstract class AbstractServletWebServerFactory extends AbstractConfigurab
     ArrayList<ServletContextInitializer> mergedInitializers = new ArrayList<>();
     mergedInitializers.add(servletContext -> this.initParameters.forEach(servletContext::setInitParameter));
     mergedInitializers.add(new SessionConfiguringInitializer(this.session));
-    mergedInitializers.addAll(Arrays.asList(initializers));
+    CollectionUtils.addAll(mergedInitializers, initializers);
     mergedInitializers.addAll(this.initializers);
     return mergedInitializers.toArray(new ServletContextInitializer[0]);
   }

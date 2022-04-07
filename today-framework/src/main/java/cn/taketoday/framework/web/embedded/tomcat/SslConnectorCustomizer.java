@@ -32,10 +32,10 @@ import java.io.FileNotFoundException;
 
 import cn.taketoday.framework.web.server.Ssl;
 import cn.taketoday.framework.web.server.SslStoreProvider;
+import cn.taketoday.framework.web.server.WebServerException;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.util.ResourceUtils;
 import cn.taketoday.util.StringUtils;
-import cn.taketoday.web.framework.WebServerException;
 
 /**
  * {@link TomcatConnectorCustomizer} that configures SSL support on the given connector.
