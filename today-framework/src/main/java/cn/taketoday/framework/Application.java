@@ -70,9 +70,9 @@ import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.CollectionUtils;
-import cn.taketoday.util.ExceptionUtils;
 import cn.taketoday.util.Instantiator;
 import cn.taketoday.util.ObjectUtils;
+import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.util.StringUtils;
 
 /**
@@ -330,12 +330,8 @@ public class Application {
     }
     catch (Throwable e) {
       handleRunFailure(context, e, listeners);
-      if (context != null && context.isActive()) {
-        context.close();
-      }
-      throw ExceptionUtils.sneakyThrow(e);
+      throw new IllegalStateException(e);
     }
-
     try {
       Duration timeTakenToReady = Duration.ofNanos(System.nanoTime() - startTime);
       listeners.ready(context, timeTakenToReady);
@@ -1107,7 +1103,7 @@ public class Application {
     this.bootstrapRegistryInitializers.add(bootstrapRegistryInitializer);
   }
 
-  private void handleRunFailure(ConfigurableApplicationContext context,
+  private void handleRunFailure(@Nullable ConfigurableApplicationContext context,
           Throwable exception, @Nullable ApplicationStartupListeners listeners) {
     try {
       try {
@@ -1120,12 +1116,14 @@ public class Application {
         reportFailure(getExceptionReporters(context), exception);
         if (context != null) {
           context.close();
+          shutdownHook.deregisterFailedApplicationContext(context);
         }
       }
     }
     catch (Exception ex) {
       log.warn("Unable to close ApplicationContext", ex);
     }
+    ReflectionUtils.rethrowRuntimeException(exception);
   }
 
   private List<ApplicationExceptionReporter> getExceptionReporters(ConfigurableApplicationContext context) {
@@ -1163,14 +1161,14 @@ public class Application {
    * @param exception the exception that was logged
    */
   protected void registerLoggedException(Throwable exception) {
-    StartupExceptionHandler handler = getApplicationExceptionHandler();
+    StartupExceptionHandler handler = getStartupExceptionHandler();
     if (handler != null) {
       handler.registerLoggedException(exception);
     }
   }
 
   @Nullable
-  StartupExceptionHandler getApplicationExceptionHandler() {
+  StartupExceptionHandler getStartupExceptionHandler() {
     if (isMainThread(Thread.currentThread())) {
       return StartupExceptionHandler.forCurrentThread();
     }
@@ -1188,6 +1186,10 @@ public class Application {
     if (exitCode != 0) {
       if (context != null) {
         context.publishEvent(new ExitCodeEvent(context, exitCode));
+      }
+      StartupExceptionHandler handler = getStartupExceptionHandler();
+      if (handler != null) {
+        handler.registerExitCode(exitCode);
       }
     }
   }
@@ -1233,7 +1235,7 @@ public class Application {
           applicationRunner.run(args);
         }
         catch (Exception ex) {
-          throw new IllegalStateException("Failed to execute ApplicationRunner", ex);
+          throw new IllegalStateException("Failed to execute ApplicationRunner: " + applicationRunner, ex);
         }
       }
 
@@ -1242,7 +1244,7 @@ public class Application {
           commandLineRunner.run(sourceArgs);
         }
         catch (Exception ex) {
-          throw new IllegalStateException("Failed to execute CommandLineRunner", ex);
+          throw new IllegalStateException("Failed to execute CommandLineRunner: " + commandLineRunner, ex);
         }
       }
     }
