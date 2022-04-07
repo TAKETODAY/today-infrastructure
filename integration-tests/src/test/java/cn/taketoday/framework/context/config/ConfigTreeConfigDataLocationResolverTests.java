@@ -51,19 +51,19 @@ class ConfigTreeConfigDataLocationResolverTests {
 
   @Test
   void isResolvableWhenPrefixMatchesReturnsTrue() {
-    assertThat(this.resolver.isResolvable(this.context, ConfigDataLocation.of("configtree:/etc/config"))).isTrue();
+    assertThat(this.resolver.isResolvable(this.context, ConfigDataLocation.valueOf("configtree:/etc/config"))).isTrue();
   }
 
   @Test
   void isResolvableWhenPrefixDoesNotMatchReturnsFalse() {
-    assertThat(this.resolver.isResolvable(this.context, ConfigDataLocation.of("http://etc/config"))).isFalse();
-    assertThat(this.resolver.isResolvable(this.context, ConfigDataLocation.of("/etc/config"))).isFalse();
+    assertThat(this.resolver.isResolvable(this.context, ConfigDataLocation.valueOf("http://etc/config"))).isFalse();
+    assertThat(this.resolver.isResolvable(this.context, ConfigDataLocation.valueOf("/etc/config"))).isFalse();
   }
 
   @Test
   void resolveReturnsConfigVolumeMountLocation() {
     List<ConfigTreeConfigDataResource> locations = this.resolver.resolve(this.context,
-            ConfigDataLocation.of("configtree:/etc/config/"));
+            ConfigDataLocation.valueOf("configtree:/etc/config/"));
     assertThat(locations.size()).isEqualTo(1);
     Assertions.assertThat(locations).extracting(Object::toString)
             .containsExactly("config tree [" + new File("/etc/config").getAbsolutePath() + "]");
@@ -78,7 +78,7 @@ class ConfigTreeConfigDataLocationResolverTests {
     FileCopyUtils.copy("test".getBytes(), new File(directoryA, "spring"));
     FileCopyUtils.copy("test".getBytes(), new File(directoryB, "boot"));
     List<ConfigTreeConfigDataResource> locations = this.resolver.resolve(this.context,
-            ConfigDataLocation.of("configtree:" + this.temp.getAbsolutePath() + "/*/"));
+            ConfigDataLocation.valueOf("configtree:" + this.temp.getAbsolutePath() + "/*/"));
     assertThat(locations.size()).isEqualTo(2);
     Assertions.assertThat(locations).extracting(Object::toString).containsExactly(
             "config tree [" + directoryA.getAbsolutePath() + "]",

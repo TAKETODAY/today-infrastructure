@@ -48,7 +48,7 @@ class StandardConfigDataLoaderTests {
   void loadWhenLocationResultsInMultiplePropertySourcesAddsAllToConfigData() throws IOException {
     ClassPathResource resource = new ClassPathResource("configdata/yaml/application.yml");
     StandardConfigDataReference reference = new StandardConfigDataReference(
-            ConfigDataLocation.of("classpath:configdata/yaml/application.yml"), null,
+            ConfigDataLocation.valueOf("classpath:configdata/yaml/application.yml"), null,
             "classpath:configdata/yaml/application", null, "yml", new YamlPropertySourceLoader());
     StandardConfigDataResource location = new StandardConfigDataResource(reference, resource);
     ConfigData configData = this.loader.load(this.loaderContext, location);
@@ -69,7 +69,7 @@ class StandardConfigDataLoaderTests {
   void loadWhenPropertySourceIsEmptyAddsNothingToConfigData() throws IOException {
     ClassPathResource resource = new ClassPathResource("config/0-empty/testproperties.properties");
     StandardConfigDataReference reference = new StandardConfigDataReference(
-            ConfigDataLocation.of("classpath:config/0-empty/testproperties.properties"), null,
+            ConfigDataLocation.valueOf("classpath:config/0-empty/testproperties.properties"), null,
             "config/0-empty/testproperties", null, "properties", new PropertiesPropertySourceLoader());
     StandardConfigDataResource location = new StandardConfigDataResource(reference, resource);
     ConfigData configData = this.loader.load(this.loaderContext, location);

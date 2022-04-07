@@ -92,8 +92,8 @@ class ConfigDataEnvironment {
    * Default search locations used if not {@link #LOCATION_PROPERTY} is found.
    */
   static final ConfigDataLocation[] DEFAULT_SEARCH_LOCATIONS = {
-          ConfigDataLocation.of("optional:classpath:/;optional:classpath:/config/"),
-          ConfigDataLocation.of("optional:file:./;optional:file:./config/;optional:file:./config/*/")
+          ConfigDataLocation.valueOf("optional:classpath:/;optional:classpath:/config/"),
+          ConfigDataLocation.valueOf("optional:file:./;optional:file:./config/;optional:file:./config/*/")
   };
 
   private static final ConfigDataLocation[] EMPTY_LOCATIONS = new ConfigDataLocation[0];

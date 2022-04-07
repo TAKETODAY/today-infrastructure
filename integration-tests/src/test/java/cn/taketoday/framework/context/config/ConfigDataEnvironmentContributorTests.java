@@ -50,7 +50,7 @@ import static org.mockito.Mockito.mock;
  */
 class ConfigDataEnvironmentContributorTests {
 
-  private static final ConfigDataLocation TEST_LOCATION = ConfigDataLocation.of("test");
+  private static final ConfigDataLocation TEST_LOCATION = ConfigDataLocation.valueOf("test");
 
   private final ConfigDataActivationContext activationContext = new ConfigDataActivationContext(
           CloudPlatform.KUBERNETES, null);
@@ -125,8 +125,8 @@ class ConfigDataEnvironmentContributorTests {
     propertySource.setProperty("context.config.import", "spring,boot");
     ConfigData configData = new ConfigData(Collections.singleton(propertySource));
     ConfigDataEnvironmentContributor contributor = createBoundContributor(null, configData, 0);
-    assertThat(contributor.getImports()).containsExactly(ConfigDataLocation.of("spring"),
-            ConfigDataLocation.of("boot"));
+    assertThat(contributor.getImports()).containsExactly(ConfigDataLocation.valueOf("spring"),
+            ConfigDataLocation.valueOf("boot"));
   }
 
   @Test
@@ -135,8 +135,8 @@ class ConfigDataEnvironmentContributorTests {
     propertySource.setProperty("context.config.import", "spring,,boot,");
     ConfigData configData = new ConfigData(Collections.singleton(propertySource));
     ConfigDataEnvironmentContributor contributor = createBoundContributor(null, configData, 0);
-    assertThat(contributor.getImports()).containsExactly(ConfigDataLocation.of("spring"),
-            ConfigDataLocation.of("boot"));
+    assertThat(contributor.getImports()).containsExactly(ConfigDataLocation.valueOf("spring"),
+            ConfigDataLocation.valueOf("boot"));
   }
 
   @Test

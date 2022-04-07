@@ -201,7 +201,7 @@ class ConfigDataEnvironmentTests {
         source.put("context.profiles.include", "ignore2");
         ConfigData data = new ConfigData(Collections.singleton(new MapPropertySource("test", source)),
                 ConfigData.Option.IGNORE_PROFILES);
-        contributors.add(ConfigDataEnvironmentContributor.ofUnboundImport(ConfigDataLocation.of("test"),
+        contributors.add(ConfigDataEnvironmentContributor.ofUnboundImport(ConfigDataLocation.valueOf("test"),
                 mock(ConfigDataResource.class), false, data, 0));
         return super.createContributors(contributors);
       }
@@ -225,7 +225,7 @@ class ConfigDataEnvironmentTests {
         source.put("context.config.activate.on-profile", "activate");
         source.put("context.profiles." + property, "include");
         ConfigData data = new ConfigData(Collections.singleton(new MapPropertySource("test", source)));
-        contributors.add(ConfigDataEnvironmentContributor.ofUnboundImport(ConfigDataLocation.of("test"),
+        contributors.add(ConfigDataEnvironmentContributor.ofUnboundImport(ConfigDataLocation.valueOf("test"),
                 mock(ConfigDataResource.class), false, data, 0));
         return super.createContributors(contributors);
       }
@@ -248,7 +248,7 @@ class ConfigDataEnvironmentTests {
         Map<String, Object> source = new LinkedHashMap<>();
         source.put(property, "included");
         ConfigData data = new ConfigData(Collections.singleton(new MapPropertySource("test", source)));
-        contributors.add(ConfigDataEnvironmentContributor.ofUnboundImport(ConfigDataLocation.of("test"),
+        contributors.add(ConfigDataEnvironmentContributor.ofUnboundImport(ConfigDataLocation.valueOf("test"),
                 mock(ConfigDataResource.class), false, data, 0));
         return super.createContributors(contributors);
       }
@@ -272,7 +272,7 @@ class ConfigDataEnvironmentTests {
         source.put("context.profiles.include", "ignore2");
         ConfigData data = new ConfigData(Collections.singleton(new MapPropertySource("test", source)),
                 ConfigData.Option.IGNORE_PROFILES);
-        contributors.add(ConfigDataEnvironmentContributor.ofUnboundImport(ConfigDataLocation.of("test"),
+        contributors.add(ConfigDataEnvironmentContributor.ofUnboundImport(ConfigDataLocation.valueOf("test"),
                 mock(ConfigDataResource.class), false, data, 0));
         return super.createContributors(contributors);
       }

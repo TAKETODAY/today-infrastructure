@@ -37,135 +37,135 @@ class ConfigDataLocationTests {
 
   @Test
   void isOptionalWhenNotPrefixedWithOptionalReturnsFalse() {
-    ConfigDataLocation location = ConfigDataLocation.of("test");
+    ConfigDataLocation location = ConfigDataLocation.valueOf("test");
     assertThat(location.isOptional()).isFalse();
   }
 
   @Test
   void isOptionalWhenPrefixedWithOptionalReturnsTrue() {
-    ConfigDataLocation location = ConfigDataLocation.of("optional:test");
+    ConfigDataLocation location = ConfigDataLocation.valueOf("optional:test");
     assertThat(location.isOptional()).isTrue();
   }
 
   @Test
   void getValueWhenNotPrefixedWithOptionalReturnsValue() {
-    ConfigDataLocation location = ConfigDataLocation.of("test");
+    ConfigDataLocation location = ConfigDataLocation.valueOf("test");
     assertThat(location.getValue()).isEqualTo("test");
   }
 
   @Test
   void getValueWhenPrefixedWithOptionalReturnsValueWithoutPrefix() {
-    ConfigDataLocation location = ConfigDataLocation.of("optional:test");
+    ConfigDataLocation location = ConfigDataLocation.valueOf("optional:test");
     assertThat(location.getValue()).isEqualTo("test");
   }
 
   @Test
   void hasPrefixWhenPrefixedReturnsTrue() {
-    ConfigDataLocation location = ConfigDataLocation.of("optional:test:path");
+    ConfigDataLocation location = ConfigDataLocation.valueOf("optional:test:path");
     assertThat(location.hasPrefix("test:")).isTrue();
   }
 
   @Test
   void hasPrefixWhenNotPrefixedReturnsFalse() {
-    ConfigDataLocation location = ConfigDataLocation.of("optional:file:path");
+    ConfigDataLocation location = ConfigDataLocation.valueOf("optional:file:path");
     assertThat(location.hasPrefix("test:")).isFalse();
   }
 
   @Test
   void getNonPrefixedValueWhenPrefixedReturnsNonPrefixed() {
-    ConfigDataLocation location = ConfigDataLocation.of("optional:test:path");
+    ConfigDataLocation location = ConfigDataLocation.valueOf("optional:test:path");
     assertThat(location.getNonPrefixedValue("test:")).isEqualTo("path");
   }
 
   @Test
   void getNonPrefixedValueWhenNotPrefixedReturnsOriginalValue() {
-    ConfigDataLocation location = ConfigDataLocation.of("optional:file:path");
+    ConfigDataLocation location = ConfigDataLocation.valueOf("optional:file:path");
     assertThat(location.getNonPrefixedValue("test:")).isEqualTo("file:path");
   }
 
   @Test
   void getOriginWhenNoOriginReturnsNull() {
-    ConfigDataLocation location = ConfigDataLocation.of("test");
+    ConfigDataLocation location = ConfigDataLocation.valueOf("test");
     assertThat(location.getOrigin()).isNull();
   }
 
   @Test
   void getOriginWhenWithOriginReturnsOrigin() {
     Origin origin = mock(Origin.class);
-    ConfigDataLocation location = ConfigDataLocation.of("test").withOrigin(origin);
+    ConfigDataLocation location = ConfigDataLocation.valueOf("test").withOrigin(origin);
     assertThat(location.getOrigin()).isSameAs(origin);
   }
 
   @Test
   void equalsAndHashCode() {
-    ConfigDataLocation l1 = ConfigDataLocation.of("a");
-    ConfigDataLocation l2 = ConfigDataLocation.of("a");
-    ConfigDataLocation l3 = ConfigDataLocation.of("optional:a");
-    ConfigDataLocation l4 = ConfigDataLocation.of("b");
+    ConfigDataLocation l1 = ConfigDataLocation.valueOf("a");
+    ConfigDataLocation l2 = ConfigDataLocation.valueOf("a");
+    ConfigDataLocation l3 = ConfigDataLocation.valueOf("optional:a");
+    ConfigDataLocation l4 = ConfigDataLocation.valueOf("b");
     assertThat(l1.hashCode()).isEqualTo(l2.hashCode()).isEqualTo(l3.hashCode());
     assertThat(l1).isEqualTo(l2).isEqualTo(l3).isNotEqualTo(l4);
   }
 
   @Test
   void toStringReturnsOriginalString() {
-    ConfigDataLocation location = ConfigDataLocation.of("optional:test");
+    ConfigDataLocation location = ConfigDataLocation.valueOf("optional:test");
     assertThat(location).hasToString("optional:test");
   }
 
   @Test
   void withOriginSetsOrigin() {
     Origin origin = mock(Origin.class);
-    ConfigDataLocation location = ConfigDataLocation.of("test").withOrigin(origin);
+    ConfigDataLocation location = ConfigDataLocation.valueOf("test").withOrigin(origin);
     assertThat(location.getOrigin()).isSameAs(origin);
   }
 
   @Test
   void ofWhenNullValueReturnsNull() {
-    assertThat(ConfigDataLocation.of(null)).isNull();
+    assertThat(ConfigDataLocation.valueOf(null)).isNull();
   }
 
   @Test
   void ofWhenEmptyValueReturnsNull() {
-    assertThat(ConfigDataLocation.of("")).isNull();
+    assertThat(ConfigDataLocation.valueOf("")).isNull();
   }
 
   @Test
   void ofWhenEmptyOptionalValueReturnsNull() {
-    assertThat(ConfigDataLocation.of("optional:")).isNull();
+    assertThat(ConfigDataLocation.valueOf("optional:")).isNull();
   }
 
   @Test
   void ofReturnsLocation() {
-    assertThat(ConfigDataLocation.of("test")).hasToString("test");
+    assertThat(ConfigDataLocation.valueOf("test")).hasToString("test");
   }
 
   @Test
   void splitWhenNoSemiColonReturnsSingleElement() {
-    ConfigDataLocation location = ConfigDataLocation.of("test");
+    ConfigDataLocation location = ConfigDataLocation.valueOf("test");
     ConfigDataLocation[] split = location.split();
-    Assertions.assertThat(split).containsExactly(ConfigDataLocation.of("test"));
+    Assertions.assertThat(split).containsExactly(ConfigDataLocation.valueOf("test"));
   }
 
   @Test
   void splitWhenSemiColonReturnsElements() {
-    ConfigDataLocation location = ConfigDataLocation.of("one;two;three");
+    ConfigDataLocation location = ConfigDataLocation.valueOf("one;two;three");
     ConfigDataLocation[] split = location.split();
-    Assertions.assertThat(split).containsExactly(ConfigDataLocation.of("one"), ConfigDataLocation.of("two"),
-            ConfigDataLocation.of("three"));
+    Assertions.assertThat(split).containsExactly(ConfigDataLocation.valueOf("one"), ConfigDataLocation.valueOf("two"),
+            ConfigDataLocation.valueOf("three"));
   }
 
   @Test
   void splitOnCharReturnsElements() {
-    ConfigDataLocation location = ConfigDataLocation.of("one::two::three");
+    ConfigDataLocation location = ConfigDataLocation.valueOf("one::two::three");
     ConfigDataLocation[] split = location.split("::");
-    Assertions.assertThat(split).containsExactly(ConfigDataLocation.of("one"), ConfigDataLocation.of("two"),
-            ConfigDataLocation.of("three"));
+    Assertions.assertThat(split).containsExactly(ConfigDataLocation.valueOf("one"), ConfigDataLocation.valueOf("two"),
+            ConfigDataLocation.valueOf("three"));
   }
 
   @Test
   void splitWhenHasOriginReturnsElementsWithOriginSet() {
     Origin origin = mock(Origin.class);
-    ConfigDataLocation location = ConfigDataLocation.of("a;b").withOrigin(origin);
+    ConfigDataLocation location = ConfigDataLocation.valueOf("a;b").withOrigin(origin);
     ConfigDataLocation[] split = location.split();
     assertThat(split[0].getOrigin()).isEqualTo(origin);
     assertThat(split[1].getOrigin()).isEqualTo(origin);

@@ -129,10 +129,23 @@ public final class ConfigDataLocation implements OriginProvider {
   public ConfigDataLocation[] split(String delimiter) {
     String[] values = StringUtils.delimitedListToStringArray(toString(), delimiter);
     ConfigDataLocation[] result = new ConfigDataLocation[values.length];
-    for (int i = 0; i < values.length; i++) {
-      ConfigDataLocation dataLocation = of(values[i]);
-      if (dataLocation != null) {
-        result[i] = dataLocation.withOrigin(getOrigin());
+
+    int i = 0;
+    Origin origin = getOrigin();
+    if (origin != null) {
+      for (String value : values) {
+        ConfigDataLocation dataLocation = valueOf(value);
+        if (dataLocation != null) {
+          result[i++] = dataLocation.withOrigin(origin);
+        }
+      }
+    }
+    else {
+      for (String value : values) {
+        ConfigDataLocation dataLocation = valueOf(value);
+        if (dataLocation != null) {
+          result[i++] = dataLocation;
+        }
       }
     }
     return result;
@@ -177,7 +190,7 @@ public final class ConfigDataLocation implements OriginProvider {
    * provided
    */
   @Nullable
-  public static ConfigDataLocation of(@Nullable String location) {
+  public static ConfigDataLocation valueOf(@Nullable String location) {
     boolean optional = location != null && location.startsWith(OPTIONAL_PREFIX);
     if (optional) {
       location = location.substring(OPTIONAL_PREFIX.length());
