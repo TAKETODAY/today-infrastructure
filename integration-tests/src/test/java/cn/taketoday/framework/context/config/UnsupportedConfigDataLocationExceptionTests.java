@@ -35,13 +35,13 @@ class UnsupportedConfigDataLocationExceptionTests {
   @Test
   void createSetsMessage() {
     UnsupportedConfigDataLocationException exception = new UnsupportedConfigDataLocationException(
-            ConfigDataLocation.of("test"));
+            ConfigDataLocation.valueOf("test"));
     assertThat(exception).hasMessage("Unsupported config data location 'test'");
   }
 
   @Test
   void getLocationReturnsLocation() {
-    ConfigDataLocation location = ConfigDataLocation.of("test");
+    ConfigDataLocation location = ConfigDataLocation.valueOf("test");
     UnsupportedConfigDataLocationException exception = new UnsupportedConfigDataLocationException(location);
     assertThat(exception.getLocation()).isEqualTo(location);
   }

@@ -44,7 +44,7 @@ class ConfigDataResourceNotFoundExceptionTests {
 
   private ConfigDataResource resource = new TestConfigDataResource();
 
-  private ConfigDataLocation location = ConfigDataLocation.of("optional:test");
+  private ConfigDataLocation location = ConfigDataLocation.valueOf("optional:test");
 
   private Throwable cause = new RuntimeException();
 

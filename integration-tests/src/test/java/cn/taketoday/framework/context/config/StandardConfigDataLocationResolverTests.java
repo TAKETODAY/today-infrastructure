@@ -69,12 +69,12 @@ class StandardConfigDataLocationResolverTests {
 
   @Test
   void isResolvableAlwaysReturnsTrue() {
-    assertThat(this.resolver.isResolvable(this.context, ConfigDataLocation.of("test"))).isTrue();
+    assertThat(this.resolver.isResolvable(this.context, ConfigDataLocation.valueOf("test"))).isTrue();
   }
 
   @Test
   void resolveWhenLocationIsDirectoryResolvesAllMatchingFilesInDirectory() {
-    ConfigDataLocation location = ConfigDataLocation.of("classpath:/configdata/properties/");
+    ConfigDataLocation location = ConfigDataLocation.valueOf("classpath:/configdata/properties/");
     List<StandardConfigDataResource> locations = this.resolver.resolve(this.context, location);
     assertThat(locations.size()).isEqualTo(1);
     Assertions.assertThat(locations).extracting(Object::toString)
@@ -84,7 +84,7 @@ class StandardConfigDataLocationResolverTests {
   @Test
   void resolveWhenLocationIsFileResolvesFile() {
     ConfigDataLocation location = ConfigDataLocation
-            .of("file:src/test/resources/configdata/properties/application.properties");
+            .valueOf("file:src/test/resources/configdata/properties/application.properties");
     List<StandardConfigDataResource> locations = this.resolver.resolve(this.context, location);
     assertThat(locations.size()).isEqualTo(1);
     Assertions.assertThat(locations).extracting(Object::toString).containsExactly(
@@ -94,7 +94,7 @@ class StandardConfigDataLocationResolverTests {
   @Test
   void resolveWhenLocationIsFileAndNoMatchingLoaderThrowsException() {
     ConfigDataLocation location = ConfigDataLocation
-            .of("file:src/test/resources/configdata/properties/application.unknown");
+            .valueOf("file:src/test/resources/configdata/properties/application.unknown");
     assertThatIllegalStateException().isThrownBy(() -> this.resolver.resolve(this.context, location))
             .withMessageStartingWith("Unable to load config data from")
             .satisfies((ex) -> assertThat(ex.getCause()).hasMessageStartingWith("File extension is not known"));
@@ -102,14 +102,14 @@ class StandardConfigDataLocationResolverTests {
 
   @Test
   void resolveWhenLocationWildcardIsSpecifiedForClasspathLocationThrowsException() {
-    ConfigDataLocation location = ConfigDataLocation.of("classpath*:application.properties");
+    ConfigDataLocation location = ConfigDataLocation.valueOf("classpath*:application.properties");
     assertThatIllegalStateException().isThrownBy(() -> this.resolver.resolve(this.context, location))
             .withMessageContaining("Location 'classpath*:application.properties' cannot use classpath wildcards");
   }
 
   @Test
   void resolveWhenLocationWildcardIsNotBeforeLastSlashThrowsException() {
-    ConfigDataLocation location = ConfigDataLocation.of("file:src/test/resources/*/config/");
+    ConfigDataLocation location = ConfigDataLocation.valueOf("file:src/test/resources/*/config/");
     assertThatIllegalStateException().isThrownBy(() -> this.resolver.resolve(this.context, location))
             .withMessageStartingWith("Location '").withMessageEndingWith("' must end with '*/'");
   }
@@ -125,14 +125,14 @@ class StandardConfigDataLocationResolverTests {
 
   @Test
   void resolveWhenLocationHasMultipleWildcardsThrowsException() {
-    ConfigDataLocation location = ConfigDataLocation.of("file:src/test/resources/config/**/");
+    ConfigDataLocation location = ConfigDataLocation.valueOf("file:src/test/resources/config/**/");
     assertThatIllegalStateException().isThrownBy(() -> this.resolver.resolve(this.context, location))
             .withMessageStartingWith("Location '").withMessageEndingWith("' cannot contain multiple wildcards");
   }
 
   @Test
   void resolveWhenLocationIsWildcardDirectoriesRestrictsToOneLevelDeep() {
-    ConfigDataLocation location = ConfigDataLocation.of("file:src/test/resources/config/*/");
+    ConfigDataLocation location = ConfigDataLocation.valueOf("file:src/test/resources/config/*/");
     this.environment.setProperty("context.config.name", "testproperties");
     this.resolver = new StandardConfigDataLocationResolver(this.environmentBinder, this.resourceLoader);
     List<StandardConfigDataResource> locations = this.resolver.resolve(this.context, location);
@@ -145,7 +145,7 @@ class StandardConfigDataLocationResolverTests {
 
   @Test
   void resolveWhenLocationIsWildcardDirectoriesSortsAlphabeticallyBasedOnAbsolutePath() {
-    ConfigDataLocation location = ConfigDataLocation.of("file:src/test/resources/config/*/");
+    ConfigDataLocation location = ConfigDataLocation.valueOf("file:src/test/resources/config/*/");
     this.environment.setProperty("context.config.name", "testproperties");
     this.resolver = new StandardConfigDataLocationResolver(this.environmentBinder, this.resourceLoader);
     List<StandardConfigDataResource> locations = this.resolver.resolve(this.context, location);
@@ -157,14 +157,14 @@ class StandardConfigDataLocationResolverTests {
 
   @Test
   void resolveWhenLocationIsWildcardAndMatchingFilePresentShouldNotFail() {
-    ConfigDataLocation location = ConfigDataLocation.of("optional:file:src/test/resources/a-file/*/");
+    ConfigDataLocation location = ConfigDataLocation.valueOf("optional:file:src/test/resources/a-file/*/");
     assertThatNoException().isThrownBy(() -> this.resolver.resolve(this.context, location));
   }
 
   @Test
   void resolveWhenLocationIsWildcardFilesLoadsAllFilesThatMatch() {
     ConfigDataLocation location = ConfigDataLocation
-            .of("file:src/test/resources/config/*/testproperties.properties");
+            .valueOf("file:src/test/resources/config/*/testproperties.properties");
     List<StandardConfigDataResource> locations = this.resolver.resolve(this.context, location);
     assertThat(locations.size()).isEqualTo(3);
     Assertions.assertThat(locations).extracting(Object::toString)
@@ -177,11 +177,11 @@ class StandardConfigDataLocationResolverTests {
   @Test
   void resolveWhenLocationIsRelativeAndFileResolves() {
     this.environment.setProperty("context.config.name", "other");
-    ConfigDataLocation location = ConfigDataLocation.of("other.properties");
+    ConfigDataLocation location = ConfigDataLocation.valueOf("other.properties");
     this.resolver = new StandardConfigDataLocationResolver(this.environmentBinder,
             this.resourceLoader);
     StandardConfigDataReference parentReference = new StandardConfigDataReference(
-            ConfigDataLocation.of("classpath:configdata/properties/application.properties"), null,
+            ConfigDataLocation.valueOf("classpath:configdata/properties/application.properties"), null,
             "classpath:configdata/properties/application", null, "properties",
             new PropertiesPropertySourceLoader());
     ClassPathResource parentResource = new ClassPathResource("configdata/properties/application.properties");
@@ -196,10 +196,10 @@ class StandardConfigDataLocationResolverTests {
   @Test
   void resolveWhenLocationIsRelativeAndDirectoryResolves() {
     this.environment.setProperty("context.config.name", "testproperties");
-    ConfigDataLocation location = ConfigDataLocation.of("nested/3-third/");
+    ConfigDataLocation location = ConfigDataLocation.valueOf("nested/3-third/");
     this.resolver = new StandardConfigDataLocationResolver(this.environmentBinder, this.resourceLoader);
     StandardConfigDataReference parentReference = new StandardConfigDataReference(
-            ConfigDataLocation.of("optional:classpath:configdata/"), null, "classpath:config/specific", null,
+            ConfigDataLocation.valueOf("optional:classpath:configdata/"), null, "classpath:config/specific", null,
             "properties", new PropertiesPropertySourceLoader());
     ClassPathResource parentResource = new ClassPathResource("config/specific.properties");
     StandardConfigDataResource parent = new StandardConfigDataResource(parentReference, parentResource);
@@ -212,9 +212,9 @@ class StandardConfigDataLocationResolverTests {
 
   @Test
   void resolveWhenLocationIsRelativeAndNoMatchingLoaderThrowsException() {
-    ConfigDataLocation location = ConfigDataLocation.of("application.other");
+    ConfigDataLocation location = ConfigDataLocation.valueOf("application.other");
     StandardConfigDataReference parentReference = new StandardConfigDataReference(
-            ConfigDataLocation.of("classpath:configdata/properties/application.properties"), null,
+            ConfigDataLocation.valueOf("classpath:configdata/properties/application.properties"), null,
             "configdata/properties/application", null, "properties", new PropertiesPropertySourceLoader());
     ClassPathResource parentResource = new ClassPathResource("configdata/properties/application.properties");
     StandardConfigDataResource parent = new StandardConfigDataResource(parentReference, parentResource);
@@ -226,7 +226,7 @@ class StandardConfigDataLocationResolverTests {
 
   @Test
   void resolveWhenLocationUsesOptionalExtensionSyntaxResolves() throws Exception {
-    ConfigDataLocation location = ConfigDataLocation.of("classpath:/application-props-no-extension[.properties]");
+    ConfigDataLocation location = ConfigDataLocation.valueOf("classpath:/application-props-no-extension[.properties]");
     List<StandardConfigDataResource> locations = this.resolver.resolve(this.context, location);
     assertThat(locations.size()).isEqualTo(1);
     StandardConfigDataResource resolved = locations.get(0);
@@ -238,7 +238,7 @@ class StandardConfigDataLocationResolverTests {
 
   @Test
   void resolveProfileSpecificReturnsProfileSpecificFiles() {
-    ConfigDataLocation location = ConfigDataLocation.of("classpath:/configdata/properties/");
+    ConfigDataLocation location = ConfigDataLocation.valueOf("classpath:/configdata/properties/");
     Profiles profiles = mock(Profiles.class);
     given(profiles.iterator()).willReturn(Collections.singletonList("dev").iterator());
     List<StandardConfigDataResource> locations = this.resolver.resolveProfileSpecific(this.context, location,
@@ -250,7 +250,7 @@ class StandardConfigDataLocationResolverTests {
 
   @Test
   void resolveProfileSpecificWhenLocationIsFileReturnsEmptyList() {
-    ConfigDataLocation location = ConfigDataLocation.of("classpath:/configdata/properties/application.properties");
+    ConfigDataLocation location = ConfigDataLocation.valueOf("classpath:/configdata/properties/application.properties");
     Profiles profiles = mock(Profiles.class);
     given(profiles.iterator()).willReturn(Collections.emptyIterator());
     given(profiles.getActive()).willReturn(Collections.singletonList("dev"));

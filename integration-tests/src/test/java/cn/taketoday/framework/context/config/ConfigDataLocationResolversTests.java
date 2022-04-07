@@ -131,7 +131,7 @@ class ConfigDataLocationResolversTests {
     ConfigDataLocationResolvers resolvers = new ConfigDataLocationResolvers(this.bootstrapContext,
             this.binder, this.resourceLoader,
             Arrays.asList(LowestTestResolver.class.getName(), HighestTestResolver.class.getName()));
-    ConfigDataLocation location = ConfigDataLocation.of("LowestTestResolver:test");
+    ConfigDataLocation location = ConfigDataLocation.valueOf("LowestTestResolver:test");
     List<ConfigDataResolutionResult> resolved = resolvers.resolve(this.context, location, null);
     Assertions.assertThat(resolved).hasSize(1);
     TestConfigDataResource resource = (TestConfigDataResource) resolved.get(0).getResource();
@@ -145,7 +145,7 @@ class ConfigDataLocationResolversTests {
     ConfigDataLocationResolvers resolvers = new ConfigDataLocationResolvers(this.bootstrapContext,
             this.binder, this.resourceLoader,
             Arrays.asList(LowestTestResolver.class.getName(), HighestTestResolver.class.getName()));
-    ConfigDataLocation location = ConfigDataLocation.of("LowestTestResolver:test");
+    ConfigDataLocation location = ConfigDataLocation.valueOf("LowestTestResolver:test");
     List<ConfigDataResolutionResult> resolved = resolvers.resolve(this.context, location, this.profiles);
     Assertions.assertThat(resolved).hasSize(2);
     TestConfigDataResource resource = (TestConfigDataResource) resolved.get(0).getResource();
@@ -163,7 +163,7 @@ class ConfigDataLocationResolversTests {
     ConfigDataLocationResolvers resolvers = new ConfigDataLocationResolvers(this.bootstrapContext,
             this.binder, this.resourceLoader,
             Arrays.asList(LowestTestResolver.class.getName(), HighestTestResolver.class.getName()));
-    ConfigDataLocation location = ConfigDataLocation.of("Missing:test");
+    ConfigDataLocation location = ConfigDataLocation.valueOf("Missing:test");
     assertThatExceptionOfType(UnsupportedConfigDataLocationException.class)
             .isThrownBy(() -> resolvers.resolve(this.context, location, null))
             .satisfies((ex) -> assertThat(ex.getLocation()).isEqualTo(location));
@@ -173,7 +173,7 @@ class ConfigDataLocationResolversTests {
   void resolveWhenOptional() {
     ConfigDataLocationResolvers resolvers = new ConfigDataLocationResolvers(this.bootstrapContext,
             this.binder, this.resourceLoader, Arrays.asList(OptionalResourceTestResolver.class.getName()));
-    ConfigDataLocation location = ConfigDataLocation.of("OptionalResourceTestResolver:test");
+    ConfigDataLocation location = ConfigDataLocation.valueOf("OptionalResourceTestResolver:test");
     List<ConfigDataResolutionResult> resolved = resolvers.resolve(this.context, location, null);
     assertThat(resolved.get(0).getResource().isOptional()).isTrue();
   }

@@ -57,7 +57,7 @@ class ConfigDataEnvironmentPostProcessorBootstrapContextIntegrationTests {
       assertThat(bean.getBound()).isEqualTo("igotbound");
       assertThat(bean.getProfileBound()).isEqualTo("igotprofilebound");
       assertThat(bean.getLocation().getResolverHelper().getLocation())
-              .isEqualTo(ConfigDataLocation.of("testbootstrap:test"));
+              .isEqualTo(ConfigDataLocation.valueOf("testbootstrap:test"));
     }
   }
 

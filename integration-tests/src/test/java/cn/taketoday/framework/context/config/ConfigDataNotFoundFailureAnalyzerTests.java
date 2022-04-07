@@ -39,7 +39,7 @@ class ConfigDataNotFoundFailureAnalyzerTests {
 
   @Test
   void analyzeWhenConfigDataLocationNotFoundException() {
-    ConfigDataLocation location = ConfigDataLocation.of("test");
+    ConfigDataLocation location = ConfigDataLocation.valueOf("test");
     ConfigDataLocationNotFoundException exception = new ConfigDataLocationNotFoundException(location);
     FailureAnalysis result = this.analyzer.analyze(exception);
     assertThat(result.getDescription()).isEqualTo("Config data location 'test' does not exist");
@@ -49,7 +49,7 @@ class ConfigDataNotFoundFailureAnalyzerTests {
 
   @Test
   void analyzeWhenOptionalConfigDataLocationNotFoundException() {
-    ConfigDataLocation location = ConfigDataLocation.of("optional:test");
+    ConfigDataLocation location = ConfigDataLocation.valueOf("optional:test");
     ConfigDataLocationNotFoundException exception = new ConfigDataLocationNotFoundException(location);
     FailureAnalysis result = this.analyzer.analyze(exception);
     assertThat(result.getDescription()).isEqualTo("Config data location 'optional:test' does not exist");
@@ -58,7 +58,7 @@ class ConfigDataNotFoundFailureAnalyzerTests {
 
   @Test
   void analyzeWhenConfigDataLocationWithOriginNotFoundException() {
-    ConfigDataLocation location = ConfigDataLocation.of("test").withOrigin(new TestOrigin("origin"));
+    ConfigDataLocation location = ConfigDataLocation.valueOf("test").withOrigin(new TestOrigin("origin"));
     ConfigDataLocationNotFoundException exception = new ConfigDataLocationNotFoundException(location);
     FailureAnalysis result = this.analyzer.analyze(exception);
     assertThat(result.getDescription()).isEqualTo("Config data location 'test' does not exist");
@@ -77,7 +77,7 @@ class ConfigDataNotFoundFailureAnalyzerTests {
 
   @Test
   void analyzeWhenConfigDataResourceWithLocationNotFoundException() {
-    ConfigDataLocation location = ConfigDataLocation.of("test");
+    ConfigDataLocation location = ConfigDataLocation.valueOf("test");
     ConfigDataResource resource = new TestConfigDataResource("myresource");
     ConfigDataResourceNotFoundException exception = new ConfigDataResourceNotFoundException(resource)
             .withLocation(location);

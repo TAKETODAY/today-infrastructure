@@ -51,9 +51,9 @@ class ConfigDataPropertiesTests {
 
   @Test
   void getImportsReturnsImports() {
-    ConfigDataLocation l1 = ConfigDataLocation.of("one");
-    ConfigDataLocation l2 = ConfigDataLocation.of("two");
-    ConfigDataLocation l3 = ConfigDataLocation.of("three");
+    ConfigDataLocation l1 = ConfigDataLocation.valueOf("one");
+    ConfigDataLocation l2 = ConfigDataLocation.valueOf("two");
+    ConfigDataLocation l3 = ConfigDataLocation.valueOf("three");
     List<ConfigDataLocation> imports = Arrays.asList(l1, l2, l3);
     ConfigDataProperties properties = new ConfigDataProperties(imports, null);
     assertThat(properties.getImports()).containsExactly(l1, l2, l3);

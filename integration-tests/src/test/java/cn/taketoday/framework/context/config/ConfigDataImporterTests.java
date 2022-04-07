@@ -74,8 +74,8 @@ class ConfigDataImporterTests {
 
   @Test
   void loadImportsResolvesAndLoadsLocations() throws Exception {
-    ConfigDataLocation location1 = ConfigDataLocation.of("test1");
-    ConfigDataLocation location2 = ConfigDataLocation.of("test2");
+    ConfigDataLocation location1 = ConfigDataLocation.valueOf("test1");
+    ConfigDataLocation location2 = ConfigDataLocation.valueOf("test2");
     TestResource resource1 = new TestResource("r1");
     TestResource resource2 = new TestResource("r2");
     ConfigData configData1 = new ConfigData(Collections.singleton(new MockPropertySource()));
@@ -94,9 +94,9 @@ class ConfigDataImporterTests {
 
   @Test
   void loadImportsWhenAlreadyImportedLocationSkipsLoad() throws Exception {
-    ConfigDataLocation location1 = ConfigDataLocation.of("test1");
-    ConfigDataLocation location2 = ConfigDataLocation.of("test2");
-    ConfigDataLocation location3 = ConfigDataLocation.of("test3");
+    ConfigDataLocation location1 = ConfigDataLocation.valueOf("test1");
+    ConfigDataLocation location2 = ConfigDataLocation.valueOf("test2");
+    ConfigDataLocation location3 = ConfigDataLocation.valueOf("test3");
     List<ConfigDataLocation> locations1and2 = Arrays.asList(location1, location2);
     List<ConfigDataLocation> locations2and3 = Arrays.asList(location2, location3);
     TestResource resource1 = new TestResource("r1");

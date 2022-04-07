@@ -37,7 +37,7 @@ class ConfigDataLocationNotFoundExceptionTests {
 
   private Origin origin = mock(Origin.class);
 
-  private final ConfigDataLocation location = ConfigDataLocation.of("optional:test").withOrigin(this.origin);
+  private final ConfigDataLocation location = ConfigDataLocation.valueOf("optional:test").withOrigin(this.origin);
 
   private final ConfigDataLocationNotFoundException exception = new ConfigDataLocationNotFoundException(
           this.location);

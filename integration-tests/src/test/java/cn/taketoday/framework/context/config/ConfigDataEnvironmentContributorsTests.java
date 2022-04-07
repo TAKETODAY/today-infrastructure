@@ -61,9 +61,9 @@ import static org.mockito.Mockito.mock;
 @ExtendWith(MockitoExtension.class)
 class ConfigDataEnvironmentContributorsTests {
 
-  private static final ConfigDataLocation LOCATION_1 = ConfigDataLocation.of("location1");
+  private static final ConfigDataLocation LOCATION_1 = ConfigDataLocation.valueOf("location1");
 
-  private static final ConfigDataLocation LOCATION_2 = ConfigDataLocation.of("location2");
+  private static final ConfigDataLocation LOCATION_2 = ConfigDataLocation.valueOf("location2");
 
   private DefaultBootstrapContext bootstrapContext = new DefaultBootstrapContext();
 
