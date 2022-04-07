@@ -138,7 +138,7 @@ public class HttpEntityMethodProcessor extends AbstractMessageConverterMethodPro
 
   @Override
   protected boolean supportsHandlerInternal(ActionMappingAnnotationHandler annotationHandler) {
-    MethodParameter returnType = annotationHandler.getMethod().getMethodReturnType();
+    MethodParameter returnType = annotationHandler.getMethod().getReturnType();
     Class<?> type = returnType.getParameterType();
     return ((HttpEntity.class.isAssignableFrom(type) && !RequestEntity.class.isAssignableFrom(type))
             || ErrorResponse.class.isAssignableFrom(type) || ProblemDetail.class.isAssignableFrom(type));
@@ -191,7 +191,7 @@ public class HttpEntityMethodProcessor extends AbstractMessageConverterMethodPro
     if (returnValue == null) {
       return;
     }
-    MethodParameter methodReturnType = handler.getMethod().getMethodReturnType();
+    MethodParameter methodReturnType = handler.getMethod().getReturnType();
 
     HttpEntity<?> httpEntity;
     if (returnValue instanceof ErrorResponse response) {

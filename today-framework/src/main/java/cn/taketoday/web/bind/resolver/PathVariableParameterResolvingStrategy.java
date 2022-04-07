@@ -23,6 +23,8 @@ package cn.taketoday.web.bind.resolver;
 import java.util.Map;
 
 import cn.taketoday.core.MethodParameter;
+import cn.taketoday.core.TypeDescriptor;
+import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.core.conversion.Converter;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.StringUtils;
@@ -30,6 +32,8 @@ import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.annotation.PathVariable;
 import cn.taketoday.web.bind.MissingPathVariableException;
 import cn.taketoday.web.handler.method.ResolvableMethodParameter;
+import cn.taketoday.web.handler.method.support.UriComponentsContributor;
+import cn.taketoday.web.util.UriComponentsBuilder;
 
 /**
  * Resolves method arguments annotated with an @{@link PathVariable}.
@@ -46,7 +50,9 @@ import cn.taketoday.web.handler.method.ResolvableMethodParameter;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/2/3 16:32
  */
-public class PathVariableParameterResolvingStrategy extends AbstractNamedValueResolvingStrategy {
+public class PathVariableParameterResolvingStrategy extends AbstractNamedValueResolvingStrategy
+        implements UriComponentsContributor {
+  private static final TypeDescriptor STRING_TYPE_DESCRIPTOR = TypeDescriptor.valueOf(String.class);
 
   @Override
   public boolean supportsParameter(ResolvableMethodParameter resolvable) {
@@ -76,6 +82,38 @@ public class PathVariableParameterResolvingStrategy extends AbstractNamedValueRe
   protected void handleMissingValueAfterConversion(
           String name, MethodParameter parameter, RequestContext request) {
     throw new MissingPathVariableException(name, parameter, true);
+  }
+
+  @Override
+  public boolean supportsParameter(MethodParameter parameter) {
+    return supportsParameter(new ResolvableMethodParameter(parameter));
+  }
+
+  @Override
+  public void contributeMethodArgument(MethodParameter parameter, Object value,
+          UriComponentsBuilder builder, Map<String, Object> uriVariables, ConversionService conversionService) {
+
+    if (Map.class.isAssignableFrom(parameter.nestedIfOptional().getNestedParameterType())) {
+      return;
+    }
+
+    PathVariable ann = parameter.getParameterAnnotation(PathVariable.class);
+    String name = (ann != null && StringUtils.isNotEmpty(ann.value()) ? ann.value() : parameter.getParameterName());
+    String formatted = formatUriValue(conversionService, new TypeDescriptor(parameter.nestedIfOptional()), value);
+    uriVariables.put(name, formatted);
+  }
+
+  @Nullable
+  protected String formatUriValue(@Nullable ConversionService cs, @Nullable TypeDescriptor sourceType, Object value) {
+    if (value instanceof String) {
+      return (String) value;
+    }
+    else if (cs != null) {
+      return (String) cs.convert(value, sourceType, STRING_TYPE_DESCRIPTOR);
+    }
+    else {
+      return value.toString();
+    }
   }
 
 }

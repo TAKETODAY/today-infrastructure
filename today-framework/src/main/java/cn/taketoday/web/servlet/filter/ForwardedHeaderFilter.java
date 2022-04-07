@@ -35,7 +35,7 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.LinkedCaseInsensitiveMap;
 import cn.taketoday.util.ResourceUtils;
 import cn.taketoday.util.StringUtils;
-import cn.taketoday.web.servlet.ServletUtils;
+import cn.taketoday.web.servlet.UrlPathHelper;
 import cn.taketoday.web.util.UriComponents;
 import cn.taketoday.web.util.UriComponentsBuilder;
 import jakarta.servlet.FilterChain;
@@ -374,7 +374,7 @@ public class ForwardedHeaderFilter extends OncePerRequestFilter {
     @Nullable
     private String initRequestUri() {
       if (this.forwardedPrefix != null) {
-        return this.forwardedPrefix + ServletUtils.getPathWithinApplication(delegate.get());
+        return this.forwardedPrefix + UrlPathHelper.defaultInstance.getPathWithinApplication(delegate.get());
       }
       return null;
     }

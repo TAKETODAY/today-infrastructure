@@ -145,7 +145,7 @@ public class RequestResponseBodyMethodProcessor extends AbstractMessageConverter
           RequestContext context, ActionMappingAnnotationHandler handler, @Nullable Object returnValue) throws Exception {
     context.setRequestHandled(true);
     // Try even with null return value. ResponseBodyAdvice could get involved.
-    writeWithMessageConverters(returnValue, handler.getMethod().getMethodReturnType(), context);
+    writeWithMessageConverters(returnValue, handler.getMethod().getReturnType(), context);
   }
 
 }

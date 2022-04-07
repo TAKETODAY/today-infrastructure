@@ -50,6 +50,7 @@ public final class PathPatternsRequestCondition extends AbstractRequestCondition
 
   private static final Set<String> EMPTY_PATH = Collections.singleton("");
 
+  // TODO use patterns array
   private final SortedSet<PathPattern> patterns;
 
   /**

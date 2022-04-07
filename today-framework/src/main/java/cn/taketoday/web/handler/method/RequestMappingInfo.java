@@ -20,7 +20,6 @@
 
 package cn.taketoday.web.handler.method;
 
-import java.util.List;
 import java.util.Set;
 
 import cn.taketoday.http.HttpMethod;
@@ -680,7 +679,7 @@ public final class RequestMappingInfo implements RequestCondition<RequestMapping
     @Override
     public RequestMappingInfo build() {
       return new RequestMappingInfo(this.name,
-              this.pathPatternsCondition, this.patternsCondition,
+              this.pathPatternsCondition,
               this.methodsCondition, this.paramsCondition, this.headersCondition,
               this.consumesCondition, this.producesCondition,
               this.customConditionHolder, this.options);
@@ -699,10 +698,6 @@ public final class RequestMappingInfo implements RequestCondition<RequestMapping
     private PathPatternParser patternParser;
 
     private boolean trailingSlashMatch = true;
-
-    private boolean suffixPatternMatch = false;
-
-    private boolean registeredSuffixPatternMatch = false;
 
     @Nullable
     private ContentNegotiationManager contentNegotiationManager;
@@ -732,78 +727,6 @@ public final class RequestMappingInfo implements RequestCondition<RequestMapping
      */
     public boolean useTrailingSlashMatch() {
       return this.trailingSlashMatch;
-    }
-
-    /**
-     * Set whether to apply suffix pattern matching in PatternsRequestCondition.
-     * <p>By default this is set to 'false'.
-     *
-     * @see #setRegisteredSuffixPatternMatch(boolean)
-     * @deprecated as of 5.2.4. See deprecation note on
-     * {@link RequestMappingHandlerMapping#setUseSuffixPatternMatch(boolean)}.
-     */
-    @Deprecated
-    public void setSuffixPatternMatch(boolean suffixPatternMatch) {
-      this.suffixPatternMatch = suffixPatternMatch;
-    }
-
-    /**
-     * Return whether to apply suffix pattern matching in PatternsRequestCondition.
-     *
-     * @deprecated as of 5.2.4. See deprecation note on
-     * {@link RequestMappingHandlerMapping#setUseSuffixPatternMatch(boolean)}.
-     */
-    @Deprecated
-    public boolean useSuffixPatternMatch() {
-      return this.suffixPatternMatch;
-    }
-
-    /**
-     * Set whether suffix pattern matching should be restricted to registered
-     * file extensions only. Setting this property also sets
-     * {@code suffixPatternMatch=true} and requires that a
-     * {@link #setContentNegotiationManager} is also configured in order to
-     * obtain the registered file extensions.
-     *
-     * @deprecated as of 5.2.4. See class-level note in
-     * {@link RequestMappingHandlerMapping} on the deprecation of path
-     * extension config options.
-     */
-    @Deprecated
-    public void setRegisteredSuffixPatternMatch(boolean registeredSuffixPatternMatch) {
-      this.registeredSuffixPatternMatch = registeredSuffixPatternMatch;
-      this.suffixPatternMatch = (registeredSuffixPatternMatch || this.suffixPatternMatch);
-    }
-
-    /**
-     * Return whether suffix pattern matching should be restricted to registered
-     * file extensions only.
-     *
-     * @deprecated as of 5.2.4. See class-level note in
-     * {@link RequestMappingHandlerMapping} on the deprecation of path
-     * extension config options.
-     */
-    @Deprecated
-    public boolean useRegisteredSuffixPatternMatch() {
-      return this.registeredSuffixPatternMatch;
-    }
-
-    /**
-     * Return the file extensions to use for suffix pattern matching. If
-     * {@code registeredSuffixPatternMatch=true}, the extensions are obtained
-     * from the configured {@code contentNegotiationManager}.
-     *
-     * @deprecated as of 5.2.4. See class-level note in
-     * {@link RequestMappingHandlerMapping} on the deprecation of path
-     * extension config options.
-     */
-    @Nullable
-    @Deprecated
-    public List<String> getFileExtensions() {
-      if (useRegisteredSuffixPatternMatch() && this.contentNegotiationManager != null) {
-        return this.contentNegotiationManager.getAllFileExtensions();
-      }
-      return null;
     }
 
     /**

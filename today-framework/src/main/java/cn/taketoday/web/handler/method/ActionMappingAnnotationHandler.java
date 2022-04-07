@@ -24,11 +24,13 @@ import java.lang.reflect.Method;
 import java.util.Objects;
 import java.util.function.Supplier;
 
+import cn.taketoday.beans.factory.BeanSupplier;
 import cn.taketoday.context.MessageSource;
 import cn.taketoday.core.i18n.LocaleContextHolder;
 import cn.taketoday.core.reflect.MethodInvoker;
 import cn.taketoday.http.HttpStatus;
 import cn.taketoday.http.HttpStatusCapable;
+import cn.taketoday.http.HttpStatusCode;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.ObjectUtils;
@@ -203,14 +205,14 @@ public abstract class ActionMappingAnnotationHandler
     applyResponseStatus(context, handlerMethod.getResponseStatus());
   }
 
-  protected void applyResponseStatus(RequestContext context, ResponseStatus status) {
+  protected void applyResponseStatus(RequestContext context, HttpStatusCode status) {
     if (status != null) {
-      String reason = status.reason();
-      HttpStatus httpStatus = status.value();
+      String reason = handlerMethod.getResponseStatusReason();
+      int httpStatus = status.value();
       if (StringUtils.hasText(reason)) {
         MessageSource messageSource = context.getApplicationContext();
         String message = messageSource.getMessage(reason, null, reason, LocaleContextHolder.getLocale());
-        context.setStatus(httpStatus.value(), message);
+        context.setStatus(httpStatus, message);
       }
       else {
         context.setStatus(httpStatus);
@@ -224,7 +226,7 @@ public abstract class ActionMappingAnnotationHandler
       }
       else if (attribute instanceof Throwable throwable) {
         ResponseStatus runtimeErrorStatus = HandlerMethod.getResponseStatus(throwable);
-        applyResponseStatus(context, runtimeErrorStatus);
+        applyResponseStatus(context, runtimeErrorStatus.code());
       }
     }
   }
@@ -280,14 +282,20 @@ public abstract class ActionMappingAnnotationHandler
 
   public static ActionMappingAnnotationHandler from(
           Object handlerBean, Method method, ResolvableParameterFactory parameterFactory, Class<?> beanType) {
-    HandlerMethod handlerMethod = HandlerMethod.from(method);
+    HandlerMethod handlerMethod = new HandlerMethod(handlerBean, method);
     ResolvableMethodParameter[] parameters = parameterFactory.createArray(handlerMethod);
     return new SingletonActionMappingAnnotationHandler(handlerBean, handlerMethod, parameters, beanType);
   }
 
   public static ActionMappingAnnotationHandler from(
           Supplier<Object> beanSupplier, Method method, ResolvableParameterFactory parameterFactory, Class<?> beanType) {
-    HandlerMethod handlerMethod = HandlerMethod.from(method);
+    HandlerMethod handlerMethod;
+    if (beanSupplier instanceof BeanSupplier<Object> supplier) {
+      handlerMethod = new HandlerMethod(supplier.getBeanName(), supplier.getBeanFactory(), method);
+    }
+    else {
+      handlerMethod = new HandlerMethod(beanSupplier.get(), method);
+    }
     ResolvableMethodParameter[] parameters = parameterFactory.createArray(handlerMethod);
     return new SuppliedActionMappingAnnotationHandler(beanSupplier, handlerMethod, parameters, beanType);
   }

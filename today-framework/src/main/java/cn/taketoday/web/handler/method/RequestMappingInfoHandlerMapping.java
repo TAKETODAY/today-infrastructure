@@ -22,22 +22,18 @@ package cn.taketoday.web.handler.method;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpMethod;
 import cn.taketoday.http.InvalidMediaTypeException;
 import cn.taketoday.http.MediaType;
-import cn.taketoday.http.server.PathContainer;
-import cn.taketoday.lang.Assert;
-import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.StringUtils;
+import cn.taketoday.web.HandlerMatchingMetadata;
 import cn.taketoday.web.HttpMediaTypeNotAcceptableException;
 import cn.taketoday.web.HttpMediaTypeNotSupportedException;
 import cn.taketoday.web.HttpRequestMethodNotSupportedException;
@@ -45,9 +41,6 @@ import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.bind.UnsatisfiedRequestParameterException;
 import cn.taketoday.web.handler.condition.NameValueExpression;
 import cn.taketoday.web.handler.condition.PathPatternsRequestCondition;
-import cn.taketoday.web.handler.condition.ProducesRequestCondition;
-import cn.taketoday.web.util.pattern.PathMatchInfo;
-import cn.taketoday.web.util.pattern.PathPattern;
 
 /**
  * Abstract base class for classes for which {@link RequestMappingInfo} defines
@@ -76,15 +69,6 @@ public abstract class RequestMappingInfoHandlerMapping extends AbstractHandlerMe
     setHandlerMethodMappingNamingStrategy(new RequestMappingInfoHandlerMethodMappingNamingStrategy());
   }
 
-  /**
-   * Get the URL path patterns associated with the supplied {@link RequestMappingInfo}.
-   */
-  @Override
-  @SuppressWarnings("deprecation")
-  protected Set<String> getMappingPathPatterns(RequestMappingInfo info) {
-    return info.getPatternValues();
-  }
-
   @Override
   protected Set<String> getDirectPaths(RequestMappingInfo info) {
     return info.getDirectPaths();
@@ -110,58 +94,24 @@ public abstract class RequestMappingInfoHandlerMapping extends AbstractHandlerMe
     return (info1, info2) -> info1.compareTo(info2, request);
   }
 
-  @Override
-  @Nullable
-  protected HandlerMethod getHandlerInternal(RequestContext request) throws Exception {
-    request.removeAttribute(PRODUCIBLE_MEDIA_TYPES_ATTRIBUTE);
-    try {
-      return super.getHandlerInternal(request);
-    }
-    finally {
-      ProducesRequestCondition.clearMediaTypesAttribute(request);
-    }
-  }
-
   /**
    * Expose URI template variables, matrix variables, and producible media types in the request.
-   *
-   * @see HandlerMapping#URI_TEMPLATE_VARIABLES_ATTRIBUTE
-   * @see HandlerMapping#MATRIX_VARIABLES_ATTRIBUTE
-   * @see HandlerMapping#PRODUCIBLE_MEDIA_TYPES_ATTRIBUTE
    */
   @Override
   protected void handleMatch(RequestMappingInfo info, String lookupPath, RequestContext request) {
     super.handleMatch(info, lookupPath, request);
 
     PathPatternsRequestCondition pathPatternsCondition = info.getPathPatternsCondition();
-    extractMatchDetails(pathPatternsCondition, lookupPath, request);
+    HandlerMatchingMetadata matchingMetadata = new HandlerMatchingMetadata(
+            lookupPath, request.getLookupPath(),
+            CollectionUtils.firstElement(pathPatternsCondition.getPatterns()), getPatternParser()
+    );
+    request.setMatchingMetadata(matchingMetadata);
 
-    if (!info.getProducesCondition().getProducibleMediaTypes().isEmpty()) {
-      Set<MediaType> mediaTypes = info.getProducesCondition().getProducibleMediaTypes();
-      request.setAttribute(PRODUCIBLE_MEDIA_TYPES_ATTRIBUTE, mediaTypes);
+    Set<MediaType> mediaTypes = info.getProducesCondition().getProducibleMediaTypes();
+    if (!mediaTypes.isEmpty()) {
+      matchingMetadata.setProducibleMediaTypes(mediaTypes.toArray(new MediaType[0]));
     }
-  }
-
-  private void extractMatchDetails(
-          PathPatternsRequestCondition condition, String lookupPath, RequestContext request) {
-
-    PathPattern bestPattern;
-    Map<String, String> uriVariables;
-    if (condition.isEmptyPathMapping()) {
-      bestPattern = condition.getFirstPattern();
-      uriVariables = Collections.emptyMap();
-    }
-    else {
-      PathContainer path = ServletRequestPathUtils.getParsedRequestPath(request).pathWithinApplication();
-      bestPattern = condition.getFirstPattern();
-      PathMatchInfo result = bestPattern.matchAndExtract(path);
-      Assert.notNull(result, () ->
-              "Expected bestPattern: " + bestPattern + " to match lookupPath " + path);
-      uriVariables = result.getUriVariables();
-      request.setAttribute(MATRIX_VARIABLES_ATTRIBUTE, result.getMatrixVariables());
-    }
-    request.setAttribute(BEST_MATCHING_PATTERN_ATTRIBUTE, bestPattern.getPatternString());
-    request.setAttribute(URI_TEMPLATE_VARIABLES_ATTRIBUTE, uriVariables);
   }
 
   /**

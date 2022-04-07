@@ -25,7 +25,6 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.util.Collections;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
 
@@ -48,7 +47,6 @@ import cn.taketoday.web.handler.condition.AbstractRequestCondition;
 import cn.taketoday.web.handler.condition.CompositeRequestCondition;
 import cn.taketoday.web.handler.condition.ConsumesRequestCondition;
 import cn.taketoday.web.handler.condition.RequestCondition;
-import cn.taketoday.web.util.pattern.PathPatternParser;
 
 /**
  * Creates {@link RequestMappingInfo} instances from type and method-level
@@ -64,10 +62,6 @@ import cn.taketoday.web.util.pattern.PathPatternParser;
 public class RequestMappingHandlerMapping extends RequestMappingInfoHandlerMapping
         implements EmbeddedValueResolverAware {
 
-  private boolean useSuffixPatternMatch = false;
-
-  private boolean useRegisteredSuffixPatternMatch = false;
-
   private boolean useTrailingSlashMatch = true;
 
   private Map<String, Predicate<Class<?>>> pathPrefixes = Collections.emptyMap();
@@ -78,43 +72,6 @@ public class RequestMappingHandlerMapping extends RequestMappingInfoHandlerMappi
   private StringValueResolver embeddedValueResolver;
 
   private RequestMappingInfo.BuilderConfiguration config = new RequestMappingInfo.BuilderConfiguration();
-
-  /**
-   * Whether to use suffix pattern match (".*") when matching patterns to
-   * requests. If enabled a method mapped to "/users" also matches to "/users.*".
-   * <p>By default value this is set to {@code false}.
-   * <p>Also see {@link #setUseRegisteredSuffixPatternMatch(boolean)} for
-   * more fine-grained control over specific suffixes to allow.
-   * <p><strong>Note:</strong> This property is ignored when
-   * {@link #setPatternParser(PathPatternParser)} is configured.
-   *
-   * @deprecated as of 5.2.4. See class level note on the deprecation of
-   * path extension config options. As there is no replacement for this method,
-   * in 5.2.x it is necessary to set it to {@code false}. In 5.3 the default
-   * changes to {@code false} and use of this property becomes unnecessary.
-   */
-  @Deprecated
-  public void setUseSuffixPatternMatch(boolean useSuffixPatternMatch) {
-    this.useSuffixPatternMatch = useSuffixPatternMatch;
-  }
-
-  /**
-   * Whether suffix pattern matching should work only against path extensions
-   * explicitly registered with the {@link ContentNegotiationManager}. This
-   * is generally recommended to reduce ambiguity and to avoid issues such as
-   * when a "." appears in the path for other reasons.
-   * <p>By default this is set to "false".
-   * <p><strong>Note:</strong> This property is ignored when
-   * {@link #setPatternParser(PathPatternParser)} is configured.
-   *
-   * @deprecated as of 5.2.4. See class level note on the deprecation of
-   * path extension config options.
-   */
-  @Deprecated
-  public void setUseRegisteredSuffixPatternMatch(boolean useRegisteredSuffixPatternMatch) {
-    this.useRegisteredSuffixPatternMatch = useRegisteredSuffixPatternMatch;
-    this.useSuffixPatternMatch = (useRegisteredSuffixPatternMatch || this.useSuffixPatternMatch);
-  }
 
   /**
    * Whether to match to URLs irrespective of the presence of a trailing slash.
@@ -173,45 +130,13 @@ public class RequestMappingHandlerMapping extends RequestMappingInfoHandlerMappi
   }
 
   @Override
-  @SuppressWarnings("deprecation")
   public void afterPropertiesSet() {
     this.config = new RequestMappingInfo.BuilderConfiguration();
-    this.config.setTrailingSlashMatch(useTrailingSlashMatch());
-    this.config.setContentNegotiationManager(getContentNegotiationManager());
-
-    if (getPatternParser() != null) {
-      this.config.setPatternParser(getPatternParser());
-      Assert.isTrue(!this.useSuffixPatternMatch && !this.useRegisteredSuffixPatternMatch,
-              "Suffix pattern matching not supported with PathPatternParser.");
-    }
-    else {
-      this.config.setSuffixPatternMatch(useSuffixPatternMatch());
-      this.config.setRegisteredSuffixPatternMatch(useRegisteredSuffixPatternMatch());
-    }
+    config.setPatternParser(getPatternParser());
+    config.setTrailingSlashMatch(useTrailingSlashMatch());
+    config.setContentNegotiationManager(getContentNegotiationManager());
 
     super.afterPropertiesSet();
-  }
-
-  /**
-   * Whether to use registered suffixes for pattern matching.
-   *
-   * @deprecated as of 5.2.4. See deprecation notice on
-   * {@link #setUseSuffixPatternMatch(boolean)}.
-   */
-  @Deprecated
-  public boolean useSuffixPatternMatch() {
-    return this.useSuffixPatternMatch;
-  }
-
-  /**
-   * Whether to use registered suffixes for pattern matching.
-   *
-   * @deprecated as of 5.2.4. See deprecation notice on
-   * {@link #setUseRegisteredSuffixPatternMatch(boolean)}.
-   */
-  @Deprecated
-  public boolean useRegisteredSuffixPatternMatch() {
-    return this.useRegisteredSuffixPatternMatch;
   }
 
   /**
@@ -222,19 +147,6 @@ public class RequestMappingHandlerMapping extends RequestMappingInfoHandlerMappi
   }
 
   /**
-   * Return the file extensions to use for suffix pattern matching.
-   *
-   * @deprecated as of 5.2.4. See class-level note on the deprecation of path
-   * extension config options.
-   */
-  @Nullable
-  @Deprecated
-  @SuppressWarnings("deprecation")
-  public List<String> getFileExtensions() {
-    return this.config.getFileExtensions();
-  }
-
-  /**
    * Obtain a {@link RequestMappingInfo.BuilderConfiguration} that can reflects
    * the internal configuration of this {@code HandlerMapping} and can be used
    * to set {@link RequestMappingInfo.Builder#options(RequestMappingInfo.BuilderConfiguration)}.
@@ -242,7 +154,6 @@ public class RequestMappingHandlerMapping extends RequestMappingInfoHandlerMappi
    * {@link #registerHandlerMethod(Object, Method, RequestMappingInfo)}.
    *
    * @return the builder configuration that reflects the internal state
-   * @since 5.3.14
    */
   public RequestMappingInfo.BuilderConfiguration getBuilderConfiguration() {
     return this.config;
