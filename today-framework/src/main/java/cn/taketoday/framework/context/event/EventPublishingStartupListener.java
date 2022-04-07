@@ -62,11 +62,11 @@ public class EventPublishingStartupListener implements ApplicationStartupListene
   private final SimpleApplicationEventMulticaster initialMulticaster;
 
   public EventPublishingStartupListener(Application application, String[] args) {
-    this.application = application;
     this.args = args;
+    this.application = application;
     this.initialMulticaster = new SimpleApplicationEventMulticaster();
     for (ApplicationListener<?> listener : application.getListeners()) {
-      this.initialMulticaster.addApplicationListener(listener);
+      initialMulticaster.addApplicationListener(listener);
     }
   }
 
@@ -77,48 +77,46 @@ public class EventPublishingStartupListener implements ApplicationStartupListene
 
   @Override
   public void starting(ConfigurableBootstrapContext bootstrapContext, Class<?> mainApplicationClass, ApplicationArguments arguments) {
-    this.initialMulticaster
-            .multicastEvent(new ApplicationStartingEvent(bootstrapContext, this.application, this.args));
+    initialMulticaster.multicastEvent(new ApplicationStartingEvent(bootstrapContext, application, args));
   }
 
   @Override
   public void environmentPrepared(ConfigurableBootstrapContext bootstrapContext, ConfigurableEnvironment environment) {
-    this.initialMulticaster.multicastEvent(
-            new ApplicationEnvironmentPreparedEvent(bootstrapContext, this.application, this.args, environment));
+    initialMulticaster.multicastEvent(
+            new ApplicationEnvironmentPreparedEvent(bootstrapContext, application, args, environment));
   }
 
   @Override
   public void contextPrepared(ConfigurableApplicationContext context) {
-    this.initialMulticaster
-            .multicastEvent(new ApplicationContextInitializedEvent(this.application, this.args, context));
+    initialMulticaster.multicastEvent(new ApplicationContextInitializedEvent(application, args, context));
   }
 
   @Override
   public void contextLoaded(ConfigurableApplicationContext context) {
-    for (ApplicationListener<?> listener : this.application.getListeners()) {
+    for (ApplicationListener<?> listener : application.getListeners()) {
       if (listener instanceof ApplicationContextAware) {
         ((ApplicationContextAware) listener).setApplicationContext(context);
       }
       context.addApplicationListener(listener);
     }
-    this.initialMulticaster.multicastEvent(new ApplicationPreparedEvent(this.application, this.args, context));
+    initialMulticaster.multicastEvent(new ApplicationPreparedEvent(application, args, context));
   }
 
   @Override
   public void started(ConfigurableApplicationContext context, Duration timeTaken) {
-    context.publishEvent(new ApplicationStartedEvent(this.application, this.args, context, timeTaken));
+    context.publishEvent(new ApplicationStartedEvent(application, args, context, timeTaken));
     AvailabilityChangeEvent.publish(context, LivenessState.CORRECT);
   }
 
   @Override
   public void ready(ConfigurableApplicationContext context, Duration timeTaken) {
-    context.publishEvent(new ApplicationReadyEvent(this.application, this.args, context, timeTaken));
+    context.publishEvent(new ApplicationReadyEvent(application, args, context, timeTaken));
     AvailabilityChangeEvent.publish(context, ReadinessState.ACCEPTING_TRAFFIC);
   }
 
   @Override
   public void failed(ConfigurableApplicationContext context, Throwable exception) {
-    ApplicationFailedEvent event = new ApplicationFailedEvent(this.application, this.args, context, exception);
+    ApplicationFailedEvent event = new ApplicationFailedEvent(application, args, context, exception);
     if (context != null && context.isActive()) {
       // Listeners have been registered to the application context so we should
       // use it at this point if we can
@@ -127,14 +125,13 @@ public class EventPublishingStartupListener implements ApplicationStartupListene
     else {
       // An inactive context may not have a multicaster so we use our multicaster to
       // call all of the context's listeners instead
-      if (context instanceof AbstractApplicationContext) {
-        for (ApplicationListener<?> listener : ((AbstractApplicationContext) context)
-                .getApplicationListeners()) {
-          this.initialMulticaster.addApplicationListener(listener);
+      if (context instanceof AbstractApplicationContext abstractContext) {
+        for (ApplicationListener<?> listener : abstractContext.getApplicationListeners()) {
+          initialMulticaster.addApplicationListener(listener);
         }
       }
-      this.initialMulticaster.setErrorHandler(new LoggingErrorHandler());
-      this.initialMulticaster.multicastEvent(event);
+      initialMulticaster.setErrorHandler(new LoggingErrorHandler());
+      initialMulticaster.multicastEvent(event);
     }
   }
 

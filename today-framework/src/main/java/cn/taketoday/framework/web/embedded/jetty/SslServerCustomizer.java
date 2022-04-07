@@ -98,7 +98,7 @@ class SslServerCustomizer implements JettyServerCustomizer {
   }
 
   private ServerConnector createServerConnector(Server server, SslContextFactory.Server sslContextFactory,
-                                                HttpConfiguration config) {
+          HttpConfiguration config) {
     if (this.http2 == null || !this.http2.isEnabled()) {
       return createHttp11ServerConnector(server, config, sslContextFactory);
     }
@@ -271,10 +271,10 @@ class SslServerCustomizer implements JettyServerCustomizer {
     private final String keyAlias;
 
     SslValidatingServerConnector(Server server,
-                                 SslContextFactory sslContextFactory,
-                                 String keyAlias,
-                                 SslConnectionFactory sslConnectionFactory,
-                                 HttpConnectionFactory connectionFactory) {
+            SslContextFactory sslContextFactory,
+            String keyAlias,
+            SslConnectionFactory sslConnectionFactory,
+            HttpConnectionFactory connectionFactory) {
       super(server, sslConnectionFactory, connectionFactory);
       this.sslContextFactory = sslContextFactory;
       this.keyAlias = keyAlias;
