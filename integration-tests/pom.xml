@@ -269,6 +269,13 @@
     </dependency>
 
     <dependency>
+      <groupId>org.eclipse.jetty</groupId>
+      <artifactId>apache-jsp</artifactId>
+      <version>11.0.7</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
       <groupId>io.undertow</groupId>
       <artifactId>undertow-servlet-jakartaee9</artifactId>
       <scope>test</scope>
