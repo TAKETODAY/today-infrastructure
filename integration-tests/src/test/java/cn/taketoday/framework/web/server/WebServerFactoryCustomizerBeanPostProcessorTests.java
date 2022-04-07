@@ -34,7 +34,6 @@ import java.util.Map;
 import cn.taketoday.beans.factory.BeanFactory;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
@@ -54,13 +53,6 @@ class WebServerFactoryCustomizerBeanPostProcessorTests {
   @BeforeEach
   void setup() {
     this.processor.setBeanFactory(this.beanFactory);
-  }
-
-  @Test
-  void setBeanFactoryWhenNotListableShouldThrowException() {
-    assertThatIllegalArgumentException().isThrownBy(() -> this.processor.setBeanFactory(mock(BeanFactory.class)))
-            .withMessageContaining(
-                    "WebServerCustomizerBeanPostProcessor can only be used with a ListableBeanFactory");
   }
 
   @Test

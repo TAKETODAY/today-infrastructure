@@ -175,8 +175,10 @@ class ServletWebServerApplicationContextTests {
     this.context.refresh();
     this.context.addApplicationListener(listener);
     this.context.close();
-    assertThat(listener.receivedEvents()).hasSize(2).extracting("class").contains(AvailabilityChangeEvent.class,
-            ContextClosedEvent.class);
+    assertThat(listener.receivedEvents())
+            .hasSize(2)
+            .extracting("class")
+            .contains(AvailabilityChangeEvent.class, ContextClosedEvent.class);
   }
 
   @Test
@@ -209,6 +211,8 @@ class ServletWebServerApplicationContextTests {
   @Test
   void missingServletWebServerFactory() {
     assertThatExceptionOfType(ApplicationContextException.class).isThrownBy(() -> this.context.refresh())
+            .havingCause()
+            .isInstanceOf(ApplicationContextException.class)
             .withMessageContaining("Unable to start ServletWebServerApplicationContext due to missing "
                     + "ServletWebServerFactory bean");
   }
@@ -218,7 +222,10 @@ class ServletWebServerApplicationContextTests {
     addWebServerFactoryBean();
     this.context.registerBeanDefinition("webServerFactory2",
             new RootBeanDefinition(MockServletWebServerFactory.class));
-    assertThatExceptionOfType(ApplicationContextException.class).isThrownBy(() -> this.context.refresh())
+    assertThatExceptionOfType(ApplicationContextException.class)
+            .isThrownBy(() -> this.context.refresh())
+            .havingCause()
+            .isInstanceOf(ApplicationContextException.class)
             .withMessageContaining("Unable to start ServletWebServerApplicationContext due to "
                     + "multiple ServletWebServerFactory beans");
 
@@ -411,11 +418,15 @@ class ServletWebServerApplicationContextTests {
     then(servletContext).should(atMost(1)).addFilter(anyString(), this.filterCaptor.capture());
     // Up to this point the filterBean should not have been created, calling
     // the delegate proxy will trigger creation and an exception
-    assertThatExceptionOfType(BeanCreationException.class).isThrownBy(() -> {
-      this.filterCaptor.getValue().init(new MockFilterConfig());
-      this.filterCaptor.getValue().doFilter(new MockHttpServletRequest(), new MockHttpServletResponse(),
-              new MockFilterChain());
-    }).withMessageContaining("Create FilterBean Failure");
+    assertThatExceptionOfType(BeanCreationException.class)
+            .isThrownBy(() -> {
+              this.filterCaptor.getValue().init(new MockFilterConfig());
+              this.filterCaptor.getValue().doFilter(new MockHttpServletRequest(), new MockHttpServletResponse(),
+                      new MockFilterChain());
+            })
+            .havingRootCause()
+            .isInstanceOf(IllegalStateException.class)
+            .withMessageContaining("Create FilterBean Failure");
   }
 
   @Test

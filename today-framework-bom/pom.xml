@@ -63,7 +63,7 @@
     <joda-time.version>2.0</joda-time.version>
     <jooq.version>3.3.0</jooq.version>
     <junit5.version>5.8.2</junit5.version>
-    <mockito.version>4.0.0</mockito.version>
+    <mockito.version>4.4.0</mockito.version>
     <slf4j.version>1.7.25</slf4j.version>
     <spring-jdbc.version>5.2.3.RELEASE</spring-jdbc.version>
     <reactor.version>3.4.16</reactor.version>
@@ -443,6 +443,18 @@
         <groupId>org.eclipse.jetty</groupId>
         <artifactId>jetty-alpn-server</artifactId>
         <version>${jetty.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.eclipse.jetty</groupId>
+        <artifactId>jetty-alpn-conscrypt-server</artifactId>
+        <version>${jetty.version}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>javax.servlet</groupId>
+            <artifactId>javax.servlet-api</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
 
       <!-- cache -->
