@@ -27,6 +27,8 @@ import java.io.InputStream;
 import java.util.Properties;
 import java.util.Set;
 
+import cn.taketoday.core.io.DefaultResourceLoader;
+import cn.taketoday.core.io.Resource;
 import cn.taketoday.util.StringUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -37,6 +39,8 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Phillip Webb
  */
 class TldPatternsTests {
+  static final Resource resource = new DefaultResourceLoader().getResource(
+          "classpath:org/apache/catalina/startup/catalina.properties");
 
   @Test
   void tomcatSkipAlignsWithTomcatDefaults() throws IOException {
@@ -57,8 +61,7 @@ class TldPatternsTests {
   }
 
   private Set<String> getTomcatDefault(String key) throws IOException {
-    ClassLoader classLoader = getClass().getClassLoader();
-    try (InputStream inputStream = classLoader.getResource("catalina.properties").openStream()) {
+    try (InputStream inputStream = resource.getInputStream()) {
       Properties properties = new Properties();
       properties.load(inputStream);
       String jarsToSkip = properties.getProperty(key);
