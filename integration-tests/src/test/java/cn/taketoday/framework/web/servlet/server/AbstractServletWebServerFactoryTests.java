@@ -668,7 +668,7 @@ public abstract class AbstractServletWebServerFactoryTests {
     this.webServer = factory.getWebServer(exampleServletRegistration());
     this.webServer.start();
     ClientHttpResponse response = getClientResponse(
-            getLocalUrl("/cn/taketoday/boot/Application.class"));
+            getLocalUrl("/cn/taketoday/framework/Application.class"));
     assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
   }
 
