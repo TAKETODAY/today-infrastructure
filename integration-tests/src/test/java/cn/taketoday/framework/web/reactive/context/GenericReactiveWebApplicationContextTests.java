@@ -24,6 +24,8 @@ import org.junit.jupiter.api.Test;
 
 import cn.taketoday.core.io.Resource;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 /**
  * Tests for {@link GenericReactiveWebApplicationContext}
  *
