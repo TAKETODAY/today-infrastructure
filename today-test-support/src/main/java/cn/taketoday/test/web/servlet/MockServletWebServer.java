@@ -89,11 +89,11 @@ public abstract class MockServletWebServer {
         initParameters.put(invocation.getArgument(0), invocation.getArgument(1));
         return null;
       }).when(this.servletContext).setInitParameter(anyString(), anyString());
-      given(this.servletContext.getInitParameterNames())
-              .willReturn(Collections.enumeration(initParameters.keySet()));
+      lenient().when(this.servletContext.getInitParameterNames())
+              .thenReturn(Collections.enumeration(initParameters.keySet()));
       lenient().doAnswer((invocation) -> initParameters.get(invocation.getArgument(0))).when(this.servletContext)
               .getInitParameter(anyString());
-      given(this.servletContext.getAttributeNames()).willReturn(Collections.emptyEnumeration());
+      lenient().when(this.servletContext.getAttributeNames()).thenReturn(Collections.emptyEnumeration());
       for (Initializer initializer : this.initializers) {
         initializer.onStartup(this.servletContext);
       }
