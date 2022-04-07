@@ -69,7 +69,6 @@ import cn.taketoday.context.event.ContextRefreshedEvent;
 import cn.taketoday.context.event.SimpleApplicationEventMulticaster;
 import cn.taketoday.context.event.SmartApplicationListener;
 import cn.taketoday.context.support.AbstractApplicationContext;
-import cn.taketoday.context.support.MockEnvironment;
 import cn.taketoday.context.support.StaticApplicationContext;
 import cn.taketoday.core.LinkedMultiValueMap;
 import cn.taketoday.core.MultiValueMap;
@@ -100,12 +99,16 @@ import cn.taketoday.framework.context.event.ApplicationPreparedEvent;
 import cn.taketoday.framework.context.event.ApplicationReadyEvent;
 import cn.taketoday.framework.context.event.ApplicationStartedEvent;
 import cn.taketoday.framework.context.event.ApplicationStartingEvent;
+import cn.taketoday.framework.test.system.CapturedOutput;
+import cn.taketoday.framework.test.system.OutputCaptureExtension;
 import cn.taketoday.framework.web.embedded.netty.NettyReactiveWebServerFactory;
 import cn.taketoday.framework.web.embedded.tomcat.TomcatServletWebServerFactory;
 import cn.taketoday.framework.web.reactive.context.AnnotationConfigReactiveWebServerApplicationContext;
 import cn.taketoday.framework.web.reactive.context.ReactiveWebApplicationContext;
 import cn.taketoday.framework.web.servlet.context.AnnotationConfigServletWebServerApplicationContext;
 import cn.taketoday.http.server.reactive.HttpHandler;
+import cn.taketoday.mock.env.MockEnvironment;
+import cn.taketoday.test.context.support.TestPropertySourceUtils;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.context.ConfigurableWebEnvironment;
@@ -175,7 +178,7 @@ class ApplicationTests {
   @Test
   void sourcesMustNotBeNull() {
     assertThatIllegalArgumentException().isThrownBy(() -> new Application((Class<?>[]) null).run())
-            .withMessageContaining("PrimarySources must not be null");
+            .withMessageContaining("PrimarySources is required");
   }
 
   @Test
@@ -251,7 +254,7 @@ class ApplicationTests {
     application.setApplicationType(ApplicationType.NONE_WEB);
     this.context = application.run("--context.main.banner-mode=log");
     then(application).should(atLeastOnce()).setBannerMode(Banner.Mode.LOG);
-    assertThat(output).contains("o.s.b.Application");
+    assertThat(output).contains(".framework.Application");
   }
 
   @Test
@@ -773,7 +776,7 @@ class ApplicationTests {
     Application application = new Application(ExitCodeCommandLineRunConfig.class) {
 
       @Override
-      StartupExceptionHandler getApplicationExceptionHandler() {
+      StartupExceptionHandler getStartupExceptionHandler() {
         return handler;
       }
 
@@ -792,7 +795,7 @@ class ApplicationTests {
     Application application = new Application(MappedExitCodeCommandLineRunConfig.class) {
 
       @Override
-      StartupExceptionHandler getApplicationExceptionHandler() {
+      StartupExceptionHandler getStartupExceptionHandler() {
         return handler;
       }
 
@@ -811,7 +814,7 @@ class ApplicationTests {
     Application application = new Application(RefreshFailureConfig.class) {
 
       @Override
-      StartupExceptionHandler getApplicationExceptionHandler() {
+      StartupExceptionHandler getStartupExceptionHandler() {
         return handler;
       }
 
@@ -1187,8 +1190,13 @@ class ApplicationTests {
     application.setApplicationType(ApplicationType.NONE_WEB);
     assertThatExceptionOfType(BeanCreationException.class).isThrownBy(application::run);
     assertThat(events).hasAtLeastOneElementOfType(ApplicationFailedEvent.class);
-    ApplicationFailedEvent failure = events.stream().filter((event) -> event instanceof ApplicationFailedEvent)
-            .map(ApplicationFailedEvent.class::cast).findFirst().get();
+
+    ApplicationFailedEvent failure = events.stream()
+            .filter((event) -> event instanceof ApplicationFailedEvent)
+            .map(ApplicationFailedEvent.class::cast)
+            .findFirst()
+            .get();
+
     assertThat(ApplicationShutdownHookInstance.get())
             .didNotRegisterApplicationContext(failure.getApplicationContext());
   }
@@ -1365,7 +1373,7 @@ class ApplicationTests {
 
     static class Thing {
 
-      @javax.annotation.PostConstruct
+      @PostConstruct
       void boom() {
         throw new IllegalStateException();
       }

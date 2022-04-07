@@ -51,7 +51,7 @@ import cn.taketoday.util.StringUtils;
 /**
  * Wrapper around a {@link ConfigurableEnvironment} that can be used to import and apply
  * {@link ConfigData}. Configures the initial set of
- * {@link ConfigDataEnvironmentContributors} by wrapping property sources from the Spring
+ * {@link ConfigDataEnvironmentContributors} by wrapping property sources from the
  * {@link Environment} and adding the initial set of locations.
  * <p>
  * The initial locations can be influenced via the {@link #LOCATION_PROPERTY},
@@ -60,6 +60,7 @@ import cn.taketoday.util.StringUtils;
  *
  * @author Phillip Webb
  * @author Madhura Bhave
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 class ConfigDataEnvironment {
@@ -106,6 +107,7 @@ class ConfigDataEnvironment {
   private static final BinderOption[] DENY_INACTIVE_BINDING = { BinderOption.FAIL_ON_BIND_TO_INACTIVE_SOURCE };
 
   private final Logger log = LoggerFactory.getLogger(getClass());
+  private final boolean traceEnabled = log.isTraceEnabled();
 
   private final ConfigDataNotFoundAction notFoundAction;
 
@@ -127,7 +129,7 @@ class ConfigDataEnvironment {
    * Create a new {@link ConfigDataEnvironment} instance.
    *
    * @param bootstrapContext the bootstrap context
-   * @param environment the Spring {@link Environment}.
+   * @param environment the {@link Environment}.
    * @param resourceLoader {@link ResourceLoader} to load resource locations
    * @param additionalProfiles any additional profiles to activate
    * @param environmentUpdateListener optional
@@ -161,7 +163,6 @@ class ConfigDataEnvironment {
   }
 
   private ConfigDataEnvironmentContributors createContributors(Binder binder) {
-    boolean traceEnabled = log.isTraceEnabled();
     if (traceEnabled) {
       log.trace("Building config data environment contributors");
     }
@@ -217,7 +218,8 @@ class ConfigDataEnvironment {
   }
 
   private ConfigDataEnvironmentContributor createInitialImportContributor(ConfigDataLocation location) {
-    log.trace("Adding initial config data import from location '{}'", location);
+    if (traceEnabled)
+      log.trace("Adding initial config data import from location '{}'", location);
     return ConfigDataEnvironmentContributor.ofInitialImport(location);
   }
 
@@ -234,20 +236,22 @@ class ConfigDataEnvironment {
     contributors = processWithoutProfiles(contributors, importer, activationContext);
     activationContext = withProfiles(contributors, activationContext);
     contributors = processWithProfiles(contributors, importer, activationContext);
-
-    applyToEnvironment(contributors, activationContext, importer.getLoadedLocations(), importer.getOptionalLocations());
+    applyToEnvironment(contributors, activationContext,
+            importer.getLoadedLocations(), importer.getOptionalLocations());
   }
 
-  private ConfigDataEnvironmentContributors processInitial(ConfigDataEnvironmentContributors contributors,
-          ConfigDataImporter importer) {
-    log.trace("Processing initial config data environment contributors without activation context");
+  private ConfigDataEnvironmentContributors processInitial(
+          ConfigDataEnvironmentContributors contributors, ConfigDataImporter importer) {
+    if (traceEnabled)
+      log.trace("Processing initial config data environment contributors without activation context");
     contributors = contributors.withProcessedImports(importer, null);
     registerBootstrapBinder(contributors, null, DENY_INACTIVE_BINDING);
     return contributors;
   }
 
   private ConfigDataActivationContext createActivationContext(Binder initialBinder) {
-    log.trace("Creating config data activation context from initial contributions");
+    if (traceEnabled)
+      log.trace("Creating config data activation context from initial contributions");
     try {
       return new ConfigDataActivationContext(environment, initialBinder);
     }
@@ -259,19 +263,22 @@ class ConfigDataEnvironment {
     }
   }
 
-  private ConfigDataEnvironmentContributors processWithoutProfiles(ConfigDataEnvironmentContributors contributors,
+  private ConfigDataEnvironmentContributors processWithoutProfiles(
+          ConfigDataEnvironmentContributors contributors,
           ConfigDataImporter importer, ConfigDataActivationContext activationContext) {
-    log.trace("Processing config data environment contributors with initial activation context");
+    if (traceEnabled)
+      log.trace("Processing config data environment contributors with initial activation context");
     contributors = contributors.withProcessedImports(importer, activationContext);
     registerBootstrapBinder(contributors, activationContext, DENY_INACTIVE_BINDING);
     return contributors;
   }
 
-  private ConfigDataActivationContext withProfiles(ConfigDataEnvironmentContributors contributors,
-          ConfigDataActivationContext activationContext) {
-    log.trace("Deducing profiles from current config data environment contributors");
+  private ConfigDataActivationContext withProfiles(
+          ConfigDataEnvironmentContributors contributors, ConfigDataActivationContext activationContext) {
+    if (traceEnabled)
+      log.trace("Deducing profiles from current config data environment contributors");
     Binder binder = contributors.getBinder(activationContext,
-            (contributor) -> !contributor.hasConfigDataOption(ConfigData.Option.IGNORE_PROFILES),
+            contributor -> !contributor.hasConfigDataOption(ConfigData.Option.IGNORE_PROFILES),
             BinderOption.FAIL_ON_BIND_TO_INACTIVE_SOURCE);
     try {
       LinkedHashSet<String> additionalProfiles = new LinkedHashSet<>(this.additionalProfiles);
@@ -310,7 +317,8 @@ class ConfigDataEnvironment {
 
   private ConfigDataEnvironmentContributors processWithProfiles(ConfigDataEnvironmentContributors contributors,
           ConfigDataImporter importer, ConfigDataActivationContext activationContext) {
-    log.trace("Processing config data environment contributors with profile activation context");
+    if (traceEnabled)
+      log.trace("Processing config data environment contributors with profile activation context");
     contributors = contributors.withProcessedImports(importer, activationContext);
     registerBootstrapBinder(contributors, activationContext, ALLOW_INACTIVE_BINDING);
     return contributors;
@@ -324,10 +332,8 @@ class ConfigDataEnvironment {
     );
   }
 
-  private void applyToEnvironment(
-          ConfigDataEnvironmentContributors contributors,
-          ConfigDataActivationContext activationContext,
-          Set<ConfigDataLocation> loadedLocations, Set<ConfigDataLocation> optionalLocations) {
+  private void applyToEnvironment(ConfigDataEnvironmentContributors contributors,
+          ConfigDataActivationContext activationContext, Set<ConfigDataLocation> loadedLocations, Set<ConfigDataLocation> optionalLocations) {
     checkForInvalidProperties(contributors);
     checkMandatoryLocations(contributors, activationContext, loadedLocations, optionalLocations);
     PropertySources propertySources = environment.getPropertySources();
@@ -335,7 +341,6 @@ class ConfigDataEnvironment {
     DefaultPropertiesPropertySource.moveToEnd(propertySources);
     Profiles profiles = activationContext.getProfiles();
     if (profiles != null) {
-      boolean traceEnabled = log.isTraceEnabled();
       if (traceEnabled) {
         log.trace("Setting default profiles: {}", profiles.getDefault());
       }
@@ -353,15 +358,19 @@ class ConfigDataEnvironment {
 
   private void applyContributor(ConfigDataEnvironmentContributors contributors,
           ConfigDataActivationContext activationContext, PropertySources propertySources) {
-    log.trace("Applying config data environment contributions");
+    boolean traceEnabled = this.traceEnabled;
+    if (traceEnabled)
+      log.trace("Applying config data environment contributions");
     for (ConfigDataEnvironmentContributor contributor : contributors) {
       PropertySource<?> propertySource = contributor.getPropertySource();
       if (contributor.getKind() == ConfigDataEnvironmentContributor.Kind.BOUND_IMPORT && propertySource != null) {
         if (!contributor.isActive(activationContext)) {
-          log.trace("Skipping inactive property source '{}'", propertySource.getName());
+          if (traceEnabled)
+            log.trace("Skipping inactive property source '{}'", propertySource.getName());
         }
         else {
-          log.trace("Adding imported property source '{}'", propertySource.getName());
+          if (traceEnabled)
+            log.trace("Adding imported property source '{}'", propertySource.getName());
           propertySources.addLast(propertySource);
           environmentUpdateListener.onPropertySourceAdded(propertySource, contributor.getLocation(), contributor.getResource());
         }
