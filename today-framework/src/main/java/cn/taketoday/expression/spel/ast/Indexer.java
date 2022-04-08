@@ -322,8 +322,8 @@ public class Indexer extends SpelNodeImpl {
   @Override
   public String toStringAST() {
     StringJoiner sj = new StringJoiner(",", "[", "]");
-    for (int i = 0; i < getChildCount(); i++) {
-      sj.add(getChild(i).toStringAST());
+    for (SpelNodeImpl child : children) {
+      sj.add(child.toStringAST());
     }
     return sj.toString();
   }

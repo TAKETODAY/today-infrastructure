@@ -158,12 +158,13 @@ public class MethodReference extends SpelNodeImpl {
   }
 
   private Object[] getArguments(ExpressionState state) {
+    int i = 0;
     Object[] arguments = new Object[getChildCount()];
-    for (int i = 0; i < arguments.length; i++) {
+    for (SpelNodeImpl child : children) {
       // Make the root object the active context again for evaluating the parameter expressions
       try {
         state.pushActiveContextObject(state.getScopeRootContextObject());
-        arguments[i] = this.children[i].getValueInternal(state).getValue();
+        arguments[i++] = child.getValueInternal(state).getValue();
       }
       finally {
         state.popActiveContextObject();
@@ -173,7 +174,7 @@ public class MethodReference extends SpelNodeImpl {
   }
 
   private List<TypeDescriptor> getArgumentTypes(Object... arguments) {
-    List<TypeDescriptor> descriptors = new ArrayList<>(arguments.length);
+    ArrayList<TypeDescriptor> descriptors = new ArrayList<>(arguments.length);
     for (Object argument : arguments) {
       descriptors.add(TypeDescriptor.fromObject(argument));
     }
@@ -246,8 +247,8 @@ public class MethodReference extends SpelNodeImpl {
 
   private void updateExitTypeDescriptor() {
     CachedMethodExecutor executorToCheck = this.cachedExecutor;
-    if (executorToCheck != null && executorToCheck.get() instanceof ReflectiveMethodExecutor) {
-      Method method = ((ReflectiveMethodExecutor) executorToCheck.get()).getMethod();
+    if (executorToCheck != null && executorToCheck.get() instanceof ReflectiveMethodExecutor executor) {
+      Method method = executor.getMethod();
       String descriptor = CodeFlow.toDescriptor(method.getReturnType());
       if (this.nullSafe && CodeFlow.isPrimitive(descriptor)) {
         this.originalPrimitiveExitTypeDescriptor = descriptor;
@@ -262,8 +263,8 @@ public class MethodReference extends SpelNodeImpl {
   @Override
   public String toStringAST() {
     StringJoiner sj = new StringJoiner(",", "(", ")");
-    for (int i = 0; i < getChildCount(); i++) {
-      sj.add(getChild(i).toStringAST());
+    for (SpelNodeImpl child : children) {
+      sj.add(child.toStringAST());
     }
     return this.name + sj;
   }
@@ -275,8 +276,9 @@ public class MethodReference extends SpelNodeImpl {
   @Override
   public boolean isCompilable() {
     CachedMethodExecutor executorToCheck = this.cachedExecutor;
-    if (executorToCheck == null || executorToCheck.hasProxyTarget() ||
-            !(executorToCheck.get() instanceof ReflectiveMethodExecutor)) {
+    if (executorToCheck == null
+            || executorToCheck.hasProxyTarget()
+            || !(executorToCheck.get() instanceof ReflectiveMethodExecutor executor)) {
       return false;
     }
 
@@ -286,7 +288,6 @@ public class MethodReference extends SpelNodeImpl {
       }
     }
 
-    ReflectiveMethodExecutor executor = (ReflectiveMethodExecutor) executorToCheck.get();
     if (executor.didArgumentConversionOccur()) {
       return false;
     }
@@ -297,11 +298,10 @@ public class MethodReference extends SpelNodeImpl {
   @Override
   public void generateCode(MethodVisitor mv, CodeFlow cf) {
     CachedMethodExecutor executorToCheck = this.cachedExecutor;
-    if (executorToCheck == null || !(executorToCheck.get() instanceof ReflectiveMethodExecutor)) {
+    if (executorToCheck == null || !(executorToCheck.get() instanceof ReflectiveMethodExecutor methodExecutor)) {
       throw new IllegalStateException("No applicable cached executor found: " + executorToCheck);
     }
 
-    ReflectiveMethodExecutor methodExecutor = (ReflectiveMethodExecutor) executorToCheck.get();
     Method method = methodExecutor.getMethod();
     boolean isStaticMethod = Modifier.isStatic(method.getModifiers());
     String descriptor = cf.lastDescriptor();
@@ -397,26 +397,9 @@ public class MethodReference extends SpelNodeImpl {
     }
   }
 
-  private static class CachedMethodExecutor {
-
-    private final MethodExecutor methodExecutor;
-
-    @Nullable
-    private final Class<?> staticClass;
-
-    @Nullable
-    private final TypeDescriptor target;
-
-    private final List<TypeDescriptor> argumentTypes;
-
-    public CachedMethodExecutor(MethodExecutor methodExecutor, @Nullable Class<?> staticClass,
-            @Nullable TypeDescriptor target, List<TypeDescriptor> argumentTypes) {
-
-      this.methodExecutor = methodExecutor;
-      this.staticClass = staticClass;
-      this.target = target;
-      this.argumentTypes = argumentTypes;
-    }
+  private record CachedMethodExecutor(
+          MethodExecutor methodExecutor, @Nullable Class<?> staticClass,
+          @Nullable TypeDescriptor target, List<TypeDescriptor> argumentTypes) {
 
     public boolean isSuitable(Object value, @Nullable TypeDescriptor target, List<TypeDescriptor> argumentTypes) {
       return ((this.staticClass == null || this.staticClass == value) &&

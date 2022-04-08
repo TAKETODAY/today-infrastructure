@@ -31,14 +31,14 @@ import cn.taketoday.lang.Nullable;
  */
 class Token {
 
-  TokenKind kind;
+  public TokenKind kind;
 
   @Nullable
-  String data;
+  public String data;
 
-  int startPos;  // index of first character
+  public int startPos;  // index of first character
 
-  int endPos;  // index of char after the last character
+  public int endPos;  // index of char after the last character
 
   /**
    * Constructor for use when there is no particular data for the token
@@ -47,19 +47,15 @@ class Token {
    * @param startPos the exact start
    * @param endPos the index to the last character
    */
-  Token(TokenKind tokenKind, int startPos, int endPos) {
+  public Token(TokenKind tokenKind, int startPos, int endPos) {
     this.kind = tokenKind;
     this.startPos = startPos;
     this.endPos = endPos;
   }
 
-  Token(TokenKind tokenKind, char[] tokenData, int startPos, int endPos) {
+  public Token(TokenKind tokenKind, char[] tokenData, int startPos, int endPos) {
     this(tokenKind, startPos, endPos);
     this.data = new String(tokenData);
-  }
-
-  public TokenKind getKind() {
-    return this.kind;
   }
 
   public boolean isIdentifier() {
@@ -90,7 +86,7 @@ class Token {
   @Override
   public String toString() {
     StringBuilder s = new StringBuilder();
-    s.append('[').append(this.kind.toString());
+    s.append('[').append(this.kind);
     if (this.kind.hasPayload()) {
       s.append(':').append(this.data);
     }

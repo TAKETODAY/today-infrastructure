@@ -83,7 +83,7 @@ public class InlineMap extends SpelNodeImpl {
       for (int c = 0; c < childCount; c++) {
         SpelNode keyChild = getChild(c++);
         SpelNode valueChild = getChild(c);
-        Object key = null;
+        Object key;
         Object value = null;
         if (keyChild instanceof Literal literal) {
           key = literal.getLiteralValue().getValue();
@@ -120,7 +120,7 @@ public class InlineMap extends SpelNodeImpl {
       for (int c = 0; c < childcount; c++) {
         // TODO allow for key being PropertyOrFieldReference like Indexer on maps
         SpelNode keyChild = getChild(c++);
-        Object key = null;
+        Object key;
         if (keyChild instanceof PropertyOrFieldReference reference) {
           key = reference.getName();
         }
