@@ -208,10 +208,9 @@ public abstract class SpelNodeImpl implements SpelNode, Opcodes {
    * @param arguments the expression nodes for the expression supplied argument values
    */
   protected static void generateCodeForArguments(MethodVisitor mv, CodeFlow cf, Member member, SpelNodeImpl[] arguments) {
-    String[] paramDescriptors = null;
-    boolean isVarargs = false;
-    if (member instanceof Constructor) {
-      Constructor<?> ctor = (Constructor<?>) member;
+    String[] paramDescriptors;
+    boolean isVarargs;
+    if (member instanceof Constructor<?> ctor) {
       paramDescriptors = CodeFlow.toDescriptors(ctor.getParameterTypes());
       isVarargs = ctor.isVarArgs();
     }
