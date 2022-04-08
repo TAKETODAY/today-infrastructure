@@ -29,7 +29,7 @@ import java.lang.annotation.Target;
 /**
  * Indicates that a getter in a {@link ConfigurationProperties @ConfigurationProperties}
  * object is deprecated. This annotation has no bearing on the actual binding processes,
- * but it is used by the {@code spring-boot-configuration-processor} to add deprecation
+ * but it is used by the {@code configuration-processor} to add deprecation
  * meta-data.
  * <p>
  * This annotation <strong>must</strong> be used on the getter of the deprecated element.

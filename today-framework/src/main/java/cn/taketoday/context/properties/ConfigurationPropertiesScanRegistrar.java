@@ -21,8 +21,6 @@
 package cn.taketoday.context.properties;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.function.Predicate;
 
@@ -30,7 +28,6 @@ import cn.taketoday.context.annotation.ImportBeanDefinitionRegistrar;
 import cn.taketoday.context.annotation.config.TypeExcludeFilter;
 import cn.taketoday.context.loader.BootstrapContext;
 import cn.taketoday.context.loader.ClassPathScanningCandidateComponentProvider;
-import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.core.annotation.MergedAnnotationSelectors;
 import cn.taketoday.core.env.Environment;
 import cn.taketoday.core.io.ResourceLoader;
@@ -40,6 +37,7 @@ import cn.taketoday.core.type.filter.AnnotationTypeFilter;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Component;
 import cn.taketoday.util.ClassUtils;
+import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.StringUtils;
 
 /**
@@ -68,13 +66,13 @@ class ConfigurationPropertiesScanRegistrar implements ImportBeanDefinitionRegist
   }
 
   private Set<String> getPackagesToScan(AnnotationMetadata metadata) {
-    MergedAnnotation<ConfigurationPropertiesScan> attributes = metadata.getAnnotations().get(
+    var attributes = metadata.getAnnotations().get(
             ConfigurationPropertiesScan.class, null, MergedAnnotationSelectors.firstDirectlyDeclared());
 
     Assert.state(attributes.isPresent(), "ConfigurationPropertiesScan not present");
     String[] basePackages = attributes.getStringArray("basePackages");
     Class<?>[] basePackageClasses = attributes.getClassArray("basePackageClasses");
-    LinkedHashSet<String> packagesToScan = new LinkedHashSet<>(Arrays.asList(basePackages));
+    var packagesToScan = CollectionUtils.newLinkedHashSet(basePackages);
     for (Class<?> basePackageClass : basePackageClasses) {
       packagesToScan.add(ClassUtils.getPackageName(basePackageClass));
     }
