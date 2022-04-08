@@ -311,7 +311,7 @@ final class InternalSpelExpressionParser extends TemplateAwareExpressionParser {
     }
     if (expr != null && peekToken(TokenKind.INC, TokenKind.DEC)) {
       Token t = takeToken();  //consume INC/DEC
-      if (t.getKind() == TokenKind.INC) {
+      if (t.kind == TokenKind.INC) {
         return new OpInc(t.startPos, t.endPos, true, expr);
       }
       return new OpDec(t.startPos, t.endPos, true, expr);
@@ -338,7 +338,7 @@ final class InternalSpelExpressionParser extends TemplateAwareExpressionParser {
     if (peekToken(TokenKind.INC, TokenKind.DEC)) {
       Token t = takeToken();
       SpelNodeImpl expr = eatUnaryExpression();
-      if (t.getKind() == TokenKind.INC) {
+      if (t.kind == TokenKind.INC) {
         return new OpInc(t.startPos, t.endPos, false, expr);
       }
       return new OpDec(t.startPos, t.endPos, false, expr);
@@ -350,7 +350,7 @@ final class InternalSpelExpressionParser extends TemplateAwareExpressionParser {
   @Nullable
   private SpelNodeImpl eatPrimaryExpression() {
     SpelNodeImpl start = eatStartNode();  // always a start node
-    List<SpelNodeImpl> nodes = null;
+    ArrayList<SpelNodeImpl> nodes = null;
     SpelNodeImpl node = eatNode();
     while (node != null) {
       if (nodes == null) {
@@ -546,7 +546,7 @@ final class InternalSpelExpressionParser extends TemplateAwareExpressionParser {
         throw internalException(beanRefToken.startPos, SpelMessage.INVALID_BEAN_REFERENCE);
       }
       BeanReference beanReference;
-      if (beanRefToken.getKind() == TokenKind.FACTORY_BEAN_REF) {
+      if (beanRefToken.kind == TokenKind.FACTORY_BEAN_REF) {
         String beanNameString = String.valueOf(TokenKind.FACTORY_BEAN_REF.tokenChars) + beanName;
         beanReference = new BeanReference(beanRefToken.startPos, beanNameToken.endPos, beanNameString);
       }
@@ -736,7 +736,7 @@ final class InternalSpelExpressionParser extends TemplateAwareExpressionParser {
         throw internalException(this.expressionString.length(), SpelMessage.OOD);
       }
       throw internalException(node.startPos, SpelMessage.NOT_EXPECTED_TOKEN,
-              "qualified ID", node.getKind().toString().toLowerCase());
+              "qualified ID", node.kind.toString().toLowerCase());
     }
     return new QualifiedIdentifier(qualifiedIdPieces.getFirst().getStartPosition(),
             qualifiedIdPieces.getLast().getEndPosition(), qualifiedIdPieces.toArray(new SpelNodeImpl[0]));
@@ -791,7 +791,7 @@ final class InternalSpelExpressionParser extends TemplateAwareExpressionParser {
       nodes.add(possiblyQualifiedConstructorName);
       if (peekToken(TokenKind.LSQUARE)) {
         // array initializer
-        List<SpelNodeImpl> dimensions = new ArrayList<>();
+        var dimensions = new ArrayList<SpelNodeImpl>();
         while (peekToken(TokenKind.LSQUARE, true)) {
           if (!peekToken(TokenKind.RSQUARE)) {
             dimensions.add(eatExpression());
@@ -923,7 +923,7 @@ final class InternalSpelExpressionParser extends TemplateAwareExpressionParser {
     }
     if (t.kind != expectedKind) {
       throw internalException(t.startPos, SpelMessage.NOT_EXPECTED_TOKEN,
-              expectedKind.toString().toLowerCase(), t.getKind().toString().toLowerCase());
+              expectedKind.toString().toLowerCase(), t.kind.toString().toLowerCase());
     }
     return t;
   }
@@ -1014,7 +1014,7 @@ final class InternalSpelExpressionParser extends TemplateAwareExpressionParser {
     if (t == null) {
       return "";
     }
-    if (t.getKind().hasPayload()) {
+    if (t.kind.hasPayload()) {
       return t.stringValue();
     }
     return t.kind.toString().toLowerCase();
