@@ -19,8 +19,7 @@
  */
 package cn.taketoday.framework.availability;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import cn.taketoday.context.ApplicationEventPublisher;
 import cn.taketoday.context.ApplicationListener;
@@ -40,7 +39,8 @@ import cn.taketoday.logging.LoggerFactory;
 public class ApplicationAvailabilityBean
         implements ApplicationAvailability, ApplicationListener<AvailabilityChangeEvent<?>> {
 
-  private final Map<Class<? extends AvailabilityState>, AvailabilityChangeEvent<?>> events = new HashMap<>();
+  private final ConcurrentHashMap<Class<? extends AvailabilityState>, AvailabilityChangeEvent<?>>
+          events = new ConcurrentHashMap<>();
 
   private final Logger logger;
 

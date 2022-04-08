@@ -21,6 +21,7 @@
 package cn.taketoday.framework.web.reactive.server;
 
 import cn.taketoday.framework.web.server.WebServer;
+import cn.taketoday.framework.web.server.WebServerFactory;
 import cn.taketoday.http.server.reactive.HttpHandler;
 
 /**
@@ -31,7 +32,7 @@ import cn.taketoday.http.server.reactive.HttpHandler;
  * @since 4.0
  */
 @FunctionalInterface
-public interface ReactiveWebServerFactory {
+public interface ReactiveWebServerFactory extends WebServerFactory {
 
   /**
    * Gets a new fully configured but paused {@link WebServer} instance. Clients should

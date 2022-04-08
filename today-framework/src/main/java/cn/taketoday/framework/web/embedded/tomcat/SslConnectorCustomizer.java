@@ -34,6 +34,7 @@ import cn.taketoday.framework.web.server.Ssl;
 import cn.taketoday.framework.web.server.SslStoreProvider;
 import cn.taketoday.framework.web.server.WebServerException;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ResourceUtils;
 import cn.taketoday.util.StringUtils;
 
@@ -46,6 +47,7 @@ class SslConnectorCustomizer implements TomcatConnectorCustomizer {
 
   private final Ssl ssl;
 
+  @Nullable
   private final SslStoreProvider sslStoreProvider;
 
   SslConnectorCustomizer(Ssl ssl, SslStoreProvider sslStoreProvider) {
@@ -71,7 +73,9 @@ class SslConnectorCustomizer implements TomcatConnectorCustomizer {
    * @param ssl the ssl details
    * @param sslStoreProvider the ssl store provider
    */
-  protected void configureSsl(AbstractHttp11JsseProtocol<?> protocol, Ssl ssl, SslStoreProvider sslStoreProvider) {
+  protected void configureSsl(
+          AbstractHttp11JsseProtocol<?> protocol, Ssl ssl, @Nullable SslStoreProvider sslStoreProvider) {
+
     protocol.setSSLEnabled(true);
     SSLHostConfig sslHostConfig = new SSLHostConfig();
     sslHostConfig.setHostName(protocol.getDefaultSSLHostConfigName());

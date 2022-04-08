@@ -21,6 +21,7 @@
 package cn.taketoday.framework.web.servlet.server;
 
 import cn.taketoday.framework.web.server.WebServer;
+import cn.taketoday.framework.web.server.WebServerFactory;
 import cn.taketoday.framework.web.servlet.ServletContextInitializer;
 
 /**
@@ -31,7 +32,7 @@ import cn.taketoday.framework.web.servlet.ServletContextInitializer;
  * @since 4.0
  */
 @FunctionalInterface
-public interface ServletWebServerFactory {
+public interface ServletWebServerFactory extends WebServerFactory {
 
   /**
    * Gets a new fully configured but paused {@link WebServer} instance. Clients should

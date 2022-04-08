@@ -168,9 +168,12 @@ public final class ConfigurationPropertiesBean {
     var propertiesBeans = new LinkedHashMap<String, ConfigurationPropertiesBean>();
     var beansWithAnnotation = applicationContext.getBeansWithAnnotation(ConfigurationProperties.class);
     for (Map.Entry<String, Object> entry : beansWithAnnotation.entrySet()) {
-      String beanName = entry.getKey();
       Object bean = entry.getValue();
-      propertiesBeans.put(beanName, get(applicationContext, bean, beanName));
+      String beanName = entry.getKey();
+      ConfigurationPropertiesBean propertiesBean = get(applicationContext, bean, beanName);
+      if (propertiesBean != null) {
+        propertiesBeans.put(beanName, propertiesBean);
+      }
     }
     return propertiesBeans;
   }
@@ -185,7 +188,9 @@ public final class ConfigurationPropertiesBean {
         try {
           Object bean = beanFactory.getBean(beanName);
           ConfigurationPropertiesBean propertiesBean = get(applicationContext, bean, beanName);
-          propertiesBeans.put(beanName, propertiesBean);
+          if (propertiesBean != null) {
+            propertiesBeans.put(beanName, propertiesBean);
+          }
         }
         catch (Exception ignored) { }
       }
@@ -195,6 +200,9 @@ public final class ConfigurationPropertiesBean {
 
   private static boolean isConfigurationPropertiesBean(ConfigurableBeanFactory beanFactory, String beanName) {
     try {
+      if (beanFactory.getBeanDefinition(beanName).isAbstract()) {
+        return false;
+      }
       if (beanFactory.findAnnotationOnBean(beanName, ConfigurationProperties.class).isPresent()) {
         return true;
       }

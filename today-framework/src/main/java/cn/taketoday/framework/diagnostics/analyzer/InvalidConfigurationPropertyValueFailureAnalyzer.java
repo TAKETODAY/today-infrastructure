@@ -47,9 +47,10 @@ import cn.taketoday.util.StringUtils;
 class InvalidConfigurationPropertyValueFailureAnalyzer
         extends AbstractFailureAnalyzer<InvalidConfigurationPropertyValueException> {
 
+  @Nullable
   private final ConfigurableEnvironment environment;
 
-  public InvalidConfigurationPropertyValueFailureAnalyzer(ConfigurableEnvironment environment) {
+  public InvalidConfigurationPropertyValueFailureAnalyzer(@Nullable ConfigurableEnvironment environment) {
     this.environment = environment;
   }
 

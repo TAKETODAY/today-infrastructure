@@ -522,9 +522,14 @@ public class ResourceHttpRequestHandler extends WebContentGenerator
     RequestContextHttpOutputMessage outputMessage = new RequestContextHttpOutputMessage(request);
     HttpHeaders requestHeaders = request.requestHeaders();
     if (requestHeaders.get(HttpHeaders.RANGE) == null) {
-      ResourceHttpMessageConverter converter = this.resourceHttpMessageConverter;
-      Assert.state(converter != null, "Not initialized");
-      converter.write(resource, mediaType, outputMessage);
+      Assert.state(this.resourceHttpMessageConverter != null, "Not initialized");
+
+      if (HttpMethod.HEAD == request.getMethod()) {
+        this.resourceHttpMessageConverter.addDefaultHeaders(requestHeaders, resource, mediaType);
+      }
+      else {
+        this.resourceHttpMessageConverter.write(resource, mediaType, outputMessage);
+      }
     }
     else {
       ResourceRegionHttpMessageConverter converter = this.resourceRegionHttpMessageConverter;

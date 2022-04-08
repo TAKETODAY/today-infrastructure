@@ -37,6 +37,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import cn.taketoday.beans.factory.annotation.Autowired;
+import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.context.support.StandardApplicationContext;
 import cn.taketoday.core.conversion.support.DefaultConversionService;
@@ -48,6 +49,7 @@ import cn.taketoday.validation.ObjectError;
 import jakarta.validation.Constraint;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
+import jakarta.validation.ConstraintValidatorFactory;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Payload;
 import jakarta.validation.Valid;
@@ -282,6 +284,32 @@ public class ValidatorFactoryTests {
     assertThat(fieldError).isNotNull();
     assertThat(fieldError.getRejectedValue()).isEqualTo("X");
     assertThat(errors.getFieldValue("list[1]")).isEqualTo("X");
+  }
+
+  @Test
+  void withConstraintValidatorFactory() {
+    ConstraintValidatorFactory cvf = new ContextConstraintValidatorFactory(new StandardBeanFactory());
+
+    @SuppressWarnings("resource")
+    LocalValidatorFactoryBean validator = new LocalValidatorFactoryBean();
+    validator.setConstraintValidatorFactory(cvf);
+    validator.afterPropertiesSet();
+
+    assertThat(validator.getConstraintValidatorFactory()).isSameAs(cvf);
+    validator.destroy();
+  }
+
+  @Test
+  void withCustomInitializer() {
+    ConstraintValidatorFactory cvf = new ContextConstraintValidatorFactory(new StandardBeanFactory());
+
+    @SuppressWarnings("resource")
+    LocalValidatorFactoryBean validator = new LocalValidatorFactoryBean();
+    validator.setConfigurationInitializer(configuration -> configuration.constraintValidatorFactory(cvf));
+    validator.afterPropertiesSet();
+
+    assertThat(validator.getConstraintValidatorFactory()).isSameAs(cvf);
+    validator.destroy();
   }
 
   @NameAddressValid
