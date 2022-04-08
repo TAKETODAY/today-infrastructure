@@ -117,8 +117,8 @@ class ConfigDataEnvironmentContributor implements Iterable<ConfigDataEnvironment
     this.properties = properties;
     this.propertySource = propertySource;
     this.configurationPropertySource = configurationPropertySource;
-    this.configDataOptions = (configDataOptions != null) ? configDataOptions : Options.NONE;
-    this.children = (children != null) ? children : Collections.emptyMap();
+    this.children = children != null ? children : Collections.emptyMap();
+    this.configDataOptions = configDataOptions != null ? configDataOptions : Options.NONE;
   }
 
   /**

@@ -141,22 +141,22 @@ class ConfigurationPropertiesBinder {
   }
 
   private IgnoreTopLevelConverterNotFoundBindHandler getHandler() {
-    BoundConfigurationProperties bound = BoundConfigurationProperties.get(this.applicationContext);
-    return (bound != null)
+    BoundConfigurationProperties bound = BoundConfigurationProperties.get(applicationContext);
+    return bound != null
            ? new IgnoreTopLevelConverterNotFoundBindHandler(new BoundPropertiesTrackingBindHandler(bound::add))
            : new IgnoreTopLevelConverterNotFoundBindHandler();
   }
 
   private ArrayList<Validator> getValidators(Bindable<?> target) {
     ArrayList<Validator> validators = new ArrayList<>(3);
-    if (this.configurationPropertiesValidator != null) {
-      validators.add(this.configurationPropertiesValidator);
+    if (configurationPropertiesValidator != null) {
+      validators.add(configurationPropertiesValidator);
     }
-    if (this.jsr303Present && target.getAnnotation(Validated.class) != null) {
+    if (jsr303Present && target.getAnnotation(Validated.class) != null) {
       validators.add(getJsr303Validator());
     }
-    if (target.getValue() != null && target.getValue().get() instanceof Validator) {
-      validators.add((Validator) target.getValue().get());
+    if (target.getValue() != null && target.getValue().get() instanceof Validator validator) {
+      validators.add(validator);
     }
     return validators;
   }
