@@ -113,7 +113,7 @@ public class ValidationBindHandler extends AbstractBindHandler {
     super.onFinish(name, target, context, result);
   }
 
-  private void validate(ConfigurationPropertyName name, Bindable<?> target, BindContext context, Object result) {
+  private void validate(ConfigurationPropertyName name, Bindable<?> target, BindContext context, @Nullable Object result) {
     if (this.exception == null) {
       Object validationTarget = getValidationTarget(target, context, result);
       Class<?> validationType = target.getBoxedType().resolve();
@@ -139,9 +139,11 @@ public class ValidationBindHandler extends AbstractBindHandler {
 
   private void validateAndPush(ConfigurationPropertyName name, Object target, Class<?> type) {
     ValidationResult result = null;
-    for (Validator validator : this.validators) {
+    for (Validator validator : validators) {
       if (validator.supports(type)) {
-        result = (result != null) ? result : new ValidationResult(name, target);
+        if (result == null) {
+          result = new ValidationResult(name, target);
+        }
         validator.validate(target, result);
       }
     }
@@ -157,12 +159,9 @@ public class ValidationBindHandler extends AbstractBindHandler {
 
     private final ConfigurationPropertyName name;
 
-    private final Object target;
-
     protected ValidationResult(ConfigurationPropertyName name, Object target) {
       super(target, null);
       this.name = name;
-      this.target = target;
     }
 
     @Override

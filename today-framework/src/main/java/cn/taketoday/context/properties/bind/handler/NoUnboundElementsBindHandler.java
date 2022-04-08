@@ -88,18 +88,17 @@ public class NoUnboundElementsBindHandler extends AbstractBindHandler {
   }
 
   @Override
-  public void onFinish(ConfigurationPropertyName name, Bindable<?> target, BindContext context, Object result)
-          throws Exception {
+  public void onFinish(ConfigurationPropertyName name, Bindable<?> target, BindContext context, Object result) {
     if (context.getDepth() == 0) {
       checkNoUnboundElements(name, context);
     }
   }
 
   private void checkNoUnboundElements(ConfigurationPropertyName name, BindContext context) {
-    Set<ConfigurationProperty> unbound = new TreeSet<>();
+    TreeSet<ConfigurationProperty> unbound = new TreeSet<>();
     for (ConfigurationPropertySource source : context.getSources()) {
-      if (source instanceof IterableConfigurationPropertySource && this.filter.apply(source)) {
-        collectUnbound(name, unbound, (IterableConfigurationPropertySource) source);
+      if (source instanceof IterableConfigurationPropertySource iterableSource && filter.apply(source)) {
+        collectUnbound(name, unbound, iterableSource);
       }
     }
     if (!unbound.isEmpty()) {
@@ -107,8 +106,8 @@ public class NoUnboundElementsBindHandler extends AbstractBindHandler {
     }
   }
 
-  private void collectUnbound(ConfigurationPropertyName name, Set<ConfigurationProperty> unbound,
-                              IterableConfigurationPropertySource source) {
+  private void collectUnbound(ConfigurationPropertyName name,
+          Set<ConfigurationProperty> unbound, IterableConfigurationPropertySource source) {
     IterableConfigurationPropertySource filtered = source.filter((candidate) -> isUnbound(name, candidate));
     for (ConfigurationPropertyName unboundName : filtered) {
       try {
@@ -133,9 +132,9 @@ public class NoUnboundElementsBindHandler extends AbstractBindHandler {
     }
     Indexed indexed = getIndexed(candidate);
     if (indexed != null) {
-      String zeroethProperty = indexed.getName() + "[0]";
+      String zeroethProperty = indexed.name + "[0]";
       if (this.boundNames.contains(ConfigurationPropertyName.of(zeroethProperty))) {
-        String nestedZeroethProperty = zeroethProperty + "." + indexed.getNestedPropertyName();
+        String nestedZeroethProperty = zeroethProperty + "." + indexed.nestedPropertyName;
         return isCandidateValidPropertyName(nestedZeroethProperty);
       }
     }
@@ -157,24 +156,7 @@ public class NoUnboundElementsBindHandler extends AbstractBindHandler {
     return null;
   }
 
-  private static final class Indexed {
-
-    private final String name;
-
-    private final String nestedPropertyName;
-
-    private Indexed(String name, String nestedPropertyName) {
-      this.name = name;
-      this.nestedPropertyName = nestedPropertyName;
-    }
-
-    String getName() {
-      return this.name;
-    }
-
-    String getNestedPropertyName() {
-      return this.nestedPropertyName;
-    }
+  private record Indexed(String name, String nestedPropertyName) {
 
   }
 

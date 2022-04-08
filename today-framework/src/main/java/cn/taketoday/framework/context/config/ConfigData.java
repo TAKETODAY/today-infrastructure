@@ -31,6 +31,7 @@ import java.util.function.Consumer;
 import cn.taketoday.core.env.Environment;
 import cn.taketoday.core.env.PropertySource;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
 
 /**
  * Configuration data that has been loaded from a {@link ConfigDataResource} and may
@@ -98,11 +99,13 @@ public final class ConfigData {
    *
    * @param propertySource the property source to check
    * @return the options that apply
-   * @since 4.0
    */
   public Options getOptions(PropertySource<?> propertySource) {
-    Options options = this.propertySourceOptions.get(propertySource);
-    return (options != null) ? options : Options.NONE;
+    Options options = propertySourceOptions.get(propertySource);
+    if (options == null) {
+      options = Options.NONE;
+    }
+    return options;
   }
 
   /**
@@ -124,6 +127,7 @@ public final class ConfigData {
      * @param propertySource the property source
      * @return the options to apply
      */
+    @Nullable
     Options get(PropertySource<?> propertySource);
 
     /**

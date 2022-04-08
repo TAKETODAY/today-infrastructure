@@ -109,9 +109,8 @@ public class DefaultPropertiesPropertySource extends MapPropertySource {
           Map<String, Object> source, PropertySources sources, Map<String, Object> resultingSource) {
     PropertySource<?> existingSource = sources.get(NAME);
     if (existingSource != null) {
-      Object underlyingSource = existingSource.getSource();
-      if (underlyingSource instanceof Map) {
-        resultingSource.putAll((Map<String, Object>) underlyingSource);
+      if (existingSource.getSource() instanceof Map underlyingSource) {
+        resultingSource.putAll(underlyingSource);
       }
       resultingSource.putAll(source);
     }
