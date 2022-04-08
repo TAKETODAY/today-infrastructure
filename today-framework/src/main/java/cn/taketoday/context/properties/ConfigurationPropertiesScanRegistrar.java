@@ -85,7 +85,7 @@ class ConfigurationPropertiesScanRegistrar implements ImportBeanDefinitionRegist
   }
 
   private void scan(BootstrapContext context, Set<String> packages) {
-    ConfigurationPropertiesBeanRegistrar registrar = new ConfigurationPropertiesBeanRegistrar(context);
+    var registrar = new ConfigurationPropertiesBeanRegistrar(context);
     ClassPathScanningCandidateComponentProvider scanner = getScanner(context);
     for (String basePackage : packages) {
       try {
@@ -98,7 +98,7 @@ class ConfigurationPropertiesScanRegistrar implements ImportBeanDefinitionRegist
   }
 
   private ClassPathScanningCandidateComponentProvider getScanner(BootstrapContext context) {
-    ClassPathScanningCandidateComponentProvider scanner = new ClassPathScanningCandidateComponentProvider(false, environment);
+    var scanner = new ClassPathScanningCandidateComponentProvider(false, environment);
     scanner.setResourceLoader(resourceLoader);
     scanner.addIncludeFilter(new AnnotationTypeFilter(ConfigurationProperties.class));
     TypeExcludeFilter typeExcludeFilter = new TypeExcludeFilter();
