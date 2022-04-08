@@ -60,8 +60,8 @@ public class ReactiveChannelHandler implements ChannelInboundHandler {
 
   @Override
   public void channelRead(final ChannelHandlerContext ctx, final Object msg) {
-    if (msg instanceof FullHttpRequest) {
-      NettyRequestContext nettyContext = new NettyRequestContext(context, ctx, (FullHttpRequest) msg, contextConfig);
+    if (msg instanceof FullHttpRequest httpRequest) {
+      var nettyContext = new NettyRequestContext(context, ctx, httpRequest, contextConfig);
       try {
         nettyDispatcher.dispatch(ctx, nettyContext);
       }
@@ -83,7 +83,7 @@ public class ReactiveChannelHandler implements ChannelInboundHandler {
 
   @Override
   public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
-    DefaultFullHttpResponse response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.INTERNAL_SERVER_ERROR);
+    var response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.INTERNAL_SERVER_ERROR);
     ctx.writeAndFlush(response)
             .addListener(ChannelFutureListener.CLOSE_ON_FAILURE);
   }

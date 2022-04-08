@@ -413,8 +413,8 @@ public class ConstructorReference extends SpelNodeImpl {
     }
   }
 
-  private void populateCharArray(ExpressionState state, Object newArray, TypeConverter typeConverter,
-          InlineList initializer) {
+  private void populateCharArray(ExpressionState state,
+          Object newArray, TypeConverter typeConverter, InlineList initializer) {
 
     char[] newCharArray = (char[]) newArray;
     for (int i = 0; i < newCharArray.length; i++) {
@@ -423,8 +423,8 @@ public class ConstructorReference extends SpelNodeImpl {
     }
   }
 
-  private void populateBooleanArray(ExpressionState state, Object newArray, TypeConverter typeConverter,
-          InlineList initializer) {
+  private void populateBooleanArray(ExpressionState state,
+          Object newArray, TypeConverter typeConverter, InlineList initializer) {
 
     boolean[] newBooleanArray = (boolean[]) newArray;
     for (int i = 0; i < newBooleanArray.length; i++) {
@@ -433,8 +433,8 @@ public class ConstructorReference extends SpelNodeImpl {
     }
   }
 
-  private void populateIntArray(ExpressionState state, Object newArray, TypeConverter typeConverter,
-          InlineList initializer) {
+  private void populateIntArray(ExpressionState state,
+          Object newArray, TypeConverter typeConverter, InlineList initializer) {
 
     int[] newIntArray = (int[]) newArray;
     for (int i = 0; i < newIntArray.length; i++) {
@@ -449,26 +449,22 @@ public class ConstructorReference extends SpelNodeImpl {
 
   @Override
   public boolean isCompilable() {
-    if (!(this.cachedExecutor instanceof ReflectiveConstructorExecutor) ||
-            this.exitTypeDescriptor == null) {
+    if (!(cachedExecutor instanceof ReflectiveConstructorExecutor executor)
+            || exitTypeDescriptor == null) {
       return false;
     }
 
     if (getChildCount() > 1) {
       for (int c = 1, max = getChildCount(); c < max; c++) {
-        if (!this.children[c].isCompilable()) {
+        if (!children[c].isCompilable()) {
           return false;
         }
       }
     }
 
-    ReflectiveConstructorExecutor executor = (ReflectiveConstructorExecutor) this.cachedExecutor;
-    if (executor == null) {
-      return false;
-    }
     Constructor<?> constructor = executor.getConstructor();
-    return (Modifier.isPublic(constructor.getModifiers()) &&
-            Modifier.isPublic(constructor.getDeclaringClass().getModifiers()));
+    return Modifier.isPublic(constructor.getModifiers())
+            && Modifier.isPublic(constructor.getDeclaringClass().getModifiers());
   }
 
   @Override

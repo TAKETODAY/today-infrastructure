@@ -144,8 +144,8 @@ public class FunctionReference extends SpelNodeImpl {
   @Override
   public String toStringAST() {
     StringJoiner sj = new StringJoiner(",", "(", ")");
-    for (int i = 0; i < getChildCount(); i++) {
-      sj.add(getChild(i).toStringAST());
+    for (SpelNodeImpl child : children) {
+      sj.add(child.toStringAST());
     }
     return '#' + this.name + sj;
   }
@@ -157,9 +157,10 @@ public class FunctionReference extends SpelNodeImpl {
    */
   private Object[] getArguments(ExpressionState state) throws EvaluationException {
     // Compute arguments to the function
+    int i = 0;
     Object[] arguments = new Object[getChildCount()];
-    for (int i = 0; i < arguments.length; i++) {
-      arguments[i] = this.children[i].getValueInternal(state).getValue();
+    for (SpelNodeImpl child : children) {
+      arguments[i++] = child.getValueInternal(state).getValue();
     }
     return arguments;
   }
@@ -171,8 +172,9 @@ public class FunctionReference extends SpelNodeImpl {
       return false;
     }
     int methodModifiers = method.getModifiers();
-    if (!Modifier.isStatic(methodModifiers) || !Modifier.isPublic(methodModifiers) ||
-            !Modifier.isPublic(method.getDeclaringClass().getModifiers())) {
+    if (!Modifier.isStatic(methodModifiers)
+            || !Modifier.isPublic(methodModifiers)
+            || !Modifier.isPublic(method.getDeclaringClass().getModifiers())) {
       return false;
     }
     for (SpelNodeImpl child : this.children) {
