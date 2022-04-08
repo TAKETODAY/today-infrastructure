@@ -29,7 +29,7 @@ import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.annotation.GET;
 import cn.taketoday.web.annotation.RequestMapping;
 import cn.taketoday.web.annotation.ResponseBody;
-import cn.taketoday.web.framework.WebApplication;
+import cn.taketoday.framework.web.WebApplication;
 import cn.taketoday.web.socket.annotation.AfterHandshake;
 import cn.taketoday.web.socket.annotation.EndpointMapping;
 import cn.taketoday.web.socket.annotation.Message;

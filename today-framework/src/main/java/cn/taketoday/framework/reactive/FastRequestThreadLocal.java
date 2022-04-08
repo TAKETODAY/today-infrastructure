@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -18,23 +18,33 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.web.demo;
+package cn.taketoday.framework.reactive;
 
-import cn.taketoday.context.annotation.Import;
-import cn.taketoday.web.config.EnableWebMvc;
-import cn.taketoday.web.demo.config.AppConfig;
-import cn.taketoday.framework.web.WebApplication;
+import cn.taketoday.web.RequestContext;
+import cn.taketoday.web.RequestThreadLocal;
+import io.netty.util.concurrent.FastThreadLocal;
 
 /**
- * @author TODAY 2021/8/29 22:22
+ * Netty fast ThreadLocal
+ *
+ * @author TODAY 2021/4/2 17:17
+ * @see FastThreadLocal
  */
-@EnableWebMvc
-//@EnableTomcatHandling
-@Import(AppConfig.class)
-public class DemoApplication {
+public final class FastRequestThreadLocal extends RequestThreadLocal {
+  private final FastThreadLocal<RequestContext> threadLocal = new FastThreadLocal<>();
 
-  public static void main(String[] args) {
-    WebApplication.run(DemoApplication.class, args);
+  @Override
+  public void remove() {
+    threadLocal.remove();
   }
 
+  @Override
+  public RequestContext get() {
+    return threadLocal.get();
+  }
+
+  @Override
+  public void set(RequestContext context) {
+    threadLocal.set(context);
+  }
 }

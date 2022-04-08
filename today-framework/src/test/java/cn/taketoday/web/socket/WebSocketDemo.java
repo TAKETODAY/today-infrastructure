@@ -25,7 +25,7 @@ import org.apache.tomcat.websocket.server.WsSci;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Import;
 import cn.taketoday.web.annotation.GET;
-import cn.taketoday.web.framework.WebApplication;
+import cn.taketoday.framework.web.WebApplication;
 import jakarta.websocket.CloseReason;
 import jakarta.websocket.EndpointConfig;
 import jakarta.websocket.OnClose;

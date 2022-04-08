@@ -121,7 +121,7 @@ class ConfigurationPropertiesBinder {
   }
 
   private <T> BindHandler getBindHandler(Bindable<T> target, ConfigurationProperties annotation) {
-    List<Validator> validators = getValidators(target);
+    var validators = getValidators(target);
     BindHandler handler = getHandler();
     handler = new ConfigurationPropertiesBindHandler(handler);
     if (annotation.ignoreInvalidFields()) {
@@ -147,8 +147,8 @@ class ConfigurationPropertiesBinder {
            : new IgnoreTopLevelConverterNotFoundBindHandler();
   }
 
-  private List<Validator> getValidators(Bindable<?> target) {
-    List<Validator> validators = new ArrayList<>(3);
+  private ArrayList<Validator> getValidators(Bindable<?> target) {
+    ArrayList<Validator> validators = new ArrayList<>(3);
     if (this.configurationPropertiesValidator != null) {
       validators.add(this.configurationPropertiesValidator);
     }
@@ -209,18 +209,17 @@ class ConfigurationPropertiesBinder {
 
   static void register(BeanDefinitionRegistry registry) {
     if (!registry.containsBeanDefinition(FACTORY_BEAN_NAME)) {
-      BeanDefinition definition = BeanDefinitionBuilder
-              .rootBeanDefinition(ConfigurationPropertiesBinder.Factory.class).getBeanDefinition();
-      definition.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
+      BeanDefinition definition = BeanDefinitionBuilder.rootBeanDefinition(ConfigurationPropertiesBinder.Factory.class)
+              .setRole(BeanDefinition.ROLE_INFRASTRUCTURE)
+              .getBeanDefinition();
       registry.registerBeanDefinition(ConfigurationPropertiesBinder.FACTORY_BEAN_NAME, definition);
     }
     if (!registry.containsBeanDefinition(BEAN_NAME)) {
       BeanDefinition definition = BeanDefinitionBuilder.rootBeanDefinition(ConfigurationPropertiesBinder.class,
-                      () -> ((BeanFactory) registry).getBean(FACTORY_BEAN_NAME, ConfigurationPropertiesBinder.Factory.class).create()
-              )
+                      () -> ((BeanFactory) registry).getBean(FACTORY_BEAN_NAME, ConfigurationPropertiesBinder.Factory.class).create())
+              .setRole(BeanDefinition.ROLE_INFRASTRUCTURE)
               .getBeanDefinition();
 
-      definition.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
       registry.registerBeanDefinition(ConfigurationPropertiesBinder.BEAN_NAME, definition);
     }
   }

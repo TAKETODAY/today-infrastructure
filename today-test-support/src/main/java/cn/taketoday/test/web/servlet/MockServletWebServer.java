@@ -45,7 +45,7 @@ import static org.mockito.Mockito.mock;
 /**
  * Base class for Mock {@code ServletWebServer} implementations. Reduces the amount of
  * code that would otherwise be duplicated in {@code spring-boot},
- * {@code spring-boot-autoconfigure} and {@code spring-boot-actuator}.
+ * {@code autoconfigure} and {@code actuator}.
  *
  * @author Phillip Webb
  * @author Andy Wilkinson

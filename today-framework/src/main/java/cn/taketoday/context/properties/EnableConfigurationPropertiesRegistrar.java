@@ -54,13 +54,16 @@ class EnableConfigurationPropertiesRegistrar implements ImportBeanDefinitionRegi
     registerInfrastructureBeans(registry);
     registerMethodValidationExcludeFilter(registry);
     ConfigurationPropertiesBeanRegistrar beanRegistrar = new ConfigurationPropertiesBeanRegistrar(context);
-    getTypes(metadata).forEach(beanRegistrar::register);
+    for (Class<?> type : getTypes(metadata)) {
+      beanRegistrar.register(type);
+    }
   }
 
   private Set<Class<?>> getTypes(AnnotationMetadata metadata) {
-    return metadata.getAnnotations().stream(EnableConfigurationProperties.class)
+    return metadata.getAnnotations()
+            .stream(EnableConfigurationProperties.class)
             .flatMap((annotation) -> Arrays.stream(annotation.getClassValueArray()))
-            .filter((Predicate<Class>) (type) -> void.class != type)
+            .filter(Predicate.isEqual(void.class).negate())
             .collect(Collectors.toSet());
   }
 

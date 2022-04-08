@@ -27,7 +27,7 @@ import java.util.Objects;
 import java.util.Set;
 
 import cn.taketoday.web.annotation.GET;
-import cn.taketoday.web.framework.WebApplication;
+import cn.taketoday.framework.web.WebApplication;
 import lombok.Data;
 
 /**

@@ -18,7 +18,7 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.web.framework.reactive;
+package cn.taketoday.framework.reactive;
 
 import org.reactivestreams.Subscriber;
 import org.reactivestreams.Subscription;
