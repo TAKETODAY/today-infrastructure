@@ -29,10 +29,10 @@ import java.util.List;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpInputMessage;
 import cn.taketoday.http.HttpOutputMessage;
+import cn.taketoday.http.MediaType;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.http.MediaType;
 import cn.taketoday.util.StreamUtils;
 
 /**
@@ -99,7 +99,7 @@ public class StringHttpMessageConverter extends AbstractHttpMessageConverter<Str
   }
 
   @Override
-  protected void addDefaultHeaders(HttpHeaders headers, String s, @Nullable MediaType type) throws IOException {
+  public void addDefaultHeaders(HttpHeaders headers, String s, @Nullable MediaType type) throws IOException {
     if (headers.getContentType() == null) {
       if (type != null && type.isConcrete() && (
               type.isCompatibleWith(MediaType.APPLICATION_JSON)

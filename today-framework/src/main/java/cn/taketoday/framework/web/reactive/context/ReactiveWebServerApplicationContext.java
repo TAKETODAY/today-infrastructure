@@ -25,9 +25,11 @@ import java.util.Set;
 import cn.taketoday.beans.BeansException;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.context.ApplicationContextException;
+import cn.taketoday.framework.ApplicationType;
 import cn.taketoday.framework.availability.AvailabilityChangeEvent;
 import cn.taketoday.framework.availability.ReadinessState;
 import cn.taketoday.framework.web.context.ConfigurableWebServerApplicationContext;
+import cn.taketoday.framework.web.context.MissingWebServerFactoryBeanException;
 import cn.taketoday.framework.web.context.WebServerGracefulShutdownLifecycle;
 import cn.taketoday.framework.web.reactive.server.ReactiveWebServerFactory;
 import cn.taketoday.framework.web.server.WebServer;
@@ -112,8 +114,8 @@ public class ReactiveWebServerApplicationContext extends GenericReactiveWebAppli
     // Use bean names so that we don't consider the hierarchy
     Set<String> beanNames = getBeanFactory().getBeanNamesForType(ReactiveWebServerFactory.class);
     if (beanNames.isEmpty()) {
-      throw new ApplicationContextException(
-              "Unable to start ReactiveWebApplicationContext due to missing ReactiveWebServerFactory bean.");
+      throw new MissingWebServerFactoryBeanException(
+              getClass(), ReactiveWebServerFactory.class, ApplicationType.REACTIVE_WEB);
     }
     if (beanNames.size() > 1) {
       throw new ApplicationContextException("Unable to start ReactiveWebApplicationContext due to multiple "

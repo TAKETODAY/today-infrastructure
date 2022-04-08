@@ -227,7 +227,7 @@ public abstract class AbstractHttpMessageConverter<T> implements HttpMessageConv
    * content type was not provided, set if necessary the default character set, calls
    * {@link #getContentLength}, and sets the corresponding headers.
    */
-  protected void addDefaultHeaders(
+  public void addDefaultHeaders(
           HttpHeaders headers, T t, @Nullable MediaType contentType) throws IOException {
     if (headers.getContentType() == null) {
       MediaType contentTypeToUse = contentType;

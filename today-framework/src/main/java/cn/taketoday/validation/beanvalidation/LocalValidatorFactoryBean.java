@@ -32,6 +32,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.function.Consumer;
 
 import cn.taketoday.beans.factory.DisposableBean;
 import cn.taketoday.beans.factory.InitializingBean;
@@ -109,6 +110,9 @@ public class LocalValidatorFactoryBean extends ValidatorAdapter
   private Resource[] mappingLocations;
 
   private final Map<String, String> validationPropertyMap = new HashMap<>();
+
+  @Nullable
+  private Consumer<Configuration<?>> configurationInitializer;
 
   @Nullable
   private ApplicationContext applicationContext;
@@ -233,6 +237,17 @@ public class LocalValidatorFactoryBean extends ValidatorAdapter
     return this.validationPropertyMap;
   }
 
+  /**
+   * Specify a callback for customizing the Bean Validation {@code Configuration} instance,
+   * as an alternative to overriding the {@link #postProcessConfiguration(Configuration)}
+   * method in custom {@code LocalValidatorFactoryBean} subclasses.
+   * <p>This enables convenient customizations for application purposes. Infrastructure
+   * extensions may keep overriding the {@link #postProcessConfiguration} template method.
+   */
+  public void setConfigurationInitializer(Consumer<Configuration<?>> configurationInitializer) {
+    this.configurationInitializer = configurationInitializer;
+  }
+
   @Override
   public void setApplicationContext(@Nullable ApplicationContext applicationContext) {
     this.applicationContext = applicationContext;
@@ -310,6 +325,9 @@ public class LocalValidatorFactoryBean extends ValidatorAdapter
     this.validationPropertyMap.forEach(configuration::addProperty);
 
     // Allow for custom post-processing before we actually build the ValidatorFactory.
+    if (this.configurationInitializer != null) {
+      this.configurationInitializer.accept(configuration);
+    }
     postProcessConfiguration(configuration);
 
     try {

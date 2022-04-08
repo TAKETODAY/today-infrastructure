@@ -68,7 +68,7 @@ class ReactiveWebServerApplicationContextTests {
             .havingCause()
             .isInstanceOf(ApplicationContextException.class)
             .withMessageContaining(
-                    "Unable to start ReactiveWebApplicationContext due to missing ReactiveWebServerFactory bean");
+                    "Unable to start ReactiveWebServerApplicationContext due to missing ReactiveWebServerFactory bean");
   }
 
   @Test

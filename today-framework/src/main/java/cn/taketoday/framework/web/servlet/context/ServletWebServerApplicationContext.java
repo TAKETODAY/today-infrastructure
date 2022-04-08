@@ -35,9 +35,11 @@ import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.ApplicationContextException;
 import cn.taketoday.core.io.Resource;
+import cn.taketoday.framework.ApplicationType;
 import cn.taketoday.framework.availability.AvailabilityChangeEvent;
 import cn.taketoday.framework.availability.ReadinessState;
 import cn.taketoday.framework.web.context.ConfigurableWebServerApplicationContext;
+import cn.taketoday.framework.web.context.MissingWebServerFactoryBeanException;
 import cn.taketoday.framework.web.context.WebServerGracefulShutdownLifecycle;
 import cn.taketoday.framework.web.server.WebServer;
 import cn.taketoday.framework.web.servlet.FilterRegistrationBean;
@@ -215,8 +217,8 @@ public class ServletWebServerApplicationContext extends GenericWebServletApplica
     StandardBeanFactory beanFactory = getBeanFactory();
     Set<String> beanNames = beanFactory.getBeanNamesForType(ServletWebServerFactory.class);
     if (beanNames.size() == 0) {
-      throw new ApplicationContextException("Unable to start ServletWebServerApplicationContext due to missing "
-              + "ServletWebServerFactory bean.");
+      throw new MissingWebServerFactoryBeanException(
+              getClass(), ServletWebServerFactory.class, ApplicationType.SERVLET_WEB);
     }
     if (beanNames.size() > 1) {
       throw new ApplicationContextException("Unable to start ServletWebServerApplicationContext due to multiple "
