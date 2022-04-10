@@ -17,66 +17,62 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.web.handler;
+package cn.taketoday.web.handler.result;
 
 import java.util.List;
 
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.ReturnValueHandler;
+import cn.taketoday.web.handler.SelectableReturnValueHandler;
 import cn.taketoday.web.handler.method.HandlerMethod;
+import cn.taketoday.web.handler.result.HandlerMethodReturnValueHandler;
+import cn.taketoday.web.view.ModelAndView;
 
 /**
- * HandlerMethod return Object
- * <p>
- * Iterate handlers in runtime
- * </p>
- * <pre>
- * &#64GET("/object")
- * public Object object(boolean key1, boolean key2, boolean key3, RequestContext context) throws IOException {
- *   if (key1) {
- *     return new Body("key1", 1);
- *   }
- *   if (key2) {
- *     Resource resource = new ClassPathResource("error/404.png");
- *     context.setContentType(MediaType.IMAGE_JPEG_VALUE);
- *     return ImageIO.read(resource.getInputStream());
- *   }
- *   if (key3) {
- *     return ResourceUtils.getResource("classpath:application.yaml");
- *   }
- *   return "body:Hello";
- * }
- * </pre>
- *
- * @author TODAY 2019-07-14 17:41
+ * @author TODAY 2019-07-14 01:14
  */
-public class ObjectHandlerMethodReturnValueHandler
+public class ModelAndViewReturnValueHandler
         extends HandlerMethodReturnValueHandler implements ReturnValueHandler {
 
   private final SelectableReturnValueHandler returnValueHandlers;
 
-  public ObjectHandlerMethodReturnValueHandler(List<ReturnValueHandler> returnValueHandlers) {
+  public ModelAndViewReturnValueHandler(List<ReturnValueHandler> returnValueHandlers) {
     this.returnValueHandlers = new SelectableReturnValueHandler(returnValueHandlers);
   }
 
-  public ObjectHandlerMethodReturnValueHandler(SelectableReturnValueHandler returnValueHandlers) {
+  public ModelAndViewReturnValueHandler(SelectableReturnValueHandler returnValueHandlers) {
     this.returnValueHandlers = returnValueHandlers;
+  }
+
+  @Override
+  public boolean supportsHandlerMethod(HandlerMethod handlerMethod) {
+    return handlerMethod.isReturnTypeAssignableTo(ModelAndView.class);
+  }
+
+  @Override
+  public boolean supportsReturnValue(Object returnValue) {
+    return returnValue instanceof ModelAndView;
   }
 
   @Override
   public void handleReturnValue(
           RequestContext context, Object handler, Object returnValue) throws Exception {
-    returnValueHandlers.handleReturnValue(context, handler, returnValue);
+    if (returnValue instanceof ModelAndView) {
+      handleModelAndView(context, handler, (ModelAndView) returnValue);
+    }
   }
 
-  @Override
-  public boolean supportsReturnValue(Object returnValue) {
-    return returnValueHandlers.supportsReturnValue(returnValue);
-  }
-
-  @Override
-  protected boolean supportsHandlerMethod(HandlerMethod handler) {
-    return handler.isReturn(Object.class);
+  /**
+   * Resolve {@link ModelAndView} return type
+   *
+   * @since 2.3.3
+   */
+  public final void handleModelAndView(
+          RequestContext context, @Nullable Object handler, @Nullable ModelAndView modelAndView) throws Exception {
+    if (modelAndView != null && modelAndView.hasView()) {
+      returnValueHandlers.handleReturnValue(context, handler, modelAndView.getView());
+    }
   }
 
 }

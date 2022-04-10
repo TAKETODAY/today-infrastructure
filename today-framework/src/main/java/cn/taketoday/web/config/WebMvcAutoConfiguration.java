@@ -47,6 +47,7 @@ import cn.taketoday.http.converter.HttpMessageConverter;
 import cn.taketoday.lang.Component;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
+import cn.taketoday.validation.Validator;
 import cn.taketoday.web.LocaleResolver;
 import cn.taketoday.web.accept.ContentNegotiationManager;
 import cn.taketoday.web.config.WebProperties.Resources;
@@ -201,6 +202,17 @@ public class WebMvcAutoConfiguration extends WebMvcConfigurationSupport {
   @Override
   protected void extendExceptionHandlers(List<HandlerExceptionHandler> handlers) {
     mvcConfiguration.extendExceptionHandlers(handlers);
+  }
+
+  @Nullable
+  @Override
+  protected Validator getValidator() {
+    return mvcConfiguration.getValidator();
+  }
+
+  @Override
+  protected void configureAsyncSupport(AsyncSupportConfigurer configurer) {
+    mvcConfiguration.configureAsyncSupport(configurer);
   }
 
   @Override

@@ -21,7 +21,6 @@
 package cn.taketoday.web.handler;
 
 import cn.taketoday.http.HttpStatus;
-import cn.taketoday.lang.NonNull;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.FrameworkConfigurationException;
 import cn.taketoday.web.ReturnValueHandler;
@@ -54,7 +53,7 @@ public class ReturnValueHandlerNotFoundException extends FrameworkConfigurationE
    * @param returnValue handler's return value or execution result
    * @param handler target handler
    */
-  public ReturnValueHandlerNotFoundException(@NonNull Object returnValue, Object handler) {
+  public ReturnValueHandlerNotFoundException(Object returnValue, Object handler) {
     super("No ReturnValueHandler for return-value: [" + returnValue + ']');
     this.returnValue = returnValue;
     this.handler = handler;

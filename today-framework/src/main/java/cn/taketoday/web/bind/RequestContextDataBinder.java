@@ -66,7 +66,7 @@ import cn.taketoday.web.multipart.MultipartFile;
 public class RequestContextDataBinder extends WebDataBinder {
 
   /**
-   * Create a new WebRequestDataBinder instance, with default object name.
+   * Create a new RequestContextDataBinder instance, with default object name.
    *
    * @param target the target object to bind onto (or {@code null}
    * if the binder is just used to convert a plain parameter value)
@@ -77,7 +77,7 @@ public class RequestContextDataBinder extends WebDataBinder {
   }
 
   /**
-   * Create a new WebRequestDataBinder instance.
+   * Create a new RequestContextDataBinder instance.
    *
    * @param target the target object to bind onto (or {@code null}
    * if the binder is just used to convert a plain parameter value)

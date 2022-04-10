@@ -113,6 +113,7 @@ public class SelectableReturnValueHandler implements ReturnValueHandler, ArraySi
    * @return selected handler or which handler handled this result(return-value)
    * @throws IOException throws when write data to response
    */
+  @Nullable
   public final ReturnValueHandler handleSelectively(
           RequestContext context, @Nullable Object handler, @Nullable Object returnValue) throws Exception {
     ReturnValueHandler selected = selectHandler(handler, returnValue);

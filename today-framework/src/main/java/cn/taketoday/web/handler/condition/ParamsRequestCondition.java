@@ -62,7 +62,7 @@ public final class ParamsRequestCondition extends AbstractRequestCondition<Param
     }
 
     LinkedHashSet<ParamExpression> expressions = new LinkedHashSet<>(params.length);
-    if (ServletDetector.isPresent()) {
+    if (ServletDetector.present()) {
       for (String param : params) {
         expressions.add(new ServletParamExpression(param));
       }

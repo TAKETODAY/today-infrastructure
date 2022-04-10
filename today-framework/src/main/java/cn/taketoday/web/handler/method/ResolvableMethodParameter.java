@@ -264,7 +264,7 @@ public class ResolvableMethodParameter extends AttributeAccessorSupport {
    * @param request Current request context
    * @return parameter object
    */
-  protected Object resolveParameter(RequestContext request) throws Throwable {
+  public Object resolveParameter(RequestContext request) throws Throwable {
     return request.getParameter(getName());
   }
 

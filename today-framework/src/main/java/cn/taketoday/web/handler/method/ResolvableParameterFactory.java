@@ -71,7 +71,7 @@ public class ResolvableParameterFactory {
     return ret;
   }
 
-  protected ResolvableMethodParameter createParameter(MethodParameter parameter) {
+  public ResolvableMethodParameter createParameter(MethodParameter parameter) {
     return new ResolvableMethodParameter(parameter);
   }
 

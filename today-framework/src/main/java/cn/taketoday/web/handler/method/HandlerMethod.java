@@ -58,8 +58,20 @@ import cn.taketoday.web.annotation.ResponseStatus;
 import cn.taketoday.web.handler.DefaultResponseStatus;
 
 /**
- * Annotation handler metadata
+ * Encapsulates information about a handler method consisting of a
+ * {@linkplain #getMethod() method} and a {@linkplain #getBean() bean}.
+ * Provides convenient access to method parameters, the method return value,
+ * method annotations, etc.
  *
+ * <p>The class may be created with a bean instance or with a bean name
+ * (e.g. lazy-init bean, prototype bean). Use {@link #createWithResolvedBean()}
+ * to obtain a {@code HandlerMethod} instance with a bean instance resolved
+ * through the associated {@link BeanFactory}.
+ *
+ * @author Arjen Poutsma
+ * @author Rossen Stoyanchev
+ * @author Juergen Hoeller
+ * @author Sam Brannen
  * @author TODAY 2018-06-25 20:03:11
  */
 public class HandlerMethod {
@@ -736,27 +748,28 @@ public class HandlerMethod {
   private class ReturnValueMethodParameter extends HandlerMethodParameter {
 
     @Nullable
-    private final Object returnValue;
+    private final Class<?> returnValueType;
 
     public ReturnValueMethodParameter(@Nullable Object returnValue) {
       super(-1);
-      this.returnValue = returnValue;
+      this.returnValueType = returnValue != null ? returnValue.getClass() : null;
     }
 
     protected ReturnValueMethodParameter(ReturnValueMethodParameter original) {
       super(original);
-      this.returnValue = original.returnValue;
+      this.returnValueType = original.returnValueType;
     }
 
     @Override
     public Class<?> getParameterType() {
-      return (this.returnValue != null ? this.returnValue.getClass() : super.getParameterType());
+      return returnValueType != null ? returnValueType : super.getParameterType();
     }
 
     @Override
     public ReturnValueMethodParameter clone() {
       return new ReturnValueMethodParameter(this);
     }
+
   }
 
 }

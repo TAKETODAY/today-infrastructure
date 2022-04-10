@@ -17,7 +17,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.web.handler;
+package cn.taketoday.web.handler.result;
 
 import java.awt.image.RenderedImage;
 import java.io.IOException;
@@ -29,6 +29,7 @@ import cn.taketoday.http.MediaType;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.ReturnValueHandler;
 import cn.taketoday.web.handler.method.HandlerMethod;
+import cn.taketoday.web.handler.result.HandlerMethodReturnValueHandler;
 
 /**
  * Render an image to HTTP response-body

@@ -24,7 +24,9 @@ import java.util.List;
 
 import cn.taketoday.format.FormatterRegistry;
 import cn.taketoday.http.converter.HttpMessageConverter;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
+import cn.taketoday.validation.Validator;
 import cn.taketoday.web.ReturnValueHandler;
 import cn.taketoday.web.bind.resolver.ParameterResolvingRegistry;
 import cn.taketoday.web.bind.resolver.ParameterResolvingStrategy;
@@ -199,6 +201,30 @@ public class CompositeWebMvcConfiguration implements WebMvcConfiguration {
   public void addInterceptors(InterceptorRegistry registry) {
     for (WebMvcConfiguration webMvcConfiguration : getWebMvcConfigurations()) {
       webMvcConfiguration.addInterceptors(registry);
+    }
+  }
+
+  @Nullable
+  @Override
+  public Validator getValidator() {
+    Validator selected = null;
+    for (WebMvcConfiguration configurer : getWebMvcConfigurations()) {
+      Validator validator = configurer.getValidator();
+      if (validator != null) {
+        if (selected != null) {
+          throw new IllegalStateException(
+                  "No unique Validator found: {" + selected + ", " + validator + "}");
+        }
+        selected = validator;
+      }
+    }
+    return selected;
+  }
+
+  @Override
+  public void configureAsyncSupport(AsyncSupportConfigurer configurer) {
+    for (WebMvcConfiguration webMvcConfiguration : getWebMvcConfigurations()) {
+      webMvcConfiguration.configureAsyncSupport(configurer);
     }
   }
 

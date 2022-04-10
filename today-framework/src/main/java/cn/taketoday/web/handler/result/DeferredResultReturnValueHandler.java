@@ -18,7 +18,7 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.web.handler;
+package cn.taketoday.web.handler.result;
 
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.CompletionStage;

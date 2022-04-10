@@ -41,7 +41,7 @@ public class ParameterResolvingRegistryResolvableParameterFactory extends Resolv
   }
 
   @Override
-  protected ResolvableMethodParameter createParameter(MethodParameter parameter) {
+  public ResolvableMethodParameter createParameter(MethodParameter parameter) {
     return new ParameterResolverMethodParameter(parameter, resolvingRegistry);
   }
 

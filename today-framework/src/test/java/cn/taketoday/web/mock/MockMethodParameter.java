@@ -58,7 +58,7 @@ public class MockMethodParameter extends ResolvableMethodParameter {
   }
 
   @Override
-  protected Object resolveParameter(RequestContext request) throws Throwable {
+  public Object resolveParameter(RequestContext request) throws Throwable {
     return super.resolveParameter(request);
   }
 

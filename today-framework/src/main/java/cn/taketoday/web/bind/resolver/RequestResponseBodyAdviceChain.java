@@ -46,7 +46,7 @@ import cn.taketoday.web.handler.method.ResponseBodyAdvice;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/1/22 21:44
  */
-class RequestResponseBodyAdviceChain implements RequestBodyAdvice, ResponseBodyAdvice<Object> {
+public class RequestResponseBodyAdviceChain implements RequestBodyAdvice, ResponseBodyAdvice<Object> {
 
   private final ArrayList<Object> requestBodyAdvice = new ArrayList<>(4);
   private final ArrayList<Object> responseBodyAdvice = new ArrayList<>(4);
@@ -61,7 +61,7 @@ class RequestResponseBodyAdviceChain implements RequestBodyAdvice, ResponseBodyA
   }
 
   @SuppressWarnings("unchecked")
-  static <T> List<T> getAdviceByType(@Nullable List<Object> requestResponseBodyAdvice, Class<T> adviceType) {
+  public static <T> List<T> getAdviceByType(@Nullable List<Object> requestResponseBodyAdvice, Class<T> adviceType) {
     if (requestResponseBodyAdvice != null) {
       ArrayList<T> result = new ArrayList<>();
       for (Object advice : requestResponseBodyAdvice) {

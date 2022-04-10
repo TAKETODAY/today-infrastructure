@@ -17,44 +17,36 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.web.handler;
+package cn.taketoday.web.handler.result;
 
-import cn.taketoday.lang.Assert;
+import cn.taketoday.http.HttpStatus;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.ReturnValueHandler;
 import cn.taketoday.web.handler.method.HandlerMethod;
+import cn.taketoday.web.handler.result.HandlerMethodReturnValueHandler;
 
 /**
- * for {@link Void} or void type
- *
- * @author TODAY 2019-07-14 00:53
+ * @author TODAY 2020/12/23 20:12
+ * @since 3.0
  */
-public class VoidReturnValueHandler
+public class HttpStatusReturnValueHandler
         extends HandlerMethodReturnValueHandler implements ReturnValueHandler {
-  private final ModelAndViewReturnValueHandler returnValueHandler;
 
-  public VoidReturnValueHandler(ModelAndViewReturnValueHandler returnValueHandler) {
-    Assert.notNull(returnValueHandler, "ModelAndViewReturnValueHandler must not be null");
-    this.returnValueHandler = returnValueHandler;
+  @Override
+  protected boolean supportsHandlerMethod(final HandlerMethod handler) {
+    return handler.isReturn(HttpStatus.class);
   }
 
   @Override
-  public boolean supportsHandlerMethod(HandlerMethod handlerMethod) {
-    return handlerMethod.isReturn(void.class)
-            || handlerMethod.isReturn(Void.class);
-  }
-
-  @Override
-  public boolean supportsReturnValue(Object returnValue) {
-    return returnValue == null;
+  public boolean supportsReturnValue(final Object returnValue) {
+    return returnValue instanceof HttpStatus;
   }
 
   @Override
   public void handleReturnValue(
-          RequestContext context, Object handler, Object returnValue) throws Exception {
-    if (context.hasModelAndView()) {
-      // user constructed a ModelAndView hold in context
-      returnValueHandler.handleModelAndView(context, null, context.modelAndView());
+          RequestContext context, Object handler, final Object returnValue) {
+    if (returnValue instanceof HttpStatus) {
+      context.setStatus((HttpStatus) returnValue);
     }
   }
 

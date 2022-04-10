@@ -45,7 +45,7 @@ public class ParameterResolverMethodParameter extends ResolvableMethodParameter 
   }
 
   @Override
-  protected Object resolveParameter(final RequestContext request) throws Throwable {
+  public Object resolveParameter(final RequestContext request) throws Throwable {
     ParameterResolvingStrategy resolver = this.resolver;
     if (resolver == null) {
       resolver = resolvers.obtainStrategy(this);
