@@ -317,7 +317,7 @@ public class DispatcherHandler implements ApplicationContextAware {
     if (handler instanceof ReturnValueHandlerProvider) {
       return ((ReturnValueHandlerProvider) handler).getReturnValueHandler();
     }
-    ReturnValueHandler selected = this.returnValueHandler.selectHandler(handler, returnValue);
+    ReturnValueHandler selected = returnValueHandler.selectHandler(handler, returnValue);
     if (selected == null) {
       if (returnValue == null) {
         throw new ReturnValueHandlerNotFoundException(handler);
@@ -423,7 +423,7 @@ public class DispatcherHandler implements ApplicationContextAware {
 
   /**
    * Handle the result of handler selection and handler invocation, which is
-   * either a ModelAndView or an Exception to be resolved to a ModelAndView.
+   * either a view or an Exception to be resolved to a view.
    */
   private void processDispatchResult(
           RequestContext request, @Nullable Object handler,
@@ -447,7 +447,7 @@ public class DispatcherHandler implements ApplicationContextAware {
    * @param handler the executed handler, or {@code null} if none chosen at the time of the exception
    * @param ex the exception that got thrown during handler execution
    * @return a corresponding view to forward to
-   * @throws Exception if no error view found
+   * @throws Throwable if no handler can handle the exception
    */
   @Nullable
   protected Object processHandlerException(

@@ -22,6 +22,9 @@ package cn.taketoday.web.servlet.filter;
 
 import java.io.IOException;
 
+import cn.taketoday.web.RequestContextHolder;
+import cn.taketoday.web.context.async.WebAsyncManager;
+import cn.taketoday.web.context.async.WebAsyncUtils;
 import jakarta.servlet.DispatcherType;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.RequestDispatcher;
@@ -138,6 +141,18 @@ public abstract class OncePerRequestFilter extends GenericFilterBean {
    */
   protected boolean isAsyncDispatch(HttpServletRequest request) {
     return DispatcherType.ASYNC.equals(request.getDispatcherType());
+  }
+
+  /**
+   * Whether request processing is in asynchronous mode meaning that the
+   * response will not be committed after the current thread is exited.
+   *
+   * @param request the current request
+   * @see WebAsyncManager#isConcurrentHandlingStarted()
+   */
+  protected boolean isAsyncStarted(HttpServletRequest request) {
+    WebAsyncManager asyncManager = WebAsyncUtils.getAsyncManager(RequestContextHolder.getRequired());
+    return asyncManager.isConcurrentHandlingStarted();
   }
 
   /**

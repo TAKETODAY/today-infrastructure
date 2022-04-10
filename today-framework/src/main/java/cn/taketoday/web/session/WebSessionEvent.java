@@ -17,36 +17,31 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.web.handler;
 
-import cn.taketoday.http.HttpStatus;
-import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.ReturnValueHandler;
-import cn.taketoday.web.handler.method.HandlerMethod;
+package cn.taketoday.web.session;
+
+import cn.taketoday.context.ApplicationEvent;
 
 /**
- * @author TODAY 2020/12/23 20:12
- * @since 3.0
+ * This is the class representing event notifications for
+ * changes to sessions within a web application.
+ *
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 4.0 2022/4/9 09:53
  */
-public class HttpStatusReturnValueHandler
-        extends HandlerMethodReturnValueHandler implements ReturnValueHandler {
+public class WebSessionEvent extends ApplicationEvent {
 
-  @Override
-  protected boolean supportsHandlerMethod(final HandlerMethod handler) {
-    return handler.isReturn(HttpStatus.class);
+  public WebSessionEvent(WebSession source) {
+    super(source);
   }
 
-  @Override
-  public boolean supportsReturnValue(final Object returnValue) {
-    return returnValue instanceof HttpStatus;
-  }
-
-  @Override
-  public void handleReturnValue(
-          RequestContext context, Object handler, final Object returnValue) {
-    if (returnValue instanceof HttpStatus) {
-      context.setStatus((HttpStatus) returnValue);
-    }
+  /**
+   * Return the session that changed.
+   *
+   * @return the {@link WebSession} for this event.
+   */
+  public WebSession getSession() {
+    return (WebSession) super.getSource();
   }
 
 }

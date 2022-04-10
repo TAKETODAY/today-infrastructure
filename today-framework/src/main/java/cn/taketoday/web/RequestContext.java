@@ -67,6 +67,7 @@ import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.bind.MultipartException;
 import cn.taketoday.web.bind.NotMultipartRequestException;
+import cn.taketoday.web.handler.method.support.ModelAndViewContainer;
 import cn.taketoday.web.multipart.MultipartFile;
 import cn.taketoday.web.view.Model;
 import cn.taketoday.web.view.ModelAndView;
@@ -156,6 +157,9 @@ public abstract class RequestContext implements InputStreamSource,
 
   @Nullable
   private HandlerMatchingMetadata matchingMetadata;
+
+  @Nullable
+  protected ModelAndViewContainer modelAndViewContainer;
 
   protected RequestContext(ApplicationContext context) {
     this.applicationContext = context;
@@ -984,7 +988,7 @@ public abstract class RequestContext implements InputStreamSource,
    */
   public ModelAndView modelAndView() {
     if (modelAndView == null) {
-      this.modelAndView = new ModelAndView(this);
+      this.modelAndView = new ModelAndView();
     }
     return modelAndView;
   }
@@ -994,6 +998,15 @@ public abstract class RequestContext implements InputStreamSource,
    */
   public boolean hasModelAndView() {
     return modelAndView != null;
+  }
+
+  public void setModelContainer(@Nullable ModelAndViewContainer modelAndViewContainer) {
+    this.modelAndViewContainer = modelAndViewContainer;
+  }
+
+  @Nullable
+  public ModelAndViewContainer getModelContainer() {
+    return modelAndViewContainer;
   }
 
   /**

@@ -21,6 +21,7 @@
 package cn.taketoday.web.config;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -66,11 +67,17 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ClassUtils;
+import cn.taketoday.validation.Errors;
+import cn.taketoday.validation.MessageCodesResolver;
+import cn.taketoday.validation.Validator;
+import cn.taketoday.validation.beanvalidation.OptionalValidatorFactoryBean;
 import cn.taketoday.web.ReturnValueHandler;
 import cn.taketoday.web.ServletDetector;
 import cn.taketoday.web.accept.ContentNegotiationManager;
+import cn.taketoday.web.bind.WebDataBinder;
 import cn.taketoday.web.bind.resolver.ParameterResolvingRegistry;
 import cn.taketoday.web.bind.resolver.ParameterResolvingStrategy;
+import cn.taketoday.web.bind.support.ConfigurableWebBindingInitializer;
 import cn.taketoday.web.cors.CorsConfiguration;
 import cn.taketoday.web.handler.CompositeHandlerExceptionHandler;
 import cn.taketoday.web.handler.FunctionRequestAdapter;
@@ -86,6 +93,7 @@ import cn.taketoday.web.handler.method.ExceptionHandlerAnnotationExceptionHandle
 import cn.taketoday.web.handler.method.JsonViewRequestBodyAdvice;
 import cn.taketoday.web.handler.method.JsonViewResponseBodyAdvice;
 import cn.taketoday.web.handler.method.RequestBodyAdvice;
+import cn.taketoday.web.handler.method.RequestMappingHandlerAdapter;
 import cn.taketoday.web.handler.method.ResponseBodyAdvice;
 import cn.taketoday.web.multipart.MultipartConfiguration;
 import cn.taketoday.web.registry.AbstractHandlerRegistry;
@@ -134,6 +142,9 @@ public class WebMvcConfigurationSupport extends ApplicationContextSupport {
 
   @Nullable
   private List<Object> interceptors;
+
+  @Nullable
+  private AsyncSupportConfigurer asyncSupportConfigurer;
 
   @Override
   protected void initApplicationContext() {
@@ -350,7 +361,7 @@ public class WebMvcConfigurationSupport extends ApplicationContextSupport {
       Set<String> names = BeanFactoryUtils.beanNamesForTypeIncludingAncestors(
               applicationContext, ViewResolver.class, true, false);
       if (names.size() == 1) {
-        if (ServletDetector.isPresent()) {
+        if (ServletDetector.present()) {
           viewResolvers.add(new InternalResourceViewResolver());
         }
         else {
@@ -361,7 +372,7 @@ public class WebMvcConfigurationSupport extends ApplicationContextSupport {
     }
 
     ViewResolverComposite composite;
-    if (ServletDetector.isPresent()) {
+    if (ServletDetector.present()) {
       composite = new ServletViewResolverComposite();
     }
     else {
@@ -374,7 +385,7 @@ public class WebMvcConfigurationSupport extends ApplicationContextSupport {
       composite.setApplicationContext(applicationContext);
     }
 
-    if (ServletDetector.isPresent() && applicationContext instanceof WebServletApplicationContext servletApp) {
+    if (ServletDetector.present() && applicationContext instanceof WebServletApplicationContext servletApp) {
       ServletViewResolverComposite viewResolverComposite = (ServletViewResolverComposite) composite;
       viewResolverComposite.setServletContext(servletApp.getServletContext());
     }
@@ -675,7 +686,7 @@ public class WebMvcConfigurationSupport extends ApplicationContextSupport {
   @Bean
   @Nullable
   public HandlerRegistry defaultServletHandlerRegistry() {
-    if (ServletDetector.isPresent()) {
+    if (ServletDetector.present()) {
       if (getApplicationContext() instanceof WebServletApplicationContext context) {
         ServletContext servletContext = context.getServletContext();
         if (servletContext != null) {
@@ -685,7 +696,6 @@ public class WebMvcConfigurationSupport extends ApplicationContextSupport {
         }
       }
     }
-
     return null;
   }
 
@@ -790,9 +800,147 @@ public class WebMvcConfigurationSupport extends ApplicationContextSupport {
    */
   protected void addFormatters(FormatterRegistry registry) { }
 
+  /**
+   * Returns a {@link RequestMappingHandlerAdapter} for processing requests
+   * through annotated controller methods. Consider overriding one of these
+   * other more fine-grained methods:
+   * <ul>
+   * <li>{@link #addArgumentResolvers} for adding custom argument resolvers.
+   * <li>{@link #addReturnValueHandlers} for adding custom return value handlers.
+   * <li>{@link #configureMessageConverters} for adding custom message converters.
+   * </ul>
+   */
+  @Bean
+  public RequestMappingHandlerAdapter requestMappingHandlerAdapter(
+          @Qualifier("mvcContentNegotiationManager") ContentNegotiationManager contentNegotiationManager,
+          @Qualifier("mvcConversionService") FormattingConversionService conversionService,
+          @Qualifier("mvcValidator") Validator validator) {
+
+    RequestMappingHandlerAdapter adapter = createRequestMappingHandlerAdapter();
+    adapter.setContentNegotiationManager(contentNegotiationManager);
+    adapter.setMessageConverters(getMessageConverters());
+    adapter.setWebBindingInitializer(getConfigurableWebBindingInitializer(conversionService, validator));
+    adapter.setCustomArgumentResolvers(getArgumentResolvers());
+    adapter.setCustomReturnValueHandlers(getReturnValueHandlers());
+
+    if (jackson2Present) {
+      adapter.setRequestBodyAdvice(Collections.singletonList(new JsonViewRequestBodyAdvice()));
+      adapter.setResponseBodyAdvice(Collections.singletonList(new JsonViewResponseBodyAdvice()));
+    }
+
+    AsyncSupportConfigurer configurer = getAsyncSupportConfigurer();
+    if (configurer.getTaskExecutor() != null) {
+      adapter.setTaskExecutor(configurer.getTaskExecutor());
+    }
+    if (configurer.getTimeout() != null) {
+      adapter.setAsyncRequestTimeout(configurer.getTimeout());
+    }
+
+    adapter.setCallableInterceptors(configurer.getCallableInterceptors());
+    adapter.setDeferredResultInterceptors(configurer.getDeferredResultInterceptors());
+
+    return adapter;
+  }
+
+  /**
+   * Protected method for plugging in a custom subclass of
+   * {@link RequestMappingHandlerAdapter}.
+   */
+  protected RequestMappingHandlerAdapter createRequestMappingHandlerAdapter() {
+    return new RequestMappingHandlerAdapter();
+  }
+
+  /**
+   * Return the {@link ConfigurableWebBindingInitializer} to use for
+   * initializing all {@link WebDataBinder} instances.
+   */
+  protected ConfigurableWebBindingInitializer getConfigurableWebBindingInitializer(
+          FormattingConversionService mvcConversionService, Validator mvcValidator) {
+
+    ConfigurableWebBindingInitializer initializer = new ConfigurableWebBindingInitializer();
+    initializer.setConversionService(mvcConversionService);
+    initializer.setValidator(mvcValidator);
+    MessageCodesResolver messageCodesResolver = getMessageCodesResolver();
+    if (messageCodesResolver != null) {
+      initializer.setMessageCodesResolver(messageCodesResolver);
+    }
+    return initializer;
+  }
+
+  /**
+   * Return a global {@link Validator} instance for example for validating
+   * {@code @ModelAttribute} and {@code @RequestBody} method arguments.
+   * Delegates to {@link #getValidator()} first and if that returns {@code null}
+   * checks the classpath for the presence of a JSR-303 implementations
+   * before creating a {@code OptionalValidatorFactoryBean}.If a JSR-303
+   * implementation is not available, a no-op {@link Validator} is returned.
+   */
+  @Bean
+  public Validator mvcValidator() {
+    Validator validator = getValidator();
+    if (validator == null) {
+      if (ClassUtils.isPresent("jakarta.validation.Validator", getClass().getClassLoader())) {
+        validator = new OptionalValidatorFactoryBean();
+      }
+      else {
+        validator = new NoOpValidator();
+      }
+    }
+    return validator;
+  }
+
+  /**
+   * Override this method to provide a custom {@link MessageCodesResolver}.
+   */
+  @Nullable
+  protected MessageCodesResolver getMessageCodesResolver() {
+    return null;
+  }
+
+  /**
+   * Override this method to provide a custom {@link Validator}.
+   */
+  @Nullable
+  protected Validator getValidator() {
+    return null;
+  }
+
+  /**
+   * Callback for building the {@link AsyncSupportConfigurer}.
+   * Delegates to {@link #configureAsyncSupport(AsyncSupportConfigurer)}.
+   */
+  protected AsyncSupportConfigurer getAsyncSupportConfigurer() {
+    if (asyncSupportConfigurer == null) {
+      this.asyncSupportConfigurer = new AsyncSupportConfigurer();
+      configureAsyncSupport(asyncSupportConfigurer);
+    }
+    return asyncSupportConfigurer;
+  }
+
+  /**
+   * Override this method to configure asynchronous request processing options.
+   *
+   * @see AsyncSupportConfigurer
+   */
+  protected void configureAsyncSupport(AsyncSupportConfigurer configurer) {
+
+  }
+
   static boolean isPresent(String name) {
     ClassLoader classLoader = WebMvcAutoConfiguration.class.getClassLoader();
     return ClassUtils.isPresent(name, classLoader);
+  }
+
+  private static final class NoOpValidator implements Validator {
+
+    @Override
+    public boolean supports(Class<?> clazz) {
+      return false;
+    }
+
+    @Override
+    public void validate(@Nullable Object target, Errors errors) { }
+
   }
 
 }

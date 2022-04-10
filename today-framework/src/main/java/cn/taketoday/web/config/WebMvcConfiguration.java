@@ -26,6 +26,8 @@ import cn.taketoday.core.io.Resource;
 import cn.taketoday.format.Formatter;
 import cn.taketoday.format.FormatterRegistry;
 import cn.taketoday.http.converter.HttpMessageConverter;
+import cn.taketoday.lang.Nullable;
+import cn.taketoday.validation.Validator;
 import cn.taketoday.web.ReturnValueHandler;
 import cn.taketoday.web.annotation.CrossOrigin;
 import cn.taketoday.web.annotation.Multipart;
@@ -263,5 +265,25 @@ public interface WebMvcConfiguration {
    * @since 4.0
    */
   default void addViewControllers(ViewControllerRegistry registry) { }
+
+  /**
+   * Provide a custom {@link Validator} instead of the one created by default.
+   * The default implementation, assuming JSR-303 is on the classpath, is:
+   * {@link cn.taketoday.validation.beanvalidation.OptionalValidatorFactoryBean}.
+   * Leave the return value as {@code null} to keep the default.
+   *
+   * @since 4.0
+   */
+  @Nullable
+  default Validator getValidator() {
+    return null;
+  }
+
+  /**
+   * Configure asynchronous request handling options.
+   *
+   * @since 4.0
+   */
+  default void configureAsyncSupport(AsyncSupportConfigurer configurer) { }
 
 }

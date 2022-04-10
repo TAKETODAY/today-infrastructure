@@ -17,41 +17,46 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
+package cn.taketoday.web.handler.result;
 
-package cn.taketoday.web.handler;
-
-import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.lang.Assert;
-import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.ReturnValueHandler;
 import cn.taketoday.web.handler.method.HandlerMethod;
+import cn.taketoday.web.handler.result.HandlerMethodReturnValueHandler;
+import cn.taketoday.web.handler.result.ModelAndViewReturnValueHandler;
 
 /**
- * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @since 4.0 2022/1/28 11:00
+ * for {@link Void} or void type
+ *
+ * @author TODAY 2019-07-14 00:53
  */
-public class HttpHeadersReturnValueHandler
+public class VoidReturnValueHandler
         extends HandlerMethodReturnValueHandler implements ReturnValueHandler {
+  private final ModelAndViewReturnValueHandler returnValueHandler;
 
-  @Override
-  protected boolean supportsHandlerMethod(HandlerMethod handler) {
-    return handler.isReturn(HttpHeaders.class);
+  public VoidReturnValueHandler(ModelAndViewReturnValueHandler returnValueHandler) {
+    Assert.notNull(returnValueHandler, "ModelAndViewReturnValueHandler must not be null");
+    this.returnValueHandler = returnValueHandler;
   }
 
   @Override
-  public boolean supportsReturnValue(@Nullable Object returnValue) {
-    return returnValue instanceof HttpHeaders;
+  public boolean supportsHandlerMethod(HandlerMethod handlerMethod) {
+    return handlerMethod.isReturn(void.class)
+            || handlerMethod.isReturn(Void.class);
   }
 
   @Override
-  public void handleReturnValue(RequestContext context, Object handler, @Nullable Object returnValue) {
-    context.setRequestHandled(true);
-    Assert.state(returnValue instanceof HttpHeaders, "HttpHeaders expected");
-    HttpHeaders headers = (HttpHeaders) returnValue;
+  public boolean supportsReturnValue(Object returnValue) {
+    return returnValue == null;
+  }
 
-    if (!headers.isEmpty()) {
-      context.responseHeaders().putAll(headers);
+  @Override
+  public void handleReturnValue(
+          RequestContext context, Object handler, Object returnValue) throws Exception {
+    if (context.hasModelAndView()) {
+      // user constructed a ModelAndView hold in context
+      returnValueHandler.handleModelAndView(context, null, context.modelAndView());
     }
   }
 

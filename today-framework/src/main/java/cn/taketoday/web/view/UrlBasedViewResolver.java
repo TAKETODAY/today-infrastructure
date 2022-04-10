@@ -463,7 +463,7 @@ public class UrlBasedViewResolver extends AbstractCachingViewResolver implements
     }
 
     // Check for special "forward:" prefix.
-    if (ServletDetector.isPresent() && viewName.startsWith(FORWARD_URL_PREFIX)) { // servlet check
+    if (ServletDetector.present() && viewName.startsWith(FORWARD_URL_PREFIX)) { // servlet check
       String forwardUrl = viewName.substring(FORWARD_URL_PREFIX.length());
       InternalResourceView view = new InternalResourceView(forwardUrl);
       return applyLifecycleMethods(FORWARD_URL_PREFIX, view);

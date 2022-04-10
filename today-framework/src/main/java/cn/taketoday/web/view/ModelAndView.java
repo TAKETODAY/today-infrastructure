@@ -19,12 +19,12 @@
  */
 package cn.taketoday.web.view;
 
-import java.util.Collection;
-import java.util.Iterator;
 import java.util.Map;
 
-import cn.taketoday.http.HttpStatus;
+import cn.taketoday.http.HttpStatusCode;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.CollectionUtils;
+import cn.taketoday.web.interceptor.HandlerInterceptor;
 
 /**
  * Holder for both Model and View in the web MVC framework.
@@ -45,118 +45,281 @@ import cn.taketoday.lang.Nullable;
  * @author TODAY
  * @since 2018-12-02 19:54
  */
-public class ModelAndView implements Model {
+public class ModelAndView {
 
+  /** View instance or view name String. */
   @Nullable
   private Object view;
 
-  private final Model dataModel;
+  /** Model Map. */
+  @Nullable
+  private ModelMap model;
 
   /** Optional HTTP status for the response. */
   @Nullable
-  private HttpStatus status;
+  private HttpStatusCode status;
 
   /** Indicates whether or not this instance has been cleared with a call to {@link #clear()}. */
   private boolean cleared = false;
 
-  public ModelAndView() {
-    this((Object) null);
-  }
+  /**
+   * Default constructor for bean-style usage: populating bean
+   * properties instead of passing in constructor arguments.
+   *
+   * @see #setView(View)
+   * @see #setViewName(String)
+   */
+  public ModelAndView() { }
 
-  public ModelAndView(@Nullable Object view) {
-    this(view, new ModelAttributes());
-  }
-
-  public ModelAndView(Model dataModel) {
-    this(null, dataModel);
-  }
-
-  public ModelAndView(@Nullable Object view, Model dataModel) {
-    setView(view);
-    this.dataModel = dataModel;
-  }
-
-  public ModelAndView(Object view, String name, Object value) {
-    this(view);
-    setAttribute(name, value);
+  /**
+   * Convenient constructor when there is no model data to expose.
+   * Can also be used in conjunction with {@code addObject}.
+   *
+   * @param viewName name of the View to render, to be resolved
+   * by the DispatcherServlet's ViewResolver
+   * @see #addObject
+   */
+  public ModelAndView(String viewName) {
+    this.view = viewName;
   }
 
   /**
-   * Set view
+   * Convenient constructor when there is no model data to expose.
+   * Can also be used in conjunction with {@code addObject}.
    *
-   * @param view View object
-   * @return Current {@link ModelAndView}
+   * @param view the View object to render
+   * @see #addObject
    */
-  public ModelAndView setView(@Nullable Object view) {
+  public ModelAndView(View view) {
     this.view = view;
-    return this;
+  }
+
+  /**
+   * Create a new ModelAndView given a view name and a model.
+   *
+   * @param viewName name of the View to render, to be resolved
+   * by the DispatcherServlet's ViewResolver
+   * @param model a Map of model names (Strings) to model objects
+   * (Objects). Model entries may not be {@code null}, but the
+   * model Map may be {@code null} if there is no model data.
+   */
+  public ModelAndView(String viewName, @Nullable Map<String, ?> model) {
+    this.view = viewName;
+    if (model != null) {
+      getModelMap().addAllAttributes(model);
+    }
+  }
+
+  /**
+   * Create a new ModelAndView given a View object and a model.
+   * <em>Note: the supplied model data is copied into the internal
+   * storage of this class. You should not consider to modify the supplied
+   * Map after supplying it to this class</em>
+   *
+   * @param view the View object to render
+   * @param model a Map of model names (Strings) to model objects
+   * (Objects). Model entries may not be {@code null}, but the
+   * model Map may be {@code null} if there is no model data.
+   */
+  public ModelAndView(View view, @Nullable Map<String, ?> model) {
+    this.view = view;
+    if (model != null) {
+      getModelMap().addAllAttributes(model);
+    }
+  }
+
+  /**
+   * Create a new ModelAndView given a view name and HTTP status.
+   *
+   * @param viewName name of the View to render, to be resolved
+   * by the DispatcherServlet's ViewResolver
+   * @param status an HTTP status code to use for the response
+   * (to be set just prior to View rendering)
+   */
+  public ModelAndView(String viewName, HttpStatusCode status) {
+    this.view = viewName;
+    this.status = status;
+  }
+
+  /**
+   * Create a new ModelAndView given a view name, model, and HTTP status.
+   *
+   * @param viewName name of the View to render, to be resolved
+   * by the DispatcherServlet's ViewResolver
+   * @param model a Map of model names (Strings) to model objects
+   * (Objects). Model entries may not be {@code null}, but the
+   * model Map may be {@code null} if there is no model data.
+   * @param status an HTTP status code to use for the response
+   * (to be set just prior to View rendering)
+   * @since 4.3
+   */
+  public ModelAndView(@Nullable String viewName, @Nullable Map<String, ?> model, @Nullable HttpStatusCode status) {
+    this.view = viewName;
+    if (model != null) {
+      getModelMap().addAllAttributes(model);
+    }
+    this.status = status;
+  }
+
+  /**
+   * Convenient constructor to take a single model object.
+   *
+   * @param viewName name of the View to render, to be resolved
+   * by the DispatcherServlet's ViewResolver
+   * @param modelName name of the single entry in the model
+   * @param modelObject the single model object
+   */
+  public ModelAndView(String viewName, String modelName, Object modelObject) {
+    this.view = viewName;
+    addObject(modelName, modelObject);
+  }
+
+  /**
+   * Convenient constructor to take a single model object.
+   *
+   * @param view the View object to render
+   * @param modelName name of the single entry in the model
+   * @param modelObject the single model object
+   */
+  public ModelAndView(View view, String modelName, Object modelObject) {
+    this.view = view;
+    addObject(modelName, modelObject);
   }
 
   /**
    * Set a view name for this ModelAndView, to be resolved by the
-   * ViewResolver. Will override any pre-existing view name or View.
-   *
-   * @since 4.0
+   * DispatcherServlet via a ViewResolver. Will override any
+   * pre-existing view name or View.
    */
-  public ModelAndView setViewName(@Nullable String viewName) {
+  public void setViewName(@Nullable String viewName) {
     this.view = viewName;
-    return this;
   }
 
   /**
    * Return the view name to be resolved by the DispatcherServlet
    * via a ViewResolver, or {@code null} if we are using a View object.
-   *
-   * @since 4.0
    */
   @Nullable
   public String getViewName() {
-    return this.view instanceof String ? (String) this.view : null;
+    return (this.view instanceof String ? (String) this.view : null);
+  }
+
+  /**
+   * Set a View object for this ModelAndView. Will override any
+   * pre-existing view name or View.
+   */
+  public void setView(@Nullable View view) {
+    this.view = view;
+  }
+
+  /**
+   * Return the View object, or {@code null} if we are using a view name
+   * to be resolved by the DispatcherServlet via a ViewResolver.
+   */
+  @Nullable
+  public View getView() {
+    return view instanceof View ? (View) this.view : null;
+  }
+
+  /**
+   * Indicate whether or not this {@code ModelAndView} has a view, either
+   * as a view name or as a direct {@link View} instance.
+   */
+  public boolean hasView() {
+    return view != null;
   }
 
   /**
    * Return whether we use a view reference, i.e. {@code true}
    * if the view has been specified via a name to be resolved by the
-   * ReturnValueHandler via a ViewResolver.
-   *
-   * @since 4.0
+   * DispatcherServlet via a ViewResolver.
    */
   public boolean isReference() {
-    return this.view instanceof String;
+    return view instanceof String;
   }
 
-  public final boolean hasView() {
-    return view != null;
-  }
-
+  /**
+   * Return the model map. May return {@code null}.
+   * Called by DispatcherServlet for evaluation of the model.
+   */
   @Nullable
-  public Object getView() {
-    return view;
+  protected Map<String, Object> getModelInternal() {
+    return this.model;
   }
 
-  @Override
-  public void setAttributes(Map<String, Object> attributes) {
-    dataModel.setAttributes(attributes);
+  /**
+   * Return the underlying {@code ModelMap} instance (never {@code null}).
+   */
+  public ModelMap getModelMap() {
+    if (this.model == null) {
+      this.model = new ModelMap();
+    }
+    return this.model;
   }
 
-  @Override
-  public Object getAttribute(String name) {
-    return dataModel.getAttribute(name);
+  /**
+   * Return the model map. Never returns {@code null}.
+   * To be called by application code for modifying the model.
+   */
+  public Map<String, Object> getModel() {
+    return getModelMap();
   }
 
-  @Override
-  public void setAttribute(String name, @Nullable Object value) {
-    dataModel.setAttribute(name, value);
+  /**
+   * Set the HTTP status to use for the response.
+   * <p>The response status is set just prior to View rendering.
+   *
+   * @since 4.3
+   */
+  public void setStatus(@Nullable HttpStatusCode status) {
+    this.status = status;
   }
 
-  @Override
-  public Object removeAttribute(String name) {
-    return dataModel.removeAttribute(name);
+  /**
+   * Return the configured HTTP status for the response, if any.
+   *
+   * @since 4.3
+   */
+  @Nullable
+  public HttpStatusCode getStatus() {
+    return this.status;
   }
 
-  @Override
-  public Map<String, Object> asMap() {
-    return dataModel.asMap();
+  /**
+   * Add an attribute to the model.
+   *
+   * @param attributeName name of the object to add to the model (never {@code null})
+   * @param attributeValue object to add to the model (can be {@code null})
+   * @see ModelMap#addAttribute(String, Object)
+   * @see #getModelMap()
+   */
+  public ModelAndView addObject(String attributeName, @Nullable Object attributeValue) {
+    getModelMap().addAttribute(attributeName, attributeValue);
+    return this;
+  }
+
+  /**
+   * Add an attribute to the model using parameter name generation.
+   *
+   * @param attributeValue the object to add to the model (never {@code null})
+   * @see ModelMap#addAttribute(Object)
+   * @see #getModelMap()
+   */
+  public ModelAndView addObject(Object attributeValue) {
+    getModelMap().addAttribute(attributeValue);
+    return this;
+  }
+
+  /**
+   * Add all attributes contained in the provided Map to the model.
+   *
+   * @param modelMap a Map of attributeName &rarr; attributeValue pairs
+   * @see ModelMap#addAllAttributes(Map)
+   * @see #getModelMap()
+   */
+  public ModelAndView addAllObjects(@Nullable Map<String, ?> modelMap) {
+    getModelMap().addAllAttributes(modelMap);
+    return this;
   }
 
   /**
@@ -166,12 +329,20 @@ public class ModelAndView implements Model {
    * in the {@code postHandle} method of a HandlerInterceptor.
    *
    * @see #isEmpty()
+   * @see HandlerInterceptor#postHandle
    */
-  @Override
   public void clear() {
-    dataModel.clear();
     this.view = null;
+    this.model = null;
     this.cleared = true;
+  }
+
+  /**
+   * Return whether this ModelAndView object is empty,
+   * i.e. whether it does not hold any view and does not contain a model.
+   */
+  public boolean isEmpty() {
+    return (this.view == null && CollectionUtils.isEmpty(this.model));
   }
 
   /**
@@ -183,113 +354,19 @@ public class ModelAndView implements Model {
    * @see #clear()
    */
   public boolean wasCleared() {
-    // FIXME isEmpty 语义问题
-    return this.cleared && isEmpty();
+    return (this.cleared && isEmpty());
   }
 
   /**
-   * Add an attribute to the model.
-   *
-   * @param attributeName name of the object to add to the model (never {@code null})
-   * @param attributeValue object to add to the model (can be {@code null})
-   * @see Model#setAttribute(String, Object)
-   * @see #getModel()
-   * @since 4.0
+   * Return diagnostic information about this model and view.
    */
-  public ModelAndView addObject(String attributeName, @Nullable Object attributeValue) {
-    getModel().setAttribute(attributeName, attributeValue);
-    return this;
-  }
-
-  /**
-   * Add an attribute to the model using parameter name generation.
-   *
-   * @param attributeValue the object to add to the model (never {@code null})
-   * @see Model#addAttribute(Object)
-   * @see #getModel()
-   * @since 4.0
-   */
-  public ModelAndView addObject(Object attributeValue) {
-    getModel().addAttribute(attributeValue);
-    return this;
-  }
-
-  /**
-   * Add all attributes contained in the provided Map to the model.
-   *
-   * @param modelMap a Map of attributeName &rarr; attributeValue pairs
-   * @see Model#addAllAttributes(Map)
-   * @see #getModel()
-   * @since 4.0
-   */
-  public ModelAndView addAllObjects(@Nullable Map<String, ?> modelMap) {
-    getModel().addAllAttributes(modelMap);
-    return this;
-  }
-
   @Override
-  public String[] getAttributeNames() {
-    return dataModel.getAttributeNames();
+  public String toString() {
+    return "ModelAndView [view=" + formatView() + "; model=" + this.model + "]";
   }
 
-  @Override
-  public Iterator<String> attributeNames() {
-    return dataModel.attributeNames();
-  }
-
-  @Override
-  public boolean isEmpty() {
-    return dataModel.isEmpty();
-  }
-
-  @Override
-  public Model addAttribute(@Nullable Object attributeValue) {
-    return dataModel.addAttribute(attributeValue);
-  }
-
-  @Override
-  public Model addAllAttributes(@Nullable Map<String, ?> attributes) {
-    return dataModel.addAllAttributes(attributes);
-  }
-
-  @Override
-  public Model addAllAttributes(@Nullable Collection<?> attributeValues) {
-    return dataModel.addAllAttributes(attributeValues);
-  }
-
-  @Override
-  public Model mergeAttributes(@Nullable Map<String, ?> attributes) {
-    return dataModel.mergeAttributes(attributes);
-  }
-
-  /**
-   * Return the model map. Never returns {@code null}.
-   * To be called by application code for modifying the model.
-   *
-   * @since 4.0
-   */
-  public Model getModel() {
-    return dataModel;
-  }
-
-  /**
-   * Set the HTTP status to use for the response.
-   * <p>The response status is set just prior to View rendering.
-   *
-   * @since 4.0
-   */
-  public void setStatus(@Nullable HttpStatus status) {
-    this.status = status;
-  }
-
-  /**
-   * Return the configured HTTP status for the response, if any.
-   *
-   * @since 4.0
-   */
-  @Nullable
-  public HttpStatus getStatus() {
-    return this.status;
+  private String formatView() {
+    return isReference() ? "\"" + this.view + "\"" : "[" + this.view + "]";
   }
 
 }

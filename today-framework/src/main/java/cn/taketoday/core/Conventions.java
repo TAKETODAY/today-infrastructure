@@ -133,6 +133,48 @@ public final class Conventions {
   }
 
   /**
+   * Determine the conventional variable name for the given parameter taking
+   * the generic collection type, if any, into account.
+   * <p>this method supports reactive types:<br>
+   * {@code Mono<com.myapp.Product>} becomes {@code "productMono"}<br>
+   * {@code Flux<com.myapp.MyProduct>} becomes {@code "myProductFlux"}<br>
+   * {@code Observable<com.myapp.MyProduct>} becomes {@code "myProductObservable"}<br>
+   *
+   * @param parameter the method or constructor parameter
+   * @return the generated variable name
+   */
+  public static String getVariableNameForParameter(MethodParameter parameter) {
+    Assert.notNull(parameter, "MethodParameter must not be null");
+    Class<?> valueClass;
+    boolean pluralize = false;
+    String reactiveSuffix = "";
+
+    if (parameter.getParameterType().isArray()) {
+      valueClass = parameter.getParameterType().getComponentType();
+      pluralize = true;
+    }
+    else if (Collection.class.isAssignableFrom(parameter.getParameterType())) {
+      valueClass = ResolvableType.forMethodParameter(parameter).asCollection().resolveGeneric();
+      if (valueClass == null) {
+        throw new IllegalArgumentException(
+                "Cannot generate variable name for non-typed Collection parameter type");
+      }
+      pluralize = true;
+    }
+    else {
+      valueClass = parameter.getParameterType();
+      ReactiveAdapter adapter = ReactiveAdapterRegistry.getSharedInstance().getAdapter(valueClass);
+      if (adapter != null && !adapter.getDescriptor().isNoValue()) {
+        reactiveSuffix = ClassUtils.getShortName(valueClass);
+        valueClass = parameter.nested().getNestedParameterType();
+      }
+    }
+
+    String name = ClassUtils.getShortNameAsProperty(valueClass);
+    return (pluralize ? pluralize(name) : name + reactiveSuffix);
+  }
+
+  /**
    * Determine the conventional variable name for the return type of the
    * given method, taking the generic collection type, if any, into account.
    *

@@ -33,7 +33,6 @@ import cn.taketoday.http.converter.ByteArrayHttpMessageConverter;
 import cn.taketoday.http.converter.HttpMessageConverter;
 import cn.taketoday.http.converter.StringHttpMessageConverter;
 import cn.taketoday.lang.Assert;
-import cn.taketoday.lang.NonNull;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.web.ReturnValueHandler;
@@ -43,6 +42,13 @@ import cn.taketoday.web.bind.resolver.HttpEntityMethodProcessor;
 import cn.taketoday.web.bind.resolver.RequestResponseBodyMethodProcessor;
 import cn.taketoday.web.handler.method.RequestBodyAdvice;
 import cn.taketoday.web.handler.method.ResponseBodyAdvice;
+import cn.taketoday.web.handler.result.DeferredResultReturnValueHandler;
+import cn.taketoday.web.handler.result.HttpHeadersReturnValueHandler;
+import cn.taketoday.web.handler.result.HttpStatusReturnValueHandler;
+import cn.taketoday.web.handler.result.ModelAndViewReturnValueHandler;
+import cn.taketoday.web.handler.result.ObjectHandlerMethodReturnValueHandler;
+import cn.taketoday.web.handler.result.RenderedImageReturnValueHandler;
+import cn.taketoday.web.handler.result.VoidReturnValueHandler;
 import cn.taketoday.web.view.RedirectModelManager;
 import cn.taketoday.web.view.ViewResolver;
 import cn.taketoday.web.view.ViewReturnValueHandler;
@@ -233,7 +239,6 @@ public class ReturnValueHandlerManager
     return viewReturnValueHandler;
   }
 
-  @NonNull
   private ObjectHandlerMethodReturnValueHandler getObjectHandler(SelectableReturnValueHandler compositeHandler) {
     ObjectHandlerMethodReturnValueHandler objectHandler = get(ObjectHandlerMethodReturnValueHandler.class);
     // image handler
@@ -243,7 +248,6 @@ public class ReturnValueHandlerManager
     return objectHandler;
   }
 
-  @NonNull
   private RenderedImageReturnValueHandler getRenderedImageHandler() {
     RenderedImageReturnValueHandler imageHandler = get(RenderedImageReturnValueHandler.class);
     // image handler

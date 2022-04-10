@@ -35,6 +35,7 @@ import cn.taketoday.http.HttpMethod;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
+import cn.taketoday.web.session.WebSessionRequiredException;
 
 /**
  * Convenient superclass for any kind of web content generator
@@ -264,6 +265,11 @@ public abstract class WebContentGenerator extends ApplicationContextSupport {
     String method = request.getMethodValue();
     if (this.supportedMethods != null && !this.supportedMethods.contains(method)) {
       throw new HttpRequestMethodNotSupportedException(method, this.supportedMethods);
+    }
+
+    // Check whether a session is required.
+    if (this.requireSession && RequestContextUtils.getSession(request, false) == null) {
+      throw new WebSessionRequiredException("Pre-existing session required but none found");
     }
   }
 

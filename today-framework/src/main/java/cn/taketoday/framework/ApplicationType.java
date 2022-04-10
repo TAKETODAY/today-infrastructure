@@ -54,10 +54,10 @@ public enum ApplicationType {
 
   static ApplicationType deduceFromClasspath() {
     if (ClassUtils.isPresent(NETTY_INDICATOR_CLASS, null)
-            && !ServletDetector.isPresent()) {
+            && !ServletDetector.present()) {
       return ApplicationType.REACTIVE_WEB;
     }
-    if (!ServletDetector.isPresent()) {
+    if (!ServletDetector.present()) {
       return ApplicationType.NONE_WEB;
     }
     return ApplicationType.SERVLET_WEB;

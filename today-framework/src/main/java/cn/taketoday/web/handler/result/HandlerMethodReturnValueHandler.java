@@ -17,9 +17,9 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.web.handler;
+package cn.taketoday.web.handler.result;
 
-import cn.taketoday.core.OrderedSupport;
+import cn.taketoday.core.MethodParameter;
 import cn.taketoday.web.ReturnValueHandler;
 import cn.taketoday.web.handler.method.ActionMappingAnnotationHandler;
 import cn.taketoday.web.handler.method.HandlerMethod;
@@ -29,13 +29,15 @@ import cn.taketoday.web.handler.method.HandlerMethod;
  *
  * @author TODAY 2019-12-13 13:52
  */
-public abstract class HandlerMethodReturnValueHandler
-        extends OrderedSupport implements ReturnValueHandler {
+public interface HandlerMethodReturnValueHandler extends ReturnValueHandler {
 
   @Override
-  public final boolean supportsHandler(final Object handler) {
-    return handler instanceof ActionMappingAnnotationHandler annotationHandler
-            && supportsHandlerMethod(annotationHandler.getMethod());
+  default boolean supportsHandler(final Object handler) {
+    return (handler instanceof HandlerMethod handlerMethod && supportsHandlerMethod(handlerMethod))
+            || (
+            handler instanceof ActionMappingAnnotationHandler annotationHandler
+                    && supportsHandlerMethod(annotationHandler.getMethod())
+    );
   }
 
   /**
@@ -43,6 +45,18 @@ public abstract class HandlerMethodReturnValueHandler
    *
    * @see HandlerMethod
    */
-  protected abstract boolean supportsHandlerMethod(HandlerMethod handler);
+  default boolean supportsHandlerMethod(HandlerMethod handler) {
+    return supportsReturnType(handler.getReturnType());
+  }
+
+  /**
+   * Whether the given {@linkplain MethodParameter method return type} is
+   * supported by this handler.
+   *
+   * @param returnType the method return type to check
+   * @return {@code true} if this handler supports the supplied return type;
+   * {@code false} otherwise
+   */
+  boolean supportsReturnType(MethodParameter returnType);
 
 }

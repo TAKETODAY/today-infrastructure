@@ -208,7 +208,7 @@ public class SimpleHandlerExceptionHandler
           view = handleAsyncRequestTimeoutException(
                   (AsyncRequestTimeoutException) ex, request, handler);
         }
-        else if (ServletDetector.isPresent() && ex instanceof MissingServletRequestPartException) {
+        else if (ServletDetector.present() && ex instanceof MissingServletRequestPartException) {
           view = handleMissingServletRequestPartException(
                   (MissingServletRequestPartException) ex, request, handler);
         }

@@ -34,7 +34,7 @@ public abstract class ServletDetector {
 
   private static final boolean servletPresent = ClassUtils.isPresent(SERVLET_CLASS, ServletDetector.class.getClassLoader());
 
-  public static boolean isPresent() {
+  public static boolean present() {
     return servletPresent;
   }
 
