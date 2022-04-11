@@ -32,9 +32,11 @@ import cn.taketoday.web.ReturnValueHandler;
 import cn.taketoday.web.annotation.CrossOrigin;
 import cn.taketoday.web.annotation.Multipart;
 import cn.taketoday.web.bind.resolver.ParameterResolvingRegistry;
+import cn.taketoday.web.bind.resolver.ParameterResolvingStrategies;
 import cn.taketoday.web.bind.resolver.ParameterResolvingStrategy;
 import cn.taketoday.web.cors.CorsConfiguration;
 import cn.taketoday.web.handler.HandlerExceptionHandler;
+import cn.taketoday.web.handler.ReturnValueHandlerManager;
 import cn.taketoday.web.handler.ViewController;
 import cn.taketoday.web.multipart.MultipartConfiguration;
 import cn.taketoday.web.registry.FunctionHandlerRegistry;
@@ -62,7 +64,7 @@ public interface WebMvcConfiguration {
    *
    * @param customizedStrategies {@link ParameterResolvingStrategy} registry
    */
-  default void configureParameterResolving(List<ParameterResolvingStrategy> customizedStrategies) { }
+  default void configureParameterResolving(ParameterResolvingStrategies customizedStrategies) { }
 
   /**
    * Configure {@link ParameterResolvingStrategy}
@@ -73,22 +75,22 @@ public interface WebMvcConfiguration {
    * </p>
    *
    * @param customizedStrategies {@link ParameterResolvingStrategy} registry
-   * @see WebApplicationLoader#configureParameterResolving(List, WebMvcConfiguration)
    * @see ParameterResolvingRegistry#getCustomizedStrategies()
    * @see ParameterResolvingRegistry#getDefaultStrategies()
    * @since 4.0
    */
   default void configureParameterResolving(
-          ParameterResolvingRegistry registry, List<ParameterResolvingStrategy> customizedStrategies) {
+          ParameterResolvingRegistry registry, ParameterResolvingStrategies customizedStrategies) {
     configureParameterResolving(customizedStrategies);
   }
 
   /**
    * Configure {@link ReturnValueHandler}
    *
-   * @param returnValueHandlers {@link ReturnValueHandler} registry
+   * @param manager {@link ReturnValueHandler} registry
+   * @see ReturnValueHandlerManager
    */
-  default void configureResultHandler(List<ReturnValueHandler> returnValueHandlers) { }
+  default void modifyReturnValueHandlerManager(ReturnValueHandlerManager manager) { }
 
   /**
    * Configure static {@link Resource}

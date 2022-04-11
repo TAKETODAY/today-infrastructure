@@ -23,6 +23,8 @@ package cn.taketoday.aop.framework;
 import java.io.Serializable;
 import java.lang.reflect.Proxy;
 
+import cn.taketoday.util.ClassUtils;
+
 /**
  * Default {@link AopProxyFactory} implementation, creating either a CGLIB proxy
  * or a JDK dynamic proxy.
@@ -57,7 +59,7 @@ public class DefaultAopProxyFactory implements AopProxyFactory, Serializable {
         throw new AopConfigException("TargetSource cannot determine target class: " +
                 "Either an interface or a target is required for proxy creation.");
       }
-      if (targetClass.isInterface() || Proxy.isProxyClass(targetClass) || AopProxyUtils.isLambda(targetClass)) {
+      if (targetClass.isInterface() || Proxy.isProxyClass(targetClass) || ClassUtils.isLambdaClass(targetClass)) {
         return new JdkDynamicAopProxy(config);
       }
       return new SerializationCglibAopProxy(config);

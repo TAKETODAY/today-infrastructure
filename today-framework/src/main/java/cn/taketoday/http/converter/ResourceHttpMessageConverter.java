@@ -29,9 +29,9 @@ import cn.taketoday.core.io.InputStreamResource;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.http.HttpInputMessage;
 import cn.taketoday.http.HttpOutputMessage;
+import cn.taketoday.http.MediaType;
 import cn.taketoday.http.MediaTypeFactory;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.http.MediaType;
 import cn.taketoday.util.StreamUtils;
 
 /**
@@ -124,6 +124,13 @@ public class ResourceHttpMessageConverter extends AbstractHttpMessageConverter<R
     }
     long contentLength = resource.contentLength();
     return (contentLength < 0 ? null : contentLength);
+  }
+
+  /**
+   * Adds the default headers for the given resource to the given message.
+   */
+  public void addDefaultHeaders(HttpOutputMessage message, Resource resource, @Nullable MediaType contentType) throws IOException {
+    addDefaultHeaders(message.getHeaders(), resource, contentType);
   }
 
   @Override

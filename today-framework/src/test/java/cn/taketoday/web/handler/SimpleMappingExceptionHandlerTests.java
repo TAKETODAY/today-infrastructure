@@ -71,7 +71,7 @@ class SimpleMappingExceptionHandlerTests {
     exceptionHandler.setDefaultErrorView("default-view");
     ModelAndView mav = handleException(handler1, genericException);
     assertThat(mav.getViewName()).isEqualTo("default-view");
-    assertThat(mav.getModel().asMap().get(SimpleMappingExceptionHandler.DEFAULT_EXCEPTION_ATTRIBUTE)).isEqualTo(genericException);
+    assertThat(mav.getModel().get(SimpleMappingExceptionHandler.DEFAULT_EXCEPTION_ATTRIBUTE)).isEqualTo(genericException);
   }
 
   @Test
@@ -96,7 +96,7 @@ class SimpleMappingExceptionHandlerTests {
     exceptionHandler.setExceptionAttribute(null);
     ModelAndView mav = handleException(handler1, genericException);
     assertThat(mav.getViewName()).isEqualTo("default-view");
-    assertThat(mav.getModel().asMap().get(SimpleMappingExceptionHandler.DEFAULT_EXCEPTION_ATTRIBUTE)).isNull();
+    assertThat(mav.getModel().get(SimpleMappingExceptionHandler.DEFAULT_EXCEPTION_ATTRIBUTE)).isNull();
   }
 
   private ModelAndView handleException(Object handler, Exception ex) {
@@ -108,7 +108,11 @@ class SimpleMappingExceptionHandlerTests {
       else if (ret == null) {
         return null;
       }
-      return new ModelAndView(ret);
+      else if (ret instanceof String viewName) {
+        return new ModelAndView(viewName);
+      }
+      return null;
+//      return new ModelAndView(ret);
     }
     catch (Exception e) {
       throw ExceptionUtils.sneakyThrow(e);

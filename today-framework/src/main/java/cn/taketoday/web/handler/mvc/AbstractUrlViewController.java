@@ -52,7 +52,7 @@ public abstract class AbstractUrlViewController extends AbstractController {
     }
     RedirectModel model = RequestContextUtils.getInputRedirectModel(request);
     if (model != null) {
-      return new ModelAndView(viewName, model);
+      return new ModelAndView(viewName, model.asMap());
     }
     return new ModelAndView(viewName);
   }

@@ -26,7 +26,6 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import cn.taketoday.beans.BeanUtils;
 import cn.taketoday.core.Conventions;
@@ -44,6 +43,7 @@ import cn.taketoday.web.bind.annotation.ModelAttribute;
 import cn.taketoday.web.bind.support.WebDataBinderFactory;
 import cn.taketoday.web.handler.method.support.ModelAndViewContainer;
 import cn.taketoday.web.session.WebSessionRequiredException;
+import cn.taketoday.web.view.Model;
 import cn.taketoday.web.view.ModelMap;
 
 /**
@@ -105,7 +105,7 @@ public final class ModelFactory {
    * @throws Exception may arise from {@code @ModelAttribute} methods
    */
   public void initModel(RequestContext request, ModelAndViewContainer container, HandlerMethod handlerMethod)
-          throws Exception {
+          throws Throwable {
 
     Map<String, ?> sessionAttributes = this.sessionAttributesHandler.retrieveAttributes(request);
     container.mergeAttributes(sessionAttributes);
@@ -126,10 +126,9 @@ public final class ModelFactory {
    * Invoke model attribute methods to populate the model.
    * Attributes are added only if not already present in the model.
    */
-  private void invokeModelAttributeMethods(RequestContext request, ModelAndViewContainer container)
-          throws Throwable {
-
-    while (!this.modelMethods.isEmpty()) {
+  private void invokeModelAttributeMethods(
+          RequestContext request, ModelAndViewContainer container) throws Throwable {
+    while (!modelMethods.isEmpty()) {
       InvocableHandlerMethod modelMethod = getNextModelMethod(container).getHandlerMethod();
       ModelAttribute ann = modelMethod.getMethodAnnotation(ModelAttribute.class);
       Assert.state(ann != null, "No ModelAttribute annotation");
@@ -144,7 +143,7 @@ public final class ModelFactory {
       if (modelMethod.isVoid()) {
         if (StringUtils.hasText(ann.value())) {
           if (logger.isDebugEnabled()) {
-            logger.debug("Name in @ModelAttribute is ignored because method returns void: " +
+            logger.debug("Name in @ModelAttribute is ignored because method returns void: {}",
                     modelMethod.getShortLogMessage());
           }
         }
@@ -162,14 +161,14 @@ public final class ModelFactory {
   }
 
   private ModelMethod getNextModelMethod(ModelAndViewContainer container) {
-    for (ModelMethod modelMethod : this.modelMethods) {
+    for (ModelMethod modelMethod : modelMethods) {
       if (modelMethod.checkDependencies(container)) {
-        this.modelMethods.remove(modelMethod);
+        modelMethods.remove(modelMethod);
         return modelMethod;
       }
     }
-    ModelMethod modelMethod = this.modelMethods.get(0);
-    this.modelMethods.remove(modelMethod);
+    ModelMethod modelMethod = modelMethods.get(0);
+    modelMethods.remove(modelMethod);
     return modelMethod;
   }
 
@@ -177,7 +176,7 @@ public final class ModelFactory {
    * Find {@code @ModelAttribute} arguments also listed as {@code @SessionAttributes}.
    */
   private List<String> findSessionAttributeArguments(HandlerMethod handlerMethod) {
-    List<String> result = new ArrayList<>();
+    ArrayList<String> result = new ArrayList<>();
     for (MethodParameter parameter : handlerMethod.getMethodParameters()) {
       if (parameter.hasParameterAnnotation(ModelAttribute.class)) {
         String name = getNameForParameter(parameter);
@@ -198,7 +197,7 @@ public final class ModelFactory {
    * @param container contains the model to update
    * @throws Exception if creating BindingResult attributes fails
    */
-  public void updateModel(RequestContext request, ModelAndViewContainer container) throws Exception {
+  public void updateModel(RequestContext request, ModelAndViewContainer container) throws Throwable {
     ModelMap defaultModel = container.getDefaultModel();
     if (container.getSessionStatus().isComplete()) {
       this.sessionAttributesHandler.cleanupAttributes(request);
@@ -214,14 +213,14 @@ public final class ModelFactory {
   /**
    * Add {@link BindingResult} attributes to the model for attributes that require it.
    */
-  private void updateBindingResult(RequestContext request, ModelMap model) throws Exception {
+  private void updateBindingResult(RequestContext request, ModelMap model) throws Throwable {
     ArrayList<String> keyNames = new ArrayList<>(model.keySet());
     for (String name : keyNames) {
       Object value = model.get(name);
       if (value != null && isBindingCandidate(name, value)) {
         String bindingResultKey = BindingResult.MODEL_KEY_PREFIX + name;
         if (!model.containsAttribute(bindingResultKey)) {
-          WebDataBinder dataBinder = this.dataBinderFactory.createBinder(request, value, name);
+          WebDataBinder dataBinder = dataBinderFactory.createBinder(request, value, name);
           model.put(bindingResultKey, dataBinder.getBindingResult());
         }
       }
@@ -236,12 +235,12 @@ public final class ModelFactory {
       return false;
     }
 
-    if (this.sessionAttributesHandler.isHandlerSessionAttribute(attributeName, value.getClass())) {
+    if (sessionAttributesHandler.isHandlerSessionAttribute(attributeName, value.getClass())) {
       return true;
     }
 
-    return (!value.getClass().isArray() && !(value instanceof Collection) &&
-            !(value instanceof Map) && !BeanUtils.isSimpleValueType(value.getClass()));
+    return !value.getClass().isArray() && !(value instanceof Collection)
+            && !(value instanceof Map) && !BeanUtils.isSimpleValueType(value.getClass());
   }
 
   /**
@@ -256,7 +255,7 @@ public final class ModelFactory {
   public static String getNameForParameter(MethodParameter parameter) {
     ModelAttribute ann = parameter.getParameterAnnotation(ModelAttribute.class);
     String name = ann != null ? ann.value() : null;
-    return (StringUtils.hasText(name) ? name : Conventions.getVariableNameForParameter(parameter));
+    return StringUtils.hasText(name) ? name : Conventions.getVariableNameForParameter(parameter);
   }
 
   /**
@@ -290,13 +289,13 @@ public final class ModelFactory {
 
     private final InvocableHandlerMethod handlerMethod;
 
-    private final Set<String> dependencies = new HashSet<>();
+    private final HashSet<String> dependencies = new HashSet<>();
 
     public ModelMethod(InvocableHandlerMethod handlerMethod) {
       this.handlerMethod = handlerMethod;
       for (MethodParameter parameter : handlerMethod.getMethodParameters()) {
         if (parameter.hasParameterAnnotation(ModelAttribute.class)) {
-          this.dependencies.add(getNameForParameter(parameter));
+          dependencies.add(getNameForParameter(parameter));
         }
       }
     }
@@ -306,7 +305,7 @@ public final class ModelFactory {
     }
 
     public boolean checkDependencies(ModelAndViewContainer mavContainer) {
-      for (String name : this.dependencies) {
+      for (String name : dependencies) {
         if (!mavContainer.containsAttribute(name)) {
           return false;
         }

@@ -47,7 +47,7 @@ import cn.taketoday.web.annotation.ControllerAdvice;
  * Encapsulates information about an {@link ControllerAdvice @ControllerAdvice}
  * Framework-managed bean without necessarily requiring it to be instantiated.
  *
- * <p>The {@link #findAnnotatedBeans(ApplicationContext)} method can be used to
+ * <p>The {@link #findAnnotatedBeans(ApplicationContext, Class...)} method can be used to
  * discover such beans. However, a {@code ControllerAdviceBean} may be created
  * from any object, including ones without an {@code @ControllerAdvice} annotation.
  *
@@ -136,6 +136,17 @@ public class ControllerAdviceBean implements Ordered {
     this.beanOrName = beanName;
     this.isSingleton = beanFactory.isSingleton(beanName);
     this.beanType = getBeanType(beanName, beanFactory);
+    this.beanTypePredicate = controllerAdvice != null
+                             ? createBeanTypePredicate(controllerAdvice)
+                             : createBeanTypePredicate(this.beanType);
+    this.beanFactory = beanFactory;
+  }
+
+  ControllerAdviceBean(
+          String beanName, BeanFactory beanFactory, Class<?> beanType, @Nullable ControllerAdvice controllerAdvice) {
+    this.beanOrName = beanName;
+    this.isSingleton = beanFactory.isSingleton(beanName);
+    this.beanType = beanType;
     this.beanTypePredicate = controllerAdvice != null
                              ? createBeanTypePredicate(controllerAdvice)
                              : createBeanTypePredicate(this.beanType);
@@ -283,7 +294,7 @@ public class ControllerAdviceBean implements Ordered {
    * @see OrderComparator
    * @see Ordered
    */
-  public static List<ControllerAdviceBean> findAnnotatedBeans(ApplicationContext context) {
+  public static List<ControllerAdviceBean> findAnnotatedBeans(ApplicationContext context, Class<?>... types) {
     BeanFactory beanFactory = context;
     if (context instanceof ConfigurableApplicationContext cac) {
       // Use internal BeanFactory for potential downcast to ConfigurableBeanFactory above
@@ -295,11 +306,29 @@ public class ControllerAdviceBean implements Ordered {
       if (controllerAdvice.isPresent()) {
         // Use the @ControllerAdvice annotation found by findAnnotationOnBean()
         // in order to avoid a subsequent lookup of the same annotation.
-        adviceBeans.add(new ControllerAdviceBean(name, beanFactory, controllerAdvice.synthesize()));
+        Class<?> beanType = getBeanType(name, beanFactory);
+        if (isCandidate(beanType, types)) {
+          adviceBeans.add(new ControllerAdviceBean(name, beanFactory, beanType, controllerAdvice.synthesize()));
+        }
       }
     }
     OrderComparator.sort(adviceBeans);
     return adviceBeans;
+  }
+
+  static boolean isCandidate(@Nullable Class<?> beanType, @Nullable Class<?>[] types) {
+    if (types == null) {
+      return true;
+    }
+
+    if (beanType != null) {
+      for (Class<?> type : types) {
+        if (type.isAssignableFrom(beanType)) {
+          return true;
+        }
+      }
+    }
+    return false;
   }
 
   @Nullable

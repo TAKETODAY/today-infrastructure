@@ -24,10 +24,9 @@ import java.io.IOException;
 
 import javax.imageio.ImageIO;
 
-import cn.taketoday.lang.Assert;
 import cn.taketoday.http.MediaType;
+import cn.taketoday.lang.Assert;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.ReturnValueHandler;
 import cn.taketoday.web.handler.method.HandlerMethod;
 import cn.taketoday.web.handler.result.HandlerMethodReturnValueHandler;
 
@@ -40,8 +39,7 @@ import cn.taketoday.web.handler.result.HandlerMethodReturnValueHandler;
  * @author TODAY 2019-07-14 15:15
  * @see RenderedImage
  */
-public class RenderedImageReturnValueHandler
-        extends HandlerMethodReturnValueHandler implements ReturnValueHandler {
+public class RenderedImageReturnValueHandler implements HandlerMethodReturnValueHandler {
   public static final String IMAGE_PNG = "png";
 
   private String formatName = IMAGE_PNG;

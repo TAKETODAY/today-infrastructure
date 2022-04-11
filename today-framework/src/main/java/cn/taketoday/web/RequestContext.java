@@ -1404,6 +1404,11 @@ public abstract class RequestContext implements InputStreamSource,
   }
 
   @Override
+  public Model addAllAttributes(@Nullable Model attributes) {
+    return getModel().addAllAttributes(attributes);
+  }
+
+  @Override
   public boolean isEmpty() {
     return getModel().isEmpty();
   }

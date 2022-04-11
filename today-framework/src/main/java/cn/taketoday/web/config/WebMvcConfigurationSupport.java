@@ -21,7 +21,6 @@
 package cn.taketoday.web.config;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -152,21 +151,11 @@ public class WebMvcConfigurationSupport extends ApplicationContextSupport {
   }
 
   private void initControllerAdviceCache() {
+    List<ControllerAdviceBean> adviceBeans = ControllerAdviceBean.findAnnotatedBeans(getApplicationContext(),
+            RequestBodyAdvice.class, ResponseBodyAdvice.class);
 
-    List<ControllerAdviceBean> adviceBeans = ControllerAdviceBean.findAnnotatedBeans(getApplicationContext());
-    ArrayList<Object> requestResponseBodyAdviceBeans = new ArrayList<>();
-    for (ControllerAdviceBean adviceBean : adviceBeans) {
-      Class<?> beanType = adviceBean.getBeanType();
-      if (beanType == null) {
-        throw new IllegalStateException("Unresolvable type for ControllerAdviceBean: " + adviceBean);
-      }
-      if (RequestBodyAdvice.class.isAssignableFrom(beanType) || ResponseBodyAdvice.class.isAssignableFrom(beanType)) {
-        requestResponseBodyAdviceBeans.add(adviceBean);
-      }
-    }
-
-    if (!requestResponseBodyAdviceBeans.isEmpty()) {
-      this.requestResponseBodyAdvice.addAll(0, requestResponseBodyAdviceBeans);
+    if (!adviceBeans.isEmpty()) {
+      requestResponseBodyAdvice.addAll(0, adviceBeans);
     }
 
     if (jackson2Present) {
@@ -361,7 +350,7 @@ public class WebMvcConfigurationSupport extends ApplicationContextSupport {
       Set<String> names = BeanFactoryUtils.beanNamesForTypeIncludingAncestors(
               applicationContext, ViewResolver.class, true, false);
       if (names.size() == 1) {
-        if (ServletDetector.present()) {
+        if (ServletDetector.isPresent) {
           viewResolvers.add(new InternalResourceViewResolver());
         }
         else {
@@ -372,7 +361,7 @@ public class WebMvcConfigurationSupport extends ApplicationContextSupport {
     }
 
     ViewResolverComposite composite;
-    if (ServletDetector.present()) {
+    if (ServletDetector.isPresent) {
       composite = new ServletViewResolverComposite();
     }
     else {
@@ -385,7 +374,7 @@ public class WebMvcConfigurationSupport extends ApplicationContextSupport {
       composite.setApplicationContext(applicationContext);
     }
 
-    if (ServletDetector.present() && applicationContext instanceof WebServletApplicationContext servletApp) {
+    if (ServletDetector.isPresent && applicationContext instanceof WebServletApplicationContext servletApp) {
       ServletViewResolverComposite viewResolverComposite = (ServletViewResolverComposite) composite;
       viewResolverComposite.setServletContext(servletApp.getServletContext());
     }
@@ -415,25 +404,29 @@ public class WebMvcConfigurationSupport extends ApplicationContextSupport {
   @Component
   @ConditionalOnMissingBean
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-  ReturnValueHandlerManager returnValueHandlers(
+  ReturnValueHandlerManager returnValueHandlerManager(
           @Nullable RedirectModelManager redirectModelManager,
           @Qualifier("webViewResolver") ViewResolver webViewResolver) {
 
-    ReturnValueHandlerManager handlers = new ReturnValueHandlerManager(getMessageConverters());
+    ReturnValueHandlerManager manager = new ReturnValueHandlerManager(getMessageConverters());
 
-    handlers.setApplicationContext(applicationContext);
-    handlers.setRedirectModelManager(redirectModelManager);
-    handlers.setViewResolver(webViewResolver);
+    manager.setApplicationContext(applicationContext);
+    manager.setRedirectModelManager(redirectModelManager);
+    manager.setViewResolver(webViewResolver);
 
     ViewReturnValueHandler handler = new ViewReturnValueHandler(webViewResolver);
     handler.setModelManager(redirectModelManager);
 
-    handlers.setViewReturnValueHandler(handler);
-    handlers.addRequestResponseBodyAdvice(requestResponseBodyAdvice);
-    handlers.registerDefaultHandlers();
+    manager.setViewReturnValueHandler(handler);
+    manager.addRequestResponseBodyAdvice(requestResponseBodyAdvice);
+    manager.registerDefaultHandlers();
 
-    return handlers;
+    modifyReturnValueHandlerManager(manager);
+
+    return manager;
   }
+
+  protected void modifyReturnValueHandlerManager(ReturnValueHandlerManager manager) { }
 
   /**
    * default {@link ParameterResolvingStrategy} registry
@@ -455,8 +448,11 @@ public class WebMvcConfigurationSupport extends ApplicationContextSupport {
 
     registry.registerDefaultStrategies();
 
+    modifyParameterResolvingRegistry(registry);
     return registry;
   }
+
+  protected void modifyParameterResolvingRegistry(ParameterResolvingRegistry registry) { }
 
   /**
    * default {@link MultipartConfiguration} bean
@@ -686,7 +682,7 @@ public class WebMvcConfigurationSupport extends ApplicationContextSupport {
   @Bean
   @Nullable
   public HandlerRegistry defaultServletHandlerRegistry() {
-    if (ServletDetector.present()) {
+    if (ServletDetector.isPresent) {
       if (getApplicationContext() instanceof WebServletApplicationContext context) {
         ServletContext servletContext = context.getServletContext();
         if (servletContext != null) {
@@ -805,33 +801,27 @@ public class WebMvcConfigurationSupport extends ApplicationContextSupport {
    * through annotated controller methods. Consider overriding one of these
    * other more fine-grained methods:
    * <ul>
-   * <li>{@link #addArgumentResolvers} for adding custom argument resolvers.
+   * <li>{@link #modifyParameterResolvingRegistry(ParameterResolvingRegistry)} for adding custom argument resolvers.
    * <li>{@link #addReturnValueHandlers} for adding custom return value handlers.
    * <li>{@link #configureMessageConverters} for adding custom message converters.
    * </ul>
    */
   @Bean
   public RequestMappingHandlerAdapter requestMappingHandlerAdapter(
-          @Qualifier("mvcContentNegotiationManager") ContentNegotiationManager contentNegotiationManager,
-          @Qualifier("mvcConversionService") FormattingConversionService conversionService,
-          @Qualifier("mvcValidator") Validator validator) {
+          ParameterResolvingRegistry parameterResolvingRegistry,
+          ReturnValueHandlerManager returnValueHandlerManager,
+          @Qualifier("mvcConversionService") FormattingConversionService conversionService, @Qualifier("mvcValidator") Validator validator) {
 
     RequestMappingHandlerAdapter adapter = createRequestMappingHandlerAdapter();
-    adapter.setContentNegotiationManager(contentNegotiationManager);
-    adapter.setMessageConverters(getMessageConverters());
     adapter.setWebBindingInitializer(getConfigurableWebBindingInitializer(conversionService, validator));
-    adapter.setCustomArgumentResolvers(getArgumentResolvers());
-    adapter.setCustomReturnValueHandlers(getReturnValueHandlers());
-
-    if (jackson2Present) {
-      adapter.setRequestBodyAdvice(Collections.singletonList(new JsonViewRequestBodyAdvice()));
-      adapter.setResponseBodyAdvice(Collections.singletonList(new JsonViewResponseBodyAdvice()));
-    }
+    adapter.setResolvingRegistry(parameterResolvingRegistry);
+    adapter.setReturnValueHandlerManager(returnValueHandlerManager);
 
     AsyncSupportConfigurer configurer = getAsyncSupportConfigurer();
     if (configurer.getTaskExecutor() != null) {
       adapter.setTaskExecutor(configurer.getTaskExecutor());
     }
+
     if (configurer.getTimeout() != null) {
       adapter.setAsyncRequestTimeout(configurer.getTimeout());
     }

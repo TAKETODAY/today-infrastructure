@@ -49,6 +49,7 @@ import cn.taketoday.core.bytecode.proxy.Factory;
 import cn.taketoday.core.bytecode.proxy.MethodInterceptor;
 import cn.taketoday.core.bytecode.proxy.MethodProxy;
 import cn.taketoday.core.bytecode.proxy.NoOp;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ClassUtils;
@@ -266,7 +267,8 @@ public class CglibAopProxy extends AbstractSubclassesAopProxy implements AopProx
 
     @Override
     public Object intercept(Object proxy, Method method, Object[] args, MethodProxy methodProxy) throws Throwable {
-      return methodProxy.invoke(this.target, args);
+      Object retVal = invokeMethod(target, method, args, methodProxy);
+      return processReturnValue(proxy, target, method, retVal);
     }
   }
 
@@ -283,7 +285,8 @@ public class CglibAopProxy extends AbstractSubclassesAopProxy implements AopProx
       Object oldProxy = null;
       try {
         oldProxy = AopContext.setCurrentProxy(proxy);
-        return methodProxy.invoke(this.target, args);
+        Object retVal = invokeMethod(target, method, args, methodProxy);
+        return processReturnValue(proxy, target, method, retVal);
       }
       finally {
         AopContext.setCurrentProxy(oldProxy);
@@ -302,13 +305,14 @@ public class CglibAopProxy extends AbstractSubclassesAopProxy implements AopProx
 
     @Override
     public Object intercept(Object proxy, Method method, Object[] args, MethodProxy methodProxy) throws Throwable {
-      Object target = this.targetSource.getTarget();
+      Object target = targetSource.getTarget();
       try {
-        return methodProxy.invoke(target, args);
+        Object retVal = invokeMethod(target, method, args, methodProxy);
+        return processReturnValue(proxy, target, method, retVal);
       }
       finally {
         if (target != null) {
-          this.targetSource.releaseTarget(target);
+          targetSource.releaseTarget(target);
         }
       }
     }
@@ -317,23 +321,23 @@ public class CglibAopProxy extends AbstractSubclassesAopProxy implements AopProx
   /**
    * Interceptor for unadvised dynamic targets when the proxy needs exposing.
    */
-  private record DynamicUnadvisedExposedInterceptor(
-          TargetSource targetSource) implements MethodInterceptor, Serializable {
+  private record DynamicUnadvisedExposedInterceptor(TargetSource targetSource) implements MethodInterceptor, Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
 
     @Override
     public Object intercept(Object proxy, Method method, Object[] args, MethodProxy methodProxy) throws Throwable {
       Object oldProxy = null;
-      Object target = this.targetSource.getTarget();
+      Object target = targetSource.getTarget();
       try {
         oldProxy = AopContext.setCurrentProxy(proxy);
-        return methodProxy.invoke(target, args);
+        Object retVal = invokeMethod(target, method, args, methodProxy);
+        return processReturnValue(proxy, target, method, retVal);
       }
       finally {
         AopContext.setCurrentProxy(oldProxy);
         if (target != null) {
-          this.targetSource.releaseTarget(target);
+          targetSource.releaseTarget(target);
         }
       }
     }
@@ -428,8 +432,9 @@ public class CglibAopProxy extends AbstractSubclassesAopProxy implements AopProx
 
     @Override
     public Object intercept(Object proxy, Method method, Object[] args, MethodProxy methodProxy) throws Throwable {
-      return new CglibMethodInvocation(
+      Object retVal = new CglibMethodInvocation(
               proxy, target, method, targetClass, methodProxy, args, adviceChain).proceed();
+      return processReturnValue(proxy, target, method, retVal);
     }
   }
 
@@ -470,14 +475,7 @@ public class CglibAopProxy extends AbstractSubclassesAopProxy implements AopProx
           // it does nothing but a reflective operation on the target, and no hot
           // swapping or fancy proxying.
           Object[] argsToUse = ClassUtils.adaptArgumentsIfNecessary(method, args);
-
-          try {
-            retVal = methodProxy.invoke(target, argsToUse);
-          }
-          catch (CodeGenerationException ex) {
-            logFastClassGenerationFailure(method);
-            retVal = AopUtils.invokeJoinpointUsingReflection(target, method, argsToUse);
-          }
+          retVal = invokeMethod(target, method, argsToUse, methodProxy);
         }
         else {
           // We need to create a CglibMethodInvocation...
@@ -500,10 +498,27 @@ public class CglibAopProxy extends AbstractSubclassesAopProxy implements AopProx
   }
 
   /**
+   * Invoke the given method with a CGLIB MethodProxy if possible, falling back
+   * to a plain reflection invocation in case of a fast-class generation failure.
+   */
+  @Nullable
+  private static Object invokeMethod(@Nullable Object target, Method method, Object[] args, MethodProxy methodProxy)
+          throws Throwable {
+    try {
+      return methodProxy.invoke(target, args);
+    }
+    catch (CodeGenerationException ex) {
+      logFastClassGenerationFailure(method);
+      return AopUtils.invokeJoinpointUsingReflection(target, method, args);
+    }
+  }
+
+  /**
    * Process a return value. Wraps a return of {@code this} if necessary to be the
    * {@code proxy} and also verifies that {@code null} is not returned as a primitive.
    */
-  private static Object processReturnValue(Object proxy, Object target, Method method, Object retVal) {
+  @Nullable
+  private static Object processReturnValue(Object proxy, @Nullable Object target, Method method, @Nullable Object retVal) {
     // Massage return value if necessary
     if (retVal != null && retVal == target && !RawTargetAccess.class.isAssignableFrom(method.getDeclaringClass())) {
       // Special case: it returned "this". Note that we can't help

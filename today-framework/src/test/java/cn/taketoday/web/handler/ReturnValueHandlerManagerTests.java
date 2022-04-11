@@ -111,18 +111,16 @@ class ReturnValueHandlerManagerTests {
 
     // sort
 
-    returnValueHandler.setOrder(2);
-    highestValueHandler.setOrder(1);
+//    returnValueHandler.setOrder(2);
+//    highestValueHandler.setOrder(1);
 
-    manager.sort();
     assertThat(manager.obtainHandler(annotationHandler))
             .isEqualTo(highestValueHandler)
             .isNotNull();
 
-    returnValueHandler.setOrder(1);
-    highestValueHandler.setOrder(2);
+//    returnValueHandler.setOrder(1);
+//    highestValueHandler.setOrder(2);
 
-    manager.sort(manager.getHandlers());
     assertThat(manager.obtainHandler(annotationHandler))
             .isEqualTo(returnValueHandler)
             .isNotNull();

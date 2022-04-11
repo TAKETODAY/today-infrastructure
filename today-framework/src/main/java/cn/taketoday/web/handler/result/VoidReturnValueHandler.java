@@ -21,18 +21,15 @@ package cn.taketoday.web.handler.result;
 
 import cn.taketoday.lang.Assert;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.ReturnValueHandler;
 import cn.taketoday.web.handler.method.HandlerMethod;
-import cn.taketoday.web.handler.result.HandlerMethodReturnValueHandler;
-import cn.taketoday.web.handler.result.ModelAndViewReturnValueHandler;
+import cn.taketoday.web.handler.method.support.ModelAndViewContainer;
 
 /**
  * for {@link Void} or void type
  *
  * @author TODAY 2019-07-14 00:53
  */
-public class VoidReturnValueHandler
-        extends HandlerMethodReturnValueHandler implements ReturnValueHandler {
+public class VoidReturnValueHandler implements HandlerMethodReturnValueHandler {
   private final ModelAndViewReturnValueHandler returnValueHandler;
 
   public VoidReturnValueHandler(ModelAndViewReturnValueHandler returnValueHandler) {
@@ -54,6 +51,13 @@ public class VoidReturnValueHandler
   @Override
   public void handleReturnValue(
           RequestContext context, Object handler, Object returnValue) throws Exception {
+
+    ModelAndViewContainer modelContainer = context.getModelContainer();
+    if (modelContainer != null) {
+      Object view = modelContainer.getView();
+      // TODO 修复关于 ModelAndView 在处理器参数列表存在时，渲染其页面
+
+    }
     if (context.hasModelAndView()) {
       // user constructed a ModelAndView hold in context
       returnValueHandler.handleModelAndView(context, null, context.modelAndView());

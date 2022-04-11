@@ -61,7 +61,7 @@ public class ModelAndViewContainer {
   @Nullable
   private Object view;
 
-  private final ModelMap defaultModel = new BindingAwareModelMap();
+  private final ModelMap defaultModel = new ModelMap();
 
   @Nullable
   private RedirectModel redirectModel;
@@ -143,7 +143,7 @@ public class ModelAndViewContainer {
    * there is no redirect model (i.e. RedirectAttributes was not declared as
    * a method argument) and {@code ignoreDefaultModelOnRedirect=false}.
    */
-  public ModelMap getModel() {
+  public Model getModel() {
     if (useDefaultModel()) {
       return this.defaultModel;
     }
@@ -280,7 +280,7 @@ public class ModelAndViewContainer {
    * A shortcut for {@code getModel().addAttribute(String, Object)}.
    */
   public ModelAndViewContainer addAttribute(String name, @Nullable Object value) {
-    getModel().addAttribute(name, value);
+    getModel().setAttribute(name, value);
     return this;
   }
 
@@ -303,6 +303,15 @@ public class ModelAndViewContainer {
   }
 
   /**
+   * Copy all attributes to the underlying model.
+   * A shortcut for {@code getModel().addAllAttributes(Map)}.
+   */
+  public ModelAndViewContainer addAllAttributes(@Nullable Model attributes) {
+    getModel().addAllAttributes(attributes);
+    return this;
+  }
+
+  /**
    * Copy attributes in the supplied {@code Map} with existing objects of
    * the same name taking precedence (i.e. not getting replaced).
    * A shortcut for {@code getModel().mergeAttributes(Map<String, ?>)}.
@@ -318,7 +327,7 @@ public class ModelAndViewContainer {
   public ModelAndViewContainer removeAttributes(@Nullable Map<String, ?> attributes) {
     if (attributes != null) {
       for (String key : attributes.keySet()) {
-        getModel().remove(key);
+        getModel().removeAttribute(key);
       }
     }
     return this;

@@ -60,7 +60,7 @@ class ControllerTests {
     wac.refresh();
     ServletRequestContext context = new ServletRequestContext(wac, new MockHttpServletRequest("GET", "foo.html"), new MockHttpServletResponse());
     ModelAndView mv = pvc.handleRequest(context);
-    assertThat(mv.getModel().asMap().size() == 0).as("model has no data").isTrue();
+    assertThat(mv.getModel().size() == 0).as("model has no data").isTrue();
     assertThat(mv.getViewName().equals(viewName)).as("model has correct viewname").isTrue();
     assertThat(pvc.getViewName().equals(viewName)).as("getViewName matches").isTrue();
   }

@@ -32,14 +32,10 @@ import cn.taketoday.web.servlet.ServletRequestContext;
 public abstract class ServletDetector {
   public static final String SERVLET_CLASS = "jakarta.servlet.Servlet";
 
-  private static final boolean servletPresent = ClassUtils.isPresent(SERVLET_CLASS, ServletDetector.class.getClassLoader());
-
-  public static boolean present() {
-    return servletPresent;
-  }
+  public static final boolean isPresent = ClassUtils.isPresent(SERVLET_CLASS, ServletDetector.class.getClassLoader());
 
   public static boolean runningInServlet(RequestContext context) {
-    return servletPresent && context instanceof ServletRequestContext;
+    return isPresent && context instanceof ServletRequestContext;
   }
 
 }

@@ -55,7 +55,6 @@ import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.accept.ContentNegotiationManager;
 import cn.taketoday.web.context.async.DeferredResult;
 import cn.taketoday.web.context.async.WebAsyncUtils;
-import cn.taketoday.web.handler.method.support.ModelAndViewContainer;
 
 /**
  * Private helper class to assist with handling "reactive" return values types
@@ -123,7 +122,7 @@ public class ReactiveTypeHandler {
    */
   @Nullable
   public ResponseBodyEmitter handleValue(Object returnValue, MethodParameter returnType,
-          ModelAndViewContainer mav, RequestContext request) throws Exception {
+          RequestContext request) throws Exception {
     Assert.notNull(returnValue, "Expected return value");
 
     ReactiveAdapter adapter = adapterRegistry.getAdapter(returnValue.getClass());
@@ -165,8 +164,11 @@ public class ReactiveTypeHandler {
 
     // Not streaming...
     DeferredResult<Object> result = new DeferredResult<>();
-    new DeferredResultSubscriber(result, adapter, elementType).connect(adapter, returnValue);
-    WebAsyncUtils.getAsyncManager(request).startDeferredResultProcessing(result, mav);
+    new DeferredResultSubscriber(result, adapter, elementType)
+            .connect(adapter, returnValue);
+
+    WebAsyncUtils.getAsyncManager(request)
+            .startDeferredResultProcessing(result);
 
     return null;
   }

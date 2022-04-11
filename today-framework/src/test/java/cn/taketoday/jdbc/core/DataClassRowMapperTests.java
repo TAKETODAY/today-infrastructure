@@ -69,7 +69,7 @@ public class DataClassRowMapperTests extends AbstractRowMapperTests {
     Mock mock = new Mock();
     List<ConstructorPersonWithSetters> result = mock.getJdbcTemplate().query(
             "select name, age, birth_date, balance from people",
-            new DataClassRowMapper<>(ConstructorPersonWithSetters.class));
+            DataClassRowMapper.forClass(ConstructorPersonWithSetters.class));
     assertThat(result.size()).isEqualTo(1);
     ConstructorPersonWithSetters person = result.get(0);
     assertThat(person.name()).isEqualTo("BUBBA");

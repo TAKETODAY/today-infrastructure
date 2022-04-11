@@ -45,7 +45,6 @@ import cn.taketoday.web.ServletDetector;
 import cn.taketoday.web.accept.ContentNegotiationManager;
 import cn.taketoday.web.context.async.DeferredResult;
 import cn.taketoday.web.context.async.WebAsyncUtils;
-import cn.taketoday.web.handler.method.support.ModelAndViewContainer;
 import cn.taketoday.web.handler.result.HandlerMethodReturnValueHandler;
 import cn.taketoday.web.servlet.ServletUtils;
 import cn.taketoday.web.servlet.filter.ShallowEtagHeaderFilter;
@@ -116,7 +115,7 @@ public class ResponseBodyEmitterReturnValueHandler implements HandlerMethodRetur
   }
 
   @Override
-  protected boolean supportsHandlerMethod(HandlerMethod handler) {
+  public boolean supportsHandlerMethod(HandlerMethod handler) {
     MethodParameter returnType = handler.getReturnType();
     Class<?> bodyType = ResponseEntity.class.isAssignableFrom(returnType.getParameterType())
                         ? ResolvableType.forMethodParameter(returnType).getGeneric().resolve()
@@ -129,20 +128,13 @@ public class ResponseBodyEmitterReturnValueHandler implements HandlerMethodRetur
   }
 
   @Override
-  public void handleReturnValue(RequestContext context, Object handler, @Nullable Object returnValue) throws Exception {
-
-  }
-
-  @Override
-  @SuppressWarnings("resource")
-  public void handleReturnValue(@Nullable Object returnValue, MethodParameter returnType,
-          ModelAndViewContainer mavContainer, RequestContext request) throws Exception {
-
+  public void handleReturnValue(RequestContext request, Object handler, @Nullable Object returnValue) throws Exception {
     if (returnValue == null) {
-      mavContainer.setRequestHandled(true);
+      request.setRequestHandled(true);
       return;
     }
 
+    MethodParameter returnType = ((HandlerMethod) handler).getReturnType();
     HttpHeaders responseHeaders = request.responseHeaders();
     if (returnValue instanceof ResponseEntity<?> responseEntity) {
       request.setStatus(responseEntity.getStatusCode().value());
@@ -150,7 +142,7 @@ public class ResponseBodyEmitterReturnValueHandler implements HandlerMethodRetur
       returnValue = responseEntity.getBody();
       returnType = returnType.nested();
       if (returnValue == null) {
-        mavContainer.setRequestHandled(true);
+        request.setRequestHandled(true);
         return;
       }
     }
@@ -160,7 +152,7 @@ public class ResponseBodyEmitterReturnValueHandler implements HandlerMethodRetur
       emitter = (ResponseBodyEmitter) returnValue;
     }
     else {
-      emitter = reactiveHandler.handleValue(returnValue, returnType, mavContainer, request);
+      emitter = reactiveHandler.handleValue(returnValue, returnType, request);
       if (emitter == null) {
         // Not streaming: write headers without committing response..
 //        responseHeaders.forEach((headerName, headerValues) -> {
@@ -174,25 +166,25 @@ public class ResponseBodyEmitterReturnValueHandler implements HandlerMethodRetur
     emitter.extendResponse(request);
 
     // At this point we know we're streaming..
-    if (ServletDetector.present()) {
+    if (ServletDetector.isPresent) {
       ShallowEtagHeaderFilter.disableContentCaching(ServletUtils.getServletRequest(request));
     }
 
     // Wrap the response to ignore further header changes
     // Headers will be flushed at the first write
 
-    HttpMessageConvertingHandler handler;
+    HttpMessageConvertingHandler responseBodyEmitter;
     try {
       DeferredResult<?> deferredResult = new DeferredResult<>(emitter.getTimeout());
-      WebAsyncUtils.getAsyncManager(request).startDeferredResultProcessing(deferredResult, mavContainer);
-      handler = new HttpMessageConvertingHandler(outputMessage, deferredResult);
+      WebAsyncUtils.getAsyncManager(request).startDeferredResultProcessing(deferredResult);
+      responseBodyEmitter = new HttpMessageConvertingHandler(request, deferredResult);
     }
     catch (Throwable ex) {
       emitter.initializeWithError(ex);
       throw ex;
     }
 
-    emitter.initialize(handler);
+    emitter.initialize(responseBodyEmitter);
   }
 
   /**

@@ -32,8 +32,7 @@ import cn.taketoday.web.view.ModelAndView;
 /**
  * @author TODAY 2019-07-14 01:14
  */
-public class ModelAndViewReturnValueHandler
-        extends HandlerMethodReturnValueHandler implements ReturnValueHandler {
+public class ModelAndViewReturnValueHandler implements HandlerMethodReturnValueHandler {
 
   private final SelectableReturnValueHandler returnValueHandlers;
 

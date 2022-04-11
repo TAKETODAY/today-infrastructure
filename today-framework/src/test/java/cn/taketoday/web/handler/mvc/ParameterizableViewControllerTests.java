@@ -80,8 +80,8 @@ class ParameterizableViewControllerTests {
   public void handleRequestWithFlashAttributes() throws Exception {
     this.request.setAttribute(RedirectModel.INPUT_ATTRIBUTE, new RedirectModel("name", "value"));
     ModelAndView mav = this.controller.handleRequest(this.context);
-    assertThat(mav.getModel().asMap().size()).isEqualTo(1);
-    assertThat(mav.getModel().getAttribute("name")).isEqualTo("value");
+    assertThat(mav.getModel().size()).isEqualTo(1);
+    assertThat(mav.getModel().get("name")).isEqualTo("value");
   }
 
   @Test

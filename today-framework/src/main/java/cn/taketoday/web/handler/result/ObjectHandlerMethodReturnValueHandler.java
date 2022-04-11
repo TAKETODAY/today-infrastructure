@@ -52,8 +52,7 @@ import cn.taketoday.web.handler.result.HandlerMethodReturnValueHandler;
  *
  * @author TODAY 2019-07-14 17:41
  */
-public class ObjectHandlerMethodReturnValueHandler
-        extends HandlerMethodReturnValueHandler implements ReturnValueHandler {
+public class ObjectHandlerMethodReturnValueHandler implements HandlerMethodReturnValueHandler {
 
   private final SelectableReturnValueHandler returnValueHandlers;
 
@@ -77,7 +76,7 @@ public class ObjectHandlerMethodReturnValueHandler
   }
 
   @Override
-  protected boolean supportsHandlerMethod(HandlerMethod handler) {
+  public boolean supportsHandlerMethod(HandlerMethod handler) {
     return handler.isReturn(Object.class);
   }
 

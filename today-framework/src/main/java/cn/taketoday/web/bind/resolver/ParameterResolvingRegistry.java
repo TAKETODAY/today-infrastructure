@@ -40,6 +40,7 @@ import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.web.RequestContext;
+import cn.taketoday.web.ServletDetector;
 import cn.taketoday.web.accept.ContentNegotiationManager;
 import cn.taketoday.web.annotation.RequestAttribute;
 import cn.taketoday.web.bind.resolver.date.DateParameterResolver;
@@ -50,7 +51,9 @@ import cn.taketoday.web.handler.method.RequestBodyAdvice;
 import cn.taketoday.web.handler.method.ResolvableMethodParameter;
 import cn.taketoday.web.handler.method.ResponseBodyAdvice;
 import cn.taketoday.web.multipart.MultipartConfiguration;
+import cn.taketoday.web.servlet.WebServletApplicationContext;
 import cn.taketoday.web.view.RedirectModelManager;
+import jakarta.servlet.ServletContext;
 
 import static cn.taketoday.web.bind.resolver.ConverterAwareParameterResolver.from;
 
@@ -250,6 +253,13 @@ public class ParameterResolvingRegistry
     // type-based argument resolution
     strategies.add(new ModelParameterResolver(modelManager));
     strategies.add(new StreamParameterResolver());
+
+    if (ServletDetector.isPresent && context instanceof WebServletApplicationContext servletApp) {
+      // TODO getServletContext not available in WebApplicationContext ?
+      ServletContext servletContext = servletApp.getServletContext();
+      Assert.state(servletContext != null, "ServletContext is not available");
+      ServletParameterResolvers.register(strategies, servletContext);
+    }
 
     strategies.add(new HttpEntityMethodProcessor(
             getMessageConverters(), contentNegotiationManager, requestResponseBodyAdvice, modelManager));

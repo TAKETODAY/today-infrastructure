@@ -168,7 +168,7 @@ public class ParameterizableViewController extends AbstractController {
     ModelAndView modelAndView = new ModelAndView();
     RedirectModel redirectModel = RequestContextUtils.getInputRedirectModel(request);
     if (redirectModel != null) {
-      modelAndView.addAllAttributes(redirectModel.asMap());
+      modelAndView.addAllObjects(redirectModel.asMap());
     }
     if (viewName != null) {
       modelAndView.setViewName(viewName);

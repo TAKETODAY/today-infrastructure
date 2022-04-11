@@ -133,7 +133,7 @@ public abstract class AopProxyUtils {
         if (targetClass.isInterface()) {
           advised.setInterfaces(targetClass);
         }
-        else if (Proxy.isProxyClass(targetClass) || isLambda(targetClass)) {
+        else if (Proxy.isProxyClass(targetClass) || ClassUtils.isLambdaClass(targetClass)) {
           advised.setInterfaces(targetClass.getInterfaces());
         }
         specifiedInterfaces = advised.getProxiedInterfaces();
@@ -209,21 +209,6 @@ public abstract class AopProxyUtils {
    */
   public static boolean equalsAdvisors(AdvisedSupport a, AdvisedSupport b) {
     return a.getAdvisorCount() == b.getAdvisorCount() && Arrays.equals(a.getAdvisors(), b.getAdvisors());
-  }
-
-  /**
-   * Determine if the supplied {@link Class} is a JVM-generated implementation
-   * class for a lambda expression or method reference.
-   * <p>This method makes a best-effort attempt at determining this, based on
-   * checks that work on modern, main stream JVMs.
-   *
-   * @param clazz the class to check
-   * @return {@code true} if the class is a lambda implementation class
-   * @since 4.0
-   */
-  static boolean isLambda(Class<?> clazz) {
-    return clazz.isSynthetic() && (clazz.getSuperclass() == Object.class)
-            && (clazz.getInterfaces().length > 0) && clazz.getName().contains("$$Lambda");
   }
 
 }

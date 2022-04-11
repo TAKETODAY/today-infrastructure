@@ -26,7 +26,6 @@ import java.util.Objects;
 import java.util.function.Predicate;
 
 import cn.taketoday.core.ArraySizeTrimmer;
-import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
 import cn.taketoday.core.style.ToStringBuilder;
 import cn.taketoday.http.converter.AllEncompassingFormHttpMessageConverter;
 import cn.taketoday.http.converter.ByteArrayHttpMessageConverter;
@@ -114,14 +113,6 @@ public class ReturnValueHandlerManager
     Assert.notNull(handlers, "handler must not be null");
     this.handlers.clear();
     this.handlers.addAll(handlers);
-  }
-
-  public void sort() {
-    sort(handlers);
-  }
-
-  public void sort(List<ReturnValueHandler> handlers) {
-    AnnotationAwareOrderComparator.sort(handlers);
   }
 
   public List<ReturnValueHandler> getHandlers() {

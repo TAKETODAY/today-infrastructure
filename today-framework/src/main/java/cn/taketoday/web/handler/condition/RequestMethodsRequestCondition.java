@@ -133,7 +133,7 @@ public final class RequestMethodsRequestCondition extends AbstractRequestConditi
       return matchPreFlight(request);
     }
 
-    if (ServletDetector.present()) {
+    if (ServletDetector.isPresent) {
       if (getMethods().isEmpty()) {
         if (HttpMethod.OPTIONS == request.getMethod()) {
           HttpServletRequest servletRequest = ServletUtils.getServletRequest(request);

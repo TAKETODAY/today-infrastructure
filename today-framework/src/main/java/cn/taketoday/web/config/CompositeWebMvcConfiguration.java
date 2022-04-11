@@ -27,10 +27,10 @@ import cn.taketoday.http.converter.HttpMessageConverter;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.validation.Validator;
-import cn.taketoday.web.ReturnValueHandler;
 import cn.taketoday.web.bind.resolver.ParameterResolvingRegistry;
-import cn.taketoday.web.bind.resolver.ParameterResolvingStrategy;
+import cn.taketoday.web.bind.resolver.ParameterResolvingStrategies;
 import cn.taketoday.web.handler.HandlerExceptionHandler;
+import cn.taketoday.web.handler.ReturnValueHandlerManager;
 import cn.taketoday.web.multipart.MultipartConfiguration;
 import cn.taketoday.web.registry.FunctionHandlerRegistry;
 import cn.taketoday.web.registry.HandlerRegistry;
@@ -66,7 +66,7 @@ public class CompositeWebMvcConfiguration implements WebMvcConfiguration {
   }
 
   @Override
-  public void configureParameterResolving(List<ParameterResolvingStrategy> resolvingStrategies) {
+  public void configureParameterResolving(ParameterResolvingStrategies resolvingStrategies) {
     for (WebMvcConfiguration webMvcConfiguration : getWebMvcConfigurations()) {
       webMvcConfiguration.configureParameterResolving(resolvingStrategies);
     }
@@ -74,16 +74,16 @@ public class CompositeWebMvcConfiguration implements WebMvcConfiguration {
 
   @Override
   public void configureParameterResolving(
-          ParameterResolvingRegistry resolversRegistry, List<ParameterResolvingStrategy> customizedStrategies) {
+          ParameterResolvingRegistry resolversRegistry, ParameterResolvingStrategies customizedStrategies) {
     for (WebMvcConfiguration webMvcConfiguration : getWebMvcConfigurations()) {
       webMvcConfiguration.configureParameterResolving(resolversRegistry, customizedStrategies);
     }
   }
 
   @Override
-  public void configureResultHandler(List<ReturnValueHandler> resultResolvers) {
+  public void modifyReturnValueHandlerManager(ReturnValueHandlerManager manager) {
     for (WebMvcConfiguration webMvcConfiguration : getWebMvcConfigurations()) {
-      webMvcConfiguration.configureResultHandler(resultResolvers);
+      webMvcConfiguration.modifyReturnValueHandlerManager(manager);
     }
   }
 

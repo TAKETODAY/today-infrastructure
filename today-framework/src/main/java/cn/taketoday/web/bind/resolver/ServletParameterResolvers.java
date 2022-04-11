@@ -41,7 +41,7 @@ import jakarta.servlet.http.HttpSession;
  */
 public class ServletParameterResolvers {
 
-  public static void register(List<ParameterResolvingStrategy> resolvers, ServletContext context) {
+  public static void register(ParameterResolvingStrategies resolvers, ServletContext context) {
     // Servlet cookies parameter
     // ----------------------------
     resolvers.add(new ServletCookieParameterResolver());

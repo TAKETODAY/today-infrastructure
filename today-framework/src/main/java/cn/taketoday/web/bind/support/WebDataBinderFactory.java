@@ -29,7 +29,6 @@ import cn.taketoday.web.bind.WebDataBinder;
  *
  * @author Arjen Poutsma
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @since 3.1
  * @since 4.0 2022/4/8 23:00
  */
 public interface WebDataBinderFactory {

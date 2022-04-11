@@ -519,7 +519,6 @@ public class ResourceHttpRequestHandler extends WebContentGenerator
     setHeaders(request, resource, mediaType);
 
     // Content phase
-    RequestContextHttpOutputMessage outputMessage = new RequestContextHttpOutputMessage(request);
     HttpHeaders requestHeaders = request.requestHeaders();
     if (requestHeaders.get(HttpHeaders.RANGE) == null) {
       Assert.state(this.resourceHttpMessageConverter != null, "Not initialized");
@@ -528,12 +527,14 @@ public class ResourceHttpRequestHandler extends WebContentGenerator
         this.resourceHttpMessageConverter.addDefaultHeaders(requestHeaders, resource, mediaType);
       }
       else {
+        var outputMessage = new RequestContextHttpOutputMessage(request);
         this.resourceHttpMessageConverter.write(resource, mediaType, outputMessage);
       }
     }
     else {
       ResourceRegionHttpMessageConverter converter = this.resourceRegionHttpMessageConverter;
       Assert.state(converter != null, "Not initialized");
+      var outputMessage = new RequestContextHttpOutputMessage(request);
       try {
         List<HttpRange> httpRanges = request.getHeaders().getRange();
         request.setStatus(HttpStatus.PARTIAL_CONTENT);

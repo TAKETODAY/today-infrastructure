@@ -30,22 +30,12 @@ import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.lang.TodayStrategies;
 import cn.taketoday.util.StringUtils;
-import cn.taketoday.web.ReturnValueHandler;
 import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.WebApplicationContextSupport;
-import cn.taketoday.web.bind.resolver.ParameterResolvingRegistry;
-import cn.taketoday.web.bind.resolver.ParameterResolvingStrategy;
-import cn.taketoday.web.handler.CompositeHandlerExceptionHandler;
 import cn.taketoday.web.handler.DispatcherHandler;
 import cn.taketoday.web.handler.HandlerAdapter;
-import cn.taketoday.web.handler.HandlerExceptionHandler;
 import cn.taketoday.web.handler.RequestHandlerAdapter;
-import cn.taketoday.web.handler.ReturnValueHandlerManager;
-import cn.taketoday.web.handler.SelectableReturnValueHandler;
 import cn.taketoday.web.handler.ViewControllerHandlerAdapter;
-import cn.taketoday.web.multipart.MultipartConfiguration;
-import cn.taketoday.web.registry.HandlerRegistries;
-import cn.taketoday.web.registry.HandlerRegistry;
 import cn.taketoday.web.registry.ViewControllerHandlerRegistry;
 
 /**
@@ -69,18 +59,9 @@ public class WebApplicationLoader
     WebMvcConfiguration mvcConfiguration = getWebMvcConfiguration(context);
 
     configureViewControllerHandler(context, mvcConfiguration);
-    configureExceptionHandler(context, mvcConfiguration);
-    configureReturnValueHandler(context, mvcConfiguration);
     configureHandlerAdapter(context, mvcConfiguration);
-    configureParameterResolving(context, mvcConfiguration);
-    configureHandlerRegistry(context, mvcConfiguration);
 
-    // check all Components
-    checkFrameworkComponents(context);
     initializerStartup(context, mvcConfiguration);
-
-//    context.publishEvent(new ApplicationStartedEvent(context));
-//    context.registerShutdownHook();
 
     System.gc();
 
@@ -93,25 +74,6 @@ public class WebApplicationLoader
               System.currentTimeMillis() - context.getStartupDate()//
       );
     }
-  }
-
-  private void configureHandlerRegistry(WebApplicationContext context, WebMvcConfiguration mvcConfiguration) {
-    configureHandlerRegistry(context.getBeans(HandlerRegistry.class), mvcConfiguration); //fix
-  }
-
-  protected void configureHandlerRegistry(
-          List<HandlerRegistry> registries, WebMvcConfiguration mvcConfiguration) {
-    DispatcherHandler obtainDispatcher = obtainDispatcher();
-    HandlerRegistry handlerRegistry = obtainDispatcher.getHandlerRegistry();
-    if (handlerRegistry != null) {
-      registries.add(handlerRegistry);
-    }
-    // 自定义
-    mvcConfiguration.configureHandlerRegistry(registries);
-
-    obtainDispatcher.setHandlerRegistry(registries.size() == 1
-                                        ? registries.get(0)
-                                        : new HandlerRegistries(registries));
   }
 
   private void configureHandlerAdapter(
@@ -173,100 +135,6 @@ public class WebApplicationLoader
     if (registry != null) {
       mvcConfiguration.configureViewController(registry);
     }
-  }
-
-  /**
-   * configure HandlerExceptionHandler
-   */
-  private void configureExceptionHandler(
-          WebApplicationContext context, WebMvcConfiguration mvcConfiguration) {
-    configureExceptionHandler(context.getBeans(HandlerExceptionHandler.class), mvcConfiguration);
-  }
-
-  /**
-   * configure HandlerExceptionHandler
-   *
-   * @param handlers handlers in application-context {@link #obtainApplicationContext()}
-   */
-  protected void configureExceptionHandler(
-          List<HandlerExceptionHandler> handlers, WebMvcConfiguration mvcConfiguration) {
-    DispatcherHandler dispatcherHandler = obtainDispatcher();
-    HandlerExceptionHandler exceptionHandler = dispatcherHandler.getExceptionHandler();
-    if (exceptionHandler != null) {
-      handlers.add(exceptionHandler);
-    }
-    // user config
-    mvcConfiguration.configureExceptionHandlers(handlers);
-    // at least one exception-handler
-    if (handlers.size() == 1) {
-      exceptionHandler = handlers.get(0);
-    }
-    else {
-      sort(handlers); // @since 3.0.3 exception handlers order
-      exceptionHandler = new CompositeHandlerExceptionHandler(handlers);
-    }
-    // set
-    dispatcherHandler.setExceptionHandler(exceptionHandler);
-  }
-
-  private void configureReturnValueHandler(WebApplicationContext context, WebMvcConfiguration mvcConfiguration) {
-    configureReturnValueHandler(context.getBeans(ReturnValueHandler.class), mvcConfiguration);
-  }
-
-  /**
-   * Configure {@link ReturnValueHandler} to resolve handler method result
-   *
-   * @param handlers {@link ReturnValueHandler} registry
-   * @param mvcConfiguration All {@link WebMvcConfiguration} object
-   */
-  protected void configureReturnValueHandler(
-          List<ReturnValueHandler> handlers, WebMvcConfiguration mvcConfiguration) {
-    DispatcherHandler obtainDispatcher = obtainDispatcher();
-    SelectableReturnValueHandler existingHandlers = obtainDispatcher.getReturnValueHandler();
-    if (existingHandlers != null) {
-      handlers.addAll(existingHandlers.getInternalHandlers());
-    }
-    WebApplicationContext context = obtainApplicationContext();
-    // @since 3.0
-    ReturnValueHandlerManager manager = context.getBean(ReturnValueHandlerManager.class);
-    Assert.state(manager != null, "No ReturnValueHandlers");
-    // user config
-    mvcConfiguration.configureResultHandler(handlers);
-
-    manager.addHandlers(handlers);
-    // apply result handler
-    SelectableReturnValueHandler selectable =
-            new SelectableReturnValueHandler(manager.getHandlers());
-    selectable.trimToSize();
-    obtainDispatcher.setReturnValueHandler(selectable);
-  }
-
-  private void configureParameterResolving(
-          WebApplicationContext context, WebMvcConfiguration mvcConfiguration) {
-    configureParameterResolving(context.getBeans(ParameterResolvingStrategy.class), mvcConfiguration);
-  }
-
-  /**
-   * Configure {@link ParameterResolvingStrategy}s to resolve handler method arguments
-   *
-   * @param customizedStrategies Resolvers registry
-   * @param mvcConfiguration All {@link WebMvcConfiguration} object
-   */
-  protected void configureParameterResolving(
-          List<ParameterResolvingStrategy> customizedStrategies, WebMvcConfiguration mvcConfiguration) {
-    WebApplicationContext context = obtainApplicationContext();
-    ParameterResolvingRegistry registry = context.getBean(ParameterResolvingRegistry.class);
-    Assert.state(registry != null, "No ParameterResolvingRegistry in context");
-
-    // user customize multipartConfig
-    MultipartConfiguration multipartConfig = context.getBean(MultipartConfiguration.class);
-    mvcConfiguration.configureMultipart(multipartConfig);
-
-    // User customize parameter resolver
-    // ------------------------------------------
-    mvcConfiguration.configureParameterResolving(registry, customizedStrategies); // user configure
-
-    registry.getCustomizedStrategies().add(customizedStrategies);
   }
 
   //
@@ -337,13 +205,6 @@ public class WebApplicationLoader
     return obtainApplicationContext()
             .getEnvironment()
             .getProperty(WEB_MVC_CONFIG_LOCATION);
-  }
-
-  /**
-   * Check Components
-   */
-  protected void checkFrameworkComponents(WebApplicationContext applicationContext) {
-    // no-op
   }
 
   public DispatcherHandler obtainDispatcher() {
