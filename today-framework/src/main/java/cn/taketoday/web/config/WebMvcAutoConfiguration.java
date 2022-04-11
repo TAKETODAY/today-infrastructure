@@ -55,6 +55,7 @@ import cn.taketoday.web.config.WebProperties.Resources;
 import cn.taketoday.web.config.WebProperties.Resources.Chain.Strategy;
 import cn.taketoday.web.config.jackson.JacksonAutoConfiguration;
 import cn.taketoday.web.handler.HandlerExceptionHandler;
+import cn.taketoday.web.handler.ReturnValueHandlerManager;
 import cn.taketoday.web.i18n.AcceptHeaderLocaleResolver;
 import cn.taketoday.web.i18n.FixedLocaleResolver;
 import cn.taketoday.web.registry.FunctionHandlerRegistry;
@@ -242,6 +243,11 @@ public class WebMvcAutoConfiguration extends WebMvcConfigurationSupport {
   @Override
   protected void modifyParameterResolvingRegistry(ParameterResolvingRegistry registry) {
     mvcConfiguration.configureParameterResolving(registry, registry.getCustomizedStrategies());
+  }
+
+  @Override
+  protected void modifyReturnValueHandlerManager(ReturnValueHandlerManager manager) {
+    mvcConfiguration.modifyReturnValueHandlerManager(manager);
   }
 
   @Override

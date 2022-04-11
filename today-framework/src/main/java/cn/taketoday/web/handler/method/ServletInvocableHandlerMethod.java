@@ -33,6 +33,7 @@ import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpStatusCode;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.ExceptionUtils;
 import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.RequestContext;
@@ -41,7 +42,6 @@ import cn.taketoday.web.annotation.ResponseStatus;
 import cn.taketoday.web.handler.ReturnValueHandlerManager;
 import cn.taketoday.web.handler.method.support.ModelAndViewContainer;
 import cn.taketoday.web.handler.result.HandlerMethodReturnValueHandler;
-import cn.taketoday.web.servlet.NestedServletException;
 import cn.taketoday.web.servlet.ServletUtils;
 import cn.taketoday.web.view.View;
 import jakarta.servlet.http.HttpServletRequest;
@@ -214,11 +214,8 @@ public class ServletInvocableHandlerMethod extends InvocableHandlerMethod {
 
     public ConcurrentResultHandlerMethod(final Object result, ConcurrentResultMethodParameter returnType) {
       super((Callable<Object>) () -> {
-        if (result instanceof Exception) {
-          throw (Exception) result;
-        }
-        else if (result instanceof Throwable) {
-          throw new NestedServletException("Async processing failed", (Throwable) result);
+        if (result instanceof Throwable) {
+          throw ExceptionUtils.sneakyThrow((Throwable) result);
         }
         return result;
       }, CALLABLE_METHOD);

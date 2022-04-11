@@ -230,28 +230,6 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
   }
 
   /**
-   * Add one or more {@code RequestBodyAdvice} instances to intercept the
-   * request before it is read and converted for {@code @RequestBody} and
-   * {@code HttpEntity} method arguments.
-   */
-  public void setRequestBodyAdvice(@Nullable List<RequestBodyAdvice> requestBodyAdvice) {
-    if (requestBodyAdvice != null) {
-      this.requestResponseBodyAdvice.addAll(requestBodyAdvice);
-    }
-  }
-
-  /**
-   * Add one or more {@code ResponseBodyAdvice} instances to intercept the
-   * response before {@code @ResponseBody} or {@code ResponseEntity} return
-   * values are written to the response body.
-   */
-  public void setResponseBodyAdvice(@Nullable List<ResponseBodyAdvice<?>> responseBodyAdvice) {
-    if (responseBodyAdvice != null) {
-      this.requestResponseBodyAdvice.addAll(responseBodyAdvice);
-    }
-  }
-
-  /**
    * Provide a WebBindingInitializer with "global" initialization to apply
    * to every DataBinder instance.
    */
