@@ -26,14 +26,12 @@ import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.ReturnValueHandler;
 import cn.taketoday.web.handler.SelectableReturnValueHandler;
 import cn.taketoday.web.handler.method.HandlerMethod;
-import cn.taketoday.web.handler.result.HandlerMethodReturnValueHandler;
 import cn.taketoday.web.view.ModelAndView;
 
 /**
  * @author TODAY 2019-07-14 01:14
  */
-public class ModelAndViewReturnValueHandler
-        extends HandlerMethodReturnValueHandler implements ReturnValueHandler {
+public class ModelAndViewReturnValueHandler implements HandlerMethodReturnValueHandler {
 
   private final SelectableReturnValueHandler returnValueHandlers;
 

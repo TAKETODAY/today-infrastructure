@@ -32,10 +32,10 @@ import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.RequestContextUtils;
-import cn.taketoday.web.ReturnValueHandler;
 import cn.taketoday.web.handler.HandlerExceptionHandler;
-import cn.taketoday.web.handler.result.HandlerMethodReturnValueHandler;
 import cn.taketoday.web.handler.method.HandlerMethod;
+import cn.taketoday.web.handler.method.support.ModelAndViewContainer;
+import cn.taketoday.web.handler.result.HandlerMethodReturnValueHandler;
 
 /**
  * view-name or {@link View} ReturnValueHandler
@@ -44,8 +44,7 @@ import cn.taketoday.web.handler.method.HandlerMethod;
  * @see View
  * @since 4.0 2022/2/9 20:34
  */
-public class ViewReturnValueHandler
-        extends HandlerMethodReturnValueHandler implements ReturnValueHandler {
+public class ViewReturnValueHandler implements HandlerMethodReturnValueHandler {
 
   private final ViewResolver viewResolver;
 
@@ -63,7 +62,7 @@ public class ViewReturnValueHandler
   }
 
   @Override
-  protected boolean supportsHandlerMethod(HandlerMethod handler) {
+  public boolean supportsHandlerMethod(HandlerMethod handler) {
     if (handler.isReturn(String.class)) {
       return !handler.isResponseBody();
     }
@@ -124,9 +123,17 @@ public class ViewReturnValueHandler
       model.putAll(redirectModel.asMap());
     }
 
-    if (context.hasModelAndView()) {
-      ModelAndView modelAndView = context.modelAndView();
-      model.putAll(modelAndView.asMap());
+    RedirectModel outputRedirectModel = RequestContextUtils.getOutputRedirectModel(context);
+    if (outputRedirectModel != null) {
+      model.putAll(outputRedirectModel.asMap());
+    }
+
+    ModelAndViewContainer modelContainer = context.getModelContainer();
+    if (modelContainer != null) {
+      if (context.hasModelAndView()) {
+        ModelAndView modelAndView = context.modelAndView();
+        model.putAll(modelAndView.getModel());
+      }
     }
     view.render(model, context);
   }

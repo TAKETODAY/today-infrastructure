@@ -31,7 +31,7 @@ import cn.taketoday.web.handler.method.HandlerMethod;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/4/9 12:03
  */
-public class AsyncTaskMethodReturnValueHandler extends HandlerMethodReturnValueHandler {
+public class AsyncTaskMethodReturnValueHandler implements HandlerMethodReturnValueHandler {
 
   @Nullable
   private final BeanFactory beanFactory;
@@ -51,12 +51,12 @@ public class AsyncTaskMethodReturnValueHandler extends HandlerMethodReturnValueH
       if (this.beanFactory != null) {
         task.setBeanFactory(this.beanFactory);
       }
-      WebAsyncUtils.getAsyncManager(context).startCallableProcessing(task, mavContainer);
+      WebAsyncUtils.getAsyncManager(context).startCallableProcessing(task, context.getModelContainer());
     }
   }
 
   @Override
-  protected boolean supportsHandlerMethod(HandlerMethod handler) {
+  public boolean supportsHandlerMethod(HandlerMethod handler) {
     return handler.isReturnTypeAssignableTo(WebAsyncTask.class);
   }
 

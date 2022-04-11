@@ -361,7 +361,7 @@ public class WebMvcConfigurationSupport extends ApplicationContextSupport {
       Set<String> names = BeanFactoryUtils.beanNamesForTypeIncludingAncestors(
               applicationContext, ViewResolver.class, true, false);
       if (names.size() == 1) {
-        if (ServletDetector.present()) {
+        if (ServletDetector.isPresent) {
           viewResolvers.add(new InternalResourceViewResolver());
         }
         else {
@@ -372,7 +372,7 @@ public class WebMvcConfigurationSupport extends ApplicationContextSupport {
     }
 
     ViewResolverComposite composite;
-    if (ServletDetector.present()) {
+    if (ServletDetector.isPresent) {
       composite = new ServletViewResolverComposite();
     }
     else {
@@ -385,7 +385,7 @@ public class WebMvcConfigurationSupport extends ApplicationContextSupport {
       composite.setApplicationContext(applicationContext);
     }
 
-    if (ServletDetector.present() && applicationContext instanceof WebServletApplicationContext servletApp) {
+    if (ServletDetector.isPresent && applicationContext instanceof WebServletApplicationContext servletApp) {
       ServletViewResolverComposite viewResolverComposite = (ServletViewResolverComposite) composite;
       viewResolverComposite.setServletContext(servletApp.getServletContext());
     }
@@ -686,7 +686,7 @@ public class WebMvcConfigurationSupport extends ApplicationContextSupport {
   @Bean
   @Nullable
   public HandlerRegistry defaultServletHandlerRegistry() {
-    if (ServletDetector.present()) {
+    if (ServletDetector.isPresent) {
       if (getApplicationContext() instanceof WebServletApplicationContext context) {
         ServletContext servletContext = context.getServletContext();
         if (servletContext != null) {

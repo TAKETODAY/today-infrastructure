@@ -19,7 +19,6 @@
  */
 package cn.taketoday.web.handler.result;
 
-import cn.taketoday.core.MethodParameter;
 import cn.taketoday.web.ReturnValueHandler;
 import cn.taketoday.web.handler.method.ActionMappingAnnotationHandler;
 import cn.taketoday.web.handler.method.HandlerMethod;
@@ -41,22 +40,12 @@ public interface HandlerMethodReturnValueHandler extends ReturnValueHandler {
   }
 
   /**
-   * match function for {@link HandlerMethod}
+   * Whether the given {@linkplain HandlerMethod method} is supported by this handler.
    *
-   * @see HandlerMethod
-   */
-  default boolean supportsHandlerMethod(HandlerMethod handler) {
-    return supportsReturnType(handler.getReturnType());
-  }
-
-  /**
-   * Whether the given {@linkplain MethodParameter method return type} is
-   * supported by this handler.
-   *
-   * @param returnType the method return type to check
    * @return {@code true} if this handler supports the supplied return type;
    * {@code false} otherwise
+   * @see HandlerMethod
    */
-  boolean supportsReturnType(MethodParameter returnType);
+  boolean supportsHandlerMethod(HandlerMethod handler);
 
 }

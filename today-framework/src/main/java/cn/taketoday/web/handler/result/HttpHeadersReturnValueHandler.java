@@ -20,7 +20,6 @@
 
 package cn.taketoday.web.handler.result;
 
-import cn.taketoday.core.MethodParameter;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
@@ -37,17 +36,6 @@ public class HttpHeadersReturnValueHandler
   @Override
   public boolean supportsHandlerMethod(HandlerMethod handler) {
     return handler.isReturn(HttpHeaders.class);
-  }
-
-  @Override
-  public boolean supportsReturnType(MethodParameter returnType) {
-    return false;
-  }
-
-  @Override
-  public void handleReturnValue(
-          RequestContext request, @Nullable Object returnValue, MethodParameter returnType) throws Exception {
-
   }
 
   @Override

@@ -21,19 +21,16 @@ package cn.taketoday.web.handler.result;
 
 import cn.taketoday.http.HttpStatus;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.ReturnValueHandler;
 import cn.taketoday.web.handler.method.HandlerMethod;
-import cn.taketoday.web.handler.result.HandlerMethodReturnValueHandler;
 
 /**
  * @author TODAY 2020/12/23 20:12
  * @since 3.0
  */
-public class HttpStatusReturnValueHandler
-        extends HandlerMethodReturnValueHandler implements ReturnValueHandler {
+public class HttpStatusReturnValueHandler implements HandlerMethodReturnValueHandler {
 
   @Override
-  protected boolean supportsHandlerMethod(final HandlerMethod handler) {
+  public boolean supportsHandlerMethod(final HandlerMethod handler) {
     return handler.isReturn(HttpStatus.class);
   }
 

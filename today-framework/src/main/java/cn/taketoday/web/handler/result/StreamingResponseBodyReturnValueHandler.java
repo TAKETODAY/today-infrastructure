@@ -34,7 +34,6 @@ import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.context.async.WebAsyncUtils;
 import cn.taketoday.web.handler.StreamingResponseBody;
 import cn.taketoday.web.handler.method.HandlerMethod;
-import cn.taketoday.web.handler.result.HandlerMethodReturnValueHandler;
 import cn.taketoday.web.servlet.ServletUtils;
 import cn.taketoday.web.servlet.filter.ShallowEtagHeaderFilter;
 import jakarta.servlet.ServletRequest;
@@ -48,7 +47,7 @@ import jakarta.servlet.http.HttpServletResponse;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/4/9 12:07
  */
-public class StreamingResponseBodyReturnValueHandler extends HandlerMethodReturnValueHandler {
+public class StreamingResponseBodyReturnValueHandler implements HandlerMethodReturnValueHandler {
 
   @Override
   public boolean supportsReturnValue(@Nullable Object returnValue) {
@@ -57,7 +56,7 @@ public class StreamingResponseBodyReturnValueHandler extends HandlerMethodReturn
   }
 
   @Override
-  protected boolean supportsHandlerMethod(HandlerMethod handler) {
+  public boolean supportsHandlerMethod(HandlerMethod handler) {
     MethodParameter returnType = handler.getReturnType();
     if (StreamingResponseBody.class.isAssignableFrom(returnType.getParameterType())) {
       return true;
@@ -72,7 +71,7 @@ public class StreamingResponseBodyReturnValueHandler extends HandlerMethodReturn
   @Override
   public void handleReturnValue(RequestContext context, Object handler, @Nullable Object returnValue) throws Exception {
     if (returnValue == null) {
-      mavContainer.setRequestHandled(true);
+      context.setRequestHandled(true);
       return;
     }
 
@@ -85,7 +84,7 @@ public class StreamingResponseBodyReturnValueHandler extends HandlerMethodReturn
       outputMessage.getHeaders().putAll(responseEntity.getHeaders());
       returnValue = responseEntity.getBody();
       if (returnValue == null) {
-        mavContainer.setRequestHandled(true);
+        context.setRequestHandled(true);
         outputMessage.flush();
         return;
       }
@@ -101,7 +100,7 @@ public class StreamingResponseBodyReturnValueHandler extends HandlerMethodReturn
     Callable<Void> callable = new StreamingResponseBodyTask(outputMessage.getBody(), streamingBody);
 
     WebAsyncUtils.getAsyncManager(context)
-            .startCallableProcessing(callable, mavContainer);
+            .startCallableProcessing(callable);
   }
 
   private record StreamingResponseBodyTask(

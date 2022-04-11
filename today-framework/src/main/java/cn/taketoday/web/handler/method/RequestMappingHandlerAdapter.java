@@ -114,12 +114,6 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
                   AnnotatedElementUtils.hasAnnotation(method, ModelAttribute.class));
 
   @Nullable
-  private List<ParameterResolvingStrategy> customArgumentResolvers;
-
-  @Nullable
-  private ParameterResolvingStrategies argumentResolvers;
-
-  @Nullable
   private ParameterResolvingStrategies initBinderArgumentResolvers;
 
   private ParameterResolvingRegistry initBinderResolvingRegistry = new ParameterResolvingRegistry();
@@ -190,15 +184,7 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
    * resolution use {@link #setArgumentResolvers} instead.
    */
   public void setCustomArgumentResolvers(@Nullable List<ParameterResolvingStrategy> argumentResolvers) {
-    this.customArgumentResolvers = argumentResolvers;
-  }
-
-  /**
-   * Return the custom argument resolvers, or {@code null}.
-   */
-  @Nullable
-  public List<ParameterResolvingStrategy> getCustomArgumentResolvers() {
-    return this.customArgumentResolvers;
+    handlerMethodResolvingRegistry.getCustomizedStrategies().set(argumentResolvers);
   }
 
   /**
@@ -292,7 +278,7 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
    * compatibility only. However, it is recommended to re-write a
    * {@code ModelAndViewResolver} as {@link HandlerMethodReturnValueHandler}.
    * An adapter between the two interfaces is not possible since the
-   * {@link HandlerMethodReturnValueHandler#supportsReturnType} method
+   * {@link HandlerMethodReturnValueHandler#supportsHandlerMethod(HandlerMethod)} method
    * cannot be implemented. Hence {@code ModelAndViewResolver}s are limited
    * to always being invoked at the end after all other return value
    * handlers have been given a chance.
@@ -539,9 +525,6 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
     // Do this first, it may add ResponseBody advice beans
     initControllerAdviceCache();
 
-    if (this.argumentResolvers == null) {
-      this.argumentResolvers = new ParameterResolvingStrategies();
-    }
     if (this.initBinderArgumentResolvers == null) {
       List<ParameterResolvingStrategy> resolvers = getDefaultInitBinderArgumentResolvers();
       this.initBinderArgumentResolvers = new ParameterResolvingStrategies().addResolvers(resolvers);
@@ -707,7 +690,7 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
 
     if (asyncManager.hasConcurrentResult()) {
       Object result = asyncManager.getConcurrentResult();
-      mavContainer = (ModelAndViewContainer) asyncManager.getConcurrentResultContext()[0];
+      mavContainer = request.getModelContainer();
       asyncManager.clearConcurrentResult();
       LogFormatUtils.traceDebug(log, traceOn -> {
         String formatted = LogFormatUtils.formatValue(result, !traceOn);
