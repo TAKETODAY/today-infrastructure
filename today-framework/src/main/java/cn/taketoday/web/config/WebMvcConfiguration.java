@@ -32,6 +32,7 @@ import cn.taketoday.web.ReturnValueHandler;
 import cn.taketoday.web.annotation.CrossOrigin;
 import cn.taketoday.web.annotation.Multipart;
 import cn.taketoday.web.bind.resolver.ParameterResolvingRegistry;
+import cn.taketoday.web.bind.resolver.ParameterResolvingStrategies;
 import cn.taketoday.web.bind.resolver.ParameterResolvingStrategy;
 import cn.taketoday.web.cors.CorsConfiguration;
 import cn.taketoday.web.handler.HandlerExceptionHandler;
@@ -62,7 +63,7 @@ public interface WebMvcConfiguration {
    *
    * @param customizedStrategies {@link ParameterResolvingStrategy} registry
    */
-  default void configureParameterResolving(List<ParameterResolvingStrategy> customizedStrategies) { }
+  default void configureParameterResolving(ParameterResolvingStrategies customizedStrategies) { }
 
   /**
    * Configure {@link ParameterResolvingStrategy}
@@ -79,7 +80,7 @@ public interface WebMvcConfiguration {
    * @since 4.0
    */
   default void configureParameterResolving(
-          ParameterResolvingRegistry registry, List<ParameterResolvingStrategy> customizedStrategies) {
+          ParameterResolvingRegistry registry, ParameterResolvingStrategies customizedStrategies) {
     configureParameterResolving(customizedStrategies);
   }
 

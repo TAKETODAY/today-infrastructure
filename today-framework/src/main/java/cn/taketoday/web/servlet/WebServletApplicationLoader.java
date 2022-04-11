@@ -194,14 +194,6 @@ public class WebServletApplicationLoader
   }
 
   @Override
-  protected void configureParameterResolving(
-          List<ParameterResolvingStrategy> customizedStrategies, WebMvcConfiguration mvcConfiguration) {
-    // register servlet env resolvers
-    ServletParameterResolvers.register(customizedStrategies, getServletContext());
-    super.configureParameterResolving(customizedStrategies, mvcConfiguration);
-  }
-
-  @Override
   protected DispatcherHandler createDispatcher(WebApplicationContext ctx) {
     Assert.isInstanceOf(WebServletApplicationContext.class, ctx, "context must be a WebServletApplicationContext");
     WebServletApplicationContext context = (WebServletApplicationContext) ctx;

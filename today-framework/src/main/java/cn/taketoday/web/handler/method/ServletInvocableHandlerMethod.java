@@ -134,7 +134,6 @@ public class ServletInvocableHandlerMethod extends InvocableHandlerMethod {
     Assert.state(this.returnValueHandlers != null, "No return value handlers");
     try {
       returnValueHandlers.obtainHandler(this)
-//              .handleReturnValue(request, getReturnValueType(returnValue), returnValue);
               .handleReturnValue(request, this, returnValue);
     }
     catch (Exception ex) {

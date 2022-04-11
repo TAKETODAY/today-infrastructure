@@ -61,7 +61,7 @@ public class ModelAndViewContainer {
   @Nullable
   private Object view;
 
-  private final ModelMap defaultModel = new BindingAwareModelMap();
+  private final ModelMap defaultModel = new ModelMap();
 
   @Nullable
   private RedirectModel redirectModel;
@@ -298,6 +298,15 @@ public class ModelAndViewContainer {
    * A shortcut for {@code getModel().addAllAttributes(Map)}.
    */
   public ModelAndViewContainer addAllAttributes(@Nullable Map<String, ?> attributes) {
+    getModel().addAllAttributes(attributes);
+    return this;
+  }
+
+  /**
+   * Copy all attributes to the underlying model.
+   * A shortcut for {@code getModel().addAllAttributes(Map)}.
+   */
+  public ModelAndViewContainer addAllAttributes(@Nullable Model attributes) {
     getModel().addAllAttributes(attributes);
     return this;
   }

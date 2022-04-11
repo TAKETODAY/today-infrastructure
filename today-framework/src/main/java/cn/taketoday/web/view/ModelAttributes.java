@@ -73,6 +73,14 @@ public class ModelAttributes extends AttributeAccessorSupport implements Model, 
   }
 
   @Override
+  public Model addAllAttributes(@Nullable Model attributes) {
+    if (attributes != null && !attributes.isEmpty()) {
+      getAttributes().putAll(attributes.asMap());
+    }
+    return this;
+  }
+
+  @Override
   public Model mergeAttributes(@Nullable Map<String, ?> attributes) {
     if (attributes != null) {
       Map<String, Object> map = getAttributes();

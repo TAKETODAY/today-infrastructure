@@ -152,21 +152,11 @@ public class WebMvcConfigurationSupport extends ApplicationContextSupport {
   }
 
   private void initControllerAdviceCache() {
+    List<ControllerAdviceBean> adviceBeans = ControllerAdviceBean.findAnnotatedBeans(getApplicationContext(),
+            RequestBodyAdvice.class, ResponseBodyAdvice.class);
 
-    List<ControllerAdviceBean> adviceBeans = ControllerAdviceBean.findAnnotatedBeans(getApplicationContext());
-    ArrayList<Object> requestResponseBodyAdviceBeans = new ArrayList<>();
-    for (ControllerAdviceBean adviceBean : adviceBeans) {
-      Class<?> beanType = adviceBean.getBeanType();
-      if (beanType == null) {
-        throw new IllegalStateException("Unresolvable type for ControllerAdviceBean: " + adviceBean);
-      }
-      if (RequestBodyAdvice.class.isAssignableFrom(beanType) || ResponseBodyAdvice.class.isAssignableFrom(beanType)) {
-        requestResponseBodyAdviceBeans.add(adviceBean);
-      }
-    }
-
-    if (!requestResponseBodyAdviceBeans.isEmpty()) {
-      this.requestResponseBodyAdvice.addAll(0, requestResponseBodyAdviceBeans);
+    if (!adviceBeans.isEmpty()) {
+      requestResponseBodyAdvice.addAll(0, adviceBeans);
     }
 
     if (jackson2Present) {
@@ -415,7 +405,7 @@ public class WebMvcConfigurationSupport extends ApplicationContextSupport {
   @Component
   @ConditionalOnMissingBean
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-  ReturnValueHandlerManager returnValueHandlers(
+  ReturnValueHandlerManager returnValueHandlerManager(
           @Nullable RedirectModelManager redirectModelManager,
           @Qualifier("webViewResolver") ViewResolver webViewResolver) {
 
@@ -455,8 +445,11 @@ public class WebMvcConfigurationSupport extends ApplicationContextSupport {
 
     registry.registerDefaultStrategies();
 
+    modifyParameterResolvingRegistry(registry);
     return registry;
   }
+
+  protected void modifyParameterResolvingRegistry(ParameterResolvingRegistry registry) { }
 
   /**
    * default {@link MultipartConfiguration} bean
@@ -812,16 +805,13 @@ public class WebMvcConfigurationSupport extends ApplicationContextSupport {
    */
   @Bean
   public RequestMappingHandlerAdapter requestMappingHandlerAdapter(
-          @Qualifier("mvcContentNegotiationManager") ContentNegotiationManager contentNegotiationManager,
-          @Qualifier("mvcConversionService") FormattingConversionService conversionService,
-          @Qualifier("mvcValidator") Validator validator) {
+          ParameterResolvingRegistry parameterResolvingRegistry,
+          @Qualifier("mvcConversionService") FormattingConversionService conversionService, @Qualifier("mvcValidator") Validator validator) {
 
     RequestMappingHandlerAdapter adapter = createRequestMappingHandlerAdapter();
-    adapter.setContentNegotiationManager(contentNegotiationManager);
-    adapter.setMessageConverters(getMessageConverters());
     adapter.setWebBindingInitializer(getConfigurableWebBindingInitializer(conversionService, validator));
     adapter.setCustomArgumentResolvers(getArgumentResolvers());
-    adapter.setCustomReturnValueHandlers(getReturnValueHandlers());
+    adapter.setReturnValueHandlerManager(getReturnValueHandlers());
 
     if (jackson2Present) {
       adapter.setRequestBodyAdvice(Collections.singletonList(new JsonViewRequestBodyAdvice()));

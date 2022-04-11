@@ -152,6 +152,14 @@ public interface Model {
   Model addAllAttributes(@Nullable Map<String, ?> attributes);
 
   /**
+   * Copy all attributes in the supplied {@code Model} into this {@code Map}.
+   *
+   * @see #setAttribute(String, Object)
+   * @since 4.0
+   */
+  Model addAllAttributes(@Nullable Model attributes);
+
+  /**
    * Copy all attributes in the supplied {@code Map} into this {@code Map},
    * with existing objects of the same name taking precedence (i.e. not getting
    * replaced).

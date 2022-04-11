@@ -50,6 +50,7 @@ import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.validation.Validator;
 import cn.taketoday.web.LocaleResolver;
 import cn.taketoday.web.accept.ContentNegotiationManager;
+import cn.taketoday.web.bind.resolver.ParameterResolvingRegistry;
 import cn.taketoday.web.config.WebProperties.Resources;
 import cn.taketoday.web.config.WebProperties.Resources.Chain.Strategy;
 import cn.taketoday.web.config.jackson.JacksonAutoConfiguration;
@@ -236,6 +237,11 @@ public class WebMvcAutoConfiguration extends WebMvcConfigurationSupport {
   @Override
   protected void configureViewResolvers(ViewResolverRegistry registry) {
     mvcConfiguration.configureViewResolvers(registry);
+  }
+
+  @Override
+  protected void modifyParameterResolvingRegistry(ParameterResolvingRegistry registry) {
+    mvcConfiguration.configureParameterResolving(registry, registry.getCustomizedStrategies());
   }
 
   @Override

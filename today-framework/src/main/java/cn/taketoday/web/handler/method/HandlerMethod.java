@@ -416,7 +416,7 @@ public class HandlerMethod {
    * Return {@code true} if the method return type is void, {@code false} otherwise.
    */
   public boolean isVoid() {
-    return Void.TYPE.equals(getReturnType());
+    return Void.TYPE.equals(returnType);
   }
 
   /**

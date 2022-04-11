@@ -34,7 +34,9 @@ import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.bind.WebDataBinder;
+import cn.taketoday.web.bind.resolver.ParameterResolvingRegistry;
 import cn.taketoday.web.bind.resolver.ParameterResolvingStrategies;
+import cn.taketoday.web.bind.resolver.ParameterResolvingStrategy;
 import cn.taketoday.web.bind.support.SessionStatus;
 import cn.taketoday.web.bind.support.WebDataBinderFactory;
 
@@ -55,15 +57,13 @@ public class InvocableHandlerMethod extends HandlerMethod {
 
   private static final Object[] EMPTY_ARGS = new Object[0];
 
-  private ParameterResolvingStrategies resolvers = new ParameterResolvingStrategies();
+  private ParameterResolvingRegistry resolvingRegistry;
 
   private ParameterNameDiscoverer parameterNameDiscoverer = new DefaultParameterNameDiscoverer();
 
   @Nullable
   private WebDataBinderFactory dataBinderFactory;
 
-  //  @Nullable
-//  private final ResolvableMethodParameter[] resolvableParameters;
   private ResolvableParameterFactory parameterFactory;
 
   /**
@@ -106,8 +106,8 @@ public class InvocableHandlerMethod extends HandlerMethod {
    * Set {@link ParameterResolvingStrategies ParameterResolvingStrategies}
    * to use for resolving method argument values.
    */
-  public void setHandlerMethodArgumentResolvers(ParameterResolvingStrategies argumentResolvers) {
-    this.resolvers = argumentResolvers;
+  public void setResolvingRegistry(ParameterResolvingRegistry resolvingRegistry) {
+    this.resolvingRegistry = resolvingRegistry;
   }
 
   /**
@@ -173,17 +173,18 @@ public class InvocableHandlerMethod extends HandlerMethod {
     Object[] args = new Object[parameters.length];
     for (int i = 0; i < parameters.length; i++) {
       MethodParameter parameter = parameters[i];
-      parameter.initParameterNameDiscovery(this.parameterNameDiscoverer);
+      parameter.initParameterNameDiscovery(parameterNameDiscoverer);
       args[i] = findProvidedArgument(parameter, providedArgs);
       if (args[i] != null) {
         continue;
       }
-      ResolvableMethodParameter resolvable = parameterFactory.createParameter(parameter);
-      if (!this.resolvers.supportsParameter(resolvable)) {
+      var resolvable = new ParameterResolverMethodParameter(parameter, resolvingRegistry);
+      ParameterResolvingStrategy strategy = resolvingRegistry.findStrategy(resolvable);
+      if (strategy == null) {
         throw new IllegalStateException(formatArgumentError(parameter, "No suitable resolver"));
       }
       try {
-        args[i] = this.resolvers.resolveParameter(request, resolvable);
+        args[i] = strategy.resolveParameter(request, resolvable);
       }
       catch (Throwable ex) {
         // Leave stack trace for later, exception may actually be resolved and handled...

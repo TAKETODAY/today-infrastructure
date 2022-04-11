@@ -33,8 +33,6 @@ import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.ReturnValueHandler;
 import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.WebApplicationContextSupport;
-import cn.taketoday.web.bind.resolver.ParameterResolvingRegistry;
-import cn.taketoday.web.bind.resolver.ParameterResolvingStrategy;
 import cn.taketoday.web.handler.CompositeHandlerExceptionHandler;
 import cn.taketoday.web.handler.DispatcherHandler;
 import cn.taketoday.web.handler.HandlerAdapter;
@@ -43,7 +41,6 @@ import cn.taketoday.web.handler.RequestHandlerAdapter;
 import cn.taketoday.web.handler.ReturnValueHandlerManager;
 import cn.taketoday.web.handler.SelectableReturnValueHandler;
 import cn.taketoday.web.handler.ViewControllerHandlerAdapter;
-import cn.taketoday.web.multipart.MultipartConfiguration;
 import cn.taketoday.web.registry.HandlerRegistries;
 import cn.taketoday.web.registry.HandlerRegistry;
 import cn.taketoday.web.registry.ViewControllerHandlerRegistry;
@@ -72,7 +69,6 @@ public class WebApplicationLoader
     configureExceptionHandler(context, mvcConfiguration);
     configureReturnValueHandler(context, mvcConfiguration);
     configureHandlerAdapter(context, mvcConfiguration);
-    configureParameterResolving(context, mvcConfiguration);
     configureHandlerRegistry(context, mvcConfiguration);
 
     // check all Components
@@ -239,34 +235,6 @@ public class WebApplicationLoader
             new SelectableReturnValueHandler(manager.getHandlers());
     selectable.trimToSize();
     obtainDispatcher.setReturnValueHandler(selectable);
-  }
-
-  private void configureParameterResolving(
-          WebApplicationContext context, WebMvcConfiguration mvcConfiguration) {
-    configureParameterResolving(context.getBeans(ParameterResolvingStrategy.class), mvcConfiguration);
-  }
-
-  /**
-   * Configure {@link ParameterResolvingStrategy}s to resolve handler method arguments
-   *
-   * @param customizedStrategies Resolvers registry
-   * @param mvcConfiguration All {@link WebMvcConfiguration} object
-   */
-  protected void configureParameterResolving(
-          List<ParameterResolvingStrategy> customizedStrategies, WebMvcConfiguration mvcConfiguration) {
-    WebApplicationContext context = obtainApplicationContext();
-    ParameterResolvingRegistry registry = context.getBean(ParameterResolvingRegistry.class);
-    Assert.state(registry != null, "No ParameterResolvingRegistry in context");
-
-    // user customize multipartConfig
-    MultipartConfiguration multipartConfig = context.getBean(MultipartConfiguration.class);
-    mvcConfiguration.configureMultipart(multipartConfig);
-
-    // User customize parameter resolver
-    // ------------------------------------------
-    mvcConfiguration.configureParameterResolving(registry, customizedStrategies); // user configure
-
-    registry.getCustomizedStrategies().add(customizedStrategies);
   }
 
   //
