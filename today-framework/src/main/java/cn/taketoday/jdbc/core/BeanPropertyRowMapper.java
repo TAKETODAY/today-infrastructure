@@ -413,9 +413,9 @@ public class BeanPropertyRowMapper<T> implements RowMapper<T> {
    * Static factory method to create a new {@code BeanPropertyRowMapper}.
    *
    * @param mappedClass the class that each row should be mapped to
-   * @see #from(Class, ConversionService)
+   * @see #forMappedClass(Class, ConversionService)
    */
-  public static <T> BeanPropertyRowMapper<T> from(Class<T> mappedClass) {
+  public static <T> BeanPropertyRowMapper<T> forMappedClass(Class<T> mappedClass) {
     return new BeanPropertyRowMapper<>(mappedClass);
   }
 
@@ -425,13 +425,13 @@ public class BeanPropertyRowMapper<T> implements RowMapper<T> {
    * @param mappedClass the class that each row should be mapped to
    * @param conversionService the {@link ConversionService} for binding
    * JDBC values to bean properties, or {@code null} for none
-   * @see #from(Class)
+   * @see #forMappedClass(Class)
    * @see #setConversionService
    */
-  public static <T> BeanPropertyRowMapper<T> from(
+  public static <T> BeanPropertyRowMapper<T> forMappedClass(
           Class<T> mappedClass, @Nullable ConversionService conversionService) {
 
-    BeanPropertyRowMapper<T> rowMapper = from(mappedClass);
+    BeanPropertyRowMapper<T> rowMapper = forMappedClass(mappedClass);
     rowMapper.setConversionService(conversionService);
     return rowMapper;
   }

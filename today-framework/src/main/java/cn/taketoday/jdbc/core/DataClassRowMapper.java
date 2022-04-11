@@ -114,11 +114,26 @@ public class DataClassRowMapper<T> extends BeanPropertyRowMapper<T> {
     Object[] args = null;
     if (constructorParameterNames != null && constructorParameterTypes != null) {
       args = new Object[constructorParameterNames.length];
-      for (int i = 0; i < args.length; i++) {
-        String name = underscoreName(constructorParameterNames[i]);
+      int i = 0;
+      for (String name : constructorParameterNames) {
         TypeDescriptor td = constructorParameterTypes[i];
-        Object value = getColumnValue(rs, rs.findColumn(name), td.getType());
-        args[i] = converter.convertIfNecessary(value, td.getType(), td);
+        int index;
+        try {
+          // Try direct name match first
+          index = rs.findColumn(name);
+        }
+        catch (SQLException ex) {
+          try {
+            // Try underscored name match instead
+            index = rs.findColumn(underscoreName(name));
+          }
+          catch (SQLException e) {
+            index = rs.findColumn(lowerCaseName(name));
+          }
+        }
+
+        Object value = getColumnValue(rs, index, td.getType());
+        args[i++ /* plus 1 */] = converter.convertIfNecessary(value, td.getType(), td);
       }
     }
 
@@ -129,9 +144,9 @@ public class DataClassRowMapper<T> extends BeanPropertyRowMapper<T> {
    * Static factory method to create a new {@code DataClassRowMapper}.
    *
    * @param mappedClass the class that each row should be mapped to
-   * @see #create(Class, ConversionService)
+   * @see #forClass(Class, ConversionService)
    */
-  public static <T> DataClassRowMapper<T> create(Class<T> mappedClass) {
+  public static <T> DataClassRowMapper<T> forClass(Class<T> mappedClass) {
     return new DataClassRowMapper<>(mappedClass);
   }
 
@@ -141,13 +156,13 @@ public class DataClassRowMapper<T> extends BeanPropertyRowMapper<T> {
    * @param mappedClass the class that each row should be mapped to
    * @param conversionService the {@link ConversionService} for binding
    * JDBC values to bean properties, or {@code null} for none
-   * @see #create(Class)
+   * @see #forClass(Class)
    * @see #setConversionService
    */
-  public static <T> DataClassRowMapper<T> create(
+  public static <T> DataClassRowMapper<T> forClass(
           Class<T> mappedClass, @Nullable ConversionService conversionService) {
 
-    DataClassRowMapper<T> rowMapper = create(mappedClass);
+    DataClassRowMapper<T> rowMapper = forClass(mappedClass);
     rowMapper.setConversionService(conversionService);
     return rowMapper;
   }
