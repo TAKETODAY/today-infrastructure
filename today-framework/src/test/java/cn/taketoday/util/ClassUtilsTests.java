@@ -810,11 +810,11 @@ class ClassUtilsTests {
   }
 
   private static void assertIsLambda(Supplier<String> supplier) {
-    assertThat(ClassUtils.isLambda(supplier.getClass())).isTrue();
+    assertThat(ClassUtils.isLambdaClass(supplier.getClass())).isTrue();
   }
 
   private static void assertIsNotLambda(Supplier<String> supplier) {
-    assertThat(ClassUtils.isLambda(supplier.getClass())).isFalse();
+    assertThat(ClassUtils.isLambdaClass(supplier.getClass())).isFalse();
   }
 
   private static final Supplier<String> staticLambdaExpression = () -> "static lambda expression";

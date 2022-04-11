@@ -133,7 +133,7 @@ public abstract class AopProxyUtils {
         if (targetClass.isInterface()) {
           advised.setInterfaces(targetClass);
         }
-        else if (Proxy.isProxyClass(targetClass) || ClassUtils.isLambda(targetClass)) {
+        else if (Proxy.isProxyClass(targetClass) || ClassUtils.isLambdaClass(targetClass)) {
           advised.setInterfaces(targetClass.getInterfaces());
         }
         specifiedInterfaces = advised.getProxiedInterfaces();

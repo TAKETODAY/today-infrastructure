@@ -525,7 +525,7 @@ public abstract class ClassUtils {
    * @return {@code true} if the class is a lambda implementation class
    * @since 4.0
    */
-  public static boolean isLambda(Class<?> clazz) {
+  public static boolean isLambdaClass(Class<?> clazz) {
     return clazz.isSynthetic() && (clazz.getSuperclass() == Object.class)
             && (clazz.getInterfaces().length > 0) && clazz.getName().contains("$$Lambda");
   }

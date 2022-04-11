@@ -20,6 +20,8 @@
 
 package cn.taketoday.aop.aspectj.autoproxy;
 
+import org.aopalliance.aop.Advice;
+import org.aopalliance.intercept.MethodInvocation;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
@@ -35,11 +37,17 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.reflect.Method;
 import java.util.function.Supplier;
 
+import cn.taketoday.aop.ClassFilter;
+import cn.taketoday.aop.IntroductionAdvisor;
+import cn.taketoday.aop.IntroductionInterceptor;
 import cn.taketoday.aop.MethodBeforeAdvice;
 import cn.taketoday.aop.aspectj.annotation.AnnotationAwareAspectJAutoProxyCreator;
 import cn.taketoday.aop.aspectj.annotation.AspectMetadata;
 import cn.taketoday.aop.config.AopConfigUtils;
+import cn.taketoday.aop.framework.Advised;
 import cn.taketoday.aop.framework.ProxyConfig;
+import cn.taketoday.aop.framework.StandardProxy;
+import cn.taketoday.aop.support.AbstractPointcutAdvisor;
 import cn.taketoday.aop.support.AopUtils;
 import cn.taketoday.aop.support.StaticMethodMatcherPointcutAdvisor;
 import cn.taketoday.beans.PropertyValue;
@@ -56,6 +64,7 @@ import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.EnableAspectJAutoProxy;
 import cn.taketoday.context.support.ClassPathXmlApplicationContext;
 import cn.taketoday.context.support.GenericApplicationContext;
+import cn.taketoday.core.DecoratingProxy;
 import cn.taketoday.core.NestedRuntimeException;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.annotation.Order;
@@ -308,10 +317,26 @@ public class AspectJAutoProxyCreatorTests {
   @ValueSource(classes = { ProxyTargetClassFalseConfig.class, ProxyTargetClassTrueConfig.class })
   void lambdaIsAlwaysProxiedWithJdkProxy(Class<?> configClass) {
     try (ConfigurableApplicationContext context = new AnnotationConfigApplicationContext(configClass)) {
-      Supplier<?> supplier = context.getBean(Supplier.class);
+      @SuppressWarnings("unchecked")
+      Supplier<String> supplier = context.getBean(Supplier.class);
       assertThat(AopUtils.isAopProxy(supplier)).as("AOP proxy").isTrue();
       assertThat(AopUtils.isJdkDynamicProxy(supplier)).as("JDK Dynamic proxy").isTrue();
-      assertThat(supplier.get()).asString().isEqualTo("advised: lambda");
+      assertThat(supplier.getClass().getInterfaces())
+              .containsExactlyInAnyOrder(Supplier.class, StandardProxy.class, Advised.class, DecoratingProxy.class);
+      assertThat(supplier.get()).isEqualTo("advised: lambda");
+    }
+  }
+
+  @ParameterizedTest(name = "[{index}] {0}")
+  @ValueSource(classes = { MixinProxyTargetClassFalseConfig.class, MixinProxyTargetClassTrueConfig.class })
+  void lambdaIsAlwaysProxiedWithJdkProxyWithIntroductions(Class<?> configClass) {
+    try (ConfigurableApplicationContext context = new AnnotationConfigApplicationContext(configClass)) {
+      MessageGenerator messageGenerator = context.getBean(MessageGenerator.class);
+      assertThat(AopUtils.isAopProxy(messageGenerator)).as("AOP proxy").isTrue();
+      assertThat(AopUtils.isJdkDynamicProxy(messageGenerator)).as("JDK Dynamic proxy").isTrue();
+      assertThat(messageGenerator.getClass().getInterfaces())
+              .containsExactlyInAnyOrder(MessageGenerator.class, Mixin.class, StandardProxy.class, Advised.class, DecoratingProxy.class);
+      assertThat(messageGenerator.generateMessage()).isEqualTo("mixin: lambda");
     }
   }
 
@@ -619,4 +644,80 @@ class ProxyTargetClassFalseConfig extends AbstractProxyTargetClassConfig {
 @Configuration(proxyBeanMethods = false)
 @EnableAspectJAutoProxy(proxyTargetClass = true)
 class ProxyTargetClassTrueConfig extends AbstractProxyTargetClassConfig {
+}
+
+@FunctionalInterface
+interface MessageGenerator {
+  String generateMessage();
+}
+
+interface Mixin {
+}
+
+class MixinIntroductionInterceptor implements IntroductionInterceptor {
+
+  @Override
+  public Object invoke(MethodInvocation invocation) throws Throwable {
+    return "mixin: " + invocation.proceed();
+  }
+
+  @Override
+  public boolean implementsInterface(Class<?> intf) {
+    return Mixin.class.isAssignableFrom(intf);
+  }
+
+}
+
+@SuppressWarnings("serial")
+class MixinAdvisor extends AbstractPointcutAdvisor implements IntroductionAdvisor {
+
+  @Override
+  public cn.taketoday.aop.Pointcut getPointcut() {
+    return cn.taketoday.aop.Pointcut.TRUE;
+  }
+
+  @Override
+  public Advice getAdvice() {
+    return new MixinIntroductionInterceptor();
+  }
+
+  @Override
+  public Class<?>[] getInterfaces() {
+    return new Class[] { Mixin.class };
+  }
+
+  @Override
+  public ClassFilter getClassFilter() {
+    return MessageGenerator.class::isAssignableFrom;
+  }
+
+  @Override
+  public void validateInterfaces() {
+    /* no-op */
+  }
+
+}
+
+abstract class AbstractMixinConfig {
+
+  @Bean
+  MessageGenerator messageGenerator() {
+    return () -> "lambda";
+  }
+
+  @Bean
+  MixinAdvisor mixinAdvisor() {
+    return new MixinAdvisor();
+  }
+
+}
+
+@Configuration(proxyBeanMethods = false)
+@EnableAspectJAutoProxy(proxyTargetClass = false)
+class MixinProxyTargetClassFalseConfig extends AbstractMixinConfig {
+}
+
+@Configuration(proxyBeanMethods = false)
+@EnableAspectJAutoProxy(proxyTargetClass = true)
+class MixinProxyTargetClassTrueConfig extends AbstractMixinConfig {
 }

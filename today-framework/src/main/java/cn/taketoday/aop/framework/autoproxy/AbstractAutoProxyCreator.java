@@ -56,6 +56,7 @@ import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
+import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.StringUtils;
 
@@ -406,8 +407,8 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport imp
     proxyFactory.copyFrom(this);
 
     if (proxyFactory.isProxyTargetClass()) {
-      // Explicit handling of JDK proxy targets (for introduction advice scenarios)
-      if (Proxy.isProxyClass(beanClass)) {
+      // Explicit handling of JDK proxy targets and lambdas (for introduction advice scenarios)
+      if (Proxy.isProxyClass(beanClass) || ClassUtils.isLambdaClass(beanClass)) {
         // Must allow for introductions; can't just set interfaces to the proxy's interfaces only.
         for (Class<?> ifc : beanClass.getInterfaces()) {
           proxyFactory.addInterface(ifc);
