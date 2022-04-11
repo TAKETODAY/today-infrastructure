@@ -44,6 +44,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Supplier;
 
 import cn.taketoday.beans.BeanUtils;
 import cn.taketoday.beans.factory.annotation.Autowired;
@@ -783,6 +784,63 @@ class ClassUtilsTests {
 
     assertThat(annotation).isNotNull().endsWith("implementing org.junit.jupiter.api.Test");
 
+  }
+
+  @Test
+  void isLambda() {
+    assertIsLambda(ClassUtilsTests.staticLambdaExpression);
+    assertIsLambda(ClassUtilsTests::staticStringFactory);
+
+    assertIsLambda(this.instanceLambdaExpression);
+    assertIsLambda(this::instanceStringFactory);
+  }
+
+  @Test
+  void isNotLambda() {
+    assertIsNotLambda(new EnigmaSupplier());
+
+    assertIsNotLambda(new Supplier<String>() {
+      @Override
+      public String get() {
+        return "anonymous inner class";
+      }
+    });
+
+    assertIsNotLambda(new Fake$$LambdaSupplier());
+  }
+
+  private static void assertIsLambda(Supplier<String> supplier) {
+    assertThat(ClassUtils.isLambda(supplier.getClass())).isTrue();
+  }
+
+  private static void assertIsNotLambda(Supplier<String> supplier) {
+    assertThat(ClassUtils.isLambda(supplier.getClass())).isFalse();
+  }
+
+  private static final Supplier<String> staticLambdaExpression = () -> "static lambda expression";
+
+  private final Supplier<String> instanceLambdaExpression = () -> "instance lambda expressions";
+
+  private static String staticStringFactory() {
+    return "static string factory";
+  }
+
+  private String instanceStringFactory() {
+    return "instance string factory";
+  }
+
+  private static class EnigmaSupplier implements Supplier<String> {
+    @Override
+    public String get() {
+      return "enigma";
+    }
+  }
+
+  private static class Fake$$LambdaSupplier implements Supplier<String> {
+    @Override
+    public String get() {
+      return "fake lambda";
+    }
   }
 
 }
