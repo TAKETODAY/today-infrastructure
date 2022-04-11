@@ -58,7 +58,7 @@ public abstract class ModelAndViewAssert {
    */
   @SuppressWarnings("unchecked")
   public static <T> T assertAndReturnModelAttributeOfType(ModelAndView mav, String modelName, Class<T> expectedType) {
-    Map<String, Object> model = mav.getModel().asMap();
+    Map<String, Object> model = mav.getModel();
     Object obj = model.get(modelName);
     if (obj == null) {
       AssertionErrors.fail("Model attribute with name '" + modelName + "' is null");
@@ -91,7 +91,7 @@ public abstract class ModelAndViewAssert {
    * @param modelName name of the object to add to the model (never {@code null})
    */
   public static void assertModelAttributeAvailable(ModelAndView mav, String modelName) {
-    Map<String, Object> model = mav.getModel().asMap();
+    Map<String, Object> model = mav.getModel();
     AssertionErrors.assertTrue("Model attribute with name '" + modelName + "' is not available", model.containsKey(modelName));
   }
 
@@ -117,7 +117,7 @@ public abstract class ModelAndViewAssert {
    * @param expectedModel the expected model
    */
   public static void assertModelAttributeValues(ModelAndView mav, Map<String, Object> expectedModel) {
-    Map<String, Object> model = mav.getModel().asMap();
+    Map<String, Object> model = mav.getModel();
 
     if (!model.keySet().equals(expectedModel.keySet())) {
       StringBuilder sb = new StringBuilder("Keyset of expected model does not match.\n");

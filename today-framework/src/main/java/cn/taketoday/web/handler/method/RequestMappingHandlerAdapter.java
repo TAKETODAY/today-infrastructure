@@ -68,8 +68,8 @@ import cn.taketoday.web.handler.method.support.ModelAndViewContainer;
 import cn.taketoday.web.handler.result.HandlerMethodReturnValueHandler;
 import cn.taketoday.web.session.WebSession;
 import cn.taketoday.web.util.WebUtils;
+import cn.taketoday.web.view.Model;
 import cn.taketoday.web.view.ModelAndView;
-import cn.taketoday.web.view.ModelMap;
 import cn.taketoday.web.view.RedirectModel;
 import cn.taketoday.web.view.View;
 
@@ -676,9 +676,9 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
       return null;
     }
 
-    ModelMap model = mavContainer.getModel();
+    Model model = mavContainer.getModel();
 
-    ModelAndView mav = new ModelAndView(mavContainer.getViewName(), model, mavContainer.getStatus());
+    ModelAndView mav = new ModelAndView(mavContainer.getViewName(), model.asMap(), mavContainer.getStatus());
     if (!mavContainer.isViewReference()) {
       mav.setView((View) mavContainer.getView());
     }

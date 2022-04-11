@@ -24,6 +24,7 @@ import java.util.Map;
 import cn.taketoday.http.HttpStatusCode;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
+import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.interceptor.HandlerInterceptor;
 
 /**
@@ -151,7 +152,6 @@ public class ModelAndView {
    * model Map may be {@code null} if there is no model data.
    * @param status an HTTP status code to use for the response
    * (to be set just prior to View rendering)
-   * @since 4.3
    */
   public ModelAndView(@Nullable String viewName, @Nullable Map<String, ?> model, @Nullable HttpStatusCode status) {
     this.view = viewName;
@@ -268,8 +268,6 @@ public class ModelAndView {
   /**
    * Set the HTTP status to use for the response.
    * <p>The response status is set just prior to View rendering.
-   *
-   * @since 4.3
    */
   public void setStatus(@Nullable HttpStatusCode status) {
     this.status = status;
@@ -277,8 +275,6 @@ public class ModelAndView {
 
   /**
    * Return the configured HTTP status for the response, if any.
-   *
-   * @since 4.3
    */
   @Nullable
   public HttpStatusCode getStatus() {
@@ -329,7 +325,7 @@ public class ModelAndView {
    * in the {@code postHandle} method of a HandlerInterceptor.
    *
    * @see #isEmpty()
-   * @see HandlerInterceptor#postHandle
+   * @see HandlerInterceptor#afterProcess(RequestContext, Object, Object)
    */
   public void clear() {
     this.view = null;

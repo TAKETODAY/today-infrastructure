@@ -143,7 +143,7 @@ public class ModelAndViewContainer {
    * there is no redirect model (i.e. RedirectAttributes was not declared as
    * a method argument) and {@code ignoreDefaultModelOnRedirect=false}.
    */
-  public ModelMap getModel() {
+  public Model getModel() {
     if (useDefaultModel()) {
       return this.defaultModel;
     }
@@ -280,7 +280,7 @@ public class ModelAndViewContainer {
    * A shortcut for {@code getModel().addAttribute(String, Object)}.
    */
   public ModelAndViewContainer addAttribute(String name, @Nullable Object value) {
-    getModel().addAttribute(name, value);
+    getModel().setAttribute(name, value);
     return this;
   }
 
@@ -327,7 +327,7 @@ public class ModelAndViewContainer {
   public ModelAndViewContainer removeAttributes(@Nullable Map<String, ?> attributes) {
     if (attributes != null) {
       for (String key : attributes.keySet()) {
-        getModel().remove(key);
+        getModel().removeAttribute(key);
       }
     }
     return this;

@@ -194,8 +194,8 @@ class UrlFilenameViewControllerTests {
     request.setAttribute(RedirectModel.INPUT_ATTRIBUTE, new RedirectModel("name", "value"));
     ModelAndView mv = controller.handleRequest(request);
     assertThat(mv.getViewName()).isEqualTo("index");
-    assertThat(mv.getModel().asMap().size()).isEqualTo(1);
-    assertThat(mv.getModel().asMap().get("name")).isEqualTo("value");
+    assertThat(mv.getModel().size()).isEqualTo(1);
+    assertThat(mv.getModel().get("name")).isEqualTo("value");
   }
 
   private void exposePathInMapping(RequestContext request, String mapping) {

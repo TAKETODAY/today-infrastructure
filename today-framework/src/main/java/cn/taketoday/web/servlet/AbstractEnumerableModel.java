@@ -53,6 +53,11 @@ public abstract class AbstractEnumerableModel implements Model {
   }
 
   @Override
+  public Model addAllAttributes(@Nullable Model attributes) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
   public Model mergeAttributes(@Nullable Map<String, ?> attributes) {
     throw new UnsupportedOperationException();
   }
