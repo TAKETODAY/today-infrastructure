@@ -41,6 +41,7 @@ import cn.taketoday.core.annotation.OrderUtils;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
+import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.web.annotation.ControllerAdvice;
 
 /**
@@ -317,7 +318,7 @@ public class ControllerAdviceBean implements Ordered {
   }
 
   static boolean isCandidate(@Nullable Class<?> beanType, @Nullable Class<?>[] types) {
-    if (types == null) {
+    if (ObjectUtils.isEmpty(types)) {
       return true;
     }
 
