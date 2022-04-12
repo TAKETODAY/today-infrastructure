@@ -20,7 +20,6 @@
 
 package cn.taketoday.web.handler.result;
 
-import cn.taketoday.core.MethodParameter;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
@@ -31,23 +30,11 @@ import cn.taketoday.web.handler.method.HandlerMethod;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/1/28 11:00
  */
-public class HttpHeadersReturnValueHandler
-        implements HandlerMethodReturnValueHandler {
+public class HttpHeadersReturnValueHandler implements HandlerMethodReturnValueHandler {
 
   @Override
   public boolean supportsHandlerMethod(HandlerMethod handler) {
     return handler.isReturn(HttpHeaders.class);
-  }
-
-  @Override
-  public boolean supportsReturnType(MethodParameter returnType) {
-    return false;
-  }
-
-  @Override
-  public void handleReturnValue(
-          RequestContext request, @Nullable Object returnValue, MethodParameter returnType) throws Exception {
-
   }
 
   @Override
