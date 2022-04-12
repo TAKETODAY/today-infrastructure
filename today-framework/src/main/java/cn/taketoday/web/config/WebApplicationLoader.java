@@ -19,12 +19,11 @@
  */
 package cn.taketoday.web.config;
 
-import java.util.Collections;
 import java.util.List;
 
+import cn.taketoday.beans.factory.BeanFactoryUtils;
 import cn.taketoday.beans.factory.config.SingletonBeanRegistry;
 import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.core.Ordered;
 import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
@@ -33,9 +32,6 @@ import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.WebApplicationContextSupport;
 import cn.taketoday.web.handler.DispatcherHandler;
-import cn.taketoday.web.handler.HandlerAdapter;
-import cn.taketoday.web.handler.RequestHandlerAdapter;
-import cn.taketoday.web.handler.ViewControllerHandlerAdapter;
 import cn.taketoday.web.registry.ViewControllerHandlerRegistry;
 
 /**
@@ -59,7 +55,6 @@ public class WebApplicationLoader
     WebMvcConfiguration mvcConfiguration = getWebMvcConfiguration(context);
 
     configureViewControllerHandler(context, mvcConfiguration);
-    configureHandlerAdapter(context, mvcConfiguration);
 
     initializerStartup(context, mvcConfiguration);
 
@@ -76,51 +71,6 @@ public class WebApplicationLoader
     }
   }
 
-  private void configureHandlerAdapter(
-          WebApplicationContext context, WebMvcConfiguration mvcConfiguration) {
-    configureHandlerAdapter(context.getBeans(HandlerAdapter.class), mvcConfiguration);
-  }
-
-  /**
-   * Configure {@link HandlerAdapter}
-   *
-   * @param adapters {@link HandlerAdapter}s
-   * @param mvcConfiguration {@link WebMvcConfiguration}
-   */
-  protected void configureHandlerAdapter(
-          List<HandlerAdapter> adapters, WebMvcConfiguration mvcConfiguration) {
-    // 先看有的
-    DispatcherHandler obtainDispatcher = obtainDispatcher();
-    HandlerAdapter[] handlerAdapters = obtainDispatcher.getHandlerAdapters();
-    if (handlerAdapters != null) {
-      Collections.addAll(adapters, handlerAdapters);
-    }
-    // 添加默认的
-    adapters.add(new RequestHandlerAdapter(Ordered.HIGHEST_PRECEDENCE));
-    WebApplicationContext context = obtainApplicationContext();
-    // ViewControllerHandlerRegistry must configured
-    ViewControllerHandlerRegistry viewControllerRegistry = context.getBean(ViewControllerHandlerRegistry.class);
-    if (viewControllerRegistry != null) {
-      ViewControllerHandlerAdapter bean = context.getBean(ViewControllerHandlerAdapter.class);
-      if (bean == null) {
-        ViewControllerHandlerAdapter viewControllerHandlerAdapter = null;
-        for (HandlerAdapter adapter : adapters) {
-          if (adapter instanceof ViewControllerHandlerAdapter) {
-            viewControllerHandlerAdapter = (ViewControllerHandlerAdapter) adapter;
-            break;
-          }
-        }
-        if (viewControllerHandlerAdapter == null) {
-          adapters.add(new ViewControllerHandlerAdapter(Ordered.HIGHEST_PRECEDENCE));
-        }
-      }
-    }
-    // 排序
-    sort(adapters);
-    // apply request handler
-    obtainDispatcher.setHandlerAdapters(adapters.toArray(new HandlerAdapter[adapters.size()]));
-  }
-
   /** @since sort objects 3.0.3 */
   protected void sort(List<?> adapters) {
     AnnotationAwareOrderComparator.sort(adapters);
@@ -128,7 +78,7 @@ public class WebApplicationLoader
 
   protected void configureViewControllerHandler(
           WebApplicationContext context, WebMvcConfiguration mvcConfiguration) throws Throwable {
-    ViewControllerHandlerRegistry registry = context.getBean(ViewControllerHandlerRegistry.class);
+    var registry = BeanFactoryUtils.find(context, ViewControllerHandlerRegistry.class);
     if (TodayStrategies.getFlag(ENABLE_WEB_MVC_XML, true)) {
       registry = configViewControllerHandlerRegistry(registry);
     }
