@@ -99,6 +99,7 @@ public class ResourceHttpRequestHandlerIntegrationTests {
           throws ServletException {
 
     AnnotationConfigServletWebApplicationContext context = new AnnotationConfigServletWebApplicationContext();
+    context.setServletContext(this.servletContext);
     context.register(configClasses);
     context.refresh();
 

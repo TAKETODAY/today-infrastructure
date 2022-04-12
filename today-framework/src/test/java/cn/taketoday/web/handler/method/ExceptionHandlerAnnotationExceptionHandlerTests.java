@@ -156,8 +156,7 @@ class ExceptionHandlerAnnotationExceptionHandlerTests {
     else if (ret instanceof String viewName) {
       return new ModelAndView(viewName);
     }
-    return null;
-//    return new ModelAndView(ret);
+    return new ModelAndView();
   }
 
   @Test

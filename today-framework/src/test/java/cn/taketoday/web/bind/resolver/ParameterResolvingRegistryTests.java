@@ -31,6 +31,7 @@ import cn.taketoday.core.conversion.support.DefaultConversionService;
 import cn.taketoday.framework.web.servlet.context.AnnotationConfigServletWebApplicationContext;
 import cn.taketoday.http.converter.StringHttpMessageConverter;
 import cn.taketoday.web.handler.MockResolvableMethodParameter;
+import cn.taketoday.web.mock.MockServletContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -61,7 +62,10 @@ class ParameterResolvingRegistryTests {
   @Test
   void defaultStrategies() {
     assertThat(registry.getDefaultStrategies()).hasSize(0);
-    registry.setApplicationContext(new AnnotationConfigServletWebApplicationContext(Object.class));
+    AnnotationConfigServletWebApplicationContext context = new AnnotationConfigServletWebApplicationContext(Object.class);
+    context.setServletContext(new MockServletContext());
+
+    registry.setApplicationContext(context);
     registry.registerDefaultStrategies();
 
     assertThat(registry.getDefaultStrategies()).isNotEmpty();
@@ -96,7 +100,9 @@ class ParameterResolvingRegistryTests {
             .isInstanceOf(ParameterResolverNotFoundException.class)
             .hasMessageStartingWith("There isn't have a parameter resolver to resolve parameter");
 
-    registry.setApplicationContext(new AnnotationConfigServletWebApplicationContext(Object.class));
+    AnnotationConfigServletWebApplicationContext context = new AnnotationConfigServletWebApplicationContext(Object.class);
+    context.setServletContext(new MockServletContext());
+    registry.setApplicationContext(context);
     registry.registerDefaultStrategies();
     registry.trimToSize();
     registry.setRedirectModelManager(null);
@@ -128,7 +134,10 @@ class ParameterResolvingRegistryTests {
             .hasMessage("conversionService is required");
 
     assertThat(registry.getConversionService()).isNull();
-    registry.setApplicationContext(new AnnotationConfigServletWebApplicationContext(Object.class));
+    AnnotationConfigServletWebApplicationContext context = new AnnotationConfigServletWebApplicationContext(Object.class);
+    context.setServletContext(new MockServletContext());
+
+    registry.setApplicationContext(context);
     registry.registerDefaultStrategies();
     registry.applyConversionService(DefaultConversionService.getSharedInstance());
     assertThat(registry.getConversionService()).isEqualTo(DefaultConversionService.getSharedInstance());
