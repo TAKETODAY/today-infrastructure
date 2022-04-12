@@ -695,7 +695,7 @@ public final class RequestMappingInfo implements RequestCondition<RequestMapping
    */
   public static class BuilderConfiguration {
 
-    private PathPatternParser patternParser;
+    private PathPatternParser patternParser = PathPatternParser.defaultInstance;
 
     private boolean trailingSlashMatch = true;
 

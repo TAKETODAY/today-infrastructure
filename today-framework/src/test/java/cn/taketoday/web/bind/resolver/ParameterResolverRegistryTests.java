@@ -35,6 +35,7 @@ import cn.taketoday.framework.web.servlet.context.AnnotationConfigServletWebAppl
 import cn.taketoday.web.InternalServerException;
 import cn.taketoday.web.handler.method.ResolvableMethodParameter;
 import cn.taketoday.web.mock.MockMethodParameter;
+import cn.taketoday.web.mock.MockServletContext;
 import lombok.Data;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -132,6 +133,7 @@ class ParameterResolverRegistryTests {
 
     try (AnnotationConfigServletWebApplicationContext context = new AnnotationConfigServletWebApplicationContext()) {
       context.refresh();
+      context.setServletContext(new MockServletContext());
 
       ParameterResolvingRegistry registry = new ParameterResolvingRegistry();
       registry.setApplicationContext(context);
@@ -156,6 +158,7 @@ class ParameterResolverRegistryTests {
   void lookupStrategy() {
 
     try (AnnotationConfigServletWebApplicationContext context = new AnnotationConfigServletWebApplicationContext()) {
+      context.setServletContext(new MockServletContext());
       context.refresh();
       ParameterResolvingRegistry registry = new ParameterResolvingRegistry();
       registry.setApplicationContext(context);

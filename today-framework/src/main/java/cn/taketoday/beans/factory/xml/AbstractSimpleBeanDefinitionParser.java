@@ -24,7 +24,6 @@ import org.w3c.dom.Attr;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 
-import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.beans.factory.config.PropertiesFactoryBean;
 import cn.taketoday.beans.factory.support.BeanDefinitionBuilder;
 import cn.taketoday.core.Conventions;
@@ -119,9 +118,8 @@ public abstract class AbstractSimpleBeanDefinitionParser extends AbstractSingleB
    * <p>This implementation maps any attributes present on the
    * supplied element to {@link cn.taketoday.beans.PropertyValue}
    * instances, and
-   * {@link BeanDefinition#addPropertyValue(String, Object) adds them}
-   * to the
-   * {@link BeanDefinition builder}.
+   * {@link BeanDefinitionBuilder#addPropertyValue(String, Object) adds them}
+   * to the {@link BeanDefinitionBuilder builder}.
    * <p>The {@link #extractPropertyName(String)} method is used to
    * reconcile the name of an attribute with the name of a JavaBean
    * property.
