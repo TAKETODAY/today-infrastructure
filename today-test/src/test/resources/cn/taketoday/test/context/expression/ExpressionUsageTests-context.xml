@@ -32,12 +32,12 @@
   <!-- spr5847 -->
 
   <bean id="andy"
-      class="cn.taketoday.w.test.context.expression.ExpressionUsageTests$Foo">
+      class="cn.taketoday.test.context.expression.ExpressionUsageTests$Foo">
     <property name="name" value="#{properties.username}" />
   </bean>
 
   <bean id="andy2"
-      class="cn.taketoday.w.test.context.expression.ExpressionUsageTests$Foo">
+      class="cn.taketoday.test.context.expression.ExpressionUsageTests$Foo">
     <property name="name" value="#{properties.username }" /><!-- space in expression -->
   </bean>
 

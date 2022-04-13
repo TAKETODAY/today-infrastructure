@@ -113,7 +113,7 @@ class ExplicitPropertiesFileTestPropertySourceTests {
 
     @Nested
     @DisplayName("with relative path")
-    @TestPropertySource("file:../spring-test/src/test/resources/cn/taketoday/test/context/env/explicit.properties")
+    @TestPropertySource("file:../today-test/src/test/resources/cn/taketoday/test/context/env/explicit.properties")
     class RelativePathTests extends AbstractExplicitPropertiesFileTests {
     }
 
@@ -137,7 +137,7 @@ class ExplicitPropertiesFileTestPropertySourceTests {
 
     @Nested
     @DisplayName("with placeholders followed immediately by relative paths")
-    @TestPropertySource("file:${user.dir}/../spring-test/src/test/resources/${current.test.package}/../env/explicit.properties")
+    @TestPropertySource("file:${user.dir}/../today-test/src/test/resources/${current.test.package}/../env/explicit.properties")
     class PlaceholdersFollowedByRelativePathsTests extends AbstractExplicitPropertiesFileTests {
     }
 
