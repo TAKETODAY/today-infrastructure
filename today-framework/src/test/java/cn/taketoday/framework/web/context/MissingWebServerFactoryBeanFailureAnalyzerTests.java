@@ -26,7 +26,9 @@ import cn.taketoday.context.ApplicationContextException;
 import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.framework.diagnostics.FailureAnalysis;
 import cn.taketoday.framework.web.reactive.context.ReactiveWebServerApplicationContext;
+import cn.taketoday.framework.web.reactive.server.ReactiveWebServerFactory;
 import cn.taketoday.framework.web.servlet.context.ServletWebServerApplicationContext;
+import cn.taketoday.framework.web.servlet.server.ServletWebServerFactory;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -42,10 +44,11 @@ class MissingWebServerFactoryBeanFailureAnalyzerTests {
     assertThat(failure).isNotNull();
     FailureAnalysis analysis = new MissingWebServerFactoryBeanFailureAnalyzer().analyze(failure);
     assertThat(analysis).isNotNull();
-    assertThat(analysis.getDescription()).isEqualTo(
-            "Reason: The running web application is of type servlet, but the dependent class is missing.");
+    assertThat(analysis.getDescription()).isEqualTo("Web application could not be started as there was no "
+            + ServletWebServerFactory.class.getName() + " bean defined in the context.");
     assertThat(analysis.getAction()).isEqualTo(
-            "Check your application's dependencies on supported web servers or configuration of web application type.");
+            "Check your application's dependencies for a supported servlet web server.\nCheck the configured web "
+                    + "application type.");
   }
 
   @Test
@@ -53,10 +56,12 @@ class MissingWebServerFactoryBeanFailureAnalyzerTests {
     ApplicationContextException failure = createFailure(new ReactiveWebServerApplicationContext());
     FailureAnalysis analysis = new MissingWebServerFactoryBeanFailureAnalyzer().analyze(failure);
     assertThat(analysis).isNotNull();
-    assertThat(analysis.getDescription()).isEqualTo(
-            "Reason: The running web application is of type reactive, but the dependent class is missing.");
-    assertThat(analysis.getAction()).isEqualTo(
-            "Check your application's dependencies on supported web servers or configuration of web application type.");
+    assertThat(analysis.getDescription())
+            .isEqualTo("Web application could not be started as there was no " + ReactiveWebServerFactory.class.getName() + " bean defined in the context.");
+    assertThat(analysis.getAction())
+            .isEqualTo(
+                    "Check your application's dependencies for a supported reactive web server.\nCheck the configured web "
+                            + "application type.");
   }
 
   private ApplicationContextException createFailure(ConfigurableApplicationContext context) {
