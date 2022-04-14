@@ -25,7 +25,7 @@ import org.junit.jupiter.api.Test;
 
 import cn.taketoday.aop.Pointcut;
 import cn.taketoday.aop.aspectj.AspectJExpressionPointcut;
-import cn.taketoday.aop.aspectj.annotation.AbstractAspectJAdvisorFactoryTests.ExceptionThrowingAspect;
+import cn.taketoday.aop.aspectj.annotation.ReflectiveAspectJAdvisorFactoryTests.ExceptionThrowingAspect;
 import test.aop.PerTargetAspect;
 
 import static org.assertj.core.api.Assertions.assertThat;

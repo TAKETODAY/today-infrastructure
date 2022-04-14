@@ -42,7 +42,7 @@ public class ProxyCreatorSupport extends AdvisedSupport {
   private boolean active = false;
 
   private AopProxyFactory aopProxyFactory;
-  private final ArrayList<AdvisedSupportListener> listeners = new ArrayList<>();
+  private ArrayList<AdvisedSupportListener> listeners;
 
   /**
    * Create a new ProxyCreatorSupport instance.
@@ -95,9 +95,10 @@ public class ProxyCreatorSupport extends AdvisedSupport {
    */
   private void activate() {
     this.active = true;
-
-    for (AdvisedSupportListener listener : this.listeners) {
-      listener.activated(this);
+    if (listeners != null) {
+      for (AdvisedSupportListener listener : this.listeners) {
+        listener.activated(this);
+      }
     }
   }
 
@@ -111,8 +112,10 @@ public class ProxyCreatorSupport extends AdvisedSupport {
     super.adviceChanged();
     synchronized(this) {
       if (this.active) {
-        for (AdvisedSupportListener listener : this.listeners) {
-          listener.adviceChanged(this);
+        if (listeners != null) {
+          for (AdvisedSupportListener listener : listeners) {
+            listener.adviceChanged(this);
+          }
         }
       }
     }
@@ -132,7 +135,10 @@ public class ProxyCreatorSupport extends AdvisedSupport {
    */
   public void addListener(AdvisedSupportListener listener) {
     Assert.notNull(listener, "AdvisedSupportListener must not be null");
-    this.listeners.add(listener);
+    if (listeners == null) {
+      listeners = new ArrayList<>(1);
+    }
+    listeners.add(listener);
   }
 
   /**
@@ -142,7 +148,9 @@ public class ProxyCreatorSupport extends AdvisedSupport {
    */
   public void removeListener(AdvisedSupportListener listener) {
     Assert.notNull(listener, "AdvisedSupportListener must not be null");
-    this.listeners.remove(listener);
+    if (listeners != null) {
+      listeners.remove(listener);
+    }
   }
 
 }

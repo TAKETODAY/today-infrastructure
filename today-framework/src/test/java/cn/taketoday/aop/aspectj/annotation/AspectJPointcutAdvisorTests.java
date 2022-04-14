@@ -25,7 +25,7 @@ import org.junit.jupiter.api.Test;
 import cn.taketoday.aop.Pointcut;
 import cn.taketoday.aop.aspectj.AspectJExpressionPointcut;
 import cn.taketoday.aop.aspectj.AspectJExpressionPointcutTests;
-import cn.taketoday.aop.aspectj.annotation.AbstractAspectJAdvisorFactoryTests.ExceptionThrowingAspect;
+import cn.taketoday.aop.aspectj.annotation.ReflectiveAspectJAdvisorFactoryTests.ExceptionThrowingAspect;
 import cn.taketoday.aop.framework.AopConfigException;
 import cn.taketoday.beans.testfixture.beans.TestBean;
 import test.aop.PerTargetAspect;
@@ -81,13 +81,13 @@ public class AspectJPointcutAdvisorTests {
   @Test
   public void testPerCflowTarget() {
     assertThatExceptionOfType(AopConfigException.class).isThrownBy(() ->
-            testIllegalInstantiationModel(AbstractAspectJAdvisorFactoryTests.PerCflowAspect.class));
+            testIllegalInstantiationModel(ReflectiveAspectJAdvisorFactoryTests.PerCflowAspect.class));
   }
 
   @Test
   public void testPerCflowBelowTarget() {
     assertThatExceptionOfType(AopConfigException.class).isThrownBy(() ->
-            testIllegalInstantiationModel(AbstractAspectJAdvisorFactoryTests.PerCflowBelowAspect.class));
+            testIllegalInstantiationModel(ReflectiveAspectJAdvisorFactoryTests.PerCflowBelowAspect.class));
   }
 
   private void testIllegalInstantiationModel(Class<?> c) throws AopConfigException {

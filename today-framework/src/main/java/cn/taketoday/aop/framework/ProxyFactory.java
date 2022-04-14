@@ -22,7 +22,10 @@ package cn.taketoday.aop.framework;
 
 import org.aopalliance.intercept.Interceptor;
 
+import java.io.Serial;
+
 import cn.taketoday.aop.TargetSource;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
 
 /**
@@ -37,8 +40,12 @@ import cn.taketoday.util.ClassUtils;
  * @since 3.0
  */
 public class ProxyFactory extends ProxyCreatorSupport {
+  @Serial
   private static final long serialVersionUID = 1L;
 
+  /**
+   * Create a new ProxyFactory.
+   */
   public ProxyFactory() { }
 
   /**
@@ -111,7 +118,7 @@ public class ProxyFactory extends ProxyCreatorSupport {
    * (or {@code null} for the low-level proxy facility's default)
    * @return the proxy object
    */
-  public Object getProxy(ClassLoader classLoader) {
+  public Object getProxy(@Nullable ClassLoader classLoader) {
     return createAopProxy().getProxy(classLoader);
   }
 

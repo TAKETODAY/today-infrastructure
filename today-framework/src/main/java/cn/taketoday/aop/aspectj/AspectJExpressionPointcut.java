@@ -41,7 +41,6 @@ import java.io.Serial;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -60,6 +59,7 @@ import cn.taketoday.beans.factory.FactoryBean;
 import cn.taketoday.beans.factory.annotation.BeanFactoryAnnotationUtils;
 import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
@@ -84,35 +84,34 @@ import cn.taketoday.util.StringUtils;
  * @author Juergen Hoeller
  * @author Ramnivas Laddad
  * @author Dave Syer
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 @SuppressWarnings("serial")
 public class AspectJExpressionPointcut extends AbstractExpressionPointcut
         implements ClassFilter, IntroductionAwareMethodMatcher, BeanFactoryAware {
 
-  private static final Set<PointcutPrimitive> SUPPORTED_PRIMITIVES = new HashSet<>();
+  private static final Logger log = LoggerFactory.getLogger(AspectJExpressionPointcut.class);
 
-  static {
-    SUPPORTED_PRIMITIVES.add(PointcutPrimitive.EXECUTION);
-    SUPPORTED_PRIMITIVES.add(PointcutPrimitive.ARGS);
-    SUPPORTED_PRIMITIVES.add(PointcutPrimitive.REFERENCE);
-    SUPPORTED_PRIMITIVES.add(PointcutPrimitive.THIS);
-    SUPPORTED_PRIMITIVES.add(PointcutPrimitive.TARGET);
-    SUPPORTED_PRIMITIVES.add(PointcutPrimitive.WITHIN);
-    SUPPORTED_PRIMITIVES.add(PointcutPrimitive.AT_ANNOTATION);
-    SUPPORTED_PRIMITIVES.add(PointcutPrimitive.AT_WITHIN);
-    SUPPORTED_PRIMITIVES.add(PointcutPrimitive.AT_ARGS);
-    SUPPORTED_PRIMITIVES.add(PointcutPrimitive.AT_TARGET);
-  }
-
-  private static final Logger logger = LoggerFactory.getLogger(AspectJExpressionPointcut.class);
+  private static final Set<PointcutPrimitive> SUPPORTED_PRIMITIVES = Set.of(
+          PointcutPrimitive.EXECUTION,
+          PointcutPrimitive.ARGS,
+          PointcutPrimitive.REFERENCE,
+          PointcutPrimitive.THIS,
+          PointcutPrimitive.TARGET,
+          PointcutPrimitive.WITHIN,
+          PointcutPrimitive.AT_ANNOTATION,
+          PointcutPrimitive.AT_WITHIN,
+          PointcutPrimitive.AT_ARGS,
+          PointcutPrimitive.AT_TARGET
+  );
 
   @Nullable
   private Class<?> pointcutDeclarationScope;
 
-  private String[] pointcutParameterNames = new String[0];
+  private String[] pointcutParameterNames = Constant.EMPTY_STRING_ARRAY;
 
-  private Class<?>[] pointcutParameterTypes = new Class<?>[0];
+  private Class<?>[] pointcutParameterTypes = Constant.EMPTY_CLASS_ARRAY;
 
   @Nullable
   private BeanFactory beanFactory;
@@ -205,11 +204,11 @@ public class AspectJExpressionPointcut extends AbstractExpressionPointcut
    */
   @Nullable
   private ClassLoader determinePointcutClassLoader() {
-    if (this.beanFactory instanceof ConfigurableBeanFactory) {
-      return ((ConfigurableBeanFactory) this.beanFactory).getBeanClassLoader();
+    if (beanFactory instanceof ConfigurableBeanFactory cft) {
+      return cft.getBeanClassLoader();
     }
-    if (this.pointcutDeclarationScope != null) {
-      return this.pointcutDeclarationScope.getClassLoader();
+    if (pointcutDeclarationScope != null) {
+      return pointcutDeclarationScope.getClassLoader();
     }
     return ClassUtils.getDefaultClassLoader();
   }
@@ -272,7 +271,7 @@ public class AspectJExpressionPointcut extends AbstractExpressionPointcut
         return pointcutExpression.couldMatchJoinPointsInType(targetClass);
       }
       catch (ReflectionWorldException ex) {
-        logger.debug("PointcutExpression matching rejected target class - trying fallback expression", ex);
+        log.debug("PointcutExpression matching rejected target class - trying fallback expression", ex);
         // Actually this is still a "maybe" - treat the pointcut as dynamic if we don't know enough yet
         PointcutExpression fallbackExpression = getFallbackPointcutExpression(targetClass);
         if (fallbackExpression != null) {
@@ -281,7 +280,7 @@ public class AspectJExpressionPointcut extends AbstractExpressionPointcut
       }
     }
     catch (Throwable ex) {
-      logger.debug("PointcutExpression matching rejected target class", ex);
+      log.debug("PointcutExpression matching rejected target class", ex);
     }
     return false;
   }
@@ -347,8 +346,8 @@ public class AspectJExpressionPointcut extends AbstractExpressionPointcut
     }
     catch (IllegalStateException ex) {
       // No current invocation...
-      if (logger.isDebugEnabled()) {
-        logger.debug("Could not access current invocation - matching with limited context: {}", ex.toString());
+      if (log.isDebugEnabled()) {
+        log.debug("Could not access current invocation - matching with limited context: {}", ex.toString());
       }
     }
 
@@ -376,7 +375,7 @@ public class AspectJExpressionPointcut extends AbstractExpressionPointcut
       return joinPointMatch.matches();
     }
     catch (Throwable ex) {
-      logger.debug("Failed to evaluate join point for arguments {} - falling back to non-match", Arrays.asList(invocation.getArguments()), ex);
+      log.debug("Failed to evaluate join point for arguments {} - falling back to non-match", Arrays.asList(invocation.getArguments()), ex);
       return false;
     }
   }
@@ -398,7 +397,7 @@ public class AspectJExpressionPointcut extends AbstractExpressionPointcut
       }
     }
     catch (Throwable ex) {
-      logger.debug("Failed to create fallback PointcutExpression", ex);
+      log.debug("Failed to create fallback PointcutExpression", ex);
     }
     return null;
   }
@@ -495,7 +494,7 @@ public class AspectJExpressionPointcut extends AbstractExpressionPointcut
           }
           catch (Throwable ex) {
             // Possibly AspectJ 1.8.10 encountering an invalid signature
-            logger.debug("PointcutExpression matching rejected target method", ex);
+            log.debug("PointcutExpression matching rejected target method", ex);
             fallbackExpression = null;
           }
           if (shadowMatch == null) {
