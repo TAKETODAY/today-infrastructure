@@ -332,8 +332,18 @@
             <version>2.22.2</version>
             <configuration>
               <argLine>
-                ${argLine} -Dcoverage=true -DtestGroups=all --add-opens java.base/java.lang=ALL-UNNAMED --add-opens
-                java.base/java.util=ALL-UNNAMED --add-opens java.base/java.lang.reflect=ALL-UNNAMED
+                ${argLine} -Dcoverage=true -DtestGroups=all -Dillegal-access=permit --illegal-access=permit
+                --add-opens java.base/java.lang=ALL-UNNAMED
+                --add-opens java.base/java.net=ALL-UNNAMED
+                --add-opens java.base/java.math=ALL-UNNAMED
+                --add-opens java.base/java.text=ALL-UNNAMED
+                --add-opens java.base/java.util=ALL-UNNAMED
+                --add-opens java.base/java.util.regex=ALL-UNNAMED
+                --add-opens java.base/java.util.concurrent=ALL-UNNAMED
+                --add-opens java.base/java.lang.reflect=ALL-UNNAMED
+
+                --add-opens java.sql/java.sql=ALL-UNNAMED
+                --add-opens java.sql.rowset/javax.sql.rowset.serial=ALL-UNNAMED
               </argLine>
             </configuration>
           </plugin>
