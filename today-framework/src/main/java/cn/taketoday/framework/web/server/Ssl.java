@@ -60,6 +60,14 @@ public class Ssl {
 
   private String protocol = "TLS";
 
+  private String certificate;
+
+  private String certificatePrivateKey;
+
+  private String trustCertificate;
+
+  private String trustCertificatePrivateKey;
+
   /**
    * Return whether to enable SSL support.
    *
@@ -255,6 +263,58 @@ public class Ssl {
 
   public void setProtocol(String protocol) {
     this.protocol = protocol;
+  }
+
+  /**
+   * Return the location of the certificate in PEM format.
+   *
+   * @return the certificate location
+   */
+  public String getCertificate() {
+    return this.certificate;
+  }
+
+  public void setCertificate(String certificate) {
+    this.certificate = certificate;
+  }
+
+  /**
+   * Return the location of the private key for the certificate in PEM format.
+   *
+   * @return the location of the certificate private key
+   */
+  public String getCertificatePrivateKey() {
+    return this.certificatePrivateKey;
+  }
+
+  public void setCertificatePrivateKey(String certificatePrivateKey) {
+    this.certificatePrivateKey = certificatePrivateKey;
+  }
+
+  /**
+   * Return the location of the trust certificate authority chain in PEM format.
+   *
+   * @return the location of the trust certificate
+   */
+  public String getTrustCertificate() {
+    return this.trustCertificate;
+  }
+
+  public void setTrustCertificate(String trustCertificate) {
+    this.trustCertificate = trustCertificate;
+  }
+
+  /**
+   * Return the location of the private key for the trust certificate in PEM format.
+   *
+   * @return the location of the trust certificate private key
+   */
+  public String getTrustCertificatePrivateKey() {
+    return this.trustCertificatePrivateKey;
+  }
+
+  public void setTrustCertificatePrivateKey(String trustCertificatePrivateKey) {
+    this.trustCertificatePrivateKey = trustCertificatePrivateKey;
   }
 
   /**

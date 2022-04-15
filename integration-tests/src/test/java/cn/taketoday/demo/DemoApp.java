@@ -20,7 +20,6 @@
 
 package cn.taketoday.demo;
 
-import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.context.annotation.config.EnableAutoConfiguration;
 import cn.taketoday.framework.web.WebApplication;
 import cn.taketoday.web.annotation.GET;

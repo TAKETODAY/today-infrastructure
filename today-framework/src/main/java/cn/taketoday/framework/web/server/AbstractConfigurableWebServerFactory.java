@@ -141,6 +141,19 @@ public abstract class AbstractConfigurableWebServerFactory implements Configurab
     return this.sslStoreProvider;
   }
 
+  /**
+   * Return the provided {@link SslStoreProvider} or create one using {@link Ssl}
+   * properties.
+   *
+   * @return the {@code SslStoreProvider}
+   */
+  public final SslStoreProvider getOrCreateSslStoreProvider() {
+    if (this.sslStoreProvider != null) {
+      return this.sslStoreProvider;
+    }
+    return CertificateFileSslStoreProvider.from(this.ssl);
+  }
+
   @Override
   public void setSslStoreProvider(SslStoreProvider sslStoreProvider) {
     this.sslStoreProvider = sslStoreProvider;

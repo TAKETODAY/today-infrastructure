@@ -192,7 +192,8 @@ public class NettyReactiveWebServerFactory extends AbstractReactiveWebServerFact
 
   @SuppressWarnings("deprecation")
   private HttpServer customizeSslConfiguration(HttpServer httpServer) {
-    SslServerCustomizer sslServerCustomizer = new SslServerCustomizer(getSsl(), getHttp2(), getSslStoreProvider());
+    SslServerCustomizer sslServerCustomizer = new SslServerCustomizer(
+            getSsl(), getHttp2(), getOrCreateSslStoreProvider());
     return sslServerCustomizer.apply(httpServer);
   }
 
