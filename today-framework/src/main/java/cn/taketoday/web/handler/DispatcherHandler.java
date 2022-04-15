@@ -30,6 +30,7 @@ import cn.taketoday.beans.factory.BeanFactoryUtils;
 import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.ApplicationContext.State;
+import cn.taketoday.context.ApplicationEvent;
 import cn.taketoday.context.aware.ApplicationContextAware;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
@@ -43,6 +44,7 @@ import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.ReturnValueHandler;
 import cn.taketoday.web.WebApplicationContext;
+import cn.taketoday.web.context.support.RequestHandledEvent;
 import cn.taketoday.web.handler.method.ExceptionHandlerAnnotationExceptionHandler;
 import cn.taketoday.web.registry.BeanNameUrlHandlerRegistry;
 import cn.taketoday.web.registry.HandlerRegistries;
@@ -118,6 +120,9 @@ public class DispatcherHandler implements ApplicationContextAware {
   private boolean detectAllHandlerExceptionHandlers = true;
 
   private WebApplicationContext webApplicationContext;
+
+  /** Should we publish a ServletRequestHandledEvent at the end of each request?. */
+  private boolean publishEvents = true;
 
   public DispatcherHandler() { }
 
@@ -397,6 +402,8 @@ public class DispatcherHandler implements ApplicationContextAware {
    * @since 4.0
    */
   public void dispatch(RequestContext context) throws Throwable {
+    long startTime = System.currentTimeMillis();
+
     Object handler = null;
     Object returnValue = null;
     Throwable throwable = null;
@@ -418,6 +425,7 @@ public class DispatcherHandler implements ApplicationContextAware {
       // @since 3.0 cleanup MultipartFiles
       context.cleanupMultipartFiles();
       logResult(context, throwable);
+      publishRequestHandledEvent(context, startTime, throwable);
     }
   }
 
@@ -519,6 +527,22 @@ public class DispatcherHandler implements ApplicationContextAware {
         logger.debug("Completed {}{}", httpStatus != null ? httpStatus : request.getStatus(), headers);
       }
     }
+  }
+
+  private void publishRequestHandledEvent(
+          RequestContext request, long startTime, @Nullable Throwable failureCause) {
+
+    if (this.publishEvents && this.webApplicationContext != null) {
+      // Whether we succeeded, publish an event.
+      long processingTime = System.currentTimeMillis() - startTime;
+      ApplicationEvent event = getRequestHandledEvent(request, failureCause, processingTime);
+      webApplicationContext.publishEvent(event);
+    }
+  }
+
+  protected ApplicationEvent getRequestHandledEvent(
+          RequestContext request, @Nullable Throwable failureCause, long processingTime) {
+    return new RequestHandledEvent(this, null, null, processingTime);
   }
 
   /**
@@ -649,6 +673,17 @@ public class DispatcherHandler implements ApplicationContextAware {
    */
   public void setDetectAllHandlerExceptionHandlers(boolean detectAllHandlerExceptionHandlers) {
     this.detectAllHandlerExceptionHandlers = detectAllHandlerExceptionHandlers;
+  }
+
+  /**
+   * Set whether this servlet should publish a ServletRequestHandledEvent at the end
+   * of each request. Default is "true"; can be turned off for a slight performance
+   * improvement, provided that no ApplicationListeners rely on such events.
+   *
+   * @since 4.0
+   */
+  public void setPublishEvents(boolean publishEvents) {
+    this.publishEvents = publishEvents;
   }
 
   /**

@@ -21,18 +21,22 @@ package cn.taketoday.web.servlet;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.security.Principal;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.LogFormatUtils;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.RequestContextHolder;
 import cn.taketoday.web.WebApplicationContext;
+import cn.taketoday.web.context.support.ServletRequestHandledEvent;
 import cn.taketoday.web.handler.DispatcherHandler;
+import cn.taketoday.web.util.WebUtils;
 import jakarta.servlet.DispatcherType;
 import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.Servlet;
@@ -89,6 +93,32 @@ public class DispatcherServlet
         RequestContextHolder.remove();
       }
     }
+  }
+
+  @Override
+  protected ServletRequestHandledEvent getRequestHandledEvent(
+          RequestContext request, @Nullable Throwable failureCause, long processingTime) {
+    HttpServletRequest servletRequest = ServletUtils.getServletRequest(request);
+    return new ServletRequestHandledEvent(this,
+            servletRequest.getRequestURI(), servletRequest.getRemoteAddr(),
+            servletRequest.getMethod(), getServletConfig().getServletName(),
+            ServletUtils.getSessionId(servletRequest), getUsernameForRequest(servletRequest),
+            processingTime, failureCause, request.getStatus());
+  }
+
+  /**
+   * Determine the username for the given request.
+   * <p>The default implementation takes the name of the UserPrincipal, if any.
+   * Can be overridden in subclasses.
+   *
+   * @param request current HTTP request
+   * @return the username, or {@code null} if none found
+   * @see jakarta.servlet.http.HttpServletRequest#getUserPrincipal()
+   */
+  @Nullable
+  protected String getUsernameForRequest(HttpServletRequest request) {
+    Principal userPrincipal = request.getUserPrincipal();
+    return (userPrincipal != null ? userPrincipal.getName() : null);
   }
 
   @Override
