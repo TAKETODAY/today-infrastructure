@@ -125,6 +125,12 @@ public class ConditionEvaluationContext {
     return this.beanFactory;
   }
 
+  public ConfigurableBeanFactory getRequiredBeanFactory() {
+    ConfigurableBeanFactory beanFactory = getBeanFactory();
+    Assert.state(beanFactory != null, "No BeanFactory available");
+    return beanFactory;
+  }
+
   public Environment getEnvironment() {
     return this.environment;
   }

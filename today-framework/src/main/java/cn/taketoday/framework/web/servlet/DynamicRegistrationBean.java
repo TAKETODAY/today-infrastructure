@@ -41,8 +41,6 @@ import jakarta.servlet.ServletContext;
  */
 public abstract class DynamicRegistrationBean<D extends Registration.Dynamic> extends RegistrationBean {
 
-  private static final Logger logger = LoggerFactory.getLogger(RegistrationBean.class);
-
   private String name;
 
   private boolean asyncSupported = true;
@@ -115,7 +113,8 @@ public abstract class DynamicRegistrationBean<D extends Registration.Dynamic> ex
   protected final void register(String description, ServletContext servletContext) {
     D registration = addRegistration(description, servletContext);
     if (registration == null) {
-      logger.info(StringUtils.capitalize(description) + " was not registered (possibly already registered?)");
+      LoggerFactory.getLogger(RegistrationBean.class)
+              .info("{} was not registered (possibly already registered?)", StringUtils.capitalize(description));
       return;
     }
     configure(registration);

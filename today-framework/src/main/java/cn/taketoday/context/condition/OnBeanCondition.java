@@ -169,7 +169,7 @@ class OnBeanCondition extends FilteringContextCondition implements Configuration
 
   protected final MatchResult getMatchingBeans(ConditionEvaluationContext context, Spec<?> spec) {
     ClassLoader classLoader = context.getClassLoader();
-    ConfigurableBeanFactory beanFactory = context.getBeanFactory();
+    ConfigurableBeanFactory beanFactory = context.getRequiredBeanFactory();
     boolean considerHierarchy = spec.getStrategy() != SearchStrategy.CURRENT;
     Set<Class<?>> parameterizedContainers = spec.getParameterizedContainers();
     if (spec.getStrategy() == SearchStrategy.ANCESTORS) {

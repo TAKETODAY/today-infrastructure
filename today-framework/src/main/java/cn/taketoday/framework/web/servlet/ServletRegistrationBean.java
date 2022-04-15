@@ -26,6 +26,7 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 import cn.taketoday.lang.Assert;
+import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
 import jakarta.servlet.MultipartConfigElement;
@@ -68,8 +69,7 @@ public class ServletRegistrationBean<T extends Servlet> extends DynamicRegistrat
   /**
    * Create a new {@link ServletRegistrationBean} instance.
    */
-  public ServletRegistrationBean() {
-  }
+  public ServletRegistrationBean() { }
 
   /**
    * Create a new {@link ServletRegistrationBean} instance with the specified
@@ -95,7 +95,7 @@ public class ServletRegistrationBean<T extends Servlet> extends DynamicRegistrat
     Assert.notNull(urlMappings, "UrlMappings must not be null");
     this.servlet = servlet;
     this.alwaysMapUrl = alwaysMapUrl;
-    this.urlMappings.addAll(Arrays.asList(urlMappings));
+    CollectionUtils.addAll(this.urlMappings, urlMappings);
   }
 
   /**
@@ -147,7 +147,7 @@ public class ServletRegistrationBean<T extends Servlet> extends DynamicRegistrat
    */
   public void addUrlMappings(String... urlMappings) {
     Assert.notNull(urlMappings, "UrlMappings must not be null");
-    this.urlMappings.addAll(Arrays.asList(urlMappings));
+    CollectionUtils.addAll(this.urlMappings, urlMappings);
   }
 
   /**
@@ -200,16 +200,16 @@ public class ServletRegistrationBean<T extends Servlet> extends DynamicRegistrat
   @Override
   protected void configure(ServletRegistration.Dynamic registration) {
     super.configure(registration);
-    String[] urlMapping = StringUtils.toStringArray(this.urlMappings);
-    if (urlMapping.length == 0 && this.alwaysMapUrl) {
+    String[] urlMapping = StringUtils.toStringArray(urlMappings);
+    if (urlMapping.length == 0 && alwaysMapUrl) {
       urlMapping = DEFAULT_MAPPINGS;
     }
     if (ObjectUtils.isNotEmpty(urlMapping)) {
       registration.addMapping(urlMapping);
     }
-    registration.setLoadOnStartup(this.loadOnStartup);
-    if (this.multipartConfig != null) {
-      registration.setMultipartConfig(this.multipartConfig);
+    registration.setLoadOnStartup(loadOnStartup);
+    if (multipartConfig != null) {
+      registration.setMultipartConfig(multipartConfig);
     }
   }
 

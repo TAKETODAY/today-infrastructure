@@ -35,12 +35,15 @@ import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Lazy;
+import cn.taketoday.context.annotation.MissingBean;
 import cn.taketoday.context.annotation.Role;
 import cn.taketoday.context.aware.ApplicationContextSupport;
 import cn.taketoday.context.condition.ConditionalOnMissingBean;
 import cn.taketoday.context.properties.Props;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.conversion.Converter;
+import cn.taketoday.core.env.Environment;
+import cn.taketoday.core.io.ClassPathResource;
 import cn.taketoday.format.Formatter;
 import cn.taketoday.format.FormatterRegistry;
 import cn.taketoday.format.support.DefaultFormattingConversionService;
@@ -63,15 +66,18 @@ import cn.taketoday.http.converter.smile.MappingJackson2SmileHttpMessageConverte
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Component;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.lang.TodayStrategies;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ClassUtils;
+import cn.taketoday.util.StringUtils;
 import cn.taketoday.validation.Errors;
 import cn.taketoday.validation.MessageCodesResolver;
 import cn.taketoday.validation.Validator;
 import cn.taketoday.validation.beanvalidation.OptionalValidatorFactoryBean;
 import cn.taketoday.web.ReturnValueHandler;
 import cn.taketoday.web.ServletDetector;
+import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.accept.ContentNegotiationManager;
 import cn.taketoday.web.bind.WebDataBinder;
 import cn.taketoday.web.bind.resolver.ParameterResolvingRegistry;
@@ -86,11 +92,13 @@ import cn.taketoday.web.handler.RequestHandlerAdapter;
 import cn.taketoday.web.handler.ResponseStatusExceptionHandler;
 import cn.taketoday.web.handler.ReturnValueHandlerManager;
 import cn.taketoday.web.handler.SimpleHandlerExceptionHandler;
+import cn.taketoday.web.handler.ViewControllerHandlerAdapter;
 import cn.taketoday.web.handler.method.AnnotationHandlerFactory;
 import cn.taketoday.web.handler.method.ControllerAdviceBean;
 import cn.taketoday.web.handler.method.ExceptionHandlerAnnotationExceptionHandler;
 import cn.taketoday.web.handler.method.JsonViewRequestBodyAdvice;
 import cn.taketoday.web.handler.method.JsonViewResponseBodyAdvice;
+import cn.taketoday.web.handler.method.ParameterResolvingRegistryResolvableParameterFactory;
 import cn.taketoday.web.handler.method.RequestBodyAdvice;
 import cn.taketoday.web.handler.method.RequestMappingHandlerAdapter;
 import cn.taketoday.web.handler.method.ResponseBodyAdvice;
@@ -98,6 +106,7 @@ import cn.taketoday.web.multipart.MultipartConfiguration;
 import cn.taketoday.web.registry.AbstractHandlerRegistry;
 import cn.taketoday.web.registry.FunctionHandlerRegistry;
 import cn.taketoday.web.registry.HandlerRegistry;
+import cn.taketoday.web.registry.ViewControllerHandlerRegistry;
 import cn.taketoday.web.registry.annotation.RequestPathMappingHandlerRegistry;
 import cn.taketoday.web.resource.ResourceUrlProvider;
 import cn.taketoday.web.servlet.ServletViewResolverComposite;
@@ -116,6 +125,8 @@ import jakarta.servlet.ServletContext;
 @DisableAllDependencyInjection
 public class WebMvcConfigurationSupport extends ApplicationContextSupport {
   protected final Logger log = LoggerFactory.getLogger(getClass());
+  static final String ENABLE_WEB_MVC_XML = "enable.webmvc.xml";
+  static final String WEB_MVC_CONFIG_LOCATION = "WebMvcConfigLocation";
 
   private static final boolean gsonPresent = isPresent("com.google.gson.Gson");
   private static final boolean jsonbPresent = isPresent("jakarta.json.bind.Jsonb");
@@ -474,6 +485,44 @@ public class WebMvcConfigurationSupport extends ApplicationContextSupport {
   @ConditionalOnMissingBean(NotFoundRequestAdapter.class)
   NotFoundRequestAdapter notFoundRequestAdapter() {
     return new NotFoundRequestAdapter();
+  }
+
+  @Component
+  @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
+  @ConditionalOnMissingBean(ViewControllerHandlerRegistry.class)
+  ViewControllerHandlerRegistry viewControllerHandlerRegistry(
+          ParameterResolvingRegistry resolvingRegistry, Environment environment) throws Exception {
+    if (TodayStrategies.getFlag(ENABLE_WEB_MVC_XML, true)) {
+      // find the configure file
+      log.info("Framework is looking for ViewController configuration file");
+      var registry = new ViewControllerHandlerRegistry(
+              new ParameterResolvingRegistryResolvableParameterFactory(resolvingRegistry));
+
+      String webMvcConfigLocation = environment.getProperty(WEB_MVC_CONFIG_LOCATION);
+      if (StringUtils.isEmpty(webMvcConfigLocation)) {
+        webMvcConfigLocation = "classpath:web-mvc.xml";
+        if (new ClassPathResource(webMvcConfigLocation).exists()) {
+          log.info("web mvc configuration file does not exist, using default '{}'", webMvcConfigLocation);
+        }
+        else {
+          webMvcConfigLocation = null;
+        }
+      }
+
+      if (webMvcConfigLocation != null) {
+        registry.configure(webMvcConfigLocation);
+        configureViewController(registry);
+        return registry;
+      }
+    }
+    return null;
+  }
+
+  protected void configureViewController(ViewControllerHandlerRegistry registry) { }
+
+  @ConditionalOnMissingBean({ ViewControllerHandlerAdapter.class, ViewControllerHandlerRegistry.class })
+  ViewControllerHandlerAdapter viewControllerHandlerAdapter() {
+    return new ViewControllerHandlerAdapter(Ordered.HIGHEST_PRECEDENCE + 2);
   }
 
   // HandlerExceptionHandler

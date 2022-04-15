@@ -59,6 +59,7 @@ import cn.taketoday.web.handler.ReturnValueHandlerManager;
 import cn.taketoday.web.i18n.AcceptHeaderLocaleResolver;
 import cn.taketoday.web.i18n.FixedLocaleResolver;
 import cn.taketoday.web.registry.FunctionHandlerRegistry;
+import cn.taketoday.web.registry.ViewControllerHandlerRegistry;
 import cn.taketoday.web.resource.EncodedResourceResolver;
 import cn.taketoday.web.resource.ResourceResolver;
 import cn.taketoday.web.resource.VersionResourceResolver;
@@ -243,6 +244,11 @@ public class WebMvcAutoConfiguration extends WebMvcConfigurationSupport {
   @Override
   protected void modifyParameterResolvingRegistry(ParameterResolvingRegistry registry) {
     mvcConfiguration.configureParameterResolving(registry, registry.getCustomizedStrategies());
+  }
+
+  @Override
+  protected void configureViewController(ViewControllerHandlerRegistry registry) {
+    mvcConfiguration.configureViewController(registry);
   }
 
   @Override

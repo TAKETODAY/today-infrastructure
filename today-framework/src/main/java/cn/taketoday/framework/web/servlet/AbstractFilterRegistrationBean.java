@@ -238,7 +238,7 @@ public abstract class AbstractFilterRegistrationBean<T extends Filter> extends D
     EnumSet<DispatcherType> dispatcherTypes = this.dispatcherTypes;
     if (dispatcherTypes == null) {
       T filter = getFilter();
-      if (ClassUtils.isPresent("cn.taketoday.web.filter.OncePerRequestFilter",
+      if (ClassUtils.isPresent("cn.taketoday.web.servlet.filter.OncePerRequestFilter",
               filter.getClass().getClassLoader()) && filter instanceof OncePerRequestFilter) {
         dispatcherTypes = EnumSet.allOf(DispatcherType.class);
       }
@@ -246,22 +246,23 @@ public abstract class AbstractFilterRegistrationBean<T extends Filter> extends D
         dispatcherTypes = EnumSet.of(DispatcherType.REQUEST);
       }
     }
-    Set<String> servletNames = new LinkedHashSet<>();
-    for (ServletRegistrationBean<?> servletRegistrationBean : this.servletRegistrationBeans) {
+    var servletNames = new LinkedHashSet<String>();
+    for (ServletRegistrationBean<?> servletRegistrationBean : servletRegistrationBeans) {
       servletNames.add(servletRegistrationBean.getServletName());
     }
     servletNames.addAll(this.servletNames);
-    if (servletNames.isEmpty() && this.urlPatterns.isEmpty()) {
-      registration.addMappingForUrlPatterns(dispatcherTypes, this.matchAfter, DEFAULT_URL_MAPPINGS);
+    if (servletNames.isEmpty() && urlPatterns.isEmpty()) {
+      registration.addMappingForUrlPatterns(
+              dispatcherTypes, matchAfter, DEFAULT_URL_MAPPINGS);
     }
     else {
       if (!servletNames.isEmpty()) {
-        registration.addMappingForServletNames(dispatcherTypes, this.matchAfter,
-                StringUtils.toStringArray(servletNames));
+        registration.addMappingForServletNames(
+                dispatcherTypes, matchAfter, StringUtils.toStringArray(servletNames));
       }
       if (!this.urlPatterns.isEmpty()) {
-        registration.addMappingForUrlPatterns(dispatcherTypes, this.matchAfter,
-                StringUtils.toStringArray(this.urlPatterns));
+        registration.addMappingForUrlPatterns(
+                dispatcherTypes, matchAfter, StringUtils.toStringArray(this.urlPatterns));
       }
     }
   }

@@ -195,16 +195,17 @@ public class ViewControllerHandlerRegistry extends AbstractUrlHandlerRegistry im
     });
 
     WebApplicationContext context = obtainApplicationContext();
-    for (String file : StringUtils.split(webMvcConfigLocation)) {
-      Resource resource = context.getResource(file);
+    for (String location : StringUtils.split(webMvcConfigLocation)) {
+      Resource resource = context.getResource(location);
       if (!resource.exists()) {
-        throw new ConfigurationException("Your Provided Configuration File: [" + file + "], Does Not Exist");
+        throw new ConfigurationException(
+                "Your provided configuration location: [" + location + "], does not exist");
       }
       try (InputStream inputStream = resource.getInputStream()) {
         Element root = builder.parse(inputStream).getDocumentElement();
         if (ROOT_ELEMENT.equals(root.getNodeName())) { // root element
 
-          log.info("Found Configuration File: [{}].", resource);
+          log.info("Found configuration file: [{}].", resource);
           registerFromXml(root);
         }
       }

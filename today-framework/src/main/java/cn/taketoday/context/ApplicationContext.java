@@ -68,7 +68,7 @@ import cn.taketoday.lang.Nullable;
  * @see cn.taketoday.core.io.ResourceLoader
  * @since 2018-06-23 16:39:36
  */
-public interface ApplicationContext extends Closeable, HierarchicalBeanFactory, MessageSource,
+public interface ApplicationContext extends HierarchicalBeanFactory, MessageSource,
         ApplicationEventPublisher, PatternResourceLoader, EnvironmentCapable {
 
   /**
@@ -105,7 +105,6 @@ public interface ApplicationContext extends Closeable, HierarchicalBeanFactory, 
   /**
    * Close context and destroy all singletons
    */
-  @Override
   void close();
 
   /**

@@ -50,8 +50,7 @@ public class FilterRegistrationBean<T extends Filter> extends AbstractFilterRegi
   /**
    * Create a new {@link FilterRegistrationBean} instance.
    */
-  public FilterRegistrationBean() {
-  }
+  public FilterRegistrationBean() { }
 
   /**
    * Create a new {@link FilterRegistrationBean} instance to be registered with the
