@@ -26,6 +26,7 @@ import java.io.PushbackInputStream;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.EnumSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
@@ -65,7 +66,7 @@ import cn.taketoday.web.handler.method.RequestBodyAdvice;
 public abstract class AbstractMessageConverterParameterResolver implements ParameterResolvingStrategy {
   private static final Logger log = LoggerFactory.getLogger(AbstractMessageConverterParameterResolver.class);
 
-  private static final Set<HttpMethod> SUPPORTED_METHODS = Set.of(
+  private static final EnumSet<HttpMethod> SUPPORTED_METHODS = EnumSet.of(
           HttpMethod.POST, HttpMethod.PUT, HttpMethod.PATCH
   );
 
@@ -146,18 +147,30 @@ public abstract class AbstractMessageConverterParameterResolver implements Param
       message = new EmptyBodyCheckingHttpInputMessage(context);
 
       RequestResponseBodyAdviceChain adviceChain = getAdvice();
-      for (HttpMessageConverter<?> converter : this.messageConverters) {
-        GenericHttpMessageConverter<?> genericConverter = converter instanceof GenericHttpMessageConverter
-                                                          ? (GenericHttpMessageConverter<?>) converter : null;
-        if (genericConverter != null ? genericConverter.canRead(targetType, contextClass, contentType)
-                                     : targetClass != null && converter.canRead(targetClass, contentType)) {
-
+      for (HttpMessageConverter<?> converter : messageConverters) {
+        if (converter instanceof GenericHttpMessageConverter<?> genericConverter) {
+          if (genericConverter.canRead(targetType, contextClass, contentType)) {
+            if (message.hasBody()) {
+              // beforeBodyRead
+              var msgToUse = adviceChain.beforeBodyRead(message, parameter, targetType, converter);
+              // read
+              body = genericConverter.read(targetType, contextClass, msgToUse);
+              // afterBodyRead
+              body = adviceChain.afterBodyRead(body, msgToUse, parameter, targetType, converter);
+            }
+            else {
+              body = adviceChain.handleEmptyBody(null, message, parameter, targetType, converter);
+            }
+            break;
+          }
+        }
+        else if (targetClass != null && converter.canRead(targetClass, contentType)) {
           if (message.hasBody()) {
-            HttpInputMessage msgToUse =
-                    adviceChain.beforeBodyRead(message, parameter, targetType, converter);
-            body = genericConverter != null
-                   ? genericConverter.read(targetType, contextClass, msgToUse)
-                   : ((HttpMessageConverter<T>) converter).read(targetClass, msgToUse);
+            // beforeBodyRead
+            var msgToUse = adviceChain.beforeBodyRead(message, parameter, targetType, converter);
+            // read
+            body = ((HttpMessageConverter<T>) converter).read(targetClass, msgToUse);
+            // afterBodyRead
             body = adviceChain.afterBodyRead(body, msgToUse, parameter, targetType, converter);
           }
           else {
@@ -178,9 +191,7 @@ public abstract class AbstractMessageConverterParameterResolver implements Param
 
     if (body == NO_VALUE) {
       HttpMethod httpMethod = context.getMethod();
-      if (httpMethod == null
-              || !SUPPORTED_METHODS.contains(httpMethod)
-              || (noContentType && !message.hasBody())) {
+      if (!SUPPORTED_METHODS.contains(httpMethod) || noContentType && !message.hasBody()) {
         return null;
       }
       throw new HttpMediaTypeNotSupportedException(contentType,
@@ -249,7 +260,7 @@ public abstract class AbstractMessageConverterParameterResolver implements Param
     @Nullable
     private final InputStream body;
 
-    public EmptyBodyCheckingHttpInputMessage(HttpInputMessage inputMessage) throws IOException {
+    public EmptyBodyCheckingHttpInputMessage(RequestContext inputMessage) throws IOException {
       this.headers = inputMessage.getHeaders();
       InputStream inputStream = inputMessage.getBody();
       if (inputStream.markSupported()) {
