@@ -190,7 +190,7 @@ class UndertowWebServerFactoryDelegate {
   }
 
   List<HttpHandlerFactory> createHttpHandlerFactories(AbstractConfigurableWebServerFactory webServerFactory,
-                                                      HttpHandlerFactory... initialHttpHandlerFactories) {
+          HttpHandlerFactory... initialHttpHandlerFactories) {
     List<HttpHandlerFactory> factories = createHttpHandlerFactories(webServerFactory.getCompression(),
             this.useForwardHeaders, webServerFactory.getServerHeader(), webServerFactory.getShutdown(),
             initialHttpHandlerFactories);

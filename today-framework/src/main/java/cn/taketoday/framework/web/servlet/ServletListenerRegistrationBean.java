@@ -56,31 +56,27 @@ import jakarta.servlet.http.HttpSessionListener;
  * @param <T> the type of listener
  * @author Dave Syer
  * @author Phillip Webb
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public class ServletListenerRegistrationBean<T extends EventListener> extends RegistrationBean {
 
-  private static final Set<Class<?>> SUPPORTED_TYPES;
-
-  static {
-    Set<Class<?>> types = new HashSet<>();
-    types.add(ServletContextAttributeListener.class);
-    types.add(ServletRequestListener.class);
-    types.add(ServletRequestAttributeListener.class);
-    types.add(HttpSessionAttributeListener.class);
-    types.add(HttpSessionIdListener.class);
-    types.add(HttpSessionListener.class);
-    types.add(ServletContextListener.class);
-    SUPPORTED_TYPES = Collections.unmodifiableSet(types);
-  }
+  private static final Set<Class<?>> SUPPORTED_TYPES = Set.of(
+          ServletContextAttributeListener.class,
+          ServletRequestListener.class,
+          ServletRequestAttributeListener.class,
+          HttpSessionAttributeListener.class,
+          HttpSessionIdListener.class,
+          HttpSessionListener.class,
+          ServletContextListener.class
+  );
 
   private T listener;
 
   /**
    * Create a new {@link ServletListenerRegistrationBean} instance.
    */
-  public ServletListenerRegistrationBean() {
-  }
+  public ServletListenerRegistrationBean() { }
 
   /**
    * Create a new {@link ServletListenerRegistrationBean} instance.

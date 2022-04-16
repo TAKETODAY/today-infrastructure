@@ -41,6 +41,7 @@ import jakarta.servlet.http.Cookie;
  * </pre>
  *
  * @author Phillip Webb
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see ConfigurableServletWebServerFactory#addCookieSameSiteSuppliers(CookieSameSiteSupplier...)
  * @since 4.0
  */

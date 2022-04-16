@@ -101,7 +101,7 @@ import jakarta.servlet.ServletException;
 public class ServletWebServerApplicationContext extends GenericWebServletApplicationContext
         implements ConfigurableWebServerApplicationContext {
 
-  private static final Logger logger = LoggerFactory.getLogger(ServletWebServerApplicationContext.class);
+  private static final Logger log = LoggerFactory.getLogger(ServletWebServerApplicationContext.class);
 
   /**
    * Constant value for the DispatcherServlet bean name. A Servlet bean with this name
@@ -255,7 +255,7 @@ public class ServletWebServerApplicationContext extends GenericWebServletApplica
   }
 
   private void registerWebApplicationScopes() {
-    ExistingWebApplicationScopes existingScopes = new ExistingWebApplicationScopes(getBeanFactory());
+    var existingScopes = new ExistingWebApplicationScopes(getBeanFactory());
     WebApplicationContextUtils.registerWebApplicationScopes(getBeanFactory());
     existingScopes.restore();
   }
@@ -290,21 +290,21 @@ public class ServletWebServerApplicationContext extends GenericWebServletApplica
       }
       return;
     }
-    servletContext.log("Initializing Framework embedded WebServletApplicationContext");
+    servletContext.log("Initializing embedded WebServletApplicationContext");
     try {
       servletContext.setAttribute(WebServletApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE, this);
-      if (logger.isDebugEnabled()) {
-        logger.debug("Published root WebServletApplicationContext as ServletContext attribute with name [{}]",
+      if (log.isDebugEnabled()) {
+        log.debug("Published root WebServletApplicationContext as ServletContext attribute with name [{}]",
                 WebServletApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE);
       }
       setServletContext(servletContext);
-      if (logger.isInfoEnabled()) {
+      if (log.isInfoEnabled()) {
         long elapsedTime = System.currentTimeMillis() - getStartupDate();
-        logger.info("Root WebServletApplicationContext: initialization completed in {} ms", elapsedTime);
+        log.info("Root WebServletApplicationContext: initialization completed in {} ms", elapsedTime);
       }
     }
     catch (RuntimeException | Error ex) {
-      logger.error("Context initialization failed", ex);
+      log.error("Context initialization failed", ex);
       servletContext.setAttribute(WebServletApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE, ex);
       throw ex;
     }
@@ -383,9 +383,7 @@ public class ServletWebServerApplicationContext extends GenericWebServletApplica
       for (Map.Entry<String, Scope> entry : scopes.entrySet()) {
         String key = entry.getKey();
         Scope value = entry.getValue();
-        if (logger.isInfoEnabled()) {
-          logger.info("Restoring user defined scope {}", key);
-        }
+        log.info("Restoring user defined scope {}", key);
         beanFactory.registerScope(key, value);
       }
 

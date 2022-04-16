@@ -36,10 +36,12 @@ import jakarta.servlet.ServletException;
  *
  * @author Phillip Webb
  * @author Andy Wilkinson
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 4.0
  */
 class TomcatStarter implements ServletContainerInitializer {
 
-  private static final Logger logger = LoggerFactory.getLogger(TomcatStarter.class);
+  private static final Logger log = LoggerFactory.getLogger(TomcatStarter.class);
 
   private final ServletContextInitializer[] initializers;
 
@@ -53,7 +55,7 @@ class TomcatStarter implements ServletContainerInitializer {
   @Override
   public void onStartup(Set<Class<?>> classes, ServletContext servletContext) throws ServletException {
     try {
-      for (ServletContextInitializer initializer : this.initializers) {
+      for (ServletContextInitializer initializer : initializers) {
         initializer.onStartup(servletContext);
       }
     }
@@ -61,10 +63,8 @@ class TomcatStarter implements ServletContainerInitializer {
       this.startUpException = ex;
       // Prevent Tomcat from logging and re-throwing when we know we can
       // deal with it in the main thread, but log for information here.
-      if (logger.isErrorEnabled()) {
-        logger.error("Error starting Tomcat context. Exception: {}. Message: {}",
-                ex.getClass().getName(), ex.getMessage());
-      }
+      log.error("Error starting Tomcat context. Exception: {}. Message: {}",
+              ex.getClass().getName(), ex.getMessage());
     }
   }
 

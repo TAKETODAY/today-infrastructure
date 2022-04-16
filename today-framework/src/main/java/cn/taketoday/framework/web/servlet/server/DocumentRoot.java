@@ -90,7 +90,7 @@ class DocumentRoot {
   private File getArchiveFileDocumentRoot(String extension) {
     File file = getCodeSourceArchive();
     if (this.logger.isDebugEnabled()) {
-      this.logger.debug("Code archive: " + file);
+      this.logger.debug("Code archive: {}", file);
     }
     if (file != null && file.exists() && !file.isDirectory()
             && file.getName().toLowerCase(Locale.ENGLISH).endsWith(extension)) {

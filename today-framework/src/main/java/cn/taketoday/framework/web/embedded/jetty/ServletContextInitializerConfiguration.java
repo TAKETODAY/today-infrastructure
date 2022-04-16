@@ -33,6 +33,7 @@ import jakarta.servlet.ServletException;
  *
  * @author Phillip Webb
  * @author Andy Wilkinson
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public class ServletContextInitializerConfiguration extends AbstractConfiguration {
@@ -43,7 +44,6 @@ public class ServletContextInitializerConfiguration extends AbstractConfiguratio
    * Create a new {@link ServletContextInitializerConfiguration}.
    *
    * @param initializers the initializers that should be invoked
-   * @since 1.2.1
    */
   public ServletContextInitializerConfiguration(ServletContextInitializer... initializers) {
     Assert.notNull(initializers, "Initializers must not be null");
@@ -65,7 +65,7 @@ public class ServletContextInitializerConfiguration extends AbstractConfiguratio
   private void callInitializers(WebAppContext context) throws ServletException {
     try {
       setExtendedListenerTypes(context, true);
-      for (ServletContextInitializer initializer : this.initializers) {
+      for (ServletContextInitializer initializer : initializers) {
         initializer.onStartup(context.getServletContext());
       }
     }

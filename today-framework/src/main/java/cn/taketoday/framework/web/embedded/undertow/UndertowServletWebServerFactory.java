@@ -24,10 +24,10 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.EventListener;
@@ -51,6 +51,7 @@ import cn.taketoday.framework.web.servlet.server.CookieSameSiteSupplier;
 import cn.taketoday.framework.web.servlet.server.ServletWebServerFactory;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.PropertyMapper;
 import io.undertow.Undertow.Builder;
@@ -97,9 +98,7 @@ public class UndertowServletWebServerFactory extends AbstractServletWebServerFac
 
   private static final Pattern ENCODED_SLASH = Pattern.compile("%2F", Pattern.LITERAL);
 
-  private static final Set<Class<?>> NO_CLASSES = Collections.emptySet();
-
-  private UndertowWebServerFactoryDelegate delegate = new UndertowWebServerFactoryDelegate();
+  private final UndertowWebServerFactoryDelegate delegate = new UndertowWebServerFactoryDelegate();
 
   private Set<UndertowDeploymentInfoCustomizer> deploymentInfoCustomizers = new LinkedHashSet<>();
 
@@ -195,6 +194,7 @@ public class UndertowServletWebServerFactory extends AbstractServletWebServerFac
     this.delegate.setAccessLogPrefix(accessLogPrefix);
   }
 
+  @Nullable
   public String getAccessLogPrefix() {
     return this.delegate.getAccessLogPrefix();
   }
@@ -247,7 +247,7 @@ public class UndertowServletWebServerFactory extends AbstractServletWebServerFac
    */
   public void addDeploymentInfoCustomizers(UndertowDeploymentInfoCustomizer... customizers) {
     Assert.notNull(customizers, "UndertowDeploymentInfoCustomizers must not be null");
-    this.deploymentInfoCustomizers.addAll(Arrays.asList(customizers));
+    CollectionUtils.addAll(deploymentInfoCustomizers, customizers);
   }
 
   /**
@@ -289,7 +289,6 @@ public class UndertowServletWebServerFactory extends AbstractServletWebServerFac
    *
    * @return {@code true} if the path should be preserved when a request is forwarded,
    * otherwise {@code false}.
-   * @since 4.0
    */
   public boolean isPreservePathOnForward() {
     return this.preservePathOnForward;
@@ -300,7 +299,6 @@ public class UndertowServletWebServerFactory extends AbstractServletWebServerFac
    *
    * @param preservePathOnForward {@code true} if the path should be preserved when a
    * request is forwarded, otherwise {@code false}.
-   * @since 4.0
    */
   public void setPreservePathOnForward(boolean preservePathOnForward) {
     this.preservePathOnForward = preservePathOnForward;
@@ -308,7 +306,7 @@ public class UndertowServletWebServerFactory extends AbstractServletWebServerFac
 
   @Override
   public WebServer getWebServer(ServletContextInitializer... initializers) {
-    Builder builder = this.delegate.createBuilder(this);
+    Builder builder = delegate.createBuilder(this);
     DeploymentManager manager = createManager(initializers);
     return getUndertowWebServer(builder, manager, getPort());
   }
@@ -327,11 +325,12 @@ public class UndertowServletWebServerFactory extends AbstractServletWebServerFac
     deployment.setServletStackTraces(ServletStackTraces.NONE);
     deployment.setResourceManager(getDocumentRootResourceManager());
     deployment.setTempDir(createTempDir("undertow"));
-    deployment.setEagerFilterInit(this.eagerFilterInit);
-    deployment.setPreservePathOnForward(this.preservePathOnForward);
+    deployment.setEagerFilterInit(eagerFilterInit);
+    deployment.setPreservePathOnForward(preservePathOnForward);
     configureMimeMappings(deployment);
     configureWebListeners(deployment);
-    for (UndertowDeploymentInfoCustomizer customizer : this.deploymentInfoCustomizers) {
+
+    for (UndertowDeploymentInfoCustomizer customizer : deploymentInfoCustomizers) {
       customizer.customize(deployment);
     }
     if (getSession().isPersistent()) {
@@ -346,7 +345,7 @@ public class UndertowServletWebServerFactory extends AbstractServletWebServerFac
     }
     SessionManager sessionManager = manager.getDeployment().getSessionManager();
     Duration timeoutDuration = getSession().getTimeout();
-    int sessionTimeout = (isZeroOrLess(timeoutDuration) ? -1 : (int) timeoutDuration.getSeconds());
+    int sessionTimeout = isZeroOrLess(timeoutDuration) ? -1 : (int) timeoutDuration.getSeconds();
     sessionManager.setDefaultSessionTimeout(sessionTimeout);
     return manager;
   }
@@ -362,9 +361,8 @@ public class UndertowServletWebServerFactory extends AbstractServletWebServerFac
     }
   }
 
-  @SuppressWarnings("unchecked")
   private Class<? extends EventListener> loadWebListenerClass(String className) throws ClassNotFoundException {
-    return (Class<? extends EventListener>) getServletClassLoader().loadClass(className);
+    return ClassUtils.forName(className, getServletClassLoader());
   }
 
   private boolean isZeroOrLess(@Nullable Duration timeoutDuration) {
@@ -372,16 +370,19 @@ public class UndertowServletWebServerFactory extends AbstractServletWebServerFac
   }
 
   private void addLocaleMappings(DeploymentInfo deployment) {
-    getLocaleCharsetMappings().forEach(
-            (locale, charset) -> deployment.addLocaleCharsetMapping(locale.toString(), charset.toString()));
+    for (Map.Entry<Locale, Charset> entry : getLocaleCharsetMappings().entrySet()) {
+      Charset charset = entry.getValue();
+      Locale locale = entry.getKey();
+      deployment.addLocaleCharsetMapping(locale.toString(), charset.toString());
+    }
   }
 
   private void registerServletContainerInitializerToDriveServletContextInitializers(
           DeploymentInfo deployment, ServletContextInitializer... initializers) {
     ServletContextInitializer[] mergedInitializers = mergeInitializers(initializers);
-    Initializer initializer = new Initializer(mergedInitializers);
-    deployment.addServletContainerInitializer(new ServletContainerInitializerInfo(Initializer.class,
-            new ImmediateInstanceFactory<ServletContainerInitializer>(initializer), NO_CLASSES));
+    Initializers initializer = new Initializers(mergedInitializers);
+    deployment.addServletContainerInitializer(new ServletContainerInitializerInfo(Initializers.class,
+            new ImmediateInstanceFactory<ServletContainerInitializer>(initializer), Collections.emptySet()));
   }
 
   @Nullable
@@ -398,8 +399,9 @@ public class UndertowServletWebServerFactory extends AbstractServletWebServerFac
     List<URL> metaInfResourceUrls = getUrlsOfJarsWithMetaInfResources();
     List<URL> resourceJarUrls = new ArrayList<>();
     List<ResourceManager> managers = new ArrayList<>();
-    ResourceManager rootManager = (docBase.isDirectory() ? new FileResourceManager(docBase, 0)
-                                                         : new JarResourceManager(docBase));
+    ResourceManager rootManager = docBase.isDirectory()
+                                  ? new FileResourceManager(docBase, 0)
+                                  : new JarResourceManager(docBase);
     managers.add(rootManager);
     for (URL url : metaInfResourceUrls) {
       if ("file".equals(url.getProtocol())) {
@@ -478,13 +480,13 @@ public class UndertowServletWebServerFactory extends AbstractServletWebServerFac
    * @return a new {@link UndertowServletWebServer} instance
    */
   protected UndertowServletWebServer getUndertowWebServer(Builder builder, DeploymentManager manager, int port) {
-    List<HttpHandlerFactory> initialHandlerFactories = new ArrayList<>();
+    var initialHandlerFactories = new ArrayList<HttpHandlerFactory>();
     initialHandlerFactories.add(new DeploymentManagerHttpHandlerFactory(manager));
     HttpHandlerFactory cooHandlerFactory = getCookieHandlerFactory(manager.getDeployment());
     if (cooHandlerFactory != null) {
       initialHandlerFactories.add(cooHandlerFactory);
     }
-    List<HttpHandlerFactory> httpHandlerFactories = this.delegate.createHttpHandlerFactories(this,
+    var httpHandlerFactories = delegate.createHttpHandlerFactories(this,
             initialHandlerFactories.toArray(new HttpHandlerFactory[0]));
     return new UndertowServletWebServer(builder, httpHandlerFactories, getContextPath(), port >= 0);
   }
@@ -492,7 +494,7 @@ public class UndertowServletWebServerFactory extends AbstractServletWebServerFac
   @Nullable
   private HttpHandlerFactory getCookieHandlerFactory(Deployment deployment) {
     SameSite sessionSameSite = getSession().getCookie().getSameSite();
-    List<CookieSameSiteSupplier> suppliers = new ArrayList<>();
+    var suppliers = new ArrayList<CookieSameSiteSupplier>();
     if (sessionSameSite != null) {
       String sessionCookieName = deployment.getServletContext().getSessionCookieConfig().getName();
       suppliers.add(CookieSameSiteSupplier.of(sessionSameSite).whenHasName(sessionCookieName));
@@ -500,14 +502,14 @@ public class UndertowServletWebServerFactory extends AbstractServletWebServerFac
     if (CollectionUtils.isNotEmpty(getCookieSameSiteSuppliers())) {
       suppliers.addAll(getCookieSameSiteSuppliers());
     }
-    return (!suppliers.isEmpty()) ? (next) -> new SuppliedSameSiteCookieHandler(next, suppliers) : null;
+    return (!suppliers.isEmpty()) ? next -> new SuppliedSameSiteCookieHandler(next, suppliers) : null;
   }
 
   /**
    * {@link ServletContainerInitializer} to initialize {@link ServletContextInitializer
    * ServletContextInitializers}.
    */
-  private record Initializer(ServletContextInitializer[] initializers)
+  private record Initializers(ServletContextInitializer[] initializers)
           implements ServletContainerInitializer {
 
     @Override
@@ -527,7 +529,7 @@ public class UndertowServletWebServerFactory extends AbstractServletWebServerFac
           implements ResourceManager {
 
     @Override
-    public void close() throws IOException { }
+    public void close() { }
 
     @Override
     @Nullable

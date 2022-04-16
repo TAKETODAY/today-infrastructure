@@ -20,7 +20,6 @@
 
 package cn.taketoday.framework.web.servlet;
 
-import cn.taketoday.web.config.WebApplicationInitializer;
 import jakarta.servlet.ServletContainerInitializer;
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.ServletException;
@@ -32,11 +31,9 @@ import jakarta.servlet.ServletException;
  * This interface is designed to act in a similar way to
  * {@link ServletContainerInitializer}, but have a lifecycle that's managed by Framework and
  * not the Servlet container.
- * <p>
- * For configuration examples see {@link WebApplicationInitializer}.
  *
  * @author Phillip Webb
- * @see WebApplicationInitializer
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 @FunctionalInterface
