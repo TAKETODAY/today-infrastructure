@@ -91,7 +91,7 @@ public class DispatcherHandler implements ApplicationContextAware {
   /** Additional logger to use when no mapped handler is found for a request. */
   protected static final Logger pageNotFoundLogger = LoggerFactory.getLogger(PAGE_NOT_FOUND_LOG_CATEGORY);
 
-  protected final Logger logger = LoggerFactory.getLogger(getClass());
+  protected final Logger log = LoggerFactory.getLogger(getClass());
 
   /** Action mapping registry */
   private HandlerRegistry handlerRegistry;
@@ -470,11 +470,11 @@ public class DispatcherHandler implements ApplicationContextAware {
       throw ex;
     }
     else if (returnValue != HandlerAdapter.NONE_RETURN_VALUE) {
-      if (logger.isTraceEnabled()) {
-        logger.trace("Using resolved error view: {}", returnValue, ex);
+      if (log.isTraceEnabled()) {
+        log.trace("Using resolved error view: {}", returnValue, ex);
       }
-      else if (logger.isDebugEnabled()) {
-        logger.debug("Using resolved error view: {}", returnValue);
+      else if (log.isDebugEnabled()) {
+        log.debug("Using resolved error view: {}", returnValue);
       }
     }
     return returnValue;
@@ -500,18 +500,18 @@ public class DispatcherHandler implements ApplicationContextAware {
   }
 
   private void logResult(RequestContext request, @Nullable Throwable failureCause) {
-    if (logger.isDebugEnabled()) {
+    if (log.isDebugEnabled()) {
       if (failureCause != null) {
-        if (logger.isTraceEnabled()) {
-          logger.trace("Failed to complete request", failureCause);
+        if (log.isTraceEnabled()) {
+          log.trace("Failed to complete request", failureCause);
         }
         else {
-          logger.debug("Failed to complete request: {}", failureCause.toString());
+          log.debug("Failed to complete request: {}", failureCause.toString());
         }
       }
       else {
         String headers = "";  // nothing below trace
-        if (logger.isTraceEnabled()) {
+        if (log.isTraceEnabled()) {
           HttpHeaders httpHeaders = request.responseHeaders();
           if (this.enableLoggingRequestDetails) {
             headers = httpHeaders.entrySet().stream()
@@ -524,7 +524,7 @@ public class DispatcherHandler implements ApplicationContextAware {
           headers = ", headers={" + headers + "}";
         }
         HttpStatus httpStatus = HttpStatus.resolve(request.getStatus());
-        logger.debug("Completed {}{}", httpStatus != null ? httpStatus : request.getStatus(), headers);
+        log.debug("Completed {}{}", httpStatus != null ? httpStatus : request.getStatus(), headers);
       }
     }
   }
@@ -578,7 +578,7 @@ public class DispatcherHandler implements ApplicationContextAware {
    * @param msg Log message
    */
   protected void log(final String msg) {
-    logger.info(msg);
+    log.info(msg);
   }
 
   public HandlerAdapter[] getHandlerAdapters() {

@@ -36,7 +36,6 @@ import cn.taketoday.web.RequestContextHolder;
 import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.context.support.ServletRequestHandledEvent;
 import cn.taketoday.web.handler.DispatcherHandler;
-import cn.taketoday.web.util.WebUtils;
 import jakarta.servlet.DispatcherType;
 import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.Servlet;
@@ -156,7 +155,7 @@ public class DispatcherServlet
 
   // @since 4.0
   private void logRequest(HttpServletRequest request) {
-    LogFormatUtils.traceDebug(logger, traceOn -> {
+    LogFormatUtils.traceDebug(log, traceOn -> {
       String params;
       if (StringUtils.startsWithIgnoreCase(request.getContentType(), "multipart/")) {
         params = "multipart";

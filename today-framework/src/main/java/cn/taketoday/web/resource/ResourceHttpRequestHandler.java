@@ -101,7 +101,7 @@ import cn.taketoday.web.servlet.ServletUtils;
 public class ResourceHttpRequestHandler extends WebContentGenerator
         implements RequestHandler, EmbeddedValueResolverAware, InitializingBean, CorsConfigurationSource {
 
-  private static final Logger logger = LoggerFactory.getLogger(ResourceHttpRequestHandler.class);
+  private static final Logger log = LoggerFactory.getLogger(ResourceHttpRequestHandler.class);
 
   private static final String URL_RESOURCE_CHARSET_PREFIX = "[charset=";
 
@@ -492,7 +492,7 @@ public class ResourceHttpRequestHandler extends WebContentGenerator
     // For very general mappings (e.g. "/") we need to check 404 first
     Resource resource = getResource(request);
     if (resource == null) {
-      logger.debug("Resource not found");
+      log.debug("Resource not found");
       request.sendError(HttpStatus.NOT_FOUND.value());
       return HandlerAdapter.NONE_RETURN_VALUE;
     }
@@ -507,7 +507,7 @@ public class ResourceHttpRequestHandler extends WebContentGenerator
 
     // Header phase
     if (isUseLastModified() && request.checkNotModified(resource.lastModified())) {
-      logger.trace("Resource not modified");
+      log.trace("Resource not modified");
       return HandlerAdapter.NONE_RETURN_VALUE;
     }
 
@@ -680,8 +680,8 @@ public class ResourceHttpRequestHandler extends WebContentGenerator
    */
   protected boolean isInvalidPath(String path) {
     if (path.contains("WEB-INF") || path.contains("META-INF")) {
-      if (logger.isWarnEnabled()) {
-        logger.warn(LogFormatUtils.formatValue(
+      if (log.isWarnEnabled()) {
+        log.warn(LogFormatUtils.formatValue(
                 "Path with \"WEB-INF\" or \"META-INF\": [" + path + "]", -1, true));
       }
       return true;
@@ -689,16 +689,16 @@ public class ResourceHttpRequestHandler extends WebContentGenerator
     if (path.contains(":/")) {
       String relativePath = (path.charAt(0) == '/' ? path.substring(1) : path);
       if (ResourceUtils.isUrl(relativePath) || relativePath.startsWith("url:")) {
-        if (logger.isWarnEnabled()) {
-          logger.warn(LogFormatUtils.formatValue(
+        if (log.isWarnEnabled()) {
+          log.warn(LogFormatUtils.formatValue(
                   "Path represents URL or has \"url:\" prefix: [" + path + "]", -1, true));
         }
         return true;
       }
     }
     if (path.contains("..") && StringUtils.cleanPath(path).contains("../")) {
-      if (logger.isWarnEnabled()) {
-        logger.warn(LogFormatUtils.formatValue(
+      if (log.isWarnEnabled()) {
+        log.warn(LogFormatUtils.formatValue(
                 "Path contains \"../\" after call to StringUtils#cleanPath: [" + path + "]", -1, true));
       }
       return true;

@@ -101,9 +101,8 @@ public class RequestResponseBodyMethodProcessor extends AbstractMessageConverter
   }
 
   @Override
-  protected boolean supportsHandlerInternal(ActionMappingAnnotationHandler annotationHandler) {
-    HandlerMethod method = annotationHandler.getMethod();
-    return HandlerMethod.isResponseBody(method.getMethod());
+  protected boolean supportsHandlerMethod(HandlerMethod handlerMethod) {
+    return handlerMethod.isResponseBody();
   }
 
   /**
@@ -142,10 +141,10 @@ public class RequestResponseBodyMethodProcessor extends AbstractMessageConverter
 
   @Override
   protected void handleReturnValue(
-          RequestContext context, ActionMappingAnnotationHandler handler, @Nullable Object returnValue) throws Exception {
+          RequestContext context, HandlerMethod handler, @Nullable Object returnValue) throws Exception {
     context.setRequestHandled(true);
     // Try even with null return value. ResponseBodyAdvice could get involved.
-    writeWithMessageConverters(returnValue, handler.getMethod().getReturnType(), context);
+    writeWithMessageConverters(returnValue, handler.getReturnType(), context);
   }
 
 }

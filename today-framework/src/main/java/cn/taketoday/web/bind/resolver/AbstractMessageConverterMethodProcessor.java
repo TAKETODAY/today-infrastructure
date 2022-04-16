@@ -61,6 +61,7 @@ import cn.taketoday.web.ReturnValueHandler;
 import cn.taketoday.web.ServletDetector;
 import cn.taketoday.web.accept.ContentNegotiationManager;
 import cn.taketoday.web.handler.method.ActionMappingAnnotationHandler;
+import cn.taketoday.web.handler.method.HandlerMethod;
 import cn.taketoday.web.servlet.ServletUtils;
 import cn.taketoday.web.util.UriUtils;
 import cn.taketoday.web.util.pattern.PathPattern;
@@ -84,6 +85,7 @@ import jakarta.servlet.http.HttpServletRequest;
 public abstract class AbstractMessageConverterMethodProcessor
         extends AbstractMessageConverterParameterResolver implements ReturnValueHandler {
   private static final Logger log = LoggerFactory.getLogger(AbstractMessageConverterMethodProcessor.class);
+  private static final boolean isDebugEnabled = log.isDebugEnabled();
 
   /* Extensions associated with the built-in message converters */
   private static final List<String> SAFE_EXTENSIONS = Arrays.asList(
@@ -129,7 +131,7 @@ public abstract class AbstractMessageConverterMethodProcessor
           @Nullable ContentNegotiationManager manager, @Nullable List<Object> requestResponseBodyAdvice) {
     super(converters, requestResponseBodyAdvice);
     this.contentNegotiationManager = manager != null ? manager : new ContentNegotiationManager();
-    this.safeExtensions.addAll(this.contentNegotiationManager.getAllFileExtensions());
+    this.safeExtensions.addAll(contentNegotiationManager.getAllFileExtensions());
     this.safeExtensions.addAll(SAFE_EXTENSIONS);
   }
 
@@ -137,22 +139,31 @@ public abstract class AbstractMessageConverterMethodProcessor
 
   @Override
   public final boolean supportsHandler(Object handler) {
-    if (handler instanceof ActionMappingAnnotationHandler annotationHandler) {
-      return supportsHandlerInternal(annotationHandler);
+    if (handler instanceof HandlerMethod handlerMethod) {
+      supportsHandlerMethod(handlerMethod);
+    }
+    else if (handler instanceof ActionMappingAnnotationHandler annotationHandler) {
+      return supportsHandlerMethod(annotationHandler.getMethod());
     }
     return false;
   }
 
-  // test ActionMappingAnnotationHandler
-  protected abstract boolean supportsHandlerInternal(ActionMappingAnnotationHandler annotationHandler);
+  // test HandlerMethod
+  protected abstract boolean supportsHandlerMethod(HandlerMethod handlerMethod);
 
   @Override
-  public final void handleReturnValue(RequestContext context, Object handler, @Nullable Object returnValue) throws Exception {
-    handleReturnValue(context, (ActionMappingAnnotationHandler) handler, returnValue);
+  public final void handleReturnValue(
+          RequestContext context, Object handler, @Nullable Object returnValue) throws Exception {
+    if (handler instanceof HandlerMethod handlerMethod) {
+      handleReturnValue(context, handlerMethod, returnValue);
+    }
+    else if (handler instanceof ActionMappingAnnotationHandler annotationHandler) {
+      handleReturnValue(context, annotationHandler.getMethod(), returnValue);
+    }
   }
 
   protected abstract void handleReturnValue(
-          RequestContext context, ActionMappingAnnotationHandler handler, @Nullable Object returnValue) throws Exception;
+          RequestContext context, HandlerMethod handler, @Nullable Object returnValue) throws Exception;
 
   /**
    * Writes the given return type to the given output message.
@@ -210,7 +221,7 @@ public abstract class AbstractMessageConverterMethodProcessor
     MediaType contentType = responseHeaders.getContentType();
     boolean isContentTypePreset = contentType != null && contentType.isConcrete();
     if (isContentTypePreset) {
-      if (log.isDebugEnabled()) {
+      if (isDebugEnabled) {
         log.debug("Found 'Content-Type:{}' in response", contentType);
       }
       selectedMediaType = contentType;
@@ -223,7 +234,7 @@ public abstract class AbstractMessageConverterMethodProcessor
       catch (HttpMediaTypeNotAcceptableException ex) {
         int series = context.getStatus() / 100;
         if (body == null || series == 4 || series == 5) {
-          if (log.isDebugEnabled()) {
+          if (isDebugEnabled) {
             log.debug("Ignoring error response content (if any). {}", ex.toString());
           }
           return;
@@ -245,7 +256,7 @@ public abstract class AbstractMessageConverterMethodProcessor
         }
       }
       if (mediaTypesToUse.isEmpty()) {
-        if (log.isDebugEnabled()) {
+        if (isDebugEnabled) {
           log.debug("No match for {}, supported: {}", acceptableTypes, producibleTypes);
         }
         if (body != null) {
@@ -267,7 +278,7 @@ public abstract class AbstractMessageConverterMethodProcessor
         }
       }
 
-      if (log.isDebugEnabled()) {
+      if (isDebugEnabled) {
         log.debug("Using '{}', given {} and supported {}", selectedMediaType, acceptableTypes, producibleTypes);
       }
     }
@@ -275,23 +286,23 @@ public abstract class AbstractMessageConverterMethodProcessor
     if (selectedMediaType != null) {
       RequestResponseBodyAdviceChain advice = getAdvice();
       selectedMediaType = selectedMediaType.removeQualityValue();
-      for (HttpMessageConverter<?> converter : this.messageConverters) {
-        GenericHttpMessageConverter genericConverter =
-                converter instanceof GenericHttpMessageConverter
-                ? (GenericHttpMessageConverter<?>) converter : null;
-        if (genericConverter != null
-            ? ((GenericHttpMessageConverter) converter).canWrite(targetType, valueType, selectedMediaType)
-            : converter.canWrite(valueType, selectedMediaType)) {
+      for (HttpMessageConverter<?> converter : messageConverters) {
+        var generic = converter instanceof GenericHttpMessageConverter
+                      ? (GenericHttpMessageConverter) converter : null;
+        if (generic != null ? generic.canWrite(targetType, valueType, selectedMediaType)
+                            : converter.canWrite(valueType, selectedMediaType)) {
 
           body = advice.beforeBodyWrite(
                   body, returnType, selectedMediaType, converter, context);
           if (body != null) {
-            Object theBody = body;
-            LogFormatUtils.traceDebug(
-                    log, traceOn -> "Writing [" + LogFormatUtils.formatValue(theBody, !traceOn) + "]");
+            if (isDebugEnabled) {
+              Object theBody = body;
+              LogFormatUtils.traceDebug(log,
+                      traceOn -> "Writing [" + LogFormatUtils.formatValue(theBody, !traceOn) + "]");
+            }
             addContentDispositionHeader(context);
-            if (genericConverter != null) {
-              genericConverter.write(
+            if (generic != null) {
+              generic.write(
                       body, targetType, selectedMediaType, new RequestContextHttpOutputMessage(context));
             }
             else {
@@ -300,7 +311,7 @@ public abstract class AbstractMessageConverterMethodProcessor
             }
           }
           else {
-            if (log.isDebugEnabled()) {
+            if (isDebugEnabled) {
               log.debug("Nothing to write: null body");
             }
           }
@@ -465,15 +476,21 @@ public abstract class AbstractMessageConverterMethodProcessor
       return false;
     }
     extension = extension.toLowerCase(Locale.ENGLISH);
-    if (this.safeExtensions.contains(extension)) {
+    if (safeExtensions.contains(extension)) {
       return false;
     }
-    PathPattern bestMatchingPattern = request.getMatchingMetadata().getBestMatchingPattern();
+
+    HandlerMatchingMetadata matchingMetadata = request.getMatchingMetadata();
+    if (matchingMetadata == null) {
+      return false;
+    }
+
+    PathPattern bestMatchingPattern = matchingMetadata.getBestMatchingPattern();
     if (bestMatchingPattern != null && bestMatchingPattern.getPatternString().endsWith("." + extension)) {
       return false;
     }
     if (extension.equals("html")) {
-      MediaType[] mediaTypes = request.getMatchingMetadata().getProducibleMediaTypes();
+      MediaType[] mediaTypes = matchingMetadata.getProducibleMediaTypes();
       if (ObjectUtils.isNotEmpty(mediaTypes) && ObjectUtils.containsElement(mediaTypes, MediaType.TEXT_HTML)) {
         return false;
       }

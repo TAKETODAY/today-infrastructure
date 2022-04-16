@@ -46,6 +46,7 @@ import cn.taketoday.web.HttpMediaTypeNotSupportedException;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.accept.ContentNegotiationManager;
 import cn.taketoday.web.handler.method.ActionMappingAnnotationHandler;
+import cn.taketoday.web.handler.method.HandlerMethod;
 import cn.taketoday.web.handler.method.ResolvableMethodParameter;
 import cn.taketoday.web.util.UriComponents;
 import cn.taketoday.web.util.UriComponentsBuilder;
@@ -137,11 +138,12 @@ public class HttpEntityMethodProcessor extends AbstractMessageConverterMethodPro
   }
 
   @Override
-  protected boolean supportsHandlerInternal(ActionMappingAnnotationHandler annotationHandler) {
-    MethodParameter returnType = annotationHandler.getMethod().getReturnType();
+  protected boolean supportsHandlerMethod(HandlerMethod handlerMethod) {
+    MethodParameter returnType = handlerMethod.getReturnType();
     Class<?> type = returnType.getParameterType();
-    return ((HttpEntity.class.isAssignableFrom(type) && !RequestEntity.class.isAssignableFrom(type))
-            || ErrorResponse.class.isAssignableFrom(type) || ProblemDetail.class.isAssignableFrom(type));
+    return (HttpEntity.class.isAssignableFrom(type) && !RequestEntity.class.isAssignableFrom(type))
+            || ErrorResponse.class.isAssignableFrom(type)
+            || ProblemDetail.class.isAssignableFrom(type);
   }
 
   @Nullable
@@ -186,12 +188,12 @@ public class HttpEntityMethodProcessor extends AbstractMessageConverterMethodPro
 
   @Override
   protected void handleReturnValue(
-          RequestContext context, ActionMappingAnnotationHandler handler, @Nullable Object returnValue) throws Exception {
+          RequestContext context, HandlerMethod handler, @Nullable Object returnValue) throws Exception {
     context.setRequestHandled(true);
     if (returnValue == null) {
       return;
     }
-    MethodParameter methodReturnType = handler.getMethod().getReturnType();
+    MethodParameter methodReturnType = handler.getReturnType();
 
     HttpEntity<?> httpEntity;
     if (returnValue instanceof ErrorResponse response) {
