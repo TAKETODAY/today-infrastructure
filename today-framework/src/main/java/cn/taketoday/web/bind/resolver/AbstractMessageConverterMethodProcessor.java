@@ -241,12 +241,13 @@ public abstract class AbstractMessageConverterMethodProcessor
         }
         throw ex;
       }
-      List<MediaType> producibleTypes = getProducibleMediaTypes(context, valueType, targetType);
 
+      var producibleTypes = getProducibleMediaTypes(context, valueType, targetType);
       if (body != null && producibleTypes.isEmpty()) {
         throw new HttpMessageNotWritableException(
                 "No converter found for return value of type: " + valueType);
       }
+
       ArrayList<MediaType> mediaTypesToUse = new ArrayList<>();
       for (MediaType requestedType : acceptableTypes) {
         for (MediaType producibleType : producibleTypes) {
@@ -393,9 +394,9 @@ public abstract class AbstractMessageConverterMethodProcessor
       }
     }
     ArrayList<MediaType> result = new ArrayList<>();
-    for (HttpMessageConverter<?> converter : this.messageConverters) {
-      if (converter instanceof GenericHttpMessageConverter && targetType != null) {
-        if (((GenericHttpMessageConverter<?>) converter).canWrite(targetType, valueClass, null)) {
+    for (HttpMessageConverter<?> converter : messageConverters) {
+      if (converter instanceof GenericHttpMessageConverter<?> generic && targetType != null) {
+        if (generic.canWrite(targetType, valueClass, null)) {
           result.addAll(converter.getSupportedMediaTypes(valueClass));
         }
       }
