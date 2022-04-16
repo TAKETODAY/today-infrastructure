@@ -1231,25 +1231,6 @@ public abstract class AbstractBeanFactory
     }
   }
 
-  // beanSupplier
-
-  @Override
-  public String toString() {
-    // ObjectUtils.toHexString(this)
-    StringBuilder sb = new StringBuilder(ObjectUtils.identityToString(this));
-    sb.append(": defining beans [");
-    sb.append(StringUtils.arrayToCommaDelimitedString(getBeanDefinitionNames()));
-    sb.append("]; ");
-    BeanFactory parent = getParentBeanFactory();
-    if (parent == null) {
-      sb.append("root of factory hierarchy");
-    }
-    else {
-      sb.append("parent: ").append(ObjectUtils.identityToString(parent));
-    }
-    return sb.toString();
-  }
-
   //---------------------------------------------------------------------
   // BeanPostProcessor
   //---------------------------------------------------------------------
