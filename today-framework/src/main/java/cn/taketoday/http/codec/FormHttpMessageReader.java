@@ -131,7 +131,9 @@ public class FormHttpMessageReader extends LoggingCodecSupport
               String body = charBuffer.toString();
               DataBufferUtils.release(buffer);
               MultiValueMap<String, String> formData = parseFormData(charset, body);
-              logFormData(formData, hints);
+              if (isDebugEnabled) {
+                logFormData(formData, hints);
+              }
               return formData;
             });
   }

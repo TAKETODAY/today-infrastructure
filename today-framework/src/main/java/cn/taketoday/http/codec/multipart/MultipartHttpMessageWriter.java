@@ -190,11 +190,12 @@ public class MultipartHttpMessageWriter
     mediaType = getMultipartMediaType(mediaType, boundary);
     outputMessage.getHeaders().setContentType(mediaType);
 
-    LogFormatUtils.traceDebug(logger, traceOn -> Hints.getLogPrefix(hints) + "Encoding " +
-            (isEnableLoggingRequestDetails() ?
-             LogFormatUtils.formatValue(map, !traceOn) :
-             "parts " + map.keySet() + " (content masked)"));
-
+    if (isDebugEnabled) {
+      LogFormatUtils.traceDebug(logger, traceOn -> Hints.getLogPrefix(hints) + "Encoding " +
+              (isEnableLoggingRequestDetails() ?
+               LogFormatUtils.formatValue(map, !traceOn) :
+               "parts " + map.keySet() + " (content masked)"));
+    }
     DataBufferFactory bufferFactory = outputMessage.bufferFactory();
 
     Flux<DataBuffer> body = Flux.fromIterable(map.entrySet())
@@ -202,7 +203,7 @@ public class MultipartHttpMessageWriter
             .concatWith(generateLastLine(boundary, bufferFactory))
             .doOnDiscard(PooledDataBuffer.class, DataBufferUtils::release);
 
-    if (logger.isDebugEnabled()) {
+    if (isDebugEnabled) {
       body = body.doOnNext(buffer -> Hints.touchDataBuffer(buffer, hints, logger));
     }
 

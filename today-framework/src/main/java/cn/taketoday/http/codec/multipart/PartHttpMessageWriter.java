@@ -63,7 +63,7 @@ public class PartHttpMessageWriter extends MultipartWriterSupport implements Htt
     mediaType = getMultipartMediaType(mediaType, boundary);
     outputMessage.getHeaders().setContentType(mediaType);
 
-    if (logger.isDebugEnabled()) {
+    if (isDebugEnabled) {
       logger.debug("{} Encoding Publisher<Part>", Hints.getLogPrefix(hints));
     }
 
@@ -72,7 +72,7 @@ public class PartHttpMessageWriter extends MultipartWriterSupport implements Htt
             .concatWith(generateLastLine(boundary, outputMessage.bufferFactory()))
             .doOnDiscard(PooledDataBuffer.class, DataBufferUtils::release);
 
-    if (logger.isDebugEnabled()) {
+    if (isDebugEnabled) {
       body = body.doOnNext(buffer -> Hints.touchDataBuffer(buffer, hints, logger));
     }
 

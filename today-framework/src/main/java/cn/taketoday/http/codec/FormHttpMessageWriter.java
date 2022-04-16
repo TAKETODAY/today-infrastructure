@@ -130,7 +130,9 @@ public class FormHttpMessageWriter extends LoggingCodecSupport
     Charset charset = mediaType.getCharset() != null ? mediaType.getCharset() : getDefaultCharset();
 
     return Mono.from(inputStream).flatMap(form -> {
-      logFormData(form, hints);
+      if (isDebugEnabled) {
+        logFormData(form, hints);
+      }
       String value = serializeForm(form, charset);
       ByteBuffer byteBuffer = charset.encode(value);
       DataBuffer buffer = message.bufferFactory().wrap(byteBuffer); // wrapping only, no allocation

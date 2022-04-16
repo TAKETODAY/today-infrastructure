@@ -113,11 +113,13 @@ public class MultipartHttpMessageReader
   }
 
   private void traceDebug(Map<String, Object> hints, Map<String, Collection<Part>> map) {
-    LogFormatUtils.traceDebug(
-            logger, traceOn -> Hints.getLogPrefix(hints) + "Parsed " +
-                    (isEnableLoggingRequestDetails()
-                     ? LogFormatUtils.formatValue(map, !traceOn)
-                     : "parts " + map.keySet() + " (content masked)"));
+    if (isDebugEnabled) {
+      LogFormatUtils.traceDebug(
+              logger, traceOn -> Hints.getLogPrefix(hints) + "Parsed " +
+                      (isEnableLoggingRequestDetails()
+                       ? LogFormatUtils.formatValue(map, !traceOn)
+                       : "parts " + map.keySet() + " (content masked)"));
+    }
   }
 
   private DefaultMultiValueMap<String, Part> toMultiValueMap(Map<String, Collection<Part>> map) {
