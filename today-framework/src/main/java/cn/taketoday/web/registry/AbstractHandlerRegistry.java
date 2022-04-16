@@ -73,6 +73,8 @@ public abstract class AbstractHandlerRegistry extends WebApplicationContextSuppo
 
   private final PathPatternParser patternParser = new PathPatternParser();
 
+  // TODO 处理 interceptors
+
   private final List<Object> interceptors = new ArrayList<>();
 
   private final List<HandlerInterceptor> adaptedInterceptors = new ArrayList<>();
@@ -86,7 +88,7 @@ public abstract class AbstractHandlerRegistry extends WebApplicationContextSuppo
    * Return the {@link #setCorsConfigurationSource(CorsConfigurationSource)
    * configured} {@code CorsConfigurationSource}, if any.
    *
-   * @since .0
+   * @since 4.0
    */
   @Nullable
   public CorsConfigurationSource getCorsConfigurationSource() {
@@ -203,15 +205,8 @@ public abstract class AbstractHandlerRegistry extends WebApplicationContextSuppo
       this.corsConfigurationSource = null;
     }
     else {
-      UrlBasedCorsConfigurationSource source;
-      if (getPatternParser() != null) {
-        source = new UrlBasedCorsConfigurationSource(getPatternParser());
-        source.setCorsConfigurations(corsConfigurations);
-      }
-      else {
-        source = new UrlBasedCorsConfigurationSource();
-        source.setCorsConfigurations(corsConfigurations);
-      }
+      var source = new UrlBasedCorsConfigurationSource(getPatternParser());
+      source.setCorsConfigurations(corsConfigurations);
       setCorsConfigurationSource(source);
     }
   }

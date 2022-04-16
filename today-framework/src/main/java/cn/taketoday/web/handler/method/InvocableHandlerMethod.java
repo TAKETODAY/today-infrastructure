@@ -53,7 +53,7 @@ import cn.taketoday.web.bind.support.WebDataBinderFactory;
  */
 public class InvocableHandlerMethod extends HandlerMethod {
   /** Logger that is available to subclasses. */
-  protected static final Logger logger = LoggerFactory.getLogger(InvocableHandlerMethod.class);
+  protected static final Logger log = LoggerFactory.getLogger(InvocableHandlerMethod.class);
 
   private static final Object[] EMPTY_ARGS = new Object[0];
 
@@ -151,8 +151,8 @@ public class InvocableHandlerMethod extends HandlerMethod {
           RequestContext request, Object... providedArgs) throws Throwable {
 
     Object[] args = getMethodArgumentValues(request, providedArgs);
-    if (logger.isTraceEnabled()) {
-      logger.trace("Arguments: {}", Arrays.toString(args));
+    if (log.isTraceEnabled()) {
+      log.trace("Arguments: {}", Arrays.toString(args));
     }
     return doInvoke(args);
   }
@@ -188,10 +188,10 @@ public class InvocableHandlerMethod extends HandlerMethod {
       }
       catch (Throwable ex) {
         // Leave stack trace for later, exception may actually be resolved and handled...
-        if (logger.isDebugEnabled()) {
+        if (log.isDebugEnabled()) {
           String exMsg = ex.getMessage();
           if (exMsg != null && !exMsg.contains(parameter.getExecutable().toGenericString())) {
-            logger.debug(formatArgumentError(parameter, exMsg));
+            log.debug(formatArgumentError(parameter, exMsg));
           }
         }
         throw ex;

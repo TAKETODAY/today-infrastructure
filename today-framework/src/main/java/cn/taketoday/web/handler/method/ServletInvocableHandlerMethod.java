@@ -137,8 +137,8 @@ public class ServletInvocableHandlerMethod extends InvocableHandlerMethod {
               .handleReturnValue(request, this, returnValue);
     }
     catch (Exception ex) {
-      if (logger.isTraceEnabled()) {
-        logger.trace(formatErrorForReturnValue(returnValue), ex);
+      if (log.isTraceEnabled()) {
+        log.trace(formatErrorForReturnValue(returnValue), ex);
       }
       throw ex;
     }

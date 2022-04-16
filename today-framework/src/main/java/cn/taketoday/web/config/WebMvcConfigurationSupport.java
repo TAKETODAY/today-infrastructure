@@ -101,6 +101,7 @@ import cn.taketoday.web.handler.method.JsonViewResponseBodyAdvice;
 import cn.taketoday.web.handler.method.ParameterResolvingRegistryResolvableParameterFactory;
 import cn.taketoday.web.handler.method.RequestBodyAdvice;
 import cn.taketoday.web.handler.method.RequestMappingHandlerAdapter;
+import cn.taketoday.web.handler.method.RequestMappingHandlerMapping;
 import cn.taketoday.web.handler.method.ResponseBodyAdvice;
 import cn.taketoday.web.multipart.MultipartConfiguration;
 import cn.taketoday.web.registry.AbstractHandlerRegistry;
@@ -614,23 +615,28 @@ public class WebMvcConfigurationSupport extends ApplicationContextSupport {
    * core {@link cn.taketoday.web.registry.HandlerRegistry} to register handler
    */
   @Component
-  @ConditionalOnMissingBean
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-  RequestPathMappingHandlerRegistry requestPathMappingHandlerRegistry(AnnotationHandlerFactory handlerFactory) {
-    RequestPathMappingHandlerRegistry registry = new RequestPathMappingHandlerRegistry();
+  @ConditionalOnMissingBean(RequestMappingHandlerMapping.class)
+  RequestMappingHandlerMapping requestMappingHandlerMapping(
+          ContentNegotiationManager contentNegotiationManager
+  ) {
+    RequestMappingHandlerMapping handlerMapping = new RequestMappingHandlerMapping();
+
     PathMatchConfigurer configurer = getPathMatchConfigurer();
 
     Boolean useTrailingSlashMatch = configurer.isUseTrailingSlashMatch();
     if (useTrailingSlashMatch != null) {
-      registry.setUseTrailingSlashMatch(useTrailingSlashMatch);
+      handlerMapping.setUseTrailingSlashMatch(useTrailingSlashMatch);
     }
 
     Boolean useCaseSensitiveMatch = configurer.isUseCaseSensitiveMatch();
     if (useCaseSensitiveMatch != null) {
-      registry.setUseCaseSensitiveMatch(useCaseSensitiveMatch);
+      handlerMapping.setUseCaseSensitiveMatch(useCaseSensitiveMatch);
     }
-    registry.setAnnotationHandlerFactory(handlerFactory);
-    return registry;
+
+    handlerMapping.setOrder(Ordered.HIGHEST_PRECEDENCE);
+    handlerMapping.setContentNegotiationManager(contentNegotiationManager);
+    return handlerMapping;
   }
 
   /**
@@ -655,7 +661,8 @@ public class WebMvcConfigurationSupport extends ApplicationContextSupport {
   @Nullable
   @Component
   public HandlerRegistry resourceHandlerRegistry(
-          @Nullable ContentNegotiationManager contentNegotiationManager, ResourceUrlProvider resourceUrlProvider) {
+          @Nullable ContentNegotiationManager contentNegotiationManager,
+          ResourceUrlProvider resourceUrlProvider) {
 
     Assert.state(this.applicationContext != null, "No ApplicationContext set");
     PathMatchConfigurer pathConfig = getPathMatchConfigurer();

@@ -38,10 +38,10 @@ import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.web.accept.ContentNegotiationManager;
+import cn.taketoday.web.annotation.ActionMapping;
 import cn.taketoday.web.annotation.Controller;
 import cn.taketoday.web.annotation.CrossOrigin;
 import cn.taketoday.web.annotation.RequestBody;
-import cn.taketoday.web.annotation.RequestMapping;
 import cn.taketoday.web.cors.CorsConfiguration;
 import cn.taketoday.web.handler.condition.AbstractRequestCondition;
 import cn.taketoday.web.handler.condition.CompositeRequestCondition;
@@ -50,7 +50,7 @@ import cn.taketoday.web.handler.condition.RequestCondition;
 
 /**
  * Creates {@link RequestMappingInfo} instances from type and method-level
- * {@link RequestMapping @RequestMapping} annotations in
+ * {@link ActionMapping @ActionMapping} annotations in
  * {@link Controller @Controller} classes.
  *
  * @author Arjen Poutsma
@@ -62,8 +62,6 @@ import cn.taketoday.web.handler.condition.RequestCondition;
 public class RequestMappingHandlerMapping extends RequestMappingInfoHandlerMapping
         implements EmbeddedValueResolverAware {
 
-  private boolean useTrailingSlashMatch = true;
-
   private Map<String, Predicate<Class<?>>> pathPrefixes = Collections.emptyMap();
 
   private ContentNegotiationManager contentNegotiationManager = new ContentNegotiationManager();
@@ -72,18 +70,6 @@ public class RequestMappingHandlerMapping extends RequestMappingInfoHandlerMappi
   private StringValueResolver embeddedValueResolver;
 
   private RequestMappingInfo.BuilderConfiguration config = new RequestMappingInfo.BuilderConfiguration();
-
-  /**
-   * Whether to match to URLs irrespective of the presence of a trailing slash.
-   * If enabled a method mapped to "/users" also matches to "/users/".
-   * <p>The default value is {@code true}.
-   */
-  public void setUseTrailingSlashMatch(boolean useTrailingSlashMatch) {
-    this.useTrailingSlashMatch = useTrailingSlashMatch;
-    if (getPatternParser() != null) {
-      getPatternParser().setMatchOptionalTrailingSeparator(useTrailingSlashMatch);
-    }
-  }
 
   /**
    * Configure path prefixes to apply to controller methods.
@@ -133,17 +119,9 @@ public class RequestMappingHandlerMapping extends RequestMappingInfoHandlerMappi
   public void afterPropertiesSet() {
     this.config = new RequestMappingInfo.BuilderConfiguration();
     config.setPatternParser(getPatternParser());
-    config.setTrailingSlashMatch(useTrailingSlashMatch());
     config.setContentNegotiationManager(getContentNegotiationManager());
 
     super.afterPropertiesSet();
-  }
-
-  /**
-   * Whether to match to URLs irrespective of the presence of a trailing slash.
-   */
-  public boolean useTrailingSlashMatch() {
-    return this.useTrailingSlashMatch;
   }
 
   /**
@@ -162,7 +140,7 @@ public class RequestMappingHandlerMapping extends RequestMappingInfoHandlerMappi
   /**
    * {@inheritDoc}
    * <p>Expects a handler to have either a type-level @{@link Controller}
-   * annotation or a type-level @{@link RequestMapping} annotation.
+   * annotation or a type-level @{@link ActionMapping} annotation.
    */
   @Override
   protected boolean isHandler(Class<?> beanType) {
@@ -170,11 +148,11 @@ public class RequestMappingHandlerMapping extends RequestMappingInfoHandlerMappi
   }
 
   /**
-   * Uses method and type-level @{@link RequestMapping} annotations to create
+   * Uses method and type-level @{@link ActionMapping} annotations to create
    * the RequestMappingInfo.
    *
    * @return the created RequestMappingInfo, or {@code null} if the method
-   * does not have a {@code @RequestMapping} annotation.
+   * does not have a {@code @ActionMapping} annotation.
    * @see #getCustomMethodCondition(Method)
    * @see #getCustomTypeCondition(Class)
    */
@@ -210,7 +188,7 @@ public class RequestMappingHandlerMapping extends RequestMappingInfoHandlerMappi
   }
 
   /**
-   * Delegates to {@link #createRequestMappingInfo(RequestMapping, RequestCondition)},
+   * Delegates to {@link #createRequestMappingInfo(ActionMapping, RequestCondition)},
    * supplying the appropriate custom {@link RequestCondition} depending on whether
    * the supplied {@code annotatedElement} is a class or method.
    *
@@ -219,10 +197,11 @@ public class RequestMappingHandlerMapping extends RequestMappingInfoHandlerMappi
    */
   @Nullable
   private RequestMappingInfo createRequestMappingInfo(AnnotatedElement element) {
-    RequestMapping requestMapping = AnnotatedElementUtils.findMergedAnnotation(element, RequestMapping.class);
-    RequestCondition<?> condition = (element instanceof Class ?
-                                     getCustomTypeCondition((Class<?>) element) : getCustomMethodCondition((Method) element));
-    return (requestMapping != null ? createRequestMappingInfo(requestMapping, condition) : null);
+    ActionMapping requestMapping = AnnotatedElementUtils.findMergedAnnotation(element, ActionMapping.class);
+    RequestCondition<?> condition =
+            element instanceof Class ? getCustomTypeCondition((Class<?>) element)
+                                     : getCustomMethodCondition((Method) element);
+    return requestMapping != null ? createRequestMappingInfo(requestMapping, condition) : null;
   }
 
   /**
@@ -261,12 +240,12 @@ public class RequestMappingHandlerMapping extends RequestMappingInfoHandlerMappi
 
   /**
    * Create a {@link RequestMappingInfo} from the supplied
-   * {@link RequestMapping @RequestMapping} annotation, which is either
+   * {@link ActionMapping @ActionMapping} annotation, which is either
    * a directly declared annotation, a meta-annotation, or the synthesized
    * result of merging annotation attributes within an annotation hierarchy.
    */
   protected RequestMappingInfo createRequestMappingInfo(
-          RequestMapping requestMapping, @Nullable RequestCondition<?> customCondition) {
+          ActionMapping requestMapping, @Nullable RequestCondition<?> customCondition) {
 
     RequestMappingInfo.Builder builder = RequestMappingInfo
             .paths(resolveEmbeddedValuesInPatterns(requestMapping.path()))

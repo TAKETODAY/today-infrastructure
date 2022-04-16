@@ -293,10 +293,13 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerReg
       else if (mappingsLogger.isDebugEnabled()) {
         mappingsLogger.debug(formatMappings(userType, methods));
       }
-      methods.forEach((method, mapping) -> {
+
+      for (Map.Entry<Method, T> entry : methods.entrySet()) {
+        Method method = entry.getKey();
+        T mapping = entry.getValue();
         Method invocableMethod = AopUtils.selectInvocableMethod(method, userType);
         registerHandlerMethod(handler, invocableMethod, mapping);
-      });
+      }
     }
   }
 
@@ -573,21 +576,21 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerReg
     @Nullable
     public CorsConfiguration getCorsConfiguration(HandlerMethod handlerMethod) {
       HandlerMethod original = handlerMethod.getResolvedFromHandlerMethod();
-      return this.corsLookup.get(original != null ? original : handlerMethod);
+      return corsLookup.get(original != null ? original : handlerMethod);
     }
 
     /**
      * Acquire the read lock when using getMappings and getMappingsByUrl.
      */
     public void acquireReadLock() {
-      this.readWriteLock.readLock().lock();
+      readWriteLock.readLock().lock();
     }
 
     /**
      * Release the read lock after using getMappings and getMappingsByUrl.
      */
     public void releaseReadLock() {
-      this.readWriteLock.readLock().unlock();
+      readWriteLock.readLock().unlock();
     }
 
     public void register(T mapping, Object handler, Method method) {
@@ -596,9 +599,9 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerReg
         HandlerMethod handlerMethod = createHandlerMethod(handler, method);
         validateMethodMapping(handlerMethod, mapping);
 
-        Set<String> directPaths = AbstractHandlerMethodMapping.this.getDirectPaths(mapping);
+        Set<String> directPaths = getDirectPaths(mapping);
         for (String path : directPaths) {
-          this.pathLookup.add(path, mapping);
+          pathLookup.add(path, mapping);
         }
 
         String name = null;
@@ -610,19 +613,19 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerReg
         CorsConfiguration corsConfig = initCorsConfiguration(handler, method, mapping);
         if (corsConfig != null) {
           corsConfig.validateAllowCredentials();
-          this.corsLookup.put(handlerMethod, corsConfig);
+          corsLookup.put(handlerMethod, corsConfig);
         }
 
-        this.registry.put(mapping,
+        registry.put(mapping,
                 new MappingRegistration<>(mapping, handlerMethod, directPaths, name, corsConfig != null));
       }
       finally {
-        this.readWriteLock.writeLock().unlock();
+        readWriteLock.writeLock().unlock();
       }
     }
 
     private void validateMethodMapping(HandlerMethod handlerMethod, T mapping) {
-      MappingRegistration<T> registration = this.registry.get(mapping);
+      MappingRegistration<T> registration = registry.get(mapping);
       HandlerMethod existingHandlerMethod = (registration != null ? registration.handlerMethod() : null);
       if (existingHandlerMethod != null && !existingHandlerMethod.equals(handlerMethod)) {
         throw new IllegalStateException(
@@ -633,7 +636,7 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerReg
     }
 
     private void addMappingName(String name, HandlerMethod handlerMethod) {
-      List<HandlerMethod> oldList = this.nameLookup.get(name);
+      List<HandlerMethod> oldList = nameLookup.get(name);
       if (oldList == null) {
         oldList = Collections.emptyList();
       }
@@ -647,7 +650,7 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerReg
       ArrayList<HandlerMethod> newList = new ArrayList<>(oldList.size() + 1);
       newList.addAll(oldList);
       newList.add(handlerMethod);
-      this.nameLookup.put(name, newList);
+      nameLookup.put(name, newList);
     }
 
     public void unregister(T mapping) {
@@ -683,12 +686,12 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerReg
         return;
       }
       HandlerMethod handlerMethod = definition.handlerMethod();
-      List<HandlerMethod> oldList = this.nameLookup.get(name);
+      List<HandlerMethod> oldList = nameLookup.get(name);
       if (oldList == null) {
         return;
       }
       if (oldList.size() <= 1) {
-        this.nameLookup.remove(name);
+        nameLookup.remove(name);
         return;
       }
       List<HandlerMethod> newList = new ArrayList<>(oldList.size() - 1);
@@ -697,7 +700,7 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerReg
           newList.add(current);
         }
       }
-      this.nameLookup.put(name, newList);
+      nameLookup.put(name, newList);
     }
   }
 

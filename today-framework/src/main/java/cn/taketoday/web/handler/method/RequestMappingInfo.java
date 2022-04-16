@@ -697,8 +697,6 @@ public final class RequestMappingInfo implements RequestCondition<RequestMapping
 
     private PathPatternParser patternParser = PathPatternParser.defaultInstance;
 
-    private boolean trailingSlashMatch = true;
-
     @Nullable
     private ContentNegotiationManager contentNegotiationManager;
 
@@ -712,21 +710,6 @@ public final class RequestMappingInfo implements RequestCondition<RequestMapping
      */
     public PathPatternParser getPatternParser() {
       return this.patternParser;
-    }
-
-    /**
-     * Set whether to apply trailing slash matching in PatternsRequestCondition.
-     * <p>By default this is set to 'true'.
-     */
-    public void setTrailingSlashMatch(boolean trailingSlashMatch) {
-      this.trailingSlashMatch = trailingSlashMatch;
-    }
-
-    /**
-     * Return whether to apply trailing slash matching in PatternsRequestCondition.
-     */
-    public boolean useTrailingSlashMatch() {
-      return this.trailingSlashMatch;
     }
 
     /**

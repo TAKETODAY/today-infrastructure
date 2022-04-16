@@ -25,6 +25,7 @@ import java.util.Map;
 import cn.taketoday.core.AntPathMatcher;
 import cn.taketoday.http.server.RequestPath;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.util.pattern.PathPattern;
 import cn.taketoday.web.util.pattern.PathPatternParser;
@@ -75,10 +76,12 @@ public class UrlBasedCorsConfigurationSource implements CorsConfigurationSource 
    * @see PathPattern
    * @see AntPathMatcher
    */
-  public void setCorsConfigurations(Map<String, CorsConfiguration> corsConfigurations) {
+  public void setCorsConfigurations(@Nullable Map<String, CorsConfiguration> corsConfigurations) {
     this.corsConfigurations.clear();
     if (corsConfigurations != null) {
-      corsConfigurations.forEach(this::registerCorsConfiguration);
+      for (Map.Entry<String, CorsConfiguration> entry : corsConfigurations.entrySet()) {
+        registerCorsConfiguration(entry.getKey(), entry.getValue());
+      }
     }
   }
 
@@ -91,7 +94,7 @@ public class UrlBasedCorsConfigurationSource implements CorsConfigurationSource 
    * @see AntPathMatcher
    */
   public void registerCorsConfiguration(String pattern, CorsConfiguration config) {
-    this.corsConfigurations.put(this.patternParser.parse(pattern), config);
+    this.corsConfigurations.put(patternParser.parse(pattern), config);
   }
 
   /**
@@ -103,8 +106,8 @@ public class UrlBasedCorsConfigurationSource implements CorsConfigurationSource 
 
   @Override
   public CorsConfiguration getCorsConfiguration(final RequestContext request) {
-    final RequestPath lookupPath = request.getLookupPath();
-    for (Map.Entry<PathPattern, CorsConfiguration> entry : this.corsConfigurations.entrySet()) {
+    RequestPath lookupPath = request.getLookupPath();
+    for (Map.Entry<PathPattern, CorsConfiguration> entry : corsConfigurations.entrySet()) {
       if (entry.getKey().matches(lookupPath)) {
         return entry.getValue();
       }
