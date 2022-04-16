@@ -23,8 +23,8 @@ package cn.taketoday.web.socket.annotation;
 import java.lang.reflect.Method;
 
 import cn.taketoday.beans.factory.config.BeanDefinition;
+import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.core.annotation.MergedAnnotation;
-import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.socket.WebSocketHandlerRegistry;
 import jakarta.websocket.server.ServerEndpoint;
 
@@ -67,13 +67,13 @@ public class StandardWebSocketHandlerRegistry extends WebSocketHandlerRegistry {
   }
 
   @Override
-  protected boolean isEndpoint(WebApplicationContext context, BeanDefinition definition, String beanName) {
+  protected boolean isEndpoint(ApplicationContext context, BeanDefinition definition, String beanName) {
     return super.isEndpoint(context, definition, beanName) || context.findSynthesizedAnnotation(
             beanName, ServerEndpoint.class) != null;
   }
 
   @Override
-  protected String[] getPath(String beanName, BeanDefinition definition, WebApplicationContext context) {
+  protected String[] getPath(String beanName, BeanDefinition definition, ApplicationContext context) {
     MergedAnnotation<ServerEndpoint> serverEndpoint = context.findAnnotationOnBean(beanName, ServerEndpoint.class);
     if (serverEndpoint.isPresent()) {
       return serverEndpoint.getStringValueArray();

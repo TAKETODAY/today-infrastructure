@@ -29,6 +29,7 @@ import java.util.Set;
 
 import cn.taketoday.beans.factory.BeanDefinitionStoreException;
 import cn.taketoday.beans.factory.BeanFactoryUtils;
+import cn.taketoday.beans.factory.SmartInitializingSingleton;
 import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
 import cn.taketoday.context.ApplicationContext;
@@ -49,7 +50,6 @@ import cn.taketoday.web.annotation.ActionMapping;
 import cn.taketoday.web.annotation.Controller;
 import cn.taketoday.web.annotation.Interceptor;
 import cn.taketoday.web.annotation.PathVariable;
-import cn.taketoday.web.config.WebApplicationInitializer;
 import cn.taketoday.web.handler.method.ActionMappingAnnotationHandler;
 import cn.taketoday.web.handler.method.AnnotationHandlerFactory;
 import cn.taketoday.web.handler.method.HandlerMethod;
@@ -68,7 +68,7 @@ import cn.taketoday.web.util.pattern.PathPatternParser;
  * 2018-07-1 20:47:06
  */
 public class HandlerMethodRegistry
-        extends AbstractUrlHandlerRegistry implements HandlerRegistry, WebApplicationInitializer {
+        extends AbstractUrlHandlerRegistry implements HandlerRegistry, SmartInitializingSingleton {
 
   private ConfigurableBeanFactory beanFactory;
 
@@ -86,20 +86,17 @@ public class HandlerMethodRegistry
   // MappedHandlerRegistry
   // --------------------------
 
-  /**
-   * Initialize All Action or Handler
-   */
   @Override
-  public void onStartup(WebApplicationContext context) {
+  public void afterSingletonsInstantiated() {
     log.info("Initializing Annotation Controllers");
-    this.registry = context.unwrapFactory(BeanDefinitionRegistry.class);
     initActions();
   }
 
   @Override
   protected void initApplicationContext(ApplicationContext context) {
-    setBeanFactory(context.unwrapFactory(ConfigurableBeanFactory.class));
     super.initApplicationContext(context);
+    setBeanFactory(context.unwrapFactory(ConfigurableBeanFactory.class));
+    this.registry = context.unwrapFactory(BeanDefinitionRegistry.class);
   }
 
   /**

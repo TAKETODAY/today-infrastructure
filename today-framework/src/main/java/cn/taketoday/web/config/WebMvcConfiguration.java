@@ -107,13 +107,6 @@ public interface WebMvcConfiguration {
   default void configureMultipart(MultipartConfiguration config) { }
 
   /**
-   * Configure WebApplicationInitializer
-   *
-   * @param initializers WebApplicationInitializer register
-   */
-  default void configureInitializer(List<WebApplicationInitializer> initializers) { }
-
-  /**
    * Configure {@link ViewController} s
    *
    * @param registry {@link ViewControllerHandlerRegistry}

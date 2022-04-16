@@ -53,8 +53,7 @@ import cn.taketoday.web.util.pattern.PathPatternParser;
  * @see #lookup(RequestContext)
  * @since 2019-12-24 15:02
  */
-public abstract class AbstractHandlerRegistry
-        extends WebApplicationContextSupport
+public abstract class AbstractHandlerRegistry extends WebApplicationContextSupport
         implements HandlerRegistry, Ordered, EmbeddedValueResolverAware, BeanNameAware {
   /**
    * Dedicated "hidden" logger for request mappings.

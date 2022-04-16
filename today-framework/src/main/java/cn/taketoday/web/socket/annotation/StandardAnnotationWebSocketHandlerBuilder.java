@@ -24,8 +24,8 @@ import java.util.Arrays;
 
 import cn.taketoday.beans.BeanUtils;
 import cn.taketoday.beans.factory.config.BeanDefinition;
+import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.core.annotation.MergedAnnotation;
-import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.socket.StandardEndpoint;
 import cn.taketoday.web.socket.WebSocketHandler;
 import jakarta.websocket.server.ServerEndpoint;
@@ -48,7 +48,8 @@ public class StandardAnnotationWebSocketHandlerBuilder extends AnnotationWebSock
 
   @Override
   public WebSocketHandler build(
-          String beanName, BeanDefinition definition, WebApplicationContext context, WebSocketHandlerDelegate annotationHandler) {
+          String beanName, BeanDefinition definition,
+          ApplicationContext context, WebSocketHandlerDelegate annotationHandler) {
     StandardAnnotationWebSocketDispatcher socketDispatcher
             = new StandardAnnotationWebSocketDispatcher(annotationHandler, resolvers, supportPartialMessage);
 

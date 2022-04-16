@@ -27,6 +27,7 @@ import java.util.Collections;
 import java.util.List;
 
 import cn.taketoday.beans.factory.config.BeanDefinition;
+import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.core.ArraySizeTrimmer;
 import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.core.conversion.support.DefaultConversionService;
@@ -35,7 +36,6 @@ import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.CollectionUtils;
-import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.socket.Message;
 import cn.taketoday.web.socket.WebSocketHandler;
 
@@ -94,7 +94,7 @@ public class AnnotationWebSocketHandlerBuilder implements ArraySizeTrimmer {
   }
 
   public WebSocketHandler build(
-          String beanName, BeanDefinition definition, WebApplicationContext context, WebSocketHandlerDelegate annotationHandler) {
+          String beanName, BeanDefinition definition, ApplicationContext context, WebSocketHandlerDelegate annotationHandler) {
     return new AnnotationWebSocketDispatcher(annotationHandler, resolvers, supportPartialMessage);
   }
 

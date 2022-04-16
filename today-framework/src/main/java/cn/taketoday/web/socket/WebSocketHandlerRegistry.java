@@ -24,12 +24,12 @@ import java.lang.reflect.Method;
 
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanSupplier;
+import cn.taketoday.beans.factory.SmartInitializingSingleton;
 import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.support.RootBeanDefinition;
+import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.lang.Assert;
-import cn.taketoday.web.WebApplicationContext;
-import cn.taketoday.web.config.WebApplicationInitializer;
 import cn.taketoday.web.handler.method.ActionMappingAnnotationHandler;
 import cn.taketoday.web.handler.method.AnnotationHandlerFactory;
 import cn.taketoday.web.handler.method.ResolvableParameterFactory;
@@ -53,8 +53,7 @@ import cn.taketoday.web.util.pattern.PathPatternParser;
  * @author TODAY 2021/4/5 12:12
  * @since 3.0
  */
-public class WebSocketHandlerRegistry
-        extends AbstractUrlHandlerRegistry implements WebApplicationInitializer {
+public class WebSocketHandlerRegistry extends AbstractUrlHandlerRegistry implements SmartInitializingSingleton {
   protected AnnotationWebSocketHandlerBuilder annotationHandlerBuilder;
 
   public WebSocketHandlerRegistry() { }
@@ -64,7 +63,11 @@ public class WebSocketHandlerRegistry
   }
 
   @Override
-  public void onStartup(WebApplicationContext context) throws Throwable {
+  public void afterSingletonsInstantiated() {
+    onStartup(obtainApplicationContext());
+  }
+
+  public void onStartup(ApplicationContext context) {
     if (annotationHandlerBuilder == null) {
       annotationHandlerBuilder = context.getBean(AnnotationWebSocketHandlerBuilder.class);
     }
@@ -93,13 +96,13 @@ public class WebSocketHandlerRegistry
     return BeanSupplier.from(beanFactory, beanName);
   }
 
-  protected boolean isEndpoint(WebApplicationContext context, BeanDefinition definition, String beanName) {
+  protected boolean isEndpoint(ApplicationContext context, BeanDefinition definition, String beanName) {
     return context.findAnnotationOnBean(
             beanName, EndpointMapping.class).isPresent();
   }
 
   protected void registerEndpoint(
-          String beanName, RootBeanDefinition definition, WebApplicationContext context,
+          String beanName, RootBeanDefinition definition, ApplicationContext context,
           AnnotationHandlerFactory factory) {
     BeanSupplier<Object> handlerBean = createHandler(beanName, context);
 
@@ -146,7 +149,7 @@ public class WebSocketHandlerRegistry
     }
   }
 
-  protected String[] getPath(String beanName, BeanDefinition definition, WebApplicationContext context) {
+  protected String[] getPath(String beanName, BeanDefinition definition, ApplicationContext context) {
     return context.findAnnotationOnBean(beanName, EndpointMapping.class).getStringValueArray();
   }
 

@@ -95,13 +95,6 @@ public class CompositeWebMvcConfiguration implements WebMvcConfiguration {
   }
 
   @Override
-  public void configureInitializer(List<WebApplicationInitializer> initializers) {
-    for (WebMvcConfiguration webMvcConfiguration : getWebMvcConfigurations()) {
-      webMvcConfiguration.configureInitializer(initializers);
-    }
-  }
-
-  @Override
   public void configureViewController(ViewControllerHandlerRegistry viewControllerHandlerRegistry) {
     for (WebMvcConfiguration webMvcConfiguration : getWebMvcConfigurations()) {
       webMvcConfiguration.configureViewController(viewControllerHandlerRegistry);

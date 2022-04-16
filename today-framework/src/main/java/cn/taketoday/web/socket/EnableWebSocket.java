@@ -28,12 +28,12 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.util.List;
 
+import cn.taketoday.beans.factory.annotation.DisableAllDependencyInjection;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Import;
 import cn.taketoday.context.annotation.MissingBean;
+import cn.taketoday.lang.NonNull;
 import cn.taketoday.util.ClassUtils;
-import cn.taketoday.web.WebApplicationContext;
-import cn.taketoday.web.config.WebApplicationInitializer;
 import cn.taketoday.web.socket.annotation.AnnotationWebSocketHandlerBuilder;
 import cn.taketoday.web.socket.annotation.EndpointParameterResolver;
 import cn.taketoday.web.socket.annotation.MessageBodyEndpointParameterResolver;
@@ -55,8 +55,9 @@ public @interface EnableWebSocket {
 
 }
 
+@DisableAllDependencyInjection
 @Configuration(proxyBeanMethods = false)
-class WebSocketConfig implements WebApplicationInitializer {
+class WebSocketConfig {
 
   @MissingBean(AbstractWebSocketHandlerAdapter.class)
   AbstractWebSocketHandlerAdapter webSocketHandlerAdapter() {
@@ -73,7 +74,20 @@ class WebSocketConfig implements WebApplicationInitializer {
   }
 
   @MissingBean
-  WebSocketHandlerRegistry webSocketHandlerRegistry(AnnotationWebSocketHandlerBuilder handlerBuilder) {
+  WebSocketHandlerRegistry webSocketHandlerRegistry(
+          List<WebSocketConfiguration> configurers, AnnotationWebSocketHandlerBuilder handlerBuilder) {
+    WebSocketHandlerRegistry registry = getRegistry(handlerBuilder);
+
+    // configure WebSocketHandlers
+    for (WebSocketConfiguration configurer : configurers) {
+      configurer.configureWebSocketHandlers(registry);
+    }
+
+    return registry;
+  }
+
+  @NonNull
+  private WebSocketHandlerRegistry getRegistry(AnnotationWebSocketHandlerBuilder handlerBuilder) {
     if (ClassUtils.isPresent("jakarta.websocket.Session")) {
       return new StandardWebSocketHandlerRegistry(handlerBuilder);
     }
@@ -87,14 +101,21 @@ class WebSocketConfig implements WebApplicationInitializer {
 
   @MissingBean(value = AnnotationWebSocketHandlerBuilder.class)
   AnnotationWebSocketHandlerBuilder annotationWebSocketHandlerBuilder(
-          List<EndpointParameterResolver> resolvers) {
-    final AnnotationWebSocketHandlerBuilder handlerBuilder;
+          List<EndpointParameterResolver> resolvers, List<WebSocketConfiguration> configurers) {
+    AnnotationWebSocketHandlerBuilder handlerBuilder;
+
     if (ClassUtils.isPresent("jakarta.websocket.Session")) {
       handlerBuilder = new StandardAnnotationWebSocketHandlerBuilder();
     }
     else {
       handlerBuilder = new AnnotationWebSocketHandlerBuilder();
     }
+
+    // configure EndpointParameterResolver
+    for (WebSocketConfiguration configurer : configurers) {
+      configurer.configureEndpointParameterResolvers(resolvers);
+    }
+
     handlerBuilder.registerDefaultResolvers();
     handlerBuilder.addResolvers(resolvers);
     handlerBuilder.trimToSize(); // @since 4.0 trimToSize
@@ -106,21 +127,4 @@ class WebSocketConfig implements WebApplicationInitializer {
     return new MessageBodyEndpointParameterResolver(jacksonObjectMapper);
   }
 
-  @Override
-  public void onStartup(WebApplicationContext context) throws Throwable {
-    WebSocketHandlerRegistry handlerRegistry = context.getBean(WebSocketHandlerRegistry.class);
-    List<WebSocketConfiguration> configurers = context.getBeans(WebSocketConfiguration.class);
-    List<EndpointParameterResolver> resolvers = context.getBeans(EndpointParameterResolver.class);
-
-    // configure WebSocketHandlers
-    for (final WebSocketConfiguration configurer : configurers) {
-      configurer.configureWebSocketHandlers(handlerRegistry);
-    }
-
-    // configure EndpointParameterResolver
-    for (final WebSocketConfiguration configurer : configurers) {
-      configurer.configureEndpointParameterResolvers(resolvers);
-    }
-
-  }
 }

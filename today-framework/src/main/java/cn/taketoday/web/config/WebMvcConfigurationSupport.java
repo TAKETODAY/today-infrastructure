@@ -106,6 +106,7 @@ import cn.taketoday.web.multipart.MultipartConfiguration;
 import cn.taketoday.web.registry.AbstractHandlerRegistry;
 import cn.taketoday.web.registry.FunctionHandlerRegistry;
 import cn.taketoday.web.registry.HandlerRegistry;
+import cn.taketoday.web.registry.SimpleUrlHandlerRegistry;
 import cn.taketoday.web.registry.ViewControllerHandlerRegistry;
 import cn.taketoday.web.registry.annotation.RequestPathMappingHandlerRegistry;
 import cn.taketoday.web.resource.ResourceUrlProvider;
@@ -662,7 +663,7 @@ public class WebMvcConfigurationSupport extends ApplicationContextSupport {
     ResourceHandlerRegistry registry = new ResourceHandlerRegistry(this.applicationContext, contentNegotiationManager);
     addResourceHandlers(registry);
 
-    AbstractHandlerRegistry handlerRegistry = registry.getHandlerRegistry();
+    SimpleUrlHandlerRegistry handlerRegistry = registry.getHandlerRegistry();
     if (handlerRegistry == null) {
       return null;
     }
@@ -851,7 +852,7 @@ public class WebMvcConfigurationSupport extends ApplicationContextSupport {
    * other more fine-grained methods:
    * <ul>
    * <li>{@link #modifyParameterResolvingRegistry(ParameterResolvingRegistry)} for adding custom argument resolvers.
-   * <li>{@link #addReturnValueHandlers} for adding custom return value handlers.
+   * <li>{@link #modifyReturnValueHandlerManager(ReturnValueHandlerManager)} for adding custom return value handlers.
    * <li>{@link #configureMessageConverters} for adding custom message converters.
    * </ul>
    */

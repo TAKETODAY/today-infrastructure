@@ -150,7 +150,9 @@ public abstract class AbstractUrlHandlerRegistry extends AbstractHandlerRegistry
     ArrayList<PathPattern> matches = null;
     for (PathPattern pattern : pathPatternHandlerMap.keySet()) {
       if (pattern.matches(lookupPath)) {
-        matches = matches != null ? matches : new ArrayList<>();
+        if (matches == null) {
+          matches = new ArrayList<>();
+        }
         matches.add(pattern);
       }
     }
