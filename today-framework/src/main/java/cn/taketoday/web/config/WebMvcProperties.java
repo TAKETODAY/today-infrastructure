@@ -27,6 +27,8 @@ import java.util.Map;
 import cn.taketoday.context.properties.ConfigurationProperties;
 import cn.taketoday.http.MediaType;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Constant;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.validation.DefaultMessageCodesResolver;
 
 /**
@@ -222,6 +224,36 @@ public class WebMvcProperties {
      * Load on startup priority of the dispatcher servlet.
      */
     private int loadOnStartup = -1;
+
+    /**
+     * @see jakarta.servlet.ServletContext#setRequestCharacterEncoding(String)
+     */
+    @Nullable
+    private String requestEncoding = Constant.DEFAULT_ENCODING;
+
+    /**
+     * @see jakarta.servlet.ServletContext#setResponseCharacterEncoding(String)
+     */
+    @Nullable
+    private String responseEncoding = Constant.DEFAULT_ENCODING;
+
+    public void setRequestEncoding(@Nullable String requestEncoding) {
+      this.requestEncoding = requestEncoding;
+    }
+
+    public void setResponseEncoding(@Nullable String responseEncoding) {
+      this.responseEncoding = responseEncoding;
+    }
+
+    @Nullable
+    public String getRequestEncoding() {
+      return requestEncoding;
+    }
+
+    @Nullable
+    public String getResponseEncoding() {
+      return responseEncoding;
+    }
 
     public String getPath() {
       return this.path;

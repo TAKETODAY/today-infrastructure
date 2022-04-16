@@ -22,9 +22,7 @@ package cn.taketoday.framework.web.servlet.config;
 
 import java.util.Set;
 
-import cn.taketoday.beans.factory.ObjectProvider;
 import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
-import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.ConditionEvaluationContext;
 import cn.taketoday.context.annotation.Conditional;
 import cn.taketoday.context.annotation.Configuration;
@@ -44,12 +42,15 @@ import cn.taketoday.context.properties.EnableConfigurationProperties;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.annotation.Order;
 import cn.taketoday.core.type.AnnotatedTypeMetadata;
+import cn.taketoday.framework.web.servlet.ServletContextInitializer;
 import cn.taketoday.framework.web.servlet.ServletRegistrationBean;
 import cn.taketoday.lang.Component;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.config.WebMvcProperties;
 import cn.taketoday.web.servlet.DispatcherServlet;
 import jakarta.servlet.MultipartConfigElement;
+import jakarta.servlet.ServletContext;
+import jakarta.servlet.ServletException;
 import jakarta.servlet.ServletRegistration;
 
 /**
@@ -117,6 +118,14 @@ public class DispatcherServletAutoConfiguration {
         registration.setMultipartConfig(multipartConfig);
       }
       return registration;
+    }
+
+    @Component
+    CharacterEncodingServletInitializer characterEncodingInitializer(WebMvcProperties webMvcProperties) {
+      var initializer = new CharacterEncodingServletInitializer();
+      initializer.setRequestCharacterEncoding(webMvcProperties.getServlet().getRequestEncoding());
+      initializer.setResponseCharacterEncoding(webMvcProperties.getServlet().getResponseEncoding());
+      return initializer;
     }
 
   }
