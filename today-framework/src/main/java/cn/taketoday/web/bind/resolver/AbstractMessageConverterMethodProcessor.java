@@ -140,7 +140,7 @@ public abstract class AbstractMessageConverterMethodProcessor
   @Override
   public final boolean supportsHandler(Object handler) {
     if (handler instanceof HandlerMethod handlerMethod) {
-      supportsHandlerMethod(handlerMethod);
+      return supportsHandlerMethod(handlerMethod);
     }
     else if (handler instanceof ActionMappingAnnotationHandler annotationHandler) {
       return supportsHandlerMethod(annotationHandler.getMethod());
