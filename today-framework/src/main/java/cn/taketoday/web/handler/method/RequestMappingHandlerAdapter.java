@@ -537,6 +537,7 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
     invocableMethod.setParameterNameDiscoverer(parameterNameDiscoverer);
 
     ModelAndViewContainer mavContainer = new ModelAndViewContainer();
+    mavContainer.setWebDataBinderFactory(binderFactory);
     mavContainer.addAllAttributes(RequestContextUtils.getInputRedirectModel(request));
     modelFactory.initModel(request, mavContainer, invocableMethod);
     mavContainer.setIgnoreDefaultModelOnRedirect(this.ignoreDefaultModelOnRedirect);

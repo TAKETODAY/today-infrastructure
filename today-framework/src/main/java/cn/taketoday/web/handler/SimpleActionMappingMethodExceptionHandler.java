@@ -48,9 +48,8 @@ public class SimpleActionMappingMethodExceptionHandler extends AbstractActionMap
   @Nullable
   @Override
   protected Object handleInternal(RequestContext context,
-          @Nullable ActionMappingAnnotationHandler annotationHandler, Throwable ex) throws Exception {
-    if (annotationHandler != null) {
-      HandlerMethod handlerMethod = annotationHandler.getMethod();
+          @Nullable HandlerMethod handlerMethod, Throwable ex) throws Exception {
+    if (handlerMethod != null) {
       context.setStatus(getErrorStatusValue(ex));
 
       if (handlerMethod.isReturnTypeAssignableTo(RenderedImage.class)) {

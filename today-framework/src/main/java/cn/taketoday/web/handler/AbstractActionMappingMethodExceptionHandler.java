@@ -46,6 +46,10 @@ public abstract class AbstractActionMappingMethodExceptionHandler extends Abstra
     if (handler == null) {
       return super.shouldApplyTo(request, null);
     }
+    else if (handler instanceof HandlerMethod handlerMethod) {
+      handler = handlerMethod.getBean();
+      return super.shouldApplyTo(request, handler);
+    }
     else if (handler instanceof ActionMappingAnnotationHandler annotationHandler) {
       handler = annotationHandler.getHandlerObject();
       return super.shouldApplyTo(request, handler);
@@ -70,8 +74,15 @@ public abstract class AbstractActionMappingMethodExceptionHandler extends Abstra
   @Nullable
   @Override
   protected Object handleInternal(RequestContext request, @Nullable Object handler, Throwable ex) throws Exception {
-    ActionMappingAnnotationHandler annotationHandler = (handler instanceof ActionMappingAnnotationHandler ? (ActionMappingAnnotationHandler) handler : null);
-    return handleInternal(request, annotationHandler, ex);
+    if (handler instanceof HandlerMethod handlerMethod) {
+      return handleInternal(request, handlerMethod, ex);
+    }
+    else if (handler instanceof ActionMappingAnnotationHandler annotationHandler) {
+      return handleInternal(request, annotationHandler.getMethod(), ex);
+    }
+    else {
+      return handleInternal(request, (HandlerMethod) null, ex);
+    }
   }
 
   /**
@@ -90,6 +101,6 @@ public abstract class AbstractActionMappingMethodExceptionHandler extends Abstra
    */
   @Nullable
   protected abstract Object handleInternal(
-          RequestContext request, @Nullable ActionMappingAnnotationHandler handlerMethod, Throwable ex) throws Exception;
+          RequestContext request, @Nullable HandlerMethod handlerMethod, Throwable ex) throws Exception;
 
 }

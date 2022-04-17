@@ -138,7 +138,7 @@ import cn.taketoday.util.StringUtils;
 public class AutowiredAnnotationBeanPostProcessor implements SmartInstantiationAwareBeanPostProcessor,
         MergedBeanDefinitionPostProcessor, PriorityOrdered, BeanFactoryAware, DependenciesBeanPostProcessor {
 
-  protected final Logger logger = LoggerFactory.getLogger(getClass());
+  protected final Logger log = LoggerFactory.getLogger(getClass());
 
   private final Set<Class<? extends Annotation>> autowiredAnnotationTypes = new LinkedHashSet<>(4);
 
@@ -169,7 +169,7 @@ public class AutowiredAnnotationBeanPostProcessor implements SmartInstantiationA
 
     try {
       this.autowiredAnnotationTypes.add(ClassUtils.forName("jakarta.inject.Inject", AutowiredAnnotationBeanPostProcessor.class.getClassLoader()));
-      logger.trace("'jakarta.inject.Inject' annotation found and supported for autowiring");
+      log.trace("'jakarta.inject.Inject' annotation found and supported for autowiring");
     }
     catch (ClassNotFoundException ex) {
       // jakarta.inject API not available - simply skip.
@@ -177,7 +177,7 @@ public class AutowiredAnnotationBeanPostProcessor implements SmartInstantiationA
 
     try {
       this.autowiredAnnotationTypes.add(ClassUtils.forName("javax.inject.Inject", AutowiredAnnotationBeanPostProcessor.class.getClassLoader()));
-      logger.trace("'javax.inject.Inject' annotation found and supported for autowiring");
+      log.trace("'javax.inject.Inject' annotation found and supported for autowiring");
     }
     catch (ClassNotFoundException ex) {
       // javax.inject API not available - simply skip.
@@ -368,8 +368,8 @@ public class AutowiredAnnotationBeanPostProcessor implements SmartInstantiationA
               if (defaultConstructor != null) {
                 candidates.add(defaultConstructor);
               }
-              else if (candidates.size() == 1 && logger.isInfoEnabled()) {
-                logger.info("Inconsistent constructor declaration on bean with name '{}': single autowire-marked constructor flagged as optional - " +
+              else if (candidates.size() == 1 && log.isInfoEnabled()) {
+                log.info("Inconsistent constructor declaration on bean with name '{}': single autowire-marked constructor flagged as optional - " +
                         "this constructor is effectively required since there is no " +
                         "default constructor to fall back to: {}", beanName, candidates.get(0));
               }
@@ -464,8 +464,8 @@ public class AutowiredAnnotationBeanPostProcessor implements SmartInstantiationA
         MergedAnnotation<?> ann = findAutowiredAnnotation(field);
         if (ann != null) {
           if (Modifier.isStatic(field.getModifiers())) {
-            if (logger.isInfoEnabled()) {
-              logger.info("Autowired annotation is not supported on static fields: " + field);
+            if (log.isInfoEnabled()) {
+              log.info("Autowired annotation is not supported on static fields: " + field);
             }
             return;
           }
@@ -482,14 +482,14 @@ public class AutowiredAnnotationBeanPostProcessor implements SmartInstantiationA
         MergedAnnotation<?> ann = findAutowiredAnnotation(bridgedMethod);
         if (ann != null && method.equals(ReflectionUtils.getMostSpecificMethod(method, clazz))) {
           if (Modifier.isStatic(method.getModifiers())) {
-            if (logger.isInfoEnabled()) {
-              logger.info("Autowired annotation is not supported on static methods: " + method);
+            if (log.isInfoEnabled()) {
+              log.info("Autowired annotation is not supported on static methods: " + method);
             }
             return;
           }
           if (method.getParameterCount() == 0) {
-            if (logger.isInfoEnabled()) {
-              logger.info("Autowired annotation should only be used on methods with parameters: " +
+            if (log.isInfoEnabled()) {
+              log.info("Autowired annotation should only be used on methods with parameters: " +
                       method);
             }
           }
@@ -558,9 +558,8 @@ public class AutowiredAnnotationBeanPostProcessor implements SmartInstantiationA
         if (this.beanFactory != null && this.beanFactory.containsBean(autowiredBeanName)) {
           this.beanFactory.registerDependentBean(autowiredBeanName, beanName);
         }
-        if (logger.isTraceEnabled()) {
-          logger.trace("Autowiring by type from bean name '" + beanName +
-                  "' to bean named '" + autowiredBeanName + "'");
+        if (log.isTraceEnabled()) {
+          log.trace("Autowiring by type from bean name '{}' to bean named '{}'", beanName, autowiredBeanName);
         }
       }
     }

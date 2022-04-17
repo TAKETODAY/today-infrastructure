@@ -66,10 +66,10 @@ public class ExceptionHandlerAnnotationExceptionHandler
 
   @Nullable
   @Override
-  protected Object handleInternal(RequestContext context,
-          @Nullable ActionMappingAnnotationHandler annotationHandler, Throwable target) {
+  protected Object handleInternal(
+          RequestContext context, @Nullable HandlerMethod handlerMethod, Throwable target) {
     // catch all handlers
-    var exHandler = lookupExceptionHandler(annotationHandler, target);
+    var exHandler = lookupExceptionHandler(handlerMethod, target);
     if (exHandler == null) {
       return null; // next
     }
@@ -90,9 +90,9 @@ public class ExceptionHandlerAnnotationExceptionHandler
 
       // efficient arraycopy call in ArrayList
       Object[] arguments = exceptions.toArray(new Object[exceptions.size() + 2]);
-      if (annotationHandler != null) {
-        arguments[arguments.length - 1] = annotationHandler;
-        arguments[arguments.length - 2] = annotationHandler.getMethod();
+      if (handlerMethod != null) {
+        arguments[arguments.length - 1] = handlerMethod;
+        arguments[arguments.length - 2] = handlerMethod.getMethod();
       }
 
       Object returnValue = exHandler.invoke(context, arguments);
@@ -123,24 +123,24 @@ public class ExceptionHandlerAnnotationExceptionHandler
    */
   @Nullable
   protected ActionMappingAnnotationHandler lookupExceptionHandler(
-          @Nullable ActionMappingAnnotationHandler annotationHandler, Throwable exception) {
+          @Nullable HandlerMethod handlerMethod, Throwable exception) {
 
     Class<?> handlerType = null;
 
-    if (annotationHandler != null) {
+    if (handlerMethod != null) {
       // Local exception handler methods on the controller class itself.
       // To be invoked through the proxy, even in case of an interface-based proxy.
-      handlerType = annotationHandler.getBeanType();
+      handlerType = handlerMethod.getBeanType();
       var resolver = exceptionHandlerCache.computeIfAbsent(handlerType, ExceptionHandlerMethodResolver::new);
       Method method = resolver.resolveMethod(exception);
       if (method != null) {
         return exceptionHandlerMapping.computeIfAbsent(method,
-                key -> getHandler(annotationHandler::getHandlerObject, key, annotationHandler.getBeanType()));
+                key -> getHandler(handlerMethod::getBean, key, handlerMethod.getBeanType()));
       }
       // For advice applicability check below (involving base packages, assignable types
       // and annotation presence), use target class instead of interface-based proxy.
       if (Proxy.isProxyClass(handlerType)) {
-        handlerType = AopUtils.getTargetClass(annotationHandler.getHandlerObject());
+        handlerType = AopUtils.getTargetClass(handlerMethod.getBean());
       }
     }
 
