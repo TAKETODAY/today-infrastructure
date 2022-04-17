@@ -67,6 +67,7 @@ import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.bind.MultipartException;
 import cn.taketoday.web.bind.NotMultipartRequestException;
+import cn.taketoday.web.bind.support.WebDataBinderFactory;
 import cn.taketoday.web.handler.method.support.ModelAndViewContainer;
 import cn.taketoday.web.multipart.MultipartFile;
 import cn.taketoday.web.view.Model;
@@ -1007,6 +1008,14 @@ public abstract class RequestContext implements InputStreamSource,
   @Nullable
   public ModelAndViewContainer getModelContainer() {
     return modelAndViewContainer;
+  }
+
+  @Nullable
+  public WebDataBinderFactory getWebDataBinderFactory() {
+    if (modelAndViewContainer != null) {
+      return modelAndViewContainer.getWebDataBinderFactory();
+    }
+    return null;
   }
 
   /**

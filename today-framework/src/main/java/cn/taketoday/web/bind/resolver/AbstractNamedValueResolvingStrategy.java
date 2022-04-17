@@ -20,18 +20,22 @@
 
 package cn.taketoday.web.bind.resolver;
 
+import cn.taketoday.beans.ConversionNotSupportedException;
+import cn.taketoday.beans.TypeMismatchException;
 import cn.taketoday.beans.factory.config.BeanExpressionContext;
 import cn.taketoday.beans.factory.config.BeanExpressionResolver;
 import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
 import cn.taketoday.core.MethodParameter;
-import cn.taketoday.core.conversion.ConversionException;
-import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.web.bind.RequestBindingException;
 import cn.taketoday.web.RequestContext;
+import cn.taketoday.web.bind.RequestBindingException;
+import cn.taketoday.web.bind.WebDataBinder;
+import cn.taketoday.web.bind.support.WebDataBinderFactory;
+import cn.taketoday.web.context.support.RequestScope;
+import cn.taketoday.web.handler.method.MethodArgumentConversionNotSupportedException;
+import cn.taketoday.web.handler.method.MethodArgumentTypeMismatchException;
 import cn.taketoday.web.handler.method.NamedValueInfo;
 import cn.taketoday.web.handler.method.ResolvableMethodParameter;
-import cn.taketoday.web.context.support.RequestScope;
 
 /**
  * Abstract base class for resolving method arguments from a named value.
@@ -116,22 +120,28 @@ public abstract class AbstractNamedValueResolvingStrategy implements ParameterRe
     else if ("".equals(arg) && namedValueInfo.defaultValue != null) {
       arg = resolveEmbeddedValuesAndExpressions(namedValueInfo.defaultValue);
     }
-    if (configurableBeanFactory != null) {
-      ConversionService conversionService = configurableBeanFactory.getConversionService();
-      if (conversionService != null) {
-        try {
-          arg = conversionService.convert(arg, resolvable.getTypeDescriptor());
-        }
-        catch (ConversionException e) {
-          throw new ParameterConversionException(methodParameter, arg, e);
-        }
-        // Check for null value after conversion of incoming argument value
-        if (arg == null && namedValueInfo.defaultValue == null
-                && namedValueInfo.required && !nestedParameter.isOptional()) {
-          handleMissingValueAfterConversion(namedValueInfo.name, nestedParameter, context);
-        }
+
+    WebDataBinderFactory binderFactory = context.getWebDataBinderFactory();
+    if (binderFactory != null) {
+      WebDataBinder binder = binderFactory.createBinder(context, null, namedValueInfo.name);
+      try {
+        arg = binder.convertIfNecessary(arg, methodParameter.getParameterType(), methodParameter);
+      }
+      catch (ConversionNotSupportedException ex) {
+        throw new MethodArgumentConversionNotSupportedException(arg, ex.getRequiredType(),
+                namedValueInfo.name, methodParameter, ex.getCause());
+      }
+      catch (TypeMismatchException ex) {
+        throw new MethodArgumentTypeMismatchException(arg, ex.getRequiredType(),
+                namedValueInfo.name, methodParameter, ex.getCause());
+      }
+      // Check for null value after conversion of incoming argument value
+      if (arg == null && namedValueInfo.defaultValue == null
+              && namedValueInfo.required && !nestedParameter.isOptional()) {
+        handleMissingValueAfterConversion(namedValueInfo.name, nestedParameter, context);
       }
     }
+
     handleResolvedValue(arg, namedValueInfo.name, resolvable, context);
     return arg;
   }

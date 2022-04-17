@@ -29,6 +29,7 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.bind.resolver.ParameterResolvingStrategies;
 import cn.taketoday.web.bind.support.SessionStatus;
 import cn.taketoday.web.bind.support.SimpleSessionStatus;
+import cn.taketoday.web.bind.support.WebDataBinderFactory;
 import cn.taketoday.web.handler.result.HandlerMethodReturnValueHandler;
 import cn.taketoday.web.view.Model;
 import cn.taketoday.web.view.ModelMap;
@@ -78,6 +79,9 @@ public class ModelAndViewContainer {
   private final SessionStatus sessionStatus = new SimpleSessionStatus();
 
   private boolean requestHandled = false;
+
+  @Nullable
+  private WebDataBinderFactory webDataBinderFactory;
 
   /**
    * By default the content of the "default" model is used both during
@@ -273,6 +277,15 @@ public class ModelAndViewContainer {
    */
   public boolean isRequestHandled() {
     return this.requestHandled;
+  }
+
+  public void setWebDataBinderFactory(@Nullable WebDataBinderFactory webDataBinderFactory) {
+    this.webDataBinderFactory = webDataBinderFactory;
+  }
+
+  @Nullable
+  public WebDataBinderFactory getWebDataBinderFactory() {
+    return webDataBinderFactory;
   }
 
   /**
