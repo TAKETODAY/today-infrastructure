@@ -44,6 +44,7 @@ import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.ReturnValueHandler;
 import cn.taketoday.web.WebApplicationContext;
+import cn.taketoday.web.context.async.WebAsyncUtils;
 import cn.taketoday.web.context.support.RequestHandledEvent;
 import cn.taketoday.web.handler.method.ExceptionHandlerAnnotationExceptionHandler;
 import cn.taketoday.web.registry.BeanNameUrlHandlerRegistry;
@@ -92,6 +93,7 @@ public class DispatcherHandler implements ApplicationContextAware {
   protected static final Logger pageNotFoundLogger = LoggerFactory.getLogger(PAGE_NOT_FOUND_LOG_CATEGORY);
 
   protected final Logger log = LoggerFactory.getLogger(getClass());
+  protected final boolean isDebugEnabled = log.isDebugEnabled();
 
   /** Action mapping registry */
   private HandlerRegistry handlerRegistry;
@@ -421,10 +423,18 @@ public class DispatcherHandler implements ApplicationContextAware {
       throwable = ex;
     }
     finally {
-      processDispatchResult(context, handler, returnValue, throwable);
+      try {
+        processDispatchResult(context, handler, returnValue, throwable);
+        throwable = null; // handled
+      }
+      catch (Throwable ex) {
+        throwable = ex; // not handled
+      }
       // @since 3.0 cleanup MultipartFiles
       context.cleanupMultipartFiles();
-      logResult(context, throwable);
+      if (isDebugEnabled) {
+        logResult(context, throwable);
+      }
       publishRequestHandledEvent(context, startTime, throwable);
     }
   }
@@ -473,7 +483,7 @@ public class DispatcherHandler implements ApplicationContextAware {
       if (log.isTraceEnabled()) {
         log.trace("Using resolved error view: {}", returnValue, ex);
       }
-      else if (log.isDebugEnabled()) {
+      else if (isDebugEnabled) {
         log.debug("Using resolved error view: {}", returnValue);
       }
     }
@@ -500,32 +510,36 @@ public class DispatcherHandler implements ApplicationContextAware {
   }
 
   private void logResult(RequestContext request, @Nullable Throwable failureCause) {
-    if (log.isDebugEnabled()) {
-      if (failureCause != null) {
-        if (log.isTraceEnabled()) {
-          log.trace("Failed to complete request", failureCause);
-        }
-        else {
-          log.debug("Failed to complete request: {}", failureCause.toString());
-        }
+    if (failureCause != null) {
+      if (log.isTraceEnabled()) {
+        log.trace("Failed to complete request", failureCause);
       }
       else {
-        String headers = "";  // nothing below trace
-        if (log.isTraceEnabled()) {
-          HttpHeaders httpHeaders = request.responseHeaders();
-          if (this.enableLoggingRequestDetails) {
-            headers = httpHeaders.entrySet().stream()
-                    .map(entry -> entry.getKey() + ":" + entry.getValue())
-                    .collect(Collectors.joining(", "));
-          }
-          else {
-            headers = httpHeaders.isEmpty() ? "" : "masked";
-          }
-          headers = ", headers={" + headers + "}";
-        }
-        HttpStatus httpStatus = HttpStatus.resolve(request.getStatus());
-        log.debug("Completed {}{}", httpStatus != null ? httpStatus : request.getStatus(), headers);
+        log.debug("Failed to complete request: {}", failureCause.toString());
       }
+    }
+    else {
+
+      if (WebAsyncUtils.isConcurrentHandlingStarted(request)) {
+        log.debug("Exiting but response remains open for further handling");
+        return;
+      }
+
+      String headers = "";  // nothing below trace
+      if (log.isTraceEnabled()) {
+        HttpHeaders httpHeaders = request.responseHeaders();
+        if (this.enableLoggingRequestDetails) {
+          headers = httpHeaders.entrySet().stream()
+                  .map(entry -> entry.getKey() + ":" + entry.getValue())
+                  .collect(Collectors.joining(", "));
+        }
+        else {
+          headers = httpHeaders.isEmpty() ? "" : "masked";
+        }
+        headers = ", headers={" + headers + "}";
+      }
+      HttpStatus httpStatus = HttpStatus.resolve(request.getStatus());
+      log.debug("Completed {}{}", httpStatus != null ? httpStatus : request.getStatus(), headers);
     }
   }
 
