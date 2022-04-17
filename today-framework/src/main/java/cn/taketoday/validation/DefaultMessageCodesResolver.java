@@ -170,14 +170,14 @@ public class DefaultMessageCodesResolver implements MessageCodesResolver, Serial
   }
 
   private void addCodes(Collection<String> codeList, String errorCode,
-                        @Nullable String objectName, Iterable<String> fields) {
+          @Nullable String objectName, Iterable<String> fields) {
     for (String field : fields) {
       addCode(codeList, errorCode, objectName, field);
     }
   }
 
   private void addCode(Collection<String> codeList, String errorCode,
-                       @Nullable String objectName, @Nullable String field) {
+          @Nullable String objectName, @Nullable String field) {
     codeList.add(postProcessMessageCode(this.formatter.format(errorCode, objectName, field)));
   }
 

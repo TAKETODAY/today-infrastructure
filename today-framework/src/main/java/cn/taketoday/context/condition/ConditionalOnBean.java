@@ -116,7 +116,6 @@ public @interface ConditionalOnBean {
    * {@code Name} and {@code NameRegistration<Name>}.
    *
    * @return the container types
-   * @since 2.1.0
    */
   Class<?>[] parameterizedContainer() default {};
 
