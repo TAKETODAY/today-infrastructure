@@ -118,7 +118,6 @@ import cn.taketoday.util.StringUtils;
  */
 public abstract class AbstractBeanFactory
         extends DefaultSingletonBeanRegistry implements ConfigurableBeanFactory {
-  private static final Logger log = LoggerFactory.getLogger(AbstractBeanFactory.class);
 
   /** object factories */
   protected final ConcurrentHashMap<Class<?>, Object> objectFactories = new ConcurrentHashMap<>(16);
@@ -353,7 +352,7 @@ public abstract class AbstractBeanFactory
     }
     else {
       // is a singleton bean
-      if (log.isTraceEnabled()) {
+      if (isDebugEnabled) {
         if (isSingletonCurrentlyInCreation(beanName)) {
           log.trace("Returning eagerly cached instance of singleton bean '{}' " +
                   "that is not fully initialized yet - a consequence of a circular reference", beanName);
@@ -396,7 +395,7 @@ public abstract class AbstractBeanFactory
         return (T) convertedBean;
       }
       catch (TypeMismatchException ex) {
-        if (log.isTraceEnabled()) {
+        if (isDebugEnabled) {
           log.trace("Failed to convert bean '{}' to required type '{}'",
                   name, ClassUtils.getQualifiedName(requiredType), ex);
         }
@@ -1113,7 +1112,7 @@ public abstract class AbstractBeanFactory
     if (previous != null && previous != scope) {
       log.debug("Replacing scope '{}' from [{}] to [{}]", scopeName, previous, scope);
     }
-    else if (log.isTraceEnabled()) {
+    else if (isDebugEnabled) {
       log.trace("Registering scope '{}' with implementation [{}]", scopeName, scope);
     }
   }
@@ -1504,7 +1503,7 @@ public abstract class AbstractBeanFactory
     // If it's a FactoryBean, we use it to create a bean instance, unless the
     // caller actually wants a reference to the factory.
     if (beanInstance instanceof FactoryBean<?> factory) {
-      if (log.isDebugEnabled()) {
+      if (isDebugEnabled) {
         log.debug("Bean with name '{}' is a factory bean", beanName);
       }
       beanInstance = objectFromFactoryBeanCache.get(beanName);
@@ -1784,7 +1783,7 @@ public abstract class AbstractBeanFactory
           if (rootCause instanceof BeanCurrentlyInCreationException bce) {
             String bceBeanName = bce.getBeanName();
             if (bceBeanName != null && isCurrentlyInCreation(bceBeanName)) {
-              if (log.isDebugEnabled()) {
+              if (isDebugEnabled) {
                 log.debug("PropertyEditorRegistrar [{}] failed because it tried to obtain currently created bean '{}': ",
                         registrar.getClass().getName(), ex.getBeanName(), ex.getMessage());
               }

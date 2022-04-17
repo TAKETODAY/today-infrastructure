@@ -122,7 +122,6 @@ import jakarta.inject.Provider;
  */
 public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
         implements ConfigurableBeanFactory, BeanDefinitionRegistry, Serializable {
-  private static final Logger log = LoggerFactory.getLogger(StandardBeanFactory.class);
 
   @Nullable
   private static final Class<?> injectProviderClass =
@@ -462,24 +461,20 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
       }
       else if (existBeanDef.getRole() < def.getRole()) {
         // e.g. was ROLE_APPLICATION, now overriding with ROLE_SUPPORT or ROLE_INFRASTRUCTURE
-        if (log.isInfoEnabled()) {
-          log.info("Overriding user-defined bean definition for bean '{}' with a " +
-                  "framework-generated bean definition: replacing [{}] with [{}]", beanName, existBeanDef, def);
-        }
+        log.info("Overriding user-defined bean definition for bean '{}' with a " +
+                "framework-generated bean definition: replacing [{}] with [{}]", beanName, existBeanDef, def);
       }
       else if (!def.equals(existBeanDef)) {
-        if (log.isDebugEnabled()) {
+        if (isDebugEnabled) {
           log.debug("Overriding bean definition for bean '{}' with a different definition: replacing [{}] with [{}]",
                   beanName, existBeanDef, def);
         }
       }
-      else {
-        if (log.isTraceEnabled()) {
-          log.trace("Overriding bean definition for bean '{}' with an equivalent definition: replacing [{}] with [{}]",
-                  beanName, existBeanDef, def);
-        }
+      else if (isDebugEnabled) {
+        log.trace("Overriding bean definition for bean '{}' with an equivalent definition: replacing [{}] with [{}]",
+                beanName, existBeanDef, def);
       }
-      this.beanDefinitionMap.put(beanName, def);
+      beanDefinitionMap.put(beanName, def);
     }
     else {
       if (isAlias(beanName)) {
@@ -534,7 +529,7 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
     Assert.hasText(beanName, "'beanName' must not be empty");
     BeanDefinition bd = beanDefinitionMap.remove(beanName);
     if (bd == null) {
-      if (log.isTraceEnabled()) {
+      if (isDebugEnabled) {
         log.trace("No bean named '{}' found in {}", beanName, this);
       }
       throw new NoSuchBeanDefinitionException(beanName);
@@ -935,7 +930,7 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
         if (rootCause instanceof BeanCurrentlyInCreationException bce) {
           String exBeanName = bce.getBeanName();
           if (exBeanName != null && isCurrentlyInCreation(exBeanName)) {
-            if (log.isTraceEnabled()) {
+            if (isDebugEnabled) {
               log.trace("Ignoring match to currently created bean '{}': ",
                       exBeanName, ex.getMessage());
             }

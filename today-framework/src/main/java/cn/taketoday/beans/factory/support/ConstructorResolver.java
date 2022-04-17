@@ -58,6 +58,7 @@ import cn.taketoday.core.MethodParameter;
 import cn.taketoday.core.NamedThreadLocal;
 import cn.taketoday.core.ParameterNameDiscoverer;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.util.ClassUtils;
@@ -86,7 +87,7 @@ import cn.taketoday.util.StringUtils;
  */
 final class ConstructorResolver {
 
-  private static final Object[] EMPTY_ARGS = new Object[0];
+  private static final Object[] EMPTY_ARGS = Constant.EMPTY_OBJECT_ARRAY;
 
   /**
    * Marker for autowired arguments in a cached argument array, to be replaced
@@ -97,10 +98,9 @@ final class ConstructorResolver {
   private static final NamedThreadLocal<InjectionPoint> currentInjectionPoint =
           new NamedThreadLocal<>("Current injection point");
 
+  private final Logger log;
   private final DependencyInjector injector;
   private final AbstractAutowireCapableBeanFactory beanFactory;
-
-  private final Logger log = AbstractAutowireCapableBeanFactory.log;
 
   /**
    * Create a new ConstructorResolver for the given factory and instantiation strategy.
@@ -109,6 +109,7 @@ final class ConstructorResolver {
    */
   public ConstructorResolver(AbstractAutowireCapableBeanFactory beanFactory) {
     this.beanFactory = beanFactory;
+    this.log = beanFactory.getLogger();
     this.injector = beanFactory.getInjector();
   }
 
