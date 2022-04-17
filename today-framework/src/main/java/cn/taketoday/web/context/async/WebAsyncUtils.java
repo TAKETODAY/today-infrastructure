@@ -56,6 +56,30 @@ public abstract class WebAsyncUtils {
   }
 
   /**
+   * is a WebAsyncManager already associated with the request?
+   */
+  public static boolean isAvailable(RequestContext context) {
+    Object asyncManagerAttr = context.getAttribute(WEB_ASYNC_MANAGER_ATTRIBUTE);
+    return asyncManagerAttr instanceof WebAsyncManager;
+  }
+
+  /**
+   * Whether the selected handler for the current request chose to handle the
+   * request asynchronously. A return value of "true" indicates concurrent
+   * handling is under way and the response will remain open. A return value
+   * of "false" means concurrent handling was either not started or possibly
+   * that it has completed and the request was dispatched for further
+   * processing of the concurrent result.
+   */
+  public static boolean isConcurrentHandlingStarted(RequestContext context) {
+    Object asyncManagerAttr = context.getAttribute(WEB_ASYNC_MANAGER_ATTRIBUTE);
+    if (asyncManagerAttr instanceof WebAsyncManager asyncManager) {
+      return asyncManager.isConcurrentHandlingStarted();
+    }
+    return false;
+  }
+
+  /**
    * Create an AsyncWebRequest instance. By default, an instance of
    * {@link StandardServletAsyncWebRequest} gets created.
    *
