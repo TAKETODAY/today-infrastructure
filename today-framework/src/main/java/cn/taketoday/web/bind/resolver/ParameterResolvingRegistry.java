@@ -253,6 +253,7 @@ public class ParameterResolvingRegistry
     // type-based argument resolution
     strategies.add(new ModelParameterResolver(modelManager));
     strategies.add(new StreamParameterResolver());
+    strategies.add(new UriComponentsBuilderParameterStrategy());
 
     if (ServletDetector.isPresent && context instanceof WebServletApplicationContext servletApp) {
       // TODO getServletContext not available in WebApplicationContext ?
