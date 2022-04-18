@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -20,45 +20,38 @@
 
 package cn.taketoday.web.handler;
 
+import cn.taketoday.lang.Assert;
+import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.interceptor.HandlerInterceptor;
-import cn.taketoday.web.interceptor.HandlerInterceptorsProvider;
 import cn.taketoday.web.interceptor.InterceptorChain;
 
 /**
- * @author TODAY 2019-12-25 16:19
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 4.0 2022/4/18 10:23
  */
-public abstract class InterceptableRequestHandler
-        extends HandlerInterceptorHolder implements RequestHandler, HandlerInterceptorsProvider {
+public class InterceptableHandlerAdapterDecorator extends HandlerInterceptorHolder implements HandlerAdapter {
 
-  public InterceptableRequestHandler() { }
+  private final HandlerAdapter handlerAdapter;
 
-  public InterceptableRequestHandler(HandlerInterceptor... interceptors) {
-    setInterceptors(interceptors);
+  public InterceptableHandlerAdapterDecorator(HandlerAdapter handlerAdapter) {
+    Assert.notNull(handlerAdapter, "handlerAdapter is required");
+    this.handlerAdapter = handlerAdapter;
   }
 
-  /**
-   * perform {@link HandlerInterceptor} on this handler
-   *
-   * @param context Current request context
-   * @return handler's result
-   * @throws Throwable any exception occurred in this request context
-   */
   @Override
-  public Object handleRequest(final RequestContext context) throws Throwable {
-    HandlerInterceptor[] interceptors = this.interceptors.get();
-    if (interceptors == null) {
-      return handleInternal(context);
-    }
-    // @since 4.0
-    return new Chain(interceptors, this).proceed(context);
+  public boolean supports(Object handler) {
+    return handlerAdapter.supports(handler);
   }
 
-  /**
-   * perform this handler' behavior internal
-   */
-  protected abstract Object handleInternal(final RequestContext context)
-          throws Throwable;
+  @Override
+  public Object handle(RequestContext context, Object handler) throws Throwable {
+    HandlerInterceptor[] interceptors = this.interceptors.get();
+    if (ObjectUtils.isNotEmpty(interceptors)) {
+      return new Chain(interceptors, handler).proceed(context);
+    }
+    return handlerAdapter.handle(context, handler);
+  }
 
   private final class Chain extends InterceptorChain {
 
@@ -68,7 +61,7 @@ public abstract class InterceptableRequestHandler
 
     @Override
     protected Object invokeHandler(RequestContext context, Object handler) throws Throwable {
-      return handleInternal(context);
+      return handlerAdapter.handle(context, handler);
     }
   }
 

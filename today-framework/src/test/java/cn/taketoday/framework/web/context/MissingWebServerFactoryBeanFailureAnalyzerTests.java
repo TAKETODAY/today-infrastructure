@@ -47,7 +47,7 @@ class MissingWebServerFactoryBeanFailureAnalyzerTests {
     assertThat(analysis.getDescription()).isEqualTo("Web application could not be started as there was no "
             + ServletWebServerFactory.class.getName() + " bean defined in the context.");
     assertThat(analysis.getAction()).isEqualTo(
-            "Check your application's dependencies for a supported servlet web server.\nCheck the configured web "
+            "Check your application's dependencies for a supported servlet_web web server.\nCheck the configured web "
                     + "application type.");
   }
 
@@ -60,7 +60,7 @@ class MissingWebServerFactoryBeanFailureAnalyzerTests {
             .isEqualTo("Web application could not be started as there was no " + ReactiveWebServerFactory.class.getName() + " bean defined in the context.");
     assertThat(analysis.getAction())
             .isEqualTo(
-                    "Check your application's dependencies for a supported reactive web server.\nCheck the configured web "
+                    "Check your application's dependencies for a supported reactive_web web server.\nCheck the configured web "
                             + "application type.");
   }
 

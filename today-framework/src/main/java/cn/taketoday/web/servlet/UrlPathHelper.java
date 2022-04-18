@@ -187,7 +187,6 @@ public class UrlPathHelper {
    *
    * @param request the current request
    * @return the resolved path
-   * @since 5.3
    */
   public String resolveAndCacheLookupPath(HttpServletRequest request) {
     String lookupPath = getLookupPathForRequest(request);
@@ -201,7 +200,6 @@ public class UrlPathHelper {
    * @param request the current request
    * @return the previously resolved lookupPath
    * @throws IllegalArgumentException if the not found
-   * @since 5.3
    */
   public static String getResolvedLookupPath(ServletRequest request) {
     String lookupPath = (String) request.getAttribute(PATH_ATTRIBUTE);
@@ -217,8 +215,7 @@ public class UrlPathHelper {
    * @param request current HTTP request
    * @param name the request attribute that holds the lookupPath
    * @return the lookup path
-   * @since 5.2
-   * @deprecated as of 5.3 in favor of using
+   * @deprecated in favor of using
    * {@link #resolveAndCacheLookupPath(HttpServletRequest)} and
    * {@link #getResolvedLookupPath(ServletRequest)}.
    */
@@ -301,7 +298,6 @@ public class UrlPathHelper {
    * @param pathWithinApp a precomputed path within the application
    * @return the path within the servlet mapping, or ""
    * @see #getLookupPathForRequest
-   * @since 5.2.9
    */
   protected String getPathWithinServletMapping(HttpServletRequest request, String pathWithinApp) {
     String servletPath = getServletPath(request);

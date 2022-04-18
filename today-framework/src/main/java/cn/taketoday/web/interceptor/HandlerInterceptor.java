@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -66,9 +66,10 @@ public interface HandlerInterceptor {
    * @return return value is target handler's result
    * @since 4.0
    */
-  default Object intercept(RequestContext context, Object handler, InterceptorChain chain) throws Throwable {
+  default Object intercept(RequestContext context, InterceptorChain chain) throws Throwable {
+    Object handler = chain.getHandler();
     if (beforeProcess(context, handler)) {
-      Object result = chain.proceed(context, handler);
+      Object result = chain.proceed(context);
       afterProcess(context, handler, result);
       return result;
     }

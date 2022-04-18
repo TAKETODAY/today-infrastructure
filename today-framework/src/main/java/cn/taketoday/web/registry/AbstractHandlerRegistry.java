@@ -26,6 +26,7 @@ import java.util.Map;
 
 import cn.taketoday.beans.factory.BeanNameAware;
 import cn.taketoday.context.ApplicationContext;
+import cn.taketoday.context.aware.ApplicationContextSupport;
 import cn.taketoday.context.expression.EmbeddedValueResolverAware;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.StringValueResolver;
@@ -53,7 +54,7 @@ import cn.taketoday.web.util.pattern.PathPatternParser;
  * @see #lookup(RequestContext)
  * @since 2019-12-24 15:02
  */
-public abstract class AbstractHandlerRegistry extends WebApplicationContextSupport
+public abstract class AbstractHandlerRegistry extends ApplicationContextSupport
         implements HandlerRegistry, Ordered, EmbeddedValueResolverAware, BeanNameAware {
   /**
    * Dedicated "hidden" logger for request mappings.

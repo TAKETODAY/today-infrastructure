@@ -250,9 +250,11 @@ public class HandlerMethodRegistry
   }
 
   protected final PathPattern getRequestPathPattern(String path) {
-    String contextPath = getContextPath();
-    if (StringUtils.isNotEmpty(contextPath)) {
-      path = contextPath.concat(path);
+    if (getApplicationContext() instanceof WebApplicationContext webApp) {
+      String contextPath = webApp.getContextPath();
+      if (StringUtils.hasText(contextPath)) {
+        path = contextPath.concat(path);
+      }
     }
     path = resolveVariables(path);
     path = WebUtils.getSanitizedPath(path);

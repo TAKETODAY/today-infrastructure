@@ -33,6 +33,7 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
 import cn.taketoday.beans.factory.BeanClassLoaderAware;
+import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.support.GenericApplicationContext;
 import cn.taketoday.core.AntPathMatcher;
 import cn.taketoday.core.ConfigurationException;
@@ -194,7 +195,7 @@ public class ViewControllerHandlerRegistry extends AbstractUrlHandlerRegistry im
       return null;
     });
 
-    WebApplicationContext context = obtainApplicationContext();
+    WebApplicationContext context = obtainApplicationContext().unwrap(WebApplicationContext.class);
     for (String location : StringUtils.split(webMvcConfigLocation)) {
       Resource resource = context.getResource(location);
       if (!resource.exists()) {
@@ -273,7 +274,7 @@ public class ViewControllerHandlerRegistry extends AbstractUrlHandlerRegistry im
 
   protected Object getControllerBean(String name, String className) {
     Object controllerBean = null;
-    WebApplicationContext context = obtainApplicationContext();
+    ApplicationContext context = obtainApplicationContext();
     if (StringUtils.isNotEmpty(name)) {
       if (StringUtils.isEmpty(className)) {
         Object bean = context.getBean(name);
@@ -360,7 +361,8 @@ public class ViewControllerHandlerRegistry extends AbstractUrlHandlerRegistry im
       mapping.setContentType(contentType);
     }
 
-    name = resolveVariables(getContextPath().concat(StringUtils.formatURL(name)));
+    WebApplicationContext context = obtainApplicationContext().unwrap(WebApplicationContext.class);
+    name = resolveVariables(context.getContextPath().concat(StringUtils.formatURL(name)));
     register(name, mapping);
   }
 
