@@ -20,10 +20,10 @@
 
 package cn.taketoday.web.handler.mvc;
 
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 
 import cn.taketoday.core.AntPathMatcher;
 import cn.taketoday.core.PathMatcher;
@@ -106,12 +106,11 @@ public class WebContentInterceptor extends WebContentGenerator implements Handle
    * @see #setCacheSeconds
    */
   public void setCacheMappings(Properties cacheMappings) {
-    this.cacheMappings.clear();
-    Enumeration<?> propNames = cacheMappings.propertyNames();
-    while (propNames.hasMoreElements()) {
-      String path = (String) propNames.nextElement();
+    cacheMappings.clear();
+    Set<String> propNames = cacheMappings.stringPropertyNames();
+    for (String path : propNames) {
       int cacheSeconds = Integer.parseInt(cacheMappings.getProperty(path));
-      this.cacheMappings.put(this.patternParser.parse(path), cacheSeconds);
+      cacheMappings.put(patternParser.parse(path), cacheSeconds);
     }
   }
 
@@ -134,7 +133,7 @@ public class WebContentInterceptor extends WebContentGenerator implements Handle
    */
   public void addCacheMapping(CacheControl cacheControl, String... paths) {
     for (String path : paths) {
-      this.cacheControlMappings.put(this.patternParser.parse(path), cacheControl);
+      cacheControlMappings.put(patternParser.parse(path), cacheControl);
     }
   }
 
@@ -143,7 +142,7 @@ public class WebContentInterceptor extends WebContentGenerator implements Handle
     checkRequest(context);
     RequestPath path = context.getLookupPath();
 
-    if (ObjectUtils.isNotEmpty(this.cacheControlMappings)) {
+    if (ObjectUtils.isNotEmpty(cacheControlMappings)) {
       CacheControl control = lookupCacheControl(path);
       if (control != null) {
         if (log.isTraceEnabled()) {
@@ -154,7 +153,7 @@ public class WebContentInterceptor extends WebContentGenerator implements Handle
       }
     }
 
-    if (ObjectUtils.isNotEmpty(this.cacheMappings)) {
+    if (ObjectUtils.isNotEmpty(cacheMappings)) {
       Integer cacheSeconds = lookupCacheSeconds(path);
       if (cacheSeconds != null) {
         if (log.isTraceEnabled()) {
@@ -179,7 +178,7 @@ public class WebContentInterceptor extends WebContentGenerator implements Handle
    */
   @Nullable
   protected CacheControl lookupCacheControl(PathContainer path) {
-    for (Map.Entry<PathPattern, CacheControl> entry : this.cacheControlMappings.entrySet()) {
+    for (Map.Entry<PathPattern, CacheControl> entry : cacheControlMappings.entrySet()) {
       if (entry.getKey().matches(path)) {
         return entry.getValue();
       }
@@ -196,7 +195,7 @@ public class WebContentInterceptor extends WebContentGenerator implements Handle
    */
   @Nullable
   protected Integer lookupCacheSeconds(PathContainer path) {
-    for (Map.Entry<PathPattern, Integer> entry : this.cacheMappings.entrySet()) {
+    for (Map.Entry<PathPattern, Integer> entry : cacheMappings.entrySet()) {
       if (entry.getKey().matches(path)) {
         return entry.getValue();
       }
