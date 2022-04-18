@@ -12,6 +12,7 @@ import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.RandomAccess;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.IntFunction;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
@@ -150,6 +151,41 @@ public final class ArrayHolder<E> implements Supplier<E[]>, Iterable<E>, RandomA
     }
     else {
       emptyAction.run();
+    }
+  }
+
+  /**
+   * @param mapper the mapping function to apply to a value, if present
+   * @param <U> The type of the value returned from the mapping function
+   * @return an {@code U} describing the result of applying a mapping
+   * function to the value of this {@code array}, if a value is
+   * present, otherwise {@code null}
+   * @throws NullPointerException if the mapping function is {@code null}
+   */
+  @Nullable
+  public <U> U map(Function<? super E[], ? extends U> mapper) {
+    return map(mapper, null);
+  }
+
+  /**
+   * @param mapper the mapping function to apply to a value, if present
+   * @param emptySupplier the supplier to be used if no value is present
+   * @param <U> The type of the value returned from the mapping function
+   * @return an {@code U} describing the result of applying a mapping
+   * function to the value of this {@code array}, if a value is
+   * present, otherwise {@code null}
+   * @throws NullPointerException if the mapping function is {@code null}
+   */
+  @Nullable
+  public <U> U map(Function<? super E[], ? extends U> mapper, @Nullable Supplier<U> emptySupplier) {
+    if (isEmpty()) {
+      if (emptySupplier != null) {
+        return emptySupplier.get();
+      }
+      return null;
+    }
+    else {
+      return mapper.apply(array);
     }
   }
 
