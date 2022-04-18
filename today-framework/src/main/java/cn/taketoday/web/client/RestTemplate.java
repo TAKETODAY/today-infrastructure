@@ -359,7 +359,7 @@ public class RestTemplate extends InterceptingHttpAccessor implements RestOperat
   @Override
   @Nullable
   public <T> T postForObject(String url, @Nullable Object request,
-                             Class<T> responseType, Object... uriVariables) throws RestClientException {
+          Class<T> responseType, Object... uriVariables) throws RestClientException {
     RequestCallback requestCallback = httpEntityCallback(request, responseType);
     HttpMessageConverterExtractor<T> responseExtractor =
             new HttpMessageConverterExtractor<>(responseType, getMessageConverters(), logger);
@@ -629,9 +629,9 @@ public class RestTemplate extends InterceptingHttpAccessor implements RestOperat
   @Override
   @Nullable
   public <T> T execute(String url, HttpMethod method,
-                       @Nullable RequestCallback requestCallback,
-                       @Nullable ResponseExtractor<T> responseExtractor,
-                       Object... uriVariables) throws RestClientException {
+          @Nullable RequestCallback requestCallback,
+          @Nullable ResponseExtractor<T> responseExtractor,
+          Object... uriVariables) throws RestClientException {
 
     URI expanded = getUriTemplateHandler().expand(url, uriVariables);
     return doExecute(expanded, method, requestCallback, responseExtractor);
@@ -651,9 +651,9 @@ public class RestTemplate extends InterceptingHttpAccessor implements RestOperat
   @Override
   @Nullable
   public <T> T execute(String url, HttpMethod method,
-                       @Nullable RequestCallback requestCallback,
-                       @Nullable ResponseExtractor<T> responseExtractor,
-                       Map<String, ?> uriVariables) throws RestClientException {
+          @Nullable RequestCallback requestCallback,
+          @Nullable ResponseExtractor<T> responseExtractor,
+          Map<String, ?> uriVariables) throws RestClientException {
 
     URI expanded = getUriTemplateHandler().expand(url, uriVariables);
     return doExecute(expanded, method, requestCallback, responseExtractor);
@@ -673,8 +673,8 @@ public class RestTemplate extends InterceptingHttpAccessor implements RestOperat
   @Override
   @Nullable
   public <T> T execute(URI url, HttpMethod method,
-                       @Nullable RequestCallback requestCallback,
-                       @Nullable ResponseExtractor<T> responseExtractor) throws RestClientException {
+          @Nullable RequestCallback requestCallback,
+          @Nullable ResponseExtractor<T> responseExtractor) throws RestClientException {
     return doExecute(url, method, requestCallback, responseExtractor);
   }
 
@@ -908,12 +908,11 @@ public class RestTemplate extends InterceptingHttpAccessor implements RestOperat
         MediaType requestContentType = requestHeaders.getContentType();
 
         // iterate messageConverter
-        boolean debugEnabled = logger.isDebugEnabled();
         for (HttpMessageConverter messageConverter : getMessageConverters()) {
           if (messageConverter instanceof GenericHttpMessageConverter genericConverter) {
             if (genericConverter.canWrite(requestBodyType, requestBodyClass, requestContentType)) {
               copyHttpHeaders(httpHeaders, requestHeaders);
-              if (debugEnabled) {
+              if (logger.isDebugEnabled()) {
                 logBody(requestBody, requestContentType, genericConverter);
               }
               genericConverter.write(requestBody, requestBodyType, requestContentType, httpRequest);
@@ -922,7 +921,7 @@ public class RestTemplate extends InterceptingHttpAccessor implements RestOperat
           }
           else if (messageConverter.canWrite(requestBodyClass, requestContentType)) {
             copyHttpHeaders(httpHeaders, requestHeaders);
-            if (debugEnabled) {
+            if (logger.isDebugEnabled()) {
               logBody(requestBody, requestContentType, messageConverter);
             }
             messageConverter.write(requestBody, requestContentType, httpRequest);
