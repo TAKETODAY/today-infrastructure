@@ -22,6 +22,8 @@ import cn.taketoday.lang.NonNull;
 import cn.taketoday.lang.Nullable;
 
 /**
+ * It is used for the scenario of changing less and reading more frequently.
+ *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/1/12 15:28
  */
@@ -67,6 +69,12 @@ public final class ArrayHolder<E> implements Supplier<E[]>, Iterable<E>, RandomA
     set(objects);
   }
 
+  /**
+   * add list at end of the array
+   *
+   * @param list list to add
+   * @throws NullPointerException input list is null
+   */
   public void addAll(Collection<E> list) {
     ArrayList<E> objects = new ArrayList<>(list.size());
     CollectionUtils.addAll(objects, this.array);
