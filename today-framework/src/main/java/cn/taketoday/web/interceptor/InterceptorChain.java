@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -23,23 +23,29 @@ package cn.taketoday.web.interceptor;
 import cn.taketoday.web.RequestContext;
 
 /**
+ * HandlerInterceptor execution chain
+ *
  * @author TODAY 2021/8/8 14:57
  * @since 4.0
  */
 public abstract class InterceptorChain {
 
-  private final HandlerInterceptor[] interceptors;
   private int currentIndex = 0;
+  private final Object handler;
+  private final int interceptorLength;
+  private final HandlerInterceptor[] interceptors;
 
-  protected InterceptorChain(HandlerInterceptor[] interceptors) {
+  protected InterceptorChain(HandlerInterceptor[] interceptors, Object handler) {
+    this.interceptorLength = interceptors.length;
     this.interceptors = interceptors;
+    this.handler = handler;
   }
 
-  public final Object proceed(RequestContext context, Object handler) throws Throwable {
-    if (currentIndex < interceptors.length) {
-      return interceptors[currentIndex++].intercept(context, handler, this);
+  public final Object proceed(RequestContext context) throws Throwable {
+    if (currentIndex < interceptorLength) {
+      return interceptors[currentIndex++].intercept(context, this);
     }
-    return proceedTarget(context, handler);
+    return invokeHandler(context, handler);
   }
 
   /**
@@ -49,10 +55,18 @@ public abstract class InterceptorChain {
    * @param handler this context request handler
    * @return handle result
    */
-  protected abstract Object proceedTarget(RequestContext context, Object handler) throws Throwable;
+  protected abstract Object invokeHandler(RequestContext context, Object handler) throws Throwable;
 
   public HandlerInterceptor[] getInterceptors() {
     return interceptors;
+  }
+
+  public int getCurrentIndex() {
+    return currentIndex;
+  }
+
+  public Object getHandler() {
+    return handler;
   }
 
 }
