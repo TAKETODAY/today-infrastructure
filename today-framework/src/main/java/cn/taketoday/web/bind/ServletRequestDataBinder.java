@@ -34,6 +34,15 @@ import jakarta.servlet.http.HttpServletRequest;
  * Special {@link cn.taketoday.validation.DataBinder} to perform data binding
  * from servlet request parameters to JavaBeans, including support for multipart files.
  *
+ * <p><strong>WARNING</strong>: Data binding can lead to security issues by exposing
+ * parts of the object graph that are not meant to be accessed or modified by
+ * external clients. Therefore the design and use of data binding should be considered
+ * carefully with regard to security. For more details, please refer to the dedicated
+ * sections on data binding for
+ * <a href="https://docs.spring.io/spring-framework/docs/current/reference/html/web.html#mvc-ann-initbinder-model-design">Spring Web MVC</a> and
+ * <a href="https://docs.spring.io/spring-framework/docs/current/reference/html/web-reactive.html#webflux-ann-initbinder-model-design">Spring WebFlux</a>
+ * in the reference manual.
+ *
  * <p>See the DataBinder/WebDataBinder superclasses for customization options,
  * which include specifying allowed/required fields, and registering custom
  * property editors.

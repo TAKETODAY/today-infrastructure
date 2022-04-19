@@ -27,8 +27,9 @@ import cn.taketoday.lang.Nullable;
 
 /**
  * Common interface for classes that can access named properties
- * (such as bean properties of an object or fields in an object)
- * Serves as base interface for {@link BeanWrapper}.
+ * (such as bean properties of an object or fields in an object).
+ *
+ * <p>Serves as base interface for {@link BeanWrapper}.
  *
  * @author Juergen Hoeller
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>

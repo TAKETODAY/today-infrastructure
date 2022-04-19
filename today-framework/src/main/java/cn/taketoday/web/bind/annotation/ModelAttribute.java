@@ -37,18 +37,27 @@ import cn.taketoday.web.view.Model;
  * for controller classes with {@link RequestMapping @RequestMapping}
  * methods.
  *
- * <p>Can be used to expose command objects to a web view, using
- * specific attribute names, through annotating corresponding
- * parameters of an {@link RequestMapping @RequestMapping} method.
+ * <p><strong>WARNING</strong>: Data binding can lead to security issues by exposing
+ * parts of the object graph that are not meant to be accessed or modified by
+ * external clients. Therefore the design and use of data binding should be considered
+ * carefully with regard to security. For more details, please refer to the dedicated
+ * sections on data binding for
+ * <a href="https://docs.spring.io/spring-framework/docs/current/reference/html/web.html#mvc-ann-initbinder-model-design">Spring Web MVC</a> and
+ * <a href="https://docs.spring.io/spring-framework/docs/current/reference/html/web-reactive.html#webflux-ann-initbinder-model-design">Spring WebFlux</a>
+ * in the reference manual.
  *
- * <p>Can also be used to expose reference data to a web view
- * through annotating accessor methods in a controller class with
+ * <p>{@code @ModelAttribute} can be used to expose command objects to a web view,
+ * using specific attribute names, by annotating corresponding parameters of an
+ * {@link RequestMapping @RequestMapping} method.
+ *
+ * <p>{@code @ModelAttribute} can also be used to expose reference data to a web
+ * view by annotating accessor methods in a controller class with
  * {@link RequestMapping @RequestMapping} methods. Such accessor
  * methods are allowed to have any arguments that
  * {@link RequestMapping @RequestMapping} methods support, returning
  * the model attribute value to expose.
  *
- * <p>Note however that reference data and all other model content is
+ * <p>Note however that reference data and all other model content are
  * not available to web views when request processing results in an
  * {@code Exception} since the exception could be raised at any time
  * making the content of the model unreliable. For this reason

@@ -35,10 +35,19 @@ import cn.taketoday.web.annotation.RequestMapping;
  * will be used for populating command and form object arguments
  * of annotated handler methods.
  *
- * <p>Such init-binder methods support all arguments that {@link RequestMapping}
- * supports, except for command/form objects and corresponding validation result
- * objects. Init-binder methods must not have a return value; they are usually
- * declared as {@code void}.
+ * <p><strong>WARNING</strong>: Data binding can lead to security issues by exposing
+ * parts of the object graph that are not meant to be accessed or modified by
+ * external clients. Therefore the design and use of data binding should be considered
+ * carefully with regard to security. For more details, please refer to the dedicated
+ * sections on data binding for
+ * <a href="https://docs.spring.io/spring-framework/docs/current/reference/html/web.html#mvc-ann-initbinder-model-design">Spring Web MVC</a> and
+ * <a href="https://docs.spring.io/spring-framework/docs/current/reference/html/web-reactive.html#webflux-ann-initbinder-model-design">Spring WebFlux</a>
+ * in the reference manual.
+ *
+ * <p>{@code @InitBinder} methods support all arguments that
+ * {@link RequestMapping @RequestMapping} methods support, except for command/form
+ * objects and corresponding validation result objects. {@code @InitBinder} methods
+ * must not have a return value; they are usually declared as {@code void}.
  *
  * <p>Typical arguments are {@link cn.taketoday.web.bind.WebDataBinder}
  * in combination with {@link RequestContext}
