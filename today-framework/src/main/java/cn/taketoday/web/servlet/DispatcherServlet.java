@@ -27,6 +27,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.LogFormatUtils;
@@ -75,8 +76,8 @@ public class DispatcherServlet
 
     boolean reset = false;
     if (context == null) {
-      WebApplicationContext webApplicationContext = getWebApplicationContext();
-      context = new ServletRequestContext(webApplicationContext, servletRequest, (HttpServletResponse) response);
+      ApplicationContext ctx = getApplicationContext();
+      context = new ServletRequestContext(ctx, servletRequest, (HttpServletResponse) response);
       RequestContextHolder.set(context);
       reset = true;
     }
@@ -124,11 +125,6 @@ public class DispatcherServlet
   public void init(ServletConfig servletConfig) {
     this.servletConfig = servletConfig;
     init();
-  }
-
-  @Override
-  public void init() {
-    super.init();
   }
 
   @Override

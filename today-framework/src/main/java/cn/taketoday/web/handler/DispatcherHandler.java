@@ -20,7 +20,6 @@
 package cn.taketoday.web.handler;
 
 import java.io.IOException;
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Map;
@@ -43,7 +42,6 @@ import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.ReturnValueHandler;
-import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.context.async.WebAsyncUtils;
 import cn.taketoday.web.context.support.RequestHandledEvent;
 import cn.taketoday.web.handler.method.ExceptionHandlerAnnotationExceptionHandler;
@@ -121,20 +119,20 @@ public class DispatcherHandler implements ApplicationContextAware {
   /** Detect all HandlerExceptionHandlers or just expect "HandlerExceptionHandler" bean?. */
   private boolean detectAllHandlerExceptionHandlers = true;
 
-  private WebApplicationContext webApplicationContext;
+  private ApplicationContext applicationContext;
 
   /** Should we publish a ServletRequestHandledEvent at the end of each request?. */
   private boolean publishEvents = true;
 
   public DispatcherHandler() { }
 
-  public DispatcherHandler(WebApplicationContext context) {
-    this.webApplicationContext = context;
+  public DispatcherHandler(ApplicationContext context) {
+    this.applicationContext = context;
   }
 
   // @since 4.0
   public void init() {
-    initStrategies(webApplicationContext);
+    initStrategies(applicationContext);
   }
 
   /**
@@ -187,10 +185,10 @@ public class DispatcherHandler implements ApplicationContextAware {
     if (handlerAdapters == null) {
       if (detectAllHandlerAdapters) {
         // Find all HandlerAdapters in the ApplicationContext, including ancestor contexts.
-        Map<String, HandlerAdapter> matchingBeans =
-                BeanFactoryUtils.beansOfTypeIncludingAncestors(context, HandlerAdapter.class, true, false);
+        var matchingBeans = BeanFactoryUtils.beansOfTypeIncludingAncestors(
+                context, HandlerAdapter.class, true, false);
         if (!matchingBeans.isEmpty()) {
-          ArrayList<HandlerAdapter> handlerAdapters = new ArrayList<>(matchingBeans.values());
+          var handlerAdapters = new ArrayList<>(matchingBeans.values());
           // We keep HandlerAdapters in sorted order.
           AnnotationAwareOrderComparator.sort(handlerAdapters);
           this.handlerAdapters = handlerAdapters.toArray(new HandlerAdapter[0]);
@@ -244,10 +242,10 @@ public class DispatcherHandler implements ApplicationContextAware {
     if (exceptionHandler == null) {
       if (detectAllHandlerExceptionHandlers) {
         // Find all HandlerAdapters in the ApplicationContext, including ancestor contexts.
-        Map<String, HandlerExceptionHandler> matchingBeans =
-                BeanFactoryUtils.beansOfTypeIncludingAncestors(context, HandlerExceptionHandler.class, true, false);
+        var matchingBeans = BeanFactoryUtils.beansOfTypeIncludingAncestors(
+                context, HandlerExceptionHandler.class, true, false);
         if (!matchingBeans.isEmpty()) {
-          ArrayList<HandlerExceptionHandler> handlers = new ArrayList<>(matchingBeans.values());
+          var handlers = new ArrayList<>(matchingBeans.values());
           // at least one exception-handler
           if (handlers.size() == 1) {
             exceptionHandler = handlers.get(0);
@@ -263,8 +261,8 @@ public class DispatcherHandler implements ApplicationContextAware {
         exceptionHandler = context.getBean(HANDLER_EXCEPTION_HANDLER_BEAN_NAME, HandlerExceptionHandler.class);
       }
       if (exceptionHandler == null) {
-        ExceptionHandlerAnnotationExceptionHandler exceptionHandler = new ExceptionHandlerAnnotationExceptionHandler();
-        exceptionHandler.setApplicationContext(getWebApplicationContext());
+        var exceptionHandler = new ExceptionHandlerAnnotationExceptionHandler();
+        exceptionHandler.setApplicationContext(getApplicationContext());
         exceptionHandler.afterPropertiesSet();
         this.exceptionHandler = exceptionHandler;
       }
@@ -500,7 +498,7 @@ public class DispatcherHandler implements ApplicationContextAware {
     if (pageNotFoundLogger.isWarnEnabled()) {
       pageNotFoundLogger.warn("No mapping for {} {}", request.getMethodValue(), request.getRequestPath());
     }
-    if (this.throwExceptionIfNoHandlerFound) {
+    if (throwExceptionIfNoHandlerFound) {
       throw new NoHandlerFoundException(
               request.getMethodValue(), request.getRequestPath(), request.requestHeaders());
     }
@@ -528,7 +526,7 @@ public class DispatcherHandler implements ApplicationContextAware {
       String headers = "";  // nothing below trace
       if (log.isTraceEnabled()) {
         HttpHeaders httpHeaders = request.responseHeaders();
-        if (this.enableLoggingRequestDetails) {
+        if (enableLoggingRequestDetails) {
           headers = httpHeaders.entrySet().stream()
                   .map(entry -> entry.getKey() + ":" + entry.getValue())
                   .collect(Collectors.joining(", "));
@@ -546,14 +544,22 @@ public class DispatcherHandler implements ApplicationContextAware {
   private void publishRequestHandledEvent(
           RequestContext request, long startTime, @Nullable Throwable failureCause) {
 
-    if (this.publishEvents && this.webApplicationContext != null) {
+    if (publishEvents && applicationContext != null) {
       // Whether we succeeded, publish an event.
-      long processingTime = System.currentTimeMillis() - startTime;
-      ApplicationEvent event = getRequestHandledEvent(request, failureCause, processingTime);
-      webApplicationContext.publishEvent(event);
+      var processingTime = System.currentTimeMillis() - startTime;
+      var event = getRequestHandledEvent(request, failureCause, processingTime);
+      applicationContext.publishEvent(event);
     }
   }
 
+  /**
+   * create a {@link RequestHandledEvent} for the given request.
+   *
+   * @param request request context
+   * @param failureCause failure cause
+   * @param processingTime processing time
+   * @return the event
+   */
   protected ApplicationEvent getRequestHandledEvent(
           RequestContext request, @Nullable Throwable failureCause, long processingTime) {
     return new RequestHandledEvent(this, null, null, processingTime);
@@ -564,20 +570,20 @@ public class DispatcherHandler implements ApplicationContextAware {
    *
    * @since 4.0
    */
-  public final WebApplicationContext getWebApplicationContext() {
-    return this.webApplicationContext;
+  public final ApplicationContext getApplicationContext() {
+    return this.applicationContext;
   }
 
   /**
    * Destroy Application
    */
   public void destroy() {
-    ApplicationContext context = getWebApplicationContext();
+    var context = getApplicationContext();
     if (context != null) {
       State state = context.getState();
       if (state != State.CLOSING && state != State.CLOSED) {
         context.close();
-        DateFormat dateFormat = new SimpleDateFormat(Constant.DEFAULT_DATE_FORMAT);
+        var dateFormat = new SimpleDateFormat(Constant.DEFAULT_DATE_FORMAT);
         log("Your application destroyed at: ["
                 + dateFormat.format(System.currentTimeMillis())
                 + "] on startup date: [" + dateFormat.format(context.getStartupDate()) + ']'
@@ -708,8 +714,8 @@ public class DispatcherHandler implements ApplicationContextAware {
    */
   @Override
   public void setApplicationContext(ApplicationContext applicationContext) {
-    if (this.webApplicationContext == null && applicationContext instanceof WebApplicationContext wac) {
-      this.webApplicationContext = wac;
+    if (this.applicationContext == null) {
+      this.applicationContext = applicationContext;
     }
   }
 

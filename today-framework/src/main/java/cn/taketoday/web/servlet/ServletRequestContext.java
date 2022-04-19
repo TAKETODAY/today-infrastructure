@@ -31,6 +31,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.core.DefaultMultiValueMap;
 import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.http.DefaultHttpHeaders;
@@ -64,7 +65,7 @@ public final class ServletRequestContext extends RequestContext {
   private final HttpServletResponse response;
 
   public ServletRequestContext(
-          WebApplicationContext context, HttpServletRequest request, HttpServletResponse response) {
+          ApplicationContext context, HttpServletRequest request, HttpServletResponse response) {
     super(context);
     this.request = request;
     this.response = response;
