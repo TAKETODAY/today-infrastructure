@@ -97,9 +97,9 @@ class BeanCurrentlyInCreationFailureAnalyzer
     StringBuilder message = new StringBuilder();
     message.append(
             String.format("The dependencies of some of the beans in the application context form a cycle:%n%n"));
-    List<BeanInCycle> beansInCycle = dependencyCycle.getBeansInCycle();
+    List<BeanInCycle> beansInCycle = dependencyCycle.beansInCycle();
     boolean singleBean = beansInCycle.size() == 1;
-    int cycleStart = dependencyCycle.getCycleStart();
+    int cycleStart = dependencyCycle.cycleStart();
     for (int i = 0; i < beansInCycle.size(); i++) {
       BeanInCycle beanInCycle = beansInCycle.get(i);
       if (i == cycleStart) {
@@ -116,24 +116,7 @@ class BeanCurrentlyInCreationFailureAnalyzer
     return message.toString();
   }
 
-  private static final class DependencyCycle {
-
-    private final List<BeanInCycle> beansInCycle;
-
-    private final int cycleStart;
-
-    private DependencyCycle(List<BeanInCycle> beansInCycle, int cycleStart) {
-      this.beansInCycle = beansInCycle;
-      this.cycleStart = cycleStart;
-    }
-
-    List<BeanInCycle> getBeansInCycle() {
-      return this.beansInCycle;
-    }
-
-    int getCycleStart() {
-      return this.cycleStart;
-    }
+  private record DependencyCycle(List<BeanInCycle> beansInCycle, int cycleStart) {
 
   }
 
