@@ -20,8 +20,6 @@
 
 package cn.taketoday.web.interceptor;
 
-import java.util.Arrays;
-
 import cn.taketoday.core.PathMatcher;
 import cn.taketoday.http.server.PathContainer;
 import cn.taketoday.http.server.RequestPath;
@@ -100,11 +98,15 @@ public final class MappedInterceptor implements HandlerInterceptor {
    */
   @Nullable
   public String[] getPathPatterns() {
-    return ObjectUtils.isNotEmpty(includePatterns)
-           ? Arrays.stream(includePatterns)
-                   .map(PatternAdapter::getPatternString)
-                   .toArray(String[]::new)
-           : null;
+    if (ObjectUtils.isNotEmpty(includePatterns)) {
+      int i = 0;
+      String[] patterns = new String[includePatterns.length];
+      for (PatternAdapter includePattern : includePatterns) {
+        patterns[i++] = includePattern.patternString;
+      }
+      return patterns;
+    }
+    return null;
   }
 
   /**
@@ -184,10 +186,6 @@ public final class MappedInterceptor implements HandlerInterceptor {
       catch (PatternParseException ex) {
         return null;
       }
-    }
-
-    public String getPatternString() {
-      return this.patternString;
     }
 
     @Nullable
