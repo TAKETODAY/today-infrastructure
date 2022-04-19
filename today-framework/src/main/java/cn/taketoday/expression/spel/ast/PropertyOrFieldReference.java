@@ -172,8 +172,8 @@ public class PropertyOrFieldReference extends SpelNodeImpl {
   private TypedValue readProperty(TypedValue contextObject, EvaluationContext evalContext, String name)
           throws EvaluationException {
 
-    Object targetObject = contextObject.getValue();
-    if (targetObject == null && this.nullSafe) {
+    Object value = contextObject.getValue();
+    if (value == null && this.nullSafe) {
       return TypedValue.NULL;
     }
 
@@ -181,7 +181,7 @@ public class PropertyOrFieldReference extends SpelNodeImpl {
     if (accessorToUse != null) {
       if (evalContext.getPropertyAccessors().contains(accessorToUse)) {
         try {
-          return accessorToUse.read(evalContext, contextObject.getValue(), name);
+          return accessorToUse.read(evalContext, value, name);
         }
         catch (Exception ex) {
           // This is OK - it may have gone stale due to a class change,
@@ -192,19 +192,19 @@ public class PropertyOrFieldReference extends SpelNodeImpl {
     }
 
     List<PropertyAccessor> accessorsToTry =
-            getPropertyAccessorsToTry(contextObject.getValue(), evalContext.getPropertyAccessors());
+            getPropertyAccessorsToTry(value, evalContext.getPropertyAccessors());
     // Go through the accessors that may be able to resolve it. If they are a cacheable accessor then
     // get the accessor and use it. If they are not cacheable but report they can read the property
     // then ask them to read it
     try {
       for (PropertyAccessor accessor : accessorsToTry) {
-        if (accessor.canRead(evalContext, contextObject.getValue(), name)) {
+        if (accessor.canRead(evalContext, value, name)) {
           if (accessor instanceof ReflectivePropertyAccessor reflectivePropertyAccessor) {
             accessor = reflectivePropertyAccessor.createOptimalAccessor(
-                    evalContext, contextObject.getValue(), name);
+                    evalContext, value, name);
           }
           this.cachedReadAccessor = accessor;
-          return accessor.read(evalContext, contextObject.getValue(), name);
+          return accessor.read(evalContext, value, name);
         }
       }
     }
@@ -212,12 +212,12 @@ public class PropertyOrFieldReference extends SpelNodeImpl {
       throw new SpelEvaluationException(ex, SpelMessage.EXCEPTION_DURING_PROPERTY_READ, name, ex.getMessage());
     }
 
-    if (contextObject.getValue() == null) {
+    if (value == null) {
       throw new SpelEvaluationException(SpelMessage.PROPERTY_OR_FIELD_NOT_READABLE_ON_NULL, name);
     }
     else {
       throw new SpelEvaluationException(getStartPosition(), SpelMessage.PROPERTY_OR_FIELD_NOT_READABLE, name,
-              FormatHelper.formatClassNameForMessage(getObjectClass(contextObject.getValue())));
+              FormatHelper.formatClassNameForMessage(getObjectClass(value)));
     }
   }
 
@@ -225,10 +225,11 @@ public class PropertyOrFieldReference extends SpelNodeImpl {
           TypedValue contextObject, EvaluationContext evalContext, String name, @Nullable Object newValue)
           throws EvaluationException {
 
-    if (contextObject.getValue() == null && this.nullSafe) {
+    Object value = contextObject.getValue();
+    if (value == null && this.nullSafe) {
       return;
     }
-    if (contextObject.getValue() == null) {
+    if (value == null) {
       throw new SpelEvaluationException(getStartPosition(), SpelMessage.PROPERTY_OR_FIELD_NOT_WRITABLE_ON_NULL, name);
     }
 
@@ -236,7 +237,7 @@ public class PropertyOrFieldReference extends SpelNodeImpl {
     if (accessorToUse != null) {
       if (evalContext.getPropertyAccessors().contains(accessorToUse)) {
         try {
-          accessorToUse.write(evalContext, contextObject.getValue(), name, newValue);
+          accessorToUse.write(evalContext, value, name, newValue);
           return;
         }
         catch (Exception ex) {
@@ -248,12 +249,12 @@ public class PropertyOrFieldReference extends SpelNodeImpl {
     }
 
     List<PropertyAccessor> accessorsToTry =
-            getPropertyAccessorsToTry(contextObject.getValue(), evalContext.getPropertyAccessors());
+            getPropertyAccessorsToTry(value, evalContext.getPropertyAccessors());
     try {
       for (PropertyAccessor accessor : accessorsToTry) {
-        if (accessor.canWrite(evalContext, contextObject.getValue(), name)) {
+        if (accessor.canWrite(evalContext, value, name)) {
           this.cachedWriteAccessor = accessor;
-          accessor.write(evalContext, contextObject.getValue(), name, newValue);
+          accessor.write(evalContext, value, name, newValue);
           return;
         }
       }
@@ -264,7 +265,7 @@ public class PropertyOrFieldReference extends SpelNodeImpl {
     }
 
     throw new SpelEvaluationException(getStartPosition(), SpelMessage.PROPERTY_OR_FIELD_NOT_WRITABLE, name,
-            FormatHelper.formatClassNameForMessage(getObjectClass(contextObject.getValue())));
+            FormatHelper.formatClassNameForMessage(getObjectClass(value)));
   }
 
   public boolean isWritableProperty(String name, TypedValue contextObject, EvaluationContext evalContext)

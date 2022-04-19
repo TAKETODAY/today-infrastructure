@@ -62,12 +62,12 @@ public abstract class TemplateAwareExpressionParser implements ExpressionParser 
       return new LiteralExpression("");
     }
 
-    Expression[] expressions = parseExpressions(expressionString, context);
-    if (expressions.length == 1) {
-      return expressions[0];
+    List<Expression> expressions = parseExpressions(expressionString, context);
+    if (expressions.size() == 1) {
+      return expressions.get(0);
     }
     else {
-      return new CompositeStringExpression(expressionString, expressions);
+      return new CompositeStringExpression(expressionString, expressions.toArray(new Expression[0]));
     }
   }
 
@@ -90,8 +90,8 @@ public abstract class TemplateAwareExpressionParser implements ExpressionParser 
    * @return the parsed expressions
    * @throws ParseException when the expressions cannot be parsed
    */
-  private Expression[] parseExpressions(String expressionString, ParserContext context) throws ParseException {
-    List<Expression> expressions = new ArrayList<>();
+  private List<Expression> parseExpressions(String expressionString, ParserContext context) throws ParseException {
+    ArrayList<Expression> expressions = new ArrayList<>();
     String prefix = context.getExpressionPrefix();
     String suffix = context.getExpressionSuffix();
     int startIdx = 0;
@@ -132,7 +132,7 @@ public abstract class TemplateAwareExpressionParser implements ExpressionParser 
       }
     }
 
-    return expressions.toArray(new Expression[0]);
+    return expressions;
   }
 
   /**

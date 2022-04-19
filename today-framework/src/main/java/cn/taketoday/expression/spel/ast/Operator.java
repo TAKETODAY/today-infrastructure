@@ -311,11 +311,9 @@ public abstract class Operator extends SpelNodeImpl {
 
     static final DescriptorComparison INCOMPATIBLE_NUMBERS = new DescriptorComparison(true, false, ' ');
 
-    final boolean areNumbers;  // Were the two compared descriptor both for numbers?
-
-    final boolean areCompatible;  // If they were numbers, were they compatible?
-
-    final char compatibleType;  // When compatible, what is the descriptor of the common type
+    public final boolean areNumbers;  // Were the two compared descriptor both for numbers?
+    public final boolean areCompatible;  // If they were numbers, were they compatible?
+    public final char compatibleType;  // When compatible, what is the descriptor of the common type
 
     private DescriptorComparison(boolean areNumbers, boolean areCompatible, char compatibleType) {
       this.areNumbers = areNumbers;

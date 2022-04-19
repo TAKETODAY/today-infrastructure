@@ -39,8 +39,9 @@ import cn.taketoday.expression.spel.SpelParseException;
 class Tokenizer {
 
   // If this gets changed, it must remain sorted...
-  private static final String[] ALTERNATIVE_OPERATOR_NAMES =
-          { "DIV", "EQ", "GE", "GT", "LE", "LT", "MOD", "NE", "NOT" };
+  private static final String[] ALTERNATIVE_OPERATOR_NAMES = {
+          "DIV", "EQ", "GE", "GT", "LE", "LT", "MOD", "NE", "NOT"
+  };
 
   private static final byte[] FLAGS = new byte[256];
 
@@ -81,13 +82,13 @@ class Tokenizer {
   public Tokenizer(String inputData) {
     this.expressionString = inputData;
     this.charsToProcess = (inputData + "\0").toCharArray();
-    this.max = this.charsToProcess.length;
+    this.max = charsToProcess.length;
     this.pos = 0;
   }
 
   public List<Token> process() {
-    while (this.pos < this.max) {
-      char ch = this.charsToProcess[this.pos];
+    while (pos < max) {
+      char ch = charsToProcess[pos];
       if (isAlphabetic(ch)) {
         lexIdentifier();
       }
@@ -191,7 +192,7 @@ class Tokenizer {
             break;
           case '|':
             if (!isTwoCharToken(TokenKind.SYMBOLIC_OR)) {
-              raiseParseException(this.pos, SpelMessage.MISSING_CHARACTER, "|");
+              raiseParseException(pos, SpelMessage.MISSING_CHARACTER, "|");
             }
             pushPairToken(TokenKind.SYMBOLIC_OR);
             break;
@@ -263,7 +264,7 @@ class Tokenizer {
             this.pos++;  // will take us to the end
             break;
           case '\\':
-            raiseParseException(this.pos, SpelMessage.UNEXPECTED_ESCAPE_CHAR);
+            raiseParseException(pos, SpelMessage.UNEXPECTED_ESCAPE_CHAR);
             break;
           default:
             throw new IllegalStateException("Cannot handle (" + (int) ch + ") '" + ch + "'");

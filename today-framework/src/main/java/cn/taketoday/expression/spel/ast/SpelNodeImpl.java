@@ -71,6 +71,11 @@ public abstract class SpelNodeImpl implements SpelNode, Opcodes {
   @Nullable
   protected volatile String exitTypeDescriptor;
 
+  public SpelNodeImpl(int startPos, int endPos) {
+    this.startPos = startPos;
+    this.endPos = endPos;
+  }
+
   public SpelNodeImpl(int startPos, int endPos, SpelNodeImpl... operands) {
     this.startPos = startPos;
     this.endPos = endPos;
