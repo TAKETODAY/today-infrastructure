@@ -38,6 +38,7 @@ import cn.taketoday.context.event.ContextRefreshedEvent;
 import cn.taketoday.core.env.ConfigurableEnvironment;
 import cn.taketoday.framework.availability.AvailabilityChangeEvent;
 import cn.taketoday.framework.availability.ReadinessState;
+import cn.taketoday.framework.web.context.MissingWebServerFactoryBeanException;
 import cn.taketoday.framework.web.context.ServerPortInfoApplicationContextInitializer;
 import cn.taketoday.framework.web.reactive.server.MockReactiveWebServerFactory;
 import cn.taketoday.http.server.reactive.HttpHandler;
@@ -66,7 +67,7 @@ class ReactiveWebServerApplicationContextTests {
     assertThatExceptionOfType(ApplicationContextException.class)
             .isThrownBy(() -> this.context.refresh())
             .havingCause()
-            .isInstanceOf(ApplicationContextException.class)
+            .isInstanceOf(MissingWebServerFactoryBeanException.class)
             .withMessageContaining(
                     "Unable to start ReactiveWebServerApplicationContext due to missing ReactiveWebServerFactory bean");
   }

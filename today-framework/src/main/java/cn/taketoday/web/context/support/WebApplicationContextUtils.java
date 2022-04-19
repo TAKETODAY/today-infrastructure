@@ -195,8 +195,8 @@ public class WebApplicationContextUtils {
     }
 
     beanFactory.registerDependency(HttpSession.class, new SessionObjectSupplier());
-    beanFactory.registerDependency(HttpServletRequest.class, new RequestObjectSupplier());
-    beanFactory.registerDependency(HttpServletResponse.class, new ResponseObjectSupplier());
+    beanFactory.registerDependency(ServletRequest.class, new RequestObjectSupplier());
+    beanFactory.registerDependency(ServletResponse.class, new ResponseObjectSupplier());
     beanFactory.registerDependency(ServletContext.class, sc);
   }
 

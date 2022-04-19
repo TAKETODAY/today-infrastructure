@@ -210,9 +210,9 @@ class ServletWebServerApplicationContextTests {
 
   @Test
   void missingServletWebServerFactory() {
-    assertThatExceptionOfType(ApplicationContextException.class).isThrownBy(() -> this.context.refresh())
+    assertThatExceptionOfType(ApplicationContextException.class)
+            .isThrownBy(() -> this.context.refresh())
             .havingCause()
-            .isInstanceOf(ApplicationContextException.class)
             .withMessageContaining("Unable to start ServletWebServerApplicationContext due to missing "
                     + "ServletWebServerFactory bean");
   }
