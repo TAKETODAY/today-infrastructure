@@ -32,7 +32,11 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Example;
+import org.hibernate.engine.spi.SessionDelegatorBaseImpl;
+import org.hibernate.engine.spi.SessionImplementor;
 import org.hibernate.query.Query;
+import org.hibernate.query.spi.NativeQueryImplementor;
+import org.hibernate.query.spi.QueryImplementor;
 
 import java.io.Serializable;
 import java.lang.reflect.InvocationHandler;
@@ -53,6 +57,10 @@ import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.transaction.support.ResourceHolderSupport;
 import cn.taketoday.transaction.support.TransactionSynchronizationManager;
 import jakarta.persistence.PersistenceException;
+import jakarta.persistence.StoredProcedureQuery;
+import jakarta.persistence.criteria.CriteriaDelete;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.CriteriaUpdate;
 
 /**
  * Helper class that simplifies Hibernate data access code. Automatically
@@ -407,6 +415,9 @@ public class HibernateTemplate implements HibernateOperations, InitializingBean 
    * @see #prepareCriteria
    */
   protected Session createSessionProxy(Session session) {
+    if (session instanceof SessionImplementor) {
+      return new CloseSuppressingSessionProxy((SessionImplementor) session);
+    }
     return (Session) Proxy.newProxyInstance(
             session.getClass().getClassLoader(), new Class<?>[] { Session.class },
             new CloseSuppressingInvocationHandler(session));
@@ -1189,6 +1200,170 @@ public class HibernateTemplate implements HibernateOperations, InitializingBean 
         throw ex.getTargetException();
       }
     }
+  }
+
+  private class CloseSuppressingSessionProxy extends SessionDelegatorBaseImpl {
+
+    public CloseSuppressingSessionProxy(SessionImplementor delegate) {
+      super(delegate);
+    }
+
+    @Override
+    public void close() throws HibernateException {
+
+    }
+
+    @Override
+    public QueryImplementor getNamedQuery(String name) {
+      QueryImplementor namedQuery = delegate.getNamedQuery(name);
+      prepareQuery(namedQuery);
+      return namedQuery;
+    }
+
+    @Override
+    public NativeQueryImplementor getNamedSQLQuery(String name) {
+      NativeQueryImplementor namedQuery = delegate.getNamedSQLQuery(name);
+      prepareQuery(namedQuery);
+      return namedQuery;
+    }
+
+    @Override
+    public NativeQueryImplementor getNamedNativeQuery(String name) {
+      NativeQueryImplementor namedNativeQuery = delegate.getNamedNativeQuery(name);
+      prepareQuery(namedNativeQuery);
+      return namedNativeQuery;
+    }
+
+    @Override
+    public QueryImplementor createQuery(String queryString) {
+      QueryImplementor query = delegate.createQuery(queryString);
+      prepareQuery(query);
+      return query;
+    }
+
+    @Override
+    public <T> QueryImplementor<T> createQuery(String queryString, Class<T> resultType) {
+      QueryImplementor<T> query = delegate.createQuery(queryString, resultType);
+      prepareQuery(query);
+      return query;
+    }
+
+    @Override
+    public <T> QueryImplementor<T> createQuery(CriteriaQuery<T> criteriaQuery) {
+      QueryImplementor<T> query = delegate.createQuery(criteriaQuery);
+      prepareQuery(query);
+      return query;
+    }
+
+    @Override
+    public QueryImplementor createQuery(CriteriaUpdate updateQuery) {
+      QueryImplementor query = delegate.createQuery(updateQuery);
+      prepareQuery(query);
+      return query;
+    }
+
+    @Override
+    public QueryImplementor createQuery(CriteriaDelete deleteQuery) {
+      QueryImplementor query = delegate.createQuery(deleteQuery);
+      prepareQuery(query);
+      return query;
+    }
+
+    @Override
+    public QueryImplementor createNamedQuery(String name) {
+      QueryImplementor namedQuery = delegate.createNamedQuery(name);
+      prepareQuery(namedQuery);
+      return namedQuery;
+    }
+
+    @Override
+    public <T> QueryImplementor<T> createNamedQuery(String name, Class<T> resultClass) {
+      QueryImplementor<T> namedQuery = delegate.createNamedQuery(name, resultClass);
+      prepareQuery(namedQuery);
+      return namedQuery;
+    }
+
+    @Override
+    public NativeQueryImplementor createNativeQuery(String sqlString) {
+      NativeQueryImplementor nativeQuery = delegate.createNativeQuery(sqlString);
+      prepareQuery(nativeQuery);
+      return nativeQuery;
+    }
+
+    @Override
+    public NativeQueryImplementor createNativeQuery(String sqlString, Class resultClass) {
+      NativeQueryImplementor nativeQuery = delegate.createNativeQuery(sqlString, resultClass);
+      prepareQuery(nativeQuery);
+      return nativeQuery;
+    }
+
+    @Override
+    public NativeQueryImplementor createNativeQuery(String sqlString, String resultSetMapping) {
+      NativeQueryImplementor nativeQuery = delegate.createNativeQuery(sqlString, resultSetMapping);
+      prepareQuery(nativeQuery);
+      return nativeQuery;
+    }
+
+    @Override
+    public StoredProcedureQuery createNamedStoredProcedureQuery(String name) {
+      StoredProcedureQuery query = delegate.createNamedStoredProcedureQuery(name);
+      if (query instanceof Query<?>) {
+        prepareQuery((Query<?>) query);
+      }
+      return query;
+    }
+
+    @Override
+    public StoredProcedureQuery createStoredProcedureQuery(String procedureName) {
+      StoredProcedureQuery query = delegate.createStoredProcedureQuery(procedureName);
+      if (query instanceof Query<?>) {
+        prepareQuery((Query<?>) query);
+      }
+      return query;
+    }
+
+    @Override
+    public StoredProcedureQuery createStoredProcedureQuery(String procedureName, Class... resultClasses) {
+      StoredProcedureQuery query = delegate.createStoredProcedureQuery(procedureName, resultClasses);
+      if (query instanceof Query<?>) {
+        prepareQuery((Query<?>) query);
+      }
+      return query;
+    }
+
+    @Override
+    public StoredProcedureQuery createStoredProcedureQuery(String procedureName, String... resultSetMappings) {
+      return delegate.createStoredProcedureQuery(procedureName, resultSetMappings);
+    }
+
+    @Override
+    public Criteria createCriteria(Class persistentClass) {
+      Criteria criteria = delegate.createCriteria(persistentClass);
+      prepareCriteria(criteria);
+      return criteria;
+    }
+
+    @Override
+    public Criteria createCriteria(Class persistentClass, String alias) {
+      Criteria criteria = delegate.createCriteria(persistentClass, alias);
+      prepareCriteria(criteria);
+      return criteria;
+    }
+
+    @Override
+    public Criteria createCriteria(String entityName) {
+      Criteria criteria = delegate.createCriteria(entityName);
+      prepareCriteria(criteria);
+      return criteria;
+    }
+
+    @Override
+    public Criteria createCriteria(String entityName, String alias) {
+      Criteria criteria = delegate.createCriteria(entityName, alias);
+      prepareCriteria(criteria);
+      return criteria;
+    }
+
   }
 
 }

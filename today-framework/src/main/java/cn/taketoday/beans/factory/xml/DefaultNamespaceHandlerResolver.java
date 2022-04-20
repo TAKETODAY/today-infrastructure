@@ -130,12 +130,12 @@ public class DefaultNamespaceHandlerResolver implements NamespaceHandlerResolver
     else {
       String className = (String) handlerOrClassName;
       try {
-        Class<?> handlerClass = ClassUtils.forName(className, this.classLoader);
+        Class<NamespaceHandler> handlerClass = ClassUtils.forName(className, this.classLoader);
         if (!NamespaceHandler.class.isAssignableFrom(handlerClass)) {
           throw new FatalBeanException("Class [" + className + "] for namespace [" + namespaceUri +
                   "] does not implement the [" + NamespaceHandler.class.getName() + "] interface");
         }
-        NamespaceHandler namespaceHandler = (NamespaceHandler) BeanUtils.newInstance(handlerClass);
+        NamespaceHandler namespaceHandler = BeanUtils.newInstance(handlerClass);
         namespaceHandler.init();
         handlerMappings.put(namespaceUri, namespaceHandler);
         return namespaceHandler;
