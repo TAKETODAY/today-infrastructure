@@ -536,7 +536,7 @@ public class HibernateTemplate implements HibernateOperations, InitializingBean 
   @Override
   @SuppressWarnings({ "unchecked", "deprecation" })
   public <T> List<T> loadAll(Class<T> entityClass) throws DataAccessException {
-    return nonNull(executeWithNativeSession((HibernateCallback<List<T>>) session -> {
+    return nonNull(executeWithNativeSession(session -> {
       Criteria criteria = session.createCriteria(entityClass);
       criteria.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
       prepareCriteria(criteria);
@@ -864,7 +864,7 @@ public class HibernateTemplate implements HibernateOperations, InitializingBean 
           throws DataAccessException {
 
     Assert.notNull(exampleEntity, "Example entity must not be null");
-    return nonNull(executeWithNativeSession((HibernateCallback<List<T>>) session -> {
+    return nonNull(executeWithNativeSession(session -> {
       Criteria executableCriteria = (entityName != null ?
                                      session.createCriteria(entityName) : session.createCriteria(exampleEntity.getClass()));
       executableCriteria.add(Example.create(exampleEntity));
@@ -998,7 +998,6 @@ public class HibernateTemplate implements HibernateOperations, InitializingBean 
   // Convenience query methods for iteration and bulk updates/deletes
   //-------------------------------------------------------------------------
 
-  @SuppressWarnings("deprecation")
   @Deprecated
   @Override
   public Iterator<?> iterate(String queryString, @Nullable Object... values) throws DataAccessException {
