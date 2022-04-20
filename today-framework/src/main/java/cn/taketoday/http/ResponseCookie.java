@@ -287,9 +287,7 @@ public final class ResponseCookie extends HttpCookie {
                 name, value, this.maxAge, this.domain, this.path,
                 this.secure, this.httpOnly, this.sameSite);
       }
-    }
-
-            ;
+    };
   }
 
   /**

@@ -57,7 +57,7 @@ public class ProblemDetail {
   /**
    * Protected constructor for subclasses.
    * <p>To create a {@link ProblemDetail} instance, use static factory methods,
-   * {@link #forStatus(HttpStatus)} or {@link #forRawStatusCode(int)}.
+   * {@link #forStatus(HttpStatusCode)} or {@link #forRawStatusCode(int)}.
    *
    * @param rawStatusCode the response status to use
    */
@@ -273,7 +273,7 @@ public class ProblemDetail {
   /**
    * Create a {@code ProblemDetail} instance with the given status code.
    */
-  public static ProblemDetail forStatus(HttpStatus status) {
+  public static ProblemDetail forStatus(HttpStatusCode status) {
     Assert.notNull(status, "HttpStatus is required");
     return forRawStatusCode(status.value());
   }
