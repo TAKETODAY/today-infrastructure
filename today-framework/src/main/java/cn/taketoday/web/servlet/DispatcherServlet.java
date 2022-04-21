@@ -170,8 +170,8 @@ public class DispatcherServlet
     String dispatchType = !DispatcherType.REQUEST.equals(request.getDispatcherType())
                           ? "\"" + request.getDispatcherType() + "\" dispatch for "
                           : "";
-    String message = dispatchType + request.getMethod() + " \"" +
-            request.getRequestURL() + queryClause + "\", parameters={" + params + "}";
+    String message = dispatchType + request.getMethod() + " " +
+            request.getRequestURL() + queryClause + ", parameters={" + params + "}";
 
     if (log.isTraceEnabled()) {
       List<String> values = Collections.list(request.getHeaderNames());
