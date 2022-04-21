@@ -113,7 +113,8 @@ public class DataBinderParameterResolver
 
   @Override
   public boolean supportsParameter(ResolvableMethodParameter parameter) {
-    if (!parameter.hasParameterAnnotation(RequestBody.class) // @since 3.0.3 #17
+    if (!parameter.isInterface()
+            && !parameter.hasParameterAnnotation(RequestBody.class) // @since 3.0.3 #17
             && !ClassUtils.isSimpleType(parameter.getParameterType())) {
       setAttribute(parameter, registry);
       return true;
