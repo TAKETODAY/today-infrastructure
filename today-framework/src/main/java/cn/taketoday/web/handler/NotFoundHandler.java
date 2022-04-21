@@ -33,7 +33,11 @@ import cn.taketoday.web.RequestContext;
  */
 public class NotFoundHandler {
 
-  private static final Logger log = LoggerFactory.getLogger(NotFoundHandler.class);
+  /** Log category to use when no mapped handler is found for a request. */
+  public static final String PAGE_NOT_FOUND_LOG_CATEGORY = "cn.taketoday.web.handler.PageNotFound";
+
+  /** Additional logger to use when no mapped handler is found for a request. */
+  protected static final Logger log = LoggerFactory.getLogger(PAGE_NOT_FOUND_LOG_CATEGORY);
 
   /**
    * Process not found
@@ -46,7 +50,7 @@ public class NotFoundHandler {
   }
 
   protected void logNotFound(RequestContext context) {
-    if (log.isDebugEnabled()) {
+    if (log.isWarnEnabled()) {
       log.debug("No mapping for {} {}", context.getMethodValue(), context.getRequestPath());
     }
   }

@@ -84,7 +84,7 @@ public class ResponseEntityExceptionHandler {
    *
    * @see #pageNotFoundLogger
    */
-  public static final String PAGE_NOT_FOUND_LOG_CATEGORY = DispatcherHandler.PAGE_NOT_FOUND_LOG_CATEGORY;
+  public static final String PAGE_NOT_FOUND_LOG_CATEGORY = NotFoundHandler.PAGE_NOT_FOUND_LOG_CATEGORY;
 
   /**
    * Specific logger to use when no mapped handler is found for a request.
