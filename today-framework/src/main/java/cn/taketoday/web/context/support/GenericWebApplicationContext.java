@@ -31,11 +31,6 @@ import cn.taketoday.web.context.ConfigurableWebApplicationContext;
 /**
  * Subclass of {@link GenericApplicationContext}, suitable for web environments.
  *
- * <p>Implements {@link ConfigurableWebApplicationContext}, but is not intended for
- * declarative setup in {@code web.xml}. Instead, it is designed for programmatic setup,
- * for example for building nested contexts or for use within
- * {@link cn.taketoday.web.config.WebApplicationInitializer WebApplicationInitializers}.
- *
  * <p>Interprets resource paths as servlet context resources, i.e. as paths beneath
  * the web application root. Absolute paths &mdash; for example, for files outside
  * the web app root &mdash; can be accessed via {@code file:} URLs, as implemented

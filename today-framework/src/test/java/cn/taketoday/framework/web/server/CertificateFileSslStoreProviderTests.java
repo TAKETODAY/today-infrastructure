@@ -54,7 +54,7 @@ class CertificateFileSslStoreProviderTests {
     ssl.setCertificatePrivateKey("classpath:test-key.pem");
     SslStoreProvider storeProvider = CertificateFileSslStoreProvider.from(ssl);
     assertThat(storeProvider).isNotNull();
-    assertStoreContainsCertAndKey(storeProvider.getKeyStore(), KeyStore.getDefaultType(), "spring-boot-web");
+    assertStoreContainsCertAndKey(storeProvider.getKeyStore(), KeyStore.getDefaultType(), "today-web");
     assertThat(storeProvider.getTrustStore()).isNull();
   }
 
@@ -67,8 +67,8 @@ class CertificateFileSslStoreProviderTests {
     ssl.setTrustCertificate("classpath:test-cert.pem");
     SslStoreProvider storeProvider = CertificateFileSslStoreProvider.from(ssl);
     assertThat(storeProvider).isNotNull();
-    assertStoreContainsCertAndKey(storeProvider.getKeyStore(), KeyStore.getDefaultType(), "spring-boot-web");
-    assertStoreContainsCert(storeProvider.getTrustStore(), KeyStore.getDefaultType(), "spring-boot-web-0");
+    assertStoreContainsCertAndKey(storeProvider.getKeyStore(), KeyStore.getDefaultType(), "today-web");
+    assertStoreContainsCert(storeProvider.getTrustStore(), KeyStore.getDefaultType(), "today-web-0");
   }
 
   @Test
@@ -81,8 +81,8 @@ class CertificateFileSslStoreProviderTests {
     ssl.setTrustCertificatePrivateKey("classpath:test-key.pem");
     SslStoreProvider storeProvider = CertificateFileSslStoreProvider.from(ssl);
     assertThat(storeProvider).isNotNull();
-    assertStoreContainsCertAndKey(storeProvider.getKeyStore(), KeyStore.getDefaultType(), "spring-boot-web");
-    assertStoreContainsCertAndKey(storeProvider.getTrustStore(), KeyStore.getDefaultType(), "spring-boot-web");
+    assertStoreContainsCertAndKey(storeProvider.getKeyStore(), KeyStore.getDefaultType(), "today-web");
+    assertStoreContainsCertAndKey(storeProvider.getTrustStore(), KeyStore.getDefaultType(), "today-web");
   }
 
   @Test
@@ -112,8 +112,8 @@ class CertificateFileSslStoreProviderTests {
     ssl.setTrustCertificatePrivateKey("classpath:test-key.pem");
     SslStoreProvider storeProvider = CertificateFileSslStoreProvider.from(ssl);
     assertThat(storeProvider).isNotNull();
-    assertStoreContainsCertAndKey(storeProvider.getKeyStore(), "PKCS12", "spring-boot-web");
-    assertStoreContainsCertAndKey(storeProvider.getTrustStore(), "PKCS12", "spring-boot-web");
+    assertStoreContainsCertAndKey(storeProvider.getKeyStore(), "PKCS12", "today-web");
+    assertStoreContainsCertAndKey(storeProvider.getTrustStore(), "PKCS12", "today-web");
   }
 
   private void assertStoreContainsCertAndKey(KeyStore keyStore, String keyStoreType, String keyAlias)
