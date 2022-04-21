@@ -21,38 +21,28 @@ package cn.taketoday.web.handler;
 
 import java.io.IOException;
 
+import cn.taketoday.http.HttpStatus;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.web.RequestContext;
 
 /**
- * Process Handler not found ,handler is null
+ * Process Handler not found
  *
  * @author TODAY 2019-12-20 19:15
  */
-public class NotFoundRequestAdapter extends AbstractHandlerAdapter {
-  private static final Logger log = LoggerFactory.getLogger(NotFoundRequestAdapter.class);
+public class NotFoundHandler {
 
-  public NotFoundRequestAdapter() { }
+  private static final Logger log = LoggerFactory.getLogger(NotFoundHandler.class);
 
-  public NotFoundRequestAdapter(int order) {
-    setOrder(order);
-  }
-
-  @Override
-  public final boolean supports(Object handler) {
-    return handler == null;
-  }
-
-  @Override
-  public Object handle(final RequestContext context, final Object handler) throws Throwable {
+  /**
+   * Process not found
+   */
+  public Object handleNotFound(RequestContext context) throws IOException {
     logNotFound(context);
-    return handleNotFound(context);
-  }
 
-  protected Object handleNotFound(final RequestContext context) throws IOException {
-    context.sendError(404);
-    return NONE_RETURN_VALUE;
+    context.sendError(HttpStatus.NOT_FOUND.value());
+    return HandlerAdapter.NONE_RETURN_VALUE;
   }
 
   protected void logNotFound(RequestContext context) {

@@ -84,12 +84,6 @@ public class DispatcherHandler implements ApplicationContextAware {
 
   public static final String BEAN_NAME = "cn.taketoday.web.handler.DispatcherHandler";
 
-  /** Log category to use when no mapped handler is found for a request. */
-  public static final String PAGE_NOT_FOUND_LOG_CATEGORY = "cn.taketoday.web.handler.PageNotFound";
-
-  /** Additional logger to use when no mapped handler is found for a request. */
-  protected static final Logger pageNotFoundLogger = LoggerFactory.getLogger(PAGE_NOT_FOUND_LOG_CATEGORY);
-
   protected final Logger log = LoggerFactory.getLogger(getClass());
   protected final boolean isDebugEnabled = log.isDebugEnabled();
 
@@ -124,6 +118,8 @@ public class DispatcherHandler implements ApplicationContextAware {
   /** Should we publish a ServletRequestHandledEvent at the end of each request?. */
   private boolean publishEvents = true;
 
+  private NotFoundHandler notFoundHandler;
+
   public DispatcherHandler() { }
 
   public DispatcherHandler(ApplicationContext context) {
@@ -144,6 +140,7 @@ public class DispatcherHandler implements ApplicationContextAware {
     initHandlerAdapters(context);
     initReturnValueHandler(context);
     initExceptionHandler(context);
+    initNotFoundHandler(context);
   }
 
   /**
@@ -265,6 +262,22 @@ public class DispatcherHandler implements ApplicationContextAware {
         exceptionHandler.setApplicationContext(getApplicationContext());
         exceptionHandler.afterPropertiesSet();
         this.exceptionHandler = exceptionHandler;
+      }
+    }
+  }
+
+  /**
+   * Initialize the NotFoundHandler used by this class.
+   * <p>If no NotFoundHandler beans are defined in the BeanFactory for this namespace,
+   * we default to {@link NotFoundHandler}.
+   *
+   * @see NotFoundHandler
+   */
+  private void initNotFoundHandler(ApplicationContext context) {
+    if (notFoundHandler == null) {
+      notFoundHandler = BeanFactoryUtils.find(context, NotFoundHandler.class);
+      if (notFoundHandler == null) {
+        notFoundHandler = new NotFoundHandler();
       }
     }
   }
@@ -411,11 +424,12 @@ public class DispatcherHandler implements ApplicationContextAware {
       // Determine handler for the current request.
       handler = lookupHandler(context);
       if (handler == null) {
-        noHandlerFound(context);
-        return;
+        returnValue = handlerNotFound(context);
       }
-      // Actually invoke the handler.
-      returnValue = lookupHandlerAdapter(handler).handle(context, handler);
+      else {
+        // Actually invoke the handler.
+        returnValue = lookupHandlerAdapter(handler).handle(context, handler);
+      }
     }
     catch (Throwable ex) {
       throwable = ex;
@@ -494,16 +508,13 @@ public class DispatcherHandler implements ApplicationContextAware {
    * @param request current HTTP request
    * @throws Exception if preparing the response failed
    */
-  protected void noHandlerFound(RequestContext request) throws Exception {
-    if (pageNotFoundLogger.isWarnEnabled()) {
-      pageNotFoundLogger.warn("No mapping for {} {}", request.getMethodValue(), request.getRequestPath());
-    }
+  protected Object handlerNotFound(RequestContext request) throws Exception {
     if (throwExceptionIfNoHandlerFound) {
       throw new NoHandlerFoundException(
               request.getMethodValue(), request.getRequestPath(), request.requestHeaders());
     }
     else {
-      request.sendError(HttpStatus.NOT_FOUND.value());
+      return notFoundHandler.handleNotFound(request);
     }
   }
 
@@ -717,6 +728,10 @@ public class DispatcherHandler implements ApplicationContextAware {
     if (this.applicationContext == null) {
       this.applicationContext = applicationContext;
     }
+  }
+
+  public void setNotFoundHandler(NotFoundHandler notFoundHandler) {
+    this.notFoundHandler = notFoundHandler;
   }
 
 }

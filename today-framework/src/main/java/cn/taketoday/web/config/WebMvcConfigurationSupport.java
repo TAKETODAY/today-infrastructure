@@ -35,7 +35,6 @@ import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Lazy;
-import cn.taketoday.context.annotation.MissingBean;
 import cn.taketoday.context.annotation.Role;
 import cn.taketoday.context.aware.ApplicationContextSupport;
 import cn.taketoday.context.condition.ConditionalOnMissingBean;
@@ -77,7 +76,6 @@ import cn.taketoday.validation.Validator;
 import cn.taketoday.validation.beanvalidation.OptionalValidatorFactoryBean;
 import cn.taketoday.web.ReturnValueHandler;
 import cn.taketoday.web.ServletDetector;
-import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.accept.ContentNegotiationManager;
 import cn.taketoday.web.bind.WebDataBinder;
 import cn.taketoday.web.bind.resolver.ParameterResolvingRegistry;
@@ -87,7 +85,7 @@ import cn.taketoday.web.cors.CorsConfiguration;
 import cn.taketoday.web.handler.CompositeHandlerExceptionHandler;
 import cn.taketoday.web.handler.FunctionRequestAdapter;
 import cn.taketoday.web.handler.HandlerExceptionHandler;
-import cn.taketoday.web.handler.NotFoundRequestAdapter;
+import cn.taketoday.web.handler.NotFoundHandler;
 import cn.taketoday.web.handler.RequestHandlerAdapter;
 import cn.taketoday.web.handler.ResponseStatusExceptionHandler;
 import cn.taketoday.web.handler.ReturnValueHandlerManager;
@@ -109,7 +107,6 @@ import cn.taketoday.web.registry.FunctionHandlerRegistry;
 import cn.taketoday.web.registry.HandlerRegistry;
 import cn.taketoday.web.registry.SimpleUrlHandlerRegistry;
 import cn.taketoday.web.registry.ViewControllerHandlerRegistry;
-import cn.taketoday.web.registry.annotation.RequestPathMappingHandlerRegistry;
 import cn.taketoday.web.resource.ResourceUrlProvider;
 import cn.taketoday.web.servlet.ServletViewResolverComposite;
 import cn.taketoday.web.servlet.WebServletApplicationContext;
@@ -480,13 +477,13 @@ public class WebMvcConfigurationSupport extends ApplicationContextSupport {
   }
 
   /**
-   * default {@link NotFoundRequestAdapter} to handle request-url not found
+   * default {@link NotFoundHandler} to handle request-url not found
    */
   @Component
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-  @ConditionalOnMissingBean(NotFoundRequestAdapter.class)
-  NotFoundRequestAdapter notFoundRequestAdapter() {
-    return new NotFoundRequestAdapter();
+  @ConditionalOnMissingBean(NotFoundHandler.class)
+  NotFoundHandler notFoundHandler() {
+    return new NotFoundHandler();
   }
 
   @Component

@@ -35,7 +35,7 @@ import cn.taketoday.web.FrameworkConfigurationException;
  * @author Brian Clozel
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see DispatcherHandler#setThrowExceptionIfNoHandlerFound(boolean)
- * @see DispatcherHandler#noHandlerFound(cn.taketoday.web.RequestContext)
+ * @see DispatcherHandler#handlerNotFound(cn.taketoday.web.RequestContext)
  * @since 4.0 2022/1/28 23:19
  */
 @SuppressWarnings("serial")
