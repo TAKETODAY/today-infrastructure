@@ -39,6 +39,7 @@ import cn.taketoday.http.ResponseCookie;
 import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
+import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.bind.resolver.ParameterReadFailedException;
@@ -171,7 +172,7 @@ public class NettyRequestContext extends RequestContext {
   @Override
   public String getRequestURL() {
     String host = request.headers().get(HttpHeaderNames.HOST);
-    return getScheme() + "://" + host + getRequestPath();
+    return getScheme() + "://" + host + StringUtils.formatURL(getRequestPath());
   }
 
   @Override
