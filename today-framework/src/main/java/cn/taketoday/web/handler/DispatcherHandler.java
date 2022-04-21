@@ -548,7 +548,7 @@ public class DispatcherHandler implements ApplicationContextAware {
         headers = ", headers={" + headers + "}";
       }
       HttpStatus httpStatus = HttpStatus.resolve(request.getStatus());
-      log.debug("Completed {}{}", httpStatus != null ? httpStatus : request.getStatus(), headers);
+      log.debug("{} Completed {}{}", request, httpStatus != null ? httpStatus : request.getStatus(), headers);
     }
   }
 
