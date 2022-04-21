@@ -41,6 +41,14 @@ public abstract class InterceptorChain {
     this.handler = handler;
   }
 
+  /**
+   * Execute next interceptor
+   *
+   * @param context current request context
+   * @return interceptor or handler result, this will handle by {@link cn.taketoday.web.ReturnValueHandler}
+   * @throws Throwable if interceptor throw exception
+   * @see cn.taketoday.web.ReturnValueHandler
+   */
   public final Object proceed(RequestContext context) throws Throwable {
     if (currentIndex < interceptorLength) {
       return interceptors[currentIndex++].intercept(context, this);
@@ -57,14 +65,23 @@ public abstract class InterceptorChain {
    */
   protected abstract Object invokeHandler(RequestContext context, Object handler) throws Throwable;
 
+  /**
+   * Get interceptors
+   */
   public HandlerInterceptor[] getInterceptors() {
     return interceptors;
   }
 
+  /**
+   * Get current interceptor's index
+   */
   public int getCurrentIndex() {
     return currentIndex;
   }
 
+  /**
+   * target handler
+   */
   public Object getHandler() {
     return handler;
   }
