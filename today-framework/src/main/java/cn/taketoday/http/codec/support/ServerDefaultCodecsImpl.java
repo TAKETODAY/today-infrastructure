@@ -29,6 +29,7 @@ import cn.taketoday.http.codec.ServerCodecConfigurer;
 import cn.taketoday.http.codec.ServerSentEventHttpMessageWriter;
 import cn.taketoday.http.codec.multipart.DefaultPartHttpMessageReader;
 import cn.taketoday.http.codec.multipart.MultipartHttpMessageReader;
+import cn.taketoday.http.codec.multipart.PartEventHttpMessageReader;
 import cn.taketoday.http.codec.multipart.PartHttpMessageWriter;
 import cn.taketoday.lang.Nullable;
 
@@ -69,11 +70,13 @@ class ServerDefaultCodecsImpl extends BaseDefaultCodecs implements ServerCodecCo
   protected void extendTypedReaders(List<HttpMessageReader<?>> typedReaders) {
     if (this.multipartReader != null) {
       addCodec(typedReaders, this.multipartReader);
-      return;
     }
-    DefaultPartHttpMessageReader partReader = new DefaultPartHttpMessageReader();
-    addCodec(typedReaders, partReader);
-    addCodec(typedReaders, new MultipartHttpMessageReader(partReader));
+    else {
+      DefaultPartHttpMessageReader partReader = new DefaultPartHttpMessageReader();
+      addCodec(typedReaders, partReader);
+      addCodec(typedReaders, new MultipartHttpMessageReader(partReader));
+    }
+    addCodec(typedReaders, new PartEventHttpMessageReader());
   }
 
   @Override

@@ -27,7 +27,9 @@ import java.nio.charset.StandardCharsets;
 
 import cn.taketoday.core.io.buffer.DataBuffer;
 import cn.taketoday.http.HttpHeaders;
+import cn.taketoday.http.HttpMessage;
 import cn.taketoday.http.MediaType;
+import cn.taketoday.lang.Nullable;
 
 /**
  * Various static utility methods for dealing with multipart parsing.
@@ -36,6 +38,22 @@ import cn.taketoday.http.MediaType;
  * @since 4.0
  */
 abstract class MultipartUtils {
+
+  @Nullable
+  public static byte[] boundary(HttpMessage message, Charset headersCharset) {
+    MediaType contentType = message.getHeaders().getContentType();
+    if (contentType != null) {
+      String boundary = contentType.getParameter("boundary");
+      if (boundary != null) {
+        int len = boundary.length();
+        if (len > 2 && boundary.charAt(0) == '"' && boundary.charAt(len - 1) == '"') {
+          boundary = boundary.substring(1, len - 1);
+        }
+        return boundary.getBytes(headersCharset);
+      }
+    }
+    return null;
+  }
 
   /**
    * Return the character set of the given headers, as defined in the
@@ -93,6 +111,12 @@ abstract class MultipartUtils {
       }
     }
     catch (IOException ignore) { }
+  }
+
+  public static boolean isFormField(HttpHeaders headers) {
+    MediaType contentType = headers.getContentType();
+    return (contentType == null || MediaType.TEXT_PLAIN.equalsTypeAndSubtype(contentType))
+            && headers.getContentDisposition().getFilename() == null;
   }
 
 }

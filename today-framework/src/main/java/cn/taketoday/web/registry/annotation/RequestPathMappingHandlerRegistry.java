@@ -86,7 +86,7 @@ public class RequestPathMappingHandlerRegistry extends HandlerMethodRegistry {
           MergedAnnotation<ActionMapping> actionMapping,
           @Nullable MergedAnnotation<ActionMapping> controllerMapping) {
     AnnotationAttributes actionAttr = actionMapping.asAnnotationAttributes();
-    if (controllerMapping == null || actionMapping.getBoolean("exclude")) {
+    if (controllerMapping == null || !actionMapping.getBoolean("combine")) {
       mapping.putAll(actionAttr);
       return;
     }

@@ -59,6 +59,7 @@ import cn.taketoday.http.codec.json.Jackson2SmileEncoder;
 import cn.taketoday.http.codec.multipart.DefaultPartHttpMessageReader;
 import cn.taketoday.http.codec.multipart.MultipartHttpMessageReader;
 import cn.taketoday.http.codec.multipart.MultipartHttpMessageWriter;
+import cn.taketoday.http.codec.multipart.PartEventHttpMessageReader;
 import cn.taketoday.http.codec.protobuf.ProtobufDecoder;
 import cn.taketoday.http.codec.protobuf.ProtobufEncoder;
 import cn.taketoday.http.codec.protobuf.ProtobufHttpMessageWriter;
@@ -344,6 +345,9 @@ class BaseDefaultCodecs implements CodecConfigurer.DefaultCodecs, CodecConfigure
       if (codec instanceof DefaultPartHttpMessageReader) {
         ((DefaultPartHttpMessageReader) codec).setMaxInMemorySize(size);
       }
+      if (codec instanceof PartEventHttpMessageReader) {
+        ((PartEventHttpMessageReader) codec).setMaxInMemorySize(size);
+      }
     }
 
     Boolean enable = this.enableLoggingRequestDetails;
@@ -356,6 +360,9 @@ class BaseDefaultCodecs implements CodecConfigurer.DefaultCodecs, CodecConfigure
       }
       if (codec instanceof DefaultPartHttpMessageReader) {
         ((DefaultPartHttpMessageReader) codec).setEnableLoggingRequestDetails(enable);
+      }
+      if (codec instanceof PartEventHttpMessageReader) {
+        ((PartEventHttpMessageReader) codec).setEnableLoggingRequestDetails(enable);
       }
       if (codec instanceof FormHttpMessageWriter) {
         ((FormHttpMessageWriter) codec).setEnableLoggingRequestDetails(enable);

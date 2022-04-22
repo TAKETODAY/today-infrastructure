@@ -31,6 +31,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import cn.taketoday.core.ResolvableType;
 import cn.taketoday.core.codec.ByteArrayDecoder;
 import cn.taketoday.core.codec.ByteArrayEncoder;
 import cn.taketoday.core.codec.ByteBufferDecoder;
@@ -103,7 +104,7 @@ public class ClientCodecConfigurerTests {
   @Test
   public void defaultWriters() {
     List<HttpMessageWriter<?>> writers = this.configurer.getWriters();
-    assertThat(writers.size()).isEqualTo(11);
+    assertThat(writers.size()).isEqualTo(12);
     assertThat(getNextEncoder(writers).getClass()).isEqualTo(ByteArrayEncoder.class);
     assertThat(getNextEncoder(writers).getClass()).isEqualTo(ByteBufferEncoder.class);
     assertThat(getNextEncoder(writers).getClass()).isEqualTo(DataBufferEncoder.class);

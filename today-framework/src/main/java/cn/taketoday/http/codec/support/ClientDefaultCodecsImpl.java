@@ -34,6 +34,7 @@ import cn.taketoday.http.codec.HttpMessageReader;
 import cn.taketoday.http.codec.HttpMessageWriter;
 import cn.taketoday.http.codec.ServerSentEventHttpMessageReader;
 import cn.taketoday.http.codec.multipart.MultipartHttpMessageWriter;
+import cn.taketoday.http.codec.multipart.PartEventHttpMessageWriter;
 import cn.taketoday.lang.Nullable;
 
 /**
@@ -101,6 +102,7 @@ class ClientDefaultCodecsImpl extends BaseDefaultCodecs implements ClientCodecCo
   @Override
   protected void extendTypedWriters(List<HttpMessageWriter<?>> typedWriters) {
     addCodec(typedWriters, new MultipartHttpMessageWriter(getPartWriters(), new FormHttpMessageWriter()));
+    addCodec(typedWriters, new PartEventHttpMessageWriter());
   }
 
   private List<HttpMessageWriter<?>> getPartWriters() {

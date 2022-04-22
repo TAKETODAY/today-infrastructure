@@ -60,6 +60,7 @@ import cn.taketoday.http.codec.json.Jackson2SmileDecoder;
 import cn.taketoday.http.codec.json.Jackson2SmileEncoder;
 import cn.taketoday.http.codec.multipart.DefaultPartHttpMessageReader;
 import cn.taketoday.http.codec.multipart.MultipartHttpMessageReader;
+import cn.taketoday.http.codec.multipart.PartEventHttpMessageReader;
 import cn.taketoday.http.codec.multipart.PartHttpMessageWriter;
 import cn.taketoday.http.codec.protobuf.ProtobufDecoder;
 import cn.taketoday.http.codec.protobuf.ProtobufHttpMessageWriter;
@@ -83,7 +84,7 @@ public class ServerCodecConfigurerTests {
   @Test
   public void defaultReaders() {
     List<HttpMessageReader<?>> readers = this.configurer.getReaders();
-    assertThat(readers.size()).isEqualTo(13);
+    assertThat(readers.size()).isEqualTo(14);
     assertThat(getNextDecoder(readers).getClass()).isEqualTo(ByteArrayDecoder.class);
     assertThat(getNextDecoder(readers).getClass()).isEqualTo(ByteBufferDecoder.class);
     assertThat(getNextDecoder(readers).getClass()).isEqualTo(DataBufferDecoder.class);
@@ -94,6 +95,7 @@ public class ServerCodecConfigurerTests {
     assertThat(readers.get(this.index.getAndIncrement()).getClass()).isEqualTo(FormHttpMessageReader.class);
     assertThat(readers.get(this.index.getAndIncrement()).getClass()).isEqualTo(DefaultPartHttpMessageReader.class);
     assertThat(readers.get(this.index.getAndIncrement()).getClass()).isEqualTo(MultipartHttpMessageReader.class);
+    assertThat(readers.get(this.index.getAndIncrement()).getClass()).isEqualTo(PartEventHttpMessageReader.class);
     assertThat(getNextDecoder(readers).getClass()).isEqualTo(Jackson2JsonDecoder.class);
     assertThat(getNextDecoder(readers).getClass()).isEqualTo(Jackson2SmileDecoder.class);
     assertStringDecoder(getNextDecoder(readers), false);
