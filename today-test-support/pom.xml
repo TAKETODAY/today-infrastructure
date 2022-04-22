@@ -25,7 +25,8 @@
   <parent>
     <artifactId>today-infrastructure</artifactId>
     <groupId>cn.taketoday</groupId>
-    <version>4.0.0-Draft.1</version>
+    <version>${revision}</version>
+    <relativePath>../pom.xml</relativePath>
   </parent>
   <modelVersion>4.0.0</modelVersion>
 
@@ -131,7 +132,7 @@
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter-engine</artifactId>
     </dependency>
-    
+
     <!--JUnit Jupiter Engine to depend on the JUnit4 engine and JUnit 4 API  -->
     <dependency>
       <groupId>org.junit.vintage</groupId>
