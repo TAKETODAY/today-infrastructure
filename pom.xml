@@ -4,14 +4,14 @@
 
   <modelVersion>4.0.0</modelVersion>
   <groupId>cn.taketoday</groupId>
-  <artifactId>today-framework-parent</artifactId>
+  <artifactId>today-infrastructure</artifactId>
   <packaging>pom</packaging>
 
   <!--
   latest  4.0.0-Beta.1 -Alpha.1 -Draft.1 -SNAPSHOT
  -->
   <version>4.0.0-Draft.1</version>
-  <name>today-framework-parent</name>
+  <name>today-infrastructure</name>
 
   <modules>
     <module>today-framework</module>
@@ -23,7 +23,7 @@
     <module>integration-tests</module>
     <module>today-retry</module>
     <module>today-test-support</module>
-    <module>today-framework-bom</module>
+    <module>today-infrastructure-bom</module>
   </modules>
 
   <description>
@@ -57,7 +57,7 @@
     </license>
   </licenses>
 
-  <url>https://github.com/TAKETODAY/today-framework</url>
+  <url>https://github.com/TAKETODAY/today-infrastructure</url>
   <organization>
     <name>TODAY Tech</name>
     <url>https://taketoday.cn</url>
@@ -72,21 +72,21 @@
   </developers>
 
   <scm>
-    <url>https://github.com/TAKETODAY/today-framework.git</url>
+    <url>https://github.com/TAKETODAY/today-infrastructure.git</url>
     <developerConnection>Harry Yang</developerConnection>
     <tag>dependency-injection, aspect-oriented-programing, web-framework</tag>
   </scm>
 
   <issueManagement>
     <system>Github Issues</system>
-    <url>https://github.com/TAKETODAY/today-framework/issues</url>
+    <url>https://github.com/TAKETODAY/today-infrastructure/issues</url>
   </issueManagement>
 
   <dependencyManagement>
     <dependencies>
       <dependency>
         <groupId>cn.taketoday</groupId>
-        <artifactId>today-framework-bom</artifactId>
+        <artifactId>today-infrastructure-bom</artifactId>
         <version>${project.version}</version>
         <type>pom</type>
         <scope>import</scope>
@@ -150,12 +150,12 @@
         <configuration>
           <archive>
             <manifestEntries>
-              <Extension-Name>today.framework</Extension-Name>
+              <Extension-Name>today.infrastructure</Extension-Name>
               <Implementation-Version>${project.version}</Implementation-Version>
               <Implementation-Vendor>${project.organization.name}</Implementation-Vendor>
               <Implementation-Vendor-Id>cn.taketoday</Implementation-Vendor-Id>
               <Export-Package>cn.taketoday.*</Export-Package>
-              <Automatic-Module-Name>today.framework</Automatic-Module-Name>
+              <Automatic-Module-Name>today.infrastructure</Automatic-Module-Name>
             </manifestEntries>
           </archive>
         </configuration>
@@ -253,7 +253,7 @@
                 <configuration>
                   <backend>html5</backend>
                   <sourceDirectory>${basedir}/docs</sourceDirectory>
-                  <outputFile>${project.build.directory}/generated-docs/today-framework-${project.version}.html
+                  <outputFile>${project.build.directory}/generated-docs/today-infrastructure-${project.version}.html
                   </outputFile>
                   <attributes>
                     <source-highlighter>coderay</source-highlighter>
@@ -281,7 +281,7 @@
                 <configuration>
                   <backend>pdf</backend>
                   <sourceDirectory>${basedir}/docs</sourceDirectory>
-                  <outputFile>${project.build.directory}/generated-docs/today-framework-${project.version}.pdf
+                  <outputFile>${project.build.directory}/generated-docs/today-infrastructure-${project.version}.pdf
                   </outputFile>
                   <attributes>
                     <source-highlighter>coderay</source-highlighter>
