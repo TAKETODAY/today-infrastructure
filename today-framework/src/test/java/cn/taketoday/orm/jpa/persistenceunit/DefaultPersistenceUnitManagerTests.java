@@ -51,7 +51,7 @@ public class DefaultPersistenceUnitManagerTests {
     this.manager.setPackagesToScan("cn.taketoday.orm.jpa.domain");
     this.manager.setResourceLoader(new DefaultResourceLoader(
             CandidateComponentsTestClassLoader.index(getClass().getClassLoader(),
-                    new ClassPathResource("spring.components", Person.class))));
+                    new ClassPathResource("today.components", Person.class))));
     testDefaultDomain();
   }
 

@@ -63,6 +63,7 @@ import cn.taketoday.http.codec.json.Jackson2JsonEncoder;
 import cn.taketoday.http.codec.json.Jackson2SmileDecoder;
 import cn.taketoday.http.codec.json.Jackson2SmileEncoder;
 import cn.taketoday.http.codec.multipart.MultipartHttpMessageWriter;
+import cn.taketoday.http.codec.multipart.PartEventHttpMessageWriter;
 import cn.taketoday.http.codec.protobuf.ProtobufDecoder;
 import cn.taketoday.http.codec.protobuf.ProtobufHttpMessageWriter;
 import cn.taketoday.util.MimeTypeUtils;
@@ -113,6 +114,8 @@ public class ClientCodecConfigurerTests {
     assertStringEncoder(getNextEncoder(writers), true);
     assertThat(writers.get(index.getAndIncrement()).getClass()).isEqualTo(ProtobufHttpMessageWriter.class);
     assertThat(writers.get(this.index.getAndIncrement()).getClass()).isEqualTo(MultipartHttpMessageWriter.class);
+    		assertThat(writers.get(this.index.getAndIncrement()).getClass()).isEqualTo(PartEventHttpMessageWriter.class);
+
     assertThat(getNextEncoder(writers).getClass()).isEqualTo(Jackson2JsonEncoder.class);
     assertThat(getNextEncoder(writers).getClass()).isEqualTo(Jackson2SmileEncoder.class);
     assertStringEncoder(getNextEncoder(writers), false);
