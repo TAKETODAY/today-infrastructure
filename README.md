@@ -1,6 +1,6 @@
-# TODAY Framework
+# TODAY Infrastructure
 
-🍎 A Java library for dependency injection and aspect oriented programing and building high-performance web applications like Spring Boot.
+🍎 A Java library for applications software infrastructure.
 
 ![Java17](https://img.shields.io/badge/JDK-17+-success.svg)
 [![GPLv3](https://img.shields.io/badge/License-GPLv3-blue.svg)](./LICENSE)
