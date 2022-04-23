@@ -202,7 +202,7 @@ public abstract class AbstractAspectJAdvice implements Advice, AspectJPrecedence
   public final Pointcut buildSafePointcut() {
     Pointcut pc = getPointcut();
     MethodMatcher safeMethodMatcher = MethodMatchers.intersection(
-            new AdviceExcludingMethodMatcher(this.aspectJAdviceMethod), pc.getMethodMatcher());
+            new AdviceExcludingMethodMatcher(aspectJAdviceMethod), pc.getMethodMatcher());
     return new ComposablePointcut(pc.getClassFilter(), safeMethodMatcher);
   }
 
@@ -266,23 +266,23 @@ public abstract class AbstractAspectJAdvice implements Advice, AspectJPrecedence
     this.argumentNames = new String[args.length];
     for (int i = 0; i < args.length; i++) {
       this.argumentNames[i] = args[i].strip();
-      if (!isVariableName(this.argumentNames[i])) {
+      if (!isVariableName(argumentNames[i])) {
         throw new IllegalArgumentException(
                 "'argumentNames' property of AbstractAspectJAdvice contains an argument name '" +
-                        this.argumentNames[i] + "' that is not a valid Java identifier");
+                        argumentNames[i] + "' that is not a valid Java identifier");
       }
     }
     if (argumentNames != null) {
-      if (aspectJAdviceMethod.getParameterCount() == this.argumentNames.length + 1) {
+      if (aspectJAdviceMethod.getParameterCount() == argumentNames.length + 1) {
         // May need to add implicit join point arg name...
         Class<?> firstArgType = aspectJAdviceMethod.getParameterTypes()[0];
         if (firstArgType == JoinPoint.class
                 || firstArgType == ProceedingJoinPoint.class
                 || firstArgType == JoinPoint.StaticPart.class) {
-          String[] oldNames = this.argumentNames;
+          String[] oldNames = argumentNames;
           this.argumentNames = new String[oldNames.length + 1];
           this.argumentNames[0] = "THIS_JOIN_POINT";
-          System.arraycopy(oldNames, 0, this.argumentNames, 1, oldNames.length);
+          System.arraycopy(oldNames, 0, argumentNames, 1, oldNames.length);
         }
       }
     }
@@ -372,12 +372,12 @@ public abstract class AbstractAspectJAdvice implements Advice, AspectJPrecedence
    */
   public final synchronized void calculateArgumentBindings() {
     // The simple case... nothing to bind.
-    if (this.argumentsIntrospected || this.parameterTypes.length == 0) {
+    if (argumentsIntrospected || parameterTypes.length == 0) {
       return;
     }
 
-    int numUnboundArgs = this.parameterTypes.length;
-    Class<?>[] parameterTypes = this.aspectJAdviceMethod.getParameterTypes();
+    int numUnboundArgs = parameterTypes.length;
+    Class<?>[] parameterTypes = aspectJAdviceMethod.getParameterTypes();
     if (maybeBindJoinPoint(parameterTypes[0]) || maybeBindProceedingJoinPoint(parameterTypes[0]) ||
             maybeBindJoinPointStaticPart(parameterTypes[0])) {
       numUnboundArgs--;
@@ -453,9 +453,9 @@ public abstract class AbstractAspectJAdvice implements Advice, AspectJPrecedence
     // and if we can't guess with 100% accuracy, fail.
     DefaultParameterNameDiscoverer discoverer = new DefaultParameterNameDiscoverer();
     AspectJAdviceParameterNameDiscoverer adviceParameterNameDiscoverer =
-            new AspectJAdviceParameterNameDiscoverer(this.pointcut.getExpression());
-    adviceParameterNameDiscoverer.setReturningName(this.returningName);
-    adviceParameterNameDiscoverer.setThrowingName(this.throwingName);
+            new AspectJAdviceParameterNameDiscoverer(pointcut.getExpression());
+    adviceParameterNameDiscoverer.setReturningName(returningName);
+    adviceParameterNameDiscoverer.setThrowingName(throwingName);
     // Last in chain, so if we're called and we fail, that's bad...
     adviceParameterNameDiscoverer.setRaiseExceptions(true);
     discoverer.addDiscoverer(adviceParameterNameDiscoverer);
@@ -514,15 +514,15 @@ public abstract class AbstractAspectJAdvice implements Advice, AspectJPrecedence
    */
   private void configurePointcutParameters(String[] argumentNames, int argumentIndexOffset) {
     int numParametersToRemove = argumentIndexOffset;
-    if (this.returningName != null) {
+    if (returningName != null) {
       numParametersToRemove++;
     }
-    if (this.throwingName != null) {
+    if (throwingName != null) {
       numParametersToRemove++;
     }
     String[] pointcutParameterNames = new String[argumentNames.length - numParametersToRemove];
     Class<?>[] pointcutParameterTypes = new Class<?>[pointcutParameterNames.length];
-    Class<?>[] methodParameterTypes = this.aspectJAdviceMethod.getParameterTypes();
+    Class<?>[] methodParameterTypes = aspectJAdviceMethod.getParameterTypes();
 
     int index = 0;
     for (int i = 0; i < argumentNames.length; i++) {
@@ -538,8 +538,8 @@ public abstract class AbstractAspectJAdvice implements Advice, AspectJPrecedence
       index++;
     }
 
-    this.pointcut.setParameterNames(pointcutParameterNames);
-    this.pointcut.setParameterTypes(pointcutParameterTypes);
+    pointcut.setParameterNames(pointcutParameterNames);
+    pointcut.setParameterTypes(pointcutParameterTypes);
   }
 
   /**

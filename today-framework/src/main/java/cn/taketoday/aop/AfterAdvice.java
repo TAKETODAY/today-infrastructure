@@ -22,9 +22,13 @@ package cn.taketoday.aop;
 import org.aopalliance.aop.Advice;
 
 /**
- * @author TODAY <br>
+ * Common marker interface for after advice,
+ * such as {@link AfterReturningAdvice} and {@link ThrowsAdvice}.
  *
- * 2018-11-11 16:19
+ * @author Juergen Hoeller
+ * @author TODAY
+ * @see BeforeAdvice
+ * @since 2018-11-11 16:19
  */
 public interface AfterAdvice extends Advice {
 
