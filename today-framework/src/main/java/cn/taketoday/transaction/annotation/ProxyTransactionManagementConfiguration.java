@@ -21,9 +21,9 @@
 package cn.taketoday.transaction.annotation;
 
 import cn.taketoday.beans.factory.config.BeanDefinition;
-import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Role;
+import cn.taketoday.lang.Component;
 import cn.taketoday.transaction.TransactionManagementConfigUtils;
 import cn.taketoday.transaction.interceptor.BeanFactoryTransactionAttributeSourceAdvisor;
 import cn.taketoday.transaction.interceptor.TransactionAttributeSource;
@@ -44,7 +44,7 @@ import cn.taketoday.transaction.interceptor.TransactionInterceptor;
 public class ProxyTransactionManagementConfiguration extends AbstractTransactionManagementConfiguration {
 
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-  @Bean(TransactionManagementConfigUtils.TRANSACTION_ADVISOR_BEAN_NAME)
+  @Component(TransactionManagementConfigUtils.TRANSACTION_ADVISOR_BEAN_NAME)
   public BeanFactoryTransactionAttributeSourceAdvisor transactionAdvisor(
           TransactionAttributeSource transactionAttributeSource, TransactionInterceptor transactionInterceptor) {
 
@@ -57,13 +57,13 @@ public class ProxyTransactionManagementConfiguration extends AbstractTransaction
     return advisor;
   }
 
-  @Bean
+  @Component
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
   public TransactionAttributeSource transactionAttributeSource() {
     return new AnnotationTransactionAttributeSource();
   }
 
-  @Bean
+  @Component
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
   public TransactionInterceptor transactionInterceptor(TransactionAttributeSource transactionAttributeSource) {
     TransactionInterceptor interceptor = new TransactionInterceptor();

@@ -21,9 +21,9 @@
 package cn.taketoday.transaction.aspectj;
 
 import cn.taketoday.beans.factory.config.BeanDefinition;
-import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Role;
+import cn.taketoday.lang.Component;
 import cn.taketoday.transaction.annotation.AbstractTransactionManagementConfiguration;
 import cn.taketoday.transaction.annotation.EnableTransactionManagement;
 import cn.taketoday.transaction.annotation.TransactionManagementConfigurationSelector;
@@ -45,7 +45,7 @@ import cn.taketoday.transaction.config.TransactionManagementConfigUtils;
 @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
 public class AspectJTransactionManagementConfiguration extends AbstractTransactionManagementConfiguration {
 
-  @Bean(name = TransactionManagementConfigUtils.TRANSACTION_ASPECT_BEAN_NAME)
+  @Component(TransactionManagementConfigUtils.TRANSACTION_ASPECT_BEAN_NAME)
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
   public AnnotationTransactionAspect transactionAspect() {
     AnnotationTransactionAspect txAspect = AnnotationTransactionAspect.aspectOf();
