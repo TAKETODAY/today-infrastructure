@@ -24,20 +24,20 @@
     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
-  <groupId>cn.taketoday</groupId>
-  <artifactId>today-infrastructure-bom</artifactId>
-  <version>4.0.0-Draft.1</version>
+  <parent>
+    <groupId>cn.taketoday</groupId>
+    <artifactId>today-infrastructure-build</artifactId>
+    <version>${revision}</version>
+    <relativePath>../today-infrastructure-build/pom.xml</relativePath>
+  </parent>
 
+  <artifactId>today-infrastructure-bom</artifactId>
   <packaging>pom</packaging>
 
   <description>TODAY Infrastructure (Bill of Materials)</description>
 
   <properties>
     <!-- <skipTests>true</skipTests> -->
-
-    <java.version>17</java.version>
-    <maven.compiler.source>17</maven.compiler.source>
-    <maven.compiler.target>17</maven.compiler.target>
 
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 

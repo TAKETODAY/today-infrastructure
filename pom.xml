@@ -3,14 +3,19 @@
     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
-  <groupId>cn.taketoday</groupId>
+  <parent>
+    <groupId>cn.taketoday</groupId>
+    <artifactId>today-infrastructure-build</artifactId>
+    <version>${revision}</version>
+    <relativePath>./today-infrastructure-build/pom.xml</relativePath>
+  </parent>
+
   <artifactId>today-infrastructure</artifactId>
   <packaging>pom</packaging>
 
   <!--
   latest  4.0.0-Beta.1 -Alpha.1 -Draft.1 -SNAPSHOT
  -->
-  <version>${revision}</version>
   <name>today-infrastructure</name>
 
   <modules>
@@ -24,6 +29,7 @@
     <module>today-retry</module>
     <module>today-test-support</module>
     <module>today-infrastructure-bom</module>
+    <module>today-infrastructure-build</module>
   </modules>
 
   <description>
@@ -31,28 +37,6 @@
   </description>
 
   <inceptionYear>2017</inceptionYear>
-
-  <properties>
-    <revision>4.0.0-Draft.1</revision>
-
-    <!--  <skipTests>true</skipTests>-->
-
-    <java.version>17</java.version>
-    <maven.compiler.source>17</maven.compiler.source>
-    <maven.compiler.target>17</maven.compiler.target>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-
-    <!--doc-->
-    <site.output.dir>${project.build.directory}/staging</site.output.dir>
-    <maven.site.skip>true</maven.site.skip>
-    <asciidoctorj.version>2.5.2</asciidoctorj.version>
-    <asciidoctorj.pdf.version>1.6.0</asciidoctorj.pdf.version>
-    <jruby.version>9.2.19.0</jruby.version>
-    <!-- status: DRAFT, BETA, etc., or blank for final -->
-    <status>DRAFT</status>
-    <revisiondate>${maven.build.timestamp}</revisiondate>
-
-  </properties>
 
   <licenses>
     <license>
@@ -89,15 +73,13 @@
 
   <dependencyManagement>
     <dependencies>
-
       <dependency>
         <groupId>cn.taketoday</groupId>
         <artifactId>today-infrastructure-bom</artifactId>
-        <version>${revision}</version>
+        <version>${project.version}</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
-
     </dependencies>
   </dependencyManagement>
 
@@ -111,333 +93,5 @@
       <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
     </repository>
   </distributionManagement>
-
-  <build>
-    <defaultGoal>compile</defaultGoal>
-    <plugins>
-
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <version>3.8.1</version>
-        <configuration>
-          <source>${java.version}</source>
-          <target>${java.version}</target>
-          <release>${java.version}</release>
-          <compilerVersion>${java.version}</compilerVersion>
-          <encoding>UTF-8</encoding>
-        </configuration>
-      </plugin>
-
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-resources-plugin</artifactId>
-        <version>3.2.0</version>
-        <configuration>
-          <encoding>UTF-8</encoding>
-        </configuration>
-      </plugin>
-
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-source-plugin</artifactId>
-        <version>3.2.1</version>
-        <executions>
-          <execution>
-            <id>attach-sources</id>
-            <goals>
-              <goal>jar</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-jar-plugin</artifactId>
-        <version>3.2.1</version>
-        <configuration>
-          <archive>
-            <manifestEntries>
-              <Extension-Name>today.infrastructure</Extension-Name>
-              <Implementation-Build>${maven.build.timestamp}</Implementation-Build>
-              <Implementation-Version>${project.version}</Implementation-Version>
-              <Implementation-Vendor>${project.organization.name}</Implementation-Vendor>
-              <Implementation-Vendor-Id>cn.taketoday</Implementation-Vendor-Id>
-              <Export-Package>cn.taketoday.*</Export-Package>
-              <Automatic-Module-Name>today.infrastructure</Automatic-Module-Name>
-            </manifestEntries>
-          </archive>
-        </configuration>
-      </plugin>
-
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-javadoc-plugin</artifactId>
-        <version>3.3.1</version>
-        <configuration>
-          <quiet>true</quiet>
-          <source>${java.version}</source>
-          <release>${java.version}</release>
-          <charset>UTF-8</charset>
-          <encoding>UTF-8</encoding>
-          <docencoding>UTF-8</docencoding>
-          <failOnError>false</failOnError>
-          <failOnWarnings>false</failOnWarnings>
-        </configuration>
-        <executions>
-          <execution>
-            <id>attach-javadocs</id>
-            <goals>
-              <goal>jar</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-surefire-plugin</artifactId>
-        <version>2.22.2</version>
-        <configuration>
-          <argLine>
-            --add-opens java.base/java.lang=ALL-UNNAMED --add-opens java.base/java.net=ALL-UNNAMED --add-opens
-            java.base/java.math=ALL-UNNAMED --add-opens java.base/java.text=ALL-UNNAMED --add-opens java.base/java.util=ALL-UNNAMED
-            --add-opens java.base/java.util.regex=ALL-UNNAMED --add-opens java.base/java.util.concurrent=ALL-UNNAMED --add-opens
-            java.base/java.lang.reflect=ALL-UNNAMED
-
-            --add-opens java.sql/java.sql=ALL-UNNAMED --add-opens java.sql.rowset/javax.sql.rowset.serial=ALL-UNNAMED
-
-            -DtestGroups=all
-          </argLine>
-        </configuration>
-      </plugin>
-
-      <plugin>
-        <artifactId>maven-failsafe-plugin</artifactId>
-        <version>2.22.2</version>
-      </plugin>
-
-    </plugins>
-  </build>
-
-  <profiles>
-    <profile>
-      <id>docs</id>
-
-      <build>
-        <plugins>
-
-          <plugin>
-            <groupId>org.asciidoctor</groupId>
-            <artifactId>asciidoctor-maven-plugin</artifactId>
-            <version>2.2.1</version>
-            <dependencies>
-              <dependency>
-                <groupId>org.jruby</groupId>
-                <artifactId>jruby-complete</artifactId>
-                <version>${jruby.version}</version>
-              </dependency>
-              <dependency>
-                <groupId>org.asciidoctor</groupId>
-                <artifactId>asciidoctorj</artifactId>
-                <version>${asciidoctorj.version}</version>
-              </dependency>
-              <dependency>
-                <groupId>org.asciidoctor</groupId>
-                <artifactId>asciidoctorj-pdf</artifactId>
-                <version>${asciidoctorj.pdf.version}</version>
-              </dependency>
-            </dependencies>
-            <executions>
-
-              <execution>
-                <id>asciidoc-to-html</id>
-                <phase>generate-resources</phase>
-                <goals>
-                  <goal>process-asciidoc</goal>
-                </goals>
-                <configuration>
-                  <backend>html5</backend>
-                  <sourceDirectory>${basedir}/docs</sourceDirectory>
-                  <outputFile>${project.build.directory}/generated-docs/today-infrastructure-${project.version}.html
-                  </outputFile>
-                  <attributes>
-                    <source-highlighter>coderay</source-highlighter>
-                    <imagesdir>images</imagesdir>
-                    <doctype>book</doctype>
-                    <status>${status}</status>
-                    <data-uri />
-                    <icons>font</icons>
-                    <toc>left</toc>
-                    <icons>font</icons>
-                    <sectanchors>true</sectanchors>
-                    <idprefix />
-                    <idseparator>-</idseparator>
-                    <docinfo1>true</docinfo1>
-                  </attributes>
-                </configuration>
-              </execution>
-
-              <execution>
-                <id>asciidoc-to-pdf</id>
-                <phase>generate-resources</phase>
-                <goals>
-                  <goal>process-asciidoc</goal>
-                </goals>
-                <configuration>
-                  <backend>pdf</backend>
-                  <sourceDirectory>${basedir}/docs</sourceDirectory>
-                  <outputFile>${project.build.directory}/generated-docs/today-infrastructure-${project.version}.pdf
-                  </outputFile>
-                  <attributes>
-                    <source-highlighter>coderay</source-highlighter>
-                    <imagesdir>images</imagesdir>
-                    <pdf-stylesdir>${project.basedir}/docs/theme</pdf-stylesdir>
-                    <pdf-style>today</pdf-style>
-                    <doctype>book</doctype>
-                    <status>${status}</status>
-                    <data-uri />
-                    <icons>font</icons>
-                    <pagenums />
-                    <toc />
-                    <icons>font</icons>
-                    <sectanchors>true</sectanchors>
-                    <idprefix />
-                    <idseparator>-</idseparator>
-                    <docinfo1>true</docinfo1>
-                    <embedAssets>true</embedAssets>
-                  </attributes>
-                </configuration>
-              </execution>
-            </executions>
-
-            <configuration>
-              <sourceDocumentName>index.adoc</sourceDocumentName>
-              <attributes>
-                <revnumber>${project.version}</revnumber>
-                <revremark>${status}</revremark>
-                <revdate>${revisiondate}</revdate>
-              </attributes>
-            </configuration>
-          </plugin>
-
-        </plugins>
-      </build>
-    </profile>
-
-    <profile>
-      <id>coverage</id>
-      <build>
-        <plugins>
-
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-surefire-plugin</artifactId>
-            <version>2.22.2</version>
-            <configuration>
-              <argLine>
-                ${argLine} -Dcoverage=true -DtestGroups=all --add-opens java.base/java.lang=ALL-UNNAMED --add-opens
-                java.base/java.net=ALL-UNNAMED --add-opens java.base/java.math=ALL-UNNAMED --add-opens java.base/java.text=ALL-UNNAMED
-                --add-opens java.base/java.util=ALL-UNNAMED --add-opens java.base/java.util.regex=ALL-UNNAMED --add-opens
-                java.base/java.util.concurrent=ALL-UNNAMED --add-opens java.base/java.lang.reflect=ALL-UNNAMED
-
-                --add-opens java.sql/java.sql=ALL-UNNAMED --add-opens java.sql.rowset/javax.sql.rowset.serial=ALL-UNNAMED
-              </argLine>
-            </configuration>
-          </plugin>
-
-          <plugin>
-            <groupId>org.eluder.coveralls</groupId>
-            <artifactId>coveralls-maven-plugin</artifactId>
-            <version>4.3.0</version>
-            <dependencies>
-              <dependency>
-                <groupId>jakarta.xml.bind</groupId>
-                <artifactId>jakarta.xml.bind-api</artifactId>
-                <version>2.3.3</version>
-              </dependency>
-            </dependencies>
-            <configuration>
-              <jacocoReports>${basedir}/target/coverage-reports/jacoco.xml</jacocoReports>
-            </configuration>
-          </plugin>
-
-          <plugin>
-            <groupId>org.jacoco</groupId>
-            <artifactId>jacoco-maven-plugin</artifactId>
-            <version>0.8.7</version>
-            <configuration>
-              <excludes>
-                <exclude>or.aopalliance.*</exclude>
-                <exclude>cn.taketoday.logging.*</exclude>
-              </excludes>
-              <outputDirectory>${basedir}/target/coverage-reports</outputDirectory>
-              <destFile>${basedir}/target/coverage-reports/jacoco-unit.exec</destFile>
-              <dataFile>${basedir}/target/coverage-reports/jacoco-unit.exec</dataFile>
-              <formats>XML</formats>
-            </configuration>
-
-            <executions>
-              <execution>
-                <goals>
-                  <goal>prepare-agent</goal>
-                </goals>
-              </execution>
-
-              <execution>
-                <id>jacoco-report</id>
-                <phase>test</phase>
-                <goals>
-                  <goal>report</goal>
-                </goals>
-              </execution>
-
-            </executions>
-
-          </plugin>
-        </plugins>
-      </build>
-
-
-    </profile>
-
-    <profile>
-      <id>release</id>
-      <build>
-        <plugins>
-
-          <plugin>
-            <groupId>org.sonatype.plugins</groupId>
-            <artifactId>nexus-staging-maven-plugin</artifactId>
-            <version>1.6.8</version>
-            <extensions>true</extensions>
-            <configuration>
-              <serverId>sonatype-nexus</serverId>
-              <nexusUrl>https://oss.sonatype.org/</nexusUrl>
-              <autoReleaseAfterClose>true</autoReleaseAfterClose>
-            </configuration>
-          </plugin>
-
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-gpg-plugin</artifactId>
-            <version>1.6</version>
-            <executions>
-              <execution>
-                <id>sign-artifacts</id>
-                <phase>verify</phase>
-                <goals>
-                  <goal>sign</goal>
-                </goals>
-              </execution>
-            </executions>
-          </plugin>
-
-        </plugins>
-      </build>
-    </profile>
-
-  </profiles>
 
 </project>
