@@ -66,7 +66,7 @@
     <slf4j.version>1.7.25</slf4j.version>
     <spring-jdbc.version>5.2.3.RELEASE</spring-jdbc.version>
     <reactor.version>3.4.16</reactor.version>
-    <aspectj.version>1.9.9</aspectj.version>
+    <aspectj.version>1.9.9.1</aspectj.version>
     <httpcomponents-core5.version>5.1.2</httpcomponents-core5.version>
 
   </properties>

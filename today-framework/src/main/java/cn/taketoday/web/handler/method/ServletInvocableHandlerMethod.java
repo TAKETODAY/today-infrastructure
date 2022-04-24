@@ -258,6 +258,17 @@ public class ServletInvocableHandlerMethod extends InvocableHandlerMethod {
     public <A extends Annotation> boolean hasMethodAnnotation(Class<A> annotationType) {
       return ServletInvocableHandlerMethod.this.hasMethodAnnotation(annotationType);
     }
+
+    @Override
+    public boolean isReturn(Class<?> returnType) {
+      return this.returnType.getParameterType() == returnType;
+    }
+
+    @Override
+    public boolean isReturnTypeAssignableTo(Class<?> superClass) {
+      return superClass.isAssignableFrom(returnType.getParameterType());
+    }
+
   }
 
   /**
