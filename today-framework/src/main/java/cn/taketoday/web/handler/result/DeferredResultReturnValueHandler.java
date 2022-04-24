@@ -28,9 +28,9 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.concurrent.ListenableFuture;
 import cn.taketoday.util.concurrent.ListenableFutureCallback;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.ReturnValueHandler;
 import cn.taketoday.web.context.async.DeferredResult;
 import cn.taketoday.web.context.async.WebAsyncUtils;
+import cn.taketoday.web.handler.method.HandlerMethod;
 
 /**
  * ReturnValueHandler for {@link DeferredResult} and {@link ListenableFuture}
@@ -39,11 +39,13 @@ import cn.taketoday.web.context.async.WebAsyncUtils;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/3/30 22:25
  */
-public class DeferredResultReturnValueHandler implements ReturnValueHandler {
+public class DeferredResultReturnValueHandler implements HandlerMethodReturnValueHandler {
 
   @Override
-  public boolean supportsHandler(Object handler) {
-    return false;
+  public boolean supportsHandlerMethod(HandlerMethod handler) {
+    return handler.isReturn(DeferredResult.class)
+            || handler.isReturn(ListenableFuture.class)
+            || handler.isReturn(CompletionStage.class);
   }
 
   @Override
@@ -78,7 +80,8 @@ public class DeferredResultReturnValueHandler implements ReturnValueHandler {
       throw new IllegalStateException("Unexpected return value type: " + returnValue);
     }
 
-    WebAsyncUtils.getAsyncManager(context).startDeferredResultProcessing(result);
+    WebAsyncUtils.getAsyncManager(context)
+            .startDeferredResultProcessing(result);
   }
 
   private DeferredResult<Object> adaptListenableFuture(ListenableFuture<?> future) {
