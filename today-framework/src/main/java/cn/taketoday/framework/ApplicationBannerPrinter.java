@@ -139,7 +139,7 @@ class ApplicationBannerPrinter {
 
     private static final String infrastructure = "today-infrastructure";
 
-    private static final int STRAP_LINE_SIZE = 42;
+    private static final int STRAP_LINE_SIZE = 34;
 
     @Override
     public void printBanner(Environment environment, Class<?> sourceClass, PrintStream out) {

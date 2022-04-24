@@ -48,8 +48,6 @@ import cn.taketoday.framework.web.servlet.ServletContextInitializerBeans;
 import cn.taketoday.framework.web.servlet.ServletRegistrationBean;
 import cn.taketoday.framework.web.servlet.server.ServletWebServerFactory;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.logging.Logger;
-import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.WebApplicationContext;
@@ -100,8 +98,6 @@ import jakarta.servlet.ServletException;
  */
 public class ServletWebServerApplicationContext extends GenericWebServletApplicationContext
         implements ConfigurableWebServerApplicationContext {
-
-  private static final Logger log = LoggerFactory.getLogger(ServletWebServerApplicationContext.class);
 
   /**
    * Constant value for the DispatcherServlet bean name. A Servlet bean with this name
@@ -354,7 +350,7 @@ public class ServletWebServerApplicationContext extends GenericWebServletApplica
    * be registered in an ApplicationContextInitializer in the same way as they would in
    * a classic non-embedded web application context.
    */
-  public static class ExistingWebApplicationScopes {
+  public class ExistingWebApplicationScopes {
 
     private static final Set<String> SCOPES;
 
