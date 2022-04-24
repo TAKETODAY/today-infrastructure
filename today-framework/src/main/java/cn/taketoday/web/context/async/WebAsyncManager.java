@@ -143,14 +143,14 @@ public final class WebAsyncManager {
    * processing of the concurrent result.
    */
   public boolean isConcurrentHandlingStarted() {
-    return (asyncWebRequest != null && asyncWebRequest.isAsyncStarted());
+    return asyncWebRequest != null && asyncWebRequest.isAsyncStarted();
   }
 
   /**
    * Whether a result value exists as a result of concurrent handling.
    */
   public boolean hasConcurrentResult() {
-    return (concurrentResult != RESULT_NONE);
+    return concurrentResult != RESULT_NONE;
   }
 
   /**
@@ -310,15 +310,15 @@ public final class WebAsyncManager {
 
     ArrayList<CallableProcessingInterceptor> interceptors = new ArrayList<>();
     interceptors.add(webAsyncTask.getInterceptor());
-    interceptors.addAll(this.callableInterceptors.values());
+    interceptors.addAll(callableInterceptors.values());
     interceptors.add(timeoutCallableInterceptor);
 
-    final Callable<?> callable = webAsyncTask.getCallable();
-    final CallableInterceptorChain interceptorChain = new CallableInterceptorChain(interceptors);
+    Callable<?> callable = webAsyncTask.getCallable();
+    CallableInterceptorChain interceptorChain = new CallableInterceptorChain(interceptors);
 
     asyncWebRequest.addTimeoutHandler(() -> {
       if (logger.isDebugEnabled()) {
-        logger.debug("Async request timeout for " + formatRequestUri());
+        logger.debug("Async request timeout for {}", formatRequestUri());
       }
       Object result = interceptorChain.triggerAfterTimeout(requestContext, callable);
       if (result != CallableProcessingInterceptor.RESULT_NONE) {
@@ -329,10 +329,10 @@ public final class WebAsyncManager {
     asyncWebRequest.addErrorHandler(ex -> {
       if (!errorHandlingInProgress) {
         if (logger.isDebugEnabled()) {
-          logger.debug("Async request error for " + formatRequestUri() + ": " + ex);
+          logger.debug("Async request error for {}: {}", formatRequestUri(), ex);
         }
         Object result = interceptorChain.triggerAfterError(requestContext, callable, ex);
-        result = (result != CallableProcessingInterceptor.RESULT_NONE ? result : ex);
+        result = result != CallableProcessingInterceptor.RESULT_NONE ? result : ex;
         setConcurrentResultAndDispatch(result);
       }
     });
@@ -373,13 +373,14 @@ public final class WebAsyncManager {
         if (taskExecutorWarning &&
                 (executor instanceof SimpleAsyncTaskExecutor || executor instanceof SyncTaskExecutor)) {
           String executorTypeName = executor.getClass().getSimpleName();
-          logger.warn("\n!!!\n" +
-                  "An Executor is required to handle java.util.concurrent.Callable return values.\n" +
-                  "Please, configure a TaskExecutor in the MVC config under \"async support\".\n" +
-                  "The " + executorTypeName + " currently in use is not suitable under load.\n" +
-                  "-------------------------------\n" +
-                  "Request URI: '" + formatRequestUri() + "'\n" +
-                  "!!!");
+          logger.warn("""
+                  !!!
+                  An Executor is required to handle java.util.concurrent.Callable return values.
+                  Please, configure a TaskExecutor in the MVC config under "async support".
+                  The {} currently in use is not suitable under load.
+                  -------------------------------
+                  Request URI: '{}'
+                  !!!""", executorTypeName, formatRequestUri());
           taskExecutorWarning = false;
         }
       }
@@ -402,14 +403,14 @@ public final class WebAsyncManager {
 
     if (asyncWebRequest.isAsyncComplete()) {
       if (logger.isDebugEnabled()) {
-        logger.debug("Async result set but request already complete: " + formatRequestUri());
+        logger.debug("Async result set but request already complete: {}", formatRequestUri());
       }
       return;
     }
 
     if (logger.isDebugEnabled()) {
       boolean isError = result instanceof Throwable;
-      logger.debug("Async " + (isError ? "error" : "result set") + ", dispatch to " + formatRequestUri());
+      logger.debug("Async {}, dispatch to {}", (isError ? "error" : "result set"), formatRequestUri());
     }
     asyncWebRequest.dispatch();
   }

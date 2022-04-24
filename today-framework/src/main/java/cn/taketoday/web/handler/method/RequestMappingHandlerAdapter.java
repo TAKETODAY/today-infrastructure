@@ -77,11 +77,6 @@ import cn.taketoday.web.view.View;
  * Extension of {@link AbstractHandlerMethodAdapter} that supports
  * {@link RequestMapping @RequestMapping} annotated {@link HandlerMethod HandlerMethods}.
  *
- * <p>Support for custom argument and return value types can be added via
- * {@link #setCustomArgumentResolvers} and {@link #setCustomReturnValueHandlers},
- * or alternatively, to re-configure all argument and return value types,
- * use {@link #setArgumentResolvers} and {@link #setReturnValueHandlerManager}.
- *
  * @author Rossen Stoyanchev
  * @author Juergen Hoeller
  * @author Sebastien Deleuze
@@ -149,21 +144,6 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
   private final Map<Class<?>, Set<Method>> modelAttributeCache = new ConcurrentHashMap<>(64);
 
   private final Map<ControllerAdviceBean, Set<Method>> modelAttributeAdviceCache = new LinkedHashMap<>();
-
-  /**
-   * Provide resolvers for custom argument types.
-   */
-  public void setCustomArgumentResolvers(@Nullable List<ParameterResolvingStrategy> argumentResolvers) {
-    resolvingRegistry.getCustomizedStrategies().set(argumentResolvers);
-  }
-
-  /**
-   * Configure the complete list of supported argument types thus overriding
-   * the resolvers that would otherwise be configured by default.
-   */
-  public void setArgumentResolvers(@Nullable List<ParameterResolvingStrategy> argumentResolvers) {
-
-  }
 
   public ParameterResolvingRegistry getResolvingRegistry() {
     return resolvingRegistry;
@@ -546,9 +526,9 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
     asyncWebRequest.setTimeout(this.asyncRequestTimeout);
 
     WebAsyncManager asyncManager = WebAsyncUtils.getAsyncManager(request);
-    asyncManager.setTaskExecutor(this.taskExecutor);
+    asyncManager.setTaskExecutor(taskExecutor);
     asyncManager.setAsyncWebRequest(asyncWebRequest);
-    asyncManager.registerCallableInterceptors(this.callableInterceptors);
+    asyncManager.registerCallableInterceptors(callableInterceptors);
     asyncManager.registerDeferredResultInterceptors(this.deferredResultInterceptors);
 
     if (asyncManager.hasConcurrentResult()) {
