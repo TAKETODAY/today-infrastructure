@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.function.Predicate;
 
+import cn.taketoday.context.aware.ApplicationContextSupport;
 import cn.taketoday.core.ArraySizeTrimmer;
 import cn.taketoday.core.style.ToStringBuilder;
 import cn.taketoday.http.converter.AllEncompassingFormHttpMessageConverter;
@@ -41,6 +42,8 @@ import cn.taketoday.web.bind.resolver.HttpEntityMethodProcessor;
 import cn.taketoday.web.bind.resolver.RequestResponseBodyMethodProcessor;
 import cn.taketoday.web.handler.method.RequestBodyAdvice;
 import cn.taketoday.web.handler.method.ResponseBodyAdvice;
+import cn.taketoday.web.handler.result.AsyncTaskMethodReturnValueHandler;
+import cn.taketoday.web.handler.result.CallableMethodReturnValueHandler;
 import cn.taketoday.web.handler.result.DeferredResultReturnValueHandler;
 import cn.taketoday.web.handler.result.HttpHeadersReturnValueHandler;
 import cn.taketoday.web.handler.result.HttpStatusReturnValueHandler;
@@ -58,7 +61,7 @@ import cn.taketoday.web.view.ViewReturnValueHandler;
  * @author TODAY 2019-12-28 13:47
  */
 public class ReturnValueHandlerManager
-        extends WebApplicationContextSupport implements ArraySizeTrimmer {
+        extends ApplicationContextSupport implements ArraySizeTrimmer {
 
   private final ArrayList<ReturnValueHandler> handlers = new ArrayList<>(8);
 
@@ -188,6 +191,8 @@ public class ReturnValueHandlerManager
     internalHandlers.add(modelAndViewHandler);
     internalHandlers.add(new HttpStatusReturnValueHandler());
     internalHandlers.add(new HttpHeadersReturnValueHandler());
+    internalHandlers.add(new CallableMethodReturnValueHandler());
+    internalHandlers.add(new AsyncTaskMethodReturnValueHandler(getApplicationContext()));
     internalHandlers.add(new DeferredResultReturnValueHandler());
 
     // Iterate ReturnValueHandler in runtime
@@ -203,6 +208,8 @@ public class ReturnValueHandlerManager
     handlers.add(modelAndViewHandler);
     handlers.add(new HttpStatusReturnValueHandler());
     handlers.add(new HttpHeadersReturnValueHandler());
+    handlers.add(new CallableMethodReturnValueHandler());
+    handlers.add(new AsyncTaskMethodReturnValueHandler(getApplicationContext()));
     handlers.add(new DeferredResultReturnValueHandler());
 
     List<HttpMessageConverter<?>> messageConverters = getMessageConverters();
