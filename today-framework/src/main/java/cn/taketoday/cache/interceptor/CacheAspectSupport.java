@@ -405,7 +405,7 @@ public abstract class CacheAspectSupport extends AbstractCacheInvoker
     Cache.ValueWrapper cacheHit = findCachedItem(contexts.get(CacheableOperation.class));
 
     // Collect puts from any @Cacheable miss, if no cached item is found
-    List<CachePutRequest> cachePutRequests = new ArrayList<>();
+    ArrayList<CachePutRequest> cachePutRequests = new ArrayList<>();
     if (cacheHit == null) {
       collectPutRequests(contexts.get(CacheableOperation.class),
               CacheOperationExpressionEvaluator.NO_RESULT, cachePutRequests);
@@ -472,7 +472,7 @@ public abstract class CacheAspectSupport extends AbstractCacheInvoker
   private boolean hasCachePut(CacheOperationContexts contexts) {
     // Evaluate the conditions *without* the result object because we don't have it yet...
     Collection<CacheOperationContext> cachePutContexts = contexts.get(CachePutOperation.class);
-    Collection<CacheOperationContext> excluded = new ArrayList<>();
+    ArrayList<CacheOperationContext> excluded = new ArrayList<>();
     for (CacheOperationContext context : cachePutContexts) {
       try {
         if (!context.isConditionPassing(CacheOperationExpressionEvaluator.RESULT_UNAVAILABLE)) {
@@ -689,10 +689,11 @@ public abstract class CacheAspectSupport extends AbstractCacheInvoker
             KeyGenerator keyGenerator, CacheResolver cacheResolver) {
 
       this.operation = operation;
-      this.method = BridgeMethodResolver.findBridgedMethod(method);
       this.targetClass = targetClass;
-      this.targetMethod = !Proxy.isProxyClass(targetClass) ?
-                          AopUtils.getMostSpecificMethod(method, targetClass) : this.method;
+      this.method = BridgeMethodResolver.findBridgedMethod(method);
+      this.targetMethod = !Proxy.isProxyClass(targetClass)
+                          ? AopUtils.getMostSpecificMethod(method, targetClass)
+                          : this.method;
       this.methodKey = new AnnotatedElementKey(this.targetMethod, targetClass);
       this.keyGenerator = keyGenerator;
       this.cacheResolver = cacheResolver;
@@ -772,18 +773,18 @@ public abstract class CacheAspectSupport extends AbstractCacheInvoker
 
     protected boolean canPutToCache(@Nullable Object value) {
       String unless;
-      if (this.metadata.operation instanceof CacheableOperation) {
-        unless = ((CacheableOperation) this.metadata.operation).getUnless();
+      if (metadata.operation instanceof CacheableOperation cacheable) {
+        unless = cacheable.getUnless();
       }
-      else if (this.metadata.operation instanceof CachePutOperation) {
-        unless = ((CachePutOperation) this.metadata.operation).getUnless();
+      else if (metadata.operation instanceof CachePutOperation cachePut) {
+        unless = cachePut.getUnless();
       }
       else {
         return true;
       }
       if (StringUtils.hasText(unless)) {
         EvaluationContext evaluationContext = createEvaluationContext(value);
-        return !evaluator.unless(unless, this.metadata.methodKey, evaluationContext);
+        return !evaluator.unless(unless, metadata.methodKey, evaluationContext);
       }
       return true;
     }
@@ -795,9 +796,9 @@ public abstract class CacheAspectSupport extends AbstractCacheInvoker
     protected Object generateKey(@Nullable Object result) {
       if (metadata.operation.hasKeyString()) {
         EvaluationContext evaluationContext = createEvaluationContext(result);
-        return evaluator.key(metadata.operation.getKey(), this.metadata.methodKey, evaluationContext);
+        return evaluator.key(metadata.operation.getKey(), metadata.methodKey, evaluationContext);
       }
-      return this.metadata.keyGenerator.generate(this.target, this.metadata.method, this.args);
+      return metadata.keyGenerator.generate(target, metadata.method, args);
     }
 
     private EvaluationContext createEvaluationContext(@Nullable Object result) {

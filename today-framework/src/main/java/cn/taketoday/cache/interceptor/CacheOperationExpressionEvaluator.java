@@ -86,10 +86,8 @@ class CacheOperationExpressionEvaluator extends CachedExpressionEvaluator {
           Method method, Object[] args, Object target, Class<?> targetClass, Method targetMethod,
           @Nullable Object result, @Nullable BeanFactory beanFactory) {
 
-    CacheExpressionRootObject rootObject = new CacheExpressionRootObject(
-            caches, method, args, target, targetClass);
-    CacheEvaluationContext evaluationContext = new CacheEvaluationContext(
-            rootObject, targetMethod, args, getParameterNameDiscoverer());
+    var rootObject = new CacheExpressionRootObject(caches, method, args, target, targetClass);
+    var evaluationContext = new CacheEvaluationContext(rootObject, targetMethod, args, getParameterNameDiscoverer());
     if (result == RESULT_UNAVAILABLE) {
       evaluationContext.addUnavailableVariable(RESULT_VARIABLE);
     }
@@ -104,17 +102,21 @@ class CacheOperationExpressionEvaluator extends CachedExpressionEvaluator {
 
   @Nullable
   public Object key(String keyExpression, AnnotatedElementKey methodKey, EvaluationContext evalContext) {
-    return getExpression(this.keyCache, methodKey, keyExpression).getValue(evalContext);
+    return getExpression(keyCache, methodKey, keyExpression).getValue(evalContext);
   }
 
   public boolean condition(String conditionExpression, AnnotatedElementKey methodKey, EvaluationContext evalContext) {
-    return (Boolean.TRUE.equals(getExpression(this.conditionCache, methodKey, conditionExpression).getValue(
-            evalContext, Boolean.class)));
+    return Boolean.TRUE.equals(
+            getExpression(conditionCache, methodKey, conditionExpression)
+                    .getValue(evalContext, Boolean.class)
+    );
   }
 
   public boolean unless(String unlessExpression, AnnotatedElementKey methodKey, EvaluationContext evalContext) {
-    return (Boolean.TRUE.equals(getExpression(this.unlessCache, methodKey, unlessExpression).getValue(
-            evalContext, Boolean.class)));
+    return Boolean.TRUE.equals(
+            getExpression(unlessCache, methodKey, unlessExpression)
+                    .getValue(evalContext, Boolean.class)
+    );
   }
 
   /**
