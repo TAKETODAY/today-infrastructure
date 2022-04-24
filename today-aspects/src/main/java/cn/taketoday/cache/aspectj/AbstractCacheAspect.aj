@@ -48,8 +48,7 @@ import cn.taketoday.util.ExceptionUtils;
  */
 public abstract aspect AbstractCacheAspect extends CacheAspectSupport implements DisposableBean {
 
-  protected AbstractCacheAspect() {
-  }
+  protected AbstractCacheAspect() { }
 
   /**
    * Construct object using the given caching metadata retrieval strategy.
