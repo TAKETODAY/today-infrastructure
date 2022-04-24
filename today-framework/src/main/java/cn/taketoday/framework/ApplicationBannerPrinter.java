@@ -126,33 +126,33 @@ class ApplicationBannerPrinter {
 
   private static class DefaultBanner implements Banner {
 
-    private static final String[] BANNER = {
-            "",
-            "  .   ____          _            __ _ _",
-            " /\\\\ / ___'_ __ _ _(_)_ __  __ _ \\ \\ \\ \\",
-            "( ( )\\___ | '_ | '_| | '_ \\/ _` | \\ \\ \\ \\",
-            " \\\\/  ___)| |_)| | | | | || (_| |  ) ) ) )",
-            "  '  |____| .__|_| |_|_| |_\\__, | / / / /",
-            " =========|_|==============|___/=/_/_/_/"
-    };
+    private static final String BANNER = """
+             _________  ________  ________  ________      ___    ___
+            |\\___   ___\\\\   __  \\|\\   ___ \\|\\   __  \\    |\\  \\  /  /|
+            \\|___ \\  \\_\\ \\  \\|\\  \\ \\  \\_|\\ \\ \\  \\|\\  \\   \\ \\  \\/  / /
+                 \\ \\  \\ \\ \\  \\\\\\  \\ \\  \\ \\\\ \\ \\   __  \\   \\ \\    / /
+                  \\ \\  \\ \\ \\  \\\\\\  \\ \\  \\_\\\\ \\ \\  \\ \\  \\   \\/  /  /
+                   \\ \\__\\ \\ \\_______\\ \\_______\\ \\__\\ \\__\\__/  / /
+                    \\|__|  \\|_______|\\|_______|\\|__|\\|__|\\___/ /
+                                                        \\|___|/
+            """;
 
-    private static final String SPRING_BOOT = " :: today-infrastructure :: ";
+    private static final String infrastructure = "today-infrastructure";
 
     private static final int STRAP_LINE_SIZE = 42;
 
     @Override
     public void printBanner(Environment environment, Class<?> sourceClass, PrintStream out) {
-      for (String line : BANNER) {
-        out.println(line);
-      }
+      out.println(BANNER);
+
       String version = Version.get().toString();
-      version = " (v" + version + ")";
       StringBuilder padding = new StringBuilder();
-      while (padding.length() < STRAP_LINE_SIZE - (version.length() + SPRING_BOOT.length())) {
+      while (padding.length() < STRAP_LINE_SIZE - (version.length() + infrastructure.length())) {
         padding.append(" ");
       }
 
-      out.println(AnsiOutput.toString(AnsiColor.GREEN, SPRING_BOOT, AnsiColor.DEFAULT, padding.toString(), AnsiStyle.FAINT, version));
+      out.println(AnsiOutput.toString(AnsiColor.GREEN, infrastructure,
+              AnsiColor.DEFAULT, padding.toString(), AnsiStyle.FAINT, version));
       out.println();
     }
   }
