@@ -19,7 +19,7 @@
  */
 package cn.taketoday.web.handler.result;
 
-import cn.taketoday.web.ReturnValueHandler;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.handler.method.ActionMappingAnnotationHandler;
 import cn.taketoday.web.handler.method.HandlerMethod;
 
@@ -28,15 +28,34 @@ import cn.taketoday.web.handler.method.HandlerMethod;
  *
  * @author TODAY 2019-12-13 13:52
  */
-public interface HandlerMethodReturnValueHandler extends ReturnValueHandler {
+public interface HandlerMethodReturnValueHandler extends SmartReturnValueHandler {
 
   @Override
   default boolean supportsHandler(final Object handler) {
-    return (handler instanceof HandlerMethod handlerMethod && supportsHandlerMethod(handlerMethod))
-            || (
-            handler instanceof ActionMappingAnnotationHandler annotationHandler
-                    && supportsHandlerMethod(annotationHandler.getMethod())
-    );
+    if (handler instanceof HandlerMethod handlerMethod) {
+      return supportsHandlerMethod(handlerMethod);
+    }
+    else if (handler instanceof ActionMappingAnnotationHandler annotationHandler) {
+      HandlerMethod handlerMethod = annotationHandler.getMethod();
+      return supportsHandlerMethod(handlerMethod);
+    }
+    return false;
+  }
+
+  @Override
+  default boolean supportsHandler(Object handler, @Nullable Object returnValue) {
+    if (handler instanceof HandlerMethod handlerMethod) {
+      return supportsHandlerMethod(handlerMethod, returnValue);
+    }
+    else if (handler instanceof ActionMappingAnnotationHandler annotationHandler) {
+      HandlerMethod handlerMethod = annotationHandler.getMethod();
+      return supportsHandlerMethod(handlerMethod, returnValue);
+    }
+    return false;
+  }
+
+  default boolean supportsHandlerMethod(HandlerMethod handler, @Nullable Object returnValue) {
+    return supportsHandlerMethod(handler) || supportsReturnValue(returnValue);
   }
 
   /**
@@ -46,6 +65,8 @@ public interface HandlerMethodReturnValueHandler extends ReturnValueHandler {
    * {@code false} otherwise
    * @see HandlerMethod
    */
-  boolean supportsHandlerMethod(HandlerMethod handler);
+  default boolean supportsHandlerMethod(HandlerMethod handler) {
+    return false;
+  }
 
 }

@@ -29,6 +29,7 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.ReturnValueHandler;
+import cn.taketoday.web.handler.result.SmartReturnValueHandler;
 
 /**
  * select {@link ReturnValueHandler} handler in list
@@ -63,16 +64,24 @@ public class SelectableReturnValueHandler implements ReturnValueHandler, ArraySi
     if (returnValue != NONE_RETURN_VALUE) {
       if (handler != null) {
         // match handler and return-value
-        for (final ReturnValueHandler returnValueHandler : internalHandlers) {
-          if (returnValueHandler.supportsHandler(handler)
-                  || returnValueHandler.supportsReturnValue(returnValue)) {
-            return returnValueHandler;
+        for (ReturnValueHandler returnValueHandler : internalHandlers) {
+          if (returnValueHandler instanceof SmartReturnValueHandler smartHandler) {
+            // smart handler
+            if (smartHandler.supportsHandler(handler, returnValue)) {
+              return returnValueHandler;
+            }
+          }
+          else {
+            if (returnValueHandler.supportsHandler(handler)
+                    || returnValueHandler.supportsReturnValue(returnValue)) {
+              return returnValueHandler;
+            }
           }
         }
       }
       else {
         // match return-value only
-        for (final ReturnValueHandler returnValueHandler : internalHandlers) {
+        for (ReturnValueHandler returnValueHandler : internalHandlers) {
           if (returnValueHandler.supportsReturnValue(returnValue)) {
             return returnValueHandler;
           }
@@ -81,7 +90,7 @@ public class SelectableReturnValueHandler implements ReturnValueHandler, ArraySi
     }
     else if (handler != null) {
       // match handler only
-      for (final ReturnValueHandler returnValueHandler : internalHandlers) {
+      for (ReturnValueHandler returnValueHandler : internalHandlers) {
         if (returnValueHandler.supportsHandler(handler)) {
           return returnValueHandler;
         }

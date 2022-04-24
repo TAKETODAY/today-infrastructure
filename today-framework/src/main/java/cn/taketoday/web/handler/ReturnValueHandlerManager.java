@@ -51,11 +51,13 @@ import cn.taketoday.web.handler.method.ResponseBodyEmitterReturnValueHandler;
 import cn.taketoday.web.handler.result.AsyncTaskMethodReturnValueHandler;
 import cn.taketoday.web.handler.result.CallableMethodReturnValueHandler;
 import cn.taketoday.web.handler.result.DeferredResultReturnValueHandler;
+import cn.taketoday.web.handler.result.HandlerMethodReturnValueHandler;
 import cn.taketoday.web.handler.result.HttpHeadersReturnValueHandler;
 import cn.taketoday.web.handler.result.HttpStatusReturnValueHandler;
 import cn.taketoday.web.handler.result.ModelAndViewReturnValueHandler;
 import cn.taketoday.web.handler.result.ObjectHandlerMethodReturnValueHandler;
 import cn.taketoday.web.handler.result.RenderedImageReturnValueHandler;
+import cn.taketoday.web.handler.result.SmartReturnValueHandler;
 import cn.taketoday.web.handler.result.VoidReturnValueHandler;
 import cn.taketoday.web.view.RedirectModelManager;
 import cn.taketoday.web.view.ViewResolver;
@@ -178,6 +180,24 @@ public class ReturnValueHandlerManager
       throw new ReturnValueHandlerNotFoundException(handler);
     }
     return returnValueHandler;
+  }
+
+  @Nullable
+  public ReturnValueHandler find(Object handler, @Nullable Object returnValue) {
+    for (ReturnValueHandler returnValueHandler : getHandlers()) {
+      if (returnValueHandler instanceof SmartReturnValueHandler smartHandler) {
+        if (smartHandler.supportsHandler(handler, returnValue)) {
+          return returnValueHandler;
+        }
+      }
+      else {
+        if (returnValueHandler.supportsHandler(handler)
+                || returnValueHandler.supportsReturnValue(returnValue)) {
+          return returnValueHandler;
+        }
+      }
+    }
+    return null;
   }
 
   //

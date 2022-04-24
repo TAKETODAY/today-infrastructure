@@ -37,9 +37,11 @@ import cn.taketoday.util.ExceptionUtils;
 import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.RequestContext;
+import cn.taketoday.web.ReturnValueHandler;
 import cn.taketoday.web.annotation.ResponseBody;
 import cn.taketoday.web.annotation.ResponseStatus;
 import cn.taketoday.web.handler.ReturnValueHandlerManager;
+import cn.taketoday.web.handler.ReturnValueHandlerNotFoundException;
 import cn.taketoday.web.handler.method.support.ModelAndViewContainer;
 import cn.taketoday.web.handler.result.HandlerMethodReturnValueHandler;
 import cn.taketoday.web.servlet.ServletUtils;
@@ -69,7 +71,7 @@ public class ServletInvocableHandlerMethod extends InvocableHandlerMethod {
   private static final Method CALLABLE_METHOD = ReflectionUtils.getMethod(Callable.class, "call");
 
   @Nullable
-  private ReturnValueHandlerManager returnValueHandlers;
+  private ReturnValueHandlerManager returnValueHandlerManager;
 
   /**
    * Creates an instance from the given handler and method.
@@ -98,8 +100,8 @@ public class ServletInvocableHandlerMethod extends InvocableHandlerMethod {
    * Register {@link HandlerMethodReturnValueHandler} instances to use to
    * handle return values.
    */
-  public void setHandlerMethodReturnValueHandlers(ReturnValueHandlerManager returnValueHandlers) {
-    this.returnValueHandlers = returnValueHandlers;
+  public void setReturnValueHandlerManager(ReturnValueHandlerManager manager) {
+    this.returnValueHandlerManager = manager;
   }
 
   /**
@@ -130,11 +132,19 @@ public class ServletInvocableHandlerMethod extends InvocableHandlerMethod {
     }
 
     mavContainer.setRequestHandled(false);
+    Assert.state(returnValueHandlerManager != null, "No return value handlers");
 
-    Assert.state(this.returnValueHandlers != null, "No return value handlers");
+    ReturnValueHandler returnValueHandler = returnValueHandlerManager.getHandler(this);
+    if (returnValueHandler == null) {
+      returnValueHandler = returnValueHandlerManager.getByReturnValue(returnValue);
+    }
+
+    if (returnValueHandler == null) {
+      throw new ReturnValueHandlerNotFoundException(returnValue, this);
+    }
+
     try {
-      returnValueHandlers.obtainHandler(this)
-              .handleReturnValue(request, this, returnValue);
+      returnValueHandler.handleReturnValue(request, this, returnValue);
     }
     catch (Exception ex) {
       if (log.isTraceEnabled()) {
@@ -220,8 +230,8 @@ public class ServletInvocableHandlerMethod extends InvocableHandlerMethod {
         return result;
       }, CALLABLE_METHOD);
 
-      if (ServletInvocableHandlerMethod.this.returnValueHandlers != null) {
-        setHandlerMethodReturnValueHandlers(ServletInvocableHandlerMethod.this.returnValueHandlers);
+      if (ServletInvocableHandlerMethod.this.returnValueHandlerManager != null) {
+        setReturnValueHandlerManager(ServletInvocableHandlerMethod.this.returnValueHandlerManager);
       }
       this.returnType = returnType;
     }
@@ -241,6 +251,11 @@ public class ServletInvocableHandlerMethod extends InvocableHandlerMethod {
     @Override
     public MethodParameter getReturnValueType(@Nullable Object returnValue) {
       return this.returnType;
+    }
+
+    @Override
+    public MethodParameter getReturnType() {
+      return returnType;
     }
 
     /**

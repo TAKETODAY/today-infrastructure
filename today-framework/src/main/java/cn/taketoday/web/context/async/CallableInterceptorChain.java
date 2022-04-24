@@ -37,7 +37,7 @@ import cn.taketoday.web.RequestContext;
  */
 class CallableInterceptorChain {
 
-  private static final Logger logger = LoggerFactory.getLogger(CallableInterceptorChain.class);
+  private static final Logger log = LoggerFactory.getLogger(CallableInterceptorChain.class);
 
   private final List<CallableProcessingInterceptor> interceptors;
 
@@ -75,8 +75,8 @@ class CallableInterceptorChain {
       catch (Throwable ex) {
         // Save the first exception but invoke all interceptors
         if (exceptionResult != null) {
-          if (logger.isTraceEnabled()) {
-            logger.trace("Ignoring failure in postProcess method", ex);
+          if (log.isTraceEnabled()) {
+            log.trace("Ignoring failure in postProcess method", ex);
           }
         }
         else {
@@ -143,8 +143,8 @@ class CallableInterceptorChain {
         this.interceptors.get(i).afterCompletion(request, task);
       }
       catch (Throwable ex) {
-        if (logger.isTraceEnabled()) {
-          logger.trace("Ignoring failure in afterCompletion method", ex);
+        if (log.isTraceEnabled()) {
+          log.trace("Ignoring failure in afterCompletion method", ex);
         }
       }
     }

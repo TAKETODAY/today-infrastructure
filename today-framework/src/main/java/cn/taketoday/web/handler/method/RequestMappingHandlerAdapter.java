@@ -510,7 +510,7 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
     invocableMethod.setResolvingRegistry(resolvingRegistry);
 
     if (this.returnValueHandlerManager != null) {
-      invocableMethod.setHandlerMethodReturnValueHandlers(this.returnValueHandlerManager);
+      invocableMethod.setReturnValueHandlerManager(this.returnValueHandlerManager);
     }
 
     invocableMethod.setDataBinderFactory(binderFactory);
@@ -520,16 +520,16 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
     mavContainer.setWebDataBinderFactory(binderFactory);
     mavContainer.addAllAttributes(RequestContextUtils.getInputRedirectModel(request));
     modelFactory.initModel(request, mavContainer, invocableMethod);
-    mavContainer.setIgnoreDefaultModelOnRedirect(this.ignoreDefaultModelOnRedirect);
+    mavContainer.setIgnoreDefaultModelOnRedirect(ignoreDefaultModelOnRedirect);
 
     AsyncWebRequest asyncWebRequest = WebAsyncUtils.createAsyncWebRequest(request);
-    asyncWebRequest.setTimeout(this.asyncRequestTimeout);
+    asyncWebRequest.setTimeout(asyncRequestTimeout);
 
     WebAsyncManager asyncManager = WebAsyncUtils.getAsyncManager(request);
     asyncManager.setTaskExecutor(taskExecutor);
-    asyncManager.setAsyncWebRequest(asyncWebRequest);
+    asyncManager.setAsyncRequest(asyncWebRequest);
     asyncManager.registerCallableInterceptors(callableInterceptors);
-    asyncManager.registerDeferredResultInterceptors(this.deferredResultInterceptors);
+    asyncManager.registerDeferredResultInterceptors(deferredResultInterceptors);
 
     if (asyncManager.hasConcurrentResult()) {
       Object result = asyncManager.getConcurrentResult();
@@ -543,6 +543,7 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
     }
 
     invocableMethod.invokeAndHandle(request, mavContainer);
+
     if (asyncManager.isConcurrentHandlingStarted()) {
       return null;
     }

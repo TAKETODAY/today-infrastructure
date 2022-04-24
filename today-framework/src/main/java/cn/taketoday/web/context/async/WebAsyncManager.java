@@ -78,7 +78,7 @@ public final class WebAsyncManager {
 
   private static Boolean taskExecutorWarning = true;
 
-  private AsyncWebRequest asyncWebRequest;
+  private AsyncWebRequest asyncRequest;
 
   private AsyncTaskExecutor taskExecutor = DEFAULT_TASK_EXECUTOR;
 
@@ -116,12 +116,12 @@ public final class WebAsyncManager {
    * is in progress, i.e. while {@link #isConcurrentHandlingStarted()} is
    * {@code true}.
    *
-   * @param asyncWebRequest the web request to use
+   * @param asyncRequest the web request to use
    */
-  public void setAsyncWebRequest(AsyncWebRequest asyncWebRequest) {
-    Assert.notNull(asyncWebRequest, "AsyncWebRequest must not be null");
-    this.asyncWebRequest = asyncWebRequest;
-    this.asyncWebRequest.addCompletionHandler(
+  public void setAsyncRequest(AsyncWebRequest asyncRequest) {
+    Assert.notNull(asyncRequest, "AsyncWebRequest must not be null");
+    this.asyncRequest = asyncRequest;
+    this.asyncRequest.addCompletionHandler(
             () -> requestContext.removeAttribute(WebAsyncUtils.WEB_ASYNC_MANAGER_ATTRIBUTE));
   }
 
@@ -143,7 +143,7 @@ public final class WebAsyncManager {
    * processing of the concurrent result.
    */
   public boolean isConcurrentHandlingStarted() {
-    return asyncWebRequest != null && asyncWebRequest.isAsyncStarted();
+    return asyncRequest != null && asyncRequest.isAsyncStarted();
   }
 
   /**
@@ -293,11 +293,11 @@ public final class WebAsyncManager {
           throws Exception {
 
     Assert.notNull(webAsyncTask, "WebAsyncTask must not be null");
-    Assert.state(this.asyncWebRequest != null, "AsyncWebRequest must not be null");
+    Assert.state(asyncRequest != null, "AsyncWebRequest must not be null");
 
     Long timeout = webAsyncTask.getTimeout();
     if (timeout != null) {
-      this.asyncWebRequest.setTimeout(timeout);
+      asyncRequest.setTimeout(timeout);
     }
 
     AsyncTaskExecutor executor = webAsyncTask.getExecutor();
@@ -316,7 +316,7 @@ public final class WebAsyncManager {
     Callable<?> callable = webAsyncTask.getCallable();
     CallableInterceptorChain interceptorChain = new CallableInterceptorChain(interceptors);
 
-    asyncWebRequest.addTimeoutHandler(() -> {
+    asyncRequest.addTimeoutHandler(() -> {
       if (logger.isDebugEnabled()) {
         logger.debug("Async request timeout for {}", formatRequestUri());
       }
@@ -326,7 +326,7 @@ public final class WebAsyncManager {
       }
     });
 
-    asyncWebRequest.addErrorHandler(ex -> {
+    asyncRequest.addErrorHandler(ex -> {
       if (!errorHandlingInProgress) {
         if (logger.isDebugEnabled()) {
           logger.debug("Async request error for {}: {}", formatRequestUri(), ex);
@@ -337,7 +337,7 @@ public final class WebAsyncManager {
       }
     });
 
-    asyncWebRequest.addCompletionHandler(
+    asyncRequest.addCompletionHandler(
             () -> interceptorChain.triggerAfterCompletion(requestContext, callable));
 
     interceptorChain.applyBeforeConcurrentHandling(requestContext, callable);
@@ -401,7 +401,7 @@ public final class WebAsyncManager {
       this.errorHandlingInProgress = (result instanceof Throwable);
     }
 
-    if (asyncWebRequest.isAsyncComplete()) {
+    if (asyncRequest.isAsyncComplete()) {
       if (logger.isDebugEnabled()) {
         logger.debug("Async result set but request already complete: {}", formatRequestUri());
       }
@@ -412,7 +412,7 @@ public final class WebAsyncManager {
       boolean isError = result instanceof Throwable;
       logger.debug("Async {}, dispatch to {}", (isError ? "error" : "result set"), formatRequestUri());
     }
-    asyncWebRequest.dispatch();
+    asyncRequest.dispatch();
   }
 
   /**
@@ -431,14 +431,14 @@ public final class WebAsyncManager {
    * @see #getConcurrentResultContext()
    */
   public void startDeferredResultProcessing(
-          final DeferredResult<?> deferredResult, Object... processingContext) throws Exception {
+          DeferredResult<?> deferredResult, Object... processingContext) throws Exception {
 
     Assert.notNull(deferredResult, "DeferredResult must not be null");
-    Assert.state(asyncWebRequest != null, "AsyncWebRequest must not be null");
+    Assert.state(asyncRequest != null, "AsyncWebRequest must not be null");
 
     Long timeout = deferredResult.getTimeoutValue();
     if (timeout != null) {
-      asyncWebRequest.setTimeout(timeout);
+      asyncRequest.setTimeout(timeout);
     }
 
     List<DeferredResultProcessingInterceptor> interceptors = new ArrayList<>();
@@ -446,9 +446,8 @@ public final class WebAsyncManager {
     interceptors.addAll(deferredResultInterceptors.values());
     interceptors.add(timeoutDeferredResultInterceptor);
 
-    final DeferredResultInterceptorChain interceptorChain = new DeferredResultInterceptorChain(interceptors);
-
-    asyncWebRequest.addTimeoutHandler(() -> {
+    var interceptorChain = new DeferredResultInterceptorChain(interceptors);
+    asyncRequest.addTimeoutHandler(() -> {
       try {
         interceptorChain.triggerAfterTimeout(requestContext, deferredResult);
       }
@@ -457,7 +456,7 @@ public final class WebAsyncManager {
       }
     });
 
-    asyncWebRequest.addErrorHandler(ex -> {
+    asyncRequest.addErrorHandler(ex -> {
       if (!errorHandlingInProgress) {
         try {
           if (!interceptorChain.triggerAfterError(requestContext, deferredResult, ex)) {
@@ -471,7 +470,7 @@ public final class WebAsyncManager {
       }
     });
 
-    asyncWebRequest.addCompletionHandler(()
+    asyncRequest.addCompletionHandler(()
             -> interceptorChain.triggerAfterCompletion(requestContext, deferredResult));
 
     interceptorChain.applyBeforeConcurrentHandling(requestContext, deferredResult);
@@ -495,7 +494,7 @@ public final class WebAsyncManager {
       this.concurrentResultContext = processingContext;
       this.errorHandlingInProgress = false;
     }
-    asyncWebRequest.startAsync();
+    asyncRequest.startAsync();
 
     if (logger.isDebugEnabled()) {
       logger.debug("Started async request");
