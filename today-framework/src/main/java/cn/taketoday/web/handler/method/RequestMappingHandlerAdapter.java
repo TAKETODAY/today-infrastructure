@@ -553,7 +553,7 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
 
     if (asyncManager.hasConcurrentResult()) {
       Object result = asyncManager.getConcurrentResult();
-      mavContainer = request.getModelContainer();
+      mavContainer = asyncManager.getModelContainer();
       asyncManager.clearConcurrentResult();
       LogFormatUtils.traceDebug(log, traceOn -> {
         String formatted = LogFormatUtils.formatValue(result, !traceOn);
