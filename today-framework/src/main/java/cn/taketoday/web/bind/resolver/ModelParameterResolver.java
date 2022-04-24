@@ -87,6 +87,7 @@ public class ModelParameterResolver implements ParameterResolvingStrategy {
       }
       return redirectModel;
     }
+
     if (resolvable.isAssignableTo(ModelAndView.class)) {
       return context.modelAndView();
     }

@@ -19,29 +19,22 @@
  */
 package cn.taketoday.web.handler.result;
 
-import java.util.List;
-
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.ReturnValueHandler;
-import cn.taketoday.web.handler.SelectableReturnValueHandler;
 import cn.taketoday.web.handler.method.HandlerMethod;
-import cn.taketoday.web.handler.result.HandlerMethodReturnValueHandler;
 import cn.taketoday.web.view.ModelAndView;
+import cn.taketoday.web.view.View;
+import cn.taketoday.web.view.ViewReturnValueHandler;
 
 /**
  * @author TODAY 2019-07-14 01:14
  */
 public class ModelAndViewReturnValueHandler implements HandlerMethodReturnValueHandler {
 
-  private final SelectableReturnValueHandler returnValueHandlers;
+  private final ViewReturnValueHandler viewReturnValueHandler;
 
-  public ModelAndViewReturnValueHandler(List<ReturnValueHandler> returnValueHandlers) {
-    this.returnValueHandlers = new SelectableReturnValueHandler(returnValueHandlers);
-  }
-
-  public ModelAndViewReturnValueHandler(SelectableReturnValueHandler returnValueHandlers) {
-    this.returnValueHandlers = returnValueHandlers;
+  public ModelAndViewReturnValueHandler(ViewReturnValueHandler viewReturnValueHandler) {
+    this.viewReturnValueHandler = viewReturnValueHandler;
   }
 
   @Override
@@ -69,8 +62,11 @@ public class ModelAndViewReturnValueHandler implements HandlerMethodReturnValueH
    */
   public final void handleModelAndView(
           RequestContext context, @Nullable Object handler, @Nullable ModelAndView modelAndView) throws Exception {
-    if (modelAndView != null && modelAndView.hasView()) {
-      returnValueHandlers.handleReturnValue(context, handler, modelAndView.getView());
+    if (modelAndView != null) {
+      View view = modelAndView.getView();
+      if (view != null) {
+        viewReturnValueHandler.renderView(context, view);
+      }
     }
   }
 

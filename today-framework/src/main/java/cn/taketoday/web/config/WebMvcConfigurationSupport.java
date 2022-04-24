@@ -427,6 +427,11 @@ public class WebMvcConfigurationSupport extends ApplicationContextSupport {
     ViewReturnValueHandler handler = new ViewReturnValueHandler(webViewResolver);
     handler.setModelManager(redirectModelManager);
 
+    AsyncSupportConfigurer configurer = getAsyncSupportConfigurer();
+    if (configurer.getTaskExecutor() != null) {
+      manager.setTaskExecutor(configurer.getTaskExecutor());
+    }
+
     manager.setViewReturnValueHandler(handler);
     manager.addRequestResponseBodyAdvice(requestResponseBodyAdvice);
     manager.registerDefaultHandlers();

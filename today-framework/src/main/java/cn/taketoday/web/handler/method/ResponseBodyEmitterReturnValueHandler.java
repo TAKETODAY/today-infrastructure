@@ -29,6 +29,7 @@ import java.util.function.Consumer;
 import cn.taketoday.core.MethodParameter;
 import cn.taketoday.core.ReactiveAdapterRegistry;
 import cn.taketoday.core.ResolvableType;
+import cn.taketoday.core.task.SyncTaskExecutor;
 import cn.taketoday.core.task.TaskExecutor;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.MediaType;
@@ -83,13 +84,25 @@ public class ResponseBodyEmitterReturnValueHandler implements HandlerMethodRetur
    * Complete constructor with pluggable "reactive" type support.
    *
    * @param messageConverters converters to write emitted objects with
+   * @param manager for detecting streaming media types
+   */
+  public ResponseBodyEmitterReturnValueHandler(
+          List<HttpMessageConverter<?>> messageConverters, ContentNegotiationManager manager) {
+    Assert.notEmpty(messageConverters, "HttpMessageConverter List must not be empty");
+    this.sseMessageConverters = initSseConverters(messageConverters);
+    this.reactiveHandler = new ReactiveTypeHandler(manager);
+  }
+
+  /**
+   * Complete constructor with pluggable "reactive" type support.
+   *
+   * @param messageConverters converters to write emitted objects with
    * @param registry for reactive return value type support
    * @param executor for blocking I/O writes of items emitted from reactive types
    * @param manager for detecting streaming media types
    */
   public ResponseBodyEmitterReturnValueHandler(List<HttpMessageConverter<?>> messageConverters,
           ReactiveAdapterRegistry registry, TaskExecutor executor, ContentNegotiationManager manager) {
-
     Assert.notEmpty(messageConverters, "HttpMessageConverter List must not be empty");
     this.sseMessageConverters = initSseConverters(messageConverters);
     this.reactiveHandler = new ReactiveTypeHandler(registry, executor, manager);

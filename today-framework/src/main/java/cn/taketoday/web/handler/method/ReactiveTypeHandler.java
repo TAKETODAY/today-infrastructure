@@ -79,7 +79,7 @@ public class ReactiveTypeHandler {
   private static final List<MediaType> JSON_STREAMING_MEDIA_TYPES =
           Arrays.asList(MediaType.APPLICATION_NDJSON, MediaType.APPLICATION_STREAM_JSON);
 
-  private static final Logger logger = LoggerFactory.getLogger(ReactiveTypeHandler.class);
+  private static final Logger log = LoggerFactory.getLogger(ReactiveTypeHandler.class);
 
   private final ReactiveAdapterRegistry adapterRegistry;
 
@@ -93,6 +93,10 @@ public class ReactiveTypeHandler {
     this(ReactiveAdapterRegistry.getSharedInstance(), new SyncTaskExecutor(), new ContentNegotiationManager());
   }
 
+  public ReactiveTypeHandler(ContentNegotiationManager manager) {
+    this(ReactiveAdapterRegistry.getSharedInstance(), new SyncTaskExecutor(), manager);
+  }
+
   public ReactiveTypeHandler(
           ReactiveAdapterRegistry registry, TaskExecutor executor, ContentNegotiationManager manager) {
     Assert.notNull(registry, "ReactiveAdapterRegistry is required");
@@ -101,9 +105,8 @@ public class ReactiveTypeHandler {
     this.adapterRegistry = registry;
     this.taskExecutor = executor;
     this.contentNegotiationManager = manager;
-
     this.taskExecutorWarning =
-            (executor instanceof SimpleAsyncTaskExecutor || executor instanceof SyncTaskExecutor);
+            executor instanceof SimpleAsyncTaskExecutor || executor instanceof SyncTaskExecutor;
   }
 
   /**
@@ -121,12 +124,14 @@ public class ReactiveTypeHandler {
    * with a {@link DeferredResult}
    */
   @Nullable
-  public ResponseBodyEmitter handleValue(Object returnValue, MethodParameter returnType,
-          RequestContext request) throws Exception {
+  public ResponseBodyEmitter handleValue(
+          Object returnValue, MethodParameter returnType, RequestContext request) throws Exception {
     Assert.notNull(returnValue, "Expected return value");
 
     ReactiveAdapter adapter = adapterRegistry.getAdapter(returnValue.getClass());
-    Assert.state(adapter != null, () -> "Unexpected return value: " + returnValue);
+    if (adapter == null) {
+      throw new IllegalStateException("Unexpected return value: " + returnValue);
+    }
 
     ResolvableType elementType = ResolvableType.forMethodParameter(returnType).getGeneric();
     Class<?> elementClass = elementType.toClass();
@@ -137,8 +142,8 @@ public class ReactiveTypeHandler {
             .findFirst();
 
     if (adapter.isMultiValue()) {
-      if (mediaTypes.stream().anyMatch(MediaType.TEXT_EVENT_STREAM::includes) ||
-              ServerSentEvent.class.isAssignableFrom(elementClass)) {
+      if (mediaTypes.stream().anyMatch(MediaType.TEXT_EVENT_STREAM::includes)
+              || ServerSentEvent.class.isAssignableFrom(elementClass)) {
         logExecutorWarning(returnType);
         SseEmitter emitter = new SseEmitter(STREAMING_TIMEOUT_VALUE);
         new SseEmitterSubscriber(emitter, taskExecutor).connect(adapter, returnValue);
@@ -194,11 +199,11 @@ public class ReactiveTypeHandler {
 
   @SuppressWarnings("ConstantConditions")
   private void logExecutorWarning(MethodParameter returnType) {
-    if (this.taskExecutorWarning && logger.isWarnEnabled()) {
+    if (this.taskExecutorWarning && log.isWarnEnabled()) {
       synchronized(this) {
         if (this.taskExecutorWarning) {
           String executorTypeName = this.taskExecutor.getClass().getSimpleName();
-          logger.warn("""
+          log.warn("""
                           !!!
                           Streaming through a reactive type requires an Executor to write to the response.
                           Please, configure a TaskExecutor in the MVC config under "async support".
@@ -256,8 +261,8 @@ public class ReactiveTypeHandler {
     public final void onSubscribe(Subscription subscription) {
       this.subscription = subscription;
       emitter.onTimeout(() -> {
-        if (logger.isTraceEnabled()) {
-          logger.trace("Connection timeout for {}", emitter);
+        if (log.isTraceEnabled()) {
+          log.trace("Connection timeout for {}", emitter);
         }
         terminate();
         emitter.complete();
@@ -325,8 +330,8 @@ public class ReactiveTypeHandler {
           this.subscription.request(1);
         }
         catch (final Throwable ex) {
-          if (logger.isTraceEnabled()) {
-            logger.trace("Send for {} failed: {}", emitter, ex);
+          if (log.isTraceEnabled()) {
+            log.trace("Send for {} failed: {}", emitter, ex);
           }
           terminate();
           return;
@@ -338,14 +343,14 @@ public class ReactiveTypeHandler {
         Throwable ex = this.error;
         this.error = null;
         if (ex != null) {
-          if (logger.isTraceEnabled()) {
-            logger.trace("Publisher for {} failed: {}", emitter, ex);
+          if (log.isTraceEnabled()) {
+            log.trace("Publisher for {} failed: {}", emitter, ex);
           }
           emitter.completeWithError(ex);
         }
         else {
-          if (logger.isTraceEnabled()) {
-            logger.trace("Publisher for {} completed", emitter);
+          if (log.isTraceEnabled()) {
+            log.trace("Publisher for {} completed", emitter);
           }
           emitter.complete();
         }

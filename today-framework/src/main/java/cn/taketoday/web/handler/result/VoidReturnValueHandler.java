@@ -20,6 +20,7 @@
 package cn.taketoday.web.handler.result;
 
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.handler.method.HandlerMethod;
 import cn.taketoday.web.handler.method.support.ModelAndViewContainer;
@@ -50,7 +51,7 @@ public class VoidReturnValueHandler implements HandlerMethodReturnValueHandler {
 
   @Override
   public void handleReturnValue(
-          RequestContext context, Object handler, Object returnValue) throws Exception {
+          RequestContext context, Object handler, @Nullable Object returnValue) throws Exception {
 
     ModelAndViewContainer modelContainer = context.getModelContainer();
     if (modelContainer != null) {

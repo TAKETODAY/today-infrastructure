@@ -987,6 +987,7 @@ public abstract class RequestContext implements InputStreamSource,
    *
    * @return Returns {@link ModelAndView}
    */
+  @Deprecated
   public ModelAndView modelAndView() {
     if (modelAndView == null) {
       this.modelAndView = new ModelAndView();
@@ -997,6 +998,7 @@ public abstract class RequestContext implements InputStreamSource,
   /**
    * @since 3.0
    */
+  @Deprecated
   public boolean hasModelAndView() {
     return modelAndView != null;
   }

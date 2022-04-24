@@ -23,11 +23,15 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.Callable;
 import java.util.function.Predicate;
 
 import cn.taketoday.context.aware.ApplicationContextSupport;
 import cn.taketoday.core.ArraySizeTrimmer;
+import cn.taketoday.core.ReactiveAdapterRegistry;
 import cn.taketoday.core.style.ToStringBuilder;
+import cn.taketoday.core.task.AsyncTaskExecutor;
+import cn.taketoday.core.task.SimpleAsyncTaskExecutor;
 import cn.taketoday.http.converter.AllEncompassingFormHttpMessageConverter;
 import cn.taketoday.http.converter.ByteArrayHttpMessageConverter;
 import cn.taketoday.http.converter.HttpMessageConverter;
@@ -40,8 +44,10 @@ import cn.taketoday.web.WebApplicationContextSupport;
 import cn.taketoday.web.accept.ContentNegotiationManager;
 import cn.taketoday.web.bind.resolver.HttpEntityMethodProcessor;
 import cn.taketoday.web.bind.resolver.RequestResponseBodyMethodProcessor;
+import cn.taketoday.web.context.async.WebAsyncTask;
 import cn.taketoday.web.handler.method.RequestBodyAdvice;
 import cn.taketoday.web.handler.method.ResponseBodyAdvice;
+import cn.taketoday.web.handler.method.ResponseBodyEmitterReturnValueHandler;
 import cn.taketoday.web.handler.result.AsyncTaskMethodReturnValueHandler;
 import cn.taketoday.web.handler.result.CallableMethodReturnValueHandler;
 import cn.taketoday.web.handler.result.DeferredResultReturnValueHandler;
@@ -88,6 +94,9 @@ public class ReturnValueHandlerManager
 
   // @since 4.0
   private final ArrayList<Object> bodyAdvice = new ArrayList<>();
+
+  @Nullable
+  private AsyncTaskExecutor taskExecutor;
 
   private String imageFormatName = RenderedImageReturnValueHandler.IMAGE_PNG;
 
@@ -181,9 +190,8 @@ public class ReturnValueHandlerManager
     ViewReturnValueHandler viewHandler = obtainViewHandler();
 
     ArrayList<ReturnValueHandler> internalHandlers = new ArrayList<>();
-    RenderedImageReturnValueHandler imageHandler = getRenderedImageHandler();
-
-    ModelAndViewReturnValueHandler modelAndViewHandler = new ModelAndViewReturnValueHandler(internalHandlers);
+    var imageHandler = getRenderedImageHandler();
+    var modelAndViewHandler = new ModelAndViewReturnValueHandler(viewHandler);
 
     internalHandlers.add(imageHandler);
     internalHandlers.add(viewHandler);
@@ -196,9 +204,9 @@ public class ReturnValueHandlerManager
     internalHandlers.add(new DeferredResultReturnValueHandler());
 
     // Iterate ReturnValueHandler in runtime
-    SelectableReturnValueHandler compositeHandler = new SelectableReturnValueHandler(internalHandlers);
+    var compositeHandler = new SelectableReturnValueHandler(internalHandlers);
 
-    ObjectHandlerMethodReturnValueHandler objectHandler = getObjectHandler(compositeHandler);
+    var objectHandler = getObjectHandler(compositeHandler);
 
     List<ReturnValueHandler> handlers = getHandlers();
     handlers.add(imageHandler);
@@ -214,9 +222,17 @@ public class ReturnValueHandlerManager
 
     List<HttpMessageConverter<?>> messageConverters = getMessageConverters();
 
+    if (taskExecutor != null) {
+      ReactiveAdapterRegistry registry = ReactiveAdapterRegistry.getSharedInstance();
+      handlers.add(new ResponseBodyEmitterReturnValueHandler(
+              messageConverters, registry, taskExecutor, contentNegotiationManager));
+    }
+    else {
+      handlers.add(new ResponseBodyEmitterReturnValueHandler(messageConverters, contentNegotiationManager));
+    }
+
     handlers.add(new HttpEntityMethodProcessor(
             messageConverters, contentNegotiationManager, bodyAdvice, redirectModelManager));
-
     handlers.add(new RequestResponseBodyMethodProcessor(
             messageConverters, contentNegotiationManager, bodyAdvice));
 
@@ -407,6 +423,20 @@ public class ReturnValueHandlerManager
 
   public void setViewReturnValueHandler(@Nullable ViewReturnValueHandler viewReturnValueHandler) {
     this.viewReturnValueHandler = viewReturnValueHandler;
+  }
+
+  /**
+   * Set the default {@link AsyncTaskExecutor} to use when a controller method
+   * return a {@link Callable}. Controller methods can override this default on
+   * a per-request basis by returning an {@link WebAsyncTask}.
+   * <p>By default a {@link SimpleAsyncTaskExecutor} instance is used.
+   * It's recommended to change that default in production as the simple executor
+   * does not re-use threads.
+   *
+   * @since 4.0
+   */
+  public void setTaskExecutor(AsyncTaskExecutor taskExecutor) {
+    this.taskExecutor = taskExecutor;
   }
 
   @Override
