@@ -42,7 +42,7 @@ import cn.taketoday.util.CollectionUtils;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/1/16 16:07
  */
-abstract class FilteringContextCondition extends ContextCondition
+public abstract class FilteringContextCondition extends ContextCondition
         implements AutoConfigurationImportFilter, BeanFactoryAware, BeanClassLoaderAware {
 
   private BeanFactory beanFactory;
@@ -135,9 +135,9 @@ abstract class FilteringContextCondition extends ContextCondition
 
     };
 
-    abstract boolean matches(String className, ClassLoader classLoader);
+    public abstract boolean matches(String className, ClassLoader classLoader);
 
-    static boolean isPresent(String className, ClassLoader classLoader) {
+    public static boolean isPresent(String className, ClassLoader classLoader) {
       if (classLoader == null) {
         classLoader = ClassUtils.getDefaultClassLoader();
       }

@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -18,12 +18,15 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.context.condition;
+package cn.taketoday.framework.annotation;
 
 import cn.taketoday.context.annotation.Condition;
 import cn.taketoday.context.annotation.ConditionEvaluationContext;
 import cn.taketoday.context.annotation.config.AutoConfigurationMetadata;
-import cn.taketoday.context.condition.ConditionalOnWebApplication.Type;
+import cn.taketoday.context.condition.ConditionMessage;
+import cn.taketoday.context.condition.ConditionOutcome;
+import cn.taketoday.context.condition.FilteringContextCondition;
+import cn.taketoday.framework.annotation.ConditionalOnWebApplication.Type;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.annotation.Order;
 import cn.taketoday.core.io.ResourceLoader;
@@ -42,14 +45,20 @@ import cn.taketoday.web.servlet.WebServletApplicationContext;
  *
  * @author Dave Syer
  * @author Phillip Webb
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see ConditionalOnWebApplication
  * @see ConditionalOnNotWebApplication
+ * @since 4.0
  */
-@Order(Ordered.HIGHEST_PRECEDENCE + 20)
-class OnWebApplicationCondition extends FilteringContextCondition {
+class OnWebApplicationCondition extends FilteringContextCondition implements Ordered {
 
   private static final String SERVLET_WEB_APPLICATION_CLASS = "cn.taketoday.web.context.support.GenericWebApplicationContext";
   private static final String REACTIVE_WEB_APPLICATION_CLASS = "cn.taketoday.web.reactive.HandlerResult";
+
+  @Override
+  public int getOrder() {
+    return Ordered.HIGHEST_PRECEDENCE + 20;
+  }
 
   @Override
   protected ConditionOutcome[] getOutcomes(

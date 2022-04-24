@@ -25,6 +25,7 @@ import org.junit.jupiter.api.Test;
 
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
+import cn.taketoday.framework.annotation.ConditionalOnNotWebApplication;
 import cn.taketoday.framework.test.context.runner.ApplicationContextRunner;
 import cn.taketoday.framework.test.context.runner.ReactiveWebApplicationContextRunner;
 import cn.taketoday.framework.test.context.runner.WebApplicationContextRunner;

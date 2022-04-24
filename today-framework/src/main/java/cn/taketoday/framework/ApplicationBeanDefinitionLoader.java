@@ -202,11 +202,14 @@ class ApplicationBeanDefinitionLoader {
   }
 
   private Set<Resource> findResources(String source) {
-    ResourceLoader loader = resourceLoader != null
-                            ? resourceLoader : new PathMatchingPatternResourceLoader();
+    ResourceLoader loader = resourceLoader;
+    if (loader == null) {
+      loader = new PathMatchingPatternResourceLoader();
+    }
+
     try {
-      if (loader instanceof PatternResourceLoader) {
-        return ((PatternResourceLoader) loader).getResources(source);
+      if (loader instanceof PatternResourceLoader patternLoader) {
+        return patternLoader.getResources(source);
       }
       return Collections.singleton(loader.getResource(source));
     }
@@ -287,7 +290,7 @@ class ApplicationBeanDefinitionLoader {
       super(false, false);
       for (Object source : sources) {
         if (source instanceof Class<?> sourceClass) {
-          this.classNames.add(sourceClass.getName());
+          classNames.add(sourceClass.getName());
         }
       }
     }

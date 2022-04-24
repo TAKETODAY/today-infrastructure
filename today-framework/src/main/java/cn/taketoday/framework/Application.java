@@ -444,9 +444,12 @@ public class Application {
     if (this.bannerMode == Banner.Mode.OFF) {
       return null;
     }
-    ResourceLoader resourceLoader = (this.resourceLoader != null) ? this.resourceLoader
-                                                                  : new DefaultResourceLoader(null);
-    ApplicationBannerPrinter bannerPrinter = new ApplicationBannerPrinter(resourceLoader, this.banner);
+    ResourceLoader resourceLoader = this.resourceLoader;
+    if (resourceLoader == null) {
+      resourceLoader = new DefaultResourceLoader(null);
+    }
+
+    var bannerPrinter = new ApplicationBannerPrinter(resourceLoader, this.banner);
     if (this.bannerMode == Banner.Mode.LOG) {
       return bannerPrinter.print(environment, this.mainApplicationClass, log);
     }

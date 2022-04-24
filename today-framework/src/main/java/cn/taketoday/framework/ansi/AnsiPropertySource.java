@@ -47,7 +47,7 @@ import cn.taketoday.util.StringUtils;
  */
 public class AnsiPropertySource extends PropertySource<AnsiElement> {
 
-  private static final Iterable<Mapping> MAPPINGS = List.of(
+  private static final List<Mapping> MAPPINGS = List.of(
           new EnumMapping<>("AnsiStyle.", AnsiStyle.class),
           new EnumMapping<>("AnsiColor.", AnsiColor.class),
           new Ansi8BitColorMapping("AnsiColor.", Ansi8BitColor::foreground),
@@ -80,7 +80,7 @@ public class AnsiPropertySource extends PropertySource<AnsiElement> {
           String postfix = name.substring(prefix.length());
           AnsiElement element = mapping.getElement(postfix);
           if (element != null) {
-            return (this.encode) ? AnsiOutput.encode(element) : element;
+            return encode ? AnsiOutput.encode(element) : element;
           }
         }
       }

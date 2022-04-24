@@ -28,6 +28,10 @@ import java.io.UnsupportedEncodingException;
 import cn.taketoday.core.env.Environment;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.core.io.ResourceLoader;
+import cn.taketoday.framework.ansi.AnsiColor;
+import cn.taketoday.framework.ansi.AnsiOutput;
+import cn.taketoday.framework.ansi.AnsiStyle;
+import cn.taketoday.lang.Version;
 import cn.taketoday.logging.Logger;
 
 /**
@@ -43,7 +47,7 @@ class ApplicationBannerPrinter {
 
   static final String DEFAULT_BANNER_LOCATION = "banner.txt";
 
-  private static final Banner DEFAULT_BANNER = new DefaultBootBanner();
+  private static final Banner DEFAULT_BANNER = new DefaultBanner();
 
   private final ResourceLoader resourceLoader;
 
@@ -112,17 +116,44 @@ class ApplicationBannerPrinter {
 
     @Override
     public void printBanner(Environment environment, Class<?> sourceClass, PrintStream out) {
-      sourceClass = (sourceClass != null) ? sourceClass : this.sourceClass;
-      this.banner.printBanner(environment, sourceClass, out);
+      if (sourceClass == null) {
+        sourceClass = this.sourceClass;
+      }
+      banner.printBanner(environment, sourceClass, out);
     }
 
   }
 
-  private static class DefaultBootBanner implements Banner {
+  private static class DefaultBanner implements Banner {
+
+    private static final String[] BANNER = {
+            "",
+            "  .   ____          _            __ _ _",
+            " /\\\\ / ___'_ __ _ _(_)_ __  __ _ \\ \\ \\ \\",
+            "( ( )\\___ | '_ | '_| | '_ \\/ _` | \\ \\ \\ \\",
+            " \\\\/  ___)| |_)| | | | | || (_| |  ) ) ) )",
+            "  '  |____| .__|_| |_|_| |_\\__, | / / / /",
+            " =========|_|==============|___/=/_/_/_/"
+    };
+
+    private static final String SPRING_BOOT = " :: today-infrastructure :: ";
+
+    private static final int STRAP_LINE_SIZE = 42;
 
     @Override
     public void printBanner(Environment environment, Class<?> sourceClass, PrintStream out) {
+      for (String line : BANNER) {
+        out.println(line);
+      }
+      String version = Version.get().toString();
+      version = " (v" + version + ")";
+      StringBuilder padding = new StringBuilder();
+      while (padding.length() < STRAP_LINE_SIZE - (version.length() + SPRING_BOOT.length())) {
+        padding.append(" ");
+      }
 
+      out.println(AnsiOutput.toString(AnsiColor.GREEN, SPRING_BOOT, AnsiColor.DEFAULT, padding.toString(), AnsiStyle.FAINT, version));
+      out.println();
     }
   }
 

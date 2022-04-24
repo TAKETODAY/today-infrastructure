@@ -37,6 +37,7 @@ import cn.taketoday.core.env.PropertySourcesPropertyResolver;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.framework.ansi.AnsiPropertySource;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Version;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.StreamUtils;
@@ -111,7 +112,7 @@ public class ResourceBanner implements Banner {
   }
 
   protected String getVersion() {
-    return cn.taketoday.lang.Version.get().toString();
+    return Version.get().toString();
   }
 
   private String getVersionString(String version, boolean format) {
