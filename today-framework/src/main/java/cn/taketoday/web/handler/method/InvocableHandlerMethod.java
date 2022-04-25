@@ -57,14 +57,13 @@ public class InvocableHandlerMethod extends HandlerMethod {
 
   private static final Object[] EMPTY_ARGS = new Object[0];
 
-  private ParameterResolvingRegistry resolvingRegistry;
-
-  private ParameterNameDiscoverer parameterNameDiscoverer = new DefaultParameterNameDiscoverer();
+  private ParameterNameDiscoverer parameterNameDiscoverer;
 
   @Nullable
   private WebDataBinderFactory dataBinderFactory;
 
-  private ResolvableParameterFactory parameterFactory;
+  final ResolvableMethodParameter[] resolvableParameters
+          = new ResolvableMethodParameter[getBridgedMethod().getParameterCount()];
 
   /**
    * Create an instance from a {@code HandlerMethod}.
@@ -98,7 +97,6 @@ public class InvocableHandlerMethod extends HandlerMethod {
    */
   public InvocableHandlerMethod(Object bean, String methodName, Class<?>... parameterTypes)
           throws NoSuchMethodException {
-
     super(bean, methodName, parameterTypes);
   }
 
@@ -107,7 +105,8 @@ public class InvocableHandlerMethod extends HandlerMethod {
    * to use for resolving method argument values.
    */
   public void setResolvingRegistry(ParameterResolvingRegistry resolvingRegistry) {
-    this.resolvingRegistry = resolvingRegistry;
+    var parameterFactory = new ParameterResolvingRegistryResolvableParameterFactory(resolvingRegistry);
+    parameterFactory.fillArray(this);
   }
 
   /**
@@ -165,32 +164,27 @@ public class InvocableHandlerMethod extends HandlerMethod {
   protected Object[] getMethodArgumentValues(
           RequestContext request, Object... providedArgs) throws Throwable {
 
-    MethodParameter[] parameters = getMethodParameters();
-    if (ObjectUtils.isEmpty(parameters)) {
+    ResolvableMethodParameter[] parameters = this.resolvableParameters;
+    if (parameters.length == 0) {
       return EMPTY_ARGS;
     }
 
     Object[] args = new Object[parameters.length];
     for (int i = 0; i < parameters.length; i++) {
-      MethodParameter parameter = parameters[i];
-      parameter.initParameterNameDiscovery(parameterNameDiscoverer);
-      args[i] = findProvidedArgument(parameter, providedArgs);
+      ResolvableMethodParameter parameter = parameters[i];
+      args[i] = findProvidedArgument(parameter.getParameter(), providedArgs);
       if (args[i] != null) {
         continue;
       }
-      var resolvable = new ParameterResolverMethodParameter(parameter, resolvingRegistry);
-      ParameterResolvingStrategy strategy = resolvingRegistry.findStrategy(resolvable);
-      if (strategy == null) {
-        throw new IllegalStateException(formatArgumentError(parameter, "No suitable resolver"));
-      }
+
       try {
-        args[i] = strategy.resolveParameter(request, resolvable);
+        args[i] = parameter.resolveParameter(request);
       }
       catch (Throwable ex) {
         // Leave stack trace for later, exception may actually be resolved and handled...
         if (log.isDebugEnabled()) {
           String exMsg = ex.getMessage();
-          if (exMsg != null && !exMsg.contains(parameter.getExecutable().toGenericString())) {
+          if (exMsg != null && !exMsg.contains(parameter.getMethod().toGenericString())) {
             log.debug(formatArgumentError(parameter, exMsg));
           }
         }

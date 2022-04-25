@@ -197,6 +197,7 @@ public class ParameterResolvingRegistry
   public ParameterResolvingStrategy obtainStrategy(ResolvableMethodParameter parameter) {
     final ParameterResolvingStrategy resolver = findStrategy(parameter);
     if (resolver == null) {
+
       throw new ParameterResolverNotFoundException(
               parameter,
               "There isn't have a parameter resolver to resolve parameter: ["

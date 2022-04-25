@@ -22,6 +22,7 @@ package cn.taketoday.web.handler.method;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -144,6 +145,8 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
   private final Map<Class<?>, Set<Method>> modelAttributeCache = new ConcurrentHashMap<>(64);
 
   private final Map<ControllerAdviceBean, Set<Method>> modelAttributeAdviceCache = new LinkedHashMap<>();
+
+  private final Map<HandlerMethod, ActionMappingAnnotationHandler> annotationHandlerMap = new HashMap<>();
 
   public ParameterResolvingRegistry getResolvingRegistry() {
     return resolvingRegistry;
@@ -505,16 +508,13 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
     WebDataBinderFactory binderFactory = getDataBinderFactory(handlerMethod);
     ModelFactory modelFactory = getModelFactory(handlerMethod, binderFactory);
 
-    ServletInvocableHandlerMethod invocableMethod = createInvocableHandlerMethod(request, handlerMethod);
+    ActionMappingAnnotationHandler handler = annotationHandlerMap.get(handlerMethod);
 
-    invocableMethod.setResolvingRegistry(resolvingRegistry);
+    ServletInvocableHandlerMethod invocableMethod = createInvocableHandlerMethod(request, handlerMethod);
 
     if (this.returnValueHandlerManager != null) {
       invocableMethod.setReturnValueHandlerManager(this.returnValueHandlerManager);
     }
-
-    invocableMethod.setDataBinderFactory(binderFactory);
-    invocableMethod.setParameterNameDiscoverer(parameterNameDiscoverer);
 
     ModelAndViewContainer mavContainer = new ModelAndViewContainer();
     mavContainer.setWebDataBinderFactory(binderFactory);
@@ -558,7 +558,8 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
    * @param handlerMethod the {@link HandlerMethod} definition
    * @return the corresponding {@link ServletInvocableHandlerMethod} (or custom subclass thereof)
    */
-  protected ServletInvocableHandlerMethod createInvocableHandlerMethod(RequestContext request, HandlerMethod handlerMethod) {
+  protected ServletInvocableHandlerMethod createInvocableHandlerMethod(
+          RequestContext request, HandlerMethod handlerMethod) {
     return new ServletInvocableHandlerMethod(handlerMethod);
   }
 

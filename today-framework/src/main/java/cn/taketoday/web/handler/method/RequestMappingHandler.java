@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -21,44 +21,29 @@
 package cn.taketoday.web.handler.method;
 
 import java.lang.reflect.Method;
-import java.util.Objects;
-import java.util.function.Supplier;
 
-import cn.taketoday.beans.factory.BeanSupplier;
 import cn.taketoday.context.MessageSource;
 import cn.taketoday.core.i18n.LocaleContextHolder;
 import cn.taketoday.core.reflect.MethodInvoker;
 import cn.taketoday.http.HttpStatus;
 import cn.taketoday.http.HttpStatusCapable;
 import cn.taketoday.http.HttpStatusCode;
-import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.ReturnValueHandler;
 import cn.taketoday.web.annotation.ResponseStatus;
-import cn.taketoday.web.handler.HandlerAdapter;
 import cn.taketoday.web.handler.InterceptableRequestHandler;
 import cn.taketoday.web.handler.ReturnValueHandlerManager;
-import cn.taketoday.web.handler.ReturnValueHandlerNotFoundException;
-import cn.taketoday.web.handler.method.support.ModelAndViewContainer;
-import cn.taketoday.web.handler.result.HandlerMethodReturnValueHandler;
 import cn.taketoday.web.util.WebUtils;
 
 /**
- * HTTP Request Annotation Handler
- *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @see cn.taketoday.web.annotation.RequestMapping
- * @see cn.taketoday.web.annotation.ActionMapping
- * @see cn.taketoday.web.annotation.Controller
- * @since 4.0 2021/11/29 22:48
+ * @since 4.0 2022/4/25 22:00
  */
-public abstract class ActionMappingAnnotationHandler
-        extends InterceptableRequestHandler implements HandlerAdapter {
-  private final HandlerMethod handlerMethod;
+public class RequestMappingHandler extends InterceptableRequestHandler {
+  private final ServletInvocableHandlerMethod handlerMethod;
 
   // handler fast invoker
   private /*volatile*/ MethodInvoker handlerInvoker;
@@ -68,33 +53,6 @@ public abstract class ActionMappingAnnotationHandler
 
   // target return-value handler
   private ReturnValueHandler returnValueHandler;
-
-  // resolvable parameters
-  @Nullable
-  private final ResolvableMethodParameter[] resolvableParameters;
-
-  private final Class<?> beanType;
-
-  public ActionMappingAnnotationHandler(
-          HandlerMethod handlerMethod, @Nullable ResolvableMethodParameter[] parameters, Class<?> beanType) {
-    this.resolvableParameters = parameters;
-    this.handlerMethod = handlerMethod;
-    this.beanType = beanType;
-  }
-
-  public ActionMappingAnnotationHandler(ActionMappingAnnotationHandler handler) {
-    this.beanType = handler.beanType;
-    this.handlerMethod = handler.handlerMethod;
-    this.handlerInvoker = handler.handlerInvoker;
-    this.returnValueHandlerManager = handler.returnValueHandlerManager;
-    this.returnValueHandler = handler.returnValueHandler;
-    this.resolvableParameters = handler.resolvableParameters;
-  }
-
-  @Nullable
-  public ResolvableMethodParameter[] getResolvableParameters() {
-    return resolvableParameters;
-  }
 
   public Method getJavaMethod() {
     return handlerMethod.getMethod();
@@ -135,12 +93,6 @@ public abstract class ActionMappingAnnotationHandler
     }
 
     return handlerInvoker.invoke(handlerBean, args);
-  }
-
-  public abstract Object getHandlerObject();
-
-  public Class<?> getBeanType() {
-    return beanType;
   }
 
   protected Object invoke(RequestContext context, Object... providedArgs) throws Throwable {
@@ -184,20 +136,6 @@ public abstract class ActionMappingAnnotationHandler
       }
     }
     return null;
-  }
-
-  // HandlerAdapter
-
-  @Override
-  public boolean supports(Object handler) {
-    return handler == this;
-  }
-
-  @Override
-  public Object handle(RequestContext context, Object handler) throws Throwable {
-    Object returnValue = handleRequest(context);
-    handleReturnValue(context, handler, returnValue);
-    return NONE_RETURN_VALUE;
   }
 
   // ReturnValueHandler
@@ -259,49 +197,6 @@ public abstract class ActionMappingAnnotationHandler
   @Override
   public String toString() {
     return handlerMethod.toString();
-  }
-
-  @Override
-  public boolean equals(Object o) {
-    if (this == o)
-      return true;
-    if (!(o instanceof ActionMappingAnnotationHandler that))
-      return false;
-    return Objects.equals(handlerMethod, that.handlerMethod);
-  }
-
-  @Override
-  public int hashCode() {
-    return Objects.hash(handlerMethod);
-  }
-
-  //---------------------------------------------------------------------
-  // Static methods
-  //---------------------------------------------------------------------
-
-  public static ActionMappingAnnotationHandler from(
-          Object handlerBean, Method method, ResolvableParameterFactory parameterFactory) {
-    return from(handlerBean, method, parameterFactory, ClassUtils.getUserClass(handlerBean));
-  }
-
-  public static ActionMappingAnnotationHandler from(
-          Object handlerBean, Method method, ResolvableParameterFactory parameterFactory, Class<?> beanType) {
-    HandlerMethod handlerMethod = new HandlerMethod(handlerBean, method);
-    ResolvableMethodParameter[] parameters = parameterFactory.createArray(handlerMethod);
-    return new SingletonActionMappingAnnotationHandler(handlerBean, handlerMethod, parameters, beanType);
-  }
-
-  public static ActionMappingAnnotationHandler from(
-          Supplier<Object> beanSupplier, Method method, ResolvableParameterFactory parameterFactory, Class<?> beanType) {
-    HandlerMethod handlerMethod;
-    if (beanSupplier instanceof BeanSupplier<Object> supplier) {
-      handlerMethod = new HandlerMethod(supplier.getBeanName(), supplier.getBeanFactory(), method);
-    }
-    else {
-      handlerMethod = new HandlerMethod(beanSupplier.get(), method);
-    }
-    ResolvableMethodParameter[] parameters = parameterFactory.createArray(handlerMethod);
-    return new SuppliedActionMappingAnnotationHandler(beanSupplier, handlerMethod, parameters, beanType);
   }
 
 }

@@ -57,7 +57,7 @@ public class ResolvableParameterFactory {
 
   @Nullable
   public ResolvableMethodParameter[] createArray(HandlerMethod handlerMethod) {
-    MethodParameter[] parameters = handlerMethod.getParameters();
+    MethodParameter[] parameters = handlerMethod.getMethodParameters();
     if (ObjectUtils.isEmpty(parameters)) {
       return null;
     }
@@ -69,6 +69,16 @@ public class ResolvableParameterFactory {
       i++;
     }
     return ret;
+  }
+
+  public void fillArray(InvocableHandlerMethod handlerMethod) {
+    MethodParameter[] methodParameters = handlerMethod.getMethodParameters();
+    ResolvableMethodParameter[] resolvableParameters = handlerMethod.resolvableParameters;
+    for (int i = 0; i < resolvableParameters.length; i++) {
+      MethodParameter methodParameter = methodParameters[i];
+      methodParameter.initParameterNameDiscovery(parameterNameDiscoverer);
+      resolvableParameters[i] = createParameter(methodParameter);
+    }
   }
 
   public ResolvableMethodParameter createParameter(MethodParameter parameter) {

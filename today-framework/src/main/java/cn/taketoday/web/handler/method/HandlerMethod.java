@@ -277,16 +277,6 @@ public class HandlerMethod {
     return beanType.getName() + "#" + method.getName() + joiner.toString();
   }
 
-  // for testing
-  public void initParameterNameDiscovery(ParameterNameDiscoverer discoverer) {
-    MethodParameter[] parameters = getParameters();
-    if (parameters != null) {
-      for (MethodParameter parameter : parameters) {
-        parameter.initParameterNameDiscovery(discoverer);
-      }
-    }
-  }
-
   // ---- useful methods
 
   /**
@@ -383,11 +373,6 @@ public class HandlerMethod {
 
   public <A extends Annotation> A getAnnotation(AnnotatedElement element, Class<A> annotation) {
     return AnnotationUtils.getAnnotation(element, annotation);
-  }
-
-  @Nullable
-  public MethodParameter[] getParameters() {
-    return parameters;
   }
 
   // handleRequest
@@ -566,9 +551,9 @@ public class HandlerMethod {
     return null;
   }
 
-  protected static String formatArgumentError(MethodParameter param, String message) {
+  protected static String formatArgumentError(ResolvableMethodParameter param, String message) {
     return "Could not resolve parameter [" + param.getParameterIndex() + "] in " +
-            param.getExecutable().toGenericString() + (StringUtils.hasText(message) ? ": " + message : "");
+            param.getMethod().toGenericString() + (StringUtils.hasText(message) ? ": " + message : "");
   }
 
   /**
