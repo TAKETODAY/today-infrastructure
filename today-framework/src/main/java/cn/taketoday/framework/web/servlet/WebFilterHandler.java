@@ -44,9 +44,8 @@ class WebFilterHandler extends ServletComponentHandler {
   }
 
   @Override
-  public void doHandle(Map<String, Object> attributes, AnnotatedBeanDefinition beanDefinition,
-          BeanDefinitionRegistry registry) {
-    
+  public void doHandle(Map<String, Object> attributes, AnnotatedBeanDefinition beanDefinition, BeanDefinitionRegistry registry) {
+
     BeanDefinitionBuilder builder = BeanDefinitionBuilder.rootBeanDefinition(FilterRegistrationBean.class);
     builder.addPropertyValue("asyncSupported", attributes.get("asyncSupported"));
     builder.addPropertyValue("dispatcherTypes", extractDispatcherTypes(attributes));

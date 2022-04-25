@@ -53,6 +53,7 @@ import cn.taketoday.http.server.reactive.TomcatHttpHandlerAdapter;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
+import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.LambdaSafe;
 import cn.taketoday.util.StringUtils;
 
@@ -114,8 +115,7 @@ public class TomcatReactiveWebServerFactory extends AbstractReactiveWebServerFac
   }
 
   private static List<LifecycleListener> getDefaultServerLifecycleListeners() {
-    AprLifecycleListener aprLifecycleListener = new AprLifecycleListener();
-    return AprLifecycleListener.isAprAvailable() ? new ArrayList<>(List.of(aprLifecycleListener))
+    return AprLifecycleListener.isAprAvailable() ? CollectionUtils.newArrayList(new AprLifecycleListener())
                                                  : new ArrayList<>();
   }
 

@@ -26,6 +26,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
+import cn.taketoday.beans.factory.annotation.AnnotatedBeanDefinition;
 import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.context.loader.ClassPathScanningCandidateComponentProvider;
 import cn.taketoday.core.type.filter.AnnotationTypeFilter;
@@ -94,7 +95,7 @@ public final class AnnotatedClassFinder {
 
   private Class<?> scanPackage(String source) {
     while (!source.isEmpty()) {
-      Set<BeanDefinition> components = this.scanner.findCandidateComponents(source);
+      Set<AnnotatedBeanDefinition> components = this.scanner.findCandidateComponents(source);
       if (!components.isEmpty()) {
         Assert.state(components.size() == 1, () -> "Found multiple @" + this.annotationType.getSimpleName()
                 + " annotated classes " + components);

@@ -31,6 +31,7 @@ import java.util.Set;
 import java.util.regex.Pattern;
 
 import cn.taketoday.beans.BeanUtils;
+import cn.taketoday.beans.factory.annotation.AnnotatedBeanDefinition;
 import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.context.loader.ClassPathScanningCandidateComponentProvider;
 import cn.taketoday.core.type.filter.AssignableTypeFilter;
@@ -61,7 +62,7 @@ public class BackOffPolicySerializationTests {
     scanner.addExcludeFilter(new RegexPatternTypeFilter(Pattern.compile(".*Test.*")));
     scanner.addExcludeFilter(new RegexPatternTypeFilter(Pattern.compile(".*Mock.*")));
     scanner.addExcludeFilter(new RegexPatternTypeFilter(Pattern.compile(".*Configuration.*")));
-    Set<BeanDefinition> candidates = scanner.findCandidateComponents("cn.taketoday.retry");
+    Set<AnnotatedBeanDefinition> candidates = scanner.findCandidateComponents("cn.taketoday.retry");
     for (BeanDefinition beanDefinition : candidates) {
       try {
         result.add(new Object[] {

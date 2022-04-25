@@ -29,6 +29,7 @@ import java.util.Set;
 import java.util.function.Predicate;
 
 import cn.taketoday.beans.factory.BeanDefinitionStoreException;
+import cn.taketoday.beans.factory.annotation.AnnotatedBeanDefinition;
 import cn.taketoday.beans.factory.annotation.Lookup;
 import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
@@ -248,9 +249,9 @@ public class ClassPathScanningCandidateComponentProvider
    * @param basePackage the package to check for annotated classes
    * @return a corresponding Set of autodetected bean definitions
    */
-  public Set<BeanDefinition> findCandidateComponents(String basePackage) {
+  public Set<AnnotatedBeanDefinition> findCandidateComponents(String basePackage) {
     try {
-      LinkedHashSet<BeanDefinition> candidates = new LinkedHashSet<>();
+      LinkedHashSet<AnnotatedBeanDefinition> candidates = new LinkedHashSet<>();
       scanCandidateComponents(basePackage, (metadataReader, metadataReaderFactory) -> {
         ScannedGenericBeanDefinition sbd = new ScannedGenericBeanDefinition(metadataReader);
         sbd.setSource(metadataReader.getResource());

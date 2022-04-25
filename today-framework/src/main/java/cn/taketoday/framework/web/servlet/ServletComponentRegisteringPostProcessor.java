@@ -61,32 +61,28 @@ class ServletComponentRegisteringPostProcessor implements BeanFactoryPostProcess
   public void postProcessBeanFactory(ConfigurableBeanFactory beanFactory) throws BeansException {
     if (isRunningInEmbeddedWebServer()) {
       ClassPathScanningCandidateComponentProvider componentProvider = createComponentProvider();
-      for (String packageToScan : this.packagesToScan) {
+      for (String packageToScan : packagesToScan) {
         scanPackage(componentProvider, packageToScan);
       }
     }
   }
 
   private void scanPackage(ClassPathScanningCandidateComponentProvider componentProvider, String packageToScan) {
-    for (BeanDefinition candidate : componentProvider.findCandidateComponents(packageToScan)) {
-      if (candidate instanceof AnnotatedBeanDefinition) {
-        for (ServletComponentHandler handler : HANDLERS) {
-          handler.handle(((AnnotatedBeanDefinition) candidate),
-                  (BeanDefinitionRegistry) this.applicationContext);
-        }
+    for (AnnotatedBeanDefinition candidate : componentProvider.findCandidateComponents(packageToScan)) {
+      for (ServletComponentHandler handler : HANDLERS) {
+        handler.handle(candidate, (BeanDefinitionRegistry) applicationContext);
       }
     }
   }
 
   private boolean isRunningInEmbeddedWebServer() {
-    return this.applicationContext instanceof WebServletApplicationContext
-            && ((WebServletApplicationContext) this.applicationContext).getServletContext() == null;
+    return applicationContext instanceof WebServletApplicationContext wsctx && wsctx.getServletContext() == null;
   }
 
   private ClassPathScanningCandidateComponentProvider createComponentProvider() {
-    ClassPathScanningCandidateComponentProvider componentProvider = new ClassPathScanningCandidateComponentProvider(
+    var componentProvider = new ClassPathScanningCandidateComponentProvider(
             false, applicationContext.getEnvironment());
-    componentProvider.setResourceLoader(this.applicationContext);
+    componentProvider.setResourceLoader(applicationContext);
     for (ServletComponentHandler handler : HANDLERS) {
       componentProvider.addIncludeFilter(handler.getTypeFilter());
     }

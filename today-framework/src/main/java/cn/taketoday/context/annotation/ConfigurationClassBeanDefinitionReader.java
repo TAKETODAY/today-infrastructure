@@ -117,19 +117,20 @@ class ConfigurationClassBeanDefinitionReader {
       if (StringUtils.isNotEmpty(beanName) && bootstrapContext.containsBeanDefinition(beanName)) {
         bootstrapContext.removeBeanDefinition(beanName);
       }
-      this.importRegistry.removeImportingClass(configClass.getMetadata().getClassName());
-      return;
+      importRegistry.removeImportingClass(configClass.getMetadata().getClassName());
     }
+    else {
+      if (configClass.isImported()) {
+        registerBeanDefinitionForImportedConfigurationClass(configClass);
+      }
 
-    if (configClass.isImported()) {
-      registerBeanDefinitionForImportedConfigurationClass(configClass);
-    }
-    for (ComponentMethod componentMethod : configClass.getMethods()) {
-      loadBeanDefinitionsForComponentMethod(componentMethod);
-    }
+      for (ComponentMethod componentMethod : configClass.getMethods()) {
+        loadBeanDefinitionsForComponentMethod(componentMethod);
+      }
 
-    loadBeanDefinitionsFromImportedResources(configClass.getImportedResources());
-    loadBeanDefinitionsFromRegistrars(configClass.getImportBeanDefinitionRegistrars());
+      loadBeanDefinitionsFromImportedResources(configClass.getImportedResources());
+      loadBeanDefinitionsFromRegistrars(configClass.getImportBeanDefinitionRegistrars());
+    }
   }
 
   /**

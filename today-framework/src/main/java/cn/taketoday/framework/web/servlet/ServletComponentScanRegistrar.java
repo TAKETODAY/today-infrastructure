@@ -20,7 +20,6 @@
 
 package cn.taketoday.framework.web.servlet;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -31,9 +30,10 @@ import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.support.GenericBeanDefinition;
 import cn.taketoday.context.annotation.ImportBeanDefinitionRegistrar;
 import cn.taketoday.context.loader.BootstrapContext;
-import cn.taketoday.core.annotation.AnnotationAttributes;
+import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.core.type.AnnotationMetadata;
 import cn.taketoday.util.ClassUtils;
+import cn.taketoday.util.CollectionUtils;
 
 /**
  * {@link ImportBeanDefinitionRegistrar} used by
@@ -41,6 +41,8 @@ import cn.taketoday.util.ClassUtils;
  *
  * @author Andy Wilkinson
  * @author Stephane Nicoll
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 4.0
  */
 class ServletComponentScanRegistrar implements ImportBeanDefinitionRegistrar {
 
@@ -49,35 +51,24 @@ class ServletComponentScanRegistrar implements ImportBeanDefinitionRegistrar {
   @Override
   public void registerBeanDefinitions(AnnotationMetadata importMetadata, BootstrapContext context) {
     BeanDefinitionRegistry registry = context.getRegistry();
-
     Set<String> packagesToScan = getPackagesToScan(importMetadata);
-    if (registry.containsBeanDefinition(BEAN_NAME)) {
-      updatePostProcessor(registry, packagesToScan);
+    if (registry.containsBeanDefinition(BEAN_NAME)
+            && registry.getBeanDefinition(BEAN_NAME) instanceof ServletComponentRegisteringPostProcessorBeanDefinition definition) {
+      definition.addPackageNames(packagesToScan);
     }
     else {
-      addPostProcessor(registry, packagesToScan);
+      var definition = new ServletComponentRegisteringPostProcessorBeanDefinition(packagesToScan);
+      registry.registerBeanDefinition(BEAN_NAME, definition);
     }
-  }
-
-  private void updatePostProcessor(BeanDefinitionRegistry registry, Set<String> packagesToScan) {
-    ServletComponentRegisteringPostProcessorBeanDefinition definition = (ServletComponentRegisteringPostProcessorBeanDefinition) registry
-            .getBeanDefinition(BEAN_NAME);
-    definition.addPackageNames(packagesToScan);
-  }
-
-  private void addPostProcessor(BeanDefinitionRegistry registry, Set<String> packagesToScan) {
-    ServletComponentRegisteringPostProcessorBeanDefinition definition = new ServletComponentRegisteringPostProcessorBeanDefinition(
-            packagesToScan);
-    registry.registerBeanDefinition(BEAN_NAME, definition);
   }
 
   private Set<String> getPackagesToScan(AnnotationMetadata metadata) {
-    AnnotationAttributes attributes = AnnotationAttributes
-            .fromMap(metadata.getAnnotationAttributes(ServletComponentScan.class.getName()));
-    String[] basePackages = attributes.getStringArray("basePackages");
-    Class<?>[] basePackageClasses = attributes.getClassArray("basePackageClasses");
-    Set<String> packagesToScan = new LinkedHashSet<>(Arrays.asList(basePackages));
-    for (Class<?> basePackageClass : basePackageClasses) {
+    MergedAnnotation<ServletComponentScan> annotation = metadata.getAnnotation(ServletComponentScan.class);
+    String[] basePackages = annotation.getStringArray("basePackages");
+    String[] basePackageClasses = annotation.getStringArray("basePackageClasses");
+
+    var packagesToScan = CollectionUtils.newLinkedHashSet(basePackages);
+    for (String basePackageClass : basePackageClasses) {
       packagesToScan.add(ClassUtils.getPackageName(basePackageClass));
     }
     if (packagesToScan.isEmpty()) {

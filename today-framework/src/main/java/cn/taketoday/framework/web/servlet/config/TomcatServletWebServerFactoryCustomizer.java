@@ -62,13 +62,14 @@ public class TomcatServletWebServerFactoryCustomizer
     factory.setDisableMBeanRegistry(!tomcatProperties.getMbeanregistry().isEnabled());
   }
 
-  private void customizeRedirectContextRoot(ConfigurableTomcatWebServerFactory factory, boolean redirectContextRoot) {
-    factory.addContextCustomizers((context) -> context.setMapperContextRootRedirectEnabled(redirectContextRoot));
+  private void customizeRedirectContextRoot(
+          ConfigurableTomcatWebServerFactory factory, boolean redirectContextRoot) {
+    factory.addContextCustomizers(context -> context.setMapperContextRootRedirectEnabled(redirectContextRoot));
   }
 
-  private void customizeUseRelativeRedirects(ConfigurableTomcatWebServerFactory factory,
-          boolean useRelativeRedirects) {
-    factory.addContextCustomizers((context) -> context.setUseRelativeRedirects(useRelativeRedirects));
+  private void customizeUseRelativeRedirects(
+          ConfigurableTomcatWebServerFactory factory, boolean useRelativeRedirects) {
+    factory.addContextCustomizers(context -> context.setUseRelativeRedirects(useRelativeRedirects));
   }
 
 }

@@ -31,6 +31,7 @@ import java.util.Set;
 import java.util.regex.Pattern;
 
 import cn.taketoday.beans.BeanUtils;
+import cn.taketoday.beans.factory.annotation.AnnotatedBeanDefinition;
 import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.classify.SubclassClassifier;
 import cn.taketoday.context.loader.ClassPathScanningCandidateComponentProvider;
@@ -63,7 +64,7 @@ public class RetryContextSerializationTests {
     scanner.addIncludeFilter(new AssignableTypeFilter(RetryPolicy.class));
     scanner.addExcludeFilter(new RegexPatternTypeFilter(Pattern.compile(".*Test.*")));
     scanner.addExcludeFilter(new RegexPatternTypeFilter(Pattern.compile(".*Mock.*")));
-    Set<BeanDefinition> candidates = scanner.findCandidateComponents("cn.taketoday.retry.policy");
+    Set<AnnotatedBeanDefinition> candidates = scanner.findCandidateComponents("cn.taketoday.retry.policy");
     for (BeanDefinition beanDefinition : candidates) {
       try {
         result.add(new Object[] {
