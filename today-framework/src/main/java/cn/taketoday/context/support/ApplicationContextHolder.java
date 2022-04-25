@@ -35,47 +35,47 @@ public final class ApplicationContextHolder {
   private static final LinkedHashMap<String, ApplicationContext> contextMap = new LinkedHashMap<>();
 
   @Nullable
-  public static ApplicationContext get(String applicationName) {
-    return contextMap.get(applicationName);
+  public static ApplicationContext get(String id) {
+    return contextMap.get(id);
   }
 
-  public static Optional<ApplicationContext> optional(String applicationName) {
-    return Optional.ofNullable(contextMap.get(applicationName));
+  public static Optional<ApplicationContext> optional(String id) {
+    return Optional.ofNullable(contextMap.get(id));
   }
 
-  public static ApplicationContext getRequired(String applicationName) {
-    ApplicationContext context = get(applicationName);
+  public static ApplicationContext getRequired(String id) {
+    ApplicationContext context = get(id);
     if (context == null) {
-      throw new IllegalStateException("No ApplicationContext: '" + applicationName + "'");
+      throw new IllegalStateException("No ApplicationContext: '" + id + "'");
     }
     return context;
   }
 
   /**
-   * @return Returns: the previous ApplicationContext associated with name,
-   * or null if there was no application for name.
+   * @return Returns: the previous ApplicationContext associated with id,
+   * or null if there was no application for id.
    */
   @Nullable
-  public static ApplicationContext register(String applicationName, ApplicationContext context) {
-    return contextMap.put(applicationName, context);
+  public static ApplicationContext register(String id, ApplicationContext context) {
+    return contextMap.put(id, context);
   }
 
   /**
-   * @return Returns: the previous ApplicationContext associated with name,
-   * or null if there was no application for name.
+   * @return Returns: the previous ApplicationContext associated with id,
+   * or null if there was no application for id.
    */
   @Nullable
   public static ApplicationContext register(ApplicationContext context) {
-    return contextMap.put(context.getApplicationName(), context);
+    return contextMap.put(context.getId(), context);
   }
 
   @Nullable
-  public static ApplicationContext remove(String applicationName) {
-    return contextMap.remove(applicationName);
+  public static ApplicationContext remove(String id) {
+    return contextMap.remove(id);
   }
 
-  static void remove(ApplicationContext context) {
-    contextMap.remove(context.getApplicationName());
+  public static void remove(ApplicationContext context) {
+    contextMap.remove(context.getId());
   }
 
   // getLastStartupContext
@@ -96,5 +96,6 @@ public final class ApplicationContextHolder {
   public static HashMap<String, ApplicationContext> getAll() {
     return contextMap;
   }
+
 }
 

@@ -170,9 +170,6 @@ public abstract class AbstractApplicationContext
   @Nullable
   private ApplicationContext parent;
 
-  /** Display name. */
-  private String applicationName = ObjectUtils.identityToString(this);
-
   /** @since 4.0 */
   private final PatternResourceLoader patternResourceLoader = getPatternResourceLoader();
 
@@ -330,25 +327,13 @@ public abstract class AbstractApplicationContext
   }
 
   /**
-   * Set a friendly name for this context.
-   * Typically, done during initialization of concrete context implementations.
-   * <p>Default is the object id of the context instance.
-   */
-  public void setApplicationName(String applicationName) {
-    Assert.hasLength(applicationName, "Application name must not be empty");
-    ApplicationContextHolder.remove(this);
-    this.applicationName = applicationName;
-    ApplicationContextHolder.register(this); // @since 4.0
-  }
-
-  /**
    * Return this application name for this context.
    *
    * @return a display name for this context (never {@code null})
    */
   @Override
   public String getApplicationName() {
-    return applicationName;
+    return "";
   }
 
   /**
@@ -575,12 +560,6 @@ public abstract class AbstractApplicationContext
     initPropertySources();
 
     environment.validateRequiredProperties();
-
-    // @since 4.0
-    String appName = environment.getProperty(APPLICATION_NAME);
-    if (StringUtils.hasText(appName)) {
-      setApplicationName(appName);
-    }
 
     // Store pre-refresh ApplicationListeners...
     if (this.earlyApplicationListeners == null) {
