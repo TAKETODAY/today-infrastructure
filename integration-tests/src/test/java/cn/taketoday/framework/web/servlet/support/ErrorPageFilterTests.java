@@ -33,6 +33,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import cn.taketoday.framework.test.system.CapturedOutput;
 import cn.taketoday.framework.test.system.OutputCaptureExtension;
 import cn.taketoday.framework.web.server.ErrorPage;
+import cn.taketoday.framework.web.servlet.support.ErrorPageFilter;
 import cn.taketoday.http.HttpStatus;
 import cn.taketoday.mock.web.MockFilterChain;
 import cn.taketoday.mock.web.MockFilterConfig;
