@@ -26,7 +26,6 @@ import java.util.Set;
 
 import cn.taketoday.beans.BeansException;
 import cn.taketoday.beans.factory.annotation.AnnotatedBeanDefinition;
-import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.beans.factory.config.BeanFactoryPostProcessor;
 import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
@@ -60,18 +59,24 @@ class ServletComponentRegisteringPostProcessor implements BeanFactoryPostProcess
   @Override
   public void postProcessBeanFactory(ConfigurableBeanFactory beanFactory) throws BeansException {
     if (isRunningInEmbeddedWebServer()) {
+      BeanDefinitionRegistry registry = deduceRegistry();
       ClassPathScanningCandidateComponentProvider componentProvider = createComponentProvider();
       for (String packageToScan : packagesToScan) {
-        scanPackage(componentProvider, packageToScan);
+        for (AnnotatedBeanDefinition candidate : componentProvider.findCandidateComponents(packageToScan)) {
+          for (ServletComponentHandler handler : HANDLERS) {
+            handler.handle(candidate, registry);
+          }
+        }
       }
     }
   }
 
-  private void scanPackage(ClassPathScanningCandidateComponentProvider componentProvider, String packageToScan) {
-    for (AnnotatedBeanDefinition candidate : componentProvider.findCandidateComponents(packageToScan)) {
-      for (ServletComponentHandler handler : HANDLERS) {
-        handler.handle(candidate, (BeanDefinitionRegistry) applicationContext);
-      }
+  private BeanDefinitionRegistry deduceRegistry() {
+    try {
+      return applicationContext.unwrap(BeanDefinitionRegistry.class);
+    }
+    catch (IllegalArgumentException e) {
+      return applicationContext.unwrapFactory(BeanDefinitionRegistry.class);
     }
   }
 
