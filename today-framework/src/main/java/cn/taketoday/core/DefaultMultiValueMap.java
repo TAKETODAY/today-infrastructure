@@ -129,11 +129,11 @@ public class DefaultMultiValueMap<K, V>
    */
   @Override
   public void addAll(K key, Enumeration<? extends V> values) {
-    List<V> currentValues = this.map.computeIfAbsent(key, mappingFunction);
-    while (values.hasMoreElements()) {
-      currentValues.add(values.nextElement());
+    if (values != null) {
+      List<V> currentValues = this.map.computeIfAbsent(key, mappingFunction);
+      CollectionUtils.addAll(currentValues, values);
+      CollectionUtils.trimToSize(currentValues);
     }
-    CollectionUtils.trimToSize(currentValues);
   }
 
   @Override
