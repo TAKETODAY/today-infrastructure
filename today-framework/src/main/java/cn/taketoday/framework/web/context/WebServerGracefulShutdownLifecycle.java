@@ -64,7 +64,7 @@ public final class WebServerGracefulShutdownLifecycle implements SmartLifecycle 
   @Override
   public void stop(Runnable callback) {
     this.running = false;
-    this.webServer.shutDownGracefully((result) -> callback.run());
+    this.webServer.shutDownGracefully(result -> callback.run());
   }
 
   @Override

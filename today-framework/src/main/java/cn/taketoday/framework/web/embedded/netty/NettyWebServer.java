@@ -69,8 +69,6 @@ public class NettyWebServer implements WebServer {
 
   private static final Predicate<HttpServerRequest> ALWAYS = (request) -> true;
 
-  private static final Logger logger = LoggerFactory.getLogger(NettyWebServer.class);
-
   private final HttpServer httpServer;
 
   private final BiFunction<? super HttpServerRequest, ? super HttpServerResponse, ? extends Publisher<Void>> handler;
@@ -119,7 +117,8 @@ public class NettyWebServer implements WebServer {
         });
         throw new WebServerException("Unable to start Netty", ex);
       }
-      logger.info("Netty started{}", getStartedOnMessage(disposableServer));
+      LoggerFactory.getLogger(NettyWebServer.class)
+              .info("Netty started{}", getStartedOnMessage(disposableServer));
       startDaemonAwaitThread(disposableServer);
     }
   }
@@ -137,8 +136,7 @@ public class NettyWebServer implements WebServer {
       message.append((message.length() != 0) ? " " : "");
       message.append(String.format(format, value));
     }
-    catch (UnsupportedOperationException ignored) {
-    }
+    catch (UnsupportedOperationException ignored) { }
   }
 
   DisposableServer startHttpServer() {
@@ -157,8 +155,8 @@ public class NettyWebServer implements WebServer {
 
   private boolean isPermissionDenied(Throwable bindExceptionCause) {
     try {
-      if (bindExceptionCause instanceof NativeIoException) {
-        return ((NativeIoException) bindExceptionCause).expectedErr() == ERROR_NO_EACCES;
+      if (bindExceptionCause instanceof NativeIoException e) {
+        return e.expectedErr() == ERROR_NO_EACCES;
       }
     }
     catch (Throwable ignored) {

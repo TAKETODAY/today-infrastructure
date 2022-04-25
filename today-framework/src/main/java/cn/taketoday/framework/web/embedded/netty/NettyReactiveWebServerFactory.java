@@ -23,7 +23,6 @@ package cn.taketoday.framework.web.embedded.netty;
 import java.net.InetSocketAddress;
 import java.time.Duration;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -38,6 +37,7 @@ import cn.taketoday.http.server.reactive.HttpHandler;
 import cn.taketoday.http.server.reactive.ReactorHttpHandlerAdapter;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.CollectionUtils;
 import reactor.netty.http.HttpProtocol;
 import reactor.netty.http.server.HttpServer;
 import reactor.netty.resources.LoopResources;
@@ -62,11 +62,9 @@ public class NettyReactiveWebServerFactory extends AbstractReactiveWebServerFact
   @Nullable
   private ReactorResourceFactory resourceFactory;
 
-  @Nullable
-  private Shutdown shutdown;
+  private Shutdown shutdown = Shutdown.IMMEDIATE;
 
-  public NettyReactiveWebServerFactory() {
-  }
+  public NettyReactiveWebServerFactory() { }
 
   public NettyReactiveWebServerFactory(int port) {
     super(port);
@@ -75,9 +73,8 @@ public class NettyReactiveWebServerFactory extends AbstractReactiveWebServerFact
   @Override
   public WebServer getWebServer(HttpHandler httpHandler) {
     HttpServer httpServer = createHttpServer();
-    ReactorHttpHandlerAdapter handlerAdapter = new ReactorHttpHandlerAdapter(httpHandler);
-    NettyWebServer webServer = createNettyWebServer(httpServer, handlerAdapter, this.lifecycleTimeout,
-            getShutdown());
+    var handlerAdapter = new ReactorHttpHandlerAdapter(httpHandler);
+    NettyWebServer webServer = createNettyWebServer(httpServer, handlerAdapter, lifecycleTimeout, getShutdown());
     webServer.setRouteProviders(this.routeProviders);
     return webServer;
   }
@@ -116,8 +113,7 @@ public class NettyReactiveWebServerFactory extends AbstractReactiveWebServerFact
    * @param serverCustomizers the customizers to add
    */
   public void addServerCustomizers(NettyServerCustomizer... serverCustomizers) {
-    Assert.notNull(serverCustomizers, "ServerCustomizer must not be null");
-    this.serverCustomizers.addAll(Arrays.asList(serverCustomizers));
+    CollectionUtils.addAll(this.serverCustomizers, serverCustomizers);
   }
 
   /**
@@ -127,8 +123,7 @@ public class NettyReactiveWebServerFactory extends AbstractReactiveWebServerFact
    * @param routeProviders the route providers to add
    */
   public void addRouteProviders(NettyRouteProvider... routeProviders) {
-    Assert.notNull(routeProviders, "NettyRouteProvider must not be null");
-    this.routeProviders.addAll(Arrays.asList(routeProviders));
+    CollectionUtils.addAll(this.routeProviders, routeProviders);
   }
 
   /**
@@ -182,7 +177,7 @@ public class NettyReactiveWebServerFactory extends AbstractReactiveWebServerFact
     if (getSsl() != null && getSsl().isEnabled()) {
       server = customizeSslConfiguration(server);
     }
-    if (getCompression() != null && getCompression().getEnabled()) {
+    if (getCompression() != null && getCompression().isEnabled()) {
       CompressionCustomizer compressionCustomizer = new CompressionCustomizer(getCompression());
       server = compressionCustomizer.apply(server);
     }

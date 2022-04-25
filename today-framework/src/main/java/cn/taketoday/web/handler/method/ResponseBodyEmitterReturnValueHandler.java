@@ -122,14 +122,8 @@ public class ResponseBodyEmitterReturnValueHandler implements HandlerMethodRetur
   }
 
   @Override
-  public boolean supportsReturnValue(@Nullable Object returnValue) {
-    return returnValue instanceof ResponseEntity
-            || returnValue instanceof ResponseBodyEmitter;
-  }
-
-  @Override
-  public boolean supportsHandlerMethod(HandlerMethod handler) {
-    MethodParameter returnType = handler.getReturnType();
+  public boolean supportsHandlerMethod(HandlerMethod handler, @Nullable Object returnValue) {
+    MethodParameter returnType = handler.getReturnValueType(returnValue);
     Class<?> bodyType = ResponseEntity.class.isAssignableFrom(returnType.getParameterType())
                         ? ResolvableType.forMethodParameter(returnType).getGeneric().resolve()
                         : returnType.getParameterType();

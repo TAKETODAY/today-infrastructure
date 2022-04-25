@@ -30,7 +30,6 @@ import cn.taketoday.beans.factory.ObjectProvider;
 import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.beans.factory.annotation.DisableAllDependencyInjection;
 import cn.taketoday.beans.factory.config.BeanDefinition;
-import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Import;
 import cn.taketoday.context.annotation.Role;
@@ -88,10 +87,8 @@ public class WebMvcAutoConfiguration extends WebMvcConfigurationSupport {
 
   private final CompositeWebMvcConfiguration mvcConfiguration = new CompositeWebMvcConfiguration();
 
-  @Nullable
-  private final ResourceHandlerRegistrationCustomizer resourceHandlerRegistrationCustomizer;
-
   private final ObjectProvider<HttpMessageConverters> messageConvertersProvider;
+  private final ObjectProvider<ResourceHandlerRegistrationCustomizer> registrationCustomizersProvider;
 
   public WebMvcAutoConfiguration(
           BeanFactory beanFactory,
@@ -103,14 +100,12 @@ public class WebMvcAutoConfiguration extends WebMvcConfigurationSupport {
     this.mvcProperties = mvcProperties;
     this.webProperties = webProperties;
     this.messageConvertersProvider = messageConvertersProvider;
-    this.resourceHandlerRegistrationCustomizer = customizers.getIfAvailable();
+    this.registrationCustomizersProvider = customizers;
   }
 
   @Autowired(required = false)
   public void setMvcConfiguration(List<WebMvcConfiguration> mvcConfiguration) {
-    if (CollectionUtils.isNotEmpty(mvcConfiguration)) {
-      this.mvcConfiguration.addWebMvcConfiguration(mvcConfiguration);
-    }
+    this.mvcConfiguration.addWebMvcConfiguration(mvcConfiguration);
   }
 
   @Component
@@ -143,7 +138,7 @@ public class WebMvcAutoConfiguration extends WebMvcConfigurationSupport {
     return resolver;
   }
 
-  @Bean
+  @Component
   @ConditionalOnMissingBean(name = LocaleResolver.BEAN_NAME)
   public LocaleResolver localeResolver() {
     if (this.webProperties.getLocaleResolver() == WebProperties.LocaleResolver.FIXED) {
@@ -296,16 +291,14 @@ public class WebMvcAutoConfiguration extends WebMvcConfigurationSupport {
   }
 
   private void customizeResourceHandlerRegistration(ResourceHandlerRegistration registration) {
-    if (resourceHandlerRegistrationCustomizer != null) {
-      resourceHandlerRegistrationCustomizer.customize(registration);
-    }
+    registrationCustomizersProvider.ifAvailable(customizer -> customizer.customize(registration));
   }
 
   @Configuration(proxyBeanMethods = false)
   @ConditionalOnEnabledResourceChain
   static class ResourceChainCustomizerConfiguration {
 
-    @Bean
+    @Component
     ResourceChainResourceHandlerRegistrationCustomizer resourceHandlerRegistrationCustomizer(WebProperties webProperties) {
       return new ResourceChainResourceHandlerRegistrationCustomizer(webProperties.getResources());
     }

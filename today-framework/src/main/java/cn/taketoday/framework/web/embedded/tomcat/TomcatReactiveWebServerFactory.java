@@ -73,6 +73,7 @@ public class TomcatReactiveWebServerFactory extends AbstractReactiveWebServerFac
    */
   public static final String DEFAULT_PROTOCOL = "org.apache.coyote.http11.Http11NioProtocol";
 
+  @Nullable
   private File baseDirectory;
 
   private final List<Valve> engineValves = new ArrayList<>();
@@ -100,8 +101,7 @@ public class TomcatReactiveWebServerFactory extends AbstractReactiveWebServerFac
   /**
    * Create a new {@link TomcatReactiveWebServerFactory} instance.
    */
-  public TomcatReactiveWebServerFactory() {
-  }
+  public TomcatReactiveWebServerFactory() { }
 
   /**
    * Create a new {@link TomcatReactiveWebServerFactory} that listens for requests using
@@ -125,19 +125,19 @@ public class TomcatReactiveWebServerFactory extends AbstractReactiveWebServerFac
       Registry.disableRegistry();
     }
     Tomcat tomcat = new Tomcat();
-    File baseDir = (this.baseDirectory != null) ? this.baseDirectory : createTempDir("tomcat");
+    File baseDir = baseDirectory != null ? baseDirectory : createTempDir("tomcat");
     tomcat.setBaseDir(baseDir.getAbsolutePath());
     for (LifecycleListener listener : this.serverLifecycleListeners) {
       tomcat.getServer().addLifecycleListener(listener);
     }
-    Connector connector = new Connector(this.protocol);
+    Connector connector = new Connector(protocol);
     connector.setThrowOnFailure(true);
     tomcat.getService().addConnector(connector);
     customizeConnector(connector);
     tomcat.setConnector(connector);
     tomcat.getHost().setAutoDeploy(false);
     configureEngine(tomcat.getEngine());
-    for (Connector additionalConnector : this.additionalTomcatConnectors) {
+    for (Connector additionalConnector : additionalTomcatConnectors) {
       tomcat.getService().addConnector(additionalConnector);
     }
     TomcatHttpHandlerAdapter servlet = new TomcatHttpHandlerAdapter(httpHandler);
@@ -197,9 +197,7 @@ public class TomcatReactiveWebServerFactory extends AbstractReactiveWebServerFac
       customizeProtocol((AbstractProtocol<?>) connector.getProtocolHandler());
     }
     invokeProtocolHandlerCustomizers(connector.getProtocolHandler());
-    if (getUriEncoding() != null) {
-      connector.setURIEncoding(getUriEncoding().name());
-    }
+    connector.setURIEncoding(getUriEncoding().name());
     // Don't bind to the socket prematurely if ApplicationContext is slow to start
     connector.setProperty("bindOnInit", "false");
     if (getHttp2() != null && getHttp2().isEnabled()) {

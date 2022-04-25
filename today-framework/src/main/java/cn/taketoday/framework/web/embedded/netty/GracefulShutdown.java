@@ -51,13 +51,14 @@ final class GracefulShutdown {
   }
 
   void shutDownGracefully(GracefulShutdownCallback callback) {
-    DisposableServer server = this.disposableServer.get();
+    DisposableServer server = disposableServer.get();
     if (server == null) {
       return;
     }
     logger.info("Commencing graceful shutdown. Waiting for active requests to complete");
-    this.shutdownThread = new Thread(() -> doShutdown(callback, server), "netty-shutdown");
-    this.shutdownThread.start();
+    Thread thread = new Thread(() -> doShutdown(callback, server), "netty-shutdown");
+    this.shutdownThread = thread;
+    thread.start();
   }
 
   private void doShutdown(GracefulShutdownCallback callback, DisposableServer server) {

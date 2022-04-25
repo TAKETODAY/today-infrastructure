@@ -48,7 +48,7 @@ public class Compression {
    *
    * @return {@code true} if response compression is enabled
    */
-  public boolean getEnabled() {
+  public boolean isEnabled() {
     return this.enabled;
   }
 

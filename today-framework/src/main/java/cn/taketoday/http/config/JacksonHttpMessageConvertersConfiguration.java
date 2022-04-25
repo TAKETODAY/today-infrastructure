@@ -34,15 +34,17 @@ import cn.taketoday.lang.Component;
  * Configuration for HTTP message converters that use Jackson.
  *
  * @author Andy Wilkinson
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 4.0
  */
 @Configuration(proxyBeanMethods = false)
 class JacksonHttpMessageConvertersConfiguration {
+  static final String PREFERRED_MAPPER_PROPERTY = "web.mvc.converters.preferred-json-mapper";
 
   @Configuration(proxyBeanMethods = false)
   @ConditionalOnClass(ObjectMapper.class)
   @ConditionalOnBean(ObjectMapper.class)
-  @ConditionalOnProperty(name = HttpMessageConvertersAutoConfiguration.PREFERRED_MAPPER_PROPERTY,
-                         havingValue = "jackson", matchIfMissing = true)
+  @ConditionalOnProperty(name = PREFERRED_MAPPER_PROPERTY, havingValue = "jackson", matchIfMissing = true)
   static class MappingJackson2HttpMessageConverterConfiguration {
 
     @Component

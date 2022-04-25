@@ -50,6 +50,7 @@ import cn.taketoday.http.client.reactive.JettyResourceFactory;
 import cn.taketoday.http.server.reactive.HttpHandler;
 import cn.taketoday.http.server.reactive.JettyHttpHandlerAdapter;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.StringUtils;
@@ -79,15 +80,16 @@ public class JettyReactiveWebServerFactory extends AbstractReactiveWebServerFact
 
   private Set<JettyServerCustomizer> jettyServerCustomizers = new LinkedHashSet<>();
 
+  @Nullable
   private JettyResourceFactory resourceFactory;
 
+  @Nullable
   private ThreadPool threadPool;
 
   /**
    * Create a new {@link JettyServletWebServerFactory} instance.
    */
-  public JettyReactiveWebServerFactory() {
-  }
+  public JettyReactiveWebServerFactory() { }
 
   /**
    * Create a new {@link JettyServletWebServerFactory} that listens for requests using
@@ -148,6 +150,7 @@ public class JettyReactiveWebServerFactory extends AbstractReactiveWebServerFact
    *
    * @return a Jetty {@link ThreadPool} or {@code null}
    */
+  @Nullable
   public ThreadPool getThreadPool() {
     return this.threadPool;
   }
@@ -168,11 +171,12 @@ public class JettyReactiveWebServerFactory extends AbstractReactiveWebServerFact
    * @param resourceFactory the server resources
    * @since 4.0
    */
-  public void setResourceFactory(JettyResourceFactory resourceFactory) {
+  public void setResourceFactory(@Nullable JettyResourceFactory resourceFactory) {
     this.resourceFactory = resourceFactory;
   }
 
-  protected JettyResourceFactory getResourceFactory() {
+  @Nullable
+  public JettyResourceFactory getResourceFactory() {
     return this.resourceFactory;
   }
 
@@ -230,7 +234,7 @@ public class JettyReactiveWebServerFactory extends AbstractReactiveWebServerFact
   }
 
   private Handler addHandlerWrappers(Handler handler) {
-    if (getCompression() != null && getCompression().getEnabled()) {
+    if (getCompression() != null && getCompression().isEnabled()) {
       handler = applyWrapper(handler, JettyHandlerWrappers.createGzipHandlerWrapper(getCompression()));
     }
     if (StringUtils.hasText(getServerHeader())) {

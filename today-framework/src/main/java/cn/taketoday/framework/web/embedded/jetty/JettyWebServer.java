@@ -41,6 +41,7 @@ import cn.taketoday.framework.web.server.PortInUseException;
 import cn.taketoday.framework.web.server.WebServer;
 import cn.taketoday.framework.web.server.WebServerException;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.StringUtils;
@@ -59,16 +60,16 @@ import cn.taketoday.util.StringUtils;
  */
 public class JettyWebServer implements WebServer {
 
-  private static final Logger logger = LoggerFactory.getLogger(JettyWebServer.class);
-
   private final Object monitor = new Object();
 
   private final Server server;
 
   private final boolean autoStart;
 
+  @Nullable
   private final GracefulShutdown gracefulShutdown;
 
+  @Nullable
   private Connector[] connectors;
 
   private volatile boolean started;
@@ -96,6 +97,7 @@ public class JettyWebServer implements WebServer {
     initialize();
   }
 
+  @Nullable
   private GracefulShutdown createGracefulShutdown(Server server) {
     StatisticsHandler statisticsHandler = findStatisticsHandler(server);
     if (statisticsHandler == null) {
@@ -104,10 +106,12 @@ public class JettyWebServer implements WebServer {
     return new GracefulShutdown(server, statisticsHandler::getRequestsActive);
   }
 
+  @Nullable
   private StatisticsHandler findStatisticsHandler(Server server) {
     return findStatisticsHandler(server.getHandler());
   }
 
+  @Nullable
   private StatisticsHandler findStatisticsHandler(Handler handler) {
     if (handler instanceof StatisticsHandler) {
       return (StatisticsHandler) handler;
@@ -175,8 +179,8 @@ public class JettyWebServer implements WebServer {
           }
         }
         this.started = true;
-        logger.info("Jetty started on port(s) " + getActualPortsDescription() + " with context path '"
-                + getContextPath() + "'");
+        LoggerFactory.getLogger(JettyWebServer.class)
+                .info("Jetty started on port(s) {} with context path '{}'", getActualPortsDescription(), getContextPath());
       }
       catch (WebServerException ex) {
         stopSilently();
@@ -206,10 +210,14 @@ public class JettyWebServer implements WebServer {
   }
 
   private String getContextPath() {
-    return Arrays.stream(this.server.getHandlers()).map(this::findContextHandler).filter(Objects::nonNull)
-            .map(ContextHandler::getContextPath).collect(Collectors.joining(" "));
+    return Arrays.stream(this.server.getHandlers())
+            .map(this::findContextHandler)
+            .filter(Objects::nonNull)
+            .map(ContextHandler::getContextPath)
+            .collect(Collectors.joining(" "));
   }
 
+  @Nullable
   private ContextHandler findContextHandler(Handler handler) {
     while (handler instanceof HandlerWrapper) {
       if (handler instanceof ContextHandler) {
@@ -257,15 +265,15 @@ public class JettyWebServer implements WebServer {
   public int getPort() {
     Connector[] connectors = this.server.getConnectors();
     for (Connector connector : connectors) {
-      Integer localPort = getLocalPort(connector);
-      if (localPort != null && localPort > 0) {
+      int localPort = getLocalPort(connector);
+      if (localPort > 0) {
         return localPort;
       }
     }
     return -1;
   }
 
-  private Integer getLocalPort(Connector connector) {
+  private int getLocalPort(Connector connector) {
     if (connector instanceof NetworkConnector) {
       return ((NetworkConnector) connector).getLocalPort();
     }

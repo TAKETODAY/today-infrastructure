@@ -25,7 +25,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.stream.Collectors;
 
 import cn.taketoday.beans.factory.ObjectProvider;
-import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Import;
 import cn.taketoday.context.annotation.config.AutoConfigureAfter;
@@ -33,6 +32,7 @@ import cn.taketoday.context.condition.ConditionalOnMissingBean;
 import cn.taketoday.core.env.Environment;
 import cn.taketoday.http.converter.HttpMessageConverter;
 import cn.taketoday.http.converter.StringHttpMessageConverter;
+import cn.taketoday.lang.Component;
 import cn.taketoday.web.config.jackson.JacksonAutoConfiguration;
 
 /**
@@ -55,15 +55,13 @@ import cn.taketoday.web.config.jackson.JacksonAutoConfiguration;
 @Import(JacksonHttpMessageConvertersConfiguration.class)
 public class HttpMessageConvertersAutoConfiguration {
 
-  static final String PREFERRED_MAPPER_PROPERTY = "web.mvc.converters.preferred-json-mapper";
-
-  @Bean
+  @Component
   @ConditionalOnMissingBean
   public HttpMessageConverters messageConverters(ObjectProvider<HttpMessageConverter<?>> converters) {
     return new HttpMessageConverters(converters.orderedStream().collect(Collectors.toList()));
   }
 
-  @Bean
+  @Component
   @ConditionalOnMissingBean
   public StringHttpMessageConverter stringHttpMessageConverter(Environment environment) {
     Charset charset;

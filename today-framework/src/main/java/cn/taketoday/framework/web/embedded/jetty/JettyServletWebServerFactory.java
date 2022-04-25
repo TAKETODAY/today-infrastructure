@@ -207,7 +207,7 @@ public class JettyServletWebServerFactory extends AbstractServletWebServerFactor
   }
 
   private Handler addHandlerWrappers(Handler handler) {
-    if (getCompression() != null && getCompression().getEnabled()) {
+    if (getCompression() != null && getCompression().isEnabled()) {
       handler = applyWrapper(handler, JettyHandlerWrappers.createGzipHandlerWrapper(getCompression()));
     }
     if (StringUtils.hasText(getServerHeader())) {

@@ -19,6 +19,7 @@
  */
 package cn.taketoday.web.handler.result;
 
+import cn.taketoday.core.MethodParameter;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.handler.method.ActionMappingAnnotationHandler;
 import cn.taketoday.web.handler.method.HandlerMethod;
@@ -54,7 +55,11 @@ public interface HandlerMethodReturnValueHandler extends SmartReturnValueHandler
     return false;
   }
 
+  /**
+   * @see HandlerMethod#getReturnValueType(Object)
+   */
   default boolean supportsHandlerMethod(HandlerMethod handler, @Nullable Object returnValue) {
+    MethodParameter returnValueType = handler.getReturnValueType(returnValue);
     return supportsHandlerMethod(handler) || supportsReturnValue(returnValue);
   }
 

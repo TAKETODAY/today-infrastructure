@@ -205,7 +205,7 @@ class UndertowWebServerFactoryDelegate {
           @Nullable Compression compression, boolean useForwardHeaders,
           String serverHeader, Shutdown shutdown, HttpHandlerFactory... initialHttpHandlerFactories) {
     List<HttpHandlerFactory> factories = new ArrayList<>(Arrays.asList(initialHttpHandlerFactories));
-    if (compression != null && compression.getEnabled()) {
+    if (compression != null && compression.isEnabled()) {
       factories.add(new CompressionHttpHandlerFactory(compression));
     }
     if (useForwardHeaders) {

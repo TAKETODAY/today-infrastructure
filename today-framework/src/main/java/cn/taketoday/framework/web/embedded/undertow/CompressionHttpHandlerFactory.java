@@ -55,7 +55,7 @@ class CompressionHttpHandlerFactory implements HttpHandlerFactory {
 
   @Override
   public HttpHandler getHandler(HttpHandler next) {
-    if (!this.compression.getEnabled()) {
+    if (!this.compression.isEnabled()) {
       return next;
     }
     ContentEncodingRepository repository = new ContentEncodingRepository();

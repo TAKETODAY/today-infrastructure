@@ -72,7 +72,7 @@ import cn.taketoday.web.context.async.WebAsyncUtils;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/4/8 23:54
  */
-public class ReactiveTypeHandler {
+class ReactiveTypeHandler {
 
   private static final long STREAMING_TIMEOUT_VALUE = -1;
 

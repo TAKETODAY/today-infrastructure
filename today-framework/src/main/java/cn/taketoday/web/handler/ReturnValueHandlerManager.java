@@ -58,6 +58,7 @@ import cn.taketoday.web.handler.result.ModelAndViewReturnValueHandler;
 import cn.taketoday.web.handler.result.ObjectHandlerMethodReturnValueHandler;
 import cn.taketoday.web.handler.result.RenderedImageReturnValueHandler;
 import cn.taketoday.web.handler.result.SmartReturnValueHandler;
+import cn.taketoday.web.handler.result.StreamingResponseBodyReturnValueHandler;
 import cn.taketoday.web.handler.result.VoidReturnValueHandler;
 import cn.taketoday.web.view.RedirectModelManager;
 import cn.taketoday.web.view.ViewResolver;
@@ -239,6 +240,7 @@ public class ReturnValueHandlerManager
     handlers.add(new CallableMethodReturnValueHandler());
     handlers.add(new AsyncTaskMethodReturnValueHandler(getApplicationContext()));
     handlers.add(new DeferredResultReturnValueHandler());
+    handlers.add(new StreamingResponseBodyReturnValueHandler());
 
     List<HttpMessageConverter<?>> messageConverters = getMessageConverters();
 
