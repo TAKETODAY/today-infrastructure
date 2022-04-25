@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -25,6 +25,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.databind.Module;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.cfg.ConstructorDetector;
@@ -96,8 +97,8 @@ public class JacksonAutoConfiguration {
     return new JsonComponentModule();
   }
 
-  @Component
   @Primary
+  @Component
   @ConditionalOnMissingBean
   ObjectMapper jacksonObjectMapper(Jackson2ObjectMapperBuilder builder) {
     return builder.createXmlMapper(false).build();
@@ -129,9 +130,8 @@ public class JacksonAutoConfiguration {
   static final class StandardJackson2ObjectMapperBuilderCustomizer
           implements Jackson2ObjectMapperBuilderCustomizer, Ordered {
 
-    private final ApplicationContext applicationContext;
-
     private final JacksonProperties jacksonProperties;
+    private final ApplicationContext applicationContext;
 
     StandardJackson2ObjectMapperBuilderCustomizer(
             ApplicationContext applicationContext, JacksonProperties jacksonProperties) {
@@ -182,8 +182,7 @@ public class JacksonAutoConfiguration {
       }
     }
 
-    private void configureVisibility(
-            Jackson2ObjectMapperBuilder builder,
+    private void configureVisibility(Jackson2ObjectMapperBuilder builder,
             Map<PropertyAccessor, JsonAutoDetect.Visibility> visibilities) {
 
       for (Map.Entry<PropertyAccessor, JsonAutoDetect.Visibility> entry : visibilities.entrySet()) {
@@ -197,8 +196,8 @@ public class JacksonAutoConfiguration {
       String dateFormat = jacksonProperties.getDateFormat();
       if (dateFormat != null) {
         try {
-          Class<?> dateFormatClass = ClassUtils.forName(dateFormat, null);
-          builder.dateFormat((DateFormat) BeanUtils.newInstance(dateFormatClass));
+          Class<DateFormat> dateFormatClass = ClassUtils.forName(dateFormat, null);
+          builder.dateFormat(BeanUtils.newInstance(dateFormatClass));
         }
         catch (ClassNotFoundException ex) {
           SimpleDateFormat simpleDateFormat = new SimpleDateFormat(dateFormat);
@@ -232,16 +231,17 @@ public class JacksonAutoConfiguration {
     }
 
     private void configurePropertyNamingStrategyClass(
-            Jackson2ObjectMapperBuilder builder, Class<?> propertyNamingStrategyClass) {
-      builder.propertyNamingStrategy(
-              (PropertyNamingStrategy) BeanUtils.newInstance(propertyNamingStrategyClass));
+            Jackson2ObjectMapperBuilder builder, Class<PropertyNamingStrategy> propertyNamingStrategyClass) {
+      builder.propertyNamingStrategy(BeanUtils.newInstance(propertyNamingStrategyClass));
     }
 
     private void configurePropertyNamingStrategyField(Jackson2ObjectMapperBuilder builder, String fieldName) {
       // Find the field (this way we automatically support new constants
       // that may be added by Jackson in the future)
       Field field = findPropertyNamingStrategyField(fieldName);
-      Assert.notNull(field, () -> "Constant named '" + fieldName + "' not found");
+      if (field == null) {
+        throw new IllegalArgumentException("Constant named '" + fieldName + "' not found");
+      }
       try {
         builder.propertyNamingStrategy((PropertyNamingStrategy) field.get(null));
       }
@@ -252,12 +252,10 @@ public class JacksonAutoConfiguration {
 
     private Field findPropertyNamingStrategyField(String fieldName) {
       try {
-        return ReflectionUtils.findField(com.fasterxml.jackson.databind.PropertyNamingStrategies.class,
-                fieldName, PropertyNamingStrategy.class);
+        return ReflectionUtils.findField(PropertyNamingStrategies.class, fieldName, PropertyNamingStrategy.class);
       }
       catch (NoClassDefFoundError ex) { // Fallback pre Jackson 2.12
-        return ReflectionUtils.findField(PropertyNamingStrategy.class, fieldName,
-                PropertyNamingStrategy.class);
+        return ReflectionUtils.findField(PropertyNamingStrategy.class, fieldName, PropertyNamingStrategy.class);
       }
     }
 
@@ -276,19 +274,19 @@ public class JacksonAutoConfiguration {
     private void configureDefaultLeniency(Jackson2ObjectMapperBuilder builder) {
       Boolean defaultLeniency = jacksonProperties.getDefaultLeniency();
       if (defaultLeniency != null) {
-        builder.postConfigurer((objectMapper) -> objectMapper.setDefaultLeniency(defaultLeniency));
+        builder.postConfigurer(mapper -> mapper.setDefaultLeniency(defaultLeniency));
       }
     }
 
     private void configureConstructorDetector(Jackson2ObjectMapperBuilder builder) {
       ConstructorDetectorStrategy strategy = jacksonProperties.getConstructorDetector();
       if (strategy != null) {
-        builder.postConfigurer((objectMapper) -> {
+        builder.postConfigurer(mapper -> {
           switch (strategy) {
-            default -> objectMapper.setConstructorDetector(ConstructorDetector.DEFAULT);
-            case EXPLICIT_ONLY -> objectMapper.setConstructorDetector(ConstructorDetector.EXPLICIT_ONLY);
-            case USE_DELEGATING -> objectMapper.setConstructorDetector(ConstructorDetector.USE_DELEGATING);
-            case USE_PROPERTIES_BASED -> objectMapper.setConstructorDetector(ConstructorDetector.USE_PROPERTIES_BASED);
+            default -> mapper.setConstructorDetector(ConstructorDetector.DEFAULT);
+            case EXPLICIT_ONLY -> mapper.setConstructorDetector(ConstructorDetector.EXPLICIT_ONLY);
+            case USE_DELEGATING -> mapper.setConstructorDetector(ConstructorDetector.USE_DELEGATING);
+            case USE_PROPERTIES_BASED -> mapper.setConstructorDetector(ConstructorDetector.USE_PROPERTIES_BASED);
           }
         });
       }

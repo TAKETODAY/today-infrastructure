@@ -71,8 +71,8 @@ public class JsonComponentModule extends SimpleModule implements BeanFactoryAwar
     BeanFactory beanFactory = this.beanFactory;
     while (beanFactory != null) {
       addJsonBeans(beanFactory);
-      beanFactory = (beanFactory instanceof HierarchicalBeanFactory)
-                    ? ((HierarchicalBeanFactory) beanFactory).getParentBeanFactory() : null;
+      beanFactory = beanFactory instanceof HierarchicalBeanFactory hbf
+                    ? hbf.getParentBeanFactory() : null;
     }
   }
 

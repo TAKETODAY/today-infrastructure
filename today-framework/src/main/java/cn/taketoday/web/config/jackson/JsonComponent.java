@@ -60,13 +60,14 @@ import cn.taketoday.lang.Component;
  *
  * @author Phillip Webb
  * @author Paul Aly
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see JsonComponentModule
  * @since 4.0
  */
+@Component
+@Documented
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
-@Documented
-@Component
 public @interface JsonComponent {
 
   /**
