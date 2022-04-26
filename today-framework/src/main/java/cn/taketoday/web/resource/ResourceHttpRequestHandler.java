@@ -494,12 +494,12 @@ public class ResourceHttpRequestHandler extends WebContentGenerator
     if (resource == null) {
       log.debug("Resource not found");
       request.sendError(HttpStatus.NOT_FOUND.value());
-      return HandlerAdapter.NONE_RETURN_VALUE;
+      return NONE_RETURN_VALUE;
     }
 
     if (HttpMethod.OPTIONS.matches(request.getMethodValue())) {
       request.responseHeaders().set(HttpHeaders.ALLOW, getAllowHeader());
-      return HandlerAdapter.NONE_RETURN_VALUE;
+      return NONE_RETURN_VALUE;
     }
 
     // Supported methods and required session
@@ -508,7 +508,7 @@ public class ResourceHttpRequestHandler extends WebContentGenerator
     // Header phase
     if (isUseLastModified() && request.checkNotModified(resource.lastModified())) {
       log.trace("Resource not modified");
-      return HandlerAdapter.NONE_RETURN_VALUE;
+      return NONE_RETURN_VALUE;
     }
 
     // Apply cache settings, if any
@@ -546,7 +546,7 @@ public class ResourceHttpRequestHandler extends WebContentGenerator
       }
     }
 
-    return HandlerAdapter.NONE_RETURN_VALUE;
+    return NONE_RETURN_VALUE;
   }
 
   @Nullable

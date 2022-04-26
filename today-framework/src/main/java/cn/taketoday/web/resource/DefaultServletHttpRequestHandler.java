@@ -128,7 +128,7 @@ public class DefaultServletHttpRequestHandler implements RequestHandler, Servlet
     HttpServletResponse servletResponse = ServletUtils.getServletResponse(context);
 
     rd.forward(servletRequest, servletResponse);
-    return HandlerAdapter.NONE_RETURN_VALUE;
+    return NONE_RETURN_VALUE;
   }
 
 }

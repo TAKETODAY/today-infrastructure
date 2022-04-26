@@ -356,7 +356,7 @@ public class DispatcherHandler implements ApplicationContextAware {
   public void handle(@Nullable Object handler, RequestContext context) throws Throwable {
     try {
       Object returnValue = lookupHandlerAdapter(handler).handle(context, handler);
-      if (returnValue != HandlerAdapter.NONE_RETURN_VALUE) {
+      if (returnValue != RequestHandler.NONE_RETURN_VALUE) {
         lookupReturnValueHandler(handler, returnValue)
                 .handleReturnValue(context, handler, returnValue);
       }
@@ -391,7 +391,7 @@ public class DispatcherHandler implements ApplicationContextAware {
     if (returnValue == null) {
       throw exception;
     }
-    else if (returnValue != HandlerAdapter.NONE_RETURN_VALUE) {
+    else if (returnValue != RequestHandler.NONE_RETURN_VALUE) {
       returnValueHandler.handleReturnValue(context, null, returnValue);
     }
   }
@@ -425,6 +425,9 @@ public class DispatcherHandler implements ApplicationContextAware {
       handler = lookupHandler(context);
       if (handler == null) {
         returnValue = handlerNotFound(context);
+      }
+      else if (handler instanceof RequestHandler requestHandler) {
+        returnValue = requestHandler.handleRequest(context);
       }
       else {
         // Actually invoke the handler.
@@ -464,7 +467,7 @@ public class DispatcherHandler implements ApplicationContextAware {
     }
 
     // Did the handler return a view to render?
-    if (returnValue != HandlerAdapter.NONE_RETURN_VALUE) {
+    if (returnValue != RequestHandler.NONE_RETURN_VALUE) {
       lookupReturnValueHandler(handler, returnValue)
               .handleReturnValue(request, handler, returnValue);
     }
@@ -491,7 +494,7 @@ public class DispatcherHandler implements ApplicationContextAware {
     if (returnValue == null) {
       throw ex;
     }
-    else if (returnValue != HandlerAdapter.NONE_RETURN_VALUE) {
+    else if (returnValue != RequestHandler.NONE_RETURN_VALUE) {
       if (log.isTraceEnabled()) {
         log.trace("Using resolved error view: {}", returnValue, ex);
       }

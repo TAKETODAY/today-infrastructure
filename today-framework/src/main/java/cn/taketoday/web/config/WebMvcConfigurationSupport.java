@@ -86,7 +86,6 @@ import cn.taketoday.web.handler.CompositeHandlerExceptionHandler;
 import cn.taketoday.web.handler.FunctionRequestAdapter;
 import cn.taketoday.web.handler.HandlerExceptionHandler;
 import cn.taketoday.web.handler.NotFoundHandler;
-import cn.taketoday.web.handler.RequestHandlerAdapter;
 import cn.taketoday.web.handler.ResponseStatusExceptionHandler;
 import cn.taketoday.web.handler.ReturnValueHandlerManager;
 import cn.taketoday.web.handler.SimpleHandlerExceptionHandler;
@@ -768,13 +767,6 @@ public class WebMvcConfigurationSupport extends ApplicationContextSupport {
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
   FunctionRequestAdapter functionRequestAdapter() {
     return new FunctionRequestAdapter(Ordered.HIGHEST_PRECEDENCE + 1);
-  }
-
-  @Component
-  @ConditionalOnMissingBean
-  @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-  RequestHandlerAdapter requestHandlerAdapter() {
-    return new RequestHandlerAdapter(Ordered.HIGHEST_PRECEDENCE);
   }
 
   /**

@@ -245,7 +245,7 @@ public class HandlerMethod {
   }
 
   private MethodParameter[] initMethodParameters() {
-    int count = this.bridgedMethod.getParameterCount();
+    int count = bridgedMethod.getParameterCount();
     MethodParameter[] result = new MethodParameter[count];
     for (int i = 0; i < count; i++) {
       result[i] = new HandlerMethodParameter(i);
@@ -315,6 +315,19 @@ public class HandlerMethod {
    */
   public MethodParameter[] getMethodParameters() {
     return this.parameters;
+  }
+
+  /**
+   * Returns the number of formal parameters (whether explicitly
+   * declared or implicitly declared or neither) for the executable
+   * represented by this object.
+   *
+   * @return The number of formal parameters for the executable this
+   * object represents
+   * @since 4.0
+   */
+  public int getParameterCount() {
+    return parameters.length;
   }
 
   /**

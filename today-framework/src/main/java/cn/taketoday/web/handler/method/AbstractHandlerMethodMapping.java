@@ -107,7 +107,7 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerReg
    * considered, i.e. only in the context that this HandlerMapping itself
    * is defined in (typically the current DispatcherServlet's context).
    * <p>Switch this flag on to detect handler beans in ancestor contexts
-   * (typically the Spring root WebApplicationContext) as well.
+   * (typically the root WebApplicationContext) as well.
    *
    * @see #getCandidateBeanNames()
    */
@@ -232,9 +232,9 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerReg
    * @see BeanFactoryUtils#beanNamesForTypeIncludingAncestors
    */
   protected Set<String> getCandidateBeanNames() {
-    return (this.detectHandlerMethodsInAncestorContexts ?
-            BeanFactoryUtils.beanNamesForTypeIncludingAncestors(obtainApplicationContext(), Object.class) :
-            obtainApplicationContext().getBeanNamesForType(Object.class));
+    return detectHandlerMethodsInAncestorContexts ?
+           BeanFactoryUtils.beanNamesForTypeIncludingAncestors(obtainApplicationContext(), Object.class) :
+           obtainApplicationContext().getBeanNamesForType(Object.class);
   }
 
   /**
@@ -378,7 +378,6 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerReg
   /**
    * Look up a handler method for the given request.
    */
-
   @Nullable
   @Override
   protected Object lookupInternal(RequestContext context) {
@@ -386,7 +385,10 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerReg
     this.mappingRegistry.acquireReadLock();
     try {
       HandlerMethod handlerMethod = lookupHandlerMethod(lookupPath, context);
-      return handlerMethod != null ? handlerMethod.createWithResolvedBean() : null;
+      if (handlerMethod != null) {
+        return handlerMethod.createWithResolvedBean();
+      }
+      return null;
     }
     finally {
       this.mappingRegistry.releaseReadLock();

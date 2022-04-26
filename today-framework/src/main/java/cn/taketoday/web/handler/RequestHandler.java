@@ -23,18 +23,28 @@ import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.ReturnValueHandler;
 
 /**
- * @author TODAY <br>
- * 2019-12-21 17:37
+ * Plain handler interface for components that process HTTP requests
+ *
+ * @author TODAY
+ * @see ReturnValueHandler
+ * @since 2019-12-21 17:37
  */
 @FunctionalInterface
 public interface RequestHandler {
 
   /**
+   * This value indicates that the handler did not return a value, or the result
+   * has been processed
+   */
+  Object NONE_RETURN_VALUE = new Object();
+
+  /**
    * Handle request
    *
    * @param context Current request context
-   * @return Result to be handled with {@link ReturnValueHandler}
+   * @return Result to be handled by {@link ReturnValueHandler}
    * @throws Throwable If any exception occurred
+   * @see ReturnValueHandler
    */
   Object handleRequest(RequestContext context) throws Throwable;
 

@@ -46,7 +46,7 @@ public class NotFoundHandler {
     logNotFound(context);
 
     context.sendError(HttpStatus.NOT_FOUND.value());
-    return HandlerAdapter.NONE_RETURN_VALUE;
+    return RequestHandler.NONE_RETURN_VALUE;
   }
 
   protected void logNotFound(RequestContext context) {

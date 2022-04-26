@@ -69,7 +69,7 @@ public interface HandlerAdapter {
    * This value indicates that the handler did not return a value, or the result
    * has been processed
    */
-  Object NONE_RETURN_VALUE = new Object();
+  Object NONE_RETURN_VALUE = RequestHandler.NONE_RETURN_VALUE;
 
   /**
    * Given a handler instance, return whether support or not this

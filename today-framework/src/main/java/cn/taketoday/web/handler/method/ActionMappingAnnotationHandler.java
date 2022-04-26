@@ -56,8 +56,7 @@ import cn.taketoday.web.util.WebUtils;
  * @see cn.taketoday.web.annotation.Controller
  * @since 4.0 2021/11/29 22:48
  */
-public abstract class ActionMappingAnnotationHandler
-        extends InterceptableRequestHandler implements HandlerAdapter {
+public abstract class ActionMappingAnnotationHandler extends InterceptableRequestHandler {
   private final HandlerMethod handlerMethod;
 
   // handler fast invoker
@@ -112,6 +111,12 @@ public abstract class ActionMappingAnnotationHandler
 
   @Override
   protected Object handleInternal(RequestContext context) throws Throwable {
+    Object returnValue = doInvoke(context);
+    handleReturnValue(context, handlerMethod, returnValue);
+    return NONE_RETURN_VALUE;
+  }
+
+  private Object doInvoke(RequestContext context) throws Throwable {
     MethodInvoker handlerInvoker = this.handlerInvoker;
     if (handlerInvoker == null) {
       synchronized(this) {
@@ -184,20 +189,6 @@ public abstract class ActionMappingAnnotationHandler
       }
     }
     return null;
-  }
-
-  // HandlerAdapter
-
-  @Override
-  public boolean supports(Object handler) {
-    return handler == this;
-  }
-
-  @Override
-  public Object handle(RequestContext context, Object handler) throws Throwable {
-    Object returnValue = handleRequest(context);
-    handleReturnValue(context, handler, returnValue);
-    return NONE_RETURN_VALUE;
   }
 
   // ReturnValueHandler

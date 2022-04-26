@@ -64,6 +64,6 @@ public class CompositeHandlerExceptionHandler
         }
       }
     }
-    return HandlerAdapter.NONE_RETURN_VALUE;
+    return RequestHandler.NONE_RETURN_VALUE;
   }
 }

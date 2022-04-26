@@ -40,7 +40,6 @@ import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.web.ReturnValueHandler;
-import cn.taketoday.web.WebApplicationContextSupport;
 import cn.taketoday.web.accept.ContentNegotiationManager;
 import cn.taketoday.web.bind.resolver.HttpEntityMethodProcessor;
 import cn.taketoday.web.bind.resolver.RequestResponseBodyMethodProcessor;
@@ -51,7 +50,6 @@ import cn.taketoday.web.handler.method.ResponseBodyEmitterReturnValueHandler;
 import cn.taketoday.web.handler.result.AsyncTaskMethodReturnValueHandler;
 import cn.taketoday.web.handler.result.CallableMethodReturnValueHandler;
 import cn.taketoday.web.handler.result.DeferredResultReturnValueHandler;
-import cn.taketoday.web.handler.result.HandlerMethodReturnValueHandler;
 import cn.taketoday.web.handler.result.HttpHeadersReturnValueHandler;
 import cn.taketoday.web.handler.result.HttpStatusReturnValueHandler;
 import cn.taketoday.web.handler.result.ModelAndViewReturnValueHandler;
@@ -184,7 +182,7 @@ public class ReturnValueHandlerManager
   }
 
   @Nullable
-  public ReturnValueHandler find(Object handler, @Nullable Object returnValue) {
+  public ReturnValueHandler findHandler(Object handler, @Nullable Object returnValue) {
     for (ReturnValueHandler returnValueHandler : getHandlers()) {
       if (returnValueHandler instanceof SmartReturnValueHandler smartHandler) {
         if (smartHandler.supportsHandler(handler, returnValue)) {

@@ -34,7 +34,7 @@ public interface HandlerExceptionHandler {
    * This value indicates that the handler did not return a value, or the result
    * has been processed
    */
-  Object NONE_RETURN_VALUE = HandlerAdapter.NONE_RETURN_VALUE;
+  Object NONE_RETURN_VALUE = RequestHandler.NONE_RETURN_VALUE;
 
   /**
    * Handle exception

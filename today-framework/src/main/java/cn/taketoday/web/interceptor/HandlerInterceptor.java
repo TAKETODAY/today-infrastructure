@@ -21,6 +21,7 @@ package cn.taketoday.web.interceptor;
 
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.handler.HandlerAdapter;
+import cn.taketoday.web.handler.RequestHandler;
 
 /**
  * Handler process around Handler.
@@ -36,7 +37,7 @@ public interface HandlerInterceptor {
   /**
    * NONE_RETURN_VALUE
    */
-  Object NONE_RETURN_VALUE = HandlerAdapter.NONE_RETURN_VALUE;
+  Object NONE_RETURN_VALUE = RequestHandler.NONE_RETURN_VALUE;
 
   /**
    * Before Handler process.

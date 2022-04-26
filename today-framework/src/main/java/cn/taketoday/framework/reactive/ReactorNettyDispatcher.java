@@ -30,6 +30,7 @@ import cn.taketoday.web.RequestContextHolder;
 import cn.taketoday.web.handler.DispatcherHandler;
 import cn.taketoday.web.handler.HandlerAdapter;
 import cn.taketoday.web.handler.NoHandlerFoundException;
+import cn.taketoday.web.handler.RequestHandler;
 import io.netty.channel.ChannelHandlerContext;
 import reactor.core.publisher.Mono;
 
@@ -106,7 +107,7 @@ public class ReactorNettyDispatcher extends NettyDispatcher {
   }
 
   private Mono<Void> handleReturnValue(NettyRequestContext nettyContext, Object handler, Object returnValue) {
-    if (returnValue != HandlerAdapter.NONE_RETURN_VALUE) {
+    if (returnValue != RequestHandler.NONE_RETURN_VALUE) {
       try {
         dispatcherHandler.lookupReturnValueHandler(handler, returnValue)
                 .handleReturnValue(nettyContext, handler, returnValue);
