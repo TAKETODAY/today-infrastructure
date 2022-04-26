@@ -111,10 +111,19 @@ public class RequestContextDataBinder extends WebDataBinder {
    *
    * @param request the request with parameters to bind (can be multipart)
    * @see cn.taketoday.web.multipart.MultipartFile
-   * @see jakarta.servlet.http.Part
    * @see #bind(PropertyValues)
    */
   public void bind(RequestContext request) {
+    doBind(getValuesToBind(request));
+  }
+
+  /**
+   * method to obtain the values for data binding.
+   *
+   * @param request the current exchange
+   * @return a map of bind values
+   */
+  public PropertyValues getValuesToBind(RequestContext request) {
     PropertyValues propertyValues = new PropertyValues(request.getParameters());
     if (request.isMultipart()) {
       MultiValueMap<String, MultipartFile> multipartFiles = request.multipartFiles();
@@ -122,7 +131,7 @@ public class RequestContextDataBinder extends WebDataBinder {
         bindMultipart(multipartFiles, propertyValues);
       }
     }
-    doBind(propertyValues);
+    return propertyValues;
   }
 
   /**
