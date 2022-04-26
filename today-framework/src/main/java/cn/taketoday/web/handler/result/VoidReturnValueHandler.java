@@ -23,7 +23,7 @@ import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.handler.method.HandlerMethod;
-import cn.taketoday.web.handler.method.support.ModelAndViewContainer;
+import cn.taketoday.web.BindingContext;
 
 /**
  * for {@link Void} or void type
@@ -53,7 +53,7 @@ public class VoidReturnValueHandler implements HandlerMethodReturnValueHandler {
   public void handleReturnValue(
           RequestContext context, Object handler, @Nullable Object returnValue) throws Exception {
 
-    ModelAndViewContainer modelContainer = context.getModelContainer();
+    BindingContext modelContainer = context.getBindingContext();
     if (modelContainer != null) {
       Object view = modelContainer.getView();
       // TODO 修复关于 ModelAndView 在处理器参数列表存在时，渲染其页面

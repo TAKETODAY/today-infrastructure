@@ -37,7 +37,7 @@ import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.context.async.DeferredResult.DeferredResultHandler;
-import cn.taketoday.web.handler.method.support.ModelAndViewContainer;
+import cn.taketoday.web.BindingContext;
 import cn.taketoday.web.servlet.ServletUtils;
 import jakarta.servlet.http.HttpServletRequest;
 
@@ -501,8 +501,8 @@ public final class WebAsyncManager {
     }
   }
 
-  public ModelAndViewContainer getModelContainer() {
-    return requestContext.getModelContainer();
+  public BindingContext getBindingContext() {
+    return requestContext.getBindingContext();
   }
 
 }

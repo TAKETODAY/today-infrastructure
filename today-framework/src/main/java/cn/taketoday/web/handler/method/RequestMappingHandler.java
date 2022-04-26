@@ -20,8 +20,6 @@
 
 package cn.taketoday.web.handler.method;
 
-import java.lang.reflect.Method;
-
 import cn.taketoday.context.MessageSource;
 import cn.taketoday.core.i18n.LocaleContextHolder;
 import cn.taketoday.core.reflect.MethodInvoker;
@@ -36,6 +34,7 @@ import cn.taketoday.web.ReturnValueHandler;
 import cn.taketoday.web.annotation.ResponseStatus;
 import cn.taketoday.web.handler.InterceptableRequestHandler;
 import cn.taketoday.web.handler.ReturnValueHandlerManager;
+import cn.taketoday.web.handler.ReturnValueHandlerNotFoundException;
 import cn.taketoday.web.util.WebUtils;
 
 /**
@@ -49,21 +48,14 @@ public class RequestMappingHandler extends InterceptableRequestHandler {
   private /*volatile*/ MethodInvoker handlerInvoker;
 
   // return-value handlers(registry)
-  private ReturnValueHandlerManager returnValueHandlerManager;
+  private final ReturnValueHandlerManager returnValueHandlerManager;
 
   // target return-value handler
   private ReturnValueHandler returnValueHandler;
 
-  public Method getJavaMethod() {
-    return handlerMethod.getMethod();
-  }
-
-  public HandlerMethod getMethod() {
-    return handlerMethod;
-  }
-
-  public void setReturnValueHandlers(ReturnValueHandlerManager resultHandlers) {
-    this.returnValueHandlerManager = resultHandlers;
+  public RequestMappingHandler(ServletInvocableHandlerMethod handlerMethod, ReturnValueHandlerManager manager) {
+    this.handlerMethod = handlerMethod;
+    this.returnValueHandlerManager = manager;
   }
 
   // InterceptableRequestHandler
@@ -81,9 +73,9 @@ public class RequestMappingHandler extends InterceptableRequestHandler {
       }
     }
 
-    Object handlerBean = getHandlerObject();
-    ResolvableMethodParameter[] parameters = getResolvableParameters();
-    if (ObjectUtils.isEmpty(parameters)) {
+    Object handlerBean = handlerMethod.getBean();
+    ResolvableMethodParameter[] parameters = handlerMethod.resolvableParameters;
+    if (parameters.length == 0) {
       return handlerInvoker.invoke(handlerBean, null);
     }
     Object[] args = new Object[parameters.length];
@@ -106,10 +98,11 @@ public class RequestMappingHandler extends InterceptableRequestHandler {
         }
       }
     }
+    Object handlerBean = handlerMethod.getBean();
 
-    ResolvableMethodParameter[] parameters = getResolvableParameters();
+    ResolvableMethodParameter[] parameters = handlerMethod.resolvableParameters;
     if (parameters == null) {
-      return handlerInvoker.invoke(getHandlerObject(), null);
+      return handlerInvoker.invoke(handlerBean, null);
     }
 
     Object[] args = new Object[parameters.length];
@@ -121,12 +114,12 @@ public class RequestMappingHandler extends InterceptableRequestHandler {
       }
       args[i++] = argument;
     }
-    return handlerInvoker.invoke(getHandlerObject(), args);
+    return handlerInvoker.invoke(handlerBean, args);
   }
 
   @Nullable
   protected static Object findProvidedArgument(
-          ResolvableMethodParameter parameter, @Nullable Object... providedArgs) {
+          ResolvableMethodParameter parameter, @Nullable Object[] providedArgs) {
     if (ObjectUtils.isNotEmpty(providedArgs)) {
       Class<?> parameterType = parameter.getParameterType();
       for (Object providedArg : providedArgs) {
@@ -173,25 +166,24 @@ public class RequestMappingHandler extends InterceptableRequestHandler {
     }
   }
 
-  public void handleReturnValue(
-          RequestContext context, Object handler, Object returnValue) throws Exception {
+  public void handleReturnValue(RequestContext context, Object returnValue) throws Exception {
     applyResponseStatus(context);
 
     ReturnValueHandler returnValueHandler = this.returnValueHandler;
     if (returnValueHandler == null) {
-      returnValueHandler = returnValueHandlerManager.obtainHandler(this);
+      returnValueHandler = returnValueHandlerManager.findHandler(handlerMethod, returnValue);
+      if (returnValueHandler == null) {
+        throw new ReturnValueHandlerNotFoundException(returnValue, this);
+      }
       this.returnValueHandler = returnValueHandler;
     }
-    returnValueHandler.handleReturnValue(context, handler, returnValue);
+
+    returnValueHandler.handleReturnValue(context, handlerMethod, returnValue);
     // @since 3.0
     String contentType = handlerMethod.getContentType();
     if (contentType != null) {
       context.setContentType(contentType);
     }
-  }
-
-  public Object invokeHandler(RequestContext request) throws Throwable {
-    return handleInternal(request);
   }
 
   @Override

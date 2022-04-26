@@ -47,6 +47,7 @@ import cn.taketoday.web.bind.resolver.date.DateParameterResolver;
 import cn.taketoday.web.bind.resolver.date.LocalDateParameterResolver;
 import cn.taketoday.web.bind.resolver.date.LocalDateTimeParameterResolver;
 import cn.taketoday.web.bind.resolver.date.LocalTimeParameterResolver;
+import cn.taketoday.web.handler.method.ModelAttributeMethodProcessor;
 import cn.taketoday.web.handler.method.RequestBodyAdvice;
 import cn.taketoday.web.handler.method.ResolvableMethodParameter;
 import cn.taketoday.web.handler.method.ResponseBodyAdvice;
@@ -270,6 +271,8 @@ public class ParameterResolvingRegistry
     strategies.add(new RequestResponseBodyMethodProcessor(
             getMessageConverters(), contentNegotiationManager, requestResponseBodyAdvice));
 
+    strategies.add(new ModelAttributeMethodProcessor(false));
+
     // @since 4.0
     strategies.add(new PathVariableParameterResolvingStrategy());
     strategies.add(new PathVariableMapParameterResolvingStrategy());
@@ -297,6 +300,8 @@ public class ParameterResolvingRegistry
             from(new OR(Double.class, double.class), Double::parseDouble),
             from(new OR(Boolean.class, boolean.class), Boolean::parseBoolean)
     );
+
+    strategies.add(new ModelAttributeMethodProcessor(true));
 
     // apply conversionService @since 4.0
     applyConversionService(conversionService, strategies);

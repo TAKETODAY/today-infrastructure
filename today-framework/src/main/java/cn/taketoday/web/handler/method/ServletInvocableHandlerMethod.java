@@ -42,7 +42,7 @@ import cn.taketoday.web.annotation.ResponseBody;
 import cn.taketoday.web.annotation.ResponseStatus;
 import cn.taketoday.web.handler.ReturnValueHandlerManager;
 import cn.taketoday.web.handler.ReturnValueHandlerNotFoundException;
-import cn.taketoday.web.handler.method.support.ModelAndViewContainer;
+import cn.taketoday.web.BindingContext;
 import cn.taketoday.web.handler.result.HandlerMethodReturnValueHandler;
 import cn.taketoday.web.servlet.ServletUtils;
 import cn.taketoday.web.view.View;
@@ -109,29 +109,29 @@ public class ServletInvocableHandlerMethod extends InvocableHandlerMethod {
    * configured {@link HandlerMethodReturnValueHandler HandlerMethodReturnValueHandlers}.
    *
    * @param request the current request
-   * @param mavContainer the ModelAndViewContainer for this request
+   * @param bindingContext the binding context to use
    * @param providedArgs "given" arguments matched by type (not resolved)
    */
   public void invokeAndHandle(
-          RequestContext request, ModelAndViewContainer mavContainer, Object... providedArgs) throws Throwable {
-    request.setModelContainer(mavContainer);
+          RequestContext request, BindingContext bindingContext, Object... providedArgs) throws Throwable {
+    request.setBindingContext(bindingContext);
 
-    Object returnValue = invokeForRequest(request, mavContainer, providedArgs);
+    Object returnValue = invokeForRequest(request, bindingContext, providedArgs);
     setResponseStatus(request);
 
     if (returnValue == null) {
-      if (isRequestNotModified(request) || getResponseStatus() != null || mavContainer.isRequestHandled()) {
+      if (isRequestNotModified(request) || getResponseStatus() != null || bindingContext.isRequestHandled()) {
         disableContentCachingIfNecessary(request);
-        mavContainer.setRequestHandled(true);
+        bindingContext.setRequestHandled(true);
         return;
       }
     }
     else if (StringUtils.hasText(getResponseStatusReason())) {
-      mavContainer.setRequestHandled(true);
+      bindingContext.setRequestHandled(true);
       return;
     }
 
-    mavContainer.setRequestHandled(false);
+    bindingContext.setRequestHandled(false);
     Assert.state(returnValueHandlerManager != null, "No return value handlers");
 
     ReturnValueHandler returnValueHandler = returnValueHandlerManager.getHandler(this);

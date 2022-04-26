@@ -27,10 +27,10 @@ import cn.taketoday.beans.factory.config.BeanExpressionResolver;
 import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
 import cn.taketoday.core.MethodParameter;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.web.BindingContext;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.bind.RequestBindingException;
 import cn.taketoday.web.bind.WebDataBinder;
-import cn.taketoday.web.bind.support.WebDataBinderFactory;
 import cn.taketoday.web.context.support.RequestScope;
 import cn.taketoday.web.handler.method.MethodArgumentConversionNotSupportedException;
 import cn.taketoday.web.handler.method.MethodArgumentTypeMismatchException;
@@ -121,9 +121,9 @@ public abstract class AbstractNamedValueResolvingStrategy implements ParameterRe
       arg = resolveEmbeddedValuesAndExpressions(namedValueInfo.defaultValue);
     }
 
-    WebDataBinderFactory binderFactory = context.getWebDataBinderFactory();
-    if (binderFactory != null) {
-      WebDataBinder binder = binderFactory.createBinder(context, null, namedValueInfo.name);
+    BindingContext bindingContext = context.getBindingContext();
+    if (bindingContext != null) {
+      WebDataBinder binder = bindingContext.createBinder(context, namedValueInfo.name);
       try {
         arg = binder.convertIfNecessary(arg, methodParameter.getParameterType(), methodParameter);
       }

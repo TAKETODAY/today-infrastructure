@@ -25,20 +25,15 @@ import java.lang.reflect.Method;
 import java.util.Arrays;
 
 import cn.taketoday.context.MessageSource;
-import cn.taketoday.core.DefaultParameterNameDiscoverer;
-import cn.taketoday.core.MethodParameter;
-import cn.taketoday.core.ParameterNameDiscoverer;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
-import cn.taketoday.util.ObjectUtils;
+import cn.taketoday.web.BindingContext;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.bind.WebDataBinder;
 import cn.taketoday.web.bind.resolver.ParameterResolvingRegistry;
 import cn.taketoday.web.bind.resolver.ParameterResolvingStrategies;
-import cn.taketoday.web.bind.resolver.ParameterResolvingStrategy;
 import cn.taketoday.web.bind.support.SessionStatus;
-import cn.taketoday.web.bind.support.WebDataBinderFactory;
 
 /**
  * Extension of {@link HandlerMethod} that invokes the underlying method with
@@ -57,13 +52,8 @@ public class InvocableHandlerMethod extends HandlerMethod {
 
   private static final Object[] EMPTY_ARGS = new Object[0];
 
-  private ParameterNameDiscoverer parameterNameDiscoverer;
-
-  @Nullable
-  private WebDataBinderFactory dataBinderFactory;
-
-  final ResolvableMethodParameter[] resolvableParameters
-          = new ResolvableMethodParameter[getBridgedMethod().getParameterCount()];
+  protected final ResolvableMethodParameter[] resolvableParameters =
+          new ResolvableMethodParameter[getParameterCount()];
 
   /**
    * Create an instance from a {@code HandlerMethod}.
@@ -95,8 +85,7 @@ public class InvocableHandlerMethod extends HandlerMethod {
    * @param parameterTypes the method parameter types
    * @throws NoSuchMethodException when the method cannot be found
    */
-  public InvocableHandlerMethod(Object bean, String methodName, Class<?>... parameterTypes)
-          throws NoSuchMethodException {
+  public InvocableHandlerMethod(Object bean, String methodName, Class<?>... parameterTypes) throws NoSuchMethodException {
     super(bean, methodName, parameterTypes);
   }
 
@@ -107,23 +96,6 @@ public class InvocableHandlerMethod extends HandlerMethod {
   public void setResolvingRegistry(ParameterResolvingRegistry resolvingRegistry) {
     var parameterFactory = new ParameterResolvingRegistryResolvableParameterFactory(resolvingRegistry);
     parameterFactory.fillArray(this);
-  }
-
-  /**
-   * Set the ParameterNameDiscoverer for resolving parameter names when needed
-   * (e.g. default request attribute name).
-   * <p>Default is a {@link DefaultParameterNameDiscoverer}.
-   */
-  public void setParameterNameDiscoverer(ParameterNameDiscoverer parameterNameDiscoverer) {
-    this.parameterNameDiscoverer = parameterNameDiscoverer;
-  }
-
-  /**
-   * Set the {@link WebDataBinderFactory} to be passed to argument resolvers allowing them
-   * to create a {@link WebDataBinder} for data binding and type conversion purposes.
-   */
-  public void setDataBinderFactory(WebDataBinderFactory dataBinderFactory) {
-    this.dataBinderFactory = dataBinderFactory;
   }
 
   /**
@@ -138,6 +110,7 @@ public class InvocableHandlerMethod extends HandlerMethod {
    * resolved arguments.
    *
    * @param request the current request
+   * @param bindingContext the binding context to use
    * @param providedArgs "given" arguments matched by type, not resolved
    * @return the raw value returned by the invoked method
    * @throws Exception raised if no suitable argument resolver can be found,
@@ -146,9 +119,8 @@ public class InvocableHandlerMethod extends HandlerMethod {
    * @see #doInvoke
    */
   @Nullable
-  public Object invokeForRequest(
-          RequestContext request, Object... providedArgs) throws Throwable {
-
+  public Object invokeForRequest(RequestContext request, BindingContext bindingContext, Object... providedArgs) throws Throwable {
+    request.setBindingContext(bindingContext);
     Object[] args = getMethodArgumentValues(request, providedArgs);
     if (log.isTraceEnabled()) {
       log.trace("Arguments: {}", Arrays.toString(args));
@@ -162,13 +134,11 @@ public class InvocableHandlerMethod extends HandlerMethod {
    * <p>The resulting array will be passed into {@link #doInvoke}.
    */
   protected Object[] getMethodArgumentValues(
-          RequestContext request, Object... providedArgs) throws Throwable {
-
+          RequestContext request, @Nullable Object[] providedArgs) throws Throwable {
     ResolvableMethodParameter[] parameters = this.resolvableParameters;
     if (parameters.length == 0) {
       return EMPTY_ARGS;
     }
-
     Object[] args = new Object[parameters.length];
     for (int i = 0; i < parameters.length; i++) {
       ResolvableMethodParameter parameter = parameters[i];
@@ -198,7 +168,7 @@ public class InvocableHandlerMethod extends HandlerMethod {
    * Invoke the handler method with the given argument values.
    */
   @Nullable
-  protected Object doInvoke(Object... args) throws Exception {
+  protected Object doInvoke(Object[] args) throws Exception {
     Method method = getBridgedMethod();
     try {
       return method.invoke(getBean(), args);

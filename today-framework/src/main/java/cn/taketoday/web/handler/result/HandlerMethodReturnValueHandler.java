@@ -19,8 +19,9 @@
  */
 package cn.taketoday.web.handler.result;
 
-import cn.taketoday.core.MethodParameter;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.web.RequestContext;
+import cn.taketoday.web.handler.HandlerExceptionHandler;
 import cn.taketoday.web.handler.method.ActionMappingAnnotationHandler;
 import cn.taketoday.web.handler.method.HandlerMethod;
 
@@ -59,7 +60,6 @@ public interface HandlerMethodReturnValueHandler extends SmartReturnValueHandler
    * @see HandlerMethod#getReturnValueType(Object)
    */
   default boolean supportsHandlerMethod(HandlerMethod handler, @Nullable Object returnValue) {
-    MethodParameter returnValueType = handler.getReturnValueType(returnValue);
     return supportsHandlerMethod(handler) || supportsReturnValue(returnValue);
   }
 
@@ -74,4 +74,23 @@ public interface HandlerMethodReturnValueHandler extends SmartReturnValueHandler
     return false;
   }
 
+  @Override
+  default void handleReturnValue(
+          RequestContext context, Object handler, @Nullable Object returnValue) throws Exception {
+    handleReturnValue(context, (HandlerMethod) handler, returnValue);
+  }
+
+  /**
+   * Handle result of the handler
+   *
+   * @param context Current HTTP request context
+   * @param handler HandlerMethod
+   * @param returnValue Handler execution result
+   * Or {@link HandlerExceptionHandler} return value
+   * @throws Exception return-value handled failed
+   */
+  default void handleReturnValue(RequestContext context, HandlerMethod handler, @Nullable Object returnValue)
+          throws Exception {
+
+  }
 }

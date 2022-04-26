@@ -26,22 +26,26 @@ import java.util.List;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ObjectUtils;
+import cn.taketoday.web.BindingContext;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.bind.WebDataBinder;
 import cn.taketoday.web.bind.annotation.InitBinder;
-import cn.taketoday.web.bind.support.DefaultDataBinderFactory;
+import cn.taketoday.web.bind.support.SessionStatus;
+import cn.taketoday.web.bind.support.SimpleSessionStatus;
 import cn.taketoday.web.bind.support.WebBindingInitializer;
 
 /**
- * Adds initialization to a WebDataBinder via {@code @InitBinder} methods.
+ * Extends {@link BindingContext} with {@code @InitBinder} method initialization.
  *
  * @author Rossen Stoyanchev
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @since 4.0 2022/4/8 23:09
+ * @since 4.0 2022/4/26 14:24
  */
-public class InitBinderDataBinderFactory extends DefaultDataBinderFactory {
+public class InitBinderBindingContext extends BindingContext {
 
+  private final BindingContext binderMethodContext;
   private final List<InvocableHandlerMethod> binderMethods;
+  private final SessionStatus sessionStatus = new SimpleSessionStatus();
 
   /**
    * Create a new InitBinderDataBinderFactory instance.
@@ -49,11 +53,20 @@ public class InitBinderDataBinderFactory extends DefaultDataBinderFactory {
    * @param binderMethods {@code @InitBinder} methods
    * @param initializer for global data binder initialization
    */
-  public InitBinderDataBinderFactory(@Nullable List<InvocableHandlerMethod> binderMethods,
-          @Nullable WebBindingInitializer initializer) {
+  InitBinderBindingContext(@Nullable WebBindingInitializer initializer,
+          @Nullable List<InvocableHandlerMethod> binderMethods) {
 
     super(initializer);
-    this.binderMethods = (binderMethods != null ? binderMethods : Collections.emptyList());
+    this.binderMethods = binderMethods != null ? binderMethods : Collections.emptyList();
+    this.binderMethodContext = new BindingContext(initializer);
+  }
+
+  /**
+   * Return the {@link SessionStatus} instance to use that can be used to
+   * signal that session processing is complete.
+   */
+  public SessionStatus getSessionStatus() {
+    return this.sessionStatus;
   }
 
   /**
@@ -62,16 +75,21 @@ public class InitBinderDataBinderFactory extends DefaultDataBinderFactory {
    * it is invoked only if the names include the target object name.
    *
    * @throws Exception if one of the invoked @{@link InitBinder} methods fails
-   * @see #isBinderMethodApplicable
+   * @see #isBinderMethodApplicable(HandlerMethod, WebDataBinder)
    */
   @Override
   public void initBinder(WebDataBinder dataBinder, RequestContext request) throws Throwable {
     for (InvocableHandlerMethod binderMethod : binderMethods) {
       if (isBinderMethodApplicable(binderMethod, dataBinder)) {
-        Object returnValue = binderMethod.invokeForRequest(request, dataBinder);
+        Object returnValue = binderMethod.invokeForRequest(request, binderMethodContext, dataBinder);
         if (returnValue != null) {
           throw new IllegalStateException(
                   "@InitBinder methods must not return a value (should be void): " + binderMethod);
+        }
+        // Should not happen (no Model argument resolution) ...
+        if (!binderMethodContext.getModel().asMap().isEmpty()) {
+          throw new IllegalStateException(
+                  "@InitBinder methods are not allowed to add model attributes: " + binderMethod);
         }
       }
     }
@@ -90,4 +108,3 @@ public class InitBinderDataBinderFactory extends DefaultDataBinderFactory {
   }
 
 }
-

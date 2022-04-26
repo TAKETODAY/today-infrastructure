@@ -44,6 +44,7 @@ import cn.taketoday.web.accept.ContentNegotiationManager;
 import cn.taketoday.web.bind.resolver.HttpEntityMethodProcessor;
 import cn.taketoday.web.bind.resolver.RequestResponseBodyMethodProcessor;
 import cn.taketoday.web.context.async.WebAsyncTask;
+import cn.taketoday.web.handler.method.ModelAttributeMethodProcessor;
 import cn.taketoday.web.handler.method.RequestBodyAdvice;
 import cn.taketoday.web.handler.method.ResponseBodyAdvice;
 import cn.taketoday.web.handler.method.ResponseBodyEmitterReturnValueHandler;
@@ -236,6 +237,7 @@ public class ReturnValueHandlerManager
     handlers.add(new HttpStatusReturnValueHandler());
     handlers.add(new HttpHeadersReturnValueHandler());
     handlers.add(new CallableMethodReturnValueHandler());
+    handlers.add(new ModelAttributeMethodProcessor(false));
     handlers.add(new AsyncTaskMethodReturnValueHandler(getApplicationContext()));
     handlers.add(new DeferredResultReturnValueHandler());
     handlers.add(new StreamingResponseBodyReturnValueHandler());
@@ -255,6 +257,8 @@ public class ReturnValueHandlerManager
             messageConverters, contentNegotiationManager, bodyAdvice, redirectModelManager));
     handlers.add(new RequestResponseBodyMethodProcessor(
             messageConverters, contentNegotiationManager, bodyAdvice));
+
+    handlers.add(new ModelAttributeMethodProcessor(true));
 
     // fall back
     handlers.add(objectHandler);

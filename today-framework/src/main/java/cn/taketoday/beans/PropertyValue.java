@@ -70,7 +70,7 @@ public class PropertyValue extends BeanMetadataAttributeAccessor implements Seri
     this.value = value;
   }
 
-  PropertyValue(Map.Entry<String, Object> entry) {
+  PropertyValue(Map.Entry<String, ?> entry) {
     this(entry.getKey(), entry.getValue());
   }
 

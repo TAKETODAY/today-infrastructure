@@ -280,10 +280,10 @@ public class PropertyValues implements Iterable<PropertyValue>, Serializable {
    * @return this in order to allow for adding multiple property values in a chain
    * @see Map#putAll(Map)
    */
-  public PropertyValues add(@Nullable Map<String, Object> other) {
+  public PropertyValues add(@Nullable Map<String, ?> other) {
     if (CollectionUtils.isNotEmpty(other)) {
       ArrayList<PropertyValue> propertyValues = propertyValues();
-      for (Map.Entry<String, Object> entry : other.entrySet()) {
+      for (Map.Entry<String, ?> entry : other.entrySet()) {
         propertyValues.add(new PropertyValue(entry));
       }
     }

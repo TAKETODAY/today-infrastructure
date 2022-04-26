@@ -1348,8 +1348,8 @@ public class ResolvableType implements Serializable {
    */
   public static ResolvableType fromInstance(Object instance) {
     Assert.notNull(instance, "Instance must not be null");
-    if (instance instanceof ResolvableTypeProvider) {
-      ResolvableType type = ((ResolvableTypeProvider) instance).getResolvableType();
+    if (instance instanceof ResolvableTypeProvider provider) {
+      ResolvableType type = provider.getResolvableType();
       if (type != null) {
         return type;
       }

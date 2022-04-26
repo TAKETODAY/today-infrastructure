@@ -18,44 +18,40 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.web.handler.method.support;
+package cn.taketoday.web;
 
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import cn.taketoday.beans.PropertyValues;
 import cn.taketoday.http.HttpStatusCode;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.web.bind.resolver.ParameterResolvingStrategies;
+import cn.taketoday.web.bind.RequestContextDataBinder;
+import cn.taketoday.web.bind.WebDataBinder;
 import cn.taketoday.web.bind.support.SessionStatus;
 import cn.taketoday.web.bind.support.SimpleSessionStatus;
-import cn.taketoday.web.bind.support.WebDataBinderFactory;
-import cn.taketoday.web.handler.result.HandlerMethodReturnValueHandler;
+import cn.taketoday.web.bind.support.WebBindingInitializer;
 import cn.taketoday.web.view.Model;
 import cn.taketoday.web.view.ModelMap;
 import cn.taketoday.web.view.RedirectModel;
 
 /**
- * Records model and view related decisions made by
- * {@link ParameterResolvingStrategies ParameterResolvingStrategies} and
- * {@link HandlerMethodReturnValueHandler HandlerMethodReturnValueHandlers} during the course of invocation of
- * a controller method.
+ * Context to assist with binding request data onto Objects and provide access
+ * to a shared {@link Model} with controller-specific attributes.
  *
- * <p>The {@link #setRequestHandled} flag can be used to indicate the request
- * has been handled directly and view resolution is not required.
+ * <p>Provides methods to create a {@link RequestContextDataBinder} for a specific
+ * target, command Object to apply data binding and validation to, or without a
+ * target Object for simple type conversion from request values.
  *
- * <p>A default {@link Model} is automatically created at instantiation.
- * An alternate model instance may be provided via {@link #setRedirectModel}
- * for use in a redirect scenario. When {@link #setRedirectModelScenario} is set
- * to {@code true} signalling a redirect scenario, the {@link #getModel()}
- * returns the redirect model instead of the default model.
+ * <p>Container for the default model for the request.
  *
  * @author Rossen Stoyanchev
  * @author Juergen Hoeller
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/4/8 23:40
  */
-public class ModelAndViewContainer {
+public class BindingContext {
 
   private boolean ignoreDefaultModelOnRedirect = false;
 
@@ -81,7 +77,85 @@ public class ModelAndViewContainer {
   private boolean requestHandled = false;
 
   @Nullable
-  private WebDataBinderFactory webDataBinderFactory;
+  private final WebBindingInitializer initializer;
+
+  /**
+   * Create a new {@code BindingContext}.
+   */
+  public BindingContext() {
+    this(null);
+  }
+
+  /**
+   * Create a new {@code BindingContext} with the given initializer.
+   *
+   * @param initializer the binding initializer to apply (may be {@code null})
+   */
+  public BindingContext(@Nullable WebBindingInitializer initializer) {
+    this.initializer = initializer;
+  }
+
+  /**
+   * Create a {@link RequestContextDataBinder} without a target object for type
+   * conversion of request values to simple types.
+   *
+   * @param exchange the current exchange
+   * @param name the name of the target object
+   * @return the created data binder
+   * @throws Throwable if {@code @InitBinder} method invocation fails
+   */
+  public RequestContextDataBinder createBinder(RequestContext exchange, String name) throws Throwable {
+    return createBinder(exchange, null, name);
+  }
+
+  /**
+   * Create a {@link RequestContextDataBinder} to apply data binding and
+   * validation with on the target, command object.
+   *
+   * @param exchange the current exchange
+   * @param target the object to create a data binder for
+   * @param name the name of the target object
+   * @return the created data binder
+   * @throws Throwable if {@code @InitBinder} method invocation fails
+   */
+  public RequestContextDataBinder createBinder(RequestContext exchange, @Nullable Object target, String name) throws Throwable {
+    RequestContextDataBinder dataBinder = new HandlerMatchingMetadataDataBinder(target, name);
+    if (initializer != null) {
+      initializer.initBinder(dataBinder);
+    }
+    initBinder(dataBinder, exchange);
+    return dataBinder;
+  }
+
+  /**
+   * Initialize the data binder instance for the given exchange.
+   *
+   * @throws Throwable if {@code @InitBinder} method invocation fails
+   */
+  public void initBinder(WebDataBinder dataBinder, RequestContext request) throws Throwable {
+
+  }
+
+  /**
+   * Extended variant of {@link RequestContextDataBinder}, adding path variables.
+   */
+  private static class HandlerMatchingMetadataDataBinder extends RequestContextDataBinder {
+
+    public HandlerMatchingMetadataDataBinder(@Nullable Object target, String objectName) {
+      super(target, objectName);
+    }
+
+    @Override
+    public PropertyValues getValuesToBind(RequestContext request) {
+      PropertyValues valuesToBind = super.getValuesToBind(request);
+      HandlerMatchingMetadata matchingMetadata = request.getMatchingMetadata();
+      if (matchingMetadata != null) {
+        Map<String, String> uriVariables = matchingMetadata.getUriVariables();
+        valuesToBind.add(uriVariables);
+      }
+      return valuesToBind;
+    }
+  }
 
   /**
    * By default the content of the "default" model is used both during
@@ -185,22 +259,8 @@ public class ModelAndViewContainer {
     return this.defaultModel;
   }
 
-  /**
-   * Provide a separate model instance to use in a redirect scenario.
-   * <p>The provided additional model however is not used unless
-   * {@link #setRedirectModelScenario} gets set to {@code true}
-   * to signal an actual redirect scenario.
-   */
   public void setRedirectModel(RedirectModel redirectModel) {
     this.redirectModel = redirectModel;
-  }
-
-  /**
-   * Whether the controller has returned a redirect instruction, e.g. a
-   * "redirect:" prefixed view name, a RedirectView instance, etc.
-   */
-  public void setRedirectModelScenario(boolean redirectModelScenario) {
-    this.redirectModelScenario = redirectModelScenario;
   }
 
   /**
@@ -279,20 +339,11 @@ public class ModelAndViewContainer {
     return this.requestHandled;
   }
 
-  public void setWebDataBinderFactory(@Nullable WebDataBinderFactory webDataBinderFactory) {
-    this.webDataBinderFactory = webDataBinderFactory;
-  }
-
-  @Nullable
-  public WebDataBinderFactory getWebDataBinderFactory() {
-    return webDataBinderFactory;
-  }
-
   /**
    * Add the supplied attribute to the underlying model.
    * A shortcut for {@code getModel().addAttribute(String, Object)}.
    */
-  public ModelAndViewContainer addAttribute(String name, @Nullable Object value) {
+  public BindingContext addAttribute(String name, @Nullable Object value) {
     getModel().setAttribute(name, value);
     return this;
   }
@@ -301,7 +352,7 @@ public class ModelAndViewContainer {
    * Add the supplied attribute to the underlying model.
    * A shortcut for {@code getModel().addAttribute(Object)}.
    */
-  public ModelAndViewContainer addAttribute(Object value) {
+  public BindingContext addAttribute(Object value) {
     getModel().addAttribute(value);
     return this;
   }
@@ -310,7 +361,7 @@ public class ModelAndViewContainer {
    * Copy all attributes to the underlying model.
    * A shortcut for {@code getModel().addAllAttributes(Map)}.
    */
-  public ModelAndViewContainer addAllAttributes(@Nullable Map<String, ?> attributes) {
+  public BindingContext addAllAttributes(@Nullable Map<String, ?> attributes) {
     getModel().addAllAttributes(attributes);
     return this;
   }
@@ -319,7 +370,7 @@ public class ModelAndViewContainer {
    * Copy all attributes to the underlying model.
    * A shortcut for {@code getModel().addAllAttributes(Map)}.
    */
-  public ModelAndViewContainer addAllAttributes(@Nullable Model attributes) {
+  public BindingContext addAllAttributes(@Nullable Model attributes) {
     getModel().addAllAttributes(attributes);
     return this;
   }
@@ -329,7 +380,7 @@ public class ModelAndViewContainer {
    * the same name taking precedence (i.e. not getting replaced).
    * A shortcut for {@code getModel().mergeAttributes(Map<String, ?>)}.
    */
-  public ModelAndViewContainer mergeAttributes(@Nullable Map<String, ?> attributes) {
+  public BindingContext mergeAttributes(@Nullable Map<String, ?> attributes) {
     getModel().mergeAttributes(attributes);
     return this;
   }
@@ -337,7 +388,7 @@ public class ModelAndViewContainer {
   /**
    * Remove the given attributes from the model.
    */
-  public ModelAndViewContainer removeAttributes(@Nullable Map<String, ?> attributes) {
+  public BindingContext removeAttributes(@Nullable Map<String, ?> attributes) {
     if (attributes != null) {
       for (String key : attributes.keySet()) {
         getModel().removeAttribute(key);

@@ -40,8 +40,7 @@ import cn.taketoday.validation.BindingResult;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.bind.WebDataBinder;
 import cn.taketoday.web.bind.annotation.ModelAttribute;
-import cn.taketoday.web.bind.support.WebDataBinderFactory;
-import cn.taketoday.web.handler.method.support.ModelAndViewContainer;
+import cn.taketoday.web.BindingContext;
 import cn.taketoday.web.session.WebSessionRequiredException;
 import cn.taketoday.web.view.Model;
 import cn.taketoday.web.view.ModelMap;
@@ -66,7 +65,7 @@ public final class ModelFactory {
 
   private final List<ModelMethod> modelMethods = new ArrayList<>();
 
-  private final WebDataBinderFactory dataBinderFactory;
+  private final BindingContext bindingContext;
 
   private final SessionAttributesHandler sessionAttributesHandler;
 
@@ -74,18 +73,18 @@ public final class ModelFactory {
    * Create a new instance with the given {@code @ModelAttribute} methods.
    *
    * @param handlerMethods the {@code @ModelAttribute} methods to invoke
-   * @param binderFactory for preparation of {@link BindingResult} attributes
+   * @param bindingContext for preparation of {@link BindingResult} attributes
    * @param attributeHandler for access to session attributes
    */
   public ModelFactory(@Nullable List<InvocableHandlerMethod> handlerMethods,
-          WebDataBinderFactory binderFactory, SessionAttributesHandler attributeHandler) {
+          BindingContext bindingContext, SessionAttributesHandler attributeHandler) {
 
     if (handlerMethods != null) {
       for (InvocableHandlerMethod handlerMethod : handlerMethods) {
         this.modelMethods.add(new ModelMethod(handlerMethod));
       }
     }
-    this.dataBinderFactory = binderFactory;
+    this.bindingContext = bindingContext;
     this.sessionAttributesHandler = attributeHandler;
   }
 
@@ -104,7 +103,7 @@ public final class ModelFactory {
    * @param handlerMethod the method for which the model is initialized
    * @throws Exception may arise from {@code @ModelAttribute} methods
    */
-  public void initModel(RequestContext request, ModelAndViewContainer container, HandlerMethod handlerMethod)
+  public void initModel(RequestContext request, BindingContext container, HandlerMethod handlerMethod)
           throws Throwable {
 
     Map<String, ?> sessionAttributes = this.sessionAttributesHandler.retrieveAttributes(request);
@@ -127,7 +126,7 @@ public final class ModelFactory {
    * Attributes are added only if not already present in the model.
    */
   private void invokeModelAttributeMethods(
-          RequestContext request, ModelAndViewContainer container) throws Throwable {
+          RequestContext request, BindingContext container) throws Throwable {
     while (!modelMethods.isEmpty()) {
       InvocableHandlerMethod modelMethod = getNextModelMethod(container).getHandlerMethod();
       ModelAttribute ann = modelMethod.getMethodAnnotation(ModelAttribute.class);
@@ -150,7 +149,7 @@ public final class ModelFactory {
         continue;
       }
 
-      String returnValueName = getNameForReturnValue(returnValue, modelMethod.getReturnType());
+      String returnValueName = getNameForReturnValue(returnValue, modelMethod);
       if (!ann.binding()) {
         container.setBindingDisabled(returnValueName);
       }
@@ -160,7 +159,7 @@ public final class ModelFactory {
     }
   }
 
-  private ModelMethod getNextModelMethod(ModelAndViewContainer container) {
+  private ModelMethod getNextModelMethod(BindingContext container) {
     for (ModelMethod modelMethod : modelMethods) {
       if (modelMethod.checkDependencies(container)) {
         modelMethods.remove(modelMethod);
@@ -197,7 +196,7 @@ public final class ModelFactory {
    * @param container contains the model to update
    * @throws Exception if creating BindingResult attributes fails
    */
-  public void updateModel(RequestContext request, ModelAndViewContainer container) throws Throwable {
+  public void updateModel(RequestContext request, BindingContext container) throws Throwable {
     ModelMap defaultModel = container.getDefaultModel();
     if (container.getSessionStatus().isComplete()) {
       this.sessionAttributesHandler.cleanupAttributes(request);
@@ -220,7 +219,7 @@ public final class ModelFactory {
       if (value != null && isBindingCandidate(name, value)) {
         String bindingResultKey = BindingResult.MODEL_KEY_PREFIX + name;
         if (!model.containsAttribute(bindingResultKey)) {
-          WebDataBinder dataBinder = dataBinderFactory.createBinder(request, value, name);
+          WebDataBinder dataBinder = bindingContext.createBinder(request, value, name);
           model.put(bindingResultKey, dataBinder.getBindingResult());
         }
       }
@@ -268,18 +267,18 @@ public final class ModelFactory {
    * </ol>
    *
    * @param returnValue the value returned from a method invocation
-   * @param returnType a descriptor for the return type of the method
+   * @param handler a descriptor for the method
    * @return the derived name (never {@code null} or empty String)
    */
-  public static String getNameForReturnValue(@Nullable Object returnValue, MethodParameter returnType) {
-    ModelAttribute ann = returnType.getMethodAnnotation(ModelAttribute.class);
+  public static String getNameForReturnValue(@Nullable Object returnValue, HandlerMethod handler) {
+    ModelAttribute ann = handler.getMethodAnnotation(ModelAttribute.class);
     if (ann != null && StringUtils.hasText(ann.value())) {
       return ann.value();
     }
     else {
-      Method method = returnType.getMethod();
+      Method method = handler.getMethod();
       Assert.state(method != null, "No handler method");
-      Class<?> containingClass = returnType.getContainingClass();
+      Class<?> containingClass = method.getDeclaringClass();
       Class<?> resolvedType = GenericTypeResolver.resolveReturnType(method, containingClass);
       return Conventions.getVariableNameForReturnType(method, resolvedType, returnValue);
     }
@@ -304,7 +303,7 @@ public final class ModelFactory {
       return this.handlerMethod;
     }
 
-    public boolean checkDependencies(ModelAndViewContainer mavContainer) {
+    public boolean checkDependencies(BindingContext mavContainer) {
       for (String name : dependencies) {
         if (!mavContainer.containsAttribute(name)) {
           return false;

@@ -34,7 +34,7 @@ import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.RequestContextUtils;
 import cn.taketoday.web.handler.HandlerExceptionHandler;
 import cn.taketoday.web.handler.method.HandlerMethod;
-import cn.taketoday.web.handler.method.support.ModelAndViewContainer;
+import cn.taketoday.web.BindingContext;
 import cn.taketoday.web.handler.result.HandlerMethodReturnValueHandler;
 
 /**
@@ -128,7 +128,7 @@ public class ViewReturnValueHandler implements HandlerMethodReturnValueHandler {
       model.putAll(outputRedirectModel.asMap());
     }
 
-    ModelAndViewContainer modelContainer = context.getModelContainer();
+    BindingContext modelContainer = context.getBindingContext();
     if (modelContainer != null) {
       if (context.hasModelAndView()) {
         ModelAndView modelAndView = context.modelAndView();

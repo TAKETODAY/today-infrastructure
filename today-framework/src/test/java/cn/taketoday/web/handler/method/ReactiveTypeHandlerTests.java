@@ -47,7 +47,7 @@ import cn.taketoday.web.accept.ContentNegotiationManagerFactoryBean;
 import cn.taketoday.web.context.async.AsyncWebRequest;
 import cn.taketoday.web.context.async.StandardServletAsyncWebRequest;
 import cn.taketoday.web.context.async.WebAsyncUtils;
-import cn.taketoday.web.handler.method.support.ModelAndViewContainer;
+import cn.taketoday.web.BindingContext;
 import cn.taketoday.web.mock.MockHttpServletRequest;
 import cn.taketoday.web.mock.MockHttpServletResponse;
 import cn.taketoday.web.servlet.ServletRequestContext;
@@ -59,7 +59,6 @@ import reactor.core.publisher.Sinks;
 
 import static cn.taketoday.web.ResolvableMethod.on;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
@@ -327,9 +326,9 @@ class ReactiveTypeHandlerTests {
   private ResponseBodyEmitter handleValue(Object returnValue, Class<?> asyncType,
           ResolvableType genericType) throws Exception {
 
-    ModelAndViewContainer mavContainer = new ModelAndViewContainer();
+    BindingContext mavContainer = new BindingContext();
     MethodParameter returnType = on(TestController.class).resolveReturnType(asyncType, genericType);
-    webRequest.setModelContainer(mavContainer);
+    webRequest.setBindingContext(mavContainer);
     return this.handler.handleValue(returnValue, returnType, this.webRequest);
   }
 
