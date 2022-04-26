@@ -134,7 +134,7 @@ public class ServletInvocableHandlerMethod extends InvocableHandlerMethod {
     bindingContext.setRequestHandled(false);
     Assert.state(returnValueHandlerManager != null, "No return value handlers");
 
-    ReturnValueHandler returnValueHandler = returnValueHandlerManager.getHandler(this);
+    ReturnValueHandler returnValueHandler = returnValueHandlerManager.findHandler(this, returnValue);
     if (returnValueHandler == null) {
       returnValueHandler = returnValueHandlerManager.getByReturnValue(returnValue);
     }

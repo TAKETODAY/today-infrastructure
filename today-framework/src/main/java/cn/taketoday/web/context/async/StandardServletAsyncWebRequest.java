@@ -93,7 +93,7 @@ public class StandardServletAsyncWebRequest implements AsyncWebRequest, AsyncLis
 
   @Override
   public boolean isAsyncStarted() {
-    return (this.asyncContext != null && ServletUtils.getServletRequest(requestContext).isAsyncStarted());
+    return asyncContext != null && ServletUtils.getServletRequest(requestContext).isAsyncStarted();
   }
 
   /**

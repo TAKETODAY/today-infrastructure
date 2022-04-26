@@ -24,6 +24,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -34,17 +35,22 @@ import cn.taketoday.beans.BeanUtils;
 import cn.taketoday.beans.TypeMismatchException;
 import cn.taketoday.core.MethodParameter;
 import cn.taketoday.core.MultiValueMap;
+import cn.taketoday.core.TypeDescriptor;
+import cn.taketoday.core.conversion.ConversionService;
+import cn.taketoday.core.conversion.Converter;
+import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.logging.Logger;
-import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.CollectionUtils;
+import cn.taketoday.util.StringUtils;
 import cn.taketoday.validation.BindException;
 import cn.taketoday.validation.BindingResult;
+import cn.taketoday.validation.DataBinder;
 import cn.taketoday.validation.Errors;
 import cn.taketoday.validation.SmartValidator;
 import cn.taketoday.validation.Validator;
 import cn.taketoday.validation.annotation.ValidationAnnotationUtils;
 import cn.taketoday.web.BindingContext;
+import cn.taketoday.web.HandlerMatchingMetadata;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.bind.RequestContextDataBinder;
 import cn.taketoday.web.bind.WebDataBinder;
@@ -75,8 +81,6 @@ import cn.taketoday.web.multipart.MultipartFile;
  * @since 4.0 2022/4/26 16:25
  */
 public class ModelAttributeMethodProcessor implements ParameterResolvingStrategy, HandlerMethodReturnValueHandler {
-
-  protected final Logger logger = LoggerFactory.getLogger(getClass());
 
   private final boolean annotationNotRequired;
 
@@ -115,15 +119,18 @@ public class ModelAttributeMethodProcessor implements ParameterResolvingStrategy
   @Nullable
   @Override
   public Object resolveParameter(RequestContext context, ResolvableMethodParameter resolvable) throws Throwable {
-    MethodParameter parameter = resolvable.getParameter();
     BindingContext bindingContext = context.getBindingContext();
+    Assert.state(bindingContext != null, "No binding context");
+
+    MethodParameter parameter = resolvable.getParameter();
     String name = ModelFactory.getNameForParameter(parameter);
+
     ModelAttribute ann = parameter.getParameterAnnotation(ModelAttribute.class);
     if (ann != null) {
       bindingContext.setBinding(name, ann.binding());
     }
 
-    Object attribute = null;
+    Object attribute;
     BindingResult bindingResult = null;
 
     if (bindingContext.containsAttribute(name)) {
@@ -201,6 +208,15 @@ public class ModelAttributeMethodProcessor implements ParameterResolvingStrategy
   protected Object createAttribute(String attributeName, MethodParameter parameter,
           BindingContext bindingContext, RequestContext request) throws Throwable {
 
+    String value = getRequestValueForAttribute(attributeName, request);
+    if (value != null) {
+      Object attribute = createAttributeFromRequestValue(
+              value, attributeName, parameter, bindingContext, request);
+      if (attribute != null) {
+        return attribute;
+      }
+    }
+
     MethodParameter nestedParameter = parameter.nestedIfOptional();
     Class<?> clazz = nestedParameter.getNestedParameterType();
 
@@ -210,6 +226,67 @@ public class ModelAttributeMethodProcessor implements ParameterResolvingStrategy
       attribute = Optional.of(attribute);
     }
     return attribute;
+  }
+
+  /**
+   * Obtain a value from the request that may be used to instantiate the
+   * model attribute through type conversion from String to the target type.
+   * <p>The default implementation looks for the attribute name to match
+   * a URI variable first and then a request parameter.
+   *
+   * @param attributeName the model attribute name
+   * @param request the current request
+   * @return the request value to try to convert, or {@code null} if none
+   */
+  @Nullable
+  protected String getRequestValueForAttribute(String attributeName, RequestContext request) {
+    String variableValue = getUriVariables(request).get(attributeName);
+    if (StringUtils.hasText(variableValue)) {
+      return variableValue;
+    }
+    String parameterValue = request.getParameter(attributeName);
+    if (StringUtils.hasText(parameterValue)) {
+      return parameterValue;
+    }
+    return null;
+  }
+
+  private Map<String, String> getUriVariables(RequestContext request) {
+    HandlerMatchingMetadata matchingMetadata = request.getMatchingMetadata();
+    if (matchingMetadata != null) {
+      return matchingMetadata.getUriVariables();
+    }
+    return Collections.emptyMap();
+  }
+
+  /**
+   * Create a model attribute from a String request value (e.g. URI template
+   * variable, request parameter) using type conversion.
+   * <p>The default implementation converts only if there a registered
+   * {@link Converter} that can perform the conversion.
+   *
+   * @param sourceValue the source value to create the model attribute from
+   * @param attributeName the name of the attribute (never {@code null})
+   * @param parameter the method parameter
+   * @param binderFactory for creating WebDataBinder instance
+   * @param request the current request
+   * @return the created model attribute, or {@code null} if no suitable
+   * conversion found
+   */
+  @Nullable
+  protected Object createAttributeFromRequestValue(String sourceValue, String attributeName,
+          MethodParameter parameter, BindingContext binderFactory, RequestContext request) throws Throwable {
+
+    DataBinder binder = binderFactory.createBinder(request, attributeName);
+    ConversionService conversionService = binder.getConversionService();
+    if (conversionService != null) {
+      TypeDescriptor source = TypeDescriptor.valueOf(String.class);
+      TypeDescriptor target = new TypeDescriptor(parameter);
+      if (conversionService.canConvert(source, target)) {
+        return binder.convertIfNecessary(sourceValue, parameter.getParameterType(), parameter);
+      }
+    }
+    return null;
   }
 
   /**
@@ -331,14 +408,14 @@ public class ModelAttributeMethodProcessor implements ParameterResolvingStrategy
   @Nullable
   public Object resolveConstructorArgument(String paramName, Class<?> paramType, RequestContext request) throws Exception {
     MultiValueMap<String, MultipartFile> multipartFiles = request.multipartFiles();
-    if (multipartFiles != null) {
+    if (CollectionUtils.isNotEmpty(multipartFiles)) {
       List<MultipartFile> files = multipartFiles.get(paramName);
-      if (!files.isEmpty()) {
+      if (CollectionUtils.isNotEmpty(files)) {
         return files.size() == 1 ? files.get(0) : files;
       }
     }
 
-    return null;
+    return getUriVariables(request).get(paramName);
   }
 
   /**
