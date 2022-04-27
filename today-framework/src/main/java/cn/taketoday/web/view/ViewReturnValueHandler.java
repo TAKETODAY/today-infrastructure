@@ -42,6 +42,8 @@ import cn.taketoday.web.handler.result.HandlerMethodReturnValueHandler;
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see View
+ * @see RedirectModel
+ * @see RedirectModelManager
  * @since 4.0 2022/2/9 20:34
  */
 public class ViewReturnValueHandler implements HandlerMethodReturnValueHandler {
@@ -50,6 +52,8 @@ public class ViewReturnValueHandler implements HandlerMethodReturnValueHandler {
 
   @Nullable
   private RedirectModelManager modelManager;
+
+  private boolean putAllOutputRedirectModel = true;
 
   public ViewReturnValueHandler(ViewResolver viewResolver) {
     Assert.notNull(viewResolver, "viewResolver is required");
@@ -122,31 +126,48 @@ public class ViewReturnValueHandler implements HandlerMethodReturnValueHandler {
 
   public void renderView(RequestContext context, View view) throws Exception {
     LinkedHashMap<String, Object> model = new LinkedHashMap<>();
-    RedirectModel redirectModel = RequestContextUtils.getInputRedirectModel(context, modelManager);
-    if (redirectModel != null) {
-      model.putAll(redirectModel.asMap());
+
+    // put all input RedirectModel
+    RedirectModel inputRedirectModel = RequestContextUtils.getInputRedirectModel(context, modelManager);
+    if (inputRedirectModel != null) {
+      model.putAll(inputRedirectModel.asMap());
     }
 
-    RedirectModel outputRedirectModel = RequestContextUtils.getOutputRedirectModel(context);
-    if (outputRedirectModel != null) {
-      model.putAll(outputRedirectModel.asMap());
+    if (putAllOutputRedirectModel) {
+      // put all output RedirectModel
+      RedirectModel outputRedirectModel = RequestContextUtils.getOutputRedirectModel(context);
+      if (outputRedirectModel != null) {
+        model.putAll(outputRedirectModel.asMap());
+      }
     }
 
     BindingContext bindingContext = context.getBindingContext();
     if (bindingContext != null) {
-      if (bindingContext.hasModelAndView()) {
-        ModelAndView modelAndView = bindingContext.getModelAndView();
-        model.putAll(modelAndView.getModel());
-      }
       // injected arguments Model
-      Model bindingModel = bindingContext.getModel();
-
-
-
+      model.putAll(bindingContext.getModel());
     }
+
+    // do rendering
     view.render(model, context);
   }
 
+  /**
+   * set {@link #putAllOutputRedirectModel} to determine if all 'output'
+   * RedirectModel should be put into model
+   *
+   * @param putAllOutputRedirectModel If true, all 'output' RedirectModel
+   * will be put to current view
+   * @see RequestContextUtils#getOutputRedirectModel(RequestContext)
+   */
+  public void setPutAllOutputRedirectModel(boolean putAllOutputRedirectModel) {
+    this.putAllOutputRedirectModel = putAllOutputRedirectModel;
+  }
+
+  /**
+   * set RedirectModelManager to resolve 'input' RedirectModel
+   *
+   * @param modelManager RedirectModelManager to manage 'input' or 'output' RedirectModel
+   */
   public void setModelManager(@Nullable RedirectModelManager modelManager) {
     this.modelManager = modelManager;
   }

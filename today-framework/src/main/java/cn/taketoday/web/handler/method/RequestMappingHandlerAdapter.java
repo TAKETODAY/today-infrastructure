@@ -654,12 +654,6 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
       mav.setView((View) mavContainer.getView());
     }
 
-    RedirectModel redirectModel = mavContainer.getRedirectModel();
-    if (redirectModel != null) {
-      Map<String, ?> flashAttributes = redirectModel.asMap();
-      RedirectModel outputRedirectModel = RequestContextUtils.getOutputRedirectModel(context);
-      outputRedirectModel.addAllAttributes(flashAttributes);
-    }
     return mav;
   }
 
