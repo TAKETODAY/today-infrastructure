@@ -232,12 +232,6 @@ public class RequestContextDecorator extends RequestContext {
   }
 
   @Override
-  public ModelAndView modelAndView() { return delegate.modelAndView(); }
-
-  @Override
-  public boolean hasModelAndView() { return delegate.hasModelAndView(); }
-
-  @Override
   public void setContentLength(long length) { delegate.setContentLength(length); }
 
   @Override

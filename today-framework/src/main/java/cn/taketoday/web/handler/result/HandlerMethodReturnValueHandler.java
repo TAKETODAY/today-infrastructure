@@ -41,6 +41,10 @@ public interface HandlerMethodReturnValueHandler extends SmartReturnValueHandler
       HandlerMethod handlerMethod = annotationHandler.getMethod();
       return supportsHandlerMethod(handlerMethod);
     }
+    return supportsHandlerInternal(handler);
+  }
+
+  default boolean supportsHandlerInternal(Object handler) {
     return false;
   }
 

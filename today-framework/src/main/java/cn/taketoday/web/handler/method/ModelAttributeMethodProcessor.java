@@ -67,7 +67,7 @@ import cn.taketoday.web.multipart.MultipartFile;
  * constructor (and then added to the model). Once created the attribute is
  * populated via data binding to Servlet request parameters. Validation may be
  * applied if the argument is annotated with {@code @jakarta.validation.Valid}.
- * or Spring's own {@code @org.springframework.validation.annotation.Validated}.
+ * or Framework's own {@code @cn.taketoday.validation.annotation.Validated}.
  *
  * <p>When this handler is created with {@code annotationNotRequired=true}
  * any non-simple type argument and return value is regarded as a model
