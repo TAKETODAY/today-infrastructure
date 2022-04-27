@@ -55,7 +55,7 @@ public class DefaultSession extends AttributeAccessorSupport implements WebSessi
 
   @Override
   public void invalidate() {
-    clear();
+    clearAttributes();
     storage.remove(this);
   }
 

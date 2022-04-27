@@ -323,7 +323,7 @@ public class RequestContextUtils {
   public static void saveRedirectModel(
           String location, RequestContext request, @Nullable RedirectModelManager manager) {
     RedirectModel redirectModel = getOutputRedirectModel(request);
-    if (redirectModel != null && !redirectModel.isEmpty()) {
+    if (redirectModel != null && redirectModel.hasAttributes()) {
       if (manager == null) {
         manager = getRedirectModelManager(request);
       }

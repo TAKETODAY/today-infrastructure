@@ -33,6 +33,8 @@ import cn.taketoday.web.bind.support.SessionStatus;
 import cn.taketoday.web.bind.support.SimpleSessionStatus;
 import cn.taketoday.web.bind.support.WebBindingInitializer;
 import cn.taketoday.web.view.Model;
+import cn.taketoday.web.view.ModelAndView;
+import cn.taketoday.web.view.ModelAttributes;
 import cn.taketoday.web.view.ModelMap;
 import cn.taketoday.web.view.RedirectModel;
 
@@ -58,7 +60,7 @@ public class BindingContext {
   @Nullable
   private Object view;
 
-  private final ModelMap defaultModel = new ModelMap();
+  private final ModelAttributes model = new ModelAttributes();
 
   @Nullable
   private RedirectModel redirectModel;
@@ -78,6 +80,8 @@ public class BindingContext {
 
   @Nullable
   private final WebBindingInitializer initializer;
+
+  protected ModelAndView modelAndView;
 
   /**
    * Create a new {@code BindingContext}.
@@ -158,6 +162,28 @@ public class BindingContext {
   }
 
   /**
+   * Get a {@link ModelAndView}
+   * <p>
+   * If there isn't a {@link ModelAndView} in this {@link RequestContext},
+   * <b>Create One</b>
+   *
+   * @return Returns {@link ModelAndView}
+   */
+  public ModelAndView getModelAndView() {
+    if (modelAndView == null) {
+      this.modelAndView = new ModelAndView();
+    }
+    return modelAndView;
+  }
+
+  /**
+   * @since 3.0
+   */
+  public boolean hasModelAndView() {
+    return modelAndView != null;
+  }
+
+  /**
    * By default the content of the "default" model is used both during
    * rendering and redirect scenarios. Alternatively controller methods
    * can declare an argument of type {@code RedirectAttributes} and use
@@ -216,21 +242,10 @@ public class BindingContext {
   }
 
   /**
-   * Return the model to use -- either the "default" or the "redirect" model.
-   * The default model is used if {@code redirectModelScenario=false} or
-   * there is no redirect model (i.e. RedirectAttributes was not declared as
-   * a method argument) and {@code ignoreDefaultModelOnRedirect=false}.
+   * Return the default model.
    */
   public Model getModel() {
-    if (useDefaultModel()) {
-      return this.defaultModel;
-    }
-    else {
-      if (this.redirectModel == null) {
-        this.redirectModel = new RedirectModel();
-      }
-      return this.redirectModel;
-    }
+    return this.model;
   }
 
   @Nullable
@@ -243,20 +258,6 @@ public class BindingContext {
    */
   private boolean useDefaultModel() {
     return (!this.redirectModelScenario || (this.redirectModel == null && !this.ignoreDefaultModelOnRedirect));
-  }
-
-  /**
-   * Return the "default" model created at instantiation.
-   * <p>In general it is recommended to use {@link #getModel()} instead which
-   * returns either the "default" model (template rendering) or the "redirect"
-   * model (redirect URL preparation). Use of this method may be needed for
-   * advanced cases when access to the "default" model is needed regardless,
-   * e.g. to save model attributes specified via {@code @SessionAttributes}.
-   *
-   * @return the default model (never {@code null})
-   */
-  public ModelMap getDefaultModel() {
-    return this.defaultModel;
   }
 
   public void setRedirectModel(RedirectModel redirectModel) {
@@ -418,13 +419,14 @@ public class BindingContext {
       else {
         sb.append("View is [").append(this.view).append(']');
       }
-      if (useDefaultModel()) {
-        sb.append("; default model ");
-      }
-      else {
-        sb.append("; redirect model ");
-      }
+      sb.append("; default model ");
       sb.append(getModel());
+
+      RedirectModel redirectModel = getRedirectModel();
+      if (redirectModel != null) {
+        sb.append("; redirect model ");
+        sb.append(redirectModel);
+      }
     }
     else {
       sb.append("Request handled directly");

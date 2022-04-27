@@ -102,8 +102,4 @@ public class ContextExposingRequestContext extends RequestContextDecorator {
     this.explicitAttributes.add(name);
   }
 
-  @Override
-  public boolean containsAttribute(String name) {
-    return super.containsAttribute(name);
-  }
 }

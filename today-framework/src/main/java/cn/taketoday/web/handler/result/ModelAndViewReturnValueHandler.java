@@ -19,6 +19,7 @@
  */
 package cn.taketoday.web.handler.result;
 
+import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.handler.method.HandlerMethod;
@@ -27,14 +28,17 @@ import cn.taketoday.web.view.View;
 import cn.taketoday.web.view.ViewReturnValueHandler;
 
 /**
+ * Handles return values of type {@link ModelAndView}
+ *
  * @author TODAY 2019-07-14 01:14
  */
 public class ModelAndViewReturnValueHandler implements HandlerMethodReturnValueHandler {
 
-  private final ViewReturnValueHandler viewReturnValueHandler;
+  private final ViewReturnValueHandler delegate;
 
-  public ModelAndViewReturnValueHandler(ViewReturnValueHandler viewReturnValueHandler) {
-    this.viewReturnValueHandler = viewReturnValueHandler;
+  public ModelAndViewReturnValueHandler(ViewReturnValueHandler delegate) {
+    Assert.notNull(delegate, "ViewReturnValueHandler is required");
+    this.delegate = delegate;
   }
 
   @Override
@@ -61,11 +65,15 @@ public class ModelAndViewReturnValueHandler implements HandlerMethodReturnValueH
    * @since 2.3.3
    */
   public final void handleModelAndView(
-          RequestContext context, @Nullable Object handler, @Nullable ModelAndView modelAndView) throws Exception {
+          RequestContext context, Object handler, @Nullable ModelAndView modelAndView) throws Exception {
     if (modelAndView != null) {
       View view = modelAndView.getView();
-      if (view != null) {
-        viewReturnValueHandler.renderView(context, view);
+      String viewName = modelAndView.getViewName();
+      if (viewName != null) {
+        delegate.renderView(context, handler, viewName);
+      }
+      else if (view != null) {
+        delegate.renderView(context, view);
       }
     }
   }

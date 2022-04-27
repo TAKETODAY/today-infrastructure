@@ -103,17 +103,21 @@ public class ViewReturnValueHandler implements HandlerMethodReturnValueHandler {
   public void handleReturnValue(
           RequestContext context, Object handler, @Nullable Object returnValue) throws Exception {
     if (returnValue instanceof String viewName) {
-      Locale locale = RequestContextUtils.getLocale(context);
-      View view = viewResolver.resolveViewName(viewName, locale);
-      if (view == null) {
-        throw new ViewRenderingException(
-                "Could not resolve view with name '" + viewName + "' in handler '" + handler + "'");
-      }
-      renderView(context, view);
+      renderView(context, handler, viewName);
     }
     else if (returnValue instanceof View view) {
       renderView(context, view);
     }
+  }
+
+  public void renderView(RequestContext context, Object handler, String viewName) throws Exception {
+    Locale locale = RequestContextUtils.getLocale(context);
+    View view = viewResolver.resolveViewName(viewName, locale);
+    if (view == null) {
+      throw new ViewRenderingException(
+              "Could not resolve view with name '" + viewName + "' in handler '" + handler + "'");
+    }
+    renderView(context, view);
   }
 
   public void renderView(RequestContext context, View view) throws Exception {
@@ -128,12 +132,17 @@ public class ViewReturnValueHandler implements HandlerMethodReturnValueHandler {
       model.putAll(outputRedirectModel.asMap());
     }
 
-    BindingContext modelContainer = context.getBindingContext();
-    if (modelContainer != null) {
-      if (context.hasModelAndView()) {
-        ModelAndView modelAndView = context.modelAndView();
+    BindingContext bindingContext = context.getBindingContext();
+    if (bindingContext != null) {
+      if (bindingContext.hasModelAndView()) {
+        ModelAndView modelAndView = bindingContext.getModelAndView();
         model.putAll(modelAndView.getModel());
       }
+      // injected arguments Model
+      Model bindingModel = bindingContext.getModel();
+
+
+
     }
     view.render(model, context);
   }

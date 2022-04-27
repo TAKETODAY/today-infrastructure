@@ -43,7 +43,6 @@ import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.multipart.MultipartFile;
 import cn.taketoday.web.view.Model;
-import cn.taketoday.web.view.ModelAndView;
 
 /**
  * Provides a convenient implementation of the RequestContext
@@ -318,26 +317,6 @@ public class RequestContextDecorator extends RequestContext {
   }
 
   @Override
-  public Model getModel() {
-    return delegate.getModel();
-  }
-
-  @Override
-  public Model createModel() {
-    return delegate.createModel();
-  }
-
-  @Override
-  public boolean containsAttribute(String name) {
-    return delegate.containsAttribute(name);
-  }
-
-  @Override
-  public void setAttributes(Map<String, Object> attributes) {
-    delegate.setAttributes(attributes);
-  }
-
-  @Override
   public Object getAttribute(String name) {
     return delegate.getAttribute(name);
   }
@@ -348,13 +327,14 @@ public class RequestContextDecorator extends RequestContext {
   }
 
   @Override
-  public Object removeAttribute(String name) { return delegate.removeAttribute(name); }
+  public Object removeAttribute(String name) {
+    return delegate.removeAttribute(name);
+  }
 
   @Override
-  public Map<String, Object> asMap() { return delegate.asMap(); }
-
-  @Override
-  public void clear() { delegate.clear(); }
+  public void clearAttributes() {
+    delegate.clearAttributes();
+  }
 
   @Override
   public String[] getAttributeNames() {
@@ -362,19 +342,29 @@ public class RequestContextDecorator extends RequestContext {
   }
 
   @Override
-  public void resetResponseHeader() { delegate.resetResponseHeader(); }
+  public void resetResponseHeader() {
+    delegate.resetResponseHeader();
+  }
 
   @Override
-  public void flush() throws IOException { delegate.flush(); }
+  public void flush() throws IOException {
+    delegate.flush();
+  }
 
   @Override
-  public void cleanupMultipartFiles() { delegate.cleanupMultipartFiles(); }
+  public void cleanupMultipartFiles() {
+    delegate.cleanupMultipartFiles();
+  }
 
   @Override
-  public void setRequestHandled(boolean requestHandled) { delegate.setRequestHandled(requestHandled); }
+  public void setRequestHandled(boolean requestHandled) {
+    delegate.setRequestHandled(requestHandled);
+  }
 
   @Override
-  public boolean isRequestHandled() { return delegate.isRequestHandled(); }
+  public boolean isRequestHandled() {
+    return delegate.isRequestHandled();
+  }
 
   @Override
   public String toString() {

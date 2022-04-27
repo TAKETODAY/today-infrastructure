@@ -44,6 +44,12 @@ public class ModelAttributes extends AttributeAccessorSupport implements Model, 
   }
 
   @Override
+  public Model addAttribute(String attributeName, @Nullable Object attributeValue) {
+    setAttribute(attributeName, attributeValue);
+    return this;
+  }
+
+  @Override
   public Model addAttribute(@Nullable Object attributeValue) {
     if (attributeValue != null) {
       if (attributeValue instanceof Collection && ((Collection<?>) attributeValue).isEmpty()) {
@@ -103,6 +109,16 @@ public class ModelAttributes extends AttributeAccessorSupport implements Model, 
   @Override
   public Map<String, Object> asMap() {
     return getAttributes();
+  }
+
+  @Override
+  public void clear() {
+    clearAttributes();
+  }
+
+  @Override
+  public boolean isEmpty() {
+    return !hasAttributes();
   }
 
 }

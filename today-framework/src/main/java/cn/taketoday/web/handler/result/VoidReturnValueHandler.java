@@ -22,8 +22,10 @@ package cn.taketoday.web.handler.result;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.RequestContext;
+import cn.taketoday.web.handler.HandlerExceptionHandler;
 import cn.taketoday.web.handler.method.HandlerMethod;
 import cn.taketoday.web.BindingContext;
+import cn.taketoday.web.view.ModelAndView;
 
 /**
  * for {@link Void} or void type
@@ -49,19 +51,23 @@ public class VoidReturnValueHandler implements HandlerMethodReturnValueHandler {
     return returnValue == null;
   }
 
+  /**
+   * mainly for ModelAndView
+   *
+   * @param context Current HTTP request context
+   * @param handler Target HTTP handler
+   * @param returnValue Handler execution result
+   * Or {@link HandlerExceptionHandler} return value
+   */
   @Override
   public void handleReturnValue(
           RequestContext context, Object handler, @Nullable Object returnValue) throws Exception {
 
-    BindingContext modelContainer = context.getBindingContext();
-    if (modelContainer != null) {
-      Object view = modelContainer.getView();
-      // TODO 修复关于 ModelAndView 在处理器参数列表存在时，渲染其页面
-
-    }
-    if (context.hasModelAndView()) {
+    BindingContext bindingContext = context.getBindingContext();
+    if (bindingContext != null && bindingContext.hasModelAndView()) {
+      ModelAndView modelAndView = bindingContext.getModelAndView();
       // user constructed a ModelAndView hold in context
-      returnValueHandler.handleModelAndView(context, null, context.modelAndView());
+      returnValueHandler.handleModelAndView(context, null, modelAndView);
     }
   }
 

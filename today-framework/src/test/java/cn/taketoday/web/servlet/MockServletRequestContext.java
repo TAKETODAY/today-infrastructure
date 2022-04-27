@@ -392,11 +392,6 @@ public class MockServletRequestContext extends RequestContext {
 
   // Model
 
-  @Override
-  protected Model createModel() {
-    return new ServletRequestModel();
-  }
-
   //
   public void setRequestHeaders(HttpHeaders requestHeaders) {
     this.requestHeaders = requestHeaders;
@@ -420,8 +415,8 @@ public class MockServletRequestContext extends RequestContext {
     }
 
     @Override
-    public void clear() {
-      super.clear();
+    public void clearAttributes() {
+      super.clearAttributes();
       Enumeration<String> attributeNames = request.getAttributeNames();
       while (attributeNames.hasMoreElements()) {
         final String name = attributeNames.nextElement();

@@ -24,6 +24,7 @@ import java.util.Map;
 import cn.taketoday.core.ResolvableType;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.web.BindingContext;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.handler.method.ResolvableMethodParameter;
 import cn.taketoday.web.view.Model;
@@ -77,6 +78,7 @@ public class ModelParameterResolver implements ParameterResolvingStrategy {
   public Object resolveParameter(
           RequestContext context, ResolvableMethodParameter resolvable) throws Throwable {
 
+    BindingContext bindingContext = context.getBindingContext();
     if (resolvable.isAssignableTo(RedirectModel.class)) { // RedirectModel
       RedirectModel redirectModel = new RedirectModel();
       RedirectModelManager modelManager = getModelManager();
@@ -89,7 +91,7 @@ public class ModelParameterResolver implements ParameterResolvingStrategy {
     }
 
     if (resolvable.isAssignableTo(ModelAndView.class)) {
-      return context.modelAndView();
+      return bindingContext.getModelAndView();
     }
 
     // @since 3.0

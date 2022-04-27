@@ -75,10 +75,20 @@ public abstract class AttributeAccessorSupport implements AttributeAccessor, Ser
   public <T> T computeAttribute(String name, Function<String, T> computeFunction) {
     Assert.notNull(name, "Name must not be null");
     Assert.notNull(computeFunction, "Compute function must not be null");
-    Object value = getAttributes().computeIfAbsent(name, computeFunction);
-    Assert.state(value != null,
-            () -> String.format("Compute function must not return null for attribute named '%s'", name));
-    return (T) value;
+    if (attributes == null) {
+      T value = computeFunction.apply(name);
+      if (value == null) {
+        throw new IllegalStateException("Compute function must not return null for attribute named '" + name + '\'');
+      }
+      setAttribute(name, value);
+      return value;
+    }
+    else {
+      Object value = attributes.computeIfAbsent(name, computeFunction);
+      Assert.state(value != null,
+              () -> String.format("Compute function must not return null for attribute named '%s'", name));
+      return (T) value;
+    }
   }
 
   @Override
@@ -139,7 +149,8 @@ public abstract class AttributeAccessorSupport implements AttributeAccessor, Ser
   /**
    * @since 3.0
    */
-  public void clear() {
+  @Override
+  public void clearAttributes() {
     if (attributes != null) {
       attributes.clear();
     }
@@ -152,8 +163,8 @@ public abstract class AttributeAccessorSupport implements AttributeAccessor, Ser
    * @since 4.0
    */
   @Override
-  public boolean isEmpty() {
-    return attributes == null || attributes.isEmpty();
+  public boolean hasAttributes() {
+    return attributes != null && !attributes.isEmpty();
   }
 
   @Override

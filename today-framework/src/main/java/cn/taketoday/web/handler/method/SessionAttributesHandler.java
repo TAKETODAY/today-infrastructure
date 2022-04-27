@@ -34,6 +34,7 @@ import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.bind.annotation.SessionAttributes;
 import cn.taketoday.web.bind.support.SessionAttributeStore;
 import cn.taketoday.web.bind.support.SessionStatus;
+import cn.taketoday.web.view.Model;
 
 /**
  * Manages controller-specific session attributes declared via

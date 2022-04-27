@@ -78,6 +78,15 @@ public interface Model {
   void setAttribute(String name, @Nullable Object value);
 
   /**
+   * Add the supplied attribute under the supplied name.
+   *
+   * @param attributeName the name of the model attribute (never {@code null})
+   * @param attributeValue the model attribute value (can be {@code null})
+   * @since 4.0
+   */
+  Model addAttribute(String attributeName, @Nullable Object attributeValue);
+
+  /**
    * Removes an attribute from this request. This method is not generally needed
    * as attributes only persist as long as the request is being handled.
    *

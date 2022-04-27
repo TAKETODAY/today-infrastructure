@@ -220,8 +220,8 @@ class ExceptionHandlerAnnotationExceptionHandlerTests {
     MockServletRequestContext context = new MockServletRequestContext(null, request, response);
     Object ret = this.handler.handleException(context, ex, handler);
 
-    assertThat(context.getModel().asMap().size()).isEqualTo(1);
-    assertThat(context.getModel().asMap().get("exceptionClassName")).isEqualTo("IllegalArgumentException");
+    assertThat(context.getAttributes().size()).isEqualTo(1);
+    assertThat(context.getAttribute("exceptionClassName")).isEqualTo("IllegalArgumentException");
   }
 
   @Test

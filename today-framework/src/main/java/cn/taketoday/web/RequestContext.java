@@ -33,7 +33,6 @@ import java.nio.charset.StandardCharsets;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -45,6 +44,7 @@ import java.util.regex.Matcher;
 
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.core.AttributeAccessor;
+import cn.taketoday.core.AttributeAccessorSupport;
 import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.core.io.InputStreamSource;
 import cn.taketoday.core.io.OutputStreamSource;
@@ -57,7 +57,6 @@ import cn.taketoday.http.HttpRequest;
 import cn.taketoday.http.HttpStatus;
 import cn.taketoday.http.server.PathContainer;
 import cn.taketoday.http.server.RequestPath;
-import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.NonNull;
 import cn.taketoday.lang.Nullable;
@@ -68,9 +67,6 @@ import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.bind.MultipartException;
 import cn.taketoday.web.bind.NotMultipartRequestException;
 import cn.taketoday.web.multipart.MultipartFile;
-import cn.taketoday.web.view.Model;
-import cn.taketoday.web.view.ModelAndView;
-import cn.taketoday.web.view.ModelAttributes;
 
 import static cn.taketoday.lang.Constant.DEFAULT_CHARSET;
 
@@ -80,8 +76,8 @@ import static cn.taketoday.lang.Constant.DEFAULT_CHARSET;
  * @author TODAY 2019-06-22 15:48
  * @since 2.3.7
  */
-public abstract class RequestContext implements InputStreamSource,
-        OutputStreamSource, Model, Flushable, HttpInputMessage, HttpRequest, AttributeAccessor {
+public abstract class RequestContext extends AttributeAccessorSupport
+        implements InputStreamSource, OutputStreamSource, Flushable, HttpInputMessage, HttpRequest, AttributeAccessor {
 
   /**
    * Date formats as specified in the HTTP RFC.
@@ -99,9 +95,7 @@ public abstract class RequestContext implements InputStreamSource,
   public static final HttpCookie[] EMPTY_COOKIES = {};
 
   protected String contextPath;
-  protected Object requestBody;
   protected HttpCookie[] cookies;
-  protected ModelAndView modelAndView;
 
   protected PrintWriter writer;
   protected BufferedReader reader;
@@ -114,8 +108,6 @@ public abstract class RequestContext implements InputStreamSource,
   protected HttpHeaders requestHeaders;
   /** @since 3.0 */
   protected HttpHeaders responseHeaders;
-  /** @since 3.0 */
-  protected Model model;
   /** @since 3.0 */
   protected String method;
   /** @since 3.0 */
@@ -975,37 +967,10 @@ public abstract class RequestContext implements InputStreamSource,
     return -1;
   }
 
-  // ---------------- response
-
-  /**
-   * Get a {@link ModelAndView}
-   * <p>
-   * If there isn't a {@link ModelAndView} in this {@link RequestContext},
-   * <b>Create One</b>
-   *
-   * @return Returns {@link ModelAndView}
-   */
-  @Deprecated
-  public ModelAndView modelAndView() {
-    if (modelAndView == null) {
-      this.modelAndView = new ModelAndView();
-    }
-    return modelAndView;
-  }
-
-  /**
-   * @since 3.0
-   */
-  @Deprecated
-  public boolean hasModelAndView() {
-    return modelAndView != null;
-  }
-
   public void setBindingContext(@Nullable BindingContext bindingContext) {
     this.bindingContext = bindingContext;
   }
 
-  @Nullable
   public BindingContext getBindingContext() {
     return bindingContext;
   }
@@ -1325,121 +1290,6 @@ public abstract class RequestContext implements InputStreamSource,
   public abstract <T> T unwrapResponse(Class<T> responseClass);
 
   // ------------------
-
-  // Model
-
-  /**
-   * @since 4.0
-   */
-  public Model getModel() {
-    Model model = this.model;
-    if (model == null) {
-      model = createModel();
-      this.model = model;
-    }
-    return model;
-  }
-
-  protected Model createModel() {
-    return new ModelAttributes();
-  }
-
-  @Override
-  public boolean containsAttribute(String name) {
-    return getModel().containsAttribute(name);
-  }
-
-  @Override
-  public void setAttributes(Map<String, Object> attributes) {
-    getModel().setAttributes(attributes);
-  }
-
-  @Override
-  public Object getAttribute(String name) {
-    return getModel().getAttribute(name);
-  }
-
-  @Override
-  public void setAttribute(String name, Object value) {
-    getModel().setAttribute(name, value);
-  }
-
-  @Override
-  public Object removeAttribute(String name) {
-    return getModel().removeAttribute(name);
-  }
-
-  @Override
-  public Map<String, Object> asMap() {
-    return getModel().asMap();
-  }
-
-  @Override
-  public String[] getAttributeNames() {
-    return getModel().getAttributeNames();
-  }
-
-  @Override
-  public Iterator<String> attributeNames() {
-    return getModel().attributeNames();
-  }
-
-  @Override
-  public Model addAttribute(@Nullable Object attributeValue) {
-    return getModel().addAttribute(attributeValue);
-  }
-
-  @Override
-  public Model addAllAttributes(@Nullable Map<String, ?> attributes) {
-    return getModel().addAllAttributes(attributes);
-  }
-
-  @Override
-  public Model addAllAttributes(@Nullable Collection<?> attributeValues) {
-    return getModel().addAllAttributes(attributeValues);
-  }
-
-  @Override
-  public Model mergeAttributes(@Nullable Map<String, ?> attributes) {
-    return getModel().mergeAttributes(attributes);
-  }
-
-  @Override
-  public Model addAllAttributes(@Nullable Model attributes) {
-    return getModel().addAllAttributes(attributes);
-  }
-
-  @Override
-  public boolean isEmpty() {
-    return getModel().isEmpty();
-  }
-
-  @Override
-  public void clear() {
-    getModel().clear();
-  }
-
-  @Override
-  public boolean hasAttribute(String name) {
-    return getAttribute(name) != null;
-  }
-
-  @Override
-  public Map<String, Object> getAttributes() {
-    return asMap();
-  }
-
-  @Override
-  public void copyAttributesFrom(AttributeAccessor source) {
-    Assert.notNull(source, "Source must not be null");
-    if (!source.isEmpty()) {
-      for (String attributeName : source.getAttributeNames()) {
-        setAttribute(attributeName, source.getAttribute(attributeName));
-      }
-    }
-  }
-
-  //
 
   protected void resetResponseHeader() {
     if (responseHeaders != null) {

@@ -100,7 +100,7 @@ public interface AttributeAccessor {
    * @return {@code true} if this map contains no key-value mappings
    * @since 4.0
    */
-  boolean isEmpty();
+  boolean hasAttributes();
 
   /**
    * Return attributes map
@@ -149,5 +149,7 @@ public interface AttributeAccessor {
    * @since 3.0
    */
   void copyAttributesFrom(AttributeAccessor source);
+
+  void clearAttributes();
 
 }

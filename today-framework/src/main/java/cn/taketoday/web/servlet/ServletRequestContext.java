@@ -25,11 +25,13 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.Serial;
+import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.function.Consumer;
 
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.core.DefaultMultiValueMap;
@@ -38,15 +40,16 @@ import cn.taketoday.http.DefaultHttpHeaders;
 import cn.taketoday.http.HttpCookie;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.ResponseCookie;
+import cn.taketoday.lang.Constant;
+import cn.taketoday.util.CollectionUtils;
+import cn.taketoday.util.CompositeIterator;
 import cn.taketoday.util.ObjectUtils;
+import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.bind.MultipartException;
 import cn.taketoday.web.bind.NotMultipartRequestException;
 import cn.taketoday.web.multipart.MultipartFile;
 import cn.taketoday.web.multipart.ServletPartMultipartFile;
-import cn.taketoday.web.view.Model;
-import cn.taketoday.web.view.ModelAttributes;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -327,8 +330,10 @@ public final class ServletRequestContext extends RequestContext {
 
     @Override
     public void addAll(String key, List<? extends String> values) {
-      for (final String value : values) {
-        add(key, value);
+      if (values != null) {
+        for (final String value : values) {
+          add(key, value);
+        }
       }
     }
 
@@ -399,57 +404,72 @@ public final class ServletRequestContext extends RequestContext {
     response.flushBuffer();
   }
 
-  // Model
+  // attributes
 
   @Override
-  protected Model createModel() {
-    return new ServletRequestModel();
+  public void setAttribute(String name, Object value) {
+    super.setAttribute(name, value);
+    request.setAttribute(name, value);
   }
 
-  private final class ServletRequestModel extends ModelAttributes {
-    @Serial
-    private static final long serialVersionUID = 1L;
+  @Override
+  public Object removeAttribute(String name) {
+    request.removeAttribute(name);
+    return super.removeAttribute(name);
+  }
 
-    // auto flush to request attributes
-    @Override
-    public void setAttribute(String name, Object value) {
-      super.setAttribute(name, value);
-      request.setAttribute(name, value);
-    }
+  @Override
+  public void clearAttributes() {
+    super.clearAttributes();
+    CollectionUtils.iterate(request.getAttributeNames(), request::removeAttribute);
+  }
 
-    @Override
-    public Object removeAttribute(String name) {
-      request.removeAttribute(name);
-      return super.removeAttribute(name);
-    }
-
-    @Override
-    public void clear() {
-      super.clear();
-      Enumeration<String> attributeNames = request.getAttributeNames();
-      while (attributeNames.hasMoreElements()) {
-        final String name = attributeNames.nextElement();
-        request.removeAttribute(name);
+  @Override
+  public Object getAttribute(String name) {
+    Object attribute = super.getAttribute(name);
+    if (attribute == null) {
+      attribute = request.getAttribute(name);
+      if (attribute != null) {
+        super.setAttribute(name, attribute);
       }
     }
+    return attribute;
+  }
 
-    @Override
-    public Object getAttribute(String name) {
-      Object attribute = super.getAttribute(name);
-      if (attribute == null) {
-        attribute = request.getAttribute(name);
-        if (attribute != null) {
-          super.setAttribute(name, attribute);
-        }
-      }
-      return attribute;
+  @Override
+  public boolean hasAttributes() {
+    return super.hasAttributes() || request.getAttributeNames().hasMoreElements();
+  }
+
+  @Override
+  public boolean hasAttribute(String name) {
+    return super.hasAttribute(name) || request.getAttribute(name) != null;
+  }
+
+  @Override
+  public String[] getAttributeNames() {
+    if (super.hasAttributes()) {
+      ArrayList<String> names = new ArrayList<>(8);
+      CollectionUtils.addAll(names, super.getAttributeNames());
+      CollectionUtils.addAll(names, request.getAttributeNames());
+      return StringUtils.toStringArray(names);
     }
-
-    @Override
-    public boolean containsAttribute(String name) {
-      return hasAttribute(name) || request.getAttribute(name) != null;
+    else {
+      return StringUtils.toStringArray(request.getAttributeNames());
     }
+  }
 
+  @Override
+  public Iterator<String> attributeNames() {
+    if (super.hasAttributes()) {
+      CompositeIterator<String> iterator = new CompositeIterator<>();
+      iterator.add(super.attributeNames());
+      iterator.add(request.getAttributeNames().asIterator());
+      return iterator;
+    }
+    else {
+      return request.getAttributeNames().asIterator();
+    }
   }
 
 }

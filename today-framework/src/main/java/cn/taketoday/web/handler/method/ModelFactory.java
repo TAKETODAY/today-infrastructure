@@ -43,6 +43,7 @@ import cn.taketoday.web.bind.annotation.ModelAttribute;
 import cn.taketoday.web.BindingContext;
 import cn.taketoday.web.session.WebSessionRequiredException;
 import cn.taketoday.web.view.Model;
+import cn.taketoday.web.view.ModelAttributes;
 import cn.taketoday.web.view.ModelMap;
 
 /**
@@ -197,28 +198,28 @@ public final class ModelFactory {
    * @throws Exception if creating BindingResult attributes fails
    */
   public void updateModel(RequestContext request, BindingContext container) throws Throwable {
-    ModelMap defaultModel = container.getDefaultModel();
+    Model model = container.getModel();
     if (container.getSessionStatus().isComplete()) {
-      this.sessionAttributesHandler.cleanupAttributes(request);
+      sessionAttributesHandler.cleanupAttributes(request);
     }
     else {
-      this.sessionAttributesHandler.storeAttributes(request, defaultModel);
+      sessionAttributesHandler.storeAttributes(request, model.asMap());
     }
-    if (!container.isRequestHandled() && container.getModel() == defaultModel) {
-      updateBindingResult(request, defaultModel);
+    if (!container.isRequestHandled() && container.getModel() == model) {
+      updateBindingResult(request, model.asMap());
     }
   }
 
   /**
    * Add {@link BindingResult} attributes to the model for attributes that require it.
    */
-  private void updateBindingResult(RequestContext request, ModelMap model) throws Throwable {
+  private void updateBindingResult(RequestContext request, Map<String, Object> model) throws Throwable {
     ArrayList<String> keyNames = new ArrayList<>(model.keySet());
     for (String name : keyNames) {
       Object value = model.get(name);
       if (value != null && isBindingCandidate(name, value)) {
         String bindingResultKey = BindingResult.MODEL_KEY_PREFIX + name;
-        if (!model.containsAttribute(bindingResultKey)) {
+        if (!model.containsKey(bindingResultKey)) {
           WebDataBinder dataBinder = bindingContext.createBinder(request, value, name);
           model.put(bindingResultKey, dataBinder.getBindingResult());
         }
