@@ -19,33 +19,18 @@
  */
 package cn.taketoday.web.bind.resolver;
 
-import java.util.Map;
-
-import cn.taketoday.core.ResolvableType;
-import cn.taketoday.http.HttpHeaders;
-import cn.taketoday.lang.Nullable;
-import cn.taketoday.web.BindingContext;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.handler.method.ResolvableMethodParameter;
-import cn.taketoday.web.view.Model;
-import cn.taketoday.web.view.ModelAndView;
 import cn.taketoday.web.view.RedirectModel;
-import cn.taketoday.web.view.RedirectModelManager;
 
 /**
  * Supports {@link RedirectModel}
  *
  * @author TODAY 2019-07-09 22:49
  * @see RedirectModel
+ * @see RedirectModel#OUTPUT_ATTRIBUTE
  */
 public class RedirectModelParameterResolver implements ParameterResolvingStrategy {
-
-  @Nullable
-  private final RedirectModelManager modelManager;
-
-  public RedirectModelParameterResolver(@Nullable RedirectModelManager modelManager) {
-    this.modelManager = modelManager;
-  }
 
   @Override
   public boolean supportsParameter(ResolvableMethodParameter resolvable) {
@@ -53,26 +38,22 @@ public class RedirectModelParameterResolver implements ParameterResolvingStrateg
   }
 
   /**
-   * Resolve {@link Model} parameter.
+   * Resolve {@link RedirectModel} parameter.
+   * <p>
+   * and set {@code RedirectModel#OUTPUT_ATTRIBUTE_NAME} to RequestContext
+   *
+   * @see RedirectModel#OUTPUT_ATTRIBUTE
    */
   @Override
   public Object resolveParameter(
           RequestContext context, ResolvableMethodParameter resolvable) throws Throwable {
-
-    BindingContext bindingContext = context.getBindingContext();
     RedirectModel redirectModel = new RedirectModel();
-    RedirectModelManager modelManager = getModelManager();
-    // @since 3.0.3 checking model manager
-    if (modelManager != null) {
-      context.setAttribute(RedirectModel.OUTPUT_ATTRIBUTE, redirectModel);
-      modelManager.saveRedirectModel(context, redirectModel);
-    }
-    return redirectModel;
-  }
 
-  @Nullable
-  public RedirectModelManager getModelManager() {
-    return modelManager;
+    context.setAttribute(RedirectModel.OUTPUT_ATTRIBUTE, redirectModel);
+
+    // set redirect model to current BindingContext
+    context.getBindingContext().setRedirectModel(redirectModel);
+    return redirectModel;
   }
 
 }
