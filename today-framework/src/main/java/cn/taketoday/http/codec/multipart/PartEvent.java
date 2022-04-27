@@ -83,7 +83,7 @@ import reactor.core.publisher.Flux;
  *   }))
  * </pre>
  * Received part events can also be relayed to another service by using the
- * {@link org.springframework.web.reactive.function.client.WebClient WebClient}.
+ * {@link cn.taketoday.web.reactive.function.client.WebClient WebClient}.
  * See below.
  *
  * <p><strong>NOTE</strong> that the {@linkplain PartEvent#content() body contents}
@@ -97,7 +97,7 @@ import reactor.core.publisher.Flux;
  * </ul>
  * The streams returned by these static methods can be concatenated via
  * {@link Flux#concat(Publisher[])} to create a request for the
- * {@link org.springframework.web.reactive.function.client.WebClient WebClient}:
+ * {@link cn.taketoday.web.reactive.function.client.WebClient WebClient}:
  * For instance, this sample will POST a multipart form containing a form field
  * and a file.
  *

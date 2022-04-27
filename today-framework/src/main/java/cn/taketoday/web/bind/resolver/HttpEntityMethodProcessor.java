@@ -44,13 +44,10 @@ import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.ErrorResponse;
 import cn.taketoday.web.HttpMediaTypeNotSupportedException;
 import cn.taketoday.web.RequestContext;
+import cn.taketoday.web.RequestContextUtils;
 import cn.taketoday.web.accept.ContentNegotiationManager;
-import cn.taketoday.web.handler.method.ActionMappingAnnotationHandler;
 import cn.taketoday.web.handler.method.HandlerMethod;
 import cn.taketoday.web.handler.method.ResolvableMethodParameter;
-import cn.taketoday.web.util.UriComponents;
-import cn.taketoday.web.util.UriComponentsBuilder;
-import cn.taketoday.web.view.RedirectModel;
 import cn.taketoday.web.view.RedirectModelManager;
 
 /**
@@ -160,7 +157,7 @@ public class HttpEntityMethodProcessor extends AbstractMessageConverterMethodPro
     Object body = readWithMessageConverters(context, parameter, paramType);
     if (RequestEntity.class == parameter.getParameterType()) {
       return new RequestEntity<>(body, context.requestHeaders(),
-              HttpMethod.from(context.getMethodValue()), context.getURI());
+              context.getMethod(), context.getURI());
     }
     else {
       return new HttpEntity<>(body, context.requestHeaders());
@@ -294,17 +291,7 @@ public class HttpEntityMethodProcessor extends AbstractMessageConverterMethodPro
   }
 
   private void saveRedirectAttributes(RequestContext request, String location) {
-    Object attribute = request.getAttribute(RedirectModel.OUTPUT_ATTRIBUTE);
-    if (attribute instanceof RedirectModel redirectModel) {
-      if (redirectModelManager != null) {
-
-        UriComponents uriComponents = UriComponentsBuilder.fromUriString(location).build();
-        redirectModel.setTargetRequestPath(uriComponents.getPath());
-        redirectModel.addTargetRequestParams(uriComponents.getQueryParams());
-
-        redirectModelManager.saveRedirectModel(request, redirectModel);
-      }
-    }
+    RequestContextUtils.saveRedirectModel(location, request, redirectModelManager);
   }
 
   @Override
