@@ -33,42 +33,23 @@ import cn.taketoday.web.view.RedirectModel;
 import cn.taketoday.web.view.RedirectModelManager;
 
 /**
- * Supports {@link Model}, {@link RedirectModel}, HTTP request headers,
- * Map<String, Object> model
+ * Supports {@link RedirectModel}
  *
  * @author TODAY 2019-07-09 22:49
- * @see Model
  * @see RedirectModel
  */
-public class ModelParameterResolver implements ParameterResolvingStrategy {
+public class RedirectModelParameterResolver implements ParameterResolvingStrategy {
 
   @Nullable
   private final RedirectModelManager modelManager;
 
-  public ModelParameterResolver(@Nullable RedirectModelManager modelManager) {
+  public RedirectModelParameterResolver(@Nullable RedirectModelManager modelManager) {
     this.modelManager = modelManager;
   }
 
   @Override
   public boolean supportsParameter(ResolvableMethodParameter resolvable) {
-    Class<?> parameterType = resolvable.getParameterType();
-    if (Model.class.isAssignableFrom(parameterType)) {
-      return true;
-    }
-    if (parameterType == HttpHeaders.class) {
-      // http request headers @since 3.0
-      return true;
-    }
-
-    if (parameterType == Map.class) {
-      // Map<String, Object> model;
-      ResolvableType mapType = resolvable.getResolvableType().asMap();
-      ResolvableType keyType = mapType.getGeneric(0);
-      ResolvableType valueType = mapType.getGeneric(1);
-      return keyType.resolve() == String.class
-              && valueType.resolve() == Object.class;
-    }
-    return false;
+    return resolvable.is(RedirectModel.class);
   }
 
   /**
@@ -79,30 +60,14 @@ public class ModelParameterResolver implements ParameterResolvingStrategy {
           RequestContext context, ResolvableMethodParameter resolvable) throws Throwable {
 
     BindingContext bindingContext = context.getBindingContext();
-    if (resolvable.isAssignableTo(RedirectModel.class)) { // RedirectModel
-      RedirectModel redirectModel = new RedirectModel();
-      RedirectModelManager modelManager = getModelManager();
-      // @since 3.0.3 checking model manager
-      if (modelManager != null) {
-        context.setAttribute(RedirectModel.OUTPUT_ATTRIBUTE, redirectModel);
-        modelManager.saveRedirectModel(context, redirectModel);
-      }
-      return redirectModel;
+    RedirectModel redirectModel = new RedirectModel();
+    RedirectModelManager modelManager = getModelManager();
+    // @since 3.0.3 checking model manager
+    if (modelManager != null) {
+      context.setAttribute(RedirectModel.OUTPUT_ATTRIBUTE, redirectModel);
+      modelManager.saveRedirectModel(context, redirectModel);
     }
-
-    if (resolvable.isAssignableTo(ModelAndView.class)) {
-      return bindingContext.getModelAndView();
-    }
-
-    // @since 3.0
-    if (resolvable.is(HttpHeaders.class)) {
-      return context.requestHeaders();
-    }
-
-    if (resolvable.is(Map.class)) {
-      return context.asMap(); // Model Map
-    }
-    return context;
+    return redirectModel;
   }
 
   @Nullable

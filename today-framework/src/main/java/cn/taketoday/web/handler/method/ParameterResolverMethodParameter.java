@@ -44,6 +44,11 @@ public class ParameterResolverMethodParameter extends ResolvableMethodParameter 
     this.resolvers = resolvers;
   }
 
+  ParameterResolverMethodParameter(ResolvableMethodParameter other, MethodParameter parameter, ParameterResolvingRegistry resolvers) {
+    super(other, parameter);
+    this.resolvers = resolvers;
+  }
+
   @Override
   public Object resolveParameter(final RequestContext request) throws Throwable {
     ParameterResolvingStrategy resolver = this.resolver;
@@ -52,6 +57,11 @@ public class ParameterResolverMethodParameter extends ResolvableMethodParameter 
       this.resolver = resolver;
     }
     return resolver.resolveParameter(request, this);
+  }
+
+  @Override
+  protected ResolvableMethodParameter nested(MethodParameter parameter) {
+    return new ParameterResolverMethodParameter(this, parameter, resolvers);
   }
 
 }

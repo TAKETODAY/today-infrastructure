@@ -22,12 +22,10 @@ package cn.taketoday.web.bind.resolver;
 import java.util.ArrayList;
 import java.util.List;
 
-import cn.taketoday.beans.factory.annotation.Value;
 import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.aware.ApplicationContextSupport;
-import cn.taketoday.context.expression.ExpressionEvaluator;
 import cn.taketoday.core.ArraySizeTrimmer;
 import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.core.conversion.ConversionServiceAware;
@@ -163,7 +161,7 @@ public class ParameterResolvingRegistry
   @Nullable
   protected ParameterResolvingStrategy lookupStrategy(
           ResolvableMethodParameter resolvable, Iterable<ParameterResolvingStrategy> strategies) {
-    for (final ParameterResolvingStrategy resolver : strategies) {
+    for (ParameterResolvingStrategy resolver : strategies) {
       if (resolver.supportsParameter(resolvable)) {
         return resolver;
       }
@@ -196,9 +194,8 @@ public class ParameterResolvingRegistry
    * @throws ParameterResolverNotFoundException If there isn't a suitable resolver
    */
   public ParameterResolvingStrategy obtainStrategy(ResolvableMethodParameter parameter) {
-    final ParameterResolvingStrategy resolver = findStrategy(parameter);
+    ParameterResolvingStrategy resolver = findStrategy(parameter);
     if (resolver == null) {
-
       throw new ParameterResolverNotFoundException(
               parameter,
               "There isn't have a parameter resolver to resolve parameter: ["
@@ -220,41 +217,40 @@ public class ParameterResolvingRegistry
 
     // For some useful context annotations
     // --------------------------------------------
+    strategies.add(new OptionalTypeParameterResolvingStrategy(this));
 
     ApplicationContext context = obtainApplicationContext();
     ConfigurableBeanFactory beanFactory = context.unwrapFactory(ConfigurableBeanFactory.class);
-
-    strategies.add(new RequestAttributeParameterResolver(beanFactory),
-            new ValueParameterResolver(beanFactory),
-            new AutowiredParameterResolver(context)
-    );
-
-    // For cookies
-    // ------------------------------------------
-
-    CookieParameterResolver.register(strategies, beanFactory);
-
-    // For multipart
-    // -------------------------------------------
-    MultipartConfiguration multipartConfig = getMultipartConfig();
-    if (multipartConfig == null) { // @since 4.0
-      multipartConfig = createMultipartConfig();
-      setMultipartConfig(multipartConfig);
-    }
-    Assert.state(multipartConfig != null, "MultipartConfiguration is required");
-
-    DefaultMultipartResolver.register(strategies, multipartConfig);
-
-    // Header
-    strategies.add(new RequestHeaderParameterResolver());
     RedirectModelManager modelManager = getRedirectModelManager();
     if (modelManager == null) {
       log.info("RedirectModel disabled");
     }
 
+    // Annotation-based argument resolution
+
+    strategies.add(new PathVariableParameterResolvingStrategy());
+    strategies.add(new PathVariableMapParameterResolvingStrategy());
+    strategies.add(new MatrixParamParameterResolvingStrategy());
+    strategies.add(new MatrixParamMapParameterResolvingStrategy());
+    strategies.add(new ModelAttributeMethodProcessor(false));
+    strategies.add(new RequestResponseBodyMethodProcessor(
+            getMessageConverters(), contentNegotiationManager, requestResponseBodyAdvice));
+    strategies.add(new RequestHeaderMethodArgumentResolver(beanFactory));
+    strategies.add(new RequestHeaderMapMethodArgumentResolver());
+    strategies.add(new ExpressionValueMethodArgumentResolver(beanFactory));
+
+    strategies.add(new RequestAttributeParameterResolver(beanFactory));
+    strategies.add(new AutowiredParameterResolver(context));
+
+    CookieParameterResolver.register(strategies, beanFactory);
+    registerMultipart(strategies);
+
     // type-based argument resolution
-    strategies.add(new ModelParameterResolver(modelManager));
+    strategies.add(new RedirectModelParameterResolver(modelManager));
     strategies.add(new StreamParameterResolver());
+    strategies.add(new ModelMethodProcessor());
+    strategies.add(new MapMethodProcessor());
+    strategies.add(new ErrorsMethodArgumentResolver());
     strategies.add(new UriComponentsBuilderParameterStrategy());
 
     if (ServletDetector.isPresent && context instanceof WebServletApplicationContext servletApp) {
@@ -266,16 +262,6 @@ public class ParameterResolvingRegistry
 
     strategies.add(new HttpEntityMethodProcessor(
             getMessageConverters(), contentNegotiationManager, requestResponseBodyAdvice, modelManager));
-
-    // Annotation-based argument resolution
-    strategies.add(new RequestResponseBodyMethodProcessor(
-            getMessageConverters(), contentNegotiationManager, requestResponseBodyAdvice));
-
-    strategies.add(new ModelAttributeMethodProcessor(false));
-
-    // @since 4.0
-    strategies.add(new PathVariableParameterResolvingStrategy());
-    strategies.add(new PathVariableMapParameterResolvingStrategy());
 
     // Date API support @since 3.0
     strategies.add(new DateParameterResolver());
@@ -308,6 +294,18 @@ public class ParameterResolvingRegistry
 
     // trim size
     strategies.trimToSize();
+  }
+
+  private void registerMultipart(ParameterResolvingStrategies strategies) {
+    // For multipart
+    // -------------------------------------------
+    MultipartConfiguration multipartConfig = getMultipartConfig();
+    if (multipartConfig == null) { // @since 4.0
+      multipartConfig = createMultipartConfig();
+      setMultipartConfig(multipartConfig);
+    }
+    Assert.state(multipartConfig != null, "MultipartConfiguration is required");
+    DefaultMultipartResolver.register(strategies, multipartConfig);
   }
 
   /**
@@ -482,28 +480,6 @@ public class ParameterResolvingRegistry
   }
 
   // AnnotationParameterResolver
-
-  static final class ValueParameterResolver implements ParameterResolvingStrategy {
-    private final ExpressionEvaluator expressionEvaluator;
-
-    ValueParameterResolver(ConfigurableBeanFactory beanFactory) {
-      this.expressionEvaluator = ExpressionEvaluator.from(beanFactory);
-    }
-
-    @Override
-    public boolean supportsParameter(ResolvableMethodParameter resolvable) {
-      return resolvable.hasParameterAnnotation(Value.class);
-    }
-
-    @Nullable
-    @Override
-    public Object resolveParameter(
-            RequestContext context, ResolvableMethodParameter resolvable) throws Throwable {
-      Value parameterAnnotation = resolvable.getParameterAnnotation(Value.class);
-      return expressionEvaluator.evaluate(parameterAnnotation.value(), resolvable.getParameterType());
-    }
-
-  }
 
   static final class RequestAttributeParameterResolver extends AbstractNamedValueResolvingStrategy {
     RequestAttributeParameterResolver(ConfigurableBeanFactory beanFactory) {

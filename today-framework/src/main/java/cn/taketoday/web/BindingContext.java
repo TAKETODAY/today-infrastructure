@@ -411,7 +411,7 @@ public class BindingContext {
    */
   @Override
   public String toString() {
-    StringBuilder sb = new StringBuilder("ModelAndViewContainer: ");
+    StringBuilder sb = new StringBuilder("BindingContext: ");
     if (!isRequestHandled()) {
       if (isViewReference()) {
         sb.append("reference to view with name '").append(this.view).append('\'');

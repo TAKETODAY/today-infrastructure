@@ -56,4 +56,12 @@ public final class NamedValueInfo {
     this.defaultValueEmbedded = EmbeddedValueResolver.isEmbedded(defaultValue);
   }
 
+  public NamedValueInfo(NamedValueInfo info, @Nullable String defaultValue) {
+    this.name = info.name;
+    this.required = info.required;
+    this.defaultValue = defaultValue;
+    this.nameEmbedded = info.nameEmbedded;
+    this.defaultValueEmbedded = EmbeddedValueResolver.isEmbedded(defaultValue);
+  }
+
 }

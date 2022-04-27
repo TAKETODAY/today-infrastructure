@@ -517,7 +517,6 @@ public class ModelAttributeMethodProcessor implements ParameterResolvingStrategy
   /**
    * Add non-null return values to the {@link BindingContext}.
    */
-
   @Override
   public void handleReturnValue(RequestContext context, HandlerMethod handler, @Nullable Object returnValue) throws Exception {
     if (returnValue != null) {

@@ -22,6 +22,7 @@ package cn.taketoday.web.handler.method;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.Objects;
+import java.util.Optional;
 
 import cn.taketoday.core.AttributeAccessorSupport;
 import cn.taketoday.core.MethodParameter;
@@ -29,6 +30,7 @@ import cn.taketoday.core.ResolvableType;
 import cn.taketoday.core.TypeDescriptor;
 import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Experimental;
+import cn.taketoday.lang.NonNull;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.StringUtils;
@@ -66,6 +68,8 @@ public class ResolvableMethodParameter extends AttributeAccessorSupport {
 
   private ResolvableType resolvableType;
 
+  private ResolvableMethodParameter nestedParam;
+
   /**
    * @since 4.0
    */
@@ -74,10 +78,19 @@ public class ResolvableMethodParameter extends AttributeAccessorSupport {
     this.resolvableType = other.resolvableType;
     this.namedValueInfo = other.namedValueInfo;
     this.typeDescriptor = other.typeDescriptor; // @since 3.0.1
+    this.nestedParam = other.nestedParam; // @since 3.0.1
   }
 
   public ResolvableMethodParameter(MethodParameter parameter) {
     this.parameter = parameter;
+  }
+
+  ResolvableMethodParameter(ResolvableMethodParameter other, MethodParameter parameter) {
+    this.parameter = parameter;
+    this.nestedParam = other.nestedParam;
+    this.resolvableType = other.resolvableType;
+    this.namedValueInfo = other.namedValueInfo;
+    this.typeDescriptor = other.typeDescriptor; // @since 3.0.1
   }
 
   public boolean isArray() {
@@ -170,6 +183,10 @@ public class ResolvableMethodParameter extends AttributeAccessorSupport {
 
   // NamedValueInfo
 
+  public boolean hasNamedValueInfo() {
+    return namedValueInfo != null;
+  }
+
   /**
    * Obtain the named value for the given method parameter.
    */
@@ -196,6 +213,10 @@ public class ResolvableMethodParameter extends AttributeAccessorSupport {
   @Experimental
   public String getDefaultValue() {
     return getNamedValueInfo().defaultValue;
+  }
+
+  public void withNamedValueInfo(NamedValueInfo namedValueInfo) {
+    this.namedValueInfo = namedValueInfo;
   }
 
   /**
@@ -268,23 +289,6 @@ public class ResolvableMethodParameter extends AttributeAccessorSupport {
     return request.getParameter(getName());
   }
 
-  @Override
-  public int hashCode() {
-    return parameter.hashCode();
-  }
-
-  @Override
-  public String toString() {
-    return getParameterType().getSimpleName() + " " + getName();
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    return obj == this || (obj instanceof ResolvableMethodParameter
-            && Objects.equals(parameter, ((ResolvableMethodParameter) obj).parameter)
-    );
-  }
-
   // Getter Setter
 
   public Class<?> getParameterType() {
@@ -299,8 +303,70 @@ public class ResolvableMethodParameter extends AttributeAccessorSupport {
     return parameter;
   }
 
-  public MethodParameter nestedIfOptional() {
-    return parameter.nestedIfOptional();
+  /**
+   * Return whether this method indicates a parameter which is not required:
+   * either in the form of Java 8's {@link java.util.Optional}, any variant
+   * of a parameter-level {@code Nullable} annotation (such as from JSR-305
+   * or the FindBugs set of annotations), or a language-level nullable type
+   * declaration or {@code Continuation} parameter in Kotlin.
+   *
+   * @since 4.0
+   */
+  public boolean isOptional() {
+    return parameter.isOptional();
+  }
+
+  /**
+   * Return a variant of this {@code MethodParameter} which points to
+   * the same parameter but one nesting level deeper in case of a
+   * {@link java.util.Optional} declaration.
+   *
+   * @see #isOptional()
+   * @see #nested()
+   * @since 4.0
+   */
+  public ResolvableMethodParameter nestedIfOptional() {
+    return getParameterType() == Optional.class ? nested() : this;
+  }
+
+  /**
+   * Return a variant of this {@code ResolvableMethodParameter} which points to the
+   * same parameter but one nesting level deeper.
+   *
+   * @since 4.0
+   */
+  public ResolvableMethodParameter nested() {
+    return nested((Integer) null);
+  }
+
+  /**
+   * Return a variant of this {@code ResolvableMethodParameter} which points to the
+   * same parameter but one nesting level deeper.
+   *
+   * @param typeIndex the type index for the new nesting level
+   * @since 4.0
+   */
+  public ResolvableMethodParameter nested(@Nullable Integer typeIndex) {
+    ResolvableMethodParameter nestedParam = this.nestedParam;
+    if (nestedParam != null && typeIndex == null) {
+      return nestedParam;
+    }
+
+    MethodParameter methodParameter = parameter.nested(typeIndex);
+    if (methodParameter == parameter) {
+      nestedParam = this;
+    }
+    else {
+      nestedParam = nested(methodParameter);
+    }
+    if (typeIndex == null) {
+      this.nestedParam = nestedParam;
+    }
+    return nestedParam;
+  }
+
+  protected ResolvableMethodParameter nested(MethodParameter parameter) {
+    return new ResolvableMethodParameter(this, parameter);
   }
 
   //
@@ -324,4 +390,20 @@ public class ResolvableMethodParameter extends AttributeAccessorSupport {
     return new TypeDescriptor(parameter);
   }
 
+  @Override
+  public int hashCode() {
+    return parameter.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    return getParameterType().getSimpleName() + " " + getName();
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    return obj == this || (obj instanceof ResolvableMethodParameter
+            && Objects.equals(parameter, ((ResolvableMethodParameter) obj).parameter)
+    );
+  }
 }

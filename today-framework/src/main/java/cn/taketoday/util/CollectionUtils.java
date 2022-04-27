@@ -989,6 +989,35 @@ public abstract class CollectionUtils {
   }
 
   /**
+   * Retrieve the last element of the given Set, using {@link SortedSet#last()}
+   * or otherwise iterating over all elements (assuming a linked set).
+   *
+   * @param set the Set to check (may be {@code null} or empty)
+   * @return the last element, or {@code null} if none
+   * @see SortedSet
+   * @see LinkedHashMap#keySet()
+   * @see java.util.LinkedHashSet
+   * @since 4.0
+   */
+  @Nullable
+  public static <T> T lastElement(@Nullable Set<T> set) {
+    if (isEmpty(set)) {
+      return null;
+    }
+    if (set instanceof SortedSet) {
+      return ((SortedSet<T>) set).last();
+    }
+
+    // Full iteration necessary...
+    Iterator<T> it = set.iterator();
+    T last = null;
+    while (it.hasNext()) {
+      last = it.next();
+    }
+    return last;
+  }
+
+  /**
    * Marshal the elements from the given enumeration into an array of the given type.
    * Enumeration elements must be assignable to the type of the given array. The array
    * returned will be a different instance than the array given.

@@ -92,7 +92,7 @@ public abstract class AbstractNamedValueResolvingStrategy implements ParameterRe
           RequestContext context, ResolvableMethodParameter resolvable) throws Throwable {
 
     MethodParameter methodParameter = resolvable.getParameter();
-    NamedValueInfo namedValueInfo = resolvable.getNamedValueInfo();
+    NamedValueInfo namedValueInfo = getNamedValueInfo(resolvable);
     MethodParameter nestedParameter = methodParameter.nestedIfOptional();
 
     Object arg;
@@ -144,6 +144,10 @@ public abstract class AbstractNamedValueResolvingStrategy implements ParameterRe
 
     handleResolvedValue(arg, namedValueInfo.name, resolvable, context);
     return arg;
+  }
+
+  protected NamedValueInfo getNamedValueInfo(ResolvableMethodParameter resolvable) {
+    return resolvable.getNamedValueInfo();
   }
 
   /**

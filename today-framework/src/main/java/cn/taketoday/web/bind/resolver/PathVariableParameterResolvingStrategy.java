@@ -57,7 +57,7 @@ public class PathVariableParameterResolvingStrategy extends AbstractNamedValueRe
   @Override
   public boolean supportsParameter(ResolvableMethodParameter resolvable) {
     if (resolvable.hasParameterAnnotation(PathVariable.class)) {
-      if (Map.class.isAssignableFrom(resolvable.nestedIfOptional().getNestedParameterType())) {
+      if (Map.class.isAssignableFrom(resolvable.getParameter().nestedIfOptional().getNestedParameterType())) {
         PathVariable pathVariable = resolvable.getParameterAnnotation(PathVariable.class);
         return pathVariable != null && StringUtils.hasText(pathVariable.value());
       }

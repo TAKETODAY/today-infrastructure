@@ -81,7 +81,13 @@ public interface HandlerMethodReturnValueHandler extends SmartReturnValueHandler
   @Override
   default void handleReturnValue(
           RequestContext context, Object handler, @Nullable Object returnValue) throws Exception {
-    handleReturnValue(context, (HandlerMethod) handler, returnValue);
+    if (handler instanceof HandlerMethod handlerMethod) {
+      handleReturnValue(context, handlerMethod, returnValue);
+    }
+    else if (handler instanceof ActionMappingAnnotationHandler annotationHandler) {
+      HandlerMethod handlerMethod = annotationHandler.getMethod();
+      handleReturnValue(context, handlerMethod, returnValue);
+    }
   }
 
   /**
@@ -97,4 +103,5 @@ public interface HandlerMethodReturnValueHandler extends SmartReturnValueHandler
           throws Exception {
 
   }
+
 }

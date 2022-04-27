@@ -149,7 +149,6 @@ public abstract class RequestContext extends AttributeAccessorSupport
   @Nullable
   private HandlerMatchingMetadata matchingMetadata;
 
-  @Nullable
   protected BindingContext bindingContext;
 
   protected RequestContext(ApplicationContext context) {
@@ -967,7 +966,7 @@ public abstract class RequestContext extends AttributeAccessorSupport
     return -1;
   }
 
-  public void setBindingContext(@Nullable BindingContext bindingContext) {
+  public void setBindingContext(BindingContext bindingContext) {
     this.bindingContext = bindingContext;
   }
 

@@ -17,35 +17,43 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.web.bind.resolver;
 
-import cn.taketoday.http.HttpHeaders;
+import java.util.Optional;
+
+import cn.taketoday.lang.Experimental;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.annotation.RequestHeader;
 import cn.taketoday.web.handler.method.ResolvableMethodParameter;
 
 /**
- * for {@link RequestHeader}
+ * Optional
  *
- * @author TODAY <br>
- * 2019-07-13 11:11
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @see Optional
+ * @since 4.0 2022/4/27 13:57
  */
-public class RequestHeaderParameterResolver extends ConversionServiceParameterResolver {
+@Experimental
+public class OptionalTypeParameterResolvingStrategy implements ParameterResolvingStrategy {
+  private final ParameterResolvingRegistry registry;
 
-  @Override
-  public boolean supportsParameter(ResolvableMethodParameter parameter) {
-    return parameter.hasParameterAnnotation(RequestHeader.class);
+  public OptionalTypeParameterResolvingStrategy(ParameterResolvingRegistry registry) {
+    this.registry = registry;
   }
 
   @Override
-  protected Object missingParameter(ResolvableMethodParameter parameter) {
-    throw new MissingRequestHeaderException(parameter.getName(), parameter.getParameter());
+  public boolean supportsParameter(ResolvableMethodParameter resolvable) {
+    return resolvable.is(Optional.class)
+            && registry.findStrategy(resolvable.nested()) != null;
   }
 
+  @Nullable
   @Override
-  protected Object resolveInternal(final RequestContext context, final ResolvableMethodParameter parameter) {
-    final String headerName = parameter.getName();
-    final HttpHeaders httpHeaders = context.requestHeaders();
-    return httpHeaders.get(headerName);
+  public Object resolveParameter(RequestContext context, ResolvableMethodParameter resolvable) throws Throwable {
+    ResolvableMethodParameter nested = resolvable.nested();
+    Object parameter = nested.resolveParameter(context);
+    return Optional.ofNullable(parameter);
   }
+
 }
