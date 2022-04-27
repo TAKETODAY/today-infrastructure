@@ -226,8 +226,13 @@ public class DefaultTestContext implements TestContext {
     Assert.notNull(source, "Source must not be null");
     Map<String, Object> attributes = source.getAttributes();
     if (CollectionUtils.isNotEmpty(attributes)) {
-      attributes.putAll(attributes);
+      this.attributes.putAll(attributes);
     }
+  }
+
+  @Override
+  public void clearAttributes() {
+    attributes.clear();
   }
 
   @Override

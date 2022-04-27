@@ -27,6 +27,7 @@ import cn.taketoday.http.MediaType;
 import cn.taketoday.http.server.PathContainer;
 import cn.taketoday.http.server.RequestPath;
 import cn.taketoday.lang.Experimental;
+import cn.taketoday.lang.NullValue;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.util.pattern.PathMatchInfo;
 import cn.taketoday.web.util.pattern.PathPattern;
@@ -37,6 +38,7 @@ import cn.taketoday.web.util.pattern.PathPatternParser;
  * @since 4.0 2022/2/17 14:16
  */
 public class HandlerMatchingMetadata {
+  private final Object handler;
   private final String directPath;
   private final RequestPath requestPath;
 
@@ -54,6 +56,11 @@ public class HandlerMatchingMetadata {
   private final PathPatternParser patternParser;
 
   public HandlerMatchingMetadata(RequestContext request) {
+    this(NullValue.INSTANCE, request);
+  }
+
+  public HandlerMatchingMetadata(Object handler, RequestContext request) {
+    this.handler = handler;
     this.bestMatchingPattern = null;
     this.directPath = request.getRequestPath();
     this.requestPath = request.getLookupPath();
@@ -61,7 +68,9 @@ public class HandlerMatchingMetadata {
   }
 
   public HandlerMatchingMetadata(
-          String directPath, RequestPath requestPath, PathPattern bestMatchingPattern, PathPatternParser patternParser) {
+          Object handler, String directPath, RequestPath requestPath,
+          PathPattern bestMatchingPattern, PathPatternParser patternParser) {
+    this.handler = handler;
     this.directPath = directPath;
     this.requestPath = requestPath;
     this.patternParser = patternParser;
@@ -69,6 +78,7 @@ public class HandlerMatchingMetadata {
   }
 
   public HandlerMatchingMetadata(HandlerMatchingMetadata other) {
+    this.handler = other.handler;
     this.directPath = other.directPath;
     this.requestPath = other.requestPath;
     this.pathMatchInfo = other.pathMatchInfo;
@@ -146,6 +156,10 @@ public class HandlerMatchingMetadata {
   @Nullable
   public MediaType[] getProducibleMediaTypes() {
     return producibleMediaTypes;
+  }
+
+  public Object getHandler() {
+    return handler;
   }
 
 }

@@ -75,7 +75,7 @@ public class ModelAndViewReturnValueHandler implements HandlerMethodReturnValueH
       bindingContext.addAllAttributes(modelAndView.getModel());
 
       if (viewName != null) {
-        delegate.renderView(context, handler, viewName);
+        delegate.renderView(context, viewName);
       }
       else if (view != null) {
         delegate.renderView(context, view);

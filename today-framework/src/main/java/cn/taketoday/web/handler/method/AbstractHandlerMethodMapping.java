@@ -445,7 +445,7 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerReg
       else {
         bestMatch = matches.get(0);
       }
-      handleMatch(bestMatch.mapping, lookupPath, request);
+      handleMatch(bestMatch, lookupPath, request);
       return bestMatch.getHandlerMethod();
     }
     else {
@@ -466,11 +466,11 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerReg
   /**
    * Invoked when a matching mapping is found.
    *
-   * @param mapping the matching mapping
+   * @param bestMatch the best match metadata
    * @param lookupPath mapping lookup path within the current servlet mapping
    * @param request the current request
    */
-  protected void handleMatch(T mapping, String lookupPath, RequestContext request) {
+  protected void handleMatch(Match bestMatch, String lookupPath, RequestContext request) {
 
   }
 
@@ -726,11 +726,11 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerReg
    * A thin wrapper around a matched HandlerMethod and its mapping, for the purpose of
    * comparing the best match with a comparator in the context of the current request.
    */
-  private class Match {
+  protected class Match {
 
-    private final T mapping;
+    public final T mapping;
 
-    private final MappingRegistration<T> registration;
+    public final MappingRegistration<T> registration;
 
     public Match(T mapping, MappingRegistration<T> registration) {
       this.mapping = mapping;

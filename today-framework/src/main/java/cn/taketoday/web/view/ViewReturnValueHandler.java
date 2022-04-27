@@ -30,6 +30,7 @@ import cn.taketoday.lang.Experimental;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.ReflectionUtils;
+import cn.taketoday.web.HandlerMatchingMetadata;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.RequestContextUtils;
 import cn.taketoday.web.handler.HandlerExceptionHandler;
@@ -107,23 +108,45 @@ public class ViewReturnValueHandler implements HandlerMethodReturnValueHandler {
   public void handleReturnValue(
           RequestContext context, Object handler, @Nullable Object returnValue) throws Exception {
     if (returnValue instanceof String viewName) {
-      renderView(context, handler, viewName);
+      renderView(context, viewName);
     }
     else if (returnValue instanceof View view) {
       renderView(context, view);
     }
   }
 
-  public void renderView(RequestContext context, Object handler, String viewName) throws Exception {
+  /**
+   * rendering a view from {@code viewName}
+   *
+   * @param context current HTTP request context
+   * @param viewName View to render
+   * @throws Exception If view rendering failed
+   */
+  public void renderView(RequestContext context, String viewName) throws Exception {
     Locale locale = RequestContextUtils.getLocale(context);
     View view = viewResolver.resolveViewName(viewName, locale);
     if (view == null) {
-      throw new ViewRenderingException(
-              "Could not resolve view with name '" + viewName + "' in handler '" + handler + "'");
+      HandlerMatchingMetadata matchingMetadata = context.getMatchingMetadata();
+      if (matchingMetadata != null) {
+        Object handler = matchingMetadata.getHandler();
+        throw new ViewRenderingException(
+                "Could not resolve view with name '" + viewName + "' in handler '" + handler + "'");
+      }
+      else {
+        throw new ViewRenderingException(
+                "Could not resolve view with name '" + viewName + "'");
+      }
     }
     renderView(context, view);
   }
 
+  /**
+   * rendering a {@link View}
+   *
+   * @param context current HTTP request context
+   * @param view View to render
+   * @throws Exception If view rendering failed
+   */
   public void renderView(RequestContext context, View view) throws Exception {
     LinkedHashMap<String, Object> model = new LinkedHashMap<>();
 
