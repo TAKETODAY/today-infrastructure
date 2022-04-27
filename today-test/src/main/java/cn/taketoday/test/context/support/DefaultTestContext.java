@@ -251,8 +251,8 @@ public class DefaultTestContext implements TestContext {
   }
 
   @Override
-  public boolean isEmpty() {
-    return attributes.isEmpty();
+  public boolean hasAttributes() {
+    return !attributes.isEmpty();
   }
 
   @Override

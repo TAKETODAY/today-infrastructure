@@ -43,6 +43,7 @@ import java.util.SortedMap;
 import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
@@ -802,6 +803,28 @@ public abstract class CollectionUtils {
   public static void putAll(Map target, @Nullable Map mappings) {
     if (mappings != null) {
       target.putAll(mappings);
+    }
+  }
+
+  /**
+   * @since 4.0
+   */
+  public static <T> void iterate(@Nullable Enumeration<T> enumeration, Consumer<T> consumer) {
+    if (enumeration != null) {
+      while (enumeration.hasMoreElements()) {
+        consumer.accept(enumeration.nextElement());
+      }
+    }
+  }
+
+  /**
+   * @since 4.0
+   */
+  public static <T> void iterate(@Nullable Iterator<T> iterator, Consumer<T> consumer) {
+    if (iterator != null) {
+      while (iterator.hasNext()) {
+        consumer.accept(iterator.next());
+      }
     }
   }
 
