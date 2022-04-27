@@ -21,6 +21,7 @@ package cn.taketoday.web.handler.result;
 
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.web.BindingContext;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.handler.method.HandlerMethod;
 import cn.taketoday.web.view.ModelAndView;
@@ -69,6 +70,10 @@ public class ModelAndViewReturnValueHandler implements HandlerMethodReturnValueH
     if (modelAndView != null) {
       View view = modelAndView.getView();
       String viewName = modelAndView.getViewName();
+
+      BindingContext bindingContext = context.getBindingContext();
+      bindingContext.addAllAttributes(modelAndView.getModel());
+
       if (viewName != null) {
         delegate.renderView(context, handler, viewName);
       }
