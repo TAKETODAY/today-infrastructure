@@ -181,17 +181,17 @@ public class ModelMap extends LinkedHashMap<String, Object> implements Model {
 
   @Override
   public Object removeAttribute(String name) {
-    return null;
+    return remove(name);
   }
 
   @Override
   public Map<String, Object> asMap() {
-    return null;
+    return this;
   }
 
   @Override
   public Iterator<String> attributeNames() {
-    return null;
+    return keySet().iterator();
   }
 
 }
