@@ -246,7 +246,7 @@ public class ParameterResolvingRegistry
     registerMultipart(strategies);
 
     // type-based argument resolution
-    strategies.add(new RedirectModelParameterResolver(modelManager));
+    strategies.add(new RedirectModelParameterResolver());
     strategies.add(new StreamParameterResolver());
     strategies.add(new ModelMethodProcessor());
     strategies.add(new MapMethodProcessor());

@@ -283,7 +283,7 @@ public class RequestContextUtils {
    */
   @Nullable
   public static RedirectModel getOutputRedirectModel(RequestContext request) {
-    return (RedirectModel) request.getAttribute(RedirectModel.OUTPUT_ATTRIBUTE);
+    return RedirectModel.findOutputModel(request);
   }
 
   /**

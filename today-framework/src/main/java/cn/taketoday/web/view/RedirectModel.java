@@ -25,8 +25,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import cn.taketoday.core.AttributeAccessor;
 import cn.taketoday.core.Conventions;
 import cn.taketoday.core.MultiValueMap;
+import cn.taketoday.lang.Experimental;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
@@ -34,11 +36,31 @@ import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.RequestContextUtils;
 
 /**
- * Redirect data model
+ * A specialization of the {@link Model} interface that controllers can use to
+ * select attributes for a redirect scenario. Since the intent of adding
+ * redirect attributes is very explicit --  i.e. to be used for a redirect URL,
+ * attribute values may be formatted as Strings and stored that way to make
+ * them eligible to be appended to the query string or expanded as URI
+ * variables in {@code cn.taketoday.web.view.RedirectView}.
  *
- * @author TODAY <br>
- * 2018-11-18 16:39
- * @since 2.3.3
+ * <p>Example usage in an {@code @Controller}:
+ * <pre class="code">
+ * &#064;RequestMapping(value = "/accounts", method = RequestMethod.POST)
+ * public String handle(Account account, BindingResult result, RedirectModel redirectAttrs) {
+ *   if (result.hasErrors()) {
+ *     return "accounts/new";
+ *   }
+ *   // Save account ...
+ *   redirectAttrs.addAttribute("id", account.getId());
+ *   redirectAttrs.addAttribute("message", "Account created!");
+ *   return "redirect:/accounts/{id}";
+ * }
+ * </pre>
+ *
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @see RequestContextUtils#getOutputRedirectModel
+ * @see RequestContextUtils#getInputRedirectModel
+ * @since 2.3.3 2018-11-18 16:39
  */
 public class RedirectModel extends ModelAttributes implements Serializable, Comparable<RedirectModel> {
   @Serial
@@ -229,6 +251,22 @@ public class RedirectModel extends ModelAttributes implements Serializable, Comp
   public String toString() {
     return "RedirectModel [attributes=" + super.toString() + ", targetRequestPath=" +
             targetRequestPath + ", targetRequestParams=" + targetRequestParams + "]";
+  }
+
+  /**
+   * Return "output" RedirectModel to save attributes for request after redirect.
+   *
+   * @param attributeAccessor attributeAccessor to use for saving attributes
+   * @return a {@link RedirectModel} instance
+   */
+  @Nullable
+  @Experimental
+  public static RedirectModel findOutputModel(AttributeAccessor attributeAccessor) {
+    Object attribute = attributeAccessor.getAttribute(RedirectModel.OUTPUT_ATTRIBUTE);
+    if (attribute instanceof RedirectModel) {
+      return (RedirectModel) attribute;
+    }
+    return null;
   }
 
 }
