@@ -60,7 +60,7 @@ public class BindingContext {
   @Nullable
   private Object view;
 
-  private final ModelAttributes model = new ModelAttributes();
+  private final ModelMap model = new ModelMap();
 
   @Nullable
   private RedirectModel redirectModel;
@@ -244,7 +244,7 @@ public class BindingContext {
   /**
    * Return the default model.
    */
-  public Model getModel() {
+  public ModelMap getModel() {
     return this.model;
   }
 

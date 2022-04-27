@@ -20,7 +20,6 @@
 
 package cn.taketoday.web.bind.resolver;
 
-import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.BindingContext;
 import cn.taketoday.web.RequestContext;
@@ -80,9 +79,7 @@ public class ModelMethodProcessor implements HandlerMethodReturnValueHandler, Pa
   @Nullable
   @Override
   public Object resolveParameter(RequestContext context, ResolvableMethodParameter resolvable) throws Throwable {
-    BindingContext bindingContext = context.getBindingContext();
-    Assert.state(bindingContext != null, "BindingContext is required for model exposure");
-    return bindingContext.getModel();
+    return context.getBindingContext().getModel();
   }
 
   @Nullable

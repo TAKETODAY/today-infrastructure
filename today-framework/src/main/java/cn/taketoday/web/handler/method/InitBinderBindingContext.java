@@ -87,7 +87,7 @@ public class InitBinderBindingContext extends BindingContext {
                   "@InitBinder methods must not return a value (should be void): " + binderMethod);
         }
         // Should not happen (no Model argument resolution) ...
-        if (!binderMethodContext.getModel().asMap().isEmpty()) {
+        if (!binderMethodContext.getModel().isEmpty()) {
           throw new IllegalStateException(
                   "@InitBinder methods are not allowed to add model attributes: " + binderMethod);
         }

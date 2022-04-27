@@ -58,9 +58,9 @@ public class ErrorsMethodArgumentResolver implements ParameterResolvingStrategy 
     BindingContext bindingContext = context.getBindingContext();
     Assert.state(bindingContext != null,
             "Errors/BindingResult argument only supported on regular handler methods");
-    Model model = bindingContext.getModel();
 
-    String lastKey = CollectionUtils.lastElement(model.asMap().keySet());
+    ModelMap model = bindingContext.getModel();
+    String lastKey = CollectionUtils.lastElement(model.keySet());
     if (lastKey != null && lastKey.startsWith(BindingResult.MODEL_KEY_PREFIX)) {
       return model.getAttribute(lastKey);
     }
