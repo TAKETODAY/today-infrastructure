@@ -203,9 +203,8 @@ public final class ModelFactory {
     else {
       sessionAttributesHandler.storeAttributes(request, model.asMap());
     }
-    if (container.getModel() == model) {
-      updateBindingResult(request, model.asMap());
-    }
+
+    updateBindingResult(request, model.asMap());
   }
 
   /**
