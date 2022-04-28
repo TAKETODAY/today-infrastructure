@@ -35,7 +35,6 @@ import cn.taketoday.web.bind.support.WebBindingInitializer;
 import cn.taketoday.web.view.BindingAwareModelMap;
 import cn.taketoday.web.view.Model;
 import cn.taketoday.web.view.ModelAndView;
-import cn.taketoday.web.view.ModelAttributes;
 import cn.taketoday.web.view.ModelMap;
 import cn.taketoday.web.view.RedirectModel;
 
@@ -364,15 +363,6 @@ public class BindingContext {
    * A shortcut for {@code getModel().addAllAttributes(Map)}.
    */
   public BindingContext addAllAttributes(@Nullable Map<String, ?> attributes) {
-    getModel().addAllAttributes(attributes);
-    return this;
-  }
-
-  /**
-   * Copy all attributes to the underlying model.
-   * A shortcut for {@code getModel().addAllAttributes(Map)}.
-   */
-  public BindingContext addAllAttributes(@Nullable Model attributes) {
     getModel().addAllAttributes(attributes);
     return this;
   }

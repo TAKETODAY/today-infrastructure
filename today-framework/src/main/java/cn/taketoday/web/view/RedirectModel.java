@@ -62,7 +62,8 @@ import cn.taketoday.web.RequestContextUtils;
  * @see RequestContextUtils#getInputRedirectModel
  * @since 2.3.3 2018-11-18 16:39
  */
-public class RedirectModel extends ModelAttributes implements Serializable, Comparable<RedirectModel> {
+public class RedirectModel extends ModelMap implements Serializable, Comparable<RedirectModel> {
+
   @Serial
   private static final long serialVersionUID = 1L;
 

@@ -129,14 +129,6 @@ public class ModelMap extends LinkedHashMap<String, Object> implements Model {
     return this;
   }
 
-  @Override
-  public Model addAllAttributes(@Nullable Model attributes) {
-    if (attributes != null && !attributes.isEmpty()) {
-      putAll(attributes.asMap());
-    }
-    return this;
-  }
-
   /**
    * Copy all attributes in the supplied {@code Map} into this {@code Map},
    * with existing objects of the same name taking precedence (i.e. not getting
