@@ -28,6 +28,7 @@ import cn.taketoday.web.handler.method.HandlerMethod;
 import cn.taketoday.web.handler.method.ResolvableMethodParameter;
 import cn.taketoday.web.handler.result.HandlerMethodReturnValueHandler;
 import cn.taketoday.web.view.Model;
+import cn.taketoday.web.view.RedirectModel;
 
 /**
  * Resolves {@link Model} arguments and handles {@link Model} return values.
@@ -39,6 +40,8 @@ import cn.taketoday.web.view.Model;
  *
  * @author Rossen Stoyanchev
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @see RedirectModel
+ * @see Model
  * @since 4.0 2022/4/27 16:51
  */
 public class ModelMethodProcessor implements HandlerMethodReturnValueHandler, ParameterResolvingStrategy {
@@ -60,18 +63,30 @@ public class ModelMethodProcessor implements HandlerMethodReturnValueHandler, Pa
 
   @Override
   public void handleReturnValue(RequestContext context, Object handler, @Nullable Object returnValue) throws Exception {
-    if (returnValue != null) {
-      if (returnValue instanceof Model) {
-        BindingContext bindingContext = context.getBindingContext();
-        bindingContext.addAllAttributes(((Model) returnValue).asMap());
+    if (returnValue instanceof Model model) {
+      BindingContext bindingContext = context.getBindingContext();
+      if (returnValue instanceof RedirectModel redirectModel) {
+        // RedirectModel is a special case:
+        RedirectModel existRedirectModel = bindingContext.getRedirectModel();
+        if (existRedirectModel != null) {
+          // RedirectModel is already present: update model
+          existRedirectModel.addAllAttributes(redirectModel);
+        }
+        else {
+          // No RedirectModel is present: just set
+          bindingContext.setRedirectModel(redirectModel);
+        }
       }
       else {
-        // should not happen
-        HandlerMethod handlerMethod = getHandlerMethod(handler);
-        if (handlerMethod != null) {
-          throw new UnsupportedOperationException("Unexpected return type [" +
-                  handlerMethod.getReturnType().getParameterType().getName() + "] in method: " + handlerMethod.getMethod());
-        }
+        bindingContext.addAllAttributes(model);
+      }
+    }
+    else if (returnValue != null) {
+      // should not happen
+      HandlerMethod handlerMethod = getHandlerMethod(handler);
+      if (handlerMethod != null) {
+        throw new UnsupportedOperationException("Unexpected return type [" +
+                handlerMethod.getReturnType().getParameterType().getName() + "] in method: " + handlerMethod.getMethod());
       }
     }
   }
