@@ -32,6 +32,7 @@ import cn.taketoday.web.bind.WebDataBinder;
 import cn.taketoday.web.bind.support.SessionStatus;
 import cn.taketoday.web.bind.support.SimpleSessionStatus;
 import cn.taketoday.web.bind.support.WebBindingInitializer;
+import cn.taketoday.web.view.BindingAwareModelMap;
 import cn.taketoday.web.view.Model;
 import cn.taketoday.web.view.ModelAndView;
 import cn.taketoday.web.view.ModelAttributes;
@@ -60,7 +61,7 @@ public class BindingContext {
   @Nullable
   private Object view;
 
-  private final ModelMap model = new ModelMap();
+  private final ModelMap model = new BindingAwareModelMap();
 
   @Nullable
   private RedirectModel redirectModel;
