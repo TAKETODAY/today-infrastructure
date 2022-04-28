@@ -216,7 +216,7 @@ public class ContentNegotiatingViewResolver
   @Override
   @Nullable
   public View resolveViewName(String viewName, Locale locale) throws Exception {
-    RequestContext context = RequestContextHolder.currentContext();
+    RequestContext context = RequestContextHolder.getRequired();
     List<MediaType> requestedMediaTypes = getMediaTypes(context);
     if (requestedMediaTypes != null) {
       List<View> candidateViews = getCandidateViews(viewName, locale, requestedMediaTypes);

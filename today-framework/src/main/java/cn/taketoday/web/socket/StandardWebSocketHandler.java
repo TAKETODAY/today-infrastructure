@@ -33,7 +33,7 @@ import jakarta.websocket.server.ServerEndpointConfig;
 public interface StandardWebSocketHandler {
 
   default ServerEndpointConfig getEndpointConfig() {
-    final RequestContext context = RequestContextHolder.currentContext();
+    final RequestContext context = RequestContextHolder.getRequired();
     return ServerEndpointConfig.Builder
             .create(StandardEndpoint.class, context.getRequestPath())
             .build();

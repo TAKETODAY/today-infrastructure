@@ -316,7 +316,7 @@ public class WebApplicationContextUtils {
 
     @Override
     public ServletRequest get() {
-      return ServletUtils.getServletRequest(RequestContextHolder.currentContext());
+      return ServletUtils.getServletRequest(RequestContextHolder.get());
     }
 
     @Override
@@ -334,7 +334,7 @@ public class WebApplicationContextUtils {
 
     @Override
     public ServletResponse get() {
-      return ServletUtils.getServletResponse(RequestContextHolder.currentContext());
+      return ServletUtils.getServletResponse(RequestContextHolder.get());
     }
 
     @Override
@@ -351,7 +351,7 @@ public class WebApplicationContextUtils {
 
     @Override
     public HttpSession get() {
-      return ServletUtils.getHttpSession(RequestContextHolder.currentContext());
+      return ServletUtils.getHttpSession(RequestContextHolder.get());
     }
 
     @Override

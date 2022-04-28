@@ -45,11 +45,9 @@ public abstract class RequestContextHolder {
     contextHolder.set(requestContext);
   }
 
-  @Nullable
-  public static RequestContext currentContext() {
-    return get();
-  }
-
+  /**
+   * current context
+   */
   @Nullable
   public static RequestContext get() {
     return contextHolder.get();
@@ -61,14 +59,6 @@ public abstract class RequestContextHolder {
       throw new IllegalStateException("No RequestContext set");
     }
     return context;
-  }
-
-  public static <T> T currentRequest() {
-    return getRequired().nativeRequest();
-  }
-
-  public static <T> T currentResponse() {
-    return getRequired().nativeResponse();
   }
 
   /**
