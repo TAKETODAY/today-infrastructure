@@ -26,7 +26,7 @@ import cn.taketoday.web.handler.method.ActionMappingAnnotationHandler;
 import cn.taketoday.web.handler.method.HandlerMethod;
 
 /**
- * for HandlerMethod return-value
+ * just for HandlerMethod return-value handling
  *
  * @author TODAY 2019-12-13 13:52
  */
@@ -41,10 +41,6 @@ public interface HandlerMethodReturnValueHandler extends SmartReturnValueHandler
       HandlerMethod handlerMethod = annotationHandler.getMethod();
       return supportsHandlerMethod(handlerMethod);
     }
-    return supportsHandlerInternal(handler);
-  }
-
-  default boolean supportsHandlerInternal(Object handler) {
     return false;
   }
 

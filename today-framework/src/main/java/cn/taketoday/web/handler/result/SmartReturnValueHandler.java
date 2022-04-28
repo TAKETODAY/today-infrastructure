@@ -47,4 +47,9 @@ public interface SmartReturnValueHandler extends ReturnValueHandler {
     return supportsHandler(handler) || supportsReturnValue(returnValue);
   }
 
+  @Override
+  default boolean supportsHandler(Object handler) {
+    return false;
+  }
+
 }
