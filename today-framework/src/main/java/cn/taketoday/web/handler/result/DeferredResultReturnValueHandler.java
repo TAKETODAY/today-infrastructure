@@ -61,7 +61,6 @@ public class DeferredResultReturnValueHandler implements HandlerMethodReturnValu
           RequestContext context, Object handler, @Nullable Object returnValue) throws Exception {
 
     if (returnValue == null) {
-      context.setRequestHandled(true);
       return;
     }
 

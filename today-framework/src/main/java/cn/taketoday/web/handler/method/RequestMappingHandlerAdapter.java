@@ -45,6 +45,7 @@ import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.LogFormatUtils;
 import cn.taketoday.util.ReflectionUtils.MethodFilter;
+import cn.taketoday.web.BindingContext;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.RequestContextUtils;
 import cn.taketoday.web.ReturnValueHandler;
@@ -63,15 +64,13 @@ import cn.taketoday.web.context.async.WebAsyncManager;
 import cn.taketoday.web.context.async.WebAsyncTask;
 import cn.taketoday.web.context.async.WebAsyncUtils;
 import cn.taketoday.web.handler.ReturnValueHandlerManager;
-import cn.taketoday.web.BindingContext;
 import cn.taketoday.web.handler.result.HandlerMethodReturnValueHandler;
 import cn.taketoday.web.session.WebSession;
 import cn.taketoday.web.session.WebSessionManager;
 import cn.taketoday.web.util.WebUtils;
-import cn.taketoday.web.view.Model;
 import cn.taketoday.web.view.ModelAndView;
 import cn.taketoday.web.view.RedirectModel;
-import cn.taketoday.web.view.View;
+import cn.taketoday.web.view.RedirectModelManager;
 
 /**
  * Extension of {@link AbstractHandlerMethodAdapter} that supports
@@ -122,8 +121,6 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
 
   private ReactiveAdapterRegistry reactiveAdapterRegistry = ReactiveAdapterRegistry.getSharedInstance();
 
-  private boolean ignoreDefaultModelOnRedirect = false;
-
   private int cacheSecondsForSessionAttributeHandlers = 0;
 
   private boolean synchronizeOnSession = false;
@@ -149,6 +146,9 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
 
   @Nullable
   private WebSessionManager sessionManager;
+
+  @Nullable
+  private RedirectModelManager redirectModelManager;
 
   public ParameterResolvingRegistry getResolvingRegistry() {
     return resolvingRegistry;
@@ -287,25 +287,6 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
    */
   public ReactiveAdapterRegistry getReactiveAdapterRegistry() {
     return this.reactiveAdapterRegistry;
-  }
-
-  /**
-   * By default the content of the "default" model is used both during
-   * rendering and redirect scenarios. Alternatively a controller method
-   * can declare a {@link cn.taketoday.web.view.RedirectModel} argument and use it to provide
-   * attributes for a redirect.
-   * <p>Setting this flag to {@code true} guarantees the "default" model is
-   * never used in a redirect scenario even if a RedirectAttributes argument
-   * is not declared. Setting it to {@code false} means the "default" model
-   * may be used in a redirect if the controller method doesn't declare a
-   * RedirectAttributes argument.
-   * <p>The default setting is {@code false} but new applications should
-   * consider setting it to {@code true}.
-   *
-   * @see RedirectModel
-   */
-  public void setIgnoreDefaultModelOnRedirect(boolean ignoreDefaultModelOnRedirect) {
-    this.ignoreDefaultModelOnRedirect = ignoreDefaultModelOnRedirect;
   }
 
   /**
@@ -454,28 +435,32 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
   }
 
   @Override
-  protected ModelAndView handleInternal(RequestContext request, HandlerMethod handlerMethod) throws Throwable {
+  protected Object handleInternal(RequestContext request, HandlerMethod handlerMethod) throws Throwable {
 
-    ModelAndView mav;
+    Object returnValue;
     checkRequest(request);
 
     // Execute invokeHandlerMethod in synchronized block if required.
     if (this.synchronizeOnSession) {
+      if (sessionManager != null) {
+
+      }
+
       WebSession session = RequestContextUtils.getSession(request, false);
       if (session != null) {
         Object mutex = WebUtils.getSessionMutex(session);
         synchronized(mutex) {
-          mav = invokeHandlerMethod(request, handlerMethod);
+          returnValue = invokeHandlerMethod(request, handlerMethod);
         }
       }
       else {
         // No Session available -> no mutex necessary
-        mav = invokeHandlerMethod(request, handlerMethod);
+        returnValue = invokeHandlerMethod(request, handlerMethod);
       }
     }
     else {
       // No synchronization on session demanded at all...
-      mav = invokeHandlerMethod(request, handlerMethod);
+      returnValue = invokeHandlerMethod(request, handlerMethod);
     }
 
     HttpHeaders headers = request.getHeaders();
@@ -488,7 +473,7 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
       }
     }
 
-    return mav;
+    return returnValue;
   }
 
   /**
@@ -508,25 +493,22 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
    * @see #createInvocableHandlerMethod(RequestContext, HandlerMethod)
    */
   @Nullable
-  protected ModelAndView invokeHandlerMethod(
+  protected Object invokeHandlerMethod(
           RequestContext request, HandlerMethod handlerMethod) throws Throwable {
 
-    List<InvocableHandlerMethod> binderMethods = getBinderMethods(handlerMethod);
-    BindingContext bindingContext = new InitBinderBindingContext(getWebBindingInitializer(), binderMethods);
+    BindingContext bindingContext = createBindingContext(handlerMethod);
 
     ModelFactory modelFactory = getModelFactory(handlerMethod, bindingContext);
 
 //    ActionMappingAnnotationHandler handler = annotationHandlerMap.get(handlerMethod);
 
     ServletInvocableHandlerMethod invocableMethod = createInvocableHandlerMethod(request, handlerMethod);
+    invocableMethod.setReturnValueHandlerManager(returnValueHandlerManager);
 
-    if (returnValueHandlerManager != null) {
-      invocableMethod.setReturnValueHandlerManager(returnValueHandlerManager);
-    }
+    RedirectModel inputRedirectModel = RequestContextUtils.getInputRedirectModel(request, redirectModelManager);
+    bindingContext.addAllAttributes(inputRedirectModel);
 
-    bindingContext.addAllAttributes(RequestContextUtils.getInputRedirectModel(request));
     modelFactory.initModel(request, bindingContext, invocableMethod);
-    bindingContext.setIgnoreDefaultModelOnRedirect(ignoreDefaultModelOnRedirect);
 
     AsyncWebRequest asyncWebRequest = WebAsyncUtils.createAsyncWebRequest(request);
     asyncWebRequest.setTimeout(asyncRequestTimeout);
@@ -548,13 +530,19 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
       invocableMethod = invocableMethod.wrapConcurrentResult(result);
     }
 
-    invocableMethod.invokeAndHandle(request, bindingContext);
+    Object returnValue = invocableMethod.invokeAndHandle(request, bindingContext);
 
     if (asyncManager.isConcurrentHandlingStarted()) {
       return null;
     }
 
-    return getModelAndView(bindingContext, modelFactory, request);
+//    modelFactory.updateModel(request, bindingContext);
+    return returnValue;
+  }
+
+  private InitBinderBindingContext createBindingContext(HandlerMethod handlerMethod) {
+    List<InvocableHandlerMethod> binderMethods = getBinderMethods(handlerMethod);
+    return new InitBinderBindingContext(getWebBindingInitializer(), binderMethods);
   }
 
   /**
@@ -604,7 +592,7 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
     return attrMethod;
   }
 
-  private List<InvocableHandlerMethod> getBinderMethods(HandlerMethod handlerMethod) throws Exception {
+  private List<InvocableHandlerMethod> getBinderMethods(HandlerMethod handlerMethod) {
     Class<?> handlerType = handlerMethod.getBeanType();
     Set<Method> methods = initBinderCache.get(handlerType);
     if (methods == null) {
@@ -636,25 +624,6 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
     InvocableHandlerMethod binderMethod = new InvocableHandlerMethod(bean, method);
     binderMethod.setResolvingRegistry(resolvingRegistry);
     return binderMethod;
-  }
-
-  @Nullable
-  private ModelAndView getModelAndView(BindingContext mavContainer,
-          ModelFactory modelFactory, RequestContext context) throws Throwable {
-
-    modelFactory.updateModel(context, mavContainer);
-    if (mavContainer.isRequestHandled()) {
-      return null;
-    }
-
-    Model model = mavContainer.getModel();
-
-    ModelAndView mav = new ModelAndView(mavContainer.getViewName(), model.asMap(), mavContainer.getStatus());
-    if (!mavContainer.isViewReference()) {
-      mav.setView((View) mavContainer.getView());
-    }
-
-    return mav;
   }
 
 }

@@ -357,16 +357,6 @@ public class RequestContextDecorator extends RequestContext {
   }
 
   @Override
-  public void setRequestHandled(boolean requestHandled) {
-    delegate.setRequestHandled(requestHandled);
-  }
-
-  @Override
-  public boolean isRequestHandled() {
-    return delegate.isRequestHandled();
-  }
-
-  @Override
   public String toString() {
     return "Wrapper for " + delegate;
   }

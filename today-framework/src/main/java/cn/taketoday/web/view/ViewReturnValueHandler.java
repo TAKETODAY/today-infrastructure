@@ -150,12 +150,6 @@ public class ViewReturnValueHandler implements HandlerMethodReturnValueHandler {
   public void renderView(RequestContext context, View view) throws Exception {
     LinkedHashMap<String, Object> model = new LinkedHashMap<>();
 
-    // put all input RedirectModel
-    RedirectModel inputRedirectModel = RequestContextUtils.getInputRedirectModel(context, modelManager);
-    if (inputRedirectModel != null) {
-      model.putAll(inputRedirectModel.asMap());
-    }
-
     if (putAllOutputRedirectModel) {
       // put all output RedirectModel
       RedirectModel outputRedirectModel = RequestContextUtils.getOutputRedirectModel(context);

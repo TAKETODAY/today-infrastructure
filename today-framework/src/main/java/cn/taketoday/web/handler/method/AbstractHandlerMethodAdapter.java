@@ -83,7 +83,7 @@ public abstract class AbstractHandlerMethodAdapter extends WebContentGenerator i
    */
   @Override
   @Nullable
-  public final ModelAndView handle(RequestContext request, Object handler)
+  public final Object handle(RequestContext request, Object handler)
           throws Throwable {
 
     return handleInternal(request, (HandlerMethod) handler);
@@ -95,12 +95,11 @@ public abstract class AbstractHandlerMethodAdapter extends WebContentGenerator i
    * @param request current HTTP request
    * @param handlerMethod handler method to use. This object must have previously been passed to the
    * {@link #supportsInternal(HandlerMethod)} this interface, which must have returned {@code true}.
-   * @return a ModelAndView object with the name of the view and the required model data,
-   * or {@code null} if the request has been handled directly
+   * @return an object to render, or {@code null}
    * @throws Exception in case of errors
    */
   @Nullable
-  protected abstract ModelAndView handleInternal(
+  protected abstract Object handleInternal(
           RequestContext request, HandlerMethod handlerMethod) throws Throwable;
 
 }

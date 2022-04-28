@@ -25,7 +25,6 @@ import java.util.Map;
 import java.util.Set;
 
 import cn.taketoday.beans.PropertyValues;
-import cn.taketoday.http.HttpStatusCode;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.bind.RequestContextDataBinder;
 import cn.taketoday.web.bind.WebDataBinder;
@@ -55,8 +54,6 @@ import cn.taketoday.web.view.RedirectModel;
  */
 public class BindingContext {
 
-  private boolean ignoreDefaultModelOnRedirect = false;
-
   @Nullable
   private Object view;
 
@@ -65,18 +62,11 @@ public class BindingContext {
   @Nullable
   private RedirectModel redirectModel;
 
-  private boolean redirectModelScenario = false;
-
-  @Nullable
-  private HttpStatusCode status;
-
   private final Set<String> noBinding = new HashSet<>(4);
 
   private final Set<String> bindingDisabled = new HashSet<>(4);
 
   private final SessionStatus sessionStatus = new SimpleSessionStatus();
-
-  private boolean requestHandled = false;
 
   @Nullable
   private final WebBindingInitializer initializer;
@@ -184,30 +174,6 @@ public class BindingContext {
   }
 
   /**
-   * By default the content of the "default" model is used both during
-   * rendering and redirect scenarios. Alternatively controller methods
-   * can declare an argument of type {@code RedirectAttributes} and use
-   * it to provide attributes to prepare the redirect URL.
-   * <p>Setting this flag to {@code true} guarantees the "default" model is
-   * never used in a redirect scenario even if a RedirectAttributes argument
-   * is not declared. Setting it to {@code false} means the "default" model
-   * may be used in a redirect if the controller method doesn't declare a
-   * RedirectAttributes argument.
-   * <p>The default setting is {@code false}.
-   */
-  public void setIgnoreDefaultModelOnRedirect(boolean ignoreDefaultModelOnRedirect) {
-    this.ignoreDefaultModelOnRedirect = ignoreDefaultModelOnRedirect;
-  }
-
-  /**
-   * Set a view name to be resolved by the DispatcherServlet via a ViewResolver.
-   * Will override any pre-existing view name or View.
-   */
-  public void setViewName(@Nullable String viewName) {
-    this.view = viewName;
-  }
-
-  /**
    * Return the view name to be resolved by the DispatcherServlet via a
    * ViewResolver, or {@code null} if a View object is set.
    */
@@ -253,31 +219,8 @@ public class BindingContext {
     return redirectModel;
   }
 
-  /**
-   * Whether to use the default model or the redirect model.
-   */
-  private boolean useDefaultModel() {
-    return (!this.redirectModelScenario || (this.redirectModel == null && !this.ignoreDefaultModelOnRedirect));
-  }
-
   public void setRedirectModel(RedirectModel redirectModel) {
     this.redirectModel = redirectModel;
-  }
-
-  /**
-   * Provide an HTTP status that will be passed on to with the
-   * {@code ModelAndView} used for view rendering purposes.
-   */
-  public void setStatus(@Nullable HttpStatusCode status) {
-    this.status = status;
-  }
-
-  /**
-   * Return the configured HTTP status, if any.
-   */
-  @Nullable
-  public HttpStatusCode getStatus() {
-    return this.status;
   }
 
   /**
@@ -320,24 +263,6 @@ public class BindingContext {
    */
   public SessionStatus getSessionStatus() {
     return this.sessionStatus;
-  }
-
-  /**
-   * Whether the request has been handled fully within the handler, e.g.
-   * {@code @ResponseBody} method, and therefore view resolution is not
-   * necessary. This flag can also be set when controller methods declare an
-   * argument of type {@code ServletResponse} or {@code OutputStream}).
-   * <p>The default value is {@code false}.
-   */
-  public void setRequestHandled(boolean requestHandled) {
-    this.requestHandled = requestHandled;
-  }
-
-  /**
-   * Whether the request has been handled fully within the handler.
-   */
-  public boolean isRequestHandled() {
-    return this.requestHandled;
   }
 
   /**
@@ -403,24 +328,21 @@ public class BindingContext {
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder("BindingContext: ");
-    if (!isRequestHandled()) {
-      if (isViewReference()) {
-        sb.append("reference to view with name '").append(this.view).append('\'');
-      }
-      else {
-        sb.append("View is [").append(this.view).append(']');
-      }
-      sb.append("; default model ");
-      sb.append(getModel());
-
-      RedirectModel redirectModel = getRedirectModel();
-      if (redirectModel != null) {
-        sb.append("; redirect model ");
-        sb.append(redirectModel);
-      }
+    if (isViewReference()) {
+      sb.append("reference to view with name '")
+              .append(view)
+              .append('\'');
     }
     else {
-      sb.append("Request handled directly");
+      sb.append("View is [").append(view).append(']');
+    }
+    sb.append("; default model ");
+    sb.append(getModel());
+
+    RedirectModel redirectModel = getRedirectModel();
+    if (redirectModel != null) {
+      sb.append("; redirect model ");
+      sb.append(redirectModel);
     }
     return sb.toString();
   }

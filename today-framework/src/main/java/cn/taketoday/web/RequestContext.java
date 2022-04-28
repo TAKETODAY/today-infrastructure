@@ -1342,22 +1342,4 @@ public abstract class RequestContext extends AttributeAccessorSupport
     return getMethodValue() + " " + getRequestURL();
   }
 
-  /**
-   * Whether the request has been handled fully within the handler, e.g.
-   * {@code @ResponseBody} method, and therefore view resolution is not
-   * necessary. This flag can also be set when controller methods declare an
-   * argument of type {@code ServletResponse} or {@code OutputStream}).
-   * <p>The default value is {@code false}.
-   */
-  public void setRequestHandled(boolean requestHandled) {
-    this.requestHandled = requestHandled;
-  }
-
-  /**
-   * Whether the request has been handled fully within the handler.
-   */
-  public boolean isRequestHandled() {
-    return this.requestHandled;
-  }
-
 }

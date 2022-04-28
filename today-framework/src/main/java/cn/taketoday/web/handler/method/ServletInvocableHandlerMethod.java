@@ -40,6 +40,7 @@ import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.ReturnValueHandler;
 import cn.taketoday.web.annotation.ResponseBody;
 import cn.taketoday.web.annotation.ResponseStatus;
+import cn.taketoday.web.handler.RequestHandler;
 import cn.taketoday.web.handler.ReturnValueHandlerManager;
 import cn.taketoday.web.handler.ReturnValueHandlerNotFoundException;
 import cn.taketoday.web.BindingContext;
@@ -112,7 +113,7 @@ public class ServletInvocableHandlerMethod extends InvocableHandlerMethod {
    * @param bindingContext the binding context to use
    * @param providedArgs "given" arguments matched by type (not resolved)
    */
-  public void invokeAndHandle(
+  public Object invokeAndHandle(
           RequestContext request, BindingContext bindingContext, Object... providedArgs) throws Throwable {
     request.setBindingContext(bindingContext);
 
@@ -120,18 +121,15 @@ public class ServletInvocableHandlerMethod extends InvocableHandlerMethod {
     setResponseStatus(request);
 
     if (returnValue == null) {
-      if (isRequestNotModified(request) || getResponseStatus() != null || bindingContext.isRequestHandled()) {
+      if (isRequestNotModified(request) || getResponseStatus() != null) {
         disableContentCachingIfNecessary(request);
-        bindingContext.setRequestHandled(true);
-        return;
+        return RequestHandler.NONE_RETURN_VALUE;
       }
     }
     else if (StringUtils.hasText(getResponseStatusReason())) {
-      bindingContext.setRequestHandled(true);
-      return;
+      return RequestHandler.NONE_RETURN_VALUE;
     }
 
-    bindingContext.setRequestHandled(false);
     Assert.state(returnValueHandlerManager != null, "No return value handlers");
 
     ReturnValueHandler returnValueHandler = returnValueHandlerManager.findHandler(this, returnValue);
@@ -145,6 +143,7 @@ public class ServletInvocableHandlerMethod extends InvocableHandlerMethod {
 
     try {
       returnValueHandler.handleReturnValue(request, this, returnValue);
+      return RequestHandler.NONE_RETURN_VALUE;
     }
     catch (Exception ex) {
       if (log.isTraceEnabled()) {

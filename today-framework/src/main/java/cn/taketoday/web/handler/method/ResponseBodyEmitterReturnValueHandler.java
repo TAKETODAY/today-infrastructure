@@ -137,7 +137,6 @@ public class ResponseBodyEmitterReturnValueHandler implements HandlerMethodRetur
   @Override
   public void handleReturnValue(RequestContext request, Object handler, @Nullable Object returnValue) throws Exception {
     if (returnValue == null) {
-      request.setRequestHandled(true);
       return;
     }
 
@@ -149,7 +148,6 @@ public class ResponseBodyEmitterReturnValueHandler implements HandlerMethodRetur
       returnValue = responseEntity.getBody();
       returnType = returnType.nested();
       if (returnValue == null) {
-        request.setRequestHandled(true);
         return;
       }
     }

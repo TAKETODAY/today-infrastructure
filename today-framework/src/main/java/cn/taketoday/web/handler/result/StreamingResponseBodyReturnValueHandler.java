@@ -71,7 +71,6 @@ public class StreamingResponseBodyReturnValueHandler implements HandlerMethodRet
   @Override
   public void handleReturnValue(RequestContext context, Object handler, @Nullable Object returnValue) throws Exception {
     if (returnValue == null) {
-      context.setRequestHandled(true);
       return;
     }
 
@@ -84,7 +83,6 @@ public class StreamingResponseBodyReturnValueHandler implements HandlerMethodRet
       outputMessage.getHeaders().putAll(responseEntity.getHeaders());
       returnValue = responseEntity.getBody();
       if (returnValue == null) {
-        context.setRequestHandled(true);
         outputMessage.flush();
         return;
       }

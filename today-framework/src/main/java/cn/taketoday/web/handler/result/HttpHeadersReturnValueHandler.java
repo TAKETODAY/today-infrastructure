@@ -44,7 +44,6 @@ public class HttpHeadersReturnValueHandler implements HandlerMethodReturnValueHa
 
   @Override
   public void handleReturnValue(RequestContext context, Object handler, @Nullable Object returnValue) {
-    context.setRequestHandled(true);
 
     Assert.state(returnValue instanceof HttpHeaders, "HttpHeaders expected");
     HttpHeaders headers = (HttpHeaders) returnValue;

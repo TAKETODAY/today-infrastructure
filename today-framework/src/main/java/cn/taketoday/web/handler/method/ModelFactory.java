@@ -203,7 +203,7 @@ public final class ModelFactory {
     else {
       sessionAttributesHandler.storeAttributes(request, model.asMap());
     }
-    if (!container.isRequestHandled() && container.getModel() == model) {
+    if (container.getModel() == model) {
       updateBindingResult(request, model.asMap());
     }
   }

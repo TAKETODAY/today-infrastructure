@@ -39,7 +39,6 @@ public class CallableMethodReturnValueHandler implements HandlerMethodReturnValu
   public void handleReturnValue(RequestContext context, Object handler, @Nullable Object returnValue) throws Exception {
 
     if (returnValue == null) {
-      context.setRequestHandled(true);
       return;
     }
 
