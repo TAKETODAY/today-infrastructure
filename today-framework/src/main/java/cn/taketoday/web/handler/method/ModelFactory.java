@@ -43,8 +43,6 @@ import cn.taketoday.web.bind.annotation.ModelAttribute;
 import cn.taketoday.web.BindingContext;
 import cn.taketoday.web.session.WebSessionRequiredException;
 import cn.taketoday.web.view.Model;
-import cn.taketoday.web.view.ModelAttributes;
-import cn.taketoday.web.view.ModelMap;
 
 /**
  * Assist with initialization of the {@link Model} before controller method

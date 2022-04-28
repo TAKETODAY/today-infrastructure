@@ -524,7 +524,7 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
       invocableMethod.setReturnValueHandlerManager(returnValueHandlerManager);
     }
 
-    bindingContext.addAllAttributes(RequestContextUtils.getInputRedirectModel(request));
+    bindingContext.addAllAttributes((Map<String, ?>) RequestContextUtils.getInputRedirectModel(request));
     modelFactory.initModel(request, bindingContext, invocableMethod);
     bindingContext.setIgnoreDefaultModelOnRedirect(ignoreDefaultModelOnRedirect);
 

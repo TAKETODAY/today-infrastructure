@@ -27,6 +27,7 @@ import cn.taketoday.web.handler.method.ActionMappingAnnotationHandler;
 import cn.taketoday.web.handler.method.HandlerMethod;
 import cn.taketoday.web.handler.method.ResolvableMethodParameter;
 import cn.taketoday.web.handler.result.HandlerMethodReturnValueHandler;
+import cn.taketoday.web.handler.result.SmartReturnValueHandler;
 import cn.taketoday.web.view.Model;
 import cn.taketoday.web.view.RedirectModel;
 
@@ -48,7 +49,7 @@ public class ModelMethodProcessor implements HandlerMethodReturnValueHandler, Pa
 
   @Override
   public boolean supportsParameter(ResolvableMethodParameter resolvable) {
-    return resolvable.is(Model.class);
+    return resolvable.is(Model.class) || resolvable.is(RedirectModel.class);
   }
 
   @Override
@@ -74,11 +75,12 @@ public class ModelMethodProcessor implements HandlerMethodReturnValueHandler, Pa
         }
         else {
           // No RedirectModel is present: just set
+          context.setAttribute(RedirectModel.OUTPUT_ATTRIBUTE, redirectModel);
           bindingContext.setRedirectModel(redirectModel);
         }
       }
       else {
-        bindingContext.addAllAttributes(model);
+        bindingContext.addAllAttributes(model.asMap());
       }
     }
     else if (returnValue != null) {
@@ -94,6 +96,14 @@ public class ModelMethodProcessor implements HandlerMethodReturnValueHandler, Pa
   @Nullable
   @Override
   public Object resolveParameter(RequestContext context, ResolvableMethodParameter resolvable) throws Throwable {
+    if (resolvable.is(RedirectModel.class)) {
+      RedirectModel redirectModel = new RedirectModel();
+      context.setAttribute(RedirectModel.OUTPUT_ATTRIBUTE, redirectModel);
+      // set redirect model to current BindingContext
+      context.getBindingContext().setRedirectModel(redirectModel);
+      return redirectModel;
+    }
+
     return context.getBindingContext().getModel();
   }
 
