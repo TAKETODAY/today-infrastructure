@@ -25,7 +25,6 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.Reader;
 import java.io.Writer;
-import java.security.Principal;
 import java.time.ZoneId;
 import java.util.Locale;
 import java.util.TimeZone;
@@ -37,25 +36,17 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.RequestContextUtils;
 import cn.taketoday.web.handler.method.ResolvableMethodParameter;
-import jakarta.servlet.ServletRequest;
-import jakarta.servlet.http.HttpSession;
 
 /**
  * Resolves servlet backed request-related method arguments. Supports values of the
  * following types:
  * <ul>
- * <li>{@link RequestContext}</li>
- * <li>{@link ServletRequest}
- * <li>{@link HttpSession}
- * <li>{@link jakarta.servlet.http.PushBuilder} (as of Spring 5.0 on Servlet 4.0)
- * <li>{@link Principal} but only if not annotated in order to allow custom
- * resolvers to resolve it, and the falling back on
- * {@link PrincipalMethodArgumentResolver}.
+ * <li>{@link RequestContext}
  * <li>{@link InputStream}
  * <li>{@link Reader}
- * <li>{@link HttpMethod} (as of Spring 4.0)
+ * <li>{@link HttpMethod}
  * <li>{@link Locale}
- * <li>{@link TimeZone} (as of Spring 4.0)
+ * <li>{@link TimeZone}
  * <li>{@link java.time.ZoneId} (as of Spring 4.0 and Java 8)
  * </ul>
  *

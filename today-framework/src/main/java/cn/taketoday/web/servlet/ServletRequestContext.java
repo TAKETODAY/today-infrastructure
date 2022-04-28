@@ -25,6 +25,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.Serial;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Iterator;
@@ -39,10 +40,13 @@ import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.http.DefaultHttpHeaders;
 import cn.taketoday.http.HttpCookie;
 import cn.taketoday.http.HttpHeaders;
+import cn.taketoday.http.InvalidMediaTypeException;
+import cn.taketoday.http.MediaType;
 import cn.taketoday.http.ResponseCookie;
 import cn.taketoday.lang.Constant;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.CompositeIterator;
+import cn.taketoday.util.LinkedCaseInsensitiveMap;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.RequestContext;
@@ -292,13 +296,51 @@ public final class ServletRequestContext extends RequestContext {
    */
   @Override
   protected HttpHeaders createRequestHeaders() {
-    final DefaultHttpHeaders httpHeaders = new DefaultHttpHeaders();
-    final Enumeration<String> headerNames = request.getHeaderNames();
+    DefaultHttpHeaders httpHeaders = new DefaultHttpHeaders();
+
+    Enumeration<String> headerNames = request.getHeaderNames();
     while (headerNames.hasMoreElements()) {
-      final String name = headerNames.nextElement();
-      final Enumeration<String> headers = request.getHeaders(name);
+      String name = headerNames.nextElement();
+      Enumeration<String> headers = request.getHeaders(name);
       httpHeaders.addAll(name, headers);
     }
+
+    // HttpServletRequest exposes some headers as properties:
+    // we should include those if not already present
+    try {
+      MediaType contentType = httpHeaders.getContentType();
+      if (contentType == null) {
+        String requestContentType = request.getContentType();
+        if (StringUtils.isNotEmpty(requestContentType)) {
+          contentType = MediaType.parseMediaType(requestContentType);
+          if (contentType.isConcrete()) {
+            httpHeaders.setContentType(contentType);
+          }
+        }
+      }
+      if (contentType != null && contentType.getCharset() == null) {
+        String requestEncoding = request.getCharacterEncoding();
+        if (StringUtils.isNotEmpty(requestEncoding)) {
+          Charset charSet = Charset.forName(requestEncoding);
+          Map<String, String> params = new LinkedCaseInsensitiveMap<>();
+          params.putAll(contentType.getParameters());
+          params.put("charset", charSet.toString());
+          MediaType mediaType = new MediaType(contentType.getType(), contentType.getSubtype(), params);
+          httpHeaders.setContentType(mediaType);
+        }
+      }
+    }
+    catch (InvalidMediaTypeException ex) {
+      // Ignore: simply not exposing an invalid content type in HttpHeaders...
+    }
+
+    if (httpHeaders.getContentLength() < 0) {
+      int requestContentLength = request.getContentLength();
+      if (requestContentLength != -1) {
+        httpHeaders.setContentLength(requestContentLength);
+      }
+    }
+
     return httpHeaders;
   }
 

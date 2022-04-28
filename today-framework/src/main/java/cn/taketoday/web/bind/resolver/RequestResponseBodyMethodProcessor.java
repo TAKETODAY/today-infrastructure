@@ -32,7 +32,6 @@ import cn.taketoday.web.HttpMediaTypeNotSupportedException;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.accept.ContentNegotiationManager;
 import cn.taketoday.web.annotation.RequestBody;
-import cn.taketoday.web.handler.method.ActionMappingAnnotationHandler;
 import cn.taketoday.web.handler.method.HandlerMethod;
 import cn.taketoday.web.handler.method.ResolvableMethodParameter;
 import cn.taketoday.web.view.ModelAndView;
@@ -123,13 +122,13 @@ public class RequestResponseBodyMethodProcessor extends AbstractMessageConverter
 
   @Override
   protected <T> Object readWithMessageConverters(
-          RequestContext context, MethodParameter parameter, Type paramType)
+          RequestContext request, MethodParameter parameter, Type paramType)
           throws IOException, HttpMediaTypeNotSupportedException, HttpMessageNotReadableException //
   {
-    Object arg = super.readWithMessageConverters(context, parameter, paramType);
+    Object arg = super.readWithMessageConverters(request, parameter, paramType);
     if (arg == null && checkRequired(parameter)) {
       throw new HttpMessageNotReadableException("Required request body is missing: " +
-              parameter.getExecutable().toGenericString(), context);
+              parameter.getExecutable().toGenericString(), request);
     }
     return arg;
   }

@@ -43,7 +43,7 @@ import cn.taketoday.web.bind.MissingRequestParameterException;
 import cn.taketoday.web.bind.UnsatisfiedRequestParameterException;
 import cn.taketoday.web.bind.resolver.MissingRequestCookieException;
 import cn.taketoday.web.bind.resolver.MissingRequestHeaderException;
-import cn.taketoday.web.bind.resolver.MissingServletRequestPartException;
+import cn.taketoday.web.bind.resolver.MissingRequestPartException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -195,7 +195,7 @@ class ErrorResponseExceptionTests {
   @Test
   void missingServletRequestPartException() {
 
-    ErrorResponse ex = new MissingServletRequestPartException("file");
+    ErrorResponse ex = new MissingRequestPartException("file");
 
     assertStatus(ex, HttpStatus.BAD_REQUEST);
     assertDetail(ex, "Required part 'file' is not present.");

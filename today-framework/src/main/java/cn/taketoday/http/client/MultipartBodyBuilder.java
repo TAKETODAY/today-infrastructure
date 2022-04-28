@@ -155,10 +155,10 @@ public final class MultipartBodyBuilder {
     }
 
     if (partBody instanceof Publisher) {
-      throw new IllegalArgumentException(""" 
-                                                 Use asyncPart(String, Publisher, Class) \
-                                                 or asyncPart(String, Publisher, TypeReference) \
-                                                 or MultipartBodyBuilder.PublisherEntity""");
+      throw new IllegalArgumentException("""
+              Use asyncPart(String, Publisher, Class) \
+              or asyncPart(String, Publisher, TypeReference) \
+              or MultipartBodyBuilder.PublisherEntity""");
     }
 
     DefaultPartBuilder builder = new DefaultPartBuilder(name, partHeaders, partBody);

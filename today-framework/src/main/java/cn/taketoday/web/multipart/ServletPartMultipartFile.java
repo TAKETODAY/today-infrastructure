@@ -19,25 +19,37 @@
  */
 package cn.taketoday.web.multipart;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Objects;
 
+import cn.taketoday.util.FileCopyUtils;
 import jakarta.servlet.http.Part;
 
 /**
- * @author TODAY <br>
- * 2018-06-28 22:40:32
+ * MultipartFile adapter, wrapping a Servlet Part object.
+ *
+ * @author TODAY
+ * @since 2018-06-28 22:40:32
  */
 public final class ServletPartMultipartFile extends AbstractMultipartFile implements MultipartFile {
 
   private final Part part;
+  private final String filename;
+
   public static final int BUFFER_SIZE = 4096;
 
   public ServletPartMultipartFile(Part part) {
     this.part = part;
+    this.filename = part.getSubmittedFileName();
+  }
+
+  public ServletPartMultipartFile(Part part, String filename) {
+    this.part = part;
+    this.filename = filename;
   }
 
   @Override
@@ -70,12 +82,26 @@ public final class ServletPartMultipartFile extends AbstractMultipartFile implem
    */
   @Override
   public String getOriginalFilename() {
-    return part.getSubmittedFileName();
+    return this.filename;
   }
 
   @Override
   protected void saveInternal(File dest) throws IOException {
-    part.write(dest.getAbsolutePath());
+    part.write(dest.getPath());
+    if (dest.isAbsolute() && !dest.exists()) {
+      // Servlet Part.write is not guaranteed to support absolute file paths:
+      // may translate the given path to a relative location within a temp dir
+      // (e.g. on Jetty whereas Tomcat and Undertow detect absolute paths).
+      // At least we offloaded the file from memory storage; it'll get deleted
+      // from the temp dir eventually in any case. And for our user's purposes,
+      // we can manually copy it to the requested location as a fallback.
+      FileCopyUtils.copy(part.getInputStream(), Files.newOutputStream(dest.toPath()));
+    }
+  }
+
+  @Override
+  public void transferTo(Path dest) throws IOException, IllegalStateException {
+    FileCopyUtils.copy(part.getInputStream(), Files.newOutputStream(dest));
   }
 
   @Override
@@ -85,20 +111,7 @@ public final class ServletPartMultipartFile extends AbstractMultipartFile implem
 
   @Override
   protected byte[] doGetBytes() throws IOException {
-    try (final InputStream in = getInputStream()) {
-      if (in == null) {
-        return new byte[0];
-      }
-      else {
-        final ByteArrayOutputStream out = new ByteArrayOutputStream(BUFFER_SIZE);
-        byte[] buffer = new byte[BUFFER_SIZE];
-        int bytesRead;
-        while ((bytesRead = in.read(buffer)) != -1) {
-          out.write(buffer, 0, bytesRead);
-        }
-        return out.toByteArray();
-      }
-    }
+    return FileCopyUtils.copyToByteArray(part.getInputStream(), BUFFER_SIZE);
   }
 
   @Override

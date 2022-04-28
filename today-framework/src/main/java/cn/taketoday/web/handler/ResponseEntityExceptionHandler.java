@@ -46,7 +46,7 @@ import cn.taketoday.web.bind.MethodArgumentNotValidException;
 import cn.taketoday.web.bind.MissingRequestParameterException;
 import cn.taketoday.web.bind.RequestBindingException;
 import cn.taketoday.web.bind.MissingPathVariableException;
-import cn.taketoday.web.bind.resolver.MissingServletRequestPartException;
+import cn.taketoday.web.bind.resolver.MissingRequestPartException;
 import cn.taketoday.web.servlet.ServletUtils;
 import cn.taketoday.web.util.WebUtils;
 import cn.taketoday.web.view.ModelAndView;
@@ -110,7 +110,7 @@ public class ResponseEntityExceptionHandler {
           HttpMediaTypeNotAcceptableException.class,
           MissingPathVariableException.class,
           MissingRequestParameterException.class,
-          MissingServletRequestPartException.class,
+          MissingRequestPartException.class,
           RequestBindingException.class,
           MethodArgumentNotValidException.class,
           NoHandlerFoundException.class,
@@ -144,7 +144,7 @@ public class ResponseEntityExceptionHandler {
       else if (ex instanceof MissingRequestParameterException subEx) {
         return handleMissingServletRequestParameter(subEx, subEx.getHeaders(), subEx.getStatus(), request);
       }
-      else if (ex instanceof MissingServletRequestPartException subEx) { // FIXME Servlet
+      else if (ex instanceof MissingRequestPartException subEx) { // FIXME Servlet
         return handleMissingServletRequestPart(subEx, subEx.getHeaders(), subEx.getStatus(), request);
       }
       else if (ex instanceof RequestBindingException subEx) {
@@ -295,7 +295,7 @@ public class ResponseEntityExceptionHandler {
    */
   @Nullable
   protected ResponseEntity<Object> handleMissingServletRequestPart(
-          MissingServletRequestPartException ex, HttpHeaders headers, HttpStatus status, RequestContext request) {
+          MissingRequestPartException ex, HttpHeaders headers, HttpStatus status, RequestContext request) {
 
     return handleExceptionInternal(ex, null, headers, status, request);
   }

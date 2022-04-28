@@ -38,7 +38,7 @@ import jakarta.servlet.ServletException;
  * @since 4.0
  */
 @SuppressWarnings("serial")
-public class MissingServletRequestPartException extends ServletException implements ErrorResponse {
+public class MissingRequestPartException extends ServletException implements ErrorResponse {
   private final ProblemDetail body = ProblemDetail.forRawStatusCode(getRawStatusCode());
 
   private final String requestPartName;
@@ -48,7 +48,7 @@ public class MissingServletRequestPartException extends ServletException impleme
    *
    * @param requestPartName the name of the missing part of the multipart request
    */
-  public MissingServletRequestPartException(String requestPartName) {
+  public MissingRequestPartException(String requestPartName) {
     super("Required part '" + requestPartName + "' is not present.");
     this.requestPartName = requestPartName;
     getBody().setDetail(getMessage());

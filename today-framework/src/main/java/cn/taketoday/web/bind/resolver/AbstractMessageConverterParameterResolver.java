@@ -23,6 +23,7 @@ package cn.taketoday.web.bind.resolver;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PushbackInputStream;
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -30,13 +31,13 @@ import java.util.EnumSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 import cn.taketoday.core.MethodParameter;
 import cn.taketoday.core.ResolvableType;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpInputMessage;
 import cn.taketoday.http.HttpMethod;
+import cn.taketoday.http.HttpRequest;
 import cn.taketoday.http.InvalidMediaTypeException;
 import cn.taketoday.http.MediaType;
 import cn.taketoday.http.converter.GenericHttpMessageConverter;
@@ -49,8 +50,11 @@ import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.LogFormatUtils;
 import cn.taketoday.util.MimeTypeUtils;
 import cn.taketoday.util.StreamUtils;
+import cn.taketoday.validation.Errors;
+import cn.taketoday.validation.annotation.ValidationAnnotationUtils;
 import cn.taketoday.web.HttpMediaTypeNotSupportedException;
 import cn.taketoday.web.RequestContext;
+import cn.taketoday.web.bind.WebDataBinder;
 import cn.taketoday.web.handler.method.RequestBodyAdvice;
 
 /**
@@ -107,8 +111,28 @@ public abstract class AbstractMessageConverterParameterResolver implements Param
    * Create the method argument value of the expected parameter type by
    * reading from the given request.
    *
-   * @param context the current request context
+   * @param <T> the expected type of the argument value to be created
+   * @param request the current request
    * @param parameter the method parameter descriptor (may be {@code null})
+   * @param paramType the type of the argument value to be created
+   * @return the created method argument value
+   * @throws IOException if the reading from the request fails
+   * @throws HttpMediaTypeNotSupportedException if no suitable message converter is found
+   */
+  @Nullable
+  protected <T> Object readWithMessageConverters(RequestContext request, MethodParameter parameter,
+          Type paramType) throws IOException, HttpMediaTypeNotSupportedException, HttpMessageNotReadableException {
+
+    return readWithMessageConverters(request, parameter, paramType);
+  }
+
+  /**
+   * Create the method argument value of the expected parameter type by reading
+   * from the given HttpInputMessage.
+   *
+   * @param <T> the expected type of the argument value to be created
+   * @param inputMessage the HTTP input message representing the current request
+   * @param parameter the method parameter descriptor
    * @param targetType the target type, not necessarily the same as the method
    * parameter type, e.g. for {@code HttpEntity<String>}.
    * @return the created method argument value
@@ -117,13 +141,13 @@ public abstract class AbstractMessageConverterParameterResolver implements Param
    */
   @Nullable
   @SuppressWarnings("unchecked")
-  protected <T> Object readWithMessageConverters(RequestContext context, MethodParameter parameter, Type targetType)
+  protected <T> Object readWithMessageConverters(HttpInputMessage inputMessage, MethodParameter parameter, Type targetType)
           throws IOException, HttpMediaTypeNotSupportedException, HttpMessageNotReadableException //
   {
     MediaType contentType;
     boolean noContentType = false;
     try {
-      contentType = context.requestHeaders().getContentType();
+      contentType = inputMessage.getHeaders().getContentType();
     }
     catch (InvalidMediaTypeException ex) {
       throw new HttpMediaTypeNotSupportedException(ex.getMessage());
@@ -144,8 +168,7 @@ public abstract class AbstractMessageConverterParameterResolver implements Param
 
     EmptyBodyCheckingHttpInputMessage message = null;
     try {
-      message = new EmptyBodyCheckingHttpInputMessage(context);
-
+      message = new EmptyBodyCheckingHttpInputMessage(inputMessage);
       RequestResponseBodyAdviceChain adviceChain = getAdvice();
       for (HttpMessageConverter<?> converter : messageConverters) {
         if (converter instanceof GenericHttpMessageConverter<?> genericConverter) {
@@ -181,7 +204,7 @@ public abstract class AbstractMessageConverterParameterResolver implements Param
       }
     }
     catch (IOException ex) {
-      throw new HttpMessageNotReadableException("I/O error while reading input message", ex, context);
+      throw new HttpMessageNotReadableException("I/O error while reading input message", ex, inputMessage);
     }
     finally {
       if (message != null && message.hasBody()) {
@@ -190,7 +213,7 @@ public abstract class AbstractMessageConverterParameterResolver implements Param
     }
 
     if (body == NO_VALUE) {
-      HttpMethod httpMethod = context.getMethod();
+      HttpMethod httpMethod = inputMessage instanceof HttpRequest httpRequest ? httpRequest.getMethod() : null;
       if (!SUPPORTED_METHODS.contains(httpMethod) || noContentType && !message.hasBody()) {
         return null;
       }
@@ -207,6 +230,41 @@ public abstract class AbstractMessageConverterParameterResolver implements Param
     });
 
     return body;
+  }
+
+  /**
+   * Validate the binding target if applicable.
+   * <p>The default implementation checks for {@code @jakarta.validation.Valid},
+   * Spring's {@link cn.taketoday.validation.annotation.Validated},
+   * and custom annotations whose name starts with "Valid".
+   *
+   * @param binder the DataBinder to be used
+   * @param parameter the method parameter descriptor
+   * @see #isBindExceptionRequired
+   */
+  protected void validateIfApplicable(WebDataBinder binder, MethodParameter parameter) {
+    Annotation[] annotations = parameter.getParameterAnnotations();
+    for (Annotation ann : annotations) {
+      Object[] validationHints = ValidationAnnotationUtils.determineValidationHints(ann);
+      if (validationHints != null) {
+        binder.validate(validationHints);
+        break;
+      }
+    }
+  }
+
+  /**
+   * Whether to raise a fatal bind exception on validation errors.
+   *
+   * @param binder the data binder used to perform data binding
+   * @param parameter the method parameter descriptor
+   * @return {@code true} if the next method argument is not of type {@link Errors}
+   */
+  protected boolean isBindExceptionRequired(WebDataBinder binder, MethodParameter parameter) {
+    int i = parameter.getParameterIndex();
+    Class<?>[] paramTypes = parameter.getExecutable().getParameterTypes();
+    boolean hasBindingResult = (paramTypes.length > (i + 1) && Errors.class.isAssignableFrom(paramTypes[i + 1]));
+    return !hasBindingResult;
   }
 
   /**
@@ -260,7 +318,7 @@ public abstract class AbstractMessageConverterParameterResolver implements Param
     @Nullable
     private final InputStream body;
 
-    public EmptyBodyCheckingHttpInputMessage(RequestContext inputMessage) throws IOException {
+    public EmptyBodyCheckingHttpInputMessage(HttpInputMessage inputMessage) throws IOException {
       this.headers = inputMessage.getHeaders();
       InputStream inputStream = inputMessage.getBody();
       if (inputStream.markSupported()) {

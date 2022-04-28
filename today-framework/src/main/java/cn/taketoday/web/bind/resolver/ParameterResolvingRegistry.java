@@ -235,6 +235,8 @@ public class ParameterResolvingRegistry
     strategies.add(new ModelAttributeMethodProcessor(false));
     strategies.add(new RequestResponseBodyMethodProcessor(
             getMessageConverters(), contentNegotiationManager, requestResponseBodyAdvice));
+    strategies.add(new RequestPartMethodArgumentResolver(getMessageConverters(), this.requestResponseBodyAdvice));
+
     strategies.add(new RequestHeaderMethodArgumentResolver(beanFactory));
     strategies.add(new RequestHeaderMapMethodArgumentResolver());
     strategies.add(new ExpressionValueMethodArgumentResolver(beanFactory));
@@ -269,8 +271,6 @@ public class ParameterResolvingRegistry
 
     // @since 3.0
     configureDataBinder(strategies);
-
-    strategies.add(new SimpleArrayParameterResolver());
 
     // Use ConverterAwareParameterResolver to resolve primitive types
     // --------------------------------------------------------------------------

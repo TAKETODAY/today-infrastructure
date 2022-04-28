@@ -676,6 +676,39 @@ public class TypeDescriptor implements Serializable {
     return nested(new TypeDescriptor(field), nestingLevel);
   }
 
+  /**
+   * Create a type descriptor for a nested type declared within the method parameter.
+   * <p>For example, if the methodParameter is a {@code List<String>} and the
+   * nesting level is 1, the nested type descriptor will be String.class.
+   * <p>If the methodParameter is a {@code List<List<String>>} and the nesting
+   * level is 2, the nested type descriptor will also be a String.class.
+   * <p>If the methodParameter is a {@code Map<Integer, String>} and the nesting
+   * level is 1, the nested type descriptor will be String, derived from the map value.
+   * <p>If the methodParameter is a {@code List<Map<Integer, String>>} and the
+   * nesting level is 2, the nested type descriptor will be String, derived from the map value.
+   * <p>Returns {@code null} if a nested type cannot be obtained because it was not declared.
+   * For example, if the method parameter is a {@code List<?>}, the nested type
+   * descriptor returned will be {@code null}.
+   *
+   * @param methodParameter the method parameter with a nestingLevel of 1
+   * @param nestingLevel the nesting level of the collection/array element or
+   * map key/value declaration within the method parameter
+   * @return the nested type descriptor at the specified nesting level,
+   * or {@code null} if it could not be obtained
+   * @throws IllegalArgumentException if the nesting level of the input
+   * {@link MethodParameter} argument is not 1, or if the types up to the
+   * specified nesting level are not of collection, array, or map types
+   * @since 4.0
+   */
+  @Nullable
+  public static TypeDescriptor nested(MethodParameter methodParameter, int nestingLevel) {
+    if (methodParameter.getNestingLevel() != 1) {
+      throw new IllegalArgumentException("MethodParameter nesting level must be 1: " +
+              "use the nestingLevel parameter to specify the desired nestingLevel for nested type traversal");
+    }
+    return nested(new TypeDescriptor(methodParameter), nestingLevel);
+  }
+
   public static TypeDescriptor nested(TypeDescriptor typeDescriptor, int nestingLevel) {
     ResolvableType nested = typeDescriptor.resolvableType;
     for (int i = 0; i < nestingLevel; i++) {

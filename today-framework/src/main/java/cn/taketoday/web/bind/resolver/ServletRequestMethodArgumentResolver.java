@@ -41,19 +41,12 @@ import jakarta.servlet.http.PushBuilder;
  * Resolves servlet backed request-related method arguments. Supports values of the
  * following types:
  * <ul>
- * <li>{@link RequestContext}
  * <li>{@link ServletRequest}
  * <li>{@link HttpSession}
  * <li>{@link PushBuilder}
  * <li>{@link Principal} but only if not annotated in order to allow custom
  * resolvers to resolve it, and the falling back on
  * {@link PrincipalMethodArgumentResolver}.
- * <li>{@link InputStream}
- * <li>{@link Reader}
- * <li>{@link HttpMethod}
- * <li>{@link Locale}
- * <li>{@link TimeZone}
- * <li>{@link java.time.ZoneId}
  * </ul>
  *
  * @author Arjen Poutsma

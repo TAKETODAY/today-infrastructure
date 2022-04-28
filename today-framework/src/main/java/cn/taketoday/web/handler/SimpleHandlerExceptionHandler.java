@@ -47,7 +47,7 @@ import cn.taketoday.web.bind.MethodArgumentNotValidException;
 import cn.taketoday.web.bind.MissingRequestParameterException;
 import cn.taketoday.web.bind.RequestBindingException;
 import cn.taketoday.web.bind.MissingPathVariableException;
-import cn.taketoday.web.bind.resolver.MissingServletRequestPartException;
+import cn.taketoday.web.bind.resolver.MissingRequestPartException;
 import cn.taketoday.web.multipart.MultipartFile;
 import cn.taketoday.web.util.WebUtils;
 
@@ -208,9 +208,9 @@ public class SimpleHandlerExceptionHandler
           view = handleAsyncRequestTimeoutException(
                   (AsyncRequestTimeoutException) ex, request, handler);
         }
-        else if (ServletDetector.isPresent && ex instanceof MissingServletRequestPartException) {
+        else if (ServletDetector.isPresent && ex instanceof MissingRequestPartException) {
           view = handleMissingServletRequestPartException(
-                  (MissingServletRequestPartException) ex, request, handler);
+                  (MissingRequestPartException) ex, request, handler);
         }
 
         if (view == null) {
@@ -359,7 +359,7 @@ public class SimpleHandlerExceptionHandler
    * @since 4.0
    */
   @Nullable
-  protected Object handleMissingServletRequestPartException(MissingServletRequestPartException ex,
+  protected Object handleMissingServletRequestPartException(MissingRequestPartException ex,
           RequestContext request, @Nullable Object handler) throws IOException {
 
     return null;
