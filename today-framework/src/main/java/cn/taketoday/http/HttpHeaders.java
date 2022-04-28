@@ -1821,11 +1821,6 @@ public abstract class HttpHeaders
   }
 
   @Override
-  public void addAll(MultiValueMap<String, String> values) {
-    values.forEach(this::addAll);
-  }
-
-  @Override
   public abstract void set(String headerName, @Nullable String headerValue);
 
   @Override

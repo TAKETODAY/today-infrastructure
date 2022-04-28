@@ -37,14 +37,14 @@ import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.bind.MultipartException;
 import cn.taketoday.web.multipart.MultipartFile;
-import cn.taketoday.web.multipart.MultipartHttpServletRequest;
+import cn.taketoday.web.multipart.MultipartRequest;
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Part;
 
 /**
  * Mock implementation of the
- * {@link cn.taketoday.web.multipart.MultipartHttpServletRequest} interface.
+ * {@link cn.taketoday.web.multipart.MultipartRequest} interface.
  *
  * <p>@since 4.0this set of mocks is designed on a Servlet 4.0 baseline.
  *
@@ -57,7 +57,7 @@ import jakarta.servlet.http.Part;
  * @see MockMultipartFile
  * @since 4.0
  */
-public class MockMultipartHttpServletRequest extends MockHttpServletRequest implements MultipartHttpServletRequest {
+public class MockMultipartHttpServletRequest extends MockHttpServletRequest implements MultipartRequest {
 
   private final MultiValueMap<String, MultipartFile> multipartFiles = new LinkedMultiValueMap<>();
 

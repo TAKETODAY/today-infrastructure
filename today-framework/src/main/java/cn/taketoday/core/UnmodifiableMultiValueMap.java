@@ -25,6 +25,7 @@ import java.io.Serializable;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -200,6 +201,16 @@ final class UnmodifiableMultiValueMap<K, V> implements MultiValueMap<K, V>, Seri
 
   @Override
   public void addAll(MultiValueMap<K, V> values) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void addAll(K key, @Nullable Collection<? extends V> values) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void addAll(K key, @Nullable Enumeration<? extends V> values) {
     throw new UnsupportedOperationException();
   }
 

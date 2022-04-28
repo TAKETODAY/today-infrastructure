@@ -69,11 +69,6 @@ class NettyHeadersAdapter implements MultiValueMap<String, String> {
   }
 
   @Override
-  public void addAll(MultiValueMap<String, String> values) {
-    values.forEach(this.headers::add);
-  }
-
-  @Override
   public void set(String key, @Nullable String value) {
     if (value != null) {
       this.headers.set(key, value);

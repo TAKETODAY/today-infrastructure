@@ -64,16 +64,6 @@ class TomcatHeadersAdapter implements MultiValueMap<String, String> {
   }
 
   @Override
-  public void addAll(String key, List<? extends String> values) {
-    values.forEach(value -> add(key, value));
-  }
-
-  @Override
-  public void addAll(MultiValueMap<String, String> values) {
-    values.forEach(this::addAll);
-  }
-
-  @Override
   public void set(String key, @Nullable String value) {
     this.headers.setValue(key).setString(value);
   }

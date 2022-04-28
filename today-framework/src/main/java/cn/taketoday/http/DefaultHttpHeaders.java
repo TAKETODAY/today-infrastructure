@@ -30,6 +30,7 @@ import java.util.function.IntFunction;
 
 import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.LinkedCaseInsensitiveMap;
 
 /**
@@ -85,6 +86,11 @@ public class DefaultHttpHeaders extends HttpHeaders {
 
   @Override
   public void addAll(String key, List<? extends String> values) {
+    headers.addAll(key, values);
+  }
+
+  @Override
+  public void addAll(String key, @Nullable Collection<? extends String> values) {
     headers.addAll(key, values);
   }
 

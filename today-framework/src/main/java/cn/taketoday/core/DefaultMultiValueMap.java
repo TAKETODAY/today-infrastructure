@@ -31,6 +31,7 @@ import java.util.Set;
 import java.util.function.Function;
 
 import cn.taketoday.lang.NonNull;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
 
 /**
@@ -117,9 +118,19 @@ public class DefaultMultiValueMap<K, V>
   }
 
   @Override
-  public void addAll(K key, List<? extends V> values) {
-    List<V> currentValues = this.map.computeIfAbsent(key, mappingFunction);
-    currentValues.addAll(values);
+  public void addAll(K key, @Nullable List<? extends V> values) {
+    if (values != null) {
+      List<V> currentValues = this.map.computeIfAbsent(key, mappingFunction);
+      currentValues.addAll(values);
+    }
+  }
+
+  @Override
+  public void addAll(K key, @Nullable Collection<? extends V> values) {
+    if (values != null) {
+      List<V> currentValues = this.map.computeIfAbsent(key, mappingFunction);
+      currentValues.addAll(values);
+    }
   }
 
   /**
@@ -133,13 +144,6 @@ public class DefaultMultiValueMap<K, V>
       List<V> currentValues = this.map.computeIfAbsent(key, mappingFunction);
       CollectionUtils.addAll(currentValues, values);
       CollectionUtils.trimToSize(currentValues);
-    }
-  }
-
-  @Override
-  public void addAll(MultiValueMap<K, V> values) {
-    for (Entry<K, List<V>> entry : values.entrySet()) {
-      addAll(entry.getKey(), entry.getValue());
     }
   }
 

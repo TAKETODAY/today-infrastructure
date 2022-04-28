@@ -23,6 +23,7 @@ import java.io.Serial;
 import java.util.AbstractMap;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Enumeration;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -102,6 +103,16 @@ class ReadOnlyHttpHeaders extends DefaultHttpHeaders {
 
   @Override
   public void addAll(MultiValueMap<String, String> values) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void addAll(String key, @Nullable Collection<? extends String> values) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void addAll(String key, Enumeration<? extends String> values) {
     throw new UnsupportedOperationException();
   }
 

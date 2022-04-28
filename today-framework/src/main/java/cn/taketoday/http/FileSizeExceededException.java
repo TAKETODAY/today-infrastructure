@@ -22,6 +22,7 @@ package cn.taketoday.http;
 import java.io.Serial;
 
 import cn.taketoday.core.NestedRuntimeException;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.DataSize;
 import cn.taketoday.web.annotation.ResponseStatus;
 
@@ -36,26 +37,24 @@ public class FileSizeExceededException extends NestedRuntimeException {
   private static final long serialVersionUID = 1L;
 
   /** The actual size of the request. */
-  private DataSize actual;
+  @Nullable
+  private final DataSize actual;
   /** The maximum permitted size of the request. */
   private final DataSize permitted;
 
-  public FileSizeExceededException(DataSize permitted, Throwable cause) {
+  public FileSizeExceededException(DataSize permitted, Throwable cause, @Nullable DataSize actual) {
     super("The upload file exceeds its maximum permitted size: [" + permitted + "]", cause);
     this.permitted = permitted;
+    this.actual = actual;
   }
 
+  @Nullable
   public DataSize getActual() {
     return actual;
   }
 
   public DataSize getPermitted() {
     return permitted;
-  }
-
-  public FileSizeExceededException setActual(DataSize actual) {
-    this.actual = actual;
-    return this;
   }
 
 }
