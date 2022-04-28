@@ -22,6 +22,7 @@ package cn.taketoday.web.servlet.filter;
 
 import java.io.IOException;
 
+import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.RequestContextHolder;
 import cn.taketoday.web.context.async.WebAsyncManager;
 import cn.taketoday.web.context.async.WebAsyncUtils;
@@ -140,7 +141,7 @@ public abstract class OncePerRequestFilter extends GenericFilterBean {
    * @param request the current request
    */
   protected boolean isAsyncDispatch(HttpServletRequest request) {
-    return DispatcherType.ASYNC.equals(request.getDispatcherType());
+    return DispatcherType.ASYNC == request.getDispatcherType();
   }
 
   /**
@@ -151,7 +152,11 @@ public abstract class OncePerRequestFilter extends GenericFilterBean {
    * @see WebAsyncManager#isConcurrentHandlingStarted()
    */
   protected boolean isAsyncStarted(HttpServletRequest request) {
-    WebAsyncManager asyncManager = WebAsyncUtils.getAsyncManager(RequestContextHolder.getRequired());
+    RequestContext context = RequestContextHolder.get();
+    if (context == null) {
+      return request.isAsyncStarted();
+    }
+    WebAsyncManager asyncManager = WebAsyncUtils.getAsyncManager(context);
     return asyncManager.isConcurrentHandlingStarted();
   }
 
