@@ -174,7 +174,7 @@ public abstract class AbstractRedirectModelManager implements RedirectModelManag
 
   @Override
   public void saveRedirectModel(RequestContext context, @Nullable RedirectModel redirectModel) {
-    if (redirectModel == null || !redirectModel.hasAttributes()) {
+    if (CollectionUtils.isEmpty(redirectModel)) {
       return;
     }
 

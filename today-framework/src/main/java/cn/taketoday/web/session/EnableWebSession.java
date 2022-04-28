@@ -19,7 +19,9 @@
  */
 package cn.taketoday.web.session;
 
+import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 import cn.taketoday.beans.factory.annotation.DisableAllDependencyInjection;
@@ -28,22 +30,18 @@ import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Import;
 import cn.taketoday.context.annotation.Lazy;
-import cn.taketoday.context.properties.Props;
 import cn.taketoday.context.annotation.Role;
 import cn.taketoday.context.condition.ConditionalOnMissingBean;
+import cn.taketoday.context.properties.Props;
 import cn.taketoday.lang.Component;
 import cn.taketoday.web.view.RedirectModelManager;
 import cn.taketoday.web.view.SessionRedirectModelManager;
 
-import static java.lang.annotation.ElementType.METHOD;
-import static java.lang.annotation.ElementType.TYPE;
-import static java.lang.annotation.RetentionPolicy.RUNTIME;
-
 /**
  * @author TODAY 2019-10-03 00:30
  */
-@Retention(RUNTIME)
-@Target({ TYPE, METHOD })
+@Target({ ElementType.TYPE })
+@Retention(RetentionPolicy.RUNTIME)
 @Import(WebSessionConfig.class)
 public @interface EnableWebSession {
 
@@ -58,7 +56,7 @@ class WebSessionConfig {
    */
   @Component(WebSessionManager.BEAN_NAME)
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-  @ConditionalOnMissingBean(WebSessionManager.class)
+  @ConditionalOnMissingBean(value = WebSessionManager.class, name = WebSessionManager.BEAN_NAME)
   DefaultWebSessionManager webSessionManager(
           TokenResolver tokenResolver, WebSessionStorage sessionStorage) {
     return new DefaultWebSessionManager(tokenResolver, sessionStorage);
@@ -131,9 +129,9 @@ class WebSessionConfig {
     return new CookieTokenResolver(config);
   }
 
-  @Component
+  @Component(RedirectModelManager.BEAN_NAME)
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-  @ConditionalOnMissingBean(RedirectModelManager.class)
+  @ConditionalOnMissingBean(value = RedirectModelManager.class, name = RedirectModelManager.BEAN_NAME)
   SessionRedirectModelManager sessionRedirectModelManager(WebSessionManager sessionManager) {
     return new SessionRedirectModelManager(sessionManager);
   }

@@ -32,6 +32,7 @@ import cn.taketoday.core.i18n.LocaleContextHolder;
 import cn.taketoday.core.i18n.TimeZoneAwareLocaleContext;
 import cn.taketoday.lang.NullValue;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.bind.MissingRequestParameterException;
 import cn.taketoday.web.bind.RequestBindingException;
@@ -233,7 +234,7 @@ public class RequestContextUtils {
    * Return read-only "input" flash attributes from request before redirect.
    *
    * @param request current request
-   * @return a read-only Map, or {@code null} if not found
+   * @return a RedirectModel, or {@code null} if not found
    * @see RedirectModel
    */
   @Nullable
@@ -246,7 +247,7 @@ public class RequestContextUtils {
    *
    * @param request current request
    * @param manager RedirectModelManager manage RedirectModel
-   * @return a read-only Map, or {@code null} if not found
+   * @return a RedirectModel, or {@code null} if not found
    * @see RedirectModel
    */
   @Nullable
@@ -323,7 +324,7 @@ public class RequestContextUtils {
   public static void saveRedirectModel(
           String location, RequestContext request, @Nullable RedirectModelManager manager) {
     RedirectModel redirectModel = getOutputRedirectModel(request);
-    if (redirectModel != null && redirectModel.hasAttributes()) {
+    if (CollectionUtils.isNotEmpty(redirectModel)) {
       if (manager == null) {
         manager = getRedirectModelManager(request);
       }

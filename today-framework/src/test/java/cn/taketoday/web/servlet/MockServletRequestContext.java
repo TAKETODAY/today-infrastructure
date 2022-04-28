@@ -48,8 +48,6 @@ import cn.taketoday.web.bind.MultipartException;
 import cn.taketoday.web.bind.NotMultipartRequestException;
 import cn.taketoday.web.multipart.MultipartFile;
 import cn.taketoday.web.multipart.ServletPartMultipartFile;
-import cn.taketoday.web.view.Model;
-import cn.taketoday.web.view.ModelAttributes;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
