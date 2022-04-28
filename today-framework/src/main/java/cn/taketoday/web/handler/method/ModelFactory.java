@@ -105,13 +105,13 @@ public final class ModelFactory {
   public void initModel(RequestContext request, BindingContext container, HandlerMethod handlerMethod)
           throws Throwable {
 
-    Map<String, ?> sessionAttributes = this.sessionAttributesHandler.retrieveAttributes(request);
+    Map<String, ?> sessionAttributes = sessionAttributesHandler.retrieveAttributes(request);
     container.mergeAttributes(sessionAttributes);
     invokeModelAttributeMethods(request, container);
 
     for (String name : findSessionAttributeArguments(handlerMethod)) {
       if (!container.containsAttribute(name)) {
-        Object value = this.sessionAttributesHandler.retrieveAttribute(request, name);
+        Object value = sessionAttributesHandler.retrieveAttribute(request, name);
         if (value == null) {
           throw new WebSessionRequiredException("Expected session attribute '" + name + "'", name);
         }

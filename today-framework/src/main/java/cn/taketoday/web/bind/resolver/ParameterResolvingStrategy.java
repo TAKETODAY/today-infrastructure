@@ -29,6 +29,7 @@ import cn.taketoday.web.handler.method.ResolvableMethodParameter;
  * <p>
  * run in RequestContext
  * </p>
+ * like spring's MethodArgumentResolver
  *
  * @author TODAY 2019-07-07 23:24
  * @see ResolvableMethodParameter

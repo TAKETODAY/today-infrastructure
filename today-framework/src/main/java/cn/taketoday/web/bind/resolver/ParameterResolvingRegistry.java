@@ -246,12 +246,6 @@ public class ParameterResolvingRegistry
     registerMultipart(strategies);
 
     // type-based argument resolution
-    strategies.add(new StreamParameterResolver());
-    strategies.add(new ModelMethodProcessor());
-    strategies.add(new MapMethodProcessor());
-    strategies.add(new ErrorsMethodArgumentResolver());
-    strategies.add(new UriComponentsBuilderParameterStrategy());
-
     if (ServletDetector.isPresent && context instanceof WebServletApplicationContext servletApp) {
       // TODO getServletContext not available in WebApplicationContext ?
       ServletContext servletContext = servletApp.getServletContext();
@@ -259,6 +253,11 @@ public class ParameterResolvingRegistry
       ServletParameterResolvers.register(strategies, servletContext);
     }
 
+    strategies.add(new RequestContextMethodArgumentResolver());
+    strategies.add(new ModelMethodProcessor());
+    strategies.add(new MapMethodProcessor());
+    strategies.add(new ErrorsMethodArgumentResolver());
+    strategies.add(new UriComponentsBuilderParameterStrategy());
     strategies.add(new HttpEntityMethodProcessor(
             getMessageConverters(), contentNegotiationManager, requestResponseBodyAdvice, modelManager));
 

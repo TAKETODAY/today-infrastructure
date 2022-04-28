@@ -41,7 +41,6 @@ import jakarta.servlet.http.HttpServletRequest;
  * @author Juergen Hoeller
  * @author Trevor D. Cook
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @see MultipartResolver
  * @see MultipartFile
  * @see jakarta.servlet.http.HttpServletRequest#getParameter
  * @see jakarta.servlet.http.HttpServletRequest#getParameterNames

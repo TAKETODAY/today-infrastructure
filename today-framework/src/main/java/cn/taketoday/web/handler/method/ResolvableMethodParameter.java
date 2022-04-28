@@ -155,6 +155,16 @@ public class ResolvableMethodParameter extends AttributeAccessorSupport {
   }
 
   /**
+   * Return {@code true} if the parameter has at least one annotation,
+   * {@code false} if it has none.
+   *
+   * @see #getParameterAnnotations()
+   */
+  public boolean hasParameterAnnotations() {
+    return parameter.hasParameterAnnotations();
+  }
+
+  /**
    * Return whether the parameter is declared with the given annotation type.
    *
    * @param annotationType the annotation type to look for

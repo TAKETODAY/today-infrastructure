@@ -96,6 +96,10 @@ public class StandardServletAsyncWebRequest implements AsyncWebRequest, AsyncLis
     return asyncContext != null && ServletUtils.getServletRequest(requestContext).isAsyncStarted();
   }
 
+  public boolean isAsyncStarted(HttpServletRequest servletRequest) {
+    return asyncContext != null && servletRequest.isAsyncStarted();
+  }
+
   /**
    * Whether async request processing has completed.
    * <p>It is important to avoid use of request and response objects after async
@@ -121,7 +125,7 @@ public class StandardServletAsyncWebRequest implements AsyncWebRequest, AsyncLis
                     "filter declarations in web.xml.");
     Assert.state(!isAsyncComplete(), "Async processing has already completed");
 
-    if (isAsyncStarted()) {
+    if (isAsyncStarted(servletRequest)) {
       return;
     }
     HttpServletResponse servletResponse = ServletUtils.getServletResponse(requestContext);
