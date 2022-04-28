@@ -859,7 +859,7 @@ public abstract class ServletUtils {
    */
   public static List<Part> getParts(HttpServletRequest request, String name) throws MultipartException {
     try {
-      List<Part> parts = new ArrayList<>(1);
+      ArrayList<Part> parts = new ArrayList<>(1);
       for (Part part : request.getParts()) {
         if (part.getName().equals(name)) {
           parts.add(part);
@@ -869,6 +869,20 @@ public abstract class ServletUtils {
     }
     catch (Exception ex) {
       throw new MultipartException("Failed to get request parts", ex);
+    }
+  }
+
+  public static Part getPart(RequestContext request, String requestPartName) {
+    HttpServletRequest servletRequest = ServletUtils.getServletRequest(request);
+    return getPart(servletRequest, requestPartName);
+  }
+
+  public static Part getPart(HttpServletRequest request, String requestPartName) {
+    try {
+      return request.getPart(requestPartName);
+    }
+    catch (Exception ex) {
+      throw new MultipartException("Failed to retrieve request part '" + requestPartName + "'", ex);
     }
   }
 

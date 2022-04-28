@@ -26,6 +26,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Objects;
 
+import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.util.FileCopyUtils;
 import jakarta.servlet.http.Part;
 
@@ -75,6 +76,11 @@ public final class ServletPartMultipartFile extends AbstractMultipartFile implem
   @Override
   public String getName() {
     return part.getName();
+  }
+
+  @Override
+  public HttpHeaders getHeaders() {
+    return null;
   }
 
   /**

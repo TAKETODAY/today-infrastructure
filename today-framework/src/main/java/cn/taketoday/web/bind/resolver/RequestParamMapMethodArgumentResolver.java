@@ -31,10 +31,13 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.RequestContext;
+import cn.taketoday.web.ServletDetector;
 import cn.taketoday.web.annotation.RequestParam;
+import cn.taketoday.web.config.WebMvcProperties;
 import cn.taketoday.web.handler.method.ResolvableMethodParameter;
 import cn.taketoday.web.multipart.MultipartFile;
 import cn.taketoday.web.multipart.MultipartRequest;
+import cn.taketoday.web.servlet.ServletUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.Part;
 
@@ -78,12 +81,12 @@ public class RequestParamMapMethodArgumentResolver implements ParameterResolving
       // MultiValueMap
       Class<?> valueType = resolvableType.as(MultiValueMap.class).getGeneric(1).resolve();
       if (valueType == MultipartFile.class) {
-        MultipartRequest multipartRequest = MultipartResolutionDelegate.resolveMultipartRequest(webRequest);
+        MultipartRequest multipartRequest = context.getMultipartRequest();
         return (multipartRequest != null ? multipartRequest.getMultiFileMap() : new LinkedMultiValueMap<>(0));
       }
-      else if (valueType == Part.class) {
-        HttpServletRequest servletRequest = webRequest.getNativeRequest(HttpServletRequest.class);
-        if (servletRequest != null && MultipartResolutionDelegate.isMultipartRequest(servletRequest)) {
+      else if (ServletDetector.runningInServlet(context) && valueType == Part.class) {
+        if (context.isMultipart()) {
+          HttpServletRequest servletRequest = ServletUtils.getServletRequest(context);
           Collection<Part> parts = servletRequest.getParts();
           LinkedMultiValueMap<String, Part> result = new LinkedMultiValueMap<>(parts.size());
           for (Part part : parts) {
@@ -109,12 +112,12 @@ public class RequestParamMapMethodArgumentResolver implements ParameterResolving
       // Regular Map
       Class<?> valueType = resolvableType.asMap().getGeneric(1).resolve();
       if (valueType == MultipartFile.class) {
-        MultipartRequest multipartRequest = MultipartResolutionDelegate.resolveMultipartRequest(webRequest);
-        return (multipartRequest != null ? multipartRequest.getFileMap() : new LinkedHashMap<>(0));
+        MultipartRequest multipartRequest = context.getMultipartRequest();
+        return multipartRequest.getFileMap();
       }
       else if (valueType == Part.class) {
-        HttpServletRequest servletRequest = webRequest.getNativeRequest(HttpServletRequest.class);
-        if (servletRequest != null && MultipartResolutionDelegate.isMultipartRequest(servletRequest)) {
+        if (context.isMultipart()) {
+          HttpServletRequest servletRequest = ServletUtils.getServletRequest(context);
           Collection<Part> parts = servletRequest.getParts();
           LinkedHashMap<String, Part> result = CollectionUtils.newLinkedHashMap(parts.size());
           for (Part part : parts) {

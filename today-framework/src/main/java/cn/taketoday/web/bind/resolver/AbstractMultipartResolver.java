@@ -53,8 +53,8 @@ public abstract class AbstractMultipartResolver
       DataSize maxRequestSize = getMultipartConfiguration().getMaxRequestSize();
       // exceed max size?
       if (maxRequestSize.toBytes() < context.getContentLength()) {
-        throw new FileSizeExceededException(maxRequestSize, null)
-                .setActual(DataSize.ofBytes(context.getContentLength()));
+        throw new FileSizeExceededException(
+                maxRequestSize, null, DataSize.ofBytes(context.getContentLength()));
       }
       return resolveInternal(context, parameter, context.multipartFiles());
     }

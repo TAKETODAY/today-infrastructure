@@ -21,46 +21,27 @@
 package cn.taketoday.web.multipart.support;
 
 import java.util.Collections;
-import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-import cn.taketoday.core.LinkedMultiValueMap;
 import cn.taketoday.core.MultiValueMap;
-import cn.taketoday.http.HttpHeaders;
-import cn.taketoday.http.HttpMethod;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.RequestContextDecorator;
 import cn.taketoday.web.multipart.MultipartFile;
-import cn.taketoday.web.multipart.MultipartHttpServletRequest;
 import cn.taketoday.web.multipart.MultipartRequest;
 
 /**
- * Abstract base implementation of the {@link MultipartHttpServletRequest} interface.
+ * Abstract base implementation of the {@link MultipartRequest} interface.
  * <p>Provides management of pre-generated {@link MultipartFile} instances.
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/4/28 17:16
  */
-public abstract class AbstractMultipartRequest extends RequestContextDecorator implements MultipartRequest {
+public abstract class AbstractMultipartRequest implements MultipartRequest {
 
   @Nullable
   private MultiValueMap<String, MultipartFile> multipartFiles;
-
-  public AbstractMultipartRequest(RequestContext delegate) {
-    super(delegate);
-  }
-
-  public HttpMethod getRequestMethod() {
-    return getMethod();
-  }
-
-  public HttpHeaders getRequestHeaders() {
-    return requestHeaders();
-  }
 
   @Override
   public Iterator<String> getFileNames() {
@@ -97,7 +78,7 @@ public abstract class AbstractMultipartRequest extends RequestContextDecorator i
    * @see #getMultipartFiles()
    */
   public boolean isResolved() {
-    return (this.multipartFiles != null);
+    return multipartFiles != null;
   }
 
   /**
@@ -105,8 +86,7 @@ public abstract class AbstractMultipartRequest extends RequestContextDecorator i
    * To be invoked by subclasses on initialization.
    */
   protected final void setMultipartFiles(MultiValueMap<String, MultipartFile> multipartFiles) {
-    this.multipartFiles =
-            new LinkedMultiValueMap<>(multipartFiles);
+    this.multipartFiles = multipartFiles;
   }
 
   /**

@@ -27,12 +27,12 @@ import java.io.PrintWriter;
 import java.io.Serial;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.function.Consumer;
 
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.core.DefaultMultiValueMap;
@@ -43,7 +43,7 @@ import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.InvalidMediaTypeException;
 import cn.taketoday.http.MediaType;
 import cn.taketoday.http.ResponseCookie;
-import cn.taketoday.lang.Constant;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.CompositeIterator;
 import cn.taketoday.util.LinkedCaseInsensitiveMap;
@@ -53,7 +53,9 @@ import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.bind.MultipartException;
 import cn.taketoday.web.bind.NotMultipartRequestException;
 import cn.taketoday.web.multipart.MultipartFile;
+import cn.taketoday.web.multipart.MultipartRequest;
 import cn.taketoday.web.multipart.ServletPartMultipartFile;
+import cn.taketoday.web.multipart.support.ServletMultipartRequest;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -380,8 +382,21 @@ public final class ServletRequestContext extends RequestContext {
     }
 
     @Override
+    public void addAll(String key, @Nullable Collection<? extends String> values) {
+      if (values != null) {
+        for (final String value : values) {
+          add(key, value);
+        }
+      }
+    }
+
+    @Override
     public void addAll(MultiValueMap<String, String> values) {
-      values.forEach(this::addAll);
+      if (values != null) {
+        for (Entry<String, List<String>> entry : values.entrySet()) {
+          addAll(entry.getKey(), entry.getValue());
+        }
+      }
     }
 
     @Override
@@ -420,24 +435,11 @@ public final class ServletRequestContext extends RequestContext {
     response.sendError(sc, msg);
   }
 
-  // parseMultipartFiles
+  //
 
   @Override
-  protected MultiValueMap<String, MultipartFile> parseMultipartFiles() {
-    DefaultMultiValueMap<String, MultipartFile> multipartFiles = MultiValueMap.fromLinkedHashMap();
-    try {
-      for (final Part part : request.getParts()) {
-        final String name = part.getName();
-        multipartFiles.add(name, new ServletPartMultipartFile(part));
-      }
-      return multipartFiles;
-    }
-    catch (IOException e) {
-      throw new MultipartException("MultipartFile parsing failed.", e);
-    }
-    catch (ServletException e) {
-      throw new NotMultipartRequestException("This is not a multipart request", e);
-    }
+  protected MultipartRequest createMultipartRequest() {
+    return new ServletMultipartRequest(request);
   }
 
   @Override

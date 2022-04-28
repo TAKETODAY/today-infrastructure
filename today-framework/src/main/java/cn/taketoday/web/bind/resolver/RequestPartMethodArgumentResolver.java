@@ -129,7 +129,7 @@ public class RequestPartMethodArgumentResolver extends AbstractMessageConverterP
     }
     else {
       try {
-        HttpInputMessage inputMessage = new RequestPartServletServerHttpRequest(context, name);
+        var inputMessage = new RequestPartServletServerHttpRequest(context, name);
         arg = readWithMessageConverters(inputMessage, parameter, parameter.getNestedGenericParameterType());
         BindingContext binderFactory = context.getBindingContext();
         if (binderFactory != null) {

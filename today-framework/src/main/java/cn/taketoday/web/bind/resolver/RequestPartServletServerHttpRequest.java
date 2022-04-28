@@ -31,20 +31,18 @@ import cn.taketoday.http.HttpInputMessage;
 import cn.taketoday.http.HttpRequest;
 import cn.taketoday.http.MediaType;
 import cn.taketoday.http.client.support.HttpRequestDecorator;
-import cn.taketoday.http.server.ServerHttpRequest;
-import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.RequestContext;
+import cn.taketoday.web.ServletDetector;
 import cn.taketoday.web.bind.MultipartException;
 import cn.taketoday.web.multipart.MultipartFile;
-import cn.taketoday.web.multipart.MultipartHttpServletRequest;
-import cn.taketoday.web.multipart.support.DefaultMultipartHttpServletRequest;
+import cn.taketoday.web.multipart.MultipartRequest;
+import cn.taketoday.web.servlet.ServletUtils;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.Part;
 
 /**
  * {@link HttpRequest} implementation that accesses one part of a multipart
- * request. If using {@link MultipartResolver} configuration the part is accessed
- * through a {@link MultipartFile}. Or if using Servlet multipart processing
- * the part is accessed through {@code ServletRequest.getPart}.
+ * request.
  *
  * @author Rossen Stoyanchev
  * @author Juergen Hoeller
@@ -53,31 +51,32 @@ import jakarta.servlet.http.Part;
  */
 public class RequestPartServletServerHttpRequest extends HttpRequestDecorator implements HttpInputMessage {
 
-  private final MultipartHttpServletRequest multipartRequest;
-
+  private final RequestContext request;
   private final String requestPartName;
-
   private final HttpHeaders multipartHeaders;
+  private final MultipartRequest multipartRequest;
+  private final boolean runningInServlet;
 
   /**
    * Create a new {@code RequestPartServletServerHttpRequest} instance.
    *
    * @param request the current servlet request
-   * @param requestPartName the name of the part to adapt to the {@link ServerHttpRequest} contract
+   * @param requestPartName the name of the part to adapt to the {@link HttpRequest} contract
    * @throws MissingRequestPartException if the request part cannot be found
    * @throws MultipartException if MultipartHttpServletRequest cannot be initialized
    */
   public RequestPartServletServerHttpRequest(RequestContext request, String requestPartName)
           throws MissingRequestPartException {
     super(request);
-
+    this.request = request;
     this.requestPartName = requestPartName;
-    this.multipartRequest = MultipartResolutionDelegate.asMultipartHttpServletRequest(request);
+    this.multipartRequest = request.getMultipartRequest();
     HttpHeaders multipartHeaders = multipartRequest.getMultipartHeaders(requestPartName);
     if (multipartHeaders == null) {
       throw new MissingRequestPartException(requestPartName);
     }
     this.multipartHeaders = multipartHeaders;
+    this.runningInServlet = ServletDetector.runningInServlet(request);
   }
 
   @Override
@@ -88,9 +87,8 @@ public class RequestPartServletServerHttpRequest extends HttpRequestDecorator im
   @Override
   public InputStream getBody() throws IOException {
     // Prefer Servlet Part resolution to cover file as well as parameter streams
-    boolean servletParts = multipartRequest instanceof DefaultMultipartHttpServletRequest;
-    if (servletParts) {
-      Part part = retrieveServletPart();
+    if (runningInServlet) {
+      Part part = ServletUtils.getPart(request, requestPartName);
       if (part != null) {
         return part.getInputStream();
       }
@@ -101,30 +99,13 @@ public class RequestPartServletServerHttpRequest extends HttpRequestDecorator im
     if (file != null) {
       return file.getInputStream();
     }
-    String paramValue = multipartRequest.getParameter(requestPartName);
+
+    String paramValue = request.getParameter(requestPartName);
     if (paramValue != null) {
       return new ByteArrayInputStream(paramValue.getBytes(determineCharset()));
     }
 
-    // Fallback: Servlet Part resolution even if not indicated
-    if (!servletParts) {
-      Part part = retrieveServletPart();
-      if (part != null) {
-        return part.getInputStream();
-      }
-    }
-
     throw new IllegalStateException("No body available for request part '" + requestPartName + "'");
-  }
-
-  @Nullable
-  private Part retrieveServletPart() {
-    try {
-      return multipartRequest.getPart(requestPartName);
-    }
-    catch (Exception ex) {
-      throw new MultipartException("Failed to retrieve request part '" + requestPartName + "'", ex);
-    }
   }
 
   private Charset determineCharset() {
@@ -135,8 +116,23 @@ public class RequestPartServletServerHttpRequest extends HttpRequestDecorator im
         return charset;
       }
     }
-    String encoding = multipartRequest.getCharacterEncoding();
-    return encoding != null ? Charset.forName(encoding) : StandardCharsets.UTF_8;
+
+    if (runningInServlet) {
+      String encoding = ServletDelegate.getCharacterEncoding(request);
+      return encoding != null ? Charset.forName(encoding) : StandardCharsets.UTF_8;
+    }
+    else {
+      return StandardCharsets.UTF_8;
+    }
+  }
+
+  static class ServletDelegate {
+
+    static String getCharacterEncoding(RequestContext request) {
+      HttpServletRequest servletRequest = ServletUtils.getServletRequest(request);
+      return servletRequest.getCharacterEncoding();
+    }
+
   }
 
 }

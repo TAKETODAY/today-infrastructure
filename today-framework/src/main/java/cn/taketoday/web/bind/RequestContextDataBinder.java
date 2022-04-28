@@ -27,6 +27,7 @@ import cn.taketoday.validation.BindException;
 import cn.taketoday.validation.DataBinder;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.multipart.MultipartFile;
+import cn.taketoday.web.multipart.MultipartRequest;
 
 /**
  * Special {@link DataBinder} to perform data binding from web request parameters
@@ -126,7 +127,8 @@ public class RequestContextDataBinder extends WebDataBinder {
   public PropertyValues getValuesToBind(RequestContext request) {
     PropertyValues propertyValues = new PropertyValues(request.getParameters());
     if (request.isMultipart()) {
-      MultiValueMap<String, MultipartFile> multipartFiles = request.multipartFiles();
+      MultipartRequest multipartRequest = request.getMultipartRequest();
+      MultiValueMap<String, MultipartFile> multipartFiles = multipartRequest.getMultiFileMap();
       if (multipartFiles != null) {
         bindMultipart(multipartFiles, propertyValues);
       }

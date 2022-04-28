@@ -44,6 +44,7 @@ import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.bind.resolver.ParameterReadFailedException;
 import cn.taketoday.web.multipart.MultipartFile;
+import cn.taketoday.web.multipart.MultipartRequest;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufInputStream;
 import io.netty.buffer.ByteBufOutputStream;
@@ -530,15 +531,8 @@ public class NettyRequestContext extends RequestContext {
   }
 
   @Override
-  protected MultiValueMap<String, MultipartFile> parseMultipartFiles() {
-    DefaultMultiValueMap<String, MultipartFile> multipartFiles = MultiValueMap.fromLinkedHashMap();
-    for (InterfaceHttpData data : requestDecoder().getBodyHttpDatas()) {
-      if (data instanceof FileUpload) {
-        String name = data.getName();
-        multipartFiles.add(name, new FileUploadMultipartFile((FileUpload) data));
-      }
-    }
-    return multipartFiles;
+  protected MultipartRequest createMultipartRequest() {
+    return new NettyMultipartRequest(this, this::requestDecoder);
   }
 
   public void setCommitted(boolean committed) {

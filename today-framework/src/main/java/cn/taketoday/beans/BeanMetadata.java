@@ -272,7 +272,7 @@ public final class BeanMetadata implements Iterable<BeanProperty> {
   }
 
   //---------------------------------------------------------------------
-  // static
+  // static factory method
   //---------------------------------------------------------------------
 
   /**

@@ -41,8 +41,7 @@ import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpStatus;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.web.multipart.MultipartFile;
-import cn.taketoday.web.view.Model;
+import cn.taketoday.web.multipart.MultipartRequest;
 
 /**
  * Provides a convenient implementation of the RequestContext
@@ -173,19 +172,24 @@ public class RequestContextDecorator extends RequestContext {
   public HttpHeaders getHeaders() { return delegate.getHeaders(); }
 
   @Override
-  public InputStream getInputStream() throws IOException { return delegate.getInputStream(); }
+  public InputStream getInputStream() throws IOException {
+    return delegate.getInputStream();
+  }
 
   @Override
-  public InputStream doGetInputStream() throws IOException { return delegate.doGetInputStream(); }
+  public InputStream doGetInputStream() throws IOException {
+    return delegate.doGetInputStream();
+  }
 
   @Override
-  public BufferedReader getReader() throws IOException { return delegate.getReader(); }
+  public BufferedReader getReader() throws IOException {
+    return delegate.getReader();
+  }
 
   @Override
-  public BufferedReader doGetReader() throws IOException { return delegate.doGetReader(); }
-
-  @Override
-  public MultiValueMap<String, MultipartFile> multipartFiles() { return delegate.multipartFiles(); }
+  public BufferedReader doGetReader() throws IOException {
+    return delegate.doGetReader();
+  }
 
   @Override
   public boolean isMultipart() {
@@ -193,22 +197,29 @@ public class RequestContextDecorator extends RequestContext {
   }
 
   @Override
-  public MultiValueMap<String, MultipartFile> parseMultipartFiles() { return delegate.parseMultipartFiles(); }
+  public String getContentType() {
+    return delegate.getContentType();
+  }
 
   @Override
-  public String getContentType() { return delegate.getContentType(); }
+  public HttpHeaders requestHeaders() {
+    return delegate.requestHeaders();
+  }
 
   @Override
-  public HttpHeaders requestHeaders() { return delegate.requestHeaders(); }
+  public HttpHeaders createRequestHeaders() {
+    return delegate.createRequestHeaders();
+  }
 
   @Override
-  public HttpHeaders createRequestHeaders() { return delegate.createRequestHeaders(); }
+  public Locale getLocale() {
+    return delegate.getLocale();
+  }
 
   @Override
-  public Locale getLocale() { return delegate.getLocale(); }
-
-  @Override
-  public Locale doGetLocale() { return delegate.doGetLocale(); }
+  public Locale doGetLocale() {
+    return delegate.doGetLocale();
+  }
 
   @Override
   public boolean checkNotModified(long lastModifiedTimestamp) {
@@ -231,46 +242,74 @@ public class RequestContextDecorator extends RequestContext {
   }
 
   @Override
-  public void setContentLength(long length) { delegate.setContentLength(length); }
+  public void setContentLength(long length) {
+    delegate.setContentLength(length);
+  }
 
   @Override
-  public boolean isCommitted() { return delegate.isCommitted(); }
+  public boolean isCommitted() {
+    return delegate.isCommitted();
+  }
 
   @Override
-  public void reset() { delegate.reset(); }
+  public void reset() {
+    delegate.reset();
+  }
 
   @Override
-  public void sendRedirect(String location) throws IOException { delegate.sendRedirect(location); }
+  public void sendRedirect(String location) throws IOException {
+    delegate.sendRedirect(location);
+  }
 
   @Override
-  public void setStatus(int sc) { delegate.setStatus(sc); }
+  public void setStatus(int sc) {
+    delegate.setStatus(sc);
+  }
 
   @Override
-  public void setStatus(int status, String message) { delegate.setStatus(status, message); }
+  public void setStatus(int status, String message) {
+    delegate.setStatus(status, message);
+  }
 
   @Override
-  public void setStatus(HttpStatus status) { delegate.setStatus(status); }
+  public void setStatus(HttpStatus status) {
+    delegate.setStatus(status);
+  }
 
   @Override
-  public int getStatus() { return delegate.getStatus(); }
+  public int getStatus() {
+    return delegate.getStatus();
+  }
 
   @Override
-  public void sendError(int sc) throws IOException { delegate.sendError(sc); }
+  public void sendError(int sc) throws IOException {
+    delegate.sendError(sc);
+  }
 
   @Override
-  public void sendError(int sc, String msg) throws IOException { delegate.sendError(sc, msg); }
+  public void sendError(int sc, String msg) throws IOException {
+    delegate.sendError(sc, msg);
+  }
 
   @Override
-  public OutputStream getOutputStream() throws IOException { return delegate.getOutputStream(); }
+  public OutputStream getOutputStream() throws IOException {
+    return delegate.getOutputStream();
+  }
 
   @Override
-  public OutputStream doGetOutputStream() throws IOException { return delegate.doGetOutputStream(); }
+  public OutputStream doGetOutputStream() throws IOException {
+    return delegate.doGetOutputStream();
+  }
 
   @Override
-  public PrintWriter getWriter() throws IOException { return delegate.getWriter(); }
+  public PrintWriter getWriter() throws IOException {
+    return delegate.getWriter();
+  }
 
   @Override
-  public PrintWriter doGetWriter() throws IOException { return delegate.doGetWriter(); }
+  public PrintWriter doGetWriter() throws IOException {
+    return delegate.doGetWriter();
+  }
 
   @Override
   public void setContentType(String contentType) {
@@ -284,27 +323,41 @@ public class RequestContextDecorator extends RequestContext {
   }
 
   @Override
-  public HttpHeaders responseHeaders() { return delegate.responseHeaders(); }
+  public HttpHeaders responseHeaders() {
+    return delegate.responseHeaders();
+  }
 
   @Override
-  public void mergeToResponse(HttpHeaders headers) { delegate.mergeToResponse(headers); }
+  public void mergeToResponse(HttpHeaders headers) {
+    delegate.mergeToResponse(headers);
+  }
 
   @Override
-  public HttpHeaders createResponseHeaders() { return delegate.createResponseHeaders(); }
+  public HttpHeaders createResponseHeaders() {
+    return delegate.createResponseHeaders();
+  }
 
   @Override
-  public <T> T nativeRequest() { return delegate.nativeRequest(); }
+  public <T> T nativeRequest() {
+    return delegate.nativeRequest();
+  }
 
   @Override
   @Nullable
-  public <T> T unwrapRequest(Class<T> requestClass) { return delegate.unwrapRequest(requestClass); }
+  public <T> T unwrapRequest(Class<T> requestClass) {
+    return delegate.unwrapRequest(requestClass);
+  }
 
   @Override
-  public <T> T nativeResponse() { return delegate.nativeResponse(); }
+  public <T> T nativeResponse() {
+    return delegate.nativeResponse();
+  }
 
   @Override
   @Nullable
-  public <T> T unwrapResponse(Class<T> responseClass) { return delegate.unwrapResponse(responseClass); }
+  public <T> T unwrapResponse(Class<T> responseClass) {
+    return delegate.unwrapResponse(responseClass);
+  }
 
   @Override
   public HandlerMatchingMetadata getMatchingMetadata() {
@@ -354,6 +407,16 @@ public class RequestContextDecorator extends RequestContext {
   @Override
   public void cleanupMultipartFiles() {
     delegate.cleanupMultipartFiles();
+  }
+
+  @Override
+  protected MultipartRequest createMultipartRequest() {
+    return delegate.createMultipartRequest();
+  }
+
+  @Override
+  public MultipartRequest getMultipartRequest() {
+    return delegate.getMultipartRequest();
   }
 
   @Override

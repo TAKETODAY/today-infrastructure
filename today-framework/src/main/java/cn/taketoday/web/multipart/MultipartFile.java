@@ -40,7 +40,7 @@ import cn.taketoday.util.FileCopyUtils;
  * @author TODAY <br>
  * 2018-07-11 13:02:52
  */
-public interface MultipartFile extends Serializable, InputStreamSource {
+public interface MultipartFile extends Multipart, Serializable, InputStreamSource {
 
   /**
    * Get upload file content type.

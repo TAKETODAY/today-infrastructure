@@ -24,11 +24,13 @@ import java.util.List;
 import java.util.Map;
 
 import cn.taketoday.core.MultiValueMap;
+import cn.taketoday.http.HttpHeaders;
+import cn.taketoday.http.HttpMethod;
 import cn.taketoday.lang.Nullable;
 
 /**
  * This interface defines the multipart request access operations that are exposed
- * for actual multipart requests. It is extended by {@link MultipartHttpServletRequest}.
+ * for actual multipart requests.
  *
  * @author Juergen Hoeller
  * @author Arjen Poutsma
@@ -90,5 +92,24 @@ public interface MultipartRequest {
    */
   @Nullable
   String getMultipartContentType(String paramOrFileName);
+
+  /**
+   * Return this request's method as a convenient HttpMethod instance.
+   */
+  HttpMethod getRequestMethod();
+
+  /**
+   * Return this request's headers as a convenient HttpHeaders instance.
+   */
+  HttpHeaders getRequestHeaders();
+
+  /**
+   * Return the headers for the specified part of the multipart request.
+   * <p>If the underlying implementation supports access to part headers,
+   * then all headers are returned. Otherwise, e.g. for a file upload, the
+   * returned headers may expose a 'Content-Type' if available.
+   */
+  @Nullable
+  HttpHeaders getMultipartHeaders(String paramOrFileName);
 
 }

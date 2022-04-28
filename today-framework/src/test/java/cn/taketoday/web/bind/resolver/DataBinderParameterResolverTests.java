@@ -138,11 +138,6 @@ public class DataBinderParameterResolverTests {
       return parameters;
     }
 
-    @Override
-    public MultiValueMap<String, MultipartFile> multipartFiles() {
-      return multipartFiles;
-    }
-
     public void setMultipartFiles(MultiValueMap<String, MultipartFile> multipartFiles) {
       this.multipartFiles = multipartFiles;
     }

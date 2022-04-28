@@ -58,6 +58,7 @@ import cn.taketoday.web.bind.annotation.ModelAttribute;
 import cn.taketoday.web.bind.resolver.ParameterResolvingStrategy;
 import cn.taketoday.web.handler.result.HandlerMethodReturnValueHandler;
 import cn.taketoday.web.multipart.MultipartFile;
+import cn.taketoday.web.multipart.MultipartRequest;
 
 /**
  * Resolve {@code @ModelAttribute} annotated method arguments and handle
@@ -407,11 +408,14 @@ public class ModelAttributeMethodProcessor implements ParameterResolvingStrategy
 
   @Nullable
   public Object resolveConstructorArgument(String paramName, Class<?> paramType, RequestContext request) throws Exception {
-    MultiValueMap<String, MultipartFile> multipartFiles = request.multipartFiles();
-    if (CollectionUtils.isNotEmpty(multipartFiles)) {
-      List<MultipartFile> files = multipartFiles.get(paramName);
-      if (CollectionUtils.isNotEmpty(files)) {
-        return files.size() == 1 ? files.get(0) : files;
+    if (request.isMultipart()) {
+      MultipartRequest multipartRequest = request.getMultipartRequest();
+      MultiValueMap<String, MultipartFile> multipartFiles = multipartRequest.getMultiFileMap();
+      if (CollectionUtils.isNotEmpty(multipartFiles)) {
+        List<MultipartFile> files = multipartFiles.get(paramName);
+        if (CollectionUtils.isNotEmpty(files)) {
+          return files.size() == 1 ? files.get(0) : files;
+        }
       }
     }
 

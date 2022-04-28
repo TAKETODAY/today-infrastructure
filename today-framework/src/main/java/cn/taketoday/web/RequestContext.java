@@ -67,6 +67,7 @@ import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.bind.MultipartException;
 import cn.taketoday.web.bind.NotMultipartRequestException;
 import cn.taketoday.web.multipart.MultipartFile;
+import cn.taketoday.web.multipart.MultipartRequest;
 
 import static cn.taketoday.lang.Constant.DEFAULT_CHARSET;
 
@@ -102,6 +103,7 @@ public abstract class RequestContext extends AttributeAccessorSupport
   protected InputStream inputStream;
   protected OutputStream outputStream;
 
+  @Deprecated
   protected MultiValueMap<String, MultipartFile> multipartFiles;
 
   /** @since 3.0 */
@@ -124,9 +126,6 @@ public abstract class RequestContext extends AttributeAccessorSupport
   protected URI uri;
 
   /** @since 4.0 */
-  private boolean requestHandled = false;
-
-  /** @since 4.0 */
   protected HttpMethod httpMethod;
 
   /** @since 4.0 */
@@ -143,6 +142,9 @@ public abstract class RequestContext extends AttributeAccessorSupport
 
   /** @since 4.0 */
   protected final ApplicationContext applicationContext;
+
+  /** @since 4.0 */
+  protected MultipartRequest multipartRequest;
 
   protected boolean notModified = false;
 
@@ -604,7 +606,7 @@ public abstract class RequestContext extends AttributeAccessorSupport
    * @since 4.0
    */
   public boolean isMultipart() {
-    if (!"POST".equals(getMethodValue())) {
+    if (HttpMethod.POST != getMethod()) {
       return false;
     }
     String contentType = getContentType();
@@ -612,23 +614,29 @@ public abstract class RequestContext extends AttributeAccessorSupport
   }
 
   /**
-   * Get all {@link MultipartFile}s from current request
+   * @since 4.0
    */
-  public MultiValueMap<String, MultipartFile> multipartFiles() {
-    if (multipartFiles == null) {
-      this.multipartFiles = parseMultipartFiles();
+  public MultipartRequest getMultipartRequest() {
+    if (multipartRequest == null) {
+      multipartRequest = createMultipartRequest();
     }
-    return multipartFiles;
+    return multipartRequest;
   }
 
   /**
-   * template method for different MultipartFile parsing strategy
+   * create MultipartRequest
    *
-   * @return map list {@link MultipartFile}
-   * @throws NotMultipartRequestException if this request is not of type multipart/form-data
-   * @throws MultipartException multipart parse failed
+   * @since 4.0
    */
-  protected abstract MultiValueMap<String, MultipartFile> parseMultipartFiles();
+  protected abstract MultipartRequest createMultipartRequest();
+
+  /**
+   * Get all {@link MultipartFile}s from current request
+   */
+  @Deprecated
+  public MultiValueMap<String, MultipartFile> multipartFiles() {
+    throw new UnsupportedOperationException();
+  }
 
   /**
    * Returns the MIME type of the body of the request, or <code>null</code> if the
