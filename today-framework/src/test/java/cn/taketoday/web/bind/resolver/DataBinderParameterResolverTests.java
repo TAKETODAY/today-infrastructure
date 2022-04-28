@@ -165,7 +165,7 @@ public class DataBinderParameterResolverTests {
 
     ParameterMockRequestContext context = new ParameterMockRequestContext(params);
     // new version
-    Object newVersion = resolver.resolveParameter(context, testUser);
+    Object newVersion = resolver.resolveArgument(context, testUser);
     assertThat(newVersion).isEqualTo(today);
   }
 
@@ -213,7 +213,7 @@ public class DataBinderParameterResolverTests {
     ParameterMockRequestContext context = new ParameterMockRequestContext(params);
 
     // new version
-    Object newVersion = resolver.resolveParameter(context, testUser);
+    Object newVersion = resolver.resolveArgument(context, testUser);
     assertThat(newVersion).isInstanceOf(UserForm.class);
 
     UserForm user = (UserForm) newVersion;
@@ -296,7 +296,7 @@ public class DataBinderParameterResolverTests {
     context.setMultipartFiles(map);
 
     // new version
-    Object newVersion = resolver.resolveParameter(context, testMultipartFileUserForm);
+    Object newVersion = resolver.resolveArgument(context, testMultipartFileUserForm);
     assertThat(newVersion).isInstanceOf(MultipartFileUserForm.class);
 
     System.out.println(newVersion);
@@ -349,7 +349,7 @@ public class DataBinderParameterResolverTests {
     ParameterMockRequestContext context = new ParameterMockRequestContext(params);
 
     // new version
-    Object parameter = resolver.resolveParameter(context, testListUsers);
+    Object parameter = resolver.resolveArgument(context, testListUsers);
 
     assertThat(parameter)
             .isInstanceOf(List.class);
@@ -389,7 +389,7 @@ public class DataBinderParameterResolverTests {
     // set
 
     // new version
-    Object setParameter = resolver.resolveParameter(context, testUserSet);
+    Object setParameter = resolver.resolveArgument(context, testUserSet);
 
     assertThat(setParameter)
             .isInstanceOf(Set.class);
@@ -461,7 +461,7 @@ public class DataBinderParameterResolverTests {
     ParameterMockRequestContext context = new ParameterMockRequestContext(params);
 
     // array
-    Object parameter = resolver.resolveParameter(context, testUserArray);
+    Object parameter = resolver.resolveArgument(context, testUserArray);
 
     assertThat(parameter)
             .isInstanceOf(UserForm[].class);
@@ -539,7 +539,7 @@ public class DataBinderParameterResolverTests {
     ParameterMockRequestContext context = new ParameterMockRequestContext(params);
 
     // array
-    Object parameter = resolver.resolveParameter(context, testMapUser);
+    Object parameter = resolver.resolveArgument(context, testMapUser);
 
     assertThat(parameter)
             .isInstanceOf(Map.class);

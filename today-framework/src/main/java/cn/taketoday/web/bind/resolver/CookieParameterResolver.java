@@ -108,7 +108,7 @@ public class CookieParameterResolver
     }
 
     @Override
-    public Object resolveParameter(final RequestContext requestContext, final ResolvableMethodParameter resolvable) throws Throwable {
+    public Object resolveArgument(final RequestContext requestContext, final ResolvableMethodParameter resolvable) throws Throwable {
       return requestContext.getCookies();
     }
   }

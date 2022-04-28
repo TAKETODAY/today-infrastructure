@@ -42,7 +42,7 @@ public class SimpleArrayParameterResolver implements ParameterResolvingStrategy 
   }
 
   @Override
-  public Object resolveParameter(final RequestContext context, final ResolvableMethodParameter resolvable) throws Throwable {
+  public Object resolveArgument(final RequestContext context, final ResolvableMethodParameter resolvable) throws Throwable {
     final String name = resolvable.getName();
     // parameter value[]
     String[] values = context.getParameters(name);

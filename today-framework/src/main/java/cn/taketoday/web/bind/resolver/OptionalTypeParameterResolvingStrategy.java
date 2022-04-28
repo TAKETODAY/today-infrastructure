@@ -50,7 +50,7 @@ public class OptionalTypeParameterResolvingStrategy implements ParameterResolvin
 
   @Nullable
   @Override
-  public Object resolveParameter(RequestContext context, ResolvableMethodParameter resolvable) throws Throwable {
+  public Object resolveArgument(RequestContext context, ResolvableMethodParameter resolvable) throws Throwable {
     ResolvableMethodParameter nested = resolvable.nested();
     Object parameter = nested.resolveParameter(context);
     return Optional.ofNullable(parameter);

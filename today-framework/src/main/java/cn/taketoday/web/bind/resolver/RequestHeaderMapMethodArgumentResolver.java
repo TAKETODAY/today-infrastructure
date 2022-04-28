@@ -59,7 +59,7 @@ public class RequestHeaderMapMethodArgumentResolver implements ParameterResolvin
 
   @Nullable
   @Override
-  public Object resolveParameter(RequestContext context, ResolvableMethodParameter resolvable) throws Throwable {
+  public Object resolveArgument(RequestContext context, ResolvableMethodParameter resolvable) throws Throwable {
     HttpHeaders headers = context.getHeaders();
     Class<?> paramType = resolvable.getParameterType();
     if (paramType == HttpHeaders.class) {

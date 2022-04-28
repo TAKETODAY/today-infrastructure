@@ -46,7 +46,7 @@ public class AutowiredParameterResolver implements ParameterResolvingStrategy {
 
   @Nullable
   @Override
-  public Object resolveParameter(RequestContext context, ResolvableMethodParameter resolvable) throws Throwable {
+  public Object resolveArgument(RequestContext context, ResolvableMethodParameter resolvable) throws Throwable {
     return injector.resolveValue(new DependencyDescriptor(resolvable.getParameter(), true));
   }
 

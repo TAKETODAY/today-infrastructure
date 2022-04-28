@@ -54,7 +54,7 @@ public interface ParameterResolvingStrategy {
    * @see MethodParameterResolvingException
    */
   @Nullable
-  Object resolveParameter(RequestContext context, ResolvableMethodParameter resolvable) throws Throwable;
+  Object resolveArgument(RequestContext context, ResolvableMethodParameter resolvable) throws Throwable;
 
   @FunctionalInterface
   interface SupportsFunction {

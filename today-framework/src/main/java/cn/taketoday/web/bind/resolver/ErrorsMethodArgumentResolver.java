@@ -54,7 +54,7 @@ public class ErrorsMethodArgumentResolver implements ParameterResolvingStrategy 
 
   @Nullable
   @Override
-  public Object resolveParameter(RequestContext context, ResolvableMethodParameter resolvable) throws Throwable {
+  public Object resolveArgument(RequestContext context, ResolvableMethodParameter resolvable) throws Throwable {
     BindingContext bindingContext = context.getBindingContext();
     Assert.state(bindingContext != null,
             "Errors/BindingResult argument only supported on regular handler methods");

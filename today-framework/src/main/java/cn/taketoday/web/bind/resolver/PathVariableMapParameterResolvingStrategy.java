@@ -54,7 +54,7 @@ public class PathVariableMapParameterResolvingStrategy implements ParameterResol
    */
   @Nullable
   @Override
-  public Object resolveParameter(RequestContext context, ResolvableMethodParameter resolvable) throws Throwable {
+  public Object resolveArgument(RequestContext context, ResolvableMethodParameter resolvable) throws Throwable {
     Map<String, String> uriVariables = context.getMatchingMetadata().getUriVariables();
     if (CollectionUtils.isNotEmpty(uriVariables)) {
       return new LinkedHashMap<>(uriVariables);

@@ -67,7 +67,7 @@ public class ServletParameterResolvers {
     }
 
     @Override
-    public Object resolveParameter(RequestContext context, ResolvableMethodParameter resolvable) throws Throwable {
+    public Object resolveArgument(RequestContext context, ResolvableMethodParameter resolvable) throws Throwable {
       return ServletUtils.getServletRequest(context);
     }
   }
@@ -80,7 +80,7 @@ public class ServletParameterResolvers {
     }
 
     @Override
-    public Object resolveParameter(RequestContext context, ResolvableMethodParameter resolvable) throws Throwable {
+    public Object resolveArgument(RequestContext context, ResolvableMethodParameter resolvable) throws Throwable {
       return ServletUtils.getServletResponse(context);
     }
   }
@@ -93,7 +93,7 @@ public class ServletParameterResolvers {
     }
 
     @Override
-    public Object resolveParameter(
+    public Object resolveArgument(
             RequestContext context, ResolvableMethodParameter resolvable) throws Throwable {
       return ServletUtils.getHttpSession(context);
     }
@@ -107,7 +107,7 @@ public class ServletParameterResolvers {
     }
 
     @Override
-    public Object resolveParameter(RequestContext context, ResolvableMethodParameter resolvable) throws Throwable {
+    public Object resolveArgument(RequestContext context, ResolvableMethodParameter resolvable) throws Throwable {
       HttpSession httpSession = ServletUtils.getHttpSession(context, false);
       if (httpSession == null) {
         return null;
@@ -130,7 +130,7 @@ public class ServletParameterResolvers {
     }
 
     @Override
-    public Object resolveParameter(RequestContext context, ResolvableMethodParameter resolvable) throws Throwable {
+    public Object resolveArgument(RequestContext context, ResolvableMethodParameter resolvable) throws Throwable {
       return servletContext;
     }
   }
@@ -145,7 +145,7 @@ public class ServletParameterResolvers {
     }
 
     @Override
-    public Object resolveParameter(RequestContext context, ResolvableMethodParameter resolvable) throws Throwable {
+    public Object resolveArgument(RequestContext context, ResolvableMethodParameter resolvable) throws Throwable {
 
       String name = resolvable.getName();
       for (Cookie cookie : context.unwrapRequest(HttpServletRequest.class).getCookies()) {
@@ -186,7 +186,7 @@ public class ServletParameterResolvers {
     }
 
     @Override
-    public Object resolveParameter(RequestContext context, ResolvableMethodParameter resolvable) throws Throwable {
+    public Object resolveArgument(RequestContext context, ResolvableMethodParameter resolvable) throws Throwable {
       return ServletUtils.getServletRequest(context).getCookies();
     }
   }
@@ -204,7 +204,7 @@ public class ServletParameterResolvers {
     }
 
     @Override
-    public Object resolveParameter(RequestContext context, ResolvableMethodParameter resolvable) throws Throwable {
+    public Object resolveArgument(RequestContext context, ResolvableMethodParameter resolvable) throws Throwable {
       return servletContext.getAttribute(resolvable.getName());
     }
   }

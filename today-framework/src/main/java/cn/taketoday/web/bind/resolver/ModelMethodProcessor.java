@@ -95,7 +95,7 @@ public class ModelMethodProcessor implements HandlerMethodReturnValueHandler, Pa
 
   @Nullable
   @Override
-  public Object resolveParameter(RequestContext context, ResolvableMethodParameter resolvable) throws Throwable {
+  public Object resolveArgument(RequestContext context, ResolvableMethodParameter resolvable) throws Throwable {
     if (resolvable.is(RedirectModel.class)) {
       RedirectModel redirectModel = new RedirectModel();
       context.setAttribute(RedirectModel.OUTPUT_ATTRIBUTE, redirectModel);

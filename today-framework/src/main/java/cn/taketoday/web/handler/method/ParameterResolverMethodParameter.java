@@ -56,7 +56,7 @@ public class ParameterResolverMethodParameter extends ResolvableMethodParameter 
       resolver = resolvers.obtainStrategy(this);
       this.resolver = resolver;
     }
-    return resolver.resolveParameter(request, this);
+    return resolver.resolveArgument(request, this);
   }
 
   @Override

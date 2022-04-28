@@ -37,7 +37,7 @@ public abstract class AbstractParameterResolver implements ParameterResolvingStr
    * @throws MissingRequestValueException parameter cannot be resolved
    */
   @Override
-  public Object resolveParameter(
+  public Object resolveArgument(
           final RequestContext context, final ResolvableMethodParameter resolvable) throws Throwable {
     final Object parameterValue = resolveInternal(context, resolvable);
     if (parameterValue == null) {

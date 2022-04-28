@@ -88,7 +88,7 @@ public abstract class AbstractNamedValueResolvingStrategy implements ParameterRe
 
   @Nullable
   @Override
-  public final Object resolveParameter(
+  public final Object resolveArgument(
           RequestContext context, ResolvableMethodParameter resolvable) throws Throwable {
 
     MethodParameter methodParameter = resolvable.getParameter();

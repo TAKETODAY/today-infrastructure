@@ -52,7 +52,7 @@ public class UriComponentsBuilderParameterStrategy implements ParameterResolving
 
   @Nullable
   @Override
-  public Object resolveParameter(RequestContext context, ResolvableMethodParameter resolvable) throws Throwable {
+  public Object resolveArgument(RequestContext context, ResolvableMethodParameter resolvable) throws Throwable {
     if (ServletDetector.runningInServlet(context)) {
       return ServletUriComponentsBuilder.fromServletMapping(ServletUtils.getServletRequest(context));
     }

@@ -46,7 +46,7 @@ public class WebSessionParameterResolver
 
   @Nullable
   @Override
-  public Object resolveParameter(RequestContext context, ResolvableMethodParameter resolvable) {
+  public Object resolveArgument(RequestContext context, ResolvableMethodParameter resolvable) {
     if (resolvable.isRequired()) {
       return getSession(context);
     }

@@ -145,7 +145,7 @@ public class HttpEntityMethodProcessor extends AbstractMessageConverterMethodPro
 
   @Nullable
   @Override
-  public Object resolveParameter(RequestContext context, ResolvableMethodParameter resolvable)
+  public Object resolveArgument(RequestContext context, ResolvableMethodParameter resolvable)
           throws IOException, HttpMediaTypeNotSupportedException {
     MethodParameter parameter = resolvable.getParameter();
     Type paramType = getHttpEntityType(parameter);

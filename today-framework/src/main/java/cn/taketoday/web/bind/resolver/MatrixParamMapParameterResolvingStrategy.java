@@ -61,7 +61,7 @@ public class MatrixParamMapParameterResolvingStrategy implements ParameterResolv
 
   @Nullable
   @Override
-  public Object resolveParameter(RequestContext context, ResolvableMethodParameter resolvable) throws Throwable {
+  public Object resolveArgument(RequestContext context, ResolvableMethodParameter resolvable) throws Throwable {
 
     Map<String, MultiValueMap<String, String>> matrixVariables = context.getMatchingMetadata().getMatrixVariables();
     if (CollectionUtils.isEmpty(matrixVariables)) {

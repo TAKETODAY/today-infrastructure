@@ -73,10 +73,10 @@ public class ParameterResolvingStrategies
 
   @Nullable
   @Override
-  public Object resolveParameter(RequestContext context, ResolvableMethodParameter resolvable) throws Throwable {
+  public Object resolveArgument(RequestContext context, ResolvableMethodParameter resolvable) throws Throwable {
     for (ParameterResolvingStrategy strategy : strategies) {
       if (strategy.supportsParameter(resolvable)) {
-        return strategy.resolveParameter(context, resolvable);
+        return strategy.resolveArgument(context, resolvable);
       }
     }
     return null;

@@ -40,7 +40,7 @@ public class WebSocketSessionParameterResolver implements ParameterResolvingStra
   }
 
   @Override
-  public Object resolveParameter(RequestContext context, ResolvableMethodParameter resolvable) throws Throwable {
+  public Object resolveArgument(RequestContext context, ResolvableMethodParameter resolvable) throws Throwable {
     final Object attribute = context.getAttribute(WebSocketSession.WEBSOCKET_SESSION_KEY);
     if (attribute instanceof WebSocketSession) {
       return attribute;

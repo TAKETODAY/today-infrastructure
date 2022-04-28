@@ -144,7 +144,7 @@ public class DataBinderParameterResolver
    * @return Pojo parameter
    */
   @Override
-  public Object resolveParameter(
+  public Object resolveArgument(
           final RequestContext context, final ResolvableMethodParameter resolvable) throws Throwable {
     final Class<?> parameterClass = resolvable.getParameterType();
 
@@ -217,7 +217,7 @@ public class DataBinderParameterResolver
     }
 
     public PropertyValue resolve(RequestContext context) throws Throwable {
-      Object value = resolver.resolveParameter(context, parameter);
+      Object value = resolver.resolveArgument(context, parameter);
       return new PropertyValue(propertyName, value);
     }
 
