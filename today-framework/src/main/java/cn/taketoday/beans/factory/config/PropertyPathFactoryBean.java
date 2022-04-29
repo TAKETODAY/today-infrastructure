@@ -21,7 +21,6 @@ package cn.taketoday.beans.factory.config;
 
 import cn.taketoday.beans.BeanWrapper;
 import cn.taketoday.beans.BeansException;
-import cn.taketoday.beans.PropertyAccessorFactory;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanFactoryAware;
 import cn.taketoday.beans.factory.BeanFactoryUtils;
@@ -106,7 +105,7 @@ public class PropertyPathFactoryBean implements FactoryBean<Object>, BeanNameAwa
    * @see #setTargetBeanName
    */
   public void setTargetObject(Object targetObject) {
-    this.targetBeanWrapper = PropertyAccessorFactory.forBeanPropertyAccess(targetObject);
+    this.targetBeanWrapper = BeanWrapper.forBeanPropertyAccess(targetObject);
   }
 
   /**
@@ -187,7 +186,7 @@ public class PropertyPathFactoryBean implements FactoryBean<Object>, BeanNameAwa
     if (targetBeanWrapper == null && beanFactory.isSingleton(targetBeanName)) {
       // Eagerly fetch singleton target bean, and determine result type.
       Object bean = beanFactory.getBean(targetBeanName);
-      this.targetBeanWrapper = PropertyAccessorFactory.forBeanPropertyAccess(bean);
+      this.targetBeanWrapper = BeanWrapper.forBeanPropertyAccess(bean);
       this.resultType = targetBeanWrapper.getPropertyType(propertyPath);
     }
   }
@@ -209,7 +208,7 @@ public class PropertyPathFactoryBean implements FactoryBean<Object>, BeanNameAwa
       Assert.state(beanFactory != null, "No BeanFactory available");
       Assert.state(targetBeanName != null, "No target bean name specified");
       Object bean = beanFactory.getBean(targetBeanName);
-      target = PropertyAccessorFactory.forBeanPropertyAccess(bean);
+      target = BeanWrapper.forBeanPropertyAccess(bean);
     }
     Assert.state(propertyPath != null, "No property path specified");
     return target.getPropertyValue(propertyPath);

@@ -34,8 +34,8 @@ import cn.taketoday.lang.Nullable;
  * @author Juergen Hoeller
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see BeanWrapper
- * @see PropertyAccessorFactory#forBeanPropertyAccess
- * @see PropertyAccessorFactory#forDirectFieldAccess
+ * @see BeanWrapper#forBeanPropertyAccess
+ * @see BeanWrapper#forDirectFieldAccess
  * @since 4.0 2022/2/17 17:37
  */
 public interface PropertyAccessor {

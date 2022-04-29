@@ -41,7 +41,7 @@ import cn.taketoday.lang.Nullable;
  * <p><b>NOTE: this is - for almost all purposes - an
  * internal class.</b> It is just public in order to allow for access from
  * other framework packages. For standard application access purposes, use the
- * {@link PropertyAccessorFactory#forBeanPropertyAccess} factory method instead.
+ * {@link BeanWrapper#forBeanPropertyAccess} factory method instead.
  *
  * @author Rod Johnson
  * @author Juergen Hoeller

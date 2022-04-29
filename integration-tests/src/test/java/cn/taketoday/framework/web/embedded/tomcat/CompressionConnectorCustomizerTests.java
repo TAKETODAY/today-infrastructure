@@ -58,13 +58,11 @@ class CompressionConnectorCustomizerTests {
 
   @Test
   void shouldCustomizeCompression() throws LifecycleException {
-    CompressionConnectorCustomizer compressionConnectorCustomizer = new CompressionConnectorCustomizer(
-            this.compression);
     Connector connector = new Connector("org.apache.coyote.http11.Http11NioProtocol");
     Http2Protocol upgradeProtocol = new Http2Protocol();
     upgradeProtocol.setHttp11Protocol((AbstractHttp11Protocol<?>) connector.getProtocolHandler());
     connector.addUpgradeProtocol(upgradeProtocol);
-    compressionConnectorCustomizer.customize(connector);
+    CompressionConnectorCustomizer.customize(connector, compression);
     AbstractHttp11Protocol<?> abstractHttp11Protocol = (AbstractHttp11Protocol<?>) connector.getProtocolHandler();
     compressionOn(abstractHttp11Protocol.getCompression());
     minSize(abstractHttp11Protocol.getCompressionMinSize());

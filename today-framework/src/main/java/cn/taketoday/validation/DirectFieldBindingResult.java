@@ -20,8 +20,8 @@
 
 package cn.taketoday.validation;
 
+import cn.taketoday.beans.BeanWrapper;
 import cn.taketoday.beans.ConfigurablePropertyAccessor;
-import cn.taketoday.beans.PropertyAccessorFactory;
 import cn.taketoday.lang.Nullable;
 
 /**
@@ -102,7 +102,7 @@ public class DirectFieldBindingResult extends AbstractPropertyBindingResult {
     if (this.target == null) {
       throw new IllegalStateException("Cannot access fields on null target instance '" + getObjectName() + "'");
     }
-    return PropertyAccessorFactory.forDirectFieldAccess(this.target);
+    return BeanWrapper.forDirectFieldAccess(this.target);
   }
 
 }

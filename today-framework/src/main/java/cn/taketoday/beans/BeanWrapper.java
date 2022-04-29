@@ -45,7 +45,7 @@ import java.util.List;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see PropertyAccessor
  * @see PropertyEditorRegistry
- * @see PropertyAccessorFactory#forBeanPropertyAccess
+ * @see BeanWrapper#forBeanPropertyAccess
  * @see cn.taketoday.beans.factory.BeanFactory
  * @see cn.taketoday.validation.BeanPropertyBindingResult
  * @see cn.taketoday.validation.DataBinder#initBeanPropertyAccess()
@@ -96,4 +96,31 @@ public interface BeanWrapper extends ConfigurablePropertyAccessor {
    * Obtain BeanMetadata
    */
   BeanMetadata getMetadata();
+
+  // Static factory methods
+
+  /**
+   * Obtain a BeanWrapper for the given target object,
+   * accessing properties in JavaBeans style.
+   *
+   * @param target the target object to wrap
+   * @return the property accessor
+   * @see BeanWrapperImpl
+   */
+  static BeanWrapper forBeanPropertyAccess(Object target) {
+    return new BeanWrapperImpl(target);
+  }
+
+  /**
+   * Obtain a PropertyAccessor for the given target object,
+   * accessing properties in direct field style.
+   *
+   * @param target the target object to wrap
+   * @return the property accessor
+   * @see DirectFieldAccessor
+   */
+  static DirectFieldAccessor forDirectFieldAccess(Object target) {
+    return new DirectFieldAccessor(target);
+  }
+
 }

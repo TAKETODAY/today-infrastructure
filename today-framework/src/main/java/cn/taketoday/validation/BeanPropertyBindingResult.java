@@ -24,7 +24,6 @@ import java.io.Serializable;
 
 import cn.taketoday.beans.BeanWrapper;
 import cn.taketoday.beans.ConfigurablePropertyAccessor;
-import cn.taketoday.beans.PropertyAccessorFactory;
 import cn.taketoday.lang.Nullable;
 
 /**
@@ -117,7 +116,7 @@ public class BeanPropertyBindingResult extends AbstractPropertyBindingResult imp
     if (this.target == null) {
       throw new IllegalStateException("Cannot access properties on null bean instance '" + getObjectName() + "'");
     }
-    return PropertyAccessorFactory.forBeanPropertyAccess(this.target);
+    return BeanWrapper.forBeanPropertyAccess(this.target);
   }
 
 }
