@@ -28,7 +28,6 @@ import org.eclipse.jetty.webapp.WebAppContext;
 import org.xnio.SslClientAuthMode;
 
 import cn.taketoday.beans.factory.ObjectProvider;
-import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.condition.ConditionalOnClass;
 import cn.taketoday.context.condition.ConditionalOnMissingBean;
@@ -43,6 +42,7 @@ import cn.taketoday.framework.web.embedded.undertow.UndertowBuilderCustomizer;
 import cn.taketoday.framework.web.embedded.undertow.UndertowDeploymentInfoCustomizer;
 import cn.taketoday.framework.web.embedded.undertow.UndertowServletWebServerFactory;
 import cn.taketoday.framework.web.servlet.server.ServletWebServerFactory;
+import cn.taketoday.lang.Component;
 import io.undertow.Undertow;
 import jakarta.servlet.Servlet;
 
@@ -70,18 +70,15 @@ class ServletWebServerFactoryConfiguration {
   @ConditionalOnMissingBean(value = ServletWebServerFactory.class, search = SearchStrategy.CURRENT)
   static class EmbeddedTomcat {
 
-    @Bean
+    @Component
     TomcatServletWebServerFactory tomcatServletWebServerFactory(
             ObjectProvider<TomcatContextCustomizer> contextCustomizers,
             ObjectProvider<TomcatConnectorCustomizer> connectorCustomizers,
             ObjectProvider<TomcatProtocolHandlerCustomizer<?>> protocolHandlerCustomizers) {
       TomcatServletWebServerFactory factory = new TomcatServletWebServerFactory();
-      factory.getTomcatConnectorCustomizers()
-              .addAll(connectorCustomizers.orderedStream().toList());
-      factory.getTomcatContextCustomizers()
-              .addAll(contextCustomizers.orderedStream().toList());
-      factory.getTomcatProtocolHandlerCustomizers()
-              .addAll(protocolHandlerCustomizers.orderedStream().toList());
+      factory.getTomcatContextCustomizers().addAll(contextCustomizers.orderedStream().toList());
+      factory.getTomcatConnectorCustomizers().addAll(connectorCustomizers.orderedStream().toList());
+      factory.getTomcatProtocolHandlerCustomizers().addAll(protocolHandlerCustomizers.orderedStream().toList());
       return factory;
     }
 
@@ -95,7 +92,7 @@ class ServletWebServerFactoryConfiguration {
   @ConditionalOnMissingBean(value = ServletWebServerFactory.class, search = SearchStrategy.CURRENT)
   static class EmbeddedJetty {
 
-    @Bean
+    @Component
     JettyServletWebServerFactory JettyServletWebServerFactory(
             ObjectProvider<JettyServerCustomizer> serverCustomizers) {
       JettyServletWebServerFactory factory = new JettyServletWebServerFactory();
@@ -113,18 +110,17 @@ class ServletWebServerFactoryConfiguration {
   @ConditionalOnMissingBean(value = ServletWebServerFactory.class, search = SearchStrategy.CURRENT)
   static class EmbeddedUndertow {
 
-    @Bean
+    @Component
     UndertowServletWebServerFactory undertowServletWebServerFactory(
             ObjectProvider<UndertowDeploymentInfoCustomizer> deploymentInfoCustomizers,
             ObjectProvider<UndertowBuilderCustomizer> builderCustomizers) {
       UndertowServletWebServerFactory factory = new UndertowServletWebServerFactory();
-      factory.getDeploymentInfoCustomizers()
-              .addAll(deploymentInfoCustomizers.orderedStream().toList());
       factory.getBuilderCustomizers().addAll(builderCustomizers.orderedStream().toList());
+      factory.getDeploymentInfoCustomizers().addAll(deploymentInfoCustomizers.orderedStream().toList());
       return factory;
     }
 
-    @Bean
+    @Component
     UndertowServletWebServerFactoryCustomizer undertowServletWebServerFactoryCustomizer(
             ServerProperties serverProperties) {
       return new UndertowServletWebServerFactoryCustomizer(serverProperties);
