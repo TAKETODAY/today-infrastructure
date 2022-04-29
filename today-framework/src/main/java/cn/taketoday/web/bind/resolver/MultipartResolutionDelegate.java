@@ -32,25 +32,23 @@ import cn.taketoday.web.ServletDetector;
 import cn.taketoday.web.multipart.MultipartFile;
 import cn.taketoday.web.multipart.MultipartRequest;
 import cn.taketoday.web.servlet.ServletUtils;
-import cn.taketoday.web.util.WebUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.Part;
 
 /**
+ * A common delegate for {@code ParameterResolvingStrategy} implementations
+ * which need to resolve {@link MultipartFile} and {@link Part} arguments.
+ *
+ * @author Juergen Hoeller
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/4/28 15:44
  */
-public class MultipartResolutionDelegate {
+public final class MultipartResolutionDelegate {
 
   /**
    * Indicates an unresolvable value.
    */
   public static final Object UNRESOLVABLE = new Object();
-
-  private static boolean isMultipartContent(HttpServletRequest request) {
-    String contentType = request.getContentType();
-    return (contentType != null && contentType.toLowerCase().startsWith("multipart/"));
-  }
 
   public static boolean isMultipartArgument(MethodParameter parameter) {
     Class<?> paramType = parameter.getNestedParameterType();
@@ -70,44 +68,37 @@ public class MultipartResolutionDelegate {
   @Nullable
   public static Object resolveMultipartArgument(
           String name, MethodParameter parameter, RequestContext request) throws Exception {
+    if (!request.isMultipart()) {
+      return null;
+    }
 
     MultipartRequest multipartRequest = request.getMultipartRequest();
 
     if (MultipartFile.class == parameter.getNestedParameterType()) {
-      if (!request.isMultipart()) {
-        return null;
-      }
       return multipartRequest.getFile(name);
     }
     else if (isMultipartFileCollection(parameter)) {
-      if (!request.isMultipart()) {
-        return null;
-      }
       List<MultipartFile> files = multipartRequest.getFiles(name);
       return !files.isEmpty() ? files : null;
     }
     else if (isMultipartFileArray(parameter)) {
-      if (!request.isMultipart()) {
-        return null;
-      }
       List<MultipartFile> files = multipartRequest.getFiles(name);
       return !files.isEmpty() ? files.toArray(new MultipartFile[0]) : null;
     }
     else {
       if (ServletDetector.runningInServlet(request)) {
         return ServletDelegate.resolvePart(request, name, parameter);
-
       }
-      return UNRESOLVABLE;
     }
+    return UNRESOLVABLE;
   }
 
   private static boolean isMultipartFileCollection(MethodParameter methodParam) {
-    return (MultipartFile.class == getCollectionParameterType(methodParam));
+    return MultipartFile.class == getCollectionParameterType(methodParam);
   }
 
   private static boolean isMultipartFileArray(MethodParameter methodParam) {
-    return (MultipartFile.class == methodParam.getNestedParameterType().getComponentType());
+    return MultipartFile.class == methodParam.getNestedParameterType().getComponentType();
   }
 
   @Nullable
@@ -125,26 +116,16 @@ public class MultipartResolutionDelegate {
       HttpServletRequest servletRequest = ServletUtils.getServletRequest(request);
 
       if (Part.class == parameter.getNestedParameterType()) {
-        if (!request.isMultipart()) {
-          return null;
-        }
         return ServletUtils.getPart(servletRequest, name);
       }
       else if (isPartCollection(parameter)) {
-        if (!request.isMultipart()) {
-          return null;
-        }
         List<Part> parts = resolvePartList(servletRequest, name);
         return !parts.isEmpty() ? parts : null;
       }
       else if (isPartArray(parameter)) {
-        if (!request.isMultipart()) {
-          return null;
-        }
         List<Part> parts = resolvePartList(servletRequest, name);
         return !parts.isEmpty() ? parts.toArray(new Part[0]) : null;
       }
-
       return UNRESOLVABLE;
     }
 

@@ -17,34 +17,71 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
+
 package cn.taketoday.web.annotation;
 
+import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import cn.taketoday.core.annotation.AliasFor;
 import cn.taketoday.lang.Constant;
 
 /**
- * Annotation which indicates that a method parameter should be bound to a web
- * request header.
+ * Annotation which indicates that a method parameter should be bound to a web request header.
  *
+ * <p>Supported for annotated handler methods in Spring MVC and Spring WebFlux.
+ *
+ * <p>If the method parameter is {@link java.util.Map Map&lt;String, String&gt;},
+ * {@link cn.taketoday.core.MultiValueMap MultiValueMap&lt;String, String&gt;},
+ * or {@link cn.taketoday.http.HttpHeaders HttpHeaders} then the map is
+ * populated with all header names and values.
+ *
+ * @author Juergen Hoeller
+ * @author Sam Brannen
  * @author TODAY<br>
- * 2018-08-21 19:19 change
+ * @see RequestMapping
+ * @see RequestParam
+ * @see CookieValue
+ * @since 2018-08-21 19:19
  */
+@Documented
 @RequestParam
-@Target({ ElementType.PARAMETER, ElementType.FIELD })
 @Retention(RetentionPolicy.RUNTIME)
+@Target({ ElementType.PARAMETER, ElementType.FIELD })
 public @interface RequestHeader {
 
-  boolean required() default true;
-
-  /** Header name */
-  String value() default Constant.BLANK;
+  /**
+   * Alias for {@link #name}.
+   */
+  @AliasFor("name")
+  String value() default "";
 
   /**
-   * When required == false and parameter == null. use default value.
+   * The name of the request header to bind to.
+   *
+   * @since 4.0
+   */
+  @AliasFor("value")
+  String name() default "";
+
+  /**
+   * Whether the header is required.
+   * <p>Defaults to {@code true}, leading to an exception being thrown
+   * if the header is missing in the request. Switch this to
+   * {@code false} if you prefer a {@code null} value if the header is
+   * not present in the request.
+   * <p>Alternatively, provide a {@link #defaultValue}, which implicitly
+   * sets this flag to {@code false}.
+   */
+  boolean required() default true;
+
+  /**
+   * The default value to use as a fallback.
+   * <p>Supplying a default value implicitly sets {@link #required} to
+   * {@code false}.
    */
   String defaultValue() default Constant.DEFAULT_NONE;
 

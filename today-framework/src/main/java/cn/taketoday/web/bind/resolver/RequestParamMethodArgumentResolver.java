@@ -40,14 +40,13 @@ import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.annotation.RequestParam;
 import cn.taketoday.web.annotation.RequestPart;
 import cn.taketoday.web.bind.MissingRequestParameterException;
-import cn.taketoday.web.bind.MultipartException;
 import cn.taketoday.web.bind.WebDataBinder;
 import cn.taketoday.web.handler.method.ResolvableMethodParameter;
 import cn.taketoday.web.handler.method.support.UriComponentsContributor;
 import cn.taketoday.web.multipart.MultipartFile;
+import cn.taketoday.web.multipart.MultipartRequest;
 import cn.taketoday.web.util.UriComponentsBuilder;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.Part;
 
 /**
  * Resolves method arguments annotated with @{@link RequestParam}, arguments of
@@ -73,6 +72,7 @@ import jakarta.servlet.http.Part;
  * @author Rossen Stoyanchev
  * @author Brian Clozel
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @see RequestParamMapMethodArgumentResolver
  * @since 4.0 2022/4/28 13:57
  */
 public class RequestParamMethodArgumentResolver extends AbstractNamedValueResolvingStrategy implements UriComponentsContributor {
@@ -137,8 +137,10 @@ public class RequestParamMethodArgumentResolver extends AbstractNamedValueResolv
         return false;
       }
       parameter = parameter.nestedIfOptional();
-
-      if (useDefaultResolution) {
+      if (MultipartResolutionDelegate.isMultipartArgument(parameter)) {
+        return true;
+      }
+      else if (this.useDefaultResolution) {
         return BeanUtils.isSimpleProperty(parameter.getNestedParameterType());
       }
       else {
@@ -155,11 +157,26 @@ public class RequestParamMethodArgumentResolver extends AbstractNamedValueResolv
   @Nullable
   @Override
   protected Object resolveName(String name, ResolvableMethodParameter resolvable, RequestContext request) throws Exception {
-    String[] paramValues = request.getParameters(name);
-    if (paramValues != null) {
-      return paramValues.length == 1 ? paramValues[0] : paramValues;
+    MethodParameter parameter = resolvable.getParameter();
+    Object mpArg = MultipartResolutionDelegate.resolveMultipartArgument(name, parameter, request);
+    if (mpArg != MultipartResolutionDelegate.UNRESOLVABLE) {
+      return mpArg;
     }
-    return null;
+
+    Object arg = null;
+    MultipartRequest multipartRequest = request.getMultipartRequest();
+    List<MultipartFile> files = multipartRequest.getFiles(name);
+    if (!files.isEmpty()) {
+      arg = files.size() == 1 ? files.get(0) : files;
+    }
+
+    if (arg == null) {
+      String[] paramValues = request.getParameters(name);
+      if (paramValues != null) {
+        arg = paramValues.length == 1 ? paramValues[0] : paramValues;
+      }
+    }
+    return arg;
   }
 
   @Override

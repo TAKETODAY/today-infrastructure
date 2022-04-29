@@ -227,16 +227,15 @@ public class ParameterResolvingRegistry
     }
 
     // Annotation-based argument resolution
-
+    strategies.add(new RequestParamMethodArgumentResolver(beanFactory, false));
+    strategies.add(new RequestParamMapMethodArgumentResolver());
     strategies.add(new PathVariableParameterResolvingStrategy());
     strategies.add(new PathVariableMapParameterResolvingStrategy());
     strategies.add(new MatrixParamParameterResolvingStrategy());
     strategies.add(new MatrixParamMapParameterResolvingStrategy());
     strategies.add(new ModelAttributeMethodProcessor(false));
-    strategies.add(new RequestResponseBodyMethodProcessor(
-            getMessageConverters(), contentNegotiationManager, requestResponseBodyAdvice));
+    strategies.add(new RequestResponseBodyMethodProcessor(getMessageConverters(), contentNegotiationManager, requestResponseBodyAdvice));
     strategies.add(new RequestPartMethodArgumentResolver(getMessageConverters(), this.requestResponseBodyAdvice));
-
     strategies.add(new RequestHeaderMethodArgumentResolver(beanFactory));
     strategies.add(new RequestHeaderMapMethodArgumentResolver());
     strategies.add(new ExpressionValueMethodArgumentResolver(beanFactory));
