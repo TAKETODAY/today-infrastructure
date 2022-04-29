@@ -38,6 +38,8 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.bind.MultipartException;
 import cn.taketoday.web.multipart.MultipartFile;
 import cn.taketoday.web.multipart.MultipartRequest;
+import cn.taketoday.web.multipart.support.ServletMultipartRequest;
+import cn.taketoday.web.util.WebUtils;
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Part;
@@ -116,7 +118,7 @@ public class MockMultipartHttpServletRequest extends MockHttpServletRequest impl
   }
 
   @Override
-  public MultiValueMap<String, MultipartFile> getMultiFileMap() {
+  public MultiValueMap<String, MultipartFile> getMultipartFiles() {
     return new LinkedMultiValueMap<>(this.multipartFiles);
   }
 
@@ -181,6 +183,11 @@ public class MockMultipartHttpServletRequest extends MockHttpServletRequest impl
       throw new MultipartException("Could not access multipart servlet request", ex);
     }
     return null;
+  }
+
+  @Override
+  public void cleanup() {
+    WebUtils.cleanupMultipartRequest(multipartFiles);
   }
 
 }

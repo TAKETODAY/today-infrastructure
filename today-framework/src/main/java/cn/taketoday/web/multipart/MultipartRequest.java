@@ -17,6 +17,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
+
 package cn.taketoday.web.multipart;
 
 import java.util.Iterator;
@@ -82,7 +83,7 @@ public interface MultipartRequest {
    * @return a map containing the parameter names as keys, and a list of
    * {@link MultipartFile} objects as values
    */
-  MultiValueMap<String, MultipartFile> getMultiFileMap();
+  MultiValueMap<String, MultipartFile> getMultipartFiles();
 
   /**
    * Determine the content type of the specified request part.
@@ -112,4 +113,9 @@ public interface MultipartRequest {
   @Nullable
   HttpHeaders getMultipartHeaders(String paramOrFileName);
 
+  /**
+   * Cleanup any resources used for the multipart handling,
+   * like a storage for the uploaded files.
+   */
+  void cleanup();
 }

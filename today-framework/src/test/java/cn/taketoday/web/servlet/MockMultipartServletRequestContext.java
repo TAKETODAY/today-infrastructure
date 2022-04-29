@@ -24,6 +24,7 @@ import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.web.bind.MockMultipartHttpServletRequest;
 import cn.taketoday.web.multipart.MultipartFile;
+import cn.taketoday.web.multipart.MultipartRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 /**
@@ -45,10 +46,8 @@ public class MockMultipartServletRequestContext extends MockServletRequestContex
   }
 
   @Override
-  protected MultiValueMap<String, MultipartFile> parseMultipartFiles() {
-    MultiValueMap<String, MultipartFile> ret = super.parseMultipartFiles();
-    MultiValueMap<String, MultipartFile> multiFileMap = request.getMultiFileMap();
-    ret.putAll(multiFileMap);
-    return ret;
+  public MultipartRequest getMultipartRequest() {
+    return request;
   }
+
 }

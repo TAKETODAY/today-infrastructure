@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -18,11 +18,15 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.web.multipart;
+package cn.taketoday.web.multipart.support;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+
+import cn.taketoday.http.DefaultHttpHeaders;
+import cn.taketoday.http.HttpHeaders;
+import cn.taketoday.web.multipart.MultipartFile;
 
 /**
  * @author TODAY 2021/4/18 20:38
@@ -30,6 +34,7 @@ import java.nio.file.Files;
  */
 public abstract class AbstractMultipartFile implements MultipartFile {
   protected byte[] cachedBytes;
+  protected HttpHeaders headers;
 
   @Override
   public void transferTo(File dest) throws IOException {
@@ -62,4 +67,21 @@ public abstract class AbstractMultipartFile implements MultipartFile {
   }
 
   protected abstract byte[] doGetBytes() throws IOException;
+
+  @Override
+  public HttpHeaders getHeaders() {
+    HttpHeaders headers = this.headers;
+    if (headers == null) {
+      headers = createHttpHeaders();
+      this.headers = headers;
+    }
+    return headers;
+  }
+
+  protected DefaultHttpHeaders createHttpHeaders() {
+    DefaultHttpHeaders headers = HttpHeaders.create();
+    headers.set(HttpHeaders.CONTENT_TYPE, getContentType());
+    return headers;
+  }
+
 }

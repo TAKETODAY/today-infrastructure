@@ -20,6 +20,7 @@
 
 package cn.taketoday.web.util;
 
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.List;
@@ -34,10 +35,14 @@ import cn.taketoday.http.MediaType;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.RequestContextDecorator;
+import cn.taketoday.web.multipart.MultipartFile;
+import cn.taketoday.web.multipart.MultipartRequest;
+import cn.taketoday.web.multipart.support.AbstractMultipartRequest;
 import cn.taketoday.web.session.WebSession;
 
 /**
@@ -141,42 +146,7 @@ public abstract class WebUtils {
     return result;
   }
 
-  /**
-   * Resolves the content type of the file.
-   *
-   * @param filename name of file or path
-   * @return file content type
-   * @since 2.3.7
-   */
-  @Nullable
-  public static String resolveFileContentType(String filename) {
-    MediaType mediaType = MediaType.fromFileName(filename);
-    if (mediaType == null) {
-      return null;
-    }
-    return mediaType.toString();
-  }
-
-  public static String getEtag(String name, long size, long lastModified) {
-    return new StringBuilder()
-            .append("W/\"")
-            .append(name)
-            .append(Constant.PATH_SEPARATOR)
-            .append(size)
-            .append(Constant.PATH_SEPARATOR)
-            .append(lastModified)
-            .append('\"')
-            .toString();
-  }
-
   // ---
-
-  /**
-   * Is ajax request
-   */
-  public static boolean isAjax(HttpHeaders request) {
-    return HttpHeaders.XML_HTTP_REQUEST.equals(request.getFirst(HttpHeaders.X_REQUESTED_WITH));
-  }
 
   /**
    * Return an appropriate request object of the specified type, if available,
@@ -349,6 +319,23 @@ public abstract class WebUtils {
       }
     }
     return port;
+  }
+
+  public static void cleanupMultipartRequest(@Nullable MultiValueMap<String, MultipartFile> multipartFiles) {
+    if (CollectionUtils.isNotEmpty(multipartFiles)) {
+      for (Map.Entry<String, List<MultipartFile>> entry : multipartFiles.entrySet()) {
+        List<MultipartFile> value = entry.getValue();
+        for (MultipartFile multipartFile : value) {
+          try {
+            multipartFile.delete();
+          }
+          catch (IOException e) {
+            LoggerFactory.getLogger(WebUtils.class)
+                    .error("error occurred when cleanup multipart", e);
+          }
+        }
+      }
+    }
   }
 
 }

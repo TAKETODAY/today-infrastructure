@@ -33,13 +33,18 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
+import java.util.function.Function;
 
 import cn.taketoday.context.ApplicationContext;
+import cn.taketoday.core.AttributeAccessor;
 import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.http.HttpCookie;
 import cn.taketoday.http.HttpHeaders;
+import cn.taketoday.http.HttpMethod;
 import cn.taketoday.http.HttpStatus;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.NonNull;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.multipart.MultipartRequest;
 
@@ -73,13 +78,19 @@ public class RequestContextDecorator extends RequestContext {
   }
 
   @Override
-  public Reader getReader(String encoding) throws IOException { return delegate.getReader(encoding); }
+  public Reader getReader(String encoding) throws IOException {
+    return delegate.getReader(encoding);
+  }
 
   @Override
-  public ReadableByteChannel readableChannel() throws IOException { return delegate.readableChannel(); }
+  public ReadableByteChannel readableChannel() throws IOException {
+    return delegate.readableChannel();
+  }
 
   @Override
-  public WritableByteChannel writableChannel() throws IOException { return delegate.writableChannel(); }
+  public WritableByteChannel writableChannel() throws IOException {
+    return delegate.writableChannel();
+  }
 
   @Override
   public String getScheme() {
@@ -97,79 +108,127 @@ public class RequestContextDecorator extends RequestContext {
   }
 
   @Override
-  public String getContextPath() { return delegate.getContextPath(); }
+  public String getContextPath() {
+    return delegate.getContextPath();
+  }
 
   @Override
-  public String doGetContextPath() { return delegate.doGetContextPath(); }
+  public String doGetContextPath() {
+    return delegate.doGetContextPath();
+  }
 
   @Override
-  public URI getURI() { return delegate.getURI(); }
+  public URI getURI() {
+    return delegate.getURI();
+  }
 
   @Override
-  public String getRequestPath() { return delegate.getRequestPath(); }
+  public String getRequestPath() {
+    return delegate.getRequestPath();
+  }
 
   @Override
-  public String doGetRequestPath() { return delegate.doGetRequestPath(); }
+  public String doGetRequestPath() {
+    return delegate.doGetRequestPath();
+  }
 
   @Override
-  public String getRequestURL() { return delegate.getRequestURL(); }
+  public String getRequestURL() {
+    return delegate.getRequestURL();
+  }
 
   @Override
-  public String getQueryString() { return delegate.getQueryString(); }
+  public String getQueryString() {
+    return delegate.getQueryString();
+  }
 
   @Override
-  public String doGetQueryString() { return delegate.doGetQueryString(); }
+  public String doGetQueryString() {
+    return delegate.doGetQueryString();
+  }
 
   @Override
-  public HttpCookie[] getCookies() { return delegate.getCookies(); }
+  public HttpCookie[] getCookies() {
+    return delegate.getCookies();
+  }
 
   @Override
-  public HttpCookie[] doGetCookies() { return delegate.doGetCookies(); }
-
-  @Override
-  @Nullable
-  public HttpCookie getCookie(String name) { return delegate.getCookie(name); }
-
-  @Override
-  public void addCookie(HttpCookie cookie) { delegate.addCookie(cookie); }
-
-  @Override
-  public ArrayList<HttpCookie> responseCookies() { return delegate.responseCookies(); }
-
-  @Override
-  public Map<String, String[]> getParameters() { return delegate.getParameters(); }
-
-  @Override
-  public Map<String, String[]> doGetParameters() { return delegate.doGetParameters(); }
-
-  @Override
-  public void postGetParameters(MultiValueMap<String, String> parameters) { delegate.postGetParameters(parameters); }
-
-  @Override
-  public Iterator<String> getParameterNames() { return delegate.getParameterNames(); }
-
-  @Override
-  @Nullable
-  public String[] getParameters(String name) { return delegate.getParameters(name); }
+  public HttpCookie[] doGetCookies() {
+    return delegate.doGetCookies();
+  }
 
   @Override
   @Nullable
-  public String getParameter(String name) { return delegate.getParameter(name); }
+  public HttpCookie getCookie(String name) {
+    return delegate.getCookie(name);
+  }
 
   @Override
-  public String doGetMethod() { return delegate.doGetMethod(); }
+  public void addCookie(HttpCookie cookie) {
+    delegate.addCookie(cookie);
+  }
 
   @Override
-  public String remoteAddress() { return delegate.remoteAddress(); }
+  public ArrayList<HttpCookie> responseCookies() {
+    return delegate.responseCookies();
+  }
 
   @Override
-  public long getContentLength() { return delegate.getContentLength(); }
+  public Map<String, String[]> getParameters() {
+    return delegate.getParameters();
+  }
 
   @Override
-  public InputStream getBody() throws IOException { return delegate.getBody(); }
+  public Map<String, String[]> doGetParameters() {
+    return delegate.doGetParameters();
+  }
 
   @Override
-  public HttpHeaders getHeaders() { return delegate.getHeaders(); }
+  public void postGetParameters(MultiValueMap<String, String> parameters) {
+    delegate.postGetParameters(parameters);
+  }
+
+  @Override
+  public Iterator<String> getParameterNames() {
+    return delegate.getParameterNames();
+  }
+
+  @Override
+  @Nullable
+  public String[] getParameters(String name) {
+    return delegate.getParameters(name);
+  }
+
+  @Override
+  @Nullable
+  public String getParameter(String name) {
+    return delegate.getParameter(name);
+  }
+
+  @Override
+  public String doGetMethod() {
+    return delegate.doGetMethod();
+  }
+
+  @Override
+  public String remoteAddress() {
+    return delegate.remoteAddress();
+  }
+
+  @Override
+  public long getContentLength() {
+    return delegate.getContentLength();
+  }
+
+  @Override
+  public InputStream getBody() throws IOException {
+    return delegate.getBody();
+  }
+
+  @Override
+  public HttpHeaders getHeaders() {
+    return delegate.getHeaders();
+  }
 
   @Override
   public InputStream getInputStream() throws IOException {
@@ -405,8 +464,8 @@ public class RequestContextDecorator extends RequestContext {
   }
 
   @Override
-  public void cleanupMultipartFiles() {
-    delegate.cleanupMultipartFiles();
+  public void cleanupMultipart() {
+    delegate.cleanupMultipart();
   }
 
   @Override
@@ -417,6 +476,73 @@ public class RequestContextDecorator extends RequestContext {
   @Override
   public MultipartRequest getMultipartRequest() {
     return delegate.getMultipartRequest();
+  }
+
+  @Override
+  public void setBindingContext(BindingContext bindingContext) {
+    delegate.setBindingContext(bindingContext);
+  }
+
+  @Override
+  public BindingContext getBindingContext() {
+    return delegate.getBindingContext();
+  }
+
+  // AttributeAccessorSupport
+
+  @Override
+  public <T> T computeAttribute(String name, Function<String, T> computeFunction) {
+    return delegate.computeAttribute(name, computeFunction);
+  }
+
+  @Override
+  public boolean hasAttribute(String name) {
+    return delegate.hasAttribute(name);
+  }
+
+  @Override
+  public Iterator<String> attributeNames() {
+    return delegate.attributeNames();
+  }
+
+  @Override
+  public void copyAttributesFrom(AttributeAccessor source) {
+    delegate.copyAttributesFrom(source);
+  }
+
+  @Override
+  public boolean hasAttributes() {
+    return delegate.hasAttributes();
+  }
+
+  @Override
+  public Map<String, Object> getAttributes() {
+    return delegate.getAttributes();
+  }
+
+  @Override
+  public int hashCode() {
+    return delegate.hashCode();
+  }
+
+  @NonNull
+  @Override
+  public HttpMethod getMethod() {
+    return delegate.getMethod();
+  }
+
+  @Override
+  public String getMethodValue() {
+    return delegate.getMethodValue();
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o)
+      return true;
+    if (!(o instanceof RequestContextDecorator that))
+      return false;
+    return Objects.equals(delegate, that.delegate);
   }
 
   @Override

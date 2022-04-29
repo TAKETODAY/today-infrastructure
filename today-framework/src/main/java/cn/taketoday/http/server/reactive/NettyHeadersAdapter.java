@@ -75,11 +75,6 @@ class NettyHeadersAdapter implements MultiValueMap<String, String> {
   }
 
   @Override
-  public void setAll(Map<String, String> values) {
-    values.forEach(this.headers::set);
-  }
-
-  @Override
   public Map<String, String> toSingleValueMap() {
     Map<String, String> singleValueMap = CollectionUtils.newLinkedHashMap(this.headers.size());
     this.headers.entries()

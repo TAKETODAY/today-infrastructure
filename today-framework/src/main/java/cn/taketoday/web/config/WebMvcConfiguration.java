@@ -38,7 +38,7 @@ import cn.taketoday.web.cors.CorsConfiguration;
 import cn.taketoday.web.handler.HandlerExceptionHandler;
 import cn.taketoday.web.handler.ReturnValueHandlerManager;
 import cn.taketoday.web.handler.ViewController;
-import cn.taketoday.web.multipart.MultipartConfiguration;
+import cn.taketoday.web.multipart.MultipartConfig;
 import cn.taketoday.web.registry.FunctionHandlerRegistry;
 import cn.taketoday.web.registry.HandlerRegistry;
 import cn.taketoday.web.registry.ViewControllerHandlerRegistry;
@@ -102,9 +102,9 @@ public interface WebMvcConfiguration {
   /**
    * Configure {@link Multipart}
    *
-   * @param config {@link MultipartConfiguration}
+   * @param config {@link MultipartConfig}
    */
-  default void configureMultipart(MultipartConfiguration config) { }
+  default void configureMultipart(MultipartConfig config) { }
 
   /**
    * Configure {@link ViewController} s

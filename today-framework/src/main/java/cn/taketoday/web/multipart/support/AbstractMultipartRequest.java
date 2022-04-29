@@ -30,6 +30,7 @@ import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.multipart.MultipartFile;
 import cn.taketoday.web.multipart.MultipartRequest;
+import cn.taketoday.web.util.WebUtils;
 
 /**
  * Abstract base implementation of the {@link MultipartRequest} interface.
@@ -64,9 +65,20 @@ public abstract class AbstractMultipartRequest implements MultipartRequest {
     return getMultipartFiles().toSingleValueMap();
   }
 
+  /**
+   * Obtain the MultipartFile Map for retrieval,
+   * lazily initializing it if necessary.
+   *
+   * @see #parseRequest()
+   */
   @Override
-  public MultiValueMap<String, MultipartFile> getMultiFileMap() {
-    return getMultipartFiles();
+  public MultiValueMap<String, MultipartFile> getMultipartFiles() {
+    var multipartFiles = this.multipartFiles;
+    if (multipartFiles == null) {
+      multipartFiles = parseRequest();
+      this.multipartFiles = multipartFiles;
+    }
+    return multipartFiles;
   }
 
   /**
@@ -81,33 +93,15 @@ public abstract class AbstractMultipartRequest implements MultipartRequest {
     return multipartFiles != null;
   }
 
-  /**
-   * Set a Map with parameter names as keys and list of MultipartFile objects as values.
-   * To be invoked by subclasses on initialization.
-   */
-  protected final void setMultipartFiles(MultiValueMap<String, MultipartFile> multipartFiles) {
-    this.multipartFiles = multipartFiles;
-  }
-
-  /**
-   * Obtain the MultipartFile Map for retrieval,
-   * lazily initializing it if necessary.
-   *
-   * @see #initializeMultipart()
-   */
-  protected MultiValueMap<String, MultipartFile> getMultipartFiles() {
-    if (this.multipartFiles == null) {
-      initializeMultipart();
-    }
-    return this.multipartFiles;
+  @Override
+  public void cleanup() {
+    WebUtils.cleanupMultipartRequest(multipartFiles);
   }
 
   /**
    * Lazily initialize the multipart request, if possible.
    * Only called if not already eagerly initialized.
    */
-  protected void initializeMultipart() {
-    throw new IllegalStateException("Multipart request not initialized");
-  }
+  protected abstract MultiValueMap<String, MultipartFile> parseRequest();
 
 }

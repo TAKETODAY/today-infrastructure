@@ -60,13 +60,9 @@ import cn.taketoday.http.server.RequestPath;
 import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.NonNull;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
-import cn.taketoday.web.bind.MultipartException;
-import cn.taketoday.web.bind.NotMultipartRequestException;
-import cn.taketoday.web.multipart.MultipartFile;
 import cn.taketoday.web.multipart.MultipartRequest;
 
 import static cn.taketoday.lang.Constant.DEFAULT_CHARSET;
@@ -102,9 +98,6 @@ public abstract class RequestContext extends AttributeAccessorSupport
   protected BufferedReader reader;
   protected InputStream inputStream;
   protected OutputStream outputStream;
-
-  @Deprecated
-  protected MultiValueMap<String, MultipartFile> multipartFiles;
 
   /** @since 3.0 */
   protected HttpHeaders requestHeaders;
@@ -159,6 +152,8 @@ public abstract class RequestContext extends AttributeAccessorSupport
 
   /**
    * Return the WebApplicationContext that this request runs in.
+   *
+   * @since 4.0
    */
   public ApplicationContext getApplicationContext() {
     return this.applicationContext;
@@ -238,7 +233,7 @@ public abstract class RequestContext extends AttributeAccessorSupport
       catch (URISyntaxException ex) {
         if (!hasQuery) {
           throw new IllegalStateException(
-                  "Could not resolve HttpServletRequest as URI: " + urlString, ex);
+                  "Could not resolve RequestContext as URI: " + urlString, ex);
         }
         // Maybe a malformed query string... try plain request URL
         try {
@@ -247,7 +242,7 @@ public abstract class RequestContext extends AttributeAccessorSupport
         }
         catch (URISyntaxException ex2) {
           throw new IllegalStateException(
-                  "Could not resolve HttpServletRequest as URI: " + urlString, ex2);
+                  "Could not resolve RequestContext as URI: " + urlString, ex2);
         }
       }
     }
@@ -508,7 +503,7 @@ public abstract class RequestContext extends AttributeAccessorSupport
    * @return a <code>String</code> specifying the name of the method with which
    * this request was made
    */
-  public final String getMethodValue() {
+  public String getMethodValue() {
     if (method == null) {
       this.method = doGetMethod();
     }
@@ -517,7 +512,7 @@ public abstract class RequestContext extends AttributeAccessorSupport
 
   @NonNull
   @Override
-  public final HttpMethod getMethod() {
+  public HttpMethod getMethod() {
     if (httpMethod == null) {
       httpMethod = HttpMethod.valueOf(getMethodValue());
     }
@@ -614,11 +609,14 @@ public abstract class RequestContext extends AttributeAccessorSupport
   }
 
   /**
+   * @see #isMultipart()
    * @since 4.0
    */
   public MultipartRequest getMultipartRequest() {
+    var multipartRequest = this.multipartRequest;
     if (multipartRequest == null) {
       multipartRequest = createMultipartRequest();
+      this.multipartRequest = multipartRequest;
     }
     return multipartRequest;
   }
@@ -631,11 +629,12 @@ public abstract class RequestContext extends AttributeAccessorSupport
   protected abstract MultipartRequest createMultipartRequest();
 
   /**
-   * Get all {@link MultipartFile}s from current request
+   * cleanup multipart in this request context
    */
-  @Deprecated
-  public MultiValueMap<String, MultipartFile> multipartFiles() {
-    throw new UnsupportedOperationException();
+  public void cleanupMultipart() {
+    if (multipartRequest != null) {
+      multipartRequest.cleanup();
+    }
   }
 
   /**
@@ -1321,26 +1320,6 @@ public abstract class RequestContext extends AttributeAccessorSupport
     else {
       if (outputStream != null) {
         outputStream.flush();
-      }
-    }
-  }
-
-  /**
-   * cleanup multipart in this request context
-   */
-  public void cleanupMultipartFiles() {
-    if (CollectionUtils.isNotEmpty(multipartFiles)) {
-      for (Map.Entry<String, List<MultipartFile>> entry : multipartFiles.entrySet()) {
-        List<MultipartFile> value = entry.getValue();
-        for (MultipartFile multipartFile : value) {
-          try {
-            multipartFile.delete();
-          }
-          catch (IOException e) {
-            LoggerFactory.getLogger(RequestContext.class)
-                    .error("error occurred when cleanup multipart", e);
-          }
-        }
       }
     }
   }

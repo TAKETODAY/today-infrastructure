@@ -25,7 +25,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serial;
 
-import cn.taketoday.web.multipart.AbstractMultipartFile;
+import cn.taketoday.web.multipart.support.AbstractMultipartFile;
 import cn.taketoday.web.multipart.MultipartFile;
 import io.netty.handler.codec.http.multipart.FileUpload;
 

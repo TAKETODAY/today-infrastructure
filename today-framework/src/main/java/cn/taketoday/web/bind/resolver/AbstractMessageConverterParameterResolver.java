@@ -120,10 +120,9 @@ public abstract class AbstractMessageConverterParameterResolver implements Param
    * @throws HttpMediaTypeNotSupportedException if no suitable message converter is found
    */
   @Nullable
-  protected <T> Object readWithMessageConverters(RequestContext request, MethodParameter parameter,
-          Type paramType) throws IOException, HttpMediaTypeNotSupportedException, HttpMessageNotReadableException {
-
-    return readWithMessageConverters(request, parameter, paramType);
+  protected Object readWithMessageConverters(RequestContext request, MethodParameter parameter, Type paramType)
+          throws IOException, HttpMediaTypeNotSupportedException, HttpMessageNotReadableException {
+    return readWithMessageConverters((HttpInputMessage) request, parameter, paramType);
   }
 
   /**
@@ -140,8 +139,8 @@ public abstract class AbstractMessageConverterParameterResolver implements Param
    * @throws HttpMediaTypeNotSupportedException if no suitable message converter is found
    */
   @Nullable
-  @SuppressWarnings("unchecked")
-  protected <T> Object readWithMessageConverters(HttpInputMessage inputMessage, MethodParameter parameter, Type targetType)
+  @SuppressWarnings({ "unchecked", "rawtypes" })
+  protected Object readWithMessageConverters(HttpInputMessage inputMessage, MethodParameter parameter, Type targetType)
           throws IOException, HttpMediaTypeNotSupportedException, HttpMessageNotReadableException //
   {
     MediaType contentType;
@@ -158,10 +157,10 @@ public abstract class AbstractMessageConverterParameterResolver implements Param
     }
 
     Class<?> contextClass = parameter.getContainingClass();
-    Class<T> targetClass = targetType instanceof Class ? (Class<T>) targetType : null;
+    Class targetClass = targetType instanceof Class ? (Class) targetType : null;
     if (targetClass == null) {
       ResolvableType resolvableType = ResolvableType.forMethodParameter(parameter);
-      targetClass = (Class<T>) resolvableType.resolve();
+      targetClass = resolvableType.resolve();
     }
 
     Object body = NO_VALUE;
@@ -170,8 +169,8 @@ public abstract class AbstractMessageConverterParameterResolver implements Param
     try {
       message = new EmptyBodyCheckingHttpInputMessage(inputMessage);
       RequestResponseBodyAdviceChain adviceChain = getAdvice();
-      for (HttpMessageConverter<?> converter : messageConverters) {
-        if (converter instanceof GenericHttpMessageConverter<?> genericConverter) {
+      for (HttpMessageConverter converter : messageConverters) {
+        if (converter instanceof GenericHttpMessageConverter genericConverter) {
           if (genericConverter.canRead(targetType, contextClass, contentType)) {
             if (message.hasBody()) {
               // beforeBodyRead
@@ -192,7 +191,7 @@ public abstract class AbstractMessageConverterParameterResolver implements Param
             // beforeBodyRead
             var msgToUse = adviceChain.beforeBodyRead(message, parameter, targetType, converter);
             // read
-            body = ((HttpMessageConverter<T>) converter).read(targetClass, msgToUse);
+            body = converter.read(targetClass, msgToUse);
             // afterBodyRead
             body = adviceChain.afterBodyRead(body, msgToUse, parameter, targetType, converter);
           }

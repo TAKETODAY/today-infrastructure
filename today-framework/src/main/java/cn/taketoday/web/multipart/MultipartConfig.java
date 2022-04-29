@@ -28,7 +28,7 @@ import cn.taketoday.util.DataSize;
 /**
  * @author TODAY 2019-07-11 22:47
  */
-public class MultipartConfiguration {
+public class MultipartConfig {
 
   /*** temp file upload location */
   private String location = System.getProperty("java.io.tmpdir");
@@ -96,7 +96,7 @@ public class MultipartConfiguration {
   public boolean equals(Object o) {
     if (this == o)
       return true;
-    if (!(o instanceof final MultipartConfiguration that))
+    if (!(o instanceof final MultipartConfig that))
       return false;
     return Objects.equals(location, that.location)
             && Objects.equals(encoding, that.encoding)

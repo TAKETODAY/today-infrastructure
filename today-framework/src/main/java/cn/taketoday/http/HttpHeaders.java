@@ -1800,33 +1800,13 @@ public abstract class HttpHeaders
    * @param headerName the header name
    * @param headerValue the header value
    * @throws UnsupportedOperationException if adding headers is not supported
-   * @see #addAll(String, List)
    * @see #set(String, String)
    */
   @Override
   public abstract void add(String headerName, String headerValue);
 
   @Override
-  public void addAll(String key, List<? extends String> values) {
-    for (String value : values) {
-      add(key, value);
-    }
-  }
-
-  @Override
-  public void addAll(String key, Enumeration<? extends String> values) {
-    if (values.hasMoreElements()) {
-      add(key, values.nextElement());
-    }
-  }
-
-  @Override
   public abstract void set(String headerName, @Nullable String headerValue);
-
-  @Override
-  public void setAll(Map<String, String> values) {
-    values.forEach(this::set);
-  }
 
   @Nullable
   @Override

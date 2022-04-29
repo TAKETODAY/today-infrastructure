@@ -154,11 +154,6 @@ public class DefaultMultiValueMap<K, V>
     this.map.put(key, values);
   }
 
-  @Override
-  public void setAll(Map<K, V> values) {
-    values.forEach(this::set);
-  }
-
   /**
    * Trims the capacity of this map internal value <tt>ArrayList</tt> instance to be the
    * list's current size.  An application can use this operation to minimize

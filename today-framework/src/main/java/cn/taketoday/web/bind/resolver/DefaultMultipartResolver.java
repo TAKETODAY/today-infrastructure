@@ -27,7 +27,7 @@ import cn.taketoday.core.ResolvableType;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.handler.method.ResolvableMethodParameter;
-import cn.taketoday.web.multipart.MultipartConfiguration;
+import cn.taketoday.web.multipart.MultipartConfig;
 import cn.taketoday.web.multipart.MultipartFile;
 import cn.taketoday.web.multipart.ServletPartMultipartFile;
 
@@ -37,7 +37,7 @@ import cn.taketoday.web.multipart.ServletPartMultipartFile;
  */
 public class DefaultMultipartResolver extends AbstractMultipartResolver {
 
-  public DefaultMultipartResolver(MultipartConfiguration multipartConfiguration) {
+  public DefaultMultipartResolver(MultipartConfig multipartConfiguration) {
     super(multipartConfiguration);
   }
 
@@ -57,7 +57,7 @@ public class DefaultMultipartResolver extends AbstractMultipartResolver {
   }
 
   public static void register(
-          ParameterResolvingStrategies resolvers, MultipartConfiguration multipartConfig) {
+          ParameterResolvingStrategies resolvers, MultipartConfig multipartConfig) {
     resolvers.add(new DefaultMultipartResolver(multipartConfig),
             new ArrayMultipartResolver(multipartConfig),
             new CollectionMultipartResolver(multipartConfig),
@@ -70,7 +70,7 @@ public class DefaultMultipartResolver extends AbstractMultipartResolver {
    */
   static class CollectionMultipartResolver extends AbstractMultipartResolver {
 
-    public CollectionMultipartResolver(MultipartConfiguration multipartConfiguration) {
+    public CollectionMultipartResolver(MultipartConfig multipartConfiguration) {
       super(multipartConfiguration);
     }
 
@@ -109,7 +109,7 @@ public class DefaultMultipartResolver extends AbstractMultipartResolver {
    */
   static class ArrayMultipartResolver extends AbstractMultipartResolver {
 
-    public ArrayMultipartResolver(MultipartConfiguration configuration) {
+    public ArrayMultipartResolver(MultipartConfig configuration) {
       super(configuration);
     }
 
@@ -138,7 +138,7 @@ public class DefaultMultipartResolver extends AbstractMultipartResolver {
   static class MapMultipartParameterResolver
           extends AbstractMultipartResolver implements ParameterResolvingStrategy {
 
-    public MapMultipartParameterResolver(MultipartConfiguration multipartConfig) {
+    public MapMultipartParameterResolver(MultipartConfig multipartConfig) {
       super(multipartConfig);
     }
 

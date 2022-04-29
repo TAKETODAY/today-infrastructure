@@ -73,11 +73,7 @@ public class NettyMultipartRequest extends AbstractMultipartRequest {
   }
 
   @Override
-  protected void initializeMultipart() {
-    super.initializeMultipart();
-  }
-
-  protected MultiValueMap<String, MultipartFile> parseMultipartFiles() {
+  protected MultiValueMap<String, MultipartFile> parseRequest() {
     DefaultMultiValueMap<String, MultipartFile> multipartFiles = MultiValueMap.fromLinkedHashMap();
     for (InterfaceHttpData data : decoderSupplier.get().getBodyHttpDatas()) {
       if (data instanceof FileUpload) {

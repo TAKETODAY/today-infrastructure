@@ -72,11 +72,6 @@ class HttpComponentsHeadersAdapter implements MultiValueMap<String, String> {
   }
 
   @Override
-  public void setAll(Map<String, String> values) {
-    values.forEach(this::set);
-  }
-
-  @Override
   public Map<String, String> toSingleValueMap() {
     Map<String, String> map = CollectionUtils.newLinkedHashMap(size());
     this.message.headerIterator().forEachRemaining(h -> map.putIfAbsent(h.getName(), h.getValue()));

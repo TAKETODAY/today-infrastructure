@@ -128,7 +128,7 @@ public class RequestContextDataBinder extends WebDataBinder {
     PropertyValues propertyValues = new PropertyValues(request.getParameters());
     if (request.isMultipart()) {
       MultipartRequest multipartRequest = request.getMultipartRequest();
-      MultiValueMap<String, MultipartFile> multipartFiles = multipartRequest.getMultiFileMap();
+      MultiValueMap<String, MultipartFile> multipartFiles = multipartRequest.getMultipartFiles();
       if (multipartFiles != null) {
         bindMultipart(multipartFiles, propertyValues);
       }

@@ -49,7 +49,7 @@ import cn.taketoday.web.handler.method.ModelAttributeMethodProcessor;
 import cn.taketoday.web.handler.method.RequestBodyAdvice;
 import cn.taketoday.web.handler.method.ResolvableMethodParameter;
 import cn.taketoday.web.handler.method.ResponseBodyAdvice;
-import cn.taketoday.web.multipart.MultipartConfiguration;
+import cn.taketoday.web.multipart.MultipartConfig;
 import cn.taketoday.web.servlet.WebServletApplicationContext;
 import cn.taketoday.web.view.RedirectModelManager;
 import jakarta.servlet.ServletContext;
@@ -78,7 +78,7 @@ public class ParameterResolvingRegistry
    * @since 3.0.1
    */
   @Nullable
-  private MultipartConfiguration multipartConfig;
+  private MultipartConfig multipartConfig;
 
   /**
    * @since 4.0
@@ -297,7 +297,7 @@ public class ParameterResolvingRegistry
   private void registerMultipart(ParameterResolvingStrategies strategies) {
     // For multipart
     // -------------------------------------------
-    MultipartConfiguration multipartConfig = getMultipartConfig();
+    MultipartConfig multipartConfig = getMultipartConfig();
     if (multipartConfig == null) { // @since 4.0
       multipartConfig = createMultipartConfig();
       setMultipartConfig(multipartConfig);
@@ -311,8 +311,8 @@ public class ParameterResolvingRegistry
    *
    * @since 4.0
    */
-  protected MultipartConfiguration createMultipartConfig() {
-    return new MultipartConfiguration();
+  protected MultipartConfig createMultipartConfig() {
+    return new MultipartConfig();
   }
 
   /**
@@ -369,12 +369,12 @@ public class ParameterResolvingRegistry
     return redirectModelManager;
   }
 
-  public void setMultipartConfig(@Nullable MultipartConfiguration multipartConfig) {
+  public void setMultipartConfig(@Nullable MultipartConfig multipartConfig) {
     this.multipartConfig = multipartConfig;
   }
 
   @Nullable
-  public MultipartConfiguration getMultipartConfig() {
+  public MultipartConfig getMultipartConfig() {
     return multipartConfig;
   }
 

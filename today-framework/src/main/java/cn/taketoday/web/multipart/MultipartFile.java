@@ -37,8 +37,9 @@ import cn.taketoday.util.FileCopyUtils;
  * session-level or persistent store as and if desired. The temporary storage
  * will be cleared at the end of request processing.
  *
- * @author TODAY <br>
- * 2018-07-11 13:02:52
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @see MultipartRequest
+ * @since 2018-07-11 13:02:52
  */
 public interface MultipartFile extends Multipart, Serializable, InputStreamSource {
 

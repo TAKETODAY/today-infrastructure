@@ -26,10 +26,12 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.Serial;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import cn.taketoday.context.ApplicationContext;
@@ -38,7 +40,10 @@ import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.http.DefaultHttpHeaders;
 import cn.taketoday.http.HttpCookie;
 import cn.taketoday.http.HttpHeaders;
+import cn.taketoday.http.HttpMethod;
 import cn.taketoday.http.ResponseCookie;
+import cn.taketoday.http.server.PathContainer;
+import cn.taketoday.http.server.RequestPath;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.CompositeIterator;
 import cn.taketoday.util.ObjectUtils;
@@ -47,7 +52,9 @@ import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.bind.MultipartException;
 import cn.taketoday.web.bind.NotMultipartRequestException;
 import cn.taketoday.web.multipart.MultipartFile;
+import cn.taketoday.web.multipart.MultipartRequest;
 import cn.taketoday.web.multipart.ServletPartMultipartFile;
+import cn.taketoday.web.multipart.support.ServletMultipartRequest;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -366,24 +373,15 @@ public class MockServletRequestContext extends RequestContext {
     response.sendError(sc, msg);
   }
 
-  // parseMultipartFiles
+  // MultipartFiles
+
+  public void setMultipartRequest(MultipartRequest multipartRequest) {
+    this.multipartRequest = multipartRequest;
+  }
 
   @Override
-  protected MultiValueMap<String, MultipartFile> parseMultipartFiles() {
-    DefaultMultiValueMap<String, MultipartFile> multipartFiles = MultiValueMap.fromLinkedHashMap();
-    try {
-      for (final Part part : request.getParts()) {
-        final String name = part.getName();
-        multipartFiles.add(name, new ServletPartMultipartFile(part));
-      }
-      return multipartFiles;
-    }
-    catch (IOException e) {
-      throw new MultipartException("MultipartFile parsing failed.", e);
-    }
-    catch (ServletException e) {
-      throw new NotMultipartRequestException("This is not a multipart request", e);
-    }
+  protected MultipartRequest createMultipartRequest() {
+    return new ServletMultipartRequest(request);
   }
 
   @Override
@@ -464,6 +462,82 @@ public class MockServletRequestContext extends RequestContext {
     else {
       return request.getAttributeNames().asIterator();
     }
+  }
+
+  public void setContextPath(String contextPath) {
+    this.contextPath = contextPath;
+  }
+
+  public void setCookies(HttpCookie[] cookies) {
+    this.cookies = cookies;
+  }
+
+  public void setWriter(PrintWriter writer) {
+    this.writer = writer;
+  }
+
+  public void setReader(BufferedReader reader) {
+    this.reader = reader;
+  }
+
+  public void setInputStream(InputStream inputStream) {
+    this.inputStream = inputStream;
+  }
+
+  public void setOutputStream(OutputStream outputStream) {
+    this.outputStream = outputStream;
+  }
+
+  public void setResponseHeaders(HttpHeaders responseHeaders) {
+    this.responseHeaders = responseHeaders;
+  }
+
+  public void setMethod(String method) {
+    this.method = method;
+  }
+
+  public void setRequestPath(String requestPath) {
+    this.requestPath = requestPath;
+  }
+
+  public void setParameters(Map<String, String[]> parameters) {
+    this.parameters = parameters;
+  }
+
+  public void setQueryString(String queryString) {
+    this.queryString = queryString;
+  }
+
+  public void setResponseCookies(ArrayList<HttpCookie> responseCookies) {
+    this.responseCookies = responseCookies;
+  }
+
+  public void setUri(URI uri) {
+    this.uri = uri;
+  }
+
+  public void setHttpMethod(HttpMethod httpMethod) {
+    this.httpMethod = httpMethod;
+  }
+
+  public void setLookupPath(RequestPath lookupPath) {
+    this.lookupPath = lookupPath;
+  }
+
+  public void setPathWithinApplication(PathContainer pathWithinApplication) {
+    this.pathWithinApplication = pathWithinApplication;
+  }
+
+  public void setLocale(Locale locale) {
+    this.locale = locale;
+  }
+
+  public void setResponseContentType(String responseContentType) {
+    this.responseContentType = responseContentType;
+  }
+
+  public void setNotModified(boolean notModified) {
+    this.notModified = notModified;
   }
 
 }

@@ -27,7 +27,9 @@ import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
+import cn.taketoday.core.LinkedMultiValueMap;
 import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpMethod;
@@ -36,15 +38,18 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.mock.MockHttpServletRequest;
 import cn.taketoday.web.mock.MockServletContext;
 import cn.taketoday.web.multipart.MultipartFile;
+import cn.taketoday.web.multipart.MultipartRequest;
+import cn.taketoday.web.util.WebUtils;
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.Part;
 
 /**
- * Mock implementation of the {@link  HttpServletRequest} interface.
+ * Mock implementation of the
+ * {@link cn.taketoday.web.multipart.MultipartRequest} interface.
  *
- * <p>this set of mocks is designed on a Servlet 4.0 baseline.
+ * <p>@since 4.0this set of mocks is designed on a Servlet 4.0 baseline.
  *
  * <p>Useful for testing application controllers that access multipart uploads.
  * {@link MockMultipartFile} can be used to populate these mock requests with files.
@@ -52,13 +57,12 @@ import jakarta.servlet.http.Part;
  * @author Juergen Hoeller
  * @author Eric Crampton
  * @author Arjen Poutsma
- * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see MockMultipartFile
- * @since 4.0 2022/3/2 17:03
+ * @since 4.0
  */
-public class MockMultipartHttpServletRequest extends MockHttpServletRequest {
+public class MockMultipartHttpServletRequest extends MockHttpServletRequest implements MultipartRequest {
 
-  private final MultiValueMap<String, MultipartFile> multipartFiles = MultiValueMap.fromLinkedHashMap();
+  private final MultiValueMap<String, MultipartFile> multipartFiles = new LinkedMultiValueMap<>();
 
   /**
    * Create a new {@code MockMultipartHttpServletRequest} with a default
@@ -93,32 +97,33 @@ public class MockMultipartHttpServletRequest extends MockHttpServletRequest {
     this.multipartFiles.add(file.getName(), file);
   }
 
+  @Override
   public Iterator<String> getFileNames() {
     return this.multipartFiles.keySet().iterator();
   }
 
+  @Override
   public MultipartFile getFile(String name) {
     return this.multipartFiles.getFirst(name);
   }
 
+  @Override
   public List<MultipartFile> getFiles(String name) {
     List<MultipartFile> multipartFiles = this.multipartFiles.get(name);
-    if (multipartFiles != null) {
-      return multipartFiles;
-    }
-    else {
-      return Collections.emptyList();
-    }
+    return Objects.requireNonNullElse(multipartFiles, Collections.emptyList());
   }
 
+  @Override
   public Map<String, MultipartFile> getFileMap() {
     return this.multipartFiles.toSingleValueMap();
   }
 
-  public MultiValueMap<String, MultipartFile> getMultiFileMap() {
-    return MultiValueMap.from(this.multipartFiles);
+  @Override
+  public MultiValueMap<String, MultipartFile> getMultipartFiles() {
+    return new LinkedMultiValueMap<>(this.multipartFiles);
   }
 
+  @Override
   public String getMultipartContentType(String paramOrFileName) {
     MultipartFile file = getFile(paramOrFileName);
     if (file != null) {
@@ -137,16 +142,14 @@ public class MockMultipartHttpServletRequest extends MockHttpServletRequest {
     return null;
   }
 
+  @Override
   public HttpMethod getRequestMethod() {
     String method = getMethod();
-    if (method != null) {
-      return HttpMethod.valueOf(method);
-    }
-    else {
-      return null;
-    }
+    Assert.state(method != null, "Method must not be null");
+    return HttpMethod.valueOf(method);
   }
 
+  @Override
   public HttpHeaders getRequestHeaders() {
     HttpHeaders headers = HttpHeaders.create();
     Enumeration<String> headerNames = getHeaderNames();
@@ -157,6 +160,7 @@ public class MockMultipartHttpServletRequest extends MockHttpServletRequest {
     return headers;
   }
 
+  @Override
   public HttpHeaders getMultipartHeaders(String paramOrFileName) {
     MultipartFile file = getFile(paramOrFileName);
     if (file != null) {
@@ -182,5 +186,9 @@ public class MockMultipartHttpServletRequest extends MockHttpServletRequest {
     return null;
   }
 
-}
+  @Override
+  public void cleanup() {
+    WebUtils.cleanupMultipartRequest(multipartFiles);
+  }
 
+}

@@ -33,6 +33,8 @@ import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpStatus;
 import cn.taketoday.http.MediaType;
 import cn.taketoday.web.multipart.MultipartFile;
+import cn.taketoday.web.multipart.MultipartRequest;
+import cn.taketoday.web.multipart.support.ServletMultipartRequest;
 
 /**
  * @author TODAY 2021/3/10 16:35
@@ -111,9 +113,13 @@ public class MockRequestContext extends RequestContext {
     return null;
   }
 
+  public void setMultipartRequest(MultipartRequest multipartRequest) {
+    this.multipartRequest = multipartRequest;
+  }
+
   @Override
-  protected MultiValueMap<String, MultipartFile> parseMultipartFiles() {
-    return null;
+  protected MultipartRequest createMultipartRequest() {
+    throw new UnsupportedOperationException();
   }
 
   @Override

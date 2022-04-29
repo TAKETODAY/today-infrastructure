@@ -410,7 +410,7 @@ public class ModelAttributeMethodProcessor implements ParameterResolvingStrategy
   public Object resolveConstructorArgument(String paramName, Class<?> paramType, RequestContext request) throws Exception {
     if (request.isMultipart()) {
       MultipartRequest multipartRequest = request.getMultipartRequest();
-      MultiValueMap<String, MultipartFile> multipartFiles = multipartRequest.getMultiFileMap();
+      MultiValueMap<String, MultipartFile> multipartFiles = multipartRequest.getMultipartFiles();
       if (CollectionUtils.isNotEmpty(multipartFiles)) {
         List<MultipartFile> files = multipartFiles.get(paramName);
         if (CollectionUtils.isNotEmpty(files)) {

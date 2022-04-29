@@ -17,6 +17,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
+
 package cn.taketoday.web.multipart;
 
 import java.io.File;
@@ -26,8 +27,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Objects;
 
+import cn.taketoday.http.DefaultHttpHeaders;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.util.FileCopyUtils;
+import cn.taketoday.web.multipart.support.AbstractMultipartFile;
 import jakarta.servlet.http.Part;
 
 /**
@@ -79,8 +82,16 @@ public final class ServletPartMultipartFile extends AbstractMultipartFile implem
   }
 
   @Override
-  public HttpHeaders getHeaders() {
-    return null;
+  protected DefaultHttpHeaders createHttpHeaders() {
+    DefaultHttpHeaders headers = HttpHeaders.create();
+    for (String headerName : part.getHeaderNames()) {
+      headers.addAll(headerName, part.getHeaders(headerName));
+    }
+
+    if (!headers.containsKey(HttpHeaders.CONTENT_TYPE)) {
+      headers.set(HttpHeaders.CONTENT_TYPE, getContentType());
+    }
+    return headers;
   }
 
   /**
@@ -132,7 +143,7 @@ public final class ServletPartMultipartFile extends AbstractMultipartFile implem
   }
 
   @Override
-  public Object getOriginalResource() {
+  public Part getOriginalResource() {
     return part;
   }
 

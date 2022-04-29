@@ -86,7 +86,7 @@ public class ServletMultipartRequest extends AbstractMultipartRequest {
     }
   }
 
-  private void parseRequest(HttpServletRequest request) {
+  private MultiValueMap<String, MultipartFile> parseRequest(HttpServletRequest request) {
     try {
       Collection<Part> parts = request.getParts();
       LinkedMultiValueMap<String, MultipartFile> files = new LinkedMultiValueMap<>(parts.size());
@@ -102,7 +102,7 @@ public class ServletMultipartRequest extends AbstractMultipartRequest {
           files.add(part.getName(), new ServletPartMultipartFile(part, filename));
         }
       }
-      setMultipartFiles(files);
+      return files;
     }
     catch (IOException e) {
       throw new MultipartException("MultipartFile parsing failed.", e);
@@ -111,16 +111,12 @@ public class ServletMultipartRequest extends AbstractMultipartRequest {
       throw new NotMultipartRequestException("This is not a multipart request", e);
     }
     catch (Throwable ex) {
-      handleParseFailure(ex);
+      String msg = ex.getMessage();
+      if (msg != null && msg.contains("size") && msg.contains("exceed")) {
+        throw new MaxUploadSizeExceededException(-1, ex);
+      }
+      throw new MultipartException("Failed to parse multipart servlet request", ex);
     }
-  }
-
-  protected void handleParseFailure(Throwable ex) {
-    String msg = ex.getMessage();
-    if (msg != null && msg.contains("size") && msg.contains("exceed")) {
-      throw new MaxUploadSizeExceededException(-1, ex);
-    }
-    throw new MultipartException("Failed to parse multipart servlet request", ex);
   }
 
   @Override
@@ -134,8 +130,8 @@ public class ServletMultipartRequest extends AbstractMultipartRequest {
   }
 
   @Override
-  protected void initializeMultipart() {
-    parseRequest(request);
+  protected MultiValueMap<String, MultipartFile> parseRequest() {
+    return parseRequest(request);
   }
 
   @Override
@@ -157,7 +153,6 @@ public class ServletMultipartRequest extends AbstractMultipartRequest {
         HttpHeaders headers = HttpHeaders.create();
         for (String headerName : part.getHeaderNames()) {
           headers.addAll(headerName, part.getHeaders(headerName));
-//          headers.put(headerName, new ArrayList<>(part.getHeaders(headerName)));
         }
         return headers;
       }

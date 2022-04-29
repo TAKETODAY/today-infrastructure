@@ -77,11 +77,6 @@ class JettyHeadersAdapter implements MultiValueMap<String, String> {
   }
 
   @Override
-  public void setAll(Map<String, String> values) {
-    values.forEach(this::set);
-  }
-
-  @Override
   public Map<String, String> toSingleValueMap() {
     Map<String, String> singleValueMap = CollectionUtils.newLinkedHashMap(this.headers.size());
     for (HttpField field : headers) {

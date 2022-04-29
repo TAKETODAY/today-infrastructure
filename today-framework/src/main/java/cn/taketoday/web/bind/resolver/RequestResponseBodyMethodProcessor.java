@@ -121,8 +121,7 @@ public class RequestResponseBodyMethodProcessor extends AbstractMessageConverter
   }
 
   @Override
-  protected <T> Object readWithMessageConverters(
-          RequestContext request, MethodParameter parameter, Type paramType)
+  protected Object readWithMessageConverters(RequestContext request, MethodParameter parameter, Type paramType)
           throws IOException, HttpMediaTypeNotSupportedException, HttpMessageNotReadableException //
   {
     Object arg = super.readWithMessageConverters(request, parameter, paramType);

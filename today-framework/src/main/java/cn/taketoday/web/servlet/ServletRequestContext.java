@@ -400,11 +400,6 @@ public final class ServletRequestContext extends RequestContext {
     }
 
     @Override
-    public void setAll(Map<String, String> values) {
-      values.forEach(this::set);
-    }
-
-    @Override
     public List<String> put(String key, List<String> values) {
       doPut(key, values, response);
       return super.put(key, values);
@@ -434,8 +429,6 @@ public final class ServletRequestContext extends RequestContext {
   public void sendError(int sc, String msg) throws IOException {
     response.sendError(sc, msg);
   }
-
-  //
 
   @Override
   protected MultipartRequest createMultipartRequest() {

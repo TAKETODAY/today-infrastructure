@@ -26,7 +26,7 @@ import cn.taketoday.http.FileSizeExceededException;
 import cn.taketoday.util.DataSize;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.handler.method.ResolvableMethodParameter;
-import cn.taketoday.web.multipart.MultipartConfiguration;
+import cn.taketoday.web.multipart.MultipartConfig;
 import cn.taketoday.web.multipart.MultipartFile;
 
 /**
@@ -37,26 +37,27 @@ import cn.taketoday.web.multipart.MultipartFile;
 public abstract class AbstractMultipartResolver
         extends AbstractParameterResolver implements ParameterResolvingStrategy {
 
-  protected final MultipartConfiguration multipartConfiguration;
+  protected final MultipartConfig multipartConfig;
 
-  public AbstractMultipartResolver(MultipartConfiguration multipartConfig) {
-    this.multipartConfiguration = multipartConfig;
+  public AbstractMultipartResolver(MultipartConfig multipartConfig) {
+    this.multipartConfig = multipartConfig;
   }
 
   /**
    * @throws FileSizeExceededException upload file size exceeded
-   * @see MultipartConfiguration#getMaxRequestSize()
+   * @see MultipartConfig#getMaxRequestSize()
    */
   @Override
   protected Object resolveInternal(RequestContext context, ResolvableMethodParameter parameter) throws Throwable {
     if (context.isMultipart()) {
-      DataSize maxRequestSize = getMultipartConfiguration().getMaxRequestSize();
+      DataSize maxRequestSize = getMultipartConfig().getMaxRequestSize();
       // exceed max size?
       if (maxRequestSize.toBytes() < context.getContentLength()) {
         throw new FileSizeExceededException(
                 maxRequestSize, null, DataSize.ofBytes(context.getContentLength()));
       }
-      return resolveInternal(context, parameter, context.multipartFiles());
+      MultiValueMap<String, MultipartFile> multipartFiles = context.getMultipartRequest().getMultipartFiles();
+      return resolveInternal(context, parameter, multipartFiles);
     }
     return null;
   }
@@ -89,8 +90,8 @@ public abstract class AbstractMultipartResolver
   @Override
   public abstract boolean supportsParameter(ResolvableMethodParameter parameter);
 
-  public MultipartConfiguration getMultipartConfiguration() {
-    return multipartConfiguration;
+  public MultipartConfig getMultipartConfig() {
+    return multipartConfig;
   }
 
 }

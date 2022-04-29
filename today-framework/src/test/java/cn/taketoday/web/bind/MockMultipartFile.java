@@ -25,6 +25,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 
+import cn.taketoday.http.DefaultHttpHeaders;
+import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.FileCopyUtils;
@@ -53,6 +55,7 @@ public class MockMultipartFile implements MultipartFile {
   private final String contentType;
 
   private final byte[] content;
+  protected HttpHeaders headers;
 
   /**
    * Create a new MockMultipartFile with the given content.
@@ -112,6 +115,26 @@ public class MockMultipartFile implements MultipartFile {
   @Override
   public String getName() {
     return this.name;
+  }
+
+  public void setHeaders(HttpHeaders headers) {
+    this.headers = headers;
+  }
+
+  @Override
+  public HttpHeaders getHeaders() {
+    HttpHeaders headers = this.headers;
+    if (headers == null) {
+      headers = createHttpHeaders();
+      this.headers = headers;
+    }
+    return headers;
+  }
+
+  protected DefaultHttpHeaders createHttpHeaders() {
+    DefaultHttpHeaders headers = HttpHeaders.create();
+    headers.set(HttpHeaders.CONTENT_TYPE, getContentType());
+    return headers;
   }
 
   @Override

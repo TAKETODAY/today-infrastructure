@@ -150,7 +150,13 @@ public interface MultiValueMap<K, V> extends Map<K, List<V>> {
    *
    * @param values the values.
    */
-  void setAll(Map<K, V> values);
+  default void setAll(@Nullable Map<K, V> values) {
+    if (values != null) {
+      for (Entry<K, V> entry : values.entrySet()) {
+        set(entry.getKey(), entry.getValue());
+      }
+    }
+  }
 
   /**
    * Return a {@code Map} with the first values contained in this

@@ -100,7 +100,7 @@ import cn.taketoday.web.handler.method.RequestBodyAdvice;
 import cn.taketoday.web.handler.method.RequestMappingHandlerAdapter;
 import cn.taketoday.web.handler.method.RequestMappingHandlerMapping;
 import cn.taketoday.web.handler.method.ResponseBodyAdvice;
-import cn.taketoday.web.multipart.MultipartConfiguration;
+import cn.taketoday.web.multipart.MultipartConfig;
 import cn.taketoday.web.registry.AbstractHandlerRegistry;
 import cn.taketoday.web.registry.FunctionHandlerRegistry;
 import cn.taketoday.web.registry.HandlerRegistry;
@@ -449,7 +449,7 @@ public class WebMvcConfigurationSupport extends ApplicationContextSupport {
   @ConditionalOnMissingBean
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
   ParameterResolvingRegistry parameterResolvingRegistry(
-          ApplicationContext context, MultipartConfiguration multipartConfig,
+          ApplicationContext context, MultipartConfig multipartConfig,
           @Nullable RedirectModelManager redirectModelManager) {
 
     ParameterResolvingRegistry registry = new ParameterResolvingRegistry();
@@ -469,15 +469,15 @@ public class WebMvcConfigurationSupport extends ApplicationContextSupport {
   protected void modifyParameterResolvingRegistry(ParameterResolvingRegistry registry) { }
 
   /**
-   * default {@link MultipartConfiguration} bean
+   * default {@link MultipartConfig} bean
    */
   @Lazy
   @Component
   @Props(prefix = "multipart")
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-  @ConditionalOnMissingBean(MultipartConfiguration.class)
-  MultipartConfiguration multipartConfiguration() {
-    return new MultipartConfiguration();
+  @ConditionalOnMissingBean(MultipartConfig.class)
+  MultipartConfig multipartConfiguration() {
+    return new MultipartConfig();
   }
 
   /**

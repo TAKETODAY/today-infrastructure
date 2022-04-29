@@ -33,7 +33,6 @@ import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.ServletDetector;
 import cn.taketoday.web.annotation.RequestParam;
-import cn.taketoday.web.config.WebMvcProperties;
 import cn.taketoday.web.handler.method.ResolvableMethodParameter;
 import cn.taketoday.web.multipart.MultipartFile;
 import cn.taketoday.web.multipart.MultipartRequest;
@@ -58,7 +57,7 @@ import jakarta.servlet.http.Part;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see RequestParamMethodArgumentResolver
  * @see HttpServletRequest#getParameterMap()
- * @see MultipartRequest#getMultiFileMap()
+ * @see MultipartRequest#getMultipartFiles()
  * @see MultipartRequest#getFileMap()
  * @since 4.0 2022/4/28 15:26
  */
@@ -82,7 +81,7 @@ public class RequestParamMapMethodArgumentResolver implements ParameterResolving
       Class<?> valueType = resolvableType.as(MultiValueMap.class).getGeneric(1).resolve();
       if (valueType == MultipartFile.class) {
         MultipartRequest multipartRequest = context.getMultipartRequest();
-        return (multipartRequest != null ? multipartRequest.getMultiFileMap() : new LinkedMultiValueMap<>(0));
+        return (multipartRequest != null ? multipartRequest.getMultipartFiles() : new LinkedMultiValueMap<>(0));
       }
       else if (ServletDetector.runningInServlet(context) && valueType == Part.class) {
         if (context.isMultipart()) {
