@@ -33,7 +33,6 @@ import cn.taketoday.beans.factory.annotation.DisableAllDependencyInjection;
 import cn.taketoday.beans.factory.annotation.Qualifier;
 import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Lazy;
 import cn.taketoday.context.annotation.Role;
 import cn.taketoday.context.aware.ApplicationContextSupport;
@@ -523,7 +522,8 @@ public class WebMvcConfigurationSupport extends ApplicationContextSupport {
 
   protected void configureViewController(ViewControllerHandlerRegistry registry) { }
 
-  @ConditionalOnMissingBean({ ViewControllerHandlerAdapter.class, ViewControllerHandlerRegistry.class })
+  @Component
+  @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
   ViewControllerHandlerAdapter viewControllerHandlerAdapter() {
     return new ViewControllerHandlerAdapter(Ordered.HIGHEST_PRECEDENCE + 2);
   }
@@ -661,6 +661,7 @@ public class WebMvcConfigurationSupport extends ApplicationContextSupport {
    */
   @Nullable
   @Component
+  @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
   public HandlerRegistry resourceHandlerRegistry(
           @Nullable ContentNegotiationManager contentNegotiationManager,
           ResourceUrlProvider resourceUrlProvider) {
@@ -703,8 +704,9 @@ public class WebMvcConfigurationSupport extends ApplicationContextSupport {
    * view names. To configure view controllers, override
    * {@link #addViewControllers}.
    */
-  @Bean
+  @Component
   @Nullable
+  @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
   public HandlerRegistry viewControllerHandlerRegistry(
           @Qualifier("mvcResourceUrlProvider") ResourceUrlProvider resourceUrlProvider) {
 
@@ -737,8 +739,9 @@ public class WebMvcConfigurationSupport extends ApplicationContextSupport {
    * default servlet handler. To configure "default" Servlet handling,
    * override {@link #configureDefaultServletHandling}.
    */
-  @Bean
+  @Component
   @Nullable
+  @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
   public HandlerRegistry defaultServletHandlerRegistry() {
     if (ServletDetector.isPresent) {
       if (getApplicationContext() instanceof WebServletApplicationContext context) {
@@ -832,7 +835,8 @@ public class WebMvcConfigurationSupport extends ApplicationContextSupport {
    * Return a {@link FormattingConversionService} for use with annotated controllers.
    * <p>See {@link #addFormatters} as an alternative to overriding this method.
    */
-  @Bean
+  @Component
+  @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
   public FormattingConversionService mvcConversionService() {
     FormattingConversionService conversionService = new DefaultFormattingConversionService();
     addFormatters(conversionService);
@@ -857,11 +861,13 @@ public class WebMvcConfigurationSupport extends ApplicationContextSupport {
    * <li>{@link #configureMessageConverters} for adding custom message converters.
    * </ul>
    */
-  @Bean
+  @Component
+  @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
   public RequestMappingHandlerAdapter requestMappingHandlerAdapter(
+          @Qualifier("mvcConversionService") FormattingConversionService conversionService,
           ParameterResolvingRegistry parameterResolvingRegistry,
           ReturnValueHandlerManager returnValueHandlerManager,
-          @Qualifier("mvcConversionService") FormattingConversionService conversionService, @Qualifier("mvcValidator") Validator validator) {
+          @Qualifier("mvcValidator") Validator validator) {
 
     RequestMappingHandlerAdapter adapter = createRequestMappingHandlerAdapter();
     adapter.setWebBindingInitializer(getConfigurableWebBindingInitializer(conversionService, validator));
@@ -916,7 +922,8 @@ public class WebMvcConfigurationSupport extends ApplicationContextSupport {
    * before creating a {@code OptionalValidatorFactoryBean}.If a JSR-303
    * implementation is not available, a no-op {@link Validator} is returned.
    */
-  @Bean
+  @Component
+  @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
   public Validator mvcValidator() {
     Validator validator = getValidator();
     if (validator == null) {
