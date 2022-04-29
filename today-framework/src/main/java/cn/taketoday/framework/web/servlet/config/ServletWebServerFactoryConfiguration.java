@@ -72,8 +72,8 @@ class ServletWebServerFactoryConfiguration {
 
     @Bean
     TomcatServletWebServerFactory tomcatServletWebServerFactory(
-            ObjectProvider<TomcatConnectorCustomizer> connectorCustomizers,
             ObjectProvider<TomcatContextCustomizer> contextCustomizers,
+            ObjectProvider<TomcatConnectorCustomizer> connectorCustomizers,
             ObjectProvider<TomcatProtocolHandlerCustomizer<?>> protocolHandlerCustomizers) {
       TomcatServletWebServerFactory factory = new TomcatServletWebServerFactory();
       factory.getTomcatConnectorCustomizers()

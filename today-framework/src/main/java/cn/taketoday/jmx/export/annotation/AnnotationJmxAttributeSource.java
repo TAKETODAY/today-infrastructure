@@ -32,7 +32,6 @@ import java.util.stream.Collectors;
 
 import cn.taketoday.beans.BeanUtils;
 import cn.taketoday.beans.BeanWrapper;
-import cn.taketoday.beans.PropertyAccessorFactory;
 import cn.taketoday.beans.PropertyValue;
 import cn.taketoday.beans.PropertyValues;
 import cn.taketoday.beans.factory.BeanFactory;
@@ -100,7 +99,7 @@ public class AnnotationJmxAttributeSource implements JmxAttributeSource, BeanFac
         list.add(new PropertyValue(attrName, value));
       }
     });
-    PropertyAccessorFactory.forBeanPropertyAccess(bean).setPropertyValues(new PropertyValues(list));
+    BeanWrapper.forBeanPropertyAccess(bean).setPropertyValues(new PropertyValues(list));
     return bean;
   }
 
@@ -117,7 +116,7 @@ public class AnnotationJmxAttributeSource implements JmxAttributeSource, BeanFac
     Map<String, Object> map = ann.asMap();
     PropertyValues pvs = new PropertyValues(map);
     pvs.remove("defaultValue");
-    PropertyAccessorFactory.forBeanPropertyAccess(bean).setPropertyValues(pvs);
+    BeanWrapper.forBeanPropertyAccess(bean).setPropertyValues(pvs);
     String defaultValue = (String) map.get("defaultValue");
     if (defaultValue.length() > 0) {
       bean.setDefaultValue(defaultValue);
@@ -193,7 +192,7 @@ public class AnnotationJmxAttributeSource implements JmxAttributeSource, BeanFac
       return null;
     }
     T bean = BeanUtils.newInstance(beanClass);
-    BeanWrapper bw = PropertyAccessorFactory.forBeanPropertyAccess(bean);
+    BeanWrapper bw = BeanWrapper.forBeanPropertyAccess(bean);
     bw.setPropertyValues(new PropertyValues(ann.asMap()));
     return bean;
   }

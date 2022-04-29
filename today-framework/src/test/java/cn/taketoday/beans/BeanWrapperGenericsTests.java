@@ -518,7 +518,7 @@ class BeanWrapperGenericsTests {
     data.put("x", "y");
     Holder<Map<String, Object>> context = new Holder<>(data);
 
-    BeanWrapper bw = PropertyAccessorFactory.forBeanPropertyAccess(context);
+    BeanWrapper bw = BeanWrapper.forBeanPropertyAccess(context);
     assertThat(bw.getPropertyValue("data['x']")).isEqualTo("y");
 
     bw.setPropertyValue("data['message']", "it works!");

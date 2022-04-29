@@ -61,8 +61,7 @@ import jakarta.servlet.ServletResponse;
  *
  * <p> {@code DelegatingFilterProxy} has been updated to optionally
  * accept constructor parameters when using a Servlet container's instance-based filter
- * registration methods, usually in conjunction with Framework's
- * {@link cn.taketoday.web.config.WebApplicationInitializer} SPI. These constructors allow
+ * registration methods These constructors allow
  * for providing the delegate Filter bean directly, or providing the application context
  * and bean name to fetch, avoiding the need to look up the application context from the
  * ServletContext.
@@ -83,7 +82,6 @@ import jakarta.servlet.ServletResponse;
  * @see #DelegatingFilterProxy(String)
  * @see #DelegatingFilterProxy(String, WebServletApplicationContext)
  * @see jakarta.servlet.ServletContext#addFilter(String, Filter)
- * @see cn.taketoday.web.config.WebApplicationInitializer
  * @since 4.0 2022/2/20 23:17
  */
 public class DelegatingFilterProxy extends GenericFilterBean {
@@ -109,8 +107,7 @@ public class DelegatingFilterProxy extends GenericFilterBean {
    *
    * @see #setTargetBeanName(String)
    */
-  public DelegatingFilterProxy() {
-  }
+  public DelegatingFilterProxy() { }
 
   /**
    * Create a new {@code DelegatingFilterProxy} with the given {@link Filter} delegate.
@@ -172,7 +169,7 @@ public class DelegatingFilterProxy extends GenericFilterBean {
     this.setTargetBeanName(targetBeanName);
     this.webApplicationContext = wac;
     if (wac != null) {
-      this.setEnvironment(wac.getEnvironment());
+      setEnvironment(wac.getEnvironment());
     }
   }
 
@@ -242,7 +239,7 @@ public class DelegatingFilterProxy extends GenericFilterBean {
         // Fetch Framework root application context and initialize the delegate early,
         // if possible. If the root application context will be started after this
         // filter proxy, we'll have to resort to lazy initialization.
-        WebApplicationContext wac = findWebApplicationContext();
+        WebServletApplicationContext wac = findWebApplicationContext();
         if (wac != null) {
           this.delegate = initDelegate(wac);
         }
@@ -260,7 +257,7 @@ public class DelegatingFilterProxy extends GenericFilterBean {
       synchronized(this.delegateMonitor) {
         delegateToUse = this.delegate;
         if (delegateToUse == null) {
-          WebApplicationContext wac = findWebApplicationContext();
+          WebServletApplicationContext wac = findWebApplicationContext();
           if (wac == null) {
             throw new IllegalStateException("No WebApplicationContext found: " +
                     "no ContextLoaderListener or DispatcherServlet registered?");
@@ -301,14 +298,14 @@ public class DelegatingFilterProxy extends GenericFilterBean {
    * @see WebServletApplicationContext#ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE
    */
   @Nullable
-  protected WebApplicationContext findWebApplicationContext() {
-    if (this.webApplicationContext != null) {
+  protected WebServletApplicationContext findWebApplicationContext() {
+    if (webApplicationContext != null) {
       // The user has injected a context at construction time -> use it...
-      if (this.webApplicationContext instanceof ConfigurableWebServletApplicationContext cac && !cac.isActive()) {
+      if (webApplicationContext instanceof ConfigurableWebServletApplicationContext cac && !cac.isActive()) {
         // The context has not yet been refreshed -> do so before returning it...
         cac.refresh();
       }
-      return this.webApplicationContext;
+      return webApplicationContext;
     }
     String attrName = getContextAttribute();
     if (attrName != null) {
@@ -334,7 +331,7 @@ public class DelegatingFilterProxy extends GenericFilterBean {
    * @see #getFilterConfig()
    * @see jakarta.servlet.Filter#init(jakarta.servlet.FilterConfig)
    */
-  protected Filter initDelegate(WebApplicationContext wac) throws ServletException {
+  protected Filter initDelegate(WebServletApplicationContext wac) throws ServletException {
     String targetBeanName = getTargetBeanName();
     Assert.state(targetBeanName != null, "No target bean name set");
     Filter delegate = wac.getBean(targetBeanName, Filter.class);

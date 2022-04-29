@@ -43,6 +43,7 @@ import jakarta.servlet.ServletContext;
  * @param <T> the type of {@link Filter} to register
  * @author Phillip Webb
  * @author Brian Clozel
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public abstract class AbstractFilterRegistrationBean<T extends Filter> extends DynamicRegistrationBean<Dynamic> {
@@ -133,7 +134,7 @@ public abstract class AbstractFilterRegistrationBean<T extends Filter> extends D
    */
   public void addServletNames(String... servletNames) {
     Assert.notNull(servletNames, "ServletNames must not be null");
-    this.servletNames.addAll(Arrays.asList(servletNames));
+    Collections.addAll(this.servletNames, servletNames);
   }
 
   /**
@@ -216,7 +217,7 @@ public abstract class AbstractFilterRegistrationBean<T extends Filter> extends D
   @Override
   protected String getDescription() {
     Filter filter = getFilter();
-    Assert.notNull(filter, "Filter must not be null");
+    Assert.state(filter != null, "Filter must not be null");
     return "filter " + getOrDeduceName(filter);
   }
 
@@ -237,9 +238,7 @@ public abstract class AbstractFilterRegistrationBean<T extends Filter> extends D
     super.configure(registration);
     EnumSet<DispatcherType> dispatcherTypes = this.dispatcherTypes;
     if (dispatcherTypes == null) {
-      T filter = getFilter();
-      if (ClassUtils.isPresent("cn.taketoday.web.servlet.filter.OncePerRequestFilter",
-              filter.getClass().getClassLoader()) && filter instanceof OncePerRequestFilter) {
+      if (getFilter() instanceof OncePerRequestFilter) {
         dispatcherTypes = EnumSet.allOf(DispatcherType.class);
       }
       else {
@@ -260,9 +259,9 @@ public abstract class AbstractFilterRegistrationBean<T extends Filter> extends D
         registration.addMappingForServletNames(
                 dispatcherTypes, matchAfter, StringUtils.toStringArray(servletNames));
       }
-      if (!this.urlPatterns.isEmpty()) {
+      if (!urlPatterns.isEmpty()) {
         registration.addMappingForUrlPatterns(
-                dispatcherTypes, matchAfter, StringUtils.toStringArray(this.urlPatterns));
+                dispatcherTypes, matchAfter, StringUtils.toStringArray(urlPatterns));
       }
     }
   }
@@ -277,15 +276,15 @@ public abstract class AbstractFilterRegistrationBean<T extends Filter> extends D
   @Override
   public String toString() {
     StringBuilder builder = new StringBuilder(getOrDeduceName(this));
-    if (this.servletNames.isEmpty() && this.urlPatterns.isEmpty()) {
+    if (servletNames.isEmpty() && urlPatterns.isEmpty()) {
       builder.append(" urls=").append(Arrays.toString(DEFAULT_URL_MAPPINGS));
     }
     else {
-      if (!this.servletNames.isEmpty()) {
-        builder.append(" servlets=").append(this.servletNames);
+      if (!servletNames.isEmpty()) {
+        builder.append(" servlets=").append(servletNames);
       }
-      if (!this.urlPatterns.isEmpty()) {
-        builder.append(" urls=").append(this.urlPatterns);
+      if (!urlPatterns.isEmpty()) {
+        builder.append(" urls=").append(urlPatterns);
       }
     }
     builder.append(" order=").append(getOrder());

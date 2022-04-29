@@ -21,7 +21,6 @@
 package cn.taketoday.framework.web.servlet;
 
 import cn.taketoday.core.Ordered;
-import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.StringUtils;
 import jakarta.servlet.ServletContext;
@@ -31,6 +30,7 @@ import jakarta.servlet.ServletException;
  * Base class for Servlet 3.0+ based registration beans.
  *
  * @author Phillip Webb
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see ServletRegistrationBean
  * @see FilterRegistrationBean
  * @see DelegatingFilterProxyRegistrationBean
@@ -39,8 +39,6 @@ import jakarta.servlet.ServletException;
  */
 public abstract class RegistrationBean implements ServletContextInitializer, Ordered {
 
-  private static final Logger logger = LoggerFactory.getLogger(RegistrationBean.class);
-
   private int order = Ordered.LOWEST_PRECEDENCE;
 
   private boolean enabled = true;
@@ -48,11 +46,13 @@ public abstract class RegistrationBean implements ServletContextInitializer, Ord
   @Override
   public final void onStartup(ServletContext servletContext) throws ServletException {
     String description = getDescription();
-    if (!isEnabled()) {
-      logger.info(StringUtils.capitalize(description) + " was not registered (disabled)");
-      return;
+    if (isEnabled()) {
+      register(description, servletContext);
     }
-    register(description, servletContext);
+    else {
+      LoggerFactory.getLogger(getClass())
+              .info("{} was not registered (disabled)", StringUtils.capitalize(description));
+    }
   }
 
   /**

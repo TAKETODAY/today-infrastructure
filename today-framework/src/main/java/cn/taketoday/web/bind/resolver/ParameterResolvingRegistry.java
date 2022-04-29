@@ -269,7 +269,7 @@ public class ParameterResolvingRegistry
     strategies.add(new LocalDateTimeParameterResolver());
 
     // @since 3.0
-    configureDataBinder(strategies);
+//    configureDataBinder(strategies);
 
     // Use ConverterAwareParameterResolver to resolve primitive types
     // --------------------------------------------------------------------------
@@ -284,6 +284,7 @@ public class ParameterResolvingRegistry
             from(new OR(Boolean.class, boolean.class), Boolean::parseBoolean)
     );
 
+    strategies.add(new RequestParamMethodArgumentResolver(beanFactory, true));
     strategies.add(new ModelAttributeMethodProcessor(true));
 
     // apply conversionService @since 4.0

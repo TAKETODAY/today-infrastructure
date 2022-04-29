@@ -183,8 +183,11 @@ public class TomcatReactiveWebServerFactory extends AbstractReactiveWebServerFac
    */
   protected void configureContext(Context context) {
     this.contextLifecycleListeners.forEach(context::addLifecycleListener);
-    new DisableReferenceClearingContextCustomizer().customize(context);
-    this.tomcatContextCustomizers.forEach((customizer) -> customizer.customize(context));
+    TomcatServletWebServerFactory.disableReferenceClearing(context);
+
+    for (TomcatContextCustomizer customizer : tomcatContextCustomizers) {
+      customizer.customize(context);
+    }
   }
 
   protected void customizeConnector(Connector connector) {
@@ -193,8 +196,8 @@ public class TomcatReactiveWebServerFactory extends AbstractReactiveWebServerFac
     if (StringUtils.hasText(getServerHeader())) {
       connector.setProperty("server", getServerHeader());
     }
-    if (connector.getProtocolHandler() instanceof AbstractProtocol) {
-      customizeProtocol((AbstractProtocol<?>) connector.getProtocolHandler());
+    if (connector.getProtocolHandler() instanceof AbstractProtocol abstractProtocol) {
+      customizeProtocol(abstractProtocol);
     }
     invokeProtocolHandlerCustomizers(connector.getProtocolHandler());
     connector.setURIEncoding(getUriEncoding().name());
@@ -206,17 +209,17 @@ public class TomcatReactiveWebServerFactory extends AbstractReactiveWebServerFac
     if (getSsl() != null && getSsl().isEnabled()) {
       customizeSsl(connector);
     }
-    TomcatConnectorCustomizer compression = new CompressionConnectorCustomizer(getCompression());
-    compression.customize(connector);
-    for (TomcatConnectorCustomizer customizer : this.tomcatConnectorCustomizers) {
+
+    CompressionConnectorCustomizer.customize(connector, getCompression());
+    for (TomcatConnectorCustomizer customizer : tomcatConnectorCustomizers) {
       customizer.customize(connector);
     }
   }
 
   @SuppressWarnings("unchecked")
   private void invokeProtocolHandlerCustomizers(ProtocolHandler protocolHandler) {
-    LambdaSafe.callbacks(TomcatProtocolHandlerCustomizer.class, this.tomcatProtocolHandlerCustomizers,
-            protocolHandler).invoke((customizer) -> customizer.customize(protocolHandler));
+    LambdaSafe.callbacks(TomcatProtocolHandlerCustomizer.class, tomcatProtocolHandlerCustomizers, protocolHandler)
+            .invoke(customizer -> customizer.customize(protocolHandler));
   }
 
   private void customizeProtocol(AbstractProtocol<?> protocol) {
@@ -269,7 +272,7 @@ public class TomcatReactiveWebServerFactory extends AbstractReactiveWebServerFac
   @Override
   public void addContextCustomizers(TomcatContextCustomizer... tomcatContextCustomizers) {
     Assert.notNull(tomcatContextCustomizers, "TomcatContextCustomizers must not be null");
-    this.tomcatContextCustomizers.addAll(Arrays.asList(tomcatContextCustomizers));
+    CollectionUtils.addAll(this.tomcatContextCustomizers, tomcatContextCustomizers);
   }
 
   /**
@@ -327,7 +330,7 @@ public class TomcatReactiveWebServerFactory extends AbstractReactiveWebServerFac
   @Override
   public void addProtocolHandlerCustomizers(TomcatProtocolHandlerCustomizer<?>... tomcatProtocolHandlerCustomizers) {
     Assert.notNull(tomcatProtocolHandlerCustomizers, "TomcatProtocolHandlerCustomizers must not be null");
-    this.tomcatProtocolHandlerCustomizers.addAll(Arrays.asList(tomcatProtocolHandlerCustomizers));
+    CollectionUtils.addAll(this.tomcatProtocolHandlerCustomizers, tomcatProtocolHandlerCustomizers);
   }
 
   /**
@@ -347,7 +350,7 @@ public class TomcatReactiveWebServerFactory extends AbstractReactiveWebServerFac
    */
   public void addAdditionalTomcatConnectors(Connector... connectors) {
     Assert.notNull(connectors, "Connectors must not be null");
-    this.additionalTomcatConnectors.addAll(Arrays.asList(connectors));
+    CollectionUtils.addAll(this.additionalTomcatConnectors, connectors);
   }
 
   /**
@@ -363,7 +366,7 @@ public class TomcatReactiveWebServerFactory extends AbstractReactiveWebServerFac
   @Override
   public void addEngineValves(Valve... engineValves) {
     Assert.notNull(engineValves, "Valves must not be null");
-    this.engineValves.addAll(Arrays.asList(engineValves));
+    CollectionUtils.addAll(this.engineValves, engineValves);
   }
 
   /**
@@ -424,7 +427,7 @@ public class TomcatReactiveWebServerFactory extends AbstractReactiveWebServerFac
    */
   public void addContextLifecycleListeners(LifecycleListener... contextLifecycleListeners) {
     Assert.notNull(contextLifecycleListeners, "ContextLifecycleListeners must not be null");
-    this.contextLifecycleListeners.addAll(Arrays.asList(contextLifecycleListeners));
+    CollectionUtils.addAll(this.contextLifecycleListeners, contextLifecycleListeners);
   }
 
   /**

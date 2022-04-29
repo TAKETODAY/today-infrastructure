@@ -25,6 +25,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 
+import cn.taketoday.http.DefaultHttpHeaders;
+import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.FileCopyUtils;
@@ -52,6 +54,7 @@ public class MockMultipartFile implements MultipartFile {
   private final String contentType;
 
   private final byte[] content;
+  protected HttpHeaders headers;
 
   /**
    * Create a new MockMultipartFile with the given content.
@@ -113,14 +116,29 @@ public class MockMultipartFile implements MultipartFile {
     return this.name;
   }
 
-  @Override
-  public String getOriginalFilename() {
-    return originalFilename;
+  public void setHeaders(HttpHeaders headers) {
+    this.headers = headers;
   }
 
   @Override
-  public void transferTo(File dest) throws IOException, IllegalStateException {
-    FileCopyUtils.copy(this.content, dest);
+  public HttpHeaders getHeaders() {
+    HttpHeaders headers = this.headers;
+    if (headers == null) {
+      headers = createHttpHeaders();
+      this.headers = headers;
+    }
+    return headers;
+  }
+
+  protected DefaultHttpHeaders createHttpHeaders() {
+    DefaultHttpHeaders headers = HttpHeaders.create();
+    headers.set(HttpHeaders.CONTENT_TYPE, getContentType());
+    return headers;
+  }
+
+  @Override
+  public String getOriginalFilename() {
+    return originalFilename;
   }
 
   @Override
@@ -150,13 +168,16 @@ public class MockMultipartFile implements MultipartFile {
   }
 
   @Override
-  public void delete() throws IOException {
-
-  }
+  public void delete() throws IOException { }
 
   @Override
   public InputStream getInputStream() throws IOException {
     return new ByteArrayInputStream(this.content);
+  }
+
+  @Override
+  public void transferTo(File dest) throws IOException, IllegalStateException {
+    FileCopyUtils.copy(this.content, dest);
   }
 
 }

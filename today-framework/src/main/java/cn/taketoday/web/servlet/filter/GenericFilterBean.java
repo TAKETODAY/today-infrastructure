@@ -26,7 +26,6 @@ import java.util.Set;
 
 import cn.taketoday.beans.BeanWrapper;
 import cn.taketoday.beans.BeansException;
-import cn.taketoday.beans.PropertyAccessorFactory;
 import cn.taketoday.beans.PropertyValue;
 import cn.taketoday.beans.PropertyValues;
 import cn.taketoday.beans.factory.BeanNameAware;
@@ -218,7 +217,7 @@ public abstract class GenericFilterBean implements Filter, BeanNameAware, Enviro
     PropertyValues pvs = getFilterConfigPropertyValues(filterConfig, requiredProperties);
     if (!pvs.isEmpty()) {
       try {
-        BeanWrapper bw = PropertyAccessorFactory.forBeanPropertyAccess(this);
+        BeanWrapper bw = BeanWrapper.forBeanPropertyAccess(this);
         ResourceLoader resourceLoader = new ServletContextResourceLoader(filterConfig.getServletContext());
         Environment env = this.environment;
         if (env == null) {

@@ -27,7 +27,6 @@ import cn.taketoday.web.servlet.ServletContextAware;
  * the application is running, but may be reloaded if the implementation supports this.
  *
  * @author TODAY 2019-07-10 22:03
- * @see ServletContextAware#setServletContext
  */
 public interface WebApplicationContext extends ApplicationContext {
 

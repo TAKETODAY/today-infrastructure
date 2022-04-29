@@ -43,12 +43,10 @@ import jakarta.servlet.ServletConfig;
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 
 /**
- * Convenience methods for retrieving the root {@link WebApplicationContext} for
+ * Convenience methods for retrieving the root {@link WebServletApplicationContext} for
  * a given {@link ServletContext}. This is useful for programmatically accessing
  * a application context from within custom web views or MVC actions.
  *
@@ -63,50 +61,53 @@ import jakarta.servlet.http.HttpSession;
 public class WebApplicationContextUtils {
 
   /**
-   * Find the root {@code WebApplicationContext} for this web app, typically
+   * Find the root {@code WebServletApplicationContext} for this web app, typically
    * loaded via {@link cn.taketoday.web.context.ContextLoaderListener}.
    * <p>Will rethrow an exception that happened on root context startup,
    * to differentiate between a failed context startup and no context at all.
    *
    * @param sc the ServletContext to find the web application context for
-   * @return the root WebApplicationContext for this web app
-   * @throws IllegalStateException if the root WebApplicationContext could not be found
+   * @return the root WebServletApplicationContext for this web app
+   * @throws IllegalStateException if the root WebServletApplicationContext could not be found
    * @see cn.taketoday.web.servlet.WebServletApplicationContext#ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE
    */
-  public static WebApplicationContext getRequiredWebApplicationContext(ServletContext sc) throws IllegalStateException {
-    WebApplicationContext wac = getWebApplicationContext(sc);
+  public static WebServletApplicationContext getRequiredWebApplicationContext(ServletContext sc) throws IllegalStateException {
+    WebServletApplicationContext wac = getWebApplicationContext(sc);
     if (wac == null) {
-      throw new IllegalStateException("No WebApplicationContext found: no ContextLoaderListener registered?");
+      throw new IllegalStateException("No WebServletApplicationContext found: no ContextLoaderListener registered?");
     }
     return wac;
   }
 
   /**
-   * Find the root {@code WebApplicationContext} for this web app, typically
+   * Find the root {@code WebServletApplicationContext} for this web app, typically
    * loaded via {@link cn.taketoday.web.context.ContextLoaderListener}.
    * <p>Will rethrow an exception that happened on root context startup,
    * to differentiate between a failed context startup and no context at all.
    *
    * @param sc the ServletContext to find the web application context for
-   * @return the root WebApplicationContext for this web app, or {@code null} if none
+   * @return the root WebServletApplicationContext for this web app, or {@code null} if none
    * @see cn.taketoday.web.servlet.WebServletApplicationContext#ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE
    */
   @Nullable
-  public static WebApplicationContext getWebApplicationContext(ServletContext sc) {
+  public static WebServletApplicationContext getWebApplicationContext(ServletContext sc) {
     return getWebApplicationContext(sc, WebServletApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE);
   }
 
   /**
-   * Find a custom {@code WebApplicationContext} for this web app.
+   * Find a custom {@code WebServletApplicationContext} for this web app.
    *
    * @param sc the ServletContext to find the web application context for
    * @param attrName the name of the ServletContext attribute to look for
-   * @return the desired WebApplicationContext for this web app, or {@code null} if none
+   * @return the desired WebServletApplicationContext for this web app, or {@code null} if none
    */
   @Nullable
-  public static WebApplicationContext getWebApplicationContext(ServletContext sc, String attrName) {
+  public static WebServletApplicationContext getWebApplicationContext(ServletContext sc, String attrName) {
     Assert.notNull(sc, "ServletContext must not be null");
     Object attr = sc.getAttribute(attrName);
+    if (attr instanceof WebServletApplicationContext) {
+      return (WebServletApplicationContext) attr;
+    }
     if (attr == null) {
       return null;
     }
@@ -119,15 +120,12 @@ public class WebApplicationContextUtils {
     if (attr instanceof Exception) {
       throw new IllegalStateException((Exception) attr);
     }
-    if (!(attr instanceof WebApplicationContext)) {
-      throw new IllegalStateException("Context attribute is not of type WebApplicationContext: " + attr);
-    }
-    return (WebApplicationContext) attr;
+    throw new IllegalStateException("Context attribute is not of type WebServletApplicationContext: " + attr);
   }
 
   /**
-   * Find a unique {@code WebApplicationContext} for this web app: either the
-   * root web app context (preferred) or a unique {@code WebApplicationContext}
+   * Find a unique {@code WebServletApplicationContext} for this web app: either the
+   * root web app context (preferred) or a unique {@code WebServletApplicationContext}
    * among the registered {@code ServletContext} attributes (typically coming
    * from a single {@code DispatcherServlet} in the current web application).
    * <p>Note that {@code DispatcherServlet}'s exposure of its context can be
@@ -136,24 +134,24 @@ public class WebApplicationContextUtils {
    * despite multiple {@code DispatcherServlet} registrations in the web app.
    *
    * @param sc the ServletContext to find the web application context for
-   * @return the desired WebApplicationContext for this web app, or {@code null} if none
+   * @return the desired WebServletApplicationContext for this web app, or {@code null} if none
    * @see #getWebApplicationContext(ServletContext)
    * @see ServletContext#getAttributeNames()
    */
   @Nullable
-  public static WebApplicationContext findWebApplicationContext(ServletContext sc) {
-    WebApplicationContext wac = getWebApplicationContext(sc);
+  public static WebServletApplicationContext findWebApplicationContext(ServletContext sc) {
+    WebServletApplicationContext wac = getWebApplicationContext(sc);
     if (wac == null) {
       Enumeration<String> attrNames = sc.getAttributeNames();
       while (attrNames.hasMoreElements()) {
         String attrName = attrNames.nextElement();
         Object attrValue = sc.getAttribute(attrName);
-        if (attrValue instanceof WebApplicationContext) {
+        if (attrValue instanceof WebServletApplicationContext) {
           if (wac != null) {
-            throw new IllegalStateException("No unique WebApplicationContext found: more than one " +
+            throw new IllegalStateException("No unique WebServletApplicationContext found: more than one " +
                     "DispatcherServlet registered with publishContext=true?");
           }
-          wac = (WebApplicationContext) attrValue;
+          wac = (WebServletApplicationContext) attrValue;
         }
       }
     }
@@ -162,7 +160,7 @@ public class WebApplicationContextUtils {
 
   /**
    * Register web-specific scopes ("request", "session", "globalSession")
-   * with the given BeanFactory, as used by the WebApplicationContext.
+   * with the given BeanFactory, as used by the WebServletApplicationContext.
    *
    * @param beanFactory the BeanFactory to configure
    */
@@ -172,7 +170,7 @@ public class WebApplicationContextUtils {
 
   /**
    * Register web-specific scopes ("request", "session", "globalSession", "application")
-   * with the given BeanFactory, as used by the WebApplicationContext.
+   * with the given BeanFactory, as used by the WebServletApplicationContext.
    *
    * @param beanFactory the BeanFactory to configure
    * @param sc the ServletContext that we're running within
@@ -202,7 +200,7 @@ public class WebApplicationContextUtils {
 
   /**
    * Register web-specific environment beans ("contextParameters", "contextAttributes")
-   * with the given BeanFactory, as used by the WebApplicationContext.
+   * with the given BeanFactory, as used by the WebServletApplicationContext.
    *
    * @param bf the BeanFactory to configure
    * @param sc the ServletContext that we're running within
@@ -213,7 +211,7 @@ public class WebApplicationContextUtils {
 
   /**
    * Register web-specific environment beans ("contextParameters", "contextAttributes")
-   * with the given BeanFactory, as used by the WebApplicationContext.
+   * with the given BeanFactory, as used by the WebServletApplicationContext.
    *
    * @param bf the BeanFactory to configure
    * @param servletContext the ServletContext that we're running within

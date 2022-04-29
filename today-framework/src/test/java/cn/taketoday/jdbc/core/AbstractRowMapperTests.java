@@ -30,7 +30,6 @@ import java.sql.Timestamp;
 import java.util.Date;
 
 import cn.taketoday.beans.BeanWrapper;
-import cn.taketoday.beans.PropertyAccessorFactory;
 import cn.taketoday.jdbc.core.test.ConcretePerson;
 import cn.taketoday.jdbc.core.test.ConstructorPerson;
 import cn.taketoday.jdbc.core.test.DatePerson;
@@ -95,7 +94,7 @@ public abstract class AbstractRowMapperTests {
   }
 
   protected void verifyPersonViaBeanWrapper(Object person) {
-    BeanWrapper accessor = PropertyAccessorFactory.forBeanPropertyAccess(person);
+    BeanWrapper accessor = BeanWrapper.forBeanPropertyAccess(person);
     assertThat(accessor.getPropertyValue("name")).isEqualTo("Bubba");
     assertThat(accessor.getPropertyValue("age")).isEqualTo(22L);
 

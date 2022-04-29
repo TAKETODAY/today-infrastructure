@@ -309,8 +309,8 @@ public class TomcatWebServer implements WebServer {
   private void performDeferredLoadOnStartup() {
     try {
       for (Container child : this.tomcat.getHost().findChildren()) {
-        if (child instanceof TomcatEmbeddedContext) {
-          ((TomcatEmbeddedContext) child).deferredLoadOnStartup();
+        if (child instanceof TomcatEmbeddedContext context) {
+          context.deferredLoadOnStartup();
         }
       }
     }

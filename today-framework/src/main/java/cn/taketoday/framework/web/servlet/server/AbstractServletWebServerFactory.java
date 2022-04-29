@@ -282,8 +282,8 @@ public abstract class AbstractServletWebServerFactory extends AbstractConfigurab
    */
   protected final ServletContextInitializer[] mergeInitializers(ServletContextInitializer... initializers) {
     ArrayList<ServletContextInitializer> mergedInitializers = new ArrayList<>();
-    mergedInitializers.add(servletContext -> this.initParameters.forEach(servletContext::setInitParameter));
-    mergedInitializers.add(new SessionConfiguringInitializer(this.session));
+    mergedInitializers.add(servletContext -> initParameters.forEach(servletContext::setInitParameter));
+    mergedInitializers.add(new SessionConfiguringInitializer(session));
     CollectionUtils.addAll(mergedInitializers, initializers);
     mergedInitializers.addAll(this.initializers);
     return mergedInitializers.toArray(new ServletContextInitializer[0]);
@@ -339,8 +339,8 @@ public abstract class AbstractServletWebServerFactory extends AbstractConfigurab
 
     @Override
     public void onStartup(ServletContext servletContext) throws ServletException {
-      if (this.session.getTrackingModes() != null) {
-        servletContext.setSessionTrackingModes(unwrap(this.session.getTrackingModes()));
+      if (session.getTrackingModes() != null) {
+        servletContext.setSessionTrackingModes(unwrap(session.getTrackingModes()));
       }
       configureSessionCookie(servletContext.getSessionCookieConfig());
     }

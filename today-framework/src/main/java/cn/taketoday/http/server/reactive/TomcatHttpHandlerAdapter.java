@@ -98,7 +98,7 @@ public class TomcatHttpHandlerAdapter extends ServletHttpHandlerAdapter {
     }
 
     TomcatServerHttpRequest(HttpServletRequest request, AsyncContext context,
-                            String servletPath, DataBufferFactory factory, int bufferSize)
+            String servletPath, DataBufferFactory factory, int bufferSize)
             throws IOException, URISyntaxException {
 
       super(createTomcatHttpHeaders(request), request, context, servletPath, factory, bufferSize);
@@ -108,7 +108,7 @@ public class TomcatHttpHandlerAdapter extends ServletHttpHandlerAdapter {
 
     private static MultiValueMap<String, String> createTomcatHttpHeaders(HttpServletRequest request) {
       RequestFacade requestFacade = getRequestFacade(request);
-      org.apache.catalina.connector.Request connectorRequest = (org.apache.catalina.connector.Request)
+      var connectorRequest = (org.apache.catalina.connector.Request)
               ReflectionUtils.getField(COYOTE_REQUEST_FIELD, requestFacade);
       Assert.state(connectorRequest != null, "No Tomcat connector request");
       Request tomcatRequest = connectorRequest.getCoyoteRequest();

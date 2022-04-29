@@ -48,6 +48,7 @@ import jakarta.servlet.ServletException;
  * be used as the filter name if not otherwise specified.
  *
  * @author Phillip Webb
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see ServletContextInitializer
  * @see ServletContext#addFilter(String, Filter)
  * @see FilterRegistrationBean

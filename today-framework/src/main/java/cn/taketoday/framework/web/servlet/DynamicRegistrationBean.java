@@ -106,7 +106,7 @@ public abstract class DynamicRegistrationBean<D extends Registration.Dynamic> ex
    */
   public void addInitParameter(String name, String value) {
     Assert.notNull(name, "Name must not be null");
-    this.initParameters.put(name, value);
+    initParameters.put(name, value);
   }
 
   @Override
@@ -123,9 +123,9 @@ public abstract class DynamicRegistrationBean<D extends Registration.Dynamic> ex
   protected abstract D addRegistration(String description, ServletContext servletContext);
 
   protected void configure(D registration) {
-    registration.setAsyncSupported(this.asyncSupported);
-    if (!this.initParameters.isEmpty()) {
-      registration.setInitParameters(this.initParameters);
+    registration.setAsyncSupported(asyncSupported);
+    if (!initParameters.isEmpty()) {
+      registration.setInitParameters(initParameters);
     }
   }
 

@@ -32,6 +32,7 @@ import org.apache.catalina.WebResourceRoot.ResourceSetType;
 import org.apache.catalina.Wrapper;
 import org.apache.catalina.connector.Connector;
 import org.apache.catalina.core.AprLifecycleListener;
+import org.apache.catalina.core.StandardContext;
 import org.apache.catalina.loader.WebappLoader;
 import org.apache.catalina.session.StandardManager;
 import org.apache.catalina.startup.Tomcat;
@@ -56,6 +57,7 @@ import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
 
 import cn.taketoday.context.aware.ResourceLoaderAware;
@@ -263,8 +265,9 @@ public class TomcatServletWebServerFactory extends AbstractServletWebServerFacto
   }
 
   private void addLocaleMappings(TomcatEmbeddedContext context) {
-    getLocaleCharsetMappings().forEach(
-            (locale, charset) -> context.addLocaleEncodingMappingParameter(locale.toString(), charset.toString()));
+    for (Map.Entry<Locale, Charset> entry : getLocaleCharsetMappings().entrySet()) {
+      context.addLocaleEncodingMappingParameter(entry.getKey().toString(), entry.getValue().toString());
+    }
   }
 
   private void configureTldPatterns(TomcatEmbeddedContext context) {
@@ -301,9 +304,8 @@ public class TomcatServletWebServerFactory extends AbstractServletWebServerFacto
 
   private void addJasperInitializer(TomcatEmbeddedContext context) {
     try {
-      ServletContainerInitializer initializer = (ServletContainerInitializer) ClassUtils
-              .forName("org.apache.jasper.servlet.JasperInitializer", null).getDeclaredConstructor()
-              .newInstance();
+      var initializer = ClassUtils.<ServletContainerInitializer>forName(
+              "org.apache.jasper.servlet.JasperInitializer").getDeclaredConstructor().newInstance();
       context.addServletContainerInitializer(initializer, null);
     }
     catch (Exception ex) {
@@ -318,8 +320,8 @@ public class TomcatServletWebServerFactory extends AbstractServletWebServerFacto
     if (StringUtils.hasText(getServerHeader())) {
       connector.setProperty("server", getServerHeader());
     }
-    if (connector.getProtocolHandler() instanceof AbstractProtocol) {
-      customizeProtocol((AbstractProtocol<?>) connector.getProtocolHandler());
+    if (connector.getProtocolHandler() instanceof AbstractProtocol abstractProtocol) {
+      customizeProtocol(abstractProtocol);
     }
     invokeProtocolHandlerCustomizers(connector.getProtocolHandler());
     connector.setURIEncoding(getUriEncoding().name());
@@ -332,9 +334,8 @@ public class TomcatServletWebServerFactory extends AbstractServletWebServerFacto
     if (getSsl() != null && getSsl().isEnabled()) {
       customizeSsl(connector);
     }
-    TomcatConnectorCustomizer compression = new CompressionConnectorCustomizer(getCompression());
-    compression.customize(connector);
-    for (TomcatConnectorCustomizer customizer : this.tomcatConnectorCustomizers) {
+    CompressionConnectorCustomizer.customize(connector, getCompression());
+    for (TomcatConnectorCustomizer customizer : tomcatConnectorCustomizers) {
       customizer.customize(connector);
     }
   }
@@ -347,8 +348,8 @@ public class TomcatServletWebServerFactory extends AbstractServletWebServerFacto
 
   @SuppressWarnings("unchecked")
   private void invokeProtocolHandlerCustomizers(ProtocolHandler protocolHandler) {
-    LambdaSafe.callbacks(TomcatProtocolHandlerCustomizer.class, this.tomcatProtocolHandlerCustomizers,
-            protocolHandler).invoke((customizer) -> customizer.customize(protocolHandler));
+    LambdaSafe.callbacks(TomcatProtocolHandlerCustomizer.class, tomcatProtocolHandlerCustomizers, protocolHandler)
+            .invoke(customizer -> customizer.customize(protocolHandler));
   }
 
   private void customizeSsl(Connector connector) {
@@ -363,19 +364,22 @@ public class TomcatServletWebServerFactory extends AbstractServletWebServerFacto
    */
   protected void configureContext(Context context, ServletContextInitializer[] initializers) {
     TomcatStarter starter = new TomcatStarter(initializers);
+
     if (context instanceof TomcatEmbeddedContext embeddedContext) {
       embeddedContext.setStarter(starter);
       embeddedContext.setFailCtxIfServletStartFails(true);
     }
     context.addServletContainerInitializer(starter, NO_CLASSES);
-    for (LifecycleListener lifecycleListener : this.contextLifecycleListeners) {
+
+    for (LifecycleListener lifecycleListener : contextLifecycleListeners) {
       context.addLifecycleListener(lifecycleListener);
     }
-    for (Valve valve : this.contextValves) {
+    for (Valve valve : contextValves) {
       context.getPipeline().addValve(valve);
     }
+
     for (ErrorPage errorPage : getErrorPages()) {
-      org.apache.tomcat.util.descriptor.web.ErrorPage tomcatErrorPage = new org.apache.tomcat.util.descriptor.web.ErrorPage();
+      var tomcatErrorPage = new org.apache.tomcat.util.descriptor.web.ErrorPage();
       tomcatErrorPage.setLocation(errorPage.getPath());
       tomcatErrorPage.setErrorCode(errorPage.getStatusCode());
       tomcatErrorPage.setExceptionType(errorPage.getExceptionName());
@@ -386,12 +390,26 @@ public class TomcatServletWebServerFactory extends AbstractServletWebServerFacto
     }
     configureSession(context);
     configureCookieProcessor(context);
-    new DisableReferenceClearingContextCustomizer().customize(context);
+    disableReferenceClearing(context);
     for (String webListenerClassName : getWebListenerClassNames()) {
       context.addApplicationListener(webListenerClassName);
     }
-    for (TomcatContextCustomizer customizer : this.tomcatContextCustomizers) {
+    for (TomcatContextCustomizer customizer : tomcatContextCustomizers) {
       customizer.customize(context);
+    }
+  }
+
+  static void disableReferenceClearing(Context context) {
+    if (context instanceof StandardContext standardContext) {
+      try {
+        standardContext.setClearReferencesRmiTargets(false);
+        standardContext.setClearReferencesThreadLocals(false);
+        standardContext.setClearReferencesObjectStreamClassCaches(false);
+      }
+      catch (NoSuchMethodError ex) {
+        // Earlier version of Tomcat (probably without
+        // setClearReferencesThreadLocals). Continue.
+      }
     }
   }
 
@@ -431,11 +449,14 @@ public class TomcatServletWebServerFactory extends AbstractServletWebServerFacto
   }
 
   private void configurePersistSession(Manager manager) {
-    Assert.state(manager instanceof StandardManager,
-            () -> "Unable to persist HTTP session state using manager type " + manager.getClass().getName());
-    File dir = getValidSessionStoreDir();
-    File file = new File(dir, "SESSIONS.ser");
-    ((StandardManager) manager).setPathname(file.getAbsolutePath());
+    if (manager instanceof StandardManager standardManager) {
+      File dir = getValidSessionStoreDir();
+      File file = new File(dir, "SESSIONS.ser");
+      standardManager.setPathname(file.getAbsolutePath());
+    }
+    else {
+      throw new IllegalStateException("Unable to persist HTTP session state using manager type " + manager.getClass().getName());
+    }
   }
 
   private long getSessionTimeoutInMinutes() {
@@ -579,7 +600,7 @@ public class TomcatServletWebServerFactory extends AbstractServletWebServerFacto
    */
   public void addContextValves(Valve... contextValves) {
     Assert.notNull(contextValves, "Valves must not be null");
-    this.contextValves.addAll(Arrays.asList(contextValves));
+    CollectionUtils.addAll(this.contextValves, contextValves);
   }
 
   /**
@@ -610,7 +631,7 @@ public class TomcatServletWebServerFactory extends AbstractServletWebServerFacto
    */
   public void addContextLifecycleListeners(LifecycleListener... contextLifecycleListeners) {
     Assert.notNull(contextLifecycleListeners, "ContextLifecycleListeners must not be null");
-    this.contextLifecycleListeners.addAll(Arrays.asList(contextLifecycleListeners));
+    CollectionUtils.addAll(this.contextLifecycleListeners, contextLifecycleListeners);
   }
 
   /**
@@ -637,7 +658,7 @@ public class TomcatServletWebServerFactory extends AbstractServletWebServerFacto
   @Override
   public void addContextCustomizers(TomcatContextCustomizer... tomcatContextCustomizers) {
     Assert.notNull(tomcatContextCustomizers, "TomcatContextCustomizers must not be null");
-    this.tomcatContextCustomizers.addAll(Arrays.asList(tomcatContextCustomizers));
+    CollectionUtils.addAll(this.tomcatContextCustomizers, tomcatContextCustomizers);
   }
 
   /**
@@ -655,7 +676,7 @@ public class TomcatServletWebServerFactory extends AbstractServletWebServerFacto
   @Override
   public void addConnectorCustomizers(TomcatConnectorCustomizer... tomcatConnectorCustomizers) {
     Assert.notNull(tomcatConnectorCustomizers, "TomcatConnectorCustomizers must not be null");
-    this.tomcatConnectorCustomizers.addAll(Arrays.asList(tomcatConnectorCustomizers));
+    CollectionUtils.addAll(this.tomcatConnectorCustomizers, tomcatConnectorCustomizers);
   }
 
   /**
@@ -689,7 +710,7 @@ public class TomcatServletWebServerFactory extends AbstractServletWebServerFacto
   @Override
   public void addProtocolHandlerCustomizers(TomcatProtocolHandlerCustomizer<?>... tomcatProtocolHandlerCustomizers) {
     Assert.notNull(tomcatProtocolHandlerCustomizers, "TomcatProtocolHandlerCustomizers must not be null");
-    this.tomcatProtocolHandlerCustomizers.addAll(Arrays.asList(tomcatProtocolHandlerCustomizers));
+    CollectionUtils.addAll(this.tomcatProtocolHandlerCustomizers, tomcatProtocolHandlerCustomizers);
   }
 
   /**
@@ -709,7 +730,7 @@ public class TomcatServletWebServerFactory extends AbstractServletWebServerFacto
    */
   public void addAdditionalTomcatConnectors(Connector... connectors) {
     Assert.notNull(connectors, "Connectors must not be null");
-    this.additionalTomcatConnectors.addAll(Arrays.asList(connectors));
+    CollectionUtils.addAll(this.additionalTomcatConnectors, connectors);
   }
 
   /**
@@ -760,11 +781,10 @@ public class TomcatServletWebServerFactory extends AbstractServletWebServerFacto
 
     @Override
     public void lifecycleEvent(LifecycleEvent event) {
-      if (event.getType().equals(Lifecycle.START_EVENT)) {
-        Context context = (Context) event.getLifecycle();
-        Manager manager = context.getManager();
-        if (manager instanceof StandardManager) {
-          ((StandardManager) manager).setPathname(null);
+      if (event.getType().equals(Lifecycle.START_EVENT)
+              && event.getLifecycle() instanceof Context context) {
+        if (context.getManager() instanceof StandardManager standardManager) {
+          standardManager.setPathname(null);
         }
       }
     }

@@ -43,9 +43,7 @@ import cn.taketoday.util.ClassUtils;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/1/16 14:11
  */
-public final class LambdaSafe {
-
-  private LambdaSafe() { }
+public abstract class LambdaSafe {
 
   /**
    * Start a call to a single callback instance, dealing with common generic type
@@ -60,8 +58,8 @@ public final class LambdaSafe {
    * @param <A> the primary argument type
    * @return a {@link Callback} instance that can be invoked.
    */
-  public static <C, A> Callback<C, A> callback(
-          Class<C> callbackType, C callbackInstance, A argument, Object... additionalArguments) {
+  public static <C, A> Callback<C, A> callback(Class<C> callbackType,
+          C callbackInstance, A argument, Object... additionalArguments) {
     Assert.notNull(callbackType, "CallbackType must not be null");
     Assert.notNull(callbackInstance, "CallbackInstance must not be null");
     return new Callback<>(callbackType, callbackInstance, argument, additionalArguments);
@@ -80,9 +78,8 @@ public final class LambdaSafe {
    * @param <A> the primary argument type
    * @return a {@link Callbacks} instance that can be invoked.
    */
-  public static <C, A> Callbacks<C, A> callbacks(
-          Class<C> callbackType, Collection<? extends C> callbackInstances,
-          A argument, Object... additionalArguments) {
+  public static <C, A> Callbacks<C, A> callbacks(Class<C> callbackType,
+          Collection<? extends C> callbackInstances, A argument, Object... additionalArguments) {
     Assert.notNull(callbackType, "CallbackType must not be null");
     Assert.notNull(callbackInstances, "CallbackInstances must not be null");
     return new Callbacks<>(callbackType, callbackInstances, argument, additionalArguments);
@@ -167,8 +164,9 @@ public final class LambdaSafe {
     }
 
     private boolean startsWithArgumentClassName(String message) {
-      Predicate<Object> startsWith = (argument) -> startsWithArgumentClassName(message, argument);
-      return startsWith.test(argument) || Stream.of(additionalArguments).anyMatch(startsWith);
+      Predicate<Object> startsWith = argument -> startsWithArgumentClassName(message, argument);
+      return startsWith.test(argument)
+              || Stream.of(additionalArguments).anyMatch(startsWith);
     }
 
     private boolean startsWithArgumentClassName(String message, Object argument) {
@@ -199,11 +197,9 @@ public final class LambdaSafe {
     private void logNonMatchingType(C callback, ClassCastException ex) {
       if (log.isDebugEnabled()) {
         Class<?> expectedType = ResolvableType.fromClass(this.callbackType).resolveGeneric();
-        String expectedTypeName = expectedType != null
-                                  ? ClassUtils.getShortName(expectedType) + " type" : "type";
-        String message = "Non-matching " + expectedTypeName + " for callback " +
-                ClassUtils.getShortName(this.callbackType) + ": " + callback;
-        log.debug(message, ex);
+        String expectedTypeName = expectedType != null ? ClassUtils.getShortName(expectedType) + " type" : "type";
+        log.debug("Non-matching {} for callback {}: {}",
+                expectedTypeName, ClassUtils.getShortName(callbackType), callback, ex);
       }
     }
 
@@ -265,8 +261,8 @@ public final class LambdaSafe {
 
     private final Collection<? extends C> callbackInstances;
 
-    private Callbacks(Class<C> callbackType, Collection<? extends C> callbackInstances, A argument,
-                      Object[] additionalArguments) {
+    private Callbacks(Class<C> callbackType, Collection<? extends C> callbackInstances,
+            A argument, Object[] additionalArguments) {
       super(callbackType, argument, additionalArguments);
       this.callbackInstances = callbackInstances;
     }
@@ -346,8 +342,11 @@ public final class LambdaSafe {
     @Override
     public boolean match(Class<C> callbackType, C callbackInstance, A argument, Object[] additionalArguments) {
       ResolvableType type = ResolvableType.fromClass(callbackType, callbackInstance.getClass());
-      if (type.getGenerics().length == 1 && type.resolveGeneric() != null) {
-        return type.resolveGeneric().isInstance(argument);
+      if (type.getGenerics().length == 1) {
+        Class<?> resolveGeneric = type.resolveGeneric();
+        if (resolveGeneric != null) {
+          return resolveGeneric.isInstance(argument);
+        }
       }
       return true;
     }

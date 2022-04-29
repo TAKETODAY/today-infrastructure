@@ -285,7 +285,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
    * @see #MockHttpServletRequest(ServletContext, String, String)
    */
   public MockHttpServletRequest() {
-    this(null, "", "");
+    this(null, "GET", "");
   }
 
   /**
