@@ -65,8 +65,8 @@ import cn.taketoday.web.context.async.WebAsyncTask;
 import cn.taketoday.web.context.async.WebAsyncUtils;
 import cn.taketoday.web.handler.ReturnValueHandlerManager;
 import cn.taketoday.web.handler.result.HandlerMethodReturnValueHandler;
+import cn.taketoday.web.session.SessionManager;
 import cn.taketoday.web.session.WebSession;
-import cn.taketoday.web.session.WebSessionManager;
 import cn.taketoday.web.util.WebUtils;
 import cn.taketoday.web.view.ModelAndView;
 import cn.taketoday.web.view.RedirectModel;
@@ -145,7 +145,7 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
   private final Map<HandlerMethod, ActionMappingAnnotationHandler> annotationHandlerMap = new HashMap<>();
 
   @Nullable
-  private WebSessionManager sessionManager;
+  private SessionManager sessionManager;
 
   @Nullable
   private RedirectModelManager redirectModelManager;
@@ -371,7 +371,7 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
     return this.beanFactory;
   }
 
-  public void setSessionManager(@Nullable WebSessionManager sessionManager) {
+  public void setSessionManager(@Nullable SessionManager sessionManager) {
     this.sessionManager = sessionManager;
   }
 

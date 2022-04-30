@@ -43,7 +43,8 @@ import io.undertow.server.HttpServerExchange;
  * @since 4.0
  */
 public class UndertowHttpHandlerAdapter implements io.undertow.server.HttpHandler {
-  private static final Logger logger = HttpLogging.forLogName(UndertowHttpHandlerAdapter.class);
+  private static final Logger log = HttpLogging.forLogName(UndertowHttpHandlerAdapter.class);
+  private static final boolean isDebugEnabled = log.isDebugEnabled();
 
   private final HttpHandler httpHandler;
   private DataBufferFactory bufferFactory = DefaultDataBufferFactory.sharedInstance;
@@ -69,20 +70,18 @@ public class UndertowHttpHandlerAdapter implements io.undertow.server.HttpHandle
       request = new UndertowServerHttpRequest(exchange, getDataBufferFactory());
     }
     catch (URISyntaxException ex) {
-      if (logger.isWarnEnabled()) {
-        logger.debug("Failed to get request URI: {}", ex.getMessage());
+      if (log.isWarnEnabled()) {
+        log.debug("Failed to get request URI: {}", ex.getMessage());
       }
       exchange.setStatusCode(400);
       return;
     }
     ServerHttpResponse response = new UndertowServerHttpResponse(exchange, getDataBufferFactory(), request);
-
     if (request.getMethod() == HttpMethod.HEAD) {
       response = new HttpHeadResponseDecorator(response);
     }
-
     HandlerResultSubscriber resultSubscriber = new HandlerResultSubscriber(exchange, request);
-    this.httpHandler.handle(request, response).subscribe(resultSubscriber);
+    httpHandler.handle(request, response).subscribe(resultSubscriber);
   }
 
   private static class HandlerResultSubscriber implements Subscriber<Void> {
@@ -107,27 +106,35 @@ public class UndertowHttpHandlerAdapter implements io.undertow.server.HttpHandle
 
     @Override
     public void onError(Throwable ex) {
-      logger.trace("{}Failed to complete: {}", this.logPrefix, ex.getMessage());
-      if (this.exchange.isResponseStarted()) {
+      if (isDebugEnabled) {
+        log.trace("{}Failed to complete: {}", logPrefix, ex.getMessage());
+      }
+      if (exchange.isResponseStarted()) {
         try {
-          logger.debug("{}Closing connection", this.logPrefix);
-          this.exchange.getConnection().close();
+          if (isDebugEnabled) {
+            log.debug("{}Closing connection", logPrefix);
+          }
+          exchange.getConnection().close();
         }
         catch (IOException ex2) {
           // ignore
         }
       }
       else {
-        logger.debug("{}Setting HttpServerExchange status to 500 Server Error", this.logPrefix);
-        this.exchange.setStatusCode(500);
-        this.exchange.endExchange();
+        if (isDebugEnabled) {
+          log.debug("{}Setting HttpServerExchange status to 500 Server Error", logPrefix);
+        }
+        exchange.setStatusCode(500);
+        exchange.endExchange();
       }
     }
 
     @Override
     public void onComplete() {
-      logger.trace("{}Handling completed", this.logPrefix);
-      this.exchange.endExchange();
+      if (isDebugEnabled) {
+        log.trace("{}Handling completed", logPrefix);
+      }
+      exchange.endExchange();
     }
   }
 

@@ -20,9 +20,7 @@
 
 package cn.taketoday.framework.web.servlet;
 
-import java.util.Collections;
 import java.util.EventListener;
-import java.util.HashSet;
 import java.util.Set;
 
 import cn.taketoday.lang.Assert;

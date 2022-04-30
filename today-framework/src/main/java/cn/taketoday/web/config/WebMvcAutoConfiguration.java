@@ -45,7 +45,6 @@ import cn.taketoday.http.config.HttpMessageConvertersAutoConfiguration;
 import cn.taketoday.http.converter.HttpMessageConverter;
 import cn.taketoday.lang.Component;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.validation.Validator;
 import cn.taketoday.web.LocaleResolver;
 import cn.taketoday.web.accept.ContentNegotiationManager;

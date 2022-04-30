@@ -46,11 +46,10 @@ import cn.taketoday.web.handler.method.support.UriComponentsContributor;
 import cn.taketoday.web.multipart.MultipartFile;
 import cn.taketoday.web.multipart.MultipartRequest;
 import cn.taketoday.web.util.UriComponentsBuilder;
-import jakarta.servlet.http.HttpServletRequest;
 
 /**
  * Resolves method arguments annotated with @{@link RequestParam}, arguments of
- * type {@link MultipartFile} in conjunction with {@link MultipartResolver}
+ * type {@link MultipartFile} in conjunction with {@link MultipartRequest}
  * abstraction, and arguments of type {@code jakarta.servlet.http.Part} in conjunction
  * with Servlet multipart requests. This resolver can also be created in default
  * resolution mode in which simple types (int, long, etc.) not annotated with
@@ -126,7 +125,7 @@ public class RequestParamMethodArgumentResolver extends AbstractNamedValueResolv
     if (parameter.hasParameterAnnotation(RequestParam.class)) {
       if (Map.class.isAssignableFrom(parameter.nestedIfOptional().getNestedParameterType())) {
         RequestParam requestParam = parameter.getParameterAnnotation(RequestParam.class);
-        return (requestParam != null && StringUtils.hasText(requestParam.name()));
+        return requestParam != null && StringUtils.hasText(requestParam.name());
       }
       else {
         return true;
@@ -140,7 +139,7 @@ public class RequestParamMethodArgumentResolver extends AbstractNamedValueResolv
       if (MultipartResolutionDelegate.isMultipartArgument(parameter)) {
         return true;
       }
-      else if (this.useDefaultResolution) {
+      else if (useDefaultResolution) {
         return BeanUtils.isSimpleProperty(parameter.getNestedParameterType());
       }
       else {
@@ -204,8 +203,8 @@ public class RequestParamMethodArgumentResolver extends AbstractNamedValueResolv
     Assert.state(name != null, "Unresolvable parameter name");
 
     parameter = parameter.nestedIfOptional();
-    if (value instanceof Optional) {
-      value = ((Optional<?>) value).orElse(null);
+    if (value instanceof Optional<?> optional) {
+      value = optional.orElse(null);
     }
 
     if (value == null) {
@@ -215,8 +214,8 @@ public class RequestParamMethodArgumentResolver extends AbstractNamedValueResolv
       }
       builder.queryParam(name);
     }
-    else if (value instanceof Collection) {
-      for (Object element : (Collection<?>) value) {
+    else if (value instanceof Collection collection) {
+      for (Object element : collection) {
         element = formatUriValue(conversionService, TypeDescriptor.nested(parameter, 1), element);
         builder.queryParam(name, element);
       }

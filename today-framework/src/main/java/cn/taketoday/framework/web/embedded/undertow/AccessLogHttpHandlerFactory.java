@@ -44,6 +44,7 @@ import io.undertow.server.handlers.accesslog.DefaultAccessLogReceiver;
  */
 class AccessLogHttpHandlerFactory implements HttpHandlerFactory {
 
+  @Nullable
   private final File directory;
 
   @Nullable
@@ -57,7 +58,13 @@ class AccessLogHttpHandlerFactory implements HttpHandlerFactory {
 
   private final boolean rotate;
 
-  AccessLogHttpHandlerFactory(File directory, @Nullable String pattern, @Nullable String prefix, @Nullable String suffix, boolean rotate) {
+  AccessLogHttpHandlerFactory(
+          @Nullable File directory,
+          @Nullable String pattern,
+          @Nullable String prefix,
+          @Nullable String suffix,
+          boolean rotate
+  ) {
     this.directory = directory;
     this.pattern = pattern;
     this.prefix = prefix;
@@ -70,10 +77,11 @@ class AccessLogHttpHandlerFactory implements HttpHandlerFactory {
     try {
       createAccessLogDirectoryIfNecessary();
       XnioWorker worker = createWorker();
-      String baseName = (this.prefix != null) ? this.prefix : "access_log.";
-      String formatString = (this.pattern != null) ? this.pattern : "common";
+      String baseName = prefix != null ? prefix : "access_log.";
+      String formatString = pattern != null ? pattern : "common";
+
       return new ClosableAccessLogHandler(next, worker,
-              new DefaultAccessLogReceiver(worker, this.directory, baseName, this.suffix, this.rotate),
+              new DefaultAccessLogReceiver(worker, directory, baseName, this.suffix, this.rotate),
               formatString);
     }
     catch (IOException ex) {
@@ -82,9 +90,9 @@ class AccessLogHttpHandlerFactory implements HttpHandlerFactory {
   }
 
   private void createAccessLogDirectoryIfNecessary() {
-    Assert.state(this.directory != null, "Access log directory is not set");
-    if (!this.directory.isDirectory() && !this.directory.mkdirs()) {
-      throw new IllegalStateException("Failed to create access log directory '" + this.directory + "'");
+    Assert.state(directory != null, "Access log directory is not set");
+    if (!directory.isDirectory() && !directory.mkdirs()) {
+      throw new IllegalStateException("Failed to create access log directory '" + directory + "'");
     }
   }
 
@@ -102,8 +110,8 @@ class AccessLogHttpHandlerFactory implements HttpHandlerFactory {
 
     private final XnioWorker worker;
 
-    ClosableAccessLogHandler(HttpHandler next, XnioWorker worker, DefaultAccessLogReceiver accessLogReceiver,
-                             String formatString) {
+    ClosableAccessLogHandler(HttpHandler next, XnioWorker worker,
+            DefaultAccessLogReceiver accessLogReceiver, String formatString) {
       super(next, accessLogReceiver, formatString, Undertow.class.getClassLoader());
       this.worker = worker;
       this.accessLogReceiver = accessLogReceiver;
@@ -112,12 +120,9 @@ class AccessLogHttpHandlerFactory implements HttpHandlerFactory {
     @Override
     public void close() throws IOException {
       try {
-        this.accessLogReceiver.close();
-        this.worker.shutdown();
-        this.worker.awaitTermination(30, TimeUnit.SECONDS);
-      }
-      catch (IOException ex) {
-        throw new RuntimeException(ex);
+        accessLogReceiver.close();
+        worker.shutdown();
+        worker.awaitTermination(30, TimeUnit.SECONDS);
       }
       catch (InterruptedException ex) {
         Thread.currentThread().interrupt();

@@ -390,9 +390,9 @@ class TomcatServletWebServerFactoryTests extends AbstractServletWebServerFactory
     TomcatServletWebServerFactory factory = new TomcatServletWebServerFactory(0) {
 
       @Override
-      protected TomcatWebServer getTomcatWebServer(Tomcat tomcat) {
+      protected TomcatWebServer createTomcatWebServer(Tomcat tomcat) {
         tomcat.enableNaming();
-        return super.getTomcatWebServer(tomcat);
+        return super.createTomcatWebServer(tomcat);
       }
 
     };
@@ -547,9 +547,9 @@ class TomcatServletWebServerFactoryTests extends AbstractServletWebServerFactory
     TomcatServletWebServerFactory factory = new TomcatServletWebServerFactory(0) {
 
       @Override
-      protected TomcatWebServer getTomcatWebServer(Tomcat tomcat) {
+      protected TomcatWebServer createTomcatWebServer(Tomcat tomcat) {
         try {
-          return super.getTomcatWebServer(tomcat);
+          return super.createTomcatWebServer(tomcat);
         }
         finally {
           assertThat(tomcat.getServer().getState()).isEqualTo(LifecycleState.DESTROYED);

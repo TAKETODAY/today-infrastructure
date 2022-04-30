@@ -19,7 +19,7 @@
  */
 package cn.taketoday.web.interceptor;
 
-import cn.taketoday.web.session.WebSessionManager;
+import cn.taketoday.web.session.SessionManager;
 import cn.taketoday.web.session.WebSessionManagerSupport;
 
 /**
@@ -29,7 +29,7 @@ import cn.taketoday.web.session.WebSessionManagerSupport;
 public abstract class WebSessionHandlerInterceptor
         extends WebSessionManagerSupport implements HandlerInterceptor {
 
-  public WebSessionHandlerInterceptor(WebSessionManager sessionManager) {
+  public WebSessionHandlerInterceptor(SessionManager sessionManager) {
     super(sessionManager);
   }
 

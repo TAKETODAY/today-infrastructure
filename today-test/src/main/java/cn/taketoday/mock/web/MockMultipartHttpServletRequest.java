@@ -38,7 +38,6 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.bind.MultipartException;
 import cn.taketoday.web.multipart.MultipartFile;
 import cn.taketoday.web.multipart.MultipartRequest;
-import cn.taketoday.web.multipart.support.ServletMultipartRequest;
 import cn.taketoday.web.util.WebUtils;
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.ServletException;

@@ -36,7 +36,8 @@ import cn.taketoday.web.mock.MockHttpServletResponse;
 import cn.taketoday.web.mock.MockServletContext;
 import cn.taketoday.web.servlet.MockServletRequestContext;
 import cn.taketoday.web.session.CookieTokenResolver;
-import cn.taketoday.web.session.DefaultWebSessionManager;
+import cn.taketoday.web.session.DefaultSessionManager;
+import cn.taketoday.web.session.SessionEventDispatcher;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
@@ -65,7 +66,8 @@ public class LocaleResolverTests {
   @Test
   public void testSessionLocaleResolver() {
     SessionLocaleResolver localeResolver = new SessionLocaleResolver();
-    localeResolver.setSessionManager(new DefaultWebSessionManager(new CookieTokenResolver()));
+    localeResolver.setSessionManager(new DefaultSessionManager(new CookieTokenResolver(),
+            new SessionEventDispatcher()));
     doTest(localeResolver, true);
   }
 

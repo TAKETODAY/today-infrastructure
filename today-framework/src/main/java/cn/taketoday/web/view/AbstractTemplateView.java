@@ -26,8 +26,8 @@ import java.util.Map;
 
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.RequestContextUtils;
+import cn.taketoday.web.session.SessionManager;
 import cn.taketoday.web.session.WebSession;
-import cn.taketoday.web.session.WebSessionManager;
 
 /**
  * Adapter base class for template-based view technologies such as FreeMarker,
@@ -129,7 +129,7 @@ public abstract class AbstractTemplateView extends AbstractUrlBasedView {
   }
 
   private void exposeSessionAttributes(Map<String, Object> model, RequestContext context) {
-    WebSessionManager sessionManager = RequestContextUtils.getSessionManager(context);
+    SessionManager sessionManager = RequestContextUtils.getSessionManager(context);
     if (sessionManager != null) {
       WebSession session = sessionManager.getSession(context, false);
       if (session != null) {

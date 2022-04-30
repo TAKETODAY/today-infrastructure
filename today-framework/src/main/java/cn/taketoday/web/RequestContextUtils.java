@@ -36,8 +36,8 @@ import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.bind.MissingRequestParameterException;
 import cn.taketoday.web.bind.RequestBindingException;
+import cn.taketoday.web.session.SessionManager;
 import cn.taketoday.web.session.WebSession;
-import cn.taketoday.web.session.WebSessionManager;
 import cn.taketoday.web.util.UriComponents;
 import cn.taketoday.web.util.UriComponentsBuilder;
 import cn.taketoday.web.view.RedirectModel;
@@ -99,7 +99,7 @@ public class RequestContextUtils {
    */
   @Nullable
   public static WebSession getSession(RequestContext request) {
-    WebSessionManager sessionManager = getSessionManager(request);
+    SessionManager sessionManager = getSessionManager(request);
     if (sessionManager != null) {
       return sessionManager.getSession(request);
     }
@@ -149,7 +149,7 @@ public class RequestContextUtils {
    */
   @Nullable
   public static WebSession getSession(RequestContext request, boolean create) {
-    WebSessionManager sessionManager = getSessionManager(request);
+    SessionManager sessionManager = getSessionManager(request);
     if (sessionManager != null) {
       return sessionManager.getSession(request, create);
     }
@@ -163,8 +163,8 @@ public class RequestContextUtils {
    * @return the current LocaleResolver, or {@code null} if not found
    */
   @Nullable
-  public static WebSessionManager getSessionManager(RequestContext request) {
-    return getBean(request, WebSessionManager.BEAN_NAME, WebSessionManager.class);
+  public static SessionManager getSessionManager(RequestContext request) {
+    return getBean(request, SessionManager.BEAN_NAME, SessionManager.class);
   }
 
   /**

@@ -31,15 +31,13 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import cn.taketoday.http.HttpMethod;
 import cn.taketoday.lang.Constant;
+import cn.taketoday.lang.Nullable;
 import jakarta.servlet.ReadListener;
 import jakarta.servlet.ServletInputStream;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletRequestWrapper;
-
-import cn.taketoday.http.HttpMethod;
-import cn.taketoday.lang.Nullable;
-import cn.taketoday.web.util.WebUtils;
 
 /**
  * {@link HttpServletRequest} wrapper that caches all content read from

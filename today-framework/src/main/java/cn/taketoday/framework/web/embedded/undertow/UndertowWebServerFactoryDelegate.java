@@ -191,12 +191,17 @@ class UndertowWebServerFactoryDelegate {
 
   List<HttpHandlerFactory> createHttpHandlerFactories(AbstractConfigurableWebServerFactory webServerFactory,
           HttpHandlerFactory... initialHttpHandlerFactories) {
-    List<HttpHandlerFactory> factories = createHttpHandlerFactories(webServerFactory.getCompression(),
-            this.useForwardHeaders, webServerFactory.getServerHeader(), webServerFactory.getShutdown(),
-            initialHttpHandlerFactories);
+    List<HttpHandlerFactory> factories = createHttpHandlerFactories(
+            webServerFactory.getCompression(),
+            useForwardHeaders,
+            webServerFactory.getServerHeader(),
+            webServerFactory.getShutdown(),
+            initialHttpHandlerFactories
+    );
+
     if (isAccessLogEnabled()) {
-      factories.add(new AccessLogHttpHandlerFactory(this.accessLogDirectory, this.accessLogPattern,
-              this.accessLogPrefix, this.accessLogSuffix, this.accessLogRotate));
+      factories.add(new AccessLogHttpHandlerFactory(accessLogDirectory, accessLogPattern,
+              accessLogPrefix, accessLogSuffix, accessLogRotate));
     }
     return factories;
   }

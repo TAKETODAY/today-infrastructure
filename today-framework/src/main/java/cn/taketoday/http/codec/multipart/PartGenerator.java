@@ -47,7 +47,6 @@ import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.FastByteArrayOutputStream;
-import cn.taketoday.http.MediaType;
 import reactor.core.publisher.BaseSubscriber;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.FluxSink;

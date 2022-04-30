@@ -24,6 +24,7 @@ package cn.taketoday.framework.web.server;
  * Tagging interface for factories that create a {@link WebServer}.
  *
  * @author Phillip Webb
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see WebServer
  * @see cn.taketoday.framework.web.servlet.server.ServletWebServerFactory
  * @see cn.taketoday.framework.web.reactive.server.ReactiveWebServerFactory

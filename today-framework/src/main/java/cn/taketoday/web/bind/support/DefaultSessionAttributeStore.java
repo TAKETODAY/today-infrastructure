@@ -24,7 +24,7 @@ import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.session.WebSession;
-import cn.taketoday.web.session.WebSessionManager;
+import cn.taketoday.web.session.SessionManager;
 
 /**
  * Default implementation of the {@link SessionAttributeStore} interface,
@@ -42,7 +42,7 @@ public class DefaultSessionAttributeStore implements SessionAttributeStore {
 
   private String attributeNamePrefix = "";
 
-  private WebSessionManager sessionManager;
+  private SessionManager sessionManager;
 
   /**
    * Specify a prefix to use for the attribute names in the backend session.

@@ -20,13 +20,8 @@
 
 package cn.taketoday.web.bind.resolver;
 
-import java.io.InputStream;
-import java.io.Reader;
 import java.security.Principal;
-import java.util.Locale;
-import java.util.TimeZone;
 
-import cn.taketoday.http.HttpMethod;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.handler.method.ResolvableMethodParameter;

@@ -25,7 +25,7 @@ import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 
 /**
- * Holds the shared logger named "cn.taketoday.web.HttpLogging" for HTTP
+ * Holds the shared logger named "cn.taketoday.http.HttpLogging" for HTTP
  * related logging when "cn.taketoday.http" is not enabled but
  * "cn.taketoday.web" is.
  *

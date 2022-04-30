@@ -28,8 +28,8 @@ import cn.taketoday.core.i18n.TimeZoneAwareLocaleContext;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.RequestContextUtils;
+import cn.taketoday.web.session.SessionManager;
 import cn.taketoday.web.session.WebSession;
-import cn.taketoday.web.session.WebSessionManager;
 
 /**
  * {@link cn.taketoday.web.LocaleResolver} implementation that
@@ -85,7 +85,7 @@ public class SessionLocaleResolver extends AbstractLocaleContextResolver {
   private String timeZoneAttributeName = TIME_ZONE_SESSION_ATTRIBUTE_NAME;
 
   @Nullable
-  private WebSessionManager sessionManager;
+  private SessionManager sessionManager;
 
   /**
    * Specify the name of the corresponding attribute in the {@code HttpSession},
@@ -105,12 +105,12 @@ public class SessionLocaleResolver extends AbstractLocaleContextResolver {
     this.timeZoneAttributeName = timeZoneAttributeName;
   }
 
-  public void setSessionManager(@Nullable WebSessionManager sessionManager) {
+  public void setSessionManager(@Nullable SessionManager sessionManager) {
     this.sessionManager = sessionManager;
   }
 
   @Nullable
-  public WebSessionManager getSessionManager() {
+  public SessionManager getSessionManager() {
     return sessionManager;
   }
 
@@ -164,7 +164,7 @@ public class SessionLocaleResolver extends AbstractLocaleContextResolver {
   @Nullable
   @SuppressWarnings("unchecked")
   private <T> T getSessionAttribute(RequestContext request, String attributeName) {
-    WebSessionManager sessionManager = getSessionManager(request);
+    SessionManager sessionManager = getSessionManager(request);
     if (sessionManager != null) {
       WebSession session = sessionManager.getSession(request, false);
       if (session != null) {
@@ -176,7 +176,7 @@ public class SessionLocaleResolver extends AbstractLocaleContextResolver {
 
   private void setSessionAttribute(
           RequestContext request, String attributeName, @Nullable Object attribute) {
-    WebSessionManager sessionManager = getSessionManager(request);
+    SessionManager sessionManager = getSessionManager(request);
     if (sessionManager != null) {
       WebSession session = sessionManager.getSession(request);
       session.setAttribute(attributeName, attribute);
@@ -184,8 +184,8 @@ public class SessionLocaleResolver extends AbstractLocaleContextResolver {
   }
 
   @Nullable
-  private WebSessionManager getSessionManager(RequestContext request) {
-    WebSessionManager sessionManager = getSessionManager();
+  private SessionManager getSessionManager(RequestContext request) {
+    SessionManager sessionManager = getSessionManager();
     if (sessionManager == null) {
       sessionManager = RequestContextUtils.getSessionManager(request);
     }

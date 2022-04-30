@@ -41,20 +41,19 @@ import java.util.Map;
 import java.util.TimeZone;
 
 import cn.taketoday.beans.BeanUtils;
-import cn.taketoday.context.annotation.Primary;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanFactoryUtils;
 import cn.taketoday.beans.factory.annotation.DisableAllDependencyInjection;
 import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.annotation.Configuration;
+import cn.taketoday.context.annotation.Primary;
 import cn.taketoday.context.annotation.Role;
 import cn.taketoday.context.condition.ConditionalOnClass;
 import cn.taketoday.context.condition.ConditionalOnMissingBean;
 import cn.taketoday.context.properties.EnableConfigurationProperties;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.http.converter.json.Jackson2ObjectMapperBuilder;
-import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Component;
 import cn.taketoday.lang.Prototype;
 import cn.taketoday.util.ClassUtils;
@@ -107,24 +106,21 @@ public class JacksonAutoConfiguration {
   @Prototype
   @ConditionalOnMissingBean
   Jackson2ObjectMapperBuilder jacksonObjectMapperBuilder(
-          ApplicationContext applicationContext, List<Jackson2ObjectMapperBuilderCustomizer> customizers) {
+          ApplicationContext context, List<Jackson2ObjectMapperBuilderCustomizer> customizers) {
     Jackson2ObjectMapperBuilder builder = new Jackson2ObjectMapperBuilder();
-    builder.applicationContext(applicationContext);
-    customize(builder, customizers);
-    return builder;
-  }
+    builder.applicationContext(context);
 
-  private void customize(
-          Jackson2ObjectMapperBuilder builder, List<Jackson2ObjectMapperBuilderCustomizer> customizers) {
     for (Jackson2ObjectMapperBuilderCustomizer customizer : customizers) {
       customizer.customize(builder);
     }
+
+    return builder;
   }
 
   @Component
   StandardJackson2ObjectMapperBuilderCustomizer standardJacksonObjectMapperBuilderCustomizer(
-          ApplicationContext applicationContext, JacksonProperties jacksonProperties) {
-    return new StandardJackson2ObjectMapperBuilderCustomizer(applicationContext, jacksonProperties);
+          ApplicationContext context, JacksonProperties jacksonProperties) {
+    return new StandardJackson2ObjectMapperBuilderCustomizer(context, jacksonProperties);
   }
 
   static final class StandardJackson2ObjectMapperBuilderCustomizer

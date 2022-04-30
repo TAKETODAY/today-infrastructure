@@ -24,14 +24,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import cn.taketoday.beans.factory.config.BeanExpressionContext;
-import cn.taketoday.beans.factory.config.BeanExpressionResolver;
-import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
-import cn.taketoday.context.annotation.ConditionEvaluationContext;
 import cn.taketoday.context.annotation.Conditional;
-import cn.taketoday.context.expression.StandardBeanExpressionResolver;
-import cn.taketoday.core.annotation.MergedAnnotation;
-import cn.taketoday.core.type.AnnotatedTypeMetadata;
 
 /**
  * annotation for a conditional element that depends on the value of a Java

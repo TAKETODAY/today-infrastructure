@@ -17,10 +17,10 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.web;
 
 import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.web.servlet.ServletContextAware;
 
 /**
  * Interface to provide configuration for a web application. This is read-only while

@@ -27,8 +27,8 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.RequestContextUtils;
+import cn.taketoday.web.session.SessionManager;
 import cn.taketoday.web.session.WebSession;
-import cn.taketoday.web.session.WebSessionManager;
 import cn.taketoday.web.util.WebUtils;
 
 /**
@@ -41,11 +41,11 @@ public class SessionRedirectModelManager extends AbstractRedirectModelManager im
   private static final String SESSION_ATTRIBUTE = SessionRedirectModelManager.class.getName() + ".RedirectModel";
 
   @Nullable
-  private WebSessionManager sessionManager;
+  private SessionManager sessionManager;
 
   public SessionRedirectModelManager() { }
 
-  public SessionRedirectModelManager(@Nullable WebSessionManager sessionManager) {
+  public SessionRedirectModelManager(@Nullable SessionManager sessionManager) {
     this.sessionManager = sessionManager;
   }
 
@@ -86,13 +86,13 @@ public class SessionRedirectModelManager extends AbstractRedirectModelManager im
   }
 
   @Nullable
-  public WebSessionManager getSessionManager() {
+  public SessionManager getSessionManager() {
     return sessionManager;
   }
 
   @Nullable
   private WebSession getSession(RequestContext context, boolean create) {
-    WebSessionManager sessionManager = getSessionManager();
+    SessionManager sessionManager = getSessionManager();
     if (sessionManager == null) {
       return RequestContextUtils.getSession(context, create);
     }

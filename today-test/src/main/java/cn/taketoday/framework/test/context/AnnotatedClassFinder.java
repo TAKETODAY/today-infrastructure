@@ -27,7 +27,6 @@ import java.util.Map;
 import java.util.Set;
 
 import cn.taketoday.beans.factory.annotation.AnnotatedBeanDefinition;
-import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.context.loader.ClassPathScanningCandidateComponentProvider;
 import cn.taketoday.core.type.filter.AnnotationTypeFilter;
 import cn.taketoday.lang.Assert;

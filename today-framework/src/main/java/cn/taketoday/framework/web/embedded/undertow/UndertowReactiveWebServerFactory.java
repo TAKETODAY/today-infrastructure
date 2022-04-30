@@ -142,9 +142,9 @@ public class UndertowReactiveWebServerFactory extends AbstractReactiveWebServerF
 
   @Override
   public WebServer getWebServer(cn.taketoday.http.server.reactive.HttpHandler httpHandler) {
-    Undertow.Builder builder = this.delegate.createBuilder(this);
-    List<HttpHandlerFactory> httpHandlerFactories = this.delegate.createHttpHandlerFactories(this,
-            (next) -> new UndertowHttpHandlerAdapter(httpHandler));
+    Undertow.Builder builder = delegate.createBuilder(this);
+    var httpHandlerFactories = delegate.createHttpHandlerFactories(
+            this, next -> new UndertowHttpHandlerAdapter(httpHandler));
     return new UndertowWebServer(builder, httpHandlerFactories, getPort() >= 0);
   }
 

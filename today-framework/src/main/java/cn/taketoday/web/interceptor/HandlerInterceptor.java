@@ -20,7 +20,6 @@
 package cn.taketoday.web.interceptor;
 
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.handler.HandlerAdapter;
 import cn.taketoday.web.handler.RequestHandler;
 
 /**
@@ -29,6 +28,7 @@ import cn.taketoday.web.handler.RequestHandler;
  * @author TODAY 2018-06-25 20:06:11
  */
 public interface HandlerInterceptor {
+
   /**
    * empty HandlerInterceptor array
    */

@@ -311,7 +311,7 @@ public class UndertowServletWebServerFactory extends AbstractServletWebServerFac
     return getUndertowWebServer(builder, manager, getPort());
   }
 
-  private DeploymentManager createManager(ServletContextInitializer... initializers) {
+  private DeploymentManager createManager(ServletContextInitializer[] initializers) {
     DeploymentInfo deployment = Servlets.deployment();
     registerServletContainerInitializerToDriveServletContextInitializers(deployment, initializers);
     deployment.setClassLoader(getServletClassLoader());
@@ -340,8 +340,8 @@ public class UndertowServletWebServerFactory extends AbstractServletWebServerFac
     addLocaleMappings(deployment);
     DeploymentManager manager = Servlets.newContainer().addDeployment(deployment);
     manager.deploy();
-    if (manager.getDeployment() instanceof DeploymentImpl) {
-      removeSuperfluousMimeMappings((DeploymentImpl) manager.getDeployment(), deployment);
+    if (manager.getDeployment() instanceof DeploymentImpl deploymentImpl) {
+      removeSuperfluousMimeMappings(deploymentImpl, deployment);
     }
     SessionManager sessionManager = manager.getDeployment().getSessionManager();
     Duration timeoutDuration = getSession().getTimeout();
@@ -428,7 +428,7 @@ public class UndertowServletWebServerFactory extends AbstractServletWebServerFac
 
   private File getCanonicalDocumentRoot(@Nullable File docBase) {
     try {
-      File root = (docBase != null) ? docBase : createTempDir("undertow-docbase");
+      File root = docBase != null ? docBase : createTempDir("undertow-docbase");
       return root.getCanonicalFile();
     }
     catch (IOException ex) {
@@ -486,8 +486,8 @@ public class UndertowServletWebServerFactory extends AbstractServletWebServerFac
     if (cooHandlerFactory != null) {
       initialHandlerFactories.add(cooHandlerFactory);
     }
-    var httpHandlerFactories = delegate.createHttpHandlerFactories(this,
-            initialHandlerFactories.toArray(new HttpHandlerFactory[0]));
+    var httpHandlerFactories = delegate.createHttpHandlerFactories(
+            this, initialHandlerFactories.toArray(new HttpHandlerFactory[0]));
     return new UndertowServletWebServer(builder, httpHandlerFactories, getContextPath(), port >= 0);
   }
 
@@ -502,7 +502,7 @@ public class UndertowServletWebServerFactory extends AbstractServletWebServerFac
     if (CollectionUtils.isNotEmpty(getCookieSameSiteSuppliers())) {
       suppliers.addAll(getCookieSameSiteSuppliers());
     }
-    return (!suppliers.isEmpty()) ? next -> new SuppliedSameSiteCookieHandler(next, suppliers) : null;
+    return !suppliers.isEmpty() ? next -> new SuppliedSameSiteCookieHandler(next, suppliers) : null;
   }
 
   /**
@@ -595,8 +595,8 @@ public class UndertowServletWebServerFactory extends AbstractServletWebServerFac
     }
 
     private jakarta.servlet.http.Cookie asServletCookie(Cookie cookie) {
-      PropertyMapper map = PropertyMapper.get().alwaysApplyingWhenNonNull();
-      jakarta.servlet.http.Cookie result = new jakarta.servlet.http.Cookie(cookie.getName(), cookie.getValue());
+      var map = PropertyMapper.get().alwaysApplyingWhenNonNull();
+      var result = new jakarta.servlet.http.Cookie(cookie.getName(), cookie.getValue());
       map.from(cookie::getComment).to(result::setComment);
       map.from(cookie::getDomain).to(result::setDomain);
       map.from(cookie::getMaxAge).to(result::setMaxAge);

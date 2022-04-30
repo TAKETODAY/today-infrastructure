@@ -149,8 +149,7 @@ public class TomcatServletWebServerFactory extends AbstractServletWebServerFacto
   /**
    * Create a new {@link TomcatServletWebServerFactory} instance.
    */
-  public TomcatServletWebServerFactory() {
-  }
+  public TomcatServletWebServerFactory() { }
 
   /**
    * Create a new {@link TomcatServletWebServerFactory} that listens for requests using
@@ -184,27 +183,32 @@ public class TomcatServletWebServerFactory extends AbstractServletWebServerFacto
 
   @Override
   public WebServer getWebServer(ServletContextInitializer... initializers) {
-    if (this.disableMBeanRegistry) {
+    if (disableMBeanRegistry) {
       Registry.disableRegistry();
     }
     Tomcat tomcat = new Tomcat();
-    File baseDir = (this.baseDirectory != null) ? this.baseDirectory : createTempDir("tomcat");
+    File baseDir = baseDirectory != null ? baseDirectory : createTempDir("tomcat");
     tomcat.setBaseDir(baseDir.getAbsolutePath());
-    for (LifecycleListener listener : this.serverLifecycleListeners) {
+
+    for (LifecycleListener listener : serverLifecycleListeners) {
       tomcat.getServer().addLifecycleListener(listener);
     }
-    Connector connector = new Connector(this.protocol);
+
+    Connector connector = new Connector(protocol);
     connector.setThrowOnFailure(true);
     tomcat.getService().addConnector(connector);
     customizeConnector(connector);
     tomcat.setConnector(connector);
     tomcat.getHost().setAutoDeploy(false);
+
     configureEngine(tomcat.getEngine());
-    for (Connector additionalConnector : this.additionalTomcatConnectors) {
+
+    for (Connector additionalConnector : additionalTomcatConnectors) {
       tomcat.getService().addConnector(additionalConnector);
     }
+
     prepareContext(tomcat.getHost(), initializers);
-    return getTomcatWebServer(tomcat);
+    return createTomcatWebServer(tomcat);
   }
 
   private void configureEngine(Engine engine) {
@@ -488,7 +492,7 @@ public class TomcatServletWebServerFactory extends AbstractServletWebServerFacto
    * @param tomcat the Tomcat server.
    * @return a new {@link TomcatWebServer} instance
    */
-  protected TomcatWebServer getTomcatWebServer(Tomcat tomcat) {
+  protected TomcatWebServer createTomcatWebServer(Tomcat tomcat) {
     return new TomcatWebServer(tomcat, getPort() >= 0, getShutdown());
   }
 

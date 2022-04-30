@@ -29,7 +29,6 @@ import java.util.function.Consumer;
 import cn.taketoday.core.MethodParameter;
 import cn.taketoday.core.ReactiveAdapterRegistry;
 import cn.taketoday.core.ResolvableType;
-import cn.taketoday.core.task.SyncTaskExecutor;
 import cn.taketoday.core.task.TaskExecutor;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.MediaType;

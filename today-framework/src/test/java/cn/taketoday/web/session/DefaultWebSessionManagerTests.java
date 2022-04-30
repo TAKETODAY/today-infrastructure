@@ -47,7 +47,7 @@ class DefaultWebSessionManagerTests {
     try (StandardApplicationContext applicationContext = new StandardApplicationContext()) {
       applicationContext.register(AppConfig.class);
       applicationContext.refresh();
-      WebSessionManager sessionManager = applicationContext.getBean(WebSessionManager.class);
+      SessionManager sessionManager = applicationContext.getBean(SessionManager.class);
       MockRequestContext context = new MockRequestContext();
 
       WebSession noneExistingSession = sessionManager.getSession(context, false);
@@ -67,16 +67,16 @@ class DefaultWebSessionManagerTests {
       assertThat(responseCookies.get(0)).isEqualTo(sessionCookie);
 
       // WebSessionStorage
-      WebSessionStorage sessionStorage = applicationContext.getBean(WebSessionStorage.class);
-      WebSession webSession = sessionStorage.get(sessionId);
+      SessionRepository sessionStorage = applicationContext.getBean(SessionRepository.class);
+      WebSession webSession = sessionStorage.retrieveSession(sessionId);
 
       assertThat(webSession).isEqualTo(createdSession);
       assertThat(sessionStorage.contains(sessionId)).isTrue();
-      sessionStorage.remove(sessionId);
+      sessionStorage.removeSession(sessionId);
       assertThat(sessionStorage.contains(sessionId)).isFalse();
 
       // WebSessionStorage#store
-      sessionStorage.store(sessionId, createdSession);
+      sessionStorage.storeSession(sessionId, createdSession);
       assertThat(sessionStorage.contains(sessionId)).isTrue();
     }
 

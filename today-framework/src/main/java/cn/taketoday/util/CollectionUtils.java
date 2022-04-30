@@ -113,6 +113,30 @@ public abstract class CollectionUtils {
   }
 
   /**
+   * Return {@code true} if the supplied Collection is not {@code null} and empty.
+   * Otherwise, return {@code false}.
+   *
+   * @param holder the ArrayHolder to check
+   * @return whether the given ArrayHolder is not empty
+   * @since 4.0
+   */
+  public static boolean isNotEmpty(@Nullable ArrayHolder<?> holder) {
+    return holder != null && !holder.isEmpty();
+  }
+
+  /**
+   * Return {@code true} if the supplied Collection is {@code null} or empty.
+   * Otherwise, return {@code false}.
+   *
+   * @param holder the ArrayHolder to check
+   * @return whether the given ArrayHolder is empty
+   * @since 4.0
+   */
+  public static boolean isEmpty(@Nullable ArrayHolder<?> holder) {
+    return holder == null || holder.isEmpty();
+  }
+
+  /**
    * Return {@code true} if the supplied Map is {@code null} or empty. Otherwise,
    * return {@code false}.
    *
@@ -120,7 +144,7 @@ public abstract class CollectionUtils {
    * @return whether the given Map is empty
    */
   public static boolean isEmpty(@Nullable Map<?, ?> map) {
-    return (map == null || map.isEmpty());
+    return map == null || map.isEmpty();
   }
 
   /**

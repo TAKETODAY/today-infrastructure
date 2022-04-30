@@ -28,7 +28,7 @@ import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.RequestContextHolder;
 import cn.taketoday.web.RequestContextUtils;
 import cn.taketoday.web.session.WebSession;
-import cn.taketoday.web.session.WebSessionManager;
+import cn.taketoday.web.session.SessionManager;
 import cn.taketoday.web.util.WebUtils;
 
 /**
@@ -40,16 +40,16 @@ import cn.taketoday.web.util.WebUtils;
  * @author Juergen Hoeller
  * @author Rob Harrop
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @see WebSessionManager
+ * @see SessionManager
  * @since 4.0 2022/2/21 11:40
  */
 public class SessionScope extends AbstractRequestContextScope<WebSession> {
 
   @Nullable
-  private final WebSessionManager webSessionManager;
+  private final SessionManager sessionManager;
 
-  public SessionScope(@Nullable WebSessionManager webSessionManager) {
-    this.webSessionManager = webSessionManager;
+  public SessionScope(@Nullable SessionManager sessionManager) {
+    this.sessionManager = sessionManager;
   }
 
   @Override
@@ -123,9 +123,9 @@ public class SessionScope extends AbstractRequestContextScope<WebSession> {
    * @see #getSession(RequestContext)
    */
   private WebSession getSession(RequestContext request, boolean create) {
-    WebSessionManager webSessionManager = this.webSessionManager;
-    if (webSessionManager != null) {
-      return webSessionManager.getSession(request, create);
+    SessionManager sessionManager = this.sessionManager;
+    if (sessionManager != null) {
+      return sessionManager.getSession(request, create);
     }
     return RequestContextUtils.getSession(request, create);
   }

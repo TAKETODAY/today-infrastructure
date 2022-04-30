@@ -17,6 +17,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.web.registry;
 
 import java.util.ArrayList;
@@ -30,18 +31,17 @@ import cn.taketoday.context.aware.ApplicationContextSupport;
 import cn.taketoday.context.expression.EmbeddedValueResolverAware;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.StringValueResolver;
-import cn.taketoday.web.cors.CorsConfiguration;
-import cn.taketoday.web.cors.CorsConfigurationSource;
-import cn.taketoday.web.cors.CorsProcessor;
-import cn.taketoday.web.cors.DefaultCorsProcessor;
-import cn.taketoday.web.cors.UrlBasedCorsConfigurationSource;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.LogDelegateFactory;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.WebApplicationContextSupport;
+import cn.taketoday.web.cors.CorsConfiguration;
+import cn.taketoday.web.cors.CorsConfigurationSource;
+import cn.taketoday.web.cors.CorsProcessor;
+import cn.taketoday.web.cors.DefaultCorsProcessor;
+import cn.taketoday.web.cors.UrlBasedCorsConfigurationSource;
 import cn.taketoday.web.interceptor.HandlerInterceptor;
 import cn.taketoday.web.util.pattern.PathPatternParser;
 

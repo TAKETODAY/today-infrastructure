@@ -24,6 +24,7 @@ import java.io.Closeable;
 import java.io.IOException;
 
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
 import io.undertow.server.HttpHandler;
 import io.undertow.server.HttpServerExchange;
 import io.undertow.servlet.api.DeploymentManager;
@@ -44,9 +45,9 @@ class DeploymentManagerHttpHandlerFactory implements HttpHandlerFactory {
   }
 
   @Override
-  public HttpHandler getHandler(HttpHandler next) {
+  public HttpHandler getHandler(@Nullable HttpHandler next) {
     Assert.state(next == null, "DeploymentManagerHttpHandlerFactory must be first");
-    return new DeploymentManagerHandler(this.deploymentManager);
+    return new DeploymentManagerHandler(deploymentManager);
   }
 
   DeploymentManager getDeploymentManager() {
