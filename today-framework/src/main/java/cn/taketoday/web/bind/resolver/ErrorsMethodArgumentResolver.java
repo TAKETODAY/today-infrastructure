@@ -20,7 +20,6 @@
 
 package cn.taketoday.web.bind.resolver;
 
-import cn.taketoday.core.MethodParameter;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
@@ -29,7 +28,6 @@ import cn.taketoday.validation.Errors;
 import cn.taketoday.web.BindingContext;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.handler.method.ResolvableMethodParameter;
-import cn.taketoday.web.view.Model;
 import cn.taketoday.web.view.ModelMap;
 
 /**
@@ -56,8 +54,6 @@ public class ErrorsMethodArgumentResolver implements ParameterResolvingStrategy 
   @Override
   public Object resolveArgument(RequestContext context, ResolvableMethodParameter resolvable) throws Throwable {
     BindingContext bindingContext = context.getBindingContext();
-    Assert.state(bindingContext != null,
-            "Errors/BindingResult argument only supported on regular handler methods");
 
     ModelMap model = bindingContext.getModel();
     String lastKey = CollectionUtils.lastElement(model.keySet());
