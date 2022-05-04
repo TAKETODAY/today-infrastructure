@@ -25,6 +25,7 @@ import java.util.TimeZone;
 
 import cn.taketoday.core.i18n.LocaleContext;
 import cn.taketoday.core.i18n.TimeZoneAwareLocaleContext;
+import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.RequestContextUtils;
@@ -93,6 +94,7 @@ public class SessionLocaleResolver extends AbstractLocaleContextResolver {
    * <p>The default is an internal {@link #LOCALE_SESSION_ATTRIBUTE_NAME}.
    */
   public void setLocaleAttributeName(String localeAttributeName) {
+    Assert.notNull(localeAttributeName, "localeAttributeName is required");
     this.localeAttributeName = localeAttributeName;
   }
 
@@ -102,6 +104,7 @@ public class SessionLocaleResolver extends AbstractLocaleContextResolver {
    * <p>The default is an internal {@link #TIME_ZONE_SESSION_ATTRIBUTE_NAME}.
    */
   public void setTimeZoneAttributeName(String timeZoneAttributeName) {
+    Assert.notNull(timeZoneAttributeName, "timeZoneAttributeName is required");
     this.timeZoneAttributeName = timeZoneAttributeName;
   }
 
