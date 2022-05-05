@@ -18,7 +18,7 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.cache.redisson;
+package cn.taketoday.cache;
 
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
@@ -36,12 +36,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import cn.taketoday.cache.CacheManager;
 import cn.taketoday.cache.annotation.CacheEvict;
 import cn.taketoday.cache.annotation.CachePut;
 import cn.taketoday.cache.annotation.Cacheable;
 import cn.taketoday.cache.annotation.EnableCaching;
-import cn.taketoday.cache.redisson.RedisRunner.FailedToStartRedisException;
+import cn.taketoday.cache.RedisRunner.FailedToStartRedisException;
 import cn.taketoday.context.annotation.AnnotationConfigApplicationContext;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.ComponentScan;
@@ -171,9 +170,9 @@ class RedissonCacheTests {
     AnnotationConfigApplicationContext context = contexts.get(contextClass);
     SampleBean bean = context.getBean(SampleBean.class);
     bean.store("object1", null);
-    assertThat(bean.readNull("object1")).isNull();
+    Assertions.assertThat(bean.readNull("object1")).isNull();
     bean.remove("object1");
-    assertThat(bean.readNull("object1")).isNull();
+    Assertions.assertThat(bean.readNull("object1")).isNull();
   }
 
   @ParameterizedTest
@@ -182,9 +181,9 @@ class RedissonCacheTests {
     AnnotationConfigApplicationContext context = contexts.get(contextClass);
     SampleBean bean = context.getBean(SampleBean.class);
     bean.store("object1", new SampleObject("name1", "value1"));
-    assertThat(bean.read("object1")).isNotNull();
+    Assertions.assertThat(bean.read("object1")).isNotNull();
     bean.remove("object1");
-    assertThat(bean.readNull("object1")).isNull();
+    Assertions.assertThat(bean.readNull("object1")).isNull();
   }
 
   @ParameterizedTest
@@ -194,8 +193,8 @@ class RedissonCacheTests {
     SampleBean bean = context.getBean(SampleBean.class);
     bean.store("object1", new SampleObject("name1", "value1"));
     SampleObject s = bean.read("object1");
-    assertThat(s.getName()).isEqualTo("name1");
-    assertThat(s.getValue()).isEqualTo("value1");
+    Assertions.assertThat(s.getName()).isEqualTo("name1");
+    Assertions.assertThat(s.getValue()).isEqualTo("value1");
   }
 
   @ParameterizedTest

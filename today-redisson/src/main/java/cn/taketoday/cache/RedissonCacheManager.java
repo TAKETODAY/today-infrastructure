@@ -17,7 +17,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.cache.redisson;
+package cn.taketoday.cache;
 
 import org.redisson.api.RMap;
 import org.redisson.api.RMapCache;
@@ -33,8 +33,6 @@ import java.util.concurrent.ConcurrentMap;
 
 import cn.taketoday.beans.factory.BeanDefinitionStoreException;
 import cn.taketoday.beans.factory.InitializingBean;
-import cn.taketoday.cache.Cache;
-import cn.taketoday.cache.CacheManager;
 import cn.taketoday.context.aware.ResourceLoaderAware;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.core.io.ResourceLoader;

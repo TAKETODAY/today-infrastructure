@@ -30,6 +30,7 @@
     <module>today-test-support</module>
     <module>today-infrastructure-bom</module>
     <module>today-infrastructure-build</module>
+    <module>today-redisson</module>
   </modules>
 
   <description>

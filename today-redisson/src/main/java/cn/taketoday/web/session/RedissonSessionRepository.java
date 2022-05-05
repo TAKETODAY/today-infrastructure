@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -244,7 +244,6 @@ public class RedissonSessionRepository implements SessionRepository, PatternMess
     return SESSION_ATTR_PREFIX + name;
   }
 
-  @Override
   public Map<String, RedissonSession> findByIndexNameAndIndexValue(String indexName, String indexValue) {
     if (!PRINCIPAL_NAME_INDEX_NAME.equals(indexName)) {
       return Collections.emptyMap();

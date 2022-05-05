@@ -17,7 +17,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.cache.redisson;
+package cn.taketoday.cache;
 
 import org.redisson.api.RLock;
 import org.redisson.api.RMap;
@@ -27,7 +27,6 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
-import cn.taketoday.cache.Cache;
 import cn.taketoday.cache.support.SimpleValueWrapper;
 import cn.taketoday.lang.NullValue;
 

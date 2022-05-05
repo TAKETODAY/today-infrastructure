@@ -20,11 +20,6 @@
 
 package cn.taketoday.framework.web.server;
 
-/**
- * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @since 4.0 2022/4/15 12:33
- */
-
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -48,6 +43,8 @@ import cn.taketoday.util.ResourceUtils;
  *
  * @author Scott Frederick
  * @author Phillip Webb
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 4.0 2022/4/15 12:33
  */
 final class CertificateParser {
 

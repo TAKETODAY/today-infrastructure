@@ -18,7 +18,7 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.cache.redisson;
+package cn.taketoday.cache;
 
 import org.redisson.client.RedisClient;
 import org.redisson.client.RedisClientConfig;
