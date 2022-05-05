@@ -23,6 +23,7 @@ import java.util.ArrayList;
 
 import cn.taketoday.http.HttpCookie;
 import cn.taketoday.http.HttpHeaders;
+import cn.taketoday.http.ResponseCookie;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.web.RequestContext;
 
@@ -30,29 +31,29 @@ import cn.taketoday.web.RequestContext;
  * @author TODAY <br>
  * 2019-10-03 10:56
  */
-public class CookieTokenResolver implements TokenResolver {
+public class CookieSessionIdResolver implements SessionIdResolver {
 
   private final String cookieName;
   private final SessionCookieConfig config;
 
-  public CookieTokenResolver() {
+  public CookieSessionIdResolver() {
     this(HttpHeaders.AUTHORIZATION);
   }
 
-  public CookieTokenResolver(String cookieName) {
+  public CookieSessionIdResolver(String cookieName) {
     this.config = new SessionCookieConfig();
     this.cookieName = cookieName;
     config.setName(cookieName);
   }
 
-  public CookieTokenResolver(SessionCookieConfig config) {
+  public CookieSessionIdResolver(SessionCookieConfig config) {
     Assert.notNull(config, "cookieConfiguration must not be null");
     this.config = config;
     this.cookieName = config.getName();
   }
 
   @Override
-  public String getToken(RequestContext context) {
+  public String retrieveId(RequestContext context) {
     final String cookieName = this.cookieName;
     final HttpCookie cookie = context.getCookie(cookieName);
     if (cookie == null) {
@@ -68,9 +69,18 @@ public class CookieTokenResolver implements TokenResolver {
   }
 
   @Override
-  public void saveToken(RequestContext context, WebSession session) {
-    HttpCookie cookie = buildCookie(session.getId());
+  public void setId(RequestContext context, String sessionId) {
+    HttpCookie cookie = buildCookie(sessionId);
     context.addCookie(cookie);
+  }
+
+  @Override
+  public void expireSession(RequestContext exchange) {
+    exchange.addCookie(
+            ResponseCookie.from(cookieName, "")
+                    .maxAge(0)
+                    .build()
+    );
   }
 
   public String getCookieName() {

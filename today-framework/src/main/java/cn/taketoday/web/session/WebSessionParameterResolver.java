@@ -19,23 +19,22 @@
  */
 package cn.taketoday.web.session;
 
-import cn.taketoday.core.Ordered;
-import cn.taketoday.core.OrderedSupport;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.handler.method.ResolvableMethodParameter;
 import cn.taketoday.web.bind.resolver.ParameterResolvingStrategy;
+import cn.taketoday.web.handler.method.ResolvableMethodParameter;
 
 /**
- * @author TODAY <br>
- * 2019-09-27 22:36
+ * for {@link WebSession} Type-based parameter resolving
+ *
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @see WebSession
+ * @since 2019-09-27 22:36
  */
 public class WebSessionParameterResolver
-        extends WebSessionManagerSupport implements ParameterResolvingStrategy, Ordered {
+        extends WebSessionManagerSupport implements ParameterResolvingStrategy {
 
-  private final OrderedSupport ordered = new OrderedSupport();
-
-  public WebSessionParameterResolver(WebSessionManager sessionManager) {
+  public WebSessionParameterResolver(SessionManager sessionManager) {
     super(sessionManager);
   }
 
@@ -47,20 +46,12 @@ public class WebSessionParameterResolver
   @Nullable
   @Override
   public Object resolveArgument(RequestContext context, ResolvableMethodParameter resolvable) {
+    // todo type checking?
     if (resolvable.isRequired()) {
       return getSession(context);
     }
     // Nullable
     return getSession(context, false);
-  }
-
-  @Override
-  public int getOrder() {
-    return ordered.getOrder();
-  }
-
-  public void setOrder(int order) {
-    ordered.setOrder(order);
   }
 
 }

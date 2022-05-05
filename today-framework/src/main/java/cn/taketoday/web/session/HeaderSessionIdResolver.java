@@ -20,6 +20,7 @@
 package cn.taketoday.web.session;
 
 import cn.taketoday.http.HttpHeaders;
+import cn.taketoday.lang.Assert;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.RequestContext;
 
@@ -27,7 +28,7 @@ import cn.taketoday.web.RequestContext;
  * @author TODAY <br>
  * 2019-10-03 10:56
  */
-public class HeaderTokenResolver implements TokenResolver {
+public class HeaderSessionIdResolver implements SessionIdResolver {
 
   private boolean exposeHeaders = true;
 
@@ -61,7 +62,7 @@ public class HeaderTokenResolver implements TokenResolver {
   }
 
   @Override
-  public String getToken(final RequestContext context) {
+  public String retrieveId(final RequestContext context) {
     String token = context.requestHeaders().getFirst(getAuthorizationHeader());
 
     if (StringUtils.isEmpty(token)) { // has already set the header on the current request
@@ -71,14 +72,20 @@ public class HeaderTokenResolver implements TokenResolver {
   }
 
   @Override
-  public void saveToken(RequestContext context, WebSession session) {
-    final String requiredAuthorizationHeader = getRequiredAuthorizationHeader();
-    final HttpHeaders responseHeaders = context.responseHeaders();
-    responseHeaders.set(requiredAuthorizationHeader, session.getId());
+  public void setId(RequestContext context, String sessionId) {
+    Assert.notNull(sessionId, "'sessionId' is required.");
+    String requiredAuthorizationHeader = getRequiredAuthorizationHeader();
+    HttpHeaders responseHeaders = context.responseHeaders();
+    responseHeaders.set(requiredAuthorizationHeader, sessionId);
 
     if (isExposeHeaders()) {
       responseHeaders.add(HttpHeaders.ACCESS_CONTROL_EXPOSE_HEADERS, requiredAuthorizationHeader);
     }
+  }
+
+  @Override
+  public void expireSession(RequestContext exchange) {
+    setId(exchange, "");
   }
 
 }

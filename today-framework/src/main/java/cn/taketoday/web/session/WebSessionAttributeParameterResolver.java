@@ -28,7 +28,7 @@ import cn.taketoday.web.handler.method.ResolvableMethodParameter;
 import cn.taketoday.web.bind.resolver.AbstractNamedValueResolvingStrategy;
 
 /**
- * resolve web-session attribute
+ * resolve attribute from {@link WebSession}
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see SessionAttribute
@@ -37,14 +37,14 @@ import cn.taketoday.web.bind.resolver.AbstractNamedValueResolvingStrategy;
  */
 public class WebSessionAttributeParameterResolver extends AbstractNamedValueResolvingStrategy {
 
-  private final WebSessionManager sessionManager;
+  private final SessionManager sessionManager;
 
-  public WebSessionAttributeParameterResolver(WebSessionManager sessionManager) {
+  public WebSessionAttributeParameterResolver(SessionManager sessionManager) {
     this(sessionManager, null);
   }
 
   public WebSessionAttributeParameterResolver(
-          WebSessionManager sessionManager, ConfigurableBeanFactory beanFactory) {
+          SessionManager sessionManager, ConfigurableBeanFactory beanFactory) {
     super(beanFactory);
     Assert.notNull(sessionManager, "sessionManager must not be null");
     this.sessionManager = sessionManager;

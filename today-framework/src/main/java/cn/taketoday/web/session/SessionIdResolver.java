@@ -19,25 +19,33 @@
  */
 package cn.taketoday.web.session;
 
-import cn.taketoday.lang.Nullable;
+import cn.taketoday.web.RequestContext;
 
 /**
- * @author TODAY <br>
- * 2019-09-28 10:26
+ * Contract for session id resolution strategies. Allows for session id
+ * resolution through the request and for sending the session id or expiring
+ * the session through the response.
+ *
+ * @author TODAY
+ * @since 2019-10-03 10:56
  */
-public interface WebSessionStorage {
+public interface SessionIdResolver {
+  String X_REQUIRED_AUTHORIZATION = "X-Required-Authorization";
 
-  @Nullable
-  WebSession get(String id);
+  String retrieveId(RequestContext context);
 
-  WebSession remove(String id);
+  /**
+   * Send the given session id to the client.
+   *
+   * @param context the current context
+   * @param sessionId the session id
+   */
+  void setId(RequestContext context, String sessionId);
 
-  default WebSession remove(WebSession session) {
-    return remove(session.getId());
-  }
-
-  boolean contains(String id);
-
-  void store(String id, WebSession session);
-
+  /**
+   * Instruct the client to end the current session.
+   *
+   * @param exchange the current exchange
+   */
+  void expireSession(RequestContext exchange);
 }

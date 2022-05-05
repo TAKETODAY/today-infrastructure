@@ -58,7 +58,7 @@ class DefaultWebSessionManagerTests {
       assertThat(createdSession).isNotNull();
 
       // CookieTokenResolver
-      CookieTokenResolver cookieTokenResolver = applicationContext.getBean(CookieTokenResolver.class);
+      CookieSessionIdResolver cookieTokenResolver = applicationContext.getBean(CookieSessionIdResolver.class);
       List<HttpCookie> responseCookies = context.responseCookies();
       String sessionId = createdSession.getId();
       HttpCookie sessionCookie = cookieTokenResolver.buildCookie(sessionId);

@@ -30,9 +30,11 @@ import cn.taketoday.context.ApplicationEvent;
  * @since 4.0 2022/4/9 09:53
  */
 public class WebSessionEvent extends ApplicationEvent {
+  final WebSession session;
 
-  public WebSessionEvent(WebSession source) {
+  public WebSessionEvent(Object source, WebSession session) {
     super(source);
+    this.session = session;
   }
 
   /**
@@ -41,7 +43,11 @@ public class WebSessionEvent extends ApplicationEvent {
    * @return the {@link WebSession} for this event.
    */
   public WebSession getSession() {
-    return (WebSession) super.getSource();
+    return session;
+  }
+
+  public String getSessionId() {
+    return session.getId();
   }
 
 }

@@ -28,14 +28,14 @@ import cn.taketoday.web.RequestContext;
  * @since 3.0
  */
 public class WebSessionManagerSupport {
-  private final WebSessionManager sessionManager;
+  private final SessionManager sessionManager;
 
-  public WebSessionManagerSupport(WebSessionManager sessionManager) {
+  public WebSessionManagerSupport(SessionManager sessionManager) {
     Assert.notNull(sessionManager, "sessionManager must not be null");
     this.sessionManager = sessionManager;
   }
 
-  public final WebSessionManager getSessionManager() {
+  public final SessionManager getSessionManager() {
     return sessionManager;
   }
 

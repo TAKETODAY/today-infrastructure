@@ -28,7 +28,7 @@ import cn.taketoday.core.io.Resource;
  * @author TODAY 2021/4/27 23:03
  * @since 3.0
  */
-public class SessionConfiguration {
+public class SessionProperties {
 
   /**
    * enable {@link jakarta.servlet.http.HttpSession}?
@@ -43,10 +43,20 @@ public class SessionConfiguration {
 
   private SessionCookieConfig cookieConfig;
 
-  public SessionConfiguration() { }
+  private int sessionIdLength = 30;
 
-  public SessionConfiguration(SessionCookieConfig cookieConfig) {
+  public SessionProperties() { }
+
+  public SessionProperties(SessionCookieConfig cookieConfig) {
     this.cookieConfig = cookieConfig;
+  }
+
+  public void setSessionIdLength(int sessionIdLength) {
+    this.sessionIdLength = sessionIdLength;
+  }
+
+  public int getSessionIdLength() {
+    return sessionIdLength;
   }
 
   public boolean isEnableHttpSession() {

@@ -25,7 +25,6 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.WebContentGenerator;
 import cn.taketoday.web.handler.HandlerAdapter;
-import cn.taketoday.web.view.ModelAndView;
 
 /**
  * Abstract base class for {@link HandlerAdapter} implementations that support

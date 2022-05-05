@@ -28,18 +28,18 @@ import cn.taketoday.web.RequestContext;
  * @author TODAY 2021/3/20 11:20
  * @since 3.0
  */
-public class CompositeTokenResolver implements TokenResolver {
+public class CompositeSessionIdResolver implements SessionIdResolver {
 
-  final List<TokenResolver> resolvers;
+  final List<SessionIdResolver> resolvers;
 
-  public CompositeTokenResolver(List<TokenResolver> resolvers) {
+  public CompositeSessionIdResolver(List<SessionIdResolver> resolvers) {
     this.resolvers = resolvers;
   }
 
   @Override
-  public String getToken(RequestContext context) {
-    for (final TokenResolver resolver : resolvers) {
-      final String token = resolver.getToken(context);
+  public String retrieveId(RequestContext context) {
+    for (SessionIdResolver resolver : resolvers) {
+      String token = resolver.retrieveId(context);
       if (token != null) {
         return token;
       }
@@ -48,9 +48,20 @@ public class CompositeTokenResolver implements TokenResolver {
   }
 
   @Override
-  public void saveToken(RequestContext context, WebSession session) {
-    for (final TokenResolver resolver : resolvers) {
-      resolver.saveToken(context, session);
+  public void setId(RequestContext context, String session) {
+    for (SessionIdResolver resolver : resolvers) {
+      resolver.setId(context, session);
     }
   }
+
+  @Override
+  public void expireSession(RequestContext context) {
+    for (SessionIdResolver resolver : resolvers) {
+      String token = resolver.retrieveId(context);
+      if (token != null) {
+        resolver.expireSession(context);
+      }
+    }
+  }
+
 }

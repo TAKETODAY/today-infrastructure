@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -17,19 +17,25 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.web.session;
 
-import cn.taketoday.web.RequestContext;
-
 /**
- * @author TODAY <br>
- * 2019-10-03 10:56
+ * Strategy for generating session ID's.
+ *
+ * The session manager is not required to support pluggable session
+ * id generation, it is an optional feature.
+ *
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 4.0 2022/4/30 22:27
  */
-public interface TokenResolver {
-  String X_REQUIRED_AUTHORIZATION = "X-Required-Authorization";
+public interface SessionIdGenerator {
 
-  String getToken(RequestContext context);
-
-  void saveToken(RequestContext context, WebSession session);
+  /**
+   * Generate a new identifier.
+   *
+   * @return the generated identifier
+   */
+  String generateId();
 
 }

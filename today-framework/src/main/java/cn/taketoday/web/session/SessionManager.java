@@ -26,7 +26,7 @@ import cn.taketoday.web.RequestContext;
  * @author TODAY <br>
  * 2019-09-27 20:24
  */
-public interface WebSessionManager {
+public interface SessionManager {
 
   /**
    * default bean name
@@ -49,7 +49,7 @@ public interface WebSessionManager {
    * If there is not a session,create one.
    * </p>
    */
-  WebSession getSession(String id);
+  WebSession getSession(@Nullable String sessionId);
 
   /**
    * Returns the current session associated with this request, or if the request

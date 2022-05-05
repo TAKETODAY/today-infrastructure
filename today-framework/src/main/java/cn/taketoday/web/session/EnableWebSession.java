@@ -23,7 +23,9 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import java.util.List;
 
+import cn.taketoday.beans.factory.ObjectProvider;
 import cn.taketoday.beans.factory.annotation.DisableAllDependencyInjection;
 import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
@@ -38,6 +40,8 @@ import cn.taketoday.web.view.RedirectModelManager;
 import cn.taketoday.web.view.SessionRedirectModelManager;
 
 /**
+ * Enable web-session supports, like servlet's http-session
+ *
  * @author TODAY 2019-10-03 00:30
  */
 @Target({ ElementType.TYPE })
@@ -52,14 +56,22 @@ public @interface EnableWebSession {
 class WebSessionConfig {
 
   /**
-   * default {@link WebSessionManager} bean
+   * default {@link SessionManager} bean
    */
-  @Component(WebSessionManager.BEAN_NAME)
+  @Component(SessionManager.BEAN_NAME)
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-  @ConditionalOnMissingBean(value = WebSessionManager.class, name = WebSessionManager.BEAN_NAME)
-  DefaultWebSessionManager webSessionManager(
-          TokenResolver tokenResolver, WebSessionStorage sessionStorage) {
-    return new DefaultWebSessionManager(tokenResolver, sessionStorage);
+  @ConditionalOnMissingBean(value = SessionManager.class, name = SessionManager.BEAN_NAME)
+  DefaultSessionManager webSessionManager(
+          SessionIdResolver sessionIdResolver, SessionRepository repository) {
+    return new DefaultSessionManager(repository, sessionIdResolver);
+  }
+
+  @Component
+  @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
+  @ConditionalOnMissingBean(value = SessionManager.class, name = SessionManager.BEAN_NAME)
+  SessionEventDispatcher sessionEventDispatcher(ObjectProvider<WebSessionListener> provider) {
+    List<WebSessionListener> listeners = provider.orderedStream().toList();
+    return new SessionEventDispatcher(listeners);
   }
 
   /**
@@ -68,8 +80,8 @@ class WebSessionConfig {
   @Component
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
   WebSessionAttributeParameterResolver webSessionAttributeParameterResolver(
-          WebSessionManager webSessionManager, ConfigurableBeanFactory beanFactory) {
-    return new WebSessionAttributeParameterResolver(webSessionManager, beanFactory);
+          SessionManager sessionManager, ConfigurableBeanFactory beanFactory) {
+    return new WebSessionAttributeParameterResolver(sessionManager, beanFactory);
   }
 
   /**
@@ -78,20 +90,33 @@ class WebSessionConfig {
   @Component
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
   WebSessionParameterResolver webSessionParameterResolver(
-          WebSessionManager webSessionManager) {
-    return new WebSessionParameterResolver(webSessionManager);
+          SessionManager sessionManager) {
+    return new WebSessionParameterResolver(sessionManager);
   }
 
   /**
-   * default {@link WebSessionStorage} bean
+   * default {@link SessionRepository} bean
    *
    * @since 3.0
    */
   @Component
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-  @ConditionalOnMissingBean(WebSessionStorage.class)
-  MemWebSessionStorage webSessionStorage() {
-    return new MemWebSessionStorage();
+  @ConditionalOnMissingBean(SessionRepository.class)
+  MemSessionRepository memorySessionRepository(
+          SessionEventDispatcher eventDispatcher, SessionIdGenerator sessionIdGenerator) {
+    return new MemSessionRepository(eventDispatcher, sessionIdGenerator);
+  }
+
+  /**
+   * @since 4.0
+   */
+  @Component
+  @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
+  @ConditionalOnMissingBean(SessionIdGenerator.class)
+  SessionIdGenerator sessionIdGenerator(SessionProperties sessionProperties) {
+    SecureRandomSessionIdGenerator generator = new SecureRandomSessionIdGenerator();
+    generator.setLength(sessionProperties.getSessionIdLength());
+    return generator;
   }
 
   /**
@@ -113,26 +138,26 @@ class WebSessionConfig {
   @ConditionalOnMissingBean
   @Props(prefix = "server.session")
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-  SessionConfiguration webSessionConfig(SessionCookieConfig sessionCookieConfig) {
-    return new SessionConfiguration(sessionCookieConfig);
+  SessionProperties sessionProperties(SessionCookieConfig sessionCookieConfig) {
+    return new SessionProperties(sessionCookieConfig);
   }
 
   /**
-   * default {@link TokenResolver} bean
+   * default {@link SessionIdResolver} bean
    *
    * @since 3.0
    */
   @Component
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-  @ConditionalOnMissingBean(TokenResolver.class)
-  CookieTokenResolver webTokenResolver(SessionCookieConfig config) {
-    return new CookieTokenResolver(config);
+  @ConditionalOnMissingBean(SessionIdResolver.class)
+  CookieSessionIdResolver webTokenResolver(SessionCookieConfig config) {
+    return new CookieSessionIdResolver(config);
   }
 
   @Component(RedirectModelManager.BEAN_NAME)
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
   @ConditionalOnMissingBean(value = RedirectModelManager.class, name = RedirectModelManager.BEAN_NAME)
-  SessionRedirectModelManager sessionRedirectModelManager(WebSessionManager sessionManager) {
+  SessionRedirectModelManager sessionRedirectModelManager(SessionManager sessionManager) {
     return new SessionRedirectModelManager(sessionManager);
   }
 
