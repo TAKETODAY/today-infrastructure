@@ -113,6 +113,12 @@
 
       <dependency>
         <groupId>cn.taketoday</groupId>
+        <artifactId>today-redisson</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>cn.taketoday</groupId>
         <artifactId>today-test</artifactId>
         <version>${project.version}</version>
       </dependency>
