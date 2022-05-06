@@ -113,7 +113,7 @@ public class RedissonSessionRepository implements SessionRepository, PatternMess
       else if ("session:lastAccessedTime".equals(entry.getKey())) {
         delegate.setLastAccessedTime(Instant.ofEpochMilli((Long) entry.getValue()));
       }
-      else if ("session:maxInactiveInterval".equals(entry.getKey())) {
+      else if ("session:setMaxIdleTime".equals(entry.getKey())) {
         delegate.setMaxInactiveInterval(Duration.ofSeconds((Long) entry.getValue()));
       }
       else if (entry.getKey().startsWith(SESSION_ATTR_PREFIX)) {
@@ -168,7 +168,7 @@ public class RedissonSessionRepository implements SessionRepository, PatternMess
     }
   }
 
-  public void setDefaultMaxInactiveInterval(int defaultMaxInactiveInterval) {
+  public void setDefaultMaxInactiveInterval(Integer defaultMaxInactiveInterval) {
     this.defaultMaxInactiveInterval = defaultMaxInactiveInterval;
   }
 
@@ -271,18 +271,18 @@ public class RedissonSessionRepository implements SessionRepository, PatternMess
   final class RedissonSession extends AttributeAccessorSupport implements WebSession {
 
     private String principalName;
-    private final MapSession delegate;
+    private final WebSession delegate;
     private RMap<String, Object> map;
 
     RedissonSession() {
-      this.delegate = new MapSession();
+      this.delegate = new MemSessionRepository();
       map = redisson.getMap(keyPrefix + delegate.getId(),
               new CompositeCodec(StringCodec.INSTANCE, redisson.getConfig().getCodec()));
 
       Map<String, Object> newMap = new HashMap<>(3);
       newMap.put("session:creationTime", delegate.getCreationTime().toEpochMilli());
-      newMap.put("session:lastAccessedTime", delegate.getLastAccessedTime().toEpochMilli());
-      newMap.put("session:maxInactiveInterval", delegate.getMaxInactiveInterval().getSeconds());
+      newMap.put("session:lastAccessedTime", delegate.getLastAccessTime().toEpochMilli());
+      newMap.put("session:setMaxIdleTime", delegate.getMaxIdleTime().getSeconds());
       map.putAll(newMap);
 
       updateExpiration();
@@ -293,14 +293,14 @@ public class RedissonSessionRepository implements SessionRepository, PatternMess
     }
 
     private void updateExpiration() {
-      if (delegate.getMaxInactiveInterval().getSeconds() > 0) {
+      if (delegate.getMaxIdleTime().getSeconds() > 0) {
         redisson.getBucket(getExpiredKey(delegate.getId()))
-                .set("", delegate.getMaxInactiveInterval().getSeconds(), TimeUnit.SECONDS);
-        map.expire(delegate.getMaxInactiveInterval().getSeconds() + 60, TimeUnit.SECONDS);
+                .set("", delegate.getMaxIdleTime().getSeconds(), TimeUnit.SECONDS);
+        map.expire(delegate.getMaxIdleTime().getSeconds() + 60, TimeUnit.SECONDS);
       }
     }
 
-    RedissonSession(MapSession session) {
+    RedissonSession(WebSession session) {
       this.delegate = session;
       map = redisson.getMap(keyPrefix + session.getId(), new CompositeCodec(StringCodec.INSTANCE, redisson.getConfig().getCodec()));
       principalName = resolvePrincipal(this);
@@ -363,7 +363,6 @@ public class RedissonSessionRepository implements SessionRepository, PatternMess
       return delegate.getCreationTime();
     }
 
-    @Override
     public void setLastAccessedTime(Instant lastAccessedTime) {
       delegate.setLastAccessedTime(lastAccessedTime);
 
@@ -374,23 +373,23 @@ public class RedissonSessionRepository implements SessionRepository, PatternMess
     }
 
     @Override
-    public Instant getLastAccessedTime() {
-      return delegate.getLastAccessedTime();
+    public Instant getLastAccessTime() {
+      return delegate.getLastAccessTime();
     }
 
     @Override
-    public void setMaxInactiveInterval(Duration interval) {
-      delegate.setMaxInactiveInterval(interval);
+    public void setMaxIdleTime(Duration interval) {
+      delegate.setMaxIdleTime(interval);
 
       if (map != null) {
-        map.fastPut("session:maxInactiveInterval", interval.getSeconds());
+        map.fastPut("session:setMaxIdleTime", interval.getSeconds());
         updateExpiration();
       }
     }
 
     @Override
-    public Duration getMaxInactiveInterval() {
-      return delegate.getMaxInactiveInterval();
+    public Duration getMaxIdleTime() {
+      return delegate.getMaxIdleTime();
     }
 
     @Override
@@ -399,9 +398,11 @@ public class RedissonSessionRepository implements SessionRepository, PatternMess
     }
 
     @Override
-    public String changeSessionId() {
+    public void changeSessionId() {
       String oldId = delegate.getId();
-      String id = delegate.changeSessionId();
+      delegate.changeSessionId();
+
+      String id = delegate.getId();
 
       RBatch batch = redisson.createBatch(BatchOptions.defaults());
       batch.getBucket(getExpiredKey(oldId)).remainTimeToLiveAsync();
@@ -420,7 +421,7 @@ public class RedissonSessionRepository implements SessionRepository, PatternMess
         // - a parallel request also invoked changeSessionId() on this session, and the
         //   expiredKey for oldId had been deleted
         // - sessions do not expire
-        remainTTL = delegate.getMaxInactiveInterval().toMillis();
+        remainTTL = delegate.getMaxIdleTime().toMillis();
       }
 
       RBatch batchNew = redisson.createBatch();
@@ -431,8 +432,6 @@ public class RedissonSessionRepository implements SessionRepository, PatternMess
       batchNew.execute();
 
       map = redisson.getMap(keyPrefix + id, map.getCodec());
-
-      return id;
     }
   }
 
