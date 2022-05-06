@@ -30,7 +30,6 @@ import cn.taketoday.web.RequestContext;
  * @since 2019-10-03 10:56
  */
 public interface SessionIdResolver {
-  String X_REQUIRED_AUTHORIZATION = "X-Required-Authorization";
 
   String retrieveId(RequestContext context);
 

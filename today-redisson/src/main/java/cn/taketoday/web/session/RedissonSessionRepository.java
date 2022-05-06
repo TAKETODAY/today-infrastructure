@@ -43,6 +43,7 @@ import java.util.concurrent.TimeUnit;
 import cn.taketoday.context.ApplicationEvent;
 import cn.taketoday.context.ApplicationEventPublisher;
 import cn.taketoday.core.AttributeAccessorSupport;
+import cn.taketoday.core.Conventions;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.StringUtils;
@@ -60,8 +61,8 @@ public class RedissonSessionRepository implements SessionRepository, PatternMess
    * It is the responsibility of the developer to ensure the index is populated since
    * Spring Session is not aware of the authentication mechanism being used.
    */
-  String PRINCIPAL_NAME_INDEX_NAME = RedissonSessionRepository.class.getName().concat(
-          ".PRINCIPAL_NAME_INDEX_NAME");
+  String PRINCIPAL_NAME_INDEX_NAME = Conventions.getQualifiedAttributeName(
+          RedissonSessionRepository.class, "PRINCIPAL_NAME_INDEX_NAME");
 
   static final String SESSION_ATTR_PREFIX = "session-attr:";
 

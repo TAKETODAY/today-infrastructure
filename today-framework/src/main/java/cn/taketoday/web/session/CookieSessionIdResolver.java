@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -17,10 +17,12 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.web.session;
 
 import java.util.ArrayList;
 
+import cn.taketoday.core.Conventions;
 import cn.taketoday.http.HttpCookie;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.ResponseCookie;
@@ -28,10 +30,36 @@ import cn.taketoday.lang.Assert;
 import cn.taketoday.web.RequestContext;
 
 /**
+ * A {@link SessionIdResolver} that uses a cookie to obtain the session from.
+ *
+ * <pre>
+ * HTTP/1.1 200 OK
+ * Set-Cookie: SESSION=f81d4fae-7dec-11d0-a765-00a0c91e6bf6; Path=/context-root; Secure; HttpOnly
+ * </pre>
+ *
+ * The client should now include the session in each request by specifying the same cookie
+ * in their request. For example:
+ *
+ * <pre>
+ * GET /messages/ HTTP/1.1
+ * Host: example.com
+ * Cookie: SESSION=f81d4fae-7dec-11d0-a765-00a0c91e6bf6
+ * </pre>
+ *
+ * When the session is invalidated, the server will send an HTTP response that expires the
+ * cookie. For example:
+ *
+ * <pre>
+ * HTTP/1.1 200 OK
+ * Set-Cookie: SESSION=; Expires=Thur, 1 Jan 1970 00:00:00 GMT; Secure; HttpOnly
+ * </pre>
+ *
  * @author TODAY <br>
  * 2019-10-03 10:56
  */
 public class CookieSessionIdResolver implements SessionIdResolver {
+  private static final String WRITTEN_SESSION_ID_ATTR = Conventions.getQualifiedAttributeName(
+          CookieSessionIdResolver.class, "WRITTEN_SESSION_ID_ATTR");
 
   private final String cookieName;
   private final SessionCookieConfig config;
@@ -70,8 +98,11 @@ public class CookieSessionIdResolver implements SessionIdResolver {
 
   @Override
   public void setId(RequestContext context, String sessionId) {
-    HttpCookie cookie = buildCookie(sessionId);
-    context.addCookie(cookie);
+    if (!sessionId.equals(context.getAttribute(WRITTEN_SESSION_ID_ATTR))) {
+      HttpCookie cookie = createCookie(sessionId);
+      context.addCookie(cookie);
+      context.setAttribute(WRITTEN_SESSION_ID_ATTR, sessionId);
+    }
   }
 
   @Override
@@ -87,7 +118,7 @@ public class CookieSessionIdResolver implements SessionIdResolver {
     return cookieName;
   }
 
-  public HttpCookie buildCookie(String id) {
+  public HttpCookie createCookie(String id) {
     return config.createCookie(id);
   }
 

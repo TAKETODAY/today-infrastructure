@@ -61,7 +61,7 @@ class DefaultWebSessionManagerTests {
       CookieSessionIdResolver cookieTokenResolver = applicationContext.getBean(CookieSessionIdResolver.class);
       List<HttpCookie> responseCookies = context.responseCookies();
       String sessionId = createdSession.getId();
-      HttpCookie sessionCookie = cookieTokenResolver.buildCookie(sessionId);
+      HttpCookie sessionCookie = cookieTokenResolver.createCookie(sessionId);
 
       assertThat(responseCookies).hasSize(1);
       assertThat(responseCookies.get(0)).isEqualTo(sessionCookie);

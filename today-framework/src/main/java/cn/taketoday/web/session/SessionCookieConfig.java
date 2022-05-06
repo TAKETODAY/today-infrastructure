@@ -28,7 +28,7 @@ import cn.taketoday.http.ResponseCookie;
 /**
  * Session cookie properties.
  *
- * @author TODAY(taketoday @ foxmail.com) https://taketoday.cn <br>
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * 2019-01-26 17:16
  */
 public class SessionCookieConfig {
