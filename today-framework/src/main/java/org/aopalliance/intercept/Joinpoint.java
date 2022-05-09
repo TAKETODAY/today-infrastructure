@@ -2,6 +2,8 @@ package org.aopalliance.intercept;
 
 import java.lang.reflect.AccessibleObject;
 
+import javax.annotation.Nullable;
+
 /**
  * This interface represents a generic runtime joinpoint (in the AOP
  * terminology).
@@ -32,10 +34,9 @@ public interface Joinpoint {
    * joinpoint type (see the children interfaces).
    *
    * @return see the children interfaces' proceed definition.
-   *
-   * @throws Throwable
-   *         if the joinpoint throws an exception.
+   * @throws Throwable if the joinpoint throws an exception.
    */
+  @Nullable
   Object proceed() throws Throwable;
 
   /**
@@ -46,6 +47,7 @@ public interface Joinpoint {
    *
    * @return the object (can be null if the accessible object is static).
    */
+  @Nullable
   Object getThis();
 
   /**
