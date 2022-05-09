@@ -20,22 +20,18 @@
 
 package cn.taketoday.framework.context.config;
 
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import cn.taketoday.context.properties.source.ConfigurationProperty;
 import cn.taketoday.context.properties.source.ConfigurationPropertyName;
 import cn.taketoday.context.properties.source.ConfigurationPropertySource;
-import cn.taketoday.origin.MockOrigin;
 import cn.taketoday.framework.context.config.ConfigDataEnvironmentContributor.Kind;
-import cn.taketoday.logging.Logger;
 import cn.taketoday.mock.env.MockPropertySource;
+import cn.taketoday.origin.MockOrigin;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatNoException;
-import static org.mockito.BDDMockito.then;
-import static org.mockito.Mockito.mock;
 
 /**
  * Tests for {@link InvalidConfigDataPropertyException}.
@@ -52,8 +48,6 @@ class InvalidConfigDataPropertyExceptionTests {
   private ConfigurationPropertyName invalid = ConfigurationPropertyName.of("invalid");
 
   private ConfigurationProperty property = new ConfigurationProperty(this.invalid, "bad", MockOrigin.of("origin"));
-
-  private Logger logger = mock(Logger.class);
 
   @Test
   void createHasCorrectMessage() {
@@ -110,13 +104,12 @@ class InvalidConfigDataPropertyExceptionTests {
   }
 
   @Test
-  @Disabled("Disabled until context.profiles support is dropped")
   void throwOrWarnWhenHasInvalidPropertyThrowsException() {
     MockPropertySource propertySource = new MockPropertySource();
     propertySource.setProperty("context.profiles", "a");
     ConfigDataEnvironmentContributor contributor = ConfigDataEnvironmentContributor.ofExisting(propertySource);
     assertThatExceptionOfType(InvalidConfigDataPropertyException.class)
-            .isThrownBy(() -> InvalidConfigDataPropertyException.throwOrWarn(this.logger, contributor))
+            .isThrownBy(() -> InvalidConfigDataPropertyException.throwIfPropertyFound(contributor))
             .withMessageStartingWith("Property 'context.profiles' is invalid and should be replaced with "
                     + "'context.config.activate.on-profile'");
   }
@@ -132,14 +125,13 @@ class InvalidConfigDataPropertyExceptionTests {
   void throwOrWarnWhenWhenHasInvalidProfileSpecificPropertyOnIgnoringProfilesContributorDoesNotThrowException() {
     ConfigDataEnvironmentContributor contributor = createInvalidProfileSpecificPropertyContributor(
             "context.profiles.active", ConfigData.Option.IGNORE_PROFILES);
-    assertThatNoException()
-            .isThrownBy(() -> InvalidConfigDataPropertyException.throwOrWarn(this.logger, contributor));
+    assertThatNoException().isThrownBy(() -> InvalidConfigDataPropertyException.throwIfPropertyFound(contributor));
   }
 
   private void throwOrWarnWhenWhenHasInvalidProfileSpecificPropertyThrowsException(String name) {
     ConfigDataEnvironmentContributor contributor = createInvalidProfileSpecificPropertyContributor(name);
     assertThatExceptionOfType(InvalidConfigDataPropertyException.class)
-            .isThrownBy(() -> InvalidConfigDataPropertyException.throwOrWarn(this.logger, contributor))
+            .isThrownBy(() -> InvalidConfigDataPropertyException.throwIfPropertyFound(contributor))
             .withMessageStartingWith("Property '" + name + "' is invalid in a profile specific resource");
   }
 
@@ -157,27 +149,7 @@ class InvalidConfigDataPropertyExceptionTests {
   void throwOrWarnWhenHasNoInvalidPropertyDoesNothing() {
     ConfigDataEnvironmentContributor contributor = ConfigDataEnvironmentContributor
             .ofExisting(new MockPropertySource());
-    InvalidConfigDataPropertyException.throwOrWarn(this.logger, contributor);
-  }
-
-  @Test
-  void throwOrWarnWhenHasWarningPropertyLogsWarning() {
-    MockPropertySource propertySource = new MockPropertySource();
-    propertySource.setProperty("context.profiles", "a");
-    ConfigDataEnvironmentContributor contributor = ConfigDataEnvironmentContributor.ofExisting(propertySource);
-    InvalidConfigDataPropertyException.throwOrWarn(this.logger, contributor);
-    then(this.logger).should().warn("Property 'context.profiles' is invalid and should be replaced with "
-            + "'context.config.activate.on-profile' [origin: \"context.profiles\" from property source \"mockProperties\"]");
-  }
-
-  @Test
-  void throwOrWarnWhenHasWarningPropertyWithListSyntaxLogsWarning() {
-    MockPropertySource propertySource = new MockPropertySource();
-    propertySource.setProperty("context.profiles[0]", "a");
-    ConfigDataEnvironmentContributor contributor = ConfigDataEnvironmentContributor.ofExisting(propertySource);
-    InvalidConfigDataPropertyException.throwOrWarn(this.logger, contributor);
-    then(this.logger).should().warn("Property 'context.profiles[0]' is invalid and should be replaced with "
-            + "'context.config.activate.on-profile' [origin: \"context.profiles[0]\" from property source \"mockProperties\"]");
+    InvalidConfigDataPropertyException.throwIfPropertyFound(contributor);
   }
 
   private static class TestConfigDataResource extends ConfigDataResource {

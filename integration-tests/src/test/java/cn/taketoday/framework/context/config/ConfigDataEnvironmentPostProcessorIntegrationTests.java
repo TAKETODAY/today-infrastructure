@@ -165,7 +165,8 @@ class ConfigDataEnvironmentPostProcessorIntegrationTests {
   @Test
   void runWhenActiveProfilesDoesNotLoadDefault() {
     ConfigurableApplicationContext context = this.application.run("--context.config.name=testprofilesdocument",
-            "--context.profiles.default=thedefault", "--context.profiles.active=other");
+            "--context.config.location=classpath:configdata/profiles/", "--context.profiles.default=thedefault",
+            "--context.profiles.active=other");
     String property = context.getEnvironment().getProperty("my.property");
     assertThat(property).isEqualTo("fromotherprofile");
   }

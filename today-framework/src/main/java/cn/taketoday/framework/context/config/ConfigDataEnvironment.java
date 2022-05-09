@@ -380,7 +380,7 @@ class ConfigDataEnvironment {
 
   private void checkForInvalidProperties(ConfigDataEnvironmentContributors contributors) {
     for (ConfigDataEnvironmentContributor contributor : contributors) {
-      InvalidConfigDataPropertyException.throwOrWarn(log, contributor);
+      InvalidConfigDataPropertyException.throwIfPropertyFound(contributor);
     }
   }
 

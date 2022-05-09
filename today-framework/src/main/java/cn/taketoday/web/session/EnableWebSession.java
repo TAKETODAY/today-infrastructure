@@ -68,7 +68,7 @@ class WebSessionConfig {
 
   @Component
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-  @ConditionalOnMissingBean(value = SessionManager.class, name = SessionManager.BEAN_NAME)
+  @ConditionalOnMissingBean
   SessionEventDispatcher sessionEventDispatcher(ObjectProvider<WebSessionListener> provider) {
     List<WebSessionListener> listeners = provider.orderedStream().toList();
     return new SessionEventDispatcher(listeners);

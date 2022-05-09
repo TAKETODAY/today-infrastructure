@@ -198,27 +198,6 @@ class ConfigDataPropertiesTests {
   }
 
   @Test
-  void isActiveWhenBindingToLegacyProperty() {
-    MapConfigurationPropertySource source = new MapConfigurationPropertySource();
-    source.put("context.profiles", "a,b");
-    Binder binder = new Binder(source);
-    ConfigDataProperties properties = ConfigDataProperties.get(binder);
-    ConfigDataActivationContext context = new ConfigDataActivationContext(CloudPlatform.KUBERNETES,
-            createTestProfiles());
-    assertThat(properties.isActive(context)).isTrue();
-  }
-
-  @Test
-  void getWhenHasLegacyAndNewPropertyThrowsException() {
-    MapConfigurationPropertySource source = new MapConfigurationPropertySource();
-    source.put("context.profiles", "a,b");
-    source.put("context.config.activate.on-profile", "a | b");
-    Binder binder = new Binder(source);
-    assertThatExceptionOfType(InvalidConfigDataPropertyException.class)
-            .isThrownBy(() -> ConfigDataProperties.get(binder));
-  }
-
-  @Test
   void getImportOriginWhenCommaListReturnsOrigin() {
     MapConfigurationPropertySource source = new MapConfigurationPropertySource();
     source.put("context.config.import", "one,two,three");

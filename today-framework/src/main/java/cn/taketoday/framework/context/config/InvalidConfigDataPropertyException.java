@@ -42,19 +42,18 @@ import cn.taketoday.logging.Logger;
  */
 public class InvalidConfigDataPropertyException extends ConfigDataException {
 
-  private static final Map<ConfigurationPropertyName, ConfigurationPropertyName> WARNINGS;
+  private static final Set<ConfigurationPropertyName> PROFILE_SPECIFIC_ERRORS;
+  private static final Map<ConfigurationPropertyName, ConfigurationPropertyName> ERRORS;
 
   static {
-    Map<ConfigurationPropertyName, ConfigurationPropertyName> warnings = new LinkedHashMap<>();
-    warnings.put(ConfigurationPropertyName.of("context.profiles"), ConfigurationPropertyName.of("context.config.activate.on-profile"));
-    warnings.put(ConfigurationPropertyName.of("context.profiles[0]"), ConfigurationPropertyName.of("context.config.activate.on-profile"));
-    WARNINGS = Collections.unmodifiableMap(warnings);
+    var errors = new LinkedHashMap<ConfigurationPropertyName, ConfigurationPropertyName>();
+    errors.put(ConfigurationPropertyName.of("context.profiles"), ConfigurationPropertyName.of("context.config.activate.on-profile"));
+    errors.put(ConfigurationPropertyName.of("context.profiles[0]"), ConfigurationPropertyName.of("context.config.activate.on-profile"));
+    ERRORS = Collections.unmodifiableMap(errors);
   }
 
-  private static final Set<ConfigurationPropertyName> PROFILE_SPECIFIC_ERRORS;
-
   static {
-    Set<ConfigurationPropertyName> errors = new LinkedHashSet<>();
+    var errors = new LinkedHashSet<ConfigurationPropertyName>();
     errors.add(Profiles.INCLUDE_PROFILES);
     errors.add(Profiles.INCLUDE_PROFILES.append("[0]"));
     errors.add(ConfigurationPropertyName.of(AbstractEnvironment.KEY_ACTIVE_PROFILES));
@@ -112,33 +111,28 @@ public class InvalidConfigDataPropertyException extends ConfigDataException {
   }
 
   /**
-   * Throw an {@link InvalidConfigDataPropertyException} or log a warning if the given
-   * {@link ConfigDataEnvironmentContributor} contains any invalid property. A warning
-   * is logged if the property is still supported, but not recommended. An error is
-   * thrown if the property is completely unsupported.
+   * Throw an {@link InvalidConfigDataPropertyException} if the given
+   * {@link ConfigDataEnvironmentContributor} contains any invalid property.
    *
-   * @param logger the logger to use for warnings
    * @param contributor the contributor to check
    */
-  static void throwOrWarn(Logger logger, ConfigDataEnvironmentContributor contributor) {
+  static void throwIfPropertyFound(ConfigDataEnvironmentContributor contributor) {
     ConfigurationPropertySource propertySource = contributor.getConfigurationPropertySource();
     if (propertySource != null) {
-      for (Map.Entry<ConfigurationPropertyName, ConfigurationPropertyName> entry : WARNINGS.entrySet()) {
-        ConfigurationPropertyName name = entry.getKey();
-        ConfigurationPropertyName replacement = entry.getValue();
+      ERRORS.forEach((name, replacement) -> {
         ConfigurationProperty property = propertySource.getConfigurationProperty(name);
         if (property != null) {
-          logger.warn(getMessage(property, false, replacement, contributor.getResource()));
+          throw new InvalidConfigDataPropertyException(property, false, replacement, contributor.getResource());
         }
-      }
+      });
       if (contributor.isFromProfileSpecificImport()
               && !contributor.hasConfigDataOption(ConfigData.Option.IGNORE_PROFILES)) {
-        for (ConfigurationPropertyName name : PROFILE_SPECIFIC_ERRORS) {
+        PROFILE_SPECIFIC_ERRORS.forEach(name -> {
           ConfigurationProperty property = propertySource.getConfigurationProperty(name);
           if (property != null) {
             throw new InvalidConfigDataPropertyException(property, true, null, contributor.getResource());
           }
-        }
+        });
       }
     }
   }

@@ -46,11 +46,7 @@ class ConfigDataProperties {
 
   private static final ConfigurationPropertyName NAME = ConfigurationPropertyName.of("context.config");
 
-  private static final ConfigurationPropertyName LEGACY_PROFILES_NAME = ConfigurationPropertyName.of("context.profiles");
-
   private static final Bindable<ConfigDataProperties> BINDABLE_PROPERTIES = Bindable.of(ConfigDataProperties.class);
-
-  private static final Bindable<String[]> BINDABLE_STRING_ARRAY = Bindable.of(String[].class);
 
   private final List<ConfigDataLocation> imports;
 
@@ -97,13 +93,6 @@ class ConfigDataProperties {
     return new ConfigDataProperties(null, this.activate);
   }
 
-  ConfigDataProperties withLegacyProfiles(String[] legacyProfiles, @Nullable ConfigurationProperty property) {
-    if (this.activate != null && ObjectUtils.isNotEmpty(this.activate.onProfile)) {
-      throw new InvalidConfigDataPropertyException(property, false, NAME.append("activate.on-profile"), null);
-    }
-    return new ConfigDataProperties(this.imports, new Activate(this.activate.onCloudPlatform, legacyProfiles));
-  }
-
   /**
    * Factory method used to create {@link ConfigDataProperties} from the given
    * {@link Binder}.
@@ -113,42 +102,14 @@ class ConfigDataProperties {
    */
   @Nullable
   static ConfigDataProperties get(Binder binder) {
-    LegacyProfilesBindHandler legacyProfilesBindHandler = new LegacyProfilesBindHandler();
-    String[] legacyProfiles = binder.bind(LEGACY_PROFILES_NAME, BINDABLE_STRING_ARRAY, legacyProfilesBindHandler).orElse(null);
-    ConfigDataProperties properties = binder.bind(NAME, BINDABLE_PROPERTIES, new ConfigDataLocationBindHandler()).orElse(null);
-    if (ObjectUtils.isNotEmpty(legacyProfiles)) {
-      properties = properties != null
-                   ? properties.withLegacyProfiles(legacyProfiles, legacyProfilesBindHandler.getProperty())
-                   : new ConfigDataProperties(null, new Activate(null, legacyProfiles));
-    }
-    return properties;
-  }
-
-  /**
-   * {@link BindHandler} used to check for legacy processing properties.
-   */
-  private static class LegacyProfilesBindHandler implements BindHandler {
-
-    @Nullable
-    private ConfigurationProperty property;
-
-    @Override
-    public Object onSuccess(ConfigurationPropertyName name, Bindable<?> target, BindContext context, Object result) {
-      this.property = context.getConfigurationProperty();
-      return result;
-    }
-
-    @Nullable
-    ConfigurationProperty getProperty() {
-      return this.property;
-    }
-
+    return binder.bind(NAME, BINDABLE_PROPERTIES, new ConfigDataLocationBindHandler()).orElse(null);
   }
 
   /**
    * Activate properties used to determine when a config data property source is active.
    */
   static class Activate {
+
     @Nullable
     private final CloudPlatform onCloudPlatform;
 

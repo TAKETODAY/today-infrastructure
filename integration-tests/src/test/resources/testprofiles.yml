@@ -3,12 +3,10 @@ my:
   property: fromyamlfile
   other: notempty
 ---
-context:
-  profiles: dev
+context.config.activate.on-profile: dev
 my:
   property: fromdevprofile
 ---
-context:
-  profiles: other
+context.config.activate.on-profile: other
 my:
   property: fromotherprofile
