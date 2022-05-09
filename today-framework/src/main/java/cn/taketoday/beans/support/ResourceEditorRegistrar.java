@@ -49,6 +49,7 @@ import cn.taketoday.core.io.Resource;
 import cn.taketoday.core.io.ResourceArrayPropertyEditor;
 import cn.taketoday.core.io.ResourceEditor;
 import cn.taketoday.core.io.ResourceLoader;
+import cn.taketoday.core.io.WritableResource;
 
 /**
  * PropertyEditorRegistrar implementation that populates a given
@@ -107,6 +108,7 @@ public class ResourceEditorRegistrar implements PropertyEditorRegistrar {
     ResourceEditor baseEditor = new ResourceEditor(this.resourceLoader, this.propertyResolver);
     doRegisterEditor(registry, Resource.class, baseEditor);
     doRegisterEditor(registry, ContextResource.class, baseEditor);
+    doRegisterEditor(registry, WritableResource.class, baseEditor);
     doRegisterEditor(registry, InputStream.class, new InputStreamEditor(baseEditor));
     doRegisterEditor(registry, InputSource.class, new InputSourceEditor(baseEditor));
     doRegisterEditor(registry, File.class, new FileEditor(baseEditor));
