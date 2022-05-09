@@ -378,23 +378,37 @@ public abstract class ObjectUtils {
    * @return the new array (of the same component type; never {@code null})
    * @since 3.0
    */
-  @NonNull
-  public static <A, O extends A> A[] addObjectToArray(@Nullable A[] array, O obj) {
-    Class<?> compType = Object.class;
+  public static <A, O extends A> A[] addObjectToArray(@Nullable A[] array, @Nullable O obj) {
+    return addObjectToArray(array, obj, (array != null ? array.length : 0));
+  }
+
+  /**
+   * Add the given object to the given array at the specified position, returning
+   * a new array consisting of the input array contents plus the given object.
+   *
+   * @param array the array to add to (can be {@code null})
+   * @param obj the object to append
+   * @param position the position at which to add the object
+   * @return the new array (of the same component type; never {@code null})
+   * @since 4.0
+   */
+  public static <A, O extends A> A[] addObjectToArray(@Nullable A[] array, @Nullable O obj, int position) {
+    Class<?> componentType = Object.class;
     if (array != null) {
-      compType = array.getClass().getComponentType();
+      componentType = array.getClass().getComponentType();
     }
     else if (obj != null) {
-      compType = obj.getClass();
+      componentType = obj.getClass();
     }
-    int newArrLength = (array != null ? array.length + 1 : 1);
+    int newArrayLength = (array != null ? array.length + 1 : 1);
     @SuppressWarnings("unchecked")
-    A[] newArr = (A[]) Array.newInstance(compType, newArrLength);
+    A[] newArray = (A[]) Array.newInstance(componentType, newArrayLength);
     if (array != null) {
-      System.arraycopy(array, 0, newArr, 0, array.length);
+      System.arraycopy(array, 0, newArray, 0, position);
+      System.arraycopy(array, position, newArray, position + 1, array.length - position);
     }
-    newArr[newArr.length - 1] = obj;
-    return newArr;
+    newArray[position] = obj;
+    return newArray;
   }
 
   /**

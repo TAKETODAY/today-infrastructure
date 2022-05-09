@@ -306,6 +306,15 @@ class ObjectUtilsTest {
   }
 
   @Test
+  void addObjectToArraysAtPosition() {
+    String[] array = new String[] { "foo", "bar", "baz" };
+    assertThat(ObjectUtils.addObjectToArray(array, "bat", 3)).containsExactly("foo", "bar", "baz", "bat");
+    assertThat(ObjectUtils.addObjectToArray(array, "bat", 2)).containsExactly("foo", "bar", "bat", "baz");
+    assertThat(ObjectUtils.addObjectToArray(array, "bat", 1)).containsExactly("foo", "bat", "bar", "baz");
+    assertThat(ObjectUtils.addObjectToArray(array, "bat", 0)).containsExactly("bat", "foo", "bar", "baz");
+  }
+
+  @Test
   void addObjectToArrayWhenEmpty() {
     String[] array = new String[0];
     String newElement = "foo";
