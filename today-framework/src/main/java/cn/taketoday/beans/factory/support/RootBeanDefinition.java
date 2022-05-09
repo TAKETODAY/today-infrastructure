@@ -160,6 +160,16 @@ public class RootBeanDefinition extends AbstractBeanDefinition {
   }
 
   /**
+   * Create a new RootBeanDefinition for a singleton.
+   *
+   * @param beanType the type of bean to instantiate
+   * @see #setTargetType(ResolvableType)
+   */
+  public RootBeanDefinition(@Nullable ResolvableType beanType) {
+    setTargetType(beanType);
+  }
+
+  /**
    * Create a new RootBeanDefinition for a singleton bean, constructing each instance
    * through calling the given supplier (possibly a lambda or method reference).
    *

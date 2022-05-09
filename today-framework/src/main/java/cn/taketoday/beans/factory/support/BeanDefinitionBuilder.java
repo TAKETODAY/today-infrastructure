@@ -382,8 +382,7 @@ public class BeanDefinitionBuilder {
    * @param instanceSupplier a callback for creating an instance of the bean
    */
   public static <T> BeanDefinitionBuilder rootBeanDefinition(ResolvableType beanType, Supplier<T> instanceSupplier) {
-    RootBeanDefinition beanDefinition = new RootBeanDefinition();
-    beanDefinition.setTargetType(beanType);
+    RootBeanDefinition beanDefinition = new RootBeanDefinition(beanType);
     beanDefinition.setInstanceSupplier(instanceSupplier);
     return new BeanDefinitionBuilder(beanDefinition);
   }
