@@ -32,6 +32,7 @@ import java.util.function.Consumer;
 import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
+import cn.taketoday.core.annotation.AliasFor;
 import cn.taketoday.core.env.ConfigurableEnvironment;
 import cn.taketoday.core.env.StandardEnvironment;
 import cn.taketoday.framework.ApplicationType;
@@ -250,6 +251,31 @@ class ConditionalOnPropertyTests {
     assertThat(this.context.containsBean("foo")).isTrue();
   }
 
+  @Test
+  void metaAnnotationWithAliasConditionMatchesWhenPropertyIsSet() {
+    load(MetaAnnotationWithAlias.class, "my.feature.enabled=true");
+    assertThat(this.context.containsBean("foo")).isTrue();
+  }
+
+  @Test
+  void metaAndDirectAnnotationWithAliasConditionDoesNotMatchWhenOnlyMetaPropertyIsSet() {
+    load(MetaAnnotationAndDirectAnnotationWithAlias.class, "my.feature.enabled=true");
+    assertThat(this.context.containsBean("foo")).isFalse();
+  }
+
+  @Test
+  void metaAndDirectAnnotationWithAliasConditionDoesNotMatchWhenOnlyDirectPropertyIsSet() {
+    load(MetaAnnotationAndDirectAnnotationWithAlias.class, "my.other.feature.enabled=true");
+    assertThat(this.context.containsBean("foo")).isFalse();
+  }
+
+  @Test
+  void metaAndDirectAnnotationWithAliasConditionMatchesWhenBothPropertiesAreSet() {
+    load(MetaAnnotationAndDirectAnnotationWithAlias.class, "my.feature.enabled=true",
+            "my.other.feature.enabled=true");
+    assertThat(this.context.containsBean("foo")).isTrue();
+  }
+
   private void load(Class<?> config, String... environment) {
     TestPropertyValues.of(environment).applyTo(this.environment);
     this.context = new ApplicationBuilder(config).environment(this.environment).type(ApplicationType.NONE_WEB)
@@ -417,6 +443,39 @@ class ConditionalOnPropertyTests {
   @Target({ ElementType.TYPE, ElementType.METHOD })
   @ConditionalOnProperty(prefix = "my.feature", name = "enabled", havingValue = "true")
   @interface ConditionalOnMyFeature {
+
+  }
+
+  @Configuration(proxyBeanMethods = false)
+  @ConditionalOnMyFeatureWithAlias("my.feature")
+  static class MetaAnnotationWithAlias {
+
+    @Bean
+    String foo() {
+      return "foo";
+    }
+
+  }
+
+  @Configuration(proxyBeanMethods = false)
+  @ConditionalOnMyFeatureWithAlias("my.feature")
+  @ConditionalOnProperty(prefix = "my.other.feature", name = "enabled", havingValue = "true")
+  static class MetaAnnotationAndDirectAnnotationWithAlias {
+
+    @Bean
+    String foo() {
+      return "foo";
+    }
+
+  }
+
+  @Retention(RetentionPolicy.RUNTIME)
+  @Target({ ElementType.TYPE, ElementType.METHOD })
+  @ConditionalOnProperty(name = "enabled", havingValue = "true")
+  @interface ConditionalOnMyFeatureWithAlias {
+
+    @AliasFor(annotation = ConditionalOnProperty.class, attribute = "prefix")
+    String value();
 
   }
 

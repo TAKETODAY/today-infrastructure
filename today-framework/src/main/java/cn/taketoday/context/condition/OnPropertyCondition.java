@@ -24,14 +24,16 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import cn.taketoday.context.annotation.Condition;
 import cn.taketoday.context.annotation.ConditionEvaluationContext;
 import cn.taketoday.context.condition.ConditionMessage.Style;
 import cn.taketoday.core.MultiValueMap;
-import cn.taketoday.core.annotation.Order;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.annotation.AnnotationAttributes;
+import cn.taketoday.core.annotation.MergedAnnotation;
+import cn.taketoday.core.annotation.MergedAnnotationPredicates;
 import cn.taketoday.core.env.PropertyResolver;
 import cn.taketoday.core.type.AnnotatedTypeMetadata;
 import cn.taketoday.lang.Assert;
@@ -48,14 +50,20 @@ import cn.taketoday.util.StringUtils;
  * @see ConditionalOnProperty
  * @since 4.0 2022/1/16 17:52
  */
-@Order(Ordered.HIGHEST_PRECEDENCE + 40)
-class OnPropertyCondition extends ContextCondition {
+class OnPropertyCondition extends ContextCondition implements Ordered {
+
+  @Override
+  public int getOrder() {
+    return HIGHEST_PRECEDENCE + 40;
+  }
 
   @Override
   public ConditionOutcome getMatchOutcome(
           ConditionEvaluationContext context, AnnotatedTypeMetadata metadata) {
-    List<AnnotationAttributes> allAnnotationAttributes = annotationAttributesFromMultiValueMap(
-            metadata.getAllAnnotationAttributes(ConditionalOnProperty.class.getName()));
+    List<AnnotationAttributes> allAnnotationAttributes = metadata.getAnnotations()
+            .stream(ConditionalOnProperty.class)
+            .filter(MergedAnnotationPredicates.unique(MergedAnnotation::getMetaTypes))
+            .map(MergedAnnotation::asAnnotationAttributes).toList();
     List<ConditionMessage> noMatch = new ArrayList<>();
     List<ConditionMessage> match = new ArrayList<>();
     for (AnnotationAttributes annotationAttributes : allAnnotationAttributes) {
@@ -66,32 +74,6 @@ class OnPropertyCondition extends ContextCondition {
       return ConditionOutcome.noMatch(ConditionMessage.of(noMatch));
     }
     return ConditionOutcome.match(ConditionMessage.of(match));
-  }
-
-  private List<AnnotationAttributes> annotationAttributesFromMultiValueMap(
-          MultiValueMap<String, Object> multiValueMap) {
-    List<Map<String, Object>> maps = new ArrayList<>();
-    for (Map.Entry<String, List<Object>> entry : multiValueMap.entrySet()) {
-      String key = entry.getKey();
-      List<Object> value = entry.getValue();
-      for (int i = 0; i < value.size(); i++) {
-        Map<String, Object> map;
-        if (i < maps.size()) {
-          map = maps.get(i);
-        }
-        else {
-          map = new HashMap<>();
-          maps.add(map);
-        }
-        map.put(key, value.get(i));
-      }
-    }
-
-    List<AnnotationAttributes> annotationAttributes = new ArrayList<>(maps.size());
-    for (Map<String, Object> map : maps) {
-      annotationAttributes.add(AnnotationAttributes.fromMap(map));
-    }
-    return annotationAttributes;
   }
 
   private ConditionOutcome determineOutcome(AnnotationAttributes annotationAttributes, PropertyResolver resolver) {
