@@ -29,6 +29,7 @@ import java.util.function.Supplier;
 
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.function.SingletonSupplier;
 
 /**
  * Utility that can be used to map values from a supplied source to a destination.

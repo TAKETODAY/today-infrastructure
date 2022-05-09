@@ -53,9 +53,9 @@ import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.ReflectionUtils;
-import cn.taketoday.util.SingletonSupplier;
+import cn.taketoday.util.function.SingletonSupplier;
 import cn.taketoday.util.StringUtils;
-import cn.taketoday.util.SupplierUtils;
+import cn.taketoday.util.function.SupplierUtils;
 
 /**
  * Base class for caching aspects, such as the {@link CacheInterceptor} or an

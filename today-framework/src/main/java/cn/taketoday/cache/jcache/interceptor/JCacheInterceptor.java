@@ -33,7 +33,7 @@ import cn.taketoday.cache.interceptor.CacheOperationInvoker;
 import cn.taketoday.cache.interceptor.SimpleCacheErrorHandler;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.SingletonSupplier;
+import cn.taketoday.util.function.SingletonSupplier;
 
 /**
  * AOP Alliance MethodInterceptor for declarative cache

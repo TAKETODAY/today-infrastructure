@@ -30,7 +30,7 @@ import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.core.task.TaskExecutor;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.SingletonSupplier;
+import cn.taketoday.util.function.SingletonSupplier;
 
 /**
  * Bean post-processor that automatically applies asynchronous invocation

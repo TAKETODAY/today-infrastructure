@@ -33,7 +33,7 @@ import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.core.type.AnnotationMetadata;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ObjectUtils;
-import cn.taketoday.util.SingletonSupplier;
+import cn.taketoday.util.function.SingletonSupplier;
 
 /**
  * Abstract base {@code Configuration} class providing common structure for enabling

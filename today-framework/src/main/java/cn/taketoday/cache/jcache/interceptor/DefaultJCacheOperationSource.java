@@ -38,8 +38,8 @@ import cn.taketoday.cache.interceptor.SimpleCacheResolver;
 import cn.taketoday.cache.interceptor.SimpleKeyGenerator;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.SingletonSupplier;
-import cn.taketoday.util.SupplierUtils;
+import cn.taketoday.util.function.SingletonSupplier;
+import cn.taketoday.util.function.SupplierUtils;
 
 /**
  * The default {@link JCacheOperationSource} implementation delegating

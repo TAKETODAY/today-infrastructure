@@ -40,7 +40,7 @@ import cn.taketoday.beans.factory.BeanFactoryAware;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
-import cn.taketoday.util.SingletonSupplier;
+import cn.taketoday.util.function.SingletonSupplier;
 
 /**
  * Advisor that activates asynchronous method execution through the {@link Async}

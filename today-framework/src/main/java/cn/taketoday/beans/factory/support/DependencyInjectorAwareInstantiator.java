@@ -36,7 +36,7 @@ import cn.taketoday.core.ConstructorNotFoundException;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Experimental;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.SingletonSupplier;
+import cn.taketoday.util.function.SingletonSupplier;
 
 /**
  * provide Bean Constructor Arguments resolving

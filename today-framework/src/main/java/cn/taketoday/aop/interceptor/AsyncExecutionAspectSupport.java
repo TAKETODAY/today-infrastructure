@@ -44,7 +44,7 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ReflectionUtils;
-import cn.taketoday.util.SingletonSupplier;
+import cn.taketoday.util.function.SingletonSupplier;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.util.concurrent.ListenableFuture;
 

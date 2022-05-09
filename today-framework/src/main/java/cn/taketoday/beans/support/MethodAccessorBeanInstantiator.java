@@ -22,7 +22,7 @@ package cn.taketoday.beans.support;
 import java.util.function.Supplier;
 
 import cn.taketoday.core.reflect.MethodAccessor;
-import cn.taketoday.util.SingletonSupplier;
+import cn.taketoday.util.function.SingletonSupplier;
 
 /**
  * @author TODAY 2020/9/20 20:41

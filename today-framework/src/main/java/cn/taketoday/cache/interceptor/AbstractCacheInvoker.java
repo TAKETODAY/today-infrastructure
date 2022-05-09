@@ -22,7 +22,7 @@ package cn.taketoday.cache.interceptor;
 
 import cn.taketoday.cache.Cache;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.SingletonSupplier;
+import cn.taketoday.util.function.SingletonSupplier;
 
 /**
  * A base component for invoking {@link Cache} operations and using a

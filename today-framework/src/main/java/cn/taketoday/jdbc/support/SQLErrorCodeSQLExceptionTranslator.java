@@ -39,7 +39,7 @@ import cn.taketoday.dao.TransientDataAccessResourceException;
 import cn.taketoday.jdbc.BadSqlGrammarException;
 import cn.taketoday.jdbc.InvalidResultSetAccessException;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.SingletonSupplier;
+import cn.taketoday.util.function.SingletonSupplier;
 
 /**
  * Implementation of {@link SQLExceptionTranslator} that analyzes vendor-specific error codes.
