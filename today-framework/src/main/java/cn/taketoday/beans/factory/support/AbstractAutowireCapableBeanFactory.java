@@ -88,6 +88,7 @@ import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.util.StringUtils;
+import cn.taketoday.util.function.ThrowingSupplier;
 
 /**
  * Abstract bean factory superclass that implements default bean creation,
@@ -750,27 +751,41 @@ public abstract class AbstractAutowireCapableBeanFactory
    * @since 4.0
    */
   protected BeanWrapper obtainFromSupplier(RootBeanDefinition merged, Supplier<?> instanceSupplier, String beanName) {
-    Object instance;
-
-    String outerBean = this.currentlyCreatedBean.get();
-    this.currentlyCreatedBean.set(beanName);
-    try {
-      instance = instanceSupplier.get();
-    }
-    finally {
-      if (outerBean != null) {
-        this.currentlyCreatedBean.set(outerBean);
-      }
-      else {
-        this.currentlyCreatedBean.remove();
-      }
-    }
-
+    Object instance = obtainInstanceFromSupplier(instanceSupplier, beanName);
     if (instance == null) {
       instance = NullValue.INSTANCE;
     }
 
     return createBeanWrapper(merged, instance);
+  }
+
+  private Object obtainInstanceFromSupplier(Supplier<?> supplier, String beanName) {
+    String outerBean = currentlyCreatedBean.get();
+    currentlyCreatedBean.set(beanName);
+    try {
+      if (supplier instanceof InstanceSupplier<?> instanceSupplier) {
+        return instanceSupplier.get(RegisteredBean.of(this, beanName));
+      }
+      if (supplier instanceof ThrowingSupplier<?> throwableSupplier) {
+        return throwableSupplier.getWithException();
+      }
+      return supplier.get();
+    }
+    catch (Throwable ex) {
+      if (ex instanceof BeansException beansException) {
+        throw beansException;
+      }
+      throw new BeanCreationException(beanName,
+              "Instantiation of supplied bean failed", ex);
+    }
+    finally {
+      if (outerBean != null) {
+        currentlyCreatedBean.set(outerBean);
+      }
+      else {
+        currentlyCreatedBean.remove();
+      }
+    }
   }
 
   /**

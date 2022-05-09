@@ -27,8 +27,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.function.BiFunction;
 
 import cn.taketoday.beans.BeanMetadataElement;
+import cn.taketoday.beans.BeanWrapper;
+import cn.taketoday.beans.BeanWrapperImpl;
 import cn.taketoday.beans.BeansException;
 import cn.taketoday.beans.TypeConverter;
 import cn.taketoday.beans.factory.BeanCreationException;
@@ -89,6 +92,25 @@ class BeanDefinitionValueResolver {
     this.beanName = beanName;
     this.beanDefinition = beanDefinition;
     this.typeConverter = typeConverter;
+  }
+
+  /**
+   * Create a BeanDefinitionValueResolver for the given BeanFactory and BeanDefinition
+   * using a default {@link TypeConverter}.
+   *
+   * @param beanFactory the BeanFactory to resolve against
+   * @param beanName the name of the bean that we work on
+   * @param beanDefinition the BeanDefinition of the bean that we work on
+   */
+  public BeanDefinitionValueResolver(AbstractAutowireCapableBeanFactory beanFactory, String beanName,
+          BeanDefinition beanDefinition) {
+
+    this.beanFactory = beanFactory;
+    this.beanName = beanName;
+    this.beanDefinition = beanDefinition;
+    BeanWrapper beanWrapper = new BeanWrapperImpl();
+    beanFactory.initBeanWrapper(beanWrapper);
+    this.typeConverter = beanWrapper;
   }
 
   /**
@@ -157,7 +179,7 @@ class BeanDefinitionValueResolver {
         try {
           Class<?> resolvedTargetType = resolveTargetType(typedStringValue);
           if (resolvedTargetType != null) {
-            return convertIfNecessary(valueObject, resolvedTargetType);
+            return typeConverter.convertIfNecessary(valueObject, resolvedTargetType);
           }
           else {
             return valueObject;
@@ -232,8 +254,24 @@ class BeanDefinitionValueResolver {
     return evaluate(value);
   }
 
-  private Object convertIfNecessary(Object source, Class<?> targetType) {
-    return this.typeConverter.convertIfNecessary(source, targetType);
+  /**
+   * Resolve an inner bean definition and invoke the specified {@code resolver}
+   * on its merged bean definition.
+   *
+   * @param innerBeanName the inner bean name (or {@code null} to assign one)
+   * @param innerBd the inner raw bean definition
+   * @param resolver the function to invoke to resolve
+   * @param <T> the type of the resolution
+   * @return a resolved inner bean, as a result of applying the {@code resolver}
+   */
+  public <T> T resolveInnerBean(@Nullable String innerBeanName,
+          BeanDefinition innerBd, BiFunction<String, RootBeanDefinition, T> resolver) {
+    if (innerBeanName == null) {
+      innerBeanName = "(inner bean)";
+    }
+    innerBeanName = innerBeanName + BeanFactoryUtils.GENERATED_BEAN_NAME_SEPARATOR + ObjectUtils.getIdentityHexString(innerBd);
+    return resolver.apply(innerBeanName, this.beanFactory.getMergedBeanDefinition(
+            innerBeanName, innerBd, this.beanDefinition));
   }
 
   /**
