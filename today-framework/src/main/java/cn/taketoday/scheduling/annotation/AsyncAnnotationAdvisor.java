@@ -101,13 +101,21 @@ public class AsyncAnnotationAdvisor extends AbstractPointcutAdvisor implements B
 
     Set<Class<? extends Annotation>> asyncAnnotationTypes = new LinkedHashSet<>(2);
     asyncAnnotationTypes.add(Async.class);
+
+    ClassLoader classLoader = AsyncAnnotationAdvisor.class.getClassLoader();
     try {
-      asyncAnnotationTypes.add(
-              ClassUtils.forName("jakarta.ejb.Asynchronous", AsyncAnnotationAdvisor.class.getClassLoader()));
+      asyncAnnotationTypes.add(ClassUtils.forName("jakarta.ejb.Asynchronous", classLoader));
     }
     catch (ClassNotFoundException ex) {
-      // If EJB 3.1 API not present, simply ignore.
+      // If EJB API not present, simply ignore.
     }
+    try {
+      asyncAnnotationTypes.add(ClassUtils.forName("jakarta.enterprise.concurrent.Asynchronous", classLoader));
+    }
+    catch (ClassNotFoundException ex) {
+      // If Jakarta Concurrent API not present, simply ignore.
+    }
+
     this.advice = buildAdvice(executor, exceptionHandler);
     this.pointcut = buildPointcut(asyncAnnotationTypes);
   }
