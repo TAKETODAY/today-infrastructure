@@ -123,8 +123,7 @@ public class HibernateTemplate implements HibernateOperations, InitializingBean 
   /**
    * Create a new HibernateTemplate instance.
    */
-  public HibernateTemplate() {
-  }
+  public HibernateTemplate() { }
 
   /**
    * Create a new HibernateTemplate instance.
@@ -377,8 +376,8 @@ public class HibernateTemplate implements HibernateOperations, InitializingBean 
 
     try {
       enableFilters(session);
-      Session sessionToExpose =
-              (enforceNativeSession || isExposeNativeSession() ? session : createSessionProxy(session));
+      Session sessionToExpose = enforceNativeSession || isExposeNativeSession()
+                                ? session : createSessionProxy(session);
       return action.doInHibernate(sessionToExpose);
     }
     catch (HibernateException ex) {
@@ -883,7 +882,6 @@ public class HibernateTemplate implements HibernateOperations, InitializingBean 
   // Convenience finder methods for HQL strings
   //-------------------------------------------------------------------------
 
-  @Deprecated
   @Override
   public List<?> find(String queryString, @Nullable Object... values) throws DataAccessException {
     return nonNull(executeWithNativeSession((HibernateCallback<List<?>>) session -> {
@@ -898,7 +896,6 @@ public class HibernateTemplate implements HibernateOperations, InitializingBean 
     }));
   }
 
-  @Deprecated
   @Override
   public List<?> findByNamedParam(String queryString, String paramName, Object value)
           throws DataAccessException {
@@ -906,7 +903,6 @@ public class HibernateTemplate implements HibernateOperations, InitializingBean 
     return findByNamedParam(queryString, new String[] { paramName }, new Object[] { value });
   }
 
-  @Deprecated
   @Override
   public List<?> findByNamedParam(String queryString, String[] paramNames, Object[] values)
           throws DataAccessException {
@@ -924,7 +920,6 @@ public class HibernateTemplate implements HibernateOperations, InitializingBean 
     }));
   }
 
-  @Deprecated
   @Override
   public List<?> findByValueBean(String queryString, Object valueBean) throws DataAccessException {
     return nonNull(executeWithNativeSession((HibernateCallback<List<?>>) session -> {
@@ -939,7 +934,6 @@ public class HibernateTemplate implements HibernateOperations, InitializingBean 
   // Convenience finder methods for named queries
   //-------------------------------------------------------------------------
 
-  @Deprecated
   @Override
   public List<?> findByNamedQuery(String queryName, @Nullable Object... values) throws DataAccessException {
     return nonNull(executeWithNativeSession((HibernateCallback<List<?>>) session -> {
@@ -954,7 +948,6 @@ public class HibernateTemplate implements HibernateOperations, InitializingBean 
     }));
   }
 
-  @Deprecated
   @Override
   public List<?> findByNamedQueryAndNamedParam(String queryName, String paramName, Object value)
           throws DataAccessException {
@@ -962,7 +955,6 @@ public class HibernateTemplate implements HibernateOperations, InitializingBean 
     return findByNamedQueryAndNamedParam(queryName, new String[] { paramName }, new Object[] { value });
   }
 
-  @Deprecated
   @Override
   public List<?> findByNamedQueryAndNamedParam(
           String queryName, @Nullable String[] paramNames, @Nullable Object[] values)
@@ -983,7 +975,6 @@ public class HibernateTemplate implements HibernateOperations, InitializingBean 
     }));
   }
 
-  @Deprecated
   @Override
   public List<?> findByNamedQueryAndValueBean(String queryName, Object valueBean) throws DataAccessException {
     return nonNull(executeWithNativeSession((HibernateCallback<List<?>>) session -> {
@@ -998,7 +989,6 @@ public class HibernateTemplate implements HibernateOperations, InitializingBean 
   // Convenience query methods for iteration and bulk updates/deletes
   //-------------------------------------------------------------------------
 
-  @Deprecated
   @Override
   public Iterator<?> iterate(String queryString, @Nullable Object... values) throws DataAccessException {
     return nonNull(executeWithNativeSession((HibernateCallback<Iterator<?>>) session -> {
@@ -1013,7 +1003,6 @@ public class HibernateTemplate implements HibernateOperations, InitializingBean 
     }));
   }
 
-  @Deprecated
   @Override
   public void closeIterator(Iterator<?> it) throws DataAccessException {
     try {
@@ -1024,7 +1013,6 @@ public class HibernateTemplate implements HibernateOperations, InitializingBean 
     }
   }
 
-  @Deprecated
   @Override
   public int bulkUpdate(String queryString, @Nullable Object... values) throws DataAccessException {
     Integer result = executeWithNativeSession(session -> {

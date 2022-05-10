@@ -732,10 +732,7 @@ public interface HibernateOperations {
    * @return a {@link List} containing the results of the query execution
    * @throws DataAccessException in case of Hibernate errors
    * @see org.hibernate.Session#createQuery
-   * @deprecated as of 5.0.4, in favor of a custom {@link HibernateCallback}
-   * lambda code block passed to the general {@link #execute} method
    */
-  @Deprecated
   List<?> find(String queryString, Object... values) throws DataAccessException;
 
   /**
@@ -748,10 +745,7 @@ public interface HibernateOperations {
    * @return a {@link List} containing the results of the query execution
    * @throws DataAccessException in case of Hibernate errors
    * @see org.hibernate.Session#getNamedQuery(String)
-   * @deprecated as of 5.0.4, in favor of a custom {@link HibernateCallback}
-   * lambda code block passed to the general {@link #execute} method
    */
-  @Deprecated
   List<?> findByNamedParam(String queryString, String paramName, Object value) throws DataAccessException;
 
   /**
@@ -764,10 +758,7 @@ public interface HibernateOperations {
    * @return a {@link List} containing the results of the query execution
    * @throws DataAccessException in case of Hibernate errors
    * @see org.hibernate.Session#getNamedQuery(String)
-   * @deprecated as of 5.0.4, in favor of a custom {@link HibernateCallback}
-   * lambda code block passed to the general {@link #execute} method
    */
-  @Deprecated
   List<?> findByNamedParam(String queryString, String[] paramNames, Object[] values) throws DataAccessException;
 
   /**
@@ -780,10 +771,7 @@ public interface HibernateOperations {
    * @throws DataAccessException in case of Hibernate errors
    * @see org.hibernate.Query#setProperties
    * @see org.hibernate.Session#createQuery
-   * @deprecated as of 5.0.4, in favor of a custom {@link HibernateCallback}
-   * lambda code block passed to the general {@link #execute} method
    */
-  @Deprecated
   List<?> findByValueBean(String queryString, Object valueBean) throws DataAccessException;
 
   //-------------------------------------------------------------------------
@@ -800,10 +788,7 @@ public interface HibernateOperations {
    * @return a {@link List} containing the results of the query execution
    * @throws DataAccessException in case of Hibernate errors
    * @see org.hibernate.Session#getNamedQuery(String)
-   * @deprecated as of 5.0.4, in favor of a custom {@link HibernateCallback}
-   * lambda code block passed to the general {@link #execute} method
    */
-  @Deprecated
   List<?> findByNamedQuery(String queryName, Object... values) throws DataAccessException;
 
   /**
@@ -817,10 +802,7 @@ public interface HibernateOperations {
    * @return a {@link List} containing the results of the query execution
    * @throws DataAccessException in case of Hibernate errors
    * @see org.hibernate.Session#getNamedQuery(String)
-   * @deprecated as of 5.0.4, in favor of a custom {@link HibernateCallback}
-   * lambda code block passed to the general {@link #execute} method
    */
-  @Deprecated
   List<?> findByNamedQueryAndNamedParam(String queryName, String paramName, Object value)
           throws DataAccessException;
 
@@ -835,10 +817,7 @@ public interface HibernateOperations {
    * @return a {@link List} containing the results of the query execution
    * @throws DataAccessException in case of Hibernate errors
    * @see org.hibernate.Session#getNamedQuery(String)
-   * @deprecated as of 5.0.4, in favor of a custom {@link HibernateCallback}
-   * lambda code block passed to the general {@link #execute} method
    */
-  @Deprecated
   List<?> findByNamedQueryAndNamedParam(String queryName, String[] paramNames, Object[] values)
           throws DataAccessException;
 
@@ -853,10 +832,7 @@ public interface HibernateOperations {
    * @throws DataAccessException in case of Hibernate errors
    * @see org.hibernate.Query#setProperties
    * @see org.hibernate.Session#getNamedQuery(String)
-   * @deprecated as of 5.0.4, in favor of a custom {@link HibernateCallback}
-   * lambda code block passed to the general {@link #execute} method
    */
-  @Deprecated
   List<?> findByNamedQueryAndValueBean(String queryName, Object valueBean) throws DataAccessException;
 
   //-------------------------------------------------------------------------
@@ -875,10 +851,7 @@ public interface HibernateOperations {
    * @throws DataAccessException in case of Hibernate errors
    * @see org.hibernate.Session#createQuery
    * @see org.hibernate.Query#iterate
-   * @deprecated as of 5.0.4, in favor of a custom {@link HibernateCallback}
-   * lambda code block passed to the general {@link #execute} method
    */
-  @Deprecated
   Iterator<?> iterate(String queryString, Object... values) throws DataAccessException;
 
   /**
@@ -889,10 +862,7 @@ public interface HibernateOperations {
    * @param it the {@code Iterator} to close
    * @throws DataAccessException if the {@code Iterator} could not be closed
    * @see org.hibernate.Hibernate#close
-   * @deprecated as of 5.0.4, in favor of a custom {@link HibernateCallback}
-   * lambda code block passed to the general {@link #execute} method
    */
-  @Deprecated
   void closeIterator(Iterator<?> it) throws DataAccessException;
 
   /**
@@ -905,10 +875,7 @@ public interface HibernateOperations {
    * @throws DataAccessException in case of Hibernate errors
    * @see org.hibernate.Session#createQuery
    * @see org.hibernate.Query#executeUpdate
-   * @deprecated as of 5.0.4, in favor of a custom {@link HibernateCallback}
-   * lambda code block passed to the general {@link #execute} method
    */
-  @Deprecated
   int bulkUpdate(String queryString, Object... values) throws DataAccessException;
 
 }

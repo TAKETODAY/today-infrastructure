@@ -79,7 +79,7 @@ import cn.taketoday.util.ConcurrentReferenceHashMap;
  */
 public final class HibernateBeanContainer implements BeanContainer {
 
-  private static final Logger logger = LoggerFactory.getLogger(HibernateBeanContainer.class);
+  private static final Logger log = LoggerFactory.getLogger(HibernateBeanContainer.class);
 
   private final ConfigurableBeanFactory beanFactory;
 
@@ -152,14 +152,14 @@ public final class HibernateBeanContainer implements BeanContainer {
       }
     }
     catch (BeansException ex) {
-      logger.debug("Falling back to Hibernate's default producer after bean creation failure for {}: {}",
+      log.debug("Falling back to Hibernate's default producer after bean creation failure for {}: {}",
               beanType, ex.toString());
       try {
         return new HibernateContainedBean<>(fallbackProducer.produceBeanInstance(beanType));
       }
       catch (RuntimeException ex2) {
         if (ex instanceof BeanCreationException) {
-          logger.debug("Fallback producer failed for {}: {}", beanType, ex2.toString());
+          log.debug("Fallback producer failed for {}: {}", beanType, ex2.toString());
           // Rethrow original Framework exception from first attempt.
           throw ex;
         }
@@ -186,14 +186,14 @@ public final class HibernateBeanContainer implements BeanContainer {
       }
     }
     catch (BeansException ex) {
-      logger.debug("Falling back to Hibernate's default producer after bean creation failure for {} with name '{}': {}",
+      log.debug("Falling back to Hibernate's default producer after bean creation failure for {} with name '{}': {}",
               name, beanType, ex.toString());
       try {
         return new HibernateContainedBean<>(fallbackProducer.produceBeanInstance(name, beanType));
       }
       catch (RuntimeException ex2) {
         if (ex instanceof BeanCreationException) {
-          logger.debug("Fallback producer failed for {} with name '{}}': {}", beanType, name, ex2.toString());
+          log.debug("Fallback producer failed for {} with name '{}}': {}", beanType, name, ex2.toString());
           // Rethrow original Framework exception from first attempt.
           throw ex;
         }
