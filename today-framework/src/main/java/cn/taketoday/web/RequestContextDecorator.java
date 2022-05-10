@@ -43,6 +43,7 @@ import cn.taketoday.http.HttpCookie;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpMethod;
 import cn.taketoday.http.HttpStatus;
+import cn.taketoday.http.HttpStatusCode;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.NonNull;
 import cn.taketoday.lang.Nullable;
@@ -331,7 +332,7 @@ public class RequestContextDecorator extends RequestContext {
   }
 
   @Override
-  public void setStatus(HttpStatus status) {
+  public void setStatus(HttpStatusCode status) {
     delegate.setStatus(status);
   }
 

@@ -75,15 +75,11 @@ public interface SessionRepository {
    * Update the last accessed timestamp to "now".
    *
    * @param webSession the session to update
-   * @return the session with the updated last access time
    * @since 4.0
    */
-  WebSession updateLastAccessTime(WebSession webSession);
+  void updateLastAccessTime(WebSession webSession);
 
   boolean contains(String id);
-
-  @Deprecated
-  void storeSession(String id, WebSession session);
 
   /**
    * @return the count of sessions

@@ -110,6 +110,13 @@ public interface WebSession extends AttributeAccessor {
   Instant getLastAccessTime();
 
   /**
+   * Sets the last accessed time.
+   *
+   * @param lastAccessTime the last accessed time
+   */
+  void setLastAccessTime(Instant lastAccessTime);
+
+  /**
    * Configure the max amount of time that may elapse after the
    * {@link #getLastAccessTime() lastAccessTime} before a session is considered
    * expired. A negative value indicates the session should not expire.

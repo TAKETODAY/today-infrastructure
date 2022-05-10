@@ -74,10 +74,6 @@ class DefaultWebSessionManagerTests {
       assertThat(sessionStorage.contains(sessionId)).isTrue();
       sessionStorage.removeSession(sessionId);
       assertThat(sessionStorage.contains(sessionId)).isFalse();
-
-      // WebSessionStorage#store
-      sessionStorage.storeSession(sessionId, createdSession);
-      assertThat(sessionStorage.contains(sessionId)).isTrue();
     }
 
   }

@@ -162,20 +162,13 @@ public class MemSessionRepository implements SessionRepository {
   }
 
   @Override
-  public WebSession updateLastAccessTime(WebSession session) {
-    Assert.isInstanceOf(InMemoryWebSession.class, session);
-    ((InMemoryWebSession) session).updateLastAccessTime(clock.instant());
-    return session;
+  public void updateLastAccessTime(WebSession session) {
+    session.setLastAccessTime(clock.instant());
   }
 
   @Override
   public boolean contains(String id) {
     return sessions.containsKey(id);
-  }
-
-  @Override
-  public void storeSession(String id, WebSession session) {
-    sessions.put(id, (InMemoryWebSession) session);
   }
 
   /**
@@ -224,6 +217,11 @@ public class MemSessionRepository implements SessionRepository {
     @Override
     public Instant getLastAccessTime() {
       return lastAccessTime;
+    }
+
+    @Override
+    public void setLastAccessTime(Instant lastAccessTime) {
+      this.lastAccessTime = lastAccessTime;
     }
 
     @Override
