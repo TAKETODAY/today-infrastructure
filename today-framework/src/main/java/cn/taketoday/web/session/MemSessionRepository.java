@@ -54,12 +54,10 @@ public class MemSessionRepository implements SessionRepository {
   private final ConcurrentHashMap<String, InMemoryWebSession> sessions = new ConcurrentHashMap<>();
 
   public MemSessionRepository(SessionEventDispatcher eventDispatcher, SessionIdGenerator idGenerator) {
-    this(3600_000, eventDispatcher, idGenerator);
-  }
-
-  public MemSessionRepository(long expire, SessionEventDispatcher eventDispatcher, SessionIdGenerator idGenerator) {
-    this.eventDispatcher = eventDispatcher;
+    Assert.notNull(idGenerator, "SessionIdGenerator is required");
+    Assert.notNull(eventDispatcher, "SessionEventDispatcher is required");
     this.idGenerator = idGenerator;
+    this.eventDispatcher = eventDispatcher;
   }
 
   /**
@@ -234,7 +232,7 @@ public class MemSessionRepository implements SessionRepository {
 
     @Override
     public void invalidate() {
-      this.state.set(State.EXPIRED);
+      state.set(State.EXPIRED);
       clearAttributes();
       eventDispatcher.onSessionDestroyed(this);
       sessions.remove(this.id.get());

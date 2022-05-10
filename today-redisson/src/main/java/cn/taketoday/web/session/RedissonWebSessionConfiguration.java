@@ -22,13 +22,10 @@ package cn.taketoday.web.session;
 
 import org.redisson.api.RedissonClient;
 
-import java.lang.annotation.Annotation;
 import java.time.Duration;
 import java.util.concurrent.TimeUnit;
 
-import cn.taketoday.context.ApplicationEventPublisher;
 import cn.taketoday.context.annotation.Configuration;
-import cn.taketoday.context.aware.AnnotationImportAware;
 import cn.taketoday.context.aware.ImportAware;
 import cn.taketoday.core.type.AnnotationMetadata;
 import cn.taketoday.lang.Component;
@@ -51,10 +48,10 @@ public class RedissonWebSessionConfiguration implements ImportAware {
   private TimeUnit timeUnit;
 
   @Component
-  public RedissonSessionRepository redissonSessionRepository(
-          RedissonClient redissonClient, SessionEventDispatcher eventDispatcher) {
+  public RedissonSessionRepository redissonSessionRepository(RedissonClient client,
+          SessionIdGenerator idGenerator, SessionEventDispatcher eventDispatcher) {
     var repository = new RedissonSessionRepository(
-            redissonClient, keyPrefix, eventDispatcher);
+            client, keyPrefix, idGenerator, eventDispatcher);
 
     if (maxIdleTime != null && timeUnit != null) {
       Duration duration = Duration.of(maxIdleTime, timeUnit.toChronoUnit());

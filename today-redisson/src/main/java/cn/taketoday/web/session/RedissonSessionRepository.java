@@ -17,6 +17,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.web.session;
 
 import org.redisson.api.BatchOptions;
@@ -76,13 +77,17 @@ public class RedissonSessionRepository implements SessionRepository, PatternMess
   private Duration defaultMaxInactiveInterval;
 
   private final SessionEventDispatcher sessionEventDispatcher;
+  private final SessionIdGenerator idGenerator;
 
   public RedissonSessionRepository(RedissonClient redissonClient) {
-    this(redissonClient, null, null);
+    this(redissonClient, null, null, null);
   }
 
   public RedissonSessionRepository(RedissonClient redisson,
-          @Nullable String keyPrefix, @Nullable SessionEventDispatcher sessionEventDispatcher) {
+          @Nullable String keyPrefix,
+          @Nullable SessionIdGenerator idGenerator,
+          @Nullable SessionEventDispatcher eventDispatcher) {
+
     if (StringUtils.hasText(keyPrefix)) {
       this.keyPrefix = keyPrefix;
     }
@@ -96,10 +101,16 @@ public class RedissonSessionRepository implements SessionRepository, PatternMess
     expiredTopic.addListener(String.class, this);
     createdTopic.addListener(String.class, this);
 
-    if (sessionEventDispatcher == null) {
-      sessionEventDispatcher = new SessionEventDispatcher();
+    if (idGenerator == null) {
+      idGenerator = new SecureRandomSessionIdGenerator();
     }
-    this.sessionEventDispatcher = sessionEventDispatcher;
+
+    if (eventDispatcher == null) {
+      eventDispatcher = new SessionEventDispatcher();
+    }
+
+    this.idGenerator = idGenerator;
+    this.sessionEventDispatcher = eventDispatcher;
   }
 
   @Nullable
@@ -267,7 +278,8 @@ public class RedissonSessionRepository implements SessionRepository, PatternMess
     private RMap<String, Object> map;
 
     RedissonSession() {
-      this.delegate = new MapSession();
+      String id = idGenerator.generateId();
+      this.delegate = new MapSession(id);
       map = redisson.getMap(keyPrefix + delegate.getId(),
               new CompositeCodec(StringCodec.INSTANCE, redisson.getConfig().getCodec()));
 

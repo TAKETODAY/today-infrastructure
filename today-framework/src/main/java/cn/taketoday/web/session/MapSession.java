@@ -26,6 +26,7 @@ import java.time.Instant;
 import java.util.UUID;
 
 import cn.taketoday.core.AttributeAccessorSupport;
+import cn.taketoday.lang.Assert;
 
 /**
  * <p>
@@ -95,9 +96,7 @@ public class MapSession extends AttributeAccessorSupport implements WebSession {
    * be null.
    */
   public MapSession(WebSession session) {
-    if (session == null) {
-      throw new IllegalArgumentException("session cannot be null");
-    }
+    Assert.notNull(session, "session cannot be null");
     this.id = session.getId();
     this.originalId = this.id;
     this.maxIdleTime = session.getMaxIdleTime();
