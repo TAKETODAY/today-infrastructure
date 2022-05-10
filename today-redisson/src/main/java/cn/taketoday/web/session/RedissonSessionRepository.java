@@ -223,12 +223,12 @@ public class RedissonSessionRepository implements SessionRepository, PatternMess
 
   @Override
   public int getSessionCount() {
-    return 0;
+    throw new UnsupportedOperationException();
   }
 
   @Override
   public String[] getIdentifiers() {
-    return new String[0];
+    throw new UnsupportedOperationException();
   }
 
   public void setKeyPrefix(String keyPrefix) {
