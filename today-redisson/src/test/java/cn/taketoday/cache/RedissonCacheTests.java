@@ -170,9 +170,9 @@ class RedissonCacheTests {
     AnnotationConfigApplicationContext context = contexts.get(contextClass);
     SampleBean bean = context.getBean(SampleBean.class);
     bean.store("object1", null);
-    Assertions.assertThat(bean.readNull("object1")).isNull();
+    assertThat(bean.readNull("object1")).isNull();
     bean.remove("object1");
-    Assertions.assertThat(bean.readNull("object1")).isNull();
+    assertThat(bean.readNull("object1")).isNull();
   }
 
   @ParameterizedTest
@@ -181,9 +181,9 @@ class RedissonCacheTests {
     AnnotationConfigApplicationContext context = contexts.get(contextClass);
     SampleBean bean = context.getBean(SampleBean.class);
     bean.store("object1", new SampleObject("name1", "value1"));
-    Assertions.assertThat(bean.read("object1")).isNotNull();
+    assertThat(bean.read("object1")).isNotNull();
     bean.remove("object1");
-    Assertions.assertThat(bean.readNull("object1")).isNull();
+    assertThat(bean.readNull("object1")).isNull();
   }
 
   @ParameterizedTest
@@ -193,8 +193,8 @@ class RedissonCacheTests {
     SampleBean bean = context.getBean(SampleBean.class);
     bean.store("object1", new SampleObject("name1", "value1"));
     SampleObject s = bean.read("object1");
-    Assertions.assertThat(s.getName()).isEqualTo("name1");
-    Assertions.assertThat(s.getValue()).isEqualTo("value1");
+    assertThat(s.getName()).isEqualTo("name1");
+    assertThat(s.getValue()).isEqualTo("value1");
   }
 
   @ParameterizedTest
