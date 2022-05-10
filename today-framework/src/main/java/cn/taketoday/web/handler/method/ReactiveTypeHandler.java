@@ -183,9 +183,12 @@ class ReactiveTypeHandler {
 
     HandlerMatchingMetadata matchingMetadata = request.getMatchingMetadata();
 
-    MediaType[] producibleMediaTypes = matchingMetadata.getProducibleMediaTypes();
-    return ObjectUtils.isEmpty(producibleMediaTypes) ?
-           this.contentNegotiationManager.resolveMediaTypes(request) : Arrays.asList(producibleMediaTypes);
+    if (matchingMetadata != null) {
+      MediaType[] producibleMediaTypes = matchingMetadata.getProducibleMediaTypes();
+      return ObjectUtils.isEmpty(producibleMediaTypes) ?
+             contentNegotiationManager.resolveMediaTypes(request) : Arrays.asList(producibleMediaTypes);
+    }
+    return contentNegotiationManager.resolveMediaTypes(request);
   }
 
   private ResponseBodyEmitter getEmitter(MediaType mediaType) {
