@@ -18,28 +18,15 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
+/**
+ * Redisson web session
+ *
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 4.0 2022/5/10 22:12
+ */
+@NonNullApi
+@NonNullFields
 package cn.taketoday.web.session;
 
-/**
- * For {@link SessionRepository} implementations that support it, this event is fired when
- * a {@link WebSession} is destroyed via deletion.
- *
- * @author Mark Anderson
- * @author Rob Winch
- * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @since 4.0 2022/5/10 16:33
- */
-@SuppressWarnings("serial")
-public class SessionDeletedEvent extends SessionDestroyedEvent {
-
-  /**
-   * Create a new {@link SessionDeletedEvent}.
-   *
-   * @param source the source of the event
-   * @param session the session that was created
-   */
-  public SessionDeletedEvent(Object source, WebSession session) {
-    super(source, session);
-  }
-
-}
+import cn.taketoday.lang.NonNullApi;
+import cn.taketoday.lang.NonNullFields;

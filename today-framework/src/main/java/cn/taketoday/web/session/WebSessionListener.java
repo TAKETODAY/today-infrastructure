@@ -23,7 +23,7 @@ package cn.taketoday.web.session;
 import java.util.EventListener;
 
 /**
- * Interface for receiving notification events about HttpSession lifecycle changes.
+ * Interface for receiving notification events about WebSession lifecycle changes.
  *
  * <p>
  * In order to receive these notification events, the implementation
@@ -44,7 +44,7 @@ public interface WebSessionListener extends EventListener {
   /**
    * Receives notification that a session has been created.
    *
-   * @param se the HttpSessionEvent containing the session
+   * @param se the WebSessionEvent containing the session
    * @implSpec The default implementation takes no action.
    */
   default void sessionCreated(WebSessionEvent se) {
@@ -54,7 +54,7 @@ public interface WebSessionListener extends EventListener {
   /**
    * Receives notification that a session is about to be invalidated.
    *
-   * @param se the HttpSessionEvent containing the session
+   * @param se the WebSessionEvent containing the session
    * @implSpec The default implementation takes no action.
    */
   default void sessionDestroyed(WebSessionEvent se) {

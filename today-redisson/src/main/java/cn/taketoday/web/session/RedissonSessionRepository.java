@@ -33,7 +33,6 @@ import org.redisson.codec.CompositeCodec;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -41,14 +40,10 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
-import cn.taketoday.context.ApplicationEvent;
-import cn.taketoday.context.ApplicationEventPublisher;
 import cn.taketoday.core.AttributeAccessor;
-import cn.taketoday.core.AttributeAccessorSupport;
 import cn.taketoday.core.Conventions;
+import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.logging.Logger;
-import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.StringUtils;
 
 /**
@@ -56,7 +51,6 @@ import cn.taketoday.util.StringUtils;
  * @since 2019-09-28 10:31
  */
 public class RedissonSessionRepository implements SessionRepository, PatternMessageListener<String> {
-  private static final Logger log = LoggerFactory.getLogger(RedissonSessionRepository.class);
 
   /**
    * A session index that contains the current principal name (i.e. username).
@@ -72,35 +66,43 @@ public class RedissonSessionRepository implements SessionRepository, PatternMess
   private static final String SECURITY_CONTEXT = "SECURITY_CONTEXT";
 
   private final RedissonClient redisson;
-  private final ApplicationEventPublisher eventPublisher;
   private final RPatternTopic deletedTopic;
   private final RPatternTopic expiredTopic;
   private final RPatternTopic createdTopic;
 
   private String keyPrefix = "today:session:";
-  private Integer defaultMaxInactiveInterval;
 
-  public RedissonSessionRepository(RedissonClient redisson, ApplicationEventPublisher eventPublisher, String keyPrefix) {
-    this.redisson = redisson;
-    this.eventPublisher = eventPublisher;
+  @Nullable
+  private Duration defaultMaxInactiveInterval;
+
+  private final SessionEventDispatcher sessionEventDispatcher;
+
+  public RedissonSessionRepository(RedissonClient redissonClient) {
+    this(redissonClient, null, null);
+  }
+
+  public RedissonSessionRepository(RedissonClient redisson,
+          @Nullable String keyPrefix, @Nullable SessionEventDispatcher sessionEventDispatcher) {
     if (StringUtils.hasText(keyPrefix)) {
       this.keyPrefix = keyPrefix;
     }
-
-    deletedTopic = redisson.getPatternTopic("__keyevent@*:del", StringCodec.INSTANCE);
-    expiredTopic = redisson.getPatternTopic("__keyevent@*:expired", StringCodec.INSTANCE);
-    createdTopic = redisson.getPatternTopic(getEventsChannelPrefix() + "*", StringCodec.INSTANCE);
+    this.redisson = redisson;
+    this.deletedTopic = redisson.getPatternTopic("__keyevent@*:del", StringCodec.INSTANCE);
+    this.expiredTopic = redisson.getPatternTopic("__keyevent@*:expired", StringCodec.INSTANCE);
+    this.createdTopic = redisson.getPatternTopic(getEventsChannelPrefix() + "*", StringCodec.INSTANCE);
 
     // add listeners after all topics are created to avoid race and potential NPE if we get messages right away
     deletedTopic.addListener(String.class, this);
     expiredTopic.addListener(String.class, this);
     createdTopic.addListener(String.class, this);
+
+    if (sessionEventDispatcher == null) {
+      sessionEventDispatcher = new SessionEventDispatcher();
+    }
+    this.sessionEventDispatcher = sessionEventDispatcher;
   }
 
-  public RedissonSessionRepository(RedissonClient redissonClient, ApplicationEventPublisher eventPublisher) {
-    this(redissonClient, eventPublisher, null);
-  }
-
+  @Nullable
   private MapSession loadSession(String sessionId) {
     RMap<String, Object> map = redisson.getMap(keyPrefix + sessionId,
             new CompositeCodec(StringCodec.INSTANCE, redisson.getConfig().getCodec()));
@@ -131,50 +133,29 @@ public class RedissonSessionRepository implements SessionRepository, PatternMess
 
   @Override
   public void onMessage(CharSequence pattern, CharSequence channel, String body) {
-    if (createdTopic.getPatternNames().contains(pattern.toString())) {
+    String patternString = pattern.toString();
+    if (createdTopic.getPatternNames().contains(patternString)) {
       RedissonSession session = retrieveSession(body);
       if (session != null) {
-        publishEvent(new SessionCreatedEvent(this, session));
+        sessionEventDispatcher.onSessionCreated(session);
       }
     }
-    else if (deletedTopic.getPatternNames().contains(pattern.toString())) {
-      if (!body.startsWith(getExpiredKeyPrefix())) {
-        return;
-      }
-
-      String id = body.split(getExpiredKeyPrefix())[1];
-      MapSession mapSession = loadSession(id);
-      if (mapSession != null) {
-        RedissonSession session = new RedissonSession(mapSession);
-        session.clearPrincipal();
-        publishEvent(new SessionDeletedEvent(this, session));
-      }
-    }
-    else if (expiredTopic.getPatternNames().contains(pattern.toString())) {
-      if (!body.startsWith(getExpiredKeyPrefix())) {
-        return;
-      }
-
-      String id = body.split(getExpiredKeyPrefix())[1];
-      MapSession mapSession = loadSession(id);
-      if (mapSession != null) {
-        RedissonSession session = new RedissonSession(mapSession);
-        session.clearPrincipal();
-        publishEvent(new SessionExpiredEvent(this, session));
+    else if (expiredTopic.getPatternNames().contains(patternString)
+            || deletedTopic.getPatternNames().contains(patternString)) {
+      String expiredKeyPrefix = getExpiredKeyPrefix();
+      if (body.startsWith(expiredKeyPrefix)) {
+        String id = body.substring(expiredKeyPrefix.length());
+        MapSession mapSession = loadSession(id);
+        if (mapSession != null) {
+          RedissonSession session = new RedissonSession(mapSession);
+          session.clearPrincipal();
+          sessionEventDispatcher.onSessionDestroyed(session);
+        }
       }
     }
   }
 
-  private void publishEvent(ApplicationEvent event) {
-    try {
-      eventPublisher.publishEvent(event);
-    }
-    catch (Exception e) {
-      log.error(e.getMessage(), e);
-    }
-  }
-
-  public void setDefaultMaxInactiveInterval(Integer defaultMaxInactiveInterval) {
+  public void setDefaultMaxInactiveInterval(@Nullable Duration defaultMaxInactiveInterval) {
     this.defaultMaxInactiveInterval = defaultMaxInactiveInterval;
   }
 
@@ -182,7 +163,7 @@ public class RedissonSessionRepository implements SessionRepository, PatternMess
   public RedissonSession createSession() {
     RedissonSession session = new RedissonSession();
     if (defaultMaxInactiveInterval != null) {
-      session.setMaxIdleTime(Duration.ofSeconds(defaultMaxInactiveInterval));
+      session.setMaxIdleTime(defaultMaxInactiveInterval);
     }
     return session;
   }
@@ -233,9 +214,11 @@ public class RedissonSessionRepository implements SessionRepository, PatternMess
   }
 
   public void setKeyPrefix(String keyPrefix) {
+    Assert.notNull(keyPrefix, "keyPrefix is required");
     this.keyPrefix = keyPrefix;
   }
 
+  @Nullable
   String resolvePrincipal(WebSession session) {
     Object attribute = session.getAttribute(PRINCIPAL_NAME_INDEX_NAME);
     if (attribute instanceof String principalName) {
@@ -268,24 +251,6 @@ public class RedissonSessionRepository implements SessionRepository, PatternMess
     return SESSION_ATTR_PREFIX + name;
   }
 
-  public Map<String, RedissonSession> findByIndexNameAndIndexValue(String indexName, String indexValue) {
-    if (!PRINCIPAL_NAME_INDEX_NAME.equals(indexName)) {
-      return Collections.emptyMap();
-    }
-
-    RSet<String> set = getPrincipalSet(indexValue);
-
-    Set<String> sessionIds = set.readAll();
-    Map<String, RedissonSession> result = new HashMap<>();
-    for (String id : sessionIds) {
-      RedissonSession session = retrieveSession(id);
-      if (session != null) {
-        result.put(id, session);
-      }
-    }
-    return result;
-  }
-
   private RSet<String> getPrincipalSet(String indexValue) {
     String principalKey = getPrincipalKey(indexValue);
     return redisson.getSet(principalKey, StringCodec.INSTANCE);
@@ -293,8 +258,12 @@ public class RedissonSessionRepository implements SessionRepository, PatternMess
 
   final class RedissonSession implements WebSession {
 
+    @Nullable
     private String principalName;
+
     private final MapSession delegate;
+
+    @Nullable
     private RMap<String, Object> map;
 
     RedissonSession() {
@@ -316,7 +285,7 @@ public class RedissonSessionRepository implements SessionRepository, PatternMess
     }
 
     private void updateExpiration() {
-      if (delegate.getMaxIdleTime().getSeconds() > 0) {
+      if (map != null && delegate.getMaxIdleTime().getSeconds() > 0) {
         redisson.getBucket(getExpiredKey(delegate.getId()))
                 .set("", delegate.getMaxIdleTime().getSeconds(), TimeUnit.SECONDS);
         map.expire(delegate.getMaxIdleTime().getSeconds() + 60, TimeUnit.SECONDS);
@@ -335,29 +304,28 @@ public class RedissonSessionRepository implements SessionRepository, PatternMess
     }
 
     @Override
-    public void setAttribute(String attributeName, Object attributeValue) {
+    public void setAttribute(String attributeName, @Nullable Object attributeValue) {
       if (attributeValue == null) {
         removeAttribute(attributeName);
-        return;
       }
+      else {
+        delegate.setAttribute(attributeName, attributeValue);
+        if (map != null) {
+          map.fastPut(getSessionAttrNameKey(attributeName), attributeValue);
 
-      delegate.setAttribute(attributeName, attributeValue);
+          if (attributeName.equals(PRINCIPAL_NAME_INDEX_NAME)
+                  || attributeName.equals(SECURITY_CONTEXT)) {
+            // remove old
+            if (principalName != null) {
+              RSet<String> set = getPrincipalSet(principalName);
+              set.remove(getId());
+            }
 
-      if (map != null) {
-        map.fastPut(getSessionAttrNameKey(attributeName), attributeValue);
-
-        if (attributeName.equals(PRINCIPAL_NAME_INDEX_NAME)
-                || attributeName.equals(SECURITY_CONTEXT)) {
-          // remove old
-          if (principalName != null) {
-            RSet<String> set = getPrincipalSet(principalName);
-            set.remove(getId());
-          }
-
-          principalName = resolvePrincipal(this);
-          if (principalName != null) {
-            RSet<String> set = getPrincipalSet(principalName);
-            set.add(getId());
+            principalName = resolvePrincipal(this);
+            if (principalName != null) {
+              RSet<String> set = getPrincipalSet(principalName);
+              set.add(getId());
+            }
           }
         }
       }
@@ -422,6 +390,7 @@ public class RedissonSessionRepository implements SessionRepository, PatternMess
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public void changeSessionId() {
       String oldId = delegate.getId();
       delegate.changeSessionId();
@@ -431,6 +400,8 @@ public class RedissonSessionRepository implements SessionRepository, PatternMess
       RBatch batch = redisson.createBatch(BatchOptions.defaults());
       batch.getBucket(getExpiredKey(oldId)).remainTimeToLiveAsync();
       batch.getBucket(getExpiredKey(oldId)).deleteAsync();
+
+      Assert.state(map != null, "map is null");
       batch.getMap(map.getName(), map.getCodec()).readAllMapAsync();
       batch.getMap(map.getName()).deleteAsync();
 

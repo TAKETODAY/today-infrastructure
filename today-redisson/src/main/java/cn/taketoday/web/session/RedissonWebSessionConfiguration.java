@@ -22,13 +22,17 @@ package cn.taketoday.web.session;
 
 import org.redisson.api.RedissonClient;
 
+import java.lang.annotation.Annotation;
+import java.time.Duration;
 import java.util.concurrent.TimeUnit;
 
 import cn.taketoday.context.ApplicationEventPublisher;
 import cn.taketoday.context.annotation.Configuration;
+import cn.taketoday.context.aware.AnnotationImportAware;
 import cn.taketoday.context.aware.ImportAware;
 import cn.taketoday.core.type.AnnotationMetadata;
 import cn.taketoday.lang.Component;
+import cn.taketoday.lang.Nullable;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
@@ -37,25 +41,38 @@ import cn.taketoday.lang.Component;
 @Configuration(proxyBeanMethods = false)
 public class RedissonWebSessionConfiguration implements ImportAware {
 
+  @Nullable
   private String keyPrefix;
+
+  @Nullable
   private Integer maxIdleTime;
+
+  @Nullable
   private TimeUnit timeUnit;
 
   @Component
   public RedissonSessionRepository redissonSessionRepository(
-          RedissonClient redissonClient, ApplicationEventPublisher eventPublisher) {
-    RedissonSessionRepository repository = new RedissonSessionRepository(redissonClient, eventPublisher, keyPrefix);
-    timeUnit.toSeconds(maxIdleTime);
-    repository.setDefaultMaxInactiveInterval(maxIdleTime);
+          RedissonClient redissonClient, SessionEventDispatcher eventDispatcher) {
+    var repository = new RedissonSessionRepository(
+            redissonClient, keyPrefix, eventDispatcher);
+
+    if (maxIdleTime != null && timeUnit != null) {
+      Duration duration = Duration.of(maxIdleTime, timeUnit.toChronoUnit());
+      repository.setDefaultMaxInactiveInterval(duration);
+    }
     return repository;
   }
 
-  public void setMaxIdleTime(Integer maxIdleTime) {
+  public void setMaxIdleTime(@Nullable Integer maxIdleTime) {
     this.maxIdleTime = maxIdleTime;
   }
 
-  public void setKeyPrefix(String keyPrefix) {
+  public void setKeyPrefix(@Nullable String keyPrefix) {
     this.keyPrefix = keyPrefix;
+  }
+
+  public void setTimeUnit(@Nullable TimeUnit timeUnit) {
+    this.timeUnit = timeUnit;
   }
 
   @Override
