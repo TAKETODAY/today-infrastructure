@@ -204,6 +204,15 @@ public interface ConfigurableApplicationContext extends ApplicationContext, Life
   void addApplicationListener(ApplicationListener<?> listener);
 
   /**
+   * Remove the given ApplicationListener from this context's set of listeners,
+   * assuming it got registered via {@link #addApplicationListener} before.
+   *
+   * @param listener the ApplicationListener to deregister
+   * @since 4.0
+   */
+  void removeApplicationListener(ApplicationListener<?> listener);
+
+  /**
    * Determine whether this application context is active, that is,
    * whether it has been refreshed at least once and has not been closed yet.
    *
@@ -211,6 +220,7 @@ public interface ConfigurableApplicationContext extends ApplicationContext, Life
    * @see #refresh()
    * @see #close()
    * @see #getBeanFactory()
+   * @since 4.0
    */
   boolean isActive();
 

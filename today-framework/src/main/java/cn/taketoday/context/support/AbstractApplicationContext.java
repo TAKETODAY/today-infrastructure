@@ -1480,6 +1480,15 @@ public abstract class AbstractApplicationContext
     applicationListeners.add(listener);
   }
 
+  @Override
+  public void removeApplicationListener(ApplicationListener<?> listener) {
+    Assert.notNull(listener, "ApplicationListener must not be null");
+    if (applicationEventMulticaster != null) {
+      applicationEventMulticaster.removeApplicationListener(listener);
+    }
+    applicationListeners.remove(listener);
+  }
+
   /**
    * Finish the initialization of this context's bean factory,
    * initializing all remaining singleton beans.
