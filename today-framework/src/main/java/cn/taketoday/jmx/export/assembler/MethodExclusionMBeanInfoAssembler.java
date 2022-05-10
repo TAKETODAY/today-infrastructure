@@ -77,7 +77,7 @@ public class MethodExclusionMBeanInfoAssembler extends AbstractConfigurableMBean
    * @see #setIgnoredMethodMappings(Properties)
    */
   public void setIgnoredMethods(String... ignoredMethodNames) {
-    this.ignoredMethods = new HashSet<>(Arrays.asList(ignoredMethodNames));
+    this.ignoredMethods = Set.of(ignoredMethodNames);
   }
 
   /**
@@ -92,7 +92,7 @@ public class MethodExclusionMBeanInfoAssembler extends AbstractConfigurableMBean
     for (Enumeration<?> en = mappings.keys(); en.hasMoreElements(); ) {
       String beanKey = (String) en.nextElement();
       String[] methodNames = StringUtils.commaDelimitedListToStringArray(mappings.getProperty(beanKey));
-      this.ignoredMethodMappings.put(beanKey, new HashSet<>(Arrays.asList(methodNames)));
+      this.ignoredMethodMappings.put(beanKey, Set.of(methodNames));
     }
   }
 

@@ -290,7 +290,7 @@ public abstract class AbstractView extends WebApplicationContextSupport implemen
    * flag on but do not list specific bean names for this property.
    */
   public void setExposedContextBeanNames(String... exposedContextBeanNames) {
-    this.exposedContextBeanNames = new HashSet<>(Arrays.asList(exposedContextBeanNames));
+    this.exposedContextBeanNames = Set.of(exposedContextBeanNames);
   }
 
   /**

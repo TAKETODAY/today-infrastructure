@@ -62,7 +62,14 @@ import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Nullable;
 
 /**
- * @author TODAY 2018-06-0? ?
+ * @author Juergen Hoeller
+ * @author Keith Donald
+ * @author Rob Harrop
+ * @author Sam Brannen
+ * @author TODAY
+ * @see TypeUtils
+ * @see ReflectionUtils
+ * @since 2018-06-0? ?
  */
 public abstract class ClassUtils {
 
@@ -107,7 +114,7 @@ public abstract class ClassUtils {
    * Common Java language interfaces which are supposed to be ignored
    * when searching for 'primary' user-level interfaces.
    */
-  private static final HashSet<Class<?>> javaLanguageInterfaces = new HashSet<>();
+  private static final Set<Class<?>> javaLanguageInterfaces;
 
   static {
     primitiveWrapperTypeMap.put(Boolean.class, boolean.class);
@@ -148,8 +155,7 @@ public abstract class ClassUtils {
             AutoCloseable.class, Cloneable.class, Comparable.class
     };
     registerCommonClasses(javaLanguageInterfaceArray);
-
-    Collections.addAll(javaLanguageInterfaces, javaLanguageInterfaceArray);
+    javaLanguageInterfaces = Set.of(javaLanguageInterfaceArray);
 
     // Map primitive types
     // -------------------------------------------

@@ -88,18 +88,14 @@ public abstract class AbstractMessageConverterMethodProcessor
   private static final boolean isDebugEnabled = log.isDebugEnabled();
 
   /* Extensions associated with the built-in message converters */
-  private static final List<String> SAFE_EXTENSIONS = Arrays.asList(
+  private static final Set<String> SAFE_EXTENSIONS = Set.of(
           "txt", "text", "yml", "properties", "csv",
           "json", "xml", "atom", "rss",
           "png", "jpe", "jpeg", "jpg", "gif", "wbmp", "bmp"
   );
 
-  private static final Set<String> SAFE_MEDIA_BASE_TYPES = new HashSet<>(
-          Arrays.asList("audio", "image", "video")
-  );
-
-  private static final List<MediaType> ALL_APPLICATION_MEDIA_TYPES
-          = Arrays.asList(MediaType.ALL, new MediaType("application"));
+  private static final Set<String> SAFE_MEDIA_BASE_TYPES = Set.of("audio", "image", "video");
+  private static final List<MediaType> ALL_APPLICATION_MEDIA_TYPES = List.of(MediaType.ALL, new MediaType("application"));
 
   private static final Type RESOURCE_REGION_LIST_TYPE =
           new TypeReference<List<ResourceRegion>>() { }.getType();
