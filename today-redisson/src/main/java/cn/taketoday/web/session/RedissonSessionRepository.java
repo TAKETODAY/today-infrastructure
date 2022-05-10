@@ -35,6 +35,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -42,8 +43,10 @@ import java.util.concurrent.TimeUnit;
 
 import cn.taketoday.context.ApplicationEvent;
 import cn.taketoday.context.ApplicationEventPublisher;
+import cn.taketoday.core.AttributeAccessor;
 import cn.taketoday.core.AttributeAccessorSupport;
 import cn.taketoday.core.Conventions;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.StringUtils;
@@ -61,7 +64,7 @@ public class RedissonSessionRepository implements SessionRepository, PatternMess
    * It is the responsibility of the developer to ensure the index is populated since
    * Spring Session is not aware of the authentication mechanism being used.
    */
-  String PRINCIPAL_NAME_INDEX_NAME = Conventions.getQualifiedAttributeName(
+  private static final String PRINCIPAL_NAME_INDEX_NAME = Conventions.getQualifiedAttributeName(
           RedissonSessionRepository.class, "PRINCIPAL_NAME_INDEX_NAME");
 
   static final String SESSION_ATTR_PREFIX = "session-attr:";
@@ -99,7 +102,9 @@ public class RedissonSessionRepository implements SessionRepository, PatternMess
   }
 
   private MapSession loadSession(String sessionId) {
-    RMap<String, Object> map = redisson.getMap(keyPrefix + sessionId, new CompositeCodec(StringCodec.INSTANCE, redisson.getConfig().getCodec()));
+    RMap<String, Object> map = redisson.getMap(keyPrefix + sessionId,
+            new CompositeCodec(StringCodec.INSTANCE, redisson.getConfig().getCodec()));
+
     Set<Map.Entry<String, Object>> entrySet = map.readAllEntrySet();
     if (entrySet.isEmpty()) {
       return null;
@@ -111,10 +116,10 @@ public class RedissonSessionRepository implements SessionRepository, PatternMess
         delegate.setCreationTime(Instant.ofEpochMilli((Long) entry.getValue()));
       }
       else if ("session:lastAccessedTime".equals(entry.getKey())) {
-        delegate.setLastAccessedTime(Instant.ofEpochMilli((Long) entry.getValue()));
+        delegate.setLastAccessTime(Instant.ofEpochMilli((Long) entry.getValue()));
       }
       else if ("session:setMaxIdleTime".equals(entry.getKey())) {
-        delegate.setMaxInactiveInterval(Duration.ofSeconds((Long) entry.getValue()));
+        delegate.setMaxIdleTime(Duration.ofSeconds((Long) entry.getValue()));
       }
       else if (entry.getKey().startsWith(SESSION_ATTR_PREFIX)) {
         delegate.setAttribute(entry.getKey().substring(SESSION_ATTR_PREFIX.length()), entry.getValue());
@@ -126,7 +131,7 @@ public class RedissonSessionRepository implements SessionRepository, PatternMess
   @Override
   public void onMessage(CharSequence pattern, CharSequence channel, String body) {
     if (createdTopic.getPatternNames().contains(pattern.toString())) {
-      RedissonSession session = findById(body);
+      RedissonSession session = retrieveSession(body);
       if (session != null) {
         publishEvent(new SessionCreatedEvent(this, session));
       }
@@ -176,36 +181,54 @@ public class RedissonSessionRepository implements SessionRepository, PatternMess
   public RedissonSession createSession() {
     RedissonSession session = new RedissonSession();
     if (defaultMaxInactiveInterval != null) {
-      session.setMaxInactiveInterval(Duration.ofSeconds(defaultMaxInactiveInterval));
+      session.setMaxIdleTime(Duration.ofSeconds(defaultMaxInactiveInterval));
     }
     return session;
   }
 
+  @Nullable
   @Override
-  public void save(RedissonSession session) {
-    // session changes are stored in real-time
-  }
-
-  @Override
-  public RedissonSession findById(String id) {
-    MapSession mapSession = loadSession(id);
+  public RedissonSession retrieveSession(String sessionId) {
+    MapSession mapSession = loadSession(sessionId);
     if (mapSession == null || mapSession.isExpired()) {
       return null;
     }
     return new RedissonSession(mapSession);
   }
 
+  @Nullable
   @Override
-  public void deleteById(String id) {
-    RedissonSession session = findById(id);
+  public WebSession removeSession(String sessionId) {
+    RedissonSession session = retrieveSession(sessionId);
     if (session == null) {
-      return;
+      return null;
     }
 
-    redisson.getBucket(getExpiredKey(id)).delete();
+    redisson.getBucket(getExpiredKey(sessionId)).delete();
 
     session.clearPrincipal();
-    session.setMaxInactiveInterval(Duration.ZERO);
+    session.setMaxIdleTime(Duration.ZERO);
+    return session;
+  }
+
+  @Override
+  public void updateLastAccessTime(WebSession webSession) {
+    webSession.setLastAccessTime(Instant.now());
+  }
+
+  @Override
+  public boolean contains(String sessionId) {
+    return retrieveSession(sessionId) != null;
+  }
+
+  @Override
+  public int getSessionCount() {
+    return 0;
+  }
+
+  @Override
+  public String[] getIdentifiers() {
+    return new String[0];
   }
 
   public void setKeyPrefix(String keyPrefix) {
@@ -217,7 +240,6 @@ public class RedissonSessionRepository implements SessionRepository, PatternMess
     if (attribute instanceof String principalName) {
       return principalName;
     }
-
     return null;
   }
 
@@ -255,7 +277,7 @@ public class RedissonSessionRepository implements SessionRepository, PatternMess
     Set<String> sessionIds = set.readAll();
     Map<String, RedissonSession> result = new HashMap<>();
     for (String id : sessionIds) {
-      RedissonSession session = findById(id);
+      RedissonSession session = retrieveSession(id);
       if (session != null) {
         result.put(id, session);
       }
@@ -268,14 +290,14 @@ public class RedissonSessionRepository implements SessionRepository, PatternMess
     return redisson.getSet(principalKey, StringCodec.INSTANCE);
   }
 
-  final class RedissonSession extends AttributeAccessorSupport implements WebSession {
+  final class RedissonSession implements WebSession {
 
     private String principalName;
-    private final WebSession delegate;
+    private final MapSession delegate;
     private RMap<String, Object> map;
 
     RedissonSession() {
-      this.delegate = new MemSessionRepository();
+      this.delegate = new MapSession();
       map = redisson.getMap(keyPrefix + delegate.getId(),
               new CompositeCodec(StringCodec.INSTANCE, redisson.getConfig().getCodec()));
 
@@ -300,7 +322,7 @@ public class RedissonSessionRepository implements SessionRepository, PatternMess
       }
     }
 
-    RedissonSession(WebSession session) {
+    RedissonSession(MapSession session) {
       this.delegate = session;
       map = redisson.getMap(keyPrefix + session.getId(), new CompositeCodec(StringCodec.INSTANCE, redisson.getConfig().getCodec()));
       principalName = resolvePrincipal(this);
@@ -349,13 +371,14 @@ public class RedissonSessionRepository implements SessionRepository, PatternMess
     }
 
     @Override
-    public WebSession removeAttribute(String attributeName) {
-      delegate.removeAttribute(attributeName);
+    public Object removeAttribute(String attributeName) {
+      Object old = delegate.removeAttribute(attributeName);
 
       if (map != null) {
         map.fastRemove(getSessionAttrNameKey(attributeName));
       }
 
+      return old;
     }
 
     @Override
@@ -363,11 +386,11 @@ public class RedissonSessionRepository implements SessionRepository, PatternMess
       return delegate.getCreationTime();
     }
 
-    public void setLastAccessedTime(Instant lastAccessedTime) {
-      delegate.setLastAccessedTime(lastAccessedTime);
+    public void setLastAccessTime(Instant lastAccessTime) {
+      delegate.setLastAccessTime(lastAccessTime);
 
       if (map != null) {
-        map.fastPut("session:lastAccessedTime", lastAccessedTime.toEpochMilli());
+        map.fastPut("session:lastAccessedTime", lastAccessTime.toEpochMilli());
         updateExpiration();
       }
     }
@@ -433,6 +456,68 @@ public class RedissonSessionRepository implements SessionRepository, PatternMess
 
       map = redisson.getMap(keyPrefix + id, map.getCodec());
     }
+
+    @Nullable
+    @Override
+    public Object getAttribute(String name) {
+      return delegate.getAttribute(name);
+    }
+
+    @Override
+    public Iterator<String> attributeNames() {
+      return delegate.attributeNames();
+    }
+
+    @Override
+    public boolean hasAttribute(String name) {
+      return false;
+    }
+
+    @Override
+    public String[] getAttributeNames() {
+      return delegate.getAttributeNames();
+    }
+
+    @Override
+    public boolean hasAttributes() {
+      return delegate.hasAttributes();
+    }
+
+    @Override
+    public Map<String, Object> getAttributes() {
+      return delegate.getAttributes();
+    }
+
+    @Override
+    public void copyAttributesFrom(AttributeAccessor source) {
+      delegate.copyAttributesFrom(source);
+    }
+
+    @Override
+    public void clearAttributes() {
+      delegate.clearAttributes();
+    }
+
+    @Override
+    public void save() {
+      delegate.save();
+    }
+
+    @Override
+    public void invalidate() {
+      delegate.invalidate();
+    }
+
+    @Override
+    public void start() {
+      delegate.start();
+    }
+
+    @Override
+    public boolean isStarted() {
+      return delegate.isStarted();
+    }
+
   }
 
 }
