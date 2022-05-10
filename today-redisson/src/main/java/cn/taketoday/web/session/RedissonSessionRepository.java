@@ -112,17 +112,18 @@ public class RedissonSessionRepository implements SessionRepository, PatternMess
 
     MapSession delegate = new MapSession(sessionId);
     for (Map.Entry<String, Object> entry : entrySet) {
-      if ("session:creationTime".equals(entry.getKey())) {
+      String key = entry.getKey();
+      if ("session:creationTime".equals(key)) {
         delegate.setCreationTime(Instant.ofEpochMilli((Long) entry.getValue()));
       }
-      else if ("session:lastAccessedTime".equals(entry.getKey())) {
+      else if ("session:lastAccessedTime".equals(key)) {
         delegate.setLastAccessTime(Instant.ofEpochMilli((Long) entry.getValue()));
       }
-      else if ("session:setMaxIdleTime".equals(entry.getKey())) {
+      else if ("session:setMaxIdleTime".equals(key)) {
         delegate.setMaxIdleTime(Duration.ofSeconds((Long) entry.getValue()));
       }
-      else if (entry.getKey().startsWith(SESSION_ATTR_PREFIX)) {
-        delegate.setAttribute(entry.getKey().substring(SESSION_ATTR_PREFIX.length()), entry.getValue());
+      else if (key.startsWith(SESSION_ATTR_PREFIX)) {
+        delegate.setAttribute(key.substring(SESSION_ATTR_PREFIX.length()), entry.getValue());
       }
     }
     return delegate;
