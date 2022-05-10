@@ -55,6 +55,7 @@ import cn.taketoday.http.HttpInputMessage;
 import cn.taketoday.http.HttpMethod;
 import cn.taketoday.http.HttpRequest;
 import cn.taketoday.http.HttpStatus;
+import cn.taketoday.http.HttpStatusCode;
 import cn.taketoday.http.server.PathContainer;
 import cn.taketoday.http.server.RequestPath;
 import cn.taketoday.lang.Constant;
@@ -1072,8 +1073,13 @@ public abstract class RequestContext extends AttributeAccessorSupport
    *
    * @param status the status
    */
-  public void setStatus(HttpStatus status) {
-    setStatus(status.value(), status.getReasonPhrase());
+  public void setStatus(HttpStatusCode status) {
+    if (status instanceof HttpStatus httpStatus) {
+      setStatus(httpStatus.value(), httpStatus.getReasonPhrase());
+    }
+    else {
+      setStatus(status.value());
+    }
   }
 
   /**

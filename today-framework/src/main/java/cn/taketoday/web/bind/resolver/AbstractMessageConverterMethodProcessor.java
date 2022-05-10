@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
@@ -43,6 +44,7 @@ import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpRange;
 import cn.taketoday.http.HttpStatus;
 import cn.taketoday.http.MediaType;
+import cn.taketoday.http.ProblemDetail;
 import cn.taketoday.http.converter.GenericHttpMessageConverter;
 import cn.taketoday.http.converter.HttpMessageConverter;
 import cn.taketoday.http.converter.HttpMessageNotWritableException;
@@ -101,6 +103,9 @@ public abstract class AbstractMessageConverterMethodProcessor
           new TypeReference<List<ResourceRegion>>() { }.getType();
 
   private final ContentNegotiationManager contentNegotiationManager;
+
+  private final List<MediaType> problemMediaTypes =
+          Arrays.asList(MediaType.APPLICATION_PROBLEM_JSON, MediaType.APPLICATION_PROBLEM_XML);
 
   private final HashSet<String> safeExtensions = new HashSet<>();
 
@@ -244,15 +249,16 @@ public abstract class AbstractMessageConverterMethodProcessor
                 "No converter found for return value of type: " + valueType);
       }
 
-      ArrayList<MediaType> mediaTypesToUse = new ArrayList<>();
-      for (MediaType requestedType : acceptableTypes) {
-        for (MediaType producibleType : producibleTypes) {
-          if (requestedType.isCompatibleWith(producibleType)) {
-            mediaTypesToUse.add(getMostSpecificMediaType(requestedType, producibleType));
-          }
-        }
+      ArrayList<MediaType> compatibleMediaTypes = new ArrayList<>();
+
+      determineCompatibleMediaTypes(acceptableTypes, producibleTypes, compatibleMediaTypes);
+
+      // Fall back on RFC 7807 format for ProblemDetail
+      if (compatibleMediaTypes.isEmpty() && ProblemDetail.class.isAssignableFrom(valueType)) {
+        determineCompatibleMediaTypes(this.problemMediaTypes, producibleTypes, compatibleMediaTypes);
       }
-      if (mediaTypesToUse.isEmpty()) {
+
+      if (compatibleMediaTypes.isEmpty()) {
         if (isDebugEnabled) {
           log.debug("No match for {}, supported: {}", acceptableTypes, producibleTypes);
         }
@@ -262,9 +268,9 @@ public abstract class AbstractMessageConverterMethodProcessor
         return;
       }
 
-      MimeTypeUtils.sortBySpecificity(mediaTypesToUse);
+      MimeTypeUtils.sortBySpecificity(compatibleMediaTypes);
 
-      for (MediaType mediaType : mediaTypesToUse) {
+      for (MediaType mediaType : compatibleMediaTypes) {
         if (mediaType.isConcrete()) {
           selectedMediaType = mediaType;
           break;
@@ -389,7 +395,7 @@ public abstract class AbstractMessageConverterMethodProcessor
         return Arrays.asList(mediaTypes);
       }
     }
-    ArrayList<MediaType> result = new ArrayList<>();
+    LinkedHashSet<MediaType> result = new LinkedHashSet<>();
     for (HttpMessageConverter<?> converter : messageConverters) {
       if (converter instanceof GenericHttpMessageConverter<?> generic && targetType != null) {
         if (generic.canWrite(targetType, valueClass, null)) {
@@ -400,12 +406,24 @@ public abstract class AbstractMessageConverterMethodProcessor
         result.addAll(converter.getSupportedMediaTypes(valueClass));
       }
     }
-    return result.isEmpty() ? Collections.singletonList(MediaType.ALL) : result;
+    return result.isEmpty() ? Collections.singletonList(MediaType.ALL) : new ArrayList<>(result);
   }
 
   private List<MediaType> getAcceptableMediaTypes(RequestContext request)
           throws HttpMediaTypeNotAcceptableException {
     return this.contentNegotiationManager.resolveMediaTypes(request);
+  }
+
+  private void determineCompatibleMediaTypes(
+          List<MediaType> acceptableTypes, List<MediaType> producibleTypes, List<MediaType> mediaTypesToUse) {
+
+    for (MediaType requestedType : acceptableTypes) {
+      for (MediaType producibleType : producibleTypes) {
+        if (requestedType.isCompatibleWith(producibleType)) {
+          mediaTypesToUse.add(getMostSpecificMediaType(requestedType, producibleType));
+        }
+      }
+    }
   }
 
   /**

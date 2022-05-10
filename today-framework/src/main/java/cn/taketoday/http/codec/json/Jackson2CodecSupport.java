@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -42,6 +42,7 @@ import cn.taketoday.core.ResolvableType;
 import cn.taketoday.core.codec.Hints;
 import cn.taketoday.http.HttpLogging;
 import cn.taketoday.http.MediaType;
+import cn.taketoday.http.ProblemDetail;
 import cn.taketoday.http.server.reactive.ServerHttpRequest;
 import cn.taketoday.http.server.reactive.ServerHttpResponse;
 import cn.taketoday.lang.Assert;
@@ -92,6 +93,8 @@ public abstract class Jackson2CodecSupport {
 
   private final List<MimeType> mimeTypes;
 
+  private final List<MimeType> problemDetailMimeTypes;
+
   /**
    * Constructor with a Jackson {@link ObjectMapper} to use.
    */
@@ -99,6 +102,14 @@ public abstract class Jackson2CodecSupport {
     Assert.notNull(objectMapper, "ObjectMapper must not be null");
     this.defaultObjectMapper = objectMapper;
     this.mimeTypes = ObjectUtils.isNotEmpty(mimeTypes) ? List.of(mimeTypes) : DEFAULT_MIME_TYPES;
+    this.problemDetailMimeTypes = initProblemDetailMediaTypes(this.mimeTypes);
+  }
+
+  private static List<MimeType> initProblemDetailMediaTypes(List<MimeType> supportedMimeTypes) {
+    List<MimeType> mimeTypes = new ArrayList<>();
+    mimeTypes.add(MediaType.APPLICATION_PROBLEM_JSON);
+    mimeTypes.addAll(supportedMimeTypes);
+    return Collections.unmodifiableList(mimeTypes);
   }
 
   /**
@@ -180,7 +191,10 @@ public abstract class Jackson2CodecSupport {
         result.addAll(entry.getValue().keySet());
       }
     }
-    return CollectionUtils.isEmpty(result) ? getMimeTypes() : result;
+    if (CollectionUtils.isNotEmpty(result)) {
+      return result;
+    }
+    return ProblemDetail.class.isAssignableFrom(elementClass) ? problemDetailMimeTypes : getMimeTypes();
   }
 
   protected boolean notSupportsMimeType(@Nullable MimeType mimeType) {

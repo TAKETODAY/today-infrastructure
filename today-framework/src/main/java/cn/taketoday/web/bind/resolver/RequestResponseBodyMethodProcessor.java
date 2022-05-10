@@ -22,9 +22,12 @@ package cn.taketoday.web.bind.resolver;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
+import java.net.URI;
 import java.util.List;
 
 import cn.taketoday.core.MethodParameter;
+import cn.taketoday.http.HttpStatusCode;
+import cn.taketoday.http.ProblemDetail;
 import cn.taketoday.http.converter.HttpMessageConverter;
 import cn.taketoday.http.converter.HttpMessageNotReadableException;
 import cn.taketoday.lang.Nullable;
@@ -140,6 +143,15 @@ public class RequestResponseBodyMethodProcessor extends AbstractMessageConverter
   @Override
   protected void handleReturnValue(
           RequestContext context, HandlerMethod handler, @Nullable Object returnValue) throws Exception {
+
+    if (returnValue instanceof ProblemDetail detail) {
+      context.setStatus(detail.getStatus());
+      if (detail.getInstance() == null) {
+        URI path = URI.create(context.getRequestPath());
+        detail.setInstance(path);
+      }
+    }
+
     // Try even with null return value. ResponseBodyAdvice could get involved.
     writeWithMessageConverters(returnValue, handler.getReturnType(), context);
   }

@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -57,6 +57,7 @@ import cn.taketoday.core.GenericTypeResolver;
 import cn.taketoday.http.HttpInputMessage;
 import cn.taketoday.http.HttpOutputMessage;
 import cn.taketoday.http.MediaType;
+import cn.taketoday.http.ProblemDetail;
 import cn.taketoday.http.converter.AbstractGenericHttpMessageConverter;
 import cn.taketoday.http.converter.HttpMessageConversionException;
 import cn.taketoday.http.converter.HttpMessageConverter;
@@ -94,6 +95,8 @@ public abstract class AbstractJackson2HttpMessageConverter extends AbstractGener
     ENCODINGS.put("US-ASCII", JsonEncoding.UTF8);
   }
 
+  private List<MediaType> problemDetailMediaTypes = Collections.singletonList(MediaType.APPLICATION_PROBLEM_JSON);
+
   protected ObjectMapper defaultObjectMapper;
 
   @Nullable
@@ -120,6 +123,19 @@ public abstract class AbstractJackson2HttpMessageConverter extends AbstractGener
   protected AbstractJackson2HttpMessageConverter(ObjectMapper objectMapper, MediaType... supportedMediaTypes) {
     this(objectMapper);
     setSupportedMediaTypes(List.of(supportedMediaTypes));
+  }
+
+  @Override
+  public void setSupportedMediaTypes(List<MediaType> supportedMediaTypes) {
+    this.problemDetailMediaTypes = initProblemDetailMediaTypes(supportedMediaTypes);
+    super.setSupportedMediaTypes(supportedMediaTypes);
+  }
+
+  private List<MediaType> initProblemDetailMediaTypes(List<MediaType> supportedMediaTypes) {
+    ArrayList<MediaType> mediaTypes = new ArrayList<>();
+    mediaTypes.add(MediaType.APPLICATION_PROBLEM_JSON);
+    mediaTypes.addAll(supportedMediaTypes);
+    return Collections.unmodifiableList(mediaTypes);
   }
 
   /**
@@ -195,11 +211,18 @@ public abstract class AbstractJackson2HttpMessageConverter extends AbstractGener
     List<MediaType> result = null;
     for (Map.Entry<Class<?>, Map<MediaType, ObjectMapper>> entry : getObjectMapperRegistrations().entrySet()) {
       if (entry.getKey().isAssignableFrom(clazz)) {
-        result = (result != null ? result : new ArrayList<>(entry.getValue().size()));
+        if (result == null) {
+          result = new ArrayList<>(entry.getValue().size());
+        }
         result.addAll(entry.getValue().keySet());
       }
     }
-    return CollectionUtils.isEmpty(result) ? getSupportedMediaTypes() : result;
+    if (CollectionUtils.isNotEmpty(result)) {
+      return result;
+    }
+    return ProblemDetail.class.isAssignableFrom(clazz)
+           ? problemDetailMediaTypes
+           : getSupportedMediaTypes();
   }
 
   private Map<Class<?>, Map<MediaType, ObjectMapper>> getObjectMapperRegistrations() {

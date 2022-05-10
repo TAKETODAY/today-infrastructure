@@ -1319,19 +1319,19 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
   public String toString() {
     StringBuilder sb = new StringBuilder("class [");
     sb.append(getBeanClassName()).append(']');
-    sb.append("; scope=").append(this.scope);
-    sb.append("; abstract=").append(this.abstractFlag);
-    sb.append("; lazyInit=").append(this.lazyInit);
-    sb.append("; autowireMode=").append(this.autowireMode);
-    sb.append("; dependencyCheck=").append(this.dependencyCheck);
-    sb.append("; autowireCandidate=").append(this.autowireCandidate);
-    sb.append("; primary=").append(this.primary);
-    sb.append("; factoryBeanName=").append(this.factoryBeanName);
-    sb.append("; factoryMethodName=").append(this.factoryMethodName);
-    sb.append("; initMethodNames=").append(Arrays.toString(this.initMethodNames));
-    sb.append("; destroyMethodNames=").append(Arrays.toString(this.destroyMethodNames));
-    if (this.resource != null) {
-      sb.append("; defined in ").append(this.resource);
+    sb.append("; scope=").append(scope);
+    sb.append("; abstract=").append(abstractFlag);
+    sb.append("; lazyInit=").append(lazyInit);
+    sb.append("; autowireMode=").append(autowireMode);
+    sb.append("; dependencyCheck=").append(dependencyCheck);
+    sb.append("; autowireCandidate=").append(autowireCandidate);
+    sb.append("; primary=").append(primary);
+    sb.append("; factoryBeanName=").append(factoryBeanName);
+    sb.append("; factoryMethodName=").append(factoryMethodName);
+    sb.append("; initMethodNames=").append(Arrays.toString(initMethodNames));
+    sb.append("; destroyMethodNames=").append(Arrays.toString(destroyMethodNames));
+    if (resource != null) {
+      sb.append("; defined in ").append(resource);
     }
     return sb.toString();
   }
