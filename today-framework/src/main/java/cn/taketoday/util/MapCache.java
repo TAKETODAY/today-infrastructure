@@ -38,7 +38,7 @@ import cn.taketoday.lang.Nullable;
 public class MapCache<Key, Value, Param> {
   private final Map<Key, Value> mapping;
   /** default mapping function */
-  private volatile Function<Key, Value> mappingFunction;
+  private final Function<Key, Value> mappingFunction;
 
   public MapCache() {
     this(new HashMap<>());
@@ -53,6 +53,7 @@ public class MapCache<Key, Value, Param> {
    */
   public MapCache(Map<Key, Value> mapping) {
     this.mapping = mapping;
+    this.mappingFunction = null;
   }
 
   public MapCache(Function<Key, Value> mappingFunction) {
@@ -144,11 +145,6 @@ public class MapCache<Key, Value, Param> {
 
   protected Value createValue(Key key, @Nullable Param param) {
     return null;
-  }
-
-  synchronized
-  public void setMappingFunction(Function<Key, Value> mappingFunction) {
-    this.mappingFunction = mappingFunction;
   }
 
   public Value put(Key key, Value value) {

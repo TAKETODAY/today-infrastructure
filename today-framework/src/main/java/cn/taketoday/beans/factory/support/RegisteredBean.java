@@ -33,6 +33,7 @@ import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.StringUtils;
+import cn.taketoday.util.function.SingletonSupplier;
 
 /**
  * A {@code RegisteredBean} represents a bean that has been registered with a
@@ -126,10 +127,10 @@ public final class RegisteredBean {
 
     Assert.notNull(parent, "Parent must not be null");
     Assert.notNull(innerBeanDefinition, "InnerBeanDefinition must not be null");
-    InnerBeanResolver resolver = new InnerBeanResolver(parent, innerBeanName,
-            innerBeanDefinition);
+    InnerBeanResolver resolver = new InnerBeanResolver(parent, innerBeanName, innerBeanDefinition);
     Supplier<String> beanName = StringUtils.isNotEmpty(innerBeanName)
-                                ? () -> innerBeanName : resolver::resolveBeanName;
+                                ? SingletonSupplier.valueOf(innerBeanName)
+                                : resolver::resolveBeanName;
     return new RegisteredBean(parent.getBeanFactory(), beanName,
             innerBeanName == null, resolver::resolveMergedBeanDefinition, parent);
   }
@@ -244,8 +245,7 @@ public final class RegisteredBean {
       if (resolvedBeanName != null) {
         return resolvedBeanName;
       }
-      resolvedBeanName = resolveInnerBean(
-              (beanName, mergedBeanDefinition) -> beanName);
+      resolvedBeanName = resolveInnerBean((beanName, mergedBeanDefinition) -> beanName);
       this.resolvedBeanName = resolvedBeanName;
       return resolvedBeanName;
     }

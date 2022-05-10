@@ -270,8 +270,8 @@ class BeanDefinitionValueResolver {
       innerBeanName = "(inner bean)";
     }
     innerBeanName = innerBeanName + BeanFactoryUtils.GENERATED_BEAN_NAME_SEPARATOR + ObjectUtils.getIdentityHexString(innerBd);
-    return resolver.apply(innerBeanName, this.beanFactory.getMergedBeanDefinition(
-            innerBeanName, innerBd, this.beanDefinition));
+    return resolver.apply(innerBeanName,
+            beanFactory.getMergedBeanDefinition(innerBeanName, innerBd, beanDefinition));
   }
 
   /**

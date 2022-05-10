@@ -20,7 +20,6 @@
 
 package cn.taketoday.web.bind.resolver;
 
-import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.validation.BindingResult;

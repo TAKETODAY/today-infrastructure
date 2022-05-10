@@ -45,8 +45,13 @@ import cn.taketoday.lang.Nullable;
  */
 public class SingletonSupplier<T> implements Supplier<T> {
 
+  @Nullable
   private volatile T singletonInstance;
+
+  @Nullable
   private final Supplier<? extends T> defaultSupplier;
+
+  @Nullable
   private final Supplier<? extends T> instanceSupplier;
 
   /**
@@ -91,17 +96,18 @@ public class SingletonSupplier<T> implements Supplier<T> {
    * @return the singleton instance (or {@code null} if none)
    */
   @Override
+  @Nullable
   public T get() {
     T instance = this.singletonInstance;
     if (instance == null) {
       synchronized(this) {
         instance = this.singletonInstance;
         if (instance == null) {
-          if (this.instanceSupplier != null) {
-            instance = this.instanceSupplier.get();
+          if (instanceSupplier != null) {
+            instance = instanceSupplier.get();
           }
-          if (instance == null && this.defaultSupplier != null) {
-            instance = this.defaultSupplier.get();
+          if (instance == null && defaultSupplier != null) {
+            instance = defaultSupplier.get();
           }
           this.singletonInstance = instance;
         }
@@ -138,7 +144,7 @@ public class SingletonSupplier<T> implements Supplier<T> {
    * @param instance the singleton instance (potentially {@code null})
    * @return the singleton supplier, or {@code null} if the instance was {@code null}
    */
-
+  @Nullable
   public static <T> SingletonSupplier<T> ofNullable(@Nullable T instance) {
     return (instance != null ? new SingletonSupplier<>(instance) : null);
   }
@@ -159,8 +165,8 @@ public class SingletonSupplier<T> implements Supplier<T> {
    * @param supplier the instance supplier (potentially {@code null})
    * @return the singleton supplier, or {@code null} if the instance supplier was {@code null}
    */
-
-  public static <T> SingletonSupplier<T> ofNullable(Supplier<T> supplier) {
+  @Nullable
+  public static <T> SingletonSupplier<T> ofNullable(@Nullable Supplier<T> supplier) {
     return (supplier != null ? new SingletonSupplier<>(supplier) : null);
   }
 
