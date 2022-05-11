@@ -27,14 +27,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.http.HttpCookie;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpStatus;
 import cn.taketoday.http.MediaType;
-import cn.taketoday.web.multipart.MultipartFile;
 import cn.taketoday.web.multipart.MultipartRequest;
-import cn.taketoday.web.multipart.support.ServletMultipartRequest;
 
 /**
  * @author TODAY 2021/3/10 16:35
@@ -99,7 +96,7 @@ public class MockRequestContext extends RequestContext {
   }
 
   @Override
-  public String remoteAddress() {
+  public String getRemoteAddress() {
     return null;
   }
 

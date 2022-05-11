@@ -31,6 +31,8 @@ import cn.taketoday.context.annotation.Import;
 import cn.taketoday.context.event.EventListener;
 import cn.taketoday.core.io.ClassPathResource;
 import cn.taketoday.core.io.Resource;
+import cn.taketoday.framework.reactive.EnableNettyHandling;
+import cn.taketoday.framework.web.WebApplication;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.MediaType;
 import cn.taketoday.util.ResourceUtils;
@@ -40,8 +42,6 @@ import cn.taketoday.web.annotation.GET;
 import cn.taketoday.web.annotation.RestController;
 import cn.taketoday.web.annotation.RestControllerAdvice;
 import cn.taketoday.web.config.EnableWebMvc;
-import cn.taketoday.framework.web.WebApplication;
-import cn.taketoday.framework.reactive.EnableNettyHandling;
 import cn.taketoday.web.registry.annotation.EnableRequestPathMapping;
 import cn.taketoday.web.socket.BinaryMessage;
 import cn.taketoday.web.socket.CloseStatus;
@@ -119,7 +119,7 @@ public class NettyApplication {
     final String queryString = context.getQueryString();
     System.out.println(requestURL);
     System.out.println(queryString);
-    System.out.println(context.remoteAddress());
+    System.out.println(context.getRemoteAddress());
 
     return queryString;
   }

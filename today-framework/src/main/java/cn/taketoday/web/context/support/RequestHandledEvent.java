@@ -55,39 +55,97 @@ public class RequestHandledEvent extends ApplicationEvent {
   @Nullable
   private Throwable failureCause;
 
+  /** URL that triggered the request. */
+  private final String requestUrl;
+
+  /** IP address that the request came from. */
+  private final String clientAddress;
+
+  /** Usually GET or POST. */
+  private final String method;
+
+  /** HTTP status code of the response. */
+  private final int statusCode;
+
   /**
-   * Create a new RequestHandledEvent with session information.
+   * Create a new RequestHandledEvent.
    *
    * @param source the component that published the event
+   * @param requestUrl the URL of the request
+   * @param clientAddress the IP address that the request came from
+   * @param method the HTTP method of the request (usually GET or POST)
    * @param sessionId the id of the HTTP session, if any
    * @param userName the name of the user that was associated with the
    * request, if any (usually the UserPrincipal)
    * @param processingTimeMillis the processing time of the request in milliseconds
    */
-  public RequestHandledEvent(Object source, @Nullable String sessionId, @Nullable String userName,
-          long processingTimeMillis) {
-
+  public RequestHandledEvent(Object source, String requestUrl,
+          String clientAddress, String method, @Nullable String sessionId, @Nullable String userName, long processingTimeMillis) {
     super(source);
-    this.sessionId = sessionId;
+    this.method = method;
+    this.statusCode = -1;
     this.userName = userName;
+    this.sessionId = sessionId;
+    this.requestUrl = requestUrl;
+    this.clientAddress = clientAddress;
     this.processingTimeMillis = processingTimeMillis;
   }
 
   /**
-   * Create a new RequestHandledEvent with session information.
+   * Create a new RequestHandledEvent.
    *
    * @param source the component that published the event
+   * @param requestUrl the URL of the request
+   * @param clientAddress the IP address that the request came from
+   * @param method the HTTP method of the request (usually GET or POST)
    * @param sessionId the id of the HTTP session, if any
    * @param userName the name of the user that was associated with the
    * request, if any (usually the UserPrincipal)
    * @param processingTimeMillis the processing time of the request in milliseconds
    * @param failureCause the cause of failure, if any
    */
-  public RequestHandledEvent(Object source, @Nullable String sessionId, @Nullable String userName,
-          long processingTimeMillis, @Nullable Throwable failureCause) {
+  public RequestHandledEvent(Object source, String requestUrl,
+          String clientAddress, String method, @Nullable String sessionId,
+          @Nullable String userName, long processingTimeMillis, @Nullable Throwable failureCause) {
 
-    this(source, sessionId, userName, processingTimeMillis);
+    super(source);
+    this.method = method;
     this.failureCause = failureCause;
+    this.statusCode = -1;
+    this.userName = userName;
+    this.sessionId = sessionId;
+    this.requestUrl = requestUrl;
+    this.clientAddress = clientAddress;
+    this.processingTimeMillis = processingTimeMillis;
+  }
+
+  /**
+   * Create a new RequestHandledEvent.
+   *
+   * @param source the component that published the event
+   * @param requestUrl the URL of the request
+   * @param clientAddress the IP address that the request came from
+   * @param method the HTTP method of the request (usually GET or POST)
+   * @param sessionId the id of the HTTP session, if any
+   * @param userName the name of the user that was associated with the
+   * request, if any (usually the UserPrincipal)
+   * @param processingTimeMillis the processing time of the request in milliseconds
+   * @param failureCause the cause of failure, if any
+   * @param statusCode the HTTP status code of the response
+   */
+  public RequestHandledEvent(Object source, String requestUrl,
+          String clientAddress, String method, @Nullable String sessionId,
+          @Nullable String userName, long processingTimeMillis, @Nullable Throwable failureCause, int statusCode) {
+    super(source);
+
+    this.method = method;
+    this.userName = userName;
+    this.sessionId = sessionId;
+    this.statusCode = statusCode;
+    this.requestUrl = requestUrl;
+    this.failureCause = failureCause;
+    this.clientAddress = clientAddress;
+    this.processingTimeMillis = processingTimeMillis;
   }
 
   /**
@@ -132,11 +190,42 @@ public class RequestHandledEvent extends ApplicationEvent {
   }
 
   /**
+   * Return the URL of the request.
+   */
+  public String getRequestUrl() {
+    return this.requestUrl;
+  }
+
+  /**
+   * Return the IP address that the request came from.
+   */
+  public String getClientAddress() {
+    return this.clientAddress;
+  }
+
+  /**
+   * Return the HTTP method of the request (usually GET or POST).
+   */
+  public String getMethod() {
+    return this.method;
+  }
+
+  /**
+   * Return the HTTP status code of the response or -1 if the status
+   * code is not available.
+   */
+  public int getStatusCode() {
+    return this.statusCode;
+  }
+
+  /**
    * Return a short description of this event, only involving
    * the most important context data.
    */
   public String getShortDescription() {
     StringBuilder sb = new StringBuilder();
+    sb.append("url=[").append(getRequestUrl()).append("]; ");
+    sb.append("client=[").append(getClientAddress()).append("]; ");
     sb.append("session=[").append(this.sessionId).append("]; ");
     sb.append("user=[").append(this.userName).append("]; ");
     return sb.toString();
@@ -148,6 +237,9 @@ public class RequestHandledEvent extends ApplicationEvent {
    */
   public String getDescription() {
     StringBuilder sb = new StringBuilder();
+    sb.append("url=[").append(getRequestUrl()).append("]; ");
+    sb.append("client=[").append(getClientAddress()).append("]; ");
+    sb.append("method=[").append(getMethod()).append("]; ");
     sb.append("session=[").append(this.sessionId).append("]; ");
     sb.append("user=[").append(this.userName).append("]; ");
     sb.append("time=[").append(this.processingTimeMillis).append("ms]; ");

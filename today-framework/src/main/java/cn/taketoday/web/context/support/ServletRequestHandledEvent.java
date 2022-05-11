@@ -34,20 +34,8 @@ import cn.taketoday.lang.Nullable;
 @SuppressWarnings("serial")
 public class ServletRequestHandledEvent extends RequestHandledEvent {
 
-  /** URL that triggered the request. */
-  private final String requestUrl;
-
-  /** IP address that the request came from. */
-  private final String clientAddress;
-
-  /** Usually GET or POST. */
-  private final String method;
-
   /** Name of the servlet that handled the request. */
   private final String servletName;
-
-  /** HTTP status code of the response. */
-  private final int statusCode;
 
   /**
    * Create a new ServletRequestHandledEvent.
@@ -65,13 +53,8 @@ public class ServletRequestHandledEvent extends RequestHandledEvent {
   public ServletRequestHandledEvent(Object source, String requestUrl,
           String clientAddress, String method, String servletName,
           @Nullable String sessionId, @Nullable String userName, long processingTimeMillis) {
-
-    super(source, sessionId, userName, processingTimeMillis);
-    this.requestUrl = requestUrl;
-    this.clientAddress = clientAddress;
-    this.method = method;
+    super(source, requestUrl, clientAddress, method, sessionId, userName, processingTimeMillis);
     this.servletName = servletName;
-    this.statusCode = -1;
   }
 
   /**
@@ -91,13 +74,8 @@ public class ServletRequestHandledEvent extends RequestHandledEvent {
   public ServletRequestHandledEvent(Object source, String requestUrl,
           String clientAddress, String method, String servletName, @Nullable String sessionId,
           @Nullable String userName, long processingTimeMillis, @Nullable Throwable failureCause) {
-
-    super(source, sessionId, userName, processingTimeMillis, failureCause);
-    this.requestUrl = requestUrl;
-    this.clientAddress = clientAddress;
-    this.method = method;
+    super(source, requestUrl, clientAddress, method, sessionId, userName, processingTimeMillis, failureCause);
     this.servletName = servletName;
-    this.statusCode = -1;
   }
 
   /**
@@ -118,34 +96,8 @@ public class ServletRequestHandledEvent extends RequestHandledEvent {
   public ServletRequestHandledEvent(Object source, String requestUrl,
           String clientAddress, String method, String servletName, @Nullable String sessionId,
           @Nullable String userName, long processingTimeMillis, @Nullable Throwable failureCause, int statusCode) {
-
-    super(source, sessionId, userName, processingTimeMillis, failureCause);
-    this.requestUrl = requestUrl;
-    this.clientAddress = clientAddress;
-    this.method = method;
+    super(source, requestUrl, clientAddress, method, sessionId, userName, processingTimeMillis, failureCause, statusCode);
     this.servletName = servletName;
-    this.statusCode = statusCode;
-  }
-
-  /**
-   * Return the URL of the request.
-   */
-  public String getRequestUrl() {
-    return this.requestUrl;
-  }
-
-  /**
-   * Return the IP address that the request came from.
-   */
-  public String getClientAddress() {
-    return this.clientAddress;
-  }
-
-  /**
-   * Return the HTTP method of the request (usually GET or POST).
-   */
-  public String getMethod() {
-    return this.method;
   }
 
   /**
@@ -153,14 +105,6 @@ public class ServletRequestHandledEvent extends RequestHandledEvent {
    */
   public String getServletName() {
     return this.servletName;
-  }
-
-  /**
-   * Return the HTTP status code of the response or -1 if the status
-   * code is not available.
-   */
-  public int getStatusCode() {
-    return this.statusCode;
   }
 
   @Override
@@ -175,9 +119,6 @@ public class ServletRequestHandledEvent extends RequestHandledEvent {
   @Override
   public String getDescription() {
     StringBuilder sb = new StringBuilder();
-    sb.append("url=[").append(getRequestUrl()).append("]; ");
-    sb.append("client=[").append(getClientAddress()).append("]; ");
-    sb.append("method=[").append(getMethod()).append("]; ");
     sb.append("servlet=[").append(getServletName()).append("]; ");
     sb.append(super.getDescription());
     return sb.toString();

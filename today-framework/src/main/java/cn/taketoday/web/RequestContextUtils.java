@@ -90,6 +90,18 @@ public class RequestContextUtils {
   }
 
   /**
+   * Determine the session id of the given request, if any.
+   *
+   * @param request current HTTP request
+   * @return the session id, or {@code null} if none
+   */
+  @Nullable
+  public static String getSessionId(RequestContext request) {
+    WebSession session = getSession(request, false);
+    return session != null ? session.getId() : null;
+  }
+
+  /**
    * Returns the current session associated with this request, or if the request
    * does not have a session, creates one.
    *

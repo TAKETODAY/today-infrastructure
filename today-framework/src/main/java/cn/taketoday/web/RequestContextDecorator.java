@@ -42,7 +42,6 @@ import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.http.HttpCookie;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpMethod;
-import cn.taketoday.http.HttpStatus;
 import cn.taketoday.http.HttpStatusCode;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.NonNull;
@@ -212,8 +211,8 @@ public class RequestContextDecorator extends RequestContext {
   }
 
   @Override
-  public String remoteAddress() {
-    return delegate.remoteAddress();
+  public String getRemoteAddress() {
+    return delegate.getRemoteAddress();
   }
 
   @Override

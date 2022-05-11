@@ -51,23 +51,7 @@ public class WebMvcProperties {
   private final Format format = new Format();
 
   /**
-   * Whether to dispatch TRACE requests to the FrameworkServlet doService method.
-   */
-  private boolean dispatchTraceRequest = false;
-
-  /**
-   * Whether to dispatch OPTIONS requests to the FrameworkServlet doService method.
-   */
-  private boolean dispatchOptionsRequest = true;
-
-  /**
-   * Whether the content of the "default" model should be ignored during redirect
-   * scenarios.
-   */
-  private boolean ignoreDefaultModelOnRedirect = true;
-
-  /**
-   * Whether to publish a ServletRequestHandledEvent at the end of each request.
+   * Whether to publish a RequestHandledEvent at the end of each request.
    */
   private boolean publishRequestHandledEvents = true;
 
@@ -114,14 +98,6 @@ public class WebMvcProperties {
     return this.format;
   }
 
-  public boolean isIgnoreDefaultModelOnRedirect() {
-    return this.ignoreDefaultModelOnRedirect;
-  }
-
-  public void setIgnoreDefaultModelOnRedirect(boolean ignoreDefaultModelOnRedirect) {
-    this.ignoreDefaultModelOnRedirect = ignoreDefaultModelOnRedirect;
-  }
-
   public boolean isPublishRequestHandledEvents() {
     return this.publishRequestHandledEvents;
   }
@@ -152,22 +128,6 @@ public class WebMvcProperties {
 
   public void setLogResolvedException(boolean logResolvedException) {
     this.logResolvedException = logResolvedException;
-  }
-
-  public boolean isDispatchOptionsRequest() {
-    return this.dispatchOptionsRequest;
-  }
-
-  public void setDispatchOptionsRequest(boolean dispatchOptionsRequest) {
-    this.dispatchOptionsRequest = dispatchOptionsRequest;
-  }
-
-  public boolean isDispatchTraceRequest() {
-    return this.dispatchTraceRequest;
-  }
-
-  public void setDispatchTraceRequest(boolean dispatchTraceRequest) {
-    this.dispatchTraceRequest = dispatchTraceRequest;
   }
 
   public String getStaticPathPattern() {

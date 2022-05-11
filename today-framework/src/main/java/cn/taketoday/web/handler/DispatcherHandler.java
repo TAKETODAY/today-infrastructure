@@ -22,6 +22,7 @@ package cn.taketoday.web.handler;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -29,7 +30,6 @@ import cn.taketoday.beans.factory.BeanFactoryUtils;
 import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.ApplicationContext.State;
-import cn.taketoday.context.ApplicationEvent;
 import cn.taketoday.context.aware.ApplicationContextAware;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
@@ -40,10 +40,12 @@ import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
+import cn.taketoday.util.ArrayHolder;
+import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.web.RequestContext;
+import cn.taketoday.web.RequestHandledListener;
 import cn.taketoday.web.ReturnValueHandler;
 import cn.taketoday.web.context.async.WebAsyncUtils;
-import cn.taketoday.web.context.support.RequestHandledEvent;
 import cn.taketoday.web.handler.method.ExceptionHandlerAnnotationExceptionHandler;
 import cn.taketoday.web.registry.BeanNameUrlHandlerRegistry;
 import cn.taketoday.web.registry.HandlerRegistries;
@@ -115,10 +117,9 @@ public class DispatcherHandler implements ApplicationContextAware {
 
   private ApplicationContext applicationContext;
 
-  /** Should we publish a ServletRequestHandledEvent at the end of each request?. */
-  private boolean publishEvents = true;
-
   private NotFoundHandler notFoundHandler;
+
+  private final ArrayHolder<RequestHandledListener> requestHandledActions = ArrayHolder.forGenerator(RequestHandledListener[]::new);
 
   public DispatcherHandler() { }
 
@@ -427,10 +428,11 @@ public class DispatcherHandler implements ApplicationContextAware {
         returnValue = handlerNotFound(context);
       }
       else if (handler instanceof RequestHandler requestHandler) {
+        // specially for RequestHandler
         returnValue = requestHandler.handleRequest(context);
       }
       else {
-        // Actually invoke the handler.
+        // adaptation for handling this request
         returnValue = lookupHandlerAdapter(handler).handle(context, handler);
       }
     }
@@ -555,28 +557,14 @@ public class DispatcherHandler implements ApplicationContextAware {
     }
   }
 
-  private void publishRequestHandledEvent(
+  protected void publishRequestHandledEvent(
           RequestContext request, long startTime, @Nullable Throwable failureCause) {
-
-    if (publishEvents && applicationContext != null) {
-      // Whether we succeeded, publish an event.
-      var processingTime = System.currentTimeMillis() - startTime;
-      var event = getRequestHandledEvent(request, failureCause, processingTime);
-      applicationContext.publishEvent(event);
+    RequestHandledListener[] requestHandledListeners = requestHandledActions.get();
+    if (ObjectUtils.isNotEmpty(requestHandledListeners)) {
+      for (RequestHandledListener action : requestHandledListeners) {
+        action.requestHandled(request, startTime, failureCause);
+      }
     }
-  }
-
-  /**
-   * create a {@link RequestHandledEvent} for the given request.
-   *
-   * @param request request context
-   * @param failureCause failure cause
-   * @param processingTime processing time
-   * @return the event
-   */
-  protected ApplicationEvent getRequestHandledEvent(
-          RequestContext request, @Nullable Throwable failureCause, long processingTime) {
-    return new RequestHandledEvent(this, null, null, processingTime);
   }
 
   /**
@@ -710,17 +698,6 @@ public class DispatcherHandler implements ApplicationContextAware {
   }
 
   /**
-   * Set whether this servlet should publish a ServletRequestHandledEvent at the end
-   * of each request. Default is "true"; can be turned off for a slight performance
-   * improvement, provided that no ApplicationListeners rely on such events.
-   *
-   * @since 4.0
-   */
-  public void setPublishEvents(boolean publishEvents) {
-    this.publishEvents = publishEvents;
-  }
-
-  /**
    * Called by Framework via {@link ApplicationContextAware} to inject the current
    * application context.
    *
@@ -728,13 +705,31 @@ public class DispatcherHandler implements ApplicationContextAware {
    */
   @Override
   public void setApplicationContext(ApplicationContext applicationContext) {
-    if (this.applicationContext == null) {
-      this.applicationContext = applicationContext;
-    }
+    this.applicationContext = applicationContext;
   }
 
   public void setNotFoundHandler(NotFoundHandler notFoundHandler) {
     this.notFoundHandler = notFoundHandler;
+  }
+
+  /**
+   * add RequestHandledListener array to the list of listeners to be notified when a request is handled.
+   *
+   * @param array RequestHandledListener array
+   * @since 4.0
+   */
+  public void addRequestHandledActions(RequestHandledListener... array) {
+    requestHandledActions.add(array);
+  }
+
+  /**
+   * add RequestHandledListener list to the list of listeners to be notified when a request is handled.
+   *
+   * @param list RequestHandledListener list
+   * @since 4.0
+   */
+  public void addRequestHandledActions(Collection<RequestHandledListener> list) {
+    requestHandledActions.addAll(list);
   }
 
 }

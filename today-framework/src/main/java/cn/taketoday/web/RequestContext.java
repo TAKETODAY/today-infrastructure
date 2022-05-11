@@ -529,7 +529,7 @@ public abstract class RequestContext extends AttributeAccessorSupport
    * @return a <code>String</code> containing the IP address of the client that
    * sent the request
    */
-  public abstract String remoteAddress();
+  public abstract String getRemoteAddress();
 
   /**
    * Returns the length, in bytes, of the request body and made available by the

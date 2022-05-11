@@ -35,13 +35,13 @@ import cn.taketoday.context.condition.ConditionMessage.Style;
 import cn.taketoday.context.condition.ConditionOutcome;
 import cn.taketoday.context.condition.ConditionalOnBean;
 import cn.taketoday.context.condition.ConditionalOnClass;
-import cn.taketoday.framework.annotation.ConditionalOnWebApplication;
-import cn.taketoday.framework.annotation.ConditionalOnWebApplication.Type;
 import cn.taketoday.context.condition.ContextCondition;
 import cn.taketoday.context.properties.EnableConfigurationProperties;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.annotation.Order;
 import cn.taketoday.core.type.AnnotatedTypeMetadata;
+import cn.taketoday.framework.annotation.ConditionalOnWebApplication;
+import cn.taketoday.framework.annotation.ConditionalOnWebApplication.Type;
 import cn.taketoday.framework.web.servlet.ServletRegistrationBean;
 import cn.taketoday.lang.Component;
 import cn.taketoday.lang.Nullable;
@@ -86,10 +86,7 @@ public class DispatcherServletAutoConfiguration {
     @Component(name = DEFAULT_DISPATCHER_SERVLET_BEAN_NAME)
     public DispatcherServlet dispatcherServlet(WebMvcProperties webMvcProperties) {
       DispatcherServlet dispatcherServlet = new DispatcherServlet();
-//      dispatcherServlet.setDispatchOptionsRequest(webMvcProperties.isDispatchOptionsRequest());
-//      dispatcherServlet.setDispatchTraceRequest(webMvcProperties.isDispatchTraceRequest());
       dispatcherServlet.setThrowExceptionIfNoHandlerFound(webMvcProperties.isThrowExceptionIfNoHandlerFound());
-      dispatcherServlet.setPublishEvents(webMvcProperties.isPublishRequestHandledEvents());
       dispatcherServlet.setEnableLoggingRequestDetails(webMvcProperties.isLogRequestDetails());
       return dispatcherServlet;
     }

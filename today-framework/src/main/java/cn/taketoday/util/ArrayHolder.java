@@ -104,6 +104,7 @@ public final class ArrayHolder<E> implements Supplier<E[]>, Iterable<E>, RandomA
     }
   }
 
+  @Override
   @Nullable
   public E[] get() {
     return array;

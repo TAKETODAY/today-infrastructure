@@ -175,7 +175,7 @@ public class NettyRequestContext extends RequestContext {
   }
 
   @Override
-  public final String remoteAddress() {
+  public final String getRemoteAddress() {
     if (remoteAddress == null) {
       InetSocketAddress remote = (InetSocketAddress) channelContext.channel().remoteAddress();
       remoteAddress = remote.getAddress().getHostAddress();

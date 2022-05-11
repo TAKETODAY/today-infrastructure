@@ -35,7 +35,6 @@ import java.util.Locale;
 import java.util.Map;
 
 import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.core.DefaultMultiValueMap;
 import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.http.DefaultHttpHeaders;
 import cn.taketoday.http.HttpCookie;
@@ -50,17 +49,11 @@ import cn.taketoday.util.LinkedCaseInsensitiveMap;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.bind.MultipartException;
-import cn.taketoday.web.bind.NotMultipartRequestException;
-import cn.taketoday.web.multipart.MultipartFile;
 import cn.taketoday.web.multipart.MultipartRequest;
-import cn.taketoday.web.multipart.ServletPartMultipartFile;
 import cn.taketoday.web.multipart.support.ServletMultipartRequest;
-import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.Part;
 
 /**
  * Servlet environment implementation
@@ -207,7 +200,7 @@ public final class ServletRequestContext extends RequestContext {
   }
 
   @Override
-  public String remoteAddress() {
+  public String getRemoteAddress() {
     return request.getRemoteAddr();
   }
 
