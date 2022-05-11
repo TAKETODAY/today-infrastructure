@@ -18,7 +18,7 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.framework.web.servlet.server;
+package cn.taketoday.framework.web.session;
 
 import java.io.File;
 import java.time.Duration;
@@ -32,6 +32,7 @@ import cn.taketoday.lang.Nullable;
  * Session properties.
  *
  * @author Andy Wilkinson
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public class Session {
@@ -53,6 +54,16 @@ public class Session {
   private final Cookie cookie = new Cookie();
 
   private final SessionStoreDirectory sessionStoreDirectory = new SessionStoreDirectory();
+
+  private int sessionIdLength = 30;
+
+  public void setSessionIdLength(int sessionIdLength) {
+    this.sessionIdLength = sessionIdLength;
+  }
+
+  public int getSessionIdLength() {
+    return sessionIdLength;
+  }
 
   @Nullable
   public Duration getTimeout() {
@@ -108,33 +119,8 @@ public class Session {
     return this.cookie;
   }
 
-  SessionStoreDirectory getSessionStoreDirectory() {
-    return this.sessionStoreDirectory;
-  }
-
-  /**
-   * Session cookie properties.
-   */
-  public static class Cookie extends cn.taketoday.framework.web.server.Cookie {
-
-    /**
-     * Comment for the session cookie.
-     */
-    private String comment;
-
-    /**
-     * Return the comment for the session cookie.
-     *
-     * @return the session cookie comment
-     */
-    public String getComment() {
-      return this.comment;
-    }
-
-    public void setComment(String comment) {
-      this.comment = comment;
-    }
-
+  public File getValidDirectory(boolean mkdirs) {
+    return sessionStoreDirectory.getValidDirectory(mkdirs);
   }
 
   /**

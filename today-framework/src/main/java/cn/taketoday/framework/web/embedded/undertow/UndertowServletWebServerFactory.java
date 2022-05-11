@@ -41,7 +41,6 @@ import java.util.regex.Pattern;
 
 import cn.taketoday.context.aware.ResourceLoaderAware;
 import cn.taketoday.core.io.ResourceLoader;
-import cn.taketoday.framework.web.server.Cookie.SameSite;
 import cn.taketoday.framework.web.server.ErrorPage;
 import cn.taketoday.framework.web.server.MimeMappings.Mapping;
 import cn.taketoday.framework.web.server.WebServer;
@@ -49,6 +48,7 @@ import cn.taketoday.framework.web.servlet.ServletContextInitializer;
 import cn.taketoday.framework.web.servlet.server.AbstractServletWebServerFactory;
 import cn.taketoday.framework.web.servlet.server.CookieSameSiteSupplier;
 import cn.taketoday.framework.web.servlet.server.ServletWebServerFactory;
+import cn.taketoday.framework.web.session.SameSite;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;

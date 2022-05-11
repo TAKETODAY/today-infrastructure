@@ -39,7 +39,6 @@ import cn.taketoday.util.StringUtils;
  * @since 4.0 2022/1/16 11:09
  */
 final class StartupLogging {
-  private static final Logger log = LoggerFactory.getLogger(StartupLogging.class);
 
   private static final long HOST_NAME_RESOLVE_THRESHOLD = 200;
 
@@ -111,18 +110,16 @@ final class StartupLogging {
     append(message, "on ", () -> InetAddress.getLocalHost().getHostName());
     long resolveTime = System.currentTimeMillis() - startTime;
     if (resolveTime > HOST_NAME_RESOLVE_THRESHOLD) {
-      log.warn(LogMessage.from(() -> {
-        StringBuilder warning = new StringBuilder();
-        warning.append("InetAddress.getLocalHost().getHostName() took ");
-        warning.append(resolveTime);
-        warning.append(" milliseconds to respond.");
-        warning.append(" Please verify your network configuration");
-        if (System.getProperty("os.name").toLowerCase().contains("mac")) {
-          warning.append(" (macOS machines may need to add entries to /etc/hosts)");
-        }
-        warning.append(".");
-        return warning;
-      }));
+      StringBuilder warning = new StringBuilder();
+      warning.append("InetAddress.getLocalHost().getHostName() took ");
+      warning.append(resolveTime);
+      warning.append(" milliseconds to respond.");
+      warning.append(" Please verify your network configuration");
+      if (System.getProperty("os.name").toLowerCase().contains("mac")) {
+        warning.append(" (macOS machines may need to add entries to /etc/hosts)");
+      }
+      warning.append(".");
+      LoggerFactory.getLogger(StartupLogging.class).warn(warning);
     }
   }
 

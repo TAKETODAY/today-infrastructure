@@ -18,7 +18,7 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.framework.web.servlet.config;
+package cn.taketoday.framework.web.server;
 
 import java.io.File;
 import java.net.InetAddress;
@@ -36,14 +36,9 @@ import cn.taketoday.context.properties.ConfigurationProperties;
 import cn.taketoday.context.properties.NestedConfigurationProperty;
 import cn.taketoday.format.annotation.DurationUnit;
 import cn.taketoday.framework.web.ErrorProperties;
-import cn.taketoday.framework.web.server.Compression;
-import cn.taketoday.framework.web.server.Cookie;
-import cn.taketoday.framework.web.server.Http2;
-import cn.taketoday.framework.web.server.Shutdown;
-import cn.taketoday.framework.web.server.Ssl;
-import cn.taketoday.framework.web.servlet.server.Encoding;
 import cn.taketoday.framework.web.servlet.server.Jsp;
-import cn.taketoday.framework.web.servlet.server.Session;
+import cn.taketoday.framework.web.session.Cookie;
+import cn.taketoday.framework.web.session.Session;
 import cn.taketoday.util.DataSize;
 import cn.taketoday.util.StringUtils;
 import io.undertow.UndertowOptions;
@@ -86,6 +81,12 @@ public class ServerProperties {
    * Network address to which the server should bind.
    */
   private InetAddress address;
+
+  @NestedConfigurationProperty
+  private final Encoding encoding = new Encoding();
+
+  @NestedConfigurationProperty
+  private final Session session = new Session();
 
   @NestedConfigurationProperty
   private final ErrorProperties error = new ErrorProperties();
@@ -223,6 +224,14 @@ public class ServerProperties {
     this.forwardHeadersStrategy = forwardHeadersStrategy;
   }
 
+  public Encoding getEncoding() {
+    return this.encoding;
+  }
+
+  public Session getSession() {
+    return this.session;
+  }
+
   /**
    * Servlet server properties.
    */
@@ -249,13 +258,7 @@ public class ServerProperties {
     private boolean registerDefaultServlet = false;
 
     @NestedConfigurationProperty
-    private final Encoding encoding = new Encoding();
-
-    @NestedConfigurationProperty
     private final Jsp jsp = new Jsp();
-
-    @NestedConfigurationProperty
-    private final Session session = new Session();
 
     public String getContextPath() {
       return this.contextPath;
@@ -296,16 +299,8 @@ public class ServerProperties {
       return this.contextParameters;
     }
 
-    public Encoding getEncoding() {
-      return this.encoding;
-    }
-
     public Jsp getJsp() {
       return this.jsp;
-    }
-
-    public Session getSession() {
-      return this.session;
     }
 
   }

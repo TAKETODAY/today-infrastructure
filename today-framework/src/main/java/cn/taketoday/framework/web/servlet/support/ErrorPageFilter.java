@@ -60,12 +60,13 @@ import jakarta.servlet.http.HttpServletResponseWrapper;
  *
  * @author Dave Syer
  * @author Phillip Webb
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @author Andy Wilkinson
  * @since 4.0
  */
 public class ErrorPageFilter implements Filter, ErrorPageRegistry, Ordered {
 
-  private static final Logger logger = LoggerFactory.getLogger(ErrorPageFilter.class);
+  private static final Logger log = LoggerFactory.getLogger(ErrorPageFilter.class);
 
   // From RequestDispatcher but not referenced to remain compatible with Servlet 2.5
 
@@ -148,8 +149,8 @@ public class ErrorPageFilter implements Filter, ErrorPageRegistry, Ordered {
     }
   }
 
-  private void handleErrorStatus(HttpServletRequest request, HttpServletResponse response, int status, String message)
-          throws ServletException, IOException {
+  private void handleErrorStatus(HttpServletRequest request, HttpServletResponse response,
+          int status, String message) throws ServletException, IOException {
     if (response.isCommitted()) {
       handleCommittedResponse(request, null);
       return;
@@ -164,8 +165,8 @@ public class ErrorPageFilter implements Filter, ErrorPageRegistry, Ordered {
     request.getRequestDispatcher(errorPath).forward(request, response);
   }
 
-  private void handleException(HttpServletRequest request, HttpServletResponse response, ErrorWrapperResponse wrapped,
-                               Throwable ex) throws IOException, ServletException {
+  private void handleException(HttpServletRequest request, HttpServletResponse response,
+          ErrorWrapperResponse wrapped, Throwable ex) throws IOException, ServletException {
     Class<?> type = ex.getClass();
     String errorPath = getErrorPath(type);
     if (errorPath == null) {
@@ -181,11 +182,12 @@ public class ErrorPageFilter implements Filter, ErrorPageRegistry, Ordered {
 
   private void forwardToErrorPage(String path, HttpServletRequest request, HttpServletResponse response, Throwable ex)
           throws ServletException, IOException {
-    if (logger.isErrorEnabled()) {
-      String message = "Forwarding to error page from request " + getDescription(request) + " due to exception ["
-              + ex.getMessage() + "]";
-      logger.error(message, ex);
+
+    if (log.isErrorEnabled()) {
+      log.error("Forwarding to error page from request {} due to exception [{}]",
+              getDescription(request), ex.getMessage(), ex);
     }
+
     setErrorAttributes(request, 500, ex.getMessage());
     request.setAttribute(ERROR_EXCEPTION, ex);
     request.setAttribute(ERROR_EXCEPTION_TYPE, ex.getClass());
@@ -220,12 +222,12 @@ public class ErrorPageFilter implements Filter, ErrorPageRegistry, Ordered {
             + " Server you may be able to resolve this problem by setting"
             + " com.ibm.ws.webcontainer.invokeFlushAfterService to false";
     if (ex == null) {
-      logger.error(message);
+      log.error(message);
     }
     else {
       // User might see the error page without all the data here but throwing the
       // exception isn't going to help anyone (we'll log it to be on the safe side)
-      logger.error(message, ex);
+      log.error(message, ex);
     }
   }
 
@@ -309,8 +311,7 @@ public class ErrorPageFilter implements Filter, ErrorPageRegistry, Ordered {
     try {
       collection.add(ClassUtils.forName(className, null));
     }
-    catch (Throwable ex) {
-    }
+    catch (Throwable ignored) { }
   }
 
   private static class ErrorWrapperResponse extends HttpServletResponseWrapper {

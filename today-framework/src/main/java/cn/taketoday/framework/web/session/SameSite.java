@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -18,14 +18,41 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.web.session;
+package cn.taketoday.framework.web.session;
 
 /**
- * @author TODAY 2021/4/27 23:04
- * @since 3.0
+ * SameSite values.
+ *
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 4.0 2022/5/11 16:49
  */
-public enum TrackingMode {
-  COOKIE,
-  URL,
-  SSL
+public enum SameSite {
+
+  /**
+   * Cookies are sent in both first-party and cross-origin requests.
+   */
+  NONE("None"),
+
+  /**
+   * Cookies are sent in a first-party context, also when following a link to the
+   * origin site.
+   */
+  LAX("Lax"),
+
+  /**
+   * Cookies are only sent in a first-party context (i.e. not when following a link
+   * to the origin site).
+   */
+  STRICT("Strict");
+
+  private final String attributeValue;
+
+  SameSite(String attributeValue) {
+    this.attributeValue = attributeValue;
+  }
+
+  public String attributeValue() {
+    return this.attributeValue;
+  }
+
 }

@@ -28,7 +28,7 @@ import cn.taketoday.util.DataSize;
  *
  * @author Brian Clozel
  */
-@ConfigurationProperties(prefix = "http.codec.")
+@ConfigurationProperties(prefix = "http.codec")
 public class CodecProperties {
 
   /**

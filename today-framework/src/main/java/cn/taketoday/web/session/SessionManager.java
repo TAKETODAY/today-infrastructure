@@ -49,6 +49,7 @@ public interface SessionManager {
    * If there is not a session,create one.
    * </p>
    */
+  @Nullable
   WebSession getSession(@Nullable String sessionId);
 
   /**

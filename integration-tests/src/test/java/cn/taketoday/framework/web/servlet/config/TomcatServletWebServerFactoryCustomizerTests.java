@@ -29,6 +29,7 @@ import cn.taketoday.context.properties.bind.Binder;
 import cn.taketoday.context.properties.source.ConfigurationPropertySources;
 import cn.taketoday.framework.web.embedded.tomcat.TomcatServletWebServerFactory;
 import cn.taketoday.framework.web.embedded.tomcat.TomcatWebServer;
+import cn.taketoday.framework.web.server.ServerProperties;
 import cn.taketoday.mock.env.MockEnvironment;
 import cn.taketoday.test.context.support.TestPropertySourceUtils;
 

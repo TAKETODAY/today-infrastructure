@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -17,7 +17,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.web.session;
+
+package cn.taketoday.framework.web.session;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -31,11 +32,23 @@ import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Import;
-import cn.taketoday.context.annotation.Lazy;
 import cn.taketoday.context.annotation.Role;
 import cn.taketoday.context.condition.ConditionalOnMissingBean;
-import cn.taketoday.context.properties.Props;
+import cn.taketoday.context.properties.EnableConfigurationProperties;
+import cn.taketoday.framework.web.server.ServerProperties;
 import cn.taketoday.lang.Component;
+import cn.taketoday.web.session.CookieSessionIdResolver;
+import cn.taketoday.web.session.DefaultSessionManager;
+import cn.taketoday.web.session.InMemorySessionRepository;
+import cn.taketoday.web.session.SecureRandomSessionIdGenerator;
+import cn.taketoday.web.session.SessionEventDispatcher;
+import cn.taketoday.web.session.SessionIdGenerator;
+import cn.taketoday.web.session.SessionIdResolver;
+import cn.taketoday.web.session.SessionManager;
+import cn.taketoday.web.session.SessionRepository;
+import cn.taketoday.web.session.WebSessionAttributeParameterResolver;
+import cn.taketoday.web.session.WebSessionListener;
+import cn.taketoday.web.session.WebSessionParameterResolver;
 import cn.taketoday.web.view.RedirectModelManager;
 import cn.taketoday.web.view.SessionRedirectModelManager;
 
@@ -51,8 +64,9 @@ public @interface EnableWebSession {
 
 }
 
-@Configuration(proxyBeanMethods = false)
 @DisableAllDependencyInjection
+@Configuration(proxyBeanMethods = false)
+@EnableConfigurationProperties(ServerProperties.class)
 class WebSessionConfig {
 
   /**
@@ -102,9 +116,9 @@ class WebSessionConfig {
   @Component
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
   @ConditionalOnMissingBean(SessionRepository.class)
-  MemSessionRepository memorySessionRepository(
+  InMemorySessionRepository memorySessionRepository(
           SessionEventDispatcher eventDispatcher, SessionIdGenerator sessionIdGenerator) {
-    return new MemSessionRepository(eventDispatcher, sessionIdGenerator);
+    return new InMemorySessionRepository(eventDispatcher, sessionIdGenerator);
   }
 
   /**
@@ -113,33 +127,11 @@ class WebSessionConfig {
   @Component
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
   @ConditionalOnMissingBean(SessionIdGenerator.class)
-  SessionIdGenerator sessionIdGenerator(SessionProperties sessionProperties) {
+  SessionIdGenerator sessionIdGenerator(ServerProperties serverProperties) {
     SecureRandomSessionIdGenerator generator = new SecureRandomSessionIdGenerator();
-    generator.setLength(sessionProperties.getSessionIdLength());
+    Session session = serverProperties.getSession();
+    generator.setLength(session.getSessionIdLength());
     return generator;
-  }
-
-  /**
-   * default {@link SessionCookieConfig} bean
-   *
-   * @since 3.0
-   */
-  @Lazy
-  @Component
-  @ConditionalOnMissingBean
-  @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-  @Props(prefix = "server.session.cookie")
-  SessionCookieConfig webSessionCookieConfig() {
-    return new SessionCookieConfig();
-  }
-
-  @Lazy
-  @Component
-  @ConditionalOnMissingBean
-  @Props(prefix = "server.session")
-  @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-  SessionProperties sessionProperties(SessionCookieConfig sessionCookieConfig) {
-    return new SessionProperties(sessionCookieConfig);
   }
 
   /**
@@ -150,8 +142,9 @@ class WebSessionConfig {
   @Component
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
   @ConditionalOnMissingBean(SessionIdResolver.class)
-  CookieSessionIdResolver webTokenResolver(SessionCookieConfig config) {
-    return new CookieSessionIdResolver(config);
+  CookieSessionIdResolver webTokenResolver(ServerProperties serverProperties) {
+    Session session = serverProperties.getSession();
+    return new CookieSessionIdResolver(session.getCookie());
   }
 
   @Component(RedirectModelManager.BEAN_NAME)

@@ -25,7 +25,7 @@ import org.junit.jupiter.api.Test;
 import java.util.function.Supplier;
 import java.util.regex.Pattern;
 
-import cn.taketoday.framework.web.server.Cookie.SameSite;
+import cn.taketoday.framework.web.session.SameSite;
 import jakarta.servlet.http.Cookie;
 
 import static org.assertj.core.api.Assertions.assertThat;

@@ -18,12 +18,13 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.framework.web.server;
+package cn.taketoday.framework.web.session;
 
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 
 import cn.taketoday.format.annotation.DurationUnit;
+import cn.taketoday.http.ResponseCookie;
 
 /**
  * Cookie properties.
@@ -32,6 +33,7 @@ import cn.taketoday.format.annotation.DurationUnit;
  * @author Andy Wilkinson
  * @author Brian Clozel
  * @author Weix Sun
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public class Cookie {
@@ -74,6 +76,24 @@ public class Cookie {
    * SameSite setting for the cookie.
    */
   private SameSite sameSite;
+
+  /**
+   * Comment for the session cookie.
+   */
+  private String comment;
+
+  /**
+   * Return the comment for the session cookie.
+   *
+   * @return the session cookie comment
+   */
+  public String getComment() {
+    return this.comment;
+  }
+
+  public void setComment(String comment) {
+    this.comment = comment;
+  }
 
   public String getName() {
     return this.name;
@@ -131,38 +151,14 @@ public class Cookie {
     this.sameSite = sameSite;
   }
 
-  /**
-   * SameSite values.
-   */
-  public enum SameSite {
-
-    /**
-     * Cookies are sent in both first-party and cross-origin requests.
-     */
-    NONE("None"),
-
-    /**
-     * Cookies are sent in a first-party context, also when following a link to the
-     * origin site.
-     */
-    LAX("Lax"),
-
-    /**
-     * Cookies are only sent in a first-party context (i.e. not when following a link
-     * to the origin site).
-     */
-    STRICT("Strict");
-
-    private final String attributeValue;
-
-    SameSite(String attributeValue) {
-      this.attributeValue = attributeValue;
-    }
-
-    public String attributeValue() {
-      return this.attributeValue;
-    }
-
+  public ResponseCookie createCookie(String value) {
+    return ResponseCookie.from(name, value)
+            .path(path)
+            .domain(domain)
+            .secure(secure)
+            .httpOnly(httpOnly)
+            .maxAge(maxAge)
+            .build();
   }
 
 }

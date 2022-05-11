@@ -32,11 +32,13 @@ import cn.taketoday.context.properties.bind.Bindable;
 import cn.taketoday.context.properties.bind.Binder;
 import cn.taketoday.context.properties.source.ConfigurationPropertySource;
 import cn.taketoday.context.properties.source.MapConfigurationPropertySource;
+import cn.taketoday.framework.web.server.ServerProperties;
 import cn.taketoday.framework.web.server.Shutdown;
 import cn.taketoday.framework.web.server.Ssl;
 import cn.taketoday.framework.web.servlet.server.ConfigurableServletWebServerFactory;
 import cn.taketoday.framework.web.servlet.server.Jsp;
-import cn.taketoday.framework.web.servlet.server.Session;
+import cn.taketoday.framework.web.session.Cookie;
+import cn.taketoday.framework.web.session.Session;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -115,7 +117,7 @@ class ServletWebServerFactoryCustomizerTests {
     ArgumentCaptor<Session> sessionCaptor = ArgumentCaptor.forClass(Session.class);
     then(factory).should().setSession(sessionCaptor.capture());
     assertThat(sessionCaptor.getValue().getTimeout()).hasSeconds(123);
-    Session.Cookie cookie = sessionCaptor.getValue().getCookie();
+    Cookie cookie = sessionCaptor.getValue().getCookie();
     assertThat(cookie.getName()).isEqualTo("testname");
     assertThat(cookie.getDomain()).isEqualTo("testdomain");
     assertThat(cookie.getPath()).isEqualTo("/testpath");

@@ -24,6 +24,7 @@ import java.util.Collections;
 import java.util.List;
 
 import cn.taketoday.core.Ordered;
+import cn.taketoday.framework.web.server.ServerProperties;
 import cn.taketoday.framework.web.server.WebServerFactoryCustomizer;
 import cn.taketoday.framework.web.servlet.WebListenerRegistrar;
 import cn.taketoday.framework.web.servlet.server.ConfigurableServletWebServerFactory;
@@ -76,17 +77,19 @@ public class ServletWebServerFactoryCustomizer
   public void customize(ConfigurableServletWebServerFactory factory) {
     PropertyMapper map = PropertyMapper.get().alwaysApplyingWhenNonNull();
     map.from(serverProperties::getPort).to(factory::setPort);
+    map.from(serverProperties::getSession).to(factory::setSession);
     map.from(serverProperties::getAddress).to(factory::setAddress);
+
     map.from(serverProperties.getServlet()::getContextPath).to(factory::setContextPath);
     map.from(serverProperties.getServlet()::getApplicationDisplayName).to(factory::setDisplayName);
     map.from(serverProperties.getServlet()::isRegisterDefaultServlet).to(factory::setRegisterDefaultServlet);
-    map.from(serverProperties.getServlet()::getSession).to(factory::setSession);
-    map.from(serverProperties::getSsl).to(factory::setSsl);
     map.from(serverProperties.getServlet()::getJsp).to(factory::setJsp);
+    map.from(serverProperties.getServlet()::getContextParameters).to(factory::setInitParameters);
+
+    map.from(serverProperties::getSsl).to(factory::setSsl);
     map.from(serverProperties::getCompression).to(factory::setCompression);
     map.from(serverProperties::getHttp2).to(factory::setHttp2);
     map.from(serverProperties::getServerHeader).to(factory::setServerHeader);
-    map.from(serverProperties.getServlet()::getContextParameters).to(factory::setInitParameters);
     map.from(serverProperties.getShutdown()).to(factory::setShutdown);
     for (WebListenerRegistrar registrar : webListenerRegistrars) {
       registrar.register(factory);

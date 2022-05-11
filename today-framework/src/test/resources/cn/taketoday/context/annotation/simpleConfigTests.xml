@@ -14,7 +14,7 @@
   <bean class="cn.taketoday.scheduling.annotation.AsyncAnnotationAdvisor">
     <!--
     <property name="taskExecutor">
-      <bean id="taskExecutor" class="cn.taketoday.scheduling.concurrent.ThreadPoolTaskExecutor"/>
+      <bean value="taskExecutor" class="cn.taketoday.scheduling.concurrent.ThreadPoolTaskExecutor"/>
     </property>
     -->
   </bean>

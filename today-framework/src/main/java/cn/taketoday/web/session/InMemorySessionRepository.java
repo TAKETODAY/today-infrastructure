@@ -43,7 +43,7 @@ import cn.taketoday.util.StringUtils;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 2019-09-28 10:31
  */
-public class MemSessionRepository implements SessionRepository {
+public class InMemorySessionRepository implements SessionRepository {
 
   private int maxSessions = 10000;
   private Clock clock = Clock.system(ZoneId.of("GMT"));
@@ -53,7 +53,7 @@ public class MemSessionRepository implements SessionRepository {
   private final ExpiredSessionChecker expiredSessionChecker = new ExpiredSessionChecker();
   private final ConcurrentHashMap<String, InMemoryWebSession> sessions = new ConcurrentHashMap<>();
 
-  public MemSessionRepository(SessionEventDispatcher eventDispatcher, SessionIdGenerator idGenerator) {
+  public InMemorySessionRepository(SessionEventDispatcher eventDispatcher, SessionIdGenerator idGenerator) {
     Assert.notNull(idGenerator, "SessionIdGenerator is required");
     Assert.notNull(eventDispatcher, "SessionEventDispatcher is required");
     this.idGenerator = idGenerator;

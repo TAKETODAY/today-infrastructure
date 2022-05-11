@@ -20,7 +20,7 @@
 
 package cn.taketoday.framework.web.server;
 
-import cn.taketoday.http.HttpStatus;
+import cn.taketoday.http.HttpStatusCode;
 import cn.taketoday.util.ObjectUtils;
 
 /**
@@ -32,7 +32,7 @@ import cn.taketoday.util.ObjectUtils;
  */
 public class ErrorPage {
 
-  private final HttpStatus status;
+  private final HttpStatusCode status;
 
   private final Class<? extends Throwable> exception;
 
@@ -44,7 +44,7 @@ public class ErrorPage {
     this.path = path;
   }
 
-  public ErrorPage(HttpStatus status, String path) {
+  public ErrorPage(HttpStatusCode status, String path) {
     this.status = status;
     this.exception = null;
     this.path = path;
@@ -82,7 +82,7 @@ public class ErrorPage {
    *
    * @return the status or {@code null}
    */
-  public HttpStatus getStatus() {
+  public HttpStatusCode getStatus() {
     return this.status;
   }
 

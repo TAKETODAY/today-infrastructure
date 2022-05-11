@@ -6,7 +6,6 @@
 import cn.taketoday.web.session.TokenResolver;
 import cn.taketoday.web.session.WebSessionManager;
 import cn.taketoday.web.session.WebSessionStorage;
-import cn.taketoday.web.session.SessionCookieConfig;
 
 // Enable xxx
 @Retention(RUNTIME)

@@ -25,11 +25,11 @@ import java.nio.charset.StandardCharsets;
 import java.util.stream.Collectors;
 
 import cn.taketoday.beans.factory.ObjectProvider;
-import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Import;
-import cn.taketoday.context.annotation.config.AutoConfigureAfter;
+import cn.taketoday.context.annotation.config.AutoConfiguration;
 import cn.taketoday.context.condition.ConditionalOnMissingBean;
 import cn.taketoday.core.env.Environment;
+import cn.taketoday.framework.web.server.ServerProperties;
 import cn.taketoday.http.converter.HttpMessageConverter;
 import cn.taketoday.http.converter.StringHttpMessageConverter;
 import cn.taketoday.lang.Component;
@@ -50,8 +50,7 @@ import cn.taketoday.web.config.jackson.JacksonAutoConfiguration;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/1/16 15:10
  */
-@Configuration(proxyBeanMethods = false)
-@AutoConfigureAfter({ JacksonAutoConfiguration.class })
+@AutoConfiguration(after = JacksonAutoConfiguration.class)
 @Import(JacksonHttpMessageConvertersConfiguration.class)
 public class HttpMessageConvertersAutoConfiguration {
 
@@ -63,7 +62,7 @@ public class HttpMessageConvertersAutoConfiguration {
 
   @Component
   @ConditionalOnMissingBean
-  public StringHttpMessageConverter stringHttpMessageConverter(Environment environment) {
+  public StringHttpMessageConverter stringHttpMessageConverter(Environment environment, ServerProperties serverProperties) {
     Charset charset;
     String encoding = environment.getProperty("server.encoding");
     if (encoding != null) {

@@ -25,6 +25,7 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 
 import cn.taketoday.context.support.StandardApplicationContext;
+import cn.taketoday.framework.web.session.EnableWebSession;
 import cn.taketoday.http.HttpCookie;
 import cn.taketoday.web.MockRequestContext;
 

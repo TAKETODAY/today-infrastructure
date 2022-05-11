@@ -23,6 +23,7 @@ package cn.taketoday.framework.web.servlet.config;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.framework.web.embedded.tomcat.ConfigurableTomcatWebServerFactory;
 import cn.taketoday.framework.web.embedded.tomcat.TomcatServletWebServerFactory;
+import cn.taketoday.framework.web.server.ServerProperties;
 import cn.taketoday.framework.web.server.WebServerFactoryCustomizer;
 import cn.taketoday.util.ObjectUtils;
 

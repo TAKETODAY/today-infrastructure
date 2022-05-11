@@ -25,7 +25,6 @@ import java.net.URL;
 import java.nio.charset.Charset;
 import java.time.Duration;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -38,6 +37,8 @@ import java.util.Set;
 import cn.taketoday.framework.web.server.AbstractConfigurableWebServerFactory;
 import cn.taketoday.framework.web.server.MimeMappings;
 import cn.taketoday.framework.web.servlet.ServletContextInitializer;
+import cn.taketoday.framework.web.session.Cookie;
+import cn.taketoday.framework.web.session.Session;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
@@ -46,7 +47,6 @@ import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.PropertyMapper;
 import jakarta.servlet.ServletContext;
-import jakarta.servlet.ServletException;
 import jakarta.servlet.SessionCookieConfig;
 import jakarta.servlet.SessionTrackingMode;
 
@@ -79,6 +79,7 @@ public abstract class AbstractServletWebServerFactory extends AbstractConfigurab
 
   private List<ServletContextInitializer> initializers = new ArrayList<>();
 
+  @Nullable
   private Jsp jsp = new Jsp();
 
   private Map<Locale, Charset> localeCharsetMappings = new HashMap<>();
@@ -87,7 +88,7 @@ public abstract class AbstractServletWebServerFactory extends AbstractConfigurab
 
   private List<CookieSameSiteSupplier> cookieSameSiteSuppliers = new ArrayList<>();
 
-  private final DocumentRoot documentRoot = new DocumentRoot(this.logger);
+  private final DocumentRoot documentRoot = new DocumentRoot(logger);
 
   private final StaticResourceJars staticResourceJars = new StaticResourceJars();
 
@@ -211,7 +212,7 @@ public abstract class AbstractServletWebServerFactory extends AbstractConfigurab
   @Override
   public void addInitializers(ServletContextInitializer... initializers) {
     Assert.notNull(initializers, "Initializers must not be null");
-    this.initializers.addAll(Arrays.asList(initializers));
+    CollectionUtils.addAll(this.initializers, initializers);
   }
 
   public Jsp getJsp() {
@@ -265,7 +266,7 @@ public abstract class AbstractServletWebServerFactory extends AbstractConfigurab
   @Override
   public void addCookieSameSiteSuppliers(CookieSameSiteSupplier... cookieSameSiteSuppliers) {
     Assert.notNull(cookieSameSiteSuppliers, "CookieSameSiteSuppliers must not be null");
-    this.cookieSameSiteSuppliers.addAll(Arrays.asList(cookieSameSiteSuppliers));
+    CollectionUtils.addAll(this.cookieSameSiteSuppliers, cookieSameSiteSuppliers);
   }
 
   public List<CookieSameSiteSupplier> getCookieSameSiteSuppliers() {
@@ -295,8 +296,8 @@ public abstract class AbstractServletWebServerFactory extends AbstractConfigurab
    * @return {@code true} if the servlet should be registered, otherwise {@code false}
    */
   protected boolean shouldRegisterJspServlet() {
-    return this.jsp != null && this.jsp.getRegistered()
-            && ClassUtils.isPresent(this.jsp.getClassName(), getClass().getClassLoader());
+    return jsp != null && jsp.getRegistered()
+            && ClassUtils.isPresent(jsp.getClassName(), getClass().getClassLoader());
   }
 
   /**
@@ -319,12 +320,12 @@ public abstract class AbstractServletWebServerFactory extends AbstractConfigurab
   }
 
   protected final File getValidSessionStoreDir(boolean mkdirs) {
-    return this.session.getSessionStoreDirectory().getValidDirectory(mkdirs);
+    return this.session.getValidDirectory(mkdirs);
   }
 
   @Override
   public void addWebListeners(String... webListenerClassNames) {
-    this.webListenerClassNames.addAll(Arrays.asList(webListenerClassNames));
+    CollectionUtils.addAll(this.webListenerClassNames, webListenerClassNames);
   }
 
   protected final Set<String> getWebListenerClassNames() {
@@ -338,7 +339,7 @@ public abstract class AbstractServletWebServerFactory extends AbstractConfigurab
   private record SessionConfiguringInitializer(Session session) implements ServletContextInitializer {
 
     @Override
-    public void onStartup(ServletContext servletContext) throws ServletException {
+    public void onStartup(ServletContext servletContext) {
       if (session.getTrackingModes() != null) {
         servletContext.setSessionTrackingModes(unwrap(session.getTrackingModes()));
       }
@@ -346,7 +347,7 @@ public abstract class AbstractServletWebServerFactory extends AbstractConfigurab
     }
 
     private void configureSessionCookie(SessionCookieConfig config) {
-      Session.Cookie cookie = this.session.getCookie();
+      Cookie cookie = this.session.getCookie();
       PropertyMapper map = PropertyMapper.get().alwaysApplyingWhenNonNull();
       map.from(cookie::getName).to(config::setName);
       map.from(cookie::getDomain).to(config::setDomain);

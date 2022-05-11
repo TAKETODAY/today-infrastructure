@@ -46,6 +46,7 @@ import cn.taketoday.framework.web.server.Ssl;
 import cn.taketoday.framework.web.server.SslConfigurationValidator;
 import cn.taketoday.framework.web.server.SslStoreProvider;
 import cn.taketoday.framework.web.server.WebServerException;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ResourceUtils;
 import io.netty.handler.ssl.ClientAuth;
 import reactor.netty.http.Http11SslContextSpec;
@@ -60,6 +61,7 @@ import reactor.netty.tcp.AbstractProtocolSslContextSpec;
  * @author Brian Clozel
  * @author Raheela Aslam
  * @author Chris Bono
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  * @deprecated this class is meant for internal use only.
  */
@@ -68,11 +70,13 @@ public class SslServerCustomizer implements NettyServerCustomizer {
 
   private final Ssl ssl;
 
+  @Nullable
   private final Http2 http2;
 
+  @Nullable
   private final SslStoreProvider sslStoreProvider;
 
-  public SslServerCustomizer(Ssl ssl, Http2 http2, SslStoreProvider sslStoreProvider) {
+  public SslServerCustomizer(Ssl ssl, @Nullable Http2 http2, @Nullable SslStoreProvider sslStoreProvider) {
     this.ssl = ssl;
     this.http2 = http2;
     this.sslStoreProvider = sslStoreProvider;
@@ -81,18 +85,18 @@ public class SslServerCustomizer implements NettyServerCustomizer {
   @Override
   public HttpServer apply(HttpServer server) {
     AbstractProtocolSslContextSpec<?> sslContextSpec = createSslContextSpec();
-    return server.secure((spec) -> spec.sslContext(sslContextSpec));
+    return server.secure(spec -> spec.sslContext(sslContextSpec));
   }
 
   protected AbstractProtocolSslContextSpec<?> createSslContextSpec() {
     AbstractProtocolSslContextSpec<?> sslContextSpec;
     if (this.http2 != null && this.http2.isEnabled()) {
-      sslContextSpec = Http2SslContextSpec.forServer(getKeyManagerFactory(this.ssl, this.sslStoreProvider));
+      sslContextSpec = Http2SslContextSpec.forServer(getKeyManagerFactory(ssl, this.sslStoreProvider));
     }
     else {
-      sslContextSpec = Http11SslContextSpec.forServer(getKeyManagerFactory(this.ssl, this.sslStoreProvider));
+      sslContextSpec = Http11SslContextSpec.forServer(getKeyManagerFactory(ssl, sslStoreProvider));
     }
-    sslContextSpec.configure((builder) -> {
+    sslContextSpec.configure(builder -> {
       builder.trustManager(getTrustManagerFactory(this.ssl, this.sslStoreProvider));
       if (this.ssl.getEnabledProtocols() != null) {
         builder.protocols(this.ssl.getEnabledProtocols());
@@ -110,7 +114,7 @@ public class SslServerCustomizer implements NettyServerCustomizer {
     return sslContextSpec;
   }
 
-  KeyManagerFactory getKeyManagerFactory(Ssl ssl, SslStoreProvider sslStoreProvider) {
+  KeyManagerFactory getKeyManagerFactory(Ssl ssl, @Nullable SslStoreProvider sslStoreProvider) {
     try {
       KeyStore keyStore = getKeyStore(ssl, sslStoreProvider);
       SslConfigurationValidator.validateKeyAlias(keyStore, ssl.getKeyAlias());
@@ -130,7 +134,7 @@ public class SslServerCustomizer implements NettyServerCustomizer {
     }
   }
 
-  private KeyStore getKeyStore(Ssl ssl, SslStoreProvider sslStoreProvider) throws Exception {
+  private KeyStore getKeyStore(Ssl ssl, @Nullable SslStoreProvider sslStoreProvider) throws Exception {
     if (sslStoreProvider != null) {
       return sslStoreProvider.getKeyStore();
     }
@@ -138,7 +142,7 @@ public class SslServerCustomizer implements NettyServerCustomizer {
             ssl.getKeyStorePassword());
   }
 
-  TrustManagerFactory getTrustManagerFactory(Ssl ssl, SslStoreProvider sslStoreProvider) {
+  TrustManagerFactory getTrustManagerFactory(Ssl ssl, @Nullable SslStoreProvider sslStoreProvider) {
     try {
       KeyStore store = getTrustStore(ssl, sslStoreProvider);
       TrustManagerFactory trustManagerFactory = TrustManagerFactory
@@ -151,7 +155,7 @@ public class SslServerCustomizer implements NettyServerCustomizer {
     }
   }
 
-  private KeyStore getTrustStore(Ssl ssl, SslStoreProvider sslStoreProvider) throws Exception {
+  private KeyStore getTrustStore(Ssl ssl, @Nullable SslStoreProvider sslStoreProvider) throws Exception {
     if (sslStoreProvider != null) {
       return sslStoreProvider.getTrustStore();
     }
@@ -164,14 +168,14 @@ public class SslServerCustomizer implements NettyServerCustomizer {
     return loadStore(type, provider, resource, password);
   }
 
-  private KeyStore loadTrustStore(String type, String provider, String resource, String password) throws Exception {
+  private KeyStore loadTrustStore(String type, String provider, @Nullable String resource, String password) throws Exception {
     if (resource == null) {
       return null;
     }
     return loadStore(type, provider, resource, password);
   }
 
-  private KeyStore loadStore(String type, String provider, String resource, String password) throws Exception {
+  private KeyStore loadStore(@Nullable String type, @Nullable String provider, String resource, @Nullable String password) throws Exception {
     type = (type != null) ? type : "JKS";
     KeyStore store = (provider != null) ? KeyStore.getInstance(type, provider) : KeyStore.getInstance(type);
     try {
@@ -231,8 +235,11 @@ public class SslServerCustomizer implements NettyServerCustomizer {
 
     @Override
     protected KeyManager[] engineGetKeyManagers() {
-      return Arrays.stream(this.delegate.getKeyManagers()).filter(X509ExtendedKeyManager.class::isInstance)
-              .map(X509ExtendedKeyManager.class::cast).map(this::wrap).toArray(KeyManager[]::new);
+      return Arrays.stream(this.delegate.getKeyManagers())
+              .filter(X509ExtendedKeyManager.class::isInstance)
+              .map(X509ExtendedKeyManager.class::cast)
+              .map(this::wrap)
+              .toArray(KeyManager[]::new);
     }
 
     private ConfigurableAliasKeyManager wrap(X509ExtendedKeyManager keyManager) {
@@ -245,9 +252,10 @@ public class SslServerCustomizer implements NettyServerCustomizer {
 
     private final X509ExtendedKeyManager delegate;
 
+    @Nullable
     private final String alias;
 
-    private ConfigurableAliasKeyManager(X509ExtendedKeyManager keyManager, String alias) {
+    private ConfigurableAliasKeyManager(X509ExtendedKeyManager keyManager, @Nullable String alias) {
       this.delegate = keyManager;
       this.alias = alias;
     }

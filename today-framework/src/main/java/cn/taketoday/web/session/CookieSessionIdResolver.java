@@ -23,10 +23,12 @@ package cn.taketoday.web.session;
 import java.util.ArrayList;
 
 import cn.taketoday.core.Conventions;
+import cn.taketoday.framework.web.session.Cookie;
 import cn.taketoday.http.HttpCookie;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.ResponseCookie;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.RequestContext;
 
 /**
@@ -62,31 +64,32 @@ public class CookieSessionIdResolver implements SessionIdResolver {
           CookieSessionIdResolver.class, "WRITTEN_SESSION_ID_ATTR");
 
   private final String cookieName;
-  private final SessionCookieConfig config;
+  private final Cookie config;
 
   public CookieSessionIdResolver() {
     this(HttpHeaders.AUTHORIZATION);
   }
 
   public CookieSessionIdResolver(String cookieName) {
-    this.config = new SessionCookieConfig();
+    this.config = new Cookie();
     this.cookieName = cookieName;
     config.setName(cookieName);
   }
 
-  public CookieSessionIdResolver(SessionCookieConfig config) {
+  public CookieSessionIdResolver(Cookie config) {
     Assert.notNull(config, "cookieConfiguration must not be null");
     this.config = config;
     this.cookieName = config.getName();
   }
 
+  @Nullable
   @Override
   public String retrieveId(RequestContext context) {
-    final String cookieName = this.cookieName;
-    final HttpCookie cookie = context.getCookie(cookieName);
+    String cookieName = this.cookieName;
+    HttpCookie cookie = context.getCookie(cookieName);
     if (cookie == null) {
-      final ArrayList<HttpCookie> httpCookies = context.responseCookies();
-      for (final HttpCookie httpCookie : httpCookies) {
+      ArrayList<HttpCookie> httpCookies = context.responseCookies();
+      for (HttpCookie httpCookie : httpCookies) {
         if (cookieName.equals(httpCookie.getName())) {
           return httpCookie.getValue();
         }

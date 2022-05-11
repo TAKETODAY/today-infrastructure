@@ -72,11 +72,11 @@ class DocumentRoot {
     file = (file != null) ? file : getWarFileDocumentRoot();
     file = (file != null) ? file : getExplodedWarFileDocumentRoot();
     file = (file != null) ? file : getCommonDocumentRoot();
-    if (file == null && this.logger.isDebugEnabled()) {
-      logNoDocumentRoots();
+    if (file == null && logger.isDebugEnabled()) {
+      logger.debug("None of the document roots {} point to a directory and will be ignored.", Arrays.asList(COMMON_DOC_ROOTS));
     }
-    else if (this.logger.isDebugEnabled()) {
-      this.logger.debug("Document root: " + file);
+    else if (logger.isDebugEnabled()) {
+      logger.debug("Document root: " + file);
     }
     return file;
   }
@@ -89,8 +89,8 @@ class DocumentRoot {
   @Nullable
   private File getArchiveFileDocumentRoot(String extension) {
     File file = getCodeSourceArchive();
-    if (this.logger.isDebugEnabled()) {
-      this.logger.debug("Code archive: {}", file);
+    if (logger.isDebugEnabled()) {
+      logger.debug("Code archive: {}", file);
     }
     if (file != null && file.exists() && !file.isDirectory()
             && file.getName().toLowerCase(Locale.ENGLISH).endsWith(extension)) {
@@ -160,10 +160,6 @@ class DocumentRoot {
       }
     }
     return null;
-  }
-
-  private void logNoDocumentRoots() {
-    this.logger.debug("None of the document roots {} point to a directory and will be ignored.", Arrays.asList(COMMON_DOC_ROOTS));
   }
 
 }

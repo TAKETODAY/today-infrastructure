@@ -72,6 +72,7 @@ public class DefaultSessionManager implements SessionManager {
     return session;
   }
 
+  @Nullable
   @Override
   public WebSession getSession(@Nullable String sessionId) {
     if (StringUtils.hasText(sessionId)) {
@@ -85,6 +86,7 @@ public class DefaultSessionManager implements SessionManager {
     return getSession(context, true);
   }
 
+  @Nullable
   @Override
   public WebSession getSession(RequestContext context, boolean create) {
     String sessionId = sessionIdResolver.retrieveId(context);

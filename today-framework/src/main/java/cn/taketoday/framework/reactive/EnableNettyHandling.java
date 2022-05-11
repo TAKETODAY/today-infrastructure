@@ -25,8 +25,8 @@ import java.lang.annotation.Target;
 import cn.taketoday.context.annotation.Import;
 import cn.taketoday.context.loader.AnnotationImportSelector;
 import cn.taketoday.core.type.AnnotationMetadata;
+import cn.taketoday.framework.web.session.EnableWebSession;
 import cn.taketoday.web.RequestContextHolder;
-import cn.taketoday.web.session.EnableWebSession;
 
 import static java.lang.annotation.ElementType.METHOD;
 import static java.lang.annotation.ElementType.TYPE;

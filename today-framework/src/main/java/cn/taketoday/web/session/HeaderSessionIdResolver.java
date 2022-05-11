@@ -21,6 +21,7 @@
 package cn.taketoday.web.session;
 
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.RequestContext;
 
 /**
@@ -74,6 +75,7 @@ public class HeaderSessionIdResolver implements SessionIdResolver {
     this.headerName = headerName;
   }
 
+  @Nullable
   @Override
   public String retrieveId(RequestContext context) {
     return context.requestHeaders().getFirst(headerName);

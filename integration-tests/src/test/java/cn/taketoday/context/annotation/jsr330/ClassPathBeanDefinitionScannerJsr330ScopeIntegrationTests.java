@@ -37,6 +37,7 @@ import cn.taketoday.context.annotation.AnnotatedBeanDefinitionReader;
 import cn.taketoday.context.annotation.ClassPathBeanDefinitionScanner;
 import cn.taketoday.context.annotation.ScopedProxyMode;
 import cn.taketoday.context.loader.ScopeMetadata;
+import cn.taketoday.framework.web.session.EnableWebSession;
 import cn.taketoday.mock.web.MockHttpServletRequest;
 import cn.taketoday.mock.web.MockHttpServletResponse;
 import cn.taketoday.mock.web.MockHttpSession;
@@ -44,7 +45,6 @@ import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.RequestContextHolder;
 import cn.taketoday.web.context.support.GenericWebServletApplicationContext;
 import cn.taketoday.web.servlet.ServletRequestContext;
-import cn.taketoday.web.session.EnableWebSession;
 import jakarta.inject.Named;
 import jakarta.inject.Singleton;
 

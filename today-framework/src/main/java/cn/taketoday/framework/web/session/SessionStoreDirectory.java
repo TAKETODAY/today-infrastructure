@@ -18,12 +18,13 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.framework.web.servlet.server;
+package cn.taketoday.framework.web.session;
 
 import java.io.File;
 
 import cn.taketoday.framework.ApplicationHome;
 import cn.taketoday.framework.ApplicationUtils;
+import cn.taketoday.framework.web.servlet.server.AbstractServletWebServerFactory;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 
@@ -31,10 +32,12 @@ import cn.taketoday.lang.Nullable;
  * Manages a session store directory.
  *
  * @author Phillip Webb
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see AbstractServletWebServerFactory
  * @since 4.0
  */
 class SessionStoreDirectory {
+
   @Nullable
   private File directory;
 
@@ -50,7 +53,7 @@ class SessionStoreDirectory {
   File getValidDirectory(boolean mkdirs) {
     File dir = getDirectory();
     if (dir == null) {
-      return ApplicationUtils.getTemporalDirectory(null, "servlet-sessions");
+      return ApplicationUtils.getTemporalDirectory(null, "server-sessions");
     }
     if (!dir.isAbsolute()) {
       dir = new File(new ApplicationHome().getDir(), dir.getPath());

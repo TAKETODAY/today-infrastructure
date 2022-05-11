@@ -27,11 +27,12 @@ import java.util.Locale;
 import java.util.Map;
 
 import cn.taketoday.framework.web.server.ConfigurableWebServerFactory;
-import cn.taketoday.framework.web.server.Cookie.SameSite;
 import cn.taketoday.framework.web.server.MimeMappings;
 import cn.taketoday.framework.web.server.WebServerFactoryCustomizer;
 import cn.taketoday.framework.web.servlet.ServletContextInitializer;
 import cn.taketoday.framework.web.servlet.WebListenerRegistry;
+import cn.taketoday.framework.web.session.SameSite;
+import cn.taketoday.framework.web.session.Session;
 import jakarta.servlet.ServletContext;
 
 /**

@@ -19,6 +19,7 @@
  */
 package cn.taketoday.web.session;
 
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.RequestContext;
 
 /**
@@ -31,6 +32,7 @@ import cn.taketoday.web.RequestContext;
  */
 public interface SessionIdResolver {
 
+  @Nullable
   String retrieveId(RequestContext context);
 
   /**

@@ -42,6 +42,8 @@ import cn.taketoday.util.PropertyMapper;
  * {@link cn.taketoday.core.codec.Decoder Decoders}.
  *
  * @author Brian Clozel
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 4.0
  */
 @EnableConfigurationProperties(CodecProperties.class)
 @Configuration(proxyBeanMethods = false)

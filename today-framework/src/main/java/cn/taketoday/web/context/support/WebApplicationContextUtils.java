@@ -38,7 +38,7 @@ import cn.taketoday.web.context.ConfigurableWebServletApplicationContext;
 import cn.taketoday.web.servlet.ServletUtils;
 import cn.taketoday.web.servlet.WebServletApplicationContext;
 import cn.taketoday.web.session.DefaultSessionManager;
-import cn.taketoday.web.session.MemSessionRepository;
+import cn.taketoday.web.session.InMemorySessionRepository;
 import cn.taketoday.web.session.SecureRandomSessionIdGenerator;
 import cn.taketoday.web.session.SessionEventDispatcher;
 import cn.taketoday.web.session.SessionManager;
@@ -184,7 +184,7 @@ public class WebApplicationContextUtils {
             beanFactory, SessionManager.BEAN_NAME, SessionManager.class);
 
     if (sessionManager == null) {
-      sessionManager = new DefaultSessionManager(new MemSessionRepository(
+      sessionManager = new DefaultSessionManager(new InMemorySessionRepository(
               new SessionEventDispatcher(), new SecureRandomSessionIdGenerator()), null);
     }
 
