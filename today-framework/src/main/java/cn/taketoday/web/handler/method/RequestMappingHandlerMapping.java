@@ -28,7 +28,6 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.function.Predicate;
 
-import cn.taketoday.context.expression.EmbeddedValueResolverAware;
 import cn.taketoday.core.StringValueResolver;
 import cn.taketoday.core.annotation.AnnotatedElementUtils;
 import cn.taketoday.core.annotation.MergedAnnotation;
@@ -59,15 +58,11 @@ import cn.taketoday.web.handler.condition.RequestCondition;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/4/1 22:38
  */
-public class RequestMappingHandlerMapping extends RequestMappingInfoHandlerMapping
-        implements EmbeddedValueResolverAware {
+public class RequestMappingHandlerMapping extends RequestMappingInfoHandlerMapping {
 
   private Map<String, Predicate<Class<?>>> pathPrefixes = Collections.emptyMap();
 
   private ContentNegotiationManager contentNegotiationManager = new ContentNegotiationManager();
-
-  @Nullable
-  private StringValueResolver embeddedValueResolver;
 
   private RequestMappingInfo.BuilderConfiguration config = new RequestMappingInfo.BuilderConfiguration();
 
@@ -108,11 +103,6 @@ public class RequestMappingHandlerMapping extends RequestMappingInfoHandlerMappi
    */
   public ContentNegotiationManager getContentNegotiationManager() {
     return this.contentNegotiationManager;
-  }
-
-  @Override
-  public void setEmbeddedValueResolver(StringValueResolver resolver) {
-    this.embeddedValueResolver = resolver;
   }
 
   @Override
@@ -167,7 +157,7 @@ public class RequestMappingHandlerMapping extends RequestMappingInfoHandlerMappi
       }
       String prefix = getPathPrefix(handlerType);
       if (prefix != null) {
-        info = RequestMappingInfo.paths(prefix).options(this.config).build().combine(info);
+        info = RequestMappingInfo.paths(prefix).options(config).build().combine(info);
       }
     }
     return info;
@@ -175,13 +165,10 @@ public class RequestMappingHandlerMapping extends RequestMappingInfoHandlerMappi
 
   @Nullable
   String getPathPrefix(Class<?> handlerType) {
-    for (Map.Entry<String, Predicate<Class<?>>> entry : this.pathPrefixes.entrySet()) {
+    for (Map.Entry<String, Predicate<Class<?>>> entry : pathPrefixes.entrySet()) {
       if (entry.getValue().test(handlerType)) {
         String prefix = entry.getKey();
-        if (this.embeddedValueResolver != null) {
-          prefix = this.embeddedValueResolver.resolveStringValue(prefix);
-        }
-        return prefix;
+        return resolveEmbeddedVariables(prefix);
       }
     }
     return null;
@@ -267,13 +254,14 @@ public class RequestMappingHandlerMapping extends RequestMappingInfoHandlerMappi
    * @return a new array with updated patterns
    */
   protected String[] resolveEmbeddedValuesInPatterns(String[] patterns) {
-    if (this.embeddedValueResolver == null) {
+    StringValueResolver embeddedValueResolver = this.embeddedValueResolver;
+    if (embeddedValueResolver == null) {
       return patterns;
     }
     else {
       String[] resolvedPatterns = new String[patterns.length];
       for (int i = 0; i < patterns.length; i++) {
-        resolvedPatterns[i] = this.embeddedValueResolver.resolveStringValue(patterns[i]);
+        resolvedPatterns[i] = embeddedValueResolver.resolveStringValue(patterns[i]);
       }
       return resolvedPatterns;
     }
@@ -379,9 +367,9 @@ public class RequestMappingHandlerMapping extends RequestMappingInfoHandlerMappi
   }
 
   private String resolveCorsAnnotationValue(String value) {
-    if (this.embeddedValueResolver != null) {
-      String resolved = this.embeddedValueResolver.resolveStringValue(value);
-      return (resolved != null ? resolved : "");
+    if (embeddedValueResolver != null) {
+      String resolved = embeddedValueResolver.resolveStringValue(value);
+      return resolved != null ? resolved : "";
     }
     else {
       return value;
