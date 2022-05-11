@@ -20,30 +20,29 @@
 
 package cn.taketoday.web.context.support;
 
-import java.security.Principal;
-
 import cn.taketoday.context.ApplicationEvent;
 import cn.taketoday.context.ApplicationEventPublisher;
+import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.RequestContextUtils;
 import cn.taketoday.web.RequestHandledListener;
-import cn.taketoday.web.ServletDetector;
-import cn.taketoday.web.servlet.ServletUtils;
-import jakarta.servlet.http.HttpServletRequest;
+import cn.taketoday.web.config.WebMvcProperties;
 
 /**
  * publish {@link RequestHandledEvent}
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see RequestHandledEvent
+ * @see WebMvcProperties#isPublishRequestHandledEvents()
  * @since 4.0 2022/5/11 10:44
  */
 public class RequestHandledEventPublisher implements RequestHandledListener {
 
-  private final ApplicationEventPublisher eventPublisher;
+  protected final ApplicationEventPublisher eventPublisher;
 
   public RequestHandledEventPublisher(ApplicationEventPublisher eventPublisher) {
+    Assert.notNull(eventPublisher, "ApplicationEventPublisher is required");
     this.eventPublisher = eventPublisher;
   }
 
@@ -65,9 +64,6 @@ public class RequestHandledEventPublisher implements RequestHandledListener {
    */
   protected ApplicationEvent getRequestHandledEvent(
           RequestContext request, @Nullable Throwable failureCause, long processingTime) {
-    if (ServletDetector.runningInServlet(request)) {
-      return ServletDelegate.getRequestHandledEvent(this, request, failureCause, processingTime);
-    }
     return new RequestHandledEvent(this,
             request.getRequestPath(), request.getRemoteAddress(),
             request.getMethodValue(),
@@ -75,19 +71,4 @@ public class RequestHandledEventPublisher implements RequestHandledListener {
             processingTime, failureCause, request.getStatus());
   }
 
-  static class ServletDelegate {
-
-    static ApplicationEvent getRequestHandledEvent(Object source,
-            RequestContext request, @Nullable Throwable failureCause, long processingTime) {
-      HttpServletRequest servletRequest = ServletUtils.getServletRequest(request);
-      Principal userPrincipal = servletRequest.getUserPrincipal();
-      String userName = userPrincipal != null ? userPrincipal.getName() : null;
-      return new ServletRequestHandledEvent(source,
-              servletRequest.getRequestURI(), servletRequest.getRemoteAddr(),
-              servletRequest.getMethod(), getServletConfig().getServletName(),
-              ServletUtils.getSessionId(servletRequest), userName,
-              processingTime, failureCause, request.getStatus());
-    }
-
-  }
 }

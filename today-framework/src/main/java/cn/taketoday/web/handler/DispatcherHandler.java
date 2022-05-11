@@ -142,6 +142,7 @@ public class DispatcherHandler implements ApplicationContextAware {
     initReturnValueHandler(context);
     initExceptionHandler(context);
     initNotFoundHandler(context);
+    initRequestHandledListeners(context);
   }
 
   /**
@@ -281,6 +282,20 @@ public class DispatcherHandler implements ApplicationContextAware {
         notFoundHandler = new NotFoundHandler();
       }
     }
+  }
+
+  /**
+   * Collect all the RequestHandledListener used by this class.
+   *
+   * @see RequestHandledListener
+   */
+  private void initRequestHandledListeners(ApplicationContext context) {
+    var matchingBeans = BeanFactoryUtils.beansOfTypeIncludingAncestors(
+            context, RequestHandledListener.class, true, false);
+    var handlers = new ArrayList<>(matchingBeans.values());
+    AnnotationAwareOrderComparator.sort(handlers);
+
+    addRequestHandledActions(handlers);
   }
 
   // Handler

@@ -30,11 +30,13 @@ import cn.taketoday.beans.factory.ObjectProvider;
 import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.beans.factory.annotation.DisableAllDependencyInjection;
 import cn.taketoday.beans.factory.config.BeanDefinition;
+import cn.taketoday.context.ApplicationEventPublisher;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Import;
 import cn.taketoday.context.annotation.Role;
 import cn.taketoday.context.condition.ConditionalOnBean;
 import cn.taketoday.context.condition.ConditionalOnMissingBean;
+import cn.taketoday.context.condition.ConditionalOnProperty;
 import cn.taketoday.context.properties.EnableConfigurationProperties;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.format.FormatterRegistry;
@@ -52,6 +54,7 @@ import cn.taketoday.web.bind.resolver.ParameterResolvingRegistry;
 import cn.taketoday.web.config.WebProperties.Resources;
 import cn.taketoday.web.config.WebProperties.Resources.Chain.Strategy;
 import cn.taketoday.web.config.jackson.JacksonAutoConfiguration;
+import cn.taketoday.web.context.support.RequestHandledEventPublisher;
 import cn.taketoday.web.handler.HandlerExceptionHandler;
 import cn.taketoday.web.handler.ReturnValueHandlerManager;
 import cn.taketoday.web.i18n.AcceptHeaderLocaleResolver;
@@ -111,9 +114,19 @@ public class WebMvcAutoConfiguration extends WebMvcConfigurationSupport {
   @ConditionalOnMissingBean
   public InternalResourceViewResolver defaultViewResolver() {
     InternalResourceViewResolver resolver = new InternalResourceViewResolver();
-    resolver.setPrefix(this.mvcProperties.getView().getPrefix());
-    resolver.setSuffix(this.mvcProperties.getView().getSuffix());
+    resolver.setPrefix(mvcProperties.getView().getPrefix());
+    resolver.setSuffix(mvcProperties.getView().getSuffix());
     return resolver;
+  }
+
+  @Component
+  @ConditionalOnMissingBean
+  @ConditionalOnProperty(prefix = "web.mvc", name = "publishRequestHandledEvents", havingValue = "true", matchIfMissing = true)
+  RequestHandledEventPublisher requestHandledEventPublisher(WebMvcProperties webMvcProperties, ApplicationEventPublisher eventPublisher) {
+    if (webMvcProperties.isPublishRequestHandledEvents()) {
+      return new RequestHandledEventPublisher(eventPublisher);
+    }
+    return null;
   }
 
   @Component
