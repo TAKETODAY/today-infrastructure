@@ -70,7 +70,7 @@ public abstract class AbstractHandlerRegistry extends ApplicationContextSupport
   private String beanName;
 
   /** @since 4.0 */
-  private StringValueResolver embeddedValueResolver;
+  protected StringValueResolver embeddedValueResolver;
 
   private final PathPatternParser patternParser = new PathPatternParser();
 
@@ -280,7 +280,7 @@ public abstract class AbstractHandlerRegistry extends ApplicationContextSupport
   }
 
   /** @since 3.0.3 */
-  public String resolveVariables(String expression) {
+  protected String resolveEmbeddedVariables(String expression) {
     if (embeddedValueResolver != null) {
       return embeddedValueResolver.resolveStringValue(expression);
     }

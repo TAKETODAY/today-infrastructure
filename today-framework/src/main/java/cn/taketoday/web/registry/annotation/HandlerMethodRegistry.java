@@ -256,7 +256,7 @@ public class HandlerMethodRegistry
         path = contextPath.concat(path);
       }
     }
-    path = resolveVariables(path);
+    path = resolveEmbeddedVariables(path);
     path = WebUtils.getSanitizedPath(path);
     PathPatternParser patternParser = getPatternParser();
     return patternParser.parse(path);

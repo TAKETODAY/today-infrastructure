@@ -353,7 +353,7 @@ public class ViewControllerHandlerRegistry extends AbstractUrlHandlerRegistry im
 
     if (StringUtils.isNotEmpty(resource)) {
       String resourceAppender = prefix + resource + suffix;
-      resource = resolveVariables(resourceAppender);
+      resource = resolveEmbeddedVariables(resourceAppender);
     }
     mapping.setResource(resource);
     // @since 2.3.3
@@ -362,7 +362,7 @@ public class ViewControllerHandlerRegistry extends AbstractUrlHandlerRegistry im
     }
 
     WebApplicationContext context = obtainApplicationContext().unwrap(WebApplicationContext.class);
-    name = resolveVariables(context.getContextPath().concat(StringUtils.formatURL(name)));
+    name = resolveEmbeddedVariables(context.getContextPath().concat(StringUtils.formatURL(name)));
     register(name, mapping);
   }
 
