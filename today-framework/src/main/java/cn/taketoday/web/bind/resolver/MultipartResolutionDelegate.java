@@ -69,7 +69,10 @@ public final class MultipartResolutionDelegate {
   public static Object resolveMultipartArgument(
           String name, MethodParameter parameter, RequestContext request) throws Exception {
     if (!request.isMultipart()) {
-      return null;
+      if (isMultipartArgument(parameter)) {
+        return null;
+      }
+      return UNRESOLVABLE;
     }
 
     MultipartRequest multipartRequest = request.getMultipartRequest();
