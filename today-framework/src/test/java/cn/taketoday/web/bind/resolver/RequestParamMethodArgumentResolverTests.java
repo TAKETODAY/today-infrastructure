@@ -325,20 +325,20 @@ class RequestParamMethodArgumentResolverTests {
     request.setMethod("POST");
     request.setContentType("multipart/form-data");
     request.addPart(new MockPart("other", "Hello World 3".getBytes()));
-    webRequest = new ServletRequestContext(null, request, null);
+    ServletRequestContext webRequest = new ServletRequestContext(null, request, new MockHttpServletResponse());
     webRequest.setBindingContext(new BindingContext());
 
-    ResolvableMethodParameter param = this.testMethod.annotPresent(RequestParam.class).arg(Part[].class);
-    assertThatExceptionOfType(MissingRequestPartException.class).isThrownBy(() ->
-            resolver.resolveArgument(webRequest, param));
+    ResolvableMethodParameter param = testMethod.annotPresent(RequestParam.class).arg(Part[].class);
+    assertThatExceptionOfType(MissingRequestPartException.class)
+            .isThrownBy(() -> resolver.resolveArgument(webRequest, param));
   }
 
   @Test
   public void resolveMultipartFileNotAnnot() throws Throwable {
     MockMultipartHttpServletRequest request = new MockMultipartHttpServletRequest();
-    MultipartFile expected = new MockMultipartFile("multipartFileNotAnnot", "Hello World".getBytes());
+    MultipartFile expected = new MockMultipartFile("`multipartFileNotAnnot`", "Hello World".getBytes());
     request.addFile(expected);
-    webRequest = new ServletRequestContext(null, request, null);
+    ServletRequestContext webRequest = new ServletRequestContext(null, request, null);
     webRequest.setBindingContext(new BindingContext());
 
     ResolvableMethodParameter param = this.testMethod.annotNotPresent().arg(MultipartFile.class);
@@ -463,14 +463,14 @@ class RequestParamMethodArgumentResolverTests {
   public void missingRequestParamEmptyValueNotRequired() throws Throwable {
     RequestContextDataBinder binder = new RequestContextDataBinder(null);
     binder.registerCustomEditor(String.class, new StringTrimmerEditor(true));
+    request.addParameter("name", "");
 
     ServletRequestContext webRequest = new ServletRequestContext(null, request, new MockHttpServletResponse());
 
     BindingContext binderFactory = mock(BindingContext.class);
     given(binderFactory.createBinder(webRequest, null, "name")).willReturn(binder);
+    given(binderFactory.createBinder(webRequest, "name")).willReturn(binder);
     webRequest.setBindingContext(binderFactory);
-
-    request.addParameter("name", "");
 
     ResolvableMethodParameter param = this.testMethod.annot(requestParam().notRequired()).arg(String.class);
     Object arg = resolver.resolveArgument(webRequest, param);
