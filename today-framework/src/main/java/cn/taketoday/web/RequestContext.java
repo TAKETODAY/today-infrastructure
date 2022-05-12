@@ -147,6 +147,8 @@ public abstract class RequestContext extends AttributeAccessorSupport
 
   protected BindingContext bindingContext;
 
+  protected Boolean multipartFlag;
+
   protected RequestContext(ApplicationContext context) {
     this.applicationContext = context;
   }
@@ -602,11 +604,16 @@ public abstract class RequestContext extends AttributeAccessorSupport
    * @since 4.0
    */
   public boolean isMultipart() {
-    if (HttpMethod.POST != getMethod()) {
-      return false;
+    if (multipartFlag == null) {
+      if (HttpMethod.POST != getMethod()) {
+        multipartFlag = false;
+      }
+      else {
+        String contentType = getContentType();
+        multipartFlag = contentType != null && contentType.toLowerCase().startsWith("multipart/");
+      }
     }
-    String contentType = getContentType();
-    return contentType != null && contentType.toLowerCase().startsWith("multipart/");
+    return multipartFlag;
   }
 
   /**
