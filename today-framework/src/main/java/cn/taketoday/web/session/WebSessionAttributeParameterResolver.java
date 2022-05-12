@@ -24,8 +24,8 @@ import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.annotation.SessionAttribute;
-import cn.taketoday.web.handler.method.ResolvableMethodParameter;
 import cn.taketoday.web.bind.resolver.AbstractNamedValueResolvingStrategy;
+import cn.taketoday.web.handler.method.ResolvableMethodParameter;
 
 /**
  * resolve attribute from {@link WebSession}
@@ -44,7 +44,7 @@ public class WebSessionAttributeParameterResolver extends AbstractNamedValueReso
   }
 
   public WebSessionAttributeParameterResolver(
-          SessionManager sessionManager, ConfigurableBeanFactory beanFactory) {
+          SessionManager sessionManager, @Nullable ConfigurableBeanFactory beanFactory) {
     super(beanFactory);
     Assert.notNull(sessionManager, "sessionManager must not be null");
     this.sessionManager = sessionManager;

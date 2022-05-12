@@ -27,6 +27,7 @@ import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.aware.ApplicationContextSupport;
 import cn.taketoday.core.ArraySizeTrimmer;
+import cn.taketoday.core.MethodParameter;
 import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.core.conversion.ConversionServiceAware;
 import cn.taketoday.core.style.ToStringBuilder;
@@ -41,6 +42,7 @@ import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.ServletDetector;
 import cn.taketoday.web.accept.ContentNegotiationManager;
 import cn.taketoday.web.annotation.RequestAttribute;
+import cn.taketoday.web.bind.RequestBindingException;
 import cn.taketoday.web.bind.resolver.date.DateParameterResolver;
 import cn.taketoday.web.bind.resolver.date.LocalDateParameterResolver;
 import cn.taketoday.web.bind.resolver.date.LocalDateTimeParameterResolver;
@@ -240,7 +242,7 @@ public class ParameterResolvingRegistry
     strategies.add(new RequestHeaderMapMethodArgumentResolver());
     strategies.add(new ExpressionValueMethodArgumentResolver(beanFactory));
 
-    strategies.add(new RequestAttributeParameterResolver(beanFactory));
+    strategies.add(new RequestAttributeMethodArgumentResolver(beanFactory));
     strategies.add(new AutowiredParameterResolver(context));
 
     CookieParameterResolver.register(strategies, beanFactory);
@@ -479,8 +481,8 @@ public class ParameterResolvingRegistry
 
   // AnnotationParameterResolver
 
-  static final class RequestAttributeParameterResolver extends AbstractNamedValueResolvingStrategy {
-    RequestAttributeParameterResolver(ConfigurableBeanFactory beanFactory) {
+  static final class RequestAttributeMethodArgumentResolver extends AbstractNamedValueResolvingStrategy {
+    RequestAttributeMethodArgumentResolver(ConfigurableBeanFactory beanFactory) {
       super(beanFactory);
     }
 
@@ -494,6 +496,13 @@ public class ParameterResolvingRegistry
     protected Object resolveName(String name, ResolvableMethodParameter resolvable, RequestContext context) throws Exception {
       return context.getAttribute(name);
     }
+
+    @Override
+    protected void handleMissingValue(String name, MethodParameter parameter) {
+      throw new RequestBindingException("Missing request attribute '" + name +
+              "' of type " + parameter.getNestedParameterType().getSimpleName());
+    }
+
   }
 
 }
