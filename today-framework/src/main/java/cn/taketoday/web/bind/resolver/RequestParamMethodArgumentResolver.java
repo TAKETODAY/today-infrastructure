@@ -40,6 +40,7 @@ import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.annotation.RequestParam;
 import cn.taketoday.web.annotation.RequestPart;
 import cn.taketoday.web.bind.MissingRequestParameterException;
+import cn.taketoday.web.bind.MultipartException;
 import cn.taketoday.web.bind.WebDataBinder;
 import cn.taketoday.web.handler.method.ResolvableMethodParameter;
 import cn.taketoday.web.handler.method.support.UriComponentsContributor;
@@ -179,13 +180,29 @@ public class RequestParamMethodArgumentResolver extends AbstractNamedValueResolv
   }
 
   @Override
-  protected void handleMissingValue(String name, MethodParameter parameter, RequestContext request) {
-    throw new MissingRequestParameterException(name, parameter.getNestedParameterType().getSimpleName(), false);
+  protected void handleMissingValue(String name, MethodParameter parameter, RequestContext request) throws Exception {
+    handleMissingValueInternal(name, parameter, request, false);
   }
 
   @Override
-  protected void handleMissingValueAfterConversion(String name, MethodParameter parameter, RequestContext request) {
-    throw new MissingRequestParameterException(name, parameter.getNestedParameterType().getSimpleName(), true);
+  protected void handleMissingValueAfterConversion(String name, MethodParameter parameter, RequestContext request) throws Exception {
+    handleMissingValueInternal(name, parameter, request, true);
+  }
+
+  protected void handleMissingValueInternal(
+          String name, MethodParameter parameter, RequestContext request, boolean missingAfterConversion) throws Exception {
+    if (MultipartResolutionDelegate.isMultipartArgument(parameter)) {
+      if (!request.isMultipart()) {
+        throw new MultipartException("Current request is not a multipart request");
+      }
+      else {
+        throw new MissingRequestPartException(name);
+      }
+    }
+    else {
+      throw new MissingRequestParameterException(name,
+              parameter.getNestedParameterType().getSimpleName(), missingAfterConversion);
+    }
   }
 
   @Override
