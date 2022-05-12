@@ -21,7 +21,6 @@
 package cn.taketoday.web.multipart.support;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.util.Collection;
 
 import cn.taketoday.core.LinkedMultiValueMap;
@@ -34,7 +33,6 @@ import cn.taketoday.web.bind.NotMultipartRequestException;
 import cn.taketoday.web.multipart.MaxUploadSizeExceededException;
 import cn.taketoday.web.multipart.MultipartFile;
 import cn.taketoday.web.multipart.ServletPartMultipartFile;
-import jakarta.mail.internet.MimeUtility;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.Part;
@@ -85,9 +83,6 @@ public class ServletMultipartRequest extends AbstractMultipartRequest {
         ContentDisposition disposition = ContentDisposition.parse(headerValue);
         String filename = disposition.getFilename();
         if (filename != null) {
-          if (filename.startsWith("=?") && filename.endsWith("?=")) {
-            filename = MimeDelegate.decode(filename);
-          }
           files.add(part.getName(), new ServletPartMultipartFile(part, filename));
         }
       }
@@ -152,22 +147,6 @@ public class ServletMultipartRequest extends AbstractMultipartRequest {
     catch (Throwable ex) {
       throw new MultipartException("Could not access multipart servlet request", ex);
     }
-  }
-
-  /**
-   * Inner class to avoid a hard dependency on the JavaMail API.
-   */
-  private static class MimeDelegate {
-
-    public static String decode(String value) {
-      try {
-        return MimeUtility.decodeText(value);
-      }
-      catch (UnsupportedEncodingException ex) {
-        throw new IllegalStateException(ex);
-      }
-    }
-
   }
 
 }
