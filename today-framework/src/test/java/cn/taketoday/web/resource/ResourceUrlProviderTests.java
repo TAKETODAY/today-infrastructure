@@ -34,10 +34,10 @@ import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.core.io.ClassPathResource;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.framework.web.servlet.context.AnnotationConfigServletWebApplicationContext;
-import cn.taketoday.web.mock.MockHttpServletRequest;
-import cn.taketoday.web.mock.MockServletContext;
 import cn.taketoday.web.registry.SimpleUrlHandlerRegistry;
 import cn.taketoday.web.servlet.ServletRequestContext;
+import cn.taketoday.web.testfixture.servlet.MockHttpServletRequest;
+import cn.taketoday.web.testfixture.servlet.MockServletContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;

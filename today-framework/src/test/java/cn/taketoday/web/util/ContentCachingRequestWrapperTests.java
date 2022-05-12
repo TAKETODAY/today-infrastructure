@@ -23,8 +23,8 @@ package cn.taketoday.web.util;
 import org.junit.jupiter.api.Test;
 
 import cn.taketoday.util.FileCopyUtils;
-import cn.taketoday.web.mock.MockHttpServletRequest;
 import cn.taketoday.web.servlet.ContentCachingRequestWrapper;
+import cn.taketoday.web.testfixture.servlet.MockHttpServletRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;

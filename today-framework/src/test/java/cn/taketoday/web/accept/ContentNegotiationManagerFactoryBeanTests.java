@@ -33,9 +33,9 @@ import java.util.Properties;
 import cn.taketoday.http.MediaType;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.HttpMediaTypeNotAcceptableException;
-import cn.taketoday.web.mock.MockHttpServletRequest;
-import cn.taketoday.web.mock.MockServletContext;
 import cn.taketoday.web.servlet.MockServletRequestContext;
+import cn.taketoday.web.testfixture.servlet.MockHttpServletRequest;
+import cn.taketoday.web.testfixture.servlet.MockServletContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;

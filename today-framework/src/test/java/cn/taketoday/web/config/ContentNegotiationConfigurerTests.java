@@ -31,8 +31,8 @@ import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.accept.ContentNegotiationManager;
 import cn.taketoday.web.accept.ContentNegotiationStrategy;
 import cn.taketoday.web.accept.FixedContentNegotiationStrategy;
-import cn.taketoday.web.mock.MockHttpServletRequest;
 import cn.taketoday.web.servlet.MockServletRequestContext;
+import cn.taketoday.web.testfixture.servlet.MockHttpServletRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

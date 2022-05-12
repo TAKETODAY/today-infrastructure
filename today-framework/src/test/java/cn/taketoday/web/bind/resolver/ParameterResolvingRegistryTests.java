@@ -31,7 +31,7 @@ import cn.taketoday.core.conversion.support.DefaultConversionService;
 import cn.taketoday.framework.web.servlet.context.AnnotationConfigServletWebApplicationContext;
 import cn.taketoday.http.converter.StringHttpMessageConverter;
 import cn.taketoday.web.handler.MockResolvableMethodParameter;
-import cn.taketoday.web.mock.MockServletContext;
+import cn.taketoday.web.testfixture.servlet.MockServletContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;

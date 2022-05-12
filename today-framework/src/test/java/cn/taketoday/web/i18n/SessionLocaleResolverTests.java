@@ -29,9 +29,9 @@ import cn.taketoday.framework.web.servlet.context.AnnotationConfigServletWebAppl
 import cn.taketoday.framework.web.session.EnableWebSession;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.RequestContextUtils;
-import cn.taketoday.web.mock.MockHttpServletRequest;
-import cn.taketoday.web.mock.MockHttpServletResponse;
 import cn.taketoday.web.servlet.ServletRequestContext;
+import cn.taketoday.web.testfixture.servlet.MockHttpServletRequest;
+import cn.taketoday.web.testfixture.servlet.MockHttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 
 import static org.assertj.core.api.Assertions.assertThat;

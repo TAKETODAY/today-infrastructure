@@ -27,9 +27,9 @@ import java.util.List;
 
 import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.http.HttpHeaders;
-import cn.taketoday.web.mock.MockHttpServletRequest;
-import cn.taketoday.web.mock.MockHttpServletResponse;
 import cn.taketoday.web.servlet.ServletRequestContext;
+import cn.taketoday.web.testfixture.servlet.MockHttpServletRequest;
+import cn.taketoday.web.testfixture.servlet.MockHttpServletResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

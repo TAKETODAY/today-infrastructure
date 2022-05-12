@@ -35,9 +35,9 @@ import cn.taketoday.framework.web.servlet.context.AnnotationConfigServletWebAppl
 import cn.taketoday.http.HttpStatus;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.mock.MockHttpServletRequest;
-import cn.taketoday.web.mock.MockHttpServletResponse;
 import cn.taketoday.web.servlet.MockServletRequestContext;
+import cn.taketoday.web.testfixture.servlet.MockHttpServletRequest;
+import cn.taketoday.web.testfixture.servlet.MockHttpServletResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;

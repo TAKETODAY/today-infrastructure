@@ -30,8 +30,8 @@ import java.util.Map;
 import cn.taketoday.http.MediaType;
 import cn.taketoday.web.HttpMediaTypeNotAcceptableException;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.mock.MockHttpServletRequest;
 import cn.taketoday.web.servlet.ServletRequestContext;
+import cn.taketoday.web.testfixture.servlet.MockHttpServletRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;

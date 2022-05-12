@@ -27,8 +27,8 @@ import java.util.Collections;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpMethod;
 import cn.taketoday.lang.NonNull;
-import cn.taketoday.web.mock.MockHttpServletRequest;
 import cn.taketoday.web.servlet.ServletRequestContext;
+import cn.taketoday.web.testfixture.servlet.MockHttpServletRequest;
 import jakarta.servlet.DispatcherType;
 import jakarta.servlet.http.HttpServletRequest;
 

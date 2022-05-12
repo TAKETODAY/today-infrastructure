@@ -23,8 +23,8 @@ package cn.taketoday.web.util;
 import org.junit.jupiter.api.Test;
 
 import cn.taketoday.http.server.RequestPath;
-import cn.taketoday.web.mock.MockHttpServletRequest;
 import cn.taketoday.web.servlet.MockServletRequestContext;
+import cn.taketoday.web.testfixture.servlet.MockHttpServletRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

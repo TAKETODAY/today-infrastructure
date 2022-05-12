@@ -21,10 +21,8 @@
 package cn.taketoday.web.servlet;
 
 import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.core.MultiValueMap;
-import cn.taketoday.web.bind.MockMultipartHttpServletRequest;
-import cn.taketoday.web.multipart.MultipartFile;
 import cn.taketoday.web.multipart.MultipartRequest;
+import cn.taketoday.web.testfixture.servlet.MockMultipartHttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 /**

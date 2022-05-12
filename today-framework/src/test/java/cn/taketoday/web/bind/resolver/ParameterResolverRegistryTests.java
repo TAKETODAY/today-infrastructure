@@ -34,8 +34,8 @@ import cn.taketoday.core.annotation.SynthesizingMethodParameter;
 import cn.taketoday.framework.web.servlet.context.AnnotationConfigServletWebApplicationContext;
 import cn.taketoday.web.InternalServerException;
 import cn.taketoday.web.handler.method.ResolvableMethodParameter;
-import cn.taketoday.web.mock.MockMethodParameter;
-import cn.taketoday.web.mock.MockServletContext;
+import cn.taketoday.web.testfixture.servlet.MockMethodParameter;
+import cn.taketoday.web.testfixture.servlet.MockServletContext;
 import lombok.Data;
 
 import static org.assertj.core.api.Assertions.assertThat;

@@ -45,9 +45,9 @@ import java.util.TreeMap;
 
 import cn.taketoday.http.MediaType;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.mock.MockHttpServletRequest;
-import cn.taketoday.web.mock.MockHttpServletResponse;
 import cn.taketoday.web.servlet.ServletRequestContext;
+import cn.taketoday.web.testfixture.servlet.MockHttpServletRequest;
+import cn.taketoday.web.testfixture.servlet.MockHttpServletResponse;
 import cn.taketoday.web.view.View;
 
 import static org.assertj.core.api.Assertions.assertThat;

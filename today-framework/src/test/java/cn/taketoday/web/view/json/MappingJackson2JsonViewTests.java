@@ -52,10 +52,10 @@ import cn.taketoday.beans.DirectFieldAccessor;
 import cn.taketoday.http.MediaType;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.context.support.StaticWebApplicationContext;
-import cn.taketoday.web.mock.MockHttpServletRequest;
-import cn.taketoday.web.mock.MockHttpServletResponse;
-import cn.taketoday.web.mock.MockServletContext;
 import cn.taketoday.web.servlet.ServletRequestContext;
+import cn.taketoday.web.testfixture.servlet.MockHttpServletRequest;
+import cn.taketoday.web.testfixture.servlet.MockHttpServletResponse;
+import cn.taketoday.web.testfixture.servlet.MockServletContext;
 import cn.taketoday.web.view.View;
 
 import static org.assertj.core.api.Assertions.assertThat;

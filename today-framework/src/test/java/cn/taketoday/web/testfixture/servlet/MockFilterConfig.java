@@ -18,7 +18,7 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.web.resource;
+package cn.taketoday.web.testfixture.servlet;
 
 import java.util.Collections;
 import java.util.Enumeration;
@@ -27,64 +27,65 @@ import java.util.Map;
 
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.web.testfixture.servlet.MockServletContext;
-import jakarta.servlet.ServletConfig;
+import jakarta.servlet.FilterConfig;
 import jakarta.servlet.ServletContext;
 
 /**
- * Mock implementation of the {@link jakarta.servlet.ServletConfig} interface.
+ * Mock implementation of the {@link jakarta.servlet.FilterConfig} interface.
  *
- * @author Rod Johnson
+ * <p>Used for testing the web framework; also useful for testing
+ * custom {@link jakarta.servlet.Filter} implementations.
+ *
  * @author Juergen Hoeller
- * @since 1.0.2
+ * @author TODAY 2021/9/11 18:51
  */
-public class MockServletConfig implements ServletConfig {
+public class MockFilterConfig implements FilterConfig {
 
   private final ServletContext servletContext;
 
-  private final String servletName;
+  private final String filterName;
 
   private final Map<String, String> initParameters = new LinkedHashMap<>();
 
   /**
-   * Create a new MockServletConfig with a default {@link MockServletContext}.
+   * Create a new MockFilterConfig with a default {@link MockServletContext}.
    */
-  public MockServletConfig() {
+  public MockFilterConfig() {
     this(null, "");
   }
 
   /**
-   * Create a new MockServletConfig with a default {@link MockServletContext}.
+   * Create a new MockFilterConfig with a default {@link MockServletContext}.
    *
-   * @param servletName the name of the servlet
+   * @param filterName the name of the filter
    */
-  public MockServletConfig(String servletName) {
-    this(null, servletName);
+  public MockFilterConfig(String filterName) {
+    this(null, filterName);
   }
 
   /**
-   * Create a new MockServletConfig.
+   * Create a new MockFilterConfig.
    *
    * @param servletContext the ServletContext that the servlet runs in
    */
-  public MockServletConfig(@Nullable ServletContext servletContext) {
+  public MockFilterConfig(@Nullable ServletContext servletContext) {
     this(servletContext, "");
   }
 
   /**
-   * Create a new MockServletConfig.
+   * Create a new MockFilterConfig.
    *
    * @param servletContext the ServletContext that the servlet runs in
-   * @param servletName the name of the servlet
+   * @param filterName the name of the filter
    */
-  public MockServletConfig(@Nullable ServletContext servletContext, String servletName) {
+  public MockFilterConfig(@Nullable ServletContext servletContext, String filterName) {
     this.servletContext = (servletContext != null ? servletContext : new MockServletContext());
-    this.servletName = servletName;
+    this.filterName = filterName;
   }
 
   @Override
-  public String getServletName() {
-    return this.servletName;
+  public String getFilterName() {
+    return this.filterName;
   }
 
   @Override

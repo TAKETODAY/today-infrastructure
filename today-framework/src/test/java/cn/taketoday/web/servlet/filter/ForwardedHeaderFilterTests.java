@@ -29,9 +29,9 @@ import org.junit.jupiter.params.provider.ValueSource;
 import java.io.IOException;
 import java.util.Enumeration;
 
-import cn.taketoday.web.mock.MockHttpServletRequest;
-import cn.taketoday.web.mock.MockHttpServletResponse;
 import cn.taketoday.web.resource.MockFilterChain;
+import cn.taketoday.web.testfixture.servlet.MockHttpServletRequest;
+import cn.taketoday.web.testfixture.servlet.MockHttpServletResponse;
 import jakarta.servlet.DispatcherType;
 import jakarta.servlet.Filter;
 import jakarta.servlet.FilterChain;

@@ -30,12 +30,12 @@ import java.util.Map;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.support.StandardApplicationContext;
-import cn.taketoday.web.mock.MockHttpServletRequest;
-import cn.taketoday.web.mock.MockHttpServletResponse;
-import cn.taketoday.web.mock.MockServletContext;
 import cn.taketoday.web.servlet.ServletRequestContext;
 import cn.taketoday.web.servlet.ServletUtils;
 import cn.taketoday.web.servlet.WebServletApplicationContext;
+import cn.taketoday.web.testfixture.servlet.MockHttpServletRequest;
+import cn.taketoday.web.testfixture.servlet.MockHttpServletResponse;
+import cn.taketoday.web.testfixture.servlet.MockServletContext;
 import jakarta.servlet.ServletContext;
 
 import static org.assertj.core.api.Assertions.assertThat;

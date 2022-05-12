@@ -18,7 +18,7 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.web.bind;
+package cn.taketoday.web.testfixture.servlet;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;

@@ -26,9 +26,9 @@ import org.mockito.Mockito;
 
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpStatus;
-import cn.taketoday.web.mock.MockHttpServletRequest;
-import cn.taketoday.web.mock.MockHttpServletResponse;
 import cn.taketoday.web.resource.MockFilterChain;
+import cn.taketoday.web.testfixture.servlet.MockHttpServletRequest;
+import cn.taketoday.web.testfixture.servlet.MockHttpServletResponse;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpServletResponseWrapper;
 

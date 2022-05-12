@@ -40,7 +40,7 @@ import cn.taketoday.web.context.support.ServletContextResource;
 import cn.taketoday.web.context.support.ServletContextResourceLoader;
 import cn.taketoday.web.context.support.ServletContextResourcePatternLoader;
 import cn.taketoday.web.context.support.StaticWebServletApplicationContext;
-import cn.taketoday.web.mock.MockServletContext;
+import cn.taketoday.web.testfixture.servlet.MockServletContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;

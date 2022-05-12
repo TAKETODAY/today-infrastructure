@@ -40,7 +40,7 @@ import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpRequest;
 import cn.taketoday.http.server.ServletServerHttpRequest;
-import cn.taketoday.web.mock.MockHttpServletRequest;
+import cn.taketoday.web.testfixture.servlet.MockHttpServletRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;

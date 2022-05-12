@@ -31,14 +31,14 @@ import cn.taketoday.core.i18n.SimpleTimeZoneAwareLocaleContext;
 import cn.taketoday.core.i18n.TimeZoneAwareLocaleContext;
 import cn.taketoday.web.LocaleContextResolver;
 import cn.taketoday.web.LocaleResolver;
-import cn.taketoday.web.mock.MockHttpServletRequest;
-import cn.taketoday.web.mock.MockHttpServletResponse;
-import cn.taketoday.web.mock.MockServletContext;
 import cn.taketoday.web.servlet.MockServletRequestContext;
 import cn.taketoday.web.session.DefaultSessionManager;
 import cn.taketoday.web.session.InMemorySessionRepository;
 import cn.taketoday.web.session.SecureRandomSessionIdGenerator;
 import cn.taketoday.web.session.SessionEventDispatcher;
+import cn.taketoday.web.testfixture.servlet.MockHttpServletRequest;
+import cn.taketoday.web.testfixture.servlet.MockHttpServletResponse;
+import cn.taketoday.web.testfixture.servlet.MockServletContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;

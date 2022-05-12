@@ -23,13 +23,13 @@ package cn.taketoday.web.config;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import cn.taketoday.web.mock.MockHttpServletRequest;
-import cn.taketoday.web.mock.MockHttpServletResponse;
-import cn.taketoday.web.mock.MockRequestDispatcher;
-import cn.taketoday.web.mock.MockServletContext;
 import cn.taketoday.web.registry.SimpleUrlHandlerRegistry;
 import cn.taketoday.web.resource.DefaultServletHttpRequestHandler;
 import cn.taketoday.web.servlet.ServletRequestContext;
+import cn.taketoday.web.testfixture.servlet.MockHttpServletRequest;
+import cn.taketoday.web.testfixture.servlet.MockHttpServletResponse;
+import cn.taketoday.web.testfixture.servlet.MockRequestDispatcher;
+import cn.taketoday.web.testfixture.servlet.MockServletContext;
 import jakarta.servlet.RequestDispatcher;
 
 import static org.assertj.core.api.Assertions.assertThat;

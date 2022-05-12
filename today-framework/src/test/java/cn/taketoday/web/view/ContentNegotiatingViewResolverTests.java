@@ -42,12 +42,12 @@ import cn.taketoday.web.accept.MappingMediaTypeFileExtensionResolver;
 import cn.taketoday.web.accept.ParameterContentNegotiationStrategy;
 import cn.taketoday.web.accept.PathExtensionContentNegotiationStrategy;
 import cn.taketoday.web.context.support.StaticWebServletApplicationContext;
-import cn.taketoday.web.mock.MockHttpServletRequest;
-import cn.taketoday.web.mock.MockHttpServletResponse;
-import cn.taketoday.web.mock.MockServletContext;
 import cn.taketoday.web.servlet.MockServletRequestContext;
 import cn.taketoday.web.servlet.view.InternalResourceView;
 import cn.taketoday.web.servlet.view.InternalResourceViewResolver;
+import cn.taketoday.web.testfixture.servlet.MockHttpServletRequest;
+import cn.taketoday.web.testfixture.servlet.MockHttpServletResponse;
+import cn.taketoday.web.testfixture.servlet.MockServletContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;

@@ -25,9 +25,9 @@ import java.util.stream.Stream;
 
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.context.support.StaticWebApplicationContext;
-import cn.taketoday.web.mock.MockHttpServletRequest;
-import cn.taketoday.web.mock.MockHttpServletResponse;
 import cn.taketoday.web.servlet.MockServletRequestContext;
+import cn.taketoday.web.testfixture.servlet.MockHttpServletRequest;
+import cn.taketoday.web.testfixture.servlet.MockHttpServletResponse;
 
 public abstract class PathPatternsTestUtils {
 

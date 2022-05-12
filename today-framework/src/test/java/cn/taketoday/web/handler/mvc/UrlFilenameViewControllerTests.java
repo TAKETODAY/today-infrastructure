@@ -27,10 +27,10 @@ import java.util.stream.Stream;
 
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.context.support.StaticWebApplicationContext;
-import cn.taketoday.web.mock.MockHttpServletRequest;
-import cn.taketoday.web.mock.MockHttpServletResponse;
 import cn.taketoday.web.servlet.MockServletRequestContext;
 import cn.taketoday.web.servlet.ServletRequestContext;
+import cn.taketoday.web.testfixture.servlet.MockHttpServletRequest;
+import cn.taketoday.web.testfixture.servlet.MockHttpServletResponse;
 import cn.taketoday.web.view.ModelAndView;
 import cn.taketoday.web.view.PathPatternsParameterizedTest;
 import cn.taketoday.web.view.PathPatternsTestUtils;

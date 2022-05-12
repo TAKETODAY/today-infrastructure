@@ -56,6 +56,7 @@ import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.ReflectionUtils;
+import cn.taketoday.web.handler.method.ResolvableMethodParameter;
 
 import static java.util.stream.Collectors.joining;
 
@@ -164,7 +165,7 @@ public class ResolvableMethod {
    * @param type the expected type
    * @param generics optional array of generic types
    */
-  public MethodParameter arg(Class<?> type, Class<?>... generics) {
+  public ResolvableMethodParameter arg(Class<?> type, Class<?>... generics) {
     return new ArgResolver().arg(type, generics);
   }
 
@@ -175,7 +176,7 @@ public class ResolvableMethod {
    * @param generic at least one generic type
    * @param generics optional array of generic types
    */
-  public MethodParameter arg(Class<?> type, ResolvableType generic, ResolvableType... generics) {
+  public ResolvableMethodParameter arg(Class<?> type, ResolvableType generic, ResolvableType... generics) {
     return new ArgResolver().arg(type, generic, generics);
   }
 
@@ -184,7 +185,7 @@ public class ResolvableMethod {
    *
    * @param type the expected type
    */
-  public MethodParameter arg(ResolvableType type) {
+  public ResolvableMethodParameter arg(ResolvableType type) {
     return new ArgResolver().arg(type);
   }
 
@@ -552,7 +553,7 @@ public class ResolvableMethod {
      *
      * @param type the expected type
      */
-    public MethodParameter arg(Class<?> type, Class<?>... generics) {
+    public ResolvableMethodParameter arg(Class<?> type, Class<?>... generics) {
       return arg(toResolvableType(type, generics));
     }
 
@@ -561,7 +562,7 @@ public class ResolvableMethod {
      *
      * @param type the expected type
      */
-    public MethodParameter arg(Class<?> type, ResolvableType generic, ResolvableType... generics) {
+    public ResolvableMethodParameter arg(Class<?> type, ResolvableType generic, ResolvableType... generics) {
       return arg(toResolvableType(type, generic, generics));
     }
 
@@ -570,7 +571,7 @@ public class ResolvableMethod {
      *
      * @param type the expected type
      */
-    public MethodParameter arg(ResolvableType type) {
+    public ResolvableMethodParameter arg(ResolvableType type) {
       this.filters.add(p -> type.toString().equals(ResolvableType.forMethodParameter(p).toString()));
       return arg();
     }
@@ -578,8 +579,8 @@ public class ResolvableMethod {
     /**
      * Resolve the argument.
      */
-    public final MethodParameter arg() {
-      List<MethodParameter> matches = applyFilters();
+    public final ResolvableMethodParameter arg() {
+      List<ResolvableMethodParameter> matches = applyFilters();
       Assert.state(!matches.isEmpty(), () ->
               "No matching arg in method\n" + formatMethod());
       Assert.state(matches.size() == 1, () ->
@@ -587,13 +588,13 @@ public class ResolvableMethod {
       return matches.get(0);
     }
 
-    private List<MethodParameter> applyFilters() {
-      List<MethodParameter> matches = new ArrayList<>();
+    private List<ResolvableMethodParameter> applyFilters() {
+      List<ResolvableMethodParameter> matches = new ArrayList<>();
       for (int i = 0; i < method.getParameterCount(); i++) {
         MethodParameter param = new SynthesizingMethodParameter(method, i);
         param.initParameterNameDiscovery(nameDiscoverer);
         if (this.filters.stream().allMatch(p -> p.test(param))) {
-          matches.add(param);
+          matches.add(new ResolvableMethodParameter(param));
         }
       }
       return matches;
@@ -642,7 +643,7 @@ public class ResolvableMethod {
     else {
       Enhancer enhancer = new Enhancer();
       enhancer.setSuperclass(type);
-      enhancer.setInterfaces(new Class<?>[] { Supplier.class });
+      enhancer.setInterfaces(Supplier.class);
       enhancer.setNamingPolicy(DefaultNamingPolicy.INSTANCE);
       enhancer.setCallbackType(cn.taketoday.core.bytecode.proxy.MethodInterceptor.class);
 

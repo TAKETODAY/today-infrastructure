@@ -39,10 +39,10 @@ import cn.taketoday.core.annotation.SynthesizingMethodParameter;
 import cn.taketoday.core.bytecode.beans.BeanMap;
 import cn.taketoday.web.InternalServerException;
 import cn.taketoday.web.MockRequestContext;
-import cn.taketoday.web.bind.MockMultipartFile;
 import cn.taketoday.web.handler.MockResolvableMethodParameter;
 import cn.taketoday.web.handler.method.ResolvableMethodParameter;
 import cn.taketoday.web.multipart.MultipartFile;
+import cn.taketoday.web.testfixture.servlet.MockMultipartFile;
 import lombok.Data;
 
 import static org.assertj.core.api.Assertions.assertThat;

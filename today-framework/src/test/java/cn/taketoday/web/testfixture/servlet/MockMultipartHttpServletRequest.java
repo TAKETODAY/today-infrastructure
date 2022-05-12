@@ -18,7 +18,7 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.web.bind;
+package cn.taketoday.web.testfixture.servlet;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -35,8 +35,7 @@ import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpMethod;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.web.mock.MockHttpServletRequest;
-import cn.taketoday.web.mock.MockServletContext;
+import cn.taketoday.web.bind.MultipartException;
 import cn.taketoday.web.multipart.MultipartFile;
 import cn.taketoday.web.multipart.MultipartRequest;
 import cn.taketoday.web.util.WebUtils;

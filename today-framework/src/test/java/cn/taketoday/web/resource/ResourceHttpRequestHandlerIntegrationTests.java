@@ -36,10 +36,10 @@ import cn.taketoday.framework.web.servlet.context.AnnotationConfigServletWebAppl
 import cn.taketoday.web.config.EnableWebMvc;
 import cn.taketoday.web.config.ResourceHandlerRegistry;
 import cn.taketoday.web.config.WebMvcConfiguration;
-import cn.taketoday.web.mock.MockHttpServletRequest;
-import cn.taketoday.web.mock.MockHttpServletResponse;
-import cn.taketoday.web.mock.MockServletContext;
 import cn.taketoday.web.servlet.DispatcherServlet;
+import cn.taketoday.web.testfixture.servlet.MockHttpServletRequest;
+import cn.taketoday.web.testfixture.servlet.MockHttpServletResponse;
+import cn.taketoday.web.testfixture.servlet.MockServletContext;
 import cn.taketoday.web.util.UriUtils;
 import jakarta.servlet.ServletException;
 
