@@ -20,16 +20,16 @@
 package cn.taketoday.web.interceptor;
 
 import cn.taketoday.web.session.SessionManager;
-import cn.taketoday.web.session.WebSessionManagerSupport;
+import cn.taketoday.web.session.SessionManagerSupport;
 
 /**
  * @author TODAY <br>
  * 2020-04-20 20:58
  */
-public abstract class WebSessionHandlerInterceptor
-        extends WebSessionManagerSupport implements HandlerInterceptor {
+public abstract class SessionHandlerInterceptor
+        extends SessionManagerSupport implements HandlerInterceptor {
 
-  public WebSessionHandlerInterceptor(SessionManager sessionManager) {
+  public SessionHandlerInterceptor(SessionManager sessionManager) {
     super(sessionManager);
   }
 

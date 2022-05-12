@@ -31,10 +31,10 @@ import cn.taketoday.web.handler.method.ResolvableMethodParameter;
  * @see WebSession
  * @since 2019-09-27 22:36
  */
-public class WebSessionParameterResolver
-        extends WebSessionManagerSupport implements ParameterResolvingStrategy {
+public class SessionParameterResolver
+        extends SessionManagerSupport implements ParameterResolvingStrategy {
 
-  public WebSessionParameterResolver(SessionManager sessionManager) {
+  public SessionParameterResolver(SessionManager sessionManager) {
     super(sessionManager);
   }
 

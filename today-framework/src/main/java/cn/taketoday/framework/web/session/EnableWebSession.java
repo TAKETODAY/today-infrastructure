@@ -48,7 +48,7 @@ import cn.taketoday.web.session.SessionManager;
 import cn.taketoday.web.session.SessionRepository;
 import cn.taketoday.web.session.WebSessionAttributeParameterResolver;
 import cn.taketoday.web.session.WebSessionListener;
-import cn.taketoday.web.session.WebSessionParameterResolver;
+import cn.taketoday.web.session.SessionParameterResolver;
 import cn.taketoday.web.view.RedirectModelManager;
 import cn.taketoday.web.view.SessionRedirectModelManager;
 
@@ -103,9 +103,9 @@ class WebSessionConfig {
    */
   @Component
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-  WebSessionParameterResolver webSessionParameterResolver(
+  SessionParameterResolver webSessionParameterResolver(
           SessionManager sessionManager) {
-    return new WebSessionParameterResolver(sessionManager);
+    return new SessionParameterResolver(sessionManager);
   }
 
   /**
