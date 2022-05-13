@@ -20,12 +20,9 @@
 
 package cn.taketoday.framework.web.embedded.netty;
 
-import org.reactivestreams.Publisher;
-
 import java.time.Duration;
 import java.util.Collections;
 import java.util.List;
-import java.util.function.BiFunction;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
@@ -46,7 +43,6 @@ import reactor.netty.ChannelBindException;
 import reactor.netty.DisposableServer;
 import reactor.netty.http.server.HttpServer;
 import reactor.netty.http.server.HttpServerRequest;
-import reactor.netty.http.server.HttpServerResponse;
 import reactor.netty.http.server.HttpServerRoutes;
 
 /**
@@ -71,7 +67,7 @@ public class NettyWebServer implements WebServer {
 
   private final HttpServer httpServer;
 
-  private final BiFunction<? super HttpServerRequest, ? super HttpServerResponse, ? extends Publisher<Void>> handler;
+  private final ReactorHttpHandlerAdapter handler;
 
   @Nullable
   private final Duration lifecycleTimeout;
