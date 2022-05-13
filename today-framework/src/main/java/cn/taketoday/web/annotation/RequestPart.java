@@ -62,10 +62,10 @@ import cn.taketoday.web.multipart.MultipartFile;
  * @see RequestParam
  * @since 4.0 2022/3/2 18:20
  */
-@Target(ElementType.PARAMETER)
-@Retention(RetentionPolicy.RUNTIME)
 @Documented
 @RequestParam
+@Target(ElementType.PARAMETER)
+@Retention(RetentionPolicy.RUNTIME)
 public @interface RequestPart {
 
   /**

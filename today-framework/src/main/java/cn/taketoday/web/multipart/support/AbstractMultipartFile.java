@@ -24,17 +24,14 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 
-import cn.taketoday.http.DefaultHttpHeaders;
-import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.web.multipart.MultipartFile;
 
 /**
  * @author TODAY 2021/4/18 20:38
  * @since 3.0
  */
-public abstract class AbstractMultipartFile implements MultipartFile {
+public abstract class AbstractMultipartFile extends AbstractMultipart implements MultipartFile {
   protected byte[] cachedBytes;
-  protected HttpHeaders headers;
 
   @Override
   public void transferTo(File dest) throws IOException {
@@ -67,21 +64,5 @@ public abstract class AbstractMultipartFile implements MultipartFile {
   }
 
   protected abstract byte[] doGetBytes() throws IOException;
-
-  @Override
-  public HttpHeaders getHeaders() {
-    HttpHeaders headers = this.headers;
-    if (headers == null) {
-      headers = createHttpHeaders();
-      this.headers = headers;
-    }
-    return headers;
-  }
-
-  protected DefaultHttpHeaders createHttpHeaders() {
-    DefaultHttpHeaders headers = HttpHeaders.create();
-    headers.set(HttpHeaders.CONTENT_TYPE, getContentType());
-    return headers;
-  }
 
 }

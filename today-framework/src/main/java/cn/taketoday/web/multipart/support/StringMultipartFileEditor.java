@@ -18,45 +18,67 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.web.multipart;
+package cn.taketoday.web.multipart.support;
 
+import java.beans.PropertyEditorSupport;
 import java.io.IOException;
 
-import cn.taketoday.beans.propertyeditors.ByteArrayPropertyEditor;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.web.multipart.MultipartFile;
 
 /**
  * Custom {@link java.beans.PropertyEditor} for converting
- * {@link MultipartFile MultipartFiles} to byte arrays.
+ * {@link MultipartFile MultipartFiles} to Strings.
+ *
+ * <p>Allows one to specify the charset to use.
  *
  * @author Juergen Hoeller
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @since 4.0 2022/3/2 16:35
+ * @since 4.0 2022/3/2 16:37
  */
-public class ByteArrayMultipartFileEditor extends ByteArrayPropertyEditor {
+public class StringMultipartFileEditor extends PropertyEditorSupport {
+
+  @Nullable
+  private final String charsetName;
+
+  /**
+   * Create a new {@link StringMultipartFileEditor}, using the default charset.
+   */
+  public StringMultipartFileEditor() {
+    this.charsetName = null;
+  }
+
+  /**
+   * Create a new {@link StringMultipartFileEditor}, using the given charset.
+   *
+   * @param charsetName valid charset name
+   * @see java.lang.String#String(byte[], String)
+   */
+  public StringMultipartFileEditor(String charsetName) {
+    this.charsetName = charsetName;
+  }
 
   @Override
-  public void setValue(@Nullable Object value) {
+  public void setAsText(String text) {
+    setValue(text);
+  }
+
+  @Override
+  public void setValue(Object value) {
     if (value instanceof MultipartFile multipartFile) {
       try {
-        super.setValue(multipartFile.getBytes());
+        super.setValue(this.charsetName != null
+                       ? new String(multipartFile.getBytes(), this.charsetName)
+                       : new String(multipartFile.getBytes()));
       }
       catch (IOException ex) {
         throw new IllegalArgumentException("Cannot read contents of multipart file", ex);
       }
     }
-    else if (value instanceof byte[]) {
+    else {
       super.setValue(value);
     }
-    else {
-      super.setValue(value != null ? value.toString().getBytes() : null);
-    }
-  }
-
-  @Override
-  public String getAsText() {
-    byte[] value = (byte[]) getValue();
-    return (value != null ? new String(value) : "");
   }
 
 }
+

@@ -24,6 +24,8 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 
+import cn.taketoday.web.multipart.support.ByteArrayMultipartFileEditor;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.BDDMockito.given;

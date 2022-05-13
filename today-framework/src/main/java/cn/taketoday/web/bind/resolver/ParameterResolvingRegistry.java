@@ -305,7 +305,6 @@ public class ParameterResolvingRegistry
       setMultipartConfig(multipartConfig);
     }
     Assert.state(multipartConfig != null, "MultipartConfiguration is required");
-    DefaultMultipartResolver.register(strategies, multipartConfig);
   }
 
   /**

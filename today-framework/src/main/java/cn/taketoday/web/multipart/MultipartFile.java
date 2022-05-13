@@ -44,9 +44,10 @@ import cn.taketoday.util.FileCopyUtils;
 public interface MultipartFile extends Multipart, Serializable, InputStreamSource {
 
   /**
-   * Get upload file content type.
+   * Return the content type of the file.
    *
-   * @return upload file content type
+   * @return the content type, or {@code null} if not defined
+   * (or no file has been chosen in the multipart form)
    */
   String getContentType();
 
@@ -58,14 +59,27 @@ public interface MultipartFile extends Multipart, Serializable, InputStreamSourc
   long getSize();
 
   /**
-   * Gets the name of this part.
+   * Return the name of the parameter in the multipart form.
    *
-   * @return The name of this part as a {@code String}
+   * @return the name of the parameter (never {@code null} or empty)
    */
   String getName();
 
   /**
-   * Return the original filename in the client's file system.
+   * Return the original filename in the client's filesystem.
+   * <p>This may contain path information depending on the browser used,
+   * but it typically will not with any other than Opera.
+   * <p><strong>Note:</strong> Please keep in mind this filename is supplied
+   * by the client and should not be used blindly. In addition to not using
+   * the directory portion, the file name could also contain characters such
+   * as ".." and others that can be used maliciously. It is recommended to not
+   * use this filename directly. Preferably generate a unique one and save
+   * this one one somewhere for reference, if necessary.
+   *
+   * @return the original filename, or the empty String if no file has been chosen
+   * in the multipart form, or {@code null} if not defined or not available
+   * @see <a href="https://tools.ietf.org/html/rfc7578#section-4.2">RFC 7578, Section 4.2</a>
+   * @see <a href="https://owasp.org/www-community/vulnerabilities/Unrestricted_File_Upload">Unrestricted File Upload</a>
    */
   String getOriginalFilename();
 

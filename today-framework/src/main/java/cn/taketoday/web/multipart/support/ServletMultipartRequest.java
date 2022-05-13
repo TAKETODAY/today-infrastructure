@@ -32,7 +32,6 @@ import cn.taketoday.web.bind.MultipartException;
 import cn.taketoday.web.bind.NotMultipartRequestException;
 import cn.taketoday.web.multipart.MaxUploadSizeExceededException;
 import cn.taketoday.web.multipart.MultipartFile;
-import cn.taketoday.web.multipart.ServletPartMultipartFile;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.Part;

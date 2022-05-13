@@ -33,7 +33,7 @@ import cn.taketoday.beans.PropertyValue;
 import cn.taketoday.beans.PropertyValues;
 import cn.taketoday.beans.testfixture.beans.ITestBean;
 import cn.taketoday.beans.testfixture.beans.TestBean;
-import cn.taketoday.web.multipart.StringMultipartFileEditor;
+import cn.taketoday.web.multipart.support.StringMultipartFileEditor;
 import cn.taketoday.web.servlet.MockMultipartServletRequestContext;
 import cn.taketoday.web.servlet.MockServletRequestContext;
 import cn.taketoday.web.testfixture.servlet.MockHttpServletRequest;

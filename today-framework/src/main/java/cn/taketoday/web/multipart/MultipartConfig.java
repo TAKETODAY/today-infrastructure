@@ -28,6 +28,7 @@ import cn.taketoday.util.DataSize;
 /**
  * @author TODAY 2019-07-11 22:47
  */
+@Deprecated
 public class MultipartConfig {
 
   /*** temp file upload location */

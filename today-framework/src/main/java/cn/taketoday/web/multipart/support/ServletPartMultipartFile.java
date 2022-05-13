@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -15,10 +15,10 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.web.multipart;
+package cn.taketoday.web.multipart.support;
 
 import java.io.File;
 import java.io.IOException;
@@ -28,9 +28,8 @@ import java.nio.file.Path;
 import java.util.Objects;
 
 import cn.taketoday.http.DefaultHttpHeaders;
-import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.util.FileCopyUtils;
-import cn.taketoday.web.multipart.support.AbstractMultipartFile;
+import cn.taketoday.web.multipart.MultipartFile;
 import jakarta.servlet.http.Part;
 
 /**
@@ -39,7 +38,7 @@ import jakarta.servlet.http.Part;
  * @author TODAY
  * @since 2018-06-28 22:40:32
  */
-public final class ServletPartMultipartFile extends AbstractMultipartFile implements MultipartFile {
+final class ServletPartMultipartFile extends AbstractMultipartFile implements MultipartFile {
 
   private final Part part;
   private final String filename;
@@ -83,15 +82,7 @@ public final class ServletPartMultipartFile extends AbstractMultipartFile implem
 
   @Override
   protected DefaultHttpHeaders createHttpHeaders() {
-    DefaultHttpHeaders headers = HttpHeaders.create();
-    for (String headerName : part.getHeaderNames()) {
-      headers.addAll(headerName, part.getHeaders(headerName));
-    }
-
-    if (!headers.containsKey(HttpHeaders.CONTENT_TYPE)) {
-      headers.set(HttpHeaders.CONTENT_TYPE, getContentType());
-    }
-    return headers;
+    return ServletPartFormData.createHeaders(part);
   }
 
   /**
