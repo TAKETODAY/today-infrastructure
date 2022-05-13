@@ -49,7 +49,6 @@ import cn.taketoday.core.io.Resource;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.NonNull;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import reactor.core.publisher.BaseSubscriber;
 import reactor.core.publisher.Flux;
@@ -66,7 +65,6 @@ import reactor.util.context.Context;
  * @since 4.0
  */
 public abstract class DataBufferUtils {
-  private final static Logger log = LoggerFactory.getLogger(DataBufferUtils.class);
 
   private static final Consumer<DataBuffer> RELEASE_CONSUMER = DataBufferUtils::release;
 
@@ -530,9 +528,8 @@ public abstract class DataBufferUtils {
       }
       catch (IllegalStateException ex) {
         // Avoid dependency on Netty: IllegalReferenceCountException
-        if (log.isDebugEnabled()) {
-          log.debug("Failed to release PooledDataBuffer: {}", dataBuffer, ex);
-        }
+        LoggerFactory.getLogger(DataBufferUtils.class)
+                .debug("Failed to release PooledDataBuffer: {}", dataBuffer, ex);
         return false;
       }
     }
