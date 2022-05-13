@@ -29,13 +29,13 @@ import cn.taketoday.core.DefaultMultiValueMap;
 import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.core.ResolvableType;
 import cn.taketoday.core.codec.Hints;
+import cn.taketoday.http.MediaType;
 import cn.taketoday.http.ReactiveHttpInputMessage;
 import cn.taketoday.http.codec.HttpMessageReader;
 import cn.taketoday.http.codec.LoggingCodecSupport;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.LogFormatUtils;
-import cn.taketoday.http.MediaType;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -106,20 +106,22 @@ public class MultipartHttpMessageReader
 
     Map<String, Object> allHints = Hints.merge(hints, Hints.SUPPRESS_LOGGING_HINT, true);
 
-    return this.partReader.read(elementType, inputMessage, allHints)
-            .collectMultimap(Part::name)
-            .doOnNext(map -> traceDebug(hints, map))
-            .map(this::toMultiValueMap);
-  }
-
-  private void traceDebug(Map<String, Object> hints, Map<String, Collection<Part>> map) {
     if (isDebugEnabled) {
-      LogFormatUtils.traceDebug(
-              logger, traceOn -> Hints.getLogPrefix(hints) + "Parsed " +
-                      (isEnableLoggingRequestDetails()
-                       ? LogFormatUtils.formatValue(map, !traceOn)
-                       : "parts " + map.keySet() + " (content masked)"));
+      return partReader.read(elementType, inputMessage, allHints)
+              .collectMultimap(Part::name)
+              .doOnNext(map -> {
+                LogFormatUtils.traceDebug(
+                        logger, traceOn -> Hints.getLogPrefix(hints) + "Parsed " +
+                                (isEnableLoggingRequestDetails()
+                                 ? LogFormatUtils.formatValue(map, !traceOn)
+                                 : "parts " + map.keySet() + " (content masked)"));
+              })
+              .map(this::toMultiValueMap);
     }
+
+    return partReader.read(elementType, inputMessage, allHints)
+            .collectMultimap(Part::name)
+            .map(this::toMultiValueMap);
   }
 
   private DefaultMultiValueMap<String, Part> toMultiValueMap(Map<String, Collection<Part>> map) {

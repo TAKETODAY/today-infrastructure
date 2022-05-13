@@ -63,6 +63,7 @@ import reactor.util.context.Context;
  */
 final class PartGenerator extends BaseSubscriber<MultipartParser.Token> {
   private static final Logger logger = LoggerFactory.getLogger(PartGenerator.class);
+  private static final boolean isDebugEnabled = logger.isDebugEnabled();
 
   private final FluxSink<Part> sink;
   private final AtomicInteger partCount = new AtomicInteger();
@@ -174,7 +175,7 @@ final class PartGenerator extends BaseSubscriber<MultipartParser.Token> {
 
   boolean changeState(State oldState, State newState) {
     if (this.state.compareAndSet(oldState, newState)) {
-      if (logger.isTraceEnabled()) {
+      if (isDebugEnabled) {
         logger.trace("Changed state: {} -> {}", oldState, newState);
       }
       oldState.dispose();
@@ -192,14 +193,14 @@ final class PartGenerator extends BaseSubscriber<MultipartParser.Token> {
       return;
     }
     State oldState = this.state.getAndSet(newState);
-    if (logger.isTraceEnabled()) {
+    if (isDebugEnabled) {
       logger.trace("Changed state: {} -> {}", oldState, newState);
     }
     oldState.dispose();
   }
 
   void emitPart(Part part) {
-    if (logger.isTraceEnabled()) {
+    if (isDebugEnabled) {
       logger.trace("Emitting: {}", part);
     }
     this.sink.next(part);
@@ -552,7 +553,7 @@ final class PartGenerator extends BaseSubscriber<MultipartParser.Token> {
     private WritingFileState createFileState(Path directory) {
       try {
         Path tempFile = Files.createTempFile(directory, null, ".multipart");
-        if (logger.isTraceEnabled()) {
+        if (isDebugEnabled) {
           logger.trace("Storing multipart data in file {}", tempFile);
         }
         WritableByteChannel channel = Files.newByteChannel(tempFile, StandardOpenOption.WRITE);

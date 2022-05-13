@@ -27,7 +27,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Supplier;
 
@@ -44,6 +43,7 @@ import cn.taketoday.core.io.buffer.DataBufferUtils;
 import cn.taketoday.core.io.buffer.PooledDataBuffer;
 import cn.taketoday.http.HttpEntity;
 import cn.taketoday.http.HttpHeaders;
+import cn.taketoday.http.MediaType;
 import cn.taketoday.http.ReactiveHttpOutputMessage;
 import cn.taketoday.http.codec.EncoderHttpMessageWriter;
 import cn.taketoday.http.codec.FormHttpMessageWriter;
@@ -52,7 +52,6 @@ import cn.taketoday.http.codec.ResourceHttpMessageWriter;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.LogFormatUtils;
-import cn.taketoday.http.MediaType;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -222,15 +221,14 @@ public class MultipartHttpMessageWriter
     MultipartHttpOutputMessage message = new MultipartHttpOutputMessage(factory);
     HttpHeaders headers = message.getHeaders();
 
-    T body;
+    Object body;
     ResolvableType resolvableType = null;
-    if (value instanceof HttpEntity) {
-      HttpEntity<T> httpEntity = (HttpEntity<T>) value;
+    if (value instanceof HttpEntity httpEntity) {
       headers.putAll(httpEntity.getHeaders());
       body = httpEntity.getBody();
       Assert.state(body != null, "MultipartHttpMessageWriter only supports HttpEntity with body");
-      if (httpEntity instanceof ResolvableTypeProvider) {
-        resolvableType = ((ResolvableTypeProvider) httpEntity).getResolvableType();
+      if (httpEntity instanceof ResolvableTypeProvider provider) {
+        resolvableType = provider.getResolvableType();
       }
     }
     else {
@@ -241,12 +239,12 @@ public class MultipartHttpMessageWriter
     }
 
     if (!headers.containsKey(HttpHeaders.CONTENT_DISPOSITION)) {
-      if (body instanceof Resource) {
-        headers.setContentDispositionFormData(name, ((Resource) body).getName());
+      if (body instanceof Resource resource) {
+        headers.setContentDispositionFormData(name, resource.getName());
       }
       else if (resolvableType.resolve() == Resource.class) {
-        body = (T) Mono.from((Publisher<?>) body).doOnNext(o -> headers
-                .setContentDispositionFormData(name, ((Resource) o).getName()));
+        body = Mono.from((Publisher<Resource>) body)
+                .doOnNext(res -> headers.setContentDispositionFormData(name, res.getName()));
       }
       else {
         headers.setContentDispositionFormData(name, null);
@@ -256,32 +254,26 @@ public class MultipartHttpMessageWriter
     MediaType contentType = headers.getContentType();
 
     final ResolvableType finalBodyType = resolvableType;
-    Optional<HttpMessageWriter<?>> writer = this.partWriters.stream()
-            .filter(partWriter -> partWriter.canWrite(finalBodyType, contentType))
-            .findFirst();
+    for (HttpMessageWriter<?> partWriter : partWriters) {
+      if (partWriter.canWrite(finalBodyType, contentType)) {
+        // The writer will call MultipartHttpOutputMessage#write which doesn't actually write
+        // but only stores the body Flux and returns Mono.empty().
+        @SuppressWarnings("rawtypes")
+        Publisher inputStream = body instanceof Publisher ? (Publisher) body : Mono.just(body);
+        // After partContentReady, we can access the part content from MultipartHttpOutputMessage
+        // and use it for writing to the actual request body
+        Flux<DataBuffer> partContent = partWriter.write(inputStream,
+                        resolvableType, contentType, message, DEFAULT_HINTS)
+                .thenMany(Flux.defer(message::getBody));
 
-    if (writer.isEmpty()) {
-      return Flux.error(new CodecException("No suitable writer found for part: " + name));
+        return Flux.concat(
+                generateBoundaryLine(boundary, factory),
+                partContent,
+                generateNewLine(factory));
+      }
     }
 
-    Publisher<T> bodyPublisher =
-            body instanceof Publisher ? (Publisher<T>) body : Mono.just(body);
-
-    // The writer will call MultipartHttpOutputMessage#write which doesn't actually write
-    // but only stores the body Flux and returns Mono.empty().
-
-    Mono<Void> partContentReady = ((HttpMessageWriter<T>) writer.get())
-            .write(bodyPublisher, resolvableType, contentType, message, DEFAULT_HINTS);
-
-    // After partContentReady, we can access the part content from MultipartHttpOutputMessage
-    // and use it for writing to the actual request body
-
-    Flux<DataBuffer> partContent = partContentReady.thenMany(Flux.defer(message::getBody));
-
-    return Flux.concat(
-            generateBoundaryLine(boundary, factory),
-            partContent,
-            generateNewLine(factory));
+    return Flux.error(new CodecException("No suitable writer found for part: " + name));
   }
 
   private class MultipartHttpOutputMessage implements ReactiveHttpOutputMessage {
@@ -333,8 +325,8 @@ public class MultipartHttpMessageWriter
     }
 
     public Flux<DataBuffer> getBody() {
-      return (this.body != null ? this.body :
-              Flux.error(new IllegalStateException("Body has not been written yet")));
+      return body != null
+             ? body : Flux.error(new IllegalStateException("Body has not been written yet"));
     }
 
     @Override

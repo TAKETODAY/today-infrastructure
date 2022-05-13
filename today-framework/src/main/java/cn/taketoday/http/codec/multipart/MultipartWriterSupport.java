@@ -31,10 +31,10 @@ import cn.taketoday.core.ResolvableType;
 import cn.taketoday.core.io.buffer.DataBuffer;
 import cn.taketoday.core.io.buffer.DataBufferFactory;
 import cn.taketoday.http.HttpHeaders;
+import cn.taketoday.http.MediaType;
 import cn.taketoday.http.codec.LoggingCodecSupport;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.http.MediaType;
 import cn.taketoday.util.MimeTypeUtils;
 import reactor.core.publisher.Mono;
 
@@ -117,12 +117,12 @@ public class MultipartWriterSupport extends LoggingCodecSupport {
     }
     params.put("boundary", new String(boundary, StandardCharsets.US_ASCII));
     Charset charset = getCharset();
-    if (!charset.equals(StandardCharsets.UTF_8) &&
-            !charset.equals(StandardCharsets.US_ASCII)) {
+    if (!charset.equals(StandardCharsets.UTF_8)
+            && !charset.equals(StandardCharsets.US_ASCII)) {
       params.put("charset", charset.name());
     }
 
-    mediaType = (mediaType != null ? mediaType : MediaType.MULTIPART_FORM_DATA);
+    mediaType = mediaType != null ? mediaType : MediaType.MULTIPART_FORM_DATA;
     mediaType = new MediaType(mediaType, params);
     return mediaType;
   }
