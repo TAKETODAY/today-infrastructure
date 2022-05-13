@@ -25,7 +25,7 @@ import java.io.Flushable;
 import java.io.IOException;
 
 import cn.taketoday.http.HttpOutputMessage;
-import cn.taketoday.http.HttpStatus;
+import cn.taketoday.http.HttpStatusCode;
 
 /**
  * Represents a server-side HTTP response.
@@ -40,7 +40,7 @@ public interface ServerHttpResponse extends HttpOutputMessage, Flushable, Closea
    *
    * @param status the HTTP status as an HttpStatus enum value
    */
-  void setStatusCode(HttpStatus status);
+  void setStatusCode(HttpStatusCode status);
 
   /**
    * Ensure that the headers and the content of the response are written out.

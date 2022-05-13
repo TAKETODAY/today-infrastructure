@@ -31,7 +31,7 @@ import java.util.Map;
 
 import cn.taketoday.http.DefaultHttpHeaders;
 import cn.taketoday.http.HttpHeaders;
-import cn.taketoday.http.HttpStatus;
+import cn.taketoday.http.HttpStatusCode;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
@@ -74,7 +74,7 @@ public class ServletServerHttpResponse implements ServerHttpResponse {
   }
 
   @Override
-  public void setStatusCode(HttpStatus status) {
+  public void setStatusCode(HttpStatusCode status) {
     Assert.notNull(status, "HttpStatus must not be null");
     this.servletResponse.setStatus(status.value());
   }

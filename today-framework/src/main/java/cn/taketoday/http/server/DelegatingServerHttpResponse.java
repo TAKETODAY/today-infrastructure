@@ -24,7 +24,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 
 import cn.taketoday.http.HttpHeaders;
-import cn.taketoday.http.HttpStatus;
+import cn.taketoday.http.HttpStatusCode;
 import cn.taketoday.lang.Assert;
 
 /**
@@ -58,7 +58,7 @@ public class DelegatingServerHttpResponse implements ServerHttpResponse {
   }
 
   @Override
-  public void setStatusCode(HttpStatus status) {
+  public void setStatusCode(HttpStatusCode status) {
     this.delegate.setStatusCode(status);
   }
 
