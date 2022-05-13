@@ -45,10 +45,10 @@ import cn.taketoday.web.session.SessionEventDispatcher;
 import cn.taketoday.web.session.SessionIdGenerator;
 import cn.taketoday.web.session.SessionIdResolver;
 import cn.taketoday.web.session.SessionManager;
+import cn.taketoday.web.session.SessionMethodArgumentResolver;
 import cn.taketoday.web.session.SessionRepository;
 import cn.taketoday.web.session.WebSessionAttributeParameterResolver;
 import cn.taketoday.web.session.WebSessionListener;
-import cn.taketoday.web.session.SessionParameterResolver;
 import cn.taketoday.web.view.RedirectModelManager;
 import cn.taketoday.web.view.SessionRedirectModelManager;
 
@@ -93,8 +93,7 @@ class WebSessionConfig {
    */
   @Component
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-  WebSessionAttributeParameterResolver webSessionAttributeParameterResolver(
-          SessionManager sessionManager, ConfigurableBeanFactory beanFactory) {
+  WebSessionAttributeParameterResolver webSessionAttributeMethodArgumentResolver(SessionManager sessionManager, ConfigurableBeanFactory beanFactory) {
     return new WebSessionAttributeParameterResolver(sessionManager, beanFactory);
   }
 
@@ -103,9 +102,8 @@ class WebSessionConfig {
    */
   @Component
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-  SessionParameterResolver webSessionParameterResolver(
-          SessionManager sessionManager) {
-    return new SessionParameterResolver(sessionManager);
+  SessionMethodArgumentResolver webSessionMethodArgumentResolver(SessionManager sessionManager) {
+    return new SessionMethodArgumentResolver(sessionManager);
   }
 
   /**

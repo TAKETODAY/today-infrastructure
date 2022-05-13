@@ -21,6 +21,7 @@
 package cn.taketoday.web.session;
 
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.RequestContext;
 
 /**
@@ -75,6 +76,7 @@ public class SessionManagerSupport {
    * the request has no valid session
    * @see #getSession(RequestContext)
    */
+  @Nullable
   public WebSession getSession(RequestContext context, boolean create) {
     return sessionManager.getSession(context, create);
   }
@@ -86,12 +88,14 @@ public class SessionManagerSupport {
    * @param name the unique attribute key
    * @return the current value of the attribute, if any
    */
+  @Nullable
   public Object getAttribute(WebSession session, String name) {
     return session.getAttribute(name);
   }
 
+  @Nullable
   public Object getAttribute(RequestContext context, String name) {
-    final WebSession session = getSession(context, false);
+    WebSession session = getSession(context, false);
     if (session != null) {
       return getAttribute(session, name);
     }
@@ -111,8 +115,8 @@ public class SessionManagerSupport {
    * @param attribute the attribute value to be attached
    * @since 4.0
    */
-  public void setAttribute(RequestContext context, String name, Object attribute) {
-    final WebSession session = getSession(context, false);
+  public void setAttribute(RequestContext context, String name, @Nullable Object attribute) {
+    WebSession session = getSession(context, false);
     if (session != null) {
       session.setAttribute(name, attribute);
     }
@@ -126,8 +130,9 @@ public class SessionManagerSupport {
    * @return the last value of the attribute, if any
    * @since 4.0
    */
+  @Nullable
   public Object removeAttribute(RequestContext context, String name) {
-    final WebSession session = getSession(context, false);
+    WebSession session = getSession(context, false);
     if (session != null) {
       return session.removeAttribute(name);
     }
