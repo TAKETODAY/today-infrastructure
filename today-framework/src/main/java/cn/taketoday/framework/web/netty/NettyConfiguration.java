@@ -18,7 +18,7 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.framework.reactive;
+package cn.taketoday.framework.web.netty;
 
 import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.beans.factory.annotation.DisableAllDependencyInjection;
@@ -48,7 +48,7 @@ public class NettyConfiguration {
   ReactiveChannelHandler reactiveChannelHandler(
           WebApplicationContext context,
           NettyDispatcher nettyDispatcher,
-          NettyRequestContextConfig contextConfig,
+          NettyRequestConfig contextConfig,
           @Autowired(required = false) WebSocketHandlerRegistry registry) {
     if (registry != null) {
       return new WebSocketReactiveChannelHandler(nettyDispatcher, contextConfig, context);
@@ -97,8 +97,8 @@ public class NettyConfiguration {
 
   @MissingBean
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-  NettyRequestContextConfig nettyRequestContextConfig() {
-    return new NettyRequestContextConfig();
+  NettyRequestConfig nettyRequestContextConfig() {
+    return new NettyRequestConfig();
   }
 
 }

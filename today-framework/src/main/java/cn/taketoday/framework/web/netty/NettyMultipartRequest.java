@@ -18,7 +18,7 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.framework.reactive;
+package cn.taketoday.framework.web.netty;
 
 import java.util.function.Supplier;
 
@@ -68,8 +68,16 @@ public class NettyMultipartRequest extends AbstractMultipartRequest {
   @Nullable
   @Override
   public HttpHeaders getMultipartHeaders(String paramOrFileName) {
-
-    return null;
+    var decoder = decoderSupplier.get();
+    HttpHeaders headers = HttpHeaders.create();
+    for (InterfaceHttpData bodyHttpData : decoder.getBodyHttpDatas(paramOrFileName)) {
+      if (bodyHttpData instanceof FileUpload httpData) {
+        String contentType = httpData.getContentType();
+        headers.set(HttpHeaders.CONTENT_TYPE, contentType);
+        break;
+      }
+    }
+    return headers;
   }
 
   @Override

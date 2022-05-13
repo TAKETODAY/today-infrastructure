@@ -18,7 +18,7 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.framework.reactive;
+package cn.taketoday.framework.web.netty;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -73,36 +73,47 @@ import io.netty.handler.codec.http.multipart.InterfaceHttpPostRequestDecoder;
  */
 public class NettyRequestContext extends RequestContext {
 
+  @Nullable
   private String remoteAddress;
 
   private boolean committed = false;
 
   private final FullHttpRequest request;
   private final ChannelHandlerContext channelContext;
+
+  @Nullable
   private InterfaceHttpPostRequestDecoder requestDecoder;
 
   private final String uri; // none null
 
-  private final NettyRequestContextConfig config;
+  private final NettyRequestConfig config;
 
   // response
+  @Nullable
   private Boolean keepAlive;
 
   private HttpResponseStatus status = HttpResponseStatus.OK;
 
+  @Nullable
   private ByteBuf responseBody;
+
   /**
    * response headers
    */
+  @Nullable
   private HttpHeaders originalResponseHeaders;
 
+  @Nullable
   private FullHttpResponse response;
 
   private final int queryStringIndex; // for optimize
+
+  @Nullable
   private InetSocketAddress inetSocketAddress;
 
   public NettyRequestContext(
-          WebApplicationContext context, ChannelHandlerContext ctx, FullHttpRequest request, NettyRequestContextConfig config) {
+          WebApplicationContext context, ChannelHandlerContext ctx,
+          FullHttpRequest request, NettyRequestConfig config) {
     super(context);
     this.config = config;
     this.request = request;
@@ -143,7 +154,7 @@ public class NettyRequestContext extends RequestContext {
 
   @Override
   public String getServerName() {
-    return inetSocketAddress.getHostString();
+    return inetSocketAddress().getHostString();
   }
 
   @Override

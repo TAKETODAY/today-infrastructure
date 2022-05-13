@@ -17,7 +17,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.framework.reactive;
+package cn.taketoday.framework.web.netty;
 
 import cn.taketoday.lang.Assert;
 import cn.taketoday.web.WebApplicationContext;
@@ -37,16 +37,16 @@ import io.netty.handler.codec.http.HttpVersion;
 public class ReactiveChannelHandler implements ChannelInboundHandler {
 
   private NettyDispatcher nettyDispatcher;
-  private NettyRequestContextConfig contextConfig;
+  private NettyRequestConfig contextConfig;
 
   private final WebApplicationContext context;
 
   public ReactiveChannelHandler(NettyDispatcher nettyDispatcher, WebApplicationContext context) {
-    this(nettyDispatcher, new NettyRequestContextConfig(), context);
+    this(nettyDispatcher, new NettyRequestConfig(), context);
   }
 
   public ReactiveChannelHandler(
-          NettyDispatcher nettyDispatcher, NettyRequestContextConfig contextConfig, WebApplicationContext context) {
+          NettyDispatcher nettyDispatcher, NettyRequestConfig contextConfig, WebApplicationContext context) {
     Assert.notNull(context, "WebApplicationContext is required");
     this.context = context;
     setContextConfig(contextConfig);
@@ -88,7 +88,7 @@ public class ReactiveChannelHandler implements ChannelInboundHandler {
             .addListener(ChannelFutureListener.CLOSE_ON_FAILURE);
   }
 
-  public void setContextConfig(NettyRequestContextConfig contextConfig) {
+  public void setContextConfig(NettyRequestConfig contextConfig) {
     Assert.notNull(contextConfig, "NettyRequestContextConfig cannot be null");
     this.contextConfig = contextConfig;
   }
@@ -105,7 +105,7 @@ public class ReactiveChannelHandler implements ChannelInboundHandler {
   /**
    * Get Netty RequestContext config
    */
-  public NettyRequestContextConfig getContextConfig() {
+  public NettyRequestConfig getContextConfig() {
     return contextConfig;
   }
 

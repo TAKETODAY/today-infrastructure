@@ -18,13 +18,14 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.framework.reactive;
+package cn.taketoday.framework.web.netty;
 
 import java.nio.charset.Charset;
 import java.util.function.Supplier;
 
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Constant;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.function.SingletonSupplier;
 import io.netty.buffer.ByteBuf;
 import io.netty.handler.codec.http.EmptyHttpHeaders;
@@ -44,7 +45,7 @@ import io.netty.handler.codec.http.multipart.HttpDataFactory;
  *
  * @author TODAY 2021/3/30 17:46
  */
-public class NettyRequestContextConfig {
+public class NettyRequestConfig {
 
   /**
    * Should Netty validate HTTP response Header values to ensure they aren't malicious.
@@ -65,6 +66,8 @@ public class NettyRequestContextConfig {
    * @see io.netty.buffer.Unpooled#buffer(int)
    */
   private int bodyInitialSize = 64;
+
+  @Nullable
   private Supplier<ByteBuf> responseBody;
 
   /**
@@ -72,20 +75,20 @@ public class NettyRequestContextConfig {
    *
    * @see jakarta.servlet.http.HttpServletRequest#getContextPath()
    */
-  private String contextPath;
+  private String contextPath = "";
   private Charset postRequestDecoderCharset = Constant.DEFAULT_CHARSET;
 
   private HttpDataFactory httpDataFactory;
 
-  public NettyRequestContextConfig() {
+  public NettyRequestConfig() {
     this(SingletonSupplier.valueOf(EmptyHttpHeaders.INSTANCE));
   }
 
-  public NettyRequestContextConfig(Supplier<HttpHeaders> trailingHeaders) {
+  public NettyRequestConfig(Supplier<HttpHeaders> trailingHeaders) {
     this(new DefaultHttpDataFactory(true), trailingHeaders);
   }
 
-  public NettyRequestContextConfig(HttpDataFactory httpDataFactory, Supplier<HttpHeaders> trailingHeaders) {
+  public NettyRequestConfig(HttpDataFactory httpDataFactory, Supplier<HttpHeaders> trailingHeaders) {
     setTrailingHeaders(trailingHeaders);
     setHttpDataFactory(httpDataFactory);
   }
@@ -126,26 +129,27 @@ public class NettyRequestContextConfig {
     return httpVersion;
   }
 
-  public void setCookieDecoder(ServerCookieDecoder cookieDecoder) {
-    this.cookieDecoder = cookieDecoder;
+  public void setCookieDecoder(@Nullable ServerCookieDecoder cookieDecoder) {
+    this.cookieDecoder = cookieDecoder == null ? ServerCookieDecoder.STRICT : cookieDecoder;
   }
 
-  public void setCookieEncoder(ServerCookieEncoder cookieEncoder) {
-    this.cookieEncoder = cookieEncoder;
+  public void setCookieEncoder(@Nullable ServerCookieEncoder cookieEncoder) {
+    this.cookieEncoder = cookieEncoder == null ? ServerCookieEncoder.STRICT : cookieEncoder;
   }
 
   public ServerCookieDecoder getCookieDecoder() {
-    return cookieDecoder == null ? ServerCookieDecoder.STRICT : cookieDecoder;
+    return cookieDecoder;
   }
 
   public ServerCookieEncoder getCookieEncoder() {
-    return cookieEncoder == null ? ServerCookieEncoder.STRICT : cookieEncoder;
+    return cookieEncoder;
   }
 
-  public void setResponseBody(Supplier<ByteBuf> responseBody) {
+  public void setResponseBody(@Nullable Supplier<ByteBuf> responseBody) {
     this.responseBody = responseBody;
   }
 
+  @Nullable
   public Supplier<ByteBuf> getResponseBody() {
     return responseBody;
   }
@@ -166,8 +170,8 @@ public class NettyRequestContextConfig {
     this.bodyInitialSize = bodyInitialSize;
   }
 
-  public void setContextPath(String contextPath) {
-    this.contextPath = contextPath;
+  public void setContextPath(@Nullable String contextPath) {
+    this.contextPath = contextPath == null ? "" : contextPath;
   }
 
   /**
@@ -179,20 +183,21 @@ public class NettyRequestContextConfig {
     return contextPath;
   }
 
-  public void setPostRequestDecoderCharset(Charset postRequestDecoderCharset) {
-    this.postRequestDecoderCharset = postRequestDecoderCharset;
+  public void setPostRequestDecoderCharset(@Nullable Charset charset) {
+    this.postRequestDecoderCharset =
+            charset == null ? Constant.DEFAULT_CHARSET : charset;
   }
 
   public Charset getPostRequestDecoderCharset() {
     return postRequestDecoderCharset;
   }
 
-  public void setHttpDataFactory(HttpDataFactory httpDataFactory) {
-    Assert.notNull(httpDataFactory, "httpDataFactory cannot be null");
-    this.httpDataFactory = httpDataFactory;
-  }
-
   public HttpDataFactory getHttpDataFactory() {
     return httpDataFactory;
+  }
+
+  public void setHttpDataFactory(HttpDataFactory httpDataFactory) {
+    Assert.notNull(httpDataFactory, "HttpDataFactory is required");
+    this.httpDataFactory = httpDataFactory;
   }
 }

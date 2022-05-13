@@ -18,7 +18,7 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.framework.reactive;
+package cn.taketoday.framework.web.netty;
 
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
@@ -56,7 +56,7 @@ public class WebSocketReactiveChannelHandler extends ReactiveChannelHandler {
   }
 
   public WebSocketReactiveChannelHandler(
-          NettyDispatcher nettyDispatcher, NettyRequestContextConfig contextConfig, WebApplicationContext context) {
+          NettyDispatcher nettyDispatcher, NettyRequestConfig contextConfig, WebApplicationContext context) {
     super(nettyDispatcher, contextConfig, context);
   }
 

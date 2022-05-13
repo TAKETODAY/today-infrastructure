@@ -17,7 +17,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.framework.reactive;
+package cn.taketoday.framework.web.netty;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
