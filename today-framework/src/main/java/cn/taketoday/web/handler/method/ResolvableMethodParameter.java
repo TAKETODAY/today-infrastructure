@@ -28,6 +28,7 @@ import cn.taketoday.core.AttributeAccessorSupport;
 import cn.taketoday.core.MethodParameter;
 import cn.taketoday.core.ResolvableType;
 import cn.taketoday.core.TypeDescriptor;
+import cn.taketoday.core.annotation.MergedAnnotations;
 import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Experimental;
 import cn.taketoday.lang.Nullable;
@@ -237,11 +238,14 @@ public class ResolvableMethodParameter extends AttributeAccessorSupport {
    * @return the named value information
    */
   protected NamedValueInfo createNamedValueInfo() {
-    RequestParam requestParam = getParameterAnnotation(RequestParam.class);
-    if (requestParam == null) {
-      return new NamedValueInfo(getParameterName());
+    var requestParam = MergedAnnotations.from(getParameterAnnotations()).get(RequestParam.class);
+    if (requestParam.isPresent()) {
+      String name = requestParam.getString("name");
+      boolean required = requestParam.getBoolean("required");
+      String defaultValue = requestParam.getString("defaultValue");
+      return new NamedValueInfo(name, required, defaultValue);
     }
-    return new NamedValueInfo(requestParam.name(), requestParam.required(), requestParam.defaultValue());
+    return new NamedValueInfo(getParameterName());
   }
 
   /**
