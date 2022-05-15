@@ -53,7 +53,8 @@ class EnableConfigurationPropertiesRegistrar implements ImportBeanDefinitionRegi
     BeanDefinitionRegistry registry = context.getRegistry();
     registerInfrastructureBeans(registry);
     registerMethodValidationExcludeFilter(registry);
-    ConfigurationPropertiesBeanRegistrar beanRegistrar = new ConfigurationPropertiesBeanRegistrar(context);
+
+    var beanRegistrar = new ConfigurationPropertiesBeanRegistrar(context);
     for (Class<?> type : getTypes(metadata)) {
       beanRegistrar.register(type);
     }
@@ -62,7 +63,7 @@ class EnableConfigurationPropertiesRegistrar implements ImportBeanDefinitionRegi
   private Set<Class<?>> getTypes(AnnotationMetadata metadata) {
     return metadata.getAnnotations()
             .stream(EnableConfigurationProperties.class)
-            .flatMap((annotation) -> Arrays.stream(annotation.getClassValueArray()))
+            .flatMap(annotation -> Arrays.stream(annotation.getClassValueArray()))
             .filter(Predicate.isEqual(void.class).negate())
             .collect(Collectors.toSet());
   }

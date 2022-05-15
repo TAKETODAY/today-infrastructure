@@ -39,9 +39,9 @@ import cn.taketoday.context.annotation.Import;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
+@Documented
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
-@Documented
 @Import(EnableConfigurationPropertiesRegistrar.class)
 public @interface EnableConfigurationProperties {
 

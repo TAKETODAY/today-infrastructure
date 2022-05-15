@@ -143,6 +143,7 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
   private final Map<ControllerAdviceBean, Set<Method>> modelAttributeAdviceCache = new LinkedHashMap<>();
 
   private final Map<HandlerMethod, ActionMappingAnnotationHandler> annotationHandlerMap = new HashMap<>();
+  private final Map<HandlerMethod, ServletInvocableHandlerMethod> invocableHandlerMethodMap = new HashMap<>();
 
   @Nullable
   private SessionManager sessionManager;
@@ -441,12 +442,8 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
     checkRequest(request);
 
     // Execute invokeHandlerMethod in synchronized block if required.
-    if (this.synchronizeOnSession) {
-      if (sessionManager != null) {
-
-      }
-
-      WebSession session = RequestContextUtils.getSession(request, false);
+    if (synchronizeOnSession) {
+      WebSession session = getSession(request);
       if (session != null) {
         Object mutex = WebUtils.getSessionMutex(session);
         synchronized(mutex) {
@@ -476,6 +473,18 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
     return returnValue;
   }
 
+  @Nullable
+  private WebSession getSession(RequestContext request) {
+    WebSession session = null;
+    if (sessionManager != null) {
+      session = sessionManager.getSession(request, false);
+    }
+    if (session == null) {
+      session = RequestContextUtils.getSession(request, false);
+    }
+    return session;
+  }
+
   /**
    * Return the {@link SessionAttributesHandler} instance for the given handler type
    * (never {@code null}).
@@ -500,10 +509,7 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
 
     ModelFactory modelFactory = getModelFactory(handlerMethod, bindingContext);
 
-//    ActionMappingAnnotationHandler handler = annotationHandlerMap.get(handlerMethod);
-
     ServletInvocableHandlerMethod invocableMethod = createInvocableHandlerMethod(request, handlerMethod);
-    invocableMethod.setReturnValueHandlerManager(returnValueHandlerManager);
 
     RedirectModel inputRedirectModel = RequestContextUtils.getInputRedirectModel(request, redirectModelManager);
     bindingContext.addAllAttributes(inputRedirectModel);
@@ -554,7 +560,12 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
    */
   protected ServletInvocableHandlerMethod createInvocableHandlerMethod(
           RequestContext request, HandlerMethod handlerMethod) {
-    return new ServletInvocableHandlerMethod(handlerMethod);
+    return invocableHandlerMethodMap.computeIfAbsent(handlerMethod, handler -> {
+      ServletInvocableHandlerMethod invocableMethod = new ServletInvocableHandlerMethod(handler);
+      invocableMethod.setReturnValueHandlerManager(returnValueHandlerManager);
+      invocableMethod.setResolvingRegistry(resolvingRegistry);
+      return invocableMethod;
+    });
   }
 
   private ModelFactory getModelFactory(HandlerMethod handlerMethod, BindingContext bindingContext) {
