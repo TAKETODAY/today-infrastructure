@@ -95,6 +95,27 @@ public class ConsumesRequestConditionTests {
     assertThat(condition.getMatchingCondition(new ServletRequestContext(null, request, null))).isNull();
   }
 
+  @Test // gh-28024
+  public void matchWithParameters() {
+    String base = "application/hal+json";
+    ConsumesRequestCondition condition = new ConsumesRequestCondition(base + ";profile=\"a\"");
+    MockHttpServletRequest request = new MockHttpServletRequest();
+    request.setContentType(base + ";profile=\"a\"");
+    assertThat(condition.getMatchingCondition(new ServletRequestContext(null, request, null))).isNotNull();
+
+    condition = new ConsumesRequestCondition(base + ";profile=\"a\"");
+    request.setContentType(base + ";profile=\"b\"");
+    assertThat(condition.getMatchingCondition(new ServletRequestContext(null, request, null))).isNull();
+
+    condition = new ConsumesRequestCondition(base + ";profile=\"a\"");
+    request.setContentType(base);
+    assertThat(condition.getMatchingCondition(new ServletRequestContext(null, request, null))).isNotNull();
+
+    condition = new ConsumesRequestCondition(base);
+    request.setContentType(base + ";profile=\"a\"");
+    assertThat(condition.getMatchingCondition(new ServletRequestContext(null, request, null))).isNotNull();
+  }
+
   @Test
   public void consumesParseError() {
     ConsumesRequestCondition condition = new ConsumesRequestCondition("text/plain");
@@ -125,7 +146,6 @@ public class ConsumesRequestConditionTests {
     request = new MockHttpServletRequest("GET", "/");
     request.addHeader(HttpHeaders.CONTENT_LENGTH, "0");
     assertThat(condition.getMatchingCondition(new ServletRequestContext(null, request, null))).isNotNull();
-
 
     request = new MockHttpServletRequest("GET", "/");
     request.addHeader(HttpHeaders.CONTENT_LENGTH, "21");

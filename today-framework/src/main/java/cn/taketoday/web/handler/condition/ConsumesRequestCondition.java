@@ -290,7 +290,7 @@ public final class ConsumesRequestCondition extends AbstractRequestCondition<Con
     }
 
     public final boolean match(MediaType contentType) {
-      boolean match = getMediaType().includes(contentType);
+      boolean match = getMediaType().includes(contentType) && matchParameters(contentType);
       return !isNegated() == match;
     }
   }

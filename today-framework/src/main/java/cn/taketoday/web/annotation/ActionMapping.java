@@ -117,24 +117,28 @@ public @interface ActionMapping {
   HttpMethod[] method() default {};
 
   /**
-   * Narrows the primary mapping by media types that can be
-   * consumed by the mapped handler. Consists of one or more
-   * media types one of which must match to the request
-   * Content-Type header.
-   * Examples:
-   * <pre>
+   * Narrows the primary mapping by media types that can be consumed by the
+   * mapped handler. Consists of one or more media types one of which must
+   * match to the request {@code Content-Type} header. Examples:
+   * <pre class="code">
    * consumes = "text/plain"
    * consumes = {"text/plain", "application/*"}
    * consumes = MediaType.TEXT_PLAIN_VALUE
    * </pre>
-   * Expressions can be negated by using the "!" operator,
-   * as in "!text/plain", which matches all requests with
-   * a Content-Type other than "text/plain". Supported at
-   * the type level as well as at the method level! If
-   * specified at both levels, the method level consumes
-   * condition overrides the type level condition.
+   * <p>If a declared media type contains a parameter, and if the
+   * {@code "content-type"} from the request also has that parameter, then
+   * the parameter values must match. Otherwise, if the media type from the
+   * request {@code "content-type"} does not contain the parameter, then the
+   * parameter is ignored for matching purposes.
+   * <p>Expressions can be negated by using the "!" operator, as in
+   * "!text/plain", which matches all requests with a {@code Content-Type}
+   * other than "text/plain".
+   * <p><b>Supported at the type level as well as at the method level!</b>
+   * If specified at both levels, the method level consumes condition overrides
+   * the type level condition.
    *
    * @see MediaType
+   * @see jakarta.servlet.http.HttpServletRequest#getContentType()
    * @since 3.0
    */
   String[] consumes() default {};

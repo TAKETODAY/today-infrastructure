@@ -106,19 +106,19 @@ public class ProducesRequestConditionTests {
     String base = "application/atom+xml";
     ProducesRequestCondition condition = new ProducesRequestCondition(base + ";type=feed");
     HttpServletRequest request = createRequest(base + ";type=entry");
-    assertThat(condition.getMatchingCondition(createContext(request))).as("Declared parameter value must match if present in request").isNull();
+    assertThat(condition.getMatchingCondition(createContext(request))).isNull();
 
     condition = new ProducesRequestCondition(base + ";type=feed");
     request = createRequest(base + ";type=feed");
-    assertThat(condition.getMatchingCondition(createContext(request))).as("Declared parameter value must match if present in request").isNotNull();
+    assertThat(condition.getMatchingCondition(createContext(request))).isNotNull();
 
     condition = new ProducesRequestCondition(base + ";type=feed");
     request = createRequest(base);
-    assertThat(condition.getMatchingCondition(createContext(request))).as("Declared parameter has no impact if not present in request").isNotNull();
+    assertThat(condition.getMatchingCondition(createContext(request))).isNotNull();
 
     condition = new ProducesRequestCondition(base);
     request = createRequest(base + ";type=feed");
-    assertThat(condition.getMatchingCondition(createContext(request))).as("No impact from other parameters in request").isNotNull();
+    assertThat(condition.getMatchingCondition(createContext(request))).isNotNull();
   }
 
   @Test

@@ -20,14 +20,18 @@
 
 package cn.taketoday.web.handler.condition;
 
+import java.util.Map;
+
 import cn.taketoday.http.MediaType;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.annotation.RequestMapping;
 
 /**
  * Supports media type expressions as described in:
  * {@link RequestMapping#consumes()} and {@link RequestMapping#produces()}.
  *
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @author Arjen Poutsma
  * @author Rossen Stoyanchev
  * @since 4.0
@@ -62,6 +66,18 @@ abstract class AbstractMediaTypeExpression implements MediaTypeExpression, Compa
   @Override
   public boolean isNegated() {
     return this.isNegated;
+  }
+
+  protected boolean matchParameters(MediaType contentType) {
+    for (Map.Entry<String, String> entry : getMediaType().getParameters().entrySet()) {
+      if (StringUtils.hasText(entry.getValue())) {
+        String value = contentType.getParameter(entry.getKey());
+        if (StringUtils.hasText(value) && !entry.getValue().equals(value)) {
+          return false;
+        }
+      }
+    }
+    return true;
   }
 
   @Override

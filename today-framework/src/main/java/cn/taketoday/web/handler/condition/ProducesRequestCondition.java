@@ -31,7 +31,6 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.MimeType;
 import cn.taketoday.util.ObjectUtils;
-import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.HttpMediaTypeException;
 import cn.taketoday.web.HttpMediaTypeNotAcceptableException;
 import cn.taketoday.web.RequestContext;
@@ -375,16 +374,6 @@ public final class ProducesRequestCondition extends AbstractRequestCondition<Pro
       return false;
     }
 
-    private boolean matchParameters(MediaType acceptedMediaType) {
-      for (String name : getMediaType().getParameters().keySet()) {
-        String s1 = getMediaType().getParameter(name);
-        String s2 = acceptedMediaType.getParameter(name);
-        if (StringUtils.hasText(s1) && StringUtils.hasText(s2) && !s1.equalsIgnoreCase(s2)) {
-          return false;
-        }
-      }
-      return true;
-    }
   }
 
 }
