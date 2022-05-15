@@ -49,6 +49,7 @@ import cn.taketoday.web.handler.method.ResolvableMethodParameter;
  * @since 2019-07-13 11:11
  */
 public class RequestHeaderMethodArgumentResolver extends AbstractNamedValueResolvingStrategy {
+
   /**
    * Create a new {@link RequestHeaderMethodArgumentResolver} instance.
    *
@@ -62,7 +63,8 @@ public class RequestHeaderMethodArgumentResolver extends AbstractNamedValueResol
 
   @Override
   public boolean supportsParameter(ResolvableMethodParameter parameter) {
-    return parameter.hasParameterAnnotation(RequestHeader.class) || !parameter.isAssignableTo(Map.class);
+    return parameter.hasParameterAnnotation(RequestHeader.class)
+            && !parameter.isAssignableTo(Map.class);
   }
 
   @Nullable
