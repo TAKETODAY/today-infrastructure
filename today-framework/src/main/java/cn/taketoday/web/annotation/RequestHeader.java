@@ -56,7 +56,7 @@ public @interface RequestHeader {
   /**
    * Alias for {@link #name}.
    */
-  @AliasFor("name")
+  @AliasFor(annotation = RequestParam.class, attribute = "value")
   String value() default "";
 
   /**
@@ -64,7 +64,7 @@ public @interface RequestHeader {
    *
    * @since 4.0
    */
-  @AliasFor("value")
+  @AliasFor(annotation = RequestParam.class, attribute = "name")
   String name() default "";
 
   /**
@@ -76,6 +76,7 @@ public @interface RequestHeader {
    * <p>Alternatively, provide a {@link #defaultValue}, which implicitly
    * sets this flag to {@code false}.
    */
+  @AliasFor(annotation = RequestParam.class, attribute = "required")
   boolean required() default true;
 
   /**
@@ -83,6 +84,7 @@ public @interface RequestHeader {
    * <p>Supplying a default value implicitly sets {@link #required} to
    * {@code false}.
    */
+  @AliasFor(annotation = RequestParam.class, attribute = "defaultValue")
   String defaultValue() default Constant.DEFAULT_NONE;
 
 }
