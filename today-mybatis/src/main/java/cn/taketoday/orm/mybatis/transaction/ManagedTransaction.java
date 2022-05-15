@@ -35,19 +35,24 @@ import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.transaction.support.TransactionSynchronizationManager;
 
 /**
- * {@code TodayManagedTransaction} handles the lifecycle of a JDBC connection. It retrieves a connection from Framework's
- * transaction manager and returns it back to it when it is no longer needed.
+ * {@code TodayManagedTransaction} handles the lifecycle of a JDBC connection.
+ * It retrieves a connection from Framework's transaction manager and returns
+ * it back to it when it is no longer needed.
  * <p>
- * If Framework's transaction handling is active it will no-op all commit/rollback/close calls assuming that the Framework
- * transaction manager will do the job.
+ * If Framework's transaction handling is active it will no-op all
+ * commit/rollback/close calls assuming that the Framework transaction manager
+ * will do the job.
  * <p>
  * If it is not it will behave like {@code JdbcTransaction}.
  *
  * @author Hunter Presnall
  * @author Eduardo Macarron
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 4.0
  */
 public class ManagedTransaction implements Transaction {
   private static final Logger log = LoggerFactory.getLogger(ManagedTransaction.class);
+  private static final boolean isDebugEnabled = log.isDebugEnabled();
 
   private final DataSource dataSource;
 
@@ -74,18 +79,20 @@ public class ManagedTransaction implements Transaction {
   }
 
   /**
-   * Gets a connection from Framework transaction manager and discovers if this {@code Transaction} should manage
-   * connection or let it to Framework.
+   * Gets a connection from Framework transaction manager and discovers
+   * if this {@code Transaction} should manage connection or let it to Framework.
    * <p>
-   * It also reads autocommit setting because when using Framework Transaction MyBatis thinks that autocommit is always
-   * false and will always call commit/rollback so we need to no-op that calls.
+   * It also reads autocommit setting because when using Framework Transaction
+   * MyBatis thinks that autocommit is always false and will always call
+   * commit/rollback so we need to no-op that calls.
    */
   private void openConnection() throws SQLException {
-    this.connection = DataSourceUtils.getConnection(this.dataSource);
-    this.autoCommit = this.connection.getAutoCommit();
-    this.isConnectionTransactional = DataSourceUtils.isConnectionTransactional(this.connection, this.dataSource);
-    if (log.isDebugEnabled()) {
-      log.debug("JDBC Connection [{}] will{}be managed by TODAY", connection, (this.isConnectionTransactional ? " " : " not "));
+    this.connection = DataSourceUtils.getConnection(dataSource);
+    this.autoCommit = connection.getAutoCommit();
+    this.isConnectionTransactional = DataSourceUtils.isConnectionTransactional(connection, dataSource);
+    if (isDebugEnabled) {
+      log.debug("JDBC Connection [{}] will{}be managed by Framework",
+              connection, (isConnectionTransactional ? " " : " not "));
     }
   }
 
@@ -94,8 +101,8 @@ public class ManagedTransaction implements Transaction {
    */
   @Override
   public void commit() throws SQLException {
-    if (this.connection != null && !this.isConnectionTransactional && !this.autoCommit) {
-      if (log.isDebugEnabled()) {
+    if (connection != null && !isConnectionTransactional && !autoCommit) {
+      if (isDebugEnabled) {
         log.debug("Committing JDBC Connection [{}]", connection);
       }
       this.connection.commit();
@@ -107,11 +114,11 @@ public class ManagedTransaction implements Transaction {
    */
   @Override
   public void rollback() throws SQLException {
-    if (this.connection != null && !this.isConnectionTransactional && !this.autoCommit) {
-      if (log.isDebugEnabled()) {
+    if (connection != null && !isConnectionTransactional && !autoCommit) {
+      if (isDebugEnabled) {
         log.debug("Rolling back JDBC Connection [{}]", connection);
       }
-      this.connection.rollback();
+      connection.rollback();
     }
   }
 
@@ -120,7 +127,7 @@ public class ManagedTransaction implements Transaction {
    */
   @Override
   public void close() throws SQLException {
-    DataSourceUtils.releaseConnection(this.connection, this.dataSource);
+    DataSourceUtils.releaseConnection(connection, dataSource);
   }
 
   /**

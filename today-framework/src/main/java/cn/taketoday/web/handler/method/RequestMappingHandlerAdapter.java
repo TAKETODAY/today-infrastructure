@@ -143,7 +143,7 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
   private final Map<ControllerAdviceBean, Set<Method>> modelAttributeAdviceCache = new LinkedHashMap<>();
 
   private final Map<HandlerMethod, ActionMappingAnnotationHandler> annotationHandlerMap = new HashMap<>();
-  private final Map<HandlerMethod, ServletInvocableHandlerMethod> invocableHandlerMethodMap = new HashMap<>();
+  private final Map<HandlerMethod, ServletInvocableHandlerMethod> invocableHandlerMethodMap = new ConcurrentHashMap<>();
 
   @Nullable
   private SessionManager sessionManager;
