@@ -68,11 +68,6 @@ class HttpComponentsClientHttpResponse implements ClientHttpResponse {
   }
 
   @Override
-  public HttpStatusCode getStatusCode() {
-    return HttpStatusCode.valueOf(this.message.getHead().getCode());
-  }
-
-  @Override
   public int getRawStatusCode() {
     return this.message.getHead().getCode();
   }

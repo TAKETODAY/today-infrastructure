@@ -52,7 +52,9 @@ public interface ClientHttpResponse extends ReactiveHttpInputMessage {
    * @see HttpStatus#valueOf(int)
    * @since #getRawStatusCode()
    */
-  HttpStatusCode getStatusCode();
+  default HttpStatusCode getStatusCode() {
+    return HttpStatusCode.valueOf(getRawStatusCode());
+  }
 
   /**
    * Return the HTTP status code (potentially non-standard and not

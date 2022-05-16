@@ -42,12 +42,8 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 public class SessionLocaleResolverTests {
 
-  AnnotationConfigServletWebApplicationContext webApplicationContext = new AnnotationConfigServletWebApplicationContext();
-
-  {
-    webApplicationContext.register(SessionConfig.class);
-    webApplicationContext.refresh();
-  }
+  AnnotationConfigServletWebApplicationContext webApplicationContext
+          = new AnnotationConfigServletWebApplicationContext(SessionConfig.class);
 
   @EnableWebSession
   @Configuration

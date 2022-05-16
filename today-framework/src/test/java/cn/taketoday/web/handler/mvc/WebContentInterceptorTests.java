@@ -22,6 +22,7 @@ package cn.taketoday.web.handler.mvc;
 
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
 import java.util.Properties;
 import java.util.function.Function;
 
@@ -75,7 +76,7 @@ class WebContentInterceptorTests {
     RequestContext request = requestFactory.apply("/example/adminhandle.vm");
     interceptor.beforeProcess(request, handler);
 
-    Iterable<String> cacheControlHeaders = response.getHeaders("Cache-Control");
+    List<String> cacheControlHeaders = response.getHeaders("Cache-Control");
     assertThat(cacheControlHeaders).isEmpty();
 
     request = requestFactory.apply("/example/bingo.html");

@@ -43,6 +43,7 @@ import cn.taketoday.http.MediaType;
 import cn.taketoday.http.converter.HttpMessageConverter;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
+import cn.taketoday.web.BindingContext;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.WebApplicationContextSupport;
 import cn.taketoday.web.annotation.Controller;
@@ -146,7 +147,9 @@ class ExceptionHandlerAnnotationExceptionHandlerTests {
 
     request.setAttribute(WebUtils.ERROR_EXCEPTION_ATTRIBUTE, ex);
 
-    Object ret = this.handler.handleException(new MockServletRequestContext(context, request, response), ex, handler);
+    MockServletRequestContext context1 = new MockServletRequestContext(context, request, response);
+    context1.setBindingContext(new BindingContext());
+    Object ret = this.handler.handleException(context1, ex, handler);
     if (ret instanceof ModelAndView mav) {
       return mav;
     }

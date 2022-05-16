@@ -51,6 +51,7 @@ import static cn.taketoday.web.bind.resolver.MvcAnnotationPredicates.requestPara
 import static cn.taketoday.web.bind.resolver.MvcAnnotationPredicates.requestPart;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
@@ -216,7 +217,7 @@ class RequestParamMethodArgumentResolverTests {
     request.addFile(expected1);
     request.addFile(expected2);
     request.addFile(new MockMultipartFile("other", "Hello World 3".getBytes()));
-    webRequest = new ServletRequestContext(null, request, null);
+    ServletRequestContext webRequest = new ServletRequestContext(null, request, null);
     webRequest.setBindingContext(new BindingContext());
 
     ResolvableMethodParameter param = this.testMethod.annotPresent(RequestParam.class).arg(MultipartFile[].class);
@@ -343,6 +344,7 @@ class RequestParamMethodArgumentResolverTests {
 
     ResolvableMethodParameter param = this.testMethod.annotNotPresent().arg(MultipartFile.class);
     Object result = resolver.resolveArgument(webRequest, param);
+
     boolean condition = result instanceof MultipartFile;
     assertThat(condition).isTrue();
     assertThat(result).as("Invalid result").isEqualTo(expected);
@@ -383,8 +385,8 @@ class RequestParamMethodArgumentResolverTests {
     webRequest = new ServletRequestContext(null, request, null);
     webRequest.setBindingContext(new BindingContext());
 
-    ResolvableMethodParameter param = this.testMethod
-            .annotNotPresent(RequestParam.class).arg(List.class, MultipartFile.class);
+    ResolvableMethodParameter param = testMethod.annotNotPresent(
+            RequestParam.class).arg(List.class, MultipartFile.class);
 
     Object actual = resolver.resolveArgument(webRequest, param);
     boolean condition = actual instanceof List;
@@ -450,13 +452,18 @@ class RequestParamMethodArgumentResolverTests {
 
     BindingContext binderFactory = mock(BindingContext.class);
     given(binderFactory.createBinder(webRequest, null, "stringNotAnnot")).willReturn(binder);
+    given(binderFactory.createBinder(webRequest, "stringNotAnnot")).willReturn(binder);
     webRequest.setBindingContext(binderFactory);
 
     request.addParameter("stringNotAnnot", "");
 
     ResolvableMethodParameter param = this.testMethod.annotNotPresent(RequestParam.class).arg(String.class);
-    Object arg = resolver.resolveArgument(webRequest, param);
-    assertThat(arg).isNull();
+//    Object arg = resolver.resolveArgument(webRequest, param);
+//    assertThat(arg).isNull();
+
+    assertThatThrownBy(() -> resolver.resolveArgument(webRequest, param))
+            .isInstanceOf(MissingRequestParameterException.class)
+            .hasMessage("Required request parameter 'stringNotAnnot' for method parameter type String is present but converted to null");
   }
 
   @Test
@@ -491,8 +498,9 @@ class RequestParamMethodArgumentResolverTests {
   @Test  // SPR-8561
   public void resolveSimpleTypeParamToNull() throws Throwable {
     ResolvableMethodParameter param = this.testMethod.annotNotPresent(RequestParam.class).arg(String.class);
-    Object result = resolver.resolveArgument(webRequest, param);
-    assertThat(result).isNull();
+    assertThatThrownBy(() -> resolver.resolveArgument(webRequest, param))
+            .isInstanceOf(MissingRequestParameterException.class)
+            .hasMessage("Required request parameter 'stringNotAnnot' for method parameter type String is not present");
   }
 
   @Test  // SPR-10180
@@ -658,7 +666,8 @@ class RequestParamMethodArgumentResolverTests {
     webRequest = new ServletRequestContext(null, request, null);
     webRequest.setBindingContext(new BindingContext());
 
-    ResolvableMethodParameter param = this.testMethod.annotPresent(RequestParam.class).arg(Optional.class, MultipartFile.class);
+    ResolvableMethodParameter param = testMethod.annotPresent(
+            RequestParam.class).arg(Optional.class, MultipartFile.class);
     Object result = resolver.resolveArgument(webRequest, param);
 
     boolean condition = result instanceof Optional;

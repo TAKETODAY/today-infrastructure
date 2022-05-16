@@ -164,10 +164,12 @@ public class RequestParamMethodArgumentResolver extends AbstractNamedValueResolv
     }
 
     Object arg = null;
-    MultipartRequest multipartRequest = request.getMultipartRequest();
-    List<MultipartFile> files = multipartRequest.getFiles(name);
-    if (!files.isEmpty()) {
-      arg = files.size() == 1 ? files.get(0) : files;
+    if (request.isMultipart()) {
+      MultipartRequest multipartRequest = request.getMultipartRequest();
+      List<MultipartFile> files = multipartRequest.getFiles(name);
+      if (!files.isEmpty()) {
+        arg = files.size() == 1 ? files.get(0) : files;
+      }
     }
 
     if (arg == null) {

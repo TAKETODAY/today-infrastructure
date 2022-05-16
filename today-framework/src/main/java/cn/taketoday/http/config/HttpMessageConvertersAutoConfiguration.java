@@ -27,8 +27,11 @@ import java.util.stream.Collectors;
 import cn.taketoday.beans.factory.ObjectProvider;
 import cn.taketoday.context.annotation.Import;
 import cn.taketoday.context.annotation.config.AutoConfiguration;
+import cn.taketoday.context.condition.ConditionalOnBean;
 import cn.taketoday.context.condition.ConditionalOnMissingBean;
+import cn.taketoday.context.properties.EnableConfigurationProperties;
 import cn.taketoday.core.env.Environment;
+import cn.taketoday.framework.web.server.Encoding;
 import cn.taketoday.framework.web.server.ServerProperties;
 import cn.taketoday.http.converter.HttpMessageConverter;
 import cn.taketoday.http.converter.StringHttpMessageConverter;
@@ -62,15 +65,10 @@ public class HttpMessageConvertersAutoConfiguration {
 
   @Component
   @ConditionalOnMissingBean
+  @ConditionalOnBean(ServerProperties.class)
   public StringHttpMessageConverter stringHttpMessageConverter(Environment environment, ServerProperties serverProperties) {
-    Charset charset;
-    String encoding = environment.getProperty("server.encoding");
-    if (encoding != null) {
-      charset = Charset.forName(encoding);
-    }
-    else {
-      charset = StandardCharsets.UTF_8;
-    }
+    Encoding encoding = serverProperties.getEncoding();
+    Charset charset = encoding.getCharset();
     StringHttpMessageConverter converter = new StringHttpMessageConverter(charset);
     converter.setWriteAcceptCharset(false);
     return converter;

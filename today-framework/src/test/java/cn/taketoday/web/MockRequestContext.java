@@ -198,4 +198,10 @@ public class MockRequestContext extends RequestContext {
     return "Mock Request context";
   }
 
+  //
+
+  public void setMethod(String method) {
+    this.method = method;
+  }
+
 }

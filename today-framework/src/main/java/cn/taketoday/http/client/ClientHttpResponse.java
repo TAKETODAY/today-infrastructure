@@ -46,7 +46,9 @@ public interface ClientHttpResponse extends HttpInputMessage, Closeable {
    * @return the HTTP status as {@code HttpStatusCode} value (never {@code null})
    * @throws IOException in case of I/O errors
    */
-  HttpStatusCode getStatusCode() throws IOException;
+  default HttpStatusCode getStatusCode() throws IOException {
+    return HttpStatusCode.valueOf(getRawStatusCode());
+  }
 
   /**
    * Get the HTTP status code (potentially non-standard and not

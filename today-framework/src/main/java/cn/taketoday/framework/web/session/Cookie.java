@@ -25,6 +25,7 @@ import java.time.temporal.ChronoUnit;
 
 import cn.taketoday.format.annotation.DurationUnit;
 import cn.taketoday.http.ResponseCookie;
+import cn.taketoday.lang.Nullable;
 
 /**
  * Cookie properties.
@@ -56,11 +57,13 @@ public class Cookie {
   /**
    * Whether to use "HttpOnly" cookies for the cookie.
    */
+  @Nullable
   private Boolean httpOnly;
 
   /**
    * Whether to always mark the cookie as secure.
    */
+  @Nullable
   private Boolean secure;
 
   /**
@@ -155,8 +158,8 @@ public class Cookie {
     return ResponseCookie.from(name, value)
             .path(path)
             .domain(domain)
-            .secure(secure)
-            .httpOnly(httpOnly)
+            .secure(Boolean.TRUE.equals(secure))
+            .httpOnly(Boolean.TRUE.equals(httpOnly))
             .maxAge(maxAge)
             .build();
   }

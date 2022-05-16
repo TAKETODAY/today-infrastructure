@@ -94,7 +94,10 @@ public interface HttpStatusCode {
    * positive number
    */
   static HttpStatusCode valueOf(int code) {
-    Assert.isTrue(code >= 100 && code <= 999, () -> "Code '" + code + "' should be a three-digit positive integer");
+    if (code < 100 || code > 999) {
+      throw new IllegalArgumentException("Code '" + code + "' should be a three-digit positive integer");
+    }
+
     HttpStatus status = HttpStatus.resolve(code);
     if (status == null) {
       return new SimpleHttpStatusCode(code);

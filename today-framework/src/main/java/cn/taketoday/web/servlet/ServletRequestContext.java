@@ -425,6 +425,9 @@ public final class ServletRequestContext extends RequestContext {
 
   @Override
   protected MultipartRequest createMultipartRequest() {
+    if (request instanceof MultipartRequest) {
+      return (MultipartRequest) request;
+    }
     return new ServletMultipartRequest(request);
   }
 

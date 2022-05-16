@@ -77,6 +77,7 @@ public class DefaultWebClientTests {
   @BeforeEach
   public void setup() {
     ClientResponse mockResponse = mock(ClientResponse.class);
+    when(mockResponse.statusCode()).thenReturn(HttpStatus.OK);
     when(mockResponse.bodyToMono(Void.class)).thenReturn(Mono.empty());
     given(this.exchangeFunction.exchange(this.captor.capture())).willReturn(Mono.just(mockResponse));
     this.builder = WebClient.builder().baseUrl("/base").exchangeFunction(this.exchangeFunction);
@@ -154,7 +155,9 @@ public class DefaultWebClientTests {
     try {
       client.get().uri("/path")
               .context(context -> context.put("foo", fooHolder.get()))
-              .retrieve().bodyToMono(Void.class).block(Duration.ofSeconds(10));
+              .retrieve()
+              .bodyToMono(Void.class)
+              .block(Duration.ofSeconds(10));
     }
     finally {
       fooHolder.remove();

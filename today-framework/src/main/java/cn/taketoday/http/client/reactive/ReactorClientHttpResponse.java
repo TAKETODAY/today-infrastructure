@@ -127,11 +127,6 @@ class ReactorClientHttpResponse implements ClientHttpResponse {
   }
 
   @Override
-  public HttpStatusCode getStatusCode() {
-    return HttpStatusCode.valueOf(getRawStatusCode());
-  }
-
-  @Override
   public int getRawStatusCode() {
     return this.response.status().code();
   }

@@ -605,7 +605,7 @@ public abstract class RequestContext extends AttributeAccessorSupport
    */
   public boolean isMultipart() {
     if (multipartFlag == null) {
-      if (HttpMethod.POST != getMethod()) {
+      if (HttpMethod.GET == getMethod()) {
         multipartFlag = false;
       }
       else {

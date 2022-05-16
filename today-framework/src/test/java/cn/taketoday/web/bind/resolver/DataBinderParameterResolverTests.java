@@ -159,6 +159,7 @@ public class DataBinderParameterResolverTests {
             }));
 
     ParameterMockRequestContext context = new ParameterMockRequestContext(params);
+    context.setMethod("POST");
     // new version
     Object newVersion = resolver.resolveArgument(context, testUser);
     assertThat(newVersion).isEqualTo(today);
@@ -206,7 +207,7 @@ public class DataBinderParameterResolverTests {
     DataBinderParameterResolver resolver = new DataBinderParameterResolver();
 
     ParameterMockRequestContext context = new ParameterMockRequestContext(params);
-
+    context.setMethod("POST");
     // new version
     Object newVersion = resolver.resolveArgument(context, testUser);
     assertThat(newVersion).isInstanceOf(UserForm.class);
@@ -289,7 +290,7 @@ public class DataBinderParameterResolverTests {
     map.put("uploadFile", uploadFile);
     map.put("uploadFiles", files);
     context.setMultipartFiles(map);
-
+    context.setMethod("POST");
     // new version
     Object newVersion = resolver.resolveArgument(context, testMultipartFileUserForm);
     assertThat(newVersion).isInstanceOf(MultipartFileUserForm.class);

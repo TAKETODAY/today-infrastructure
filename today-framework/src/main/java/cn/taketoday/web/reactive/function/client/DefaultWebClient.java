@@ -631,7 +631,7 @@ class DefaultWebClient implements WebClient {
       ResponseEntity<Flux<T>> entity = new ResponseEntity<>(
               body.onErrorResume(WebClientUtils.WRAP_EXCEPTION_PREDICATE, exceptionWrappingFunction(response)),
               response.headers().asHttpHeaders(),
-              response.rawStatusCode());
+              response.statusCode());
 
       Mono<ResponseEntity<Flux<T>>> result = applyStatusHandlers(response);
       return (result != null ? result.defaultIfEmpty(entity) : Mono.just(entity));

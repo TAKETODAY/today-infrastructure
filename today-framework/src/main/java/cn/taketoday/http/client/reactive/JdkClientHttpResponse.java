@@ -80,7 +80,7 @@ class JdkClientHttpResponse implements ClientHttpResponse {
 
   @Override
   public HttpStatusCode getStatusCode() {
-    return HttpStatus.valueOf(this.response.statusCode());
+    return HttpStatusCode.valueOf(this.response.statusCode());
   }
 
   @Override

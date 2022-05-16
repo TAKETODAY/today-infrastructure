@@ -61,32 +61,27 @@ class JettyClientHttpResponse implements ClientHttpResponse {
   }
 
   @Override
-  public HttpStatusCode getStatusCode() {
-    return HttpStatusCode.valueOf(getRawStatusCode());
-  }
-
-  @Override
   public int getRawStatusCode() {
     return this.reactiveResponse.getStatus();
   }
 
   @Override
   public MultiValueMap<String, ResponseCookie> getCookies() {
-    DefaultMultiValueMap<String, ResponseCookie> result = MultiValueMap.fromLinkedHashMap();
+    var result = MultiValueMap.<String, ResponseCookie>fromLinkedHashMap();
     List<String> cookieHeader = getHeaders().get(HttpHeaders.SET_COOKIE);
     if (cookieHeader != null) {
       for (String header : cookieHeader) {
         List<HttpCookie> httpCookies = HttpCookie.parse(header);
         for (HttpCookie cookie : httpCookies) {
           result.add(cookie.getName(),
-                     ResponseCookie.fromClientResponse(cookie.getName(), cookie.getValue())
-                             .domain(cookie.getDomain())
-                             .path(cookie.getPath())
-                             .maxAge(cookie.getMaxAge())
-                             .secure(cookie.getSecure())
-                             .httpOnly(cookie.isHttpOnly())
-                             .sameSite(parseSameSite(header))
-                             .build());
+                  ResponseCookie.fromClientResponse(cookie.getName(), cookie.getValue())
+                          .domain(cookie.getDomain())
+                          .path(cookie.getPath())
+                          .maxAge(cookie.getMaxAge())
+                          .secure(cookie.getSecure())
+                          .httpOnly(cookie.isHttpOnly())
+                          .sameSite(parseSameSite(header))
+                          .build());
         }
       }
     }
@@ -96,7 +91,7 @@ class JettyClientHttpResponse implements ClientHttpResponse {
   @Nullable
   private static String parseSameSite(String headerValue) {
     Matcher matcher = SAMESITE_PATTERN.matcher(headerValue);
-    return (matcher.matches() ? matcher.group(1) : null);
+    return matcher.matches() ? matcher.group(1) : null;
   }
 
   @Override
