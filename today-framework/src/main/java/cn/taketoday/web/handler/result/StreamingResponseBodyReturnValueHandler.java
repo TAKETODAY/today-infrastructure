@@ -26,18 +26,13 @@ import java.util.concurrent.Callable;
 import cn.taketoday.core.MethodParameter;
 import cn.taketoday.core.ResolvableType;
 import cn.taketoday.http.ResponseEntity;
-import cn.taketoday.http.server.ServerHttpResponse;
-import cn.taketoday.http.server.ServletServerHttpResponse;
-import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.RequestContext;
+import cn.taketoday.web.ServletDetector;
 import cn.taketoday.web.context.async.WebAsyncUtils;
 import cn.taketoday.web.handler.StreamingResponseBody;
 import cn.taketoday.web.handler.method.HandlerMethod;
-import cn.taketoday.web.servlet.ServletUtils;
 import cn.taketoday.web.servlet.filter.ShallowEtagHeaderFilter;
-import jakarta.servlet.ServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 
 /**
  * Supports return values of type
@@ -63,7 +58,7 @@ public class StreamingResponseBodyReturnValueHandler implements HandlerMethodRet
     }
     else if (ResponseEntity.class.isAssignableFrom(returnType.getParameterType())) {
       Class<?> bodyType = ResolvableType.forMethodParameter(returnType).getGeneric().resolve();
-      return (bodyType != null && StreamingResponseBody.class.isAssignableFrom(bodyType));
+      return bodyType != null && StreamingResponseBody.class.isAssignableFrom(bodyType);
     }
     return false;
   }
@@ -74,31 +69,25 @@ public class StreamingResponseBodyReturnValueHandler implements HandlerMethodRet
       return;
     }
 
-    HttpServletResponse response = ServletUtils.getServletResponse(context);
-    Assert.state(response != null, "No HttpServletResponse");
-    ServerHttpResponse outputMessage = new ServletServerHttpResponse(response);
-
     if (returnValue instanceof ResponseEntity<?> responseEntity) {
-      response.setStatus(responseEntity.getStatusCode().value());
-      outputMessage.getHeaders().putAll(responseEntity.getHeaders());
+      context.setStatus(responseEntity.getStatusCode());
+      context.mergeToResponse(responseEntity.getHeaders());
       returnValue = responseEntity.getBody();
       if (returnValue == null) {
-        outputMessage.flush();
         return;
       }
     }
 
-    ServletRequest request = ServletUtils.getServletRequest(context);
-    Assert.state(request != null, "No ServletRequest");
-    ShallowEtagHeaderFilter.disableContentCaching(request);
-
-    Assert.isInstanceOf(StreamingResponseBody.class, returnValue, "StreamingResponseBody expected");
-    StreamingResponseBody streamingBody = (StreamingResponseBody) returnValue;
-
-    var callable = new StreamingResponseBodyTask(outputMessage.getBody(), streamingBody);
-
-    WebAsyncUtils.getAsyncManager(context)
-            .startCallableProcessing(callable);
+    if (returnValue instanceof StreamingResponseBody streamingBody) {
+      if (ServletDetector.runningInServlet(context)) {
+        ShallowEtagHeaderFilter.disableContentCaching(context);
+      }
+      var callable = new StreamingResponseBodyTask(context.getOutputStream(), streamingBody);
+      WebAsyncUtils.getAsyncManager(context).startCallableProcessing(callable);
+    }
+    else {
+      throw new IllegalArgumentException("StreamingResponseBody expected");
+    }
   }
 
   private record StreamingResponseBodyTask(
@@ -106,8 +95,8 @@ public class StreamingResponseBodyReturnValueHandler implements HandlerMethodRet
 
     @Override
     public Void call() throws Exception {
-      this.streamingBody.writeTo(this.outputStream);
-      this.outputStream.flush();
+      streamingBody.writeTo(outputStream);
+      outputStream.flush();
       return null;
     }
   }
