@@ -25,7 +25,7 @@ import java.net.URI;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpMethod;
 import cn.taketoday.http.HttpRequest;
-import cn.taketoday.http.HttpStatus;
+import cn.taketoday.http.HttpStatusCode;
 import cn.taketoday.http.client.reactive.ClientHttpConnector;
 import cn.taketoday.http.client.reactive.ClientHttpResponse;
 import cn.taketoday.http.codec.LoggingCodecSupport;
@@ -127,9 +127,8 @@ public abstract class ExchangeFunctions {
 
     private void logResponse(ClientHttpResponse response, String logPrefix) {
       LogFormatUtils.traceDebug(logger, traceOn -> {
-        int code = response.getRawStatusCode();
-        HttpStatus status = HttpStatus.resolve(code);
-        return logPrefix + "Response " + (status != null ? status : code) +
+        HttpStatusCode code = response.getStatusCode();
+        return logPrefix + "Response " + code +
                 (traceOn ? ", headers=" + formatHeaders(response.getHeaders()) : "");
       });
     }

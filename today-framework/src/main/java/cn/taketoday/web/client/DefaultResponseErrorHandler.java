@@ -20,17 +20,29 @@
 
 package cn.taketoday.web.client;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.util.Collections;
+import java.util.List;
+import java.util.function.Function;
 
+import cn.taketoday.core.ResolvableType;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpStatus;
+import cn.taketoday.http.HttpStatusCode;
+import cn.taketoday.http.MediaType;
 import cn.taketoday.http.client.ClientHttpResponse;
+import cn.taketoday.http.client.ClientHttpResponseDecorator;
+import cn.taketoday.http.converter.HttpMessageConverter;
+import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.FileCopyUtils;
 import cn.taketoday.util.LogFormatUtils;
-import cn.taketoday.http.MediaType;
+import cn.taketoday.util.ObjectUtils;
 
 /**
  * Default implementation of the {@link ResponseErrorHandler} interface.
@@ -38,7 +50,7 @@ import cn.taketoday.http.MediaType;
  * <p>This error handler checks for the status code on the
  * {@link ClientHttpResponse}. Any code in the 4xx or 5xx series is considered
  * to be an error. This behavior can be changed by overriding
- * {@link #hasError(HttpStatus)}. Unknown status codes will be ignored by
+ * {@link #hasError(HttpStatusCode)}. Unknown status codes will be ignored by
  * {@link #hasError(ClientHttpResponse)}.
  *
  * <p>See {@link #handleError(ClientHttpResponse)} for more details on specific
@@ -52,49 +64,59 @@ import cn.taketoday.http.MediaType;
  */
 public class DefaultResponseErrorHandler implements ResponseErrorHandler {
 
+  @Nullable
+  private List<HttpMessageConverter<?>> messageConverters;
+
   /**
-   * Delegates to {@link #hasError(HttpStatus)} (for a standard status enum value) or
-   * {@link #hasError(int)} (for an unknown status code) with the response status code.
+   * For internal use from the RestTemplate, to pass the message converters
+   * to use to decode error content.
+   */
+  void setMessageConverters(List<HttpMessageConverter<?>> converters) {
+    this.messageConverters = Collections.unmodifiableList(converters);
+  }
+
+  /**
+   * Delegates to {@link #hasError(HttpStatusCode)} with the response status code.
    *
-   * @see ClientHttpResponse#getRawStatusCode()
-   * @see #hasError(HttpStatus)
-   * @see #hasError(int)
+   * @see ClientHttpResponse#getStatusCode()
+   * @see #hasError(HttpStatusCode)
    */
   @Override
   public boolean hasError(ClientHttpResponse response) throws IOException {
-    int rawStatusCode = response.getRawStatusCode();
-    HttpStatus statusCode = HttpStatus.resolve(rawStatusCode);
-    return (statusCode != null ? hasError(statusCode) : hasError(rawStatusCode));
+    HttpStatusCode statusCode = response.getStatusCode();
+    return hasError(statusCode);
   }
 
   /**
    * Template method called from {@link #hasError(ClientHttpResponse)}.
-   * <p>The default implementation checks {@link HttpStatus#isError()}.
+   * <p>The default implementation checks {@link HttpStatusCode#isError()}.
    * Can be overridden in subclasses.
    *
-   * @param statusCode the HTTP status code as enum value
+   * @param statusCode the HTTP status code
    * @return {@code true} if the response indicates an error; {@code false} otherwise
-   * @see HttpStatus#isError()
+   * @see HttpStatusCode#isError()
    */
-  protected boolean hasError(HttpStatus statusCode) {
+  protected boolean hasError(HttpStatusCode statusCode) {
     return statusCode.isError();
   }
 
   /**
    * Template method called from {@link #hasError(ClientHttpResponse)}.
    * <p>The default implementation checks if the given status code is
-   * {@link cn.taketoday.http.HttpStatus.Series#CLIENT_ERROR CLIENT_ERROR} or
-   * {@link cn.taketoday.http.HttpStatus.Series#SERVER_ERROR SERVER_ERROR}.
+   * {@link HttpStatus.Series#CLIENT_ERROR CLIENT_ERROR} or
+   * {@link HttpStatus.Series#SERVER_ERROR SERVER_ERROR}.
    * Can be overridden in subclasses.
    *
-   * @param unknownStatusCode the HTTP status code as raw value
+   * @param statusCode the HTTP status code as raw value
    * @return {@code true} if the response indicates an error; {@code false} otherwise
-   * @see cn.taketoday.http.HttpStatus.Series#CLIENT_ERROR
-   * @see cn.taketoday.http.HttpStatus.Series#SERVER_ERROR
+   * @see HttpStatus.Series#CLIENT_ERROR
+   * @see HttpStatus.Series#SERVER_ERROR
+   * @deprecated in favor of {@link #hasError(HttpStatusCode)}
    */
-  protected boolean hasError(int unknownStatusCode) {
-    HttpStatus.Series series = HttpStatus.Series.resolve(unknownStatusCode);
-    return (series == HttpStatus.Series.CLIENT_ERROR || series == HttpStatus.Series.SERVER_ERROR);
+  @Deprecated
+  protected boolean hasError(int statusCode) {
+    HttpStatus.Series series = HttpStatus.Series.resolve(statusCode);
+    return series == HttpStatus.Series.CLIENT_ERROR || series == HttpStatus.Series.SERVER_ERROR;
   }
 
   /**
@@ -112,20 +134,11 @@ public class DefaultResponseErrorHandler implements ResponseErrorHandler {
    * </ul>
    *
    * @throws UnknownHttpStatusCodeException in case of an unresolvable status code
-   * @see #handleError(ClientHttpResponse, HttpStatus)
+   * @see #handleError(ClientHttpResponse, HttpStatusCode)
    */
   @Override
   public void handleError(ClientHttpResponse response) throws IOException {
-    HttpStatus statusCode = HttpStatus.resolve(response.getRawStatusCode());
-    if (statusCode == null) {
-      byte[] body = getResponseBody(response);
-      String message = getErrorMessage(
-              response.getRawStatusCode(), response.getStatusText(), body, getCharset(response));
-      throw new UnknownHttpStatusCodeException(
-              message,
-              response.getRawStatusCode(), response.getStatusText(),
-              response.getHeaders(), body, getCharset(response));
-    }
+    HttpStatusCode statusCode = response.getStatusCode();
     handleError(response, statusCode);
   }
 
@@ -136,18 +149,21 @@ public class DefaultResponseErrorHandler implements ResponseErrorHandler {
    * </pre>
    */
   private String getErrorMessage(
-          int rawStatusCode, String statusText,
-          @Nullable byte[] responseBody, @Nullable Charset charset) {
+          int rawStatusCode, String statusText, @Nullable byte[] responseBody, @Nullable Charset charset) {
 
     String preface = rawStatusCode + " " + statusText + ": ";
-    if (responseBody == null || responseBody.length == 0) {
+
+    if (ObjectUtils.isEmpty(responseBody)) {
       return preface + "[no body]";
     }
 
-    charset = (charset != null ? charset : StandardCharsets.UTF_8);
+    if (charset == null) {
+      charset = StandardCharsets.UTF_8;
+    }
 
     String bodyText = new String(responseBody, charset);
     bodyText = LogFormatUtils.formatValue(bodyText, -1, true);
+
     return preface + bodyText;
   }
 
@@ -162,18 +178,54 @@ public class DefaultResponseErrorHandler implements ResponseErrorHandler {
    * @see HttpClientErrorException#create
    * @see HttpServerErrorException#create
    */
-  protected void handleError(ClientHttpResponse response, HttpStatus statusCode) throws IOException {
+  protected void handleError(ClientHttpResponse response, HttpStatusCode statusCode) throws IOException {
     String statusText = response.getStatusText();
     HttpHeaders headers = response.getHeaders();
     byte[] body = getResponseBody(response);
     Charset charset = getCharset(response);
     String message = getErrorMessage(statusCode.value(), statusText, body, charset);
 
-    switch (statusCode.series()) {
-      case CLIENT_ERROR -> throw HttpClientErrorException.create(message, statusCode, statusText, headers, body, charset);
-      case SERVER_ERROR -> throw HttpServerErrorException.create(message, statusCode, statusText, headers, body, charset);
-      default -> throw new UnknownHttpStatusCodeException(message, statusCode.value(), statusText, headers, body, charset);
+    RestClientResponseException ex;
+    if (statusCode.is4xxClientError()) {
+      ex = HttpClientErrorException.create(message, statusCode, statusText, headers, body, charset);
     }
+    else if (statusCode.is5xxServerError()) {
+      ex = HttpServerErrorException.create(message, statusCode, statusText, headers, body, charset);
+    }
+    else {
+      ex = new UnknownHttpStatusCodeException(message, statusCode.value(), statusText, headers, body, charset);
+    }
+
+    if (!CollectionUtils.isEmpty(this.messageConverters)) {
+      ex.setBodyConvertFunction(initBodyConvertFunction(response, body));
+    }
+
+    throw ex;
+  }
+
+  /**
+   * Return a function for decoding the error content. This can be passed to
+   * {@link RestClientResponseException#setBodyConvertFunction(Function)}.
+   */
+  protected Function<ResolvableType, ?> initBodyConvertFunction(ClientHttpResponse response, byte[] body) {
+    Assert.state(CollectionUtils.isNotEmpty(messageConverters), "Expected message converters");
+    return resolvableType -> {
+      try {
+        HttpMessageConverterExtractor<?> extractor =
+                new HttpMessageConverterExtractor<>(resolvableType.getType(), this.messageConverters);
+
+        return extractor.extractData(new ClientHttpResponseDecorator(response) {
+          @Override
+          public InputStream getBody() {
+            return new ByteArrayInputStream(body);
+          }
+        });
+      }
+      catch (IOException ex) {
+        throw new RestClientException(
+                "Error while extracting response for type [" + resolvableType + "]", ex);
+      }
+    };
   }
 
   /**

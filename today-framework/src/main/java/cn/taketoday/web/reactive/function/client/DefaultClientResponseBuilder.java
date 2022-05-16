@@ -34,6 +34,7 @@ import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpMethod;
 import cn.taketoday.http.HttpRequest;
 import cn.taketoday.http.HttpStatus;
+import cn.taketoday.http.HttpStatusCode;
 import cn.taketoday.http.ResponseCookie;
 import cn.taketoday.http.client.reactive.ClientHttpResponse;
 import cn.taketoday.lang.Assert;
@@ -76,7 +77,7 @@ final class DefaultClientResponseBuilder implements ClientResponse.Builder {
 
   private final ExchangeStrategies strategies;
 
-  private int statusCode = 200;
+  private HttpStatusCode statusCode = HttpStatus.OK;
 
   @Nullable
   private HttpHeaders headers;
@@ -102,7 +103,7 @@ final class DefaultClientResponseBuilder implements ClientResponse.Builder {
   DefaultClientResponseBuilder(ClientResponse other, boolean mutate) {
     Assert.notNull(other, "ClientResponse must not be null");
     this.strategies = other.strategies();
-    this.statusCode = other.rawStatusCode();
+    this.statusCode = other.statusCode();
     if (mutate) {
       this.body = other.bodyToFlux(DataBuffer.class);
     }
@@ -116,15 +117,15 @@ final class DefaultClientResponseBuilder implements ClientResponse.Builder {
   }
 
   @Override
-  public DefaultClientResponseBuilder statusCode(HttpStatus statusCode) {
-    return rawStatusCode(statusCode.value());
+  public DefaultClientResponseBuilder statusCode(HttpStatusCode statusCode) {
+    Assert.notNull(statusCode, "StatusCode must not be null");
+    this.statusCode = statusCode;
+    return this;
   }
 
   @Override
   public DefaultClientResponseBuilder rawStatusCode(int statusCode) {
-    Assert.isTrue(statusCode >= 100 && statusCode < 600, "StatusCode must be between 1xx and 5xx");
-    this.statusCode = statusCode;
-    return this;
+    return statusCode(HttpStatusCode.valueOf(statusCode));
   }
 
   @Override
@@ -221,11 +222,11 @@ final class DefaultClientResponseBuilder implements ClientResponse.Builder {
   }
 
   private record BuiltClientHttpResponse(
-          int statusCode, @Nullable HttpHeaders headers,
+          HttpStatusCode statusCode, @Nullable HttpHeaders headers,
           @Nullable MultiValueMap<String, ResponseCookie> cookies,
           Flux<DataBuffer> body, @Nullable ClientResponse originalResponse) implements ClientHttpResponse {
 
-    private BuiltClientHttpResponse(int statusCode, @Nullable HttpHeaders headers,
+    private BuiltClientHttpResponse(HttpStatusCode statusCode, @Nullable HttpHeaders headers,
             @Nullable MultiValueMap<String, ResponseCookie> cookies, Flux<DataBuffer> body,
             @Nullable ClientResponse originalResponse) {
 
@@ -243,13 +244,13 @@ final class DefaultClientResponseBuilder implements ClientResponse.Builder {
     }
 
     @Override
-    public HttpStatus getStatusCode() {
-      return HttpStatus.valueOf(this.statusCode);
+    public HttpStatusCode getStatusCode() {
+      return statusCode;
     }
 
     @Override
     public int getRawStatusCode() {
-      return this.statusCode;
+      return statusCode.value();
     }
 
     @Override

@@ -791,8 +791,8 @@ public abstract class HttpHeaders
    * Set the (new) value of the {@code Access-Control-Request-Method} request
    * header.
    */
-  public void setAccessControlRequestMethod(HttpMethod requestMethod) {
-    setOrRemove(ACCESS_CONTROL_REQUEST_METHOD, (requestMethod != null ? requestMethod.name() : null));
+  public void setAccessControlRequestMethod(@Nullable HttpMethod requestMethod) {
+    setOrRemove(ACCESS_CONTROL_REQUEST_METHOD, requestMethod != null ? requestMethod.name() : null);
   }
 
   /**
@@ -1043,8 +1043,8 @@ public abstract class HttpHeaders
    * languages.
    * </p>
    */
-  public void setContentLanguage(Locale locale) {
-    setOrRemove(CONTENT_LANGUAGE, (locale != null ? locale.toLanguageTag() : null));
+  public void setContentLanguage(@Nullable Locale locale) {
+    setOrRemove(CONTENT_LANGUAGE, locale != null ? locale.toLanguageTag() : null);
   }
 
   /**
@@ -1436,8 +1436,8 @@ public abstract class HttpHeaders
    * Set the (new) location of a resource, as specified by the {@code Location}
    * header.
    */
-  public void setLocation(URI location) {
-    setOrRemove(LOCATION, (location != null ? location.toASCIIString() : null));
+  public void setLocation(@Nullable URI location) {
+    setOrRemove(LOCATION, location != null ? location.toASCIIString() : null);
   }
 
   /**

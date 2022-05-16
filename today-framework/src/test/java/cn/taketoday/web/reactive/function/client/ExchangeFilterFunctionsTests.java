@@ -21,22 +21,18 @@
 package cn.taketoday.web.reactive.function.client;
 
 import org.junit.jupiter.api.Test;
+
+import java.net.URI;
+import java.nio.charset.StandardCharsets;
+
 import cn.taketoday.core.io.buffer.DataBuffer;
 import cn.taketoday.core.io.buffer.DataBufferUtils;
 import cn.taketoday.core.io.buffer.DefaultDataBufferFactory;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpMethod;
 import cn.taketoday.http.HttpStatus;
+import cn.taketoday.http.HttpStatusCode;
 import cn.taketoday.web.reactive.function.BodyExtractors;
-
-import java.net.URI;
-import java.nio.charset.StandardCharsets;
-
-import cn.taketoday.web.reactive.function.client.ClientRequest;
-import cn.taketoday.web.reactive.function.client.ClientResponse;
-import cn.taketoday.web.reactive.function.client.ExchangeFilterFunction;
-import cn.taketoday.web.reactive.function.client.ExchangeFilterFunctions;
-import cn.taketoday.web.reactive.function.client.ExchangeFunction;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
@@ -179,7 +175,7 @@ public class ExchangeFilterFunctionsTests {
 		ExchangeFunction exchange = r -> Mono.just(response);
 
 		ExchangeFilterFunction errorHandler = ExchangeFilterFunctions.statusError(
-				HttpStatus::is4xxClientError, r -> new MyException());
+				HttpStatusCode::is4xxClientError, r -> new MyException());
 
 		Mono<ClientResponse> result = errorHandler.filter(request, exchange);
 
@@ -195,7 +191,7 @@ public class ExchangeFilterFunctionsTests {
 		given(response.statusCode()).willReturn(HttpStatus.NOT_FOUND);
 
 		Mono<ClientResponse> result = ExchangeFilterFunctions
-				.statusError(HttpStatus::is5xxServerError, req -> new MyException())
+				.statusError(HttpStatusCode::is5xxServerError, req -> new MyException())
 				.filter(request, req -> Mono.just(response));
 
 		StepVerifier.create(result)

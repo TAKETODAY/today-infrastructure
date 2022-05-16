@@ -21,7 +21,7 @@
 package cn.taketoday.web.config;
 
 import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.http.HttpStatus;
+import cn.taketoday.http.HttpStatusCode;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.RequestToViewNameTranslator;
@@ -51,7 +51,7 @@ public class ViewControllerRegistration {
    * Set the status code to set on the response. Optional.
    * <p>If not set the response status will be 200 (OK).
    */
-  public ViewControllerRegistration setStatusCode(HttpStatus statusCode) {
+  public ViewControllerRegistration setStatusCode(HttpStatusCode statusCode) {
     this.controller.setStatusCode(statusCode);
     return this;
   }

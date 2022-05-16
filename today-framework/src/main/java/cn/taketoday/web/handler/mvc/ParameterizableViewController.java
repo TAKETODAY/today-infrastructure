@@ -22,6 +22,7 @@ package cn.taketoday.web.handler.mvc;
 
 import cn.taketoday.http.HttpMethod;
 import cn.taketoday.http.HttpStatus;
+import cn.taketoday.http.HttpStatusCode;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.RequestContextUtils;
@@ -47,7 +48,7 @@ public class ParameterizableViewController extends AbstractController {
   private Object view;
 
   @Nullable
-  private HttpStatus statusCode;
+  private HttpStatusCode statusCode;
 
   private boolean statusOnly;
 
@@ -109,7 +110,7 @@ public class ParameterizableViewController extends AbstractController {
    * <p>If the status code is 204 and no view is configured, the request is
    * fully handled within the controller.
    */
-  public void setStatusCode(@Nullable HttpStatus statusCode) {
+  public void setStatusCode(@Nullable HttpStatusCode statusCode) {
     this.statusCode = statusCode;
   }
 
@@ -117,7 +118,7 @@ public class ParameterizableViewController extends AbstractController {
    * Return the configured HTTP status code or {@code null}.
    */
   @Nullable
-  public HttpStatus getStatusCode() {
+  public HttpStatusCode getStatusCode() {
     return this.statusCode;
   }
 

@@ -55,6 +55,11 @@ public class ProblemDetail {
   private URI instance;
 
   /**
+   * For deserialization.
+   */
+  protected ProblemDetail() { }
+
+  /**
    * Protected constructor for subclasses.
    * <p>To create a {@link ProblemDetail} instance, use static factory methods,
    * {@link #forStatus(HttpStatusCode)} or {@link #forRawStatusCode(int)}.
@@ -105,8 +110,8 @@ public class ProblemDetail {
    * @param status the response status for the problem
    * @return the same instance
    */
-  public ProblemDetail withStatus(HttpStatus status) {
-    Assert.notNull(status, "HttpStatus is required");
+  public ProblemDetail withStatus(HttpStatusCode status) {
+    Assert.notNull(status, "HttpStatusCode is required");
     setStatus(status.value());
     return this;
   }
@@ -174,7 +179,7 @@ public class ProblemDetail {
    * Setter for the {@link #getStatus() problem status}.
    *
    * @param status the problem status
-   * @see #withStatus(HttpStatus)
+   * @see #withStatus(HttpStatusCode)
    * @see #withRawStatusCode(int)
    */
   public void setStatus(int status) {
@@ -274,7 +279,7 @@ public class ProblemDetail {
    * Create a {@code ProblemDetail} instance with the given status code.
    */
   public static ProblemDetail forStatus(HttpStatusCode status) {
-    Assert.notNull(status, "HttpStatus is required");
+    Assert.notNull(status, "HttpStatusCode is required");
     return forRawStatusCode(status.value());
   }
 

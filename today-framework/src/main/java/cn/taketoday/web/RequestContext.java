@@ -1073,6 +1073,7 @@ public abstract class RequestContext extends AttributeAccessorSupport
    * @param status the status code
    * @param message the status message
    */
+  @Deprecated
   public abstract void setStatus(int status, String message);
 
   /**
@@ -1095,6 +1096,66 @@ public abstract class RequestContext extends AttributeAccessorSupport
    * @return the current status code of this response
    */
   public abstract int getStatus();
+
+  /**
+   * Sends an error response to the client using the specified status code and
+   * clears the buffer.
+   *
+   * The server will preserve cookies and may clear or update any headers needed
+   * to serve the error page as a valid response.
+   *
+   * If an error-page declaration has been made for the web application
+   * corresponding to the status code passed in, it will be served back the error
+   * page
+   *
+   * <p>
+   * If the response has already been committed, this method throws an
+   * IllegalStateException. After using this method, the response should be
+   * considered to be committed and should not be written to.
+   *
+   * @param code the error status code
+   * @throws IOException If an input or output exception occurs
+   * @throws IllegalStateException If the response was committed before this method call
+   * @since 4.0
+   */
+  public void sendError(HttpStatusCode code) throws IOException {
+    sendError(code.value());
+  }
+
+  /**
+   * <p>
+   * Sends an error response to the client using the specified status and clears
+   * the buffer. The server defaults to creating the response to look like an
+   * HTML-formatted server error page containing the specified message, setting
+   * the content type to "text/html". The caller is <strong>not</strong>
+   * responsible for escaping or re-encoding the message to ensure it is safe with
+   * respect to the current response encoding and content type. This aspect of
+   * safety is the responsibility of the container, as it is generating the error
+   * page containing the message. The server will preserve cookies and may clear
+   * or update any headers needed to serve the error page as a valid response.
+   * </p>
+   *
+   * <p>
+   * If an error-page declaration has been made for the web application
+   * corresponding to the status code passed in, it will be served back in
+   * preference to the suggested msg parameter and the msg parameter will be
+   * ignored.
+   * </p>
+   *
+   * <p>
+   * If the response has already been committed, this method throws an
+   * IllegalStateException. After using this method, the response should be
+   * considered to be committed and should not be written to.
+   *
+   * @param code the error status code
+   * @param msg the descriptive message
+   * @throws IOException If an input or output exception occurs
+   * @throws IllegalStateException If the response was committed
+   * @since 4.0
+   */
+  public void sendError(HttpStatusCode code, String msg) throws IOException {
+    sendError(code.value(), msg);
+  }
 
   /**
    * Sends an error response to the client using the specified status code and
@@ -1327,6 +1388,8 @@ public abstract class RequestContext extends AttributeAccessorSupport
    */
   @Override
   public void flush() throws IOException {
+    writeHeaders();
+
     if (writer != null) {
       writer.flush();
     }
@@ -1336,6 +1399,13 @@ public abstract class RequestContext extends AttributeAccessorSupport
       }
     }
   }
+
+  /**
+   * write headers to response
+   *
+   * @since 4.0
+   */
+  public void writeHeaders() { }
 
   @Override
   public String toString() {

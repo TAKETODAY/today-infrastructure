@@ -25,11 +25,12 @@ import java.nio.charset.Charset;
 
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpStatus;
+import cn.taketoday.http.HttpStatusCode;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.StringUtils;
 
 /**
- * Abstract base class for exceptions based on an {@link HttpStatus}.
+ * Abstract base class for exceptions based on an {@link HttpStatusCode}.
  *
  * @author Arjen Poutsma
  * @author Chris Beams
@@ -37,47 +38,54 @@ import cn.taketoday.util.StringUtils;
  * @since 4.0
  */
 public abstract class HttpStatusCodeException extends RestClientResponseException {
-  @Serial
-  private static final long serialVersionUID = 5696801857651587810L;
 
-  private final HttpStatus statusCode;
+  @Serial
+  private static final long serialVersionUID = 1L;
 
   /**
-   * Construct a new instance with an {@link HttpStatus}.
+   * Construct a new instance with an {@link HttpStatusCode}.
    *
    * @param statusCode the status code
    */
-  protected HttpStatusCodeException(HttpStatus statusCode) {
-    this(statusCode, statusCode.name(), null, null, null);
+  protected HttpStatusCodeException(HttpStatusCode statusCode) {
+    this(statusCode, name(statusCode), null, null, null);
+  }
+
+  private static String name(HttpStatusCode statusCode) {
+    if (statusCode instanceof HttpStatus status) {
+      return status.name();
+    }
+    else {
+      return "";
+    }
   }
 
   /**
-   * Construct a new instance with an {@link HttpStatus} and status text.
+   * Construct a new instance with an {@link HttpStatusCode} and status text.
    *
    * @param statusCode the status code
    * @param statusText the status text
    */
-  protected HttpStatusCodeException(HttpStatus statusCode, String statusText) {
+  protected HttpStatusCodeException(HttpStatusCode statusCode, String statusText) {
     this(statusCode, statusText, null, null, null);
   }
 
   /**
-   * Construct instance with an {@link HttpStatus}, status text, and content.
+   * Construct instance with an {@link HttpStatusCode}, status text, and content.
    *
    * @param statusCode the status code
    * @param statusText the status text
    * @param responseBody the response body content, may be {@code null}
    * @param responseCharset the response body charset, may be {@code null}
    */
-  protected HttpStatusCodeException(
-          HttpStatus statusCode, String statusText,
+  protected HttpStatusCodeException(HttpStatusCode statusCode, String statusText,
           @Nullable byte[] responseBody, @Nullable Charset responseCharset) {
 
     this(statusCode, statusText, null, responseBody, responseCharset);
   }
 
   /**
-   * Construct instance with an {@link HttpStatus}, status text, content, and
+   * Construct instance with an {@link HttpStatusCode}, status text, content, and
    * a response charset.
    *
    * @param statusCode the status code
@@ -86,16 +94,15 @@ public abstract class HttpStatusCodeException extends RestClientResponseExceptio
    * @param responseBody the response body content, may be {@code null}
    * @param responseCharset the response body charset, may be {@code null}
    */
-  protected HttpStatusCodeException(
-          HttpStatus statusCode, String statusText,
+  protected HttpStatusCodeException(HttpStatusCode statusCode, String statusText,
           @Nullable HttpHeaders responseHeaders, @Nullable byte[] responseBody, @Nullable Charset responseCharset) {
 
     this(getMessage(statusCode, statusText),
-         statusCode, statusText, responseHeaders, responseBody, responseCharset);
+            statusCode, statusText, responseHeaders, responseBody, responseCharset);
   }
 
   /**
-   * Construct instance with an {@link HttpStatus}, status text, content, and
+   * Construct instance with an {@link HttpStatusCode}, status text, content, and
    * a response charset.
    *
    * @param message the exception message
@@ -105,26 +112,17 @@ public abstract class HttpStatusCodeException extends RestClientResponseExceptio
    * @param responseBody the response body content, may be {@code null}
    * @param responseCharset the response body charset, may be {@code null}
    */
-  protected HttpStatusCodeException(
-          String message, HttpStatus statusCode, String statusText,
+  protected HttpStatusCodeException(String message, HttpStatusCode statusCode, String statusText,
           @Nullable HttpHeaders responseHeaders, @Nullable byte[] responseBody, @Nullable Charset responseCharset) {
 
-    super(message, statusCode.value(), statusText, responseHeaders, responseBody, responseCharset);
-    this.statusCode = statusCode;
+    super(message, statusCode, statusText, responseHeaders, responseBody, responseCharset);
   }
 
-  private static String getMessage(HttpStatus statusCode, String statusText) {
-    if (StringUtils.isEmpty(statusText)) {
-      statusText = statusCode.getReasonPhrase();
+  private static String getMessage(HttpStatusCode statusCode, String statusText) {
+    if (StringUtils.isEmpty(statusText) && statusCode instanceof HttpStatus status) {
+      statusText = status.getReasonPhrase();
     }
     return statusCode.value() + " " + statusText;
-  }
-
-  /**
-   * Return the HTTP status code.
-   */
-  public HttpStatus getStatusCode() {
-    return this.statusCode;
   }
 
 }

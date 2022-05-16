@@ -134,7 +134,7 @@ public class ResponseBodyEmitter {
 
     try {
       for (DataWithMediaType sendAttempt : this.earlySendAttempts) {
-        sendInternal(sendAttempt.getData(), sendAttempt.getMediaType());
+        sendInternal(sendAttempt.data, sendAttempt.mediaType);
       }
     }
     finally {
@@ -208,9 +208,9 @@ public class ResponseBodyEmitter {
   }
 
   private void sendInternal(Object object, @Nullable MediaType mediaType) throws IOException {
-    if (this.handler != null) {
+    if (handler != null) {
       try {
-        this.handler.send(object, mediaType);
+        handler.send(object, mediaType);
       }
       catch (IOException ex) {
         this.sendFailed = true;
@@ -222,7 +222,7 @@ public class ResponseBodyEmitter {
       }
     }
     else {
-      this.earlySendAttempts.add(new DataWithMediaType(object, mediaType));
+      earlySendAttempts.add(new DataWithMediaType(object, mediaType));
     }
   }
 
@@ -325,26 +325,8 @@ public class ResponseBodyEmitter {
    * A simple holder of data to be written along with a MediaType hint for
    * selecting a message converter to write with.
    */
-  public static class DataWithMediaType {
+  public record DataWithMediaType(Object data, @Nullable MediaType mediaType) {
 
-    private final Object data;
-
-    @Nullable
-    private final MediaType mediaType;
-
-    public DataWithMediaType(Object data, @Nullable MediaType mediaType) {
-      this.data = data;
-      this.mediaType = mediaType;
-    }
-
-    public Object getData() {
-      return this.data;
-    }
-
-    @Nullable
-    public MediaType getMediaType() {
-      return this.mediaType;
-    }
   }
 
   private class DefaultCallback implements Runnable {

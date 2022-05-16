@@ -126,8 +126,8 @@ public class ResponseStatusExceptionHandler
   protected Object resolveResponseStatusException(ResponseStatusException ex,
           RequestContext request, @Nullable Object handler) throws Exception {
 
-    request.responseHeaders().addAll(ex.getHeaders());
-    return applyStatusAndReason(ex.getRawStatusCode(), ex.getReason(), request);
+    request.mergeToResponse(ex.getHeaders());
+    return applyStatusAndReason(ex.getStatusCode().value(), ex.getReason(), request);
   }
 
   /**

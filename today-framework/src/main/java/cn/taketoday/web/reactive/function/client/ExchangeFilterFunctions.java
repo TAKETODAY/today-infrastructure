@@ -29,6 +29,7 @@ import java.util.function.Predicate;
 import cn.taketoday.core.io.buffer.DataBufferUtils;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpStatus;
+import cn.taketoday.http.HttpStatusCode;
 import cn.taketoday.lang.Assert;
 import reactor.core.publisher.Mono;
 
@@ -74,7 +75,7 @@ public abstract class ExchangeFilterFunctions {
    * @param exceptionFunction the function that to create the exception
    * @return the filter to generate an error signal
    */
-  public static ExchangeFilterFunction statusError(Predicate<HttpStatus> statusPredicate,
+  public static ExchangeFilterFunction statusError(Predicate<HttpStatusCode> statusPredicate,
           Function<ClientResponse, ? extends Throwable> exceptionFunction) {
 
     Assert.notNull(statusPredicate, "Predicate must not be null");

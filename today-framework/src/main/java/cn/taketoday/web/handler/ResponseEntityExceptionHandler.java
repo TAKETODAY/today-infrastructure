@@ -24,6 +24,7 @@ import cn.taketoday.beans.ConversionNotSupportedException;
 import cn.taketoday.beans.TypeMismatchException;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpStatus;
+import cn.taketoday.http.HttpStatusCode;
 import cn.taketoday.http.ResponseEntity;
 import cn.taketoday.http.converter.HttpMessageConverter;
 import cn.taketoday.http.converter.HttpMessageNotReadableException;
@@ -32,7 +33,6 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.validation.BindException;
-import cn.taketoday.web.context.async.AsyncRequestTimeoutException;
 import cn.taketoday.web.ErrorResponse;
 import cn.taketoday.web.ErrorResponseException;
 import cn.taketoday.web.HttpMediaTypeNotAcceptableException;
@@ -43,10 +43,11 @@ import cn.taketoday.web.ServletDetector;
 import cn.taketoday.web.annotation.ControllerAdvice;
 import cn.taketoday.web.annotation.ExceptionHandler;
 import cn.taketoday.web.bind.MethodArgumentNotValidException;
+import cn.taketoday.web.bind.MissingPathVariableException;
 import cn.taketoday.web.bind.MissingRequestParameterException;
 import cn.taketoday.web.bind.RequestBindingException;
-import cn.taketoday.web.bind.MissingPathVariableException;
 import cn.taketoday.web.bind.resolver.MissingRequestPartException;
+import cn.taketoday.web.context.async.AsyncRequestTimeoutException;
 import cn.taketoday.web.servlet.ServletUtils;
 import cn.taketoday.web.util.WebUtils;
 import cn.taketoday.web.view.ModelAndView;
@@ -130,61 +131,61 @@ public class ResponseEntityExceptionHandler {
 
     if (ex instanceof ErrorResponse errorEx) {
       if (ex instanceof HttpRequestMethodNotSupportedException subEx) {
-        return handleHttpRequestMethodNotSupported(subEx, subEx.getHeaders(), subEx.getStatus(), request);
+        return handleHttpRequestMethodNotSupported(subEx, subEx.getHeaders(), subEx.getStatusCode(), request);
       }
       else if (ex instanceof HttpMediaTypeNotSupportedException subEx) {
-        return handleHttpMediaTypeNotSupported(subEx, subEx.getHeaders(), subEx.getStatus(), request);
+        return handleHttpMediaTypeNotSupported(subEx, subEx.getHeaders(), subEx.getStatusCode(), request);
       }
       else if (ex instanceof HttpMediaTypeNotAcceptableException subEx) {
-        return handleHttpMediaTypeNotAcceptable(subEx, subEx.getHeaders(), subEx.getStatus(), request);
+        return handleHttpMediaTypeNotAcceptable(subEx, subEx.getHeaders(), subEx.getStatusCode(), request);
       }
       else if (ex instanceof MissingPathVariableException subEx) {
-        return handleMissingPathVariable(subEx, subEx.getHeaders(), subEx.getStatus(), request);
+        return handleMissingPathVariable(subEx, subEx.getHeaders(), subEx.getStatusCode(), request);
       }
       else if (ex instanceof MissingRequestParameterException subEx) {
-        return handleMissingServletRequestParameter(subEx, subEx.getHeaders(), subEx.getStatus(), request);
+        return handleMissingServletRequestParameter(subEx, subEx.getHeaders(), subEx.getStatusCode(), request);
       }
       else if (ex instanceof MissingRequestPartException subEx) { // FIXME Servlet
-        return handleMissingServletRequestPart(subEx, subEx.getHeaders(), subEx.getStatus(), request);
+        return handleMissingServletRequestPart(subEx, subEx.getHeaders(), subEx.getStatusCode(), request);
       }
       else if (ex instanceof RequestBindingException subEx) {
-        return handleRequestBindingException(subEx, subEx.getHeaders(), subEx.getStatus(), request);
+        return handleRequestBindingException(subEx, subEx.getHeaders(), subEx.getStatusCode(), request);
       }
       else if (ex instanceof MethodArgumentNotValidException subEx) {
-        return handleMethodArgumentNotValid(subEx, subEx.getHeaders(), subEx.getStatus(), request);
+        return handleMethodArgumentNotValid(subEx, subEx.getHeaders(), subEx.getStatusCode(), request);
       }
       else if (ex instanceof NoHandlerFoundException subEx) {
-        return handleNoHandlerFoundException(subEx, subEx.getHeaders(), subEx.getStatus(), request);
+        return handleNoHandlerFoundException(subEx, subEx.getHeaders(), subEx.getStatusCode(), request);
       }
       else if (ex instanceof AsyncRequestTimeoutException subEx) {
-        return handleAsyncRequestTimeoutException(subEx, subEx.getHeaders(), subEx.getStatus(), request);
+        return handleAsyncRequestTimeoutException(subEx, subEx.getHeaders(), subEx.getStatusCode(), request);
       }
       else {
         // Another ErrorResponseException
-        return handleExceptionInternal(ex, null, errorEx.getHeaders(), errorEx.getStatus(), request);
+        return handleExceptionInternal(ex, null, errorEx.getHeaders(), errorEx.getStatusCode(), request);
       }
     }
 
     // Other, lower level exceptions
 
     if (ex instanceof ConversionNotSupportedException) {
-      HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
+      HttpStatusCode status = HttpStatus.INTERNAL_SERVER_ERROR;
       return handleConversionNotSupported((ConversionNotSupportedException) ex, headers, status, request);
     }
     else if (ex instanceof TypeMismatchException) {
-      HttpStatus status = HttpStatus.BAD_REQUEST;
+      HttpStatusCode status = HttpStatus.BAD_REQUEST;
       return handleTypeMismatch((TypeMismatchException) ex, headers, status, request);
     }
     else if (ex instanceof HttpMessageNotReadableException) {
-      HttpStatus status = HttpStatus.BAD_REQUEST;
+      HttpStatusCode status = HttpStatus.BAD_REQUEST;
       return handleHttpMessageNotReadable((HttpMessageNotReadableException) ex, headers, status, request);
     }
     else if (ex instanceof HttpMessageNotWritableException) {
-      HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
+      HttpStatusCode status = HttpStatus.INTERNAL_SERVER_ERROR;
       return handleHttpMessageNotWritable((HttpMessageNotWritableException) ex, headers, status, request);
     }
     else if (ex instanceof BindException) {
-      HttpStatus status = HttpStatus.BAD_REQUEST;
+      HttpStatusCode status = HttpStatus.BAD_REQUEST;
       return handleBindException((BindException) ex, headers, status, request);
     }
     else {
@@ -208,7 +209,7 @@ public class ResponseEntityExceptionHandler {
    */
   @Nullable
   protected ResponseEntity<Object> handleHttpRequestMethodNotSupported(
-          HttpRequestMethodNotSupportedException ex, HttpHeaders headers, HttpStatus status, RequestContext request) {
+          HttpRequestMethodNotSupportedException ex, HttpHeaders headers, HttpStatusCode status, RequestContext request) {
 
     pageNotFoundLogger.warn(ex.getMessage());
     return handleExceptionInternal(ex, null, headers, status, request);
@@ -226,7 +227,7 @@ public class ResponseEntityExceptionHandler {
    */
   @Nullable
   protected ResponseEntity<Object> handleHttpMediaTypeNotSupported(
-          HttpMediaTypeNotSupportedException ex, HttpHeaders headers, HttpStatus status, RequestContext request) {
+          HttpMediaTypeNotSupportedException ex, HttpHeaders headers, HttpStatusCode status, RequestContext request) {
 
     return handleExceptionInternal(ex, null, headers, status, request);
   }
@@ -243,7 +244,7 @@ public class ResponseEntityExceptionHandler {
    */
   @Nullable
   protected ResponseEntity<Object> handleHttpMediaTypeNotAcceptable(
-          HttpMediaTypeNotAcceptableException ex, HttpHeaders headers, HttpStatus status, RequestContext request) {
+          HttpMediaTypeNotAcceptableException ex, HttpHeaders headers, HttpStatusCode status, RequestContext request) {
 
     return handleExceptionInternal(ex, null, headers, status, request);
   }
@@ -261,7 +262,7 @@ public class ResponseEntityExceptionHandler {
    */
   @Nullable
   protected ResponseEntity<Object> handleMissingPathVariable(
-          MissingPathVariableException ex, HttpHeaders headers, HttpStatus status, RequestContext request) {
+          MissingPathVariableException ex, HttpHeaders headers, HttpStatusCode status, RequestContext request) {
 
     return handleExceptionInternal(ex, null, headers, status, request);
   }
@@ -278,7 +279,7 @@ public class ResponseEntityExceptionHandler {
    */
   @Nullable
   protected ResponseEntity<Object> handleMissingServletRequestParameter(
-          MissingRequestParameterException ex, HttpHeaders headers, HttpStatus status, RequestContext request) {
+          MissingRequestParameterException ex, HttpHeaders headers, HttpStatusCode status, RequestContext request) {
 
     return handleExceptionInternal(ex, null, headers, status, request);
   }
@@ -295,7 +296,7 @@ public class ResponseEntityExceptionHandler {
    */
   @Nullable
   protected ResponseEntity<Object> handleMissingServletRequestPart(
-          MissingRequestPartException ex, HttpHeaders headers, HttpStatus status, RequestContext request) {
+          MissingRequestPartException ex, HttpHeaders headers, HttpStatusCode status, RequestContext request) {
 
     return handleExceptionInternal(ex, null, headers, status, request);
   }
@@ -312,7 +313,7 @@ public class ResponseEntityExceptionHandler {
    */
   @Nullable
   protected ResponseEntity<Object> handleRequestBindingException(
-          RequestBindingException ex, HttpHeaders headers, HttpStatus status, RequestContext request) {
+          RequestBindingException ex, HttpHeaders headers, HttpStatusCode status, RequestContext request) {
 
     return handleExceptionInternal(ex, null, headers, status, request);
   }
@@ -329,7 +330,7 @@ public class ResponseEntityExceptionHandler {
    */
   @Nullable
   protected ResponseEntity<Object> handleMethodArgumentNotValid(
-          MethodArgumentNotValidException ex, HttpHeaders headers, HttpStatus status, RequestContext request) {
+          MethodArgumentNotValidException ex, HttpHeaders headers, HttpStatusCode status, RequestContext request) {
 
     return handleExceptionInternal(ex, null, headers, status, request);
   }
@@ -347,7 +348,7 @@ public class ResponseEntityExceptionHandler {
    */
   @Nullable
   protected ResponseEntity<Object> handleNoHandlerFoundException(
-          NoHandlerFoundException ex, HttpHeaders headers, HttpStatus status, RequestContext request) {
+          NoHandlerFoundException ex, HttpHeaders headers, HttpStatusCode status, RequestContext request) {
 
     return handleExceptionInternal(ex, null, headers, status, request);
   }
@@ -364,7 +365,7 @@ public class ResponseEntityExceptionHandler {
    */
   @Nullable
   protected ResponseEntity<Object> handleAsyncRequestTimeoutException(
-          AsyncRequestTimeoutException ex, HttpHeaders headers, HttpStatus status, RequestContext webRequest) {
+          AsyncRequestTimeoutException ex, HttpHeaders headers, HttpStatusCode status, RequestContext webRequest) {
 
     return handleExceptionInternal(ex, null, headers, status, webRequest);
   }
@@ -381,7 +382,7 @@ public class ResponseEntityExceptionHandler {
    */
   @Nullable
   protected ResponseEntity<Object> handleConversionNotSupported(
-          ConversionNotSupportedException ex, HttpHeaders headers, HttpStatus status, RequestContext request) {
+          ConversionNotSupportedException ex, HttpHeaders headers, HttpStatusCode status, RequestContext request) {
 
     return handleExceptionInternal(ex, null, headers, status, request);
   }
@@ -398,7 +399,7 @@ public class ResponseEntityExceptionHandler {
    */
   @Nullable
   protected ResponseEntity<Object> handleTypeMismatch(
-          TypeMismatchException ex, HttpHeaders headers, HttpStatus status, RequestContext request) {
+          TypeMismatchException ex, HttpHeaders headers, HttpStatusCode status, RequestContext request) {
 
     return handleExceptionInternal(ex, null, headers, status, request);
   }
@@ -415,7 +416,7 @@ public class ResponseEntityExceptionHandler {
    */
   @Nullable
   protected ResponseEntity<Object> handleHttpMessageNotReadable(
-          HttpMessageNotReadableException ex, HttpHeaders headers, HttpStatus status, RequestContext request) {
+          HttpMessageNotReadableException ex, HttpHeaders headers, HttpStatusCode status, RequestContext request) {
 
     return handleExceptionInternal(ex, null, headers, status, request);
   }
@@ -432,7 +433,7 @@ public class ResponseEntityExceptionHandler {
    */
   @Nullable
   protected ResponseEntity<Object> handleHttpMessageNotWritable(
-          HttpMessageNotWritableException ex, HttpHeaders headers, HttpStatus status, RequestContext request) {
+          HttpMessageNotWritableException ex, HttpHeaders headers, HttpStatusCode status, RequestContext request) {
 
     return handleExceptionInternal(ex, null, headers, status, request);
   }
@@ -449,7 +450,7 @@ public class ResponseEntityExceptionHandler {
    */
   @Nullable
   protected ResponseEntity<Object> handleBindException(
-          BindException ex, HttpHeaders headers, HttpStatus status, RequestContext request) {
+          BindException ex, HttpHeaders headers, HttpStatusCode status, RequestContext request) {
 
     return handleExceptionInternal(ex, null, headers, status, request);
   }
@@ -469,7 +470,7 @@ public class ResponseEntityExceptionHandler {
    */
   @Nullable
   protected ResponseEntity<Object> handleExceptionInternal(
-          Exception ex, @Nullable Object body, HttpHeaders headers, HttpStatus status, RequestContext context) {
+          Exception ex, @Nullable Object body, HttpHeaders headers, HttpStatusCode status, RequestContext context) {
 
     if (ServletDetector.runningInServlet(context)) {
       HttpServletResponse response = ServletUtils.getServletResponse(context);

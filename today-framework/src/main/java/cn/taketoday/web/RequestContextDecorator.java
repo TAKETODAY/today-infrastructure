@@ -341,6 +341,16 @@ public class RequestContextDecorator extends RequestContext {
   }
 
   @Override
+  public void sendError(HttpStatusCode code) throws IOException {
+    delegate.sendError(code);
+  }
+
+  @Override
+  public void sendError(HttpStatusCode code, String msg) throws IOException {
+    delegate.sendError(code, msg);
+  }
+
+  @Override
   public void sendError(int sc) throws IOException {
     delegate.sendError(sc);
   }
@@ -456,6 +466,11 @@ public class RequestContextDecorator extends RequestContext {
   @Override
   public void resetResponseHeader() {
     delegate.resetResponseHeader();
+  }
+
+  @Override
+  public void writeHeaders() {
+    delegate.writeHeaders();
   }
 
   @Override

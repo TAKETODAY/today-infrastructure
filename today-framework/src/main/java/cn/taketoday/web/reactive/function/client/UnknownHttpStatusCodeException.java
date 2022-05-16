@@ -25,6 +25,7 @@ import java.nio.charset.Charset;
 
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpRequest;
+import cn.taketoday.http.HttpStatusCode;
 import cn.taketoday.lang.Nullable;
 
 /**
@@ -55,6 +56,18 @@ public class UnknownHttpStatusCodeException extends WebClientResponseException {
    */
   public UnknownHttpStatusCodeException(
           int statusCode, HttpHeaders headers, byte[] responseBody, @Nullable Charset responseCharset,
+          @Nullable HttpRequest request) {
+
+    super("Unknown status code [" + statusCode + "]", statusCode, "",
+            headers, responseBody, responseCharset, request);
+  }
+
+  /**
+   * Create a new instance of the {@code UnknownHttpStatusCodeException} with the given
+   * parameters.
+   */
+  public UnknownHttpStatusCodeException(
+          HttpStatusCode statusCode, HttpHeaders headers, byte[] responseBody, @Nullable Charset responseCharset,
           @Nullable HttpRequest request) {
 
     super("Unknown status code [" + statusCode + "]", statusCode, "",

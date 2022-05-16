@@ -42,7 +42,7 @@ import cn.taketoday.core.TypeReference;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpMethod;
 import cn.taketoday.http.HttpRequest;
-import cn.taketoday.http.HttpStatus;
+import cn.taketoday.http.HttpStatusCode;
 import cn.taketoday.http.MediaType;
 import cn.taketoday.http.ResponseEntity;
 import cn.taketoday.http.client.reactive.ClientHttpRequest;
@@ -491,7 +491,7 @@ class DefaultWebClient implements WebClient {
 
   private static class DefaultResponseSpec implements ResponseSpec {
 
-    private static final IntPredicate STATUS_CODE_ERROR = (value -> value >= 400);
+    private static final Predicate<HttpStatusCode> STATUS_CODE_ERROR = HttpStatusCode::isError;
 
     private static final StatusHandler DEFAULT_STATUS_HANDLER =
             new StatusHandler(STATUS_CODE_ERROR, ClientResponse::createException);
@@ -509,28 +509,26 @@ class DefaultWebClient implements WebClient {
     }
 
     @Override
-    public ResponseSpec onStatus(Predicate<HttpStatus> statusPredicate,
+    public ResponseSpec onStatus(Predicate<HttpStatusCode> statusCodePredicate,
             Function<ClientResponse, Mono<? extends Throwable>> exceptionFunction) {
 
-      return onRawStatus(toIntPredicate(statusPredicate), exceptionFunction);
-    }
+      Assert.notNull(statusCodePredicate, "StatusCodePredicate must not be null");
+      Assert.notNull(exceptionFunction, "Function must not be null");
+      int index = this.statusHandlers.size() - 1;  // Default handler always last
+      this.statusHandlers.add(index, new StatusHandler(statusCodePredicate, exceptionFunction));
+      return this;
 
-    private static IntPredicate toIntPredicate(Predicate<HttpStatus> predicate) {
-      return value -> {
-        HttpStatus status = HttpStatus.resolve(value);
-        return (status != null && predicate.test(status));
-      };
     }
 
     @Override
     public ResponseSpec onRawStatus(IntPredicate statusCodePredicate,
             Function<ClientResponse, Mono<? extends Throwable>> exceptionFunction) {
 
-      Assert.notNull(statusCodePredicate, "IntPredicate must not be null");
-      Assert.notNull(exceptionFunction, "Function must not be null");
-      int index = this.statusHandlers.size() - 1;  // Default handler always last
-      this.statusHandlers.add(index, new StatusHandler(statusCodePredicate, exceptionFunction));
-      return this;
+      return onStatus(toStatusCodePredicate(statusCodePredicate), exceptionFunction);
+    }
+
+    private static Predicate<HttpStatusCode> toStatusCodePredicate(IntPredicate predicate) {
+      return value -> predicate.test(value.value());
     }
 
     @Override
@@ -645,7 +643,7 @@ class DefaultWebClient implements WebClient {
 
     @Nullable
     private <T> Mono<T> applyStatusHandlers(ClientResponse response) {
-      int statusCode = response.rawStatusCode();
+      HttpStatusCode statusCode = response.statusCode();
       for (StatusHandler handler : this.statusHandlers) {
         if (handler.test(statusCode)) {
           Mono<? extends Throwable> exMono;
@@ -665,27 +663,18 @@ class DefaultWebClient implements WebClient {
       return null;
     }
 
-    private <T> Mono<T> insertCheckpoint(Mono<T> result, int statusCode, HttpRequest request) {
+    private <T> Mono<T> insertCheckpoint(Mono<T> result, HttpStatusCode statusCode, HttpRequest request) {
       HttpMethod httpMethod = request.getMethod();
       URI uri = request.getURI();
       String description = statusCode + " from " + httpMethod + " " + uri + " [DefaultWebClient]";
       return result.checkpoint(description);
     }
 
-    private static class StatusHandler {
+    private record StatusHandler(
+            Predicate<HttpStatusCode> predicate,
+            Function<ClientResponse, Mono<? extends Throwable>> exceptionFunction) {
 
-      private final IntPredicate predicate;
-
-      private final Function<ClientResponse, Mono<? extends Throwable>> exceptionFunction;
-
-      public StatusHandler(IntPredicate predicate,
-              Function<ClientResponse, Mono<? extends Throwable>> exceptionFunction) {
-
-        this.predicate = predicate;
-        this.exceptionFunction = exceptionFunction;
-      }
-
-      public boolean test(int status) {
+      public boolean test(HttpStatusCode status) {
         return this.predicate.test(status);
       }
 

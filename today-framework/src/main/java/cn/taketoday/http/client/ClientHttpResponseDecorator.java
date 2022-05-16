@@ -24,7 +24,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import cn.taketoday.http.HttpHeaders;
-import cn.taketoday.http.HttpStatus;
+import cn.taketoday.http.HttpStatusCode;
 import cn.taketoday.lang.Assert;
 
 /**
@@ -52,7 +52,7 @@ public class ClientHttpResponseDecorator implements ClientHttpResponse {
   }
 
   @Override
-  public HttpStatus getStatusCode() throws IOException {
+  public HttpStatusCode getStatusCode() throws IOException {
     return delegate.getStatusCode();
   }
 

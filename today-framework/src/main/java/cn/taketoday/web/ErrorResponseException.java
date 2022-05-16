@@ -25,7 +25,7 @@ import java.net.URI;
 
 import cn.taketoday.core.NestedRuntimeException;
 import cn.taketoday.http.HttpHeaders;
-import cn.taketoday.http.HttpStatus;
+import cn.taketoday.http.HttpStatusCode;
 import cn.taketoday.http.ProblemDetail;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ExceptionUtils;
@@ -48,46 +48,38 @@ public class ErrorResponseException extends NestedRuntimeException implements Er
   @Serial
   private static final long serialVersionUID = 1L;
 
-  private final int status;
+  private final HttpStatusCode status;
 
   private final HttpHeaders headers = HttpHeaders.create();
 
   private final ProblemDetail body;
 
   /**
-   * Constructor with a well-known {@link HttpStatus}.
+   * Constructor with a {@link HttpStatusCode}.
    */
-  public ErrorResponseException(HttpStatus status) {
+  public ErrorResponseException(HttpStatusCode status) {
     this(status, null);
   }
 
   /**
-   * Constructor with a well-known {@link HttpStatus} and an optional cause.
+   * Constructor with a {@link HttpStatusCode} and an optional cause.
    */
-  public ErrorResponseException(HttpStatus status, @Nullable Throwable cause) {
-    this(status.value(), cause);
-  }
-
-  /**
-   * Constructor that accepts any status value, possibly not resolvable as an
-   * {@link HttpStatus} enum, and an optional cause.
-   */
-  public ErrorResponseException(int status, @Nullable Throwable cause) {
-    this(status, ProblemDetail.forRawStatusCode(status), cause);
+  public ErrorResponseException(HttpStatusCode status, @Nullable Throwable cause) {
+    this(status, ProblemDetail.forStatus(status), cause);
   }
 
   /**
    * Constructor with a given {@link ProblemDetail} instance, possibly a
    * subclass of {@code ProblemDetail} with extended fields.
    */
-  public ErrorResponseException(int status, ProblemDetail body, @Nullable Throwable cause) {
+  public ErrorResponseException(HttpStatusCode status, ProblemDetail body, @Nullable Throwable cause) {
     super(null, cause);
     this.status = status;
     this.body = body;
   }
 
   @Override
-  public int getRawStatusCode() {
+  public HttpStatusCode getStatusCode() {
     return this.status;
   }
 
@@ -153,15 +145,8 @@ public class ErrorResponseException extends NestedRuntimeException implements Er
   }
 
   @Override
-  public HttpStatus getStatus() {
-    return HttpStatus.valueOf(status);
-  }
-
-  @Override
   public String getMessage() {
-    HttpStatus httpStatus = HttpStatus.resolve(this.status);
-    String message = (httpStatus != null ? httpStatus : String.valueOf(this.status)) +
-            (!this.headers.isEmpty() ? ", headers=" + this.headers : "") + ", " + this.body;
+    String message = status + (!headers.isEmpty() ? ", headers=" + headers : "") + ", " + body;
     return ExceptionUtils.buildMessage(message, getCause());
   }
 

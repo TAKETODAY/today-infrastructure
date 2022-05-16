@@ -32,16 +32,16 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
 /**
- * Unit tests for {@link MessageBodyClientHttpResponseWrapper}.
+ * Unit tests for {@link IntrospectingClientHttpResponse}.
  *
  * @author Yin-Jui Liao
  * @since 4.0
  */
-class MessageBodyClientHttpResponseWrapperTests {
+class IntrospectingClientHttpResponseTests {
 
   private final ClientHttpResponse response = mock(ClientHttpResponse.class);
 
-  private final MessageBodyClientHttpResponseWrapper responseWrapper = new MessageBodyClientHttpResponseWrapper(response);
+  private final IntrospectingClientHttpResponse responseWrapper = new IntrospectingClientHttpResponse(response);
 
   @Test
   void messageBodyDoesNotExist() throws Exception {

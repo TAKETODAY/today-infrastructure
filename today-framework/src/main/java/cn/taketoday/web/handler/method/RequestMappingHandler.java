@@ -23,9 +23,8 @@ package cn.taketoday.web.handler.method;
 import cn.taketoday.context.MessageSource;
 import cn.taketoday.core.i18n.LocaleContextHolder;
 import cn.taketoday.core.reflect.MethodInvoker;
-import cn.taketoday.http.HttpStatus;
-import cn.taketoday.http.HttpStatusCapable;
 import cn.taketoday.http.HttpStatusCode;
+import cn.taketoday.http.HttpStatusCodeProvider;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
@@ -155,8 +154,8 @@ public class RequestMappingHandler extends InterceptableRequestHandler {
     }
     else {
       Object attribute = context.getAttribute(WebUtils.ERROR_EXCEPTION_ATTRIBUTE);
-      if (attribute instanceof HttpStatusCapable) { // @since 3.0.1
-        HttpStatus httpStatus = ((HttpStatusCapable) attribute).getStatus();
+      if (attribute instanceof HttpStatusCodeProvider provider) { // @since 3.0.1
+        HttpStatusCode httpStatus = provider.getStatusCode();
         context.setStatus(httpStatus);
       }
       else if (attribute instanceof Throwable throwable) {

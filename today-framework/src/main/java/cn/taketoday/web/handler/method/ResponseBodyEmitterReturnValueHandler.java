@@ -35,8 +35,6 @@ import cn.taketoday.http.MediaType;
 import cn.taketoday.http.ResponseEntity;
 import cn.taketoday.http.converter.HttpMessageConverter;
 import cn.taketoday.http.converter.StringHttpMessageConverter;
-import cn.taketoday.http.server.DelegatingServerHttpResponse;
-import cn.taketoday.http.server.ServerHttpResponse;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.RequestContext;
@@ -46,7 +44,6 @@ import cn.taketoday.web.accept.ContentNegotiationManager;
 import cn.taketoday.web.context.async.DeferredResult;
 import cn.taketoday.web.context.async.WebAsyncUtils;
 import cn.taketoday.web.handler.result.HandlerMethodReturnValueHandler;
-import cn.taketoday.web.servlet.ServletUtils;
 import cn.taketoday.web.servlet.filter.ShallowEtagHeaderFilter;
 
 /**
@@ -134,15 +131,15 @@ public class ResponseBodyEmitterReturnValueHandler implements HandlerMethodRetur
   }
 
   @Override
-  public void handleReturnValue(RequestContext request, Object handler, @Nullable Object returnValue) throws Exception {
+  public void handleReturnValue(RequestContext request, HandlerMethod handler, @Nullable Object returnValue) throws Exception {
     if (returnValue == null) {
       return;
     }
 
-    MethodParameter returnType = ((HandlerMethod) handler).getReturnType();
+    MethodParameter returnType = handler.getReturnType();
     HttpHeaders responseHeaders = request.responseHeaders();
     if (returnValue instanceof ResponseEntity<?> responseEntity) {
-      request.setStatus(responseEntity.getStatusCode().value());
+      request.setStatus(responseEntity.getStatusCode());
       responseHeaders.putAll(responseEntity.getHeaders());
       returnValue = responseEntity.getBody();
       returnType = returnType.nested();
@@ -170,8 +167,8 @@ public class ResponseBodyEmitterReturnValueHandler implements HandlerMethodRetur
     emitter.extendResponse(request);
 
     // At this point we know we're streaming..
-    if (ServletDetector.isPresent) {
-      ShallowEtagHeaderFilter.disableContentCaching(ServletUtils.getServletRequest(request));
+    if (ServletDetector.runningInServlet(request)) {
+      ShallowEtagHeaderFilter.disableContentCaching(request);
     }
 
     // Wrap the response to ignore further header changes
@@ -180,7 +177,8 @@ public class ResponseBodyEmitterReturnValueHandler implements HandlerMethodRetur
     HttpMessageConvertingHandler responseBodyEmitter;
     try {
       DeferredResult<?> deferredResult = new DeferredResult<>(emitter.getTimeout());
-      WebAsyncUtils.getAsyncManager(request).startDeferredResultProcessing(deferredResult);
+      WebAsyncUtils.getAsyncManager(request)
+              .startDeferredResultProcessing(deferredResult);
       responseBodyEmitter = new HttpMessageConvertingHandler(request, deferredResult);
     }
     catch (Throwable ex) {
@@ -197,7 +195,6 @@ public class ResponseBodyEmitterReturnValueHandler implements HandlerMethodRetur
   private class HttpMessageConvertingHandler implements ResponseBodyEmitter.Handler {
 
     private final RequestContext context;
-
     private final DeferredResult<?> deferredResult;
 
     public HttpMessageConvertingHandler(RequestContext context, DeferredResult<?> deferredResult) {
@@ -206,20 +203,17 @@ public class ResponseBodyEmitterReturnValueHandler implements HandlerMethodRetur
     }
 
     @Override
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     public void send(Object data, @Nullable MediaType mediaType) throws IOException {
-      sendInternal(data, mediaType);
-    }
-
-    @SuppressWarnings("unchecked")
-    private <T> void sendInternal(T data, @Nullable MediaType mediaType) throws IOException {
-      for (HttpMessageConverter<?> converter : sseMessageConverters) {
-        if (converter.canWrite(data.getClass(), mediaType)) {
-          ((HttpMessageConverter<T>) converter).write(data, mediaType, new RequestContextHttpOutputMessage(context));
-          this.context.flush();
+      Class<?> dataClass = data.getClass();
+      for (HttpMessageConverter converter : sseMessageConverters) {
+        if (converter.canWrite(dataClass, mediaType)) {
+          converter.write(data, mediaType, new RequestContextHttpOutputMessage(context));
+          context.flush();
           return;
         }
       }
-      throw new IllegalArgumentException("No suitable converter for " + data.getClass());
+      throw new IllegalArgumentException("No suitable converter for " + dataClass);
     }
 
     @Override
@@ -252,26 +246,6 @@ public class ResponseBodyEmitterReturnValueHandler implements HandlerMethodRetur
     public void onCompletion(Runnable callback) {
       this.deferredResult.onCompletion(callback);
     }
-  }
-
-  /**
-   * Wrap to silently ignore header changes HttpMessageConverter's that would
-   * otherwise cause HttpHeaders to raise exceptions.
-   */
-  private static class StreamingServletServerHttpResponse extends DelegatingServerHttpResponse {
-
-    private final HttpHeaders mutableHeaders = HttpHeaders.create();
-
-    public StreamingServletServerHttpResponse(ServerHttpResponse delegate) {
-      super(delegate);
-      this.mutableHeaders.putAll(delegate.getHeaders());
-    }
-
-    @Override
-    public HttpHeaders getHeaders() {
-      return this.mutableHeaders;
-    }
-
   }
 
 }

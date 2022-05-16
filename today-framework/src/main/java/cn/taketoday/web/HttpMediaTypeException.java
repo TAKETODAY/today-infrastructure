@@ -38,7 +38,7 @@ public abstract class HttpMediaTypeException extends NestedRuntimeException impl
 
   private final List<MediaType> supportedMediaTypes;
 
-  private final ProblemDetail body = ProblemDetail.forRawStatusCode(getRawStatusCode());
+  private final ProblemDetail body = ProblemDetail.forStatus(getStatusCode());
 
   /**
    * Create a new HttpMediaTypeException.

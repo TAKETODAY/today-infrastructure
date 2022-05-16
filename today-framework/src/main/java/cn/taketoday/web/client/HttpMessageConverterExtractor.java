@@ -25,6 +25,7 @@ import java.lang.reflect.Type;
 import java.util.List;
 
 import cn.taketoday.core.ResolvableType;
+import cn.taketoday.http.MediaType;
 import cn.taketoday.http.client.ClientHttpResponse;
 import cn.taketoday.http.converter.GenericHttpMessageConverter;
 import cn.taketoday.http.converter.HttpMessageConverter;
@@ -34,7 +35,6 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.FileCopyUtils;
-import cn.taketoday.http.MediaType;
 
 /**
  * Response extractor that uses the given {@linkplain HttpMessageConverter entity converters}
@@ -83,9 +83,9 @@ public class HttpMessageConverterExtractor<T> implements ResponseExtractor<T> {
   }
 
   @Override
-  @SuppressWarnings({ "unchecked", "rawtypes", "resource" })
+  @SuppressWarnings({ "unchecked", "rawtypes" })
   public T extractData(ClientHttpResponse response) throws IOException {
-    MessageBodyClientHttpResponseWrapper responseWrapper = new MessageBodyClientHttpResponseWrapper(response);
+    IntrospectingClientHttpResponse responseWrapper = new IntrospectingClientHttpResponse(response);
     if (!responseWrapper.hasMessageBody() || responseWrapper.hasEmptyMessageBody()) {
       return null;
     }

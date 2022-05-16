@@ -24,7 +24,7 @@ import java.io.Closeable;
 import java.io.IOException;
 
 import cn.taketoday.http.HttpInputMessage;
-import cn.taketoday.http.HttpStatus;
+import cn.taketoday.http.HttpStatusCode;
 
 /**
  * Represents a client-side HTTP response.
@@ -35,32 +35,27 @@ import cn.taketoday.http.HttpStatus;
  * typically in a {@code finally} block.
  *
  * @author Arjen Poutsma
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public interface ClientHttpResponse extends HttpInputMessage, Closeable {
 
   /**
-   * Get the HTTP status code as an {@link HttpStatus} enum value.
-   * <p>For status codes not supported by {@code HttpStatus}, use
-   * {@link #getRawStatusCode()} instead.
+   * Get the HTTP status code as an {@link HttpStatusCode}.
    *
-   * @return the HTTP status as an HttpStatus enum value (never {@code null})
+   * @return the HTTP status as {@code HttpStatusCode} value (never {@code null})
    * @throws IOException in case of I/O errors
-   * @throws IllegalArgumentException in case of an unknown HTTP status code
-   * @see HttpStatus#valueOf(int)
-   * @since #getRawStatusCode()
    */
-  HttpStatus getStatusCode() throws IOException;
+  HttpStatusCode getStatusCode() throws IOException;
 
   /**
    * Get the HTTP status code (potentially non-standard and not
-   * resolvable through the {@link HttpStatus} enum) as an integer.
+   * resolvable through the {@link HttpStatusCode} enum) as an integer.
    *
    * @return the HTTP status as an integer value
    * @throws IOException in case of I/O errors
    * @see #getStatusCode()
-   * @see HttpStatus#resolve(int)
-   * @since 4.0
+   * @see HttpStatusCode#valueOf(int)
    */
   int getRawStatusCode() throws IOException;
 

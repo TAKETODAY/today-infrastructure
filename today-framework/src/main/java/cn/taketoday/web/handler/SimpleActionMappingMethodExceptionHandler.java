@@ -27,13 +27,12 @@ import java.io.PrintWriter;
 import javax.imageio.ImageIO;
 
 import cn.taketoday.core.io.ClassPathResource;
-import cn.taketoday.http.HttpStatus;
-import cn.taketoday.http.HttpStatusCapable;
+import cn.taketoday.http.HttpStatusCode;
+import cn.taketoday.http.HttpStatusCodeProvider;
 import cn.taketoday.http.MediaType;
 import cn.taketoday.lang.Experimental;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.handler.method.ActionMappingAnnotationHandler;
 import cn.taketoday.web.handler.method.HandlerMethod;
 
 /**
@@ -90,15 +89,15 @@ public class SimpleActionMappingMethodExceptionHandler extends AbstractActionMap
   }
 
   /**
-   * Get error http status value, if target throwable is {@link HttpStatusCapable}
-   * its return from {@link HttpStatusCapable#getStatus()}
+   * Get error http status value, if target throwable is {@link HttpStatusCodeProvider}
+   * its return from {@link HttpStatusCodeProvider#getStatusCode()}
    *
    * @param ex Throwable that occurred in request handler
    * @return Http status code
    */
   public int getErrorStatusValue(Throwable ex) {
-    if (ex instanceof HttpStatusCapable) { // @since 3.0.1
-      HttpStatus httpStatus = ((HttpStatusCapable) ex).getStatus();
+    if (ex instanceof HttpStatusCodeProvider provider) { // @since 3.0.1
+      HttpStatusCode httpStatus = provider.getStatusCode();
       return httpStatus.value();
     }
     return HandlerMethod.getStatusValue(ex);

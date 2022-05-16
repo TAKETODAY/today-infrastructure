@@ -61,12 +61,12 @@ public class NoHandlerFoundException extends FrameworkConfigurationException imp
     this.httpMethod = httpMethod;
     this.requestURL = requestURL;
     this.headers = headers;
-    this.body = ProblemDetail.forRawStatusCode(getRawStatusCode()).withDetail(getMessage());
+    this.body = ProblemDetail.forStatus(getStatusCode()).withDetail(getMessage());
   }
 
   @Override
-  public int getRawStatusCode() {
-    return HttpStatus.NOT_FOUND.value();
+  public HttpStatus getStatusCode() {
+    return HttpStatus.NOT_FOUND;
   }
 
   public String getHttpMethod() {

@@ -39,7 +39,7 @@ import jakarta.servlet.ServletException;
  */
 @SuppressWarnings("serial")
 public class MissingRequestPartException extends ServletException implements ErrorResponse {
-  private final ProblemDetail body = ProblemDetail.forRawStatusCode(getRawStatusCode());
+  private final ProblemDetail body = ProblemDetail.forStatus(getStatusCode());
 
   private final String requestPartName;
 
@@ -62,8 +62,8 @@ public class MissingRequestPartException extends ServletException implements Err
   }
 
   @Override
-  public int getRawStatusCode() {
-    return HttpStatus.BAD_REQUEST.value();
+  public HttpStatus getStatusCode() {
+    return HttpStatus.BAD_REQUEST;
   }
 
   @Override

@@ -104,7 +104,7 @@ public class HttpRequestMethodNotSupportedException extends NestedRuntimeExcepti
     this.supportedMethods = supportedMethods;
 
     String detail = "Method '" + method + "' is not supported.";
-    this.body = ProblemDetail.forRawStatusCode(getRawStatusCode()).withDetail(detail);
+    this.body = ProblemDetail.forStatus(getStatusCode()).withDetail(detail);
   }
 
   /**
@@ -131,7 +131,7 @@ public class HttpRequestMethodNotSupportedException extends NestedRuntimeExcepti
     if (this.supportedMethods == null) {
       return null;
     }
-    Set<HttpMethod> supportedMethods = new LinkedHashSet<>(this.supportedMethods.length);
+    var supportedMethods = new LinkedHashSet<HttpMethod>(this.supportedMethods.length);
     for (String value : this.supportedMethods) {
       HttpMethod method = HttpMethod.valueOf(value);
       supportedMethods.add(method);
@@ -140,8 +140,8 @@ public class HttpRequestMethodNotSupportedException extends NestedRuntimeExcepti
   }
 
   @Override
-  public int getRawStatusCode() {
-    return HttpStatus.METHOD_NOT_ALLOWED.value();
+  public HttpStatus getStatusCode() {
+    return HttpStatus.METHOD_NOT_ALLOWED;
   }
 
   @Override

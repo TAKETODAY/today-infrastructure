@@ -34,6 +34,7 @@ import cn.taketoday.core.io.buffer.DataBufferUtils;
 import cn.taketoday.core.io.buffer.DefaultDataBufferFactory;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpStatus;
+import cn.taketoday.http.HttpStatusCode;
 import cn.taketoday.http.MediaType;
 import cn.taketoday.http.ResponseCookie;
 import cn.taketoday.lang.Assert;
@@ -68,8 +69,8 @@ public class MockClientHttpResponse implements ClientHttpResponse {
   }
 
   @Override
-  public HttpStatus getStatusCode() {
-    return HttpStatus.valueOf(this.status);
+  public HttpStatusCode getStatusCode() {
+    return HttpStatusCode.valueOf(this.status);
   }
 
   @Override

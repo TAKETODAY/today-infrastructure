@@ -23,6 +23,7 @@ package cn.taketoday.web.servlet.filter;
 import java.io.IOException;
 
 import cn.taketoday.http.HttpStatus;
+import cn.taketoday.http.HttpStatusCode;
 import cn.taketoday.lang.Assert;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -47,7 +48,7 @@ import jakarta.servlet.http.HttpServletResponse;
  */
 public class RelativeRedirectFilter extends OncePerRequestFilter {
 
-  private HttpStatus redirectStatus = HttpStatus.SEE_OTHER;
+  private HttpStatusCode redirectStatus = HttpStatus.SEE_OTHER;
 
   /**
    * Set the default HTTP Status to use for redirects.
@@ -55,7 +56,7 @@ public class RelativeRedirectFilter extends OncePerRequestFilter {
    *
    * @param status the 3xx redirect status to use
    */
-  public void setRedirectStatus(HttpStatus status) {
+  public void setRedirectStatus(HttpStatusCode status) {
     Assert.notNull(status, "Property 'redirectStatus' is required");
     Assert.isTrue(status.is3xxRedirection(), "Not a redirect status code");
     this.redirectStatus = status;
@@ -64,7 +65,7 @@ public class RelativeRedirectFilter extends OncePerRequestFilter {
   /**
    * Return the configured redirect status.
    */
-  public HttpStatus getRedirectStatus() {
+  public HttpStatusCode getRedirectStatus() {
     return this.redirectStatus;
   }
 

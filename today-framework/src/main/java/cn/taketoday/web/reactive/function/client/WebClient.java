@@ -37,7 +37,7 @@ import cn.taketoday.core.ReactiveAdapterRegistry;
 import cn.taketoday.core.TypeReference;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpMethod;
-import cn.taketoday.http.HttpStatus;
+import cn.taketoday.http.HttpStatusCode;
 import cn.taketoday.http.MediaType;
 import cn.taketoday.http.ResponseEntity;
 import cn.taketoday.http.client.reactive.ClientHttpConnector;
@@ -807,7 +807,7 @@ public interface WebClient {
      * @return this builder
      * @see ClientResponse#createException()
      */
-    ResponseSpec onStatus(Predicate<HttpStatus> statusPredicate,
+    ResponseSpec onStatus(Predicate<HttpStatusCode> statusPredicate,
             Function<ClientResponse, Mono<? extends Throwable>> exceptionFunction);
 
     /**

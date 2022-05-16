@@ -24,6 +24,7 @@ import java.io.Serial;
 
 import cn.taketoday.core.NestedRuntimeException;
 import cn.taketoday.http.HttpStatus;
+import cn.taketoday.http.HttpStatusCode;
 import cn.taketoday.http.ProblemDetail;
 import cn.taketoday.web.ErrorResponse;
 
@@ -41,9 +42,11 @@ import cn.taketoday.web.ErrorResponse;
  * @since 4.0 2022/1/22 22:54
  */
 public class RequestBindingException extends NestedRuntimeException implements ErrorResponse {
+
   @Serial
   private static final long serialVersionUID = 1L;
-  private final ProblemDetail body = ProblemDetail.forRawStatusCode(getRawStatusCode());
+
+  private final ProblemDetail body = ProblemDetail.forStatus(getStatusCode());
 
   /**
    * Constructor for RequestBindingException.
@@ -65,8 +68,8 @@ public class RequestBindingException extends NestedRuntimeException implements E
   }
 
   @Override
-  public int getRawStatusCode() {
-    return HttpStatus.BAD_REQUEST.value();
+  public HttpStatusCode getStatusCode() {
+    return HttpStatus.BAD_REQUEST;
   }
 
   @Override

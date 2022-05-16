@@ -33,6 +33,7 @@ import cn.taketoday.core.io.buffer.DataBuffer;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpRequest;
 import cn.taketoday.http.HttpStatus;
+import cn.taketoday.http.HttpStatusCode;
 import cn.taketoday.http.MediaType;
 import cn.taketoday.http.ResponseCookie;
 import cn.taketoday.http.ResponseEntity;
@@ -55,14 +56,11 @@ import reactor.core.publisher.Mono;
 public interface ClientResponse {
 
   /**
-   * Return the HTTP status code as an {@link HttpStatus} enum value.
+   * Return the HTTP status code as an {@link HttpStatusCode} value.
    *
-   * @return the HTTP status as an HttpStatus enum value (never {@code null})
-   * @throws IllegalArgumentException in case of an unknown HTTP status code
-   * @see HttpStatus#valueOf(int)
-   * @since #getRawStatusCode()
+   * @return the HTTP status as an HttpStatusCode value (never {@code null})
    */
-  HttpStatus statusCode();
+  HttpStatusCode statusCode();
 
   /**
    * Return the (potentially non-standard) status code of this response.
@@ -344,7 +342,7 @@ public interface ClientResponse {
      * @param statusCode the new status code
      * @return this builder
      */
-    Builder statusCode(HttpStatus statusCode);
+    Builder statusCode(HttpStatusCode statusCode);
 
     /**
      * Set the raw status code of the response.

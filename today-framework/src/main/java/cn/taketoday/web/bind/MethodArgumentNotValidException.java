@@ -22,6 +22,7 @@ package cn.taketoday.web.bind;
 
 import cn.taketoday.core.MethodParameter;
 import cn.taketoday.http.HttpStatus;
+import cn.taketoday.http.HttpStatusCode;
 import cn.taketoday.http.ProblemDetail;
 import cn.taketoday.validation.BindException;
 import cn.taketoday.validation.BindingResult;
@@ -53,12 +54,12 @@ public class MethodArgumentNotValidException extends BindException implements Er
   public MethodArgumentNotValidException(MethodParameter parameter, BindingResult bindingResult) {
     super(bindingResult);
     this.parameter = parameter;
-    this.body = ProblemDetail.forRawStatusCode(getRawStatusCode()).withDetail("Invalid request content.");
+    this.body = ProblemDetail.forStatus(getStatusCode()).withDetail("Invalid request content.");
   }
 
   @Override
-  public int getRawStatusCode() {
-    return HttpStatus.BAD_REQUEST.value();
+  public HttpStatusCode getStatusCode() {
+    return HttpStatus.BAD_REQUEST;
   }
 
   @Override

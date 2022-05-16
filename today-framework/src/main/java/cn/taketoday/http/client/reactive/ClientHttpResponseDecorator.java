@@ -23,7 +23,7 @@ package cn.taketoday.http.client.reactive;
 import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.core.io.buffer.DataBuffer;
 import cn.taketoday.http.HttpHeaders;
-import cn.taketoday.http.HttpStatus;
+import cn.taketoday.http.HttpStatusCode;
 import cn.taketoday.http.ResponseCookie;
 import cn.taketoday.lang.Assert;
 import reactor.core.publisher.Flux;
@@ -56,7 +56,7 @@ public class ClientHttpResponseDecorator implements ClientHttpResponse {
   }
 
   @Override
-  public HttpStatus getStatusCode() {
+  public HttpStatusCode getStatusCode() {
     return this.delegate.getStatusCode();
   }
 

@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -17,6 +17,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.web.handler;
 
 import java.io.IOException;
@@ -34,7 +35,6 @@ import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.validation.BindException;
 import cn.taketoday.validation.BindingResult;
-import cn.taketoday.web.context.async.AsyncRequestTimeoutException;
 import cn.taketoday.web.ErrorResponse;
 import cn.taketoday.web.HttpMediaTypeNotAcceptableException;
 import cn.taketoday.web.HttpMediaTypeNotSupportedException;
@@ -44,10 +44,11 @@ import cn.taketoday.web.ServletDetector;
 import cn.taketoday.web.annotation.RequestBody;
 import cn.taketoday.web.annotation.RequestPart;
 import cn.taketoday.web.bind.MethodArgumentNotValidException;
+import cn.taketoday.web.bind.MissingPathVariableException;
 import cn.taketoday.web.bind.MissingRequestParameterException;
 import cn.taketoday.web.bind.RequestBindingException;
-import cn.taketoday.web.bind.MissingPathVariableException;
 import cn.taketoday.web.bind.resolver.MissingRequestPartException;
+import cn.taketoday.web.context.async.AsyncRequestTimeoutException;
 import cn.taketoday.web.multipart.MultipartFile;
 import cn.taketoday.web.util.WebUtils;
 
@@ -134,8 +135,9 @@ import cn.taketoday.web.util.WebUtils;
  * @author Arjen Poutsma
  * @author Rossen Stoyanchev
  * @author Juergen Hoeller
- * @author TODAY 2020-03-29 21:01
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see ResponseEntityExceptionHandler
+ * @since 2020-03-29 21:01
  */
 public class SimpleHandlerExceptionHandler
         extends AbstractHandlerExceptionHandler implements HandlerExceptionHandler {
@@ -464,15 +466,14 @@ public class SimpleHandlerExceptionHandler
 
     if (!context.isCommitted()) {
       HttpHeaders headers = errorResponse.getHeaders();
-      context.responseHeaders().addAll(headers);
+      context.mergeToResponse(headers);
 
-      int status = errorResponse.getRawStatusCode();
       String message = errorResponse.getBody().getDetail();
       if (message != null) {
-        context.sendError(status, message);
+        context.sendError(errorResponse.getStatusCode(), message);
       }
       else {
-        context.sendError(status);
+        context.sendError(errorResponse.getStatusCode());
       }
     }
     else {
@@ -517,7 +518,7 @@ public class SimpleHandlerExceptionHandler
   protected Object handleTypeMismatch(TypeMismatchException ex,
           RequestContext request, @Nullable Object handler) throws IOException {
 
-    request.sendError(HttpStatus.BAD_REQUEST.value());
+    request.sendError(HttpStatus.BAD_REQUEST);
     return NONE_RETURN_VALUE;
   }
 
@@ -538,7 +539,7 @@ public class SimpleHandlerExceptionHandler
   protected Object handleHttpMessageNotReadable(HttpMessageNotReadableException ex,
           RequestContext request, @Nullable Object handler) throws IOException {
 
-    request.sendError(HttpStatus.BAD_REQUEST.value());
+    request.sendError(HttpStatus.BAD_REQUEST);
     return NONE_RETURN_VALUE;
   }
 
@@ -578,7 +579,7 @@ public class SimpleHandlerExceptionHandler
   protected Object handleBindException(BindException ex, RequestContext request,
           @Nullable Object handler) throws IOException {
 
-    request.sendError(HttpStatus.BAD_REQUEST.value());
+    request.sendError(HttpStatus.BAD_REQUEST);
     return NONE_RETURN_VALUE;
   }
 
@@ -590,7 +591,7 @@ public class SimpleHandlerExceptionHandler
    */
   protected void sendServerError(Exception ex, RequestContext request) throws IOException {
     request.setAttribute(WebUtils.ERROR_EXCEPTION_ATTRIBUTE, ex);
-    request.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value());
+    request.sendError(HttpStatus.INTERNAL_SERVER_ERROR);
   }
 
 }

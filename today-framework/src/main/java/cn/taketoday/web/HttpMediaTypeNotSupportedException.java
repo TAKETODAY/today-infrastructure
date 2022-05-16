@@ -108,8 +108,8 @@ public class HttpMediaTypeNotSupportedException extends HttpMediaTypeException {
   }
 
   @Override
-  public int getRawStatusCode() {
-    return HttpStatus.UNSUPPORTED_MEDIA_TYPE.value();
+  public HttpStatus getStatusCode() {
+    return HttpStatus.UNSUPPORTED_MEDIA_TYPE;
   }
 
   @Override

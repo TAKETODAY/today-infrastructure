@@ -307,7 +307,7 @@ class ErrorResponseExceptionTests {
 
   private void assertStatus(ErrorResponse ex, HttpStatus status) {
     ProblemDetail body = ex.getBody();
-    assertThat(ex.getStatus()).isEqualTo(status);
+    assertThat(ex.getStatusCode()).isEqualTo(status);
     assertThat(body.getStatus()).isEqualTo(status.value());
     assertThat(body.getTitle()).isEqualTo(status.getReasonPhrase());
   }

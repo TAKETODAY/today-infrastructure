@@ -25,7 +25,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 
 import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.http.HttpStatus;
+import cn.taketoday.http.HttpStatusCode;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.registry.SimpleUrlHandlerRegistry;
 
@@ -92,7 +92,7 @@ public class ViewControllerRegistry {
    * Map a simple controller to the given URL path (or pattern) in order to
    * set the response status to the given code without rendering a body.
    */
-  public void addStatusController(String urlPath, HttpStatus statusCode) {
+  public void addStatusController(String urlPath, HttpStatusCode statusCode) {
     ViewControllerRegistration registration = new ViewControllerRegistration(urlPath);
     registration.setApplicationContext(this.applicationContext);
     registration.setStatusCode(statusCode);

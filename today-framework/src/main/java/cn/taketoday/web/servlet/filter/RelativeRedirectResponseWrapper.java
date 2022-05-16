@@ -21,7 +21,7 @@
 package cn.taketoday.web.servlet.filter;
 
 import cn.taketoday.http.HttpHeaders;
-import cn.taketoday.http.HttpStatus;
+import cn.taketoday.http.HttpStatusCode;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.web.servlet.ServletUtils;
 import jakarta.servlet.http.HttpServletResponse;
@@ -36,9 +36,9 @@ import jakarta.servlet.http.HttpServletResponseWrapper;
  */
 final class RelativeRedirectResponseWrapper extends HttpServletResponseWrapper {
 
-  private final HttpStatus redirectStatus;
+  private final HttpStatusCode redirectStatus;
 
-  private RelativeRedirectResponseWrapper(HttpServletResponse response, HttpStatus redirectStatus) {
+  private RelativeRedirectResponseWrapper(HttpServletResponse response, HttpStatusCode redirectStatus) {
     super(response);
     Assert.notNull(redirectStatus, "'redirectStatus' is required");
     this.redirectStatus = redirectStatus;
@@ -51,7 +51,7 @@ final class RelativeRedirectResponseWrapper extends HttpServletResponseWrapper {
   }
 
   public static HttpServletResponse wrapIfNecessary(HttpServletResponse response,
-          HttpStatus redirectStatus) {
+          HttpStatusCode redirectStatus) {
 
     var wrapper = ServletUtils.getNativeResponse(response, RelativeRedirectResponseWrapper.class);
 

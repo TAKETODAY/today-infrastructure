@@ -29,6 +29,7 @@ import cn.taketoday.http.HttpMethod;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.util.DigestUtils;
 import cn.taketoday.util.StringUtils;
+import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.servlet.ContentCachingResponseWrapper;
 import cn.taketoday.web.servlet.ServletRequestContext;
 import cn.taketoday.web.servlet.ServletUtils;
@@ -109,8 +110,7 @@ public class ShallowEtagHeaderFilter extends OncePerRequestFilter {
   }
 
   private void updateResponse(HttpServletRequest request, HttpServletResponse response) throws IOException {
-    ConditionalContentCachingResponseWrapper wrapper =
-            ServletUtils.getNativeResponse(response, ConditionalContentCachingResponseWrapper.class);
+    var wrapper = ServletUtils.getNativeResponse(response, ConditionalContentCachingResponseWrapper.class);
     Assert.notNull(wrapper, "ContentCachingResponseWrapper not found");
     HttpServletResponse rawResponse = (HttpServletResponse) wrapper.getResponse();
 
@@ -188,7 +188,20 @@ public class ShallowEtagHeaderFilter extends OncePerRequestFilter {
    * without caching.
    */
   public static void disableContentCaching(ServletRequest request) {
-    Assert.notNull(request, "ServletRequest must not be null");
+    Assert.notNull(request, "ServletRequest is required");
+    request.setAttribute(STREAMING_ATTRIBUTE, true);
+  }
+
+  /**
+   * This method can be used to suppress the content caching response wrapper
+   * of the ShallowEtagHeaderFilter. The main reason for this is streaming
+   * scenarios which are not to be cached and do not need an eTag.
+   * <p><strong>Note:</strong> This method must be called before the response
+   * is written to in order for the entire response content to be written
+   * without caching.
+   */
+  public static void disableContentCaching(RequestContext request) {
+    Assert.notNull(request, "RequestContext is required");
     request.setAttribute(STREAMING_ATTRIBUTE, true);
   }
 

@@ -42,13 +42,13 @@ import cn.taketoday.web.ErrorResponse;
 public class AsyncRequestTimeoutException extends RuntimeException implements ErrorResponse {
 
   @Override
-  public int getRawStatusCode() {
-    return HttpStatus.SERVICE_UNAVAILABLE.value();
+  public HttpStatus getStatusCode() {
+    return HttpStatus.SERVICE_UNAVAILABLE;
   }
 
   @Override
   public ProblemDetail getBody() {
-    return ProblemDetail.forRawStatusCode(getRawStatusCode());
+    return ProblemDetail.forStatus(getStatusCode());
   }
 
 }

@@ -28,6 +28,7 @@ import java.util.Optional;
 import java.util.OptionalLong;
 import java.util.function.Supplier;
 
+import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.core.TypeReference;
 import cn.taketoday.core.codec.Hints;
 import cn.taketoday.core.io.buffer.DataBuffer;
@@ -35,6 +36,7 @@ import cn.taketoday.core.io.buffer.DataBufferUtils;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpRequest;
 import cn.taketoday.http.HttpStatus;
+import cn.taketoday.http.HttpStatusCode;
 import cn.taketoday.http.MediaType;
 import cn.taketoday.http.ResponseCookie;
 import cn.taketoday.http.ResponseEntity;
@@ -42,7 +44,6 @@ import cn.taketoday.http.client.reactive.ClientHttpResponse;
 import cn.taketoday.http.codec.HttpMessageReader;
 import cn.taketoday.http.server.reactive.ServerHttpResponse;
 import cn.taketoday.util.MimeType;
-import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.web.reactive.function.BodyExtractor;
 import cn.taketoday.web.reactive.function.BodyExtractors;
 import reactor.core.publisher.Flux;
@@ -106,7 +107,7 @@ class DefaultClientResponse implements ClientResponse {
   }
 
   @Override
-  public HttpStatus statusCode() {
+  public HttpStatusCode statusCode() {
     return this.response.getStatusCode();
   }
 
@@ -128,13 +129,12 @@ class DefaultClientResponse implements ClientResponse {
   @SuppressWarnings("unchecked")
   @Override
   public <T> T body(BodyExtractor<T, ? super ClientHttpResponse> extractor) {
-    T result = extractor.extract(this.response, this.bodyExtractorContext);
-    String description = "Body from " + this.requestDescription + " [DefaultClientResponse]";
-    if (result instanceof Mono) {
-      return (T) ((Mono<?>) result).checkpoint(description);
+    T result = extractor.extract(response, bodyExtractorContext);
+    if (result instanceof Mono<?> mono) {
+      return (T) mono.checkpoint("Body from " + requestDescription + " [DefaultClientResponse]");
     }
-    else if (result instanceof Flux) {
-      return (T) ((Flux<?>) result).checkpoint(description);
+    else if (result instanceof Flux<?> flux) {
+      return (T) flux.checkpoint("Body from " + requestDescription + " [DefaultClientResponse]");
     }
     else {
       return result;

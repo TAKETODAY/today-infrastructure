@@ -25,8 +25,9 @@ import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
 
 import cn.taketoday.http.HttpHeaders;
-import cn.taketoday.lang.Nullable;
+import cn.taketoday.http.HttpStatusCode;
 import cn.taketoday.http.MediaType;
+import cn.taketoday.lang.Nullable;
 
 /**
  * Raised when no suitable
@@ -39,13 +40,13 @@ import cn.taketoday.http.MediaType;
 public class UnknownContentTypeException extends RestClientException {
 
   @Serial
-  private static final long serialVersionUID = 2759516676367274084L;
+  private static final long serialVersionUID = 1L;
 
   private final Type targetType;
 
   private final MediaType contentType;
 
-  private final int rawStatusCode;
+  private final HttpStatusCode statusCode;
 
   private final String statusText;
 
@@ -64,14 +65,30 @@ public class UnknownContentTypeException extends RestClientException {
    * @param responseBody the response body content (may be {@code null})
    */
   public UnknownContentTypeException(Type targetType, MediaType contentType,
-                                     int statusCode, String statusText, HttpHeaders responseHeaders, byte[] responseBody) {
+          int statusCode, String statusText, HttpHeaders responseHeaders, byte[] responseBody) {
+
+    this(targetType, contentType, HttpStatusCode.valueOf(statusCode), statusText, responseHeaders, responseBody);
+  }
+
+  /**
+   * Construct a new instance of with the given response data.
+   *
+   * @param targetType the expected target type
+   * @param contentType the content type of the response
+   * @param statusCode the raw status code value
+   * @param statusText the status text
+   * @param responseHeaders the response headers (may be {@code null})
+   * @param responseBody the response body content (may be {@code null})
+   */
+  public UnknownContentTypeException(Type targetType, MediaType contentType,
+          HttpStatusCode statusCode, String statusText, HttpHeaders responseHeaders, byte[] responseBody) {
 
     super("Could not extract response: no suitable HttpMessageConverter found " +
-                  "for response type [" + targetType + "] and content type [" + contentType + "]");
+            "for response type [" + targetType + "] and content type [" + contentType + "]");
 
     this.targetType = targetType;
     this.contentType = contentType;
-    this.rawStatusCode = statusCode;
+    this.statusCode = statusCode;
     this.statusText = statusText;
     this.responseHeaders = responseHeaders;
     this.responseBody = responseBody;
@@ -92,10 +109,17 @@ public class UnknownContentTypeException extends RestClientException {
   }
 
   /**
+   * Return the HTTP status code value.
+   */
+  public HttpStatusCode getStatusCode() {
+    return this.statusCode;
+  }
+
+  /**
    * Return the raw HTTP status code value.
    */
   public int getRawStatusCode() {
-    return this.rawStatusCode;
+    return this.statusCode.value();
   }
 
   /**
@@ -125,11 +149,7 @@ public class UnknownContentTypeException extends RestClientException {
    * response "Content-Type" or {@code "UTF-8"} otherwise.
    */
   public String getResponseBodyAsString() {
-    return new String(
-            this.responseBody,
-            this.contentType.getCharset() != null
-            ? this.contentType.getCharset()
-            : StandardCharsets.UTF_8);
+    return new String(responseBody, contentType.getCharset() != null ? contentType.getCharset() : StandardCharsets.UTF_8);
   }
 
 }

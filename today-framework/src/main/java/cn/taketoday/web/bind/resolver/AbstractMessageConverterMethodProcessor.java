@@ -70,7 +70,7 @@ import cn.taketoday.web.util.pattern.PathPattern;
 import jakarta.servlet.http.HttpServletRequest;
 
 /**
- * Extends {@link AbstractMessageConverterParameterResolver} with the ability to handle method
+ * Extends {@link AbstractMessageConverterMethodArgumentResolver} with the ability to handle method
  * return values by writing to the response with {@link HttpMessageConverter HttpMessageConverters}.
  * <p>
  * write {@link ActionMappingAnnotationHandler} return value
@@ -85,7 +85,7 @@ import jakarta.servlet.http.HttpServletRequest;
  * @since 4.0 2022/1/23 12:30
  */
 public abstract class AbstractMessageConverterMethodProcessor
-        extends AbstractMessageConverterParameterResolver implements ReturnValueHandler {
+        extends AbstractMessageConverterMethodArgumentResolver implements ReturnValueHandler {
   private static final Logger log = LoggerFactory.getLogger(AbstractMessageConverterMethodProcessor.class);
   private static final boolean isDebugEnabled = log.isDebugEnabled();
 

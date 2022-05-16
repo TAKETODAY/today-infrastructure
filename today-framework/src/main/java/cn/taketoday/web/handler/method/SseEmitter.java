@@ -131,7 +131,7 @@ public class SseEmitter extends ResponseBodyEmitter {
     Set<DataWithMediaType> dataToSend = builder.build();
     synchronized(this) {
       for (DataWithMediaType entry : dataToSend) {
-        super.send(entry.getData(), entry.getMediaType());
+        super.send(entry.data(), entry.mediaType());
       }
     }
   }
@@ -183,8 +183,6 @@ public class SseEmitter extends ResponseBodyEmitter {
     /**
      * Return one or more Object-MediaType pairs to write via
      * {@link #send(Object, MediaType)}.
-     *
-     * @since 4.2.3
      */
     Set<DataWithMediaType> build();
   }

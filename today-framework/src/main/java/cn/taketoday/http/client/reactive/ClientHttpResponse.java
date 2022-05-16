@@ -22,6 +22,7 @@ package cn.taketoday.http.client.reactive;
 
 import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.http.HttpStatus;
+import cn.taketoday.http.HttpStatusCode;
 import cn.taketoday.http.ReactiveHttpInputMessage;
 import cn.taketoday.http.ResponseCookie;
 import cn.taketoday.util.ObjectUtils;
@@ -51,7 +52,7 @@ public interface ClientHttpResponse extends ReactiveHttpInputMessage {
    * @see HttpStatus#valueOf(int)
    * @since #getRawStatusCode()
    */
-  HttpStatus getStatusCode();
+  HttpStatusCode getStatusCode();
 
   /**
    * Return the HTTP status code (potentially non-standard and not

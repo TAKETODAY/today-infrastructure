@@ -21,8 +21,8 @@
 package cn.taketoday.web;
 
 import cn.taketoday.http.HttpHeaders;
-import cn.taketoday.http.HttpStatus;
-import cn.taketoday.http.HttpStatusCapable;
+import cn.taketoday.http.HttpStatusCode;
+import cn.taketoday.http.HttpStatusCodeProvider;
 import cn.taketoday.http.ProblemDetail;
 import cn.taketoday.http.ResponseEntity;
 
@@ -43,23 +43,13 @@ import cn.taketoday.http.ResponseEntity;
  * @see ResponseEntity#of(ProblemDetail)
  * @since 4.0 2022/3/2 13:34
  */
-public interface ErrorResponse extends HttpStatusCapable {
+public interface ErrorResponse extends HttpStatusCodeProvider {
 
   /**
-   * Return the HTTP status to use for the response.
-   *
-   * @throws IllegalArgumentException for an unknown HTTP status code
+   * Return the HTTP status code to use for the response.
    */
   @Override
-  default HttpStatus getStatus() {
-    return HttpStatus.valueOf(getRawStatusCode());
-  }
-
-  /**
-   * Return the HTTP status value for the response, potentially non-standard
-   * and not resolvable via {@link HttpStatus}.
-   */
-  int getRawStatusCode();
+  HttpStatusCode getStatusCode();
 
   /**
    * Return headers to use for the response.

@@ -38,6 +38,7 @@ import cn.taketoday.core.io.buffer.DataBufferFactory;
 import cn.taketoday.core.io.buffer.DataBufferUtils;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpStatus;
+import cn.taketoday.http.HttpStatusCode;
 import cn.taketoday.http.ResponseCookie;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.LinkedCaseInsensitiveMap;
@@ -78,7 +79,7 @@ class JdkClientHttpResponse implements ClientHttpResponse {
   }
 
   @Override
-  public HttpStatus getStatusCode() {
+  public HttpStatusCode getStatusCode() {
     return HttpStatus.valueOf(this.response.statusCode());
   }
 

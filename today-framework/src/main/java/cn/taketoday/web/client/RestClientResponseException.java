@@ -20,11 +20,17 @@
 
 package cn.taketoday.web.client;
 
+import java.io.Serial;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.util.function.Function;
 
+import cn.taketoday.core.ResolvableType;
+import cn.taketoday.core.TypeReference;
 import cn.taketoday.http.HttpHeaders;
+import cn.taketoday.http.HttpStatusCode;
+import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 
 /**
@@ -35,11 +41,12 @@ import cn.taketoday.lang.Nullable;
  */
 public class RestClientResponseException extends RestClientException {
 
-  private static final long serialVersionUID = -8803556342728481792L;
+  @Serial
+  private static final long serialVersionUID = 1L;
 
   private static final Charset DEFAULT_CHARSET = StandardCharsets.UTF_8;
 
-  private final int rawStatusCode;
+  private final HttpStatusCode statusCode;
 
   private final String statusText;
 
@@ -51,31 +58,58 @@ public class RestClientResponseException extends RestClientException {
   @Nullable
   private final String responseCharset;
 
+  @Nullable
+  private Function<ResolvableType, ?> bodyConvertFunction;
+
   /**
    * Construct a new instance of with the given response data.
    *
    * @param statusCode the raw status code value
    * @param statusText the status text
-   * @param responseHeaders the response headers (may be {@code null})
+   * @param headers the response headers (may be {@code null})
    * @param responseBody the response body content (may be {@code null})
    * @param responseCharset the response body charset (may be {@code null})
    */
-  public RestClientResponseException(String message, int statusCode, String statusText,
-                                     @Nullable HttpHeaders responseHeaders, @Nullable byte[] responseBody, @Nullable Charset responseCharset) {
+  public RestClientResponseException(
+          String message, int statusCode, String statusText, @Nullable HttpHeaders headers,
+          @Nullable byte[] responseBody, @Nullable Charset responseCharset) {
+
+    this(message, HttpStatusCode.valueOf(statusCode), statusText, headers, responseBody, responseCharset);
+  }
+
+  /**
+   * Construct a new instance of with the given response data.
+   *
+   * @param statusCode the raw status code value
+   * @param statusText the status text
+   * @param headers the response headers (may be {@code null})
+   * @param responseBody the response body content (may be {@code null})
+   * @param responseCharset the response body charset (may be {@code null})
+   */
+  public RestClientResponseException(
+          String message, HttpStatusCode statusCode, String statusText, @Nullable HttpHeaders headers,
+          @Nullable byte[] responseBody, @Nullable Charset responseCharset) {
 
     super(message);
-    this.rawStatusCode = statusCode;
+    this.statusCode = statusCode;
     this.statusText = statusText;
-    this.responseHeaders = responseHeaders;
+    this.responseHeaders = headers;
     this.responseBody = (responseBody != null ? responseBody : new byte[0]);
     this.responseCharset = (responseCharset != null ? responseCharset.name() : null);
+  }
+
+  /**
+   * Return the HTTP status code.
+   */
+  public HttpStatusCode getStatusCode() {
+    return this.statusCode;
   }
 
   /**
    * Return the raw HTTP status code value.
    */
   public int getRawStatusCode() {
-    return this.rawStatusCode;
+    return this.statusCode.value();
   }
 
   /**
@@ -113,7 +147,6 @@ public class RestClientResponseException extends RestClientException {
    * of the response "Content-Type" or otherwise the one given.
    *
    * @param fallbackCharset the charset to use on if the response doesn't specify.
-   * @since 4.0
    */
   public String getResponseBodyAsString(Charset fallbackCharset) {
     if (this.responseCharset == null) {
@@ -126,6 +159,44 @@ public class RestClientResponseException extends RestClientException {
       // should not occur
       throw new IllegalStateException(ex);
     }
+  }
+
+  /**
+   * Convert the error response content to the specified type.
+   *
+   * @param targetType the type to convert to
+   * @param <E> the expected target type
+   * @return the converted object, or {@code null} if there is no content
+   */
+  @Nullable
+  public <E> E getResponseBodyAs(Class<E> targetType) {
+    return getResponseBodyAs(ResolvableType.fromClass(targetType));
+  }
+
+  /**
+   * Variant of {@link #getResponseBodyAs(Class)} with
+   * {@link TypeReference}.
+   */
+  @Nullable
+  public <E> E getResponseBodyAs(TypeReference<E> targetType) {
+    return getResponseBodyAs(ResolvableType.fromType(targetType.getType()));
+  }
+
+  @SuppressWarnings("unchecked")
+  @Nullable
+  private <E> E getResponseBodyAs(ResolvableType targetType) {
+    Assert.state(this.bodyConvertFunction != null, "Function to convert body not set");
+    return (E) this.bodyConvertFunction.apply(targetType);
+  }
+
+  /**
+   * Provide a function to use to decode the response error content
+   * via {@link #getResponseBodyAs(Class)}.
+   *
+   * @param bodyConvertFunction the function to use
+   */
+  public void setBodyConvertFunction(Function<ResolvableType, ?> bodyConvertFunction) {
+    this.bodyConvertFunction = bodyConvertFunction;
   }
 
 }

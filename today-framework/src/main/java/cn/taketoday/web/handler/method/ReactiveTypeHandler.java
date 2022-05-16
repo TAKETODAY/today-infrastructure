@@ -113,7 +113,7 @@ class ReactiveTypeHandler {
    * Whether the type can be adapted to a Reactive Streams {@link Publisher}.
    */
   public boolean isReactiveType(Class<?> type) {
-    return (this.adapterRegistry.getAdapter(type) != null);
+    return adapterRegistry.getAdapter(type) != null;
   }
 
   /**
@@ -136,12 +136,8 @@ class ReactiveTypeHandler {
     ResolvableType elementType = ResolvableType.forMethodParameter(returnType).getGeneric();
     Class<?> elementClass = elementType.toClass();
 
-    Collection<MediaType> mediaTypes = getMediaTypes(request);
-    Optional<MediaType> mediaType = mediaTypes.stream()
-            .filter(MimeType::isConcrete)
-            .findFirst();
-
     if (adapter.isMultiValue()) {
+      Collection<MediaType> mediaTypes = getMediaTypes(request);
       if (mediaTypes.stream().anyMatch(MediaType.TEXT_EVENT_STREAM::includes)
               || ServerSentEvent.class.isAssignableFrom(elementClass)) {
         logExecutorWarning(returnType);
@@ -151,6 +147,9 @@ class ReactiveTypeHandler {
       }
       if (CharSequence.class.isAssignableFrom(elementClass)) {
         logExecutorWarning(returnType);
+        Optional<MediaType> mediaType = mediaTypes.stream()
+                .filter(MimeType::isConcrete)
+                .findFirst();
         ResponseBodyEmitter emitter = getEmitter(mediaType.orElse(MediaType.TEXT_PLAIN));
         new TextEmitterSubscriber(emitter, taskExecutor).connect(adapter, returnValue);
         return emitter;
@@ -180,13 +179,12 @@ class ReactiveTypeHandler {
 
   private Collection<MediaType> getMediaTypes(RequestContext request)
           throws HttpMediaTypeNotAcceptableException {
-
     HandlerMatchingMetadata matchingMetadata = request.getMatchingMetadata();
-
     if (matchingMetadata != null) {
       MediaType[] producibleMediaTypes = matchingMetadata.getProducibleMediaTypes();
-      return ObjectUtils.isEmpty(producibleMediaTypes) ?
-             contentNegotiationManager.resolveMediaTypes(request) : Arrays.asList(producibleMediaTypes);
+      if (ObjectUtils.isNotEmpty(producibleMediaTypes)) {
+        return Arrays.asList(producibleMediaTypes);
+      }
     }
     return contentNegotiationManager.resolveMediaTypes(request);
   }

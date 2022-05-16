@@ -20,8 +20,6 @@
 
 package cn.taketoday.web.reactive.function.client;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -34,6 +32,7 @@ import cn.taketoday.http.codec.HttpMessageWriter;
  *
  * @author Arjen Poutsma
  * @author Brian Clozel
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 final class DefaultExchangeStrategiesBuilder implements ExchangeStrategies.Builder {
@@ -82,12 +81,8 @@ final class DefaultExchangeStrategiesBuilder implements ExchangeStrategies.Build
 
     public DefaultExchangeStrategies(ClientCodecConfigurer codecConfigurer) {
       this.codecConfigurer = codecConfigurer;
-      this.readers = unmodifiableCopy(this.codecConfigurer.getReaders());
-      this.writers = unmodifiableCopy(this.codecConfigurer.getWriters());
-    }
-
-    private static <T> List<T> unmodifiableCopy(List<? extends T> list) {
-      return Collections.unmodifiableList(new ArrayList<>(list));
+      this.readers = List.copyOf(codecConfigurer.getReaders());
+      this.writers = List.copyOf(codecConfigurer.getWriters());
     }
 
     @Override

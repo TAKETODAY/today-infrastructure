@@ -33,6 +33,7 @@ import java.util.regex.Pattern;
 
 import cn.taketoday.beans.BeanUtils;
 import cn.taketoday.http.HttpStatus;
+import cn.taketoday.http.HttpStatusCode;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Nullable;
@@ -93,7 +94,7 @@ public class RedirectView extends AbstractUrlBasedView implements SmartView {
   private String encodingScheme;
 
   @Nullable
-  private HttpStatus statusCode;
+  private HttpStatusCode statusCode;
 
   private boolean expandUriTemplateVariables = true;
 
@@ -218,7 +219,7 @@ public class RedirectView extends AbstractUrlBasedView implements SmartView {
    * <p>Default is to send 302/303, depending on the value of the
    * {@link #setHttp10Compatible(boolean) http10Compatible} flag.
    */
-  public void setStatusCode(HttpStatus statusCode) {
+  public void setStatusCode(HttpStatusCode statusCode) {
     this.statusCode = statusCode;
   }
 
@@ -564,7 +565,7 @@ public class RedirectView extends AbstractUrlBasedView implements SmartView {
    */
   protected void sendRedirect(
           RequestContext context, String targetUrl) throws IOException {
-    HttpStatus httpStatus = getHttpStatus(context, targetUrl);
+    HttpStatusCode httpStatus = getHttpStatus(context, targetUrl);
     if (httpStatus != null) {
       context.setStatus(httpStatus);
       context.responseHeaders().setLocation(targetUrl);
@@ -576,7 +577,7 @@ public class RedirectView extends AbstractUrlBasedView implements SmartView {
 
   /**
    * Determines the status code to use for HTTP compatible requests.
-   * <p>The default implementation returns the {@link #setStatusCode(HttpStatus) statusCode}
+   * <p>The default implementation returns the {@link #setStatusCode(HttpStatusCode) statusCode}
    * property if set, or the value of the {@link #RESPONSE_STATUS_ATTRIBUTE} attribute.
    * If neither are set, it defaults to {@link HttpStatus#SEE_OTHER} (303) or {@code null}
    * when {@link #http10Compatible} is true.
@@ -586,12 +587,12 @@ public class RedirectView extends AbstractUrlBasedView implements SmartView {
    * @return the response status
    */
   @Nullable
-  protected HttpStatus getHttpStatus(RequestContext context, String targetUrl) {
+  protected HttpStatusCode getHttpStatus(RequestContext context, String targetUrl) {
     if (statusCode != null) {
       return statusCode;
     }
     Object attribute = context.getAttribute(View.RESPONSE_STATUS_ATTRIBUTE);
-    if (attribute instanceof HttpStatus attributeStatusCode) {
+    if (attribute instanceof HttpStatusCode attributeStatusCode) {
       return attributeStatusCode;
     }
     if (http10Compatible) {

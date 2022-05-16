@@ -25,6 +25,7 @@ import java.nio.charset.Charset;
 
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpStatus;
+import cn.taketoday.http.HttpStatusCode;
 import cn.taketoday.lang.Nullable;
 
 /**
@@ -41,14 +42,14 @@ public class HttpClientErrorException extends HttpStatusCodeException {
   /**
    * Constructor with a status code only.
    */
-  public HttpClientErrorException(HttpStatus statusCode) {
+  public HttpClientErrorException(HttpStatusCode statusCode) {
     super(statusCode);
   }
 
   /**
    * Constructor with a status code and status text.
    */
-  public HttpClientErrorException(HttpStatus statusCode, String statusText) {
+  public HttpClientErrorException(HttpStatusCode statusCode, String statusText) {
     super(statusCode, statusText);
   }
 
@@ -56,7 +57,7 @@ public class HttpClientErrorException extends HttpStatusCodeException {
    * Constructor with a status code and status text, and content.
    */
   public HttpClientErrorException(
-          HttpStatus statusCode, String statusText, @Nullable byte[] body, @Nullable Charset responseCharset) {
+          HttpStatusCode statusCode, String statusText, @Nullable byte[] body, @Nullable Charset responseCharset) {
 
     super(statusCode, statusText, body, responseCharset);
   }
@@ -65,7 +66,7 @@ public class HttpClientErrorException extends HttpStatusCodeException {
    * Constructor with a status code and status text, headers, and content.
    */
   public HttpClientErrorException(
-          HttpStatus statusCode, String statusText,
+          HttpStatusCode statusCode, String statusText,
           @Nullable HttpHeaders headers, @Nullable byte[] body, @Nullable Charset responseCharset) {
 
     super(statusCode, statusText, headers, body, responseCharset);
@@ -76,7 +77,7 @@ public class HttpClientErrorException extends HttpStatusCodeException {
    * and an prepared message.
    */
   public HttpClientErrorException(
-          String message, HttpStatus statusCode, String statusText,
+          String message, HttpStatusCode statusCode, String statusText,
           @Nullable HttpHeaders headers, @Nullable byte[] body, @Nullable Charset responseCharset) {
 
     super(message, statusCode, statusText, headers, body, responseCharset);
@@ -88,68 +89,63 @@ public class HttpClientErrorException extends HttpStatusCodeException {
    * @since 4.0
    */
   public static HttpClientErrorException create(
-          HttpStatus statusCode, String statusText, HttpHeaders headers, byte[] body, @Nullable Charset charset) {
+          HttpStatusCode statusCode, String statusText, HttpHeaders headers, byte[] body, @Nullable Charset charset) {
 
     return create(null, statusCode, statusText, headers, body, charset);
   }
 
   /**
-   * Variant of {@link #create(HttpStatus, String, HttpHeaders, byte[], Charset)}
+   * Variant of {@link #create(HttpStatusCode, String, HttpHeaders, byte[], Charset)}
    * with an optional prepared message.
    */
   public static HttpClientErrorException create(
-          @Nullable String message, HttpStatus statusCode,
+          @Nullable String message, HttpStatusCode statusCode,
           String statusText, HttpHeaders headers, byte[] body, @Nullable Charset charset) {
-
-    switch (statusCode) {
-      case BAD_REQUEST:
-        return message != null ?
-               new BadRequest(message, statusText, headers, body, charset) :
-               new BadRequest(statusText, headers, body, charset);
-      case UNAUTHORIZED:
-        return message != null ?
-               new Unauthorized(message, statusText, headers, body, charset) :
-               new Unauthorized(statusText, headers, body, charset);
-      case FORBIDDEN:
-        return message != null ?
-               new Forbidden(message, statusText, headers, body, charset) :
-               new Forbidden(statusText, headers, body, charset);
-      case NOT_FOUND:
-        return message != null ?
-               new NotFound(message, statusText, headers, body, charset) :
-               new NotFound(statusText, headers, body, charset);
-      case METHOD_NOT_ALLOWED:
-        return message != null ?
-               new MethodNotAllowed(message, statusText, headers, body, charset) :
-               new MethodNotAllowed(statusText, headers, body, charset);
-      case NOT_ACCEPTABLE:
-        return message != null ?
-               new NotAcceptable(message, statusText, headers, body, charset) :
-               new NotAcceptable(statusText, headers, body, charset);
-      case CONFLICT:
-        return message != null ?
-               new Conflict(message, statusText, headers, body, charset) :
-               new Conflict(statusText, headers, body, charset);
-      case GONE:
-        return message != null ?
-               new Gone(message, statusText, headers, body, charset) :
-               new Gone(statusText, headers, body, charset);
-      case UNSUPPORTED_MEDIA_TYPE:
-        return message != null ?
-               new UnsupportedMediaType(message, statusText, headers, body, charset) :
-               new UnsupportedMediaType(statusText, headers, body, charset);
-      case TOO_MANY_REQUESTS:
-        return message != null ?
-               new TooManyRequests(message, statusText, headers, body, charset) :
-               new TooManyRequests(statusText, headers, body, charset);
-      case UNPROCESSABLE_ENTITY:
-        return message != null ?
-               new UnprocessableEntity(message, statusText, headers, body, charset) :
-               new UnprocessableEntity(statusText, headers, body, charset);
-      default:
-        return message != null ?
-               new HttpClientErrorException(message, statusCode, statusText, headers, body, charset) :
-               new HttpClientErrorException(statusCode, statusText, headers, body, charset);
+    if (statusCode instanceof HttpStatus status) {
+      return switch (status) {
+        case BAD_REQUEST -> message != null ?
+                            new BadRequest(message, statusText, headers, body, charset) :
+                            new BadRequest(statusText, headers, body, charset);
+        case UNAUTHORIZED -> message != null ?
+                             new Unauthorized(message, statusText, headers, body, charset) :
+                             new Unauthorized(statusText, headers, body, charset);
+        case FORBIDDEN -> message != null ?
+                          new Forbidden(message, statusText, headers, body, charset) :
+                          new Forbidden(statusText, headers, body, charset);
+        case NOT_FOUND -> message != null ?
+                          new NotFound(message, statusText, headers, body, charset) :
+                          new NotFound(statusText, headers, body, charset);
+        case METHOD_NOT_ALLOWED -> message != null ?
+                                   new MethodNotAllowed(message, statusText, headers, body, charset) :
+                                   new MethodNotAllowed(statusText, headers, body, charset);
+        case NOT_ACCEPTABLE -> message != null ?
+                               new NotAcceptable(message, statusText, headers, body, charset) :
+                               new NotAcceptable(statusText, headers, body, charset);
+        case CONFLICT -> message != null ?
+                         new Conflict(message, statusText, headers, body, charset) :
+                         new Conflict(statusText, headers, body, charset);
+        case GONE -> message != null ?
+                     new Gone(message, statusText, headers, body, charset) :
+                     new Gone(statusText, headers, body, charset);
+        case UNSUPPORTED_MEDIA_TYPE -> message != null ?
+                                       new UnsupportedMediaType(message, statusText, headers, body, charset) :
+                                       new UnsupportedMediaType(statusText, headers, body, charset);
+        case TOO_MANY_REQUESTS -> message != null ?
+                                  new TooManyRequests(message, statusText, headers, body, charset) :
+                                  new TooManyRequests(statusText, headers, body, charset);
+        case UNPROCESSABLE_ENTITY -> message != null ?
+                                     new UnprocessableEntity(message, statusText, headers, body, charset) :
+                                     new UnprocessableEntity(statusText, headers, body, charset);
+        default -> message != null ?
+                   new HttpClientErrorException(message, statusCode, statusText, headers, body, charset) :
+                   new HttpClientErrorException(statusCode, statusText, headers, body, charset);
+      };
+    }
+    if (message != null) {
+      return new HttpClientErrorException(message, statusCode, statusText, headers, body, charset);
+    }
+    else {
+      return new HttpClientErrorException(statusCode, statusText, headers, body, charset);
     }
   }
 
@@ -218,7 +214,7 @@ public class HttpClientErrorException extends HttpStatusCodeException {
     }
 
     private NotFound(String message, String statusText,
-                     HttpHeaders headers, byte[] body, @Nullable Charset charset) {
+            HttpHeaders headers, byte[] body, @Nullable Charset charset) {
 
       super(message, HttpStatus.NOT_FOUND, statusText, headers, body, charset);
     }
@@ -235,7 +231,7 @@ public class HttpClientErrorException extends HttpStatusCodeException {
     }
 
     private MethodNotAllowed(String message, String statusText,
-                             HttpHeaders headers, byte[] body, @Nullable Charset charset) {
+            HttpHeaders headers, byte[] body, @Nullable Charset charset) {
 
       super(message, HttpStatus.METHOD_NOT_ALLOWED, statusText, headers, body, charset);
     }
@@ -252,7 +248,7 @@ public class HttpClientErrorException extends HttpStatusCodeException {
     }
 
     private NotAcceptable(String message, String statusText,
-                          HttpHeaders headers, byte[] body, @Nullable Charset charset) {
+            HttpHeaders headers, byte[] body, @Nullable Charset charset) {
 
       super(message, HttpStatus.NOT_ACCEPTABLE, statusText, headers, body, charset);
     }
@@ -299,7 +295,7 @@ public class HttpClientErrorException extends HttpStatusCodeException {
     }
 
     private UnsupportedMediaType(String message, String statusText,
-                                 HttpHeaders headers, byte[] body, @Nullable Charset charset) {
+            HttpHeaders headers, byte[] body, @Nullable Charset charset) {
 
       super(message, HttpStatus.UNSUPPORTED_MEDIA_TYPE, statusText, headers, body, charset);
     }
@@ -316,7 +312,7 @@ public class HttpClientErrorException extends HttpStatusCodeException {
     }
 
     private UnprocessableEntity(String message, String statusText,
-                                HttpHeaders headers, byte[] body, @Nullable Charset charset) {
+            HttpHeaders headers, byte[] body, @Nullable Charset charset) {
 
       super(message, HttpStatus.UNPROCESSABLE_ENTITY, statusText, headers, body, charset);
     }
@@ -333,7 +329,7 @@ public class HttpClientErrorException extends HttpStatusCodeException {
     }
 
     private TooManyRequests(String message, String statusText,
-                            HttpHeaders headers, byte[] body, @Nullable Charset charset) {
+            HttpHeaders headers, byte[] body, @Nullable Charset charset) {
 
       super(message, HttpStatus.TOO_MANY_REQUESTS, statusText, headers, body, charset);
     }

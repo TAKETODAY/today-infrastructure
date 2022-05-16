@@ -32,7 +32,7 @@ import cn.taketoday.core.DefaultMultiValueMap;
 import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.core.io.buffer.DataBuffer;
 import cn.taketoday.http.HttpHeaders;
-import cn.taketoday.http.HttpStatus;
+import cn.taketoday.http.HttpStatusCode;
 import cn.taketoday.http.ResponseCookie;
 import cn.taketoday.lang.Nullable;
 import reactor.core.publisher.Flux;
@@ -61,8 +61,8 @@ class JettyClientHttpResponse implements ClientHttpResponse {
   }
 
   @Override
-  public HttpStatus getStatusCode() {
-    return HttpStatus.valueOf(getRawStatusCode());
+  public HttpStatusCode getStatusCode() {
+    return HttpStatusCode.valueOf(getRawStatusCode());
   }
 
   @Override

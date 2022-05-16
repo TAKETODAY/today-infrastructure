@@ -67,8 +67,9 @@ import cn.taketoday.web.handler.method.RequestBodyAdvice;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/1/22 19:40
  */
-public abstract class AbstractMessageConverterParameterResolver implements ParameterResolvingStrategy {
-  private static final Logger log = LoggerFactory.getLogger(AbstractMessageConverterParameterResolver.class);
+public abstract class AbstractMessageConverterMethodArgumentResolver implements ParameterResolvingStrategy {
+  private static final Logger log = LoggerFactory.getLogger(AbstractMessageConverterMethodArgumentResolver.class);
+  private static final boolean isDebugEnabled = log.isDebugEnabled();
 
   private static final EnumSet<HttpMethod> SUPPORTED_METHODS = EnumSet.of(
           HttpMethod.POST, HttpMethod.PUT, HttpMethod.PATCH
@@ -83,14 +84,14 @@ public abstract class AbstractMessageConverterParameterResolver implements Param
   /**
    * Basic constructor with converters only.
    */
-  public AbstractMessageConverterParameterResolver(List<HttpMessageConverter<?>> converters) {
+  public AbstractMessageConverterMethodArgumentResolver(List<HttpMessageConverter<?>> converters) {
     this(converters, null);
   }
 
   /**
    * Constructor with converters and {@code Request~} and {@code ResponseBodyAdvice}.
    */
-  public AbstractMessageConverterParameterResolver(
+  public AbstractMessageConverterMethodArgumentResolver(
           List<HttpMessageConverter<?>> converters, @Nullable List<Object> requestResponseBodyAdvice) {
 
     Assert.notEmpty(converters, "'messageConverters' must not be empty");
@@ -220,13 +221,14 @@ public abstract class AbstractMessageConverterParameterResolver implements Param
               getSupportedMediaTypes(targetClass != null ? targetClass : Object.class));
     }
 
-    MediaType selectedContentType = contentType;
-    Object theBody = body;
-
-    LogFormatUtils.traceDebug(log, traceOn -> {
-      String formatted = LogFormatUtils.formatValue(theBody, !traceOn);
-      return "Read \"" + selectedContentType + "\" to [" + formatted + "]";
-    });
+    if (isDebugEnabled) {
+      Object theBody = body;
+      MediaType selectedContentType = contentType;
+      LogFormatUtils.traceDebug(log, traceOn -> {
+        String formatted = LogFormatUtils.formatValue(theBody, !traceOn);
+        return "Read \"" + selectedContentType + "\" to [" + formatted + "]";
+      });
+    }
 
     return body;
   }

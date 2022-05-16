@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -35,7 +35,8 @@ import cn.taketoday.core.TypeReference;
 import cn.taketoday.http.HttpEntity;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpMethod;
-import cn.taketoday.http.HttpStatus;
+import cn.taketoday.http.HttpStatusCode;
+import cn.taketoday.http.MediaType;
 import cn.taketoday.http.RequestEntity;
 import cn.taketoday.http.ResponseEntity;
 import cn.taketoday.http.client.ClientHttpRequest;
@@ -58,7 +59,6 @@ import cn.taketoday.http.converter.smile.MappingJackson2SmileHttpMessageConverte
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
-import cn.taketoday.http.MediaType;
 import cn.taketoday.util.MimeTypeUtils;
 import cn.taketoday.web.util.AbstractUriTemplateHandler;
 import cn.taketoday.web.util.DefaultUriBuilderFactory;
@@ -135,6 +135,7 @@ public class RestTemplate extends InterceptingHttpAccessor implements RestOperat
       this.messageConverters.add(new MappingJackson2CborHttpMessageConverter());
     }
 
+    updateErrorHandlerConverters();
     this.uriTemplateHandler = initUriTemplateHandler();
   }
 
@@ -160,6 +161,13 @@ public class RestTemplate extends InterceptingHttpAccessor implements RestOperat
     validateConverters(messageConverters);
     this.messageConverters.addAll(messageConverters);
     this.uriTemplateHandler = initUriTemplateHandler();
+    updateErrorHandlerConverters();
+  }
+
+  private void updateErrorHandlerConverters() {
+    if (this.errorHandler instanceof DefaultResponseErrorHandler handler) {
+      handler.setMessageConverters(this.messageConverters);
+    }
   }
 
   private static DefaultUriBuilderFactory initUriTemplateHandler() {
@@ -179,6 +187,7 @@ public class RestTemplate extends InterceptingHttpAccessor implements RestOperat
       this.messageConverters.clear();
       this.messageConverters.addAll(messageConverters);
     }
+    updateErrorHandlerConverters();
   }
 
   private void validateConverters(List<HttpMessageConverter<?>> messageConverters) {
@@ -201,6 +210,7 @@ public class RestTemplate extends InterceptingHttpAccessor implements RestOperat
   public void setErrorHandler(ResponseErrorHandler errorHandler) {
     Assert.notNull(errorHandler, "ResponseErrorHandler must not be null");
     this.errorHandler = errorHandler;
+    updateErrorHandlerConverters();
   }
 
   /**
@@ -737,11 +747,10 @@ public class RestTemplate extends InterceptingHttpAccessor implements RestOperat
   protected void handleResponse(URI url, HttpMethod method, ClientHttpResponse response) throws IOException {
     ResponseErrorHandler errorHandler = getErrorHandler();
     boolean hasError = errorHandler.hasError(response);
-    if (logger.isDebugEnabled()) {
+    if (isDebugEnabled) {
       try {
-        int code = response.getRawStatusCode();
-        HttpStatus status = HttpStatus.resolve(code);
-        logger.debug("Response {}", status != null ? status : code);
+        HttpStatusCode status = response.getStatusCode();
+        logger.debug("{} Response {}", url, status);
       }
       catch (IOException ex) {
         // ignore
@@ -829,7 +838,7 @@ public class RestTemplate extends InterceptingHttpAccessor implements RestOperat
 
         List<MediaType> supportedMediaTypes = new ArrayList<>(allSupportedMediaTypes);
         MimeTypeUtils.sortBySpecificity(supportedMediaTypes);
-        if (logger.isDebugEnabled()) {
+        if (isDebugEnabled) {
           logger.debug("Accept={}", allSupportedMediaTypes);
         }
         request.getHeaders().setAccept(supportedMediaTypes);
@@ -912,7 +921,7 @@ public class RestTemplate extends InterceptingHttpAccessor implements RestOperat
           if (messageConverter instanceof GenericHttpMessageConverter genericConverter) {
             if (genericConverter.canWrite(requestBodyType, requestBodyClass, requestContentType)) {
               copyHttpHeaders(httpHeaders, requestHeaders);
-              if (logger.isDebugEnabled()) {
+              if (isDebugEnabled) {
                 logBody(requestBody, requestContentType, genericConverter);
               }
               genericConverter.write(requestBody, requestBodyType, requestContentType, httpRequest);
@@ -921,7 +930,7 @@ public class RestTemplate extends InterceptingHttpAccessor implements RestOperat
           }
           else if (messageConverter.canWrite(requestBodyClass, requestContentType)) {
             copyHttpHeaders(httpHeaders, requestHeaders);
-            if (logger.isDebugEnabled()) {
+            if (isDebugEnabled) {
               logBody(requestBody, requestContentType, messageConverter);
             }
             messageConverter.write(requestBody, requestContentType, httpRequest);
@@ -975,12 +984,12 @@ public class RestTemplate extends InterceptingHttpAccessor implements RestOperat
     public ResponseEntity<T> extractData(ClientHttpResponse response) throws IOException {
       if (this.delegate != null) {
         T body = this.delegate.extractData(response);
-        return ResponseEntity.status(response.getRawStatusCode())
+        return ResponseEntity.status(response.getStatusCode())
                 .headers(response.getHeaders())
                 .body(body);
       }
       else {
-        return ResponseEntity.status(response.getRawStatusCode())
+        return ResponseEntity.status(response.getStatusCode())
                 .headers(response.getHeaders())
                 .build();
       }

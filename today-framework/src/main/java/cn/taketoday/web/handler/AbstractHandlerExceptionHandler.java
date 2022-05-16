@@ -47,8 +47,6 @@ import cn.taketoday.web.RequestContext;
  */
 public abstract class AbstractHandlerExceptionHandler extends OrderedSupport implements HandlerExceptionHandler {
 
-  private static final String HEADER_CACHE_CONTROL = HttpHeaders.CACHE_CONTROL;
-
   /** Logger available to subclasses. */
   protected final Logger logger = LoggerFactory.getLogger(getClass());
 
@@ -252,7 +250,7 @@ public abstract class AbstractHandlerExceptionHandler extends OrderedSupport imp
    * @param response current HTTP response
    */
   protected void preventCaching(RequestContext response) {
-    response.responseHeaders().add(HEADER_CACHE_CONTROL, "no-store");
+    response.responseHeaders().add(HttpHeaders.CACHE_CONTROL, "no-store");
   }
 
   /**

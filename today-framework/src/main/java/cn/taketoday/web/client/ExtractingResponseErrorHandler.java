@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Map;
 
 import cn.taketoday.http.HttpStatus;
+import cn.taketoday.http.HttpStatusCode;
 import cn.taketoday.http.client.ClientHttpResponse;
 import cn.taketoday.http.converter.HttpMessageConverter;
 import cn.taketoday.lang.Nullable;
@@ -56,6 +57,7 @@ import cn.taketoday.util.CollectionUtils;
  *
  * @author Simon Galperin
  * @author Arjen Poutsma
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see RestTemplate#setErrorHandler(ResponseErrorHandler)
  * @since 4.0
  */
@@ -63,7 +65,7 @@ public class ExtractingResponseErrorHandler extends DefaultResponseErrorHandler 
 
   private List<HttpMessageConverter<?>> messageConverters = Collections.emptyList();
 
-  private final Map<HttpStatus, Class<? extends RestClientException>> statusMapping = new LinkedHashMap<>();
+  private final Map<HttpStatusCode, Class<? extends RestClientException>> statusMapping = new LinkedHashMap<>();
 
   private final Map<HttpStatus.Series, Class<? extends RestClientException>> seriesMapping = new LinkedHashMap<>();
 
@@ -99,7 +101,7 @@ public class ExtractingResponseErrorHandler extends DefaultResponseErrorHandler 
    * {@linkplain #setMessageConverters(List) configured message converters} to convert the
    * response into the mapped subclass of {@link RestClientException}.
    */
-  public void setStatusMapping(Map<HttpStatus, Class<? extends RestClientException>> statusMapping) {
+  public void setStatusMapping(Map<HttpStatusCode, Class<? extends RestClientException>> statusMapping) {
     if (CollectionUtils.isNotEmpty(statusMapping)) {
       this.statusMapping.putAll(statusMapping);
     }
@@ -121,12 +123,13 @@ public class ExtractingResponseErrorHandler extends DefaultResponseErrorHandler 
   }
 
   @Override
-  protected boolean hasError(HttpStatus statusCode) {
+  protected boolean hasError(HttpStatusCode statusCode) {
     if (this.statusMapping.containsKey(statusCode)) {
       return this.statusMapping.get(statusCode) != null;
     }
-    else if (this.seriesMapping.containsKey(statusCode.series())) {
-      return this.seriesMapping.get(statusCode.series()) != null;
+    HttpStatus.Series series = HttpStatus.Series.resolve(statusCode.value());
+    if (this.seriesMapping.containsKey(series)) {
+      return this.seriesMapping.get(series) != null;
     }
     else {
       return super.hasError(statusCode);
@@ -134,28 +137,26 @@ public class ExtractingResponseErrorHandler extends DefaultResponseErrorHandler 
   }
 
   @Override
-  public void handleError(ClientHttpResponse response, HttpStatus statusCode) throws IOException {
+  public void handleError(ClientHttpResponse response, HttpStatusCode statusCode) throws IOException {
     if (this.statusMapping.containsKey(statusCode)) {
       extract(this.statusMapping.get(statusCode), response);
     }
-    else if (this.seriesMapping.containsKey(statusCode.series())) {
-      extract(this.seriesMapping.get(statusCode.series()), response);
+    HttpStatus.Series series = HttpStatus.Series.resolve(statusCode.value());
+    if (this.seriesMapping.containsKey(series)) {
+      extract(this.seriesMapping.get(series), response);
     }
     else {
       super.handleError(response, statusCode);
     }
   }
 
-  private void extract(
-          @Nullable Class<? extends RestClientException> exceptionClass, ClientHttpResponse response)
-          throws IOException {
-
+  private void extract(@Nullable Class<? extends RestClientException> exceptionClass,
+          ClientHttpResponse response) throws IOException {
     if (exceptionClass == null) {
       return;
     }
 
-    HttpMessageConverterExtractor<? extends RestClientException> extractor =
-            new HttpMessageConverterExtractor<>(exceptionClass, this.messageConverters);
+    var extractor = new HttpMessageConverterExtractor<>(exceptionClass, this.messageConverters);
     RestClientException exception = extractor.extractData(response);
     if (exception != null) {
       throw exception;

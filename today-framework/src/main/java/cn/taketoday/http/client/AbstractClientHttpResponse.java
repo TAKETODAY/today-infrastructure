@@ -22,7 +22,7 @@ package cn.taketoday.http.client;
 
 import java.io.IOException;
 
-import cn.taketoday.http.HttpStatus;
+import cn.taketoday.http.HttpStatusCode;
 
 /**
  * Abstract base for {@link ClientHttpResponse}.
@@ -33,8 +33,8 @@ import cn.taketoday.http.HttpStatus;
 public abstract class AbstractClientHttpResponse implements ClientHttpResponse {
 
   @Override
-  public HttpStatus getStatusCode() throws IOException {
-    return HttpStatus.valueOf(getRawStatusCode());
+  public HttpStatusCode getStatusCode() throws IOException {
+    return HttpStatusCode.valueOf(getRawStatusCode());
   }
 
 }

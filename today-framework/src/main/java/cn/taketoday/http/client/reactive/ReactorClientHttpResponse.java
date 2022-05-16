@@ -30,7 +30,7 @@ import cn.taketoday.core.io.buffer.DataBuffer;
 import cn.taketoday.core.io.buffer.NettyDataBufferFactory;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpMethod;
-import cn.taketoday.http.HttpStatus;
+import cn.taketoday.http.HttpStatusCode;
 import cn.taketoday.http.ResponseCookie;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
@@ -127,8 +127,8 @@ class ReactorClientHttpResponse implements ClientHttpResponse {
   }
 
   @Override
-  public HttpStatus getStatusCode() {
-    return HttpStatus.valueOf(getRawStatusCode());
+  public HttpStatusCode getStatusCode() {
+    return HttpStatusCode.valueOf(getRawStatusCode());
   }
 
   @Override

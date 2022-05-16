@@ -87,7 +87,7 @@ public class MissingPathVariableException extends MissingRequestValueException {
   }
 
   @Override
-  public int getRawStatusCode() {
-    return HttpStatus.INTERNAL_SERVER_ERROR.value();
+  public HttpStatus getStatusCode() {
+    return HttpStatus.INTERNAL_SERVER_ERROR;
   }
 }

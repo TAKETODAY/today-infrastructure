@@ -60,8 +60,8 @@ public class HttpMediaTypeNotAcceptableException extends HttpMediaTypeException 
   }
 
   @Override
-  public int getRawStatusCode() {
-    return HttpStatus.NOT_ACCEPTABLE.value();
+  public HttpStatus getStatusCode() {
+    return HttpStatus.NOT_ACCEPTABLE;
   }
 
   @Override

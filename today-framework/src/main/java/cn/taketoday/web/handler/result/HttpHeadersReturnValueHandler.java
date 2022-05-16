@@ -49,7 +49,7 @@ public class HttpHeadersReturnValueHandler implements HandlerMethodReturnValueHa
     HttpHeaders headers = (HttpHeaders) returnValue;
 
     if (!headers.isEmpty()) {
-      context.responseHeaders().putAll(headers);
+      context.mergeToResponse(headers);
     }
   }
 

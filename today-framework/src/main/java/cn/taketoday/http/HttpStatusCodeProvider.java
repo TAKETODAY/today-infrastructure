@@ -24,7 +24,7 @@ package cn.taketoday.http;
  * @author TODAY 2021/5/6 19:17
  * @since 3.0.1
  */
-public interface HttpStatusCapable {
+public interface HttpStatusCodeProvider {
 
-  HttpStatus getStatus();
+  HttpStatusCode getStatusCode();
 }

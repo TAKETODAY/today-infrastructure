@@ -25,7 +25,6 @@ import java.io.InputStream;
 import java.util.List;
 
 import cn.taketoday.core.MethodParameter;
-import cn.taketoday.http.HttpInputMessage;
 import cn.taketoday.http.converter.HttpMessageConverter;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.validation.BindingResult;
@@ -70,7 +69,7 @@ import cn.taketoday.web.multipart.MultipartFile;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/4/28 15:32
  */
-public class RequestPartMethodArgumentResolver extends AbstractMessageConverterParameterResolver {
+public class RequestPartMethodArgumentResolver extends AbstractMessageConverterMethodArgumentResolver {
 
   /**
    * Basic constructor with converters only.

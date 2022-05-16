@@ -21,7 +21,7 @@
 package cn.taketoday.web.config;
 
 import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.http.HttpStatus;
+import cn.taketoday.http.HttpStatusCode;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.handler.mvc.ParameterizableViewController;
@@ -56,7 +56,7 @@ public class RedirectViewControllerRegistration {
    * <p>If not set, {@link cn.taketoday.web.view.RedirectView}
    * will select {@code HttpStatus.MOVED_TEMPORARILY (302)} by default.
    */
-  public RedirectViewControllerRegistration setStatusCode(HttpStatus statusCode) {
+  public RedirectViewControllerRegistration setStatusCode(HttpStatusCode statusCode) {
     Assert.isTrue(statusCode.is3xxRedirection(), "Not a redirect status code");
     this.redirectView.setStatusCode(statusCode);
     return this;

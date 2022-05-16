@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -25,6 +25,7 @@ import java.io.InputStream;
 import java.io.PushbackInputStream;
 
 import cn.taketoday.http.HttpStatus;
+import cn.taketoday.http.HttpStatusCode;
 import cn.taketoday.http.client.ClientHttpResponse;
 import cn.taketoday.http.client.ClientHttpResponseDecorator;
 import cn.taketoday.lang.Nullable;
@@ -35,15 +36,16 @@ import cn.taketoday.lang.Nullable;
  * by actually reading the input stream.
  *
  * @author Brian Clozel
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see <a href="https://tools.ietf.org/html/rfc7230#section-3.3.3">RFC 7230 Section 3.3.3</a>
  * @since 4.0
  */
-class MessageBodyClientHttpResponseWrapper extends ClientHttpResponseDecorator implements ClientHttpResponse {
+class IntrospectingClientHttpResponse extends ClientHttpResponseDecorator implements ClientHttpResponse {
 
   @Nullable
   private PushbackInputStream pushbackInputStream;
 
-  public MessageBodyClientHttpResponseWrapper(ClientHttpResponse response) {
+  public IntrospectingClientHttpResponse(ClientHttpResponse response) {
     super(response);
   }
 
@@ -59,11 +61,10 @@ class MessageBodyClientHttpResponseWrapper extends ClientHttpResponseDecorator i
    * @throws IOException in case of I/O errors
    */
   public boolean hasMessageBody() throws IOException {
-    HttpStatus status = HttpStatus.resolve(getRawStatusCode());
-    if (status != null && (status.is1xxInformational()
-            || status == HttpStatus.NO_CONTENT
-            || status == HttpStatus.NOT_MODIFIED)
-    ) {
+    HttpStatusCode statusCode = getStatusCode();
+    if (statusCode.is1xxInformational()
+            || statusCode == HttpStatus.NO_CONTENT
+            || statusCode == HttpStatus.NOT_MODIFIED) {
       return false;
     }
     return getHeaders().getContentLength() != 0;

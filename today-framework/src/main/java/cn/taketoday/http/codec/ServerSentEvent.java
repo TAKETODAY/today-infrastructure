@@ -31,6 +31,7 @@ import cn.taketoday.lang.Nullable;
  * @param <T> the type of data that this event contains
  * @author Sebastien Deleuze
  * @author Arjen Poutsma
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see ServerSentEventHttpMessageWriter
  * @see <a href="https://www.w3.org/TR/eventsource/">Server-Sent Events W3C recommendation</a>
  * @since 4.0
@@ -53,7 +54,7 @@ public final class ServerSentEvent<T> {
   private final T data;
 
   private ServerSentEvent(@Nullable String id, @Nullable String event, @Nullable Duration retry,
-                          @Nullable String comment, @Nullable T data) {
+          @Nullable String comment, @Nullable T data) {
 
     this.id = id;
     this.event = event;
@@ -204,8 +205,7 @@ public final class ServerSentEvent<T> {
     @Nullable
     private T data;
 
-    public BuilderImpl() {
-    }
+    public BuilderImpl() { }
 
     public BuilderImpl(T data) {
       this.data = data;
