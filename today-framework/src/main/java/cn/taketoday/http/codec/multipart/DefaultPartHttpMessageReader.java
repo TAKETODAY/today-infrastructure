@@ -27,17 +27,17 @@ import java.nio.file.Path;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import cn.taketoday.core.ResolvableType;
 import cn.taketoday.core.codec.DecodingException;
 import cn.taketoday.core.io.buffer.DataBufferLimitException;
-import cn.taketoday.http.HttpMessage;
+import cn.taketoday.http.MediaType;
 import cn.taketoday.http.ReactiveHttpInputMessage;
 import cn.taketoday.http.codec.HttpMessageReader;
 import cn.taketoday.http.codec.LoggingCodecSupport;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.http.MediaType;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
@@ -219,35 +219,35 @@ public class DefaultPartHttpMessageReader extends LoggingCodecSupport implements
   public Flux<Part> read(
           ResolvableType elementType, ReactiveHttpInputMessage message, Map<String, Object> hints) {
     return Flux.defer(() -> {
-      byte[] boundary = boundary(message);
+      byte[] boundary = MultipartUtils.boundary(message, this.headersCharset);
       if (boundary == null) {
-        return Flux.error(new DecodingException(
-                "No multipart boundary found in Content-Type: \""
-                        + message.getHeaders().getContentType() + "\""));
+        return Flux.error(new DecodingException("No multipart boundary found in Content-Type: \"" +
+                message.getHeaders().getContentType() + "\""));
       }
-      Flux<MultipartParser.Token> tokens = MultipartParser.parse(
-              message.getBody(), boundary, this.maxHeadersSize, this.headersCharset);
 
-      return PartGenerator.createParts(
-              tokens, this.maxParts, this.maxInMemorySize, this.maxDiskUsagePerPart,
-              this.streaming, this.fileStorage.directory(), this.blockingOperationScheduler);
+      Flux<MultipartParser.Token> allPartsTokens = MultipartParser.parse(
+              message.getBody(), boundary, maxHeadersSize, headersCharset);
+
+      AtomicInteger partCount = new AtomicInteger();
+      return allPartsTokens
+              .windowUntil(MultipartParser.Token::isLast)
+              .concatMap(partsTokens -> {
+                if (tooManyParts(partCount)) {
+                  return Mono.error(new DecodingException("Too many parts (" + partCount.get() + "/" +
+                          this.maxParts + " allowed)"));
+                }
+                else {
+                  return PartGenerator.createPart(partsTokens,
+                          this.maxInMemorySize, this.maxDiskUsagePerPart, this.streaming,
+                          this.fileStorage.directory(), this.blockingOperationScheduler);
+                }
+              });
     });
   }
 
-  @Nullable
-  private byte[] boundary(HttpMessage message) {
-    MediaType contentType = message.getHeaders().getContentType();
-    if (contentType != null) {
-      String boundary = contentType.getParameter("boundary");
-      if (boundary != null) {
-        int len = boundary.length();
-        if (len > 2 && boundary.charAt(0) == '"' && boundary.charAt(len - 1) == '"') {
-          boundary = boundary.substring(1, len - 1);
-        }
-        return boundary.getBytes(this.headersCharset);
-      }
-    }
-    return null;
+  private boolean tooManyParts(AtomicInteger partCount) {
+    int count = partCount.incrementAndGet();
+    return this.maxParts > 0 && count > this.maxParts;
   }
 
 }

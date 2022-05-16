@@ -23,6 +23,7 @@ package cn.taketoday.http.codec.multipart;
 import cn.taketoday.core.io.buffer.DataBuffer;
 import cn.taketoday.http.HttpHeaders;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 /**
  * Representation for a part in a "multipart/form-data" request.
@@ -60,5 +61,13 @@ public interface Part {
    * more easily via {@link FormFieldPart#value()}.
    */
   Flux<DataBuffer> content();
+
+  /**
+   * Return a mono that, when subscribed to, deletes the underlying storage
+   * for this part.
+   */
+  default Mono<Void> delete() {
+    return Mono.empty();
+  }
 
 }

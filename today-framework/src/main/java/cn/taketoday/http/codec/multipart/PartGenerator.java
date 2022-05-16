@@ -34,11 +34,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 
-import cn.taketoday.core.codec.DecodingException;
 import cn.taketoday.core.io.buffer.DataBuffer;
 import cn.taketoday.core.io.buffer.DataBufferLimitException;
 import cn.taketoday.core.io.buffer.DataBufferUtils;
@@ -51,6 +49,7 @@ import reactor.core.publisher.BaseSubscriber;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.FluxSink;
 import reactor.core.publisher.Mono;
+import reactor.core.publisher.MonoSink;
 import reactor.core.scheduler.Scheduler;
 import reactor.util.context.Context;
 
@@ -65,27 +64,23 @@ final class PartGenerator extends BaseSubscriber<MultipartParser.Token> {
   private static final Logger logger = LoggerFactory.getLogger(PartGenerator.class);
   private static final boolean isDebugEnabled = logger.isDebugEnabled();
 
-  private final FluxSink<Part> sink;
-  private final AtomicInteger partCount = new AtomicInteger();
+  private final MonoSink<Part> sink;
   private final AtomicBoolean requestOutstanding = new AtomicBoolean();
   private final AtomicReference<State> state = new AtomicReference<>(new InitialState());
 
-  private final int maxParts;
   private final boolean streaming;
   private final int maxInMemorySize;
   private final long maxDiskUsagePerPart;
   private final Mono<Path> fileStorageDirectory;
   private final Scheduler blockingOperationScheduler;
 
-  private PartGenerator(
-          FluxSink<Part> sink, int maxParts, int maxInMemorySize, long maxDiskUsagePerPart,
+  private PartGenerator(MonoSink<Part> sink, int maxInMemorySize, long maxDiskUsagePerPart,
           boolean streaming, Mono<Path> fileStorageDirectory, Scheduler blockingOperationScheduler) {
 
     this.sink = sink;
-    this.maxParts = maxParts;
-    this.streaming = streaming;
     this.maxInMemorySize = maxInMemorySize;
     this.maxDiskUsagePerPart = maxDiskUsagePerPart;
+    this.streaming = streaming;
     this.fileStorageDirectory = fileStorageDirectory;
     this.blockingOperationScheduler = blockingOperationScheduler;
   }
@@ -93,17 +88,15 @@ final class PartGenerator extends BaseSubscriber<MultipartParser.Token> {
   /**
    * Creates parts from a given stream of tokens.
    */
-  public static Flux<Part> createParts(
-          Flux<MultipartParser.Token> tokens, int maxParts,
-          int maxInMemorySize, long maxDiskUsagePerPart, boolean streaming,
-          Mono<Path> fileStorageDirectory, Scheduler blockingOperationScheduler) {
+  public static Mono<Part> createPart(Flux<MultipartParser.Token> tokens, int maxInMemorySize,
+          long maxDiskUsagePerPart, boolean streaming, Mono<Path> fileStorageDirectory,
+          Scheduler blockingOperationScheduler) {
 
-    return Flux.create(sink -> {
-      PartGenerator generator = new PartGenerator(
-              sink, maxParts, maxInMemorySize, maxDiskUsagePerPart, streaming,
+    return Mono.create(sink -> {
+      PartGenerator generator = new PartGenerator(sink, maxInMemorySize, maxDiskUsagePerPart, streaming,
               fileStorageDirectory, blockingOperationScheduler);
 
-      sink.onCancel(generator::onSinkCancel);
+      sink.onCancel(generator);
       sink.onRequest(l -> generator.requestToken());
       tokens.subscribe(generator);
     });
@@ -111,7 +104,7 @@ final class PartGenerator extends BaseSubscriber<MultipartParser.Token> {
 
   @Override
   public Context currentContext() {
-    return this.sink.currentContext();
+    return Context.of(this.sink.contextView());
   }
 
   @Override
@@ -124,11 +117,6 @@ final class PartGenerator extends BaseSubscriber<MultipartParser.Token> {
     this.requestOutstanding.set(false);
     State state = this.state.get();
     if (token instanceof MultipartParser.HeadersToken) {
-      // finish previous part
-      state.partComplete(false);
-      if (tooManyParts()) {
-        return;
-      }
       newPart(state, token.getHeaders());
     }
     else {
@@ -138,27 +126,28 @@ final class PartGenerator extends BaseSubscriber<MultipartParser.Token> {
 
   private void newPart(State currentState, HttpHeaders headers) {
     if (MultipartUtils.isFormField(headers)) {
-      changeStateInternal(new FormFieldState(headers));
+      changeState(currentState, new FormFieldState(headers));
       requestToken();
     }
     else if (!this.streaming) {
-      changeStateInternal(new InMemoryState(headers));
+      changeState(currentState, new InMemoryState(headers));
       requestToken();
     }
     else {
-      emitPart(DefaultParts.part(headers, Flux.create(contentSink -> {
+      Flux<DataBuffer> streamingContent = Flux.create(contentSink -> {
         State newState = new StreamingState(contentSink);
         if (changeState(currentState, newState)) {
           contentSink.onRequest(l -> requestToken());
           requestToken();
         }
-      })));
+      });
+      emitPart(DefaultParts.part(headers, streamingContent));
     }
   }
 
   @Override
   protected void hookOnComplete() {
-    this.state.get().partComplete(true);
+    this.state.get().onComplete();
   }
 
   @Override
@@ -168,7 +157,8 @@ final class PartGenerator extends BaseSubscriber<MultipartParser.Token> {
     this.sink.error(throwable);
   }
 
-  private void onSinkCancel() {
+  @Override
+  public void dispose() {
     changeStateInternal(DisposedState.INSTANCE);
     cancel();
   }
@@ -203,11 +193,7 @@ final class PartGenerator extends BaseSubscriber<MultipartParser.Token> {
     if (isDebugEnabled) {
       logger.trace("Emitting: {}", part);
     }
-    this.sink.next(part);
-  }
-
-  void emitComplete() {
-    this.sink.complete();
+    sink.success(part);
   }
 
   void emitError(Throwable t) {
@@ -217,21 +203,8 @@ final class PartGenerator extends BaseSubscriber<MultipartParser.Token> {
 
   void requestToken() {
     if (upstream() != null
-            && !this.sink.isCancelled()
-            && this.sink.requestedFromDownstream() > 0
             && this.requestOutstanding.compareAndSet(false, true)) {
       request(1);
-    }
-  }
-
-  private boolean tooManyParts() {
-    int count = this.partCount.incrementAndGet();
-    if (this.maxParts > 0 && count > this.maxParts) {
-      emitError(new DecodingException("Too many parts (" + count + "/" + this.maxParts + " allowed)"));
-      return true;
-    }
-    else {
-      return false;
     }
   }
 
@@ -264,11 +237,10 @@ final class PartGenerator extends BaseSubscriber<MultipartParser.Token> {
 
     /**
      * Invoked when all tokens for the part have been received.
-     *
-     * @param finalPart {@code true} if this was the last part (and
-     * {@link #emitComplete()} should be called; {@code false} otherwise
      */
-    abstract void partComplete(boolean finalPart);
+    void onComplete() {
+
+    }
 
     /**
      * Invoked when an error has been received.
@@ -292,13 +264,6 @@ final class PartGenerator extends BaseSubscriber<MultipartParser.Token> {
     public void applyBody(DataBuffer dataBuffer) {
       DataBufferUtils.release(dataBuffer);
       emitError(new IllegalStateException("Body token not expected"));
-    }
-
-    @Override
-    public void partComplete(boolean finalPart) {
-      if (finalPart) {
-        emitComplete();
-      }
     }
 
     @Override
@@ -351,13 +316,10 @@ final class PartGenerator extends BaseSubscriber<MultipartParser.Token> {
     }
 
     @Override
-    public void partComplete(boolean finalPart) {
+    public void onComplete() {
       byte[] bytes = this.value.toByteArrayUnsafe();
       String value = new String(bytes, MultipartUtils.charset(this.headers));
       emitPart(DefaultParts.formFieldPart(this.headers, value));
-      if (finalPart) {
-        emitComplete();
-      }
     }
 
     @Override
@@ -381,9 +343,9 @@ final class PartGenerator extends BaseSubscriber<MultipartParser.Token> {
 
     @Override
     public void applyBody(DataBuffer dataBuffer) {
-      if (!this.bodySink.isCancelled()) {
-        this.bodySink.next(dataBuffer);
-        if (this.bodySink.requestedFromDownstream() > 0) {
+      if (!bodySink.isCancelled()) {
+        bodySink.next(dataBuffer);
+        if (bodySink.requestedFromDownstream() > 0) {
           requestToken();
         }
       }
@@ -396,12 +358,9 @@ final class PartGenerator extends BaseSubscriber<MultipartParser.Token> {
     }
 
     @Override
-    public void partComplete(boolean finalPart) {
-      if (!this.bodySink.isCancelled()) {
-        this.bodySink.complete();
-      }
-      if (finalPart) {
-        emitComplete();
+    public void onComplete() {
+      if (!bodySink.isCancelled()) {
+        bodySink.complete();
       }
     }
 
@@ -474,31 +433,28 @@ final class PartGenerator extends BaseSubscriber<MultipartParser.Token> {
     }
 
     @Override
-    public void partComplete(boolean finalPart) {
+    public void onComplete() {
       emitMemoryPart();
-      if (finalPart) {
-        emitComplete();
-      }
     }
 
     private void emitMemoryPart() {
-      byte[] bytes = new byte[(int) this.byteCount.get()];
+      byte[] bytes = new byte[(int) byteCount.get()];
       int idx = 0;
-      for (DataBuffer buffer : this.content) {
+      for (DataBuffer buffer : content) {
         int len = buffer.readableByteCount();
         buffer.read(bytes, idx, len);
         idx += len;
         DataBufferUtils.release(buffer);
       }
-      this.content.clear();
+      content.clear();
       Flux<DataBuffer> content = Flux.just(DefaultDataBufferFactory.sharedInstance.wrap(bytes));
-      emitPart(DefaultParts.part(this.headers, content));
+      emitPart(DefaultParts.part(headers, content));
     }
 
     @Override
     public void dispose() {
-      if (this.releaseOnDispose) {
-        this.content.forEach(DataBufferUtils::release);
+      if (releaseOnDispose) {
+        content.forEach(DataBufferUtils::release);
       }
     }
 
@@ -522,7 +478,6 @@ final class PartGenerator extends BaseSubscriber<MultipartParser.Token> {
 
     private final long byteCount;
     private volatile boolean completed;
-    private volatile boolean finalPart;
     private volatile boolean releaseOnDispose = true;
 
     public CreateFileState(HttpHeaders headers, Collection<DataBuffer> content, long byteCount) {
@@ -538,9 +493,8 @@ final class PartGenerator extends BaseSubscriber<MultipartParser.Token> {
     }
 
     @Override
-    public void partComplete(boolean finalPart) {
+    public void onComplete() {
       this.completed = true;
-      this.finalPart = finalPart;
     }
 
     public void createFile() {
@@ -569,7 +523,7 @@ final class PartGenerator extends BaseSubscriber<MultipartParser.Token> {
       if (changeState(this, newState)) {
         newState.writeBuffers(this.content);
         if (this.completed) {
-          newState.partComplete(this.finalPart);
+          newState.onComplete();
         }
       }
       else {
@@ -631,21 +585,9 @@ final class PartGenerator extends BaseSubscriber<MultipartParser.Token> {
     }
 
     @Override
-    public void partComplete(boolean finalPart) {
+    public void onComplete() {
       MultipartUtils.closeChannel(this.channel);
-      Flux<DataBuffer> content = partContent();
-      emitPart(DefaultParts.part(this.headers, content));
-      if (finalPart) {
-        emitComplete();
-      }
-    }
-
-    private Flux<DataBuffer> partContent() {
-      return DataBufferUtils
-              .readByteChannel(
-                      () -> Files.newByteChannel(this.file, StandardOpenOption.READ),
-                      DefaultDataBufferFactory.sharedInstance, 1024)
-              .subscribeOn(PartGenerator.this.blockingOperationScheduler);
+      emitPart(DefaultParts.part(this.headers, this.file, PartGenerator.this.blockingOperationScheduler));
     }
 
     @Override
@@ -670,7 +612,6 @@ final class PartGenerator extends BaseSubscriber<MultipartParser.Token> {
     private final WritableByteChannel channel;
 
     private volatile boolean completed;
-    private volatile boolean finalPart;
 
     public WritingFileState(CreateFileState state, Path file, WritableByteChannel channel) {
       this.headers = state.headers;
@@ -693,16 +634,17 @@ final class PartGenerator extends BaseSubscriber<MultipartParser.Token> {
     }
 
     @Override
-    public void partComplete(boolean finalPart) {
+    public void onComplete() {
       this.completed = true;
-      this.finalPart = finalPart;
     }
 
     public void writeBuffer(DataBuffer dataBuffer) {
       Mono.just(dataBuffer)
               .flatMap(this::writeInternal)
               .subscribeOn(PartGenerator.this.blockingOperationScheduler)
-              .subscribe(null, PartGenerator.this::emitError, this::writeComplete);
+              .subscribe(null,
+                      PartGenerator.this::emitError,
+                      this::writeComplete);
     }
 
     public void writeBuffers(Iterable<DataBuffer> dataBuffers) {
@@ -710,13 +652,15 @@ final class PartGenerator extends BaseSubscriber<MultipartParser.Token> {
               .concatMap(this::writeInternal)
               .then()
               .subscribeOn(PartGenerator.this.blockingOperationScheduler)
-              .subscribe(null, PartGenerator.this::emitError, this::writeComplete);
+              .subscribe(null,
+                      PartGenerator.this::emitError,
+                      this::writeComplete);
     }
 
     private void writeComplete() {
       IdleFileState newState = new IdleFileState(this);
       if (this.completed) {
-        newState.partComplete(this.finalPart);
+        newState.onComplete();
       }
       else if (changeState(this, newState)) {
         requestToken();
@@ -758,9 +702,6 @@ final class PartGenerator extends BaseSubscriber<MultipartParser.Token> {
     public void applyBody(DataBuffer dataBuffer) {
       DataBufferUtils.release(dataBuffer);
     }
-
-    @Override
-    public void partComplete(boolean finalPart) { }
 
     @Override
     public String toString() {
