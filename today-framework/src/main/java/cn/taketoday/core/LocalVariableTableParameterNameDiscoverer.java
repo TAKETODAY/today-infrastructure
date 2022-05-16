@@ -26,6 +26,7 @@ import java.lang.reflect.Executable;
 import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
 
 import cn.taketoday.core.bytecode.ClassReader;
 import cn.taketoday.core.bytecode.ClassVisitor;
@@ -51,7 +52,8 @@ import cn.taketoday.util.ClassUtils;
  * @author TODAY 2021/9/10 22:34
  * @since 4.0
  */
-public class LocalVariableTableParameterNameDiscoverer extends ParameterNameDiscoverer {
+public class LocalVariableTableParameterNameDiscoverer
+        extends ParameterNameDiscoverer implements Function<Class<?>, Map<Executable, String[]>> {
   private static final Logger log = LoggerFactory.getLogger(LocalVariableTableParameterNameDiscoverer.class);
 
   // marker object for classes that do not have any debug info
@@ -64,8 +66,13 @@ public class LocalVariableTableParameterNameDiscoverer extends ParameterNameDisc
   @Override
   public String[] doGet(Executable executable) {
     Class<?> declaringClass = executable.getDeclaringClass();
-    Map<Executable, String[]> map = this.parameterNamesCache.computeIfAbsent(declaringClass, this::inspectClass);
-    return (map != NO_DEBUG_INFO_MAP ? map.get(executable) : null);
+    Map<Executable, String[]> map = parameterNamesCache.computeIfAbsent(declaringClass, this);
+    return map != NO_DEBUG_INFO_MAP ? map.get(executable) : null;
+  }
+
+  @Override
+  public Map<Executable, String[]> apply(Class<?> clazz) {
+    return inspectClass(clazz);
   }
 
   /**
@@ -120,17 +127,17 @@ public class LocalVariableTableParameterNameDiscoverer extends ParameterNameDisc
     public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions) {
       // exclude synthetic + bridged && static class initialization
       if (!isSyntheticOrBridged(access) && !STATIC_CLASS_INIT.equals(name)) {
-        return new LocalVariableTableVisitor(this.clazz, this.executableMap, name, desc, isStatic(access));
+        return new LocalVariableTableVisitor(clazz, executableMap, name, desc, isStatic(access));
       }
       return null;
     }
 
     private static boolean isSyntheticOrBridged(int access) {
-      return (((access & Opcodes.ACC_SYNTHETIC) | (access & Opcodes.ACC_BRIDGE)) > 0);
+      return ((access & Opcodes.ACC_SYNTHETIC) | (access & Opcodes.ACC_BRIDGE)) > 0;
     }
 
     private static boolean isStatic(int access) {
-      return ((access & Opcodes.ACC_STATIC) > 0);
+      return (access & Opcodes.ACC_STATIC) > 0;
     }
   }
 
