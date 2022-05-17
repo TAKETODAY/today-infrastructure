@@ -153,10 +153,12 @@ class HttpMessageConverterExtractorTests {
   void cannotRead() throws IOException {
     responseHeaders.setContentType(contentType);
     given(response.getStatusCode()).willReturn(HttpStatus.OK);
+    given(response.getRawStatusCode()).willReturn(HttpStatus.OK.value());
     given(response.getHeaders()).willReturn(responseHeaders);
     given(response.getBody()).willReturn(new ByteArrayInputStream("Foobar".getBytes()));
     given(converter.canRead(String.class, contentType)).willReturn(false);
-    assertThatExceptionOfType(RestClientException.class).isThrownBy(() -> extractor.extractData(response));
+    assertThatExceptionOfType(RestClientException.class)
+            .isThrownBy(() -> extractor.extractData(response));
   }
 
   @Test
@@ -214,6 +216,7 @@ class HttpMessageConverterExtractorTests {
   void unknownContentTypeExceptionContainsCorrectResponseBody() throws IOException {
     responseHeaders.setContentType(contentType);
     given(response.getStatusCode()).willReturn(HttpStatus.OK);
+    given(response.getRawStatusCode()).willReturn(HttpStatus.OK.value());
     given(response.getHeaders()).willReturn(responseHeaders);
     given(response.getBody()).willReturn(new ByteArrayInputStream("Foobar".getBytes()) {
       @Override
@@ -223,7 +226,8 @@ class HttpMessageConverterExtractorTests {
     });
     given(converter.canRead(String.class, contentType)).willReturn(false);
 
-    assertThatExceptionOfType(UnknownContentTypeException.class).isThrownBy(() -> extractor.extractData(response))
+    assertThatExceptionOfType(UnknownContentTypeException.class)
+            .isThrownBy(() -> extractor.extractData(response))
             .satisfies(exception -> assertThat(exception.getResponseBodyAsString()).isEqualTo("Foobar"));
   }
 

@@ -337,7 +337,7 @@ class RequestParamMethodArgumentResolverTests {
   @Test
   public void resolveMultipartFileNotAnnot() throws Throwable {
     MockMultipartHttpServletRequest request = new MockMultipartHttpServletRequest();
-    MultipartFile expected = new MockMultipartFile("`multipartFileNotAnnot`", "Hello World".getBytes());
+    MultipartFile expected = new MockMultipartFile("multipartFileNotAnnot", "Hello World".getBytes());
     request.addFile(expected);
     ServletRequestContext webRequest = new ServletRequestContext(null, request, null);
     webRequest.setBindingContext(new BindingContext());
@@ -664,7 +664,7 @@ class RequestParamMethodArgumentResolverTests {
     MultipartFile expected = new MockMultipartFile("mfile", "Hello World".getBytes());
     request.addFile(expected);
     webRequest = new ServletRequestContext(null, request, null);
-    webRequest.setBindingContext(new BindingContext());
+    webRequest.setBindingContext(new BindingContext(initializer));
 
     ResolvableMethodParameter param = testMethod.annotPresent(
             RequestParam.class).arg(Optional.class, MultipartFile.class);
