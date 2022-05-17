@@ -23,8 +23,9 @@ package cn.taketoday.web.bind.support;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.session.WebSession;
+import cn.taketoday.web.RequestContextUtils;
 import cn.taketoday.web.session.SessionManager;
+import cn.taketoday.web.session.WebSession;
 
 /**
  * Default implementation of the {@link SessionAttributeStore} interface,
@@ -42,6 +43,7 @@ public class DefaultSessionAttributeStore implements SessionAttributeStore {
 
   private String attributeNamePrefix = "";
 
+  @Nullable
   private SessionManager sessionManager;
 
   /**
@@ -59,7 +61,8 @@ public class DefaultSessionAttributeStore implements SessionAttributeStore {
     Assert.notNull(attributeName, "Attribute name must not be null");
     Assert.notNull(attributeValue, "Attribute value must not be null");
     String storeAttributeName = getAttributeNameInSession(request, attributeName);
-    sessionManager.getSession(request).setAttribute(storeAttributeName, attributeValue);
+
+    getSession(request).setAttribute(storeAttributeName, attributeValue);
   }
 
   @Override
@@ -68,7 +71,7 @@ public class DefaultSessionAttributeStore implements SessionAttributeStore {
     Assert.notNull(request, "RequestContext must not be null");
     Assert.notNull(attributeName, "Attribute name must not be null");
     String storeAttributeName = getAttributeNameInSession(request, attributeName);
-    return sessionManager.getSession(request).getAttribute(storeAttributeName);
+    return getSession(request).getAttribute(storeAttributeName);
   }
 
   @Override
@@ -76,7 +79,7 @@ public class DefaultSessionAttributeStore implements SessionAttributeStore {
     Assert.notNull(request, "RequestContext must not be null");
     Assert.notNull(attributeName, "Attribute name must not be null");
     String storeAttributeName = getAttributeNameInSession(request, attributeName);
-    sessionManager.getSession(request).removeAttribute(storeAttributeName);
+    getSession(request).removeAttribute(storeAttributeName);
   }
 
   /**
@@ -90,6 +93,22 @@ public class DefaultSessionAttributeStore implements SessionAttributeStore {
    */
   protected String getAttributeNameInSession(RequestContext request, String attributeName) {
     return this.attributeNamePrefix + attributeName;
+  }
+
+  private WebSession getSession(RequestContext request) {
+    WebSession session = null;
+    if (sessionManager != null) {
+      session = sessionManager.getSession(request);
+    }
+    if (session == null) {
+      session = RequestContextUtils.getSession(request);
+    }
+    Assert.state(session != null, "No session");
+    return session;
+  }
+
+  public void setSessionManager(@Nullable SessionManager sessionManager) {
+    this.sessionManager = sessionManager;
   }
 
 }

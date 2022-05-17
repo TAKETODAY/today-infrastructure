@@ -293,7 +293,7 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
   /**
    * Specify the strategy to store session attributes with. The default is
    * {@link cn.taketoday.web.bind.support.DefaultSessionAttributeStore},
-   * storing session attributes in the HttpSession with the same attribute
+   * storing session attributes in the WebSession with the same attribute
    * name as in the model.
    */
   public void setSessionAttributeStore(SessionAttributeStore sessionAttributeStore) {

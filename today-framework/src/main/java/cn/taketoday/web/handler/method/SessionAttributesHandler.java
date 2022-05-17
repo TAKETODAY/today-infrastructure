@@ -27,14 +27,13 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-import cn.taketoday.core.annotation.AnnotatedElementUtils;
+import cn.taketoday.core.annotation.MergedAnnotations;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.bind.annotation.SessionAttributes;
 import cn.taketoday.web.bind.support.SessionAttributeStore;
 import cn.taketoday.web.bind.support.SessionStatus;
-import cn.taketoday.web.view.Model;
 
 /**
  * Manages controller-specific session attributes declared via
@@ -71,15 +70,14 @@ public class SessionAttributesHandler {
    * @param sessionAttributeStore used for session access
    */
   public SessionAttributesHandler(Class<?> handlerType, SessionAttributeStore sessionAttributeStore) {
-    Assert.notNull(sessionAttributeStore, "SessionAttributeStore may not be null");
+    Assert.notNull(sessionAttributeStore, "SessionAttributeStore is required");
     this.sessionAttributeStore = sessionAttributeStore;
-
-    SessionAttributes ann = AnnotatedElementUtils.findMergedAnnotation(handlerType, SessionAttributes.class);
-    if (ann != null) {
-      Collections.addAll(this.attributeNames, ann.names());
-      Collections.addAll(this.attributeTypes, ann.types());
+    var annotation = MergedAnnotations.from(handlerType).get(SessionAttributes.class);
+    if (annotation.isPresent()) {
+      Collections.addAll(attributeNames, annotation.getStringArray("names"));
+      Collections.addAll(attributeTypes, annotation.getClassArray("types"));
     }
-    this.knownAttributeNames.addAll(this.attributeNames);
+    knownAttributeNames.addAll(attributeNames);
   }
 
   /**
@@ -87,7 +85,7 @@ public class SessionAttributesHandler {
    * session attributes through an {@link SessionAttributes} annotation.
    */
   public boolean hasSessionAttributes() {
-    return (!this.attributeNames.isEmpty() || !this.attributeTypes.isEmpty());
+    return (!attributeNames.isEmpty() || !attributeTypes.isEmpty());
   }
 
   /**
@@ -102,8 +100,8 @@ public class SessionAttributesHandler {
    */
   public boolean isHandlerSessionAttribute(String attributeName, Class<?> attributeType) {
     Assert.notNull(attributeName, "Attribute name must not be null");
-    if (this.attributeNames.contains(attributeName) || this.attributeTypes.contains(attributeType)) {
-      this.knownAttributeNames.add(attributeName);
+    if (attributeNames.contains(attributeName) || attributeTypes.contains(attributeType)) {
+      knownAttributeNames.add(attributeName);
       return true;
     }
     else {
@@ -123,7 +121,7 @@ public class SessionAttributesHandler {
       String name = entry.getKey();
       Object value = entry.getValue();
       if (value != null && isHandlerSessionAttribute(name, value.getClass())) {
-        this.sessionAttributeStore.storeAttribute(request, name, value);
+        sessionAttributeStore.storeAttribute(request, name, value);
       }
     }
   }
@@ -155,8 +153,8 @@ public class SessionAttributesHandler {
    * @param request the current request
    */
   public void cleanupAttributes(RequestContext request) {
-    for (String attributeName : this.knownAttributeNames) {
-      this.sessionAttributeStore.cleanupAttribute(request, attributeName);
+    for (String attributeName : knownAttributeNames) {
+      sessionAttributeStore.cleanupAttribute(request, attributeName);
     }
   }
 

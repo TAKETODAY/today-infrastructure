@@ -88,6 +88,7 @@ public class CookieSessionIdResolver implements SessionIdResolver {
     String cookieName = this.cookieName;
     HttpCookie cookie = context.getCookie(cookieName);
     if (cookie == null) {
+      // fallback to response cookies
       ArrayList<HttpCookie> httpCookies = context.responseCookies();
       for (HttpCookie httpCookie : httpCookies) {
         if (cookieName.equals(httpCookie.getName())) {
