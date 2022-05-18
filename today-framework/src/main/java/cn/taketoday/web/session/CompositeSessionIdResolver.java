@@ -37,9 +37,9 @@ public class CompositeSessionIdResolver implements SessionIdResolver {
   }
 
   @Override
-  public String retrieveId(RequestContext context) {
+  public String getSessionId(RequestContext context) {
     for (SessionIdResolver resolver : resolvers) {
-      String token = resolver.retrieveId(context);
+      String token = resolver.getSessionId(context);
       if (token != null) {
         return token;
       }
@@ -48,16 +48,16 @@ public class CompositeSessionIdResolver implements SessionIdResolver {
   }
 
   @Override
-  public void setId(RequestContext context, String session) {
+  public void setSessionId(RequestContext context, String session) {
     for (SessionIdResolver resolver : resolvers) {
-      resolver.setId(context, session);
+      resolver.setSessionId(context, session);
     }
   }
 
   @Override
   public void expireSession(RequestContext context) {
     for (SessionIdResolver resolver : resolvers) {
-      String token = resolver.retrieveId(context);
+      String token = resolver.getSessionId(context);
       if (token != null) {
         resolver.expireSession(context);
       }

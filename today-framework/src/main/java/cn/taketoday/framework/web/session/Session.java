@@ -57,6 +57,27 @@ public class Session {
 
   private int sessionIdLength = 30;
 
+  private int maxSessions = 10000;
+
+  /**
+   * Set the maximum number of sessions that can be stored. Once the limit is
+   * reached, any attempt to store an additional session will result in an
+   * {@link IllegalStateException}.
+   * <p>By default set to 10000.
+   *
+   * @param maxSessions the maximum number of sessions
+   */
+  public void setMaxSessions(int maxSessions) {
+    this.maxSessions = maxSessions;
+  }
+
+  /**
+   * Return the maximum number of sessions that can be stored.
+   */
+  public int getMaxSessions() {
+    return this.maxSessions;
+  }
+
   public void setSessionIdLength(int sessionIdLength) {
     this.sessionIdLength = sessionIdLength;
   }

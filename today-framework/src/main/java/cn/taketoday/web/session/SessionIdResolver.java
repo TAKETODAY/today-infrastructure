@@ -33,7 +33,7 @@ import cn.taketoday.web.RequestContext;
 public interface SessionIdResolver {
 
   @Nullable
-  String retrieveId(RequestContext context);
+  String getSessionId(RequestContext context);
 
   /**
    * Send the given session id to the client.
@@ -41,7 +41,7 @@ public interface SessionIdResolver {
    * @param context the current context
    * @param sessionId the session id
    */
-  void setId(RequestContext context, String sessionId);
+  void setSessionId(RequestContext context, String sessionId);
 
   /**
    * Instruct the client to end the current session.

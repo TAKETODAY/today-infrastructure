@@ -77,19 +77,19 @@ public class HeaderSessionIdResolver implements SessionIdResolver {
 
   @Nullable
   @Override
-  public String retrieveId(RequestContext context) {
+  public String getSessionId(RequestContext context) {
     return context.requestHeaders().getFirst(headerName);
   }
 
   @Override
-  public void setId(RequestContext context, String sessionId) {
+  public void setSessionId(RequestContext context, String sessionId) {
     Assert.notNull(sessionId, "'sessionId' is required.");
     context.responseHeaders().set(headerName, sessionId);
   }
 
   @Override
   public void expireSession(RequestContext exchange) {
-    setId(exchange, "");
+    setSessionId(exchange, "");
   }
 
   /**

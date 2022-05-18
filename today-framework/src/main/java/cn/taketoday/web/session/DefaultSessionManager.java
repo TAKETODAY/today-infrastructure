@@ -68,7 +68,7 @@ public class DefaultSessionManager implements SessionManager {
   @Override
   public WebSession createSession(RequestContext context) {
     WebSession session = sessionRepository.createSession();
-    sessionIdResolver.setId(context, session.getId());
+    sessionIdResolver.setSessionId(context, session.getId());
     return session;
   }
 
@@ -89,7 +89,7 @@ public class DefaultSessionManager implements SessionManager {
   @Nullable
   @Override
   public WebSession getSession(RequestContext context, boolean create) {
-    String sessionId = sessionIdResolver.retrieveId(context);
+    String sessionId = sessionIdResolver.getSessionId(context);
     if (StringUtils.hasText(sessionId)) {
       WebSession session = sessionRepository.retrieveSession(sessionId);
       if (session == null && create) {
@@ -110,7 +110,7 @@ public class DefaultSessionManager implements SessionManager {
     WebSession session = sessionRepository.createSession();
     session.start();
     session.save();
-    sessionIdResolver.setId(context, session.getId());
+    sessionIdResolver.setSessionId(context, session.getId());
     return session;
   }
 

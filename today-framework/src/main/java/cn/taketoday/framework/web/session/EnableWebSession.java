@@ -115,8 +115,13 @@ class WebSessionConfig {
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
   @ConditionalOnMissingBean(SessionRepository.class)
   InMemorySessionRepository memorySessionRepository(
-          SessionEventDispatcher eventDispatcher, SessionIdGenerator sessionIdGenerator) {
-    return new InMemorySessionRepository(eventDispatcher, sessionIdGenerator);
+          ServerProperties serverProperties,
+          SessionEventDispatcher eventDispatcher,
+          SessionIdGenerator sessionIdGenerator
+  ) {
+    var repository = new InMemorySessionRepository(eventDispatcher, sessionIdGenerator);
+    repository.setMaxSessions(serverProperties.getSession().getMaxSessions());
+    return repository;
   }
 
   /**
@@ -140,7 +145,7 @@ class WebSessionConfig {
   @Component
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
   @ConditionalOnMissingBean(SessionIdResolver.class)
-  CookieSessionIdResolver webTokenResolver(ServerProperties serverProperties) {
+  CookieSessionIdResolver cookieSessionIdResolver(ServerProperties serverProperties) {
     Session session = serverProperties.getSession();
     return new CookieSessionIdResolver(session.getCookie());
   }

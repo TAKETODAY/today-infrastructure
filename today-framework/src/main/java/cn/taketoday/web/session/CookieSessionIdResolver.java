@@ -84,7 +84,7 @@ public class CookieSessionIdResolver implements SessionIdResolver {
 
   @Nullable
   @Override
-  public String retrieveId(RequestContext context) {
+  public String getSessionId(RequestContext context) {
     // find in request attribute
     Object attribute = context.getAttribute(WRITTEN_SESSION_ID_ATTR);
     if (attribute instanceof String sessionId) {
@@ -107,7 +107,7 @@ public class CookieSessionIdResolver implements SessionIdResolver {
   }
 
   @Override
-  public void setId(RequestContext context, String sessionId) {
+  public void setSessionId(RequestContext context, String sessionId) {
     if (!sessionId.equals(context.getAttribute(WRITTEN_SESSION_ID_ATTR))) {
       HttpCookie cookie = createCookie(sessionId);
       context.addCookie(cookie);
