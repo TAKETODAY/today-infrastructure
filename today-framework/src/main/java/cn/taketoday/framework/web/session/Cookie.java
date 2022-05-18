@@ -39,10 +39,12 @@ import cn.taketoday.lang.Nullable;
  */
 public class Cookie {
 
+  public static final String DEFAULT_COOKIE_NAME = "SESSION";
+
   /**
    * Name for the cookie.
    */
-  private String name;
+  private String name = DEFAULT_COOKIE_NAME;
 
   /**
    * Domain for the cookie.
@@ -73,7 +75,7 @@ public class Cookie {
    * means no "Max-Age".
    */
   @DurationUnit(ChronoUnit.SECONDS)
-  private Duration maxAge;
+  private Duration maxAge = Duration.ofMinutes(30);
 
   /**
    * SameSite setting for the cookie.

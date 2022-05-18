@@ -25,7 +25,6 @@ import java.util.ArrayList;
 import cn.taketoday.core.Conventions;
 import cn.taketoday.framework.web.session.Cookie;
 import cn.taketoday.http.HttpCookie;
-import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.ResponseCookie;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
@@ -67,7 +66,7 @@ public class CookieSessionIdResolver implements SessionIdResolver {
   private final Cookie config;
 
   public CookieSessionIdResolver() {
-    this(HttpHeaders.AUTHORIZATION);
+    this(Cookie.DEFAULT_COOKIE_NAME);
   }
 
   public CookieSessionIdResolver(String cookieName) {
@@ -77,7 +76,8 @@ public class CookieSessionIdResolver implements SessionIdResolver {
   }
 
   public CookieSessionIdResolver(Cookie config) {
-    Assert.notNull(config, "cookieConfiguration must not be null");
+    Assert.notNull(config, "Cookie is required");
+    Assert.notNull(config.getName(), "Cookie name is required");
     this.config = config;
     this.cookieName = config.getName();
   }
@@ -85,7 +85,13 @@ public class CookieSessionIdResolver implements SessionIdResolver {
   @Nullable
   @Override
   public String retrieveId(RequestContext context) {
-    String cookieName = this.cookieName;
+    // find in request attribute
+    Object attribute = context.getAttribute(WRITTEN_SESSION_ID_ATTR);
+    if (attribute instanceof String sessionId) {
+      return sessionId;
+    }
+
+    // find in request cookie
     HttpCookie cookie = context.getCookie(cookieName);
     if (cookie == null) {
       // fallback to response cookies

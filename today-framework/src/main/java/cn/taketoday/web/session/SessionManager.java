@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -23,8 +23,12 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.RequestContext;
 
 /**
- * @author TODAY <br>
- * 2019-09-27 20:24
+ * Main class for access to the {@link WebSession} for an HTTP request.
+ *
+ * @author TODAY
+ * @see SessionIdResolver
+ * @see SessionRepository
+ * @since 2019-09-27 20:24
  */
 public interface SessionManager {
 

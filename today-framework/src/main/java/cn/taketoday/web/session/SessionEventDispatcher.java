@@ -40,21 +40,17 @@ public class SessionEventDispatcher {
   }
 
   public void onSessionCreated(WebSession session) {
-    sessionListeners.ifPresent(listeners -> {
-      var event = new WebSessionEvent(this, session);
-      for (WebSessionListener sessionListener : listeners) {
-        sessionListener.sessionCreated(event);
-      }
-    });
+    var event = new WebSessionEvent(this, session);
+    for (WebSessionListener sessionListener : sessionListeners) {
+      sessionListener.sessionCreated(event);
+    }
   }
 
   public void onSessionDestroyed(WebSession session) {
-    sessionListeners.ifPresent(listeners -> {
-      var event = new WebSessionEvent(this, session);
-      for (WebSessionListener sessionListener : listeners) {
-        sessionListener.sessionDestroyed(event);
-      }
-    });
+    var event = new WebSessionEvent(this, session);
+    for (WebSessionListener sessionListener : sessionListeners) {
+      sessionListener.sessionDestroyed(event);
+    }
   }
 
   public void addSessionListeners(WebSessionListener... array) {

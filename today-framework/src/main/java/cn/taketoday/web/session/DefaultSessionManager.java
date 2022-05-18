@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -17,6 +17,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.web.session;
 
 import cn.taketoday.lang.Assert;
@@ -67,8 +68,7 @@ public class DefaultSessionManager implements SessionManager {
   @Override
   public WebSession createSession(RequestContext context) {
     WebSession session = sessionRepository.createSession();
-    WebSession ret = createSession();
-    sessionIdResolver.setId(context, ret.getId());
+    sessionIdResolver.setId(context, session.getId());
     return session;
   }
 
@@ -94,21 +94,24 @@ public class DefaultSessionManager implements SessionManager {
       WebSession session = sessionRepository.retrieveSession(sessionId);
       if (session == null && create) {
         // create a new session
-        session = sessionRepository.createSession();
-        session.start();
-        session.save();
+        session = createSession0(context);
       }
       return session;
     }
     else if (create) {
       // no session id
       // create a new session
-      WebSession session = sessionRepository.createSession();
-      session.start();
-      session.save();
-      return session;
+      return createSession0(context);
     }
     return null;
+  }
+
+  private WebSession createSession0(RequestContext context) {
+    WebSession session = sessionRepository.createSession();
+    session.start();
+    session.save();
+    sessionIdResolver.setId(context, session.getId());
+    return session;
   }
 
   public SessionIdResolver getSessionIdResolver() {

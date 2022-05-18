@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -181,7 +181,7 @@ public class InMemorySessionRepository implements SessionRepository {
     expiredSessionChecker.removeExpiredSessions(clock.instant());
   }
 
-  class InMemoryWebSession extends AttributeAccessorSupport implements WebSession, Serializable {
+  final class InMemoryWebSession extends AttributeAccessorSupport implements WebSession, Serializable {
 
     @Serial
     private static final long serialVersionUID = 1L;
@@ -224,7 +224,7 @@ public class InMemorySessionRepository implements SessionRepository {
 
     @Override
     public void changeSessionId() {
-      sessions.remove(id.get());
+      sessions.remove(getId());
       String newId = idGenerator.generateId();
       id.set(newId);
       sessions.put(newId, this);
@@ -235,7 +235,7 @@ public class InMemorySessionRepository implements SessionRepository {
       state.set(State.EXPIRED);
       clearAttributes();
       eventDispatcher.onSessionDestroyed(this);
-      sessions.remove(this.id.get());
+      sessions.remove(getId());
     }
 
     @Override
@@ -326,7 +326,7 @@ public class InMemorySessionRepository implements SessionRepository {
 
   }
 
-  private class ExpiredSessionChecker {
+  private final class ExpiredSessionChecker {
 
     /** Max time between expiration checks. */
     private static final int CHECK_PERIOD = 60 * 1000;
