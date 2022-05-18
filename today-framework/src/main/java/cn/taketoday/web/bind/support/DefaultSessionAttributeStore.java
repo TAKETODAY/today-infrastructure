@@ -106,7 +106,7 @@ public class DefaultSessionAttributeStore implements SessionAttributeStore {
     if (session == null) {
       session = RequestContextUtils.getSession(request);
     }
-    Assert.state(session != null, "No session");
+    Assert.state(session != null, "No web-session");
     return session;
   }
 

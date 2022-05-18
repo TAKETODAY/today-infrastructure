@@ -26,19 +26,23 @@ import org.junit.jupiter.api.Test;
 import java.lang.reflect.Method;
 import java.util.Collections;
 
-import cn.taketoday.core.LocalVariableTableParameterNameDiscoverer;
+import cn.taketoday.context.annotation.AnnotationConfigApplicationContext;
+import cn.taketoday.framework.web.session.EnableWebSession;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.validation.BindingResult;
 import cn.taketoday.web.BindingContext;
+import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.bind.RequestContextDataBinder;
-import cn.taketoday.web.bind.WebDataBinder;
 import cn.taketoday.web.bind.annotation.ModelAttribute;
 import cn.taketoday.web.bind.annotation.SessionAttributes;
 import cn.taketoday.web.bind.resolver.ModelMethodProcessor;
+import cn.taketoday.web.bind.resolver.ParameterResolvingRegistry;
 import cn.taketoday.web.bind.support.DefaultSessionAttributeStore;
 import cn.taketoday.web.bind.support.SessionAttributeStore;
 import cn.taketoday.web.servlet.ServletRequestContext;
 import cn.taketoday.web.session.WebSessionRequiredException;
 import cn.taketoday.web.testfixture.servlet.MockHttpServletRequest;
+import cn.taketoday.web.testfixture.servlet.MockHttpServletResponse;
 import cn.taketoday.web.view.Model;
 import cn.taketoday.web.view.RedirectModel;
 
@@ -63,9 +67,18 @@ class ModelFactoryTests {
 
   private BindingContext bindingContext;
 
+  AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(SessionAttributesHandlerTests.SessionConfig.class);
+
+  @EnableWebSession
+  static class SessionConfig {
+
+  }
+
   @BeforeEach
   public void setUp() throws Throwable {
-    this.webRequest = new ServletRequestContext(null, new MockHttpServletRequest(), null);
+    this.webRequest = new ServletRequestContext(
+            context, new MockHttpServletRequest(), new MockHttpServletResponse());
+
     this.attributeStore = new DefaultSessionAttributeStore();
     this.attributeHandler = new SessionAttributesHandler(TestController.class, this.attributeStore);
     webRequest.setBindingContext(new BindingContext());
@@ -174,11 +187,9 @@ class ModelFactoryTests {
   public void updateModelBindingResult() throws Throwable {
     String commandName = "attr1";
     Object command = new Object();
-    BindingContext container = new BindingContext();
-    container.addAttribute(commandName, command);
-
     RequestContextDataBinder dataBinder = new RequestContextDataBinder(command, commandName);
-    given(container.createBinder(this.webRequest, command, commandName)).willReturn(dataBinder);
+    BindingContext container = new BindingContext0(dataBinder);
+    container.addAttribute(commandName, command);
 
     ModelFactory modelFactory = new ModelFactory(null, container, this.attributeHandler);
     modelFactory.updateModel(this.webRequest, container);
@@ -189,17 +200,28 @@ class ModelFactoryTests {
     assertThat(container.getModel().size()).isEqualTo(2);
   }
 
+  static class BindingContext0 extends BindingContext {
+    final RequestContextDataBinder dataBinder;
+
+    BindingContext0(RequestContextDataBinder dataBinder) {
+      this.dataBinder = dataBinder;
+    }
+
+    @Override
+    public RequestContextDataBinder createBinder(RequestContext exchange, @Nullable Object target, String name) throws Throwable {
+      return dataBinder;
+    }
+  }
+
   @Test
   public void updateModelSessionAttributesSaved() throws Throwable {
     String attributeName = "sessionAttr";
     String attribute = "value";
-    BindingContext container = new BindingContext();
+    RequestContextDataBinder dataBinder = new RequestContextDataBinder(attribute, attributeName);
+    BindingContext container = new BindingContext0(dataBinder);
     container.addAttribute(attributeName, attribute);
 
-    RequestContextDataBinder dataBinder = new RequestContextDataBinder(attribute, attributeName);
-    given(container.createBinder(this.webRequest, attribute, attributeName)).willReturn(dataBinder);
-
-    ModelFactory modelFactory = new ModelFactory(null, binderFactory, this.attributeHandler);
+    ModelFactory modelFactory = new ModelFactory(null, container, this.attributeHandler);
     modelFactory.updateModel(this.webRequest, container);
 
     assertThat(container.getModel().get(attributeName)).isEqualTo(attribute);
@@ -210,17 +232,15 @@ class ModelFactoryTests {
   public void updateModelSessionAttributesRemoved() throws Throwable {
     String attributeName = "sessionAttr";
     String attribute = "value";
-    BindingContext container = new BindingContext();
+    RequestContextDataBinder dataBinder = new RequestContextDataBinder(attribute, attributeName);
+    BindingContext container = new BindingContext0(dataBinder);
     container.addAttribute(attributeName, attribute);
 
     this.attributeStore.storeAttribute(this.webRequest, attributeName, attribute);
 
-    WebDataBinder dataBinder = new WebDataBinder(attribute, attributeName);
-    given(container.createBinder(this.webRequest, attribute, attributeName)).willReturn(dataBinder);
-
     container.getSessionStatus().setComplete();
 
-    ModelFactory modelFactory = new ModelFactory(null, binderFactory, this.attributeHandler);
+    ModelFactory modelFactory = new ModelFactory(null, container, this.attributeHandler);
     modelFactory.updateModel(this.webRequest, container);
 
     assertThat(container.getModel().get(attributeName)).isEqualTo(attribute);
@@ -231,35 +251,30 @@ class ModelFactoryTests {
   public void updateModelWhenRedirecting() throws Throwable {
     String attributeName = "sessionAttr";
     String attribute = "value";
-    BindingContext container = new BindingContext();
+
+    RequestContextDataBinder dataBinder = new RequestContextDataBinder(attribute, attributeName);
+    BindingContext container = new BindingContext0(dataBinder);
     container.addAttribute(attributeName, attribute);
 
     String queryParam = "123";
     String queryParamName = "q";
     container.setRedirectModel(new RedirectModel(queryParamName, queryParam));
-    container.setRedirectModelScenario(true);
 
-    WebDataBinder dataBinder = new WebDataBinder(attribute, attributeName);
-    WebDataBinderFactory binderFactory = mock(WebDataBinderFactory.class);
-    given(binderFactory.createBinder(this.webRequest, attribute, attributeName)).willReturn(dataBinder);
-
-    ModelFactory modelFactory = new ModelFactory(null, binderFactory, this.attributeHandler);
+    ModelFactory modelFactory = new ModelFactory(null, container, this.attributeHandler);
     modelFactory.updateModel(this.webRequest, container);
 
-    assertThat(container.getModel().get(queryParamName)).isEqualTo(queryParam);
-    assertThat(container.getModel().size()).isEqualTo(1);
+    assertThat(container.getRedirectModel().get(queryParamName)).isEqualTo(queryParam);
+    assertThat(container.getRedirectModel().size()).isEqualTo(1);
     assertThat(this.attributeStore.retrieveAttribute(this.webRequest, attributeName)).isEqualTo(attribute);
   }
 
   private ModelFactory createModelFactory(String methodName, Class<?>... parameterTypes) throws Throwable {
-    HandlerMethodArgumentResolverComposite resolvers = new HandlerMethodArgumentResolverComposite();
-    resolvers.addResolver(new ModelMethodProcessor());
 
     InvocableHandlerMethod modelMethod = createHandlerMethod(methodName, parameterTypes);
-    modelMethod.setHandlerMethodArgumentResolvers(resolvers);
-    modelMethod.setDataBinderFactory(null);
-    modelMethod.setParameterNameDiscoverer(new LocalVariableTableParameterNameDiscoverer());
+    ParameterResolvingRegistry registry = new ParameterResolvingRegistry();
+    registry.getCustomizedStrategies().add(new ModelMethodProcessor());
 
+    modelMethod.setResolvingRegistry(registry);
     return new ModelFactory(Collections.singletonList(modelMethod), null, this.attributeHandler);
   }
 
