@@ -26,7 +26,7 @@ import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.handler.method.ActionMappingAnnotationHandler;
 import cn.taketoday.web.handler.method.HandlerMethod;
 import cn.taketoday.web.handler.method.ResolvableMethodParameter;
-import cn.taketoday.web.handler.result.HandlerMethodReturnValueHandler;
+import cn.taketoday.web.handler.result.SmartReturnValueHandler;
 import cn.taketoday.web.view.Model;
 import cn.taketoday.web.view.RedirectModel;
 
@@ -44,11 +44,11 @@ import cn.taketoday.web.view.RedirectModel;
  * @see Model
  * @since 4.0 2022/4/27 16:51
  */
-public class ModelMethodProcessor implements HandlerMethodReturnValueHandler, ParameterResolvingStrategy {
+public class ModelMethodProcessor implements SmartReturnValueHandler, ParameterResolvingStrategy {
 
   @Override
   public boolean supportsParameter(ResolvableMethodParameter resolvable) {
-    return resolvable.is(Model.class) || resolvable.is(RedirectModel.class);
+    return resolvable.isAssignableTo(Model.class);
   }
 
   @Override
@@ -57,8 +57,12 @@ public class ModelMethodProcessor implements HandlerMethodReturnValueHandler, Pa
   }
 
   @Override
-  public boolean supportsHandlerMethod(HandlerMethod handler) {
-    return handler.isReturnTypeAssignableTo(Model.class);
+  public boolean supportsHandler(Object handler) {
+    HandlerMethod handlerMethod = getHandlerMethod(handler);
+    if (handlerMethod != null) {
+      return handlerMethod.isReturnTypeAssignableTo(Model.class);
+    }
+    return false;
   }
 
   @Override
