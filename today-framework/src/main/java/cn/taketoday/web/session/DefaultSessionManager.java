@@ -68,6 +68,8 @@ public class DefaultSessionManager implements SessionManager {
   @Override
   public WebSession createSession(RequestContext context) {
     WebSession session = sessionRepository.createSession();
+    session.start();
+    session.save();
     sessionIdResolver.setSessionId(context, session.getId());
     return session;
   }
@@ -94,24 +96,16 @@ public class DefaultSessionManager implements SessionManager {
       WebSession session = sessionRepository.retrieveSession(sessionId);
       if (session == null && create) {
         // create a new session
-        session = createSession0(context);
+        session = createSession(context);
       }
       return session;
     }
     else if (create) {
       // no session id
       // create a new session
-      return createSession0(context);
+      return createSession(context);
     }
     return null;
-  }
-
-  private WebSession createSession0(RequestContext context) {
-    WebSession session = sessionRepository.createSession();
-    session.start();
-    session.save();
-    sessionIdResolver.setSessionId(context, session.getId());
-    return session;
   }
 
   public SessionIdResolver getSessionIdResolver() {
