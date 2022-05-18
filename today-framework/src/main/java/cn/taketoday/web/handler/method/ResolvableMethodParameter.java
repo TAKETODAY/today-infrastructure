@@ -180,6 +180,7 @@ public class ResolvableMethodParameter extends AttributeAccessorSupport {
    * @param annotationType the annotation type to look for
    * @return the annotation object, or {@code null} if not found
    */
+  @Nullable
   public <A extends Annotation> A getParameterAnnotation(Class<A> annotationType) {
     return parameter.getParameterAnnotation(annotationType);
   }

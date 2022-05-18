@@ -23,18 +23,17 @@ package cn.taketoday.context.support;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import cn.taketoday.beans.factory.BeanCreationException;
-import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
-import cn.taketoday.beans.factory.support.StandardBeanFactory;
-import cn.taketoday.context.ConfigurableApplicationContext;
-import cn.taketoday.context.support.ClassPathXmlApplicationContext;
-import cn.taketoday.context.support.GenericApplicationContext;
 
 import java.lang.reflect.Field;
 import java.util.Map;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import cn.taketoday.beans.factory.BeanCreationException;
+import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
+import cn.taketoday.beans.factory.support.StandardBeanFactory;
+import cn.taketoday.context.ConfigurableApplicationContext;
+
 import static cn.taketoday.beans.factory.support.BeanDefinitionBuilder.rootBeanDefinition;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Unit tests cornering SPR-7502.
@@ -43,75 +42,75 @@ import static cn.taketoday.beans.factory.support.BeanDefinitionBuilder.rootBeanD
  */
 public class SerializableBeanFactoryMemoryLeakTests {
 
-	/**
-	 * Defensively zero-out static factory count - other tests
-	 * may have misbehaved before us.
-	 */
-	@BeforeAll
-	@AfterAll
-	public static void zeroOutFactoryCount() throws Exception {
-		getSerializableFactoryMap().clear();
-	}
+  /**
+   * Defensively zero-out static factory count - other tests
+   * may have misbehaved before us.
+   */
+  @BeforeAll
+  @AfterAll
+  public static void zeroOutFactoryCount() throws Exception {
+    getSerializableFactoryMap().clear();
+  }
 
-	@Test
-	public void genericContext() throws Exception {
-		assertFactoryCountThroughoutLifecycle(new GenericApplicationContext());
-	}
+  @Test
+  public void genericContext() throws Exception {
+    assertFactoryCountThroughoutLifecycle(new GenericApplicationContext());
+  }
 
-	@Test
-	public void abstractRefreshableContext() throws Exception {
-		assertFactoryCountThroughoutLifecycle(new ClassPathXmlApplicationContext());
-	}
+  @Test
+  public void abstractRefreshableContext() throws Exception {
+    assertFactoryCountThroughoutLifecycle(new ClassPathXmlApplicationContext());
+  }
 
-	@Test
-	public void genericContextWithMisconfiguredBean() throws Exception {
-		GenericApplicationContext ctx = new GenericApplicationContext();
-		registerMisconfiguredBeanDefinition(ctx);
-		assertFactoryCountThroughoutLifecycle(ctx);
-	}
+  @Test
+  public void genericContextWithMisconfiguredBean() throws Exception {
+    GenericApplicationContext ctx = new GenericApplicationContext();
+    registerMisconfiguredBeanDefinition(ctx);
+    assertFactoryCountThroughoutLifecycle(ctx);
+  }
 
-	@Test
-	public void abstractRefreshableContextWithMisconfiguredBean() throws Exception {
-		ClassPathXmlApplicationContext ctx = new ClassPathXmlApplicationContext() {
-			@Override
-			protected void customizeBeanFactory(StandardBeanFactory beanFactory) {
-				super.customizeBeanFactory(beanFactory);
-				registerMisconfiguredBeanDefinition(beanFactory);
-			}
-		};
-		assertFactoryCountThroughoutLifecycle(ctx);
-	}
+  @Test
+  public void abstractRefreshableContextWithMisconfiguredBean() throws Exception {
+    ClassPathXmlApplicationContext ctx = new ClassPathXmlApplicationContext() {
+      @Override
+      protected void customizeBeanFactory(StandardBeanFactory beanFactory) {
+        super.customizeBeanFactory(beanFactory);
+        registerMisconfiguredBeanDefinition(beanFactory);
+      }
+    };
+    assertFactoryCountThroughoutLifecycle(ctx);
+  }
 
-	private void assertFactoryCountThroughoutLifecycle(ConfigurableApplicationContext ctx) throws Exception {
-		assertThat(serializableFactoryCount()).isEqualTo(0);
-		try {
-			ctx.refresh();
-			assertThat(serializableFactoryCount()).isEqualTo(1);
-			ctx.close();
-		}
-		catch (BeanCreationException ex) {
-			// ignore - this is expected on refresh() for failure case tests
-		}
-		finally {
-			assertThat(serializableFactoryCount()).isEqualTo(0);
-		}
-	}
+  private void assertFactoryCountThroughoutLifecycle(ConfigurableApplicationContext ctx) throws Exception {
+    assertThat(serializableFactoryCount()).isEqualTo(0);
+    try {
+      ctx.refresh();
+      assertThat(serializableFactoryCount()).isEqualTo(1);
+      ctx.close();
+    }
+    catch (BeanCreationException ex) {
+      // ignore - this is expected on refresh() for failure case tests
+    }
+    finally {
+      assertThat(serializableFactoryCount()).isEqualTo(0);
+    }
+  }
 
-	private void registerMisconfiguredBeanDefinition(BeanDefinitionRegistry registry) {
-		registry.registerBeanDefinition("misconfigured",
-			rootBeanDefinition(Object.class).addPropertyValue("nonexistent", "bogus")
-				.getBeanDefinition());
-	}
+  private void registerMisconfiguredBeanDefinition(BeanDefinitionRegistry registry) {
+    registry.registerBeanDefinition("misconfigured",
+            rootBeanDefinition(Object.class).addPropertyValue("nonexistent", "bogus")
+                    .getBeanDefinition());
+  }
 
-	private int serializableFactoryCount() throws Exception {
-		Map<?, ?> map = getSerializableFactoryMap();
-		return map.size();
-	}
+  private int serializableFactoryCount() throws Exception {
+    Map<?, ?> map = getSerializableFactoryMap();
+    return map.size();
+  }
 
-	private static Map<?, ?> getSerializableFactoryMap() throws Exception {
-		Field field = StandardBeanFactory.class.getDeclaredField("serializableFactories");
-		field.setAccessible(true);
-		return (Map<?, ?>) field.get(StandardBeanFactory.class);
-	}
+  private static Map<?, ?> getSerializableFactoryMap() throws Exception {
+    Field field = StandardBeanFactory.class.getDeclaredField("serializableFactories");
+    field.setAccessible(true);
+    return (Map<?, ?>) field.get(StandardBeanFactory.class);
+  }
 
 }

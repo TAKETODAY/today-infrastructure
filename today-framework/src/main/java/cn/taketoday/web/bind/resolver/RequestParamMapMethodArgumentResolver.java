@@ -65,10 +65,12 @@ public class RequestParamMapMethodArgumentResolver implements ParameterResolving
 
   @Override
   public boolean supportsParameter(ResolvableMethodParameter resolvable) {
-    RequestParam requestParam = resolvable.getParameterAnnotation(RequestParam.class);
-    return requestParam != null
-            && Map.class.isAssignableFrom(resolvable.getParameterType())
-            && !StringUtils.hasText(requestParam.name());
+    if (Map.class.isAssignableFrom(resolvable.getParameterType())) {
+      RequestParam requestParam = resolvable.getParameterAnnotation(RequestParam.class);
+      return requestParam != null
+              && !StringUtils.hasText(requestParam.name());
+    }
+    return false;
   }
 
   @Nullable
@@ -81,7 +83,7 @@ public class RequestParamMapMethodArgumentResolver implements ParameterResolving
       Class<?> valueType = resolvableType.as(MultiValueMap.class).getGeneric(1).resolve();
       if (valueType == MultipartFile.class) {
         MultipartRequest multipartRequest = context.getMultipartRequest();
-        return (multipartRequest != null ? multipartRequest.getMultipartFiles() : new LinkedMultiValueMap<>(0));
+        return multipartRequest != null ? multipartRequest.getMultipartFiles() : new LinkedMultiValueMap<>();
       }
       else if (ServletDetector.runningInServlet(context) && valueType == Part.class) {
         if (context.isMultipart()) {
@@ -93,7 +95,7 @@ public class RequestParamMapMethodArgumentResolver implements ParameterResolving
           }
           return result;
         }
-        return new LinkedMultiValueMap<>(0);
+        return new LinkedMultiValueMap<>();
       }
       else {
         Map<String, String[]> parameterMap = context.getParameters();
@@ -114,7 +116,7 @@ public class RequestParamMapMethodArgumentResolver implements ParameterResolving
         MultipartRequest multipartRequest = context.getMultipartRequest();
         return multipartRequest.getFileMap();
       }
-      else if (valueType == Part.class) {
+      else if (ServletDetector.runningInServlet(context) && valueType == Part.class) {
         if (context.isMultipart()) {
           HttpServletRequest servletRequest = ServletUtils.getServletRequest(context);
           Collection<Part> parts = servletRequest.getParts();
@@ -126,16 +128,19 @@ public class RequestParamMapMethodArgumentResolver implements ParameterResolving
           }
           return result;
         }
-        return new LinkedHashMap<>(0);
+        return new LinkedHashMap<>();
       }
       else {
         Map<String, String[]> parameterMap = context.getParameters();
         Map<String, String> result = CollectionUtils.newLinkedHashMap(parameterMap.size());
-        parameterMap.forEach((key, values) -> {
+
+        for (Map.Entry<String, String[]> entry : parameterMap.entrySet()) {
+          String[] values = entry.getValue();
           if (values.length > 0) {
-            result.put(key, values[0]);
+            result.put(entry.getKey(), values[0]);
           }
-        });
+        }
+
         return result;
       }
     }
