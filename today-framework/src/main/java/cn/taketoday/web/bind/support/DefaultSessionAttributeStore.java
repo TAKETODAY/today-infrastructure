@@ -52,7 +52,7 @@ public class DefaultSessionAttributeStore implements SessionAttributeStore {
    * same name as in the model.
    */
   public void setAttributeNamePrefix(@Nullable String attributeNamePrefix) {
-    this.attributeNamePrefix = (attributeNamePrefix != null ? attributeNamePrefix : "");
+    this.attributeNamePrefix = attributeNamePrefix != null ? attributeNamePrefix : "";
   }
 
   @Override
@@ -92,6 +92,9 @@ public class DefaultSessionAttributeStore implements SessionAttributeStore {
    * @return the attribute name in the backend session
    */
   protected String getAttributeNameInSession(RequestContext request, String attributeName) {
+    if (attributeNamePrefix.isEmpty()) {
+      return attributeName;
+    }
     return this.attributeNamePrefix + attributeName;
   }
 
