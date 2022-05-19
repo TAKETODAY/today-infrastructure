@@ -35,7 +35,7 @@ import java.util.Map;
 import cn.taketoday.context.properties.ConfigurationProperties;
 import cn.taketoday.context.properties.NestedConfigurationProperty;
 import cn.taketoday.format.annotation.DurationUnit;
-import cn.taketoday.framework.web.ErrorProperties;
+import cn.taketoday.framework.web.error.ErrorProperties;
 import cn.taketoday.framework.web.servlet.server.Jsp;
 import cn.taketoday.framework.web.session.Cookie;
 import cn.taketoday.framework.web.session.Session;

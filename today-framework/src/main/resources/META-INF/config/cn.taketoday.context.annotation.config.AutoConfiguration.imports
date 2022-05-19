@@ -4,3 +4,4 @@ cn.taketoday.framework.annotation.MessageSourceAutoConfiguration
 cn.taketoday.framework.annotation.PropertyPlaceholderAutoConfiguration
 cn.taketoday.framework.web.servlet.config.ServletWebServerFactoryAutoConfiguration
 cn.taketoday.framework.web.servlet.config.DispatcherServletAutoConfiguration
+cn.taketoday.framework.web.embedded.config.EmbeddedWebServerFactoryCustomizerAutoConfiguration

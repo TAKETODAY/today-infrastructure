@@ -18,7 +18,7 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.framework.web;
+package cn.taketoday.framework.web.error;
 
 import cn.taketoday.beans.factory.annotation.Value;
 
@@ -122,28 +122,6 @@ public class ErrorProperties {
 
     /**
      * Add stacktrace attribute when the appropriate request parameter is not "false".
-     */
-    ON_PARAM
-
-  }
-
-  /**
-   * Include error attributes options.
-   */
-  public enum IncludeAttribute {
-
-    /**
-     * Never add error attribute.
-     */
-    NEVER,
-
-    /**
-     * Always add error attribute.
-     */
-    ALWAYS,
-
-    /**
-     * Add error attribute when the appropriate request parameter is not "false".
      */
     ON_PARAM
 
