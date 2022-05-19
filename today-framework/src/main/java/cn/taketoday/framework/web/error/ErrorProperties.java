@@ -105,28 +105,6 @@ public class ErrorProperties {
     return this.whitelabel;
   }
 
-  /**
-   * Include Stacktrace attribute options.
-   */
-  public enum IncludeStacktrace {
-
-    /**
-     * Never add stacktrace information.
-     */
-    NEVER,
-
-    /**
-     * Always add stacktrace information.
-     */
-    ALWAYS,
-
-    /**
-     * Add stacktrace attribute when the appropriate request parameter is not "false".
-     */
-    ON_PARAM
-
-  }
-
   public static class Whitelabel {
 
     /**
