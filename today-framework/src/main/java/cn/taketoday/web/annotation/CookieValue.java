@@ -24,31 +24,58 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import cn.taketoday.core.annotation.AliasFor;
 import cn.taketoday.lang.Constant;
 
 /**
  * Annotation which indicates that a method parameter should be bound to an HTTP
  * cookie.
+ * <p>The method parameter may be declared as type {@link jakarta.servlet.http.Cookie}
+ * or as cookie value type (String, int, etc.).
  *
- * @author TODAY <br>
- * 2018-07-01 14:10:04 <br>
- * 2018-08-21 19:16 <b>change</b> add defaultValue()
+ * @author Juergen Hoeller
+ * @author Sam Brannen
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @see RequestMapping
+ * @see RequestParam
+ * @see RequestHeader
+ * @since 2018-07-01 14:10:04
  */
 @RequestParam
 @Target({ ElementType.PARAMETER, ElementType.FIELD })
 @Retention(RetentionPolicy.RUNTIME)
 public @interface CookieValue {
 
+  /**
+   * Alias for {@link #name}.
+   */
+  @AliasFor("name")
+  String value() default "";
+
+  /**
+   * The name of the cookie to bind to.
+   *
+   * @since 4.0
+   */
+  @AliasFor("value")
+  String name() default "";
+
+  /**
+   * Whether the cookie is required.
+   * <p>Defaults to {@code true}, leading to an exception being thrown
+   * if the cookie is missing in the request. Switch this to
+   * {@code false} if you prefer a {@code null} value if the cookie is
+   * not present in the request.
+   * <p>Alternatively, provide a {@link #defaultValue}, which implicitly
+   * sets this flag to {@code false}.
+   */
   boolean required() default true;
 
   /**
-   * The name of cookie.
+   * The default value to use as a fallback.
+   * <p>Supplying a default value implicitly sets {@link #required} to
+   * {@code false}.
    */
-  String value() default Constant.BLANK;
-
-  /**
-   * When required == false, and parameter == null. use default value.
-   */
-  String defaultValue() default Constant.BLANK;
+  String defaultValue() default Constant.DEFAULT_NONE;
 
 }

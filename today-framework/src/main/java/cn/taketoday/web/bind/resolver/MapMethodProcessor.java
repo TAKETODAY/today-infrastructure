@@ -27,7 +27,7 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.handler.method.HandlerMethod;
 import cn.taketoday.web.handler.method.ResolvableMethodParameter;
-import cn.taketoday.web.handler.result.HandlerMethodReturnValueHandler;
+import cn.taketoday.web.handler.result.SmartReturnValueHandler;
 
 /**
  * Resolves {@code Map<String, Object> model} method arguments and handles {@link Map} return values.
@@ -41,7 +41,7 @@ import cn.taketoday.web.handler.result.HandlerMethodReturnValueHandler;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see HandlerMethod
  */
-public class MapMethodProcessor implements ParameterResolvingStrategy, HandlerMethodReturnValueHandler {
+public class MapMethodProcessor implements ParameterResolvingStrategy, SmartReturnValueHandler {
 
   @Override
   public boolean supportsParameter(ResolvableMethodParameter resolvable) {
@@ -67,8 +67,12 @@ public class MapMethodProcessor implements ParameterResolvingStrategy, HandlerMe
   // HandlerMethodReturnValueHandler
 
   @Override
-  public boolean supportsHandlerMethod(HandlerMethod handler) {
-    return handler.isReturnTypeAssignableTo(Map.class);
+  public boolean supportsHandler(Object handler) {
+    HandlerMethod handlerMethod = ModelMethodProcessor.getHandlerMethod(handler);
+    if (handlerMethod != null) {
+      return handlerMethod.isReturnTypeAssignableTo(Map.class);
+    }
+    return false;
   }
 
   @Override

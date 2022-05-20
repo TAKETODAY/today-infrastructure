@@ -35,7 +35,7 @@ import cn.taketoday.web.handler.method.ResolvableMethodParameter;
  * 2019-07-12 23:39
  */
 public class CookieParameterResolver
-        extends AbstractParameterResolver implements ParameterResolvingStrategy {
+        extends AbstractNamedValueResolvingStrategy implements ParameterResolvingStrategy {
 
   @Override
   public boolean supportsParameter(final ResolvableMethodParameter resolvable) {
@@ -43,20 +43,15 @@ public class CookieParameterResolver
   }
 
   @Override
-  protected Object missingParameter(ResolvableMethodParameter parameter) {
+  protected void handleMissingValue(String name, MethodParameter parameter) {
     // no cookie
-    throw new MissingRequestCookieException(parameter.getName(), parameter.getParameter());
+    throw new MissingRequestCookieException(name, parameter);
   }
 
+  @Nullable
   @Override
-  protected Object resolveInternal(final RequestContext context, final ResolvableMethodParameter parameter) {
-    final String name = parameter.getName();
-    for (final HttpCookie cookie : context.getCookies()) {
-      if (name.equals(cookie.getName())) {
-        return cookie;
-      }
-    }
-    return null;
+  protected Object resolveName(String name, ResolvableMethodParameter resolvable, RequestContext context) throws Exception {
+    return context.getCookie(name);
   }
 
   public static void register(ParameterResolvingStrategies resolvers, ConfigurableBeanFactory beanFactory) {

@@ -23,6 +23,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.annotation.ServletContextAttribute;
 import cn.taketoday.web.annotation.SessionAttribute;
@@ -148,11 +150,13 @@ public class ServletParameterResolvers {
 
     @Override
     public Object resolveArgument(RequestContext context, ResolvableMethodParameter resolvable) throws Throwable {
-
       String name = resolvable.getName();
-      for (Cookie cookie : context.unwrapRequest(HttpServletRequest.class).getCookies()) {
-        if (name.equals(cookie.getName())) {
-          return cookie;
+      Cookie[] cookies = context.unwrapRequest(HttpServletRequest.class).getCookies();
+      if (ObjectUtils.isNotEmpty(cookies)) {
+        for (Cookie cookie : cookies) {
+          if (name.equals(cookie.getName())) {
+            return cookie;
+          }
         }
       }
       // no cookie
@@ -193,7 +197,7 @@ public class ServletParameterResolvers {
     }
   }
 
-  static class ServletContextAttributeParameterResolver implements ParameterResolvingStrategy {
+  static class ServletContextAttributeParameterResolver extends AbstractNamedValueResolvingStrategy {
     private final ServletContext servletContext;
 
     public ServletContextAttributeParameterResolver(ServletContext servletContext) {
@@ -205,9 +209,11 @@ public class ServletParameterResolvers {
       return parameter.hasParameterAnnotation(ServletContextAttribute.class);
     }
 
+    @Nullable
     @Override
-    public Object resolveArgument(RequestContext context, ResolvableMethodParameter resolvable) throws Throwable {
-      return servletContext.getAttribute(resolvable.getName());
+    protected Object resolveName(String name, ResolvableMethodParameter resolvable, RequestContext context) throws Exception {
+      return servletContext.getAttribute(name);
     }
+
   }
 }

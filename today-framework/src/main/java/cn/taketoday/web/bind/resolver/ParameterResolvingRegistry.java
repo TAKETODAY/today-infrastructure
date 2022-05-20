@@ -172,7 +172,7 @@ public class ParameterResolvingRegistry
   }
 
   /**
-   * find parameter resolving strategy
+   * find parameter resolving strategies
    * <p>
    * find in {@code customizedResolvers} and when find in {@code defaultResolvers}
    *
@@ -296,6 +296,7 @@ public class ParameterResolvingRegistry
     strategies.trimToSize();
   }
 
+  @Deprecated
   private void registerMultipart(ParameterResolvingStrategies strategies) {
     // For multipart
     // -------------------------------------------
@@ -319,6 +320,7 @@ public class ParameterResolvingRegistry
   /**
    * config ParameterResolver using {@link cn.taketoday.web.bind.WebDataBinder}
    */
+  @Deprecated
   public void configureDataBinder(ParameterResolvingStrategies strategies) {
     BeanDefinitionRegistry registry = obtainApplicationContext().unwrapFactory(
             BeanDefinitionRegistry.class);
@@ -360,6 +362,14 @@ public class ParameterResolvingRegistry
   }
 
   //
+
+  public void addStrategies(ParameterResolvingStrategy... strategies) {
+    customizedStrategies.add(strategies);
+  }
+
+  public void addDefaultStrategies(ParameterResolvingStrategy... strategies) {
+    defaultStrategies.add(strategies);
+  }
 
   public void setRedirectModelManager(@Nullable RedirectModelManager redirectModelManager) {
     this.redirectModelManager = redirectModelManager;
