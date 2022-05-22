@@ -65,6 +65,9 @@ import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.multipart.MultipartRequest;
+import cn.taketoday.web.util.UriComponents;
+import cn.taketoday.web.util.UriComponentsBuilder;
+import jakarta.servlet.http.HttpServletRequest;
 
 import static cn.taketoday.lang.Constant.DEFAULT_CHARSET;
 
@@ -148,6 +151,9 @@ public abstract class RequestContext extends AttributeAccessorSupport
   protected BindingContext bindingContext;
 
   protected Boolean multipartFlag;
+
+  protected Boolean preFlightRequestFlag;
+  protected Boolean corsRequestFlag;
 
   protected RequestContext(ApplicationContext context) {
     this.applicationContext = context;
@@ -643,6 +649,67 @@ public abstract class RequestContext extends AttributeAccessorSupport
     if (multipartRequest != null) {
       multipartRequest.cleanup();
     }
+  }
+
+  /**
+   * Returns {@code true} if the request is a valid CORS pre-flight
+   * one by checking {code OPTIONS} method with {@code Origin} and
+   * {@code Access-Control-Request-Method} headers presence.
+   *
+   * @since 4.0
+   */
+  public boolean isPreFlightRequest() {
+    Boolean preFlightRequestFlag = this.preFlightRequestFlag;
+    if (preFlightRequestFlag == null) {
+      if (HttpMethod.OPTIONS == getMethod()) {
+        HttpHeaders httpHeaders = requestHeaders();
+        preFlightRequestFlag = httpHeaders.getFirst(HttpHeaders.ORIGIN) != null
+                && httpHeaders.getFirst(HttpHeaders.ACCESS_CONTROL_REQUEST_METHOD) != null;
+      }
+      else {
+        preFlightRequestFlag = false;
+      }
+      this.preFlightRequestFlag = preFlightRequestFlag;
+    }
+    return preFlightRequestFlag;
+  }
+
+  /**
+   * Returns {@code true} if the request is a valid CORS one by checking
+   * {@code Origin}header presence and ensuring that origins are different.
+   *
+   * @since 4.0
+   */
+  public boolean isCorsRequest() {
+    Boolean corsRequestFlag = this.corsRequestFlag;
+    if (corsRequestFlag == null) {
+      String origin = requestHeaders().getFirst(HttpHeaders.ORIGIN);
+      if (origin == null) {
+        corsRequestFlag = false;
+      }
+      else {
+        UriComponents originUrl = UriComponentsBuilder.fromOriginHeader(origin).build();
+        String scheme = getScheme();
+        String host = getServerName();
+        int port = getServerPort();
+        corsRequestFlag = !(ObjectUtils.nullSafeEquals(scheme, originUrl.getScheme())
+                && ObjectUtils.nullSafeEquals(host, originUrl.getHost())
+                && getPort(scheme, port) == getPort(originUrl.getScheme(), originUrl.getPort()));
+      }
+    }
+    return corsRequestFlag;
+  }
+
+  protected static int getPort(@Nullable String scheme, int port) {
+    if (port == -1) {
+      if ("http".equals(scheme) || "ws".equals(scheme)) {
+        port = 80;
+      }
+      else if ("https".equals(scheme) || "wss".equals(scheme)) {
+        port = 443;
+      }
+    }
+    return port;
   }
 
   /**
