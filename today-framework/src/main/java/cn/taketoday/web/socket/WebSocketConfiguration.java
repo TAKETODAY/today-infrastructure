@@ -30,7 +30,7 @@ import cn.taketoday.web.socket.annotation.EndpointParameterResolver;
  */
 public interface WebSocketConfiguration {
 
-  default void configureWebSocketHandlers(WebSocketHandlerRegistry registry) {
+  default void configureWebSocketHandlers(WebSocketHandlerMapping registry) {
     // no-op
   }
 

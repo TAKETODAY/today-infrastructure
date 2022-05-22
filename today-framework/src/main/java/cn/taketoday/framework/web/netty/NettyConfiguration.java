@@ -32,7 +32,7 @@ import cn.taketoday.framework.web.embedded.netty.NettyReactiveWebServerFactory;
 import cn.taketoday.lang.Singleton;
 import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.handler.DispatcherHandler;
-import cn.taketoday.web.socket.WebSocketHandlerRegistry;
+import cn.taketoday.web.socket.WebSocketHandlerMapping;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
@@ -49,7 +49,7 @@ public class NettyConfiguration {
           WebApplicationContext context,
           NettyDispatcher nettyDispatcher,
           NettyRequestConfig contextConfig,
-          @Autowired(required = false) WebSocketHandlerRegistry registry) {
+          @Autowired(required = false) WebSocketHandlerMapping registry) {
     if (registry != null) {
       return new WebSocketReactiveChannelHandler(nettyDispatcher, contextConfig, context);
     }

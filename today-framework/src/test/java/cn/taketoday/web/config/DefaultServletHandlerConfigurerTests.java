@@ -23,7 +23,7 @@ package cn.taketoday.web.config;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import cn.taketoday.web.registry.SimpleUrlHandlerRegistry;
+import cn.taketoday.web.registry.SimpleUrlHandlerMapping;
 import cn.taketoday.web.resource.DefaultServletHttpRequestHandler;
 import cn.taketoday.web.servlet.ServletRequestContext;
 import cn.taketoday.web.testfixture.servlet.MockHttpServletRequest;
@@ -61,7 +61,7 @@ class DefaultServletHandlerConfigurerTests {
   @Test
   public void enable() throws Throwable {
     configurer.enable();
-    SimpleUrlHandlerRegistry handlerMapping = configurer.buildHandlerRegistry();
+    SimpleUrlHandlerMapping handlerMapping = configurer.buildHandlerRegistry();
     DefaultServletHttpRequestHandler handler = (DefaultServletHttpRequestHandler) handlerMapping.getUrlMap().get("/**");
 
     assertThat(handler).isNotNull();
@@ -77,7 +77,7 @@ class DefaultServletHandlerConfigurerTests {
   @Test
   public void enableWithServletName() throws Throwable {
     configurer.enable("defaultServlet");
-    SimpleUrlHandlerRegistry handlerMapping = configurer.buildHandlerRegistry();
+    SimpleUrlHandlerMapping handlerMapping = configurer.buildHandlerRegistry();
     DefaultServletHttpRequestHandler handler = (DefaultServletHttpRequestHandler) handlerMapping.getUrlMap().get("/**");
 
     assertThat(handler).isNotNull();

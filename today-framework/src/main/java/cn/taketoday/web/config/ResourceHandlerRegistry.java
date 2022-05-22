@@ -33,9 +33,8 @@ import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.accept.ContentNegotiationManager;
 import cn.taketoday.web.handler.RequestHandler;
-import cn.taketoday.web.registry.AbstractHandlerRegistry;
-import cn.taketoday.web.registry.HandlerRegistry;
-import cn.taketoday.web.registry.SimpleUrlHandlerRegistry;
+import cn.taketoday.web.registry.HandlerMapping;
+import cn.taketoday.web.registry.SimpleUrlHandlerMapping;
 import cn.taketoday.web.resource.ResourceHttpRequestHandler;
 
 /**
@@ -118,7 +117,7 @@ public class ResourceHandlerRegistry {
   }
 
   /**
-   * Specify the order to use for resource handling relative to other {@link HandlerRegistry HandlerRegistries}
+   * Specify the order to use for resource handling relative to other {@link HandlerMapping HandlerRegistries}
    * configured in the MVC application context.
    * <p>The default value used is {@code Integer.MAX_VALUE-1}.
    */
@@ -132,7 +131,7 @@ public class ResourceHandlerRegistry {
    * of no registrations.
    */
   @Nullable
-  protected SimpleUrlHandlerRegistry getHandlerRegistry() {
+  protected SimpleUrlHandlerMapping getHandlerRegistry() {
     if (this.registrations.isEmpty()) {
       return null;
     }
@@ -143,7 +142,7 @@ public class ResourceHandlerRegistry {
         urlMap.put(pathPattern, handler);
       }
     }
-    return new SimpleUrlHandlerRegistry(urlMap, this.order);
+    return new SimpleUrlHandlerMapping(urlMap, this.order);
   }
 
   private ResourceHttpRequestHandler getRequestHandler(ResourceHandlerRegistration registration) {

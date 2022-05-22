@@ -138,9 +138,9 @@ public class WebContentInterceptor extends WebContentGenerator implements Handle
   }
 
   @Override
-  public boolean beforeProcess(RequestContext context, Object handler) {
-    checkRequest(context);
-    RequestPath path = context.getLookupPath();
+  public boolean beforeProcess(RequestContext request, Object handler) {
+    checkRequest(request);
+    RequestPath path = request.getLookupPath();
 
     if (ObjectUtils.isNotEmpty(cacheControlMappings)) {
       CacheControl control = lookupCacheControl(path);
@@ -148,7 +148,7 @@ public class WebContentInterceptor extends WebContentGenerator implements Handle
         if (log.isTraceEnabled()) {
           log.trace("Applying {}", control);
         }
-        applyCacheControl(context, control);
+        applyCacheControl(request, control);
         return true;
       }
     }
@@ -159,12 +159,12 @@ public class WebContentInterceptor extends WebContentGenerator implements Handle
         if (log.isTraceEnabled()) {
           log.trace("Applying cacheSeconds {}", cacheSeconds);
         }
-        applyCacheSeconds(context, cacheSeconds);
+        applyCacheSeconds(request, cacheSeconds);
         return true;
       }
     }
 
-    prepareResponse(context);
+    prepareResponse(request);
     return true;
   }
 

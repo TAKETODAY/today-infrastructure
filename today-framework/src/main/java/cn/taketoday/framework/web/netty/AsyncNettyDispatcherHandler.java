@@ -26,6 +26,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.UnaryOperator;
 
+import cn.taketoday.util.ExceptionUtils;
 import cn.taketoday.web.RequestContextHolder;
 import cn.taketoday.web.handler.DispatcherHandler;
 import io.netty.channel.ChannelHandlerContext;
@@ -73,7 +74,12 @@ public final class AsyncNettyDispatcherHandler extends NettyDispatcher {
     final class HandlerDetector implements Function<NettyRequestContext, Object> {
       @Override
       public Object apply(NettyRequestContext path) {
-        return dispatcherHandler.lookupHandler(path);
+        try {
+          return dispatcherHandler.lookupHandler(path);
+        }
+        catch (Exception e) {
+          throw ExceptionUtils.sneakyThrow(e);
+        }
       }
     }
 

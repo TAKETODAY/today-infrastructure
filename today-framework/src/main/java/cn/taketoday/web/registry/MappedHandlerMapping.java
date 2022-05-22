@@ -46,9 +46,9 @@ import cn.taketoday.web.handler.PatternHandler;
  * @author TODAY <br>
  * 2019-12-24 15:46
  */
-public class MappedHandlerRegistry extends AbstractUrlHandlerRegistry {
+public class MappedHandlerMapping extends AbstractUrlHandlerMapping {
   /** @since 3.0 */
-  static final String CACHE_NAME = MappedHandlerRegistry.class.getName() + "-pattern-matching";
+  static final String CACHE_NAME = MappedHandlerMapping.class.getName() + "-pattern-matching";
 
   private final HashMap<String, Object> handlers = new HashMap<>();
 
@@ -76,7 +76,7 @@ public class MappedHandlerRegistry extends AbstractUrlHandlerRegistry {
   }
 
   @Override
-  protected Object lookupInternal(RequestContext context) {
+  protected Object getHandlerInternal(RequestContext context) {
     String handlerKey = computeKey(context);
     Object handler = lookupHandler(handlerKey, context);
     if (handler == null) {

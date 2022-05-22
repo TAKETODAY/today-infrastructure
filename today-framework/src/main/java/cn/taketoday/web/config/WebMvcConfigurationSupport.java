@@ -100,11 +100,11 @@ import cn.taketoday.web.handler.method.RequestMappingHandlerAdapter;
 import cn.taketoday.web.handler.method.RequestMappingHandlerMapping;
 import cn.taketoday.web.handler.method.ResponseBodyAdvice;
 import cn.taketoday.web.multipart.MultipartConfig;
-import cn.taketoday.web.registry.AbstractHandlerRegistry;
-import cn.taketoday.web.registry.FunctionHandlerRegistry;
-import cn.taketoday.web.registry.HandlerRegistry;
-import cn.taketoday.web.registry.SimpleUrlHandlerRegistry;
-import cn.taketoday.web.registry.ViewControllerHandlerRegistry;
+import cn.taketoday.web.registry.AbstractHandlerMapping;
+import cn.taketoday.web.registry.FunctionHandlerMapping;
+import cn.taketoday.web.registry.HandlerMapping;
+import cn.taketoday.web.registry.SimpleUrlHandlerMapping;
+import cn.taketoday.web.registry.ViewControllerHandlerMapping;
 import cn.taketoday.web.resource.ResourceUrlProvider;
 import cn.taketoday.web.servlet.ServletViewResolverComposite;
 import cn.taketoday.web.servlet.WebServletApplicationContext;
@@ -491,13 +491,13 @@ public class WebMvcConfigurationSupport extends ApplicationContextSupport {
 
   @Component
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-  @ConditionalOnMissingBean(ViewControllerHandlerRegistry.class)
-  ViewControllerHandlerRegistry viewControllerHandlerRegistry(
+  @ConditionalOnMissingBean(ViewControllerHandlerMapping.class)
+  ViewControllerHandlerMapping viewControllerHandlerRegistry(
           ParameterResolvingRegistry resolvingRegistry, Environment environment) throws Exception {
     if (TodayStrategies.getFlag(ENABLE_WEB_MVC_XML, true)) {
       // find the configure file
       log.info("Framework is looking for ViewController configuration file");
-      var registry = new ViewControllerHandlerRegistry(
+      var registry = new ViewControllerHandlerMapping(
               new ParameterResolvingRegistryResolvableParameterFactory(resolvingRegistry));
 
       String webMvcConfigLocation = environment.getProperty(WEB_MVC_CONFIG_LOCATION);
@@ -520,7 +520,7 @@ public class WebMvcConfigurationSupport extends ApplicationContextSupport {
     return null;
   }
 
-  protected void configureViewController(ViewControllerHandlerRegistry registry) { }
+  protected void configureViewController(ViewControllerHandlerMapping registry) { }
 
   @Component
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
@@ -613,7 +613,7 @@ public class WebMvcConfigurationSupport extends ApplicationContextSupport {
   // HandlerRegistry
 
   /**
-   * core {@link cn.taketoday.web.registry.HandlerRegistry} to register handler
+   * core {@link HandlerMapping} to register handler
    */
   @Component
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
@@ -662,7 +662,7 @@ public class WebMvcConfigurationSupport extends ApplicationContextSupport {
   @Nullable
   @Component
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-  public HandlerRegistry resourceHandlerRegistry(
+  public HandlerMapping resourceHandlerRegistry(
           @Nullable ContentNegotiationManager contentNegotiationManager,
           ResourceUrlProvider resourceUrlProvider) {
 
@@ -672,7 +672,7 @@ public class WebMvcConfigurationSupport extends ApplicationContextSupport {
     ResourceHandlerRegistry registry = new ResourceHandlerRegistry(this.applicationContext, contentNegotiationManager);
     addResourceHandlers(registry);
 
-    SimpleUrlHandlerRegistry handlerRegistry = registry.getHandlerRegistry();
+    SimpleUrlHandlerMapping handlerRegistry = registry.getHandlerRegistry();
     if (handlerRegistry == null) {
       return null;
     }
@@ -688,8 +688,8 @@ public class WebMvcConfigurationSupport extends ApplicationContextSupport {
   @Component
   @ConditionalOnMissingBean
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-  public HandlerRegistry webFunctionHandlerRegistry() {
-    FunctionHandlerRegistry functionHandlerRegistry = new FunctionHandlerRegistry();
+  public HandlerMapping webFunctionHandlerRegistry() {
+    FunctionHandlerMapping functionHandlerRegistry = new FunctionHandlerMapping();
     functionHandlerRegistry.setApplicationContext(getApplicationContext());
     functionHandlerRegistry.setCorsConfigurations(getCorsConfigurations());
 
@@ -697,7 +697,7 @@ public class WebMvcConfigurationSupport extends ApplicationContextSupport {
     return functionHandlerRegistry;
   }
 
-  protected void configureFunctionHandler(FunctionHandlerRegistry functionHandlerRegistry) { }
+  protected void configureFunctionHandler(FunctionHandlerMapping functionHandlerRegistry) { }
 
   /**
    * Return a handler mapping ordered at 1 to map URL paths directly to
@@ -707,13 +707,13 @@ public class WebMvcConfigurationSupport extends ApplicationContextSupport {
   @Component
   @Nullable
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-  public HandlerRegistry viewControllerHandlerRegistry(
+  public HandlerMapping viewControllerHandlerRegistry(
           @Qualifier("mvcResourceUrlProvider") ResourceUrlProvider resourceUrlProvider) {
 
     ViewControllerRegistry registry = new ViewControllerRegistry(this.applicationContext);
     addViewControllers(registry);
 
-    AbstractHandlerRegistry handlerRegistry = registry.buildRegistry();
+    AbstractHandlerMapping handlerRegistry = registry.buildRegistry();
     if (handlerRegistry == null) {
       return null;
     }
@@ -742,7 +742,7 @@ public class WebMvcConfigurationSupport extends ApplicationContextSupport {
   @Component
   @Nullable
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-  public HandlerRegistry defaultServletHandlerRegistry() {
+  public HandlerMapping defaultServletHandlerRegistry() {
     if (ServletDetector.isPresent) {
       if (getApplicationContext() instanceof WebServletApplicationContext context) {
         ServletContext servletContext = context.getServletContext();
@@ -811,7 +811,7 @@ public class WebMvcConfigurationSupport extends ApplicationContextSupport {
 
   /**
    * Provide access to the shared handler interceptors used to configure
-   * {@link HandlerRegistry} instances with.
+   * {@link HandlerMapping} instances with.
    * <p>This method cannot be overridden; use {@link #addInterceptors} instead.
    */
   protected final Object[] getInterceptors(ResourceUrlProvider mvcResourceUrlProvider) {

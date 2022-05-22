@@ -34,7 +34,6 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.ServletDetector;
-import cn.taketoday.web.cors.CorsUtils;
 import cn.taketoday.web.servlet.ServletUtils;
 import jakarta.servlet.DispatcherType;
 import jakarta.servlet.http.HttpServletRequest;
@@ -129,7 +128,7 @@ public final class RequestMethodsRequestCondition extends AbstractRequestConditi
   @Override
   @Nullable
   public RequestMethodsRequestCondition getMatchingCondition(RequestContext request) {
-    if (CorsUtils.isPreFlightRequest(request)) {
+    if (request.isPreFlightRequest()) {
       return matchPreFlight(request);
     }
 

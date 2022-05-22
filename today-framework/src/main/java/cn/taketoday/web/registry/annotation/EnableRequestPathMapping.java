@@ -33,7 +33,7 @@ import cn.taketoday.context.annotation.Import;
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.METHOD, ElementType.TYPE })
-@Import(RequestPathMappingHandlerRegistry.class)
+@Import(RequestPathMappingHandlerMapping.class)
 public @interface EnableRequestPathMapping {
 
 }

@@ -38,7 +38,7 @@ import cn.taketoday.web.socket.annotation.AnnotationWebSocketHandlerBuilder;
 import cn.taketoday.web.socket.annotation.EndpointParameterResolver;
 import cn.taketoday.web.socket.annotation.MessageBodyEndpointParameterResolver;
 import cn.taketoday.web.socket.annotation.StandardAnnotationWebSocketHandlerBuilder;
-import cn.taketoday.web.socket.annotation.StandardWebSocketHandlerRegistry;
+import cn.taketoday.web.socket.annotation.StandardWebSocketHandlerMapping;
 import cn.taketoday.web.socket.annotation.WebSocketSessionParameterResolver;
 import cn.taketoday.web.socket.jetty.JettyWebSocketHandlerAdapter;
 import cn.taketoday.web.socket.tomcat.TomcatWebSocketHandlerAdapter;
@@ -74,9 +74,9 @@ class WebSocketConfig {
   }
 
   @MissingBean
-  WebSocketHandlerRegistry webSocketHandlerRegistry(
+  WebSocketHandlerMapping webSocketHandlerRegistry(
           List<WebSocketConfiguration> configurers, AnnotationWebSocketHandlerBuilder handlerBuilder) {
-    WebSocketHandlerRegistry registry = getRegistry(handlerBuilder);
+    WebSocketHandlerMapping registry = getRegistry(handlerBuilder);
 
     // configure WebSocketHandlers
     for (WebSocketConfiguration configurer : configurers) {
@@ -87,11 +87,11 @@ class WebSocketConfig {
   }
 
   @NonNull
-  private WebSocketHandlerRegistry getRegistry(AnnotationWebSocketHandlerBuilder handlerBuilder) {
+  private WebSocketHandlerMapping getRegistry(AnnotationWebSocketHandlerBuilder handlerBuilder) {
     if (ClassUtils.isPresent("jakarta.websocket.Session")) {
-      return new StandardWebSocketHandlerRegistry(handlerBuilder);
+      return new StandardWebSocketHandlerMapping(handlerBuilder);
     }
-    return new WebSocketHandlerRegistry(handlerBuilder);
+    return new WebSocketHandlerMapping(handlerBuilder);
   }
 
   @MissingBean

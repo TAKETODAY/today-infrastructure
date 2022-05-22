@@ -59,8 +59,8 @@ import cn.taketoday.web.handler.HandlerExceptionHandler;
 import cn.taketoday.web.handler.ReturnValueHandlerManager;
 import cn.taketoday.web.i18n.AcceptHeaderLocaleResolver;
 import cn.taketoday.web.i18n.FixedLocaleResolver;
-import cn.taketoday.web.registry.FunctionHandlerRegistry;
-import cn.taketoday.web.registry.ViewControllerHandlerRegistry;
+import cn.taketoday.web.registry.FunctionHandlerMapping;
+import cn.taketoday.web.registry.ViewControllerHandlerMapping;
 import cn.taketoday.web.resource.EncodedResourceResolver;
 import cn.taketoday.web.resource.ResourceResolver;
 import cn.taketoday.web.resource.VersionResourceResolver;
@@ -185,7 +185,7 @@ public class WebMvcAutoConfiguration extends WebMvcConfigurationSupport {
   }
 
   @Override
-  protected void configureFunctionHandler(FunctionHandlerRegistry functionHandlerRegistry) {
+  protected void configureFunctionHandler(FunctionHandlerMapping functionHandlerRegistry) {
     mvcConfiguration.configureFunctionHandler(functionHandlerRegistry);
   }
 
@@ -254,7 +254,7 @@ public class WebMvcAutoConfiguration extends WebMvcConfigurationSupport {
   }
 
   @Override
-  protected void configureViewController(ViewControllerHandlerRegistry registry) {
+  protected void configureViewController(ViewControllerHandlerMapping registry) {
     mvcConfiguration.configureViewController(registry);
   }
 

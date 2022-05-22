@@ -55,8 +55,8 @@ import cn.taketoday.web.handler.method.AnnotationHandlerFactory;
 import cn.taketoday.web.handler.method.HandlerMethod;
 import cn.taketoday.web.handler.method.ResolvableMethodParameter;
 import cn.taketoday.web.interceptor.HandlerInterceptor;
-import cn.taketoday.web.registry.AbstractUrlHandlerRegistry;
-import cn.taketoday.web.registry.HandlerRegistry;
+import cn.taketoday.web.registry.AbstractUrlHandlerMapping;
+import cn.taketoday.web.registry.HandlerMapping;
 import cn.taketoday.web.util.WebUtils;
 import cn.taketoday.web.util.pattern.PathPattern;
 import cn.taketoday.web.util.pattern.PathPatternParser;
@@ -67,8 +67,8 @@ import cn.taketoday.web.util.pattern.PathPatternParser;
  * @author TODAY <br>
  * 2018-07-1 20:47:06
  */
-public class HandlerMethodRegistry
-        extends AbstractUrlHandlerRegistry implements HandlerRegistry, SmartInitializingSingleton {
+public class HandlerMethodMapping
+        extends AbstractUrlHandlerMapping implements HandlerMapping, SmartInitializingSingleton {
 
   private ConfigurableBeanFactory beanFactory;
 
@@ -79,7 +79,7 @@ public class HandlerMethodRegistry
 
   private boolean detectHandlerMethodsInAncestorContexts = false;
 
-  public HandlerMethodRegistry() {
+  public HandlerMethodMapping() {
     setOrder(HIGHEST_PRECEDENCE);
   }
 
@@ -185,7 +185,7 @@ public class HandlerMethodRegistry
   }
 
   /**
-   * Mapping given HandlerMapping to {@link HandlerMethodRegistry}
+   * Mapping given HandlerMapping to {@link HandlerMethodMapping}
    *
    * @param handler current {@link ActionMappingAnnotationHandler}
    * methods on class
@@ -234,7 +234,7 @@ public class HandlerMethodRegistry
   }
 
   /**
-   * Mapping to {@link HandlerMethodRegistry}
+   * Mapping to {@link HandlerMethodMapping}
    *
    * @param handler {@link ActionMappingAnnotationHandler}
    * @param path Request path

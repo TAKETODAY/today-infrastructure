@@ -31,23 +31,23 @@ import static java.util.Objects.requireNonNull;
  *
  * @author TODAY 2019-12-08 23:15
  */
-public class HandlerRegistries implements HandlerRegistry {
+public class HandlerRegistries implements HandlerMapping {
 
-  private final HandlerRegistry[] handlerRegistries;
+  private final HandlerMapping[] handlerRegistries;
 
-  public HandlerRegistries(HandlerRegistry... registries) {
+  public HandlerRegistries(HandlerMapping... registries) {
     Assert.notNull(registries, "handler-registries is required");
     this.handlerRegistries = registries;
   }
 
-  public HandlerRegistries(List<HandlerRegistry> registries) {
-    this(requireNonNull(registries).toArray(new HandlerRegistry[registries.size()]));
+  public HandlerRegistries(List<HandlerMapping> registries) {
+    this(requireNonNull(registries).toArray(new HandlerMapping[registries.size()]));
   }
 
   @Override
-  public Object lookup(final RequestContext context) {
-    for (final HandlerRegistry registry : handlerRegistries) {
-      final Object ret = registry.lookup(context);
+  public Object getHandler(final RequestContext request) {
+    for (final HandlerMapping registry : handlerRegistries) {
+      final Object ret = registry.getHandler(request);
       if (ret != null) {
         return ret;
       }

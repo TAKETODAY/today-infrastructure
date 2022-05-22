@@ -28,7 +28,6 @@ import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.cors.CorsConfiguration;
 import cn.taketoday.web.cors.CorsConfigurationSource;
 import cn.taketoday.web.cors.CorsProcessor;
-import cn.taketoday.web.cors.CorsUtils;
 import cn.taketoday.web.cors.DefaultCorsProcessor;
 import cn.taketoday.web.cors.UrlBasedCorsConfigurationSource;
 import cn.taketoday.web.servlet.ServletRequestContext;
@@ -89,7 +88,7 @@ public class CorsFilter extends OncePerRequestFilter {
     try {
       CorsConfiguration corsConfiguration = this.configSource.getCorsConfiguration(context);
       if (!processor.process(corsConfiguration, context)
-              || CorsUtils.isPreFlightRequest(context)) {
+              || context.isPreFlightRequest()) {
         return;
       }
       // handle next

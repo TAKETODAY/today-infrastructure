@@ -41,12 +41,12 @@ public final class RuntimeHandlerInterceptor
   }
 
   @Override
-  public Object intercept(RequestContext context, InterceptorChain chain) throws Throwable {
-    String requestPath = context.getRequestPath();
+  public Object intercept(RequestContext request, InterceptorChain chain) throws Throwable {
+    String requestPath = request.getRequestPath();
     if (matchInRuntime(requestPath, pathMatcher)) {
-      return interceptor.intercept(context, chain);
+      return interceptor.intercept(request, chain);
     }
-    return chain.proceed(context); // next in the chain
+    return chain.proceed(request); // next in the chain
   }
 
 }

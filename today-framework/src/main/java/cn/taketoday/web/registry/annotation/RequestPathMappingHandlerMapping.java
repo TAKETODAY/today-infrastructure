@@ -49,7 +49,7 @@ import cn.taketoday.web.util.pattern.PathPattern;
  * @see ActionMapping#produces()
  * @since 3.0
  */
-public class RequestPathMappingHandlerRegistry extends HandlerMethodRegistry {
+public class RequestPathMappingHandlerMapping extends HandlerMethodMapping {
 
   @Override
   protected void mappingHandlerMethod(

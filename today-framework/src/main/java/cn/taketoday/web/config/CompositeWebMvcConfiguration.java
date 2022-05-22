@@ -32,9 +32,9 @@ import cn.taketoday.web.bind.resolver.ParameterResolvingStrategies;
 import cn.taketoday.web.handler.HandlerExceptionHandler;
 import cn.taketoday.web.handler.ReturnValueHandlerManager;
 import cn.taketoday.web.multipart.MultipartConfig;
-import cn.taketoday.web.registry.FunctionHandlerRegistry;
-import cn.taketoday.web.registry.HandlerRegistry;
-import cn.taketoday.web.registry.ViewControllerHandlerRegistry;
+import cn.taketoday.web.registry.FunctionHandlerMapping;
+import cn.taketoday.web.registry.HandlerMapping;
+import cn.taketoday.web.registry.ViewControllerHandlerMapping;
 
 /**
  * @author TODAY <br>
@@ -95,14 +95,14 @@ public class CompositeWebMvcConfiguration implements WebMvcConfiguration {
   }
 
   @Override
-  public void configureViewController(ViewControllerHandlerRegistry viewControllerHandlerRegistry) {
+  public void configureViewController(ViewControllerHandlerMapping viewControllerHandlerRegistry) {
     for (WebMvcConfiguration webMvcConfiguration : getWebMvcConfigurations()) {
       webMvcConfiguration.configureViewController(viewControllerHandlerRegistry);
     }
   }
 
   @Override
-  public void configureFunctionHandler(FunctionHandlerRegistry functionHandlerRegistry) {
+  public void configureFunctionHandler(FunctionHandlerMapping functionHandlerRegistry) {
     for (WebMvcConfiguration webMvcConfiguration : getWebMvcConfigurations()) {
       webMvcConfiguration.configureFunctionHandler(functionHandlerRegistry);
     }
@@ -121,7 +121,7 @@ public class CompositeWebMvcConfiguration implements WebMvcConfiguration {
   }
 
   @Override
-  public void configureHandlerRegistry(List<HandlerRegistry> handlerRegistries) {
+  public void configureHandlerRegistry(List<HandlerMapping> handlerRegistries) {
     for (WebMvcConfiguration webMvcConfiguration : getWebMvcConfigurations()) {
       webMvcConfiguration.configureHandlerRegistry(handlerRegistries);
     }

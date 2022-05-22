@@ -153,8 +153,8 @@ class ErrorPageFilterIntegrationTests {
       registry.addInterceptor(new HandlerInterceptor() {
 
         @Override
-        public void afterProcess(RequestContext context, Object handler, Object result) throws Throwable {
-          HelloWorldController.this.setStatus(context.getStatus());
+        public void afterProcess(RequestContext request, Object handler, Object result) throws Throwable {
+          HelloWorldController.this.setStatus(request.getStatus());
           HelloWorldController.this.latch.countDown();
         }
       });

@@ -29,7 +29,7 @@ import cn.taketoday.context.ApplicationContextException;
 import cn.taketoday.util.ObjectUtils;
 
 /**
- * Abstract implementation of the {@link HandlerRegistry} interface,
+ * Abstract implementation of the {@link HandlerMapping} interface,
  * detecting URL mappings for handler beans through introspection of all
  * defined beans in the application context.
  *
@@ -38,7 +38,7 @@ import cn.taketoday.util.ObjectUtils;
  * @see #determineUrlsForHandler
  * @since 4.0 2022/1/29 00:26
  */
-public abstract class AbstractDetectingUrlHandlerRegistry extends AbstractUrlHandlerRegistry {
+public abstract class AbstractDetectingUrlHandlerMapping extends AbstractUrlHandlerMapping {
 
   private boolean detectHandlersInAncestorContexts = false;
 

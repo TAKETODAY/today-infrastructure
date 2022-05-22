@@ -34,7 +34,7 @@ import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.core.io.ClassPathResource;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.framework.web.servlet.context.AnnotationConfigServletWebApplicationContext;
-import cn.taketoday.web.registry.SimpleUrlHandlerRegistry;
+import cn.taketoday.web.registry.SimpleUrlHandlerMapping;
 import cn.taketoday.web.servlet.ServletRequestContext;
 import cn.taketoday.web.testfixture.servlet.MockHttpServletRequest;
 import cn.taketoday.web.testfixture.servlet.MockServletContext;
@@ -206,8 +206,8 @@ public class ResourceUrlProviderTests {
   static class HandlerMappingConfiguration {
 
     @Bean
-    public SimpleUrlHandlerRegistry simpleUrlHandlerMapping() {
-      return new SimpleUrlHandlerRegistry(
+    public SimpleUrlHandlerMapping simpleUrlHandlerMapping() {
+      return new SimpleUrlHandlerMapping(
               Collections.singletonMap("/resources/**", new ResourceHttpRequestHandler()));
     }
 

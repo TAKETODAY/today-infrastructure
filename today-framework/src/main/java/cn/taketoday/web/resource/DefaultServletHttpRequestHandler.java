@@ -115,7 +115,7 @@ public class DefaultServletHttpRequestHandler implements RequestHandler, Servlet
   }
 
   @Override
-  public Object handleRequest(RequestContext context) throws Throwable {
+  public Object handleRequest(RequestContext request) throws Throwable {
     Assert.state(this.servletContext != null, "No ServletContext set");
     RequestDispatcher rd = this.servletContext.getNamedDispatcher(this.defaultServletName);
     if (rd == null) {
@@ -123,8 +123,8 @@ public class DefaultServletHttpRequestHandler implements RequestHandler, Servlet
               this.defaultServletName + "'");
     }
 
-    HttpServletRequest servletRequest = ServletUtils.getServletRequest(context);
-    HttpServletResponse servletResponse = ServletUtils.getServletResponse(context);
+    HttpServletRequest servletRequest = ServletUtils.getServletRequest(request);
+    HttpServletResponse servletResponse = ServletUtils.getServletResponse(request);
 
     rd.forward(servletRequest, servletResponse);
     return NONE_RETURN_VALUE;

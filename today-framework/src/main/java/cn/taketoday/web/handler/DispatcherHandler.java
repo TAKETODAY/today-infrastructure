@@ -47,9 +47,9 @@ import cn.taketoday.web.RequestHandledListener;
 import cn.taketoday.web.ReturnValueHandler;
 import cn.taketoday.web.context.async.WebAsyncUtils;
 import cn.taketoday.web.handler.method.ExceptionHandlerAnnotationExceptionHandler;
-import cn.taketoday.web.registry.BeanNameUrlHandlerRegistry;
+import cn.taketoday.web.registry.BeanNameUrlHandlerMapping;
 import cn.taketoday.web.registry.HandlerRegistries;
-import cn.taketoday.web.registry.HandlerRegistry;
+import cn.taketoday.web.registry.HandlerMapping;
 import cn.taketoday.web.util.WebUtils;
 
 /**
@@ -90,7 +90,7 @@ public class DispatcherHandler implements ApplicationContextAware {
   protected final boolean isDebugEnabled = log.isDebugEnabled();
 
   /** Action mapping registry */
-  private HandlerRegistry handlerRegistry;
+  private HandlerMapping handlerMapping;
 
   private HandlerAdapter[] handlerAdapters;
 
@@ -151,26 +151,26 @@ public class DispatcherHandler implements ApplicationContextAware {
    * we default to BeanNameUrlHandlerRegistry.
    */
   private void initHandlerRegistries(ApplicationContext context) {
-    if (handlerRegistry == null) {
+    if (handlerMapping == null) {
       if (detectAllHandlerRegistries) {
         // Find all HandlerMappings in the ApplicationContext, including ancestor contexts.
-        Map<String, HandlerRegistry> matchingBeans =
-                BeanFactoryUtils.beansOfTypeIncludingAncestors(context, HandlerRegistry.class, true, false);
+        Map<String, HandlerMapping> matchingBeans =
+                BeanFactoryUtils.beansOfTypeIncludingAncestors(context, HandlerMapping.class, true, false);
         if (!matchingBeans.isEmpty()) {
-          ArrayList<HandlerRegistry> registries = new ArrayList<>(matchingBeans.values());
+          ArrayList<HandlerMapping> registries = new ArrayList<>(matchingBeans.values());
           // We keep HandlerRegistries in sorted order.
           AnnotationAwareOrderComparator.sort(registries);
-          this.handlerRegistry = registries.size() == 1
-                                 ? registries.get(0)
-                                 : new HandlerRegistries(registries);
+          this.handlerMapping = registries.size() == 1
+                                ? registries.get(0)
+                                : new HandlerRegistries(registries);
         }
       }
       else {
-        handlerRegistry = context.getBean(HANDLER_REGISTRY_BEAN_NAME, HandlerRegistry.class);
+        handlerMapping = context.getBean(HANDLER_REGISTRY_BEAN_NAME, HandlerMapping.class);
       }
-      if (handlerRegistry == null) {
-        handlerRegistry = (HandlerRegistry) context.getAutowireCapableBeanFactory()
-                .configureBean(new BeanNameUrlHandlerRegistry(), HANDLER_REGISTRY_BEAN_NAME);
+      if (handlerMapping == null) {
+        handlerMapping = (HandlerMapping) context.getAutowireCapableBeanFactory()
+                .configureBean(new BeanNameUrlHandlerMapping(), HANDLER_REGISTRY_BEAN_NAME);
       }
     }
   }
@@ -309,8 +309,8 @@ public class DispatcherHandler implements ApplicationContextAware {
    * handler to handle this request
    */
   @Nullable
-  public Object lookupHandler(final RequestContext context) {
-    return handlerRegistry.lookup(context);
+  public Object lookupHandler(final RequestContext context) throws Exception {
+    return handlerMapping.getHandler(context);
   }
 
   /**
@@ -622,17 +622,17 @@ public class DispatcherHandler implements ApplicationContextAware {
     return handlerAdapters;
   }
 
-  public HandlerRegistry getHandlerRegistry() {
-    return handlerRegistry;
+  public HandlerMapping getHandlerRegistry() {
+    return handlerMapping;
   }
 
   public HandlerExceptionHandler getExceptionHandler() {
     return exceptionHandler;
   }
 
-  public void setHandlerRegistry(HandlerRegistry handlerRegistry) {
-    Assert.notNull(handlerRegistry, "HandlerRegistry must not be null");
-    this.handlerRegistry = handlerRegistry;
+  public void setHandlerRegistry(HandlerMapping handlerMapping) {
+    Assert.notNull(handlerMapping, "HandlerRegistry must not be null");
+    this.handlerMapping = handlerMapping;
   }
 
   public void setHandlerAdapters(HandlerAdapter... handlerAdapters) {

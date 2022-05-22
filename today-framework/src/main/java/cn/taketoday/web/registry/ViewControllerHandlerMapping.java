@@ -56,7 +56,7 @@ import static cn.taketoday.core.ConfigurationException.nonNull;
  * @author TODAY <br>
  * 2019-12-23 22:10
  */
-public class ViewControllerHandlerRegistry extends AbstractUrlHandlerRegistry implements BeanClassLoaderAware {
+public class ViewControllerHandlerMapping extends AbstractUrlHandlerMapping implements BeanClassLoaderAware {
   public static final String DEFAULT_BEAN_NAME = "cn.taketoday.web.registry.ViewControllerHandlerRegistry";
 
   // the dtd
@@ -89,7 +89,7 @@ public class ViewControllerHandlerRegistry extends AbstractUrlHandlerRegistry im
 
   private final ResolvableParameterFactory parameterFactory;
 
-  public ViewControllerHandlerRegistry(ResolvableParameterFactory parameterFactory) {
+  public ViewControllerHandlerMapping(ResolvableParameterFactory parameterFactory) {
     Assert.notNull(parameterFactory, "parameterFactory is required");
     this.parameterFactory = parameterFactory;
   }

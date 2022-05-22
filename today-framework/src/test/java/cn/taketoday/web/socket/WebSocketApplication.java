@@ -74,7 +74,7 @@ public class WebSocketApplication {
   static class AppConfig implements WebSocketConfiguration {
 
     @Override
-    public void configureWebSocketHandlers(WebSocketHandlerRegistry registry) {
+    public void configureWebSocketHandlers(WebSocketHandlerMapping registry) {
       registry.registerHandler("/endpoint", new WebSocket0());
     }
 

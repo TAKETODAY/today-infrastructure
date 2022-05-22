@@ -39,9 +39,9 @@ import cn.taketoday.web.handler.HandlerExceptionHandler;
 import cn.taketoday.web.handler.ReturnValueHandlerManager;
 import cn.taketoday.web.handler.ViewController;
 import cn.taketoday.web.multipart.MultipartConfig;
-import cn.taketoday.web.registry.FunctionHandlerRegistry;
-import cn.taketoday.web.registry.HandlerRegistry;
-import cn.taketoday.web.registry.ViewControllerHandlerRegistry;
+import cn.taketoday.web.registry.FunctionHandlerMapping;
+import cn.taketoday.web.registry.HandlerMapping;
+import cn.taketoday.web.registry.ViewControllerHandlerMapping;
 import cn.taketoday.web.view.View;
 
 /**
@@ -109,26 +109,26 @@ public interface WebMvcConfiguration {
   /**
    * Configure {@link ViewController} s
    *
-   * @param registry {@link ViewControllerHandlerRegistry}
+   * @param registry {@link ViewControllerHandlerMapping}
    * @since 2.3.7
    */
-  default void configureViewController(ViewControllerHandlerRegistry registry) { }
+  default void configureViewController(ViewControllerHandlerMapping registry) { }
 
   /**
    * Configure Function Handler
    *
-   * @param registry {@link FunctionHandlerRegistry}
+   * @param registry {@link FunctionHandlerMapping}
    * @since 2.3.7
    */
-  default void configureFunctionHandler(FunctionHandlerRegistry registry) { }
+  default void configureFunctionHandler(FunctionHandlerMapping registry) { }
 
   /**
-   * Configure {@link HandlerRegistry}
+   * Configure {@link HandlerMapping}
    *
-   * @param handlerRegistries {@link HandlerRegistry}s
+   * @param handlerRegistries {@link HandlerMapping}s
    * @since 2.3.7
    */
-  default void configureHandlerRegistry(List<HandlerRegistry> handlerRegistries) { }
+  default void configureHandlerRegistry(List<HandlerMapping> handlerRegistries) { }
 
   /**
    * Override this method to configure "default" Servlet handling.
@@ -178,7 +178,7 @@ public interface WebMvcConfiguration {
   default void configureViewResolvers(ViewResolverRegistry registry) { }
 
   /**
-   * Help with configuring {@link HandlerRegistry} path matching options such as
+   * Help with configuring {@link HandlerMapping} path matching options such as
    * whether to use parsed {@code PathPatterns} or String pattern matching
    * with {@code PathMatcher}, whether to match trailing slashes, and more.
    *

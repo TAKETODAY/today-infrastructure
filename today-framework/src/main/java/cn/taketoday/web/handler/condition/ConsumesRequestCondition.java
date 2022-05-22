@@ -36,7 +36,6 @@ import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.annotation.RequestMapping;
-import cn.taketoday.web.cors.CorsUtils;
 import cn.taketoday.web.handler.condition.HeadersRequestCondition.HeaderExpression;
 
 /**
@@ -203,7 +202,7 @@ public final class ConsumesRequestCondition extends AbstractRequestCondition<Con
   @Override
   @Nullable
   public ConsumesRequestCondition getMatchingCondition(RequestContext request) {
-    if (CorsUtils.isPreFlightRequest(request)) {
+    if (request.isPreFlightRequest()) {
       return EMPTY_CONDITION;
     }
     if (isEmpty()) {

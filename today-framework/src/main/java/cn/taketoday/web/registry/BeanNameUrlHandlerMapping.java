@@ -24,16 +24,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 import cn.taketoday.util.StringUtils;
-import cn.taketoday.web.registry.annotation.HandlerMethodRegistry;
+import cn.taketoday.web.registry.annotation.HandlerMethodMapping;
 
 /**
- * Implementation of the {@link HandlerRegistry} interface that maps from URLs
+ * Implementation of the {@link HandlerMapping} interface that maps from URLs
  * to beans with names that start with a slash ("/"), similar to how Struts
  * maps URLs to action names.
  *
  * <p>This is the default implementation used by the
  * {@link cn.taketoday.web.handler.DispatcherHandler}, along with
- * {@link HandlerMethodRegistry}. Alternatively, {@link SimpleUrlHandlerRegistry}
+ * {@link HandlerMethodMapping}. Alternatively, {@link SimpleUrlHandlerMapping}
  * allows for customizing a handler mapping declaratively.
  *
  * <p>The mapping is from URL to bean name. Thus an incoming URL "/foo" would map
@@ -47,10 +47,10 @@ import cn.taketoday.web.registry.annotation.HandlerMethodRegistry;
  * @author Rod Johnson
  * @author Juergen Hoeller
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @see SimpleUrlHandlerRegistry
+ * @see SimpleUrlHandlerMapping
  * @since 4.0 2022/1/29 00:30
  */
-public class BeanNameUrlHandlerRegistry extends AbstractDetectingUrlHandlerRegistry {
+public class BeanNameUrlHandlerMapping extends AbstractDetectingUrlHandlerMapping {
 
   /**
    * Checks name and aliases of the given bean for URLs, starting with "/".

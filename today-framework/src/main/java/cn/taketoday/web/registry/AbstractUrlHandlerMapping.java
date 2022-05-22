@@ -34,7 +34,7 @@ import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.util.pattern.PathPattern;
 
 /**
- * Abstract base class for URL-mapped {@link HandlerRegistry} implementations.
+ * Abstract base class for URL-mapped {@link HandlerMapping} implementations.
  *
  * <p>Supports literal matches and pattern matches such as "/test/*", "/test/**",
  * and others. For details on pattern syntax refer to {@link PathPattern}
@@ -48,7 +48,7 @@ import cn.taketoday.web.util.pattern.PathPattern;
  * @author TODAY 2020/12/23 15:56
  * @since 3.0
  */
-public abstract class AbstractUrlHandlerRegistry extends AbstractHandlerRegistry {
+public abstract class AbstractUrlHandlerMapping extends AbstractHandlerMapping {
 
   private Object rootHandler;
 
@@ -104,7 +104,7 @@ public abstract class AbstractUrlHandlerRegistry extends AbstractHandlerRegistry
    */
   @Nullable
   @Override
-  protected Object lookupInternal(RequestContext request) {
+  protected Object getHandlerInternal(RequestContext request) {
     Object handler = lookupHandler(request);
     if (handler == null) {
       // We need to care for the default handler directly

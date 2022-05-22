@@ -25,7 +25,7 @@ import java.lang.reflect.Method;
 import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.core.annotation.MergedAnnotation;
-import cn.taketoday.web.socket.WebSocketHandlerRegistry;
+import cn.taketoday.web.socket.WebSocketHandlerMapping;
 import jakarta.websocket.server.ServerEndpoint;
 
 /**
@@ -34,11 +34,11 @@ import jakarta.websocket.server.ServerEndpoint;
  * @author TODAY 2021/5/8 22:08
  * @since 3.0.1
  */
-public class StandardWebSocketHandlerRegistry extends WebSocketHandlerRegistry {
+public class StandardWebSocketHandlerMapping extends WebSocketHandlerMapping {
 
-  public StandardWebSocketHandlerRegistry() { }
+  public StandardWebSocketHandlerMapping() { }
 
-  public StandardWebSocketHandlerRegistry(AnnotationWebSocketHandlerBuilder annotationHandlerBuilder) {
+  public StandardWebSocketHandlerMapping(AnnotationWebSocketHandlerBuilder annotationHandlerBuilder) {
     super(annotationHandlerBuilder);
   }
 

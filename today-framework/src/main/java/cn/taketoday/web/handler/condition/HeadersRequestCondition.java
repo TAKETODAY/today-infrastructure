@@ -30,7 +30,6 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.annotation.RequestMapping;
-import cn.taketoday.web.cors.CorsUtils;
 
 /**
  * A logical conjunction ({@code ' && '}) request condition that matches a request against
@@ -128,7 +127,7 @@ public final class HeadersRequestCondition extends AbstractRequestCondition<Head
   @Override
   @Nullable
   public HeadersRequestCondition getMatchingCondition(RequestContext request) {
-    if (CorsUtils.isPreFlightRequest(request)) {
+    if (request.isPreFlightRequest()) {
       return PRE_FLIGHT_MATCH;
     }
     for (HeaderExpression expression : this.expressions) {

@@ -37,7 +37,7 @@ import static cn.taketoday.http.HttpMethod.TRACE;
  * @author TODAY <br>
  * 2019-12-26 17:33
  */
-public class FunctionHandlerRegistry extends MappedHandlerRegistry {
+public class FunctionHandlerMapping extends MappedHandlerMapping {
 
   @Override
   protected String computeKey(final RequestContext context) {
@@ -47,119 +47,119 @@ public class FunctionHandlerRegistry extends MappedHandlerRegistry {
   // HEAD
   // ---------------------------------------
 
-  public FunctionHandlerRegistry head(String pathPattern, RequestHandler handler) {
+  public FunctionHandlerMapping head(String pathPattern, RequestHandler handler) {
     return HEAD(pathPattern, handler);
   }
 
-  public FunctionHandlerRegistry head(String pathPattern, FunctionHandler handler) {
+  public FunctionHandlerMapping head(String pathPattern, FunctionHandler handler) {
     return HEAD(pathPattern, handler);
   }
 
-  public FunctionHandlerRegistry HEAD(String pathPattern, Object handler) {
+  public FunctionHandlerMapping HEAD(String pathPattern, Object handler) {
     return register(HEAD, pathPattern, handler);
   }
 
   // PUT
   // ---------------------------------------
 
-  public FunctionHandlerRegistry put(String pathPattern, RequestHandler handler) {
+  public FunctionHandlerMapping put(String pathPattern, RequestHandler handler) {
     return PUT(pathPattern, handler);
   }
 
-  public FunctionHandlerRegistry put(String pathPattern, FunctionHandler handler) {
+  public FunctionHandlerMapping put(String pathPattern, FunctionHandler handler) {
     return PUT(pathPattern, handler);
   }
 
-  public FunctionHandlerRegistry PUT(String pathPattern, Object handler) {
+  public FunctionHandlerMapping PUT(String pathPattern, Object handler) {
     return register(PUT, pathPattern, handler);
   }
 
   // DELETE
   // ---------------------------------------
 
-  public FunctionHandlerRegistry delete(String pathPattern, RequestHandler handler) {
+  public FunctionHandlerMapping delete(String pathPattern, RequestHandler handler) {
     return DELETE(pathPattern, handler);
   }
 
-  public FunctionHandlerRegistry delete(String pathPattern, FunctionHandler handler) {
+  public FunctionHandlerMapping delete(String pathPattern, FunctionHandler handler) {
     return DELETE(pathPattern, handler);
   }
 
-  public FunctionHandlerRegistry DELETE(String pathPattern, Object handler) {
+  public FunctionHandlerMapping DELETE(String pathPattern, Object handler) {
     return register(DELETE, pathPattern, handler);
   }
   // PATCH
   // ---------------------------------------
 
-  public FunctionHandlerRegistry patch(String pathPattern, RequestHandler handler) {
+  public FunctionHandlerMapping patch(String pathPattern, RequestHandler handler) {
     return PATCH(pathPattern, handler);
   }
 
-  public FunctionHandlerRegistry patch(String pathPattern, FunctionHandler handler) {
+  public FunctionHandlerMapping patch(String pathPattern, FunctionHandler handler) {
     return PATCH(pathPattern, handler);
   }
 
-  public FunctionHandlerRegistry PATCH(String pathPattern, Object handler) {
+  public FunctionHandlerMapping PATCH(String pathPattern, Object handler) {
     return register(PATCH, pathPattern, handler);
   }
 
   // TRACE
   // ---------------------------------------
 
-  public FunctionHandlerRegistry trace(String pathPattern, RequestHandler handler) {
+  public FunctionHandlerMapping trace(String pathPattern, RequestHandler handler) {
     return TRACE(pathPattern, handler);
   }
 
-  public FunctionHandlerRegistry trace(String pathPattern, FunctionHandler handler) {
+  public FunctionHandlerMapping trace(String pathPattern, FunctionHandler handler) {
     return TRACE(pathPattern, handler);
   }
 
-  public FunctionHandlerRegistry TRACE(String pathPattern, Object handler) {
+  public FunctionHandlerMapping TRACE(String pathPattern, Object handler) {
     return register(TRACE, pathPattern, handler);
   }
 
   // OPTIONS
   // ---------------------------------------
 
-  public FunctionHandlerRegistry options(String pathPattern, RequestHandler handler) {
+  public FunctionHandlerMapping options(String pathPattern, RequestHandler handler) {
     return OPTIONS(pathPattern, handler);
   }
 
-  public FunctionHandlerRegistry options(String pathPattern, FunctionHandler handler) {
+  public FunctionHandlerMapping options(String pathPattern, FunctionHandler handler) {
     return OPTIONS(pathPattern, handler);
   }
 
-  public FunctionHandlerRegistry OPTIONS(String pathPattern, Object handler) {
+  public FunctionHandlerMapping OPTIONS(String pathPattern, Object handler) {
     return register(OPTIONS, pathPattern, handler);
   }
 
   // POST
   // ---------------------------------------
 
-  public FunctionHandlerRegistry post(String pathPattern, RequestHandler handler) {
+  public FunctionHandlerMapping post(String pathPattern, RequestHandler handler) {
     return POST(pathPattern, handler);
   }
 
-  public FunctionHandlerRegistry post(String pathPattern, FunctionHandler handler) {
+  public FunctionHandlerMapping post(String pathPattern, FunctionHandler handler) {
     return POST(pathPattern, handler);
   }
 
-  public FunctionHandlerRegistry POST(String pathPattern, Object handler) {
+  public FunctionHandlerMapping POST(String pathPattern, Object handler) {
     return register(POST, pathPattern, handler);
   }
 
   // GET
   // ---------------------------------------
 
-  public FunctionHandlerRegistry get(String pathPattern, RequestHandler handler) {
+  public FunctionHandlerMapping get(String pathPattern, RequestHandler handler) {
     return GET(pathPattern, handler);
   }
 
-  public FunctionHandlerRegistry get(String pathPattern, FunctionHandler handler) {
+  public FunctionHandlerMapping get(String pathPattern, FunctionHandler handler) {
     return GET(pathPattern, handler);
   }
 
-  public FunctionHandlerRegistry GET(String pathPattern, Object handler) {
+  public FunctionHandlerMapping GET(String pathPattern, Object handler) {
     return register(GET, pathPattern, handler);
   }
 
@@ -169,9 +169,9 @@ public class FunctionHandlerRegistry extends MappedHandlerRegistry {
    * @param method Target HTTP request method
    * @param pathPattern Target path pattern
    * @param handler Handler object
-   * @return This {@link FunctionHandlerRegistry}
+   * @return This {@link FunctionHandlerMapping}
    */
-  public FunctionHandlerRegistry register(HttpMethod method, String pathPattern, Object handler) {
+  public FunctionHandlerMapping register(HttpMethod method, String pathPattern, Object handler) {
     registerHandler(method.name().concat(pathPattern), handler);
     return this;
   }

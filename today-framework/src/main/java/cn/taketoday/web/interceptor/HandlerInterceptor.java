@@ -42,24 +42,24 @@ public interface HandlerInterceptor {
   /**
    * Before Handler process.
    *
-   * @param context Current request Context
+   * @param request Current request Context
    * @param handler Request handler
    * @return If is it possible to execute the target handler
    * @throws Throwable If any exception occurred
    */
-  default boolean beforeProcess(RequestContext context, Object handler) throws Throwable {
+  default boolean beforeProcess(RequestContext request, Object handler) throws Throwable {
     return true;
   }
 
   /**
    * After Handler processed.
    *
-   * @param context Current request Context
+   * @param request Current request Context
    * @param handler Request handler
    * @param result Handler returned value
    * @throws Throwable If any exception occurred
    */
-  default void afterProcess(RequestContext context, Object handler, Object result) throws Throwable { }
+  default void afterProcess(RequestContext request, Object handler, Object result) throws Throwable { }
 
   /**
    * handler's interceptor intercept entrance
@@ -67,11 +67,11 @@ public interface HandlerInterceptor {
    * @return return value is target handler's result
    * @since 4.0
    */
-  default Object intercept(RequestContext context, InterceptorChain chain) throws Throwable {
+  default Object intercept(RequestContext request, InterceptorChain chain) throws Throwable {
     Object handler = chain.getHandler();
-    if (beforeProcess(context, handler)) {
-      Object result = chain.proceed(context);
-      afterProcess(context, handler, result);
+    if (beforeProcess(request, handler)) {
+      Object result = chain.proceed(request);
+      afterProcess(request, handler, result);
       return result;
     }
     return NONE_RETURN_VALUE;

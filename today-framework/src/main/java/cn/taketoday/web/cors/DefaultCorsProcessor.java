@@ -58,7 +58,7 @@ public class DefaultCorsProcessor implements CorsProcessor {
             HttpHeaders.ACCESS_CONTROL_REQUEST_HEADERS
     );
 
-    if (!CorsUtils.isCorsRequest(context)) {
+    if (!context.isCorsRequest()) {
       return true;
     }
 
@@ -66,7 +66,7 @@ public class DefaultCorsProcessor implements CorsProcessor {
       log.trace("Skip: response already contains \"Access-Control-Allow-Origin\"");
       return true;
     }
-    boolean preFlightRequest = CorsUtils.isPreFlightRequest(context);
+    boolean preFlightRequest = context.isPreFlightRequest();
     if (config == null) {
       if (preFlightRequest) {
         rejectRequest(context);

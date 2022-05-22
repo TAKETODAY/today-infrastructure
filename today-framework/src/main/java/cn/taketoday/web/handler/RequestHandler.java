@@ -41,11 +41,11 @@ public interface RequestHandler {
   /**
    * Handle request
    *
-   * @param context Current request context
+   * @param request Current request context
    * @return Result to be handled by {@link ReturnValueHandler}
    * @throws Throwable If any exception occurred
    * @see ReturnValueHandler
    */
-  Object handleRequest(RequestContext context) throws Throwable;
+  Object handleRequest(RequestContext request) throws Throwable;
 
 }

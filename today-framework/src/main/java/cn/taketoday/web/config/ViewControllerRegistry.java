@@ -27,7 +27,7 @@ import java.util.List;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.http.HttpStatusCode;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.web.registry.SimpleUrlHandlerRegistry;
+import cn.taketoday.web.registry.SimpleUrlHandlerMapping;
 
 /**
  * Assists with the registration of simple automated controllers pre-configured
@@ -115,7 +115,7 @@ public class ViewControllerRegistry {
    * controller mappings, or {@code null} for no registrations.
    */
   @Nullable
-  protected SimpleUrlHandlerRegistry buildRegistry() {
+  protected SimpleUrlHandlerMapping buildRegistry() {
     if (this.registrations.isEmpty() && this.redirectRegistrations.isEmpty()) {
       return null;
     }
@@ -128,7 +128,7 @@ public class ViewControllerRegistry {
       urlMap.put(registration.getUrlPath(), registration.getViewController());
     }
 
-    return new SimpleUrlHandlerRegistry(urlMap, this.order);
+    return new SimpleUrlHandlerMapping(urlMap, this.order);
   }
 
 }

@@ -61,7 +61,7 @@ public class RequestPathMappingHandlerMethodRegistryTests {
     MergedAnnotation<ActionMapping> actionMapping = MergedAnnotations.from(method).get(ActionMapping.class);
     MergedAnnotation<ActionMapping> controllerMapping = MergedAnnotations.from(method).get(ActionMapping.class);
 
-    RequestPathMappingHandlerRegistry registry = new RequestPathMappingHandlerRegistry();
+    RequestPathMappingHandlerMapping registry = new RequestPathMappingHandlerMapping();
     registry.mergeMappingAttributes(mapping, actionMapping, controllerMapping);
     System.out.println(mapping);
   }

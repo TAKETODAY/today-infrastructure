@@ -28,7 +28,7 @@ import cn.taketoday.core.AntPathMatcher;
 import cn.taketoday.util.CollectionUtils;
 
 /**
- * Implementation of the {@link HandlerRegistry} interface that maps from URLs
+ * Implementation of the {@link HandlerMapping} interface that maps from URLs
  * to request handler beans. Supports both mapping to bean instances and mapping
  * to bean names; the latter is required for non-singleton handlers.
  *
@@ -55,10 +55,10 @@ import cn.taketoday.util.CollectionUtils;
  * @author TODAY 2020/12/23 17:21
  * @see #setMappings
  * @see #setUrlMap
- * @see BeanNameUrlHandlerRegistry
+ * @see BeanNameUrlHandlerMapping
  * @since 3.0
  */
-public class SimpleUrlHandlerRegistry extends AbstractUrlHandlerRegistry {
+public class SimpleUrlHandlerMapping extends AbstractUrlHandlerMapping {
 
   private final Map<String, Object> urlMap = new LinkedHashMap<>();
 
@@ -67,7 +67,7 @@ public class SimpleUrlHandlerRegistry extends AbstractUrlHandlerRegistry {
    *
    * @since 4.0
    */
-  public SimpleUrlHandlerRegistry() { }
+  public SimpleUrlHandlerMapping() { }
 
   /**
    * Create a {@code SimpleUrlHandlerMapping} using the supplied URL map.
@@ -77,7 +77,7 @@ public class SimpleUrlHandlerRegistry extends AbstractUrlHandlerRegistry {
    * @see #setUrlMap(Map)
    * @since 4.0
    */
-  public SimpleUrlHandlerRegistry(Map<String, ?> urlMap) {
+  public SimpleUrlHandlerMapping(Map<String, ?> urlMap) {
     setUrlMap(urlMap);
   }
 
@@ -91,7 +91,7 @@ public class SimpleUrlHandlerRegistry extends AbstractUrlHandlerRegistry {
    * @see #setOrder(int)
    * @since 4.0
    */
-  public SimpleUrlHandlerRegistry(Map<String, ?> urlMap, int order) {
+  public SimpleUrlHandlerMapping(Map<String, ?> urlMap, int order) {
     setUrlMap(urlMap);
     setOrder(order);
   }

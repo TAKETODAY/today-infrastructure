@@ -25,7 +25,7 @@ import java.util.Collections;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.web.registry.SimpleUrlHandlerRegistry;
+import cn.taketoday.web.registry.SimpleUrlHandlerMapping;
 import cn.taketoday.web.resource.DefaultServletHttpRequestHandler;
 import cn.taketoday.web.servlet.DispatcherServlet;
 import jakarta.servlet.ServletContext;
@@ -97,11 +97,11 @@ public class DefaultServletHandlerConfigurer {
    * been enabled.
    */
   @Nullable
-  protected SimpleUrlHandlerRegistry buildHandlerRegistry() {
+  protected SimpleUrlHandlerMapping buildHandlerRegistry() {
     if (this.handler == null) {
       return null;
     }
-    return new SimpleUrlHandlerRegistry(Collections.singletonMap("/**", this.handler),
+    return new SimpleUrlHandlerMapping(Collections.singletonMap("/**", this.handler),
             Ordered.LOWEST_PRECEDENCE);
   }
 

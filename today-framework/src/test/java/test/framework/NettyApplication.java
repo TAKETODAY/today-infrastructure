@@ -49,7 +49,7 @@ import cn.taketoday.web.socket.EnableWebSocket;
 import cn.taketoday.web.socket.TextMessage;
 import cn.taketoday.web.socket.WebSocketConfiguration;
 import cn.taketoday.web.socket.WebSocketHandler;
-import cn.taketoday.web.socket.WebSocketHandlerRegistry;
+import cn.taketoday.web.socket.WebSocketHandlerMapping;
 import cn.taketoday.web.socket.WebSocketSession;
 import lombok.Getter;
 import lombok.SneakyThrows;
@@ -141,7 +141,7 @@ public class NettyApplication {
   static class AppConfig implements WebSocketConfiguration {
 
     @Override
-    public void configureWebSocketHandlers(WebSocketHandlerRegistry registry) {
+    public void configureWebSocketHandlers(WebSocketHandlerMapping registry) {
       registry.registerHandler("/endpoint", new WebSocket0());
     }
 

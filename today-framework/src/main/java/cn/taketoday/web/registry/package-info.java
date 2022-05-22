@@ -20,7 +20,7 @@
  */
 
 /**
- * System {@link cn.taketoday.web.registry.HandlerRegistry}
+ * System {@link cn.taketoday.web.registry.HandlerMapping}
  *
  * @author TODAY 2021/9/23 21:55
  */

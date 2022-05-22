@@ -27,7 +27,6 @@ import cn.taketoday.web.cors.CorsConfiguration;
 import cn.taketoday.web.cors.CorsConfigurationCapable;
 import cn.taketoday.web.cors.CorsConfigurationSource;
 import cn.taketoday.web.cors.CorsProcessor;
-import cn.taketoday.web.cors.CorsUtils;
 import cn.taketoday.web.cors.DefaultCorsProcessor;
 
 /**
@@ -50,13 +49,13 @@ public class CorsHandlerInterceptor
   }
 
   @Override
-  public boolean beforeProcess(final RequestContext context, final Object handler) throws IOException {
-    final CorsConfiguration corsConfiguration = getCorsConfiguration(context, handler);
+  public boolean beforeProcess(final RequestContext request, final Object handler) throws IOException {
+    final CorsConfiguration corsConfiguration = getCorsConfiguration(request, handler);
     if (corsConfiguration == null) {
       return true;
     }
-    return getProcessor().process(corsConfiguration, context)
-            && !CorsUtils.isPreFlightRequest(context);
+    return getProcessor().process(corsConfiguration, request)
+            && !request.isPreFlightRequest();
   }
 
   protected CorsConfiguration getCorsConfiguration(final RequestContext context, Object handler) {

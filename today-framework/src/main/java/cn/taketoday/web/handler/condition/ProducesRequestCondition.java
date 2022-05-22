@@ -36,7 +36,6 @@ import cn.taketoday.web.HttpMediaTypeNotAcceptableException;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.accept.ContentNegotiationManager;
 import cn.taketoday.web.annotation.RequestMapping;
-import cn.taketoday.web.cors.CorsUtils;
 import cn.taketoday.web.handler.condition.HeadersRequestCondition.HeaderExpression;
 
 /**
@@ -200,7 +199,7 @@ public final class ProducesRequestCondition extends AbstractRequestCondition<Pro
   @Override
   @Nullable
   public ProducesRequestCondition getMatchingCondition(RequestContext request) {
-    if (CorsUtils.isPreFlightRequest(request)) {
+    if (request.isPreFlightRequest()) {
       return EMPTY_CONDITION;
     }
     if (isEmpty()) {

@@ -40,18 +40,18 @@ public abstract class InterceptableRequestHandler
   /**
    * perform {@link HandlerInterceptor} on this handler
    *
-   * @param context Current request context
+   * @param request Current request context
    * @return handler's result
    * @throws Throwable any exception occurred in this request context
    */
   @Override
-  public Object handleRequest(final RequestContext context) throws Throwable {
+  public Object handleRequest(final RequestContext request) throws Throwable {
     HandlerInterceptor[] interceptors = this.interceptors.get();
     if (interceptors == null) {
-      return handleInternal(context);
+      return handleInternal(request);
     }
     // @since 4.0
-    return new Chain(interceptors, this).proceed(context);
+    return new Chain(interceptors, this).proceed(request);
   }
 
   /**

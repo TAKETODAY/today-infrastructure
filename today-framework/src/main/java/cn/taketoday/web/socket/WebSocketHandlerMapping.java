@@ -33,8 +33,8 @@ import cn.taketoday.lang.Assert;
 import cn.taketoday.web.handler.method.ActionMappingAnnotationHandler;
 import cn.taketoday.web.handler.method.AnnotationHandlerFactory;
 import cn.taketoday.web.handler.method.ResolvableParameterFactory;
-import cn.taketoday.web.registry.AbstractUrlHandlerRegistry;
-import cn.taketoday.web.registry.annotation.HandlerMethodRegistry;
+import cn.taketoday.web.registry.AbstractUrlHandlerMapping;
+import cn.taketoday.web.registry.annotation.HandlerMethodMapping;
 import cn.taketoday.web.socket.annotation.AfterHandshake;
 import cn.taketoday.web.socket.annotation.AnnotationWebSocketHandlerBuilder;
 import cn.taketoday.web.socket.annotation.EndpointMapping;
@@ -53,12 +53,12 @@ import cn.taketoday.web.util.pattern.PathPatternParser;
  * @author TODAY 2021/4/5 12:12
  * @since 3.0
  */
-public class WebSocketHandlerRegistry extends AbstractUrlHandlerRegistry implements SmartInitializingSingleton {
+public class WebSocketHandlerMapping extends AbstractUrlHandlerMapping implements SmartInitializingSingleton {
   protected AnnotationWebSocketHandlerBuilder annotationHandlerBuilder;
 
-  public WebSocketHandlerRegistry() { }
+  public WebSocketHandlerMapping() { }
 
-  public WebSocketHandlerRegistry(AnnotationWebSocketHandlerBuilder annotationHandlerBuilder) {
+  public WebSocketHandlerMapping(AnnotationWebSocketHandlerBuilder annotationHandlerBuilder) {
     this.annotationHandlerBuilder = annotationHandlerBuilder;
   }
 
@@ -141,7 +141,7 @@ public class WebSocketHandlerRegistry extends AbstractUrlHandlerRegistry impleme
     PathPatternParser patternParser = getPatternParser();
     for (String pattern : path) {
       PathPattern pathPattern = patternParser.parse(pattern);
-      boolean containsPathVariable = HandlerMethodRegistry.containsPathVariable(pattern);
+      boolean containsPathVariable = HandlerMethodMapping.containsPathVariable(pattern);
       WebSocketHandlerDelegate annotationHandler = new WebSocketHandlerDelegate(
               pathPattern, containsPathVariable, onOpen, onClose, onError, onMessage, afterHandshake);
       WebSocketHandler handler = handlerBuilder.build(beanName, definition, context, annotationHandler);

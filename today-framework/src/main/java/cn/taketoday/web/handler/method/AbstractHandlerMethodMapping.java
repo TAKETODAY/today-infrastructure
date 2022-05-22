@@ -47,13 +47,12 @@ import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.cors.CorsConfiguration;
-import cn.taketoday.web.cors.CorsUtils;
 import cn.taketoday.web.handler.HandlerMethodMappingNamingStrategy;
-import cn.taketoday.web.registry.AbstractHandlerRegistry;
-import cn.taketoday.web.registry.HandlerRegistry;
+import cn.taketoday.web.registry.AbstractHandlerMapping;
+import cn.taketoday.web.registry.HandlerMapping;
 
 /**
- * Abstract base class for {@link HandlerRegistry} implementations that define
+ * Abstract base class for {@link HandlerMapping} implementations that define
  * a mapping between a request and a {@link HandlerMethod}.
  *
  * <p>For each registered handler method, a unique mapping is maintained with
@@ -68,7 +67,7 @@ import cn.taketoday.web.registry.HandlerRegistry;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/4/1 22:22
  */
-public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerRegistry implements InitializingBean {
+public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMapping implements InitializingBean {
 
   /**
    * Bean name prefix for target beans behind scoped proxies. Used to exclude those
@@ -380,7 +379,7 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerReg
    */
   @Nullable
   @Override
-  protected Object lookupInternal(RequestContext context) {
+  protected Object getHandlerInternal(RequestContext context) {
     String lookupPath = context.getLookupPath().value();
     this.mappingRegistry.acquireReadLock();
     try {
@@ -424,7 +423,7 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerReg
         if (log.isTraceEnabled()) {
           log.trace("{} matching mappings: {}", matches.size(), matches);
         }
-        if (CorsUtils.isPreFlightRequest(request)) {
+        if (request.isPreFlightRequest()) {
           for (Match match : matches) {
             if (match.hasCorsConfig()) {
               return PREFLIGHT_AMBIGUOUS_MATCH;

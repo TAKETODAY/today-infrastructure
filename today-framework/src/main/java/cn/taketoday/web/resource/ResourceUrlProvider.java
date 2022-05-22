@@ -38,7 +38,7 @@ import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.registry.SimpleUrlHandlerRegistry;
+import cn.taketoday.web.registry.SimpleUrlHandlerMapping;
 
 /**
  * A central component to use to obtain the public URL path that clients should
@@ -127,11 +127,11 @@ public class ResourceUrlProvider implements ApplicationListener<ContextRefreshed
   }
 
   protected void detectResourceHandlers(ApplicationContext appContext) {
-    Map<String, SimpleUrlHandlerRegistry> beans = appContext.getBeansOfType(SimpleUrlHandlerRegistry.class);
-    ArrayList<SimpleUrlHandlerRegistry> mappings = new ArrayList<>(beans.values());
+    Map<String, SimpleUrlHandlerMapping> beans = appContext.getBeansOfType(SimpleUrlHandlerMapping.class);
+    ArrayList<SimpleUrlHandlerMapping> mappings = new ArrayList<>(beans.values());
     AnnotationAwareOrderComparator.sort(mappings);
 
-    for (SimpleUrlHandlerRegistry mapping : mappings) {
+    for (SimpleUrlHandlerMapping mapping : mappings) {
       for (String pattern : mapping.getHandlerMap().keySet()) {
         Object handler = mapping.getHandlerMap().get(pattern);
         if (handler instanceof ResourceHttpRequestHandler resourceHandler) {
