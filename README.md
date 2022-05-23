@@ -174,9 +174,9 @@ public class TestApplication implements WebMvcConfiguration, ApplicationListener
 
   @Singleton
   @Profile("prod")
-  public ResourceHandlerRegistry prodResourceMappingRegistry() {
+  public ResourceHandlerMapping prodResourceMappingRegistry() {
 
-    final ResourceHandlerRegistry registry = new ResourceHandlerRegistry();
+    final ResourceHandlerMapping registry = new ResourceHandlerRegistry();
 
     registry.addResourceMapping(LoginInterceptor.class)//
             .setPathPatterns("/assets/admin/**")//
@@ -191,7 +191,7 @@ public class TestApplication implements WebMvcConfiguration, ApplicationListener
   public ResourceHandlerRegistry devRsourceMappingRegistry(@Env("site.uploadPath") String upload,
                                                            @Env("site.assetsPath") String assetsPath) //
   {
-    final ResourceHandlerRegistry registry = new ResourceHandlerRegistry();
+    final ResourceHandlerMapping registry = new ResourceHandlerMapping();
 
     registry.addResourceMapping("/assets/**")//
             .addLocations(assetsPath);

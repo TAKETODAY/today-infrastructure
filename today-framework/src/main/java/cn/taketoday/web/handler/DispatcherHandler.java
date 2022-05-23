@@ -636,7 +636,7 @@ public class DispatcherHandler implements ApplicationContextAware {
   }
 
   public void setHandlerRegistry(HandlerMapping handlerMapping) {
-    Assert.notNull(handlerMapping, "HandlerRegistry must not be null");
+    Assert.notNull(handlerMapping, "HandlerMapping must not be null");
     this.handlerMapping = handlerMapping;
   }
 
@@ -682,10 +682,10 @@ public class DispatcherHandler implements ApplicationContextAware {
   }
 
   /**
-   * Set whether to detect all HandlerRegistry beans in this handler's context. Otherwise,
-   * just a single bean with name "handlerRegistry" will be expected.
+   * Set whether to detect all HandlerMapping beans in this handler's context. Otherwise,
+   * just a single bean with name "HandlerMapping" will be expected.
    * <p>Default is "true". Turn this off if you want this servlet to use a single
-   * HandlerRegistry, despite multiple HandlerRegistry beans being defined in the context.
+   * HandlerMapping, despite multiple HandlerMapping beans being defined in the context.
    *
    * @since 4.0
    */

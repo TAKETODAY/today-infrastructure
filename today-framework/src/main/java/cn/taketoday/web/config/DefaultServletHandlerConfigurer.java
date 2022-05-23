@@ -97,7 +97,7 @@ public class DefaultServletHandlerConfigurer {
    * been enabled.
    */
   @Nullable
-  protected SimpleUrlHandlerMapping buildHandlerRegistry() {
+  protected SimpleUrlHandlerMapping buildHandlerMapping() {
     if (this.handler == null) {
       return null;
     }

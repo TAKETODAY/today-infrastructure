@@ -38,7 +38,7 @@ import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.handler.PatternHandler;
 
 /**
- * Map HandlerRegistry
+ * Map HandlerMapping
  * <p>
  * 用字符串作Key
  * </p>

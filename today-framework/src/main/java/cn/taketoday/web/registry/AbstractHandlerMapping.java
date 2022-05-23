@@ -56,8 +56,14 @@ import cn.taketoday.web.util.pattern.PathPatternParser;
  * implementations. Supports ordering, a default handler, handler interceptors,
  * including handler interceptors mapped by path patterns.
  *
- * @author TODAY
- * @see #getHandler(RequestContext)
+ * @author Juergen Hoeller
+ * @author Rossen Stoyanchev
+ * @author Sam Brannen
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @see #getHandlerInternal
+ * @see #setDefaultHandler
+ * @see #setInterceptors
+ * @see HandlerInterceptor
  * @since 2019-12-24 15:02
  */
 public abstract class AbstractHandlerMapping extends ApplicationContextSupport

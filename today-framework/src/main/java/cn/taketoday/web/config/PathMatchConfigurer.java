@@ -23,7 +23,7 @@ package cn.taketoday.web.config;
 import cn.taketoday.lang.Nullable;
 
 /**
- * Assist with configuring {@code HandlerRegistry}'s with path matching options.
+ * Assist with configuring {@code HandlerMapping}'s with path matching options.
  *
  * @author Rossen Stoyanchev
  * @author Brian Clozel

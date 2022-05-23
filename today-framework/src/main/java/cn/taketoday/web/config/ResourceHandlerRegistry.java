@@ -131,7 +131,7 @@ public class ResourceHandlerRegistry {
    * of no registrations.
    */
   @Nullable
-  protected SimpleUrlHandlerMapping getHandlerRegistry() {
+  protected SimpleUrlHandlerMapping getHandlerMapping() {
     if (this.registrations.isEmpty()) {
       return null;
     }

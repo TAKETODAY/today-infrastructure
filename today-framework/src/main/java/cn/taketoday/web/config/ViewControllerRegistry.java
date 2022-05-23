@@ -115,7 +115,7 @@ public class ViewControllerRegistry {
    * controller mappings, or {@code null} for no registrations.
    */
   @Nullable
-  protected SimpleUrlHandlerMapping buildRegistry() {
+  protected SimpleUrlHandlerMapping buildHandlerMapping() {
     if (this.registrations.isEmpty() && this.redirectRegistrations.isEmpty()) {
       return null;
     }

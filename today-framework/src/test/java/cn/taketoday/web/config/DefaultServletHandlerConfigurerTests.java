@@ -55,13 +55,13 @@ class DefaultServletHandlerConfigurerTests {
 
   @Test
   public void notEnabled() {
-    assertThat(configurer.buildHandlerRegistry()).isNull();
+    assertThat(configurer.buildHandlerMapping()).isNull();
   }
 
   @Test
   public void enable() throws Throwable {
     configurer.enable();
-    SimpleUrlHandlerMapping handlerMapping = configurer.buildHandlerRegistry();
+    SimpleUrlHandlerMapping handlerMapping = configurer.buildHandlerMapping();
     DefaultServletHttpRequestHandler handler = (DefaultServletHttpRequestHandler) handlerMapping.getUrlMap().get("/**");
 
     assertThat(handler).isNotNull();
@@ -77,7 +77,7 @@ class DefaultServletHandlerConfigurerTests {
   @Test
   public void enableWithServletName() throws Throwable {
     configurer.enable("defaultServlet");
-    SimpleUrlHandlerMapping handlerMapping = configurer.buildHandlerRegistry();
+    SimpleUrlHandlerMapping handlerMapping = configurer.buildHandlerMapping();
     DefaultServletHttpRequestHandler handler = (DefaultServletHttpRequestHandler) handlerMapping.getUrlMap().get("/**");
 
     assertThat(handler).isNotNull();

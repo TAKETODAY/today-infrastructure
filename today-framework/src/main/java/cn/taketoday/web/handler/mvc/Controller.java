@@ -44,7 +44,7 @@ import cn.taketoday.web.view.ModelAndView;
  * <p>After a {@code DispatcherServlet} has received a request and has
  * done its work to resolve locales, themes, and suchlike, it then tries
  * to resolve a Controller, using a
- * {@link HandlerMapping HandlerRegistry}.
+ * {@link HandlerMapping HandlerMapping}.
  * When a Controller has been found to handle the request, the
  * {@link #handleRequest(RequestContext) handleRequest}
  * method of the located Controller will be invoked; the located Controller

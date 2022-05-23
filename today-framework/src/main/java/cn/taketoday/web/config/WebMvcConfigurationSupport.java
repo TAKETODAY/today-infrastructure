@@ -496,6 +496,8 @@ public class WebMvcConfigurationSupport extends ApplicationContextSupport {
 
       if (webMvcConfigLocation != null) {
         registry.configure(webMvcConfigLocation);
+        registry.setInterceptors(getInterceptors());
+
         configureViewController(registry);
         return registry;
       }
@@ -617,6 +619,7 @@ public class WebMvcConfigurationSupport extends ApplicationContextSupport {
     if (useCaseSensitiveMatch != null) {
       handlerMapping.setUseCaseSensitiveMatch(useCaseSensitiveMatch);
     }
+    handlerMapping.setInterceptors(getInterceptors());
 
     handlerMapping.setOrder(Ordered.HIGHEST_PRECEDENCE);
     handlerMapping.setContentNegotiationManager(contentNegotiationManager);
@@ -645,9 +648,8 @@ public class WebMvcConfigurationSupport extends ApplicationContextSupport {
   @Nullable
   @Component
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-  public HandlerMapping resourceHandlerRegistry(
-          @Nullable ContentNegotiationManager contentNegotiationManager,
-          ResourceUrlProvider resourceUrlProvider) {
+  public HandlerMapping resourceHandlerMapping(
+          @Nullable ContentNegotiationManager contentNegotiationManager) {
 
     Assert.state(this.applicationContext != null, "No ApplicationContext set");
     PathMatchConfigurer pathConfig = getPathMatchConfigurer();
@@ -655,13 +657,13 @@ public class WebMvcConfigurationSupport extends ApplicationContextSupport {
     ResourceHandlerRegistry registry = new ResourceHandlerRegistry(this.applicationContext, contentNegotiationManager);
     addResourceHandlers(registry);
 
-    SimpleUrlHandlerMapping handlerRegistry = registry.getHandlerRegistry();
+    SimpleUrlHandlerMapping handlerRegistry = registry.getHandlerMapping();
     if (handlerRegistry == null) {
       return null;
     }
 
     handlerRegistry.setCorsConfigurations(getCorsConfigurations());
-    handlerRegistry.setInterceptors(getInterceptors(resourceUrlProvider));
+    handlerRegistry.setInterceptors(getInterceptors());
     handlerRegistry.setUseCaseSensitiveMatch(Boolean.TRUE.equals(pathConfig.isUseCaseSensitiveMatch()));
     handlerRegistry.setUseTrailingSlashMatch(Boolean.TRUE.equals(pathConfig.isUseTrailingSlashMatch()));
 
@@ -690,24 +692,22 @@ public class WebMvcConfigurationSupport extends ApplicationContextSupport {
   @Component
   @Nullable
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-  public HandlerMapping viewControllerHandlerRegistry(
-          @Qualifier("mvcResourceUrlProvider") ResourceUrlProvider resourceUrlProvider) {
-
+  public HandlerMapping viewControllerHandlerRegistry() {
     ViewControllerRegistry registry = new ViewControllerRegistry(this.applicationContext);
     addViewControllers(registry);
 
-    AbstractHandlerMapping handlerRegistry = registry.buildRegistry();
-    if (handlerRegistry == null) {
+    AbstractHandlerMapping mapping = registry.buildHandlerMapping();
+    if (mapping == null) {
       return null;
     }
     PathMatchConfigurer pathConfig = getPathMatchConfigurer();
 
-    handlerRegistry.setUseCaseSensitiveMatch(Boolean.TRUE.equals(pathConfig.isUseCaseSensitiveMatch()));
-    handlerRegistry.setUseTrailingSlashMatch(Boolean.TRUE.equals(pathConfig.isUseTrailingSlashMatch()));
+    mapping.setUseCaseSensitiveMatch(Boolean.TRUE.equals(pathConfig.isUseCaseSensitiveMatch()));
+    mapping.setUseTrailingSlashMatch(Boolean.TRUE.equals(pathConfig.isUseTrailingSlashMatch()));
 
-    handlerRegistry.setInterceptors(getInterceptors(resourceUrlProvider));
-    handlerRegistry.setCorsConfigurations(getCorsConfigurations());
-    return handlerRegistry;
+    mapping.setInterceptors(getInterceptors());
+    mapping.setCorsConfigurations(getCorsConfigurations());
+    return mapping;
   }
 
   /**
@@ -725,14 +725,15 @@ public class WebMvcConfigurationSupport extends ApplicationContextSupport {
   @Component
   @Nullable
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-  public HandlerMapping defaultServletHandlerRegistry() {
+  public HandlerMapping defaultServletHandlerMapping() {
     if (ServletDetector.isPresent) {
       if (getApplicationContext() instanceof WebServletApplicationContext context) {
         ServletContext servletContext = context.getServletContext();
         if (servletContext != null) {
           DefaultServletHandlerConfigurer configurer = new DefaultServletHandlerConfigurer(servletContext);
           configureDefaultServletHandling(configurer);
-          return configurer.buildHandlerRegistry();
+
+          return configurer.buildHandlerMapping();
         }
       }
     }
@@ -797,7 +798,7 @@ public class WebMvcConfigurationSupport extends ApplicationContextSupport {
    * {@link HandlerMapping} instances with.
    * <p>This method cannot be overridden; use {@link #addInterceptors} instead.
    */
-  protected final Object[] getInterceptors(ResourceUrlProvider mvcResourceUrlProvider) {
+  protected final Object[] getInterceptors() {
     if (this.interceptors == null) {
       InterceptorRegistry registry = new InterceptorRegistry();
       addInterceptors(registry);

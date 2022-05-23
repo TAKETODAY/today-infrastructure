@@ -128,6 +128,18 @@ public final class MappedInterceptor implements HandlerInterceptor {
    */
   public boolean matches(RequestContext request) {
     RequestPath lookupPath = request.getLookupPath();
+    return matches(lookupPath);
+  }
+
+  /**
+   * Check whether this interceptor is mapped to the request.
+   * <p>The request mapping path is expected to have been resolved externally.
+   * See also class-level Javadoc.
+   *
+   * @param lookupPath the request path to match to
+   * @return {@code true} if the interceptor should be applied to the request
+   */
+  public boolean matches(RequestPath lookupPath) {
     if (ObjectUtils.isNotEmpty(excludePatterns)) {
       for (PatternAdapter adapter : excludePatterns) {
         if (adapter.pathPattern.matches(lookupPath)) {

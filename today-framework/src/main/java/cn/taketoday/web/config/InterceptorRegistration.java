@@ -21,23 +21,38 @@
 package cn.taketoday.web.config;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
+import cn.taketoday.core.AntPathMatcher;
 import cn.taketoday.core.PathMatcher;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
+import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.HandlerInterceptor;
+import cn.taketoday.web.handler.MappedInterceptor;
+import cn.taketoday.web.util.pattern.PathPattern;
 
 /**
+ * Assists with the creation of a {@link MappedInterceptor}.
+ *
+ * @author Rossen Stoyanchev
+ * @author Keith Donald
  * @author TODAY 2021/8/30 21:38
  * @since 4.0
  */
 public class InterceptorRegistration {
 
-  protected HandlerInterceptor interceptor;
-  private int order = 0;
+  private final HandlerInterceptor interceptor;
 
-  private final ArrayList<String> includePatterns = new ArrayList<>();
-  private final ArrayList<String> excludePatterns = new ArrayList<>();
+  @Nullable
+  private List<String> includePatterns;
+
+  @Nullable
+  private List<String> excludePatterns;
+
+  private int order = 0;
 
   /**
    * Create an {@link InterceptorRegistration} instance.
@@ -47,43 +62,42 @@ public class InterceptorRegistration {
     this.interceptor = interceptor;
   }
 
-  public InterceptorRegistration setInterceptor(HandlerInterceptor interceptor) {
-    this.interceptor = interceptor;
+  /**
+   * Add patterns for URLs the interceptor should be included in.
+   * <p>For pattern syntax see {@link PathPattern} The syntax is largely the same with
+   * {@link PathPattern} more tailored for web usage and more efficient.
+   */
+  public InterceptorRegistration addPathPatterns(String... patterns) {
+    return addPathPatterns(Arrays.asList(patterns));
+  }
+
+  /**
+   * List-based variant of {@link #addPathPatterns(String...)}.
+   */
+  public InterceptorRegistration addPathPatterns(List<String> patterns) {
+    this.includePatterns = includePatterns != null ?
+                           includePatterns : new ArrayList<>(patterns.size());
+    this.includePatterns.addAll(patterns);
     return this;
   }
 
-  public InterceptorRegistration addPathPatterns(String... pattern) {
-    CollectionUtils.addAll(includePatterns, pattern);
+  /**
+   * Add patterns for URLs the interceptor should be excluded from.
+   * <p>For pattern syntax see {@link PathPattern} The syntax is largely the same with
+   * {@link PathPattern} more tailored for web usage and more efficient.
+   */
+  public InterceptorRegistration excludePathPatterns(String... patterns) {
+    return excludePathPatterns(Arrays.asList(patterns));
+  }
+
+  /**
+   * List-based variant of {@link #excludePathPatterns(String...)}.
+   */
+  public InterceptorRegistration excludePathPatterns(List<String> patterns) {
+    this.excludePatterns = excludePatterns != null ?
+                           excludePatterns : new ArrayList<>(patterns.size());
+    this.excludePatterns.addAll(patterns);
     return this;
-  }
-
-  public InterceptorRegistration excludePathPatterns(String... pattern) {
-    CollectionUtils.addAll(excludePatterns, pattern);
-    return this;
-  }
-
-  protected final boolean matchInRuntime(String requestPath, PathMatcher pathMatcher) {
-    // exclude
-    for (String excludePattern : excludePatterns) {
-      if (pathMatcher.match(excludePattern, requestPath)) {
-        return false;
-      }
-    }
-
-    // include
-    for (String includePattern : includePatterns) {
-      if (pathMatcher.match(includePattern, requestPath)) {
-        return true;
-      }
-    }
-
-    return false;
-  }
-
-  //
-
-  public HandlerInterceptor getInterceptor() {
-    return interceptor;
   }
 
   /**
@@ -99,6 +113,20 @@ public class InterceptorRegistration {
    */
   protected int getOrder() {
     return this.order;
+  }
+
+  /**
+   * Build the underlying interceptor. If URL patterns are provided, the returned
+   * type is {@link MappedInterceptor}; otherwise {@link HandlerInterceptor}.
+   */
+  protected Object getInterceptor() {
+    if (this.includePatterns == null && this.excludePatterns == null) {
+      return this.interceptor;
+    }
+
+    return new MappedInterceptor(
+            StringUtils.toStringArray(includePatterns),
+            StringUtils.toStringArray(excludePatterns), interceptor);
   }
 
 }

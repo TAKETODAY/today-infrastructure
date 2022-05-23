@@ -50,6 +50,7 @@ import cn.taketoday.web.registry.SimpleUrlHandlerMapping;
  *
  * @author Rossen Stoyanchev
  * @author Brian Clozel
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public class ResourceUrlProvider implements ApplicationListener<ContextRefreshedEvent>, ApplicationContextAware {
@@ -212,7 +213,7 @@ public class ResourceUrlProvider implements ApplicationListener<ContextRefreshed
 
     ArrayList<String> matchingPatterns = new ArrayList<>();
     PathMatcher pathMatcher = getPathMatcher();
-    for (String pattern : this.handlerMap.keySet()) {
+    for (String pattern : handlerMap.keySet()) {
       if (pathMatcher.match(pattern, lookupPath)) {
         matchingPatterns.add(pattern);
       }
@@ -224,8 +225,10 @@ public class ResourceUrlProvider implements ApplicationListener<ContextRefreshed
       for (String pattern : matchingPatterns) {
         String pathWithinMapping = pathMatcher.extractPathWithinPattern(pattern, lookupPath);
         String pathMapping = lookupPath.substring(0, lookupPath.indexOf(pathWithinMapping));
-        ResourceHttpRequestHandler handler = this.handlerMap.get(pattern);
-        ResourceResolvingChain chain = new DefaultResourceResolvingChain(handler.getResourceResolvers());
+
+        var handler = handlerMap.get(pattern);
+        var chain = new DefaultResourceResolvingChain(handler.getResourceResolvers());
+
         String resolved = chain.resolveUrlPath(pathWithinMapping, handler.getLocations());
         if (resolved == null) {
           continue;

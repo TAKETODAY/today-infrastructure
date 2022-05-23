@@ -30,11 +30,16 @@ import cn.taketoday.core.Ordered;
 import cn.taketoday.web.HandlerInterceptor;
 
 /**
+ * Helps with configuring a list of mapped interceptors.
+ *
+ * @author Rossen Stoyanchev
+ * @author Keith Donald
  * @author TODAY 2021/8/30 21:43
+ * @since 4.0
  */
 public class InterceptorRegistry {
 
-  private final List<InterceptorRegistration> registrations = new ArrayList<>();
+  private final ArrayList<InterceptorRegistration> registrations = new ArrayList<>();
 
   /**
    * Adds the provided {@link HandlerInterceptor}.
@@ -53,7 +58,7 @@ public class InterceptorRegistry {
    * Return all registered interceptors.
    */
   protected List<Object> getInterceptors() {
-    return this.registrations.stream()
+    return registrations.stream()
             .sorted(INTERCEPTOR_ORDER_COMPARATOR)
             .map(InterceptorRegistration::getInterceptor)
             .collect(Collectors.toList());
@@ -61,8 +66,8 @@ public class InterceptorRegistry {
 
   private static final Comparator<Object> INTERCEPTOR_ORDER_COMPARATOR =
           OrderComparator.INSTANCE.withSourceProvider(object -> {
-            if (object instanceof InterceptorRegistration) {
-              return (Ordered) ((InterceptorRegistration) object)::getOrder;
+            if (object instanceof InterceptorRegistration registration) {
+              return (Ordered) registration::getOrder;
             }
             return null;
           });

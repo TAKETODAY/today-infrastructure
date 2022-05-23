@@ -74,7 +74,7 @@ class WebSocketConfig {
   }
 
   @MissingBean
-  WebSocketHandlerMapping webSocketHandlerRegistry(
+  WebSocketHandlerMapping webSocketHandlerMapping(
           List<WebSocketConfiguration> configurers, AnnotationWebSocketHandlerBuilder handlerBuilder) {
     WebSocketHandlerMapping registry = getRegistry(handlerBuilder);
 

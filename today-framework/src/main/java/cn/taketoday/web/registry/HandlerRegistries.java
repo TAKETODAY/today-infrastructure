@@ -28,7 +28,7 @@ import cn.taketoday.web.RequestContext;
 import static java.util.Objects.requireNonNull;
 
 /**
- * Composite HandlerRegistry
+ * Composite HandlerMapping
  *
  * @author TODAY 2019-12-08 23:15
  */

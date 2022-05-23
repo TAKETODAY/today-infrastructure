@@ -41,7 +41,7 @@ public abstract class PathPatternsTestUtils {
     );
   }
 
-  private static MockServletRequestContext createRequest(String method, @Nullable String contextPath, String path) {
+  public static MockServletRequestContext createRequest(String method, @Nullable String contextPath, String path) {
     StaticWebApplicationContext context = new StaticWebApplicationContext();
     context.refresh();
     if (contextPath != null) {
