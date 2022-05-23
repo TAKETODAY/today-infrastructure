@@ -33,7 +33,6 @@
 
   <artifactId>today-test</artifactId>
 
-
   <dependencies>
 
     <dependency>
@@ -63,7 +62,6 @@
     <dependency>
       <groupId>org.skyscreamer</groupId>
       <artifactId>jsonassert</artifactId>
-      <version>1.5.0</version>
       <scope>provided</scope>
     </dependency>
 
@@ -135,7 +133,6 @@
     <dependency>
       <groupId>jakarta.xml.bind</groupId>
       <artifactId>jakarta.xml.bind-api</artifactId>
-      <version>3.0.1</version>
     </dependency>
 
     <dependency>
@@ -225,7 +222,6 @@
     <dependency>
       <groupId>com.google.code.gson</groupId>
       <artifactId>gson</artifactId>
-      <version>2.8.9</version>
       <scope>compile</scope>
     </dependency>
 
