@@ -21,59 +21,17 @@
 package cn.taketoday.framework.web.servlet;
 
 import cn.taketoday.util.DataSize;
+import cn.taketoday.web.multipart.MultipartConfig;
 import jakarta.servlet.MultipartConfigElement;
 
 /**
  * Factory that can be used to create a {@link MultipartConfigElement}.
  *
  * @author Phillip Webb
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-public class MultipartConfigFactory {
-
-  private String location;
-
-  private DataSize maxFileSize;
-
-  private DataSize maxRequestSize;
-
-  private DataSize fileSizeThreshold;
-
-  /**
-   * Sets the directory location where files will be stored.
-   *
-   * @param location the location
-   */
-  public void setLocation(String location) {
-    this.location = location;
-  }
-
-  /**
-   * Sets the maximum {@link DataSize size} allowed for uploaded files.
-   *
-   * @param maxFileSize the maximum file size
-   */
-  public void setMaxFileSize(DataSize maxFileSize) {
-    this.maxFileSize = maxFileSize;
-  }
-
-  /**
-   * Sets the maximum {@link DataSize} allowed for multipart/form-data requests.
-   *
-   * @param maxRequestSize the maximum request size
-   */
-  public void setMaxRequestSize(DataSize maxRequestSize) {
-    this.maxRequestSize = maxRequestSize;
-  }
-
-  /**
-   * Sets the {@link DataSize size} threshold after which files will be written to disk.
-   *
-   * @param fileSizeThreshold the file size threshold
-   */
-  public void setFileSizeThreshold(DataSize fileSizeThreshold) {
-    this.fileSizeThreshold = fileSizeThreshold;
-  }
+public class MultipartConfigFactory extends MultipartConfig {
 
   /**
    * Create a new {@link MultipartConfigElement} instance.
@@ -81,11 +39,10 @@ public class MultipartConfigFactory {
    * @return the multipart config element
    */
   public MultipartConfigElement createMultipartConfig() {
-    long maxFileSizeBytes = convertToBytes(this.maxFileSize, -1);
-    long maxRequestSizeBytes = convertToBytes(this.maxRequestSize, -1);
-    long fileSizeThresholdBytes = convertToBytes(this.fileSizeThreshold, 0);
-    return new MultipartConfigElement(this.location, maxFileSizeBytes, maxRequestSizeBytes,
-            (int) fileSizeThresholdBytes);
+    long maxFileSizeBytes = convertToBytes(getMaxFileSize(), -1);
+    long maxRequestSizeBytes = convertToBytes(getMaxRequestSize(), -1);
+    long fileSizeThresholdBytes = convertToBytes(getFileSizeThreshold(), 0);
+    return new MultipartConfigElement(getLocation(), maxFileSizeBytes, maxRequestSizeBytes, (int) fileSizeThresholdBytes);
   }
 
   /**

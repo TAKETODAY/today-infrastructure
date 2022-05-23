@@ -77,7 +77,7 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
    * since autowire-candidate may have been turned to {@code false} for other
    * reasons, while still expecting the bean to be eligible for handler methods.
    * <p>Originally defined in {@link cn.taketoday.aop.scope.ScopedProxyUtils}
-   * but duplicated here to avoid a hard dependency on the spring-aop module.
+   * but duplicated here to avoid a hard dependency on the aop module.
    */
   private static final String SCOPED_TARGET_NAME_PREFIX = "scopedTarget.";
 
@@ -379,7 +379,7 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
    */
   @Nullable
   @Override
-  protected Object getHandlerInternal(RequestContext context) {
+  protected HandlerMethod getHandlerInternal(RequestContext context) {
     String lookupPath = context.getLookupPath().value();
     this.mappingRegistry.acquireReadLock();
     try {

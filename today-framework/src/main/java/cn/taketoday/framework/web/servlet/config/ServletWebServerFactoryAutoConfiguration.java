@@ -30,7 +30,6 @@ import cn.taketoday.beans.factory.ObjectProvider;
 import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.support.RootBeanDefinition;
-import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Import;
 import cn.taketoday.context.annotation.ImportBeanDefinitionRegistrar;
@@ -52,7 +51,8 @@ import cn.taketoday.framework.web.servlet.ConditionalOnMissingFilterBean;
 import cn.taketoday.framework.web.servlet.FilterRegistrationBean;
 import cn.taketoday.framework.web.servlet.WebListenerRegistrar;
 import cn.taketoday.framework.web.servlet.server.CookieSameSiteSupplier;
-import cn.taketoday.util.ObjectUtils;
+import cn.taketoday.lang.Component;
+import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.web.servlet.filter.ForwardedHeaderFilter;
 import jakarta.servlet.DispatcherType;
 import jakarta.servlet.ServletRequest;
@@ -73,13 +73,15 @@ import jakarta.servlet.ServletRequest;
 @ConditionalOnClass(ServletRequest.class)
 @ConditionalOnWebApplication(type = Type.SERVLET)
 @EnableConfigurationProperties(ServerProperties.class)
-@Import({ ServletWebServerFactoryAutoConfiguration.BeanPostProcessorsRegistrar.class,
+@Import({
+        ServletWebServerFactoryAutoConfiguration.BeanPostProcessorsRegistrar.class,
         ServletWebServerFactoryConfiguration.EmbeddedTomcat.class,
         ServletWebServerFactoryConfiguration.EmbeddedJetty.class,
-        ServletWebServerFactoryConfiguration.EmbeddedUndertow.class })
+        ServletWebServerFactoryConfiguration.EmbeddedUndertow.class
+})
 public class ServletWebServerFactoryAutoConfiguration {
 
-  @Bean
+  @Component
   public ServletWebServerFactoryCustomizer servletWebServerFactoryCustomizer(ServerProperties serverProperties,
           ObjectProvider<WebListenerRegistrar> webListenerRegistrars,
           ObjectProvider<CookieSameSiteSupplier> cookieSameSiteSuppliers) {
@@ -88,7 +90,7 @@ public class ServletWebServerFactoryAutoConfiguration {
             cookieSameSiteSuppliers.orderedStream().collect(Collectors.toList()));
   }
 
-  @Bean
+  @Component
   @ConditionalOnClass(name = "org.apache.catalina.startup.Tomcat")
   public TomcatServletWebServerFactoryCustomizer tomcatServletWebServerFactoryCustomizer(
           ServerProperties serverProperties) {
@@ -96,21 +98,21 @@ public class ServletWebServerFactoryAutoConfiguration {
   }
 
   @Configuration(proxyBeanMethods = false)
-  @ConditionalOnProperty(value = "server.forward-headers-strategy", havingValue = "framework")
+  @ConditionalOnProperty(value = "server.forward-headers-strategy", havingValue = "today")
   @ConditionalOnMissingFilterBean(ForwardedHeaderFilter.class)
   static class ForwardedHeaderFilterConfiguration {
 
-    @Bean
+    @Component
     @ConditionalOnClass(name = "org.apache.catalina.startup.Tomcat")
     ForwardedHeaderFilterCustomizer tomcatForwardedHeaderFilterCustomizer(ServerProperties serverProperties) {
       return filter -> filter.setRelativeRedirects(serverProperties.getTomcat().isUseRelativeRedirects());
     }
 
-    @Bean
+    @Component
     FilterRegistrationBean<ForwardedHeaderFilter> forwardedHeaderFilter(
             ObjectProvider<ForwardedHeaderFilterCustomizer> customizerProvider) {
       ForwardedHeaderFilter filter = new ForwardedHeaderFilter();
-      customizerProvider.ifAvailable((customizer) -> customizer.customize(filter));
+      customizerProvider.ifAvailable(customizer -> customizer.customize(filter));
       FilterRegistrationBean<ForwardedHeaderFilter> registration = new FilterRegistrationBean<>(filter);
       registration.setDispatcherTypes(DispatcherType.REQUEST, DispatcherType.ASYNC, DispatcherType.ERROR);
       registration.setOrder(Ordered.HIGHEST_PRECEDENCE);
@@ -152,9 +154,8 @@ public class ServletWebServerFactoryAutoConfiguration {
     }
 
     private <T> void registerSyntheticBeanIfMissing(
-            BeanDefinitionRegistry registry, String name,
-            Class<T> beanClass, Supplier<T> instanceSupplier) {
-      if (ObjectUtils.isEmpty(this.beanFactory.getBeanNamesForType(beanClass, true, false))) {
+            BeanDefinitionRegistry registry, String name, Class<T> beanClass, Supplier<T> instanceSupplier) {
+      if (CollectionUtils.isEmpty(beanFactory.getBeanNamesForType(beanClass, true, false))) {
         RootBeanDefinition beanDefinition = new RootBeanDefinition(beanClass, instanceSupplier);
         beanDefinition.setSynthetic(true);
         registry.registerBeanDefinition(name, beanDefinition);

@@ -36,18 +36,19 @@ import cn.taketoday.context.condition.ConditionOutcome;
 import cn.taketoday.context.condition.ConditionalOnBean;
 import cn.taketoday.context.condition.ConditionalOnClass;
 import cn.taketoday.context.condition.ContextCondition;
+import cn.taketoday.context.properties.ConfigurationProperties;
 import cn.taketoday.context.properties.EnableConfigurationProperties;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.annotation.Order;
 import cn.taketoday.core.type.AnnotatedTypeMetadata;
 import cn.taketoday.framework.annotation.ConditionalOnWebApplication;
 import cn.taketoday.framework.annotation.ConditionalOnWebApplication.Type;
+import cn.taketoday.framework.web.servlet.MultipartConfigFactory;
 import cn.taketoday.framework.web.servlet.ServletRegistrationBean;
 import cn.taketoday.lang.Component;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.config.WebMvcProperties;
 import cn.taketoday.web.servlet.DispatcherServlet;
-import jakarta.servlet.MultipartConfigElement;
 import jakarta.servlet.ServletRegistration;
 
 /**
@@ -104,13 +105,14 @@ public class DispatcherServletAutoConfiguration {
     @ConditionalOnBean(value = DispatcherServlet.class, name = DEFAULT_DISPATCHER_SERVLET_BEAN_NAME)
     public ServletRegistrationBean<DispatcherServlet> dispatcherServletRegistration(
             DispatcherServlet dispatcherServlet, WebMvcProperties webMvcProperties,
-            @Nullable MultipartConfigElement multipartConfig) {
+            @Nullable MultipartConfigFactory multipartConfigFactory) {
+
       var registration = new ServletRegistrationBean<>(
               dispatcherServlet, webMvcProperties.getServlet().getPath());
       registration.setName(DEFAULT_DISPATCHER_SERVLET_BEAN_NAME);
       registration.setLoadOnStartup(webMvcProperties.getServlet().getLoadOnStartup());
-      if (multipartConfig != null) {
-        registration.setMultipartConfig(multipartConfig);
+      if (multipartConfigFactory != null) {
+        registration.setMultipartConfig(multipartConfigFactory.createMultipartConfig());
       }
       return registration;
     }
@@ -121,6 +123,12 @@ public class DispatcherServletAutoConfiguration {
       initializer.setRequestCharacterEncoding(webMvcProperties.getServlet().getRequestEncoding());
       initializer.setResponseCharacterEncoding(webMvcProperties.getServlet().getResponseEncoding());
       return initializer;
+    }
+
+    @Component
+    @ConfigurationProperties(prefix = "server.multipart", ignoreUnknownFields = false)
+    MultipartConfigFactory multipartConfigFactory() {
+      return new MultipartConfigFactory();
     }
 
   }

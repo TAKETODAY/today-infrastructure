@@ -25,8 +25,6 @@
  * @since 4.0 2022/5/23 10:40
  */
 @NonNullApi
-@NonNullFields
 package cn.taketoday.web.handler;
 
 import cn.taketoday.lang.NonNullApi;
-import cn.taketoday.lang.NonNullFields;

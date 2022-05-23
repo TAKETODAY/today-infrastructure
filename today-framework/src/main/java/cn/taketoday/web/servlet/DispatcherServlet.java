@@ -57,7 +57,7 @@ public class DispatcherServlet
 
   public DispatcherServlet() { }
 
-  public DispatcherServlet(WebServletApplicationContext context) {
+  public DispatcherServlet(ApplicationContext context) {
     super(context);
   }
 

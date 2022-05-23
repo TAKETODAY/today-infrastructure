@@ -44,7 +44,7 @@ public class MissingRequestPartException extends ServletException implements Err
   private final String requestPartName;
 
   /**
-   * Constructor for MissingServletRequestPartException.
+   * Constructor for MissingRequestPartException.
    *
    * @param requestPartName the name of the missing part of the multipart request
    */

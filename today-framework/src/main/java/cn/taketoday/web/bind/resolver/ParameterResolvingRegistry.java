@@ -246,7 +246,6 @@ public class ParameterResolvingRegistry
     strategies.add(new AutowiredParameterResolver(context));
 
     CookieParameterResolver.register(strategies, beanFactory);
-    registerMultipart(strategies);
 
     // type-based argument resolution
     if (ServletDetector.isPresent && context instanceof WebServletApplicationContext servletApp) {
@@ -294,27 +293,6 @@ public class ParameterResolvingRegistry
 
     // trim size
     strategies.trimToSize();
-  }
-
-  @Deprecated
-  private void registerMultipart(ParameterResolvingStrategies strategies) {
-    // For multipart
-    // -------------------------------------------
-    MultipartConfig multipartConfig = getMultipartConfig();
-    if (multipartConfig == null) { // @since 4.0
-      multipartConfig = createMultipartConfig();
-      setMultipartConfig(multipartConfig);
-    }
-    Assert.state(multipartConfig != null, "MultipartConfiguration is required");
-  }
-
-  /**
-   * create default MultipartConfiguration
-   *
-   * @since 4.0
-   */
-  protected MultipartConfig createMultipartConfig() {
-    return new MultipartConfig();
   }
 
   /**

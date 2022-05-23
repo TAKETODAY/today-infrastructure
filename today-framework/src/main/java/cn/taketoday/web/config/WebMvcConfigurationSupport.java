@@ -33,11 +33,9 @@ import cn.taketoday.beans.factory.annotation.DisableAllDependencyInjection;
 import cn.taketoday.beans.factory.annotation.Qualifier;
 import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.context.annotation.Lazy;
 import cn.taketoday.context.annotation.Role;
 import cn.taketoday.context.aware.ApplicationContextSupport;
 import cn.taketoday.context.condition.ConditionalOnMissingBean;
-import cn.taketoday.context.properties.Props;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.conversion.Converter;
 import cn.taketoday.core.env.Environment;
@@ -100,7 +98,6 @@ import cn.taketoday.web.handler.method.RequestBodyAdvice;
 import cn.taketoday.web.handler.method.RequestMappingHandlerAdapter;
 import cn.taketoday.web.handler.method.RequestMappingHandlerMapping;
 import cn.taketoday.web.handler.method.ResponseBodyAdvice;
-import cn.taketoday.web.multipart.MultipartConfig;
 import cn.taketoday.web.registry.AbstractHandlerMapping;
 import cn.taketoday.web.registry.FunctionHandlerMapping;
 import cn.taketoday.web.registry.SimpleUrlHandlerMapping;
@@ -448,12 +445,10 @@ public class WebMvcConfigurationSupport extends ApplicationContextSupport {
   @ConditionalOnMissingBean
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
   ParameterResolvingRegistry parameterResolvingRegistry(
-          ApplicationContext context, MultipartConfig multipartConfig,
-          @Nullable RedirectModelManager redirectModelManager) {
+          ApplicationContext context, @Nullable RedirectModelManager redirectModelManager) {
 
     ParameterResolvingRegistry registry = new ParameterResolvingRegistry();
     registry.setApplicationContext(context);
-    registry.setMultipartConfig(multipartConfig);
     registry.setRedirectModelManager(redirectModelManager);
 
     registry.setMessageConverters(getMessageConverters());
@@ -466,18 +461,6 @@ public class WebMvcConfigurationSupport extends ApplicationContextSupport {
   }
 
   protected void modifyParameterResolvingRegistry(ParameterResolvingRegistry registry) { }
-
-  /**
-   * default {@link MultipartConfig} bean
-   */
-  @Lazy
-  @Component
-  @Props(prefix = "multipart")
-  @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-  @ConditionalOnMissingBean(MultipartConfig.class)
-  MultipartConfig multipartConfiguration() {
-    return new MultipartConfig();
-  }
 
   /**
    * default {@link NotFoundHandler} to handle request-url not found

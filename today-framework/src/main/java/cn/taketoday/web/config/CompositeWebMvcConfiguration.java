@@ -32,7 +32,6 @@ import cn.taketoday.web.HandlerMapping;
 import cn.taketoday.web.bind.resolver.ParameterResolvingRegistry;
 import cn.taketoday.web.bind.resolver.ParameterResolvingStrategies;
 import cn.taketoday.web.handler.ReturnValueHandlerManager;
-import cn.taketoday.web.multipart.MultipartConfig;
 import cn.taketoday.web.registry.FunctionHandlerMapping;
 import cn.taketoday.web.registry.ViewControllerHandlerMapping;
 
@@ -84,13 +83,6 @@ public class CompositeWebMvcConfiguration implements WebMvcConfiguration {
   public void modifyReturnValueHandlerManager(ReturnValueHandlerManager manager) {
     for (WebMvcConfiguration webMvcConfiguration : getWebMvcConfigurations()) {
       webMvcConfiguration.modifyReturnValueHandlerManager(manager);
-    }
-  }
-
-  @Override
-  public void configureMultipart(MultipartConfig config) {
-    for (WebMvcConfiguration webMvcConfiguration : getWebMvcConfigurations()) {
-      webMvcConfiguration.configureMultipart(config);
     }
   }
 

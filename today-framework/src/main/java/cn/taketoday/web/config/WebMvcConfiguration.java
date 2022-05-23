@@ -32,14 +32,12 @@ import cn.taketoday.web.HandlerExceptionHandler;
 import cn.taketoday.web.HandlerMapping;
 import cn.taketoday.web.ReturnValueHandler;
 import cn.taketoday.web.annotation.CrossOrigin;
-import cn.taketoday.web.annotation.Multipart;
 import cn.taketoday.web.bind.resolver.ParameterResolvingRegistry;
 import cn.taketoday.web.bind.resolver.ParameterResolvingStrategies;
 import cn.taketoday.web.bind.resolver.ParameterResolvingStrategy;
 import cn.taketoday.web.cors.CorsConfiguration;
 import cn.taketoday.web.handler.ReturnValueHandlerManager;
 import cn.taketoday.web.handler.ViewController;
-import cn.taketoday.web.multipart.MultipartConfig;
 import cn.taketoday.web.registry.FunctionHandlerMapping;
 import cn.taketoday.web.registry.ViewControllerHandlerMapping;
 import cn.taketoday.web.view.View;
@@ -98,13 +96,6 @@ public interface WebMvcConfiguration {
    * @param registry {@link ResourceHandlerRegistry}
    */
   default void addResourceHandlers(ResourceHandlerRegistry registry) { }
-
-  /**
-   * Configure {@link Multipart}
-   *
-   * @param config {@link MultipartConfig}
-   */
-  default void configureMultipart(MultipartConfig config) { }
 
   /**
    * Configure {@link ViewController} s

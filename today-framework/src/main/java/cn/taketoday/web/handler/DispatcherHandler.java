@@ -72,7 +72,7 @@ public class DispatcherHandler implements ApplicationContextAware {
    *
    * @see #setDetectAllHandlerRegistries(boolean)
    */
-  public static final String HANDLER_REGISTRY_BEAN_NAME = "handlerRegistry";
+  public static final String HANDLER_MAPPING_BEAN_NAME = "handlerMapping";
 
   /**
    * Well-known name for the HandlerAdapter object in the bean factory for this namespace.
@@ -172,11 +172,11 @@ public class DispatcherHandler implements ApplicationContextAware {
         }
       }
       else {
-        handlerMapping = context.getBean(HANDLER_REGISTRY_BEAN_NAME, HandlerMapping.class);
+        handlerMapping = context.getBean(HANDLER_MAPPING_BEAN_NAME, HandlerMapping.class);
       }
       if (handlerMapping == null) {
         handlerMapping = (HandlerMapping) context.getAutowireCapableBeanFactory()
-                .configureBean(new BeanNameUrlHandlerMapping(), HANDLER_REGISTRY_BEAN_NAME);
+                .configureBean(new BeanNameUrlHandlerMapping(), HANDLER_MAPPING_BEAN_NAME);
       }
     }
   }
