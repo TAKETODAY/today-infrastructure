@@ -27,7 +27,6 @@ import java.lang.annotation.Target;
 import cn.taketoday.core.annotation.AliasFor;
 import cn.taketoday.http.HttpMethod;
 import cn.taketoday.http.MediaType;
-import cn.taketoday.lang.Constant;
 import cn.taketoday.web.handler.HandlerMethodMappingNamingStrategy;
 
 /**
@@ -80,7 +79,7 @@ public @interface ActionMapping {
    * explicitly is effectively mapped to an empty path.
    */
   @AliasFor("path")
-  String[] value() default Constant.BLANK;
+  String[] value() default {};
 
   /**
    * The path mapping URIs (e.g. {@code "/profile"}).
@@ -97,7 +96,7 @@ public @interface ActionMapping {
    * @since 4.0
    */
   @AliasFor("value")
-  String[] path() default Constant.BLANK;
+  String[] path() default {};
 
   /**
    * Combine this condition with another such as conditions from a

@@ -64,7 +64,7 @@ public class RequestMappingHandlerMapping extends RequestMappingInfoHandlerMappi
 
   private ContentNegotiationManager contentNegotiationManager = new ContentNegotiationManager();
 
-  private RequestMappingInfo.BuilderConfiguration config = new RequestMappingInfo.BuilderConfiguration();
+  private final RequestMappingInfo.BuilderConfiguration config = new RequestMappingInfo.BuilderConfiguration();
 
   /**
    * Configure path prefixes to apply to controller methods.
@@ -77,9 +77,9 @@ public class RequestMappingHandlerMapping extends RequestMappingInfoHandlerMappi
    * @param prefixes a map with path prefixes as key
    */
   public void setPathPrefixes(Map<String, Predicate<Class<?>>> prefixes) {
-    this.pathPrefixes = (!prefixes.isEmpty() ?
-                         Collections.unmodifiableMap(new LinkedHashMap<>(prefixes)) :
-                         Collections.emptyMap());
+    this.pathPrefixes = prefixes.isEmpty()
+                        ? Collections.emptyMap()
+                        : Collections.unmodifiableMap(new LinkedHashMap<>(prefixes));
   }
 
   /**
@@ -107,7 +107,6 @@ public class RequestMappingHandlerMapping extends RequestMappingInfoHandlerMappi
 
   @Override
   public void afterPropertiesSet() {
-    this.config = new RequestMappingInfo.BuilderConfiguration();
     config.setPatternParser(getPatternParser());
     config.setContentNegotiationManager(getContentNegotiationManager());
 
@@ -151,9 +150,11 @@ public class RequestMappingHandlerMapping extends RequestMappingInfoHandlerMappi
   protected RequestMappingInfo getMappingForMethod(Method method, Class<?> handlerType) {
     RequestMappingInfo info = createRequestMappingInfo(method);
     if (info != null) {
-      RequestMappingInfo typeInfo = createRequestMappingInfo(handlerType);
-      if (typeInfo != null) {
-        info = typeInfo.combine(info);
+      if (info.isCombine()) {
+        RequestMappingInfo typeInfo = createRequestMappingInfo(handlerType);
+        if (typeInfo != null) {
+          info = typeInfo.combine(info);
+        }
       }
       String prefix = getPathPrefix(handlerType);
       if (prefix != null) {
@@ -185,10 +186,13 @@ public class RequestMappingHandlerMapping extends RequestMappingInfoHandlerMappi
   @Nullable
   private RequestMappingInfo createRequestMappingInfo(AnnotatedElement element) {
     ActionMapping requestMapping = AnnotatedElementUtils.findMergedAnnotation(element, ActionMapping.class);
-    RequestCondition<?> condition =
-            element instanceof Class ? getCustomTypeCondition((Class<?>) element)
-                                     : getCustomMethodCondition((Method) element);
-    return requestMapping != null ? createRequestMappingInfo(requestMapping, condition) : null;
+    if (requestMapping != null) {
+      RequestCondition<?> customCondition =
+              element instanceof Class ? getCustomTypeCondition((Class<?>) element)
+                                       : getCustomMethodCondition((Method) element);
+      return createRequestMappingInfo(requestMapping, customCondition);
+    }
+    return null;
   }
 
   /**
@@ -236,8 +240,9 @@ public class RequestMappingHandlerMapping extends RequestMappingInfoHandlerMappi
 
     RequestMappingInfo.Builder builder = RequestMappingInfo
             .paths(resolveEmbeddedValuesInPatterns(requestMapping.path()))
-            .methods(requestMapping.method())
             .params(requestMapping.params())
+            .methods(requestMapping.method())
+            .combine(requestMapping.combine())
             .headers(requestMapping.headers())
             .consumes(requestMapping.consumes())
             .produces(requestMapping.produces())

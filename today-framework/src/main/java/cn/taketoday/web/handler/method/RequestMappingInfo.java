@@ -82,6 +82,8 @@ public final class RequestMappingInfo implements RequestCondition<RequestMapping
 
   private final BuilderConfiguration options;
 
+  private final boolean combine;
+
   private RequestMappingInfo(@Nullable String name,
           PathPatternsRequestCondition pathPatternsCondition,
           RequestMethodsRequestCondition methodsCondition,
@@ -90,7 +92,7 @@ public final class RequestMappingInfo implements RequestCondition<RequestMapping
           ConsumesRequestCondition consumesCondition,
           ProducesRequestCondition producesCondition,
           RequestConditionHolder customCondition,
-          BuilderConfiguration options) {
+          BuilderConfiguration options, boolean combine) {
 
     this.name = StringUtils.hasText(name) ? name : null;
     this.options = options;
@@ -101,6 +103,7 @@ public final class RequestMappingInfo implements RequestCondition<RequestMapping
     this.producesCondition = producesCondition;
     this.customConditionHolder = customCondition;
     this.pathPatternsCondition = pathPatternsCondition;
+    this.combine = combine;
 
     this.hashCode = calculateHashCode(
             pathPatternsCondition,
@@ -188,6 +191,10 @@ public final class RequestMappingInfo implements RequestCondition<RequestMapping
     return this.customConditionHolder.getCondition();
   }
 
+  public boolean isCombine() {
+    return combine;
+  }
+
   /**
    * Create a new instance based on the current one, also adding the given
    * custom condition.
@@ -199,7 +206,7 @@ public final class RequestMappingInfo implements RequestCondition<RequestMapping
             this.pathPatternsCondition,
             this.methodsCondition, this.paramsCondition, this.headersCondition,
             this.consumesCondition, this.producesCondition,
-            new RequestConditionHolder(customCondition), this.options);
+            new RequestConditionHolder(customCondition), this.options, combine);
   }
 
   /**
@@ -222,7 +229,7 @@ public final class RequestMappingInfo implements RequestCondition<RequestMapping
     PathPatternsRequestCondition pathPatterns = pathPatternsCondition.combine(other.pathPatternsCondition);
 
     return new RequestMappingInfo(name, pathPatterns,
-            methods, params, headers, consumes, produces, custom, options);
+            methods, params, headers, consumes, produces, custom, options, combine);
   }
 
   @Nullable
@@ -283,7 +290,7 @@ public final class RequestMappingInfo implements RequestCondition<RequestMapping
       return null;
     }
     return new RequestMappingInfo(name, pathPatterns,
-            methods, params, headers, consumes, produces, custom, options);
+            methods, params, headers, consumes, produces, custom, options, combine);
   }
 
   /**
@@ -343,7 +350,8 @@ public final class RequestMappingInfo implements RequestCondition<RequestMapping
     if (!(other instanceof RequestMappingInfo otherInfo)) {
       return false;
     }
-    return (getPathPatternsCondition().equals(otherInfo.getPathPatternsCondition()) &&
+    return combine == otherInfo.combine
+            && (getPathPatternsCondition().equals(otherInfo.getPathPatternsCondition()) &&
             this.methodsCondition.equals(otherInfo.methodsCondition) &&
             this.paramsCondition.equals(otherInfo.paramsCondition) &&
             this.headersCondition.equals(otherInfo.headersCondition) &&
@@ -468,6 +476,11 @@ public final class RequestMappingInfo implements RequestCondition<RequestMapping
     Builder options(BuilderConfiguration options);
 
     /**
+     * combine class level
+     */
+    Builder combine(boolean combine);
+
+    /**
      * Build the RequestMappingInfo.
      */
     RequestMappingInfo build();
@@ -493,6 +506,8 @@ public final class RequestMappingInfo implements RequestCondition<RequestMapping
     private RequestCondition<?> customCondition;
 
     private BuilderConfiguration options = new BuilderConfiguration();
+
+    private boolean combine;
 
     public DefaultBuilder(String... paths) {
       this.paths = paths;
@@ -559,11 +574,17 @@ public final class RequestMappingInfo implements RequestCondition<RequestMapping
     }
 
     @Override
+    public Builder combine(boolean combine) {
+      this.combine = combine;
+      return this;
+    }
+
+    @Override
     public RequestMappingInfo build() {
 
       PathPatternsRequestCondition pathPatterns =
               ObjectUtils.isEmpty(paths)
-              ? EMPTY_PATH_PATTERNS : new PathPatternsRequestCondition(options.patternParser, paths);
+              ? EMPTY_PATH_PATTERNS : new PathPatternsRequestCondition(options.getPatternParser(), paths);
 
       ContentNegotiationManager manager = options.getContentNegotiationManager();
 
@@ -575,8 +596,7 @@ public final class RequestMappingInfo implements RequestCondition<RequestMapping
               ObjectUtils.isEmpty(consumes) && !hasContentType ? EMPTY_CONSUMES : new ConsumesRequestCondition(consumes, headers),
               ObjectUtils.isEmpty(produces) && !hasAccept ? EMPTY_PRODUCES : new ProducesRequestCondition(produces, headers, manager),
               customCondition != null ? new RequestConditionHolder(customCondition) : EMPTY_CUSTOM,
-              options
-      );
+              options, combine);
     }
   }
 
@@ -585,7 +605,6 @@ public final class RequestMappingInfo implements RequestCondition<RequestMapping
     @Nullable
     private String name;
 
-    @Nullable
     private PathPatternsRequestCondition pathPatternsCondition;
 
     private RequestMethodsRequestCondition methodsCondition;
@@ -601,6 +620,8 @@ public final class RequestMappingInfo implements RequestCondition<RequestMapping
     private RequestConditionHolder customConditionHolder;
 
     private BuilderConfiguration options;
+
+    private boolean combine;
 
     public MutateBuilder(RequestMappingInfo other) {
       this.name = other.name;
@@ -618,7 +639,7 @@ public final class RequestMappingInfo implements RequestCondition<RequestMapping
     public Builder paths(String... paths) {
       this.pathPatternsCondition = ObjectUtils.isEmpty(paths)
                                    ? EMPTY_PATH_PATTERNS
-                                   : new PathPatternsRequestCondition(this.options.patternParser, paths);
+                                   : new PathPatternsRequestCondition(this.options.getPatternParser(), paths);
       return this;
     }
 
@@ -677,12 +698,18 @@ public final class RequestMappingInfo implements RequestCondition<RequestMapping
     }
 
     @Override
+    public Builder combine(boolean combine) {
+      this.combine = combine;
+      return this;
+    }
+
+    @Override
     public RequestMappingInfo build() {
       return new RequestMappingInfo(this.name,
               this.pathPatternsCondition,
               this.methodsCondition, this.paramsCondition, this.headersCondition,
               this.consumesCondition, this.producesCondition,
-              this.customConditionHolder, this.options);
+              this.customConditionHolder, this.options, combine);
     }
   }
 
@@ -691,7 +718,7 @@ public final class RequestMappingInfo implements RequestCondition<RequestMapping
    * Such configuration is required to create RequestMappingInfo instances but
    * is typically used across all RequestMappingInfo instances.
    *
-   * @see Builder#options
+   * @see Builder#combine
    */
   public static class BuilderConfiguration {
 
