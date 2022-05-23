@@ -91,7 +91,7 @@ import cn.taketoday.web.util.WebUtils;
  * <td><p>400 (SC_BAD_REQUEST)</p></td>
  * </tr>
  * <tr class="rowColor">
- * <td><p>MissingServletRequestPartException</p></td>
+ * <td><p>MissingRequestPartException</p></td>
  * <td><p>400 (SC_BAD_REQUEST)</p></td>
  * </tr>
  * <tr class="rowColor">
@@ -212,7 +212,7 @@ public class SimpleHandlerExceptionHandler
                   (AsyncRequestTimeoutException) ex, request, handler);
         }
         else if (ServletDetector.isPresent && ex instanceof MissingRequestPartException) {
-          view = handleMissingServletRequestPartException(
+          view = handleMissingRequestPartException(
                   (MissingRequestPartException) ex, request, handler);
         }
 
@@ -362,7 +362,7 @@ public class SimpleHandlerExceptionHandler
    * @since 4.0
    */
   @Nullable
-  protected Object handleMissingServletRequestPartException(MissingRequestPartException ex,
+  protected Object handleMissingRequestPartException(MissingRequestPartException ex,
           RequestContext request, @Nullable Object handler) throws IOException {
 
     return null;

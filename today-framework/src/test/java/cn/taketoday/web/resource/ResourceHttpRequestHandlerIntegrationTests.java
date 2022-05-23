@@ -39,6 +39,7 @@ import cn.taketoday.web.config.WebMvcConfiguration;
 import cn.taketoday.web.servlet.DispatcherServlet;
 import cn.taketoday.web.testfixture.servlet.MockHttpServletRequest;
 import cn.taketoday.web.testfixture.servlet.MockHttpServletResponse;
+import cn.taketoday.web.testfixture.servlet.MockServletConfig;
 import cn.taketoday.web.testfixture.servlet.MockServletContext;
 import cn.taketoday.web.util.UriUtils;
 import jakarta.servlet.ServletException;

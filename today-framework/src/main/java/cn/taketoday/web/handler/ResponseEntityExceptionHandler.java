@@ -52,6 +52,7 @@ import cn.taketoday.web.context.async.AsyncRequestTimeoutException;
 import cn.taketoday.web.servlet.ServletUtils;
 import cn.taketoday.web.util.WebUtils;
 import cn.taketoday.web.view.ModelAndView;
+import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.http.HttpServletResponse;
 
 /**
@@ -147,7 +148,7 @@ public class ResponseEntityExceptionHandler {
         return handleMissingServletRequestParameter(subEx, subEx.getHeaders(), subEx.getStatusCode(), request);
       }
       else if (ex instanceof MissingRequestPartException subEx) { // FIXME Servlet
-        return handleMissingServletRequestPart(subEx, subEx.getHeaders(), subEx.getStatusCode(), request);
+        return handleMissingRequestPart(subEx, subEx.getHeaders(), subEx.getStatusCode(), request);
       }
       else if (ex instanceof RequestBindingException subEx) {
         return handleRequestBindingException(subEx, subEx.getHeaders(), subEx.getStatusCode(), request);
@@ -286,7 +287,7 @@ public class ResponseEntityExceptionHandler {
   }
 
   /**
-   * Customize the response for MissingServletRequestPartException.
+   * Customize the response for MissingRequestPartException.
    * <p>This method delegates to {@link #handleExceptionInternal}.
    *
    * @param ex the exception
@@ -296,7 +297,7 @@ public class ResponseEntityExceptionHandler {
    * @return {@code ResponseEntity} or {@code null} if response is committed
    */
   @Nullable
-  protected ResponseEntity<Object> handleMissingServletRequestPart(
+  protected ResponseEntity<Object> handleMissingRequestPart(
           MissingRequestPartException ex, HttpHeaders headers, HttpStatusCode status, RequestContext request) {
 
     return handleExceptionInternal(ex, null, headers, status, request);
@@ -481,9 +482,12 @@ public class ResponseEntityExceptionHandler {
         }
         return null;
       }
+      if (status.equals(HttpStatus.INTERNAL_SERVER_ERROR)) {
+        context.setAttribute(RequestDispatcher.ERROR_EXCEPTION, ex);
+        context.setAttribute(WebUtils.ERROR_EXCEPTION_ATTRIBUTE, ex);
+      }
     }
-
-    if (HttpStatus.INTERNAL_SERVER_ERROR.equals(status)) {
+    else if (status.equals(HttpStatus.INTERNAL_SERVER_ERROR)) {
       context.setAttribute(WebUtils.ERROR_EXCEPTION_ATTRIBUTE, ex);
     }
 
