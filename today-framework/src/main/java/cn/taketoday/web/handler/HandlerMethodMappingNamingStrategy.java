@@ -20,23 +20,22 @@
 
 package cn.taketoday.web.handler;
 
+import cn.taketoday.web.handler.method.AbstractHandlerMethodMapping;
 import cn.taketoday.web.handler.method.HandlerMethod;
 
 /**
  * A strategy for assigning a name to a handler method's mapping.
  *
- * <p>The strategy can be configured on
- * {@link cn.taketoday.web.servlet.handler.AbstractHandlerMethodMapping
+ * <p>The strategy can be configured on {@link AbstractHandlerMethodMapping
  * AbstractHandlerMethodMapping}. It is used to assign a name to the mapping of
  * every registered handler method. The names can then be queried via
- * {@link cn.taketoday.web.servlet.handler.AbstractHandlerMethodMapping#getHandlerMethodsForMappingName(String)
+ * {@link AbstractHandlerMethodMapping#getHandlerMethodsForMappingName(String)
  * AbstractHandlerMethodMapping#getHandlerMethodsForMappingName}.
  *
  * <p>Applications can build a URL to a controller method by name with the help
  * of the static method
- * {@link cn.taketoday.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder#fromMappingName(String)
- * MvcUriComponentsBuilder#fromMappingName} or in JSPs through the "mvcUrl"
- * function registered by the Spring tag library.
+ * {@link cn.taketoday.web.handler.method.MvcUriComponentsBuilder#fromMappingName(String)
+ * MvcUriComponentsBuilder#fromMappingName}
  *
  * @param <T> the mapping type
  * @author Rossen Stoyanchev

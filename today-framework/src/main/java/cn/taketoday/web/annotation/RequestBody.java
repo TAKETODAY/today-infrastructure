@@ -24,27 +24,35 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import cn.taketoday.lang.Constant;
-import cn.taketoday.web.bind.resolver.MissingRequestBodyException;
+import cn.taketoday.http.converter.HttpMessageConverter;
+import cn.taketoday.web.handler.method.RequestMappingHandlerAdapter;
 
 /**
+ * Annotation indicating a method parameter should be bound to the body of the web request.
+ * The body of the request is passed through an {@link HttpMessageConverter} to resolve the
+ * method argument depending on the content type of the request. Optionally, automatic
+ * validation can be applied by annotating the argument with {@code @Valid}.
+ *
+ * <p>Supported for annotated handler methods.
+ *
+ * @author Arjen Poutsma
  * @author TODAY <br>
- * 2018-07-01 14:06:43 <br>
- * 2018-08-21 20:17 change
+ * @see RequestHeader
+ * @see ResponseBody
+ * @see RequestMappingHandlerAdapter
+ * @since 2018-07-01 14:06:43
  */
 @RequestParam
 @Target(ElementType.PARAMETER)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface RequestBody {
 
-  /** Request body name */
-  String value() default Constant.BLANK;
-
   /**
-   * If required == true when request parameter is null, will be return bad
-   * request.
+   * Whether body content is required.
+   * <p>Default is {@code true}, leading to an exception thrown in case
+   * there is no body content. Switch this to {@code false} if you prefer
+   * {@code null} to be passed when the body content is {@code null}.
    *
-   * @see MissingRequestBodyException
    * @since 3.0
    */
   boolean required() default true;
