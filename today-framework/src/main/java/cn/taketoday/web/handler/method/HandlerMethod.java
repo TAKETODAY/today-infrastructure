@@ -554,7 +554,7 @@ public class HandlerMethod {
 
   @Nullable
   protected static Object findProvidedArgument(MethodParameter parameter, @Nullable Object... providedArgs) {
-    if (!ObjectUtils.isEmpty(providedArgs)) {
+    if (ObjectUtils.isNotEmpty(providedArgs)) {
       for (Object providedArg : providedArgs) {
         if (parameter.getParameterType().isInstance(providedArg)) {
           return providedArg;

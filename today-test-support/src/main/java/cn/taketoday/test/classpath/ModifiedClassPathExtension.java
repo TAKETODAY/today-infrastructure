@@ -113,7 +113,7 @@ class ModifiedClassPathExtension implements InvocationInterceptor {
     launcher.registerTestExecutionListeners(listener);
     launcher.execute(testPlan);
     TestExecutionSummary summary = listener.getSummary();
-    if (!CollectionUtils.isEmpty(summary.getFailures())) {
+    if (CollectionUtils.isNotEmpty(summary.getFailures())) {
       throw summary.getFailures().get(0).getException();
     }
   }

@@ -246,7 +246,7 @@ public abstract class RequestMappingInfoHandlerMapping extends AbstractHandlerMe
      * Return declared HTTP methods.
      */
     public Set<String> getAllowedMethods() {
-      Set<String> result = new LinkedHashSet<>();
+      LinkedHashSet<String> result = new LinkedHashSet<>();
       for (PartialMatch match : this.partialMatches) {
         for (HttpMethod method : match.getInfo().getMethodsCondition().getMethods()) {
           result.add(method.name());
@@ -260,7 +260,7 @@ public abstract class RequestMappingInfoHandlerMapping extends AbstractHandlerMe
      * match the "methods" condition.
      */
     public Set<MediaType> getConsumableMediaTypes() {
-      Set<MediaType> result = new LinkedHashSet<>();
+      LinkedHashSet<MediaType> result = new LinkedHashSet<>();
       for (PartialMatch match : this.partialMatches) {
         if (match.hasMethodsMatch()) {
           result.addAll(match.getInfo().getConsumesCondition().getConsumableMediaTypes());
@@ -288,11 +288,11 @@ public abstract class RequestMappingInfoHandlerMapping extends AbstractHandlerMe
      * match the "methods", "consumes", and "params" conditions.
      */
     public List<String[]> getParamConditions() {
-      List<String[]> result = new ArrayList<>();
+      ArrayList<String[]> result = new ArrayList<>();
       for (PartialMatch match : this.partialMatches) {
         if (match.hasProducesMatch()) {
           Set<NameValueExpression<String>> set = match.getInfo().getParamsCondition().getExpressions();
-          if (!CollectionUtils.isEmpty(set)) {
+          if (CollectionUtils.isNotEmpty(set)) {
             int i = 0;
             String[] array = new String[set.size()];
             for (NameValueExpression<String> expression : set) {
@@ -310,7 +310,7 @@ public abstract class RequestMappingInfoHandlerMapping extends AbstractHandlerMe
      * PATCH specified, or that have no methods at all.
      */
     public Set<MediaType> getConsumablePatchMediaTypes() {
-      Set<MediaType> result = new LinkedHashSet<>();
+      LinkedHashSet<MediaType> result = new LinkedHashSet<>();
       for (PartialMatch match : this.partialMatches) {
         Set<HttpMethod> methods = match.getInfo().getMethodsCondition().getMethods();
         if (methods.isEmpty() || methods.contains(HttpMethod.PATCH)) {

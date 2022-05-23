@@ -196,7 +196,7 @@ public class DefaultResponseErrorHandler implements ResponseErrorHandler {
       ex = new UnknownHttpStatusCodeException(message, statusCode.value(), statusText, headers, body, charset);
     }
 
-    if (!CollectionUtils.isEmpty(this.messageConverters)) {
+    if (CollectionUtils.isNotEmpty(this.messageConverters)) {
       ex.setBodyConvertFunction(initBodyConvertFunction(response, body));
     }
 
