@@ -355,7 +355,7 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
    * Extract and return the CORS configuration for the mapping.
    */
   @Nullable
-  protected CorsConfiguration initCorsConfiguration(Object handler, Method method, T mapping) {
+  protected CorsConfiguration initCorsConfiguration(Object handler, HandlerMethod handlerMethod, Method method, T mapping) {
     return null;
   }
 
@@ -401,7 +401,7 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
    * @param lookupPath mapping lookup path within the current servlet mapping
    * @param request the current request
    * @return the best-matching handler method, or {@code null} if no match
-   * @see #handleMatch(Object, String, RequestContext)
+   * @see #handleMatch(Match, String, RequestContext)
    * @see #handleNoMatch(Set, String, RequestContext)
    */
   @Nullable
@@ -611,14 +611,14 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
           addMappingName(name, handlerMethod);
         }
 
-        CorsConfiguration corsConfig = initCorsConfiguration(handler, method, mapping);
+        CorsConfiguration corsConfig = initCorsConfiguration(handler, handlerMethod, method, mapping);
         if (corsConfig != null) {
           corsConfig.validateAllowCredentials();
           corsLookup.put(handlerMethod, corsConfig);
         }
 
-        registry.put(mapping,
-                new MappingRegistration<>(mapping, handlerMethod, directPaths, name, corsConfig != null));
+        registry.put(mapping, new MappingRegistration<>(
+                mapping, handlerMethod, directPaths, name, corsConfig != null));
       }
       finally {
         readWriteLock.writeLock().unlock();
@@ -725,7 +725,7 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
    * A thin wrapper around a matched HandlerMethod and its mapping, for the purpose of
    * comparing the best match with a comparator in the context of the current request.
    */
-  protected class Match {
+  protected final class Match {
 
     public final T mapping;
 
