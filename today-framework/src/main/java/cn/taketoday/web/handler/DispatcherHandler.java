@@ -172,11 +172,10 @@ public class DispatcherHandler implements ApplicationContextAware {
         }
       }
       else {
-        handlerMapping = context.getBean(HANDLER_MAPPING_BEAN_NAME, HandlerMapping.class);
+        handlerMapping = BeanFactoryUtils.find(context, HANDLER_MAPPING_BEAN_NAME, HandlerMapping.class);
       }
       if (handlerMapping == null) {
-        handlerMapping = (HandlerMapping) context.getAutowireCapableBeanFactory()
-                .configureBean(new BeanNameUrlHandlerMapping(), HANDLER_MAPPING_BEAN_NAME);
+        handlerMapping = context.getAutowireCapableBeanFactory().createBean(BeanNameUrlHandlerMapping.class);
       }
     }
   }
@@ -200,7 +199,7 @@ public class DispatcherHandler implements ApplicationContextAware {
         }
       }
       else {
-        HandlerAdapter handlerAdapter = context.getBean(HANDLER_ADAPTER_BEAN_NAME, HandlerAdapter.class);
+        HandlerAdapter handlerAdapter = BeanFactoryUtils.find(context, HANDLER_ADAPTER_BEAN_NAME, HandlerAdapter.class);
         if (handlerAdapter != null) {
           setHandlerAdapters(handlerAdapter);
         }
@@ -263,7 +262,7 @@ public class DispatcherHandler implements ApplicationContextAware {
         }
       }
       else {
-        exceptionHandler = context.getBean(HANDLER_EXCEPTION_HANDLER_BEAN_NAME, HandlerExceptionHandler.class);
+        exceptionHandler = BeanFactoryUtils.find(context, HANDLER_EXCEPTION_HANDLER_BEAN_NAME, HandlerExceptionHandler.class);
       }
       if (exceptionHandler == null) {
         var exceptionHandler = new ExceptionHandlerAnnotationExceptionHandler();
