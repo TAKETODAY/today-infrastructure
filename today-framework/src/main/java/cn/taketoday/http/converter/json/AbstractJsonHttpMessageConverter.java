@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -27,17 +27,17 @@ import java.io.Reader;
 import java.io.Writer;
 import java.lang.reflect.Type;
 import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 
 import cn.taketoday.core.GenericTypeResolver;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpInputMessage;
 import cn.taketoday.http.HttpOutputMessage;
+import cn.taketoday.http.MediaType;
 import cn.taketoday.http.converter.AbstractGenericHttpMessageConverter;
 import cn.taketoday.http.converter.HttpMessageNotReadableException;
 import cn.taketoday.http.converter.HttpMessageNotWritableException;
+import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.http.MediaType;
 
 /**
  * Common base class for plain JSON converters, e.g. Gson and JSON-B.
@@ -46,6 +46,7 @@ import cn.taketoday.http.MediaType;
  * due to their multi-format support.
  *
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see GsonHttpMessageConverter
  * @see JsonbHttpMessageConverter
  * @see #readInternal(Type, Reader)
@@ -54,17 +55,12 @@ import cn.taketoday.http.MediaType;
  */
 public abstract class AbstractJsonHttpMessageConverter extends AbstractGenericHttpMessageConverter<Object> {
 
-  /**
-   * The default charset used by the converter.
-   */
-  public static final Charset DEFAULT_CHARSET = StandardCharsets.UTF_8;
-
   @Nullable
   private String jsonPrefix;
 
   public AbstractJsonHttpMessageConverter() {
     super(MediaType.APPLICATION_JSON, new MediaType("application", "*+json"));
-    setDefaultCharset(DEFAULT_CHARSET);
+    setDefaultCharset(Constant.DEFAULT_CHARSET);
   }
 
   /**
@@ -162,8 +158,14 @@ public abstract class AbstractJsonHttpMessageConverter extends AbstractGenericHt
   }
 
   private static Charset getCharset(HttpHeaders headers) {
-    Charset charset = (headers.getContentType() != null ? headers.getContentType().getCharset() : null);
-    return (charset != null ? charset : DEFAULT_CHARSET);
+    MediaType contentType = headers.getContentType();
+    if (contentType != null) {
+      Charset charset = contentType.getCharset();
+      if (charset != null) {
+        return charset;
+      }
+    }
+    return Constant.DEFAULT_CHARSET;
   }
 
 }
