@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -17,20 +17,27 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.web.interceptor;
+package cn.taketoday.web;
 
-import cn.taketoday.web.session.SessionManager;
-import cn.taketoday.web.session.SessionManagerSupport;
+import cn.taketoday.lang.Nullable;
 
 /**
  * @author TODAY <br>
- * 2020-04-20 20:58
+ * 2019-12-13 13:12
  */
-public abstract class SessionHandlerInterceptor
-        extends SessionManagerSupport implements HandlerInterceptor {
+@FunctionalInterface
+public interface HandlerInterceptorsProvider {
 
-  public SessionHandlerInterceptor(SessionManager sessionManager) {
-    super(sessionManager);
+  /**
+   * Get {@link HandlerInterceptor} array
+   *
+   * @return {@link HandlerInterceptor}s
+   */
+  @Nullable
+  HandlerInterceptor[] getInterceptors();
+
+  default boolean hasInterceptor() {
+    return getInterceptors() != null;
   }
 
 }

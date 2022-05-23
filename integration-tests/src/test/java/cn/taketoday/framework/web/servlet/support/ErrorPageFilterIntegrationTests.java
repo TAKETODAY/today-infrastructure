@@ -42,6 +42,7 @@ import cn.taketoday.test.context.ContextConfiguration;
 import cn.taketoday.test.context.MergedContextConfiguration;
 import cn.taketoday.test.context.junit.jupiter.ApplicationExtension;
 import cn.taketoday.test.context.support.AbstractContextLoader;
+import cn.taketoday.web.HandlerInterceptor;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.annotation.Controller;
 import cn.taketoday.web.annotation.RequestMapping;
@@ -51,7 +52,6 @@ import cn.taketoday.web.client.RestTemplate;
 import cn.taketoday.web.config.EnableWebMvc;
 import cn.taketoday.web.config.InterceptorRegistry;
 import cn.taketoday.web.config.WebMvcConfiguration;
-import cn.taketoday.web.interceptor.HandlerInterceptor;
 import cn.taketoday.web.servlet.DispatcherServlet;
 
 import static org.assertj.core.api.Assertions.assertThat;

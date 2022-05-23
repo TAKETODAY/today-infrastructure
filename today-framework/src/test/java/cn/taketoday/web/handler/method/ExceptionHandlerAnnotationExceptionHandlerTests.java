@@ -44,6 +44,7 @@ import cn.taketoday.http.converter.HttpMessageConverter;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.web.BindingContext;
+import cn.taketoday.web.HttpRequestHandler;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.WebApplicationContextSupport;
 import cn.taketoday.web.annotation.Controller;
@@ -52,7 +53,6 @@ import cn.taketoday.web.annotation.ResponseBody;
 import cn.taketoday.web.annotation.ResponseStatus;
 import cn.taketoday.web.annotation.RestControllerAdvice;
 import cn.taketoday.web.config.EnableWebMvc;
-import cn.taketoday.web.handler.RequestHandler;
 import cn.taketoday.web.resource.ResourceHttpRequestHandler;
 import cn.taketoday.web.servlet.MockServletRequestContext;
 import cn.taketoday.web.servlet.NestedServletException;
@@ -408,7 +408,7 @@ class ExceptionHandlerAnnotationExceptionHandlerTests {
     // gh-22619
   void handleExceptionViaMappedHandler() throws Exception {
     AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext(Config.class, MyControllerAdviceConfig.class);
-    this.handler.setMappedHandlerClasses(RequestHandler.class);
+    this.handler.setMappedHandlerClasses(HttpRequestHandler.class);
     this.handler.setApplicationContext(ctx);
     this.handler.afterPropertiesSet();
 

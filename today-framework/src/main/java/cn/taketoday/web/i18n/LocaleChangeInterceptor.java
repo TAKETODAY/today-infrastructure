@@ -26,9 +26,9 @@ import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
+import cn.taketoday.web.HandlerInterceptor;
 import cn.taketoday.web.LocaleResolver;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.interceptor.HandlerInterceptor;
 
 /**
  * Interceptor that allows for changing the current locale on every request,

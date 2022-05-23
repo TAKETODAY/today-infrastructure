@@ -57,23 +57,8 @@ public class MappedHandlerMapping extends AbstractUrlHandlerMapping {
 
   private PathMatcher pathMatcher = new AntPathMatcher();
 
-  @Nullable
-  private HandlerCustomizer handlerCustomizer;
-
   /** @since 3.0 */
   private Cache patternMatchingCache;
-
-  /**
-   * @since 3.0.1 init {@link #handlerCustomizer} delete initHandlerRegistry()
-   */
-  @Override
-  protected void initApplicationContext(ApplicationContext context) {
-    super.initApplicationContext(context);
-    List<HandlerCustomizer> customizers = context.getBeans(HandlerCustomizer.class);
-    if (CollectionUtils.isNotEmpty(customizers)) {
-      this.handlerCustomizer = new CompositeHandlerCustomizer(customizers);
-    }
-  }
 
   @Override
   protected Object getHandlerInternal(RequestContext context) {
@@ -279,9 +264,6 @@ public class MappedHandlerMapping extends AbstractUrlHandlerMapping {
    * @return Transformed handler
    */
   protected Object transformHandler(String handlerKey, Object handler) {
-    if (handlerCustomizer != null) {
-      handler = handlerCustomizer.customize(handlerKey, handler);
-    }
     return handler;
   }
 
@@ -343,18 +325,4 @@ public class MappedHandlerMapping extends AbstractUrlHandlerMapping {
     CollectionUtils.putAll(this.handlers, handlers);
   }
 
-  /**
-   * @since 4.0
-   */
-  public void setHandlerCustomizer(@Nullable HandlerCustomizer handlerCustomizer) {
-    this.handlerCustomizer = handlerCustomizer;
-  }
-
-  /**
-   * @since 4.0
-   */
-  @Nullable
-  public HandlerCustomizer getHandlerCustomizer() {
-    return handlerCustomizer;
-  }
 }

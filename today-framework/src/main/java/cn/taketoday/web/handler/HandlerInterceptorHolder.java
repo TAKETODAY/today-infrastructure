@@ -24,8 +24,8 @@ import java.util.List;
 
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ArrayHolder;
-import cn.taketoday.web.interceptor.HandlerInterceptor;
-import cn.taketoday.web.interceptor.HandlerInterceptorsProvider;
+import cn.taketoday.web.HandlerInterceptor;
+import cn.taketoday.web.HandlerInterceptorsProvider;
 
 /**
  * for holding {@link HandlerInterceptor}s

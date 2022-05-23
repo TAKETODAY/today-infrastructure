@@ -23,9 +23,9 @@ package cn.taketoday.cache.aspectj;
 import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.cache.annotation.AbstractCachingConfiguration;
 import cn.taketoday.cache.config.CacheManagementConfigUtils;
-import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Role;
+import cn.taketoday.lang.Component;
 
 /**
  * {@code @Configuration} class that registers the Spring infrastructure beans
@@ -33,6 +33,7 @@ import cn.taketoday.context.annotation.Role;
  *
  * @author Chris Beams
  * @author Stephane Nicoll
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @author Juergen Hoeller
  * @see cn.taketoday.cache.annotation.EnableCaching
  * @see cn.taketoday.cache.annotation.CachingConfigurationSelector
@@ -42,8 +43,8 @@ import cn.taketoday.context.annotation.Role;
 @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
 public class AspectJCachingConfiguration extends AbstractCachingConfiguration {
 
-  @Bean(name = CacheManagementConfigUtils.CACHE_ASPECT_BEAN_NAME)
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
+  @Component(name = CacheManagementConfigUtils.CACHE_ASPECT_BEAN_NAME)
   public AnnotationCacheAspect cacheAspect() {
     AnnotationCacheAspect cacheAspect = AnnotationCacheAspect.aspectOf();
     cacheAspect.configure(this.errorHandler, this.keyGenerator, this.cacheResolver, this.cacheManager);

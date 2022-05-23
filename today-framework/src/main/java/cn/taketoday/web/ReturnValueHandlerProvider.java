@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -17,27 +17,21 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.web.interceptor;
-
-import cn.taketoday.lang.Nullable;
+package cn.taketoday.web;
 
 /**
- * @author TODAY <br>
- * 2019-12-13 13:12
+ * request-handler can implement this interface to provide
+ * a ReturnValueHandler to handle its execution result
+ *
+ * @author TODAY 2019-12-28 14:15
  */
 @FunctionalInterface
-public interface HandlerInterceptorsProvider {
+public interface ReturnValueHandlerProvider {
 
   /**
-   * Get {@link HandlerInterceptor} array
+   * Get {@link ReturnValueHandler}
    *
-   * @return {@link HandlerInterceptor}s
+   * @return must not be null
    */
-  @Nullable
-  HandlerInterceptor[] getInterceptors();
-
-  default boolean hasInterceptor() {
-    return getInterceptors() != null;
-  }
-
+  ReturnValueHandler getReturnValueHandler();
 }

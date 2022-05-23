@@ -26,15 +26,15 @@ import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
 
-import cn.taketoday.web.BadRequestException;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpStatus;
 import cn.taketoday.lang.Constant;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.StringUtils;
+import cn.taketoday.web.BadRequestException;
+import cn.taketoday.web.HandlerAdapter;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.handler.AbstractHandlerAdapter;
-import cn.taketoday.web.handler.HandlerAdapter;
 
 /**
  * @author TODAY 2021/4/5 14:04

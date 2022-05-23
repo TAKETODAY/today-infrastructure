@@ -20,6 +20,7 @@
 package cn.taketoday.web.handler;
 
 import cn.taketoday.core.OrderedSupport;
+import cn.taketoday.web.HandlerAdapter;
 
 /**
  * @author TODAY <br>

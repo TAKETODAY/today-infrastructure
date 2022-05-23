@@ -24,8 +24,8 @@ import java.util.Map;
 import cn.taketoday.http.HttpStatusCode;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
+import cn.taketoday.web.HandlerInterceptor;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.interceptor.HandlerInterceptor;
 
 /**
  * Holder for both Model and View in the web MVC framework.

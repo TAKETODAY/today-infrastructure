@@ -36,14 +36,14 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ExceptionUtils;
 import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.util.StringUtils;
+import cn.taketoday.web.BindingContext;
+import cn.taketoday.web.HttpRequestHandler;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.ReturnValueHandler;
 import cn.taketoday.web.annotation.ResponseBody;
 import cn.taketoday.web.annotation.ResponseStatus;
-import cn.taketoday.web.handler.RequestHandler;
 import cn.taketoday.web.handler.ReturnValueHandlerManager;
 import cn.taketoday.web.handler.ReturnValueHandlerNotFoundException;
-import cn.taketoday.web.BindingContext;
 import cn.taketoday.web.handler.result.HandlerMethodReturnValueHandler;
 import cn.taketoday.web.servlet.ServletUtils;
 import cn.taketoday.web.view.View;
@@ -123,11 +123,11 @@ public class ServletInvocableHandlerMethod extends InvocableHandlerMethod {
     if (returnValue == null) {
       if (isRequestNotModified(request) || getResponseStatus() != null) {
         disableContentCachingIfNecessary(request);
-        return RequestHandler.NONE_RETURN_VALUE;
+        return HttpRequestHandler.NONE_RETURN_VALUE;
       }
     }
     else if (StringUtils.hasText(getResponseStatusReason())) {
-      return RequestHandler.NONE_RETURN_VALUE;
+      return HttpRequestHandler.NONE_RETURN_VALUE;
     }
 
     Assert.state(returnValueHandlerManager != null, "No return value handlers");
@@ -143,7 +143,7 @@ public class ServletInvocableHandlerMethod extends InvocableHandlerMethod {
 
     try {
       returnValueHandler.handleReturnValue(request, this, returnValue);
-      return RequestHandler.NONE_RETURN_VALUE;
+      return HttpRequestHandler.NONE_RETURN_VALUE;
     }
     catch (Exception ex) {
       if (log.isTraceEnabled()) {

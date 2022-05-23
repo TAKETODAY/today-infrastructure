@@ -36,8 +36,8 @@ import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.validation.BindingResult;
 import cn.taketoday.validation.ObjectError;
+import cn.taketoday.web.HandlerExceptionHandler;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.handler.HandlerExceptionHandler;
 import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.ServletException;
 

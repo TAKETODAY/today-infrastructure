@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -17,24 +17,28 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.web.handler;
+
+package cn.taketoday.web;
+
+import cn.taketoday.http.HttpStatus;
+import cn.taketoday.web.annotation.ResponseStatus;
 
 /**
- * <p>
- * <b>Note:</b> This framework allows hander use
- * {@link HandlerAdapterProvider HandlerAdapterCapable}
- * to specific a HandlerAdapter at startup time
+ * For {@link HandlerAdapter} not found
  *
- * @author TODAY <br>
- * 2019-12-28 14:12
+ * @author TODAY 2021/4/26 22:26
+ * @since 3.0
  */
-@FunctionalInterface
-public interface HandlerAdapterProvider {
+@ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+public class HandlerAdapterNotFoundException extends FrameworkConfigurationException {
+  private final Object handler;
 
-  /**
-   * Get {@link HandlerAdapter}
-   *
-   * @return Never be null
-   */
-  HandlerAdapter getHandlerAdapter();
+  public HandlerAdapterNotFoundException(Object handler) {
+    super("No HandlerAdapter for handler: [" + handler + ']');
+    this.handler = handler;
+  }
+
+  public Object getHandler() {
+    return handler;
+  }
 }

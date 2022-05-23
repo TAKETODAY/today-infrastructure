@@ -23,8 +23,8 @@ package cn.taketoday.web.resource;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.StringUtils;
+import cn.taketoday.web.HttpRequestHandler;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.handler.RequestHandler;
 import cn.taketoday.web.servlet.ServletContextAware;
 import cn.taketoday.web.servlet.ServletUtils;
 import jakarta.servlet.RequestDispatcher;
@@ -33,7 +33,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 /**
- * An {@link RequestHandler} for serving static files using the Servlet container's "default" Servlet.
+ * An {@link HttpRequestHandler} for serving static files using the Servlet container's "default" Servlet.
  *
  * <p>This handler is intended to be used with a "/*" mapping when the
  * {@link cn.taketoday.web.servlet.DispatcherServlet DispatcherServlet}
@@ -53,7 +53,7 @@ import jakarta.servlet.http.HttpServletResponse;
  * @author Juergen Hoeller
  * @since 4.0
  */
-public class DefaultServletHttpRequestHandler implements RequestHandler, ServletContextAware {
+public class DefaultServletHttpRequestHandler implements HttpRequestHandler, ServletContextAware {
 
   /** Default Servlet name used by Tomcat, Jetty, JBoss, and GlassFish. */
   private static final String COMMON_DEFAULT_SERVLET_NAME = "default";

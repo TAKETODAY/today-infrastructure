@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -17,10 +17,11 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.web.handler;
+package cn.taketoday.web;
 
-import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.ReturnValueHandler;
+import cn.taketoday.web.handler.NotFoundHandler;
+import cn.taketoday.web.handler.RequestHandlerAdapter;
+import cn.taketoday.web.handler.ViewControllerHandlerAdapter;
 
 /**
  * MVC framework SPI, allowing parameterization of the core MVC workflow.
@@ -69,7 +70,7 @@ public interface HandlerAdapter {
    * This value indicates that the handler did not return a value, or the result
    * has been processed
    */
-  Object NONE_RETURN_VALUE = RequestHandler.NONE_RETURN_VALUE;
+  Object NONE_RETURN_VALUE = HttpRequestHandler.NONE_RETURN_VALUE;
 
   /**
    * Given a handler instance, return whether support or not this

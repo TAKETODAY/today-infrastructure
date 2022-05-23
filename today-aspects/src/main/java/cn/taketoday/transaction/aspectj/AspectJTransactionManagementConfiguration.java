@@ -36,6 +36,7 @@ import cn.taketoday.transaction.config.TransactionManagementConfigUtils;
  *
  * @author Chris Beams
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see EnableTransactionManagement
  * @see TransactionManagementConfigurationSelector
  * @see AspectJJtaTransactionManagementConfiguration

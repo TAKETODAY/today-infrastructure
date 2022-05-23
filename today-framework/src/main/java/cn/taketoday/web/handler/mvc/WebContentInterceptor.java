@@ -32,9 +32,9 @@ import cn.taketoday.http.server.PathContainer;
 import cn.taketoday.http.server.RequestPath;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ObjectUtils;
+import cn.taketoday.web.HandlerInterceptor;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.WebContentGenerator;
-import cn.taketoday.web.interceptor.HandlerInterceptor;
 import cn.taketoday.web.util.pattern.PathPattern;
 import cn.taketoday.web.util.pattern.PathPatternParser;
 

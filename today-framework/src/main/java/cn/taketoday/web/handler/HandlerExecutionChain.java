@@ -27,8 +27,8 @@ import java.util.List;
 
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
-import cn.taketoday.web.interceptor.HandlerInterceptor;
-import cn.taketoday.web.registry.HandlerMapping;
+import cn.taketoday.web.HandlerInterceptor;
+import cn.taketoday.web.HandlerMapping;
 
 /**
  * Handler execution chain, consisting of handler object and any handler interceptors.

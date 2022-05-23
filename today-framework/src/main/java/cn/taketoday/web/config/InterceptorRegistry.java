@@ -27,7 +27,7 @@ import java.util.stream.Collectors;
 
 import cn.taketoday.core.OrderComparator;
 import cn.taketoday.core.Ordered;
-import cn.taketoday.web.interceptor.HandlerInterceptor;
+import cn.taketoday.web.HandlerInterceptor;
 
 /**
  * @author TODAY 2021/8/30 21:43

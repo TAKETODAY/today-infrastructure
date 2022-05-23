@@ -15,12 +15,10 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.web.interceptor;
 
-import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.handler.RequestHandler;
+package cn.taketoday.web;
 
 /**
  * Handler process around Handler.
@@ -37,7 +35,7 @@ public interface HandlerInterceptor {
   /**
    * NONE_RETURN_VALUE
    */
-  Object NONE_RETURN_VALUE = RequestHandler.NONE_RETURN_VALUE;
+  Object NONE_RETURN_VALUE = HttpRequestHandler.NONE_RETURN_VALUE;
 
   /**
    * Before Handler process.

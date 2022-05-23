@@ -55,6 +55,7 @@ import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.ResourceUtils;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.HandlerMatchingMetadata;
+import cn.taketoday.web.HttpRequestHandler;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.RequestContextHttpOutputMessage;
 import cn.taketoday.web.ServletDetector;
@@ -62,8 +63,6 @@ import cn.taketoday.web.WebContentGenerator;
 import cn.taketoday.web.accept.ContentNegotiationManager;
 import cn.taketoday.web.cors.CorsConfiguration;
 import cn.taketoday.web.cors.CorsConfigurationSource;
-import cn.taketoday.web.handler.HandlerAdapter;
-import cn.taketoday.web.handler.RequestHandler;
 import cn.taketoday.web.servlet.ServletUtils;
 
 /**
@@ -99,7 +98,7 @@ import cn.taketoday.web.servlet.ServletUtils;
  * @since 4.0
  */
 public class ResourceHttpRequestHandler extends WebContentGenerator
-        implements RequestHandler, EmbeddedValueResolverAware, InitializingBean, CorsConfigurationSource {
+        implements HttpRequestHandler, EmbeddedValueResolverAware, InitializingBean, CorsConfigurationSource {
 
   private static final Logger log = LoggerFactory.getLogger(ResourceHttpRequestHandler.class);
 

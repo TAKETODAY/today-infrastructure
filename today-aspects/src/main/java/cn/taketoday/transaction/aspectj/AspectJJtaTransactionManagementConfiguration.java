@@ -35,6 +35,7 @@ import cn.taketoday.transaction.config.TransactionManagementConfigUtils;
  * {@link cn.taketoday.transaction.annotation.Transactional} annotation.
  *
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see EnableTransactionManagement
  * @see TransactionManagementConfigurationSelector
  * @since 4.0

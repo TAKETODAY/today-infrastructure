@@ -21,9 +21,9 @@
 package cn.taketoday.scheduling.aspectj;
 
 import cn.taketoday.beans.factory.config.BeanDefinition;
-import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Role;
+import cn.taketoday.lang.Component;
 import cn.taketoday.scheduling.annotation.AbstractAsyncConfiguration;
 import cn.taketoday.scheduling.annotation.EnableAsync;
 import cn.taketoday.scheduling.config.TaskManagementConfigUtils;
@@ -34,6 +34,7 @@ import cn.taketoday.scheduling.config.TaskManagementConfigUtils;
  *
  * @author Chris Beams
  * @author Stephane Nicoll
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @author Juergen Hoeller
  * @see EnableAsync
  * @see cn.taketoday.scheduling.annotation.AsyncConfigurationSelector
@@ -44,8 +45,8 @@ import cn.taketoday.scheduling.config.TaskManagementConfigUtils;
 @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
 public class AspectJAsyncConfiguration extends AbstractAsyncConfiguration {
 
-  @Bean(name = TaskManagementConfigUtils.ASYNC_EXECUTION_ASPECT_BEAN_NAME)
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
+  @Component(name = TaskManagementConfigUtils.ASYNC_EXECUTION_ASPECT_BEAN_NAME)
   public AnnotationAsyncExecutionAspect asyncAdvisor() {
     AnnotationAsyncExecutionAspect asyncAspect = AnnotationAsyncExecutionAspect.aspectOf();
     asyncAspect.configure(this.executor, this.exceptionHandler);

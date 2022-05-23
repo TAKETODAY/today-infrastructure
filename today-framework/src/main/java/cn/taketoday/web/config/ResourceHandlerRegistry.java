@@ -31,9 +31,9 @@ import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.web.HandlerMapping;
+import cn.taketoday.web.HttpRequestHandler;
 import cn.taketoday.web.accept.ContentNegotiationManager;
-import cn.taketoday.web.handler.RequestHandler;
-import cn.taketoday.web.registry.HandlerMapping;
 import cn.taketoday.web.registry.SimpleUrlHandlerMapping;
 import cn.taketoday.web.resource.ResourceHttpRequestHandler;
 
@@ -135,7 +135,7 @@ public class ResourceHandlerRegistry {
     if (this.registrations.isEmpty()) {
       return null;
     }
-    Map<String, RequestHandler> urlMap = new LinkedHashMap<>();
+    Map<String, HttpRequestHandler> urlMap = new LinkedHashMap<>();
     for (ResourceHandlerRegistration registration : this.registrations) {
       ResourceHttpRequestHandler handler = getRequestHandler(registration);
       for (String pathPattern : registration.getPathPatterns()) {

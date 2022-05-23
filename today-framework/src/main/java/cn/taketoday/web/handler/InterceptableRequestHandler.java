@@ -20,16 +20,17 @@
 
 package cn.taketoday.web.handler;
 
+import cn.taketoday.web.HandlerInterceptor;
+import cn.taketoday.web.HandlerInterceptorsProvider;
+import cn.taketoday.web.HttpRequestHandler;
+import cn.taketoday.web.InterceptorChain;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.interceptor.HandlerInterceptor;
-import cn.taketoday.web.interceptor.HandlerInterceptorsProvider;
-import cn.taketoday.web.interceptor.InterceptorChain;
 
 /**
  * @author TODAY 2019-12-25 16:19
  */
 public abstract class InterceptableRequestHandler
-        extends HandlerInterceptorHolder implements RequestHandler, HandlerInterceptorsProvider {
+        extends HandlerInterceptorHolder implements HttpRequestHandler, HandlerInterceptorsProvider {
 
   public InterceptableRequestHandler() { }
 

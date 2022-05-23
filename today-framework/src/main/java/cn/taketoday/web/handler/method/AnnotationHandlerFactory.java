@@ -29,9 +29,9 @@ import cn.taketoday.beans.factory.BeanSupplier;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
+import cn.taketoday.web.HandlerInterceptor;
 import cn.taketoday.web.bind.resolver.ParameterResolvingRegistry;
 import cn.taketoday.web.handler.ReturnValueHandlerManager;
-import cn.taketoday.web.interceptor.HandlerInterceptor;
 
 /**
  * build {@link ActionMappingAnnotationHandler}

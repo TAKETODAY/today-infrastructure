@@ -27,6 +27,7 @@ import cn.taketoday.beans.factory.BeanFactoryUtils;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.ApplicationContextException;
 import cn.taketoday.util.ObjectUtils;
+import cn.taketoday.web.HandlerMapping;
 
 /**
  * Abstract implementation of the {@link HandlerMapping} interface,

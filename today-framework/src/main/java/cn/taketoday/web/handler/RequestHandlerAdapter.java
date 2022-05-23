@@ -20,6 +20,8 @@
 package cn.taketoday.web.handler;
 
 import cn.taketoday.core.OrderedSupport;
+import cn.taketoday.web.HandlerAdapter;
+import cn.taketoday.web.HttpRequestHandler;
 import cn.taketoday.web.RequestContext;
 
 /**
@@ -37,12 +39,12 @@ public class RequestHandlerAdapter extends OrderedSupport implements HandlerAdap
 
   @Override
   public boolean supports(Object handler) {
-    return handler instanceof RequestHandler;
+    return handler instanceof HttpRequestHandler;
   }
 
   @Override
   public Object handle(final RequestContext context, final Object handler) throws Throwable {
-    return ((RequestHandler) handler).handleRequest(context);
+    return ((HttpRequestHandler) handler).handleRequest(context);
   }
 
 }

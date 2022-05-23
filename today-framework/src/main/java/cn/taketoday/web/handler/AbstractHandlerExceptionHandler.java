@@ -30,6 +30,7 @@ import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.LogFormatUtils;
 import cn.taketoday.util.StringUtils;
+import cn.taketoday.web.HandlerExceptionHandler;
 import cn.taketoday.web.RequestContext;
 
 /**

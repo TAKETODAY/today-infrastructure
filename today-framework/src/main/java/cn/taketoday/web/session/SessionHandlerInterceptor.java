@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -17,33 +17,19 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.web.annotation;
+package cn.taketoday.web.session;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
-
-import cn.taketoday.lang.Constant;
+import cn.taketoday.web.HandlerInterceptor;
 
 /**
  * @author TODAY <br>
- * 2019-07-24 02:19
+ * 2020-04-20 20:58
  */
-@RequestParam
-@Target({ ElementType.PARAMETER, ElementType.FIELD })
-@Retention(RetentionPolicy.RUNTIME)
-public @interface SharedVariable {
+public abstract class SessionHandlerInterceptor
+        extends SessionManagerSupport implements HandlerInterceptor {
 
-  /** Freemarker Configuration shared variable name */
-  String value() default Constant.BLANK;
+  public SessionHandlerInterceptor(SessionManager sessionManager) {
+    super(sessionManager);
+  }
 
-  /**
-   * If required == true when request parameter is null, will be return bad
-   * request.
-   */
-  boolean required() default false;
-
-  /** When required == false, and parameter == null. use default value. */
-  String defaultValue() default Constant.BLANK;
 }

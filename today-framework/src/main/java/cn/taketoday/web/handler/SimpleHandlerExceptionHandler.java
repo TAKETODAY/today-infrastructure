@@ -36,6 +36,7 @@ import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.validation.BindException;
 import cn.taketoday.validation.BindingResult;
 import cn.taketoday.web.ErrorResponse;
+import cn.taketoday.web.HandlerExceptionHandler;
 import cn.taketoday.web.HttpMediaTypeNotAcceptableException;
 import cn.taketoday.web.HttpMediaTypeNotSupportedException;
 import cn.taketoday.web.HttpRequestMethodNotSupportedException;

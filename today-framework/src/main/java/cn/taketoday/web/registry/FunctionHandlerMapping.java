@@ -20,9 +20,9 @@
 package cn.taketoday.web.registry;
 
 import cn.taketoday.http.HttpMethod;
+import cn.taketoday.web.FunctionHandler;
+import cn.taketoday.web.HttpRequestHandler;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.handler.FunctionHandler;
-import cn.taketoday.web.handler.RequestHandler;
 
 import static cn.taketoday.http.HttpMethod.DELETE;
 import static cn.taketoday.http.HttpMethod.GET;
@@ -47,7 +47,7 @@ public class FunctionHandlerMapping extends MappedHandlerMapping {
   // HEAD
   // ---------------------------------------
 
-  public FunctionHandlerMapping head(String pathPattern, RequestHandler handler) {
+  public FunctionHandlerMapping head(String pathPattern, HttpRequestHandler handler) {
     return HEAD(pathPattern, handler);
   }
 
@@ -62,7 +62,7 @@ public class FunctionHandlerMapping extends MappedHandlerMapping {
   // PUT
   // ---------------------------------------
 
-  public FunctionHandlerMapping put(String pathPattern, RequestHandler handler) {
+  public FunctionHandlerMapping put(String pathPattern, HttpRequestHandler handler) {
     return PUT(pathPattern, handler);
   }
 
@@ -77,7 +77,7 @@ public class FunctionHandlerMapping extends MappedHandlerMapping {
   // DELETE
   // ---------------------------------------
 
-  public FunctionHandlerMapping delete(String pathPattern, RequestHandler handler) {
+  public FunctionHandlerMapping delete(String pathPattern, HttpRequestHandler handler) {
     return DELETE(pathPattern, handler);
   }
 
@@ -91,7 +91,7 @@ public class FunctionHandlerMapping extends MappedHandlerMapping {
   // PATCH
   // ---------------------------------------
 
-  public FunctionHandlerMapping patch(String pathPattern, RequestHandler handler) {
+  public FunctionHandlerMapping patch(String pathPattern, HttpRequestHandler handler) {
     return PATCH(pathPattern, handler);
   }
 
@@ -106,7 +106,7 @@ public class FunctionHandlerMapping extends MappedHandlerMapping {
   // TRACE
   // ---------------------------------------
 
-  public FunctionHandlerMapping trace(String pathPattern, RequestHandler handler) {
+  public FunctionHandlerMapping trace(String pathPattern, HttpRequestHandler handler) {
     return TRACE(pathPattern, handler);
   }
 
@@ -121,7 +121,7 @@ public class FunctionHandlerMapping extends MappedHandlerMapping {
   // OPTIONS
   // ---------------------------------------
 
-  public FunctionHandlerMapping options(String pathPattern, RequestHandler handler) {
+  public FunctionHandlerMapping options(String pathPattern, HttpRequestHandler handler) {
     return OPTIONS(pathPattern, handler);
   }
 
@@ -136,7 +136,7 @@ public class FunctionHandlerMapping extends MappedHandlerMapping {
   // POST
   // ---------------------------------------
 
-  public FunctionHandlerMapping post(String pathPattern, RequestHandler handler) {
+  public FunctionHandlerMapping post(String pathPattern, HttpRequestHandler handler) {
     return POST(pathPattern, handler);
   }
 
@@ -151,7 +151,7 @@ public class FunctionHandlerMapping extends MappedHandlerMapping {
   // GET
   // ---------------------------------------
 
-  public FunctionHandlerMapping get(String pathPattern, RequestHandler handler) {
+  public FunctionHandlerMapping get(String pathPattern, HttpRequestHandler handler) {
     return GET(pathPattern, handler);
   }
 

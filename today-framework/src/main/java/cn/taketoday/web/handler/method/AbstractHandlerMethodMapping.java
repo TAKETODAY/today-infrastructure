@@ -45,11 +45,11 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.util.StringUtils;
+import cn.taketoday.web.HandlerMapping;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.cors.CorsConfiguration;
 import cn.taketoday.web.handler.HandlerMethodMappingNamingStrategy;
 import cn.taketoday.web.registry.AbstractHandlerMapping;
-import cn.taketoday.web.registry.HandlerMapping;
 
 /**
  * Abstract base class for {@link HandlerMapping} implementations that define

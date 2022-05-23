@@ -42,14 +42,20 @@ import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ArrayHolder;
 import cn.taketoday.util.ObjectUtils;
+import cn.taketoday.web.HandlerAdapter;
+import cn.taketoday.web.HandlerAdapterNotFoundException;
+import cn.taketoday.web.HandlerAdapterProvider;
+import cn.taketoday.web.HandlerExceptionHandler;
+import cn.taketoday.web.HandlerMapping;
+import cn.taketoday.web.HttpRequestHandler;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.RequestHandledListener;
 import cn.taketoday.web.ReturnValueHandler;
+import cn.taketoday.web.ReturnValueHandlerProvider;
 import cn.taketoday.web.context.async.WebAsyncUtils;
 import cn.taketoday.web.handler.method.ExceptionHandlerAnnotationExceptionHandler;
 import cn.taketoday.web.registry.BeanNameUrlHandlerMapping;
 import cn.taketoday.web.registry.HandlerRegistries;
-import cn.taketoday.web.registry.HandlerMapping;
 import cn.taketoday.web.util.WebUtils;
 
 /**
@@ -372,7 +378,7 @@ public class DispatcherHandler implements ApplicationContextAware {
   public void handle(@Nullable Object handler, RequestContext context) throws Throwable {
     try {
       Object returnValue = lookupHandlerAdapter(handler).handle(context, handler);
-      if (returnValue != RequestHandler.NONE_RETURN_VALUE) {
+      if (returnValue != HttpRequestHandler.NONE_RETURN_VALUE) {
         lookupReturnValueHandler(handler, returnValue)
                 .handleReturnValue(context, handler, returnValue);
       }
@@ -407,7 +413,7 @@ public class DispatcherHandler implements ApplicationContextAware {
     if (returnValue == null) {
       throw exception;
     }
-    else if (returnValue != RequestHandler.NONE_RETURN_VALUE) {
+    else if (returnValue != HttpRequestHandler.NONE_RETURN_VALUE) {
       returnValueHandler.handleReturnValue(context, null, returnValue);
     }
   }
@@ -442,7 +448,7 @@ public class DispatcherHandler implements ApplicationContextAware {
       if (handler == null) {
         returnValue = handlerNotFound(context);
       }
-      else if (handler instanceof RequestHandler requestHandler) {
+      else if (handler instanceof HttpRequestHandler requestHandler) {
         // specially for RequestHandler
         returnValue = requestHandler.handleRequest(context);
       }
@@ -484,7 +490,7 @@ public class DispatcherHandler implements ApplicationContextAware {
     }
 
     // Did the handler return a view to render?
-    if (returnValue != RequestHandler.NONE_RETURN_VALUE) {
+    if (returnValue != HttpRequestHandler.NONE_RETURN_VALUE) {
       lookupReturnValueHandler(handler, returnValue)
               .handleReturnValue(request, handler, returnValue);
     }
@@ -511,7 +517,7 @@ public class DispatcherHandler implements ApplicationContextAware {
     if (returnValue == null) {
       throw ex;
     }
-    else if (returnValue != RequestHandler.NONE_RETURN_VALUE) {
+    else if (returnValue != HttpRequestHandler.NONE_RETURN_VALUE) {
       if (log.isTraceEnabled()) {
         log.trace("Using resolved error view: {}", returnValue, ex);
       }

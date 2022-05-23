@@ -22,6 +22,7 @@ package cn.taketoday.web.registry;
 import java.util.List;
 
 import cn.taketoday.lang.Assert;
+import cn.taketoday.web.HandlerMapping;
 import cn.taketoday.web.RequestContext;
 
 import static java.util.Objects.requireNonNull;
@@ -45,7 +46,7 @@ public class HandlerRegistries implements HandlerMapping {
   }
 
   @Override
-  public Object getHandler(final RequestContext request) {
+  public Object getHandler(final RequestContext request) throws Exception {
     for (final HandlerMapping registry : handlerRegistries) {
       final Object ret = registry.getHandler(request);
       if (ret != null) {

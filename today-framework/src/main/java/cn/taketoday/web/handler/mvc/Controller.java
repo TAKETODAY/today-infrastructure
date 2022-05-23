@@ -21,9 +21,9 @@
 package cn.taketoday.web.handler.mvc;
 
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.web.HandlerMapping;
+import cn.taketoday.web.HttpRequestHandler;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.handler.RequestHandler;
-import cn.taketoday.web.registry.HandlerMapping;
 import cn.taketoday.web.view.ModelAndView;
 
 /**
@@ -109,7 +109,7 @@ import cn.taketoday.web.view.ModelAndView;
  * @see cn.taketoday.web.servlet.ServletContextAware
  */
 @FunctionalInterface
-public interface Controller extends RequestHandler {
+public interface Controller extends HttpRequestHandler {
 
   /**
    * Process the request and return a ModelAndView object which the DispatcherServlet

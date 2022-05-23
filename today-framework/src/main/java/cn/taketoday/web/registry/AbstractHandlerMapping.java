@@ -36,6 +36,9 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.LogDelegateFactory;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.util.CollectionUtils;
+import cn.taketoday.web.HandlerInterceptor;
+import cn.taketoday.web.HandlerMapping;
+import cn.taketoday.web.HttpRequestHandler;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.context.async.WebAsyncManager;
 import cn.taketoday.web.context.async.WebAsyncUtils;
@@ -45,9 +48,7 @@ import cn.taketoday.web.cors.CorsProcessor;
 import cn.taketoday.web.cors.DefaultCorsProcessor;
 import cn.taketoday.web.cors.UrlBasedCorsConfigurationSource;
 import cn.taketoday.web.handler.HandlerExecutionChain;
-import cn.taketoday.web.handler.RequestHandler;
-import cn.taketoday.web.interceptor.HandlerInterceptor;
-import cn.taketoday.web.interceptor.MappedInterceptor;
+import cn.taketoday.web.handler.MappedInterceptor;
 import cn.taketoday.web.util.pattern.PathPatternParser;
 
 /**
@@ -486,7 +487,7 @@ public abstract class AbstractHandlerMapping extends ApplicationContextSupport
     }
   }
 
-  private class PreFlightHandler implements RequestHandler, CorsConfigurationSource {
+  private class PreFlightHandler implements HttpRequestHandler, CorsConfigurationSource {
 
     @Nullable
     private final CorsConfiguration config;

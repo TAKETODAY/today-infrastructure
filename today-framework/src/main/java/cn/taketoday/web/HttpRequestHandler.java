@@ -17,23 +17,33 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.web.handler;
 
-import cn.taketoday.web.ReturnValueHandler;
+package cn.taketoday.web;
 
 /**
- * request-handler can implement this interface to provide
- * a ReturnValueHandler to handle its execution result
+ * Plain handler interface for components that process HTTP requests
  *
- * @author TODAY 2019-12-28 14:15
+ * @author TODAY
+ * @see ReturnValueHandler
+ * @since 2019-12-21 17:37
  */
 @FunctionalInterface
-public interface ReturnValueHandlerProvider {
+public interface HttpRequestHandler {
 
   /**
-   * Get {@link ReturnValueHandler}
-   *
-   * @return must not be null
+   * This value indicates that the handler did not return a value, or the result
+   * has been processed
    */
-  ReturnValueHandler getReturnValueHandler();
+  Object NONE_RETURN_VALUE = new Object();
+
+  /**
+   * Handle request
+   *
+   * @param request Current request context
+   * @return Result to be handled by {@link ReturnValueHandler}
+   * @throws Throwable If any exception occurred
+   * @see ReturnValueHandler
+   */
+  Object handleRequest(RequestContext request) throws Throwable;
+
 }

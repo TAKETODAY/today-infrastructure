@@ -21,9 +21,6 @@
 package cn.taketoday.web;
 
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.web.handler.HandlerExceptionHandler;
-import cn.taketoday.web.handler.RequestHandler;
-import cn.taketoday.web.handler.ReturnValueHandlerProvider;
 import cn.taketoday.web.handler.method.HandlerMethod;
 
 /**
@@ -47,7 +44,7 @@ import cn.taketoday.web.handler.method.HandlerMethod;
 public interface ReturnValueHandler {
   String REDIRECT_URL_PREFIX = "redirect:";
 
-  Object NONE_RETURN_VALUE = RequestHandler.NONE_RETURN_VALUE;
+  Object NONE_RETURN_VALUE = HttpRequestHandler.NONE_RETURN_VALUE;
 
   /**
    * If this {@link ReturnValueHandler} supports the target handler

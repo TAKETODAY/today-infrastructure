@@ -22,9 +22,10 @@ package cn.taketoday.web.handler;
 
 import cn.taketoday.lang.Assert;
 import cn.taketoday.util.ObjectUtils;
+import cn.taketoday.web.HandlerAdapter;
+import cn.taketoday.web.HandlerInterceptor;
+import cn.taketoday.web.InterceptorChain;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.interceptor.HandlerInterceptor;
-import cn.taketoday.web.interceptor.InterceptorChain;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>

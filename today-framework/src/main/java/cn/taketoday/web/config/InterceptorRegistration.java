@@ -25,7 +25,7 @@ import java.util.ArrayList;
 import cn.taketoday.core.PathMatcher;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.util.CollectionUtils;
-import cn.taketoday.web.interceptor.HandlerInterceptor;
+import cn.taketoday.web.HandlerInterceptor;
 
 /**
  * @author TODAY 2021/8/30 21:38

@@ -24,6 +24,7 @@ import java.io.IOException;
 import cn.taketoday.http.HttpStatus;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
+import cn.taketoday.web.HttpRequestHandler;
 import cn.taketoday.web.RequestContext;
 
 /**
@@ -46,7 +47,7 @@ public class NotFoundHandler {
     logNotFound(context);
 
     context.sendError(HttpStatus.NOT_FOUND.value());
-    return RequestHandler.NONE_RETURN_VALUE;
+    return HttpRequestHandler.NONE_RETURN_VALUE;
   }
 
   protected void logNotFound(RequestContext context) {

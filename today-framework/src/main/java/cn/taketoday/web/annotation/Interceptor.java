@@ -24,7 +24,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import cn.taketoday.web.interceptor.HandlerInterceptor;
+import cn.taketoday.web.HandlerInterceptor;
 
 /**
  * @author TODAY <br>

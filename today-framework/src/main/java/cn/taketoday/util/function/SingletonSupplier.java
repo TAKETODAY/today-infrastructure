@@ -61,7 +61,7 @@ public class SingletonSupplier<T> implements Supplier<T> {
    * @param instance the singleton instance (potentially {@code null})
    * @param defaultSupplier the default supplier as a fallback
    */
-  public SingletonSupplier(T instance, Supplier<? extends T> defaultSupplier) {
+  public SingletonSupplier(@Nullable T instance, Supplier<? extends T> defaultSupplier) {
     this.instanceSupplier = null;
     this.singletonInstance = instance;
     this.defaultSupplier = defaultSupplier;
@@ -74,7 +74,7 @@ public class SingletonSupplier<T> implements Supplier<T> {
    * @param instanceSupplier the immediate instance supplier
    * @param defaultSupplier the default supplier as a fallback
    */
-  public SingletonSupplier(Supplier<? extends T> instanceSupplier, Supplier<? extends T> defaultSupplier) {
+  public SingletonSupplier(@Nullable Supplier<? extends T> instanceSupplier, Supplier<? extends T> defaultSupplier) {
     this.defaultSupplier = defaultSupplier;
     this.instanceSupplier = instanceSupplier;
   }

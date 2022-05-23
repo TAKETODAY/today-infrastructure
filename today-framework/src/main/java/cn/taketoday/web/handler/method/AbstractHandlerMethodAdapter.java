@@ -22,9 +22,9 @@ package cn.taketoday.web.handler.method;
 
 import cn.taketoday.core.Ordered;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.web.HandlerAdapter;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.WebContentGenerator;
-import cn.taketoday.web.handler.HandlerAdapter;
 
 /**
  * Abstract base class for {@link HandlerAdapter} implementations that support

@@ -27,13 +27,13 @@ import cn.taketoday.http.converter.HttpMessageConverter;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.validation.Validator;
+import cn.taketoday.web.HandlerExceptionHandler;
+import cn.taketoday.web.HandlerMapping;
 import cn.taketoday.web.bind.resolver.ParameterResolvingRegistry;
 import cn.taketoday.web.bind.resolver.ParameterResolvingStrategies;
-import cn.taketoday.web.handler.HandlerExceptionHandler;
 import cn.taketoday.web.handler.ReturnValueHandlerManager;
 import cn.taketoday.web.multipart.MultipartConfig;
 import cn.taketoday.web.registry.FunctionHandlerMapping;
-import cn.taketoday.web.registry.HandlerMapping;
 import cn.taketoday.web.registry.ViewControllerHandlerMapping;
 
 /**

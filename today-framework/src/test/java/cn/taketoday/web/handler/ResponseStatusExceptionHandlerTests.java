@@ -37,6 +37,7 @@ import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpMethod;
 import cn.taketoday.http.HttpStatus;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.web.HandlerExceptionHandler;
 import cn.taketoday.web.MethodNotAllowedException;
 import cn.taketoday.web.ResponseStatusException;
 import cn.taketoday.web.annotation.ResponseStatus;
