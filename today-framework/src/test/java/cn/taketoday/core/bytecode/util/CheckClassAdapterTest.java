@@ -22,6 +22,7 @@ package cn.taketoday.core.bytecode.util;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import java.io.IOException;
@@ -275,38 +276,22 @@ public class CheckClassAdapterTest extends AsmTest implements Opcodes {
             exception.getMessage());
   }
 
-  @Test
-  public void testVisitRecordComponent_illegalRecordComponentSignature1() {
-    CheckClassAdapter checkClassAdapter = new CheckClassAdapter(null);
-    checkClassAdapter.visit(V14, ACC_PUBLIC, "C", null, "java/lang/Object", null);
-
-    Executable visitRecordComponent = () -> checkClassAdapter.visitRecordComponent("i", "I", "L;");
-
-    Exception exception = assertThrows(IllegalArgumentException.class, visitRecordComponent);
-    assertEquals("L;: identifier expected at index 1", exception.getMessage());
-  }
-
-  @Test
-  public void testVisitRecordComponent_illegalRecordComponentSignature2() {
-    CheckClassAdapter checkClassAdapter = new CheckClassAdapter(null);
-    checkClassAdapter.visit(V14, ACC_PUBLIC, "C", null, "java/lang/Object", null);
-
-    Executable visitRecordComponent = () -> checkClassAdapter.visitRecordComponent("i", "I", "LC+");
-
-    Exception exception = assertThrows(IllegalArgumentException.class, visitRecordComponent);
-    assertEquals("LC+: ';' expected at index 3", exception.getMessage());
-  }
-
-  @Test
-  public void testVisitRecordComponent_illegalRecordComponentSignature3() {
+  @ParameterizedTest
+  @CsvSource({
+          "L;,identifier expected at index 1",
+          "LC+,';' expected at index 3",
+          "LC;I,error at index 3"
+  })
+  void testVisitRecordComponent_illegalRecordComponentSignatures(
+          final String invalidSignature, final String expectedMessage) {
     CheckClassAdapter checkClassAdapter = new CheckClassAdapter(null);
     checkClassAdapter.visit(V14, ACC_PUBLIC, "C", null, "java/lang/Object", null);
 
     Executable visitRecordComponent =
-            () -> checkClassAdapter.visitRecordComponent("i", "I", "LC;I");
+            () -> checkClassAdapter.visitRecordComponent("i", "I", invalidSignature);
 
     Exception exception = assertThrows(IllegalArgumentException.class, visitRecordComponent);
-    assertEquals("LC;I: error at index 3", exception.getMessage());
+    assertEquals(invalidSignature + ": " + expectedMessage, exception.getMessage());
   }
 
   @Test
@@ -321,37 +306,22 @@ public class CheckClassAdapterTest extends AsmTest implements Opcodes {
     assertEquals("public, protected and private are mutually exclusive: 3", exception.getMessage());
   }
 
-  @Test
-  public void testVisitField_illegalFieldSignature1() {
+  @ParameterizedTest
+  @CsvSource({
+          "L;,identifier expected at index 1",
+          "LC+,';' expected at index 3",
+          "LC;I,error at index 3"
+  })
+  void testVisitField_illegalFieldSignatures(
+          final String invalidSignature, final String expectedMessage) {
     CheckClassAdapter checkClassAdapter = new CheckClassAdapter(null);
     checkClassAdapter.visit(V1_1, ACC_PUBLIC, "C", null, "java/lang/Object", null);
 
-    Executable visitField = () -> checkClassAdapter.visitField(ACC_PUBLIC, "i", "I", "L;", null);
+    Executable visitField =
+            () -> checkClassAdapter.visitField(ACC_PUBLIC, "i", "I", invalidSignature, null);
 
     Exception exception = assertThrows(IllegalArgumentException.class, visitField);
-    assertEquals("L;: identifier expected at index 1", exception.getMessage());
-  }
-
-  @Test
-  public void testVisitField_illegalFieldSignature2() {
-    CheckClassAdapter checkClassAdapter = new CheckClassAdapter(null);
-    checkClassAdapter.visit(V1_1, ACC_PUBLIC, "C", null, "java/lang/Object", null);
-
-    Executable visitField = () -> checkClassAdapter.visitField(ACC_PUBLIC, "i", "I", "LC+", null);
-
-    Exception exception = assertThrows(IllegalArgumentException.class, visitField);
-    assertEquals("LC+: ';' expected at index 3", exception.getMessage());
-  }
-
-  @Test
-  public void testVisitField_illegalFieldSignature3() {
-    CheckClassAdapter checkClassAdapter = new CheckClassAdapter(null);
-    checkClassAdapter.visit(V1_1, ACC_PUBLIC, "C", null, "java/lang/Object", null);
-
-    Executable visitField = () -> checkClassAdapter.visitField(ACC_PUBLIC, "i", "I", "LC;I", null);
-
-    Exception exception = assertThrows(IllegalArgumentException.class, visitField);
-    assertEquals("LC;I: error at index 3", exception.getMessage());
+    assertEquals(invalidSignature + ": " + expectedMessage, exception.getMessage());
   }
 
   @Test
