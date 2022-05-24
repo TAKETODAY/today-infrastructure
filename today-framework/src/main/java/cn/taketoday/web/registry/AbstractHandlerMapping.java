@@ -351,7 +351,9 @@ public abstract class AbstractHandlerMapping extends ApplicationContextSupport
     if (handler == null) {
       handler = getDefaultHandler();
     }
-
+    if (handler == null) {
+      return null;
+    }
     if (handler instanceof String) {
       handler = obtainApplicationContext().getBean((String) handler);
     }
