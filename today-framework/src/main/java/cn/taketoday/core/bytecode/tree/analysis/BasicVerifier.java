@@ -89,77 +89,29 @@ public class BasicVerifier extends BasicInterpreter {
   }
 
   @Override
-  public BasicValue unaryOperation(final AbstractInsnNode insn, final BasicValue value)
-          throws AnalyzerException {
+  public BasicValue unaryOperation(final AbstractInsnNode insn, final BasicValue value) throws AnalyzerException {
     BasicValue expected;
     switch (insn.getOpcode()) {
-      case INEG:
-      case IINC:
-      case I2F:
-      case I2L:
-      case I2D:
-      case I2B:
-      case I2C:
-      case I2S:
-      case IFEQ:
-      case IFNE:
-      case IFLT:
-      case IFGE:
-      case IFGT:
-      case IFLE:
-      case TABLESWITCH:
-      case LOOKUPSWITCH:
-      case IRETURN:
-      case NEWARRAY:
-      case ANEWARRAY:
-        expected = BasicValue.INT_VALUE;
-        break;
-      case FNEG:
-      case F2I:
-      case F2L:
-      case F2D:
-      case FRETURN:
-        expected = BasicValue.FLOAT_VALUE;
-        break;
-      case LNEG:
-      case L2I:
-      case L2F:
-      case L2D:
-      case LRETURN:
-        expected = BasicValue.LONG_VALUE;
-        break;
-      case DNEG:
-      case D2I:
-      case D2F:
-      case D2L:
-      case DRETURN:
-        expected = BasicValue.DOUBLE_VALUE;
-        break;
-      case GETFIELD:
-        expected = newValue(Type.fromInternalName(((FieldInsnNode) insn).owner));
-        break;
-      case ARRAYLENGTH:
+      case INEG, IINC, I2F, I2L, I2D, I2B, I2C, I2S, IFEQ, IFNE, IFLT, IFGE, IFGT, IFLE, TABLESWITCH, LOOKUPSWITCH,
+              IRETURN, NEWARRAY, ANEWARRAY -> expected = BasicValue.INT_VALUE;
+      case FNEG, F2I, F2L, F2D, FRETURN -> expected = BasicValue.FLOAT_VALUE;
+      case LNEG, L2I, L2F, L2D, LRETURN -> expected = BasicValue.LONG_VALUE;
+      case DNEG, D2I, D2F, D2L, DRETURN -> expected = BasicValue.DOUBLE_VALUE;
+      case GETFIELD -> expected = newValue(Type.fromInternalName(((FieldInsnNode) insn).owner));
+      case ARRAYLENGTH -> {
         if (!isArrayValue(value)) {
           throw new AnalyzerException(insn, null, "an array reference", value);
         }
         return super.unaryOperation(insn, value);
-      case CHECKCAST:
-      case ARETURN:
-      case ATHROW:
-      case INSTANCEOF:
-      case MONITORENTER:
-      case MONITOREXIT:
-      case IFNULL:
-      case IFNONNULL:
+      }
+      case CHECKCAST, ARETURN, ATHROW, INSTANCEOF, MONITORENTER, MONITOREXIT, IFNULL, IFNONNULL -> {
         if (!value.isReference()) {
           throw new AnalyzerException(insn, null, "an object reference", value);
         }
         return super.unaryOperation(insn, value);
-      case PUTSTATIC:
-        expected = newValue(Type.fromDescriptor(((FieldInsnNode) insn).desc));
-        break;
-      default:
-        throw new AssertionError();
+      }
+      case PUTSTATIC -> expected = newValue(Type.fromDescriptor(((FieldInsnNode) insn).desc));
+      default -> throw new AssertionError();
     }
     if (!isSubTypeOf(value, expected)) {
       throw new AnalyzerException(insn, null, expected, value);
@@ -321,8 +273,7 @@ public class BasicVerifier extends BasicInterpreter {
 
   @Override
   public BasicValue naryOperation(
-          final AbstractInsnNode insn, final List<? extends BasicValue> values)
-          throws AnalyzerException {
+          final AbstractInsnNode insn, final List<? extends BasicValue> values) throws AnalyzerException {
     int opcode = insn.getOpcode();
     if (opcode == MULTIANEWARRAY) {
       for (BasicValue value : values) {
@@ -340,10 +291,7 @@ public class BasicVerifier extends BasicInterpreter {
           throw new AnalyzerException(insn, "Method owner", newValue(owner), values.get(0));
         }
       }
-      String methodDescriptor =
-              (opcode == INVOKEDYNAMIC)
-              ? ((InvokeDynamicInsnNode) insn).desc
-              : ((MethodInsnNode) insn).desc;
+      String methodDescriptor = (opcode == INVOKEDYNAMIC) ? ((InvokeDynamicInsnNode) insn).desc : ((MethodInsnNode) insn).desc;
       Type[] args = Type.getArgumentTypes(methodDescriptor);
       int size = values.size();
       while (i < size) {
@@ -359,8 +307,7 @@ public class BasicVerifier extends BasicInterpreter {
 
   @Override
   public void returnOperation(
-          final AbstractInsnNode insn, final BasicValue value, final BasicValue expected)
-          throws AnalyzerException {
+          final AbstractInsnNode insn, final BasicValue value, final BasicValue expected) throws AnalyzerException {
     if (!isSubTypeOf(value, expected)) {
       throw new AnalyzerException(insn, "Incompatible return type", expected, value);
     }

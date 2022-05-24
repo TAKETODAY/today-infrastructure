@@ -458,7 +458,8 @@ final class MethodWriter extends MethodVisitor {
 
   /**
    * Indicates what must be computed. Must be one of {@link #COMPUTE_ALL_FRAMES}, {@link
-   * #COMPUTE_INSERTED_FRAMES}, {@link #COMPUTE_MAX_STACK_AND_LOCAL} or {@link #COMPUTE_NOTHING}.
+   * #COMPUTE_INSERTED_FRAMES}, {@link #COMPUTE_MAX_STACK_AND_LOCAL_FROM_FRAMES}, {@link
+   * #COMPUTE_MAX_STACK_AND_LOCAL} or {@link #COMPUTE_NOTHING}.
    */
   private final int compute;
 

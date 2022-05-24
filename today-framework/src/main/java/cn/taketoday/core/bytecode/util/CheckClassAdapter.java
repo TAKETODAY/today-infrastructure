@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -17,6 +17,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.core.bytecode.util;
 
 import java.io.FileInputStream;
@@ -31,6 +32,7 @@ import cn.taketoday.core.bytecode.AnnotationVisitor;
 import cn.taketoday.core.bytecode.Attribute;
 import cn.taketoday.core.bytecode.ClassReader;
 import cn.taketoday.core.bytecode.ClassVisitor;
+import cn.taketoday.core.bytecode.ClassWriter;
 import cn.taketoday.core.bytecode.FieldVisitor;
 import cn.taketoday.core.bytecode.Label;
 import cn.taketoday.core.bytecode.MethodVisitor;
@@ -152,15 +154,14 @@ public class CheckClassAdapter extends ClassVisitor {
    * @param classVisitor the class visitor to which this adapter must delegate calls.
    */
   public CheckClassAdapter(final ClassVisitor classVisitor) {
-    this(classVisitor, true);
+    this(classVisitor, /* checkDataFlow = */ true);
   }
 
   /**
    * Constructs a new {@link CheckClassAdapter}.
    *
    * @param classVisitor the class visitor to which this adapter must delegate calls.
-   * @param checkDataFlow whether to perform basic data flow checks. This option requires valid
-   * maxLocals and maxStack values.
+   * @param checkDataFlow whether to perform basic data flow checks.
    * @throws IllegalStateException If a subclass calls this constructor.
    */
   public CheckClassAdapter(final ClassVisitor classVisitor, final boolean checkDataFlow) {
@@ -433,20 +434,15 @@ public class CheckClassAdapter extends ClassVisitor {
       }
     }
     CheckMethodAdapter checkMethodAdapter;
+    MethodVisitor methodVisitor = super.visitMethod(access, name, descriptor, signature, exceptions);
     if (checkDataFlow) {
-      checkMethodAdapter =
-              new CheckMethodAdapter(
-                      access,
-                      name,
-                      descriptor,
-                      super.visitMethod(access, name, descriptor, signature, exceptions),
-                      labelInsnIndices);
+      if (cv instanceof ClassWriter classWriter) {
+        methodVisitor = new CheckMethodAdapter.MethodWriterWrapper(version, classWriter, methodVisitor);
+      }
+      checkMethodAdapter = new CheckMethodAdapter(access, name, descriptor, methodVisitor, labelInsnIndices);
     }
     else {
-      checkMethodAdapter =
-              new CheckMethodAdapter(
-                      super.visitMethod(access, name, descriptor, signature, exceptions),
-                      labelInsnIndices);
+      checkMethodAdapter = new CheckMethodAdapter(methodVisitor, labelInsnIndices);
     }
     checkMethodAdapter.version = version;
     return checkMethodAdapter;

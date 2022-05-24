@@ -31,6 +31,7 @@ import java.util.Set;
 
 import cn.taketoday.core.bytecode.AnnotationVisitor;
 import cn.taketoday.core.bytecode.Attribute;
+import cn.taketoday.core.bytecode.ClassWriter;
 import cn.taketoday.core.bytecode.ConstantDynamic;
 import cn.taketoday.core.bytecode.Handle;
 import cn.taketoday.core.bytecode.Label;
@@ -378,36 +379,48 @@ public class CheckMethodAdapter extends MethodVisitor {
           final MethodVisitor methodVisitor,
           final Map<Label, Integer> labelInsnIndices) {
     this(new MethodNode(access, name, descriptor, null, null) {
-           @Override
-           public void visitEnd() {
-             Analyzer<BasicValue> analyzer = new Analyzer<>(new BasicVerifier());
-             try {
-               analyzer.analyze("dummy", this);
-             }
-             catch (IndexOutOfBoundsException e) {
-               if (maxLocals == 0 && maxStack == 0) {
-                 throw new IllegalArgumentException(
-                         "Data flow checking option requires valid, non zero maxLocals and maxStack.", e);
-               }
-               throwError(analyzer, e);
-             }
-             catch (AnalyzerException e) {
-               throwError(analyzer, e);
-             }
-             if (methodVisitor != null) {
-               accept(methodVisitor);
-             }
-           }
+      @Override
+      public void visitEnd() {
+        boolean checkMaxStackAndLocals = false;
+        boolean checkFrames = false;
+        if (methodVisitor instanceof MethodWriterWrapper methodWriter) {
+          // If 'methodVisitor' is a MethodWriter of a ClassWriter with no flags to compute the
+          // max stack and locals nor the stack map frames, we know that valid max stack and
+          // locals must be provided. Otherwise we assume they are not needed at this stage.
+          checkMaxStackAndLocals = !methodWriter.computesMaxs();
+          // If 'methodVisitor' is a MethodWriter of a ClassWriter with no flags to compute the
+          // stack map frames, we know that valid frames must be provided. Otherwise we assume
+          // they are not needed at this stage.
+          checkFrames = methodWriter.requiresFrames() && !methodWriter.computesFrames();
+        }
+        Analyzer<BasicValue> analyzer =
+                checkFrames
+                ? new CheckFrameAnalyzer<>(new BasicVerifier())
+                : new Analyzer<>(new BasicVerifier());
+        try {
+          if (checkMaxStackAndLocals) {
+            analyzer.analyze("dummy", this);
+          }
+          else {
+            analyzer.analyzeAndComputeMaxs("dummy", this);
+          }
+        }
+        catch (IndexOutOfBoundsException | AnalyzerException e) {
+          throwError(analyzer, e);
+        }
+        if (methodVisitor != null) {
+          accept(methodVisitor);
+        }
+      }
 
-           private void throwError(final Analyzer<BasicValue> analyzer, final Exception e) {
-             StringWriter stringWriter = new StringWriter();
-             PrintWriter printWriter = new PrintWriter(stringWriter, true);
-             CheckClassAdapter.printAnalyzerResult(this, analyzer, printWriter);
-             printWriter.close();
-             throw new IllegalArgumentException(e.getMessage() + ' ' + stringWriter.toString(), e);
-           }
-         },
-         labelInsnIndices);
+      private void throwError(final Analyzer<BasicValue> analyzer, final Exception e) {
+        StringWriter stringWriter = new StringWriter();
+        PrintWriter printWriter = new PrintWriter(stringWriter, true);
+        CheckClassAdapter.printAnalyzerResult(this, analyzer, printWriter);
+        printWriter.close();
+        throw new IllegalArgumentException(e.getMessage() + ' ' + stringWriter.toString(), e);
+      }
+    }, labelInsnIndices);
     this.access = access;
   }
 
@@ -1372,4 +1385,34 @@ public class CheckMethodAdapter extends MethodVisitor {
       throw new IllegalArgumentException(INVALID + message + " (must be visited first)");
     }
   }
+
+  static class MethodWriterWrapper extends MethodVisitor {
+
+    /** The class version number. */
+    private final int version;
+
+    private final ClassWriter owner;
+
+    MethodWriterWrapper(
+            final int version,
+            final ClassWriter owner,
+            final MethodVisitor methodWriter) {
+      super(methodWriter);
+      this.version = version;
+      this.owner = owner;
+    }
+
+    boolean computesMaxs() {
+      return owner.hasFlags(ClassWriter.COMPUTE_MAXS) || owner.hasFlags(ClassWriter.COMPUTE_FRAMES);
+    }
+
+    boolean computesFrames() {
+      return owner.hasFlags(ClassWriter.COMPUTE_FRAMES);
+    }
+
+    boolean requiresFrames() {
+      return (version & 0xFFFF) >= Opcodes.V1_7;
+    }
+  }
+
 }

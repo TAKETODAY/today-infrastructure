@@ -40,6 +40,7 @@ import java.util.Set;
 import static java.util.stream.Collectors.toSet;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -67,41 +68,41 @@ public class ClassWriterTest extends AsmTest {
                     .map(Field::getName)
                     .collect(toSet());
 
-    Set<String> expectedFields =
-            new HashSet<String>(
-                    Arrays.asList(
-                            "version",
-                            "symbolTable",
-                            "accessFlags",
-                            "thisClass",
-                            "superClass",
-                            "interfaceCount",
-                            "interfaces",
-                            "firstField",
-                            "lastField",
-                            "firstMethod",
-                            "lastMethod",
-                            "numberOfInnerClasses",
-                            "innerClasses",
-                            "enclosingClassIndex",
-                            "enclosingMethodIndex",
-                            "signatureIndex",
-                            "sourceFileIndex",
-                            "debugExtension",
-                            "lastRuntimeVisibleAnnotation",
-                            "lastRuntimeInvisibleAnnotation",
-                            "lastRuntimeVisibleTypeAnnotation",
-                            "lastRuntimeInvisibleTypeAnnotation",
-                            "moduleWriter",
-                            "nestHostClassIndex",
-                            "numberOfNestMemberClasses",
-                            "nestMemberClasses",
-                            "numberOfPermittedSubclasses",
-                            "permittedSubclasses",
-                            "firstRecordComponent",
-                            "lastRecordComponent",
-                            "firstAttribute",
-                            "compute"));
+    Set<String> expectedFields = Set.of(
+            "flags",
+            "version",
+            "symbolTable",
+            "accessFlags",
+            "thisClass",
+            "superClass",
+            "interfaceCount",
+            "interfaces",
+            "firstField",
+            "lastField",
+            "firstMethod",
+            "lastMethod",
+            "numberOfInnerClasses",
+            "innerClasses",
+            "enclosingClassIndex",
+            "enclosingMethodIndex",
+            "signatureIndex",
+            "sourceFileIndex",
+            "debugExtension",
+            "lastRuntimeVisibleAnnotation",
+            "lastRuntimeInvisibleAnnotation",
+            "lastRuntimeVisibleTypeAnnotation",
+            "lastRuntimeInvisibleTypeAnnotation",
+            "moduleWriter",
+            "nestHostClassIndex",
+            "numberOfNestMemberClasses",
+            "nestMemberClasses",
+            "numberOfPermittedSubclasses",
+            "permittedSubclasses",
+            "firstRecordComponent",
+            "lastRecordComponent",
+            "firstAttribute",
+            "compute"
+    );
     // IMPORTANT: if this fails, update the string list AND update the logic that resets the
     // ClassWriter fields in ClassWriter.toByteArray(), if needed (this logic is used to do a
     // ClassReader->ClassWriter round trip to remove the ASM specific instructions due to large
@@ -506,6 +507,8 @@ public class ClassWriterTest extends AsmTest {
 
     classReader.accept(classWriter, attributes(), ClassReader.SKIP_CODE);
 
+    assertFalse(classWriter.hasFlags(org.objectweb.asm.ClassWriter.COMPUTE_MAXS));
+    assertFalse(classWriter.hasFlags(org.objectweb.asm.ClassWriter.COMPUTE_FRAMES));
     assertTrue(
             new ClassFile(classWriter.toByteArray())
                     .toString()
@@ -561,6 +564,9 @@ public class ClassWriterTest extends AsmTest {
 
     classReader.accept(classWriter, attributes(), 0);
 
+    assertTrue(classWriter.hasFlags(org.objectweb.asm.ClassWriter.COMPUTE_MAXS));
+    assertFalse(classWriter.hasFlags(org.objectweb.asm.ClassWriter.COMPUTE_FRAMES));
+
     assertEquals(new ClassFile(classFile), new ClassFile(classWriter.toByteArray()));
   }
 
@@ -602,6 +608,9 @@ public class ClassWriterTest extends AsmTest {
     classReader.accept(classWriter, attributes(), 0);
 
     byte[] newClassFile = classWriter.toByteArray();
+
+    assertFalse(classWriter.hasFlags(org.objectweb.asm.ClassWriter.COMPUTE_MAXS));
+    assertTrue(classWriter.hasFlags(org.objectweb.asm.ClassWriter.COMPUTE_FRAMES));
 
     // The computed stack map frames should be equal to the original ones, if any (classes before
     // JDK8 don't have ones). This is not true in general (the valid frames for a given method are

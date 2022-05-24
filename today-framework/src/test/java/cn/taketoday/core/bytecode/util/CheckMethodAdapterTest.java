@@ -25,6 +25,7 @@ import org.junit.jupiter.api.function.Executable;
 import java.util.HashMap;
 
 import cn.taketoday.core.bytecode.AsmTest;
+import cn.taketoday.core.bytecode.ClassWriter;
 import cn.taketoday.core.bytecode.Handle;
 import cn.taketoday.core.bytecode.Label;
 import cn.taketoday.core.bytecode.MethodVisitor;
@@ -1071,24 +1072,133 @@ public class CheckMethodAdapterTest extends AsmTest implements Opcodes {
   }
 
   @Test
-  public void testVisitEnd_invalidDataFlow() {
+  void testVisitEnd_invalidDataFlow() {
     MethodVisitor dataFlowCheckMethodAdapter =
             new CheckMethodAdapter(ACC_PUBLIC, "m", "(I)I", null, new HashMap<>());
     dataFlowCheckMethodAdapter.visitCode();
-    dataFlowCheckMethodAdapter.visitInsn(RETURN);
-    dataFlowCheckMethodAdapter.visitMaxs(0, 2);
+    dataFlowCheckMethodAdapter.visitVarInsn(ILOAD, 1);
+    dataFlowCheckMethodAdapter.visitVarInsn(ASTORE, 0);
+    dataFlowCheckMethodAdapter.visitInsn(IRETURN);
+    dataFlowCheckMethodAdapter.visitMaxs(0, 0);
 
-    Executable visitEnd = () -> dataFlowCheckMethodAdapter.visitEnd();
+    Executable visitEnd = dataFlowCheckMethodAdapter::visitEnd;
 
     Exception exception = assertThrows(IllegalArgumentException.class, visitEnd);
     assertTrue(
             exception
                     .getMessage()
-                    .startsWith("Error at instruction 0: Incompatible return type m(I)I"));
+                    .startsWith(
+                            "Error at instruction 1: Expected an object reference or a return address, but"
+                                    + " found I m(I)I"));
   }
 
   @Test
-  public void testVisitEnd_invalidReturnType() {
+  void testVisitEnd_noInvalidMaxStackIfClassWriterWithComputeMaxs() {
+    ClassWriter classWriter = new ClassWriter(ClassWriter.COMPUTE_MAXS);
+    MethodVisitor methodVisitor =
+            new CheckMethodAdapter.MethodWriterWrapper(/* version = */ Opcodes.V1_5, classWriter, new MethodVisitor());
+    MethodVisitor dataFlowCheckMethodAdapter =
+            new CheckMethodAdapter(ACC_PUBLIC, "m", "(I)I", methodVisitor, new HashMap<>());
+    dataFlowCheckMethodAdapter.visitCode();
+    dataFlowCheckMethodAdapter.visitVarInsn(ILOAD, 1);
+    dataFlowCheckMethodAdapter.visitInsn(IRETURN);
+    dataFlowCheckMethodAdapter.visitMaxs(0, 2);
+
+    Executable visitEnd = dataFlowCheckMethodAdapter::visitEnd;
+
+    assertDoesNotThrow(visitEnd);
+  }
+
+  @Test
+  void testVisitEnd_noInvalidMaxStackIfClassWriterWithComputeFrames() {
+    ClassWriter classWriter = new ClassWriter(ClassWriter.COMPUTE_FRAMES);
+    MethodVisitor methodVisitor =
+            new CheckMethodAdapter.MethodWriterWrapper(/* version = */ Opcodes.V1_5, classWriter, new MethodVisitor());
+    MethodVisitor dataFlowCheckMethodAdapter =
+            new CheckMethodAdapter(ACC_PUBLIC, "m", "(I)I", methodVisitor, new HashMap<>());
+    dataFlowCheckMethodAdapter.visitCode();
+    dataFlowCheckMethodAdapter.visitVarInsn(ILOAD, 1);
+    dataFlowCheckMethodAdapter.visitInsn(IRETURN);
+    dataFlowCheckMethodAdapter.visitMaxs(0, 2);
+
+    Executable visitEnd = dataFlowCheckMethodAdapter::visitEnd;
+
+    assertDoesNotThrow(visitEnd);
+  }
+
+  @Test
+  void testVisitEnd_invalidMaxStackIfClassWriterWithoutComputeMaxsOrComputeFrames() {
+    ClassWriter classWriter = new ClassWriter(0);
+    MethodVisitor methodVisitor =
+            new CheckMethodAdapter.MethodWriterWrapper(
+                    /* version = */ Opcodes.V1_5,
+                    classWriter,
+                    new MethodVisitor() { });
+    MethodVisitor dataFlowCheckMethodAdapter =
+            new CheckMethodAdapter(ACC_PUBLIC, "m", "(I)I", methodVisitor, new HashMap<>());
+    dataFlowCheckMethodAdapter.visitCode();
+    dataFlowCheckMethodAdapter.visitVarInsn(ILOAD, 1);
+    dataFlowCheckMethodAdapter.visitInsn(IRETURN);
+    dataFlowCheckMethodAdapter.visitMaxs(0, 2);
+
+    Executable visitEnd = dataFlowCheckMethodAdapter::visitEnd;
+
+    Exception exception = assertThrows(IllegalArgumentException.class, visitEnd);
+    assertTrue(
+            exception
+                    .getMessage()
+                    .startsWith("Error at instruction 0: Insufficient maximum stack size. m(I)I"));
+  }
+
+  @Test
+  void testVisitEnd_noMissingFrameIfClassWriterWithComputeFrames() {
+    ClassWriter classWriter = new ClassWriter(ClassWriter.COMPUTE_FRAMES);
+    MethodVisitor methodVisitor =
+            new CheckMethodAdapter.MethodWriterWrapper(/* version = */ Opcodes.V1_7, classWriter, new MethodVisitor());
+    MethodVisitor dataFlowCheckMethodAdapter =
+            new CheckMethodAdapter(ACC_PUBLIC, "m", "(I)I", methodVisitor, new HashMap<>());
+    Label label = new Label();
+    dataFlowCheckMethodAdapter.visitCode();
+    dataFlowCheckMethodAdapter.visitVarInsn(ILOAD, 1);
+    dataFlowCheckMethodAdapter.visitJumpInsn(IFEQ, label);
+    dataFlowCheckMethodAdapter.visitLabel(label);
+    dataFlowCheckMethodAdapter.visitInsn(ICONST_0);
+    dataFlowCheckMethodAdapter.visitInsn(IRETURN);
+    dataFlowCheckMethodAdapter.visitMaxs(1, 2);
+
+    Executable visitEnd = dataFlowCheckMethodAdapter::visitEnd;
+
+    assertDoesNotThrow(visitEnd);
+  }
+
+  @Test
+  void testVisitEnd_missingFrameIfClassWriterWithoutComputeFrames() {
+    ClassWriter classWriter = new ClassWriter(ClassWriter.COMPUTE_MAXS);
+    MethodVisitor methodVisitor =
+            new CheckMethodAdapter.MethodWriterWrapper(
+                    /* version = */ Opcodes.V1_7, classWriter, new MethodVisitor());
+    MethodVisitor dataFlowCheckMethodAdapter =
+            new CheckMethodAdapter(ACC_PUBLIC, "m", "(I)I", methodVisitor, new HashMap<>());
+    Label label = new Label();
+    dataFlowCheckMethodAdapter.visitCode();
+    dataFlowCheckMethodAdapter.visitVarInsn(ILOAD, 1);
+    dataFlowCheckMethodAdapter.visitJumpInsn(IFEQ, label);
+    dataFlowCheckMethodAdapter.visitLabel(label);
+    dataFlowCheckMethodAdapter.visitInsn(ICONST_0);
+    dataFlowCheckMethodAdapter.visitInsn(IRETURN);
+    dataFlowCheckMethodAdapter.visitMaxs(1, 2);
+
+    Executable visitEnd = dataFlowCheckMethodAdapter::visitEnd;
+
+    Exception exception = assertThrows(IllegalArgumentException.class, visitEnd);
+    assertTrue(
+            exception
+                    .getMessage()
+                    .startsWith("Error at instruction 1: Expected stack map frame at instruction 2 m(I)I"));
+  }
+
+  @Test
+  void testVisitEnd_invalidReturnType() {
     MethodVisitor dataFlowCheckMethodAdapter =
             new CheckMethodAdapter(ACC_PUBLIC, "m", "(I)V", null, new HashMap<>());
     dataFlowCheckMethodAdapter.visitCode();
@@ -1096,30 +1206,10 @@ public class CheckMethodAdapterTest extends AsmTest implements Opcodes {
     dataFlowCheckMethodAdapter.visitInsn(IRETURN);
     dataFlowCheckMethodAdapter.visitMaxs(1, 2);
 
-    Executable visitEnd = () -> dataFlowCheckMethodAdapter.visitEnd();
+    Executable visitEnd = dataFlowCheckMethodAdapter::visitEnd;
 
     Exception exception = assertThrows(IllegalArgumentException.class, visitEnd);
-    assertTrue(
-            exception
-                    .getMessage()
-                    .startsWith(
-                            "Error at instruction 1: Incompatible return type: expected null, but found I m(I)V"));
+    assertTrue(exception.getMessage().startsWith("Error at instruction 1: Incompatible return type: expected null, but found I m(I)V"));
   }
 
-  @Test
-  public void testVisitEnd_dataflowCheckRequiresMaxLocalsAndMaxStack() {
-    CheckMethodAdapter dataFlowCheckMethodAdapter =
-            new CheckMethodAdapter(0, "m", "()V", null, new HashMap<>());
-    dataFlowCheckMethodAdapter.visitCode();
-    dataFlowCheckMethodAdapter.visitVarInsn(ALOAD, 0);
-    dataFlowCheckMethodAdapter.visitInsn(RETURN);
-    dataFlowCheckMethodAdapter.visitMaxs(0, 0);
-
-    Executable visitEnd = () -> dataFlowCheckMethodAdapter.visitEnd();
-
-    Exception exception = assertThrows(IllegalArgumentException.class, visitEnd);
-    assertEquals(
-            "Data flow checking option requires valid, non zero maxLocals and maxStack.",
-            exception.getMessage());
-  }
 }

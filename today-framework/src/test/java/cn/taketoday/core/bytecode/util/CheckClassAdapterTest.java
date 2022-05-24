@@ -393,6 +393,66 @@ public class CheckClassAdapterTest extends AsmTest implements Opcodes {
   }
 
   @Test
+  void testVisitMethod_checkDataFlowByDefault() {
+    CheckClassAdapter checkClassAdapter = new CheckClassAdapter(null);
+    checkClassAdapter.visit(V1_1, ACC_PUBLIC, "C", null, "java/lang/Object", null);
+    MethodVisitor methodVisitor =
+            checkClassAdapter.visitMethod(ACC_PUBLIC, "m", "(I)I", null, null);
+    methodVisitor.visitCode();
+    methodVisitor.visitVarInsn(ILOAD, 1);
+    methodVisitor.visitVarInsn(ASTORE, 0);
+    methodVisitor.visitInsn(IRETURN);
+    methodVisitor.visitMaxs(0, 0);
+
+    Executable visitEnd = methodVisitor::visitEnd;
+
+    Exception exception = assertThrows(IllegalArgumentException.class, visitEnd);
+    assertTrue(
+            exception
+                    .getMessage()
+                    .startsWith(
+                            "Error at instruction 1: Expected an object reference or a return address, but"
+                                    + " found I m(I)I"));
+  }
+
+  @Test
+  void testVisitMethod_checkMaxStackAndLocalsIfClassWriterWithoutComputeMaxs() {
+    ClassWriter classWriter = new ClassWriter(0);
+    CheckClassAdapter checkClassAdapter = new CheckClassAdapter(classWriter);
+    checkClassAdapter.visit(V1_1, ACC_PUBLIC, "C", null, "java/lang/Object", null);
+    MethodVisitor methodVisitor =
+            checkClassAdapter.visitMethod(ACC_PUBLIC, "m", "(I)I", null, null);
+    methodVisitor.visitCode();
+    methodVisitor.visitVarInsn(ILOAD, 1);
+    methodVisitor.visitInsn(IRETURN);
+    methodVisitor.visitMaxs(0, 2);
+
+    Executable visitEnd = methodVisitor::visitEnd;
+
+    Exception exception = assertThrows(IllegalArgumentException.class, visitEnd);
+    assertTrue(
+            exception
+                    .getMessage()
+                    .startsWith("Error at instruction 0: Insufficient maximum stack size. m(I)I"));
+  }
+
+  @Test
+  void testVisitMethod_noDataFlowCheckIfDisabled() {
+    CheckClassAdapter checkClassAdapter = new CheckClassAdapter(null, /* checkDataFlow = */ false);
+    checkClassAdapter.visit(V1_1, ACC_PUBLIC, "C", null, "java/lang/Object", null);
+    MethodVisitor methodVisitor = checkClassAdapter.visitMethod(ACC_PUBLIC, "m", "()V", null, null);
+    methodVisitor.visitCode();
+    methodVisitor.visitVarInsn(ILOAD, 1);
+    methodVisitor.visitVarInsn(ASTORE, 0);
+    methodVisitor.visitInsn(IRETURN);
+    methodVisitor.visitMaxs(0, 0);
+
+    Executable visitEnd = methodVisitor::visitEnd;
+
+    assertDoesNotThrow(visitEnd);
+  }
+
+  @Test
   public void testVisitTypeAnnotation_illegalAnnotation1() {
     CheckClassAdapter checkClassAdapter = new CheckClassAdapter(null);
     checkClassAdapter.visit(V1_1, ACC_PUBLIC, "C", null, "java/lang/Object", null);
