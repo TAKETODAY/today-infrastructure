@@ -58,6 +58,7 @@ public class ResolvableMethodParameter extends AttributeAccessorSupport {
   /**
    * @since 3.0.1
    */
+  @Nullable
   protected TypeDescriptor typeDescriptor;
 
   // @since 4.0
@@ -66,8 +67,10 @@ public class ResolvableMethodParameter extends AttributeAccessorSupport {
   @Nullable
   private NamedValueInfo namedValueInfo;
 
+  @Nullable
   private ResolvableType resolvableType;
 
+  @Nullable
   private ResolvableMethodParameter nestedParam;
 
   /**
@@ -222,6 +225,7 @@ public class ResolvableMethodParameter extends AttributeAccessorSupport {
   }
 
   @Experimental
+  @Nullable
   public String getDefaultValue() {
     return getNamedValueInfo().defaultValue;
   }
@@ -411,7 +415,7 @@ public class ResolvableMethodParameter extends AttributeAccessorSupport {
 
   @Override
   public String toString() {
-    return getParameterType().getSimpleName() + " " + getName();
+    return getParameterType().getSimpleName() + " " + parameter.getParameterName();
   }
 
   @Override

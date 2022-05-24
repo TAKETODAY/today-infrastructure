@@ -27,6 +27,7 @@ import org.junit.jupiter.api.Test;
 import java.lang.reflect.Method;
 
 import cn.taketoday.beans.factory.annotation.Value;
+import cn.taketoday.core.DefaultParameterNameDiscoverer;
 import cn.taketoday.core.MethodParameter;
 import cn.taketoday.web.RequestContextHolder;
 import cn.taketoday.web.bind.resolver.ExpressionValueMethodArgumentResolver;
@@ -62,10 +63,16 @@ public class ExpressionValueMethodArgumentResolverTests {
     context.refresh();
     resolver = new ExpressionValueMethodArgumentResolver(context.getBeanFactory());
 
+    DefaultParameterNameDiscoverer discoverer = new DefaultParameterNameDiscoverer();
+
     Method method = getClass().getMethod("params", int.class, String.class, String.class);
     paramSystemProperty = new ResolvableMethodParameter(new MethodParameter(method, 0));
     paramContextPath = new ResolvableMethodParameter(new MethodParameter(method, 1));
     paramNotSupported = new ResolvableMethodParameter(new MethodParameter(method, 2));
+
+    paramSystemProperty.getParameter().initParameterNameDiscovery(discoverer);
+    paramContextPath.getParameter().initParameterNameDiscovery(discoverer);
+    paramNotSupported.getParameter().initParameterNameDiscovery(discoverer);
 
     webRequest = new ServletRequestContext(null, request, new MockHttpServletResponse());
 
