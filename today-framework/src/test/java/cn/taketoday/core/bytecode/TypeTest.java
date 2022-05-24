@@ -119,7 +119,8 @@ public class TypeTest implements Opcodes {
   public void testGetTypeFromDescriptor_invalid() {
     Executable getType = () -> Type.fromDescriptor("-");
 
-    assertThrows(IllegalArgumentException.class, getType);
+    IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, getType);
+    assertEquals("Invalid descriptor: -", exception.getMessage());
   }
 
   @ParameterizedTest
