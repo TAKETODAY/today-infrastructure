@@ -20,7 +20,17 @@
 
 package cn.taketoday.web.handler.condition;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 import cn.taketoday.http.MediaType;
+import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.ObjectUtils;
+import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.annotation.RequestMapping;
 
 /**
@@ -29,14 +39,137 @@ import cn.taketoday.web.annotation.RequestMapping;
  * "produces" conditions.
  *
  * @author Rossen Stoyanchev
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see RequestMapping#consumes()
  * @see RequestMapping#produces()
  * @since 4.0
  */
-public interface MediaTypeExpression {
+final class MediaTypeExpression implements Comparable<MediaTypeExpression> {
 
-  MediaType getMediaType();
+  public final MediaType mediaType;
 
-  boolean isNegated();
+  public final boolean isNegated;
+
+  MediaTypeExpression(String expression) {
+    if (expression.startsWith("!")) {
+      this.isNegated = true;
+      expression = expression.substring(1);
+    }
+    else {
+      this.isNegated = false;
+    }
+    this.mediaType = MediaType.parseMediaType(expression);
+  }
+
+  MediaTypeExpression(MediaType mediaType, boolean negated) {
+    this.mediaType = mediaType;
+    this.isNegated = negated;
+  }
+
+  /**
+   * matches a single media type expression to a request's 'Content-Type' header.
+   */
+  boolean matchContentType(MediaType contentType) {
+    boolean match = mediaType.includes(contentType) && matchParameters(contentType);
+    return !isNegated == match;
+  }
+
+  /**
+   * matches a single media type expression to a request's 'Accept' header.
+   */
+  boolean matchAccept(List<MediaType> acceptedMediaTypes) {
+    boolean match = matchMediaType(acceptedMediaTypes);
+    return !isNegated == match;
+  }
+
+  private boolean matchMediaType(List<MediaType> acceptedMediaTypes) {
+    for (MediaType acceptedMediaType : acceptedMediaTypes) {
+      if (mediaType.isCompatibleWith(acceptedMediaType) && matchParameters(acceptedMediaType)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  private boolean matchParameters(MediaType contentType) {
+    for (Map.Entry<String, String> entry : mediaType.getParameters().entrySet()) {
+      if (StringUtils.hasText(entry.getValue())) {
+        String value = contentType.getParameter(entry.getKey());
+        if (StringUtils.hasText(value) && !entry.getValue().equals(value)) {
+          return false;
+        }
+      }
+    }
+    return true;
+  }
+
+  @Override
+  public int compareTo(MediaTypeExpression other) {
+    MediaType mediaType1 = mediaType;
+    MediaType mediaType2 = other.mediaType;
+    if (mediaType1.isMoreSpecific(mediaType2)) {
+      return -1;
+    }
+    else if (mediaType1.isLessSpecific(mediaType2)) {
+      return 1;
+    }
+    else {
+      return 0;
+    }
+  }
+
+  @Override
+  public boolean equals(@Nullable Object other) {
+    if (this == other) {
+      return true;
+    }
+    if (other == null || getClass() != other.getClass()) {
+      return false;
+    }
+    MediaTypeExpression otherExpr = (MediaTypeExpression) other;
+    return mediaType.equals(otherExpr.mediaType) && isNegated == otherExpr.isNegated;
+  }
+
+  @Override
+  public int hashCode() {
+    return mediaType.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    if (isNegated) {
+      return '!' + mediaType.toString();
+    }
+    return mediaType.toString();
+  }
+
+  // static
+
+  static List<MediaTypeExpression> parse(
+          String exprHeader, String[] expressions, @Nullable String[] headers) {
+    Set<MediaTypeExpression> result = null;
+    if (ObjectUtils.isNotEmpty(headers)) {
+      for (String header : headers) {
+        HeadersRequestCondition.HeaderExpression expr = new HeadersRequestCondition.HeaderExpression(header);
+        if (exprHeader.equalsIgnoreCase(expr.name) && expr.value != null) {
+          if (result == null) {
+            result = new LinkedHashSet<>();
+          }
+          for (MediaType mediaType : MediaType.parseMediaTypes(expr.value)) {
+            result.add(new MediaTypeExpression(mediaType, expr.isNegated));
+          }
+        }
+      }
+    }
+    if (ObjectUtils.isNotEmpty(expressions)) {
+      for (String produce : expressions) {
+        if (result == null) {
+          result = new LinkedHashSet<>();
+        }
+        result.add(new MediaTypeExpression(produce));
+      }
+    }
+    return result != null ? new ArrayList<>(result) : Collections.emptyList();
+  }
 
 }

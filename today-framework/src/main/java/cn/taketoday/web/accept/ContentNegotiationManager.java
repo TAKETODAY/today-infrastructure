@@ -30,10 +30,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
+import cn.taketoday.http.MediaType;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
-import cn.taketoday.http.MediaType;
 import cn.taketoday.web.HttpMediaTypeNotAcceptableException;
 import cn.taketoday.web.RequestContext;
 
@@ -159,7 +159,10 @@ public class ContentNegotiationManager implements ContentNegotiationStrategy, Me
       if (CollectionUtils.isEmpty(extensions)) {
         continue;
       }
-      result = result != null ? result : new ArrayList<>(4);
+      if (result == null) {
+        result = new ArrayList<>(4);
+      }
+
       for (String extension : extensions) {
         if (!result.contains(extension)) {
           result.add(extension);
@@ -181,7 +184,9 @@ public class ContentNegotiationManager implements ContentNegotiationStrategy, Me
         if (CollectionUtils.isEmpty(map)) {
           continue;
         }
-        result = result != null ? result : new HashMap<>(4);
+        if (result == null) {
+          result = new HashMap<>(4);
+        }
         result.putAll(map);
       }
     }

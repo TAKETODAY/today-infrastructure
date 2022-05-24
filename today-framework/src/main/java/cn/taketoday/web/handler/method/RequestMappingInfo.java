@@ -310,7 +310,7 @@ public final class RequestMappingInfo implements RequestCondition<RequestMapping
         return result;
       }
     }
-    result = getPathPatternsCondition().compareTo(other.getPathPatternsCondition(), request);
+    result = pathPatternsCondition.compareTo(other.getPathPatternsCondition(), request);
     if (result != 0) {
       return result;
     }

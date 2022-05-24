@@ -41,6 +41,7 @@ import cn.taketoday.http.HttpMethod;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.web.HandlerInterceptor;
+import cn.taketoday.web.annotation.ActionMapping;
 import cn.taketoday.web.annotation.Controller;
 import cn.taketoday.web.annotation.CrossOrigin;
 import cn.taketoday.web.annotation.GetMapping;
@@ -586,7 +587,7 @@ class CrossOriginTests {
 
     @Override
     protected RequestMappingInfo getMappingForMethod(Method method, Class<?> handlerType) {
-      RequestMapping annotation = AnnotatedElementUtils.findMergedAnnotation(method, RequestMapping.class);
+      ActionMapping annotation = AnnotatedElementUtils.findMergedAnnotation(method, ActionMapping.class);
       if (annotation != null) {
         RequestMappingInfo.BuilderConfiguration options = new RequestMappingInfo.BuilderConfiguration();
         if (getPatternParser() != null) {
@@ -595,6 +596,7 @@ class CrossOriginTests {
         return RequestMappingInfo.paths(annotation.value())
                 .methods(annotation.method())
                 .params(annotation.params())
+                .combine(annotation.combine())
                 .headers(annotation.headers())
                 .consumes(annotation.consumes())
                 .produces(annotation.produces())

@@ -31,7 +31,6 @@ import cn.taketoday.lang.NonNull;
 import cn.taketoday.web.accept.ContentNegotiationManager;
 import cn.taketoday.web.accept.FixedContentNegotiationStrategy;
 import cn.taketoday.web.accept.HeaderContentNegotiationStrategy;
-import cn.taketoday.web.handler.condition.ProducesRequestCondition.ProduceMediaTypeExpression;
 import cn.taketoday.web.servlet.ServletRequestContext;
 import cn.taketoday.web.testfixture.servlet.MockHttpServletRequest;
 import jakarta.servlet.http.HttpServletRequest;
@@ -370,8 +369,8 @@ public class ProducesRequestConditionTests {
   }
 
   private void assertConditions(ProducesRequestCondition condition, String... expected) {
-    Collection<ProduceMediaTypeExpression> expressions = condition.getContent();
-    assertThat(expressions.stream().map(expr -> expr.getMediaType().toString()))
+    Collection<MediaTypeExpression> expressions = condition.getContent();
+    assertThat(expressions.stream().map(expr -> expr.mediaType.toString()))
             .containsExactlyInAnyOrder(expected);
   }
 

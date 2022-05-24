@@ -200,7 +200,9 @@ public final class PathPatternsRequestCondition extends AbstractRequestCondition
     TreeSet<PathPattern> result = null;
     for (PathPattern pattern : this.patterns) {
       if (pattern.matches(path)) {
-        result = (result != null ? result : new TreeSet<>());
+        if (result == null) {
+          result = new TreeSet<>();
+        }
         result.add(pattern);
       }
     }

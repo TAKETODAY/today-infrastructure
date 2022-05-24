@@ -31,12 +31,9 @@ import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.InvalidMediaTypeException;
 import cn.taketoday.http.MediaType;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.CollectionUtils;
-import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.annotation.RequestMapping;
-import cn.taketoday.web.handler.condition.HeadersRequestCondition.HeaderExpression;
 
 /**
  * A logical disjunction (' || ') request condition to match a request's
@@ -54,7 +51,7 @@ public final class ConsumesRequestCondition extends AbstractRequestCondition<Con
 
   private static final ConsumesRequestCondition EMPTY_CONDITION = new ConsumesRequestCondition();
 
-  private final List<ConsumeMediaTypeExpression> expressions;
+  private final List<MediaTypeExpression> expressions;
 
   private boolean bodyRequired = true;
 
@@ -79,43 +76,17 @@ public final class ConsumesRequestCondition extends AbstractRequestCondition<Con
    * @param headers as described in {@link RequestMapping#headers()}
    */
   public ConsumesRequestCondition(String[] consumes, @Nullable String[] headers) {
-    this.expressions = parseExpressions(consumes, headers);
+    this.expressions = MediaTypeExpression.parse(HttpHeaders.CONTENT_TYPE, consumes, headers);
     if (this.expressions.size() > 1) {
       Collections.sort(this.expressions);
     }
-  }
-
-  private static List<ConsumeMediaTypeExpression> parseExpressions(String[] consumes, @Nullable String[] headers) {
-    Set<ConsumeMediaTypeExpression> result = null;
-    if (ObjectUtils.isNotEmpty(headers)) {
-      for (String header : headers) {
-        HeaderExpression expr = new HeaderExpression(header);
-        if (HttpHeaders.CONTENT_TYPE.equalsIgnoreCase(expr.name) && expr.value != null) {
-          if (result == null) {
-            result = new LinkedHashSet<>();
-          }
-          for (MediaType mediaType : MediaType.parseMediaTypes(expr.value)) {
-            result.add(new ConsumeMediaTypeExpression(mediaType, expr.isNegated));
-          }
-        }
-      }
-    }
-    if (ObjectUtils.isNotEmpty(consumes)) {
-      if (result == null) {
-        result = new LinkedHashSet<>();
-      }
-      for (String consume : consumes) {
-        result.add(new ConsumeMediaTypeExpression(consume));
-      }
-    }
-    return result != null ? new ArrayList<>(result) : Collections.emptyList();
   }
 
   /**
    * Private constructor for internal when creating matching conditions.
    * Note the expressions List is neither sorted nor deep copied.
    */
-  private ConsumesRequestCondition(List<ConsumeMediaTypeExpression> expressions) {
+  private ConsumesRequestCondition(List<MediaTypeExpression> expressions) {
     this.expressions = expressions;
   }
 
@@ -130,10 +101,13 @@ public final class ConsumesRequestCondition extends AbstractRequestCondition<Con
    * Returns the media types for this condition excluding negated expressions.
    */
   public Set<MediaType> getConsumableMediaTypes() {
+    if (expressions.isEmpty()) {
+      return Collections.emptySet();
+    }
     LinkedHashSet<MediaType> result = new LinkedHashSet<>();
-    for (ConsumeMediaTypeExpression expression : this.expressions) {
-      if (!expression.isNegated()) {
-        result.add(expression.getMediaType());
+    for (MediaTypeExpression expression : this.expressions) {
+      if (!expression.isNegated) {
+        result.add(expression.mediaType);
       }
     }
     return result;
@@ -148,7 +122,7 @@ public final class ConsumesRequestCondition extends AbstractRequestCondition<Con
   }
 
   @Override
-  protected Collection<ConsumeMediaTypeExpression> getContent() {
+  protected Collection<MediaTypeExpression> getContent() {
     return this.expressions;
   }
 
@@ -224,8 +198,8 @@ public final class ConsumesRequestCondition extends AbstractRequestCondition<Con
       return null;
     }
 
-    List<ConsumeMediaTypeExpression> result = getMatchingExpressions(contentType);
-    return CollectionUtils.isNotEmpty(result) ? new ConsumesRequestCondition(result) : null;
+    List<MediaTypeExpression> result = getMatchingExpressions(contentType);
+    return result != null ? new ConsumesRequestCondition(result) : null;
   }
 
   private boolean hasBody(RequestContext request) {
@@ -237,11 +211,13 @@ public final class ConsumesRequestCondition extends AbstractRequestCondition<Con
   }
 
   @Nullable
-  private List<ConsumeMediaTypeExpression> getMatchingExpressions(MediaType contentType) {
-    List<ConsumeMediaTypeExpression> result = null;
-    for (ConsumeMediaTypeExpression expression : this.expressions) {
-      if (expression.match(contentType)) {
-        result = result != null ? result : new ArrayList<>();
+  private List<MediaTypeExpression> getMatchingExpressions(MediaType contentType) {
+    List<MediaTypeExpression> result = null;
+    for (MediaTypeExpression expression : this.expressions) {
+      if (expression.matchContentType(contentType)) {
+        if (result == null) {
+          result = new ArrayList<>();
+        }
         result.add(expression);
       }
     }
@@ -272,25 +248,6 @@ public final class ConsumesRequestCondition extends AbstractRequestCondition<Con
     }
     else {
       return this.expressions.get(0).compareTo(other.expressions.get(0));
-    }
-  }
-
-  /**
-   * Parses and matches a single media type expression to a request's 'Content-Type' header.
-   */
-  static class ConsumeMediaTypeExpression extends AbstractMediaTypeExpression {
-
-    ConsumeMediaTypeExpression(String expression) {
-      super(expression);
-    }
-
-    ConsumeMediaTypeExpression(MediaType mediaType, boolean negated) {
-      super(mediaType, negated);
-    }
-
-    public final boolean match(MediaType contentType) {
-      boolean match = getMediaType().includes(contentType) && matchParameters(contentType);
-      return !isNegated() == match;
     }
   }
 

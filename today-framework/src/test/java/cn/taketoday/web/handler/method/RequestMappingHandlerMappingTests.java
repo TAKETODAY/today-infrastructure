@@ -83,7 +83,7 @@ class RequestMappingHandlerMappingTests {
     assertThat(config).isNotNull();
 
     mapping.afterPropertiesSet();
-    assertThat(mapping.getBuilderConfiguration()).isNotNull().isNotSameAs(config);
+    assertThat(mapping.getBuilderConfiguration()).isNotNull().isSameAs(config);
   }
 
   @PathPatternsParameterizedTest

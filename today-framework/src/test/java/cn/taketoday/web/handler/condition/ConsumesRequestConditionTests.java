@@ -26,7 +26,6 @@ import java.util.Collection;
 import java.util.Collections;
 
 import cn.taketoday.http.HttpHeaders;
-import cn.taketoday.web.handler.condition.ConsumesRequestCondition.ConsumeMediaTypeExpression;
 import cn.taketoday.web.servlet.ServletRequestContext;
 import cn.taketoday.web.testfixture.servlet.MockHttpServletRequest;
 
@@ -228,8 +227,8 @@ public class ConsumesRequestConditionTests {
   }
 
   private void assertConditions(ConsumesRequestCondition condition, String... expected) {
-    Collection<ConsumeMediaTypeExpression> expressions = condition.getContent();
-    assertThat(expressions.stream().map(expr -> expr.getMediaType().toString()))
+    Collection<MediaTypeExpression> expressions = condition.getContent();
+    assertThat(expressions.stream().map(expr -> expr.mediaType.toString()))
             .containsExactlyInAnyOrder(expected);
   }
 

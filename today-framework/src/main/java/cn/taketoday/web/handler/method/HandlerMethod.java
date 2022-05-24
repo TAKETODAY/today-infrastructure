@@ -222,6 +222,7 @@ public class HandlerMethod {
     this.responseStatusReason = handlerMethod.responseStatusReason;
     this.description = handlerMethod.description;
     this.resolvedFromHandlerMethod = handlerMethod.resolvedFromHandlerMethod;
+    this.responseBody = handlerMethod.responseBody;
   }
 
   /**
@@ -242,6 +243,7 @@ public class HandlerMethod {
     this.responseStatusReason = handlerMethod.responseStatusReason;
     this.resolvedFromHandlerMethod = handlerMethod;
     this.description = handlerMethod.description;
+    this.responseBody = handlerMethod.responseBody;
   }
 
   private MethodParameter[] initMethodParameters() {
@@ -274,7 +276,7 @@ public class HandlerMethod {
     for (Class<?> paramType : method.getParameterTypes()) {
       joiner.add(paramType.getSimpleName());
     }
-    return beanType.getName() + "#" + method.getName() + joiner.toString();
+    return beanType.getName() + "#" + method.getName() + joiner;
   }
 
   // ---- useful methods
@@ -462,9 +464,9 @@ public class HandlerMethod {
    */
   public HandlerMethod createWithResolvedBean() {
     Object handler = this.bean;
-    if (this.bean instanceof String beanName) {
-      Assert.state(this.beanFactory != null, "Cannot resolve bean name without BeanFactory");
-      handler = this.beanFactory.getBean(beanName);
+    if (handler instanceof String beanName) {
+      Assert.state(beanFactory != null, "Cannot resolve bean name without BeanFactory");
+      handler = beanFactory.getBean(beanName);
     }
     return new HandlerMethod(this, handler);
   }
