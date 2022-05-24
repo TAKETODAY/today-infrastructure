@@ -19,17 +19,17 @@
  */
 package cn.taketoday.core.bytecode;
 
-import cn.taketoday.core.bytecode.commons.MethodSignature;
-import cn.taketoday.lang.Constant;
-import cn.taketoday.lang.NonNull;
-import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.ObjectUtils;
-
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Executable;
 import java.lang.reflect.Member;
 import java.lang.reflect.Method;
 import java.util.HashMap;
+
+import cn.taketoday.core.bytecode.commons.MethodSignature;
+import cn.taketoday.lang.Constant;
+import cn.taketoday.lang.NonNull;
+import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.ObjectUtils;
 
 /**
  * A Java field or method type. This class can be used to make it easier to manipulate type and
@@ -154,7 +154,7 @@ public final class Type {
 
   /** The type of the java.lang.Object class. */
   public static final Type TYPE_OBJECT = Type.fromInternalName("java/lang/Object");
-  public static final Type[] EMPTY_ARRAY = { };
+  public static final Type[] EMPTY_ARRAY = {};
 
   // -----------------------------------------------------------------------------------------------
   // Fields
@@ -548,7 +548,7 @@ public final class Type {
       case '[' -> new Type(ARRAY, descriptorBuffer, descriptorBegin, descriptorEnd);
       case 'L' -> new Type(OBJECT, descriptorBuffer, descriptorBegin + 1, descriptorEnd - 1);
       case '(' -> new Type(METHOD, descriptorBuffer, descriptorBegin, descriptorEnd);
-      default -> throw new IllegalArgumentException();
+      default -> throw new IllegalArgumentException("Invalid descriptor: " + descriptorBuffer);
     };
   }
 
