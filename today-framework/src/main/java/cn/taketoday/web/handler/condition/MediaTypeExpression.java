@@ -172,4 +172,17 @@ final class MediaTypeExpression implements Comparable<MediaTypeExpression> {
     return result != null ? new ArrayList<>(result) : Collections.emptyList();
   }
 
+  static Set<MediaType> filterNotNegated(List<MediaTypeExpression> expressions) {
+    if (expressions.isEmpty()) {
+      return Collections.emptySet();
+    }
+    LinkedHashSet<MediaType> result = new LinkedHashSet<>();
+    for (MediaTypeExpression expression : expressions) {
+      if (!expression.isNegated) {
+        result.add(expression.mediaType);
+      }
+    }
+    return result;
+  }
+
 }

@@ -101,16 +101,7 @@ public final class ConsumesRequestCondition extends AbstractRequestCondition<Con
    * Returns the media types for this condition excluding negated expressions.
    */
   public Set<MediaType> getConsumableMediaTypes() {
-    if (expressions.isEmpty()) {
-      return Collections.emptySet();
-    }
-    LinkedHashSet<MediaType> result = new LinkedHashSet<>();
-    for (MediaTypeExpression expression : this.expressions) {
-      if (!expression.isNegated) {
-        result.add(expression.mediaType);
-      }
-    }
-    return result;
+    return MediaTypeExpression.filterNotNegated(expressions);
   }
 
   /**

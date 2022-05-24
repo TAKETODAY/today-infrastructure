@@ -119,16 +119,7 @@ public final class ProducesRequestCondition extends AbstractRequestCondition<Pro
    * Return the contained producible media types excluding negated expressions.
    */
   public Set<MediaType> getProducibleMediaTypes() {
-    if (expressions.isEmpty()) {
-      return Collections.emptySet();
-    }
-    LinkedHashSet<MediaType> result = new LinkedHashSet<>();
-    for (MediaTypeExpression expression : this.expressions) {
-      if (!expression.isNegated) {
-        result.add(expression.mediaType);
-      }
-    }
-    return result;
+    return MediaTypeExpression.filterNotNegated(expressions);
   }
 
   /**

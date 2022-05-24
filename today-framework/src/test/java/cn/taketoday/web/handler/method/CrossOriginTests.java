@@ -297,6 +297,18 @@ class CrossOriginTests {
     assertThat(config.getAllowCredentials()).isTrue();
   }
 
+  @Nullable
+  private HandlerExecutionChain getHandler(TestRequestMappingInfoHandlerMapping mapping, MockHttpServletRequest request) throws Exception {
+    Object handler = mapping.getHandler(new ServletRequestContext(null, request, null));
+    if (handler instanceof HandlerExecutionChain chain) {
+      return chain;
+    }
+    if (handler != null) {
+      return new HandlerExecutionChain(handler);
+    }
+    return null;
+  }
+
   @PathPatternsParameterizedTest
   void preFlightRequest(TestRequestMappingInfoHandlerMapping mapping) throws Exception {
     mapping.registerHandler(new MethodLevelController());
@@ -312,14 +324,6 @@ class CrossOriginTests {
     assertThat(config.getAllowedHeaders()).containsExactly("*");
     assertThat(CollectionUtils.isEmpty(config.getExposedHeaders())).isTrue();
     assertThat(config.getMaxAge()).isEqualTo(Long.valueOf(1800));
-  }
-
-  private HandlerExecutionChain getHandler(TestRequestMappingInfoHandlerMapping mapping, MockHttpServletRequest request) throws Exception {
-    Object handler = mapping.getHandler(new ServletRequestContext(null, request, null));
-    if (handler instanceof HandlerExecutionChain chain) {
-      return chain;
-    }
-    return new HandlerExecutionChain(handler);
   }
 
   @PathPatternsParameterizedTest

@@ -486,6 +486,33 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
     return null;
   }
 
+  @Override
+  protected boolean hasCorsConfigurationSource(Object handler) {
+    return super.hasCorsConfigurationSource(handler) ||
+            (handler instanceof HandlerMethod handerMethod &&
+                    this.mappingRegistry.getCorsConfiguration(handerMethod) != null);
+  }
+
+  @Override
+  protected CorsConfiguration getCorsConfiguration(Object handler, RequestContext request) {
+    CorsConfiguration corsConfig = super.getCorsConfiguration(handler, request);
+    if (handler instanceof HandlerMethod handlerMethod) {
+      if (handlerMethod.equals(PREFLIGHT_AMBIGUOUS_MATCH)) {
+        return AbstractHandlerMethodMapping.ALLOW_CORS_CONFIG;
+      }
+      else {
+        CorsConfiguration corsConfigFromMethod = mappingRegistry.getCorsConfiguration(handlerMethod);
+        if (corsConfig != null) {
+          corsConfig = corsConfig.combine(corsConfigFromMethod);
+        }
+        else {
+          corsConfig = corsConfigFromMethod;
+        }
+      }
+    }
+    return corsConfig;
+  }
+
   // Abstract template methods
 
   /**
