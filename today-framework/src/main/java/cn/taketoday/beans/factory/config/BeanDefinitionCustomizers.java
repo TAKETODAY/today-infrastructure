@@ -24,7 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import cn.taketoday.beans.factory.BeanFactory;
-import cn.taketoday.beans.factory.support.DependencyInjectorAwareInstantiator;
+import cn.taketoday.beans.factory.support.BeanFactoryAwareInstantiator;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.lang.TodayStrategies;
 import cn.taketoday.util.CollectionUtils;
@@ -95,7 +95,7 @@ public class BeanDefinitionCustomizers {
 
   public void loadDefaultCustomizers(@Nullable BeanFactory beanFactory) {
     addCustomizers(TodayStrategies.get(
-            BeanDefinitionCustomizer.class, DependencyInjectorAwareInstantiator.forFunction(beanFactory)));
+            BeanDefinitionCustomizer.class, BeanFactoryAwareInstantiator.forFunction(beanFactory)));
   }
 
 }

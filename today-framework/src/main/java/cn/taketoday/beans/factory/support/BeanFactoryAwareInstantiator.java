@@ -27,6 +27,7 @@ import cn.taketoday.beans.BeanInstantiationException;
 import cn.taketoday.beans.BeanUtils;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanFactoryUtils;
+import cn.taketoday.beans.factory.config.AutowireCapableBeanFactory;
 import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.beans.factory.config.SingletonBeanRegistry;
 import cn.taketoday.beans.support.BeanInstantiator;
@@ -39,26 +40,22 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.function.SingletonSupplier;
 
 /**
- * provide Bean Constructor Arguments resolving
+ * bean-factory aware instantiator
  *
  * @author TODAY 2021/10/4 22:26
  * @see DependencyInjector
  * @since 4.0
  */
 @Experimental
-public class DependencyInjectorAwareInstantiator {
-  public static final String BEAN_NAME = "dependencyInjectorAwareInstantiator";
+public class BeanFactoryAwareInstantiator {
+  public static final String BEAN_NAME = "beanFactoryAwareInstantiator";
 
-  private final DependencyInjector dependencyInjector;
+  private final BeanFactory beanFactory;
   private BeanInstantiatorFactory instantiatorFactory = ReflectiveInstantiatorFactory.INSTANCE;
 
-  public DependencyInjectorAwareInstantiator(DependencyInjector dependencyInjector) {
-    Assert.notNull(dependencyInjector, "dependencyInjector is required");
-    this.dependencyInjector = dependencyInjector;
-  }
-
-  public DependencyInjectorAwareInstantiator(DependencyInjectorProvider beanFactory) {
-    this.dependencyInjector = beanFactory.getInjector();
+  public BeanFactoryAwareInstantiator(BeanFactory beanFactory) {
+    Assert.notNull(beanFactory, "dependencyInjector is required");
+    this.beanFactory = beanFactory;
   }
 
   public <T> T instantiate(Class<T> beanClass) {
@@ -78,21 +75,14 @@ public class DependencyInjectorAwareInstantiator {
    */
   @SuppressWarnings("unchecked")
   public <T> T instantiate(Class<T> beanClass, @Nullable Object[] providedArgs) {
+    if (beanFactory instanceof AutowireCapableBeanFactory acb) {
+      return acb.createBean(beanClass);
+    }
     Constructor<T> constructor = BeanUtils.obtainConstructor(beanClass);
     if (constructor.getParameterCount() == 0) {
       return (T) instantiatorFactory.newInstantiator(constructor).instantiate();
     }
-    Object[] args = dependencyInjector.resolveArguments(constructor, providedArgs);
-    BeanInstantiator beanInstantiator = instantiatorFactory.newInstantiator(constructor);
-    return (T) beanInstantiator.instantiate(args);
-  }
-
-  @SuppressWarnings("unchecked")
-  public <T> T instantiate(Class<T> beanClass, DependencyInjector injector,
-          BeanInstantiatorFactory instantiatorFactory, @Nullable Object[] providedArgs) {
-    Constructor<T> constructor = BeanUtils.obtainConstructor(beanClass);
-    Object[] args = injector.resolveArguments(constructor, providedArgs);
-
+    Object[] args = beanFactory.getInjector().resolveArguments(constructor, providedArgs);
     BeanInstantiator beanInstantiator = instantiatorFactory.newInstantiator(constructor);
     return (T) beanInstantiator.instantiate(args);
   }
@@ -114,30 +104,33 @@ public class DependencyInjectorAwareInstantiator {
    * for {@code Function<Class<T>, T> }
    */
   public static <T> Function<Class<T>, T> forFunction(BeanFactory beanFactory) {
-    return forFunction(DependencyInjectorAwareInstantiator.from(beanFactory));
+    if (beanFactory instanceof AutowireCapableBeanFactory acb) {
+      return acb::createBean;
+    }
+    return forFunction(BeanFactoryAwareInstantiator.from(beanFactory));
   }
 
   /**
    * for {@code Function<Class<T>, T> }
    */
-  public static <T> Function<Class<T>, T> forFunction(DependencyInjectorAwareInstantiator instantiator) {
+  public static <T> Function<Class<T>, T> forFunction(BeanFactoryAwareInstantiator instantiator) {
     Assert.notNull(instantiator, "instantiator is required");
     return instantiator::instantiate;
   }
 
-  public static DependencyInjectorAwareInstantiator from(BeanFactory beanFactory) {
+  public static BeanFactoryAwareInstantiator from(BeanFactory beanFactory) {
     Assert.notNull(beanFactory, "beanFactory is required");
-    DependencyInjectorAwareInstantiator instantiator = find(beanFactory);
+    BeanFactoryAwareInstantiator instantiator = find(beanFactory);
     if (instantiator == null) {
       synchronized(beanFactory) {
         instantiator = find(beanFactory);
         if (instantiator == null) {
-          instantiator = new DependencyInjectorAwareInstantiator(beanFactory);
+          instantiator = new BeanFactoryAwareInstantiator(beanFactory);
           if (beanFactory instanceof SingletonBeanRegistry singletonBeanRegistry) {
             singletonBeanRegistry.registerSingleton(BEAN_NAME, instantiator);
           }
           else if (beanFactory instanceof BeanDefinitionRegistry registry) {
-            RootBeanDefinition definition = new RootBeanDefinition(DependencyInjectorAwareInstantiator.class);
+            RootBeanDefinition definition = new RootBeanDefinition(BeanFactoryAwareInstantiator.class);
             definition.setSynthetic(true);
             definition.setEnableDependencyInjection(false);
             definition.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
@@ -155,8 +148,8 @@ public class DependencyInjectorAwareInstantiator {
   }
 
   @Nullable
-  private static DependencyInjectorAwareInstantiator find(BeanFactory beanFactory) {
-    return BeanFactoryUtils.findLocal(beanFactory, BEAN_NAME, DependencyInjectorAwareInstantiator.class);
+  private static BeanFactoryAwareInstantiator find(BeanFactory beanFactory) {
+    return BeanFactoryUtils.findLocal(beanFactory, BEAN_NAME, BeanFactoryAwareInstantiator.class);
   }
 
   /**

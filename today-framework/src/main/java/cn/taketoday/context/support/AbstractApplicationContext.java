@@ -43,7 +43,7 @@ import cn.taketoday.beans.factory.config.BeanFactoryPostProcessor;
 import cn.taketoday.beans.factory.config.BeanPostProcessor;
 import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.support.DependencyInjector;
-import cn.taketoday.beans.factory.support.DependencyInjectorAwareInstantiator;
+import cn.taketoday.beans.factory.support.BeanFactoryAwareInstantiator;
 import cn.taketoday.beans.support.ResourceEditorRegistrar;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.ApplicationContextException;
@@ -680,7 +680,7 @@ public abstract class AbstractApplicationContext
 
     // loading some outside beans
     List<BeanDefinitionLoader> strategies = TodayStrategies.get(
-            BeanDefinitionLoader.class, DependencyInjectorAwareInstantiator.forFunction(beanFactory));
+            BeanDefinitionLoader.class, BeanFactoryAwareInstantiator.forFunction(beanFactory));
 
     if (!strategies.isEmpty()) {
       BootstrapContext bootstrapContext = getBootstrapContext();
