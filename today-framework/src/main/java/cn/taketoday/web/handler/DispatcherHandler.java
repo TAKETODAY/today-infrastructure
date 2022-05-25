@@ -28,6 +28,7 @@ import java.util.stream.Collectors;
 
 import cn.taketoday.beans.factory.BeanFactoryUtils;
 import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
+import cn.taketoday.beans.factory.config.AutowireCapableBeanFactory;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.ApplicationContext.State;
 import cn.taketoday.context.aware.ApplicationContextAware;
@@ -54,6 +55,7 @@ import cn.taketoday.web.ReturnValueHandler;
 import cn.taketoday.web.ReturnValueHandlerProvider;
 import cn.taketoday.web.context.async.WebAsyncUtils;
 import cn.taketoday.web.handler.method.ExceptionHandlerAnnotationExceptionHandler;
+import cn.taketoday.web.handler.method.RequestMappingHandlerMapping;
 import cn.taketoday.web.registry.BeanNameUrlHandlerMapping;
 import cn.taketoday.web.registry.HandlerRegistries;
 import cn.taketoday.web.util.WebUtils;
@@ -175,7 +177,11 @@ public class DispatcherHandler implements ApplicationContextAware {
         handlerMapping = BeanFactoryUtils.find(context, HANDLER_MAPPING_BEAN_NAME, HandlerMapping.class);
       }
       if (handlerMapping == null) {
-        handlerMapping = context.getAutowireCapableBeanFactory().createBean(BeanNameUrlHandlerMapping.class);
+        AutowireCapableBeanFactory factory = context.getAutowireCapableBeanFactory();
+        handlerMapping = new HandlerRegistries(
+                factory.createBean(RequestMappingHandlerMapping.class),
+                factory.createBean(BeanNameUrlHandlerMapping.class)
+        );
       }
     }
   }
