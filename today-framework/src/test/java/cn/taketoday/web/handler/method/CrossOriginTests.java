@@ -593,10 +593,7 @@ class CrossOriginTests {
     protected RequestMappingInfo getMappingForMethod(Method method, Class<?> handlerType) {
       ActionMapping annotation = AnnotatedElementUtils.findMergedAnnotation(method, ActionMapping.class);
       if (annotation != null) {
-        RequestMappingInfo.BuilderConfiguration options = new RequestMappingInfo.BuilderConfiguration();
-        if (getPatternParser() != null) {
-          options.setPatternParser(getPatternParser());
-        }
+        RequestMappingInfo.BuilderConfiguration options = getBuilderConfiguration();
         return RequestMappingInfo.paths(annotation.value())
                 .methods(annotation.method())
                 .params(annotation.params())

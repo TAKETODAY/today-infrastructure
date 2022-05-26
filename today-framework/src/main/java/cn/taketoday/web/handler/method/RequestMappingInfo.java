@@ -69,8 +69,8 @@ public final class RequestMappingInfo implements RequestCondition<RequestMapping
   @Nullable
   private final String name;
 
-  private final PathPatternsRequestCondition pathPatternsCondition;
   private final RequestMethodsRequestCondition methodsCondition;
+  private final PathPatternsRequestCondition pathPatternsCondition;
 
   private final ParamsRequestCondition paramsCondition;
   private final HeadersRequestCondition headersCondition;
@@ -347,17 +347,18 @@ public final class RequestMappingInfo implements RequestCondition<RequestMapping
     if (this == other) {
       return true;
     }
-    if (!(other instanceof RequestMappingInfo otherInfo)) {
-      return false;
+    if (other instanceof RequestMappingInfo otherInfo) {
+      return combine == otherInfo.combine && (
+              pathPatternsCondition.equals(otherInfo.pathPatternsCondition)
+                      && methodsCondition.equals(otherInfo.methodsCondition)
+                      && paramsCondition.equals(otherInfo.paramsCondition)
+                      && headersCondition.equals(otherInfo.headersCondition)
+                      && consumesCondition.equals(otherInfo.consumesCondition)
+                      && producesCondition.equals(otherInfo.producesCondition)
+                      && customConditionHolder.equals(otherInfo.customConditionHolder)
+      );
     }
-    return combine == otherInfo.combine
-            && (getPathPatternsCondition().equals(otherInfo.getPathPatternsCondition()) &&
-            this.methodsCondition.equals(otherInfo.methodsCondition) &&
-            this.paramsCondition.equals(otherInfo.paramsCondition) &&
-            this.headersCondition.equals(otherInfo.headersCondition) &&
-            this.consumesCondition.equals(otherInfo.consumesCondition) &&
-            this.producesCondition.equals(otherInfo.producesCondition) &&
-            this.customConditionHolder.equals(otherInfo.customConditionHolder));
+    return false;
   }
 
   @Override
@@ -382,10 +383,9 @@ public final class RequestMappingInfo implements RequestCondition<RequestMapping
     if (!this.methodsCondition.isEmpty()) {
       Set<HttpMethod> httpMethods = this.methodsCondition.getMethods();
       builder.append(httpMethods.size() == 1 ? httpMethods.iterator().next() : httpMethods);
+      // Patterns conditions are never empty and have "" (empty path) at least.
+      builder.append(' ').append(getPathPatternsCondition());
     }
-
-    // Patterns conditions are never empty and have "" (empty path) at least.
-    builder.append(' ').append(getPathPatternsCondition());
 
     if (!this.paramsCondition.isEmpty()) {
       builder.append(", params ").append(this.paramsCondition);
@@ -534,10 +534,8 @@ public final class RequestMappingInfo implements RequestCondition<RequestMapping
     @Override
     public DefaultBuilder headers(String... headers) {
       for (String header : headers) {
-        this.hasContentType = hasContentType ||
-                header.contains("Content-Type") || header.contains("content-type");
-        this.hasAccept = hasAccept ||
-                header.contains("Accept") || header.contains("accept");
+        this.hasAccept = hasAccept || header.contains("Accept") || header.contains("accept");
+        this.hasContentType = hasContentType || header.contains("Content-Type") || header.contains("content-type");
       }
       this.headers = headers;
       return this;
@@ -582,20 +580,14 @@ public final class RequestMappingInfo implements RequestCondition<RequestMapping
     @Override
     public RequestMappingInfo build() {
 
-      PathPatternsRequestCondition pathPatterns =
-              ObjectUtils.isEmpty(paths)
-              ? EMPTY_PATH_PATTERNS : new PathPatternsRequestCondition(options.getPatternParser(), paths);
-
-      ContentNegotiationManager manager = options.getContentNegotiationManager();
-
-      return new RequestMappingInfo(
-              mappingName, pathPatterns,
+      return new RequestMappingInfo(mappingName,
+              ObjectUtils.isEmpty(paths) ? EMPTY_PATH_PATTERNS : new PathPatternsRequestCondition(options.getPatternParser(), paths),
               ObjectUtils.isEmpty(methods) ? EMPTY_REQUEST_METHODS : new RequestMethodsRequestCondition(methods),
               ObjectUtils.isEmpty(params) ? EMPTY_PARAMS : new ParamsRequestCondition(params),
               ObjectUtils.isEmpty(headers) ? EMPTY_HEADERS : new HeadersRequestCondition(headers),
               ObjectUtils.isEmpty(consumes) && !hasContentType ? EMPTY_CONSUMES : new ConsumesRequestCondition(consumes, headers),
-              ObjectUtils.isEmpty(produces) && !hasAccept ? EMPTY_PRODUCES : new ProducesRequestCondition(produces, headers, manager),
-              customCondition != null ? new RequestConditionHolder(customCondition) : EMPTY_CUSTOM,
+              ObjectUtils.isEmpty(produces) && !hasAccept ? EMPTY_PRODUCES : new ProducesRequestCondition(produces, headers, options.getContentNegotiationManager()),
+              customCondition == null ? EMPTY_CUSTOM : new RequestConditionHolder(customCondition),
               options, combine);
     }
   }
