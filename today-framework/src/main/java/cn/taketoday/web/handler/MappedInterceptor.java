@@ -20,14 +20,17 @@
 
 package cn.taketoday.web.handler;
 
+import cn.taketoday.core.AntPathMatcher;
 import cn.taketoday.core.PathMatcher;
 import cn.taketoday.http.server.PathContainer;
 import cn.taketoday.http.server.RequestPath;
+import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.web.HandlerInterceptor;
 import cn.taketoday.web.InterceptorChain;
 import cn.taketoday.web.RequestContext;
+import cn.taketoday.web.util.WebUtils;
 import cn.taketoday.web.util.pattern.PathPattern;
 import cn.taketoday.web.util.pattern.PathPatternParser;
 import cn.taketoday.web.util.pattern.PatternParseException;
@@ -47,14 +50,17 @@ import cn.taketoday.web.util.pattern.PatternParseException;
  * @since 4.0 2022/4/18 15:36
  */
 public final class MappedInterceptor implements HandlerInterceptor {
+  private static final PathMatcher defaultPathMatcher = new AntPathMatcher();
 
   @Nullable
-  private final PatternAdapter[] includePatterns;
+  private final CompiledPattern[] includePatterns;
 
   @Nullable
-  private final PatternAdapter[] excludePatterns;
+  private final CompiledPattern[] excludePatterns;
 
   private final HandlerInterceptor interceptor;
+
+  private PathMatcher pathMatcher = defaultPathMatcher;
 
   /**
    * Create an instance with the given include and exclude patterns along with
@@ -70,8 +76,8 @@ public final class MappedInterceptor implements HandlerInterceptor {
   public MappedInterceptor(@Nullable String[] includePatterns, @Nullable String[] excludePatterns,
           HandlerInterceptor interceptor, @Nullable PathPatternParser parser) {
 
-    this.includePatterns = PatternAdapter.initPatterns(includePatterns, parser);
-    this.excludePatterns = PatternAdapter.initPatterns(excludePatterns, parser);
+    this.includePatterns = CompiledPattern.initPatterns(includePatterns, parser);
+    this.excludePatterns = CompiledPattern.initPatterns(excludePatterns, parser);
     this.interceptor = interceptor;
   }
 
@@ -96,6 +102,25 @@ public final class MappedInterceptor implements HandlerInterceptor {
   }
 
   /**
+   * Configure the PathMatcher to use to match URL paths with against include
+   * and exclude patterns.
+   * <p>This is an advanced property that should be used only when a
+   * customized {@link AntPathMatcher} or a custom PathMatcher is required.
+   * <p>By default this is {@link AntPathMatcher}.
+   */
+  public void setPathMatcher(PathMatcher pathMatcher) {
+    Assert.notNull(pathMatcher, "pathMatcher is required");
+    this.pathMatcher = pathMatcher;
+  }
+
+  /**
+   * The {@link #setPathMatcher(PathMatcher) configured} PathMatcher.
+   */
+  public PathMatcher getPathMatcher() {
+    return this.pathMatcher;
+  }
+
+  /**
    * Return the patterns this interceptor is mapped to.
    */
   @Nullable
@@ -103,7 +128,7 @@ public final class MappedInterceptor implements HandlerInterceptor {
     if (ObjectUtils.isNotEmpty(includePatterns)) {
       int i = 0;
       String[] patterns = new String[includePatterns.length];
-      for (PatternAdapter includePattern : includePatterns) {
+      for (CompiledPattern includePattern : includePatterns) {
         patterns[i++] = includePattern.patternString;
       }
       return patterns;
@@ -141,8 +166,8 @@ public final class MappedInterceptor implements HandlerInterceptor {
    */
   public boolean matches(RequestPath lookupPath) {
     if (ObjectUtils.isNotEmpty(excludePatterns)) {
-      for (PatternAdapter adapter : excludePatterns) {
-        if (adapter.pathPattern.matches(lookupPath)) {
+      for (CompiledPattern adapter : excludePatterns) {
+        if (doMatch(adapter, lookupPath)) {
           return false;
         }
       }
@@ -150,12 +175,22 @@ public final class MappedInterceptor implements HandlerInterceptor {
     if (ObjectUtils.isEmpty(includePatterns)) {
       return true;
     }
-    for (PatternAdapter adapter : includePatterns) {
-      if (adapter.pathPattern.matches(lookupPath)) {
+    for (CompiledPattern adapter : includePatterns) {
+      if (doMatch(adapter, lookupPath)) {
         return true;
       }
     }
     return false;
+  }
+
+  private boolean doMatch(CompiledPattern adapter, PathContainer path) {
+    PathPattern pathPattern = adapter.pathPattern;
+    if (pathPattern != null) {
+      return pathPattern.matches(path);
+    }
+
+    String lookupPath = WebUtils.removeSemicolonContent(path.value());
+    return pathMatcher.match(adapter.patternString, lookupPath);
   }
 
   // HandlerInterceptor delegation
@@ -181,21 +216,25 @@ public final class MappedInterceptor implements HandlerInterceptor {
    * latter otherwise. If the pattern cannot be parsed due to unsupported
    * syntax, then {@link PathMatcher} is used for all requests.
    */
-  private static class PatternAdapter {
+  private final static class CompiledPattern {
 
     public final String patternString;
 
+    @Nullable
     public final PathPattern pathPattern;
 
-    public PatternAdapter(String pattern, @Nullable PathPatternParser parser) {
+    public CompiledPattern(String pattern, @Nullable PathPatternParser parser) {
       this.patternString = pattern;
       this.pathPattern = initPathPattern(pattern, parser);
     }
 
     @Nullable
     private static PathPattern initPathPattern(String pattern, @Nullable PathPatternParser parser) {
+      if (parser == null) {
+        parser = PathPatternParser.defaultInstance;
+      }
       try {
-        return (parser != null ? parser : PathPatternParser.defaultInstance).parse(pattern);
+        return parser.parse(pattern);
       }
       catch (PatternParseException ex) {
         return null;
@@ -203,16 +242,16 @@ public final class MappedInterceptor implements HandlerInterceptor {
     }
 
     @Nullable
-    public static PatternAdapter[] initPatterns(
+    public static CompiledPattern[] initPatterns(
             @Nullable String[] patterns, @Nullable PathPatternParser parser) {
       if (ObjectUtils.isEmpty(patterns)) {
         return null;
       }
 
       int i = 0;
-      PatternAdapter[] result = new PatternAdapter[patterns.length];
+      CompiledPattern[] result = new CompiledPattern[patterns.length];
       for (String pattern : patterns) {
-        result[i++] = new PatternAdapter(pattern, parser);
+        result[i++] = new CompiledPattern(pattern, parser);
       }
       return result;
     }

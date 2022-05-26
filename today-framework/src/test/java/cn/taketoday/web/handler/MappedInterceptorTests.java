@@ -23,9 +23,13 @@ package cn.taketoday.web.handler;
 import org.junit.jupiter.api.Named;
 import org.junit.jupiter.api.Test;
 
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
+import cn.taketoday.core.PathMatcher;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.HandlerInterceptor;
 import cn.taketoday.web.RequestContext;
@@ -112,6 +116,7 @@ class MappedInterceptorTests {
   @PathPatternsParameterizedTest
   void customPathMatcher(Function<String, MockServletRequestContext> requestFactory) {
     MappedInterceptor interceptor = new MappedInterceptor(new String[] { "/foo/[0-9]*" }, null, delegate);
+    interceptor.setPathMatcher(new TestPathMatcher());
 
     assertThat(interceptor.matches(requestFactory.apply("/foo/123"))).isTrue();
     assertThat(interceptor.matches(requestFactory.apply("/foo/bar"))).isFalse();
@@ -137,4 +142,51 @@ class MappedInterceptorTests {
     then(delegate).should().afterProcess(any(), any(), any());
   }
 
+  public static class TestPathMatcher implements PathMatcher {
+
+    @Override
+    public boolean isPattern(String path) {
+      return false;
+    }
+
+    @Override
+    public boolean match(String pattern, String path) {
+      return path.matches(pattern);
+    }
+
+    @Override
+    public boolean matchStart(String pattern, String path) {
+      return false;
+    }
+
+    @Override
+    public String extractPathWithinPattern(String pattern, String path) {
+      return null;
+    }
+
+    @Override
+    public Map<String, String> extractUriTemplateVariables(String pattern, String path) {
+      return null;
+    }
+
+    @Override
+    public Comparator<String> getPatternComparator(String path) {
+      return null;
+    }
+
+    @Override
+    public String combine(String pattern1, String pattern2) {
+      return null;
+    }
+
+    @Override
+    public String[] extractVariables(String pattern, String path) {
+      return new String[0];
+    }
+
+    @Override
+    public List<String> extractVariableNames(String pattern) {
+      return null;
+    }
+  }
 }
