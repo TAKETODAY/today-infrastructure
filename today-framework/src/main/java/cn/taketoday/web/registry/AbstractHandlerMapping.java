@@ -316,8 +316,8 @@ public abstract class AbstractHandlerMapping extends ApplicationContextSupport
    */
   @Nullable
   protected final HandlerInterceptor[] getAdaptedInterceptors() {
-    return (!interceptors.isEmpty() ?
-            interceptors.toArray(HandlerInterceptor.EMPTY_ARRAY) : null);
+    return !interceptors.isEmpty() ?
+           interceptors.toArray(HandlerInterceptor.EMPTY_ARRAY) : null;
   }
 
   /**
@@ -334,7 +334,9 @@ public abstract class AbstractHandlerMapping extends ApplicationContextSupport
         mappedInterceptors.add(mappedInterceptor);
       }
     }
-    return (!mappedInterceptors.isEmpty() ? mappedInterceptors.toArray(new MappedInterceptor[0]) : null);
+    return !mappedInterceptors.isEmpty()
+           ? mappedInterceptors.toArray(new MappedInterceptor[0])
+           : null;
   }
 
   /**
@@ -354,6 +356,7 @@ public abstract class AbstractHandlerMapping extends ApplicationContextSupport
     if (handler == null) {
       return null;
     }
+
     if (handler instanceof String) {
       handler = obtainApplicationContext().getBean((String) handler);
     }
