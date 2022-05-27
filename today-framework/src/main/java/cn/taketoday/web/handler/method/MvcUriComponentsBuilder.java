@@ -58,7 +58,7 @@ import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.RequestContextHolder;
 import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.annotation.RequestMapping;
-import cn.taketoday.web.bind.resolver.PathVariableParameterResolvingStrategy;
+import cn.taketoday.web.bind.resolver.PathVariableMethodArgumentResolver;
 import cn.taketoday.web.handler.method.support.CompositeUriComponentsContributor;
 import cn.taketoday.web.servlet.ServletUtils;
 import cn.taketoday.web.servlet.support.ServletUriComponentsBuilder;
@@ -110,7 +110,7 @@ public class MvcUriComponentsBuilder {
 
   private static final CompositeUriComponentsContributor defaultUriComponentsContributor =
           new CompositeUriComponentsContributor(
-                  new PathVariableParameterResolvingStrategy()
+                  new PathVariableMethodArgumentResolver()
           );
 
   private final UriComponentsBuilder baseUrl;

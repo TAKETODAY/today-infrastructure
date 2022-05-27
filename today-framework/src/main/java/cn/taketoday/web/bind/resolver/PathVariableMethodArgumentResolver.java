@@ -28,6 +28,7 @@ import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.core.conversion.Converter;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.StringUtils;
+import cn.taketoday.web.HandlerMatchingMetadata;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.annotation.PathVariable;
 import cn.taketoday.web.bind.MissingPathVariableException;
@@ -50,8 +51,9 @@ import cn.taketoday.web.util.UriComponentsBuilder;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/2/3 16:32
  */
-public class PathVariableParameterResolvingStrategy extends AbstractNamedValueResolvingStrategy
+public class PathVariableMethodArgumentResolver extends AbstractNamedValueResolvingStrategy
         implements UriComponentsContributor {
+
   private static final TypeDescriptor STRING_TYPE_DESCRIPTOR = TypeDescriptor.valueOf(String.class);
 
   @Override
@@ -70,7 +72,11 @@ public class PathVariableParameterResolvingStrategy extends AbstractNamedValueRe
   @Override
   protected Object resolveName(
           String name, ResolvableMethodParameter resolvable, RequestContext context) throws Exception {
-    return context.getMatchingMetadata().getUriVariable(name);
+    HandlerMatchingMetadata matchingMetadata = context.getMatchingMetadata();
+    if (matchingMetadata != null) {
+      return matchingMetadata.getUriVariable(name);
+    }
+    return null;
   }
 
   @Override

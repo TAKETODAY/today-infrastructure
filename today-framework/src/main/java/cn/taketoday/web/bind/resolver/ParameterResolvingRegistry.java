@@ -231,8 +231,8 @@ public class ParameterResolvingRegistry
     // Annotation-based argument resolution
     strategies.add(new RequestParamMethodArgumentResolver(beanFactory, false));
     strategies.add(new RequestParamMapMethodArgumentResolver());
-    strategies.add(new PathVariableParameterResolvingStrategy());
-    strategies.add(new PathVariableMapParameterResolvingStrategy());
+    strategies.add(new PathVariableMethodArgumentResolver());
+    strategies.add(new PathVariableMapMethodArgumentResolver());
     strategies.add(new MatrixParamParameterResolvingStrategy());
     strategies.add(new MatrixParamMapParameterResolvingStrategy());
     strategies.add(new ModelAttributeMethodProcessor(false));

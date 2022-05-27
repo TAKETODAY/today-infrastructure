@@ -20,13 +20,13 @@
 
 package cn.taketoday.web.bind.resolver;
 
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.StringUtils;
+import cn.taketoday.web.HandlerMatchingMetadata;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.annotation.PathVariable;
 import cn.taketoday.web.handler.method.ResolvableMethodParameter;
@@ -39,7 +39,7 @@ import cn.taketoday.web.handler.method.ResolvableMethodParameter;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/2/3 17:52
  */
-public class PathVariableMapParameterResolvingStrategy implements ParameterResolvingStrategy {
+public class PathVariableMapMethodArgumentResolver implements ParameterResolvingStrategy {
 
   @Override
   public boolean supportsParameter(ResolvableMethodParameter resolvable) {
@@ -55,13 +55,14 @@ public class PathVariableMapParameterResolvingStrategy implements ParameterResol
   @Nullable
   @Override
   public Object resolveArgument(RequestContext context, ResolvableMethodParameter resolvable) throws Throwable {
-    Map<String, String> uriVariables = context.getMatchingMetadata().getUriVariables();
-    if (CollectionUtils.isNotEmpty(uriVariables)) {
-      return new LinkedHashMap<>(uriVariables);
+    HandlerMatchingMetadata metadata = context.getMatchingMetadata();
+    if (metadata != null) {
+      Map<String, String> uriVariables = metadata.getUriVariables();
+      if (CollectionUtils.isNotEmpty(uriVariables)) {
+        return new LinkedHashMap<>(uriVariables);
+      }
     }
-    else {
-      return Collections.emptyMap();
-    }
+    return CollectionUtils.createMap(resolvable.getParameterType());
   }
 
 }
