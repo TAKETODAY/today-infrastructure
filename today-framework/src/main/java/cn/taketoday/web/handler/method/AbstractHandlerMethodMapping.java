@@ -489,8 +489,8 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
   @Override
   protected boolean hasCorsConfigurationSource(Object handler) {
     return super.hasCorsConfigurationSource(handler) ||
-            (handler instanceof HandlerMethod handerMethod &&
-                    this.mappingRegistry.getCorsConfiguration(handerMethod) != null);
+            (handler instanceof HandlerMethod handlerMethod &&
+                    this.mappingRegistry.getCorsConfiguration(handlerMethod) != null);
   }
 
   @Override
@@ -565,14 +565,12 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
    * to perform lookups and providing concurrent access.
    * <p>Package-private for testing purposes.
    */
-  class MappingRegistry {
-
-    private final Map<T, MappingRegistration<T>> registry = new HashMap<>();
-
-    private final LinkedMultiValueMap<String, T> pathLookup = new LinkedMultiValueMap<>();
-    private final Map<String, List<HandlerMethod>> nameLookup = new ConcurrentHashMap<>();
-    private final Map<HandlerMethod, CorsConfiguration> corsLookup = new ConcurrentHashMap<>();
+  final class MappingRegistry {
+    private final HashMap<T, MappingRegistration<T>> registry = new HashMap<>();
     private final ReentrantReadWriteLock readWriteLock = new ReentrantReadWriteLock();
+    private final LinkedMultiValueMap<String, T> pathLookup = new LinkedMultiValueMap<>();
+    private final ConcurrentHashMap<String, List<HandlerMethod>> nameLookup = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<HandlerMethod, CorsConfiguration> corsLookup = new ConcurrentHashMap<>();
 
     /**
      * Return all registrations.
@@ -633,8 +631,9 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
         }
 
         String name = null;
-        if (getNamingStrategy() != null) {
-          name = getNamingStrategy().getName(handlerMethod, mapping);
+        var namingStrategy = getNamingStrategy();
+        if (namingStrategy != null) {
+          name = namingStrategy.getName(handlerMethod, mapping);
           addMappingName(name, handlerMethod);
         }
 
@@ -654,7 +653,7 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
 
     private void validateMethodMapping(HandlerMethod handlerMethod, T mapping) {
       MappingRegistration<T> registration = registry.get(mapping);
-      HandlerMethod existingHandlerMethod = (registration != null ? registration.handlerMethod() : null);
+      HandlerMethod existingHandlerMethod = registration != null ? registration.handlerMethod() : null;
       if (existingHandlerMethod != null && !existingHandlerMethod.equals(handlerMethod)) {
         throw new IllegalStateException(
                 "Ambiguous mapping. Cannot map '" + handlerMethod.getBean() + "' method \n" +

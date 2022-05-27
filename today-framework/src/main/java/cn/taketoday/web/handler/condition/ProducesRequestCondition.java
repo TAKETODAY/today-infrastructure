@@ -48,15 +48,14 @@ import cn.taketoday.web.annotation.RequestMapping;
  * @since 4.0
  */
 public final class ProducesRequestCondition extends AbstractRequestCondition<ProducesRequestCondition> {
-  private static final ProducesRequestCondition EMPTY_CONDITION = new ProducesRequestCondition();
+  private static final String MEDIA_TYPES_ATTRIBUTE = ProducesRequestCondition.class.getName() + ".MEDIA_TYPES";
   private static final ContentNegotiationManager DEFAULT_CONTENT_NEGOTIATION_MANAGER = new ContentNegotiationManager();
+
+  private static final ProducesRequestCondition EMPTY_CONDITION = new ProducesRequestCondition();
   private static final List<MediaTypeExpression> MEDIA_TYPE_ALL_LIST =
           Collections.singletonList(new MediaTypeExpression(MediaType.ALL_VALUE));
 
-  private static final String MEDIA_TYPES_ATTRIBUTE = ProducesRequestCondition.class.getName() + ".MEDIA_TYPES";
-
   private final List<MediaTypeExpression> expressions;
-
   private final ContentNegotiationManager contentNegotiationManager;
 
   /**

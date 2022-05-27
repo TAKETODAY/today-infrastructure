@@ -96,6 +96,7 @@ public class RequestMappingHandlerMapping extends RequestMappingInfoHandlerMappi
   public void setContentNegotiationManager(ContentNegotiationManager contentNegotiationManager) {
     Assert.notNull(contentNegotiationManager, "ContentNegotiationManager must not be null");
     this.contentNegotiationManager = contentNegotiationManager;
+    config.setContentNegotiationManager(contentNegotiationManager);
   }
 
   /**
@@ -158,7 +159,10 @@ public class RequestMappingHandlerMapping extends RequestMappingInfoHandlerMappi
       }
       String prefix = getPathPrefix(handlerType);
       if (prefix != null) {
-        info = RequestMappingInfo.paths(prefix).options(config).build().combine(info);
+        info = RequestMappingInfo.paths(prefix)
+                .options(config)
+                .build()
+                .combine(info);
       }
     }
     return info;
@@ -238,8 +242,7 @@ public class RequestMappingHandlerMapping extends RequestMappingInfoHandlerMappi
   protected RequestMappingInfo createRequestMappingInfo(
           ActionMapping requestMapping, @Nullable RequestCondition<?> customCondition) {
 
-    RequestMappingInfo.Builder builder = RequestMappingInfo
-            .paths(resolveEmbeddedValuesInPatterns(requestMapping.path()))
+    var builder = RequestMappingInfo.paths(resolveEmbeddedValuesInPatterns(requestMapping.path()))
             .params(requestMapping.params())
             .methods(requestMapping.method())
             .combine(requestMapping.combine())
