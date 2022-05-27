@@ -80,7 +80,7 @@ public interface ReturnValueHandler {
    * Or {@link HandlerExceptionHandler} return value
    * @throws Exception return-value handled failed
    */
-  void handleReturnValue(RequestContext context, Object handler, @Nullable Object returnValue)
+  void handleReturnValue(RequestContext context, @Nullable Object handler, @Nullable Object returnValue)
           throws Exception;
 
 }
