@@ -54,12 +54,15 @@ public abstract class ActionMappingAnnotationHandler extends InterceptableReques
   private final HandlerMethod handlerMethod;
 
   // handler fast invoker
+  @Nullable
   private /*volatile*/ MethodInvoker handlerInvoker;
 
   // return-value handlers(registry)
+  @Nullable
   private ReturnValueHandlerManager returnValueHandlerManager;
 
   // target return-value handler
+  @Nullable
   private ReturnValueHandler returnValueHandler;
 
   // resolvable parameters
@@ -194,7 +197,7 @@ public abstract class ActionMappingAnnotationHandler extends InterceptableReques
     applyResponseStatus(context, handlerMethod.getResponseStatus());
   }
 
-  protected void applyResponseStatus(RequestContext context, HttpStatusCode status) {
+  protected void applyResponseStatus(RequestContext context, @Nullable HttpStatusCode status) {
     if (status != null) {
       String reason = handlerMethod.getResponseStatusReason();
       int httpStatus = status.value();

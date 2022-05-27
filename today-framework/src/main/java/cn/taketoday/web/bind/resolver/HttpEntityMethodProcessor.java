@@ -48,6 +48,7 @@ import cn.taketoday.web.RequestContextUtils;
 import cn.taketoday.web.accept.ContentNegotiationManager;
 import cn.taketoday.web.handler.method.HandlerMethod;
 import cn.taketoday.web.handler.method.ResolvableMethodParameter;
+import cn.taketoday.web.handler.result.HandlerMethodReturnValueHandler;
 import cn.taketoday.web.view.RedirectModelManager;
 
 /**
@@ -66,7 +67,7 @@ import cn.taketoday.web.view.RedirectModelManager;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/1/23 17:43
  */
-public class HttpEntityMethodProcessor extends AbstractMessageConverterMethodProcessor {
+public class HttpEntityMethodProcessor extends AbstractMessageConverterMethodProcessor implements HandlerMethodReturnValueHandler {
 
   @Nullable
   private final RedirectModelManager redirectModelManager;
@@ -135,7 +136,7 @@ public class HttpEntityMethodProcessor extends AbstractMessageConverterMethodPro
   }
 
   @Override
-  protected boolean supportsHandlerMethod(HandlerMethod handlerMethod) {
+  public boolean supportsHandlerMethod(HandlerMethod handlerMethod) {
     MethodParameter returnType = handlerMethod.getReturnType();
     Class<?> type = returnType.getParameterType();
     return (HttpEntity.class.isAssignableFrom(type) && !RequestEntity.class.isAssignableFrom(type))
@@ -184,7 +185,7 @@ public class HttpEntityMethodProcessor extends AbstractMessageConverterMethodPro
   }
 
   @Override
-  protected void handleReturnValue(
+  public void handleReturnValue(
           RequestContext context, HandlerMethod handler, @Nullable Object returnValue) throws Exception {
     if (returnValue == null) {
       return;

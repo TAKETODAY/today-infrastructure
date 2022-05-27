@@ -20,6 +20,7 @@
 
 package cn.taketoday.web.handler;
 
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.HandlerInterceptor;
 import cn.taketoday.web.HandlerInterceptorsProvider;
 import cn.taketoday.web.HttpRequestHandler;
@@ -45,6 +46,7 @@ public abstract class InterceptableRequestHandler
    * @return handler's result
    * @throws Throwable any exception occurred in this request context
    */
+  @Nullable
   @Override
   public Object handleRequest(final RequestContext request) throws Throwable {
     HandlerInterceptor[] interceptors = this.interceptors.get();
@@ -58,6 +60,7 @@ public abstract class InterceptableRequestHandler
   /**
    * perform this handler' behavior internal
    */
+  @Nullable
   protected abstract Object handleInternal(final RequestContext context)
           throws Throwable;
 

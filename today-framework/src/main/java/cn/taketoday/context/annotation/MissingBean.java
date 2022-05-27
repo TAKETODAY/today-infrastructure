@@ -19,6 +19,7 @@
  */
 package cn.taketoday.context.annotation;
 
+import java.lang.annotation.Annotation;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -26,13 +27,15 @@ import java.lang.annotation.Target;
 
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.context.condition.ConditionalOnMissingBean;
+import cn.taketoday.context.condition.SearchStrategy;
 import cn.taketoday.core.annotation.AliasFor;
 import cn.taketoday.lang.Component;
 
 /**
  * Context will create a bean definition when current context were missing
  *
- * @author TODAY 2019-01-31 14:36
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 2019-01-31 14:36
  */
 @Component
 @ConditionalOnMissingBean
@@ -61,5 +64,61 @@ public @interface MissingBean {
    */
   @AliasFor(annotation = ConditionalOnMissingBean.class, attribute = "name")
   String[] name() default {};
+
+  /**
+   * The class type names of beans that should be checked. The condition matches when no
+   * bean of each class specified is contained in the {@link BeanFactory}.
+   *
+   * @return the class type names of beans to check
+   */
+  @AliasFor(annotation = ConditionalOnMissingBean.class, attribute = "type")
+  String[] type() default {};
+
+  /**
+   * The class types of beans that should be ignored when identifying matching beans.
+   *
+   * @return the class types of beans to ignore
+   */
+  @AliasFor(annotation = ConditionalOnMissingBean.class, attribute = "ignored")
+  Class<?>[] ignored() default {};
+
+  /**
+   * The class type names of beans that should be ignored when identifying matching
+   * beans.
+   *
+   * @return the class type names of beans to ignore
+   */
+  @AliasFor(annotation = ConditionalOnMissingBean.class, attribute = "ignoredType")
+  String[] ignoredType() default {};
+
+  /**
+   * The annotation type decorating a bean that should be checked. The condition matches
+   * when each annotation specified is missing from all beans in the
+   * {@link BeanFactory}.
+   *
+   * @return the class-level annotation types to check
+   */
+  @AliasFor(annotation = ConditionalOnMissingBean.class, attribute = "annotation")
+  Class<? extends Annotation>[] annotation() default {};
+
+  /**
+   * Strategy to decide if the application context hierarchy (parent contexts) should be
+   * considered.
+   *
+   * @return the search strategy
+   */
+  @AliasFor(annotation = ConditionalOnMissingBean.class, attribute = "search")
+  SearchStrategy search() default SearchStrategy.ALL;
+
+  /**
+   * Additional classes that may contain the specified bean types within their generic
+   * parameters. For example, an annotation declaring {@code value=Name.class} and
+   * {@code parameterizedContainer=NameRegistration.class} would detect both
+   * {@code Name} and {@code NameRegistration<Name>}.
+   *
+   * @return the container types
+   */
+  @AliasFor(annotation = ConditionalOnMissingBean.class, attribute = "parameterizedContainer")
+  Class<?>[] parameterizedContainer() default {};
 
 }

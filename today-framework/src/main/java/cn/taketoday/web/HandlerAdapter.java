@@ -19,6 +19,7 @@
  */
 package cn.taketoday.web;
 
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.handler.NotFoundHandler;
 import cn.taketoday.web.handler.RequestHandlerAdapter;
 import cn.taketoday.web.handler.ViewControllerHandlerAdapter;
@@ -106,6 +107,7 @@ public interface HandlerAdapter {
    * @see #NONE_RETURN_VALUE
    * @see ReturnValueHandler
    */
+  @Nullable
   Object handle(RequestContext context, Object handler) throws Throwable;
 
 }
