@@ -63,7 +63,6 @@ import cn.taketoday.web.ReturnValueHandler;
 import cn.taketoday.web.ServletDetector;
 import cn.taketoday.web.accept.ContentNegotiationManager;
 import cn.taketoday.web.handler.method.ActionMappingAnnotationHandler;
-import cn.taketoday.web.handler.method.HandlerMethod;
 import cn.taketoday.web.servlet.ServletUtils;
 import cn.taketoday.web.util.UriUtils;
 import cn.taketoday.web.util.pattern.PathPattern;
@@ -98,7 +97,6 @@ public abstract class AbstractMessageConverterMethodProcessor
 
   private static final Set<String> SAFE_MEDIA_BASE_TYPES = Set.of("audio", "image", "video");
   private static final List<MediaType> ALL_APPLICATION_MEDIA_TYPES = List.of(MediaType.ALL, new MediaType("application"));
-
   private static final Type RESOURCE_REGION_LIST_TYPE =
           new TypeReference<List<ResourceRegion>>() { }.getType();
 
@@ -137,34 +135,6 @@ public abstract class AbstractMessageConverterMethodProcessor
   }
 
   // ReturnValueHandler
-
-  @Override
-  public final boolean supportsHandler(Object handler) {
-    if (handler instanceof HandlerMethod handlerMethod) {
-      return supportsHandlerMethod(handlerMethod);
-    }
-    else if (handler instanceof ActionMappingAnnotationHandler annotationHandler) {
-      return supportsHandlerMethod(annotationHandler.getMethod());
-    }
-    return false;
-  }
-
-  // test HandlerMethod
-  protected abstract boolean supportsHandlerMethod(HandlerMethod handlerMethod);
-
-  @Override
-  public final void handleReturnValue(
-          RequestContext context, Object handler, @Nullable Object returnValue) throws Exception {
-    if (handler instanceof HandlerMethod handlerMethod) {
-      handleReturnValue(context, handlerMethod, returnValue);
-    }
-    else if (handler instanceof ActionMappingAnnotationHandler annotationHandler) {
-      handleReturnValue(context, annotationHandler.getMethod(), returnValue);
-    }
-  }
-
-  protected abstract void handleReturnValue(
-          RequestContext context, HandlerMethod handler, @Nullable Object returnValue) throws Exception;
 
   /**
    * Writes the given return type to the given output message.

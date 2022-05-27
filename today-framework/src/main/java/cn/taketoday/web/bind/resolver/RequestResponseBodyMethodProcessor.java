@@ -26,7 +26,6 @@ import java.net.URI;
 import java.util.List;
 
 import cn.taketoday.core.MethodParameter;
-import cn.taketoday.http.HttpStatusCode;
 import cn.taketoday.http.ProblemDetail;
 import cn.taketoday.http.converter.HttpMessageConverter;
 import cn.taketoday.http.converter.HttpMessageNotReadableException;
@@ -37,6 +36,7 @@ import cn.taketoday.web.accept.ContentNegotiationManager;
 import cn.taketoday.web.annotation.RequestBody;
 import cn.taketoday.web.handler.method.HandlerMethod;
 import cn.taketoday.web.handler.method.ResolvableMethodParameter;
+import cn.taketoday.web.handler.result.HandlerMethodReturnValueHandler;
 import cn.taketoday.web.view.ModelAndView;
 
 /**
@@ -50,7 +50,7 @@ import cn.taketoday.web.view.ModelAndView;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/1/23 17:14
  */
-public class RequestResponseBodyMethodProcessor extends AbstractMessageConverterMethodProcessor {
+public class RequestResponseBodyMethodProcessor extends AbstractMessageConverterMethodProcessor implements HandlerMethodReturnValueHandler {
 
   /**
    * Basic constructor with converters only. Suitable for resolving
@@ -103,7 +103,7 @@ public class RequestResponseBodyMethodProcessor extends AbstractMessageConverter
   }
 
   @Override
-  protected boolean supportsHandlerMethod(HandlerMethod handlerMethod) {
+  public boolean supportsHandlerMethod(HandlerMethod handlerMethod) {
     return handlerMethod.isResponseBody();
   }
 
@@ -141,7 +141,7 @@ public class RequestResponseBodyMethodProcessor extends AbstractMessageConverter
   }
 
   @Override
-  protected void handleReturnValue(
+  public void handleReturnValue(
           RequestContext context, HandlerMethod handler, @Nullable Object returnValue) throws Exception {
 
     if (returnValue instanceof ProblemDetail detail) {
