@@ -496,22 +496,21 @@ public abstract class AbstractMessageConverterMethodProcessor
     }
 
     HandlerMatchingMetadata matchingMetadata = request.getMatchingMetadata();
-    if (matchingMetadata == null) {
-      return false;
-    }
-
-    PathPattern bestMatchingPattern = matchingMetadata.getBestMatchingPattern();
-    if (bestMatchingPattern != null && bestMatchingPattern.getPatternString().endsWith("." + extension)) {
-      return false;
-    }
-    if (extension.equals("html")) {
-      MediaType[] mediaTypes = matchingMetadata.getProducibleMediaTypes();
-      if (ObjectUtils.isNotEmpty(mediaTypes) && ObjectUtils.containsElement(mediaTypes, MediaType.TEXT_HTML)) {
+    if (matchingMetadata != null) {
+      PathPattern bestMatchingPattern = matchingMetadata.getBestMatchingPattern();
+      if (bestMatchingPattern != null && bestMatchingPattern.getPatternString().endsWith("." + extension)) {
         return false;
       }
+      if (extension.equals("html")) {
+        MediaType[] mediaTypes = matchingMetadata.getProducibleMediaTypes();
+        if (ObjectUtils.isNotEmpty(mediaTypes) && ObjectUtils.containsElement(mediaTypes, MediaType.TEXT_HTML)) {
+          return false;
+        }
+      }
     }
+
     MediaType mediaType = resolveMediaType(request, extension);
-    return (mediaType == null || !safeMediaType(mediaType));
+    return mediaType == null || !safeMediaType(mediaType);
   }
 
   @Nullable

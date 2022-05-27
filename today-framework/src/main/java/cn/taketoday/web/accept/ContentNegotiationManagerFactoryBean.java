@@ -254,7 +254,7 @@ public class ContentNegotiationManagerFactoryBean
     }
     else {
       if (this.favorParameter) {
-        ParameterContentNegotiationStrategy strategy = new ParameterContentNegotiationStrategy(this.mediaTypes);
+        var strategy = new ParameterContentNegotiationStrategy(mediaTypes);
         strategy.setParameterName(this.parameterName);
         // backwards compatibility
         strategy.setUseRegisteredExtensionsOnly(Objects.requireNonNullElse(this.useRegisteredExtensionsOnly, true));
