@@ -46,7 +46,6 @@ import cn.taketoday.http.HttpStatus;
 import cn.taketoday.http.HttpStatusCode;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Constant;
-import cn.taketoday.lang.NonNull;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.CollectionUtils;
@@ -680,9 +679,13 @@ public class HandlerMethod {
     }
 
     @Override
-    @NonNull
     public Method getMethod() {
-      return method;
+      return HandlerMethod.this.bridgedMethod;
+    }
+
+    @Override
+    public Class<?> getContainingClass() {
+      return HandlerMethod.this.getBeanType();
     }
 
     @Override
