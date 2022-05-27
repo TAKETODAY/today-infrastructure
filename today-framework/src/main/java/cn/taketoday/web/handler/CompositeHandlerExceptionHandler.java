@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -22,6 +22,7 @@ package cn.taketoday.web.handler;
 import java.util.List;
 
 import cn.taketoday.core.OrderedSupport;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.HandlerExceptionHandler;
 import cn.taketoday.web.RequestContext;
 
@@ -31,6 +32,7 @@ import cn.taketoday.web.RequestContext;
 public class CompositeHandlerExceptionHandler
         extends OrderedSupport implements HandlerExceptionHandler {
 
+  @Nullable
   private List<HandlerExceptionHandler> handlers;
 
   public CompositeHandlerExceptionHandler() { }
@@ -42,13 +44,14 @@ public class CompositeHandlerExceptionHandler
   /**
    * Set the list of exception resolvers to delegate to.
    */
-  public void setExceptionHandlers(List<HandlerExceptionHandler> handlers) {
+  public void setExceptionHandlers(@Nullable List<HandlerExceptionHandler> handlers) {
     this.handlers = handlers;
   }
 
   /**
    * Return the list of exception resolvers to delegate to.
    */
+  @Nullable
   public List<HandlerExceptionHandler> getExceptionHandlers() {
     return this.handlers;
   }
@@ -56,10 +59,10 @@ public class CompositeHandlerExceptionHandler
   @Override
   public Object handleException(
           final RequestContext context, final Throwable exception, final Object handler) throws Exception {
-    final List<HandlerExceptionHandler> handlers = getExceptionHandlers();
+    var handlers = getExceptionHandlers();
     if (handlers != null) {
-      for (final HandlerExceptionHandler exceptionHandler : handlers) {
-        final Object view = exceptionHandler.handleException(context, exception, handler);
+      for (var exceptionHandler : handlers) {
+        Object view = exceptionHandler.handleException(context, exception, handler);
         if (view != null) {
           return view;
         }

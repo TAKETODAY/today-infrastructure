@@ -20,6 +20,8 @@
 
 package cn.taketoday.web;
 
+import cn.taketoday.lang.Nullable;
+
 /**
  * HandlerInterceptor execution chain
  *
@@ -47,6 +49,7 @@ public abstract class InterceptorChain {
    * @throws Throwable if interceptor throw exception
    * @see cn.taketoday.web.ReturnValueHandler
    */
+  @Nullable
   public final Object proceed(RequestContext context) throws Throwable {
     if (currentIndex < interceptorLength) {
       return interceptors[currentIndex++].intercept(context, this);
@@ -61,6 +64,7 @@ public abstract class InterceptorChain {
    * @param handler this context request handler
    * @return handle result
    */
+  @Nullable
   protected abstract Object invokeHandler(RequestContext context, Object handler) throws Throwable;
 
   /**

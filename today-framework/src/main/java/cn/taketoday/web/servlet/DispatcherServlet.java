@@ -62,6 +62,34 @@ public class DispatcherServlet
   }
 
   @Override
+  public void init(ServletConfig servletConfig) {
+    this.servletConfig = servletConfig;
+    long startTime = System.currentTimeMillis();
+
+    String servletName = servletConfig.getServletName();
+    servletConfig.getServletContext().log(
+            "Initializing " + getClass().getSimpleName() + " '" + servletName + "'");
+    log.info("Initializing Servlet '{}'", servletName);
+    try {
+      init();
+    }
+    catch (Exception ex) {
+      log.error("Context initialization failed", ex);
+      throw ex;
+    }
+
+    if (log.isDebugEnabled()) {
+      String value = isEnableLoggingRequestDetails() ?
+                     "shown which may lead to unsafe logging of potentially sensitive data" :
+                     "masked to prevent unsafe logging of potentially sensitive data";
+      log.debug("enableLoggingRequestDetails='{}': request parameters and headers will be {}",
+              isEnableLoggingRequestDetails(), value);
+    }
+
+    log.info("Completed initialization in {} ms", System.currentTimeMillis() - startTime);
+  }
+
+  @Override
   public void service(ServletRequest request, ServletResponse response) throws ServletException {
     HttpServletRequest servletRequest = (HttpServletRequest) request;
     if (isDebugEnabled) {
@@ -88,12 +116,6 @@ public class DispatcherServlet
         RequestContextHolder.remove();
       }
     }
-  }
-
-  @Override
-  public void init(ServletConfig servletConfig) {
-    this.servletConfig = servletConfig;
-    init();
   }
 
   @Override

@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -32,7 +32,6 @@ import cn.taketoday.beans.factory.config.AutowireCapableBeanFactory;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.ApplicationContext.State;
 import cn.taketoday.context.aware.ApplicationContextAware;
-import cn.taketoday.core.Ordered;
 import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpStatus;
@@ -42,6 +41,7 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ArrayHolder;
+import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.web.HandlerAdapter;
 import cn.taketoday.web.HandlerAdapterNotFoundException;
@@ -55,6 +55,7 @@ import cn.taketoday.web.ReturnValueHandler;
 import cn.taketoday.web.ReturnValueHandlerProvider;
 import cn.taketoday.web.context.async.WebAsyncUtils;
 import cn.taketoday.web.handler.method.ExceptionHandlerAnnotationExceptionHandler;
+import cn.taketoday.web.handler.method.RequestMappingHandlerAdapter;
 import cn.taketoday.web.handler.method.RequestMappingHandlerMapping;
 import cn.taketoday.web.registry.BeanNameUrlHandlerMapping;
 import cn.taketoday.web.registry.HandlerRegistries;
@@ -213,7 +214,8 @@ public class DispatcherHandler implements ApplicationContextAware {
       if (handlerAdapters == null) {
         // Ensure we have at least some HandlerAdapters, by registering
         // default HandlerAdapters if no other adapters are found.
-        setHandlerAdapters(new RequestHandlerAdapter(Ordered.HIGHEST_PRECEDENCE));
+        setHandlerAdapters(context.getAutowireCapableBeanFactory().createBean(RequestMappingHandlerAdapter.class),
+                new ViewControllerHandlerAdapter(), new FunctionRequestAdapter(), new RequestHandlerAdapter());
       }
     }
   }
@@ -274,7 +276,9 @@ public class DispatcherHandler implements ApplicationContextAware {
         var exceptionHandler = new ExceptionHandlerAnnotationExceptionHandler();
         exceptionHandler.setApplicationContext(getApplicationContext());
         exceptionHandler.afterPropertiesSet();
-        this.exceptionHandler = exceptionHandler;
+        this.exceptionHandler = new CompositeHandlerExceptionHandler(CollectionUtils.newArrayList(
+                exceptionHandler, new SimpleHandlerExceptionHandler()
+        ));
       }
     }
   }

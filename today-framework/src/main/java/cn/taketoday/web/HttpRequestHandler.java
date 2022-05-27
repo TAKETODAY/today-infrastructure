@@ -20,6 +20,8 @@
 
 package cn.taketoday.web;
 
+import cn.taketoday.lang.Nullable;
+
 /**
  * Plain handler interface for components that process HTTP requests
  *
@@ -44,6 +46,7 @@ public interface HttpRequestHandler {
    * @throws Throwable If any exception occurred
    * @see ReturnValueHandler
    */
+  @Nullable
   Object handleRequest(RequestContext request) throws Throwable;
 
 }

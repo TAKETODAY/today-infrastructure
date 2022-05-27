@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -18,31 +18,27 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.web.handler.method;
+package cn.taketoday.web.handler;
 
-import cn.taketoday.lang.Nullable;
+import cn.taketoday.web.HandlerAdapter;
+import cn.taketoday.web.RequestContext;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @since 4.0 2022/1/13 20:10
+ * @since 4.0 2022/5/27 16:26
  */
-class SingletonActionMappingAnnotationHandler extends ActionMappingAnnotationHandler {
-  private final Object handlerBean;
+public class HandlerExecutionChainHandlerAdapter implements HandlerAdapter {
 
-  SingletonActionMappingAnnotationHandler(
-          Object handlerBean, HandlerMethod handlerMethod, @Nullable ResolvableMethodParameter[] parameters, Class<?> beanType) {
-    super(handlerMethod, parameters, beanType);
-    this.handlerBean = handlerBean;
-  }
-
-  SingletonActionMappingAnnotationHandler(SingletonActionMappingAnnotationHandler handler) {
-    super(handler);
-    this.handlerBean = handler.handlerBean;
+  @Override
+  public boolean supports(Object handler) {
+    return handler instanceof HandlerExecutionChain;
   }
 
   @Override
-  public Object getHandlerObject() {
-    return handlerBean;
+  public Object handle(RequestContext context, Object handler) throws Throwable {
+    HandlerExecutionChain chain = (HandlerExecutionChain) handler;
+
+    return null;
   }
 
 }
