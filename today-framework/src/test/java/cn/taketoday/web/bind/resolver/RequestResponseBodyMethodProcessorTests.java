@@ -317,7 +317,6 @@ class RequestResponseBodyMethodProcessorTests {
     converters.add(new StringHttpMessageConverter());
 
     Method method = ResponseBodyController.class.getMethod("handleWithCharSequence");
-    MethodParameter returnType = new MethodParameter(method, -1);
 
     RequestResponseBodyMethodProcessor processor = new RequestResponseBodyMethodProcessor(converters);
     processor.handleReturnValue(request, new HandlerMethod(this, method), new StringBuilder("Foo"));

@@ -27,15 +27,12 @@ import java.util.List;
 import cn.taketoday.core.MethodParameter;
 import cn.taketoday.http.converter.HttpMessageConverter;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.validation.BindingResult;
-import cn.taketoday.web.BindingContext;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.annotation.RequestBody;
 import cn.taketoday.web.annotation.RequestParam;
 import cn.taketoday.web.annotation.RequestPart;
 import cn.taketoday.web.bind.MethodArgumentNotValidException;
 import cn.taketoday.web.bind.MultipartException;
-import cn.taketoday.web.bind.WebDataBinder;
 import cn.taketoday.web.handler.method.ResolvableMethodParameter;
 import cn.taketoday.web.multipart.MultipartFile;
 
@@ -130,17 +127,7 @@ public class RequestPartMethodArgumentResolver extends AbstractMessageConverterM
       try {
         var inputMessage = new RequestPartServletServerHttpRequest(context, name);
         arg = readWithMessageConverters(inputMessage, parameter, parameter.getNestedGenericParameterType());
-        BindingContext binderFactory = context.getBindingContext();
-        if (binderFactory != null) {
-          WebDataBinder binder = binderFactory.createBinder(context, arg, name);
-          if (arg != null) {
-            validateIfApplicable(binder, parameter);
-            if (binder.getBindingResult().hasErrors() && isBindExceptionRequired(binder, parameter)) {
-              throw new MethodArgumentNotValidException(parameter, binder.getBindingResult());
-            }
-          }
-          binderFactory.addAttribute(BindingResult.MODEL_KEY_PREFIX + name, binder.getBindingResult());
-        }
+        validateIfApplicable(context, parameter, arg);
       }
       catch (MissingRequestPartException | MultipartException ex) {
         if (isRequired) {
