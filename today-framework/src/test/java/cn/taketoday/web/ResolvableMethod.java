@@ -36,6 +36,7 @@ import java.util.function.Supplier;
 
 import cn.taketoday.aop.framework.ProxyFactory;
 import cn.taketoday.aop.target.EmptyTargetSource;
+import cn.taketoday.beans.BeanUtils;
 import cn.taketoday.beans.support.BeanInstantiator;
 import cn.taketoday.core.LocalVariableTableParameterNameDiscoverer;
 import cn.taketoday.core.MethodIntrospector;
@@ -56,6 +57,7 @@ import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.ReflectionUtils;
+import cn.taketoday.web.handler.method.HandlerMethod;
 import cn.taketoday.web.handler.method.ResolvableMethodParameter;
 
 import static java.util.stream.Collectors.joining;
@@ -437,6 +439,36 @@ public class ResolvableMethod {
      */
     public MethodParameter resolveReturnType(Class<?> returnType, Class<?>... generics) {
       return returning(returnType, generics).build().returnType();
+    }
+
+    public HandlerMethod resolveHandlerMethod(Class<?> returnType, Class<?>... generics) {
+      Method method = returning(returnType, generics).build().method();
+      Object instance = BeanUtils.newInstance(objectClass);
+      return new HandlerMethod(instance, method);
+    }
+
+    public HandlerMethod resolveHandlerMethod(Object bean, Class<?> returnType, Class<?>... generics) {
+      Method method = returning(returnType, generics).build().method();
+      return new HandlerMethod(bean, method);
+    }
+
+    public HandlerMethod resolveHandlerMethod(Class<?> returnType, ResolvableType generic,
+            ResolvableType... generics) {
+      Method method = returning(returnType, generic, generics).build().method();
+      Object instance = BeanUtils.newInstance(objectClass);
+      return new HandlerMethod(instance, method);
+    }
+
+    public HandlerMethod resolveHandlerMethod(
+            Object bean, Class<?> returnType, ResolvableType generic, ResolvableType... generics) {
+      Method method = returning(returnType, generic, generics).build().method();
+      return new HandlerMethod(bean, method);
+    }
+
+    public HandlerMethod resolveHandlerMethod(ResolvableType returnType) {
+      Method method = returning(returnType).build().method();
+      Object instance = BeanUtils.newInstance(objectClass);
+      return new HandlerMethod(instance, method);
     }
 
     /**

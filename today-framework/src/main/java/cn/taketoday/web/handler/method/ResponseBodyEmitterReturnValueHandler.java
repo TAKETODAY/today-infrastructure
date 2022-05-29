@@ -30,7 +30,6 @@ import cn.taketoday.core.MethodParameter;
 import cn.taketoday.core.ReactiveAdapterRegistry;
 import cn.taketoday.core.ResolvableType;
 import cn.taketoday.core.task.TaskExecutor;
-import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.MediaType;
 import cn.taketoday.http.ResponseEntity;
 import cn.taketoday.http.converter.HttpMessageConverter;
@@ -43,7 +42,7 @@ import cn.taketoday.web.ServletDetector;
 import cn.taketoday.web.accept.ContentNegotiationManager;
 import cn.taketoday.web.context.async.DeferredResult;
 import cn.taketoday.web.context.async.WebAsyncUtils;
-import cn.taketoday.web.handler.result.HandlerMethodReturnValueHandler;
+import cn.taketoday.web.handler.result.SmartReturnValueHandler;
 import cn.taketoday.web.servlet.filter.ShallowEtagHeaderFilter;
 
 /**
@@ -58,7 +57,7 @@ import cn.taketoday.web.servlet.filter.ShallowEtagHeaderFilter;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/4/9 13:36
  */
-public class ResponseBodyEmitterReturnValueHandler implements HandlerMethodReturnValueHandler {
+public class ResponseBodyEmitterReturnValueHandler implements SmartReturnValueHandler {
 
   private final List<HttpMessageConverter<?>> sseMessageConverters;
 
@@ -118,8 +117,25 @@ public class ResponseBodyEmitterReturnValueHandler implements HandlerMethodRetur
   }
 
   @Override
-  public boolean supportsHandlerMethod(HandlerMethod handler, @Nullable Object returnValue) {
-    MethodParameter returnType = handler.getReturnValueType(returnValue);
+  public boolean supportsHandler(Object handler) {
+    HandlerMethod handlerMethod = HandlerMethod.unwrap(handler);
+    if (handlerMethod != null) {
+      return supportsReturnType(handlerMethod.getReturnType());
+    }
+    return false;
+  }
+
+  @Override
+  public boolean supportsHandler(Object handler, @Nullable Object returnValue) {
+    HandlerMethod handlerMethod = HandlerMethod.unwrap(handler);
+    if (handlerMethod != null) {
+      MethodParameter returnType = handlerMethod.getReturnValueType(returnValue);
+      return supportsReturnType(returnType) || supportsReturnValue(returnValue);
+    }
+    return supportsReturnValue(returnValue);
+  }
+
+  public boolean supportsReturnType(MethodParameter returnType) {
     Class<?> bodyType = ResponseEntity.class.isAssignableFrom(returnType.getParameterType())
                         ? ResolvableType.forMethodParameter(returnType).getGeneric().resolve()
                         : returnType.getParameterType();
@@ -131,38 +147,47 @@ public class ResponseBodyEmitterReturnValueHandler implements HandlerMethodRetur
   }
 
   @Override
-  public void handleReturnValue(RequestContext request, HandlerMethod handler, @Nullable Object returnValue) throws Exception {
+  public boolean supportsReturnValue(@Nullable Object returnValue) {
+    return returnValue instanceof ResponseBodyEmitter;
+  }
+
+  @Override
+  public void handleReturnValue(
+          RequestContext request, @Nullable Object handler, @Nullable Object returnValue) throws Exception {
     if (returnValue == null) {
       return;
     }
 
-    MethodParameter returnType = handler.getReturnType();
-    HttpHeaders responseHeaders = request.responseHeaders();
-    if (returnValue instanceof ResponseEntity<?> responseEntity) {
-      request.setStatus(responseEntity.getStatusCode());
-      responseHeaders.putAll(responseEntity.getHeaders());
-      returnValue = responseEntity.getBody();
-      returnType = returnType.nested();
-      if (returnValue == null) {
-        return;
+    // maybe nested body
+    MethodParameter returnType = null;
+    if (handler instanceof HandlerMethod handlerMethod) {
+      returnType = handlerMethod.getReturnType();
+      // for ResponseEntity unwrap body
+      if (returnValue instanceof ResponseEntity<?> responseEntity) {
+        request.setStatus(responseEntity.getStatusCode());
+        request.mergeToResponse(responseEntity.getHeaders());
+        returnValue = responseEntity.getBody();
+        returnType = returnType.nested();
+        if (returnValue == null) {
+          return;
+        }
       }
     }
 
+    // for ResponseBodyEmitter
     ResponseBodyEmitter emitter;
     if (returnValue instanceof ResponseBodyEmitter) {
       emitter = (ResponseBodyEmitter) returnValue;
     }
-    else {
+    else if (returnType != null) {
+      // for reactive types
       emitter = reactiveHandler.handleValue(returnValue, returnType, request);
       if (emitter == null) {
-        // Not streaming: write headers without committing response..
-//        responseHeaders.forEach((headerName, headerValues) -> {
-//          for (String headerValue : headerValues) {
-//            responseHeaders.add(headerName, headerValue);
-//          }
-//        });
         return;
       }
+    }
+    else {
+      throw new IllegalStateException();
     }
     emitter.extendResponse(request);
 

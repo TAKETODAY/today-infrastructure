@@ -89,7 +89,7 @@ class ReactiveTypeHandlerTests {
     this.servletResponse = new MockHttpServletResponse();
     this.webRequest = new ServletRequestContext(null, this.servletRequest, this.servletResponse);
 
-    AsyncWebRequest webRequest = new StandardServletAsyncWebRequest(this.webRequest);
+    AsyncWebRequest webRequest = new StandardServletAsyncWebRequest(this.servletRequest, this.servletResponse);
     WebAsyncUtils.getAsyncManager(this.webRequest).setAsyncRequest(webRequest);
     this.servletRequest.setAsyncSupported(true);
   }

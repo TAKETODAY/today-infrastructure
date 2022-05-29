@@ -433,7 +433,7 @@ class ErrorPageFilterTests {
     DeferredResult<String> result = new DeferredResult<>();
     ServletRequestContext context = new ServletRequestContext(null, request, response);
     WebAsyncManager asyncManager = WebAsyncUtils.getAsyncManager(context);
-    asyncManager.setAsyncRequest(new StandardServletAsyncWebRequest(context));
+    asyncManager.setAsyncRequest(new StandardServletAsyncWebRequest(request, response));
     asyncManager.startDeferredResultProcessing(result);
   }
 

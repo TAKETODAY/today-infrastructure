@@ -76,7 +76,7 @@ public interface HandlerMethodReturnValueHandler extends SmartReturnValueHandler
 
   @Override
   default void handleReturnValue(
-          RequestContext context, Object handler, @Nullable Object returnValue) throws Exception {
+          RequestContext context, @Nullable Object handler, @Nullable Object returnValue) throws Exception {
     if (handler instanceof HandlerMethod handlerMethod) {
       handleReturnValue(context, handlerMethod, returnValue);
     }
