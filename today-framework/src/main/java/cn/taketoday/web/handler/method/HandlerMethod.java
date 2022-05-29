@@ -662,6 +662,19 @@ public class HandlerMethod {
     return wrapStatus(status);
   }
 
+  // HandlerMethod
+
+  @Nullable
+  public static HandlerMethod unwrap(Object handler) {
+    if (handler instanceof HandlerMethod) {
+      return (HandlerMethod) handler;
+    }
+    else if (handler instanceof ActionMappingAnnotationHandler annotationHandler) {
+      return annotationHandler.getMethod();
+    }
+    return null;
+  }
+
   /**
    * A MethodParameter with HandlerMethod-specific behavior.
    */

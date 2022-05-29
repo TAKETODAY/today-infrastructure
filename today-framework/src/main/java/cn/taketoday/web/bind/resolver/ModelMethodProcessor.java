@@ -23,7 +23,6 @@ package cn.taketoday.web.bind.resolver;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.BindingContext;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.handler.method.ActionMappingAnnotationHandler;
 import cn.taketoday.web.handler.method.HandlerMethod;
 import cn.taketoday.web.handler.method.ResolvableMethodParameter;
 import cn.taketoday.web.handler.result.SmartReturnValueHandler;
@@ -58,7 +57,7 @@ public class ModelMethodProcessor implements SmartReturnValueHandler, ParameterR
 
   @Override
   public boolean supportsHandler(Object handler) {
-    HandlerMethod handlerMethod = getHandlerMethod(handler);
+    HandlerMethod handlerMethod = HandlerMethod.unwrap(handler);
     if (handlerMethod != null) {
       return handlerMethod.isReturnTypeAssignableTo(Model.class);
     }
@@ -88,7 +87,7 @@ public class ModelMethodProcessor implements SmartReturnValueHandler, ParameterR
     }
     else if (returnValue != null) {
       // should not happen
-      HandlerMethod handlerMethod = getHandlerMethod(handler);
+      HandlerMethod handlerMethod = HandlerMethod.unwrap(handler);
       if (handlerMethod != null) {
         throw new UnsupportedOperationException("Unexpected return type [" +
                 handlerMethod.getReturnType().getParameterType().getName() + "] in method: " + handlerMethod.getMethod());
@@ -108,17 +107,6 @@ public class ModelMethodProcessor implements SmartReturnValueHandler, ParameterR
     }
 
     return context.getBindingContext().getModel();
-  }
-
-  @Nullable
-  static HandlerMethod getHandlerMethod(Object handler) {
-    if (handler instanceof HandlerMethod) {
-      return (HandlerMethod) handler;
-    }
-    else if (handler instanceof ActionMappingAnnotationHandler annotationHandler) {
-      return annotationHandler.getMethod();
-    }
-    return null;
   }
 
 }

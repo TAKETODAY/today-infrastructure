@@ -68,7 +68,7 @@ public class MapMethodProcessor implements ParameterResolvingStrategy, SmartRetu
 
   @Override
   public boolean supportsHandler(Object handler) {
-    HandlerMethod handlerMethod = ModelMethodProcessor.getHandlerMethod(handler);
+    HandlerMethod handlerMethod = HandlerMethod.unwrap(handler);
     if (handlerMethod != null) {
       return handlerMethod.isReturnTypeAssignableTo(Map.class);
     }
@@ -88,7 +88,7 @@ public class MapMethodProcessor implements ParameterResolvingStrategy, SmartRetu
     }
     else if (returnValue != null) {
       // should not happen
-      HandlerMethod handlerMethod = ModelMethodProcessor.getHandlerMethod(handler);
+      HandlerMethod handlerMethod = HandlerMethod.unwrap(handler);
       if (handlerMethod != null) {
         throw new UnsupportedOperationException("Unexpected return type [" +
                 handlerMethod.getReturnType().getParameterType().getName() + "] in method: " + handlerMethod.getMethod());
