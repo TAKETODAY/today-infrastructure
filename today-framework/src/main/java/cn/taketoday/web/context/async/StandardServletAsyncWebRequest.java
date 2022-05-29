@@ -27,8 +27,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
 import cn.taketoday.lang.Assert;
-import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.servlet.ServletUtils;
+import cn.taketoday.web.servlet.ServletRequestContext;
 import jakarta.servlet.AsyncContext;
 import jakarta.servlet.AsyncEvent;
 import jakarta.servlet.AsyncListener;
@@ -60,10 +59,24 @@ public class StandardServletAsyncWebRequest implements AsyncWebRequest, AsyncLis
 
   private final List<Runnable> completionHandlers = new ArrayList<>();
 
-  private final RequestContext requestContext;
+  private final HttpServletRequest servletRequest;
 
-  public StandardServletAsyncWebRequest(RequestContext requestContext) {
-    this.requestContext = requestContext;
+  private final HttpServletResponse servletResponse;
+
+  StandardServletAsyncWebRequest(ServletRequestContext context) {
+    this.servletRequest = context.getRequest();
+    this.servletResponse = context.getResponse();
+  }
+
+  /**
+   * Create a new instance for the given request/response pair.
+   *
+   * @param request current HTTP request
+   * @param response current HTTP response
+   */
+  public StandardServletAsyncWebRequest(HttpServletRequest request, HttpServletResponse response) {
+    this.servletRequest = request;
+    this.servletResponse = response;
   }
 
   /**
@@ -93,10 +106,6 @@ public class StandardServletAsyncWebRequest implements AsyncWebRequest, AsyncLis
 
   @Override
   public boolean isAsyncStarted() {
-    return asyncContext != null && ServletUtils.getServletRequest(requestContext).isAsyncStarted();
-  }
-
-  public boolean isAsyncStarted(HttpServletRequest servletRequest) {
     return asyncContext != null && servletRequest.isAsyncStarted();
   }
 
@@ -107,17 +116,11 @@ public class StandardServletAsyncWebRequest implements AsyncWebRequest, AsyncLis
    */
   @Override
   public boolean isAsyncComplete() {
-    return this.asyncCompleted.get();
-  }
-
-  @Override
-  public RequestContext getRequestContext() {
-    return requestContext;
+    return asyncCompleted.get();
   }
 
   @Override
   public void startAsync() {
-    HttpServletRequest servletRequest = ServletUtils.getServletRequest(requestContext);
     Assert.state(servletRequest.isAsyncSupported(),
             "Async support must be enabled on a servlet and for all filters involved " +
                     "in async request processing. This is done in Java code using the Servlet API " +
@@ -125,21 +128,20 @@ public class StandardServletAsyncWebRequest implements AsyncWebRequest, AsyncLis
                     "filter declarations in web.xml.");
     Assert.state(!isAsyncComplete(), "Async processing has already completed");
 
-    if (isAsyncStarted(servletRequest)) {
+    if (isAsyncStarted()) {
       return;
     }
-    HttpServletResponse servletResponse = ServletUtils.getServletResponse(requestContext);
     this.asyncContext = servletRequest.startAsync(servletRequest, servletResponse);
-    this.asyncContext.addListener(this);
-    if (this.timeout != null) {
-      this.asyncContext.setTimeout(this.timeout);
+    asyncContext.addListener(this);
+    if (timeout != null) {
+      asyncContext.setTimeout(this.timeout);
     }
   }
 
   @Override
   public void dispatch() {
-    Assert.notNull(this.asyncContext, "Cannot dispatch without an AsyncContext");
-    this.asyncContext.dispatch();
+    Assert.notNull(asyncContext, "Cannot dispatch without an AsyncContext");
+    asyncContext.dispatch();
   }
 
   // ---------------------------------------------------------------------
@@ -153,19 +155,19 @@ public class StandardServletAsyncWebRequest implements AsyncWebRequest, AsyncLis
 
   @Override
   public void onError(AsyncEvent event) throws IOException {
-    this.exceptionHandlers.forEach(consumer -> consumer.accept(event.getThrowable()));
+    exceptionHandlers.forEach(consumer -> consumer.accept(event.getThrowable()));
   }
 
   @Override
   public void onTimeout(AsyncEvent event) throws IOException {
-    this.timeoutHandlers.forEach(Runnable::run);
+    timeoutHandlers.forEach(Runnable::run);
   }
 
   @Override
   public void onComplete(AsyncEvent event) throws IOException {
-    this.completionHandlers.forEach(Runnable::run);
+    completionHandlers.forEach(Runnable::run);
     this.asyncContext = null;
-    this.asyncCompleted.set(true);
+    asyncCompleted.set(true);
   }
 
 }

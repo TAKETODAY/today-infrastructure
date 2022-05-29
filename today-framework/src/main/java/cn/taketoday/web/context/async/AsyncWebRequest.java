@@ -86,9 +86,4 @@ public interface AsyncWebRequest {
    */
   boolean isAsyncComplete();
 
-  /**
-   * returns current request context
-   */
-  RequestContext getRequestContext();
-
 }

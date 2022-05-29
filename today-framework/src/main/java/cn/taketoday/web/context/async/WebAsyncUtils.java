@@ -22,6 +22,7 @@ package cn.taketoday.web.context.async;
 
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.ServletDetector;
+import cn.taketoday.web.servlet.ServletRequestContext;
 
 /**
  * Utility methods related to processing asynchronous web requests.
@@ -88,7 +89,7 @@ public abstract class WebAsyncUtils {
    */
   public static AsyncWebRequest createAsyncWebRequest(RequestContext requestContext) {
     if (ServletDetector.runningInServlet(requestContext)) {
-      return new StandardServletAsyncWebRequest(requestContext);
+      return new StandardServletAsyncWebRequest((ServletRequestContext) requestContext);
     }
     throw new UnsupportedOperationException("Not Unsupported yet");
   }
