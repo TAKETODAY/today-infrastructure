@@ -174,7 +174,7 @@ class ResourceTests {
 
   private void doTestResource(Resource resource) throws IOException {
     assertThat(resource.getName()).isEqualTo("Resource.class");
-    assertThat(resource.getLocation().getFile().endsWith("Resource.class")).isTrue();
+    assertThat(resource.getURL().getFile().endsWith("Resource.class")).isTrue();
     assertThat(resource.exists()).isTrue();
     assertThat(resource.isReadable()).isTrue();
     assertThat(resource.contentLength() > 0).isTrue();
@@ -182,7 +182,7 @@ class ResourceTests {
 
     Resource relative1 = resource.createRelative("ClassPathResource.class");
     assertThat(relative1.getName()).isEqualTo("ClassPathResource.class");
-    assertThat(relative1.getLocation().getFile().endsWith("ClassPathResource.class")).isTrue();
+    assertThat(relative1.getURL().getFile().endsWith("ClassPathResource.class")).isTrue();
     assertThat(relative1.exists()).isTrue();
     assertThat(relative1.isReadable()).isTrue();
     assertThat(relative1.contentLength() > 0).isTrue();
@@ -190,7 +190,7 @@ class ResourceTests {
 
     Resource relative2 = resource.createRelative("PathMatchingPatternResourceLoader.class");
     assertThat(relative2.getName()).isEqualTo("PathMatchingPatternResourceLoader.class");
-    assertThat(relative2.getLocation().getFile().endsWith("PatternResourceLoader.class")).isTrue();
+    assertThat(relative2.getURL().getFile().endsWith("PatternResourceLoader.class")).isTrue();
     assertThat(relative2.exists()).isTrue();
     assertThat(relative2.isReadable()).isTrue();
     assertThat(relative2.contentLength() > 0).isTrue();
@@ -198,7 +198,7 @@ class ResourceTests {
 
     Resource relative3 = resource.createRelative("../../lang/Constant.class");
     assertThat(relative3.getName()).isEqualTo("Constant.class");
-    assertThat(relative3.getLocation().getFile().endsWith("Constant.class")).isTrue();
+    assertThat(relative3.getURL().getFile().endsWith("Constant.class")).isTrue();
     assertThat(relative3.exists()).isTrue();
     assertThat(relative3.isReadable()).isTrue();
     assertThat(relative3.contentLength() > 0).isTrue();
@@ -212,6 +212,21 @@ class ResourceTests {
 
     assertThatExceptionOfType(FileNotFoundException.class)
             .isThrownBy(relative4::lastModified);
+  }
+
+  @Test
+  void urlResourceFactoryMethods() throws IOException {
+    Resource resource1 = new UrlBasedResource("file:core/io/Resource.class");
+    Resource resource2 = UrlBasedResource.from("file:core/io/Resource.class");
+    Resource resource3 = UrlBasedResource.from(resource1.getURI());
+
+    assertThat(resource2.getURL()).isEqualTo(resource1.getURL());
+    assertThat(resource3.getURL()).isEqualTo(resource1.getURL());
+
+    assertThat(UrlBasedResource.from("file:core/../core/io/./Resource.class")).isEqualTo(resource1);
+    assertThat(UrlBasedResource.from("file:/dir/test.txt?argh").getName()).isEqualTo("test.txt");
+    assertThat(UrlBasedResource.from("file:\\dir\\test.txt?argh").getName()).isEqualTo("test.txt");
+    assertThat(UrlBasedResource.from("file:\\dir/test.txt?argh").getName()).isEqualTo("test.txt");
   }
 
   @Test
@@ -275,7 +290,7 @@ class ResourceTests {
     };
 
     assertThatExceptionOfType(FileNotFoundException.class)
-            .isThrownBy(resource::getLocation)
+            .isThrownBy(resource::getURL)
             .withMessageContaining(name);
 
     assertThatExceptionOfType(FileNotFoundException.class)
