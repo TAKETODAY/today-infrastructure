@@ -70,7 +70,7 @@ class ResourceHandlerRegistryTests {
     this.registry = new ResourceHandlerRegistry(appContext, new ContentNegotiationManager());
 
     this.registration = this.registry.addResourceHandler("/resources/**");
-    this.registration.addResourceLocations("classpath:org/springframework/web/servlet/config/annotation/");
+    this.registration.addResourceLocations("classpath:cn/taketoday/web/config/");
     this.response = new MockHttpServletResponse();
   }
 
