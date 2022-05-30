@@ -203,7 +203,12 @@ final class HierarchicalUriComponents extends UriComponents {
       throw new IllegalStateException(
               "The port contains a URI variable but has not been expanded yet: " + this.port);
     }
-    return Integer.parseInt(this.port);
+    try {
+      return Integer.parseInt(port);
+    }
+    catch (NumberFormatException ex) {
+      throw new IllegalStateException("The port must be an integer: " + this.port);
+    }
   }
 
   @Override
