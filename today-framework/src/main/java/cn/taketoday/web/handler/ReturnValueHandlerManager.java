@@ -17,6 +17,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.web.handler;
 
 import java.util.ArrayList;
@@ -59,6 +60,7 @@ import cn.taketoday.web.handler.result.RenderedImageReturnValueHandler;
 import cn.taketoday.web.handler.result.SmartReturnValueHandler;
 import cn.taketoday.web.handler.result.StreamingResponseBodyReturnValueHandler;
 import cn.taketoday.web.handler.result.VoidReturnValueHandler;
+import cn.taketoday.web.view.BeanNameViewResolver;
 import cn.taketoday.web.view.RedirectModelManager;
 import cn.taketoday.web.view.ViewResolver;
 import cn.taketoday.web.view.ViewReturnValueHandler;
@@ -68,8 +70,7 @@ import cn.taketoday.web.view.ViewReturnValueHandler;
  *
  * @author TODAY 2019-12-28 13:47
  */
-public class ReturnValueHandlerManager
-        extends ApplicationContextSupport implements ArraySizeTrimmer {
+public class ReturnValueHandlerManager extends ApplicationContextSupport implements ArraySizeTrimmer {
 
   private final ArrayList<ReturnValueHandler> handlers = new ArrayList<>(8);
 
@@ -268,10 +269,14 @@ public class ReturnValueHandlerManager
 
   private ViewReturnValueHandler obtainViewHandler() {
     if (viewReturnValueHandler == null) {
-      if (viewResolver != null) {
-        viewReturnValueHandler = new ViewReturnValueHandler(viewResolver);
-        viewReturnValueHandler.setModelManager(redirectModelManager);
+      ViewResolver viewResolver = this.viewResolver;
+      if (viewResolver == null) {
+        BeanNameViewResolver resolver = new BeanNameViewResolver();
+        resolver.setApplicationContext(obtainApplicationContext());
+        viewResolver = resolver;
       }
+      viewReturnValueHandler = new ViewReturnValueHandler(viewResolver);
+      viewReturnValueHandler.setModelManager(redirectModelManager);
     }
     Assert.state(viewReturnValueHandler != null, "No ViewReturnValueHandler");
     return viewReturnValueHandler;
