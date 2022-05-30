@@ -26,9 +26,9 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 
-import cn.taketoday.beans.factory.config.AutowireCapableBeanFactory;
 import cn.taketoday.beans.factory.BeanFactoryUtils;
 import cn.taketoday.beans.factory.InitializingBean;
+import cn.taketoday.beans.factory.config.AutowireCapableBeanFactory;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.aware.ApplicationContextSupport;
 import cn.taketoday.core.Ordered;
@@ -89,8 +89,6 @@ public class ContentNegotiatingViewResolver
 
   @Nullable
   private ContentNegotiationManager contentNegotiationManager;
-
-  private final ContentNegotiationManagerFactoryBean negotiationManagerFactoryBean = new ContentNegotiationManagerFactoryBean();
 
   private boolean useNotAcceptableStatusCode = false;
 
@@ -206,7 +204,7 @@ public class ContentNegotiatingViewResolver
   @Override
   public void afterPropertiesSet() {
     if (this.contentNegotiationManager == null) {
-      this.contentNegotiationManager = negotiationManagerFactoryBean.build();
+      this.contentNegotiationManager = new ContentNegotiationManagerFactoryBean().build();
     }
     if (CollectionUtils.isEmpty(viewResolvers)) {
       log.warn("No ViewResolvers configured");

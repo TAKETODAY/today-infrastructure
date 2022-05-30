@@ -24,9 +24,9 @@ import java.util.Locale;
 
 import cn.taketoday.beans.BeansException;
 import cn.taketoday.context.ApplicationContext;
+import cn.taketoday.context.aware.ApplicationContextSupport;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.web.WebApplicationContextSupport;
 
 /**
  * A simple implementation of {@link ViewResolver}
@@ -44,7 +44,7 @@ import cn.taketoday.web.WebApplicationContextSupport;
  * @see UrlBasedViewResolver
  * @since 4.0
  */
-public class BeanNameViewResolver extends WebApplicationContextSupport implements ViewResolver, Ordered {
+public class BeanNameViewResolver extends ApplicationContextSupport implements ViewResolver, Ordered {
 
   private int order = Ordered.LOWEST_PRECEDENCE;  // default: same as non-Ordered
 
