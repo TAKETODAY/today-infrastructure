@@ -196,7 +196,7 @@ class PathMatchingPatternResourceLoaderTests {
     }
     assertEquals(filenames.length, resources.length, "Correct number of files found");
     for (Resource resource : resources) {
-      String actualProtocol = resource.getLocation().getProtocol();
+      String actualProtocol = resource.getURL().getProtocol();
       assertEquals(protocol, actualProtocol);
       assertFilenameIn(resource, filenames);
     }

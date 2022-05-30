@@ -22,6 +22,10 @@ package cn.taketoday.core.io;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.lang.module.ModuleFinder;
+import java.lang.module.ModuleReader;
+import java.lang.module.ResolvedModule;
 import java.net.JarURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -30,9 +34,13 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.LinkedHashSet;
+import java.util.Objects;
 import java.util.Set;
+import java.util.function.Predicate;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import cn.taketoday.core.AntPathMatcher;
 import cn.taketoday.core.PathMatcher;
@@ -142,6 +150,14 @@ import static cn.taketoday.lang.Constant.BLANK;
  * <p>
  * <b>Other notes:</b>
  *
+ * <p>As of 4.0, if {@link #getResources(String)} is invoked with a location
+ * pattern using the "classpath*:" prefix it will first search  all modules
+ * in the {@linkplain ModuleLayer#boot() boot layer}, excluding {@linkplain
+ * ModuleFinder#ofSystem() system modules}. It will then search the classpath
+ * using {@link ClassLoader} APIs as described previously and return the
+ * combined results. Consequently, some of the limitations of classpath
+ * searches may not apply when applications are deployed as modules.
+ *
  * <p>
  * <b>WARNING:</b> Note that "{@code classpath*:}" when combined with Ant-style
  * patterns will only work reliably with at least one root directory before the
@@ -177,6 +193,7 @@ import static cn.taketoday.lang.Constant.BLANK;
  * @author Marius Bogoevici
  * @author Costin Leau
  * @author Phillip Webb
+ * @author Sam Brannen
  * @author TODAY 2019-12-05 12:51
  * @see AntPathMatcher
  * @see ClassLoader#getResources(String)
@@ -185,6 +202,25 @@ import static cn.taketoday.lang.Constant.BLANK;
 public class PathMatchingPatternResourceLoader implements PatternResourceLoader {
   private static final Logger log = LoggerFactory.getLogger(PathMatchingPatternResourceLoader.class);
   private static final boolean isDebugEnabled = log.isDebugEnabled();
+
+  /**
+   * {@link Set} of {@linkplain ModuleFinder#ofSystem() system module} names.
+   *
+   * @see #isNotSystemModule
+   * @since 4.0
+   */
+  private static final Set<String> systemModuleNames = ModuleFinder.ofSystem().findAll()
+          .stream().map(moduleReference -> moduleReference.descriptor().name()).collect(Collectors.toSet());
+
+  /**
+   * {@link Predicate} that tests whether the supplied {@link ResolvedModule}
+   * is not a {@linkplain ModuleFinder#ofSystem() system module}.
+   *
+   * @see #systemModuleNames
+   * @since 4.0
+   */
+  private static final Predicate<ResolvedModule> isNotSystemModule =
+          Predicate.not(resolvedModule -> systemModuleNames.contains(resolvedModule.name()));
 
   private PathMatcher pathMatcher = new AntPathMatcher();
   private final ResourceLoader resourceLoader;
@@ -270,14 +306,16 @@ public class PathMatchingPatternResourceLoader implements PatternResourceLoader 
 
     if (locationPattern.startsWith(CLASSPATH_ALL_URL_PREFIX)) {
       // a class path resource (multiple resources for same name possible)
-      String location = locationPattern.substring(CLASSPATH_ALL_URL_PREFIX.length());
-      if (getPathMatcher().isPattern(location)) {
+      String locationPatternWithoutPrefix = locationPattern.substring(CLASSPATH_ALL_URL_PREFIX.length());
+      // Search the module path first.
+      findAllModulePathResources(locationPatternWithoutPrefix, consumer);
+      if (getPathMatcher().isPattern(locationPatternWithoutPrefix)) {
         // a class path resource pattern
         findPathMatchingResources(locationPattern, consumer);
       }
       else {
         // all class path resources with the given name
-        findAllClassPathResources(location, consumer);
+        findAllClassPathResources(locationPatternWithoutPrefix, consumer);
       }
     }
     else {
@@ -309,10 +347,7 @@ public class PathMatchingPatternResourceLoader implements PatternResourceLoader 
    * @see #convertClassLoaderURL
    */
   protected void findAllClassPathResources(String location, ResourceConsumer consumer) throws IOException {
-    String path = location;
-    if (path.startsWith("/")) {
-      path = path.substring(1);
-    }
+    String path = stripLeadingSlash(location);
     doFindAllClassPathResources(path, consumer);
   }
 
@@ -324,15 +359,17 @@ public class PathMatchingPatternResourceLoader implements PatternResourceLoader 
    * @param consumer Resource consumer
    */
   protected void doFindAllClassPathResources(String path, ResourceConsumer consumer) throws IOException {
-    if (BLANK.equals(path)) { // root path
-      addAllClassLoaderJarRoots(getClassLoader(), consumer);
+    ClassLoader cl = getClassLoader();
+    if (StringUtils.isEmpty(path)) {
+      // The above result is likely to be incomplete, i.e. only containing file system references.
+      // We need to have pointers to each of the jar files on the classpath as well...
+      addAllClassLoaderJarRoots(cl, consumer);
     }
     else {
-      ClassLoader cl = getClassLoader();
       Enumeration<URL> resourceUrls = cl != null ? cl.getResources(path) : ClassLoader.getSystemResources(path);
       while (resourceUrls.hasMoreElements()) {
-        Resource resource = convertClassLoaderURL(resourceUrls.nextElement());
-        consumer.accept(resource);
+        URL url = resourceUrls.nextElement();
+        consumer.accept(convertClassLoaderURL(url));
       }
     }
   }
@@ -360,10 +397,10 @@ public class PathMatchingPatternResourceLoader implements PatternResourceLoader 
    * @param classLoader the ClassLoader to search (including its ancestors)
    * @param consumer Resource consumer
    */
-  protected void addAllClassLoaderJarRoots(ClassLoader classLoader, ResourceConsumer consumer) {
-    if (classLoader instanceof URLClassLoader) {
+  protected void addAllClassLoaderJarRoots(@Nullable ClassLoader classLoader, ResourceConsumer consumer) {
+    if (classLoader instanceof URLClassLoader urlClassLoader) {
       try {
-        for (URL url : ((URLClassLoader) classLoader).getURLs()) {
+        for (URL url : urlClassLoader.getURLs()) {
           try { // jar file
             String path = url.getPath();
             if (path.endsWith(ResourceUtils.JAR_FILE_EXTENSION)) {
@@ -515,7 +552,7 @@ public class PathMatchingPatternResourceLoader implements PatternResourceLoader 
   protected void doFindPathMatchingJarResources(
           JarResource rootDirResource, String subPattern, ResourceConsumer consumer) throws IOException {
 
-    URL rootDirURL = rootDirResource.getLocation();
+    URL rootDirURL = rootDirResource.getURL();
 
     // Should usually be the case for traditional JAR files.
     JarURLConnection jarCon = (JarURLConnection) rootDirURL.openConnection();
@@ -692,6 +729,91 @@ public class PathMatchingPatternResourceLoader implements PatternResourceLoader 
     }
     Arrays.sort(files, Comparator.comparing(File::getName));
     return files;
+  }
+
+  /**
+   * Resolve the given location pattern into {@code Resource} objects for all
+   * matching resources found in the module path.
+   * <p>The location pattern may be an explicit resource path such as
+   * {@code "com/example/config.xml"} or a pattern such as
+   * <code>"com/example/**&#47;config-*.xml"</code> to be matched using the
+   * configured {@link #getPathMatcher() PathMatcher}.
+   * <p>The default implementation scans all modules in the {@linkplain ModuleLayer#boot()
+   * boot layer}, excluding {@linkplain ModuleFinder#ofSystem() system modules}.
+   *
+   * @param locationPattern the location pattern to resolve
+   * @param consumer
+   * @return a modifiable {@code Set} containing the corresponding {@code Resource}
+   * objects
+   * @throws IOException in case of I/O errors
+   * @see ModuleLayer#boot()
+   * @see ModuleFinder#ofSystem()
+   * @see ModuleReader
+   * @see PathMatcher#match(String, String)
+   * @since 4.0
+   */
+  protected void findAllModulePathResources(String locationPattern, ResourceConsumer consumer) throws IOException {
+    LinkedHashSet<Resource> result = new LinkedHashSet<>(16);
+    String resourcePattern = stripLeadingSlash(locationPattern);
+    Predicate<String> resourcePatternMatches = getPathMatcher().isPattern(resourcePattern)
+                                               ? path -> getPathMatcher().match(resourcePattern, path)
+                                               : resourcePattern::equals;
+
+    try {
+      ModuleLayer.boot().configuration().modules().stream()
+              .filter(isNotSystemModule)
+              .forEach(resolvedModule -> {
+                // NOTE: a ModuleReader and a Stream returned from ModuleReader.list() must be closed.
+                try (ModuleReader moduleReader = resolvedModule.reference().open();
+                        Stream<String> names = moduleReader.list()) {
+                  names.filter(resourcePatternMatches)
+                          .map(name -> findResource(moduleReader, name))
+                          .filter(Objects::nonNull)
+                          .forEach(resource -> {
+                            try {
+                              result.add(resource);
+                              consumer.accept(resource);
+                            }
+                            catch (IOException e) {
+                              throw new UncheckedIOException(e);
+                            }
+                          });
+                }
+                catch (IOException ex) {
+                  log.debug("Failed to read contents of module [{}]", resolvedModule, ex);
+                  throw new UncheckedIOException(ex);
+                }
+              });
+    }
+    catch (UncheckedIOException ex) {
+      // Unwrap IOException to conform to this method's contract.
+      throw ex.getCause();
+    }
+
+    if (isDebugEnabled) {
+      log.trace("Resolved module-path location pattern [{}] to resources {}", resourcePattern, result);
+    }
+  }
+
+  @Nullable
+  private static Resource findResource(ModuleReader moduleReader, String name) {
+    try {
+      return moduleReader.find(name)
+              // If it's a "file:" URI, use FileSystemResource to avoid duplicates
+              // for the same path discovered via class-path scanning.
+              .map(uri -> ResourceUtils.URL_PROTOCOL_FILE.equals(uri.getScheme())
+                          ? new FileSystemResource(uri.getPath())
+                          : UrlBasedResource.from(uri))
+              .orElse(null);
+    }
+    catch (Exception ex) {
+      log.debug("Failed to find resource [{}] in module path", name, ex);
+      return null;
+    }
+  }
+
+  private static String stripLeadingSlash(String path) {
+    return (path.startsWith("/") ? path.substring(1) : path);
   }
 
 }
