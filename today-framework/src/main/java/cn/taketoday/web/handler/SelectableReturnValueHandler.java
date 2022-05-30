@@ -107,7 +107,7 @@ public class SelectableReturnValueHandler implements ReturnValueHandler, ArraySi
    * @throws Exception throws when write data to response
    */
   @Override
-  public void handleReturnValue(RequestContext context, Object handler, Object returnValue) throws Exception {
+  public void handleReturnValue(RequestContext context, @Nullable Object handler, Object returnValue) throws Exception {
     if (handleSelectively(context, handler, returnValue) == null) {
       throw new ReturnValueHandlerNotFoundException(returnValue, handler);
     }
