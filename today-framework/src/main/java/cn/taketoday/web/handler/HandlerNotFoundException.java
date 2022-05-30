@@ -39,7 +39,7 @@ import cn.taketoday.web.FrameworkConfigurationException;
  * @since 4.0 2022/1/28 23:19
  */
 @SuppressWarnings("serial")
-public class NoHandlerFoundException extends FrameworkConfigurationException implements ErrorResponse {
+public class HandlerNotFoundException extends FrameworkConfigurationException implements ErrorResponse {
 
   private final String httpMethod;
 
@@ -56,7 +56,7 @@ public class NoHandlerFoundException extends FrameworkConfigurationException imp
    * @param requestURL the HTTP request URL
    * @param headers the HTTP request headers
    */
-  public NoHandlerFoundException(String httpMethod, String requestURL, HttpHeaders headers) {
+  public HandlerNotFoundException(String httpMethod, String requestURL, HttpHeaders headers) {
     super("No endpoint " + httpMethod + " " + requestURL + ".");
     this.httpMethod = httpMethod;
     this.requestURL = requestURL;

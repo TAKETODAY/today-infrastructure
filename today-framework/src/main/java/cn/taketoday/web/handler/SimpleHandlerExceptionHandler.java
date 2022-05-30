@@ -203,9 +203,9 @@ public class SimpleHandlerExceptionHandler
           view = handleMethodArgumentNotValidException(
                   (MethodArgumentNotValidException) ex, request, handler);
         }
-        else if (ex instanceof NoHandlerFoundException) {
+        else if (ex instanceof HandlerNotFoundException) {
           view = handleNoHandlerFoundException(
-                  (NoHandlerFoundException) ex, request, handler);
+                  (HandlerNotFoundException) ex, request, handler);
         }
         else if (ex instanceof AsyncRequestTimeoutException) {
           view = handleAsyncRequestTimeoutException(
@@ -421,7 +421,7 @@ public class SimpleHandlerExceptionHandler
    * @since 4.0
    */
   @Nullable
-  protected Object handleNoHandlerFoundException(NoHandlerFoundException ex,
+  protected Object handleNoHandlerFoundException(HandlerNotFoundException ex,
           RequestContext request, @Nullable Object handler) throws IOException {
 
     pageNotFoundLogger.warn(ex.getMessage());

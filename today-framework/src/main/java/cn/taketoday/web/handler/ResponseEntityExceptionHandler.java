@@ -116,7 +116,7 @@ public class ResponseEntityExceptionHandler {
           MissingRequestPartException.class,
           RequestBindingException.class,
           MethodArgumentNotValidException.class,
-          NoHandlerFoundException.class,
+          HandlerNotFoundException.class,
           AsyncRequestTimeoutException.class,
           ErrorResponseException.class,
           ConversionNotSupportedException.class,
@@ -156,7 +156,7 @@ public class ResponseEntityExceptionHandler {
       else if (ex instanceof MethodArgumentNotValidException subEx) {
         return handleMethodArgumentNotValid(subEx, subEx.getHeaders(), subEx.getStatusCode(), request);
       }
-      else if (ex instanceof NoHandlerFoundException subEx) {
+      else if (ex instanceof HandlerNotFoundException subEx) {
         return handleNoHandlerFoundException(subEx, subEx.getHeaders(), subEx.getStatusCode(), request);
       }
       else if (ex instanceof AsyncRequestTimeoutException subEx) {
@@ -350,7 +350,7 @@ public class ResponseEntityExceptionHandler {
    */
   @Nullable
   protected ResponseEntity<Object> handleNoHandlerFoundException(
-          NoHandlerFoundException ex, HttpHeaders headers, HttpStatusCode status, RequestContext request) {
+          HandlerNotFoundException ex, HttpHeaders headers, HttpStatusCode status, RequestContext request) {
 
     return handleExceptionInternal(ex, null, headers, status, request);
   }

@@ -30,7 +30,7 @@ import cn.taketoday.web.HttpRequestHandler;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.RequestContextHolder;
 import cn.taketoday.web.handler.DispatcherHandler;
-import cn.taketoday.web.handler.NoHandlerFoundException;
+import cn.taketoday.web.handler.HandlerNotFoundException;
 import io.netty.channel.ChannelHandlerContext;
 import reactor.core.publisher.Mono;
 
@@ -136,7 +136,7 @@ public class ReactorNettyDispatcher extends NettyDispatcher {
    */
   protected Mono<Void> noHandlerFound(RequestContext request) {
     return Mono.defer(() -> Mono.error(
-            new NoHandlerFoundException(
+            new HandlerNotFoundException(
                     request.getMethodValue(), request.getRequestPath(), request.requestHeaders()))
     );
   }

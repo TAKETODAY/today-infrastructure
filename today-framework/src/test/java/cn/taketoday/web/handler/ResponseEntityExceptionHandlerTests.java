@@ -208,7 +208,7 @@ class ResponseEntityExceptionHandlerTests {
   public void noHandlerFoundException() {
     ServletServerHttpRequest req = new ServletServerHttpRequest(
             new MockHttpServletRequest("GET", "/resource"));
-    Exception ex = new NoHandlerFoundException(req.getMethod().toString(),
+    Exception ex = new HandlerNotFoundException(req.getMethod().toString(),
             req.getServletRequest().getRequestURI(), req.getHeaders());
     testException(ex);
   }

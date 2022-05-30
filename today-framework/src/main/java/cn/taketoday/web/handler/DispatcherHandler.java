@@ -545,7 +545,7 @@ public class DispatcherHandler implements ApplicationContextAware {
    */
   protected Object handlerNotFound(RequestContext request) throws Exception {
     if (throwExceptionIfNoHandlerFound) {
-      throw new NoHandlerFoundException(
+      throw new HandlerNotFoundException(
               request.getMethodValue(), request.getRequestPath(), request.requestHeaders());
     }
     else {
