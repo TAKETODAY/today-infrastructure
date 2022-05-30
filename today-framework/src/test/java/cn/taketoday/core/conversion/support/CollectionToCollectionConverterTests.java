@@ -309,7 +309,7 @@ class CollectionToCollectionConverterTests {
     }
 
     @Override
-    public URL getLocation() throws IOException {
+    public URL getURL() throws IOException {
       return null;
     }
 

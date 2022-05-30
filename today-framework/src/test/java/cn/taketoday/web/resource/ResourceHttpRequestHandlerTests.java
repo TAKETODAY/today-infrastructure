@@ -290,8 +290,8 @@ public class ResourceHttpRequestHandlerTests {
 
     List<Resource> actual = handler.getLocations();
     assertThat(actual).hasSize(2);
-    assertThat(actual.get(0).getLocation().toString()).endsWith("test/");
-    assertThat(actual.get(1).getLocation().toString()).endsWith("testalternatepath/");
+    assertThat(actual.get(0).getURL().toString()).endsWith("test/");
+    assertThat(actual.get(1).getURL().toString()).endsWith("testalternatepath/");
   }
 
   @Test
@@ -316,7 +316,7 @@ public class ResourceHttpRequestHandlerTests {
     Resource location = new UrlBasedResource(getClass().getResource("test/"));
     this.handler.setLocations(Collections.singletonList(location));
     Resource secretResource = new UrlBasedResource(getClass().getResource("testsecret/secret.txt"));
-    String secretPath = secretResource.getLocation().getPath();
+    String secretPath = secretResource.getURL().getPath();
 
     testInvalidPath("file:" + secretPath, handler);
     testInvalidPath("/file:" + secretPath, handler);
@@ -362,7 +362,7 @@ public class ResourceHttpRequestHandlerTests {
     location = new UrlBasedResource(getClass().getResource("test/"));
     this.handler.setLocations(Collections.singletonList(location));
     Resource secretResource = new UrlBasedResource(getClass().getResource("testsecret/secret.txt"));
-    String secretPath = secretResource.getLocation().getPath();
+    String secretPath = secretResource.getURL().getPath();
 
     testResolvePathWithTraversal(location, "file:" + secretPath);
     testResolvePathWithTraversal(location, "/file:" + secretPath);

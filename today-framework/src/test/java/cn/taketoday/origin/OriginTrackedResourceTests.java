@@ -86,8 +86,8 @@ class OriginTrackedResourceTests {
 
   @Test
   void getURLDelegatesToResource() throws IOException {
-    this.tracked.getLocation();
-    then(this.resource).should().getLocation();
+    this.tracked.getURL();
+    then(this.resource).should().getURL();
   }
 
   @Test

@@ -185,14 +185,14 @@ public class JarEntryResource extends UrlBasedResource implements JarResource {
 
   @Override
   public JarEntryResource createRelative(String relativePath) throws IOException {
-    URL url = new URL(getLocation(), relativePath);
+    URL url = new URL(getURL(), relativePath);
     String path = ResourceUtils.getRelativePath(name, relativePath);
     return new JarEntryResource(url, getFile(), path, jar);
   }
 
   @Override
   public String toString() {
-    return "JarEntryResource: ".concat(getLocation().toString());
+    return "JarEntryResource: ".concat(getURL().toString());
   }
 
   @Override

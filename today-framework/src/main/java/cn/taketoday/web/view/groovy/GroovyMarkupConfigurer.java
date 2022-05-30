@@ -176,7 +176,7 @@ public class GroovyMarkupConfigurer extends TemplateConfiguration
       if (!resources.isEmpty()) {
         for (Resource resource : resources) {
           if (resource.exists()) {
-            urls.add(resource.getLocation());
+            urls.add(resource.getURL());
           }
         }
       }

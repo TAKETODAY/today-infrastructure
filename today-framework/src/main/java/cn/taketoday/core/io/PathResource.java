@@ -182,7 +182,7 @@ public class PathResource extends AbstractResource implements WritableResource {
    * @see java.net.URI#toURL()
    */
   @Override
-  public URL getLocation() throws IOException {
+  public URL getURL() throws IOException {
     return this.path.toUri().toURL();
   }
 

@@ -518,7 +518,7 @@ public class LocalSessionFactoryBean extends HibernateExceptionTranslator
     if (configLocations != null) {
       for (Resource resource : configLocations) {
         // Load Hibernate configuration from given location.
-        sfb.configure(resource.getLocation());
+        sfb.configure(resource.getURL());
       }
     }
 

@@ -131,7 +131,7 @@ public class ResourceEditor extends PropertyEditorSupport {
     Resource value = (Resource) getValue();
     try {
       // Try to determine URL for resource.
-      return (value != null ? value.getLocation().toExternalForm() : "");
+      return (value != null ? value.getURL().toExternalForm() : "");
     }
     catch (IOException ex) {
       // Couldn't determine resource URL - return null to indicate

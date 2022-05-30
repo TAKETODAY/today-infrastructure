@@ -176,7 +176,7 @@ class PathResourceTests {
   @Test
   void getUrl() throws IOException {
     PathResource resource = new PathResource(TEST_FILE);
-    assertThat(resource.getLocation().toString()).endsWith("core/io/example.properties");
+    assertThat(resource.getURL().toString()).endsWith("core/io/example.properties");
   }
 
   @Test

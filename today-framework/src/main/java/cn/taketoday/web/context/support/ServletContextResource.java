@@ -173,7 +173,7 @@ public class ServletContextResource extends AbstractFileResolvingResource implem
    * @see jakarta.servlet.ServletContext#getResource(String)
    */
   @Override
-  public URL getLocation() throws IOException {
+  public URL getURL() throws IOException {
     URL url = servletContext.getResource(path);
     if (url == null) {
       throw new FileNotFoundException(

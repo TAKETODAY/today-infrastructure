@@ -219,8 +219,8 @@ public class EncodedResourceResolver extends AbstractResourceResolver {
     }
 
     @Override
-    public URL getLocation() throws IOException {
-      return encoded.getLocation();
+    public URL getURL() throws IOException {
+      return encoded.getURL();
     }
 
     @Override

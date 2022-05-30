@@ -65,8 +65,8 @@ public class PersistenceXmlParsingTests {
     assertThat(info[0].getPersistenceUnitName()).isEqualTo("OrderManagement");
 
     assertThat(info[0].getJarFileUrls().size()).isEqualTo(2);
-    assertThat(info[0].getJarFileUrls().get(0)).isEqualTo(new ClassPathResource("order.jar").getLocation());
-    assertThat(info[0].getJarFileUrls().get(1)).isEqualTo(new ClassPathResource("order-supplemental.jar").getLocation());
+    assertThat(info[0].getJarFileUrls().get(0)).isEqualTo(new ClassPathResource("order.jar").getURL());
+    assertThat(info[0].getJarFileUrls().get(1)).isEqualTo(new ClassPathResource("order-supplemental.jar").getURL());
 
     assertThat(info[0].excludeUnlistedClasses()).as("Exclude unlisted should default false in 1.0.").isFalse();
   }
@@ -116,8 +116,8 @@ public class PersistenceXmlParsingTests {
     assertThat(info[0].getPersistenceUnitName()).isEqualTo("OrderManagement3");
 
     assertThat(info[0].getJarFileUrls().size()).isEqualTo(2);
-    assertThat(info[0].getJarFileUrls().get(0)).isEqualTo(new ClassPathResource("order.jar").getLocation());
-    assertThat(info[0].getJarFileUrls().get(1)).isEqualTo(new ClassPathResource("order-supplemental.jar").getLocation());
+    assertThat(info[0].getJarFileUrls().get(0)).isEqualTo(new ClassPathResource("order.jar").getURL());
+    assertThat(info[0].getJarFileUrls().get(1)).isEqualTo(new ClassPathResource("order-supplemental.jar").getURL());
 
     assertThat(info[0].getProperties().keySet().size()).isEqualTo(0);
     assertThat(info[0].getJtaDataSource()).isNull();
@@ -173,8 +173,8 @@ public class PersistenceXmlParsingTests {
     assertThat(info[0].getMappingFileNames().get(1)).isEqualTo("order2.xml");
 
     assertThat(info[0].getJarFileUrls().size()).isEqualTo(2);
-    assertThat(info[0].getJarFileUrls().get(0)).isEqualTo(new ClassPathResource("order.jar").getLocation());
-    assertThat(info[0].getJarFileUrls().get(1)).isEqualTo(new ClassPathResource("order-supplemental.jar").getLocation());
+    assertThat(info[0].getJarFileUrls().get(0)).isEqualTo(new ClassPathResource("order.jar").getURL());
+    assertThat(info[0].getJarFileUrls().get(1)).isEqualTo(new ClassPathResource("order-supplemental.jar").getURL());
 
     assertThat(info[0].getPersistenceProviderClassName()).isEqualTo("com.acme.AcmePersistence");
     assertThat(info[0].getProperties().keySet().size()).isEqualTo(0);
@@ -208,7 +208,7 @@ public class PersistenceXmlParsingTests {
     assertThat(pu1.getMappingFileNames().get(0)).isEqualTo("ormap2.xml");
 
     assertThat(pu1.getJarFileUrls().size()).isEqualTo(1);
-    assertThat(pu1.getJarFileUrls().get(0)).isEqualTo(new ClassPathResource("order.jar").getLocation());
+    assertThat(pu1.getJarFileUrls().get(0)).isEqualTo(new ClassPathResource("order.jar").getURL());
 
     assertThat(pu1.excludeUnlistedClasses()).isFalse();
 
@@ -290,12 +290,12 @@ public class PersistenceXmlParsingTests {
   @Test
   public void testPersistenceUnitRootUrlWithJar() throws Exception {
     ClassPathResource archive = new ClassPathResource("/cn/taketoday/orm/jpa/jpa-archive.jar");
-    String newRoot = "jar:" + archive.getLocation().toExternalForm() + "!/META-INF/persist.xml";
+    String newRoot = "jar:" + archive.getURL().toExternalForm() + "!/META-INF/persist.xml";
     Resource insideArchive = new UrlBasedResource(newRoot);
     // make sure the location actually exists
     assertThat(insideArchive.exists()).isTrue();
     URL url = PersistenceUnitReader.determinePersistenceUnitRootUrl(insideArchive);
-    assertThat(archive.getLocation().sameFile(url)).as("the archive location should have been returned").isTrue();
+    assertThat(archive.getURL().sameFile(url)).as("the archive location should have been returned").isTrue();
   }
 
   @Test

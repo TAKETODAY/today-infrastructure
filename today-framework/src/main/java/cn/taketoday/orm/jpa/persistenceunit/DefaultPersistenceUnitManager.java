@@ -601,7 +601,7 @@ public class DefaultPersistenceUnitManager
           if (matchesFilter(reader, readerFactory)) {
             scannedUnit.addManagedClassName(className);
             if (scannedUnit.getPersistenceUnitRootUrl() == null) {
-              URL url = resource.getLocation();
+              URL url = resource.getURL();
               if (ResourceUtils.isJarURL(url)) {
                 scannedUnit.setPersistenceUnitRootUrl(ResourceUtils.extractJarFileURL(url));
               }
@@ -648,7 +648,7 @@ public class DefaultPersistenceUnitManager
       return null;
     }
     try {
-      URL url = patternResourceLoader.getResource(defaultPersistenceUnitRootLocation).getLocation();
+      URL url = patternResourceLoader.getResource(defaultPersistenceUnitRootLocation).getURL();
       return (ResourceUtils.isJarURL(url) ? ResourceUtils.extractJarFileURL(url) : url);
     }
     catch (IOException ex) {

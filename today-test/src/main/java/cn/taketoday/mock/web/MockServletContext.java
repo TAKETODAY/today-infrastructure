@@ -343,7 +343,7 @@ public class MockServletContext implements ServletContext {
       if (!resource.exists()) {
         return null;
       }
-      return resource.getLocation();
+      return resource.getURL();
     }
     catch (MalformedURLException ex) {
       throw ex;

@@ -64,7 +64,7 @@ public class CandidateComponentsTestClassLoader extends ClassLoader {
     return new CandidateComponentsTestClassLoader(classLoader,
             Collections.enumeration(Stream.of(resources).map(r -> {
               try {
-                return r.getLocation();
+                return r.getURL();
               }
               catch (Exception ex) {
                 throw new IllegalArgumentException("Invalid resource " + r, ex);

@@ -90,7 +90,7 @@ class ApplicationBannerPrinter {
     String location = environment.getProperty(BANNER_LOCATION_PROPERTY, DEFAULT_BANNER_LOCATION);
     Resource resource = this.resourceLoader.getResource(location);
     try {
-      if (resource.exists() && !resource.getLocation().toExternalForm().contains("liquibase-core")) {
+      if (resource.exists() && !resource.getURL().toExternalForm().contains("liquibase-core")) {
         return new ResourceBanner(resource);
       }
     }

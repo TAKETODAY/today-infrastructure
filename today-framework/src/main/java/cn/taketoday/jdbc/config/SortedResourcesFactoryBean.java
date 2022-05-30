@@ -24,8 +24,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import cn.taketoday.beans.factory.config.AbstractFactoryBean;
 import cn.taketoday.beans.factory.FactoryBean;
+import cn.taketoday.beans.factory.config.AbstractFactoryBean;
 import cn.taketoday.context.aware.ResourceLoaderAware;
 import cn.taketoday.core.io.PathMatchingPatternResourceLoader;
 import cn.taketoday.core.io.PatternResourceLoader;
@@ -75,7 +75,7 @@ public class SortedResourcesFactoryBean extends AbstractFactoryBean<Resource[]> 
       ArrayList<Resource> resources = new ArrayList<>(patternResourceLoader.getResources(location));
       resources.sort((r1, r2) -> {
         try {
-          return r1.getLocation().toString().compareTo(r2.getLocation().toString());
+          return r1.getURL().toString().compareTo(r2.getURL().toString());
         }
         catch (IOException ex) {
           return 0;

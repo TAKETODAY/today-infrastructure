@@ -72,7 +72,7 @@ public class InputSourceEditor extends PropertyEditorSupport {
     this.resourceEditor.setAsText(text);
     Resource resource = (Resource) this.resourceEditor.getValue();
     try {
-      setValue(resource != null ? new InputSource(resource.getLocation().toString()) : null);
+      setValue(resource != null ? new InputSource(resource.getURL().toString()) : null);
     }
     catch (IOException ex) {
       throw new IllegalArgumentException(

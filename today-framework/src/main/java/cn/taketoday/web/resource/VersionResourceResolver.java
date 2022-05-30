@@ -264,8 +264,8 @@ public class VersionResourceResolver extends AbstractResourceResolver {
     }
 
     @Override
-    public URL getLocation() throws IOException {
-      return this.original.getLocation();
+    public URL getURL() throws IOException {
+      return this.original.getURL();
     }
 
     @Override

@@ -75,7 +75,7 @@ public class PathResourceResolverTests {
     testCheckResource(location, "test/../../testsecret/secret.txt");
 
     location = new UrlBasedResource(getClass().getResource("test/"));
-    String secretPath = new UrlBasedResource(getClass().getResource("testsecret/secret.txt")).getLocation().getPath();
+    String secretPath = new UrlBasedResource(getClass().getResource("testsecret/secret.txt")).getURL().getPath();
     testCheckResource(location, "file:" + secretPath);
     testCheckResource(location, "/file:" + secretPath);
     testCheckResource(location, "/" + secretPath);
@@ -130,7 +130,7 @@ public class PathResourceResolverTests {
 
   @Test // SPR-12624
   public void checkRelativeLocation() throws Exception {
-    String location = new UrlBasedResource(getClass().getResource("test/")).getLocation().toExternalForm();
+    String location = new UrlBasedResource(getClass().getResource("test/")).getURL().toExternalForm();
     location = location.replace("/test/cn/taketoday", "/test/cn/../cn/taketoday");
 
     Resource actual = this.resolver.resolveResource(

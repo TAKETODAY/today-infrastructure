@@ -198,7 +198,7 @@ public class FileSystemResource extends AbstractResource implements WritableReso
    * This implementation returns a URL for the underlying file.
    */
   @Override
-  public URL getLocation() throws IOException {
+  public URL getURL() throws IOException {
     return file != null ? file.toURI().toURL() : filePath.toUri().toURL();
   }
 

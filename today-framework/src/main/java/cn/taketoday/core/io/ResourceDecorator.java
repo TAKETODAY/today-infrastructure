@@ -89,8 +89,8 @@ public class ResourceDecorator implements Resource {
   }
 
   @Override
-  public URL getLocation() throws IOException {
-    return getDelegate().getLocation();
+  public URL getURL() throws IOException {
+    return getDelegate().getURL();
   }
 
   @Override

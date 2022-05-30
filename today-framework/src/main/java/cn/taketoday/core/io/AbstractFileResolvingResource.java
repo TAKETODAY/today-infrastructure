@@ -50,7 +50,7 @@ public abstract class AbstractFileResolvingResource extends AbstractResource {
   @Override
   public boolean exists() {
     try {
-      URL url = getLocation();
+      URL url = getURL();
       if (ResourceUtils.isFileURL(url)) {
         // Proceed with file system resolution
         return getFile().exists();
@@ -93,7 +93,7 @@ public abstract class AbstractFileResolvingResource extends AbstractResource {
   @Override
   public boolean isReadable() {
     try {
-      return checkReadable(getLocation());
+      return checkReadable(getURL());
     }
     catch (IOException ex) {
       return false;
@@ -141,7 +141,7 @@ public abstract class AbstractFileResolvingResource extends AbstractResource {
   @Override
   public boolean isFile() {
     try {
-      URL url = getLocation();
+      URL url = getURL();
       return ResourceUtils.URL_PROTOCOL_FILE.equals(url.getProtocol());
     }
     catch (IOException ex) {
@@ -157,7 +157,7 @@ public abstract class AbstractFileResolvingResource extends AbstractResource {
    */
   @Override
   public File getFile() throws IOException {
-    URL url = getLocation();
+    URL url = getURL();
     return ResourceUtils.getFile(url, toString());
   }
 
@@ -167,7 +167,7 @@ public abstract class AbstractFileResolvingResource extends AbstractResource {
    */
   @Override
   protected File getFileForLastModifiedCheck() throws IOException {
-    URL url = getLocation();
+    URL url = getURL();
     if (ResourceUtils.isJarURL(url)) {
       URL actualUrl = ResourceUtils.extractArchiveURL(url);
       return ResourceUtils.getFile(actualUrl, "Jar URL");
@@ -178,8 +178,7 @@ public abstract class AbstractFileResolvingResource extends AbstractResource {
   }
 
   /**
-   * This implementation returns a File reference for the given URI-identified
-   * resource, provided that it refers to a file in the file system.
+   * Determine whether the given {@link URI} represents a file in a file system.
    *
    * @see #getFile(URI)
    */
@@ -217,7 +216,7 @@ public abstract class AbstractFileResolvingResource extends AbstractResource {
 
   @Override
   public long contentLength() throws IOException {
-    URL url = getLocation();
+    URL url = getURL();
     if (ResourceUtils.isFileURL(url)) {
       // Proceed with file system resolution
       File file = getFile();
@@ -238,7 +237,7 @@ public abstract class AbstractFileResolvingResource extends AbstractResource {
 
   @Override
   public long lastModified() throws IOException {
-    URL url = getLocation();
+    URL url = getURL();
     boolean fileCheck = false;
     if (ResourceUtils.isFileURL(url) || ResourceUtils.isJarURL(url)) {
       // Proceed with file system resolution

@@ -183,8 +183,8 @@ public class PathResourceResolver extends AbstractResourceResolver {
         Resource[] allowed = getAllowedLocations();
         logger.warn(LogFormatUtils.formatValue(
                 "Resource path \"" + resourcePath + "\" was successfully resolved " +
-                        "but resource \"" + resource.getLocation() + "\" is neither under " +
-                        "the current location \"" + location.getLocation() + "\" nor under any of " +
+                        "but resource \"" + resource.getURL() + "\" is neither under " +
+                        "the current location \"" + location.getURL() + "\" nor under any of " +
                         "the allowed locations " + (allowed != null ? Arrays.asList(allowed) : "[]"), -1, true));
       }
     }
@@ -225,8 +225,8 @@ public class PathResourceResolver extends AbstractResourceResolver {
     String locationPath;
 
     if (resource instanceof UrlBasedResource) {
-      resourcePath = resource.getLocation().toExternalForm();
-      locationPath = StringUtils.cleanPath(location.getLocation().toString());
+      resourcePath = resource.getURL().toExternalForm();
+      locationPath = StringUtils.cleanPath(location.getURL().toString());
     }
     else if (resource instanceof ClassPathResource classPathResource) {
       resourcePath = classPathResource.getPath();
@@ -237,8 +237,8 @@ public class PathResourceResolver extends AbstractResourceResolver {
       locationPath = StringUtils.cleanPath(((ServletContextResource) location).getPath());
     }
     else {
-      resourcePath = resource.getLocation().getPath();
-      locationPath = StringUtils.cleanPath(location.getLocation().getPath());
+      resourcePath = resource.getURL().getPath();
+      locationPath = StringUtils.cleanPath(location.getURL().getPath());
     }
 
     if (locationPath.equals(resourcePath)) {

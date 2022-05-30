@@ -259,7 +259,7 @@ public class DefaultBeanDefinitionDocumentReader implements BeanDefinitionDocume
         }
 
         if (patternSearch) {
-          String baseLocation = readerContext.getResource().getLocation().toString();
+          String baseLocation = readerContext.getResource().getURL().toString();
           importCount = readerContext.getReader().loadBeanDefinitions(
                   ResourceUtils.getRelativePath(baseLocation, location), actualResources);
         }

@@ -68,7 +68,7 @@ public abstract class AbstractResource implements Resource {
   @Override
   public boolean isReadable() {
     try {
-      return checkReadable(getLocation());
+      return checkReadable(getURL());
     }
     catch (IOException ex) {
       return false;
@@ -159,13 +159,13 @@ public abstract class AbstractResource implements Resource {
   }
 
   @Override
-  public URL getLocation() throws IOException {
+  public URL getURL() throws IOException {
     throw new FileNotFoundException(this + " cannot be resolved to URL");
   }
 
   @Override
   public URI getURI() throws IOException {
-    URL location = getLocation();
+    URL location = getURL();
     try {
       return location.toURI();
     }
@@ -282,7 +282,7 @@ public abstract class AbstractResource implements Resource {
   public String toString() {
     try {
       return ToStringBuilder.from(this).append("name", getName())
-              .append("location", getLocation())
+              .append("location", getURL())
               .toString();
     }
     catch (IOException e) {
@@ -302,8 +302,8 @@ public abstract class AbstractResource implements Resource {
     }
     if (obj instanceof Resource resource) {
       try {
-        URL location = getLocation();
-        URL otherLocation = resource.getLocation();
+        URL location = getURL();
+        URL otherLocation = resource.getURL();
         return Objects.equals(location, otherLocation);
       }
       catch (Exception ignored) { }

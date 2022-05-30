@@ -67,7 +67,7 @@ public class ResourceLoaderVFS extends VFS {
           String baseUrlString, Resource resource, String rootPath) {
     try {
       return rootPath + (rootPath.endsWith("/") ? "" : "/")
-              + resource.getLocation().toString().substring(baseUrlString.length());
+              + resource.getURL().toString().substring(baseUrlString.length());
     }
     catch (IOException e) {
       throw new UncheckedIOException(e);

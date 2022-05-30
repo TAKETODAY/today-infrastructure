@@ -70,7 +70,7 @@ public interface Resource extends InputStreamSource {
    *
    * @throws IOException if the resource is not available
    */
-  URL getLocation() throws IOException;
+  URL getURL() throws IOException;
 
   /**
    * Return a URI handle for this resource.

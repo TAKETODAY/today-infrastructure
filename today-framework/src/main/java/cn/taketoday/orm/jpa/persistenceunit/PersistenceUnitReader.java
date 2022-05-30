@@ -305,7 +305,7 @@ final class PersistenceUnitReader {
         for (Resource resource : patternResourceLoader.getResources(value)) {
           if (resource.exists()) {
             found = true;
-            unitInfo.addJarFileUrl(resource.getLocation());
+            unitInfo.addJarFileUrl(resource.getURL());
           }
         }
         if (!found) {
@@ -333,7 +333,7 @@ final class PersistenceUnitReader {
    */
   @Nullable
   static URL determinePersistenceUnitRootUrl(Resource resource) throws IOException {
-    URL originalURL = resource.getLocation();
+    URL originalURL = resource.getURL();
 
     // If we get an archive, simply return the jar URL (section 6.2 from the JPA spec)
     if (ResourceUtils.isJarURL(originalURL)) {
