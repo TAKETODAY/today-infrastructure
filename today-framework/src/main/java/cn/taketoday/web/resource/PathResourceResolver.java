@@ -249,39 +249,39 @@ public class PathResourceResolver extends AbstractResourceResolver {
   }
 
   private String encodeOrDecodeIfNecessary(String path, @Nullable RequestContext request, Resource location) {
-    if (shouldDecodeRelativePath(location, request)) {
-      try {
-        return UriUtils.decode(path, StandardCharsets.UTF_8);
+    if (request != null) {
+      if (shouldDecodeRelativePath(location)) {
+        try {
+          return UriUtils.decode(path, StandardCharsets.UTF_8);
+        }
+        catch (IllegalArgumentException e) {
+          return path;
+        }
       }
-      catch (IllegalArgumentException e) {
-        return path;
+      else if (shouldEncodeRelativePath(location)) {
+        Charset charset = this.locationCharsets.getOrDefault(location, StandardCharsets.UTF_8);
+        StringBuilder sb = new StringBuilder();
+        StringTokenizer tokenizer = new StringTokenizer(path, "/");
+        while (tokenizer.hasMoreTokens()) {
+          String value = UriUtils.encode(tokenizer.nextToken(), charset);
+          sb.append(value);
+          sb.append('/');
+        }
+        if (!path.endsWith("/")) {
+          sb.setLength(sb.length() - 1);
+        }
+        return sb.toString();
       }
     }
-    else if (shouldEncodeRelativePath(location) && request != null) {
-      Charset charset = this.locationCharsets.getOrDefault(location, StandardCharsets.UTF_8);
-      StringBuilder sb = new StringBuilder();
-      StringTokenizer tokenizer = new StringTokenizer(path, "/");
-      while (tokenizer.hasMoreTokens()) {
-        String value = UriUtils.encode(tokenizer.nextToken(), charset);
-        sb.append(value);
-        sb.append('/');
-      }
-      if (!path.endsWith("/")) {
-        sb.setLength(sb.length() - 1);
-      }
-      return sb.toString();
-    }
-    else {
-      return path;
-    }
+    return path;
   }
 
-  private boolean shouldDecodeRelativePath(Resource location, @Nullable RequestContext request) {
-    return !(location instanceof UrlBasedResource) && request != null;
+  private boolean shouldDecodeRelativePath(Resource location) {
+    return !(location instanceof UrlBasedResource);
   }
 
   private boolean shouldEncodeRelativePath(Resource location) {
-    return (location instanceof UrlBasedResource) && urlDecode;
+    return location instanceof UrlBasedResource && urlDecode;
   }
 
   private boolean isInvalidEncodedPath(String resourcePath) {

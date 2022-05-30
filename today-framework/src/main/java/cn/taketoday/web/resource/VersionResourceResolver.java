@@ -199,7 +199,7 @@ public class VersionResourceResolver extends AbstractResourceResolver {
 
   @Override
   protected String resolveUrlPathInternal(String resourceUrlPath,
-                                          List<? extends Resource> locations, ResourceResolvingChain chain) {
+          List<? extends Resource> locations, ResourceResolvingChain chain) {
 
     String baseUrl = chain.resolveUrlPath(resourceUrlPath, locations);
     if (StringUtils.hasText(baseUrl)) {
