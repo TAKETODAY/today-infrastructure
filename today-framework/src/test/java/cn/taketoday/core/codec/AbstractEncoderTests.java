@@ -82,7 +82,7 @@ public abstract class AbstractEncoderTests<E extends Encoder<?>> extends Abstrac
    * Helper methods that tests for a variety of encoding scenarios. This methods
    * invokes:
    * <ul>
-   *     <li>{@link #testEncode(Publisher, ResolvableType, Consumer, MimeType, Map)}</li>
+   *     <li>{@link #testEncode(Publisher, ResolvableType, MimeType, Map, Consumer)}</li>
    *     <li>{@link #testEncodeError(Publisher, ResolvableType, MimeType, Map)}</li>
    *     <li>{@link #testEncodeCancel(Publisher, ResolvableType, MimeType, Map)}</li>
    *     <li>{@link #testEncodeEmpty(ResolvableType, MimeType, Map)}</li>
@@ -95,30 +95,32 @@ public abstract class AbstractEncoderTests<E extends Encoder<?>> extends Abstrac
    */
   protected <T> void testEncodeAll(Publisher<? extends T> input, Class<? extends T> inputClass,
           Consumer<StepVerifier.FirstStep<DataBuffer>> stepConsumer) {
-    testEncodeAll(input, ResolvableType.fromClass(inputClass), stepConsumer, null, null);
+
+    testEncodeAll(input, ResolvableType.fromClass(inputClass), null, null, stepConsumer);
   }
 
   /**
    * Helper methods that tests for a variety of decoding scenarios. This methods
    * invokes:
    * <ul>
-   *     <li>{@link #testEncode(Publisher, ResolvableType, Consumer, MimeType, Map)}</li>
+   *     <li>{@link #testEncode(Publisher, ResolvableType, MimeType, Map, Consumer)}</li>
    *     <li>{@link #testEncodeError(Publisher, ResolvableType, MimeType, Map)}</li>
    *     <li>{@link #testEncodeCancel(Publisher, ResolvableType, MimeType, Map)}</li>
    *     <li>{@link #testEncodeEmpty(ResolvableType, MimeType, Map)}</li>
    * </ul>
    *
+   * @param <T> the output type
    * @param input the input to be provided to the encoder
    * @param inputType the input type
-   * @param stepConsumer a consumer to {@linkplain StepVerifier verify} the output
    * @param mimeType the mime type to use for decoding. May be {@code null}.
    * @param hints the hints used for decoding. May be {@code null}.
-   * @param <T> the output type
+   * @param stepConsumer a consumer to {@linkplain StepVerifier verify} the output
    */
   protected <T> void testEncodeAll(Publisher<? extends T> input, ResolvableType inputType,
-          Consumer<StepVerifier.FirstStep<DataBuffer>> stepConsumer,
-          @Nullable MimeType mimeType, @Nullable Map<String, Object> hints) {
-    testEncode(input, inputType, stepConsumer, mimeType, hints);
+          @Nullable MimeType mimeType, @Nullable Map<String, Object> hints,
+          Consumer<StepVerifier.FirstStep<DataBuffer>> stepConsumer) {
+
+    testEncode(input, inputType, mimeType, hints, stepConsumer);
     testEncodeError(input, inputType, mimeType, hints);
     testEncodeCancel(input, inputType, mimeType, hints);
     testEncodeEmpty(inputType, mimeType, hints);
@@ -134,7 +136,8 @@ public abstract class AbstractEncoderTests<E extends Encoder<?>> extends Abstrac
    */
   protected <T> void testEncode(Publisher<? extends T> input, Class<? extends T> inputClass,
           Consumer<StepVerifier.FirstStep<DataBuffer>> stepConsumer) {
-    testEncode(input, ResolvableType.fromClass(inputClass), stepConsumer, null, null);
+
+    testEncode(input, ResolvableType.fromClass(inputClass), null, null, stepConsumer);
   }
 
   /**
@@ -152,26 +155,6 @@ public abstract class AbstractEncoderTests<E extends Encoder<?>> extends Abstrac
           Consumer<StepVerifier.FirstStep<DataBuffer>> stepConsumer) {
 
     Flux<DataBuffer> result = encoder().encode(input, this.bufferFactory, inputType, mimeType, hints);
-    StepVerifier.FirstStep<DataBuffer> step = StepVerifier.create(result);
-    stepConsumer.accept(step);
-  }
-
-  /**
-   * Test a standard {@link Encoder#encode encode} scenario.
-   *
-   * @param input the input to be provided to the encoder
-   * @param inputType the input type
-   * @param stepConsumer a consumer to {@linkplain StepVerifier verify} the output
-   * @param mimeType the mime type to use for decoding. May be {@code null}.
-   * @param hints the hints used for decoding. May be {@code null}.
-   * @param <T> the output type
-   */
-  protected <T> void testEncode(Publisher<? extends T> input, ResolvableType inputType,
-          Consumer<StepVerifier.FirstStep<DataBuffer>> stepConsumer,
-          @Nullable MimeType mimeType, @Nullable Map<String, Object> hints) {
-
-    Flux<DataBuffer> result = encoder().encode(input, this.bufferFactory, inputType,
-            mimeType, hints);
     StepVerifier.FirstStep<DataBuffer> step = StepVerifier.create(result);
     stepConsumer.accept(step);
   }
