@@ -46,7 +46,7 @@ import cn.taketoday.web.context.async.DeferredResult;
  * {@link ResponseEntity}.
  *
  * <pre>
- * &#064;RequestMapping(value="/stream", method=RequestMethod.GET)
+ * &#064;GET("/stream")
  * public ResponseBodyEmitter handle() {
  * 	   ResponseBodyEmitter emitter = new ResponseBodyEmitter();
  * 	   // Pass the emitter to another component...

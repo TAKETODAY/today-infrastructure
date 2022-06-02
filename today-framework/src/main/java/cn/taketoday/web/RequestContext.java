@@ -67,7 +67,6 @@ import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.multipart.MultipartRequest;
 import cn.taketoday.web.util.UriComponents;
 import cn.taketoday.web.util.UriComponentsBuilder;
-import jakarta.servlet.http.HttpServletRequest;
 
 import static cn.taketoday.lang.Constant.DEFAULT_CHARSET;
 

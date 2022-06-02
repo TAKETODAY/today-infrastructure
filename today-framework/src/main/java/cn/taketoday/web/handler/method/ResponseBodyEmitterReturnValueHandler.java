@@ -174,8 +174,8 @@ public class ResponseBodyEmitterReturnValueHandler implements SmartReturnValueHa
       }
     }
 
-    // for ResponseBodyEmitter
     ResponseBodyEmitter emitter;
+    // for ResponseBodyEmitter
     if (returnValue instanceof ResponseBodyEmitter) {
       emitter = (ResponseBodyEmitter) returnValue;
     }
@@ -187,8 +187,11 @@ public class ResponseBodyEmitterReturnValueHandler implements SmartReturnValueHa
       }
     }
     else {
-      throw new IllegalStateException();
+      // should not happen
+      throw new UnsupportedOperationException(
+              "Unsupported handler: '" + handler + "' and its return-value: '" + returnValue + "'");
     }
+
     emitter.extendResponse(request);
 
     // At this point we know we're streaming..
