@@ -245,7 +245,7 @@ class ReactiveTypeHandlerTests {
     emitter.initialize(emitterHandler);
 
     ServletServerHttpResponse message = new ServletServerHttpResponse(this.servletResponse);
-    emitter.extendResponse(webRequest);
+    emitter.extendResponse(message);
 
     Bar bar1 = new Bar("foo");
     Bar bar2 = new Bar("bar");
@@ -301,7 +301,7 @@ class ReactiveTypeHandlerTests {
   private void testEmitterContentType(String expected) throws Exception {
     ServletServerHttpResponse message = new ServletServerHttpResponse(this.servletResponse);
     ResponseBodyEmitter emitter = handleValue(Flux.empty(), Flux.class, ResolvableType.fromClass(String.class));
-    emitter.extendResponse(webRequest);
+    emitter.extendResponse(message);
     assertThat(message.getHeaders().getContentType().toString()).isEqualTo(expected);
     resetRequest();
   }

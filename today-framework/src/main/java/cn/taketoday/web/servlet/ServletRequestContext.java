@@ -42,6 +42,8 @@ import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.InvalidMediaTypeException;
 import cn.taketoday.http.MediaType;
 import cn.taketoday.http.ResponseCookie;
+import cn.taketoday.http.server.ServerHttpResponse;
+import cn.taketoday.http.server.ServletServerHttpResponse;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.CompositeIterator;
@@ -337,6 +339,11 @@ public final class ServletRequestContext extends RequestContext {
     }
 
     return httpHeaders;
+  }
+
+  @Override
+  public ServerHttpResponse getServerHttpResponse() {
+    return new ServletServerHttpResponse(response);
   }
 
   @Override

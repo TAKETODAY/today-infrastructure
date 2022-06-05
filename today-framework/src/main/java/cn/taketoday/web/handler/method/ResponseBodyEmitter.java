@@ -27,10 +27,10 @@ import java.util.function.Consumer;
 import cn.taketoday.http.MediaType;
 import cn.taketoday.http.ResponseEntity;
 import cn.taketoday.http.converter.HttpMessageConverter;
+import cn.taketoday.http.server.ServerHttpResponse;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ObjectUtils;
-import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.context.async.DeferredResult;
 
 /**
@@ -169,7 +169,7 @@ public class ResponseBodyEmitter {
    * response is committed, i.e. before the response body has been written to.
    * <p>The default implementation is empty.
    */
-  protected void extendResponse(RequestContext outputMessage) {
+  protected void extendResponse(ServerHttpResponse outputMessage) {
 
   }
 

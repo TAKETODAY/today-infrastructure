@@ -58,6 +58,7 @@ import cn.taketoday.http.HttpStatus;
 import cn.taketoday.http.HttpStatusCode;
 import cn.taketoday.http.server.PathContainer;
 import cn.taketoday.http.server.RequestPath;
+import cn.taketoday.http.server.ServerHttpResponse;
 import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.NonNull;
 import cn.taketoday.lang.Nullable;
@@ -1397,7 +1398,7 @@ public abstract class RequestContext extends AttributeAccessorSupport
    * @since 3.0
    */
   public void mergeToResponse(HttpHeaders headers) {
-    responseHeaders().putAll(headers);
+    responseHeaders().addAll(headers);
   }
 
   /**
@@ -1410,6 +1411,8 @@ public abstract class RequestContext extends AttributeAccessorSupport
   }
 
   // ----------------------
+
+  public abstract ServerHttpResponse getServerHttpResponse();
 
   /**
    * Native request eg: HttpServletRequest

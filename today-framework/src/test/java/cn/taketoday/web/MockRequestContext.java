@@ -31,6 +31,7 @@ import cn.taketoday.http.HttpCookie;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpStatus;
 import cn.taketoday.http.MediaType;
+import cn.taketoday.http.server.ServerHttpResponse;
 import cn.taketoday.web.multipart.MultipartRequest;
 
 /**
@@ -170,6 +171,11 @@ public class MockRequestContext extends RequestContext {
 
   @Override
   protected OutputStream doGetOutputStream() throws IOException {
+    return null;
+  }
+
+  @Override
+  public ServerHttpResponse getServerHttpResponse() {
     return null;
   }
 

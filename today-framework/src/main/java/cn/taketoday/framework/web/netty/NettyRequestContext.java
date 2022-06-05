@@ -35,7 +35,9 @@ import java.util.function.Supplier;
 import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.http.DefaultHttpHeaders;
 import cn.taketoday.http.HttpCookie;
+import cn.taketoday.http.HttpStatusCode;
 import cn.taketoday.http.ResponseCookie;
+import cn.taketoday.http.server.ServerHttpResponse;
 import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
@@ -222,6 +224,36 @@ public class NettyRequestContext extends RequestContext {
   @Override
   public String getContentType() {
     return request.headers().get(HttpHeaderNames.CONTENT_TYPE);
+  }
+
+  @Override
+  public ServerHttpResponse getServerHttpResponse() {
+    return new ServerHttpResponse() {
+      @Override
+      public void setStatusCode(HttpStatusCode status) {
+        setStatus(status);
+      }
+
+      @Override
+      public void flush() throws IOException {
+        NettyRequestContext.this.flush();
+      }
+
+      @Override
+      public void close() {
+        writeHeaders();
+      }
+
+      @Override
+      public OutputStream getBody() throws IOException {
+        return getOutputStream();
+      }
+
+      @Override
+      public cn.taketoday.http.HttpHeaders getHeaders() {
+        return responseHeaders();
+      }
+    };
   }
 
   @Override

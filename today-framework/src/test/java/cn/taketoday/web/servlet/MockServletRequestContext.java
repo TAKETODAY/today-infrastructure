@@ -25,17 +25,14 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
-import java.io.Serial;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
 import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.http.DefaultHttpHeaders;
 import cn.taketoday.http.HttpCookie;
 import cn.taketoday.http.HttpHeaders;
@@ -43,6 +40,8 @@ import cn.taketoday.http.HttpMethod;
 import cn.taketoday.http.ResponseCookie;
 import cn.taketoday.http.server.PathContainer;
 import cn.taketoday.http.server.RequestPath;
+import cn.taketoday.http.server.ServerHttpResponse;
+import cn.taketoday.http.server.ServletServerHttpResponse;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.CompositeIterator;
 import cn.taketoday.util.ObjectUtils;
@@ -293,67 +292,13 @@ public class MockServletRequestContext extends RequestContext {
   }
 
   @Override
-  protected HttpHeaders createResponseHeaders() {
-    return new ServletRequestContext.ServletResponseHttpHeaders(response);
+  public ServerHttpResponse getServerHttpResponse() {
+    return new ServletServerHttpResponse(response);
   }
 
-  static final class ServletResponseHttpHeaders extends DefaultHttpHeaders {
-    @Serial
-    private static final long serialVersionUID = 1L;
-    private final HttpServletResponse response;
-
-    ServletResponseHttpHeaders(HttpServletResponse response) {
-      this.response = response;
-    }
-
-    @Override
-    public void set(String headerName, String headerValue) {
-      super.set(headerName, headerValue);
-      response.setHeader(headerName, headerValue);
-    }
-
-    @Override
-    public void add(String headerName, String headerValue) {
-      super.add(headerName, headerValue);
-      response.addHeader(headerName, headerValue);
-    }
-
-    @Override
-    public void addAll(String key, List<? extends String> values) {
-      for (final String value : values) {
-        add(key, value);
-      }
-    }
-
-    @Override
-    public void addAll(MultiValueMap<String, String> values) {
-      values.forEach(this::addAll);
-    }
-
-    @Override
-    public void setAll(Map<String, String> values) {
-      values.forEach(this::set);
-    }
-
-    @Override
-    public List<String> put(String key, List<String> values) {
-      doPut(key, values, response);
-      return super.put(key, values);
-    }
-
-    private static void doPut(String key, List<String> values, HttpServletResponse response) {
-      for (final String value : values) {
-        response.addHeader(key, value);
-      }
-    }
-
-    @Override
-    public void putAll(Map<? extends String, ? extends List<String>> map) {
-      super.putAll(map);
-      for (final Entry<? extends String, ? extends List<String>> entry : map.entrySet()) {
-        doPut(entry.getKey(), entry.getValue(), response);
-      }
-    }
+  @Override
+  protected HttpHeaders createResponseHeaders() {
+    return new ServletRequestContext.ServletResponseHttpHeaders(response);
   }
 
   @Override
