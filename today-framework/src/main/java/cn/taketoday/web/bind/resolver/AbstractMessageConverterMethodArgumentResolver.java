@@ -116,7 +116,6 @@ public abstract class AbstractMessageConverterMethodArgumentResolver implements 
    * Create the method argument value of the expected parameter type by
    * reading from the given request.
    *
-   * @param <T> the expected type of the argument value to be created
    * @param request the current request
    * @param parameter the method parameter descriptor (may be {@code null})
    * @param paramType the type of the argument value to be created
@@ -134,7 +133,6 @@ public abstract class AbstractMessageConverterMethodArgumentResolver implements 
    * Create the method argument value of the expected parameter type by reading
    * from the given HttpInputMessage.
    *
-   * @param <T> the expected type of the argument value to be created
    * @param inputMessage the HTTP input message representing the current request
    * @param parameter the method parameter descriptor
    * @param targetType the target type, not necessarily the same as the method

@@ -73,12 +73,13 @@ import cn.taketoday.web.context.async.WebAsyncUtils;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/4/8 23:54
  */
-class ReactiveTypeHandler {
+final class ReactiveTypeHandler {
 
   private static final long STREAMING_TIMEOUT_VALUE = -1;
 
-  private static final List<MediaType> JSON_STREAMING_MEDIA_TYPES =
-          Arrays.asList(MediaType.APPLICATION_NDJSON, MediaType.APPLICATION_STREAM_JSON);
+  private static final MediaType[] JSON_STREAMING_MEDIA_TYPES = {
+          MediaType.APPLICATION_NDJSON, MediaType.APPLICATION_STREAM_JSON
+  };
 
   private static final Logger log = LoggerFactory.getLogger(ReactiveTypeHandler.class);
 
