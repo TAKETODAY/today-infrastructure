@@ -110,12 +110,8 @@ class RegexPathElement extends PathElement {
     }
 
     patternBuilder.append(quote(text, end, text.length()));
-    if (this.caseSensitive) {
-      return Pattern.compile(patternBuilder.toString());
-    }
-    else {
-      return Pattern.compile(patternBuilder.toString(), Pattern.CASE_INSENSITIVE);
-    }
+    return Pattern.compile(patternBuilder.toString(),
+            Pattern.DOTALL | (this.caseSensitive ? 0 : Pattern.CASE_INSENSITIVE));
   }
 
   public List<String> getVariableNames() {

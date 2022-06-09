@@ -134,6 +134,9 @@ public class AntPathMatcherTest {
     assertThat(pathMatcher.match("", "")).isTrue();
 
     assertThat(pathMatcher.match("/{bla}.*", "/testing.html")).isTrue();
+
+    		assertThat(pathMatcher.match("/{var:.*}", "/x\ny")).isTrue();
+
   }
 
   @Test

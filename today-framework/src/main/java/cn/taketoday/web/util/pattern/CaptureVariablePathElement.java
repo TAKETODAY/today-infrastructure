@@ -63,13 +63,9 @@ class CaptureVariablePathElement extends PathElement implements VariableNameProv
     }
     else {
       this.variableName = new String(captureDescriptor, 1, colon - 1);
-      String regex = new String(captureDescriptor, colon + 1, captureDescriptor.length - colon - 2);
-      if (caseSensitive) {
-        this.constraintPattern = Pattern.compile(regex);
-      }
-      else {
-        this.constraintPattern = Pattern.compile(regex, Pattern.CASE_INSENSITIVE);
-      }
+      this.constraintPattern = Pattern.compile(
+              new String(captureDescriptor, colon + 1, captureDescriptor.length - colon - 2),
+              Pattern.DOTALL | (caseSensitive ? 0 : Pattern.CASE_INSENSITIVE));
     }
   }
 
