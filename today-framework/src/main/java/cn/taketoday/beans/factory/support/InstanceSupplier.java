@@ -20,9 +20,11 @@
 
 package cn.taketoday.beans.factory.support;
 
+import java.lang.reflect.Method;
 import java.util.function.Supplier;
 
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.function.ThrowingBiFunction;
 import cn.taketoday.util.function.ThrowingSupplier;
 
@@ -53,6 +55,18 @@ public interface InstanceSupplier<T> extends ThrowingSupplier<T> {
    * @throws Exception on error
    */
   T get(RegisteredBean registeredBean) throws Exception;
+
+  /**
+   * Return the factory method that this supplier uses to create the
+   * instance, or {@code null} if it is not known or this supplier uses
+   * another mean.
+   *
+   * @return the factory method used to create the instance, or {@code null}
+   */
+  @Nullable
+  default Method getFactoryMethod() {
+    return null;
+  }
 
   /**
    * Return a composed instance supplier that first obtains the instance from
