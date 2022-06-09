@@ -539,22 +539,32 @@ public class Jackson2ObjectMapperBuilder {
   }
 
   /**
-   * Set a complete list of modules to be registered with the {@link ObjectMapper}.
-   * <p>Multiple invocations are not additive, the last one defines the modules to
-   * register.
-   * <p>Note: If this is set, no finding of modules is going to happen - not by
-   * Jackson, and not by this project either (see {@link #findModulesViaServiceLoader}).
-   * As a consequence, specifying an empty list here will suppress any kind of
-   * module detection.
-   * <p>Specify either this or {@link #modulesToInstall}, not both.
+   * Variant of {@link #modules(Module...)} with a {@link List}.
    *
    * @see #modules(Module...)
-   * @see Module
+   * @see #modules(Consumer)
+   * @see com.fasterxml.jackson.databind.Module
    */
   public Jackson2ObjectMapperBuilder modules(List<Module> modules) {
     this.modules = new ArrayList<>(modules);
     this.findModulesViaServiceLoader = false;
     this.findWellKnownModules = false;
+    return this;
+  }
+
+  /**
+   * Variant of {@link #modules(Module...)} with a {@link Consumer} for full
+   * control over the underlying list of modules.
+   *
+   * @see #modules(Module...)
+   * @see #modules(List)
+   * @see com.fasterxml.jackson.databind.Module
+   */
+  public Jackson2ObjectMapperBuilder modules(Consumer<List<Module>> consumer) {
+    this.modules = (this.modules != null ? this.modules : new ArrayList<>());
+    this.findModulesViaServiceLoader = false;
+    this.findWellKnownModules = false;
+    consumer.accept(this.modules);
     return this;
   }
 
@@ -568,12 +578,28 @@ public class Jackson2ObjectMapperBuilder {
    * allowing to eventually override their configuration.
    * <p>Specify either this or {@link #modules(Module...)}, not both.
    *
+   * @see #modulesToInstall(Consumer)
    * @see #modulesToInstall(Class...)
    * @see Module
    */
   public Jackson2ObjectMapperBuilder modulesToInstall(Module... modules) {
     this.modules = Arrays.asList(modules);
     this.findWellKnownModules = true;
+    return this;
+  }
+
+  /**
+   * Variant of {@link #modulesToInstall(Module...)} with a {@link Consumer}
+   * for full control over the underlying list of modules.
+   *
+   * @see #modulesToInstall(Module...)
+   * @see #modulesToInstall(Class...)
+   * @see com.fasterxml.jackson.databind.Module
+   */
+  public Jackson2ObjectMapperBuilder modulesToInstall(Consumer<List<Module>> consumer) {
+    this.modules = (this.modules != null ? this.modules : new ArrayList<>());
+    this.findWellKnownModules = true;
+    consumer.accept(this.modules);
     return this;
   }
 
@@ -589,6 +615,7 @@ public class Jackson2ObjectMapperBuilder {
    * <p>Specify either this or {@link #modules(Module...)}, not both.
    *
    * @see #modulesToInstall(Module...)
+   * @see #modulesToInstall(Consumer)
    * @see Module
    */
   @SafeVarargs
