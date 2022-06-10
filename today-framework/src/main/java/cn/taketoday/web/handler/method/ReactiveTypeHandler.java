@@ -74,6 +74,7 @@ import cn.taketoday.web.context.async.WebAsyncUtils;
  * @since 4.0 2022/4/8 23:54
  */
 final class ReactiveTypeHandler {
+  private static final Logger log = LoggerFactory.getLogger(ReactiveTypeHandler.class);
 
   private static final long STREAMING_TIMEOUT_VALUE = -1;
 
@@ -81,15 +82,10 @@ final class ReactiveTypeHandler {
           MediaType.APPLICATION_NDJSON, MediaType.APPLICATION_STREAM_JSON
   };
 
-  private static final Logger log = LoggerFactory.getLogger(ReactiveTypeHandler.class);
-
-  private final ReactiveAdapterRegistry adapterRegistry;
-
-  private final TaskExecutor taskExecutor;
-
-  private final ContentNegotiationManager contentNegotiationManager;
-
   private boolean taskExecutorWarning;
+  private final TaskExecutor taskExecutor;
+  private final ReactiveAdapterRegistry adapterRegistry;
+  private final ContentNegotiationManager contentNegotiationManager;
 
   public ReactiveTypeHandler() {
     this(ReactiveAdapterRegistry.getSharedInstance(), new SyncTaskExecutor(), new ContentNegotiationManager());
@@ -143,7 +139,7 @@ final class ReactiveTypeHandler {
       if (mediaTypes.stream().anyMatch(MediaType.TEXT_EVENT_STREAM::includes)
               || ServerSentEvent.class.isAssignableFrom(elementClass)) {
         logExecutorWarning(returnType);
-        SseEmitter emitter = new SseEmitter(STREAMING_TIMEOUT_VALUE);
+        var emitter = new SseEmitter(STREAMING_TIMEOUT_VALUE);
         new SseEmitterSubscriber(emitter, taskExecutor).connect(adapter, returnValue);
         return emitter;
       }
@@ -152,7 +148,7 @@ final class ReactiveTypeHandler {
         Optional<MediaType> mediaType = mediaTypes.stream()
                 .filter(MimeType::isConcrete)
                 .findFirst();
-        ResponseBodyEmitter emitter = getEmitter(mediaType.orElse(MediaType.TEXT_PLAIN));
+        var emitter = getEmitter(mediaType.orElse(MediaType.TEXT_PLAIN));
         new TextEmitterSubscriber(emitter, taskExecutor).connect(adapter, returnValue);
         return emitter;
       }
@@ -160,7 +156,7 @@ final class ReactiveTypeHandler {
         for (MediaType streamingType : JSON_STREAMING_MEDIA_TYPES) {
           if (streamingType.includes(type)) {
             logExecutorWarning(returnType);
-            ResponseBodyEmitter emitter = getEmitter(streamingType);
+            var emitter = getEmitter(streamingType);
             new JsonEmitterSubscriber(emitter, taskExecutor).connect(adapter, returnValue);
             return emitter;
           }
@@ -202,10 +198,9 @@ final class ReactiveTypeHandler {
 
   @SuppressWarnings("ConstantConditions")
   private void logExecutorWarning(MethodParameter returnType) {
-    if (this.taskExecutorWarning && log.isWarnEnabled()) {
+    if (taskExecutorWarning && log.isWarnEnabled()) {
       synchronized(this) {
-        if (this.taskExecutorWarning) {
-          String executorTypeName = this.taskExecutor.getClass().getSimpleName();
+        if (taskExecutorWarning) {
           log.warn("""
                           !!!
                           Streaming through a reactive type requires an Executor to write to the response.
@@ -216,7 +211,7 @@ final class ReactiveTypeHandler {
                           Method:\t\t{}
                           Returning:\t{}
                           !!!""",
-                  executorTypeName,
+                  taskExecutor.getClass().getSimpleName(),
                   returnType.getContainingClass().getName(),
                   returnType.getMethod().getName(),
                   ResolvableType.forMethodParameter(returnType));
@@ -228,7 +223,7 @@ final class ReactiveTypeHandler {
 
   private abstract static class AbstractEmitterSubscriber implements Subscriber<Object>, Runnable {
 
-    private final ResponseBodyEmitter emitter;
+    protected final ResponseBodyEmitter emitter;
 
     private final TaskExecutor taskExecutor;
 
@@ -256,10 +251,6 @@ final class ReactiveTypeHandler {
       publisher.subscribe(this);
     }
 
-    protected ResponseBodyEmitter getEmitter() {
-      return this.emitter;
-    }
-
     @Override
     public final void onSubscribe(Subscription subscription) {
       this.subscription = subscription;
@@ -276,7 +267,7 @@ final class ReactiveTypeHandler {
 
     @Override
     public final void onNext(Object element) {
-      this.elementRef.lazySet(element);
+      elementRef.lazySet(element);
       trySchedule();
     }
 
@@ -294,43 +285,43 @@ final class ReactiveTypeHandler {
     }
 
     private void trySchedule() {
-      if (this.executing.getAndIncrement() == 0) {
+      if (executing.getAndIncrement() == 0) {
         schedule();
       }
     }
 
     private void schedule() {
       try {
-        this.taskExecutor.execute(this);
+        taskExecutor.execute(this);
       }
       catch (Throwable ex) {
         try {
           terminate();
         }
         finally {
-          this.executing.decrementAndGet();
-          this.elementRef.lazySet(null);
+          executing.decrementAndGet();
+          elementRef.lazySet(null);
         }
       }
     }
 
     @Override
     public void run() {
-      if (this.done) {
-        this.elementRef.lazySet(null);
+      if (done) {
+        elementRef.lazySet(null);
         return;
       }
 
       // Check terminal signal before processing element..
       boolean isTerminated = this.terminated;
 
-      Object element = this.elementRef.get();
+      Object element = elementRef.get();
       if (element != null) {
-        this.elementRef.lazySet(null);
-        Assert.state(this.subscription != null, "No subscription");
+        elementRef.lazySet(null);
+        Assert.state(subscription != null, "No subscription");
         try {
           send(element);
-          this.subscription.request(1);
+          subscription.request(1);
         }
         catch (final Throwable ex) {
           if (log.isTraceEnabled()) {
@@ -384,10 +375,10 @@ final class ReactiveTypeHandler {
     @Override
     protected void send(Object element) throws IOException {
       if (element instanceof ServerSentEvent<?> event) {
-        ((SseEmitter) getEmitter()).send(adapt(event));
+        ((SseEmitter) emitter).send(adapt(event));
       }
       else {
-        getEmitter().send(element, MediaType.APPLICATION_JSON);
+        emitter.send(element, MediaType.APPLICATION_JSON);
       }
     }
 
@@ -425,9 +416,10 @@ final class ReactiveTypeHandler {
 
     @Override
     protected void send(Object element) throws IOException {
-      getEmitter().send(element, MediaType.APPLICATION_JSON);
-      getEmitter().send("\n", MediaType.TEXT_PLAIN);
+      emitter.send(element, MediaType.APPLICATION_JSON);
+      emitter.send("\n", MediaType.TEXT_PLAIN);
     }
+
   }
 
   private static class TextEmitterSubscriber extends AbstractEmitterSubscriber {
@@ -438,8 +430,9 @@ final class ReactiveTypeHandler {
 
     @Override
     protected void send(Object element) throws IOException {
-      getEmitter().send(element, MediaType.TEXT_PLAIN);
+      emitter.send(element, MediaType.TEXT_PLAIN);
     }
+
   }
 
   private static class DeferredResultSubscriber implements Subscriber<Object> {
