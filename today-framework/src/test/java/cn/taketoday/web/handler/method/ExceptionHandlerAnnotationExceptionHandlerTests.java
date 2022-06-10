@@ -61,6 +61,7 @@ import cn.taketoday.web.testfixture.servlet.MockHttpServletResponse;
 import cn.taketoday.web.util.WebUtils;
 import cn.taketoday.web.view.Model;
 import cn.taketoday.web.view.ModelAndView;
+import cn.taketoday.web.view.ModelMap;
 import cn.taketoday.web.view.RedirectModel;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -221,10 +222,13 @@ class ExceptionHandlerAnnotationExceptionHandlerTests {
     };
 
     MockServletRequestContext context = new MockServletRequestContext(null, request, response);
+    context.setBindingContext(new BindingContext());
+
     Object ret = this.handler.handleException(context, ex, handler);
 
-    assertThat(context.getAttributes().size()).isEqualTo(1);
-    assertThat(context.getAttribute("exceptionClassName")).isEqualTo("IllegalArgumentException");
+    ModelMap model = context.getBindingContext().getModel();
+    assertThat(model.size()).isEqualTo(1);
+    assertThat(model.getAttribute("exceptionClassName")).isEqualTo("IllegalArgumentException");
   }
 
   @Test

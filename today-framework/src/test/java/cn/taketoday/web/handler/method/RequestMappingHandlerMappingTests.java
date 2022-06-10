@@ -37,6 +37,7 @@ import cn.taketoday.core.annotation.AliasFor;
 import cn.taketoday.http.HttpMethod;
 import cn.taketoday.http.MediaType;
 import cn.taketoday.util.ReflectionUtils;
+import cn.taketoday.web.annotation.ActionMapping;
 import cn.taketoday.web.annotation.Controller;
 import cn.taketoday.web.annotation.DeleteMapping;
 import cn.taketoday.web.annotation.GetMapping;
@@ -260,14 +261,13 @@ class RequestMappingHandlerMappingTests {
 
   }
 
-  @RequestMapping(method = HttpMethod.POST,
-                  produces = MediaType.APPLICATION_JSON_VALUE,
-                  consumes = MediaType.APPLICATION_JSON_VALUE)
+  @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE,
+               consumes = MediaType.APPLICATION_JSON_VALUE)
   @Target(ElementType.METHOD)
   @Retention(RetentionPolicy.RUNTIME)
   @interface PostJson {
 
-    @AliasFor(annotation = RequestMapping.class)
+    @AliasFor(annotation = ActionMapping.class)
     String[] value() default {};
   }
 
