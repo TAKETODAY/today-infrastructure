@@ -17,12 +17,23 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.web;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import cn.taketoday.beans.factory.BeanFactoryUtils;
+import cn.taketoday.context.ApplicationContext;
+import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.web.handler.DispatcherHandler;
+import cn.taketoday.web.handler.FunctionRequestAdapter;
+import cn.taketoday.web.handler.HandlerAdapters;
 import cn.taketoday.web.handler.NotFoundHandler;
 import cn.taketoday.web.handler.RequestHandlerAdapter;
 import cn.taketoday.web.handler.ViewControllerHandlerAdapter;
+import cn.taketoday.web.handler.method.RequestMappingHandlerAdapter;
 
 /**
  * MVC framework SPI, allowing parameterization of the core MVC workflow.
@@ -68,6 +79,14 @@ import cn.taketoday.web.handler.ViewControllerHandlerAdapter;
 public interface HandlerAdapter {
 
   /**
+   * Well-known name for the HandlerAdapter object in the bean factory for this namespace.
+   * Only used when "detectAllHandlerAdapters" is turned off.
+   *
+   * @see DispatcherHandler#setDetectAllHandlerAdapters
+   */
+  String HANDLER_ADAPTER_BEAN_NAME = "handlerAdapter";
+
+  /**
    * This value indicates that the handler did not return a value, or the result
    * has been processed
    */
@@ -109,5 +128,47 @@ public interface HandlerAdapter {
    */
   @Nullable
   Object handle(RequestContext context, Object handler) throws Throwable;
+
+  // static factory method
+
+  static HandlerAdapter of(List<HandlerAdapter> handlerAdapters) {
+    return new HandlerAdapters(handlerAdapters.toArray(new HandlerAdapter[0]));
+  }
+
+  static HandlerAdapter find(ApplicationContext context) {
+    return find(context, true);
+  }
+
+  static HandlerAdapter find(ApplicationContext context, boolean detectAllHandlerAdapters) {
+    if (detectAllHandlerAdapters) {
+      // Find all HandlerAdapters in the ApplicationContext, including ancestor contexts.
+      var matchingBeans = BeanFactoryUtils.beansOfTypeIncludingAncestors(
+              context, HandlerAdapter.class, true, false);
+      if (!matchingBeans.isEmpty()) {
+        var handlerAdapters = new ArrayList<>(matchingBeans.values());
+        // We keep HandlerAdapters in sorted order.
+        AnnotationAwareOrderComparator.sort(handlerAdapters);
+        return new HandlerAdapters(handlerAdapters.toArray(new HandlerAdapter[0]));
+      }
+    }
+    else {
+      HandlerAdapter handlerAdapter = BeanFactoryUtils.find(
+              context, HANDLER_ADAPTER_BEAN_NAME, HandlerAdapter.class);
+      if (handlerAdapter != null) {
+        return handlerAdapter;
+      }
+    }
+
+    // Ensure we have at least some HandlerAdapters, by registering
+    // default HandlerAdapters if no other adapters are found.
+    return new HandlerAdapters(
+            new HandlerAdapter[] {
+                    context.getAutowireCapableBeanFactory().createBean(RequestMappingHandlerAdapter.class),
+                    new ViewControllerHandlerAdapter(),
+                    new FunctionRequestAdapter(),
+                    new RequestHandlerAdapter()
+            }
+    );
+  }
 
 }
