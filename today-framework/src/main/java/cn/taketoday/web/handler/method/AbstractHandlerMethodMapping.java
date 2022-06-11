@@ -414,7 +414,10 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
     if (matches.isEmpty()) {
       addMatchingMappings(mappingRegistry.getRegistrations().keySet(), matches, request);
     }
-    if (!matches.isEmpty()) {
+    if (matches.isEmpty()) {
+      return handleNoMatch(mappingRegistry.getRegistrations().keySet(), lookupPath, request);
+    }
+    else {
       Match bestMatch;
       if (matches.size() > 1) {
         var comparator = new MatchComparator(getMappingComparator(request));
@@ -446,9 +449,6 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
       }
       handleMatch(bestMatch, lookupPath, request);
       return bestMatch.getHandlerMethod();
-    }
-    else {
-      return handleNoMatch(mappingRegistry.getRegistrations().keySet(), lookupPath, request);
     }
   }
 
