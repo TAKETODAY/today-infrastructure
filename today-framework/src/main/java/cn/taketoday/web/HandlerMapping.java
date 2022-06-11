@@ -19,11 +19,20 @@
  */
 package cn.taketoday.web;
 
+import java.util.ArrayList;
+import java.util.Map;
+
+import cn.taketoday.beans.factory.BeanFactoryUtils;
+import cn.taketoday.beans.factory.config.AutowireCapableBeanFactory;
+import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.core.Ordered;
+import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.web.handler.HandlerExecutionChain;
 import cn.taketoday.web.handler.method.RequestMappingHandlerMapping;
 import cn.taketoday.web.registry.AbstractHandlerMapping;
 import cn.taketoday.web.registry.BeanNameUrlHandlerMapping;
+import cn.taketoday.web.registry.HandlerRegistries;
 
 /**
  * Interface to be implemented by objects that define a mapping between
@@ -62,6 +71,14 @@ import cn.taketoday.web.registry.BeanNameUrlHandlerMapping;
 public interface HandlerMapping {
 
   /**
+   * Well-known name for the HandlerMapping object in the bean factory for this namespace.
+   * Only used when "detectAllHandlerMappings" is turned off.
+   *
+   * @see cn.taketoday.web.handler.DispatcherHandler#setDetectAllHandlerMapping(boolean)
+   */
+  String HANDLER_MAPPING_BEAN_NAME = "handlerMapping";
+
+  /**
    * Return a handler and any interceptors for this request. The choice may be made
    * on request URL, session state, or any factor the implementing class chooses.
    * <p>The returned HandlerExecutionChain contains a handler Object, rather than
@@ -79,4 +96,39 @@ public interface HandlerMapping {
    */
   @Nullable
   Object getHandler(RequestContext request) throws Exception;
+
+  // static factory method
+
+  static HandlerMapping find(ApplicationContext context) {
+    return find(context, true);
+  }
+
+  static HandlerMapping find(ApplicationContext context, boolean detectAllHandlerMapping) {
+    if (detectAllHandlerMapping) {
+      // Find all HandlerMappings in the ApplicationContext, including ancestor contexts.
+      Map<String, HandlerMapping> matchingBeans =
+              BeanFactoryUtils.beansOfTypeIncludingAncestors(context, HandlerMapping.class, true, false);
+      if (!matchingBeans.isEmpty()) {
+        ArrayList<HandlerMapping> registries = new ArrayList<>(matchingBeans.values());
+        // We keep HandlerRegistries in sorted order.
+        AnnotationAwareOrderComparator.sort(registries);
+        return registries.size() == 1
+               ? registries.get(0)
+               : new HandlerRegistries(registries);
+      }
+    }
+    else {
+      HandlerMapping handlerMapping = BeanFactoryUtils.find(context, HANDLER_MAPPING_BEAN_NAME, HandlerMapping.class);
+      if (handlerMapping != null) {
+        return handlerMapping;
+      }
+    }
+
+    AutowireCapableBeanFactory factory = context.getAutowireCapableBeanFactory();
+    return new HandlerRegistries(
+            factory.createBean(RequestMappingHandlerMapping.class),
+            factory.createBean(BeanNameUrlHandlerMapping.class)
+    );
+  }
+
 }
