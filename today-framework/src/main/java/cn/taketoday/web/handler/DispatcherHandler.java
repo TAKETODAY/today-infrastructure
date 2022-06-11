@@ -116,7 +116,7 @@ public class DispatcherHandler implements ApplicationContextAware {
    * <p>May be overridden in subclasses in order to initialize further strategy objects.
    */
   protected void initStrategies(ApplicationContext context) {
-    initHandlerRegistries(context);
+    initHandlerMapping(context);
     initHandlerAdapters(context);
     initReturnValueHandler(context);
     initExceptionHandler(context);
@@ -129,7 +129,7 @@ public class DispatcherHandler implements ApplicationContextAware {
    * <p>If no HandlerRegistry beans are defined in the BeanFactory for this namespace,
    * we default to BeanNameUrlHandlerRegistry.
    */
-  private void initHandlerRegistries(ApplicationContext context) {
+  private void initHandlerMapping(ApplicationContext context) {
     if (handlerMapping == null) {
       handlerMapping = HandlerMapping.find(context, detectAllHandlerMapping);
     }
