@@ -61,8 +61,7 @@ import reactor.util.context.Context;
  * @since 4.0
  */
 final class PartGenerator extends BaseSubscriber<MultipartParser.Token> {
-  private static final Logger logger = LoggerFactory.getLogger(PartGenerator.class);
-  private static final boolean isDebugEnabled = logger.isDebugEnabled();
+  private static final Logger log = LoggerFactory.getLogger(PartGenerator.class);
 
   private final MonoSink<Part> sink;
   private final AtomicBoolean requestOutstanding = new AtomicBoolean();
@@ -165,14 +164,14 @@ final class PartGenerator extends BaseSubscriber<MultipartParser.Token> {
 
   boolean changeState(State oldState, State newState) {
     if (this.state.compareAndSet(oldState, newState)) {
-      if (isDebugEnabled) {
-        logger.trace("Changed state: {} -> {}", oldState, newState);
+      if (log.isDebugEnabled()) {
+        log.trace("Changed state: {} -> {}", oldState, newState);
       }
       oldState.dispose();
       return true;
     }
     else {
-      logger.warn("Could not switch from {} to {}; current state: {}",
+      log.warn("Could not switch from {} to {}; current state: {}",
               oldState, newState, this.state.get());
       return false;
     }
@@ -183,15 +182,15 @@ final class PartGenerator extends BaseSubscriber<MultipartParser.Token> {
       return;
     }
     State oldState = this.state.getAndSet(newState);
-    if (isDebugEnabled) {
-      logger.trace("Changed state: {} -> {}", oldState, newState);
+    if (log.isDebugEnabled()) {
+      log.trace("Changed state: {} -> {}", oldState, newState);
     }
     oldState.dispose();
   }
 
   void emitPart(Part part) {
-    if (isDebugEnabled) {
-      logger.trace("Emitting: {}", part);
+    if (log.isDebugEnabled()) {
+      log.trace("Emitting: {}", part);
     }
     sink.success(part);
   }
@@ -507,8 +506,8 @@ final class PartGenerator extends BaseSubscriber<MultipartParser.Token> {
     private WritingFileState createFileState(Path directory) {
       try {
         Path tempFile = Files.createTempFile(directory, null, ".multipart");
-        if (isDebugEnabled) {
-          logger.trace("Storing multipart data in file {}", tempFile);
+        if (log.isDebugEnabled()) {
+          log.trace("Storing multipart data in file {}", tempFile);
         }
         WritableByteChannel channel = Files.newByteChannel(tempFile, StandardOpenOption.WRITE);
         return new WritingFileState(this, tempFile, channel);

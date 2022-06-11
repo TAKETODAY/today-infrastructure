@@ -86,7 +86,6 @@ import jakarta.servlet.http.HttpServletRequest;
 public abstract class AbstractMessageConverterMethodProcessor
         extends AbstractMessageConverterMethodArgumentResolver implements ReturnValueHandler {
   private static final Logger log = LoggerFactory.getLogger(AbstractMessageConverterMethodProcessor.class);
-  private static final boolean isDebugEnabled = log.isDebugEnabled();
 
   /* Extensions associated with the built-in message converters */
   private static final Set<String> SAFE_EXTENSIONS = Set.of(
@@ -192,7 +191,7 @@ public abstract class AbstractMessageConverterMethodProcessor
     MediaType contentType = responseHeaders.getContentType();
     boolean isContentTypePreset = contentType != null && contentType.isConcrete();
     if (isContentTypePreset) {
-      if (isDebugEnabled) {
+      if (log.isDebugEnabled()) {
         log.debug("Found 'Content-Type:{}' in response", contentType);
       }
       selectedMediaType = contentType;
@@ -205,7 +204,7 @@ public abstract class AbstractMessageConverterMethodProcessor
       catch (HttpMediaTypeNotAcceptableException ex) {
         int series = context.getStatus() / 100;
         if (body == null || series == 4 || series == 5) {
-          if (isDebugEnabled) {
+          if (log.isDebugEnabled()) {
             log.debug("Ignoring error response content (if any). {}", ex.toString());
           }
           return;
@@ -229,7 +228,7 @@ public abstract class AbstractMessageConverterMethodProcessor
       }
 
       if (compatibleMediaTypes.isEmpty()) {
-        if (isDebugEnabled) {
+        if (log.isDebugEnabled()) {
           log.debug("No match for {}, supported: {}", acceptableTypes, producibleTypes);
         }
         if (body != null) {
@@ -251,7 +250,7 @@ public abstract class AbstractMessageConverterMethodProcessor
         }
       }
 
-      if (isDebugEnabled) {
+      if (log.isDebugEnabled()) {
         log.debug("Using '{}', given {} and supported {}", selectedMediaType, acceptableTypes, producibleTypes);
       }
     }
@@ -268,7 +267,7 @@ public abstract class AbstractMessageConverterMethodProcessor
           body = advice.beforeBodyWrite(
                   body, returnType, selectedMediaType, converter, context);
           if (body != null) {
-            if (isDebugEnabled) {
+            if (log.isDebugEnabled()) {
               Object theBody = body;
               LogFormatUtils.traceDebug(log,
                       traceOn -> "Writing [" + LogFormatUtils.formatValue(theBody, !traceOn) + "]");
@@ -284,7 +283,7 @@ public abstract class AbstractMessageConverterMethodProcessor
             }
           }
           else {
-            if (isDebugEnabled) {
+            if (log.isDebugEnabled()) {
               log.debug("Nothing to write: null body");
             }
           }

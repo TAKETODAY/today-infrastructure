@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -17,6 +17,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
+
 package cn.taketoday.logging;
 
 import java.io.Serializable;
@@ -29,6 +30,12 @@ import java.io.Serializable;
  */
 public abstract class Logger implements Serializable {
   protected static final String FQCN = Logger.class.getName();
+
+  protected final boolean debugEnabled;
+
+  protected Logger(boolean debugEnabled) {
+    this.debugEnabled = debugEnabled;
+  }
 
   /**
    * Return the name of this <code>Logger</code> instance.
@@ -121,7 +128,9 @@ public abstract class Logger implements Serializable {
    *
    * @return True if this Logger is enabled for the DEBUG level, false otherwise.
    */
-  public abstract boolean isDebugEnabled();
+  public final boolean isDebugEnabled() {
+    return debugEnabled;
+  }
 
   /**
    * Log a message at the DEBUG level.

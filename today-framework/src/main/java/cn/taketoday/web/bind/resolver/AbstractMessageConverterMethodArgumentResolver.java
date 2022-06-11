@@ -73,7 +73,6 @@ import cn.taketoday.web.handler.method.RequestBodyAdvice;
  */
 public abstract class AbstractMessageConverterMethodArgumentResolver implements ParameterResolvingStrategy {
   private static final Logger log = LoggerFactory.getLogger(AbstractMessageConverterMethodArgumentResolver.class);
-  private static final boolean isDebugEnabled = log.isDebugEnabled();
 
   private static final EnumSet<HttpMethod> SUPPORTED_METHODS = EnumSet.of(
           HttpMethod.POST, HttpMethod.PUT, HttpMethod.PATCH
@@ -223,7 +222,7 @@ public abstract class AbstractMessageConverterMethodArgumentResolver implements 
               getSupportedMediaTypes(targetClass != null ? targetClass : Object.class));
     }
 
-    if (isDebugEnabled) {
+    if (log.isDebugEnabled()) {
       Object theBody = body;
       MediaType selectedContentType = contentType;
       LogFormatUtils.traceDebug(log, traceOn -> {

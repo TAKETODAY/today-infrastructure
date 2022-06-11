@@ -226,7 +226,7 @@ public abstract class AbstractAutowireCapableBeanFactory
   @Nullable
   protected Object createBean(
           String beanName, RootBeanDefinition merged, @Nullable Object[] args) throws BeanCreationException {
-    if (isDebugEnabled) {
+    if (log.isDebugEnabled()) {
       log.trace("Creating instance of bean '{}'", beanName);
     }
     RootBeanDefinition mbdToUse = merged;
@@ -264,7 +264,7 @@ public abstract class AbstractAutowireCapableBeanFactory
 
     try {
       Object beanInstance = doCreateBean(beanName, mbdToUse, args);
-      if (isDebugEnabled) {
+      if (log.isDebugEnabled()) {
         log.trace("Finished creating instance of bean '{}'", beanName);
       }
       return beanInstance;
@@ -331,7 +331,7 @@ public abstract class AbstractAutowireCapableBeanFactory
     // even when triggered by lifecycle interfaces like BeanFactoryAware.
     boolean earlySingletonExposure = isEarlySingletonExposure(merged, beanName);
     if (earlySingletonExposure) {
-      if (isDebugEnabled) {
+      if (log.isDebugEnabled()) {
         log.trace("Eagerly caching bean '{}' to allow for resolving potential circular references", beanName);
       }
       addSingletonFactory(beanName, () -> getEarlyBeanReference(beanName, merged, bean));
@@ -515,7 +515,7 @@ public abstract class AbstractAutowireCapableBeanFactory
 
     boolean isInitializingBean = (bean instanceof InitializingBean);
     if (isInitializingBean && (def == null || !def.hasAnyExternallyManagedInitMethod("afterPropertiesSet"))) {
-      if (isDebugEnabled) {
+      if (log.isTraceEnabled()) {
         log.trace("Invoking afterPropertiesSet() on bean with name '{}'", beanName);
       }
       ((InitializingBean) bean).afterPropertiesSet();
@@ -526,10 +526,9 @@ public abstract class AbstractAutowireCapableBeanFactory
       if (ObjectUtils.isNotEmpty(methods)) {
         DependencyInjector injector = getInjector();
         // invoke or initMethods defined in @Component
-        boolean traceEnabled = isDebugEnabled;
         for (Method method : methods) {
-          if (traceEnabled) {
-            log.trace("Invoking init method  '{}' on bean with name '{}'", method.getName(), beanName);
+          if (log.isTraceEnabled()) {
+            log.trace("Invoking init method '{}' on bean with name '{}'", method.getName(), beanName);
           }
           ReflectionUtils.makeAccessible(method);
           injector.inject(method, bean);
@@ -559,8 +558,9 @@ public abstract class AbstractAutowireCapableBeanFactory
                         initMethodName + "' on bean with name '" + beanName + "'");
               }
               else {
-                if (isDebugEnabled) {
-                  log.trace("No default init method named '{}' found on bean with name '{}'", initMethodName, beanName);
+                if (log.isTraceEnabled()) {
+                  log.trace("No default init method named '{}' found on bean with name '{}'",
+                          initMethodName, beanName);
                 }
                 // Ignore non-existent default lifecycle methods.
                 continue;
@@ -1193,13 +1193,15 @@ public abstract class AbstractAutowireCapableBeanFactory
         Object bean = getBean(propertyName);
         pvs.add(propertyName, bean);
         registerDependentBean(propertyName, beanName);
-        if (isDebugEnabled) {
-          log.trace("Added autowiring by name from bean name '{}' via property '{}' to bean named '{}'", beanName, propertyName, propertyName);
+        if (log.isTraceEnabled()) {
+          log.trace("Added autowiring by name from bean name '{}' via property '{}' to bean named '{}'",
+                  beanName, propertyName, propertyName);
         }
       }
       else {
-        if (isDebugEnabled) {
-          log.trace("Not autowiring property '{}' of bean '{]' by name: no matching bean found", propertyName, beanName);
+        if (log.isTraceEnabled()) {
+          log.trace("Not autowiring property '{}' of bean '{]' by name: no matching bean found",
+                  propertyName, beanName);
         }
       }
     }
@@ -1245,7 +1247,7 @@ public abstract class AbstractAutowireCapableBeanFactory
           }
           for (String autowiredBeanName : autowiredBeanNames) {
             registerDependentBean(autowiredBeanName, beanName);
-            if (isDebugEnabled) {
+            if (log.isTraceEnabled()) {
               log.trace("Autowiring by type from bean name '{}' via property '{}' to bean named '{}'",
                       beanName, propertyName, autowiredBeanName);
             }
@@ -1553,7 +1555,7 @@ public abstract class AbstractAutowireCapableBeanFactory
               }
             }
             catch (Throwable ex) {
-              if (isDebugEnabled) {
+              if (log.isDebugEnabled()) {
                 log.debug("Failed to resolve generic return type for factory method: {}", ex.toString());
               }
             }
@@ -1757,7 +1759,7 @@ public abstract class AbstractAutowireCapableBeanFactory
             throw ex;
           }
           // Instantiation failure, maybe too early...
-          if (isDebugEnabled) {
+          if (log.isDebugEnabled()) {
             log.debug("Bean creation exception on singleton FactoryBean type check: {}", ex.toString());
           }
           onSuppressedException(ex);
@@ -1798,7 +1800,7 @@ public abstract class AbstractAutowireCapableBeanFactory
       }
       catch (BeanCreationException ex) {
         // Instantiation failure, maybe too early...
-        if (isDebugEnabled) {
+        if (log.isDebugEnabled()) {
           log.debug("Bean creation exception on non-singleton FactoryBean type check: {}", ex.toString());
         }
         onSuppressedException(ex);
@@ -1825,7 +1827,7 @@ public abstract class AbstractAutowireCapableBeanFactory
 
   @Override
   public void preInstantiateSingletons() {
-    if (isDebugEnabled) {
+    if (log.isTraceEnabled()) {
       log.trace("Pre-instantiating singletons in {}", this);
     }
     // Iterate over a copy to allow for init methods which in turn register new bean definitions.

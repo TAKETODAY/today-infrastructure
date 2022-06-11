@@ -32,10 +32,10 @@ import cn.taketoday.core.io.buffer.DataBufferUtils;
 import cn.taketoday.core.io.buffer.PooledDataBuffer;
 import cn.taketoday.http.DefaultHttpHeaders;
 import cn.taketoday.http.HttpHeaders;
+import cn.taketoday.http.MediaType;
 import cn.taketoday.http.ReactiveHttpOutputMessage;
 import cn.taketoday.http.codec.HttpMessageWriter;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.http.MediaType;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -63,7 +63,7 @@ public class PartHttpMessageWriter extends MultipartWriterSupport implements Htt
     mediaType = getMultipartMediaType(mediaType, boundary);
     outputMessage.getHeaders().setContentType(mediaType);
 
-    if (isDebugEnabled) {
+    if (logger.isDebugEnabled()) {
       logger.debug("{} Encoding Publisher<Part>", Hints.getLogPrefix(hints));
     }
 
@@ -72,7 +72,7 @@ public class PartHttpMessageWriter extends MultipartWriterSupport implements Htt
             .concatWith(generateLastLine(boundary, outputMessage.bufferFactory()))
             .doOnDiscard(PooledDataBuffer.class, DataBufferUtils::release);
 
-    if (isDebugEnabled) {
+    if (logger.isDebugEnabled()) {
       body = body.doOnNext(buffer -> Hints.touchDataBuffer(buffer, hints, logger));
     }
 

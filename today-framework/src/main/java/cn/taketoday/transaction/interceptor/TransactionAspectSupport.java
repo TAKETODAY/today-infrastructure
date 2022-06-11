@@ -86,7 +86,6 @@ import reactor.core.publisher.Mono;
  */
 public abstract class TransactionAspectSupport implements BeanFactoryAware, InitializingBean {
   private static final Logger log = LoggerFactory.getLogger(TransactionAspectSupport.class);
-  private static final boolean isDebugEnabled = log.isDebugEnabled();
 
   // NOTE: This class must not implement Serializable because it serves as base
   // class for AspectJ aspects (which are not allowed to implement Serializable)!
@@ -554,7 +553,7 @@ public abstract class TransactionAspectSupport implements BeanFactoryAware, Init
         status = tm.getTransaction(txAttr);
       }
       else {
-        if (isDebugEnabled) {
+        if (log.isDebugEnabled()) {
           log.debug("Skipping transactional joinpoint [{}] because no transaction manager has been configured",
                   joinpointIdentification);
         }
@@ -578,7 +577,7 @@ public abstract class TransactionAspectSupport implements BeanFactoryAware, Init
     TransactionInfo txInfo = new TransactionInfo(tm, txAttr, joinpointIdentification);
     if (txAttr != null) {
       // We need a transaction for this method...
-      if (isDebugEnabled) {
+      if (log.isDebugEnabled()) {
         log.trace("Getting transaction for [{}]", txInfo.getJoinpointIdentification());
       }
       // The transaction manager will flag an error if an incompatible tx already exists.
@@ -587,7 +586,7 @@ public abstract class TransactionAspectSupport implements BeanFactoryAware, Init
     else {
       // The TransactionInfo.hasTransaction() method will return false. We created it only
       // to preserve the integrity of the ThreadLocal stack maintained in this class.
-      if (isDebugEnabled) {
+      if (log.isDebugEnabled()) {
         log.trace("No need to create transaction for [{}]: This method is not transactional.",
                 joinpointIdentification);
       }
@@ -608,7 +607,7 @@ public abstract class TransactionAspectSupport implements BeanFactoryAware, Init
    */
   protected void commitTransactionAfterReturning(@Nullable TransactionInfo txInfo) {
     if (txInfo != null && txInfo.getTransactionStatus() != null) {
-      if (isDebugEnabled) {
+      if (log.isDebugEnabled()) {
         log.trace("Completing transaction for [{}]", txInfo.getJoinpointIdentification());
       }
       txInfo.getTransactionManager().commit(txInfo.getTransactionStatus());
@@ -624,7 +623,7 @@ public abstract class TransactionAspectSupport implements BeanFactoryAware, Init
    */
   protected void completeTransactionAfterThrowing(@Nullable TransactionInfo txInfo, Throwable ex) {
     if (txInfo != null && txInfo.getTransactionStatus() != null) {
-      if (isDebugEnabled) {
+      if (log.isDebugEnabled()) {
         log.trace("Completing transaction for [{}] after exception: {}", txInfo.getJoinpointIdentification(), ex);
       }
       if (txInfo.transactionAttribute != null && txInfo.transactionAttribute.rollbackOn(ex)) {
@@ -903,7 +902,7 @@ public abstract class TransactionAspectSupport implements BeanFactoryAware, Init
       ReactiveTransactionInfo txInfo = new ReactiveTransactionInfo(tm, txAttr, joinpointIdentification);
       if (txAttr != null) {
         // We need a transaction for this method...
-        if (isDebugEnabled) {
+        if (log.isDebugEnabled()) {
           log.trace("Getting transaction for [{}]", txInfo.getJoinpointIdentification());
         }
         // The transaction manager will flag an error if an incompatible tx already exists.
@@ -912,7 +911,7 @@ public abstract class TransactionAspectSupport implements BeanFactoryAware, Init
       else {
         // The TransactionInfo.hasTransaction() method will return false. We created it only
         // to preserve the integrity of the ThreadLocal stack maintained in this class.
-        if (isDebugEnabled) {
+        if (log.isDebugEnabled()) {
           log.trace("Don't need to create transaction for [{}]: This method isn't transactional.", joinpointIdentification);
         }
       }
@@ -922,7 +921,7 @@ public abstract class TransactionAspectSupport implements BeanFactoryAware, Init
 
     private Mono<Void> commitTransactionAfterReturning(@Nullable ReactiveTransactionInfo txInfo) {
       if (txInfo != null && txInfo.getReactiveTransaction() != null) {
-        if (isDebugEnabled) {
+        if (log.isDebugEnabled()) {
           log.trace("Completing transaction for [{}]", txInfo.getJoinpointIdentification());
         }
         return txInfo.getTransactionManager().commit(txInfo.getReactiveTransaction());
@@ -932,7 +931,7 @@ public abstract class TransactionAspectSupport implements BeanFactoryAware, Init
 
     private Mono<Void> rollbackTransactionOnCancel(@Nullable ReactiveTransactionInfo txInfo) {
       if (txInfo != null && txInfo.getReactiveTransaction() != null) {
-        if (isDebugEnabled) {
+        if (log.isDebugEnabled()) {
           log.trace("Rolling back transaction for [{}] after cancellation", txInfo.getJoinpointIdentification());
         }
         return txInfo.getTransactionManager().rollback(txInfo.getReactiveTransaction());
@@ -942,7 +941,7 @@ public abstract class TransactionAspectSupport implements BeanFactoryAware, Init
 
     private Mono<Void> completeTransactionAfterThrowing(@Nullable ReactiveTransactionInfo txInfo, Throwable ex) {
       if (txInfo != null && txInfo.getReactiveTransaction() != null) {
-        if (isDebugEnabled) {
+        if (log.isDebugEnabled()) {
           log.trace("Completing transaction for [{}] after exception: {}",
                   txInfo.getJoinpointIdentification(), ex.toString());
         }

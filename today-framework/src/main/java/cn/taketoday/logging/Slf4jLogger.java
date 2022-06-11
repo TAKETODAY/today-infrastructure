@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -17,6 +17,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
+
 package cn.taketoday.logging;
 
 import org.slf4j.spi.LocationAwareLogger;
@@ -31,19 +32,15 @@ class Slf4jLogger extends Logger {
   protected final String name;
   private final transient org.slf4j.Logger target;
 
-  public Slf4jLogger(org.slf4j.Logger target) {
+  Slf4jLogger(org.slf4j.Logger target) {
+    super(target.isDebugEnabled());
     this.target = target;
     this.name = target.getName();
   }
 
   @Override
   public boolean isTraceEnabled() {
-    return target.isTraceEnabled();
-  }
-
-  @Override
-  public boolean isDebugEnabled() {
-    return target.isDebugEnabled();
+    return debugEnabled && target.isTraceEnabled();
   }
 
   @Override

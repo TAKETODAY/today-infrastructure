@@ -231,7 +231,7 @@ public class DefaultSingletonBeanRegistry extends DefaultAliasRegistry implement
                   "Singleton bean creation not allowed while singletons of this factory are in destruction " +
                           "(Do not request a bean from a BeanFactory in a destroy method implementation!)");
         }
-        if (isDebugEnabled) {
+        if (log.isDebugEnabled()) {
           log.debug("Creating shared instance of singleton bean '{}'", beanName);
         }
         beforeSingletonCreation(beanName);
@@ -525,7 +525,7 @@ public class DefaultSingletonBeanRegistry extends DefaultAliasRegistry implement
   }
 
   public void destroySingletons() {
-    if (isDebugEnabled) {
+    if (log.isDebugEnabled()) {
       log.trace("Destroying singletons in {}", this);
     }
     synchronized(singletonObjects) {
@@ -596,7 +596,7 @@ public class DefaultSingletonBeanRegistry extends DefaultAliasRegistry implement
       dependencies = dependentBeanMap.remove(beanName);
     }
     if (dependencies != null) {
-      if (isDebugEnabled) {
+      if (log.isDebugEnabled()) {
         log.trace("Retrieved dependent beans for bean '{}': {}", beanName, dependencies);
       }
       for (String dependentBeanName : dependencies) {

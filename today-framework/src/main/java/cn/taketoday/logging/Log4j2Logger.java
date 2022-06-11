@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -17,6 +17,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.logging;
 
 import org.apache.logging.log4j.LogManager;
@@ -31,19 +32,14 @@ import java.io.Serial;
  * 2019-11-03 16:09
  */
 final class Log4j2Logger extends Logger {
-
-  private static final LoggerContext loggerContext =
+  static final LoggerContext loggerContext =
           LogManager.getContext(Log4j2Logger.class.getClassLoader(), false);
 
   private final ExtendedLogger logger;
 
-  public Log4j2Logger(String name) {
-    LoggerContext context = loggerContext;
-    if (context == null) {
-      // Circular call in early-init scenario -> static field not initialized yet
-      context = LogManager.getContext(Log4j2Logger.class.getClassLoader(), false);
-    }
-    this.logger = context.getLogger(name);
+  Log4j2Logger(ExtendedLogger logger, boolean debugEnabled) {
+    super(debugEnabled);
+    this.logger = logger;
   }
 
   @Override
@@ -53,12 +49,7 @@ final class Log4j2Logger extends Logger {
 
   @Override
   public boolean isTraceEnabled() {
-    return logger.isTraceEnabled();
-  }
-
-  @Override
-  public boolean isDebugEnabled() {
-    return logger.isDebugEnabled();
+    return debugEnabled && logger.isTraceEnabled();
   }
 
   @Override
@@ -147,6 +138,13 @@ final class Log4j2LoggerFactory extends LoggerFactory {
 
   @Override
   protected Logger createLogger(String name) {
-    return new Log4j2Logger(name);
+    LoggerContext context = Log4j2Logger.loggerContext;
+    if (context == null) {
+      // Circular call in early-init scenario -> static field not initialized yet
+      context = LogManager.getContext(Log4j2Logger.class.getClassLoader(), false);
+    }
+    ExtendedLogger logger = context.getLogger(name);
+
+    return new Log4j2Logger(logger, logger.isDebugEnabled());
   }
 }

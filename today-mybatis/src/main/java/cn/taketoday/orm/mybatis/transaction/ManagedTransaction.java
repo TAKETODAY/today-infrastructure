@@ -52,7 +52,6 @@ import cn.taketoday.transaction.support.TransactionSynchronizationManager;
  */
 public class ManagedTransaction implements Transaction {
   private static final Logger log = LoggerFactory.getLogger(ManagedTransaction.class);
-  private static final boolean isDebugEnabled = log.isDebugEnabled();
 
   private final DataSource dataSource;
 
@@ -90,7 +89,7 @@ public class ManagedTransaction implements Transaction {
     this.connection = DataSourceUtils.getConnection(dataSource);
     this.autoCommit = connection.getAutoCommit();
     this.isConnectionTransactional = DataSourceUtils.isConnectionTransactional(connection, dataSource);
-    if (isDebugEnabled) {
+    if (log.isDebugEnabled()) {
       log.debug("JDBC Connection [{}] will{}be managed by Framework",
               connection, (isConnectionTransactional ? " " : " not "));
     }
@@ -102,7 +101,7 @@ public class ManagedTransaction implements Transaction {
   @Override
   public void commit() throws SQLException {
     if (connection != null && !isConnectionTransactional && !autoCommit) {
-      if (isDebugEnabled) {
+      if (log.isDebugEnabled()) {
         log.debug("Committing JDBC Connection [{}]", connection);
       }
       this.connection.commit();
@@ -115,7 +114,7 @@ public class ManagedTransaction implements Transaction {
   @Override
   public void rollback() throws SQLException {
     if (connection != null && !isConnectionTransactional && !autoCommit) {
-      if (isDebugEnabled) {
+      if (log.isDebugEnabled()) {
         log.debug("Rolling back JDBC Connection [{}]", connection);
       }
       connection.rollback();

@@ -48,7 +48,6 @@ import cn.taketoday.transaction.support.TransactionSynchronizationManager;
  */
 public abstract class SqlSessionUtils {
   private static final Logger log = LoggerFactory.getLogger(SqlSessionUtils.class);
-  private static final boolean debugEnabled = log.isDebugEnabled();
 
   private static final String NO_SQL_SESSION_FACTORY_SPECIFIED = "No SqlSessionFactory specified";
   private static final String NO_SQL_SESSION_SPECIFIED = "No SqlSession specified";
@@ -93,7 +92,7 @@ public abstract class SqlSessionUtils {
     if (session != null) {
       return session;
     }
-    if (debugEnabled) {
+    if (log.isDebugEnabled()) {
       log.debug("Creating a new SqlSession");
     }
     session = sessionFactory.openSession(executorType);
@@ -123,7 +122,7 @@ public abstract class SqlSessionUtils {
     if (info.isSynchronizationActive()) {
       Environment environment = sessionFactory.getConfiguration().getEnvironment();
       if (environment.getTransactionFactory() instanceof ManagedTransactionFactory) {
-        if (debugEnabled) {
+        if (log.isDebugEnabled()) {
           log.debug("Registering transaction synchronization for SqlSession [{}]", session);
         }
         SqlSessionHolder holder = new SqlSessionHolder(session, executorType, exceptionTranslator);
@@ -134,7 +133,7 @@ public abstract class SqlSessionUtils {
       }
       else {
         if (info.getResource(environment.getDataSource()) == null) {
-          if (debugEnabled) {
+          if (log.isDebugEnabled()) {
             log.debug("SqlSession [{}] was not registered for synchronization because DataSource is not transactional", session);
           }
         }
@@ -144,7 +143,7 @@ public abstract class SqlSessionUtils {
         }
       }
     }
-    else if (debugEnabled) {
+    else if (log.isDebugEnabled()) {
       log.debug("SqlSession [{}] was not registered for synchronization because synchronization is not active", session);
     }
   }
@@ -159,7 +158,7 @@ public abstract class SqlSessionUtils {
 
       holder.requested();
 
-      if (debugEnabled) {
+      if (log.isDebugEnabled()) {
         log.debug("Fetched SqlSession [{}] from current transaction", holder.getSqlSession());
       }
       session = holder.getSqlSession();
@@ -181,13 +180,13 @@ public abstract class SqlSessionUtils {
 
     SqlSessionHolder holder = (SqlSessionHolder) TransactionSynchronizationManager.getResource(sessionFactory);
     if ((holder != null) && (holder.getSqlSession() == session)) {
-      if (debugEnabled) {
+      if (log.isDebugEnabled()) {
         log.debug("Releasing transactional SqlSession [{}]", session);
       }
       holder.released();
     }
     else {
-      if (debugEnabled) {
+      if (log.isDebugEnabled()) {
         log.debug("Closing non transactional SqlSession [{}]", session);
       }
       session.close();
@@ -242,7 +241,7 @@ public abstract class SqlSessionUtils {
     @Override
     public void suspend() {
       if (this.holderActive) {
-        if (debugEnabled) {
+        if (log.isDebugEnabled()) {
           log.debug("Transaction synchronization suspending SqlSession [{}]", holder.getSqlSession());
         }
         TransactionSynchronizationManager.unbindResource(this.sessionFactory);
@@ -255,7 +254,7 @@ public abstract class SqlSessionUtils {
     @Override
     public void resume() {
       if (this.holderActive) {
-        if (debugEnabled) {
+        if (log.isDebugEnabled()) {
           log.debug("Transaction synchronization resuming SqlSession [{}]", holder.getSqlSession());
         }
         TransactionSynchronizationManager.bindResource(this.sessionFactory, this.holder);
@@ -275,7 +274,7 @@ public abstract class SqlSessionUtils {
       // TODO This updates 2nd level caches but the tx may be rolledback later on!
       if (TransactionSynchronizationManager.isActualTransactionActive()) {
         try {
-          if (debugEnabled) {
+          if (log.isDebugEnabled()) {
             log.debug("Transaction synchronization committing SqlSession [{}]", holder.getSqlSession());
           }
           this.holder.getSqlSession().commit();
@@ -301,7 +300,7 @@ public abstract class SqlSessionUtils {
       // Issue #18 Close SqlSession and deregister it now
       // because afterCompletion may be called from a different thread
       if (!this.holder.isOpen()) {
-        if (debugEnabled) {
+        if (log.isDebugEnabled()) {
           log.debug("Transaction synchronization deregistering SqlSession [{}]", holder.getSqlSession());
           TransactionSynchronizationManager.unbindResource(sessionFactory);
           this.holderActive = false;
@@ -323,7 +322,7 @@ public abstract class SqlSessionUtils {
       if (this.holderActive) {
         // afterCompletion may have been called from a different thread
         // so avoid failing if there is nothing in this one
-        if (debugEnabled) {
+        if (log.isDebugEnabled()) {
           log.debug("Transaction synchronization deregistering SqlSession [{}]", holder.getSqlSession());
           TransactionSynchronizationManager.unbindResourceIfPossible(sessionFactory);
           this.holderActive = false;

@@ -54,7 +54,6 @@ import cn.taketoday.logging.LoggerFactory;
 public abstract class HttpAccessor {
   /** Logger available to subclasses. */
   protected final Logger logger = LoggerFactory.getLogger(getClass());
-  protected final boolean isDebugEnabled = logger.isDebugEnabled();
 
   private ClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
 
@@ -130,7 +129,7 @@ public abstract class HttpAccessor {
       }
     }
 
-    if (isDebugEnabled) {
+    if (logger.isDebugEnabled()) {
       logger.debug("HTTP {} {}", method.name(), url);
     }
     return request;

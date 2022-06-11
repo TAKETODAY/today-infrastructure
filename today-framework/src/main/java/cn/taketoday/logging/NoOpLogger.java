@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -26,6 +26,8 @@ package cn.taketoday.logging;
  */
 public class NoOpLogger extends Logger {
 
+  public NoOpLogger() { super(false); }
+
   @Override
   public String getName() {
     return "NoOpLogger";
@@ -33,11 +35,6 @@ public class NoOpLogger extends Logger {
 
   @Override
   public boolean isTraceEnabled() {
-    return false;
-  }
-
-  @Override
-  public boolean isDebugEnabled() {
     return false;
   }
 
@@ -57,7 +54,7 @@ public class NoOpLogger extends Logger {
   }
 
   @Override
-  protected void logInternal(Level level, Object msg, Throwable t) {  }
+  protected void logInternal(Level level, Object msg, Throwable t) { }
 
   @Override
   protected void logInternal(Level level, String msg, Throwable t, Object[] args) { }

@@ -201,7 +201,6 @@ import static cn.taketoday.lang.Constant.BLANK;
  */
 public class PathMatchingPatternResourceLoader implements PatternResourceLoader {
   private static final Logger log = LoggerFactory.getLogger(PathMatchingPatternResourceLoader.class);
-  private static final boolean isDebugEnabled = log.isDebugEnabled();
 
   /**
    * {@link Set} of {@linkplain ModuleFinder#ofSystem() system module} names.
@@ -564,7 +563,7 @@ public class PathMatchingPatternResourceLoader implements PatternResourceLoader 
     JarFile jarFile = rootDirResource.getJarFile();
 
     try {
-      if (isDebugEnabled) {
+      if (log.isDebugEnabled()) {
         String jarFileUrl = jarCon.getJarFileURL().toExternalForm();
         log.trace("Looking for matching resources in jar file [{}]", jarFileUrl);
       }
@@ -633,7 +632,7 @@ public class PathMatchingPatternResourceLoader implements PatternResourceLoader 
    */
   protected void doFindMatchingFileSystemResources(
           File rootDir, String subPattern, ResourceConsumer consumer) throws IOException {
-    if (isDebugEnabled) {
+    if (log.isDebugEnabled()) {
       log.trace("Looking for matching resources in directory tree [{}]", rootDir.getPath());
     }
     retrieveMatchingFiles(rootDir, subPattern, consumer);
@@ -651,7 +650,7 @@ public class PathMatchingPatternResourceLoader implements PatternResourceLoader 
           File rootDir, String pattern, ResourceConsumer consumer) throws IOException {
     if (!rootDir.exists()) {
       // Silently skip non-existing directories.
-      if (isDebugEnabled) {
+      if (log.isDebugEnabled()) {
         log.debug("Skipping [{}] because it does not exist", rootDir.getAbsolutePath());
       }
       return;
@@ -691,7 +690,7 @@ public class PathMatchingPatternResourceLoader implements PatternResourceLoader 
    */
   protected void doRetrieveMatchingFiles(
           String fullPattern, File dir, ResourceConsumer consumer) throws IOException {
-    if (isDebugEnabled) {
+    if (log.isDebugEnabled()) {
       log.trace("Searching directory [{}] for files matching pattern [{}]", dir.getAbsolutePath(), fullPattern);
     }
 
@@ -701,7 +700,7 @@ public class PathMatchingPatternResourceLoader implements PatternResourceLoader 
         if (content.canRead()) {
           doRetrieveMatchingFiles(fullPattern, content, consumer);
         }
-        else if (isDebugEnabled) {
+        else if (log.isDebugEnabled()) {
           log.debug("Skipping subdirectory [{}] because the application is not allowed to read the directory",
                   dir.getAbsolutePath());
         }
@@ -790,7 +789,7 @@ public class PathMatchingPatternResourceLoader implements PatternResourceLoader 
       throw ex.getCause();
     }
 
-    if (isDebugEnabled) {
+    if (log.isDebugEnabled()) {
       log.trace("Resolved module-path location pattern [{}] to resources {}", resourcePattern, result);
     }
   }

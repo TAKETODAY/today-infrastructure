@@ -34,7 +34,6 @@ import cn.taketoday.logging.Logger;
  */
 public class LoggingCodecSupport {
   protected final Logger logger = HttpLogging.forLogName(getClass());
-  protected final boolean isDebugEnabled = logger.isDebugEnabled();
 
   /** Whether to log potentially sensitive info (form data at DEBUG and headers at TRACE). */
   private boolean enableLoggingRequestDetails = false;

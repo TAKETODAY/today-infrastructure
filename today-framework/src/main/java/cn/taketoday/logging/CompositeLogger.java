@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -19,7 +19,6 @@
  */
 
 package cn.taketoday.logging;
-
 
 import java.util.List;
 import java.util.function.Predicate;
@@ -50,6 +49,7 @@ final class CompositeLogger extends Logger {
    * @param name logger name
    */
   public CompositeLogger(List<Logger> loggers, String name) {
+    super(initLogger(loggers, Logger::isDebugEnabled) != NO_OP_LOG);
     this.errorLogger = initLogger(loggers, Logger::isErrorEnabled);
     this.warnLogger = initLogger(loggers, Logger::isWarnEnabled);
     this.infoLogger = initLogger(loggers, Logger::isInfoEnabled);
@@ -80,11 +80,6 @@ final class CompositeLogger extends Logger {
   @Override
   public boolean isInfoEnabled() {
     return this.infoLogger != NO_OP_LOG;
-  }
-
-  @Override
-  public boolean isDebugEnabled() {
-    return this.debugLogger != NO_OP_LOG;
   }
 
   @Override

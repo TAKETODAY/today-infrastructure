@@ -747,7 +747,7 @@ public class RestTemplate extends InterceptingHttpAccessor implements RestOperat
   protected void handleResponse(URI url, HttpMethod method, ClientHttpResponse response) throws IOException {
     ResponseErrorHandler errorHandler = getErrorHandler();
     boolean hasError = errorHandler.hasError(response);
-    if (isDebugEnabled) {
+    if (logger.isDebugEnabled()) {
       try {
         HttpStatusCode status = response.getStatusCode();
         logger.debug("{} Response {}", url, status);
@@ -838,7 +838,7 @@ public class RestTemplate extends InterceptingHttpAccessor implements RestOperat
 
         List<MediaType> supportedMediaTypes = new ArrayList<>(allSupportedMediaTypes);
         MimeTypeUtils.sortBySpecificity(supportedMediaTypes);
-        if (isDebugEnabled) {
+        if (logger.isDebugEnabled()) {
           logger.debug("Accept={}", allSupportedMediaTypes);
         }
         request.getHeaders().setAccept(supportedMediaTypes);
@@ -921,7 +921,7 @@ public class RestTemplate extends InterceptingHttpAccessor implements RestOperat
           if (messageConverter instanceof GenericHttpMessageConverter genericConverter) {
             if (genericConverter.canWrite(requestBodyType, requestBodyClass, requestContentType)) {
               copyHttpHeaders(httpHeaders, requestHeaders);
-              if (isDebugEnabled) {
+              if (logger.isDebugEnabled()) {
                 logBody(requestBody, requestContentType, genericConverter);
               }
               genericConverter.write(requestBody, requestBodyType, requestContentType, httpRequest);
@@ -930,7 +930,7 @@ public class RestTemplate extends InterceptingHttpAccessor implements RestOperat
           }
           else if (messageConverter.canWrite(requestBodyClass, requestContentType)) {
             copyHttpHeaders(httpHeaders, requestHeaders);
-            if (isDebugEnabled) {
+            if (logger.isDebugEnabled()) {
               logBody(requestBody, requestContentType, messageConverter);
             }
             messageConverter.write(requestBody, requestContentType, httpRequest);

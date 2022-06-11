@@ -81,7 +81,6 @@ import cn.taketoday.util.StringUtils;
  */
 public class BeanPropertyRowMapper<T> implements RowMapper<T> {
   private static final Logger log = LoggerFactory.getLogger(BeanPropertyRowMapper.class);
-  private static final boolean debugEnabled = log.isDebugEnabled();
 
   /** The class we are mapping to. */
   @Nullable
@@ -315,7 +314,7 @@ public class BeanPropertyRowMapper<T> implements RowMapper<T> {
       if (property != null) {
         try {
           Object value = getColumnValue(rs, index, property); // TODO using TypeHandler
-          if (rowNumber == 0 && debugEnabled) {
+          if (rowNumber == 0 && log.isDebugEnabled()) {
             log.debug("Mapping column '{}' to property '{}' of type '{}'",
                     column, property.getName(), ClassUtils.getQualifiedName(property.getType()));
           }
@@ -324,7 +323,7 @@ public class BeanPropertyRowMapper<T> implements RowMapper<T> {
           }
           catch (TypeMismatchException ex) {
             if (value == null && this.primitivesDefaultedForNullValue) {
-              if (debugEnabled) {
+              if (log.isDebugEnabled()) {
                 log.debug("Intercepted TypeMismatchException for row {} and column '{}'" +
                                 " with null value when setting property '{}' of type '{}' on object: {}",
                         rowNumber, column, property.getName(), ClassUtils.getQualifiedName(property.getType()), mappedObject, ex);
@@ -345,7 +344,7 @@ public class BeanPropertyRowMapper<T> implements RowMapper<T> {
       }
       else {
         // No BeanProperty found
-        if (rowNumber == 0 && debugEnabled) {
+        if (rowNumber == 0 && log.isDebugEnabled()) {
           log.debug("No property found for column '{}' mapped to field '{}'", column, field);
         }
       }

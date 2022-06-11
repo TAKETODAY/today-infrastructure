@@ -44,7 +44,6 @@ import io.undertow.server.HttpServerExchange;
  */
 public class UndertowHttpHandlerAdapter implements io.undertow.server.HttpHandler {
   private static final Logger log = HttpLogging.forLogName(UndertowHttpHandlerAdapter.class);
-  private static final boolean isDebugEnabled = log.isDebugEnabled();
 
   private final HttpHandler httpHandler;
   private DataBufferFactory bufferFactory = DefaultDataBufferFactory.sharedInstance;
@@ -106,12 +105,12 @@ public class UndertowHttpHandlerAdapter implements io.undertow.server.HttpHandle
 
     @Override
     public void onError(Throwable ex) {
-      if (isDebugEnabled) {
+      if (log.isDebugEnabled()) {
         log.trace("{}Failed to complete: {}", logPrefix, ex.getMessage());
       }
       if (exchange.isResponseStarted()) {
         try {
-          if (isDebugEnabled) {
+          if (log.isDebugEnabled()) {
             log.debug("{}Closing connection", logPrefix);
           }
           exchange.getConnection().close();
@@ -121,7 +120,7 @@ public class UndertowHttpHandlerAdapter implements io.undertow.server.HttpHandle
         }
       }
       else {
-        if (isDebugEnabled) {
+        if (log.isDebugEnabled()) {
           log.debug("{}Setting HttpServerExchange status to 500 Server Error", logPrefix);
         }
         exchange.setStatusCode(500);
@@ -131,7 +130,7 @@ public class UndertowHttpHandlerAdapter implements io.undertow.server.HttpHandle
 
     @Override
     public void onComplete() {
-      if (isDebugEnabled) {
+      if (log.isDebugEnabled()) {
         log.trace("{}Handling completed", logPrefix);
       }
       exchange.endExchange();

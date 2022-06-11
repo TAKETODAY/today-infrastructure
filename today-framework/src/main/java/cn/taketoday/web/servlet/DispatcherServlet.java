@@ -92,7 +92,7 @@ public class DispatcherServlet
   @Override
   public void service(ServletRequest request, ServletResponse response) throws ServletException {
     HttpServletRequest servletRequest = (HttpServletRequest) request;
-    if (isDebugEnabled) {
+    if (log.isDebugEnabled()) {
       logRequest(servletRequest);
     }
     RequestContext context = RequestContextHolder.get();

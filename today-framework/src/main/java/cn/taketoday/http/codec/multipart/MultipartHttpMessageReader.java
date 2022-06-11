@@ -106,7 +106,7 @@ public class MultipartHttpMessageReader
 
     Map<String, Object> allHints = Hints.merge(hints, Hints.SUPPRESS_LOGGING_HINT, true);
 
-    if (isDebugEnabled) {
+    if (logger.isDebugEnabled()) {
       return partReader.read(elementType, inputMessage, allHints)
               .collectMultimap(Part::name)
               .doOnNext(map -> {

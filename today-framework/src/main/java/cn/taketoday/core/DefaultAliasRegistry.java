@@ -47,7 +47,6 @@ import cn.taketoday.util.StringUtils;
 public class DefaultAliasRegistry implements AliasRegistry {
   /** Logger available to subclasses. */
   protected final Logger log = LoggerFactory.getLogger(getClass());
-  protected final boolean isDebugEnabled = log.isDebugEnabled();
 
   /** Map from alias to canonical name. */
   private final ConcurrentHashMap<String, String> aliasMap = new ConcurrentHashMap<>(16);
@@ -59,7 +58,7 @@ public class DefaultAliasRegistry implements AliasRegistry {
     synchronized(aliasMap) {
       if (alias.equals(name)) {
         aliasMap.remove(alias);
-        if (isDebugEnabled) {
+        if (log.isDebugEnabled()) {
           log.debug("Alias definition '{}' ignored since it points to same name", alias);
         }
       }
@@ -75,14 +74,14 @@ public class DefaultAliasRegistry implements AliasRegistry {
                     "Cannot define alias '" + alias + "' for name '"
                             + name + "': It is already registered for name '" + registeredName + "'.");
           }
-          if (isDebugEnabled) {
+          if (log.isDebugEnabled()) {
             log.debug("Overriding alias '{}' definition for registered name '{}' with new target name '{}'",
                     alias, registeredName, name);
           }
         }
         checkForAliasCircle(name, alias);
         aliasMap.put(alias, name);
-        if (isDebugEnabled) {
+        if (log.isDebugEnabled()) {
           log.trace("Alias definition '{}' registered for name '{}'", alias, name);
         }
       }

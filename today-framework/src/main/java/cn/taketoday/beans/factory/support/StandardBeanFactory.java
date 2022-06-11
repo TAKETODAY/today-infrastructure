@@ -464,12 +464,12 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
                 "framework-generated bean definition: replacing [{}] with [{}]", beanName, existBeanDef, def);
       }
       else if (!def.equals(existBeanDef)) {
-        if (isDebugEnabled) {
+        if (log.isDebugEnabled()) {
           log.debug("Overriding bean definition for bean '{}' with a different definition: replacing [{}] with [{}]",
                   beanName, existBeanDef, def);
         }
       }
-      else if (isDebugEnabled) {
+      else if (log.isDebugEnabled()) {
         log.trace("Overriding bean definition for bean '{}' with an equivalent definition: replacing [{}] with [{}]",
                 beanName, existBeanDef, def);
       }
@@ -528,7 +528,7 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
     Assert.hasText(beanName, "'beanName' must not be empty");
     BeanDefinition bd = beanDefinitionMap.remove(beanName);
     if (bd == null) {
-      if (isDebugEnabled) {
+      if (log.isDebugEnabled()) {
         log.trace("No bean named '{}' found in {}", beanName, this);
       }
       throw new NoSuchBeanDefinitionException(beanName);
@@ -929,7 +929,7 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
         if (rootCause instanceof BeanCurrentlyInCreationException bce) {
           String exBeanName = bce.getBeanName();
           if (exBeanName != null && isCurrentlyInCreation(exBeanName)) {
-            if (isDebugEnabled) {
+            if (log.isDebugEnabled()) {
               log.trace("Ignoring match to currently created bean '{}': ",
                       exBeanName, ex.getMessage());
             }

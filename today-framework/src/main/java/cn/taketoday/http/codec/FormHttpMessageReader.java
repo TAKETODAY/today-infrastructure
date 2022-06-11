@@ -33,11 +33,11 @@ import cn.taketoday.core.ResolvableType;
 import cn.taketoday.core.codec.Hints;
 import cn.taketoday.core.io.buffer.DataBufferLimitException;
 import cn.taketoday.core.io.buffer.DataBufferUtils;
+import cn.taketoday.http.MediaType;
 import cn.taketoday.http.ReactiveHttpInputMessage;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.LogFormatUtils;
-import cn.taketoday.http.MediaType;
 import cn.taketoday.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -131,7 +131,7 @@ public class FormHttpMessageReader extends LoggingCodecSupport
               String body = charBuffer.toString();
               DataBufferUtils.release(buffer);
               MultiValueMap<String, String> formData = parseFormData(charset, body);
-              if (isDebugEnabled) {
+              if (logger.isDebugEnabled()) {
                 logFormData(formData, hints);
               }
               return formData;

@@ -182,6 +182,8 @@ class ApplicationAvailabilityBeanTests {
   static abstract class MockLog extends Logger {
     List<String> logged = new ArrayList<>();
 
+    MockLog() { super(true); }
+
     @Override
     public void debug(String msg) {
       super.debug(msg);

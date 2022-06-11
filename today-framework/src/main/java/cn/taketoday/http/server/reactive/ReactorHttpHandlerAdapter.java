@@ -42,7 +42,6 @@ import reactor.netty.http.server.HttpServerResponse;
  */
 public class ReactorHttpHandlerAdapter implements BiFunction<HttpServerRequest, HttpServerResponse, Mono<Void>> {
   private static final Logger log = HttpLogging.forLogName(ReactorHttpHandlerAdapter.class);
-  private static final boolean isDebugEnabled = log.isDebugEnabled();
 
   private final HttpHandler httpHandler;
 
@@ -62,7 +61,7 @@ public class ReactorHttpHandlerAdapter implements BiFunction<HttpServerRequest, 
         response = new HttpHeadResponseDecorator(response);
       }
 
-      if (isDebugEnabled) {
+      if (log.isDebugEnabled()) {
         return httpHandler.handle(request, response)
                 .doOnError(ex -> log.trace("{}Failed to complete: {}", request.getLogPrefix(), ex.getMessage()))
                 .doOnSuccess(aVoid -> log.trace("{}Handling completed", request.getLogPrefix()));
@@ -70,7 +69,7 @@ public class ReactorHttpHandlerAdapter implements BiFunction<HttpServerRequest, 
       return httpHandler.handle(request, response);
     }
     catch (URISyntaxException ex) {
-      if (isDebugEnabled) {
+      if (log.isDebugEnabled()) {
         log.debug("Failed to get request URI: {}", ex.getMessage());
       }
       reactorResponse.status(HttpResponseStatus.BAD_REQUEST);

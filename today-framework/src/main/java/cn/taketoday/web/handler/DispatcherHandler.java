@@ -66,7 +66,6 @@ public class DispatcherHandler implements ApplicationContextAware {
   public static final String BEAN_NAME = "cn.taketoday.web.handler.DispatcherHandler";
 
   protected final Logger log = LoggerFactory.getLogger(getClass());
-  protected final boolean isDebugEnabled = log.isDebugEnabled();
 
   /** Action mapping registry */
   private HandlerMapping handlerMapping;
@@ -374,7 +373,7 @@ public class DispatcherHandler implements ApplicationContextAware {
       }
       // @since 3.0 cleanup MultipartFiles
       context.cleanupMultipart();
-      if (isDebugEnabled) {
+      if (log.isDebugEnabled()) {
         logResult(context, throwable);
       }
       publishRequestHandledEvent(context, startTime, throwable);
@@ -425,7 +424,7 @@ public class DispatcherHandler implements ApplicationContextAware {
       if (log.isTraceEnabled()) {
         log.trace("Using resolved error view: {}", returnValue, ex);
       }
-      else if (isDebugEnabled) {
+      else if (log.isDebugEnabled()) {
         log.debug("Using resolved error view: {}", returnValue);
       }
     }

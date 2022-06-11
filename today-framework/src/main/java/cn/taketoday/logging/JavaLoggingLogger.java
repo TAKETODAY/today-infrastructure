@@ -35,8 +35,9 @@ final class JavaLoggingLogger extends cn.taketoday.logging.Logger {
 
   private final Logger logger;
 
-  public JavaLoggingLogger(String name) {
-    this.logger = Logger.getLogger(name);
+  public JavaLoggingLogger(Logger logger, boolean debugEnabled) {
+    super(debugEnabled);
+    this.logger = logger;
   }
 
   @Override
@@ -46,12 +47,7 @@ final class JavaLoggingLogger extends cn.taketoday.logging.Logger {
 
   @Override
   public boolean isTraceEnabled() {
-    return logger.isLoggable(java.util.logging.Level.FINEST);
-  }
-
-  @Override
-  public boolean isDebugEnabled() {
-    return logger.isLoggable(java.util.logging.Level.FINER);
+    return debugEnabled && logger.isLoggable(java.util.logging.Level.FINEST);
   }
 
   @Override
@@ -204,6 +200,7 @@ final class JavaLoggingFactory extends LoggerFactory {
 
   @Override
   protected JavaLoggingLogger createLogger(String name) {
-    return new JavaLoggingLogger(name);
+    Logger logger = Logger.getLogger(name);
+    return new JavaLoggingLogger(logger, logger.isLoggable(java.util.logging.Level.FINER));
   }
 }

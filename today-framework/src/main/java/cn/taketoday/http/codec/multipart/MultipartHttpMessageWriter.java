@@ -189,7 +189,7 @@ public class MultipartHttpMessageWriter
     mediaType = getMultipartMediaType(mediaType, boundary);
     outputMessage.getHeaders().setContentType(mediaType);
 
-    if (isDebugEnabled) {
+    if (logger.isDebugEnabled()) {
       LogFormatUtils.traceDebug(logger, traceOn -> Hints.getLogPrefix(hints) + "Encoding " +
               (isEnableLoggingRequestDetails() ?
                LogFormatUtils.formatValue(map, !traceOn) :
@@ -202,7 +202,7 @@ public class MultipartHttpMessageWriter
             .concatWith(generateLastLine(boundary, bufferFactory))
             .doOnDiscard(PooledDataBuffer.class, DataBufferUtils::release);
 
-    if (isDebugEnabled) {
+    if (logger.isDebugEnabled()) {
       body = body.doOnNext(buffer -> Hints.touchDataBuffer(buffer, hints, logger));
     }
 
