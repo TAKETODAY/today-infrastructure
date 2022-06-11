@@ -36,7 +36,8 @@ import cn.taketoday.web.HandlerInterceptorsProvider;
 public class HandlerInterceptorHolder implements HandlerInterceptorsProvider {
 
   /** interceptors array */
-  protected final ArrayHolder<HandlerInterceptor> interceptors = ArrayHolder.forGenerator(HandlerInterceptor[]::new);
+  protected final ArrayHolder<HandlerInterceptor>
+          interceptors = ArrayHolder.forGenerator(HandlerInterceptor[]::new);
 
   /**
    * replace interceptors

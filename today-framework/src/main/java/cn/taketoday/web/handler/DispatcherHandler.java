@@ -17,18 +17,17 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.web.handler;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 import cn.taketoday.beans.factory.BeanFactoryUtils;
 import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
-import cn.taketoday.beans.factory.config.AutowireCapableBeanFactory;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.ApplicationContext.State;
 import cn.taketoday.context.aware.ApplicationContextAware;
@@ -41,7 +40,6 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ArrayHolder;
-import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.web.HandlerAdapter;
 import cn.taketoday.web.HandlerAdapterNotFoundException;
@@ -55,10 +53,6 @@ import cn.taketoday.web.ReturnValueHandler;
 import cn.taketoday.web.ReturnValueHandlerProvider;
 import cn.taketoday.web.context.async.WebAsyncUtils;
 import cn.taketoday.web.handler.method.ExceptionHandlerAnnotationExceptionHandler;
-import cn.taketoday.web.handler.method.RequestMappingHandlerAdapter;
-import cn.taketoday.web.handler.method.RequestMappingHandlerMapping;
-import cn.taketoday.web.registry.BeanNameUrlHandlerMapping;
-import cn.taketoday.web.registry.HandlerRegistries;
 import cn.taketoday.web.util.WebUtils;
 
 /**
@@ -69,30 +63,6 @@ import cn.taketoday.web.util.WebUtils;
  */
 public class DispatcherHandler implements ApplicationContextAware {
 
-  /**
-   * Well-known name for the HandlerMapping object in the bean factory for this namespace.
-   * Only used when "detectAllHandlerMappings" is turned off.
-   *
-   * @see #setDetectAllHandlerRegistries(boolean)
-   */
-  public static final String HANDLER_MAPPING_BEAN_NAME = "handlerMapping";
-
-  /**
-   * Well-known name for the HandlerAdapter object in the bean factory for this namespace.
-   * Only used when "detectAllHandlerAdapters" is turned off.
-   *
-   * @see #setDetectAllHandlerAdapters
-   */
-  public static final String HANDLER_ADAPTER_BEAN_NAME = "handlerAdapter";
-
-  /**
-   * Well-known name for the HandlerExceptionHandler object in the bean factory for this namespace.
-   * Only used when "detectAllHandlerExceptionHandlers" is turned off.
-   *
-   * @see #setDetectAllHandlerExceptionHandlers(boolean)
-   */
-  public static final String HANDLER_EXCEPTION_HANDLER_BEAN_NAME = "handlerExceptionHandler";
-
   public static final String BEAN_NAME = "cn.taketoday.web.handler.DispatcherHandler";
 
   protected final Logger log = LoggerFactory.getLogger(getClass());
@@ -101,7 +71,7 @@ public class DispatcherHandler implements ApplicationContextAware {
   /** Action mapping registry */
   private HandlerMapping handlerMapping;
 
-  private HandlerAdapter[] handlerAdapters;
+  private HandlerAdapter handlerAdapter;
 
   /** exception handler */
   private HandlerExceptionHandler exceptionHandler;
@@ -116,7 +86,7 @@ public class DispatcherHandler implements ApplicationContextAware {
   private boolean enableLoggingRequestDetails = false;
 
   /** Detect all HandlerMappings or just expect "HandlerRegistry" bean?. */
-  private boolean detectAllHandlerRegistries = true;
+  private boolean detectAllHandlerMapping = true;
 
   /** Detect all HandlerAdapters or just expect "HandlerAdapter" bean?. */
   private boolean detectAllHandlerAdapters = true;
@@ -161,29 +131,7 @@ public class DispatcherHandler implements ApplicationContextAware {
    */
   private void initHandlerRegistries(ApplicationContext context) {
     if (handlerMapping == null) {
-      if (detectAllHandlerRegistries) {
-        // Find all HandlerMappings in the ApplicationContext, including ancestor contexts.
-        Map<String, HandlerMapping> matchingBeans =
-                BeanFactoryUtils.beansOfTypeIncludingAncestors(context, HandlerMapping.class, true, false);
-        if (!matchingBeans.isEmpty()) {
-          ArrayList<HandlerMapping> registries = new ArrayList<>(matchingBeans.values());
-          // We keep HandlerRegistries in sorted order.
-          AnnotationAwareOrderComparator.sort(registries);
-          this.handlerMapping = registries.size() == 1
-                                ? registries.get(0)
-                                : new HandlerRegistries(registries);
-        }
-      }
-      else {
-        handlerMapping = BeanFactoryUtils.find(context, HANDLER_MAPPING_BEAN_NAME, HandlerMapping.class);
-      }
-      if (handlerMapping == null) {
-        AutowireCapableBeanFactory factory = context.getAutowireCapableBeanFactory();
-        handlerMapping = new HandlerRegistries(
-                factory.createBean(RequestMappingHandlerMapping.class),
-                factory.createBean(BeanNameUrlHandlerMapping.class)
-        );
-      }
+      handlerMapping = HandlerMapping.find(context, detectAllHandlerMapping);
     }
   }
 
@@ -193,30 +141,8 @@ public class DispatcherHandler implements ApplicationContextAware {
    * we default to RequestHandlerAdapter.
    */
   private void initHandlerAdapters(ApplicationContext context) {
-    if (handlerAdapters == null) {
-      if (detectAllHandlerAdapters) {
-        // Find all HandlerAdapters in the ApplicationContext, including ancestor contexts.
-        var matchingBeans = BeanFactoryUtils.beansOfTypeIncludingAncestors(
-                context, HandlerAdapter.class, true, false);
-        if (!matchingBeans.isEmpty()) {
-          var handlerAdapters = new ArrayList<>(matchingBeans.values());
-          // We keep HandlerAdapters in sorted order.
-          AnnotationAwareOrderComparator.sort(handlerAdapters);
-          this.handlerAdapters = handlerAdapters.toArray(new HandlerAdapter[0]);
-        }
-      }
-      else {
-        HandlerAdapter handlerAdapter = BeanFactoryUtils.find(context, HANDLER_ADAPTER_BEAN_NAME, HandlerAdapter.class);
-        if (handlerAdapter != null) {
-          setHandlerAdapters(handlerAdapter);
-        }
-      }
-      if (handlerAdapters == null) {
-        // Ensure we have at least some HandlerAdapters, by registering
-        // default HandlerAdapters if no other adapters are found.
-        setHandlerAdapters(context.getAutowireCapableBeanFactory().createBean(RequestMappingHandlerAdapter.class),
-                new ViewControllerHandlerAdapter(), new FunctionRequestAdapter(), new RequestHandlerAdapter());
-      }
+    if (handlerAdapter == null) {
+      handlerAdapter = HandlerAdapter.find(context, detectAllHandlerAdapters);
     }
   }
 
@@ -252,34 +178,7 @@ public class DispatcherHandler implements ApplicationContextAware {
    */
   private void initExceptionHandler(ApplicationContext context) {
     if (exceptionHandler == null) {
-      if (detectAllHandlerExceptionHandlers) {
-        // Find all HandlerAdapters in the ApplicationContext, including ancestor contexts.
-        var matchingBeans = BeanFactoryUtils.beansOfTypeIncludingAncestors(
-                context, HandlerExceptionHandler.class, true, false);
-        if (!matchingBeans.isEmpty()) {
-          var handlers = new ArrayList<>(matchingBeans.values());
-          // at least one exception-handler
-          if (handlers.size() == 1) {
-            exceptionHandler = handlers.get(0);
-          }
-          else {
-            // We keep HandlerExceptionHandlers in sorted order.
-            AnnotationAwareOrderComparator.sort(handlers);
-            exceptionHandler = new CompositeHandlerExceptionHandler(handlers);
-          }
-        }
-      }
-      else {
-        exceptionHandler = BeanFactoryUtils.find(context, HANDLER_EXCEPTION_HANDLER_BEAN_NAME, HandlerExceptionHandler.class);
-      }
-      if (exceptionHandler == null) {
-        var exceptionHandler = new ExceptionHandlerAnnotationExceptionHandler();
-        exceptionHandler.setApplicationContext(getApplicationContext());
-        exceptionHandler.afterPropertiesSet();
-        this.exceptionHandler = new CompositeHandlerExceptionHandler(CollectionUtils.newArrayList(
-                exceptionHandler, new SimpleHandlerExceptionHandler()
-        ));
-      }
+      exceptionHandler = HandlerExceptionHandler.find(context, detectAllHandlerExceptionHandlers);
     }
   }
 
@@ -342,12 +241,7 @@ public class DispatcherHandler implements ApplicationContextAware {
     if (handler instanceof HandlerAdapterProvider) {
       return ((HandlerAdapterProvider) handler).getHandlerAdapter();
     }
-    for (final HandlerAdapter requestHandler : handlerAdapters) {
-      if (requestHandler.supports(handler)) {
-        return requestHandler;
-      }
-    }
-    throw new HandlerAdapterNotFoundException(handler);
+    return handlerAdapter;
   }
 
   /**
@@ -359,7 +253,8 @@ public class DispatcherHandler implements ApplicationContextAware {
    * @throws ReturnValueHandlerNotFoundException If there isn't a {@link ReturnValueHandler} for target handler and
    * handler execution result
    */
-  public ReturnValueHandler lookupReturnValueHandler(Object handler, @Nullable Object returnValue) {
+  public ReturnValueHandler lookupReturnValueHandler(
+          @Nullable Object handler, @Nullable Object returnValue) {
     if (handler instanceof ReturnValueHandler) {
       return (ReturnValueHandler) handler;
     }
@@ -368,7 +263,7 @@ public class DispatcherHandler implements ApplicationContextAware {
     }
     ReturnValueHandler selected = returnValueHandler.selectHandler(handler, returnValue);
     if (selected == null) {
-      if (returnValue == null) {
+      if (returnValue == null && handler != null) {
         throw new ReturnValueHandlerNotFoundException(handler);
       }
       throw new ReturnValueHandlerNotFoundException(returnValue, handler);
@@ -633,10 +528,6 @@ public class DispatcherHandler implements ApplicationContextAware {
     log.info(msg);
   }
 
-  public HandlerAdapter[] getHandlerAdapters() {
-    return handlerAdapters;
-  }
-
   public HandlerMapping getHandlerRegistry() {
     return handlerMapping;
   }
@@ -651,8 +542,11 @@ public class DispatcherHandler implements ApplicationContextAware {
   }
 
   public void setHandlerAdapters(HandlerAdapter... handlerAdapters) {
-    Assert.notNull(handlerAdapters, "handlerAdapters must not be null");
-    this.handlerAdapters = handlerAdapters;
+    this.handlerAdapter = new HandlerAdapters(handlerAdapters);
+  }
+
+  public void setHandlerAdapter(HandlerAdapter handlerAdapter) {
+    this.handlerAdapter = handlerAdapter;
   }
 
   public void setExceptionHandler(HandlerExceptionHandler exceptionHandler) {
@@ -699,8 +593,8 @@ public class DispatcherHandler implements ApplicationContextAware {
    *
    * @since 4.0
    */
-  public void setDetectAllHandlerRegistries(boolean detectAllHandlerRegistries) {
-    this.detectAllHandlerRegistries = detectAllHandlerRegistries;
+  public void setDetectAllHandlerMapping(boolean detectAllHandlerMapping) {
+    this.detectAllHandlerMapping = detectAllHandlerMapping;
   }
 
   /**
