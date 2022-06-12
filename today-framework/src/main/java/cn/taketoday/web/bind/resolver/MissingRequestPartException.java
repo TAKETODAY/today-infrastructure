@@ -23,7 +23,7 @@ package cn.taketoday.web.bind.resolver;
 import cn.taketoday.http.HttpStatus;
 import cn.taketoday.http.ProblemDetail;
 import cn.taketoday.web.ErrorResponse;
-import jakarta.servlet.ServletException;
+import cn.taketoday.web.bind.MissingRequestValueException;
 
 /**
  * Raised when the part of a "multipart/form-data" request identified by its
@@ -35,10 +35,11 @@ import jakarta.servlet.ServletException;
  * e.g. no {@code MultipartResolver}.
  *
  * @author Rossen Stoyanchev
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 @SuppressWarnings("serial")
-public class MissingRequestPartException extends ServletException implements ErrorResponse {
+public class MissingRequestPartException extends MissingRequestValueException implements ErrorResponse {
   private final ProblemDetail body = ProblemDetail.forStatus(getStatusCode());
 
   private final String requestPartName;
