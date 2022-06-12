@@ -30,6 +30,7 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.handler.DispatcherHandler;
 import cn.taketoday.web.handler.FunctionRequestAdapter;
 import cn.taketoday.web.handler.HandlerAdapters;
+import cn.taketoday.web.handler.HandlerExecutionChainHandlerAdapter;
 import cn.taketoday.web.handler.NotFoundHandler;
 import cn.taketoday.web.handler.RequestHandlerAdapter;
 import cn.taketoday.web.handler.ViewControllerHandlerAdapter;
@@ -161,12 +162,22 @@ public interface HandlerAdapter {
 
     // Ensure we have at least some HandlerAdapters, by registering
     // default HandlerAdapters if no other adapters are found.
-    return new HandlerAdapters(
+    var handlerAdapter = context.getAutowireCapableBeanFactory().createBean(RequestMappingHandlerAdapter.class);
+    HandlerAdapters handlerAdapters = new HandlerAdapters(
             new HandlerAdapter[] {
-                    context.getAutowireCapableBeanFactory().createBean(RequestMappingHandlerAdapter.class),
+                    handlerAdapter,
                     new ViewControllerHandlerAdapter(),
                     new FunctionRequestAdapter(),
                     new RequestHandlerAdapter()
+            }
+    );
+    return new HandlerAdapters(
+            new HandlerAdapter[] {
+                    handlerAdapter,
+                    new ViewControllerHandlerAdapter(),
+                    new FunctionRequestAdapter(),
+                    new RequestHandlerAdapter(),
+                    new HandlerExecutionChainHandlerAdapter(handlerAdapters)
             }
     );
   }
