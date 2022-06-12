@@ -25,7 +25,7 @@ import java.util.Set;
 import cn.taketoday.beans.factory.FactoryBean;
 import cn.taketoday.beans.factory.InitializingBean;
 import cn.taketoday.core.conversion.ConversionService;
-import cn.taketoday.core.conversion.support.ConversionServiceFactory;
+import cn.taketoday.core.conversion.ConverterRegistry;
 import cn.taketoday.core.conversion.support.DefaultConversionService;
 import cn.taketoday.core.conversion.support.GenericConversionService;
 import cn.taketoday.lang.Nullable;
@@ -74,7 +74,7 @@ public class ConversionServiceFactoryBean implements FactoryBean<ConversionServi
   @Override
   public void afterPropertiesSet() {
     this.conversionService = createConversionService();
-    ConversionServiceFactory.registerConverters(this.converters, this.conversionService);
+    ConverterRegistry.registerConverters(this.converters, this.conversionService);
   }
 
   /**
