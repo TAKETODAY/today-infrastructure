@@ -22,6 +22,7 @@ package cn.taketoday.web.bind.resolver;
 import java.util.ArrayList;
 import java.util.List;
 
+import cn.taketoday.beans.factory.InitializingBean;
 import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
 import cn.taketoday.context.ApplicationContext;
@@ -66,7 +67,7 @@ import static cn.taketoday.web.bind.resolver.ConverterAwareParameterResolver.fro
  * @since 3.0
  */
 public class ParameterResolvingRegistry
-        extends ApplicationContextSupport implements ArraySizeTrimmer {
+        extends ApplicationContextSupport implements ArraySizeTrimmer, InitializingBean {
 
   private final ParameterResolvingStrategies defaultStrategies = new ParameterResolvingStrategies(36);
   private final ParameterResolvingStrategies customizedStrategies = new ParameterResolvingStrategies();
@@ -151,6 +152,13 @@ public class ParameterResolvingRegistry
    */
   public ParameterResolvingStrategies getCustomizedStrategies() {
     return customizedStrategies;
+  }
+
+  @Override
+  public void afterPropertiesSet() throws Exception {
+    if (defaultStrategies.isEmpty()) {
+      registerDefaultStrategies();
+    }
   }
 
   /**
