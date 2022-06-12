@@ -35,7 +35,7 @@ public abstract class InterceptableRequestHandler
 
   public InterceptableRequestHandler() { }
 
-  public InterceptableRequestHandler(HandlerInterceptor... interceptors) {
+  public InterceptableRequestHandler(@Nullable HandlerInterceptor... interceptors) {
     setInterceptors(interceptors);
   }
 

@@ -44,7 +44,7 @@ public class HandlerInterceptorHolder implements HandlerInterceptorsProvider {
    *
    * @param interceptors interceptors to add
    */
-  public void setInterceptors(HandlerInterceptor... interceptors) {
+  public void setInterceptors(@Nullable HandlerInterceptor... interceptors) {
     this.interceptors.set(interceptors);
   }
 
