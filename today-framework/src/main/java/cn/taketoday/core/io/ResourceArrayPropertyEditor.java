@@ -102,7 +102,7 @@ public class ResourceArrayPropertyEditor extends PropertyEditorSupport {
    * if no corresponding system property could be found
    */
   public ResourceArrayPropertyEditor(PatternResourceLoader resourcePatternResolver,
-                                     @Nullable PropertyResolver propertyResolver, boolean ignoreUnresolvablePlaceholders) {
+          @Nullable PropertyResolver propertyResolver, boolean ignoreUnresolvablePlaceholders) {
 
     Assert.notNull(resourcePatternResolver, "ResourcePatternResolver must not be null");
     this.resourcePatternResolver = resourcePatternResolver;
@@ -135,10 +135,10 @@ public class ResourceArrayPropertyEditor extends PropertyEditorSupport {
       Collection<?> input = (value instanceof Collection ? (Collection<?>) value : Arrays.asList((Object[]) value));
       LinkedHashSet<Resource> merged = new LinkedHashSet<>();
       for (Object element : input) {
-        if (element instanceof String) {
+        if (element instanceof String path) {
           // A location pattern: resolve it into a Resource array.
           // Might point to a single resource or to multiple resources.
-          String pattern = resolvePath((String) element).trim();
+          String pattern = resolvePath(path).trim();
           try {
             Set<Resource> resources = this.resourcePatternResolver.getResources(pattern);
             merged.addAll(resources);
@@ -150,9 +150,9 @@ public class ResourceArrayPropertyEditor extends PropertyEditorSupport {
             }
           }
         }
-        else if (element instanceof Resource) {
+        else if (element instanceof Resource resource) {
           // A Resource object: add it to the result.
-          merged.add((Resource) element);
+          merged.add(resource);
         }
         else {
           throw new IllegalArgumentException("Cannot convert element [" + element + "] to [" +
