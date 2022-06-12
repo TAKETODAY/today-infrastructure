@@ -26,7 +26,6 @@ import java.nio.CharBuffer;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -67,9 +66,9 @@ public final class StringDecoder extends AbstractDataBufferDecoder<String> {
   public static final Charset DEFAULT_CHARSET = StandardCharsets.UTF_8;
 
   /** The default delimiter strings to use, i.e. {@code \r\n} and {@code \n}. */
-  public static final List<String> DEFAULT_DELIMITERS = Arrays.asList("\r\n", "\n");
+  public static final List<String> DEFAULT_DELIMITERS = List.of("\r\n", "\n");
 
-  private final List<String> delimiters;
+  private final ArrayList<String> delimiters;
 
   private final boolean stripDelimiter;
 
@@ -133,9 +132,9 @@ public final class StringDecoder extends AbstractDataBufferDecoder<String> {
 
   private byte[][] getDelimiterBytes(@Nullable MimeType mimeType) {
     return this.delimitersCache.computeIfAbsent(getCharset(mimeType), charset -> {
-      byte[][] result = new byte[this.delimiters.size()][];
-      for (int i = 0; i < this.delimiters.size(); i++) {
-        result[i] = this.delimiters.get(i).getBytes(charset);
+      byte[][] result = new byte[delimiters.size()][];
+      for (int i = 0; i < delimiters.size(); i++) {
+        result[i] = delimiters.get(i).getBytes(charset);
       }
       return result;
     });
@@ -184,7 +183,7 @@ public final class StringDecoder extends AbstractDataBufferDecoder<String> {
 
   @Override
   public String decode(DataBuffer dataBuffer, ResolvableType elementType,
-                       @Nullable MimeType mimeType, @Nullable Map<String, Object> hints) {
+          @Nullable MimeType mimeType, @Nullable Map<String, Object> hints) {
 
     Charset charset = getCharset(mimeType);
     CharBuffer charBuffer = charset.decode(dataBuffer.asByteBuffer());
