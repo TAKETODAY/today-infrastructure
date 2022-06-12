@@ -37,6 +37,11 @@ import cn.taketoday.http.ResponseEntity;
  * <p>An {@code @ExceptionHandler} method can use {@link ResponseEntity#of(ProblemDetail)}
  * to map an {@code ErrorResponse} to a {@code ResponseEntity}.
  *
+ * <p>{@code ErrorResponse} is supported as a return value from
+ * {@code @ExceptionHandler} methods that render directly to the response, e.g.
+ * by being marked {@code @ResponseBody}, or declared in an
+ * {@code @RestController} or {@code RestControllerAdvice} class.
+ *
  * @author Rossen Stoyanchev
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see ErrorResponseException
