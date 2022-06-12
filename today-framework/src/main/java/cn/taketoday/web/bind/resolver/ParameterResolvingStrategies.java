@@ -207,8 +207,22 @@ public class ParameterResolvingStrategies
             .toString();
   }
 
+  /**
+   * Returns the number of strategies in this list.
+   *
+   * @return the number of strategies in this list
+   */
   public int size() {
     return strategies.size();
+  }
+
+  /**
+   * Returns {@code true} if this strategies list contains no strategy.
+   *
+   * @return {@code true} if this strategies list contains no strategy
+   */
+  public boolean isEmpty() {
+    return strategies.isEmpty();
   }
 
 }
