@@ -20,6 +20,10 @@
 
 package cn.taketoday.core.conversion;
 
+import java.util.Set;
+
+import cn.taketoday.lang.Nullable;
+
 /**
  * For registering converters with a type conversion system.
  *
@@ -72,4 +76,33 @@ public interface ConverterRegistry {
    */
   void removeConvertible(Class<?> sourceType, Class<?> targetType);
 
+  // static
+
+  /**
+   * Register the given Converter objects with the given target ConverterRegistry.
+   *
+   * @param converters the converter objects: implementing {@link Converter},
+   * {@link ConverterFactory}, or {@link GenericConverter}
+   * @param registry the target registry
+   * @since 4.0
+   */
+  static void registerConverters(@Nullable Set<?> converters, ConverterRegistry registry) {
+    if (converters != null) {
+      for (Object converter : converters) {
+        if (converter instanceof GenericConverter genericConverter) {
+          registry.addConverter(genericConverter);
+        }
+        else if (converter instanceof Converter<?, ?> c) {
+          registry.addConverter(c);
+        }
+        else if (converter instanceof ConverterFactory<?, ?> cf) {
+          registry.addConverterFactory(cf);
+        }
+        else {
+          throw new IllegalArgumentException("Each converter object must implement one of the " +
+                  "Converter, ConverterFactory, or GenericConverter interfaces");
+        }
+      }
+    }
+  }
 }

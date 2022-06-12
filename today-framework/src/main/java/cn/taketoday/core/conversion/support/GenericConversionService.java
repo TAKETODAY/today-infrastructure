@@ -114,8 +114,8 @@ public class GenericConversionService implements ConfigurableConversionService {
   @Override
   public void addConverterFactory(ConverterFactory<?, ?> factory) {
     ResolvableType[] typeInfo = getRequiredTypeInfo(factory.getClass(), ConverterFactory.class);
-    if (typeInfo == null && factory instanceof DecoratingProxy) {
-      typeInfo = getRequiredTypeInfo(((DecoratingProxy) factory).getDecoratedClass(), ConverterFactory.class);
+    if (typeInfo == null && factory instanceof DecoratingProxy proxy) {
+      typeInfo = getRequiredTypeInfo(proxy.getDecoratedClass(), ConverterFactory.class);
     }
     if (typeInfo == null) {
       throw new IllegalArgumentException("Unable to determine source type <S> and target type <T> for your " +

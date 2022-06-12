@@ -26,7 +26,7 @@ import cn.taketoday.beans.factory.FactoryBean;
 import cn.taketoday.beans.factory.InitializingBean;
 import cn.taketoday.context.expression.EmbeddedValueResolverAware;
 import cn.taketoday.core.StringValueResolver;
-import cn.taketoday.core.conversion.support.ConversionServiceFactory;
+import cn.taketoday.core.conversion.ConverterRegistry;
 import cn.taketoday.format.AnnotationFormatterFactory;
 import cn.taketoday.format.Formatter;
 import cn.taketoday.format.FormatterRegistrar;
@@ -145,9 +145,9 @@ public class FormattingConversionServiceFactoryBean
 
   @Override
   public void afterPropertiesSet() {
-    this.conversionService = new DefaultFormattingConversionService(this.embeddedValueResolver, this.registerDefaultFormatters);
-    ConversionServiceFactory.registerConverters(this.converters, this.conversionService);
-    registerFormatters(this.conversionService);
+    this.conversionService = new DefaultFormattingConversionService(embeddedValueResolver, registerDefaultFormatters);
+    ConverterRegistry.registerConverters(converters, conversionService);
+    registerFormatters(conversionService);
   }
 
   private void registerFormatters(FormattingConversionService conversionService) {
