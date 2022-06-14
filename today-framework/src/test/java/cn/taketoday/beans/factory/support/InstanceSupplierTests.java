@@ -22,12 +22,13 @@ package cn.taketoday.beans.factory.support;
 
 import org.junit.jupiter.api.Test;
 
+import java.lang.reflect.Method;
+
 import cn.taketoday.util.function.ThrowingBiFunction;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
-import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
@@ -59,7 +60,7 @@ class InstanceSupplierTests {
   }
 
   @Test
-  void andThenWithBiFunctionWhenFunctionIsNullThrowsException() {
+  void andThenWhenFunctionIsNullThrowsException() {
     InstanceSupplier<String> supplier = registeredBean -> "test";
     ThrowingBiFunction<RegisteredBean, String, String> after = null;
     assertThatIllegalArgumentException().isThrownBy(() -> supplier.andThen(after))
@@ -67,11 +68,21 @@ class InstanceSupplierTests {
   }
 
   @Test
-  void andThenWithBiFunctionAppliesFunctionToObtainResult() throws Exception {
+  void andThenAppliesFunctionToObtainResult() throws Exception {
     InstanceSupplier<String> supplier = registeredBean -> "bean";
     supplier = supplier.andThen(
             (registeredBean, string) -> registeredBean.getBeanName() + "-" + string);
     assertThat(supplier.get(this.registeredBean)).isEqualTo("test-bean");
+  }
+
+  @Test
+  void andThenWhenInstanceSupplierHasFactoryMethod() throws Exception {
+    Method factoryMethod = getClass().getDeclaredMethod("andThenWhenInstanceSupplierHasFactoryMethod");
+    InstanceSupplier<String> supplier = InstanceSupplier.using(factoryMethod, () -> "bean");
+    supplier = supplier.andThen(
+            (registeredBean, string) -> registeredBean.getBeanName() + "-" + string);
+    assertThat(supplier.get(this.registeredBean)).isEqualTo("test-bean");
+    assertThat(supplier.getFactoryMethod()).isSameAs(factoryMethod);
   }
 
   @Test
