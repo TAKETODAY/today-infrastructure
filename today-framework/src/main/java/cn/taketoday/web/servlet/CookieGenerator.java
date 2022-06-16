@@ -183,7 +183,7 @@ public class CookieGenerator {
    * @see #setCookieMaxAge
    */
   public void addCookie(RequestContext response, String cookieValue) {
-    Assert.notNull(response, "HttpServletResponse must not be null");
+    Assert.notNull(response, "RequestContext is required");
     ResponseCookieBuilder cookie = createCookie(cookieValue);
     Integer maxAge = getCookieMaxAge();
     if (maxAge != null) {
