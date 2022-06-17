@@ -194,6 +194,15 @@ public class ThreadPoolTaskExecutor
   }
 
   /**
+   * Return the capacity for the ThreadPoolExecutor's BlockingQueue.
+   *
+   * @see #setQueueCapacity(int)
+   */
+  public int getQueueCapacity() {
+    return this.queueCapacity;
+  }
+
+  /**
    * Specify whether to allow core threads to time out. This enables dynamic
    * growing and shrinking even in combination with a non-zero queue (since
    * the max pool size will only grow once the queue is full).
@@ -321,6 +330,19 @@ public class ThreadPoolTaskExecutor
       return this.corePoolSize;
     }
     return this.threadPoolExecutor.getPoolSize();
+  }
+
+  /**
+   * Return the current queue size.
+   *
+   * @see java.util.concurrent.ThreadPoolExecutor#getQueue()
+   */
+  public int getQueueSize() {
+    if (this.threadPoolExecutor == null) {
+      // Not initialized yet: assume no queued tasks.
+      return 0;
+    }
+    return this.threadPoolExecutor.getQueue().size();
   }
 
   /**
