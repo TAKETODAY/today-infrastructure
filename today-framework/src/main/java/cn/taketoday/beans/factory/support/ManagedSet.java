@@ -122,7 +122,7 @@ public class ManagedSet<E> extends LinkedHashSet<E> implements Mergeable, BeanMe
    * @param <E> the {@code Set}'s element type
    * @return a {@code Set} containing the specified elements
    */
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings({ "unchecked", "varargs" })
   public static <E> ManagedSet<E> of(E... elements) {
     ManagedSet<E> set = new ManagedSet<>();
     CollectionUtils.addAll(set, elements);

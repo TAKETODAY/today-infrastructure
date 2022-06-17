@@ -47,20 +47,26 @@ public abstract class AbstractActionMappingMethodExceptionHandler extends Abstra
     if (handler == null) {
       return super.shouldApplyTo(request, null);
     }
-    else if (handler instanceof HandlerMethod handlerMethod) {
+
+    // unwrap HandlerExecutionChain
+    if (handler instanceof HandlerExecutionChain chain) {
+      handler = chain.getHandler();
+    }
+
+    if (handler instanceof HandlerMethod handlerMethod) {
       handler = handlerMethod.getBean();
       return super.shouldApplyTo(request, handler);
     }
-    else if (handler instanceof ActionMappingAnnotationHandler annotationHandler) {
+
+    if (handler instanceof ActionMappingAnnotationHandler annotationHandler) {
       handler = annotationHandler.getHandlerObject();
       return super.shouldApplyTo(request, handler);
     }
-    else if (hasGlobalExceptionHandlers() && hasHandlerMappings()) {
+
+    if (hasGlobalExceptionHandlers() && hasHandlerMappings()) {
       return super.shouldApplyTo(request, handler);
     }
-    else {
-      return false;
-    }
+    return false;
   }
 
   /**
@@ -75,6 +81,10 @@ public abstract class AbstractActionMappingMethodExceptionHandler extends Abstra
   @Nullable
   @Override
   protected Object handleInternal(RequestContext request, @Nullable Object handler, Throwable ex) throws Exception {
+    if (handler instanceof HandlerExecutionChain chain) {
+      handler = chain.getHandler();
+    }
+
     if (handler instanceof HandlerMethod handlerMethod) {
       return handleInternal(request, handlerMethod, ex);
     }

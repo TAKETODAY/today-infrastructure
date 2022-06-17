@@ -20,7 +20,9 @@
 
 package cn.taketoday.web.handler;
 
+import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.web.HandlerAdapter;
+import cn.taketoday.web.HandlerInterceptor;
 import cn.taketoday.web.RequestContext;
 
 /**
@@ -28,6 +30,15 @@ import cn.taketoday.web.RequestContext;
  * @since 4.0 2022/5/27 16:26
  */
 public class HandlerExecutionChainHandlerAdapter implements HandlerAdapter {
+  private final HandlerAdapter handlerAdapter;
+
+  public HandlerExecutionChainHandlerAdapter(ApplicationContext context) {
+    this(HandlerAdapter.find(context));
+  }
+
+  public HandlerExecutionChainHandlerAdapter(HandlerAdapter handlerAdapter) {
+    this.handlerAdapter = handlerAdapter;
+  }
 
   @Override
   public boolean supports(Object handler) {
@@ -38,7 +49,21 @@ public class HandlerExecutionChainHandlerAdapter implements HandlerAdapter {
   public Object handle(RequestContext context, Object handler) throws Throwable {
     HandlerExecutionChain chain = (HandlerExecutionChain) handler;
 
-    return null;
+    Object targetHandler = chain.getHandler();
+    HandlerInterceptor[] interceptors = chain.getInterceptors();
+
+    if (interceptors == null) {
+      return handlerAdapter.handle(context, targetHandler);
+    }
+
+    return new InterceptableRequestHandler(interceptors) {
+
+      @Override
+      protected Object handleInternal(RequestContext context) throws Throwable {
+        return handlerAdapter.handle(context, targetHandler);
+      }
+
+    }.handleRequest(context);
   }
 
 }

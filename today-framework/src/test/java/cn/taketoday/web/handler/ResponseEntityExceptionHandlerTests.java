@@ -172,7 +172,6 @@ class ResponseEntityExceptionHandlerTests {
   }
 
   @Test
-  @SuppressWarnings("deprecation")
   public void httpMessageNotReadable() {
     Exception ex = new HttpMessageNotReadableException("message");
     testException(ex);
@@ -222,6 +221,7 @@ class ResponseEntityExceptionHandlerTests {
   public void controllerAdvice() throws Exception {
     StaticWebApplicationContext ctx = new StaticWebApplicationContext();
     ctx.registerSingleton("exceptionHandler", ApplicationExceptionHandler.class);
+    ctx.registerSingleton("exceptionHandlerAnnotationExceptionHandler", ExceptionHandlerAnnotationExceptionHandler.class);
 
     ctx.registerSingleton("parameterResolvingRegistry", ParameterResolvingRegistry.class);
     ctx.registerSingleton("returnValueHandlerManager", ReturnValueHandlerManager.class);
@@ -261,6 +261,7 @@ class ResponseEntityExceptionHandlerTests {
     StaticWebApplicationContext ctx = new StaticWebApplicationContext();
     ctx.registerSingleton("controller", ExceptionThrowingController.class);
     ctx.registerSingleton("exceptionHandler", ApplicationExceptionHandler.class);
+    ctx.registerSingleton("exceptionHandlerAnnotationExceptionHandler", ExceptionHandlerAnnotationExceptionHandler.class);
 
     ctx.registerSingleton("parameterResolvingRegistry", ParameterResolvingRegistry.class);
     ctx.registerSingleton("returnValueHandlerManager", ReturnValueHandlerManager.class);

@@ -20,7 +20,12 @@
 
 package cn.taketoday.web;
 
+import java.io.Serial;
+
 import cn.taketoday.core.NestedRuntimeException;
+import cn.taketoday.http.HttpStatus;
+import cn.taketoday.http.HttpStatusCode;
+import cn.taketoday.http.ProblemDetail;
 
 /**
  * For Framework Configuration errors
@@ -28,7 +33,8 @@ import cn.taketoday.core.NestedRuntimeException;
  * @author TODAY 2021/4/26 22:20
  * @since 3.0
  */
-public class FrameworkConfigurationException extends NestedRuntimeException {
+public class FrameworkConfigurationException extends NestedRuntimeException implements ErrorResponse {
+  @Serial
   private static final long serialVersionUID = 1L;
 
   public FrameworkConfigurationException() {
@@ -45,6 +51,16 @@ public class FrameworkConfigurationException extends NestedRuntimeException {
 
   public FrameworkConfigurationException(String message, Throwable cause) {
     super(message, cause);
+  }
+
+  @Override
+  public HttpStatusCode getStatusCode() {
+    return HttpStatus.INTERNAL_SERVER_ERROR;
+  }
+
+  @Override
+  public ProblemDetail getBody() {
+    return ProblemDetail.forStatus(getStatusCode());
   }
 
 }

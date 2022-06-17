@@ -83,6 +83,7 @@ import cn.taketoday.web.bind.support.ConfigurableWebBindingInitializer;
 import cn.taketoday.web.cors.CorsConfiguration;
 import cn.taketoday.web.handler.CompositeHandlerExceptionHandler;
 import cn.taketoday.web.handler.FunctionRequestAdapter;
+import cn.taketoday.web.handler.HandlerExecutionChainHandlerAdapter;
 import cn.taketoday.web.handler.NotFoundHandler;
 import cn.taketoday.web.handler.ResponseStatusExceptionHandler;
 import cn.taketoday.web.handler.ReturnValueHandlerManager;
@@ -896,6 +897,12 @@ public class WebMvcConfigurationSupport extends ApplicationContextSupport {
       initializer.setMessageCodesResolver(messageCodesResolver);
     }
     return initializer;
+  }
+
+  @Component
+  @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
+  HandlerExecutionChainHandlerAdapter handlerExecutionChainHandlerAdapter(ApplicationContext context) {
+    return new HandlerExecutionChainHandlerAdapter(context);
   }
 
   /**

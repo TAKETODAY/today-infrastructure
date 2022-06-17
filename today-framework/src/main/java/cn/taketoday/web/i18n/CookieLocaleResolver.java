@@ -37,8 +37,8 @@ import cn.taketoday.web.util.WebUtils;
 
 /**
  * {@link LocaleResolver} implementation that uses a cookie sent back to the user
- * in case of a custom setting, with a fallback to the specified default locale
- * or the request's accept-header locale.
+ * in case of a custom setting, with a fallback to the configured default locale,
+ * the request's {@code Accept-Language} header, or the default locale for the server.
  *
  * <p>This is particularly useful for stateless applications without user sessions.
  * The cookie may optionally contain an associated time zone value as well;
@@ -95,8 +95,8 @@ public class CookieLocaleResolver extends CookieGenerator implements LocaleConte
   private TimeZone defaultTimeZone;
 
   /**
-   * Create a new instance of the {@link CookieLocaleResolver} class
-   * using the {@link #DEFAULT_COOKIE_NAME default cookie name}.
+   * Create a new instance of {@link CookieLocaleResolver} using the
+   * {@linkplain #DEFAULT_COOKIE_NAME default cookie name}.
    */
   public CookieLocaleResolver() {
     setCookieName(DEFAULT_COOKIE_NAME);
@@ -149,7 +149,7 @@ public class CookieLocaleResolver extends CookieGenerator implements LocaleConte
   }
 
   /**
-   * Set a fixed locale that this resolver will return if no cookie found.
+   * Set a fixed locale that this resolver will return if no cookie is found.
    */
   public void setDefaultLocale(@Nullable Locale defaultLocale) {
     this.defaultLocale = defaultLocale;
@@ -165,14 +165,14 @@ public class CookieLocaleResolver extends CookieGenerator implements LocaleConte
   }
 
   /**
-   * Set a fixed time zone that this resolver will return if no cookie found.
+   * Set a fixed time zone that this resolver will return if no cookie is found.
    */
   public void setDefaultTimeZone(@Nullable TimeZone defaultTimeZone) {
     this.defaultTimeZone = defaultTimeZone;
   }
 
   /**
-   * Return the fixed time zone that this resolver will return if no cookie found,
+   * Return the fixed time zone that this resolver will return if no cookie is found,
    * if any.
    */
   @Nullable
@@ -212,7 +212,7 @@ public class CookieLocaleResolver extends CookieGenerator implements LocaleConte
       // Retrieve and parse cookie value.
       String cookieName = getCookieName();
       if (cookieName != null) {
-        HttpCookie cookie = WebUtils.getCookie(request, cookieName);
+        HttpCookie cookie = request.getCookie(cookieName);
         if (cookie != null) {
           String value = cookie.getValue();
           String localePart = value;
@@ -241,14 +241,14 @@ public class CookieLocaleResolver extends CookieGenerator implements LocaleConte
             else {
               // Lenient handling (e.g. error dispatch): ignore locale/timezone parse exceptions
               if (logger.isDebugEnabled()) {
-                logger.debug("Ignoring invalid locale cookie '" + cookieName +
-                        "': [" + value + "] due to: " + ex.getMessage());
+                logger.debug("Ignoring invalid locale cookie '{}': [{}] due to: {}",
+                        cookieName, value, ex.getMessage());
               }
             }
           }
           if (logger.isTraceEnabled()) {
-            logger.trace("Parsed cookie value [" + cookie.getValue() + "] into locale '" + locale +
-                    "'" + (timeZone != null ? " and time zone '" + timeZone.getID() + "'" : ""));
+            logger.trace("Parsed cookie value [{}] into locale '{}'{}",
+                    cookie.getValue(), locale, (timeZone != null ? " and time zone '" + timeZone.getID() + "'" : ""));
           }
         }
       }

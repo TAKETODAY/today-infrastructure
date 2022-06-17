@@ -29,7 +29,6 @@ import java.util.Objects;
 import java.util.StringTokenizer;
 
 import cn.taketoday.core.MultiValueMap;
-import cn.taketoday.http.HttpCookie;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
@@ -85,26 +84,6 @@ public abstract class WebUtils {
       mutex = session;
     }
     return mutex;
-  }
-
-  /**
-   * Retrieve the first cookie with the given name. Note that multiple
-   * cookies can have the same name but different paths or domains.
-   *
-   * @param request current servlet request
-   * @param name cookie name
-   * @return the first cookie with the given name, or {@code null} if none is found
-   */
-  @Nullable
-  public static HttpCookie getCookie(RequestContext request, String name) {
-    Assert.notNull(request, "Request must not be null");
-    HttpCookie[] cookies = request.getCookies();
-    for (HttpCookie cookie : cookies) {
-      if (name.equals(cookie.getName())) {
-        return cookie;
-      }
-    }
-    return null;
   }
 
   /**

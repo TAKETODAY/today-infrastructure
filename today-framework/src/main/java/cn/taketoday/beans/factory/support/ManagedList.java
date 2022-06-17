@@ -122,7 +122,7 @@ public class ManagedList<E> extends ArrayList<E> implements Mergeable, BeanMetad
    * @param <E> the {@code List}'s element type
    * @return a {@code List} containing the specified elements
    */
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings({ "unchecked", "varargs" })
   public static <E> ManagedList<E> of(E... elements) {
     ManagedList<E> list = new ManagedList<>();
     CollectionUtils.addAll(list, elements);

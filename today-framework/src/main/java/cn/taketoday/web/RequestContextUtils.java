@@ -36,6 +36,7 @@ import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.bind.MissingRequestParameterException;
 import cn.taketoday.web.bind.RequestBindingException;
+import cn.taketoday.web.servlet.DispatcherServlet;
 import cn.taketoday.web.session.SessionManager;
 import cn.taketoday.web.session.WebSession;
 import cn.taketoday.web.util.UriComponents;
@@ -214,27 +215,28 @@ public class RequestContextUtils {
 
   /**
    * Retrieve the current time zone from the given request, using the
-   * TimeZoneAwareLocaleResolver bound to the request by the DispatcherServlet
-   * (if available), falling back to the system's default time zone.
+   * {@link TimeZoneAwareLocaleContext} in the {@link LocaleResolver} bound to
+   * the request by the {@link DispatcherServlet} (if available).
    * <p>Note: This method returns {@code null} if no specific time zone can be
    * resolved for the given request. This is in contrast to {@link #getLocale}
-   * where there is always the request's accept-header locale to fall back to.
+   * where it is always possible to fall back to the request's locale based on the
+   * {@code Accept-Language} header or the default locale for the server.
    * <p>Consider using {@link LocaleContextHolder#getTimeZone()}
-   * which will normally be populated with the same TimeZone: That method only
-   * differs in terms of its fallback to the system time zone if the LocaleResolver
+   * which will normally be populated with the same {@code TimeZone}: that method only
+   * differs in terms of its fallback to the system time zone if the {@code LocaleResolver}
    * hasn't provided a specific time zone (instead of this method's {@code null}).
    *
    * @param request current HTTP request
    * @return the current time zone for the given request, either from the
-   * TimeZoneAwareLocaleResolver or {@code null} if none associated
+   * {@code TimeZoneAwareLocaleContext} or {@code null} if none associated
    * @see #getLocaleResolver
    * @see LocaleContextHolder#getTimeZone()
    */
   @Nullable
   public static TimeZone getTimeZone(RequestContext request) {
     LocaleResolver localeResolver = getLocaleResolver(request);
-    if (localeResolver instanceof LocaleContextResolver) {
-      LocaleContext localeContext = ((LocaleContextResolver) localeResolver).resolveLocaleContext(request);
+    if (localeResolver instanceof LocaleContextResolver lcr) {
+      LocaleContext localeContext = lcr.resolveLocaleContext(request);
       if (localeContext instanceof TimeZoneAwareLocaleContext) {
         return ((TimeZoneAwareLocaleContext) localeContext).getTimeZone();
       }

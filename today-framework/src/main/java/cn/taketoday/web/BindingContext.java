@@ -337,7 +337,7 @@ public class BindingContext {
     else {
       sb.append("View is [").append(view).append(']');
     }
-    sb.append("; default model ");
+    sb.append("; model ");
     sb.append(getModel());
 
     RedirectModel redirectModel = getRedirectModel();

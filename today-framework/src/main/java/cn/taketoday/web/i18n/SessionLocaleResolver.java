@@ -35,8 +35,8 @@ import cn.taketoday.web.session.WebSession;
 /**
  * {@link cn.taketoday.web.LocaleResolver} implementation that
  * uses a locale attribute in the user's session in case of a custom setting,
- * with a fallback to the specified default locale or the request's
- * accept-header locale.
+ * with a fallback to the configured default locale, the request's
+ * {@code Accept-Language} header, or the default locale for the server.
  *
  * <p>This is most appropriate if the application needs user sessions anyway,
  * i.e. when the {@code HttpSession} does not have to be created just for storing
@@ -61,7 +61,7 @@ import cn.taketoday.web.session.WebSession;
 public class SessionLocaleResolver extends AbstractLocaleContextResolver {
 
   /**
-   * Name of the session attribute that holds the Locale.
+   * Default name of the session attribute that holds the Locale.
    * Only used internally by this implementation.
    * <p>Use {@code RequestContext(Utils).getLocale()}
    * to retrieve the current locale in controllers or views.
@@ -72,7 +72,7 @@ public class SessionLocaleResolver extends AbstractLocaleContextResolver {
   public static final String LOCALE_SESSION_ATTRIBUTE_NAME = SessionLocaleResolver.class.getName() + ".LOCALE";
 
   /**
-   * Name of the session attribute that holds the TimeZone.
+   * Default name of the session attribute that holds the TimeZone.
    * Only used internally by this implementation.
    * <p>Use {@code RequestContext(Utils).getTimeZone()}
    * to retrieve the current time zone in controllers or views.
@@ -196,10 +196,12 @@ public class SessionLocaleResolver extends AbstractLocaleContextResolver {
   }
 
   /**
-   * Determine the default locale for the given request,
-   * Called if no Locale session attribute has been found.
-   * <p>The default implementation returns the specified default locale,
-   * if any, else falls back to the request's accept-header locale.
+   * Determine the default locale for the given request, called if no
+   * {@link Locale} session attribute has been found.
+   * <p>The default implementation returns the configured
+   * {@linkplain #setDefaultLocale(Locale) default locale}, if any, and otherwise
+   * falls back to the request's {@code Accept-Language} header locale or the
+   * default locale for the server.
    *
    * @param request the request to resolve the locale for
    * @return the default locale (never {@code null})
@@ -215,9 +217,9 @@ public class SessionLocaleResolver extends AbstractLocaleContextResolver {
   }
 
   /**
-   * Determine the default time zone for the given request,
-   * Called if no TimeZone session attribute has been found.
-   * <p>The default implementation returns the specified default time zone,
+   * Determine the default time zone for the given request, called if no
+   * {@link TimeZone} session attribute has been found.
+   * <p>The default implementation returns the configured default time zone,
    * if any, or {@code null} otherwise.
    *
    * @param request the request to resolve the time zone for
