@@ -93,7 +93,12 @@ public class JdbcTransactionManager extends DataSourceTransactionManager {
    * @see java.sql.DatabaseMetaData#getDatabaseProductName()
    */
   public void setDatabaseProductName(String dbName) {
-    this.exceptionTranslator = new SQLErrorCodeSQLExceptionTranslator(dbName);
+    if (SQLErrorCodeSQLExceptionTranslator.hasUserProvidedErrorCodesFile()) {
+      this.exceptionTranslator = new SQLErrorCodeSQLExceptionTranslator(dbName);
+    }
+    else {
+      this.exceptionTranslator = new SQLExceptionSubclassTranslator();
+    }
   }
 
   /**
@@ -124,7 +129,12 @@ public class JdbcTransactionManager extends DataSourceTransactionManager {
     synchronized(this) {
       exceptionTranslator = this.exceptionTranslator;
       if (exceptionTranslator == null) {
-        exceptionTranslator = new SQLErrorCodeSQLExceptionTranslator(obtainDataSource());
+        if (SQLErrorCodeSQLExceptionTranslator.hasUserProvidedErrorCodesFile()) {
+          exceptionTranslator = new SQLErrorCodeSQLExceptionTranslator(obtainDataSource());
+        }
+        else {
+          exceptionTranslator = new SQLExceptionSubclassTranslator();
+        }
         this.exceptionTranslator = exceptionTranslator;
       }
       return exceptionTranslator;

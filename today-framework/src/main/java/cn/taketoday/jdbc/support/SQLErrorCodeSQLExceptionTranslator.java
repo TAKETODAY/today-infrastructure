@@ -27,6 +27,7 @@ import java.util.Arrays;
 
 import javax.sql.DataSource;
 
+import cn.taketoday.core.io.ClassPathResource;
 import cn.taketoday.dao.CannotAcquireLockException;
 import cn.taketoday.dao.CannotSerializeTransactionException;
 import cn.taketoday.dao.DataAccessException;
@@ -429,6 +430,15 @@ public class SQLErrorCodeSQLExceptionTranslator extends AbstractFallbackSQLExcep
               intro, sqlEx.getSQLState(), sqlEx.getErrorCode(),
               sqlEx.getMessage(), (sql != null ? "; SQL was [" + sql + "]" : ""), task);
     }
+  }
+
+  /**
+   * Check whether there is a user-provided `sql-error-codes.xml` file
+   * in the root of the classpath.
+   */
+  static boolean hasUserProvidedErrorCodesFile() {
+    return new ClassPathResource(SQLErrorCodesFactory.SQL_ERROR_CODE_OVERRIDE_PATH,
+            SQLErrorCodesFactory.class.getClassLoader()).exists();
   }
 
 }

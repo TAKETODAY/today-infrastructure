@@ -86,7 +86,12 @@ public abstract class JdbcAccessor implements InitializingBean {
    * @see java.sql.DatabaseMetaData#getDatabaseProductName()
    */
   public void setDatabaseProductName(String dbName) {
-    this.exceptionTranslator = new SQLErrorCodeSQLExceptionTranslator(dbName);
+    if (SQLErrorCodeSQLExceptionTranslator.hasUserProvidedErrorCodesFile()) {
+      this.exceptionTranslator = new SQLErrorCodeSQLExceptionTranslator(dbName);
+    }
+    else {
+      this.exceptionTranslator = new SQLExceptionSubclassTranslator();
+    }
   }
 
   /**
@@ -118,12 +123,11 @@ public abstract class JdbcAccessor implements InitializingBean {
     synchronized(this) {
       exceptionTranslator = this.exceptionTranslator;
       if (exceptionTranslator == null) {
-        DataSource dataSource = getDataSource();
-        if (dataSource != null) {
-          exceptionTranslator = new SQLErrorCodeSQLExceptionTranslator(dataSource);
+        if (SQLErrorCodeSQLExceptionTranslator.hasUserProvidedErrorCodesFile()) {
+          exceptionTranslator = new SQLErrorCodeSQLExceptionTranslator(obtainDataSource());
         }
         else {
-          exceptionTranslator = new SQLStateSQLExceptionTranslator();
+          exceptionTranslator = new SQLExceptionSubclassTranslator();
         }
         this.exceptionTranslator = exceptionTranslator;
       }
