@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -350,8 +350,7 @@ public abstract class AbstractAutowireCapableBeanFactory
         throw (BeanCreationException) ex;
       }
       else {
-        throw new BeanCreationException(
-                merged.getResourceDescription(), beanName, "Initialization of bean failed", ex);
+        throw new BeanCreationException(merged.getResourceDescription(), beanName, ex.getMessage(), ex);
       }
     }
 
@@ -472,8 +471,8 @@ public abstract class AbstractAutowireCapableBeanFactory
       invokeInitMethods(beanName, bean, def);
     }
     catch (Throwable ex) {
-      throw new BeanCreationException((def != null ? def.getResourceDescription() : null),
-              beanName, "Invocation of init method failed", ex);
+      throw new BeanCreationException(
+              def != null ? def.getResourceDescription() : null, beanName, ex.getMessage(), ex);
     }
     if (def == null || !def.isSynthetic()) {
       bean = applyBeanPostProcessorsAfterInitialization(bean, beanName);
@@ -897,8 +896,7 @@ public abstract class AbstractAutowireCapableBeanFactory
       return createBeanWrapper(merged, beanInstance);
     }
     catch (Throwable ex) {
-      throw new BeanCreationException(
-              merged.getResourceDescription(), beanName, "Instantiation of bean failed", ex);
+      throw new BeanCreationException(merged.getResourceDescription(), beanName, ex.getMessage(), ex);
     }
   }
 
@@ -1155,7 +1153,7 @@ public abstract class AbstractAutowireCapableBeanFactory
     }
     catch (BeansException ex) {
       throw new BeanCreationException(
-              definition.getResourceDescription(), beanName, "Error setting property values", ex);
+              definition.getResourceDescription(), beanName, ex.getMessage(), ex);
     }
   }
 

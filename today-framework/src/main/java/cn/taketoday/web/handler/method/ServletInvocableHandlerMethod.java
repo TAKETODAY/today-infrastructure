@@ -223,7 +223,11 @@ public class ServletInvocableHandlerMethod extends InvocableHandlerMethod {
 
     public ConcurrentResultHandlerMethod(final Object result, ConcurrentResultMethodParameter returnType) {
       super((Callable<Object>) () -> {
+//        if (result instanceof Exception) {
+//          throw (Exception) result;
+//        }
         if (result instanceof Throwable) {
+          // throw new ServletException("Async processing failed: " + result, (Throwable) result);
           throw ExceptionUtils.sneakyThrow((Throwable) result);
         }
         return result;

@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -621,7 +621,7 @@ class ConfigurationClassParser {
       catch (Throwable ex) {
         throw new BeanDefinitionStoreException(
                 "Failed to process import candidates for configuration class [" +
-                        configClass.getMetadata().getClassName() + "]", ex);
+                        configClass.getMetadata().getClassName() + "]: " + ex.getMessage(), ex);
       }
       finally {
         importStack.pop();

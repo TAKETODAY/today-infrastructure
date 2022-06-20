@@ -146,8 +146,7 @@ public class ErrorResponseException extends NestedRuntimeException implements Er
 
   @Override
   public String getMessage() {
-    String message = status + (!headers.isEmpty() ? ", headers=" + headers : "") + ", " + body;
-    return ExceptionUtils.buildMessage(message, getCause());
+    return this.status + (!this.headers.isEmpty() ? ", headers=" + this.headers : "") + ", " + this.body;
   }
 
 }

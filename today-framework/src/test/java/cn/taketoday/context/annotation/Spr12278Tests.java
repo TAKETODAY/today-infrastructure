@@ -58,9 +58,9 @@ public class Spr12278Tests {
 
   @Test
   public void componentTwoSpecificConstructorsNoHint() {
-    assertThatExceptionOfType(BeanCreationException.class).isThrownBy(() ->
-                    new AnnotationConfigApplicationContext(BaseConfiguration.class, TwoSpecificConstructorsComponent.class))
-            .havingRootCause().isInstanceOf(NoSuchMethodException.class);
+    assertThatExceptionOfType(BeanCreationException.class)
+            .isThrownBy(() -> new AnnotationConfigApplicationContext(BaseConfiguration.class, TwoSpecificConstructorsComponent.class))
+            .withMessageContaining("No default constructor found");
   }
 
   @Configuration

@@ -951,8 +951,8 @@ class XmlBeanFactoryTests {
       xbf.getBean("rod2Accessor");
     }
     catch (BeanCreationException ex) {
-      assertThat(ex.getNestedMessage().contains("touchy")).isTrue();
       ex.printStackTrace();
+      assertThat(ex.getNestedMessage().contains("touchy")).isTrue();
       assertThat((Object) ex.getRelatedCauses()).isNull();
     }
   }

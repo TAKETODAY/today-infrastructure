@@ -33,10 +33,10 @@ import cn.taketoday.context.ApplicationContextException;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.servlet.NestedServletException;
 import cn.taketoday.web.view.AbstractTemplateView;
 import groovy.text.Template;
 import groovy.text.markup.MarkupTemplateEngine;
+import jakarta.servlet.ServletException;
 
 /**
  * An {@link AbstractTemplateView} subclass based on Groovy XML/XHTML markup templates.
@@ -135,7 +135,7 @@ public class GroovyMarkupView extends AbstractTemplateView {
     }
     catch (ClassNotFoundException ex) {
       Throwable cause = (ex.getCause() != null ? ex.getCause() : ex);
-      throw new NestedServletException(
+      throw new ServletException(
               "Could not find class while rendering Groovy Markup view with name '" +
                       getUrl() + "': " + ex.getMessage() + "'", cause);
     }

@@ -46,6 +46,7 @@ import cn.taketoday.util.ExceptionUtils;
  * @see cn.taketoday.core.NestedRuntimeException
  * @since 4.0
  */
+@Deprecated
 public class NestedServletException extends ServletException {
 
   @Serial

@@ -21,11 +21,13 @@
 package cn.taketoday.core.conversion.support;
 
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Executable;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Member;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.Collections;
+import java.util.Map;
 import java.util.Set;
 
 import cn.taketoday.core.TypeDescriptor;
@@ -56,9 +58,9 @@ import cn.taketoday.util.ReflectionUtils;
  * </ol>
  *
  * <p><strong>Warning</strong>: this converter does <em>not</em> support the
- * {@link Object#toString()} method for converting from a {@code sourceType}
- * to {@code java.lang.String}. For {@code toString()} support, use
- * {@link FallbackObjectToStringConverter} instead.
+ * {@link Object#toString()} or {@link String#valueOf(Object)} methods for converting
+ * from a {@code sourceType} to {@code java.lang.String}. For {@code toString()}
+ * support, use {@link FallbackObjectToStringConverter} instead.
  *
  * @author Keith Donald
  * @author Juergen Hoeller
@@ -68,8 +70,9 @@ import cn.taketoday.util.ReflectionUtils;
  */
 final class ObjectToObjectConverter implements ConditionalGenericConverter {
 
-  // Cache for the latest to-method resolved on a given Class
-  private static final ConcurrentReferenceHashMap<Class<?>, Member> conversionMemberCache =
+  // Cache for the latest to-method, static factory method, or factory constructor
+  // resolved on a given Class
+  private static final ConcurrentReferenceHashMap<Class<?>, Executable> conversionExecutableCache =
           new ConcurrentReferenceHashMap<>(32);
 
   @Override
@@ -91,10 +94,10 @@ final class ObjectToObjectConverter implements ConditionalGenericConverter {
     }
     Class<?> sourceClass = sourceType.getType();
     Class<?> targetClass = targetType.getType();
-    Member member = getValidatedMember(targetClass, sourceClass);
+    Executable executable = getValidatedExecutable(targetClass, sourceClass);
 
     try {
-      if (member instanceof Method method) {
+      if (executable instanceof Method method) {
         ReflectionUtils.makeAccessible(method);
         if (!Modifier.isStatic(method.getModifiers())) {
           return method.invoke(source);
@@ -103,9 +106,9 @@ final class ObjectToObjectConverter implements ConditionalGenericConverter {
           return method.invoke(null, source);
         }
       }
-      else if (member instanceof Constructor<?> ctor) {
-        ReflectionUtils.makeAccessible(ctor);
-        return ctor.newInstance(source);
+      else if (executable instanceof Constructor<?> constructor) {
+        ReflectionUtils.makeAccessible(constructor);
+        return constructor.newInstance(source);
       }
     }
     catch (InvocationTargetException ex) {
@@ -124,43 +127,41 @@ final class ObjectToObjectConverter implements ConditionalGenericConverter {
   }
 
   static boolean hasConversionMethodOrConstructor(Class<?> targetClass, Class<?> sourceClass) {
-    return getValidatedMember(targetClass, sourceClass) != null;
+    return (getValidatedExecutable(targetClass, sourceClass) != null);
   }
 
   @Nullable
-  private static Member getValidatedMember(Class<?> targetClass, Class<?> sourceClass) {
-    Member member = conversionMemberCache.get(targetClass);
-    if (isApplicable(member, sourceClass)) {
-      return member;
+  private static Executable getValidatedExecutable(Class<?> targetClass, Class<?> sourceClass) {
+    Executable executable = conversionExecutableCache.get(targetClass);
+    if (executable != null && isApplicable(executable, sourceClass)) {
+      return executable;
     }
 
-    member = determineToMethod(targetClass, sourceClass);
-    if (member == null) {
-      member = determineFactoryMethod(targetClass, sourceClass);
-      if (member == null) {
-        member = determineFactoryConstructor(targetClass, sourceClass);
-        if (member == null) {
+    executable = determineToMethod(targetClass, sourceClass);
+    if (executable == null) {
+      executable = determineFactoryMethod(targetClass, sourceClass);
+      if (executable == null) {
+        executable = determineFactoryConstructor(targetClass, sourceClass);
+        if (executable == null) {
           return null;
         }
       }
     }
 
-    conversionMemberCache.put(targetClass, member);
-    return member;
+    conversionExecutableCache.put(targetClass, executable);
+    return executable;
   }
 
-  private static boolean isApplicable(@Nullable Member member, Class<?> sourceClass) {
-    if (member instanceof Method method) {
+  private static boolean isApplicable(Executable executable, Class<?> sourceClass) {
+    if (executable instanceof Method method) {
       return !Modifier.isStatic(method.getModifiers())
              ? ClassUtils.isAssignable(method.getDeclaringClass(), sourceClass)
              : method.getParameterTypes()[0] == sourceClass;
     }
-    else if (member instanceof Constructor<?> ctor) {
-      return ctor.getParameterTypes()[0] == sourceClass;
+    if (executable instanceof Constructor<?> constructor) {
+      return constructor.getParameterTypes()[0] == sourceClass;
     }
-    else {
-      return false;
-    }
+    return false;
   }
 
   @Nullable
@@ -171,7 +172,8 @@ final class ObjectToObjectConverter implements ConditionalGenericConverter {
     }
 
     Method method = ReflectionUtils.getMethodIfAvailable(sourceClass, "to" + targetClass.getSimpleName());
-    return method != null && !Modifier.isStatic(method.getModifiers())
+    return method != null
+                   && !Modifier.isStatic(method.getModifiers())
                    && ClassUtils.isAssignable(targetClass, method.getReturnType()) ? method : null;
   }
 
@@ -189,7 +191,19 @@ final class ObjectToObjectConverter implements ConditionalGenericConverter {
         method = ReflectionUtils.getStaticMethod(targetClass, "from", sourceClass);
       }
     }
-    return method;
+
+    return method != null && areRelatedTypes(targetClass, method.getReturnType()) ? method : null;
+  }
+
+  /**
+   * Determine if the two types reside in the same type hierarchy (i.e., type 1
+   * is assignable to type 2 or vice versa).
+   *
+   * @see ClassUtils#isAssignable(Class, Class)
+   */
+  private static boolean areRelatedTypes(Class<?> type1, Class<?> type2) {
+    return ClassUtils.isAssignable(type1, type2)
+            || ClassUtils.isAssignable(type2, type1);
   }
 
   @Nullable

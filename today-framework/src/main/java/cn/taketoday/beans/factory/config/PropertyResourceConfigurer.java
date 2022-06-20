@@ -88,7 +88,7 @@ public abstract class PropertyResourceConfigurer
       processProperties(beanFactory, mergedProps);
     }
     catch (IOException ex) {
-      throw new BeanInitializationException("Could not load properties", ex);
+      throw new BeanInitializationException("Could not load properties: " + ex.getMessage(), ex);
     }
   }
 

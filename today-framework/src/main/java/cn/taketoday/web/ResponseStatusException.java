@@ -110,8 +110,7 @@ public class ResponseStatusException extends ErrorResponseException {
 
   @Override
   public String getMessage() {
-    String msg = getStatusCode() + (this.reason != null ? " \"" + this.reason + "\"" : "");
-    return ExceptionUtils.buildMessage(msg, getCause());
+    return getStatusCode() + (this.reason != null ? " \"" + this.reason + "\"" : "");
   }
 
 }

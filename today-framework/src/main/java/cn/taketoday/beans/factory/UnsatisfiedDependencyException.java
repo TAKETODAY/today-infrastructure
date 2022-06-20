@@ -48,7 +48,8 @@ public class UnsatisfiedDependencyException extends BeanCreationException {
    * @param msg the detail message
    */
   public UnsatisfiedDependencyException(
-          @Nullable String resourceDescription, @Nullable String beanName, String propertyName, String msg) {
+          @Nullable String resourceDescription, @Nullable String beanName,
+          String propertyName, String msg) {
 
     super(resourceDescription, beanName,
             "Unsatisfied dependency expressed through bean property '" + propertyName + "'" +
@@ -65,9 +66,11 @@ public class UnsatisfiedDependencyException extends BeanCreationException {
    * @param ex the bean creation exception that indicated the unsatisfied dependency
    */
   public UnsatisfiedDependencyException(
-          @Nullable String resourceDescription, @Nullable String beanName, String propertyName, BeansException ex) {
+          @Nullable String resourceDescription,
+          @Nullable String beanName,
+          String propertyName, BeansException ex) {
 
-    this(resourceDescription, beanName, propertyName, "");
+    this(resourceDescription, beanName, propertyName, ex.getMessage());
     initCause(ex);
   }
 
@@ -80,7 +83,8 @@ public class UnsatisfiedDependencyException extends BeanCreationException {
    * @param msg the detail message
    */
   public UnsatisfiedDependencyException(
-          @Nullable String resourceDescription, @Nullable String beanName, @Nullable InjectionPoint injectionPoint, String msg) {
+          @Nullable String resourceDescription, @Nullable String beanName,
+          @Nullable InjectionPoint injectionPoint, String msg) {
 
     super(resourceDescription, beanName,
             "Unsatisfied dependency expressed through " + injectionPoint +
@@ -97,9 +101,9 @@ public class UnsatisfiedDependencyException extends BeanCreationException {
    * @param ex the bean creation exception that indicated the unsatisfied dependency
    */
   public UnsatisfiedDependencyException(
-          @Nullable String resourceDescription, @Nullable String beanName, @Nullable InjectionPoint injectionPoint, BeansException ex) {
-
-    this(resourceDescription, beanName, injectionPoint, "");
+          @Nullable String resourceDescription, @Nullable String beanName,
+          @Nullable InjectionPoint injectionPoint, BeansException ex) {
+    this(resourceDescription, beanName, injectionPoint, ex.getMessage());
     initCause(ex);
   }
 

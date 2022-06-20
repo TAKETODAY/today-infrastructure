@@ -45,7 +45,6 @@ import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.context.support.ServletContextResourceLoader;
 import cn.taketoday.web.context.support.StandardServletEnvironment;
-import cn.taketoday.web.servlet.NestedServletException;
 import cn.taketoday.web.servlet.ServletContextAware;
 import jakarta.servlet.Filter;
 import jakarta.servlet.FilterConfig;
@@ -231,7 +230,7 @@ public abstract class GenericFilterBean implements Filter, BeanNameAware, Enviro
         String msg = "Failed to set bean properties on filter '" +
                 filterConfig.getFilterName() + "': " + ex.getMessage();
         logger.error(msg, ex);
-        throw new NestedServletException(msg, ex);
+        throw new ServletException(msg, ex);
       }
     }
 

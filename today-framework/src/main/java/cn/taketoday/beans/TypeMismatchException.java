@@ -68,8 +68,8 @@ public class TypeMismatchException extends PropertyAccessException {
    * @param requiredType the required target type (or {@code null} if not known)
    * @param cause the root cause (may be {@code null})
    */
-  public TypeMismatchException(PropertyChangeEvent propertyChangeEvent, @Nullable Class<?> requiredType,
-                               @Nullable Throwable cause) {
+  public TypeMismatchException(PropertyChangeEvent propertyChangeEvent,
+          @Nullable Class<?> requiredType, @Nullable Throwable cause) {
 
     super(propertyChangeEvent,
             "Failed to convert property value of type '" +
@@ -77,7 +77,8 @@ public class TypeMismatchException extends PropertyAccessException {
                     (requiredType != null ?
                      " to required type '" + ClassUtils.getQualifiedName(requiredType) + "'" : "") +
                     (propertyChangeEvent.getPropertyName() != null ?
-                     " for property '" + propertyChangeEvent.getPropertyName() + "'" : ""),
+                     " for property '" + propertyChangeEvent.getPropertyName() + "'" : "") +
+                    (cause != null ? "; " + cause.getMessage() : ""),
             cause);
     this.propertyName = propertyChangeEvent.getPropertyName();
     this.value = propertyChangeEvent.getNewValue();
@@ -105,7 +106,8 @@ public class TypeMismatchException extends PropertyAccessException {
    */
   public TypeMismatchException(@Nullable Object value, @Nullable Class<?> requiredType, @Nullable Throwable cause) {
     super("Failed to convert value of type '" + ClassUtils.getDescriptiveType(value) + "'" +
-                    (requiredType != null ? " to required type '" + ClassUtils.getQualifiedName(requiredType) + "'" : ""),
+                    (requiredType != null ? " to required type '" + ClassUtils.getQualifiedName(requiredType) + "'" : "") +
+                    (cause != null ? "; " + cause.getMessage() : ""),
             cause);
     this.value = value;
     this.requiredType = requiredType;

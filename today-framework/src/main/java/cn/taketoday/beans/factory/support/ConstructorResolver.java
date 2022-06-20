@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -311,8 +311,7 @@ final class ConstructorResolver {
               merged, beanName, beanFactory, constructorToUse, argsToUse);
     }
     catch (Throwable ex) {
-      throw new BeanCreationException(merged.getResourceDescription(), beanName,
-              "Bean instantiation via constructor failed", ex);
+      throw new BeanCreationException(merged.getResourceDescription(), beanName, ex.getMessage(), ex);
     }
   }
 
@@ -645,7 +644,7 @@ final class ConstructorResolver {
               merged, beanName, beanFactory, factoryBean, factoryMethod, args);
     }
     catch (Throwable ex) {
-      throw new BeanCreationException(merged.getResourceDescription(), beanName, "Bean instantiation via factory method failed", ex);
+      throw new BeanCreationException(merged.getResourceDescription(), beanName, ex.getMessage(), ex);
     }
   }
 

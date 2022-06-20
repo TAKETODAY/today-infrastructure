@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -191,7 +191,7 @@ public class InstantiationStrategy {
               "Cannot access factory method '" + factoryMethod.getName() + "'; is it public?", ex);
     }
     catch (InvocationTargetException ex) {
-      String msg = "Factory method '" + factoryMethod.getName() + "' threw exception";
+      String msg = ex.getTargetException().getMessage();
       if (merged.getFactoryBeanName() != null && owner instanceof ConfigurableBeanFactory &&
               ((ConfigurableBeanFactory) owner).isCurrentlyInCreation(merged.getFactoryBeanName())) {
         msg = "Circular reference involving containing bean '" + merged.getFactoryBeanName() + "' - consider " +
