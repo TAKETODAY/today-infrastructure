@@ -23,6 +23,7 @@ package cn.taketoday.orm.hibernate5;
 import org.hibernate.FlushMode;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.engine.spi.SessionImplementor;
 
 import cn.taketoday.core.Ordered;
 import cn.taketoday.dao.DataAccessException;
@@ -34,6 +35,7 @@ import cn.taketoday.transaction.support.TransactionSynchronizationManager;
  * for a pre-bound Hibernate Session.
  *
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public class HibernateSessionSynchronization implements TransactionSynchronization, Ordered {
@@ -70,7 +72,9 @@ public class HibernateSessionSynchronization implements TransactionSynchronizati
     if (holderActive) {
       TransactionSynchronizationManager.unbindResource(sessionFactory);
       // Eagerly disconnect the Session here, to make release mode "on_close" work on JBoss.
-      getCurrentSession().disconnect();
+      if (getCurrentSession() instanceof SessionImplementor sessionImpl) {
+        sessionImpl.getJdbcCoordinator().getLogicalConnection().manualDisconnect();
+      }
     }
   }
 
@@ -107,7 +111,9 @@ public class HibernateSessionSynchronization implements TransactionSynchronizati
         session.setHibernateFlushMode(sessionHolder.getPreviousFlushMode());
       }
       // Eagerly disconnect the Session here, to make release mode "on_close" work nicely.
-      session.disconnect();
+      if (session instanceof SessionImplementor sessionImpl) {
+        sessionImpl.getJdbcCoordinator().getLogicalConnection().manualDisconnect();
+      }
     }
     finally {
       // Unbind at this point if it's a new Session...
