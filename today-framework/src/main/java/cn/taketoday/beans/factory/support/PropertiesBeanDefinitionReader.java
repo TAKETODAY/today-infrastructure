@@ -389,7 +389,7 @@ public class PropertiesBeanDefinitionReader extends AbstractBeanDefinitionReader
         if (sepIdx != -1) {
           String beanName = nameAndProperty.substring(0, sepIdx);
           if (logger.isTraceEnabled()) {
-            logger.trace("Found bean name '" + beanName + "'");
+            logger.trace("Found bean name '{}'", beanName);
           }
           if (!getRegistry().containsBeanDefinition(beanName)) {
             // If we haven't already registered it...
@@ -401,7 +401,7 @@ public class PropertiesBeanDefinitionReader extends AbstractBeanDefinitionReader
           // Ignore it: It wasn't a valid bean name and property,
           // although it did start with the required prefix.
           if (logger.isDebugEnabled()) {
-            logger.debug("Invalid bean name and property [" + nameAndProperty + "]");
+            logger.debug("Invalid bean name and property [{}]", nameAndProperty);
           }
         }
       }
@@ -457,8 +457,8 @@ public class PropertiesBeanDefinitionReader extends AbstractBeanDefinitionReader
         else if (SINGLETON_KEY.equals(property)) {
           // Spring 1.2 style
           String val = ((String) entry.getValue()).strip();
-          scope = (StringUtils.isEmpty(val) || TRUE_VALUE.equals(val) ?
-                   BeanDefinition.SCOPE_SINGLETON : BeanDefinition.SCOPE_PROTOTYPE);
+          scope = StringUtils.isEmpty(val) || TRUE_VALUE.equals(val) ?
+                  BeanDefinition.SCOPE_SINGLETON : BeanDefinition.SCOPE_PROTOTYPE;
         }
         else if (LAZY_INIT_KEY.equals(property)) {
           String val = ((String) entry.getValue()).strip();
@@ -493,7 +493,7 @@ public class PropertiesBeanDefinitionReader extends AbstractBeanDefinitionReader
     }
 
     if (logger.isTraceEnabled()) {
-      logger.trace("Registering bean definition for bean name '" + beanName + "' with " + pvs);
+      logger.trace("Registering bean definition for bean name '{}' with {}", beanName, pvs);
     }
 
     // Just use default parent if we're not dealing with the parent itself,
@@ -504,8 +504,7 @@ public class PropertiesBeanDefinitionReader extends AbstractBeanDefinitionReader
     }
 
     try {
-      AbstractBeanDefinition bd = BeanDefinitionReaderUtils.createBeanDefinition(
-              parent, className, getBeanClassLoader());
+      var bd = BeanDefinitionReaderUtils.createBeanDefinition(parent, className, getBeanClassLoader());
       bd.setScope(scope);
       bd.setAbstract(isAbstract);
       bd.setLazyInit(lazyInit);
