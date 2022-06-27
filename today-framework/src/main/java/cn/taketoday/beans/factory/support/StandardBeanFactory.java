@@ -85,6 +85,7 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.LogMessage;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.CollectionUtils;
+import cn.taketoday.util.CompositeIterator;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
 import jakarta.inject.Provider;
@@ -637,7 +638,10 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
 
   @Override
   public Iterator<String> getBeanNamesIterator() {
-    return beanDefinitionMap.keySet().iterator();
+    CompositeIterator<String> iterator = new CompositeIterator<>();
+    iterator.add(this.beanDefinitionNames.iterator());
+    iterator.add(this.manualSingletonNames.iterator());
+    return iterator;
   }
 
   @Override
