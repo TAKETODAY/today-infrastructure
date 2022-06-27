@@ -902,7 +902,7 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
    */
   @Override
   public boolean hasConstructorArgumentValues() {
-    return (this.constructorArgumentValues != null && !this.constructorArgumentValues.isEmpty());
+    return constructorArgumentValues != null && !constructorArgumentValues.isEmpty();
   }
 
   /**

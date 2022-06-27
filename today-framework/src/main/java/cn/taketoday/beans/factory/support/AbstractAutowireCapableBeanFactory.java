@@ -729,12 +729,23 @@ public abstract class AbstractAutowireCapableBeanFactory
     }
 
     // Candidate constructors for autowiring?
-    Constructor<?>[] constructors = determineConstructorsFromPostProcessors(beanClass, merged, beanName);
+    Constructor<?>[] constructors = determineConstructorsFromPostProcessors(beanClass, beanName);
     if (constructors != null
             || merged.getResolvedAutowireMode() == AUTOWIRE_CONSTRUCTOR
             || merged.hasConstructorArgumentValues()
             || ObjectUtils.isNotEmpty(args)) {
       return autowireConstructor(beanName, merged, constructors, args);
+    }
+
+    if (beanClass != null && !merged.hasConstructorArgumentValues()) {
+      Constructor<?> selected = BeanUtils.getConstructor(beanClass);
+      if (selected != null && selected.getParameterCount() > 0) {
+        try {
+          return autowireConstructor(beanName, merged, new Constructor[] { selected }, args);
+        }
+        catch (BeansException ignored) { }
+      }
+      // fallback to default constructor
     }
 
     return instantiateBean(beanName, merged);
@@ -850,7 +861,6 @@ public abstract class AbstractAutowireCapableBeanFactory
    * {@link SmartInstantiationAwareBeanPostProcessor SmartInstantiationAwareBeanPostProcessors}.
    *
    * @param beanClass the raw class of the bean
-   * @param merged merged bean def
    * @param beanName the name of the bean
    * @return the candidate constructors, or {@code null} if none specified
    * @throws BeansException in case of errors
@@ -858,7 +868,7 @@ public abstract class AbstractAutowireCapableBeanFactory
    */
   @Nullable
   protected Constructor<?>[] determineConstructorsFromPostProcessors(
-          @Nullable Class<?> beanClass, RootBeanDefinition merged, String beanName) throws BeansException {
+          @Nullable Class<?> beanClass, String beanName) throws BeansException {
 
     if (beanClass != null) {
       var smartInstantiation = postProcessors().smartInstantiation;
@@ -868,15 +878,6 @@ public abstract class AbstractAutowireCapableBeanFactory
           if (ctors != null) {
             return ctors;
           }
-        }
-      }
-      else {
-        if (!merged.hasConstructorArgumentValues()) {
-          Constructor<?> selected = BeanUtils.getConstructor(beanClass);
-          if (selected != null && selected.getParameterCount() > 0) {
-            return new Constructor[] { selected };
-          }
-          // fallback to default constructor
         }
       }
     }
