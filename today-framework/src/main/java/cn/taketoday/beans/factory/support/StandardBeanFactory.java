@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -104,7 +104,7 @@ import jakarta.inject.Provider;
  * {@link cn.taketoday.beans.factory.xml.XmlBeanDefinitionReader}.
  *
  * <p>
- * like Framework's DefaultListableBeanFactory
+ * like spring's DefaultListableBeanFactory
  *
  * @author Rod Johnson
  * @author Juergen Hoeller
@@ -113,11 +113,12 @@ import jakarta.inject.Provider;
  * @author Chris Beams
  * @author Phillip Webb
  * @author Stephane Nicoll
- * @author TODAY 2019-03-23 15:00
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see #registerBeanDefinition
  * @see #addBeanPostProcessor
  * @see #getBean
  * @see #resolveDependency
+ * @since 2019-03-23 15:00
  */
 public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
         implements ConfigurableBeanFactory, BeanDefinitionRegistry, Serializable {
@@ -1019,7 +1020,9 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
             if (!matchFound) {
               // In case of FactoryBean, try to match FactoryBean instance itself next.
               beanName = FACTORY_BEAN_PREFIX + beanName;
-              matchFound = isTypeMatch(beanName, requiredType, allowFactoryBeanInit);
+              if (includeNonSingletons || isSingleton(beanName, merged, decorated)) {
+                matchFound = isTypeMatch(beanName, requiredType, allowFactoryBeanInit);
+              }
             }
           }
           else {
