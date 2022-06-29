@@ -21,6 +21,7 @@ package cn.taketoday.util;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.UndeclaredThrowableException;
+import java.util.concurrent.Callable;
 
 /**
  * @author TODAY <br>
@@ -108,7 +109,7 @@ public abstract class ExceptionUtils {
    */
   public static Throwable getMostSpecificCause(Throwable original) {
     Throwable rootCause = getRootCause(original);
-    return (rootCause != null ? rootCause : original);
+    return rootCause != null ? rootCause : original;
   }
 
   /**
@@ -144,6 +145,30 @@ public abstract class ExceptionUtils {
   @SuppressWarnings("unchecked")
   private static <T extends Throwable> T sneakyThrow0(Throwable t) throws T {
     throw (T) t;
+  }
+
+  /**
+   * @since 4.0
+   */
+  public static void sneakyThrow(Runnable action) {
+    try {
+      action.run();
+    }
+    catch (Exception e) {
+      throw sneakyThrow(e);
+    }
+  }
+
+  /**
+   * @since 4.0
+   */
+  public static <T> T sneakyThrow(Callable<T> action) {
+    try {
+      return action.call();
+    }
+    catch (Exception e) {
+      throw sneakyThrow(e);
+    }
   }
 
 }
