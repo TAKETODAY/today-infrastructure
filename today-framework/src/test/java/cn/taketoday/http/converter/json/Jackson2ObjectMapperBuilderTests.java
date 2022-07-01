@@ -86,6 +86,7 @@ import java.util.TimeZone;
 import java.util.stream.StreamSupport;
 
 import cn.taketoday.beans.BeansException;
+import cn.taketoday.http.ProblemDetail;
 import cn.taketoday.util.StringUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -349,12 +350,13 @@ class Jackson2ObjectMapperBuilderTests {
     Class<?> target = String.class;
     Class<?> mixInSource = Object.class;
 
-    ObjectMapper objectMapper = Jackson2ObjectMapperBuilder.json()
+    ObjectMapper mapper = Jackson2ObjectMapperBuilder.json()
             .modules().mixIn(target, mixInSource)
             .build();
 
-    assertThat(objectMapper.mixInCount()).isEqualTo(1);
-    assertThat(objectMapper.findMixInClassFor(target)).isSameAs(mixInSource);
+    assertThat(mapper.mixInCount()).isEqualTo(2);
+    assertThat(mapper.findMixInClassFor(ProblemDetail.class)).isAssignableFrom(ProblemDetailJacksonMixin.class);
+    assertThat(mapper.findMixInClassFor(target)).isSameAs(mixInSource);
   }
 
   @Test
@@ -364,12 +366,13 @@ class Jackson2ObjectMapperBuilderTests {
     Map<Class<?>, Class<?>> mixIns = new HashMap<>();
     mixIns.put(target, mixInSource);
 
-    ObjectMapper objectMapper = Jackson2ObjectMapperBuilder.json()
+    ObjectMapper mapper = Jackson2ObjectMapperBuilder.json()
             .modules().mixIns(mixIns)
             .build();
 
-    assertThat(objectMapper.mixInCount()).isEqualTo(1);
-    assertThat(objectMapper.findMixInClassFor(target)).isSameAs(mixInSource);
+    assertThat(mapper.mixInCount()).isEqualTo(2);
+    assertThat(mapper.findMixInClassFor(ProblemDetail.class)).isAssignableFrom(ProblemDetailJacksonMixin.class);
+    assertThat(mapper.findMixInClassFor(target)).isSameAs(mixInSource);
   }
 
   @Test

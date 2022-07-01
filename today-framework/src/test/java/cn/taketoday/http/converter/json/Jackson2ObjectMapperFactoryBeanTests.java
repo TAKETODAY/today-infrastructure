@@ -65,6 +65,7 @@ import java.util.Map;
 import java.util.TimeZone;
 
 import cn.taketoday.beans.BeansException;
+import cn.taketoday.http.ProblemDetail;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -245,10 +246,11 @@ public class Jackson2ObjectMapperFactoryBeanTests {
     this.factory.setModules(Collections.emptyList());
     this.factory.setMixIns(mixIns);
     this.factory.afterPropertiesSet();
-    ObjectMapper objectMapper = this.factory.getObject();
+    ObjectMapper mapper = this.factory.getObject();
 
-    assertThat(objectMapper.mixInCount()).isEqualTo(1);
-    assertThat(objectMapper.findMixInClassFor(target)).isSameAs(mixinSource);
+    assertThat(mapper.mixInCount()).isEqualTo(2);
+    assertThat(mapper.findMixInClassFor(ProblemDetail.class)).isAssignableFrom(ProblemDetailJacksonMixin.class);
+    assertThat(mapper.findMixInClassFor(target)).isSameAs(mixinSource);
   }
 
   @Test

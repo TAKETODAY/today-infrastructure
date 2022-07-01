@@ -165,7 +165,8 @@ public interface ContextCache {
   void clear();
 
   /**
-   * Clear hit and miss count statistics for the cache (i.e., reset counters to zero).
+   * Clear {@linkplain #getHitCount() hit count} and {@linkplain #getMissCount()
+   * miss count} statistics for the cache (i.e., reset counters to zero).
    */
   void clearStatistics();
 

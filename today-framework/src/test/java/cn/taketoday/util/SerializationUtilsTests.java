@@ -22,6 +22,8 @@ package cn.taketoday.util;
 
 import org.junit.jupiter.api.Test;
 
+import java.io.NotSerializableException;
+import java.io.Serializable;
 import java.math.BigInteger;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -39,32 +41,53 @@ class SerializationUtilsTests {
                   "5697574744209306031461371833798723505120163874786203211176873686513374052845353833564048");
 
   @Test
-  void serializeCycleSunnyDay() throws Exception {
+  @SuppressWarnings("deprecation")
+  void serializeCycleSunnyDay() {
     assertThat(SerializationUtils.deserialize(SerializationUtils.serialize("foo"))).isEqualTo("foo");
   }
 
   @Test
-  void deserializeUndefined() throws Exception {
+  void serializeNonSerializableRecord() {
+    record Person(String firstName, String lastName) { }
+    Person jane = new Person("Jane", "Doe");
+    assertThatIllegalArgumentException()
+            .isThrownBy(() -> SerializationUtils.serialize(jane))
+            .withCauseExactlyInstanceOf(NotSerializableException.class);
+  }
+
+  @Test
+  @SuppressWarnings("deprecation")
+  void serializeAndDeserializeSerializableRecord() {
+    record Person(String firstName, String lastName) implements Serializable { }
+    Person jane = new Person("Jane", "Doe");
+    assertThat(SerializationUtils.deserialize(SerializationUtils.serialize(jane))).isEqualTo(jane);
+  }
+
+  @Test
+  @SuppressWarnings("deprecation")
+  void deserializeUndefined() {
     assertThatIllegalStateException().isThrownBy(() -> SerializationUtils.deserialize(FOO.toByteArray()));
   }
 
   @Test
-  void serializeNonSerializable() throws Exception {
+  void serializeNonSerializable() {
     assertThatIllegalArgumentException().isThrownBy(() -> SerializationUtils.serialize(new Object()));
   }
 
   @Test
-  void deserializeNonSerializable() throws Exception {
+  @SuppressWarnings("deprecation")
+  void deserializeNonSerializable() {
     assertThatIllegalArgumentException().isThrownBy(() -> SerializationUtils.deserialize("foo".getBytes()));
   }
 
   @Test
-  void serializeNull() throws Exception {
+  void serializeNull() {
     assertThat(SerializationUtils.serialize(null)).isNull();
   }
 
   @Test
-  void deserializeNull() throws Exception {
+  @SuppressWarnings("deprecation")
+  void deserializeNull() {
     assertThat(SerializationUtils.deserialize(null)).isNull();
   }
 

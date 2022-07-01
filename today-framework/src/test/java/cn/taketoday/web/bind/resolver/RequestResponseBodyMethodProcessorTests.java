@@ -426,7 +426,6 @@ class RequestResponseBodyMethodProcessorTests {
             "{\"type\":\"about:blank\"," +
                     "\"title\":\"Bad Request\"," +
                     "\"status\":400," +
-                    "\"detail\":null," +
                     "\"instance\":\"/path\"}");
   }
 

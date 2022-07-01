@@ -69,6 +69,7 @@ import cn.taketoday.beans.BeanUtils;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.core.DefaultMultiValueMap;
 import cn.taketoday.core.MultiValueMap;
+import cn.taketoday.http.ProblemDetail;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
@@ -562,7 +563,7 @@ public class Jackson2ObjectMapperBuilder {
    * <p>Multiple invocations are not additive, the last one defines the modules
    * to register.
    * <p>Modules specified here will be registered after
-   *  autodetection of JSR-310 and Joda-Time, or Jackson's
+   * autodetection of JSR-310 and Joda-Time, or Jackson's
    * finding of modules (see {@link #findModulesViaServiceLoader}),
    * allowing to eventually override their configuration.
    * <p>Specify either this or {@link #modules(Module...)}, not both.
@@ -582,7 +583,7 @@ public class Jackson2ObjectMapperBuilder {
    * <p>Multiple invocations are not additive, the last one defines the modules
    * to register.
    * <p>Modules specified here will be registered after
-   *  autodetection of JSR-310 and Joda-Time, or Jackson's
+   * autodetection of JSR-310 and Joda-Time, or Jackson's
    * finding of modules (see {@link #findModulesViaServiceLoader}),
    * allowing to eventually override their configuration.
    * <p>Specify either this or {@link #modules(Module...)}, not both.
@@ -739,6 +740,7 @@ public class Jackson2ObjectMapperBuilder {
       objectMapper.setFilterProvider(this.filters);
     }
 
+    objectMapper.addMixIn(ProblemDetail.class, ProblemDetailJacksonMixin.class);
     this.mixIns.forEach(objectMapper::addMixIn);
 
     if (!this.serializers.isEmpty() || !this.deserializers.isEmpty()) {
