@@ -313,12 +313,10 @@ public class ResolvableTypeTests {
     assertThat(typeVariable.isAssignableFrom(raw)).isTrue();
   }
 
-  @Test
-  void forInstanceMustNotBeNull() throws Exception {
-    assertThatIllegalArgumentException()
-            .isThrownBy(() -> ResolvableType.fromInstance(null))
-            .withMessageContaining("Instance must not be null");
-  }
+	@Test  // gh-28776
+	void forInstanceNull() throws Exception {
+		assertThat(ResolvableType.fromInstance(null)).isEqualTo(ResolvableType.NONE);
+	}
 
   @Test
   void forInstanceNoProvider() throws Exception {

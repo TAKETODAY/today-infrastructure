@@ -212,10 +212,9 @@ public class ResolvableType implements Serializable {
 
   /**
    * Return the underlying source of the resolvable type. Will return a {@link Field},
-   * {@link Parameter} or {@link Type} depending on how the {@link ResolvableType}
-   * was constructed. With the exception of the {@link #NONE} constant, this method will
-   * never return {@code null}. This method is primarily to provide access to additional
-   * type information or meta-data that alternative JVM languages may provide.
+   * {@link MethodParameter} or {@link Type} depending on how the {@link ResolvableType}
+   * was constructed. This method is primarily to provide access to additional type
+   * information or meta-data that alternative JVM languages may provide.
    */
   public Object getSource() {
     Object source = this.typeProvider != null ? this.typeProvider.getSource() : null;
@@ -1347,7 +1346,9 @@ public class ResolvableType implements Serializable {
    * @see ResolvableTypeProvider
    */
   public static ResolvableType fromInstance(Object instance) {
-    Assert.notNull(instance, "Instance must not be null");
+    if (instance == null) {
+      return NONE;
+    }
     if (instance instanceof ResolvableTypeProvider provider) {
       ResolvableType type = provider.getResolvableType();
       if (type != null) {
