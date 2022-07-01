@@ -370,7 +370,7 @@ public abstract class AbstractAspectJAdvice implements Advice, AspectJPrecedence
    * to which argument name. There are multiple strategies for determining
    * this binding, which are arranged in a ChainOfResponsibility.
    */
-  public final synchronized void calculateArgumentBindings() {
+  public final void calculateArgumentBindings() {
     // The simple case... nothing to bind.
     if (argumentsIntrospected || parameterTypes.length == 0) {
       return;
