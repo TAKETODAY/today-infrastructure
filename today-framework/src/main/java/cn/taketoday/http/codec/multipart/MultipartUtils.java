@@ -24,6 +24,8 @@ import java.io.IOException;
 import java.nio.channels.Channel;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 import cn.taketoday.core.io.buffer.DataBuffer;
 import cn.taketoday.http.HttpHeaders;
@@ -117,6 +119,13 @@ abstract class MultipartUtils {
     MediaType contentType = headers.getContentType();
     return (contentType == null || MediaType.TEXT_PLAIN.equalsTypeAndSubtype(contentType))
             && headers.getContentDisposition().getFilename() == null;
+  }
+
+  public static void deleteFile(Path file) {
+    try {
+      Files.delete(file);
+    }
+    catch (IOException ignore) { }
   }
 
 }
