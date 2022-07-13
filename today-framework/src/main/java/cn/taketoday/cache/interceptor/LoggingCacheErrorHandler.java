@@ -38,51 +38,89 @@ public class LoggingCacheErrorHandler implements CacheErrorHandler {
 
   private final Logger logger;
 
-  private final boolean logStacktrace;
-
-  /**
-   * Create an instance with the {@link Logger logger} to use.
-   *
-   * @param logger the logger to use
-   * @param logStacktrace whether to log stack trace
-   */
-  public LoggingCacheErrorHandler(Logger logger, boolean logStacktrace) {
-    Assert.notNull(logger, "Logger must not be null");
-    this.logger = logger;
-    this.logStacktrace = logStacktrace;
-  }
+  private final boolean logStackTraces;
 
   /**
    * Create an instance that does not log stack traces.
    */
   public LoggingCacheErrorHandler() {
-    this(LoggerFactory.getLogger(LoggingCacheErrorHandler.class), false);
+    this(false);
+  }
+
+  /**
+   * Create an instance with the {@link Logger logger} to use.
+   *
+   * @param logger the logger to use
+   * @param logStackTraces whether to log stack trace
+   */
+  public LoggingCacheErrorHandler(Logger logger, boolean logStackTraces) {
+    Assert.notNull(logger, "Logger must not be null");
+    this.logger = logger;
+    this.logStackTraces = logStackTraces;
+  }
+
+  /**
+   * Create a {@code LoggingCacheErrorHandler} that uses the default logging
+   * category and the supplied {@code logStackTraces} flag.
+   * <p>The default logging category is
+   * "{@code cn.taketoday.cache.interceptor.LoggingCacheErrorHandler}".
+   *
+   * @param logStackTraces whether to log stack traces
+   */
+  public LoggingCacheErrorHandler(boolean logStackTraces) {
+    this(LoggerFactory.getLogger(LoggingCacheErrorHandler.class), logStackTraces);
   }
 
   @Override
   public void handleCacheGetError(RuntimeException exception, Cache cache, Object key) {
-    logCacheError(logger,
-            createMessage(cache, "failed to get entry with key '" + key + "'"),
-            exception);
+    if (logger.isWarnEnabled()) {
+      doLogCacheError(logger,
+              createMessage(cache, "failed to get entry with key '" + key + "'"),
+              exception);
+    }
   }
 
   @Override
   public void handleCachePutError(RuntimeException exception, Cache cache, Object key, @Nullable Object value) {
-    logCacheError(logger,
-            createMessage(cache, "failed to put entry with key '" + key + "'"),
-            exception);
+    if (logger.isWarnEnabled()) {
+      doLogCacheError(logger,
+              createMessage(cache, "failed to put entry with key '" + key + "'"),
+              exception);
+    }
   }
 
   @Override
   public void handleCacheEvictError(RuntimeException exception, Cache cache, Object key) {
-    logCacheError(logger,
-            createMessage(cache, "failed to evict entry with key '" + key + "'"),
-            exception);
+    if (logger.isWarnEnabled()) {
+      doLogCacheError(logger,
+              createMessage(cache, "failed to evict entry with key '" + key + "'"),
+              exception);
+    }
   }
 
   @Override
   public void handleCacheClearError(RuntimeException exception, Cache cache) {
-    logCacheError(logger, createMessage(cache, "failed to clear entries"), exception);
+    if (logger.isWarnEnabled()) {
+      doLogCacheError(logger, createMessage(cache, "failed to clear entries"), exception);
+    }
+  }
+
+  /**
+   * Get the logger for this {@code LoggingCacheErrorHandler}.
+   *
+   * @return the logger
+   */
+  protected final Logger getLogger() {
+    return logger;
+  }
+
+  /**
+   * Get the {@code logStackTraces} flag for this {@code LoggingCacheErrorHandler}.
+   *
+   * @return {@code true} if this {@code LoggingCacheErrorHandler} logs stack traces
+   */
+  protected final boolean isLogStackTraces() {
+    return this.logStackTraces;
   }
 
   /**
@@ -92,8 +130,8 @@ public class LoggingCacheErrorHandler implements CacheErrorHandler {
    * @param message the message
    * @param ex the exception
    */
-  protected void logCacheError(Logger logger, String message, RuntimeException ex) {
-    if (this.logStacktrace) {
+  protected void doLogCacheError(Logger logger, String message, RuntimeException ex) {
+    if (logStackTraces) {
       logger.warn(message, ex);
     }
     else {

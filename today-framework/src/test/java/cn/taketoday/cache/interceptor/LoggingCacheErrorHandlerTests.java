@@ -20,11 +20,14 @@
 
 package cn.taketoday.cache.interceptor;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import cn.taketoday.cache.Cache;
 import cn.taketoday.cache.support.NoOpCache;
 import cn.taketoday.logging.Logger;
 
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
@@ -36,45 +39,49 @@ import static org.mockito.Mockito.verify;
  */
 public class LoggingCacheErrorHandlerTests {
 
+  private static final Cache CACHE = new NoOpCache("NOOP");
+
+  private static final String KEY = "enigma";
+
+  private final Logger logger = mock(Logger.class);
+
+  private LoggingCacheErrorHandler handler = new LoggingCacheErrorHandler(this.logger, false);
+
+  @BeforeEach
+  void setUp() {
+    given(this.logger.isWarnEnabled()).willReturn(true);
+  }
+
   @Test
   void handleGetCacheErrorLogsAppropriateMessage() {
-    Logger logger = mock(Logger.class);
-    LoggingCacheErrorHandler handler = new LoggingCacheErrorHandler(logger, false);
-    handler.handleCacheGetError(new RuntimeException(), new NoOpCache("NOOP"), "key");
-    verify(logger).warn("Cache 'NOOP' failed to get entry with key 'key'");
+    this.handler.handleCacheGetError(new RuntimeException(), CACHE, KEY);
+    verify(this.logger).warn("Cache 'NOOP' failed to get entry with key 'enigma'");
   }
 
   @Test
   void handlePutCacheErrorLogsAppropriateMessage() {
-    Logger logger = mock(Logger.class);
-    LoggingCacheErrorHandler handler = new LoggingCacheErrorHandler(logger, false);
-    handler.handleCachePutError(new RuntimeException(), new NoOpCache("NOOP"), "key", new Object());
-    verify(logger).warn("Cache 'NOOP' failed to put entry with key 'key'");
+    this.handler.handleCachePutError(new RuntimeException(), CACHE, KEY, null);
+    verify(this.logger).warn("Cache 'NOOP' failed to put entry with key 'enigma'");
   }
 
   @Test
   void handleEvictCacheErrorLogsAppropriateMessage() {
-    Logger logger = mock(Logger.class);
-    LoggingCacheErrorHandler handler = new LoggingCacheErrorHandler(logger, false);
-    handler.handleCacheEvictError(new RuntimeException(), new NoOpCache("NOOP"), "key");
-    verify(logger).warn("Cache 'NOOP' failed to evict entry with key 'key'");
+    this.handler.handleCacheEvictError(new RuntimeException(), CACHE, KEY);
+    verify(this.logger).warn("Cache 'NOOP' failed to evict entry with key 'enigma'");
   }
 
   @Test
   void handleClearErrorLogsAppropriateMessage() {
-    Logger logger = mock(Logger.class);
-    LoggingCacheErrorHandler handler = new LoggingCacheErrorHandler(logger, false);
-    handler.handleCacheClearError(new RuntimeException(), new NoOpCache("NOOP"));
-    verify(logger).warn("Cache 'NOOP' failed to clear entries");
+    this.handler.handleCacheClearError(new RuntimeException(), CACHE);
+    verify(this.logger).warn("Cache 'NOOP' failed to clear entries");
   }
 
   @Test
-  void handleCacheErrorWithStacktrace() {
-    Logger logger = mock(Logger.class);
-    LoggingCacheErrorHandler handler = new LoggingCacheErrorHandler(logger, true);
+  void handleGetCacheErrorWithStackTraceLoggingEnabled() {
+    this.handler = new LoggingCacheErrorHandler(this.logger, true);
     RuntimeException exception = new RuntimeException();
-    handler.handleCacheGetError(exception, new NoOpCache("NOOP"), "key");
-    verify(logger).warn("Cache 'NOOP' failed to get entry with key 'key'", exception);
+    this.handler.handleCacheGetError(exception, CACHE, KEY);
+    verify(this.logger).warn("Cache 'NOOP' failed to get entry with key 'enigma'", exception);
   }
 
 }
