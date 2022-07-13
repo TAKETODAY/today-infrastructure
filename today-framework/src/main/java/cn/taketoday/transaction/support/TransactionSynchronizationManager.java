@@ -23,6 +23,7 @@ package cn.taketoday.transaction.support;
 import java.util.List;
 import java.util.Map;
 
+import cn.taketoday.core.NamedThreadLocal;
 import cn.taketoday.lang.Nullable;
 
 /**
@@ -69,7 +70,8 @@ import cn.taketoday.lang.Nullable;
  */
 public abstract class TransactionSynchronizationManager {
 
-  private static final ThreadLocal<SynchronizationInfo> META_DATA = ThreadLocal.withInitial(SynchronizationInfo::new);
+  private static final NamedThreadLocal<SynchronizationInfo> META_DATA = NamedThreadLocal.withInitial(
+          "Current Synchronization Info", SynchronizationInfo::new);
 
   //-------------------------------------------------------------------------
   // Management of transaction-associated resource handles

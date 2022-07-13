@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -17,6 +17,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
+
 package cn.taketoday.jdbc.datasource;
 
 import java.sql.Connection;
@@ -75,38 +76,65 @@ public abstract class DataSourceUtils {
    * @see #releaseConnection
    */
   public static Connection getConnection(
-          final SynchronizationInfo metaData, final DataSource dataSource) {
+          SynchronizationInfo metaData, DataSource dataSource) {
     try {
       return doGetConnection(metaData, dataSource);
     }
-    catch (SQLException ex) {
+    catch (SQLException | IllegalStateException ex) {
       throw new CannotGetJdbcConnectionException("Failed to obtain JDBC Connection", ex);
-    }
-    catch (IllegalStateException ex) {
-      throw new CannotGetJdbcConnectionException("Failed to obtain JDBC Connection: " + ex.getMessage(), ex);
     }
   }
 
-  public static Connection doGetConnection(final DataSource dataSource) throws SQLException {
+  /**
+   * Actually obtain a JDBC Connection from the given DataSource.
+   * Same as {@link #getConnection}, but throwing the original SQLException.
+   * <p>Is aware of a corresponding Connection bound to the current thread, for example
+   * when using {@link DataSourceTransactionManager}. Will bind a Connection to the thread
+   * if transaction synchronization is active (e.g. if in a JTA transaction).
+   * <p>Directly accessed by {@link TransactionAwareDataSourceProxy}.
+   *
+   * @param dataSource the DataSource to obtain Connections from
+   * @return a JDBC Connection from the given DataSource
+   * @throws SQLException if thrown by JDBC methods
+   * @see #doReleaseConnection
+   */
+  public static Connection doGetConnection(DataSource dataSource) throws SQLException {
     return doGetConnection(TransactionSynchronizationManager.getSynchronizationInfo(), dataSource);
   }
 
+  /**
+   * Actually obtain a JDBC Connection from the given DataSource.
+   * Same as {@link #getConnection}, but throwing the original SQLException.
+   * <p>Is aware of a corresponding Connection bound to the current thread, for example
+   * when using {@link DataSourceTransactionManager}. Will bind a Connection to the thread
+   * if transaction synchronization is active (e.g. if in a JTA transaction).
+   * <p>Directly accessed by {@link TransactionAwareDataSourceProxy}.
+   *
+   * @param dataSource the DataSource to obtain Connections from
+   * @return a JDBC Connection from the given DataSource
+   * @throws SQLException if thrown by JDBC methods
+   * @see #doReleaseConnection
+   */
   public static Connection doGetConnection(
-          final SynchronizationInfo info, final DataSource dataSource) throws SQLException {
+          SynchronizationInfo info, DataSource dataSource) throws SQLException {
     Assert.notNull(dataSource, "No DataSource specified");
 
     ConnectionHolder conHolder = (ConnectionHolder) info.getResource(dataSource);
     if (conHolder != null && (conHolder.hasConnection() || conHolder.isSynchronizedWithTransaction())) {
       conHolder.requested();
       if (!conHolder.hasConnection()) {
-        log.debug("Fetching resumed JDBC Connection from DataSource");
+        if (log.isDebugEnabled()) {
+          log.debug("Fetching resumed JDBC Connection from DataSource");
+        }
         conHolder.setConnection(fetchConnection(dataSource));
       }
       return conHolder.getConnection();
     }
     // Else we either got no holder or an empty thread-bound holder here.
 
-    log.debug("Fetching JDBC Connection from DataSource");
+    if (log.isDebugEnabled()) {
+      log.debug("Fetching JDBC Connection from DataSource");
+    }
     Connection con = fetchConnection(dataSource);
 
     if (info.isSynchronizationActive()) {
@@ -145,12 +173,16 @@ public abstract class DataSourceUtils {
    *
    * @param dataSource the DataSource to obtain Connections from
    * @return a JDBC Connection from the given DataSource (never {@code null})
-   * @throws SQLException if thrown by JDBC methods ,if a database access error occurs
-   * @throws java.sql.SQLTimeoutException when the driver has determined that the
+   * @throws SQLException if thrown by JDBC methods
+   * @throws IllegalStateException if the DataSource returned a null value
    * @see DataSource#getConnection()
    */
   public static Connection fetchConnection(DataSource dataSource) throws SQLException {
-    return dataSource.getConnection();
+    Connection con = dataSource.getConnection();
+    if (con == null) {
+      throw new IllegalStateException("DataSource returned null from getConnection(): " + dataSource);
+    }
+    return con;
   }
 
   /**
@@ -193,7 +225,7 @@ public abstract class DataSourceUtils {
 
       // Apply specific isolation level, if any.
       Integer previousIsolationLevel = null;
-      final int isolationLevel = definition.getIsolationLevel();
+      int isolationLevel = definition.getIsolationLevel();
       if (isolationLevel != TransactionDefinition.ISOLATION_DEFAULT) {
         if (log.isDebugEnabled()) {
           log.debug("Changing isolation level of JDBC Connection [{}] to {}", con, isolationLevel);
@@ -342,7 +374,7 @@ public abstract class DataSourceUtils {
   public static void doReleaseConnection(@Nullable Connection con, @Nullable DataSource dataSource) throws SQLException {
     if (con != null) {
       if (dataSource != null) {
-        final ConnectionHolder conHolder = (ConnectionHolder) TransactionSynchronizationManager.getResource(dataSource);
+        ConnectionHolder conHolder = (ConnectionHolder) TransactionSynchronizationManager.getResource(dataSource);
         if (conHolder != null && connectionEquals(conHolder, con)) {
           // It's the transactional Connection: Don't close it.
           conHolder.released();
@@ -383,7 +415,7 @@ public abstract class DataSourceUtils {
    */
   private static boolean connectionEquals(ConnectionHolder conHolder, Connection passedInCon) {
     if (conHolder.hasConnection()) {
-      final Connection heldCon = conHolder.getConnection();
+      Connection heldCon = conHolder.getConnection();
       // Explicitly check for identity too: for Connection handles that do not
       // implement  "equals" properly, such as the ones Commons DBCP exposes).
       return (heldCon == passedInCon || heldCon.equals(passedInCon));
