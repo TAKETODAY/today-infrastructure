@@ -88,7 +88,6 @@ public class JSRInlinerAdapter extends MethodNode implements Opcodes {
    * @param descriptor the method's descriptor.
    * @param signature the method's signature. May be {@literal null}.
    * @param exceptions the internal names of the method's exception classes. May be {@literal null}.
-   * @throws IllegalStateException if a subclass calls this constructor.
    */
   public JSRInlinerAdapter(
           final MethodVisitor methodVisitor,

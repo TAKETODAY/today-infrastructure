@@ -162,7 +162,6 @@ public class CheckClassAdapter extends ClassVisitor {
    *
    * @param classVisitor the class visitor to which this adapter must delegate calls.
    * @param checkDataFlow whether to perform basic data flow checks.
-   * @throws IllegalStateException If a subclass calls this constructor.
    */
   public CheckClassAdapter(final ClassVisitor classVisitor, final boolean checkDataFlow) {
     super(classVisitor);

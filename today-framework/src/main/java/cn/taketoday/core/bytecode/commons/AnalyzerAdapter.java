@@ -108,7 +108,6 @@ public class AnalyzerAdapter extends MethodVisitor {
    * @param descriptor the method's descriptor (see {@link Type}).
    * @param methodVisitor the method visitor to which this adapter delegates calls. May be {@literal
    * null}.
-   * @throws IllegalStateException If a subclass calls this constructor.
    */
   public AnalyzerAdapter(
           final String owner,

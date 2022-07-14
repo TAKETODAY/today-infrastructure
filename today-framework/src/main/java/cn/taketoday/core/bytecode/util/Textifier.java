@@ -98,8 +98,6 @@ public class Textifier extends Printer {
 
   /**
    * Constructs a new {@link Textifier}.
-   *
-   * @throws IllegalStateException If a subclass calls this constructor.
    */
   public Textifier() { }
 

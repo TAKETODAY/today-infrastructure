@@ -40,7 +40,6 @@ public class CheckFieldAdapter extends FieldVisitor {
    * Constructs a new {@link CheckFieldAdapter}.
    *
    * @param fieldVisitor the field visitor to which this adapter must delegate calls.
-   * @throws IllegalStateException If a subclass calls this constructor.
    */
   public CheckFieldAdapter(final FieldVisitor fieldVisitor) {
     super(fieldVisitor);

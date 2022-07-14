@@ -159,7 +159,6 @@ public class GeneratorAdapter extends LocalVariablesSorter {
    * @param access the method's access flags (see {@link Opcodes}).
    * @param name the method's name.
    * @param descriptor the method's descriptor (see {@link Type}).
-   * @throws IllegalStateException if a subclass calls this constructor.
    */
   public GeneratorAdapter(
           final MethodVisitor methodVisitor,

@@ -110,8 +110,6 @@ public class ASMifier extends Printer {
 
   /**
    * Constructs a new {@link ASMifier}.
-   *
-   * @throws IllegalStateException If a subclass calls this constructor.
    */
   public ASMifier() {
     this("classWriter", 0);

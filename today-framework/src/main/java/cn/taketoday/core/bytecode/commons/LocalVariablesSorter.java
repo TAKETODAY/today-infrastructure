@@ -75,7 +75,6 @@ public class LocalVariablesSorter extends MethodVisitor {
    * @param access access flags of the adapted method.
    * @param descriptor the method's descriptor (see {@link Type}).
    * @param methodVisitor the method visitor to which this adapter delegates calls.
-   * @throws IllegalStateException if a subclass calls this constructor.
    */
   public LocalVariablesSorter(
           final int access, final String descriptor, final MethodVisitor methodVisitor) {

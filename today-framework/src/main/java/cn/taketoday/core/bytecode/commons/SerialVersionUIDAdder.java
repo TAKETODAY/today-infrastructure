@@ -146,7 +146,6 @@ public class SerialVersionUIDAdder extends ClassVisitor {
    * Constructs a new {@link SerialVersionUIDAdder}.
    *
    * @param classVisitor a {@link ClassVisitor} to which this visitor will delegate calls.
-   * @throws IllegalStateException If a subclass calls this constructor.
    */
   public SerialVersionUIDAdder(final ClassVisitor classVisitor) {
     super(classVisitor);

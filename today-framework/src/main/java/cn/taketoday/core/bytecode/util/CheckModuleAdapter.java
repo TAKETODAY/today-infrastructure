@@ -61,7 +61,6 @@ public class CheckModuleAdapter extends ModuleVisitor {
    * @param moduleVisitor the module visitor to which this adapter must delegate calls.
    * @param isOpen whether the visited module is open. Open modules have their {@link
    * Opcodes#ACC_OPEN} access flag set in {@link ClassVisitor#visitModule}.
-   * @throws IllegalStateException If a subclass calls this constructor.
    */
   public CheckModuleAdapter(final ModuleVisitor moduleVisitor, final boolean isOpen) {
     super(moduleVisitor);
