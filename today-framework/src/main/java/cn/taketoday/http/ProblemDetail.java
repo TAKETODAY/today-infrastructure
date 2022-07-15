@@ -21,14 +21,27 @@
 package cn.taketoday.http;
 
 import java.net.URI;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 
 /**
- * Representation of an RFC 7807 problem detail, including all RFC-defined
- * fields. For an extended response with more fields, create a subclass that
- * exposes the additional fields.
+ * Representation for an RFC 7807 problem detail. Includes spec-defined
+ * properties, and a {@link #getProperties() properties} map for additional,
+ * non-standard properties.
+ *
+ * <p>For an extended response, an application can add to the
+ * {@link #getProperties() properties} map. When using the Jackson library, the
+ * {@code properties} map is expanded as top level JSON properties through the
+ * {@link org.springframework.http.converter.json.ProblemDetailJacksonMixin}.
+ *
+ * <p>For an extended response, an application can also create a subclass with
+ * additional properties. Subclasses can use the protected copy constructor to
+ * re-create an existing {@code ProblemDetail} instance as the subclass, e.g.
+ * from an {@code @ControllerAdvice} such as
+ * {@link cn.taketoday.web.handler.ResponseEntityExceptionHandler}.
  *
  * @author Rossen Stoyanchev
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
@@ -53,6 +66,9 @@ public class ProblemDetail {
 
   @Nullable
   private URI instance;
+
+  @Nullable
+  private Map<String, Object> properties;
 
   /**
    * For deserialization.
@@ -209,6 +225,20 @@ public class ProblemDetail {
     this.instance = instance;
   }
 
+  /**
+   * Set a "dynamic" property to be added to a generic {@link #getProperties()
+   * properties map}.
+   *
+   * @param name the property name
+   * @param value the property value
+   */
+  public void setProperty(String name, Object value) {
+    if (properties == null) {
+      properties = new LinkedHashMap<>();
+    }
+    this.properties.put(name, value);
+  }
+
   // Getters
 
   /**
@@ -256,6 +286,16 @@ public class ProblemDetail {
     return this.instance;
   }
 
+  /**
+   * Return a generic map of properties that are not known ahead of time,
+   * possibly {@code null} if no properties have been added. To add a property,
+   * use {@link #setProperty(String, Object)}.
+   */
+  @Nullable
+  public Map<String, Object> getProperties() {
+    return this.properties;
+  }
+
   @Override
   public String toString() {
     return getClass().getSimpleName() + "[" + initToStringContent() + "]";
@@ -288,6 +328,16 @@ public class ProblemDetail {
    */
   public static ProblemDetail forRawStatusCode(int status) {
     return new ProblemDetail(status);
+  }
+
+  /**
+   * Create a {@code ProblemDetail} instance with the given status and detail.
+   */
+  public static ProblemDetail forStatusAndDetail(HttpStatusCode status, String detail) {
+    Assert.notNull(status, "HttpStatusCode is required");
+    ProblemDetail problemDetail = forRawStatusCode(status.value());
+    problemDetail.setDetail(detail);
+    return problemDetail;
   }
 
 }

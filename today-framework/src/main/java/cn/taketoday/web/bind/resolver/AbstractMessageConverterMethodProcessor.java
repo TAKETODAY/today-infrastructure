@@ -222,7 +222,7 @@ public abstract class AbstractMessageConverterMethodProcessor
 
       determineCompatibleMediaTypes(acceptableTypes, producibleTypes, compatibleMediaTypes);
 
-      // Fall back on RFC 7807 format for ProblemDetail
+      // For ProblemDetail, fall back on RFC 7807 format
       if (compatibleMediaTypes.isEmpty() && ProblemDetail.class.isAssignableFrom(valueType)) {
         determineCompatibleMediaTypes(this.problemMediaTypes, producibleTypes, compatibleMediaTypes);
       }
