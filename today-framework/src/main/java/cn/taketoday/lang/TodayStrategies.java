@@ -113,7 +113,7 @@ public final class TodayStrategies {
 
   /**
    * Programmatically set a local flag to "true", overriding an
-   * entry in the {@link #STRATEGIES_LOCATION} file (if any).
+   * entry in the {@link #PROPERTIES_RESOURCE_LOCATION} file (if any).
    *
    * @param key the property key
    */
@@ -123,7 +123,7 @@ public final class TodayStrategies {
 
   /**
    * Programmatically set a local property, overriding an entry in the
-   * {@link #STRATEGIES_LOCATION} file (if any).
+   * {@link #PROPERTIES_RESOURCE_LOCATION} file (if any).
    *
    * @param key the property key
    * @param value the associated property value, or {@code null} to reset it
