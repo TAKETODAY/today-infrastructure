@@ -342,19 +342,39 @@ final class TypeMappedAnnotation<A extends Annotation> extends AbstractMergedAnn
 
   @Override
   @SuppressWarnings("unchecked")
-  protected A createSynthesized() {
-    if (getType().isInstance(rootAttributes) && !isSynthesizable()) {
+  protected A createSynthesizedAnnotation() {
+    Class<A> type = getType();
+    // Check root annotation
+    if (type.isInstance(rootAttributes) && isNotSynthesizable((Annotation) rootAttributes)) {
       return (A) rootAttributes;
     }
-    return SynthesizedMergedAnnotationInvocationHandler.createProxy(this, getType());
+    // Check meta-annotation
+    else if (type.isInstance(mapping.getAnnotation()) && isNotSynthesizable(mapping.getAnnotation())) {
+      return (A) mapping.getAnnotation();
+    }
+    return SynthesizedMergedAnnotationInvocationHandler.createProxy(this, type);
   }
 
-  private boolean isSynthesizable() {
+  /**
+   * Determine if the supplied annotation has not already been synthesized
+   * <strong>and</strong> whether the mapped annotation is a composed annotation
+   * that needs to have its attributes merged or the mapped annotation is
+   * {@linkplain AnnotationTypeMapping#isSynthesizable() synthesizable} in general.
+   *
+   * @param annotation the annotation to check
+   */
+  private boolean isNotSynthesizable(Annotation annotation) {
     // Already synthesized?
-    if (rootAttributes instanceof SynthesizedAnnotation) {
+    if (annotation instanceof SynthesizedAnnotation) {
+      return true;
+    }
+    // Is this a mapped annotation for a composed annotation, and are there
+    // annotation attributes (mirrors) that need to be merged?
+    if (getDistance() > 0 && resolvedMirrors.length > 0) {
       return false;
     }
-    return mapping.isSynthesizable();
+    // Is the mapped annotation itself synthesizable?
+    return !mapping.isSynthesizable();
   }
 
   @Override

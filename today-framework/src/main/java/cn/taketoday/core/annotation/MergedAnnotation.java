@@ -626,12 +626,15 @@ public interface MergedAnnotation<A extends Annotation> {
   /**
    * Create a type-safe synthesized version of this merged annotation that can
    * be used directly in code.
-   * <p>The result is synthesized using a JDK {@link Proxy} and as a result may
-   * incur a computational cost when first invoked.
+   * <p>The result is synthesized using a JDK {@link java.lang.reflect.Proxy Proxy}
+   * and as a result may incur a computational cost when first invoked.
+   * <p>If this merged annotation was created {@linkplain #valueOf(AnnotatedElement, Class, Map)
+   * from} a map of annotation attributes or default attribute values, those
+   * attributes will always be synthesized into an annotation instance.
    * <p>If this merged annotation was created {@linkplain #from(Annotation) from}
    * an annotation instance, that annotation will be returned unmodified if it is
    * not <em>synthesizable</em>. An annotation is considered synthesizable if
-   * one of the following is true.
+   * it has not already been synthesized and one of the following is true.
    * <ul>
    * <li>The annotation declares attributes annotated with {@link AliasFor @AliasFor}.</li>
    * <li>The annotation is a composed annotation that relies on convention-based
@@ -649,8 +652,8 @@ public interface MergedAnnotation<A extends Annotation> {
   /**
    * Optionally create a type-safe synthesized version of this annotation based
    * on a condition predicate.
-   * <p>The result is synthesized using a JDK {@link Proxy} and as a result may
-   * incur a computational cost when first invoked.
+   * <p>The result is synthesized using a JDK {@link java.lang.reflect.Proxy Proxy}
+   * and as a result may incur a computational cost when first invoked.
    * <p>Consult the documentation for {@link #synthesize()} for an explanation
    * of what is considered synthesizable.
    *
