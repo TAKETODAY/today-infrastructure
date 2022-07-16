@@ -35,7 +35,7 @@ import cn.taketoday.lang.Nullable;
  * <p>For an extended response, an application can add to the
  * {@link #getProperties() properties} map. When using the Jackson library, the
  * {@code properties} map is expanded as top level JSON properties through the
- * {@link org.springframework.http.converter.json.ProblemDetailJacksonMixin}.
+ * {@link cn.taketoday.http.converter.json.ProblemDetailJacksonMixin}.
  *
  * <p>For an extended response, an application can also create a subclass with
  * additional properties. Subclasses can use the protected copy constructor to
@@ -96,6 +96,7 @@ public class ProblemDetail {
     this.status = other.status;
     this.detail = other.detail;
     this.instance = other.instance;
+    this.properties = other.properties != null ? new LinkedHashMap<>(other.properties) : null;
   }
 
   /**
@@ -200,6 +201,15 @@ public class ProblemDetail {
    */
   public void setStatus(int status) {
     this.status = status;
+  }
+
+  /**
+   * Setter for the {@link #getStatus() problem status}.
+   *
+   * @param httpStatus the problem status
+   */
+  public void setStatus(HttpStatus httpStatus) {
+    this.status = httpStatus.value();
   }
 
   /**
@@ -310,7 +320,8 @@ public class ProblemDetail {
             ", title='" + getTitle() + "'" +
             ", status=" + getStatus() +
             ", detail='" + getDetail() + "'" +
-            ", instance='" + getInstance() + "'";
+            ", instance='" + getInstance() + "'" +
+            ", properties='" + getProperties() + "'";
   }
 
   // Static factory methods
@@ -334,10 +345,7 @@ public class ProblemDetail {
    * Create a {@code ProblemDetail} instance with the given status and detail.
    */
   public static ProblemDetail forStatusAndDetail(HttpStatusCode status, String detail) {
-    Assert.notNull(status, "HttpStatusCode is required");
-    ProblemDetail problemDetail = forRawStatusCode(status.value());
-    problemDetail.setDetail(detail);
-    return problemDetail;
+    return forStatus(status).withDetail(detail);
   }
 
 }

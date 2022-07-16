@@ -61,7 +61,7 @@ public class HandlerNotFoundException extends FrameworkConfigurationException im
     this.httpMethod = httpMethod;
     this.requestURL = requestURL;
     this.headers = headers;
-    this.body = ProblemDetail.forStatus(getStatusCode()).withDetail(getMessage());
+    this.body = ProblemDetail.forStatusAndDetail(getStatusCode(), getMessage());
   }
 
   @Override

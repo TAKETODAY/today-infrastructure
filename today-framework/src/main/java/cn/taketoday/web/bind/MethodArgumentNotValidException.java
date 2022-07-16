@@ -54,7 +54,7 @@ public class MethodArgumentNotValidException extends BindException implements Er
   public MethodArgumentNotValidException(MethodParameter parameter, BindingResult bindingResult) {
     super(bindingResult);
     this.parameter = parameter;
-    this.body = ProblemDetail.forStatus(getStatusCode()).withDetail("Invalid request content.");
+    this.body = ProblemDetail.forStatusAndDetail(getStatusCode(), "Invalid request content.");
   }
 
   @Override
