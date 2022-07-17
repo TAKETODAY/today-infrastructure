@@ -1229,23 +1229,42 @@ else */
   }
 
   /**
-   * Trim <i>all</i> whitespace from the given {@code String}:
+   * Trim <em>all</em> whitespace from the given {@code String}:
    * leading, trailing, and in between characters.
    *
    * @param str the {@code String} to check
    * @return the trimmed {@code String}
+   * @see #trimAllWhitespace(CharSequence)
    * @see java.lang.Character#isWhitespace
    * @since 3.0
    */
+  @Nullable
   public static String trimAllWhitespace(@Nullable String str) {
-    if (str == null || str.isEmpty()) {
-      return str;
+    if (str == null) {
+      return null;
+    }
+    return trimAllWhitespace((CharSequence) str).toString();
+  }
+
+  /**
+   * Trim <em>all</em> whitespace from the given {@code CharSequence}:
+   * leading, trailing, and in between characters.
+   *
+   * @param text the {@code CharSequence} to check
+   * @return the trimmed {@code CharSequence}
+   * @see #trimAllWhitespace(String)
+   * @see java.lang.Character#isWhitespace
+   * @since 4.0
+   */
+  public static CharSequence trimAllWhitespace(CharSequence text) {
+    if (isEmpty(text)) {
+      return text;
     }
 
-    int len = str.length();
-    StringBuilder sb = new StringBuilder(str.length());
+    int len = text.length();
+    StringBuilder sb = new StringBuilder(text.length());
     for (int i = 0; i < len; i++) {
-      char c = str.charAt(i);
+      char c = text.charAt(i);
       if (!Character.isWhitespace(c)) {
         sb.append(c);
       }
