@@ -42,8 +42,8 @@ import cn.taketoday.web.registry.annotation.HandlerMethodMapping;
  * a single handler.
  *
  * <p>Supports direct matches (given "/test" -&gt; registered "/test") and "*"
- * matches (given "/test" -&gt; registered "/t*"). Note that the default is
- * to map within the current servlet mapping if applicable;
+ * matches (given "/test" -&gt; registered "/t*"). For details on the pattern
+ * options, see the {@link cn.taketoday.web.util.pattern.PathPattern} javadoc.
  *
  * @author Rod Johnson
  * @author Juergen Hoeller
