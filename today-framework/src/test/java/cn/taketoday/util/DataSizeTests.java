@@ -228,9 +228,12 @@ class DataSizeTests {
 
   @Test
   void parseWithUnsupportedUnit() {
-    assertThatIllegalArgumentException().isThrownBy(() ->
-                    DataSize.parse("3WB"))
+    assertThatIllegalArgumentException()
+            .isThrownBy(() -> DataSize.parse("3WB"))
             .withMessage("'3WB' is not a valid data size");
+    assertThatIllegalArgumentException()
+            .isThrownBy(() -> DataSize.parse("3 WB"))
+            .withMessage("'3 WB' is not a valid data size");
   }
 
 }

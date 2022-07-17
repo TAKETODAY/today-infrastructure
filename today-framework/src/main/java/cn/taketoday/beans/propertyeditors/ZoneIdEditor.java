@@ -23,6 +23,8 @@ package cn.taketoday.beans.propertyeditors;
 import java.beans.PropertyEditorSupport;
 import java.time.ZoneId;
 
+import cn.taketoday.util.StringUtils;
+
 /**
  * Editor for {@code java.time.ZoneId}, translating zone ID Strings into {@code ZoneId}
  * objects. Exposes the {@code TimeZone} ID as a text representation.
@@ -36,6 +38,9 @@ public class ZoneIdEditor extends PropertyEditorSupport {
 
   @Override
   public void setAsText(String text) throws IllegalArgumentException {
+    if (StringUtils.hasText(text)) {
+      text = text.trim();
+    }
     setValue(ZoneId.of(text));
   }
 

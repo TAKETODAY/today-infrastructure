@@ -40,6 +40,9 @@ public class TimeZoneEditor extends PropertyEditorSupport {
 
   @Override
   public void setAsText(String text) throws IllegalArgumentException {
+    if (StringUtils.hasText(text)) {
+      text = text.trim();
+    }
     setValue(StringUtils.parseTimeZoneString(text));
   }
 

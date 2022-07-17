@@ -23,6 +23,8 @@ package cn.taketoday.beans.propertyeditors;
 import java.beans.PropertyEditorSupport;
 import java.util.Currency;
 
+import cn.taketoday.util.StringUtils;
+
 /**
  * Editor for {@code java.util.Currency}, translating currency codes into Currency
  * objects. Exposes the currency code as text representation of a Currency object.
@@ -35,6 +37,9 @@ public class CurrencyEditor extends PropertyEditorSupport {
 
   @Override
   public void setAsText(String text) throws IllegalArgumentException {
+    if (StringUtils.hasText(text)) {
+      text = text.trim();
+    }
     setValue(Currency.getInstance(text));
   }
 
