@@ -21,6 +21,7 @@
 package cn.taketoday.context.support;
 
 import java.io.IOException;
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -40,11 +41,13 @@ import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.loader.BootstrapContext;
 import cn.taketoday.core.io.DefaultResourceLoader;
 import cn.taketoday.core.io.PatternResourceLoader;
+import cn.taketoday.core.io.ProtocolResolver;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.core.io.ResourceConsumer;
 import cn.taketoday.core.io.ResourceLoader;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.CollectionUtils;
 
 /**
  * Generic ApplicationContext implementation that holds a single internal
@@ -235,14 +238,27 @@ public class GenericApplicationContext
   //---------------------------------------------------------------------
 
   /**
-   * This implementation delegates to this context's ResourceLoader if set,
-   * falling back to the default superclass behavior else.
+   * This implementation delegates to this context's {@code ResourceLoader} if set,
+   * falling back to the default superclass behavior otherwise.
+   * <p>As of Spring Framework 5.3.22, this method also honors registered
+   * {@linkplain #getProtocolResolvers() protocol resolvers} when a custom
+   * {@code ResourceLoader} has been set.
    *
-   * @see #setResourceLoader
+   * @see #setResourceLoader(ResourceLoader)
+   * @see #addProtocolResolver(ProtocolResolver)
    */
   @Override
   public Resource getResource(String location) {
     if (this.resourceLoader != null) {
+      Collection<ProtocolResolver> protocolResolvers = getProtocolResolvers();
+      if (CollectionUtils.isNotEmpty(protocolResolvers)) {
+        for (ProtocolResolver protocolResolver : protocolResolvers) {
+          Resource resource = protocolResolver.resolve(location, this);
+          if (resource != null) {
+            return resource;
+          }
+        }
+      }
       return this.resourceLoader.getResource(location);
     }
     return super.getResource(location);

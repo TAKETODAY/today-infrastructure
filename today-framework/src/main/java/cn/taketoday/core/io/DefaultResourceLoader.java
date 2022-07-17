@@ -117,6 +117,8 @@ public class DefaultResourceLoader implements ResourceLoader {
   /**
    * Return the collection of currently registered protocol resolvers,
    * allowing for introspection as well as modification.
+   *
+   * @see #addProtocolResolver(ProtocolResolver)
    */
   @Nullable
   public Collection<ProtocolResolver> getProtocolResolvers() {
