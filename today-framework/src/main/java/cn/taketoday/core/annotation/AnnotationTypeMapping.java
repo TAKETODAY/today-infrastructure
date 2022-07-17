@@ -275,9 +275,9 @@ final class AnnotationTypeMapping {
     int[] mappings = this.conventionMappings;
     for (int i = 0; i < mappings.length; i++) {
       String name = this.attributes.get(i).getName();
-      MirrorSets.MirrorSet mirrors = getMirrorSets().getAssigned(i);
       int mapped = rootAttributes.indexOf(name);
       if (!MergedAnnotation.VALUE.equals(name) && mapped != -1) {
+        MirrorSets.MirrorSet mirrors = getMirrorSets().getAssigned(i);
         mappings[i] = mapped;
         if (mirrors != null) {
           for (int j = 0; j < mirrors.size(); j++) {
@@ -567,7 +567,7 @@ final class AnnotationTypeMapping {
   }
 
   private static boolean areEquivalent(@Nullable Object value, @Nullable Object extractedValue,
-                                       ValueExtractor valueExtractor) {
+          ValueExtractor valueExtractor) {
 
     if (ObjectUtils.nullSafeEquals(value, extractedValue)) {
       return true;
