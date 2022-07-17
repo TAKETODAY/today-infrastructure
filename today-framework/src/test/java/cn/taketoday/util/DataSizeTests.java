@@ -21,6 +21,8 @@
 package cn.taketoday.util;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
@@ -129,6 +131,19 @@ class DataSizeTests {
   @Test
   void parseNegativeNumberWithCustomDefaultUnit() {
     assertThat(DataSize.parse("-1", DataUnit.KILOBYTES)).isEqualTo(DataSize.ofKilobytes(-1));
+  }
+
+  @ParameterizedTest(name = "[{index}] text = ''{0}''")
+  @ValueSource(strings = {
+          "1024B",
+          "1024 B",
+          "1024B   ",
+          "   1024B",
+          " 1024B ",
+          "\t1024   B\t"
+  })
+  void parseWithBytes(CharSequence text) {
+    assertThat(DataSize.parse(text)).isEqualTo(DataSize.ofKilobytes(1));
   }
 
   @Test
