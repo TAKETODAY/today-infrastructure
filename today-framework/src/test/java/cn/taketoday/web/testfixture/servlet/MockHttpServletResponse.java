@@ -401,11 +401,13 @@ public class MockHttpServletResponse implements HttpServletResponse {
     if (cookie.isHttpOnly()) {
       buf.append("; HttpOnly");
     }
-    if (cookie instanceof MockCookie) {
-      MockCookie mockCookie = (MockCookie) cookie;
+    if (cookie instanceof MockCookie mockCookie) {
       if (StringUtils.hasText(mockCookie.getSameSite())) {
         buf.append("; SameSite=").append(mockCookie.getSameSite());
       }
+    }
+    if (StringUtils.hasText(cookie.getComment())) {
+      buf.append("; Comment=").append(cookie.getComment());
     }
     return buf.toString();
   }

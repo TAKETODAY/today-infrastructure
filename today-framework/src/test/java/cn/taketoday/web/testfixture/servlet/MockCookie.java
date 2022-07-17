@@ -25,6 +25,7 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 
 import cn.taketoday.lang.Assert;
+import cn.taketoday.util.StringUtils;
 import jakarta.servlet.http.Cookie;
 
 /**
@@ -142,6 +143,9 @@ public class MockCookie extends Cookie {
       }
       else if (startsWithIgnoreCase(attribute, "SameSite")) {
         cookie.setSameSite(extractAttributeValue(attribute, setCookieHeader));
+      }
+      else if (StringUtils.startsWithIgnoreCase(attribute, "Comment")) {
+        cookie.setComment(extractAttributeValue(attribute, setCookieHeader));
       }
     }
     return cookie;

@@ -62,7 +62,6 @@ public class MockCookie extends Cookie {
 
   /**
    * Set the "Expires" attribute for this cookie.
-   *
    */
   public void setExpires(@Nullable ZonedDateTime expires) {
     this.expires = expires;
@@ -145,6 +144,9 @@ public class MockCookie extends Cookie {
       }
       else if (StringUtils.startsWithIgnoreCase(attribute, "SameSite")) {
         cookie.setSameSite(extractAttributeValue(attribute, setCookieHeader));
+      }
+      else if (StringUtils.startsWithIgnoreCase(attribute, "Comment")) {
+        cookie.setComment(extractAttributeValue(attribute, setCookieHeader));
       }
     }
     return cookie;
