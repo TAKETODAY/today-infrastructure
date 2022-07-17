@@ -20,7 +20,7 @@
 
 package cn.taketoday.core.conversion.support;
 
-import java.util.HashSet;
+import java.util.Set;
 
 import cn.taketoday.core.conversion.Converter;
 import cn.taketoday.lang.Nullable;
@@ -34,20 +34,8 @@ import cn.taketoday.lang.Nullable;
  */
 final class StringToBooleanConverter implements Converter<String, Boolean> {
 
-  private static final HashSet<String> trueValues = new HashSet<>(8);
-  private static final HashSet<String> falseValues = new HashSet<>(8);
-
-  static {
-    trueValues.add("true");
-    trueValues.add("on");
-    trueValues.add("yes");
-    trueValues.add("1");
-
-    falseValues.add("false");
-    falseValues.add("off");
-    falseValues.add("no");
-    falseValues.add("0");
-  }
+  private static final Set<String> trueValues = Set.of("true", "on", "yes", "1");
+  private static final Set<String> falseValues = Set.of("false", "off", "no", "0");
 
   @Override
   @Nullable
