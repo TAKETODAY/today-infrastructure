@@ -23,6 +23,7 @@ package cn.taketoday.core.conversion.support;
 import java.util.Currency;
 
 import cn.taketoday.core.conversion.Converter;
+import cn.taketoday.util.StringUtils;
 
 /**
  * Convert a String to a {@link Currency}.
@@ -34,6 +35,9 @@ class StringToCurrencyConverter implements Converter<String, Currency> {
 
   @Override
   public Currency convert(String source) {
+    if (StringUtils.hasText(source)) {
+      source = source.trim();
+    }
     return Currency.getInstance(source);
   }
 

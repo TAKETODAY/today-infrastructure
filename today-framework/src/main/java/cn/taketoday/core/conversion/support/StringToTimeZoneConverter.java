@@ -35,6 +35,9 @@ class StringToTimeZoneConverter implements Converter<String, TimeZone> {
 
   @Override
   public TimeZone convert(String source) {
+    if (StringUtils.hasText(source)) {
+      source = source.trim();
+    }
     return StringUtils.parseTimeZoneString(source);
   }
 

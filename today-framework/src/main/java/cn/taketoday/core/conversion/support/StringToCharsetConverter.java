@@ -23,6 +23,7 @@ package cn.taketoday.core.conversion.support;
 import java.nio.charset.Charset;
 
 import cn.taketoday.core.conversion.Converter;
+import cn.taketoday.util.StringUtils;
 
 /**
  * Convert a String to a {@link Charset}.
@@ -34,6 +35,9 @@ class StringToCharsetConverter implements Converter<String, Charset> {
 
   @Override
   public Charset convert(String source) {
+    if (StringUtils.hasText(source)) {
+      source = source.trim();
+    }
     return Charset.forName(source);
   }
 
