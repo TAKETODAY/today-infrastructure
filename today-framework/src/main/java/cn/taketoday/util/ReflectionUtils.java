@@ -1683,6 +1683,7 @@ public abstract class ReflectionUtils {
   /**
    * @since 4.0
    */
+  @Nullable
   public static ProtectionDomain getProtectionDomain(Class<?> source) {
     if (source == null) {
       return null;

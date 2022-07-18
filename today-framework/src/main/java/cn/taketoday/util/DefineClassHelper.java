@@ -45,7 +45,6 @@ import java.security.ProtectionDomain;
 
 import cn.taketoday.core.bytecode.core.CodeGenerationException;
 import cn.taketoday.core.reflect.ReflectionException;
-import cn.taketoday.lang.NonNull;
 import cn.taketoday.lang.Nullable;
 
 /**
@@ -211,6 +210,11 @@ public class DefineClassHelper {
         MethodHandles.Lookup lookup = MethodHandles.privateLookupIn(neighbor, MethodHandles.lookup());
         c = lookup.defineClass(classFile);
       }
+      catch (IllegalAccessException ex) {
+        throw new CodeGenerationException("ClassLoader mismatch for [" + neighbor.getName() +
+                "]: JVM should be started with --add-opens=java.base/java.lang=ALL-UNNAMED " +
+                "for ClassLoader.defineClass to be accessible on " + loader.getClass().getName(), ex);
+      }
       catch (Throwable ex) {
         throw newException(className, ex);
       }
@@ -231,7 +235,6 @@ public class DefineClassHelper {
     return c;
   }
 
-  @NonNull
   private static CodeGenerationException newException(String className, Throwable ex) {
     return new CodeGenerationException("Class: '" + className + "' define failed", ex);
   }
