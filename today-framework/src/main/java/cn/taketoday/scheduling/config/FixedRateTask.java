@@ -20,6 +20,8 @@
 
 package cn.taketoday.scheduling.config;
 
+import java.time.Duration;
+
 /**
  * Specialization of {@link IntervalTask} for fixed-rate semantics.
  *
@@ -41,4 +43,18 @@ public class FixedRateTask extends IntervalTask {
     super(runnable, interval, initialDelay);
   }
 
+  /**
+   * Create a new {@code FixedRateTask}.
+   *
+   * @param runnable the underlying task to execute
+   * @param interval how often the task should be executed
+   * @param initialDelay the initial delay before first execution of the task
+   */
+  public FixedRateTask(Runnable runnable, Duration interval, Duration initialDelay) {
+    super(runnable, interval, initialDelay);
+  }
+
+  FixedRateTask(IntervalTask task) {
+    super(task);
+  }
 }

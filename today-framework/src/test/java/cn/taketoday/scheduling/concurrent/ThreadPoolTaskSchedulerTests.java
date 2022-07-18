@@ -20,8 +20,10 @@
 
 package cn.taketoday.scheduling.concurrent;
 
+import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
 
+import java.time.Instant;
 import java.util.Date;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
@@ -89,6 +91,7 @@ public class ThreadPoolTaskSchedulerTests extends AbstractSchedulingTaskExecutor
   }
 
   @Test
+  @SuppressWarnings("deprecation")
   void scheduleOneTimeTask() throws Exception {
     TestTask task = new TestTask(this.testName, 1);
     Future<?> future = scheduler.schedule(task, new Date());
@@ -99,6 +102,7 @@ public class ThreadPoolTaskSchedulerTests extends AbstractSchedulingTaskExecutor
   }
 
   @Test
+  @SuppressWarnings("deprecation")
   void scheduleOneTimeFailingTaskWithoutErrorHandler() throws Exception {
     TestTask task = new TestTask(this.testName, 0);
     Future<?> future = scheduler.schedule(task, new Date());
@@ -118,21 +122,14 @@ public class ThreadPoolTaskSchedulerTests extends AbstractSchedulingTaskExecutor
     assertThat(errorHandler.lastError).isNotNull();
   }
 
-  @Test
-  void scheduleTriggerTask() throws Exception {
+  @RepeatedTest(20)
+  void scheduleMultipleTriggerTasks() throws Exception {
     TestTask task = new TestTask(this.testName, 3);
     Future<?> future = scheduler.schedule(task, new TestTrigger(3));
     Object result = future.get(1000, TimeUnit.MILLISECONDS);
     assertThat(result).isNull();
     await(task);
     assertThreadNamePrefix(task);
-  }
-
-  @Test
-  void scheduleMultipleTriggerTasks() throws Exception {
-    for (int i = 0; i < 100; i++) {
-      scheduleTriggerTask();
-    }
   }
 
   private void await(TestTask task) {
@@ -181,11 +178,11 @@ public class ThreadPoolTaskSchedulerTests extends AbstractSchedulingTaskExecutor
     }
 
     @Override
-    public Date nextExecutionTime(TriggerContext triggerContext) {
+    public Instant nextExecution(TriggerContext triggerContext) {
       if (this.actualRunCount.incrementAndGet() > this.maxRunCount) {
         return null;
       }
-      return new Date();
+      return Instant.now();
     }
   }
 

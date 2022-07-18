@@ -21,6 +21,7 @@
 package cn.taketoday.scheduling;
 
 import java.time.Clock;
+import java.time.Instant;
 import java.util.Date;
 
 import cn.taketoday.lang.Nullable;
@@ -30,6 +31,7 @@ import cn.taketoday.lang.Nullable;
  * of a given task.
  *
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public interface TriggerContext {
@@ -49,20 +51,53 @@ public interface TriggerContext {
    * or {@code null} if not scheduled before.
    */
   @Nullable
-  Date lastScheduledExecutionTime();
+  @Deprecated
+  default Date lastScheduledExecutionTime() {
+    Instant instant = lastScheduledExecution();
+    return instant != null ? Date.from(instant) : null;
+  }
+
+  /**
+   * Return the last <i>scheduled</i> execution time of the task,
+   * or {@code null} if not scheduled before.
+   */
+  @Nullable
+  Instant lastScheduledExecution();
+
+  /**
+   * Return the last <i>actual</i> execution time of the task,
+   * or {@code null} if not scheduled before.
+   */
+  @Deprecated
+  @Nullable
+  default Date lastActualExecutionTime() {
+    Instant instant = lastActualExecution();
+    return instant != null ? Date.from(instant) : null;
+  }
 
   /**
    * Return the last <i>actual</i> execution time of the task,
    * or {@code null} if not scheduled before.
    */
   @Nullable
-  Date lastActualExecutionTime();
+  Instant lastActualExecution();
+
+  /**
+   * Return the last completion time of the task,
+   * or {@code null} if not scheduled before.
+   */
+  @Deprecated
+  @Nullable
+  default Date lastCompletionTime() {
+    Instant instant = lastCompletion();
+    return instant != null ? Date.from(instant) : null;
+  }
 
   /**
    * Return the last completion time of the task,
    * or {@code null} if not scheduled before.
    */
   @Nullable
-  Date lastCompletionTime();
+  Instant lastCompletion();
 
 }

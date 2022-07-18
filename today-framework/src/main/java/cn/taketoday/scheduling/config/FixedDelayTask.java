@@ -20,6 +20,8 @@
 
 package cn.taketoday.scheduling.config;
 
+import java.time.Duration;
+
 /**
  * Specialization of {@link IntervalTask} for fixed-delay semantics.
  *
@@ -40,5 +42,19 @@ public class FixedDelayTask extends IntervalTask {
   public FixedDelayTask(Runnable runnable, long interval, long initialDelay) {
     super(runnable, interval, initialDelay);
   }
+
+	/**
+	 * Create a new {@code FixedDelayTask}.
+	 * @param runnable the underlying task to execute
+	 * @param interval how often the task should be executed
+	 * @param initialDelay the initial delay before first execution of the task
+	 */
+	public FixedDelayTask(Runnable runnable, Duration interval, Duration initialDelay) {
+		super(runnable, interval, initialDelay);
+	}
+
+	FixedDelayTask(IntervalTask task) {
+		super(task);
+	}
 
 }

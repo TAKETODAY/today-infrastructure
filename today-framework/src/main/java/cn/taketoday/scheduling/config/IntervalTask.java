@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -20,6 +20,10 @@
 
 package cn.taketoday.scheduling.config;
 
+import java.time.Duration;
+
+import cn.taketoday.lang.Assert;
+
 /**
  * {@link Task} implementation defining a {@code Runnable} to be executed at a given
  * millisecond interval which may be treated as fixed-rate or fixed-delay depending on
@@ -32,9 +36,9 @@ package cn.taketoday.scheduling.config;
  */
 public class IntervalTask extends Task {
 
-  private final long interval;
+  private final Duration interval;
 
-  private final long initialDelay;
+  private final Duration initialDelay;
 
   /**
    * Create a new {@code IntervalTask}.
@@ -44,9 +48,7 @@ public class IntervalTask extends Task {
    * @param initialDelay the initial delay before first execution of the task
    */
   public IntervalTask(Runnable runnable, long interval, long initialDelay) {
-    super(runnable);
-    this.interval = interval;
-    this.initialDelay = initialDelay;
+    this(runnable, Duration.ofMillis(interval), Duration.ofMillis(initialDelay));
   }
 
   /**
@@ -56,13 +58,57 @@ public class IntervalTask extends Task {
    * @param interval how often in milliseconds the task should be executed
    */
   public IntervalTask(Runnable runnable, long interval) {
-    this(runnable, interval, 0);
+    this(runnable, Duration.ofMillis(interval), Duration.ZERO);
+  }
+
+  /**
+   * Create a new {@code IntervalTask} with no initial delay.
+   *
+   * @param runnable the underlying task to execute
+   * @param interval how often the task should be executed
+   */
+  public IntervalTask(Runnable runnable, Duration interval) {
+    this(runnable, interval, Duration.ZERO);
+  }
+
+  /**
+   * Create a new {@code IntervalTask}.
+   *
+   * @param runnable the underlying task to execute
+   * @param interval how often the task should be executed
+   * @param initialDelay the initial delay before first execution of the task
+   */
+  public IntervalTask(Runnable runnable, Duration interval, Duration initialDelay) {
+    super(runnable);
+    Assert.notNull(interval, "Interval is required");
+    Assert.notNull(initialDelay, "InitialDelay is required");
+
+    this.interval = interval;
+    this.initialDelay = initialDelay;
+  }
+
+  /**
+   * Copy constructor.
+   */
+  IntervalTask(IntervalTask task) {
+    super(task.getRunnable());
+    Assert.notNull(task, "IntervalTask is required");
+
+    this.interval = task.getIntervalDuration();
+    this.initialDelay = task.getInitialDelayDuration();
   }
 
   /**
    * Return how often in milliseconds the task should be executed.
    */
   public long getInterval() {
+    return this.interval.toMillis();
+  }
+
+  /**
+   * Return how often the task should be executed.
+   */
+  public Duration getIntervalDuration() {
     return this.interval;
   }
 
@@ -70,6 +116,13 @@ public class IntervalTask extends Task {
    * Return the initial delay before first execution of the task.
    */
   public long getInitialDelay() {
+    return this.initialDelay.toMillis();
+  }
+
+  /**
+   * Return the initial delay before first execution of the task.
+   */
+  public Duration getInitialDelayDuration() {
     return this.initialDelay;
   }
 

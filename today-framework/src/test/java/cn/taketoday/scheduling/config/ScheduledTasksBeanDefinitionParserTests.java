@@ -24,6 +24,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Method;
+import java.time.Instant;
 import java.util.Date;
 import java.util.List;
 
@@ -126,6 +127,11 @@ public class ScheduledTasksBeanDefinitionParserTests {
 
     @Override
     public Date nextExecutionTime(TriggerContext triggerContext) {
+      return null;
+    }
+
+    @Override
+    public Instant nextExecution(TriggerContext triggerContext) {
       return null;
     }
   }

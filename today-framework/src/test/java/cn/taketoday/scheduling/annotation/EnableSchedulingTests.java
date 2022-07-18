@@ -23,6 +23,8 @@ package cn.taketoday.scheduling.annotation;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -431,7 +433,7 @@ public class EnableSchedulingTests {
       ThreadPoolTaskScheduler scheduler = new ThreadPoolTaskScheduler();
       scheduler.initialize();
       scheduler.schedule(() -> counter().incrementAndGet(),
-              triggerContext -> new Date(new Date().getTime() + 10));
+              triggerContext -> Instant.now().plus(10, ChronoUnit.MILLIS));
       return scheduler;
     }
   }

@@ -20,9 +20,9 @@
 
 package cn.taketoday.scheduling.support;
 
+import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.util.Date;
 import java.util.TimeZone;
 
 import cn.taketoday.lang.Assert;
@@ -93,27 +93,27 @@ public class CronTrigger implements Trigger {
   /**
    * Determine the next execution time according to the given trigger context.
    * <p>Next execution times are calculated based on the
-   * {@linkplain TriggerContext#lastCompletionTime completion time} of the
+   * {@linkplain TriggerContext#lastCompletion completion time} of the
    * previous execution; therefore, overlapping executions won't occur.
    */
   @Override
-  public Date nextExecutionTime(TriggerContext triggerContext) {
-    Date date = triggerContext.lastCompletionTime();
-    if (date != null) {
-      Date scheduled = triggerContext.lastScheduledExecutionTime();
-      if (scheduled != null && date.before(scheduled)) {
+  public Instant nextExecution(TriggerContext triggerContext) {
+    Instant instant = triggerContext.lastCompletion();
+    if (instant != null) {
+      Instant scheduled = triggerContext.lastScheduledExecution();
+      if (scheduled != null && instant.isBefore(scheduled)) {
         // Previous task apparently executed too early...
         // Let's simply use the last calculated execution time then,
         // in order to prevent accidental re-fires in the same second.
-        date = scheduled;
+        instant = scheduled;
       }
     }
     else {
-      date = new Date(triggerContext.getClock().millis());
+      instant = triggerContext.getClock().instant();
     }
-    ZonedDateTime dateTime = ZonedDateTime.ofInstant(date.toInstant(), this.zoneId);
+    ZonedDateTime dateTime = ZonedDateTime.ofInstant(instant, this.zoneId);
     ZonedDateTime next = this.expression.next(dateTime);
-    return (next != null ? Date.from(next.toInstant()) : null);
+    return (next != null ? next.toInstant() : null);
   }
 
   @Override

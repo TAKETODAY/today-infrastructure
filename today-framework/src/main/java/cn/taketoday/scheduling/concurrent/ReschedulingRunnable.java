@@ -21,7 +21,8 @@
 package cn.taketoday.scheduling.concurrent;
 
 import java.time.Clock;
-import java.util.Date;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.concurrent.Delayed;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ScheduledExecutorService;
@@ -60,7 +61,7 @@ class ReschedulingRunnable extends DelegatingErrorHandlingRunnable implements Sc
   private ScheduledFuture<?> currentFuture;
 
   @Nullable
-  private Date scheduledExecutionTime;
+  private Instant scheduledExecutionTime;
 
   private final Object triggerContextMonitor = new Object();
 
@@ -77,12 +78,12 @@ class ReschedulingRunnable extends DelegatingErrorHandlingRunnable implements Sc
   @Nullable
   public ScheduledFuture<?> schedule() {
     synchronized(this.triggerContextMonitor) {
-      this.scheduledExecutionTime = this.trigger.nextExecutionTime(this.triggerContext);
+      this.scheduledExecutionTime = trigger.nextExecution(this.triggerContext);
       if (this.scheduledExecutionTime == null) {
         return null;
       }
-      long initialDelay = this.scheduledExecutionTime.getTime() - this.triggerContext.getClock().millis();
-      this.currentFuture = this.executor.schedule(this, initialDelay, TimeUnit.MILLISECONDS);
+      Duration initialDelay = Duration.between(triggerContext.getClock().instant(), scheduledExecutionTime);
+      this.currentFuture = executor.schedule(this, initialDelay.toMillis(), TimeUnit.MILLISECONDS);
       return this;
     }
   }
@@ -94,9 +95,9 @@ class ReschedulingRunnable extends DelegatingErrorHandlingRunnable implements Sc
 
   @Override
   public void run() {
-    Date actualExecutionTime = new Date(this.triggerContext.getClock().millis());
+    Instant actualExecutionTime = triggerContext.getClock().instant();
     super.run();
-    Date completionTime = new Date(this.triggerContext.getClock().millis());
+    Instant completionTime = triggerContext.getClock().instant();
     synchronized(this.triggerContextMonitor) {
       Assert.state(this.scheduledExecutionTime != null, "No scheduled execution");
       this.triggerContext.update(this.scheduledExecutionTime, actualExecutionTime, completionTime);

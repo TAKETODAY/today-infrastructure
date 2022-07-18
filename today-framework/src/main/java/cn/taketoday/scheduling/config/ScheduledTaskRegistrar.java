@@ -20,6 +20,8 @@
 
 package cn.taketoday.scheduling.config;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -299,6 +301,15 @@ public class ScheduledTaskRegistrar implements ScheduledTaskHolder, Initializing
   }
 
   /**
+   * Add a {@code Runnable} task to be triggered at the given fixed-rate interval.
+   *
+   * @see TaskScheduler#scheduleAtFixedRate(Runnable, Duration)
+   */
+  public void addFixedRateTask(Runnable task, Duration interval) {
+    addFixedRateTask(new IntervalTask(task, interval));
+  }
+
+  /**
    * Add a fixed-rate {@link IntervalTask}.
    *
    * @see TaskScheduler#scheduleAtFixedRate(Runnable, long)
@@ -317,6 +328,15 @@ public class ScheduledTaskRegistrar implements ScheduledTaskHolder, Initializing
    */
   public void addFixedDelayTask(Runnable task, long delay) {
     addFixedDelayTask(new IntervalTask(task, delay, 0));
+  }
+
+  /**
+   * Add a Runnable task to be triggered with the given fixed delay.
+   *
+   * @see TaskScheduler#scheduleWithFixedDelay(Runnable, Duration)
+   */
+  public void addFixedDelayTask(Runnable task, Duration delay) {
+    addFixedDelayTask(new IntervalTask(task, delay));
   }
 
   /**
@@ -370,12 +390,22 @@ public class ScheduledTaskRegistrar implements ScheduledTaskHolder, Initializing
     }
     if (this.fixedRateTasks != null) {
       for (IntervalTask task : this.fixedRateTasks) {
-        addScheduledTask(scheduleFixedRateTask(task));
+        if (task instanceof FixedRateTask fixedRateTask) {
+          addScheduledTask(scheduleFixedRateTask(fixedRateTask));
+        }
+        else {
+          addScheduledTask(scheduleFixedRateTask(new FixedRateTask(task)));
+        }
       }
     }
     if (this.fixedDelayTasks != null) {
       for (IntervalTask task : this.fixedDelayTasks) {
-        addScheduledTask(scheduleFixedDelayTask(task));
+        if (task instanceof FixedDelayTask fixedDelayTask) {
+          addScheduledTask(scheduleFixedDelayTask(fixedDelayTask));
+        }
+        else {
+          addScheduledTask(scheduleFixedDelayTask(new FixedDelayTask(task)));
+        }
       }
     }
   }
@@ -407,7 +437,7 @@ public class ScheduledTaskRegistrar implements ScheduledTaskHolder, Initializing
       addTriggerTask(task);
       this.unresolvedTasks.put(task, scheduledTask);
     }
-    return (newTask ? scheduledTask : null);
+    return newTask ? scheduledTask : null;
   }
 
   /**
@@ -432,21 +462,7 @@ public class ScheduledTaskRegistrar implements ScheduledTaskHolder, Initializing
       addCronTask(task);
       this.unresolvedTasks.put(task, scheduledTask);
     }
-    return (newTask ? scheduledTask : null);
-  }
-
-  /**
-   * Schedule the specified fixed-rate task, either right away if possible
-   * or on initialization of the scheduler.
-   *
-   * @return a handle to the scheduled task, allowing to cancel it
-   * (or {@code null} if processing a previously registered task)
-   */
-  @Nullable
-  public ScheduledTask scheduleFixedRateTask(IntervalTask task) {
-    FixedRateTask taskToUse = (task instanceof FixedRateTask ? (FixedRateTask) task :
-                               new FixedRateTask(task.getRunnable(), task.getInterval(), task.getInitialDelay()));
-    return scheduleFixedRateTask(taskToUse);
+    return newTask ? scheduledTask : null;
   }
 
   /**
@@ -465,36 +481,22 @@ public class ScheduledTaskRegistrar implements ScheduledTaskHolder, Initializing
       newTask = true;
     }
     if (this.taskScheduler != null) {
-      if (task.getInitialDelay() > 0) {
-        Date startTime = new Date(this.taskScheduler.getClock().millis() + task.getInitialDelay());
+      Duration initialDelay = task.getInitialDelayDuration();
+      if (initialDelay.toMillis() > 0) {
+        Instant startTime = taskScheduler.getClock().instant().plus(initialDelay);
         scheduledTask.future =
-                this.taskScheduler.scheduleAtFixedRate(task.getRunnable(), startTime, task.getInterval());
+                this.taskScheduler.scheduleAtFixedRate(task.getRunnable(), startTime, task.getIntervalDuration());
       }
       else {
         scheduledTask.future =
-                this.taskScheduler.scheduleAtFixedRate(task.getRunnable(), task.getInterval());
+                taskScheduler.scheduleAtFixedRate(task.getRunnable(), task.getIntervalDuration());
       }
     }
     else {
       addFixedRateTask(task);
       this.unresolvedTasks.put(task, scheduledTask);
     }
-    return (newTask ? scheduledTask : null);
-  }
-
-  /**
-   * Schedule the specified fixed-delay task, either right away if possible
-   * or on initialization of the scheduler.
-   *
-   * @return a handle to the scheduled task, allowing to cancel it
-   * (or {@code null} if processing a previously registered task)
-   */
-  @Nullable
-  public ScheduledTask scheduleFixedDelayTask(IntervalTask task) {
-    FixedDelayTask taskToUse = task instanceof FixedDelayTask
-                               ? (FixedDelayTask) task
-                               : new FixedDelayTask(task.getRunnable(), task.getInterval(), task.getInitialDelay());
-    return scheduleFixedDelayTask(taskToUse);
+    return newTask ? scheduledTask : null;
   }
 
   /**
@@ -513,14 +515,15 @@ public class ScheduledTaskRegistrar implements ScheduledTaskHolder, Initializing
       newTask = true;
     }
     if (this.taskScheduler != null) {
-      if (task.getInitialDelay() > 0) {
-        Date startTime = new Date(this.taskScheduler.getClock().millis() + task.getInitialDelay());
+      Duration initialDelay = task.getInitialDelayDuration();
+      if (!initialDelay.isNegative()) {
+        Instant startTime = taskScheduler.getClock().instant().plus(task.getInitialDelayDuration());
         scheduledTask.future =
-                this.taskScheduler.scheduleWithFixedDelay(task.getRunnable(), startTime, task.getInterval());
+                taskScheduler.scheduleWithFixedDelay(task.getRunnable(), startTime, task.getIntervalDuration());
       }
       else {
         scheduledTask.future =
-                this.taskScheduler.scheduleWithFixedDelay(task.getRunnable(), task.getInterval());
+                taskScheduler.scheduleWithFixedDelay(task.getRunnable(), task.getIntervalDuration());
       }
     }
     else {
