@@ -26,7 +26,6 @@ import cn.taketoday.core.bytecode.commons.GeneratorAdapter;
 import cn.taketoday.core.bytecode.commons.Local;
 import cn.taketoday.core.bytecode.commons.MethodSignature;
 import cn.taketoday.core.bytecode.commons.TableSwitchGenerator;
-import cn.taketoday.core.bytecode.core.internal.CustomizerRegistry;
 import cn.taketoday.lang.Constant;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.StringUtils;

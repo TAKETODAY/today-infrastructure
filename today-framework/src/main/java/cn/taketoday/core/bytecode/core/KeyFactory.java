@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -31,7 +31,6 @@ import cn.taketoday.core.bytecode.Opcodes;
 import cn.taketoday.core.bytecode.Type;
 import cn.taketoday.core.bytecode.commons.GeneratorAdapter;
 import cn.taketoday.core.bytecode.commons.MethodSignature;
-import cn.taketoday.core.bytecode.core.internal.CustomizerRegistry;
 import cn.taketoday.lang.Constant;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ReflectionUtils;
@@ -71,7 +70,7 @@ import static cn.taketoday.core.bytecode.Type.array;
  * <code>key1.equals(key2)</code> <i>and</i> the keys were produced by the same
  * factory.
  *
- * @version $Id: KeyFactory.java,v 1.26 2006/03/05 02:43:19 herbyderby Exp $
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  */
 @SuppressWarnings({ "rawtypes", "unchecked" })
 public abstract class KeyFactory {
@@ -111,17 +110,6 @@ public abstract class KeyFactory {
       return true;
     }
     return false;
-  };
-
-  /**
-   * @deprecated this customizer might result in unexpected class leak since key
-   * object still holds a strong reference to the Object and class. It
-   * is recommended to have pre-processing method that would strip
-   * Objects and represent Classes as Strings
-   */
-  @Deprecated
-  public static final Customizer OBJECT_BY_CLASS = (GeneratorAdapter e, Type type) -> {
-    e.invokeVirtual(Type.TYPE_OBJECT, MethodSignature.GET_CLASS);
   };
 
   protected KeyFactory() { }

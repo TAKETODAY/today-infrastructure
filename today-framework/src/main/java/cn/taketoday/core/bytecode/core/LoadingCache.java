@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -17,7 +17,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.core.bytecode.core.internal;
+package cn.taketoday.core.bytecode.core;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
@@ -29,11 +29,11 @@ import java.util.function.Function;
  * 2019-09-01 22:04
  */
 @SuppressWarnings({ "unchecked" })
-public class LoadingCache<K, KK, V> {
+final class LoadingCache<K, KK, V> {
 
-  protected final Function<K, V> loader;
-  protected final Function<K, KK> keyMapper;
-  protected final ConcurrentHashMap<KK, Object> map = new ConcurrentHashMap<>();
+  public final Function<K, V> loader;
+  public final Function<K, KK> keyMapper;
+  public final ConcurrentHashMap<KK, Object> map = new ConcurrentHashMap<>();
 
   public LoadingCache(Function<K, KK> keyMapper, Function<K, V> loader) {
     this.loader = loader;
@@ -59,7 +59,7 @@ public class LoadingCache<K, KK, V> {
    * @param v null or {@link FutureTask<V>}
    * @return newly created instance
    */
-  protected V createEntry(final K key, KK cacheKey, Object v) {
+  private V createEntry(final K key, KK cacheKey, Object v) {
     FutureTask<V> task;
     boolean created = false;
     if (v != null) {
@@ -101,4 +101,5 @@ public class LoadingCache<K, KK, V> {
       throw new IllegalStateException("Unable to load cache item", cause);
     }
   }
+
 }

@@ -17,19 +17,16 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.core.bytecode.core.internal;
+package cn.taketoday.core.bytecode.core;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
-import cn.taketoday.core.bytecode.core.Customizer;
-import cn.taketoday.core.bytecode.core.KeyFactoryCustomizer;
-
 /**
- * @author TODAY <br>
- * 2019-10-17 20:45
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 2019-10-17 20:45
  */
 @SuppressWarnings({ "rawtypes", "unchecked" })
 public class CustomizerRegistry {
