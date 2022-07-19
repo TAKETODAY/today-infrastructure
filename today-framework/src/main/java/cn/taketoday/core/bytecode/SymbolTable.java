@@ -1286,13 +1286,13 @@ final class SymbolTable {
   private static class Entry extends Symbol {
 
     /** The hash code of this entry. */
-    final int hashCode;
+    public final int hashCode;
 
     /**
      * Another entry (and so on recursively) having the same hash code (modulo the size of {@link
      * #entries}) as this one.
      */
-    Entry next;
+    public Entry next;
 
     Entry(final int index,
           final int tag,
