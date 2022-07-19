@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -30,6 +30,9 @@ import java.sql.DatabaseMetaData;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Types;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collection;
@@ -103,6 +106,9 @@ public abstract class StatementCreatorUtils {
     javaTypeToSqlTypeMap.put(java.sql.Date.class, Types.DATE);
     javaTypeToSqlTypeMap.put(java.sql.Time.class, Types.TIME);
     javaTypeToSqlTypeMap.put(java.sql.Timestamp.class, Types.TIMESTAMP);
+    javaTypeToSqlTypeMap.put(LocalDate.class, Types.DATE);
+    javaTypeToSqlTypeMap.put(LocalTime.class, Types.TIME);
+    javaTypeToSqlTypeMap.put(LocalDateTime.class, Types.TIMESTAMP);
     javaTypeToSqlTypeMap.put(Blob.class, Types.BLOB);
     javaTypeToSqlTypeMap.put(Clob.class, Types.CLOB);
   }
