@@ -18,7 +18,7 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.expression.spel;
+package cn.taketoday.core.bytecode.core;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
@@ -30,6 +30,7 @@ import java.util.List;
 import cn.taketoday.core.bytecode.ClassWriter;
 import cn.taketoday.core.bytecode.MethodVisitor;
 import cn.taketoday.core.bytecode.Opcodes;
+import cn.taketoday.core.bytecode.commons.GeneratorAdapter;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
 

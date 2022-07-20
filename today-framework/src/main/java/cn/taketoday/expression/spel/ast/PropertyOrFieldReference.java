@@ -34,7 +34,7 @@ import cn.taketoday.expression.EvaluationContext;
 import cn.taketoday.expression.EvaluationException;
 import cn.taketoday.expression.PropertyAccessor;
 import cn.taketoday.expression.TypedValue;
-import cn.taketoday.expression.spel.CodeFlow;
+import cn.taketoday.core.bytecode.core.CodeFlow;
 import cn.taketoday.expression.spel.CompilablePropertyAccessor;
 import cn.taketoday.expression.spel.ExpressionState;
 import cn.taketoday.expression.spel.SpelEvaluationException;

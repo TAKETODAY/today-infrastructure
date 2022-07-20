@@ -27,7 +27,7 @@ import cn.taketoday.core.bytecode.ClassWriter;
 import cn.taketoday.core.bytecode.MethodVisitor;
 import cn.taketoday.core.bytecode.Opcodes;
 import cn.taketoday.expression.Expression;
-import cn.taketoday.expression.spel.CodeFlow;
+import cn.taketoday.core.bytecode.core.CodeFlow;
 import cn.taketoday.expression.spel.CompiledExpression;
 import cn.taketoday.expression.spel.SpelParserConfiguration;
 import cn.taketoday.expression.spel.ast.SpelNodeImpl;

@@ -749,6 +749,7 @@ public class GeneratorAdapter extends LocalVariablesSorter {
         aconst_null();
       }
       else {
+        // FIXME valueOf
         Type boxedType = type.getBoxedType();
         newInstance(boxedType);
         if (type.getSize() == 2) {

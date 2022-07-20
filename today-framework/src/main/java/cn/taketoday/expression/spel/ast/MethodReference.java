@@ -39,7 +39,7 @@ import cn.taketoday.expression.ExpressionInvocationTargetException;
 import cn.taketoday.expression.MethodExecutor;
 import cn.taketoday.expression.MethodResolver;
 import cn.taketoday.expression.TypedValue;
-import cn.taketoday.expression.spel.CodeFlow;
+import cn.taketoday.core.bytecode.core.CodeFlow;
 import cn.taketoday.expression.spel.ExpressionState;
 import cn.taketoday.expression.spel.SpelEvaluationException;
 import cn.taketoday.expression.spel.SpelMessage;

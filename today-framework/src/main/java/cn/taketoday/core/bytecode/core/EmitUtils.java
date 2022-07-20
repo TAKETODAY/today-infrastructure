@@ -193,7 +193,7 @@ public abstract class EmitUtils {
   }
 
   private static void stringSwitchHelper(CodeEmitter e, List strings, ObjectSwitchCallback callback,
-                                         Label def, Label end, int index) {
+          Label def, Label end, int index) {
     int len = ((String) strings.get(0)).length();
     Map buckets = CollectionUtils.buckets(strings, (Function) value -> (int) ((String) value).charAt(index));
     e.dup();
@@ -398,9 +398,9 @@ public abstract class EmitUtils {
   }
 
   private static void hashArray(GeneratorAdapter e,
-                                Type type,
-                                int multiplier,
-                                CustomizerRegistry registry) //
+          Type type,
+          int multiplier,
+          CustomizerRegistry registry) //
   {
     Label skip = e.newLabel();
     Label end = e.newLabel();
@@ -477,16 +477,6 @@ public abstract class EmitUtils {
   //     }
 
   /**
-   * @deprecated use
-   * {@link #notEquals(CodeEmitter, Type, Label, CustomizerRegistry)}
-   * instead
-   */
-  @Deprecated
-  public static void notEquals(CodeEmitter e, Type type, Label notEquals, Customizer customizer) {
-    notEquals(e, type, notEquals, CustomizerRegistry.singleton(customizer));
-  }
-
-  /**
    * Branches to the specified label if the top two items on the stack are not
    * equal. The items must both be of the specified class. Equality is determined
    * by comparing primitive values directly and by invoking the
@@ -494,9 +484,9 @@ public abstract class EmitUtils {
    * the same manner.
    */
   public static void notEquals(CodeEmitter e,
-                               Type type,
-                               Label notEquals,
-                               CustomizerRegistry registry) {
+          Type type,
+          Label notEquals,
+          CustomizerRegistry registry) {
     ProcessArrayCallback processArrayCallback = new ProcessArrayCallback() {
       public void processElement(Type type) {
         notEqualsHelper(e, type, notEquals, registry, this);
@@ -506,10 +496,10 @@ public abstract class EmitUtils {
   }
 
   private static void notEqualsHelper(CodeEmitter e,
-                                      Type type,
-                                      Label notEquals,
-                                      CustomizerRegistry registry,
-                                      ProcessArrayCallback callback)//
+          Type type,
+          Label notEquals,
+          CustomizerRegistry registry,
+          ProcessArrayCallback callback)//
   {
     if (type.isPrimitive()) {
       e.ifCmp(type, CodeEmitter.NE, notEquals);
@@ -583,25 +573,8 @@ public abstract class EmitUtils {
    * append_string(e, type, delims, registry);
    * e.invoke_virtual(Constants.TYPE_STRING_BUFFER, TO_STRING); } */
 
-  /**
-   * @deprecated use
-   * {@link #appendString(CodeEmitter, Type, ArrayDelimiters, CustomizerRegistry)}
-   * instead
-   */
-  @Deprecated
-  public static void appendString(CodeEmitter e,
-                                  Type type,
-                                  ArrayDelimiters delims,
-                                  Customizer customizer) {
-    appendString(e, type, delims, CustomizerRegistry.singleton(customizer));
-  }
-
-  public static void appendString(CodeEmitter e,
-                                  Type type,
-                                  ArrayDelimiters delims,
-                                  CustomizerRegistry registry) //
-  {
-    ArrayDelimiters d = (delims != null) ? delims : DEFAULT_DELIMITERS;
+  public static void appendString(CodeEmitter e, Type type, ArrayDelimiters delims, CustomizerRegistry registry) {
+    ArrayDelimiters d = delims != null ? delims : DEFAULT_DELIMITERS;
     ProcessArrayCallback callback = new ProcessArrayCallback() {
       public void processElement(Type type) {
         appendStringHelper(e, type, d, registry, this);
@@ -612,12 +585,9 @@ public abstract class EmitUtils {
     appendStringHelper(e, type, d, registry, callback);
   }
 
-  private static void appendStringHelper(CodeEmitter e,
-                                         Type type,
-                                         ArrayDelimiters delims,
-                                         CustomizerRegistry registry,
-                                         ProcessArrayCallback callback)//
-  {
+  private static void appendStringHelper(
+          CodeEmitter e, Type type, ArrayDelimiters delims,
+          CustomizerRegistry registry, ProcessArrayCallback callback) {
     Label skip = e.newLabel();
     Label end = e.newLabel();
     if (type.isPrimitive()) {
@@ -707,8 +677,8 @@ public abstract class EmitUtils {
   }
 
   private static void memberSwitchHelper(CodeEmitter e, //
-                                         List members,
-                                         ObjectSwitchCallback callback, boolean useName)//
+          List members,
+          ObjectSwitchCallback callback, boolean useName)//
   {
     try {
 
@@ -759,10 +729,10 @@ public abstract class EmitUtils {
   }
 
   private static void memberHelperSize(CodeEmitter e,
-                                       List members,
-                                       ObjectSwitchCallback callback,
-                                       ParameterTyper typer,
-                                       Label def, Label end) //
+          List members,
+          ObjectSwitchCallback callback,
+          ParameterTyper typer,
+          Label def, Label end) //
   {
 
     Map<Integer, List<MethodInfo>> buckets = CollectionUtils.buckets(
@@ -785,10 +755,10 @@ public abstract class EmitUtils {
   }
 
   private static void memberHelperType(CodeEmitter e,
-                                       List<MethodInfo> members,
-                                       ObjectSwitchCallback callback,
-                                       ParameterTyper typer, Label def,
-                                       Label end, BitSet checked)  //
+          List<MethodInfo> members,
+          ObjectSwitchCallback callback,
+          ParameterTyper typer, Label def,
+          Label end, BitSet checked)  //
   {
 
     if (members.size() == 1) {

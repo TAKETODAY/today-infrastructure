@@ -21,7 +21,7 @@
 package cn.taketoday.expression.spel.ast;
 
 import cn.taketoday.core.bytecode.MethodVisitor;
-import cn.taketoday.expression.spel.CodeFlow;
+import cn.taketoday.core.bytecode.core.CodeFlow;
 import cn.taketoday.expression.spel.support.BooleanTypedValue;
 
 /**

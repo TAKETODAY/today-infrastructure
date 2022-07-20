@@ -69,12 +69,8 @@ public abstract class Remapper {
   private Type mapType(final Type type) {
     switch (type.getSort()) {
       case Type.ARRAY:
-        StringBuilder remappedDescriptor = new StringBuilder();
-        for (int i = 0; i < type.getDimensions(); ++i) {
-          remappedDescriptor.append('[');
-        }
-        remappedDescriptor.append(mapType(type.getElementType()).getDescriptor());
-        return Type.fromDescriptor(remappedDescriptor.toString());
+        String remappedDescriptor = "[".repeat(Math.max(0, type.getDimensions())) + mapType(type.getElementType()).getDescriptor();
+        return Type.fromDescriptor(remappedDescriptor);
       case Type.OBJECT:
         String remappedInternalName = map(type.getInternalName());
         return remappedInternalName != null ? Type.fromInternalName(remappedInternalName) : type;
