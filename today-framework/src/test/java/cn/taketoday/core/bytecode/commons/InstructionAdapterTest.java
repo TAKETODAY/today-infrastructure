@@ -256,7 +256,7 @@ public class InstructionAdapterTest extends AsmTest {
             final String descriptor,
             final String signature,
             final String[] exceptions) {
-      return new InstructionAdapter(super.visitMethod(access, name, descriptor, signature, exceptions)) { };
+      return new InstructionAdapter(super.visitMethod(access, name, descriptor, signature, exceptions));
     }
   }
 }

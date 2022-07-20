@@ -30,6 +30,7 @@ import cn.taketoday.core.bytecode.commons.MethodSignature;
 
 /**
  * @author Juozas Baliuka, Chris Nokleberg
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  */
 public class CodeEmitter extends GeneratorAdapter {
 

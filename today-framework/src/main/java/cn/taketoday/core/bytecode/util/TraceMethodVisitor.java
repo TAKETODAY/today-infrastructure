@@ -153,7 +153,6 @@ public final class TraceMethodVisitor extends MethodVisitor {
   }
 
   @Override
-  @SuppressWarnings("deprecation")
   public void visitMethodInsn(
           final int opcode,
           final String owner,

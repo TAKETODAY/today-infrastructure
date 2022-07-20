@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -17,6 +17,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.core.bytecode.core;
 
 import java.lang.reflect.Method;
@@ -32,9 +33,11 @@ import cn.taketoday.core.bytecode.Type;
 import cn.taketoday.core.bytecode.commons.MethodSignature;
 import cn.taketoday.core.bytecode.transform.ClassTransformer;
 import cn.taketoday.lang.Constant;
+import cn.taketoday.lang.Nullable;
 
 /**
  * @author Juozas Baliuka, Chris Nokleberg
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  */
 public class ClassEmitter extends ClassTransformer {
 
@@ -73,51 +76,46 @@ public class ClassEmitter extends ClassTransformer {
   }
 
   public void beginClass(final int access,
-                         final String className,
-                         final Class<?> superType, final Class<?>... interfaces) {
+          final String className,
+          final Class<?> superType, final Class<?>... interfaces) {
     beginClass(Opcodes.JAVA_VERSION, access, className, Type.fromClass(superType), Type.getTypes(interfaces), Constant.SOURCE_FILE);
   }
 
   public void beginClass(final int access,
-                         final String className,
-                         final Class<?> superType,
-                         final String source, final Class<?>... interfaces) {
+          final String className,
+          final Class<?> superType,
+          final String source, final Class<?>... interfaces) {
 
     beginClass(Opcodes.JAVA_VERSION, access, className, Type.fromClass(superType), Type.getTypes(interfaces), source);
   }
 
   public void beginClass(final int version,
-                         final int access,
-                         final String className,
-                         final Class<?> superType,
-                         final String source, final Class<?>... interfaces) {
+          final int access,
+          final String className,
+          final Class<?> superType,
+          final String source, final Class<?>... interfaces) {
 
     beginClass(version, access, className, Type.fromClass(superType), Type.getTypes(interfaces), source);
   }
 
   public void beginClass(final int version,
-                         final int access,
-                         final String className,
-                         final Type superType,
-                         final String source, final Type... interfaces) {
+          final int access,
+          final String className,
+          final Type superType,
+          final String source, final Type... interfaces) {
 
     beginClass(version, access, className, superType, interfaces, source);
   }
 
-  public void beginClass(final int version,
-                         final int access,
-                         final String className,
-                         final Type superType,
-                         final Type[] interfaces, String source) //
-  {
-    final Type classType = Type.fromDescriptor('L' + className.replace('.', '/') + ';');
+  public void beginClass(int version, int access, String className, @Nullable Type superType, Type[] interfaces, @Nullable String source) {
+    Type classType = Type.fromDescriptor('L' + className.replace('.', '/') + ';');
     classInfo = new ClassInfo() {
       public Type getType() {
         return classType;
       }
 
       public Type getSuperType() {
-        return (superType != null) ? superType : Type.TYPE_OBJECT;
+        return superType != null ? superType : Type.TYPE_OBJECT;
       }
 
       public Type[] getInterfaces() {
@@ -128,40 +126,32 @@ public class ClassEmitter extends ClassTransformer {
         return access;
       }
     };
-    cv.visit(version, access, classInfo.getType().getInternalName(), null,
-             classInfo.getSuperType().getInternalName(), Type.toInternalNames(interfaces));
 
-    if (source != null)
+    cv.visit(version, access, classInfo.getType().getInternalName(), null,
+            classInfo.getSuperType().getInternalName(), Type.toInternalNames(interfaces));
+
+    if (source != null) {
       cv.visitSource(source, null);
+    }
     init();
   }
 
-  public void beginClass(final int access,
-                         final String name,
-                         final String superName,
-                         final String... interfaces) //
-  {
+  public void beginClass(int access, String name, String superName, String... interfaces) {
     beginClass(Opcodes.JAVA_VERSION, access, name, superName, interfaces);
   }
 
-  public void beginClass(final int version,
-                         final int access,
-                         final String name,
-                         final String superName,
-                         final String... interfaces) //
-  {
+  public void beginClass(int version, int access, String name, String superName, String... interfaces) {
     beginClass(version, access, name, Constant.SOURCE_FILE, superName, interfaces);
   }
 
   /**
    * @param name class full name
    */
-  public void beginClass(final int version,
-                         final int access,
-                         final String name, // class name
-                         final String source,
-                         final String superName, // typeDescriptor
-                         final String... interfaces) //typeDescriptor
+  public void beginClass(final int version, final int access,
+          final String name, // class name
+          final String source,
+          final String superName, // typeDescriptor
+          final String... interfaces) //typeDescriptor
   {
     Type superType = Type.fromDescriptor(superName);
     final Type[] array = Type.getTypes(interfaces);
@@ -326,10 +316,10 @@ public class ClassEmitter extends ClassTransformer {
   }
 
   static class FieldInfo {
-    int access;
-    String name;
-    Type type;
-    Object value;
+    public final int access;
+    public final Type type;
+    public final String name;
+    public final Object value;
 
     public FieldInfo(int access, String name, Type type, Object value) {
       this.access = access;
@@ -361,8 +351,8 @@ public class ClassEmitter extends ClassTransformer {
   public void visit(
           int version, int access, String name, String signature, String superName, String[] interfaces) {
     beginClass(version, access, name.replace('/', '.'),
-               Type.fromInternalName(superName),
-               Type.fromInternalNames(interfaces), null); // TODO
+            Type.fromInternalName(superName),
+            Type.fromInternalNames(interfaces), null); // TODO
   }
 
   @Override

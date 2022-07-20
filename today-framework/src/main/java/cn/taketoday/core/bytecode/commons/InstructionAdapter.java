@@ -1,7 +1,7 @@
 // ASM: a very small and fast Java bytecode manipulation framework
 // Copyright (c) 2000-2011 INRIA, France Telecom
 // All rights reserved.
-//
+// Copyright © Harry Yang & 2022 All Rights Reserved.
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions
 // are met:
@@ -39,6 +39,7 @@ import cn.taketoday.core.bytecode.Type;
  * A {@link MethodVisitor} providing a more detailed API to generate and transform instructions.
  *
  * @author Eric Bruneton
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  */
 public class InstructionAdapter extends MethodVisitor {
 
@@ -46,7 +47,6 @@ public class InstructionAdapter extends MethodVisitor {
    * Constructs a new {@link InstructionAdapter}.
    *
    * @param methodVisitor the method visitor to which this adapter delegates calls.
-   * @throws IllegalStateException If a subclass calls this constructor.
    */
   public InstructionAdapter(final MethodVisitor methodVisitor) {
     super(methodVisitor);
