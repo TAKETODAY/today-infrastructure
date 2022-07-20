@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -17,16 +17,16 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package cn.taketoday.core.bytecode;
 
-import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.ClassUtils;
-import cn.taketoday.util.ConcurrentReferenceHashMap;
-import cn.taketoday.util.StringUtils;
+package cn.taketoday.core.bytecode;
 
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.ClassUtils;
+import cn.taketoday.util.ConcurrentReferenceHashMap;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
@@ -40,14 +40,20 @@ public class BytecodeCompiler {
   private static final ConcurrentReferenceHashMap<ClassLoader, BytecodeCompiler> compilers = new ConcurrentReferenceHashMap<>();
 
   // The child ClassLoader used to load the compiled classes
-  private volatile ChildClassLoader childClassLoader;
+  protected volatile ChildClassLoader childClassLoader;
 
-  private BytecodeCompiler(@Nullable ClassLoader classloader) {
+  protected BytecodeCompiler(@Nullable ClassLoader classloader) {
     this.childClassLoader = new ChildClassLoader(classloader);
   }
 
-  public Class<?> compile(String className, byte[] classFile) {
-    return loadClass(StringUtils.replace(className, "/", "."), classFile);
+  /**
+   * @param className class full name like 'cn.taketoday.xxx'
+   * @param classFile class byte-code data
+   * @param <T> class type
+   * @return Class
+   */
+  public <T> Class<T> compile(String className, byte[] classFile) {
+    return loadClass(className, classFile);
   }
 
   /**
@@ -60,7 +66,8 @@ public class BytecodeCompiler {
    * @param classFile the bytecode for the class
    * @return the Class object for the compiled expression
    */
-  private Class<?> loadClass(String name, byte[] classFile) {
+  @SuppressWarnings("unchecked")
+  protected <T> Class<T> loadClass(String name, byte[] classFile) {
     ChildClassLoader ccl = this.childClassLoader;
     if (ccl.getClassesDefinedCount() >= CLASSES_DEFINED_LIMIT) {
       synchronized(this) {
@@ -76,29 +83,30 @@ public class BytecodeCompiler {
         }
       }
     }
-    return ccl.defineClass(name, classFile);
+    return (Class<T>) ccl.defineClass(name, classFile);
   }
 
-
   /**
-   * Factory method for compiler instances. The returned SpelCompiler will
+   * Factory method for compiler instances. The returned BytecodeCompiler will
    * attach a class loader as the child of the given class loader and this
    * child will be used to load compiled expressions.
    *
    * @param classLoader the ClassLoader to use as the basis for compilation
-   * @return a corresponding SpelCompiler instance
+   * @return a corresponding BytecodeCompiler instance
    */
   public static BytecodeCompiler getCompiler(@Nullable ClassLoader classLoader) {
-    ClassLoader clToUse = (classLoader != null ? classLoader : ClassUtils.getDefaultClassLoader());
+    if (classLoader == null) {
+      classLoader = ClassUtils.getDefaultClassLoader();
+    }
     // Quick check for existing compiler without lock contention
-    BytecodeCompiler compiler = compilers.get(clToUse);
+    BytecodeCompiler compiler = compilers.get(classLoader);
     if (compiler == null) {
       // Full lock now since we're creating a child ClassLoader
       synchronized(compilers) {
-        compiler = compilers.get(clToUse);
+        compiler = compilers.get(classLoader);
         if (compiler == null) {
-          compiler = new BytecodeCompiler(clToUse);
-          compilers.put(clToUse, compiler);
+          compiler = new BytecodeCompiler(classLoader);
+          compilers.put(classLoader, compiler);
         }
       }
     }
