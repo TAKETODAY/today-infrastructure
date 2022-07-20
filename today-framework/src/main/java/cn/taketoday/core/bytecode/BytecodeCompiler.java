@@ -57,6 +57,16 @@ public class BytecodeCompiler {
   }
 
   /**
+   * @param classFile class byte-code data
+   * @param <T> class type
+   * @return Class
+   */
+  public <T> Class<T> compile(byte[] classFile) {
+    String className = ClassUtils.getClassName(classFile);
+    return loadClass(className, classFile);
+  }
+
+  /**
    * Load a class. Makes sure the classloaders aren't used too much
    * because they anchor compiled classes in memory and prevent GC. If you have expressions
    * continually recompiling over time then by replacing the classloader periodically
