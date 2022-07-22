@@ -45,6 +45,7 @@
     <netty.version>4.1.77.Final</netty.version>
     <jetty.version>11.0.7</jetty.version>
     <undertow.version>2.2.18.Final</undertow.version>
+    <undertow-jakartaee9.version>2.2.13.Final</undertow-jakartaee9.version>
     <embed.tomcat.version>10.0.12</embed.tomcat.version>
     <servlet.version>5.0.0</servlet.version>
 
@@ -400,7 +401,7 @@
       <dependency>
         <groupId>io.undertow</groupId>
         <artifactId>undertow-servlet-jakartaee9</artifactId>
-        <version>${undertow.version}</version>
+        <version>${undertow-jakartaee9.version}</version>
       </dependency>
 
       <dependency>
