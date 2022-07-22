@@ -399,12 +399,6 @@
       </dependency>
 
       <dependency>
-        <groupId>io.undertow</groupId>
-        <artifactId>undertow-servlet-jakartaee9</artifactId>
-        <version>${undertow-jakartaee9.version}</version>
-      </dependency>
-
-      <dependency>
         <groupId>org.freemarker</groupId>
         <artifactId>freemarker</artifactId>
         <version>2.3.31</version>
@@ -469,7 +463,13 @@
       <dependency>
         <groupId>io.undertow</groupId>
         <artifactId>undertow-websockets-jsr-jakartaee9</artifactId>
-        <version>${undertow.version}</version>
+        <version>${undertow-jakartaee9.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>io.undertow</groupId>
+        <artifactId>undertow-servlet-jakartaee9</artifactId>
+        <version>${undertow-jakartaee9.version}</version>
       </dependency>
 
       <!--
