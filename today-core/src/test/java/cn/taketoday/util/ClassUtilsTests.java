@@ -98,10 +98,10 @@ class ClassUtilsTests {
     assertThat(ClassUtils.forName(String[].class.getName(), classLoader)).isEqualTo(String[].class);
     assertThat(ClassUtils.forName(String[][].class.getName(), classLoader)).isEqualTo(String[][].class);
     assertThat(ClassUtils.forName(String[][][].class.getName(), classLoader)).isEqualTo(String[][][].class);
-    assertThat(ClassUtils.forName("cn.taketoday.context.objects.TestObject", classLoader)).isEqualTo(TestObject.class);
-    assertThat(ClassUtils.forName("cn.taketoday.context.objects.TestObject[]", classLoader)).isEqualTo(TestObject[].class);
+    assertThat(ClassUtils.forName("cn.taketoday.tests.sample.objects.TestObject", classLoader)).isEqualTo(TestObject.class);
+    assertThat(ClassUtils.forName("cn.taketoday.tests.sample.objects.TestObject[]", classLoader)).isEqualTo(TestObject[].class);
     assertThat(ClassUtils.forName(TestObject[].class.getName(), classLoader)).isEqualTo(TestObject[].class);
-    assertThat(ClassUtils.forName("cn.taketoday.context.objects.TestObject[][]", classLoader)).isEqualTo(TestObject[][].class);
+    assertThat(ClassUtils.forName("cn.taketoday.tests.sample.objects.TestObject[][]", classLoader)).isEqualTo(TestObject[][].class);
     assertThat(ClassUtils.forName(TestObject[][].class.getName(), classLoader)).isEqualTo(TestObject[][].class);
     assertThat(ClassUtils.forName("[[[S", classLoader)).isEqualTo(short[][][].class);
 

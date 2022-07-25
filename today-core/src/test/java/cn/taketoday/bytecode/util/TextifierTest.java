@@ -160,7 +160,7 @@ public class TextifierTest extends AsmTest {
 
     Textifier.main(args, new PrintWriter(output, true), new PrintWriter(logger, true));
 
-    assertTrue(output.toString().contains("\npublic class cn/taketoday/core/bytecode/util/TextifierTest"));
+    assertTrue(output.toString().contains("\npublic class cn/taketoday/bytecode/util/TextifierTest"));
     assertTrue(output.toString().contains("\n    LINENUMBER"));
     assertTrue(output.toString().contains("\n    LOCALVARIABLE"));
     assertEquals("", logger.toString());
@@ -174,7 +174,7 @@ public class TextifierTest extends AsmTest {
 
     Textifier.main(args, new PrintWriter(output, true), new PrintWriter(logger, true));
 
-    assertTrue(output.toString().contains("\npublic class cn/taketoday/core/bytecode/util/TextifierTest"));
+    assertTrue(output.toString().contains("\npublic class cn/taketoday/bytecode/util/TextifierTest"));
     assertFalse(output.toString().contains("\n    LINENUMBER"));
     assertFalse(output.toString().contains("\n    LOCALVARIABLE"));
     assertEquals("", logger.toString());
@@ -190,7 +190,7 @@ public class TextifierTest extends AsmTest {
 
     Textifier.main(args, new PrintWriter(output, true), new PrintWriter(logger, true));
 
-    assertTrue(output.toString().contains("\npublic class cn/taketoday/core/bytecode/util/TextifierTest"));
+    assertTrue(output.toString().contains("\npublic class cn/taketoday/bytecode/util/TextifierTest"));
     assertEquals("", logger.toString());
   }
 }
