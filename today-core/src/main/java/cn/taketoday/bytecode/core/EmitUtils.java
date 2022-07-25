@@ -905,7 +905,7 @@ public abstract class EmitUtils {
   }
 
   public static void loadEmptyArguments(CodeEmitter codeEmitter) {
-    codeEmitter.getStatic(Type.TYPE_CONSTANT, "EMPTY_OBJECT_ARRAY", Type.TYPE_OBJECT_ARRAY);
+    codeEmitter.getStatic(Type.TYPE_CONSTANT, "EMPTY_OBJECTS", Type.TYPE_OBJECT_ARRAY);
   }
 
   // static

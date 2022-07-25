@@ -38,8 +38,10 @@ import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ReflectionUtils;
 
 /**
- * @author TODAY <br>
- * 2019-10-18 22:35
+ * Fast Method Invoker
+ *
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 2019-10-18 22:35
  */
 public abstract class MethodInvoker implements MethodAccessor, Invoker {
   private final Method method;
@@ -151,8 +153,8 @@ public abstract class MethodInvoker implements MethodAccessor, Invoker {
   public static class MethodInvokerGenerator
           extends GeneratorSupport<MethodInvoker> implements ClassGenerator {
 
-    private static final String superType = "Lcn/taketoday/core/reflect/MethodInvoker;";
-    private static final String[] interfaces = { "Lcn/taketoday/core/reflect/Invoker;" };
+    private static final String superType = "Lcn/taketoday/reflect/MethodInvoker;";
+    private static final String[] interfaces = { "Lcn/taketoday/reflect/Invoker;" };
     private static final MethodInfo invokeInfo = MethodInfo.from(
             ReflectionUtils.getMethod(MethodInvoker.class, "invoke", Object.class, Object[].class));
 
