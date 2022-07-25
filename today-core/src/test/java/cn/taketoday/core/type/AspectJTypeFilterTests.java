@@ -39,96 +39,78 @@ class AspectJTypeFilterTests {
 
   @Test
   void namePatternMatches() throws Exception {
-    assertMatch("type.AspectJTypeFilterTestsTypes$SomeClass",
-            "type.AspectJTypeFilterTestsTypes.SomeClass");
-    assertMatch("type.AspectJTypeFilterTestsTypes$SomeClass",
-            "*");
-    assertMatch("type.AspectJTypeFilterTestsTypes$SomeClass",
-            "*..SomeClass");
-    assertMatch("type.AspectJTypeFilterTestsTypes$SomeClass",
-            "type..SomeClass");
+    String type = "cn.taketoday.core.testfixture.type.AspectJTypeFilterTestsTypes$SomeClass";
+    assertMatch(type, "cn.taketoday.core.testfixture.type.AspectJTypeFilterTestsTypes.SomeClass");
+    assertMatch(type, "*");
+    assertMatch(type, "*..SomeClass");
+    assertMatch(type, "cn.taketoday.core.testfixture.type..SomeClass");
   }
 
   @Test
   void namePatternNoMatches() throws Exception {
-    assertNoMatch("type.AspectJTypeFilterTestsTypes$SomeClass",
-            "type.AspectJTypeFilterTestsTypes.SomeClassX");
+    assertNoMatch("cn.taketoday.core.testfixture.type.AspectJTypeFilterTestsTypes$SomeClass",
+            "cn.taketoday.core.testfixture.type.AspectJTypeFilterTestsTypes.SomeClassX");
   }
 
   @Test
   void subclassPatternMatches() throws Exception {
-    assertMatch("type.AspectJTypeFilterTestsTypes$SomeClassExtendingSomeClass",
-            "type.AspectJTypeFilterTestsTypes.SomeClass+");
-    assertMatch("type.AspectJTypeFilterTestsTypes$SomeClassExtendingSomeClass",
-            "*+");
-    assertMatch("type.AspectJTypeFilterTestsTypes$SomeClassExtendingSomeClass",
-            "java.lang.Object+");
+    String type2 = "cn.taketoday.core.testfixture.type.AspectJTypeFilterTestsTypes$SomeClassExtendingSomeClass";
+    assertMatch(type2, "cn.taketoday.core.testfixture.type.AspectJTypeFilterTestsTypes.SomeClass+");
+    assertMatch(type2, "*+");
+    assertMatch(type2, "java.lang.Object+");
 
-    assertMatch("type.AspectJTypeFilterTestsTypes$SomeClassImplementingSomeInterface",
-            "type.AspectJTypeFilterTestsTypes.SomeInterface+");
-    assertMatch("type.AspectJTypeFilterTestsTypes$SomeClassImplementingSomeInterface",
-            "*+");
-    assertMatch("type.AspectJTypeFilterTestsTypes$SomeClassImplementingSomeInterface",
-            "java.lang.Object+");
+    String type1 = "cn.taketoday.core.testfixture.type.AspectJTypeFilterTestsTypes$SomeClassImplementingSomeInterface";
+    assertMatch(type1, "cn.taketoday.core.testfixture.type.AspectJTypeFilterTestsTypes.SomeInterface+");
+    assertMatch(type1, "*+");
+    assertMatch(type1, "java.lang.Object+");
 
-    assertMatch("type.AspectJTypeFilterTestsTypes$SomeClassExtendingSomeClassExtendingSomeClassAndImplementingSomeInterface",
-            "type.AspectJTypeFilterTestsTypes.SomeInterface+");
-    assertMatch("type.AspectJTypeFilterTestsTypes$SomeClassExtendingSomeClassExtendingSomeClassAndImplementingSomeInterface",
-            "type.AspectJTypeFilterTestsTypes.SomeClassExtendingSomeClass+");
-    assertMatch("type.AspectJTypeFilterTestsTypes$SomeClassExtendingSomeClassExtendingSomeClassAndImplementingSomeInterface",
-            "type.AspectJTypeFilterTestsTypes.SomeClass+");
-    assertMatch("type.AspectJTypeFilterTestsTypes$SomeClassExtendingSomeClassExtendingSomeClassAndImplementingSomeInterface",
-            "*+");
-    assertMatch("type.AspectJTypeFilterTestsTypes$SomeClassExtendingSomeClassExtendingSomeClassAndImplementingSomeInterface",
-            "java.lang.Object+");
+    String type = "cn.taketoday.core.testfixture.type.AspectJTypeFilterTestsTypes$SomeClassExtendingSomeClassExtendingSomeClassAndImplementingSomeInterface";
+    assertMatch(type, "cn.taketoday.core.testfixture.type.AspectJTypeFilterTestsTypes.SomeInterface+");
+    assertMatch(type, "cn.taketoday.core.testfixture.type.AspectJTypeFilterTestsTypes.SomeClassExtendingSomeClass+");
+    assertMatch(type, "cn.taketoday.core.testfixture.type.AspectJTypeFilterTestsTypes.SomeClass+");
+    assertMatch(type, "*+");
+    assertMatch(type, "java.lang.Object+");
   }
 
   @Test
   void subclassPatternNoMatches() throws Exception {
-    assertNoMatch("type.AspectJTypeFilterTestsTypes$SomeClassExtendingSomeClass",
+    assertNoMatch("cn.taketoday.core.testfixture.type.AspectJTypeFilterTestsTypes$SomeClassExtendingSomeClass",
             "java.lang.String+");
   }
 
   @Test
   void annotationPatternMatches() throws Exception {
-    assertMatch("type.AspectJTypeFilterTestsTypes$SomeClassAnnotatedWithComponent",
-            "@cn.taketoday.stereotype.Component *..*");
-    assertMatch("type.AspectJTypeFilterTestsTypes$SomeClassAnnotatedWithComponent",
-            "@* *..*");
-    assertMatch("type.AspectJTypeFilterTestsTypes$SomeClassAnnotatedWithComponent",
-            "@*..* *..*");
-    assertMatch("type.AspectJTypeFilterTestsTypes$SomeClassAnnotatedWithComponent",
-            "@*..*Component *..*");
-    assertMatch("type.AspectJTypeFilterTestsTypes$SomeClassAnnotatedWithComponent",
-            "@cn.taketoday.stereotype.Component *..*Component");
-    assertMatch("type.AspectJTypeFilterTestsTypes$SomeClassAnnotatedWithComponent",
-            "@cn.taketoday.stereotype.Component *");
+    String type = "cn.taketoday.core.testfixture.type.AspectJTypeFilterTestsTypes$SomeClassAnnotatedWithComponent";
+    assertMatch(type, "@cn.taketoday.core.testfixture.stereotype.Component *..*");
+    assertMatch(type, "@* *..*");
+    assertMatch(type, "@*..* *..*");
+    assertMatch(type, "@*..*Component *..*");
+    assertMatch(type, "@cn.taketoday.core.testfixture.stereotype.Component *..*Component");
+    assertMatch(type, "@cn.taketoday.core.testfixture.stereotype.Component *");
   }
 
   @Test
   void annotationPatternNoMatches() throws Exception {
-    assertNoMatch("type.AspectJTypeFilterTestsTypes$SomeClassAnnotatedWithComponent",
+    assertNoMatch("cn.taketoday.core.testfixture.type.AspectJTypeFilterTestsTypes$SomeClassAnnotatedWithComponent",
             "@cn.taketoday.stereotype.Repository *..*");
   }
 
   @Test
   void compositionPatternMatches() throws Exception {
-    assertMatch("type.AspectJTypeFilterTestsTypes$SomeClass",
-            "!*..SomeOtherClass");
-    assertMatch("type.AspectJTypeFilterTestsTypes$SomeClassExtendingSomeClassExtendingSomeClassAndImplementingSomeInterface",
-            "type.AspectJTypeFilterTestsTypes.SomeInterface+ " +
-                    "&& type.AspectJTypeFilterTestsTypes.SomeClass+ " +
-                    "&& type.AspectJTypeFilterTestsTypes.SomeClassExtendingSomeClass+");
-    assertMatch("type.AspectJTypeFilterTestsTypes$SomeClassExtendingSomeClassExtendingSomeClassAndImplementingSomeInterface",
-            "type.AspectJTypeFilterTestsTypes.SomeInterface+ " +
-                    "|| type.AspectJTypeFilterTestsTypes.SomeClass+ " +
-                    "|| type.AspectJTypeFilterTestsTypes.SomeClassExtendingSomeClass+");
+    assertMatch("cn.taketoday.core.testfixture.type.AspectJTypeFilterTestsTypes$SomeClass", "!*..SomeOtherClass");
+    String type = "cn.taketoday.core.testfixture.type.AspectJTypeFilterTestsTypes$SomeClassExtendingSomeClassExtendingSomeClassAndImplementingSomeInterface";
+    assertMatch(type, "cn.taketoday.core.testfixture.type.AspectJTypeFilterTestsTypes.SomeInterface+ " +
+            "&& cn.taketoday.core.testfixture.type.AspectJTypeFilterTestsTypes.SomeClass+ " +
+            "&& cn.taketoday.core.testfixture.type.AspectJTypeFilterTestsTypes.SomeClassExtendingSomeClass+");
+    assertMatch(type, "cn.taketoday.core.testfixture.type.AspectJTypeFilterTestsTypes.SomeInterface+ " +
+            "|| cn.taketoday.core.testfixture.type.AspectJTypeFilterTestsTypes.SomeClass+ " +
+            "|| cn.taketoday.core.testfixture.type.AspectJTypeFilterTestsTypes.SomeClassExtendingSomeClass+");
   }
 
   @Test
   void compositionPatternNoMatches() throws Exception {
-    assertNoMatch("type.AspectJTypeFilterTestsTypes$SomeClass",
-            "*..Bogus && type.AspectJTypeFilterTestsTypes.SomeClass");
+    assertNoMatch("cn.taketoday.core.testfixture.type.AspectJTypeFilterTestsTypes$SomeClass",
+            "*..Bogus && cn.taketoday.core.testfixture.type.AspectJTypeFilterTestsTypes.SomeClass");
   }
 
   private void assertMatch(String type, String typePattern) throws Exception {

@@ -20,7 +20,6 @@
 
 package cn.taketoday.util.xml;
 
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.io.StringReader;

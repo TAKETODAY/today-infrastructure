@@ -35,6 +35,7 @@ import org.xml.sax.helpers.AttributesImpl;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
@@ -47,6 +48,7 @@ import javax.xml.transform.sax.SAXSource;
 
 import cn.taketoday.core.io.ClassPathResource;
 import cn.taketoday.core.io.Resource;
+import cn.taketoday.lang.Assert;
 import cn.taketoday.tests.MockitoUtils;
 import cn.taketoday.tests.MockitoUtils.InvocationArgumentsAdapter;
 
@@ -134,7 +136,7 @@ abstract class AbstractStaxXMLReaderTests {
     Transformer transformer = TransformerFactory.newInstance().newTransformer();
 
     AbstractStaxXMLReader staxXmlReader = createStaxXmlReader(
-            new ByteArrayInputStream(xml.getBytes("UTF-8")));
+            new ByteArrayInputStream(xml.getBytes(StandardCharsets.UTF_8)));
 
     SAXSource source = new SAXSource(staxXmlReader, new InputSource());
     DOMResult result = new DOMResult();
@@ -177,17 +179,27 @@ abstract class AbstractStaxXMLReaderTests {
   }
 
   private InputStream createTestInputStream() {
-    return getClass().getResourceAsStream("testContentHandler.xml");
+    InputStream resourceAsStream = getClass().getResourceAsStream("testContentHandler.xml");
+    Assert.state(resourceAsStream != null, "not found testContentHandler.xml");
+    return resourceAsStream;
   }
 
   protected final ContentHandler mockContentHandler() throws Exception {
     ContentHandler contentHandler = mock(ContentHandler.class);
-    willAnswer(new CopyCharsAnswer()).given(contentHandler).characters(any(char[].class), anyInt(), anyInt());
-    willAnswer(new CopyCharsAnswer()).given(contentHandler).ignorableWhitespace(any(char[].class), anyInt(), anyInt());
+
+    willAnswer(new CopyCharsAnswer())
+            .given(contentHandler)
+            .characters(any(char[].class), anyInt(), anyInt());
+
+    willAnswer(new CopyCharsAnswer())
+            .given(contentHandler)
+            .ignorableWhitespace(any(char[].class), anyInt(), anyInt());
+
     willAnswer(invocation -> {
       invocation.getArguments()[3] = new AttributesImpl((Attributes) invocation.getArguments()[3]);
       return null;
     }).given(contentHandler).startElement(anyString(), anyString(), anyString(), any(Attributes.class));
+
     return contentHandler;
   }
 

@@ -47,7 +47,7 @@ class AnnotationTypeFilterTests {
   @Test
   void directAnnotationMatch() throws Exception {
     MetadataReaderFactory metadataReaderFactory = new SimpleMetadataReaderFactory();
-    String classUnderTest = "type.AnnotationTypeFilterTestsTypes$SomeComponent";
+    String classUnderTest = "cn.taketoday.core.testfixture.type.AnnotationTypeFilterTestsTypes$SomeComponent";
     MetadataReader metadataReader = metadataReaderFactory.getMetadataReader(classUnderTest);
 
     AnnotationTypeFilter filter = new AnnotationTypeFilter(InheritedAnnotation.class);
@@ -58,7 +58,7 @@ class AnnotationTypeFilterTests {
   @Test
   void inheritedAnnotationFromInterfaceDoesNotMatch() throws Exception {
     MetadataReaderFactory metadataReaderFactory = new SimpleMetadataReaderFactory();
-    String classUnderTest = "type.AnnotationTypeFilterTestsTypes$SomeClassWithSomeComponentInterface";
+    String classUnderTest = "cn.taketoday.core.testfixture.type.AnnotationTypeFilterTestsTypes$SomeClassWithSomeComponentInterface";
     MetadataReader metadataReader = metadataReaderFactory.getMetadataReader(classUnderTest);
 
     AnnotationTypeFilter filter = new AnnotationTypeFilter(InheritedAnnotation.class);
@@ -70,7 +70,7 @@ class AnnotationTypeFilterTests {
   @Test
   void inheritedAnnotationFromBaseClassDoesMatch() throws Exception {
     MetadataReaderFactory metadataReaderFactory = new SimpleMetadataReaderFactory();
-    String classUnderTest = "type.AnnotationTypeFilterTestsTypes$SomeSubclassOfSomeComponent";
+    String classUnderTest = "cn.taketoday.core.testfixture.type.AnnotationTypeFilterTestsTypes$SomeSubclassOfSomeComponent";
     MetadataReader metadataReader = metadataReaderFactory.getMetadataReader(classUnderTest);
 
     AnnotationTypeFilter filter = new AnnotationTypeFilter(InheritedAnnotation.class);
@@ -81,7 +81,7 @@ class AnnotationTypeFilterTests {
   @Test
   void nonInheritedAnnotationDoesNotMatch() throws Exception {
     MetadataReaderFactory metadataReaderFactory = new SimpleMetadataReaderFactory();
-    String classUnderTest = "type.AnnotationTypeFilterTestsTypes$SomeSubclassOfSomeClassMarkedWithNonInheritedAnnotation";
+    String classUnderTest = "cn.taketoday.core.testfixture.type.AnnotationTypeFilterTestsTypes$SomeSubclassOfSomeClassMarkedWithNonInheritedAnnotation";
     MetadataReader metadataReader = metadataReaderFactory.getMetadataReader(classUnderTest);
 
     AnnotationTypeFilter filter = new AnnotationTypeFilter(NonInheritedAnnotation.class);
@@ -93,7 +93,7 @@ class AnnotationTypeFilterTests {
   @Test
   void nonAnnotatedClassDoesntMatch() throws Exception {
     MetadataReaderFactory metadataReaderFactory = new SimpleMetadataReaderFactory();
-    String classUnderTest = "type.AnnotationTypeFilterTestsTypes$SomeNonCandidateClass";
+    String classUnderTest = "cn.taketoday.core.testfixture.type.AnnotationTypeFilterTestsTypes$SomeNonCandidateClass";
     MetadataReader metadataReader = metadataReaderFactory.getMetadataReader(classUnderTest);
 
     AnnotationTypeFilter filter = new AnnotationTypeFilter(Component.class);
@@ -104,7 +104,7 @@ class AnnotationTypeFilterTests {
   @Test
   void matchesInterfacesIfConfigured() throws Exception {
     MetadataReaderFactory metadataReaderFactory = new SimpleMetadataReaderFactory();
-    String classUnderTest = "type.AnnotationTypeFilterTestsTypes$SomeClassWithSomeComponentInterface";
+    String classUnderTest = "cn.taketoday.core.testfixture.type.AnnotationTypeFilterTestsTypes$SomeClassWithSomeComponentInterface";
     MetadataReader metadataReader = metadataReaderFactory.getMetadataReader(classUnderTest);
 
     AnnotationTypeFilter filter = new AnnotationTypeFilter(InheritedAnnotation.class, false, true);

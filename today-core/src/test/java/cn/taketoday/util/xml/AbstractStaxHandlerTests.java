@@ -22,6 +22,8 @@ package cn.taketoday.util.xml;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ExecutionMode;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.xml.sax.InputSource;
@@ -47,6 +49,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * @author Arjen Poutsma
  * @author Sam Brannen
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  */
 abstract class AbstractStaxHandlerTests {
 
