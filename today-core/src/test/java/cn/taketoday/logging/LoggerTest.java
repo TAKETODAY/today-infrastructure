@@ -21,6 +21,8 @@ package cn.taketoday.logging;
 
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ExecutionMode;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -32,6 +34,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * 2019-12-06 23:09
  */
 @Order(Integer.MAX_VALUE)
+@Execution(ExecutionMode.SAME_THREAD)
 public class LoggerTest {
 
   @Test
