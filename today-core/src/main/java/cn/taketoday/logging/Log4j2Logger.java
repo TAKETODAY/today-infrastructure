@@ -37,8 +37,8 @@ final class Log4j2Logger extends Logger {
 
   private final ExtendedLogger logger;
 
-  Log4j2Logger(ExtendedLogger logger, boolean debugEnabled) {
-    super(debugEnabled);
+  Log4j2Logger(ExtendedLogger logger) {
+    super(logger.isDebugEnabled());
     this.logger = logger;
   }
 
@@ -144,7 +144,6 @@ final class Log4j2LoggerFactory extends LoggerFactory {
       context = LogManager.getContext(Log4j2Logger.class.getClassLoader(), false);
     }
     ExtendedLogger logger = context.getLogger(name);
-
-    return new Log4j2Logger(logger, logger.isDebugEnabled());
+    return new Log4j2Logger(logger);
   }
 }
