@@ -104,8 +104,7 @@ public final class CachedIntrospectionResults {
           = TodayStrategies.getFlag(IGNORE_BEANINFO_PROPERTY_NAME);
 
   /** Stores the BeanInfoFactory instances. */
-  private static final List<BeanInfoFactory> beanInfoFactories = TodayStrategies.get(
-          BeanInfoFactory.class, CachedIntrospectionResults.class.getClassLoader());
+  private static final BeanInfoFactory[] beanInfoFactories;
 
   private static final Logger logger = LoggerFactory.getLogger(CachedIntrospectionResults.class);
 
@@ -135,6 +134,13 @@ public final class CachedIntrospectionResults {
 
   /** PropertyDescriptor objects keyed by property name String. */
   private final Map<String, PropertyDescriptor> propertyDescriptors;
+
+  static {
+    var factories = TodayStrategies.get(
+            BeanInfoFactory.class, CachedIntrospectionResults.class.getClassLoader());
+    factories.add(new ExtendedBeanInfoFactory());
+    beanInfoFactories = factories.toArray(new BeanInfoFactory[0]);
+  }
 
   /**
    * Create a new CachedIntrospectionResults instance for the given class.

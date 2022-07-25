@@ -31,7 +31,6 @@ import java.util.Spliterator;
 import java.util.function.Consumer;
 
 import cn.taketoday.beans.support.BeanInstantiator;
-import cn.taketoday.lang.NonNull;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.reflect.PropertyAccessor;
 import cn.taketoday.util.ClassUtils;
@@ -165,7 +164,6 @@ public final class BeanMetadata implements Iterable<BeanProperty> {
    *
    * @return map of properties
    */
-  @NonNull
   public HashMap<String, BeanProperty> getBeanProperties() {
     return propertyHolder().mapping;
   }
