@@ -724,6 +724,7 @@ public class TypeDescriptor implements Serializable {
     return nested(new TypeDescriptor(methodParameter), nestingLevel);
   }
 
+  @Nullable
   public static TypeDescriptor nested(TypeDescriptor typeDescriptor, int nestingLevel) {
     ResolvableType nested = typeDescriptor.resolvableType;
     for (int i = 0; i < nestingLevel; i++) {

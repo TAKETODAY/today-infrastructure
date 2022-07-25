@@ -104,7 +104,7 @@ class BeanPropertyTypeDescriptorTests {
 
   @Test
   public void property() throws Exception {
-    final BeanProperty property = BeanProperty.valueOf(getClass(), "property");
+    BeanProperty property = BeanProperty.valueOf(getClass(), "property");
 
     TypeDescriptor desc = property.getTypeDescriptor();
 
@@ -201,6 +201,22 @@ class BeanPropertyTypeDescriptorTests {
   public Map<CharSequence, Number> isAssignableMapKeyValueTypes;
 
   public MultiValueMap<String, Integer> multiValueMap = new DefaultMultiValueMap<>();
+
+  @MethodAnnotation1
+  public Map<List<Integer>, List<Long>> getProperty() {
+    return property;
+  }
+
+  @MethodAnnotation2
+  public void setProperty(Map<List<Integer>, List<Long>> property) {
+    this.property = property;
+  }
+
+  public Map<String, List<List<Integer>>> getComplexProperty() {
+    return complexProperty;
+  }
+
+  Map<String, List<List<Integer>>> complexProperty;
 
   public static class GenericClass<T> {
 

@@ -43,6 +43,14 @@ import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.util.StringUtils;
 
 /**
+ * A description of a JavaBeans Property that allows us to avoid a dependency on
+ * {@code java.beans.PropertyDescriptor}. The {@code java.beans} package
+ * is not available in a number of environments (e.g. Android, Java ME), so this is
+ * desirable for portability of core conversion facility.
+ *
+ * <p>Used to build a {@link TypeDescriptor} from a property location. The built
+ * {@code TypeDescriptor} can then be used to convert from/to the property type.
+ *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/7/23 01:01
  */
@@ -112,7 +120,8 @@ public class Property implements Member, AnnotatedElement, Serializable {
           @Nullable Method writeMethod,
           @Nullable Class<?> declaringClass) {
     if (readMethod == null && writeMethod == null) {
-      throw new IllegalArgumentException("Property '" + name + "' in '" + declaringClass + "' is neither readable nor writeable");
+      throw new IllegalArgumentException(
+              "Property '" + name + "' in '" + declaringClass + "' is neither readable nor writeable");
     }
     this.readMethod = readMethod;
     this.writeMethod = writeMethod;

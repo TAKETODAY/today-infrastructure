@@ -27,6 +27,7 @@ import cn.taketoday.logging.Logger;
 
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isA;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -57,7 +58,7 @@ public class FailFastProblemReporterTests {
     reporter.setLogger(log);
     reporter.warning(problem);
 
-    verify(log).warn(any(), isA(IllegalArgumentException.class));
+    verify(log).warn(eq(problem), isA(IllegalArgumentException.class));
   }
 
 }
