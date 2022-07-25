@@ -20,7 +20,7 @@
 
 package cn.taketoday.test.context.junit.jupiter.orm.domain;
 
-import cn.taketoday.lang.Repository;
+import cn.taketoday.stereotype.Repository;
 import cn.taketoday.transaction.annotation.Transactional;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;

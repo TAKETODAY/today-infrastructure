@@ -46,7 +46,7 @@ import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.ComponentScan;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.support.AbstractApplicationContext;
-import cn.taketoday.lang.Service;
+import cn.taketoday.stereotype.Service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

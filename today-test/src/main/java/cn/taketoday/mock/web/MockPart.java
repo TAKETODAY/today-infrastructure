@@ -29,6 +29,7 @@ import java.util.Collections;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.MediaType;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Nullable;
 import jakarta.servlet.http.Part;
 
@@ -70,7 +71,7 @@ public class MockPart implements Part {
     Assert.hasLength(name, "'name' must not be empty");
     this.name = name;
     this.filename = filename;
-    this.content = (content != null ? content : new byte[0]);
+    this.content = (content != null ? content : Constant.EMPTY_BYTES);
     this.headers.setContentDispositionFormData(name, filename);
   }
 

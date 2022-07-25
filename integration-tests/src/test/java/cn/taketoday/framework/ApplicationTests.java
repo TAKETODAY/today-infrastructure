@@ -127,6 +127,7 @@ import static org.mockito.ArgumentMatchers.isA;
 import static org.mockito.BDDMockito.then;
 import static org.mockito.BDDMockito.willThrow;
 import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
@@ -367,7 +368,7 @@ class ApplicationTests {
     ApplicationListener<ApplicationEvent> listener = mock(ApplicationListener.class);
     application.addListeners(listener);
     this.context = application.run();
-    InOrder inOrder = Mockito.inOrder(listener);
+    InOrder inOrder = inOrder(listener);
     then(listener).should(inOrder).onApplicationEvent(isA(ApplicationStartingEvent.class));
     then(listener).should(inOrder).onApplicationEvent(isA(ApplicationEnvironmentPreparedEvent.class));
     then(listener).should(inOrder).onApplicationEvent(isA(ApplicationContextInitializedEvent.class));
@@ -643,10 +644,10 @@ class ApplicationTests {
     ApplicationListener<ApplicationReadyEvent> eventListener = mock(ApplicationListener.class);
     application.addListeners(eventListener);
     this.context = application.run();
-    InOrder applicationRunnerOrder = Mockito.inOrder(eventListener, applicationRunner);
+    InOrder applicationRunnerOrder = inOrder(eventListener, applicationRunner);
     applicationRunnerOrder.verify(applicationRunner).run(any(ApplicationArguments.class));
     applicationRunnerOrder.verify(eventListener).onApplicationEvent(any(ApplicationReadyEvent.class));
-    InOrder commandLineRunnerOrder = Mockito.inOrder(eventListener, commandLineRunner);
+    InOrder commandLineRunnerOrder = inOrder(eventListener, commandLineRunner);
     commandLineRunnerOrder.verify(commandLineRunner).run();
     commandLineRunnerOrder.verify(eventListener).onApplicationEvent(any(ApplicationReadyEvent.class));
   }
@@ -907,7 +908,7 @@ class ApplicationTests {
   private void verifyRegisteredListenerSuccessEvents() {
     ApplicationListener<ApplicationEvent> listener = this.context.getBean("testApplicationListener",
             ApplicationListener.class);
-    InOrder inOrder = Mockito.inOrder(listener);
+    InOrder inOrder = inOrder(listener);
     then(listener).should(inOrder).onApplicationEvent(isA(ContextRefreshedEvent.class));
     then(listener).should(inOrder).onApplicationEvent(isA(ApplicationStartedEvent.class));
     then(listener).should(inOrder)
@@ -940,7 +941,7 @@ class ApplicationTests {
   }
 
   private void verifyRegisteredListenerFailedFromApplicationEvents(ApplicationListener<ApplicationEvent> listener) {
-    InOrder inOrder = Mockito.inOrder(listener);
+    InOrder inOrder = inOrder(listener);
     then(listener).should(inOrder).onApplicationEvent(isA(ApplicationStartingEvent.class));
     then(listener).should(inOrder).onApplicationEvent(isA(ApplicationEnvironmentPreparedEvent.class));
     then(listener).should(inOrder).onApplicationEvent(isA(ApplicationContextInitializedEvent.class));

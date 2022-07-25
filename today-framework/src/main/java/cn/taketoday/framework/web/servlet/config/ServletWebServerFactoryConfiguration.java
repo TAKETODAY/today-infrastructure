@@ -43,7 +43,7 @@ import cn.taketoday.framework.web.embedded.undertow.UndertowDeploymentInfoCustom
 import cn.taketoday.framework.web.embedded.undertow.UndertowServletWebServerFactory;
 import cn.taketoday.framework.web.server.ServerProperties;
 import cn.taketoday.framework.web.servlet.server.ServletWebServerFactory;
-import cn.taketoday.lang.Component;
+import cn.taketoday.stereotype.Component;
 import io.undertow.Undertow;
 import jakarta.servlet.Servlet;
 

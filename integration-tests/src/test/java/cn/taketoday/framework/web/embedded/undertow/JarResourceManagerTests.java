@@ -42,6 +42,8 @@ import cn.taketoday.util.FileCopyUtils;
 import io.undertow.server.handlers.resource.Resource;
 import io.undertow.server.handlers.resource.ResourceManager;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 /**
  * Tests for {@link JarResourceManager}.
  *
@@ -55,32 +57,32 @@ class JarResourceManagerTests {
   @ResourceManagersTest
   void emptyPathIsHandledCorrectly(String filename, ResourceManager resourceManager) throws IOException {
     Resource resource = resourceManager.getResource("");
-    Assertions.assertThat(resource).isNotNull();
-    Assertions.assertThat(resource.isDirectory()).isTrue();
+    assertThat(resource).isNotNull();
+    assertThat(resource.isDirectory()).isTrue();
   }
 
   @ResourceManagersTest
   void rootPathIsHandledCorrectly(String filename, ResourceManager resourceManager) throws IOException {
     Resource resource = resourceManager.getResource("/");
-    Assertions.assertThat(resource).isNotNull();
-    Assertions.assertThat(resource.isDirectory()).isTrue();
+    assertThat(resource).isNotNull();
+    assertThat(resource.isDirectory()).isTrue();
   }
 
   @ResourceManagersTest
   void resourceIsFoundInJarFile(String filename, ResourceManager resourceManager) throws IOException {
     Resource resource = resourceManager.getResource("/hello.txt");
-    Assertions.assertThat(resource).isNotNull();
-    Assertions.assertThat(resource.isDirectory()).isFalse();
-    Assertions.assertThat(resource.getContentLength()).isEqualTo(5);
+    assertThat(resource).isNotNull();
+    assertThat(resource.isDirectory()).isFalse();
+    assertThat(resource.getContentLength()).isEqualTo(5);
   }
 
   @ResourceManagersTest
   void resourceIsFoundInJarFileWithoutLeadingSlash(String filename, ResourceManager resourceManager)
           throws IOException {
     Resource resource = resourceManager.getResource("hello.txt");
-    Assertions.assertThat(resource).isNotNull();
-    Assertions.assertThat(resource.isDirectory()).isFalse();
-    Assertions.assertThat(resource.getContentLength()).isEqualTo(5);
+    assertThat(resource).isNotNull();
+    assertThat(resource.isDirectory()).isFalse();
+    assertThat(resource.getContentLength()).isEqualTo(5);
   }
 
   static List<Arguments> resourceManagers() throws IOException {

@@ -31,7 +31,6 @@ import cn.taketoday.context.properties.source.ConfigurationPropertyName;
 import cn.taketoday.context.properties.source.ConfigurationPropertySource;
 import cn.taketoday.core.env.AbstractEnvironment;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.logging.Logger;
 
 /**
  * Exception thrown if an invalid property is found when processing config data.

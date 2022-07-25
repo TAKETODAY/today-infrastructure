@@ -35,6 +35,7 @@ import java.util.List;
 import cn.taketoday.context.properties.bind.Binder;
 import cn.taketoday.mock.env.MockPropertySource;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 
 /**
@@ -89,7 +90,7 @@ class ConfigDataImporterTests {
     ConfigDataImporter importer = new ConfigDataImporter(ConfigDataNotFoundAction.FAIL, this.resolvers, this.loaders);
     Collection<ConfigData> loaded = importer.resolveAndLoad(this.activationContext, this.locationResolverContext,
             this.loaderContext, Arrays.asList(location1, location2)).values();
-    Assertions.assertThat(loaded).containsExactly(configData2, configData1);
+    assertThat(loaded).containsExactly(configData2, configData1);
   }
 
   @Test
@@ -120,8 +121,8 @@ class ConfigDataImporterTests {
             this.locationResolverContext, this.loaderContext, locations1and2).values();
     Collection<ConfigData> loaded2and3 = importer.resolveAndLoad(this.activationContext,
             this.locationResolverContext, this.loaderContext, locations2and3).values();
-    Assertions.assertThat(loaded1and2).containsExactly(configData2, configData1);
-    Assertions.assertThat(loaded2and3).containsExactly(configData3);
+    assertThat(loaded1and2).containsExactly(configData2, configData1);
+    assertThat(loaded2and3).containsExactly(configData3);
   }
 
   static class TestResource extends ConfigDataResource {

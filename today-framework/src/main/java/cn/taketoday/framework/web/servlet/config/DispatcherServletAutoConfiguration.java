@@ -45,7 +45,7 @@ import cn.taketoday.framework.annotation.ConditionalOnWebApplication;
 import cn.taketoday.framework.annotation.ConditionalOnWebApplication.Type;
 import cn.taketoday.framework.web.servlet.MultipartConfigFactory;
 import cn.taketoday.framework.web.servlet.ServletRegistrationBean;
-import cn.taketoday.lang.Component;
+import cn.taketoday.stereotype.Component;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.config.WebMvcProperties;
 import cn.taketoday.web.servlet.DispatcherServlet;

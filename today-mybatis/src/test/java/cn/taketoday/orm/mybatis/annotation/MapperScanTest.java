@@ -45,7 +45,7 @@ import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.PropertySource;
 import cn.taketoday.context.support.PropertySourcesPlaceholderConfigurer;
 import cn.taketoday.core.io.ClassPathResource;
-import cn.taketoday.lang.Component;
+import cn.taketoday.stereotype.Component;
 import cn.taketoday.orm.mybatis.SqlSessionFactoryBean;
 import cn.taketoday.orm.mybatis.SqlSessionTemplate;
 import cn.taketoday.orm.mybatis.annotation.mapper.ds1.AppConfigWithDefaultMapperScanAndRepeat;

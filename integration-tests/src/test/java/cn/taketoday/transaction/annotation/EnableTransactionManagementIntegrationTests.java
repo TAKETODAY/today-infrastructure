@@ -44,7 +44,7 @@ import cn.taketoday.core.NestedRuntimeException;
 import cn.taketoday.jdbc.datasource.DataSourceTransactionManager;
 import cn.taketoday.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
 import cn.taketoday.jdbc.datasource.embedded.EmbeddedDatabaseType;
-import cn.taketoday.lang.Repository;
+import cn.taketoday.stereotype.Repository;
 import cn.taketoday.testfixture.transaction.CallCountingTransactionManager;
 import cn.taketoday.transaction.PlatformTransactionManager;
 import cn.taketoday.transaction.interceptor.BeanFactoryTransactionAttributeSourceAdvisor;

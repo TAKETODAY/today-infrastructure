@@ -46,7 +46,6 @@ import cn.taketoday.context.support.GenericXmlApplicationContext;
 import cn.taketoday.context.support.StaticApplicationContext;
 import cn.taketoday.core.io.ClassPathResource;
 import cn.taketoday.mock.env.MockEnvironment;
-import cn.taketoday.mock.env.MockPropertySource;
 import cn.taketoday.mock.web.MockServletConfig;
 import cn.taketoday.mock.web.MockServletContext;
 import cn.taketoday.util.FileCopyUtils;
@@ -441,7 +440,7 @@ public class EnvironmentSystemIntegrationTests {
             .isLessThan(propertySources.precedenceOf(PropertySource.named(StandardEnvironment.SYSTEM_PROPERTIES_PROPERTY_SOURCE_NAME)));
 
     // Replace system properties with a mock property source for convenience
-    MockPropertySource mockSystemProperties = new MockPropertySource(StandardEnvironment.SYSTEM_PROPERTIES_PROPERTY_SOURCE_NAME);
+    cn.taketoday.core.env.MockPropertySource mockSystemProperties = new cn.taketoday.core.env.MockPropertySource(StandardEnvironment.SYSTEM_PROPERTIES_PROPERTY_SOURCE_NAME);
     mockSystemProperties.setProperty("pCommon", "pCommonSysPropsValue");
     mockSystemProperties.setProperty("pSysProps1", "pSysProps1Value");
     propertySources.replace(StandardEnvironment.SYSTEM_PROPERTIES_PROPERTY_SOURCE_NAME, mockSystemProperties);
@@ -475,7 +474,7 @@ public class EnvironmentSystemIntegrationTests {
             .isLessThan(propertySources.precedenceOf(PropertySource.named(StandardEnvironment.SYSTEM_PROPERTIES_PROPERTY_SOURCE_NAME)));
 
     // Replace system properties with a mock property source for convenience
-    MockPropertySource mockSystemProperties = new MockPropertySource(StandardEnvironment.SYSTEM_PROPERTIES_PROPERTY_SOURCE_NAME);
+    cn.taketoday.core.env.MockPropertySource mockSystemProperties = new cn.taketoday.core.env.MockPropertySource(StandardEnvironment.SYSTEM_PROPERTIES_PROPERTY_SOURCE_NAME);
     mockSystemProperties.setProperty("pCommon", "pCommonSysPropsValue");
     mockSystemProperties.setProperty("pSysProps1", "pSysProps1Value");
     propertySources.replace(StandardEnvironment.SYSTEM_PROPERTIES_PROPERTY_SOURCE_NAME, mockSystemProperties);
@@ -518,7 +517,7 @@ public class EnvironmentSystemIntegrationTests {
             .isLessThan(propertySources.precedenceOf(PropertySource.named(StandardEnvironment.SYSTEM_PROPERTIES_PROPERTY_SOURCE_NAME)));
 
     // Replace system properties with a mock property source for convenience
-    MockPropertySource mockSystemProperties = new MockPropertySource(StandardEnvironment.SYSTEM_PROPERTIES_PROPERTY_SOURCE_NAME);
+    cn.taketoday.core.env.MockPropertySource mockSystemProperties = new MockPropertySource(StandardEnvironment.SYSTEM_PROPERTIES_PROPERTY_SOURCE_NAME);
     mockSystemProperties.setProperty("pCommon", "pCommonSysPropsValue");
     mockSystemProperties.setProperty("pSysProps1", "pSysProps1Value");
     propertySources.replace(StandardEnvironment.SYSTEM_PROPERTIES_PROPERTY_SOURCE_NAME, mockSystemProperties);

@@ -19,6 +19,6 @@
  */
 
 /**
- * Mockito integration for Spring Boot tests.
+ * Mockito integration for tests.
  */
 package cn.taketoday.framework.test.mock.mockito;

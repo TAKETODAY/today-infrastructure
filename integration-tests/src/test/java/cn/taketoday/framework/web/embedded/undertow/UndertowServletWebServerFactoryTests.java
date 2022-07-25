@@ -93,8 +93,8 @@ class UndertowServletWebServerFactoryTests extends AbstractServletWebServerFacto
     factory.addErrorPages(new ErrorPage(HttpStatus.NOT_FOUND, "/hello"));
     this.webServer = factory.getWebServer(new ServletRegistrationBean<>(new ExampleServlet(), "/hello"));
     this.webServer.start();
-    Assertions.assertThat(getResponse(getLocalUrl("/hello"))).isEqualTo("Hello World");
-    Assertions.assertThat(getResponse(getLocalUrl("/not-found"))).isEqualTo("Hello World");
+    assertThat(getResponse(getLocalUrl("/hello"))).isEqualTo("Hello World");
+    assertThat(getResponse(getLocalUrl("/not-found"))).isEqualTo("Hello World");
   }
 
   @Test
@@ -178,7 +178,7 @@ class UndertowServletWebServerFactoryTests extends AbstractServletWebServerFacto
 
   @Test
   void eachFactoryUsesADiscreteServletContainer() {
-    Assertions.assertThat(getServletContainerFromNewFactory()).isNotEqualTo(getServletContainerFromNewFactory());
+    assertThat(getServletContainerFromNewFactory()).isNotEqualTo(getServletContainerFromNewFactory());
   }
 
   @Test
@@ -228,7 +228,7 @@ class UndertowServletWebServerFactoryTests extends AbstractServletWebServerFacto
     assertThat(accessLogDirectory.listFiles()).isEmpty();
     this.webServer = factory.getWebServer(new ServletRegistrationBean<>(new ExampleServlet(), "/hello"));
     this.webServer.start();
-    Assertions.assertThat(getResponse(getLocalUrl("/hello"))).isEqualTo("Hello World");
+    assertThat(getResponse(getLocalUrl("/hello"))).isEqualTo("Hello World");
     File accessLog = new File(accessLogDirectory, expectedFile);
     awaitFile(accessLog);
     assertThat(accessLogDirectory.listFiles()).contains(accessLog);
@@ -314,7 +314,7 @@ class UndertowServletWebServerFactoryTests extends AbstractServletWebServerFacto
     assertThat(ex).isInstanceOf(PortInUseException.class);
     assertThat(((PortInUseException) ex).getPort()).isEqualTo(blockedPort);
     Undertow undertow = (Undertow) ReflectionTestUtils.getField(this.webServer, "undertow");
-    Assertions.assertThat(undertow.getWorker()).isNull();
+    assertThat(undertow.getWorker()).isNull();
   }
 
   @Override

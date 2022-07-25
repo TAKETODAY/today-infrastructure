@@ -21,7 +21,7 @@
 package cn.taketoday.test.context.junit4.orm.service.impl;
 
 import cn.taketoday.beans.factory.annotation.Autowired;
-import cn.taketoday.lang.Service;
+import cn.taketoday.stereotype.Service;
 import cn.taketoday.test.context.junit4.orm.domain.Person;
 import cn.taketoday.test.context.junit4.orm.repository.PersonRepository;
 import cn.taketoday.test.context.junit4.orm.service.PersonService;

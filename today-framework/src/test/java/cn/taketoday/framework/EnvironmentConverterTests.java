@@ -25,7 +25,6 @@ import org.junit.jupiter.api.Test;
 import java.util.HashSet;
 import java.util.Set;
 
-import cn.taketoday.context.support.MockEnvironment;
 import cn.taketoday.core.conversion.support.ConfigurableConversionService;
 import cn.taketoday.core.env.AbstractEnvironment;
 import cn.taketoday.core.env.PropertySource;

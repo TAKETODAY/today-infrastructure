@@ -22,7 +22,6 @@ package cn.taketoday.mock.web;
 
 import org.junit.jupiter.api.Test;
 import cn.taketoday.http.HttpHeaders;
-import cn.taketoday.mock.web.MockHttpServletRequest;
 import cn.taketoday.util.FileCopyUtils;
 import cn.taketoday.util.StreamUtils;
 

@@ -25,9 +25,6 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
 import cn.taketoday.lang.Constant;
-import cn.taketoday.mock.web.MockCookie;
-import cn.taketoday.mock.web.MockHttpServletResponse;
-import cn.taketoday.web.util.WebUtils;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;

@@ -961,7 +961,7 @@ import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 
 import cn.taketoday.context.support.StandardApplicationContext;
-import cn.taketoday.lang.Singleton;
+import cn.taketoday.stereotype.Singleton;
 import cn.taketoday.context.bean.BeanDefinition;
 import cn.taketoday.beans.factory.DisposableBean;
 import cn.taketoday.beans.factory.InitializingBean;

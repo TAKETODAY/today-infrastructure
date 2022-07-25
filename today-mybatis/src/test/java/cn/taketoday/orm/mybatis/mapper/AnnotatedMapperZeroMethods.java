@@ -19,7 +19,7 @@
  */
 package cn.taketoday.orm.mybatis.mapper;
 
-import cn.taketoday.lang.Component;
+import cn.taketoday.stereotype.Component;
 
 // annotated interface for MapperScannerPostProcessor tests
 // ensures annotated class with no methods is not loaded

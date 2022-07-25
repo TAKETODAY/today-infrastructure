@@ -48,7 +48,7 @@ import cn.taketoday.context.condition.scan.ScannedFactoryBeanConfiguration;
 import cn.taketoday.context.condition.scan.ScannedFactoryBeanWithBeanMethodArgumentsConfiguration;
 import cn.taketoday.context.loader.BootstrapContext;
 import cn.taketoday.core.type.AnnotationMetadata;
-import cn.taketoday.framework.annotation.PropertyPlaceholderAutoConfiguration;
+import cn.taketoday.framework.annotation.config.PropertyPlaceholderAutoConfiguration;
 import cn.taketoday.framework.test.context.runner.ApplicationContextRunner;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.scheduling.annotation.EnableScheduling;

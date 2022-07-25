@@ -65,7 +65,7 @@ class ConfigTreeConfigDataLocationResolverTests {
     List<ConfigTreeConfigDataResource> locations = this.resolver.resolve(this.context,
             ConfigDataLocation.valueOf("configtree:/etc/config/"));
     assertThat(locations.size()).isEqualTo(1);
-    Assertions.assertThat(locations).extracting(Object::toString)
+    assertThat(locations).extracting(Object::toString)
             .containsExactly("config tree [" + new File("/etc/config").getAbsolutePath() + "]");
   }
 
@@ -80,7 +80,7 @@ class ConfigTreeConfigDataLocationResolverTests {
     List<ConfigTreeConfigDataResource> locations = this.resolver.resolve(this.context,
             ConfigDataLocation.valueOf("configtree:" + this.temp.getAbsolutePath() + "/*/"));
     assertThat(locations.size()).isEqualTo(2);
-    Assertions.assertThat(locations).extracting(Object::toString).containsExactly(
+    assertThat(locations).extracting(Object::toString).containsExactly(
             "config tree [" + directoryA.getAbsolutePath() + "]",
             "config tree [" + directoryB.getAbsolutePath() + "]");
   }

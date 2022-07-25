@@ -85,7 +85,7 @@ import cn.taketoday.framework.Application;
 import cn.taketoday.framework.env.RandomValuePropertySource;
 import cn.taketoday.framework.test.system.CapturedOutput;
 import cn.taketoday.framework.test.system.OutputCaptureExtension;
-import cn.taketoday.lang.Component;
+import cn.taketoday.stereotype.Component;
 import cn.taketoday.mock.env.MockEnvironment;
 import cn.taketoday.test.context.support.TestPropertySourceUtils;
 import cn.taketoday.util.DataSize;

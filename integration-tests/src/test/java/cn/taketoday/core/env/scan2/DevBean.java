@@ -21,7 +21,7 @@
 package cn.taketoday.core.env.scan2;
 
 import cn.taketoday.context.annotation.Profile;
-import cn.taketoday.lang.Component;
+import cn.taketoday.stereotype.Component;
 
 @Profile(cn.taketoday.core.env.EnvironmentSystemIntegrationTests.Constants.DEV_ENV_NAME)
 @Component(cn.taketoday.core.env.EnvironmentSystemIntegrationTests.Constants.DEV_BEAN_NAME)

@@ -36,7 +36,7 @@ import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.dao.annotation.PersistenceExceptionTranslationPostProcessor;
 import cn.taketoday.dao.support.PersistenceExceptionTranslator;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.lang.Repository;
+import cn.taketoday.stereotype.Repository;
 import cn.taketoday.testfixture.transaction.CallCountingTransactionManager;
 import cn.taketoday.transaction.PlatformTransactionManager;
 import cn.taketoday.transaction.annotation.EnableTransactionManagement;

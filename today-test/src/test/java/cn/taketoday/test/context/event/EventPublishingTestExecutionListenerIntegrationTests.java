@@ -34,7 +34,7 @@ import java.util.concurrent.TimeUnit;
 import cn.taketoday.aop.interceptor.AsyncUncaughtExceptionHandler;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
-import cn.taketoday.lang.Component;
+import cn.taketoday.stereotype.Component;
 import cn.taketoday.scheduling.annotation.Async;
 import cn.taketoday.scheduling.annotation.AsyncConfigurer;
 import cn.taketoday.scheduling.annotation.EnableAsync;

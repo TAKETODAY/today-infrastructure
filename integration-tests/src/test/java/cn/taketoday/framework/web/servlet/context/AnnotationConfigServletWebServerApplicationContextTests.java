@@ -32,7 +32,7 @@ import cn.taketoday.framework.web.servlet.context.config.ExampleServletWebServer
 import cn.taketoday.framework.web.servlet.mock.MockServlet;
 import cn.taketoday.framework.web.servlet.server.MockServletWebServerFactory;
 import cn.taketoday.framework.web.servlet.server.ServletWebServerFactory;
-import cn.taketoday.lang.Component;
+import cn.taketoday.stereotype.Component;
 import cn.taketoday.web.config.EnableWebMvc;
 import cn.taketoday.web.servlet.ServletContextAware;
 import jakarta.servlet.GenericServlet;

@@ -27,7 +27,6 @@ import java.sql.SQLException;
 
 import cn.taketoday.beans.factory.BeanCreationException;
 import cn.taketoday.beans.factory.support.RootBeanDefinition;
-import cn.taketoday.context.ApplicationContextException;
 import cn.taketoday.context.annotation.AnnotationConfigUtils;
 import cn.taketoday.context.support.GenericApplicationContext;
 import cn.taketoday.orm.mybatis.AbstractMyBatisTest;

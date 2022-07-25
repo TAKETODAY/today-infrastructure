@@ -23,7 +23,7 @@ package cn.taketoday.transaction.aspectj;
 import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Role;
-import cn.taketoday.lang.Component;
+import cn.taketoday.stereotype.Component;
 import cn.taketoday.transaction.annotation.EnableTransactionManagement;
 import cn.taketoday.transaction.annotation.TransactionManagementConfigurationSelector;
 import cn.taketoday.transaction.config.TransactionManagementConfigUtils;

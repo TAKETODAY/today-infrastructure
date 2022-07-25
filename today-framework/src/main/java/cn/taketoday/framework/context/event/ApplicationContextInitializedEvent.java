@@ -33,7 +33,7 @@ import cn.taketoday.framework.Application;
  * @since 4.0
  */
 @SuppressWarnings("serial")
-public class ApplicationContextInitializedEvent extends SpringApplicationEvent {
+public class ApplicationContextInitializedEvent extends ApplicationStartupEvent {
 
   private final ConfigurableApplicationContext context;
 

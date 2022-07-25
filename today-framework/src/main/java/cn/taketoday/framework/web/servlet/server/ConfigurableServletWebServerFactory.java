@@ -31,8 +31,9 @@ import cn.taketoday.framework.web.server.MimeMappings;
 import cn.taketoday.framework.web.server.WebServerFactoryCustomizer;
 import cn.taketoday.framework.web.servlet.ServletContextInitializer;
 import cn.taketoday.framework.web.servlet.WebListenerRegistry;
-import cn.taketoday.framework.web.session.SameSite;
-import cn.taketoday.framework.web.session.Session;
+import cn.taketoday.lang.Nullable;
+import cn.taketoday.session.config.SameSite;
+import cn.taketoday.session.config.SessionProperties;
 import jakarta.servlet.ServletContext;
 
 /**
@@ -72,7 +73,7 @@ public interface ConfigurableServletWebServerFactory
    *
    * @param session the session configuration
    */
-  void setSession(Session session);
+  void setSession(SessionProperties session);
 
   /**
    * Set if the DefaultServlet should be registered. Defaults to {@code false}
@@ -122,7 +123,7 @@ public interface ConfigurableServletWebServerFactory
    *
    * @param jsp the JSP servlet configuration
    */
-  void setJsp(Jsp jsp);
+  void setJsp(@Nullable JspProperties jsp);
 
   /**
    * Sets the Locale to Charset mappings.

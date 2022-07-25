@@ -133,7 +133,7 @@ class ConfigDataLocationResolversTests {
             Arrays.asList(LowestTestResolver.class.getName(), HighestTestResolver.class.getName()));
     ConfigDataLocation location = ConfigDataLocation.valueOf("LowestTestResolver:test");
     List<ConfigDataResolutionResult> resolved = resolvers.resolve(this.context, location, null);
-    Assertions.assertThat(resolved).hasSize(1);
+    assertThat(resolved).hasSize(1);
     TestConfigDataResource resource = (TestConfigDataResource) resolved.get(0).getResource();
     assertThat(resource.getResolver()).isInstanceOf(LowestTestResolver.class);
     assertThat(resource.getLocation()).isEqualTo(location);
@@ -147,7 +147,7 @@ class ConfigDataLocationResolversTests {
             Arrays.asList(LowestTestResolver.class.getName(), HighestTestResolver.class.getName()));
     ConfigDataLocation location = ConfigDataLocation.valueOf("LowestTestResolver:test");
     List<ConfigDataResolutionResult> resolved = resolvers.resolve(this.context, location, this.profiles);
-    Assertions.assertThat(resolved).hasSize(2);
+    assertThat(resolved).hasSize(2);
     TestConfigDataResource resource = (TestConfigDataResource) resolved.get(0).getResource();
     assertThat(resource.getResolver()).isInstanceOf(LowestTestResolver.class);
     assertThat(resource.getLocation()).isEqualTo(location);

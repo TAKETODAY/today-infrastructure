@@ -40,6 +40,7 @@ import cn.taketoday.http.client.reactive.JettyResourceFactory;
 import cn.taketoday.http.server.reactive.HttpHandler;
 import cn.taketoday.web.reactive.function.client.WebClient;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.inOrder;
@@ -103,7 +104,7 @@ class JettyReactiveWebServerFactoryTests extends AbstractReactiveWebServerFactor
     this.webServer = factory.getWebServer(mock(HttpHandler.class));
     this.webServer.start();
     Connector connector = ((JettyWebServer) this.webServer).getServer().getConnectors()[0];
-    Assertions.assertThat(((ServerConnector) connector).getHost()).isEqualTo(localhost.getHostAddress());
+    assertThat(((ServerConnector) connector).getHost()).isEqualTo(localhost.getHostAddress());
   }
 
   @Test
@@ -122,9 +123,9 @@ class JettyReactiveWebServerFactoryTests extends AbstractReactiveWebServerFactor
     JettyWebServer webServer = (JettyWebServer) factory.getWebServer(new EchoHandler());
     webServer.start();
     Connector connector = webServer.getServer().getConnectors()[0];
-    Assertions.assertThat(connector.getByteBufferPool()).isEqualTo(resourceFactory.getByteBufferPool());
-    Assertions.assertThat(connector.getExecutor()).isEqualTo(resourceFactory.getExecutor());
-    Assertions.assertThat(connector.getScheduler()).isEqualTo(resourceFactory.getScheduler());
+    assertThat(connector.getByteBufferPool()).isEqualTo(resourceFactory.getByteBufferPool());
+    assertThat(connector.getExecutor()).isEqualTo(resourceFactory.getExecutor());
+    assertThat(connector.getScheduler()).isEqualTo(resourceFactory.getScheduler());
   }
 
   @Test

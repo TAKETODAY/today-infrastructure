@@ -76,45 +76,45 @@ class BindConverterTests {
   @Test
   void canConvertWhenHasDefaultEditorShouldReturnTrue() {
     BindConverter bindConverter = getPropertyEditorOnlyBindConverter(null);
-    Assertions.assertThat(bindConverter.canConvert("java.lang.RuntimeException", ResolvableType.fromClass(Class.class)))
+    assertThat(bindConverter.canConvert("java.lang.RuntimeException", ResolvableType.fromClass(Class.class)))
             .isTrue();
   }
 
   @Test
   void canConvertWhenHasCustomEditorShouldReturnTrue() {
     BindConverter bindConverter = getPropertyEditorOnlyBindConverter(this::registerSampleTypeEditor);
-    Assertions.assertThat(bindConverter.canConvert("test", ResolvableType.fromClass(SampleType.class))).isTrue();
+    assertThat(bindConverter.canConvert("test", ResolvableType.fromClass(SampleType.class))).isTrue();
   }
 
   @Test
   void canConvertWhenHasEditorByConventionShouldReturnTrue() {
     BindConverter bindConverter = getPropertyEditorOnlyBindConverter(null);
-    Assertions.assertThat(bindConverter.canConvert("test", ResolvableType.fromClass(ConventionType.class))).isTrue();
+    assertThat(bindConverter.canConvert("test", ResolvableType.fromClass(ConventionType.class))).isTrue();
   }
 
   @Test
   void canConvertWhenHasEditorForCollectionElementShouldReturnTrue() {
     BindConverter bindConverter = getPropertyEditorOnlyBindConverter(this::registerSampleTypeEditor);
-    Assertions.assertThat(bindConverter.canConvert("test", ResolvableType.fromClassWithGenerics(List.class, SampleType.class)))
+    assertThat(bindConverter.canConvert("test", ResolvableType.fromClassWithGenerics(List.class, SampleType.class)))
             .isTrue();
   }
 
   @Test
   void canConvertWhenHasEditorForArrayElementShouldReturnTrue() {
     BindConverter bindConverter = getPropertyEditorOnlyBindConverter(this::registerSampleTypeEditor);
-    Assertions.assertThat(bindConverter.canConvert("test", ResolvableType.fromClass(SampleType[].class))).isTrue();
+    assertThat(bindConverter.canConvert("test", ResolvableType.fromClass(SampleType[].class))).isTrue();
   }
 
   @Test
   void canConvertWhenConversionServiceCanConvertShouldReturnTrue() {
     BindConverter bindConverter = getBindConverter(new SampleTypeConverter());
-    Assertions.assertThat(bindConverter.canConvert("test", ResolvableType.fromClass(SampleType.class))).isTrue();
+    assertThat(bindConverter.canConvert("test", ResolvableType.fromClass(SampleType.class))).isTrue();
   }
 
   @Test
   void canConvertWhenNotPropertyEditorAndConversionServiceCannotConvertShouldReturnFalse() {
     BindConverter bindConverter = BindConverter.get(null, null);
-    Assertions.assertThat(bindConverter.canConvert("test", ResolvableType.fromClass(SampleType.class))).isFalse();
+    assertThat(bindConverter.canConvert("test", ResolvableType.fromClass(SampleType.class))).isFalse();
   }
 
   @Test

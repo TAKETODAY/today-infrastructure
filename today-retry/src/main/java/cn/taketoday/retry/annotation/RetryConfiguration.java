@@ -47,7 +47,7 @@ import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.context.annotation.Role;
 import cn.taketoday.core.OrderComparator;
 import cn.taketoday.core.annotation.AnnotationUtils;
-import cn.taketoday.lang.Component;
+import cn.taketoday.stereotype.Component;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.retry.RetryListener;
 import cn.taketoday.retry.backoff.Sleeper;

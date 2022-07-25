@@ -25,7 +25,7 @@ import cn.taketoday.cache.annotation.AbstractCachingConfiguration;
 import cn.taketoday.cache.config.CacheManagementConfigUtils;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Role;
-import cn.taketoday.lang.Component;
+import cn.taketoday.stereotype.Component;
 
 /**
  * {@code @Configuration} class that registers the Spring infrastructure beans

@@ -33,7 +33,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import cn.taketoday.framework.test.system.CapturedOutput;
 import cn.taketoday.framework.test.system.OutputCaptureExtension;
 import cn.taketoday.framework.web.server.ErrorPage;
-import cn.taketoday.framework.web.servlet.support.ErrorPageFilter;
 import cn.taketoday.http.HttpStatus;
 import cn.taketoday.mock.web.MockFilterChain;
 import cn.taketoday.mock.web.MockFilterConfig;
@@ -45,7 +44,6 @@ import cn.taketoday.web.context.async.DeferredResult;
 import cn.taketoday.web.context.async.StandardServletAsyncWebRequest;
 import cn.taketoday.web.context.async.WebAsyncManager;
 import cn.taketoday.web.context.async.WebAsyncUtils;
-import cn.taketoday.web.servlet.NestedServletException;
 import cn.taketoday.web.servlet.ServletRequestContext;
 import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.ServletException;
@@ -377,7 +375,7 @@ class ErrorPageFilterTests {
     this.filter.addErrorPages(new ErrorPage(RuntimeException.class, "/500"));
     this.chain = new TestFilterChain((request, response, chain) -> {
       chain.call();
-      throw new NestedServletException("Wrapper", new RuntimeException("BAD"));
+      throw new ServletException("Wrapper", new RuntimeException("BAD"));
     });
     this.filter.doFilter(this.request, this.response, this.chain);
     assertThat(((HttpServletResponseWrapper) this.chain.getResponse()).getStatus()).isEqualTo(500);

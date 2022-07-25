@@ -40,7 +40,7 @@ import cn.taketoday.http.HttpMethod;
 import cn.taketoday.http.client.ClientHttpRequest;
 import cn.taketoday.http.client.ClientHttpResponse;
 import cn.taketoday.http.client.SimpleClientHttpRequestFactory;
-import cn.taketoday.web.annotation.Controller;
+import cn.taketoday.stereotype.Controller;
 import cn.taketoday.web.annotation.RequestMapping;
 import cn.taketoday.web.annotation.ResponseBody;
 import cn.taketoday.web.config.EnableWebMvc;

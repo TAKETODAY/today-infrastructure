@@ -20,7 +20,6 @@
 
 package cn.taketoday.test.context.junit4.orm;
 
-import org.assertj.core.api.Assertions;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.exception.ConstraintViolationException;
@@ -97,7 +96,7 @@ public class HibernateSessionFlushingTests extends AbstractTransactionalJUnit4Co
     int numRows = countRowsInTable("person");
     personService.save(juergen);
     assertThat(countRowsInTable("person")).as("Verifying number of rows in the 'person' table.").isEqualTo((numRows + 1));
-    Assertions.assertThat(personService.findByName(JUERGEN)).as("Should be able to save and retrieve Juergen").isNotNull();
+    assertThat(personService.findByName(JUERGEN)).as("Should be able to save and retrieve Juergen").isNotNull();
     assertThat(juergen.getId()).as("Juergen's ID should have been set").isNotNull();
   }
 

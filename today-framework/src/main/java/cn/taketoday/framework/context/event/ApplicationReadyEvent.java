@@ -37,7 +37,7 @@ import java.time.Duration;
  * @see ApplicationFailedEvent
  */
 @SuppressWarnings("serial")
-public class ApplicationReadyEvent extends SpringApplicationEvent {
+public class ApplicationReadyEvent extends ApplicationStartupEvent {
 
 	private final ConfigurableApplicationContext context;
 

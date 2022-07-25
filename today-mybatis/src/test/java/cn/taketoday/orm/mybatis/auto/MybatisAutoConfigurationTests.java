@@ -70,7 +70,7 @@ import cn.taketoday.context.annotation.Primary;
 import cn.taketoday.context.annotation.config.EnableAutoConfiguration;
 import cn.taketoday.context.support.SimpleThreadScope;
 import cn.taketoday.core.annotation.Order;
-import cn.taketoday.framework.annotation.PropertyPlaceholderAutoConfiguration;
+import cn.taketoday.framework.annotation.config.PropertyPlaceholderAutoConfiguration;
 import cn.taketoday.jdbc.config.EmbeddedDataSourceConfiguration;
 import cn.taketoday.orm.mybatis.SqlSessionFactoryBean;
 import cn.taketoday.orm.mybatis.SqlSessionTemplate;
@@ -90,6 +90,7 @@ import cn.taketoday.util.CollectionUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.mockito.Mockito.mock;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
@@ -833,12 +834,12 @@ class MybatisAutoConfigurationTests {
   static class MultipleDataSourceConfiguration {
     @Bean
     DataSource dataSourcePrimary() {
-      return Mockito.mock(DataSource.class);
+      return mock(DataSource.class);
     }
 
     @Bean
     DataSource dataSourceReplica() {
-      return Mockito.mock(DataSource.class);
+      return mock(DataSource.class);
     }
   }
 
@@ -847,12 +848,12 @@ class MybatisAutoConfigurationTests {
     @Bean
     @Primary
     DataSource dataSourcePrimary() {
-      return Mockito.mock(DataSource.class);
+      return mock(DataSource.class);
     }
 
     @Bean
     DataSource dataSourceReplica() {
-      return Mockito.mock(DataSource.class);
+      return mock(DataSource.class);
     }
   }
 

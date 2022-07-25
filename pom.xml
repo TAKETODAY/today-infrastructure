@@ -40,7 +40,7 @@
   <modules>
     <module>today-framework</module>
     <module>today-aspects</module>
-    <module>today-indexer</module>
+    <module>today-context-indexer</module>
     <module>today-mybatis</module>
     <module>today-instrument</module>
     <module>today-test</module>
@@ -50,6 +50,17 @@
     <module>today-infrastructure-bom</module>
     <module>today-infrastructure-build</module>
     <module>today-redisson</module>
+    <module>today-core</module>
+    <module>today-context</module>
+    <module>today-beans</module>
+    <module>today-aop</module>
+    <module>today-tx</module>
+    <module>today-orm</module>
+    <module>today-jdbc</module>
+    <module>today-web</module>
+    <module>today-websocket</module>
+    <module>today-jcache</module>
+    <module>today-annotation-config</module>
   </modules>
 
   <description>
@@ -90,6 +101,59 @@
     <system>Github Issues</system>
     <url>https://github.com/TAKETODAY/today-infrastructure/issues</url>
   </issueManagement>
+
+
+  <dependencies>
+
+    <dependency>
+      <groupId>org.assertj</groupId>
+      <artifactId>assertj-core</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-core</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-junit-jupiter</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter-api</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter-engine</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.junit.vintage</groupId>
+      <artifactId>junit-vintage-engine</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter-params</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+  </dependencies>
 
   <dependencyManagement>
     <dependencies>

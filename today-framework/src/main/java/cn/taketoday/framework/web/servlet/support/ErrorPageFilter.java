@@ -36,7 +36,6 @@ import cn.taketoday.framework.web.server.ErrorPageRegistry;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ClassUtils;
-import cn.taketoday.web.servlet.NestedServletException;
 import cn.taketoday.web.servlet.filter.OncePerRequestFilter;
 import jakarta.servlet.Filter;
 import jakarta.servlet.FilterChain;
@@ -138,8 +137,8 @@ public class ErrorPageFilter implements Filter, ErrorPageRegistry, Ordered {
     }
     catch (Throwable ex) {
       Throwable exceptionToHandle = ex;
-      if (ex instanceof NestedServletException) {
-        Throwable rootCause = ((NestedServletException) ex).getRootCause();
+      if (ex instanceof ServletException servletEx) {
+        Throwable rootCause = servletEx.getRootCause();
         if (rootCause != null) {
           exceptionToHandle = rootCause;
         }

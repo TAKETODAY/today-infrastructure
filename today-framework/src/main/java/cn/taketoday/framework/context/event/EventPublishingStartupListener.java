@@ -42,7 +42,7 @@ import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ErrorHandler;
 
 /**
- * {@link ApplicationStartupListener} to publish {@link SpringApplicationEvent}s.
+ * {@link ApplicationStartupListener} to publish {@link ApplicationStartupEvent}s.
  * <p>
  * Uses an internal {@link ApplicationEventMulticaster} for the events that are fired
  * before the context is actually refreshed.

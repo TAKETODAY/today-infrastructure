@@ -31,6 +31,7 @@ import cn.taketoday.http.MediaType;
 import cn.taketoday.http.client.ClientHttpRequest;
 import cn.taketoday.http.client.ClientHttpResponse;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.mock.http.client.MockClientHttpResponse;
 import cn.taketoday.test.web.client.ResponseCreator;
@@ -45,7 +46,7 @@ public class DefaultResponseCreator implements ResponseCreator {
 
   private final int statusCode;
 
-  private byte[] content = new byte[0];
+  private byte[] content = Constant.EMPTY_BYTES;
 
   @Nullable
   private Resource contentResource;

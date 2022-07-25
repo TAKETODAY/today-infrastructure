@@ -36,9 +36,9 @@ import cn.taketoday.framework.web.server.ServerProperties;
 import cn.taketoday.framework.web.server.Shutdown;
 import cn.taketoday.framework.web.server.Ssl;
 import cn.taketoday.framework.web.servlet.server.ConfigurableServletWebServerFactory;
-import cn.taketoday.framework.web.servlet.server.Jsp;
-import cn.taketoday.framework.web.session.Cookie;
-import cn.taketoday.framework.web.session.Session;
+import cn.taketoday.framework.web.servlet.server.JspProperties;
+import cn.taketoday.session.config.CookieProperties;
+import cn.taketoday.session.config.SessionProperties;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -96,7 +96,7 @@ class ServletWebServerFactoryCustomizerTests {
   void testCustomizeJsp() {
     ConfigurableServletWebServerFactory factory = mock(ConfigurableServletWebServerFactory.class);
     this.customizer.customize(factory);
-    then(factory).should().setJsp(any(Jsp.class));
+    then(factory).should().setJsp(any(JspProperties.class));
   }
 
   @Test
@@ -114,10 +114,10 @@ class ServletWebServerFactoryCustomizerTests {
     bindProperties(map);
     ConfigurableServletWebServerFactory factory = mock(ConfigurableServletWebServerFactory.class);
     this.customizer.customize(factory);
-    ArgumentCaptor<Session> sessionCaptor = ArgumentCaptor.forClass(Session.class);
+    ArgumentCaptor<SessionProperties> sessionCaptor = ArgumentCaptor.forClass(SessionProperties.class);
     then(factory).should().setSession(sessionCaptor.capture());
     assertThat(sessionCaptor.getValue().getTimeout()).hasSeconds(123);
-    Cookie cookie = sessionCaptor.getValue().getCookie();
+    CookieProperties cookie = sessionCaptor.getValue().getCookie();
     assertThat(cookie.getName()).isEqualTo("testname");
     assertThat(cookie.getDomain()).isEqualTo("testdomain");
     assertThat(cookie.getPath()).isEqualTo("/testpath");
@@ -159,7 +159,7 @@ class ServletWebServerFactoryCustomizerTests {
     bindProperties(map);
     ConfigurableServletWebServerFactory factory = mock(ConfigurableServletWebServerFactory.class);
     this.customizer.customize(factory);
-    ArgumentCaptor<Session> sessionCaptor = ArgumentCaptor.forClass(Session.class);
+    ArgumentCaptor<SessionProperties> sessionCaptor = ArgumentCaptor.forClass(SessionProperties.class);
     then(factory).should().setSession(sessionCaptor.capture());
     assertThat(sessionCaptor.getValue().getStoreDir()).isEqualTo(new File("mydirectory"));
   }

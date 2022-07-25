@@ -24,6 +24,7 @@ import org.junit.jupiter.api.Test;
 
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
+import cn.taketoday.framework.annotation.ConditionalOnCloudPlatform;
 import cn.taketoday.framework.cloud.CloudPlatform;
 import cn.taketoday.framework.test.context.runner.ApplicationContextRunner;
 

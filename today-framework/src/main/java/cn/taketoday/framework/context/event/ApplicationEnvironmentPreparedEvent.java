@@ -33,7 +33,7 @@ import cn.taketoday.framework.ConfigurableBootstrapContext;
  * @since 4.0
  */
 @SuppressWarnings("serial")
-public class ApplicationEnvironmentPreparedEvent extends SpringApplicationEvent {
+public class ApplicationEnvironmentPreparedEvent extends ApplicationStartupEvent {
 
   private final ConfigurableBootstrapContext bootstrapContext;
 

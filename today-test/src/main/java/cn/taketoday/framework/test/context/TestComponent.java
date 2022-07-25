@@ -29,7 +29,7 @@ import java.lang.annotation.Target;
 import cn.taketoday.context.annotation.ComponentScan;
 import cn.taketoday.context.annotation.config.TypeExcludeFilter;
 import cn.taketoday.core.annotation.AliasFor;
-import cn.taketoday.lang.Component;
+import cn.taketoday.stereotype.Component;
 
 /**
  * {@link Component @Component} that can be used when a bean is intended only for tests,

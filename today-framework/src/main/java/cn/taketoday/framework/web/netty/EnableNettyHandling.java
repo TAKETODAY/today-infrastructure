@@ -25,7 +25,8 @@ import java.lang.annotation.Target;
 import cn.taketoday.context.annotation.Import;
 import cn.taketoday.context.loader.AnnotationImportSelector;
 import cn.taketoday.core.type.AnnotationMetadata;
-import cn.taketoday.framework.web.session.EnableWebSession;
+import cn.taketoday.session.WebSession;
+import cn.taketoday.session.config.EnableWebSession;
 import cn.taketoday.web.RequestContextHolder;
 
 import static java.lang.annotation.ElementType.METHOD;
@@ -33,7 +34,7 @@ import static java.lang.annotation.ElementType.TYPE;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
- * Enable Netty, Enable {@link cn.taketoday.web.session.WebSession}
+ * Enable Netty, Enable {@link WebSession}
  *
  * @author TODAY 2019-11-22 00:30
  */

@@ -54,9 +54,9 @@ class SslServerCustomizerTests {
   @SuppressWarnings("rawtypes")
   void whenHttp2IsNotEnabledServerConnectorHasSslAndHttpConnectionFactories() {
     Server server = createCustomizedServer();
-    Assertions.assertThat(server.getConnectors()).hasSize(1);
+    assertThat(server.getConnectors()).hasSize(1);
     List<ConnectionFactory> factories = new ArrayList<>(server.getConnectors()[0].getConnectionFactories());
-    Assertions.assertThat(factories).extracting((factory) -> (Class) factory.getClass())
+    assertThat(factories).extracting((factory) -> (Class) factory.getClass())
             .containsExactly(SslConnectionFactory.class, HttpConnectionFactory.class);
   }
 
@@ -68,9 +68,9 @@ class SslServerCustomizerTests {
     Http2 http2 = new Http2();
     http2.setEnabled(true);
     Server server = createCustomizedServer(http2);
-    Assertions.assertThat(server.getConnectors()).hasSize(1);
+    assertThat(server.getConnectors()).hasSize(1);
     List<ConnectionFactory> factories = new ArrayList<>(server.getConnectors()[0].getConnectionFactories());
-    Assertions.assertThat(factories).extracting((factory) -> (Class) factory.getClass()).containsExactly(
+    assertThat(factories).extracting((factory) -> (Class) factory.getClass()).containsExactly(
             SslConnectionFactory.class, ALPNServerConnectionFactory.class, HTTP2ServerConnectionFactory.class,
             HttpConnectionFactory.class);
   }
@@ -82,9 +82,9 @@ class SslServerCustomizerTests {
     Http2 http2 = new Http2();
     http2.setEnabled(true);
     Server server = createCustomizedServer(http2);
-    Assertions.assertThat(server.getConnectors()).hasSize(1);
+    assertThat(server.getConnectors()).hasSize(1);
     List<ConnectionFactory> factories = new ArrayList<>(server.getConnectors()[0].getConnectionFactories());
-    Assertions.assertThat(((ALPNServerConnectionFactory) factories.get(1)).getDefaultProtocol()).isNull();
+    assertThat(((ALPNServerConnectionFactory) factories.get(1)).getDefaultProtocol()).isNull();
   }
 
   @Test

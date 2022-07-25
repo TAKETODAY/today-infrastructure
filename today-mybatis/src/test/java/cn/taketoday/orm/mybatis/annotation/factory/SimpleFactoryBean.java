@@ -22,7 +22,7 @@ package cn.taketoday.orm.mybatis.annotation.factory;
 import cn.taketoday.beans.factory.FactoryBean;
 import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.lang.Component;
+import cn.taketoday.stereotype.Component;
 
 @Component
 public class SimpleFactoryBean implements FactoryBean<Object> {

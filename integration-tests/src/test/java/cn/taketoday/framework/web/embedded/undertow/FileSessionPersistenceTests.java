@@ -59,7 +59,7 @@ class FileSessionPersistenceTests {
   @Test
   void loadsNullForMissingFile() {
     Map<String, PersistentSession> attributes = this.persistence.loadSessionAttributes("test", this.classLoader);
-    Assertions.assertThat(attributes).isNull();
+    assertThat(attributes).isNull();
   }
 
   @Test
@@ -71,9 +71,9 @@ class FileSessionPersistenceTests {
     sessionData.put("abc", session);
     this.persistence.persistSessions("test", sessionData);
     Map<String, PersistentSession> restored = this.persistence.loadSessionAttributes("test", this.classLoader);
-    Assertions.assertThat(restored).isNotNull();
-    Assertions.assertThat(restored.get("abc").getExpiration()).isEqualTo(this.expiration);
-    Assertions.assertThat(restored.get("abc").getSessionData().get("spring")).isEqualTo("boot");
+    assertThat(restored).isNotNull();
+    assertThat(restored.get("abc").getExpiration()).isEqualTo(this.expiration);
+    assertThat(restored.get("abc").getSessionData().get("spring")).isEqualTo("boot");
   }
 
   @Test
@@ -86,8 +86,8 @@ class FileSessionPersistenceTests {
     sessionData.put("abc", session);
     this.persistence.persistSessions("test", sessionData);
     Map<String, PersistentSession> restored = this.persistence.loadSessionAttributes("test", this.classLoader);
-    Assertions.assertThat(restored).isNotNull();
-    Assertions.assertThat(restored).doesNotContainKey("abc");
+    assertThat(restored).isNotNull();
+    assertThat(restored).doesNotContainKey("abc");
   }
 
   @Test

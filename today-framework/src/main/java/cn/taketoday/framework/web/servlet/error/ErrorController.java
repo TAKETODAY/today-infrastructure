@@ -20,7 +20,7 @@
 
 package cn.taketoday.framework.web.servlet.error;
 
-import cn.taketoday.web.annotation.Controller;
+import cn.taketoday.stereotype.Controller;
 
 /**
  * Marker interface used to identify a {@link Controller @Controller} that should be used

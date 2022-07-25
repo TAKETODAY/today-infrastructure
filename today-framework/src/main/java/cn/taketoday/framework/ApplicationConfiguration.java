@@ -29,7 +29,7 @@ import java.lang.annotation.Target;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.core.annotation.AliasFor;
-import cn.taketoday.lang.Indexed;
+import cn.taketoday.stereotype.Indexed;
 
 /**
  * Indicates that a class provides Spring Boot application

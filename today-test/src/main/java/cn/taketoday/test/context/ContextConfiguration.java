@@ -68,9 +68,9 @@ import cn.taketoday.test.context.web.WebDelegatingSmartContextLoader;
  * <ul>
  * <li>A class annotated with {@link cn.taketoday.context.annotation.Configuration @Configuration}</li>
  * <li>A component (i.e., a class annotated with
- * {@link cn.taketoday.lang.Component @Component},
- * {@link cn.taketoday.lang.Service @Service},
- * {@link cn.taketoday.lang.Repository @Repository}, etc.)</li>
+ * {@link cn.taketoday.stereotype.Component @Component},
+ * {@link cn.taketoday.stereotype.Service @Service},
+ * {@link cn.taketoday.stereotype.Repository @Repository}, etc.)</li>
  * <li>A JSR-330 compliant class that is annotated with {@code jakarta.inject} annotations</li>
  * <li>Any class that contains {@link cn.taketoday.context.annotation.Bean @Bean}-methods</li>
  * <li>Any other class that is intended to be registered as a Spring component (i.e., a Spring bean

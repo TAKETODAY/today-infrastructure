@@ -80,6 +80,7 @@ import cn.taketoday.web.context.support.GenericWebApplicationContext;
  * @author Stephane Nicoll
  * @author Madhura Bhave
  * @author Scott Frederick
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see ApplicationTest
  * @since 4.0
  */
@@ -90,10 +91,10 @@ public class ApplicationContextLoader extends AbstractContextLoader {
     Class<?>[] configClasses = config.getClasses();
     String[] configLocations = config.getLocations();
     Assert.state(ObjectUtils.isNotEmpty(configClasses) || ObjectUtils.isNotEmpty(configLocations),
-            () -> "No configuration classes or locations found in @SpringApplicationConfiguration. "
+            () -> "No configuration classes or locations found in @ApplicationConfiguration. "
                     + "For default configuration detection to work you need Spring 4.0.3 or better (found "
                     + cn.taketoday.lang.Version.get() + ").");
-    Application application = getSpringApplication();
+    Application application = getApplication();
     application.setMainApplicationClass(config.getTestClass());
     application.addPrimarySources(Arrays.asList(configClasses));
     application.getSources().addAll(Arrays.asList(configLocations));
@@ -158,7 +159,7 @@ public class ApplicationContextLoader extends AbstractContextLoader {
    *
    * @return {@link cn.taketoday.framework.Application} instance
    */
-  protected Application getSpringApplication() {
+  protected Application getApplication() {
     return new Application();
   }
 
@@ -182,7 +183,7 @@ public class ApplicationContextLoader extends AbstractContextLoader {
   }
 
   private void disableJmx(List<String> properties) {
-    properties.add("spring.jmx.enabled=false");
+    properties.add("jmx.enabled=false");
   }
 
   /**
@@ -248,7 +249,7 @@ public class ApplicationContextLoader extends AbstractContextLoader {
   @Override
   public ApplicationContext loadContext(String... locations) throws Exception {
     throw new UnsupportedOperationException(
-            "SpringApplicationContextLoader does not support the loadContext(String...) method");
+            "ApplicationContextLoader does not support the loadContext(String...) method");
   }
 
   @Override

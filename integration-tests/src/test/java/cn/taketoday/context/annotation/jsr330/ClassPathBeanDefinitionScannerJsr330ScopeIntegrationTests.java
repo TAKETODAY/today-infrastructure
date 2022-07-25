@@ -37,7 +37,7 @@ import cn.taketoday.context.annotation.AnnotatedBeanDefinitionReader;
 import cn.taketoday.context.annotation.ClassPathBeanDefinitionScanner;
 import cn.taketoday.context.annotation.ScopedProxyMode;
 import cn.taketoday.context.loader.ScopeMetadata;
-import cn.taketoday.framework.web.session.EnableWebSession;
+import cn.taketoday.session.config.EnableWebSession;
 import cn.taketoday.mock.web.MockHttpServletRequest;
 import cn.taketoday.mock.web.MockHttpServletResponse;
 import cn.taketoday.mock.web.MockHttpSession;

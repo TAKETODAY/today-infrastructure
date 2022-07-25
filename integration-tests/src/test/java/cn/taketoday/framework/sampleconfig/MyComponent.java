@@ -20,7 +20,7 @@
 
 package cn.taketoday.framework.sampleconfig;
 
-import cn.taketoday.lang.Component;
+import cn.taketoday.stereotype.Component;
 
 @Component
 public class MyComponent {

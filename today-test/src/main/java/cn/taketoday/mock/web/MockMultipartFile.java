@@ -28,6 +28,7 @@ import java.io.InputStream;
 import cn.taketoday.http.DefaultHttpHeaders;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.FileCopyUtils;
 import cn.taketoday.web.multipart.MultipartFile;
@@ -92,7 +93,7 @@ public class MockMultipartFile implements MultipartFile {
     this.name = name;
     this.originalFilename = (originalFilename != null ? originalFilename : "");
     this.contentType = contentType;
-    this.content = (content != null ? content : new byte[0]);
+    this.content = (content != null ? content : Constant.EMPTY_BYTES);
   }
 
   /**

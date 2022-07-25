@@ -51,7 +51,7 @@ import cn.taketoday.framework.web.servlet.ConditionalOnMissingFilterBean;
 import cn.taketoday.framework.web.servlet.FilterRegistrationBean;
 import cn.taketoday.framework.web.servlet.WebListenerRegistrar;
 import cn.taketoday.framework.web.servlet.server.CookieSameSiteSupplier;
-import cn.taketoday.lang.Component;
+import cn.taketoday.stereotype.Component;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.web.servlet.filter.ForwardedHeaderFilter;
 import jakarta.servlet.DispatcherType;

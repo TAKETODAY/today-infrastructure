@@ -26,7 +26,7 @@ import org.junit.runner.RunWith;
 import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
-import cn.taketoday.lang.Prototype;
+import cn.taketoday.stereotype.Prototype;
 import cn.taketoday.test.context.junit4.Runner;
 
 import static org.hamcrest.CoreMatchers.equalTo;

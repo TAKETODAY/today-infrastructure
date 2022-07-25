@@ -27,7 +27,8 @@ import java.lang.annotation.Target;
 import java.util.concurrent.TimeUnit;
 
 import cn.taketoday.context.annotation.Import;
-import cn.taketoday.framework.web.session.EnableWebSession;
+import cn.taketoday.session.WebSession;
+import cn.taketoday.session.config.EnableWebSession;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>

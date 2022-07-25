@@ -1,0 +1,6 @@
+http\://www.springframework.org/schema/c=cn.taketoday.beans.factory.xml.SimpleConstructorNamespaceHandler
+http\://www.springframework.org/schema/p=cn.taketoday.beans.factory.xml.SimplePropertyNamespaceHandler
+http\://www.springframework.org/schema/util=cn.taketoday.beans.factory.xml.UtilNamespaceHandler
+http\://www.springframework.org/schema/jdbc=cn.taketoday.jdbc.config.JdbcNamespaceHandler
+http\://www.springframework.org/schema/aop=cn.taketoday.aop.config.AopNamespaceHandler
+

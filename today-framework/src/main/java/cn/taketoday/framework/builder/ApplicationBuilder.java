@@ -103,7 +103,7 @@ public class ApplicationBuilder {
   }
 
   public ApplicationBuilder(ResourceLoader resourceLoader, Class<?>... sources) {
-    this.application = createSpringApplication(resourceLoader, sources);
+    this.application = createApplication(resourceLoader, sources);
   }
 
   /**
@@ -115,7 +115,7 @@ public class ApplicationBuilder {
    * @param sources the sources
    * @return the {@link Application} instance
    */
-  protected Application createSpringApplication(ResourceLoader resourceLoader, Class<?>... sources) {
+  protected Application createApplication(ResourceLoader resourceLoader, Class<?>... sources) {
     return new Application(resourceLoader, sources);
   }
 

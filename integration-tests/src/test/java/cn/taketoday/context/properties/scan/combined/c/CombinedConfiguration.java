@@ -21,7 +21,7 @@
 package cn.taketoday.context.properties.scan.combined.c;
 
 import cn.taketoday.context.properties.ConfigurationProperties;
-import cn.taketoday.lang.Component;
+import cn.taketoday.stereotype.Component;
 
 /**
  * @author Madhura Bhave

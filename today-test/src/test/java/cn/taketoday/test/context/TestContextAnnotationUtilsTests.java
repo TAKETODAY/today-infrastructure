@@ -34,8 +34,8 @@ import java.lang.annotation.Target;
 
 import cn.taketoday.core.annotation.AnnotationUtils;
 import cn.taketoday.core.annotation.Order;
-import cn.taketoday.lang.Component;
-import cn.taketoday.lang.Service;
+import cn.taketoday.stereotype.Component;
+import cn.taketoday.stereotype.Service;
 import cn.taketoday.lang.TodayStrategies;
 import cn.taketoday.test.context.TestContextAnnotationUtils.AnnotationDescriptor;
 import cn.taketoday.test.context.TestContextAnnotationUtils.UntypedAnnotationDescriptor;

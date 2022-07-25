@@ -24,7 +24,7 @@ import org.junit.jupiter.api.Test;
 
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.annotation.AnnotationConfigApplicationContext;
-import cn.taketoday.lang.Component;
+import cn.taketoday.stereotype.Component;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

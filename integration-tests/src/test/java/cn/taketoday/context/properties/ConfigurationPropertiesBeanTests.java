@@ -41,7 +41,7 @@ import cn.taketoday.context.properties.ConfigurationPropertiesBean.BindMethod;
 import cn.taketoday.context.properties.bind.Bindable;
 import cn.taketoday.core.ResolvableType;
 import cn.taketoday.core.type.AnnotationMetadata;
-import cn.taketoday.lang.Component;
+import cn.taketoday.stereotype.Component;
 import cn.taketoday.validation.annotation.Validated;
 
 import static org.assertj.core.api.Assertions.assertThat;

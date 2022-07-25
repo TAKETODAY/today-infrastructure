@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<!--
+  ~ Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
+  ~ Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+  ~ Copyright (c) 2000-2011 INRIA, France Telecom All rights reserved.
+  ~
+  ~ DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+  ~
+  ~ This program is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ This program is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with this program.  If not, see [http://www.gnu.org/licenses/]
+  -->
+<html lang="en">
+<head>
+  <title>Package cn.taketoday.bytecode.tree.analysis</title>
+</head>
+<body>
+
+<p>
+  Provides a framework for static code analysis based on the asm.tree package.
+</p>
+
+<p>
+  Basic usage:
+</p>
+
+<pre>
+ClassReader classReader = new ClassReader(bytecode);
+ClassNode classNode = new ClassNode();
+classReader.accept(classNode, ClassReader.SKIP_DEBUG);
+
+for (MethodNode method : classNode.methods) {
+  if (method.instructions.size() > 0) {
+    Analyzer analyzer = new Analyzer(new BasicInterpreter());
+    analyzer.analyze(classNode.name, method);
+    Frame[] frames = analyzer.getFrames();
+    // Elements of the frames array now contains info for each instruction
+    // from the analyzed method. BasicInterpreter creates BasicValue, that
+    // is using simplified type system that distinguishes the UNINITIALZED,
+    // INT, FLOAT, LONG, DOUBLE, REFERENCE and RETURNADDRESS types.
+    ...
+  }
+}
+</pre>
+
+<p>
+  @since ASM 1.4.3
+</p>
+
+</body>
+</html>

@@ -161,9 +161,9 @@ class ConditionEvaluationReportTests {
 
   @Test
   @SuppressWarnings("resource")
-  void springBootConditionPopulatesReport() {
-    ConditionEvaluationReport report = ConditionEvaluationReport
-            .get(new AnnotationConfigApplicationContext(Config.class).getBeanFactory());
+  void conditionPopulatesReport() {
+    ConditionEvaluationReport report = ConditionEvaluationReport.get(
+            new AnnotationConfigApplicationContext(Config.class).getBeanFactory());
     assertThat(report.getConditionAndOutcomesBySource().size()).isNotEqualTo(0);
   }
 

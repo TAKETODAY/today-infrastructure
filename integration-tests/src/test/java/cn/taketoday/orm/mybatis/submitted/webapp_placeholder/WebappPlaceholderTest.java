@@ -32,6 +32,7 @@ import cn.taketoday.test.context.junit.jupiter.JUnitConfig;
 import cn.taketoday.test.context.web.WebAppConfiguration;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @Disabled
 @ExtendWith(ApplicationExtension.class)
@@ -47,9 +48,9 @@ class WebappPlaceholderTest {
 
   @Test
   void testName() {
-    Assertions.assertEquals(0, sqlSessionFactory.getConfiguration().getMapperRegistry().getMappers().size());
+    assertEquals(0, sqlSessionFactory.getConfiguration().getMapperRegistry().getMappers().size());
     Mapper mapper = applicationContext.getBean(Mapper.class);
     assertThat(mapper).isNotNull();
-    Assertions.assertEquals(1, sqlSessionFactory.getConfiguration().getMapperRegistry().getMappers().size());
+    assertEquals(1, sqlSessionFactory.getConfiguration().getMapperRegistry().getMappers().size());
   }
 }

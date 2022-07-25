@@ -204,20 +204,20 @@ class CloudPlatformTests {
   void isEnforcedWhenEnvironmentPropertyMatchesReturnsTrue() {
     MockEnvironment environment = new MockEnvironment();
     environment.setProperty("context.main.cloud-platform", "kubernetes");
-    Assertions.assertThat(CloudPlatform.KUBERNETES.isEnforced(environment)).isTrue();
+    assertThat(CloudPlatform.KUBERNETES.isEnforced(environment)).isTrue();
   }
 
   @Test
   void isEnforcedWhenEnvironmentPropertyDoesNotMatchReturnsFalse() {
     MockEnvironment environment = new MockEnvironment();
     environment.setProperty("context.main.cloud-platform", "heroku");
-    Assertions.assertThat(CloudPlatform.KUBERNETES.isEnforced(environment)).isFalse();
+    assertThat(CloudPlatform.KUBERNETES.isEnforced(environment)).isFalse();
   }
 
   @Test
   void isEnforcedWhenEnvironmentPropertyIsMissingReturnsFalse() {
     MockEnvironment environment = new MockEnvironment();
-    Assertions.assertThat(CloudPlatform.KUBERNETES.isEnforced(environment)).isFalse();
+    assertThat(CloudPlatform.KUBERNETES.isEnforced(environment)).isFalse();
   }
 
   @Test

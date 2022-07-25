@@ -231,8 +231,8 @@ class JettyServletWebServerFactoryTests extends AbstractServletWebServerFactoryT
     ServerConnector connector = (ServerConnector) jettyWebServer.getServer().getConnectors()[0];
     SslConnectionFactory connectionFactory = connector.getConnectionFactory(SslConnectionFactory.class);
     SslContextFactory sslContextFactory = extractSslContextFactory(connectionFactory);
-    Assertions.assertThat(sslContextFactory.getIncludeCipherSuites()).containsExactly("ALPHA", "BRAVO", "CHARLIE");
-    Assertions.assertThat(sslContextFactory.getExcludeCipherSuites()).isEmpty();
+    assertThat(sslContextFactory.getIncludeCipherSuites()).containsExactly("ALPHA", "BRAVO", "CHARLIE");
+    assertThat(sslContextFactory.getExcludeCipherSuites()).isEmpty();
   }
 
   @Test
@@ -241,7 +241,7 @@ class JettyServletWebServerFactoryTests extends AbstractServletWebServerFactoryT
     this.webServer = factory.getWebServer(exampleServletRegistration());
     this.webServer.stop();
     Server server = ((JettyWebServer) this.webServer).getServer();
-    Assertions.assertThat(server.isStopped()).isTrue();
+    assertThat(server.isStopped()).isTrue();
   }
 
   @Test
@@ -254,7 +254,7 @@ class JettyServletWebServerFactoryTests extends AbstractServletWebServerFactoryT
     ServerConnector connector = (ServerConnector) jettyWebServer.getServer().getConnectors()[0];
     SslConnectionFactory connectionFactory = connector.getConnectionFactory(SslConnectionFactory.class);
     SslContextFactory sslContextFactory = extractSslContextFactory(connectionFactory);
-    Assertions.assertThat(sslContextFactory.getIncludeProtocols()).containsExactly("TLSv1.1", "TLSv1.2");
+    assertThat(sslContextFactory.getIncludeProtocols()).containsExactly("TLSv1.1", "TLSv1.2");
   }
 
   @Test
@@ -267,7 +267,7 @@ class JettyServletWebServerFactoryTests extends AbstractServletWebServerFactoryT
     ServerConnector connector = (ServerConnector) jettyWebServer.getServer().getConnectors()[0];
     SslConnectionFactory connectionFactory = connector.getConnectionFactory(SslConnectionFactory.class);
     SslContextFactory sslContextFactory = extractSslContextFactory(connectionFactory);
-    Assertions.assertThat(sslContextFactory.getIncludeProtocols()).containsExactly("TLSv1.1");
+    assertThat(sslContextFactory.getIncludeProtocols()).containsExactly("TLSv1.1");
   }
 
   private SslContextFactory extractSslContextFactory(SslConnectionFactory connectionFactory) {
@@ -394,7 +394,7 @@ class JettyServletWebServerFactoryTests extends AbstractServletWebServerFactoryT
     }));
     this.webServer = factory.getWebServer(exampleServletRegistration());
     this.webServer.start();
-    Assertions.assertThat(getResponse(getLocalUrl("/hello"))).isEqualTo("Hello World");
+    assertThat(getResponse(getLocalUrl("/hello"))).isEqualTo("Hello World");
   }
 
   @Test
@@ -447,7 +447,7 @@ class JettyServletWebServerFactoryTests extends AbstractServletWebServerFactoryT
     this.webServer = factory.getWebServer();
     this.webServer.start();
     Connector connector = ((JettyWebServer) this.webServer).getServer().getConnectors()[0];
-    Assertions.assertThat(((ServerConnector) connector).getHost()).isEqualTo(localhost.getHostAddress());
+    assertThat(((ServerConnector) connector).getHost()).isEqualTo(localhost.getHostAddress());
   }
 
   @Test
@@ -463,7 +463,7 @@ class JettyServletWebServerFactoryTests extends AbstractServletWebServerFactoryT
     this.webServer = factory.getWebServer();
     this.webServer.start();
     Connector connector = ((JettyWebServer) this.webServer).getServer().getConnectors()[0];
-    Assertions.assertThat(((ServerConnector) connector).getHost()).isEqualTo(localhost.getHostAddress());
+    assertThat(((ServerConnector) connector).getHost()).isEqualTo(localhost.getHostAddress());
   }
 
   @Test
@@ -500,7 +500,7 @@ class JettyServletWebServerFactoryTests extends AbstractServletWebServerFactoryT
       }
       finally {
         QueuedThreadPool threadPool = (QueuedThreadPool) jettyWebServer.getServer().getThreadPool();
-        Assertions.assertThat(threadPool.isRunning()).isFalse();
+        assertThat(threadPool.isRunning()).isFalse();
       }
     });
   }
@@ -518,7 +518,7 @@ class JettyServletWebServerFactoryTests extends AbstractServletWebServerFactoryT
     });
     JettyWebServer jettyWebServer = (JettyWebServer) factory.getWebServer();
     WebAppContext context = findWebAppContext(jettyWebServer);
-    Assertions.assertThat(context.getErrorHandler()).isInstanceOf(CustomErrorHandler.class);
+    assertThat(context.getErrorHandler()).isInstanceOf(CustomErrorHandler.class);
   }
 
   private WebAppContext findWebAppContext(JettyWebServer webServer) {

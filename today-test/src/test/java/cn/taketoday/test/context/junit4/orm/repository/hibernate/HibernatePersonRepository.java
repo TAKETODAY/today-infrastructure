@@ -23,7 +23,7 @@ package cn.taketoday.test.context.junit4.orm.repository.hibernate;
 import org.hibernate.SessionFactory;
 
 import cn.taketoday.beans.factory.annotation.Autowired;
-import cn.taketoday.lang.Repository;
+import cn.taketoday.stereotype.Repository;
 import cn.taketoday.test.context.junit4.orm.domain.Person;
 import cn.taketoday.test.context.junit4.orm.repository.PersonRepository;
 

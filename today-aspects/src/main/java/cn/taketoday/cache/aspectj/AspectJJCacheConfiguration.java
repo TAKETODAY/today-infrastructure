@@ -24,9 +24,9 @@ import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.cache.config.CacheManagementConfigUtils;
 import cn.taketoday.cache.jcache.config.AbstractJCacheConfiguration;
 import cn.taketoday.cache.jcache.interceptor.JCacheOperationSource;
-import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Role;
+import cn.taketoday.stereotype.Component;
 
 /**
  * {@code @Configuration} class that registers the Spring infrastructure beans necessary
@@ -42,8 +42,8 @@ import cn.taketoday.context.annotation.Role;
 @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
 public class AspectJJCacheConfiguration extends AbstractJCacheConfiguration {
 
-  @Bean(name = CacheManagementConfigUtils.JCACHE_ASPECT_BEAN_NAME)
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
+  @Component(CacheManagementConfigUtils.JCACHE_ASPECT_BEAN_NAME)
   public JCacheCacheAspect cacheAspect(JCacheOperationSource jCacheOperationSource) {
     JCacheCacheAspect cacheAspect = JCacheCacheAspect.aspectOf();
     cacheAspect.setCacheOperationSource(jCacheOperationSource);

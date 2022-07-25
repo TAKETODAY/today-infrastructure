@@ -44,7 +44,7 @@ import cn.taketoday.test.context.junit.jupiter.ApplicationExtension;
 import cn.taketoday.test.context.support.AbstractContextLoader;
 import cn.taketoday.web.HandlerInterceptor;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.annotation.Controller;
+import cn.taketoday.stereotype.Controller;
 import cn.taketoday.web.annotation.RequestMapping;
 import cn.taketoday.web.annotation.ResponseBody;
 import cn.taketoday.web.annotation.ResponseStatus;

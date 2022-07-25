@@ -77,7 +77,7 @@ class StandardConfigDataLocationResolverTests {
     ConfigDataLocation location = ConfigDataLocation.valueOf("classpath:/configdata/properties/");
     List<StandardConfigDataResource> locations = this.resolver.resolve(this.context, location);
     assertThat(locations.size()).isEqualTo(1);
-    Assertions.assertThat(locations).extracting(Object::toString)
+    assertThat(locations).extracting(Object::toString)
             .containsExactly("class path resource [configdata/properties/application.properties]");
   }
 
@@ -87,7 +87,7 @@ class StandardConfigDataLocationResolverTests {
             .valueOf("file:src/test/resources/configdata/properties/application.properties");
     List<StandardConfigDataResource> locations = this.resolver.resolve(this.context, location);
     assertThat(locations.size()).isEqualTo(1);
-    Assertions.assertThat(locations).extracting(Object::toString).containsExactly(
+    assertThat(locations).extracting(Object::toString).containsExactly(
             filePath("src", "test", "resources", "configdata", "properties", "application.properties"));
   }
 
@@ -137,7 +137,7 @@ class StandardConfigDataLocationResolverTests {
     this.resolver = new StandardConfigDataLocationResolver(this.environmentBinder, this.resourceLoader);
     List<StandardConfigDataResource> locations = this.resolver.resolve(this.context, location);
     assertThat(locations.size()).isEqualTo(3);
-    Assertions.assertThat(locations).extracting(Object::toString)
+    assertThat(locations).extracting(Object::toString)
             .contains(filePath("src", "test", "resources", "config", "1-first", "testproperties.properties"))
             .contains(filePath("src", "test", "resources", "config", "2-second", "testproperties.properties"))
             .doesNotContain(filePath("src", "test", "resources", "config", "3-third", "testproperties.properties"));
@@ -149,7 +149,7 @@ class StandardConfigDataLocationResolverTests {
     this.environment.setProperty("context.config.name", "testproperties");
     this.resolver = new StandardConfigDataLocationResolver(this.environmentBinder, this.resourceLoader);
     List<StandardConfigDataResource> locations = this.resolver.resolve(this.context, location);
-    Assertions.assertThat(locations).extracting(Object::toString).containsExactly(
+    assertThat(locations).extracting(Object::toString).containsExactly(
             filePath("src", "test", "resources", "config", "0-empty", "testproperties.properties"),
             filePath("src", "test", "resources", "config", "1-first", "testproperties.properties"),
             filePath("src", "test", "resources", "config", "2-second", "testproperties.properties"));
@@ -167,7 +167,7 @@ class StandardConfigDataLocationResolverTests {
             .valueOf("file:src/test/resources/config/*/testproperties.properties");
     List<StandardConfigDataResource> locations = this.resolver.resolve(this.context, location);
     assertThat(locations.size()).isEqualTo(3);
-    Assertions.assertThat(locations).extracting(Object::toString)
+    assertThat(locations).extracting(Object::toString)
             .contains(filePath("src", "test", "resources", "config", "1-first", "testproperties.properties"))
             .contains(filePath("src", "test", "resources", "config", "2-second", "testproperties.properties"))
             .doesNotContain(filePath("src", "test", "resources", "config", "nested", "3-third",
@@ -189,7 +189,7 @@ class StandardConfigDataLocationResolverTests {
     given(this.context.getParent()).willReturn(parent);
     List<StandardConfigDataResource> locations = this.resolver.resolve(this.context, location);
     assertThat(locations.size()).isEqualTo(1);
-    Assertions.assertThat(locations).extracting(Object::toString)
+    assertThat(locations).extracting(Object::toString)
             .contains("class path resource [configdata/properties/other.properties]");
   }
 
@@ -206,7 +206,7 @@ class StandardConfigDataLocationResolverTests {
     given(this.context.getParent()).willReturn(parent);
     List<StandardConfigDataResource> locations = this.resolver.resolve(this.context, location);
     assertThat(locations.size()).isEqualTo(1);
-    Assertions.assertThat(locations).extracting(Object::toString)
+    assertThat(locations).extracting(Object::toString)
             .contains("class path resource [config/nested/3-third/testproperties.properties]");
   }
 
@@ -244,7 +244,7 @@ class StandardConfigDataLocationResolverTests {
     List<StandardConfigDataResource> locations = this.resolver.resolveProfileSpecific(this.context, location,
             profiles);
     assertThat(locations.size()).isEqualTo(1);
-    Assertions.assertThat(locations).extracting(Object::toString)
+    assertThat(locations).extracting(Object::toString)
             .containsExactly("class path resource [configdata/properties/application-dev.properties]");
   }
 
@@ -256,7 +256,7 @@ class StandardConfigDataLocationResolverTests {
     given(profiles.getActive()).willReturn(Collections.singletonList("dev"));
     List<StandardConfigDataResource> locations = this.resolver.resolveProfileSpecific(this.context, location,
             profiles);
-    Assertions.assertThat(locations).isEmpty();
+    assertThat(locations).isEmpty();
   }
 
   private String filePath(String... components) {

@@ -33,16 +33,17 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import cn.taketoday.framework.web.server.AbstractConfigurableWebServerFactory;
 import cn.taketoday.framework.web.server.MimeMappings;
 import cn.taketoday.framework.web.servlet.ServletContextInitializer;
-import cn.taketoday.framework.web.session.Cookie;
-import cn.taketoday.framework.web.session.Session;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
+import cn.taketoday.session.config.CookieProperties;
+import cn.taketoday.session.config.SessionProperties;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.PropertyMapper;
@@ -71,7 +72,7 @@ public abstract class AbstractServletWebServerFactory extends AbstractConfigurab
 
   private String displayName;
 
-  private Session session = new Session();
+  private SessionProperties session = new SessionProperties();
 
   private boolean registerDefaultServlet = false;
 
@@ -80,7 +81,7 @@ public abstract class AbstractServletWebServerFactory extends AbstractConfigurab
   private List<ServletContextInitializer> initializers = new ArrayList<>();
 
   @Nullable
-  private Jsp jsp = new Jsp();
+  private JspProperties jspConfig = new JspProperties();
 
   private Map<Locale, Charset> localeCharsetMappings = new HashMap<>();
 
@@ -215,21 +216,22 @@ public abstract class AbstractServletWebServerFactory extends AbstractConfigurab
     CollectionUtils.addAll(this.initializers, initializers);
   }
 
-  public Jsp getJsp() {
-    return this.jsp;
+  @Nullable
+  public JspProperties getJsp() {
+    return this.jspConfig;
   }
 
   @Override
-  public void setJsp(Jsp jsp) {
-    this.jsp = jsp;
+  public void setJsp(@Nullable JspProperties jsp) {
+    this.jspConfig = jsp;
   }
 
-  public Session getSession() {
+  public SessionProperties getSession() {
     return this.session;
   }
 
   @Override
-  public void setSession(Session session) {
+  public void setSession(SessionProperties session) {
     this.session = session;
   }
 
@@ -296,8 +298,8 @@ public abstract class AbstractServletWebServerFactory extends AbstractConfigurab
    * @return {@code true} if the servlet should be registered, otherwise {@code false}
    */
   protected boolean shouldRegisterJspServlet() {
-    return jsp != null && jsp.getRegistered()
-            && ClassUtils.isPresent(jsp.getClassName(), getClass().getClassLoader());
+    return jspConfig != null && jspConfig.getRegistered()
+            && ClassUtils.isPresent(jspConfig.getClassName(), getClass().getClassLoader());
   }
 
   /**
@@ -320,7 +322,7 @@ public abstract class AbstractServletWebServerFactory extends AbstractConfigurab
   }
 
   protected final File getValidSessionStoreDir(boolean mkdirs) {
-    return this.session.getValidDirectory(mkdirs);
+    return SessionStoreDirectory.getValidDirectory(session.getStoreDir(), mkdirs);
   }
 
   @Override
@@ -333,10 +335,10 @@ public abstract class AbstractServletWebServerFactory extends AbstractConfigurab
   }
 
   /**
-   * {@link ServletContextInitializer} to apply appropriate parts of the {@link Session}
+   * {@link ServletContextInitializer} to apply appropriate parts of the {@link SessionProperties}
    * configuration.
    */
-  private record SessionConfiguringInitializer(Session session) implements ServletContextInitializer {
+  private record SessionConfiguringInitializer(SessionProperties session) implements ServletContextInitializer {
 
     @Override
     public void onStartup(ServletContext servletContext) {
@@ -347,7 +349,7 @@ public abstract class AbstractServletWebServerFactory extends AbstractConfigurab
     }
 
     private void configureSessionCookie(SessionCookieConfig config) {
-      Cookie cookie = this.session.getCookie();
+      CookieProperties cookie = session.getCookie();
       PropertyMapper map = PropertyMapper.get().alwaysApplyingWhenNonNull();
       map.from(cookie::getName).to(config::setName);
       map.from(cookie::getDomain).to(config::setDomain);
@@ -359,15 +361,15 @@ public abstract class AbstractServletWebServerFactory extends AbstractConfigurab
     }
 
     @Nullable
-    private Set<SessionTrackingMode> unwrap(@Nullable Set<Session.SessionTrackingMode> modes) {
-      if (modes == null) {
+    private Set<SessionTrackingMode> unwrap(@Nullable Set<cn.taketoday.session.config.SessionTrackingMode> modes) {
+      if (CollectionUtils.isEmpty(modes)) {
         return null;
       }
-      LinkedHashSet<SessionTrackingMode> result = new LinkedHashSet<>();
-      for (Session.SessionTrackingMode mode : modes) {
-        result.add(SessionTrackingMode.valueOf(mode.name()));
-      }
-      return result;
+
+      return modes.stream()
+              .map(Enum::name)
+              .map(SessionTrackingMode::valueOf)
+              .collect(Collectors.toCollection(LinkedHashSet::new));
     }
 
   }

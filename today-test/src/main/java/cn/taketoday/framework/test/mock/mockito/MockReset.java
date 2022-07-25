@@ -116,8 +116,8 @@ public enum MockReset {
       MockCreationSettings<?> settings = mockingDetails.getMockCreationSettings();
       List<InvocationListener> listeners = settings.getInvocationListeners();
       for (Object listener : listeners) {
-        if (listener instanceof ResetInvocationListener) {
-          reset = ((ResetInvocationListener) listener).getReset();
+        if (listener instanceof ResetInvocationListener resetInvocationListener) {
+          reset = resetInvocationListener.getReset();
         }
       }
     }

@@ -20,7 +20,7 @@
 package cn.taketoday.orm.mybatis.submitted.xa;
 
 import cn.taketoday.beans.factory.annotation.Autowired;
-import cn.taketoday.lang.Service;
+import cn.taketoday.stereotype.Service;
 import cn.taketoday.transaction.annotation.Transactional;
 
 @Service

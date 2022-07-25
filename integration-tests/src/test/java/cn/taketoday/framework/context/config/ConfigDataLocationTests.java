@@ -20,7 +20,6 @@
 
 package cn.taketoday.framework.context.config;
 
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import cn.taketoday.origin.Origin;
@@ -143,14 +142,14 @@ class ConfigDataLocationTests {
   void splitWhenNoSemiColonReturnsSingleElement() {
     ConfigDataLocation location = ConfigDataLocation.valueOf("test");
     ConfigDataLocation[] split = location.split();
-    Assertions.assertThat(split).containsExactly(ConfigDataLocation.valueOf("test"));
+    assertThat(split).containsExactly(ConfigDataLocation.valueOf("test"));
   }
 
   @Test
   void splitWhenSemiColonReturnsElements() {
     ConfigDataLocation location = ConfigDataLocation.valueOf("one;two;three");
     ConfigDataLocation[] split = location.split();
-    Assertions.assertThat(split).containsExactly(ConfigDataLocation.valueOf("one"), ConfigDataLocation.valueOf("two"),
+    assertThat(split).containsExactly(ConfigDataLocation.valueOf("one"), ConfigDataLocation.valueOf("two"),
             ConfigDataLocation.valueOf("three"));
   }
 
@@ -158,7 +157,7 @@ class ConfigDataLocationTests {
   void splitOnCharReturnsElements() {
     ConfigDataLocation location = ConfigDataLocation.valueOf("one::two::three");
     ConfigDataLocation[] split = location.split("::");
-    Assertions.assertThat(split).containsExactly(ConfigDataLocation.valueOf("one"), ConfigDataLocation.valueOf("two"),
+    assertThat(split).containsExactly(ConfigDataLocation.valueOf("one"), ConfigDataLocation.valueOf("two"),
             ConfigDataLocation.valueOf("three"));
   }
 

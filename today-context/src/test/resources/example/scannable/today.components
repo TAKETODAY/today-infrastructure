@@ -1,0 +1,10 @@
+example.scannable.AutowiredQualifierFooService=example.scannable.FooService
+example.scannable.DefaultNamedComponent=cn.taketoday.stereotype.Component
+example.scannable.NamedComponent=cn.taketoday.stereotype.Component
+example.scannable.FooService=example.scannable.FooService
+example.scannable.FooServiceImpl=cn.taketoday.stereotype.Component,example.scannable.FooService
+example.scannable.ScopedProxyTestBean=example.scannable.FooService
+example.scannable.StubFooDao=cn.taketoday.stereotype.Component
+example.scannable.NamedStubDao=cn.taketoday.stereotype.Component
+example.scannable.ServiceInvocationCounter=cn.taketoday.stereotype.Component
+example.scannable.sub.BarComponent=cn.taketoday.stereotype.Component

@@ -21,6 +21,8 @@
 package cn.taketoday.web.session;
 
 import cn.taketoday.context.ApplicationEvent;
+import cn.taketoday.session.SessionRepository;
+import cn.taketoday.session.WebSession;
 
 /**
  * For {@link SessionRepository} implementations that support it, this event is fired when

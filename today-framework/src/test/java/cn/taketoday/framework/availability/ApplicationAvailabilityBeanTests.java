@@ -30,10 +30,10 @@ import java.util.List;
 
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.support.StandardApplicationContext;
-import cn.taketoday.core.bytecode.proxy.Enhancer;
-import cn.taketoday.core.bytecode.proxy.MethodInterceptor;
-import cn.taketoday.core.bytecode.proxy.MethodProxy;
-import cn.taketoday.lang.Component;
+import cn.taketoday.bytecode.proxy.Enhancer;
+import cn.taketoday.bytecode.proxy.MethodInterceptor;
+import cn.taketoday.bytecode.proxy.MethodProxy;
+import cn.taketoday.stereotype.Component;
 import cn.taketoday.logging.Logger;
 
 import static org.assertj.core.api.Assertions.assertThat;

@@ -33,7 +33,6 @@ import cn.taketoday.framework.context.config.ConfigDataProperties.Activate;
 import cn.taketoday.mock.env.MockEnvironment;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 /**
  * Tests for {@link ConfigDataProperties}.

@@ -25,7 +25,7 @@ import java.util.Iterator;
 import java.util.List;
 
 /**
- * Beans created using Mockito.
+ * Beans created using
  *
  * @author Andy Wilkinson
  */

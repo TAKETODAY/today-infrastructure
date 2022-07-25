@@ -23,7 +23,7 @@ package cn.taketoday.scheduling.aspectj;
 import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Role;
-import cn.taketoday.lang.Component;
+import cn.taketoday.stereotype.Component;
 import cn.taketoday.scheduling.annotation.AbstractAsyncConfiguration;
 import cn.taketoday.scheduling.annotation.EnableAsync;
 import cn.taketoday.scheduling.config.TaskManagementConfigUtils;

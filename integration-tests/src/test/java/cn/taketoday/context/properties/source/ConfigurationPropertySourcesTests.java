@@ -35,7 +35,6 @@ import cn.taketoday.core.env.MapPropertySource;
 import cn.taketoday.core.env.PropertySources;
 import cn.taketoday.core.env.PropertyResolver;
 import cn.taketoday.core.env.PropertySource;
-import cn.taketoday.core.env.PropertySources;
 import cn.taketoday.core.env.PropertySourcesPropertyResolver;
 import cn.taketoday.core.env.StandardEnvironment;
 import cn.taketoday.core.env.SystemEnvironmentPropertySource;

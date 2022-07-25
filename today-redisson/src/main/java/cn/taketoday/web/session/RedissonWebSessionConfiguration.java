@@ -26,9 +26,11 @@ import java.time.Duration;
 import java.util.concurrent.TimeUnit;
 
 import cn.taketoday.context.annotation.Configuration;
-import cn.taketoday.context.aware.ImportAware;
+import cn.taketoday.context.annotation.ImportAware;
 import cn.taketoday.core.type.AnnotationMetadata;
-import cn.taketoday.lang.Component;
+import cn.taketoday.session.SessionEventDispatcher;
+import cn.taketoday.session.SessionIdGenerator;
+import cn.taketoday.stereotype.Component;
 import cn.taketoday.lang.Nullable;
 
 /**

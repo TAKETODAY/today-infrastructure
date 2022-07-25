@@ -89,7 +89,7 @@ class ApplicationShutdownHook implements Runnable {
   }
 
   void addRuntimeShutdownHook() {
-    Runtime.getRuntime().addShutdownHook(new Thread(this, "SpringApplicationShutdownHook"));
+    Runtime.getRuntime().addShutdownHook(new Thread(this, "ApplicationShutdownHook"));
   }
 
   void deregisterFailedApplicationContext(ConfigurableApplicationContext applicationContext) {

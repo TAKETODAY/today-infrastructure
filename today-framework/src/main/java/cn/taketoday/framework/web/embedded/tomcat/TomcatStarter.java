@@ -24,7 +24,6 @@ import java.util.Set;
 
 import cn.taketoday.framework.web.servlet.ServletContextInitializer;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import jakarta.servlet.ServletContainerInitializer;
 import jakarta.servlet.ServletContext;

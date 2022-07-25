@@ -22,7 +22,6 @@ package cn.taketoday.framework.web.servlet;
 
 import org.junit.jupiter.api.Test;
 
-import cn.taketoday.framework.web.servlet.MultipartConfigFactory;
 import cn.taketoday.util.DataSize;
 import jakarta.servlet.MultipartConfigElement;
 

@@ -36,7 +36,7 @@ import cn.taketoday.framework.CommandLineRunner;
  * @since 4.0
  */
 @SuppressWarnings("serial")
-public class ApplicationStartedEvent extends SpringApplicationEvent {
+public class ApplicationStartedEvent extends ApplicationStartupEvent {
 
   private final ConfigurableApplicationContext context;
 

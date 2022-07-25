@@ -36,9 +36,9 @@ import cn.taketoday.context.properties.ConfigurationProperties;
 import cn.taketoday.context.properties.NestedConfigurationProperty;
 import cn.taketoday.format.annotation.DurationUnit;
 import cn.taketoday.framework.web.error.ErrorProperties;
-import cn.taketoday.framework.web.servlet.server.Jsp;
-import cn.taketoday.framework.web.session.Cookie;
-import cn.taketoday.framework.web.session.Session;
+import cn.taketoday.framework.web.servlet.server.JspProperties;
+import cn.taketoday.session.config.CookieProperties;
+import cn.taketoday.session.config.SessionProperties;
 import cn.taketoday.util.DataSize;
 import cn.taketoday.util.StringUtils;
 import io.undertow.UndertowOptions;
@@ -83,10 +83,10 @@ public class ServerProperties {
   private InetAddress address;
 
   @NestedConfigurationProperty
-  private final Encoding encoding = new Encoding();
+  private final EncodingProperties encoding = new EncodingProperties();
 
   @NestedConfigurationProperty
-  private final Session session = new Session();
+  private final SessionProperties session = new SessionProperties();
 
   @NestedConfigurationProperty
   private final ErrorProperties error = new ErrorProperties();
@@ -224,11 +224,11 @@ public class ServerProperties {
     this.forwardHeadersStrategy = forwardHeadersStrategy;
   }
 
-  public Encoding getEncoding() {
+  public EncodingProperties getEncoding() {
     return this.encoding;
   }
 
-  public Session getSession() {
+  public SessionProperties getSession() {
     return this.session;
   }
 
@@ -258,7 +258,7 @@ public class ServerProperties {
     private boolean registerDefaultServlet = false;
 
     @NestedConfigurationProperty
-    private final Jsp jsp = new Jsp();
+    private final JspProperties jsp = new JspProperties();
 
     public String getContextPath() {
       return this.contextPath;
@@ -299,7 +299,7 @@ public class ServerProperties {
       return this.contextParameters;
     }
 
-    public Jsp getJsp() {
+    public JspProperties getJsp() {
       return this.jsp;
     }
 
@@ -325,7 +325,7 @@ public class ServerProperties {
       @DurationUnit(ChronoUnit.SECONDS)
       private Duration timeout = Duration.ofMinutes(30);
 
-      private final Cookie cookie = new Cookie();
+      private final CookieProperties cookie = new CookieProperties();
 
       public Duration getTimeout() {
         return this.timeout;
@@ -335,7 +335,7 @@ public class ServerProperties {
         this.timeout = timeout;
       }
 
-      public Cookie getCookie() {
+      public CookieProperties getCookie() {
         return this.cookie;
       }
 

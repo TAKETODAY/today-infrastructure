@@ -20,7 +20,7 @@
 
 package cn.taketoday.framework.diagnostics.analyzer.nounique;
 
-import cn.taketoday.lang.Component;
+import cn.taketoday.stereotype.Component;
 
 @Component
 public class FooTestBean extends TestBean {
