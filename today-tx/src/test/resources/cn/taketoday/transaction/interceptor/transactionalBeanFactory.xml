@@ -3,14 +3,14 @@
 
 <beans>
 
-  <bean id="targetDependency" class="cn.taketoday.beans.testfixture.beans.TestBean">
+  <bean id="targetDependency" class="cn.taketoday.transaction.testfixture.beans.TestBean">
     <property name="name">
       <value>dependency</value>
     </property>
   </bean>
 
   <!-- Simple target -->
-  <bean id="target" class="cn.taketoday.beans.testfixture.beans.DerivedTestBean" lazy-init="true">
+  <bean id="target" class="cn.taketoday.transaction.testfixture.beans.DerivedTestBean" lazy-init="true">
     <property name="name">
       <value>custom</value>
     </property>
@@ -32,16 +32,16 @@
     </property>
     <property name="transactionAttributeSource">
       <value>
-        cn.taketoday.beans.testfixture.beans.ITestBean.s*=PROPAGATION_MANDATORY
-        cn.taketoday.beans.testfixture.beans.AgeHolder.setAg*=PROPAGATION_REQUIRED
-        cn.taketoday.beans.testfixture.beans.ITestBean.set*= PROPAGATION_SUPPORTS , readOnly
+        cn.taketoday.transaction.testfixture.beans.ITestBean.s*=PROPAGATION_MANDATORY
+        cn.taketoday.transaction.testfixture.beans.AgeHolder.setAg*=PROPAGATION_REQUIRED
+        cn.taketoday.transaction.testfixture.beans.ITestBean.set*= PROPAGATION_SUPPORTS , readOnly
       </value>
     </property>
   </bean>
 
   <bean id="proxyFactory1" class="cn.taketoday.aop.framework.ProxyFactoryBean">
     <property name="proxyInterfaces">
-      <value>cn.taketoday.beans.testfixture.beans.ITestBean</value>
+      <value>cn.taketoday.transaction.testfixture.beans.ITestBean</value>
     </property>
     <property name="interceptorNames">
       <list>
