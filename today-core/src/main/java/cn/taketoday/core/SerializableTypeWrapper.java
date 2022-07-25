@@ -245,6 +245,7 @@ final class SerializableTypeWrapper {
    */
   static class ParameterTypeProvider implements TypeProvider {
 
+    @Nullable
     private final String methodName;
     private final Class<?>[] parameterTypes;
     private final Class<?> declaringClass;
@@ -259,7 +260,7 @@ final class SerializableTypeWrapper {
       Executable executable = parameter.getDeclaringExecutable();
       this.methodParameter = parameter;
       this.parameterIndex = parameterIndex;
-      this.methodName = executable.getName();
+      this.methodName = executable instanceof Method method ? method.getName() : null;
       this.parameterTypes = executable.getParameterTypes();
       this.declaringClass = executable.getDeclaringClass();
     }
