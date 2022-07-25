@@ -35,7 +35,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.contains;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -378,10 +378,17 @@ class LambdaSafeTests {
     given(logger.isDebugEnabled()).willReturn(true);
     GenericCallback<StringBuilder> callbackInstance = (s) -> fail("Should not get here");
     String argument = "foo";
-    LambdaSafe.callback(GenericCallback.class, callbackInstance, argument).withLogger(logger)
+    LambdaSafe.callback(GenericCallback.class, callbackInstance, argument)
+            .withLogger(logger)
             .invoke((c) -> c.handle(argument));
-    verify(logger).debug(contains("Non-matching CharSequence type for callback LambdaSafeTests.GenericCallback"),
-            any(Throwable.class));
+
+    verify(logger).debug(
+            eq("Non-matching {} for callback {}: {}"),
+            eq("CharSequence type"),
+            eq(ClassUtils.getShortName(GenericCallback.class)),
+            eq(callbackInstance),
+            any(ClassCastException.class)
+    );
   }
 
   interface NonGenericCallback {

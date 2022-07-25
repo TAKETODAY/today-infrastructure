@@ -128,7 +128,7 @@ public abstract class Logger implements Serializable {
    *
    * @return True if this Logger is enabled for the DEBUG level, false otherwise.
    */
-  public final boolean isDebugEnabled() {
+  public boolean isDebugEnabled() {
     return debugEnabled;
   }
 
