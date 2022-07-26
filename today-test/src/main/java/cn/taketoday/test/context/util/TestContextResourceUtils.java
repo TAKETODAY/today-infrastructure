@@ -30,6 +30,7 @@ import cn.taketoday.core.io.FileSystemResource;
 import cn.taketoday.core.io.PatternResourceLoader;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.core.io.ResourceLoader;
+import cn.taketoday.core.io.UrlResource;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.ResourceUtils;
 import cn.taketoday.util.StringUtils;
@@ -44,7 +45,7 @@ import cn.taketoday.util.StringUtils;
  * @see cn.taketoday.core.io.Resource
  * @see cn.taketoday.core.io.ClassPathResource
  * @see FileSystemResource
- * @see cn.taketoday.core.io.UrlBasedResource
+ * @see UrlResource
  * @see cn.taketoday.core.io.ResourceLoader
  * @since 4.0
  */

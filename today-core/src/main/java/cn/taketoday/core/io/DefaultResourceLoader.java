@@ -37,7 +37,7 @@ import cn.taketoday.util.ResourceUtils;
 /**
  * Default implementation of the {@link ResourceLoader} interface.
  *
- * <p>Will return a {@link UrlBasedResource} if the location value is a URL,
+ * <p>Will return a {@link UrlResource} if the location value is a URL,
  * and a {@link ClassPathResource} if it is a non-URL path or a
  * "classpath:" pseudo-URL.
  *
@@ -172,7 +172,7 @@ public class DefaultResourceLoader implements ResourceLoader {
         URL url = new URL(location);
         return ResourceUtils.isFileURL(url)
                ? new FileUrlResource(url)
-               : new UrlBasedResource(url);
+               : new UrlResource(url);
       }
       catch (MalformedURLException ex) {
         // No URL -> resolve as resource path.

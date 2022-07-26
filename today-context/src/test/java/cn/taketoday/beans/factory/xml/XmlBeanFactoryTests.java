@@ -67,7 +67,7 @@ import cn.taketoday.beans.testfixture.beans.factory.DummyFactory;
 import cn.taketoday.core.io.ClassPathResource;
 import cn.taketoday.core.io.EncodedResource;
 import cn.taketoday.core.io.FileSystemResource;
-import cn.taketoday.core.io.UrlBasedResource;
+import cn.taketoday.core.io.UrlResource;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.FileCopyUtils;
@@ -1182,7 +1182,7 @@ class XmlBeanFactoryTests {
   void urlResourceWithImport() {
     URL url = getClass().getResource(RESOURCE_CONTEXT.getPath());
     StandardBeanFactory xbf = new StandardBeanFactory();
-    new XmlBeanDefinitionReader(xbf).loadBeanDefinitions(new UrlBasedResource(url));
+    new XmlBeanDefinitionReader(xbf).loadBeanDefinitions(new UrlResource(url));
     // comes from "resourceImport.xml"
     xbf.getBean("resource1", ResourceTestBean.class);
     // comes from "resource.xml"

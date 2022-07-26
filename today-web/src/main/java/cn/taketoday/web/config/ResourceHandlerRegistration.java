@@ -27,6 +27,7 @@ import java.util.List;
 import cn.taketoday.cache.Cache;
 import cn.taketoday.cache.concurrent.ConcurrentMapCache;
 import cn.taketoday.core.io.Resource;
+import cn.taketoday.core.io.UrlResource;
 import cn.taketoday.http.CacheControl;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
@@ -83,7 +84,7 @@ public class ResourceHandlerRegistration {
    * from any JAR on the classpath that contains a
    * {@code /META-INF/public-web-resources/} directory, with resources in the
    * web application root taking precedence.
-   * <p>For {@link cn.taketoday.core.io.UrlBasedResource URL-based resources}
+   * <p>For {@link UrlResource URL-based resources}
    * (e.g. files, HTTP URLs, etc) this method supports a special prefix to
    * indicate the charset associated with the URL so that relative paths
    * appended to it can be encoded correctly, e.g.

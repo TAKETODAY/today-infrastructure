@@ -43,7 +43,7 @@ import cn.taketoday.util.StringUtils;
  * @author TODAY
  * @since 2.1.6 2019-05-14 22:26
  */
-public class UrlBasedResource extends AbstractFileResolvingResource {
+public class UrlResource extends AbstractFileResolvingResource {
 
   /**
    * Original URI, if available; used for URI and File access.
@@ -69,7 +69,7 @@ public class UrlBasedResource extends AbstractFileResolvingResource {
    * @throws MalformedURLException if the given URL path is not valid
    * @since 4.0
    */
-  public UrlBasedResource(URI uri) throws MalformedURLException {
+  public UrlResource(URI uri) throws MalformedURLException {
     Assert.notNull(uri, "URI must not be null");
     this.uri = uri;
     this.url = uri.toURL();
@@ -80,7 +80,7 @@ public class UrlBasedResource extends AbstractFileResolvingResource {
    *
    * @param url a URL
    */
-  public UrlBasedResource(URL url) {
+  public UrlResource(URL url) {
     Assert.notNull(url, "URL must not be null");
     this.uri = null;
     this.url = url;
@@ -95,7 +95,7 @@ public class UrlBasedResource extends AbstractFileResolvingResource {
    * @see java.net.URL#URL(String)
    * @since 4.0
    */
-  public UrlBasedResource(String path) throws MalformedURLException {
+  public UrlResource(String path) throws MalformedURLException {
     Assert.notNull(path, "Path must not be null");
     this.uri = null;
     this.url = new URL(path);
@@ -114,7 +114,7 @@ public class UrlBasedResource extends AbstractFileResolvingResource {
    * @see java.net.URI#URI(String, String, String)
    * @since 4.0
    */
-  public UrlBasedResource(String protocol, String location) throws MalformedURLException {
+  public UrlResource(String protocol, String location) throws MalformedURLException {
     this(protocol, location, null);
   }
 
@@ -132,7 +132,7 @@ public class UrlBasedResource extends AbstractFileResolvingResource {
    * @see java.net.URI#URI(String, String, String)
    * @since 4.0
    */
-  public UrlBasedResource(String protocol, String location, @Nullable String fragment) throws MalformedURLException {
+  public UrlResource(String protocol, String location, @Nullable String fragment) throws MalformedURLException {
     try {
       this.uri = new URI(protocol, location, fragment);
       this.url = this.uri.toURL();
@@ -266,8 +266,8 @@ public class UrlBasedResource extends AbstractFileResolvingResource {
    */
   @Override
   public boolean equals(@Nullable Object other) {
-    return (this == other || (other instanceof UrlBasedResource
-            && getCleanedUrl().equals(((UrlBasedResource) other).getCleanedUrl())));
+    return (this == other || (other instanceof UrlResource
+            && getCleanedUrl().equals(((UrlResource) other).getCleanedUrl())));
   }
 
   /**
@@ -285,8 +285,8 @@ public class UrlBasedResource extends AbstractFileResolvingResource {
    * @see #createRelativeURL(String)
    */
   @Override
-  public UrlBasedResource createRelative(String relativePath) throws IOException {
-    return new UrlBasedResource(createRelativeURL(relativePath));
+  public UrlResource createRelative(String relativePath) throws IOException {
+    return new UrlResource(createRelativeURL(relativePath));
   }
 
   /**
@@ -315,7 +315,7 @@ public class UrlBasedResource extends AbstractFileResolvingResource {
 
   /**
    * Create a new {@code UrlResource} from the given {@link URI}.
-   * <p>This factory method is a convenience for {@link #UrlBasedResource(URI)} that
+   * <p>This factory method is a convenience for {@link #UrlResource(URI)} that
    * catches any {@link MalformedURLException} and rethrows it wrapped in an
    * {@link UncheckedIOException}; suitable for use in {@link java.util.stream.Stream}
    * and {@link java.util.Optional} APIs or other scenarios when a checked
@@ -323,12 +323,12 @@ public class UrlBasedResource extends AbstractFileResolvingResource {
    *
    * @param uri a URI
    * @throws UncheckedIOException if the given URL path is not valid
-   * @see #UrlBasedResource(URI)
+   * @see #UrlResource(URI)
    * @since 4.0
    */
-  public static UrlBasedResource from(URI uri) throws UncheckedIOException {
+  public static UrlResource from(URI uri) throws UncheckedIOException {
     try {
-      return new UrlBasedResource(uri);
+      return new UrlResource(uri);
     }
     catch (MalformedURLException ex) {
       throw new UncheckedIOException(ex);
@@ -337,7 +337,7 @@ public class UrlBasedResource extends AbstractFileResolvingResource {
 
   /**
    * Create a new {@code UrlResource} from the given URL path.
-   * <p>This factory method is a convenience for {@link #UrlBasedResource(String)}
+   * <p>This factory method is a convenience for {@link #UrlResource(String)}
    * that catches any {@link MalformedURLException} and rethrows it wrapped in an
    * {@link UncheckedIOException}; suitable for use in {@link java.util.stream.Stream}
    * and {@link java.util.Optional} APIs or other scenarios when a checked
@@ -345,12 +345,12 @@ public class UrlBasedResource extends AbstractFileResolvingResource {
    *
    * @param path a URL path
    * @throws UncheckedIOException if the given URL path is not valid
-   * @see #UrlBasedResource(String)
+   * @see #UrlResource(String)
    * @since 4.0
    */
-  public static UrlBasedResource from(String path) throws UncheckedIOException {
+  public static UrlResource from(String path) throws UncheckedIOException {
     try {
-      return new UrlBasedResource(path);
+      return new UrlResource(path);
     }
     catch (MalformedURLException ex) {
       throw new UncheckedIOException(ex);

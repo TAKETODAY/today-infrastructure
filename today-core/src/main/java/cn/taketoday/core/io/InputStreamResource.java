@@ -42,7 +42,7 @@ import cn.taketoday.lang.Assert;
  * @see ByteArrayResource
  * @see ClassPathResource
  * @see FileSystemResource
- * @see UrlBasedResource
+ * @see UrlResource
  * @since 3.0
  */
 public class InputStreamResource extends AbstractResource {

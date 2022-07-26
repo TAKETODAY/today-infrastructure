@@ -31,7 +31,7 @@ import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
 
-import cn.taketoday.core.io.UrlBasedResource;
+import cn.taketoday.core.io.UrlResource;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.NonNull;
 
@@ -108,7 +108,7 @@ public final class ImportCandidates implements Iterable<String> {
 
   private static List<String> readAutoConfigurations(URL url) {
     try (BufferedReader reader = new BufferedReader(
-            new InputStreamReader(new UrlBasedResource(url).getInputStream(), StandardCharsets.UTF_8))) {
+            new InputStreamReader(new UrlResource(url).getInputStream(), StandardCharsets.UTF_8))) {
       List<String> autoConfigurations = new ArrayList<>();
       String line;
       while ((line = reader.readLine()) != null) {

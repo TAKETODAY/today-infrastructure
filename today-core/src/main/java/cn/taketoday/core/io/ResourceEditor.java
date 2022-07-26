@@ -91,7 +91,7 @@ public class ResourceEditor extends PropertyEditorSupport {
    */
   public ResourceEditor(ResourceLoader resourceLoader, @Nullable PropertyResolver propertyResolver,
           boolean ignoreUnresolvablePlaceholders) {
-    Assert.notNull(resourceLoader, "ResourceLoader must not be null");
+    Assert.notNull(resourceLoader, "ResourceLoader is required");
     this.resourceLoader = resourceLoader;
     this.propertyResolver = propertyResolver;
     this.ignoreUnresolvablePlaceholders = ignoreUnresolvablePlaceholders;
@@ -101,7 +101,7 @@ public class ResourceEditor extends PropertyEditorSupport {
   public void setAsText(String text) {
     if (StringUtils.hasText(text)) {
       String locationToUse = resolvePath(text).trim();
-      setValue(this.resourceLoader.getResource(locationToUse));
+      setValue(resourceLoader.getResource(locationToUse));
     }
     else {
       setValue(null);
@@ -118,11 +118,12 @@ public class ResourceEditor extends PropertyEditorSupport {
    * @see PropertyResolver#resolveRequiredPlaceholders
    */
   protected String resolvePath(String path) {
-    if (this.propertyResolver == null) {
+    if (propertyResolver == null) {
       this.propertyResolver = new StandardEnvironment();
     }
-    return (this.ignoreUnresolvablePlaceholders ? this.propertyResolver.resolvePlaceholders(path) :
-            this.propertyResolver.resolveRequiredPlaceholders(path));
+    return ignoreUnresolvablePlaceholders
+           ? propertyResolver.resolvePlaceholders(path)
+           : propertyResolver.resolveRequiredPlaceholders(path);
   }
 
   @Override

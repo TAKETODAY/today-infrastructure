@@ -25,7 +25,7 @@ import org.junit.jupiter.api.Test;
 import java.net.URL;
 
 import cn.taketoday.core.io.Resource;
-import cn.taketoday.core.io.UrlBasedResource;
+import cn.taketoday.core.io.UrlResource;
 import cn.taketoday.core.testfixture.EnabledForTestGroups;
 import cn.taketoday.core.type.classreading.CachingMetadataReaderFactory;
 import cn.taketoday.core.type.classreading.MetadataReader;
@@ -57,7 +57,7 @@ class CachingMetadataReaderLeakTests {
 
     // look at a LOT of items
     for (int i = 0; i < ITEMS_TO_LOAD; i++) {
-      Resource resource = new UrlBasedResource(url) {
+      Resource resource = new UrlResource(url) {
 
         @Override
         public boolean equals(Object obj) {

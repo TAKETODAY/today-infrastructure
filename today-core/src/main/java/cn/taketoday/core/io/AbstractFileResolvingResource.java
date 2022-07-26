@@ -36,7 +36,7 @@ import cn.taketoday.util.ResourceUtils;
 
 /**
  * Abstract base class for resources which resolve URLs into File references,
- * such as {@link UrlBasedResource} or {@link ClassPathResource}.
+ * such as {@link UrlResource} or {@link ClassPathResource}.
  *
  * <p>Detects the "file" protocol as well as the JBoss "vfs" protocol in URLs,
  * resolving file system references accordingly.

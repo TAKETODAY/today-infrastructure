@@ -34,7 +34,7 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ResourceUtils;
 
 /**
- * Subclass of {@link UrlBasedResource} which assumes file resolution, to the degree
+ * Subclass of {@link UrlResource} which assumes file resolution, to the degree
  * of implementing the {@link WritableResource} interface for it. This resource
  * variant also caches resolved {@link File} handles from {@link #getFile()}.
  *
@@ -48,7 +48,7 @@ import cn.taketoday.util.ResourceUtils;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2021/12/30 21:39
  */
-public class FileUrlResource extends UrlBasedResource implements WritableResource {
+public class FileUrlResource extends UrlResource implements WritableResource {
 
   @Nullable
   private volatile File file;
@@ -73,7 +73,7 @@ public class FileUrlResource extends UrlBasedResource implements WritableResourc
    *
    * @param location the location (i.e. the file path within that protocol)
    * @throws MalformedURLException if the given URL specification is not valid
-   * @see UrlBasedResource#UrlBasedResource(String, String)
+   * @see UrlResource#UrlResource(String, String)
    * @see ResourceUtils#URL_PROTOCOL_FILE
    */
   public FileUrlResource(String location) throws MalformedURLException {

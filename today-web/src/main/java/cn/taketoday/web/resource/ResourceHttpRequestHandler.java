@@ -36,7 +36,7 @@ import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.expression.EmbeddedValueResolverAware;
 import cn.taketoday.core.StringValueResolver;
 import cn.taketoday.core.io.Resource;
-import cn.taketoday.core.io.UrlBasedResource;
+import cn.taketoday.core.io.UrlResource;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpMethod;
 import cn.taketoday.http.HttpRange;
@@ -154,7 +154,7 @@ public class ResourceHttpRequestHandler extends WebContentGenerator
    * from any JAR on the classpath that contains a
    * {@code /META-INF/public-web-resources/} directory, with resources in the
    * web application root taking precedence.
-   * <p>For {@link cn.taketoday.core.io.UrlBasedResource URL-based resources}
+   * <p>For {@link UrlResource URL-based resources}
    * (e.g. files, HTTP URLs, etc) this method supports a special prefix to
    * indicate the charset associated with the URL so that relative paths
    * appended to it can be encoded correctly, for example
@@ -433,7 +433,7 @@ public class ResourceHttpRequestHandler extends WebContentGenerator
         }
         result.add(resource);
         if (charset != null) {
-          if (!(resource instanceof UrlBasedResource)) {
+          if (!(resource instanceof UrlResource)) {
             throw new IllegalArgumentException("Unexpected charset for non-UrlBasedResource: " + resource);
           }
           this.locationCharsets.put(resource, charset);

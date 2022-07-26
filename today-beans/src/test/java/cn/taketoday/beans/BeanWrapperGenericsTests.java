@@ -20,7 +20,6 @@
 
 package cn.taketoday.beans;
 
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
@@ -40,7 +39,7 @@ import cn.taketoday.beans.testfixture.beans.GenericBean;
 import cn.taketoday.beans.testfixture.beans.GenericIntegerBean;
 import cn.taketoday.beans.testfixture.beans.GenericSetOfIntegerBean;
 import cn.taketoday.beans.testfixture.beans.TestBean;
-import cn.taketoday.core.io.UrlBasedResource;
+import cn.taketoday.core.io.UrlResource;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -98,8 +97,8 @@ class BeanWrapperGenericsTests {
     input.add("http://localhost:8080");
     input.add("http://localhost:9090");
     bw.setPropertyValue("resourceList", input);
-    assertThat(gb.getResourceList().get(0)).isEqualTo(new UrlBasedResource("http://localhost:8080"));
-    assertThat(gb.getResourceList().get(1)).isEqualTo(new UrlBasedResource("http://localhost:9090"));
+    assertThat(gb.getResourceList().get(0)).isEqualTo(new UrlResource("http://localhost:8080"));
+    assertThat(gb.getResourceList().get(1)).isEqualTo(new UrlResource("http://localhost:9090"));
   }
 
   @Test
@@ -108,7 +107,7 @@ class BeanWrapperGenericsTests {
     gb.setResourceList(new ArrayList<>());
     BeanWrapper bw = new BeanWrapperImpl(gb);
     bw.setPropertyValue("resourceList[0]", "http://localhost:8080");
-    assertThat(gb.getResourceList().get(0)).isEqualTo(new UrlBasedResource("http://localhost:8080"));
+    assertThat(gb.getResourceList().get(0)).isEqualTo(new UrlResource("http://localhost:8080"));
   }
 
   @Test

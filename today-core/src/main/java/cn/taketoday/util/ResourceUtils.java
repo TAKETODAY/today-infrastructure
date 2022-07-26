@@ -37,7 +37,7 @@ import cn.taketoday.core.io.JarEntryResource;
 import cn.taketoday.core.io.PathMatchingPatternResourceLoader;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.core.io.ResourceLoader;
-import cn.taketoday.core.io.UrlBasedResource;
+import cn.taketoday.core.io.UrlResource;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 
@@ -143,7 +143,7 @@ public abstract class ResourceUtils {
     if (URL_PROTOCOL_JAR.equals(protocol)) {
       return new JarEntryResource(url);
     }
-    return new UrlBasedResource(url);
+    return new UrlResource(url);
   }
 
   /**

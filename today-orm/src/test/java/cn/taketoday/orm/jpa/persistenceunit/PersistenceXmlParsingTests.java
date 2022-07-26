@@ -33,7 +33,7 @@ import javax.sql.DataSource;
 import cn.taketoday.core.io.ClassPathResource;
 import cn.taketoday.core.io.PathMatchingPatternResourceLoader;
 import cn.taketoday.core.io.Resource;
-import cn.taketoday.core.io.UrlBasedResource;
+import cn.taketoday.core.io.UrlResource;
 import cn.taketoday.jdbc.datasource.DriverManagerDataSource;
 import cn.taketoday.jdbc.datasource.lookup.JndiDataSourceLookup;
 import cn.taketoday.jdbc.datasource.lookup.MapDataSourceLookup;
@@ -291,7 +291,7 @@ public class PersistenceXmlParsingTests {
   public void testPersistenceUnitRootUrlWithJar() throws Exception {
     ClassPathResource archive = new ClassPathResource("/cn/taketoday/orm/jpa/jpa-archive.jar");
     String newRoot = "jar:" + archive.getURL().toExternalForm() + "!/META-INF/persist.xml";
-    Resource insideArchive = new UrlBasedResource(newRoot);
+    Resource insideArchive = new UrlResource(newRoot);
     // make sure the location actually exists
     assertThat(insideArchive.exists()).isTrue();
     URL url = PersistenceUnitReader.determinePersistenceUnitRootUrl(insideArchive);

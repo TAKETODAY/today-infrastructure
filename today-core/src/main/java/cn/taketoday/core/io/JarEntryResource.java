@@ -44,7 +44,7 @@ import cn.taketoday.util.StringUtils;
  * 2019-05-15 10:20
  * @since 2.1.6
  */
-public class JarEntryResource extends UrlBasedResource implements JarResource {
+public class JarEntryResource extends UrlResource implements JarResource {
 
   private final String name;
   private final File jarFile;

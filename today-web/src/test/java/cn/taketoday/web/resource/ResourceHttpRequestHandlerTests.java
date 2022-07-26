@@ -36,7 +36,7 @@ import java.util.List;
 import cn.taketoday.core.io.ClassPathResource;
 import cn.taketoday.core.io.FileSystemResource;
 import cn.taketoday.core.io.Resource;
-import cn.taketoday.core.io.UrlBasedResource;
+import cn.taketoday.core.io.UrlResource;
 import cn.taketoday.http.HttpMethod;
 import cn.taketoday.http.HttpStatus;
 import cn.taketoday.http.MediaType;
@@ -314,9 +314,9 @@ public class ResourceHttpRequestHandlerTests {
     testInvalidPath("test/../../testsecret/secret.txt", handler);
     testInvalidPath(":/../../testsecret/secret.txt", handler);
 
-    Resource location = new UrlBasedResource(getClass().getResource("test/"));
+    Resource location = new UrlResource(getClass().getResource("test/"));
     this.handler.setLocations(Collections.singletonList(location));
-    Resource secretResource = new UrlBasedResource(getClass().getResource("testsecret/secret.txt"));
+    Resource secretResource = new UrlResource(getClass().getResource("testsecret/secret.txt"));
     String secretPath = secretResource.getURL().getPath();
 
     testInvalidPath("file:" + secretPath, handler);
@@ -360,9 +360,9 @@ public class ResourceHttpRequestHandlerTests {
     testResolvePathWithTraversal(location, "test/../../testsecret/secret.txt");
     testResolvePathWithTraversal(location, ":/../../testsecret/secret.txt");
 
-    location = new UrlBasedResource(getClass().getResource("test/"));
+    location = new UrlResource(getClass().getResource("test/"));
     this.handler.setLocations(Collections.singletonList(location));
-    Resource secretResource = new UrlBasedResource(getClass().getResource("testsecret/secret.txt"));
+    Resource secretResource = new UrlResource(getClass().getResource("testsecret/secret.txt"));
     String secretPath = secretResource.getURL().getPath();
 
     testResolvePathWithTraversal(location, "file:" + secretPath);

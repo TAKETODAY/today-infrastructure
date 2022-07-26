@@ -30,7 +30,7 @@ import java.util.List;
 
 import cn.taketoday.core.io.ClassPathResource;
 import cn.taketoday.core.io.Resource;
-import cn.taketoday.core.io.UrlBasedResource;
+import cn.taketoday.core.io.UrlResource;
 import cn.taketoday.lang.NonNull;
 import cn.taketoday.web.context.support.ServletContextResource;
 import cn.taketoday.web.servlet.ServletRequestContext;
@@ -74,8 +74,8 @@ public class PathResourceResolverTests {
     testCheckResource(location, "../testsecret/secret.txt");
     testCheckResource(location, "test/../../testsecret/secret.txt");
 
-    location = new UrlBasedResource(getClass().getResource("test/"));
-    String secretPath = new UrlBasedResource(getClass().getResource("testsecret/secret.txt")).getURL().getPath();
+    location = new UrlResource(getClass().getResource("test/"));
+    String secretPath = new UrlResource(getClass().getResource("testsecret/secret.txt")).getURL().getPath();
     testCheckResource(location, "file:" + secretPath);
     testCheckResource(location, "/file:" + secretPath);
     testCheckResource(location, "/" + secretPath);
@@ -98,7 +98,7 @@ public class PathResourceResolverTests {
 
   @Test // gh-23463
   public void ignoreInvalidEscapeSequence() throws IOException {
-    UrlBasedResource location = new UrlBasedResource(getClass().getResource("test/"));
+    UrlResource location = new UrlResource(getClass().getResource("test/"));
     Resource resource = location.createRelative("test%file.txt");
     assertThat(this.resolver.checkResource(resource, location)).isTrue();
   }
@@ -130,11 +130,11 @@ public class PathResourceResolverTests {
 
   @Test // SPR-12624
   public void checkRelativeLocation() throws Exception {
-    String location = new UrlBasedResource(getClass().getResource("test/")).getURL().toExternalForm();
+    String location = new UrlResource(getClass().getResource("test/")).getURL().toExternalForm();
     location = location.replace("/test/cn/taketoday", "/test/cn/../cn/taketoday");
 
     Resource actual = this.resolver.resolveResource(
-            null, "main.css", Collections.singletonList(new UrlBasedResource(location)), null);
+            null, "main.css", Collections.singletonList(new UrlResource(location)), null);
 
     assertThat(actual).isNotNull();
   }
@@ -187,7 +187,7 @@ public class PathResourceResolverTests {
     return new ClassPathResource("test/" + filePath, getClass());
   }
 
-  private static class TestUrlResource extends UrlBasedResource {
+  private static class TestUrlResource extends UrlResource {
 
     private String relativePath;
 
@@ -200,7 +200,7 @@ public class PathResourceResolverTests {
     }
 
     @Override
-    public UrlBasedResource createRelative(String relativePath) {
+    public UrlResource createRelative(String relativePath) {
       this.relativePath = relativePath;
       return this;
     }

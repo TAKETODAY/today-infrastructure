@@ -377,7 +377,7 @@ public class PathMatchingPatternResourceLoader implements PatternResourceLoader 
    * Convert the given URL as returned from the ClassLoader into a
    * {@link Resource}.
    * <p>
-   * The default implementation simply creates a {@link UrlBasedResource} instance.
+   * The default implementation simply creates a {@link UrlResource} instance.
    *
    * @param url a URL as returned from the ClassLoader
    * @return the corresponding Resource object
@@ -800,7 +800,7 @@ public class PathMatchingPatternResourceLoader implements PatternResourceLoader 
               // for the same path discovered via class-path scanning.
               .map(uri -> ResourceUtils.URL_PROTOCOL_FILE.equals(uri.getScheme())
                           ? new FileSystemResource(uri.getPath())
-                          : UrlBasedResource.from(uri))
+                          : UrlResource.from(uri))
               .orElse(null);
     }
     catch (Exception ex) {

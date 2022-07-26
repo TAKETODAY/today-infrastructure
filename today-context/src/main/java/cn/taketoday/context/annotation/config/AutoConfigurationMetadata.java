@@ -27,7 +27,7 @@ import java.util.Properties;
 import java.util.Set;
 
 import cn.taketoday.core.io.PropertiesUtils;
-import cn.taketoday.core.io.UrlBasedResource;
+import cn.taketoday.core.io.UrlResource;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.StringUtils;
 
@@ -143,7 +143,7 @@ public class AutoConfigurationMetadata {
                               : ClassLoader.getSystemResources(path);
       Properties properties = new Properties();
       while (urls.hasMoreElements()) {
-        properties.putAll(PropertiesUtils.loadProperties(new UrlBasedResource(urls.nextElement())));
+        properties.putAll(PropertiesUtils.loadProperties(new UrlResource(urls.nextElement())));
       }
       return valueOf(properties);
     }

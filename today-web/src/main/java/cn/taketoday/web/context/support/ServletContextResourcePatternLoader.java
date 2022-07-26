@@ -31,7 +31,7 @@ import cn.taketoday.core.io.PathMatchingPatternResourceLoader;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.core.io.ResourceConsumer;
 import cn.taketoday.core.io.ResourceLoader;
-import cn.taketoday.core.io.UrlBasedResource;
+import cn.taketoday.core.io.UrlResource;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.CollectionUtils;
@@ -171,7 +171,7 @@ public class ServletContextResourcePatternLoader extends PathMatchingPatternReso
         JarEntry entry = entries.nextElement();
         String entryPath = entry.getName();
         if (pathMatcher.match(entryPattern, entryPath)) {
-          consumer.accept(new UrlBasedResource(
+          consumer.accept(new UrlResource(
                   ResourceUtils.URL_PROTOCOL_JAR,
                   ResourceUtils.FILE_URL_PREFIX + jarFilePath + ResourceUtils.JAR_URL_SEPARATOR + entryPath));
         }

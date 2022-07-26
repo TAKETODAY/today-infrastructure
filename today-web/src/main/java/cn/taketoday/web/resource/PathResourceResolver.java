@@ -33,7 +33,7 @@ import java.util.StringTokenizer;
 
 import cn.taketoday.core.io.ClassPathResource;
 import cn.taketoday.core.io.Resource;
-import cn.taketoday.core.io.UrlBasedResource;
+import cn.taketoday.core.io.UrlResource;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.LogFormatUtils;
 import cn.taketoday.util.StringUtils;
@@ -90,7 +90,7 @@ public class PathResourceResolver extends AbstractResourceResolver {
 
   /**
    * Configure charsets associated with locations. If a static resource is found
-   * under a {@link cn.taketoday.core.io.UrlBasedResource URL resource}
+   * under a {@link UrlResource URL resource}
    * location the charset is used to encode the relative path
    */
   public void setLocationCharsets(Map<Resource, Charset> locationCharsets) {
@@ -224,7 +224,7 @@ public class PathResourceResolver extends AbstractResourceResolver {
     String resourcePath;
     String locationPath;
 
-    if (resource instanceof UrlBasedResource) {
+    if (resource instanceof UrlResource) {
       resourcePath = resource.getURL().toExternalForm();
       locationPath = StringUtils.cleanPath(location.getURL().toString());
     }
@@ -277,11 +277,11 @@ public class PathResourceResolver extends AbstractResourceResolver {
   }
 
   private boolean shouldDecodeRelativePath(Resource location) {
-    return !(location instanceof UrlBasedResource);
+    return !(location instanceof UrlResource);
   }
 
   private boolean shouldEncodeRelativePath(Resource location) {
-    return location instanceof UrlBasedResource && urlDecode;
+    return location instanceof UrlResource && urlDecode;
   }
 
   private boolean isInvalidEncodedPath(String resourcePath) {

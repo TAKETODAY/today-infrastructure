@@ -21,6 +21,7 @@
 package cn.taketoday.beans.propertyeditors;
 
 import java.beans.PropertyEditorSupport;
+import java.io.IOException;
 import java.net.URL;
 
 import cn.taketoday.core.io.Resource;

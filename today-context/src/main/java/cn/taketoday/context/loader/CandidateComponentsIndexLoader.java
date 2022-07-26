@@ -29,7 +29,7 @@ import java.util.Properties;
 import java.util.concurrent.ConcurrentMap;
 
 import cn.taketoday.core.io.PropertiesUtils;
-import cn.taketoday.core.io.UrlBasedResource;
+import cn.taketoday.core.io.UrlResource;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.lang.TodayStrategies;
 import cn.taketoday.logging.Logger;
@@ -104,7 +104,7 @@ public final class CandidateComponentsIndexLoader {
       List<Properties> result = new ArrayList<>();
       while (urls.hasMoreElements()) {
         URL url = urls.nextElement();
-        Properties properties = PropertiesUtils.loadProperties(new UrlBasedResource(url));
+        Properties properties = PropertiesUtils.loadProperties(new UrlResource(url));
         result.add(properties);
       }
       if (log.isDebugEnabled()) {

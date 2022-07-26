@@ -20,7 +20,6 @@
 
 package cn.taketoday.web.resource;
 
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -32,7 +31,7 @@ import java.util.stream.Stream;
 
 import cn.taketoday.core.io.ClassPathResource;
 import cn.taketoday.core.io.FileSystemResource;
-import cn.taketoday.core.io.UrlBasedResource;
+import cn.taketoday.core.io.UrlResource;
 import cn.taketoday.framework.web.servlet.context.AnnotationConfigServletWebApplicationContext;
 import cn.taketoday.mock.web.MockHttpServletRequest;
 import cn.taketoday.mock.web.MockHttpServletResponse;
@@ -46,7 +45,6 @@ import cn.taketoday.web.util.UriUtils;
 import jakarta.servlet.ServletException;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.params.provider.Arguments.arguments;
 
 /**
  * Integration tests for static resource handling.
@@ -142,7 +140,7 @@ public class ResourceHttpRequestHandlerIntegrationTests {
 
     protected void registerUrlLocation(String pattern, String path, ResourceHandlerRegistry registry) {
       try {
-        UrlBasedResource urlLocation = new UrlBasedResource(path);
+        UrlResource urlLocation = new UrlResource(path);
         registry.addResourceHandler(pattern).addResourceLocations(urlLocation);
       }
       catch (MalformedURLException ex) {

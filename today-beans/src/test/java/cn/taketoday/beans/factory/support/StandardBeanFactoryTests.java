@@ -20,11 +20,8 @@
 
 package cn.taketoday.beans.factory.support;
 
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
-import org.mockito.BDDMockito;
-import org.mockito.Mockito;
 
 import java.io.Closeable;
 import java.io.Serializable;
@@ -94,7 +91,7 @@ import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
 import cn.taketoday.core.conversion.support.DefaultConversionService;
 import cn.taketoday.core.conversion.support.GenericConversionService;
 import cn.taketoday.core.io.Resource;
-import cn.taketoday.core.io.UrlBasedResource;
+import cn.taketoday.core.io.UrlResource;
 import cn.taketoday.lang.Nullable;
 import jakarta.annotation.Priority;
 
@@ -105,7 +102,6 @@ import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -1158,16 +1154,16 @@ class StandardBeanFactoryTests {
 
   @Test
   void arrayPropertyWithAutowiring() throws MalformedURLException {
-    lbf.registerSingleton("resource1", new UrlBasedResource("http://localhost:8080"));
-    lbf.registerSingleton("resource2", new UrlBasedResource("http://localhost:9090"));
+    lbf.registerSingleton("resource1", new UrlResource("http://localhost:8080"));
+    lbf.registerSingleton("resource2", new UrlResource("http://localhost:9090"));
 
     RootBeanDefinition rbd = new RootBeanDefinition(ArrayBean.class);
     rbd.setAutowireMode(RootBeanDefinition.AUTOWIRE_BY_TYPE);
     lbf.registerBeanDefinition("arrayBean", rbd);
     ArrayBean ab = (ArrayBean) lbf.getBean("arrayBean");
 
-    assertThat(ab.getResourceArray()[0]).isEqualTo(new UrlBasedResource("http://localhost:8080"));
-    assertThat(ab.getResourceArray()[1]).isEqualTo(new UrlBasedResource("http://localhost:9090"));
+    assertThat(ab.getResourceArray()[0]).isEqualTo(new UrlResource("http://localhost:8080"));
+    assertThat(ab.getResourceArray()[1]).isEqualTo(new UrlResource("http://localhost:9090"));
   }
 
   @Test
@@ -1208,8 +1204,8 @@ class StandardBeanFactoryTests {
   void doubleArrayConstructorWithAutowiring() throws MalformedURLException {
     lbf.registerSingleton("integer1", 4);
     lbf.registerSingleton("integer2", 5);
-    lbf.registerSingleton("resource1", new UrlBasedResource("http://localhost:8080"));
-    lbf.registerSingleton("resource2", new UrlBasedResource("http://localhost:9090"));
+    lbf.registerSingleton("resource1", new UrlResource("http://localhost:8080"));
+    lbf.registerSingleton("resource2", new UrlResource("http://localhost:9090"));
 
     RootBeanDefinition rbd = new RootBeanDefinition(ArrayBean.class);
     rbd.setAutowireMode(RootBeanDefinition.AUTOWIRE_CONSTRUCTOR);
@@ -1218,14 +1214,14 @@ class StandardBeanFactoryTests {
 
     assertThat(ab.getIntegerArray()[0]).isEqualTo(4);
     assertThat(ab.getIntegerArray()[1]).isEqualTo(5);
-    assertThat(ab.getResourceArray()[0]).isEqualTo(new UrlBasedResource("http://localhost:8080"));
-    assertThat(ab.getResourceArray()[1]).isEqualTo(new UrlBasedResource("http://localhost:9090"));
+    assertThat(ab.getResourceArray()[0]).isEqualTo(new UrlResource("http://localhost:8080"));
+    assertThat(ab.getResourceArray()[1]).isEqualTo(new UrlResource("http://localhost:9090"));
   }
 
   @Test
   void doubleArrayConstructorWithOptionalAutowiring() throws MalformedURLException {
-    lbf.registerSingleton("resource1", new UrlBasedResource("http://localhost:8080"));
-    lbf.registerSingleton("resource2", new UrlBasedResource("http://localhost:9090"));
+    lbf.registerSingleton("resource1", new UrlResource("http://localhost:8080"));
+    lbf.registerSingleton("resource2", new UrlResource("http://localhost:9090"));
 
     RootBeanDefinition rbd = new RootBeanDefinition(ArrayBean.class);
     rbd.setAutowireMode(RootBeanDefinition.AUTOWIRE_CONSTRUCTOR);

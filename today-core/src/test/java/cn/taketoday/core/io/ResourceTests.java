@@ -160,16 +160,16 @@ class ResourceTests {
 
   @Test
   void urlResource() throws IOException {
-    Resource resource = new UrlBasedResource(getClass().getResource("Resource.class"));
+    Resource resource = new UrlResource(getClass().getResource("Resource.class"));
     doTestResource(resource);
-    assertThat(resource).isEqualTo(new UrlBasedResource(getClass().getResource("Resource.class")));
+    assertThat(resource).isEqualTo(new UrlResource(getClass().getResource("Resource.class")));
 
-    Resource resource2 = new UrlBasedResource("file:core/io/Resource.class");
-    assertThat(new UrlBasedResource("file:context/../core/io/./Resource.class")).isEqualTo(resource2);
+    Resource resource2 = new UrlResource("file:core/io/Resource.class");
+    assertThat(new UrlResource("file:context/../core/io/./Resource.class")).isEqualTo(resource2);
 
-    assertThat(new UrlBasedResource("file:/dir/test.txt?argh").getName()).isEqualTo("test.txt");
-    assertThat(new UrlBasedResource("file:\\dir\\test.txt?argh").getName()).isEqualTo("test.txt");
-    assertThat(new UrlBasedResource("file:\\dir/test.txt?argh").getName()).isEqualTo("test.txt");
+    assertThat(new UrlResource("file:/dir/test.txt?argh").getName()).isEqualTo("test.txt");
+    assertThat(new UrlResource("file:\\dir\\test.txt?argh").getName()).isEqualTo("test.txt");
+    assertThat(new UrlResource("file:\\dir/test.txt?argh").getName()).isEqualTo("test.txt");
   }
 
   private void doTestResource(Resource resource) throws IOException {
@@ -216,17 +216,17 @@ class ResourceTests {
 
   @Test
   void urlResourceFactoryMethods() throws IOException {
-    Resource resource1 = new UrlBasedResource("file:core/io/Resource.class");
-    Resource resource2 = UrlBasedResource.from("file:core/io/Resource.class");
-    Resource resource3 = UrlBasedResource.from(resource1.getURI());
+    Resource resource1 = new UrlResource("file:core/io/Resource.class");
+    Resource resource2 = UrlResource.from("file:core/io/Resource.class");
+    Resource resource3 = UrlResource.from(resource1.getURI());
 
     assertThat(resource2.getURL()).isEqualTo(resource1.getURL());
     assertThat(resource3.getURL()).isEqualTo(resource1.getURL());
 
-    assertThat(UrlBasedResource.from("file:core/../core/io/./Resource.class")).isEqualTo(resource1);
-    assertThat(UrlBasedResource.from("file:/dir/test.txt?argh").getName()).isEqualTo("test.txt");
-    assertThat(UrlBasedResource.from("file:\\dir\\test.txt?argh").getName()).isEqualTo("test.txt");
-    assertThat(UrlBasedResource.from("file:\\dir/test.txt?argh").getName()).isEqualTo("test.txt");
+    assertThat(UrlResource.from("file:core/../core/io/./Resource.class")).isEqualTo(resource1);
+    assertThat(UrlResource.from("file:/dir/test.txt?argh").getName()).isEqualTo("test.txt");
+    assertThat(UrlResource.from("file:\\dir\\test.txt?argh").getName()).isEqualTo("test.txt");
+    assertThat(UrlResource.from("file:\\dir/test.txt?argh").getName()).isEqualTo("test.txt");
   }
 
   @Test
@@ -245,9 +245,9 @@ class ResourceTests {
 
   @Test
   void urlResourceWithRelativePath() throws IOException {
-    Resource resource = new UrlBasedResource("file:dir/");
+    Resource resource = new UrlResource("file:dir/");
     Resource relative = resource.createRelative("subdir");
-    assertThat(relative).isEqualTo(new UrlBasedResource("file:dir/subdir"));
+    assertThat(relative).isEqualTo(new UrlResource("file:dir/subdir"));
   }
 
   @Test
@@ -257,7 +257,7 @@ class ResourceTests {
     // Abort if spring.io is not reachable.
     assumeTrue(urlIsReachable(url));
 
-    Resource resource = new UrlBasedResource(url);
+    Resource resource = new UrlResource(url);
     assertThat(resource.exists()).isTrue();
   }
 
