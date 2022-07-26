@@ -254,7 +254,6 @@ public class RetryTemplateTests {
     }
   }
 
-  @SuppressWarnings("serial")
   @Test
   public void testFailedPolicy() {
     RetryTemplate retryTemplate = new RetryTemplate();
@@ -264,9 +263,13 @@ public class RetryTemplateTests {
         throw new RuntimeException("Planned");
       }
     });
-    assertThatExceptionOfType(TerminatedRetryException.class).isThrownBy(() -> retryTemplate.execute(context -> {
-      throw new RuntimeException("Realllly bad!");
-    })).withCauseInstanceOf(RuntimeException.class).withMessageContaining("Planned");
+
+    assertThatExceptionOfType(TerminatedRetryException.class)
+            .isThrownBy(() -> retryTemplate.execute(context -> {
+              throw new RuntimeException("Realllly bad!");
+            }))
+            .withCauseInstanceOf(RuntimeException.class)
+            .withMessageContaining("Could not register throwable");
   }
 
   @Test
