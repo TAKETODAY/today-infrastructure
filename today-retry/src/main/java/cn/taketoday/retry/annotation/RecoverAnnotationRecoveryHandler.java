@@ -69,6 +69,7 @@ public class RecoverAnnotationRecoveryHandler<T> implements MethodInvocationReco
 
   private final Object target;
 
+  @Nullable
   private String recoverMethodName;
 
   public RecoverAnnotationRecoveryHandler(Object target, Method method) {
@@ -77,22 +78,27 @@ public class RecoverAnnotationRecoveryHandler<T> implements MethodInvocationReco
     final Method failingMethod = method;
     Retryable retryable = AnnotationUtils.findAnnotation(method, Retryable.class);
     if (retryable != null) {
-      this.recoverMethodName = retryable.recover();
+      String recoverMethodName = retryable.recover();
+      if (StringUtils.hasText(recoverMethodName)) {
+        this.recoverMethodName = recoverMethodName;
+      }
     }
     ReflectionUtils.doWithMethods(target.getClass(), candidate -> {
       Recover recover = AnnotationUtils.findAnnotation(candidate, Recover.class);
       if (recover == null) {
         recover = findAnnotationOnTarget(target, candidate);
       }
-      if (recover != null
-              && failingMethod.getGenericReturnType() instanceof ParameterizedType failingPtype
-              && candidate.getGenericReturnType() instanceof ParameterizedType parameterizedType) {
-        if (isParameterizedTypeAssignable(parameterizedType, failingPtype)) {
+
+      if (recover != null) {
+        if (failingMethod.getGenericReturnType() instanceof ParameterizedType failingPtype
+                && candidate.getGenericReturnType() instanceof ParameterizedType parameterizedType) {
+          if (isParameterizedTypeAssignable(parameterizedType, failingPtype)) {
+            putToMethodsMap(candidate, types);
+          }
+        }
+        else if (candidate.getReturnType().isAssignableFrom(failingMethod.getReturnType())) {
           putToMethodsMap(candidate, types);
         }
-      }
-      else if (recover != null && candidate.getReturnType().isAssignableFrom(failingMethod.getReturnType())) {
-        putToMethodsMap(candidate, types);
       }
     });
     this.classifier.setTypeMap(types);
@@ -149,8 +155,7 @@ public class RecoverAnnotationRecoveryHandler<T> implements MethodInvocationReco
 
   private Method findClosestMatch(Object[] args, Class<? extends Throwable> cause) {
     Method result = null;
-
-    if (StringUtils.isEmpty(this.recoverMethodName)) {
+    if (recoverMethodName == null) {
       int min = Integer.MAX_VALUE;
       for (Map.Entry<Method, SimpleMetadata> entry : methods.entrySet()) {
         Method method = entry.getKey();
