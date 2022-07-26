@@ -41,12 +41,18 @@
 		or exponential backoff.]]>
   </description>
 
-
   <dependencies>
 
     <dependency>
       <groupId>cn.taketoday</groupId>
-      <artifactId>today-framework</artifactId>
+      <artifactId>today-core</artifactId>
+      <optional>true</optional>
+    </dependency>
+
+    <dependency>
+      <groupId>cn.taketoday</groupId>
+      <artifactId>today-context</artifactId>
+      <optional>true</optional>
     </dependency>
 
     <dependency>
@@ -80,8 +86,8 @@
     </dependency>
 
     <dependency>
-      <groupId>org.easymock</groupId>
-      <artifactId>easymock</artifactId>
+      <groupId>cn.taketoday</groupId>
+      <artifactId>today-tx</artifactId>
       <scope>test</scope>
     </dependency>
 
