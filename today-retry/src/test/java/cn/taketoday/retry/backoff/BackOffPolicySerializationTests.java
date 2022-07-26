@@ -20,15 +20,14 @@
 
 package cn.taketoday.retry.backoff;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.junit.runners.Parameterized.Parameters;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.regex.Pattern;
+import java.util.stream.Stream;
 
 import cn.taketoday.beans.BeanUtils;
 import cn.taketoday.beans.factory.annotation.AnnotatedBeanDefinition;
@@ -42,21 +41,19 @@ import cn.taketoday.retry.context.RetryContextSupport;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.SerializationUtils;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Dave Syer
+ * @author Gary Russell
  */
-@RunWith(Parameterized.class)
 public class BackOffPolicySerializationTests {
 
   private static Logger logger = LoggerFactory.getLogger(BackOffPolicySerializationTests.class);
 
-  private BackOffPolicy policy;
-
-  @Parameters(name = "{index}: {0}")
-  public static List<Object[]> policies() {
-    List<Object[]> result = new ArrayList<Object[]>();
+  @SuppressWarnings("deprecation")
+  public static Stream<Object[]> policies() {
+    List<Object[]> result = new ArrayList<>();
     ClassPathScanningCandidateComponentProvider scanner = new ClassPathScanningCandidateComponentProvider(true);
     scanner.addIncludeFilter(new AssignableTypeFilter(BackOffPolicy.class));
     scanner.addExcludeFilter(new RegexPatternTypeFilter(Pattern.compile(".*Test.*")));
@@ -72,15 +69,13 @@ public class BackOffPolicySerializationTests {
         logger.warn("Cannot create instance of " + beanDefinition.getBeanClassName());
       }
     }
-    return result;
+    return result.stream();
   }
 
-  public BackOffPolicySerializationTests(BackOffPolicy policy) {
-    this.policy = policy;
-  }
-
-  @Test
-  public void testSerializationCycleForContext() {
+  @ParameterizedTest
+  @MethodSource("policies")
+  @SuppressWarnings("deprecation")
+  public void testSerializationCycleForContext(BackOffPolicy policy) {
     BackOffContext context = policy.start(new RetryContextSupport(null));
     if (context != null) {
       assertTrue(SerializationUtils.deserialize(SerializationUtils.serialize(context)) instanceof BackOffContext);

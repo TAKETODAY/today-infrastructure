@@ -24,15 +24,15 @@ import cn.taketoday.retry.backoff.BackOffInterruptedException;
 
 public class BackOffInterruptedExceptionTests extends AbstractExceptionTests {
 
-  public Exception getException(String msg) throws Exception {
+  public Exception getException(String msg) {
     return new BackOffInterruptedException(msg);
   }
 
-  public Exception getException(String msg, Throwable t) throws Exception {
+  public Exception getException(String msg, Throwable t) {
     return new BackOffInterruptedException(msg, t);
   }
 
-  public void testNothing() throws Exception {
+  public void testNothing() {
     // fool coverage tools...
   }
 

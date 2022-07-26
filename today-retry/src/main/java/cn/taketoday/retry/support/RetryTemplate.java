@@ -22,6 +22,7 @@ package cn.taketoday.retry.support;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
@@ -333,7 +334,9 @@ public class RetryTemplate implements RetryOperations {
           // Reset the last exception, so if we are successful
           // the close interceptors will not think we failed...
           lastException = null;
-          return retryCallback.doWithRetry(context);
+          T result = retryCallback.doWithRetry(context);
+          doOnSuccessInterceptors(retryCallback, context, result);
+          return result;
         }
         catch (Throwable e) {
           lastException = e;
@@ -590,15 +593,22 @@ public class RetryTemplate implements RetryOperations {
     return result;
   }
 
-  private <T, E extends Throwable> void doCloseInterceptors(RetryCallback<T, E> callback, RetryContext context,
-          Throwable lastException) {
+  private <T, E extends Throwable> void doCloseInterceptors(
+          RetryCallback<T, E> callback, RetryContext context, Throwable lastException) {
     for (int i = listeners.length; i-- > 0; ) {
       listeners[i].close(context, callback, lastException);
     }
   }
 
-  private <T, E extends Throwable> void doOnErrorInterceptors(RetryCallback<T, E> callback, RetryContext context,
-          Throwable throwable) {
+  private <T, E extends Throwable> void doOnSuccessInterceptors(
+          RetryCallback<T, E> callback, RetryContext context, T result) {
+    for (int i = listeners.length; i-- > 0; ) {
+      listeners[i].onSuccess(context, callback, result);
+    }
+  }
+
+  private <T, E extends Throwable> void doOnErrorInterceptors(
+          RetryCallback<T, E> callback, RetryContext context, Throwable throwable) {
     for (int i = listeners.length; i-- > 0; ) {
       listeners[i].onError(context, callback, throwable);
     }

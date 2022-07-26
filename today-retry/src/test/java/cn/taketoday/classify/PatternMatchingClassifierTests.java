@@ -19,26 +19,26 @@
  */
 package cn.taketoday.classify;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.junit.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Dave Syer
  */
 public class PatternMatchingClassifierTests {
 
-  private PatternMatchingClassifier<String> classifier = new PatternMatchingClassifier<String>();
+  private PatternMatchingClassifier<String> classifier = new PatternMatchingClassifier<>();
 
   private Map<String, String> map;
 
-  @Before
+  @BeforeEach
   public void createMap() {
-    map = new HashMap<String, String>();
+    map = new HashMap<>();
     map.put("foo", "bar");
     map.put("*", "spam");
   }
@@ -46,15 +46,15 @@ public class PatternMatchingClassifierTests {
   @Test
   public void testSetPatternMap() {
     classifier.setPatternMap(map);
-    assertEquals("bar", classifier.classify("foo"));
-    assertEquals("spam", classifier.classify("bucket"));
+    assertThat(classifier.classify("foo")).isEqualTo("bar");
+    assertThat(classifier.classify("bucket")).isEqualTo("spam");
   }
 
   @Test
   public void testCreateFromMap() {
-    classifier = new PatternMatchingClassifier<String>(map);
-    assertEquals("bar", classifier.classify("foo"));
-    assertEquals("spam", classifier.classify("bucket"));
+    classifier = new PatternMatchingClassifier<>(map);
+    assertThat(classifier.classify("foo")).isEqualTo("bar");
+    assertThat(classifier.classify("bucket")).isEqualTo("spam");
   }
 
 }

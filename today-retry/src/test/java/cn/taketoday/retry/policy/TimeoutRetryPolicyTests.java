@@ -20,16 +20,11 @@
 
 package cn.taketoday.retry.policy;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import cn.taketoday.retry.RetryContext;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class TimeoutRetryPolicyTests {
 
@@ -39,31 +34,31 @@ public class TimeoutRetryPolicyTests {
     policy.setTimeout(100);
     RetryContext context = policy.open(null);
     policy.registerThrowable(context, new Exception());
-    assertTrue(policy.canRetry(context));
+    assertThat(policy.canRetry(context)).isTrue();
     Thread.sleep(200);
-    assertFalse(policy.canRetry(context));
+    assertThat(policy.canRetry(context)).isFalse();
     policy.close(context);
   }
 
   @Test
-  public void testRetryCount() throws Exception {
+  public void testRetryCount() {
     TimeoutRetryPolicy policy = new TimeoutRetryPolicy();
     RetryContext context = policy.open(null);
-    assertNotNull(context);
+    assertThat(context).isNotNull();
     policy.registerThrowable(context, null);
-    assertEquals(0, context.getRetryCount());
+    assertThat(context.getRetryCount()).isEqualTo(0);
     policy.registerThrowable(context, new RuntimeException("foo"));
-    assertEquals(1, context.getRetryCount());
-    assertEquals("foo", context.getLastThrowable().getMessage());
+    assertThat(context.getRetryCount()).isEqualTo(1);
+    assertThat(context.getLastThrowable().getMessage()).isEqualTo("foo");
   }
 
   @Test
-  public void testParent() throws Exception {
+  public void testParent() {
     TimeoutRetryPolicy policy = new TimeoutRetryPolicy();
     RetryContext context = policy.open(null);
     RetryContext child = policy.open(context);
-    assertNotSame(child, context);
-    assertSame(context, child.getParent());
+    assertThat(context).isNotSameAs(child);
+    assertThat(child.getParent()).isSameAs(context);
   }
 
 }

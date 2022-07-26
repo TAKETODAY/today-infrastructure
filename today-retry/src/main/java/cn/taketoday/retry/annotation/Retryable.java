@@ -105,7 +105,9 @@ public @interface Retryable {
 
   /**
    * @return an expression evaluated to the maximum number of attempts (including the
-   * first failure), defaults to 3 Overrides {@link #maxAttempts()}.
+   * first failure), defaults to 3 Overrides {@link #maxAttempts()}. Use {@code #{...}}
+   * for one-time evaluation during initialization, omit the delimiters for evaluation
+   * at runtime.
    */
   String maxAttemptsExpression() default "";
 

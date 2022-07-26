@@ -20,11 +20,11 @@
 
 package cn.taketoday.retry.annotation;
 
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import cn.taketoday.context.ConfigurableApplicationContext;
@@ -32,19 +32,16 @@ import cn.taketoday.context.annotation.AnnotationConfigApplicationContext;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.stereotype.Component;
-import cn.taketoday.test.util.ReflectionTestUtils;
 
-import static org.junit.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
-@Disabled("ClassLoader classes read failed in jdk 17")
 public class ProxyApplicationTests {
 
-  private Set<Class<?>> classes = new HashSet<Class<?>>();
+  private final CountClassesClassLoader classLoader = new CountClassesClassLoader();
 
   @Test
   // See gh-53
   public void contextLoads() throws Exception {
-
     int count = count();
     runAndClose();
     runAndClose();
@@ -54,37 +51,53 @@ public class ProxyApplicationTests {
     int base = count();
     runAndClose();
     count = count();
-    assertEquals("Class leak", base, count);
+    assertThat(count).describedAs("Class leak").isEqualTo(base);
     runAndClose();
     count = count();
-    assertEquals("Class leak", base, count);
+    assertThat(count).describedAs("Class leak").isEqualTo(base);
     runAndClose();
     count = count();
-    assertEquals("Class leak", base, count);
+    assertThat(count).describedAs("Class leak").isEqualTo(base);
   }
 
   @SuppressWarnings("resource")
   private void runAndClose() {
-    ConfigurableApplicationContext run = new AnnotationConfigApplicationContext(Empty.class);
+    AnnotationConfigApplicationContext run = new AnnotationConfigApplicationContext();
+    run.setClassLoader(this.classLoader);
+    run.register(Empty.class);
     run.close();
     while (run.getParent() != null) {
-      run.getParent().close();
-      run = (ConfigurableApplicationContext) run.getParent();
+      ((ConfigurableApplicationContext) run.getParent()).close();
+      run = (AnnotationConfigApplicationContext) run.getParent();
     }
   }
 
   private int count() {
-    ClassLoader classLoader = getClass().getClassLoader();
-    @SuppressWarnings("unchecked")
-    List<Class<?>> classes = (List<Class<?>>) ReflectionTestUtils.getField(classLoader, "classes");
-    Set<Class<?>> news = new HashSet<>();
-    for (Class<?> cls : classes) {
-      if (!this.classes.contains(cls)) {
-        news.add(cls);
-      }
+    return this.classLoader.classes.size();
+  }
+
+  private static class CountClassesClassLoader extends URLClassLoader {
+
+    private final Set<Class<?>> classes = new HashSet<>();
+
+    public CountClassesClassLoader() {
+      super(new URL[0], ProxyApplicationTests.class.getClassLoader());
     }
-    this.classes.addAll(classes);
-    return classes.size();
+
+    @Override
+    public Class<?> loadClass(String name) throws ClassNotFoundException {
+      Class<?> type = super.loadClass(name);
+      classes.add(type);
+      return type;
+    }
+
+    @Override
+    protected Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException {
+      Class<?> type = super.loadClass(name, resolve);
+      classes.add(type);
+      return type;
+    }
+
   }
 
   @Configuration

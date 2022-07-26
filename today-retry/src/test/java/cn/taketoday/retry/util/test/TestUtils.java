@@ -29,7 +29,7 @@ import cn.taketoday.lang.Assert;
  * @author Iwein Fuld
  * @author Oleg Zhurakousky
  * @author Gary Russell
- * @since 4.0
+ * @since 1.2
  */
 public class TestUtils {
 

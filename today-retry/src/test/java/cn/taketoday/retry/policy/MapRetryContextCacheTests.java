@@ -20,13 +20,12 @@
 
 package cn.taketoday.retry.policy;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import cn.taketoday.retry.context.RetryContextSupport;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 public class MapRetryContextCacheTests {
 
@@ -36,25 +35,26 @@ public class MapRetryContextCacheTests {
   public void testPut() {
     RetryContextSupport context = new RetryContextSupport(null);
     cache.put("foo", context);
-    assertEquals(context, cache.get("foo"));
+    assertThat(cache.get("foo")).isEqualTo(context);
   }
 
-  @Test(expected = RetryCacheCapacityExceededException.class)
+  @Test
   public void testPutOverLimit() {
     RetryContextSupport context = new RetryContextSupport(null);
     cache.setCapacity(1);
     cache.put("foo", context);
-    cache.put("foo", context);
+    assertThatExceptionOfType(RetryCacheCapacityExceededException.class)
+            .isThrownBy(() -> cache.put("foo", context));
   }
 
   @Test
   public void testRemove() {
-    assertFalse(cache.containsKey("foo"));
+    assertThat(cache.containsKey("foo")).isFalse();
     RetryContextSupport context = new RetryContextSupport(null);
     cache.put("foo", context);
-    assertTrue(cache.containsKey("foo"));
+    assertThat(cache.containsKey("foo")).isTrue();
     cache.remove("foo");
-    assertFalse(cache.containsKey("foo"));
+    assertThat(cache.containsKey("foo")).isFalse();
   }
 
 }

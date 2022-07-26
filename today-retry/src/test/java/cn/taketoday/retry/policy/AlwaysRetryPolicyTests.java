@@ -20,49 +20,45 @@
 
 package cn.taketoday.retry.policy;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import cn.taketoday.retry.RetryContext;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class AlwaysRetryPolicyTests {
 
   @Test
-  public void testSimpleOperations() throws Exception {
+  public void testSimpleOperations() {
     AlwaysRetryPolicy policy = new AlwaysRetryPolicy();
     RetryContext context = policy.open(null);
-    assertNotNull(context);
-    assertTrue(policy.canRetry(context));
+    assertThat(context).isNotNull();
+    assertThat(policy.canRetry(context)).isTrue();
     policy.registerThrowable(context, null);
-    assertTrue(policy.canRetry(context));
+    assertThat(policy.canRetry(context)).isTrue();
     policy.close(context);
-    assertTrue(policy.canRetry(context));
+    assertThat(policy.canRetry(context)).isTrue();
   }
 
   @Test
-  public void testRetryCount() throws Exception {
+  public void testRetryCount() {
     AlwaysRetryPolicy policy = new AlwaysRetryPolicy();
     RetryContext context = policy.open(null);
-    assertNotNull(context);
+    assertThat(context).isNotNull();
     policy.registerThrowable(context, null);
-    assertEquals(0, context.getRetryCount());
+    assertThat(context.getRetryCount()).isEqualTo(0);
     policy.registerThrowable(context, new RuntimeException("foo"));
-    assertEquals(1, context.getRetryCount());
-    assertEquals("foo", context.getLastThrowable().getMessage());
+    assertThat(context.getRetryCount()).isEqualTo(1);
+    assertThat(context.getLastThrowable().getMessage()).isEqualTo("foo");
   }
 
   @Test
-  public void testParent() throws Exception {
+  public void testParent() {
     AlwaysRetryPolicy policy = new AlwaysRetryPolicy();
     RetryContext context = policy.open(null);
     RetryContext child = policy.open(context);
-    assertNotSame(child, context);
-    assertSame(context, child.getParent());
+    assertThat(context).isNotSameAs(child);
+    assertThat(child.getParent()).isSameAs(context);
   }
 
 }

@@ -20,68 +20,68 @@
 
 package cn.taketoday.retry.backoff;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Rob Harrop
  * @author Dave Syer
+ * @author Gary Russell
  */
 public class ExponentialBackOffPolicyTests {
 
-  private DummySleeper sleeper = new DummySleeper();
+  private final DummySleeper sleeper = new DummySleeper();
 
   @Test
-  public void testSetMaxInterval() throws Exception {
+  public void testSetMaxInterval() {
     ExponentialBackOffPolicy strategy = new ExponentialBackOffPolicy();
     strategy.setMaxInterval(1000);
-    assertTrue(strategy.toString().indexOf("maxInterval=1000") >= 0);
+    assertThat(strategy.toString()).contains("maxInterval=1000");
     strategy.setMaxInterval(0);
     // The minimum value for the max interval is 1
-    assertTrue(strategy.toString().indexOf("maxInterval=1") >= 0);
+    assertThat(strategy.toString()).contains("maxInterval=1");
   }
 
   @Test
-  public void testSetInitialInterval() throws Exception {
+  public void testSetInitialInterval() {
     ExponentialBackOffPolicy strategy = new ExponentialBackOffPolicy();
     strategy.setInitialInterval(10000);
-    assertTrue(strategy.toString().indexOf("initialInterval=10000,") >= 0);
+    assertThat(strategy.toString()).contains("initialInterval=10000,");
     strategy.setInitialInterval(0);
-    assertTrue(strategy.toString().indexOf("initialInterval=1,") >= 0);
+    assertThat(strategy.toString()).contains("initialInterval=1,");
   }
 
   @Test
-  public void testSetMultiplier() throws Exception {
+  public void testSetMultiplier() {
     ExponentialBackOffPolicy strategy = new ExponentialBackOffPolicy();
     strategy.setMultiplier(3.);
-    assertTrue(strategy.toString().indexOf("multiplier=3.") >= 0);
+    assertThat(strategy.toString()).contains("multiplier=3.");
     strategy.setMultiplier(.5);
-    assertTrue(strategy.toString().indexOf("multiplier=1.") >= 0);
+    assertThat(strategy.toString()).contains("multiplier=1.");
   }
 
   @Test
-  public void testSingleBackOff() throws Exception {
+  public void testSingleBackOff() {
     ExponentialBackOffPolicy strategy = new ExponentialBackOffPolicy();
     strategy.setSleeper(sleeper);
     BackOffContext context = strategy.start(null);
     strategy.backOff(context);
-    assertEquals(ExponentialBackOffPolicy.DEFAULT_INITIAL_INTERVAL, sleeper.getLastBackOff());
+    assertThat(sleeper.getLastBackOff()).isEqualTo(ExponentialBackOffPolicy.DEFAULT_INITIAL_INTERVAL);
   }
 
   @Test
-  public void testMaximumBackOff() throws Exception {
+  public void testMaximumBackOff() {
     ExponentialBackOffPolicy strategy = new ExponentialBackOffPolicy();
     strategy.setMaxInterval(50);
     strategy.setSleeper(sleeper);
     BackOffContext context = strategy.start(null);
     strategy.backOff(context);
-    assertEquals(50, sleeper.getLastBackOff());
+    assertThat(sleeper.getLastBackOff()).isEqualTo(50);
   }
 
   @Test
-  public void testMultiBackOff() throws Exception {
+  public void testMultiBackOff() {
     ExponentialBackOffPolicy strategy = new ExponentialBackOffPolicy();
     long seed = 40;
     double multiplier = 1.2;
@@ -91,7 +91,7 @@ public class ExponentialBackOffPolicyTests {
     BackOffContext context = strategy.start(null);
     for (int x = 0; x < 5; x++) {
       strategy.backOff(context);
-      assertEquals(seed, sleeper.getLastBackOff());
+      assertThat(sleeper.getLastBackOff()).isEqualTo(seed);
       seed *= multiplier;
     }
   }

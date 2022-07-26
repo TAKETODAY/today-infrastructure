@@ -20,8 +20,8 @@
 
 package cn.taketoday.retry.policy;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import cn.taketoday.classify.BinaryExceptionClassifier;
 import cn.taketoday.retry.RecoveryCallback;
@@ -31,9 +31,8 @@ import cn.taketoday.retry.policy.CircuitBreakerRetryPolicy.CircuitBreakerRetryCo
 import cn.taketoday.retry.support.DefaultRetryState;
 import cn.taketoday.retry.support.RetryTemplate;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 /**
  * @author Dave Syer
@@ -52,15 +51,10 @@ public class CircuitBreakerRetryTemplateTests {
 
   private DefaultRetryState state;
 
-  @Before
+  @BeforeEach
   public void init() {
     this.callback = new MockRetryCallback();
-    this.recovery = new RecoveryCallback<Object>() {
-      @Override
-      public Object recover(RetryContext context) throws Exception {
-        return RECOVERED;
-      }
-    };
+    this.recovery = context -> RECOVERED;
     this.retryTemplate = new RetryTemplate();
     this.callback.setAttemptsBeforeSuccess(1);
     // No rollback by default (so exceptions are not rethrown)
@@ -71,33 +65,26 @@ public class CircuitBreakerRetryTemplateTests {
   public void testCircuitOpenWhenNotRetryable() throws Throwable {
     this.retryTemplate.setRetryPolicy(new CircuitBreakerRetryPolicy(new NeverRetryPolicy()));
     Object result = this.retryTemplate.execute(this.callback, this.recovery, this.state);
-    assertEquals(1, this.callback.getAttempts());
-    assertEquals(RECOVERED, result);
+    assertThat(this.callback.getAttempts()).isEqualTo(1);
+    assertThat(result).isEqualTo(RECOVERED);
     result = this.retryTemplate.execute(this.callback, this.recovery, this.state);
     // circuit is now open so no more attempts
-    assertEquals(1, this.callback.getAttempts());
-    assertEquals(RECOVERED, result);
+    assertThat(this.callback.getAttempts()).isEqualTo(1);
+    assertThat(result).isEqualTo(RECOVERED);
   }
 
   @Test
-  public void testCircuitOpenWithNoRecovery() throws Throwable {
+  public void testCircuitOpenWithNoRecovery() {
     this.retryTemplate.setRetryPolicy(new CircuitBreakerRetryPolicy(new NeverRetryPolicy()));
     this.retryTemplate.setThrowLastExceptionOnExhausted(true);
-    try {
-      this.retryTemplate.execute(this.callback, this.state);
-    }
-    catch (Exception e) {
-      assertEquals(this.callback.exceptionToThrow, e);
-      assertEquals(1, this.callback.getAttempts());
-    }
-    try {
-      this.retryTemplate.execute(this.callback, this.state);
-    }
-    catch (Exception e) {
-      assertEquals(this.callback.exceptionToThrow, e);
-      // circuit is now open so no more attempts
-      assertEquals(1, this.callback.getAttempts());
-    }
+    assertThatExceptionOfType(Exception.class)
+            .isThrownBy(() -> this.retryTemplate.execute(this.callback, this.state))
+            .isEqualTo(this.callback.exceptionToThrow);
+    assertThat(this.callback.getAttempts()).isEqualTo(1);
+    assertThatExceptionOfType(Exception.class)
+            .isThrownBy(() -> this.retryTemplate.execute(this.callback, this.state))
+            .isEqualTo(this.callback.exceptionToThrow);
+    assertThat(this.callback.getAttempts()).isEqualTo(1);
   }
 
   @Test
@@ -105,15 +92,15 @@ public class CircuitBreakerRetryTemplateTests {
     this.retryTemplate.setRetryPolicy(new CircuitBreakerRetryPolicy(new SimpleRetryPolicy()));
     this.callback.setAttemptsBeforeSuccess(10);
     Object result = this.retryTemplate.execute(this.callback, this.recovery, this.state);
-    assertEquals(1, this.callback.getAttempts());
-    assertEquals(RECOVERED, result);
-    assertFalse(this.callback.status.isOpen());
+    assertThat(this.callback.getAttempts()).isEqualTo(1);
+    assertThat(result).isEqualTo(RECOVERED);
+    assertThat(this.callback.status.isOpen()).isFalse();
     result = this.retryTemplate.execute(this.callback, this.recovery, this.state);
     result = this.retryTemplate.execute(this.callback, this.recovery, this.state);
     // circuit is now open so no more attempts
-    assertEquals(3, this.callback.getAttempts());
-    assertEquals(RECOVERED, result);
-    assertTrue(this.callback.status.isOpen());
+    assertThat(this.callback.getAttempts()).isEqualTo(3);
+    assertThat(result).isEqualTo(RECOVERED);
+    assertThat(this.callback.status.isOpen()).isTrue();
   }
 
   @Test
@@ -123,15 +110,15 @@ public class CircuitBreakerRetryTemplateTests {
     retryPolicy.setOpenTimeout(100);
     this.callback.setAttemptsBeforeSuccess(10);
     Object result = this.retryTemplate.execute(this.callback, this.recovery, this.state);
-    assertEquals(1, this.callback.getAttempts());
-    assertEquals(RECOVERED, result);
-    assertFalse(this.callback.status.isOpen());
+    assertThat(this.callback.getAttempts()).isEqualTo(1);
+    assertThat(result).isEqualTo(RECOVERED);
+    assertThat(this.callback.status.isOpen()).isFalse();
     Thread.sleep(200L);
     result = this.retryTemplate.execute(this.callback, this.recovery, this.state);
     // circuit is reset after sleep window
-    assertEquals(2, this.callback.getAttempts());
-    assertEquals(RECOVERED, result);
-    assertFalse(this.callback.status.isOpen());
+    assertThat(this.callback.getAttempts()).isEqualTo(2);
+    assertThat(result).isEqualTo(RECOVERED);
+    assertThat(this.callback.status.isOpen()).isFalse();
   }
 
   @Test
@@ -140,15 +127,15 @@ public class CircuitBreakerRetryTemplateTests {
     this.retryTemplate.setRetryPolicy(retryPolicy);
     retryPolicy.setResetTimeout(100);
     Object result = this.retryTemplate.execute(this.callback, this.recovery, this.state);
-    assertEquals(1, this.callback.getAttempts());
-    assertEquals(RECOVERED, result);
-    assertTrue(this.callback.status.isOpen());
+    assertThat(this.callback.getAttempts()).isEqualTo(1);
+    assertThat(result).isEqualTo(RECOVERED);
+    assertThat(this.callback.status.isOpen()).isTrue();
     // Sleep longer than the timeout
     Thread.sleep(200L);
-    assertFalse(this.callback.status.isOpen());
+    assertThat(this.callback.status.isOpen()).isFalse();
     result = this.retryTemplate.execute(this.callback, this.recovery, this.state);
     // circuit closed again now
-    assertEquals(RESULT, result);
+    assertThat(result).isEqualTo(RESULT);
   }
 
   @Test
@@ -157,9 +144,9 @@ public class CircuitBreakerRetryTemplateTests {
     this.retryTemplate.setRetryPolicy(new CircuitBreakerRetryPolicy(mockNeverRetryPolicy));
     this.callback.setAttemptsBeforeSuccess(10);
     Object result = this.retryTemplate.execute(this.callback, this.recovery, this.state);
-    assertEquals(RECOVERED, result);
+    assertThat(result).isEqualTo(RECOVERED);
     result = this.retryTemplate.execute(this.callback, this.recovery, this.state);
-    assertEquals(RECOVERED, result);
+    assertThat(result).isEqualTo(RECOVERED);
   }
 
   protected static class MockRetryCallback implements RetryCallback<Object, Exception> {

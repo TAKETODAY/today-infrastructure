@@ -34,7 +34,7 @@ import cn.taketoday.retry.annotation.EnableRetry;
 import cn.taketoday.retry.annotation.Recover;
 import cn.taketoday.retry.support.RetrySynchronizationManager;
 
-import static org.junit.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Dave Syer
@@ -71,12 +71,13 @@ public class CircuitBreakerInterceptorStatisticsTests {
     Object result = callback.service("one");
     RetryStatistics stats = repository.findOne("test");
     // System.err.println(stats);
-    assertEquals(1, stats.getStartedCount());
-    assertEquals(RECOVERED, result);
+    assertThat(stats.getStartedCount()).isEqualTo(1);
+    assertThat(result).isEqualTo(RECOVERED);
     result = callback.service("two");
-    assertEquals(RECOVERED, result);
-    assertEquals("There should be two recoveries", 2, stats.getRecoveryCount());
-    assertEquals("There should only be one error because the circuit is now open", 1, stats.getErrorCount());
+    assertThat(result).isEqualTo(RECOVERED);
+    assertThat(stats.getRecoveryCount()).describedAs("There should be two recoveries").isEqualTo(2);
+    assertThat(stats.getErrorCount()).describedAs("There should only be one error because the circuit is now open")
+            .isEqualTo(1);
   }
 
   @Configuration

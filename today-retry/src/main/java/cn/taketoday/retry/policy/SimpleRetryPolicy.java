@@ -21,8 +21,10 @@
 package cn.taketoday.retry.policy;
 
 import java.util.Map;
+import java.util.function.Supplier;
 
 import cn.taketoday.classify.BinaryExceptionClassifier;
+import cn.taketoday.lang.Assert;
 import cn.taketoday.retry.RetryContext;
 import cn.taketoday.retry.RetryPolicy;
 import cn.taketoday.retry.context.RetryContextSupport;
@@ -46,7 +48,7 @@ import cn.taketoday.util.ClassUtils;
  * that is actually performed by:
  *
  * <pre>
- * RetryTemplate.newBuilder()
+ * RetryTemplate.builder()
  *                  .maxAttempts(3)
  *                  .retryOn(Exception.class)
  *                  .build();
@@ -68,7 +70,9 @@ public class SimpleRetryPolicy implements RetryPolicy {
    */
   public final static int DEFAULT_MAX_ATTEMPTS = 3;
 
-  private volatile int maxAttempts;
+  private int maxAttempts;
+
+  private Supplier<Integer> maxAttemptsSupplier;
 
   private BinaryExceptionClassifier retryableClassifier = new BinaryExceptionClassifier(false);
 
@@ -162,11 +166,30 @@ public class SimpleRetryPolicy implements RetryPolicy {
   }
 
   /**
+   * Set a supplier for the number of attempts before retries are exhausted. Includes
+   * the initial attempt before the retries begin so, generally, will be {@code >= 1}.
+   * For example setting this property to 3 means 3 attempts total (initial + 2
+   * retries). IMPORTANT: This policy cannot be serialized when a max attempts supplier
+   * is provided. Serialization might be used by a distributed cache when using this
+   * policy in a {@code CircuitBreaker} context.
+   *
+   * @param maxAttemptsSupplier the maximum number of attempts including the initial
+   * attempt.
+   */
+  public void setMaxAttempts(Supplier<Integer> maxAttemptsSupplier) {
+    Assert.notNull(maxAttemptsSupplier, "maxAttemptsSupplier is required");
+    this.maxAttemptsSupplier = maxAttemptsSupplier;
+  }
+
+  /**
    * The maximum number of attempts before failure.
    *
    * @return the maximum number of attempts
    */
   public int getMaxAttempts() {
+    if (this.maxAttemptsSupplier != null) {
+      return this.maxAttemptsSupplier.get();
+    }
     return this.maxAttempts;
   }
 
@@ -180,7 +203,7 @@ public class SimpleRetryPolicy implements RetryPolicy {
   @Override
   public boolean canRetry(RetryContext context) {
     Throwable t = context.getLastThrowable();
-    return (t == null || retryForException(t)) && context.getRetryCount() < this.maxAttempts;
+    return (t == null || retryForException(t)) && context.getRetryCount() < getMaxAttempts();
   }
 
   /**
@@ -223,7 +246,6 @@ public class SimpleRetryPolicy implements RetryPolicy {
   /**
    * Delegates to an exception classifier.
    *
-   * @param ex
    * @return true if this exception or its ancestors have been registered as retryable.
    */
   private boolean retryForException(Throwable ex) {
@@ -232,7 +254,7 @@ public class SimpleRetryPolicy implements RetryPolicy {
 
   @Override
   public String toString() {
-    return ClassUtils.getShortName(getClass()) + "[maxAttempts=" + this.maxAttempts + "]";
+    return ClassUtils.getShortName(getClass()) + "[maxAttempts=" + getMaxAttempts() + "]";
   }
 
 }

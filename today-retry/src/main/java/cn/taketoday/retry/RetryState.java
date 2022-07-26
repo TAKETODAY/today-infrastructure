@@ -19,6 +19,8 @@
  */
 package cn.taketoday.retry;
 
+import cn.taketoday.lang.Nullable;
+
 /**
  * Stateful retry is characterised by having to recognise the items that are being
  * processed, so this interface is used primarily to provide a cache key in between failed
@@ -38,6 +40,7 @@ public interface RetryState {
    *
    * @return the key that this state represents
    */
+  @Nullable
   Object getKey();
 
   /**

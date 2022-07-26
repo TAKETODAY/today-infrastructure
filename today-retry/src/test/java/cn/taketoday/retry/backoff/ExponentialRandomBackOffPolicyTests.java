@@ -20,7 +20,7 @@
 
 package cn.taketoday.retry.backoff;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
@@ -28,13 +28,13 @@ import cn.taketoday.retry.policy.SimpleRetryPolicy;
 import cn.taketoday.retry.support.RetrySimulation;
 import cn.taketoday.retry.support.RetrySimulator;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Dave Syer
  * @author Jon Travis
  * @author Chase Diem
+ * @author Gary Russell
  */
 public class ExponentialRandomBackOffPolicyTests {
 
@@ -56,25 +56,27 @@ public class ExponentialRandomBackOffPolicyTests {
   }
 
   @Test
-  public void testSingleBackoff() throws Exception {
+  public void testSingleBackoff() {
     ExponentialBackOffPolicy backOffPolicy = makeBackoffPolicy();
     RetrySimulator simulator = new RetrySimulator(backOffPolicy, makeRetryPolicy());
     RetrySimulation simulation = simulator.executeSimulation(1);
 
     List<Long> sleeps = simulation.getLongestTotalSleepSequence().getSleeps();
     System.out.println("Single trial of " + backOffPolicy + ": sleeps=" + sleeps);
-    assertEquals(MAX_RETRIES - 1, sleeps.size());
+    assertThat(sleeps).hasSize(MAX_RETRIES - 1);
     long initialInterval = backOffPolicy.getInitialInterval();
     for (int i = 0; i < sleeps.size(); i++) {
       long expectedMaxValue = 2 * (long) (initialInterval
               + initialInterval * Math.max(1, Math.pow(backOffPolicy.getMultiplier(), i)));
-      assertTrue("Found a sleep [" + sleeps.get(i) + "] which exceeds our max expected value of "
-              + expectedMaxValue + " at interval " + i, sleeps.get(i) < expectedMaxValue);
+      assertThat(sleeps.get(i))
+              .describedAs("Found a sleep [%d] which exceeds our max expected value of %d at interval %d",
+                      sleeps.get(i), expectedMaxValue, i)
+              .isLessThan(expectedMaxValue);
     }
   }
 
   @Test
-  public void testMaxInterval() throws Exception {
+  public void testMaxInterval() {
     ExponentialBackOffPolicy backOffPolicy = makeBackoffPolicy();
     backOffPolicy.setInitialInterval(3000);
     long maxInterval = backOffPolicy.getMaxInterval();
@@ -84,18 +86,20 @@ public class ExponentialRandomBackOffPolicyTests {
 
     List<Long> sleeps = simulation.getLongestTotalSleepSequence().getSleeps();
     System.out.println("Single trial of " + backOffPolicy + ": sleeps=" + sleeps);
-    assertEquals(MAX_RETRIES - 1, sleeps.size());
+    assertThat(sleeps).hasSize(MAX_RETRIES - 1);
     long initialInterval = backOffPolicy.getInitialInterval();
     for (int i = 0; i < sleeps.size(); i++) {
       long expectedMaxValue = 2 * (long) (initialInterval
               + initialInterval * Math.max(1, Math.pow(backOffPolicy.getMultiplier(), i)));
-      assertTrue("Found a sleep [" + sleeps.get(i) + "] which exceeds our max interval value of "
-              + expectedMaxValue + " at interval " + i, sleeps.get(i) <= maxInterval);
+      assertThat(sleeps.get(i))
+              .describedAs("Found a sleep [%d] which exceeds our max expected value of %d at interval %d",
+                      sleeps.get(i), expectedMaxValue, i)
+              .isLessThanOrEqualTo(expectedMaxValue);
     }
   }
 
   @Test
-  public void testMultiBackOff() throws Exception {
+  public void testMultiBackOff() {
     ExponentialBackOffPolicy backOffPolicy = makeBackoffPolicy();
     RetrySimulator simulator = new RetrySimulator(backOffPolicy, makeRetryPolicy());
     RetrySimulation simulation = simulator.executeSimulation(NUM_TRIALS);

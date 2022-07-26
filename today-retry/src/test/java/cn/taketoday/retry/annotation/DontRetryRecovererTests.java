@@ -23,35 +23,25 @@ package cn.taketoday.retry.annotation;
 import org.junit.jupiter.api.Test;
 
 import cn.taketoday.beans.factory.annotation.Autowired;
-import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
-import cn.taketoday.context.annotation.Scope;
 import cn.taketoday.test.context.junit.jupiter.JUnitConfig;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 /**
  * @author Gary Russell
- * @since 1.2.2
+ * @since 1.3.4
  */
 @JUnitConfig
-public class PrototypeBeanTests {
-
-  @Autowired
-  private Bar bar1;
-
-  @Autowired
-  private Bar bar2;
-
-  @Autowired
-  private Foo foo;
+public class DontRetryRecovererTests {
 
   @Test
-  public void testProtoBean() {
-    this.bar1.foo("one");
-    this.bar2.foo("two");
-    assertThat(this.foo.recovered).isEqualTo("two");
+  void dontRetry(@Autowired Service service) {
+    assertThatExceptionOfType(RuntimeException.class).isThrownBy(() -> service.foo("x")).withMessage("test");
+    assertThat(service.getCallCount()).isEqualTo(3);
+    assertThat(service.getRecoverCount()).isEqualTo(1);
   }
 
   @Configuration
@@ -59,63 +49,36 @@ public class PrototypeBeanTests {
   public static class Config {
 
     @Bean
-    public Foo foo() {
-      return new Foo();
-    }
-
-    @Bean
-    @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-    public Baz baz() {
-      return new Baz();
+    Service service() {
+      return new Service();
     }
 
   }
 
-  public static class Foo {
+  @Retryable
+  public static class Service {
 
-    private String recovered;
+    int callCount;
 
-    void demoRun(Bar bar) {
+    int recoverCount;
+
+    public void foo(String in) {
+      callCount++;
       throw new RuntimeException();
     }
 
-    void demoRecover(String instance) {
-      this.recovered = instance;
-    }
-
-  }
-
-  public interface Bar {
-
-    @Retryable(backoff = @Backoff(0))
-    void foo(String instance);
-
     @Recover
-    void bar();
-
-  }
-
-  public static class Baz implements Bar {
-
-    private String instance;
-
-    @Autowired
-    private Foo foo;
-
-    @Override
-    public void foo(String instance) {
-      this.instance = instance;
-      foo.demoRun(this);
+    public void recover(Exception ex, String in) {
+      this.recoverCount++;
+      throw new RuntimeException("test");
     }
 
-    @Override
-    public void bar() {
-      foo.demoRecover(this.instance);
+    public int getCallCount() {
+      return callCount;
     }
 
-    @Override
-    public String toString() {
-      return "Baz [instance=" + this.instance + "]";
+    public int getRecoverCount() {
+      return recoverCount;
     }
 
   }

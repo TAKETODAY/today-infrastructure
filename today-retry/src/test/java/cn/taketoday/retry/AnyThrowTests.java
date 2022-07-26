@@ -20,34 +20,31 @@
 
 package cn.taketoday.retry;
 
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.Test;
+
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 /**
  * @author Dave Syer
+ * @author Gary Russell
  */
 public class AnyThrowTests {
 
-  @Rule
-  public ExpectedException expected = ExpectedException.none();
-
   @Test
-  public void testRuntimeException() throws Throwable {
-    expected.expect(RuntimeException.class);
-    AnyThrow.throwAny(new RuntimeException("planned"));
+  public void testRuntimeException() {
+    assertThatExceptionOfType(RuntimeException.class)
+            .isThrownBy(() -> AnyThrow.throwAny(new RuntimeException("planned")));
   }
 
   @Test
-  public void testUncheckedRuntimeException() throws Throwable {
-    expected.expect(RuntimeException.class);
-    AnyThrow.throwUnchecked(new RuntimeException("planned"));
+  public void testUncheckedRuntimeException() {
+    assertThatExceptionOfType(RuntimeException.class)
+            .isThrownBy(() -> AnyThrow.throwUnchecked(new RuntimeException("planned")));
   }
 
   @Test
-  public void testCheckedException() throws Throwable {
-    expected.expect(Exception.class);
-    AnyThrow.throwAny(new Exception("planned"));
+  public void testCheckedException() {
+    assertThatExceptionOfType(Exception.class).isThrownBy(() -> AnyThrow.throwAny(new Exception("planned")));
   }
 
   private static class AnyThrow {

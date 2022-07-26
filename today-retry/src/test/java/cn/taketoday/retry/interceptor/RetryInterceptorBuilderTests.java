@@ -20,12 +20,14 @@
 package cn.taketoday.retry.interceptor;
 
 import org.aopalliance.intercept.MethodInterceptor;
-import org.junit.Test;
+import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Supplier;
 
 import cn.taketoday.aop.Pointcut;
 import cn.taketoday.aop.framework.ProxyFactory;
@@ -36,21 +38,20 @@ import cn.taketoday.retry.policy.SimpleRetryPolicy;
 import cn.taketoday.retry.support.RetryTemplate;
 import cn.taketoday.retry.util.test.TestUtils;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertSame;
 
 /**
  * @author Gary Russell
  * @author Artem Bilan
- * @since 4.0
+ * @since 1.1
  */
 public class RetryInterceptorBuilderTests {
 
   @Test
   public void testBasic() {
     StatefulRetryOperationsInterceptor interceptor = RetryInterceptorBuilder.stateful().build();
-    assertEquals(3, TestUtils.getPropertyValue(interceptor, "retryOperations.retryPolicy.maxAttempts"));
+    Assertions.assertThat(TestUtils.getPropertyValue(interceptor, "retryOperations.retryPolicy.maxAttempts")).isEqualTo(3);
   }
 
   @Test
@@ -58,14 +59,14 @@ public class RetryInterceptorBuilderTests {
     RetryOperations retryOperations = new RetryTemplate();
     StatefulRetryOperationsInterceptor interceptor = RetryInterceptorBuilder.stateful()
             .retryOperations(retryOperations).build();
-    assertEquals(3, TestUtils.getPropertyValue(interceptor, "retryOperations.retryPolicy.maxAttempts"));
+    assertThat(TestUtils.getPropertyValue(interceptor, "retryOperations.retryPolicy.maxAttempts")).isEqualTo(3);
     assertSame(retryOperations, TestUtils.getPropertyValue(interceptor, "retryOperations"));
   }
 
   @Test
   public void testWithMoreAttempts() {
     StatefulRetryOperationsInterceptor interceptor = RetryInterceptorBuilder.stateful().maxAttempts(5).build();
-    assertEquals(5, TestUtils.getPropertyValue(interceptor, "retryOperations.retryPolicy.maxAttempts"));
+    assertThat(TestUtils.getPropertyValue(interceptor, "retryOperations.retryPolicy.maxAttempts")).isEqualTo(5);
   }
 
   @Test
@@ -73,10 +74,11 @@ public class RetryInterceptorBuilderTests {
     StatefulRetryOperationsInterceptor interceptor = RetryInterceptorBuilder.stateful().maxAttempts(5)
             .backOffOptions(1, 2, 10).build();
 
-    assertEquals(5, TestUtils.getPropertyValue(interceptor, "retryOperations.retryPolicy.maxAttempts"));
-    assertEquals(1L, TestUtils.getPropertyValue(interceptor, "retryOperations.backOffPolicy.initialInterval"));
-    assertEquals(2.0, TestUtils.getPropertyValue(interceptor, "retryOperations.backOffPolicy.multiplier"));
-    assertEquals(10L, TestUtils.getPropertyValue(interceptor, "retryOperations.backOffPolicy.maxInterval"));
+    assertThat(TestUtils.getPropertyValue(interceptor, "retryOperations.retryPolicy.maxAttempts")).isEqualTo(5);
+    assertThat(TestUtils.getPropertyValue(interceptor, "retryOperations.backOffPolicy.initialInterval"))
+            .isEqualTo(1L);
+    assertThat(TestUtils.getPropertyValue(interceptor, "retryOperations.backOffPolicy.multiplier")).isEqualTo(2.0);
+    assertThat(TestUtils.getPropertyValue(interceptor, "retryOperations.backOffPolicy.maxInterval")).isEqualTo(10L);
   }
 
   @Test
@@ -84,25 +86,25 @@ public class RetryInterceptorBuilderTests {
     StatefulRetryOperationsInterceptor interceptor = RetryInterceptorBuilder.stateful().maxAttempts(5)
             .backOffPolicy(new FixedBackOffPolicy()).build();
 
-    assertEquals(5, TestUtils.getPropertyValue(interceptor, "retryOperations.retryPolicy.maxAttempts"));
-    assertEquals(1000L, TestUtils.getPropertyValue(interceptor, "retryOperations.backOffPolicy.backOffPeriod"));
+    assertThat(TestUtils.getPropertyValue(interceptor, "retryOperations.retryPolicy.maxAttempts")).isEqualTo(5);
+    assertThat(TestUtils
+            .getPropertyValue(interceptor, "retryOperations.backOffPolicy.backOffPeriod", Supplier.class).get())
+            .isEqualTo(1000L);
   }
 
   @Test
   public void testWithCustomNewMessageIdentifier() throws Exception {
     final CountDownLatch latch = new CountDownLatch(1);
     StatefulRetryOperationsInterceptor interceptor = RetryInterceptorBuilder.stateful().maxAttempts(5)
-            .newMethodArgumentsIdentifier(new NewMethodArgumentsIdentifier() {
-
-              @Override
-              public boolean isNew(Object[] args) {
-                latch.countDown();
-                return false;
-              }
+            .newMethodArgumentsIdentifier(args -> {
+              latch.countDown();
+              return false;
             }).backOffPolicy(new FixedBackOffPolicy()).build();
 
-    assertEquals(5, TestUtils.getPropertyValue(interceptor, "retryOperations.retryPolicy.maxAttempts"));
-    assertEquals(1000L, TestUtils.getPropertyValue(interceptor, "retryOperations.backOffPolicy.backOffPeriod"));
+    assertThat(TestUtils.getPropertyValue(interceptor, "retryOperations.retryPolicy.maxAttempts")).isEqualTo(5);
+    assertThat(TestUtils
+            .getPropertyValue(interceptor, "retryOperations.backOffPolicy.backOffPeriod", Supplier.class).get())
+            .isEqualTo(1000L);
     final AtomicInteger count = new AtomicInteger();
     Foo delegate = createDelegate(interceptor, count);
     Object message = "";
@@ -110,10 +112,10 @@ public class RetryInterceptorBuilderTests {
       delegate.onMessage("", message);
     }
     catch (RuntimeException e) {
-      assertEquals("foo", e.getMessage());
+      assertThat(e.getMessage()).isEqualTo("foo");
     }
-    assertEquals(1, count.get());
-    assertTrue(latch.await(0, TimeUnit.SECONDS));
+    assertThat(count.get()).isEqualTo(1);
+    assertThat(latch.await(0, TimeUnit.SECONDS)).isTrue();
   }
 
   @Test
@@ -122,23 +124,18 @@ public class RetryInterceptorBuilderTests {
             .retryPolicy(new SimpleRetryPolicy(15,
                     Collections.<Class<? extends Throwable>, Boolean>singletonMap(Exception.class, true), true))
             .build();
-    assertEquals(15, TestUtils.getPropertyValue(interceptor, "retryOperations.retryPolicy.maxAttempts"));
+    assertThat(TestUtils.getPropertyValue(interceptor, "retryOperations.retryPolicy.maxAttempts")).isEqualTo(15);
   }
 
   @Test
   public void testWithCustomKeyGenerator() throws Exception {
     final CountDownLatch latch = new CountDownLatch(1);
-    StatefulRetryOperationsInterceptor interceptor = RetryInterceptorBuilder.stateful()
-            .keyGenerator(new MethodArgumentsKeyGenerator() {
+    StatefulRetryOperationsInterceptor interceptor = RetryInterceptorBuilder.stateful().keyGenerator(item -> {
+      latch.countDown();
+      return "foo";
+    }).build();
 
-              @Override
-              public Object getKey(Object[] item) {
-                latch.countDown();
-                return "foo";
-              }
-            }).build();
-
-    assertEquals(3, TestUtils.getPropertyValue(interceptor, "retryOperations.retryPolicy.maxAttempts"));
+    assertThat(TestUtils.getPropertyValue(interceptor, "retryOperations.retryPolicy.maxAttempts")).isEqualTo(3);
     final AtomicInteger count = new AtomicInteger();
     Foo delegate = createDelegate(interceptor, count);
     Object message = "";
@@ -146,21 +143,16 @@ public class RetryInterceptorBuilderTests {
       delegate.onMessage("", message);
     }
     catch (RuntimeException e) {
-      assertEquals("foo", e.getMessage());
+      assertThat(e.getMessage()).isEqualTo("foo");
     }
-    assertEquals(1, count.get());
-    assertTrue(latch.await(0, TimeUnit.SECONDS));
+    assertThat(count.get()).isEqualTo(1);
+    assertThat(latch.await(0, TimeUnit.SECONDS)).isTrue();
   }
 
   private Foo createDelegate(MethodInterceptor interceptor, final AtomicInteger count) {
-    Foo delegate = new Foo() {
-
-      @Override
-      public void onMessage(String s, Object message) {
-        count.incrementAndGet();
-        throw new RuntimeException("foo", new RuntimeException("bar"));
-      }
-
+    Foo delegate = (s, message) -> {
+      count.incrementAndGet();
+      throw new RuntimeException("foo", new RuntimeException("bar"));
     };
     ProxyFactory factory = new ProxyFactory();
     factory.addAdvisor(new DefaultPointcutAdvisor(Pointcut.TRUE, interceptor));

@@ -34,22 +34,20 @@ import cn.taketoday.aop.framework.Advised;
 import cn.taketoday.aop.framework.ProxyFactory;
 import cn.taketoday.aop.target.SingletonTargetSource;
 import cn.taketoday.retry.ExhaustedRetryException;
-import cn.taketoday.retry.RecoveryCallback;
 import cn.taketoday.retry.RetryCallback;
 import cn.taketoday.retry.RetryContext;
-import cn.taketoday.retry.RetryListener;
 import cn.taketoday.retry.RetryOperations;
+import cn.taketoday.retry.listener.RetryListenerSupport;
 import cn.taketoday.retry.policy.AlwaysRetryPolicy;
 import cn.taketoday.retry.policy.NeverRetryPolicy;
 import cn.taketoday.retry.policy.SimpleRetryPolicy;
 import cn.taketoday.retry.support.DefaultRetryState;
 import cn.taketoday.retry.support.RetryTemplate;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -73,9 +71,9 @@ public class StatefulRetryOperationsInterceptorTests {
   private static int count;
 
   @BeforeEach
-  public void setUp() throws Exception {
+  public void setUp() {
     interceptor = new StatefulRetryOperationsInterceptor();
-    retryTemplate.registerListener(new RetryListener() {
+    retryTemplate.registerListener(new RetryListenerSupport() {
       @Override
       public <T, E extends Throwable> void close(RetryContext context, RetryCallback<T, E> callback,
               Throwable throwable) {
@@ -89,63 +87,38 @@ public class StatefulRetryOperationsInterceptorTests {
   }
 
   @Test
-  public void testDefaultInterceptorSunnyDay() throws Exception {
+  public void testDefaultInterceptorSunnyDay() {
     ((Advised) service).addAdvice(interceptor);
-    try {
-      service.service("foo");
-      fail("Expected Exception.");
-    }
-    catch (Exception e) {
-      String message = e.getMessage();
-      assertTrue("Wrong message: " + message, message.startsWith("Not enough calls"));
-    }
-    assertEquals(1, count);
+    assertThatExceptionOfType(Exception.class).isThrownBy(() -> service.service("foo"))
+            .withMessageStartingWith("Not enough calls");
   }
 
   @Test
-  public void testDefaultInterceptorWithLabel() throws Exception {
+  public void testDefaultInterceptorWithLabel() {
     interceptor.setLabel("FOO");
     ((Advised) service).addAdvice(interceptor);
-    try {
-      service.service("foo");
-      fail("Expected Exception.");
-    }
-    catch (Exception e) {
-      String message = e.getMessage();
-      assertTrue("Wrong message: " + message, message.startsWith("Not enough calls"));
-    }
-    assertEquals(1, count);
-    assertEquals("FOO", context.getAttribute(RetryContext.NAME));
+    assertThatExceptionOfType(Exception.class).isThrownBy(() -> service.service("foo"))
+            .withMessageStartingWith("Not enough calls");
+    assertThat(count).isEqualTo(1);
+    assertThat(context.getAttribute(RetryContext.NAME)).isEqualTo("FOO");
   }
 
   @Test
-  public void testDefaultTransformerInterceptorSunnyDay() throws Exception {
+  public void testDefaultTransformerInterceptorSunnyDay() {
     ((Advised) transformer).addAdvice(interceptor);
-    try {
-      transformer.transform("foo");
-      fail("Expected Exception.");
-    }
-    catch (Exception e) {
-      String message = e.getMessage();
-      assertTrue("Wrong message: " + message, message.startsWith("Not enough calls"));
-    }
-    assertEquals(1, count);
+    assertThatExceptionOfType(Exception.class).isThrownBy(() -> transformer.transform("foo"))
+            .withMessageStartingWith("Not enough calls");
+    assertThat(count).isEqualTo(1);
   }
 
   @Test
-  public void testDefaultInterceptorAlwaysRetry() throws Exception {
+  public void testDefaultInterceptorAlwaysRetry() {
     retryTemplate.setRetryPolicy(new AlwaysRetryPolicy());
     interceptor.setRetryOperations(retryTemplate);
     ((Advised) service).addAdvice(interceptor);
-    try {
-      service.service("foo");
-      fail("Expected Exception.");
-    }
-    catch (Exception e) {
-      String message = e.getMessage();
-      assertTrue("Wrong message: " + message, message.startsWith("Not enough calls"));
-    }
-    assertEquals(1, count);
+    assertThatExceptionOfType(Exception.class).isThrownBy(() -> service.service("foo"))
+            .withMessageStartingWith("Not enough calls");
+    assertThat(count).isEqualTo(1);
   }
 
   @Test
@@ -158,18 +131,12 @@ public class StatefulRetryOperationsInterceptorTests {
     });
     interceptor.setRetryOperations(retryTemplate);
     retryTemplate.setRetryPolicy(new SimpleRetryPolicy(2));
-    try {
-      service.service("foo");
-      fail("Expected Exception.");
-    }
-    catch (Exception e) {
-      String message = e.getMessage();
-      assertTrue("Wrong message: " + message, message.startsWith("Not enough calls"));
-    }
-    assertEquals(1, count);
+    assertThatExceptionOfType(Exception.class).isThrownBy(() -> service.service("foo"))
+            .withMessageStartingWith("Not enough calls");
+    assertThat(count).isEqualTo(1);
     service.service("foo");
-    assertEquals(2, count);
-    assertEquals(2, list.size());
+    assertThat(count).isEqualTo(2);
+    assertThat(list).hasSize(2);
   }
 
   @Test
@@ -177,18 +144,12 @@ public class StatefulRetryOperationsInterceptorTests {
     ((Advised) transformer).addAdvice(interceptor);
     interceptor.setRetryOperations(retryTemplate);
     retryTemplate.setRetryPolicy(new SimpleRetryPolicy(2));
-    try {
-      transformer.transform("foo");
-      fail("Expected Exception.");
-    }
-    catch (Exception e) {
-      String message = e.getMessage();
-      assertTrue("Wrong message: " + message, message.startsWith("Not enough calls"));
-    }
-    assertEquals(1, count);
+    assertThatExceptionOfType(Exception.class).isThrownBy(() -> transformer.transform("foo"))
+            .withMessageStartingWith("Not enough calls");
+    assertThat(count).isEqualTo(1);
     Collection<String> result = transformer.transform("foo");
-    assertEquals(2, count);
-    assertEquals(1, result.size());
+    assertThat(count).isEqualTo(2);
+    assertThat(result).hasSize(1);
   }
 
   @Test
@@ -196,25 +157,12 @@ public class StatefulRetryOperationsInterceptorTests {
     ((Advised) service).addAdvice(interceptor);
     interceptor.setRetryOperations(retryTemplate);
     retryTemplate.setRetryPolicy(new NeverRetryPolicy());
-    try {
-      service.service("foo");
-      fail("Expected Exception.");
-    }
-    catch (Exception e) {
-      String message = e.getMessage();
-      assertTrue("Wrong message: " + message, message.startsWith("Not enough calls"));
-    }
-    assertEquals(1, count);
-    try {
-      service.service("foo");
-      fail("Expected ExhaustedRetryException");
-    }
-    catch (ExhaustedRetryException e) {
-      // expected
-      String message = e.getMessage();
-      assertTrue("Wrong message: " + message, message.startsWith("Retry exhausted"));
-    }
-    assertEquals(1, count);
+    assertThatExceptionOfType(Exception.class).isThrownBy(() -> service.service("foo"))
+            .withMessageStartingWith("Not enough calls");
+    assertThat(count).isEqualTo(1);
+    assertThatExceptionOfType(ExhaustedRetryException.class).isThrownBy(() -> service.service("foo"))
+            .withMessageStartingWith("Retry exhausted");
+    assertThat(count).isEqualTo(1);
   }
 
   @Test
@@ -222,21 +170,15 @@ public class StatefulRetryOperationsInterceptorTests {
     ((Advised) service).addAdvice(interceptor);
     interceptor.setRetryOperations(retryTemplate);
     retryTemplate.setRetryPolicy(new NeverRetryPolicy());
-    try {
-      service.service("foo");
-      fail("Expected Exception.");
-    }
-    catch (Exception e) {
-      String message = e.getMessage();
-      assertTrue("Wrong message: " + message, message.startsWith("Not enough calls"));
-    }
-    assertEquals(1, count);
+    assertThatExceptionOfType(Exception.class).isThrownBy(() -> service.service("foo"))
+            .withMessageStartingWith("Not enough calls");
+    assertThat(count).isEqualTo(1);
     interceptor.setRecoverer((data, cause) -> {
       count++;
       return null;
     });
     service.service("foo");
-    assertEquals(2, count);
+    assertThat(count).isEqualTo(2);
   }
 
   @SuppressWarnings("unchecked")
@@ -250,8 +192,8 @@ public class StatefulRetryOperationsInterceptorTests {
     when(invocation.getArguments()).thenReturn(new Object[] { new Object() });
     this.interceptor.invoke(invocation);
     ArgumentCaptor<DefaultRetryState> captor = ArgumentCaptor.forClass(DefaultRetryState.class);
-    verify(template).execute(any(RetryCallback.class), any(RecoveryCallback.class), captor.capture());
-    assertNull(captor.getValue().getKey());
+    verify(template).execute(any(RetryCallback.class), eq(null), captor.capture());
+    assertThat(captor.getValue().getKey()).isNull();
   }
 
   @SuppressWarnings("unchecked")
@@ -266,8 +208,8 @@ public class StatefulRetryOperationsInterceptorTests {
     when(invocation.getArguments()).thenReturn(new Object[] { new Object() });
     this.interceptor.invoke(invocation);
     ArgumentCaptor<DefaultRetryState> captor = ArgumentCaptor.forClass(DefaultRetryState.class);
-    verify(template).execute(any(RetryCallback.class), any(RecoveryCallback.class), captor.capture());
-    assertEquals("bar", captor.getValue().getKey());
+    verify(template).execute(any(RetryCallback.class), eq(null), captor.capture());
+    assertThat(captor.getValue().getKey()).isEqualTo("bar");
   }
 
   @Test
@@ -275,22 +217,16 @@ public class StatefulRetryOperationsInterceptorTests {
     ((Advised) transformer).addAdvice(interceptor);
     interceptor.setRetryOperations(retryTemplate);
     retryTemplate.setRetryPolicy(new NeverRetryPolicy());
-    try {
-      transformer.transform("foo");
-      fail("Expected Exception.");
-    }
-    catch (Exception e) {
-      String message = e.getMessage();
-      assertTrue("Wrong message: " + message, message.startsWith("Not enough calls"));
-    }
-    assertEquals(1, count);
-    interceptor.setRecoverer((MethodInvocationRecoverer<Collection<String>>) (data, cause) -> {
+    assertThatExceptionOfType(Exception.class).isThrownBy(() -> transformer.transform("foo"))
+            .withMessageStartingWith("Not enough calls");
+    assertThat(count).isEqualTo(1);
+    interceptor.setRecoverer((data, cause) -> {
       count++;
       return Collections.singleton((String) data[0]);
     });
     Collection<String> result = transformer.transform("foo");
-    assertEquals(2, count);
-    assertEquals(1, result.size());
+    assertThat(count).isEqualTo(2);
+    assertThat(result.size()).isEqualTo(1);
   }
 
   public static interface Service {

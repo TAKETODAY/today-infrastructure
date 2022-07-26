@@ -20,13 +20,14 @@
 
 package cn.taketoday.retry.backoff;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Tomaz Fernandes
- * @since 4.0
+ * @author Gary Russell
+ * @since 1.3.2
  */
 public class UniformRandomBackOffPolicyTests {
 
@@ -39,8 +40,8 @@ public class UniformRandomBackOffPolicyTests {
     backOffPolicy.setMaxBackOffPeriod(maxBackOff);
     UniformRandomBackOffPolicy withSleeper = backOffPolicy.withSleeper(new DummySleeper());
 
-    assertEquals(minBackOff, withSleeper.getMinBackOffPeriod());
-    assertEquals(maxBackOff, withSleeper.getMaxBackOffPeriod());
+    assertThat(withSleeper.getMinBackOffPeriod()).isEqualTo(minBackOff);
+    assertThat(withSleeper.getMaxBackOffPeriod()).isEqualTo(maxBackOff);
   }
 
 }

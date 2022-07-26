@@ -20,6 +20,7 @@
 package cn.taketoday.retry.support;
 
 import cn.taketoday.classify.Classifier;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.retry.RecoveryCallback;
 import cn.taketoday.retry.RetryCallback;
 import cn.taketoday.retry.RetryOperations;
@@ -31,11 +32,13 @@ import cn.taketoday.retry.RetryState;
  */
 public class DefaultRetryState implements RetryState {
 
-  final private Object key;
+  @Nullable
+  private final Object key;
 
-  final private boolean forceRefresh;
+  private final boolean forceRefresh;
 
-  final private Classifier<? super Throwable, Boolean> rollbackClassifier;
+  @Nullable
+  private final Classifier<? super Throwable, Boolean> rollbackClassifier;
 
   /**
    * Create a {@link DefaultRetryState} representing the state for a new retry attempt.
@@ -48,8 +51,8 @@ public class DefaultRetryState implements RetryState {
    * @see RetryOperations#execute(RetryCallback, RetryState)
    * @see RetryOperations#execute(RetryCallback, RecoveryCallback, RetryState)
    */
-  public DefaultRetryState(Object key, boolean forceRefresh,
-          Classifier<? super Throwable, Boolean> rollbackClassifier) {
+  public DefaultRetryState(@Nullable Object key, boolean forceRefresh,
+          @Nullable Classifier<? super Throwable, Boolean> rollbackClassifier) {
     this.key = key;
     this.forceRefresh = forceRefresh;
     this.rollbackClassifier = rollbackClassifier;
@@ -92,6 +95,8 @@ public class DefaultRetryState implements RetryState {
    *
    * @see cn.taketoday.batch.retry.IRetryState#getKey()
    */
+  @Nullable
+  @Override
   public Object getKey() {
     return key;
   }
@@ -101,6 +106,7 @@ public class DefaultRetryState implements RetryState {
    *
    * @see cn.taketoday.batch.retry.IRetryState#isForceRefresh()
    */
+  @Override
   public boolean isForceRefresh() {
     return forceRefresh;
   }
@@ -110,6 +116,7 @@ public class DefaultRetryState implements RetryState {
    *
    * @see cn.taketoday.batch.retry.RetryState#rollbackFor(java.lang.Throwable )
    */
+  @Override
   public boolean rollbackFor(Throwable exception) {
     if (rollbackClassifier == null) {
       return true;

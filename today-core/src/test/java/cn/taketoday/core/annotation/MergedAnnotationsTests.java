@@ -3191,14 +3191,14 @@ class MergedAnnotationsTests {
   }
 
 	/**
-	 * Mimics org.springframework.security.config.annotation.authentication.configuration.EnableGlobalAuthentication
+	 * Mimics cn.taketoday.security.config.annotation.authentication.configuration.EnableGlobalAuthentication
 	 */
 	@Retention(RUNTIME)
 	@interface EnableGlobalAuthentication {
 	}
 
 	/**
-	 * Mimics org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
+	 * Mimics cn.taketoday.security.config.annotation.web.configuration.EnableWebSecurity
 	 */
 	@Retention(RUNTIME)
 	@EnableGlobalAuthentication

@@ -28,12 +28,13 @@ import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.retry.RetryCallback;
 import cn.taketoday.retry.RetryContext;
 import cn.taketoday.retry.RetryListener;
+import cn.taketoday.retry.listener.RetryListenerSupport;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Dave Syer
+ * @author Gary Russell
  */
 public class EnableRetryWithListenersTests {
 
@@ -42,8 +43,7 @@ public class EnableRetryWithListenersTests {
     AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(TestConfiguration.class);
     Service service = context.getBean(Service.class);
     service.service();
-    assertThat(context.getBean(TestConfiguration.class).count)
-            .isEqualTo(1);
+    assertThat(context.getBean(TestConfiguration.class).count).isEqualTo(1);
     context.close();
   }
 
@@ -53,8 +53,8 @@ public class EnableRetryWithListenersTests {
             TestConfigurationMultipleListeners.class);
     ServiceWithOverriddenListener service = context.getBean(ServiceWithOverriddenListener.class);
     service.service();
-    assertEquals(1, context.getBean(TestConfigurationMultipleListeners.class).count1);
-    assertEquals(0, context.getBean(TestConfigurationMultipleListeners.class).count2);
+    assertThat(context.getBean(TestConfigurationMultipleListeners.class).count1).isEqualTo(1);
+    assertThat(context.getBean(TestConfigurationMultipleListeners.class).count2).isEqualTo(0);
     context.close();
   }
 
@@ -71,10 +71,10 @@ public class EnableRetryWithListenersTests {
 
     @Bean
     public RetryListener listener() {
-      return new RetryListener() {
+      return new RetryListenerSupport() {
         @Override
-        public <T, E extends Throwable> void close(
-                RetryContext context, RetryCallback<T, E> callback, Throwable throwable) {
+        public <T, E extends Throwable> void close(RetryContext context, RetryCallback<T, E> callback,
+                Throwable throwable) {
           count++;
         }
       };
@@ -82,7 +82,7 @@ public class EnableRetryWithListenersTests {
 
   }
 
-  @Configuration(proxyBeanMethods = false)
+  @Configuration
   @EnableRetry(proxyTargetClass = true)
   protected static class TestConfigurationMultipleListeners {
 
@@ -97,7 +97,7 @@ public class EnableRetryWithListenersTests {
 
     @Bean
     public RetryListener listener1() {
-      return new RetryListener() {
+      return new RetryListenerSupport() {
         @Override
         public <T, E extends Throwable> void close(RetryContext context, RetryCallback<T, E> callback,
                 Throwable throwable) {
@@ -108,7 +108,7 @@ public class EnableRetryWithListenersTests {
 
     @Bean
     public RetryListener listener2() {
-      return new RetryListener() {
+      return new RetryListenerSupport() {
         @Override
         public <T, E extends Throwable> void close(RetryContext context, RetryCallback<T, E> callback,
                 Throwable throwable) {

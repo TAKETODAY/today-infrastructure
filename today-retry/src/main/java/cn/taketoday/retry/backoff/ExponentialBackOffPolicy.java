@@ -20,6 +20,9 @@
 
 package cn.taketoday.retry.backoff;
 
+import java.util.function.Supplier;
+
+import cn.taketoday.lang.Assert;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.retry.RetryContext;
@@ -80,6 +83,21 @@ public class ExponentialBackOffPolicy implements SleepingBackOffPolicy<Exponenti
   private volatile double multiplier = DEFAULT_MULTIPLIER;
 
   private Sleeper sleeper = new ThreadWaitSleeper();
+
+  /**
+   * The initial backoff interval.
+   */
+  private Supplier<Long> initialIntervalSupplier;
+
+  /**
+   * The maximum value of the backoff period in milliseconds.
+   */
+  private Supplier<Long> maxIntervalSupplier;
+
+  /**
+   * The value to add to the backoff period for each retry attempt.
+   */
+  private Supplier<Double> multiplierSupplier;
 
   /**
    * Public setter for the {@link Sleeper} strategy.
@@ -169,11 +187,59 @@ public class ExponentialBackOffPolicy implements SleepingBackOffPolicy<Exponenti
   }
 
   /**
+   * Set the initial sleep interval value. Default supplier supplies {@code 100}
+   * millisecond.
+   *
+   * @param initialIntervalSupplier the initial interval
+   */
+  public void setInitialInterval(Supplier<Long> initialIntervalSupplier) {
+    Assert.notNull(initialIntervalSupplier, "'initialIntervalSupplier' cannot be null");
+    this.initialIntervalSupplier = initialIntervalSupplier;
+  }
+
+  /**
+   * Set the multiplier value. Default supplier supplies '<code>2.0</code>'. Hint: do
+   * not use values much in excess of 1.0 (or the backoff will get very long very fast).
+   *
+   * @param multiplierSupplier the multiplier
+   */
+  public void setMultiplier(Supplier<Double> multiplierSupplier) {
+    Assert.notNull(multiplierSupplier, "multiplierSupplier is required");
+    this.multiplierSupplier = multiplierSupplier;
+  }
+
+  /**
+   * Setter for maximum back off period. Default is 30000 (30 seconds). the value will
+   * be reset to 1 if this method is called with a value less than 1. Set this to avoid
+   * infinite waits if backing off a large number of times (or if the multiplier is set
+   * too high).
+   *
+   * @param maxIntervalSupplier in milliseconds.
+   */
+  public void setMaxInterval(Supplier<Long> maxIntervalSupplier) {
+    Assert.notNull(maxIntervalSupplier, "maxIntervalSupplier is required");
+    this.maxIntervalSupplier = maxIntervalSupplier;
+  }
+
+  protected Supplier<Long> getInitialIntervalSupplier() {
+    return initialIntervalSupplier;
+  }
+
+  protected Supplier<Long> getMaxIntervalSupplier() {
+    return maxIntervalSupplier;
+  }
+
+  protected Supplier<Double> getMultiplierSupplier() {
+    return multiplierSupplier;
+  }
+
+  /**
    * Returns a new instance of {@link BackOffContext} with the configured properties.
    */
   @Override
   public BackOffContext start(RetryContext context) {
-    return new ExponentialBackOffContext(this.initialInterval, this.multiplier, this.maxInterval);
+    return new ExponentialBackOffContext(this.initialInterval, this.multiplier, this.maxInterval,
+            this.initialIntervalSupplier, this.multiplierSupplier, this.maxIntervalSupplier);
   }
 
   /**
@@ -202,16 +268,26 @@ public class ExponentialBackOffPolicy implements SleepingBackOffPolicy<Exponenti
 
     private final long maxInterval;
 
-    public ExponentialBackOffContext(long interval, double multiplier, long maxInterval) {
+    private final Supplier<Long> intervalSupplier;
+    private final Supplier<Long> maxIntervalSupplier;
+    private final Supplier<Double> multiplierSupplier;
+
+    public ExponentialBackOffContext(long interval, double multiplier, long maxInterval,
+            Supplier<Long> intervalSupplier, Supplier<Double> multiplierSupplier,
+            Supplier<Long> maxIntervalSupplier) {
       this.interval = interval;
       this.multiplier = multiplier;
       this.maxInterval = maxInterval;
+      this.intervalSupplier = intervalSupplier;
+      this.multiplierSupplier = multiplierSupplier;
+      this.maxIntervalSupplier = maxIntervalSupplier;
     }
 
     public synchronized long getSleepAndIncrement() {
-      long sleep = this.interval;
-      if (sleep > this.maxInterval) {
-        sleep = this.maxInterval;
+      long sleep = getInterval();
+      long max = getMaxInterval();
+      if (sleep > max) {
+        sleep = max;
       }
       else {
         this.interval = getNextInterval();
@@ -220,19 +296,19 @@ public class ExponentialBackOffPolicy implements SleepingBackOffPolicy<Exponenti
     }
 
     protected long getNextInterval() {
-      return (long) (this.interval * this.multiplier);
+      return (long) (this.interval * getMultiplier());
     }
 
     public double getMultiplier() {
-      return this.multiplier;
+      return this.multiplierSupplier != null ? this.multiplierSupplier.get() : this.multiplier;
     }
 
     public long getInterval() {
-      return this.interval;
+      return this.intervalSupplier != null ? this.intervalSupplier.get() : this.interval;
     }
 
     public long getMaxInterval() {
-      return this.maxInterval;
+      return this.maxIntervalSupplier != null ? this.maxIntervalSupplier.get() : this.maxInterval;
     }
 
   }

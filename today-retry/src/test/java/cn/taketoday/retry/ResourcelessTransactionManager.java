@@ -43,7 +43,7 @@ public class ResourcelessTransactionManager extends AbstractPlatformTransactionM
     Object transaction = new ResourcelessTransaction();
     Stack<Object> resources;
     if (!TransactionSynchronizationManager.hasResource(this)) {
-      resources = new Stack<Object>();
+      resources = new Stack<>();
       TransactionSynchronizationManager.bindResource(this, resources);
     }
     else {

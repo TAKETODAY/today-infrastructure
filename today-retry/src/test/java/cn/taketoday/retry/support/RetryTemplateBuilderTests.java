@@ -20,8 +20,8 @@
 
 package cn.taketoday.retry.support;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -44,7 +44,8 @@ import cn.taketoday.retry.policy.MaxAttemptsRetryPolicy;
 import cn.taketoday.retry.policy.TimeoutRetryPolicy;
 import cn.taketoday.retry.util.test.TestUtils;
 
-import static cn.taketoday.retry.util.test.TestUtils.getPropertyValue;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.Mockito.mock;
 
 /**
@@ -55,6 +56,7 @@ import static org.mockito.Mockito.mock;
  *
  * @author Aleksandr Shamukov
  * @author Kim In Hoi
+ * @author Gary Russell
  */
 public class RetryTemplateBuilderTests {
 
@@ -66,14 +68,14 @@ public class RetryTemplateBuilderTests {
 
     PolicyTuple policyTuple = PolicyTuple.extractWithAsserts(template);
     assertDefaultClassifier(policyTuple);
-    Assert.assertTrue(policyTuple.baseRetryPolicy instanceof MaxAttemptsRetryPolicy);
+    assertThat(policyTuple.baseRetryPolicy).isInstanceOf(MaxAttemptsRetryPolicy.class);
     assertDefaultClassifier(policyTuple);
 
-    Assert.assertFalse(getPropertyValue(template, "throwLastExceptionOnExhausted", Boolean.class));
-    Assert.assertTrue(getPropertyValue(template, "retryContextCache") instanceof MapRetryContextCache);
-    Assert.assertEquals(0, getPropertyValue(template, "listeners", RetryListener[].class).length);
+    Assertions.assertThat(TestUtils.getPropertyValue(template, "throwLastExceptionOnExhausted", Boolean.class)).isFalse();
+    Assertions.assertThat(TestUtils.getPropertyValue(template, "retryContextCache")).isInstanceOf(MapRetryContextCache.class);
+    Assertions.assertThat(TestUtils.getPropertyValue(template, "listeners", RetryListener[].class).length).isEqualTo(0);
 
-    Assert.assertTrue(getPropertyValue(template, "backOffPolicy") instanceof NoBackOffPolicy);
+    Assertions.assertThat(TestUtils.getPropertyValue(template, "backOffPolicy")).isInstanceOf(NoBackOffPolicy.class);
   }
 
   @Test
@@ -89,27 +91,28 @@ public class RetryTemplateBuilderTests {
     PolicyTuple policyTuple = PolicyTuple.extractWithAsserts(template);
 
     BinaryExceptionClassifier classifier = policyTuple.exceptionClassifierRetryPolicy.getExceptionClassifier();
-    Assert.assertTrue(classifier.classify(new FileNotFoundException()));
-    Assert.assertTrue(classifier.classify(new IllegalArgumentException()));
-    Assert.assertFalse(classifier.classify(new RuntimeException()));
-    Assert.assertFalse(classifier.classify(new OutOfMemoryError()));
+    assertThat(classifier.classify(new FileNotFoundException())).isTrue();
+    assertThat(classifier.classify(new IllegalArgumentException())).isTrue();
+    assertThat(classifier.classify(new RuntimeException())).isFalse();
+    assertThat(classifier.classify(new OutOfMemoryError())).isFalse();
 
-    Assert.assertTrue(policyTuple.baseRetryPolicy instanceof MaxAttemptsRetryPolicy);
-    Assert.assertEquals(10, ((MaxAttemptsRetryPolicy) policyTuple.baseRetryPolicy).getMaxAttempts());
+    assertThat(policyTuple.baseRetryPolicy instanceof MaxAttemptsRetryPolicy).isTrue();
+    assertThat(((MaxAttemptsRetryPolicy) policyTuple.baseRetryPolicy).getMaxAttempts()).isEqualTo(10);
 
-    List<RetryListener> listeners = Arrays.asList(getPropertyValue(template, "listeners", RetryListener[].class));
-    Assert.assertEquals(2, listeners.size());
-    Assert.assertTrue(listeners.contains(listener1));
-    Assert.assertTrue(listeners.contains(listener2));
+    List<RetryListener> listeners = Arrays.asList(TestUtils.getPropertyValue(template, "listeners", RetryListener[].class));
+    assertThat(listeners).hasSize(2);
+    assertThat(listeners.contains(listener1)).isTrue();
+    assertThat(listeners.contains(listener2)).isTrue();
 
-    Assert.assertTrue(getPropertyValue(template, "backOffPolicy") instanceof ExponentialBackOffPolicy);
+    Assertions.assertThat(TestUtils.getPropertyValue(template, "backOffPolicy")).isInstanceOf(ExponentialBackOffPolicy.class);
   }
 
   /* ---------------- Retry policy -------------- */
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test
   public void testFailOnRetryPoliciesConflict() {
-    RetryTemplate.builder().maxAttempts(3).withinMillis(1000).build();
+    assertThatIllegalArgumentException()
+            .isThrownBy(() -> RetryTemplate.builder().maxAttempts(3).withinMillis(1000).build());
   }
 
   @Test
@@ -119,8 +122,8 @@ public class RetryTemplateBuilderTests {
     PolicyTuple policyTuple = PolicyTuple.extractWithAsserts(template);
     assertDefaultClassifier(policyTuple);
 
-    Assert.assertTrue(policyTuple.baseRetryPolicy instanceof TimeoutRetryPolicy);
-    Assert.assertEquals(10000, ((TimeoutRetryPolicy) policyTuple.baseRetryPolicy).getTimeout());
+    assertThat(policyTuple.baseRetryPolicy).isInstanceOf(TimeoutRetryPolicy.class);
+    assertThat(((TimeoutRetryPolicy) policyTuple.baseRetryPolicy).getTimeout()).isEqualTo(10000);
   }
 
   @Test
@@ -130,7 +133,7 @@ public class RetryTemplateBuilderTests {
     PolicyTuple policyTuple = PolicyTuple.extractWithAsserts(template);
     assertDefaultClassifier(policyTuple);
 
-    Assert.assertTrue(policyTuple.baseRetryPolicy instanceof AlwaysRetryPolicy);
+    assertThat(policyTuple.baseRetryPolicy).isInstanceOf(AlwaysRetryPolicy.class);
   }
 
   @Test
@@ -142,78 +145,84 @@ public class RetryTemplateBuilderTests {
     PolicyTuple policyTuple = PolicyTuple.extractWithAsserts(template);
 
     assertDefaultClassifier(policyTuple);
-    Assert.assertEquals(customPolicy, policyTuple.baseRetryPolicy);
+    assertThat(policyTuple.baseRetryPolicy).isEqualTo(customPolicy);
   }
 
   private void assertDefaultClassifier(PolicyTuple policyTuple) {
     BinaryExceptionClassifier classifier = policyTuple.exceptionClassifierRetryPolicy.getExceptionClassifier();
-    Assert.assertTrue(classifier.classify(new Exception()));
-    Assert.assertTrue(classifier.classify(new Exception(new Error())));
-    Assert.assertFalse(classifier.classify(new Error()));
-    Assert.assertFalse(classifier.classify(new Error(new Exception())));
+    assertThat(classifier.classify(new Exception())).isTrue();
+    assertThat(classifier.classify(new Exception(new Error()))).isTrue();
+    assertThat(classifier.classify(new Error())).isFalse();
+    assertThat(classifier.classify(new Error(new Exception()))).isFalse();
   }
 
   /* ---------------- Exception classification -------------- */
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test
   public void testFailOnEmptyExceptionClassifierRules() {
-    RetryTemplate.builder().traversingCauses().build();
+    assertThatIllegalArgumentException().isThrownBy(() -> RetryTemplate.builder().traversingCauses().build());
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test
   public void testFailOnNotationMix() {
-    RetryTemplate.builder().retryOn(IOException.class).notRetryOn(OutOfMemoryError.class);
+    assertThatIllegalArgumentException().isThrownBy(
+            () -> RetryTemplate.builder().retryOn(IOException.class).notRetryOn(OutOfMemoryError.class));
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test
   public void testFailOnNotationsMix() {
-    RetryTemplate.builder().retryOn(Collections.<Class<? extends Throwable>>singletonList(IOException.class))
-            .notRetryOn(Collections.<Class<? extends Throwable>>singletonList(OutOfMemoryError.class));
+    assertThatIllegalArgumentException().isThrownBy(() -> RetryTemplate.builder()
+            .retryOn(Collections.<Class<? extends Throwable>>singletonList(IOException.class))
+            .notRetryOn(Collections.<Class<? extends Throwable>>singletonList(OutOfMemoryError.class)));
   }
 
   /* ---------------- BackOff -------------- */
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test
   public void testFailOnBackOffPolicyNull() {
-    RetryTemplate.builder().customBackoff(null).build();
+    assertThatIllegalArgumentException().isThrownBy(() -> RetryTemplate.builder().customBackoff(null).build());
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test
   public void testFailOnBackOffPolicyConflict() {
-    RetryTemplate.builder().noBackoff().fixedBackoff(1000).build();
+    assertThatIllegalArgumentException()
+            .isThrownBy(() -> RetryTemplate.builder().noBackoff().fixedBackoff(1000).build());
   }
 
   @Test
   public void testUniformRandomBackOff() {
     RetryTemplate template = RetryTemplate.builder().uniformRandomBackoff(10, 100).build();
-    Assert.assertTrue(getPropertyValue(template, "backOffPolicy") instanceof UniformRandomBackOffPolicy);
+    Assertions.assertThat(TestUtils.getPropertyValue(template, "backOffPolicy")).isInstanceOf(UniformRandomBackOffPolicy.class);
   }
 
   @Test
   public void testNoBackOff() {
     RetryTemplate template = RetryTemplate.builder().noBackoff().build();
-    Assert.assertTrue(getPropertyValue(template, "backOffPolicy") instanceof NoBackOffPolicy);
+    Assertions.assertThat(TestUtils.getPropertyValue(template, "backOffPolicy")).isInstanceOf(NoBackOffPolicy.class);
   }
 
   @Test
   public void testExpBackOffWithRandom() {
     RetryTemplate template = RetryTemplate.builder().exponentialBackoff(10, 2, 500, true).build();
-    Assert.assertTrue(getPropertyValue(template, "backOffPolicy") instanceof ExponentialRandomBackOffPolicy);
+    Assertions.assertThat(TestUtils.getPropertyValue(template, "backOffPolicy")).isInstanceOf(ExponentialRandomBackOffPolicy.class);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test
   public void testValidateInitAndMax() {
-    RetryTemplate.builder().exponentialBackoff(100, 2, 100).build();
+    assertThatIllegalArgumentException()
+            .isThrownBy(() -> RetryTemplate.builder().exponentialBackoff(100, 2, 100).build());
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test
   public void testValidateMeaninglessMultipier() {
-    RetryTemplate.builder().exponentialBackoff(100, 1, 200).build();
+    assertThatIllegalArgumentException()
+            .isThrownBy(() -> RetryTemplate.builder().exponentialBackoff(100, 1, 200).build());
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test
   public void testValidateZeroInitInterval() {
-    RetryTemplate.builder().exponentialBackoff(0, 2, 200).build();
+    assertThatIllegalArgumentException()
+            .isThrownBy(() -> RetryTemplate.builder().exponentialBackoff(0, 2, 200).build());
   }
 
   /* ---------------- Utils -------------- */
@@ -225,13 +234,13 @@ public class RetryTemplateBuilderTests {
     BinaryExceptionClassifierRetryPolicy exceptionClassifierRetryPolicy;
 
     static PolicyTuple extractWithAsserts(RetryTemplate template) {
-      CompositeRetryPolicy compositeRetryPolicy = getPropertyValue(template, "retryPolicy",
+      CompositeRetryPolicy compositeRetryPolicy = TestUtils.getPropertyValue(template, "retryPolicy",
               CompositeRetryPolicy.class);
       PolicyTuple res = new PolicyTuple();
 
-      Assert.assertFalse(getPropertyValue(compositeRetryPolicy, "optimistic", Boolean.class));
+      Assertions.assertThat(TestUtils.getPropertyValue(compositeRetryPolicy, "optimistic", Boolean.class)).isFalse();
 
-      for (final RetryPolicy policy : getPropertyValue(compositeRetryPolicy, "policies", RetryPolicy[].class)) {
+      for (final RetryPolicy policy : TestUtils.getPropertyValue(compositeRetryPolicy, "policies", RetryPolicy[].class)) {
         if (policy instanceof BinaryExceptionClassifierRetryPolicy) {
           res.exceptionClassifierRetryPolicy = (BinaryExceptionClassifierRetryPolicy) policy;
         }
@@ -239,8 +248,8 @@ public class RetryTemplateBuilderTests {
           res.baseRetryPolicy = policy;
         }
       }
-      Assert.assertNotNull(res.exceptionClassifierRetryPolicy);
-      Assert.assertNotNull(res.baseRetryPolicy);
+      assertThat(res.exceptionClassifierRetryPolicy).isNotNull();
+      assertThat(res.baseRetryPolicy).isNotNull();
       return res;
     }
 

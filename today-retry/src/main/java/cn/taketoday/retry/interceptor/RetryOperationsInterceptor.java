@@ -28,6 +28,7 @@ import cn.taketoday.lang.Assert;
 import cn.taketoday.retry.RecoveryCallback;
 import cn.taketoday.retry.RetryContext;
 import cn.taketoday.retry.RetryOperations;
+import cn.taketoday.retry.support.Args;
 import cn.taketoday.retry.support.RetrySynchronizationManager;
 import cn.taketoday.retry.support.RetryTemplate;
 import cn.taketoday.util.StringUtils;
@@ -88,6 +89,7 @@ public class RetryOperationsInterceptor implements MethodInterceptor {
       @Override
       public Object doWithRetry(RetryContext context) throws Exception {
         context.setAttribute(RetryContext.NAME, this.label);
+        context.setAttribute("ARGS", new Args(invocation.getArguments()));
 
         /*
          * If we don't copy the invocation carefully it won't keep a reference to
@@ -100,10 +102,7 @@ public class RetryOperationsInterceptor implements MethodInterceptor {
           try {
             return proxyInv.invocableClone().proceed();
           }
-          catch (Exception e) {
-            throw e;
-          }
-          catch (Error e) {
+          catch (Exception | Error e) {
             throw e;
           }
           catch (Throwable e) {

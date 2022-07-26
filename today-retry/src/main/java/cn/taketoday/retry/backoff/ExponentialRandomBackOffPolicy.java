@@ -21,6 +21,7 @@
 package cn.taketoday.retry.backoff;
 
 import java.util.Random;
+import java.util.function.Supplier;
 
 import cn.taketoday.retry.RetryContext;
 
@@ -56,8 +57,10 @@ public class ExponentialRandomBackOffPolicy extends ExponentialBackOffPolicy {
    * Returns a new instance of {@link BackOffContext},
    * seeded with this policies settings.
    */
+  @Override
   public BackOffContext start(RetryContext context) {
-    return new ExponentialRandomBackOffContext(getInitialInterval(), getMultiplier(), getMaxInterval());
+    return new ExponentialRandomBackOffContext(getInitialInterval(), getMultiplier(), getMaxInterval(),
+            getInitialIntervalSupplier(), getMultiplierSupplier(), getMaxIntervalSupplier());
   }
 
   protected ExponentialBackOffPolicy newInstance() {
@@ -68,8 +71,11 @@ public class ExponentialRandomBackOffPolicy extends ExponentialBackOffPolicy {
 
     private final Random r = new Random();
 
-    public ExponentialRandomBackOffContext(long expSeed, double multiplier, long maxInterval) {
-      super(expSeed, multiplier, maxInterval);
+    public ExponentialRandomBackOffContext(long expSeed, double multiplier, long maxInterval,
+            Supplier<Long> expSeedSupplier, Supplier<Double> multiplierSupplier,
+            Supplier<Long> maxIntervalSupplier) {
+
+      super(expSeed, multiplier, maxInterval, expSeedSupplier, multiplierSupplier, maxIntervalSupplier);
     }
 
     @Override

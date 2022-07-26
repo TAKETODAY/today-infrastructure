@@ -20,6 +20,7 @@
 
 package cn.taketoday.retry.backoff;
 
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.retry.RetryContext;
 import cn.taketoday.retry.support.RetryTemplate;
 
@@ -54,6 +55,7 @@ public interface BackOffPolicy {
    * that we can use to decide how to proceed.
    * @return the implementation-specific {@link BackOffContext} or '<code>null</code>'.
    */
+  @Nullable
   BackOffContext start(RetryContext context);
 
   /**

@@ -20,22 +20,22 @@
 
 package cn.taketoday.classify;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class ClassifierSupportTests {
 
   @Test
   public void testClassifyNullIsDefault() {
-    ClassifierSupport<String, String> classifier = new ClassifierSupport<String, String>("foo");
-    assertEquals(classifier.classify(null), "foo");
+    ClassifierSupport<String, String> classifier = new ClassifierSupport<>("foo");
+    assertThat(classifier.classify(null)).isEqualTo("foo");
   }
 
   @Test
   public void testClassifyRandomException() {
-    ClassifierSupport<Throwable, String> classifier = new ClassifierSupport<Throwable, String>("foo");
-    assertEquals(classifier.classify(new IllegalStateException("Foo")), classifier.classify(null));
+    ClassifierSupport<Throwable, String> classifier = new ClassifierSupport<>("foo");
+    assertThat(classifier.classify(new IllegalStateException("Foo"))).isEqualTo(classifier.classify(null));
   }
 
 }

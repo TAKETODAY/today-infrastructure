@@ -20,7 +20,6 @@
 
 package cn.taketoday.retry.annotation;
 
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Method;
@@ -33,10 +32,8 @@ import cn.taketoday.retry.ExhaustedRetryException;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ReflectionUtils;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
  * @author Dave Syer
@@ -51,14 +48,14 @@ public class RecoverAnnotationRecoveryHandlerTests {
   public void defaultRecoverMethod() {
     RecoverAnnotationRecoveryHandler<?> handler = new RecoverAnnotationRecoveryHandler<Integer>(
             new DefaultRecover(), ReflectionUtils.findMethod(DefaultRecover.class, "foo", String.class));
-    assertEquals(1, handler.recover(new Object[] { "Dave" }, new RuntimeException("Planned")));
+    assertThat(handler.recover(new Object[] { "Dave" }, new RuntimeException("Planned"))).isEqualTo(1);
   }
 
   @Test
   public void fewerArgs() {
     RecoverAnnotationRecoveryHandler<?> handler = new RecoverAnnotationRecoveryHandler<Integer>(new FewerArgs(),
             ReflectionUtils.findMethod(FewerArgs.class, "foo", String.class, int.class));
-    assertEquals(1, handler.recover(new Object[] { "Dave" }, new RuntimeException("Planned")));
+    assertThat(handler.recover(new Object[] { "Dave" }, new RuntimeException("Planned"))).isEqualTo(1);
   }
 
   @Test
@@ -67,24 +64,22 @@ public class RecoverAnnotationRecoveryHandlerTests {
     RecoverAnnotationRecoveryHandler<?> handler = new RecoverAnnotationRecoveryHandler<Integer>(target,
             ReflectionUtils.findMethod(NoArgs.class, "foo"));
     handler.recover(new Object[0], new RuntimeException("Planned"));
-    assertEquals("Planned", target.getCause().getMessage());
+    assertThat(target.getCause().getMessage()).isEqualTo("Planned");
   }
 
   @Test
   public void noMatch() {
     RecoverAnnotationRecoveryHandler<?> handler = new RecoverAnnotationRecoveryHandler<Integer>(
             new SpecificException(), ReflectionUtils.findMethod(SpecificException.class, "foo", String.class));
-
     assertThatExceptionOfType(ExhaustedRetryException.class)
-            .isThrownBy(() -> handler.recover(new Object[] { "Dave" }, new Error("Planned")))
-            .withMessageContaining("Cannot locate recovery method");
+            .isThrownBy(() -> handler.recover(new Object[] { "Dave" }, new Error("Planned")));
   }
 
   @Test
   public void specificRecoverMethod() {
     RecoverAnnotationRecoveryHandler<?> handler = new RecoverAnnotationRecoveryHandler<Integer>(
             new SpecificRecover(), ReflectionUtils.findMethod(SpecificRecover.class, "foo", String.class));
-    assertEquals(2, handler.recover(new Object[] { "Dave" }, new RuntimeException("Planned")));
+    assertThat(handler.recover(new Object[] { "Dave" }, new RuntimeException("Planned"))).isEqualTo(2);
   }
 
   @Test
@@ -92,7 +87,7 @@ public class RecoverAnnotationRecoveryHandlerTests {
     Method foo = ReflectionUtils.findMethod(InAccessibleRecover.class, "foo", String.class);
     RecoverAnnotationRecoveryHandler<?> handler = new RecoverAnnotationRecoveryHandler<Integer>(
             new InAccessibleRecover(), foo);
-    assertEquals(1, handler.recover(new Object[] { "Dave" }, new RuntimeException("Planned")));
+    assertThat(handler.recover(new Object[] { "Dave" }, new RuntimeException("Planned"))).isEqualTo(1);
 
   }
 
@@ -101,8 +96,8 @@ public class RecoverAnnotationRecoveryHandlerTests {
     RecoverAnnotationRecoveryHandler<?> fooHandler = new RecoverAnnotationRecoveryHandler<Integer>(
             new InheritanceReturnTypeRecover(),
             ReflectionUtils.findMethod(InheritanceReturnTypeRecover.class, "foo", String.class));
-    assertEquals(1, fooHandler.recover(new Object[] { "Aldo" }, new RuntimeException("Planned")));
-    assertEquals(2, fooHandler.recover(new Object[] { "Aldo" }, new IllegalStateException("Planned")));
+    assertThat(fooHandler.recover(new Object[] { "Aldo" }, new RuntimeException("Planned"))).isEqualTo(1);
+    assertThat(fooHandler.recover(new Object[] { "Aldo" }, new IllegalStateException("Planned"))).isEqualTo(2);
 
   }
 
@@ -111,7 +106,7 @@ public class RecoverAnnotationRecoveryHandlerTests {
     RecoverAnnotationRecoveryHandler<?> barHandler = new RecoverAnnotationRecoveryHandler<Double>(
             new InheritanceReturnTypeRecover(),
             ReflectionUtils.findMethod(InheritanceReturnTypeRecover.class, "bar", String.class));
-    assertEquals(3, barHandler.recover(new Object[] { "Aldo" }, new RuntimeException("Planned")));
+    assertThat(barHandler.recover(new Object[] { "Aldo" }, new RuntimeException("Planned"))).isEqualTo(3);
 
   }
 
@@ -125,8 +120,8 @@ public class RecoverAnnotationRecoveryHandlerTests {
     @SuppressWarnings("unchecked")
     Map<String, String> recoverResponseMap = (Map<String, String>) handler.recover(new Object[] { "Aldo" },
             new RuntimeException("Planned"));
-    assertFalse(CollectionUtils.isEmpty(recoverResponseMap));
-    assertEquals("fooRecoverValue1", recoverResponseMap.get("foo"));
+    assertThat(CollectionUtils.isEmpty(recoverResponseMap)).isFalse();
+    assertThat(recoverResponseMap.get("foo")).isEqualTo("fooRecoverValue1");
   }
 
   @Test
@@ -139,8 +134,8 @@ public class RecoverAnnotationRecoveryHandlerTests {
     @SuppressWarnings("unchecked")
     Map<String, String> recoverResponseMap = (Map<String, String>) handler.recover(new Object[] { "Aldo" },
             new IllegalStateException("Planned"));
-    assertFalse(CollectionUtils.isEmpty(recoverResponseMap));
-    assertEquals("fooRecoverValue2", recoverResponseMap.get("foo"));
+    assertThat(CollectionUtils.isEmpty(recoverResponseMap)).isFalse();
+    assertThat(recoverResponseMap.get("foo")).isEqualTo("fooRecoverValue2");
   }
 
   @Test
@@ -153,9 +148,9 @@ public class RecoverAnnotationRecoveryHandlerTests {
     @SuppressWarnings("unchecked")
     Map<String, GenericReturnTypeRecover.One> recoverResponseMap = (Map<String, GenericReturnTypeRecover.One>) handler
             .recover(new Object[] { "Aldo" }, new RuntimeException("Planned"));
-    assertFalse(CollectionUtils.isEmpty(recoverResponseMap));
-    assertNotNull(recoverResponseMap.get("bar"));
-    assertEquals("barRecoverValue", recoverResponseMap.get("bar").name);
+    assertThat(CollectionUtils.isEmpty(recoverResponseMap)).isFalse();
+    assertThat(recoverResponseMap.get("bar")).isNotNull();
+    assertThat(recoverResponseMap.get("bar").name).isEqualTo("barRecoverValue");
   }
 
   @Test
@@ -166,11 +161,11 @@ public class RecoverAnnotationRecoveryHandlerTests {
     @SuppressWarnings("unchecked")
     Map<String, Integer> recoverResponseMapRe = (Map<String, Integer>) fooHandler.recover(new Object[] { "Aldo" },
             new RuntimeException("Planned"));
-    assertEquals(1, recoverResponseMapRe.get("foo").intValue());
+    assertThat(recoverResponseMapRe.get("foo").intValue()).isEqualTo(1);
     @SuppressWarnings("unchecked")
     Map<String, Integer> recoverResponseMapIse = (Map<String, Integer>) fooHandler.recover(new Object[] { "Aldo" },
             new IllegalStateException("Planned"));
-    assertEquals(2, recoverResponseMapIse.get("foo").intValue());
+    assertThat(recoverResponseMapIse.get("foo").intValue()).isEqualTo(2);
   }
 
   /**
@@ -185,7 +180,7 @@ public class RecoverAnnotationRecoveryHandlerTests {
     @SuppressWarnings("unchecked")
     Map<String, Number> recoverResponseMapRe = (Map<String, Number>) barHandler.recover(new Object[] { "Aldo" },
             new RuntimeException("Planned"));
-    assertEquals(0.2, recoverResponseMapRe.get("bar"));
+    assertThat(recoverResponseMapRe.get("bar")).isEqualTo(0.2);
   }
 
   @Test
@@ -196,11 +191,11 @@ public class RecoverAnnotationRecoveryHandlerTests {
     @SuppressWarnings("unchecked")
     Map<String, Map<String, Map<Integer, String>>> recoverResponseMapRe = (Map<String, Map<String, Map<Integer, String>>>) fooHandler
             .recover(new Object[] { "Aldo" }, new RuntimeException("Planned"));
-    assertEquals("fooRecoverReValue", recoverResponseMapRe.get("foo").get("foo").get(0));
+    assertThat(recoverResponseMapRe.get("foo").get("foo").get(0)).isEqualTo("fooRecoverReValue");
     @SuppressWarnings("unchecked")
     Map<String, Map<String, Map<Integer, String>>> recoverResponseMapIe = (Map<String, Map<String, Map<Integer, String>>>) fooHandler
             .recover(new Object[] { "Aldo" }, new IllegalStateException("Planned"));
-    assertEquals("fooRecoverIeValue", recoverResponseMapIe.get("foo").get("foo").get(0));
+    assertThat(recoverResponseMapIe.get("foo").get("foo").get(0)).isEqualTo("fooRecoverIeValue");
   }
 
   @Test
@@ -211,7 +206,7 @@ public class RecoverAnnotationRecoveryHandlerTests {
     @SuppressWarnings("unchecked")
     Map<String, Map<String, Map<Number, String>>> recoverResponseMapRe = (Map<String, Map<String, Map<Number, String>>>) barHandler
             .recover(new Object[] { "Aldo" }, new RuntimeException("Planned"));
-    assertEquals("barRecoverNumberValue", recoverResponseMapRe.get("bar").get("bar").get(0.0));
+    assertThat(recoverResponseMapRe.get("bar").get("bar").get(0.0)).isEqualTo("barRecoverNumberValue");
 
   }
 
@@ -220,7 +215,7 @@ public class RecoverAnnotationRecoveryHandlerTests {
     Method foo = ReflectionUtils.findMethod(MultipleQualifyingRecovers.class, "foo", String.class);
     RecoverAnnotationRecoveryHandler<?> handler = new RecoverAnnotationRecoveryHandler<Integer>(
             new MultipleQualifyingRecovers(), foo);
-    assertEquals(1, handler.recover(new Object[] { "Randell" }, new RuntimeException("Planned")));
+    assertThat(handler.recover(new Object[] { "Randell" }, new RuntimeException("Planned"))).isEqualTo(1);
 
   }
 
@@ -229,7 +224,7 @@ public class RecoverAnnotationRecoveryHandlerTests {
     Method foo = ReflectionUtils.findMethod(MultipleQualifyingRecovers.class, "foo", String.class);
     RecoverAnnotationRecoveryHandler<?> handler = new RecoverAnnotationRecoveryHandler<Integer>(
             new MultipleQualifyingRecovers(), foo);
-    assertEquals(1, handler.recover(new Object[] { null }, new RuntimeException("Planned")));
+    assertThat(handler.recover(new Object[] { null }, new RuntimeException("Planned"))).isEqualTo(1);
 
   }
 
@@ -238,7 +233,7 @@ public class RecoverAnnotationRecoveryHandlerTests {
     Method foo = ReflectionUtils.findMethod(MultipleQualifyingRecoversNoThrowable.class, "foo", String.class);
     RecoverAnnotationRecoveryHandler<?> handler = new RecoverAnnotationRecoveryHandler<Integer>(
             new MultipleQualifyingRecoversNoThrowable(), foo);
-    assertEquals(1, handler.recover(new Object[] { null }, new RuntimeException("Planned")));
+    assertThat(handler.recover(new Object[] { null }, new RuntimeException("Planned"))).isEqualTo(1);
 
   }
 
@@ -247,18 +242,18 @@ public class RecoverAnnotationRecoveryHandlerTests {
     Method foo = ReflectionUtils.findMethod(MultipleQualifyingRecoversReOrdered.class, "foo", String.class);
     RecoverAnnotationRecoveryHandler<?> handler = new RecoverAnnotationRecoveryHandler<Integer>(
             new MultipleQualifyingRecoversReOrdered(), foo);
-    assertEquals(3, handler.recover(new Object[] { "Randell" }, new RuntimeException("Planned")));
+    assertThat(handler.recover(new Object[] { "Randell" }, new RuntimeException("Planned"))).isEqualTo(3);
 
   }
 
   @Test
-  @Disabled
   public void multipleQualifyingRecoverMethodsExtendsThrowable() {
     Method foo = ReflectionUtils.findMethod(MultipleQualifyingRecoversExtendsThrowable.class, "foo", String.class);
     RecoverAnnotationRecoveryHandler<?> handler = new RecoverAnnotationRecoveryHandler<Integer>(
             new MultipleQualifyingRecoversExtendsThrowable(), foo);
-    assertEquals(2, handler.recover(new Object[] { "Kevin" }, new IllegalArgumentException("Planned")));
-    assertEquals(3, handler.recover(new Object[] { "Kevin" }, new UnsupportedOperationException("Planned")));
+    assertThat(handler.recover(new Object[] { "Kevin" }, new IllegalArgumentException("Planned"))).isEqualTo(2);
+    assertThat(handler.recover(new Object[] { "Kevin" }, new UnsupportedOperationException("Planned")))
+            .isEqualTo(3);
 
   }
 
@@ -267,8 +262,8 @@ public class RecoverAnnotationRecoveryHandlerTests {
     Method foo = ReflectionUtils.findMethod(InheritanceOnArgumentClass.class, "foo", List.class);
     RecoverAnnotationRecoveryHandler<?> handler = new RecoverAnnotationRecoveryHandler<Integer>(
             new InheritanceOnArgumentClass(), foo);
-    assertEquals(1,
-            handler.recover(new Object[] { new ArrayList<String>() }, new IllegalArgumentException("Planned")));
+    assertThat(handler.recover(new Object[] { new ArrayList<String>() }, new IllegalArgumentException("Planned")))
+            .isEqualTo(1);
   }
 
   @Test
@@ -276,7 +271,15 @@ public class RecoverAnnotationRecoveryHandlerTests {
     Method foo = ReflectionUtils.findMethod(RecoverByRetryableName.class, "foo", String.class);
     RecoverAnnotationRecoveryHandler<?> handler = new RecoverAnnotationRecoveryHandler<Integer>(
             new RecoverByRetryableName(), foo);
-    assertEquals(2, handler.recover(new Object[] { "Kevin" }, new RuntimeException("Planned")));
+    assertThat(handler.recover(new Object[] { "Kevin" }, new RuntimeException("Planned"))).isEqualTo(2);
+  }
+
+  @Test
+  public void recoverByRetryableNameWithPrimitiveArgs() {
+    Method foo = ReflectionUtils.findMethod(RecoverByRetryableNameWithPrimitiveArgs.class, "foo", int.class);
+    RecoverAnnotationRecoveryHandler<?> handler = new RecoverAnnotationRecoveryHandler<Integer>(
+            new RecoverByRetryableNameWithPrimitiveArgs(), foo);
+    assertThat(handler.recover(new Object[] { 2 }, new RuntimeException("Planned"))).isEqualTo(2);
   }
 
   private static class InAccessibleRecover {
@@ -645,6 +648,36 @@ public class RecoverAnnotationRecoveryHandlerTests {
 
     @Recover
     public int barRecover(Throwable throwable, String name);
+
+  }
+
+  protected static class RecoverByRetryableNameWithPrimitiveArgs
+          implements RecoverByRetryableNameWithPrimitiveArgsInterface {
+
+    public int foo(int number) {
+      return 0;
+    }
+
+    public int fooRecover(Throwable throwable, int number) {
+      return 0;
+    }
+
+    public int barRecover(Throwable throwable, int number) {
+      return number;
+    }
+
+  }
+
+  protected interface RecoverByRetryableNameWithPrimitiveArgsInterface {
+
+    @Retryable(recover = "barRecover")
+    public int foo(int number);
+
+    @Recover
+    public int fooRecover(Throwable throwable, int number);
+
+    @Recover
+    public int barRecover(Throwable throwable, int number);
 
   }
 

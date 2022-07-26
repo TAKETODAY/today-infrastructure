@@ -26,6 +26,8 @@ package cn.taketoday.retry;
  * lifecycle.
  *
  * @author Dave Syer
+ * @author Gary Russell
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public interface RetryListener {
@@ -47,8 +49,8 @@ public interface RetryListener {
   }
 
   /**
-   * Called after the final attempt (successful or not). Allow the interceptor to clean
-   * up any resource it is holding before control returns to the retry caller.
+   * Called after the final attempt (successful or not). Allow the listener to clean up
+   * any resource it is holding before control returns to the retry caller.
    *
    * @param context the current {@link RetryContext}.
    * @param callback the current {@link RetryCallback}.
@@ -57,7 +59,19 @@ public interface RetryListener {
    * @param <T> the return value
    */
   default <T, E extends Throwable> void close(
-          RetryContext context, RetryCallback<T, E> callback, Throwable throwable) {
+          RetryContext context, RetryCallback<T, E> callback, Throwable throwable) { }
+
+  /**
+   * Called after a successful attempt; allow the listener to throw a new exception to
+   * cause a retry (according to the retry policy), based on the result returned by the
+   * {@link RetryCallback#doWithRetry(RetryContext)}
+   *
+   * @param <T> the return type.
+   * @param context the current {@link RetryContext}.
+   * @param callback the current {@link RetryCallback}.
+   * @param result the result returned by the callback method.
+   */
+  default <T, E extends Throwable> void onSuccess(RetryContext context, RetryCallback<T, E> callback, T result) {
 
   }
 

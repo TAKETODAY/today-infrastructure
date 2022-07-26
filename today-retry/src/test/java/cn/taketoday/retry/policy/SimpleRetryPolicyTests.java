@@ -20,7 +20,7 @@
 
 package cn.taketoday.retry.policy;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -28,24 +28,19 @@ import java.util.Map;
 
 import cn.taketoday.retry.RetryContext;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class SimpleRetryPolicyTests {
 
   @Test
-  public void testCanRetryIfNoException() throws Exception {
+  public void testCanRetryIfNoException() {
     SimpleRetryPolicy policy = new SimpleRetryPolicy();
     RetryContext context = policy.open(null);
-    assertTrue(policy.canRetry(context));
+    assertThat(policy.canRetry(context)).isTrue();
   }
 
   @Test
-  public void testEmptyExceptionsNeverRetry() throws Exception {
+  public void testEmptyExceptionsNeverRetry() {
 
     // We can't retry any exceptions...
     SimpleRetryPolicy policy = new SimpleRetryPolicy(3,
@@ -54,11 +49,11 @@ public class SimpleRetryPolicyTests {
 
     // ...so we can't retry this one...
     policy.registerThrowable(context, new IllegalStateException());
-    assertFalse(policy.canRetry(context));
+    assertThat(policy.canRetry(context)).isFalse();
   }
 
   @Test
-  public void testWithExceptionDefaultAlwaysRetry() throws Exception {
+  public void testWithExceptionDefaultAlwaysRetry() {
 
     // We retry any exceptions except...
     SimpleRetryPolicy policy = new SimpleRetryPolicy(3,
@@ -68,77 +63,77 @@ public class SimpleRetryPolicyTests {
 
     // ...so we can't retry this one...
     policy.registerThrowable(context, new IllegalStateException());
-    assertFalse(policy.canRetry(context));
+    assertThat(policy.canRetry(context)).isFalse();
 
     // ...and we can retry this one...
     policy.registerThrowable(context, new IllegalArgumentException());
-    assertTrue(policy.canRetry(context));
+    assertThat(policy.canRetry(context)).isTrue();
   }
 
   @Test
-  public void testRetryLimitInitialState() throws Exception {
+  public void testRetryLimitInitialState() {
     SimpleRetryPolicy policy = new SimpleRetryPolicy();
     RetryContext context = policy.open(null);
-    assertTrue(policy.canRetry(context));
+    assertThat(policy.canRetry(context)).isTrue();
     policy.setMaxAttempts(0);
     context = policy.open(null);
-    assertFalse(policy.canRetry(context));
+    assertThat(policy.canRetry(context)).isFalse();
   }
 
   @Test
-  public void testRetryLimitSubsequentState() throws Exception {
+  public void testRetryLimitSubsequentState() {
     SimpleRetryPolicy policy = new SimpleRetryPolicy();
     RetryContext context = policy.open(null);
     policy.setMaxAttempts(2);
-    assertTrue(policy.canRetry(context));
+    assertThat(policy.canRetry(context)).isTrue();
     policy.registerThrowable(context, new Exception());
-    assertTrue(policy.canRetry(context));
+    assertThat(policy.canRetry(context)).isTrue();
     policy.registerThrowable(context, new Exception());
-    assertFalse(policy.canRetry(context));
+    assertThat(policy.canRetry(context)).isFalse();
   }
 
   @Test
-  public void testRetryCount() throws Exception {
+  public void testRetryCount() {
     SimpleRetryPolicy policy = new SimpleRetryPolicy();
     RetryContext context = policy.open(null);
-    assertNotNull(context);
+    assertThat(context).isNotNull();
     policy.registerThrowable(context, null);
-    assertEquals(0, context.getRetryCount());
+    assertThat(context.getRetryCount()).isEqualTo(0);
     policy.registerThrowable(context, new RuntimeException("foo"));
-    assertEquals(1, context.getRetryCount());
-    assertEquals("foo", context.getLastThrowable().getMessage());
+    assertThat(context.getRetryCount()).isEqualTo(1);
+    assertThat(context.getLastThrowable().getMessage()).isEqualTo("foo");
   }
 
   @Test
-  public void testFatalOverridesRetryable() throws Exception {
-    Map<Class<? extends Throwable>, Boolean> map = new HashMap<Class<? extends Throwable>, Boolean>();
+  public void testFatalOverridesRetryable() {
+    Map<Class<? extends Throwable>, Boolean> map = new HashMap<>();
     map.put(Exception.class, false);
     map.put(RuntimeException.class, true);
     SimpleRetryPolicy policy = new SimpleRetryPolicy(3, map);
     RetryContext context = policy.open(null);
-    assertNotNull(context);
+    assertThat(context).isNotNull();
     policy.registerThrowable(context, new RuntimeException("foo"));
-    assertTrue(policy.canRetry(context));
+    assertThat(policy.canRetry(context)).isTrue();
   }
 
   @Test
-  public void testRetryableWithCause() throws Exception {
-    Map<Class<? extends Throwable>, Boolean> map = new HashMap<Class<? extends Throwable>, Boolean>();
+  public void testRetryableWithCause() {
+    Map<Class<? extends Throwable>, Boolean> map = new HashMap<>();
     map.put(RuntimeException.class, true);
     SimpleRetryPolicy policy = new SimpleRetryPolicy(3, map, true);
     RetryContext context = policy.open(null);
-    assertNotNull(context);
+    assertThat(context).isNotNull();
     policy.registerThrowable(context, new Exception(new RuntimeException("foo")));
-    assertTrue(policy.canRetry(context));
+    assertThat(policy.canRetry(context)).isTrue();
   }
 
   @Test
-  public void testParent() throws Exception {
+  public void testParent() {
     SimpleRetryPolicy policy = new SimpleRetryPolicy();
     RetryContext context = policy.open(null);
     RetryContext child = policy.open(context);
-    assertNotSame(child, context);
-    assertSame(context, child.getParent());
+    assertThat(context).isNotSameAs(child);
+    assertThat(child.getParent()).isSameAs(context);
   }
 
 }

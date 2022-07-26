@@ -20,39 +20,29 @@
 
 package cn.taketoday.retry.listener;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatNoException;
 
 public class RetryListenerSupportTests {
 
   @Test
   public void testClose() {
     RetryListenerSupport support = new RetryListenerSupport();
-    try {
-      support.close(null, null, null);
-    }
-    catch (Exception e) {
-      fail("Unexpected exception");
-    }
+    assertThatNoException().isThrownBy(() -> support.close(null, null, null));
   }
 
   @Test
   public void testOnError() {
     RetryListenerSupport support = new RetryListenerSupport();
-    try {
-      support.onError(null, null, null);
-    }
-    catch (Exception e) {
-      fail("Unexpected exception");
-    }
+    assertThatNoException().isThrownBy(() -> support.onError(null, null, null));
   }
 
   @Test
   public void testOpen() {
     RetryListenerSupport support = new RetryListenerSupport();
-    assertTrue(support.open(null, null));
+    assertThat(support.open(null, null)).isTrue();
   }
 
 }

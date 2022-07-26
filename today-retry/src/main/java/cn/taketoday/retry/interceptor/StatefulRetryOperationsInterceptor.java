@@ -27,6 +27,7 @@ import java.util.Arrays;
 
 import cn.taketoday.classify.Classifier;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.retry.RecoveryCallback;
@@ -60,9 +61,9 @@ import cn.taketoday.util.StringUtils;
  * @since 4.0
  */
 public class StatefulRetryOperationsInterceptor implements MethodInterceptor {
+  private static final Logger log = LoggerFactory.getLogger(StatefulRetryOperationsInterceptor.class);
 
-  private transient final Logger logger = LoggerFactory.getLogger(getClass());
-
+  @Nullable
   private MethodArgumentsKeyGenerator keyGenerator;
 
   private MethodInvocationRecoverer<?> recoverer;
@@ -73,6 +74,7 @@ public class StatefulRetryOperationsInterceptor implements MethodInterceptor {
 
   private String label;
 
+  @Nullable
   private Classifier<? super Throwable, Boolean> rollbackClassifier;
 
   private boolean useRawKey;
@@ -84,7 +86,7 @@ public class StatefulRetryOperationsInterceptor implements MethodInterceptor {
   }
 
   public void setRetryOperations(RetryOperations retryTemplate) {
-    Assert.notNull(retryTemplate, "'retryOperations' cannot be null.");
+    Assert.notNull(retryTemplate, "retryOperations is required");
     this.retryOperations = retryTemplate;
   }
 
@@ -106,11 +108,11 @@ public class StatefulRetryOperationsInterceptor implements MethodInterceptor {
    *
    * @param rollbackClassifier the rollbackClassifier to set
    */
-  public void setRollbackClassifier(Classifier<? super Throwable, Boolean> rollbackClassifier) {
+  public void setRollbackClassifier(@Nullable Classifier<? super Throwable, Boolean> rollbackClassifier) {
     this.rollbackClassifier = rollbackClassifier;
   }
 
-  public void setKeyGenerator(MethodArgumentsKeyGenerator keyGenerator) {
+  public void setKeyGenerator(@Nullable MethodArgumentsKeyGenerator keyGenerator) {
     this.keyGenerator = keyGenerator;
   }
 
@@ -154,19 +156,13 @@ public class StatefulRetryOperationsInterceptor implements MethodInterceptor {
    */
   @Override
   public Object invoke(final MethodInvocation invocation) throws Throwable {
-
-    if (logger.isDebugEnabled()) {
-      logger.debug("Executing proxied method in stateful retry: {}({})",
+    if (log.isDebugEnabled()) {
+      log.debug("Executing proxied method in stateful retry: {}({})",
               invocation.getStaticPart(), ObjectUtils.getIdentityHexString(invocation));
     }
 
+    Object key = createKey(invocation);
     Object[] args = invocation.getArguments();
-    Object defaultKey = Arrays.asList(args);
-    if (args.length == 1) {
-      defaultKey = args[0];
-    }
-
-    Object key = createKey(invocation, defaultKey);
     RetryState retryState = new DefaultRetryState(key,
             newMethodArgumentsIdentifier != null && newMethodArgumentsIdentifier.isNew(args),
             rollbackClassifier);
@@ -174,18 +170,27 @@ public class StatefulRetryOperationsInterceptor implements MethodInterceptor {
     Object result = retryOperations.execute(new StatefulMethodInvocationRetryCallback(invocation, label),
             recoverer != null ? new ItemRecovererCallback(args, recoverer) : null, retryState);
 
-    if (logger.isDebugEnabled()) {
-      logger.debug("Exiting proxied method in stateful retry with result: ({})", result);
+    if (log.isDebugEnabled()) {
+      log.debug("Exiting proxied method in stateful retry with result: ({})", result);
     }
 
     return result;
   }
 
-  private Object createKey(final MethodInvocation invocation, Object defaultKey) {
-    Object generatedKey = defaultKey;
-    if (this.keyGenerator != null) {
-      generatedKey = this.keyGenerator.getKey(invocation.getArguments());
+  /**
+   * @return the key for the state to allow this retry attempt to be recognised
+   */
+  @Nullable
+  private Object createKey(final MethodInvocation invocation) {
+    Object generatedKey;
+    if (keyGenerator != null) {
+      generatedKey = keyGenerator.getKey(invocation.getArguments());
     }
+    else {
+      // compute default key
+      generatedKey = computeDefaultKey(invocation);
+    }
+
     if (generatedKey == null) {
       // If there's a generator and he still says the key is null, that means he
       // really doesn't want to retry.
@@ -196,6 +201,23 @@ public class StatefulRetryOperationsInterceptor implements MethodInterceptor {
     }
     String name = StringUtils.hasText(label) ? label : invocation.getMethod().toGenericString();
     return Arrays.asList(name, generatedKey);
+  }
+
+  /**
+   * compute default key, sub-classes can override
+   *
+   * @param invocation target
+   * @return default key
+   */
+  @Nullable
+  protected Object computeDefaultKey(MethodInvocation invocation) {
+    Object[] args = invocation.getArguments();
+    if (args.length == 1) {
+      return args[0]; // may be null
+    }
+    else {
+      return Arrays.asList(args);
+    }
   }
 
   /**
@@ -214,10 +236,7 @@ public class StatefulRetryOperationsInterceptor implements MethodInterceptor {
       try {
         return this.invocation.proceed();
       }
-      catch (Exception e) {
-        throw e;
-      }
-      catch (Error e) {
+      catch (Exception | Error e) {
         throw e;
       }
       catch (Throwable e) {

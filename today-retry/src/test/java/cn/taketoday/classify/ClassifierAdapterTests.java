@@ -19,23 +19,24 @@
  */
 package cn.taketoday.classify;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import cn.taketoday.classify.annotation.Classifier;
-
-import static org.junit.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 
 /**
  * @author Dave Syer
+ * @author Gary Russell
  */
 public class ClassifierAdapterTests {
 
-  private ClassifierAdapter<String, Integer> adapter = new ClassifierAdapter<String, Integer>();
+  private ClassifierAdapter<String, Integer> adapter = new ClassifierAdapter<>();
 
   @Test
   public void testClassifierAdapterObject() {
-    adapter = new ClassifierAdapter<String, Integer>(new Object() {
-      @Classifier
+    adapter = new ClassifierAdapter<>(new Object() {
+      @cn.taketoday.classify.annotation.Classifier
       public Integer getValue(String key) {
         return Integer.parseInt(key);
       }
@@ -45,12 +46,12 @@ public class ClassifierAdapterTests {
         throw new UnsupportedOperationException("Not allowed");
       }
     });
-    assertEquals(23, adapter.classify("23").intValue());
+    assertThat(adapter.classify("23").intValue()).isEqualTo(23);
   }
 
-  @Test(expected = IllegalStateException.class)
+  @Test
   public void testClassifierAdapterObjectWithNoAnnotation() {
-    adapter = new ClassifierAdapter<String, Integer>(new Object() {
+    assertThatIllegalStateException().isThrownBy(() -> new ClassifierAdapter<>(new Object() {
       @SuppressWarnings("unused")
       public Integer getValue(String key) {
         return Integer.parseInt(key);
@@ -60,13 +61,12 @@ public class ClassifierAdapterTests {
       public Integer getAnother(String key) {
         throw new UnsupportedOperationException("Not allowed");
       }
-    });
-    assertEquals(23, adapter.classify("23").intValue());
+    }));
   }
 
   @Test
   public void testClassifierAdapterObjectSingleMethodWithNoAnnotation() {
-    adapter = new ClassifierAdapter<String, Integer>(new Object() {
+    adapter = new ClassifierAdapter<>(new Object() {
       @SuppressWarnings("unused")
       public Integer getValue(String key) {
         return Integer.parseInt(key);
@@ -81,52 +81,41 @@ public class ClassifierAdapterTests {
         return "foo";
       }
     });
-    assertEquals(23, adapter.classify("23").intValue());
+    assertThat(adapter.classify("23").intValue()).isEqualTo(23);
   }
 
-  @SuppressWarnings({ "serial" })
   @Test
   public void testClassifierAdapterClassifier() {
-    adapter = new ClassifierAdapter<String, Integer>(
-            new cn.taketoday.classify.Classifier<String, Integer>() {
-              public Integer classify(String classifiable) {
-                return Integer.valueOf(classifiable);
-              }
-            });
-    assertEquals(23, adapter.classify("23").intValue());
+    adapter = new ClassifierAdapter<>(Integer::valueOf);
+    assertThat(adapter.classify("23").intValue()).isEqualTo(23);
   }
 
   @Test
   public void testClassifyWithSetter() {
     adapter.setDelegate(new Object() {
-      @Classifier
+      @cn.taketoday.classify.annotation.Classifier
       public Integer getValue(String key) {
         return Integer.parseInt(key);
       }
     });
-    assertEquals(23, adapter.classify("23").intValue());
+    assertThat(adapter.classify("23").intValue()).isEqualTo(23);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test
   public void testClassifyWithWrongType() {
     adapter.setDelegate(new Object() {
-      @Classifier
+      @cn.taketoday.classify.annotation.Classifier
       public String getValue(Integer key) {
         return key.toString();
       }
     });
-    assertEquals(23, adapter.classify("23").intValue());
+    assertThatIllegalArgumentException().isThrownBy(() -> adapter.classify("23"));
   }
 
-  @SuppressWarnings("serial")
   @Test
   public void testClassifyWithClassifier() {
-    adapter.setDelegate(new cn.taketoday.classify.Classifier<String, Integer>() {
-      public Integer classify(String classifiable) {
-        return Integer.valueOf(classifiable);
-      }
-    });
-    assertEquals(23, adapter.classify("23").intValue());
+    adapter.setDelegate(Integer::valueOf);
+    assertThat(adapter.classify("23").intValue()).isEqualTo(23);
   }
 
 }

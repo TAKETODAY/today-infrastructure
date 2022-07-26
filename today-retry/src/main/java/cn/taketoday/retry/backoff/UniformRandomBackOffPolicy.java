@@ -20,7 +20,11 @@
 
 package cn.taketoday.retry.backoff;
 
+import java.util.Objects;
 import java.util.Random;
+import java.util.function.Supplier;
+
+import cn.taketoday.lang.Assert;
 
 /**
  * Implementation of {@link BackOffPolicy} that pauses for a random period of time before
@@ -48,9 +52,9 @@ public class UniformRandomBackOffPolicy extends StatelessBackOffPolicy
    */
   private static final long DEFAULT_BACK_OFF_MAX_PERIOD = 1500L;
 
-  private volatile long minBackOffPeriod = DEFAULT_BACK_OFF_MIN_PERIOD;
+  private Supplier<Long> minBackOffPeriod = () -> DEFAULT_BACK_OFF_MIN_PERIOD;
 
-  private volatile long maxBackOffPeriod = DEFAULT_BACK_OFF_MAX_PERIOD;
+  private Supplier<Long> maxBackOffPeriod = () -> DEFAULT_BACK_OFF_MAX_PERIOD;
 
   private final Random random = new Random(System.currentTimeMillis());
 
@@ -80,7 +84,18 @@ public class UniformRandomBackOffPolicy extends StatelessBackOffPolicy
    * @param backOffPeriod the backoff period
    */
   public void setMinBackOffPeriod(long backOffPeriod) {
-    this.minBackOffPeriod = (backOffPeriod > 0 ? backOffPeriod : 1);
+    this.minBackOffPeriod = () -> (backOffPeriod > 0 ? backOffPeriod : 1);
+  }
+
+  /**
+   * Set a supplier for the minimum back off period in milliseconds. Cannot be &lt; 1.
+   * Default supplier supplies 500ms.
+   *
+   * @param backOffPeriodSupplier the backoff period
+   */
+  public void setMinBackOffPeriod(Supplier<Long> backOffPeriodSupplier) {
+    Assert.notNull(backOffPeriodSupplier, "backOffPeriodSupplier is required");
+    this.minBackOffPeriod = backOffPeriodSupplier;
   }
 
   /**
@@ -89,7 +104,7 @@ public class UniformRandomBackOffPolicy extends StatelessBackOffPolicy
    * @return the backoff period
    */
   public long getMinBackOffPeriod() {
-    return minBackOffPeriod;
+    return minBackOffPeriod.get();
   }
 
   /**
@@ -99,7 +114,18 @@ public class UniformRandomBackOffPolicy extends StatelessBackOffPolicy
    * @param backOffPeriod the back off period
    */
   public void setMaxBackOffPeriod(long backOffPeriod) {
-    this.maxBackOffPeriod = (backOffPeriod > 0 ? backOffPeriod : 1);
+    this.maxBackOffPeriod = () -> (backOffPeriod > 0 ? backOffPeriod : 1);
+  }
+
+  /**
+   * Set a supplier for the maximum back off period in milliseconds. Cannot be &lt; 1.
+   * Default supplier supplies 1500ms.
+   *
+   * @param backOffPeriodSupplier the back off period
+   */
+  public void setMaxBackOffPeriod(Supplier<Long> backOffPeriodSupplier) {
+    Assert.notNull(backOffPeriodSupplier, "backOffPeriodSupplier is required");
+    this.maxBackOffPeriod = backOffPeriodSupplier;
   }
 
   /**
@@ -108,7 +134,7 @@ public class UniformRandomBackOffPolicy extends StatelessBackOffPolicy
    * @return the backoff period
    */
   public long getMaxBackOffPeriod() {
-    return maxBackOffPeriod;
+    return maxBackOffPeriod.get();
   }
 
   /**
@@ -116,18 +142,21 @@ public class UniformRandomBackOffPolicy extends StatelessBackOffPolicy
    *
    * @throws BackOffInterruptedException if interrupted during sleep.
    */
+  @Override
   protected void doBackOff() throws BackOffInterruptedException {
     try {
-      long delta = maxBackOffPeriod == minBackOffPeriod
+      Long min = minBackOffPeriod.get();
+      long delta = Objects.equals(maxBackOffPeriod.get(), minBackOffPeriod.get())
                    ? 0
-                   : random.nextInt((int) (maxBackOffPeriod - minBackOffPeriod));
-      sleeper.sleep(minBackOffPeriod + delta);
+                   : random.nextInt((int) (maxBackOffPeriod.get() - min));
+      this.sleeper.sleep(min + delta);
     }
     catch (InterruptedException e) {
       throw new BackOffInterruptedException("Thread interrupted while sleeping", e);
     }
   }
 
+  @Override
   public String toString() {
     return "RandomBackOffPolicy[backOffPeriod=" + minBackOffPeriod + ", " + maxBackOffPeriod + "]";
   }

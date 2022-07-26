@@ -22,15 +22,15 @@ package cn.taketoday.retry;
 
 public class RetryExceptionTests extends AbstractExceptionTests {
 
-  public Exception getException(String msg) throws Exception {
+  public Exception getException(String msg) {
     return new RetryException(msg);
   }
 
-  public Exception getException(String msg, Throwable t) throws Exception {
+  public Exception getException(String msg, Throwable t) {
     return new RetryException(msg, t);
   }
 
-  public void testNothing() throws Exception {
+  public void testNothing() {
     // fool coverage tools...
   }
 

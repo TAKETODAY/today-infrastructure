@@ -20,76 +20,70 @@
 
 package cn.taketoday.retry.support;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-import cn.taketoday.retry.RetryCallback;
 import cn.taketoday.retry.RetryContext;
 import cn.taketoday.retry.context.RetryContextSupport;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Dave Syer
+ * @author Gary Russell
  */
 public class RetrySynchronizationManagerTests {
 
   RetryTemplate template = new RetryTemplate();
 
-  @Before
-  public void setUp() throws Exception {
+  @BeforeEach
+  public void setUp() {
     RetrySynchronizationManagerTests.clearAll();
     RetryContext status = RetrySynchronizationManager.getContext();
-    assertNull(status);
+    assertThat(status).isNull();
   }
 
   @Test
-  public void testStatusIsStoredByTemplate() throws Throwable {
+  public void testStatusIsStoredByTemplate() {
 
     RetryContext status = RetrySynchronizationManager.getContext();
-    assertNull(status);
+    assertThat(status).isNull();
 
-    this.template.execute(new RetryCallback<Object, Exception>() {
-      @Override
-      public Object doWithRetry(RetryContext status) throws Exception {
-        RetryContext global = RetrySynchronizationManager.getContext();
-        assertNotNull(status);
-        assertEquals(global, status);
-        return null;
-      }
+    this.template.execute(retryContext -> {
+      RetryContext global = RetrySynchronizationManager.getContext();
+      assertThat(retryContext).isNotNull();
+      assertThat(retryContext).isEqualTo(global);
+      return null;
     });
 
     status = RetrySynchronizationManager.getContext();
-    assertNull(status);
+    assertThat(status).isNull();
   }
 
   @Test
-  public void testStatusRegistration() throws Exception {
+  public void testStatusRegistration() {
     RetryContext status = new RetryContextSupport(null);
     RetryContext value = RetrySynchronizationManager.register(status);
-    assertNull(value);
+    assertThat(value).isNull();
     value = RetrySynchronizationManager.register(status);
-    assertEquals(status, value);
+    assertThat(value).isEqualTo(status);
   }
 
   @Test
-  public void testClear() throws Exception {
+  public void testClear() {
     RetryContext status = new RetryContextSupport(null);
     RetryContext value = RetrySynchronizationManager.register(status);
-    assertNull(value);
+    assertThat(value).isNull();
     RetrySynchronizationManager.clear();
     value = RetrySynchronizationManager.register(status);
-    assertNull(value);
+    assertThat(value).isNull();
   }
 
   @Test
-  public void testParent() throws Exception {
+  public void testParent() {
     RetryContext parent = new RetryContextSupport(null);
     RetryContext child = new RetryContextSupport(parent);
-    assertSame(parent, child.getParent());
+    assertThat(child.getParent()).isSameAs(parent);
   }
 
   /**

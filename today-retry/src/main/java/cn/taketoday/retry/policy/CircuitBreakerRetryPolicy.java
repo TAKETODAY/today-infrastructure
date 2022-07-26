@@ -21,6 +21,7 @@
 package cn.taketoday.retry.policy;
 
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Supplier;
 
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
@@ -34,7 +35,7 @@ import cn.taketoday.retry.context.RetryContextSupport;
  */
 @SuppressWarnings("serial")
 public class CircuitBreakerRetryPolicy implements RetryPolicy {
-  private static final Logger logger = LoggerFactory.getLogger(CircuitBreakerRetryPolicy.class);
+  private static final Logger log = LoggerFactory.getLogger(CircuitBreakerRetryPolicy.class);
 
   public static final String CIRCUIT_OPEN = "circuit.open";
 
@@ -45,6 +46,10 @@ public class CircuitBreakerRetryPolicy implements RetryPolicy {
   private long resetTimeout = 20000;
 
   private long openTimeout = 5000;
+
+  private Supplier<Long> resetTimeoutSupplier;
+
+  private Supplier<Long> openTimeoutSupplier;
 
   public CircuitBreakerRetryPolicy() {
     this(new SimpleRetryPolicy());
@@ -65,6 +70,17 @@ public class CircuitBreakerRetryPolicy implements RetryPolicy {
   }
 
   /**
+   * A supplier for the timeout for resetting circuit in milliseconds. After the circuit
+   * opens it will re-close after this time has elapsed and the context will be
+   * restarted.
+   *
+   * @param timeoutSupplier a supplier for the timeout to set in milliseconds
+   */
+  public void setResetTimeout(Supplier<Long> timeoutSupplier) {
+    this.resetTimeoutSupplier = timeoutSupplier;
+  }
+
+  /**
    * Timeout for tripping the open circuit. If the delegate policy cannot retry and the
    * time elapsed since the context was started is less than this window, then the
    * circuit is opened.
@@ -73,6 +89,17 @@ public class CircuitBreakerRetryPolicy implements RetryPolicy {
    */
   public void setOpenTimeout(long timeout) {
     this.openTimeout = timeout;
+  }
+
+  /**
+   * A supplier for the Timeout for tripping the open circuit. If the delegate policy
+   * cannot retry and the time elapsed since the context was started is less than this
+   * window, then the circuit is opened.
+   *
+   * @param timeoutSupplier a supplier for the timeout to set in milliseconds
+   */
+  public void setOpenTimeout(Supplier<Long> timeoutSupplier) {
+    this.openTimeoutSupplier = timeoutSupplier;
   }
 
   @Override
@@ -90,7 +117,15 @@ public class CircuitBreakerRetryPolicy implements RetryPolicy {
 
   @Override
   public RetryContext open(RetryContext parent) {
-    return new CircuitBreakerRetryContext(parent, this.delegate, this.resetTimeout, this.openTimeout);
+    long resetTimeout = this.resetTimeout;
+    if (this.resetTimeoutSupplier != null) {
+      resetTimeout = this.resetTimeoutSupplier.get();
+    }
+    long openTimeout = this.openTimeout;
+    if (this.resetTimeoutSupplier != null) {
+      openTimeout = this.openTimeoutSupplier.get();
+    }
+    return new CircuitBreakerRetryContext(parent, this.delegate, resetTimeout, openTimeout);
   }
 
   @Override
@@ -150,7 +185,7 @@ public class CircuitBreakerRetryPolicy implements RetryPolicy {
       boolean retryable = this.policy.canRetry(this.context);
       if (!retryable) {
         if (time > this.timeout) {
-          logger.trace("Closing");
+          log.trace("Closing");
           this.context = createDelegateContext(policy, getParent());
           this.start = System.currentTimeMillis();
           retryable = this.policy.canRetry(this.context);
@@ -158,7 +193,7 @@ public class CircuitBreakerRetryPolicy implements RetryPolicy {
         else if (time < this.openWindow) {
           Object attribute = getAttribute(CIRCUIT_OPEN);
           if (attribute == null || (attribute instanceof Boolean circuitOpen && !circuitOpen)) {
-            logger.trace("Opening circuit");
+            log.trace("Opening circuit");
             setAttribute(CIRCUIT_OPEN, true);
             this.start = System.currentTimeMillis();
           }
@@ -168,13 +203,13 @@ public class CircuitBreakerRetryPolicy implements RetryPolicy {
       }
       else {
         if (time > this.openWindow) {
-          logger.trace("Resetting context");
+          log.trace("Resetting context");
           this.start = System.currentTimeMillis();
           this.context = createDelegateContext(policy, getParent());
         }
       }
-      if (logger.isTraceEnabled()) {
-        logger.trace("Open: " + !retryable);
+      if (log.isTraceEnabled()) {
+        log.trace("Open: " + !retryable);
       }
       setAttribute(CIRCUIT_OPEN, !retryable);
       return !retryable;

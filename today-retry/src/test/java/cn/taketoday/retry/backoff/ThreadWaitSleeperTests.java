@@ -20,13 +20,14 @@
 
 package cn.taketoday.retry.backoff;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Dave Syer
  * @author Artem Bilan
+ * @author Gary Russell
  */
 public class ThreadWaitSleeperTests {
 
@@ -43,8 +44,8 @@ public class ThreadWaitSleeperTests {
   private void assertEqualsApprox(long desired, long actual, long variance) {
     long lower = desired - variance;
     long upper = desired + 2 * variance;
-    assertTrue("Expected value to be between '" + lower + "' and '" + upper + "' but was '" + actual + "'",
-            lower <= actual);
+    assertThat(lower).describedAs("Expected value to be between '%d' and '%d' but was '%d'", lower, upper, actual)
+            .isLessThanOrEqualTo(actual);
   }
 
 }

@@ -17,26 +17,35 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.retry.interceptor;
 
-import cn.taketoday.lang.Nullable;
+package cn.taketoday.retry.support;
 
 /**
- * Interface that allows method parameters to be identified and tagged by a unique key.
+ * A root object containing the method arguments to use in expression evaluation.
+ * IMPORTANT; the arguments are not available (will contain nulls) until after the first
+ * call to the retryable method; this is generally only an issue for the
+ * {@code maxAttempts}, meaning the arguments cannot be used to indicate
+ * {@code maxAttempts = 0}.
  *
- * @author Dave Syer
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @author Gary Russell
  * @since 4.0
  */
-public interface MethodArgumentsKeyGenerator {
+public class Args {
 
   /**
-   * Get a unique identifier for the item that can be used to cache it between calls if
-   * necessary, and then identify it later.
-   *
-   * @param item the current method arguments (may be null if there are none).
-   * @return a unique identifier.
+   * An empty {@link Args} with 100 null arguments.
    */
-  @Nullable
-  Object getKey(Object[] item);
+  public static final Args NO_ARGS = new Args(new Object[100]);
+
+  private final Object[] args;
+
+  public Args(Object[] args) {
+    this.args = args;
+  }
+
+  public Object[] getArgs() {
+    return args;
+  }
 
 }

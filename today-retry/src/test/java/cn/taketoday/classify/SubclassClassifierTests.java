@@ -20,27 +20,27 @@
 
 package cn.taketoday.classify;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
 import java.util.function.Supplier;
 
-import static org.junit.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class SubclassClassifierTests {
 
   @Test
   public void testClassifyInterface() {
-    SubclassClassifier<Object, String> classifier = new SubclassClassifier<Object, String>();
+    SubclassClassifier<Object, String> classifier = new SubclassClassifier<>();
     classifier.setTypeMap(Collections.<Class<?>, String>singletonMap(Supplier.class, "foo"));
-    assertEquals("foo", classifier.classify(new Foo()));
+    assertThat(classifier.classify(new Foo())).isEqualTo("foo");
   }
 
   @Test
   public void testClassifyInterfaceOfParent() {
-    SubclassClassifier<Object, String> classifier = new SubclassClassifier<Object, String>();
+    SubclassClassifier<Object, String> classifier = new SubclassClassifier<>();
     classifier.setTypeMap(Collections.<Class<?>, String>singletonMap(Supplier.class, "foo"));
-    assertEquals("foo", classifier.classify(new Bar()));
+    assertThat(classifier.classify(new Bar())).isEqualTo("foo");
   }
 
   public class Bar extends Foo {

@@ -20,7 +20,7 @@
 
 package cn.taketoday.retry.annotation;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import cn.taketoday.context.annotation.AnnotationConfigApplicationContext;
 import cn.taketoday.context.annotation.Bean;
@@ -29,14 +29,14 @@ import cn.taketoday.retry.RetryContext;
 import cn.taketoday.retry.policy.CircuitBreakerRetryPolicy;
 import cn.taketoday.retry.support.RetrySynchronizationManager;
 
-import static org.junit.Assert.assertFalse;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class CircuitBreakerResetTimeoutTests {
 
-  private AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(
+  private final AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(
           TestConfiguration.class);
 
-  private TestService serviceInTest = context.getBean(TestService.class);
+  private final TestService serviceInTest = context.getBean(TestService.class);
 
   @Test
   public void circuitBreakerShouldBeClosedAfterResetTimeout() throws InterruptedException {
@@ -49,7 +49,7 @@ public class CircuitBreakerResetTimeoutTests {
     correctStep(timeOfLastFailure);
     correctStep(timeOfLastFailure);
     correctStep(timeOfLastFailure);
-    assertFalse((Boolean) serviceInTest.getContext().getAttribute(CircuitBreakerRetryPolicy.CIRCUIT_OPEN));
+    assertThat((Boolean) serviceInTest.getContext().getAttribute(CircuitBreakerRetryPolicy.CIRCUIT_OPEN)).isFalse();
   }
 
   private void incorrectStep() {
