@@ -64,6 +64,7 @@
     <jooq.version>3.3.0</jooq.version>
     <junit5.version>5.8.2</junit5.version>
     <mockito.version>4.6.1</mockito.version>
+    <byte-buddy.version>1.12.12</byte-buddy.version>
     <slf4j.version>1.7.25</slf4j.version>
     <spring-jdbc.version>5.2.3.RELEASE</spring-jdbc.version>
     <reactor.version>3.4.18</reactor.version>
@@ -1064,6 +1065,12 @@
         <groupId>org.mockito</groupId>
         <artifactId>mockito-junit-jupiter</artifactId>
         <version>${mockito.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>net.bytebuddy</groupId>
+        <artifactId>byte-buddy</artifactId>
+        <version>${byte-buddy.version}</version>
       </dependency>
 
     </dependencies>
