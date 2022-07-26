@@ -165,7 +165,7 @@ public class ExponentialBackOffPolicy implements SleepingBackOffPolicy<Exponenti
    * @return the initial interval
    */
   public long getInitialInterval() {
-    return this.initialInterval;
+    return this.initialIntervalSupplier != null ? this.initialIntervalSupplier.get() : this.initialInterval;
   }
 
   /**
@@ -174,7 +174,7 @@ public class ExponentialBackOffPolicy implements SleepingBackOffPolicy<Exponenti
    * @return the maximum interval.
    */
   public long getMaxInterval() {
-    return this.maxInterval;
+    return this.maxIntervalSupplier != null ? this.maxIntervalSupplier.get() : this.maxInterval;
   }
 
   /**
@@ -183,7 +183,7 @@ public class ExponentialBackOffPolicy implements SleepingBackOffPolicy<Exponenti
    * @return the multiplier in use
    */
   public double getMultiplier() {
-    return this.multiplier;
+    return this.multiplierSupplier != null ? this.multiplierSupplier.get() : this.multiplier;
   }
 
   /**

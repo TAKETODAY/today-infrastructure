@@ -724,8 +724,9 @@ public class EnableRetryTests {
     }
 
     @Retryable(exceptionExpression = "@exceptionChecker.${retryMethod}(#root)",
-               maxAttemptsExpression = "@integerFiveBean", backoff = @Backoff(delayExpression = "${one}",
-                                                                              maxDelayExpression = "@integerFiveBean", multiplierExpression = "${onePointOne}"))
+               maxAttemptsExpression = "@integerFiveBean",
+               backoff = @Backoff(delayExpression = "${one}",
+                                  maxDelayExpression = "@integerFiveBean", multiplierExpression = "${onePointOne}"))
     public void service3() {
       if (this.count++ < 8) {
         throw new RuntimeException();
