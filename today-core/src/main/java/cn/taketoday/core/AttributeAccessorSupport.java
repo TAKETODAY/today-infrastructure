@@ -29,6 +29,7 @@ import java.util.function.Function;
 
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Constant;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
@@ -50,10 +51,11 @@ import cn.taketoday.util.StringUtils;
 public abstract class AttributeAccessorSupport implements AttributeAccessor, Serializable {
 
   /** Map with String keys and Object values. */
+  @Nullable
   protected Map<String, Object> attributes;
 
   @Override
-  public void setAttribute(String name, final Object value) {
+  public void setAttribute(String name, @Nullable Object value) {
     if (value != null) {
       getAttributes().put(name, value);
     }
@@ -62,6 +64,7 @@ public abstract class AttributeAccessorSupport implements AttributeAccessor, Ser
     }
   }
 
+  @Nullable
   @Override
   public Object getAttribute(final String name) {
     if (attributes == null) {
