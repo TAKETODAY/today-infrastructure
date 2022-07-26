@@ -71,7 +71,7 @@ public class AspectJExpressionPointcutTests {
 
   @Test
   public void testMatchExplicit() {
-    String expression = "execution(int cn.taketoday.beans.testfixture.beans.TestBean.getAge())";
+    String expression = "execution(int cn.taketoday.aop.testfixture.beans.TestBean.getAge())";
 
     Pointcut pointcut = getPointcut(expression);
     ClassFilter classFilter = pointcut.getClassFilter();
@@ -121,8 +121,8 @@ public class AspectJExpressionPointcutTests {
    * @param which this or target
    */
   private void testThisOrTarget(String which) throws SecurityException, NoSuchMethodException {
-    String matchesTestBean = which + "(cn.taketoday.beans.testfixture.beans.TestBean)";
-    String matchesIOther = which + "(cn.taketoday.beans.testfixture.beans.IOther)";
+    String matchesTestBean = which + "(cn.taketoday.aop.testfixture.beans.TestBean)";
+    String matchesIOther = which + "(cn.taketoday.aop.testfixture.beans.IOther)";
     AspectJExpressionPointcut testBeanPc = new AspectJExpressionPointcut();
     testBeanPc.setExpression(matchesTestBean);
 
@@ -146,7 +146,7 @@ public class AspectJExpressionPointcutTests {
   }
 
   private void testWithinPackage(boolean matchSubpackages) throws SecurityException, NoSuchMethodException {
-    String withinBeansPackage = "within(cn.taketoday.beans.testfixture.beans.";
+    String withinBeansPackage = "within(cn.taketoday.aop.testfixture.beans.";
     // Subpackages are matched by **
     if (matchSubpackages) {
       withinBeansPackage += ".";
@@ -193,7 +193,7 @@ public class AspectJExpressionPointcutTests {
 
   @Test
   public void testMatchWithArgs() throws Exception {
-    String expression = "execution(void cn.taketoday.beans.testfixture.beans.TestBean.setSomeNumber(Number)) && args(Double)";
+    String expression = "execution(void cn.taketoday.aop.testfixture.beans.TestBean.setSomeNumber(Number)) && args(Double)";
 
     Pointcut pointcut = getPointcut(expression);
     ClassFilter classFilter = pointcut.getClassFilter();
@@ -218,7 +218,7 @@ public class AspectJExpressionPointcutTests {
 
   @Test
   public void testSimpleAdvice() {
-    String expression = "execution(int cn.taketoday.beans.testfixture.beans.TestBean.getAge())";
+    String expression = "execution(int cn.taketoday.aop.testfixture.beans.TestBean.getAge())";
     CallCountingInterceptor interceptor = new CallCountingInterceptor();
     TestBean testBean = getAdvisedProxy(expression, interceptor);
 
@@ -231,7 +231,7 @@ public class AspectJExpressionPointcutTests {
 
   @Test
   public void testDynamicMatchingProxy() {
-    String expression = "execution(void cn.taketoday.beans.testfixture.beans.TestBean.setSomeNumber(Number)) && args(Double)";
+    String expression = "execution(void cn.taketoday.aop.testfixture.beans.TestBean.setSomeNumber(Number)) && args(Double)";
     CallCountingInterceptor interceptor = new CallCountingInterceptor();
     TestBean testBean = getAdvisedProxy(expression, interceptor);
 
@@ -245,7 +245,7 @@ public class AspectJExpressionPointcutTests {
 
   @Test
   public void testInvalidExpression() {
-    String expression = "execution(void cn.taketoday.beans.testfixture.beans.TestBean.setSomeNumber(Number) && args(Double)";
+    String expression = "execution(void cn.taketoday.aop.testfixture.beans.TestBean.setSomeNumber(Number) && args(Double)";
     assertThatIllegalArgumentException().isThrownBy(
             getPointcut(expression)::getClassFilter);  // call to getClassFilter forces resolution
   }

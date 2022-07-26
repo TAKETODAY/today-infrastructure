@@ -29,6 +29,7 @@ import java.io.Serializable;
 import java.util.Arrays;
 
 import cn.taketoday.aop.testfixture.SerializationTestUtils;
+import cn.taketoday.aop.testfixture.PerThisAspect;
 import cn.taketoday.logging.LoggerFactory;
 
 import static org.assertj.core.api.Assertions.assertThat;

@@ -592,7 +592,7 @@ class ReflectiveAspectJAdvisorFactoryTests {
     }
   }
 
-  @Aspect("pertypewithin(cn.taketoday.beans.testfixture.beans.IOther+)")
+  @Aspect("pertypewithin(cn.taketoday.aop.testfixture.beans.IOther+)")
   static class PerTypeWithinAspect {
 
     int count;

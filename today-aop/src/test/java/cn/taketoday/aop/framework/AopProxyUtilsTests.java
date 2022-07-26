@@ -26,7 +26,6 @@ import java.lang.reflect.Proxy;
 import java.util.Arrays;
 import java.util.List;
 
-import cn.taketoday.aop.aspectj.annotation.AspectProxyFactoryTests;
 import cn.taketoday.aop.testfixture.beans.ITestBean;
 import cn.taketoday.aop.testfixture.beans.TestBean;
 
@@ -61,7 +60,7 @@ public class AopProxyUtilsTests {
   @Test
   public void testCompleteProxiedInterfacesAdvisedNotIncluded() {
     AdvisedSupport as = new AdvisedSupport();
-    as.addInterface(AspectProxyFactoryTests.ITestBean.class);
+    as.addInterface(ITestBean.class);
     as.addInterface(Comparable.class);
     Class<?>[] completedInterfaces = AopProxyUtils.completeProxiedInterfaces(as);
     assertThat(completedInterfaces.length).isEqualTo(4);

@@ -61,7 +61,7 @@ class TypePatternClassFilterTests {
 
   @Test
   void validPatternMatching() {
-    TypePatternClassFilter tpcf = new TypePatternClassFilter("cn.taketoday.beans.testfixture.beans.*");
+    TypePatternClassFilter tpcf = new TypePatternClassFilter("cn.taketoday.aop.testfixture.beans.*");
 
     assertThat(tpcf.matches(TestBean.class)).as("Must match: in package").isTrue();
     assertThat(tpcf.matches(ITestBean.class)).as("Must match: in package").isTrue();
@@ -74,7 +74,7 @@ class TypePatternClassFilterTests {
 
   @Test
   void subclassMatching() {
-    TypePatternClassFilter tpcf = new TypePatternClassFilter("cn.taketoday.beans.testfixture.beans.ITestBean+");
+    TypePatternClassFilter tpcf = new TypePatternClassFilter("cn.taketoday.aop.testfixture.beans.ITestBean+");
 
     assertThat(tpcf.matches(TestBean.class)).as("Must match: in package").isTrue();
     assertThat(tpcf.matches(ITestBean.class)).as("Must match: in package").isTrue();
@@ -102,8 +102,8 @@ class TypePatternClassFilterTests {
 
   @Test
   void testEquals() {
-    TypePatternClassFilter filter1 = new TypePatternClassFilter("cn.taketoday.beans.testfixture.beans.*");
-    TypePatternClassFilter filter2 = new TypePatternClassFilter("cn.taketoday.beans.testfixture.beans.*");
+    TypePatternClassFilter filter1 = new TypePatternClassFilter("cn.taketoday.aop.testfixture.beans.*");
+    TypePatternClassFilter filter2 = new TypePatternClassFilter("cn.taketoday.aop.testfixture.beans.*");
     TypePatternClassFilter filter3 = new TypePatternClassFilter("cn.taketoday.tests.*");
 
     assertThat(filter1).isEqualTo(filter2);
@@ -112,8 +112,8 @@ class TypePatternClassFilterTests {
 
   @Test
   void testHashCode() {
-    TypePatternClassFilter filter1 = new TypePatternClassFilter("cn.taketoday.beans.testfixture.beans.*");
-    TypePatternClassFilter filter2 = new TypePatternClassFilter("cn.taketoday.beans.testfixture.beans.*");
+    TypePatternClassFilter filter1 = new TypePatternClassFilter("cn.taketoday.aop.testfixture.beans.*");
+    TypePatternClassFilter filter2 = new TypePatternClassFilter("cn.taketoday.aop.testfixture.beans.*");
     TypePatternClassFilter filter3 = new TypePatternClassFilter("cn.taketoday.tests.*");
 
     assertThat(filter1.hashCode()).isEqualTo(filter2.hashCode());
@@ -122,11 +122,11 @@ class TypePatternClassFilterTests {
 
   @Test
   void testToString() {
-    TypePatternClassFilter filter1 = new TypePatternClassFilter("cn.taketoday.beans.testfixture.beans.*");
-    TypePatternClassFilter filter2 = new TypePatternClassFilter("cn.taketoday.beans.testfixture.beans.*");
+    TypePatternClassFilter filter1 = new TypePatternClassFilter("cn.taketoday.aop.testfixture.beans.*");
+    TypePatternClassFilter filter2 = new TypePatternClassFilter("cn.taketoday.aop.testfixture.beans.*");
 
     assertThat(filter1.toString())
-            .isEqualTo("cn.taketoday.aop.aspectj.TypePatternClassFilter: cn.taketoday.beans.testfixture.beans.*");
+            .isEqualTo("cn.taketoday.aop.aspectj.TypePatternClassFilter: cn.taketoday.aop.testfixture.beans.*");
     assertThat(filter1.toString()).isEqualTo(filter2.toString());
   }
 

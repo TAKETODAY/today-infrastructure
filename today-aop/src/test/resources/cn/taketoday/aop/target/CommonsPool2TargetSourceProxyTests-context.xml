@@ -3,7 +3,7 @@
 
 <beans>
 
-  <bean id="testBeanTarget" class="cn.taketoday.beans.testfixture.beans.TestBean" scope="prototype" />
+  <bean id="testBeanTarget" class="cn.taketoday.aop.testfixture.beans.TestBean" scope="prototype" />
 
   <bean id="targetSource" class="cn.taketoday.aop.target.CommonsPool2TargetSource">
     <property name="targetBeanName" value="testBeanTarget" />

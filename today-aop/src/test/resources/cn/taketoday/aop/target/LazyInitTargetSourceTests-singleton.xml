@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
+  ~ Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+  ~
+  ~ DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+  ~
+  ~ This program is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ This program is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with this program.  If not, see [http://www.gnu.org/licenses/]
+  -->
+
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN 2.0//EN" "https://www.springframework.org/dtd/spring-beans-2.0.dtd">
+
+<beans>
+
+	<bean id="target" class="cn.taketoday.aop.testfixture.beans.TestBean" lazy-init="true">
+		<property name="age"><value>10</value></property>
+	</bean>
+
+	<!--
+		This will create a proxy that lazily fetches its target bean (with name "target").
+	-->
+	<bean id="proxy" class="cn.taketoday.aop.framework.ProxyFactoryBean">
+		<property name="targetSource">
+			<bean class="cn.taketoday.aop.target.LazyInitTargetSource">
+				<property name="targetBeanName"><idref bean="target"/></property>
+			</bean>
+		</property>
+	</bean>
+
+</beans>

@@ -1,9 +1,29 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
+  ~ Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+  ~
+  ~ DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+  ~
+  ~ This program is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ This program is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with this program.  If not, see [http://www.gnu.org/licenses/]
+  -->
+
 <beans xmlns="http://www.springframework.org/schema/beans"
 		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 		xsi:schemaLocation="http://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
 
-	<bean id="prototypeTest" class="cn.taketoday.beans.testfixture.beans.SideEffectBean" scope="prototype">
+	<bean id="prototypeTest" class="cn.taketoday.aop.testfixture.beans.SideEffectBean" scope="prototype">
 		<property name="count"><value>10</value></property>
 	</bean>
 
@@ -34,12 +54,12 @@
 
 	<!-- ================ Definitions for second ThreadLocalTargetSource ====== -->
 
-	<bean id="test" class="cn.taketoday.beans.testfixture.beans.TestBean" scope="prototype">
+	<bean id="test" class="cn.taketoday.aop.testfixture.beans.TestBean" scope="prototype">
 		<property name="name"><value>Rod</value></property>
 		<property name="spouse"><ref bean="wife"/></property>
 	</bean>
 
-	<bean id="wife" class="cn.taketoday.beans.testfixture.beans.TestBean">
+	<bean id="wife" class="cn.taketoday.aop.testfixture.beans.TestBean">
 		<property name="name"><value>Kerry</value></property>
 	</bean>
 
