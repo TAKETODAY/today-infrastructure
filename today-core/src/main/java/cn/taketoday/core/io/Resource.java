@@ -26,6 +26,7 @@ import java.net.URL;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
 
+import cn.taketoday.lang.Experimental;
 import cn.taketoday.lang.Nullable;
 
 /**
@@ -45,38 +46,43 @@ public interface Resource extends InputStreamSource {
   Resource[] EMPTY_ARRAY = {};
 
   /**
-   * Get the name of the resource.
-   *
-   * @return name
+   * Determine a name for this resource, i.e. typically the last
+   * part of the path: for example, "myfile.txt".
+   * <p>Returns {@code null} if this type of resource does not
+   * have a filename.
    */
+  @Nullable
   String getName();
 
   /**
-   * Get content length
+   * Determine the content length for this resource.
    *
-   * @return content length
+   * @throws IOException if the resource cannot be resolved
+   * (in the file system or as some other known physical resource type)
    */
   long contentLength() throws IOException;
 
   /**
-   * Get last modified
+   * Determine the last-modified timestamp for this resource.
    *
-   * @return last modified
+   * @throws IOException if the resource cannot be resolved
+   * (in the file system or as some other known physical resource type)
    */
   long lastModified() throws IOException;
 
   /**
-   * Get location of this resource.
+   * Return a URL handle for this resource.
    *
-   * @throws IOException if the resource is not available
+   * @throws IOException if the resource cannot be resolved as URL,
+   * i.e. if the resource is not available as a descriptor
    */
   URL getURL() throws IOException;
 
   /**
    * Return a URI handle for this resource.
    *
-   * @throws IOException if the resource cannot be resolved as URI, i.e. if the resource
-   * is not available as descriptor
+   * @throws IOException if the resource cannot be resolved as URI,
+   * i.e. if the resource is not available as a descriptor
    * @since 2.1.7
    */
   URI getURI() throws IOException;
@@ -84,7 +90,10 @@ public interface Resource extends InputStreamSource {
   /**
    * Return a File handle for this resource.
    *
+   * @throws java.io.FileNotFoundException if the resource cannot be resolved as
+   * absolute file path, i.e. if the resource is not available in a file system
    * @throws IOException in case of general resolution/reading failures
+   * @see #getInputStream()
    */
   File getFile() throws IOException;
 
@@ -124,7 +133,7 @@ public interface Resource extends InputStreamSource {
 
   /**
    * Determine whether this resource represents a file in a file system.
-   * A value of {@code true} strongly suggests (but does not guarantee)
+   * <p>A value of {@code true} strongly suggests (but does not guarantee)
    * that a {@link #getFile()} call will succeed.
    * <p>This is conservatively {@code false} by default.
    *
@@ -158,6 +167,7 @@ public interface Resource extends InputStreamSource {
    * @return {@link Resource} names
    * @throws IOException if the resource is not available
    */
+  @Experimental
   String[] list() throws IOException;
 
   /**
@@ -167,6 +177,7 @@ public interface Resource extends InputStreamSource {
    * @return {@link Resource} names
    * @throws IOException if the resource is not available
    */
+  @Experimental
   Resource[] list(@Nullable ResourceFilter filter) throws IOException;
 
   /**
@@ -177,5 +188,16 @@ public interface Resource extends InputStreamSource {
    * @throws IOException if the relative resource cannot be determined
    */
   Resource createRelative(String relativePath) throws IOException;
+
+  /**
+   * Return a description for this resource,
+   * to be used for error output when working with the resource.
+   * <p>Implementations are also encouraged to return this value
+   * from their {@code toString} method.
+   *
+   * @see Object#toString()
+   */
+  @Override
+  String toString();
 
 }

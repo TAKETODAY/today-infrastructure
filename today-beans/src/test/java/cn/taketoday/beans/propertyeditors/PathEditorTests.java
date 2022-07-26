@@ -29,6 +29,7 @@ import java.nio.file.Path;
 import cn.taketoday.util.ClassUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
  * @author Juergen Hoeller
@@ -49,12 +50,9 @@ public class PathEditorTests {
 
   @Test
   public void testWithNonExistentResource() {
-    PropertyEditor pathEditor = new PathEditor();
-    pathEditor.setAsText("classpath:/no_way_this_file_is_found.doc");
-    Object value = pathEditor.getValue();
-    assertThat(value instanceof Path).isTrue();
-    Path path = (Path) value;
-    assertThat(!path.toFile().exists()).isTrue();
+    PropertyEditor propertyEditor = new PathEditor();
+    assertThatIllegalArgumentException().isThrownBy(() ->
+            propertyEditor.setAsText("classpath:/no_way_this_file_is_found.doc"));
   }
 
   @Test

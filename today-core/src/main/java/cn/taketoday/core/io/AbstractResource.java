@@ -32,85 +32,77 @@ import java.util.ArrayList;
 import java.util.Objects;
 
 import cn.taketoday.core.style.ToStringBuilder;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.ResourceUtils;
 
 /**
- * @author TODAY <br>
- * 2019-05-14 22:32
- * @since 2.1.6
+ * Convenience base class for {@link Resource} implementations,
+ * pre-implementing typical behavior.
+ *
+ * <p>The "exists" method will check whether a File or InputStream can
+ * be opened; "isOpen" will always return false; "getURL" and "getFile"
+ * throw an exception; and "toString" will return the description.
+ *
+ * @author Juergen Hoeller
+ * @author Sam Brannen
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 2.1.6 2019-05-14
  */
 public abstract class AbstractResource implements Resource {
 
+  /**
+   * This implementation always returns {@code null},
+   * assuming that this resource type does not have a filename.
+   */
   @Override
+  @Nullable
   public String getName() {
-    try {
-      return getFile().getName();
-    }
-    catch (IOException e) {
-      return null;
-    }
+    return null;
   }
 
+  /**
+   * This implementation checks whether a File can be opened,
+   * falling back to whether an InputStream can be opened.
+   * <p>This will cover both directories and content resources.
+   */
   @Override
   public boolean exists() {
-
-    try (InputStream inputStream = getInputStream()) {
-      return inputStream != null;
+    // Try file existence: can we find the file in the file system?
+    if (isFile()) {
+      try {
+        return getFile().exists();
+      }
+      catch (IOException ex) {
+        Logger log = getLogger();
+        if (log.isDebugEnabled()) {
+          log.debug("Could not retrieve File for existence check of " + this, ex);
+        }
+      }
     }
-    catch (IOException e) {
+    // Fall back to stream existence: can we open the stream?
+    try {
+      getInputStream().close();
+      return true;
+    }
+    catch (Throwable ex) {
+      Logger log = getLogger();
+      if (log.isDebugEnabled()) {
+        log.debug("Could not retrieve InputStream for existence check of " + this, ex);
+      }
       return false;
     }
   }
 
+  /**
+   * This implementation always returns {@code true} for a resource
+   * that {@link #exists() exists} (revised as of 5.1).
+   */
   @Override
   public boolean isReadable() {
-    try {
-      return checkReadable(getURL());
-    }
-    catch (IOException ex) {
-      return false;
-    }
-  }
-
-  boolean checkReadable(URL url) {
-    try {
-      if (ResourceUtils.isFileURL(url)) {
-        // Proceed with file system resolution
-        File file = getFile();
-        return (file.canRead() && !file.isDirectory());
-      }
-      else {
-        // Try InputStream resolution for jar resources
-        URLConnection con = url.openConnection();
-        customizeConnection(con);
-        if (con instanceof HttpURLConnection httpCon) {
-          int code = httpCon.getResponseCode();
-          if (code != HttpURLConnection.HTTP_OK) {
-            httpCon.disconnect();
-            return false;
-          }
-        }
-        long contentLength = con.getContentLengthLong();
-        if (contentLength > 0) {
-          return true;
-        }
-        else if (contentLength == 0) {
-          // Empty file or directory -> not considered readable...
-          return false;
-        }
-        else {
-          // Fall back to stream existence: can we open the stream?
-          getInputStream().close();
-          return true;
-        }
-      }
-    }
-    catch (IOException ex) {
-      return false;
-    }
+    return exists();
   }
 
   /**
@@ -212,7 +204,7 @@ public abstract class AbstractResource implements Resource {
 
   /**
    * This method reads the entire InputStream to determine the content length.
-   * <p>For a custom sub-class of {@code InputStreamResource}, we strongly
+   * <p>For a custom subclass of {@code InputStreamResource}, we strongly
    * recommend overriding this method with a more optimal implementation, e.g.
    * checking File length, or possibly simply returning -1 if the stream can
    * only be read once.
@@ -236,9 +228,9 @@ public abstract class AbstractResource implements Resource {
         is.close();
       }
       catch (IOException ex) {
-        Logger logger = LoggerFactory.getLogger(getClass());
-        if (logger.isDebugEnabled()) {
-          logger.debug("Could not close content-length InputStream for " + this, ex);
+        Logger log = getLogger();
+        if (log.isDebugEnabled()) {
+          log.debug("Could not close content-length InputStream for " + this, ex);
         }
       }
     }
@@ -310,6 +302,10 @@ public abstract class AbstractResource implements Resource {
       return Objects.equals(toString(), obj.toString());
     }
     return false;
+  }
+
+  private Logger getLogger() {
+    return LoggerFactory.getLogger(getClass());
   }
 
 }

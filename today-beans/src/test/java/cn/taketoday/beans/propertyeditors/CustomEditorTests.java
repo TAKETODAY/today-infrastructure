@@ -634,7 +634,7 @@ class CustomEditorTests {
 
   @Test
   void testFileEditorWithRelativePath() {
-    PropertyEditor fileEditor = new FileEditor();
+    FileEditor fileEditor = new FileEditor();
     try {
       fileEditor.setAsText("myfile.txt");
     }

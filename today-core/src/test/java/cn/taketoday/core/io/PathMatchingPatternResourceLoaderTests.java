@@ -92,6 +92,7 @@ class PathMatchingPatternResourceLoaderTests {
           "ResourceArrayPropertyEditor.class",
           "ResourceDecorator.class",
           "WritableResourceDecorator.class",
+          "ClassPathResourceTests.class",
   };
 
   private static final String[] CLASSES_IN_JUNIT_RUNNER = new String[] { //
