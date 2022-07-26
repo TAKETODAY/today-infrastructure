@@ -46,7 +46,7 @@ public class ExponentialAverageRetryStatisticsTests {
   public void attributes() {
     stats.setAttribute("foo", "bar");
     assertThat(stats.getAttribute("foo")).isEqualTo("bar");
-    assertThat(Arrays.asList(stats.attributeNames()).contains("foo")).isTrue();
+    assertThat(Arrays.asList(stats.getAttributeNames()).contains("foo")).isTrue();
   }
 
   @Test

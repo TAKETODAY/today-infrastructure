@@ -174,6 +174,8 @@ public class StatefulRecoveryRetryTests {
     // inconsistent has codes relies on the cache having been used for this
     // item already...
     assertThatExceptionOfType(RetryException.class).isThrownBy(() -> this.retryTemplate.execute(callback, state))
+            .withMessage("Could not register throwable")
+            .havingRootCause()
             .withMessageContaining("inconsistent");
 
     RetryContext context = this.retryTemplate.open(retryPolicy, state);
@@ -199,6 +201,8 @@ public class StatefulRecoveryRetryTests {
 
     assertThatExceptionOfType(RetryException.class)
             .isThrownBy(() -> this.retryTemplate.execute(callback, new DefaultRetryState("bar")))
+            .withMessage("Could not register throwable")
+            .havingRootCause()
             .withMessageContaining("capacity");
   }
 
