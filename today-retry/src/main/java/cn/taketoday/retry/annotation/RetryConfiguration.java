@@ -43,6 +43,7 @@ import cn.taketoday.aop.support.annotation.AnnotationMethodMatcher;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanFactoryAware;
 import cn.taketoday.beans.factory.InitializingBean;
+import cn.taketoday.beans.factory.SmartInitializingSingleton;
 import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.context.annotation.Role;
 import cn.taketoday.core.OrderComparator;
@@ -71,16 +72,17 @@ import cn.taketoday.util.ReflectionUtils;
 @Component
 @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
 public class RetryConfiguration extends AbstractPointcutAdvisor
-        implements IntroductionAdvisor, BeanFactoryAware, InitializingBean {
+        implements IntroductionAdvisor, BeanFactoryAware, InitializingBean, SmartInitializingSingleton {
   @Serial
   private static final long serialVersionUID = 1L;
 
-  private Advice advice;
+  private AnnotationAwareRetryOperationsInterceptor advice;
 
   private Pointcut pointcut;
 
   private RetryContextCache retryContextCache;
 
+  @Nullable
   private List<RetryListener> retryListeners;
 
   private MethodArgumentsKeyGenerator methodArgumentsKeyGenerator;
@@ -94,7 +96,6 @@ public class RetryConfiguration extends AbstractPointcutAdvisor
   @Override
   public void afterPropertiesSet() {
     this.sleeper = findBean(Sleeper.class);
-    this.retryListeners = findBeans(RetryListener.class);
     this.retryContextCache = findBean(RetryContextCache.class);
     this.methodArgumentsKeyGenerator = findBean(MethodArgumentsKeyGenerator.class);
     this.newMethodArgumentsIdentifier = findBean(NewMethodArgumentsIdentifier.class);
@@ -102,9 +103,6 @@ public class RetryConfiguration extends AbstractPointcutAdvisor
     retryableAnnotationTypes.add(Retryable.class);
     this.pointcut = buildPointcut(retryableAnnotationTypes);
     this.advice = buildAdvice();
-    if (this.advice instanceof BeanFactoryAware) {
-      ((BeanFactoryAware) this.advice).setBeanFactory(this.beanFactory);
-    }
   }
 
   @Nullable
@@ -157,13 +155,18 @@ public class RetryConfiguration extends AbstractPointcutAdvisor
     return this.pointcut;
   }
 
-  protected Advice buildAdvice() {
+  @Override
+  public void afterSingletonsInstantiated() {
+    this.retryListeners = findBeans(RetryListener.class);
+    if (retryListeners != null) {
+      advice.setListeners(retryListeners);
+    }
+  }
+
+  protected AnnotationAwareRetryOperationsInterceptor buildAdvice() {
     AnnotationAwareRetryOperationsInterceptor interceptor = new AnnotationAwareRetryOperationsInterceptor();
     if (this.retryContextCache != null) {
       interceptor.setRetryContextCache(this.retryContextCache);
-    }
-    if (this.retryListeners != null) {
-      interceptor.setListeners(this.retryListeners);
     }
     if (this.methodArgumentsKeyGenerator != null) {
       interceptor.setKeyGenerator(this.methodArgumentsKeyGenerator);
@@ -174,6 +177,7 @@ public class RetryConfiguration extends AbstractPointcutAdvisor
     if (this.sleeper != null) {
       interceptor.setSleeper(this.sleeper);
     }
+    interceptor.setBeanFactory(this.beanFactory);
     return interceptor;
   }
 
