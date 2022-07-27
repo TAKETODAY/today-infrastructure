@@ -56,9 +56,7 @@ class DataSourceUtilsTests {
     assertThatThrownBy(() -> DataSourceUtils.getConnection(dataSource))
             .isInstanceOf(CannotGetJdbcConnectionException.class)
             .hasMessageStartingWith("Failed to obtain JDBC Connection")
-            .satisfies(e -> {
-              assertThat(e).isInstanceOf(SQLException.class);
-            })
+            .rootCause().isInstanceOf(SQLException.class)
             .hasMessage("my dummy exception");
   }
 
