@@ -27,7 +27,6 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 import cn.taketoday.core.annotation.AliasFor;
-import cn.taketoday.stereotype.Component;
 import cn.taketoday.stereotype.Controller;
 
 /**
@@ -48,7 +47,7 @@ import cn.taketoday.stereotype.Controller;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 2018-11-17 21:26
  */
-@Component
+@Controller
 @Documented
 @ResponseBody
 @Retention(RetentionPolicy.RUNTIME)
