@@ -3,13 +3,13 @@
 	version="1.0">
 
 	<persistence-unit name="Drivers" transaction-type="RESOURCE_LOCAL">
-		<class>Person</class>
-		<class>DriversLicense</class>
+		<class>cn.taketoday.orm.jpa.domain.Person</class>
+		<class>cn.taketoday.orm.jpa.domain.DriversLicense</class>
 		<exclude-unlisted-classes />
 	</persistence-unit>
 
 	<persistence-unit name="Test" transaction-type="RESOURCE_LOCAL">
-		<class>cn.taketoday.beans.testfixture.beans.TestBean</class>
+		<class>cn.taketoday.orm.jpa.testfixture.beans.TestBean</class>
 		<exclude-unlisted-classes />
 	</persistence-unit>
 

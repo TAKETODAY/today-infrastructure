@@ -5,9 +5,9 @@
 
   <context:annotation-config />
 
-  <bean id="dao" class="PersistenceInjectionTests$DefaultPublicPersistenceUnitSetterNamedPerson" />
+  <bean id="dao" class="cn.taketoday.orm.jpa.support.PersistenceInjectionTests.DefaultPublicPersistenceUnitSetterNamedPerson" />
 
-  <bean class="PersistenceInjectionTests$DefaultPublicPersistenceContextSetter" />
+  <bean class="cn.taketoday.orm.jpa.support.PersistenceInjectionTests.DefaultPublicPersistenceContextSetter" />
 
   <bean class="cn.taketoday.dao.annotation.PersistenceExceptionTranslationPostProcessor">
     <property name="proxyTargetClass" value="true" />

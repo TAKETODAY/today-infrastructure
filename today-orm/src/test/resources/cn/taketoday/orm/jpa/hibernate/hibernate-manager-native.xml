@@ -6,8 +6,8 @@
 	<bean id="entityManagerFactory" name="Person" class="cn.taketoday.orm.hibernate5.LocalSessionFactoryBean" primary="true">
 		<property name="annotatedClasses">
 			<list>
-				<value>DriversLicense</value>
-				<value>Person</value>
+				<value>cn.taketoday.orm.jpa.domain.DriversLicense</value>
+				<value>cn.taketoday.orm.jpa.domain.Person</value>
 			</list>
 		</property>
 		<property name="dataSource" ref="dataSource"/>

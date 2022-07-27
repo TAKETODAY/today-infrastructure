@@ -3,8 +3,8 @@
 	version="1.0">
 
 	<persistence-unit name="Person" transaction-type="RESOURCE_LOCAL">
-		<class>DriversLicense</class>
-		<class>Person</class>
+		<class>cn.taketoday.orm.jpa.domain.DriversLicense</class>
+		<class>cn.taketoday.orm.jpa.domain.Person</class>
 		<exclude-unlisted-classes />
 	</persistence-unit>
 
