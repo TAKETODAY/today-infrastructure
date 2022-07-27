@@ -21,7 +21,7 @@
 package cn.taketoday.web.handler.method;
 
 import java.io.IOException;
-import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.function.Consumer;
 
 import cn.taketoday.http.MediaType;
@@ -77,7 +77,7 @@ public class ResponseBodyEmitter {
   private Handler handler;
 
   /** Store send data before handler is initialized. */
-  private final LinkedHashSet<DataWithMediaType> earlySendAttempts = new LinkedHashSet<>(8);
+  private final LinkedList<DataWithMediaType> earlySendAttempts = new LinkedList<>();
 
   /** Store successful completion before the handler is initialized. */
   private boolean complete;
@@ -180,7 +180,7 @@ public class ResponseBodyEmitter {
    * <p><strong>Note:</strong> if the send fails with an IOException, you do
    * not need to call {@link #completeWithError(Throwable)} in order to clean
    * up. Instead the Servlet container creates a notification that results in a
-   * dispatch where Spring MVC invokes exception resolvers and completes
+   * dispatch where Web MVC invokes exception resolvers and completes
    * processing.
    *
    * @param object the object to write
@@ -236,7 +236,7 @@ public class ResponseBodyEmitter {
    */
   public synchronized void complete() {
     // Ignore, after send failure
-    if (this.sendFailed) {
+    if (sendFailed) {
       return;
     }
     this.complete = true;
@@ -258,7 +258,7 @@ public class ResponseBodyEmitter {
    */
   public synchronized void completeWithError(Throwable ex) {
     // Ignore, after send failure
-    if (this.sendFailed) {
+    if (sendFailed) {
       return;
     }
     this.complete = true;
@@ -325,8 +325,16 @@ public class ResponseBodyEmitter {
    * A simple holder of data to be written along with a MediaType hint for
    * selecting a message converter to write with.
    */
-  public record DataWithMediaType(Object data, @Nullable MediaType mediaType) {
+  static class DataWithMediaType {
+    public final Object data;
 
+    @Nullable
+    public final MediaType mediaType;
+
+    public DataWithMediaType(Object data, @Nullable MediaType mediaType) {
+      this.data = data;
+      this.mediaType = mediaType;
+    }
   }
 
   private class DefaultCallback implements Runnable {
@@ -340,7 +348,7 @@ public class ResponseBodyEmitter {
 
     @Override
     public void run() {
-      ResponseBodyEmitter.this.complete = true;
+      complete = true;
       if (delegate != null) {
         delegate.run();
       }
@@ -358,7 +366,7 @@ public class ResponseBodyEmitter {
 
     @Override
     public void accept(Throwable t) {
-      ResponseBodyEmitter.this.complete = true;
+      complete = true;
       if (this.delegate != null) {
         this.delegate.accept(t);
       }
