@@ -93,7 +93,7 @@ public class ApplicationContextLoader extends AbstractContextLoader {
     Assert.state(ObjectUtils.isNotEmpty(configClasses) || ObjectUtils.isNotEmpty(configLocations),
             () -> "No configuration classes or locations found in @ApplicationConfiguration. "
                     + "For default configuration detection to work you need Spring 4.0.3 or better (found "
-                    + cn.taketoday.lang.Version.get() + ").");
+                    + cn.taketoday.lang.Version.instance + ").");
     Application application = getApplication();
     application.setMainApplicationClass(config.getTestClass());
     application.addPrimarySources(Arrays.asList(configClasses));

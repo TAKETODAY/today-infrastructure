@@ -231,7 +231,7 @@ public class ViewControllerHandlerMapping extends AbstractUrlHandlerMapping impl
           configController(ele);
         } // ELEMENT_RESOURCES // TODO
         else {
-          log.warn("This This element: [{}] is not supported in this version: [{}].", nodeName, Version.get());
+          log.warn("This This element: [{}] is not supported in this version: [{}].", nodeName, Version.instance);
         }
       }
     }

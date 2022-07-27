@@ -145,7 +145,7 @@ class ApplicationBannerPrinter {
     public void printBanner(Environment environment, Class<?> sourceClass, PrintStream out) {
       out.println(BANNER);
 
-      String version = Version.get().toString();
+      String version = Version.instance.toString();
       StringBuilder padding = new StringBuilder();
       while (padding.length() < STRAP_LINE_SIZE - (version.length() + infrastructure.length())) {
         padding.append(" ");

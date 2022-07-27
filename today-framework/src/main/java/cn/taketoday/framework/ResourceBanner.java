@@ -112,7 +112,7 @@ public class ResourceBanner implements Banner {
   }
 
   protected String getVersion() {
-    return Version.get().toString();
+    return Version.instance.toString();
   }
 
   private String getVersionString(String version, boolean format) {
