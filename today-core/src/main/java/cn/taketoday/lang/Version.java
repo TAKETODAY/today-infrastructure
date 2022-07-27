@@ -37,7 +37,7 @@ public record Version(
   public static final String Beta = "Beta";
   public static final String RELEASE = "RELEASE";
 
-  private static final Version instance;
+  public static final Version instance;
 
   static {
     Package pkg = Version.class.getPackage();
@@ -46,7 +46,7 @@ public record Version(
       instance = parse(implementationVersion);
     }
     else {
-      instance = new Version(0, 0, 0, "Draft", 0, null, null);
+      instance = new Version(0, 0, 0, RELEASE, 0, null, "Unknown");
       System.err.println("cn.taketoday.lang.Version cannot get 'implementationVersion' in manifest.");
     }
   }
