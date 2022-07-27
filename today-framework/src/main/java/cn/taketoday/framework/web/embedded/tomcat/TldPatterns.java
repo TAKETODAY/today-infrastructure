@@ -72,6 +72,7 @@ final class TldPatterns {
     skipPatterns.add("el-api.jar");
     skipPatterns.add("geronimo-spec-jaxrpc*.jar");
     skipPatterns.add("h2*.jar");
+    skipPatterns.add("ha-api-*.jar");
     skipPatterns.add("hamcrest-*.jar");
     skipPatterns.add("hibernate*.jar");
     skipPatterns.add("httpclient*.jar");
@@ -82,6 +83,7 @@ final class TldPatterns {
     skipPatterns.add("jaspic-api.jar");
     skipPatterns.add("jaxb-*.jar");
     skipPatterns.add("jaxen-*.jar");
+    skipPatterns.add("jaxws-rt-*.jar");
     skipPatterns.add("jdom-*.jar");
     skipPatterns.add("jetty-*.jar");
     skipPatterns.add("jmx-tools.jar");
@@ -180,7 +182,7 @@ final class TldPatterns {
   static {
     Set<String> scanPatterns = new LinkedHashSet<>();
     scanPatterns.add("log4j-taglib*.jar");
-    scanPatterns.add("log4j-web*.jar");
+    scanPatterns.add("log4j-jakarta-web*.jar");
     scanPatterns.add("log4javascript*.jar");
     scanPatterns.add("slf4j-taglib*.jar");
     TOMCAT_SCAN = Collections.unmodifiableSet(scanPatterns);
