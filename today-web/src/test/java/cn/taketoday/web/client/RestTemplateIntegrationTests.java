@@ -493,7 +493,7 @@ class RestTemplateIntegrationTests extends AbstractMockWebServerTests {
     }
   }
 
-  @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "cn/taketoday/core/testfixture/type")
+  @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
   public static class ParentClass {
 
     private String parentProperty;

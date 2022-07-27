@@ -283,7 +283,7 @@ public class Jackson2JsonEncoderTests extends AbstractEncoderTests<Jackson2JsonE
     );
   }
 
-  @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "cn/taketoday/core/testfixture/type")
+  @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
   private static class ParentClass {
   }
 

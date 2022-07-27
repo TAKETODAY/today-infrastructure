@@ -202,7 +202,7 @@ public class MultipartHttpMessageWriterTests extends AbstractLeakCheckingTests {
     MediaType contentType = this.response.getHeaders().getContentType();
     assertThat(contentType).isNotNull();
     assertThat(contentType.isCompatibleWith(mediaType)).isTrue();
-    assertThat(contentType.getParameter("cn/taketoday/core/testfixture/type")).isEqualTo("foo");
+    assertThat(contentType.getParameter("type")).isEqualTo("foo");
     assertThat(contentType.getParameter("boundary")).isNotEmpty();
     assertThat(contentType.getParameter("charset")).isNull();
 

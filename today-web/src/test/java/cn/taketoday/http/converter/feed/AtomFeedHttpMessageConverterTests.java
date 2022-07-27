@@ -142,13 +142,13 @@ public class AtomFeedHttpMessageConverterTests {
   @Test
   public void writeOtherContentTypeParameters() throws IOException {
     MockHttpOutputMessage message = new MockHttpOutputMessage();
-    MediaType contentType = new MediaType("application", "atom+xml", singletonMap("cn/taketoday/core/testfixture/type", "feed"));
+    MediaType contentType = new MediaType("application", "atom+xml", singletonMap("type", "feed"));
     converter.write(new Feed("atom_1.0"), contentType, message);
 
     assertThat(message.getHeaders().getContentType().getParameters())
             .as("Invalid content-type")
             .hasSize(2)
-            .containsEntry("cn/taketoday/core/testfixture/type", "feed")
+            .containsEntry("type", "feed")
             .containsEntry("charset", "UTF-8");
   }
 

@@ -190,7 +190,7 @@ class HttpEntityMethodProcessorTests {
     HttpEntityMethodProcessor processor = new HttpEntityMethodProcessor(converters, null);
     processor.handleReturnValue(webRequest, new HandlerMethod(this, method), returnValue);
 
-    assertThat(servletResponse.getHeader("Content-Type")).isEqualTo("text/plain;charset=ISO-8859-1");
+    assertThat(servletResponse.getHeader("Content-Type")).isEqualTo("text/plain;charset=UTF-8");
     assertThat(servletResponse.getContentAsString()).isEqualTo("Foo");
   }
 
@@ -301,7 +301,7 @@ class HttpEntityMethodProcessorTests {
     }
   }
 
-  @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "cn/taketoday/core/testfixture/type")
+  @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
   private static class ParentClass {
 
     private String parentProperty;
