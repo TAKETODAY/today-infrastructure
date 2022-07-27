@@ -19,8 +19,8 @@
   -->
 
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="All in today-tx" type="JUnit" factoryName="JUnit" nameIsGenerated="true">
-    <module name="today-tx" />
+  <configuration default="false" name="All in today-context" type="JUnit" factoryName="JUnit" nameIsGenerated="true">
+    <module name="today-context" />
     <option name="PACKAGE_NAME" value="" />
     <option name="MAIN_CLASS_NAME" value="" />
     <option name="METHOD_NAME" value="" />
