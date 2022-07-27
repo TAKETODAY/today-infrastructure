@@ -430,12 +430,6 @@
     </dependency>
 
     <dependency>
-      <groupId>org.webjars</groupId>
-      <artifactId>underscorejs</artifactId>
-      <scope>test</scope>
-    </dependency>
-
-    <dependency>
       <groupId>org.javamoney.moneta</groupId>
       <artifactId>moneta-core</artifactId>
       <scope>test</scope>

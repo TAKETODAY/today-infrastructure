@@ -418,6 +418,12 @@
       <scope>test</scope>
     </dependency>
 
+    <dependency>
+      <groupId>org.webjars</groupId>
+      <artifactId>underscorejs</artifactId>
+      <scope>test</scope>
+    </dependency>
+
   </dependencies>
 
 </project>
