@@ -53,6 +53,7 @@ import cn.taketoday.web.context.async.AsyncRequestTimeoutException;
 import cn.taketoday.web.servlet.ServletUtils;
 import cn.taketoday.web.util.WebUtils;
 import cn.taketoday.web.view.ModelAndView;
+import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.http.HttpServletResponse;
 
 /**
@@ -127,8 +128,6 @@ public class ResponseEntityExceptionHandler {
   })
   @Nullable
   public final ResponseEntity<Object> handleException(Exception ex, RequestContext request) throws Exception {
-    HttpHeaders headers = HttpHeaders.create();
-
     // ErrorResponse exceptions that expose HTTP response details
 
     if (ex instanceof ErrorResponse errorEx) {
@@ -172,6 +171,7 @@ public class ResponseEntityExceptionHandler {
     }
 
     // Other, lower level exceptions
+    HttpHeaders headers = HttpHeaders.create();
 
     if (ex instanceof ConversionNotSupportedException) {
       HttpStatusCode status = HttpStatus.INTERNAL_SERVER_ERROR;
@@ -543,6 +543,10 @@ public class ResponseEntityExceptionHandler {
           logger.warn("Response already committed. Ignoring: {}", ex.toString());
         }
         return null;
+      }
+      // set jakarta.servlet.error.exception to ex
+      if (statusCode.equals(HttpStatus.INTERNAL_SERVER_ERROR)) {
+        request.setAttribute(RequestDispatcher.ERROR_EXCEPTION, ex);
       }
     }
 

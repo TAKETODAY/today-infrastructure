@@ -20,6 +20,7 @@
 
 package cn.taketoday.web.handler;
 
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Method;
@@ -180,6 +181,7 @@ class ResponseEntityExceptionHandlerTests {
   @Test
   public void httpMessageNotWritable() {
     Exception ex = new HttpMessageNotWritableException("");
+    Assertions.setMaxStackTraceElementsDisplayed(100);
     testException(ex);
   }
 
@@ -228,6 +230,9 @@ class ResponseEntityExceptionHandlerTests {
 
     ctx.refresh();
 
+    ReturnValueHandlerManager manager = ctx.getBean(ReturnValueHandlerManager.class);
+    manager.registerDefaultHandlers();
+
     ExceptionHandlerAnnotationExceptionHandler resolver = new ExceptionHandlerAnnotationExceptionHandler();
     resolver.setApplicationContext(ctx);
     resolver.afterPropertiesSet();
@@ -267,6 +272,9 @@ class ResponseEntityExceptionHandlerTests {
     ctx.registerSingleton("returnValueHandlerManager", ReturnValueHandlerManager.class);
 
     ctx.refresh();
+
+    ReturnValueHandlerManager manager = ctx.getBean(ReturnValueHandlerManager.class);
+    manager.registerDefaultHandlers();
 
     DispatcherServlet servlet = new DispatcherServlet(ctx);
     servlet.init(new MockServletConfig());
