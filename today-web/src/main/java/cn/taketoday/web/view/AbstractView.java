@@ -23,9 +23,7 @@ package cn.taketoday.web.view;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -33,6 +31,8 @@ import java.util.Set;
 import java.util.StringTokenizer;
 
 import cn.taketoday.beans.factory.BeanNameAware;
+import cn.taketoday.context.ApplicationContext;
+import cn.taketoday.context.aware.ApplicationContextSupport;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.MediaType;
 import cn.taketoday.lang.Assert;
@@ -41,7 +41,6 @@ import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.web.ContextExposingRequestContext;
 import cn.taketoday.web.HandlerMatchingMetadata;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.WebApplicationContextSupport;
 
 /**
@@ -64,7 +63,7 @@ import cn.taketoday.web.WebApplicationContextSupport;
  * @see #renderMergedOutputModel
  * @since 4.0
  */
-public abstract class AbstractView extends WebApplicationContextSupport implements View, BeanNameAware {
+public abstract class AbstractView extends ApplicationContextSupport implements View, BeanNameAware {
 
   /** Default content type. Overridable as bean property. */
   public static final String DEFAULT_CONTENT_TYPE = "text/html;charset=UTF-8";
@@ -414,8 +413,8 @@ public abstract class AbstractView extends WebApplicationContextSupport implemen
    */
   protected RequestContext getRequestContextToExpose(RequestContext original) {
     if (this.exposeContextBeansAsAttributes || this.exposedContextBeanNames != null) {
-      WebApplicationContext wac = getWebApplicationContext();
-      Assert.state(wac != null, "No WebApplicationContext");
+      ApplicationContext wac = getApplicationContext();
+      Assert.state(wac != null, "No ApplicationContext");
       return new ContextExposingRequestContext(original, wac, this.exposedContextBeanNames);
     }
     return original;

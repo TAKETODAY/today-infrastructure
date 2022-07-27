@@ -37,7 +37,7 @@ import cn.taketoday.lang.Nullable;
  */
 public class ContextExposingRequestContext extends RequestContextDecorator {
 
-  private final WebApplicationContext webApplicationContext;
+  private final ApplicationContext webApplicationContext;
 
   @Nullable
   private final Set<String> exposedContextBeanNames;
@@ -65,7 +65,7 @@ public class ContextExposingRequestContext extends RequestContextDecorator {
    * Set are eligible for exposure as attributes)
    */
   public ContextExposingRequestContext(
-          RequestContext originalRequest, WebApplicationContext context,
+          RequestContext originalRequest, ApplicationContext context,
           @Nullable Set<String> exposedContextBeanNames) {
     super(originalRequest);
     Assert.notNull(context, "WebApplicationContext is required");

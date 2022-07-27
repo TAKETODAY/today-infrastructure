@@ -352,7 +352,7 @@ public class ScriptTemplateView extends AbstractUrlBasedView {
   @Nullable
   protected Resource getResource(String location) {
     if (resourceLoaderPaths != null) {
-      WebApplicationContext context = obtainApplicationContext();
+      ApplicationContext context = obtainApplicationContext();
       for (String path : resourceLoaderPaths) {
         Resource resource = context.getResource(path + location);
         if (resource.exists()) {
