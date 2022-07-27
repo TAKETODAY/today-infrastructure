@@ -20,6 +20,7 @@
 package cn.taketoday.logging;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.Serial;
 import java.net.URL;
 import java.util.logging.LogManager;
@@ -99,7 +100,7 @@ final class JavaLoggingLogger extends cn.taketoday.logging.Logger {
     java.util.logging.Level levelToJavaLevel = levelToJavaLevel(level);
     if (this.logger.isLoggable(levelToJavaLevel)) {
       String message = MessageFormatter.format(format, args);
-      LocationResolvingLogRecord rec = new LocationResolvingLogRecord(levelToJavaLevel, String.valueOf(message));
+      LocationResolvingLogRecord rec = new LocationResolvingLogRecord(levelToJavaLevel, message);
       rec.setLoggerName(getName());
       rec.setResourceBundleName(this.logger.getResourceBundleName());
       rec.setResourceBundle(this.logger.getResourceBundle());
@@ -188,8 +189,8 @@ final class JavaLoggingFactory extends LoggerFactory {
   static {
     URL resource = Thread.currentThread().getContextClassLoader().getResource("logging.properties");
     if (resource != null) {
-      try {
-        LogManager.getLogManager().readConfiguration(resource.openStream());
+      try (InputStream inputStream = resource.openStream()) {
+        LogManager.getLogManager().readConfiguration(inputStream);
       }
       catch (SecurityException | IOException e) {
         System.err.println("Can't load config file 'logging.properties'");
