@@ -144,10 +144,10 @@ class BeanCurrentlyInCreationFailureAnalyzer
 
     @Nullable
     private InjectionPoint findFailedInjectionPoint(BeanCreationException ex) {
-      if (!(ex instanceof UnsatisfiedDependencyException)) {
-        return null;
+      if (ex instanceof UnsatisfiedDependencyException e) {
+        return e.getInjectionPoint();
       }
-      return ((UnsatisfiedDependencyException) ex).getInjectionPoint();
+      return null;
     }
 
     @Override
