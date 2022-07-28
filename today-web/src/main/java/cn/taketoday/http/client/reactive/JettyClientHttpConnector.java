@@ -109,18 +109,19 @@ public class JettyClientHttpConnector implements ClientHttpConnector {
     if (!uri.isAbsolute()) {
       return Mono.error(new IllegalArgumentException("URI is not absolute: " + uri));
     }
-    if (!this.httpClient.isStarted()) {
+    if (!httpClient.isStarted()) {
       try {
-        this.httpClient.start();
+        httpClient.start();
       }
       catch (Exception ex) {
         return Mono.error(ex);
       }
     }
 
-    Request jettyRequest = this.httpClient.newRequest(uri).method(method.toString());
+    Request jettyRequest = httpClient.newRequest(uri).method(method.toString());
     JettyClientHttpRequest request = new JettyClientHttpRequest(jettyRequest, this.bufferFactory);
-    return requestCallback.apply(request).then(execute(request));
+    return requestCallback.apply(request)
+            .then(execute(request));
   }
 
   private Mono<ClientHttpResponse> execute(JettyClientHttpRequest request) {

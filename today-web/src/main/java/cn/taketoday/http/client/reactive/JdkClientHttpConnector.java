@@ -24,11 +24,7 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.nio.ByteBuffer;
-import java.util.List;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
-import java.util.concurrent.Flow;
 import java.util.function.Function;
 
 import cn.taketoday.core.io.buffer.DataBufferFactory;
@@ -97,17 +93,14 @@ public class JdkClientHttpConnector implements ClientHttpConnector {
   public Mono<ClientHttpResponse> connect(
           HttpMethod method, URI uri, Function<? super ClientHttpRequest, Mono<Void>> requestCallback) {
 
-    JdkClientHttpRequest jdkClientHttpRequest = new JdkClientHttpRequest(method, uri, this.bufferFactory);
-
-    return requestCallback.apply(jdkClientHttpRequest).then(Mono.defer(() -> {
-      HttpRequest httpRequest = jdkClientHttpRequest.getNativeRequest();
-
-      CompletableFuture<HttpResponse<Flow.Publisher<List<ByteBuffer>>>> future =
-              this.httpClient.sendAsync(httpRequest, HttpResponse.BodyHandlers.ofPublisher());
-
-      return Mono.fromCompletionStage(future)
-              .map(response -> new JdkClientHttpResponse(response, this.bufferFactory));
-    }));
+    var jdkClientHttpRequest = new JdkClientHttpRequest(method, uri, this.bufferFactory);
+    return requestCallback.apply(jdkClientHttpRequest)
+            .then(Mono.defer(() -> {
+              HttpRequest httpRequest = jdkClientHttpRequest.getNativeRequest();
+              var future = httpClient.sendAsync(httpRequest, HttpResponse.BodyHandlers.ofPublisher());
+              return Mono.fromCompletionStage(future)
+                      .map(response -> new JdkClientHttpResponse(response, this.bufferFactory));
+            }));
   }
 
 }
