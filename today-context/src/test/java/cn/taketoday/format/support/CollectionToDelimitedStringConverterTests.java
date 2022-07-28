@@ -80,7 +80,7 @@ class CollectionToDelimitedStringConverterTests {
     Data data = new Data();
     data.type = Arrays.asList(1, 2, 3);
     String converted = (String) new ApplicationConversionService().convert(data.type,
-            TypeDescriptor.nested(ReflectionUtils.findField(Data.class, "cn/taketoday/core/testfixture/type"), 0),
+            TypeDescriptor.nested(ReflectionUtils.findField(Data.class, "type"), 0),
             TypeDescriptor.valueOf(String.class));
     assertThat(converted).isEqualTo("1.2.3");
   }

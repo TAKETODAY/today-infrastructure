@@ -13,6 +13,6 @@
 		<property name="advice" ref="interceptor"/>
 	</bean>
 
-	<bean id="interceptor" class="cn.taketoday.aop.aspectj.CallCountingInterceptor"/>
+	<bean id="interceptor" class="cn.taketoday.aop.testfixture.interceptor.CallCountingInterceptor"/>
 
 </beans>

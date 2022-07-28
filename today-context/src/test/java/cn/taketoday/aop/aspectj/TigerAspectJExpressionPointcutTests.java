@@ -102,31 +102,31 @@ public class TigerAspectJExpressionPointcutTests {
 
   @Test
   public void testMatchAnnotationOnClassWithAtWithin() throws Exception {
-    String expression = "@within(test.annotation.transaction.Tx)";
+    String expression = "@within(cn.taketoday.aop.testfixture.annotation.transaction.Tx)";
     testMatchAnnotationOnClass(expression);
   }
 
   @Test
   public void testMatchAnnotationOnClassWithoutBinding() throws Exception {
-    String expression = "within(@test.annotation.transaction.Tx *)";
+    String expression = "within(@cn.taketoday.aop.testfixture.annotation.transaction.Tx *)";
     testMatchAnnotationOnClass(expression);
   }
 
   @Test
   public void testMatchAnnotationOnClassWithSubpackageWildcard() throws Exception {
-    String expression = "within(@(test.annotation..*) *)";
+    String expression = "within(@(cn.taketoday.aop.testfixture.annotation..*) *)";
     AspectJExpressionPointcut springAnnotatedPc = testMatchAnnotationOnClass(expression);
     assertThat(springAnnotatedPc.matches(TestBean.class.getMethod("setName", String.class), TestBean.class)).isFalse();
     assertThat(springAnnotatedPc.matches(SpringAnnotated.class.getMethod("foo"), SpringAnnotated.class)).isTrue();
 
-    expression = "within(@(test.annotation.transaction..*) *)";
+    expression = "within(@(cn.taketoday.aop.testfixture.annotation.transaction..*) *)";
     AspectJExpressionPointcut springTxAnnotatedPc = testMatchAnnotationOnClass(expression);
     assertThat(springTxAnnotatedPc.matches(SpringAnnotated.class.getMethod("foo"), SpringAnnotated.class)).isFalse();
   }
 
   @Test
   public void testMatchAnnotationOnClassWithExactPackageWildcard() throws Exception {
-    String expression = "within(@(test.annotation.transaction.*) *)";
+    String expression = "within(@(cn.taketoday.aop.testfixture.annotation.transaction.*) *)";
     testMatchAnnotationOnClass(expression);
   }
 
@@ -144,7 +144,7 @@ public class TigerAspectJExpressionPointcutTests {
 
   @Test
   public void testAnnotationOnMethodWithFQN() throws Exception {
-    String expression = "@annotation(test.annotation.transaction.Tx)";
+    String expression = "@annotation(cn.taketoday.aop.testfixture.annotation.transaction.Tx)";
     AspectJExpressionPointcut ajexp = new AspectJExpressionPointcut();
     ajexp.setExpression(expression);
 
@@ -158,7 +158,7 @@ public class TigerAspectJExpressionPointcutTests {
 
   @Test
   public void testAnnotationOnCglibProxyMethod() throws Exception {
-    String expression = "@annotation(test.annotation.transaction.Tx)";
+    String expression = "@annotation(cn.taketoday.aop.testfixture.annotation.transaction.Tx)";
     AspectJExpressionPointcut ajexp = new AspectJExpressionPointcut();
     ajexp.setExpression(expression);
 
@@ -170,7 +170,7 @@ public class TigerAspectJExpressionPointcutTests {
 
   @Test
   public void testAnnotationOnDynamicProxyMethod() throws Exception {
-    String expression = "@annotation(test.annotation.transaction.Tx)";
+    String expression = "@annotation(cn.taketoday.aop.testfixture.annotation.transaction.Tx)";
     AspectJExpressionPointcut ajexp = new AspectJExpressionPointcut();
     ajexp.setExpression(expression);
 
@@ -182,7 +182,7 @@ public class TigerAspectJExpressionPointcutTests {
 
   @Test
   public void testAnnotationOnMethodWithWildcard() throws Exception {
-    String expression = "execution(@(test.annotation..*) * *(..))";
+    String expression = "execution(@(cn.taketoday.aop.testfixture.annotation..*) * *(..))";
     AspectJExpressionPointcut anySpringMethodAnnotation = new AspectJExpressionPointcut();
     anySpringMethodAnnotation.setExpression(expression);
 
@@ -198,7 +198,7 @@ public class TigerAspectJExpressionPointcutTests {
 
   @Test
   public void testAnnotationOnMethodArgumentsWithFQN() throws Exception {
-    String expression = "@args(*, test.annotation.EmptySpringAnnotation))";
+    String expression = "@args(*, cn.taketoday.aop.testfixture.annotation.EmptySpringAnnotation))";
     AspectJExpressionPointcut takesSpringAnnotatedArgument2 = new AspectJExpressionPointcut();
     takesSpringAnnotatedArgument2.setExpression(expression);
 
@@ -233,7 +233,7 @@ public class TigerAspectJExpressionPointcutTests {
 
   @Test
   public void testAnnotationOnMethodArgumentsWithWildcards() throws Exception {
-    String expression = "execution(* *(*, @(test..*) *))";
+    String expression = "execution(* *(*, @(cn.taketoday.aop.testfixture..*) *))";
     AspectJExpressionPointcut takesSpringAnnotatedArgument2 = new AspectJExpressionPointcut();
     takesSpringAnnotatedArgument2.setExpression(expression);
 

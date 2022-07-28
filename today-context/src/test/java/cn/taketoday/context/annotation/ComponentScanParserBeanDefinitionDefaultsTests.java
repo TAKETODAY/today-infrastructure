@@ -22,6 +22,8 @@ package cn.taketoday.context.annotation;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ExecutionMode;
 
 import cn.taketoday.beans.factory.UnsatisfiedDependencyException;
 import cn.taketoday.beans.factory.xml.XmlBeanDefinitionReader;
@@ -34,6 +36,7 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/3/8 23:51
  */
+@Execution(ExecutionMode.SAME_THREAD)
 public class ComponentScanParserBeanDefinitionDefaultsTests {
 
   private static final String TEST_BEAN_NAME = "componentScanParserBeanDefinitionDefaultsTests.DefaultsTestBean";
