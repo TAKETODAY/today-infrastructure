@@ -20,12 +20,10 @@
 
 package cn.taketoday.web.view.script;
 
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.DisabledForJreRange;
 import org.junit.jupiter.api.condition.JRE;
-import org.mockito.Mockito;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -42,7 +40,6 @@ import cn.taketoday.web.testfixture.servlet.MockServletContext;
 import jakarta.servlet.ServletContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.condition.JRE.JAVA_15;
 import static org.mockito.Mockito.mock;
 
 /**

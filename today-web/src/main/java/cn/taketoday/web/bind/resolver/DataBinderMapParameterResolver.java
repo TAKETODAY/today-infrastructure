@@ -36,6 +36,7 @@ import cn.taketoday.web.handler.method.ResolvableMethodParameter;
  * @author TODAY 2019-07-09 22:49
  * @see <a href='https://taketoday.cn/articles/1616819014712'>TODAY Context 之 BeanPropertyAccessor</a>
  */
+@Deprecated
 public class DataBinderMapParameterResolver
         extends AbstractDataBinderParameterResolver implements ParameterResolvingStrategy {
 

@@ -20,6 +20,7 @@
 
 package cn.taketoday.web.handler;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Named;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
@@ -112,6 +113,7 @@ class MappedInterceptorTests {
     assertThat(interceptor.matches(requestFactory.apply("/path3/foo/bar/path2"))).isFalse();
   }
 
+  @Disabled
   @PathPatternsParameterizedTest
   void customPathMatcher(Function<String, MockServletRequestContext> requestFactory) {
     MappedInterceptor interceptor = new MappedInterceptor(new String[] { "/foo/[0-9]*" }, null, delegate);
