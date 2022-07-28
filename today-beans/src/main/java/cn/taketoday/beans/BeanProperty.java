@@ -150,7 +150,11 @@ public sealed class BeanProperty extends Property
    * @since 3.0.2
    */
   protected PropertyAccessor createAccessor() {
-    return PropertyAccessor.fromMethod(readMethod, writeMethod);
+    Field field = getField();
+    if (field == null) {
+      return PropertyAccessor.fromMethod(readMethod, writeMethod);
+    }
+    return PropertyAccessor.fromField(field, readMethod, writeMethod);
   }
 
   public PropertyAccessor getPropertyAccessor() {
