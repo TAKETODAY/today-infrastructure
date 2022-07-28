@@ -72,7 +72,7 @@ public abstract class AopUtils {
    */
   public static boolean isAopProxy(Object object) {
     return (object instanceof StandardProxy
-            && (Proxy.isProxyClass(object.getClass()) || object.getClass().getName().contains("$$")));
+            && (Proxy.isProxyClass(object.getClass()) || object.getClass().getName().contains(ClassUtils.CGLIB_CLASS_SEPARATOR)));
   }
 
   /**
