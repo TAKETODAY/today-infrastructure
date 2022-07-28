@@ -20,8 +20,8 @@
 
 package cn.taketoday.web.reactive.function.client;
 
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Named;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -69,6 +69,7 @@ import cn.taketoday.http.client.reactive.HttpComponentsClientHttpConnector;
 import cn.taketoday.http.client.reactive.JdkClientHttpConnector;
 import cn.taketoday.http.client.reactive.JettyClientHttpConnector;
 import cn.taketoday.http.client.reactive.ReactorClientHttpConnector;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.reactive.function.BodyExtractors;
 import cn.taketoday.web.reactive.function.client.WebClient.ResponseSpec;
 import cn.taketoday.web.testfixture.Pojo;
@@ -82,6 +83,7 @@ import reactor.netty.resources.ConnectionProvider;
 import reactor.test.StepVerifier;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Named.named;
 
 /**
  * Integration tests using an {@link ExchangeFunction} through {@link WebClient}.
@@ -97,20 +99,20 @@ class WebClientIntegrationTests {
 
   @Retention(RetentionPolicy.RUNTIME)
   @Target(ElementType.METHOD)
-  @ParameterizedTest(name = "[{index}] {displayName} [{0}]")
+  @ParameterizedTest(name = "[{index}] {0}")
   @MethodSource("arguments")
-  @interface ParameterizedWebClientTest {
-  }
+  @interface ParameterizedWebClientTest { }
 
-  static Stream<ClientHttpConnector> arguments() {
+  public static Stream<Named<ClientHttpConnector>> arguments() {
     return Stream.of(
-            new ReactorClientHttpConnector(),
-            new JdkClientHttpConnector(),
-            new JettyClientHttpConnector(),
-            new HttpComponentsClientHttpConnector()
+            named("Reactor Netty", new ReactorClientHttpConnector()),
+            named("JDK", new JdkClientHttpConnector()),
+            named("Jetty", new JettyClientHttpConnector()),
+            named("HttpComponents", new HttpComponentsClientHttpConnector())
     );
   }
 
+  @Nullable
   private MockWebServer server;
 
   private WebClient webClient;
@@ -415,6 +417,7 @@ class WebClientIntegrationTests {
               .collect(Collectors.joining(",", "[", "]"))
               .block();
 
+      assertThat(json).isNotNull();
       prepareResponse(response -> response
               .setHeader("Content-Type", "application/json")
               .setBody(json));
@@ -546,7 +549,7 @@ class WebClientIntegrationTests {
 
     StepVerifier.create(result)
             .expectErrorSatisfies(throwable -> {
-              assertThat(throwable instanceof WebClientResponseException).isTrue();
+              assertThat(throwable).isInstanceOf(WebClientResponseException.class);
               WebClientResponseException ex = (WebClientResponseException) throwable;
               assertThat(ex.getStatusCode()).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR);
               assertThat(ex.getRawStatusCode()).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR.value());
@@ -555,6 +558,7 @@ class WebClientIntegrationTests {
               assertThat(ex.getResponseBodyAsString()).isEqualTo(errorMessage);
 
               HttpRequest request = ex.getRequest();
+              assertThat(request).isNotNull();
               assertThat(request.getMethod()).isEqualTo(HttpMethod.GET);
               assertThat(request.getURI()).isEqualTo(URI.create(this.server.url(path).toString()));
               assertThat(request.getHeaders()).isNotNull();
@@ -642,7 +646,7 @@ class WebClientIntegrationTests {
     startServer(connector);
 
     int errorStatus = 555;
-    assertThat((Object) HttpStatus.resolve(errorStatus)).isNull();
+    assertThat(HttpStatus.resolve(errorStatus)).isNull();
     String errorMessage = "Something went wrong";
     prepareResponse(response -> response.setResponseCode(errorStatus)
             .setHeader("Content-Type", "text/plain").setBody(errorMessage));
@@ -654,7 +658,7 @@ class WebClientIntegrationTests {
 
     StepVerifier.create(result)
             .expectErrorSatisfies(throwable -> {
-              assertThat(throwable instanceof UnknownHttpStatusCodeException).isTrue();
+              assertThat(throwable).isInstanceOf(UnknownHttpStatusCodeException.class);
               UnknownHttpStatusCodeException ex = (UnknownHttpStatusCodeException) throwable;
               assertThat(ex.getMessage()).isEqualTo(("Unknown status code [" + errorStatus + "]"));
               assertThat(ex.getRawStatusCode()).isEqualTo(errorStatus);
@@ -1062,7 +1066,7 @@ class WebClientIntegrationTests {
     startServer(connector);
 
     int errorStatus = 555;
-    assertThat((Object) HttpStatus.resolve(errorStatus)).isNull();
+    assertThat(HttpStatus.resolve(errorStatus)).isNull();
     String errorMessage = "Something went wrong";
     prepareResponse(response -> response.setResponseCode(errorStatus)
             .setHeader("Content-Type", "text/plain").setBody(errorMessage));
@@ -1084,7 +1088,6 @@ class WebClientIntegrationTests {
   }
 
   @ParameterizedWebClientTest
-    // SPR-15782
   void exchangeWithRelativeUrl(ClientHttpConnector connector) {
     startServer(connector);
 
