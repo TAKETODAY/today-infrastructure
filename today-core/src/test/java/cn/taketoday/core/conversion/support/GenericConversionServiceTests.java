@@ -443,13 +443,13 @@ class GenericConversionServiceTests {
     conversionService.addConverter(new ColorConverter());
     conversionService.addConverter(new MyConditionalColorConverter());
 
-    assertThat(conversionService.convert("000000xxxx",
+    assertThat(conversionService.<Color>convert("000000xxxx",
             new TypeDescriptor(getClass().getField("activeColor")))).isEqualTo(Color.BLACK);
-    assertThat(conversionService.convert(" #000000 ",
+    assertThat(conversionService.<Color>convert(" #000000 ",
             new TypeDescriptor(getClass().getField("inactiveColor")))).isEqualTo(Color.BLACK);
-    assertThat(conversionService.convert("000000yyyy",
+    assertThat(conversionService.<Color>convert("000000yyyy",
             new TypeDescriptor(getClass().getField("activeColor")))).isEqualTo(Color.BLACK);
-    assertThat(conversionService.convert("  #000000  ",
+    assertThat(conversionService.<Color>convert("  #000000  ",
             new TypeDescriptor(getClass().getField("inactiveColor")))).isEqualTo(Color.BLACK);
   }
 
