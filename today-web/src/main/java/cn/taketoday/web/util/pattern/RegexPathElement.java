@@ -75,7 +75,7 @@ class RegexPathElement extends PathElement {
       else if ("*".equals(match)) {
         patternBuilder.append(".*");
         int pos = matcher.start();
-        if (pos < 1 || text.charAt(pos - 1) != '.') {
+        if (pos < 1 || regex[pos - 1] != '.') {
           // To be compatible with the AntPathMatcher comparator,
           // '.*' is not considered a wildcard usage
           this.wildcardCount++;
@@ -99,8 +99,7 @@ class RegexPathElement extends PathElement {
           patternBuilder.append(')');
           String variableName = match.substring(1, colonIdx);
           if (this.variableNames.contains(variableName)) {
-            throw new PatternParseException(
-                    this.pos, completePattern,
+            throw new PatternParseException(this.pos, completePattern,
                     PatternParseException.PatternMessage.ILLEGAL_DOUBLE_CAPTURE, variableName);
           }
           this.variableNames.add(variableName);
