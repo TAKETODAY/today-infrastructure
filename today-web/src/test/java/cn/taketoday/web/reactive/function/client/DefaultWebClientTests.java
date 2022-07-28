@@ -77,10 +77,10 @@ public class DefaultWebClientTests {
 
   @BeforeEach
   public void setup() {
-    ClientResponse mockResponse =     mock(ClientResponse.class);
+    ClientResponse mockResponse = mock(ClientResponse.class);
     when(mockResponse.statusCode()).thenReturn(HttpStatus.OK);
     when(mockResponse.bodyToMono(Void.class)).thenReturn(Mono.empty());
-        given(this.exchangeFunction.exchange(this.captor.capture())).willReturn(Mono.just(mockResponse));
+    given(this.exchangeFunction.exchange(this.captor.capture())).willReturn(Mono.just(mockResponse));
     this.builder = WebClient.builder().baseUrl("/base").exchangeFunction(this.exchangeFunction);
   }
 
@@ -384,8 +384,8 @@ public class DefaultWebClientTests {
 
   @Test
   public void switchToErrorOnEmptyClientResponseMono() {
-    ExchangeFunction exchangeFunction =     mock(ExchangeFunction.class);
-        given(exchangeFunction.exchange(    any())).willReturn(Mono.empty());
+    ExchangeFunction exchangeFunction = mock(ExchangeFunction.class);
+    given(exchangeFunction.exchange(any())).willReturn(Mono.empty());
     WebClient client = WebClient.builder().baseUrl("/base").exchangeFunction(exchangeFunction).build();
     StepVerifier.create(client.get().uri("/path").retrieve().bodyToMono(Void.class))
             .expectErrorMessage("The underlying HTTP client completed without emitting a response.")
@@ -415,7 +415,7 @@ public class DefaultWebClientTests {
   public void onStatusHandlersOrderIsPreserved() {
 
     ClientResponse response = ClientResponse.create(HttpStatus.BAD_REQUEST).build();
-        given(exchangeFunction.exchange(    any())).willReturn(Mono.just(response));
+    given(exchangeFunction.exchange(any())).willReturn(Mono.just(response));
 
     Mono<Void> result = this.builder.build().get()
             .uri("/path")
@@ -427,18 +427,52 @@ public class DefaultWebClientTests {
     StepVerifier.create(result).expectErrorMessage("1").verify();
   }
 
+  @Test
+  public void onStatusHandlerRegisteredGlobally() {
+
+    ClientResponse response = ClientResponse.create(HttpStatus.BAD_REQUEST).build();
+    given(exchangeFunction.exchange(any())).willReturn(Mono.just(response));
+
+    Mono<Void> result = this.builder
+            .defaultStatusHandler(HttpStatusCode::is4xxClientError, resp -> Mono.error(new IllegalStateException("1")))
+            .defaultStatusHandler(HttpStatusCode::is4xxClientError, resp -> Mono.error(new IllegalStateException("2")))
+            .build().get()
+            .uri("/path")
+            .retrieve()
+            .bodyToMono(Void.class);
+
+    StepVerifier.create(result).expectErrorMessage("1").verify();
+  }
+
+  @Test
+  public void onStatusHandlerRegisteredGloballyHaveLowerPrecedence() {
+
+    ClientResponse response = ClientResponse.create(HttpStatus.BAD_REQUEST).build();
+    given(exchangeFunction.exchange(any())).willReturn(Mono.just(response));
+
+    Mono<Void> result = this.builder
+            .defaultStatusHandler(HttpStatusCode::is4xxClientError, resp -> Mono.error(new IllegalStateException("1")))
+            .build().get()
+            .uri("/path")
+            .retrieve()
+            .onStatus(HttpStatusCode::is4xxClientError, resp -> Mono.error(new IllegalStateException("2")))
+            .bodyToMono(Void.class);
+
+    StepVerifier.create(result).expectErrorMessage("2").verify();
+  }
+
   @Test // gh-23880
   @SuppressWarnings("unchecked")
   public void onStatusHandlersDefaultHandlerIsLast() {
 
     ClientResponse response = ClientResponse.create(HttpStatus.BAD_REQUEST).build();
-        given(exchangeFunction.exchange(    any())).willReturn(Mono.just(response));
+    given(exchangeFunction.exchange(any())).willReturn(Mono.just(response));
 
-    Predicate<HttpStatusCode> predicate1 =     mock(Predicate.class);
-    Predicate<HttpStatusCode> predicate2 =     mock(Predicate.class);
+    Predicate<HttpStatusCode> predicate1 = mock(Predicate.class);
+    Predicate<HttpStatusCode> predicate2 = mock(Predicate.class);
 
-        given(predicate1.test(HttpStatus.BAD_REQUEST)).willReturn(false);
-        given(predicate2.test(HttpStatus.BAD_REQUEST)).willReturn(false);
+    given(predicate1.test(HttpStatus.BAD_REQUEST)).willReturn(false);
+    given(predicate2.test(HttpStatus.BAD_REQUEST)).willReturn(false);
 
     Mono<Void> result = this.builder.build().get()
             .uri("/path")
@@ -457,7 +491,7 @@ public class DefaultWebClientTests {
   public void onStatusHandlersApplyForToEntityMethods() {
 
     ClientResponse response = ClientResponse.create(HttpStatus.BAD_REQUEST).build();
-        given(exchangeFunction.exchange(    any())).willReturn(Mono.just(response));
+    given(exchangeFunction.exchange(any())).willReturn(Mono.just(response));
 
     WebClient.ResponseSpec spec = this.builder.build().get().uri("/path").retrieve();
 

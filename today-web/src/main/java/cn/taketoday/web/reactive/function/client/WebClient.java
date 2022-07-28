@@ -274,6 +274,20 @@ public interface WebClient {
     Builder defaultRequest(Consumer<RequestHeadersSpec<?>> defaultRequest);
 
     /**
+     * Register a default
+     * {@link ResponseSpec#onStatus(Predicate, Function) status handler} to
+     * apply to every response. Such default handlers are applied in the
+     * order in which they are registered, and after any others that are
+     * registered for a specific response.
+     *
+     * @param statusPredicate to match responses with
+     * @param exceptionFunction to map the response to an error signal
+     * @return this builder
+     */
+    Builder defaultStatusHandler(Predicate<HttpStatusCode> statusPredicate,
+            Function<ClientResponse, Mono<? extends Throwable>> exceptionFunction);
+
+    /**
      * Add the given filter to the end of the filter chain.
      *
      * @param filter the filter to be added to the chain

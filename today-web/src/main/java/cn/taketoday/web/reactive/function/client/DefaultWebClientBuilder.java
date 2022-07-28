@@ -26,10 +26,13 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.function.Predicate;
 
 import cn.taketoday.core.LinkedMultiValueMap;
 import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.http.HttpHeaders;
+import cn.taketoday.http.HttpStatusCode;
 import cn.taketoday.http.client.reactive.ClientHttpConnector;
 import cn.taketoday.http.client.reactive.HttpComponentsClientHttpConnector;
 import cn.taketoday.http.client.reactive.JdkClientHttpConnector;
@@ -42,6 +45,7 @@ import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.web.util.DefaultUriBuilderFactory;
 import cn.taketoday.web.util.UriBuilderFactory;
+import reactor.core.publisher.Mono;
 
 /**
  * Default implementation of {@link WebClient.Builder}.
@@ -84,6 +88,9 @@ final class DefaultWebClientBuilder implements WebClient.Builder {
 
   @Nullable
   private Consumer<WebClient.RequestHeadersSpec<?>> defaultRequest;
+
+  @Nullable
+  private Map<Predicate<HttpStatusCode>, Function<ClientResponse, Mono<? extends Throwable>>> statusHandlers;
 
   @Nullable
   private List<ExchangeFilterFunction> filters;
@@ -189,8 +196,22 @@ final class DefaultWebClientBuilder implements WebClient.Builder {
 
   @Override
   public WebClient.Builder defaultRequest(Consumer<WebClient.RequestHeadersSpec<?>> defaultRequest) {
-    this.defaultRequest = this.defaultRequest != null ?
-                          this.defaultRequest.andThen(defaultRequest) : defaultRequest;
+    if (this.defaultRequest != null) {
+      this.defaultRequest = this.defaultRequest.andThen(defaultRequest);
+    }
+    else {
+      this.defaultRequest = defaultRequest;
+    }
+    return this;
+  }
+
+  @Override
+  public WebClient.Builder defaultStatusHandler(Predicate<HttpStatusCode> statusPredicate,
+          Function<ClientResponse, Mono<? extends Throwable>> exceptionFunction) {
+    if (statusHandlers == null) {
+      this.statusHandlers = new LinkedHashMap<>();
+    }
+    statusHandlers.put(statusPredicate, exceptionFunction);
     return this;
   }
 
@@ -264,26 +285,37 @@ final class DefaultWebClientBuilder implements WebClient.Builder {
 
   @Override
   public WebClient build() {
-    ClientHttpConnector connectorToUse =
-            (this.connector != null ? this.connector : initConnector());
+    ExchangeFunction exchange = exchangeFunction;
+    if (exchange == null) {
+      ClientHttpConnector connectorToUse = connector;
+      if (connectorToUse == null) {
+        connectorToUse = initConnector();
+      }
 
-    ExchangeFunction exchange = (this.exchangeFunction == null ?
-                                 ExchangeFunctions.create(connectorToUse, initExchangeStrategies()) :
-                                 this.exchangeFunction);
+      exchange = ExchangeFunctions.create(connectorToUse, initExchangeStrategies());
+    }
 
-    ExchangeFunction filteredExchange = (this.filters != null ? this.filters.stream()
-            .reduce(ExchangeFilterFunction::andThen)
-            .map(filter -> filter.apply(exchange))
-            .orElse(exchange) : exchange);
+    exchange = filterExchangeFunction(exchange);
 
     HttpHeaders defaultHeaders = copyDefaultHeaders();
-
     MultiValueMap<String, String> defaultCookies = copyDefaultCookies();
-
-    return new DefaultWebClient(filteredExchange, initUriBuilderFactory(),
+    return new DefaultWebClient(exchange, initUriBuilderFactory(),
             defaultHeaders,
             defaultCookies,
-            this.defaultRequest, new DefaultWebClientBuilder(this));
+            this.defaultRequest,
+            this.statusHandlers,
+            new DefaultWebClientBuilder(this)
+    );
+  }
+
+  private ExchangeFunction filterExchangeFunction(ExchangeFunction exchange) {
+    if (filters != null) {
+      return filters.stream()
+              .reduce(ExchangeFilterFunction::andThen)
+              .map(filter -> filter.apply(exchange))
+              .orElse(exchange);
+    }
+    return exchange;
   }
 
   private ClientHttpConnector initConnector() {
@@ -303,18 +335,28 @@ final class DefaultWebClientBuilder implements WebClient.Builder {
 
   private ExchangeStrategies initExchangeStrategies() {
     if (CollectionUtils.isEmpty(this.strategiesConfigurers)) {
-      return (this.strategies != null ? this.strategies : ExchangeStrategies.withDefaults());
+      return strategies != null ? strategies : ExchangeStrategies.withDefaults();
     }
-    ExchangeStrategies.Builder builder =
-            (this.strategies != null ? this.strategies.mutate() : ExchangeStrategies.builder());
-    this.strategiesConfigurers.forEach(configurer -> configurer.accept(builder));
+
+    ExchangeStrategies.Builder builder = getOrCreateBuilder();
+    for (Consumer<ExchangeStrategies.Builder> configurer : strategiesConfigurers) {
+      configurer.accept(builder);
+    }
     return builder.build();
+  }
+
+  private ExchangeStrategies.Builder getOrCreateBuilder() {
+    if (strategies != null) {
+      return strategies.mutate();
+    }
+    return ExchangeStrategies.builder();
   }
 
   private UriBuilderFactory initUriBuilderFactory() {
     if (this.uriBuilderFactory != null) {
       return this.uriBuilderFactory;
     }
+
     DefaultUriBuilderFactory factory = (this.baseUrl != null ?
                                         new DefaultUriBuilderFactory(this.baseUrl) : new DefaultUriBuilderFactory());
     factory.setDefaultUriVariables(this.defaultUriVariables);
@@ -323,9 +365,9 @@ final class DefaultWebClientBuilder implements WebClient.Builder {
 
   @Nullable
   private HttpHeaders copyDefaultHeaders() {
-    if (this.defaultHeaders != null) {
+    if (defaultHeaders != null) {
       HttpHeaders copy = HttpHeaders.create();
-      this.defaultHeaders.forEach((key, values) -> copy.put(key, new ArrayList<>(values)));
+      doCopyMultiValueMap(defaultHeaders, copy);
       return HttpHeaders.readOnlyHttpHeaders(copy);
     }
     else {
@@ -337,11 +379,17 @@ final class DefaultWebClientBuilder implements WebClient.Builder {
   private MultiValueMap<String, String> copyDefaultCookies() {
     if (this.defaultCookies != null) {
       MultiValueMap<String, String> copy = new LinkedMultiValueMap<>(this.defaultCookies.size());
-      this.defaultCookies.forEach((key, values) -> copy.put(key, new ArrayList<>(values)));
+      doCopyMultiValueMap(defaultCookies, copy);
       return MultiValueMap.unmodifiable(copy);
     }
     else {
       return null;
+    }
+  }
+
+  private void doCopyMultiValueMap(MultiValueMap<String, String> source, MultiValueMap<String, String> copy) {
+    for (var entry : source.entrySet()) {
+      copy.put(entry.getKey(), new ArrayList<>(entry.getValue()));
     }
   }
 
