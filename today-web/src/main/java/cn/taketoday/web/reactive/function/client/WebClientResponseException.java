@@ -149,10 +149,7 @@ public class WebClientResponseException extends WebClientException {
 
   /**
    * Return the raw HTTP status code value.
-   *
-   * @deprecated as of 6.0, in favor of {@link #getStatusCode()}
    */
-  @Deprecated
   public int getRawStatusCode() {
     return this.statusCode.value();
   }
@@ -181,11 +178,13 @@ public class WebClientResponseException extends WebClientException {
   /**
    * Return the response content as a String using the charset of media type
    * for the response, if available, or otherwise falling back on
-   * {@literal ISO-8859-1}. Use {@link #getResponseBodyAsString(Charset)} if
+   * {@literal UTF-8}. Use {@link #getResponseBodyAsString(Charset)} if
    * you want to fall back on a different, default charset.
+   *
+   * @see StandardCharsets#UTF_8
    */
   public String getResponseBodyAsString() {
-    return getResponseBodyAsString(StandardCharsets.ISO_8859_1);
+    return getResponseBodyAsString(StandardCharsets.UTF_8);
   }
 
   /**
@@ -276,40 +275,25 @@ public class WebClientResponseException extends WebClientException {
           byte[] body, @Nullable Charset charset, @Nullable HttpRequest request) {
 
     if (statusCode instanceof HttpStatus httpStatus) {
-      switch (httpStatus) {
-        case BAD_REQUEST:
-          return new WebClientResponseException.BadRequest(statusText, headers, body, charset, request);
-        case UNAUTHORIZED:
-          return new WebClientResponseException.Unauthorized(statusText, headers, body, charset, request);
-        case FORBIDDEN:
-          return new WebClientResponseException.Forbidden(statusText, headers, body, charset, request);
-        case NOT_FOUND:
-          return new WebClientResponseException.NotFound(statusText, headers, body, charset, request);
-        case METHOD_NOT_ALLOWED:
-          return new WebClientResponseException.MethodNotAllowed(statusText, headers, body, charset, request);
-        case NOT_ACCEPTABLE:
-          return new WebClientResponseException.NotAcceptable(statusText, headers, body, charset, request);
-        case CONFLICT:
-          return new WebClientResponseException.Conflict(statusText, headers, body, charset, request);
-        case GONE:
-          return new WebClientResponseException.Gone(statusText, headers, body, charset, request);
-        case UNSUPPORTED_MEDIA_TYPE:
-          return new WebClientResponseException.UnsupportedMediaType(statusText, headers, body, charset, request);
-        case TOO_MANY_REQUESTS:
-          return new WebClientResponseException.TooManyRequests(statusText, headers, body, charset, request);
-        case UNPROCESSABLE_ENTITY:
-          return new WebClientResponseException.UnprocessableEntity(statusText, headers, body, charset, request);
-        case INTERNAL_SERVER_ERROR:
-          return new WebClientResponseException.InternalServerError(statusText, headers, body, charset, request);
-        case NOT_IMPLEMENTED:
-          return new WebClientResponseException.NotImplemented(statusText, headers, body, charset, request);
-        case BAD_GATEWAY:
-          return new WebClientResponseException.BadGateway(statusText, headers, body, charset, request);
-        case SERVICE_UNAVAILABLE:
-          return new WebClientResponseException.ServiceUnavailable(statusText, headers, body, charset, request);
-        case GATEWAY_TIMEOUT:
-          return new WebClientResponseException.GatewayTimeout(statusText, headers, body, charset, request);
-      }
+      return switch (httpStatus) {
+        case BAD_REQUEST -> new BadRequest(statusText, headers, body, charset, request);
+        case UNAUTHORIZED -> new Unauthorized(statusText, headers, body, charset, request);
+        case FORBIDDEN -> new Forbidden(statusText, headers, body, charset, request);
+        case NOT_FOUND -> new NotFound(statusText, headers, body, charset, request);
+        case METHOD_NOT_ALLOWED -> new MethodNotAllowed(statusText, headers, body, charset, request);
+        case NOT_ACCEPTABLE -> new NotAcceptable(statusText, headers, body, charset, request);
+        case CONFLICT -> new Conflict(statusText, headers, body, charset, request);
+        case GONE -> new Gone(statusText, headers, body, charset, request);
+        case UNSUPPORTED_MEDIA_TYPE -> new UnsupportedMediaType(statusText, headers, body, charset, request);
+        case TOO_MANY_REQUESTS -> new TooManyRequests(statusText, headers, body, charset, request);
+        case UNPROCESSABLE_ENTITY -> new UnprocessableEntity(statusText, headers, body, charset, request);
+        case INTERNAL_SERVER_ERROR -> new InternalServerError(statusText, headers, body, charset, request);
+        case NOT_IMPLEMENTED -> new NotImplemented(statusText, headers, body, charset, request);
+        case BAD_GATEWAY -> new BadGateway(statusText, headers, body, charset, request);
+        case SERVICE_UNAVAILABLE -> new ServiceUnavailable(statusText, headers, body, charset, request);
+        case GATEWAY_TIMEOUT -> new GatewayTimeout(statusText, headers, body, charset, request);
+        default -> new WebClientResponseException(statusCode, statusText, headers, body, charset, request);
+      };
     }
     return new WebClientResponseException(statusCode, statusText, headers, body, charset, request);
   }
