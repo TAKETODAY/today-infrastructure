@@ -23,6 +23,7 @@ package cn.taketoday.jdbc.result;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import java.util.Map;
 
 import cn.taketoday.beans.BeanProperty;
 import cn.taketoday.jdbc.PersistenceException;
@@ -38,10 +39,15 @@ public class DefaultResultSetHandlerFactory<T> implements ResultSetHandlerFactor
 
   private final JdbcBeanMetadata metadata;
   private final TypeHandlerRegistry registry;
+  private final Map<String, String> columnMappings;
 
-  public DefaultResultSetHandlerFactory(TypeHandlerRegistry registry, JdbcBeanMetadata pojoMetadata) {
+  public DefaultResultSetHandlerFactory(
+          TypeHandlerRegistry registry,
+          JdbcBeanMetadata pojoMetadata,
+          Map<String, String> columnMappings) {
     this.metadata = pojoMetadata;
     this.registry = registry;
+    this.columnMappings = columnMappings;
   }
 
   @Override
@@ -86,13 +92,18 @@ public class DefaultResultSetHandlerFactory<T> implements ResultSetHandlerFactor
     return new ObjectResultHandler<>(metadata, accessors, columnCount);
   }
 
-  private JdbcPropertyAccessor getAccessor(String propertyName, JdbcBeanMetadata metadata) {
-    int index = propertyName.indexOf('.');
+  private JdbcPropertyAccessor getAccessor(String colName, JdbcBeanMetadata metadata) {
+    int index = colName.indexOf('.');
 
     if (index <= 0) {
+      String columnName = colName;
+      if (columnMappings != null && columnMappings.containsKey(colName)) {
+        columnName = columnMappings.get(colName);
+      }
+
       // Simple path - fast way
-      BeanProperty beanProperty = metadata.getBeanProperty(propertyName);
-      // behavior change: do not throw if POJO contains less properties
+      BeanProperty beanProperty = metadata.getBeanProperty(columnName);
+      // behavior change: do not throw if POJO contains fewer properties
       if (beanProperty == null) {
         return null;
       }
@@ -106,13 +117,13 @@ public class DefaultResultSetHandlerFactory<T> implements ResultSetHandlerFactor
     class PropertyPathPropertyAccessor extends JdbcPropertyAccessor {
       @Override
       public Object get(Object obj) {
-        return metadata.getProperty(obj, propertyName);
+        return metadata.getProperty(obj, colName);
       }
 
       @Override
       public void set(Object obj, ResultSet resultSet, int columnIndex) throws SQLException {
         Object result = typeHandler.getResult(resultSet, columnIndex);
-        metadata.setProperty(obj, propertyName, result);
+        metadata.setProperty(obj, colName, result);
       }
     }
 

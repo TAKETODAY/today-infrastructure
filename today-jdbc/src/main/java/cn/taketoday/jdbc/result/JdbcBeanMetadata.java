@@ -49,8 +49,6 @@ import cn.taketoday.util.StringUtils;
  */
 public class JdbcBeanMetadata implements Iterable<BeanProperty> {
 
-  private final Map<String, String> columnMappings;
-
   private final boolean caseSensitive;
   private final boolean throwOnMappingFailure;
   private final boolean autoDeriveColumnNames;
@@ -61,7 +59,6 @@ public class JdbcBeanMetadata implements Iterable<BeanProperty> {
   public JdbcBeanMetadata(Class<?> clazz) {
     this.beanMetadata = BeanMetadata.from(clazz);
     this.caseSensitive = false;
-    this.columnMappings = null;
     this.throwOnMappingFailure = false;
     this.autoDeriveColumnNames = false;
   }
@@ -70,18 +67,12 @@ public class JdbcBeanMetadata implements Iterable<BeanProperty> {
           Class<?> clazz,
           boolean caseSensitive,
           boolean autoDeriveColumnNames,
-          Map<String, String> columnMappings,
           boolean throwOnMappingError
   ) {
     this.beanMetadata = BeanMetadata.from(clazz);
     this.caseSensitive = caseSensitive;
-    this.columnMappings = columnMappings;
     this.throwOnMappingFailure = throwOnMappingError;
     this.autoDeriveColumnNames = autoDeriveColumnNames;
-  }
-
-  public Map<String, String> getColumnMappings() {
-    return columnMappings;
   }
 
   public boolean isCaseSensitive() {
@@ -92,18 +83,11 @@ public class JdbcBeanMetadata implements Iterable<BeanProperty> {
     return autoDeriveColumnNames;
   }
 
-  public BeanProperty getBeanProperty(final String propertyName) {
-    String name = this.caseSensitive ? propertyName : propertyName.toLowerCase();
-
-    if (columnMappings != null && columnMappings.containsKey(name)) {
-      name = columnMappings.get(name);
-    }
+  public BeanProperty getBeanProperty(String colName) {
+    String name = this.caseSensitive ? colName : colName.toLowerCase();
 
     if (autoDeriveColumnNames) {
       name = StringUtils.underscoreToCamelCase(name);
-      if (!this.caseSensitive) {
-        name = name.toLowerCase();
-      }
     }
 
     HashMap<String, BeanProperty> beanProperties = this.beanProperties;
@@ -111,37 +95,11 @@ public class JdbcBeanMetadata implements Iterable<BeanProperty> {
       beanProperties = CACHE.get(beanMetadata.getType(), beanMetadata);
       this.beanProperties = beanProperties;
     }
-    return beanProperties.get(name);
-  }
+    BeanProperty beanProperty = beanProperties.get(name);
+    if (beanProperty == null) {
 
-  public JdbcBeanMetadata withCaseSensitive(boolean caseSensitive) {
-    return new JdbcBeanMetadata(
-            beanMetadata.getType(),
-            caseSensitive,
-            autoDeriveColumnNames,
-            columnMappings,
-            throwOnMappingFailure
-    );
-  }
-
-  public JdbcBeanMetadata withPropertyType(Class<?> propertyType) {
-    return new JdbcBeanMetadata(
-            propertyType,
-            caseSensitive,
-            autoDeriveColumnNames,
-            columnMappings,
-            throwOnMappingFailure
-    );
-  }
-
-  public JdbcBeanMetadata withAutoDeriveColumnNames(boolean autoDeriveColumnNames) {
-    return new JdbcBeanMetadata(
-            beanMetadata.getType(),
-            caseSensitive,
-            autoDeriveColumnNames,
-            columnMappings,
-            throwOnMappingFailure
-    );
+    }
+    return beanProperty;
   }
 
   public boolean isThrowOnMappingFailure() {
