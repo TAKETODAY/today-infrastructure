@@ -48,9 +48,6 @@ import cn.taketoday.web.config.EnableWebMvc;
  */
 public class WebConversionService extends DefaultFormattingConversionService {
 
-  private static final boolean JSR_354_PRESENT = ClassUtils.isPresent(
-          "javax.money.MonetaryAmount", WebConversionService.class.getClassLoader());
-
   /**
    * Create a new WebConversionService that configures formatters with the provided
    * date, time, and date-time formats, or registers the default if no custom format is
@@ -71,7 +68,7 @@ public class WebConversionService extends DefaultFormattingConversionService {
 
   private void addFormatters(DateTimeFormatters dateTimeFormatters) {
     addFormatterForFieldAnnotation(new NumberFormatAnnotationFormatterFactory());
-    if (JSR_354_PRESENT) {
+    if (jsr354Present) {
       addFormatter(new CurrencyUnitFormatter());
       addFormatter(new MonetaryAmountFormatter());
       addFormatterForFieldAnnotation(new Jsr354NumberFormatAnnotationFormatterFactory());

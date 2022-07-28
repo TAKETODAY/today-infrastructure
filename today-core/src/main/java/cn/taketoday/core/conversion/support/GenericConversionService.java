@@ -213,8 +213,9 @@ public class GenericConversionService implements ConfigurableConversionService {
    * or sourceType is {@code null} but source is not {@code null}
    */
   @Nullable
-  public Object convert(@Nullable Object source, TypeDescriptor targetType) {
-    return convert(source, TypeDescriptor.fromObject(source), targetType);
+  @SuppressWarnings("unchecked")
+  public <T> T convert(@Nullable Object source, TypeDescriptor targetType) {
+    return (T) convert(source, TypeDescriptor.fromObject(source), targetType);
   }
 
   @Override

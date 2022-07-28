@@ -9,7 +9,7 @@
 <beans>
 
 	<!-- Simple target -->
-	<bean id="target" class="cn.taketoday.aop.framework.Echo"/>
+	<bean id="target" class="cn.taketoday.aop.testfixture.Echo"/>
 
 	<bean id="nopInterceptor" class="cn.taketoday.aop.testfixture.interceptor.NopInterceptor"/>
 

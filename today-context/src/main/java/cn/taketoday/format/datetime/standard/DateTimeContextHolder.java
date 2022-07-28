@@ -81,9 +81,14 @@ public final class DateTimeContextHolder {
    * @return the user-specific DateTimeFormatter
    */
   public static DateTimeFormatter getFormatter(DateTimeFormatter formatter, @Nullable Locale locale) {
-    DateTimeFormatter formatterToUse = (locale != null ? formatter.withLocale(locale) : formatter);
+    if (locale != null) {
+      formatter = formatter.withLocale(locale);
+    }
     DateTimeContext context = getDateTimeContext();
-    return (context != null ? context.getFormatter(formatterToUse) : formatterToUse);
+    if (context != null) {
+      formatter = context.getFormatter(formatter);
+    }
+    return formatter;
   }
 
 }

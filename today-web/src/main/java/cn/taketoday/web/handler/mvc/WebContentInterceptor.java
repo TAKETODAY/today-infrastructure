@@ -31,7 +31,7 @@ import cn.taketoday.http.CacheControl;
 import cn.taketoday.http.server.PathContainer;
 import cn.taketoday.http.server.RequestPath;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.ObjectUtils;
+import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.web.HandlerInterceptor;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.WebContentGenerator;
@@ -106,11 +106,11 @@ public class WebContentInterceptor extends WebContentGenerator implements Handle
    * @see #setCacheSeconds
    */
   public void setCacheMappings(Properties cacheMappings) {
-    cacheMappings.clear();
+    this.cacheMappings.clear();
     Set<String> propNames = cacheMappings.stringPropertyNames();
     for (String path : propNames) {
       int cacheSeconds = Integer.parseInt(cacheMappings.getProperty(path));
-      cacheMappings.put(patternParser.parse(path), cacheSeconds);
+      this.cacheMappings.put(patternParser.parse(path), cacheSeconds);
     }
   }
 
@@ -142,7 +142,7 @@ public class WebContentInterceptor extends WebContentGenerator implements Handle
     checkRequest(request);
     RequestPath path = request.getLookupPath();
 
-    if (ObjectUtils.isNotEmpty(cacheControlMappings)) {
+    if (CollectionUtils.isNotEmpty(cacheControlMappings)) {
       CacheControl control = lookupCacheControl(path);
       if (control != null) {
         if (log.isTraceEnabled()) {
@@ -153,7 +153,7 @@ public class WebContentInterceptor extends WebContentGenerator implements Handle
       }
     }
 
-    if (ObjectUtils.isNotEmpty(cacheMappings)) {
+    if (CollectionUtils.isNotEmpty(cacheMappings)) {
       Integer cacheSeconds = lookupCacheSeconds(path);
       if (cacheSeconds != null) {
         if (log.isTraceEnabled()) {

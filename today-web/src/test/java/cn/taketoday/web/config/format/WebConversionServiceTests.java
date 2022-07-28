@@ -21,6 +21,8 @@
 package cn.taketoday.web.config.format;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ExecutionMode;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -36,12 +38,12 @@ import java.util.Calendar;
 import java.util.Date;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/4/15 13:01
  */
+@Execution(ExecutionMode.SAME_THREAD)
 class WebConversionServiceTests {
 
   @Test

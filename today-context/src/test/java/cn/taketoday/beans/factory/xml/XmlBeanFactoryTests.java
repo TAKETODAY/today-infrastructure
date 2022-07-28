@@ -670,10 +670,10 @@ class XmlBeanFactoryTests {
     new XmlBeanDefinitionReader(xbf).loadBeanDefinitions(COMPLEX_FACTORY_CIRCLE_CONTEXT);
     xbf.getBean("proxy1");
     // check that unused instances from autowiring got removed
-    assertThat(xbf.getSingletonCount()).isEqualTo(5);
+    assertThat(xbf.getSingletonCount()).isEqualTo(4);
     // properly create the remaining two instances
     xbf.getBean("proxy2");
-    assertThat(xbf.getSingletonCount()).isEqualTo(6);
+    assertThat(xbf.getSingletonCount()).isEqualTo(5);
   }
 
   @Test

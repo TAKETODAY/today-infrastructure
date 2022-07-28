@@ -20,7 +20,6 @@
 
 package cn.taketoday.web.bind.resolver;
 
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Method;
@@ -34,6 +33,7 @@ import cn.taketoday.core.MethodParameter;
 import cn.taketoday.core.annotation.SynthesizingMethodParameter;
 import cn.taketoday.web.InternalServerException;
 import cn.taketoday.web.context.support.AnnotationConfigWebApplicationContext;
+import cn.taketoday.web.handler.method.ModelAttributeMethodProcessor;
 import cn.taketoday.web.handler.method.ResolvableMethodParameter;
 import cn.taketoday.web.testfixture.servlet.MockMethodParameter;
 import cn.taketoday.web.testfixture.servlet.MockServletContext;
@@ -146,9 +146,9 @@ class ParameterResolverRegistryTests {
 
       // contains
 
-      assertThat(defaultStrategies.contains(DataBinderParameterResolver.class)).isTrue();
+      assertThat(defaultStrategies.contains(ModelMethodProcessor.class)).isTrue();
       assertThat(defaultStrategies.contains(ParameterResolvingStrategy.class)).isFalse();
-      assertThat(registry.contains(DataBinderParameterResolver.class)).isTrue();
+      assertThat(registry.contains(ModelMethodProcessor.class)).isTrue();
       assertThat(registry.contains(DataBinderParameterResolver.AnnotationBinderParameter.class)).isFalse();
     }
 
@@ -165,7 +165,7 @@ class ParameterResolverRegistryTests {
       registry.registerDefaultStrategies(); // register defaults
 
       ParameterResolvingStrategy strategy = registry.findStrategy(testUser);
-      assertThat(strategy).isNotNull().isInstanceOf(DataBinderParameterResolver.class);
+      assertThat(strategy).isNotNull().isInstanceOf(ModelAttributeMethodProcessor.class);
 
       // mock
       testConverterParameterResolver(registry, int.class);

@@ -9,8 +9,8 @@
 		<aop:aspect id="beforeAdviceBindingTests" ref="introduction">
 			<aop:declare-parents
 					types-matching="cn.taketoday.beans.testfixture.beans..*"
-			    implement-interface="test.aop.Lockable"
-					default-impl="test.mixin.DefaultLockable"
+			    implement-interface="cn.taketoday.aop.testfixture.Lockable"
+					default-impl="cn.taketoday.aop.testfixture.mixin.DefaultLockable"
 			/>
 			<aop:before
 					method="checkNotLocked"

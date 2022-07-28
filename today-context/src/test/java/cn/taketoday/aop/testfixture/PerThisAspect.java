@@ -18,13 +18,24 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-/**
- * Miscellaneous utility classes for XML parsing and transformation,
- * such as error handlers that log warnings via Logging.
- */
-@NonNullApi
-@NonNullFields
-package cn.taketoday.util.xml;
+package cn.taketoday.aop.testfixture;
 
-import cn.taketoday.lang.NonNullApi;
-import cn.taketoday.lang.NonNullFields;
+import org.aspectj.lang.ProceedingJoinPoint;
+import org.aspectj.lang.annotation.Around;
+import org.aspectj.lang.annotation.Aspect;
+
+@Aspect("perthis(execution(* getAge()))")
+public class PerThisAspect {
+
+  private int invocations = 0;
+
+  public int getInvocations() {
+    return this.invocations;
+  }
+
+  @Around("execution(* getAge())")
+  public int changeAge(ProceedingJoinPoint pjp) throws Throwable {
+    return invocations++;
+  }
+
+}

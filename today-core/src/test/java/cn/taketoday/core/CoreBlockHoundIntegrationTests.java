@@ -21,8 +21,8 @@
 package cn.taketoday.core;
 
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledForJreRange;
 
 import java.lang.reflect.Method;
 import java.util.Map;
@@ -36,14 +36,14 @@ import reactor.core.scheduler.Schedulers;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.condition.JRE.JAVA_14;
 
 /**
  * Tests to verify the core BlockHound integration rules.
  *
  * @author Rossen Stoyanchev
  */
-@Disabled
-//@DisabledForJreRange(min = JAVA_14)
+@DisabledForJreRange(min = JAVA_14)
 class CoreBlockHoundIntegrationTests {
 
   @BeforeAll

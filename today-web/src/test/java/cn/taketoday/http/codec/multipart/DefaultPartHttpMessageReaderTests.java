@@ -70,7 +70,7 @@ import static org.junit.jupiter.params.provider.Arguments.arguments;
 /**
  * @author Arjen Poutsma
  */
-@Execution(ExecutionMode.SAME_THREAD)
+//@Execution(ExecutionMode.SAME_THREAD)
 @DisabledIfEnvironmentVariable(named = "CI", matches = "true")
 public class DefaultPartHttpMessageReaderTests {
 

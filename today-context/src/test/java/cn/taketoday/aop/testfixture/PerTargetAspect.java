@@ -18,13 +18,38 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-/**
- * Miscellaneous utility classes for XML parsing and transformation,
- * such as error handlers that log warnings via Logging.
- */
-@NonNullApi
-@NonNullFields
-package cn.taketoday.util.xml;
+package cn.taketoday.aop.testfixture;
 
-import cn.taketoday.lang.NonNullApi;
-import cn.taketoday.lang.NonNullFields;
+import org.aspectj.lang.annotation.Around;
+import org.aspectj.lang.annotation.Aspect;
+import org.aspectj.lang.annotation.Before;
+
+import cn.taketoday.core.Ordered;
+
+@Aspect("pertarget(execution(* *.getSpouse()))")
+public class PerTargetAspect implements Ordered {
+
+  public int count;
+
+  private int order = Ordered.LOWEST_PRECEDENCE;
+
+  @Around("execution(int *.getAge())")
+  public int returnCountAsAge() {
+    return count++;
+  }
+
+  @Before("execution(void *.set*(int))")
+  public void countSetter() {
+    ++count;
+  }
+
+  @Override
+  public int getOrder() {
+    return this.order;
+  }
+
+  public void setOrder(int order) {
+    this.order = order;
+  }
+
+}

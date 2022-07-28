@@ -3,7 +3,7 @@
 
 <beans>
 
-	<bean id="resource1" class="cn.taketoday.tests.sample.beans.ResourceTestBean">
+	<bean id="resource1" class="cn.taketoday.beans.testfixture.beans.ResourceTestBean">
 		<property name="resource">
 			<value>classpath:cn/taketoday/beans/factory/xml/test.properties</value>
 		</property>

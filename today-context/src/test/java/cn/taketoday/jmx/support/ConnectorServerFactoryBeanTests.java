@@ -21,6 +21,8 @@
 package cn.taketoday.jmx.support;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ExecutionMode;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -47,6 +49,7 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
  * @author Chris Beams
  * @author Sam Brannen
  */
+@Execution(ExecutionMode.SAME_THREAD)
 class ConnectorServerFactoryBeanTests extends AbstractMBeanServerTests {
 
   private static final String OBJECT_NAME = "spring:type=connector,name=test";

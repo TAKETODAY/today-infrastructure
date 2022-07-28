@@ -90,6 +90,7 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
  * @author Chris Beams
  * @author Stephane Nicoll
  */
+@Disabled("暂时搁置")
 public class StandardDependenciesBeanPostProcessorTests {
 
   private StandardBeanFactory bf;

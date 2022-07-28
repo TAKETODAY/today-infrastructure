@@ -50,7 +50,7 @@ import cn.taketoday.util.ClassUtils;
  * @since 4.0
  */
 public class DefaultFormattingConversionService extends FormattingConversionService {
-  private static final boolean jsr354Present = ClassUtils.isPresent(
+  protected static final boolean jsr354Present = ClassUtils.isPresent(
           "javax.money.MonetaryAmount", DefaultFormattingConversionService.class.getClassLoader());
 
   /**

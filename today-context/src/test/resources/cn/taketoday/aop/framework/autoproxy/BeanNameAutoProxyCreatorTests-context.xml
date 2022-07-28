@@ -54,7 +54,7 @@
 	<!--
 		Stateful mixin. Note that singleton property is false.
 	-->
-	<bean id="lockableAdvisor" class="test.mixin.LockMixinAdvisor"
+	<bean id="lockableAdvisor" class="cn.taketoday.aop.testfixture.mixin.LockMixinAdvisor"
 			scope="prototype"/>
 
 	<bean id="countingBeforeAdvice" class="cn.taketoday.aop.testfixture.advice.CountingBeforeAdvice"/>

@@ -9,7 +9,7 @@
 		</property>
 	</bean>
 
-	<bean id="resourceTestBean" class="cn.taketoday.tests.sample.beans.ResourceTestBean">
+	<bean id="resourceTestBean" class="cn.taketoday.beans.testfixture.beans.ResourceTestBean">
 		<property name="resource" value="cn/taketoday/context/support/conversionService.xml"/>
 		<property name="resourceArray" value="cn/taketoday/context/support/conversionService.xml"/>
  		<property name="resourceMap">

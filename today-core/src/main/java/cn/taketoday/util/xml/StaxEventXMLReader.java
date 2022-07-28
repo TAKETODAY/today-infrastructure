@@ -23,7 +23,6 @@ package cn.taketoday.util.xml;
 import org.xml.sax.Attributes;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.SAXException;
-import org.xml.sax.ext.Locator2;
 import org.xml.sax.helpers.AttributesImpl;
 
 import java.util.Iterator;
@@ -157,41 +156,7 @@ class StaxEventXMLReader extends AbstractStaxXMLReader {
     ContentHandler contentHandler = getContentHandler();
     if (contentHandler != null) {
       final Location location = event.getLocation();
-      contentHandler.setDocumentLocator(new Locator2() {
-        @Override
-        public int getColumnNumber() {
-          return (location != null ? location.getColumnNumber() : -1);
-        }
-
-        @Override
-        public int getLineNumber() {
-          return (location != null ? location.getLineNumber() : -1);
-        }
-
-        @Override
-        @Nullable
-        public String getPublicId() {
-          return (location != null ? location.getPublicId() : null);
-        }
-
-        @Override
-        @Nullable
-        public String getSystemId() {
-          return (location != null ? location.getSystemId() : null);
-        }
-
-        @Override
-        public String getXMLVersion() {
-          return xmlVersion;
-        }
-
-        @Override
-        @Nullable
-        public String getEncoding() {
-          return encoding;
-        }
-      });
-      contentHandler.startDocument();
+      StaxStreamXMLReader.setDocumentLocator(contentHandler, location, xmlVersion, encoding);
     }
   }
 

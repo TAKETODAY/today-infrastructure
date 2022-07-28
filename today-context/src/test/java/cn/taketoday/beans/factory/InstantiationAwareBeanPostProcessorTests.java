@@ -30,7 +30,7 @@ import cn.taketoday.beans.factory.support.AbstractBeanDefinition;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.support.StandardApplicationContext;
 import cn.taketoday.core.type.MethodMetadata;
-import jakarta.inject.Singleton;
+import cn.taketoday.stereotype.Singleton;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

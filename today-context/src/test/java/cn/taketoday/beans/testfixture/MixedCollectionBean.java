@@ -18,13 +18,19 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-/**
- * Miscellaneous utility classes for XML parsing and transformation,
- * such as error handlers that log warnings via Logging.
- */
-@NonNullApi
-@NonNullFields
-package cn.taketoday.util.xml;
+package cn.taketoday.beans.testfixture;
 
-import cn.taketoday.lang.NonNullApi;
-import cn.taketoday.lang.NonNullFields;
+import java.util.Collection;
+
+public class MixedCollectionBean {
+
+  private Collection<?> jumble;
+
+  public void setJumble(Collection<?> jumble) {
+    this.jumble = jumble;
+  }
+
+  public Collection<?> getJumble() {
+    return jumble;
+  }
+}

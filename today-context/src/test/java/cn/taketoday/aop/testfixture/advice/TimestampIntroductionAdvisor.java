@@ -18,13 +18,16 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-/**
- * Miscellaneous utility classes for XML parsing and transformation,
- * such as error handlers that log warnings via Logging.
- */
-@NonNullApi
-@NonNullFields
-package cn.taketoday.util.xml;
+package cn.taketoday.aop.testfixture.advice;
 
-import cn.taketoday.lang.NonNullApi;
-import cn.taketoday.lang.NonNullFields;
+import cn.taketoday.aop.support.DefaultIntroductionAdvisor;
+import cn.taketoday.aop.support.DelegatingIntroductionInterceptor;
+import cn.taketoday.aop.testfixture.interceptor.TimestampIntroductionInterceptor;
+
+public class TimestampIntroductionAdvisor extends DefaultIntroductionAdvisor {
+
+  public TimestampIntroductionAdvisor() {
+    super(new DelegatingIntroductionInterceptor(new TimestampIntroductionInterceptor()));
+  }
+
+}

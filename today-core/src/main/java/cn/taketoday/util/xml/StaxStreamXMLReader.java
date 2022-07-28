@@ -136,46 +136,51 @@ class StaxStreamXMLReader extends AbstractStaxXMLReader {
 
     ContentHandler contentHandler = getContentHandler();
     if (contentHandler != null) {
-      final Location location = this.reader.getLocation();
-      contentHandler.setDocumentLocator(new Locator2() {
-        @Override
-        public int getColumnNumber() {
-          return (location != null ? location.getColumnNumber() : -1);
-        }
-
-        @Override
-        public int getLineNumber() {
-          return (location != null ? location.getLineNumber() : -1);
-        }
-
-        @Override
-        @Nullable
-        public String getPublicId() {
-          return (location != null ? location.getPublicId() : null);
-        }
-
-        @Override
-        @Nullable
-        public String getSystemId() {
-          return (location != null ? location.getSystemId() : null);
-        }
-
-        @Override
-        public String getXMLVersion() {
-          return xmlVersion;
-        }
-
-        @Override
-        @Nullable
-        public String getEncoding() {
-          return encoding;
-        }
-      });
-      contentHandler.startDocument();
+      Location location = this.reader.getLocation();
+      setDocumentLocator(contentHandler, location, xmlVersion, encoding);
       if (this.reader.standaloneSet()) {
         setStandalone(this.reader.isStandalone());
       }
     }
+  }
+
+  static void setDocumentLocator(ContentHandler contentHandler, @Nullable Location location,
+          String xmlVersion2, @Nullable String encoding) throws SAXException {
+    contentHandler.setDocumentLocator(new Locator2() {
+      @Override
+      public int getColumnNumber() {
+        return (location != null ? location.getColumnNumber() : -1);
+      }
+
+      @Override
+      public int getLineNumber() {
+        return (location != null ? location.getLineNumber() : -1);
+      }
+
+      @Override
+      @Nullable
+      public String getPublicId() {
+        return (location != null ? location.getPublicId() : null);
+      }
+
+      @Override
+      @Nullable
+      public String getSystemId() {
+        return (location != null ? location.getSystemId() : null);
+      }
+
+      @Override
+      public String getXMLVersion() {
+        return xmlVersion2;
+      }
+
+      @Override
+      @Nullable
+      public String getEncoding() {
+        return encoding;
+      }
+    });
+    contentHandler.startDocument();
   }
 
   private void handleStartElement() throws SAXException {
