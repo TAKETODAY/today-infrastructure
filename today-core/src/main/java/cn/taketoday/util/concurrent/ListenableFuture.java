@@ -29,10 +29,13 @@ import java.util.concurrent.Future;
  * triggered immediately.
  *
  * <p>Inspired by {@code com.google.common.util.concurrent.ListenableFuture}.
+ * <p>
+ * in favor of {@link CompletableFuture}
  *
  * @param <T> the result type returned by this Future's {@code get} method
  * @author Arjen Poutsma
  * @author Sebastien Deleuze
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @author Juergen Hoeller
  * @since 4.0
  */

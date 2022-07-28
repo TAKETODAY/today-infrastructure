@@ -20,10 +20,15 @@
 
 package cn.taketoday.util.concurrent;
 
+import java.util.function.BiConsumer;
+
 /**
  * Failure callback for a {@link ListenableFuture}.
+ * <p>
+ * in favor of {@link java.util.concurrent.CompletableFuture#whenComplete(BiConsumer)}
  *
  * @author Sebastien Deleuze
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 @FunctionalInterface

@@ -29,6 +29,7 @@ import cn.taketoday.util.concurrent.ListenableFuture;
  * tasks for {@link ListenableFuture ListenableFutures}.
  *
  * @author Arjen Poutsma
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see ListenableFuture
  * @since 4.0
  */
@@ -37,6 +38,8 @@ public interface AsyncListenableTaskExecutor extends AsyncTaskExecutor {
   /**
    * Submit a {@code Runnable} task for execution, receiving a {@code ListenableFuture}
    * representing that task. The Future will return a {@code null} result upon completion.
+   * <p>
+   * in favor of {@link AsyncTaskExecutor#submitCompletable(Runnable)}
    *
    * @param task the {@code Runnable} to execute (never {@code null})
    * @return a {@code ListenableFuture} representing pending completion of the task
@@ -48,6 +51,8 @@ public interface AsyncListenableTaskExecutor extends AsyncTaskExecutor {
    * Submit a {@code Callable} task for execution, receiving a {@code ListenableFuture}
    * representing that task. The Future will return the Callable's result upon
    * completion.
+   * <p>
+   * in favor of {@link AsyncTaskExecutor#submitCompletable(Callable)}
    *
    * @param task the {@code Callable} to execute (never {@code null})
    * @return a {@code ListenableFuture} representing pending completion of the task

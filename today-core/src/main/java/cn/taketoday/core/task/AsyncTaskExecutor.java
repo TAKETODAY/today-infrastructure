@@ -20,7 +20,10 @@
 package cn.taketoday.core.task;
 
 import java.util.concurrent.Callable;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
+
+import cn.taketoday.util.concurrent.FutureUtils;
 
 /**
  * Extended interface for asynchronous {@link TaskExecutor} implementations,
@@ -36,6 +39,7 @@ import java.util.concurrent.Future;
  * asynchronously in some other thread.
  *
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see SimpleAsyncTaskExecutor
  * @see Callable
  * @see java.util.concurrent.Executors
@@ -82,5 +86,30 @@ public interface AsyncTaskExecutor extends TaskExecutor {
    * @throws TaskRejectedException if the given task was not accepted
    */
   <T> Future<T> submit(Callable<T> task);
+
+  /**
+   * Submit a {@code Runnable} task for execution, receiving a {@code CompletableFuture}
+   * representing that task. The Future will return a {@code null} result upon completion.
+   *
+   * @param task the {@code Runnable} to execute (never {@code null})
+   * @return a {@code CompletableFuture} representing pending completion of the task
+   * @throws TaskRejectedException if the given task was not accepted
+   */
+  default CompletableFuture<Void> submitCompletable(Runnable task) {
+    return CompletableFuture.runAsync(task, this);
+  }
+
+  /**
+   * Submit a {@code Callable} task for execution, receiving a {@code CompletableFuture}
+   * representing that task. The Future will return the Callable's result upon
+   * completion.
+   *
+   * @param task the {@code Callable} to execute (never {@code null})
+   * @return a {@code CompletableFuture} representing pending completion of the task
+   * @throws TaskRejectedException if the given task was not accepted
+   */
+  default <T> CompletableFuture<T> submitCompletable(Callable<T> task) {
+    return FutureUtils.callAsync(task, this);
+  }
 
 }
