@@ -48,12 +48,14 @@ import cn.taketoday.util.StringUtils;
  * @author TODAY
  */
 public class JdbcBeanMetadata implements Iterable<BeanProperty> {
+  private static final Cache caseSensitiveFalse = new Cache();
+  private static final Cache caseSensitiveTrue = new Cache();
 
-  private final boolean caseSensitive;
-  private final boolean throwOnMappingFailure;
-  private final boolean autoDeriveColumnNames;
+  public final boolean caseSensitive;
+  public final boolean throwOnMappingFailure;
+  public final boolean autoDeriveColumnNames;
 
-  private final BeanMetadata beanMetadata;
+  public final BeanMetadata beanMetadata;
   private HashMap<String, BeanProperty> beanProperties;
 
   public JdbcBeanMetadata(Class<?> clazz) {
@@ -63,47 +65,49 @@ public class JdbcBeanMetadata implements Iterable<BeanProperty> {
     this.autoDeriveColumnNames = false;
   }
 
-  public JdbcBeanMetadata(
-          Class<?> clazz,
-          boolean caseSensitive,
-          boolean autoDeriveColumnNames,
-          boolean throwOnMappingError
-  ) {
-    this.beanMetadata = BeanMetadata.from(clazz);
+  public JdbcBeanMetadata(Class<?> clazz, boolean caseSensitive, boolean autoDeriveColumnNames, boolean throwOnMappingError) {
     this.caseSensitive = caseSensitive;
+    this.beanMetadata = BeanMetadata.from(clazz);
     this.throwOnMappingFailure = throwOnMappingError;
     this.autoDeriveColumnNames = autoDeriveColumnNames;
   }
 
-  public boolean isCaseSensitive() {
-    return caseSensitive;
-  }
-
-  public boolean isAutoDeriveColumnNames() {
-    return autoDeriveColumnNames;
-  }
-
-  public BeanProperty getBeanProperty(String colName) {
-    String name = this.caseSensitive ? colName : colName.toLowerCase();
-
-    if (autoDeriveColumnNames) {
-      name = StringUtils.underscoreToCamelCase(name);
+  public BeanProperty getBeanProperty(String colName, @Nullable Map<String, String> columnMappings) {
+    if (columnMappings != null) {
+      // find in columnMappings
+      String propertyName = columnMappings.get(caseSensitive ? colName : colName.toLowerCase());
+      if (propertyName != null) {
+        // find
+        BeanProperty beanProperty = getProperty(propertyName);
+        if (beanProperty != null) {
+          return beanProperty;
+        }
+      }
     }
 
+    // try direct
+    BeanProperty beanProperty = getProperty(colName);
+    if (beanProperty != null) {
+      return beanProperty;
+    }
+
+    // fallback
+    if (autoDeriveColumnNames) {
+      String propertyName = StringUtils.underscoreToCamelCase(colName);
+      return getProperty(propertyName);
+    }
+
+    return null;
+  }
+
+  private BeanProperty getProperty(String propertyName) {
     HashMap<String, BeanProperty> beanProperties = this.beanProperties;
     if (beanProperties == null) {
-      beanProperties = CACHE.get(beanMetadata.getType(), beanMetadata);
+      beanProperties = (caseSensitive ? caseSensitiveTrue : caseSensitiveFalse).get(beanMetadata.getType(), this);
       this.beanProperties = beanProperties;
     }
-    BeanProperty beanProperty = beanProperties.get(name);
-    if (beanProperty == null) {
 
-    }
-    return beanProperty;
-  }
-
-  public boolean isThrowOnMappingFailure() {
-    return throwOnMappingFailure;
+    return beanProperties.get(caseSensitive ? propertyName : propertyName.toLowerCase());
   }
 
   //
@@ -185,21 +189,30 @@ public class JdbcBeanMetadata implements Iterable<BeanProperty> {
     return null;
   }
 
-  private static final MapCache<Class<?>, HashMap<String, BeanProperty>, BeanMetadata> CACHE = new MapCache<>(
-          new ConcurrentReferenceHashMap<>()) {
+  static class Cache extends MapCache<Class<?>, HashMap<String, BeanProperty>, JdbcBeanMetadata> {
+
+    public Cache() {
+      super(new ConcurrentReferenceHashMap<>());
+    }
 
     @Override
-    protected HashMap<String, BeanProperty> createValue(Class<?> key, BeanMetadata beanMetadata) {
+    protected HashMap<String, BeanProperty> createValue(Class<?> key, JdbcBeanMetadata beanMetadata) {
       if (beanMetadata == null) {
         throw new InvalidDataAccessApiUsageException("beanMetadata is required");
       }
+      boolean caseSensitive = beanMetadata.caseSensitive;
       HashMap<String, BeanProperty> beanPropertyMap = new HashMap<>();
       for (BeanProperty property : beanMetadata) {
         String propertyName_ = getPropertyName(property);
-        beanPropertyMap.put(propertyName_, property);
+        if (caseSensitive) {
+          beanPropertyMap.put(propertyName_, property);
+        }
+        else {
+          beanPropertyMap.put(propertyName_.toLowerCase(), property);
+        }
       }
       return beanPropertyMap;
     }
-  };
+  }
 
 }

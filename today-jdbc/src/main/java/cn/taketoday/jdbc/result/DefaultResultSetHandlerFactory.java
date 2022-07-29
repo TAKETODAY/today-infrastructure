@@ -83,7 +83,7 @@ public class DefaultResultSetHandlerFactory<T> implements ResultSetHandlerFactor
       JdbcPropertyAccessor accessor = getAccessor(colName, metadata);
       // If more than 1 column is fetched (we cannot fall back to executeScalar),
       // and the setter doesn't exist, throw exception.
-      if (accessor == null && columnCount > 1 && metadata.isThrowOnMappingFailure()) {
+      if (accessor == null && columnCount > 1 && metadata.throwOnMappingFailure) {
         throw new PersistenceException("Could not map " + colName + " to any property.");
       }
       accessors[i - 1] = accessor;
@@ -94,15 +94,9 @@ public class DefaultResultSetHandlerFactory<T> implements ResultSetHandlerFactor
 
   private JdbcPropertyAccessor getAccessor(String colName, JdbcBeanMetadata metadata) {
     int index = colName.indexOf('.');
-
     if (index <= 0) {
-      String columnName = colName;
-      if (columnMappings != null && columnMappings.containsKey(colName)) {
-        columnName = columnMappings.get(colName);
-      }
-
       // Simple path - fast way
-      BeanProperty beanProperty = metadata.getBeanProperty(columnName);
+      BeanProperty beanProperty = metadata.getBeanProperty(colName, columnMappings);
       // behavior change: do not throw if POJO contains fewer properties
       if (beanProperty == null) {
         return null;

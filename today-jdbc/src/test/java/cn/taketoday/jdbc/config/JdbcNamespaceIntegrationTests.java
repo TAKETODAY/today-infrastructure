@@ -21,6 +21,8 @@
 package cn.taketoday.jdbc.config;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ExecutionMode;
 
 import java.util.function.Predicate;
 
@@ -50,6 +52,7 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
  * @author Sam Brannen
  * @author Stephane Nicoll
  */
+@Execution(ExecutionMode.SAME_THREAD)
 class JdbcNamespaceIntegrationTests {
 
   @Test
