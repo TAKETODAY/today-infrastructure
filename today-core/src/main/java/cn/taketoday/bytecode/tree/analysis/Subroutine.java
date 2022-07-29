@@ -33,16 +33,16 @@ import cn.taketoday.bytecode.tree.LabelNode;
 final class Subroutine {
 
   /** The start of this subroutine. */
-  final LabelNode start;
+  public final LabelNode start;
 
   /**
    * The local variables that are read or written by this subroutine. The i-th element is true if
    * and only if the local variable at index i is read or written by this subroutine.
    */
-  final boolean[] localsUsed;
+  public final boolean[] localsUsed;
 
   /** The JSR instructions that jump to this subroutine. */
-  final List<JumpInsnNode> callers;
+  public final List<JumpInsnNode> callers;
 
   /**
    * Constructs a new {@link Subroutine}.

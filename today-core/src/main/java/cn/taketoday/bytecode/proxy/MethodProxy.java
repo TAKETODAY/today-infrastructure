@@ -186,7 +186,7 @@ public class MethodProxy {
   private volatile FastClassInfo fastClassInfo;
 
   /**
-   * For internal use by {@link Enhancer} only; see the {@link cn.taketoday.cglib.reflect.FastMethod} class
+   * For internal use by {@link Enhancer} only; see the {@link cn.taketoday.bytecode.reflect.MethodAccess} class
    * for similar functionality.
    */
   public static MethodProxy create(Class c1, Class c2, String desc, String name1, String name2) {

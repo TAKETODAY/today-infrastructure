@@ -98,18 +98,25 @@ public class Analyzer<V extends Value> implements Opcodes {
   @SuppressWarnings("unchecked")
   public Frame<V>[] analyze(final String owner, final MethodNode method) throws AnalyzerException {
     if ((method.access & (ACC_ABSTRACT | ACC_NATIVE)) != 0) {
-      frames = (Frame<V>[]) new Frame<?>[0];
+      this.frames = (Frame<V>[]) new Frame<?>[0];
       return frames;
     }
     InsnList insnList = method.instructions;
+    int insnListSize = insnList.size();
+
+    // after 'insnListSize' init
+    Frame<V>[] frames = new Frame[insnListSize];
+    Subroutine[] subroutines = new Subroutine[insnListSize];
+    List<TryCatchBlockNode>[] handlers = new List[insnListSize];
+
+    this.inInstructionsToProcess = new boolean[insnListSize];
+    this.instructionsToProcess = new int[insnListSize];
+    this.numInstructionsToProcess = 0;
+    this.insnListSize = insnListSize;
+    this.subroutines = subroutines;
     this.insnList = insnList;
-    insnListSize = insnList.size();
-    handlers = (List<TryCatchBlockNode>[]) new List<?>[insnListSize];
-    frames = (Frame<V>[]) new Frame<?>[insnListSize];
-    subroutines = new Subroutine[insnListSize];
-    inInstructionsToProcess = new boolean[insnListSize];
-    instructionsToProcess = new int[insnListSize];
-    numInstructionsToProcess = 0;
+    this.handlers = handlers;
+    this.frames = frames;
 
     // For each exception handler, and each instruction within its range, record in 'handlers' the
     // fact that execution can flow from this instruction to the exception handler.
@@ -132,11 +139,11 @@ public class Analyzer<V extends Value> implements Opcodes {
     // For each instruction, compute the subroutine to which it belongs.
     // Follow the main 'subroutine', and collect the jsr instructions to nested subroutines.
     Subroutine main = new Subroutine(null, method.maxLocals, null);
-    List<AbstractInsnNode> jsrInsns = new ArrayList<>();
+    ArrayList<AbstractInsnNode> jsrInsns = new ArrayList<>();
     findSubroutine(0, main, jsrInsns);
     // Follow the nested subroutines, and collect their own nested subroutines, until all
     // subroutines are found.
-    Map<LabelNode, Subroutine> jsrSubroutines = new HashMap<>();
+    HashMap<LabelNode, Subroutine> jsrSubroutines = new HashMap<>();
     while (!jsrInsns.isEmpty()) {
       JumpInsnNode jsrInsn = (JumpInsnNode) jsrInsns.remove(0);
       Subroutine subroutine = jsrSubroutines.get(jsrInsn.label);
@@ -196,9 +203,7 @@ public class Analyzer<V extends Value> implements Opcodes {
             int jumpInsnIndex = insnList.indexOf(jumpInsn.label);
             currentFrame.initJumpTarget(insnOpcode, jumpInsn.label);
             if (insnOpcode == JSR) {
-              merge(
-                      jumpInsnIndex,
-                      currentFrame,
+              merge(jumpInsnIndex, currentFrame,
                       new Subroutine(jumpInsn.label, method.maxLocals, jumpInsn));
             }
             else {
@@ -240,8 +245,7 @@ public class Analyzer<V extends Value> implements Opcodes {
               JumpInsnNode caller = subroutine.callers.get(i);
               int jsrInsnIndex = insnList.indexOf(caller);
               if (frames[jsrInsnIndex] != null) {
-                merge(
-                        jsrInsnIndex + 1,
+                merge(jsrInsnIndex + 1,
                         frames[jsrInsnIndex],
                         currentFrame,
                         subroutines[jsrInsnIndex],
