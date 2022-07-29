@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -31,7 +31,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import cn.taketoday.http.HttpMethod;
 import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Nullable;
 import jakarta.servlet.ReadListener;
@@ -55,8 +54,6 @@ import jakarta.servlet.http.HttpServletRequestWrapper;
  * @since 4.0
  */
 public class ContentCachingRequestWrapper extends HttpServletRequestWrapper {
-
-  private static final String FORM_CONTENT_TYPE = "application/x-www-form-urlencoded";
 
   private final ByteArrayOutputStream cachedContent;
 
@@ -96,7 +93,7 @@ public class ContentCachingRequestWrapper extends HttpServletRequestWrapper {
 
   @Override
   public ServletInputStream getInputStream() throws IOException {
-    if (this.inputStream == null) {
+    if (inputStream == null) {
       this.inputStream = new ContentCachingInputStream(getRequest().getInputStream());
     }
     return this.inputStream;
@@ -118,7 +115,7 @@ public class ContentCachingRequestWrapper extends HttpServletRequestWrapper {
 
   @Override
   public String getParameter(String name) {
-    if (this.cachedContent.size() == 0 && isFormPost()) {
+    if (cachedContent.size() == 0 && isFormPost()) {
       writeRequestParametersToCachedContent();
     }
     return super.getParameter(name);
@@ -126,7 +123,7 @@ public class ContentCachingRequestWrapper extends HttpServletRequestWrapper {
 
   @Override
   public Map<String, String[]> getParameterMap() {
-    if (this.cachedContent.size() == 0 && isFormPost()) {
+    if (cachedContent.size() == 0 && isFormPost()) {
       writeRequestParametersToCachedContent();
     }
     return super.getParameterMap();
@@ -134,7 +131,7 @@ public class ContentCachingRequestWrapper extends HttpServletRequestWrapper {
 
   @Override
   public Enumeration<String> getParameterNames() {
-    if (this.cachedContent.size() == 0 && isFormPost()) {
+    if (cachedContent.size() == 0 && isFormPost()) {
       writeRequestParametersToCachedContent();
     }
     return super.getParameterNames();
@@ -142,21 +139,19 @@ public class ContentCachingRequestWrapper extends HttpServletRequestWrapper {
 
   @Override
   public String[] getParameterValues(String name) {
-    if (this.cachedContent.size() == 0 && isFormPost()) {
+    if (cachedContent.size() == 0 && isFormPost()) {
       writeRequestParametersToCachedContent();
     }
     return super.getParameterValues(name);
   }
 
   private boolean isFormPost() {
-    String contentType = getContentType();
-    return (contentType != null && contentType.contains(FORM_CONTENT_TYPE) &&
-            HttpMethod.POST.matches(getMethod()));
+    return ServletUtils.isPostForm(this);
   }
 
   private void writeRequestParametersToCachedContent() {
     try {
-      if (this.cachedContent.size() == 0) {
+      if (cachedContent.size() == 0) {
         String requestEncoding = getCharacterEncoding();
         Map<String, String[]> form = super.getParameterMap();
         for (Iterator<String> nameIterator = form.keySet().iterator(); nameIterator.hasNext(); ) {
@@ -164,17 +159,17 @@ public class ContentCachingRequestWrapper extends HttpServletRequestWrapper {
           List<String> values = Arrays.asList(form.get(name));
           for (Iterator<String> valueIterator = values.iterator(); valueIterator.hasNext(); ) {
             String value = valueIterator.next();
-            this.cachedContent.write(URLEncoder.encode(name, requestEncoding).getBytes());
+            cachedContent.write(URLEncoder.encode(name, requestEncoding).getBytes());
             if (value != null) {
-              this.cachedContent.write('=');
-              this.cachedContent.write(URLEncoder.encode(value, requestEncoding).getBytes());
+              cachedContent.write('=');
+              cachedContent.write(URLEncoder.encode(value, requestEncoding).getBytes());
               if (valueIterator.hasNext()) {
-                this.cachedContent.write('&');
+                cachedContent.write('&');
               }
             }
           }
           if (nameIterator.hasNext()) {
-            this.cachedContent.write('&');
+            cachedContent.write('&');
           }
         }
       }
@@ -195,7 +190,7 @@ public class ContentCachingRequestWrapper extends HttpServletRequestWrapper {
    * @see #ContentCachingRequestWrapper(HttpServletRequest, int)
    */
   public byte[] getContentAsByteArray() {
-    return this.cachedContent.toByteArray();
+    return cachedContent.toByteArray();
   }
 
   /**
@@ -243,7 +238,7 @@ public class ContentCachingRequestWrapper extends HttpServletRequestWrapper {
     }
 
     private void writeToCache(final byte[] b, final int off, int count) {
-      if (!this.overflow && count > 0) {
+      if (!overflow && count > 0) {
         if (contentCacheLimit != null &&
                 count + cachedContent.size() > contentCacheLimit) {
           this.overflow = true;

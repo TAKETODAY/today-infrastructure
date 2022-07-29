@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import cn.taketoday.context.ApplicationContext;
+import cn.taketoday.http.MediaType;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.RequestContext;
@@ -154,7 +155,7 @@ public class DispatcherServlet
     }
     else {
       // Avoid request body parsing for form data
-      params = StringUtils.startsWithIgnoreCase(contentType, "application/x-www-form-urlencoded")
+      params = StringUtils.startsWithIgnoreCase(contentType, MediaType.APPLICATION_FORM_URLENCODED_VALUE)
                        || !request.getParameterMap().isEmpty() ? "masked" : "";
     }
 

@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -45,6 +45,7 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ArrayIterator;
 import cn.taketoday.util.LinkedCaseInsensitiveMap;
 import cn.taketoday.util.StringUtils;
+import cn.taketoday.web.servlet.ServletUtils;
 import jakarta.servlet.http.HttpServletRequest;
 
 /**
@@ -200,7 +201,7 @@ public class ServletServerHttpRequest implements ServerHttpRequest {
 
   @Override
   public InputStream getBody() throws IOException {
-    if (isFormPost(this.servletRequest)) {
+    if (ServletUtils.isPostForm(this.servletRequest)) {
       return getBodyFromServletRequestParameters(this.servletRequest);
     }
     else {
@@ -218,13 +219,6 @@ public class ServletServerHttpRequest implements ServerHttpRequest {
       this.asyncRequestControl = new ServletServerHttpAsyncRequestControl(this, servletServerResponse);
     }
     return this.asyncRequestControl;
-  }
-
-  private static boolean isFormPost(HttpServletRequest request) {
-    String contentType = request.getContentType();
-    return contentType != null
-            && contentType.contains(MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-            && HttpMethod.POST.matches(request.getMethod());
   }
 
   /**

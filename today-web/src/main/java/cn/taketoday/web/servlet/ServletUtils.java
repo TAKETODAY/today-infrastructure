@@ -30,6 +30,8 @@ import java.util.TreeMap;
 import cn.taketoday.beans.PropertyValues;
 import cn.taketoday.core.Conventions;
 import cn.taketoday.core.MultiValueMap;
+import cn.taketoday.http.HttpMethod;
+import cn.taketoday.http.MediaType;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ObjectUtils;
@@ -489,6 +491,16 @@ public abstract class ServletUtils {
    */
   public static boolean isIncludeRequest(ServletRequest request) {
     return request.getAttribute(RequestDispatcher.INCLUDE_REQUEST_URI) != null;
+  }
+
+  /**
+   * @since 4.0
+   */
+  public static boolean isPostForm(HttpServletRequest request) {
+    String contentType = request.getContentType();
+    return contentType != null
+            && HttpMethod.POST.matches(request.getMethod())
+            && contentType.contains(MediaType.APPLICATION_FORM_URLENCODED_VALUE);
   }
 
   /**
