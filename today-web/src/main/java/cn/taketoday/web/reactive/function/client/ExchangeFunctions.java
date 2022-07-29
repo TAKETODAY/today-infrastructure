@@ -28,6 +28,7 @@ import cn.taketoday.http.HttpRequest;
 import cn.taketoday.http.HttpStatusCode;
 import cn.taketoday.http.client.reactive.ClientHttpConnector;
 import cn.taketoday.http.client.reactive.ClientHttpResponse;
+import cn.taketoday.http.codec.HttpMessageWriter;
 import cn.taketoday.http.codec.LoggingCodecSupport;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.logging.Logger;
@@ -44,7 +45,7 @@ import reactor.core.publisher.Mono;
  */
 public abstract class ExchangeFunctions {
 
-  private static final Logger logger = LoggerFactory.getLogger(ExchangeFunctions.class);
+  private static final Logger log = LoggerFactory.getLogger(ExchangeFunctions.class);
 
   /**
    * Create an {@code ExchangeFunction} with the given {@code ClientHttpConnector}.
@@ -85,13 +86,13 @@ public abstract class ExchangeFunctions {
       this.connector = connector;
       this.strategies = strategies;
 
-      strategies.messageWriters().stream()
-              .filter(LoggingCodecSupport.class::isInstance)
-              .forEach(reader -> {
-                if (((LoggingCodecSupport) reader).isEnableLoggingRequestDetails()) {
-                  this.enableLoggingRequestDetails = true;
-                }
-              });
+      for (HttpMessageWriter<?> httpMessageWriter : strategies.messageWriters()) {
+        if (httpMessageWriter instanceof LoggingCodecSupport codecSupport) {
+          if (codecSupport.isEnableLoggingRequestDetails()) {
+            this.enableLoggingRequestDetails = true;
+          }
+        }
+      }
     }
 
     @Override
@@ -100,22 +101,28 @@ public abstract class ExchangeFunctions {
       HttpMethod httpMethod = clientRequest.method();
       URI url = clientRequest.url();
 
-      return this.connector
-              .connect(httpMethod, url, httpRequest -> clientRequest.writeTo(httpRequest, this.strategies))
-              .doOnRequest(n -> logRequest(clientRequest))
-              .doOnCancel(() -> logger.debug(clientRequest.logPrefix() + "Cancel signal (to close connection)"))
+      Mono<ClientHttpResponse> responseMono = connector
+              .connect(httpMethod, url, httpRequest -> clientRequest.writeTo(httpRequest, strategies))
+              .doOnRequest(n -> logRequest(clientRequest));
+
+      if (log.isDebugEnabled()) {
+        responseMono = responseMono.doOnCancel(() ->
+                log.debug(clientRequest.logPrefix() + "Cancel signal (to close connection)"));
+      }
+
+      return responseMono
               .onErrorResume(WebClientUtils.WRAP_EXCEPTION_PREDICATE, t -> wrapException(t, clientRequest))
               .map(httpResponse -> {
                 String logPrefix = getLogPrefix(clientRequest, httpResponse);
                 logResponse(httpResponse, logPrefix);
                 return new DefaultClientResponse(
-                        httpResponse, this.strategies, logPrefix, httpMethod.name() + " " + url,
+                        httpResponse, strategies, logPrefix, httpMethod.name() + " " + url,
                         () -> createRequest(clientRequest));
               });
     }
 
     private void logRequest(ClientRequest request) {
-      LogFormatUtils.traceDebug(logger, traceOn ->
+      LogFormatUtils.traceDebug(log, traceOn ->
               request.logPrefix() + "HTTP " + request.method() + " " + request.url() +
                       (traceOn ? ", headers=" + formatHeaders(request.headers()) : "")
       );
@@ -126,7 +133,7 @@ public abstract class ExchangeFunctions {
     }
 
     private void logResponse(ClientHttpResponse response, String logPrefix) {
-      LogFormatUtils.traceDebug(logger, traceOn -> {
+      LogFormatUtils.traceDebug(log, traceOn -> {
         HttpStatusCode code = response.getStatusCode();
         return logPrefix + "Response " + code +
                 (traceOn ? ", headers=" + formatHeaders(response.getHeaders()) : "");
