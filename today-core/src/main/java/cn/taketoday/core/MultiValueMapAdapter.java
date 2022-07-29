@@ -84,15 +84,6 @@ public class MultiValueMapAdapter<K, V> implements MultiValueMap<K, V>, Serializ
     this.targetMap.put(key, values);
   }
 
-  @Override
-  public void setAll(Map<K, V> values) {
-    if (values != null) {
-      for (Entry<K, V> entry : values.entrySet()) {
-        set(entry.getKey(), entry.getValue());
-      }
-    }
-  }
-
   // Map implementation
 
   @Override

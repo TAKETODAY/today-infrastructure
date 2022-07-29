@@ -1782,7 +1782,9 @@ public abstract class HttpHeaders
     }
   }
 
+  // ---------------------------------------------------------------------
   // abstract for subclasses
+  // ---------------------------------------------------------------------
 
   /**
    * Return the first header value for the given header name, if any.
@@ -1821,7 +1823,9 @@ public abstract class HttpHeaders
     return formatHeaders(this);
   }
 
-  // static
+  // ---------------------------------------------------------------------
+  // Static Methods
+  // ---------------------------------------------------------------------
 
   /**
    * Helps to format HTTP header values, as HTTP header values themselves can
@@ -1949,6 +1953,7 @@ public abstract class HttpHeaders
    *
    * @param targetMap can be null
    * @return returns {@link #EMPTY} if {@code targetMap} is null
+   * @since 4.0
    */
   public static HttpHeaders copyOf(@Nullable Map<String, List<String>> targetMap) {
     if (targetMap == null) {

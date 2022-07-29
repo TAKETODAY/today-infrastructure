@@ -210,6 +210,16 @@ final class UnmodifiableMultiValueMap<K, V> implements MultiValueMap<K, V>, Seri
   }
 
   @Override
+  public void addAll(@Nullable Map<K, List<V>> values) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void addAll(Entry<K, ? extends Collection<V>> pair) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
   public void addIfAbsent(K key, @Nullable V value) {
     throw new UnsupportedOperationException();
   }

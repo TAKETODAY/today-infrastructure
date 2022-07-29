@@ -80,33 +80,8 @@ public class DefaultHttpHeaders extends HttpHeaders {
   }
 
   @Override
-  public void addAll(Map<String, List<String>> values) {
-    headers.addAll(values);
-  }
-
-  @Override
-  public void addAll(String key, List<? extends String> values) {
-    headers.addAll(key, values);
-  }
-
-  @Override
-  public void addAll(String key, @Nullable Collection<? extends String> values) {
-    headers.addAll(key, values);
-  }
-
-  @Override
-  public void addAll(String key, Enumeration<? extends String> values) {
-    headers.addAll(key, values);
-  }
-
-  @Override
   public void set(String headerName, String headerValue) {
     headers.set(headerName, headerValue);
-  }
-
-  @Override
-  public void setAll(Map<String, String> values) {
-    headers.setAll(values);
   }
 
   @Override
