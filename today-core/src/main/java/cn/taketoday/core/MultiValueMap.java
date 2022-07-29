@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -17,6 +17,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.core;
 
 import java.util.Collection;
@@ -116,12 +117,22 @@ public interface MultiValueMap<K, V> extends Map<K, List<V>> {
    *
    * @param values the values to be added
    */
-  default void addAll(@Nullable MultiValueMap<K, V> values) {
+  default void addAll(@Nullable Map<K, List<V>> values) {
     if (values != null) {
       for (Entry<K, List<V>> entry : values.entrySet()) {
         addAll(entry.getKey(), entry.getValue());
       }
     }
+  }
+
+  /**
+   * Add all the values of the given {@code MultiValueMap} to the current values.
+   *
+   * @param pair Entry
+   * @since 4.0
+   */
+  default void addAll(Entry<K, ? extends Collection<V>> pair) {
+    addAll(pair.getKey(), pair.getValue());
   }
 
   /**

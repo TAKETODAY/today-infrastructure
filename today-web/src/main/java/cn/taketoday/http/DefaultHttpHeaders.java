@@ -80,7 +80,7 @@ public class DefaultHttpHeaders extends HttpHeaders {
   }
 
   @Override
-  public void addAll(MultiValueMap<String, String> values) {
+  public void addAll(Map<String, List<String>> values) {
     headers.addAll(values);
   }
 

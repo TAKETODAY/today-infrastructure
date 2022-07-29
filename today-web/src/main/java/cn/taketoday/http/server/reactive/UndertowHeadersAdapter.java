@@ -64,13 +64,19 @@ class UndertowHeadersAdapter implements MultiValueMap<String, String> {
 
   @Override
   @SuppressWarnings("unchecked")
-  public void addAll(String key, List<? extends String> values) {
-    this.headers.addAll(HttpString.tryFromString(key), (List<String>) values);
+  public void addAll(String key, @Nullable List<? extends String> values) {
+    if (values != null) {
+      headers.addAll(HttpString.tryFromString(key), (List<String>) values);
+    }
   }
 
   @Override
-  public void addAll(MultiValueMap<String, String> values) {
-    values.forEach((key, list) -> this.headers.addAll(HttpString.tryFromString(key), list));
+  public void addAll(@Nullable Map<String, List<String>> values) {
+    if (values != null) {
+      for (Entry<String, List<String>> entry : values.entrySet()) {
+        headers.addAll(HttpString.tryFromString(entry.getKey()), entry.getValue());
+      }
+    }
   }
 
   @Override

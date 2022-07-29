@@ -373,33 +373,6 @@ public final class ServletRequestContext extends RequestContext {
     }
 
     @Override
-    public void addAll(String key, List<? extends String> values) {
-      if (values != null) {
-        for (final String value : values) {
-          add(key, value);
-        }
-      }
-    }
-
-    @Override
-    public void addAll(String key, @Nullable Collection<? extends String> values) {
-      if (values != null) {
-        for (final String value : values) {
-          add(key, value);
-        }
-      }
-    }
-
-    @Override
-    public void addAll(MultiValueMap<String, String> values) {
-      if (values != null) {
-        for (Entry<String, List<String>> entry : values.entrySet()) {
-          addAll(entry.getKey(), entry.getValue());
-        }
-      }
-    }
-
-    @Override
     public List<String> put(String key, List<String> values) {
       doPut(key, values, response);
       return super.put(key, values);

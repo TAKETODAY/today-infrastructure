@@ -1944,6 +1944,25 @@ public abstract class HttpHeaders
     return headers;
   }
 
+  /**
+   * copy targetMap’s all entries to a new HttpHeaders
+   *
+   * @param targetMap can be null
+   * @return returns {@link #EMPTY} if {@code targetMap} is null
+   */
+  public static HttpHeaders copyOf(@Nullable Map<String, List<String>> targetMap) {
+    if (targetMap == null) {
+      return HttpHeaders.EMPTY;
+    }
+    else {
+      HttpHeaders result = HttpHeaders.create();
+      for (Map.Entry<String, List<String>> entry : targetMap.entrySet()) {
+        result.addAll(entry);
+      }
+      return result;
+    }
+  }
+
   // Package-private: used in ResponseCookie
   static String formatDate(long date) {
     Instant instant = Instant.ofEpochMilli(date);
