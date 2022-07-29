@@ -132,10 +132,25 @@ public class WebClientResponseException extends WebClientException {
 
     this.statusCode = statusCode;
     this.statusText = statusText;
-    this.headers = (headers != null ? headers : HttpHeaders.EMPTY);
+    this.headers = copy(headers);
     this.responseBody = (responseBody != null ? responseBody : Constant.EMPTY_BYTES);
     this.responseCharset = charset;
     this.request = request;
+  }
+
+  /**
+   * Not all {@code HttpHeaders} implementations are serializable, so we
+   * make a copy to ensure that {@code WebClientResponseException} is.
+   */
+  private static HttpHeaders copy(@Nullable HttpHeaders headers) {
+    if (headers == null) {
+      return HttpHeaders.EMPTY;
+    }
+    else {
+      HttpHeaders result = HttpHeaders.create();
+      result.putAll(headers);
+      return result;
+    }
   }
 
   /**

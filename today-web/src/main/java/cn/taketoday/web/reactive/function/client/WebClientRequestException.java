@@ -22,6 +22,8 @@ package cn.taketoday.web.reactive.function.client;
 
 import java.io.Serial;
 import java.net.URI;
+import java.util.List;
+import java.util.Map;
 
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpMethod;
@@ -51,7 +53,21 @@ public class WebClientRequestException extends WebClientException {
 
     this.method = method;
     this.uri = uri;
-    this.headers = headers;
+    this.headers = copy(headers);
+  }
+
+  /**
+   * Not all {@code HttpHeaders} implementations are serializable, so we
+   * make a copy to ensure that {@code WebClientResponseException} is.
+   */
+  private static HttpHeaders copy(HttpHeaders headers) {
+    HttpHeaders result = HttpHeaders.create();
+    for (Map.Entry<String, List<String>> entry : headers.entrySet()) {
+      for (String value : entry.getValue()) {
+        result.add(entry.getKey(), value);
+      }
+    }
+    return result;
   }
 
   /**
