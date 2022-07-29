@@ -316,8 +316,8 @@ public class Analyzer<V extends Value> implements Opcodes {
    * instruction cannot be reached (dead code).
    * @throws AnalyzerException if a problem occurs during the analysis.
    */
-  public Frame<V>[] analyzeAndComputeMaxs(final String owner, final MethodNode method)
-          throws AnalyzerException {
+  public Frame<V>[] analyzeAndComputeMaxs(
+          final String owner, final MethodNode method) throws AnalyzerException {
     method.maxLocals = computeMaxLocals(method);
     method.maxStack = -1;
     analyze(owner, method);
@@ -334,8 +334,8 @@ public class Analyzer<V extends Value> implements Opcodes {
   private static int computeMaxLocals(final MethodNode method) {
     int maxLocals = Type.getArgumentsAndReturnSizes(method.desc) >> 2;
     for (AbstractInsnNode insnNode : method.instructions) {
-      if (insnNode instanceof VarInsnNode) {
-        int local = ((VarInsnNode) insnNode).var;
+      if (insnNode instanceof VarInsnNode varInsnNode) {
+        int local = varInsnNode.var;
         int size =
                 (insnNode.getOpcode() == Opcodes.LLOAD
                         || insnNode.getOpcode() == Opcodes.DLOAD
@@ -345,8 +345,8 @@ public class Analyzer<V extends Value> implements Opcodes {
                 : 1;
         maxLocals = Math.max(maxLocals, local + size);
       }
-      else if (insnNode instanceof IincInsnNode) {
-        int local = ((IincInsnNode) insnNode).var;
+      else if (insnNode instanceof IincInsnNode iincInsnNode) {
+        int local = iincInsnNode.var;
         maxLocals = Math.max(maxLocals, local + 1);
       }
     }
@@ -385,10 +385,15 @@ public class Analyzer<V extends Value> implements Opcodes {
    * @throws AnalyzerException if the control flow graph can fall off the end of the code.
    */
   private void findSubroutine(
-          final int insnIndex, final Subroutine subroutine, final List<AbstractInsnNode> jsrInsns)
+          final int insnIndex, final Subroutine subroutine, final ArrayList<AbstractInsnNode> jsrInsns)
           throws AnalyzerException {
     ArrayList<Integer> instructionIndicesToProcess = new ArrayList<>();
     instructionIndicesToProcess.add(insnIndex);
+
+    InsnList insnList = this.insnList;
+    Subroutine[] subroutines = this.subroutines;
+    List<TryCatchBlockNode>[] handlers = this.handlers;
+
     while (!instructionIndicesToProcess.isEmpty()) {
       int currentInsnIndex =
               instructionIndicesToProcess.remove(instructionIndicesToProcess.size() - 1);
@@ -467,6 +472,7 @@ public class Analyzer<V extends Value> implements Opcodes {
     Frame<V> frame = newFrame(method.maxLocals, method.maxStack);
     int currentLocal = 0;
     boolean isInstanceMethod = (method.access & ACC_STATIC) == 0;
+    Interpreter<V> interpreter = this.interpreter;
     if (isInstanceMethod) {
       Type ownerType = Type.fromInternalName(owner);
       frame.setLocal(

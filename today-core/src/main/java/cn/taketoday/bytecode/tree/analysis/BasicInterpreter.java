@@ -74,27 +74,15 @@ public class BasicInterpreter extends Interpreter<BasicValue> implements Opcodes
     switch (insn.getOpcode()) {
       case ACONST_NULL:
         return newValue(NULL_TYPE);
-      case ICONST_M1:
-      case ICONST_0:
-      case ICONST_1:
-      case ICONST_2:
-      case ICONST_3:
-      case ICONST_4:
-      case ICONST_5:
+      case ICONST_M1, ICONST_0, ICONST_1, ICONST_2, ICONST_3, ICONST_4, ICONST_5:
+      case BIPUSH, SIPUSH:
         return BasicValue.INT_VALUE;
-      case LCONST_0:
-      case LCONST_1:
+      case LCONST_0, LCONST_1:
         return BasicValue.LONG_VALUE;
-      case FCONST_0:
-      case FCONST_1:
-      case FCONST_2:
+      case FCONST_0, FCONST_1, FCONST_2:
         return BasicValue.FLOAT_VALUE;
-      case DCONST_0:
-      case DCONST_1:
+      case DCONST_0, DCONST_1:
         return BasicValue.DOUBLE_VALUE;
-      case BIPUSH:
-      case SIPUSH:
-        return BasicValue.INT_VALUE;
       case LDC:
         Object value = ((LdcInsnNode) insn).cst;
         if (value instanceof Integer) {
@@ -154,44 +142,18 @@ public class BasicInterpreter extends Interpreter<BasicValue> implements Opcodes
   public BasicValue unaryOperation(final AbstractInsnNode insn, final BasicValue value)
           throws AnalyzerException {
     switch (insn.getOpcode()) {
-      case INEG:
-      case IINC:
-      case L2I:
-      case F2I:
-      case D2I:
-      case I2B:
-      case I2C:
-      case I2S:
+      case INEG, IINC, L2I, F2I, D2I, I2B, I2C, I2S:
+      case ARRAYLENGTH:
+      case INSTANCEOF:
         return BasicValue.INT_VALUE;
-      case FNEG:
-      case I2F:
-      case L2F:
-      case D2F:
+      case FNEG, I2F, L2F, D2F:
         return BasicValue.FLOAT_VALUE;
-      case LNEG:
-      case I2L:
-      case F2L:
-      case D2L:
+      case LNEG, I2L, F2L, D2L:
         return BasicValue.LONG_VALUE;
-      case DNEG:
-      case I2D:
-      case L2D:
-      case F2D:
+      case DNEG, I2D, L2D, F2D:
         return BasicValue.DOUBLE_VALUE;
-      case IFEQ:
-      case IFNE:
-      case IFLT:
-      case IFGE:
-      case IFGT:
-      case IFLE:
-      case TABLESWITCH:
-      case LOOKUPSWITCH:
-      case IRETURN:
-      case LRETURN:
-      case FRETURN:
-      case DRETURN:
-      case ARETURN:
-      case PUTSTATIC:
+      case IFEQ, IFNE, IFLT, IFGE, IFGT, IFLE, TABLESWITCH, LOOKUPSWITCH, IRETURN, LRETURN, FRETURN,
+              DRETURN, ARETURN, PUTSTATIC, ATHROW, MONITORENTER, MONITOREXIT, IFNULL, IFNONNULL:
         return null;
       case GETFIELD:
         return newValue(Type.fromDescriptor(((FieldInsnNode) insn).desc));
@@ -219,19 +181,8 @@ public class BasicInterpreter extends Interpreter<BasicValue> implements Opcodes
         throw new AnalyzerException(insn, "Invalid array type");
       case ANEWARRAY:
         return newValue(Type.fromDescriptor("[" + Type.fromInternalName(((TypeInsnNode) insn).desc)));
-      case ARRAYLENGTH:
-        return BasicValue.INT_VALUE;
-      case ATHROW:
-        return null;
       case CHECKCAST:
         return newValue(Type.fromInternalName(((TypeInsnNode) insn).desc));
-      case INSTANCEOF:
-        return BasicValue.INT_VALUE;
-      case MONITORENTER:
-      case MONITOREXIT:
-      case IFNULL:
-      case IFNONNULL:
-        return null;
       default:
         throw new AssertionError();
     }
@@ -241,71 +192,16 @@ public class BasicInterpreter extends Interpreter<BasicValue> implements Opcodes
   public BasicValue binaryOperation(
           final AbstractInsnNode insn, final BasicValue value1, final BasicValue value2)
           throws AnalyzerException {
-    switch (insn.getOpcode()) {
-      case IALOAD:
-      case BALOAD:
-      case CALOAD:
-      case SALOAD:
-      case IADD:
-      case ISUB:
-      case IMUL:
-      case IDIV:
-      case IREM:
-      case ISHL:
-      case ISHR:
-      case IUSHR:
-      case IAND:
-      case IOR:
-      case IXOR:
-        return BasicValue.INT_VALUE;
-      case FALOAD:
-      case FADD:
-      case FSUB:
-      case FMUL:
-      case FDIV:
-      case FREM:
-        return BasicValue.FLOAT_VALUE;
-      case LALOAD:
-      case LADD:
-      case LSUB:
-      case LMUL:
-      case LDIV:
-      case LREM:
-      case LSHL:
-      case LSHR:
-      case LUSHR:
-      case LAND:
-      case LOR:
-      case LXOR:
-        return BasicValue.LONG_VALUE;
-      case DALOAD:
-      case DADD:
-      case DSUB:
-      case DMUL:
-      case DDIV:
-      case DREM:
-        return BasicValue.DOUBLE_VALUE;
-      case AALOAD:
-        return BasicValue.REFERENCE_VALUE;
-      case LCMP:
-      case FCMPL:
-      case FCMPG:
-      case DCMPL:
-      case DCMPG:
-        return BasicValue.INT_VALUE;
-      case IF_ICMPEQ:
-      case IF_ICMPNE:
-      case IF_ICMPLT:
-      case IF_ICMPGE:
-      case IF_ICMPGT:
-      case IF_ICMPLE:
-      case IF_ACMPEQ:
-      case IF_ACMPNE:
-      case PUTFIELD:
-        return null;
-      default:
-        throw new AssertionError();
-    }
+    return switch (insn.getOpcode()) {
+      case IALOAD, BALOAD, CALOAD, SALOAD, IADD, ISUB, IMUL, IDIV, IREM, ISHL,
+              ISHR, IUSHR, IAND, IOR, IXOR, LCMP, FCMPL, FCMPG, DCMPL, DCMPG -> BasicValue.INT_VALUE;
+      case FALOAD, FADD, FSUB, FMUL, FDIV, FREM -> BasicValue.FLOAT_VALUE;
+      case LALOAD, LADD, LSUB, LMUL, LDIV, LREM, LSHL, LSHR, LUSHR, LAND, LOR, LXOR -> BasicValue.LONG_VALUE;
+      case DALOAD, DADD, DSUB, DMUL, DDIV, DREM -> BasicValue.DOUBLE_VALUE;
+      case AALOAD -> BasicValue.REFERENCE_VALUE;
+      case IF_ICMPEQ, IF_ICMPNE, IF_ICMPLT, IF_ICMPGE, IF_ICMPGT, IF_ICMPLE, IF_ACMPEQ, IF_ACMPNE, PUTFIELD -> null;
+      default -> throw new AssertionError();
+    };
   }
 
   @Override
