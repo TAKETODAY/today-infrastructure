@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -30,7 +30,7 @@ import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.MimeType;
 
 /**
- * Abstract base class for {@link Decoder} implementations.
+ * Abstract base class for {@link Encoder} implementations.
  *
  * @param <T> the element type
  * @author Sebastien Deleuze
