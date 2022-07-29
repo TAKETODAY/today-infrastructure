@@ -54,7 +54,9 @@ import cn.taketoday.session.WebSession;
 import cn.taketoday.util.StringUtils;
 
 /**
- * @author TODAY
+ * Redisson SessionRepository
+ *
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 2019-09-28 10:31
  */
 public class RedissonSessionRepository implements SessionRepository, PatternMessageListener<String> {
@@ -121,7 +123,7 @@ public class RedissonSessionRepository implements SessionRepository, PatternMess
 
   @Nullable
   private MapSession loadSession(String sessionId) {
-    RMap<String, Object> map = redisson.getMap(keyPrefix + sessionId,
+    var map = redisson.<String, Object>getMap(keyPrefix + sessionId,
             new CompositeCodec(StringCodec.INSTANCE, redisson.getConfig().getCodec()));
 
     Set<Map.Entry<String, Object>> entrySet = map.readAllEntrySet();
@@ -460,7 +462,7 @@ public class RedissonSessionRepository implements SessionRepository, PatternMess
 
     @Override
     public boolean hasAttribute(String name) {
-      return false;
+      return delegate.hasAttribute(name);
     }
 
     @Override
