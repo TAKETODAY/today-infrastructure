@@ -58,6 +58,7 @@
     <dependency>
       <groupId>cn.taketoday</groupId>
       <artifactId>today-web</artifactId>
+      <scope>provided</scope>
     </dependency>
 
     <dependency>
