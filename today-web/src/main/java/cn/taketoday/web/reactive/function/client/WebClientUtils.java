@@ -27,6 +27,7 @@ import java.util.function.Predicate;
 
 import cn.taketoday.core.codec.CodecException;
 import cn.taketoday.http.ResponseEntity;
+import cn.taketoday.lang.Constant;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -35,11 +36,10 @@ import reactor.core.publisher.Mono;
  * {@link DefaultClientResponse}.
  *
  * @author Arjen Poutsma
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 abstract class WebClientUtils {
-
-  private static final String VALUE_NONE = "\n\t\t\n\t\t\n\uE000\uE001\uE002\n\t\t\t\t\n";
 
   /**
    * Predicate that returns true if an exception should be wrapped.
@@ -52,9 +52,9 @@ abstract class WebClientUtils {
    */
   @SuppressWarnings("unchecked")
   public static <T> Mono<ResponseEntity<T>> mapToEntity(ClientResponse response, Mono<T> bodyMono) {
-    return ((Mono<Object>) bodyMono).defaultIfEmpty(VALUE_NONE).map(body ->
+    return ((Mono<Object>) bodyMono).defaultIfEmpty(Constant.DEFAULT_NONE).map(body ->
             new ResponseEntity<>(
-                    body != VALUE_NONE ? (T) body : null,
+                    body != Constant.DEFAULT_NONE ? (T) body : null,
                     response.headers().asHttpHeaders(),
                     response.rawStatusCode()));
   }
@@ -63,8 +63,10 @@ abstract class WebClientUtils {
    * Map the given response to a {@code ResponseEntity<List<T>>}.
    */
   public static <T> Mono<ResponseEntity<List<T>>> mapToEntityList(ClientResponse response, Publisher<T> body) {
-    return Flux.from(body).collectList().map(list ->
-            new ResponseEntity<>(list, response.headers().asHttpHeaders(), response.rawStatusCode()));
+    return Flux.from(body)
+            .collectList()
+            .map(list -> new ResponseEntity<>(
+                    list, response.headers().asHttpHeaders(), response.rawStatusCode()));
   }
 
 }
