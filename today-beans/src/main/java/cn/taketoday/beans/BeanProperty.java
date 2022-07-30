@@ -29,6 +29,7 @@ import java.lang.reflect.Member;
 import java.lang.reflect.Method;
 import java.util.Optional;
 
+import cn.taketoday.beans.support.BeanInstantiator;
 import cn.taketoday.core.MethodParameter;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
@@ -55,6 +56,8 @@ public sealed class BeanProperty extends Property
 
   private transient PropertyAccessor propertyAccessor;
 
+  private transient BeanInstantiator instantiator;
+
   BeanProperty(String name, Field field) {
     super(name, field);
     this.field = field;
@@ -76,6 +79,23 @@ public sealed class BeanProperty extends Property
     if (writeMethod != null && descriptor instanceof GenericTypeAwarePropertyDescriptor generic) {
       this.writeMethodParameter = generic.getWriteMethodParameter();
     }
+  }
+
+  public Object instantiate() {
+    return instantiate(null);
+  }
+
+  public Object instantiate(@Nullable Object[] args) {
+    BeanInstantiator constructor = this.instantiator;
+    if (constructor == null) {
+      Class<?> type = getType();
+      if (BeanUtils.isSimpleValueType(type)) {
+        throw new BeanInstantiationException(type, "Cannot be instantiated a simple type");
+      }
+      constructor = BeanInstantiator.fromConstructor(type);
+      this.instantiator = constructor;
+    }
+    return constructor.instantiate(args);
   }
 
   public Object getValue(Object object) {
