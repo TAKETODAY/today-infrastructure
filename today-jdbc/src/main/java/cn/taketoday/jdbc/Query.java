@@ -795,6 +795,7 @@ public final class Query implements AutoCloseable {
   // column mapping
   //---------------------------------------------------------------------
 
+  @Nullable
   public Map<String, String> getColumnMappings() {
     if (isCaseSensitive()) {
       return caseSensitiveColumnMappings;
@@ -804,7 +805,15 @@ public final class Query implements AutoCloseable {
     }
   }
 
-  public void setColumnMappings(Map<String, String> mappings) {
+  /**
+   * set the map of column-mappings
+   * <p>
+   * if input {@code mappings} is {@code null} reset the
+   * {@link #columnMappings} and {@link #caseSensitiveColumnMappings}
+   *
+   * @param mappings column-mappings
+   */
+  public void setColumnMappings(@Nullable Map<String, String> mappings) {
     if (CollectionUtils.isNotEmpty(mappings)) {
       final HashMap<String, String> columnMappings = new HashMap<>();
       final HashMap<String, String> caseSensitiveColumnMappings = new HashMap<>();
@@ -814,6 +823,10 @@ public final class Query implements AutoCloseable {
       }
       this.columnMappings = columnMappings;
       this.caseSensitiveColumnMappings = caseSensitiveColumnMappings;
+    }
+    else {
+      this.columnMappings = null;
+      this.caseSensitiveColumnMappings = null;
     }
   }
 
