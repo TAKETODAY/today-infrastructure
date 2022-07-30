@@ -100,6 +100,18 @@ public interface BeanWrapper extends ConfigurablePropertyAccessor {
   // Static factory methods
 
   /**
+   * Obtain a BeanWrapper for the given target object type,
+   * accessing properties in JavaBeans style.
+   *
+   * @param objectType the target object type
+   * @return the property accessor
+   * @see BeanWrapperImpl
+   */
+  static BeanWrapper forBeanPropertyAccess(Class<?> objectType) {
+    return new BeanWrapperImpl(objectType);
+  }
+
+  /**
    * Obtain a BeanWrapper for the given target object,
    * accessing properties in JavaBeans style.
    *
