@@ -40,9 +40,12 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+import cn.taketoday.beans.BeanProperty;
 import cn.taketoday.core.ResolvableType;
 import cn.taketoday.core.TypeReference;
 import cn.taketoday.core.annotation.AnnotationUtils;
+import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
 
 /**
  * @author Clinton Begin
@@ -58,6 +61,7 @@ public class TypeHandlerRegistry {
   private final TypeHandler<Object> unknownTypeHandler;
   private final HashMap<Class<?>, TypeHandler<?>> typeHandlers = new HashMap<>();
   private Class<? extends TypeHandler> defaultEnumTypeHandler = EnumTypeHandler.class;
+  private TypeHandlerResolver typeHandlerResolver = TypeHandlerResolver.forMappedTypeHandlerAnnotation();
 
   public TypeHandlerRegistry() {
     this.unknownTypeHandler = new UnknownTypeHandler(this);
@@ -172,6 +176,42 @@ public class TypeHandlerRegistry {
       }
     }
     return (TypeHandler<T>) typeHandler;
+  }
+
+  /**
+   * @since 4.0
+   */
+  @SuppressWarnings("unchecked")
+  public <T> TypeHandler<T> getTypeHandler(BeanProperty beanProperty) {
+    TypeHandler<?> typeHandler = typeHandlerResolver.resolve(beanProperty);
+    if (typeHandler != null) {
+      return (TypeHandler<T>) typeHandler;
+    }
+    // fallback to default
+    Class<?> type = beanProperty.getType();
+    return (TypeHandler<T>) getTypeHandler(type);
+  }
+
+  public void addPropertyTypeHandlerResolver(TypeHandlerResolver resolver) {
+    Assert.notNull(resolver, "TypeHandlerResolver is required");
+    this.typeHandlerResolver = typeHandlerResolver.add(resolver);
+  }
+
+  public void addPropertyTypeHandlerResolvers(@Nullable TypeHandlerResolver... resolvers) {
+    Assert.notNull(resolvers, "TypeHandlerResolver is required");
+    this.typeHandlerResolver = typeHandlerResolver.add(TypeHandlerResolver.composite(resolvers));
+  }
+
+  public void setPropertyTypeHandlerResolvers(@Nullable TypeHandlerResolver... resolvers) {
+    this.typeHandlerResolver = TypeHandlerResolver.composite(resolvers);
+  }
+
+  public void setPropertyTypeHandlerResolver(@Nullable TypeHandlerResolver resolver) {
+    this.typeHandlerResolver = resolver == null ? TypeHandlerResolver.forMappedTypeHandlerAnnotation() : resolver;
+  }
+
+  public TypeHandlerResolver getTypeHandlerResolver() {
+    return typeHandlerResolver;
   }
 
   protected TypeHandler<?> typeHandlerNotFound(Type type) {

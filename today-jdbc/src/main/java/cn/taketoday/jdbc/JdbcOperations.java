@@ -25,6 +25,7 @@ import java.util.Map;
 
 import javax.sql.DataSource;
 
+import cn.taketoday.beans.BeanProperty;
 import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.core.conversion.support.DefaultConversionService;
 import cn.taketoday.format.support.ApplicationConversionService;
@@ -615,6 +616,10 @@ public class JdbcOperations {
   }
 
   //
+
+  public <T> TypeHandler<T> getTypeHandler(BeanProperty property) {
+    return typeHandlerRegistry.getTypeHandler(property);
+  }
 
   public <T> TypeHandler<T> getTypeHandler(Class<T> type) {
     return typeHandlerRegistry.getTypeHandler(type);

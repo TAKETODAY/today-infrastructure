@@ -27,7 +27,7 @@ public class ObjectPropertySetter {
   public ObjectPropertySetter(
           @Nullable PropertyPath propertyPath, BeanProperty beanProperty, JdbcOperations operations) {
     this(propertyPath, beanProperty,
-            operations.getTypeHandler(beanProperty.getType()),
+            operations.getTypeHandler(beanProperty),
             operations.getPrimitiveTypeNullHandler());
   }
 
