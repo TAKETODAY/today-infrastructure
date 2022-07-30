@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -20,17 +20,17 @@
 
 package cn.taketoday.jdbc.result;
 
-import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.Map;
 
 import cn.taketoday.beans.BeanProperty;
+import cn.taketoday.beans.BeanUtils;
+import cn.taketoday.jdbc.JdbcOperations;
 import cn.taketoday.jdbc.PersistenceException;
 import cn.taketoday.jdbc.support.JdbcUtils;
 import cn.taketoday.jdbc.type.TypeHandler;
-import cn.taketoday.jdbc.type.TypeHandlerRegistry;
-import cn.taketoday.util.ClassUtils;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ConcurrentReferenceHashMap;
 import cn.taketoday.util.MapCache;
 
@@ -38,32 +38,32 @@ import cn.taketoday.util.MapCache;
 public class DefaultResultSetHandlerFactory<T> implements ResultSetHandlerFactory<T> {
 
   private final JdbcBeanMetadata metadata;
-  private final TypeHandlerRegistry registry;
+  private final JdbcOperations jdbcOperations;
+
+  @Nullable
   private final Map<String, String> columnMappings;
 
   public DefaultResultSetHandlerFactory(
-          TypeHandlerRegistry registry,
-          JdbcBeanMetadata pojoMetadata,
-          Map<String, String> columnMappings) {
+          JdbcBeanMetadata pojoMetadata, JdbcOperations operations, @Nullable Map<String, String> columnMappings) {
     this.metadata = pojoMetadata;
-    this.registry = registry;
+    this.jdbcOperations = operations;
     this.columnMappings = columnMappings;
   }
 
   @Override
   @SuppressWarnings("unchecked")
-  public ResultSetHandler<T> newResultSetHandler(ResultSetMetaData meta) throws SQLException {
+  public ResultSetHandler<T> getResultSetHandler(ResultSetMetaData meta) throws SQLException {
     int columnCount = meta.getColumnCount();
     StringBuilder builder = new StringBuilder(columnCount * 10);
     for (int i = 1; i <= columnCount; i++) {
       builder.append(JdbcUtils.lookupColumnName(meta, i))
               .append('\n');
     }
-    return CACHE.get(new Key(builder.toString(), this), meta);
+    return CACHE.get(new HandlerKey(builder.toString(), this), meta);
   }
 
   @SuppressWarnings("unchecked")
-  private ResultSetHandler<T> newResultSetHandler0(ResultSetMetaData meta) throws SQLException {
+  private ResultSetHandler<T> createHandler(ResultSetMetaData meta) throws SQLException {
     // cache key is ResultSetMetadata + Bean type
     int columnCount = meta.getColumnCount();
 
@@ -71,16 +71,16 @@ public class DefaultResultSetHandlerFactory<T> implements ResultSetHandlerFactor
      * Fallback to executeScalar if converter exists, we're selecting 1 column, and
      * no property setter exists for the column.
      */
-    boolean useExecuteScalar = ClassUtils.isSimpleType(metadata.getType()) && columnCount == 1;
-
-    if (useExecuteScalar) {
-      TypeHandler typeHandler = registry.getTypeHandler(metadata.getType());
+    boolean singleScalarColumn = BeanUtils.isSimpleValueType(metadata.getObjectType()) && columnCount == 1;
+    if (singleScalarColumn) {
+      TypeHandler typeHandler = jdbcOperations.getTypeHandler(metadata.getObjectType());
       return new TypeHandlerResultSetHandler<>(typeHandler);
     }
-    JdbcPropertyAccessor[] accessors = new JdbcPropertyAccessor[columnCount];
+
+    ObjectPropertySetter[] accessors = new ObjectPropertySetter[columnCount];
     for (int i = 1; i <= columnCount; i++) {
       String colName = JdbcUtils.lookupColumnName(meta, i);
-      JdbcPropertyAccessor accessor = getAccessor(colName, metadata);
+      ObjectPropertySetter accessor = getAccessor(colName, metadata);
       // If more than 1 column is fetched (we cannot fall back to executeScalar),
       // and the setter doesn't exist, throw exception.
       if (accessor == null && columnCount > 1 && metadata.throwOnMappingFailure) {
@@ -92,43 +92,34 @@ public class DefaultResultSetHandlerFactory<T> implements ResultSetHandlerFactor
     return new ObjectResultHandler<>(metadata, accessors, columnCount);
   }
 
-  private JdbcPropertyAccessor getAccessor(String colName, JdbcBeanMetadata metadata) {
+  @Nullable
+  private ObjectPropertySetter getAccessor(String colName, JdbcBeanMetadata metadata) {
     int index = colName.indexOf('.');
     if (index <= 0) {
-      // Simple path - fast way
+      // Simple path - column
       BeanProperty beanProperty = metadata.getBeanProperty(colName, columnMappings);
-      // behavior change: do not throw if POJO contains fewer properties
       if (beanProperty == null) {
         return null;
       }
-      TypeHandler<?> typeHandler = registry.getTypeHandler(beanProperty.getType());
-      return new TypeHandlerPropertyAccessor(typeHandler, beanProperty);
+      return new ObjectPropertySetter(null, beanProperty, jdbcOperations);
     }
 
-    // dot path - long way
-    // i'm too lazy now to rewrite this case so I just call old unoptimized code...
-    TypeHandler<?> typeHandler = registry.getTypeHandler(metadata.getType());
-    class PropertyPathPropertyAccessor extends JdbcPropertyAccessor {
-      @Override
-      public Object get(Object obj) {
-        return metadata.getProperty(obj, colName);
-      }
-
-      @Override
-      public void set(Object obj, ResultSet resultSet, int columnIndex) throws SQLException {
-        Object result = typeHandler.getResult(resultSet, columnIndex);
-        metadata.setProperty(obj, colName, result);
-      }
+    PropertyPath propertyPath = new PropertyPath(metadata.getObjectType(), colName);
+    // find property-path
+    BeanProperty beanProperty = propertyPath.getNestedBeanProperty();
+    if (beanProperty == null) {
+      return null;
     }
 
-    return new PropertyPathPropertyAccessor();
+    // if colName is property-path style just using property-path set
+    return new ObjectPropertySetter(propertyPath, beanProperty, jdbcOperations);
   }
 
-  private static class Key {
+  private static final class HandlerKey {
     public final String stringKey;
     public final DefaultResultSetHandlerFactory factory;
 
-    private Key(String stringKey, DefaultResultSetHandlerFactory f) {
+    private HandlerKey(String stringKey, DefaultResultSetHandlerFactory f) {
       this.stringKey = stringKey;
       this.factory = f;
     }
@@ -138,14 +129,11 @@ public class DefaultResultSetHandlerFactory<T> implements ResultSetHandlerFactor
       if (this == o) {
         return true;
       }
-      if (o == null || getClass() != o.getClass()) {
-        return false;
+      if (o instanceof HandlerKey key) {
+        return stringKey.equals(key.stringKey)
+                && factory.metadata.equals(key.factory.metadata);
       }
-
-      Key key = (Key) o;
-
-      return stringKey.equals(key.stringKey)
-              && factory.metadata.equals(key.factory.metadata);
+      return false;
     }
 
     @Override
@@ -157,13 +145,13 @@ public class DefaultResultSetHandlerFactory<T> implements ResultSetHandlerFactor
 
   }
 
-  static final MapCache<Key, ResultSetHandler, ResultSetMetaData> CACHE
+  static final MapCache<HandlerKey, ResultSetHandler, ResultSetMetaData> CACHE
           = new MapCache<>(new ConcurrentReferenceHashMap<>()) {
 
     @Override
-    protected ResultSetHandler createValue(Key key, ResultSetMetaData param) {
+    protected ResultSetHandler createValue(HandlerKey key, ResultSetMetaData param) {
       try {
-        return key.factory.newResultSetHandler0(param);
+        return key.factory.createHandler(param);
       }
       catch (SQLException e) {
         throw new PersistenceException(e);

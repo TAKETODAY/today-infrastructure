@@ -14,7 +14,7 @@ public class EntityWithPrivateFields {
     return id;
   }
 
-  private void setValue(String value) {
+  public void setValue(String value) {
     this.value = value + "1";
   }
 

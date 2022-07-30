@@ -23,6 +23,8 @@ package cn.taketoday.jdbc.config;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ExecutionMode;
 
 import java.util.List;
 import java.util.Map;
@@ -40,6 +42,7 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 /**
  * @author Dave Syer
  */
+@Execution(ExecutionMode.SAME_THREAD)
 public class InitializeDatabaseIntegrationTests {
 
   private String enabled;

@@ -43,7 +43,7 @@ public final class ResultSetHandlerIterator<T> extends AbstractResultSetIterator
   public ResultSetHandlerIterator(ResultSet rs, ResultSetHandlerFactory<T> factory) {
     super(rs);
     try {
-      this.handler = factory.newResultSetHandler(rs.getMetaData());
+      this.handler = factory.getResultSetHandler(rs.getMetaData());
     }
     catch (SQLException e) {
       throw new PersistenceException("Database error: " + e.getMessage(), e);

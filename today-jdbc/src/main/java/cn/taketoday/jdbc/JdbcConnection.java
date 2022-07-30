@@ -247,7 +247,7 @@ public final class JdbcConnection implements Closeable {
     }
     else {
       try {
-        final ArrayList<Object> keys = new ArrayList<>();
+        ArrayList<Object> keys = new ArrayList<>();
         while (rs.next()) {
           keys.add(rs.getObject(1));
         }
@@ -274,7 +274,7 @@ public final class JdbcConnection implements Closeable {
    * @throws GeneratedKeysConversionException Generated Keys conversion failed
    * @throws IllegalArgumentException If conversionService is null
    */
-  public <V> V getKey(final Class<V> returnType) {
+  public <V> V getKey(Class<V> returnType) {
     return getKey(returnType, operations.getConversionService());
   }
 
@@ -282,9 +282,9 @@ public final class JdbcConnection implements Closeable {
    * @throws GeneratedKeysConversionException Generated Keys conversion failed
    * @throws IllegalArgumentException If conversionService is null
    */
-  public <V> V getKey(final Class<V> returnType, final ConversionService conversionService) {
-    Assert.notNull(conversionService, "conversionService must not be null");
-    final Object key = getKey();
+  public <V> V getKey(Class<V> returnType, ConversionService conversionService) {
+    Assert.notNull(conversionService, "conversionService is required");
+    Object key = getKey();
     try {
       return conversionService.convert(key, returnType);
     }
@@ -296,7 +296,7 @@ public final class JdbcConnection implements Closeable {
 
   public Object[] getKeys() {
     assertCanGetKeys();
-    final List<Object> keys = this.keys;
+    List<Object> keys = this.keys;
     if (keys != null) {
       return keys.toArray();
     }
@@ -320,10 +320,10 @@ public final class JdbcConnection implements Closeable {
   public <V> List<V> getKeys(Class<V> returnType, ConversionService conversionService) {
     assertCanGetKeys();
     if (keys != null) {
-      Assert.notNull(conversionService, "conversionService must not be null");
+      Assert.notNull(conversionService, "conversionService is required");
       try {
-        final ArrayList<V> convertedKeys = new ArrayList<>(keys.size());
-        for (final Object key : keys) {
+        ArrayList<V> convertedKeys = new ArrayList<>(keys.size());
+        for (Object key : keys) {
           convertedKeys.add(conversionService.convert(key, returnType));
         }
         return convertedKeys;

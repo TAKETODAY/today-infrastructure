@@ -26,6 +26,8 @@ import java.sql.SQLException;
 import java.sql.SQLTimeoutException;
 import java.util.Properties;
 
+import cn.taketoday.lang.Nullable;
+
 /**
  * use DriverManager to establish a connection
  *
@@ -40,7 +42,7 @@ final class GenericConnectionSource implements ConnectionSource {
     this.properties = properties;
   }
 
-  GenericConnectionSource(String url, String user, String password) {
+  GenericConnectionSource(String url, @Nullable String user, @Nullable String password) {
     this(url, new Properties());
     if (user != null) {
       properties.put("user", user);

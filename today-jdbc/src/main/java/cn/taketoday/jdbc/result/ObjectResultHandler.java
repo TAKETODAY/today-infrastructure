@@ -28,12 +28,12 @@ import java.sql.SQLException;
 public final class ObjectResultHandler<T> extends ResultSetHandler<T> {
   private final int columnCount;
   private final JdbcBeanMetadata metadata;
-  private final JdbcPropertyAccessor[] accessors;
+  private final ObjectPropertySetter[] setters;
 
   public ObjectResultHandler(
-          final JdbcBeanMetadata metadata, final JdbcPropertyAccessor[] accessors, int columnCount) {
+          JdbcBeanMetadata metadata, ObjectPropertySetter[] setters, int columnCount) {
     this.metadata = metadata;
-    this.accessors = accessors;
+    this.setters = setters;
     this.columnCount = columnCount;
   }
 
@@ -43,11 +43,11 @@ public final class ObjectResultHandler<T> extends ResultSetHandler<T> {
     // otherwise we want executeAndFetch with object mapping
     final int columnCount = this.columnCount;
     final Object pojo = metadata.newInstance();
-    final JdbcPropertyAccessor[] accessors = this.accessors;
+    final ObjectPropertySetter[] setters = this.setters;
     for (int colIdx = 1; colIdx <= columnCount; colIdx++) {
-      final JdbcPropertyAccessor setter = accessors[colIdx - 1];
+      ObjectPropertySetter setter = setters[colIdx - 1];
       if (setter != null) {
-        setter.set(pojo, resultSet, colIdx);
+        setter.setTo(pojo, resultSet, colIdx);
       }
     }
     return (T) pojo;

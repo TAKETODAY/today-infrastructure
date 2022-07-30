@@ -24,6 +24,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import cn.taketoday.lang.Nullable;
+
 /**
  * @author Clinton Begin
  * @author TODAY
@@ -40,6 +42,7 @@ public interface TypeHandler<T> {
    * @return the result
    * @throws SQLException the SQL exception
    */
+  @Nullable
   T getResult(ResultSet rs, String columnName) throws SQLException;
 
   /**
@@ -48,8 +51,10 @@ public interface TypeHandler<T> {
    * @throws SQLException if a database access error occurs or this method is
    * called on a closed result set
    */
+  @Nullable
   T getResult(ResultSet rs, int columnIndex) throws SQLException;
 
+  @Nullable
   T getResult(CallableStatement cs, int columnIndex) throws SQLException;
 
 }

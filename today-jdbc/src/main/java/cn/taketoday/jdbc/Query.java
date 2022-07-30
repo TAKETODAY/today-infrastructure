@@ -454,10 +454,8 @@ public final class Query implements AutoCloseable {
 
   public <T> ResultSetHandlerFactory<T> createHandlerFactory(final Class<T> returnType) {
     return new DefaultResultSetHandlerFactory<>(
-            getTypeHandlerRegistry(),
             new JdbcBeanMetadata(returnType, caseSensitive, autoDerivingColumns, throwOnMappingFailure),
-            getColumnMappings()
-    );
+            connection.getOperations(), getColumnMappings());
   }
 
   /**

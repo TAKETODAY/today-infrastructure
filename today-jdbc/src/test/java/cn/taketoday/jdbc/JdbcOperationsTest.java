@@ -50,6 +50,8 @@ import javax.naming.InitialContext;
 import cn.taketoday.jdbc.pojos.BigDecimalPojo;
 import cn.taketoday.jdbc.pojos.ComplexEntity;
 import cn.taketoday.jdbc.pojos.EntityWithPrivateFields;
+import cn.taketoday.jdbc.pojos.Multi1;
+import cn.taketoday.jdbc.pojos.Multi2;
 import cn.taketoday.jdbc.pojos.StringConversionPojo;
 import cn.taketoday.jdbc.pojos.SuperPojo;
 import cn.taketoday.jdbc.result.LazyTable;
@@ -708,8 +710,9 @@ public class JdbcOperationsTest extends BaseMemDbTest {
 
   @Test
   public void testComplexTypes() {
-    ComplexEntity pojo = jdbcOperations.createQuery("select 1 id, 1 \"entity.id\", 'something' \"entity.value\" from (values(0))").setName(
-                    "testComplexTypes")
+    ComplexEntity pojo = jdbcOperations.createQuery(
+                    "select 1 id, 1 \"entity.id\", 'something' \"entity.value\" from (values(0))")
+            .setName("testComplexTypes")
             .fetchFirst(ComplexEntity.class);
 
     assertEquals(1, pojo.id);
@@ -717,32 +720,34 @@ public class JdbcOperationsTest extends BaseMemDbTest {
     assertEquals("something1", pojo.getEntity().getValue());
   }
 
-//    public void testMultiResult(){
-//        sql2o.createQuery("create table multi1(id integer identity primary key, value varchar(20))").executeUpdate();
-//        sql2o.createQuery("create table multi2(id integer identity primary key, value2 varchar(20))").executeUpdate();
+//  @Test
+//  public void testMultiResult() {
+//    jdbcOperations.createQuery("create table multi1(id integer identity primary key, value varchar(20))").executeUpdate();
+//    jdbcOperations.createQuery("create table multi2(id integer identity primary key, value2 varchar(20))").executeUpdate();
 //
-//        sql2o.createQuery("insert into multi1(value) values (:val)")
-//                .addParameter("val", "test1").addToBatch()
-//                .addParameter("val", "test2").addToBatch()
-//                .executeBatch();
+//    jdbcOperations.createQuery("insert into multi1(value) values (:val)")
+//            .addParameter("val", "test1").addToBatch()
+//            .addParameter("val", "test2").addToBatch()
+//            .executeBatch();
 //
-//        sql2o.createQuery("insert into multi2(value2) values (:val)")
-//                .addParameter("val", "test3").addToBatch()
-//                .addParameter("val", "test4").addToBatch()
-//                .executeBatch();
+//    jdbcOperations.createQuery("insert into multi2(value2) values (:val)")
+//            .addParameter("val", "test3").addToBatch()
+//            .addParameter("val", "test4").addToBatch()
+//            .executeBatch();
 //
-//        List[] results = sql2o.createQuery("select * from multi1 order by id; select * from multi2 order by id").executeAndFetchMultiple(Multi1.class, Multi2.class);
-//        //List<Multi1> results = sql2o.createQuery("select * from multi1 order by id; select * from multi2 order by id").executeAndFetch(Multi1.class);
+//    List[] results = jdbcOperations.createQuery("select * from multi1 order by id; select * from multi2 order by id")
+//            .executeAndFetchMultiple(Multi1.class, Multi2.class);
+//    //List<Multi1> results = jdbcOperations.createQuery("select * from multi1 order by id; select * from multi2 order by id").executeAndFetch(Multi1.class);
 //
-//        List<Multi1> res1 = results[0];
-//        List<Multi2> res2 = results[1];
+//    List<Multi1> res1 = results[0];
+//    List<Multi2> res2 = results[1];
 //
-//        assertEquals((Long)1L, res1.get(0).getId());
-//        assertEquals("test2", res1.get(1).getValue());
+//    assertEquals((Long) 1L, res1.get(0).getId());
+//    assertEquals("test2", res1.get(1).getValue());
 //
-//        assertEquals("test3", res2.get(0).getValue2());
-//        assertEquals(4, res2.get(1).getId());
-//    }
+//    assertEquals("test3", res2.get(0).getValue2());
+//    assertEquals(4, res2.get(1).getId());
+//  }
 
   @Test
   public void testRunInsideTransaction() {
@@ -841,9 +846,12 @@ public class JdbcOperationsTest extends BaseMemDbTest {
     Integer nullInt = null;
 
     jdbcOperations
-            .createQuery("insert into testUpdateWithNulls_2(value) values(:val)").addParameter("val", 2).addToBatch().addParameter("val",
-                    nullInt)
-            .addToBatch().executeBatch();
+            .createQuery("insert into testUpdateWithNulls_2(value) values(:val)")
+            .addParameter("val", 2)
+            .addToBatch()
+            .addParameter("val", nullInt)
+            .addToBatch()
+            .executeBatch();
   }
 
   @Test

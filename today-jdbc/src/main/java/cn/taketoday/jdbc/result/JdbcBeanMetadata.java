@@ -112,38 +112,23 @@ public class JdbcBeanMetadata implements Iterable<BeanProperty> {
 
   //
 
-  public Class<?> getType() { return beanMetadata.getType(); }
+  public Class<?> getObjectType() { return beanMetadata.getType(); }
 
   public BeanInstantiator getInstantiator() { return beanMetadata.getInstantiator(); }
 
   public Object newInstance() { return beanMetadata.newInstance(); }
 
-  public Object newInstance(@Nullable Object[] args) { return beanMetadata.newInstance(args); }
-
-  public PropertyAccessor getPropertyAccessor(String propertyName) { return beanMetadata.getPropertyAccessor(propertyName); }
-
-  public BeanProperty obtainBeanProperty(String propertyName) { return beanMetadata.obtainBeanProperty(propertyName); }
-
   public void setProperty(Object root, String propertyName, Object value) { beanMetadata.setProperty(root, propertyName, value); }
 
   public Object getProperty(Object root, String propertyName) { return beanMetadata.getProperty(root, propertyName); }
 
-  public Class<?> getPropertyClass(String propertyName) { return beanMetadata.getPropertyType(propertyName); }
-
-  public HashMap<String, BeanProperty> getBeanProperties() { return beanMetadata.getBeanProperties(); }
-
-  public ArrayList<BeanProperty> beanProperties() { return beanMetadata.beanProperties(); }
-
-  public int getPropertySize() { return beanMetadata.getPropertySize(); }
-
-  public boolean containsProperty(String name) { return beanMetadata.containsProperty(name); }
-
-  public HashMap<String, BeanProperty> createBeanProperties() { return beanMetadata.createBeanProperties(); }
-
+  @Override
   public Iterator<BeanProperty> iterator() { return beanMetadata.iterator(); }
 
+  @Override
   public void forEach(Consumer<? super BeanProperty> action) { beanMetadata.forEach(action); }
 
+  @Override
   public Spliterator<BeanProperty> spliterator() { return beanMetadata.spliterator(); }
 
   @Override

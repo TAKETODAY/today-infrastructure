@@ -27,14 +27,17 @@ import javax.sql.DataSource;
 
 import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.core.conversion.support.DefaultConversionService;
+import cn.taketoday.format.support.ApplicationConversionService;
 import cn.taketoday.jdbc.datasource.DataSourceUtils;
 import cn.taketoday.jdbc.parsing.QueryParameter;
 import cn.taketoday.jdbc.parsing.SqlParameterParser;
+import cn.taketoday.jdbc.result.PrimitiveTypeNullHandler;
 import cn.taketoday.jdbc.support.ClobToStringConverter;
 import cn.taketoday.jdbc.support.ConnectionSource;
 import cn.taketoday.jdbc.support.DataSourceConnectionSource;
 import cn.taketoday.jdbc.support.OffsetTimeToSQLTimeConverter;
 import cn.taketoday.jdbc.support.TimeToJodaLocalTimeConverter;
+import cn.taketoday.jdbc.type.TypeHandler;
 import cn.taketoday.jdbc.type.TypeHandlerRegistry;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
@@ -64,6 +67,9 @@ public class JdbcOperations {
   private SqlParameterParser sqlParameterParser = new SqlParameterParser();
 
   private ConversionService conversionService;
+
+  @Nullable
+  private PrimitiveTypeNullHandler primitiveTypeNullHandler;
 
   public JdbcOperations(String jndiLookup) {
     this(DataSourceUtils.getJndiDatasource(jndiLookup));
@@ -198,13 +204,56 @@ public class JdbcOperations {
   }
 
   public void setSqlParameterParser(SqlParameterParser sqlParameterParser) {
-    Assert.notNull(sqlParameterParser, "SqlParameterParser must not be null");
+    Assert.notNull(sqlParameterParser, "SqlParameterParser is required");
     this.sqlParameterParser = sqlParameterParser;
   }
 
   public SqlParameterParser getSqlParameterParser() {
     return sqlParameterParser;
   }
+
+  public void setTypeHandlerRegistry(@Nullable TypeHandlerRegistry typeHandlerRegistry) {
+    this.typeHandlerRegistry =
+            typeHandlerRegistry == null ? TypeHandlerRegistry.getSharedInstance() : typeHandlerRegistry;
+  }
+
+  public TypeHandlerRegistry getTypeHandlerRegistry() {
+    return typeHandlerRegistry;
+  }
+
+  /**
+   * set {@link ConversionService} to convert keys or other object
+   *
+   * @param conversionService ConversionService
+   */
+  public void setConversionService(@Nullable ConversionService conversionService) {
+    this.conversionService = conversionService == null
+                             ? ApplicationConversionService.getSharedInstance() : conversionService;
+  }
+
+  public ConversionService getConversionService() {
+    return conversionService;
+  }
+
+  /**
+   * set {@link PrimitiveTypeNullHandler}
+   * to handle null values when property is PrimitiveType
+   *
+   * @param primitiveTypeNullHandler PrimitiveTypeNullHandler
+   */
+  public void setPrimitiveTypeNullHandler(@Nullable PrimitiveTypeNullHandler primitiveTypeNullHandler) {
+    this.primitiveTypeNullHandler = primitiveTypeNullHandler;
+  }
+
+  /**
+   * @return {@link PrimitiveTypeNullHandler}
+   */
+  @Nullable
+  public PrimitiveTypeNullHandler getPrimitiveTypeNullHandler() {
+    return primitiveTypeNullHandler;
+  }
+
+  //
 
   protected String parse(String sql, Map<String, QueryParameter> paramNameToIdxMap) {
     return sqlParameterParser.parse(sql, paramNameToIdxMap);
@@ -567,21 +616,8 @@ public class JdbcOperations {
 
   //
 
-  public void setTypeHandlerRegistry(TypeHandlerRegistry typeHandlerRegistry) {
-    this.typeHandlerRegistry =
-            typeHandlerRegistry == null ? TypeHandlerRegistry.getSharedInstance() : typeHandlerRegistry;
-  }
-
-  public TypeHandlerRegistry getTypeHandlerRegistry() {
-    return typeHandlerRegistry;
-  }
-
-  public void setConversionService(ConversionService conversionService) {
-    this.conversionService = conversionService;
-  }
-
-  public ConversionService getConversionService() {
-    return conversionService;
+  public <T> TypeHandler<T> getTypeHandler(Class<T> type) {
+    return typeHandlerRegistry.getTypeHandler(type);
   }
 
 }

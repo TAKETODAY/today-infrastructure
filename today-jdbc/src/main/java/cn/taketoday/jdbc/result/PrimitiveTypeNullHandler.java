@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -20,13 +20,22 @@
 
 package cn.taketoday.jdbc.result;
 
-import java.sql.ResultSetMetaData;
-import java.sql.SQLException;
+import java.sql.ResultSet;
+
+import cn.taketoday.beans.BeanProperty;
 
 /**
- * User: dimzon Date: 4/7/14 Time: 12:02 AM
+ * use this handler when {@link ObjectPropertySetter}
+ * handle {@link ObjectPropertySetter#setTo(Object, ResultSet, int)}
+ *
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 4.0 2022/7/30 09:24
  */
-public interface ResultSetHandlerFactory<T> {
+public interface PrimitiveTypeNullHandler {
 
-  ResultSetHandler<T> getResultSetHandler(ResultSetMetaData resultSetMetaData) throws SQLException;
+  /**
+   * handle null when {@link ObjectPropertySetter} {@code property} is {@code null}
+   * and {@code property} is primitive-type
+   */
+  void handleNull(BeanProperty property, Object obj);
 }
