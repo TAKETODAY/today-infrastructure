@@ -272,7 +272,27 @@ public class Property implements Member, AnnotatedElement, Serializable {
    * @since 4.0
    */
   public boolean isReadable() {
+    // todo maybe can access field
     return readMethod != null;
+  }
+
+  /**
+   * is primitive
+   *
+   * @see java.lang.Boolean#TYPE
+   * @see java.lang.Character#TYPE
+   * @see java.lang.Byte#TYPE
+   * @see java.lang.Short#TYPE
+   * @see java.lang.Integer#TYPE
+   * @see java.lang.Long#TYPE
+   * @see java.lang.Float#TYPE
+   * @see java.lang.Double#TYPE
+   * @see java.lang.Void#TYPE
+   * @see Class#isPrimitive()
+   * @since 4.0
+   */
+  public boolean isPrimitive() {
+    return getType().isPrimitive();
   }
 
   /**
