@@ -415,7 +415,7 @@ public final class Type {
     int numArgumentTypes = 0;
     // Skip the first character, which is always a '('.
     int currentOffset = 1;
-    // Parse the argument types, one at a each loop iteration.
+    // Parse the argument types, one at each loop iteration.
     while (methodDescriptor.charAt(currentOffset) != ')') {
       while (methodDescriptor.charAt(currentOffset) == '[') {
         currentOffset++;
