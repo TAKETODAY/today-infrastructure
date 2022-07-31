@@ -25,19 +25,33 @@ import java.util.List;
 
 import cn.taketoday.beans.BeanProperty;
 import cn.taketoday.beans.BeanUtils;
+import cn.taketoday.core.annotation.MergedAnnotations;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 
 /**
+ * BeanProperty {@link TypeHandler} resolver
+ *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/7/30 23:32
  */
 public interface TypeHandlerResolver {
 
+  /**
+   * BeanProperty {@link TypeHandler} resolver
+   *
+   * @param beanProperty target property
+   */
   @Nullable
   TypeHandler<?> resolve(BeanProperty beanProperty);
 
-  default TypeHandlerResolver add(TypeHandlerResolver next) {
+  /**
+   * returns a new resolving chain
+   *
+   * @param next next resolver
+   * @return returns a new resolving chain
+   */
+  default TypeHandlerResolver and(TypeHandlerResolver next) {
     return beanProperty -> {
       TypeHandler<?> resolved = resolve(beanProperty);
       if (resolved == null) {
@@ -67,11 +81,12 @@ public interface TypeHandlerResolver {
   }
 
   static TypeHandlerResolver forMappedTypeHandlerAnnotation() {
-    return beanProperty -> {
-      MappedTypeHandler mappedTypeHandler = beanProperty.getAnnotation(MappedTypeHandler.class);
-      if (mappedTypeHandler != null) {
+    return (BeanProperty property) -> {
+      var mappedTypeHandler = MergedAnnotations.from(
+              property, property.getAnnotations()).get(MappedTypeHandler.class);
+      if (mappedTypeHandler.isPresent()) {
         // user defined TypeHandler
-        Class<? extends TypeHandler<?>> typeHandlerClass = mappedTypeHandler.value();
+        Class<? extends TypeHandler<?>> typeHandlerClass = mappedTypeHandler.getClassValue();
         Constructor<? extends TypeHandler<?>> constructor = BeanUtils.getConstructor(typeHandlerClass);
         if (constructor == null) {
           throw new IllegalStateException("No suitable constructor in " + typeHandlerClass);
@@ -82,7 +97,7 @@ public interface TypeHandlerResolver {
           Class<?>[] parameterTypes = constructor.getParameterTypes();
           int i = 0;
           for (Class<?> parameterType : parameterTypes) {
-            args[i++] = resolveArg(beanProperty, parameterType);
+            args[i++] = resolveArg(property, parameterType);
           }
           return BeanUtils.newInstance(constructor, args);
         }
