@@ -122,9 +122,8 @@ public class PartEventHttpMessageReader extends LoggingCodecSupport implements H
   }
 
   @Override
-  public Flux<PartEvent> read(ResolvableType elementType, ReactiveHttpInputMessage message,
-          Map<String, Object> hints) {
-
+  public Flux<PartEvent> read(ResolvableType elementType,
+          ReactiveHttpInputMessage message, Map<String, Object> hints) {
     return Flux.defer(() -> {
       byte[] boundary = MultipartUtils.boundary(message, this.headersCharset);
       if (boundary == null) {
@@ -135,13 +134,12 @@ public class PartEventHttpMessageReader extends LoggingCodecSupport implements H
               .windowUntil(t -> t instanceof MultipartParser.HeadersToken, true)
               .concatMap(tokens -> tokens.switchOnFirst((signal, flux) -> {
                 if (signal.hasValue()) {
-                  MultipartParser.HeadersToken headersToken = (MultipartParser.HeadersToken) signal.get();
+                  var headersToken = (MultipartParser.HeadersToken) signal.get();
                   Assert.state(headersToken != null, "Signal should be headers token");
 
                   HttpHeaders headers = headersToken.getHeaders();
-                  Flux<MultipartParser.BodyToken> bodyTokens =
-                          flux.filter(t -> t instanceof MultipartParser.BodyToken)
-                                  .cast(MultipartParser.BodyToken.class);
+                  var bodyTokens = flux.filter(t -> t instanceof MultipartParser.BodyToken)
+                          .cast(MultipartParser.BodyToken.class);
                   return createEvents(headers, bodyTokens);
                 }
                 else {

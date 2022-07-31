@@ -30,6 +30,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import cn.taketoday.core.DefaultMultiValueMap;
 import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.lang.Nullable;
 
@@ -42,6 +43,13 @@ import cn.taketoday.lang.Nullable;
  * @since 4.0
  */
 class ReadOnlyHttpHeaders extends DefaultHttpHeaders {
+
+  /**
+   * An empty {@code HttpHeaders} instance (immutable).
+   *
+   * @since 4.0
+   */
+  public static final ReadOnlyHttpHeaders EMPTY = new ReadOnlyHttpHeaders(new DefaultMultiValueMap<>());
 
   @Serial
   private static final long serialVersionUID = -8578554704772377436L;

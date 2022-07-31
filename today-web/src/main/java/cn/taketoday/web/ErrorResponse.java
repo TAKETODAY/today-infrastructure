@@ -60,7 +60,7 @@ public interface ErrorResponse extends HttpStatusCodeProvider {
    * Return headers to use for the response.
    */
   default HttpHeaders getHeaders() {
-    return HttpHeaders.EMPTY;
+    return HttpHeaders.empty();
   }
 
   /**

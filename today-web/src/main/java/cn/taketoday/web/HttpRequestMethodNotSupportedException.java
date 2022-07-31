@@ -147,7 +147,7 @@ public class HttpRequestMethodNotSupportedException extends NestedRuntimeExcepti
   @Override
   public HttpHeaders getHeaders() {
     if (ObjectUtils.isEmpty(this.supportedMethods)) {
-      return HttpHeaders.EMPTY;
+      return HttpHeaders.empty();
     }
     HttpHeaders headers = HttpHeaders.create();
     headers.add(HttpHeaders.ALLOW, StringUtils.arrayToDelimitedString(this.supportedMethods, ", "));

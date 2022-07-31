@@ -67,7 +67,7 @@ public class NotAcceptableStatusException extends ResponseStatusException {
   @Override
   public HttpHeaders getHeaders() {
     if (CollectionUtils.isEmpty(this.supportedMediaTypes)) {
-      return HttpHeaders.EMPTY;
+      return HttpHeaders.empty();
     }
     HttpHeaders headers = HttpHeaders.create();
     headers.setAccept(this.supportedMediaTypes);

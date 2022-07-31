@@ -48,7 +48,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import cn.taketoday.core.DefaultMultiValueMap;
 import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
@@ -544,13 +543,6 @@ public abstract class HttpHeaders
           ofPattern("EEEE, dd-MMM-yy HH:mm:ss zzz", US), //
           ofPattern("EEE MMM dd HH:mm:ss yyyy", US).withZone(GMT)
   };
-
-  /**
-   * An empty {@code HttpHeaders} instance (immutable).
-   *
-   * @since 4.0
-   */
-  public static final HttpHeaders EMPTY = new ReadOnlyHttpHeaders(new DefaultMultiValueMap<>());
 
   /**
    * Get the list of header values for the given header name, if any.
@@ -1882,6 +1874,18 @@ public abstract class HttpHeaders
     return new String(encodedBytes, charset);
   }
 
+  /**
+   * @return returns empty http-headers
+   * @since 4.0
+   */
+  public static HttpHeaders empty() {
+    return ReadOnlyHttpHeaders.EMPTY;
+  }
+
+  /**
+   * @return returns a new DefaultHttpHeaders
+   * @since 4.0
+   */
   public static DefaultHttpHeaders create() {
     return new DefaultHttpHeaders();
   }
@@ -1957,7 +1961,7 @@ public abstract class HttpHeaders
    */
   public static HttpHeaders copyOf(@Nullable Map<String, List<String>> targetMap) {
     if (targetMap == null) {
-      return HttpHeaders.EMPTY;
+      return HttpHeaders.empty();
     }
     else {
       HttpHeaders result = HttpHeaders.create();

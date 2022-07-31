@@ -101,7 +101,7 @@ final class MultipartParser extends BaseSubscriber<DataBuffer> {
 
   @Override
   public Context currentContext() {
-    return sink.currentContext();
+    return Context.of(sink.contextView());
   }
 
   @Override
@@ -431,7 +431,7 @@ final class MultipartParser extends BaseSubscriber<DataBuffer> {
      */
     private HttpHeaders parseHeaders() {
       if (buffers.isEmpty()) {
-        return HttpHeaders.EMPTY;
+        return HttpHeaders.empty();
       }
       DataBuffer joined = buffers.get(0).factory().join(buffers);
       buffers.clear();

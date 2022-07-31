@@ -100,12 +100,12 @@ public class ResponseStatusException extends ErrorResponseException {
 
   /**
    * Return headers to add to the error response, e.g. "Allow", "Accept", etc.
-   * <p>By default, delegates to {@link HttpHeaders#EMPTY} for backwards
+   * <p>By default, delegates to {@link HttpHeaders#empty()} for backwards
    * compatibility.
    */
   @Override
   public HttpHeaders getHeaders() {
-    return HttpHeaders.EMPTY;
+    return HttpHeaders.empty();
   }
 
   @Override

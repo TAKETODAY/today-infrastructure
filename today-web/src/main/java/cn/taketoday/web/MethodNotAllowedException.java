@@ -72,7 +72,7 @@ public class MethodNotAllowedException extends ResponseStatusException {
   @Override
   public HttpHeaders getHeaders() {
     if (CollectionUtils.isEmpty(this.supportedMethods)) {
-      return HttpHeaders.EMPTY;
+      return HttpHeaders.empty();
     }
     HttpHeaders headers = HttpHeaders.create();
     headers.setAllow(this.supportedMethods);

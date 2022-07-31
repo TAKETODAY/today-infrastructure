@@ -71,7 +71,7 @@ final class DefaultClientResponseBuilder implements ClientResponse.Builder {
 
     @Override
     public HttpHeaders getHeaders() {
-      return HttpHeaders.EMPTY;
+      return HttpHeaders.empty();
     }
   };
 
