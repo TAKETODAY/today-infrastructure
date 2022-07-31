@@ -52,7 +52,6 @@ import cn.taketoday.jdbc.result.Row;
 import cn.taketoday.jdbc.result.Table;
 import cn.taketoday.jdbc.result.TableResultSetIterator;
 import cn.taketoday.jdbc.result.TypeHandlerResultSetHandler;
-import cn.taketoday.jdbc.support.JdbcUtils;
 import cn.taketoday.jdbc.type.ObjectTypeHandler;
 import cn.taketoday.jdbc.type.TypeHandler;
 import cn.taketoday.jdbc.type.TypeHandlerRegistry;
@@ -68,7 +67,6 @@ import cn.taketoday.util.ObjectUtils;
  */
 public final class Query implements AutoCloseable {
   private static final Logger log = LoggerFactory.getLogger(Query.class);
-  private static final boolean debugEnabled = log.isDebugEnabled();
 
   private final JdbcConnection connection;
 
@@ -107,7 +105,7 @@ public final class Query implements AutoCloseable {
     this.connection = connection;
     this.columnNames = columnNames;
     this.returnGeneratedKeys = generatedKeys;
-    final JdbcOperations operations = connection.getOperations();
+    JdbcOperations operations = connection.getOperations();
     setColumnMappings(operations.getDefaultColumnMappings());
     this.caseSensitive = operations.isDefaultCaseSensitive();
     this.parsedQuery = operations.parse(queryText, queryParameters);
@@ -185,7 +183,7 @@ public final class Query implements AutoCloseable {
     if (Collection.class.isAssignableFrom(parameterClass)) {
       return addParameter(name, (Collection<?>) value);
     }
-    final TypeHandler<T> typeHandler = getTypeHandlerRegistry().getTypeHandler(parameterClass);
+    TypeHandler<T> typeHandler = getTypeHandlerRegistry().getTypeHandler(parameterClass);
     final class TypeHandlerParameterBinder extends ParameterBinder {
       @Override
       public void bind(PreparedStatement statement, int paramIdx) throws SQLException {
@@ -196,7 +194,7 @@ public final class Query implements AutoCloseable {
     return this;
   }
 
-  public Query withParams(final Object... paramValues) {
+  public Query withParams(Object... paramValues) {
     int i = 0;
     for (Object paramValue : paramValues) {
       addParameter("p" + (++i), paramValue);
@@ -205,18 +203,18 @@ public final class Query implements AutoCloseable {
   }
 
   @SuppressWarnings("unchecked")
-  public Query addParameter(final String name, final Object value) {
+  public Query addParameter(String name, Object value) {
     return value == null
            ? addNullParameter(name)
            : addParameter(name, (Class<Object>) value.getClass(), value);
   }
 
-  public Query addNullParameter(final String name) {
+  public Query addNullParameter(String name) {
     addParameter(name, ParameterBinder.null_binder);
     return this;
   }
 
-  public Query addParameter(final String name, final InputStream value) {
+  public Query addParameter(String name, InputStream value) {
     final class BinaryStreamParameterBinder extends ParameterBinder {
       @Override
       public void bind(PreparedStatement statement, int paramIdx) throws SQLException {
@@ -227,7 +225,7 @@ public final class Query implements AutoCloseable {
     return this;
   }
 
-  public Query addParameter(final String name, final int value) {
+  public Query addParameter(String name, int value) {
     final class IntegerParameterBinder extends ParameterBinder {
       @Override
       public void bind(PreparedStatement statement, int paramIdx) throws SQLException {
@@ -238,7 +236,7 @@ public final class Query implements AutoCloseable {
     return this;
   }
 
-  public Query addParameter(final String name, final long value) {
+  public Query addParameter(String name, long value) {
     final class LongParameterBinder extends ParameterBinder {
       @Override
       public void bind(PreparedStatement statement, int paramIdx) throws SQLException {
@@ -249,7 +247,7 @@ public final class Query implements AutoCloseable {
     return this;
   }
 
-  public Query addParameter(final String name, final String value) {
+  public Query addParameter(String name, String value) {
     final class StringParameterBinder extends ParameterBinder {
       @Override
       public void bind(PreparedStatement statement, int paramIdx) throws SQLException {
@@ -260,7 +258,7 @@ public final class Query implements AutoCloseable {
     return this;
   }
 
-  public Query addParameter(final String name, final Timestamp value) {
+  public Query addParameter(String name, Timestamp value) {
     final class TimestampParameterBinder extends ParameterBinder {
       @Override
       public void bind(PreparedStatement statement, int paramIdx) throws SQLException {
@@ -271,7 +269,7 @@ public final class Query implements AutoCloseable {
     return this;
   }
 
-  public Query addParameter(final String name, final Time value) {
+  public Query addParameter(String name, Time value) {
     final class TimeParameterBinder extends ParameterBinder {
       @Override
       public void bind(PreparedStatement statement, int paramIdx) throws SQLException {
@@ -283,7 +281,7 @@ public final class Query implements AutoCloseable {
     return this;
   }
 
-  public Query addParameter(final String name, final boolean value) {
+  public Query addParameter(String name, boolean value) {
     final class BooleanParameterBinder extends ParameterBinder {
 
       @Override
@@ -314,7 +312,7 @@ public final class Query implements AutoCloseable {
    *
    * @throws IllegalArgumentException if values parameter is null
    */
-  public Query addParameters(final String name, final Object... values) {
+  public Query addParameters(String name, Object... values) {
     addParameter(name, new ArrayParameterBinder(values));
     this.hasArrayParameter = true;
     return this;
@@ -326,7 +324,7 @@ public final class Query implements AutoCloseable {
    * @param parameters map of parameters
    * @see #addParameter(String, Object)
    */
-  public Query addParameters(final Map<String, Object> parameters) {
+  public Query addParameters(Map<String, Object> parameters) {
     for (Map.Entry<String, Object> entry : parameters.entrySet()) {
       addParameter(entry.getKey(), entry.getValue());
     }
@@ -337,17 +335,17 @@ public final class Query implements AutoCloseable {
    * Set an array parameter.<br>
    * See {@link #addParameters(String, Object...)} for details
    */
-  public Query addParameter(final String name, final Collection<?> values) {
+  public Query addParameter(String name, Collection<?> values) {
     addParameter(name, new ArrayParameterBinder(values));
     this.hasArrayParameter = true;
     return this;
   }
 
   @SuppressWarnings("unchecked")
-  public Query bind(final Object pojo) {
+  public Query bind(Object pojo) {
     HashMap<String, QueryParameter> queryParameters = getQueryParameters();
     for (BeanProperty property : BeanMetadata.from(pojo)) {
-      final String name = property.getName();
+      String name = property.getName();
       try {
         if (queryParameters.containsKey(name)) {
           addParameter(name, (Class<Object>) property.getType(), property.getValue(pojo));
@@ -362,11 +360,11 @@ public final class Query implements AutoCloseable {
 
   @Override
   public void close() {
-    final PreparedStatement prepared = this.preparedStatement;
+    PreparedStatement prepared = this.preparedStatement;
     if (prepared != null) {
       connection.removeStatement(prepared);
       try {
-        JdbcUtils.close(prepared);
+        prepared.close();
       }
       catch (SQLException ex) {
         log.warn("Could not close statement.", ex);
@@ -388,7 +386,7 @@ public final class Query implements AutoCloseable {
    * @throws ParameterBindFailedException parameter bind failed
    * @throws ArrayParameterBindFailedException array parameter bind failed
    */
-  private PreparedStatement buildPreparedStatement(final boolean allowArrayParameters) {
+  private PreparedStatement buildPreparedStatement(boolean allowArrayParameters) {
     HashMap<String, QueryParameter> queryParameters = getQueryParameters();
     if (hasArrayParameter) {
       // array parameter handling
@@ -409,7 +407,7 @@ public final class Query implements AutoCloseable {
     }
 
     // parameters assignation to query
-    for (final QueryParameter parameter : queryParameters.values()) {
+    for (QueryParameter parameter : queryParameters.values()) {
       try {
         parameter.setTo(statement);
       }
@@ -424,7 +422,7 @@ public final class Query implements AutoCloseable {
     return statement;
   }
 
-  private PreparedStatement getPreparedStatement(final Connection connection) {
+  private PreparedStatement getPreparedStatement(Connection connection) {
     try {
       if (ObjectUtils.isNotEmpty(columnNames)) {
         return connection.prepareStatement(parsedQuery, columnNames);
@@ -448,11 +446,11 @@ public final class Query implements AutoCloseable {
    * @param returnType type of each row
    * @return iterable results
    */
-  public <T> ResultSetIterable<T> fetchIterable(final Class<T> returnType) {
+  public <T> ResultSetIterable<T> fetchIterable(Class<T> returnType) {
     return fetchIterable(createHandlerFactory(returnType));
   }
 
-  public <T> ResultSetHandlerFactory<T> createHandlerFactory(final Class<T> returnType) {
+  public <T> ResultSetHandlerFactory<T> createHandlerFactory(Class<T> returnType) {
     return new DefaultResultSetHandlerFactory<>(
             new JdbcBeanMetadata(returnType, caseSensitive, autoDerivingColumns, throwOnMappingFailure),
             connection.getOperations(), getColumnMappings());
@@ -467,7 +465,7 @@ public final class Query implements AutoCloseable {
    * @param factory factory to provide ResultSetHandler
    * @return iterable results
    */
-  public <T> ResultSetIterable<T> fetchIterable(final ResultSetHandlerFactory<T> factory) {
+  public <T> ResultSetIterable<T> fetchIterable(ResultSetHandlerFactory<T> factory) {
     final class FactoryResultSetIterable extends AbstractResultSetIterable<T> {
       @Override
       public Iterator<T> iterator() {
@@ -486,7 +484,7 @@ public final class Query implements AutoCloseable {
    * @param handler ResultSetHandler
    * @return iterable results
    */
-  public <T> ResultSetIterable<T> fetchIterable(final ResultSetHandler<T> handler) {
+  public <T> ResultSetIterable<T> fetchIterable(ResultSetHandler<T> handler) {
     final class HandlerResultSetIterable extends AbstractResultSetIterable<T> {
       @Override
       public Iterator<T> iterator() {
@@ -552,7 +550,7 @@ public final class Query implements AutoCloseable {
   }
 
   public LazyTable fetchLazyTable(@Nullable ConversionService conversionService) {
-    final LazyTable lt = new LazyTable();
+    LazyTable lt = new LazyTable();
     final class RowResultSetIterable extends AbstractResultSetIterable<Row> {
       @Override
       public Iterator<Row> iterator() {
@@ -568,7 +566,7 @@ public final class Query implements AutoCloseable {
   }
 
   public Table fetchTable(ConversionService conversionService) {
-    final ArrayList<Row> rows = new ArrayList<>();
+    ArrayList<Row> rows = new ArrayList<>();
     try (LazyTable lt = fetchLazyTable(conversionService)) {
       for (Row item : lt.rows()) {
         rows.add(item);
@@ -579,7 +577,7 @@ public final class Query implements AutoCloseable {
   }
 
   public JdbcConnection executeUpdate() {
-    final long start = System.currentTimeMillis();
+    long start = System.currentTimeMillis();
     JdbcConnection connection = getConnection();
     try {
       logExecution();
@@ -597,7 +595,7 @@ public final class Query implements AutoCloseable {
       closeConnectionIfNecessary();
     }
 
-    if (debugEnabled) {
+    if (log.isDebugEnabled()) {
       log.debug("total: {} ms; executed update [{}]", System.currentTimeMillis() - start, obtainName());
     }
     return connection;
@@ -628,20 +626,20 @@ public final class Query implements AutoCloseable {
     return fetchScalar(getTypeHandlerRegistry().getTypeHandler(returnType));
   }
 
-  public <T> List<T> fetchScalars(final Class<T> returnType) {
-    final TypeHandler<T> typeHandler = getTypeHandlerRegistry().getTypeHandler(returnType);
+  public <T> List<T> fetchScalars(Class<T> returnType) {
+    TypeHandler<T> typeHandler = getTypeHandlerRegistry().getTypeHandler(returnType);
     return fetch(new TypeHandlerResultSetHandler<>(typeHandler));
   }
 
-  public <T> T fetchScalar(final TypeHandler<T> typeHandler) {
+  public <T> T fetchScalar(TypeHandler<T> typeHandler) {
     logExecution();
-    final long start = System.currentTimeMillis();
-    try (final PreparedStatement ps = buildPreparedStatement();
-            final ResultSet rs = ps.executeQuery()) {
+    long start = System.currentTimeMillis();
+    try (PreparedStatement ps = buildPreparedStatement();
+            ResultSet rs = ps.executeQuery()) {
 
       if (rs.next()) {
-        final T ret = typeHandler.getResult(rs, 1);
-        if (debugEnabled) {
+        T ret = typeHandler.getResult(rs, 1);
+        if (log.isDebugEnabled()) {
           log.debug("total: {} ms; executed scalar [{}]", System.currentTimeMillis() - start, obtainName());
         }
         return ret;
@@ -758,8 +756,8 @@ public final class Query implements AutoCloseable {
 
   public JdbcConnection executeBatch() {
     logExecution();
-    final long start = System.currentTimeMillis();
-    final JdbcConnection connection = this.connection;
+    long start = System.currentTimeMillis();
+    JdbcConnection connection = this.connection;
     try {
       PreparedStatement statement = buildPreparedStatement();
       connection.setBatchResult(statement.executeBatch());
@@ -783,7 +781,7 @@ public final class Query implements AutoCloseable {
     finally {
       closeConnectionIfNecessary();
     }
-    if (debugEnabled) {
+    if (log.isDebugEnabled()) {
       log.debug("total: {} ms; executed batch [{}]", System.currentTimeMillis() - start, obtainName());
     }
     return connection;
@@ -813,8 +811,8 @@ public final class Query implements AutoCloseable {
    */
   public void setColumnMappings(@Nullable Map<String, String> mappings) {
     if (CollectionUtils.isNotEmpty(mappings)) {
-      final HashMap<String, String> columnMappings = new HashMap<>();
-      final HashMap<String, String> caseSensitiveColumnMappings = new HashMap<>();
+      HashMap<String, String> columnMappings = new HashMap<>();
+      HashMap<String, String> caseSensitiveColumnMappings = new HashMap<>();
       for (Map.Entry<String, String> entry : mappings.entrySet()) {
         caseSensitiveColumnMappings.put(entry.getKey(), entry.getValue());
         columnMappings.put(entry.getKey().toLowerCase(), entry.getValue().toLowerCase());
@@ -854,18 +852,18 @@ public final class Query implements AutoCloseable {
   }
 
   private void logExecution() {
-    if (debugEnabled) {
+    if (log.isDebugEnabled()) {
       log.debug("Executing query:{}{}", System.lineSeparator(), parsedQuery);
     }
   }
 
   // from http://stackoverflow.com/questions/5606338/cast-primitive-type-array-into-object-array-in-java
-  private static Object[] toObjectArray(final Object val) {
+  private static Object[] toObjectArray(Object val) {
     if (val instanceof Object[]) {
       return (Object[]) val;
     }
-    final int arrayLength = Array.getLength(val);
-    final Object[] outputArray = new Object[arrayLength];
+    int arrayLength = Array.getLength(val);
+    Object[] outputArray = new Object[arrayLength];
     for (int i = 0; i < arrayLength; ++i) {
       outputArray[i] = Array.get(val, i);
     }
@@ -899,14 +897,14 @@ public final class Query implements AutoCloseable {
     }
 
     @Override
-    public void bind(final PreparedStatement statement, int paramIdx) throws SQLException {
+    public void bind(PreparedStatement statement, int paramIdx) throws SQLException {
       if (values.length == 0) {
         getTypeHandlerRegistry().getObjectTypeHandler()
                 .setParameter(statement, paramIdx, null);
       }
       else {
-        final TypeHandler<Object> typeHandler = getTypeHandlerRegistry().getUnknownTypeHandler();
-        for (final Object value : values) {
+        TypeHandler<Object> typeHandler = getTypeHandlerRegistry().getUnknownTypeHandler();
+        for (Object value : values) {
           typeHandler.setParameter(statement, paramIdx++, value);
         }
       }
@@ -938,8 +936,8 @@ public final class Query implements AutoCloseable {
     @Override
     public void close() {
       try {
-        JdbcUtils.close(rs);
-        if (debugEnabled) {
+        rs.close();
+        if (log.isDebugEnabled()) {
           long afterClose = System.currentTimeMillis();
           log.debug("total: {} ms, execution: {} ms, reading and parsing: {} ms; executed [{}]",
                   afterClose - start, afterExecQuery - start,
