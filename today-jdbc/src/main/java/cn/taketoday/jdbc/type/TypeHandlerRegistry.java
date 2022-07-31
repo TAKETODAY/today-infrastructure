@@ -43,7 +43,7 @@ import java.util.UUID;
 import cn.taketoday.beans.BeanProperty;
 import cn.taketoday.core.ResolvableType;
 import cn.taketoday.core.TypeReference;
-import cn.taketoday.core.annotation.AnnotationUtils;
+import cn.taketoday.core.annotation.MergedAnnotations;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 
@@ -194,12 +194,12 @@ public class TypeHandlerRegistry {
 
   public void addPropertyTypeHandlerResolver(TypeHandlerResolver resolver) {
     Assert.notNull(resolver, "TypeHandlerResolver is required");
-    this.typeHandlerResolver = typeHandlerResolver.add(resolver);
+    this.typeHandlerResolver = typeHandlerResolver.and(resolver);
   }
 
   public void addPropertyTypeHandlerResolvers(@Nullable TypeHandlerResolver... resolvers) {
     Assert.notNull(resolvers, "TypeHandlerResolver is required");
-    this.typeHandlerResolver = typeHandlerResolver.add(TypeHandlerResolver.composite(resolvers));
+    this.typeHandlerResolver = typeHandlerResolver.and(TypeHandlerResolver.composite(resolvers));
   }
 
   public void setPropertyTypeHandlerResolvers(@Nullable TypeHandlerResolver... resolvers) {
@@ -225,17 +225,16 @@ public class TypeHandlerRegistry {
   @SuppressWarnings("unchecked")
   public <T> void register(TypeHandler<T> typeHandler) {
     boolean mappedTypeFound = false;
-    MappedTypes mappedTypes = AnnotationUtils.getAnnotation(typeHandler.getClass(), MappedTypes.class);
-    if (mappedTypes != null) {
-      for (Class<?> handledType : mappedTypes.value()) {
+    var mappedTypes = MergedAnnotations.from(typeHandler.getClass()).get(MappedTypes.class);
+    if (mappedTypes.isPresent()) {
+      for (Class<?> handledType : mappedTypes.getClassValueArray()) {
         register((Class<T>) handledType, typeHandler);
         mappedTypeFound = true;
       }
     }
     // try to auto-discover the mapped type
-    if (!mappedTypeFound && typeHandler instanceof TypeReference) {
+    if (!mappedTypeFound && typeHandler instanceof TypeReference typeReference) {
       try {
-        TypeReference<T> typeReference = (TypeReference<T>) typeHandler;
         register(typeReference, typeHandler);
         mappedTypeFound = true;
       }
@@ -266,9 +265,9 @@ public class TypeHandlerRegistry {
 
   public void register(Class<?> typeHandlerClass) {
     boolean mappedTypeFound = false;
-    MappedTypes mappedTypes = typeHandlerClass.getAnnotation(MappedTypes.class);
-    if (mappedTypes != null) {
-      for (Class<?> javaTypeClass : mappedTypes.value()) {
+    var mappedTypes = MergedAnnotations.from(typeHandlerClass).get(MappedTypes.class);
+    if (mappedTypes.isPresent()) {
+      for (Class<?> javaTypeClass : mappedTypes.getClassValueArray()) {
         register(javaTypeClass, typeHandlerClass);
         mappedTypeFound = true;
       }
