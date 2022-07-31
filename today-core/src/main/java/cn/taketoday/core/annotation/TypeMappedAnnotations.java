@@ -282,7 +282,7 @@ final class TypeMappedAnnotations implements MergedAnnotations {
   private static boolean isMappingForType(
           AnnotationTypeMapping mapping, AnnotationFilter filter, @Nullable Object requiredType) {
 
-    Class<? extends Annotation> actualType = mapping.getAnnotationType();
+    Class<? extends Annotation> actualType = mapping.annotationType;
     return (!filter.matches(actualType) &&
             (requiredType == null || actualType == requiredType || actualType.getName().equals(requiredType)));
   }
@@ -589,9 +589,9 @@ final class TypeMappedAnnotations implements MergedAnnotations {
       int annotationResult = -1;
       for (int annotationIndex = 0; annotationIndex < aggregate.size(); annotationIndex++) {
         AnnotationTypeMapping mapping = getNextSuitableMapping(aggregate, annotationIndex);
-        if (mapping != null && mapping.getDistance() < lowestDistance) {
+        if (mapping != null && mapping.distance < lowestDistance) {
           annotationResult = annotationIndex;
-          lowestDistance = mapping.getDistance();
+          lowestDistance = mapping.distance;
         }
         if (lowestDistance == 0) {
           break;

@@ -59,7 +59,7 @@ class AnnotationTypeMappingsTests {
   void forAnnotationTypeWhenNoMetaAnnotationsReturnsMappings() {
     AnnotationTypeMappings mappings = AnnotationTypeMappings.forAnnotationType(SimpleAnnotation.class);
     assertThat(mappings.size()).isEqualTo(1);
-    assertThat(mappings.get(0).getAnnotationType()).isEqualTo(SimpleAnnotation.class);
+    assertThat(mappings.get(0).annotationType).isEqualTo(SimpleAnnotation.class);
     assertThat(getAll(mappings)).flatExtracting(
             AnnotationTypeMapping::getAnnotationType).containsExactly(SimpleAnnotation.class);
   }
@@ -246,40 +246,40 @@ class AnnotationTypeMappingsTests {
   @Test
   void getDistanceReturnsDistance() {
     AnnotationTypeMappings mappings = AnnotationTypeMappings.forAnnotationType(Mapped.class);
-    assertThat(mappings.get(0).getDistance()).isEqualTo(0);
-    assertThat(mappings.get(1).getDistance()).isEqualTo(1);
+    assertThat(mappings.get(0).distance).isEqualTo(0);
+    assertThat(mappings.get(1).distance).isEqualTo(1);
   }
 
   @Test
   void getAnnotationTypeReturnsAnnotationType() {
     AnnotationTypeMappings mappings = AnnotationTypeMappings.forAnnotationType(Mapped.class);
-    assertThat(mappings.get(0).getAnnotationType()).isEqualTo(Mapped.class);
-    assertThat(mappings.get(1).getAnnotationType()).isEqualTo(MappedTarget.class);
+    assertThat(mappings.get(0).annotationType).isEqualTo(Mapped.class);
+    assertThat(mappings.get(1).annotationType).isEqualTo(MappedTarget.class);
   }
 
   @Test
   void getMetaTypeReturnsTypes() {
     AnnotationTypeMappings mappings = AnnotationTypeMappings.forAnnotationType(ThreeDeepA.class);
     AnnotationTypeMapping mappingC = mappings.get(2);
-    assertThat(mappingC.getMetaTypes()).containsExactly(ThreeDeepA.class, ThreeDeepB.class, ThreeDeepC.class);
+    assertThat(mappingC.metaTypes).containsExactly(ThreeDeepA.class, ThreeDeepB.class, ThreeDeepC.class);
   }
 
   @Test
   void getAnnotationWhenRootReturnsNull() {
     AnnotationTypeMappings mappings = AnnotationTypeMappings.forAnnotationType(Mapped.class);
-    assertThat(mappings.get(0).getAnnotation()).isNull();
+    assertThat(mappings.get(0).annotation).isNull();
   }
 
   @Test
   void getAnnotationWhenMetaAnnotationReturnsAnnotation() {
     AnnotationTypeMappings mappings = AnnotationTypeMappings.forAnnotationType(Mapped.class);
-    assertThat(mappings.get(1).getAnnotation()).isEqualTo(Mapped.class.getAnnotation(MappedTarget.class));
+    assertThat(mappings.get(1).annotation).isEqualTo(Mapped.class.getAnnotation(MappedTarget.class));
   }
 
   @Test
   void getAttributesReturnsAttributes() {
     AnnotationTypeMapping mapping = AnnotationTypeMappings.forAnnotationType(Mapped.class).get(0);
-    AttributeMethods attributes = mapping.getAttributes();
+    AttributeMethods attributes = mapping.methods;
     assertThat(attributes.size()).isEqualTo(2);
     assertThat(attributes.get(0).getName()).isEqualTo("alias");
     assertThat(attributes.get(1).getName()).isEqualTo("convention");
@@ -300,9 +300,9 @@ class AnnotationTypeMappingsTests {
   @Test
   void getMirrorSetWhenAliasPairReturnsMirrors() {
     AnnotationTypeMapping mapping = AnnotationTypeMappings.forAnnotationType(AliasPair.class).get(0);
-    MirrorSets mirrorSets = mapping.getMirrorSets();
+    MirrorSets mirrorSets = mapping.mirrorSets;
     assertThat(mirrorSets.size()).isEqualTo(1);
-    assertThat(mirrorSets.get(0).size()).isEqualTo(2);
+    assertThat(mirrorSets.get(0).size).isEqualTo(2);
     assertThat(mirrorSets.get(0).get(0).getName()).isEqualTo("a");
     assertThat(mirrorSets.get(0).get(1).getName()).isEqualTo("b");
   }
@@ -310,9 +310,9 @@ class AnnotationTypeMappingsTests {
   @Test
   void getMirrorSetWhenImplicitMirrorsReturnsMirrors() {
     AnnotationTypeMapping mapping = AnnotationTypeMappings.forAnnotationType(ImplicitMirrors.class).get(0);
-    MirrorSets mirrorSets = mapping.getMirrorSets();
+    MirrorSets mirrorSets = mapping.mirrorSets;
     assertThat(mirrorSets.size()).isEqualTo(1);
-    assertThat(mirrorSets.get(0).size()).isEqualTo(2);
+    assertThat(mirrorSets.get(0).size).isEqualTo(2);
     assertThat(mirrorSets.get(0).get(0).getName()).isEqualTo("a");
     assertThat(mirrorSets.get(0).get(1).getName()).isEqualTo("b");
   }
@@ -321,15 +321,15 @@ class AnnotationTypeMappingsTests {
   void getMirrorSetWhenThreeDeepReturnsMirrors() {
     AnnotationTypeMappings mappings = AnnotationTypeMappings.forAnnotationType(ThreeDeepA.class);
     AnnotationTypeMapping mappingA = mappings.get(0);
-    MirrorSets mirrorSetsA = mappingA.getMirrorSets();
+    MirrorSets mirrorSetsA = mappingA.mirrorSets;
     assertThat(mirrorSetsA.size()).isEqualTo(2);
     assertThat(getNames(mirrorSetsA.get(0))).containsExactly("a1", "a2", "a3");
     AnnotationTypeMapping mappingB = mappings.get(1);
-    MirrorSets mirrorSetsB = mappingB.getMirrorSets();
+    MirrorSets mirrorSetsB = mappingB.mirrorSets;
     assertThat(mirrorSetsB.size()).isEqualTo(1);
     assertThat(getNames(mirrorSetsB.get(0))).containsExactly("b1", "b2");
     AnnotationTypeMapping mappingC = mappings.get(2);
-    MirrorSets mirrorSetsC = mappingC.getMirrorSets();
+    MirrorSets mirrorSetsC = mappingC.mirrorSets;
     assertThat(mirrorSetsC.size()).isEqualTo(0);
   }
 
@@ -400,11 +400,11 @@ class AnnotationTypeMappingsTests {
     AnnotationTypeMappings mappings = AnnotationTypeMappings.forAnnotationType(
             MultipleRoutesToAliasA.class);
     AnnotationTypeMapping mappingsA = getMapping(mappings, MultipleRoutesToAliasA.class);
-    assertThat(mappingsA.getMirrorSets().size()).isZero();
+    assertThat(mappingsA.mirrorSets.size()).isZero();
     AnnotationTypeMapping mappingsB = getMapping(mappings, MultipleRoutesToAliasB.class);
-    assertThat(getNames(mappingsB.getMirrorSets().get(0))).containsExactly("b1", "b2", "b3");
+    assertThat(getNames(mappingsB.mirrorSets.get(0))).containsExactly("b1", "b2", "b3");
     AnnotationTypeMapping mappingsC = getMapping(mappings, MultipleRoutesToAliasC.class);
-    assertThat(getNames(mappingsC.getMirrorSets().get(0))).containsExactly("c1", "c2");
+    assertThat(getNames(mappingsC.mirrorSets.get(0))).containsExactly("c1", "c2");
   }
 
   @Test
@@ -481,10 +481,10 @@ class AnnotationTypeMappingsTests {
   private Method[] resolveMirrorSets(AnnotationTypeMapping mapping, Class<?> element,
           Class<? extends Annotation> annotationClass) {
     Annotation annotation = element.getAnnotation(annotationClass);
-    int[] resolved = mapping.getMirrorSets().resolve(element.getName(), annotation, ReflectionUtils::invokeMethod);
+    int[] resolved = mapping.mirrorSets.resolve(element.getName(), annotation, ReflectionUtils::invokeMethod);
     Method[] result = new Method[resolved.length];
     for (int i = 0; i < resolved.length; i++) {
-      result[i] = resolved[i] != -1 ? mapping.getAttributes().get(resolved[i]) : null;
+      result[i] = resolved[i] != -1 ? mapping.methods.get(resolved[i]) : null;
     }
     return result;
   }
@@ -492,20 +492,20 @@ class AnnotationTypeMappingsTests {
   @Nullable
   private Method getAliasMapping(AnnotationTypeMapping mapping, int attributeIndex) {
     int mapped = mapping.getAliasMapping(attributeIndex);
-    return mapped != -1 ? mapping.getRoot().getAttributes().get(mapped) : null;
+    return mapped != -1 ? mapping.root.methods.get(mapped) : null;
   }
 
   @Nullable
   private Method getConventionMapping(AnnotationTypeMapping mapping, int attributeIndex) {
     int mapped = mapping.getConventionMapping(attributeIndex);
-    return mapped != -1 ? mapping.getRoot().getAttributes().get(mapped) : null;
+    return mapped != -1 ? mapping.root.methods.get(mapped) : null;
   }
 
   private AnnotationTypeMapping getMapping(AnnotationTypeMappings mappings,
           Class<? extends Annotation> annotationType) {
 
     for (AnnotationTypeMapping candidate : getAll(mappings)) {
-      if (candidate.getAnnotationType() == annotationType) {
+      if (candidate.annotationType == annotationType) {
         return candidate;
       }
     }
@@ -519,8 +519,8 @@ class AnnotationTypeMappingsTests {
   }
 
   private List<String> getNames(MirrorSet mirrorSet) {
-    List<String> names = new ArrayList<>(mirrorSet.size());
-    for (int i = 0; i < mirrorSet.size(); i++) {
+    List<String> names = new ArrayList<>(mirrorSet.size);
+    for (int i = 0; i < mirrorSet.size; i++) {
       names.add(mirrorSet.get(i).getName());
     }
     return names;

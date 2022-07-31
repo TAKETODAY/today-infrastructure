@@ -36,6 +36,7 @@ import cn.taketoday.util.ReflectionUtils;
  * with consistent ordering as well as a few useful utility methods.
  *
  * @author Phillip Webb
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 final class AttributeMethods {
@@ -58,9 +59,20 @@ final class AttributeMethods {
 
   private final boolean[] canThrowTypeNotPresentException;
 
-  private final boolean hasDefaultValueMethod;
+  /**
+   * Determine if at least one of the attribute methods has a default value.
+   *
+   * <p>{@code true} if there is at least one attribute method with a default value
+   */
+  public final boolean hasDefaultValueMethod;
 
-  private final boolean hasNestedAnnotation;
+  /**
+   * Determine if at least one of the attribute methods is a nested annotation.
+   *
+   * <p>{@code true} if there is at least one attribute method with a nested
+   * annotation type
+   */
+  public final boolean hasNestedAnnotation;
 
   private AttributeMethods(@Nullable Class<? extends Annotation> annotationType, Method[] attributes) {
     this.annotationType = annotationType;
@@ -104,10 +116,11 @@ final class AttributeMethods {
    */
   boolean isValid(Annotation annotation) {
     assertAnnotation(annotation);
-    for (int i = 0; i < size(); i++) {
+    Method[] attributes = this.attributes;
+    for (int i = 0; i < attributes.length; i++) {
       if (canThrowTypeNotPresentException(i)) {
         try {
-          get(i).invoke(annotation);
+          attributes[i].invoke(annotation);
         }
         catch (Throwable ex) {
           return false;
@@ -130,14 +143,15 @@ final class AttributeMethods {
    */
   void validate(Annotation annotation) {
     assertAnnotation(annotation);
-    for (int i = 0; i < size(); i++) {
+    Method[] attributes = this.attributes;
+    for (int i = 0; i < attributes.length; i++) {
       if (canThrowTypeNotPresentException(i)) {
         try {
-          get(i).invoke(annotation);
+          attributes[i].invoke(annotation);
         }
         catch (Throwable ex) {
           throw new IllegalStateException("Could not obtain annotation attribute value for " +
-                  get(i).getName() + " declared on " + annotation.annotationType(), ex);
+                  attributes[i].getName() + " declared on " + annotation.annotationType(), ex);
         }
       }
     }
@@ -226,25 +240,6 @@ final class AttributeMethods {
    */
   int size() {
     return this.attributes.length;
-  }
-
-  /**
-   * Determine if at least one of the attribute methods has a default value.
-   *
-   * @return {@code true} if there is at least one attribute method with a default value
-   */
-  boolean hasDefaultValueMethod() {
-    return this.hasDefaultValueMethod;
-  }
-
-  /**
-   * Determine if at least one of the attribute methods is a nested annotation.
-   *
-   * @return {@code true} if there is at least one attribute method with a nested
-   * annotation type
-   */
-  boolean hasNestedAnnotation() {
-    return this.hasNestedAnnotation;
   }
 
   /**

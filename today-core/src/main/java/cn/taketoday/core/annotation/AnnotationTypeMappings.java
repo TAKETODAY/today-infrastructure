@@ -71,7 +71,7 @@ final class AnnotationTypeMappings {
   }
 
   private void addAllMappings(Class<? extends Annotation> annotationType,
-                              Set<Class<? extends Annotation>> visitedAnnotationTypes) {
+          Set<Class<? extends Annotation>> visitedAnnotationTypes) {
 
     ArrayDeque<AnnotationTypeMapping> queue = new ArrayDeque<>();
     addIfPossible(queue, null, annotationType, null, visitedAnnotationTypes);
@@ -83,7 +83,7 @@ final class AnnotationTypeMappings {
   }
 
   private void addMetaAnnotationsToQueue(Deque<AnnotationTypeMapping> queue, AnnotationTypeMapping source) {
-    Annotation[] metaAnnotations = AnnotationsScanner.getDeclaredAnnotations(source.getAnnotationType(), false);
+    Annotation[] metaAnnotations = AnnotationsScanner.getDeclaredAnnotations(source.annotationType, false);
     for (Annotation metaAnnotation : metaAnnotations) {
       if (isNotMappable(source, metaAnnotation)) {
         continue;
@@ -108,8 +108,8 @@ final class AnnotationTypeMappings {
   }
 
   private void addIfPossible(Deque<AnnotationTypeMapping> queue, @Nullable AnnotationTypeMapping source,
-                             Class<? extends Annotation> annotationType, @Nullable Annotation ann,
-                             Set<Class<? extends Annotation>> visitedAnnotationTypes) {
+          Class<? extends Annotation> annotationType, @Nullable Annotation ann,
+          Set<Class<? extends Annotation>> visitedAnnotationTypes) {
     try {
       queue.addLast(new AnnotationTypeMapping(source, annotationType, ann, visitedAnnotationTypes));
     }
@@ -117,14 +117,14 @@ final class AnnotationTypeMappings {
       AnnotationUtils.rethrowAnnotationConfigurationException(ex);
       if (failureLogger.isEnabled()) {
         failureLogger.log("Failed to introspect meta-annotation " + annotationType.getName(),
-                (source != null ? source.getAnnotationType() : null), ex);
+                (source != null ? source.annotationType : null), ex);
       }
     }
   }
 
   private boolean isNotMappable(AnnotationTypeMapping source, @Nullable Annotation metaAnnotation) {
     return (metaAnnotation == null || this.filter.matches(metaAnnotation)
-            || AnnotationFilter.PLAIN.matches(source.getAnnotationType())
+            || AnnotationFilter.PLAIN.matches(source.annotationType)
             || isAlreadyMapped(source, metaAnnotation)
     );
   }
@@ -133,10 +133,10 @@ final class AnnotationTypeMappings {
     Class<? extends Annotation> annotationType = metaAnnotation.annotationType();
     AnnotationTypeMapping mapping = source;
     while (mapping != null) {
-      if (mapping.getAnnotationType() == annotationType) {
+      if (mapping.annotationType == annotationType) {
         return true;
       }
-      mapping = mapping.getSource();
+      mapping = mapping.source;
     }
     return false;
   }

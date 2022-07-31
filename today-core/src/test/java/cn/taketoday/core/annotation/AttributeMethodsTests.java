@@ -120,13 +120,13 @@ class AttributeMethodsTests {
   @Test
   void hasDefaultValueMethodWhenHasDefaultValueMethodReturnsTrue() {
     AttributeMethods methods = AttributeMethods.forAnnotationType(DefaultValueAttribute.class);
-    assertThat(methods.hasDefaultValueMethod()).isTrue();
+    assertThat(methods.hasDefaultValueMethod).isTrue();
   }
 
   @Test
   void hasDefaultValueMethodWhenHasNoDefaultValueMethodsReturnsFalse() {
     AttributeMethods methods = AttributeMethods.forAnnotationType(MultipleAttributes.class);
-    assertThat(methods.hasDefaultValueMethod()).isFalse();
+    assertThat(methods.hasDefaultValueMethod).isFalse();
   }
 
   @Test

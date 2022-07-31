@@ -224,7 +224,7 @@ final class MergedAnnotationsCollection implements MergedAnnotations {
     if (requiredType == null) {
       return true;
     }
-    Class<? extends Annotation> actualType = mapping.getAnnotationType();
+    Class<? extends Annotation> actualType = mapping.annotationType;
     return (actualType == requiredType || actualType.getName().equals(requiredType));
   }
 
@@ -253,9 +253,9 @@ final class MergedAnnotationsCollection implements MergedAnnotations {
       int annotationResult = -1;
       for (int annotationIndex = 0; annotationIndex < annotations.length; annotationIndex++) {
         AnnotationTypeMapping mapping = getNextSuitableMapping(annotationIndex);
-        if (mapping != null && mapping.getDistance() < lowestDistance) {
+        if (mapping != null && mapping.distance < lowestDistance) {
           annotationResult = annotationIndex;
-          lowestDistance = mapping.getDistance();
+          lowestDistance = mapping.distance;
         }
         if (lowestDistance == 0) {
           break;

@@ -141,7 +141,7 @@ class TypeMappedAnnotationTests {
             annotation.annotationType());
     for (int i = 0; i < mappings.size(); i++) {
       AnnotationTypeMapping candidate = mappings.get(i);
-      if (candidate.getAnnotationType().equals(mappedAnnotationType)) {
+      if (candidate.annotationType.equals(mappedAnnotationType)) {
         return candidate;
       }
     }
