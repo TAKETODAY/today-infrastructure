@@ -583,7 +583,7 @@ public abstract class AbstractPlatformTransactionManager implements PlatformTran
     SynchronizationInfo info = TransactionSynchronizationManager.getSynchronizationInfo();
 
     if (info.isSynchronizationActive()) {
-      List<TransactionSynchronization> suspendedSynchronizations = doSuspendSynchronization();
+      List<TransactionSynchronization> suspendedSynchronizations = doSuspendSynchronization(info);
       try {
         Object suspendedResources = null;
         if (transaction != null) {
@@ -671,8 +671,7 @@ public abstract class AbstractPlatformTransactionManager implements PlatformTran
    *
    * @return the List of suspended TransactionSynchronization objects
    */
-  private List<TransactionSynchronization> doSuspendSynchronization() {
-    SynchronizationInfo info = TransactionSynchronizationManager.getSynchronizationInfo();
+  private List<TransactionSynchronization> doSuspendSynchronization(SynchronizationInfo info) {
     List<TransactionSynchronization> suspendedSynchronizations = info.getSynchronizations();
     for (TransactionSynchronization synchronization : suspendedSynchronizations) {
       synchronization.suspend();
@@ -1302,20 +1301,20 @@ public abstract class AbstractPlatformTransactionManager implements PlatformTran
   protected static final class SuspendedResourcesHolder {
 
     @Nullable
-    private final Object suspendedResources;
+    public final Object suspendedResources;
 
     @Nullable
-    private List<TransactionSynchronization> suspendedSynchronizations;
+    public List<TransactionSynchronization> suspendedSynchronizations;
 
     @Nullable
-    private String name;
+    public String name;
 
-    private boolean readOnly;
+    public boolean readOnly;
 
     @Nullable
-    private Integer isolationLevel;
+    public Integer isolationLevel;
 
-    private boolean wasActive;
+    public boolean wasActive;
 
     private SuspendedResourcesHolder(Object suspendedResources) {
       this.suspendedResources = suspendedResources;
