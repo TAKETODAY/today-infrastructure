@@ -172,10 +172,47 @@ public class Property implements Member, AnnotatedElement, Serializable {
     throw new IllegalStateException("never get here");
   }
 
+  /**
+   * Determines if the specified {@code Object} is assignment-compatible
+   * with the object represented by this {@code Property}.  This method is
+   * the dynamic equivalent of the Java language {@code instanceof}
+   * operator. The method returns {@code true} if the specified
+   * {@code Object} argument is non-null and can be cast to the
+   * reference type represented by this {@code Property} object without
+   * raising a {@code ClassCastException.} It returns {@code false}
+   * otherwise.
+   *
+   * <p> Specifically, if this {@code Property} object represents a
+   * declared class, this method returns {@code true} if the specified
+   * {@code Object} argument is an instance of the represented class (or
+   * of any of its subclasses); it returns {@code false} otherwise. If
+   * this {@code Property} object represents an array class, this method
+   * returns {@code true} if the specified {@code Object} argument
+   * can be converted to an object of the array class by an identity
+   * conversion or by a widening reference conversion; it returns
+   * {@code false} otherwise. If this {@code Property} object
+   * represents an interface, this method returns {@code true} if the
+   * class or any superclass of the specified {@code Object} argument
+   * implements this interface; it returns {@code false} otherwise. If
+   * this {@code Property} object represents a primitive type, this method
+   * returns {@code false}.
+   *
+   * @param value the object to check
+   * @return true if {@code obj} is an instance of this property-type
+   * @see Class#isInstance(Object)
+   */
   public boolean isInstance(Object value) {
     return getType().isInstance(value);
   }
 
+  /**
+   * Returns a {@code Class} object that identifies the
+   * declared type for the field represented by this
+   * {@code Field} object.
+   *
+   * @return a {@code Class} object identifying the declared
+   * type of the field represented by this object
+   */
   public Class<?> getType() {
     if (propertyType == null) {
       if (readMethod != null) {
