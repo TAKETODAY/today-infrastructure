@@ -25,6 +25,8 @@ import java.util.Optional;
 import java.util.function.Supplier;
 
 /**
+ * Enumerable for {@link Enum}
+ *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
@@ -36,12 +38,28 @@ public interface Enumerable<V> extends Descriptive {
   }
 
   @Override
-  String getDescription(); // 描述 对标
+  default String getDescription() {
+    return name();
+  }
 
-  String name(); // 枚举默认的名字 , 该方法无需实现，枚举类自动继承
+  /**
+   * The default name of the enumeration, this method does not need
+   * to be implemented, the enumeration class is automatically inherited
+   */
+  String name();
 
+  /**
+   * Returns Enumerable by {@link Enumerable#getValue() enum value}
+   *
+   * @param enumerable enum
+   * @param value enumeration value
+   * @param <T> enumeration type
+   * @param <V> enumeration value type
+   * @return enumeration instance
+   * @see Enumerable#getValue()
+   */
   @Nullable
-  static <T extends Enumerable<V>, V> T introspect(Class<T> enumerable, V value) {
+  static <T extends Enumerable<V>, V> T of(Class<T> enumerable, V value) {
     T[] enumConstants = enumerable.getEnumConstants();
     if (enumConstants != null) {
       for (T constant : enumConstants) {
@@ -54,39 +72,17 @@ public interface Enumerable<V> extends Descriptive {
   }
 
   /**
-   * 通过 枚举名称 返回 Enumerable
+   * Get the value corresponding to the name
    *
-   * @param enumerable 枚举类
-   * @param name 枚举名称
-   * @param <T>枚举类型
-   * @param <V> 枚举值类型
-   * @return 枚举实例
-   */
-  @Nullable
-  static <T extends Enumerable<V>, V> T fromName(Class<T> enumerable, String name) {
-    T[] enumConstants = enumerable.getEnumConstants();
-    if (enumConstants != null) {
-      for (T constant : enumConstants) {
-        if (Objects.equals(name, constant.name())) {
-          return constant;
-        }
-      }
-    }
-    return null;
-  }
-
-  /**
-   * 获取 name 对应的 value
-   *
-   * @param enumerable 枚举类
-   * @param name 枚举名称
-   * @param <T> 枚举类型
-   * @param <V> 枚举值类型
-   * @return 枚举值
+   * @param enumerable enumeration class
+   * @param name enumeration name
+   * @param <T> enum type
+   * @param <V> enumeration value type
+   * @return enumeration value
    * @see Enumerable#getValue()
    */
   @Nullable
-  static <T extends Enumerable<V>, V> V introspectValue(Class<T> enumerable, String name) {
+  static <T extends Enumerable<V>, V> V getValue(Class<T> enumerable, String name) {
     T[] enumConstants = enumerable.getEnumConstants();
     if (enumConstants != null) {
       for (T constant : enumConstants) {
@@ -99,14 +95,30 @@ public interface Enumerable<V> extends Descriptive {
   }
 
   /**
-   * @param defaultValue 默认值
+   * @param <T> enum type
+   * @param <V> enumeration value type
+   * @param defaultValue default value
+   * @see #of(Class, V)
    */
-  static <T extends Enumerable<V>, V> T introspect(Class<T> enumerable, V value, Supplier<T> defaultValue) {
+  static <T extends Enumerable<V>, V> T of(Class<T> enumerable, V value, Supplier<T> defaultValue) {
     return find(enumerable, value).orElseGet(defaultValue);
   }
 
+  /**
+   * @param defaultValue default value
+   * @param <T> enum type
+   * @param <V> enumeration value type
+   * @see #of(Class, V)
+   */
+  static <T extends Enumerable<V>, V> T of(Class<T> enumerable, V value, T defaultValue) {
+    return find(enumerable, value).orElse(defaultValue);
+  }
+
+  /**
+   * @return Optional of T
+   */
   static <T extends Enumerable<V>, V> Optional<T> find(Class<T> enumerable, V value) {
-    return Optional.ofNullable(introspect(enumerable, value));
+    return Optional.ofNullable(of(enumerable, value));
   }
 
 }
