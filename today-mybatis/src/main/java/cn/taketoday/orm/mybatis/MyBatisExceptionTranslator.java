@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -17,6 +17,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.orm.mybatis;
 
 import org.apache.ibatis.exceptions.PersistenceException;
@@ -31,7 +32,6 @@ import cn.taketoday.dao.support.PersistenceExceptionTranslator;
 import cn.taketoday.jdbc.UncategorizedSQLException;
 import cn.taketoday.jdbc.support.SQLErrorCodeSQLExceptionTranslator;
 import cn.taketoday.jdbc.support.SQLExceptionTranslator;
-import cn.taketoday.lang.NonNull;
 import cn.taketoday.transaction.TransactionException;
 
 /**
@@ -79,7 +79,7 @@ public class MyBatisExceptionTranslator implements PersistenceExceptionTranslato
    * {@inheritDoc}
    */
   @Override
-  public DataAccessException translateExceptionIfPossible(@NonNull RuntimeException e) {
+  public DataAccessException translateExceptionIfPossible(RuntimeException e) {
     if (e instanceof PersistenceException) {
       // Batch exceptions come inside another PersistenceException
       // recursion has a risk of infinite loop so better make another if
