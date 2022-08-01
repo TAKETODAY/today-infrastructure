@@ -56,15 +56,18 @@ public interface Enumerable<V> extends Descriptive {
    * @param <T> enumeration type
    * @param <V> enumeration value type
    * @return enumeration instance
+   * @throws NullPointerException if enumerable is {@code null}
    * @see Enumerable#getValue()
    */
   @Nullable
-  static <T extends Enumerable<V>, V> T of(Class<T> enumerable, V value) {
-    T[] enumConstants = enumerable.getEnumConstants();
-    if (enumConstants != null) {
-      for (T constant : enumConstants) {
-        if (Objects.equals(value, constant.getValue())) {
-          return constant;
+  static <T extends Enumerable<V>, V> T of(Class<T> enumerable, @Nullable V value) {
+    if (value != null) {
+      T[] enumConstants = enumerable.getEnumConstants();
+      if (enumConstants != null) {
+        for (T constant : enumConstants) {
+          if (Objects.equals(value, constant.getValue())) {
+            return constant;
+          }
         }
       }
     }

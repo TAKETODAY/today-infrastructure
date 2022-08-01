@@ -59,6 +59,8 @@ class EnumerableTests {
 
   @Test
   void introspect() {
+    assertThat(Enumerable.of(Gender.class, null)).isNull();
+
     assertThat(Enumerable.of(Gender.class, 2)).isNull();
     assertThat(Enumerable.of(Gender.class, 1)).isEqualTo(Gender.MALE);
     assertThat(Enumerable.of(Gender.class, 0)).isEqualTo(Gender.FEMALE);
