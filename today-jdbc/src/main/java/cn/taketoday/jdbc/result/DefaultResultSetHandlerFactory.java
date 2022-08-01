@@ -26,7 +26,7 @@ import java.util.Map;
 
 import cn.taketoday.beans.BeanProperty;
 import cn.taketoday.beans.BeanUtils;
-import cn.taketoday.jdbc.JdbcOperations;
+import cn.taketoday.jdbc.RepositoryManager;
 import cn.taketoday.jdbc.PersistenceException;
 import cn.taketoday.jdbc.support.JdbcUtils;
 import cn.taketoday.jdbc.type.TypeHandler;
@@ -38,15 +38,15 @@ import cn.taketoday.util.MapCache;
 public class DefaultResultSetHandlerFactory<T> implements ResultSetHandlerFactory<T> {
 
   private final JdbcBeanMetadata metadata;
-  private final JdbcOperations jdbcOperations;
+  private final RepositoryManager repositoryManager;
 
   @Nullable
   private final Map<String, String> columnMappings;
 
   public DefaultResultSetHandlerFactory(
-          JdbcBeanMetadata pojoMetadata, JdbcOperations operations, @Nullable Map<String, String> columnMappings) {
+          JdbcBeanMetadata pojoMetadata, RepositoryManager operations, @Nullable Map<String, String> columnMappings) {
     this.metadata = pojoMetadata;
-    this.jdbcOperations = operations;
+    this.repositoryManager = operations;
     this.columnMappings = columnMappings;
   }
 
@@ -73,7 +73,7 @@ public class DefaultResultSetHandlerFactory<T> implements ResultSetHandlerFactor
      */
     boolean singleScalarColumn = BeanUtils.isSimpleValueType(metadata.getObjectType()) && columnCount == 1;
     if (singleScalarColumn) {
-      TypeHandler typeHandler = jdbcOperations.getTypeHandler(metadata.getObjectType());
+      TypeHandler typeHandler = repositoryManager.getTypeHandler(metadata.getObjectType());
       return new TypeHandlerResultSetHandler<>(typeHandler);
     }
 
@@ -101,7 +101,7 @@ public class DefaultResultSetHandlerFactory<T> implements ResultSetHandlerFactor
       if (beanProperty == null) {
         return null;
       }
-      return new ObjectPropertySetter(null, beanProperty, jdbcOperations);
+      return new ObjectPropertySetter(null, beanProperty, repositoryManager);
     }
 
     PropertyPath propertyPath = new PropertyPath(metadata.getObjectType(), colName);
@@ -112,7 +112,7 @@ public class DefaultResultSetHandlerFactory<T> implements ResultSetHandlerFactor
     }
 
     // if colName is property-path style just using property-path set
-    return new ObjectPropertySetter(propertyPath, beanProperty, jdbcOperations);
+    return new ObjectPropertySetter(propertyPath, beanProperty, repositoryManager);
   }
 
   private static final class HandlerKey {

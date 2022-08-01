@@ -105,10 +105,10 @@ public final class Query implements AutoCloseable {
     this.connection = connection;
     this.columnNames = columnNames;
     this.returnGeneratedKeys = generatedKeys;
-    JdbcOperations operations = connection.getOperations();
-    setColumnMappings(operations.getDefaultColumnMappings());
-    this.caseSensitive = operations.isDefaultCaseSensitive();
-    this.parsedQuery = operations.parse(queryText, queryParameters);
+    RepositoryManager manager = connection.getManager();
+    setColumnMappings(manager.getDefaultColumnMappings());
+    this.caseSensitive = manager.isDefaultCaseSensitive();
+    this.parsedQuery = manager.parse(queryText, queryParameters);
   }
 
   //---------------------------------------------------------------------
@@ -453,7 +453,7 @@ public final class Query implements AutoCloseable {
   public <T> ResultSetHandlerFactory<T> createHandlerFactory(Class<T> returnType) {
     return new DefaultResultSetHandlerFactory<>(
             new JdbcBeanMetadata(returnType, caseSensitive, autoDerivingColumns, throwOnMappingFailure),
-            connection.getOperations(), getColumnMappings());
+            connection.getManager(), getColumnMappings());
   }
 
   /**
@@ -546,7 +546,7 @@ public final class Query implements AutoCloseable {
   }
 
   public LazyTable fetchLazyTable() {
-    return fetchLazyTable(connection.getOperations().getConversionService());
+    return fetchLazyTable(connection.getManager().getConversionService());
   }
 
   public LazyTable fetchLazyTable(@Nullable ConversionService conversionService) {
@@ -562,7 +562,7 @@ public final class Query implements AutoCloseable {
   }
 
   public Table fetchTable() {
-    return fetchTable(connection.getOperations().getConversionService());
+    return fetchTable(connection.getManager().getConversionService());
   }
 
   public Table fetchTable(ConversionService conversionService) {
@@ -604,7 +604,7 @@ public final class Query implements AutoCloseable {
   public TypeHandlerRegistry getTypeHandlerRegistry() {
     TypeHandlerRegistry ret = this.typeHandlerRegistry;
     if (ret == null) {
-      ret = this.connection.getOperations().getTypeHandlerRegistry();
+      ret = this.connection.getManager().getTypeHandlerRegistry();
       this.typeHandlerRegistry = ret;
     }
     return ret;

@@ -50,8 +50,6 @@ import javax.naming.InitialContext;
 import cn.taketoday.jdbc.pojos.BigDecimalPojo;
 import cn.taketoday.jdbc.pojos.ComplexEntity;
 import cn.taketoday.jdbc.pojos.EntityWithPrivateFields;
-import cn.taketoday.jdbc.pojos.Multi1;
-import cn.taketoday.jdbc.pojos.Multi2;
 import cn.taketoday.jdbc.pojos.StringConversionPojo;
 import cn.taketoday.jdbc.pojos.SuperPojo;
 import cn.taketoday.jdbc.result.LazyTable;
@@ -78,13 +76,13 @@ import static org.junit.jupiter.api.Assertions.fail;
  * tests are in this class.
  */
 @RunWith(Parameterized.class)
-public class JdbcOperationsTest extends BaseMemDbTest {
+public class RepositoryManagerTests extends BaseMemDbTest {
 
   private static final int NUMBER_OF_USERS_IN_THE_TEST = 10000;
 
   private int insertIntoUsers = 0;
 
-  public JdbcOperationsTest(DbType dbType, String testName) {
+  public RepositoryManagerTests(DbType dbType, String testName) {
     super(dbType, testName);
   }
 
@@ -108,7 +106,7 @@ public class JdbcOperationsTest extends BaseMemDbTest {
 
     System.out.println("Datasource initialized.");
 
-    JdbcOperations jndiSql2o = new JdbcOperations("Sql2o");
+    RepositoryManager jndiSql2o = new RepositoryManager("Sql2o");
 
     assertNotNull(jndiSql2o);
   }
@@ -117,7 +115,7 @@ public class JdbcOperationsTest extends BaseMemDbTest {
   public void testExecuteAndFetch() {
     createAndFillUserTable();
 
-    try (JdbcConnection con = jdbcOperations.open()) {
+    try (JdbcConnection con = repositoryManager.open()) {
 
       Date before = new Date();
       List<User> allUsers = con.createQuery("select * from User").fetch(User.class);
@@ -148,10 +146,10 @@ public class JdbcOperationsTest extends BaseMemDbTest {
             "text varchar(255), " +
             "aNumber int, " +
             "aLongNumber bigint)";
-    try (JdbcConnection con = jdbcOperations.open()) {
+    try (JdbcConnection con = repositoryManager.open()) {
       con.createQuery(sql, "testExecuteAndFetchWithNulls").executeUpdate();
 
-      JdbcConnection connection = jdbcOperations.beginTransaction();
+      JdbcConnection connection = repositoryManager.beginTransaction();
       Query insQuery = connection.createQuery(
               "insert into testExecWithNullsTbl (text, aNumber, aLongNumber) values(:text, :number, :lnum)");
       insQuery.addParameter("text", "some text").addParameter("number", 2).addParameter("lnum", 10L).executeUpdate();
@@ -184,7 +182,7 @@ public class JdbcOperationsTest extends BaseMemDbTest {
 
   @Test
   public void testBatch() {
-    jdbcOperations.createQuery(
+    repositoryManager.createQuery(
             "create table User(\n" +
                     "id int identity primary key,\n" +
                     "name varchar(20),\n" +
@@ -193,7 +191,7 @@ public class JdbcOperationsTest extends BaseMemDbTest {
 
     String insQuery = "insert into User(name, email, text) values (:name, :email, :text)";
 
-    JdbcConnection con = jdbcOperations.beginTransaction();
+    JdbcConnection con = repositoryManager.beginTransaction();
     int[] inserted = con.createQuery(insQuery)
             .addParameter("name", "test")
             .addParameter("email", "test@test.com")
@@ -226,10 +224,10 @@ public class JdbcOperationsTest extends BaseMemDbTest {
   public void testExecuteScalar() {
     createAndFillUserTable();
 
-    Object o = jdbcOperations.createQuery("select text from User where id = 2").fetchScalar();
+    Object o = repositoryManager.createQuery("select text from User where id = 2").fetchScalar();
     assertEquals(o.getClass(), String.class);
 
-    Object o2 = jdbcOperations.createQuery("select 10").fetchScalar();
+    Object o2 = repositoryManager.createQuery("select 10").fetchScalar();
     assertEquals(o2, 10);
 
     deleteUserTable();
@@ -238,7 +236,7 @@ public class JdbcOperationsTest extends BaseMemDbTest {
   @Test
   public void testBatchNoTransaction() {
 
-    jdbcOperations.createQuery(
+    repositoryManager.createQuery(
             "create table User(\n" +
                     "id int identity primary key,\n" +
                     "name varchar(20),\n" +
@@ -247,7 +245,7 @@ public class JdbcOperationsTest extends BaseMemDbTest {
 
     String insQuery = "insert into User(name, email, text) values (:name, :email, :text)";
 
-    jdbcOperations.createQuery(insQuery)
+    repositoryManager.createQuery(insQuery)
             .addParameter("name", "test")
             .addParameter("email", "test@test.com")
             .addParameter("text", "something exciting")
@@ -270,11 +268,11 @@ public class JdbcOperationsTest extends BaseMemDbTest {
 
   @Test
   public void testCaseInsensitive() {
-    jdbcOperations
+    repositoryManager
             .createQuery("create table testCI(id2 int primary key, value2 varchar(20), sometext varchar(20), valwithgetter varchar(20))")
             .executeUpdate();
 
-    Query query = jdbcOperations.createQuery(
+    Query query = repositoryManager.createQuery(
             "insert into testCI(id2, value2, sometext, valwithgetter) values(:id, :value, :someText, :valwithgetter)");
     for (int i = 0; i < 20; i++) {
       query.addParameter("id", i).addParameter("value", "some text " + i).addParameter("someText", "whatever " + i).addParameter(
@@ -284,19 +282,19 @@ public class JdbcOperationsTest extends BaseMemDbTest {
     }
     query.executeBatch();
 
-    List<CIEntity> ciEntities = jdbcOperations.createQuery("select * from testCI").setCaseSensitive(false).fetch(CIEntity.class);
+    List<CIEntity> ciEntities = repositoryManager.createQuery("select * from testCI").setCaseSensitive(false).fetch(CIEntity.class);
 
     assertEquals(20, ciEntities.size());
 
     // test defaultCaseSensitive;
-    jdbcOperations.setDefaultCaseSensitive(false);
-    List<CIEntity> ciEntities2 = jdbcOperations.createQuery("select * from testCI").fetch(CIEntity.class);
+    repositoryManager.setDefaultCaseSensitive(false);
+    List<CIEntity> ciEntities2 = repositoryManager.createQuery("select * from testCI").fetch(CIEntity.class);
     assertEquals(20, ciEntities2.size());
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testSetMaxBatchRecords() {
-    try (JdbcConnection conn = this.jdbcOperations.open()) {
+    try (JdbcConnection conn = this.repositoryManager.open()) {
       Query q = conn.createQuery("select 'test'");
       q.setMaxBatchRecords(20);
       assertEquals(20, q.getMaxBatchRecords());
@@ -310,14 +308,14 @@ public class JdbcOperationsTest extends BaseMemDbTest {
 
   @Test
   public void testBatchWithMaxBatchRecords() {
-    try (JdbcConnection connection = jdbcOperations.open()) {
+    try (JdbcConnection connection = repositoryManager.open()) {
       createAndFillUserTable(connection, true, 50);
       genericTestOnUserData(connection);
     }
 
     //also test with an odd number
 
-    try (JdbcConnection connection = jdbcOperations.open()) {
+    try (JdbcConnection connection = repositoryManager.open()) {
       createAndFillUserTable(connection, true, 29);
       genericTestOnUserData(connection);
     }
@@ -325,7 +323,7 @@ public class JdbcOperationsTest extends BaseMemDbTest {
 
   @Test
   public void testExecuteAndFetchResultSet() {
-    List<Integer> list = jdbcOperations.createQuery(
+    List<Integer> list = repositoryManager.createQuery(
                     "select 1 val from (values(0)) union select 2 from (values(0)) union select 3 from (values(0))")
             .fetchScalars(Integer.class);
 
@@ -336,7 +334,7 @@ public class JdbcOperationsTest extends BaseMemDbTest {
 
   @Test
   public void testExecuteScalarListWithNulls() throws SQLException {
-    List<String> list = jdbcOperations.createQuery(
+    List<String> list = repositoryManager.createQuery(
             "select val from ( " +
                     "select 1 ord, null val from (values(0)) union " +
                     "select 2 ord, 'one' from (values(0)) union " +
@@ -356,9 +354,9 @@ public class JdbcOperationsTest extends BaseMemDbTest {
   @Test
   public void testJodaTime() {
 
-    jdbcOperations.createQuery("create table testjoda(id int primary key, joda1 datetime, joda2 datetime)").executeUpdate();
+    repositoryManager.createQuery("create table testjoda(id int primary key, joda1 datetime, joda2 datetime)").executeUpdate();
 
-    jdbcOperations.createQuery("insert into testjoda(id, joda1, joda2) values(:id, :joda1, :joda2)")
+    repositoryManager.createQuery("insert into testjoda(id, joda1, joda2) values(:id, :joda1, :joda2)")
             .addParameter("id", 1)
             .addParameter("joda1", new DateTime()).addParameter("joda2", new DateTime().plusDays(-1))
             .addToBatch()
@@ -372,7 +370,7 @@ public class JdbcOperationsTest extends BaseMemDbTest {
             .addToBatch()
             .executeBatch();
 
-    List<JodaEntity> list = jdbcOperations.createQuery("select * from testjoda").fetch(JodaEntity.class);
+    List<JodaEntity> list = repositoryManager.createQuery("select * from testjoda").fetch(JodaEntity.class);
 
     assertEquals(3, list.size());
     assertTrue(list.get(0).getJoda2().isBeforeNow());
@@ -381,7 +379,7 @@ public class JdbcOperationsTest extends BaseMemDbTest {
 
   @Test
   public void testColumnAnnotation() {
-    try (JdbcConnection connection = jdbcOperations.open()) {
+    try (JdbcConnection connection = repositoryManager.open()) {
       connection.createQuery("create table test_column_annotation(id int primary key, text_col varchar(20))").executeUpdate();
 
       connection.createQuery("insert into test_column_annotation(id, text_col) values(:id, :text)")
@@ -402,17 +400,17 @@ public class JdbcOperationsTest extends BaseMemDbTest {
 
   @Test
   public void testUtilDate() {
-    jdbcOperations.createQuery("create table testutildate(id int primary key, d1 datetime, d2 timestamp, d3 date)").executeUpdate();
+    repositoryManager.createQuery("create table testutildate(id int primary key, d1 datetime, d2 timestamp, d3 date)").executeUpdate();
 
     Date now = new Date();
 
-    jdbcOperations.createQuery("insert into testutildate(id, d1, d2, d3) values(:id, :d1, :d2, :d3)")
+    repositoryManager.createQuery("insert into testutildate(id, d1, d2, d3) values(:id, :d1, :d2, :d3)")
             .addParameter("id", 1).addParameter("d1", now).addParameter("d2", now).addParameter("d3", now).addToBatch()
             .addParameter("id", 2).addParameter("d1", now).addParameter("d2", now).addParameter("d3", now).addToBatch()
             .addParameter("id", 3).addParameter("d1", now).addParameter("d2", now).addParameter("d3", now).addToBatch()
             .executeBatch();
 
-    List<UtilDateEntity> list = jdbcOperations.createQuery("select * from testutildate").fetch(UtilDateEntity.class);
+    List<UtilDateEntity> list = repositoryManager.createQuery("select * from testutildate").fetch(UtilDateEntity.class);
 
     assertEquals(3, list.size());
 
@@ -429,7 +427,7 @@ public class JdbcOperationsTest extends BaseMemDbTest {
   public void testConversion() {
 
     String sql = "select cast(1 as smallint) as val1, 2 as val2 from (values(0)) union select cast(3 as smallint) as val1, 4 as val2 from (values(0))";
-    List<TypeConvertEntity> entities = jdbcOperations.createQuery(sql)
+    List<TypeConvertEntity> entities = repositoryManager.createQuery(sql)
             .fetch(TypeConvertEntity.class);
 
     assertEquals(2, entities.size());
@@ -438,12 +436,12 @@ public class JdbcOperationsTest extends BaseMemDbTest {
   @Test
   public void testUpdateNoTransaction() throws SQLException {
     String ddlQuery = "create table testUpdateNoTransaction(id int primary key, value varchar(50))";
-    JdbcConnection connection = jdbcOperations.createQuery(ddlQuery).executeUpdate();
+    JdbcConnection connection = repositoryManager.createQuery(ddlQuery).executeUpdate();
 
     assertTrue(connection.getJdbcConnection().isClosed());
 
     String insQuery = "insert into testUpdateNoTransaction(id, value) values (:id, :value)";
-    jdbcOperations.createQuery(insQuery).addParameter("id", 1).addParameter("value", "test1").executeUpdate()
+    repositoryManager.createQuery(insQuery).addParameter("id", 1).addParameter("value", "test1").executeUpdate()
             .createQuery(insQuery).addParameter("id", 2).addParameter("value", "val2").executeUpdate();
 
     assertTrue(connection.getJdbcConnection().isClosed());
@@ -451,27 +449,27 @@ public class JdbcOperationsTest extends BaseMemDbTest {
 
   @Test
   public void testNullDate() {
-    jdbcOperations.createQuery("create table nullDateTest(id integer primary key, somedate datetime)").executeUpdate();
+    repositoryManager.createQuery("create table nullDateTest(id integer primary key, somedate datetime)").executeUpdate();
 
-    jdbcOperations.createQuery("insert into nullDateTest(id, somedate) values(:id, :date)")
+    repositoryManager.createQuery("insert into nullDateTest(id, somedate) values(:id, :date)")
             .addParameter("id", 1)
             .addParameter("date", (Date) null).executeUpdate();
 
-    Date d = (Date) jdbcOperations.createQuery("select somedate from nullDateTest where id = 1").fetchScalar();
+    Date d = (Date) repositoryManager.createQuery("select somedate from nullDateTest where id = 1").fetchScalar();
     assertNull(d);
   }
 
   @Test
   public void testGetResult() {
 
-    jdbcOperations.createQuery("create table get_result_test(id integer primary key, value varchar(20))").executeUpdate();
+    repositoryManager.createQuery("create table get_result_test(id integer primary key, value varchar(20))").executeUpdate();
 
     String insertSql = "insert into get_result_test(id, value) " +
             "select 1, 'hello' from (values(0)) union " +
             "select 2, 'hello2' from (values(0)) union " +
             "select 3, 'hello3' from (values(0))";
 
-    int result = jdbcOperations.createQuery(insertSql).executeUpdate().getResult();
+    int result = repositoryManager.createQuery(insertSql).executeUpdate().getResult();
 
     assertEquals(3, result);
   }
@@ -479,7 +477,7 @@ public class JdbcOperationsTest extends BaseMemDbTest {
   @Test
   public void testGetKeys() {
 
-    jdbcOperations.createQuery("create table get_keys_test(id integer identity primary key, value varchar(20))").executeUpdate();
+    repositoryManager.createQuery("create table get_keys_test(id integer identity primary key, value varchar(20))").executeUpdate();
 
     String insertSql = "insert into get_keys_test(value) values(:val)";
 //        try{
@@ -490,13 +488,13 @@ public class JdbcOperationsTest extends BaseMemDbTest {
 //            assertTrue(ex.getMessage().contains("executeUpdate(true)"));
 //        }
 
-    Integer key = (Integer) jdbcOperations.createQuery(insertSql).addParameter("val", "something").executeUpdate().getKey();
+    Integer key = (Integer) repositoryManager.createQuery(insertSql).addParameter("val", "something").executeUpdate().getKey();
 
     assertNotNull(key);
     assertTrue(key >= 0);
 
     String multiInsertSql = "insert into get_keys_test(value) select 'a val' col1 from (values(0)) union select 'another val' col1 from (values(0))";
-    Object[] keys = jdbcOperations.createQuery(multiInsertSql).executeUpdate().getKeys();
+    Object[] keys = repositoryManager.createQuery(multiInsertSql).executeUpdate().getKeys();
 
     assertNotNull(keys);
 
@@ -513,7 +511,7 @@ public class JdbcOperationsTest extends BaseMemDbTest {
 
   @Test
   public void testExecuteBatchGetKeys() {
-    jdbcOperations.createQuery("create table get_keys_test2(id integer identity primary key, value varchar(20))").executeUpdate();
+    repositoryManager.createQuery("create table get_keys_test2(id integer identity primary key, value varchar(20))").executeUpdate();
 
     String insertSql = "insert into get_keys_test2(value) values(:val)";
 
@@ -525,7 +523,7 @@ public class JdbcOperationsTest extends BaseMemDbTest {
       }
     };
 
-    Query query = jdbcOperations.createQuery(insertSql, true);
+    Query query = repositoryManager.createQuery(insertSql, true);
 
     for (String val : vals) {
       query.addParameter("val", val);
@@ -553,9 +551,9 @@ public class JdbcOperationsTest extends BaseMemDbTest {
   @Test
   public void testRollback() {
 
-    jdbcOperations.createQuery("create table test_rollback_table(id integer identity primary key, value varchar(25))").executeUpdate();
+    repositoryManager.createQuery("create table test_rollback_table(id integer identity primary key, value varchar(25))").executeUpdate();
 
-    jdbcOperations
+    repositoryManager
             //first insert something, and commit it.
             .beginTransaction()
             .createQuery("insert into test_rollback_table(value) values (:val)")
@@ -569,7 +567,7 @@ public class JdbcOperationsTest extends BaseMemDbTest {
             .addParameter("val", "something to rollback")
             .executeUpdate()
             .rollback();
-    long rowCount = (Long) jdbcOperations.createQuery("select count(*) from test_rollback_table").fetchScalar();
+    long rowCount = (Long) repositoryManager.createQuery("select count(*) from test_rollback_table").fetchScalar();
 
     assertEquals(1, rowCount);
   }
@@ -577,15 +575,15 @@ public class JdbcOperationsTest extends BaseMemDbTest {
   @Test
   public void testBigDecimals() {
 
-    jdbcOperations.createQuery("create table bigdectesttable (id integer identity primary key, val1 numeric(5,3), val2 integer)")
+    repositoryManager.createQuery("create table bigdectesttable (id integer identity primary key, val1 numeric(5,3), val2 integer)")
             .executeUpdate();
 
-    jdbcOperations.createQuery("insert into bigdectesttable(val1, val2) values(:val1, :val2)")
+    repositoryManager.createQuery("insert into bigdectesttable(val1, val2) values(:val1, :val2)")
             .addParameter("val1", 1.256)
             .addParameter("val2", 4)
             .executeUpdate();
 
-    BigDecimalPojo pojo = jdbcOperations.createQuery("select * from bigdectesttable")
+    BigDecimalPojo pojo = repositoryManager.createQuery("select * from bigdectesttable")
             .fetchFirst(BigDecimalPojo.class);
 
     assertEquals(new BigDecimal("1.256"), pojo.val1);
@@ -594,7 +592,7 @@ public class JdbcOperationsTest extends BaseMemDbTest {
 
   @Test
   public void testQueryDbMappings() {
-    Entity entity = jdbcOperations
+    Entity entity = repositoryManager
             .createQuery("select 1 as id, 'something' as caption, cast('2011-01-01' as date) as theTime from (values(0))")
             .addColumnMapping("caption", "text")
             .addColumnMapping("theTime", "time")
@@ -607,7 +605,7 @@ public class JdbcOperationsTest extends BaseMemDbTest {
 
   @Test
   public void testGlobalDbMappings() {
-    JdbcOperations sql2o1 = new JdbcOperations(dbType.url, dbType.user, dbType.pass);
+    RepositoryManager sql2o1 = new RepositoryManager(dbType.url, dbType.user, dbType.pass);
 
     Map<String, String> defaultColMaps = new HashMap<>();
     defaultColMaps.put("caption", "text");
@@ -626,7 +624,7 @@ public class JdbcOperationsTest extends BaseMemDbTest {
 
   @Test
   public void testSetPrivateFields() {
-    EntityWithPrivateFields entity = jdbcOperations.createQuery("select 1 id, 'hello' value from (values(0))")
+    EntityWithPrivateFields entity = repositoryManager.createQuery("select 1 id, 'hello' value from (values(0))")
             .fetchFirst(EntityWithPrivateFields.class);
 
     assertEquals(1, entity.getId());
@@ -635,13 +633,13 @@ public class JdbcOperationsTest extends BaseMemDbTest {
 
   @Test
   public void testFetchTable() {
-    jdbcOperations.createQuery("create table tabletest(id integer identity primary key, value varchar(20), value2 decimal(5,1))")
+    repositoryManager.createQuery("create table tabletest(id integer identity primary key, value varchar(20), value2 decimal(5,1))")
             .executeUpdate();
-    jdbcOperations.createQuery("insert into tabletest(value,value2) values (:value, :value2)")
+    repositoryManager.createQuery("insert into tabletest(value,value2) values (:value, :value2)")
             .addParameter("value", "something").addParameter("value2", new BigDecimal("3.4")).addToBatch()
             .addParameter("value", "bla").addParameter("value2", new BigDecimal("5.5")).addToBatch().executeBatch();
 
-    Table table = jdbcOperations.createQuery("select * from tabletest order by id").fetchTable();
+    Table table = repositoryManager.createQuery("select * from tabletest order by id").fetchTable();
 
     assertEquals(3, table.columns().size());
     assertEquals("ID", table.columns().get(0).getName());
@@ -667,7 +665,7 @@ public class JdbcOperationsTest extends BaseMemDbTest {
     createAndFillUserTable();
 
     List<Map<String, Object>> rows;
-    try (JdbcConnection con = jdbcOperations.open()) {
+    try (JdbcConnection con = repositoryManager.open()) {
       Table table = con.createQuery("select * from user").fetchTable();
 
       rows = table.asList();
@@ -689,7 +687,7 @@ public class JdbcOperationsTest extends BaseMemDbTest {
   @Test
   public void testStringConversion() {
     StringConversionPojo pojo =
-            jdbcOperations.createQuery("select '1' val1, '2  ' val2, '' val3, '' val4, null val5 from (values(0))")
+            repositoryManager.createQuery("select '1' val1, '2  ' val2, '' val3, '' val4, null val5 from (values(0))")
                     .fetchFirst(StringConversionPojo.class);
 
     assertEquals((Integer) 1, pojo.val1);
@@ -701,7 +699,7 @@ public class JdbcOperationsTest extends BaseMemDbTest {
 
   @Test
   public void testSuperPojo() {
-    SuperPojo pojo = jdbcOperations.createQuery("select 1 id, 'something' value from (values(0))")
+    SuperPojo pojo = repositoryManager.createQuery("select 1 id, 'something' value from (values(0))")
             .fetchFirst(SuperPojo.class);
 
     assertEquals(1, pojo.getId());
@@ -710,7 +708,7 @@ public class JdbcOperationsTest extends BaseMemDbTest {
 
   @Test
   public void testComplexTypes() {
-    ComplexEntity pojo = jdbcOperations.createQuery(
+    ComplexEntity pojo = repositoryManager.createQuery(
                     "select 1 id, 1 \"entity.id\", 'something' \"entity.value\" from (values(0))")
             .setName("testComplexTypes")
             .fetchFirst(ComplexEntity.class);
@@ -752,12 +750,12 @@ public class JdbcOperationsTest extends BaseMemDbTest {
   @Test
   public void testRunInsideTransaction() {
 
-    jdbcOperations.createQuery("create table runinsidetransactiontable(id integer identity primary key, value varchar(50))")
+    repositoryManager.createQuery("create table runinsidetransactiontable(id integer identity primary key, value varchar(50))")
             .executeUpdate();
     boolean failed = false;
 
     try {
-      jdbcOperations.runInTransaction((StatementRunnable) (connection, argument) -> {
+      repositoryManager.runInTransaction((StatementRunnable) (connection, argument) -> {
         connection.createQuery("insert into runinsidetransactiontable(value) values(:value)")
                 .addParameter("value", "test").executeUpdate();
         throw new RuntimeException("ouch!");
@@ -768,22 +766,22 @@ public class JdbcOperationsTest extends BaseMemDbTest {
     }
 
     assertTrue(failed);
-    long rowCount = (Long) jdbcOperations.createQuery("select count(*) from runinsidetransactiontable").fetchScalar();
+    long rowCount = (Long) repositoryManager.createQuery("select count(*) from runinsidetransactiontable").fetchScalar();
     assertEquals(0, rowCount);
 
-    jdbcOperations.runInTransaction(new StatementRunnable() {
+    repositoryManager.runInTransaction(new StatementRunnable() {
       public void run(@NonNull JdbcConnection connection, Object argument) throws Throwable {
         connection.createQuery("insert into runinsidetransactiontable(value) values(:value)")
                 .addParameter("value", "test").executeUpdate();
       }
     });
 
-    rowCount = (Long) jdbcOperations.createQuery("select count(*) from runinsidetransactiontable").fetchScalar();
+    rowCount = (Long) repositoryManager.createQuery("select count(*) from runinsidetransactiontable").fetchScalar();
     assertEquals(1, rowCount);
 
     String argument = "argument test";
 
-    jdbcOperations.runInTransaction(new StatementRunnable() {
+    repositoryManager.runInTransaction(new StatementRunnable() {
       public void run(@NonNull JdbcConnection connection, Object argument) {
         Integer id = connection.createQuery("insert into runinsidetransactiontable(value) values(:value)")
                 .addParameter("value", argument)
@@ -797,13 +795,13 @@ public class JdbcOperationsTest extends BaseMemDbTest {
       }
     }, argument);
 
-    rowCount = (Long) jdbcOperations.createQuery("select count(*) from runinsidetransactiontable").fetchScalar();
+    rowCount = (Long) repositoryManager.createQuery("select count(*) from runinsidetransactiontable").fetchScalar();
     assertEquals(2, rowCount);
   }
 
   @Test
   public void testRunInsideTransactionWithResult() {
-    jdbcOperations.createQuery("create table testRunInsideTransactionWithResultTable(id integer identity primary key, value varchar(50))")
+    repositoryManager.createQuery("create table testRunInsideTransactionWithResultTable(id integer identity primary key, value varchar(50))")
             .executeUpdate();
 
   }
@@ -827,25 +825,25 @@ public class JdbcOperationsTest extends BaseMemDbTest {
 
   @Test
   public void testDynamicExecuteScalar() {
-    Object origVal = jdbcOperations.createQuery("select 1").fetchScalar();
+    Object origVal = repositoryManager.createQuery("select 1").fetchScalar();
     assertEquals(Integer.class, origVal.getClass());
     assertEquals(1, origVal);
 
-    Long intVal = jdbcOperations.createQuery("select 1").fetchScalar(Long.class);
+    Long intVal = repositoryManager.createQuery("select 1").fetchScalar(Long.class);
     assertEquals((Long) 1l, intVal);
 
-    Short shortVal = jdbcOperations.createQuery("select 2").fetchScalar(Short.class);
+    Short shortVal = repositoryManager.createQuery("select 2").fetchScalar(Short.class);
     Short expected = 2;
     assertEquals(expected, shortVal);
   }
 
   @Test
   public void testUpdateWithNulls() {
-    jdbcOperations.createQuery("create table testUpdateWithNulls_2(id integer identity primary key, value integer)").executeUpdate();
+    repositoryManager.createQuery("create table testUpdateWithNulls_2(id integer identity primary key, value integer)").executeUpdate();
 
     Integer nullInt = null;
 
-    jdbcOperations
+    repositoryManager
             .createQuery("insert into testUpdateWithNulls_2(value) values(:val)")
             .addParameter("val", 2)
             .addToBatch()
@@ -856,10 +854,10 @@ public class JdbcOperationsTest extends BaseMemDbTest {
 
   @Test
   public void testExceptionInRunnable() {
-    jdbcOperations.createQuery("create table testExceptionInRunnable(id integer primary key, value varchar(20))").executeUpdate();
+    repositoryManager.createQuery("create table testExceptionInRunnable(id integer primary key, value varchar(20))").executeUpdate();
 
     try {
-      jdbcOperations.runInTransaction((connection, argument) -> {
+      repositoryManager.runInTransaction((connection, argument) -> {
         connection.createQuery("insert into testExceptionInRunnable(id, value) values(:id, :val)")
                 .addParameter("id", 1)
                 .addParameter("val", "something").executeUpdate();
@@ -873,10 +871,10 @@ public class JdbcOperationsTest extends BaseMemDbTest {
 
     }
 
-    int c = jdbcOperations.createQuery("select count(*) from testExceptionInRunnable").fetchScalar(Integer.class);
+    int c = repositoryManager.createQuery("select count(*) from testExceptionInRunnable").fetchScalar(Integer.class);
     assertEquals(0, c);
 
-    jdbcOperations.runInTransaction((connection, argument) -> {
+    repositoryManager.runInTransaction((connection, argument) -> {
       connection.createQuery("insert into testExceptionInRunnable(id, value) values(:id, :val)")
               .addParameter("id", 1)
               .addParameter("val", "something").executeUpdate();
@@ -891,7 +889,7 @@ public class JdbcOperationsTest extends BaseMemDbTest {
       }
     });
 
-    c = jdbcOperations.createQuery("select count(*) from testExceptionInRunnable").fetchScalar(Integer.class);
+    c = repositoryManager.createQuery("select count(*) from testExceptionInRunnable").fetchScalar(Integer.class);
     assertEquals(1, c);
 
   }
@@ -908,25 +906,25 @@ public class JdbcOperationsTest extends BaseMemDbTest {
 
   @Test
   public void testEnums() {
-    jdbcOperations.createQuery("create table EnumTest(id int identity primary key, enum_val varchar(10), enum_val2 int) ").executeUpdate();
+    repositoryManager.createQuery("create table EnumTest(id int identity primary key, enum_val varchar(10), enum_val2 int) ").executeUpdate();
 
-    jdbcOperations.createQuery("insert into EnumTest(enum_val, enum_val2) values (:val, :val2)")
+    repositoryManager.createQuery("insert into EnumTest(enum_val, enum_val2) values (:val, :val2)")
             .addParameter("val", TestEnum.HELLO).addParameter("val2", TestEnum.HELLO.ordinal()).addToBatch()
             .addParameter("val", TestEnum.WORLD).addParameter("val2", TestEnum.WORLD.ordinal()).addToBatch().executeBatch();
 
-    TestEnum testEnum = jdbcOperations.createQuery("select 'HELLO' from (values(0))")
+    TestEnum testEnum = repositoryManager.createQuery("select 'HELLO' from (values(0))")
             .fetchScalar(TestEnum.class);
     assertThat(testEnum).isEqualTo(TestEnum.HELLO);
 
-    TestEnum testEnum2 = jdbcOperations.createQuery("select NULL from (values(0))")
+    TestEnum testEnum2 = repositoryManager.createQuery("select NULL from (values(0))")
             .fetchScalar(TestEnum.class);
     assertThat(testEnum2).isNull();
 
     TypeHandlerRegistry handlerRegistry = new TypeHandlerRegistry();
     handlerRegistry.setDefaultEnumTypeHandler(EnumOrdinalTypeHandler.class);
-    jdbcOperations.setTypeHandlerRegistry(handlerRegistry);
+    repositoryManager.setTypeHandlerRegistry(handlerRegistry);
 
-    List<EntityWithEnum> list = jdbcOperations.createQuery("select id, enum_val val, enum_val2 val2 from EnumTest")
+    List<EntityWithEnum> list = repositoryManager.createQuery("select id, enum_val val, enum_val2 val2 from EnumTest")
             .fetch(EntityWithEnum.class);
 
     assertThat(list.get(0).val).isEqualTo(TestEnum.HELLO);
@@ -945,17 +943,17 @@ public class JdbcOperationsTest extends BaseMemDbTest {
   public void testBooleanConverter() {
     String sql = "select true as val1, false as val2 from (values(0))";
 
-    BooleanPOJO pojo = jdbcOperations.createQuery(sql).fetchFirst(BooleanPOJO.class);
+    BooleanPOJO pojo = repositoryManager.createQuery(sql).fetchFirst(BooleanPOJO.class);
     assertTrue(pojo.val1);
     assertFalse(pojo.val2);
 
     String sql2 = "select null as val1, null as val2 from (values(0))";
-    BooleanPOJO pojo2 = jdbcOperations.createQuery(sql2).fetchFirst(BooleanPOJO.class);
+    BooleanPOJO pojo2 = repositoryManager.createQuery(sql2).fetchFirst(BooleanPOJO.class);
     assertFalse(pojo2.val1);
     assertNull(pojo2.val2);
 
     String sql3 = "select 'false' as val1, 'true' as val2 from (values(0))";
-    BooleanPOJO pojo3 = jdbcOperations.createQuery(sql3).fetchFirst(BooleanPOJO.class);
+    BooleanPOJO pojo3 = repositoryManager.createQuery(sql3).fetchFirst(BooleanPOJO.class);
     assertFalse(pojo3.val1);
     assertTrue(pojo3.val2);
   }
@@ -973,23 +971,23 @@ public class JdbcOperationsTest extends BaseMemDbTest {
   @Test
   public void testBlob() throws IOException {
     String createSql = "create table blobtbl2(id int identity primary key, data blob)";
-    jdbcOperations.createQuery(createSql).executeUpdate();
+    repositoryManager.createQuery(createSql).executeUpdate();
 
     String dataString = "test";
     byte[] data = dataString.getBytes();
     String insertSql = "insert into blobtbl2(data) values(:data)";
-    jdbcOperations.createQuery(insertSql).addParameter("data", data).executeUpdate();
+    repositoryManager.createQuery(insertSql).addParameter("data", data).executeUpdate();
 
     // select
     String sql = "select id, data from blobtbl2";
-    BlobPOJO1 pojo1 = jdbcOperations.createQuery(sql)
+    BlobPOJO1 pojo1 = repositoryManager.createQuery(sql)
             .fetchFirst(BlobPOJO1.class);
 
     TypeHandlerRegistry handlerRegistry = new TypeHandlerRegistry();
     handlerRegistry.register(InputStream.class, new BytesInputStreamTypeHandler());
-    jdbcOperations.setTypeHandlerRegistry(handlerRegistry);
+    repositoryManager.setTypeHandlerRegistry(handlerRegistry);
 
-    BlobPOJO2 pojo2 = jdbcOperations.createQuery(sql)
+    BlobPOJO2 pojo2 = repositoryManager.createQuery(sql)
             .fetchFirst(BlobPOJO2.class);
 
     String pojo1DataString = new String(pojo1.data);
@@ -1006,7 +1004,7 @@ public class JdbcOperationsTest extends BaseMemDbTest {
   @Test
   public void testInputStream() throws IOException {
     String createSql = "create table blobtbl(id int identity primary key, data blob)";
-    jdbcOperations.createQuery(createSql).executeUpdate();
+    repositoryManager.createQuery(createSql).executeUpdate();
 
     String dataString = "test";
     byte[] data = dataString.getBytes();
@@ -1014,12 +1012,12 @@ public class JdbcOperationsTest extends BaseMemDbTest {
     InputStream inputStream = new ByteArrayInputStream(data);
 
     String insertSql = "insert into blobtbl(data) values(:data)";
-    jdbcOperations.createQuery(insertSql).addParameter("data", inputStream).executeUpdate();
+    repositoryManager.createQuery(insertSql).addParameter("data", inputStream).executeUpdate();
 
     // select
     String sql = "select id, data from blobtbl";
-    BlobPOJO1 pojo1 = jdbcOperations.createQuery(sql).fetchFirst(BlobPOJO1.class);
-    BlobPOJO2 pojo2 = jdbcOperations.createQuery(sql).fetchFirst(BlobPOJO2.class);
+    BlobPOJO1 pojo1 = repositoryManager.createQuery(sql).fetchFirst(BlobPOJO1.class);
+    BlobPOJO2 pojo2 = repositoryManager.createQuery(sql).fetchFirst(BlobPOJO2.class);
 
     String pojo1DataString = new String(pojo1.data);
     assertThat(dataString).isEqualTo(pojo1DataString);
@@ -1033,18 +1031,18 @@ public class JdbcOperationsTest extends BaseMemDbTest {
   public void testTimeConverter() {
     String sql = "select current_time as col1 from (values(0))";
 
-    Time sqlTime = jdbcOperations.createQuery(sql).fetchScalar(Time.class);
+    Time sqlTime = repositoryManager.createQuery(sql).fetchScalar(Time.class);
 
     Period p = new Period(new LocalTime(sqlTime), new LocalTime());
 
     assertThat(sqlTime).isNotNull();
     assertEquals(0, p.getMinutes());
 
-    Date date = jdbcOperations.createQuery(sql)
+    Date date = repositoryManager.createQuery(sql)
             .fetchScalar(Date.class);
     assertThat(date).isNotNull();
 
-    LocalTime jodaTime = jdbcOperations.createQuery(sql)
+    LocalTime jodaTime = repositoryManager.createQuery(sql)
             .fetchScalar(LocalTime.class);
     assertTrue(jodaTime.getMillisOfDay() > 0);
     assertThat(jodaTime.getHourOfDay()).isEqualTo(new LocalTime().getHourOfDay());
@@ -1097,7 +1095,7 @@ public class JdbcOperationsTest extends BaseMemDbTest {
   @Test
   public void testBindPojo() {
     String createSql = "create table bindtbl(id int identity primary key, data1 varchar(10), data2 timestamp, data3 bigint)";
-    jdbcOperations.createQuery(createSql).executeUpdate();
+    repositoryManager.createQuery(createSql).executeUpdate();
 
     // Anonymous class inherits POJO
     BindablePojo pojo1 = new BindablePojo() {
@@ -1111,12 +1109,12 @@ public class JdbcOperationsTest extends BaseMemDbTest {
     };
 
     String insertSql = "insert into bindtbl(data1, data2, data3) values(:data1, :data2, :data3)";
-    jdbcOperations.createQuery(insertSql)
+    repositoryManager.createQuery(insertSql)
             .bind(pojo1)
             .executeUpdate();
 
     String selectSql = "select data1, data2, data3 from bindtbl";
-    BindablePojo pojo2 = jdbcOperations.createQuery(selectSql)
+    BindablePojo pojo2 = repositoryManager.createQuery(selectSql)
             .fetchFirst(BindablePojo.class);
 
     assertEquals(pojo1, pojo2);
@@ -1125,7 +1123,7 @@ public class JdbcOperationsTest extends BaseMemDbTest {
   @Test
   public void testRowGetObjectWithConverters() {
     String sql = "select 1 col1, '23' col2 from (values(0))";
-    Table t = jdbcOperations.createQuery(sql).fetchTable();
+    Table t = repositoryManager.createQuery(sql).fetchTable();
     Row r = t.rows().get(0);
 
     String col1AsString = r.getObject("col1", String.class);
@@ -1149,7 +1147,7 @@ public class JdbcOperationsTest extends BaseMemDbTest {
   public void testExecuteAndFetchLazy() {
     createAndFillUserTable();
 
-    ResultSetIterable<User> allUsers = jdbcOperations.createQuery("select * from User").fetchIterable(User.class);
+    ResultSetIterable<User> allUsers = repositoryManager.createQuery("select * from User").fetchIterable(User.class);
 
     // read in batches, because maybe we are bulk exporting and can't fit them all into a list
     int totalSize = 0;
@@ -1174,7 +1172,7 @@ public class JdbcOperationsTest extends BaseMemDbTest {
   public void testResultSetIterator_multipleHasNextWorks() {
     createAndFillUserTable();
 
-    ResultSetIterable<User> allUsers = jdbcOperations.createQuery("select * from User").fetchIterable(User.class);
+    ResultSetIterable<User> allUsers = repositoryManager.createQuery("select * from User").fetchIterable(User.class);
 
     Iterator<User> usersIterator = allUsers.iterator();
 
@@ -1200,7 +1198,7 @@ public class JdbcOperationsTest extends BaseMemDbTest {
     createAndFillUserTable();
 
     // this should NOT fallback to executeScalar
-    List<User> users = jdbcOperations.createQuery("select name from User").fetch(User.class);
+    List<User> users = repositoryManager.createQuery("select name from User").fetch(User.class);
 
     // only the name should be set
     for (User u : users) {
@@ -1208,7 +1206,7 @@ public class JdbcOperationsTest extends BaseMemDbTest {
     }
 
     // this SHOULD fallback to executeScalar
-    List<String> userNames = jdbcOperations.createQuery("select name from User").fetch(String.class);
+    List<String> userNames = repositoryManager.createQuery("select name from User").fetch(String.class);
 
     assertEquals(users.size(), userNames.size());
 
@@ -1219,7 +1217,7 @@ public class JdbcOperationsTest extends BaseMemDbTest {
   public void testExecuteAndFetchWithAutoclose() throws SQLException {
     createAndFillUserTable();
 
-    JdbcConnection con = jdbcOperations.open();
+    JdbcConnection con = repositoryManager.open();
 
     try (ResultSetIterable<User> userIterable = con.createQuery("select * from User")
             .fetchIterable(User.class)) {
@@ -1239,7 +1237,7 @@ public class JdbcOperationsTest extends BaseMemDbTest {
   public void testLazyTable() throws SQLException {
     createAndFillUserTable();
 
-    Query q = jdbcOperations.createQuery("select * from User");
+    Query q = repositoryManager.createQuery("select * from User");
     try (LazyTable lt = q.fetchLazyTable()) {
       for (Row r : lt.rows()) {
         String name = r.getString("name");
@@ -1258,11 +1256,11 @@ public class JdbcOperationsTest extends BaseMemDbTest {
   @Test
   public void testTransactionAutoClosable() {
 
-    jdbcOperations.createQuery("create table testTransactionAutoClosable(id int primary key, val varchar(20) not null)").executeUpdate();
+    repositoryManager.createQuery("create table testTransactionAutoClosable(id int primary key, val varchar(20) not null)").executeUpdate();
 
     JdbcConnection connection = null;
     try {
-      connection = jdbcOperations.beginTransaction();
+      connection = repositoryManager.beginTransaction();
       String sql = "insert into testTransactionAutoClosable(id, val) values (:id, :val);";
       connection.createQuery(sql).addParameter("id", 1).addParameter("val", "foo").executeUpdate();
     }
@@ -1271,12 +1269,12 @@ public class JdbcOperationsTest extends BaseMemDbTest {
       connection.close();
     }
 
-    int count = jdbcOperations.createQuery("select count(*) from testTransactionAutoClosable").fetchFirst(Integer.class);
+    int count = repositoryManager.createQuery("select count(*) from testTransactionAutoClosable").fetchFirst(Integer.class);
     assertThat(count).isEqualTo(0);
 
     connection = null;
     try {
-      connection = jdbcOperations.beginTransaction();
+      connection = repositoryManager.beginTransaction();
       String sql = "insert into testTransactionAutoClosable(id, val) values (:id, :val);";
       connection.createQuery(sql).addParameter("id", 1).addParameter("val", "foo").executeUpdate();
 
@@ -1287,7 +1285,7 @@ public class JdbcOperationsTest extends BaseMemDbTest {
       connection.close();
     }
 
-    count = jdbcOperations.createQuery("select count(*) from testTransactionAutoClosable").fetchFirst(Integer.class);
+    count = repositoryManager.createQuery("select count(*) from testTransactionAutoClosable").fetchFirst(Integer.class);
     assertThat(count).isEqualTo(1);
 
   }
@@ -1295,15 +1293,15 @@ public class JdbcOperationsTest extends BaseMemDbTest {
   @Test
   public void testExternalTransactionCommit() {
 
-    try (JdbcConnection connection1 = jdbcOperations.open()) {
+    try (JdbcConnection connection1 = repositoryManager.open()) {
       connection1.createQuery("create table testExternalTransactionCommit(id int primary key, val varchar(20) not null)")
               .executeUpdate();
     }
 
-    try (JdbcConnection globalConnection = jdbcOperations.beginTransaction()) {
+    try (JdbcConnection globalConnection = repositoryManager.beginTransaction()) {
       java.sql.Connection globalTransaction = globalConnection.getJdbcConnection();
 
-      JdbcConnection connection = jdbcOperations.beginTransaction(globalTransaction);
+      JdbcConnection connection = repositoryManager.beginTransaction(globalTransaction);
       String sql = "insert into testExternalTransactionCommit(id, val) values (:id, :val);";
       connection.createQuery(sql)
               .addParameter("id", 1)
@@ -1315,7 +1313,7 @@ public class JdbcOperationsTest extends BaseMemDbTest {
               .fetchFirst(Integer.class);
       assertThat(count).isEqualTo(1);
 
-      JdbcConnection connection3 = jdbcOperations.beginTransaction(globalTransaction);
+      JdbcConnection connection3 = repositoryManager.beginTransaction(globalTransaction);
       String sql1 = "insert into testExternalTransactionCommit(id, val) values (:id, :val);";
       connection3.createQuery(sql1)
               .addParameter("id", 2)
@@ -1330,7 +1328,7 @@ public class JdbcOperationsTest extends BaseMemDbTest {
       globalConnection.commit();
     }
 
-    try (JdbcConnection connection2 = jdbcOperations.open()) {
+    try (JdbcConnection connection2 = repositoryManager.open()) {
       int count = connection2.createQuery("select count(*) from testExternalTransactionCommit")
               .fetchFirst(Integer.class);
 
@@ -1435,25 +1433,25 @@ public class JdbcOperationsTest extends BaseMemDbTest {
   @Test
   public void testExternalTransactionRollback() {
 
-    try (JdbcConnection connection1 = jdbcOperations.open()) {
+    try (JdbcConnection connection1 = repositoryManager.open()) {
       connection1.createQuery("create table testExternalTransactionRollback(id int primary key, val varchar(20) not null)")
               .executeUpdate();
     }
 
-    try (JdbcConnection globalConnection = jdbcOperations.beginTransaction()) {
+    try (JdbcConnection globalConnection = repositoryManager.beginTransaction()) {
       java.sql.Connection globalTransaction = globalConnection.getJdbcConnection();
 
-      JdbcConnection connection = jdbcOperations.beginTransaction(globalTransaction);
+      JdbcConnection connection = repositoryManager.beginTransaction(globalTransaction);
       String sql = "insert into testExternalTransactionRollback(id, val) values (:id, :val);";
       connection.createQuery(sql).addParameter("id", 1).addParameter("val", "foo").executeUpdate();
       connection.commit();
 
-      JdbcConnection connection2 = jdbcOperations.open(globalTransaction);
+      JdbcConnection connection2 = repositoryManager.open(globalTransaction);
       int count = connection2.createQuery("select count(*) from testExternalTransactionRollback")
               .fetchFirst(Integer.class);
       assertThat(count).isEqualTo(1);
 
-      JdbcConnection connection3 = jdbcOperations.beginTransaction(globalTransaction);
+      JdbcConnection connection3 = repositoryManager.beginTransaction(globalTransaction);
       String sql2 = "insert into testExternalTransactionRollback(id, val) values (:id, :val);";
       connection3.createQuery(sql2)
               .addParameter("id", 2)
@@ -1461,14 +1459,14 @@ public class JdbcOperationsTest extends BaseMemDbTest {
               .executeUpdate();
       connection3.commit();
 
-      JdbcConnection connection4 = jdbcOperations.open(globalTransaction);
+      JdbcConnection connection4 = repositoryManager.open(globalTransaction);
       int count1 = connection4.createQuery("select count(*) from testExternalTransactionRollback")
               .fetchFirst(Integer.class);
       assertThat(count1).isEqualTo(2);
       globalConnection.rollback();
     }
 
-    try (JdbcConnection connection2 = jdbcOperations.open()) {
+    try (JdbcConnection connection2 = repositoryManager.open()) {
       int count = connection2.createQuery("select count(*) from testExternalTransactionRollback").fetchFirst(Integer.class);
 
       assertThat(count).isEqualTo(0);
@@ -1527,7 +1525,7 @@ public class JdbcOperationsTest extends BaseMemDbTest {
   @Test
   public void testOpenConnection() throws SQLException {
 
-    JdbcConnection connection = jdbcOperations.open();
+    JdbcConnection connection = repositoryManager.open();
 
     createAndFillUserTable(connection);
 
@@ -1550,7 +1548,7 @@ public class JdbcOperationsTest extends BaseMemDbTest {
 
     String insertsql = "insert into User(name, email, text) values (:name, :email, :text)";
 
-    jdbcOperations.withConnection((connection, argument) -> {
+    repositoryManager.withConnection((connection, argument) -> {
 
       connection.createQuery(insertsql)
               .addParameter("name", "Sql2o")
@@ -1572,14 +1570,14 @@ public class JdbcOperationsTest extends BaseMemDbTest {
 
     });
 
-    List<User> users = jdbcOperations.withConnection((connection, argument) -> {
-      return jdbcOperations.createQuery("select * from User").fetch(User.class);
+    List<User> users = repositoryManager.withConnection((connection, argument) -> {
+      return repositoryManager.createQuery("select * from User").fetch(User.class);
     });
 
     assertThat(users.size()).isEqualTo(10003);
 
     try {
-      jdbcOperations.withConnection((StatementRunnable) (connection, argument) -> {
+      repositoryManager.withConnection((StatementRunnable) (connection, argument) -> {
         connection.createQuery(insertsql)
                 .addParameter("name", "Sql2o")
                 .addParameter("email", "sql2o@sql2o.org")
@@ -1593,7 +1591,7 @@ public class JdbcOperationsTest extends BaseMemDbTest {
       // ignore. expected
     }
 
-    List<User> users2 = jdbcOperations.createQuery("select * from User").fetch(User.class);
+    List<User> users2 = repositoryManager.createQuery("select * from User").fetch(User.class);
 
     // expect that that the last insert was committed, as this should not be run in a transaction.
     assertThat(users2.size()).isEqualTo(10004);
@@ -1623,7 +1621,7 @@ public class JdbcOperationsTest extends BaseMemDbTest {
     String insertSql = "insert into testAutoDeriveColumnNames values (:id, :val)";
     String selectSql = "select * from testAutoDeriveColumnNames";
 
-    try (JdbcConnection con = jdbcOperations.open()) {
+    try (JdbcConnection con = repositoryManager.open()) {
       con.createQuery(createTableSql).executeUpdate();
       con.createQuery(insertSql).addParameter("id", 1).addParameter("val", "test1").executeUpdate();
 
@@ -1651,7 +1649,7 @@ public class JdbcOperationsTest extends BaseMemDbTest {
 
   @Test
   public void testClob() {
-    try (JdbcConnection connection = jdbcOperations.open()) {
+    try (JdbcConnection connection = repositoryManager.open()) {
       connection.createQuery("create table testClob(id integer primary key, val clob)")
               .executeUpdate();
 
@@ -1671,7 +1669,7 @@ public class JdbcOperationsTest extends BaseMemDbTest {
 
   @Test
   public void testBindInIteration() {
-    try (JdbcConnection connection = jdbcOperations.open()) {
+    try (JdbcConnection connection = repositoryManager.open()) {
       createAndFillUserTable(connection, true);
       genericTestOnUserData(connection);
     }
@@ -1682,7 +1680,7 @@ public class JdbcOperationsTest extends BaseMemDbTest {
   public void testArrayParameter() {
     createAndFillUserTable();
 
-    try (JdbcConnection connection = jdbcOperations.open()) {
+    try (JdbcConnection connection = repositoryManager.open()) {
       List<User> result = connection
               .createQuery("select * from user where id in(:ids)")
               .addParameters("ids", 1, 2, 3)
@@ -1691,7 +1689,7 @@ public class JdbcOperationsTest extends BaseMemDbTest {
       assertEquals(3, result.size());
     }
 
-    try (JdbcConnection connection = jdbcOperations.open()) {
+    try (JdbcConnection connection = repositoryManager.open()) {
       List<User> result = connection
               .createQuery("select * from user where" +
                       " email like :email" +
@@ -1705,7 +1703,7 @@ public class JdbcOperationsTest extends BaseMemDbTest {
       assertEquals(3, result.size());
     }
 
-    try (JdbcConnection connection = jdbcOperations.open()) {
+    try (JdbcConnection connection = repositoryManager.open()) {
       List<User> result = connection
               .createQuery("select * from user where" +
                       " email like :email" +
@@ -1719,7 +1717,7 @@ public class JdbcOperationsTest extends BaseMemDbTest {
       assertEquals(0, result.size());
     }
 
-    try (JdbcConnection connection = jdbcOperations.open()) {
+    try (JdbcConnection connection = repositoryManager.open()) {
       List<User> result = connection
               .createQuery("select * from user where" +
                       " email like :email" +
@@ -1733,7 +1731,7 @@ public class JdbcOperationsTest extends BaseMemDbTest {
       assertEquals(1, result.size());
     }
 
-    try (JdbcConnection connection = jdbcOperations.open()) {
+    try (JdbcConnection connection = repositoryManager.open()) {
       List<User> result = connection
               .createQuery("select * from user where" +
                       " email like :email" +
@@ -1749,7 +1747,7 @@ public class JdbcOperationsTest extends BaseMemDbTest {
       assertEquals(3, result.size());
     }
 
-    try (JdbcConnection connection = jdbcOperations.open()) {
+    try (JdbcConnection connection = repositoryManager.open()) {
       connection.createQuery("insert into user (id, text_col) values(:id, :text)")
               .addParameters("id", 1, 2, 3).addParameter("text", "test1").addToBatch();
       fail("Batch with array parameter is not supported");
@@ -1758,7 +1756,7 @@ public class JdbcOperationsTest extends BaseMemDbTest {
       // as expected
     }
 
-    try (JdbcConnection connection = jdbcOperations.open()) {
+    try (JdbcConnection connection = repositoryManager.open()) {
       List<User> result = connection
               .createQuery("select * from user where id in(:ids)")
               .addParameter("ids", new int[]
@@ -1768,7 +1766,7 @@ public class JdbcOperationsTest extends BaseMemDbTest {
       assertEquals(3, result.size());
     }
 
-    try (JdbcConnection connection = jdbcOperations.open()) {
+    try (JdbcConnection connection = repositoryManager.open()) {
       List<User> result = connection
               .createQuery("select * from user where id in(:ids)")
               .addParameter("ids", (Object) ImmutableList.of(1, 2, 3))
@@ -1781,7 +1779,7 @@ public class JdbcOperationsTest extends BaseMemDbTest {
   /************** Helper stuff ******************/
 
   private void createAndFillUserTable() {
-    JdbcConnection connection = jdbcOperations.open();
+    JdbcConnection connection = repositoryManager.open();
 
     createAndFillUserTable(connection);
 
@@ -1852,7 +1850,7 @@ public class JdbcOperationsTest extends BaseMemDbTest {
   }
 
   private void deleteUserTable() {
-    jdbcOperations.createQuery("drop table User").executeUpdate();
+    repositoryManager.createQuery("drop table User").executeUpdate();
     insertIntoUsers = 0;
   }
 }

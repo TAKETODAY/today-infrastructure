@@ -45,20 +45,25 @@ import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 
 /**
- * JdbcOperations is the main class for the today-jdbc library.
+ * RepositoryManager is the main class for the today-jdbc library.
  * <p>
- * An <code>JdbcOperations</code> instance represents a way of connecting to one specific
+ * An <code>RepositoryManager</code> instance represents a way of connecting to one specific
  * database. To create a new instance, one need to specify either jdbc-url,
  * username and password for the database or a data source.
  * <p>
- * Internally the JdbcOperations instance uses a data source to create jdbc connections
+ * Internally the RepositoryManager instance uses a data source to create jdbc connections
  * to the database. If url, username and password was specified in the
  * constructor, a simple data source is created, which works as a simple wrapper
  * around the jdbc driver.
+ * <p>
+ * This library is learned from <a href="https://github.com/aaberg/sql2o">Sql2o</a>
  *
+ * @author Hubery Huang
+ * @author <a href="https://github.com/aaberg">Lars Aaberg</a>
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 4.0
  */
-public class JdbcOperations {
+public class RepositoryManager {
 
   private TypeHandlerRegistry typeHandlerRegistry = TypeHandlerRegistry.getSharedInstance();
 
@@ -73,12 +78,12 @@ public class JdbcOperations {
   @Nullable
   private PrimitiveTypeNullHandler primitiveTypeNullHandler;
 
-  public JdbcOperations(String jndiLookup) {
+  public RepositoryManager(String jndiLookup) {
     this(DataSourceUtils.getJndiDatasource(jndiLookup));
   }
 
   /**
-   * Creates a new instance of the JdbcOperations class.
+   * Creates a new instance of the RepositoryManager class.
    * Internally this constructor will create a GenericConnectionSource
    *
    * @param url JDBC database url
@@ -86,26 +91,26 @@ public class JdbcOperations {
    * @param pass database password
    * @see cn.taketoday.jdbc.support.GenericConnectionSource
    */
-  public JdbcOperations(String url, String user, String pass) {
+  public RepositoryManager(String url, String user, String pass) {
     this(ConnectionSource.from(url, user, pass));
   }
 
   /**
-   * Creates a new instance of the JdbcOperations class, which uses the given DataSource to
+   * Creates a new instance of the RepositoryManager class, which uses the given DataSource to
    * acquire connections to the database.
    *
-   * @param dataSource The DataSource JdbcOperations uses to acquire connections to the database.
+   * @param dataSource The DataSource RepositoryManager uses to acquire connections to the database.
    */
-  public JdbcOperations(DataSource dataSource) {
+  public RepositoryManager(DataSource dataSource) {
     this(ConnectionSource.fromDataSource(dataSource));
   }
 
-  public JdbcOperations(DataSource dataSource, boolean generatedKeys) {
+  public RepositoryManager(DataSource dataSource, boolean generatedKeys) {
     this(ConnectionSource.fromDataSource(dataSource));
     this.generatedKeys = generatedKeys;
   }
 
-  public JdbcOperations(ConnectionSource source) {
+  public RepositoryManager(ConnectionSource source) {
     this.connectionSource = source;
     final DefaultConversionService sharedInstance = DefaultConversionService.getSharedInstance();
     sharedInstance.addConverter(new ClobToStringConverter());
@@ -116,13 +121,13 @@ public class JdbcOperations {
     this.conversionService = sharedInstance;
   }
 
-  public JdbcOperations(ConnectionSource source, ConversionService conversionService) {
+  public RepositoryManager(ConnectionSource source, ConversionService conversionService) {
     this.connectionSource = source;
     this.conversionService = conversionService;
   }
 
   /**
-   * Gets the DataSource that JdbcOperations uses internally to acquire database
+   * Gets the DataSource that RepositoryManager uses internally to acquire database
    * connections.
    *
    * @return The DataSource instance
@@ -135,7 +140,7 @@ public class JdbcOperations {
   }
 
   /**
-   * Gets the {@link ConnectionSource} that JdbcOperations uses internally to acquire
+   * Gets the {@link ConnectionSource} that RepositoryManager uses internally to acquire
    * database connections.
    *
    * @return The ConnectionSource instance
@@ -145,7 +150,7 @@ public class JdbcOperations {
   }
 
   /**
-   * Sets the {@link ConnectionSource} that JdbcOperations uses internally to acquire
+   * Sets the {@link ConnectionSource} that RepositoryManager uses internally to acquire
    * database connections.
    *
    * @param connectionSource the ConnectionSource instance to use
@@ -156,10 +161,10 @@ public class JdbcOperations {
 
   /**
    * Gets the default column mappings Map. column mappings added to this Map are
-   * always available when JdbcOperations attempts to map between result sets and object
+   * always available when RepositoryManager attempts to map between result sets and object
    * instances.
    *
-   * @return The {@link Map<String,String>} instance, which JdbcOperations internally uses
+   * @return The {@link Map<String,String>} instance, which RepositoryManager internally uses
    * to map column names with property names.
    */
   public Map<String, String> getDefaultColumnMappings() {
@@ -169,7 +174,7 @@ public class JdbcOperations {
   /**
    * Sets the default column mappings Map.
    *
-   * @param defaultColumnMappings A {@link Map} instance JdbcOperations uses internally to map between column
+   * @param defaultColumnMappings A {@link Map} instance RepositoryManager uses internally to map between column
    * names and property names.
    */
   public void setDefaultColumnMappings(Map<String, String> defaultColumnMappings) {
@@ -177,7 +182,7 @@ public class JdbcOperations {
   }
 
   /**
-   * Gets value indicating if this instance of JdbcOperations is case sensitive when
+   * Gets value indicating if this instance of RepositoryManager is case sensitive when
    * mapping between columns names and property names.
    */
   public boolean isDefaultCaseSensitive() {
@@ -185,7 +190,7 @@ public class JdbcOperations {
   }
 
   /**
-   * Sets a value indicating if this instance of JdbcOperations is case sensitive when
+   * Sets a value indicating if this instance of RepositoryManager is case sensitive when
    * mapping between columns names and property names. This should almost always
    * be false, because most relational databases are not case sensitive.
    */
@@ -270,8 +275,8 @@ public class JdbcOperations {
    * create queries with {@link JdbcConnection} class instead,
    * using try-with-resource blocks
    * <pre>
-   * try (Connection con = JdbcOperations.open()) {
-   *    return JdbcOperations.createQuery(query, name, returnGeneratedKeys)
+   * try (Connection con = repositoryManager.open()) {
+   *    return repositoryManager.createQuery(query, name, returnGeneratedKeys)
    *                .fetch(Pojo.class);
    * }
    * </pre>
@@ -293,8 +298,8 @@ public class JdbcOperations {
    * create queries with {@link JdbcConnection} class instead,
    * using try-with-resource blocks
    * <pre>
-   *     try (Connection con = JdbcOperations.open()) {
-   *         return JdbcOperations.createQuery(query, name)
+   *     try (Connection con = repositoryManager.open()) {
+   *         return repositoryManager.createQuery(query, name)
    *                      .fetch(Pojo.class);
    *     }
    *  </pre>
@@ -341,7 +346,7 @@ public class JdbcOperations {
    * Opens a connection to the database
    *
    * @param connectionSource the {@link ConnectionSource} implementation substitution, that
-   * will be used instead of one from {@link JdbcOperations} instance.
+   * will be used instead of one from {@link RepositoryManager} instance.
    * @return instance of the {@link JdbcConnection} class.
    * @throws CannotGetJdbcConnectionException Could not acquire a connection from connection-source
    */
@@ -429,7 +434,7 @@ public class JdbcOperations {
    * proper try-catch logic.
    *
    * @param source the {@link ConnectionSource} implementation substitution, that
-   * will be used instead of one from {@link JdbcOperations} instance.
+   * will be used instead of one from {@link RepositoryManager} instance.
    * @param isolationLevel the isolation level of the transaction
    * @return the {@link JdbcConnection} instance to use to run statements in the
    * transaction.
@@ -483,7 +488,7 @@ public class JdbcOperations {
    * proper try-catch logic.
    *
    * @param source the {@link ConnectionSource} implementation substitution, that
-   * will be used instead of one from {@link JdbcOperations} instance.
+   * will be used instead of one from {@link RepositoryManager} instance.
    * @return the {@link JdbcConnection} instance to use to run statements in the
    * transaction.
    * @throws CannotGetJdbcConnectionException Could not acquire a connection from connection-source
@@ -614,6 +619,29 @@ public class JdbcOperations {
     }
     connection.commit();
     return result;
+  }
+
+  //
+
+  /**
+   * persist an entity to underlying repository
+   *
+   * @param entity entity instance
+   * @throws IllegalArgumentException if the instance is not an entity
+   */
+  public void persist(Object entity) {
+
+  }
+
+  /**
+   * Merge the state of the given entity into underlying repository
+   *
+   * @param entity entity instance
+   * @throws IllegalArgumentException if instance is not an
+   * entity or is a removed entity
+   */
+  public void merge(Object entity) {
+
   }
 
   //

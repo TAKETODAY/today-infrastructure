@@ -29,7 +29,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 
-import cn.taketoday.jdbc.JdbcOperations;
+import cn.taketoday.jdbc.RepositoryManager;
 import cn.taketoday.jdbc.PersistenceException;
 import cn.taketoday.jdbc.Query;
 
@@ -38,7 +38,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class BidirectionalConverterTest {
 
-  private JdbcOperations sql2o;
+  private RepositoryManager sql2o;
   private List<UUIDWrapper> wrappers;
 
   static class UUIDWrapperComparator implements Comparator<UUIDWrapper> {
@@ -53,7 +53,7 @@ public class BidirectionalConverterTest {
 
   @BeforeEach
   public void setUp() {
-    this.sql2o = new JdbcOperations("jdbc:h2:mem:test;DB_CLOSE_DELAY=-1", "sa", "");
+    this.sql2o = new RepositoryManager("jdbc:h2:mem:test;DB_CLOSE_DELAY=-1", "sa", "");
     this.wrappers = randomWrappers();
 
     wrappers.sort(comparator);

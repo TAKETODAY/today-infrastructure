@@ -75,7 +75,7 @@ import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.support.StandardApplicationContext;
 import cn.taketoday.jdbc.FeatureDetector;
 import cn.taketoday.jdbc.JdbcConnection;
-import cn.taketoday.jdbc.JdbcOperations;
+import cn.taketoday.jdbc.RepositoryManager;
 import cn.taketoday.jdbc.Query;
 import cn.taketoday.stereotype.Singleton;
 import lombok.SneakyThrows;
@@ -97,13 +97,13 @@ public class PojoPerformanceTest {
   //  private final int ITERATIONS = 50000;
   private final int ITERATIONS = 1000;
 
-  private JdbcOperations operations;
+  private RepositoryManager operations;
 
   @BeforeEach
   public void setup() {
     Logger.getLogger("org.hibernate").setLevel(Level.OFF);
 
-    operations = new JdbcOperations(DB_URL, DB_USER, DB_PASSWORD);
+    operations = new RepositoryManager(DB_URL, DB_USER, DB_PASSWORD);
 
     createPostTable();
 

@@ -48,7 +48,15 @@ import cn.taketoday.transaction.support.TransactionSynchronizationManager;
  * Framework's JDBC operation objects and the JDBC {@link DataSourceTransactionManager}.
  * Can also be used directly in application code.
  *
- * @author TODAY 2018-11-06 20:37
+ * @author Rod Johnson
+ * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @see #getConnection
+ * @see #releaseConnection
+ * @see DataSourceTransactionManager
+ * @see cn.taketoday.transaction.jta.JtaTransactionManager
+ * @see cn.taketoday.transaction.support.TransactionSynchronizationManager
+ * @since 2018-11-06 20:37
  */
 public abstract class DataSourceUtils {
   private static final Logger log = LoggerFactory.getLogger(DataSourceUtils.class);

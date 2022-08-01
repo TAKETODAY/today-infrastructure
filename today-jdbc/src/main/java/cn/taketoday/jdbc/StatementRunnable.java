@@ -24,7 +24,7 @@ import cn.taketoday.lang.Nullable;
 /**
  * Represents a method with a {@link JdbcConnection} and an optional argument.
  * Implementations of this interface be used as a parameter to one of the
- * {@link JdbcOperations#runInTransaction(StatementRunnable) JdbcOperations.runInTransaction}
+ * {@link RepositoryManager#runInTransaction(StatementRunnable) RepositoryManager.runInTransaction}
  * overloads, to run code safely in a transaction.
  */
 public interface StatementRunnable {

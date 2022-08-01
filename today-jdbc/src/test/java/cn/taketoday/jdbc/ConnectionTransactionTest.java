@@ -27,7 +27,6 @@ import java.sql.Connection;
 
 import javax.sql.DataSource;
 
-import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
@@ -51,7 +50,7 @@ public class ConnectionTransactionTest {
     when(connectionMock.getAutoCommit()).thenReturn(true);
     when(connectionMock.isClosed()).thenReturn(false);
 
-    final JdbcOperations sql2o = new JdbcOperations(dataSource);
+    final RepositoryManager sql2o = new RepositoryManager(dataSource);
     final JdbcConnection sql2oConnection = sql2o.beginTransaction();
     sql2oConnection.close();
 

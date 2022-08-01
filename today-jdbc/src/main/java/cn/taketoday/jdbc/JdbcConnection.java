@@ -45,7 +45,7 @@ import cn.taketoday.util.CollectionUtils;
 public final class JdbcConnection implements Closeable {
   private static final Logger log = LoggerFactory.getLogger(JdbcConnection.class);
 
-  private final JdbcOperations operations;
+  private final RepositoryManager operations;
   private final ConnectionSource connectionSource;
 
   private Connection root;
@@ -69,18 +69,18 @@ public final class JdbcConnection implements Closeable {
 
   private final HashSet<Statement> statements = new HashSet<>();
 
-  public JdbcConnection(JdbcOperations operations, boolean autoClose) {
+  public JdbcConnection(RepositoryManager operations, boolean autoClose) {
     this(operations, operations.getConnectionSource(), autoClose);
   }
 
-  public JdbcConnection(JdbcOperations operations, ConnectionSource connectionSource, boolean autoClose) {
+  public JdbcConnection(RepositoryManager operations, ConnectionSource connectionSource, boolean autoClose) {
     this.autoClose = autoClose;
     this.operations = operations;
     this.connectionSource = connectionSource;
     createConnection();
   }
 
-  public JdbcConnection(JdbcOperations operations, Connection connection, boolean autoClose) {
+  public JdbcConnection(RepositoryManager operations, Connection connection, boolean autoClose) {
     this.root = connection;
     this.autoClose = autoClose;
     this.operations = operations;
@@ -157,7 +157,7 @@ public final class JdbcConnection implements Closeable {
    * this method is called on a closed connection or this
    * <code>Connection</code> object is in auto-commit mode
    */
-  public JdbcOperations rollback() {
+  public RepositoryManager rollback() {
     rollback(true);
     return operations;
   }
@@ -200,7 +200,7 @@ public final class JdbcConnection implements Closeable {
    * if this method is called on a closed connection or this
    * <code>Connection</code> object is in auto-commit mode
    */
-  public JdbcOperations commit() {
+  public RepositoryManager commit() {
     commit(true);
     return operations;
   }
@@ -473,7 +473,7 @@ public final class JdbcConnection implements Closeable {
     return root;
   }
 
-  public JdbcOperations getOperations() {
+  public RepositoryManager getManager() {
     return operations;
   }
 

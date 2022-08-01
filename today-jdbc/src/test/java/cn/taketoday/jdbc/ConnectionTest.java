@@ -28,8 +28,6 @@ import java.sql.PreparedStatement;
 import javax.sql.DataSource;
 
 import static org.assertj.core.api.Assertions.fail;
-import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
@@ -51,7 +49,7 @@ public class ConnectionTest {
     PreparedStatement ps = mock(PreparedStatement.class);
     when(jdbcConnection.prepareStatement(ArgumentMatchers.anyString())).thenReturn(ps);
 
-    JdbcOperations operations = new JdbcOperations(dataSource);
+    RepositoryManager operations = new RepositoryManager(dataSource);
 
     operations.setGeneratedKeys(false);
     JdbcConnection cn = new JdbcConnection(operations, false);
@@ -78,7 +76,7 @@ public class ConnectionTest {
     doThrow(MyException.class).when(ps).setInt(ArgumentMatchers.anyInt(), ArgumentMatchers.anyInt());
     when(jdbcConnection.prepareStatement(ArgumentMatchers.anyString())).thenReturn(ps);
 
-    JdbcOperations sql2o = new JdbcOperations(dataSource, false);
+    RepositoryManager sql2o = new RepositoryManager(dataSource, false);
     try (JdbcConnection cn = sql2o.open()) {
       cn.createQueryWithParams("select :p1 name, :p2 age", "Dmitry Alexandrov", 35).buildPreparedStatement();
       fail("exception not thrown");

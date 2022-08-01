@@ -44,14 +44,14 @@ public abstract class BaseMemDbTest {
   }
 
   protected final DbType dbType;
-  protected final JdbcOperations jdbcOperations;
+  protected final RepositoryManager repositoryManager;
 
   public BaseMemDbTest(DbType dbType, String testName) {
     this.dbType = dbType;
-    this.jdbcOperations = new JdbcOperations(dbType.url, dbType.user, dbType.pass);
+    this.repositoryManager = new RepositoryManager(dbType.url, dbType.user, dbType.pass);
 
     if (dbType == DbType.HyperSQL) {
-      try (JdbcConnection con = jdbcOperations.open()) {
+      try (JdbcConnection con = repositoryManager.open()) {
         con.createQuery("set database sql syntax MSS true").executeUpdate();
       }
     }

@@ -27,7 +27,6 @@ import org.zapodot.junit.db.EmbeddedDatabaseRule;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.zapodot.junit.db.EmbeddedDatabaseRule.CompatibilityMode.Oracle;
 
 /**
  * @author zapodot
@@ -46,7 +45,7 @@ public class QueryArrayTest {
 
   @Test
   public void arrayTest() throws Exception {
-    final JdbcOperations database = new JdbcOperations(databaseRule.getDataSource());
+    final RepositoryManager database = new RepositoryManager(databaseRule.getDataSource());
     try (final JdbcConnection connection = database.open();
             final Query query = connection.createQuery("SELECT * FROM FOO WHERE BAR IN (:bars)")) {
 
@@ -59,7 +58,7 @@ public class QueryArrayTest {
 
   @Test
   public void emptyArrayTest() throws Exception {
-    final JdbcOperations database = new JdbcOperations(databaseRule.getDataSource());
+    final RepositoryManager database = new RepositoryManager(databaseRule.getDataSource());
 
     try (final JdbcConnection connection = database.open();
             final Query query = connection.createQuery("SELECT * FROM FOO WHERE BAR IN (:bars)")) {
