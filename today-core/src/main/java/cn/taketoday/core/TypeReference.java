@@ -42,8 +42,8 @@ public abstract class TypeReference<T> {
   private final Type type;
 
   protected TypeReference() {
-    Class<?> TypeReferenceSubclass = findTypeReferenceSubclass(getClass());
-    Type type = TypeReferenceSubclass.getGenericSuperclass();
+    Class<?> typeReferenceSubclass = findTypeReferenceSubclass(getClass());
+    Type type = typeReferenceSubclass.getGenericSuperclass();
     Assert.isInstanceOf(ParameterizedType.class, type, "Type must be a parameterized type");
     ParameterizedType parameterizedType = (ParameterizedType) type;
     Type[] actualTypeArguments = parameterizedType.getActualTypeArguments();
