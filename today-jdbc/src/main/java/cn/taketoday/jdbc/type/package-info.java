@@ -20,4 +20,9 @@
 /**
  * Type handlers
  */
+@NonNullApi
+@NonNullFields
 package cn.taketoday.jdbc.type;
+
+import cn.taketoday.lang.NonNullApi;
+import cn.taketoday.lang.NonNullFields;

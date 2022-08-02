@@ -26,6 +26,8 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 
+import cn.taketoday.lang.Nullable;
+
 /**
  * @author Tomas Rohovsky
  * @since 4.0
@@ -52,7 +54,8 @@ public class LocalDateTimeTypeHandler extends BaseTypeHandler<LocalDateTime> {
     return getLocalDateTime(cs.getTimestamp(columnIndex));
   }
 
-  static LocalDateTime getLocalDateTime(Timestamp timestamp) {
+  @Nullable
+  static LocalDateTime getLocalDateTime(@Nullable Timestamp timestamp) {
     if (timestamp != null) {
       return timestamp.toLocalDateTime();
     }

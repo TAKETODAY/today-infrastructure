@@ -24,6 +24,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import cn.taketoday.lang.Nullable;
+
 /**
  * @author Clinton Begin
  */
@@ -49,7 +51,8 @@ public class CharacterTypeHandler extends BaseTypeHandler<Character> {
     return getCharacter(cs.getString(columnIndex));
   }
 
-  protected Character getCharacter(String columnValue) {
+  @Nullable
+  protected Character getCharacter(@Nullable String columnValue) {
     return columnValue != null ? columnValue.charAt(0) : null;
   }
 

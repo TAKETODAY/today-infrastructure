@@ -27,6 +27,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 
+import cn.taketoday.lang.Nullable;
+
 /**
  * @author TODAY 2021/1/6 16:21
  */
@@ -53,7 +55,8 @@ public class JodaLocalTimeTypeHandler extends BaseTypeHandler<LocalTime> {
     return getResultInternal(cs.getTime(columnIndex));
   }
 
-  protected LocalTime getResultInternal(final Object val) {
+  @Nullable
+  protected LocalTime getResultInternal(@Nullable Object val) {
     if (val == null) {
       return null;
     }

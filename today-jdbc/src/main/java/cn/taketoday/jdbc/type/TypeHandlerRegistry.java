@@ -41,10 +41,12 @@ import java.util.Map;
 import java.util.UUID;
 
 import cn.taketoday.beans.BeanProperty;
+import cn.taketoday.beans.BeanUtils;
 import cn.taketoday.core.ResolvableType;
 import cn.taketoday.core.TypeReference;
 import cn.taketoday.core.annotation.MergedAnnotations;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Enumerable;
 import cn.taketoday.lang.Nullable;
 
 /**
@@ -53,76 +55,19 @@ import cn.taketoday.lang.Nullable;
  * @author TODAY
  */
 @SuppressWarnings("rawtypes")
-public class TypeHandlerRegistry {
+public class TypeHandlerRegistry implements TypeHandlerResolver {
   private static final TypeHandlerRegistry sharedInstance = new TypeHandlerRegistry();
 
   private ObjectTypeHandler objectTypeHandler = ObjectTypeHandler.getSharedInstance();
 
   private final TypeHandler<Object> unknownTypeHandler;
   private final HashMap<Class<?>, TypeHandler<?>> typeHandlers = new HashMap<>();
-  private Class<? extends TypeHandler> defaultEnumTypeHandler = EnumTypeHandler.class;
+  private Class<? extends TypeHandler> defaultEnumTypeHandler = EnumerationValueTypeHandler.class;
   private TypeHandlerResolver typeHandlerResolver = TypeHandlerResolver.forMappedTypeHandlerAnnotation();
 
   public TypeHandlerRegistry() {
     this.unknownTypeHandler = new UnknownTypeHandler(this);
-
-    register(Boolean.class, new BooleanTypeHandler());
-    register(boolean.class, new BooleanTypeHandler());
-
-    register(Byte.class, new ByteTypeHandler());
-    register(byte.class, new ByteTypeHandler());
-
-    register(Short.class, new ShortTypeHandler());
-    register(short.class, new ShortTypeHandler());
-
-    register(int.class, new IntegerTypeHandler());
-    register(Integer.class, new IntegerTypeHandler());
-
-    register(Long.class, new LongTypeHandler());
-    register(long.class, new LongTypeHandler());
-
-    register(Float.class, new FloatTypeHandler());
-    register(float.class, new FloatTypeHandler());
-
-    register(Double.class, new DoubleTypeHandler());
-    register(double.class, new DoubleTypeHandler());
-
-    register(String.class, new StringTypeHandler());
-    register(Reader.class, new ClobReaderTypeHandler());
-
-    register(BigInteger.class, new BigIntegerTypeHandler());
-    register(BigDecimal.class, new BigDecimalTypeHandler());
-
-    register(byte[].class, new ByteArrayTypeHandler());
-    register(Byte[].class, new ByteObjectArrayTypeHandler());
-    register(InputStream.class, new BlobInputStreamTypeHandler());
-
-    register(Object.class, unknownTypeHandler);
-
-    register(Date.class, new DateTypeHandler());
-
-    register(java.sql.Date.class, new SqlDateTypeHandler());
-    register(java.sql.Time.class, new SqlTimeTypeHandler());
-    register(java.sql.Timestamp.class, new SqlTimestampTypeHandler());
-
-    register(Instant.class, new InstantTypeHandler());
-    register(LocalDate.class, new LocalDateTypeHandler());
-    register(LocalTime.class, new LocalTimeTypeHandler());
-    register(LocalDateTime.class, new LocalDateTimeTypeHandler());
-
-    register(Year.class, new YearTypeHandler());
-    register(Month.class, new MonthTypeHandler());
-    register(YearMonth.class, new YearMonthTypeHandler());
-    register(OffsetTime.class, new OffsetTimeTypeHandler());
-    register(ZonedDateTime.class, new ZonedDateTimeTypeHandler());
-    register(OffsetDateTime.class, new OffsetDateTimeTypeHandler());
-
-    register(char.class, new CharacterTypeHandler());
-    register(Character.class, new CharacterTypeHandler());
-
-    register(UUID.class, new UUIDTypeHandler());
-
-    registerJodaTime();
+    registerDefaults(this);
   }
 
   /**
@@ -148,14 +93,6 @@ public class TypeHandlerRegistry {
 
   //
 
-  public boolean hasTypeHandler(Class<?> javaType) {
-    return javaType != null && getTypeHandler(javaType) != null;
-  }
-
-  public boolean hasTypeHandler(TypeReference<?> javaTypeReference) {
-    return javaTypeReference != null && getTypeHandler(javaTypeReference) != null;
-  }
-
   @SuppressWarnings("unchecked")
   public <T> TypeHandler<T> getTypeHandler(TypeReference<T> javaTypeReference) {
     ResolvableType resolvableType = javaTypeReference.getResolvableType();
@@ -167,7 +104,11 @@ public class TypeHandlerRegistry {
   public <T> TypeHandler<T> getTypeHandler(Class<T> type) {
     TypeHandler<?> typeHandler = typeHandlers.get(type);
     if (typeHandler == null) {
-      if (Enum.class.isAssignableFrom(type)) {
+      if (Enumerable.class.isAssignableFrom(type)) {
+        typeHandler = new EnumerableEnumTypeHandler(type, this);
+        register(type, typeHandler);
+      }
+      else if (Enum.class.isAssignableFrom(type)) {
         typeHandler = getInstance(type, defaultEnumTypeHandler);
         register(type, typeHandler);
       }
@@ -178,18 +119,25 @@ public class TypeHandlerRegistry {
     return (TypeHandler<T>) typeHandler;
   }
 
+  @Nullable
+  @Override
+  public TypeHandler<?> resolve(BeanProperty beanProperty) {
+    return getTypeHandler(beanProperty);
+  }
+
   /**
    * @since 4.0
    */
   @SuppressWarnings("unchecked")
   public <T> TypeHandler<T> getTypeHandler(BeanProperty beanProperty) {
     TypeHandler<?> typeHandler = typeHandlerResolver.resolve(beanProperty);
-    if (typeHandler != null) {
-      return (TypeHandler<T>) typeHandler;
+    if (typeHandler == null) {
+      // fallback to default
+      Class<?> type = beanProperty.getType();
+      typeHandler = getTypeHandler(type);
     }
-    // fallback to default
-    Class<?> type = beanProperty.getType();
-    return (TypeHandler<T>) getTypeHandler(type);
+
+    return (TypeHandler<T>) typeHandler;
   }
 
   public void addPropertyTypeHandlerResolver(TypeHandlerResolver resolver) {
@@ -202,7 +150,7 @@ public class TypeHandlerRegistry {
     this.typeHandlerResolver = typeHandlerResolver.and(TypeHandlerResolver.composite(resolvers));
   }
 
-  public void setPropertyTypeHandlerResolvers(@Nullable TypeHandlerResolver... resolvers) {
+  public void setPropertyTypeHandlerResolvers(TypeHandlerResolver... resolvers) {
     this.typeHandlerResolver = TypeHandlerResolver.composite(resolvers);
   }
 
@@ -293,19 +241,32 @@ public class TypeHandlerRegistry {
   // Construct a handler (used also from Builders)
 
   @SuppressWarnings("unchecked")
-  public <T> TypeHandler<T> getInstance(Class<?> javaTypeClass, Class<?> typeHandlerClass) {
+  public <T> TypeHandler<T> getInstance(@Nullable Class<?> javaTypeClass, Class<?> typeHandlerClass) {
     if (javaTypeClass != null) {
-      try {
-        Constructor<?> c = typeHandlerClass.getConstructor(Class.class);
-        return (TypeHandler<T>) c.newInstance(javaTypeClass);
+      Constructor<?> constructor = BeanUtils.getConstructor(typeHandlerClass);
+      if (constructor == null) {
+        throw new IllegalStateException("No suitable constructor in " + typeHandlerClass);
       }
-      catch (NoSuchMethodException ignored) {
-        // ignored
+
+      try {
+        if (constructor.getParameterCount() != 0) {
+          Object[] args = new Object[constructor.getParameterCount()];
+          Class<?>[] parameterTypes = constructor.getParameterTypes();
+          int i = 0;
+          for (Class<?> parameterType : parameterTypes) {
+            args[i++] = resolveArg(javaTypeClass, parameterType);
+          }
+          return (TypeHandler<T>) BeanUtils.newInstance(constructor, args);
+        }
+        else {
+          return (TypeHandler<T>) BeanUtils.newInstance(constructor);
+        }
       }
       catch (Exception e) {
         throw new TypeException("Failed invoking constructor for handler " + typeHandlerClass, e);
       }
     }
+
     try {
       Constructor<?> c = typeHandlerClass.getConstructor();
       return (TypeHandler<T>) c.newInstance();
@@ -313,6 +274,21 @@ public class TypeHandlerRegistry {
     catch (Exception e) {
       throw new TypeException("Unable to find a usable constructor for " + typeHandlerClass, e);
     }
+  }
+
+  private Object resolveArg(Class<?> propertyType, Class<?> parameterType) {
+    if (parameterType == Class.class) {
+      return propertyType;
+    }
+    if (parameterType == TypeHandlerRegistry.class) {
+      return this;
+    }
+    throw new IllegalArgumentException(
+            "TypeHandler Constructor parameterType '" + parameterType.getName() + "' currently not supported");
+  }
+
+  public void clear() {
+    typeHandlers.clear();
   }
 
   // get information
@@ -329,4 +305,68 @@ public class TypeHandlerRegistry {
   public static TypeHandlerRegistry getSharedInstance() {
     return sharedInstance;
   }
+
+  // static
+
+  public static void registerDefaults(TypeHandlerRegistry registry) {
+
+    registry.register(Boolean.class, new BooleanTypeHandler());
+    registry.register(boolean.class, new BooleanTypeHandler());
+
+    registry.register(Byte.class, new ByteTypeHandler());
+    registry.register(byte.class, new ByteTypeHandler());
+
+    registry.register(Short.class, new ShortTypeHandler());
+    registry.register(short.class, new ShortTypeHandler());
+
+    registry.register(int.class, new IntegerTypeHandler());
+    registry.register(Integer.class, new IntegerTypeHandler());
+
+    registry.register(Long.class, new LongTypeHandler());
+    registry.register(long.class, new LongTypeHandler());
+
+    registry.register(Float.class, new FloatTypeHandler());
+    registry.register(float.class, new FloatTypeHandler());
+
+    registry.register(Double.class, new DoubleTypeHandler());
+    registry.register(double.class, new DoubleTypeHandler());
+
+    registry.register(String.class, new StringTypeHandler());
+    registry.register(Reader.class, new ClobReaderTypeHandler());
+
+    registry.register(BigInteger.class, new BigIntegerTypeHandler());
+    registry.register(BigDecimal.class, new BigDecimalTypeHandler());
+
+    registry.register(byte[].class, new ByteArrayTypeHandler());
+    registry.register(Byte[].class, new ByteObjectArrayTypeHandler());
+    registry.register(InputStream.class, new BlobInputStreamTypeHandler());
+
+    registry.register(Object.class, registry.getUnknownTypeHandler());
+
+    registry.register(Date.class, new DateTypeHandler());
+
+    registry.register(java.sql.Date.class, new SqlDateTypeHandler());
+    registry.register(java.sql.Time.class, new SqlTimeTypeHandler());
+    registry.register(java.sql.Timestamp.class, new SqlTimestampTypeHandler());
+
+    registry.register(Instant.class, new InstantTypeHandler());
+    registry.register(LocalDate.class, new LocalDateTypeHandler());
+    registry.register(LocalTime.class, new LocalTimeTypeHandler());
+    registry.register(LocalDateTime.class, new LocalDateTimeTypeHandler());
+
+    registry.register(Year.class, new YearTypeHandler());
+    registry.register(Month.class, new MonthTypeHandler());
+    registry.register(YearMonth.class, new YearMonthTypeHandler());
+    registry.register(OffsetTime.class, new OffsetTimeTypeHandler());
+    registry.register(ZonedDateTime.class, new ZonedDateTimeTypeHandler());
+    registry.register(OffsetDateTime.class, new OffsetDateTimeTypeHandler());
+
+    registry.register(char.class, new CharacterTypeHandler());
+    registry.register(Character.class, new CharacterTypeHandler());
+
+    registry.register(UUID.class, new UUIDTypeHandler());
+
+    registry.registerJodaTime();
+  }
+
 }
