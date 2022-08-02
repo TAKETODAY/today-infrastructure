@@ -112,7 +112,7 @@ public interface TypeHandlerResolver {
 
   private static Object resolveArg(BeanProperty beanProperty, Class<?> parameterType) {
     if (parameterType == Class.class) {
-      return parameterType;
+      return beanProperty.getType();
     }
     if (parameterType == BeanProperty.class) {
       return beanProperty;
