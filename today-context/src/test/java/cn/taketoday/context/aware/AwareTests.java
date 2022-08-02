@@ -24,7 +24,6 @@ import org.junit.jupiter.api.Test;
 import cn.taketoday.beans.factory.BeanDefinitionStoreException;
 import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
 import cn.taketoday.context.support.StandardApplicationContext;
-import cn.taketoday.core.ConfigurationException;
 
 /**
  * @author Today <br>

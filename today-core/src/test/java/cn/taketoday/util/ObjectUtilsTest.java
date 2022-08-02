@@ -19,7 +19,6 @@
  */
 package cn.taketoday.util;
 
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -30,7 +29,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 
-import cn.taketoday.core.ConfigurationException;
 import cn.taketoday.core.conversion.ConversionException;
 
 import static cn.taketoday.util.ObjectUtils.isEmpty;
@@ -45,7 +43,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class ObjectUtilsTest {
 
   @Test
-  void testIsEmpty() throws ConfigurationException {
+  void testIsEmpty() {
     // null
     assert isEmpty(null);
     assert !ObjectUtils.isNotEmpty(null);
