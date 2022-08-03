@@ -20,6 +20,7 @@
 
 package cn.taketoday.http.server.reactive;
 
+import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 import org.junit.jupiter.api.parallel.Execution;
 import org.junit.jupiter.api.parallel.ExecutionMode;
 
@@ -44,6 +45,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @since 4.0
  */
 @Execution(ExecutionMode.SAME_THREAD)
+@DisabledIfEnvironmentVariable(named = "CI", matches = "true", disabledReason = "server port error")
 class AsyncIntegrationTests extends AbstractHttpHandlerIntegrationTests {
 
   private final Scheduler asyncGroup = Schedulers.parallel();
