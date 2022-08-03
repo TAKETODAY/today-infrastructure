@@ -24,6 +24,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import cn.taketoday.beans.BeanProperty;
+import cn.taketoday.core.conversion.ConversionException;
 import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.jdbc.RepositoryManager;
 import cn.taketoday.jdbc.type.TypeHandler;
@@ -31,7 +32,10 @@ import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 
 /**
+ * for any pojo
+ *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @see #setTo(Object, ResultSet, int)
  * @since 2021/1/7 22:49
  */
 public class ObjectPropertySetter {
@@ -116,7 +120,20 @@ public class ObjectPropertySetter {
       if (object == null || beanProperty.isInstance(object)) {
         return object;
       }
-      return conversionService.convert(object, beanProperty.getTypeDescriptor());
+      try {
+        return conversionService.convert(object, beanProperty.getTypeDescriptor());
+      }
+      catch (ConversionException ex) {
+        if (ex.getCause() instanceof IllegalArgumentException cause) {
+          String message = cause.getMessage();
+          if ("A null value cannot be assigned to a primitive type".equals(message)) {
+            // primitive type
+            return null;
+          }
+        }
+        e.addSuppressed(ex);
+        throw e;
+      }
     }
   }
 
