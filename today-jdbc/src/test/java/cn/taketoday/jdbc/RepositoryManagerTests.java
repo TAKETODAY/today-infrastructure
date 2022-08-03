@@ -923,7 +923,6 @@ public class RepositoryManagerTests extends BaseMemDbTest {
     assertThat(testEnum2).isNull();
 
     TypeHandlerRegistry handlerRegistry = new TypeHandlerRegistry();
-    handlerRegistry.setDefaultEnumTypeHandler(EnumOrdinalTypeHandler.class);
     repositoryManager.setTypeHandlerRegistry(handlerRegistry);
 
     List<EntityWithEnum> list = repositoryManager.createQuery("select id, enum_val val, enum_val2 val2 from EnumTest")

@@ -24,6 +24,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import cn.taketoday.beans.BeanProperty;
+import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.jdbc.RepositoryManager;
 import cn.taketoday.jdbc.type.TypeHandler;
 import cn.taketoday.lang.Assert;
@@ -40,6 +41,7 @@ public class ObjectPropertySetter {
   private final BeanProperty beanProperty; // cache
 
   private final TypeHandler<?> typeHandler;
+  private final ConversionService conversionService;
 
   @Nullable
   private final PrimitiveTypeNullHandler primitiveTypeNullHandler;
@@ -47,18 +49,21 @@ public class ObjectPropertySetter {
   public ObjectPropertySetter(
           @Nullable PropertyPath propertyPath, BeanProperty beanProperty, RepositoryManager operations) {
     this(propertyPath, beanProperty,
+            operations.getConversionService(),
             operations.getTypeHandler(beanProperty),
             operations.getPrimitiveTypeNullHandler());
   }
 
   public ObjectPropertySetter(
           @Nullable PropertyPath propertyPath, BeanProperty beanProperty,
-          TypeHandler<?> typeHandler, @Nullable PrimitiveTypeNullHandler primitiveTypeNullHandler) {
+          ConversionService conversionService, TypeHandler<?> typeHandler,
+          @Nullable PrimitiveTypeNullHandler primitiveTypeNullHandler) {
     Assert.notNull(typeHandler, "TypeHandler is required");
     Assert.notNull(beanProperty, "BeanProperty is required");
     this.typeHandler = typeHandler;
     this.propertyPath = propertyPath;
     this.beanProperty = beanProperty;
+    this.conversionService = conversionService;
     this.primitiveTypeNullHandler = primitiveTypeNullHandler;
   }
 
@@ -107,7 +112,11 @@ public class ObjectPropertySetter {
     }
     catch (SQLException e) {
       // maybe data conversion error
-      return resultSet.getObject(columnIndex);
+      Object object = resultSet.getObject(columnIndex);
+      if (object == null || beanProperty.isInstance(object)) {
+        return object;
+      }
+      return conversionService.convert(object, beanProperty.getTypeDescriptor());
     }
   }
 
