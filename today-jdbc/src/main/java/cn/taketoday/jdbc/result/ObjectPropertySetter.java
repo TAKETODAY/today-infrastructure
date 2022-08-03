@@ -51,11 +51,11 @@ public class ObjectPropertySetter {
   private final PrimitiveTypeNullHandler primitiveTypeNullHandler;
 
   public ObjectPropertySetter(
-          @Nullable PropertyPath propertyPath, BeanProperty beanProperty, RepositoryManager operations) {
+          @Nullable PropertyPath propertyPath, BeanProperty beanProperty, RepositoryManager manager) {
     this(propertyPath, beanProperty,
-            operations.getConversionService(),
-            operations.getTypeHandler(beanProperty),
-            operations.getPrimitiveTypeNullHandler());
+            manager.getConversionService(),
+            manager.getTypeHandler(beanProperty),
+            manager.getPrimitiveTypeNullHandler());
   }
 
   public ObjectPropertySetter(
@@ -64,6 +64,7 @@ public class ObjectPropertySetter {
           @Nullable PrimitiveTypeNullHandler primitiveTypeNullHandler) {
     Assert.notNull(typeHandler, "TypeHandler is required");
     Assert.notNull(beanProperty, "BeanProperty is required");
+    Assert.notNull(conversionService, "ConversionService is required");
     this.typeHandler = typeHandler;
     this.propertyPath = propertyPath;
     this.beanProperty = beanProperty;
