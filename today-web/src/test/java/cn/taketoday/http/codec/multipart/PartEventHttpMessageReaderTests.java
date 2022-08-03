@@ -22,6 +22,11 @@ package cn.taketoday.http.codec.multipart;
 
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
+import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariables;
+import org.junit.jupiter.api.condition.DisabledIfSystemProperty;
+import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
+import org.junit.jupiter.api.condition.EnabledIfSystemProperty;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
@@ -54,6 +59,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/4/22 9:47
  */
+@DisabledIfEnvironmentVariable(named = "CI", matches = "true", disabledReason = "file CRLF problem")
 class PartEventHttpMessageReaderTests {
 
   private static final int BUFFER_SIZE = 64;
