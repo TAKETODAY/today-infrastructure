@@ -58,6 +58,7 @@ import cn.taketoday.jdbc.result.Row;
 import cn.taketoday.jdbc.result.Table;
 import cn.taketoday.jdbc.type.BytesInputStreamTypeHandler;
 import cn.taketoday.jdbc.type.EnumOrdinalTypeHandler;
+import cn.taketoday.jdbc.type.Enumerated;
 import cn.taketoday.jdbc.type.TypeHandlerRegistry;
 import cn.taketoday.jdbc.utils.IOUtils;
 import cn.taketoday.lang.NonNull;
@@ -901,6 +902,7 @@ public class RepositoryManagerTests extends BaseMemDbTest {
   public static class EntityWithEnum {
     public int id;
     public TestEnum val;
+    @Enumerated
     public TestEnum val2;
   }
 

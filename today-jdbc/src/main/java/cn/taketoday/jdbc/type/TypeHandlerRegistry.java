@@ -44,6 +44,7 @@ import cn.taketoday.beans.BeanProperty;
 import cn.taketoday.beans.BeanUtils;
 import cn.taketoday.core.ResolvableType;
 import cn.taketoday.core.TypeReference;
+import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.core.annotation.MergedAnnotations;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Enumerable;
@@ -129,12 +130,42 @@ public class TypeHandlerRegistry implements TypeHandlerResolver {
    * @since 4.0
    */
   @SuppressWarnings("unchecked")
-  public <T> TypeHandler<T> getTypeHandler(BeanProperty beanProperty) {
-    TypeHandler<?> typeHandler = typeHandlerResolver.resolve(beanProperty);
+  public <T> TypeHandler<T> getTypeHandler(BeanProperty property) {
+    TypeHandler<?> typeHandler = typeHandlerResolver.resolve(property);
     if (typeHandler == null) {
       // fallback to default
-      Class<?> type = beanProperty.getType();
-      typeHandler = getTypeHandler(type);
+      Class<?> type = property.getType();
+      typeHandler = typeHandlers.get(type);
+      if (typeHandler == null) {
+        if (Enumerable.class.isAssignableFrom(type)) {
+          // for Enumerable type
+          typeHandler = new EnumerableEnumTypeHandler(type, this);
+          register(type, typeHandler);
+        }
+        else if (Enum.class.isAssignableFrom(type)) {
+          // BeanProperty based
+          MergedAnnotation<Enumerated> enumerated = MergedAnnotations.from(property, property.getAnnotations()).get(Enumerated.class);
+          if (!enumerated.isPresent()) {
+            enumerated = MergedAnnotations.from(type).get(Enumerated.class);
+          }
+
+          if (enumerated.isPresent()) {
+            EnumType enumType = enumerated.getEnum(MergedAnnotation.VALUE, EnumType.class);
+            if (enumType == EnumType.ORDINAL) {
+              typeHandler = new EnumOrdinalTypeHandler(type);
+            }
+            else {
+              typeHandler = new EnumTypeHandler(type);
+            }
+          }
+          else {
+            typeHandler = getInstance(type, defaultEnumTypeHandler);
+          }
+        }
+        else {
+          typeHandler = typeHandlerNotFound(type);
+        }
+      }
     }
 
     return (TypeHandler<T>) typeHandler;
