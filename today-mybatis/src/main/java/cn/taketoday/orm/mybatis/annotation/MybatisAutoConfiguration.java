@@ -42,8 +42,8 @@ import cn.taketoday.beans.factory.support.BeanDefinitionBuilder;
 import cn.taketoday.context.annotation.Import;
 import cn.taketoday.context.annotation.ImportBeanDefinitionRegistrar;
 import cn.taketoday.context.annotation.MissingBean;
+import cn.taketoday.context.annotation.config.AutoConfiguration;
 import cn.taketoday.context.annotation.config.AutoConfigurationPackages;
-import cn.taketoday.context.annotation.config.AutoConfigureAfter;
 import cn.taketoday.context.condition.ConditionalOnClass;
 import cn.taketoday.context.condition.ConditionalOnMissingBean;
 import cn.taketoday.context.condition.ConditionalOnSingleCandidate;
@@ -82,8 +82,7 @@ import cn.taketoday.util.StringUtils;
  */
 @ConditionalOnSingleCandidate(DataSource.class)
 @EnableConfigurationProperties(MybatisProperties.class)
-@cn.taketoday.context.annotation.Configuration(proxyBeanMethods = false)
-@AutoConfigureAfter({ DataSourceAutoConfiguration.class })
+@AutoConfiguration(after = DataSourceAutoConfiguration.class)
 @ConditionalOnClass({ SqlSessionFactory.class, SqlSessionFactoryBean.class })
 public class MybatisAutoConfiguration implements InitializingBean {
   private static final Logger log = LoggerFactory.getLogger(MybatisAutoConfiguration.class);
