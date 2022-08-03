@@ -152,7 +152,7 @@ public abstract class PropertyAccessor implements SetterMethod, GetterMethod {
    */
   public static PropertyAccessor fromField(
           Field field, @Nullable Method readMethod, @Nullable Method writeMethod) {
-    boolean isReadOnly = Modifier.isFinal(field.getModifiers());
+    boolean isReadOnly = Modifier.isFinal(field.getModifiers()) && writeMethod == null;
     if (isReadOnly && readMethod != null) {
       MethodInvoker invoker = MethodInvoker.fromMethod(readMethod);
       return new ReadOnlyMethodAccessorPropertyAccessor(invoker);
