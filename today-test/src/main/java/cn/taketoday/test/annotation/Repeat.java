@@ -29,7 +29,6 @@ import java.lang.annotation.Target;
 import cn.taketoday.test.context.TestExecutionListener;
 import cn.taketoday.test.context.junit4.JUnit4ClassRunner;
 import cn.taketoday.test.context.junit4.rules.ApplicationMethodRule;
-import cn.taketoday.test.context.junit4.statements.SpringRepeat;
 
 /**
  * Test annotation for use with JUnit 4 to indicate that a test method should be
@@ -51,7 +50,7 @@ import cn.taketoday.test.context.junit4.statements.SpringRepeat;
  * @see Timed
  * @see JUnit4ClassRunner
  * @see ApplicationMethodRule
- * @see SpringRepeat
+ * @see cn.taketoday.test.context.junit4.statements.RepeatTest
  * @since 4.0
  */
 @Target({ ElementType.METHOD, ElementType.ANNOTATION_TYPE })

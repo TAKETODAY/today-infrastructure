@@ -21,7 +21,6 @@
 package cn.taketoday.test.context.junit.jupiter;
 
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInfo;
 
 import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.beans.factory.annotation.Value;
@@ -33,33 +32,31 @@ import cn.taketoday.test.context.junit.jupiter.comics.Person;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * Integration tests which demonstrate support for autowiring individual
- * parameters in test class constructors using {@link Autowired @Autowired}
- * and {@link Value @Value} with the TestContext Framework and JUnit Jupiter.
+ * Integration tests which demonstrate support for {@link Autowired @Autowired}
+ * test class constructors with the TestContext Framework and JUnit Jupiter.
  *
  * @author Sam Brannen
  * @see ApplicationExtension
- * @see SpringJUnitJupiterAutowiredConstructorInjectionTests
+ * @see JUnitJupiterConstructorInjectionTests
  * @since 4.0
  */
 @JUnitConfig(TestConfig.class)
 @TestPropertySource(properties = "enigma = 42")
-class SpringJUnitJupiterConstructorInjectionTests {
+class ApplicationJUnitJupiterAutowiredConstructorInjectionTests {
 
   final ApplicationContext applicationContext;
   final Person dilbert;
   final Dog dog;
   final Integer enigma;
-  final TestInfo testInfo;
 
-  SpringJUnitJupiterConstructorInjectionTests(ApplicationContext applicationContext, @Autowired Person dilbert,
-          @Autowired Dog dog, @Value("${enigma}") Integer enigma, TestInfo testInfo) {
+  @Autowired
+  ApplicationJUnitJupiterAutowiredConstructorInjectionTests(ApplicationContext applicationContext, Person dilbert, Dog dog,
+          @Value("${enigma}") Integer enigma) {
 
     this.applicationContext = applicationContext;
     this.dilbert = dilbert;
     this.dog = dog;
     this.enigma = enigma;
-    this.testInfo = testInfo;
   }
 
   @Test
@@ -81,11 +78,6 @@ class SpringJUnitJupiterConstructorInjectionTests {
   void propertyPlaceholderInjected() {
     assertThat(this.enigma).as("Enigma should have been injected via @Value by Spring").isNotNull();
     assertThat(this.enigma).as("enigma").isEqualTo(42);
-  }
-
-  @Test
-  void testInfoInjected() {
-    assertThat(this.testInfo).as("TestInfo should have been injected by JUnit").isNotNull();
   }
 
 }

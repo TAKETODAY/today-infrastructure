@@ -82,7 +82,7 @@ public class FailOnTimeout extends Statement {
 
   /**
    * Evaluate the next {@link Statement statement} in the execution chain
-   * (typically an instance of {@link SpringRepeat}) and throw a
+   * (typically an instance of {@link RepeatTest}) and throw a
    * {@link TimeoutException} if the next {@code statement} executes longer
    * than the specified {@code timeout}.
    */

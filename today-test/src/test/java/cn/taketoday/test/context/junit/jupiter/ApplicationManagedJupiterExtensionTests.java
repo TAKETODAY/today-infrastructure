@@ -51,7 +51,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 @JUnitConfig
 @TestInstance(Lifecycle.PER_CLASS)
-class SpringManagedJupiterExtensionTests {
+class ApplicationManagedJupiterExtensionTests {
 
   @Autowired
   @RegisterExtension

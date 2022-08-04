@@ -44,12 +44,12 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Sam Brannen
  * @see ApplicationExtension
  * @see JUnitConfig
- * @see SpringExtensionTests
+ * @see ApplicationExtensionTests
  * @since 4.0
  */
 @JUnitConfig(TestConfig.class)
 @DisplayName("@JUnitConfig Tests")
-class ComposedSpringExtensionTests {
+class ComposedApplicationExtensionTests {
 
   @Autowired
   Person dilbert;
@@ -65,7 +65,7 @@ class ComposedSpringExtensionTests {
   }
 
   @Test
-  @DisplayName("Spring @Beans injected into fields")
+  @DisplayName("@Beans injected into fields")
   void springBeansInjected() {
     assertThat(dilbert).as("Person should have been @Autowired by Spring").isNotNull();
     assertThat(dilbert.getName()).as("Person's name").isEqualTo("Dilbert");

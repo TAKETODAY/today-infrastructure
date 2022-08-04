@@ -58,7 +58,7 @@ import cn.taketoday.test.context.junit4.statements.RunBeforeTestClassCallbacks;
 import cn.taketoday.test.context.junit4.statements.RunBeforeTestExecutionCallbacks;
 import cn.taketoday.test.context.junit4.statements.RunBeforeTestMethodCallbacks;
 import cn.taketoday.test.context.junit4.statements.FailOnTimeout;
-import cn.taketoday.test.context.junit4.statements.SpringRepeat;
+import cn.taketoday.test.context.junit4.statements.RepeatTest;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.ReflectionUtils;
 
@@ -485,15 +485,15 @@ public class JUnit4ClassRunner extends BlockJUnit4ClassRunner {
   }
 
   /**
-   * Wrap the supplied {@link Statement} with a {@code SpringRepeat} statement.
+   * Wrap the supplied {@link Statement} with a {@code RepeatTest} statement.
    * <p>Supports Framework's {@link Repeat @Repeat}
    * annotation.
    *
    * @see TestAnnotationUtils#getRepeatCount(Method)
-   * @see SpringRepeat
+   * @see RepeatTest
    */
   protected Statement withPotentialRepeat(FrameworkMethod frameworkMethod, Object testInstance, Statement next) {
-    return new SpringRepeat(next, frameworkMethod.getMethod());
+    return new RepeatTest(next, frameworkMethod.getMethod());
   }
 
 }

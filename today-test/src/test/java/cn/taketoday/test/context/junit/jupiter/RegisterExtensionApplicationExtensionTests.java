@@ -51,14 +51,14 @@ import static org.assertj.core.api.Assertions.assertThat;
  * Platform, simply run {@link SpringJUnitJupiterTestSuite} as a JUnit 4 test.
  *
  * @author Sam Brannen
- * @see SpringExtensionTests
+ * @see ApplicationExtensionTests
  * @see ApplicationExtension
  * @see RegisterExtension
  * @since 4.0
  */
 @ContextConfiguration(classes = TestConfig.class)
 @TestPropertySource(properties = "enigma = 42")
-class RegisterExtensionSpringExtensionTests {
+class RegisterExtensionApplicationExtensionTests {
 
   @RegisterExtension
   static final ApplicationExtension springExtension = new ApplicationExtension();

@@ -47,13 +47,13 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  * @author Sam Brannen
  * @see ApplicationExtension
- * @see ComposedSpringExtensionTests
+ * @see ComposedApplicationExtensionTests
  * @since 4.0
  */
 @ExtendWith(ApplicationExtension.class)
 @ContextConfiguration(classes = TestConfig.class)
 @TestPropertySource(properties = "enigma = 42")
-class SpringExtensionTests {
+class ApplicationExtensionTests {
 
   @Autowired
   Person dilbert;

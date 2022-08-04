@@ -30,7 +30,7 @@ import cn.taketoday.test.annotation.Repeat;
 import cn.taketoday.test.annotation.TestAnnotationUtils;
 
 /**
- * {@code SpringRepeat} is a custom JUnit {@link Statement} which adds support
+ * {@code RepeatTest} is a custom JUnit {@link Statement} which adds support
  * for Framework's {@link Repeat @Repeat}
  * annotation by repeating the test the specified number of times.
  *
@@ -38,9 +38,9 @@ import cn.taketoday.test.annotation.TestAnnotationUtils;
  * @see #evaluate()
  * @since 4.0
  */
-public class SpringRepeat extends Statement {
+public class RepeatTest extends Statement {
 
-  protected static final Logger logger = LoggerFactory.getLogger(SpringRepeat.class);
+  protected static final Logger logger = LoggerFactory.getLogger(RepeatTest.class);
 
   private final Statement next;
 
@@ -49,7 +49,7 @@ public class SpringRepeat extends Statement {
   private final int repeat;
 
   /**
-   * Construct a new {@code SpringRepeat} statement for the supplied
+   * Construct a new {@code RepeatTest} statement for the supplied
    * {@code testMethod}, retrieving the configured repeat count from the
    * {@code @Repeat} annotation on the supplied method.
    *
@@ -57,19 +57,19 @@ public class SpringRepeat extends Statement {
    * @param testMethod the current test method
    * @see TestAnnotationUtils#getRepeatCount(Method)
    */
-  public SpringRepeat(Statement next, Method testMethod) {
+  public RepeatTest(Statement next, Method testMethod) {
     this(next, testMethod, TestAnnotationUtils.getRepeatCount(testMethod));
   }
 
   /**
-   * Construct a new {@code SpringRepeat} statement for the supplied
+   * Construct a new {@code RepeatTest} statement for the supplied
    * {@code testMethod} and {@code repeat} count.
    *
    * @param next the next {@code Statement} in the execution chain
    * @param testMethod the current test method
    * @param repeat the configured repeat count for the current test method
    */
-  public SpringRepeat(Statement next, Method testMethod, int repeat) {
+  public RepeatTest(Statement next, Method testMethod, int repeat) {
     this.next = next;
     this.testMethod = testMethod;
     this.repeat = Math.max(1, repeat);

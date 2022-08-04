@@ -41,7 +41,7 @@ import cn.taketoday.test.context.junit4.statements.ProfileValueChecker;
 import cn.taketoday.test.context.junit4.statements.RunAfterTestMethodCallbacks;
 import cn.taketoday.test.context.junit4.statements.RunBeforeTestMethodCallbacks;
 import cn.taketoday.test.context.junit4.statements.RunPrepareTestInstanceCallbacks;
-import cn.taketoday.test.context.junit4.statements.SpringRepeat;
+import cn.taketoday.test.context.junit4.statements.RepeatTest;
 
 /**
  * {@code ApplicationMethodRule} is a custom JUnit 4 {@link MethodRule} that
@@ -194,14 +194,14 @@ public class ApplicationMethodRule implements MethodRule {
   }
 
   /**
-   * Wrap the supplied {@link Statement} with a {@code SpringRepeat} statement.
+   * Wrap the supplied {@link Statement} with a {@code RepeatTest} statement.
    * <p>Supports Framework's {@link Repeat @Repeat}
    * annotation.
    *
-   * @see SpringRepeat
+   * @see RepeatTest
    */
   private Statement withPotentialRepeat(Statement next, Method testMethod, Object testInstance) {
-    return new SpringRepeat(next, testMethod);
+    return new RepeatTest(next, testMethod);
   }
 
   /**
