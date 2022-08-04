@@ -269,10 +269,10 @@ class MybatisAutoConfigurationTests {
   @Test
   void testAutoScanWithoutDefaultScope() {
     this.context.register(
-            MybatisAutoConfiguration.class,
             EmbeddedDataSourceConfiguration.class,
             MybatisBootMapperScanAutoConfiguration.class,
-            PropertyPlaceholderAutoConfiguration.class
+            PropertyPlaceholderAutoConfiguration.class,
+            CityMapperRepositoryConfiguration.class
     );
     this.context.refresh();
 
@@ -320,7 +320,7 @@ class MybatisAutoConfigurationTests {
     this.context.register(EmbeddedDataSourceConfiguration.class, MybatisAutoConfiguration.class);
     assertThatExceptionOfType(BeanCreationException.class)
             .isThrownBy(context::refresh)
-            .withMessageContaining("Error creating bean with name 'mybatisAutoConfiguration': Invocation of init method failed")
+            .withMessageContaining("Error creating bean with name 'mybatisAutoConfiguration': Cannot find config location: ")
             .havingRootCause()
             .withMessageContaining("Cannot find config location: class path resource [foo.xml] (please add config file or check your Mybatis configuration)");
   }
@@ -1138,4 +1138,9 @@ class MybatisAutoConfigurationTests {
 
   }
 
+  @Configuration
+  @TestAutoConfigurationPackage(CityMapper.class)
+  static class CityMapperRepositoryConfiguration {
+
+  }
 }
