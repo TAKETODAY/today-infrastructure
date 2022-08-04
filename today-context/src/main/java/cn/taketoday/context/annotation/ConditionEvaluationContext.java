@@ -51,10 +51,9 @@ public class ConditionEvaluationContext {
 
   private final ResourceLoader resourceLoader;
 
-  @Nullable
   private final ClassLoader classLoader;
 
-  public ConditionEvaluationContext(ApplicationContext context, BeanDefinitionRegistry registry) {
+  public ConditionEvaluationContext(ApplicationContext context, @Nullable BeanDefinitionRegistry registry) {
     this.registry = registry;
     this.resourceLoader = context;
     this.environment = context.getEnvironment();
@@ -139,7 +138,6 @@ public class ConditionEvaluationContext {
     return this.resourceLoader;
   }
 
-  @Nullable
   public ClassLoader getClassLoader() {
     return this.classLoader;
   }
