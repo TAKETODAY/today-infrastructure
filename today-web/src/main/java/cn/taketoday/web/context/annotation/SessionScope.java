@@ -43,7 +43,7 @@ import cn.taketoday.web.WebApplicationContext;
  * @see ApplicationScope
  * @see cn.taketoday.context.annotation.Scope
  * @see cn.taketoday.web.WebApplicationContext#SCOPE_SESSION
- * @see cn.taketoday.lang.Component
+ * @see cn.taketoday.stereotype.Component
  * @see cn.taketoday.context.annotation.Bean
  * @since 4.0
  */

@@ -63,16 +63,16 @@ import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.ReflectionUtils;
 
 /**
- * {@code SpringJUnit4ClassRunner} is a custom extension of JUnit's
+ * {@code JUnit4ClassRunner} is a custom extension of JUnit's
  * {@link BlockJUnit4ClassRunner} which provides functionality of the
  * <em>TestContext Framework</em> to standard JUnit tests by means of the
  * {@link TestContextManager} and associated support classes and annotations.
  *
  * <p>To use this class, simply annotate a JUnit 4 based test class with
- * {@code @RunWith(SpringJUnit4ClassRunner.class)} or {@code @RunWith(Runner.class)}.
+ * {@code @RunWith(JUnit4ClassRunner.class)} or {@code @RunWith(Runner.class)}.
  *
  * <p>The following list constitutes all annotations currently supported directly
- * or indirectly by {@code SpringJUnit4ClassRunner}. <em>(Note that additional
+ * or indirectly by {@code JUnit4ClassRunner}. <em>(Note that additional
  * annotations may be supported by various
  * {@link TestExecutionListener TestExecutionListener}
  * or {@link TestContextBootstrapper TestContextBootstrapper}
@@ -111,11 +111,11 @@ public class JUnit4ClassRunner extends BlockJUnit4ClassRunner {
 
   static {
     Assert.state(ClassUtils.isPresent("org.junit.internal.Throwables", JUnit4ClassRunner.class.getClassLoader()),
-            "SpringJUnit4ClassRunner requires JUnit 4.12 or higher.");
+            "JUnit4ClassRunner requires JUnit 4.12 or higher.");
 
     Method method = ReflectionUtils.findMethod(JUnit4ClassRunner.class, "withRules",
             FrameworkMethod.class, Object.class, Statement.class);
-    Assert.state(method != null, "SpringJUnit4ClassRunner requires JUnit 4.12 or higher");
+    Assert.state(method != null, "JUnit4ClassRunner requires JUnit 4.12 or higher");
     ReflectionUtils.makeAccessible(method);
     withRulesMethod = method;
   }
@@ -126,15 +126,15 @@ public class JUnit4ClassRunner extends BlockJUnit4ClassRunner {
     for (Field field : testClass.getFields()) {
       Assert.state(!ApplicationClassRule.class.isAssignableFrom(field.getType()), () -> String.format(
               "Detected ApplicationClassRule field in test class [%s], " +
-                      "but ApplicationClassRule cannot be used with the SpringJUnit4ClassRunner.", testClass.getName()));
+                      "but ApplicationClassRule cannot be used with the JUnit4ClassRunner.", testClass.getName()));
       Assert.state(!ApplicationMethodRule.class.isAssignableFrom(field.getType()), () -> String.format(
               "Detected ApplicationMethodRule field in test class [%s], " +
-                      "but ApplicationMethodRule cannot be used with the SpringJUnit4ClassRunner.", testClass.getName()));
+                      "but ApplicationMethodRule cannot be used with the JUnit4ClassRunner.", testClass.getName()));
     }
   }
 
   /**
-   * Construct a new {@code SpringJUnit4ClassRunner} and initialize a
+   * Construct a new {@code JUnit4ClassRunner} and initialize a
    * {@link TestContextManager} to provide Spring testing functionality to
    * standard JUnit tests.
    *
@@ -144,7 +144,7 @@ public class JUnit4ClassRunner extends BlockJUnit4ClassRunner {
   public JUnit4ClassRunner(Class<?> clazz) throws InitializationError {
     super(clazz);
     if (logger.isDebugEnabled()) {
-      logger.debug("SpringJUnit4ClassRunner constructor called with [" + clazz + "]");
+      logger.debug("JUnit4ClassRunner constructor called with [" + clazz + "]");
     }
     ensureSpringRulesAreNotPresent(clazz);
     this.testContextManager = createTestContextManager(clazz);

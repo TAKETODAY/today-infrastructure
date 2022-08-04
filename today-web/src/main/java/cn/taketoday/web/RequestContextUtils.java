@@ -20,10 +20,13 @@
 
 package cn.taketoday.web;
 
+import java.io.Serializable;
 import java.util.Locale;
 import java.util.TimeZone;
+import java.util.function.Supplier;
 
 import cn.taketoday.beans.factory.BeanFactoryUtils;
+import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.core.DefaultMultiValueMap;
 import cn.taketoday.core.MultiValueMap;
@@ -32,13 +35,15 @@ import cn.taketoday.core.i18n.LocaleContextHolder;
 import cn.taketoday.core.i18n.TimeZoneAwareLocaleContext;
 import cn.taketoday.lang.NullValue;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.session.SessionManager;
+import cn.taketoday.session.WebSession;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.bind.MissingRequestParameterException;
 import cn.taketoday.web.bind.RequestBindingException;
+import cn.taketoday.web.context.support.RequestScope;
+import cn.taketoday.web.context.support.SessionScope;
 import cn.taketoday.web.servlet.DispatcherServlet;
-import cn.taketoday.session.SessionManager;
-import cn.taketoday.session.WebSession;
 import cn.taketoday.web.util.UriComponents;
 import cn.taketoday.web.util.UriComponentsBuilder;
 import cn.taketoday.web.view.RedirectModel;
@@ -411,6 +416,33 @@ public class RequestContextUtils {
       params.add(name, value);
     }
   }
+
+  /**
+   * Register web-specific scopes ("request", "session")
+   * with the given BeanFactory, as used by the ApplicationContext.
+   *
+   * @param beanFactory the BeanFactory to configure
+   */
+  public static void registerScopes(ConfigurableBeanFactory beanFactory) {
+    SessionManager sessionManager = BeanFactoryUtils.find(
+            beanFactory, SessionManager.BEAN_NAME, SessionManager.class);
+
+    if (sessionManager != null) {
+      // @Autowired WebSession currentSession;
+      beanFactory.registerDependency(WebSession.class, new WebSessionSupplier(sessionManager));
+      beanFactory.registerScope(WebApplicationContext.SCOPE_SESSION, new SessionScope(sessionManager));
+    }
+
+    beanFactory.registerScope(WebApplicationContext.SCOPE_REQUEST, new RequestScope());
+
+    // register RequestContext
+    // @Autowired RequestContext currentRequest;
+    beanFactory.registerDependency(RequestContext.class, new RequestContextSupplier());
+  }
+
+  //---------------------------------------------------------------------
+  // Request parameters
+  //---------------------------------------------------------------------
 
   /**
    * Get an Integer parameter, or {@code null} if not present.
@@ -1095,6 +1127,51 @@ public class RequestContextUtils {
       }
       return values;
     }
+  }
+
+  //
+
+  /**
+   * Factory that exposes the current web-session object on demand.
+   */
+  @SuppressWarnings("serial")
+  final static class WebSessionSupplier implements Supplier<WebSession>, Serializable {
+
+    final SessionManager sessionManager;
+
+    private WebSessionSupplier(SessionManager sessionManager) {
+      this.sessionManager = sessionManager;
+    }
+
+    @Override
+    public WebSession get() {
+      RequestContext request = RequestContextHolder.getRequired();
+      return sessionManager.getSession(request);
+    }
+
+    @Override
+    public String toString() {
+      return "Current WebSession";
+    }
+
+  }
+
+  /**
+   * Factory that exposes the current request-context object on demand.
+   */
+  @SuppressWarnings("serial")
+  private static class RequestContextSupplier implements Supplier<RequestContext>, Serializable {
+
+    @Override
+    public RequestContext get() {
+      return RequestContextHolder.getRequired();
+    }
+
+    @Override
+    public String toString() {
+      return "Current RequestContext";
+    }
+
   }
 
 }

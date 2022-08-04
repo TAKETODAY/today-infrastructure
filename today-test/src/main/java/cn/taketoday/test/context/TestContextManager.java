@@ -92,7 +92,7 @@ import cn.taketoday.util.ReflectionUtils;
  */
 public class TestContextManager {
 
-  private static final Logger logger = LoggerFactory.getLogger(TestContextManager.class);
+  private static final Logger log = LoggerFactory.getLogger(TestContextManager.class);
 
   private final TestContext testContext;
 
@@ -160,7 +160,7 @@ public class TestContextManager {
    */
   public void registerTestExecutionListeners(TestExecutionListener... testExecutionListeners) {
     for (TestExecutionListener listener : testExecutionListeners) {
-      logger.trace("Registering TestExecutionListener: {}", listener);
+      log.trace("Registering TestExecutionListener: {}", listener);
       this.testExecutionListeners.add(listener);
     }
   }
@@ -201,7 +201,7 @@ public class TestContextManager {
    */
   public void beforeTestClass() throws Exception {
     Class<?> testClass = getTestContext().getTestClass();
-    logger.trace("beforeTestClass(): class [{}]", testClass.getName());
+    log.trace("beforeTestClass(): class [{}]", testClass.getName());
     getTestContext().updateState(null, null, null);
 
     for (TestExecutionListener testExecutionListener : getTestExecutionListeners()) {
@@ -235,7 +235,7 @@ public class TestContextManager {
    * @see #getTestExecutionListeners()
    */
   public void prepareTestInstance(Object testInstance) throws Exception {
-    logger.trace("prepareTestInstance(): instance [{}]", testInstance);
+    log.trace("prepareTestInstance(): instance [{}]", testInstance);
     getTestContext().updateState(testInstance, null, null);
 
     for (TestExecutionListener testExecutionListener : getTestExecutionListeners()) {
@@ -243,7 +243,7 @@ public class TestContextManager {
         testExecutionListener.prepareTestInstance(getTestContext());
       }
       catch (Throwable ex) {
-        logger.error("Caught exception while allowing TestExecutionListener [{}] to prepare test instance [{}]",
+        log.error("Caught exception while allowing TestExecutionListener [{}] to prepare test instance [{}]",
                 testExecutionListener, testInstance, ex);
         ReflectionUtils.rethrowException(ex);
       }
@@ -474,8 +474,8 @@ public class TestContextManager {
    */
   public void afterTestClass() throws Exception {
     Class<?> testClass = getTestContext().getTestClass();
-    if (logger.isTraceEnabled()) {
-      logger.trace("afterTestClass(): class [{}]", testClass.getName());
+    if (log.isTraceEnabled()) {
+      log.trace("afterTestClass(): class [{}]", testClass.getName());
     }
     getTestContext().updateState(null, null, null);
 
@@ -505,15 +505,15 @@ public class TestContextManager {
   }
 
   private void prepareForBeforeCallback(String callbackName, Object testInstance, Method testMethod) {
-    logger.trace("{}(): instance [{}], method [{}]", callbackName, testInstance, testMethod);
+    log.trace("{}(): instance [{}], method [{}]", callbackName, testInstance, testMethod);
     getTestContext().updateState(testInstance, testMethod, null);
   }
 
   private void prepareForAfterCallback(String callbackName, Object testInstance, Method testMethod,
           @Nullable Throwable exception) {
 
-    if (logger.isTraceEnabled()) {
-      logger.trace("{}(): instance [{}], method [{}], exception [{}]",
+    if (log.isTraceEnabled()) {
+      log.trace("{}(): instance [{}], method [{}], exception [{}]",
               callbackName, testInstance, testMethod, exception);
     }
     getTestContext().updateState(testInstance, testMethod, exception);
@@ -529,13 +529,13 @@ public class TestContextManager {
   private void logException(
           Throwable ex, String callbackName, TestExecutionListener testExecutionListener, Class<?> testClass) {
 
-    logger.warn("Caught exception while invoking '{}' callback on TestExecutionListener [{}] for test class [{}]",
+    log.warn("Caught exception while invoking '{}' callback on TestExecutionListener [{}] for test class [{}]",
             callbackName, testExecutionListener, testClass, ex);
   }
 
   private void logException(Throwable ex, String callbackName, TestExecutionListener testExecutionListener,
           Object testInstance, Method testMethod) {
-    logger.warn("Caught exception while invoking '{}' callback on " +
+    log.warn("Caught exception while invoking '{}' callback on " +
                     "TestExecutionListener [{}] for test method [{}] and test instance [{}]",
             callbackName, testExecutionListener, testMethod, testInstance, ex);
   }
@@ -554,7 +554,7 @@ public class TestContextManager {
         return constructor.newInstance(testContext);
       }
       catch (Exception ex) {
-        logger.info("Failed to invoke copy constructor for [{}]; " +
+        log.info("Failed to invoke copy constructor for [{}]; " +
                         "concurrent test execution is therefore likely not supported.",
                 testContext, ex);
       }

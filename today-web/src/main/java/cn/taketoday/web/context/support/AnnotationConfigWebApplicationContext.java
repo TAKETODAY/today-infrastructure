@@ -44,7 +44,7 @@ import cn.taketoday.web.context.ContextLoader;
  * {@link cn.taketoday.web.WebApplicationContext WebApplicationContext}
  * implementation which accepts <em>component classes</em> as input &mdash; in particular
  * {@link cn.taketoday.context.annotation.Configuration @Configuration}
- * classes, but also plain {@link cn.taketoday.lang.Component @Component}
+ * classes, but also plain {@link cn.taketoday.stereotype.Component @Component}
  * classes as well as JSR-330 compliant classes using {@code jakarta.inject} annotations.
  *
  * <p>Allows for registering classes one by one (specifying class names as config

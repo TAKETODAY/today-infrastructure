@@ -26,22 +26,17 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.function.Supplier;
 
-import cn.taketoday.beans.factory.BeanFactoryUtils;
 import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
 import cn.taketoday.core.env.PropertySource.StubPropertySource;
 import cn.taketoday.core.env.PropertySources;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.RequestContextHolder;
+import cn.taketoday.web.RequestContextUtils;
 import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.context.ConfigurableWebServletApplicationContext;
 import cn.taketoday.web.servlet.ServletUtils;
 import cn.taketoday.web.servlet.WebServletApplicationContext;
-import cn.taketoday.session.DefaultSessionManager;
-import cn.taketoday.session.InMemorySessionRepository;
-import cn.taketoday.session.SecureRandomSessionIdGenerator;
-import cn.taketoday.session.SessionEventDispatcher;
-import cn.taketoday.session.SessionManager;
 import jakarta.servlet.ServletConfig;
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.ServletRequest;
@@ -180,16 +175,8 @@ public class WebApplicationContextUtils {
    */
   public static void registerWebApplicationScopes(
           ConfigurableBeanFactory beanFactory, @Nullable ServletContext sc) {
-    SessionManager sessionManager = BeanFactoryUtils.find(
-            beanFactory, SessionManager.BEAN_NAME, SessionManager.class);
+    RequestContextUtils.registerScopes(beanFactory);
 
-    if (sessionManager == null) {
-      sessionManager = new DefaultSessionManager(new InMemorySessionRepository(
-              new SessionEventDispatcher(), new SecureRandomSessionIdGenerator()), null);
-    }
-
-    beanFactory.registerScope(WebApplicationContext.SCOPE_REQUEST, new RequestScope());
-    beanFactory.registerScope(WebApplicationContext.SCOPE_SESSION, new SessionScope(sessionManager));
     if (sc != null) {
       ServletContextScope appScope = new ServletContextScope(sc);
       beanFactory.registerScope(WebApplicationContext.SCOPE_APPLICATION, appScope);

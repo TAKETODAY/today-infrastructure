@@ -50,7 +50,7 @@ import jakarta.servlet.ServletContext;
  * AnnotatedBeanDefinitionReader}, as demonstrated in the following example.
  * Component classes include in particular
  * {@link cn.taketoday.context.annotation.Configuration @Configuration}
- * classes but also plain {@link cn.taketoday.lang.Component @Component}
+ * classes but also plain {@link cn.taketoday.stereotype.Component @Component}
  * classes as well as JSR-330 compliant classes using {@code jakarta.inject} annotations.
  *
  * <pre class="code">

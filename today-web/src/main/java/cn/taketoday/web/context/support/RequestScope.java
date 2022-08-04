@@ -26,6 +26,11 @@ import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.RequestContextHolder;
 
 /**
+ * RequestScope beans just available in current {@link RequestContext}
+ *
+ * <p>
+ * like spring's RequestScope
+ *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/1/19 21:40
  */
