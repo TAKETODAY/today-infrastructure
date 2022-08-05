@@ -23,7 +23,8 @@ package cn.taketoday.framework;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
-import java.io.UnsupportedEncodingException;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 
 import cn.taketoday.core.env.Environment;
 import cn.taketoday.core.io.Resource;
@@ -31,6 +32,7 @@ import cn.taketoday.core.io.ResourceLoader;
 import cn.taketoday.framework.ansi.AnsiColor;
 import cn.taketoday.framework.ansi.AnsiOutput;
 import cn.taketoday.framework.ansi.AnsiStyle;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.lang.Version;
 import cn.taketoday.logging.Logger;
 
@@ -43,29 +45,19 @@ import cn.taketoday.logging.Logger;
  */
 class ApplicationBannerPrinter {
 
-  static final String BANNER_LOCATION_PROPERTY = "banner.location";
-
-  static final String DEFAULT_BANNER_LOCATION = "banner.txt";
-
-  private static final Banner DEFAULT_BANNER = new DefaultBanner();
-
   private final ResourceLoader resourceLoader;
 
+  @Nullable
   private final Banner fallbackBanner;
 
-  ApplicationBannerPrinter(ResourceLoader resourceLoader, Banner fallbackBanner) {
+  ApplicationBannerPrinter(ResourceLoader resourceLoader, @Nullable Banner fallbackBanner) {
     this.resourceLoader = resourceLoader;
     this.fallbackBanner = fallbackBanner;
   }
 
   Banner print(Environment environment, Class<?> sourceClass, Logger logger) {
     Banner banner = getBanner(environment);
-    try {
-      logger.info(createStringFromBanner(banner, environment, sourceClass));
-    }
-    catch (UnsupportedEncodingException ex) {
-      logger.warn("Failed to create String for banner", ex);
-    }
+    logger.info(createStringFromBanner(banner, environment, sourceClass));
     return new PrintedBanner(banner, sourceClass);
   }
 
@@ -76,19 +68,9 @@ class ApplicationBannerPrinter {
   }
 
   private Banner getBanner(Environment environment) {
-    Banner textBanner = getTextBanner(environment);
-    if (textBanner != null) {
-      return textBanner;
-    }
-    if (this.fallbackBanner != null) {
-      return this.fallbackBanner;
-    }
-    return DEFAULT_BANNER;
-  }
-
-  private Banner getTextBanner(Environment environment) {
-    String location = environment.getProperty(BANNER_LOCATION_PROPERTY, DEFAULT_BANNER_LOCATION);
-    Resource resource = this.resourceLoader.getResource(location);
+    // Text Banner
+    String location = environment.getProperty(Banner.BANNER_LOCATION, Banner.BANNER_LOCATION_TXT);
+    Resource resource = resourceLoader.getResource(location);
     try {
       if (resource.exists() && !resource.getURL().toExternalForm().contains("liquibase-core")) {
         return new ResourceBanner(resource);
@@ -97,14 +79,18 @@ class ApplicationBannerPrinter {
     catch (IOException ex) {
       // Ignore
     }
-    return null;
+
+    if (fallbackBanner != null) {
+      return fallbackBanner;
+    }
+    return new DefaultBanner();
   }
 
-  private String createStringFromBanner(Banner banner, Environment environment, Class<?> mainApplicationClass)
-          throws UnsupportedEncodingException {
+  private String createStringFromBanner(
+          Banner banner, Environment environment, Class<?> mainApplicationClass) {
     ByteArrayOutputStream baos = new ByteArrayOutputStream();
     banner.printBanner(environment, mainApplicationClass, new PrintStream(baos));
-    String charset = environment.getProperty("banner.charset", "UTF-8");
+    Charset charset = environment.getProperty(Banner.BANNER_CHARSET, Charset.class, StandardCharsets.UTF_8);
     return baos.toString(charset);
   }
 

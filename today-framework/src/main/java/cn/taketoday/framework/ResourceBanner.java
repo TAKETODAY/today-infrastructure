@@ -37,6 +37,7 @@ import cn.taketoday.core.env.PropertySourcesPropertyResolver;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.framework.ansi.AnsiPropertySource;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.lang.Version;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
@@ -66,8 +67,8 @@ public class ResourceBanner implements Banner {
   @Override
   public void printBanner(Environment environment, Class<?> sourceClass, PrintStream out) {
     try {
-      String banner = StreamUtils.copyToString(this.resource.getInputStream(),
-              environment.getProperty("banner.charset", Charset.class, StandardCharsets.UTF_8));
+      String banner = StreamUtils.copyToString(resource.getInputStream(),
+              environment.getProperty(Banner.BANNER_CHARSET, Charset.class, StandardCharsets.UTF_8));
 
       for (PropertyResolver resolver : getPropertyResolvers(environment, sourceClass)) {
         banner = resolver.resolvePlaceholders(banner);
@@ -99,16 +100,18 @@ public class ResourceBanner implements Banner {
     String appVersion = getApplicationVersion(sourceClass);
     String version = getVersion();
     Map<String, Object> versions = new HashMap<>();
-    versions.put("application.version", getVersionString(appVersion, false));
-    versions.put("framework.version", getVersionString(version, false));
-    versions.put("application.formatted-version", getVersionString(appVersion, true));
-    versions.put("framework.formatted-version", getVersionString(version, true));
+    versions.put("app.version", getVersionString(appVersion, false));
+    versions.put("today.version", getVersionString(version, false));
+    versions.put("app.formatted-version", getVersionString(appVersion, true));
+    versions.put("today.formatted-version", getVersionString(version, true));
     return versions;
   }
 
-  protected String getApplicationVersion(Class<?> sourceClass) {
-    Package sourcePackage = (sourceClass != null) ? sourceClass.getPackage() : null;
-    return (sourcePackage != null) ? sourcePackage.getImplementationVersion() : null;
+  protected String getApplicationVersion(@Nullable Class<?> sourceClass) {
+    if (sourceClass != null) {
+      return sourceClass.getPackage().getImplementationVersion();
+    }
+    return null;
   }
 
   protected String getVersion() {
@@ -131,15 +134,17 @@ public class ResourceBanner implements Banner {
   private PropertyResolver getTitleResolver(Class<?> sourceClass) {
     PropertySources sources = new PropertySources();
     String applicationTitle = getApplicationTitle(sourceClass);
-    Map<String, Object> titleMap = Collections.singletonMap("application.title",
+    Map<String, Object> titleMap = Collections.singletonMap("app.title",
             (applicationTitle != null) ? applicationTitle : "");
     sources.addFirst(new MapPropertySource("title", titleMap));
     return new PropertySourcesPropertyResolver(sources);
   }
 
-  protected String getApplicationTitle(Class<?> sourceClass) {
-    Package sourcePackage = (sourceClass != null) ? sourceClass.getPackage() : null;
-    return (sourcePackage != null) ? sourcePackage.getImplementationTitle() : null;
+  protected String getApplicationTitle(@Nullable Class<?> sourceClass) {
+    if (sourceClass != null) {
+      return sourceClass.getPackage().getImplementationTitle();
+    }
+    return null;
   }
 
 }

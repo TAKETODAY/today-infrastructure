@@ -23,6 +23,7 @@ package cn.taketoday.framework;
 import java.io.PrintStream;
 
 import cn.taketoday.core.env.Environment;
+import cn.taketoday.lang.Nullable;
 
 /**
  * Interface class for writing a banner programmatically.
@@ -37,14 +38,18 @@ import cn.taketoday.core.env.Environment;
 public interface Banner {
   String BEAN_NAME = "applicationBanner";
 
+  String BANNER_CHARSET = "banner.charset";
+  String BANNER_LOCATION_TXT = "banner.txt";
+  String BANNER_LOCATION = "banner.location";
+
   /**
    * Print the banner to the specified print stream.
    *
-   * @param environment the spring environment
+   * @param environment the application environment
    * @param sourceClass the source class for the application
    * @param out the output print stream
    */
-  void printBanner(Environment environment, Class<?> sourceClass, PrintStream out);
+  void printBanner(Environment environment, @Nullable Class<?> sourceClass, PrintStream out);
 
   /**
    * An enumeration of possible values for configuring the Banner.

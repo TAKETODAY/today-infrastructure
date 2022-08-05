@@ -176,6 +176,7 @@ public class Application {
 
   private List<ApplicationListener<?>> listeners;
 
+  @Nullable
   private Banner banner;
 
   private Banner.Mode bannerMode = Banner.Mode.CONSOLE;
@@ -440,6 +441,7 @@ public class Application {
     }
   }
 
+  @Nullable
   private Banner printBanner(ConfigurableEnvironment environment) {
     if (this.bannerMode == Banner.Mode.OFF) {
       return null;
@@ -449,11 +451,11 @@ public class Application {
       resourceLoader = new DefaultResourceLoader(null);
     }
 
-    var bannerPrinter = new ApplicationBannerPrinter(resourceLoader, this.banner);
+    var bannerPrinter = new ApplicationBannerPrinter(resourceLoader, banner);
     if (this.bannerMode == Banner.Mode.LOG) {
-      return bannerPrinter.print(environment, this.mainApplicationClass, log);
+      return bannerPrinter.print(environment, mainApplicationClass, log);
     }
-    return bannerPrinter.print(environment, this.mainApplicationClass, System.out);
+    return bannerPrinter.print(environment, mainApplicationClass, System.out);
   }
 
   /**
@@ -1040,7 +1042,7 @@ public class Application {
    *
    * @param banner the Banner instance to use
    */
-  public void setBanner(Banner banner) {
+  public void setBanner(@Nullable Banner banner) {
     this.banner = banner;
   }
 
