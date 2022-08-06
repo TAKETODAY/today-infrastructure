@@ -33,8 +33,10 @@ import cn.taketoday.aop.support.AopUtils;
 import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.beans.testfixture.beans.ITestBean;
 import cn.taketoday.beans.testfixture.beans.TestBean;
+import cn.taketoday.context.annotation.ImportResource;
 import cn.taketoday.mock.web.MockHttpServletRequest;
 import cn.taketoday.mock.web.MockHttpServletResponse;
+import cn.taketoday.session.config.EnableWebSession;
 import cn.taketoday.test.context.junit.jupiter.web.JUnitWebConfig;
 import cn.taketoday.web.RequestContextHolder;
 import cn.taketoday.web.servlet.ServletRequestContext;
@@ -50,7 +52,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Chris Beams
  * @see cn.taketoday.aop.config.AopNamespaceHandlerTests
  */
-@JUnitWebConfig
+@JUnitWebConfig(classes = AopNamespaceHandlerScopeIntegrationTests.Config.class)
 class AopNamespaceHandlerScopeIntegrationTests {
 
   @Autowired
@@ -67,6 +69,12 @@ class AopNamespaceHandlerScopeIntegrationTests {
 
   @Autowired
   ITestBean testBean;
+
+  @ImportResource("classpath:cn/taketoday/aop/config/AopNamespaceHandlerScopeIntegrationTests-context.xml")
+  @EnableWebSession
+  static class Config {
+
+  }
 
   @Test
   void testSingletonScoping() throws Exception {
