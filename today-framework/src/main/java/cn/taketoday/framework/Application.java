@@ -20,6 +20,7 @@
 
 package cn.taketoday.framework;
 
+import java.lang.StackWalker.StackFrame;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -32,6 +33,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import cn.taketoday.beans.CachedIntrospectionResults;
 import cn.taketoday.beans.factory.config.BeanDefinition;
@@ -62,8 +64,10 @@ import cn.taketoday.core.io.DefaultResourceLoader;
 import cn.taketoday.core.io.ResourceLoader;
 import cn.taketoday.format.support.ApplicationConversionService;
 import cn.taketoday.framework.BootstrapRegistry.InstanceSupplier;
+import cn.taketoday.framework.builder.ApplicationBuilder;
 import cn.taketoday.framework.diagnostics.ApplicationExceptionReporter;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.lang.TodayStrategies;
 import cn.taketoday.logging.Logger;
@@ -232,18 +236,15 @@ public class Application {
   }
 
   private Class<?> deduceMainApplicationClass() {
-    try {
-      StackTraceElement[] stackTrace = new RuntimeException().getStackTrace();
-      for (StackTraceElement stackTraceElement : stackTrace) {
-        if ("main".equals(stackTraceElement.getMethodName())) {
-          return Class.forName(stackTraceElement.getClassName());
-        }
-      }
-    }
-    catch (ClassNotFoundException ex) {
-      // Swallow and continue
-    }
-    return null;
+    return StackWalker.getInstance(StackWalker.Option.RETAIN_CLASS_REFERENCE)
+            .walk(this::getMainApplicationClass);
+  }
+
+  private Class<?> getMainApplicationClass(Stream<StackFrame> stackFrame) {
+    return stackFrame.filter(s -> "main".equals(s.getMethodName()))
+            .map(StackFrame::getDeclaringClass)
+            .findFirst()
+            .orElse(null);
   }
 
   /**
@@ -393,13 +394,14 @@ public class Application {
   }
 
   private ConfigurableEnvironment prepareEnvironment(
-          DefaultBootstrapContext bootstrapContext, ApplicationStartupListeners listeners, ApplicationArguments applicationArguments) {
+          ConfigurableBootstrapContext context,
+          ApplicationStartupListeners listeners, ApplicationArguments applicationArguments) {
     // Create and configure the environment
     ConfigurableEnvironment environment = getOrCreateEnvironment();
     configureEnvironment(environment, applicationArguments.getSourceArgs());
 
     ConfigurationPropertySources.attach(environment);
-    listeners.environmentPrepared(bootstrapContext, environment);
+    listeners.environmentPrepared(context, environment);
     DefaultPropertiesPropertySource.moveToEnd(environment);
 
     Assert.state(!environment.containsProperty("context.main.environment-prefix"),
@@ -501,10 +503,10 @@ public class Application {
       beanFactory.registerSingleton(Banner.BEAN_NAME, printedBanner);
     }
 
-    if (beanFactory instanceof AbstractAutowireCapableBeanFactory) {
-      ((AbstractAutowireCapableBeanFactory) beanFactory).setAllowCircularReferences(allowCircularReferences);
-      if (beanFactory instanceof StandardBeanFactory) {
-        ((StandardBeanFactory) beanFactory).setAllowBeanDefinitionOverriding(allowBeanDefinitionOverriding);
+    if (beanFactory instanceof AbstractAutowireCapableBeanFactory acBeanFactory) {
+      acBeanFactory.setAllowCircularReferences(allowCircularReferences);
+      if (beanFactory instanceof StandardBeanFactory stdBeanFactory) {
+        stdBeanFactory.setAllowBeanDefinitionOverriding(allowBeanDefinitionOverriding);
       }
     }
 
@@ -570,7 +572,7 @@ public class Application {
   }
 
   /**
-   * Apply any relevant post processing the {@link ApplicationContext}. Subclasses can
+   * Apply any relevant post-processing the {@link ApplicationContext}. Subclasses can
    * apply additional processing as required.
    *
    * @param context the application context
@@ -672,7 +674,7 @@ public class Application {
    * @param applicationContextFactory the factory for the context
    */
   public void setApplicationContextFactory(
-          ApplicationContextFactory applicationContextFactory) {
+          @Nullable ApplicationContextFactory applicationContextFactory) {
     this.applicationContextFactory =
             applicationContextFactory != null
             ? applicationContextFactory : ApplicationContextFactory.DEFAULT;
@@ -952,7 +954,7 @@ public class Application {
    * @param listeners the listeners to add
    */
   public void addListeners(ApplicationListener<?>... listeners) {
-    this.listeners.addAll(Arrays.asList(listeners));
+    CollectionUtils.addAll(this.listeners, listeners);
   }
 
   /**
@@ -970,7 +972,7 @@ public class Application {
    *
    * @param beanNameGenerator the bean name generator
    */
-  public void setBeanNameGenerator(BeanNameGenerator beanNameGenerator) {
+  public void setBeanNameGenerator(@Nullable BeanNameGenerator beanNameGenerator) {
     this.beanNameGenerator = beanNameGenerator;
   }
 
@@ -1303,7 +1305,15 @@ public class Application {
    * @see Application#run(Class, String...)
    */
   public static void main(String[] args) throws Exception {
-    Application.run(new Class<?>[0], args);
+    Application.run(Constant.EMPTY_CLASSES, args);
+  }
+
+  public static ApplicationBuilder builder(Class<?>... sources) {
+    return ApplicationBuilder.from(sources);
+  }
+
+  public static ApplicationBuilder builder(ResourceLoader resourceLoader, Class<?>... sources) {
+    return ApplicationBuilder.from(resourceLoader, sources);
   }
 
   /**
