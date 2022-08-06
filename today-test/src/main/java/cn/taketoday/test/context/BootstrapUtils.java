@@ -42,6 +42,8 @@ import cn.taketoday.util.StringUtils;
  * {@code BootstrapUtils} is a collection of utility methods to assist with
  * bootstrapping the <em>TestContext Framework</em>.
  *
+ * <p>Only intended for internal use.
+ *
  * @author Sam Brannen
  * @author Phillip Webb
  * @see BootstrapWith
@@ -118,6 +120,27 @@ abstract class BootstrapUtils {
     catch (Throwable ex) {
       throw new IllegalStateException("Could not create CacheAwareContextLoaderDelegate [" + className + "]", ex);
     }
+  }
+
+  /**
+   * Resolve the {@link TestContextBootstrapper} type for the supplied test class
+   * using the default {@link BootstrapContext}, instantiate the bootstrapper,
+   * and provide it a reference to the {@code BootstrapContext}.
+   * <p>If the {@link BootstrapWith @BootstrapWith} annotation is present on
+   * the test class, either directly or as a meta-annotation, then its
+   * {@link BootstrapWith#value value} will be used as the bootstrapper type.
+   * Otherwise, either the
+   * {@link cn.taketoday.test.context.support.DefaultTestContextBootstrapper
+   * DefaultTestContextBootstrapper} or the
+   * {@link cn.taketoday.test.context.web.WebTestContextBootstrapper
+   * WebTestContextBootstrapper} will be used, depending on the presence of
+   * {@link cn.taketoday.test.context.web.WebAppConfiguration @WebAppConfiguration}.
+   *
+   * @param testClass the test class for which the bootstrapper should be created
+   * @return a fully configured {@code TestContextBootstrapper}
+   */
+  public static TestContextBootstrapper resolveTestContextBootstrapper(Class<?> testClass) {
+    return resolveTestContextBootstrapper(createBootstrapContext(testClass));
   }
 
   /**

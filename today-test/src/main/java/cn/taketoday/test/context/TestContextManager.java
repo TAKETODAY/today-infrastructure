@@ -117,7 +117,7 @@ public class TestContextManager {
    * @see #TestContextManager(TestContextBootstrapper)
    */
   public TestContextManager(Class<?> testClass) {
-    this(BootstrapUtils.resolveTestContextBootstrapper(BootstrapUtils.createBootstrapContext(testClass)));
+    this(BootstrapUtils.resolveTestContextBootstrapper(testClass));
   }
 
   /**
