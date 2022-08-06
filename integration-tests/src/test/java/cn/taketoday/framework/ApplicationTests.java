@@ -846,8 +846,10 @@ class ApplicationTests {
     MockEnvironment environment = new MockEnvironment();
     environment.getPropertySources().addFirst(
             new MapPropertySource(DefaultPropertiesPropertySource.NAME, Collections.singletonMap("bar", "foo")));
-    Application application = new ApplicationBuilder(ExampleConfig.class).environment(environment)
-            .properties("baz=bing").type(ApplicationType.NONE_WEB).build();
+    Application application = ApplicationBuilder.from(ExampleConfig.class)
+            .environment(environment)
+            .properties("baz=bing")
+            .type(ApplicationType.NONE_WEB).build();
     this.context = application.run();
     assertThat(getEnvironment().getProperty("bar")).isEqualTo("foo");
     assertThat(getEnvironment().getProperty("baz")).isEqualTo("bing");

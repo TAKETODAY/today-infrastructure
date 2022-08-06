@@ -36,7 +36,10 @@ import cn.taketoday.web.config.EnableWebMvc;
 public class DemoApp {
 
   public static void main(String[] args) {
-    WebApplication.run(DemoApp.class, args);
+//    WebApplication.run(DemoApp.class, args);
+    WebApplication.builder()
+            .sources(DemoApp.class)
+            .run(args);
   }
 
   @GET("/index")

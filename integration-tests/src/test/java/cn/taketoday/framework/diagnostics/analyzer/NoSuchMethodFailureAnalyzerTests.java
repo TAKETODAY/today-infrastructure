@@ -46,13 +46,13 @@ class NoSuchMethodFailureAnalyzerTests {
     NoSuchMethodDescriptor descriptor = new NoSuchMethodFailureAnalyzer().getNoSuchMethodDescriptor(
             "'boolean cn.taketoday.util.MimeType.isMoreSpecific(cn.taketoday.util.MimeType)'");
     assertThat(descriptor).isNotNull();
-    assertThat(descriptor.getErrorMessage()).isEqualTo(
+    assertThat(descriptor.errorMessage).isEqualTo(
             "'boolean cn.taketoday.util.MimeType.isMoreSpecific(cn.taketoday.util.MimeType)'");
-    assertThat(descriptor.getClassName()).isEqualTo("cn.taketoday.util.MimeType");
-    assertThat(descriptor.getCandidateLocations().size()).isEqualTo(1);
-    List<ClassDescriptor> typeHierarchy = descriptor.getTypeHierarchy();
+    assertThat(descriptor.className).isEqualTo("cn.taketoday.util.MimeType");
+    assertThat(descriptor.candidateLocations.size()).isEqualTo(1);
+    List<ClassDescriptor> typeHierarchy = descriptor.typeHierarchy;
     assertThat(typeHierarchy).hasSize(1);
-    URL location = typeHierarchy.get(0).getLocation();
+    URL location = typeHierarchy.get(0).location;
     assertThat(location).asString().contains("today-infrastructure/today-core/target/classes");
   }
 
