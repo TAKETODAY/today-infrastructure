@@ -36,6 +36,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
@@ -72,8 +73,9 @@ class FilterRegistrationBeanTests extends AbstractFilterRegistrationBeanTests {
   @Test
   void setFilterMustNotBeNull() {
     FilterRegistrationBean<Filter> bean = new FilterRegistrationBean<>();
-    assertThatIllegalArgumentException().isThrownBy(() -> bean.onStartup(this.servletContext))
-            .withMessageContaining("Filter must not be null");
+    assertThatThrownBy(() -> bean.onStartup(this.servletContext))
+            .isInstanceOf(IllegalStateException.class)
+            .withFailMessage("Filter must not be null");
   }
 
   @Test
