@@ -23,9 +23,9 @@ package cn.taketoday.framework.web.servlet.server;
 import java.io.File;
 
 import cn.taketoday.framework.ApplicationHome;
-import cn.taketoday.framework.ApplicationUtils;
-import cn.taketoday.lang.Assert;
+import cn.taketoday.framework.ApplicationTemp;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.lang.TodayStrategies;
 
 /**
  * Manages a session store directory.
@@ -36,10 +36,11 @@ import cn.taketoday.lang.Nullable;
  * @since 4.0
  */
 class SessionStoreDirectory {
+  private static final String SESSION_TEMP_DIR = TodayStrategies.getProperty("server.session.temp-dir", "server-sessions");
 
   static File getValidDirectory(@Nullable File dir, boolean mkdirs) {
     if (dir == null) {
-      return ApplicationUtils.getTemporalDirectory(null, "server-sessions");
+      return ApplicationTemp.getTemporalDirectory(null, SESSION_TEMP_DIR);
     }
     if (!dir.isAbsolute()) {
       dir = new File(new ApplicationHome().getDir(), dir.getPath());
@@ -52,8 +53,14 @@ class SessionStoreDirectory {
   }
 
   private static void assertDirectory(boolean mkdirs, File dir) {
-    Assert.state(!mkdirs || dir.exists(), () -> "Session dir " + dir + " does not exist");
-    Assert.state(!dir.isFile(), () -> "Session dir " + dir + " points to a file");
+    if (mkdirs && !dir.exists()) {
+      throw new IllegalStateException("Session dir " + dir + " does not exist");
+    }
+
+    if (dir.isFile()) {
+      throw new IllegalStateException("Session dir " + dir + " points to a file");
+    }
+
   }
 
 }

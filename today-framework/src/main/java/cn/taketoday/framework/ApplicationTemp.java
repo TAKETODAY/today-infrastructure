@@ -29,10 +29,13 @@ import java.nio.file.Paths;
 import java.nio.file.attribute.FileAttribute;
 import java.nio.file.attribute.PosixFilePermission;
 import java.nio.file.attribute.PosixFilePermissions;
-import java.security.MessageDigest;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.EnumSet;
 
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
+import cn.taketoday.lang.TodayStrategies;
 import cn.taketoday.util.StringUtils;
 
 /**
@@ -45,8 +48,7 @@ import cn.taketoday.util.StringUtils;
  * @since 4.0 2022/2/20 23:28
  */
 public class ApplicationTemp {
-
-  private static final char[] HEX_CHARS = "0123456789ABCDEF".toCharArray();
+  private static final String TEMP_SUB_DIR = TodayStrategies.getProperty("app.temp-prefix", "today-");
 
   private static final FileAttribute<?>[] NO_FILE_ATTRIBUTES = {};
 
@@ -97,14 +99,40 @@ public class ApplicationTemp {
     return createDirectory(getPath().resolve(subDir)).toFile();
   }
 
+  /**
+   * Return a sub-directory of the application temp.
+   *
+   * @param subDir the sub-directory name
+   * @return a sub-directory
+   */
+  public static File getTemporalDirectory(@Nullable Class<?> startupClass, @Nullable String subDir) {
+    return new ApplicationTemp(startupClass).getDir(subDir);
+  }
+
+  /**
+   * Return the directory to be used for application specific temp files.
+   *
+   * @return the application temp directory
+   */
+  public static File getBaseTemporalDirectory(@Nullable Class<?> startupClass) {
+    return new ApplicationTemp(startupClass).getDir();
+  }
+
   private Path getPath() {
     if (this.path == null) {
       synchronized(this) {
-        String hash = toHexString(generateHash(this.sourceClass));
-        this.path = createDirectory(getTempDirectory().resolve(hash));
+        String tempSubDir = getTempSubDir(sourceClass);
+        this.path = createDirectory(getTempDirectory().resolve(tempSubDir));
       }
     }
     return this.path;
+  }
+
+  private static String getTempSubDir(Class<?> sourceClass) {
+    if (sourceClass != null) {
+      return sourceClass.getName();
+    }
+    return TEMP_SUB_DIR + LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
   }
 
   private Path createDirectory(Path path) {
@@ -130,52 +158,15 @@ public class ApplicationTemp {
     String property = System.getProperty("java.io.tmpdir");
     Assert.state(StringUtils.isNotEmpty(property), "No 'java.io.tmpdir' property set");
     Path tempDirectory = Paths.get(property);
-    Assert.state(Files.exists(tempDirectory), () -> "Temp directory '" + tempDirectory + "' does not exist");
-    Assert.state(Files.isDirectory(tempDirectory),
-            () -> "Temp location '" + tempDirectory + "' is not a directory");
+
+    if (!Files.exists(tempDirectory)) {
+      throw new IllegalStateException("Temp directory '" + tempDirectory + "' does not exist");
+    }
+
+    if (!Files.isDirectory(tempDirectory)) {
+      throw new IllegalStateException("Temp location '" + tempDirectory + "' is not a directory");
+    }
     return tempDirectory;
-  }
-
-  private byte[] generateHash(Class<?> sourceClass) {
-    ApplicationHome home = new ApplicationHome(sourceClass);
-
-    try {
-      MessageDigest digest = MessageDigest.getInstance("SHA-1");
-      update(digest, home.getSource());
-      update(digest, home.getDir());
-      update(digest, System.getProperty("user.dir"));
-      update(digest, System.getProperty("java.home"));
-      update(digest, System.getProperty("java.class.path"));
-      update(digest, System.getProperty("sun.java.command"));
-      update(digest, System.getProperty("sun.boot.class.path"));
-      return digest.digest();
-    }
-    catch (Exception ex) {
-      throw new IllegalStateException(ex);
-    }
-  }
-
-  private void update(MessageDigest digest, Object source) {
-    if (source != null) {
-      digest.update(getUpdateSourceBytes(source));
-    }
-  }
-
-  private byte[] getUpdateSourceBytes(Object source) {
-    if (source instanceof File) {
-      return getUpdateSourceBytes(((File) source).getAbsolutePath());
-    }
-    return source.toString().getBytes();
-  }
-
-  private String toHexString(byte[] bytes) {
-    char[] hex = new char[bytes.length * 2];
-    for (int i = 0; i < bytes.length; i++) {
-      int b = bytes[i] & 0xFF;
-      hex[i * 2] = HEX_CHARS[b >>> 4];
-      hex[i * 2 + 1] = HEX_CHARS[b & 0x0F];
-    }
-    return new String(hex);
   }
 
 }

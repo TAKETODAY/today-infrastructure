@@ -798,7 +798,7 @@ public abstract class AbstractServletWebServerFactoryTests {
   void getValidSessionStoreWhenSessionStoreNotSet() {
     AbstractServletWebServerFactory factory = getFactory();
     File dir = factory.getValidSessionStoreDir(false);
-    assertThat(dir.getName()).isEqualTo("servlet-sessions");
+    assertThat(dir.getName()).isEqualTo("server-sessions");
     assertThat(dir.getParentFile()).isEqualTo(new ApplicationTemp().getDir());
   }
 
