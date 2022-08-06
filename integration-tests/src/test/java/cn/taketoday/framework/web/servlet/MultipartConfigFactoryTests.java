@@ -40,8 +40,8 @@ class MultipartConfigFactoryTests {
     MultipartConfigFactory factory = new MultipartConfigFactory();
     MultipartConfigElement config = factory.createMultipartConfig();
     assertThat(config.getLocation()).isEqualTo("");
-    assertThat(config.getMaxFileSize()).isEqualTo(-1L);
-    assertThat(config.getMaxRequestSize()).isEqualTo(-1L);
+    assertThat(config.getMaxFileSize()).isEqualTo(DataSize.ofMegabytes(512).toBytes());
+    assertThat(config.getMaxRequestSize()).isEqualTo(DataSize.ofGigabytes(1).toBytes());
     assertThat(config.getFileSizeThreshold()).isEqualTo(0);
   }
 
