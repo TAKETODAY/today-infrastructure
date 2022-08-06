@@ -294,11 +294,13 @@
       <groupId>jakarta.validation</groupId>
       <artifactId>jakarta.validation-api</artifactId>
     </dependency>
+
     <dependency>
       <groupId>cn.taketoday</groupId>
       <artifactId>today-orm</artifactId>
       <scope>test</scope>
     </dependency>
+
     <dependency>
       <groupId>cn.taketoday</groupId>
       <artifactId>today-websocket</artifactId>
