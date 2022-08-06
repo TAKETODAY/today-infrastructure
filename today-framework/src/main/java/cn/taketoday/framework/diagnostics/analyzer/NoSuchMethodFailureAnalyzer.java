@@ -148,10 +148,11 @@ class NoSuchMethodFailureAnalyzer extends AbstractFailureAnalyzer<NoSuchMethodEr
   @Nullable
   private List<ClassDescriptor> getTypeHierarchy(Class<?> type) {
     try {
-      List<ClassDescriptor> typeHierarchy = new ArrayList<>();
-      while (type != null && !type.equals(Object.class)) {
-        typeHierarchy.add(new ClassDescriptor(type.getCanonicalName(),
-                type.getProtectionDomain().getCodeSource().getLocation()));
+      var typeHierarchy = new ArrayList<ClassDescriptor>();
+      while (type != null && type != Object.class) {
+        typeHierarchy.add(
+                new ClassDescriptor(type.getCanonicalName(), type.getProtectionDomain().getCodeSource().getLocation())
+        );
         type = type.getSuperclass();
       }
       return typeHierarchy;
@@ -167,67 +168,64 @@ class NoSuchMethodFailureAnalyzer extends AbstractFailureAnalyzer<NoSuchMethodEr
     writer.println("An attempt was made to call a method that does not"
             + " exist. The attempt was made from the following location:");
     writer.println();
-    writer.printf("    %s%n", callerDescriptor.getErrorMessage());
+    writer.printf("    %s%n", callerDescriptor.errorMessage);
     writer.println();
     writer.println("The following method did not exist:");
     writer.println();
-    writer.printf("    %s%n", calledDescriptor.getErrorMessage());
+    writer.printf("    %s%n", calledDescriptor.errorMessage);
     writer.println();
-    if (callerDescriptor.getCandidateLocations().size() > 1) {
+    if (callerDescriptor.candidateLocations.size() > 1) {
       writer.printf("The calling method's class, %s, is available from the following locations:%n",
-              callerDescriptor.getClassName());
+              callerDescriptor.className);
       writer.println();
-      for (URL candidate : callerDescriptor.getCandidateLocations()) {
+      for (URL candidate : callerDescriptor.candidateLocations) {
         writer.printf("    %s%n", candidate);
       }
       writer.println();
       writer.println("The calling method's class was loaded from the following location:");
       writer.println();
-      writer.printf("    %s%n", callerDescriptor.getTypeHierarchy().get(0).getLocation());
+      writer.printf("    %s%n", callerDescriptor.typeHierarchy.get(0).location);
     }
     else {
       writer.printf("The calling method's class, %s, was loaded from the following location:%n",
-              callerDescriptor.getClassName());
+              callerDescriptor.className);
       writer.println();
-      writer.printf("    %s%n", callerDescriptor.getCandidateLocations().get(0));
+      writer.printf("    %s%n", callerDescriptor.candidateLocations.get(0));
     }
     writer.println();
     writer.printf("The called method's class, %s, is available from the following locations:%n",
-            calledDescriptor.getClassName());
+            calledDescriptor.className);
     writer.println();
-    for (URL candidate : calledDescriptor.getCandidateLocations()) {
+    for (URL candidate : calledDescriptor.candidateLocations) {
       writer.printf("    %s%n", candidate);
     }
     writer.println();
     writer.println("The called method's class hierarchy was loaded from the following locations:");
     writer.println();
-    for (ClassDescriptor type : calledDescriptor.getTypeHierarchy()) {
-      writer.printf("    %s: %s%n", type.getName(), type.getLocation());
+    for (ClassDescriptor type : calledDescriptor.typeHierarchy) {
+      writer.printf("    %s: %s%n", type.name, type.location);
     }
 
     return description.toString();
   }
 
   private String getAction(NoSuchMethodDescriptor callerDescriptor, NoSuchMethodDescriptor calledDescriptor) {
-    if (callerDescriptor.getClassName().equals(calledDescriptor.getClassName())) {
+    if (callerDescriptor.className.equals(calledDescriptor.className)) {
       return "Correct the classpath of your application so that it contains a single, compatible version of "
-              + calledDescriptor.getClassName();
+              + calledDescriptor.className;
     }
     else {
       return "Correct the classpath of your application so that it contains compatible versions of the classes "
-              + callerDescriptor.getClassName() + " and " + calledDescriptor.getClassName();
+              + callerDescriptor.className + " and " + calledDescriptor.className;
     }
   }
 
   protected static class NoSuchMethodDescriptor {
 
-    private final String errorMessage;
-
-    private final String className;
-
-    private final List<URL> candidateLocations;
-
-    private final List<ClassDescriptor> typeHierarchy;
+    public final String className;
+    public final String errorMessage;
+    public final List<URL> candidateLocations;
+    public final List<ClassDescriptor> typeHierarchy;
 
     public NoSuchMethodDescriptor(
             String errorMessage, String className,
@@ -238,41 +236,17 @@ class NoSuchMethodFailureAnalyzer extends AbstractFailureAnalyzer<NoSuchMethodEr
       this.typeHierarchy = typeHierarchy;
     }
 
-    public String getErrorMessage() {
-      return this.errorMessage;
-    }
-
-    public String getClassName() {
-      return this.className;
-    }
-
-    public List<URL> getCandidateLocations() {
-      return this.candidateLocations;
-    }
-
-    public List<ClassDescriptor> getTypeHierarchy() {
-      return this.typeHierarchy;
-    }
-
   }
 
   protected static class ClassDescriptor {
 
-    private final String name;
+    public final String name;
 
-    private final URL location;
+    public final URL location;
 
     public ClassDescriptor(String name, URL location) {
       this.name = name;
       this.location = location;
-    }
-
-    public String getName() {
-      return this.name;
-    }
-
-    public URL getLocation() {
-      return this.location;
     }
 
   }
