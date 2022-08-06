@@ -138,9 +138,9 @@ public class ApplicationTemp {
 
   private byte[] generateHash(Class<?> sourceClass) {
     ApplicationHome home = new ApplicationHome(sourceClass);
-    MessageDigest digest;
+
     try {
-      digest = MessageDigest.getInstance("SHA-1");
+      MessageDigest digest = MessageDigest.getInstance("SHA-1");
       update(digest, home.getSource());
       update(digest, home.getDir());
       update(digest, System.getProperty("user.dir"));
