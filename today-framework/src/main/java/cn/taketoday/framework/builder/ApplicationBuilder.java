@@ -22,13 +22,11 @@ package cn.taketoday.framework.builder;
 
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Properties;
-import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import cn.taketoday.beans.factory.support.AbstractAutowireCapableBeanFactory;
@@ -47,6 +45,8 @@ import cn.taketoday.framework.ApplicationType;
 import cn.taketoday.framework.Banner;
 import cn.taketoday.framework.BootstrapRegistry;
 import cn.taketoday.framework.BootstrapRegistryInitializer;
+import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.StringUtils;
 
 /**
@@ -55,15 +55,19 @@ import cn.taketoday.util.StringUtils;
  * hierarchy:
  *
  * <pre class="code">
- * new ApplicationBuilder(ParentConfig.class).child(ChildConfig.class).run(args);
+ * ApplicationBuilder.from(ParentConfig.class)
+ *   .child(ChildConfig.class)
+ *   .run(args);
  * </pre>
  *
  * Another common use case is setting active profiles and default properties to set up the
  * environment for an application:
  *
  * <pre class="code">
- * new ApplicationBuilder(Application.class).profiles(&quot;server&quot;)
- * 		.properties(&quot;transport=local&quot;).run(args);
+ * ApplicationBuilder.from(Application.class)
+ *   .profiles(&quot;server&quot;)
+ *   .properties(&quot;transport=local&quot;)
+ *   .run(args);
  * </pre>
  *
  * <p>
@@ -86,13 +90,13 @@ public class ApplicationBuilder {
 
   private final AtomicBoolean running = new AtomicBoolean();
 
-  private final Set<Class<?>> sources = new LinkedHashSet<>();
+  private final LinkedHashSet<Class<?>> sources = new LinkedHashSet<>();
 
-  private final Map<String, Object> defaultProperties = new LinkedHashMap<>();
+  private final LinkedHashMap<String, Object> defaultProperties = new LinkedHashMap<>();
 
   private ConfigurableEnvironment environment;
 
-  private Set<String> additionalProfiles = new LinkedHashSet<>();
+  private LinkedHashSet<String> additionalProfiles = new LinkedHashSet<>();
 
   private boolean registerShutdownHookApplied;
 
@@ -102,7 +106,7 @@ public class ApplicationBuilder {
     this(null, sources);
   }
 
-  public ApplicationBuilder(ResourceLoader resourceLoader, Class<?>... sources) {
+  public ApplicationBuilder(@Nullable ResourceLoader resourceLoader, Class<?>... sources) {
     this.application = createApplication(resourceLoader, sources);
   }
 
@@ -115,7 +119,7 @@ public class ApplicationBuilder {
    * @param sources the sources
    * @return the {@link Application} instance
    */
-  protected Application createApplication(ResourceLoader resourceLoader, Class<?>... sources) {
+  protected Application createApplication(@Nullable ResourceLoader resourceLoader, Class<?>... sources) {
     return new Application(resourceLoader, sources);
   }
 
@@ -146,27 +150,27 @@ public class ApplicationBuilder {
    * @return an application context created from the current state
    */
   public ConfigurableApplicationContext run(String... args) {
-    if (this.running.get()) {
+    if (running.get()) {
       // If already created we just return the existing context
-      return this.context;
+      return context;
     }
     configureAsChildIfNecessary(args);
-    if (this.running.compareAndSet(false, true)) {
-      synchronized(this.running) {
+    if (running.compareAndSet(false, true)) {
+      synchronized(running) {
         // If not already running copy the sources over and then run.
         this.context = build().run(args);
       }
     }
-    return this.context;
+    return context;
   }
 
   private void configureAsChildIfNecessary(String... args) {
-    if (this.parent != null && !this.configuredAsChild) {
+    if (parent != null && !configuredAsChild) {
       this.configuredAsChild = true;
-      if (!this.registerShutdownHookApplied) {
-        this.application.setRegisterShutdownHook(false);
+      if (!registerShutdownHookApplied) {
+        application.setRegisterShutdownHook(false);
       }
-      initializers(new ParentContextApplicationContextInitializer(this.parent.run(args)));
+      initializers(new ParentContextApplicationContextInitializer(parent.run(args)));
     }
   }
 
@@ -188,8 +192,8 @@ public class ApplicationBuilder {
    */
   public Application build(String... args) {
     configureAsChildIfNecessary(args);
-    this.application.addPrimarySources(this.sources);
-    return this.application;
+    application.addPrimarySources(sources);
+    return application;
   }
 
   /**
@@ -204,9 +208,9 @@ public class ApplicationBuilder {
     child.sources(sources);
 
     // Copy environment stuff from parent to child
-    child.properties(this.defaultProperties)
-            .environment(this.environment)
-            .additionalProfiles(this.additionalProfiles);
+    child.properties(defaultProperties)
+            .environment(environment)
+            .additionalProfiles(additionalProfiles);
     child.parent = this;
 
     // It's not possible if embedded web server are enabled to support web contexts as
@@ -218,7 +222,7 @@ public class ApplicationBuilder {
     bannerMode(Banner.Mode.OFF);
 
     // Make sure sources get copied over
-    this.application.addPrimarySources(this.sources);
+    application.addPrimarySources(this.sources);
 
     return child;
   }
@@ -231,22 +235,24 @@ public class ApplicationBuilder {
    * @return the parent builder
    */
   public ApplicationBuilder parent(Class<?>... sources) {
-    if (this.parent == null) {
-      this.parent = new ApplicationBuilder(sources).type(ApplicationType.NONE_WEB)
-              .properties(this.defaultProperties).environment(this.environment);
+    if (parent == null) {
+      this.parent = new ApplicationBuilder(sources)
+              .type(ApplicationType.NONE_WEB)
+              .properties(defaultProperties)
+              .environment(environment);
     }
     else {
-      this.parent.sources(sources);
+      parent.sources(sources);
     }
-    return this.parent;
+    return parent;
   }
 
   private ApplicationBuilder runAndExtractParent(String... args) {
-    if (this.context == null) {
+    if (context == null) {
       run(args);
     }
-    if (this.parent != null) {
-      return this.parent;
+    if (parent != null) {
+      return parent;
     }
     throw new IllegalStateException(
             "No parent defined yet (please use the other overloaded parent methods to set one)");
@@ -299,7 +305,7 @@ public class ApplicationBuilder {
    * @param factory the factory to use
    * @return the current builder
    */
-  public ApplicationBuilder contextFactory(ApplicationContextFactory factory) {
+  public ApplicationBuilder contextFactory(@Nullable ApplicationContextFactory factory) {
     this.application.setApplicationContextFactory(factory);
     return this;
   }
@@ -386,7 +392,7 @@ public class ApplicationBuilder {
    * @param mainApplicationClass the class to use.
    * @return the current builder
    */
-  public ApplicationBuilder main(Class<?> mainApplicationClass) {
+  public ApplicationBuilder main(@Nullable Class<?> mainApplicationClass) {
     this.application.setMainApplicationClass(mainApplicationClass);
     return this;
   }
@@ -488,9 +494,9 @@ public class ApplicationBuilder {
   }
 
   private Map<String, Object> getMapFromProperties(Properties properties) {
-    Map<String, Object> map = new HashMap<>();
-    for (Object key : Collections.list(properties.propertyNames())) {
-      map.put((String) key, properties.get(key));
+    HashMap<String, Object> map = new HashMap<>();
+    for (String key : properties.stringPropertyNames()) {
+      map.put(key, properties.get(key));
     }
     return map;
   }
@@ -505,11 +511,11 @@ public class ApplicationBuilder {
    * @see ApplicationBuilder#properties(Properties)
    */
   public ApplicationBuilder properties(Map<String, Object> defaults) {
-    this.defaultProperties.putAll(defaults);
-    this.application.setDefaultProperties(this.defaultProperties);
-    if (this.parent != null) {
-      this.parent.properties(this.defaultProperties);
-      this.parent.environment(this.environment);
+    defaultProperties.putAll(defaults);
+    application.setDefaultProperties(defaultProperties);
+    if (parent != null) {
+      parent.properties(defaultProperties);
+      parent.environment(environment);
     }
     return this;
   }
@@ -521,14 +527,14 @@ public class ApplicationBuilder {
    * @return the current builder
    */
   public ApplicationBuilder profiles(String... profiles) {
-    this.additionalProfiles.addAll(Arrays.asList(profiles));
-    this.application.setAdditionalProfiles(StringUtils.toStringArray(this.additionalProfiles));
+    CollectionUtils.addAll(additionalProfiles, profiles);
+    application.setAdditionalProfiles(StringUtils.toStringArray(additionalProfiles));
     return this;
   }
 
   private ApplicationBuilder additionalProfiles(Collection<String> additionalProfiles) {
     this.additionalProfiles = new LinkedHashSet<>(additionalProfiles);
-    this.application.setAdditionalProfiles(StringUtils.toStringArray(this.additionalProfiles));
+    this.application.setAdditionalProfiles(StringUtils.toStringArray(additionalProfiles));
     return this;
   }
 
@@ -539,7 +545,7 @@ public class ApplicationBuilder {
    * @param beanNameGenerator the generator to set.
    * @return the current builder
    */
-  public ApplicationBuilder beanNameGenerator(BeanNameGenerator beanNameGenerator) {
+  public ApplicationBuilder beanNameGenerator(@Nullable BeanNameGenerator beanNameGenerator) {
     this.application.setBeanNameGenerator(beanNameGenerator);
     return this;
   }
@@ -550,7 +556,7 @@ public class ApplicationBuilder {
    * @param environment the environment to set.
    * @return the current builder
    */
-  public ApplicationBuilder environment(ConfigurableEnvironment environment) {
+  public ApplicationBuilder environment(@Nullable ConfigurableEnvironment environment) {
     this.application.setEnvironment(environment);
     this.environment = environment;
     return this;
@@ -563,7 +569,7 @@ public class ApplicationBuilder {
    * @param environmentPrefix the environment property prefix to set
    * @return the current builder
    */
-  public ApplicationBuilder environmentPrefix(String environmentPrefix) {
+  public ApplicationBuilder environmentPrefix(@Nullable String environmentPrefix) {
     this.application.setEnvironmentPrefix(environmentPrefix);
     return this;
   }
@@ -617,6 +623,16 @@ public class ApplicationBuilder {
   public ApplicationBuilder allowCircularReferences(boolean allowCircularReferences) {
     this.application.setAllowCircularReferences(allowCircularReferences);
     return this;
+  }
+
+  // static
+
+  public static ApplicationBuilder from(Class<?>... sources) {
+    return new ApplicationBuilder(sources);
+  }
+
+  public static ApplicationBuilder from(ResourceLoader resourceLoader, Class<?>... sources) {
+    return new ApplicationBuilder(resourceLoader, sources);
   }
 
 }

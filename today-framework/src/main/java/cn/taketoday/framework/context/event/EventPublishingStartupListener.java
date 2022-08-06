@@ -94,8 +94,8 @@ public class EventPublishingStartupListener implements ApplicationStartupListene
   @Override
   public void contextLoaded(ConfigurableApplicationContext context) {
     for (ApplicationListener<?> listener : application.getListeners()) {
-      if (listener instanceof ApplicationContextAware) {
-        ((ApplicationContextAware) listener).setApplicationContext(context);
+      if (listener instanceof ApplicationContextAware contextAware) {
+        contextAware.setApplicationContext(context);
       }
       context.addApplicationListener(listener);
     }
@@ -118,13 +118,13 @@ public class EventPublishingStartupListener implements ApplicationStartupListene
   public void failed(ConfigurableApplicationContext context, Throwable exception) {
     ApplicationFailedEvent event = new ApplicationFailedEvent(application, args, context, exception);
     if (context != null && context.isActive()) {
-      // Listeners have been registered to the application context so we should
+      // Listeners have been registered to the application context, so we should
       // use it at this point if we can
       context.publishEvent(event);
     }
     else {
-      // An inactive context may not have a multicaster so we use our multicaster to
-      // call all of the context's listeners instead
+      // An inactive context may not have a multicaster, so we use our multicaster to
+      // call all the context's listeners instead
       if (context instanceof AbstractApplicationContext abstractContext) {
         for (ApplicationListener<?> listener : abstractContext.getApplicationListeners()) {
           initialMulticaster.addApplicationListener(listener);
