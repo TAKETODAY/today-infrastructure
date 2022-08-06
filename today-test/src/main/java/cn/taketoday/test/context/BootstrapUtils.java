@@ -51,7 +51,7 @@ import cn.taketoday.util.StringUtils;
  * @see TestContextBootstrapper
  * @since 4.0
  */
-abstract class BootstrapUtils {
+public abstract class BootstrapUtils {
 
   private static final String DEFAULT_BOOTSTRAP_CONTEXT_CLASS_NAME =
           "cn.taketoday.test.context.support.DefaultBootstrapContext";
