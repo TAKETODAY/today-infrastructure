@@ -102,15 +102,15 @@ class ServletWebServerFactoryCustomizerTests {
   @Test
   void customizeSessionProperties() {
     Map<String, String> map = new HashMap<>();
-    map.put("server.servlet.session.timeout", "123");
-    map.put("server.servlet.session.tracking-modes", "cookie,url");
-    map.put("server.servlet.session.cookie.name", "testname");
-    map.put("server.servlet.session.cookie.domain", "testdomain");
-    map.put("server.servlet.session.cookie.path", "/testpath");
-    map.put("server.servlet.session.cookie.comment", "testcomment");
-    map.put("server.servlet.session.cookie.http-only", "true");
-    map.put("server.servlet.session.cookie.secure", "true");
-    map.put("server.servlet.session.cookie.max-age", "60");
+    map.put("server.session.timeout", "123");
+    map.put("server.session.tracking-modes", "cookie,url");
+    map.put("server.session.cookie.name", "testname");
+    map.put("server.session.cookie.domain", "testdomain");
+    map.put("server.session.cookie.path", "/testpath");
+    map.put("server.session.cookie.comment", "testcomment");
+    map.put("server.session.cookie.http-only", "true");
+    map.put("server.session.cookie.secure", "true");
+    map.put("server.session.cookie.max-age", "60");
     bindProperties(map);
     ConfigurableServletWebServerFactory factory = mock(ConfigurableServletWebServerFactory.class);
     this.customizer.customize(factory);
@@ -155,7 +155,7 @@ class ServletWebServerFactoryCustomizerTests {
   @Test
   void sessionStoreDir() {
     Map<String, String> map = new HashMap<>();
-    map.put("server.servlet.session.store-dir", "mydirectory");
+    map.put("server.session.store-dir", "mydirectory");
     bindProperties(map);
     ConfigurableServletWebServerFactory factory = mock(ConfigurableServletWebServerFactory.class);
     this.customizer.customize(factory);

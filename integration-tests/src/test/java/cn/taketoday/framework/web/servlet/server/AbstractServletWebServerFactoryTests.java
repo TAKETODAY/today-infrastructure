@@ -854,7 +854,7 @@ public abstract class AbstractServletWebServerFactoryTests {
     ClientHttpResponse clientResponse = getClientResponse(getLocalUrl("/"));
     List<String> setCookieHeaders = clientResponse.getHeaders().get("Set-Cookie");
     assertThat(setCookieHeaders).satisfiesExactlyInAnyOrder(
-            (header) -> assertThat(header).contains("JSESSIONID").contains("SameSite=" + sameSite.attributeValue()),
+            (header) -> assertThat(header).contains("SESSION").contains("SameSite=" + sameSite.attributeValue()),
             (header) -> assertThat(header).contains("test=test").doesNotContain("SameSite"));
   }
 
@@ -887,7 +887,7 @@ public abstract class AbstractServletWebServerFactoryTests {
     ClientHttpResponse clientResponse = getClientResponse(getLocalUrl("/"));
     List<String> setCookieHeaders = clientResponse.getHeaders().get("Set-Cookie");
     assertThat(setCookieHeaders).satisfiesExactlyInAnyOrder(
-            (header) -> assertThat(header).contains("JSESSIONID").doesNotContain("SameSite"),
+            (header) -> assertThat(header).contains("SESSION").doesNotContain("SameSite"),
             (header) -> assertThat(header).contains("test=test").doesNotContain("SameSite"),
             (header) -> assertThat(header).contains("relaxed=test").contains("SameSite=Lax"),
             (header) -> assertThat(header).contains("empty=test").contains("SameSite=None"),
