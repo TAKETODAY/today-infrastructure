@@ -26,14 +26,9 @@ import cn.taketoday.lang.Nullable;
 /**
  * Event raised when a request is handled within an ApplicationContext.
  *
- * <p>Supported by Spring's own FrameworkServlet (through a specific
- * ServletRequestHandledEvent subclass), but can also be raised by any
- * other web component.
- *
  * @author Rod Johnson
  * @author Juergen Hoeller
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @see ServletRequestHandledEvent
  * @see cn.taketoday.context.ApplicationContext#publishEvent
  * @since 4.0 2022/4/15 13:16
  */
@@ -178,7 +173,7 @@ public class RequestHandledEvent extends ApplicationEvent {
    * Return whether the request failed.
    */
   public boolean wasFailure() {
-    return (this.failureCause != null);
+    return failureCause != null;
   }
 
   /**
@@ -226,8 +221,8 @@ public class RequestHandledEvent extends ApplicationEvent {
     StringBuilder sb = new StringBuilder();
     sb.append("url=[").append(getRequestUrl()).append("]; ");
     sb.append("client=[").append(getClientAddress()).append("]; ");
-    sb.append("session=[").append(this.sessionId).append("]; ");
-    sb.append("user=[").append(this.userName).append("]; ");
+    sb.append("session=[").append(sessionId).append("]; ");
+    sb.append("user=[").append(userName).append("]; ");
     return sb.toString();
   }
 
@@ -240,9 +235,9 @@ public class RequestHandledEvent extends ApplicationEvent {
     sb.append("url=[").append(getRequestUrl()).append("]; ");
     sb.append("client=[").append(getClientAddress()).append("]; ");
     sb.append("method=[").append(getMethod()).append("]; ");
-    sb.append("session=[").append(this.sessionId).append("]; ");
-    sb.append("user=[").append(this.userName).append("]; ");
-    sb.append("time=[").append(this.processingTimeMillis).append("ms]; ");
+    sb.append("session=[").append(sessionId).append("]; ");
+    sb.append("user=[").append(userName).append("]; ");
+    sb.append("time=[").append(processingTimeMillis).append("ms]; ");
     sb.append("status=[");
     if (!wasFailure()) {
       sb.append("OK");
@@ -256,7 +251,7 @@ public class RequestHandledEvent extends ApplicationEvent {
 
   @Override
   public String toString() {
-    return ("RequestHandledEvent: " + getDescription());
+    return "RequestHandledEvent: " + getDescription();
   }
 
 }
