@@ -485,8 +485,8 @@ public class RequestContextDecorator extends RequestContext {
   }
 
   @Override
-  public void cleanupMultipart() {
-    delegate.cleanupMultipart();
+  public void cleanup() {
+    delegate.cleanup();
   }
 
   @Override

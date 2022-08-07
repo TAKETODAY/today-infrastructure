@@ -645,9 +645,9 @@ public abstract class RequestContext extends AttributeAccessorSupport
   protected abstract MultipartRequest createMultipartRequest();
 
   /**
-   * cleanup multipart in this request context
+   * cleanup resources in this request context
    */
-  public void cleanupMultipart() {
+  public void cleanup() {
     if (multipartRequest != null) {
       multipartRequest.cleanup();
     }
