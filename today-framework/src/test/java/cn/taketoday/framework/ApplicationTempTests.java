@@ -64,7 +64,7 @@ class ApplicationTempTests {
       File t1 = new ApplicationTemp().getDir();
       System.setProperty("user.dir", "abc");
       File t2 = new ApplicationTemp().getDir();
-      assertThat(t1).isNotEqualTo(t2);
+      assertThat(t1).isEqualTo(t2);
     }
     finally {
       System.setProperty("user.dir", userDir);
