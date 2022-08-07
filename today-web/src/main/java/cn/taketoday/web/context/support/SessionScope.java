@@ -22,13 +22,16 @@ package cn.taketoday.web.context.support;
 
 import java.util.function.Supplier;
 
+import cn.taketoday.beans.factory.BeanFactoryUtils;
+import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.config.Scope;
+import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.session.SessionManager;
+import cn.taketoday.session.WebSession;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.RequestContextHolder;
 import cn.taketoday.web.RequestContextUtils;
-import cn.taketoday.session.WebSession;
-import cn.taketoday.session.SessionManager;
 import cn.taketoday.web.util.WebUtils;
 
 /**
@@ -44,12 +47,15 @@ import cn.taketoday.web.util.WebUtils;
  * @since 4.0 2022/2/21 11:40
  */
 public class SessionScope extends AbstractRequestContextScope<WebSession> {
+  private final ConfigurableBeanFactory beanFactory;
 
   @Nullable
-  private final SessionManager sessionManager;
+  private SessionManager sessionManager;
 
-  public SessionScope(@Nullable SessionManager sessionManager) {
-    this.sessionManager = sessionManager;
+  private boolean managerLoaded;
+
+  public SessionScope(ConfigurableBeanFactory beanFactory) {
+    this.beanFactory = beanFactory;
   }
 
   @Override
@@ -124,10 +130,23 @@ public class SessionScope extends AbstractRequestContextScope<WebSession> {
    */
   private WebSession getSession(RequestContext request, boolean create) {
     SessionManager sessionManager = this.sessionManager;
-    if (sessionManager != null) {
-      return sessionManager.getSession(request, create);
+    if (sessionManager == null) {
+      Assert.state(!managerLoaded, "No SessionManager in context");
+      this.managerLoaded = true;
+      sessionManager = BeanFactoryUtils.find(
+              beanFactory, SessionManager.BEAN_NAME, SessionManager.class);
+      if (sessionManager == null) {
+        sessionManager = BeanFactoryUtils.find(beanFactory, SessionManager.class);
+        if (sessionManager == null) {
+          sessionManager = RequestContextUtils.getSessionManager(request);
+          if (sessionManager == null) {
+            throw new IllegalStateException("No SessionManager in context");
+          }
+        }
+      }
+      this.sessionManager = sessionManager;
     }
-    return RequestContextUtils.getSession(request, create);
+    return sessionManager.getSession(request, create);
   }
 
 }
