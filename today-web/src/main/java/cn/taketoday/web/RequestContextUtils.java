@@ -33,6 +33,7 @@ import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.core.i18n.LocaleContext;
 import cn.taketoday.core.i18n.LocaleContextHolder;
 import cn.taketoday.core.i18n.TimeZoneAwareLocaleContext;
+import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.NullValue;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.session.SessionManager;
@@ -424,14 +425,10 @@ public class RequestContextUtils {
    * @param beanFactory the BeanFactory to configure
    */
   public static void registerScopes(ConfigurableBeanFactory beanFactory) {
-    SessionManager sessionManager = BeanFactoryUtils.find(
-            beanFactory, SessionManager.BEAN_NAME, SessionManager.class);
 
-    if (sessionManager != null) {
-      // @Autowired WebSession currentSession;
-      beanFactory.registerDependency(WebSession.class, new WebSessionSupplier(sessionManager));
-      beanFactory.registerScope(WebApplicationContext.SCOPE_SESSION, new SessionScope(sessionManager));
-    }
+    // @Autowired WebSession currentSession;
+    beanFactory.registerDependency(WebSession.class, new WebSessionSupplier(beanFactory));
+    beanFactory.registerScope(WebApplicationContext.SCOPE_SESSION, new SessionScope(beanFactory));
 
     beanFactory.registerScope(WebApplicationContext.SCOPE_REQUEST, new RequestScope());
 
@@ -1137,15 +1134,37 @@ public class RequestContextUtils {
   @SuppressWarnings("serial")
   final static class WebSessionSupplier implements Supplier<WebSession>, Serializable {
 
-    final SessionManager sessionManager;
+    final ConfigurableBeanFactory beanFactory;
 
-    private WebSessionSupplier(SessionManager sessionManager) {
-      this.sessionManager = sessionManager;
+    @Nullable
+    private SessionManager sessionManager;
+
+    private boolean managerLoaded;
+
+    private WebSessionSupplier(ConfigurableBeanFactory beanFactory) {
+      this.beanFactory = beanFactory;
     }
 
     @Override
     public WebSession get() {
       RequestContext request = RequestContextHolder.getRequired();
+      SessionManager sessionManager = this.sessionManager;
+      if (sessionManager == null) {
+        Assert.state(!managerLoaded, "No SessionManager in context");
+        this.managerLoaded = true;
+        sessionManager = BeanFactoryUtils.find(
+                beanFactory, SessionManager.BEAN_NAME, SessionManager.class);
+        if (sessionManager == null) {
+          sessionManager = BeanFactoryUtils.find(beanFactory, SessionManager.class);
+          if (sessionManager == null) {
+            sessionManager = RequestContextUtils.getSessionManager(request);
+            if (sessionManager == null) {
+              throw new IllegalStateException("No SessionManager in context");
+            }
+          }
+        }
+        this.sessionManager = sessionManager;
+      }
       return sessionManager.getSession(request);
     }
 
