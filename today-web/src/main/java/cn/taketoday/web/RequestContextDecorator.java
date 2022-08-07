@@ -485,8 +485,8 @@ public class RequestContextDecorator extends RequestContext {
   }
 
   @Override
-  public void cleanup() {
-    delegate.cleanup();
+  public void requestCompleted() {
+    delegate.requestCompleted();
   }
 
   @Override

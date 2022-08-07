@@ -291,7 +291,7 @@ public class DispatcherHandler implements ApplicationContextAware {
     }
     finally {
       // @since 3.0 cleanup MultipartFiles
-      context.cleanup();
+      context.requestCompleted();
     }
   }
 
@@ -371,8 +371,7 @@ public class DispatcherHandler implements ApplicationContextAware {
       catch (Throwable ex) {
         throwable = ex; // not handled
       }
-      // @since 3.0 cleanup MultipartFiles
-      context.cleanup();
+      context.requestCompleted();
       if (log.isDebugEnabled()) {
         logResult(context, throwable);
       }

@@ -35,6 +35,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -45,6 +46,7 @@ import java.util.regex.Matcher;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.core.AttributeAccessor;
 import cn.taketoday.core.AttributeAccessorSupport;
+import cn.taketoday.core.Conventions;
 import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.core.io.InputStreamSource;
 import cn.taketoday.core.io.OutputStreamSource;
@@ -59,6 +61,7 @@ import cn.taketoday.http.HttpStatusCode;
 import cn.taketoday.http.server.PathContainer;
 import cn.taketoday.http.server.RequestPath;
 import cn.taketoday.http.server.ServerHttpResponse;
+import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.NonNull;
 import cn.taketoday.lang.Nullable;
@@ -156,6 +159,9 @@ public abstract class RequestContext extends AttributeAccessorSupport
 
   protected Boolean preFlightRequestFlag;
   protected Boolean corsRequestFlag;
+
+  /** Map from attribute name String to destruction callback Runnable.  @since 4.0 */
+  protected LinkedHashMap<String, Runnable> requestDestructionCallbacks;
 
   protected RequestContext(ApplicationContext context) {
     this.applicationContext = context;
@@ -644,14 +650,72 @@ public abstract class RequestContext extends AttributeAccessorSupport
    */
   protected abstract MultipartRequest createMultipartRequest();
 
+  // ---------------------------------------------------------------------
+  // requestCompleted
+  // ---------------------------------------------------------------------
+
   /**
-   * cleanup resources in this request context
+   * Signal that the request has been completed.
+   * <p>Executes all request destruction callbacks and other resources cleanup
    */
-  public void cleanup() {
+  public void requestCompleted() {
     if (multipartRequest != null) {
+      // @since 3.0 cleanup MultipartFiles
       multipartRequest.cleanup();
     }
+
+    LinkedHashMap<String, Runnable> callbacks = requestDestructionCallbacks;
+    if (callbacks != null) {
+      for (Runnable runnable : callbacks.values()) {
+        runnable.run();
+      }
+      callbacks.clear();
+      this.requestDestructionCallbacks = null;
+    }
   }
+
+  /**
+   * Register the given callback as to be executed after request completion.
+   *
+   * @param callback the callback to be executed for destruction
+   * @since 4.0
+   */
+  public final void registerRequestDestructionCallback(Runnable callback) {
+    Assert.notNull(callback, "Destruction Callback is required");
+    String variableName = Conventions.getVariableName(callback);
+    registerRequestDestructionCallback(variableName, callback);
+  }
+
+  /**
+   * Register the given callback as to be executed after request completion.
+   *
+   * @param name the name of the attribute to register the callback for
+   * @param callback the callback to be executed for destruction
+   * @since 4.0
+   */
+  public final void registerRequestDestructionCallback(String name, Runnable callback) {
+    Assert.notNull(name, "Name is required");
+    Assert.notNull(callback, "Destruction Callback is required");
+    if (requestDestructionCallbacks == null) {
+      requestDestructionCallbacks = new LinkedHashMap<>(8);
+    }
+    requestDestructionCallbacks.put(name, callback);
+  }
+
+  /**
+   * Remove the request destruction callback for the specified attribute, if any.
+   *
+   * @param name the name of the attribute to remove the callback for
+   * @since 4.0
+   */
+  public final void removeRequestDestructionCallback(String name) {
+    Assert.notNull(name, "Name is required");
+    if (requestDestructionCallbacks != null) {
+      requestDestructionCallbacks.remove(name);
+    }
+  }
+
+  //
 
   /**
    * Returns {@code true} if the request is a valid CORS pre-flight

@@ -87,9 +87,8 @@ public abstract class AbstractRequestContextScope<T extends AttributeAccessor> i
 
   @Override
   public void registerDestructionCallback(String name, Runnable callback) {
-    RequestContext context = RequestContextHolder.get();
-    // registerDestructionCallback(name, callback); TODO
-
+    RequestContext context = RequestContextHolder.getRequired();
+    context.registerRequestDestructionCallback(name, callback);
   }
 
   @Nullable
