@@ -42,8 +42,9 @@ import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.beans.factory.config.BeanFactoryPostProcessor;
 import cn.taketoday.beans.factory.config.BeanPostProcessor;
 import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
-import cn.taketoday.beans.factory.support.DependencyInjector;
+import cn.taketoday.beans.factory.config.ExpressionEvaluator;
 import cn.taketoday.beans.factory.support.BeanFactoryAwareInstantiator;
+import cn.taketoday.beans.factory.support.DependencyInjector;
 import cn.taketoday.beans.support.ResourceEditorRegistrar;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.ApplicationContextException;
@@ -70,7 +71,6 @@ import cn.taketoday.context.event.ContextStartedEvent;
 import cn.taketoday.context.event.ContextStoppedEvent;
 import cn.taketoday.context.event.SimpleApplicationEventMulticaster;
 import cn.taketoday.context.expression.EmbeddedValueResolverAware;
-import cn.taketoday.beans.factory.config.ExpressionEvaluator;
 import cn.taketoday.context.expression.StandardBeanExpressionResolver;
 import cn.taketoday.context.loader.BeanDefinitionLoader;
 import cn.taketoday.context.loader.BootstrapContext;
@@ -91,7 +91,6 @@ import cn.taketoday.core.io.ResourceConsumer;
 import cn.taketoday.core.io.ResourceLoader;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Constant;
-import cn.taketoday.lang.NonNull;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.lang.TodayStrategies;
 import cn.taketoday.logging.Logger;
@@ -683,7 +682,7 @@ public abstract class AbstractApplicationContext
             BeanDefinitionLoader.class, BeanFactoryAwareInstantiator.forFunction(beanFactory));
 
     if (!strategies.isEmpty()) {
-      BootstrapContext bootstrapContext = getBootstrapContext();
+      BootstrapContext bootstrapContext = obtainBootstrapContext();
       for (BeanDefinitionLoader loader : strategies) {
         loader.loadBeanDefinitions(bootstrapContext);
       }
@@ -754,7 +753,7 @@ public abstract class AbstractApplicationContext
       DelegatingMessageSource dms = new DelegatingMessageSource();
       dms.setParentMessageSource(getInternalParentMessageSource());
       this.messageSource = dms;
-      beanFactory.registerSingleton(MESSAGE_SOURCE_BEAN_NAME, this.messageSource);
+      beanFactory.registerSingleton(MESSAGE_SOURCE_BEAN_NAME, messageSource);
       if (log.isTraceEnabled()) {
         log.trace("No '{}' bean, using [{}]", MESSAGE_SOURCE_BEAN_NAME, messageSource);
       }
@@ -782,7 +781,7 @@ public abstract class AbstractApplicationContext
    */
   protected void doClose() {
     // Check whether an actual close attempt is necessary...
-    if (this.active.get() && this.closed.compareAndSet(false, true)) {
+    if (active.get() && closed.compareAndSet(false, true)) {
       log.info("Closing: [{}] at [{}]", this,
               new SimpleDateFormat(Constant.DEFAULT_DATE_FORMAT).format(System.currentTimeMillis()));
 
@@ -813,13 +812,13 @@ public abstract class AbstractApplicationContext
       onClose();
 
       // Reset local application listeners to pre-refresh state.
-      if (this.earlyApplicationListeners != null) {
-        this.applicationListeners.clear();
-        this.applicationListeners.addAll(this.earlyApplicationListeners);
+      if (earlyApplicationListeners != null) {
+        applicationListeners.clear();
+        applicationListeners.addAll(earlyApplicationListeners);
       }
 
       // Switch to inactive.
-      this.active.set(false);
+      active.set(false);
     }
   }
 
@@ -836,7 +835,7 @@ public abstract class AbstractApplicationContext
    */
   @Override
   public void registerShutdownHook() {
-    if (this.shutdownHook == null) {
+    if (shutdownHook == null) {
       // No shutdown hook registered yet.
       this.shutdownHook = new Thread(SHUTDOWN_HOOK_THREAD_NAME) {
         @Override
@@ -846,7 +845,7 @@ public abstract class AbstractApplicationContext
           }
         }
       };
-      Runtime.getRuntime().addShutdownHook(this.shutdownHook);
+      Runtime.getRuntime().addShutdownHook(shutdownHook);
     }
   }
 
@@ -860,14 +859,14 @@ public abstract class AbstractApplicationContext
    */
   @Override
   public void close() {
-    synchronized(this.startupShutdownMonitor) {
+    synchronized(startupShutdownMonitor) {
       applyState(State.CLOSING);
       doClose();
       // If we registered a JVM shutdown hook, we don't need it anymore now:
       // We've already explicitly closed the context.
-      if (this.shutdownHook != null) {
+      if (shutdownHook != null) {
         try {
-          Runtime.getRuntime().removeShutdownHook(this.shutdownHook);
+          Runtime.getRuntime().removeShutdownHook(shutdownHook);
         }
         catch (IllegalStateException ex) {
           // ignore - VM is already shutting down
@@ -911,7 +910,7 @@ public abstract class AbstractApplicationContext
 
   @Override
   public boolean isActive() {
-    return this.active.get();
+    return active.get();
   }
 
   @Override
@@ -1007,8 +1006,8 @@ public abstract class AbstractApplicationContext
    * on an active context, i.e. in particular all bean accessor methods.
    */
   protected void assertBeanFactoryActive() {
-    if (!this.active.get()) {
-      if (this.closed.get()) {
+    if (!active.get()) {
+      if (closed.get()) {
         throw new IllegalStateException(getDisplayName() + " has been closed already");
       }
       else {
@@ -1249,7 +1248,6 @@ public abstract class AbstractApplicationContext
 
   // ArgumentsResolverProvider
 
-  @NonNull
   @Override
   public DependencyInjector getInjector() {
     return getBeanFactory().getInjector();
@@ -1372,7 +1370,7 @@ public abstract class AbstractApplicationContext
     }
     else {
       this.applicationEventMulticaster = new SimpleApplicationEventMulticaster(beanFactory);
-      beanFactory.registerSingleton(APPLICATION_EVENT_MULTICASTER_BEAN_NAME, this.applicationEventMulticaster);
+      beanFactory.registerSingleton(APPLICATION_EVENT_MULTICASTER_BEAN_NAME, applicationEventMulticaster);
       if (log.isTraceEnabled()) {
         log.trace("No '{}' bean, using [{}]",
                 APPLICATION_EVENT_MULTICASTER_BEAN_NAME, applicationEventMulticaster.getClass().getSimpleName());
@@ -1423,8 +1421,8 @@ public abstract class AbstractApplicationContext
 
     // Publish event via parent context as well...
     if (parent != null) {
-      if (parent instanceof AbstractApplicationContext parent) {
-        parent.publishEvent(event, eventType);
+      if (parent instanceof AbstractApplicationContext parentCtx) {
+        parentCtx.publishEvent(event, eventType);
       }
       else {
         parent.publishEvent(event);

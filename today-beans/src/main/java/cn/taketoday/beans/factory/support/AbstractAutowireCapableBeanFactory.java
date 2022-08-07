@@ -1839,7 +1839,7 @@ public abstract class AbstractAutowireCapableBeanFactory
       if (!merged.isAbstract() && merged.isSingleton() && !merged.isLazyInit()) {
         if (isFactoryBean(beanName)) {
           Object bean = getBean(FACTORY_BEAN_PREFIX + beanName);
-          if (bean instanceof SmartFactoryBean smartFactory && smartFactory.isEagerInit()) {
+          if (bean instanceof SmartFactoryBean<?> smartFactory && smartFactory.isEagerInit()) {
             getBean(beanName);
           }
         }
