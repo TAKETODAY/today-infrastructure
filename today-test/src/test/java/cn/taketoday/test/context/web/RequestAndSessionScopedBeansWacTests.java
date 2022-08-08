@@ -25,7 +25,8 @@ import org.junit.jupiter.api.Test;
 import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.beans.testfixture.beans.TestBean;
 import cn.taketoday.mock.web.MockHttpServletRequest;
-import cn.taketoday.mock.web.MockHttpSession;
+import cn.taketoday.session.WebSession;
+import cn.taketoday.session.config.EnableWebSession;
 import cn.taketoday.test.context.junit.jupiter.web.JUnitWebConfig;
 import cn.taketoday.web.servlet.WebServletApplicationContext;
 
@@ -48,7 +49,12 @@ class RequestAndSessionScopedBeansWacTests {
   MockHttpServletRequest request;
 
   @Autowired
-  MockHttpSession session;
+  WebSession session;
+
+  @EnableWebSession
+  static class Config {
+
+  }
 
   @Test
   void requestScope() throws Exception {
