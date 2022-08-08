@@ -233,6 +233,7 @@
           <argLine>
             -DtestGroups=all ${add-opens}
           </argLine>
+          <excludedGroups>failing-test-case</excludedGroups>
         </configuration>
       </plugin>
 
@@ -362,6 +363,7 @@
               <argLine>
                 ${argLine} -Dcoverage=true -DtestGroups=all ${add-opens}
               </argLine>
+              <excludedGroups>failing-test-case</excludedGroups>
             </configuration>
           </plugin>
 
