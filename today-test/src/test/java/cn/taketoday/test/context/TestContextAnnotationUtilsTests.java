@@ -272,7 +272,7 @@ class TestContextAnnotationUtilsTests {
       assertThat(descriptor.getRootDeclaringClass()).as("rootDeclaringClass").isEqualTo(rootDeclaringClass);
       assertThat(descriptor.getDeclaringClass()).as("declaringClass").isEqualTo(declaringClass);
       assertThat(descriptor.getAnnotationType()).as("annotationType").isEqualTo(Component.class);
-      assertThat(descriptor.getAnnotation().value()).as("component name").isEqualTo(name);
+      assertThat(descriptor.getAnnotation().value()).as("component name").contains(name);
     }
 
   }
@@ -503,7 +503,7 @@ class TestContextAnnotationUtilsTests {
       assertThat(descriptor.getRootDeclaringClass()).as("rootDeclaringClass").isEqualTo(rootDeclaringClass);
       assertThat(descriptor.getDeclaringClass()).as("declaringClass").isEqualTo(declaringClass);
       assertThat(descriptor.getAnnotationType()).as("annotationType").isEqualTo(annotationType);
-      assertThat(((Component) descriptor.getAnnotation()).value()).as("component name").isEqualTo(name);
+      assertThat(((Component) descriptor.getAnnotation()).value()).as("component name").contains(name);
     }
 
   }
