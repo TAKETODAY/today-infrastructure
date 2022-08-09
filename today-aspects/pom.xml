@@ -89,7 +89,7 @@
   </dependencies>
 
   <build>
-    <!--    <defaultGoal>compile</defaultGoal>-->
+    <defaultGoal>compile</defaultGoal>
 
     <plugins>
       <plugin>
@@ -109,9 +109,7 @@
         <executions>
           <execution>
             <goals>
-              <!-- use this goal to weave all your main classes -->
               <goal>compile</goal>
-              <!-- use this goal to weave all your test classes -->
               <goal>test-compile</goal>
             </goals>
           </execution>
