@@ -112,7 +112,7 @@ public class DefaultMultiValueMap<K, V>
   }
 
   @Override
-  public void add(K key, V value) {
+  public void add(K key, @Nullable V value) {
     List<V> values = this.map.computeIfAbsent(key, mappingFunction);
     values.add(value);
   }
@@ -139,7 +139,7 @@ public class DefaultMultiValueMap<K, V>
    * @since 4.0
    */
   @Override
-  public void addAll(K key, Enumeration<? extends V> values) {
+  public void addAll(K key, @Nullable Enumeration<? extends V> values) {
     if (values != null) {
       List<V> currentValues = this.map.computeIfAbsent(key, mappingFunction);
       CollectionUtils.addAll(currentValues, values);
@@ -148,7 +148,7 @@ public class DefaultMultiValueMap<K, V>
   }
 
   @Override
-  public void set(K key, V value) {
+  public void set(K key, @Nullable V value) {
     List<V> values = mappingFunction.apply(key);
     values.add(value);
     this.map.put(key, values);
@@ -193,16 +193,19 @@ public class DefaultMultiValueMap<K, V>
   }
 
   @Override
+  @Nullable
   public List<V> get(Object key) {
     return this.map.get(key);
   }
 
   @Override
+  @Nullable
   public List<V> put(K key, List<V> value) {
     return this.map.put(key, value);
   }
 
   @Override
+  @Nullable
   public List<V> remove(Object key) {
     return this.map.remove(key);
   }
@@ -238,7 +241,7 @@ public class DefaultMultiValueMap<K, V>
    * @return a copy of this Map, including a copy of each value-holding List entry
    * (consistently using an independent modifiable {@link List} for
    * each entry) along the lines of {@code MultiValueMap.addAll} semantics
-   * @see #addAll(MultiValueMap)
+   * @see #addAll(Map)
    * @see #clone()
    * @since 2.1.7
    */
