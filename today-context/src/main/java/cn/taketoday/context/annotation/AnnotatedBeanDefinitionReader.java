@@ -90,8 +90,8 @@ public class AnnotatedBeanDefinitionReader extends BeanDefinitionCustomizers {
    * profiles.
    */
   public AnnotatedBeanDefinitionReader(BeanDefinitionRegistry registry, Environment environment) {
-    Assert.notNull(registry, "BeanDefinitionRegistry must not be null");
-    Assert.notNull(environment, "Environment must not be null");
+    Assert.notNull(registry, "BeanDefinitionRegistry is required");
+    Assert.notNull(environment, "Environment is required");
     this.registry = registry;
     this.conditionEvaluator = new ConditionEvaluator(environment, null, registry);
     AnnotationConfigUtils.registerAnnotationConfigProcessors(this.registry);
@@ -299,7 +299,7 @@ public class AnnotatedBeanDefinitionReader extends BeanDefinitionCustomizers {
    * StandardEnvironment.
    */
   private static Environment getOrCreateEnvironment(BeanDefinitionRegistry registry) {
-    Assert.notNull(registry, "BeanDefinitionRegistry must not be null");
+    Assert.notNull(registry, "BeanDefinitionRegistry is required");
     if (registry instanceof EnvironmentCapable) {
       return ((EnvironmentCapable) registry).getEnvironment();
     }

@@ -32,7 +32,7 @@ public class SessionManagerSupport {
   private final SessionManager sessionManager;
 
   public SessionManagerSupport(SessionManager sessionManager) {
-    Assert.notNull(sessionManager, "sessionManager must not be null");
+    Assert.notNull(sessionManager, "SessionManager is required");
     this.sessionManager = sessionManager;
   }
 

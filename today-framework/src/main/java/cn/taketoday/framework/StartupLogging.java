@@ -49,7 +49,7 @@ final class StartupLogging {
   }
 
   void logStarting(Logger applicationLog) {
-    Assert.notNull(applicationLog, "Logger must not be null");
+    Assert.notNull(applicationLog, "Logger is required");
     applicationLog.info(LogMessage.from(this::getStartingMessage));
     applicationLog.debug(LogMessage.from(this::getRunningMessage));
   }

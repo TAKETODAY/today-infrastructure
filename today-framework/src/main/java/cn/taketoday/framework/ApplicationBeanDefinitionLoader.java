@@ -78,7 +78,7 @@ class ApplicationBeanDefinitionLoader {
    * @param sources the bean sources
    */
   ApplicationBeanDefinitionLoader(BeanDefinitionRegistry registry, Object... sources) {
-    Assert.notNull(registry, "Registry must not be null");
+    Assert.notNull(registry, "Registry is required");
     Assert.notEmpty(sources, "Sources must not be empty");
     this.sources = sources;
     this.xmlReader = new XmlBeanDefinitionReader(registry);

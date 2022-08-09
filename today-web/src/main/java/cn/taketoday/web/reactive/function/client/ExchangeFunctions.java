@@ -81,8 +81,8 @@ public abstract class ExchangeFunctions {
     private boolean enableLoggingRequestDetails;
 
     public DefaultExchangeFunction(ClientHttpConnector connector, ExchangeStrategies strategies) {
-      Assert.notNull(connector, "ClientHttpConnector must not be null");
-      Assert.notNull(strategies, "ExchangeStrategies must not be null");
+      Assert.notNull(connector, "ClientHttpConnector is required");
+      Assert.notNull(strategies, "ExchangeStrategies is required");
       this.connector = connector;
       this.strategies = strategies;
 
@@ -97,7 +97,7 @@ public abstract class ExchangeFunctions {
 
     @Override
     public Mono<ClientResponse> exchange(ClientRequest clientRequest) {
-      Assert.notNull(clientRequest, "ClientRequest must not be null");
+      Assert.notNull(clientRequest, "ClientRequest is required");
       HttpMethod httpMethod = clientRequest.method();
       URI url = clientRequest.url();
 

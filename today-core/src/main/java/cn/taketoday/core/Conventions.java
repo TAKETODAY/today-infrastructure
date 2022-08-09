@@ -65,7 +65,7 @@ public final class Conventions {
    * @return the generated variable name
    */
   public static String getVariableName(Object value) {
-    Assert.notNull(value, "Value must not be null");
+    Assert.notNull(value, "Value is required");
     Class<?> valueClass;
     boolean pluralize = false;
 
@@ -102,7 +102,7 @@ public final class Conventions {
    * @return the generated variable name
    */
   public static String getVariableNameForParameter(Parameter parameter) {
-    Assert.notNull(parameter, "Parameter must not be null");
+    Assert.notNull(parameter, "Parameter is required");
     Class<?> valueClass;
     boolean pluralize = false;
     String reactiveSuffix = "";
@@ -144,7 +144,7 @@ public final class Conventions {
    * @return the generated variable name
    */
   public static String getVariableNameForParameter(MethodParameter parameter) {
-    Assert.notNull(parameter, "MethodParameter must not be null");
+    Assert.notNull(parameter, "MethodParameter is required");
     Class<?> valueClass;
     boolean pluralize = false;
     String reactiveSuffix = "";
@@ -215,7 +215,7 @@ public final class Conventions {
    * @return the generated variable name
    */
   public static String getVariableNameForReturnType(Method method, Class<?> resolvedType, @Nullable Object value) {
-    Assert.notNull(method, "Method must not be null");
+    Assert.notNull(method, "Method is required");
 
     if (Object.class == resolvedType) {
       if (value == null) {
@@ -268,7 +268,7 @@ public final class Conventions {
    * {@code transaction-manager} becomes {@code "transactionManager"}.
    */
   public static String attributeNameToPropertyName(String attributeName) {
-    Assert.notNull(attributeName, "'attributeName' must not be null");
+    Assert.notNull(attributeName, "'attributeName' is required");
     if (!attributeName.contains("-")) {
       return attributeName;
     }
@@ -297,8 +297,8 @@ public final class Conventions {
    * '{@code com.myapp.SomeClass}' would be '{@code com.myapp.SomeClass.foo}'
    */
   public static String getQualifiedAttributeName(Class<?> enclosingClass, String attributeName) {
-    Assert.notNull(enclosingClass, "'enclosingClass' must not be null");
-    Assert.notNull(attributeName, "'attributeName' must not be null");
+    Assert.notNull(enclosingClass, "'enclosingClass' is required");
+    Assert.notNull(attributeName, "'attributeName' is required");
     return enclosingClass.getName() + '.' + attributeName;
   }
 

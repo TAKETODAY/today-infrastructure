@@ -535,7 +535,7 @@ public class DispatcherHandler implements ApplicationContextAware {
   }
 
   public void setHandlerRegistry(HandlerMapping handlerMapping) {
-    Assert.notNull(handlerMapping, "HandlerMapping must not be null");
+    Assert.notNull(handlerMapping, "HandlerMapping is required");
     this.handlerMapping = handlerMapping;
   }
 
@@ -548,7 +548,7 @@ public class DispatcherHandler implements ApplicationContextAware {
   }
 
   public void setExceptionHandler(HandlerExceptionHandler exceptionHandler) {
-    Assert.notNull(exceptionHandler, "exceptionHandler must not be null");
+    Assert.notNull(exceptionHandler, "exceptionHandler is required");
     this.exceptionHandler = exceptionHandler;
   }
 
@@ -557,7 +557,7 @@ public class DispatcherHandler implements ApplicationContextAware {
   }
 
   public void setReturnValueHandler(SelectableReturnValueHandler returnValueHandler) {
-    Assert.notNull(returnValueHandler, "returnValueHandler must not be null");
+    Assert.notNull(returnValueHandler, "returnValueHandler is required");
     this.returnValueHandler = returnValueHandler;
   }
 

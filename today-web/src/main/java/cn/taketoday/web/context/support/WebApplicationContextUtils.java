@@ -101,7 +101,7 @@ public class WebApplicationContextUtils {
    */
   @Nullable
   public static WebServletApplicationContext getWebApplicationContext(ServletContext sc, String attrName) {
-    Assert.notNull(sc, "ServletContext must not be null");
+    Assert.notNull(sc, "ServletContext is required");
     Object attr = sc.getAttribute(attrName);
     if (attr instanceof WebServletApplicationContext) {
       return (WebServletApplicationContext) attr;
@@ -286,7 +286,7 @@ public class WebApplicationContextUtils {
    */
   public static void initServletPropertySources(PropertySources sources,
           @Nullable ServletContext servletContext, @Nullable ServletConfig servletConfig) {
-    Assert.notNull(sources, "'propertySources' must not be null");
+    Assert.notNull(sources, "'propertySources' is required");
 
     String name = StandardServletEnvironment.SERVLET_CONTEXT_PROPERTY_SOURCE_NAME;
     if (servletContext != null && sources.get(name) instanceof StubPropertySource) {

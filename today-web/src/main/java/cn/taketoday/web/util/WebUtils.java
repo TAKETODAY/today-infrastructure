@@ -78,7 +78,7 @@ public abstract class WebUtils {
    * @see #SESSION_MUTEX_ATTRIBUTE
    */
   public static Object getSessionMutex(WebSession session) {
-    Assert.notNull(session, "Session must not be null");
+    Assert.notNull(session, "Session is required");
     Object mutex = session.getAttribute(SESSION_MUTEX_ATTRIBUTE);
     if (mutex == null) {
       mutex = session;
@@ -239,8 +239,8 @@ public abstract class WebUtils {
    * @see <a href="https://tools.ietf.org/html/rfc6454">RFC 6454: The Web Origin Concept</a>
    */
   public static boolean isValidOrigin(RequestContext request, Collection<String> allowedOrigins) {
-    Assert.notNull(request, "Request must not be null");
-    Assert.notNull(allowedOrigins, "Allowed origins must not be null");
+    Assert.notNull(request, "Request is required");
+    Assert.notNull(allowedOrigins, "Allowed origins is required");
 
     String origin = request.getHeaders().getOrigin();
     if (origin == null || allowedOrigins.contains("*")) {
