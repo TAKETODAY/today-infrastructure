@@ -34,7 +34,6 @@ import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.support.GenericApplicationContext;
-import cn.taketoday.core.ConfigurationException;
 import cn.taketoday.core.annotation.AnnotatedElementUtils;
 import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.core.annotation.MergedAnnotations;
@@ -46,6 +45,7 @@ import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.util.StringUtils;
+import cn.taketoday.web.FrameworkConfigurationException;
 import cn.taketoday.web.HandlerInterceptor;
 import cn.taketoday.web.HandlerMapping;
 import cn.taketoday.web.WebApplicationContext;
@@ -302,7 +302,7 @@ public class HandlerMethodMapping
     for (String variable : pathPattern.getVariableNames()) {
       ResolvableMethodParameter parameter = parameterMapping.get(variable);
       if (parameter == null) {
-        throw new ConfigurationException(
+        throw new FrameworkConfigurationException(
                 "There isn't a variable named: [" + variable +
                         "] in the parameter list at method: [" + handler.getMethod() + "]");
       }
@@ -361,7 +361,7 @@ public class HandlerMethodMapping
           registrar.registerBean(interceptor);
         }
         catch (BeanDefinitionStoreException e) {
-          throw new ConfigurationException("Interceptor: [" + interceptor.getName() + "] register error", e);
+          throw new FrameworkConfigurationException("Interceptor: [" + interceptor.getName() + "] register error", e);
         }
       }
       HandlerInterceptor instance = this.beanFactory.getBean(interceptor);

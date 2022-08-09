@@ -36,21 +36,19 @@ import cn.taketoday.beans.factory.BeanClassLoaderAware;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.support.GenericApplicationContext;
 import cn.taketoday.core.AntPathMatcher;
-import cn.taketoday.core.ConfigurationException;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Version;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.util.StringUtils;
+import cn.taketoday.web.FrameworkConfigurationException;
 import cn.taketoday.web.ReturnValueHandler;
 import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.handler.ViewController;
 import cn.taketoday.web.handler.method.ResolvableParameterFactory;
 import cn.taketoday.web.util.pattern.PathPattern;
 import cn.taketoday.web.util.pattern.PathPatternParser;
-
-import static cn.taketoday.core.ConfigurationException.nonNull;
 
 /**
  * @author TODAY <br>
@@ -115,7 +113,8 @@ public class ViewControllerHandlerMapping extends AbstractUrlHandlerMapping impl
   }
 
   public void register(ViewController viewController, String... requestURI) {
-    for (String path : nonNull(requestURI, "request URIs must not be null")) {
+    Assert.notNull(requestURI, "request URIs must not be null");
+    for (String path : requestURI) {
       register(path, viewController);
     }
   }
@@ -199,7 +198,7 @@ public class ViewControllerHandlerMapping extends AbstractUrlHandlerMapping impl
     for (String location : StringUtils.split(webMvcConfigLocation)) {
       Resource resource = context.getResource(location);
       if (!resource.exists()) {
-        throw new ConfigurationException(
+        throw new FrameworkConfigurationException(
                 "Your provided configuration location: [" + location + "], does not exist");
       }
       try (InputStream inputStream = resource.getInputStream()) {
@@ -318,7 +317,7 @@ public class ViewControllerHandlerMapping extends AbstractUrlHandlerMapping impl
     String status = action.getAttribute(ATTR_STATUS); // status
 
     if (StringUtils.isEmpty(name)) {
-      throw new ConfigurationException(
+      throw new FrameworkConfigurationException(
               "You must specify a 'name' attribute like this: [<action resource=\"https://taketoday.cn\" name=\"TODAY-BLOG\" type=\"redirect\"/>]");
     }
 
@@ -326,7 +325,7 @@ public class ViewControllerHandlerMapping extends AbstractUrlHandlerMapping impl
 
     if (StringUtils.isNotEmpty(method)) {
       if (controller == null) {
-        throw new ConfigurationException(
+        throw new FrameworkConfigurationException(
                 "You must specify a 'class' attribute like this: [<controller class=\"xxx.XMLController\" name=\"xmlController\" />]");
       }
       for (Method targetMethod : ReflectionUtils.getDeclaredMethods(controller.getClass())) {
@@ -336,7 +335,7 @@ public class ViewControllerHandlerMapping extends AbstractUrlHandlerMapping impl
         }
       }
       if (handlerMethod == null) {
-        throw new ConfigurationException(
+        throw new FrameworkConfigurationException(
                 "You must specify a method: [" + method + "] in class :[" + controller.getClass() + "]");
       }
     }
