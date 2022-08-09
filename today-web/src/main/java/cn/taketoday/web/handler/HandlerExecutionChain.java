@@ -107,8 +107,8 @@ public class HandlerExecutionChain {
   /**
    * Add the given interceptors to the end of this chain.
    */
-  public void addInterceptors(HandlerInterceptor... interceptors) {
-    CollectionUtils.mergeArrayIntoCollection(interceptors, this.interceptorList);
+  public void addInterceptors(@Nullable HandlerInterceptor... interceptors) {
+    CollectionUtils.addAll(this.interceptorList, interceptors);
   }
 
   /**

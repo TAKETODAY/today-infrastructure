@@ -36,17 +36,27 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import cn.taketoday.aop.support.AopUtils;
+import cn.taketoday.beans.factory.BeanDefinitionStoreException;
 import cn.taketoday.beans.factory.BeanFactoryUtils;
 import cn.taketoday.beans.factory.InitializingBean;
+import cn.taketoday.context.ApplicationContext;
+import cn.taketoday.context.support.GenericApplicationContext;
 import cn.taketoday.core.LinkedMultiValueMap;
 import cn.taketoday.core.MethodIntrospector;
+import cn.taketoday.core.annotation.AnnotatedElementUtils;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
+import cn.taketoday.util.CollectionUtils;
+import cn.taketoday.util.MapCache;
+import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.util.StringUtils;
+import cn.taketoday.web.FrameworkConfigurationException;
+import cn.taketoday.web.HandlerInterceptor;
 import cn.taketoday.web.HandlerMapping;
 import cn.taketoday.web.RequestContext;
+import cn.taketoday.web.annotation.Interceptor;
 import cn.taketoday.web.cors.CorsConfiguration;
 import cn.taketoday.web.handler.HandlerMethodMappingNamingStrategy;
 import cn.taketoday.web.registry.AbstractHandlerMapping;
@@ -97,6 +107,8 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
 
   @Nullable
   private HandlerMethodMappingNamingStrategy<T> namingStrategy;
+
+  private GenericApplicationContext context;
 
   private final MappingRegistry mappingRegistry = new MappingRegistry();
 
@@ -205,6 +217,8 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
    */
   @Override
   public void afterPropertiesSet() {
+    ApplicationContext context = obtainApplicationContext();
+    this.context = context.unwrap(GenericApplicationContext.class);
     initHandlerMethods();
   }
 
@@ -513,6 +527,77 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
     return corsConfig;
   }
 
+  @Nullable
+  @Override
+  protected HandlerInterceptor[] getHandlerInterceptors(Object handler) {
+    if (handler instanceof HandlerMethod handlerMethod) {
+      return mappingRegistry.getHandlerInterceptors(handlerMethod);
+    }
+    return null;
+  }
+
+  /**
+   * Get list of intercepters.
+   *
+   * @param controllerClass controller class
+   * @param action method
+   * @return List of {@link HandlerInterceptor} objects
+   */
+  protected List<HandlerInterceptor> getInterceptors(Class<?> controllerClass, Method action) {
+    ArrayList<HandlerInterceptor> ret = new ArrayList<>();
+    Set<Interceptor> controllerInterceptors = AnnotatedElementUtils.getAllMergedAnnotations(controllerClass, Interceptor.class);
+    // get interceptor on class
+    if (CollectionUtils.isNotEmpty(controllerInterceptors)) {
+      for (Interceptor controllerInterceptor : controllerInterceptors) {
+        CollectionUtils.addAll(ret, getInterceptors(controllerInterceptor.value()));
+      }
+    }
+    // HandlerInterceptor on a method
+    Set<Interceptor> actionInterceptors = AnnotatedElementUtils.getAllMergedAnnotations(action, Interceptor.class);
+    if (CollectionUtils.isNotEmpty(actionInterceptors)) {
+      ApplicationContext beanFactory = obtainApplicationContext();
+      for (Interceptor actionInterceptor : actionInterceptors) {
+        CollectionUtils.addAll(ret, getInterceptors(actionInterceptor.value()));
+        // exclude interceptors
+        for (Class<? extends HandlerInterceptor> interceptor : actionInterceptor.exclude()) {
+          ret.remove(beanFactory.getBean(interceptor));
+        }
+      }
+    }
+    return ret;
+  }
+
+  /***
+   * Get {@link HandlerInterceptor} objects
+   *
+   * @param interceptors
+   *            {@link HandlerInterceptor} class
+   * @return Array of {@link HandlerInterceptor} objects
+   */
+  @Nullable
+  protected HandlerInterceptor[] getInterceptors(Class<? extends HandlerInterceptor>[] interceptors) {
+    if (ObjectUtils.isEmpty(interceptors)) {
+      return null;
+    }
+    int i = 0;
+    HandlerInterceptor[] ret = new HandlerInterceptor[interceptors.length];
+
+    for (Class<? extends HandlerInterceptor> interceptor : interceptors) {
+      if (!context.containsBeanDefinition(interceptor, true)) {
+        try {
+          context.registerBean(interceptor);
+        }
+        catch (BeanDefinitionStoreException e) {
+          throw new FrameworkConfigurationException(
+                  "Interceptor: [" + interceptor.getName() + "] register error", e);
+        }
+      }
+      HandlerInterceptor instance = context.getBean(interceptor);
+      ret[i++] = instance;
+    }
+    return ret;
+  }
+
   // Abstract template methods
 
   /**
@@ -565,7 +650,8 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
    * to perform lookups and providing concurrent access.
    * <p>Package-private for testing purposes.
    */
-  final class MappingRegistry {
+  final class MappingRegistry extends MapCache<Method, HandlerInterceptor[], HandlerMethod> {
+
     private final HashMap<T, MappingRegistration<T>> registry = new HashMap<>();
     private final ReentrantReadWriteLock readWriteLock = new ReentrantReadWriteLock();
     private final LinkedMultiValueMap<String, T> pathLookup = new LinkedMultiValueMap<>();
@@ -729,6 +815,19 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
       }
       nameLookup.put(name, newList);
     }
+
+    @Override
+    protected HandlerInterceptor[] createValue(Method method, @Nullable HandlerMethod handlerMethod) {
+      Assert.state(handlerMethod != null, "No HandlerMethod");
+      Class<?> controllerClass = handlerMethod.getBeanType();
+      List<HandlerInterceptor> interceptors = getInterceptors(controllerClass, method);
+      return interceptors.toArray(HandlerInterceptor.EMPTY_ARRAY);
+    }
+
+    public HandlerInterceptor[] getHandlerInterceptors(HandlerMethod handlerMethod) {
+      Method method = handlerMethod.getMethod();
+      return get(method, handlerMethod);
+    }
   }
 
   record MappingRegistration<T>(
@@ -737,8 +836,8 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
 
     MappingRegistration(T mapping, HandlerMethod handlerMethod,
             @Nullable Set<String> directPaths, @Nullable String mappingName, boolean hasCorsConfig) {
-      Assert.notNull(mapping, "Mapping must not be null");
-      Assert.notNull(handlerMethod, "HandlerMethod must not be null");
+      Assert.notNull(mapping, "Mapping is required");
+      Assert.notNull(handlerMethod, "HandlerMethod is required");
       this.mapping = mapping;
       this.handlerMethod = handlerMethod;
       this.directPaths = directPaths != null ? directPaths : Collections.emptySet();

@@ -308,38 +308,6 @@ public abstract class AbstractHandlerMapping extends ApplicationContextSupport
   }
 
   /**
-   * Return the adapted interceptors as {@link HandlerInterceptor} array.
-   *
-   * @return the array of {@link HandlerInterceptor HandlerInterceptor}s,
-   * or {@code null} if none
-   * @since 4.0
-   */
-  @Nullable
-  protected final HandlerInterceptor[] getAdaptedInterceptors() {
-    return !interceptors.isEmpty() ?
-           interceptors.toArray(HandlerInterceptor.EMPTY_ARRAY) : null;
-  }
-
-  /**
-   * Return all configured {@link MappedInterceptor}s as an array.
-   *
-   * @return the array of {@link MappedInterceptor}s, or {@code null} if none
-   * @since 4.0
-   */
-  @Nullable
-  protected final MappedInterceptor[] getMappedInterceptors() {
-    List<MappedInterceptor> mappedInterceptors = new ArrayList<>(interceptors.size());
-    for (HandlerInterceptor interceptor : interceptors) {
-      if (interceptor instanceof MappedInterceptor mappedInterceptor) {
-        mappedInterceptors.add(mappedInterceptor);
-      }
-    }
-    return !mappedInterceptors.isEmpty()
-           ? mappedInterceptors.toArray(new MappedInterceptor[0])
-           : null;
-  }
-
-  /**
    * Look up a handler for the given request, falling back to the default
    * handler if no specific one is found.
    *
@@ -420,14 +388,16 @@ public abstract class AbstractHandlerMapping extends ApplicationContextSupport
    * @param handler the resolved handler instance (never {@code null})
    * @param request current HTTP request
    * @return the HandlerExecutionChain (never {@code null})
-   * @see #getAdaptedInterceptors()
    * @since 4.0
    */
   protected HandlerExecutionChain getHandlerExecutionChain(Object handler, RequestContext request) {
     var chain = handler instanceof HandlerExecutionChain executionChain
                 ? executionChain : new HandlerExecutionChain(handler);
 
-    for (HandlerInterceptor interceptor : interceptors) {
+    HandlerInterceptor[] interceptors = getHandlerInterceptors(handler);
+    chain.addInterceptors(interceptors);
+
+    for (HandlerInterceptor interceptor : this.interceptors) {
       if (interceptor instanceof MappedInterceptor mappedInterceptor) {
         if (mappedInterceptor.matches(request)) {
           chain.addInterceptor(mappedInterceptor.getInterceptor());
@@ -438,6 +408,11 @@ public abstract class AbstractHandlerMapping extends ApplicationContextSupport
       }
     }
     return chain;
+  }
+
+  @Nullable
+  protected HandlerInterceptor[] getHandlerInterceptors(Object handler) {
+    return null;
   }
 
   /**
