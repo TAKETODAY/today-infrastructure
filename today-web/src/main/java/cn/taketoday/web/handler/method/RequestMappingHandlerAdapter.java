@@ -43,6 +43,8 @@ import cn.taketoday.core.task.AsyncTaskExecutor;
 import cn.taketoday.core.task.SimpleAsyncTaskExecutor;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.session.SessionManager;
+import cn.taketoday.session.WebSession;
 import cn.taketoday.util.LogFormatUtils;
 import cn.taketoday.util.ReflectionUtils.MethodFilter;
 import cn.taketoday.web.BindingContext;
@@ -65,8 +67,6 @@ import cn.taketoday.web.context.async.WebAsyncTask;
 import cn.taketoday.web.context.async.WebAsyncUtils;
 import cn.taketoday.web.handler.ReturnValueHandlerManager;
 import cn.taketoday.web.handler.result.HandlerMethodReturnValueHandler;
-import cn.taketoday.session.SessionManager;
-import cn.taketoday.session.WebSession;
 import cn.taketoday.web.util.WebUtils;
 import cn.taketoday.web.view.ModelAndView;
 import cn.taketoday.web.view.RedirectModel;
@@ -164,7 +164,7 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
    * ordered after built-in ones. To override the built-in support for
    * return value handling use {@link #setReturnValueHandlerManager}.
    */
-  public void setCustomReturnValueHandlers(@Nullable List<ReturnValueHandler> returnValueHandlers) {
+  public void setCustomReturnValueHandlers(List<ReturnValueHandler> returnValueHandlers) {
     returnValueHandlerManager.addHandlers(returnValueHandlers);
   }
 
