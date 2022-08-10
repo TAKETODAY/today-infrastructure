@@ -24,9 +24,14 @@ import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.HandlerAdapter;
 import cn.taketoday.web.HandlerAdapterNotFoundException;
+import cn.taketoday.web.HttpRequestHandler;
 import cn.taketoday.web.RequestContext;
 
 /**
+ * composite HandlerAdapter
+ * <p>
+ * default supports HttpRequestHandler
+ *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/6/10 15:18
  */
@@ -45,6 +50,10 @@ public class HandlerAdapters implements HandlerAdapter {
 
   @Override
   public Object handle(RequestContext context, Object handler) throws Throwable {
+    if (handler instanceof HttpRequestHandler httpRequestHandler) {
+      return httpRequestHandler.handleRequest(context);
+    }
+
     for (HandlerAdapter handlerAdapter : handlerAdapters) {
       if (handlerAdapter.supports(handler)) {
         return handlerAdapter.handle(context, handler);

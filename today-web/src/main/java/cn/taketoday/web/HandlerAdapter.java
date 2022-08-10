@@ -32,7 +32,6 @@ import cn.taketoday.web.handler.FunctionRequestAdapter;
 import cn.taketoday.web.handler.HandlerAdapters;
 import cn.taketoday.web.handler.HandlerExecutionChainHandlerAdapter;
 import cn.taketoday.web.handler.NotFoundHandler;
-import cn.taketoday.web.handler.RequestHandlerAdapter;
 import cn.taketoday.web.handler.ViewControllerHandlerAdapter;
 import cn.taketoday.web.handler.method.RequestMappingHandlerAdapter;
 
@@ -72,7 +71,6 @@ import cn.taketoday.web.handler.method.RequestMappingHandlerAdapter;
  * @author TODAY <br>
  * 2019-12-08 20:23
  * @see HandlerAdapterProvider
- * @see RequestHandlerAdapter
  * @see NotFoundHandler
  * @see ViewControllerHandlerAdapter
  * @see cn.taketoday.web.servlet.ServletHandlerAdapter
@@ -168,7 +166,6 @@ public interface HandlerAdapter {
                     handlerAdapter,
                     new ViewControllerHandlerAdapter(),
                     new FunctionRequestAdapter(),
-                    new RequestHandlerAdapter()
             }
     );
     return new HandlerAdapters(
@@ -176,7 +173,6 @@ public interface HandlerAdapter {
                     handlerAdapter,
                     new ViewControllerHandlerAdapter(),
                     new FunctionRequestAdapter(),
-                    new RequestHandlerAdapter(),
                     new HandlerExecutionChainHandlerAdapter(handlerAdapters)
             }
     );
