@@ -556,7 +556,7 @@ public class ResourceHttpRequestHandler extends WebContentGenerator
       path = request.getLookupPath().pathWithinApplication().value();
     }
     else {
-      path = request.getMatchingMetadata().getPathWithinMapping().value();
+      path = matchingMetadata.getPathWithinMapping().value();
     }
 
     path = processPath(path);
