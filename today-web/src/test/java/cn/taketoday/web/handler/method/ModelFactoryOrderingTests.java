@@ -109,8 +109,8 @@ class ModelFactoryOrderingTests {
 
   private void runTest(Object controller) throws Throwable {
     ParameterResolvingRegistry resolvers = new ParameterResolvingRegistry();
-    resolvers.addStrategies(new ModelAttributeMethodProcessor(false));
-    resolvers.addStrategies(new ModelMethodProcessor());
+    resolvers.addCustomizedStrategies(new ModelAttributeMethodProcessor(false));
+    resolvers.addCustomizedStrategies(new ModelMethodProcessor());
 
     BindingContext dataBinderFactory = new BindingContext(null);
 

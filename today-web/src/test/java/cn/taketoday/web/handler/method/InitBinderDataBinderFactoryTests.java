@@ -111,7 +111,7 @@ class InitBinderDataBinderFactoryTests {
   public void createBinderTypeConversion() throws Throwable {
     request.setParameter("requestParam", "22");
 
-    this.argumentResolvers.addStrategies(new RequestParamMethodArgumentResolver(null, false));
+    this.argumentResolvers.addCustomizedStrategies(new RequestParamMethodArgumentResolver(null, false));
 
     InitBinderBindingContext factory = createFactory("initBinderTypeConversion", WebDataBinder.class, int.class);
     WebDataBinder dataBinder = factory.createBinder(this.webRequest, null, "foo");

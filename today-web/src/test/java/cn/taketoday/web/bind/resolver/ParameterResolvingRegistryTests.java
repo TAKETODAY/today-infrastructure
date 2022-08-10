@@ -20,18 +20,24 @@
 
 package cn.taketoday.web.bind.resolver;
 
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
+import cn.taketoday.context.annotation.AnnotationConfigApplicationContext;
+import cn.taketoday.context.annotation.Import;
+import cn.taketoday.context.annotation.ImportResource;
 import cn.taketoday.core.MethodParameter;
 import cn.taketoday.core.conversion.support.DefaultConversionService;
 import cn.taketoday.http.converter.StringHttpMessageConverter;
+import cn.taketoday.lang.Nullable;
+import cn.taketoday.web.RequestContext;
+import cn.taketoday.web.config.EnableWebMvc;
 import cn.taketoday.web.context.support.AnnotationConfigWebApplicationContext;
 import cn.taketoday.web.handler.MockResolvableMethodParameter;
+import cn.taketoday.web.handler.method.ResolvableMethodParameter;
 import cn.taketoday.web.testfixture.servlet.MockServletContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -147,4 +153,35 @@ class ParameterResolvingRegistryTests {
     assertThat(registry.getConversionService()).isEqualTo(DefaultConversionService.getSharedInstance());
 
   }
+
+  @Test
+  void autoRegister() {
+
+    try (var context = new AnnotationConfigApplicationContext(AppConfig.class)) {
+      ParameterResolvingRegistry registry = context.getBean(ParameterResolvingRegistry.class);
+      assertThat(registry.contains(ParameterResolvingStrategy0.class)).isTrue();
+    }
+
+  }
+
+  @EnableWebMvc
+  @Import(ParameterResolvingStrategy0.class)
+  static class AppConfig {
+
+  }
+
+  static class ParameterResolvingStrategy0 implements ParameterResolvingStrategy {
+
+    @Override
+    public boolean supportsParameter(ResolvableMethodParameter resolvable) {
+      return false;
+    }
+
+    @Nullable
+    @Override
+    public Object resolveArgument(RequestContext context, ResolvableMethodParameter resolvable) throws Throwable {
+      return null;
+    }
+  }
+
 }

@@ -349,7 +349,7 @@ public class ParameterResolvingRegistry
 
   //
 
-  public void addStrategies(ParameterResolvingStrategy... strategies) {
+  public void addCustomizedStrategies(ParameterResolvingStrategy... strategies) {
     customizedStrategies.add(strategies);
   }
 
