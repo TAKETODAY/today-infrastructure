@@ -22,6 +22,7 @@ package cn.taketoday.core;
 
 import java.io.Serial;
 
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ExceptionUtils;
 
 /**
@@ -68,7 +69,7 @@ public abstract class NestedRuntimeException extends RuntimeException {
    *
    * @param cause the nested exception
    */
-  public NestedRuntimeException(Throwable cause) {
+  public NestedRuntimeException(@Nullable Throwable cause) {
     super(cause);
   }
 
@@ -79,7 +80,7 @@ public abstract class NestedRuntimeException extends RuntimeException {
    * @param msg the detail message
    * @param cause the nested exception
    */
-  public NestedRuntimeException(String msg, Throwable cause) {
+  public NestedRuntimeException(String msg, @Nullable Throwable cause) {
     super(msg, cause);
   }
 

@@ -20,6 +20,8 @@
 
 package cn.taketoday.core;
 
+import java.io.Serial;
+
 import cn.taketoday.lang.Nullable;
 
 /**
@@ -29,6 +31,7 @@ import cn.taketoday.lang.Nullable;
  * @since 4.0
  */
 public class ConstructorNotFoundException extends NestedRuntimeException {
+  @Serial
   private static final long serialVersionUID = 1L;
   private final Class<?> type;
   @Nullable
@@ -47,7 +50,7 @@ public class ConstructorNotFoundException extends NestedRuntimeException {
   }
 
   public ConstructorNotFoundException(
-          Class<?> type, String msg, @Nullable Class<?>[] parameterTypes, Throwable e) {
+          Class<?> type, String msg, @Nullable Class<?>[] parameterTypes, @Nullable Throwable e) {
     super(msg, e);
     this.type = type;
     this.parameterTypes = parameterTypes;
