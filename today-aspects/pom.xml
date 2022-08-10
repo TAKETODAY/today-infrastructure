@@ -92,6 +92,7 @@
     <defaultGoal>compile</defaultGoal>
 
     <plugins>
+
       <plugin>
         <groupId>dev.aspectj</groupId>
         <artifactId>aspectj-maven-plugin</artifactId>
@@ -100,6 +101,7 @@
         <configuration>
           <source>${java.version}</source>
           <target>${java.version}</target>
+          <complianceLevel>${java.version}</complianceLevel>
           <showWeaveInfo>true</showWeaveInfo>
           <verbose>true</verbose>
           <Xlint>ignore</Xlint>
@@ -108,6 +110,7 @@
 
         <executions>
           <execution>
+            <phase>compile</phase>
             <goals>
               <goal>compile</goal>
               <goal>test-compile</goal>
@@ -115,6 +118,11 @@
           </execution>
         </executions>
 
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
       </plugin>
 
     </plugins>
