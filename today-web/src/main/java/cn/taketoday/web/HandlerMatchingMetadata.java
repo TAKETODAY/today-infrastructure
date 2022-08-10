@@ -104,7 +104,13 @@ public class HandlerMatchingMetadata {
   public PathContainer getPathWithinMapping() {
     PathContainer pathWithinMapping = this.pathWithinMapping;
     if (pathWithinMapping == null) {
-      pathWithinMapping = getBestMatchingPattern().extractPathWithinPattern(requestPath);
+      PathPattern bestMatchingPattern = getBestMatchingPattern();
+      if (bestMatchingPattern.hasPatternSyntax()) {
+        pathWithinMapping = bestMatchingPattern.extractPathWithinPattern(requestPath);
+      }
+      else {
+        pathWithinMapping = requestPath;
+      }
       this.pathWithinMapping = pathWithinMapping;
     }
     return pathWithinMapping;
