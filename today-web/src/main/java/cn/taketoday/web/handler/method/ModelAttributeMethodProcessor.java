@@ -221,7 +221,7 @@ public class ModelAttributeMethodProcessor implements ParameterResolvingStrategy
     MethodParameter nestedParameter = parameter.nestedIfOptional();
     Class<?> clazz = nestedParameter.getNestedParameterType();
 
-    Constructor<?> ctor = BeanUtils.getConstructor(clazz);
+    Constructor<?> ctor = BeanUtils.obtainConstructor(clazz);
     Object attribute = constructAttribute(ctor, attributeName, parameter, bindingContext, request);
     if (parameter != nestedParameter) {
       attribute = Optional.of(attribute);
