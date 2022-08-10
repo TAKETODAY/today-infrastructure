@@ -21,6 +21,8 @@ package cn.taketoday.web.servlet;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -166,7 +168,7 @@ public class DispatcherServlet
                           : "";
     String message = dispatchType + request.getMethod() + " " +
             request.getRequestURL() + queryClause + ", parameters={" + params + "}";
-
+    message = URLDecoder.decode(message, StandardCharsets.UTF_8);
     if (log.isTraceEnabled()) {
       List<String> values = Collections.list(request.getHeaderNames());
       String headers = values.size() > 0 ? "masked" : "";
