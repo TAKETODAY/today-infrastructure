@@ -81,6 +81,7 @@ public class RdbmsOperationTests {
 
   @Test
   public void tooFewMapParameters() {
+    operation.setDataSource(new DriverManagerDataSource());
     operation.setSql("select * from mytable");
     operation.setTypes(new int[] { Types.INTEGER });
     assertThatExceptionOfType(InvalidDataAccessApiUsageException.class).isThrownBy(() ->
@@ -88,22 +89,32 @@ public class RdbmsOperationTests {
   }
 
   @Test
-  public void operationConfiguredViaJdbcTemplateMustGetDataSource() throws Exception {
+  public void operationConfiguredViaJdbcTemplateMustGetDataSource() {
     operation.setSql("foo");
-    assertThatExceptionOfType(InvalidDataAccessApiUsageException.class).isThrownBy(() ->
-                    operation.compile())
-            .withMessageContaining("ataSource");
+    assertThatExceptionOfType(InvalidDataAccessApiUsageException.class)
+            .isThrownBy(operation::compile)
+            .withMessageContaining("'dataSource'");
   }
 
   @Test
   public void tooManyParameters() {
+    operation.setDataSource(new DriverManagerDataSource());
     operation.setSql("select * from mytable");
     assertThatExceptionOfType(InvalidDataAccessApiUsageException.class).isThrownBy(() ->
             operation.validateParameters(new Object[] { 1, 2 }));
   }
 
   @Test
+  public void tooManyMapParameters() {
+    operation.setDataSource(new DriverManagerDataSource());
+    operation.setSql("select * from mytable");
+    assertThatExceptionOfType(InvalidDataAccessApiUsageException.class).isThrownBy(() ->
+            operation.validateNamedParameters(Map.of("a", "b", "c", "d")));
+  }
+
+  @Test
   public void unspecifiedMapParameters() {
+    operation.setDataSource(new DriverManagerDataSource());
     operation.setSql("select * from mytable");
     Map<String, String> params = new HashMap<>();
     params.put("col1", "value");
@@ -155,9 +166,10 @@ public class RdbmsOperationTests {
     DataSource ds = new DriverManagerDataSource();
     operation.setDataSource(ds);
     operation.setSql("select * from mytable where one = ? and two = ?");
-    operation.setParameters(new SqlParameter[] {
+    operation.setParameters(
             new SqlParameter("one", Types.NUMERIC),
-            new SqlParameter("two", Types.NUMERIC) });
+            new SqlParameter("two", Types.NUMERIC)
+    );
     operation.afterPropertiesSet();
     operation.validateParameters(new Object[] { 1, "2" });
     assertThat(operation.getDeclaredParameters().size()).isEqualTo(2);
