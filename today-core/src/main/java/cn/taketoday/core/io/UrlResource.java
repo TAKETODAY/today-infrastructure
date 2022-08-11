@@ -157,7 +157,7 @@ public class UrlResource extends AbstractFileResolvingResource {
   @Override
   public InputStream getInputStream() throws IOException {
     URLConnection con = this.url.openConnection();
-    ResourceUtils.useCachesIfNecessary(con);
+    customizeConnection(con);
     try {
       return con.getInputStream();
     }
