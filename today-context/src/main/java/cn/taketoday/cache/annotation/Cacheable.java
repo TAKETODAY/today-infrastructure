@@ -156,6 +156,8 @@ public @interface Cacheable {
 
   /**
    * Expression Language (SpEL) expression used to veto method caching.
+   * Veto caching the result if the condition evaluates to {@code true}.
+   *
    * <p>Unlike {@link #condition}, this expression is evaluated after the method
    * has been called and can therefore refer to the {@code result}.
    * <p>Default is {@code ""}, meaning that caching is never vetoed.

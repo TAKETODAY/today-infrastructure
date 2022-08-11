@@ -130,7 +130,8 @@ public @interface CachePut {
 
   /**
    * Expression Language (SpEL) expression used for making the cache
-   * put operation conditional.
+   * put operation conditional. Update the cache if the condition evaluates to
+   * {@code true}.
    * <p>This expression is evaluated after the method has been called due to the
    * nature of the put operation and can therefore refer to the {@code result}.
    * <p>Default is {@code ""}, meaning the method result is always cached.
@@ -154,6 +155,7 @@ public @interface CachePut {
 
   /**
    * Expression Language (SpEL) expression used to veto the cache put operation.
+   * Veto updating the cache if the condition evaluates to {@code true}.
    * <p>Default is {@code ""}, meaning that caching is never vetoed.
    * <p>The EL expression evaluates against a dedicated context that provides the
    * following meta-data:

@@ -124,7 +124,8 @@ public @interface CacheEvict {
 
   /**
    * Expression Language (SpEL) expression used for making the cache
-   * eviction operation conditional.
+   * eviction operation conditional. Evict that cache if the condition evaluates
+   * to {@code true}.
    * <p>Default is {@code ""}, meaning the cache eviction is always performed.
    * <p>The EL expression evaluates against a dedicated context that provides the
    * following meta-data:
