@@ -63,7 +63,7 @@ public class VoidReturnValueHandler implements HandlerMethodReturnValueHandler {
   public void handleReturnValue(
           RequestContext context, Object handler, @Nullable Object returnValue) throws Exception {
     BindingContext bindingContext = context.getBindingContext();
-    if (bindingContext.hasModelAndView()) {
+    if (bindingContext != null && bindingContext.hasModelAndView()) {
       ModelAndView modelAndView = bindingContext.getModelAndView();
       // user constructed a ModelAndView hold in context
       returnValueHandler.handleModelAndView(context, null, modelAndView);
