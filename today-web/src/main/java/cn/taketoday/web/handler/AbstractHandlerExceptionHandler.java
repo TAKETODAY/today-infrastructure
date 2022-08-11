@@ -126,7 +126,7 @@ public abstract class AbstractHandlerExceptionHandler extends OrderedSupport imp
     if (shouldApplyTo(context, handler)) {
       prepareResponse(ex, context);
       Object result = handleInternal(context, handler, ex);
-      if (result != null) {
+      if (result != null && result != NONE_RETURN_VALUE) {
         // Print debug message when warn logger is not enabled.
         if (logger.isDebugEnabled() && (warnLogger == null || !warnLogger.isWarnEnabled())) {
           logger.debug(buildLogMessage(ex, context) + " to " + result);
