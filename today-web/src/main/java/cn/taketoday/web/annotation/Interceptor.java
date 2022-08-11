@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -17,6 +17,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
+
 package cn.taketoday.web.annotation;
 
 import java.lang.annotation.ElementType;
@@ -24,22 +25,53 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import cn.taketoday.core.annotation.AliasFor;
 import cn.taketoday.web.HandlerInterceptor;
 
 /**
- * @author TODAY <br>
- * 2018-11-17 21:23
+ * Declarative interceptor configuration
+ *
+ * @author TODAY
+ * @since 2018-11-17 21:23
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.TYPE, ElementType.METHOD })
 public @interface Interceptor {
 
-  /** 配置拦截器 执行的先后顺序由拦截器的位置有关 */
+  /**
+   * configure Interceptors
+   * <p>
+   * The order of interceptors execution is related to the position of the interceptor
+   */
+  @AliasFor(attribute = "include")
   Class<? extends HandlerInterceptor>[] value() default {};
+
+  /**
+   * configure Interceptors
+   * <p>
+   * The order of interceptors execution is related to the position of the interceptor
+   */
+  @AliasFor(attribute = "value")
+  Class<? extends HandlerInterceptor>[] include() default {};
+
+  /**
+   * configure Interceptors, use bean's name
+   * <p>
+   * The order of interceptors execution is related to the position of the interceptor
+   *
+   * <p>
+   * this config add after {@link #include()}
+   */
+  String[] includeNames() default {};
 
   /**
    * Exclude {@link HandlerInterceptor}
    */
   Class<? extends HandlerInterceptor>[] exclude() default {};
+
+  /**
+   * Exclude HandlerInterceptor from bean's name
+   */
+  String[] excludeNames() default {};
 
 }

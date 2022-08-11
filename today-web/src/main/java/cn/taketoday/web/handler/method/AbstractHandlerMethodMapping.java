@@ -43,11 +43,12 @@ import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.support.GenericApplicationContext;
 import cn.taketoday.core.LinkedMultiValueMap;
 import cn.taketoday.core.MethodIntrospector;
-import cn.taketoday.core.annotation.AnnotatedElementUtils;
+import cn.taketoday.core.annotation.MergedAnnotation;
+import cn.taketoday.core.annotation.MergedAnnotations;
+import cn.taketoday.core.annotation.MergedAnnotations.SearchStrategy;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
-import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.MapCache;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.ReflectionUtils;
@@ -109,6 +110,8 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
   private HandlerMethodMappingNamingStrategy<T> namingStrategy;
 
   private GenericApplicationContext context;
+
+  private boolean useInheritedInterceptor = true;
 
   private final MappingRegistry mappingRegistry = new MappingRegistry();
 
@@ -545,57 +548,77 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
    */
   protected List<HandlerInterceptor> getInterceptors(Class<?> controllerClass, Method action) {
     ArrayList<HandlerInterceptor> ret = new ArrayList<>();
-    Set<Interceptor> controllerInterceptors = AnnotatedElementUtils.getAllMergedAnnotations(controllerClass, Interceptor.class);
+
     // get interceptor on class
-    if (CollectionUtils.isNotEmpty(controllerInterceptors)) {
-      for (Interceptor controllerInterceptor : controllerInterceptors) {
-        CollectionUtils.addAll(ret, getInterceptors(controllerInterceptor.value()));
-      }
-    }
+    MergedAnnotations.from(controllerClass, SearchStrategy.TYPE_HIERARCHY)
+            .stream(Interceptor.class)
+            .forEach(interceptor -> {
+              addInterceptors(ret, interceptor);
+            });
+
     // HandlerInterceptor on a method
-    Set<Interceptor> actionInterceptors = AnnotatedElementUtils.getAllMergedAnnotations(action, Interceptor.class);
-    if (CollectionUtils.isNotEmpty(actionInterceptors)) {
-      ApplicationContext beanFactory = obtainApplicationContext();
-      for (Interceptor actionInterceptor : actionInterceptors) {
-        CollectionUtils.addAll(ret, getInterceptors(actionInterceptor.value()));
-        // exclude interceptors
-        for (Class<? extends HandlerInterceptor> interceptor : actionInterceptor.exclude()) {
-          ret.remove(beanFactory.getBean(interceptor));
-        }
-      }
-    }
+    MergedAnnotations.from(action, SearchStrategy.TYPE_HIERARCHY)
+            .stream(Interceptor.class)
+            .forEach(interceptor -> {
+              addInterceptors(ret, interceptor);
+
+              // exclude interceptors
+              for (var exclude : interceptor.<HandlerInterceptor>getClassArray("exclude")) {
+                ret.remove(context.getBean(exclude));
+              }
+
+              for (String excludeName : interceptor.getStringArray("excludeNames")) {
+                ret.remove(context.getBean(excludeName, HandlerInterceptor.class));
+              }
+            });
+
     return ret;
   }
 
-  /***
-   * Get {@link HandlerInterceptor} objects
-   *
-   * @param interceptors
-   *            {@link HandlerInterceptor} class
-   * @return Array of {@link HandlerInterceptor} objects
-   */
-  @Nullable
-  protected HandlerInterceptor[] getInterceptors(Class<? extends HandlerInterceptor>[] interceptors) {
-    if (ObjectUtils.isEmpty(interceptors)) {
-      return null;
-    }
-    int i = 0;
-    HandlerInterceptor[] ret = new HandlerInterceptor[interceptors.length];
+  private void addInterceptors(ArrayList<HandlerInterceptor> ret, MergedAnnotation<Interceptor> annotation) {
+    var interceptors = annotation.<HandlerInterceptor>getClassValueArray();
 
-    for (Class<? extends HandlerInterceptor> interceptor : interceptors) {
-      if (!context.containsBeanDefinition(interceptor, true)) {
-        try {
-          context.registerBean(interceptor);
+    if (ObjectUtils.isNotEmpty(interceptors)) {
+      for (var interceptor : interceptors) {
+        if (useInheritedInterceptor) {
+          HandlerInterceptor instance = BeanFactoryUtils.find(context, interceptor);
+          if (instance == null) {
+            registerInterceptorBean(interceptor);
+            instance = context.getBean(interceptor);
+          }
+          ret.add(instance);
         }
-        catch (BeanDefinitionStoreException e) {
-          throw new FrameworkConfigurationException(
-                  "Interceptor: [" + interceptor.getName() + "] register error", e);
+        else {
+          if (!context.containsBeanDefinition(interceptor, true)) {
+            registerInterceptorBean(interceptor);
+          }
+          HandlerInterceptor instance = context.getBean(interceptor);
+          ret.add(instance);
         }
       }
-      HandlerInterceptor instance = context.getBean(interceptor);
-      ret[i++] = instance;
     }
-    return ret;
+
+    // include bean names
+
+    for (String includeName : annotation.getStringArray("includeNames")) {
+      Object bean = context.getBean(includeName);
+      if (bean instanceof HandlerInterceptor handlerInterceptor) {
+        ret.add(handlerInterceptor);
+      }
+      else {
+        throw new IllegalStateException("The bean '" + includeName + "' is not a HandlerInterceptor");
+      }
+    }
+  }
+
+  private void registerInterceptorBean(Class<?> interceptor) {
+    try {
+      context.registerBean(interceptor);
+    }
+    catch (BeanDefinitionStoreException e) {
+      throw new FrameworkConfigurationException(
+              "Interceptor: [" + interceptor.getName() + "] register error", e);
+    }
   }
 
   // Abstract template methods
