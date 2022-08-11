@@ -94,6 +94,7 @@ public class StandardServletEnvironment extends StandardEnvironment implements C
    * {@link StubPropertySource stubs} at this stage, and will be
    * {@linkplain #initPropertySources(ServletContext, ServletConfig) fully initialized}
    * once the actual {@link ServletContext} object becomes available.
+   * <p>Addition of {@value #JNDI_PROPERTY_SOURCE_NAME} can be disabled with
    *
    * @see StandardEnvironment#customizePropertySources
    * @see cn.taketoday.core.env.AbstractEnvironment#customizePropertySources
