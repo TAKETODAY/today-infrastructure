@@ -95,7 +95,7 @@ public class DispatcherHandler implements ApplicationContextAware {
 
   private ApplicationContext applicationContext;
 
-  private NotFoundHandler notFoundHandler;
+  private HttpRequestHandler notFoundHandler;
 
   private final ArrayHolder<RequestHandledListener> requestHandledActions = ArrayHolder.forGenerator(RequestHandledListener[]::new);
 
@@ -436,13 +436,14 @@ public class DispatcherHandler implements ApplicationContextAware {
    * @param request current HTTP request
    * @throws Exception if preparing the response failed
    */
-  protected Object handlerNotFound(RequestContext request) throws Exception {
+  @Nullable
+  protected Object handlerNotFound(RequestContext request) throws Throwable {
     if (throwExceptionIfNoHandlerFound) {
       throw new HandlerNotFoundException(
               request.getMethodValue(), request.getRequestPath(), request.requestHeaders());
     }
     else {
-      return notFoundHandler.handleNotFound(request);
+      return notFoundHandler.handleRequest(request);
     }
   }
 

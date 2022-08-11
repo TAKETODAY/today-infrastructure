@@ -22,6 +22,7 @@ package cn.taketoday.web.handler;
 import java.io.IOException;
 
 import cn.taketoday.http.HttpStatus;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.web.HttpRequestHandler;
@@ -32,7 +33,7 @@ import cn.taketoday.web.RequestContext;
  *
  * @author TODAY 2019-12-20 19:15
  */
-public class NotFoundHandler {
+public class NotFoundHandler implements HttpRequestHandler {
 
   /** Log category to use when no mapped handler is found for a request. */
   public static final String PAGE_NOT_FOUND_LOG_CATEGORY = "cn.taketoday.web.handler.PageNotFound";
@@ -40,13 +41,19 @@ public class NotFoundHandler {
   /** Additional logger to use when no mapped handler is found for a request. */
   protected static final Logger log = LoggerFactory.getLogger(PAGE_NOT_FOUND_LOG_CATEGORY);
 
+  @Nullable
+  @Override
+  public Object handleRequest(RequestContext request) throws Throwable {
+    return handleNotFound(request);
+  }
+
   /**
    * Process not found
    */
-  public Object handleNotFound(RequestContext context) throws IOException {
-    logNotFound(context);
+  protected Object handleNotFound(RequestContext request) throws IOException {
+    logNotFound(request);
 
-    context.sendError(HttpStatus.NOT_FOUND.value());
+    request.sendError(HttpStatus.NOT_FOUND.value());
     return HttpRequestHandler.NONE_RETURN_VALUE;
   }
 
