@@ -54,7 +54,7 @@ public class NotFoundHandler implements HttpRequestHandler {
     logNotFound(request);
 
     request.sendError(HttpStatus.NOT_FOUND.value());
-    return HttpRequestHandler.NONE_RETURN_VALUE;
+    return NONE_RETURN_VALUE;
   }
 
   protected void logNotFound(RequestContext context) {
