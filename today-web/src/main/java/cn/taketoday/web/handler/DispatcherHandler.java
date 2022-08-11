@@ -527,7 +527,7 @@ public class DispatcherHandler implements ApplicationContextAware {
     log.info(msg);
   }
 
-  public HandlerMapping getHandlerRegistry() {
+  public HandlerMapping getHandlerMapping() {
     return handlerMapping;
   }
 
@@ -535,7 +535,7 @@ public class DispatcherHandler implements ApplicationContextAware {
     return exceptionHandler;
   }
 
-  public void setHandlerRegistry(HandlerMapping handlerMapping) {
+  public void setHandlerMapping(HandlerMapping handlerMapping) {
     Assert.notNull(handlerMapping, "HandlerMapping is required");
     this.handlerMapping = handlerMapping;
   }
@@ -631,7 +631,13 @@ public class DispatcherHandler implements ApplicationContextAware {
     this.applicationContext = applicationContext;
   }
 
-  public void setNotFoundHandler(NotFoundHandler notFoundHandler) {
+  /**
+   * not found handler
+   *
+   * @param notFoundHandler HttpRequestHandler
+   * @since 4.0
+   */
+  public void setNotFoundHandler(HttpRequestHandler notFoundHandler) {
     this.notFoundHandler = notFoundHandler;
   }
 
