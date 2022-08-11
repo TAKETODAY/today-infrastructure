@@ -29,6 +29,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 
 import cn.taketoday.bytecode.Type;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ReflectionUtils;
 
 /**
@@ -37,6 +38,7 @@ import cn.taketoday.util.ReflectionUtils;
 @SuppressWarnings({ "rawtypes" })
 public abstract class CglibReflectUtils {
 
+  @Nullable
   public static String[] getNames(final Class[] classes) {
     if (classes == null) {
       return null;

@@ -17,6 +17,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.bytecode.proxy;
 
 import java.io.IOException;
@@ -45,6 +46,9 @@ import cn.taketoday.bytecode.Label;
 import cn.taketoday.bytecode.MethodVisitor;
 import cn.taketoday.bytecode.Opcodes;
 import cn.taketoday.bytecode.Type;
+import cn.taketoday.bytecode.commons.Local;
+import cn.taketoday.bytecode.commons.MethodSignature;
+import cn.taketoday.bytecode.commons.TableSwitchGenerator;
 import cn.taketoday.bytecode.core.AbstractClassGenerator;
 import cn.taketoday.bytecode.core.CglibReflectUtils;
 import cn.taketoday.bytecode.core.ClassEmitter;
@@ -52,7 +56,6 @@ import cn.taketoday.bytecode.core.CodeEmitter;
 import cn.taketoday.bytecode.core.CodeGenerationException;
 import cn.taketoday.bytecode.core.DuplicatesPredicate;
 import cn.taketoday.bytecode.core.EmitUtils;
-import cn.taketoday.bytecode.core.KeyFactory;
 import cn.taketoday.bytecode.core.MethodInfo;
 import cn.taketoday.bytecode.core.MethodInfoTransformer;
 import cn.taketoday.bytecode.core.MethodWrapper;
@@ -60,9 +63,6 @@ import cn.taketoday.bytecode.core.ObjectSwitchCallback;
 import cn.taketoday.bytecode.core.RejectModifierPredicate;
 import cn.taketoday.bytecode.core.VisibilityPredicate;
 import cn.taketoday.bytecode.core.WeakCacheKey;
-import cn.taketoday.bytecode.commons.Local;
-import cn.taketoday.bytecode.commons.MethodSignature;
-import cn.taketoday.bytecode.commons.TableSwitchGenerator;
 import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
@@ -111,8 +111,6 @@ import static cn.taketoday.lang.Constant.SUID_FIELD_NAME;
 public class Enhancer extends AbstractClassGenerator<Object> {
 
   private static final CallbackFilter ALL_ZERO = (m) -> 0;
-
-  private static final EnhancerKey KEY_FACTORY = KeyFactory.create(EnhancerKey.class, KeyFactory.HASH_ASM_TYPE, null);
 
   private static final String BOUND_FIELD = "today$Bound";
   private static final String CONSTRUCTED_FIELD = "today$Constructed";
@@ -180,15 +178,12 @@ public class Enhancer extends AbstractClassGenerator<Object> {
   private boolean interceptDuringConstruction = true;
 
   /** Internal interface, only public due to ClassLoader issues. */
-  public interface EnhancerKey {
+  private record EnhancerKey(
+          @Nullable String type, @Nullable String[] interfaces,
+          @Nullable WeakCacheKey<CallbackFilter> filter,
+          Type[] callbackTypes, boolean useFactory,
+          boolean interceptDuringConstruction, Long serialVersionUID) {
 
-    Object newInstance(String type,
-            String[] interfaces,
-            WeakCacheKey<CallbackFilter> filter,
-            Type[] callbackTypes,
-            boolean useFactory,
-            boolean interceptDuringConstruction,
-            Long serialVersionUID);
   }
 
   /**
@@ -521,7 +516,7 @@ public class Enhancer extends AbstractClassGenerator<Object> {
 
   private Object createHelper() {
     preValidate();
-    Object key = KEY_FACTORY.newInstance(
+    Object key = new EnhancerKey(
             (superclass != null) ? superclass.getName() : null,
             CglibReflectUtils.getNames(interfaces),
             filter == ALL_ZERO ? null : new WeakCacheKey<>(filter),
