@@ -136,9 +136,10 @@ public @interface Cacheable {
 
   /**
    * Expression Language (SpEL) expression used for making the method
-   * caching conditional.
+   * caching conditional. Cache the result if the condition evaluates to
+   * {@code true}.
    * <p>Default is {@code ""}, meaning the method result is always cached.
-   * <p>The EL expression evaluates against a dedicated context that provides the
+   * <p>The SpEL expression evaluates against a dedicated context that provides the
    * following meta-data:
    * <ul>
    * <li>{@code #root.method}, {@code #root.target}, and {@code #root.caches} for
