@@ -41,7 +41,6 @@ import cn.taketoday.web.HttpMediaTypeNotAcceptableException;
 import cn.taketoday.web.HttpMediaTypeNotSupportedException;
 import cn.taketoday.web.HttpRequestMethodNotSupportedException;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.ServletDetector;
 import cn.taketoday.web.annotation.RequestBody;
 import cn.taketoday.web.annotation.RequestPart;
 import cn.taketoday.web.bind.MethodArgumentNotValidException;
@@ -195,6 +194,10 @@ public class SimpleHandlerExceptionHandler
           view = handleMissingServletRequestParameter(
                   (MissingRequestParameterException) ex, request, handler);
         }
+        else if (ex instanceof MissingRequestPartException) {
+          view = handleMissingRequestPartException(
+                  (MissingRequestPartException) ex, request, handler);
+        }
         else if (ex instanceof RequestBindingException) {
           view = handleRequestBindingException(
                   (RequestBindingException) ex, request, handler);
@@ -210,10 +213,6 @@ public class SimpleHandlerExceptionHandler
         else if (ex instanceof AsyncRequestTimeoutException) {
           view = handleAsyncRequestTimeoutException(
                   (AsyncRequestTimeoutException) ex, request, handler);
-        }
-        else if (ServletDetector.isPresent && ex instanceof MissingRequestPartException) {
-          view = handleMissingRequestPartException(
-                  (MissingRequestPartException) ex, request, handler);
         }
 
         if (view == null) {

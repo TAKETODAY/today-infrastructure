@@ -49,7 +49,7 @@ import jakarta.servlet.http.Part;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/4/28 15:59
  */
-public class RequestPartServletServerHttpRequest extends HttpRequestDecorator implements HttpInputMessage {
+public class RequestPartServerHttpRequest extends HttpRequestDecorator implements HttpInputMessage {
 
   private final RequestContext request;
   private final String requestPartName;
@@ -65,7 +65,7 @@ public class RequestPartServletServerHttpRequest extends HttpRequestDecorator im
    * @throws MissingRequestPartException if the request part cannot be found
    * @throws MultipartException if MultipartHttpServletRequest cannot be initialized
    */
-  public RequestPartServletServerHttpRequest(RequestContext request, String requestPartName)
+  public RequestPartServerHttpRequest(RequestContext request, String requestPartName)
           throws MissingRequestPartException {
     super(request);
     this.request = request;

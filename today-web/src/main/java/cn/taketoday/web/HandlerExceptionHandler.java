@@ -43,7 +43,7 @@ public interface HandlerExceptionHandler {
    *
    * @see cn.taketoday.web.handler.DispatcherHandler#setDetectAllHandlerExceptionHandlers(boolean)
    */
-  String HANDLER_EXCEPTION_HANDLER_BEAN_NAME = "handlerExceptionHandler";
+  String BEAN_NAME = "handlerExceptionHandler";
 
   /**
    * This value indicates that the handler did not return a value, or the result
@@ -90,7 +90,7 @@ public interface HandlerExceptionHandler {
     }
     else {
       var exceptionHandler = BeanFactoryUtils.find(
-              context, HANDLER_EXCEPTION_HANDLER_BEAN_NAME, HandlerExceptionHandler.class);
+              context, BEAN_NAME, HandlerExceptionHandler.class);
       if (exceptionHandler != null) {
         return exceptionHandler;
       }

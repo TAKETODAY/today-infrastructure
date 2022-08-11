@@ -125,7 +125,7 @@ public class RequestPartMethodArgumentResolver extends AbstractMessageConverterM
     }
     else {
       try {
-        var inputMessage = new RequestPartServletServerHttpRequest(context, name);
+        var inputMessage = new RequestPartServerHttpRequest(context, name);
         arg = readWithMessageConverters(inputMessage, parameter, parameter.getNestedGenericParameterType());
         validateIfApplicable(context, parameter, arg);
       }
