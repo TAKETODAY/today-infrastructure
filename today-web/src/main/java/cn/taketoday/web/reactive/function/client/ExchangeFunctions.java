@@ -101,13 +101,12 @@ public abstract class ExchangeFunctions {
       HttpMethod httpMethod = clientRequest.method();
       URI url = clientRequest.url();
 
-      Mono<ClientHttpResponse> responseMono = connector
-              .connect(httpMethod, url, httpRequest -> clientRequest.writeTo(httpRequest, strategies))
-              .doOnRequest(n -> logRequest(clientRequest));
+      var responseMono = connector.connect(
+              httpMethod, url, httpRequest -> clientRequest.writeTo(httpRequest, strategies));
 
       if (log.isDebugEnabled()) {
-        responseMono = responseMono.doOnCancel(() ->
-                log.debug(clientRequest.logPrefix() + "Cancel signal (to close connection)"));
+        responseMono = responseMono.doOnRequest(n -> logRequest(clientRequest))
+                .doOnCancel(() -> log.debug(clientRequest.logPrefix() + "Cancel signal (to close connection)"));
       }
 
       return responseMono

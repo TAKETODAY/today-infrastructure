@@ -95,6 +95,7 @@ import cn.taketoday.web.servlet.ServletUtils;
  * @author Arjen Poutsma
  * @author Brian Clozel
  * @author Rossen Stoyanchev
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public class ResourceHttpRequestHandler extends WebContentGenerator
