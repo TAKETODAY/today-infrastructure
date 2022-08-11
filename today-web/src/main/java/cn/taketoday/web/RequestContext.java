@@ -1579,7 +1579,8 @@ public abstract class RequestContext extends AttributeAccessorSupport
 
   @Override
   public String toString() {
-    return getMethodValue() + " " + getRequestURL();
+    String url = URLDecoder.decode(getRequestURL(), StandardCharsets.UTF_8);
+    return getMethodValue() + " " + url;
   }
 
 }
