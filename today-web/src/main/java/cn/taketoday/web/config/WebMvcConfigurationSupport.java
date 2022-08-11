@@ -29,6 +29,7 @@ import java.util.Set;
 
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanFactoryUtils;
+import cn.taketoday.beans.factory.BeanInitializationException;
 import cn.taketoday.beans.factory.annotation.DisableAllDependencyInjection;
 import cn.taketoday.beans.factory.annotation.Qualifier;
 import cn.taketoday.beans.factory.config.BeanDefinition;
@@ -921,7 +922,12 @@ public class WebMvcConfigurationSupport extends ApplicationContextSupport {
     Validator validator = getValidator();
     if (validator == null) {
       if (ClassUtils.isPresent("jakarta.validation.Validator", getClass().getClassLoader())) {
-        validator = new OptionalValidatorFactoryBean();
+        try {
+          validator = new OptionalValidatorFactoryBean();
+        }
+        catch (Throwable ex) {
+          throw new BeanInitializationException("Failed to create default validator", ex);
+        }
       }
       else {
         validator = new NoOpValidator();
