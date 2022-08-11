@@ -240,13 +240,13 @@ public final class ResponseCookie extends HttpCookie {
       }
 
       @Override
-      public ResponseCookieBuilder domain(String domain) {
+      public ResponseCookieBuilder domain(@Nullable String domain) {
         this.domain = initDomain(domain);
         return this;
       }
 
       @Nullable
-      private String initDomain(String domain) {
+      private String initDomain(@Nullable String domain) {
         if (lenient && StringUtils.isNotEmpty(domain)) {
           String str = domain.trim();
           if (str.startsWith("\"") && str.endsWith("\"")
@@ -258,7 +258,7 @@ public final class ResponseCookie extends HttpCookie {
       }
 
       @Override
-      public ResponseCookieBuilder path(String path) {
+      public ResponseCookieBuilder path(@Nullable String path) {
         this.path = path;
         return this;
       }
@@ -313,12 +313,12 @@ public final class ResponseCookie extends HttpCookie {
     /**
      * Set the cookie "Path" attribute.
      */
-    ResponseCookieBuilder path(String path);
+    ResponseCookieBuilder path(@Nullable String path);
 
     /**
      * Set the cookie "Domain" attribute.
      */
-    ResponseCookieBuilder domain(String domain);
+    ResponseCookieBuilder domain(@Nullable String domain);
 
     /**
      * Add the "Secure" attribute to the cookie.
