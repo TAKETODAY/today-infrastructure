@@ -177,11 +177,10 @@ public class Enhancer extends AbstractClassGenerator<Object> {
   private Long serialVersionUID;
   private boolean interceptDuringConstruction = true;
 
-  /** Internal interface, only public due to ClassLoader issues. */
   private record EnhancerKey(
-          @Nullable String type, @Nullable String[] interfaces,
+          @Nullable String type, @Nullable List<String> interfaces,
           @Nullable WeakCacheKey<CallbackFilter> filter,
-          Type[] callbackTypes, boolean useFactory,
+          List<Type> callbackTypes, boolean useFactory,
           boolean interceptDuringConstruction, Long serialVersionUID) {
 
   }
@@ -516,11 +515,12 @@ public class Enhancer extends AbstractClassGenerator<Object> {
 
   private Object createHelper() {
     preValidate();
+    String[] interfaces = CglibReflectUtils.getNames(this.interfaces);
     Object key = new EnhancerKey(
             (superclass != null) ? superclass.getName() : null,
-            CglibReflectUtils.getNames(interfaces),
+            (interfaces != null ? Arrays.asList(interfaces) : null),
             filter == ALL_ZERO ? null : new WeakCacheKey<>(filter),
-            callbackTypes,
+            Arrays.asList(callbackTypes),
             useFactory,
             interceptDuringConstruction,
             serialVersionUID
