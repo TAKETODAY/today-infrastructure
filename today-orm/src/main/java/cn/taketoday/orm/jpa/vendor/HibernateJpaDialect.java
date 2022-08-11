@@ -77,8 +77,8 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceException;
 
 /**
- * {@link cn.taketoday.orm.jpa.JpaDialect} implementation for
- * Hibernate EntityManager.
+ * {@link cn.taketoday.orm.jpa.JpaDialect} implementation for Hibernate.
+ * Compatible with Hibernate ORM 5.5/5.6 as well as 6.0/6.1.
  *
  * @author Juergen Hoeller
  * @author Costin Leau

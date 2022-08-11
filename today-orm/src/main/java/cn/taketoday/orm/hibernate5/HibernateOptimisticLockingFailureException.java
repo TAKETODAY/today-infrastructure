@@ -39,7 +39,7 @@ import cn.taketoday.orm.ObjectOptimisticLockingFailureException;
 public class HibernateOptimisticLockingFailureException extends ObjectOptimisticLockingFailureException {
 
   public HibernateOptimisticLockingFailureException(StaleObjectStateException ex) {
-    super(ex.getEntityName(), ex.getIdentifier(), ex);
+    super(ex.getEntityName(), HibernateObjectRetrievalFailureException.getIdentifier(ex), ex.getMessage(), ex);
   }
 
   public HibernateOptimisticLockingFailureException(StaleStateException ex) {
