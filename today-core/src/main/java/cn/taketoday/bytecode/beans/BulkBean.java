@@ -20,11 +20,12 @@
 package cn.taketoday.bytecode.beans;
 
 import java.security.ProtectionDomain;
+import java.util.Arrays;
+import java.util.List;
 
 import cn.taketoday.bytecode.ClassVisitor;
 import cn.taketoday.bytecode.core.AbstractClassGenerator;
 import cn.taketoday.bytecode.core.CglibReflectUtils;
-import cn.taketoday.bytecode.core.KeyFactory;
 import cn.taketoday.util.ReflectionUtils;
 
 /**
@@ -32,10 +33,8 @@ import cn.taketoday.util.ReflectionUtils;
  */
 @SuppressWarnings("all")
 abstract public class BulkBean {
-  private static final BulkBeanKey KEY_FACTORY = (BulkBeanKey) KeyFactory.create(BulkBeanKey.class);
 
-  interface BulkBeanKey {
-    public Object newInstance(String target, String[] getters, String[] setters, String[] types);
+  record BulkBeanKey(String target, List<String> getters, List<String> setters, List<String> types) {
   }
 
   protected Class target;
@@ -115,8 +114,12 @@ abstract public class BulkBean {
 
       setNamePrefix(target.getName());
       String targetClassName = target.getName();
-      String[] typeClassNames = CglibReflectUtils.getNames(types);
-      Object key = KEY_FACTORY.newInstance(targetClassName, getters, setters, typeClassNames);
+      String[] typeNames = CglibReflectUtils.getNames(types);
+      Object key = new BulkBeanKey(targetClassName,
+              getters == null ? null : Arrays.asList(getters),
+              setters == null ? null : Arrays.asList(setters),
+              typeNames == null ? null : Arrays.asList(typeNames)
+      );
       return (BulkBean) super.create(key);
     }
 

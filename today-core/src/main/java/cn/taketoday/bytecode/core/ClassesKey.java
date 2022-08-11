@@ -17,22 +17,25 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.bytecode.core;
 
-public class ClassesKey {
-  private static final Key FACTORY = KeyFactory.create(Key.class);
+import java.util.Arrays;
+import java.util.List;
 
-  interface Key {
-    Object newInstance(Object[] array);
+public class ClassesKey {
+
+  record Key(List<Object> array) {
+
   }
 
   private ClassesKey() { }
 
   public static Object create(Object[] array) {
-    return FACTORY.newInstance(classNames(array));
+    return new Key(classNames(array));
   }
 
-  private static String[] classNames(Object[] objects) {
+  private static List<Object> classNames(Object[] objects) {
     if (objects == null) {
       return null;
     }
@@ -44,6 +47,6 @@ public class ClassesKey {
         classNames[i] = aClass == null ? null : aClass.getName();
       }
     }
-    return classNames;
+    return Arrays.asList(classNames);
   }
 }

@@ -31,7 +31,6 @@ import java.util.Set;
 
 import cn.taketoday.bytecode.ClassVisitor;
 import cn.taketoday.bytecode.core.AbstractClassGenerator;
-import cn.taketoday.bytecode.core.KeyFactory;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.util.ReflectionUtils;
 
@@ -78,10 +77,9 @@ public abstract class BeanMap extends AbstractMap<String, Object> implements Map
   }
 
   final static class Generator extends AbstractClassGenerator {
-    private static final BeanMapKey KEY_FACTORY = KeyFactory.create(BeanMapKey.class, KeyFactory.CLASS_BY_NAME);
 
-    interface BeanMapKey {
-      Object newInstance(Class type, int require);
+    record BeanMapKey(Class type, int require) {
+
     }
 
     private Object bean;
@@ -147,7 +145,7 @@ public abstract class BeanMap extends AbstractMap<String, Object> implements Map
     public BeanMap create() {
       Assert.notNull(beanClass, "Class of bean unknown");
       setNamePrefix(beanClass.getName());
-      return (BeanMap) super.create(KEY_FACTORY.newInstance(beanClass, require));
+      return (BeanMap) super.create(new BeanMapKey(beanClass, require));
     }
 
     public void generateClass(ClassVisitor v) throws Exception {

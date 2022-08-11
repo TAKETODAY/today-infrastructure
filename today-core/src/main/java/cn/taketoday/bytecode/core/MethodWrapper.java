@@ -20,8 +20,10 @@
 package cn.taketoday.bytecode.core;
 
 import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 
 /**
  * @author TODAY <br>
@@ -29,27 +31,21 @@ import java.util.HashSet;
  */
 public class MethodWrapper {
 
-  private static final MethodWrapperKey KEY_FACTORY = KeyFactory.create(MethodWrapperKey.class);
-
-  /** Internal interface, only public due to ClassLoader issues. */
-  public interface MethodWrapperKey {
-
-    Object newInstance(String name, String[] parameterTypes, String returnType);
+  private record MethodWrapperKey(String name, List<String> parameterTypes, String returnType) {
   }
 
   private MethodWrapper() { }
 
   public static Object create(Method method) {
-
-    return KEY_FACTORY.newInstance(method.getName(),
-                                   CglibReflectUtils.getNames(method.getParameterTypes()),
-                                   method.getReturnType().getName());
+    return new MethodWrapperKey(method.getName(),
+            Arrays.asList(CglibReflectUtils.getNames(method.getParameterTypes())),
+            method.getReturnType().getName());
   }
 
   public static HashSet<Object> createSet(Collection<Method> methods) {
-    final HashSet<Object> ret = new HashSet<>();
+    HashSet<Object> ret = new HashSet<>();
 
-    for (final Method method : methods) {
+    for (Method method : methods) {
       ret.add(create(method));
     }
     return ret;

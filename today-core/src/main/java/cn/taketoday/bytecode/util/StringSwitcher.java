@@ -26,13 +26,12 @@ import cn.taketoday.bytecode.ClassVisitor;
 import cn.taketoday.bytecode.Label;
 import cn.taketoday.bytecode.Opcodes;
 import cn.taketoday.bytecode.Type;
+import cn.taketoday.bytecode.commons.MethodSignature;
 import cn.taketoday.bytecode.core.AbstractClassGenerator;
 import cn.taketoday.bytecode.core.ClassEmitter;
 import cn.taketoday.bytecode.core.CodeEmitter;
 import cn.taketoday.bytecode.core.EmitUtils;
-import cn.taketoday.bytecode.core.KeyFactory;
 import cn.taketoday.bytecode.core.ObjectSwitchCallback;
-import cn.taketoday.bytecode.commons.MethodSignature;
 import cn.taketoday.util.ReflectionUtils;
 
 import static cn.taketoday.lang.Constant.SOURCE_FILE;
@@ -45,10 +44,9 @@ public abstract class StringSwitcher {
 
   private static final Type STRING_SWITCHER = Type.fromClass(StringSwitcher.class);
   private static final MethodSignature INT_VALUE = MethodSignature.from("int intValue(String)");
-  private static final StringSwitcherKey KEY_FACTORY = KeyFactory.create(StringSwitcherKey.class);
 
-  interface StringSwitcherKey {
-    Object newInstance(String[] strings, int[] ints, boolean fixedInput);
+  record StringSwitcherKey(List<String> strings, int[] ints, boolean fixedInput) {
+
   }
 
   /**
@@ -138,7 +136,7 @@ public abstract class StringSwitcher {
      */
     public StringSwitcher create() {
       setNamePrefix(StringSwitcher.class.getName());
-      Object key = KEY_FACTORY.newInstance(strings, ints, fixedInput);
+      Object key = new StringSwitcherKey(Arrays.asList(strings), ints, fixedInput);
       return (StringSwitcher) super.create(key);
     }
 

@@ -27,13 +27,12 @@ import java.util.Objects;
 import cn.taketoday.bytecode.ClassVisitor;
 import cn.taketoday.bytecode.Opcodes;
 import cn.taketoday.bytecode.Type;
+import cn.taketoday.bytecode.commons.MethodSignature;
 import cn.taketoday.bytecode.core.AbstractClassGenerator;
 import cn.taketoday.bytecode.core.ClassEmitter;
 import cn.taketoday.bytecode.core.CodeEmitter;
 import cn.taketoday.bytecode.core.EmitUtils;
-import cn.taketoday.bytecode.core.KeyFactory;
 import cn.taketoday.bytecode.core.MethodInfo;
-import cn.taketoday.bytecode.commons.MethodSignature;
 import cn.taketoday.lang.Constant;
 import cn.taketoday.util.ReflectionUtils;
 
@@ -124,13 +123,11 @@ import cn.taketoday.util.ReflectionUtils;
 @SuppressWarnings({ "rawtypes", "unchecked" })
 public abstract class MethodDelegate {
 
-  private static final MethodDelegateKey KEY_FACTORY = KeyFactory.create(MethodDelegateKey.class, KeyFactory.CLASS_BY_NAME);
-
   protected Object target;
   protected String eqMethod;
 
-  interface MethodDelegateKey {
-    Object newInstance(Class delegateClass, String methodName, Class iface);
+  record MethodDelegateKey(Class delegateClass, String methodName, Class iface) {
+
   }
 
   public static <T> T createStatic(Class targetClass, String methodName, Class<T> iface) {
@@ -213,7 +210,7 @@ public abstract class MethodDelegate {
 
     public MethodDelegate create() {
       setNamePrefix(targetClass.getName());
-      Object key = KEY_FACTORY.newInstance(targetClass, methodName, iface);
+      var key = new MethodDelegateKey(targetClass, methodName, iface);
       return (MethodDelegate) super.create(key);
     }
 
@@ -248,7 +245,7 @@ public abstract class MethodDelegate {
       CodeEmitter e;
 
       ce.beginClass(Opcodes.JAVA_VERSION, Opcodes.ACC_PUBLIC, getClassName(), METHOD_DELEGATE,
-                    Type.array(Type.fromClass(iface)), Constant.SOURCE_FILE);
+              Type.array(Type.fromClass(iface)), Constant.SOURCE_FILE);
 
       ce.declare_field(Opcodes.PRIVATE_FINAL_STATIC, "eqMethod", Type.TYPE_STRING, null);
       EmitUtils.nullConstructor(ce);

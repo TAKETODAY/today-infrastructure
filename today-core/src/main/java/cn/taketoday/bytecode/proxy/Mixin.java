@@ -20,8 +20,10 @@
 package cn.taketoday.bytecode.proxy;
 
 import java.security.ProtectionDomain;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -29,7 +31,6 @@ import cn.taketoday.bytecode.ClassVisitor;
 import cn.taketoday.bytecode.core.AbstractClassGenerator;
 import cn.taketoday.bytecode.core.CglibReflectUtils;
 import cn.taketoday.bytecode.core.ClassesKey;
-import cn.taketoday.bytecode.core.KeyFactory;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.ReflectionUtils;
 
@@ -44,15 +45,13 @@ import cn.taketoday.util.ReflectionUtils;
 @SuppressWarnings("rawtypes")
 public abstract class Mixin {
 
-  private static final MixinKey KEY_FACTORY = KeyFactory.create(MixinKey.class, KeyFactory.CLASS_BY_NAME);
   private static final Map<Object, Route> ROUTE_CACHE = Collections.synchronizedMap(new HashMap<>());
 
   public static final int STYLE_INTERFACES = 0;
   public static final int STYLE_BEANS = 1;
   public static final int STYLE_EVERYTHING = 2;
 
-  interface MixinKey {
-    Object newInstance(int style, String[] classes, int[] route);
+  record MixinKey(int style, List<String> classes, int[] route) {
   }
 
   public abstract Mixin newInstance(Object[] delegates);
@@ -173,7 +172,7 @@ public abstract class Mixin {
       }
       setNamePrefix(classes[CglibReflectUtils.findPackageProtected(classes)].getName());
 
-      return (Mixin) super.create(KEY_FACTORY.newInstance(style, CglibReflectUtils.getNames(classes), route));
+      return (Mixin) super.create(new MixinKey(style, Arrays.asList(CglibReflectUtils.getNames(classes)), route));
     }
 
     public void generateClass(ClassVisitor v) {

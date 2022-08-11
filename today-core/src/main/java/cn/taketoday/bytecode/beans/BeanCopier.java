@@ -27,16 +27,15 @@ import java.util.HashMap;
 import cn.taketoday.bytecode.ClassVisitor;
 import cn.taketoday.bytecode.Opcodes;
 import cn.taketoday.bytecode.Type;
+import cn.taketoday.bytecode.commons.Local;
+import cn.taketoday.bytecode.commons.MethodSignature;
 import cn.taketoday.bytecode.core.AbstractClassGenerator;
 import cn.taketoday.bytecode.core.CglibReflectUtils;
 import cn.taketoday.bytecode.core.ClassEmitter;
 import cn.taketoday.bytecode.core.CodeEmitter;
 import cn.taketoday.bytecode.core.Converter;
 import cn.taketoday.bytecode.core.EmitUtils;
-import cn.taketoday.bytecode.core.KeyFactory;
 import cn.taketoday.bytecode.core.MethodInfo;
-import cn.taketoday.bytecode.commons.Local;
-import cn.taketoday.bytecode.commons.MethodSignature;
 import cn.taketoday.util.ReflectionUtils;
 
 import static cn.taketoday.lang.Constant.SOURCE_FILE;
@@ -50,15 +49,12 @@ public abstract class BeanCopier {
   private static final Type CONVERTER = Type.fromClass(Converter.class);
   private static final Type BEAN_COPIER = Type.fromClass(BeanCopier.class);
 
-  private static final BeanCopierKey KEY_FACTORY = KeyFactory.create(BeanCopierKey.class);
-
   private static final MethodSignature COPY = new MethodSignature(
           Type.VOID_TYPE, "copy", Type.TYPE_OBJECT, Type.TYPE_OBJECT, CONVERTER);
 
   private static final MethodSignature CONVERT = MethodSignature.from("Object convert(Object, Class, Object)");
 
-  interface BeanCopierKey {
-    Object newInstance(String source, String target, boolean useConverter);
+  record BeanCopierKey(String source, String target, boolean useConverter) {
   }
 
   public static BeanCopier create(Class source, Class target, boolean useConverter) {
@@ -101,7 +97,7 @@ public abstract class BeanCopier {
     }
 
     public BeanCopier create() {
-      return (BeanCopier) super.create(KEY_FACTORY.newInstance(source.getName(), target.getName(), useConverter));
+      return (BeanCopier) super.create(new BeanCopierKey(source.getName(), target.getName(), useConverter));
     }
 
     @Override

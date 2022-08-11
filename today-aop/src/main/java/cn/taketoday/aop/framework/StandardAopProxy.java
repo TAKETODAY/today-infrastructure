@@ -42,7 +42,6 @@ import cn.taketoday.bytecode.core.ClassEmitter;
 import cn.taketoday.bytecode.core.CodeEmitter;
 import cn.taketoday.bytecode.core.CodeGenerationException;
 import cn.taketoday.bytecode.core.EmitUtils;
-import cn.taketoday.bytecode.core.KeyFactory;
 import cn.taketoday.bytecode.core.MethodInfo;
 import cn.taketoday.lang.Constant;
 import cn.taketoday.logging.Logger;
@@ -81,10 +80,7 @@ public class StandardAopProxy extends AbstractSubclassesAopProxy implements AopP
   // Aop standard proxy object generator
   // --------------------------------------------------------------
 
-  private static final AopKey KEY_FACTORY = KeyFactory.create(AopKey.class, KeyFactory.CLASS_BY_NAME);
-
-  interface AopKey {
-    Object newInstance(Class<?> superClass);
+  record AopKey(Class<?> superClass) {
   }
 
   static class StandardProxyGenerator extends AbstractClassGenerator<Object> {
@@ -140,7 +136,7 @@ public class StandardAopProxy extends AbstractSubclassesAopProxy implements AopP
     public Object create() {
       setUseCache(false);
       setNamePrefix(targetClass.getName());
-      Object key = KEY_FACTORY.newInstance(targetClass);
+      Object key = new AopKey(targetClass);
       return super.create(key);
     }
 

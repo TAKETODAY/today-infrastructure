@@ -32,7 +32,6 @@ import cn.taketoday.bytecode.core.AbstractClassGenerator;
 import cn.taketoday.bytecode.core.CglibReflectUtils;
 import cn.taketoday.bytecode.core.ClassEmitter;
 import cn.taketoday.bytecode.core.EmitUtils;
-import cn.taketoday.bytecode.core.KeyFactory;
 import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.util.StringUtils;
 
@@ -41,10 +40,8 @@ import cn.taketoday.util.StringUtils;
  */
 public class BeanGenerator extends AbstractClassGenerator<Object> {
 
-  private static final BeanGeneratorKey KEY_FACTORY = KeyFactory.create(BeanGeneratorKey.class);
+  record BeanGeneratorKey(String superclass, Map<String, Type> props) {
 
-  interface BeanGeneratorKey {
-    Object newInstance(String superclass, Map<String, Type> props);
   }
 
   private boolean classOnly;
@@ -104,7 +101,7 @@ public class BeanGenerator extends AbstractClassGenerator<Object> {
       setNamePrefix(superclass.getName());
     }
     String superName = (superclass != null) ? superclass.getName() : "java.lang.Object";
-    Object key = KEY_FACTORY.newInstance(superName, props);
+    Object key = new BeanGeneratorKey(superName, props);
     return super.create(key);
   }
 
@@ -123,7 +120,7 @@ public class BeanGenerator extends AbstractClassGenerator<Object> {
     ClassEmitter ce = new ClassEmitter(v);
 
     ce.beginClass(Opcodes.JAVA_VERSION, Opcodes.ACC_PUBLIC, getClassName(),
-                  superclass != null ? Type.fromClass(superclass) : Type.TYPE_OBJECT, null);
+            superclass != null ? Type.fromClass(superclass) : Type.TYPE_OBJECT, null);
 
     EmitUtils.nullConstructor(ce);
 

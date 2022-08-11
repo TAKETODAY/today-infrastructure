@@ -26,13 +26,12 @@ import java.security.ProtectionDomain;
 import cn.taketoday.bytecode.ClassVisitor;
 import cn.taketoday.bytecode.Opcodes;
 import cn.taketoday.bytecode.Type;
+import cn.taketoday.bytecode.commons.MethodSignature;
 import cn.taketoday.bytecode.core.AbstractClassGenerator;
 import cn.taketoday.bytecode.core.CglibReflectUtils;
 import cn.taketoday.bytecode.core.ClassEmitter;
 import cn.taketoday.bytecode.core.CodeEmitter;
 import cn.taketoday.bytecode.core.EmitUtils;
-import cn.taketoday.bytecode.core.KeyFactory;
-import cn.taketoday.bytecode.commons.MethodSignature;
 import cn.taketoday.util.ReflectionUtils;
 
 import static cn.taketoday.lang.Constant.SOURCE_FILE;
@@ -45,10 +44,8 @@ import static cn.taketoday.lang.Constant.SOURCE_FILE;
 @SuppressWarnings({ "rawtypes", "unchecked" })
 abstract public class ConstructorDelegate {
 
-  private static final ConstructorKey KEY_FACTORY = KeyFactory.create(ConstructorKey.class, KeyFactory.CLASS_BY_NAME);
+  record ConstructorKey(String declaring, String iface) {
 
-  interface ConstructorKey {
-    Object newInstance(String declaring, String iface);
   }
 
   protected ConstructorDelegate() { }
@@ -81,7 +78,7 @@ abstract public class ConstructorDelegate {
 
     public ConstructorDelegate create() {
       setNamePrefix(targetClass.getName());
-      Object key = KEY_FACTORY.newInstance(iface.getName(), targetClass.getName());
+      Object key = new ConstructorKey(iface.getName(), targetClass.getName());
       return (ConstructorDelegate) super.create(key);
     }
 
