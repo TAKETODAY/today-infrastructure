@@ -17,6 +17,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.web.bind.resolver;
 
 import cn.taketoday.lang.Nullable;
@@ -57,18 +58,4 @@ public interface ParameterResolvingStrategy {
   @Nullable
   Object resolveArgument(RequestContext context, ResolvableMethodParameter resolvable) throws Throwable;
 
-  @FunctionalInterface
-  interface SupportsFunction {
-
-    boolean supports(ResolvableMethodParameter parameter);
-  }
-
-  record TargetSupportsFunction(Class<?> targetType) implements SupportsFunction {
-
-    @Override
-    public boolean supports(ResolvableMethodParameter parameter) {
-      return parameter.is(targetType);
-    }
-
-  }
 }

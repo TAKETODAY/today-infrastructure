@@ -19,12 +19,11 @@
  */
 package cn.taketoday.web.bind.resolver;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
+import cn.taketoday.core.conversion.ConversionService;
+import cn.taketoday.core.conversion.ConversionServiceAware;
+import cn.taketoday.format.support.ApplicationConversionService;
+import cn.taketoday.http.HttpCookie;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.annotation.ServletContextAttribute;
 import cn.taketoday.web.annotation.SessionAttribute;
@@ -34,7 +33,6 @@ import jakarta.servlet.ServletContext;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 
 /**
@@ -151,37 +149,40 @@ public class ServletParameterResolvers {
     @Override
     public Object resolveArgument(RequestContext context, ResolvableMethodParameter resolvable) throws Throwable {
       String name = resolvable.getName();
-      Cookie[] cookies = context.unwrapRequest(HttpServletRequest.class).getCookies();
-      if (ObjectUtils.isNotEmpty(cookies)) {
-        for (Cookie cookie : cookies) {
-          if (name.equals(cookie.getName())) {
-            return cookie;
-          }
+      HttpCookie cookie = context.getCookie(name);
+      if (cookie == null) {
+        // no cookie
+        if (resolvable.isRequired()) {
+          throw new MissingRequestCookieException(name, resolvable.getParameter());
         }
+        return null;
       }
-      // no cookie
-      if (resolvable.isRequired()) {
-        throw new MissingRequestCookieException(name, resolvable.getParameter());
-      }
-      return null;
+      return new Cookie(cookie.getName(), cookie.getValue());
     }
   }
 
-  static class ServletCookieCollectionParameterResolver
-          extends CollectionParameterResolver implements ParameterResolvingStrategy {
+  static class ServletCookieCollectionParameterResolver implements ParameterResolvingStrategy, ConversionServiceAware {
+
+    private ConversionService conversionService = ApplicationConversionService.getSharedInstance();
 
     @Override
-    protected boolean supportsInternal(ResolvableMethodParameter resolvable) {
-      return resolvable.getResolvableType().asCollection().getGeneric(0).resolve() == Cookie.class;
+    public boolean supportsParameter(ResolvableMethodParameter resolvable) {
+      return resolvable.isCollection()
+              && resolvable.getResolvableType().getGeneric(0).resolve() == Cookie.class;
     }
 
+    @Nullable
     @Override
-    protected List<?> resolveCollection(RequestContext context, ResolvableMethodParameter parameter) {
+    public Object resolveArgument(RequestContext context, ResolvableMethodParameter resolvable) throws Throwable {
       Cookie[] cookies = ServletUtils.getServletRequest(context).getCookies();
-      ArrayList<Cookie> ret = new ArrayList<>(cookies.length);
-      Collections.addAll(ret, cookies);
-      return ret;
+      return conversionService.convert(cookies, resolvable.getTypeDescriptor());
     }
+
+    @Override
+    public void setConversionService(ConversionService conversionService) {
+      this.conversionService = conversionService;
+    }
+
   }
 
   static class ServletCookieArrayParameterResolver implements ParameterResolvingStrategy {

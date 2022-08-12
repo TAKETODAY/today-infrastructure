@@ -19,13 +19,13 @@
  */
 package cn.taketoday.web.bind.resolver;
 
-import java.util.List;
-
 import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
 import cn.taketoday.core.MethodParameter;
+import cn.taketoday.core.conversion.ConversionService;
+import cn.taketoday.core.conversion.ConversionServiceAware;
+import cn.taketoday.format.support.ApplicationConversionService;
 import cn.taketoday.http.HttpCookie;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.annotation.CookieValue;
 import cn.taketoday.web.handler.method.ResolvableMethodParameter;
@@ -38,7 +38,7 @@ public class CookieParameterResolver
         extends AbstractNamedValueResolvingStrategy implements ParameterResolvingStrategy {
 
   @Override
-  public boolean supportsParameter(final ResolvableMethodParameter resolvable) {
+  public boolean supportsParameter(ResolvableMethodParameter resolvable) {
     return resolvable.is(HttpCookie.class);
   }
 
@@ -103,25 +103,31 @@ public class CookieParameterResolver
     }
 
     @Override
-    public Object resolveArgument(final RequestContext requestContext, final ResolvableMethodParameter resolvable) throws Throwable {
+    public Object resolveArgument(RequestContext requestContext, ResolvableMethodParameter resolvable) throws Throwable {
       return requestContext.getCookies();
     }
   }
 
-  private static class CookieCollectionParameterResolver
-          extends CollectionParameterResolver implements ParameterResolvingStrategy {
+  private static class CookieCollectionParameterResolver implements ParameterResolvingStrategy, ConversionServiceAware {
+    private ConversionService conversionService = ApplicationConversionService.getSharedInstance();
 
     @Override
-    protected boolean supportsInternal(ResolvableMethodParameter resolvable) {
-      return resolvable.getResolvableType()
-              .getGeneric(0)
-              .resolve() == HttpCookie.class;
+    public boolean supportsParameter(ResolvableMethodParameter resolvable) {
+      return resolvable.isCollection()
+              && resolvable.getResolvableType().getGeneric(0).resolve() == HttpCookie.class;
+    }
+
+    @Nullable
+    @Override
+    public Object resolveArgument(RequestContext context, ResolvableMethodParameter resolvable) throws Throwable {
+      HttpCookie[] cookies = context.getCookies();
+      return conversionService.convert(cookies, resolvable.getTypeDescriptor());
     }
 
     @Override
-    protected List<?> resolveCollection(RequestContext context, ResolvableMethodParameter parameter) {
-      HttpCookie[] cookies = context.getCookies();
-      return CollectionUtils.newArrayList(cookies);
+    public void setConversionService(ConversionService conversionService) {
+      this.conversionService = conversionService;
     }
   }
+
 }

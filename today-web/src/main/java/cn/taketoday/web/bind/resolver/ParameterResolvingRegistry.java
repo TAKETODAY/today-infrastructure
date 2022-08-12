@@ -448,16 +448,6 @@ public class ParameterResolvingRegistry
             .toString();
   }
 
-  // ParameterResolver
-
-  record OR(Class<?> one, Class<?> two) implements ParameterResolvingStrategy.SupportsFunction {
-
-    @Override
-    public boolean supports(ResolvableMethodParameter parameter) {
-      return parameter.is(one) || parameter.is(two);
-    }
-  }
-
   // AnnotationParameterResolver
 
   static final class RequestAttributeMethodArgumentResolver extends AbstractNamedValueResolvingStrategy {
