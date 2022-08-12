@@ -167,22 +167,24 @@ public abstract class AbstractMessageConverterMethodProcessor
       targetType = GenericTypeResolver.resolveType(getGenericType(returnType), returnType.getContainingClass());
     }
 
-    HttpHeaders requestHeaders = context.requestHeaders();
     HttpHeaders responseHeaders = context.responseHeaders();
     if (isResourceType(value, returnType)) {
       responseHeaders.set(HttpHeaders.ACCEPT_RANGES, "bytes");
-      if (value != null && requestHeaders.getFirst(HttpHeaders.RANGE) != null && context.getStatus() == 200) {
-        Resource resource = (Resource) value;
-        try {
-          List<HttpRange> httpRanges = requestHeaders.getRange();
-          context.setStatus(HttpStatus.PARTIAL_CONTENT.value());
-          body = HttpRange.toResourceRegions(httpRanges, resource);
-          valueType = body.getClass();
-          targetType = RESOURCE_REGION_LIST_TYPE;
-        }
-        catch (IllegalArgumentException ex) {
-          responseHeaders.set(HttpHeaders.CONTENT_RANGE, "bytes */" + resource.contentLength());
-          context.setStatus(HttpStatus.REQUESTED_RANGE_NOT_SATISFIABLE.value());
+      if (value != null) {
+        String headerRange = context.requestHeaders().getFirst(HttpHeaders.RANGE);
+        if (headerRange != null && context.getStatus() == 200) {
+          Resource resource = (Resource) value;
+          try {
+            List<HttpRange> httpRanges = HttpRange.parseRanges(headerRange);
+            context.setStatus(HttpStatus.PARTIAL_CONTENT.value());
+            body = HttpRange.toResourceRegions(httpRanges, resource);
+            valueType = body.getClass();
+            targetType = RESOURCE_REGION_LIST_TYPE;
+          }
+          catch (IllegalArgumentException ex) {
+            responseHeaders.set(HttpHeaders.CONTENT_RANGE, "bytes */" + resource.contentLength());
+            context.setStatus(HttpStatus.REQUESTED_RANGE_NOT_SATISFIABLE.value());
+          }
         }
       }
     }
