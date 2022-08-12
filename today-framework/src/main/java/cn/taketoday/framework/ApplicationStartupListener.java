@@ -30,9 +30,20 @@ import cn.taketoday.lang.TodayStrategies;
 /**
  * Listener for the {@link Application} {@code run} method.
  * {@link ApplicationStartupListener}s are loaded via the {@link TodayStrategies}
- * and should declare a public constructor that accepts a {@link Application}
- * instance and a {@code String[]} of arguments. A new
- * {@link ApplicationStartupListener} instance will be created for each run.
+ * and should declare a public constructor that accepts following arguments
+ * <pre>{@code
+ * var instantiator = new Instantiator<ApplicationStartupListener>(ApplicationStartupListener.class,
+ *         parameters -> {
+ *           parameters.add(Application.class, this);
+ *           parameters.add(Logger.class, getApplicationLog());
+ *           parameters.add(ApplicationArguments.class, arguments);
+ *           parameters.add(String[].class, arguments.getSourceArgs());
+ *           parameters.add(BootstrapRegistry.class, bootstrapContext);
+ *           parameters.add(ConfigurableBootstrapContext.class, bootstrapContext);
+ *         });
+ *   }</pre>
+ * <p>
+ * A new {@link ApplicationStartupListener} instance will be created for each {@link Application#run(String...) run}.
  *
  * @author Phillip Webb
  * @author Dave Syer
