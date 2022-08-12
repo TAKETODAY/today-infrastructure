@@ -57,8 +57,6 @@ import cn.taketoday.web.servlet.WebServletApplicationContext;
 import cn.taketoday.web.view.RedirectModelManager;
 import jakarta.servlet.ServletContext;
 
-import static cn.taketoday.web.bind.resolver.ConverterAwareParameterResolver.from;
-
 /**
  * ParameterResolvingStrategy registry
  *
@@ -277,21 +275,7 @@ public class ParameterResolvingRegistry
     strategies.add(new LocalTimeParameterResolver());
     strategies.add(new LocalDateTimeParameterResolver());
 
-    // @since 3.0
-//    configureDataBinder(strategies);
-
-    // Use ConverterAwareParameterResolver to resolve primitive types
-    // --------------------------------------------------------------------------
-
-    strategies.add(
-            from(String.class, s -> s),
-            from(new OR(Long.class, long.class), Long::parseLong),
-            from(new OR(Integer.class, int.class), Integer::parseInt),
-            from(new OR(Short.class, short.class), Short::parseShort),
-            from(new OR(Float.class, float.class), Float::parseFloat),
-            from(new OR(Double.class, double.class), Double::parseDouble),
-            from(new OR(Boolean.class, boolean.class), Boolean::parseBoolean)
-    );
+    // fallback
 
     strategies.add(new RequestParamMethodArgumentResolver(beanFactory, true));
     strategies.add(new ModelAttributeMethodProcessor(true));
