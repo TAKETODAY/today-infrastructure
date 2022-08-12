@@ -220,6 +220,11 @@ public class ResolvableMethodParameter extends AttributeAccessorSupport {
   }
 
   @Experimental
+  public boolean isNotRequired() {
+    return !isRequired();
+  }
+
+  @Experimental
   public String getName() {
     return getNamedValueInfo().name;
   }
