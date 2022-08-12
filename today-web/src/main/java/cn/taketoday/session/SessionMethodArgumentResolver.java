@@ -26,6 +26,31 @@ import cn.taketoday.web.handler.method.ResolvableMethodParameter;
 
 /**
  * for {@link WebSession} Type-based parameter resolving
+ * <p>
+ * Like following example
+ * <pre>
+ * {@code
+ *  // if request not contains a WebSession create new one
+ *  @GET("/captcha")
+ *  public BufferedImage captcha(WebSession session) {
+ *     ...
+ *     session.setAttribute(RAND_CODE, randCode);
+ *     return image;
+ *  }
+ *  // WebSession may be null
+ *  @GET("/test")
+ *  public void nullable(@Nullable WebSession session) {
+ *     ...
+ *     if (session == null) {
+ *
+ *     }
+ *     else {
+ *
+ *     }
+ *  }
+ *
+ * }
+ * </pre>
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see WebSession
