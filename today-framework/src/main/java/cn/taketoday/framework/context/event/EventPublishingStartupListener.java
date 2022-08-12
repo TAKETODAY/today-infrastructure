@@ -53,15 +53,16 @@ import cn.taketoday.util.ErrorHandler;
  * @author Artsiom Yudovin
  * @author Brian Clozel
  * @author Chris Bono
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public class EventPublishingStartupListener implements ApplicationStartupListener, Ordered {
 
-  private final String[] args;
   private final Application application;
+  private final ApplicationArguments args;
   private final SimpleApplicationEventMulticaster initialMulticaster;
 
-  public EventPublishingStartupListener(Application application, String[] args) {
+  public EventPublishingStartupListener(Application application, ApplicationArguments args) {
     this.args = args;
     this.application = application;
     this.initialMulticaster = new SimpleApplicationEventMulticaster();

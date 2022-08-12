@@ -22,6 +22,7 @@ package cn.taketoday.framework.context.event;
 
 import cn.taketoday.context.ApplicationEvent;
 import cn.taketoday.framework.Application;
+import cn.taketoday.framework.ApplicationArguments;
 
 /**
  * Base class for {@link ApplicationEvent} related to a {@link Application}.
@@ -33,19 +34,23 @@ import cn.taketoday.framework.Application;
 @SuppressWarnings("serial")
 public abstract class ApplicationStartupEvent extends ApplicationEvent {
 
-  private final String[] args;
+  private final ApplicationArguments arguments;
 
-  public ApplicationStartupEvent(Application application, String[] args) {
+  public ApplicationStartupEvent(Application application, ApplicationArguments arguments) {
     super(application);
-    this.args = args;
+    this.arguments = arguments;
   }
 
   public Application getApplication() {
     return (Application) getSource();
   }
 
-  public final String[] getArgs() {
-    return this.args;
+  public ApplicationArguments getArguments() {
+    return arguments;
+  }
+
+  public final String[] getSourceArgs() {
+    return arguments.getSourceArgs();
   }
 
 }

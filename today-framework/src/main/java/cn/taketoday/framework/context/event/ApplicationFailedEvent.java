@@ -22,11 +22,13 @@ package cn.taketoday.framework.context.event;
 
 import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.framework.Application;
+import cn.taketoday.framework.ApplicationArguments;
 
 /**
  * Event published by a {@link Application} when it fails to start.
  *
  * @author Dave Syer
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see ApplicationReadyEvent
  * @since 4.0
  */
@@ -45,8 +47,8 @@ public class ApplicationFailedEvent extends ApplicationStartupEvent {
    * @param context the context that was being created (maybe null)
    * @param exception the exception that caused the error
    */
-  public ApplicationFailedEvent(Application application, String[] args, ConfigurableApplicationContext context,
-          Throwable exception) {
+  public ApplicationFailedEvent(Application application,
+          ApplicationArguments args, ConfigurableApplicationContext context, Throwable exception) {
     super(application, args);
     this.context = context;
     this.exception = exception;

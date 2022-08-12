@@ -23,6 +23,7 @@ package cn.taketoday.framework.context.event;
 import cn.taketoday.core.env.ConfigurableEnvironment;
 import cn.taketoday.core.env.Environment;
 import cn.taketoday.framework.Application;
+import cn.taketoday.framework.ApplicationArguments;
 import cn.taketoday.framework.ConfigurableBootstrapContext;
 
 /**
@@ -30,6 +31,7 @@ import cn.taketoday.framework.ConfigurableBootstrapContext;
  * {@link Environment} is first available for inspection and modification.
  *
  * @author Dave Syer
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 @SuppressWarnings("serial")
@@ -48,7 +50,7 @@ public class ApplicationEnvironmentPreparedEvent extends ApplicationStartupEvent
    * @param environment the environment that was just created
    */
   public ApplicationEnvironmentPreparedEvent(ConfigurableBootstrapContext bootstrapContext,
-          Application application, String[] args, ConfigurableEnvironment environment) {
+          Application application, ApplicationArguments args, ConfigurableEnvironment environment) {
     super(application, args);
     this.bootstrapContext = bootstrapContext;
     this.environment = environment;

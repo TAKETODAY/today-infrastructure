@@ -24,6 +24,7 @@ import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.core.env.Environment;
 import cn.taketoday.framework.Application;
+import cn.taketoday.framework.ApplicationArguments;
 
 /**
  * Event published as when a {@link Application} is starting up and the
@@ -31,6 +32,7 @@ import cn.taketoday.framework.Application;
  * will be loaded and the {@link Environment} is ready for use at this stage.
  *
  * @author Dave Syer
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 @SuppressWarnings("serial")
@@ -45,8 +47,8 @@ public class ApplicationPreparedEvent extends ApplicationStartupEvent {
    * @param args the arguments the application is running with
    * @param context the ApplicationContext about to be refreshed
    */
-  public ApplicationPreparedEvent(Application application, String[] args,
-          ConfigurableApplicationContext context) {
+  public ApplicationPreparedEvent(
+          Application application, ApplicationArguments args, ConfigurableApplicationContext context) {
     super(application, args);
     this.context = context;
   }

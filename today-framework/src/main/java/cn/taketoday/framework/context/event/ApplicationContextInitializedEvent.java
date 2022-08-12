@@ -23,12 +23,14 @@ package cn.taketoday.framework.context.event;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.framework.Application;
+import cn.taketoday.framework.ApplicationArguments;
 
 /**
  * Event published when a {@link Application} is starting up and the
  * {@link ApplicationContext} is prepared and ApplicationContextInitializers have been
  * called but before any bean definitions are loaded.
  *
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @author Artsiom Yudovin
  * @since 4.0
  */
@@ -44,7 +46,7 @@ public class ApplicationContextInitializedEvent extends ApplicationStartupEvent 
    * @param args the arguments the application is running with
    * @param context the context that has been initialized
    */
-  public ApplicationContextInitializedEvent(Application application, String[] args,
+  public ApplicationContextInitializedEvent(Application application, ApplicationArguments args,
           ConfigurableApplicationContext context) {
     super(application, args);
     this.context = context;

@@ -24,6 +24,7 @@ import java.time.Duration;
 
 import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.framework.Application;
+import cn.taketoday.framework.ApplicationArguments;
 import cn.taketoday.framework.ApplicationRunner;
 import cn.taketoday.framework.CommandLineRunner;
 
@@ -33,6 +34,7 @@ import cn.taketoday.framework.CommandLineRunner;
  * runners have been called.
  *
  * @author Andy Wilkinson
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 @SuppressWarnings("serial")
@@ -50,7 +52,7 @@ public class ApplicationStartedEvent extends ApplicationStartupEvent {
    * @param context the context that was being created
    * @param timeTaken the time taken to start the application
    */
-  public ApplicationStartedEvent(Application application, String[] args, ConfigurableApplicationContext context,
+  public ApplicationStartedEvent(Application application, ApplicationArguments args, ConfigurableApplicationContext context,
           Duration timeTaken) {
     super(application, args);
     this.context = context;

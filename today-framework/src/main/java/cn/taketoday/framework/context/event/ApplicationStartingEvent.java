@@ -24,6 +24,7 @@ import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.ApplicationListener;
 import cn.taketoday.core.env.Environment;
 import cn.taketoday.framework.Application;
+import cn.taketoday.framework.ApplicationArguments;
 import cn.taketoday.framework.ConfigurableBootstrapContext;
 
 /**
@@ -35,6 +36,7 @@ import cn.taketoday.framework.ConfigurableBootstrapContext;
  *
  * @author Phillip Webb
  * @author Madhura Bhave
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 @SuppressWarnings("serial")
@@ -49,8 +51,9 @@ public class ApplicationStartingEvent extends ApplicationStartupEvent {
    * @param application the current application
    * @param args the arguments the application is running with
    */
-  public ApplicationStartingEvent(ConfigurableBootstrapContext bootstrapContext, Application application,
-          String[] args) {
+  public ApplicationStartingEvent(
+          ConfigurableBootstrapContext bootstrapContext,
+          Application application, ApplicationArguments args) {
     super(application, args);
     this.bootstrapContext = bootstrapContext;
   }
