@@ -100,7 +100,6 @@ public class ExceptionHandlerAnnotationExceptionHandler
       return NONE_RETURN_VALUE;
     }
     catch (Throwable invocationEx) {
-//      logResultedInException(target, invocationEx);
       // Any other than the original exception (or a cause) is unintended here,
       // probably an accident (e.g. failed assertion or the like).
       if (!exceptions.contains(invocationEx) && logger.isWarnEnabled()) {
