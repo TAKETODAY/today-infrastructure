@@ -666,7 +666,7 @@ public class HandlerMethod {
   // HandlerMethod
 
   @Nullable
-  public static HandlerMethod unwrap(Object handler) {
+  public static HandlerMethod unwrap(@Nullable Object handler) {
     if (handler instanceof HandlerMethod) {
       return (HandlerMethod) handler;
     }
