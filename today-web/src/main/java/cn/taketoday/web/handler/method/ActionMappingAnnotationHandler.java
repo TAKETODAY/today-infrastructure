@@ -27,10 +27,10 @@ import java.util.function.Supplier;
 import cn.taketoday.beans.factory.BeanSupplier;
 import cn.taketoday.context.MessageSource;
 import cn.taketoday.core.i18n.LocaleContextHolder;
-import cn.taketoday.reflect.MethodInvoker;
 import cn.taketoday.http.HttpStatusCode;
 import cn.taketoday.http.HttpStatusCodeProvider;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.reflect.MethodInvoker;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
@@ -47,7 +47,7 @@ import cn.taketoday.web.util.WebUtils;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see cn.taketoday.web.annotation.RequestMapping
  * @see cn.taketoday.web.annotation.ActionMapping
- * @see cn.taketoday.web.annotation.Controller
+ * @see cn.taketoday.stereotype.Controller
  * @since 4.0 2021/11/29 22:48
  */
 public abstract class ActionMappingAnnotationHandler extends InterceptableRequestHandler {
