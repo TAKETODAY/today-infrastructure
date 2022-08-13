@@ -39,7 +39,7 @@ import cn.taketoday.web.handler.method.HandlerMethod;
 import cn.taketoday.web.handler.result.HandlerMethodReturnValueHandler;
 
 /**
- * view-name or {@link View} ReturnValueHandler
+ * view-name or {@link View} and {@link ViewRef} ReturnValueHandler
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see View
@@ -63,7 +63,7 @@ public class ViewReturnValueHandler implements HandlerMethodReturnValueHandler {
 
   @Override
   public boolean supportsReturnValue(@Nullable Object returnValue) {
-    return returnValue instanceof String || returnValue instanceof View;
+    return returnValue instanceof String || returnValue instanceof ViewRef || returnValue instanceof View;
   }
 
   @Override
@@ -110,6 +110,9 @@ public class ViewReturnValueHandler implements HandlerMethodReturnValueHandler {
     if (returnValue instanceof String viewName) {
       renderView(context, viewName);
     }
+    else if (returnValue instanceof ViewRef viewRef) {
+      renderView(context, viewRef);
+    }
     else if (returnValue instanceof View view) {
       renderView(context, view);
     }
@@ -124,6 +127,23 @@ public class ViewReturnValueHandler implements HandlerMethodReturnValueHandler {
    */
   public void renderView(RequestContext context, String viewName) throws Exception {
     Locale locale = RequestContextUtils.getLocale(context);
+    renderView(context, ViewRef.of(viewName, locale));
+  }
+
+  /**
+   * rendering a view from {@code viewName}
+   *
+   * @param context current HTTP request context
+   * @param viewRef ViewRef to render
+   * @throws Exception If view rendering failed
+   */
+  public void renderView(RequestContext context, ViewRef viewRef) throws Exception {
+    Locale locale = viewRef.getLocale();
+    String viewName = viewRef.getViewName();
+    if (locale == null) {
+      locale = RequestContextUtils.getLocale(context);
+    }
+
     View view = viewResolver.resolveViewName(viewName, locale);
     if (view == null) {
       HandlerMatchingMetadata matchingMetadata = context.getMatchingMetadata();
@@ -137,7 +157,6 @@ public class ViewReturnValueHandler implements HandlerMethodReturnValueHandler {
                 "Could not resolve view with name '" + viewName + "'");
       }
     }
-    renderView(context, view);
   }
 
   /**
