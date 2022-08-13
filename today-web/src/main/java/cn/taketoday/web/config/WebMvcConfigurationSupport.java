@@ -63,8 +63,6 @@ import cn.taketoday.http.converter.smile.MappingJackson2SmileHttpMessageConverte
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.lang.TodayStrategies;
-import cn.taketoday.logging.Logger;
-import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.stereotype.Component;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.StringUtils;
@@ -120,7 +118,6 @@ import jakarta.servlet.ServletContext;
  */
 @DisableAllDependencyInjection
 public class WebMvcConfigurationSupport extends ApplicationContextSupport {
-  protected final Logger log = LoggerFactory.getLogger(getClass());
   static final String ENABLE_WEB_MVC_XML = "enable.webmvc.xml";
   static final String WEB_MVC_CONFIG_LOCATION = "WebMvcConfigLocation";
 
@@ -158,8 +155,8 @@ public class WebMvcConfigurationSupport extends ApplicationContextSupport {
   }
 
   private void initControllerAdviceCache() {
-    List<ControllerAdviceBean> adviceBeans = ControllerAdviceBean.findAnnotatedBeans(getApplicationContext(),
-            RequestBodyAdvice.class, ResponseBodyAdvice.class);
+    List<ControllerAdviceBean> adviceBeans = ControllerAdviceBean.findAnnotatedBeans(
+            getApplicationContext(), RequestBodyAdvice.class, ResponseBodyAdvice.class);
 
     if (!adviceBeans.isEmpty()) {
       requestResponseBodyAdvice.addAll(0, adviceBeans);
