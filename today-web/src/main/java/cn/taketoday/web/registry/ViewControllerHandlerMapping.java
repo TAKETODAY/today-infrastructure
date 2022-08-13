@@ -55,7 +55,6 @@ import cn.taketoday.web.util.pattern.PathPatternParser;
  * 2019-12-23 22:10
  */
 public class ViewControllerHandlerMapping extends AbstractUrlHandlerMapping implements BeanClassLoaderAware {
-  public static final String DEFAULT_BEAN_NAME = "cn.taketoday.web.registry.ViewControllerHandlerMapping";
 
   // the dtd
   public static final String DTD_NAME = "web-configuration";

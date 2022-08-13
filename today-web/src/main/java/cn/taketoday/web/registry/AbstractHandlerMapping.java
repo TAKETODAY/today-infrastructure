@@ -87,8 +87,6 @@ public abstract class AbstractHandlerMapping extends ApplicationContextSupport
 
   private final PathPatternParser patternParser = new PathPatternParser();
 
-  // TODO 处理 interceptors
-
   private final ArrayList<HandlerInterceptor> interceptors = new ArrayList<>();
 
   @Nullable
