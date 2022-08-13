@@ -25,7 +25,7 @@ import cn.taketoday.lang.Nullable;
 /**
  * Plain handler interface for components that process HTTP requests
  *
- * @author TODAY
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see ReturnValueHandler
  * @since 2019-12-21 17:37
  */
