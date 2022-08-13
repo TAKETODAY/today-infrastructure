@@ -50,7 +50,6 @@ import cn.taketoday.web.HttpRequestHandler;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.RequestHandledListener;
 import cn.taketoday.web.ReturnValueHandler;
-import cn.taketoday.web.ReturnValueHandlerProvider;
 import cn.taketoday.web.context.async.WebAsyncUtils;
 import cn.taketoday.web.handler.method.ExceptionHandlerAnnotationExceptionHandler;
 import cn.taketoday.web.util.WebUtils;
@@ -257,9 +256,6 @@ public class DispatcherHandler implements ApplicationContextAware {
     if (handler instanceof ReturnValueHandler) {
       return (ReturnValueHandler) handler;
     }
-    if (handler instanceof ReturnValueHandlerProvider) {
-      return ((ReturnValueHandlerProvider) handler).getReturnValueHandler();
-    }
     ReturnValueHandler selected = returnValueHandler.selectHandler(handler, returnValue);
     if (selected == null) {
       if (returnValue == null && handler != null) {
@@ -389,6 +385,7 @@ public class DispatcherHandler implements ApplicationContextAware {
 
     if (exception != null) {
       returnValue = processHandlerException(request, handler, exception);
+      handler = null;
     }
 
     // Did the handler return a view to render?
