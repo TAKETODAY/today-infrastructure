@@ -61,10 +61,10 @@ public class RequestResponseBodyAdviceChain implements RequestBodyAdvice, Respon
   }
 
   @SuppressWarnings("unchecked")
-  public static <T> List<T> getAdviceByType(@Nullable List<Object> requestResponseBodyAdvice, Class<T> adviceType) {
-    if (requestResponseBodyAdvice != null) {
+  public static <T> List<T> getAdviceByType(@Nullable List<Object> bodyAdvice, Class<T> adviceType) {
+    if (bodyAdvice != null) {
       ArrayList<T> result = new ArrayList<>();
-      for (Object advice : requestResponseBodyAdvice) {
+      for (Object advice : bodyAdvice) {
         Class<?> beanType = advice instanceof ControllerAdviceBean adviceBean
                             ? adviceBean.getBeanType() : advice.getClass();
         if (beanType != null && adviceType.isAssignableFrom(beanType)) {
@@ -90,7 +90,7 @@ public class RequestResponseBodyAdviceChain implements RequestBodyAdvice, Respon
   public HttpInputMessage beforeBodyRead(HttpInputMessage request, MethodParameter parameter,
           Type targetType, HttpMessageConverter<?> converter) throws IOException {
 
-    for (RequestBodyAdvice advice : getMatchingAdvice(parameter, RequestBodyAdvice.class)) {
+    for (RequestBodyAdvice advice : getMatchingAdvice(parameter, RequestBodyAdvice.class, requestBodyAdvice)) {
       if (advice.supports(parameter, targetType, converter)) {
         request = advice.beforeBodyRead(request, parameter, targetType, converter);
       }
@@ -102,7 +102,7 @@ public class RequestResponseBodyAdviceChain implements RequestBodyAdvice, Respon
   public Object afterBodyRead(Object body, HttpInputMessage inputMessage,
           MethodParameter parameter, Type targetType, HttpMessageConverter<?> converter) {
 
-    for (RequestBodyAdvice advice : getMatchingAdvice(parameter, RequestBodyAdvice.class)) {
+    for (RequestBodyAdvice advice : getMatchingAdvice(parameter, RequestBodyAdvice.class, requestBodyAdvice)) {
       if (advice.supports(parameter, targetType, converter)) {
         body = advice.afterBodyRead(body, inputMessage, parameter, targetType, converter);
       }
@@ -117,7 +117,7 @@ public class RequestResponseBodyAdviceChain implements RequestBodyAdvice, Respon
           @Nullable Object body, MethodParameter returnType, MediaType contentType,
           HttpMessageConverter<?> converter, RequestContext context) {
 
-    for (ResponseBodyAdvice advice : getMatchingAdvice(returnType, ResponseBodyAdvice.class)) {
+    for (ResponseBodyAdvice advice : getMatchingAdvice(returnType, ResponseBodyAdvice.class, responseBodyAdvice)) {
       if (advice.supports(returnType, converter)) {
         body = advice.beforeBodyWrite(
                 body, returnType, contentType, converter, context);
@@ -132,7 +132,7 @@ public class RequestResponseBodyAdviceChain implements RequestBodyAdvice, Respon
           @Nullable Object body, HttpInputMessage inputMessage, MethodParameter parameter,
           Type targetType, HttpMessageConverter<?> converter) {
 
-    for (RequestBodyAdvice advice : getMatchingAdvice(parameter, RequestBodyAdvice.class)) {
+    for (RequestBodyAdvice advice : getMatchingAdvice(parameter, RequestBodyAdvice.class, requestBodyAdvice)) {
       if (advice.supports(parameter, targetType, converter)) {
         body = advice.handleEmptyBody(
                 body, inputMessage, parameter, targetType, converter);
@@ -142,8 +142,8 @@ public class RequestResponseBodyAdviceChain implements RequestBodyAdvice, Respon
   }
 
   @SuppressWarnings({ "unchecked", "rawtypes" })
-  private <A> List<A> getMatchingAdvice(MethodParameter parameter, Class<? extends A> adviceType) {
-    List<Object> availableAdvice = getAdvice(adviceType);
+  private <A> List<A> getMatchingAdvice(MethodParameter parameter,
+          Class<? extends A> adviceType, List<Object> availableAdvice) {
     if (CollectionUtils.isEmpty(availableAdvice)) {
       return Collections.emptyList();
     }
@@ -161,18 +161,6 @@ public class RequestResponseBodyAdviceChain implements RequestBodyAdvice, Respon
       }
     }
     return result;
-  }
-
-  private List<Object> getAdvice(Class<?> adviceType) {
-    if (RequestBodyAdvice.class == adviceType) {
-      return this.requestBodyAdvice;
-    }
-    else if (ResponseBodyAdvice.class == adviceType) {
-      return this.responseBodyAdvice;
-    }
-    else {
-      throw new IllegalArgumentException("Unexpected adviceType: " + adviceType);
-    }
   }
 
 }
