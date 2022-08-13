@@ -60,7 +60,6 @@ public class AnnotationHandlerFactory {
 
   public void initDefaults() {
     ParameterResolvingRegistry registry = beanFactory.getBean(ParameterResolvingRegistry.class);
-    Assert.state(registry != null, "No ParameterResolvingRegistry");
     setReturnValueHandlerManager(beanFactory.getBean(ReturnValueHandlerManager.class));
     setParameterFactory(new ParameterResolvingRegistryResolvableParameterFactory(registry));
   }
