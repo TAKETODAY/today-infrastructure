@@ -122,7 +122,7 @@ class ParameterResolvingRegistryTests {
     assertThat(data)
             .isNotNull()
             .isEqualTo(registry.obtainStrategy(new MockResolvableMethodParameter(parameter, "data")))
-            .isInstanceOf(ConverterAwareParameterResolver.class);
+            .isInstanceOf(RequestParamMethodArgumentResolver.class);
 
   }
 

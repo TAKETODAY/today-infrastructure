@@ -167,28 +167,7 @@ class ParameterResolverRegistryTests {
       ParameterResolvingStrategy strategy = registry.findStrategy(testUser);
       assertThat(strategy).isNotNull().isInstanceOf(ModelAttributeMethodProcessor.class);
 
-      // mock
-      testConverterParameterResolver(registry, int.class);
-      testConverterParameterResolver(registry, long.class);
-      testConverterParameterResolver(registry, float.class);
-      testConverterParameterResolver(registry, short.class);
-      testConverterParameterResolver(registry, double.class);
-      testConverterParameterResolver(registry, boolean.class);
-
-      testConverterParameterResolver(registry, String.class);
-      testConverterParameterResolver(registry, Integer.class);
-      testConverterParameterResolver(registry, Long.class);
-      testConverterParameterResolver(registry, Short.class);
-      testConverterParameterResolver(registry, Double.class);
-      testConverterParameterResolver(registry, Boolean.class);
-      testConverterParameterResolver(registry, Float.class);
-
     }
-  }
-
-  private void testConverterParameterResolver(ParameterResolvingRegistry registry, Class<?> type) {
-    ResolvableMethodParameter test = mockParameter(type, "test");
-    assertThat(registry.findStrategy(test)).isNotNull().isInstanceOf(ConverterAwareParameterResolver.class);
   }
 
   static ResolvableMethodParameter createParameter(int idx, Method method, String name) {

@@ -18,22 +18,14 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.web.registry.annotation;
+package cn.taketoday.web;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
-
-import cn.taketoday.context.annotation.Import;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * @author TODAY 2021/4/22 1:02
- * @since 3.0
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 4.0 2022/8/10 23:54
  */
-@Retention(RetentionPolicy.RUNTIME)
-@Target({ ElementType.METHOD, ElementType.TYPE })
-@Import(RequestPathMappingHandlerMapping.class)
-public @interface EnableRequestPathMapping {
+class HandlerMatchingMetadataTests {
 
 }

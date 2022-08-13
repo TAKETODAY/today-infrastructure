@@ -17,21 +17,18 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.web;
 
-/**
- * request-handler can implement this interface to provide
- * a ReturnValueHandler to handle its execution result
- *
- * @author TODAY 2019-12-28 14:15
- */
-@FunctionalInterface
-public interface ReturnValueHandlerProvider {
+import static org.junit.jupiter.api.Assertions.*;
 
-  /**
-   * Get {@link ReturnValueHandler}
-   *
-   * @return must not be null
-   */
-  ReturnValueHandler getReturnValueHandler();
+/**
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 4.0 2022/8/11 12:17
+ */
+class RequestContextTests {
+
+
+
+
 }
