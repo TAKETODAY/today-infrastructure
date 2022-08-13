@@ -28,7 +28,6 @@ import cn.taketoday.context.support.ContextUtils;
 import cn.taketoday.core.type.AnnotationMetadata;
 import cn.taketoday.core.type.classreading.MetadataReader;
 import cn.taketoday.core.type.classreading.MetadataReaderFactory;
-import cn.taketoday.lang.Constant;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ExceptionUtils;
@@ -38,12 +37,14 @@ import cn.taketoday.util.ExceptionUtils;
  * @since 4.0
  */
 public class MetaInfoBeanDefinitionLoader implements BeanDefinitionLoader {
+  public static final String META_INFO_beans = "META-INF/beans";
+
   private static final Logger log = LoggerFactory.getLogger(MetaInfoBeanDefinitionLoader.class);
 
   /**
    * Resolve bean from META-INF/beans
    *
-   * @see Constant#META_INFO_beans
+   * @see #META_INFO_beans
    * @since 2.1.6
    */
   @Override
@@ -60,14 +61,14 @@ public class MetaInfoBeanDefinitionLoader implements BeanDefinitionLoader {
    * Resolve bean from META-INF/beans
    *
    * @param context reader context
-   * @see Constant#META_INFO_beans
+   * @see #META_INFO_beans
    * @since 2.1.6
    */
   public void loadMetaInfoBeans(BootstrapContext context) throws IOException {
     log.debug("Loading META-INF/beans");
     // Load the META-INF/beans @since 2.1.6
     // ---------------------------------------------------
-    Set<String> beans = ContextUtils.loadFromMetaInfoClass(Constant.META_INFO_beans);
+    Set<String> beans = ContextUtils.loadFromMetaInfoClass(META_INFO_beans);
 
     MetadataReaderFactory metadataReaderFactory = context.getMetadataReaderFactory();
     for (String beanClassName : beans) {

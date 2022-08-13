@@ -31,7 +31,7 @@ import cn.taketoday.util.CollectionUtils;
  */
 public class MapInstantiator extends BeanInstantiator {
 
-  private int capacity = Constant.DEFAULT_CAPACITY;
+  private int capacity = Constant.ZERO;
   private Class<?> keyType;
   private final Class<?> mapType;
 

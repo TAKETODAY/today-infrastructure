@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -17,6 +17,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.lang;
 
 import java.io.File;
@@ -28,10 +29,10 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
 /**
- * @author TODAY 2018-01-16 10:56
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 2018-01-16 10:56
  */
 public interface Constant extends Serializable {
-  String VERSION = "4.0";
   String PROPERTIES_SUFFIX = ".properties";
 
   /**
@@ -51,9 +52,7 @@ public interface Constant extends Serializable {
 
   String QUOTATION_MARKS = "\"";
 
-  String META_INFO_beans = "META-INF/beans";
-
-  int DEFAULT_CAPACITY = 0; // @since 3.0
+  int ZERO = 0; // @since 3.0
 
   int[] EMPTY_INT_ARRAY = {};
 
@@ -93,9 +92,6 @@ public interface Constant extends Serializable {
   String EQUALS = "equals";
   String HASH_CODE = "hashCode";
   String TO_STRING = "toString";
-  String ANNOTATION_TYPE = "annotationType";
   String DEFAULT = "default";
-
-  String TYPE = "type";
 
 }

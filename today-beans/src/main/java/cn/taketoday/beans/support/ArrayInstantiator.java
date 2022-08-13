@@ -32,7 +32,7 @@ import cn.taketoday.lang.Constant;
  */
 public class ArrayInstantiator extends BeanInstantiator {
 
-  private int capacity = Constant.DEFAULT_CAPACITY;
+  private int capacity = Constant.ZERO;
   private final Class<?> componentType;
 
   public ArrayInstantiator(Class<?> componentType) {

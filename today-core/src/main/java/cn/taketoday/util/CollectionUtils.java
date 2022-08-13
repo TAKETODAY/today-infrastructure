@@ -278,7 +278,7 @@ public abstract class CollectionUtils {
    * Create the most appropriate collection for the given collection type.
    * <p>
    * Delegates to {@link #createCollection(Class, Class, int)} with a {@code null}
-   * element type, and {@link Constant#DEFAULT_CAPACITY}.
+   * element type, and {@link Constant#ZERO}.
    *
    * @param collectionType the desired type of the target collection (never {@code null})
    * @return a new collection instance
@@ -287,7 +287,7 @@ public abstract class CollectionUtils {
    * @since 3.0
    */
   public static <E> Collection<E> createCollection(Class<?> collectionType) {
-    return createCollection(collectionType, null, Constant.DEFAULT_CAPACITY);
+    return createCollection(collectionType, null, Constant.ZERO);
   }
 
   /**
@@ -393,7 +393,7 @@ public abstract class CollectionUtils {
    * alternative, the caller may wish to treat the return value as a raw map or
    * map keyed by {@link Object}.
    * <p>
-   * use default capacity {@link Constant#DEFAULT_CAPACITY}.
+   * use default capacity {@link Constant#ZERO}.
    *
    * @param map the original map object, potentially {@code null}
    * @return a new, empty map instance
@@ -404,7 +404,7 @@ public abstract class CollectionUtils {
    * @since 3.0
    */
   public static <K, V> Map<K, V> createApproximateMap(@Nullable Object map) {
-    return createApproximateMap(map, Constant.DEFAULT_CAPACITY);
+    return createApproximateMap(map, Constant.ZERO);
   }
 
   /**
@@ -446,7 +446,7 @@ public abstract class CollectionUtils {
    * Create the most appropriate map for the given map type.
    * <p>
    * Delegates to {@link #createMap(Class, Class, int)} with a {@code null} key
-   * type, and default capacity {@link Constant#DEFAULT_CAPACITY}.
+   * type, and default capacity {@link Constant#ZERO}.
    *
    * @param mapType the desired type of the target map
    * @return a new map instance
@@ -455,7 +455,7 @@ public abstract class CollectionUtils {
    * @since 3.0
    */
   public static <K, V> Map<K, V> createMap(@NonNull Class<?> mapType) {
-    return createMap(mapType, null, Constant.DEFAULT_CAPACITY);
+    return createMap(mapType, null, Constant.ZERO);
   }
 
   /**

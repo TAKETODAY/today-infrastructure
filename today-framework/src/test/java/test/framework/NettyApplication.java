@@ -42,7 +42,6 @@ import cn.taketoday.web.annotation.GET;
 import cn.taketoday.web.annotation.RestController;
 import cn.taketoday.web.annotation.RestControllerAdvice;
 import cn.taketoday.web.config.EnableWebMvc;
-import cn.taketoday.web.registry.annotation.EnableRequestPathMapping;
 import cn.taketoday.web.socket.BinaryMessage;
 import cn.taketoday.web.socket.CloseStatus;
 import cn.taketoday.web.socket.EnableWebSocket;
@@ -63,7 +62,6 @@ import lombok.extern.slf4j.Slf4j;
 @EnableWebMvc
 @RestController
 @RestControllerAdvice
-@EnableRequestPathMapping
 @Import(NettyApplication.AppConfig.class)
 public class NettyApplication {
 
