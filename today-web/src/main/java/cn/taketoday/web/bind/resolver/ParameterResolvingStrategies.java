@@ -28,7 +28,6 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 import cn.taketoday.core.ArraySizeTrimmer;
-import cn.taketoday.core.conversion.Converter;
 import cn.taketoday.core.style.ToStringBuilder;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
@@ -123,6 +122,93 @@ public class ParameterResolvingStrategies
   }
 
   /**
+   * Returns the instance of the first occurrence of the specified strategy-class
+   *
+   * @param strategyClass strategy-class to search for
+   * @return the instance of the first occurrence of the specified strategy-class
+   */
+  @Nullable
+  public ParameterResolvingStrategy get(Class<?> strategyClass) {
+    int idx = indexOf(strategyClass);
+    if (idx != -1) {
+      return strategies.get(idx);
+    }
+    return null;
+  }
+
+  /**
+   * Returns the index of the first occurrence of the specified strategy-class
+   * in this list, or -1 if this list does not contain the strategy-class.
+   * More formally, returns the lowest index {@code i} such that
+   * -1 if there is no such index.
+   *
+   * @param strategyClass strategy-class to search for
+   * @return the index of the first occurrence of the specified strategy-class in
+   * this list, or -1 if this list does not contain the strategy-class
+   */
+  public int indexOf(Class<?> strategyClass) {
+    int idx = 0;
+    for (ParameterResolvingStrategy resolver : strategies) {
+      if (strategyClass == resolver.getClass()) {
+        return idx;
+      }
+      idx++;
+    }
+    return -1;
+  }
+
+  /**
+   * Returns the index of the last occurrence of the specified strategy-class
+   * in this list, or -1 if this list does not contain the strategy-class.
+   * More formally, returns the highest index {@code i} such that -1 if
+   * there is no such index.
+   *
+   * @param strategyClass strategy-class to search for
+   * @return the index of the last occurrence of the specified strategy-class in
+   * this list, or -1 if this list does not contain the strategy-class
+   */
+  public int lastIndexOf(Class<?> strategyClass) {
+    int idx = strategies.size() - 1;
+    for (ParameterResolvingStrategy resolver : strategies) {
+      if (strategyClass == resolver.getClass()) {
+        return idx;
+      }
+      idx--;
+    }
+    return -1;
+  }
+
+  /**
+   * Replaces the element at the specified position in this list with
+   * the specified element.
+   *
+   * @param idx index of the element to replace
+   * @param strategy strategy to be stored at the specified position
+   * @return the element previously at the specified position
+   * @throws IndexOutOfBoundsException if the index is out of range (index < 0 || index >= size())
+   */
+  public ParameterResolvingStrategy set(int idx, ParameterResolvingStrategy strategy) {
+    return strategies.set(idx, strategy);
+  }
+
+  /**
+   * Replaces the element at the specified position in this list with
+   * the specified strategy-class.
+   *
+   * @param strategyClass strategy-class to search for
+   * @param strategy new strategy
+   * @return if replaced
+   */
+  public boolean replace(Class<?> strategyClass, ParameterResolvingStrategy strategy) {
+    int idx = indexOf(strategyClass);
+    if (idx != -1) {
+      strategies.set(idx, strategy);
+      return true;
+    }
+    return false;
+  }
+
+  /**
    * Removes all the elements of this collection that satisfy the given
    * predicate.  Errors or runtime exceptions thrown during iteration or by
    * the predicate are relayed to the caller.
@@ -152,21 +238,11 @@ public class ParameterResolvingStrategies
    * at least one element <tt>e</tt> such that
    * <tt>(resolverClass == resolver.getClass())</tt>.
    *
-   * @param resolverClass element whose presence in this defaultResolvers or customizedResolvers is to be tested
+   * @param strategyClass element whose presence in this defaultResolvers or customizedResolvers is to be tested
    * @return <tt>true</tt> if resolvers contains the specified {@code resolverClass}
    */
-  public boolean contains(Class<?> resolverClass) {
-    return contains(resolverClass, strategies);
-  }
-
-  static boolean contains(
-          Class<?> resolverClass, Iterable<ParameterResolvingStrategy> strategies) {
-    for (final ParameterResolvingStrategy resolver : strategies) {
-      if (resolverClass == resolver.getClass()) {
-        return true;
-      }
-    }
-    return false;
+  public boolean contains(Class<?> strategyClass) {
+    return indexOf(strategyClass) != -1;
   }
 
   /**
