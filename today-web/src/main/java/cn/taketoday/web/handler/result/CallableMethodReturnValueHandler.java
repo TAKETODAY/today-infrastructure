@@ -36,19 +36,22 @@ import cn.taketoday.web.handler.method.HandlerMethod;
 public class CallableMethodReturnValueHandler implements HandlerMethodReturnValueHandler {
 
   @Override
-  public void handleReturnValue(RequestContext context, Object handler, @Nullable Object returnValue) throws Exception {
-
-    if (returnValue == null) {
-      return;
-    }
-
-    Callable<?> callable = (Callable<?>) returnValue;
-    WebAsyncUtils.getAsyncManager(context)
-            .startCallableProcessing(callable);
-  }
-
-  @Override
   public boolean supportsHandlerMethod(HandlerMethod handler) {
     return handler.isReturn(Callable.class);
   }
+
+  @Override
+  public boolean supportsReturnValue(@Nullable Object returnValue) {
+    return returnValue instanceof Callable<?>;
+  }
+
+  @Override
+  public void handleReturnValue(RequestContext context, Object handler, @Nullable Object returnValue) throws Exception {
+
+    if (returnValue instanceof Callable<?> callable) {
+      WebAsyncUtils.getAsyncManager(context)
+              .startCallableProcessing(callable);
+    }
+  }
+
 }

@@ -23,9 +23,9 @@ package cn.taketoday.web.bind.resolver;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.BindingContext;
 import cn.taketoday.web.RequestContext;
+import cn.taketoday.web.ReturnValueHandler;
 import cn.taketoday.web.handler.method.HandlerMethod;
 import cn.taketoday.web.handler.method.ResolvableMethodParameter;
-import cn.taketoday.web.handler.result.SmartReturnValueHandler;
 import cn.taketoday.web.view.Model;
 import cn.taketoday.web.view.RedirectModel;
 
@@ -43,12 +43,30 @@ import cn.taketoday.web.view.RedirectModel;
  * @see Model
  * @since 4.0 2022/4/27 16:51
  */
-public class ModelMethodProcessor implements SmartReturnValueHandler, ParameterResolvingStrategy {
+public class ModelMethodProcessor implements ReturnValueHandler, ParameterResolvingStrategy {
 
   @Override
   public boolean supportsParameter(ResolvableMethodParameter resolvable) {
     return resolvable.isAssignableTo(Model.class);
   }
+
+  @Nullable
+  @Override
+  public Object resolveArgument(RequestContext context, ResolvableMethodParameter resolvable) throws Throwable {
+    if (resolvable.is(RedirectModel.class)) {
+      RedirectModel redirectModel = new RedirectModel();
+      context.setAttribute(RedirectModel.OUTPUT_ATTRIBUTE, redirectModel);
+      // set redirect model to current BindingContext
+      context.getBindingContext().setRedirectModel(redirectModel);
+      return redirectModel;
+    }
+
+    return context.getBindingContext().getModel();
+  }
+
+  //---------------------------------------------------------------------
+  // Implementation of ReturnValueHandler interface
+  //---------------------------------------------------------------------
 
   @Override
   public boolean supportsReturnValue(@Nullable Object returnValue) {
@@ -93,20 +111,6 @@ public class ModelMethodProcessor implements SmartReturnValueHandler, ParameterR
                 handlerMethod.getReturnType().getParameterType().getName() + "] in method: " + handlerMethod.getMethod());
       }
     }
-  }
-
-  @Nullable
-  @Override
-  public Object resolveArgument(RequestContext context, ResolvableMethodParameter resolvable) throws Throwable {
-    if (resolvable.is(RedirectModel.class)) {
-      RedirectModel redirectModel = new RedirectModel();
-      context.setAttribute(RedirectModel.OUTPUT_ATTRIBUTE, redirectModel);
-      // set redirect model to current BindingContext
-      context.getBindingContext().setRedirectModel(redirectModel);
-      return redirectModel;
-    }
-
-    return context.getBindingContext().getModel();
   }
 
 }

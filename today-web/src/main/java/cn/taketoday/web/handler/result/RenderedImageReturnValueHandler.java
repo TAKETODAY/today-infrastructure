@@ -17,6 +17,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.web.handler.result;
 
 import java.awt.image.RenderedImage;
@@ -28,7 +29,6 @@ import cn.taketoday.http.MediaType;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.handler.method.HandlerMethod;
-import cn.taketoday.web.handler.result.HandlerMethodReturnValueHandler;
 
 /**
  * Render an image to HTTP response-body
@@ -47,8 +47,8 @@ public class RenderedImageReturnValueHandler implements HandlerMethodReturnValue
   private String contentType = MediaType.IMAGE_PNG_VALUE;
 
   @Override
-  public boolean supportsHandlerMethod(HandlerMethod handlerMethod) {
-    return handlerMethod.isReturnTypeAssignableTo(RenderedImage.class);
+  public boolean supportsHandlerMethod(HandlerMethod handler) {
+    return handler.isReturnTypeAssignableTo(RenderedImage.class);
   }
 
   @Override
@@ -58,9 +58,9 @@ public class RenderedImageReturnValueHandler implements HandlerMethodReturnValue
 
   @Override
   public void handleReturnValue(
-          final RequestContext context, final Object handler, final Object returnValue) throws IOException {
-    if (returnValue instanceof RenderedImage) {
-      write((RenderedImage) returnValue, context);
+          RequestContext context, Object handler, Object returnValue) throws IOException {
+    if (returnValue instanceof RenderedImage renderedImage) {
+      write(renderedImage, context);
     }
   }
 

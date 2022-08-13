@@ -45,6 +45,7 @@ import cn.taketoday.web.ErrorResponse;
 import cn.taketoday.web.HttpMediaTypeNotSupportedException;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.RequestContextUtils;
+import cn.taketoday.web.ReturnValueHandler;
 import cn.taketoday.web.accept.ContentNegotiationManager;
 import cn.taketoday.web.handler.method.HandlerMethod;
 import cn.taketoday.web.handler.method.ResolvableMethodParameter;
@@ -67,7 +68,8 @@ import cn.taketoday.web.view.RedirectModelManager;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/1/23 17:43
  */
-public class HttpEntityMethodProcessor extends AbstractMessageConverterMethodProcessor implements HandlerMethodReturnValueHandler {
+public class HttpEntityMethodProcessor
+        extends AbstractMessageConverterMethodProcessor implements HandlerMethodReturnValueHandler {
 
   @Nullable
   private final RedirectModelManager redirectModelManager;
@@ -130,20 +132,6 @@ public class HttpEntityMethodProcessor extends AbstractMessageConverterMethodPro
             || resolvable.is(RequestEntity.class);
   }
 
-  @Override
-  public boolean supportsReturnValue(@Nullable Object returnValue) {
-    return returnValue instanceof HttpEntity && !(returnValue instanceof RequestEntity);
-  }
-
-  @Override
-  public boolean supportsHandlerMethod(HandlerMethod handlerMethod) {
-    MethodParameter returnType = handlerMethod.getReturnType();
-    Class<?> type = returnType.getParameterType();
-    return (HttpEntity.class.isAssignableFrom(type) && !RequestEntity.class.isAssignableFrom(type))
-            || ErrorResponse.class.isAssignableFrom(type)
-            || ProblemDetail.class.isAssignableFrom(type);
-  }
-
   @Nullable
   @Override
   public Object resolveArgument(RequestContext context, ResolvableMethodParameter resolvable)
@@ -184,13 +172,30 @@ public class HttpEntityMethodProcessor extends AbstractMessageConverterMethodPro
     }
   }
 
+  //---------------------------------------------------------------------
+  // Implementation of ReturnValueHandler interface
+  //---------------------------------------------------------------------
+
+  @Override
+  public boolean supportsReturnValue(@Nullable Object returnValue) {
+    return returnValue instanceof HttpEntity && !(returnValue instanceof RequestEntity);
+  }
+
+  @Override
+  public boolean supportsHandlerMethod(HandlerMethod handlerMethod) {
+    MethodParameter returnType = handlerMethod.getReturnType();
+    Class<?> type = returnType.getParameterType();
+    return (HttpEntity.class.isAssignableFrom(type) && !RequestEntity.class.isAssignableFrom(type))
+            || ErrorResponse.class.isAssignableFrom(type)
+            || ProblemDetail.class.isAssignableFrom(type);
+  }
+
   @Override
   public void handleReturnValue(
-          RequestContext context, HandlerMethod handler, @Nullable Object returnValue) throws Exception {
+          RequestContext context, @Nullable Object handler, @Nullable Object returnValue) throws Exception {
     if (returnValue == null) {
       return;
     }
-    MethodParameter methodReturnType = handler.getReturnType();
 
     HttpEntity<?> httpEntity;
     if (returnValue instanceof ErrorResponse response) {
@@ -203,6 +208,7 @@ public class HttpEntityMethodProcessor extends AbstractMessageConverterMethodPro
       Assert.isInstanceOf(HttpEntity.class, returnValue);
       httpEntity = (HttpEntity<?>) returnValue;
     }
+
     if (httpEntity.getBody() instanceof ProblemDetail detail) {
       if (detail.getInstance() == null) {
         URI path = URI.create(context.getRequestPath());
@@ -249,10 +255,18 @@ public class HttpEntityMethodProcessor extends AbstractMessageConverterMethodPro
       }
     }
 
-    // Try even with null body. ResponseBodyAdvice could get involved.
-    writeWithMessageConverters(httpEntity.getBody(), methodReturnType, context);
+    HandlerMethod handlerMethod = HandlerMethod.unwrap(handler);
+    if (handlerMethod != null) {
+      MethodParameter methodReturnType = handlerMethod.getReturnType();
+      // Try even with null body. ResponseBodyAdvice could get involved.
+      writeWithMessageConverters(httpEntity.getBody(), methodReturnType, context);
+    }
+    else {
+      // for other handler's result
+      writeWithMessageConverters(httpEntity.getBody(), context);
+    }
 
-    // Ensure headers are flushed even if no body was written.
+    // Ensure headers are flushed even if no-body was written.
     context.flush();
   }
 

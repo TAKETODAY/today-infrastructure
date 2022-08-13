@@ -55,8 +55,8 @@ public class ModelAndViewReturnValueHandler implements HandlerMethodReturnValueH
   @Override
   public void handleReturnValue(
           RequestContext context, Object handler, Object returnValue) throws Exception {
-    if (returnValue instanceof ModelAndView) {
-      handleModelAndView(context, handler, (ModelAndView) returnValue);
+    if (returnValue instanceof ModelAndView modelAndView) {
+      handleModelAndView(context, handler, modelAndView);
     }
   }
 
@@ -66,7 +66,7 @@ public class ModelAndViewReturnValueHandler implements HandlerMethodReturnValueH
    * @since 2.3.3
    */
   public final void handleModelAndView(
-          RequestContext context, Object handler, @Nullable ModelAndView modelAndView) throws Exception {
+          RequestContext context, @Nullable Object handler, @Nullable ModelAndView modelAndView) throws Exception {
     if (modelAndView != null) {
       View view = modelAndView.getView();
       String viewName = modelAndView.getViewName();

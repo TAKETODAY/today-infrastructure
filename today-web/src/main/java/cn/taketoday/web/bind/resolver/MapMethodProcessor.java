@@ -27,7 +27,7 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.handler.method.HandlerMethod;
 import cn.taketoday.web.handler.method.ResolvableMethodParameter;
-import cn.taketoday.web.handler.result.SmartReturnValueHandler;
+import cn.taketoday.web.handler.result.HandlerMethodReturnValueHandler;
 
 /**
  * Resolves {@code Map<String, Object> model} method arguments and handles {@link Map} return values.
@@ -41,7 +41,7 @@ import cn.taketoday.web.handler.result.SmartReturnValueHandler;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see HandlerMethod
  */
-public class MapMethodProcessor implements ParameterResolvingStrategy, SmartReturnValueHandler {
+public class MapMethodProcessor implements ParameterResolvingStrategy, HandlerMethodReturnValueHandler {
 
   @Override
   public boolean supportsParameter(ResolvableMethodParameter resolvable) {
@@ -67,12 +67,8 @@ public class MapMethodProcessor implements ParameterResolvingStrategy, SmartRetu
   // HandlerMethodReturnValueHandler
 
   @Override
-  public boolean supportsHandler(Object handler) {
-    HandlerMethod handlerMethod = HandlerMethod.unwrap(handler);
-    if (handlerMethod != null) {
-      return handlerMethod.isReturnTypeAssignableTo(Map.class);
-    }
-    return false;
+  public boolean supportsHandlerMethod(HandlerMethod handler) {
+    return handler.isReturnTypeAssignableTo(Map.class);
   }
 
   @Override
@@ -81,7 +77,7 @@ public class MapMethodProcessor implements ParameterResolvingStrategy, SmartRetu
   }
 
   @Override
-  @SuppressWarnings({ "unchecked" })
+  @SuppressWarnings({ "unchecked", "rawtypes" })
   public void handleReturnValue(RequestContext context, Object handler, @Nullable Object returnValue) throws Exception {
     if (returnValue instanceof Map map) {
       context.getBindingContext().addAllAttributes(map);

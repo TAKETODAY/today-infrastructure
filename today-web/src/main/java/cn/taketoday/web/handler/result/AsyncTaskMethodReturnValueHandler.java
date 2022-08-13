@@ -28,6 +28,8 @@ import cn.taketoday.web.context.async.WebAsyncUtils;
 import cn.taketoday.web.handler.method.HandlerMethod;
 
 /**
+ * for WebAsyncTask
+ *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/4/9 12:03
  */
@@ -46,19 +48,19 @@ public class AsyncTaskMethodReturnValueHandler implements HandlerMethodReturnVal
   }
 
   @Override
+  public boolean supportsHandlerMethod(HandlerMethod handler) {
+    return handler.isReturnTypeAssignableTo(WebAsyncTask.class);
+  }
+
+  @Override
   public void handleReturnValue(RequestContext context, Object handler, @Nullable Object returnValue) throws Exception {
-    if (returnValue instanceof WebAsyncTask task) {
+    if (returnValue instanceof WebAsyncTask<?> task) {
       if (this.beanFactory != null) {
         task.setBeanFactory(this.beanFactory);
       }
       WebAsyncUtils.getAsyncManager(context)
               .startCallableProcessing(task, context.getBindingContext());
     }
-  }
-
-  @Override
-  public boolean supportsHandlerMethod(HandlerMethod handler) {
-    return handler.isReturnTypeAssignableTo(WebAsyncTask.class);
   }
 
 }

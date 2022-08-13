@@ -17,34 +17,35 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.web.handler.result;
 
 import cn.taketoday.http.HttpStatus;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.handler.method.HandlerMethod;
-import cn.taketoday.web.handler.result.HandlerMethodReturnValueHandler;
 
 /**
- * @author TODAY 2020/12/23 20:12
- * @since 3.0
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 3.0 2020/12/23 20:12
  */
 public class HttpStatusReturnValueHandler implements HandlerMethodReturnValueHandler {
 
   @Override
-  public boolean supportsHandlerMethod(final HandlerMethod handler) {
+  public boolean supportsHandlerMethod(HandlerMethod handler) {
     return handler.isReturn(HttpStatus.class);
   }
 
   @Override
-  public boolean supportsReturnValue(final Object returnValue) {
+  public boolean supportsReturnValue(Object returnValue) {
     return returnValue instanceof HttpStatus;
   }
 
   @Override
   public void handleReturnValue(
-          RequestContext context, Object handler, final Object returnValue) {
-    if (returnValue instanceof HttpStatus) {
-      context.setStatus((HttpStatus) returnValue);
+          RequestContext context, Object handler, @Nullable Object returnValue) {
+    if (returnValue instanceof HttpStatus status) {
+      context.setStatus(status);
     }
   }
 

@@ -39,7 +39,6 @@ import cn.taketoday.web.handler.method.HandlerMethod;
  * @author TODAY 2019-07-10 19:22
  * @see HandlerExceptionHandler
  * @see HandlerMethod
- * @see ReturnValueHandlerProvider
  */
 public interface ReturnValueHandler {
   String REDIRECT_URL_PREFIX = "redirect:";

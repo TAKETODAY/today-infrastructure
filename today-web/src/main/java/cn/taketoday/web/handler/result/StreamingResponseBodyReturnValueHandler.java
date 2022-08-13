@@ -47,7 +47,10 @@ public class StreamingResponseBodyReturnValueHandler implements HandlerMethodRet
   @Override
   public boolean supportsReturnValue(@Nullable Object returnValue) {
     return returnValue instanceof StreamingResponseBody
-            || (returnValue instanceof ResponseEntity && ((ResponseEntity<?>) returnValue).getBody() instanceof StreamingResponseBody);
+            || (
+            returnValue instanceof ResponseEntity<?> response
+                    && response.getBody() instanceof StreamingResponseBody
+    );
   }
 
   @Override

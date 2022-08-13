@@ -22,6 +22,7 @@ package cn.taketoday.web.handler.result;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.HandlerExceptionHandler;
 import cn.taketoday.web.RequestContext;
+import cn.taketoday.web.ReturnValueHandler;
 import cn.taketoday.web.handler.method.ActionMappingAnnotationHandler;
 import cn.taketoday.web.handler.method.HandlerMethod;
 
@@ -30,10 +31,10 @@ import cn.taketoday.web.handler.method.HandlerMethod;
  *
  * @author TODAY 2019-12-13 13:52
  */
-public interface HandlerMethodReturnValueHandler extends SmartReturnValueHandler {
+public interface HandlerMethodReturnValueHandler extends ReturnValueHandler {
 
   @Override
-  default boolean supportsHandler(final Object handler) {
+  default boolean supportsHandler(Object handler) {
     if (handler instanceof HandlerMethod handlerMethod) {
       return supportsHandlerMethod(handlerMethod);
     }
@@ -42,25 +43,6 @@ public interface HandlerMethodReturnValueHandler extends SmartReturnValueHandler
       return supportsHandlerMethod(handlerMethod);
     }
     return false;
-  }
-
-  @Override
-  default boolean supportsHandler(Object handler, @Nullable Object returnValue) {
-    if (handler instanceof HandlerMethod handlerMethod) {
-      return supportsHandlerMethod(handlerMethod, returnValue);
-    }
-    else if (handler instanceof ActionMappingAnnotationHandler annotationHandler) {
-      HandlerMethod handlerMethod = annotationHandler.getMethod();
-      return supportsHandlerMethod(handlerMethod, returnValue);
-    }
-    return false;
-  }
-
-  /**
-   * @see HandlerMethod#getReturnValueType(Object)
-   */
-  default boolean supportsHandlerMethod(HandlerMethod handler, @Nullable Object returnValue) {
-    return supportsHandlerMethod(handler) || supportsReturnValue(returnValue);
   }
 
   /**

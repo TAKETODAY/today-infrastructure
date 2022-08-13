@@ -21,12 +21,13 @@
 package cn.taketoday.web.handler.result;
 
 import cn.taketoday.http.HttpHeaders;
-import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.handler.method.HandlerMethod;
 
 /**
+ * Handles return values of type {@link HttpHeaders}.
+ *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/1/28 11:00
  */
@@ -44,11 +45,7 @@ public class HttpHeadersReturnValueHandler implements HandlerMethodReturnValueHa
 
   @Override
   public void handleReturnValue(RequestContext context, Object handler, @Nullable Object returnValue) {
-
-    Assert.state(returnValue instanceof HttpHeaders, "HttpHeaders expected");
-    HttpHeaders headers = (HttpHeaders) returnValue;
-
-    if (!headers.isEmpty()) {
+    if (returnValue instanceof HttpHeaders headers && !headers.isEmpty()) {
       context.mergeToResponse(headers);
     }
   }
