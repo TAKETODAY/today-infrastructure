@@ -20,7 +20,6 @@
 
 package cn.taketoday.framework.web.netty;
 
-import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.beans.factory.annotation.DisableAllDependencyInjection;
 import cn.taketoday.beans.factory.annotation.EnableDependencyInjection;
 import cn.taketoday.beans.factory.config.BeanDefinition;
@@ -29,6 +28,8 @@ import cn.taketoday.context.annotation.MissingBean;
 import cn.taketoday.context.annotation.Role;
 import cn.taketoday.context.properties.Props;
 import cn.taketoday.framework.web.embedded.netty.NettyReactiveWebServerFactory;
+import cn.taketoday.framework.web.embedded.netty.NettyWebServer;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.stereotype.Singleton;
 import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.handler.DispatcherHandler;
@@ -49,7 +50,7 @@ public class NettyConfiguration {
           WebApplicationContext context,
           NettyDispatcher nettyDispatcher,
           NettyRequestConfig contextConfig,
-          @Autowired(required = false) WebSocketHandlerMapping registry) {
+          @Nullable WebSocketHandlerMapping registry) {
     if (registry != null) {
       return new WebSocketReactiveChannelHandler(nettyDispatcher, contextConfig, context);
     }

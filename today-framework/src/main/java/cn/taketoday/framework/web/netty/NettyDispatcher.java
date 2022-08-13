@@ -52,7 +52,7 @@ public class NettyDispatcher {
    * @param ctx netty channel handler context
    * @param nettyContext netty request context
    */
-  public void dispatch(final ChannelHandlerContext ctx, final NettyRequestContext nettyContext) throws Throwable {
+  public void dispatch(ChannelHandlerContext ctx, NettyRequestContext nettyContext) throws Throwable {
     RequestContextHolder.set(nettyContext);
     try {
       dispatcherHandler.dispatch(nettyContext); // handling HTTP request
