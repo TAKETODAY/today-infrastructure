@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -80,6 +80,7 @@ public class HandlerMethod {
   private String contentType;
 
   /** @since 4.0 */
+  @Nullable
   private Boolean responseBody;
 
   /** @since 4.0 */
@@ -140,10 +141,10 @@ public class HandlerMethod {
     this.method = method;
     this.bridgedMethod = BridgeMethodResolver.findBridgedMethod(method);
     this.returnType = bridgedMethod.getReturnType();
-    ReflectionUtils.makeAccessible(this.bridgedMethod);
+    ReflectionUtils.makeAccessible(bridgedMethod);
     this.parameters = initMethodParameters();
     evaluateResponseStatus();
-    this.description = initDescription(this.beanType, this.method);
+    this.description = initDescription(beanType, method);
   }
 
   /**
@@ -159,12 +160,12 @@ public class HandlerMethod {
     this.messageSource = null;
     this.beanType = ClassUtils.getUserClass(bean);
     this.method = bean.getClass().getMethod(methodName, parameterTypes);
-    this.bridgedMethod = BridgeMethodResolver.findBridgedMethod(this.method);
+    this.bridgedMethod = BridgeMethodResolver.findBridgedMethod(method);
     this.returnType = bridgedMethod.getReturnType();
-    ReflectionUtils.makeAccessible(this.bridgedMethod);
+    ReflectionUtils.makeAccessible(bridgedMethod);
     this.parameters = initMethodParameters();
     evaluateResponseStatus();
-    this.description = initDescription(this.beanType, this.method);
+    this.description = initDescription(beanType, method);
   }
 
   /**
@@ -183,11 +184,12 @@ public class HandlerMethod {
   public HandlerMethod(
           String beanName, BeanFactory beanFactory,
           @Nullable MessageSource messageSource, Method method) {
-
+    Assert.notNull(method, "Method is required");
     Assert.hasText(beanName, "Bean name is required");
     Assert.notNull(beanFactory, "BeanFactory is required");
-    Assert.notNull(method, "Method is required");
+
     this.bean = beanName;
+    this.method = method;
     this.beanFactory = beanFactory;
     this.messageSource = messageSource;
     Class<?> beanType = beanFactory.getType(beanName);
@@ -195,13 +197,12 @@ public class HandlerMethod {
       throw new IllegalStateException("Cannot resolve bean type for bean with name '" + beanName + "'");
     }
     this.beanType = ClassUtils.getUserClass(beanType);
-    this.method = method;
     this.bridgedMethod = BridgeMethodResolver.findBridgedMethod(method);
     this.returnType = bridgedMethod.getReturnType();
-    ReflectionUtils.makeAccessible(this.bridgedMethod);
+    ReflectionUtils.makeAccessible(bridgedMethod);
     this.parameters = initMethodParameters();
     evaluateResponseStatus();
-    this.description = initDescription(this.beanType, this.method);
+    this.description = initDescription(this.beanType, method);
   }
 
   /**
@@ -261,9 +262,9 @@ public class HandlerMethod {
     }
     if (annotation != null) {
       String reason = annotation.reason();
-      String resolvedReason = (StringUtils.hasText(reason) && this.messageSource != null ?
-                               this.messageSource.getMessage(reason, null, reason, LocaleContextHolder.getLocale()) :
-                               reason);
+      String resolvedReason = StringUtils.hasText(reason) && messageSource != null
+                              ? messageSource.getMessage(reason, null, reason, LocaleContextHolder.getLocale())
+                              : reason;
 
       this.responseStatus = annotation.code();
       this.responseStatusReason = resolvedReason;
