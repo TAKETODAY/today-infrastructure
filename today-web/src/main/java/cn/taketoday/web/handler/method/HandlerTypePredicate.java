@@ -66,9 +66,9 @@ public final class HandlerTypePredicate implements Predicate<Class<?>> {
           Set<String> basePackages,
           List<Class<?>> assignableTypes,
           List<Class<? extends Annotation>> annotations) {
+    this.annotations = Collections.unmodifiableList(annotations);
     this.basePackages = Collections.unmodifiableSet(basePackages);
     this.assignableTypes = Collections.unmodifiableList(assignableTypes);
-    this.annotations = Collections.unmodifiableList(annotations);
   }
 
   @Override
