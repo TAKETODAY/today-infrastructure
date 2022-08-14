@@ -60,7 +60,7 @@ public abstract class NestedRuntimeException extends RuntimeException {
    *
    * @param msg the detail message
    */
-  public NestedRuntimeException(String msg) {
+  public NestedRuntimeException(@Nullable String msg) {
     super(msg);
   }
 
@@ -80,7 +80,7 @@ public abstract class NestedRuntimeException extends RuntimeException {
    * @param msg the detail message
    * @param cause the nested exception
    */
-  public NestedRuntimeException(String msg, @Nullable Throwable cause) {
+  public NestedRuntimeException(@Nullable String msg, @Nullable Throwable cause) {
     super(msg, cause);
   }
 
@@ -99,6 +99,7 @@ public abstract class NestedRuntimeException extends RuntimeException {
    *
    * @return the innermost exception, or {@code null} if none
    */
+  @Nullable
   public Throwable getRootCause() {
     return ExceptionUtils.getRootCause(this);
   }
@@ -124,7 +125,7 @@ public abstract class NestedRuntimeException extends RuntimeException {
    * @param exType the exception type to look for
    * @return whether there is a nested exception of the specified type
    */
-  public boolean contains(Class<?> exType) {
+  public boolean contains(@Nullable Class<?> exType) {
     if (exType == null) {
       return false;
     }

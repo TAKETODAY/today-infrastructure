@@ -26,7 +26,6 @@ import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpStatusCode;
 import cn.taketoday.http.ProblemDetail;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.ExceptionUtils;
 
 /**
  * Subclass of {@link ErrorResponseException} that accepts a "reason" and maps
@@ -88,6 +87,7 @@ public class ResponseStatusException extends ErrorResponseException {
   public ResponseStatusException(HttpStatusCode status, @Nullable String reason, @Nullable Throwable cause) {
     super(status, cause);
     this.reason = reason;
+    getBody().setDetail(reason);
   }
 
   /**

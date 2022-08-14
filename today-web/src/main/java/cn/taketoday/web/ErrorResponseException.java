@@ -28,7 +28,6 @@ import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpStatusCode;
 import cn.taketoday.http.ProblemDetail;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.ExceptionUtils;
 
 /**
  * {@link RuntimeException} that implements {@link ErrorResponse} to expose
