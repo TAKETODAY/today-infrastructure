@@ -70,10 +70,7 @@ import cn.taketoday.retry.support.RetrySynchronizationManager;
 import cn.taketoday.retry.support.RetryTemplate;
 import cn.taketoday.util.ConcurrentReferenceHashMap;
 import cn.taketoday.util.ReflectionUtils;
-import cn.taketoday.util.ReflectionUtils.MethodCallback;
 import cn.taketoday.util.StringUtils;
-
-import static cn.taketoday.retry.policy.ExpressionRetryPolicy.isTemplate;
 
 /**
  * Interceptor that parses the retry metadata on the method it is invoking and delegates

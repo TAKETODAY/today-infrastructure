@@ -24,11 +24,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import cn.taketoday.core.AntPathMatcher;
-import cn.taketoday.core.PathMatcher;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.HandlerInterceptor;
 import cn.taketoday.web.handler.MappedInterceptor;

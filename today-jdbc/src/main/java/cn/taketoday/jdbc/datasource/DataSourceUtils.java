@@ -37,6 +37,7 @@ import cn.taketoday.transaction.TransactionDefinition;
 import cn.taketoday.transaction.support.SynchronizationInfo;
 import cn.taketoday.transaction.support.TransactionSynchronization;
 import cn.taketoday.transaction.support.TransactionSynchronizationManager;
+import cn.taketoday.util.ExceptionUtils;
 
 /**
  * Helper class that provides static methods for obtaining JDBC Connections from
@@ -559,7 +560,7 @@ public abstract class DataSourceUtils {
       return (DataSource) ctx.lookup(jndiLookup);
     }
     catch (NamingException e) {
-      throw new RuntimeException(e);
+      throw ExceptionUtils.sneakyThrow(e);
     }
     finally {
       if (ctx != null) {

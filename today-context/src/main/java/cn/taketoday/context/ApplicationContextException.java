@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -17,6 +17,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.context;
 
 import java.io.Serial;
@@ -24,10 +25,11 @@ import java.io.Serial;
 import cn.taketoday.beans.FatalBeanException;
 
 /**
- * Application Context Exception
+ * Exception thrown during application context initialization.
  *
- * @author TODAY <br>
- * 2018-10-05 21:33
+ * @author Rod Johnson
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 2018-10-05 21:33
  */
 public class ApplicationContextException extends FatalBeanException {
 

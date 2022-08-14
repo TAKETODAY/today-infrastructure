@@ -20,7 +20,6 @@
 package cn.taketoday.bytecode.tree.analysis;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import cn.taketoday.bytecode.Opcodes;
 import cn.taketoday.bytecode.Type;

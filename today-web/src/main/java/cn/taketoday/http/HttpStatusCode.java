@@ -20,8 +20,6 @@
 
 package cn.taketoday.http;
 
-import cn.taketoday.lang.Assert;
-
 /**
  * Represents an HTTP response status code. Implemented by {@link HttpStatus},
  * but defined as an interface to allow for values not in that enumeration.

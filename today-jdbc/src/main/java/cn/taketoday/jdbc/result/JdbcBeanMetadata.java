@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -17,11 +17,11 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.jdbc.result;
 
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Field;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -34,7 +34,6 @@ import cn.taketoday.beans.BeanProperty;
 import cn.taketoday.beans.support.BeanInstantiator;
 import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.core.annotation.MergedAnnotations;
-import cn.taketoday.reflect.PropertyAccessor;
 import cn.taketoday.dao.InvalidDataAccessApiUsageException;
 import cn.taketoday.jdbc.Column;
 import cn.taketoday.lang.Nullable;
@@ -45,7 +44,7 @@ import cn.taketoday.util.StringUtils;
 /**
  * Stores metadata for a POJO
  *
- * @author TODAY
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  */
 public class JdbcBeanMetadata implements Iterable<BeanProperty> {
   private static final Cache caseSensitiveFalse = new Cache();

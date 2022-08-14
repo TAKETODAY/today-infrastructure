@@ -32,7 +32,6 @@ import cn.taketoday.format.number.money.CurrencyUnitFormatter;
 import cn.taketoday.format.number.money.Jsr354NumberFormatAnnotationFormatterFactory;
 import cn.taketoday.format.number.money.MonetaryAmountFormatter;
 import cn.taketoday.format.support.DefaultFormattingConversionService;
-import cn.taketoday.util.ClassUtils;
 import cn.taketoday.web.config.EnableWebMvc;
 
 /**
