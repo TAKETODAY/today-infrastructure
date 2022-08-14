@@ -82,7 +82,7 @@ public class RequestResponseBodyAdviceChain implements RequestBodyAdvice, Respon
   }
 
   @Override
-  public boolean supports(MethodParameter returnType, HttpMessageConverter<?> converter) {
+  public boolean supports(@Nullable Object body, @Nullable MethodParameter returnType, HttpMessageConverter<?> converter) {
     throw new UnsupportedOperationException("Not implemented");
   }
 
@@ -114,11 +114,11 @@ public class RequestResponseBodyAdviceChain implements RequestBodyAdvice, Respon
   @Nullable
   @SuppressWarnings({ "unchecked", "rawtypes" })
   public Object beforeBodyWrite(
-          @Nullable Object body, MethodParameter returnType, MediaType contentType,
+          @Nullable Object body, @Nullable MethodParameter returnType, MediaType contentType,
           HttpMessageConverter<?> converter, RequestContext context) {
 
     for (ResponseBodyAdvice advice : getMatchingAdvice(returnType, ResponseBodyAdvice.class, responseBodyAdvice)) {
-      if (advice.supports(returnType, converter)) {
+      if (advice.supports(body, returnType, converter)) {
         body = advice.beforeBodyWrite(
                 body, returnType, contentType, converter, context);
       }
@@ -142,15 +142,21 @@ public class RequestResponseBodyAdviceChain implements RequestBodyAdvice, Respon
   }
 
   @SuppressWarnings({ "unchecked", "rawtypes" })
-  private <A> List<A> getMatchingAdvice(MethodParameter parameter,
+  private <A> List<A> getMatchingAdvice(@Nullable MethodParameter parameter,
           Class<? extends A> adviceType, List<Object> availableAdvice) {
     if (CollectionUtils.isEmpty(availableAdvice)) {
       return Collections.emptyList();
     }
-    Class<?> containingClass = parameter.getContainingClass();
+
+    Class<?> containingClass = null;
     ArrayList result = new ArrayList<>(availableAdvice.size());
     for (Object advice : availableAdvice) {
       if (advice instanceof ControllerAdviceBean adviceBean) {
+        // TODO containingClass maybe null
+        if (containingClass == null && parameter != null) {
+          containingClass = parameter.getContainingClass();
+        }
+
         if (!adviceBean.isApplicableToBeanType(containingClass)) {
           continue;
         }

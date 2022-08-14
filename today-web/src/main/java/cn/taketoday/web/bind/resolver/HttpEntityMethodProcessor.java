@@ -45,7 +45,6 @@ import cn.taketoday.web.ErrorResponse;
 import cn.taketoday.web.HttpMediaTypeNotSupportedException;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.RequestContextUtils;
-import cn.taketoday.web.ReturnValueHandler;
 import cn.taketoday.web.accept.ContentNegotiationManager;
 import cn.taketoday.web.handler.method.HandlerMethod;
 import cn.taketoday.web.handler.method.ResolvableMethodParameter;
@@ -209,7 +208,8 @@ public class HttpEntityMethodProcessor
       httpEntity = (HttpEntity<?>) returnValue;
     }
 
-    if (httpEntity.getBody() instanceof ProblemDetail detail) {
+    Object body = httpEntity.getBody();
+    if (body instanceof ProblemDetail detail) {
       if (detail.getInstance() == null) {
         URI path = URI.create(context.getRequestPath());
         detail.setInstance(path);
@@ -259,11 +259,11 @@ public class HttpEntityMethodProcessor
     if (handlerMethod != null) {
       MethodParameter methodReturnType = handlerMethod.getReturnType();
       // Try even with null body. ResponseBodyAdvice could get involved.
-      writeWithMessageConverters(httpEntity.getBody(), methodReturnType, context);
+      writeWithMessageConverters(body, methodReturnType, context);
     }
-    else {
+    else if (body != null) {
       // for other handler's result
-      writeWithMessageConverters(httpEntity.getBody(), context);
+      writeWithMessageConverters(body, null, context);
     }
 
     // Ensure headers are flushed even if no-body was written.
@@ -308,16 +308,19 @@ public class HttpEntityMethodProcessor
     RequestContextUtils.saveRedirectModel(location, request, redirectModelManager);
   }
 
-  @Override
-  protected Class<?> getReturnValueType(@Nullable Object returnValue, MethodParameter returnType) {
+  protected Class<?> getReturnValueType(@Nullable Object returnValue, @Nullable MethodParameter returnType) {
     if (returnValue != null) {
       return returnValue.getClass();
     }
-    else {
+
+    if (returnType != null) {
       Type type = getHttpEntityType(returnType);
-      type = type != null ? type : Object.class;
+      if (type == null) {
+        type = Object.class;
+      }
       return ResolvableType.forMethodParameter(returnType, type).toClass();
     }
+    throw new IllegalStateException("return-value and return-type must not be null at same time");
   }
 
 }

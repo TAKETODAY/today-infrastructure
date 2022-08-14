@@ -50,7 +50,8 @@ import cn.taketoday.web.view.ModelAndView;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/1/23 17:14
  */
-public class RequestResponseBodyMethodProcessor extends AbstractMessageConverterMethodProcessor implements HandlerMethodReturnValueHandler {
+public class RequestResponseBodyMethodProcessor
+        extends AbstractMessageConverterMethodProcessor implements HandlerMethodReturnValueHandler {
 
   /**
    * Basic constructor with converters only. Suitable for resolving
@@ -97,16 +98,6 @@ public class RequestResponseBodyMethodProcessor extends AbstractMessageConverter
     return resolvable.hasParameterAnnotation(RequestBody.class);
   }
 
-  @Override
-  public boolean supportsReturnValue(@Nullable Object returnValue) {
-    return !(returnValue instanceof ModelAndView);
-  }
-
-  @Override
-  public boolean supportsHandlerMethod(HandlerMethod handlerMethod) {
-    return handlerMethod.isResponseBody();
-  }
-
   /**
    * Throws MethodArgumentNotValidException if validation fails.
    *
@@ -140,10 +131,23 @@ public class RequestResponseBodyMethodProcessor extends AbstractMessageConverter
     return requestBody != null && requestBody.required() && !parameter.isOptional();
   }
 
+  //---------------------------------------------------------------------
+  // Implementation of ReturnValueHandler interface
+  //---------------------------------------------------------------------
+
+  @Override
+  public boolean supportsHandlerMethod(HandlerMethod handler) {
+    return handler.isResponseBody();
+  }
+
+  @Override
+  public boolean supportsReturnValue(@Nullable Object returnValue) {
+    return !(returnValue instanceof ModelAndView);
+  }
+
   @Override
   public void handleReturnValue(
-          RequestContext context, HandlerMethod handler, @Nullable Object returnValue) throws Exception {
-
+          RequestContext context, @Nullable Object handler, @Nullable Object returnValue) throws Exception {
     if (returnValue instanceof ProblemDetail detail) {
       context.setStatus(detail.getStatus());
       if (detail.getInstance() == null) {
@@ -153,7 +157,13 @@ public class RequestResponseBodyMethodProcessor extends AbstractMessageConverter
     }
 
     // Try even with null return value. ResponseBodyAdvice could get involved.
-    writeWithMessageConverters(returnValue, handler.getReturnType(), context);
+    HandlerMethod handlerMethod = HandlerMethod.unwrap(handler);
+    if (handlerMethod != null) {
+      writeWithMessageConverters(returnValue, handlerMethod.getReturnType(), context);
+    }
+    else if (returnValue != null) {
+      writeWithMessageConverters(returnValue, null, context);
+    }
   }
 
 }

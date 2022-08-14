@@ -52,7 +52,8 @@ public interface ResponseBodyAdvice<T> {
    * @return {@code true} if {@link #beforeBodyWrite} should be invoked;
    * {@code false} otherwise
    */
-  boolean supports(MethodParameter returnType, HttpMessageConverter<?> converter);
+  boolean supports(@Nullable Object body,
+          @Nullable MethodParameter returnType, HttpMessageConverter<?> converter);
 
   /**
    * Invoked after an {@code HttpMessageConverter} is selected and just before
@@ -66,7 +67,7 @@ public interface ResponseBodyAdvice<T> {
    * @return the body that was passed in or a modified (possibly new) instance
    */
   @Nullable
-  T beforeBodyWrite(@Nullable Object body, MethodParameter returnType, MediaType contentType,
+  T beforeBodyWrite(@Nullable Object body, @Nullable MethodParameter returnType, MediaType contentType,
           HttpMessageConverter<?> converter, RequestContext context);
 
 }

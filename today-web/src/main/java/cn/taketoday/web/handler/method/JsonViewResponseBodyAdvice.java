@@ -27,6 +27,7 @@ import cn.taketoday.http.MediaType;
 import cn.taketoday.http.converter.HttpMessageConverter;
 import cn.taketoday.http.converter.json.MappingJacksonValue;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.RequestContext;
 
 /**
@@ -51,8 +52,11 @@ import cn.taketoday.web.RequestContext;
 public class JsonViewResponseBodyAdvice extends AbstractMappingJacksonResponseBodyAdvice {
 
   @Override
-  public boolean supports(MethodParameter returnType, HttpMessageConverter<?> converter) {
-    return super.supports(returnType, converter) && returnType.hasMethodAnnotation(JsonView.class);
+  public boolean supports(@Nullable Object body,
+          @Nullable MethodParameter returnType, HttpMessageConverter<?> converter) {
+    return super.supports(body, returnType, converter)
+            && returnType != null
+            && returnType.hasMethodAnnotation(JsonView.class);
   }
 
   @Override

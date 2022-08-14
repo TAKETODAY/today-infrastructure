@@ -41,14 +41,15 @@ import cn.taketoday.web.RequestContext;
 public abstract class AbstractMappingJacksonResponseBodyAdvice implements ResponseBodyAdvice<Object> {
 
   @Override
-  public boolean supports(MethodParameter returnType, HttpMessageConverter<?> converter) {
+  public boolean supports(@Nullable Object body,
+          @Nullable MethodParameter returnType, HttpMessageConverter<?> converter) {
     return converter instanceof AbstractJackson2HttpMessageConverter;
   }
 
   @Nullable
   @Override
   public Object beforeBodyWrite(
-          @Nullable Object body, MethodParameter returnType, MediaType contentType,
+          @Nullable Object body, @Nullable MethodParameter returnType, MediaType contentType,
           HttpMessageConverter<?> converter, RequestContext context) {
 
     if (body == null) {
@@ -71,6 +72,6 @@ public abstract class AbstractMappingJacksonResponseBodyAdvice implements Respon
    * Invoked only if the converter type is {@code MappingJackson2HttpMessageConverter}.
    */
   protected abstract void beforeBodyWriteInternal(MappingJacksonValue bodyContainer,
-          MediaType contentType, MethodParameter returnType, RequestContext request);
+          MediaType contentType, @Nullable MethodParameter returnType, RequestContext request);
 
 }

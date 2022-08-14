@@ -149,12 +149,12 @@ public abstract class AbstractMessageConverterMethodProcessor
    * has no compatible converter.
    */
   @SuppressWarnings({ "rawtypes", "unchecked" })
-  protected <T> void writeWithMessageConverters(@Nullable T value, MethodParameter returnType, RequestContext context)
+  protected <T> void writeWithMessageConverters(@Nullable T value, @Nullable MethodParameter returnType, RequestContext context)
           throws IOException, HttpMediaTypeNotAcceptableException, HttpMessageNotWritableException {
 
     Object body;
-    Class<?> valueType;
     Type targetType;
+    Class<?> valueType;
 
     if (value instanceof CharSequence) {
       body = value.toString();
@@ -164,7 +164,12 @@ public abstract class AbstractMessageConverterMethodProcessor
     else {
       body = value;
       valueType = getReturnValueType(body, returnType);
-      targetType = GenericTypeResolver.resolveType(getGenericType(returnType), returnType.getContainingClass());
+      if (returnType == null) {
+        targetType = ResolvableType.fromInstance(body).getType();
+      }
+      else {
+        targetType = GenericTypeResolver.resolveType(getGenericType(returnType), returnType.getContainingClass());
+      }
     }
 
     HttpHeaders responseHeaders = context.responseHeaders();
@@ -313,14 +318,20 @@ public abstract class AbstractMessageConverterMethodProcessor
    * return type needs to be examined possibly including generic type determination
    * (e.g. {@code ResponseEntity<T>}).
    */
-  protected Class<?> getReturnValueType(@Nullable Object value, MethodParameter returnType) {
-    return value != null ? value.getClass() : returnType.getParameterType();
+  protected Class<?> getReturnValueType(@Nullable Object value, @Nullable MethodParameter returnType) {
+    if (value != null) {
+      return value.getClass();
+    }
+    if (returnType != null) {
+      return returnType.getParameterType();
+    }
+    throw new IllegalStateException("return-value and return-type must not be null at same time");
   }
 
   /**
    * Return whether the returned value or the declared return type extends {@link Resource}.
    */
-  protected boolean isResourceType(@Nullable Object value, MethodParameter returnType) {
+  protected boolean isResourceType(@Nullable Object value, @Nullable MethodParameter returnType) {
     Class<?> clazz = getReturnValueType(value, returnType);
     return clazz != InputStreamResource.class && Resource.class.isAssignableFrom(clazz);
   }
