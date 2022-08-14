@@ -24,7 +24,6 @@ import java.util.List;
 
 import cn.taketoday.beans.factory.InitializingBean;
 import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
-import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.aware.ApplicationContextSupport;
 import cn.taketoday.core.ArraySizeTrimmer;
@@ -285,36 +284,6 @@ public class ParameterResolvingRegistry
 
     // trim size
     strategies.trimToSize();
-  }
-
-  /**
-   * config ParameterResolver using {@link cn.taketoday.web.bind.WebDataBinder}
-   */
-  @Deprecated
-  public void configureDataBinder(ParameterResolvingStrategies strategies) {
-    BeanDefinitionRegistry registry = obtainApplicationContext().unwrapFactory(
-            BeanDefinitionRegistry.class);
-
-    if (!strategies.contains(DataBinderMapParameterResolver.class)
-            && !registry.containsBeanDefinition(DataBinderMapParameterResolver.class)) {
-      strategies.add(new DataBinderMapParameterResolver());
-    }
-    // resolve array of beans
-    if (!contains(DataBinderArrayParameterResolver.class)
-            && !registry.containsBeanDefinition(DataBinderArrayParameterResolver.class)) {
-      strategies.add(new DataBinderArrayParameterResolver());
-    }
-    // resolve a collection of beans
-    if (!strategies.contains(DataBinderCollectionParameterResolver.class)
-            && !registry.containsBeanDefinition(DataBinderCollectionParameterResolver.class)) {
-      strategies.add(new DataBinderCollectionParameterResolver());
-    }
-    // resolve bean
-    if (!strategies.contains(DataBinderParameterResolver.class)
-            && !registry.containsBeanDefinition(DataBinderParameterResolver.class)) {
-      DataBinderParameterResolver resolver = new DataBinderParameterResolver(this);
-      strategies.add(resolver);
-    }
   }
 
   /**

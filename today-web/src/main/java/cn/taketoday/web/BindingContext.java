@@ -220,7 +220,7 @@ public class BindingContext {
     return redirectModel;
   }
 
-  public void setRedirectModel(RedirectModel redirectModel) {
+  public void setRedirectModel(@Nullable RedirectModel redirectModel) {
     this.redirectModel = redirectModel;
   }
 
