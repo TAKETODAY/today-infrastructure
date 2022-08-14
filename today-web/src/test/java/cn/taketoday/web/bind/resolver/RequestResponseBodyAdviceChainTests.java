@@ -23,7 +23,6 @@ package cn.taketoday.web.bind.resolver;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
-import org.mockito.Mockito;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -40,9 +39,9 @@ import cn.taketoday.http.server.ServerHttpResponse;
 import cn.taketoday.http.server.ServletServerHttpRequest;
 import cn.taketoday.http.server.ServletServerHttpResponse;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.stereotype.Controller;
 import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.stereotype.Controller;
 import cn.taketoday.web.annotation.ControllerAdvice;
 import cn.taketoday.web.annotation.ResponseBody;
 import cn.taketoday.web.handler.method.ControllerAdviceBean;
@@ -53,8 +52,6 @@ import cn.taketoday.web.testfixture.servlet.MockHttpServletRequest;
 import cn.taketoday.web.testfixture.servlet.MockHttpServletResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.ArgumentMatchers.same;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
@@ -125,7 +122,7 @@ class RequestResponseBodyAdviceChainTests {
     RequestResponseBodyAdviceChain chain = new RequestResponseBodyAdviceChain(advice);
 
     String expected = "body++";
-    given(responseAdvice.supports(this.returnType, this.converterType)).willReturn(true);
+    given(responseAdvice.supports(body, this.returnType, this.converterType)).willReturn(true);
     given(responseAdvice.beforeBodyWrite(ArgumentMatchers.eq(this.body), ArgumentMatchers.eq(this.returnType), ArgumentMatchers.eq(this.contentType),
             ArgumentMatchers.eq(this.converterType), ArgumentMatchers.same(requestContext))).willReturn(expected);
 
@@ -161,7 +158,7 @@ class RequestResponseBodyAdviceChainTests {
   private static class MyControllerAdvice implements ResponseBodyAdvice<String> {
 
     @Override
-    public boolean supports(MethodParameter returnType, HttpMessageConverter<?> converterType) {
+    public boolean supports(@Nullable Object body, @Nullable MethodParameter returnType, HttpMessageConverter<?> converter) {
       return true;
     }
 
@@ -177,7 +174,8 @@ class RequestResponseBodyAdviceChainTests {
   private static class TargetedControllerAdvice implements ResponseBodyAdvice<String> {
 
     @Override
-    public boolean supports(MethodParameter returnType, HttpMessageConverter<?> converter) {
+    public boolean supports(@Nullable Object body,
+            @Nullable MethodParameter returnType, HttpMessageConverter<?> converter) {
       return true;
     }
 

@@ -617,7 +617,7 @@ class ExceptionHandlerAnnotationExceptionHandlerTests {
   static class CustomResponseBodyAdvice implements ResponseBodyAdvice<Object> {
 
     @Override
-    public boolean supports(MethodParameter returnType, HttpMessageConverter<?> converter) {
+    public boolean supports(@Nullable Object body, @Nullable MethodParameter returnType, HttpMessageConverter<?> converter) {
       return false;
     }
 

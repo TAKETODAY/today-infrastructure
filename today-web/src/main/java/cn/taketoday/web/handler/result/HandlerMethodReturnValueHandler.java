@@ -56,15 +56,24 @@ public interface HandlerMethodReturnValueHandler extends ReturnValueHandler {
     return false;
   }
 
+  /**
+   * Handle result of the handler
+   *
+   * @param context Current HTTP request context
+   * @param handler handler may be HandlerMethod
+   * @param returnValue Handler execution result
+   * Or {@link HandlerExceptionHandler} return value
+   * @throws Exception return-value handled failed
+   */
   @Override
   default void handleReturnValue(
           RequestContext context, @Nullable Object handler, @Nullable Object returnValue) throws Exception {
     if (handler instanceof HandlerMethod handlerMethod) {
-      handleReturnValue(context, handlerMethod, returnValue);
+      handleHandlerMethodReturnValue(context, handlerMethod, returnValue);
     }
     else if (handler instanceof ActionMappingAnnotationHandler annotationHandler) {
       HandlerMethod handlerMethod = annotationHandler.getMethod();
-      handleReturnValue(context, handlerMethod, returnValue);
+      handleHandlerMethodReturnValue(context, handlerMethod, returnValue);
     }
   }
 
@@ -77,7 +86,7 @@ public interface HandlerMethodReturnValueHandler extends ReturnValueHandler {
    * Or {@link HandlerExceptionHandler} return value
    * @throws Exception return-value handled failed
    */
-  default void handleReturnValue(RequestContext context, HandlerMethod handler, @Nullable Object returnValue)
+  default void handleHandlerMethodReturnValue(RequestContext context, HandlerMethod handler, @Nullable Object returnValue)
           throws Exception {
 
   }
