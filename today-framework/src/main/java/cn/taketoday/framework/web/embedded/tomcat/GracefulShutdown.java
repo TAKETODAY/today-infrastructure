@@ -29,21 +29,21 @@ import org.apache.catalina.startup.Tomcat;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
 
 import cn.taketoday.framework.web.server.GracefulShutdownCallback;
 import cn.taketoday.framework.web.server.GracefulShutdownResult;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
+import cn.taketoday.util.ExceptionUtils;
 
 /**
  * Handles Tomcat graceful shutdown.
  *
  * @author Andy Wilkinson
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  */
 final class GracefulShutdown {
-
-  private static final Logger logger = LoggerFactory.getLogger(GracefulShutdown.class);
+  private static final Logger log = LoggerFactory.getLogger(GracefulShutdown.class);
 
   private final Tomcat tomcat;
 
@@ -54,19 +54,18 @@ final class GracefulShutdown {
   }
 
   void shutDownGracefully(GracefulShutdownCallback callback) {
-    logger.info("Commencing graceful shutdown. Waiting for active requests to complete");
+    log.info("Commencing graceful shutdown. Waiting for active requests to complete");
     new Thread(() -> doShutdown(callback), "tomcat-shutdown").start();
   }
 
   private void doShutdown(GracefulShutdownCallback callback) {
-    List<Connector> connectors = getConnectors();
-    connectors.forEach(this::close);
+    getConnectors().forEach(this::close);
     try {
-      for (Container host : this.tomcat.getEngine().findChildren()) {
+      for (Container host : tomcat.getEngine().findChildren()) {
         for (Container context : host.findChildren()) {
           while (isActive(context)) {
             if (this.aborted) {
-              logger.info("Graceful shutdown aborted with one or more requests still active");
+              log.info("Graceful shutdown aborted with one or more requests still active");
               callback.shutdownComplete(GracefulShutdownResult.REQUESTS_ACTIVE);
               return;
             }
@@ -79,12 +78,12 @@ final class GracefulShutdown {
     catch (InterruptedException ex) {
       Thread.currentThread().interrupt();
     }
-    logger.info("Graceful shutdown complete");
+    log.info("Graceful shutdown complete");
     callback.shutdownComplete(GracefulShutdownResult.IDLE);
   }
 
-  private List<Connector> getConnectors() {
-    List<Connector> connectors = new ArrayList<>();
+  private ArrayList<Connector> getConnectors() {
+    ArrayList<Connector> connectors = new ArrayList<>();
     for (Service service : this.tomcat.getServer().findServices()) {
       Collections.addAll(connectors, service.findConnectors());
     }
@@ -109,7 +108,7 @@ final class GracefulShutdown {
       return false;
     }
     catch (Exception ex) {
-      throw new RuntimeException(ex);
+      throw ExceptionUtils.sneakyThrow(ex);
     }
   }
 

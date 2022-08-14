@@ -47,6 +47,7 @@ import cn.taketoday.framework.web.server.WebServerException;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
+import cn.taketoday.util.ExceptionUtils;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.ResourceUtils;
 
@@ -128,7 +129,7 @@ class SslServerCustomizer implements JettyServerCustomizer {
                 .newInstance(sslContextFactory, protocol);
       }
       catch (Exception ex2) {
-        throw new RuntimeException(ex2);
+        throw ExceptionUtils.sneakyThrow(ex2);
       }
     }
   }

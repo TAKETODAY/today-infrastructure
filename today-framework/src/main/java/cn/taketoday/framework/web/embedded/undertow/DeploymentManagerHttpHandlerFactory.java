@@ -25,6 +25,7 @@ import java.io.IOException;
 
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.ExceptionUtils;
 import io.undertow.server.HttpHandler;
 import io.undertow.server.HttpServerExchange;
 import io.undertow.servlet.api.DeploymentManager;
@@ -69,7 +70,7 @@ class DeploymentManagerHttpHandlerFactory implements HttpHandlerFactory {
         this.handler = deploymentManager.start();
       }
       catch (ServletException ex) {
-        throw new RuntimeException(ex);
+        throw ExceptionUtils.sneakyThrow(ex);
       }
     }
 
@@ -85,7 +86,7 @@ class DeploymentManagerHttpHandlerFactory implements HttpHandlerFactory {
         this.deploymentManager.undeploy();
       }
       catch (ServletException ex) {
-        throw new RuntimeException(ex);
+        throw ExceptionUtils.sneakyThrow(ex);
       }
     }
 

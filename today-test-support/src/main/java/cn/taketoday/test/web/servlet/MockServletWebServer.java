@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 
 import cn.taketoday.mock.web.MockSessionCookieConfig;
+import cn.taketoday.util.ExceptionUtils;
 import jakarta.servlet.Filter;
 import jakarta.servlet.FilterRegistration;
 import jakarta.servlet.Servlet;
@@ -99,7 +100,7 @@ public abstract class MockServletWebServer {
       }
     }
     catch (ServletException ex) {
-      throw new RuntimeException(ex);
+      throw ExceptionUtils.sneakyThrow(ex);
     }
   }
 

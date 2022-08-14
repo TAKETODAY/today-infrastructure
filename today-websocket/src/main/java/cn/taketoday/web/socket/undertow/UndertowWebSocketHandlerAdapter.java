@@ -38,6 +38,7 @@ import cn.taketoday.http.HttpStatus;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.NonNull;
 import cn.taketoday.lang.TodayStrategies;
+import cn.taketoday.util.ExceptionUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.ResponseStatusException;
 import cn.taketoday.web.socket.AbstractStandardWebSocketHandlerAdapter;
@@ -277,7 +278,7 @@ public class UndertowWebSocketHandlerAdapter
               worker = Xnio.getInstance().createWorker(OptionMap.create(Options.THREAD_DAEMON, true));
             }
             catch (IOException e) {
-              throw new RuntimeException(e);
+              throw ExceptionUtils.sneakyThrow(e);
             }
           }
         }

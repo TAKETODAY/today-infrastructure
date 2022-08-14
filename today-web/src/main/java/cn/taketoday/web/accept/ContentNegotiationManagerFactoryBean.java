@@ -195,7 +195,7 @@ public class ContentNegotiationManagerFactoryBean
     this.useRegisteredExtensionsOnly = useRegisteredExtensionsOnly;
   }
 
-  private boolean useRegisteredExtensionsOnly() {
+  public boolean useRegisteredExtensionsOnly() {
     return (this.useRegisteredExtensionsOnly != null && this.useRegisteredExtensionsOnly);
   }
 

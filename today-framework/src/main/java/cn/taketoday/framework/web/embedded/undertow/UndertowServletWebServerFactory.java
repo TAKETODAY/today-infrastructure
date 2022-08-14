@@ -53,6 +53,7 @@ import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.CollectionUtils;
+import cn.taketoday.util.ExceptionUtils;
 import cn.taketoday.util.PropertyMapper;
 import io.undertow.Undertow.Builder;
 import io.undertow.server.HttpHandler;
@@ -415,7 +416,7 @@ public class UndertowServletWebServerFactory extends AbstractServletWebServerFac
           }
         }
         catch (Exception ex) {
-          throw new RuntimeException(ex);
+          throw ExceptionUtils.sneakyThrow(ex);
         }
       }
       else {

@@ -22,7 +22,6 @@ package cn.taketoday.bytecode.tree.analysis;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 
 import cn.taketoday.bytecode.Opcodes;

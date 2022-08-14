@@ -22,7 +22,6 @@ package cn.taketoday.framework.web.embedded.undertow;
 
 import java.io.File;
 import java.util.Collection;
-import java.util.List;
 
 import cn.taketoday.framework.web.reactive.server.AbstractReactiveWebServerFactory;
 import cn.taketoday.framework.web.reactive.server.ReactiveWebServerFactory;
@@ -39,13 +38,12 @@ import io.undertow.Undertow;
 public class UndertowReactiveWebServerFactory extends AbstractReactiveWebServerFactory
         implements ConfigurableUndertowWebServerFactory {
 
-  private UndertowWebServerFactoryDelegate delegate = new UndertowWebServerFactoryDelegate();
+  private final UndertowWebServerFactoryDelegate delegate = new UndertowWebServerFactoryDelegate();
 
   /**
    * Create a new {@link UndertowReactiveWebServerFactory} instance.
    */
-  public UndertowReactiveWebServerFactory() {
-  }
+  public UndertowReactiveWebServerFactory() { }
 
   /**
    * Create a new {@link UndertowReactiveWebServerFactory} that listens for requests

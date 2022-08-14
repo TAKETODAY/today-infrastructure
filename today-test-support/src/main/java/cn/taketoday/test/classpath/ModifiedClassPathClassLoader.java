@@ -55,6 +55,7 @@ import cn.taketoday.core.AntPathMatcher;
 import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.core.annotation.MergedAnnotations;
 import cn.taketoday.util.ConcurrentReferenceHashMap;
+import cn.taketoday.util.ExceptionUtils;
 import cn.taketoday.util.StringUtils;
 
 /**
@@ -160,7 +161,7 @@ final class ModifiedClassPathClassLoader extends URLClassLoader {
       }
     }
     catch (Exception ex) {
-      throw new RuntimeException(ex);
+      throw ExceptionUtils.sneakyThrow(ex);
     }
     return urls;
   }
