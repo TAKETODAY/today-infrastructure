@@ -53,9 +53,8 @@ import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.RequestContextUtils;
-import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.view.AbstractUrlBasedView;
-import jakarta.servlet.ServletException;
+import cn.taketoday.web.view.ViewRenderingException;
 
 /**
  * An {@link AbstractUrlBasedView} subclass designed to run any template library
@@ -71,6 +70,7 @@ import jakarta.servlet.ServletException;
  *
  * @author Sebastien Deleuze
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see ScriptTemplateConfigurer
  * @see ScriptTemplateViewResolver
  * @since 4.0
@@ -86,7 +86,7 @@ public class ScriptTemplateView extends AbstractUrlBasedView {
 
   private static final String DEFAULT_RESOURCE_LOADER_PATH = "classpath:";
 
-  private static final ThreadLocal<Map<Object, ScriptEngine>> enginesHolder =
+  private static final NamedThreadLocal<Map<Object, ScriptEngine>> enginesHolder =
           new NamedThreadLocal<>("ScriptTemplateView engines");
 
   @Nullable
@@ -379,7 +379,7 @@ public class ScriptTemplateView extends AbstractUrlBasedView {
   public boolean checkResource(Locale locale) {
     String url = getUrl();
     Assert.state(url != null, "'url' not set");
-    return (getResource(url) != null);
+    return getResource(url) != null;
   }
 
   @Override
@@ -428,7 +428,7 @@ public class ScriptTemplateView extends AbstractUrlBasedView {
       request.getWriter().write(String.valueOf(html));
     }
     catch (ScriptException ex) {
-      throw new ServletException("Failed to render script template", new StandardScriptEvalException(ex));
+      throw new ViewRenderingException("Failed to render script template", new StandardScriptEvalException(ex));
     }
   }
 
@@ -437,9 +437,9 @@ public class ScriptTemplateView extends AbstractUrlBasedView {
     if (resource == null) {
       throw new IllegalStateException("Template resource [" + path + "] not found");
     }
-    InputStreamReader reader = this.charset != null
-                               ? new InputStreamReader(resource.getInputStream(), this.charset)
-                               : new InputStreamReader(resource.getInputStream());
+    var reader = charset != null
+                 ? new InputStreamReader(resource.getInputStream(), charset)
+                 : new InputStreamReader(resource.getInputStream());
     return FileCopyUtils.copyToString(reader);
   }
 
