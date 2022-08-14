@@ -492,8 +492,7 @@ public abstract class AbstractView extends ApplicationContextSupport implements 
    * to a concrete media type.
    */
   protected void setResponseContentType(RequestContext context) {
-    MediaType mediaType = (MediaType) context.getAttribute(View.SELECTED_CONTENT_TYPE);
-    if (mediaType != null && mediaType.isConcrete()) {
+    if (context.getAttribute(View.SELECTED_CONTENT_TYPE) instanceof MediaType mediaType && mediaType.isConcrete()) {
       context.setContentType(mediaType.toString());
     }
     else {
