@@ -65,6 +65,7 @@ import jakarta.servlet.ServletRegistration;
  */
 @AutoConfigureOrder(Ordered.HIGHEST_PRECEDENCE)
 @ConditionalOnWebApplication(type = Type.SERVLET)
+@EnableConfigurationProperties(WebMvcProperties.class)
 @AutoConfiguration(after = ServletWebServerFactoryAutoConfiguration.class)
 public class DispatcherServletAutoConfiguration {
 
@@ -78,27 +79,20 @@ public class DispatcherServletAutoConfiguration {
    */
   public static final String DEFAULT_DISPATCHER_SERVLET_REGISTRATION_BEAN_NAME = "dispatcherServletRegistration";
 
-  @Configuration(proxyBeanMethods = false)
-  @Conditional(DefaultDispatcherServletCondition.class)
   @ConditionalOnClass(ServletRegistration.class)
-  @EnableConfigurationProperties(WebMvcProperties.class)
-  protected static class DispatcherServletConfiguration {
-
-    @Component(name = DEFAULT_DISPATCHER_SERVLET_BEAN_NAME)
-    public DispatcherServlet dispatcherServlet(WebMvcProperties webMvcProperties) {
-      DispatcherServlet dispatcherServlet = new DispatcherServlet();
-      dispatcherServlet.setThrowExceptionIfNoHandlerFound(webMvcProperties.isThrowExceptionIfNoHandlerFound());
-      dispatcherServlet.setEnableLoggingRequestDetails(webMvcProperties.isLogRequestDetails());
-      return dispatcherServlet;
-    }
-
+  @Conditional(DefaultDispatcherServletCondition.class)
+  @Component(name = DEFAULT_DISPATCHER_SERVLET_BEAN_NAME)
+  public DispatcherServlet dispatcherServlet(WebMvcProperties webMvcProperties) {
+    DispatcherServlet dispatcherServlet = new DispatcherServlet();
+    dispatcherServlet.setThrowExceptionIfNoHandlerFound(webMvcProperties.isThrowExceptionIfNoHandlerFound());
+    dispatcherServlet.setEnableLoggingRequestDetails(webMvcProperties.isLogRequestDetails());
+    return dispatcherServlet;
   }
 
   @Configuration(proxyBeanMethods = false)
   @Conditional(DispatcherServletRegistrationCondition.class)
   @ConditionalOnClass(ServletRegistration.class)
   @EnableConfigurationProperties(WebMvcProperties.class)
-  @Import(DispatcherServletConfiguration.class)
   protected static class DispatcherServletRegistrationConfiguration {
 
     @Component(name = DEFAULT_DISPATCHER_SERVLET_REGISTRATION_BEAN_NAME)
