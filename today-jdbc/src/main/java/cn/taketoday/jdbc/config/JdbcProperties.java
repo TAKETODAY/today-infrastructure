@@ -25,6 +25,7 @@ import java.time.temporal.ChronoUnit;
 
 import cn.taketoday.context.properties.ConfigurationProperties;
 import cn.taketoday.format.annotation.DurationUnit;
+import cn.taketoday.lang.Nullable;
 
 /**
  * Configuration properties for JDBC.
@@ -63,6 +64,7 @@ public class JdbcProperties {
      * Query timeout. Default is to use the JDBC driver's default configuration. If a
      * duration suffix is not specified, seconds will be used.
      */
+    @Nullable
     @DurationUnit(ChronoUnit.SECONDS)
     private Duration queryTimeout;
 
@@ -82,11 +84,12 @@ public class JdbcProperties {
       this.maxRows = maxRows;
     }
 
+    @Nullable
     public Duration getQueryTimeout() {
       return this.queryTimeout;
     }
 
-    public void setQueryTimeout(Duration queryTimeout) {
+    public void setQueryTimeout(@Nullable Duration queryTimeout) {
       this.queryTimeout = queryTimeout;
     }
 

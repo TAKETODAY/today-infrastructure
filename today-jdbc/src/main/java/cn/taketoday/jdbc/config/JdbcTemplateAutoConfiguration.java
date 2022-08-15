@@ -22,10 +22,8 @@ package cn.taketoday.jdbc.config;
 
 import javax.sql.DataSource;
 
-import cn.taketoday.context.annotation.Primary;
-import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
-import cn.taketoday.context.annotation.Import;
+import cn.taketoday.context.annotation.Primary;
 import cn.taketoday.context.annotation.config.AutoConfigureAfter;
 import cn.taketoday.context.annotation.config.EnableAutoConfiguration;
 import cn.taketoday.context.condition.ConditionalOnClass;
@@ -36,6 +34,7 @@ import cn.taketoday.jdbc.core.JdbcOperations;
 import cn.taketoday.jdbc.core.JdbcTemplate;
 import cn.taketoday.jdbc.core.namedparam.NamedParameterJdbcOperations;
 import cn.taketoday.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import cn.taketoday.stereotype.Component;
 
 /**
  * {@link EnableAutoConfiguration Auto-configuration} for {@link JdbcTemplate} and
@@ -53,41 +52,20 @@ import cn.taketoday.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 @ConditionalOnSingleCandidate(DataSource.class)
 @AutoConfigureAfter(DataSourceAutoConfiguration.class)
 @EnableConfigurationProperties(JdbcProperties.class)
-@Import({ /*DatabaseInitializationDependencyConfigurer.class,*/ JdbcTemplateConfiguration.class,
-        NamedParameterJdbcTemplateConfiguration.class })
+//@Import({ DatabaseInitializationDependencyConfigurer.class })
 public class JdbcTemplateAutoConfiguration {
 
-}
-
-/**
- * Configuration for {@link NamedParameterJdbcTemplate}.
- *
- * @author Stephane Nicoll
- */
-@Configuration(proxyBeanMethods = false)
-@ConditionalOnSingleCandidate(JdbcTemplate.class)
-@ConditionalOnMissingBean(NamedParameterJdbcOperations.class)
-class NamedParameterJdbcTemplateConfiguration {
-
-  @Bean
   @Primary
+  @Component
+  @ConditionalOnSingleCandidate(JdbcTemplate.class)
+  @ConditionalOnMissingBean(NamedParameterJdbcOperations.class)
   NamedParameterJdbcTemplate namedParameterJdbcTemplate(JdbcTemplate jdbcTemplate) {
     return new NamedParameterJdbcTemplate(jdbcTemplate);
   }
 
-}
-
-/**
- * Configuration for {@link JdbcTemplateConfiguration}.
- *
- * @author Stephane Nicoll
- */
-@Configuration(proxyBeanMethods = false)
-@ConditionalOnMissingBean(JdbcOperations.class)
-class JdbcTemplateConfiguration {
-
-  @Bean
   @Primary
+  @Component
+  @ConditionalOnMissingBean(JdbcOperations.class)
   JdbcTemplate jdbcTemplate(DataSource dataSource, JdbcProperties properties) {
     JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
     JdbcProperties.Template template = properties.getTemplate();
@@ -100,3 +78,5 @@ class JdbcTemplateConfiguration {
   }
 
 }
+
+
