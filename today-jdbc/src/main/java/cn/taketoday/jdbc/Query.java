@@ -203,7 +203,7 @@ public final class Query implements AutoCloseable {
   }
 
   @SuppressWarnings("unchecked")
-  public Query addParameter(String name, Object value) {
+  public Query addParameter(String name, @Nullable Object value) {
     return value == null
            ? addNullParameter(name)
            : addParameter(name, (Class<Object>) value.getClass(), value);
