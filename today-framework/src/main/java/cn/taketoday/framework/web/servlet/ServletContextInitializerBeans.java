@@ -22,7 +22,6 @@ package cn.taketoday.framework.web.servlet;
 
 import java.util.AbstractCollection;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.EventListener;
 import java.util.HashSet;
@@ -73,8 +72,6 @@ public class ServletContextInitializerBeans extends AbstractCollection<ServletCo
 
   private final MultiValueMap<Class<?>, ServletContextInitializer> initializers;
 
-  private final List<Class<? extends ServletContextInitializer>> initializerTypes;
-
   private final List<ServletContextInitializer> sortedList;
 
   @SafeVarargs
@@ -82,10 +79,9 @@ public class ServletContextInitializerBeans extends AbstractCollection<ServletCo
   public ServletContextInitializerBeans(
           BeanFactory beanFactory, Class<? extends ServletContextInitializer>... initializerTypes) {
     this.initializers = MultiValueMap.fromLinkedHashMap();
-    this.initializerTypes = initializerTypes.length != 0
-                            ? Arrays.asList(initializerTypes)
-                            : Collections.singletonList(ServletContextInitializer.class);
-    addServletContextInitializerBeans(beanFactory);
+    addServletContextInitializerBeans(beanFactory, initializerTypes.length != 0
+                                                   ? initializerTypes
+                                                   : new Class[] { ServletContextInitializer.class });
     addAdaptableBeans(beanFactory);
     this.sortedList = initializers.values()
             .stream()
@@ -93,7 +89,7 @@ public class ServletContextInitializerBeans extends AbstractCollection<ServletCo
     logMappings(initializers);
   }
 
-  private void addServletContextInitializerBeans(BeanFactory beanFactory) {
+  private void addServletContextInitializerBeans(BeanFactory beanFactory, Class<? extends ServletContextInitializer>[] initializerTypes) {
     for (var initializerType : initializerTypes) {
       for (var initializerBean : getOrderedBeansOfType(beanFactory, initializerType)) {
         addServletContextInitializerBean(initializerBean.getKey(), initializerBean.getValue(), beanFactory);
@@ -103,20 +99,20 @@ public class ServletContextInitializerBeans extends AbstractCollection<ServletCo
 
   private void addServletContextInitializerBean(
           String beanName, ServletContextInitializer initializer, BeanFactory beanFactory) {
-    if (initializer instanceof ServletRegistrationBean) {
-      Servlet source = ((ServletRegistrationBean<?>) initializer).getServlet();
+    if (initializer instanceof ServletRegistrationBean<?> registrationBean) {
+      Servlet source = registrationBean.getServlet();
       addServletContextInitializerBean(Servlet.class, beanName, initializer, beanFactory, source);
     }
-    else if (initializer instanceof FilterRegistrationBean) {
-      Filter source = ((FilterRegistrationBean<?>) initializer).getFilter();
+    else if (initializer instanceof FilterRegistrationBean<?> registrationBean) {
+      Filter source = registrationBean.getFilter();
       addServletContextInitializerBean(Filter.class, beanName, initializer, beanFactory, source);
     }
-    else if (initializer instanceof DelegatingFilterProxyRegistrationBean) {
-      String source = ((DelegatingFilterProxyRegistrationBean) initializer).getTargetBeanName();
+    else if (initializer instanceof DelegatingFilterProxyRegistrationBean registrationBean) {
+      String source = registrationBean.getTargetBeanName();
       addServletContextInitializerBean(Filter.class, beanName, initializer, beanFactory, source);
     }
-    else if (initializer instanceof ServletListenerRegistrationBean) {
-      EventListener source = ((ServletListenerRegistrationBean<?>) initializer).getListener();
+    else if (initializer instanceof ServletListenerRegistrationBean<?> registrationBean) {
+      EventListener source = registrationBean.getListener();
       addServletContextInitializerBean(EventListener.class, beanName, initializer, beanFactory, source);
     }
     else {
@@ -150,11 +146,11 @@ public class ServletContextInitializerBeans extends AbstractCollection<ServletCo
   @SuppressWarnings("unchecked")
   protected void addAdaptableBeans(BeanFactory beanFactory) {
     MultipartConfigElement multipartConfig = getMultipartConfig(beanFactory);
-    addAsRegistrationBean(beanFactory, Servlet.class, new ServletRegistrationBeanAdapter(multipartConfig));
-    addAsRegistrationBean(beanFactory, Filter.class, new FilterRegistrationBeanAdapter());
+    addAsRegistrationBean(beanFactory, Servlet.class, multipartConfig);
+    addAsRegistrationBean(beanFactory, Filter.class, multipartConfig);
+
     for (Class<?> listenerType : ServletListenerRegistrationBean.getSupportedTypes()) {
-      addAsRegistrationBean(beanFactory, EventListener.class, (Class<EventListener>) listenerType,
-              new ServletListenerRegistrationBeanAdapter());
+      addAsRegistrationBean(beanFactory, EventListener.class, (Class<EventListener>) listenerType, multipartConfig);
     }
   }
 
@@ -164,12 +160,12 @@ public class ServletContextInitializerBeans extends AbstractCollection<ServletCo
   }
 
   protected <T> void addAsRegistrationBean(
-          BeanFactory beanFactory, Class<T> type, RegistrationBeanAdapter<T> adapter) {
-    addAsRegistrationBean(beanFactory, type, type, adapter);
+          BeanFactory beanFactory, Class<T> type, MultipartConfigElement multipartConfig) {
+    addAsRegistrationBean(beanFactory, type, type, multipartConfig);
   }
 
   private <T, B extends T> void addAsRegistrationBean(
-          BeanFactory beanFactory, Class<T> type, Class<B> beanType, RegistrationBeanAdapter<T> adapter) {
+          BeanFactory beanFactory, Class<T> type, Class<B> beanType, MultipartConfigElement multipartConfig) {
 
     var entries = getOrderedBeansOfType(beanFactory, beanType, seen);
     for (Entry<String, B> entry : entries) {
@@ -177,7 +173,7 @@ public class ServletContextInitializerBeans extends AbstractCollection<ServletCo
       B bean = entry.getValue();
       if (seen.add(bean)) {
         // One that we haven't already seen
-        var registration = adapter.createRegistrationBean(beanName, bean, entries.size());
+        var registration = createRegistrationBean(beanName, bean, entries.size(), multipartConfig);
         int order = getOrder(bean);
         registration.setOrder(order);
         initializers.add(type, registration);
@@ -187,6 +183,29 @@ public class ServletContextInitializerBeans extends AbstractCollection<ServletCo
         }
       }
     }
+  }
+
+  RegistrationBean createRegistrationBean(
+          String name, Object source, int totalNumberOfSourceBeans, MultipartConfigElement multipartConfig) {
+    if (source instanceof Servlet servlet) {
+      String url = totalNumberOfSourceBeans != 1 ? "/" + name + "/" : "/";
+      if (name.equals(DISPATCHER_SERVLET_NAME)) {
+        url = "/"; // always map the main dispatcherServlet to "/"
+      }
+      var bean = new ServletRegistrationBean<>(servlet, url);
+      bean.setName(name);
+      bean.setMultipartConfig(multipartConfig);
+      return bean;
+    }
+    else if (source instanceof Filter filter) {
+      var bean = new FilterRegistrationBean<>(filter);
+      bean.setName(name);
+      return bean;
+    }
+    else if (source instanceof EventListener eventListener) {
+      return new ServletListenerRegistrationBean<>(eventListener);
+    }
+    throw new IllegalStateException("never get here");
   }
 
   private int getOrder(Object value) {
@@ -240,66 +259,6 @@ public class ServletContextInitializerBeans extends AbstractCollection<ServletCo
   @Override
   public int size() {
     return this.sortedList.size();
-  }
-
-  /**
-   * Adapter to convert a given Bean type into a {@link RegistrationBean} (and hence a
-   * {@link ServletContextInitializer}).
-   *
-   * @param <T> the type of the Bean to adapt
-   */
-  @FunctionalInterface
-  protected interface RegistrationBeanAdapter<T> {
-
-    RegistrationBean createRegistrationBean(String name, T source, int totalNumberOfSourceBeans);
-
-  }
-
-  /**
-   * {@link RegistrationBeanAdapter} for {@link Servlet} beans.
-   */
-  private record ServletRegistrationBeanAdapter(MultipartConfigElement multipartConfig)
-          implements RegistrationBeanAdapter<Servlet> {
-
-    @Override
-    public RegistrationBean createRegistrationBean(String name, Servlet source, int totalNumberOfSourceBeans) {
-      String url = totalNumberOfSourceBeans != 1 ? "/" + name + "/" : "/";
-      if (name.equals(DISPATCHER_SERVLET_NAME)) {
-        url = "/"; // always map the main dispatcherServlet to "/"
-      }
-      var bean = new ServletRegistrationBean<>(source, url);
-      bean.setName(name);
-      bean.setMultipartConfig(this.multipartConfig);
-      return bean;
-    }
-
-  }
-
-  /**
-   * {@link RegistrationBeanAdapter} for {@link Filter} beans.
-   */
-  private static class FilterRegistrationBeanAdapter implements RegistrationBeanAdapter<Filter> {
-
-    @Override
-    public RegistrationBean createRegistrationBean(String name, Filter source, int totalNumberOfSourceBeans) {
-      var bean = new FilterRegistrationBean<>(source);
-      bean.setName(name);
-      return bean;
-    }
-
-  }
-
-  /**
-   * {@link RegistrationBeanAdapter} for certain {@link EventListener} beans.
-   */
-  private static class ServletListenerRegistrationBeanAdapter implements RegistrationBeanAdapter<EventListener> {
-
-    @Override
-    public RegistrationBean createRegistrationBean(
-            String name, EventListener source, int totalNumberOfSourceBeans) {
-      return new ServletListenerRegistrationBean<>(source);
-    }
-
   }
 
 }
