@@ -26,6 +26,7 @@ import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.Objects;
 import java.util.Spliterator;
 import java.util.function.Consumer;
@@ -207,7 +208,7 @@ public final class BeanMetadata implements Iterable<BeanProperty> {
   }
 
   public HashMap<String, BeanProperty> createBeanProperties() {
-    HashMap<String, BeanProperty> beanPropertyMap = new HashMap<>();
+    HashMap<String, BeanProperty> beanPropertyMap = new LinkedHashMap<>();
     CachedIntrospectionResults results = new CachedIntrospectionResults(beanClass);
 
     PropertyDescriptor[] propertyDescriptors = results.getPropertyDescriptors();
@@ -303,7 +304,7 @@ public final class BeanMetadata implements Iterable<BeanProperty> {
     public final ArrayList<BeanProperty> beanProperties;
 
     BeanPropertiesHolder(HashMap<String, BeanProperty> mapping) {
-      this.mapping = mapping;
+      this.mapping = new HashMap<>(mapping);
       this.beanProperties = new ArrayList<>(mapping.values());
     }
   }
