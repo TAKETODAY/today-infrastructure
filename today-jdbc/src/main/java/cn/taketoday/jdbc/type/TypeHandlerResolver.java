@@ -20,11 +20,13 @@
 
 package cn.taketoday.jdbc.type;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.util.List;
 
 import cn.taketoday.beans.BeanProperty;
 import cn.taketoday.beans.BeanUtils;
+import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.core.annotation.MergedAnnotations;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
@@ -80,13 +82,45 @@ public interface TypeHandlerResolver {
     };
   }
 
+  /**
+   * Use {@link MappedTypeHandler} to resolve {@link TypeHandler}
+   *
+   * @return Annotation based {@link TypeHandlerResolver}
+   * @see MergedAnnotation#getClass(String)
+   */
   static TypeHandlerResolver forMappedTypeHandlerAnnotation() {
+    return forAnnotation(MappedTypeHandler.class);
+  }
+
+  /**
+   * Use input {@code annotationType} to resolve {@link TypeHandler}
+   *
+   * @param annotationType Annotation type
+   * @return Annotation based {@link TypeHandlerResolver}
+   * @see MergedAnnotation#getClass(String)
+   */
+  static TypeHandlerResolver forAnnotation(Class<? extends Annotation> annotationType) {
+    return forAnnotation(annotationType, MergedAnnotation.VALUE);
+  }
+
+  /**
+   * Use input {@code annotationType} and {@code attributeName} to resolve {@link TypeHandler}
+   *
+   * @param annotationType Annotation type
+   * @param attributeName the attribute name
+   * @return Annotation based {@link TypeHandlerResolver}
+   * @see MergedAnnotation#getClass(String)
+   */
+  static TypeHandlerResolver forAnnotation(Class<? extends Annotation> annotationType, String attributeName) {
+    Assert.notNull(attributeName, "attributeName is required");
+    Assert.notNull(annotationType, "annotationType is required");
+
     return (BeanProperty property) -> {
       var mappedTypeHandler = MergedAnnotations.from(
-              property, property.getAnnotations()).get(MappedTypeHandler.class);
+              property, property.getAnnotations()).get(annotationType);
       if (mappedTypeHandler.isPresent()) {
         // user defined TypeHandler
-        Class<? extends TypeHandler<?>> typeHandlerClass = mappedTypeHandler.getClassValue();
+        Class<? extends TypeHandler<?>> typeHandlerClass = mappedTypeHandler.getClass(attributeName);
         Constructor<? extends TypeHandler<?>> constructor = BeanUtils.getConstructor(typeHandlerClass);
         if (constructor == null) {
           throw new IllegalStateException("No suitable constructor in " + typeHandlerClass);
