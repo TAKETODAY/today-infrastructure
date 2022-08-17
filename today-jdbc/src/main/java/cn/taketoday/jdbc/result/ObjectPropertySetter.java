@@ -103,7 +103,7 @@ public class ObjectPropertySetter {
   /**
    * Get result from {@link ResultSet}.
    * <p>
-   * Obtain from {@link TypeHandler}, if it fails, use the default acquisition method
+   * Obtain from {@link TypeHandler}, if it fails, use the {@link ResultSet#getObject(int) default acquisition method }
    * </p>
    *
    * @param resultSet Target result set
