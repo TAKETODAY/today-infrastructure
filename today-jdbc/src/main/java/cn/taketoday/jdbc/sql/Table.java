@@ -18,7 +18,7 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.jdbc;
+package cn.taketoday.jdbc.sql;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -26,27 +26,35 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 import cn.taketoday.core.annotation.AliasFor;
-import cn.taketoday.lang.Constant;
-import cn.taketoday.lang.Experimental;
 
 /**
- * Property alias name
- * <p>
- * just alias name, cannot override its getter,setter
- * </p>
+ * Specifies the primary table for the annotated entity
  *
- * @author TODAY 2021/1/27 22:32
+ * <p> If no <code>Table</code> annotation is specified for an entity
+ * class, the default values apply.
+ *
+ * <pre> {@code
+ *    Example:
+ *
+ *    @Table(name="t_user", schema="RECORDS")
+ *    public class User { ... }
+ * }</pre>
+ *
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 4.0 2022/8/16 21:05
  */
+@Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ ElementType.TYPE, ElementType.FIELD, ElementType.PARAMETER })
-@Experimental
-public @interface Column {
+public @interface Table {
 
-  /** Property name */
   @AliasFor("name")
-  String value() default Constant.BLANK;
+  String value() default "";
 
+  /**
+   * (Optional) The name of the table.
+   * <p> Defaults to the entity name.
+   */
   @AliasFor("value")
-  String name() default Constant.BLANK;
+  String name() default "";
 
 }

@@ -35,7 +35,7 @@ import cn.taketoday.beans.support.BeanInstantiator;
 import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.core.annotation.MergedAnnotations;
 import cn.taketoday.dao.InvalidDataAccessApiUsageException;
-import cn.taketoday.jdbc.Column;
+import cn.taketoday.jdbc.sql.Column;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ConcurrentReferenceHashMap;
 import cn.taketoday.util.MapCache;

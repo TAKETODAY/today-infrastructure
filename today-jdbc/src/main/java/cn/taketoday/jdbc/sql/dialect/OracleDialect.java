@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -18,22 +18,28 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.jdbc.dialect;
+package cn.taketoday.jdbc.sql.dialect;
 
 /**
  * @author TODAY 2021/10/10 13:12
  * @since 4.0
  */
-public class MySQLDialect extends Dialect {
+public class OracleDialect extends Dialect {
 
   @Override
   public String pagination(SQLParams sqlParams) {
     PageRow pageRow = sqlParams.getPageRow();
     int limit = pageRow.getPageSize();
-    int offset = limit * (pageRow.getPageNum() - 1);
-    String limitSQL = " LIMIT " + offset + "," + limit;
+    int pageNum = pageRow.getPageNum();
 
-    return select(sqlParams) + limitSQL;
+    int start = (pageNum - 1) * limit + 1;
+    int end = pageNum * limit;
+    StringBuilder sql = new StringBuilder();
+    sql.append("SELECT * FROM ( SELECT row_.*, rownum rownum_ FROM (  ");
+    sql.append(select(sqlParams));
+    sql.append(" ) row_ where rownum <= ").append(end).append(") table_alias");
+    sql.append(" WHERE table_alias.rownum_ >= ").append(start);
+    return sql.toString();
   }
 
 }

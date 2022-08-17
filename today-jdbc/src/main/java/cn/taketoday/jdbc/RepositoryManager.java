@@ -34,6 +34,7 @@ import cn.taketoday.jdbc.datasource.DataSourceUtils;
 import cn.taketoday.jdbc.parsing.QueryParameter;
 import cn.taketoday.jdbc.parsing.SqlParameterParser;
 import cn.taketoday.jdbc.result.PrimitiveTypeNullHandler;
+import cn.taketoday.jdbc.sql.EntityManager;
 import cn.taketoday.jdbc.support.ClobToStringConverter;
 import cn.taketoday.jdbc.support.ConnectionSource;
 import cn.taketoday.jdbc.support.DataSourceConnectionSource;
@@ -77,6 +78,8 @@ public class RepositoryManager {
 
   @Nullable
   private PrimitiveTypeNullHandler primitiveTypeNullHandler;
+
+  private EntityManager entityManager;
 
   public RepositoryManager(String jndiLookup) {
     this(DataSourceUtils.getJndiDatasource(jndiLookup));
@@ -258,6 +261,10 @@ public class RepositoryManager {
   @Nullable
   public PrimitiveTypeNullHandler getPrimitiveTypeNullHandler() {
     return primitiveTypeNullHandler;
+  }
+
+  public void setEntityManager(EntityManager entityManager) {
+    this.entityManager = entityManager;
   }
 
   //
@@ -630,7 +637,7 @@ public class RepositoryManager {
    * @throws IllegalArgumentException if the instance is not an entity
    */
   public void persist(Object entity) {
-
+    entityManager.persist(entity);
   }
 
   /**
@@ -641,7 +648,7 @@ public class RepositoryManager {
    * entity or is a removed entity
    */
   public void merge(Object entity) {
-
+    entityManager.merge(entity);
   }
 
   //

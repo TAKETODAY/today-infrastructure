@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -18,21 +18,28 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.jdbc.dialect;
+package cn.taketoday.jdbc.sql;
+
+import java.util.Set;
+
+import cn.taketoday.beans.BeanProperty;
+import cn.taketoday.lang.Assert;
 
 /**
- * @author TODAY 2021/10/10 13:13
- * @since 4.0
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 4.0 2022/8/16 22:29
  */
-public class PostgreSQLDialect extends Dialect {
+public interface PropertyFilter {
 
-  @Override
-  public String pagination(SQLParams sqlParams) {
-    PageRow pageRow = sqlParams.getPageRow();
-    int limit = pageRow.getPageSize();
-    int offset = limit * (pageRow.getPageNum() - 1);
-    String limitSQL = " LIMIT " + limit + " OFFSET " + offset;
+  /**
+   * @param property bean property
+   * @return is property not map to a column
+   */
+  boolean isFiltered(BeanProperty property);
 
-    return select(sqlParams) + limitSQL;
+  static PropertyFilter filteredNames(Set<String> filteredNames) {
+    Assert.notEmpty(filteredNames, "filteredNames is empty");
+    return property -> filteredNames.contains(property.getName());
   }
+
 }

@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -18,34 +18,21 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.jdbc.dialect;
+package cn.taketoday.jdbc.sql.dialect;
 
 /**
- * @author TODAY 2021/10/10 13:23
+ * @author TODAY 2021/10/10 13:13
  * @since 4.0
  */
-public class PageRow {
-  private int pageNum;
-  private int pageSize;
+public class PostgreSQLDialect extends Dialect {
 
-  public PageRow(int pageNum, int pageSize) {
-    this.pageNum = pageNum;
-    this.pageSize = pageSize;
-  }
+  @Override
+  public String pagination(SQLParams sqlParams) {
+    PageRow pageRow = sqlParams.getPageRow();
+    int limit = pageRow.getPageSize();
+    int offset = limit * (pageRow.getPageNum() - 1);
+    String limitSQL = " LIMIT " + limit + " OFFSET " + offset;
 
-  public int getPageNum() {
-    return pageNum;
-  }
-
-  public void setPageNum(int pageNum) {
-    this.pageNum = pageNum;
-  }
-
-  public int getPageSize() {
-    return pageSize;
-  }
-
-  public void setPageSize(int pageSize) {
-    this.pageSize = pageSize;
+    return select(sqlParams) + limitSQL;
   }
 }

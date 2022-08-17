@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -18,28 +18,29 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.jdbc.dialect;
+package cn.taketoday.jdbc.sql;
+
+import cn.taketoday.beans.BeanProperty;
 
 /**
- * @author TODAY 2021/10/10 13:12
- * @since 4.0
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 4.0 2022/8/16 22:43
  */
-public class OracleDialect extends Dialect {
+public class EntityHolder {
 
-  @Override
-  public String pagination(SQLParams sqlParams) {
-    PageRow pageRow = sqlParams.getPageRow();
-    int limit = pageRow.getPageSize();
-    int pageNum = pageRow.getPageNum();
+  public final Class<?> entityClass;
+  public final BeanProperty idProperty;
+  public final String tableName;
+  public final BeanProperty[] beanProperties;
 
-    int start = (pageNum - 1) * limit + 1;
-    int end = pageNum * limit;
-    StringBuilder sql = new StringBuilder();
-    sql.append("SELECT * FROM ( SELECT row_.*, rownum rownum_ FROM (  ");
-    sql.append(select(sqlParams));
-    sql.append(" ) row_ where rownum <= ").append(end).append(") table_alias");
-    sql.append(" WHERE table_alias.rownum_ >= ").append(start);
-    return sql.toString();
+  public final String[] columnNames;
+
+  EntityHolder(Class<?> entityClass, BeanProperty idProperty, String tableName, BeanProperty[] beanProperties, String[] columnNames) {
+    this.entityClass = entityClass;
+    this.idProperty = idProperty;
+    this.tableName = tableName;
+    this.beanProperties = beanProperties;
+    this.columnNames = columnNames;
   }
 
 }
