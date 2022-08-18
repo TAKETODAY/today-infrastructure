@@ -35,9 +35,14 @@ import cn.taketoday.util.StringUtils;
  */
 public interface TableNameGenerator {
 
+  /**
+   * Generate table name from {@code entityClass}
+   *
+   * @param entityClass entity-class
+   * @return table-name
+   */
+  @Nullable
   String generateTableName(Class<?> entityClass);
-
-  // static
 
   /**
    * returns a new resolving chain
@@ -54,6 +59,8 @@ public interface TableNameGenerator {
       return columnName;
     };
   }
+
+  // static
 
   static TableNameGenerator composite(TableNameGenerator... discovers) {
     Assert.notNull(discovers, "TableNameGenerator is required");
@@ -79,7 +86,6 @@ public interface TableNameGenerator {
   static TableNameGenerator entityClassName() {
     return new DefaultTableNameGenerator();
   }
-
 
   /**
    * use {@link Table#name()}

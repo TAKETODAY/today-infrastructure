@@ -56,19 +56,17 @@ public class EntityHolderFactory {
 
     BeanProperty idProperty = null;
     for (BeanProperty property : metadata) {
-
       if (isFiltered(property)) {
         continue;
       }
 
-      beanProperties.add(property);
       String columnName = columnNameDiscover.getColumnName(property);
-
       if (columnName == null) {
         throw new IllegalStateException("cannot determine column name for property: " + property.getField());
       }
-
       columnNames.add(columnName);
+      beanProperties.add(property);
+
       if (idPropertyDiscover.isIdProperty(property)) {
         if (idProperty != null) {
           throw new IllegalStateException("Only one Id property supported, entityClass: " + entityClass);

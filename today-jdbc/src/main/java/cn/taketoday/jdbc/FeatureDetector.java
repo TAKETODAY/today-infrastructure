@@ -25,16 +25,13 @@ import cn.taketoday.util.ClassUtils;
 /**
  * Detects whether optional features are available.
  *
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @author Alden Quimby
+ * @since 4.0
  */
 @SuppressWarnings("UnusedDeclaration")
 public final class FeatureDetector {
 
-  static {
-    setCacheUnderscoreToCamelcaseEnabled(true); // enabled by default
-  }
-
-  private static boolean cacheUnderscoreToCamelcaseEnabled;
   private static final boolean oracleAvailable = ClassUtils.isPresent("oracle.sql.TIMESTAMP");
   private static final boolean jodaTimeAvailable = ClassUtils.isPresent("org.joda.time.DateTime");
 
@@ -52,17 +49,4 @@ public final class FeatureDetector {
     return oracleAvailable;
   }
 
-  /**
-   * @return {@code true} if caching of underscore to camelcase is enabled.
-   */
-  public static boolean isCacheUnderscoreToCamelcaseEnabled() {
-    return cacheUnderscoreToCamelcaseEnabled;
-  }
-
-  /**
-   * Turn caching of underscore to camelcase on or off.
-   */
-  public static void setCacheUnderscoreToCamelcaseEnabled(boolean cacheUnderscoreToCamelcaseEnabled) {
-    FeatureDetector.cacheUnderscoreToCamelcaseEnabled = cacheUnderscoreToCamelcaseEnabled;
-  }
 }
