@@ -41,6 +41,7 @@ import cn.taketoday.util.StringUtils;
  * {@link SystemEnvironmentOrigin} for every system environment property.
  *
  * @author Madhura Bhave
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public class SystemEnvironmentPropertySourceEnvironmentPostProcessor implements EnvironmentPostProcessor, Ordered {
@@ -82,8 +83,8 @@ public class SystemEnvironmentPropertySourceEnvironmentPostProcessor implements 
   /**
    * {@link SystemEnvironmentPropertySource} that also tracks {@link Origin}.
    */
-  protected static class OriginAwareSystemEnvironmentPropertySource extends SystemEnvironmentPropertySource
-          implements OriginLookup<String> {
+  protected static class OriginAwareSystemEnvironmentPropertySource
+          extends SystemEnvironmentPropertySource implements OriginLookup<String> {
 
     private final String prefix;
 

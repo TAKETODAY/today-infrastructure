@@ -19,6 +19,6 @@
  */
 
 /**
- * Spring {@link cn.taketoday.core.env.Environment} support.
+ * {@link cn.taketoday.core.env.Environment} support.
  */
 package cn.taketoday.framework.env;
