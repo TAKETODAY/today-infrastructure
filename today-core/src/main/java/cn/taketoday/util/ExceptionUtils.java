@@ -150,13 +150,17 @@ public abstract class ExceptionUtils {
   /**
    * @since 4.0
    */
-  public static void sneakyThrow(Runnable action) {
+  public static void sneakyThrow(Action action) {
     try {
-      action.run();
+      action.call();
     }
-    catch (Exception e) {
+    catch (Throwable e) {
       throw sneakyThrow(e);
     }
+  }
+
+  public interface Action {
+    void call() throws Throwable;
   }
 
   /**
