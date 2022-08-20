@@ -495,24 +495,8 @@ public final class TodayStrategies {
               properties.load(inputStream);
             }
             log.debug("Reading strategies file '{}'", url);
-
-            for (Map.Entry<Object, Object> entry : properties.entrySet()) {
-              Object key = entry.getKey();
-              Object value = entry.getValue();
-              if (key != null && value != null) {
-                String strategyKey = key.toString();
-                // split as string list
-                List<String> strategyValues = StringUtils.splitAsList(value.toString());
-                for (String strategyValue : strategyValues) {
-                  strategyValue = strategyValue.trim(); // trim whitespace
-                  if (StringUtils.isNotEmpty(strategyValue)) {
-                    strategies.add(strategyKey, strategyValue);
-                  }
-                }
-              }
-            }
+            readStrategies(strategies, properties);
           }
-
           strategiesCache.put(classLoader, strategies);
         }
         catch (IOException ex) {
@@ -522,6 +506,32 @@ public final class TodayStrategies {
       }
     }
     return strategies;
+  }
+
+  public static void readStrategies(
+          MultiValueMap<String, String> strategies, String strategyKey, String value) {
+    // split as string list
+    List<String> strategyValues = StringUtils.splitAsList(value);
+    for (String strategyValue : strategyValues) {
+      strategyValue = strategyValue.trim(); // trim whitespace
+      if (StringUtils.isNotEmpty(strategyValue)) {
+        strategies.add(strategyKey, strategyValue);
+      }
+    }
+  }
+
+  /**
+   * @param strategies output
+   * @param properties input
+   */
+  public static void readStrategies(MultiValueMap<String, String> strategies, Properties properties) {
+    for (Map.Entry<Object, Object> entry : properties.entrySet()) {
+      Object key = entry.getKey();
+      Object value = entry.getValue();
+      if (key != null && value != null) {
+        readStrategies(strategies, key.toString(), value.toString());
+      }
+    }
   }
 
 }
