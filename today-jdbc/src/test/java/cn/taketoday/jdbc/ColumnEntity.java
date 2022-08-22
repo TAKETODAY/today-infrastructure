@@ -1,5 +1,7 @@
 package cn.taketoday.jdbc;
 
+import cn.taketoday.jdbc.sql.Column;
+
 public class ColumnEntity {
 
   private int id;
