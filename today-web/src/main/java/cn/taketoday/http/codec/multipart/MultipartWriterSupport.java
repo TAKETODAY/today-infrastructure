@@ -35,6 +35,7 @@ import cn.taketoday.http.MediaType;
 import cn.taketoday.http.codec.LoggingCodecSupport;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.FastByteArrayOutputStream;
 import cn.taketoday.util.MimeTypeUtils;
 import reactor.core.publisher.Mono;
 
@@ -164,22 +165,25 @@ public class MultipartWriterSupport extends LoggingCodecSupport {
 
   protected Mono<DataBuffer> generatePartHeaders(HttpHeaders headers, DataBufferFactory bufferFactory) {
     return Mono.fromCallable(() -> {
-      DataBuffer buffer = bufferFactory.allocateBuffer();
+      @SuppressWarnings("resource")
+      FastByteArrayOutputStream bos = new FastByteArrayOutputStream();
       for (Map.Entry<String, List<String>> entry : headers.entrySet()) {
         byte[] headerName = entry.getKey().getBytes(getCharset());
         for (String headerValueString : entry.getValue()) {
           byte[] headerValue = headerValueString.getBytes(getCharset());
-          buffer.write(headerName);
-          buffer.write((byte) ':');
-          buffer.write((byte) ' ');
-          buffer.write(headerValue);
-          buffer.write((byte) '\r');
-          buffer.write((byte) '\n');
+          bos.write(headerName);
+          bos.write((byte) ':');
+          bos.write((byte) ' ');
+          bos.write(headerValue);
+          bos.write((byte) '\r');
+          bos.write((byte) '\n');
         }
       }
-      buffer.write((byte) '\r');
-      buffer.write((byte) '\n');
-      return buffer;
+      bos.write((byte) '\r');
+      bos.write((byte) '\n');
+
+      byte[] bytes = bos.toByteArrayUnsafe();
+      return bufferFactory.wrap(bytes);
     });
   }
 

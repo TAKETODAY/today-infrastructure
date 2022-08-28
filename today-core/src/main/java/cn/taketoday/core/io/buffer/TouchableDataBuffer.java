@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -21,43 +21,20 @@
 package cn.taketoday.core.io.buffer;
 
 /**
- * Extension of {@link DataBuffer} that allows for buffers that share
- * a memory pool. Introduces methods for reference counting.
+ * Extension of {@link DataBuffer} that allows for buffers that can be given
+ * hints for debugging purposes.
  *
  * @author Arjen Poutsma
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @since 4.0
+ * @since 4.0 2022/8/29 00:19
  */
-public interface PooledDataBuffer extends TouchableDataBuffer {
-
-  /**
-   * Return {@code true} if this buffer is allocated;
-   * {@code false} if it has been deallocated.
-   */
-  boolean isAllocated();
-
-  /**
-   * Increase the reference count for this buffer by one.
-   *
-   * @return this buffer
-   */
-  PooledDataBuffer retain();
+public interface TouchableDataBuffer extends DataBuffer {
 
   /**
    * Associate the given hint with the data buffer for debugging purposes.
    *
    * @return this buffer
    */
-  @Override
-  PooledDataBuffer touch(Object hint);
-
-  /**
-   * Decrease the reference count for this buffer by one,
-   * and deallocate it once the count reaches zero.
-   *
-   * @return {@code true} if the buffer was deallocated;
-   * {@code false} otherwise
-   */
-  boolean release();
+  TouchableDataBuffer touch(Object hint);
 
 }

@@ -40,7 +40,6 @@ import cn.taketoday.core.io.Resource;
 import cn.taketoday.core.io.buffer.DataBuffer;
 import cn.taketoday.core.io.buffer.DataBufferFactory;
 import cn.taketoday.core.io.buffer.DataBufferUtils;
-import cn.taketoday.core.io.buffer.PooledDataBuffer;
 import cn.taketoday.http.HttpEntity;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.MediaType;
@@ -200,7 +199,7 @@ public class MultipartHttpMessageWriter
     Flux<DataBuffer> body = Flux.fromIterable(map.entrySet())
             .concatMap(entry -> encodePartValues(boundary, entry.getKey(), entry.getValue(), bufferFactory))
             .concatWith(generateLastLine(boundary, bufferFactory))
-            .doOnDiscard(PooledDataBuffer.class, DataBufferUtils::release);
+            .doOnDiscard(DataBuffer.class, DataBufferUtils::release);
 
     if (logger.isDebugEnabled()) {
       body = body.doOnNext(buffer -> Hints.touchDataBuffer(buffer, hints, logger));

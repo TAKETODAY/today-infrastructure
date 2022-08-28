@@ -127,7 +127,7 @@ public class FormHttpMessageReader extends LoggingCodecSupport
 
     return DataBufferUtils.join(message.getBody(), this.maxInMemorySize)
             .map(buffer -> {
-              CharBuffer charBuffer = charset.decode(buffer.asByteBuffer());
+              CharBuffer charBuffer = charset.decode(buffer.toByteBuffer());
               String body = charBuffer.toString();
               DataBufferUtils.release(buffer);
               MultiValueMap<String, String> formData = parseFormData(charset, body);

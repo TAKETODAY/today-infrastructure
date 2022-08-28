@@ -136,29 +136,20 @@ public class TomcatHttpHandlerAdapter extends ServletHttpHandlerAdapter {
         // It's possible InputStream can be wrapped, preventing use of CoyoteInputStream
         return super.readFromInputStream();
       }
-      boolean release = true;
-      int capacity = this.bufferSize;
-      DataBuffer dataBuffer = this.factory.allocateBuffer(capacity);
-      try {
-        ByteBuffer byteBuffer = dataBuffer.asByteBuffer(0, capacity);
-        int read = coyoteInputStream.read(byteBuffer);
-        logBytesRead(read);
-        if (read > 0) {
-          dataBuffer.writePosition(read);
-          release = false;
-          return dataBuffer;
-        }
-        else if (read == -1) {
-          return EOF_BUFFER;
-        }
-        else {
-          return null;
-        }
+      ByteBuffer byteBuffer = this.factory.isDirect() ?
+                              ByteBuffer.allocateDirect(this.bufferSize) :
+                              ByteBuffer.allocate(this.bufferSize);
+
+      int read = coyoteInputStream.read(byteBuffer);
+      logBytesRead(read);
+      if (read > 0) {
+        return this.factory.wrap(byteBuffer);
       }
-      finally {
-        if (release) {
-          DataBufferUtils.release(dataBuffer);
-        }
+      else if (read == -1) {
+        return EOF_BUFFER;
+      }
+      else {
+        return null;
       }
     }
   }
@@ -233,7 +224,7 @@ public class TomcatHttpHandlerAdapter extends ServletHttpHandlerAdapter {
 
     @Override
     protected int writeToOutputStream(DataBuffer dataBuffer) throws IOException {
-      ByteBuffer input = dataBuffer.asByteBuffer();
+      ByteBuffer input = dataBuffer.toByteBuffer();
       int len = input.remaining();
       ServletResponse response = getNativeResponse();
       ((CoyoteOutputStream) response.getOutputStream()).write(input);

@@ -120,7 +120,10 @@ public interface DataBuffer {
    *
    * @param capacity the new capacity
    * @return this buffer
+   * @deprecated in favor of {@link #ensureWritable(int)}, which
+   * has different semantics
    */
+  @Deprecated
   DataBuffer capacity(int capacity);
 
   /**
@@ -130,10 +133,22 @@ public interface DataBuffer {
    *
    * @param capacity the writable capacity to check for
    * @return this buffer
+   * @deprecated in favor of {@link #ensureWritable(int)}
    */
+  @Deprecated
   default DataBuffer ensureCapacity(int capacity) {
-    return this;
+    return ensureWritable(capacity);
   }
+
+  /**
+   * Ensure that the current buffer has enough {@link #writableByteCount()}
+   * to write the amount of data given as an argument. If not, the missing
+   * capacity will be added to the buffer.
+   *
+   * @param capacity the writable capacity to check for
+   * @return this buffer
+   */
+  DataBuffer ensureWritable(int capacity);
 
   /**
    * Return the position from which this buffer will read.
@@ -273,8 +288,8 @@ public interface DataBuffer {
               .asByteBuffer(writePosition(), writableByteCount());
       while (true) {
         CoderResult cr = inBuffer.hasRemaining()
-                ? charsetEncoder.encode(inBuffer, outBuffer, true)
-                : CoderResult.UNDERFLOW;
+                         ? charsetEncoder.encode(inBuffer, outBuffer, true)
+                         : CoderResult.UNDERFLOW;
         if (cr.isUnderflow()) {
           cr = charsetEncoder.flush(outBuffer);
         }
@@ -305,7 +320,10 @@ public interface DataBuffer {
    * @param index the index at which to start the slice
    * @param length the length of the slice
    * @return the specified slice of this data buffer
+   * @deprecated in favor of {@link #split(int)}, which
+   * has different semantics
    */
+  @Deprecated
   DataBuffer slice(int index, int length);
 
   /**
@@ -320,10 +338,33 @@ public interface DataBuffer {
    * @param index the index at which to start the slice
    * @param length the length of the slice
    * @return the specified, retained slice of this data buffer
+   * @deprecated in favor of {@link #split(int)}, which
+   * has different semantics
    */
+  @Deprecated
   default DataBuffer retainedSlice(int index, int length) {
     return DataBufferUtils.retain(slice(index, length));
   }
+
+  /**
+   * Splits this data buffer into two at the given index.
+   *
+   * <p>Data that precedes the {@code index} will be returned in a new buffer,
+   * while this buffer will contain data that follows after {@code index}.
+   * Memory between the two buffers is shared, but independent and cannot
+   * overlap (unlike {@link #slice(int, int) slice}).
+   *
+   * <p>The {@linkplain #readPosition() read} and
+   * {@linkplain #writePosition() write} position of the returned buffer are
+   * truncated to fit within the buffers {@linkplain #capacity() capacity} if
+   * necessary. The positions of this buffer are set to {@code 0} if they are
+   * smaller than {@code index}.
+   *
+   * @param index the index at which it should be split
+   * @return a new data buffer, containing the bytes from index {@code 0} to
+   * {@code index}
+   */
+  DataBuffer split(int index);
 
   /**
    * Expose this buffer's bytes as a {@link ByteBuffer}. Data between this
@@ -332,7 +373,10 @@ public interface DataBuffer {
    * will not be reflected in the reading nor writing position of this data buffer.
    *
    * @return this data buffer as a byte buffer
+   * @deprecated as of 6.0, in favor of {@link #toByteBuffer()}, which does
+   * <strong>not</strong> share data and returns a copy.
    */
+  @Deprecated
   ByteBuffer asByteBuffer();
 
   /**
@@ -344,8 +388,31 @@ public interface DataBuffer {
    * @param index the index at which to start the byte buffer
    * @param length the length of the returned byte buffer
    * @return this data buffer as a byte buffer
+   * @deprecated in favor of {@link #toByteBuffer(int, int)}, which
+   * does <strong>not</strong> share data and returns a copy.
    */
+  @Deprecated
   ByteBuffer asByteBuffer(int index, int length);
+
+  /**
+   * Returns a {@link ByteBuffer} representation of this data buffer. Data
+   * between this {@code DataBuffer} and the returned {@code ByteBuffer} is
+   * <strong>not</strong> shared.
+   *
+   * @return this data buffer as a byte buffer
+   */
+  default ByteBuffer toByteBuffer() {
+    return toByteBuffer(readPosition(), readableByteCount());
+  }
+
+  /**
+   * Returns a {@link ByteBuffer} representation of a subsequence of this
+   * buffer's bytes. Data between this {@code DataBuffer} and the returned
+   * {@code ByteBuffer} is <strong>not</strong> shared.
+   *
+   * @return this data buffer as a byte buffer
+   */
+  ByteBuffer toByteBuffer(int index, int length);
 
   /**
    * Expose this buffer's data as an {@link InputStream}. Both data and read position are
@@ -356,7 +423,9 @@ public interface DataBuffer {
    * @return this data buffer as an input stream
    * @see #asInputStream(boolean)
    */
-  InputStream asInputStream();
+  default InputStream asInputStream() {
+    return new DataBufferInputStream(this, false);
+  }
 
   /**
    * Expose this buffer's data as an {@link InputStream}. Both data and read position are
@@ -367,7 +436,9 @@ public interface DataBuffer {
    * {@linkplain InputStream#close() closed}.
    * @return this data buffer as an input stream
    */
-  InputStream asInputStream(boolean releaseOnClose);
+  default InputStream asInputStream(boolean releaseOnClose) {
+    return new DataBufferInputStream(this, releaseOnClose);
+  }
 
   /**
    * Expose this buffer's data as an {@link OutputStream}. Both data and write position are
@@ -375,7 +446,9 @@ public interface DataBuffer {
    *
    * @return this data buffer as an output stream
    */
-  OutputStream asOutputStream();
+  default OutputStream asOutputStream() {
+    return new DataBufferOutputStream(this);
+  }
 
   /**
    * Return this buffer's data a String using the specified charset. Default implementation

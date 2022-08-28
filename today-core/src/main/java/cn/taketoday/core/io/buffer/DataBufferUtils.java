@@ -48,8 +48,8 @@ import java.util.function.Consumer;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Constant;
-import cn.taketoday.lang.NonNull;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import reactor.core.publisher.BaseSubscriber;
 import reactor.core.publisher.Flux;
@@ -66,6 +66,8 @@ import reactor.util.context.Context;
  * @since 4.0
  */
 public abstract class DataBufferUtils {
+
+  private final static Logger logger = LoggerFactory.getLogger(DataBufferUtils.class);
 
   private static final Consumer<DataBuffer> RELEASE_CONSUMER = DataBufferUtils::release;
 
@@ -107,11 +109,10 @@ public abstract class DataBufferUtils {
     Assert.notNull(bufferFactory, "'dataBufferFactory' must not be null");
     Assert.isTrue(bufferSize > 0, "'bufferSize' must be > 0");
 
-    return Flux.using(
-            channelSupplier,
+    return Flux.using(channelSupplier,
             channel -> Flux.generate(new ReadableByteChannelGenerator(channel, bufferFactory, bufferSize)),
-            DataBufferUtils::closeChannel
-    );
+            DataBufferUtils::closeChannel);
+
     // No doOnDiscard as operators used do not cache
   }
 
@@ -151,8 +152,7 @@ public abstract class DataBufferUtils {
     Assert.isTrue(position >= 0, "'position' must be >= 0");
     Assert.isTrue(bufferSize > 0, "'bufferSize' must be > 0");
 
-    Flux<DataBuffer> flux = Flux.using(
-            channelSupplier,
+    Flux<DataBuffer> flux = Flux.using(channelSupplier,
             channel -> Flux.create(sink -> {
               ReadCompletionHandler handler =
                       new ReadCompletionHandler(channel, sink, position, bufferFactory, bufferSize);
@@ -162,10 +162,9 @@ public abstract class DataBufferUtils {
             channel -> {
               // Do not close channel from here, rather wait for the current read callback
               // and then complete after releasing the DataBuffer.
-            }
-    );
+            });
 
-    return flux.doOnDiscard(PooledDataBuffer.class, DataBufferUtils::release);
+    return flux.doOnDiscard(DataBuffer.class, DataBufferUtils::release);
   }
 
   /**
@@ -185,14 +184,13 @@ public abstract class DataBufferUtils {
     Assert.isTrue(bufferSize > 0, "'bufferSize' must be > 0");
     if (options.length > 0) {
       for (OpenOption option : options) {
-        if (option == StandardOpenOption.APPEND || option == StandardOpenOption.WRITE) {
-          throw new IllegalArgumentException("'" + option + "' not allowed");
-        }
+        Assert.isTrue(!(option == StandardOpenOption.APPEND || option == StandardOpenOption.WRITE),
+                "'" + option + "' not allowed");
       }
     }
 
-    return readAsynchronousFileChannel(
-            () -> AsynchronousFileChannel.open(path, options), bufferFactory, bufferSize);
+    return readAsynchronousFileChannel(() -> AsynchronousFileChannel.open(path, options),
+            bufferFactory, bufferSize);
   }
 
   /**
@@ -229,6 +227,7 @@ public abstract class DataBufferUtils {
    */
   public static Flux<DataBuffer> read(
           Resource resource, long position, DataBufferFactory bufferFactory, int bufferSize) {
+
     try {
       if (resource.isFile()) {
         File file = resource.getFile();
@@ -428,7 +427,8 @@ public abstract class DataBufferUtils {
    * @param maxByteCount the maximum byte count
    * @return a flux whose maximum byte count is {@code maxByteCount}
    */
-  public static Flux<DataBuffer> takeUntilByteCount(Publisher<? extends DataBuffer> publisher, long maxByteCount) {
+  @SuppressWarnings("unchecked")
+  public static <T extends DataBuffer> Flux<T> takeUntilByteCount(Publisher<T> publisher, long maxByteCount) {
     Assert.notNull(publisher, "Publisher must not be null");
     Assert.isTrue(maxByteCount >= 0, "'maxByteCount' must be a positive number");
 
@@ -438,8 +438,10 @@ public abstract class DataBufferUtils {
               .map(buffer -> {
                 long remainder = countDown.addAndGet(-buffer.readableByteCount());
                 if (remainder < 0) {
-                  int length = buffer.readableByteCount() + (int) remainder;
-                  return buffer.slice(0, length);
+                  int index = buffer.readableByteCount() + (int) remainder;
+                  DataBuffer split = buffer.split(index);
+                  release(buffer);
+                  return (T) split;
                 }
                 else {
                   return buffer;
@@ -460,7 +462,7 @@ public abstract class DataBufferUtils {
    * @param maxByteCount the maximum byte count
    * @return a flux with the remaining part of the given publisher
    */
-  public static Flux<DataBuffer> skipUntilByteCount(Publisher<? extends DataBuffer> publisher, long maxByteCount) {
+  public static <T extends DataBuffer> Flux<T> skipUntilByteCount(Publisher<T> publisher, long maxByteCount) {
     Assert.notNull(publisher, "Publisher must not be null");
     Assert.isTrue(maxByteCount >= 0, "'maxByteCount' must be a positive number");
 
@@ -476,14 +478,12 @@ public abstract class DataBufferUtils {
                 if (remainder < 0) {
                   countDown.set(0);
                   int start = buffer.readableByteCount() + (int) remainder;
-                  int length = (int) -remainder;
-                  return buffer.slice(start, length);
+                  DataBuffer split = buffer.split(start);
+                  release(split);
                 }
-                else {
-                  return buffer;
-                }
+                return buffer;
               });
-    }).doOnDiscard(PooledDataBuffer.class, DataBufferUtils::release);
+    }).doOnDiscard(DataBuffer.class, DataBufferUtils::release);
   }
 
   /**
@@ -494,8 +494,8 @@ public abstract class DataBufferUtils {
    */
   @SuppressWarnings("unchecked")
   public static <T extends DataBuffer> T retain(T dataBuffer) {
-    if (dataBuffer instanceof PooledDataBuffer) {
-      return (T) ((PooledDataBuffer) dataBuffer).retain();
+    if (dataBuffer instanceof PooledDataBuffer pooledDataBuffer) {
+      return (T) pooledDataBuffer.retain();
     }
     else {
       return dataBuffer;
@@ -512,8 +512,8 @@ public abstract class DataBufferUtils {
    */
   @SuppressWarnings("unchecked")
   public static <T extends DataBuffer> T touch(T dataBuffer, Object hint) {
-    if (dataBuffer instanceof PooledDataBuffer) {
-      return (T) ((PooledDataBuffer) dataBuffer).touch(hint);
+    if (dataBuffer instanceof TouchableDataBuffer touchableDataBuffer) {
+      return (T) touchableDataBuffer.touch(hint);
     }
     else {
       return dataBuffer;
@@ -521,22 +521,40 @@ public abstract class DataBufferUtils {
   }
 
   /**
-   * Release the given data buffer, if it is a {@link PooledDataBuffer} and
-   * has been {@linkplain PooledDataBuffer#isAllocated() allocated}.
+   * Release the given data buffer. If it is a {@link PooledDataBuffer} and
+   * has been {@linkplain PooledDataBuffer#isAllocated() allocated}, this
+   * method will call {@link PooledDataBuffer#release()}. If it is a
+   * {@link CloseableDataBuffer}, this method will call
+   * {@link CloseableDataBuffer#close()}.
    *
    * @param dataBuffer the data buffer to release
    * @return {@code true} if the buffer was released; {@code false} otherwise.
    */
   public static boolean release(@Nullable DataBuffer dataBuffer) {
-    if (dataBuffer instanceof PooledDataBuffer pooledDataBuffer && pooledDataBuffer.isAllocated()) {
+    if (dataBuffer instanceof PooledDataBuffer pooledDataBuffer) {
+      if (pooledDataBuffer.isAllocated()) {
+        try {
+          return pooledDataBuffer.release();
+        }
+        catch (IllegalStateException ex) {
+          if (logger.isDebugEnabled()) {
+            logger.debug("Failed to release PooledDataBuffer: {}", dataBuffer, ex);
+          }
+          return false;
+        }
+      }
+    }
+    else if (dataBuffer instanceof CloseableDataBuffer closeableDataBuffer) {
       try {
-        return pooledDataBuffer.release();
+        closeableDataBuffer.close();
+        return true;
       }
       catch (IllegalStateException ex) {
-        // Avoid dependency on Netty: IllegalReferenceCountException
-        LoggerFactory.getLogger(DataBufferUtils.class)
-                .debug("Failed to release PooledDataBuffer: {}", dataBuffer, ex);
+        if (logger.isDebugEnabled()) {
+          logger.debug("Failed to release CloseableDataBuffer {}", dataBuffer, ex);
+        }
         return false;
+
       }
     }
     return false;
@@ -551,7 +569,7 @@ public abstract class DataBufferUtils {
   }
 
   /**
-   * Return a new {@code DataBuffer} composed from joining together the given
+   * Return a new {@code DataBuffer} composed of joining together the given
    * {@code dataBuffers} elements. Depending on the {@link DataBuffer} type,
    * the returned buffer may be a single buffer containing all data of the
    * provided buffers, or it may be a zero-copy, composite with references to
@@ -563,7 +581,7 @@ public abstract class DataBufferUtils {
    * released. They will be released as part of the returned composite.
    *
    * @param dataBuffers the data buffers that are to be composed
-   * @return a buffer that is composed from the {@code dataBuffers} argument
+   * @return a buffer that is composed of the {@code dataBuffers} argument
    */
   public static Mono<DataBuffer> join(Publisher<? extends DataBuffer> dataBuffers) {
     return join(dataBuffers, -1);
@@ -580,18 +598,18 @@ public abstract class DataBufferUtils {
    * the max number of bytes to buffer is exceeded.
    * @throws DataBufferLimitException if maxByteCount is exceeded
    */
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings({ "unchecked", "rawtypes" })
   public static Mono<DataBuffer> join(Publisher<? extends DataBuffer> buffers, int maxByteCount) {
     Assert.notNull(buffers, "'dataBuffers' must not be null");
 
-    if (buffers instanceof Mono) {
-      return (Mono<DataBuffer>) buffers;
+    if (buffers instanceof Mono mono) {
+      return mono;
     }
     return Flux.from(buffers)
             .collect(() -> new LimitedDataBufferList(maxByteCount), LimitedDataBufferList::add)
             .filter(list -> !list.isEmpty())
             .map(list -> list.get(0).factory().join(list))
-            .doOnDiscard(PooledDataBuffer.class, DataBufferUtils::release);
+            .doOnDiscard(DataBuffer.class, DataBufferUtils::release);
   }
 
   /**
@@ -618,9 +636,11 @@ public abstract class DataBufferUtils {
   }
 
   private static NestedMatcher createMatcher(byte[] delimiter) {
-    Assert.isTrue(delimiter.length > 0, "Delimiter must not be empty");
-    return switch (delimiter.length) {
-      case 1 -> delimiter[0] == 10 ? SingleByteMatcher.NEWLINE_MATCHER : new SingleByteMatcher(delimiter);
+    // extract length due to Eclipse IDE compiler error in switch expression
+    int length = delimiter.length;
+    Assert.isTrue(length > 0, "Delimiter must not be empty");
+    return switch (length) {
+      case 1 -> (delimiter[0] == 10 ? SingleByteMatcher.NEWLINE_MATCHER : new SingleByteMatcher(delimiter));
       case 2 -> new TwoByteMatcher(delimiter);
       default -> new KnuthMorrisPrattMatcher(delimiter);
     };
@@ -725,11 +745,15 @@ public abstract class DataBufferUtils {
   /**
    * Matcher for a single byte delimiter.
    */
-  private record SingleByteMatcher(byte[] delimiter) implements NestedMatcher {
+  private static class SingleByteMatcher implements NestedMatcher {
+
     static SingleByteMatcher NEWLINE_MATCHER = new SingleByteMatcher(new byte[] { 10 });
 
-    private SingleByteMatcher {
+    private final byte[] delimiter;
+
+    SingleByteMatcher(byte[] delimiter) {
       Assert.isTrue(delimiter.length == 1, "Expected a 1 byte delimiter");
+      this.delimiter = delimiter;
     }
 
     @Override
@@ -746,6 +770,11 @@ public abstract class DataBufferUtils {
     @Override
     public boolean match(byte b) {
       return this.delimiter[0] == b;
+    }
+
+    @Override
+    public byte[] delimiter() {
+      return this.delimiter;
     }
 
     @Override
@@ -845,20 +874,29 @@ public abstract class DataBufferUtils {
     }
   }
 
-  private record ReadableByteChannelGenerator(
-          ReadableByteChannel channel, DataBufferFactory dataBufferFactory, int bufferSize)
-          implements Consumer<SynchronousSink<DataBuffer>> {
+  private static class ReadableByteChannelGenerator implements Consumer<SynchronousSink<DataBuffer>> {
+
+    private final int bufferSize;
+    private final ReadableByteChannel channel;
+    private final DataBufferFactory dataBufferFactory;
+
+    public ReadableByteChannelGenerator(
+            ReadableByteChannel channel, DataBufferFactory dataBufferFactory, int bufferSize) {
+
+      this.channel = channel;
+      this.dataBufferFactory = dataBufferFactory;
+      this.bufferSize = bufferSize;
+    }
 
     @Override
     public void accept(SynchronousSink<DataBuffer> sink) {
-      boolean release = true;
-      DataBuffer dataBuffer = this.dataBufferFactory.allocateBuffer(this.bufferSize);
+      ByteBuffer byteBuffer = dataBufferFactory.isDirect()
+                              ? ByteBuffer.allocateDirect(bufferSize)
+                              : ByteBuffer.allocate(bufferSize);
       try {
-        int read;
-        ByteBuffer byteBuffer = dataBuffer.asByteBuffer(0, dataBuffer.capacity());
-        if ((read = this.channel.read(byteBuffer)) >= 0) {
-          dataBuffer.writePosition(read);
-          release = false;
+        if (this.channel.read(byteBuffer) >= 0) {
+          byteBuffer.flip();
+          DataBuffer dataBuffer = this.dataBufferFactory.wrap(byteBuffer);
           sink.next(dataBuffer);
         }
         else {
@@ -868,15 +906,10 @@ public abstract class DataBufferUtils {
       catch (IOException ex) {
         sink.error(ex);
       }
-      finally {
-        if (release) {
-          release(dataBuffer);
-        }
-      }
     }
   }
 
-  private static class ReadCompletionHandler implements CompletionHandler<Integer, DataBuffer> {
+  private static class ReadCompletionHandler implements CompletionHandler<Integer, ByteBuffer> {
 
     private final FluxSink<DataBuffer> sink;
     private final AsynchronousFileChannel channel;
@@ -924,21 +957,20 @@ public abstract class DataBufferUtils {
     }
 
     private void read() {
-      DataBuffer dataBuffer = this.dataBufferFactory.allocateBuffer(this.bufferSize);
-      ByteBuffer byteBuffer = dataBuffer.asByteBuffer(0, this.bufferSize);
-      this.channel.read(byteBuffer, this.position.get(), dataBuffer, this);
+      ByteBuffer byteBuffer = dataBufferFactory.isDirect()
+                              ? ByteBuffer.allocateDirect(bufferSize)
+                              : ByteBuffer.allocate(bufferSize);
+      this.channel.read(byteBuffer, this.position.get(), byteBuffer, this);
     }
 
     @Override
-    public void completed(Integer read, DataBuffer dataBuffer) {
+    public void completed(Integer read, ByteBuffer byteBuffer) {
       if (this.state.get().equals(State.DISPOSED)) {
-        release(dataBuffer);
         closeChannel(this.channel);
         return;
       }
 
       if (read == -1) {
-        release(dataBuffer);
         closeChannel(this.channel);
         this.state.set(State.DISPOSED);
         this.sink.complete();
@@ -946,7 +978,9 @@ public abstract class DataBufferUtils {
       }
 
       this.position.addAndGet(read);
-      dataBuffer.writePosition(read);
+
+      byteBuffer.flip();
+      DataBuffer dataBuffer = this.dataBufferFactory.wrap(byteBuffer);
       this.sink.next(dataBuffer);
 
       // Stay in READING mode if there is demand
@@ -962,8 +996,7 @@ public abstract class DataBufferUtils {
     }
 
     @Override
-    public void failed(Throwable exc, DataBuffer dataBuffer) {
-      release(dataBuffer);
+    public void failed(Throwable exc, ByteBuffer byteBuffer) {
       closeChannel(this.channel);
       this.state.set(State.DISPOSED);
       this.sink.error(exc);
@@ -984,14 +1017,14 @@ public abstract class DataBufferUtils {
     }
 
     @Override
-    protected void hookOnSubscribe(@NonNull Subscription subscription) {
+    protected void hookOnSubscribe(Subscription subscription) {
       request(1);
     }
 
     @Override
     protected void hookOnNext(DataBuffer dataBuffer) {
       try {
-        ByteBuffer byteBuffer = dataBuffer.asByteBuffer();
+        ByteBuffer byteBuffer = dataBuffer.toByteBuffer();
         while (byteBuffer.hasRemaining()) {
           this.channel.write(byteBuffer);
         }
@@ -1005,7 +1038,7 @@ public abstract class DataBufferUtils {
     }
 
     @Override
-    protected void hookOnError(@NonNull Throwable throwable) {
+    protected void hookOnError(Throwable throwable) {
       this.sink.error(throwable);
     }
 
@@ -1040,21 +1073,21 @@ public abstract class DataBufferUtils {
     }
 
     @Override
-    protected void hookOnSubscribe(@NonNull Subscription subscription) {
+    protected void hookOnSubscribe(Subscription subscription) {
       request(1);
     }
 
     @Override
-    protected void hookOnNext(@NonNull DataBuffer value) {
+    protected void hookOnNext(DataBuffer value) {
       if (!this.dataBuffer.compareAndSet(null, value)) {
         throw new IllegalStateException();
       }
-      ByteBuffer byteBuffer = value.asByteBuffer();
+      ByteBuffer byteBuffer = value.toByteBuffer();
       this.channel.write(byteBuffer, this.position.get(), byteBuffer, this);
     }
 
     @Override
-    protected void hookOnError(@NonNull Throwable throwable) {
+    protected void hookOnError(Throwable throwable) {
       this.error.set(throwable);
 
       if (this.dataBuffer.get() == null) {

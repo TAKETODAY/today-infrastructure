@@ -230,7 +230,7 @@ class UndertowServerHttpResponse extends AbstractListenerServerHttpResponse impl
     @Override
     protected void dataReceived(DataBuffer dataBuffer) {
       super.dataReceived(dataBuffer);
-      this.byteBuffer = dataBuffer.asByteBuffer();
+      this.byteBuffer = dataBuffer.toByteBuffer();
     }
 
     @Override

@@ -123,8 +123,8 @@ class JdkClientHttpRequest extends AbstractClientHttpRequest {
 
   private HttpRequest.BodyPublisher toBodyPublisher(Publisher<? extends DataBuffer> body) {
     Publisher<ByteBuffer> byteBufferBody = (body instanceof Mono ?
-                                            Mono.from(body).map(DataBuffer::asByteBuffer) :
-                                            Flux.from(body).map(DataBuffer::asByteBuffer));
+                                            Mono.from(body).map(DataBuffer::toByteBuffer) :
+                                            Flux.from(body).map(DataBuffer::toByteBuffer));
 
     Flow.Publisher<ByteBuffer> bodyFlow = JdkFlowAdapter.publisherToFlowPublisher(byteBufferBody);
 

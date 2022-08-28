@@ -35,7 +35,6 @@ import java.util.function.Function;
 import cn.taketoday.core.io.buffer.DataBuffer;
 import cn.taketoday.core.io.buffer.DataBufferFactory;
 import cn.taketoday.core.io.buffer.DataBufferUtils;
-import cn.taketoday.core.io.buffer.PooledDataBuffer;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpMethod;
 import cn.taketoday.http.MediaType;
@@ -104,7 +103,7 @@ class JettyClientHttpRequest extends AbstractClientHttpRequest {
   public Mono<Void> writeAndFlushWith(Publisher<? extends Publisher<? extends DataBuffer>> body) {
     return writeWith(Flux.from(body)
             .flatMap(Function.identity())
-            .doOnDiscard(PooledDataBuffer.class, DataBufferUtils::release));
+            .doOnDiscard(DataBuffer.class, DataBufferUtils::release));
   }
 
   private String getContentType() {
@@ -113,7 +112,7 @@ class JettyClientHttpRequest extends AbstractClientHttpRequest {
   }
 
   private ContentChunk toContentChunk(DataBuffer buffer, MonoSink<Void> sink) {
-    return new ContentChunk(buffer.asByteBuffer(), new Callback() {
+    return new ContentChunk(buffer.toByteBuffer(), new Callback() {
       @Override
       public void succeeded() {
         DataBufferUtils.release(buffer);

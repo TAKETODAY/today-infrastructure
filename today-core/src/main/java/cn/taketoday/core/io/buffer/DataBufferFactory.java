@@ -79,8 +79,17 @@ public interface DataBufferFactory {
    * released as part of the returned composite.
    *
    * @param dataBuffers the data buffers to be composed
-   * @return a buffer that is composed from the {@code dataBuffers} argument
+   * @return a buffer that is composed of the {@code dataBuffers} argument
    */
   DataBuffer join(List<? extends DataBuffer> dataBuffers);
+
+  /**
+   * Indicates whether this factory allocates direct buffers (i.e. non-heap,
+   * native memory).
+   *
+   * @return {@code true} if this factory allocates direct buffers;
+   * {@code false} otherwise
+   */
+  boolean isDirect();
 
 }

@@ -31,7 +31,6 @@ import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.core.io.buffer.DataBuffer;
 import cn.taketoday.core.io.buffer.DataBufferFactory;
 import cn.taketoday.core.io.buffer.DataBufferUtils;
-import cn.taketoday.core.io.buffer.PooledDataBuffer;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpStatus;
 import cn.taketoday.http.ResponseCookie;
@@ -187,7 +186,7 @@ public abstract class AbstractServerHttpResponse implements ServerHttpResponse {
                     return writeWithInternal(
                             Mono.fromCallable(() -> buffer)
                                     .doOnSubscribe(s -> subscribed.set(true))
-                                    .doOnDiscard(PooledDataBuffer.class, DataBufferUtils::release)
+                                    .doOnDiscard(DataBuffer.class, DataBufferUtils::release)
                     );
                   }
                   catch (Throwable ex) {
@@ -200,7 +199,7 @@ public abstract class AbstractServerHttpResponse implements ServerHttpResponse {
                 });
               })
               .doOnError(t -> getHeaders().clearContentHeaders())
-              .doOnDiscard(PooledDataBuffer.class, DataBufferUtils::release);
+              .doOnDiscard(DataBuffer.class, DataBufferUtils::release);
     }
     else {
       return new ChannelSendOperator<>(body, inner -> doCommit(() -> writeWithInternal(inner)))

@@ -136,7 +136,7 @@ public class JettyHttpHandlerAdapter extends ServletHttpHandlerAdapter {
 
     @Override
     protected int writeToOutputStream(DataBuffer dataBuffer) throws IOException {
-      ByteBuffer input = dataBuffer.asByteBuffer();
+      ByteBuffer input = dataBuffer.toByteBuffer();
       int len = input.remaining();
       ServletResponse response = getNativeResponse();
       ((HttpOutput) response.getOutputStream()).write(input);

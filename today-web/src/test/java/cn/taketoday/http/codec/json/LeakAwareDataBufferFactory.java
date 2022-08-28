@@ -20,6 +20,9 @@
 
 package cn.taketoday.http.codec.json;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import java.nio.ByteBuffer;
 import java.time.Duration;
 import java.time.Instant;
@@ -50,7 +53,7 @@ import io.netty.buffer.PooledByteBufAllocator;
  */
 public class LeakAwareDataBufferFactory implements DataBufferFactory {
 
-  private static final Logger logger = LoggerFactory.getLogger(LeakAwareDataBufferFactory.class);
+  private static final Log logger = LogFactory.getLog(LeakAwareDataBufferFactory.class);
 
   private final DataBufferFactory delegate;
 
@@ -77,7 +80,7 @@ public class LeakAwareDataBufferFactory implements DataBufferFactory {
   }
 
   /**
-   * Checks whether all of the data buffers allocated by this factory have also been released.
+   * Checks whether all the data buffers allocated by this factory have also been released.
    * If not, then an {@link AssertionError} is thrown. Typically used from a JUnit <em>after</em>
    * method.
    */
@@ -100,7 +103,7 @@ public class LeakAwareDataBufferFactory implements DataBufferFactory {
       List<AssertionError> errors = this.created.stream()
               .filter(LeakAwareDataBuffer::isAllocated)
               .map(LeakAwareDataBuffer::leakError)
-              .collect(Collectors.toList());
+              .toList();
 
       errors.forEach(it -> logger.error("Leaked error: ", it));
       throw new AssertionError(errors.size() + " buffer leaks detected (see logs above)");
@@ -108,6 +111,7 @@ public class LeakAwareDataBufferFactory implements DataBufferFactory {
   }
 
   @Override
+  @Deprecated
   public DataBuffer allocateBuffer() {
     return createLeakAwareDataBuffer(this.delegate.allocateBuffer());
   }
@@ -142,6 +146,11 @@ public class LeakAwareDataBufferFactory implements DataBufferFactory {
             .map(o -> o instanceof LeakAwareDataBuffer ? ((LeakAwareDataBuffer) o).dataBuffer() : o)
             .collect(Collectors.toList());
     return new LeakAwareDataBuffer(this.delegate.join(dataBuffers), this);
+  }
+
+  @Override
+  public boolean isDirect() {
+    return this.delegate.isDirect();
   }
 
 }

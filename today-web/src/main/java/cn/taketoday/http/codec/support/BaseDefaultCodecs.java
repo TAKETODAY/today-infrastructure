@@ -36,6 +36,8 @@ import cn.taketoday.core.codec.DataBufferDecoder;
 import cn.taketoday.core.codec.DataBufferEncoder;
 import cn.taketoday.core.codec.Decoder;
 import cn.taketoday.core.codec.Encoder;
+import cn.taketoday.core.codec.Netty5BufferDecoder;
+import cn.taketoday.core.codec.Netty5BufferEncoder;
 import cn.taketoday.core.codec.NettyByteBufDecoder;
 import cn.taketoday.core.codec.NettyByteBufEncoder;
 import cn.taketoday.core.codec.ResourceDecoder;
@@ -82,6 +84,7 @@ class BaseDefaultCodecs implements CodecConfigurer.DefaultCodecs, CodecConfigure
 
   private static final boolean protobufPresent;
   private static final boolean jackson2SmilePresent;
+  static final boolean netty5BufferPresent;
 
   static {
     ClassLoader classLoader = BaseCodecConfigurer.class.getClassLoader();
@@ -91,6 +94,7 @@ class BaseDefaultCodecs implements CodecConfigurer.DefaultCodecs, CodecConfigure
     protobufPresent = ClassUtils.isPresent("com.google.protobuf.Message", classLoader);
     synchronossMultipartPresent = ClassUtils.isPresent("org.synchronoss.cloud.nio.multipart.NioMultipartParser", classLoader);
     nettyByteBufPresent = ClassUtils.isPresent("io.netty.buffer.ByteBuf", classLoader);
+    netty5BufferPresent = ClassUtils.isPresent("io.netty5.buffer.api.Buffer", classLoader);
   }
 
   @Nullable
@@ -276,6 +280,9 @@ class BaseDefaultCodecs implements CodecConfigurer.DefaultCodecs, CodecConfigure
     addCodec(this.typedReaders, new DecoderHttpMessageReader<>(new DataBufferDecoder()));
     if (nettyByteBufPresent) {
       addCodec(this.typedReaders, new DecoderHttpMessageReader<>(new NettyByteBufDecoder()));
+    }
+    if (netty5BufferPresent) {
+      addCodec(this.typedReaders, new DecoderHttpMessageReader<>(new Netty5BufferDecoder()));
     }
     addCodec(this.typedReaders, new ResourceHttpMessageReader(new ResourceDecoder()));
     addCodec(this.typedReaders, new DecoderHttpMessageReader<>(StringDecoder.textPlainOnly()));
@@ -480,6 +487,9 @@ class BaseDefaultCodecs implements CodecConfigurer.DefaultCodecs, CodecConfigure
     addCodec(writers, new EncoderHttpMessageWriter<>(new DataBufferEncoder()));
     if (nettyByteBufPresent) {
       addCodec(writers, new EncoderHttpMessageWriter<>(new NettyByteBufEncoder()));
+    }
+    if (netty5BufferPresent) {
+      addCodec(writers, new EncoderHttpMessageWriter<>(new Netty5BufferEncoder()));
     }
     addCodec(writers, new ResourceHttpMessageWriter());
     addCodec(writers, new EncoderHttpMessageWriter<>(CharSequenceEncoder.textPlainOnly()));

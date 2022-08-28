@@ -33,10 +33,10 @@ import java.util.stream.Collectors;
 import cn.taketoday.core.ResolvableType;
 import cn.taketoday.core.io.buffer.DataBuffer;
 import cn.taketoday.core.io.buffer.DataBufferFactory;
-import cn.taketoday.core.io.buffer.DataBufferUtils;
+import cn.taketoday.http.MediaType;
 import cn.taketoday.http.codec.HttpMessageEncoder;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.http.MediaType;
+import cn.taketoday.util.FastByteArrayOutputStream;
 import cn.taketoday.util.MimeType;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -85,32 +85,25 @@ public class ProtobufEncoder extends ProtobufCodecSupport implements HttpMessage
 
   @Override
   public DataBuffer encodeValue(Message message, DataBufferFactory bufferFactory,
-                                ResolvableType valueType, @Nullable MimeType mimeType, @Nullable Map<String, Object> hints) {
+          ResolvableType valueType, @Nullable MimeType mimeType, @Nullable Map<String, Object> hints) {
 
     return encodeValue(message, bufferFactory, false);
   }
 
   private DataBuffer encodeValue(Message message, DataBufferFactory bufferFactory, boolean delimited) {
-
-    DataBuffer buffer = bufferFactory.allocateBuffer();
-    boolean release = true;
+    FastByteArrayOutputStream bos = new FastByteArrayOutputStream();
     try {
       if (delimited) {
-        message.writeDelimitedTo(buffer.asOutputStream());
+        message.writeDelimitedTo(bos);
       }
       else {
-        message.writeTo(buffer.asOutputStream());
+        message.writeTo(bos);
       }
-      release = false;
-      return buffer;
+      byte[] bytes = bos.toByteArrayUnsafe();
+      return bufferFactory.wrap(bytes);
     }
     catch (IOException ex) {
       throw new IllegalStateException("Unexpected I/O error while writing to data buffer", ex);
-    }
-    finally {
-      if (release) {
-        DataBufferUtils.release(buffer);
-      }
     }
   }
 

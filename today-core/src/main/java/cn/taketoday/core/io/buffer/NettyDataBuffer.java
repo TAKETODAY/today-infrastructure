@@ -20,8 +20,6 @@
 
 package cn.taketoday.core.io.buffer;
 
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
@@ -31,8 +29,6 @@ import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ObjectUtils;
 import io.netty.buffer.ByteBuf;
-import io.netty.buffer.ByteBufInputStream;
-import io.netty.buffer.ByteBufOutputStream;
 import io.netty.buffer.ByteBufUtil;
 
 /**
@@ -45,7 +41,7 @@ import io.netty.buffer.ByteBufUtil;
  */
 public class NettyDataBuffer implements PooledDataBuffer {
 
-  private final ByteBuf byteBuf;
+  private ByteBuf byteBuf;
 
   private final NettyDataBufferFactory dataBufferFactory;
 
@@ -141,13 +137,14 @@ public class NettyDataBuffer implements PooledDataBuffer {
   }
 
   @Override
+  @Deprecated
   public NettyDataBuffer capacity(int capacity) {
     this.byteBuf.capacity(capacity);
     return this;
   }
 
   @Override
-  public DataBuffer ensureCapacity(int capacity) {
+  public DataBuffer ensureWritable(int capacity) {
     this.byteBuf.ensureWritable(capacity);
     return this;
   }
@@ -189,7 +186,7 @@ public class NettyDataBuffer implements PooledDataBuffer {
 
   @Override
   public NettyDataBuffer write(DataBuffer... buffers) {
-    if (ObjectUtils.isNotEmpty(buffers)) {
+    if (!ObjectUtils.isEmpty(buffers)) {
       if (hasNettyDataBuffers(buffers)) {
         ByteBuf[] nativeBuffers = new ByteBuf[buffers.length];
         for (int i = 0; i < buffers.length; i++) {
@@ -200,7 +197,7 @@ public class NettyDataBuffer implements PooledDataBuffer {
       else {
         ByteBuffer[] byteBuffers = new ByteBuffer[buffers.length];
         for (int i = 0; i < buffers.length; i++) {
-          byteBuffers[i] = buffers[i].asByteBuffer();
+          byteBuffers[i] = buffers[i].toByteBuffer();
         }
         write(byteBuffers);
       }
@@ -219,7 +216,7 @@ public class NettyDataBuffer implements PooledDataBuffer {
 
   @Override
   public NettyDataBuffer write(ByteBuffer... buffers) {
-    if (ObjectUtils.isNotEmpty(buffers)) {
+    if (!ObjectUtils.isEmpty(buffers)) {
       for (ByteBuffer buffer : buffers) {
         this.byteBuf.writeBytes(buffer);
       }
@@ -235,7 +232,7 @@ public class NettyDataBuffer implements PooledDataBuffer {
    * @return this buffer
    */
   public NettyDataBuffer write(ByteBuf... byteBufs) {
-    if (ObjectUtils.isNotEmpty(byteBufs)) {
+    if (!ObjectUtils.isEmpty(byteBufs)) {
       for (ByteBuf byteBuf : byteBufs) {
         this.byteBuf.writeBytes(byteBuf);
       }
@@ -260,40 +257,56 @@ public class NettyDataBuffer implements PooledDataBuffer {
   }
 
   @Override
+  @Deprecated
   public NettyDataBuffer slice(int index, int length) {
     ByteBuf slice = this.byteBuf.slice(index, length);
     return new NettyDataBuffer(slice, this.dataBufferFactory);
   }
 
   @Override
+  @Deprecated
   public NettyDataBuffer retainedSlice(int index, int length) {
     ByteBuf slice = this.byteBuf.retainedSlice(index, length);
     return new NettyDataBuffer(slice, this.dataBufferFactory);
   }
 
   @Override
+  public NettyDataBuffer split(int index) {
+    ByteBuf split = this.byteBuf.retainedSlice(0, index);
+    int writerIndex = this.byteBuf.writerIndex();
+    int readerIndex = this.byteBuf.readerIndex();
+
+    split.writerIndex(Math.min(writerIndex, index));
+    split.readerIndex(Math.min(readerIndex, index));
+
+    this.byteBuf = this.byteBuf.slice(index, this.byteBuf.capacity() - index);
+    this.byteBuf.writerIndex(Math.max(writerIndex, index) - index);
+    this.byteBuf.readerIndex(Math.max(readerIndex, index) - index);
+
+    return new NettyDataBuffer(split, this.dataBufferFactory);
+  }
+
+  @Override
+  @Deprecated
   public ByteBuffer asByteBuffer() {
     return this.byteBuf.nioBuffer();
   }
 
   @Override
+  @Deprecated
   public ByteBuffer asByteBuffer(int index, int length) {
     return this.byteBuf.nioBuffer(index, length);
   }
 
   @Override
-  public InputStream asInputStream() {
-    return new ByteBufInputStream(this.byteBuf);
-  }
+  public ByteBuffer toByteBuffer(int index, int length) {
+    ByteBuffer result = this.byteBuf.isDirect()
+                        ? ByteBuffer.allocateDirect(length)
+                        : ByteBuffer.allocate(length);
 
-  @Override
-  public InputStream asInputStream(boolean releaseOnClose) {
-    return new ByteBufInputStream(this.byteBuf, releaseOnClose);
-  }
+    this.byteBuf.getBytes(index, result);
 
-  @Override
-  public OutputStream asOutputStream() {
-    return new ByteBufOutputStream(this.byteBuf);
+    return result.flip();
   }
 
   @Override

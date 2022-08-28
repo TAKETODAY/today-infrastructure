@@ -43,6 +43,7 @@
 
     <!--server-->
     <netty.version>4.1.77.Final</netty.version>
+    <netty5.version>5.0.0.Alpha4</netty5.version>
     <jetty.version>11.0.10</jetty.version>
     <undertow.version>2.2.19.Final</undertow.version>
     <undertow-jakartaee9.version>2.2.13.Final</undertow-jakartaee9.version>
@@ -252,6 +253,12 @@
         <groupId>org.eclipse.jetty</groupId>
         <artifactId>jetty-reactive-httpclient</artifactId>
         <version>3.0.6</version>
+      </dependency>
+
+      <dependency>
+        <groupId>io.netty</groupId>
+        <artifactId>netty5-buffer</artifactId>
+        <version>${netty5.version}</version>
       </dependency>
 
       <!--

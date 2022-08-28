@@ -127,6 +127,11 @@ public class DefaultDataBufferFactory implements DataBufferFactory {
   }
 
   @Override
+  public boolean isDirect() {
+    return this.preferDirect;
+  }
+
+  @Override
   public String toString() {
     return "DefaultDataBufferFactory (preferDirect=" + this.preferDirect + ")";
   }

@@ -89,13 +89,20 @@ public class DataBufferWrapper implements DataBuffer {
   }
 
   @Override
+  @Deprecated
   public DataBuffer capacity(int capacity) {
     return this.delegate.capacity(capacity);
   }
 
   @Override
+  @Deprecated
   public DataBuffer ensureCapacity(int capacity) {
     return this.delegate.ensureCapacity(capacity);
+  }
+
+  @Override
+  public DataBuffer ensureWritable(int capacity) {
+    return this.delegate.ensureWritable(capacity);
   }
 
   @Override
@@ -164,28 +171,48 @@ public class DataBufferWrapper implements DataBuffer {
   }
 
   @Override
-  public DataBuffer write(CharSequence charSequence, Charset charset) {
+  public DataBuffer write(CharSequence charSequence,
+          Charset charset) {
     return this.delegate.write(charSequence, charset);
   }
 
   @Override
+  @Deprecated
   public DataBuffer slice(int index, int length) {
     return this.delegate.slice(index, length);
   }
 
   @Override
+  @Deprecated
   public DataBuffer retainedSlice(int index, int length) {
     return this.delegate.retainedSlice(index, length);
   }
 
   @Override
+  public DataBuffer split(int index) {
+    return this.delegate.split(index);
+  }
+
+  @Override
+  @Deprecated
   public ByteBuffer asByteBuffer() {
     return this.delegate.asByteBuffer();
   }
 
   @Override
+  @Deprecated
   public ByteBuffer asByteBuffer(int index, int length) {
     return this.delegate.asByteBuffer(index, length);
+  }
+
+  @Override
+  public ByteBuffer toByteBuffer() {
+    return this.delegate.toByteBuffer();
+  }
+
+  @Override
+  public ByteBuffer toByteBuffer(int index, int length) {
+    return this.delegate.toByteBuffer(index, length);
   }
 
   @Override

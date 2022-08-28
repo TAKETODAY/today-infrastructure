@@ -36,7 +36,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 class DataBufferTestUtilsTests extends AbstractDataBufferAllocatingTests {
 
   @ParameterizedDataBufferAllocatingTest
-  void dumpBytes(String displayName, DataBufferFactory bufferFactory) {
+  void dumpBytes(DataBufferFactory bufferFactory) {
     this.bufferFactory = bufferFactory;
 
     DataBuffer buffer = this.bufferFactory.allocateBuffer(4);
@@ -51,7 +51,7 @@ class DataBufferTestUtilsTests extends AbstractDataBufferAllocatingTests {
   }
 
   @ParameterizedDataBufferAllocatingTest
-  void dumpString(String displayName, DataBufferFactory bufferFactory) {
+  void dumpString(DataBufferFactory bufferFactory) {
     this.bufferFactory = bufferFactory;
 
     DataBuffer buffer = this.bufferFactory.allocateBuffer(4);

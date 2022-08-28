@@ -55,7 +55,7 @@ public abstract class AbstractSingleValueEncoder<T> extends AbstractEncoder<T> {
     return Flux.from(inputStream)
             .take(1)
             .concatMap(value -> encode(value, bufferFactory, elementType, mimeType, hints))
-            .doOnDiscard(PooledDataBuffer.class, DataBufferUtils::release);
+            .doOnDiscard(DataBuffer.class, DataBufferUtils::release);
   }
 
   /**

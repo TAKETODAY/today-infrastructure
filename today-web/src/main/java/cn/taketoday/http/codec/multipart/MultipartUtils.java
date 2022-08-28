@@ -27,7 +27,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-import cn.taketoday.core.io.buffer.DataBuffer;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpMessage;
 import cn.taketoday.http.MediaType;
@@ -87,23 +86,6 @@ abstract class MultipartUtils {
       len += byteArray.length;
     }
     return result;
-  }
-
-  /**
-   * Slices the given buffer to the given index (exclusive).
-   */
-  public static DataBuffer sliceTo(DataBuffer buf, int idx) {
-    int pos = buf.readPosition();
-    int len = idx - pos + 1;
-    return buf.retainedSlice(pos, len);
-  }
-
-  /**
-   * Slices the given buffer from the given index (inclusive).
-   */
-  public static DataBuffer sliceFrom(DataBuffer buf, int idx) {
-    int len = buf.writePosition() - idx - 1;
-    return buf.retainedSlice(idx + 1, len);
   }
 
   public static void closeChannel(Channel channel) {
