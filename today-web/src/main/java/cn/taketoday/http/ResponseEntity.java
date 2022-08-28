@@ -394,7 +394,7 @@ public class ResponseEntity<T> extends HttpEntity<T> {
      * @return this builder
      * @see HttpHeaders#setETag(String)
      */
-    B eTag(String etag);
+    B eTag(@Nullable String etag);
 
     /**
      * Set the time the resource was last changed, as specified by the
