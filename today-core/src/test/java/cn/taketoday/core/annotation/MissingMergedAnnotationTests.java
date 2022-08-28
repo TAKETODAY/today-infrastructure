@@ -259,6 +259,11 @@ class MissingMergedAnnotationTests {
   }
 
   @Test
+  void isSynthesizableReturnsFalse() {
+    assertThat(this.missing.isSynthesizable()).isFalse();
+  }
+
+  @Test
   void synthesizeThrowsNoSuchElementException() {
     assertThatNoSuchElementException().isThrownBy(() -> this.missing.synthesize());
   }

@@ -137,6 +137,11 @@ final class MissingMergedAnnotation<A extends Annotation> extends AbstractMerged
   }
 
   @Override
+  public boolean isSynthesizable() {
+    return false;
+  }
+
+  @Override
   public String toString() {
     return "(missing)";
   }

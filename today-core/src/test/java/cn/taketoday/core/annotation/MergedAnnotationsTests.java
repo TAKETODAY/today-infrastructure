@@ -1504,6 +1504,13 @@ class MergedAnnotationsTests {
   }
 
   @Test
+  void isSynthesizableWithoutAttributeAliases() throws Exception {
+    Component component = WebController.class.getAnnotation(Component.class);
+    assertThat(component).isNotNull();
+    assertThat(MergedAnnotation.from(component).isSynthesizable()).isFalse();
+  }
+
+  @Test
   void synthesizeAlreadySynthesized() throws Exception {
     Method method = WebController.class.getMethod("handleMappedWithValueAttribute");
     RequestMapping webMapping = method.getAnnotation(RequestMapping.class);

@@ -338,6 +338,17 @@ final class TypeMappedAnnotation<A extends Annotation> extends AbstractMergedAnn
   }
 
   @Override
+  public boolean isSynthesizable() {
+    // Is this a mapped annotation for a composed annotation, and are there
+    // annotation attributes (mirrors) that need to be merged?
+    if (getDistance() > 0 && this.resolvedMirrors.length > 0) {
+      return true;
+    }
+    // Is the mapped annotation itself synthesizable?
+    return this.mapping.synthesizable;
+  }
+
+  @Override
   @SuppressWarnings("unchecked")
   protected A createSynthesizedAnnotation() {
     Class<A> type = getType();
@@ -368,13 +379,7 @@ final class TypeMappedAnnotation<A extends Annotation> extends AbstractMergedAnn
     if (annotation instanceof SynthesizedAnnotation) {
       return true;
     }
-    // Is this a mapped annotation for a composed annotation, and are there
-    // annotation attributes (mirrors) that need to be merged?
-    if (getDistance() > 0 && resolvedMirrors.length > 0) {
-      return false;
-    }
-    // Is the mapped annotation itself synthesizable?
-    return !mapping.synthesizable;
+    return !isSynthesizable();
   }
 
   @Override
