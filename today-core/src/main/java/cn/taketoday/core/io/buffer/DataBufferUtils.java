@@ -374,7 +374,12 @@ public abstract class DataBufferUtils {
       try {
         AsynchronousFileChannel channel = AsynchronousFileChannel.open(destination, optionSet, null);
         sink.onDispose(() -> closeChannel(channel));
-        write(source, channel).subscribe(DataBufferUtils::release, sink::error, sink::success);
+        write(source, channel).subscribe(
+                DataBufferUtils::release,
+                sink::error,
+                sink::success,
+                Context.of(sink.contextView())
+        );
       }
       catch (IOException ex) {
         sink.error(ex);
