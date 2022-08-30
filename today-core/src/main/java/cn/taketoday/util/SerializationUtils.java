@@ -103,7 +103,7 @@ public abstract class SerializationUtils {
    * @param object the object to clone
    * @param <T> the type of the object to clone
    * @return a clone (deep-copy) of the given object
-   * @since 6.0
+   * @since 4.0
    */
   @SuppressWarnings("unchecked")
   public static <T extends Serializable> T clone(T object) {

@@ -32,7 +32,7 @@ import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
  * Tests for {@link ThrowingSupplier}.
  *
  * @author Phillip Webb
- * @since 6.0
+ * @since 4.0
  */
 class ThrowingSupplierTests {
 
