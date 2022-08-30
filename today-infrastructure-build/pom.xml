@@ -84,6 +84,9 @@
             <release>${java.version}</release>
             <compilerVersion>${java.version}</compilerVersion>
             <encoding>UTF-8</encoding>
+            <compilerArgs>
+              <arg>-parameters</arg>
+            </compilerArgs>
           </configuration>
 
         </plugin>
