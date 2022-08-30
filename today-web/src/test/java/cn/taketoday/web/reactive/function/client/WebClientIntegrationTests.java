@@ -190,7 +190,7 @@ class WebClientIntegrationTests {
   }
 
   @ParameterizedWebClientTest
-  void retrieveJsonWithParameterizedTypeReference(ClientHttpConnector connector) {
+  void retrieveJsonWithTypeReference(ClientHttpConnector connector) {
     startServer(connector);
 
     String content = "{\"containerValue\":{\"bar\":\"barbar\",\"foo\":\"foofoo\"}}";
@@ -766,7 +766,7 @@ class WebClientIntegrationTests {
   }
 
   @ParameterizedWebClientTest
-  void statusHandlerParameterizedTypeReference(ClientHttpConnector connector) {
+  void statusHandlerTypeReference(ClientHttpConnector connector) {
     startServer(connector);
 
     prepareResponse(response -> response.setResponseCode(500)

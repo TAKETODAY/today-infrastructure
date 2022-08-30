@@ -115,7 +115,7 @@ public class ClientResponseWrapperTests {
   }
 
   @Test
-  public void bodyToMonoParameterizedTypeReference() {
+  public void bodyToMonoTypeReference() {
     Mono<String> result = Mono.just("foo");
     TypeReference<String> reference = new TypeReference<>() { };
     given(mockResponse.bodyToMono(reference)).willReturn(result);
@@ -132,7 +132,7 @@ public class ClientResponseWrapperTests {
   }
 
   @Test
-  public void bodyToFluxParameterizedTypeReference() {
+  public void bodyToFluxTypeReference() {
     Flux<String> result = Flux.just("foo");
     TypeReference<String> reference = new TypeReference<>() { };
     given(mockResponse.bodyToFlux(reference)).willReturn(result);
@@ -149,7 +149,7 @@ public class ClientResponseWrapperTests {
   }
 
   @Test
-  public void toEntityParameterizedTypeReference() {
+  public void toEntityTypeReference() {
     Mono<ResponseEntity<String>> result = Mono.just(new ResponseEntity<>("foo", HttpStatus.OK));
     TypeReference<String> reference = new TypeReference<>() { };
     given(mockResponse.toEntity(reference)).willReturn(result);
@@ -166,7 +166,7 @@ public class ClientResponseWrapperTests {
   }
 
   @Test
-  public void toEntityListParameterizedTypeReference() {
+  public void toEntityListTypeReference() {
     Mono<ResponseEntity<List<String>>> result = Mono.just(new ResponseEntity<>(singletonList("foo"), HttpStatus.OK));
     TypeReference<String> reference = new TypeReference<>() { };
     given(mockResponse.toEntityList(reference)).willReturn(result);

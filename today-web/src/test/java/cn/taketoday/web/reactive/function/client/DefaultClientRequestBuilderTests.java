@@ -206,7 +206,7 @@ public class DefaultClientRequestBuilderTests {
   }
 
   @Test
-  public void bodyParameterizedTypeReference() {
+  public void bodyTypeReference() {
     String body = "foo";
     Publisher<String> publisher = Mono.just(body);
     TypeReference<String> typeReference = new TypeReference<>() { };

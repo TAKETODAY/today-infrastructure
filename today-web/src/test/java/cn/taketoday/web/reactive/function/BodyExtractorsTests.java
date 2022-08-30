@@ -136,7 +136,7 @@ public class BodyExtractorsTests {
   }
 
   @Test
-  public void toMonoParameterizedTypeReference() {
+  public void toMonoTypeReference() {
     BodyExtractor<Mono<Map<String, String>>, ReactiveHttpInputMessage> extractor =
             BodyExtractors.toMono(new TypeReference<Map<String, String>>() { });
 
