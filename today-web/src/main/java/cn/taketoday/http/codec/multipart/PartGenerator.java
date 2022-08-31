@@ -647,6 +647,14 @@ final class PartGenerator extends BaseSubscriber<MultipartParser.Token> {
     @Override
     public void onComplete() {
       this.completed = true;
+      State state = PartGenerator.this.state.get();
+      // writeComplete might have changed our state to IdleFileState
+      if (state != this) {
+        state.onComplete();
+      }
+      else {
+        this.completed = true;
+      }
     }
 
     public void writeBuffer(DataBuffer dataBuffer) {
@@ -670,14 +678,16 @@ final class PartGenerator extends BaseSubscriber<MultipartParser.Token> {
 
     private void writeComplete() {
       IdleFileState newState = new IdleFileState(this);
-      if (this.completed) {
-        newState.onComplete();
-      }
-      else if (this.disposed) {
+      if (this.disposed) {
         newState.dispose();
       }
       else if (changeState(this, newState)) {
-        requestToken();
+        if (this.completed) {
+          newState.onComplete();
+        }
+        else {
+          requestToken();
+        }
       }
       else {
         MultipartUtils.closeChannel(this.channel);
