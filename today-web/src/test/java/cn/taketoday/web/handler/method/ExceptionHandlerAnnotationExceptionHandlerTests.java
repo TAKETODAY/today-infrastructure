@@ -58,9 +58,9 @@ import cn.taketoday.web.servlet.MockServletRequestContext;
 import cn.taketoday.web.testfixture.servlet.MockHttpServletRequest;
 import cn.taketoday.web.testfixture.servlet.MockHttpServletResponse;
 import cn.taketoday.web.util.WebUtils;
-import cn.taketoday.web.view.Model;
+import cn.taketoday.ui.Model;
 import cn.taketoday.web.view.ModelAndView;
-import cn.taketoday.web.view.ModelMap;
+import cn.taketoday.ui.ModelMap;
 import cn.taketoday.web.view.RedirectModel;
 import jakarta.servlet.ServletException;
 

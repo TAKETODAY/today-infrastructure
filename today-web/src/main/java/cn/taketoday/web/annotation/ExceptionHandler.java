@@ -31,7 +31,7 @@ import cn.taketoday.http.converter.HttpMessageConverter;
 import cn.taketoday.web.LocaleResolver;
 import cn.taketoday.web.RequestToViewNameTranslator;
 import cn.taketoday.web.handler.method.RequestMappingHandlerAdapter;
-import cn.taketoday.web.view.Model;
+import cn.taketoday.ui.Model;
 import cn.taketoday.web.view.View;
 
 /**

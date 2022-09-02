@@ -26,7 +26,7 @@ import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.ReturnValueHandler;
 import cn.taketoday.web.handler.method.HandlerMethod;
 import cn.taketoday.web.handler.method.ResolvableMethodParameter;
-import cn.taketoday.web.view.Model;
+import cn.taketoday.ui.Model;
 import cn.taketoday.web.view.RedirectModel;
 
 /**

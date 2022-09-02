@@ -43,7 +43,7 @@ import cn.taketoday.web.bind.support.SessionAttributeStore;
 import cn.taketoday.web.servlet.ServletRequestContext;
 import cn.taketoday.web.testfixture.servlet.MockHttpServletRequest;
 import cn.taketoday.web.testfixture.servlet.MockHttpServletResponse;
-import cn.taketoday.web.view.Model;
+import cn.taketoday.ui.Model;
 import cn.taketoday.web.view.RedirectModel;
 
 import static org.assertj.core.api.Assertions.assertThat;

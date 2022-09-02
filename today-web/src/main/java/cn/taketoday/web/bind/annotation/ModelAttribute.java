@@ -29,7 +29,7 @@ import java.lang.annotation.Target;
 import cn.taketoday.core.annotation.AliasFor;
 import cn.taketoday.web.annotation.ExceptionHandler;
 import cn.taketoday.web.annotation.RequestMapping;
-import cn.taketoday.web.view.Model;
+import cn.taketoday.ui.Model;
 
 /**
  * Annotation that binds a method parameter or method return value

@@ -27,7 +27,7 @@ import cn.taketoday.validation.Errors;
 import cn.taketoday.web.BindingContext;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.handler.method.ResolvableMethodParameter;
-import cn.taketoday.web.view.ModelMap;
+import cn.taketoday.ui.ModelMap;
 
 /**
  * Resolves {@link Errors} method arguments.

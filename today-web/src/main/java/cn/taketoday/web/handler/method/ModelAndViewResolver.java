@@ -25,7 +25,7 @@ import java.lang.reflect.Method;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.view.ModelAndView;
-import cn.taketoday.web.view.ModelMap;
+import cn.taketoday.ui.ModelMap;
 
 /**
  * SPI for resolving custom return values from a specific handler method.

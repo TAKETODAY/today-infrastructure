@@ -33,7 +33,7 @@ import cn.taketoday.web.handler.method.HandlerMethod;
 import cn.taketoday.web.handler.method.ResolvableMethodParameter;
 import cn.taketoday.web.servlet.ServletRequestContext;
 import cn.taketoday.web.testfixture.servlet.MockHttpServletRequest;
-import cn.taketoday.web.view.ModelMap;
+import cn.taketoday.ui.ModelMap;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

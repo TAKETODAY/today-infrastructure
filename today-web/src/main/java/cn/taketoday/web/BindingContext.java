@@ -32,9 +32,9 @@ import cn.taketoday.web.bind.support.SessionStatus;
 import cn.taketoday.web.bind.support.SimpleSessionStatus;
 import cn.taketoday.web.bind.support.WebBindingInitializer;
 import cn.taketoday.web.view.BindingAwareModelMap;
-import cn.taketoday.web.view.Model;
+import cn.taketoday.ui.Model;
 import cn.taketoday.web.view.ModelAndView;
-import cn.taketoday.web.view.ModelMap;
+import cn.taketoday.ui.ModelMap;
 import cn.taketoday.web.view.RedirectModel;
 
 /**
