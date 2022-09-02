@@ -28,6 +28,7 @@ import cn.taketoday.core.NestedRuntimeException;
  * @author Sam Brannen
  * @author TODAY 2021/10/19 14:25
  * @see AnnotationUtils
+ * @see AnnotationUtils#isSynthesizedAnnotation(java.lang.annotation.Annotation)
  * @since 4.0
  */
 @SuppressWarnings("serial")

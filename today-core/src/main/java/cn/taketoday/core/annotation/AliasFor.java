@@ -177,12 +177,12 @@ import cn.taketoday.lang.Constant;
  * @author Sam Brannen
  * @author TODAY
  * @see MergedAnnotations
- * @see SynthesizedAnnotation
+ * @see AnnotationUtils#isSynthesizedAnnotation(Annotation)
  * @since 4.0
  */
-@Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.METHOD)
 @Documented
+@Target(ElementType.METHOD)
+@Retention(RetentionPolicy.RUNTIME)
 public @interface AliasFor {
 
   /**

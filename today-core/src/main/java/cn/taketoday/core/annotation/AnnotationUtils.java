@@ -1293,6 +1293,18 @@ public abstract class AnnotationUtils {
   }
 
   /**
+   * Determine if the supplied {@link Annotation} has been <em>synthesized</em>
+   * by Spring (i.e. wrapped in a dynamic proxy) with additional functionality
+   * such as attribute alias handling.
+   *
+   * @param annotation the annotation to check
+   * @return {@code true} if the supplied annotation is a synthesized annotation
+   */
+  public static boolean isSynthesizedAnnotation(@Nullable Annotation annotation) {
+    return annotation instanceof SynthesizedAnnotation;
+  }
+
+  /**
    * Clear the internal annotation metadata cache.
    */
   public static void clearCache() {
