@@ -33,7 +33,7 @@ public class ConcurrentLruCacheTests {
 
   @Test
   void getAndSize() {
-    assertThat(this.cache.maxSize()).isEqualTo(2);
+    assertThat(this.cache.capacity()).isEqualTo(2);
     assertThat(this.cache.size()).isEqualTo(0);
     assertThat(this.cache.get("k1")).isEqualTo("k1value");
     assertThat(this.cache.size()).isEqualTo(1);
