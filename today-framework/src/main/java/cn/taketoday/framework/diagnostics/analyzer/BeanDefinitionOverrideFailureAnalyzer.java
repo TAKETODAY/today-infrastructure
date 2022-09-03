@@ -38,7 +38,7 @@ import cn.taketoday.framework.diagnostics.FailureAnalysis;
 class BeanDefinitionOverrideFailureAnalyzer extends AbstractFailureAnalyzer<BeanDefinitionOverrideException> {
 
   private static final String ACTION = "Consider renaming one of the beans or enabling "
-          + "overriding by setting context.main.allow-bean-definition-overriding=true";
+          + "overriding by setting app.main.allow-bean-definition-overriding=true";
 
   @Override
   protected FailureAnalysis analyze(Throwable rootFailure, BeanDefinitionOverrideException cause) {

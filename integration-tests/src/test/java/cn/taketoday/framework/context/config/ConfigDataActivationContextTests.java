@@ -65,7 +65,7 @@ class ConfigDataActivationContextTests {
   void getCloudPlatformWhenCloudPropertyHasBeenContributedDuringInitialLoadDeducesCloudPlatform() {
     Environment environment = createKubernetesEnvironment();
     Binder binder = new Binder(
-            new MapConfigurationPropertySource(Collections.singletonMap("context.main.cloud-platform", "HEROKU")));
+            new MapConfigurationPropertySource(Collections.singletonMap("app.main.cloud-platform", "HEROKU")));
     ConfigDataActivationContext context = new ConfigDataActivationContext(environment, binder);
     assertThat(context.getCloudPlatform()).isEqualTo(CloudPlatform.HEROKU);
   }

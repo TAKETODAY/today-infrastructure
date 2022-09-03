@@ -141,7 +141,7 @@ import cn.taketoday.util.StringUtils;
  * @since 4.0
  */
 public class Application {
-  public static final String PROPERTIES_BINDER_PREFIX = "context.main";
+  public static final String PROPERTIES_BINDER_PREFIX = "app.main";
   private static final String SYSTEM_PROPERTY_JAVA_AWT_HEADLESS = "java.awt.headless";
   protected final Logger log = LoggerFactory.getLogger(getClass());
 
@@ -232,7 +232,7 @@ public class Application {
     this.applicationType = ApplicationType.deduceFromClasspath();
     this.bootstrapRegistryInitializers = TodayStrategies.get(BootstrapRegistryInitializer.class);
     setInitializers(TodayStrategies.get(ApplicationContextInitializer.class));
-    setListeners((Collection) TodayStrategies.get(ApplicationListener.class));
+    setListeners(TodayStrategies.get(ApplicationListener.class));
   }
 
   private Class<?> deduceMainApplicationClass() {
@@ -404,7 +404,7 @@ public class Application {
     listeners.environmentPrepared(context, environment);
     DefaultPropertiesPropertySource.moveToEnd(environment);
 
-    Assert.state(!environment.containsProperty("context.main.environment-prefix"),
+    Assert.state(!environment.containsProperty("app.main.environment-prefix"),
             "Environment prefix cannot be set via properties.");
 
     bindToApplication(environment);
@@ -943,7 +943,7 @@ public class Application {
    *
    * @param listeners the listeners to set
    */
-  public void setListeners(Collection<? extends ApplicationListener<?>> listeners) {
+  public void setListeners(Collection<ApplicationListener> listeners) {
     this.listeners = new ArrayList<>(listeners);
   }
 
@@ -1293,7 +1293,7 @@ public class Application {
 
   /**
    * A basic main that can be used to launch an application. This method is useful when
-   * application sources are defined via a {@literal --context.main.sources} command line
+   * application sources are defined via a {@literal --app.main.sources} command line
    * argument.
    * <p>
    * Most developers will want to define their own main method and call the

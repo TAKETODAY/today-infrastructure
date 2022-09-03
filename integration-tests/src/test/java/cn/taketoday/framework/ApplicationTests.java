@@ -170,7 +170,7 @@ class ApplicationTests {
     if (this.context != null) {
       this.context.close();
     }
-    System.clearProperty("context.main.banner-mode");
+    System.clearProperty("app.main.banner-mode");
     System.clearProperty(CachedIntrospectionResults.IGNORE_BEANINFO_PROPERTY_NAME);
     ApplicationShutdownHookInstance.reset();
   }
@@ -252,7 +252,7 @@ class ApplicationTests {
   void enableBannerInLogViaProperty(CapturedOutput output) {
     Application application = spy(new Application(ExampleConfig.class));
     application.setApplicationType(ApplicationType.NONE_WEB);
-    this.context = application.run("--context.main.banner-mode=log");
+    this.context = application.run("--app.main.banner-mode=log");
     then(application).should(atLeastOnce()).setBannerMode(Banner.Mode.LOG);
     assertThat(output).contains(".framework.Application");
   }
@@ -286,7 +286,7 @@ class ApplicationTests {
 
   @Test
   void bindsSystemPropertyToApplication() {
-    System.setProperty("context.main.banner-mode", "off");
+    System.setProperty("app.main.banner-mode", "off");
     Application application = new Application(ExampleConfig.class);
     application.setApplicationType(ApplicationType.NONE_WEB);
     this.context = application.run();
@@ -296,7 +296,7 @@ class ApplicationTests {
   @Test
   void bindsYamlStyleBannerModeToApplication() {
     Application application = new Application(ExampleConfig.class);
-    application.setDefaultProperties(Collections.singletonMap("context.main.banner-mode", false));
+    application.setDefaultProperties(Collections.singletonMap("app.main.banner-mode", false));
     application.setApplicationType(ApplicationType.NONE_WEB);
     this.context = application.run();
     assertThat(application).hasFieldOrPropertyWithValue("bannerMode", Banner.Mode.OFF);
@@ -306,7 +306,7 @@ class ApplicationTests {
   void bindsBooleanAsStringBannerModeToApplication() {
     Application application = new Application(ExampleConfig.class);
     application.setApplicationType(ApplicationType.NONE_WEB);
-    this.context = application.run("--context.main.banner-mode=false");
+    this.context = application.run("--app.main.banner-mode=false");
     assertThat(application).hasFieldOrPropertyWithValue("bannerMode", Banner.Mode.OFF);
   }
 
@@ -859,7 +859,7 @@ class ApplicationTests {
   void commandLineArgsApplyToApplication() {
     TestApplication application = new TestApplication(ExampleConfig.class);
     application.setApplicationType(ApplicationType.NONE_WEB);
-    this.context = application.run("--context.main.banner-mode=OFF");
+    this.context = application.run("--app.main.banner-mode=OFF");
     assertThat(application.getBannerMode()).isEqualTo(Banner.Mode.OFF);
   }
 
@@ -1030,7 +1030,7 @@ class ApplicationTests {
   @Test
   void nonWebApplicationConfiguredViaAPropertyHasTheCorrectTypeOfContextAndEnvironment() {
     ConfigurableApplicationContext context = new Application(ExampleConfig.class)
-            .run("--context.main.application-type=NONE_WEB");
+            .run("--app.main.application-type=NONE_WEB");
     assertThat(context).isNotInstanceOfAny(WebApplicationContext.class, ReactiveWebApplicationContext.class);
     assertThat(context.getEnvironment()).isNotInstanceOfAny(ConfigurableWebEnvironment.class);
   }
@@ -1038,7 +1038,7 @@ class ApplicationTests {
   @Test
   void webApplicationConfiguredViaAPropertyHasTheCorrectTypeOfContextAndEnvironment() {
     ConfigurableApplicationContext context = new Application(ExampleWebConfig.class)
-            .run("--context.main.application-type=SERVLET_WEB");
+            .run("--app.main.application-type=SERVLET_WEB");
     assertThat(context).isInstanceOf(WebApplicationContext.class);
     assertThat(context.getEnvironment()).isInstanceOf(ApplicationServletEnvironment.class);
   }
@@ -1046,7 +1046,7 @@ class ApplicationTests {
   @Test
   void reactiveApplicationConfiguredViaAPropertyHasTheCorrectTypeOfContextAndEnvironment() {
     ConfigurableApplicationContext context = new Application(ExampleReactiveWebConfig.class)
-            .run("--context.main.application-type=REACTIVE_WEB");
+            .run("--app.main.application-type=REACTIVE_WEB");
     assertThat(context).isInstanceOf(ReactiveWebApplicationContext.class);
     assertThat(context.getEnvironment()).isInstanceOf(ApplicationReactiveWebEnvironment.class);
   }
@@ -1086,7 +1086,7 @@ class ApplicationTests {
   @Test
   void beanDefinitionOverridingCanBeEnabled() {
     assertThat(new Application(ExampleConfig.class, OverrideConfig.class)
-            .run("--context.main.allow-bean-definition-overriding=true", "--context.main.application-type=NONE_WEB")
+            .run("--app.main.allow-bean-definition-overriding=true", "--app.main.application-type=NONE_WEB")
             .getBean("someBean")).isEqualTo("override");
   }
 
@@ -1094,7 +1094,7 @@ class ApplicationTests {
   void circularReferencesAreDisabledByDefault() {
     assertThatExceptionOfType(UnsatisfiedDependencyException.class)
             .isThrownBy(() -> new Application(ExampleProducerConfiguration.class,
-                    ExampleConsumerConfiguration.class).run("--context.main.application-type=NONE_WEB"))
+                    ExampleConsumerConfiguration.class).run("--app.main.application-type=NONE_WEB"))
             .withRootCauseInstanceOf(BeanCurrentlyInCreationException.class);
   }
 
@@ -1102,7 +1102,7 @@ class ApplicationTests {
   void circularReferencesCanBeEnabled() {
     assertThatNoException().isThrownBy(
             () -> new Application(ExampleProducerConfiguration.class, ExampleConsumerConfiguration.class).run(
-                    "--context.main.application-type=NONE_WEB", "--context.main.allow-circular-references=true"));
+                    "--app.main.application-type=NONE_WEB", "--app.main.allow-circular-references=true"));
   }
 
   @Test
@@ -1115,28 +1115,28 @@ class ApplicationTests {
 
   @Test
   void lazyInitializationIsDisabledByDefault() {
-    assertThat(new Application(LazyInitializationConfig.class).run("--context.main.application-type=NONE_WEB")
+    assertThat(new Application(LazyInitializationConfig.class).run("--app.main.application-type=NONE_WEB")
             .getBean(AtomicInteger.class)).hasValue(1);
   }
 
   @Test
   void lazyInitializationCanBeEnabled() {
     assertThat(new Application(LazyInitializationConfig.class)
-            .run("--context.main.application-type=NONE_WEB", "--context.main.lazy-initialization=true")
+            .run("--app.main.application-type=NONE_WEB", "--app.main.lazy-initialization=true")
             .getBean(AtomicInteger.class)).hasValue(0);
   }
 
   @Test
   void lazyInitializationIgnoresBeansThatAreExplicitlyNotLazy() {
     assertThat(new Application(NotLazyInitializationConfig.class)
-            .run("--context.main.application-type=NONE_WEB", "--context.main.lazy-initialization=true")
+            .run("--app.main.application-type=NONE_WEB", "--app.main.lazy-initialization=true")
             .getBean(AtomicInteger.class)).hasValue(1);
   }
 
   @Test
   void lazyInitializationIgnoresLazyInitializationExcludeFilteredBeans() {
     assertThat(new Application(LazyInitializationExcludeFilterConfig.class)
-            .run("--context.main.application-type=NONE_WEB", "--context.main.lazy-initialization=true")
+            .run("--app.main.application-type=NONE_WEB", "--app.main.lazy-initialization=true")
             .getBean(AtomicInteger.class)).hasValue(1);
   }
 
@@ -1172,7 +1172,7 @@ class ApplicationTests {
   @Test
   void settingEnvironmentPrefixViaPropertiesThrowsException() {
     assertThatIllegalStateException()
-            .isThrownBy(() -> new Application().run("--context.main.environment-prefix=my"));
+            .isThrownBy(() -> new Application().run("--app.main.environment-prefix=my"));
   }
 
   @Test
