@@ -943,8 +943,9 @@ public class Application {
    *
    * @param listeners the listeners to set
    */
+  @SuppressWarnings({ "unchecked", "rawtypes" })
   public void setListeners(Collection<ApplicationListener> listeners) {
-    this.listeners = new ArrayList<>(listeners);
+    this.listeners = new ArrayList(listeners);
   }
 
   /**

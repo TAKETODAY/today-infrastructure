@@ -73,7 +73,7 @@ public interface ApplicationContext extends HierarchicalBeanFactory, MessageSour
    * @see Environment
    * @since 4.0
    */
-  String APPLICATION_NAME = "application.name";
+  String APPLICATION_NAME = "app.name";
 
   /**
    * Get {@link Environment}

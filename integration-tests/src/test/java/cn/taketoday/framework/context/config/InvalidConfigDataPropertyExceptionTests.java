@@ -111,7 +111,7 @@ class InvalidConfigDataPropertyExceptionTests {
     assertThatExceptionOfType(InvalidConfigDataPropertyException.class)
             .isThrownBy(() -> InvalidConfigDataPropertyException.throwIfPropertyFound(contributor))
             .withMessageStartingWith("Property 'context.profiles' is invalid and should be replaced with "
-                    + "'context.config.activate.on-profile'");
+                    + "'app.config.activate.on-profile'");
   }
 
   @Test

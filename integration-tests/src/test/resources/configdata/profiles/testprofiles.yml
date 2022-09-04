@@ -3,16 +3,16 @@ my:
   property: fromyamlfile
   other: notempty
 ---
-context.config.activate.on-profile: dev
+app.config.activate.on-profile: dev
 my:
   property: fromdevprofile
 dev:
   property: devproperty
 ---
-context.config.activate.on-profile: other
+app.config.activate.on-profile: other
 my:
   property: fromotherprofile
 ---
-context.config.activate.on-profile: prod
-context.config.import: file:./non-existent.yml
+app.config.activate.on-profile: prod
+app.config.import: file:./non-existent.yml
 

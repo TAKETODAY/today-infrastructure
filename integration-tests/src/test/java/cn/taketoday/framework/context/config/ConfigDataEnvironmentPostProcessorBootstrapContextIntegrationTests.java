@@ -50,7 +50,7 @@ class ConfigDataEnvironmentPostProcessorBootstrapContextIntegrationTests {
 
   @Test
   void bootstrapsApplicationContext() {
-    String args = "--context.config.import=classpath:application-bootstrap-registry-integration-tests.properties";
+    String args = "--app.config.import=classpath:application-bootstrap-registry-integration-tests.properties";
     try (ConfigurableApplicationContext context = application.run(args)) {
       LoaderHelper bean = context.getBean(TestConfigDataBootstrap.LoaderHelper.class);
       assertThat(bean).isNotNull();

@@ -32,7 +32,7 @@ import cn.taketoday.util.StringUtils;
 /**
  * {@link ApplicationContextInitializer} that sets the Spring
  * {@link ApplicationContext#getId() ApplicationContext ID}. The
- * {@code application.name} property is used to create the ID. If the property is
+ * {@code app.name} property is used to create the ID. If the property is
  * not set {@code application} is used.
  *
  * @author Dave Syer

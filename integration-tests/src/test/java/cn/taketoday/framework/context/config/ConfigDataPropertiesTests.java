@@ -163,8 +163,8 @@ class ConfigDataPropertiesTests {
   @Test
   void isActiveAgainstBoundData() {
     MapConfigurationPropertySource source = new MapConfigurationPropertySource();
-    source.put("context.config.activate.on-cloud-platform", "kubernetes");
-    source.put("context.config.activate.on-profile", "a | b");
+    source.put("app.config.activate.on-cloud-platform", "kubernetes");
+    source.put("app.config.activate.on-profile", "a | b");
     Binder binder = new Binder(source);
     ConfigDataProperties properties = ConfigDataProperties.get(binder);
     ConfigDataActivationContext context = new ConfigDataActivationContext(CloudPlatform.KUBERNETES,
@@ -175,8 +175,8 @@ class ConfigDataPropertiesTests {
   @Test
   void isActiveAgainstBoundDataWhenProfilesDontMatch() {
     MapConfigurationPropertySource source = new MapConfigurationPropertySource();
-    source.put("context.config.activate.on-cloud-platform", "kubernetes");
-    source.put("context.config.activate.on-profile", "x | z");
+    source.put("app.config.activate.on-cloud-platform", "kubernetes");
+    source.put("app.config.activate.on-profile", "x | z");
     Binder binder = new Binder(source);
     ConfigDataProperties properties = ConfigDataProperties.get(binder);
     ConfigDataActivationContext context = new ConfigDataActivationContext(CloudPlatform.KUBERNETES,
@@ -187,8 +187,8 @@ class ConfigDataPropertiesTests {
   @Test
   void isActiveAgainstBoundDataWhenCloudPlatformDoesntMatch() {
     MapConfigurationPropertySource source = new MapConfigurationPropertySource();
-    source.put("context.config.activate.on-cloud-platform", "cloud-foundry");
-    source.put("context.config.activate.on-profile", "a | b");
+    source.put("app.config.activate.on-cloud-platform", "cloud-foundry");
+    source.put("app.config.activate.on-profile", "a | b");
     Binder binder = new Binder(source);
     ConfigDataProperties properties = ConfigDataProperties.get(binder);
     ConfigDataActivationContext context = new ConfigDataActivationContext(CloudPlatform.KUBERNETES,
@@ -199,23 +199,23 @@ class ConfigDataPropertiesTests {
   @Test
   void getImportOriginWhenCommaListReturnsOrigin() {
     MapConfigurationPropertySource source = new MapConfigurationPropertySource();
-    source.put("context.config.import", "one,two,three");
+    source.put("app.config.import", "one,two,three");
     Binder binder = new Binder(source);
     ConfigDataProperties properties = ConfigDataProperties.get(binder);
     assertThat(properties.getImports().get(1).getOrigin())
-            .hasToString("\"context.config.import\" from property source \"source\"");
+            .hasToString("\"app.config.import\" from property source \"source\"");
   }
 
   @Test
   void getImportOriginWhenBracketListReturnsOrigin() {
     MapConfigurationPropertySource source = new MapConfigurationPropertySource();
-    source.put("context.config.import[0]", "one");
-    source.put("context.config.import[1]", "two");
-    source.put("context.config.import[2]", "three");
+    source.put("app.config.import[0]", "one");
+    source.put("app.config.import[1]", "two");
+    source.put("app.config.import[2]", "three");
     Binder binder = new Binder(source);
     ConfigDataProperties properties = ConfigDataProperties.get(binder);
     assertThat(properties.getImports().get(1).getOrigin())
-            .hasToString("\"context.config.import[1]\" from property source \"source\"");
+            .hasToString("\"app.config.import[1]\" from property source \"source\"");
   }
 
   private Profiles createTestProfiles() {

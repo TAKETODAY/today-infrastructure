@@ -280,7 +280,7 @@ class ApplicationTests {
   void triggersConfigFileApplicationListenerBeforeBinding() {
     Application application = new Application(ExampleConfig.class);
     application.setApplicationType(ApplicationType.NONE_WEB);
-    this.context = application.run("--context.config.name=bindtoapplication");
+    this.context = application.run("--app.config.name=bindtoapplication");
     assertThat(application).hasFieldOrPropertyWithValue("bannerMode", Banner.Mode.OFF);
   }
 
@@ -314,7 +314,7 @@ class ApplicationTests {
   void customId() {
     Application application = new Application(ExampleConfig.class);
     application.setApplicationType(ApplicationType.NONE_WEB);
-    this.context = application.run("--application.name=foo");
+    this.context = application.run("--app.name=foo");
     assertThat(this.context.getId()).startsWith("foo");
   }
 
@@ -1109,7 +1109,7 @@ class ApplicationTests {
   void relaxedBindingShouldWorkBeforeEnvironmentIsPrepared() {
     Application application = new Application(ExampleConfig.class);
     application.setApplicationType(ApplicationType.NONE_WEB);
-    this.context = application.run("--context.config.additionalLocation=classpath:custom-config/");
+    this.context = application.run("--app.config.additionalLocation=classpath:custom-config/");
     assertThat(this.context.getEnvironment().getProperty("hello")).isEqualTo("world");
   }
 

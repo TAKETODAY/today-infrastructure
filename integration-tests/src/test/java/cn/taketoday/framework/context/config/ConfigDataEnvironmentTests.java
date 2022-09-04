@@ -117,9 +117,9 @@ class ConfigDataEnvironmentTests {
 
   @Test
   void createCreatesInitialImportContributorsInCorrectOrder() {
-    this.environment.setProperty("context.config.location", "l1,l2");
-    this.environment.setProperty("context.config.additional-location", "a1,a2");
-    this.environment.setProperty("context.config.import", "i1,i2");
+    this.environment.setProperty("app.config.location", "l1,l2");
+    this.environment.setProperty("app.config.additional-location", "a1,a2");
+    this.environment.setProperty("app.config.import", "i1,i2");
     ConfigDataEnvironment configDataEnvironment = new ConfigDataEnvironment(this.bootstrapContext,
             this.environment, this.resourceLoader, this.additionalProfiles, null);
     List<ConfigDataEnvironmentContributor> children = configDataEnvironment.getContributors().getRoot()
@@ -131,7 +131,7 @@ class ConfigDataEnvironmentTests {
 
   @Test
   void processAndApplyAddsImportedSourceToEnvironment(TestInfo info) {
-    this.environment.setProperty("context.config.location", getConfigLocation(info));
+    this.environment.setProperty("app.config.location", getConfigLocation(info));
     ConfigDataEnvironment configDataEnvironment = new ConfigDataEnvironment(this.bootstrapContext,
             this.environment, this.resourceLoader, this.additionalProfiles, null);
     configDataEnvironment.processAndApply();
@@ -140,7 +140,7 @@ class ConfigDataEnvironmentTests {
 
   @Test
   void processAndApplyOnlyAddsActiveContributors(TestInfo info) {
-    this.environment.setProperty("context.config.location", getConfigLocation(info));
+    this.environment.setProperty("app.config.location", getConfigLocation(info));
     ConfigDataEnvironment configDataEnvironment = new ConfigDataEnvironment(this.bootstrapContext,
             this.environment, this.resourceLoader, this.additionalProfiles, null);
     configDataEnvironment.processAndApply();
@@ -152,7 +152,7 @@ class ConfigDataEnvironmentTests {
   void processAndApplyMovesDefaultPropertySourceToLast(TestInfo info) {
     MockPropertySource defaultPropertySource = new MockPropertySource("defaultProperties");
     this.environment.getPropertySources().addFirst(defaultPropertySource);
-    this.environment.setProperty("context.config.location", getConfigLocation(info));
+    this.environment.setProperty("app.config.location", getConfigLocation(info));
     ConfigDataEnvironment configDataEnvironment = new ConfigDataEnvironment(this.bootstrapContext,
             this.environment, this.resourceLoader, this.additionalProfiles, null);
     configDataEnvironment.processAndApply();
@@ -162,7 +162,7 @@ class ConfigDataEnvironmentTests {
 
   @Test
   void processAndApplySetsDefaultProfiles(TestInfo info) {
-    this.environment.setProperty("context.config.location", getConfigLocation(info));
+    this.environment.setProperty("app.config.location", getConfigLocation(info));
     ConfigDataEnvironment configDataEnvironment = new ConfigDataEnvironment(this.bootstrapContext,
             this.environment, this.resourceLoader, this.additionalProfiles, null);
     configDataEnvironment.processAndApply();
@@ -171,7 +171,7 @@ class ConfigDataEnvironmentTests {
 
   @Test
   void processAndApplySetsActiveProfiles(TestInfo info) {
-    this.environment.setProperty("context.config.location", getConfigLocation(info));
+    this.environment.setProperty("app.config.location", getConfigLocation(info));
     ConfigDataEnvironment configDataEnvironment = new ConfigDataEnvironment(this.bootstrapContext,
             this.environment, this.resourceLoader, this.additionalProfiles, null);
     configDataEnvironment.processAndApply();
@@ -180,7 +180,7 @@ class ConfigDataEnvironmentTests {
 
   @Test
   void processAndApplySetsActiveProfilesAndProfileGroups(TestInfo info) {
-    this.environment.setProperty("context.config.location", getConfigLocation(info));
+    this.environment.setProperty("app.config.location", getConfigLocation(info));
     ConfigDataEnvironment configDataEnvironment = new ConfigDataEnvironment(this.bootstrapContext,
             this.environment, this.resourceLoader, this.additionalProfiles, null);
     configDataEnvironment.processAndApply();
@@ -189,7 +189,7 @@ class ConfigDataEnvironmentTests {
 
   @Test
   void processAndApplyDoesNotSetProfilesFromIgnoreProfilesContributors(TestInfo info) {
-    this.environment.setProperty("context.config.location", getConfigLocation(info));
+    this.environment.setProperty("app.config.location", getConfigLocation(info));
     ConfigDataEnvironment configDataEnvironment = new ConfigDataEnvironment(this.bootstrapContext,
             this.environment, this.resourceLoader, this.additionalProfiles, null) {
 
@@ -214,7 +214,7 @@ class ConfigDataEnvironmentTests {
   @ParameterizedTest
   @CsvSource({ "include", "include[0]" })
   void processAndApplyWhenHasProfileIncludeInProfileSpecificDocumentThrowsException(String property, TestInfo info) {
-    this.environment.setProperty("context.config.location", getConfigLocation(info));
+    this.environment.setProperty("app.config.location", getConfigLocation(info));
     ConfigDataEnvironment configDataEnvironment = new ConfigDataEnvironment(this.bootstrapContext,
             this.environment, this.resourceLoader, this.additionalProfiles, null) {
 
@@ -222,7 +222,7 @@ class ConfigDataEnvironmentTests {
       protected ConfigDataEnvironmentContributors createContributors(
               List<ConfigDataEnvironmentContributor> contributors) {
         Map<String, Object> source = new LinkedHashMap<>();
-        source.put("context.config.activate.on-profile", "activate");
+        source.put("app.config.activate.on-profile", "activate");
         source.put("context.profiles." + property, "include");
         ConfigData data = new ConfigData(Collections.singleton(new MapPropertySource("test", source)));
         contributors.add(ConfigDataEnvironmentContributor.ofUnboundImport(ConfigDataLocation.valueOf("test"),
@@ -238,7 +238,7 @@ class ConfigDataEnvironmentTests {
   @ParameterizedTest
   @CsvSource({ "context.profiles.include", "context.profiles.include[0]" })
   void processAndApplyIncludesProfilesFromSpringProfilesInclude(String property, TestInfo info) {
-    this.environment.setProperty("context.config.location", getConfigLocation(info));
+    this.environment.setProperty("app.config.location", getConfigLocation(info));
     ConfigDataEnvironment configDataEnvironment = new ConfigDataEnvironment(this.bootstrapContext,
             this.environment, this.resourceLoader, this.additionalProfiles, null) {
 
@@ -260,7 +260,7 @@ class ConfigDataEnvironmentTests {
 
   @Test
   void processAndApplyDoesNotSetProfilesFromIgnoreProfilesContributorsWhenNoProfilesActive(TestInfo info) {
-    this.environment.setProperty("context.config.location", getConfigLocation(info));
+    this.environment.setProperty("app.config.location", getConfigLocation(info));
     ConfigDataEnvironment configDataEnvironment = new ConfigDataEnvironment(this.bootstrapContext,
             this.environment, this.resourceLoader, this.additionalProfiles, null) {
 
@@ -295,7 +295,7 @@ class ConfigDataEnvironmentTests {
 
   @Test
   void processAndApplyWhenHasListenerCallsOnPropertySourceAdded(TestInfo info) {
-    this.environment.setProperty("context.config.location", getConfigLocation(info));
+    this.environment.setProperty("app.config.location", getConfigLocation(info));
     TestConfigDataEnvironmentUpdateListener listener = new TestConfigDataEnvironmentUpdateListener();
     ConfigDataEnvironment configDataEnvironment = new ConfigDataEnvironment(this.bootstrapContext,
             this.environment, this.resourceLoader, this.additionalProfiles, listener);
@@ -310,7 +310,7 @@ class ConfigDataEnvironmentTests {
 
   @Test
   void processAndApplyWhenHasListenerCallsOnSetProfiles(TestInfo info) {
-    this.environment.setProperty("context.config.location", getConfigLocation(info));
+    this.environment.setProperty("app.config.location", getConfigLocation(info));
     TestConfigDataEnvironmentUpdateListener listener = new TestConfigDataEnvironmentUpdateListener();
     ConfigDataEnvironment configDataEnvironment = new ConfigDataEnvironment(this.bootstrapContext,
             this.environment, this.resourceLoader, this.additionalProfiles, listener);

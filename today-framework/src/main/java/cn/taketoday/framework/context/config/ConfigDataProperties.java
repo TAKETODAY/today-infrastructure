@@ -41,7 +41,7 @@ import cn.taketoday.util.ObjectUtils;
  */
 class ConfigDataProperties {
 
-  private static final ConfigurationPropertyName NAME = ConfigurationPropertyName.of("context.config");
+  private static final ConfigurationPropertyName NAME = ConfigurationPropertyName.of("app.config");
 
   private static final Bindable<ConfigDataProperties> BINDABLE_PROPERTIES = Bindable.of(ConfigDataProperties.class);
 

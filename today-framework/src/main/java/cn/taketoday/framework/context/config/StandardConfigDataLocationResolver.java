@@ -62,7 +62,7 @@ public class StandardConfigDataLocationResolver
 
   private static final String PREFIX = "resource:";
 
-  static final String CONFIG_NAME_PROPERTY = "context.config.name";
+  static final String CONFIG_NAME_PROPERTY = "app.config.name";
 
   private static final String[] DEFAULT_CONFIG_NAMES = { "application" };
 

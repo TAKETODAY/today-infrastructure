@@ -114,7 +114,7 @@ class ConfigDataEnvironmentPostProcessorIntegrationTests {
       }
 
     });
-    ConfigurableApplicationContext context = this.application.run("--context.config.name=custom");
+    ConfigurableApplicationContext context = this.application.run("--app.config.name=custom");
     String property = context.getEnvironment().getProperty("the.property");
     assertThat(property).isEqualTo("fromcustom");
   }
@@ -128,14 +128,14 @@ class ConfigDataEnvironmentPostProcessorIntegrationTests {
 
   @Test
   void runLoadsApplicationYamlOnClasspath() {
-    ConfigurableApplicationContext context = this.application.run("--context.config.name=customapplication");
+    ConfigurableApplicationContext context = this.application.run("--app.config.name=customapplication");
     String property = context.getEnvironment().getProperty("yamlkey");
     assertThat(property).isEqualTo("yamlvalue");
   }
 
   @Test
   void runLoadsFileWithCustomName() {
-    ConfigurableApplicationContext context = this.application.run("--context.config.name=testproperties");
+    ConfigurableApplicationContext context = this.application.run("--app.config.name=testproperties");
     String property = context.getEnvironment().getProperty("the.property");
     assertThat(property).isEqualTo("frompropertiesfile");
   }
@@ -150,22 +150,22 @@ class ConfigDataEnvironmentPostProcessorIntegrationTests {
   @Test
   void runWhenMultipleCustomNamesLoadsEachName() {
     ConfigurableApplicationContext context = this.application
-            .run("--context.config.name=moreproperties,testproperties");
+            .run("--app.config.name=moreproperties,testproperties");
     String property = context.getEnvironment().getProperty("the.property");
     assertThat(property).isEqualTo("frompropertiesfile");
   }
 
   @Test
   void runWhenNoActiveProfilesLoadsDefaultProfileFile() {
-    ConfigurableApplicationContext context = this.application.run("--context.config.name=testprofiles");
+    ConfigurableApplicationContext context = this.application.run("--app.config.name=testprofiles");
     String property = context.getEnvironment().getProperty("my.property");
     assertThat(property).isEqualTo("fromdefaultpropertiesfile");
   }
 
   @Test
   void runWhenActiveProfilesDoesNotLoadDefault() {
-    ConfigurableApplicationContext context = this.application.run("--context.config.name=testprofilesdocument",
-            "--context.config.location=classpath:configdata/profiles/", "--context.profiles.default=thedefault",
+    ConfigurableApplicationContext context = this.application.run("--app.config.name=testprofilesdocument",
+            "--app.config.location=classpath:configdata/profiles/", "--context.profiles.default=thedefault",
             "--context.profiles.active=other");
     String property = context.getEnvironment().getProperty("my.property");
     assertThat(property).isEqualTo("fromotherprofile");
@@ -173,7 +173,7 @@ class ConfigDataEnvironmentPostProcessorIntegrationTests {
 
   @Test
   void runWhenHasCustomDefaultProfileLoadsDefaultProfileFile() {
-    ConfigurableApplicationContext context = this.application.run("--context.config.name=testprofiles",
+    ConfigurableApplicationContext context = this.application.run("--app.config.name=testprofiles",
             "--context.profiles.default=thedefault");
     String property = context.getEnvironment().getProperty("the.property");
     assertThat(property).isEqualTo("fromdefaultpropertiesfile");
@@ -182,7 +182,7 @@ class ConfigDataEnvironmentPostProcessorIntegrationTests {
   @Test
   void runWhenHasCustomSpringConfigLocationLoadsAllFromSpecifiedLocation() {
     ConfigurableApplicationContext context = this.application
-            .run("--context.config.location=classpath:application.properties,classpath:testproperties.properties");
+            .run("--app.config.location=classpath:application.properties,classpath:testproperties.properties");
     String property1 = context.getEnvironment().getProperty("the.property");
     String property2 = context.getEnvironment().getProperty("my.property");
     String property3 = context.getEnvironment().getProperty("foo");
@@ -194,15 +194,15 @@ class ConfigDataEnvironmentPostProcessorIntegrationTests {
   @Test
   void runWhenOneCustomLocationDoesNotExistLoadsOthers() {
     ConfigurableApplicationContext context = this.application.run(
-            "--context.config.location=classpath:application.properties,classpath:testproperties.properties,optional:classpath:nonexistent.properties");
+            "--app.config.location=classpath:application.properties,classpath:testproperties.properties,optional:classpath:nonexistent.properties");
     String property = context.getEnvironment().getProperty("the.property");
     assertThat(property).isEqualTo("frompropertiesfile");
   }
 
   @Test
   void runWhenProfileSpecificMandatoryLocationDoesNotExistShouldNotFail() {
-    ConfigurableApplicationContext context = this.application.run("--context.config.name=testprofiles",
-            "--context.config.location=classpath:configdata/profiles/");
+    ConfigurableApplicationContext context = this.application.run("--app.config.name=testprofiles",
+            "--app.config.location=classpath:configdata/profiles/");
     String property = context.getEnvironment().getProperty("my.property");
     assertThat(property).isEqualTo("fromyamlfile");
   }
@@ -211,13 +211,13 @@ class ConfigDataEnvironmentPostProcessorIntegrationTests {
   void runWhenProfileSpecificMandatoryLocationDoesNotExistShouldFailWhenProfileActive() {
     this.application.setAdditionalProfiles("prod");
     assertThatExceptionOfType(ConfigDataResourceNotFoundException.class).isThrownBy(() -> this.application
-            .run("--context.config.name=testprofiles", "--context.config.location=classpath:configdata/profiles/"));
+            .run("--app.config.name=testprofiles", "--app.config.location=classpath:configdata/profiles/"));
   }
 
   @Test
   void runWhenHasActiveProfilesFromMultipleLocationsActivatesProfileFromOneLocation() {
     ConfigurableApplicationContext context = this.application
-            .run("--context.config.location=classpath:enableprofile.properties,classpath:enableother.properties");
+            .run("--app.config.location=classpath:enableprofile.properties,classpath:enableother.properties");
     ConfigurableEnvironment environment = context.getEnvironment();
     assertThat(environment.getActiveProfiles()).containsExactly("other");
     String property = environment.getProperty("other.property");
@@ -227,7 +227,7 @@ class ConfigDataEnvironmentPostProcessorIntegrationTests {
   @Test
   void runWhenHasActiveProfilesFromMultipleAdditionaLocationsWithOneSwitchedOffLoadsExpectedProperties() {
     ConfigurableApplicationContext context = this.application.run(
-            "--context.config.additional-location=classpath:enabletwoprofiles.properties,classpath:enableprofile.properties");
+            "--app.config.additional-location=classpath:enabletwoprofiles.properties,classpath:enableprofile.properties");
     ConfigurableEnvironment environment = context.getEnvironment();
     assertThat(environment.getActiveProfiles()).containsExactly("myprofile");
     String property = environment.getProperty("my.property");
@@ -259,7 +259,7 @@ class ConfigDataEnvironmentPostProcessorIntegrationTests {
     environment.getPropertySources()
             .addFirst(new SimpleCommandLinePropertySource("--the.property=fromcommandline"));
     this.application.setEnvironment(environment);
-    ConfigurableApplicationContext context = this.application.run("--context.config.name=testproperties");
+    ConfigurableApplicationContext context = this.application.run("--app.config.name=testproperties");
     String property = context.getEnvironment().getProperty("the.property");
     assertThat(property).isEqualTo("fromcommandline");
   }
@@ -267,7 +267,7 @@ class ConfigDataEnvironmentPostProcessorIntegrationTests {
   @Test
   void runWhenHasSystemPropertyLoadsWithSystemPropertyTakingPrecedence() {
     System.setProperty("the.property", "fromsystem");
-    ConfigurableApplicationContext context = this.application.run("--context.config.name=testproperties");
+    ConfigurableApplicationContext context = this.application.run("--app.config.name=testproperties");
     String property = context.getEnvironment().getProperty("the.property");
     assertThat(property).isEqualTo("fromsystem");
   }
@@ -282,7 +282,7 @@ class ConfigDataEnvironmentPostProcessorIntegrationTests {
 
   @Test
   void runWhenHasDefaultPropertiesWithConfigLocationConfigurationLoadsExpectedProperties() {
-    this.application.setDefaultProperties(Collections.singletonMap("context.config.name", "testproperties"));
+    this.application.setDefaultProperties(Collections.singletonMap("app.config.name", "testproperties"));
     ConfigurableApplicationContext context = this.application.run();
     String property = context.getEnvironment().getProperty("the.property");
     assertThat(property).isEqualTo("frompropertiesfile");
@@ -291,7 +291,7 @@ class ConfigDataEnvironmentPostProcessorIntegrationTests {
   @Test
   void runWhenHasActiveProfilesFromDefaultPropertiesAndFileLoadsWithFileTakingPrecedence() {
     this.application.setDefaultProperties(Collections.singletonMap("context.profiles.active", "dev"));
-    ConfigurableApplicationContext context = this.application.run("--context.config.name=enableprofile");
+    ConfigurableApplicationContext context = this.application.run("--app.config.name=enableprofile");
     assertThat(context.getEnvironment().getActiveProfiles()).containsExactly("myprofile");
   }
 
@@ -314,7 +314,7 @@ class ConfigDataEnvironmentPostProcessorIntegrationTests {
   @Test
   void runWhenProfilesPresentBeforeConfigFileProcessingAugmentsProfileActivatedByConfigFile() {
     this.application.setAdditionalProfiles("other");
-    ConfigurableApplicationContext context = this.application.run("--context.config.name=enableprofile");
+    ConfigurableApplicationContext context = this.application.run("--app.config.name=enableprofile");
     assertThat(context.getEnvironment().getActiveProfiles()).containsExactly("other", "myprofile");
     String property = context.getEnvironment().getProperty("other.property");
     assertThat(property).isEqualTo("fromotherpropertiesfile");
@@ -324,7 +324,7 @@ class ConfigDataEnvironmentPostProcessorIntegrationTests {
 
   @Test
   void runWhenProfilePropertiesUsedInPlaceholdersLoadsWithResolvedPlaceholders() {
-    ConfigurableApplicationContext context = this.application.run("--context.config.name=enableprofile");
+    ConfigurableApplicationContext context = this.application.run("--app.config.name=enableprofile");
     String property = context.getEnvironment().getProperty("one.more");
     assertThat(property).isEqualTo("fromprofilepropertiesfile");
   }
@@ -348,8 +348,8 @@ class ConfigDataEnvironmentPostProcessorIntegrationTests {
   @Test
   void loadWhenProfileInMultiDocumentFilesLoadsExpectedProperties() {
     this.application.setAdditionalProfiles("dev");
-    ConfigurableApplicationContext context = this.application.run("--context.config.name=testprofiles",
-            "--context.config.location=classpath:configdata/profiles/");
+    ConfigurableApplicationContext context = this.application.run("--app.config.name=testprofiles",
+            "--app.config.location=classpath:configdata/profiles/");
     String property = context.getEnvironment().getProperty("my.property");
     assertThat(property).isEqualTo("fromdevprofile");
     property = context.getEnvironment().getProperty("my.other");
@@ -359,8 +359,8 @@ class ConfigDataEnvironmentPostProcessorIntegrationTests {
   @Test
   void runWhenMultipleActiveProfilesWithMultiDocumentFilesLoadsInOrderOfDocument() {
     this.application.setAdditionalProfiles("other", "dev");
-    ConfigurableApplicationContext context = this.application.run("--context.config.name=testprofiles",
-            "--context.config.location=classpath:configdata/profiles/");
+    ConfigurableApplicationContext context = this.application.run("--app.config.name=testprofiles",
+            "--app.config.location=classpath:configdata/profiles/");
     String property = context.getEnvironment().getProperty("my.property");
     assertThat(property).isEqualTo("fromotherprofile");
     property = context.getEnvironment().getProperty("my.other");
@@ -386,8 +386,8 @@ class ConfigDataEnvironmentPostProcessorIntegrationTests {
 
   @Test
   void runWhenHasNegatedProfilesLoadsExpectedProperties() {
-    ConfigurableApplicationContext context = this.application.run("--context.config.name=testnegatedprofiles",
-            "--context.config.location=classpath:configdata/profiles/");
+    ConfigurableApplicationContext context = this.application.run("--app.config.name=testnegatedprofiles",
+            "--app.config.location=classpath:configdata/profiles/");
     String property = context.getEnvironment().getProperty("my.property");
     assertThat(property).isEqualTo("fromnototherprofile");
     property = context.getEnvironment().getProperty("my.notother");
@@ -397,8 +397,8 @@ class ConfigDataEnvironmentPostProcessorIntegrationTests {
   @Test
   void runWhenHasNegatedProfilesWithProfileActiveLoadsExpectedProperties() {
     this.application.setAdditionalProfiles("other");
-    ConfigurableApplicationContext context = this.application.run("--context.config.name=testnegatedprofiles",
-            "--context.config.location=classpath:configdata/profiles/");
+    ConfigurableApplicationContext context = this.application.run("--app.config.name=testnegatedprofiles",
+            "--app.config.location=classpath:configdata/profiles/");
     String property = context.getEnvironment().getProperty("my.property");
     assertThat(property).isEqualTo("fromotherprofile");
     property = context.getEnvironment().getProperty("my.notother");
@@ -407,8 +407,8 @@ class ConfigDataEnvironmentPostProcessorIntegrationTests {
 
   @Test
   void runWhenHasActiveProfileConfigurationInMultiDocumentFileLoadsInExpectedOrder() {
-    ConfigurableApplicationContext context = this.application.run("--context.config.name=testsetprofiles",
-            "--context.config.location=classpath:configdata/profiles/");
+    ConfigurableApplicationContext context = this.application.run("--app.config.name=testsetprofiles",
+            "--app.config.location=classpath:configdata/profiles/");
     assertThat(context.getEnvironment().getActiveProfiles()).containsExactly("dev");
     String property = context.getEnvironment().getProperty("my.property");
     assertThat(context.getEnvironment().getActiveProfiles()).contains("dev");
@@ -420,27 +420,27 @@ class ConfigDataEnvironmentPostProcessorIntegrationTests {
 
   @Test
   void runWhenHasYamlWithCommaSeparatedMultipleProfilesLoadsExpectedProperties() {
-    ConfigurableApplicationContext context = this.application.run("--context.config.name=testsetmultiprofiles");
+    ConfigurableApplicationContext context = this.application.run("--app.config.name=testsetmultiprofiles");
     assertThat(context.getEnvironment().getActiveProfiles()).containsExactly("dev", "healthcheck");
   }
 
   @Test
   void runWhenHasYamlWithListProfilesLoadsExpectedProperties() {
-    ConfigurableApplicationContext context = this.application.run("--context.config.name=testsetmultiprofileslist");
+    ConfigurableApplicationContext context = this.application.run("--app.config.name=testsetmultiprofileslist");
     assertThat(context.getEnvironment().getActiveProfiles()).containsExactly("dev", "healthcheck");
   }
 
   @Test
   void loadWhenHasWhitespaceTrims() {
     ConfigurableApplicationContext context = this.application
-            .run("--context.config.name=testsetmultiprofileswhitespace");
+            .run("--app.config.name=testsetmultiprofileswhitespace");
     assertThat(context.getEnvironment().getActiveProfiles()).containsExactly("dev", "healthcheck");
   }
 
   @Test
   void loadWhenHasConfigLocationAsFile() {
     String location = "file:src/test/resources/specificlocation.properties";
-    ConfigurableApplicationContext context = this.application.run("--context.config.location=" + location);
+    ConfigurableApplicationContext context = this.application.run("--app.config.location=" + location);
     assertThat(context.getEnvironment())
             .has(matchingPropertySource("Config resource 'file [" + Strings
                     .join(Arrays.asList("src", "test", "resources", "specificlocation.properties"), File.separatorChar)
@@ -450,7 +450,7 @@ class ConfigDataEnvironmentPostProcessorIntegrationTests {
   @Test
   void loadWhenHasRelativeConfigLocationUsesFileLocation() {
     String location = "src/test/resources/specificlocation.properties";
-    ConfigurableApplicationContext context = this.application.run("--context.config.location=" + location);
+    ConfigurableApplicationContext context = this.application.run("--app.config.location=" + location);
     assertThat(context.getEnvironment()).has(matchingPropertySource("Config resource 'file [" + Strings
             .join(Arrays.asList("src", "test", "resources", "specificlocation.properties"), File.separatorChar)
             + "]' via location '" + location + "'"));
@@ -468,8 +468,8 @@ class ConfigDataEnvironmentPostProcessorIntegrationTests {
   @Test
   void runWhenCustomDefaultProfileSameAsActiveFromFileActivatesProfile() {
     ConfigurableApplicationContext context = this.application.run(
-            "--context.config.location=classpath:configdata/profiles/", "--context.profiles.default=customdefault",
-            "--context.config.name=customprofile");
+            "--app.config.location=classpath:configdata/profiles/", "--context.profiles.default=customdefault",
+            "--app.config.name=customprofile");
     ConfigurableEnvironment environment = context.getEnvironment();
     assertThat(environment.containsProperty("customprofile")).isTrue();
     assertThat(environment.containsProperty("customprofile-customdefault")).isTrue();
@@ -479,14 +479,14 @@ class ConfigDataEnvironmentPostProcessorIntegrationTests {
   @Test
   void runWhenActiveProfilesCanBeConfiguredUsingPlaceholdersResolvedAgainstTheEnvironmentLoadsExpectedProperties() {
     ConfigurableApplicationContext context = this.application.run("--activeProfile=testPropertySource",
-            "--context.config.name=testactiveprofiles");
+            "--app.config.name=testactiveprofiles");
     assertThat(context.getEnvironment().getActiveProfiles()).containsExactly("testPropertySource");
   }
 
   @Test
   void runWhenHasAdditionalLocationLoadsWithAdditionalTakingPrecedenceOverDefaultLocation() {
     ConfigurableApplicationContext context = this.application
-            .run("--context.config.additional-location=classpath:override.properties");
+            .run("--app.config.additional-location=classpath:override.properties");
     assertThat(context.getEnvironment().getProperty("foo")).isEqualTo("bar");
     assertThat(context.getEnvironment().getProperty("value")).isEqualTo("1234");
   }
@@ -494,7 +494,7 @@ class ConfigDataEnvironmentPostProcessorIntegrationTests {
   @Test
   void runWhenMultipleAdditionalLocationsLoadsWithLastWinning() {
     ConfigurableApplicationContext context = this.application
-            .run("--context.config.additional-location=classpath:override.properties,classpath:some.properties");
+            .run("--app.config.additional-location=classpath:override.properties,classpath:some.properties");
     assertThat(context.getEnvironment().getProperty("foo")).isEqualTo("spam");
     assertThat(context.getEnvironment().getProperty("value")).isEqualTo("1234");
   }
@@ -502,8 +502,8 @@ class ConfigDataEnvironmentPostProcessorIntegrationTests {
   @Test
   void runWhenAdditionalLocationAndLocationLoadsWithAdditionalTakingPrecedenceOverConfigured() {
     ConfigurableApplicationContext context = this.application.run(
-            "--context.config.location=classpath:some.properties",
-            "--context.config.additional-location=classpath:override.properties");
+            "--app.config.location=classpath:some.properties",
+            "--app.config.additional-location=classpath:override.properties");
     assertThat(context.getEnvironment().getProperty("foo")).isEqualTo("bar");
     assertThat(context.getEnvironment().getProperty("value")).isNull();
   }
@@ -523,7 +523,7 @@ class ConfigDataEnvironmentPostProcessorIntegrationTests {
 
       @Override
       public Object getProperty(String name) {
-        if ("context.config.name".equals(name)) {
+        if ("app.config.name".equals(name)) {
           return "gh17001";
         }
         return super.getProperty(name);
@@ -541,7 +541,7 @@ class ConfigDataEnvironmentPostProcessorIntegrationTests {
   @Test
   void runWhenConfigLocationHasUnknownFileExtensionFailsFast() {
     String location = "classpath:application.unknown";
-    assertThatIllegalStateException().isThrownBy(() -> this.application.run("--context.config.location=" + location))
+    assertThatIllegalStateException().isThrownBy(() -> this.application.run("--app.config.location=" + location))
             .withMessageContaining("Unable to load config data").withMessageContaining(location)
             .satisfies((ex) -> assertThat(ex.getCause()).hasMessageContaining("File extension is not known")
                     .hasMessageContaining("it must end in '/'"));
@@ -550,21 +550,21 @@ class ConfigDataEnvironmentPostProcessorIntegrationTests {
   @Test
   void runWhenConfigLocationHasOptionalMissingDirectoryContinuesToLoad() {
     String location = "optional:classpath:application.unknown/";
-    this.application.run("--context.config.location=" + location);
+    this.application.run("--app.config.location=" + location);
   }
 
   @Test
   void runWhenConfigLocationHasNonOptionalMissingFileDirectoryThrowsResourceNotFoundException() {
     File location = new File(this.temp, "application.unknown");
     assertThatExceptionOfType(ConfigDataLocationNotFoundException.class).isThrownBy(() -> this.application
-            .run("--context.config.location=" + StringUtils.cleanPath(location.getAbsolutePath()) + "/"));
+            .run("--app.config.location=" + StringUtils.cleanPath(location.getAbsolutePath()) + "/"));
   }
 
   @Test
   void runWhenConfigLocationHasNonOptionalMissingClasspathDirectoryThrowsLocationNotFoundException() {
     String location = "classpath:application.unknown/";
     assertThatExceptionOfType(ConfigDataLocationNotFoundException.class)
-            .isThrownBy(() -> this.application.run("--context.config.location=" + location));
+            .isThrownBy(() -> this.application.run("--app.config.location=" + location));
   }
 
   @Test
@@ -572,13 +572,13 @@ class ConfigDataEnvironmentPostProcessorIntegrationTests {
     File location = new File(this.temp, "application.empty");
     location.mkdirs();
     assertThatNoException().isThrownBy(() -> this.application
-            .run("--context.config.location=" + StringUtils.cleanPath(location.getAbsolutePath()) + "/"));
+            .run("--app.config.location=" + StringUtils.cleanPath(location.getAbsolutePath()) + "/"));
   }
 
   @Test
   void runWhenConfigLocationHasMandatoryDirectoryThatDoesntExistThrowsException() {
     assertThatExceptionOfType(ConfigDataLocationNotFoundException.class).isThrownBy(
-            () -> this.application.run("--context.config.location=" + StringUtils.cleanPath("invalid/")));
+            () -> this.application.run("--app.config.location=" + StringUtils.cleanPath("invalid/")));
   }
 
   @Test
@@ -586,13 +586,13 @@ class ConfigDataEnvironmentPostProcessorIntegrationTests {
     File location = new File(this.temp, "application.properties");
     FileCopyUtils.copy(new byte[0], location);
     assertThatNoException()
-            .isThrownBy(() -> this.application.run("--context.config.location=classpath:/application.properties,"
+            .isThrownBy(() -> this.application.run("--app.config.location=classpath:/application.properties,"
                     + StringUtils.cleanPath(location.getAbsolutePath())));
   }
 
   @Test
   void runWhenResolvedIsOptionalDoesNotThrowException() {
-    ApplicationContext context = this.application.run("--context.config.location=test:optionalresult");
+    ApplicationContext context = this.application.run("--app.config.location=test:optionalresult");
     assertThat(context.getEnvironment().containsProperty("spring")).isFalse();
   }
 
@@ -600,20 +600,20 @@ class ConfigDataEnvironmentPostProcessorIntegrationTests {
   @Disabled("Disabled until context.profiles suppport is dropped")
   void runWhenUsingInvalidPropertyThrowsException() {
     assertThatExceptionOfType(InvalidConfigDataPropertyException.class).isThrownBy(
-            () -> this.application.run("--context.config.location=classpath:invalidproperty.properties"));
+            () -> this.application.run("--app.config.location=classpath:invalidproperty.properties"));
   }
 
   @Test
   void runWhenImportUsesPlaceholder() {
     ConfigurableApplicationContext context = this.application
-            .run("--context.config.location=classpath:application-import-with-placeholder.properties");
+            .run("--app.config.location=classpath:application-import-with-placeholder.properties");
     assertThat(context.getEnvironment().getProperty("my.value")).isEqualTo("iwasimported");
   }
 
   @Test
   void runWhenImportFromEarlierDocumentUsesPlaceholder() {
     ConfigurableApplicationContext context = this.application
-            .run("--context.config.location=classpath:application-import-with-placeholder-in-document.properties");
+            .run("--app.config.location=classpath:application-import-with-placeholder-in-document.properties");
     assertThat(context.getEnvironment().getProperty("my.value")).isEqualTo("iwasimported");
   }
 
@@ -622,7 +622,7 @@ class ConfigDataEnvironmentPostProcessorIntegrationTests {
   void runWhenImportWithProfileVariantOrdersPropertySourcesCorrectly() {
     this.application.setAdditionalProfiles("dev");
     ConfigurableApplicationContext context = this.application
-            .run("--context.config.location=classpath:application-import-with-profile-variant.properties");
+            .run("--app.config.location=classpath:application-import-with-profile-variant.properties");
     assertThat(context.getEnvironment().getProperty("my.value"))
             .isEqualTo("application-import-with-profile-variant-imported-dev");
   }
@@ -631,7 +631,7 @@ class ConfigDataEnvironmentPostProcessorIntegrationTests {
   void runWhenImportWithProfileVariantAndDirectProfileImportOrdersPropertySourcesCorrectly() {
     this.application.setAdditionalProfiles("dev");
     ConfigurableApplicationContext context = this.application.run(
-            "--context.config.location=classpath:application-import-with-profile-variant-and-direct-profile-import.properties");
+            "--app.config.location=classpath:application-import-with-profile-variant-and-direct-profile-import.properties");
     assertThat(context.getEnvironment().getProperty("my.value"))
             .isEqualTo("application-import-with-profile-variant-imported-dev");
   }
@@ -639,7 +639,7 @@ class ConfigDataEnvironmentPostProcessorIntegrationTests {
   @Test
   void runWhenHasPropertyInProfileDocumentThrowsException() {
     assertThatExceptionOfType(BindException.class).isThrownBy(() -> this.application.run(
-                    "--context.config.location=classpath:application-import-with-placeholder-in-profile-document.properties"))
+                    "--app.config.location=classpath:application-import-with-placeholder-in-profile-document.properties"))
             .withCauseInstanceOf(InactiveConfigDataAccessException.class);
   }
 
@@ -647,7 +647,7 @@ class ConfigDataEnvironmentPostProcessorIntegrationTests {
     // gh-29386
   void runWhenHasPropertyInEarlierProfileDocumentThrowsException() {
     assertThatExceptionOfType(BindException.class).isThrownBy(() -> this.application.run(
-                    "--context.config.location=classpath:application-import-with-placeholder-in-earlier-profile-document.properties"))
+                    "--app.config.location=classpath:application-import-with-placeholder-in-earlier-profile-document.properties"))
             .withCauseInstanceOf(InactiveConfigDataAccessException.class);
   }
 
@@ -655,7 +655,7 @@ class ConfigDataEnvironmentPostProcessorIntegrationTests {
     // gh-29386
   void runWhenHasPropertyInEarlierDocumentLoads() {
     ConfigurableApplicationContext context = this.application.run(
-            "--context.config.location=classpath:application-import-with-placeholder-in-earlier-document.properties");
+            "--app.config.location=classpath:application-import-with-placeholder-in-earlier-document.properties");
     assertThat(context.getEnvironment().getProperty("my.value"))
             .isEqualTo("application-import-with-placeholder-in-earlier-document-imported");
   }
@@ -663,19 +663,19 @@ class ConfigDataEnvironmentPostProcessorIntegrationTests {
   @Test
   void runWhenHasNonOptionalImportThrowsException() {
     assertThatExceptionOfType(ConfigDataResourceNotFoundException.class).isThrownBy(
-            () -> this.application.run("--context.config.location=classpath:missing-appplication.properties"));
+            () -> this.application.run("--app.config.location=classpath:missing-appplication.properties"));
   }
 
   @Test
   void runWhenHasNonOptionalImportAndIgnoreNotFoundPropertyDoesNotThrowException() {
-    this.application.run("--context.config.on-not-found=ignore",
-            "--context.config.location=classpath:missing-appplication.properties");
+    this.application.run("--app.config.on-not-found=ignore",
+            "--app.config.location=classpath:missing-appplication.properties");
   }
 
   @Test
   void runWhenHasIncludedProfilesActivatesProfiles() {
     ConfigurableApplicationContext context = this.application
-            .run("--context.config.location=classpath:application-include-profiles.properties");
+            .run("--app.config.location=classpath:application-include-profiles.properties");
     assertThat(context.getEnvironment().getActiveProfiles()).containsExactlyInAnyOrder("p1", "p2", "p3", "p4",
             "p5");
   }
@@ -683,7 +683,7 @@ class ConfigDataEnvironmentPostProcessorIntegrationTests {
   @Test
   void runWhenHasIncludedProfilesWithPlaceholderActivatesProfiles() {
     ConfigurableApplicationContext context = this.application
-            .run("--context.config.location=classpath:application-include-profiles-with-placeholder.properties");
+            .run("--app.config.location=classpath:application-include-profiles-with-placeholder.properties");
     assertThat(context.getEnvironment().getActiveProfiles()).containsExactlyInAnyOrder("p1", "p2", "p3", "p4",
             "p5");
   }
@@ -691,20 +691,20 @@ class ConfigDataEnvironmentPostProcessorIntegrationTests {
   @Test
   void runWhenHasIncludedProfilesWithProfileSpecificDocumentThrowsException() {
     assertThatExceptionOfType(InactiveConfigDataAccessException.class).isThrownBy(() -> this.application.run(
-            "--context.config.location=classpath:application-include-profiles-in-profile-specific-document.properties"));
+            "--app.config.location=classpath:application-include-profiles-in-profile-specific-document.properties"));
   }
 
   @Test
   void runWhenHasIncludedProfilesWithListSyntaxWithProfileSpecificDocumentThrowsException() {
     assertThatExceptionOfType(InvalidConfigDataPropertyException.class).isThrownBy(() -> this.application.run(
-            "--context.config.name=application-include-profiles-list-in-profile-specific-file",
+            "--app.config.name=application-include-profiles-list-in-profile-specific-file",
             "--context.profiles.active=test"));
   }
 
   @Test
   void runWhenImportingIncludesParentOrigin() {
     ConfigurableApplicationContext context = this.application
-            .run("--context.config.location=classpath:application-import-with-placeholder.properties");
+            .run("--app.config.location=classpath:application-import-with-placeholder.properties");
     Binder binder = Binder.get(context.getEnvironment());
     List<ConfigurationProperty> properties = new ArrayList<>();
     BindHandler bindHandler = new BindHandler() {
@@ -727,7 +727,7 @@ class ConfigDataEnvironmentPostProcessorIntegrationTests {
   @Test
   void runWhenHasWildcardLocationLoadsFromAllMatchingLocations() {
     ConfigurableApplicationContext context = this.application.run(
-            "--context.config.location=file:src/test/resources/config/*/", "--context.config.name=testproperties");
+            "--app.config.location=file:src/test/resources/config/*/", "--app.config.name=testproperties");
     ConfigurableEnvironment environment = context.getEnvironment();
     assertThat(environment.getProperty("first.property")).isEqualTo("apple");
     assertThat(environment.getProperty("second.property")).isEqualTo("ball");
@@ -736,25 +736,25 @@ class ConfigDataEnvironmentPostProcessorIntegrationTests {
   @Test
   void runWhenOptionalWildcardLocationDoesNotExistDoesNotThrowException() {
     assertThatNoException().isThrownBy(() -> this.application.run(
-            "--context.config.location=optional:file:src/test/resources/nonexistent/*/testproperties.properties"));
+            "--app.config.location=optional:file:src/test/resources/nonexistent/*/testproperties.properties"));
   }
 
   @Test
   void runWhenMandatoryWildcardLocationDoesNotExistThrowsException() {
     assertThatExceptionOfType(ConfigDataLocationNotFoundException.class).isThrownBy(() -> this.application
-            .run("--context.config.location=file:src/test/resources/nonexistent/*/testproperties.properties"));
+            .run("--app.config.location=file:src/test/resources/nonexistent/*/testproperties.properties"));
   }
 
   @Test
   void runWhenMandatoryWildcardLocationHasEmptyFileDirectory() {
     assertThatNoException()
-            .isThrownBy(() -> this.application.run("--context.config.location=file:src/test/resources/config/*/"));
+            .isThrownBy(() -> this.application.run("--app.config.location=file:src/test/resources/config/*/"));
   }
 
   @Test
   void runWhenMandatoryWildcardLocationHasNoSubdirectories() {
     assertThatExceptionOfType(ConfigDataLocationNotFoundException.class).isThrownBy(
-                    () -> this.application.run("--context.config.location=file:src/test/resources/config/0-empty/*/"))
+                    () -> this.application.run("--app.config.location=file:src/test/resources/config/0-empty/*/"))
             .withMessage(
                     "Config data location 'file:src/test/resources/config/0-empty/*/' contains no subdirectories");
   }
@@ -762,26 +762,26 @@ class ConfigDataEnvironmentPostProcessorIntegrationTests {
   @Test
   void runWhenHasMandatoryWildcardLocationThatDoesNotExist() {
     assertThatExceptionOfType(ConfigDataLocationNotFoundException.class)
-            .isThrownBy(() -> this.application.run("--context.config.location=file:invalid/*/"));
+            .isThrownBy(() -> this.application.run("--app.config.location=file:invalid/*/"));
   }
 
   @Test
   void runWhenHasOptionalWildcardLocationThatDoesNotExistDoesNotThrow() {
     assertThatNoException()
-            .isThrownBy(() -> this.application.run("--context.config.location=optional:file:invalid/*/"));
+            .isThrownBy(() -> this.application.run("--app.config.location=optional:file:invalid/*/"));
   }
 
   @Test
   void runWhenOptionalWildcardLocationHasNoSubdirectoriesDoesNotThrow() {
     assertThatNoException().isThrownBy(() -> this.application
-            .run("--context.config.location=optional:file:src/test/resources/config/0-empty/*/"));
+            .run("--app.config.location=optional:file:src/test/resources/config/0-empty/*/"));
   }
 
   @Test
     // gh-24990
   void runWhenHasProfileSpecificFileWithActiveOnProfileProperty() {
     ConfigurableApplicationContext context = this.application
-            .run("--context.config.name=application-activate-on-profile-in-profile-specific-file");
+            .run("--app.config.name=application-activate-on-profile-in-profile-specific-file");
     ConfigurableEnvironment environment = context.getEnvironment();
     assertThat(environment.getProperty("test1")).isEqualTo("test1");
     assertThat(environment.getProperty("test2")).isEqualTo("test2");
@@ -791,7 +791,7 @@ class ConfigDataEnvironmentPostProcessorIntegrationTests {
     // gh-26960
   void runWhenHasProfileSpecificImportWithImportImportsSecondProfileSpecificFile() {
     ConfigurableApplicationContext context = this.application
-            .run("--context.config.name=application-profile-specific-import-with-import");
+            .run("--app.config.name=application-profile-specific-import-with-import");
     ConfigurableEnvironment environment = context.getEnvironment();
     assertThat(environment.containsProperty("application-profile-specific-import-with-import")).isTrue();
     assertThat(environment.containsProperty("application-profile-specific-import-with-import-p1")).isTrue();
@@ -805,7 +805,7 @@ class ConfigDataEnvironmentPostProcessorIntegrationTests {
     // gh-26960
   void runWhenHasProfileSpecificImportWithCustomImportResolvesProfileSpecific() {
     ConfigurableApplicationContext context = this.application
-            .run("--context.config.name=application-profile-specific-import-with-custom-import");
+            .run("--app.config.name=application-profile-specific-import-with-custom-import");
     ConfigurableEnvironment environment = context.getEnvironment();
     assertThat(environment.containsProperty("test:boot")).isTrue();
     assertThat(environment.containsProperty("test:boot:ps")).isTrue();
@@ -815,7 +815,7 @@ class ConfigDataEnvironmentPostProcessorIntegrationTests {
     // gh-26593
   void runWhenHasFilesInRootAndConfigWithProfiles() {
     ConfigurableApplicationContext context = this.application
-            .run("--context.config.name=file-in-root-and-config-with-profile", "--context.profiles.active=p1,p2");
+            .run("--app.config.name=file-in-root-and-config-with-profile", "--context.profiles.active=p1,p2");
     ConfigurableEnvironment environment = context.getEnvironment();
     assertThat(environment.containsProperty("file-in-root-and-config-with-profile")).isTrue();
     assertThat(environment.containsProperty("file-in-root-and-config-with-profile-p1")).isTrue();
@@ -841,8 +841,8 @@ class ConfigDataEnvironmentPostProcessorIntegrationTests {
 
   private void assertProfileExpression(String value, String... activeProfiles) {
     this.application.setAdditionalProfiles(activeProfiles);
-    ConfigurableApplicationContext context = this.application.run("--context.config.name=testprofileexpression",
-            "--context.config.location=classpath:configdata/profiles/");
+    ConfigurableApplicationContext context = this.application.run("--app.config.name=testprofileexpression",
+            "--app.config.location=classpath:configdata/profiles/");
     String property = context.getEnvironment().getProperty("my.property");
     assertThat(property).isEqualTo(value);
   }

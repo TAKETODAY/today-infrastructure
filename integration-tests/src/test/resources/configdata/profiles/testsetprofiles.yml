@@ -5,6 +5,6 @@ context:
 my:
   property: fromyamlfile
 ---
-context.config.activate.on-profile: dev
+app.config.activate.on-profile: dev
 my:
   property: fromdevprofile

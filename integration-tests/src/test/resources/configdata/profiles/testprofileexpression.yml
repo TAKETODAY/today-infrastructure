@@ -2,11 +2,11 @@
 my:
   property: fromyamlfile
 ---
-context.config.activate.on-profile: dev & other
+app.config.activate.on-profile: dev & other
 my:
   property: devandother
 ---
-context.config.activate.on-profile: (dev | other) & another
+app.config.activate.on-profile: (dev | other) & another
 my:
   property: devorotherandanother
 ---

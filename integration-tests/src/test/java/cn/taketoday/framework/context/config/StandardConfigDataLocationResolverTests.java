@@ -116,7 +116,7 @@ class StandardConfigDataLocationResolverTests {
 
   @Test
   void createWhenConfigNameHasWildcardThrowsException() {
-    this.environment.setProperty("context.config.name", "*/application");
+    this.environment.setProperty("app.config.name", "*/application");
     assertThatIllegalStateException()
             .isThrownBy(
                     () -> new StandardConfigDataLocationResolver(this.environmentBinder, this.resourceLoader))
@@ -133,7 +133,7 @@ class StandardConfigDataLocationResolverTests {
   @Test
   void resolveWhenLocationIsWildcardDirectoriesRestrictsToOneLevelDeep() {
     ConfigDataLocation location = ConfigDataLocation.valueOf("file:src/test/resources/config/*/");
-    this.environment.setProperty("context.config.name", "testproperties");
+    this.environment.setProperty("app.config.name", "testproperties");
     this.resolver = new StandardConfigDataLocationResolver(this.environmentBinder, this.resourceLoader);
     List<StandardConfigDataResource> locations = this.resolver.resolve(this.context, location);
     assertThat(locations.size()).isEqualTo(3);
@@ -146,7 +146,7 @@ class StandardConfigDataLocationResolverTests {
   @Test
   void resolveWhenLocationIsWildcardDirectoriesSortsAlphabeticallyBasedOnAbsolutePath() {
     ConfigDataLocation location = ConfigDataLocation.valueOf("file:src/test/resources/config/*/");
-    this.environment.setProperty("context.config.name", "testproperties");
+    this.environment.setProperty("app.config.name", "testproperties");
     this.resolver = new StandardConfigDataLocationResolver(this.environmentBinder, this.resourceLoader);
     List<StandardConfigDataResource> locations = this.resolver.resolve(this.context, location);
     assertThat(locations).extracting(Object::toString).containsExactly(
@@ -176,7 +176,7 @@ class StandardConfigDataLocationResolverTests {
 
   @Test
   void resolveWhenLocationIsRelativeAndFileResolves() {
-    this.environment.setProperty("context.config.name", "other");
+    this.environment.setProperty("app.config.name", "other");
     ConfigDataLocation location = ConfigDataLocation.valueOf("other.properties");
     this.resolver = new StandardConfigDataLocationResolver(this.environmentBinder,
             this.resourceLoader);
@@ -195,7 +195,7 @@ class StandardConfigDataLocationResolverTests {
 
   @Test
   void resolveWhenLocationIsRelativeAndDirectoryResolves() {
-    this.environment.setProperty("context.config.name", "testproperties");
+    this.environment.setProperty("app.config.name", "testproperties");
     ConfigDataLocation location = ConfigDataLocation.valueOf("nested/3-third/");
     this.resolver = new StandardConfigDataLocationResolver(this.environmentBinder, this.resourceLoader);
     StandardConfigDataReference parentReference = new StandardConfigDataReference(

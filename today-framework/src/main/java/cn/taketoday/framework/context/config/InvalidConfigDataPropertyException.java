@@ -46,8 +46,8 @@ public class InvalidConfigDataPropertyException extends ConfigDataException {
 
   static {
     var errors = new LinkedHashMap<ConfigurationPropertyName, ConfigurationPropertyName>();
-    errors.put(ConfigurationPropertyName.of("context.profiles"), ConfigurationPropertyName.of("context.config.activate.on-profile"));
-    errors.put(ConfigurationPropertyName.of("context.profiles[0]"), ConfigurationPropertyName.of("context.config.activate.on-profile"));
+    errors.put(ConfigurationPropertyName.of("context.profiles"), ConfigurationPropertyName.of("app.config.activate.on-profile"));
+    errors.put(ConfigurationPropertyName.of("context.profiles[0]"), ConfigurationPropertyName.of("app.config.activate.on-profile"));
     ERRORS = Collections.unmodifiableMap(errors);
   }
 

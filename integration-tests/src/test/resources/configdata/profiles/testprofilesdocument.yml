@@ -3,10 +3,10 @@ my:
   property: fromyamlfile
   other: notempty
 ---
-context.config.activate.on-profile: thedefault
+app.config.activate.on-profile: thedefault
 my:
   property: fromdefaultprofile
 ---
-context.config.activate.on-profile: other
+app.config.activate.on-profile: other
 my:
   property: fromotherprofile

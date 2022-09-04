@@ -68,17 +68,17 @@ class ConfigDataEnvironment {
   /**
    * Property used override the imported locations.
    */
-  static final String LOCATION_PROPERTY = "context.config.location";
+  static final String LOCATION_PROPERTY = "app.config.location";
 
   /**
    * Property used to provide additional locations to import.
    */
-  static final String ADDITIONAL_LOCATION_PROPERTY = "context.config.additional-location";
+  static final String ADDITIONAL_LOCATION_PROPERTY = "app.config.additional-location";
 
   /**
    * Property used to provide additional locations to import.
    */
-  static final String IMPORT_PROPERTY = "context.config.import";
+  static final String IMPORT_PROPERTY = "app.config.import";
 
   /**
    * Property used to determine what action to take when a
@@ -86,7 +86,7 @@ class ConfigDataEnvironment {
    *
    * @see ConfigDataNotFoundAction
    */
-  static final String ON_NOT_FOUND_PROPERTY = "context.config.on-not-found";
+  static final String ON_NOT_FOUND_PROPERTY = "app.config.on-not-found";
 
   /**
    * Default search locations used if not {@link #LOCATION_PROPERTY} is found.
