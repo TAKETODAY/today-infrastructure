@@ -1956,7 +1956,7 @@ public abstract class HttpHeaders
    * copy targetMap’s all entries to a new HttpHeaders
    *
    * @param targetMap can be null
-   * @return returns {@link #EMPTY} if {@code targetMap} is null
+   * @return returns {@link #empty()} if {@code targetMap} is null
    * @since 4.0
    */
   public static HttpHeaders copyOf(@Nullable Map<String, List<String>> targetMap) {

@@ -86,7 +86,7 @@ public class LinkedMultiValueMap<K, V> extends DefaultMultiValueMap<K, V> {
    * @return a copy of this Map, including a copy of each value-holding List entry
    * (consistently using an independent modifiable {@link ArrayList} for each entry)
    * along the lines of {@code MultiValueMap.addAll} semantics
-   * @see #addAll(MultiValueMap)
+   * @see #addAll(Map)
    * @see #clone()
    */
   public LinkedMultiValueMap<K, V> deepCopy() {

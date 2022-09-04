@@ -49,7 +49,7 @@ class ReadOnlyHttpHeaders extends DefaultHttpHeaders {
    *
    * @since 4.0
    */
-  public static final ReadOnlyHttpHeaders EMPTY = new ReadOnlyHttpHeaders(new DefaultMultiValueMap<>());
+  public static final ReadOnlyHttpHeaders EMPTY = new ReadOnlyHttpHeaders(new DefaultMultiValueMap<>(Collections.emptyMap()));
 
   @Serial
   private static final long serialVersionUID = -8578554704772377436L;

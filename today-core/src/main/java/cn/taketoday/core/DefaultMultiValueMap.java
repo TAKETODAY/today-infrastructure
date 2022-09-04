@@ -58,7 +58,7 @@ public class DefaultMultiValueMap<K, V>
   @Serial
   private static final long serialVersionUID = 1L;
 
-  public static final Function defaultMappingFunction = k -> new ArrayList<>();
+  public static final Function defaultMappingFunction = k -> new ArrayList<>(1);
 
   private final Map<K, List<V>> map;
   private transient final Function<K, List<V>> mappingFunction;
@@ -93,11 +93,12 @@ public class DefaultMultiValueMap<K, V>
     this.mappingFunction = defaultMappingFunction;
   }
 
-  public DefaultMultiValueMap(Map<K, List<V>> map, boolean copy) {
-    this(map, copy, defaultMappingFunction);
+  public DefaultMultiValueMap(Map<K, List<V>> map, Function<K, List<V>> mappingFunction) {
+    this.map = map;
+    this.mappingFunction = mappingFunction;
   }
 
-  public DefaultMultiValueMap(Map<K, List<V>> map, boolean copy, Function<K, List<V>> mappingFunction) {
+  public DefaultMultiValueMap(Map<K, List<V>> map, Function<K, List<V>> mappingFunction, boolean copy) {
     this.map = copy ? new HashMap<>(map) : map;
     this.mappingFunction = mappingFunction;
   }
@@ -279,7 +280,7 @@ public class DefaultMultiValueMap<K, V>
    * @since 4.0
    */
   public DefaultMultiValueMap<K, V> cloneMap() {
-    return new DefaultMultiValueMap<>(this, true);
+    return new DefaultMultiValueMap<>(this, mappingFunction, true);
   }
 
   @Override

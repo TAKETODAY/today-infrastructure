@@ -26,9 +26,11 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.function.IntFunction;
 
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Experimental;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
 
@@ -236,11 +238,28 @@ public interface MultiValueMap<K, V> extends Map<K, List<V>> {
    * Adapt a {@code Map<K, List<V>>} to an {@code MultiValueMap<K, V>}.
    *
    * @param targetMap the original map
+   * @param mappingFunction list mapping function
+   * @return the adapted multi-value map (wrapping the original map)
+   * @since 4.0
+   */
+  @Experimental
+  static <K, V> DefaultMultiValueMap<K, V> from(Map<K, List<V>> targetMap, Function<K, List<V>> mappingFunction) {
+    return new DefaultMultiValueMap<>(targetMap, mappingFunction);
+  }
+
+  /**
+   * Adapt a {@code Map<K, List<V>>} to an {@code MultiValueMap<K, V>}.
+   *
+   * @param targetMap the original map
    * @return the adapted multi-value map (wrapping the original map)
    * @since 4.0
    */
   static <K, V> DefaultMultiValueMap<K, V> copyOf(Map<K, List<V>> targetMap) {
     return new DefaultMultiValueMap<>(new LinkedHashMap<>(targetMap));
+  }
+
+  static <K, V> DefaultMultiValueMap<K, V> copyOf(Map<K, List<V>> targetMap, Function<K, List<V>> mappingFunction) {
+    return new DefaultMultiValueMap<>(new LinkedHashMap<>(targetMap), mappingFunction);
   }
 
   /**

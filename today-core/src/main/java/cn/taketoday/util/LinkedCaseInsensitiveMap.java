@@ -19,6 +19,7 @@
  */
 package cn.taketoday.util;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.AbstractCollection;
 import java.util.AbstractSet;
@@ -54,6 +55,7 @@ import cn.taketoday.lang.NonNull;
  */
 @SuppressWarnings("serial")
 public class LinkedCaseInsensitiveMap<V> implements Map<String, V>, Serializable, Cloneable {
+  @Serial
   private static final long serialVersionUID = 1L;
 
   private final LinkedHashMap<String, V> targetMap;
@@ -111,7 +113,7 @@ public class LinkedCaseInsensitiveMap<V> implements Map<String, V>, Serializable
    * @see #convertKey(String)
    */
   public LinkedCaseInsensitiveMap(int initialCapacity, Locale locale) {
-    this.targetMap = new LinkedHashMap<String, V>(initialCapacity) {
+    this.targetMap = new LinkedHashMap<>(initialCapacity) {
       @Override
       public boolean containsKey(Object key) {
         return LinkedCaseInsensitiveMap.this.containsKey(key);

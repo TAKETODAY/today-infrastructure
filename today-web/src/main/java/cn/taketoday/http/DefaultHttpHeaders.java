@@ -21,18 +21,23 @@
 package cn.taketoday.http;
 
 import java.io.Serial;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.function.IntFunction;
 
 import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.util.LinkedCaseInsensitiveMap;
+import cn.taketoday.util.SmartList;
 
 /**
+ * Default HttpHeaders
+ *
  * @author TODAY 2020-01-30 18:31
  * @since 3.0
  */
@@ -42,18 +47,20 @@ public class DefaultHttpHeaders extends HttpHeaders {
 
   final MultiValueMap<String, String> headers;
 
+  public static final Function<String, List<String>> defaultHeaderMapping = k -> new SmartList<>();
+
   /**
    * Construct a case-insensitive header map
    */
   public DefaultHttpHeaders() {
-    this(MultiValueMap.from(new LinkedCaseInsensitiveMap<>(8, Locale.ENGLISH)));
+    this.headers = MultiValueMap.from(new LinkedCaseInsensitiveMap<>(8, Locale.ENGLISH), defaultHeaderMapping);
   }
 
   /**
    * Construct with a user input header map
    */
   public DefaultHttpHeaders(Map<String, List<String>> headers) {
-    this(MultiValueMap.from(headers));
+    this.headers = MultiValueMap.from(headers, defaultHeaderMapping);
   }
 
   /**
