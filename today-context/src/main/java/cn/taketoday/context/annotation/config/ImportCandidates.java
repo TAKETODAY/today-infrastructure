@@ -34,6 +34,7 @@ import java.util.List;
 import cn.taketoday.core.io.UrlResource;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.NonNull;
+import cn.taketoday.lang.Nullable;
 
 /**
  * Contains {@code @Configuration} import candidates, usually auto-configurations.
@@ -54,7 +55,7 @@ public final class ImportCandidates implements Iterable<String> {
   private final List<String> candidates;
 
   private ImportCandidates(List<String> candidates) {
-    Assert.notNull(candidates, "'candidates' must not be null");
+    Assert.notNull(candidates, "'candidates' is required");
     this.candidates = Collections.unmodifiableList(candidates);
   }
 
@@ -76,7 +77,7 @@ public final class ImportCandidates implements Iterable<String> {
    * @param classLoader class loader to use for loading
    * @return list of names of annotated classes
    */
-  public static ImportCandidates load(Class<?> annotation, ClassLoader classLoader) {
+  public static ImportCandidates load(Class<?> annotation, @Nullable ClassLoader classLoader) {
     Assert.notNull(annotation, "'annotation' must not be null");
     ClassLoader classLoaderToUse = decideClassloader(classLoader);
     String location = String.format(LOCATION, annotation.getName());
@@ -101,8 +102,8 @@ public final class ImportCandidates implements Iterable<String> {
       return classLoader.getResources(location);
     }
     catch (IOException ex) {
-      throw new IllegalArgumentException("Failed to load auto-configurations from location [" + location + "]",
-              ex);
+      throw new IllegalArgumentException(
+              "Failed to load auto-configurations from location [" + location + "]", ex);
     }
   }
 
