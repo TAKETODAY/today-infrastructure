@@ -36,7 +36,8 @@ public class EntityHolderFactory {
 
   private final PropertyFilter propertyFilter = PropertyFilter.filteredNames(Set.of("class"));
 
-  private final TableNameGenerator tableNameGenerator = TableNameGenerator.forTableAnnotation();
+  private final TableNameGenerator tableNameGenerator = TableNameGenerator.forTableAnnotation()
+          .and(TableNameGenerator.defaultStrategy());
 
   private final IdPropertyDiscover idPropertyDiscover = IdPropertyDiscover.forIdAnnotation()
           .and(IdPropertyDiscover.forPropertyName("id"));
@@ -47,7 +48,7 @@ public class EntityHolderFactory {
   public EntityHolder createEntityHolder(Class<?> entityClass) {
     String tableName = tableNameGenerator.generateTableName(entityClass);
     if (tableName == null) {
-      throw new IllegalStateException("cannot determine table name for entity: " + entityClass);
+      throw new IllegalStateException("Cannot determine table name for entity: " + entityClass);
     }
 
     BeanMetadata metadata = BeanMetadata.from(entityClass);
@@ -62,8 +63,9 @@ public class EntityHolderFactory {
 
       String columnName = columnNameDiscover.getColumnName(property);
       if (columnName == null) {
-        throw new IllegalStateException("cannot determine column name for property: " + property.getField());
+        throw new IllegalStateException("Cannot determine column name for property: " + property.getField());
       }
+
       columnNames.add(columnName);
       beanProperties.add(property);
 
@@ -75,7 +77,7 @@ public class EntityHolderFactory {
       }
     }
 
-    Assert.state(idProperty != null, "cannot determine  ID property");
+    Assert.state(idProperty != null, "Cannot determine ID property");
     return new EntityHolder(entityClass, idProperty, tableName, beanProperties.toArray(new BeanProperty[0]),
             StringUtils.toStringArray(columnNames));
   }

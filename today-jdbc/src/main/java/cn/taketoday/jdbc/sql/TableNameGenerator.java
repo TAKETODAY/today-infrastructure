@@ -52,11 +52,11 @@ public interface TableNameGenerator {
    */
   default TableNameGenerator and(TableNameGenerator next) {
     return entityClass -> {
-      String columnName = generateTableName(entityClass);
-      if (columnName == null) {
+      String name = generateTableName(entityClass);
+      if (name == null) {
         return next.generateTableName(entityClass);
       }
-      return columnName;
+      return name;
     };
   }
 
@@ -71,9 +71,9 @@ public interface TableNameGenerator {
     Assert.notNull(generators, "TableNameGenerator is required");
     return entityClass -> {
       for (TableNameGenerator generator : generators) {
-        String columnName = generator.generateTableName(entityClass);
-        if (columnName != null) {
-          return columnName;
+        String name = generator.generateTableName(entityClass);
+        if (name != null) {
+          return name;
         }
       }
       return null;
@@ -83,7 +83,7 @@ public interface TableNameGenerator {
   /**
    *
    */
-  static TableNameGenerator entityClassName() {
+  static DefaultTableNameGenerator defaultStrategy() {
     return new DefaultTableNameGenerator();
   }
 
@@ -119,9 +119,9 @@ public interface TableNameGenerator {
     return entityClass -> {
       var annotation = MergedAnnotations.from(entityClass).get(annotationType);
       if (annotation.isPresent()) {
-        String tableName = annotation.getString(attributeName);
-        if (StringUtils.hasText(tableName)) {
-          return tableName;
+        String name = annotation.getString(attributeName);
+        if (StringUtils.hasText(name)) {
+          return name;
         }
       }
 
