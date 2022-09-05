@@ -20,16 +20,9 @@
 
 package cn.taketoday.jdbc.sql;
 
-import java.util.ArrayList;
 import java.util.Set;
 
-import cn.taketoday.beans.BeanMetadata;
-import cn.taketoday.beans.BeanProperty;
-import cn.taketoday.core.annotation.MergedAnnotation;
-import cn.taketoday.core.annotation.MergedAnnotations;
 import cn.taketoday.jdbc.sql.dialect.Dialect;
-import cn.taketoday.lang.Assert;
-import cn.taketoday.util.StringUtils;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>

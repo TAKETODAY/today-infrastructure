@@ -31,6 +31,7 @@ import cn.taketoday.util.StringUtils;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @see DefaultTableNameGenerator
  * @since 4.0 2022/8/16 21:19
  */
 public interface TableNameGenerator {

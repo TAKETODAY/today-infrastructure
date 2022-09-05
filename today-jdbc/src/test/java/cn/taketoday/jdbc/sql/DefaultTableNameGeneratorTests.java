@@ -49,5 +49,16 @@ class DefaultTableNameGeneratorTests {
     generator.setLowercase(false);
 
     assertThat(generator.generateTableName(UserModel.class)).isEqualTo("UserModel");
+
+    // lowercase
+    generator.setLowercase(true);
+    generator.setCamelCaseToUnderscore(false);
+    assertThat(generator.generateTableName(UserModel.class)).isEqualTo("usermodel");
+
+    // suffixArrayToRemove
+    generator.setSuffixToRemove("Model");
+    assertThat(generator.generateTableName(UserModel.class)).isEqualTo("user");
+
   }
+
 }

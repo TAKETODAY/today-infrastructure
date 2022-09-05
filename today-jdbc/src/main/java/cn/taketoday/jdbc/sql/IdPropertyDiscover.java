@@ -33,6 +33,8 @@ import cn.taketoday.lang.Assert;
  */
 public interface IdPropertyDiscover {
 
+  String DEFAULT_ID_PROPERTY = "id";
+
   /**
    * determine that {@code property} is an ID property
    *

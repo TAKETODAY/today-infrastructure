@@ -37,9 +37,21 @@ public interface PropertyFilter {
    */
   boolean isFiltered(BeanProperty property);
 
+  /**
+   * filter property names
+   *
+   * @param filteredNames property names not mapping to database column
+   */
   static PropertyFilter filteredNames(Set<String> filteredNames) {
     Assert.notEmpty(filteredNames, "filteredNames is empty");
     return property -> filteredNames.contains(property.getName());
+  }
+
+  /**
+   * Accept any property
+   */
+  static PropertyFilter acceptAny() {
+    return property -> false;
   }
 
 }

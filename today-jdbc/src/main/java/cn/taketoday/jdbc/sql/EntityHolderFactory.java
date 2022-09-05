@@ -20,70 +20,37 @@
 
 package cn.taketoday.jdbc.sql;
 
-import java.util.ArrayList;
-import java.util.Set;
-
-import cn.taketoday.beans.BeanMetadata;
-import cn.taketoday.beans.BeanProperty;
 import cn.taketoday.lang.Assert;
-import cn.taketoday.util.StringUtils;
+import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.MapCache;
 
 /**
+ * EntityHolder Factory
+ *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/8/16 23:28
  */
-public class EntityHolderFactory {
+public abstract class EntityHolderFactory {
 
-  private final PropertyFilter propertyFilter = PropertyFilter.filteredNames(Set.of("class"));
+  final MapCache<Class<?>, EntityHolder, EntityHolderFactory> entityCache = new MapCache<>() {
 
-  private final TableNameGenerator tableNameGenerator = TableNameGenerator.forTableAnnotation()
-          .and(TableNameGenerator.defaultStrategy());
-
-  private final IdPropertyDiscover idPropertyDiscover = IdPropertyDiscover.forIdAnnotation()
-          .and(IdPropertyDiscover.forPropertyName("id"));
-
-  private final ColumnNameDiscover columnNameDiscover = ColumnNameDiscover.forColumnAnnotation()
-          .and(ColumnNameDiscover.camelCaseToUnderscore());
-
-  public EntityHolder createEntityHolder(Class<?> entityClass) {
-    String tableName = tableNameGenerator.generateTableName(entityClass);
-    if (tableName == null) {
-      throw new IllegalStateException("Cannot determine table name for entity: " + entityClass);
+    @Override
+    protected EntityHolder createValue(Class<?> entityClass, @Nullable EntityHolderFactory entityHolderFactory) {
+      Assert.notNull(entityHolderFactory, "No EntityHolderFactory");
+      return entityHolderFactory.createEntityHolder(entityClass);
     }
+  };
 
-    BeanMetadata metadata = BeanMetadata.from(entityClass);
-    ArrayList<String> columnNames = new ArrayList<>();
-    ArrayList<BeanProperty> beanProperties = new ArrayList<>();
-
-    BeanProperty idProperty = null;
-    for (BeanProperty property : metadata) {
-      if (isFiltered(property)) {
-        continue;
-      }
-
-      String columnName = columnNameDiscover.getColumnName(property);
-      if (columnName == null) {
-        throw new IllegalStateException("Cannot determine column name for property: " + property.getField());
-      }
-
-      columnNames.add(columnName);
-      beanProperties.add(property);
-
-      if (idPropertyDiscover.isIdProperty(property)) {
-        if (idProperty != null) {
-          throw new IllegalStateException("Only one Id property supported, entityClass: " + entityClass);
-        }
-        idProperty = property;
-      }
-    }
-
-    Assert.state(idProperty != null, "Cannot determine ID property");
-    return new EntityHolder(entityClass, idProperty, tableName, beanProperties.toArray(new BeanProperty[0]),
-            StringUtils.toStringArray(columnNames));
+  public EntityHolder getEntityHolder(Class<?> entityClass) {
+    return entityCache.get(entityClass, this);
   }
 
-  private boolean isFiltered(BeanProperty property) {
-    return propertyFilter.isFiltered(property);
-  }
+  /**
+   * create a new EntityHolder instance
+   *
+   * @param entityClass entity class
+   * @return a new EntityHolder
+   */
+  public abstract EntityHolder createEntityHolder(Class<?> entityClass);
 
 }

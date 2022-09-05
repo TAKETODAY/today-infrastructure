@@ -24,6 +24,9 @@ import org.junit.jupiter.api.Test;
 
 import cn.taketoday.jdbc.sql.model.UserModel;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/8/16 22:48
@@ -34,7 +37,11 @@ class EntityManagerTests {
 
   @Test
   void persist() {
-    entityManager.persist(new Object());
+
+    assertThatThrownBy(() ->
+            entityManager.persist(new Object()))
+            .isInstanceOf(IllegalStateException.class)
+            .hasMessageStartingWith("Cannot determine ID property");
 
   }
 

@@ -31,7 +31,7 @@ import cn.taketoday.util.MapCache;
 public class EntityManager {
 
   private SqlGenerator sqlGenerator;
-  private final EntityHolderFactory entityHolderFactory = new EntityHolderFactory();
+  private final EntityHolderFactory entityHolderFactory = new DefaultEntityHolderFactory();
 
   /**
    * persist an entity to underlying repository
@@ -41,9 +41,8 @@ public class EntityManager {
    */
   public void persist(Object entity) {
     Class<?> entityClass = entity.getClass();
-    EntityHolder entityHolder = entityHolders.get(entityClass, entityHolderFactory);
+    EntityHolder entityHolder = entityHolderFactory.getEntityHolder(entityClass);
     String sql = sqlGenerator.generateInsert(entityHolder);
-
 
   }
 
@@ -60,13 +59,6 @@ public class EntityManager {
 
   //
 
-  static final MapCache<Class<?>, EntityHolder, EntityHolderFactory> entityHolders = new MapCache<>() {
 
-    @Override
-    protected EntityHolder createValue(Class<?> entityClass, @Nullable EntityHolderFactory entityHolderFactory) {
-      Assert.notNull(entityHolderFactory, "No EntityHolderFactory");
-      return entityHolderFactory.createEntityHolder(entityClass);
-    }
-  };
 
 }
