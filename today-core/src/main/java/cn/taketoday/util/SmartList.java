@@ -230,6 +230,7 @@ public class SmartList<E> extends AbstractList<E> implements RandomAccess, Array
           System.arraycopy(array, index + 1, array, index, numMoved);
         }
         array[size - 1] = null;
+        break;
     }
     this.size--;
     modCount++;
