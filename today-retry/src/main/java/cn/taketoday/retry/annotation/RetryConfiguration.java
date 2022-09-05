@@ -82,9 +82,6 @@ public class RetryConfiguration extends AbstractPointcutAdvisor
 
   private RetryContextCache retryContextCache;
 
-  @Nullable
-  private List<RetryListener> retryListeners;
-
   private MethodArgumentsKeyGenerator methodArgumentsKeyGenerator;
 
   private NewMethodArgumentsIdentifier newMethodArgumentsIdentifier;
@@ -157,7 +154,7 @@ public class RetryConfiguration extends AbstractPointcutAdvisor
 
   @Override
   public void afterSingletonsInstantiated() {
-    this.retryListeners = findBeans(RetryListener.class);
+    List<RetryListener> retryListeners = findBeans(RetryListener.class);
     if (retryListeners != null) {
       advice.setListeners(retryListeners);
     }
