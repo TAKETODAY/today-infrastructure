@@ -20,9 +20,16 @@
 
 package cn.taketoday.jdbc.sql;
 
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import cn.taketoday.jdbc.Query;
+import cn.taketoday.jdbc.RepositoryManager;
+import cn.taketoday.jdbc.sql.model.Gender;
 import cn.taketoday.jdbc.sql.model.UserModel;
+import cn.taketoday.util.CollectionUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -31,12 +38,35 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/8/16 22:48
  */
-class EntityManagerTests {
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+class EntityManagerTests extends AbstractRepositoryManagerTests {
 
-  EntityManager entityManager = new EntityManager();
+  @Override
+  protected void prepareTestsData(DbType dbType, RepositoryManager repositoryManager) {
+    // language=MySQL
+    try (Query query = repositoryManager.createQuery("""
+            create table t_user
+            (
+                `id`               int auto_increment primary key,
+                `age`              int           default 0    comment 'Age',
+                `name`             varchar(255)  default null comment '用户名',
+                `avatar`           mediumtext    default null comment '头像',
+                `password`         varchar(255)  default null comment '密码',
+                `introduce`        varchar(1000) default null comment '介绍',
+                `email`            varchar(255)  default null comment 'email',
+                `gender`           int           default -1   comment '性别',
+                `mobile_phone`     varchar(36)   default null comment '手机号'
+            );
+            """)) {
 
-  @Test
-  void persist() {
+      query.executeUpdate();
+    }
+
+  }
+
+  @ParameterizedRepositoryManagerTest
+  void exception(RepositoryManager repositoryManager) {
+    EntityManager entityManager = new EntityManager(repositoryManager);
 
     assertThatThrownBy(() ->
             entityManager.persist(new Object()))
@@ -45,12 +75,63 @@ class EntityManagerTests {
 
   }
 
-  @Test
-  void generateInsert() {
-    UserModel entity = new UserModel();
+  @ParameterizedRepositoryManagerTest
+  void persist(RepositoryManager repositoryManager) {
+    EntityManager entityManager = new EntityManager(repositoryManager);
 
-//    String sql = sqlGenerator.generateInsert(entity);
-//    System.out.println(sql);
+    UserModel userModel = new UserModel();
+    userModel.name = "TODAY";
+    userModel.gender = Gender.MALE;
+    userModel.age = 10;
+
+    entityManager.persist(userModel, true);
+
+    assertThat(userModel.id).isNotNull();
+
+    // language=MySQL
+    try (Query query = repositoryManager.createQuery("SELECT * from t_user where id=:id")) {
+      query.addParameter("id", userModel.id);
+      query.setAutoDerivingColumns(true);
+
+      List<UserModel> userModels = query.fetch(UserModel.class);
+      assertThat(userModels).hasSize(1);
+      UserModel userModelInDB = CollectionUtils.firstElement(userModels);
+      assertThat(userModelInDB).isNotNull();
+      assertThat(userModelInDB.age).isEqualTo(userModel.age);
+      assertThat(userModelInDB.name).isEqualTo(userModel.name);
+      assertThat(userModelInDB.gender).isEqualTo(userModel.gender);
+    }
+  }
+
+  @ParameterizedRepositoryManagerTest
+  void batchPersist(RepositoryManager repositoryManager) {
+    EntityManager entityManager = new EntityManager(repositoryManager);
+    entityManager.setMaxBatchRecords(10);
+
+    UserModel userModel = UserModel.male("TODAY", 9);
+
+    List<Object> entities = new ArrayList<>();
+    entities.add(userModel);
+
+    for (int i = 0; i < 10; i++) {
+      entities.add(UserModel.male("TODAY", 10 + i));
+    }
+
+    entityManager.persist(entities);
+
+    // language=MySQL
+    try (Query query = repositoryManager.createQuery("SELECT * from t_user")) {
+      query.setAutoDerivingColumns(true);
+
+      List<UserModel> userModels = query.fetch(UserModel.class);
+      assertThat(userModels).hasSize(11).isEqualTo(entities);
+
+      UserModel userModelInDB = CollectionUtils.firstElement(userModels);
+      assertThat(userModelInDB).isNotNull();
+      assertThat(userModelInDB.age).isEqualTo(userModel.age);
+      assertThat(userModelInDB.name).isEqualTo(userModel.name);
+      assertThat(userModelInDB.gender).isEqualTo(userModel.gender);
+    }
 
   }
 }

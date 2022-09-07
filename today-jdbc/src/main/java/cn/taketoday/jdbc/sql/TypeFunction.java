@@ -20,22 +20,14 @@
 
 package cn.taketoday.jdbc.sql;
 
-import cn.taketoday.jdbc.sql.dialect.Dialect;
+import java.io.Serializable;
+import java.util.function.Function;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @since 4.0 2022/8/16 21:10
+ * @since 4.0 2022/9/6 22:01
  */
-public class SqlGenerator {
-
-  private final Dialect dialect;
-
-  public SqlGenerator(Dialect dialect) {
-    this.dialect = dialect;
-  }
-
-  public String generateInsert(EntityHolder entityHolder) {
-    return dialect.insert(entityHolder);
-  }
+@FunctionalInterface
+public interface TypeFunction<T, R> extends Serializable, Function<T, R> {
 
 }

@@ -20,27 +20,70 @@
 
 package cn.taketoday.jdbc.sql;
 
+import java.util.Arrays;
+import java.util.Objects;
+
 import cn.taketoday.beans.BeanProperty;
+import cn.taketoday.core.style.ToStringBuilder;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/8/16 22:43
  */
 public class EntityHolder {
+  public final String tableName;
 
   public final Class<?> entityClass;
-  public final BeanProperty idProperty;
-  public final String tableName;
+  public final EntityProperty idProperty;
   public final BeanProperty[] beanProperties;
 
   public final String[] columnNames;
+  public final EntityProperty[] entityProperties;
 
-  EntityHolder(Class<?> entityClass, BeanProperty idProperty, String tableName, BeanProperty[] beanProperties, String[] columnNames) {
+//  TODO public final boolean autoGenerateKeys ;
+
+  EntityHolder(Class<?> entityClass, EntityProperty idProperty, String tableName,
+          BeanProperty[] beanProperties, String[] columnNames, EntityProperty[] entityProperties) {
     this.entityClass = entityClass;
     this.idProperty = idProperty;
     this.tableName = tableName;
     this.beanProperties = beanProperties;
     this.columnNames = columnNames;
+    this.entityProperties = entityProperties;
   }
 
+  @Override
+  public String toString() {
+    return ToStringBuilder.from(this)
+            .append("tableName", tableName)
+            .append("columnNames", columnNames)
+            .append("entityClass", entityClass)
+            .append("idProperty", idProperty)
+            .append("beanProperties", beanProperties)
+            .append("entityProperties", entityProperties)
+            .toString();
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o)
+      return true;
+    if (!(o instanceof EntityHolder that))
+      return false;
+    return Objects.equals(tableName, that.tableName)
+            && Objects.equals(idProperty, that.idProperty)
+            && Arrays.equals(columnNames, that.columnNames)
+            && Objects.equals(entityClass, that.entityClass)
+            && Arrays.equals(beanProperties, that.beanProperties)
+            && Arrays.equals(entityProperties, that.entityProperties);
+  }
+
+  @Override
+  public int hashCode() {
+    int result = Objects.hash(tableName, entityClass, idProperty);
+    result = 31 * result + Arrays.hashCode(beanProperties);
+    result = 31 * result + Arrays.hashCode(columnNames);
+    result = 31 * result + Arrays.hashCode(entityProperties);
+    return result;
+  }
 }

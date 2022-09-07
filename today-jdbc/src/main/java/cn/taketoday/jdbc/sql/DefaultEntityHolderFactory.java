@@ -25,6 +25,8 @@ import java.util.Set;
 
 import cn.taketoday.beans.BeanMetadata;
 import cn.taketoday.beans.BeanProperty;
+import cn.taketoday.jdbc.type.TypeHandler;
+import cn.taketoday.jdbc.type.TypeHandlerRegistry;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.StringUtils;
@@ -57,6 +59,8 @@ public class DefaultEntityHolderFactory extends EntityHolderFactory {
 
   private ColumnNameDiscover columnNameDiscover = ColumnNameDiscover.forColumnAnnotation()
           .and(ColumnNameDiscover.camelCaseToUnderscore());
+
+  private TypeHandlerRegistry typeHandlerRegistry = TypeHandlerRegistry.getSharedInstance();
 
   /**
    * set the ColumnNameDiscover to find the column name
@@ -98,6 +102,16 @@ public class DefaultEntityHolderFactory extends EntityHolderFactory {
     this.tableNameGenerator = tableNameGenerator;
   }
 
+  /**
+   * Set the TypeHandlerRegistry to find {@link TypeHandler} for the {@link BeanProperty}
+   *
+   * @param typeHandlerRegistry TypeHandlerRegistry
+   */
+  public void setTypeHandlerRegistry(TypeHandlerRegistry typeHandlerRegistry) {
+    Assert.notNull(typeHandlerRegistry, "typeHandlerRegistry is required");
+    this.typeHandlerRegistry = typeHandlerRegistry;
+  }
+
   @Override
   public EntityHolder createEntityHolder(Class<?> entityClass) {
     String tableName = tableNameGenerator.generateTableName(entityClass);
@@ -108,6 +122,7 @@ public class DefaultEntityHolderFactory extends EntityHolderFactory {
     BeanMetadata metadata = BeanMetadata.from(entityClass);
     ArrayList<String> columnNames = new ArrayList<>();
     ArrayList<BeanProperty> beanProperties = new ArrayList<>();
+    ArrayList<EntityProperty> propertyHandlers = new ArrayList<>();
 
     BeanProperty idProperty = null;
     for (BeanProperty property : metadata) {
@@ -124,6 +139,7 @@ public class DefaultEntityHolderFactory extends EntityHolderFactory {
 
       columnNames.add(columnName);
       beanProperties.add(property);
+      propertyHandlers.add(new EntityProperty(property, typeHandlerRegistry.getTypeHandler(property)));
 
       if (idPropertyDiscover.isIdProperty(property)) {
         if (idProperty != null) {
@@ -136,8 +152,10 @@ public class DefaultEntityHolderFactory extends EntityHolderFactory {
       throw new IllegalStateException("Cannot determine ID property for entity: " + entityClass);
     }
 
-    return new EntityHolder(entityClass, idProperty, tableName, beanProperties.toArray(new BeanProperty[0]),
-            StringUtils.toStringArray(columnNames));
+    return new EntityHolder(entityClass,
+            new EntityProperty(idProperty, typeHandlerRegistry.getTypeHandler(idProperty)),
+            tableName, beanProperties.toArray(new BeanProperty[0]),
+            StringUtils.toStringArray(columnNames), propertyHandlers.toArray(new EntityProperty[0]));
   }
 
   private boolean isFiltered(BeanProperty property) {

@@ -18,24 +18,36 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.jdbc.sql;
+package cn.taketoday.jdbc.sql.model;
 
-import cn.taketoday.jdbc.sql.dialect.Dialect;
+import cn.taketoday.lang.Enumerable;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @since 4.0 2022/8/16 21:10
+ * @since 4.0 2022/9/7 20:05
  */
-public class SqlGenerator {
+public enum Gender implements Enumerable<Integer> {
 
-  private final Dialect dialect;
+  UNKNOWN(-1, "未知"),
+  MALE(1, "男"),
+  FEMALE(0, "女");
 
-  public SqlGenerator(Dialect dialect) {
-    this.dialect = dialect;
+  private final int value;
+  private final String desc;
+
+  Gender(int value, String desc) {
+    this.value = value;
+    this.desc = desc;
   }
 
-  public String generateInsert(EntityHolder entityHolder) {
-    return dialect.insert(entityHolder);
+  @Override
+  public Integer getValue() {
+    return value;
+  }
+
+  @Override
+  public String getDescription() {
+    return desc;
   }
 
 }

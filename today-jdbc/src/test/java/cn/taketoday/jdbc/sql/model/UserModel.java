@@ -20,6 +20,9 @@
 
 package cn.taketoday.jdbc.sql.model;
 
+import java.util.Objects;
+
+import cn.taketoday.core.style.ToStringBuilder;
 import cn.taketoday.jdbc.sql.Id;
 import cn.taketoday.jdbc.sql.Table;
 
@@ -33,10 +36,68 @@ public class UserModel {
   @Id
   public Integer id;
 
-  public Short age;
+  public int age;
 
   public String name;
+  public String avatar;
+  public String password;
+  public String introduce;
+  public String mobilePhone;
   public String email;
-  public String gender;
+
+  public Gender gender;
+
+  public UserModel() { }
+
+  public UserModel(String name, Gender gender, int age) {
+    this.age = age;
+    this.name = name;
+    this.gender = gender;
+  }
+
+  public static UserModel male(String name, int age) {
+    UserModel userModel = new UserModel();
+    userModel.name = name;
+    userModel.gender = Gender.MALE;
+    userModel.age = age;
+    return userModel;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o)
+      return true;
+    if (!(o instanceof UserModel userModel))
+      return false;
+    return age == userModel.age
+            && gender == userModel.gender
+            && Objects.equals(id, userModel.id)
+            && Objects.equals(name, userModel.name)
+            && Objects.equals(email, userModel.email)
+            && Objects.equals(avatar, userModel.avatar)
+            && Objects.equals(password, userModel.password)
+            && Objects.equals(introduce, userModel.introduce)
+            && Objects.equals(mobilePhone, userModel.mobilePhone);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(id, age, name, avatar, password, introduce, mobilePhone, email, gender);
+  }
+
+  @Override
+  public String toString() {
+    return ToStringBuilder.from(this)
+            .append("id", id)
+            .append("age", age)
+            .append("name", name)
+            .append("avatar", avatar)
+            .append("password", password)
+            .append("introduce", introduce)
+            .append("mobilePhone", mobilePhone)
+            .append("email", email)
+            .append("gender", gender)
+            .toString();
+  }
 
 }
