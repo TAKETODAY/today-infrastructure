@@ -25,6 +25,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import cn.taketoday.core.TypeReference;
+import cn.taketoday.lang.Nullable;
 
 /**
  * The base {@link TypeHandler} for references a generic type.
@@ -43,7 +44,7 @@ public abstract class BaseTypeHandler<T>
         extends TypeReference<T> implements TypeHandler<T> {
 
   @Override
-  public void setParameter(PreparedStatement ps, int parameterIndex, T parameter) throws SQLException {
+  public void setParameter(PreparedStatement ps, int parameterIndex, @Nullable T parameter) throws SQLException {
     if (parameter == null) {
       setNullParameter(ps, parameterIndex);
     }

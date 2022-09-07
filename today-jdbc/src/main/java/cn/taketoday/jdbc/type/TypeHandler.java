@@ -32,7 +32,7 @@ import cn.taketoday.lang.Nullable;
  */
 public interface TypeHandler<T> {
 
-  void setParameter(PreparedStatement ps, int parameterIndex, T parameter) throws SQLException;
+  void setParameter(PreparedStatement ps, int parameterIndex, @Nullable T parameter) throws SQLException;
 
   /**
    * Gets the result.
