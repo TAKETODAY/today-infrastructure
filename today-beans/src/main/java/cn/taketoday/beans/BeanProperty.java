@@ -98,6 +98,12 @@ public sealed class BeanProperty extends Property
     return constructor.instantiate(args);
   }
 
+  /**
+   * get property of this {@code object}
+   *
+   * @param object object
+   * @return property value
+   */
   public Object getValue(Object object) {
     return obtainAccessor().get(object);
   }

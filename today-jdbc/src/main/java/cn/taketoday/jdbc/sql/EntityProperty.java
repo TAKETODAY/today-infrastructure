@@ -44,6 +44,12 @@ public class EntityProperty {
     this.typeHandler = typeHandler;
   }
 
+  /**
+   * get property of this {@code entity}
+   *
+   * @param entity entity object
+   * @return property value
+   */
   public Object getValue(Object entity) {
     return property.getValue(entity);
   }
@@ -52,6 +58,17 @@ public class EntityProperty {
     property.setDirectly(entity, propertyValue);
   }
 
+  /**
+   * Set property-value of input {@code entity} to {@link PreparedStatement}
+   *
+   * @param ps PreparedStatement
+   * @param parameterIndex index of SQL parameter
+   * @param entity java entity object
+   * @throws SQLException if parameterIndex does not correspond to a parameter
+   * marker in the SQL statement; if a database access error occurs;
+   * this method is called on a closed {@code PreparedStatement}
+   * or the type of the given object is ambiguous
+   */
   public void setTo(PreparedStatement ps, int parameterIndex, Object entity) throws SQLException {
     Object propertyValue = property.getValue(entity);
     typeHandler.setParameter(ps, parameterIndex, propertyValue);
