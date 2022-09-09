@@ -34,6 +34,7 @@ public class EntityMetadata {
   public final String tableName;
 
   public final Class<?> entityClass;
+  public final String idColumnName;
   public final EntityProperty idProperty;
   public final BeanProperty[] beanProperties;
 
@@ -42,9 +43,10 @@ public class EntityMetadata {
 
 //  TODO public final boolean autoGenerateKeys ;
 
-  EntityMetadata(Class<?> entityClass, EntityProperty idProperty, String tableName,
+  EntityMetadata(Class<?> entityClass, String idColumnName, EntityProperty idProperty, String tableName,
           BeanProperty[] beanProperties, String[] columnNames, EntityProperty[] entityProperties) {
     this.entityClass = entityClass;
+    this.idColumnName = idColumnName;
     this.idProperty = idProperty;
     this.tableName = tableName;
     this.beanProperties = beanProperties;

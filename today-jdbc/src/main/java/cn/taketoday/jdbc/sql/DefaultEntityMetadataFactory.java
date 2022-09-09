@@ -125,6 +125,7 @@ public class DefaultEntityMetadataFactory extends EntityMetadataFactory {
     ArrayList<EntityProperty> propertyHandlers = new ArrayList<>();
 
     BeanProperty idProperty = null;
+    String idColumnName = null;
     for (BeanProperty property : metadata) {
       if (isFiltered(property)) {
         continue;
@@ -139,13 +140,14 @@ public class DefaultEntityMetadataFactory extends EntityMetadataFactory {
 
       columnNames.add(columnName);
       beanProperties.add(property);
-      propertyHandlers.add(new EntityProperty(property, typeHandlerRegistry.getTypeHandler(property)));
+      propertyHandlers.add(new EntityProperty(property, columnName, typeHandlerRegistry.getTypeHandler(property)));
 
       if (idPropertyDiscover.isIdProperty(property)) {
         if (idProperty != null) {
           throw new IllegalStateException("Only one Id property supported, entity: " + entityClass);
         }
         idProperty = property;
+        idColumnName = columnName;
       }
     }
     if (idProperty == null) {
@@ -153,7 +155,7 @@ public class DefaultEntityMetadataFactory extends EntityMetadataFactory {
     }
 
     return new EntityMetadata(entityClass,
-            new EntityProperty(idProperty, typeHandlerRegistry.getTypeHandler(idProperty)),
+            idColumnName, new EntityProperty(idProperty, idColumnName, typeHandlerRegistry.getTypeHandler(idProperty)),
             tableName, beanProperties.toArray(new BeanProperty[0]),
             StringUtils.toStringArray(columnNames), propertyHandlers.toArray(new EntityProperty[0]));
   }
