@@ -32,11 +32,9 @@ import cn.taketoday.jdbc.CannotGetJdbcConnectionException;
 import cn.taketoday.jdbc.GeneratedKeysException;
 import cn.taketoday.jdbc.PersistenceException;
 import cn.taketoday.jdbc.RepositoryManager;
-import cn.taketoday.jdbc.sql.dialect.MySQLDialect;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
-import cn.taketoday.util.ExceptionUtils;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
@@ -45,7 +43,6 @@ import cn.taketoday.util.ExceptionUtils;
 public class EntityManager {
   private final Logger logger = LoggerFactory.getLogger(getClass());
 
-  private SqlGenerator sqlGenerator = new SqlGenerator(new MySQLDialect());
   private EntityHolderFactory entityHolderFactory = new DefaultEntityHolderFactory();
 
   private final RepositoryManager repositoryManager;
@@ -121,7 +118,7 @@ public class EntityManager {
   public void persist(Object entity, boolean returnGeneratedKeys) {
     Class<?> entityClass = entity.getClass();
     EntityHolder entityHolder = entityHolderFactory.getEntityHolder(entityClass);
-    String sql = sqlGenerator.generateInsert(entityHolder);
+    String sql = insert(entityHolder);
 
     if (logger.isDebugEnabled()) {
       logger.debug("Persist entity: {} using SQL: [{}] , generatedKeys={}", entity, sql, returnGeneratedKeys);
@@ -199,7 +196,7 @@ public class EntityManager {
     for (Object entity : entities) {
       PreparedBatch batch = statements.computeIfAbsent(entity.getClass(), entityClass -> {
         EntityHolder entityHolder = entityHolderFactory.getEntityHolder(entityClass);
-        String sql = sqlGenerator.generateInsert(entityHolder);
+        String sql = insert(entityHolder);
         return new PreparedBatch(prepareStatement(connection, sql, returnGeneratedKeys), entityHolder, returnGeneratedKeys);
       });
 
@@ -292,5 +289,23 @@ public class EntityManager {
   }
 
   //
+  static String insert(EntityHolder entityHolder) {
+    StringBuilder sql = new StringBuilder();
+    sql.append("INSERT INTO ").append(entityHolder.tableName);
+
+    StringBuilder columnNamesBuf = new StringBuilder();
+    StringBuilder placeholderBuf = new StringBuilder();
+
+    for (String columName : entityHolder.columnNames) {
+      columnNamesBuf.append(", `").append(columName).append('`');
+      placeholderBuf.append(", ?");
+    }
+
+    if (columnNamesBuf.length() > 0) {
+      sql.append("(").append(columnNamesBuf.substring(2)).append(")");
+      sql.append(" VALUES (").append(placeholderBuf.substring(2)).append(")");
+    }
+    return sql.toString();
+  }
 
 }
