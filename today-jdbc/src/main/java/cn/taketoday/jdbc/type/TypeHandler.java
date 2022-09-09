@@ -32,6 +32,43 @@ import cn.taketoday.lang.Nullable;
  */
 public interface TypeHandler<T> {
 
+  /**
+   * <p>Sets the value of the designated parameter using the given object.
+   *
+   * <p>The JDBC specification specifies a standard mapping from
+   * Java {@code Object} types to SQL types.  The given argument
+   * will be converted to the corresponding SQL type before being
+   * sent to the database.
+   *
+   * <p>Note that this method may be used to pass database-
+   * specific abstract data types, by using a driver-specific Java
+   * type.
+   *
+   * If the object is of a class implementing the interface {@code SQLData},
+   * the JDBC driver should call the method {@code SQLData.writeSQL}
+   * to write it to the SQL data stream.
+   * If, on the other hand, the object is of a class implementing
+   * {@code Ref}, {@code Blob}, {@code Clob},  {@code NClob},
+   * {@code Struct}, {@code java.net.URL}, {@code RowId}, {@code SQLXML}
+   * or {@code Array}, the driver should pass it to the database as a
+   * value of the corresponding SQL type.
+   * <P>
+   * <b>Note:</b> Not all databases allow for a non-typed Null to be sent to
+   * the backend. For maximum portability, the {@code setNull} or the
+   * {@code setObject(int parameterIndex, Object x, int sqlType)}
+   * method should be used
+   * instead of {@code setObject(int parameterIndex, Object x)}.
+   * <p>
+   * <b>Note:</b> This method throws an exception if there is an ambiguity, for example, if the
+   * object is of a class implementing more than one of the interfaces named above.
+   *
+   * @param parameterIndex the first parameter is 1, the second is 2, ...
+   * @param parameter the object containing the input parameter value
+   * @throws SQLException if parameterIndex does not correspond to a parameter
+   * marker in the SQL statement; if a database access error occurs;
+   * this method is called on a closed {@code PreparedStatement}
+   * or the type of the given object is ambiguous
+   */
   void setParameter(PreparedStatement ps, int parameterIndex, @Nullable T parameter) throws SQLException;
 
   /**
