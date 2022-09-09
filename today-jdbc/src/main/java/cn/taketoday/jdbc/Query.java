@@ -93,6 +93,9 @@ public final class Query implements AutoCloseable {
 
   private boolean hasArrayParameter = false;
 
+  @Nullable
+  private StatementCallback statementCallback;
+
   public Query(JdbcConnection connection, String queryText, boolean generatedKeys) {
     this(connection, queryText, generatedKeys, null);
   }
@@ -358,6 +361,10 @@ public final class Query implements AutoCloseable {
     return this;
   }
 
+  public void processStatement(StatementCallback callback) {
+    statementCallback = callback;
+  }
+
   @Override
   public void close() {
     PreparedStatement prepared = this.preparedStatement;
@@ -416,6 +423,11 @@ public final class Query implements AutoCloseable {
                 "Error binding parameter '" + parameter.getName() + "' - " + e.getMessage(), e);
       }
     }
+
+    if (statementCallback != null) {
+      statementCallback.doWith(statement);
+    }
+
     // the parameters need to be cleared, so in case of batch,
     // only new parameters will be added
 //    parameters.clear(); TODO clear queryParameters setter
