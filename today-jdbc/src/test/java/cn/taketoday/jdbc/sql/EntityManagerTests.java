@@ -20,8 +20,14 @@
 
 package cn.taketoday.jdbc.sql;
 
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,6 +35,8 @@ import cn.taketoday.jdbc.Query;
 import cn.taketoday.jdbc.RepositoryManager;
 import cn.taketoday.jdbc.sql.model.Gender;
 import cn.taketoday.jdbc.sql.model.UserModel;
+import cn.taketoday.lang.Constant;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -134,4 +142,68 @@ class EntityManagerTests extends AbstractRepositoryManagerTests {
     }
 
   }
+
+  // find
+
+  @Retention(RetentionPolicy.RUNTIME)
+  @Target({ ElementType.METHOD, ElementType.FIELD })
+  public @interface HasText {
+
+  }
+
+  static class UserForm {
+
+    @Id
+    @Column("id")
+    @Nullable
+    Integer userId;
+
+    @Nullable
+    @QueryCondition(expression = "#root.name != null", render = "like %#{name}%")
+    String name;
+
+    @Nullable
+    @QueryCondition(expression = "#root.name != null", render = "=#{age}")
+    Integer age;
+
+    @QueryCondition(expression = "#root.name != null", render = "> #{birthdayBegin}")
+    LocalDate birthdayBegin;
+
+    @QueryCondition(expression = "#root.birthdayEnd != null", render = "< #{birthdayEnd}")
+    LocalDate birthdayEnd;
+
+  }
+
+  @ParameterizedRepositoryManagerTest
+  void findByQuery(RepositoryManager repositoryManager) {
+    EntityManager entityManager = new EntityManager(repositoryManager);
+    UserForm userForm = new UserForm();
+    userForm.age = 10;
+
+    UserModel userModel = UserModel.male("TODAY", 9);
+
+    List<Object> entities = new ArrayList<>();
+    entities.add(userModel);
+
+    for (int i = 0; i < 10; i++) {
+      entities.add(UserModel.male("TODAY", 10 + i));
+    }
+
+    entityManager.persist(entities);
+
+    List<UserModel> list = entityManager.find(UserModel.class, userForm);
+
+    System.out.println(list);
+
+    userForm = new UserForm();
+    userForm.name = "TODAY";
+
+    list = entityManager.find(UserModel.class, userForm);
+    System.out.println(list);
+
+    assertThat(list).hasSize(entities.size()).isEqualTo(entities);
+
+    entityManager.iterate(UserModel.class, userForm, System.out::println);
+  }
+
 }

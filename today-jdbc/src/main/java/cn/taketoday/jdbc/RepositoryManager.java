@@ -647,8 +647,8 @@ public class RepositoryManager {
    * @throws IllegalArgumentException if instance is not an
    * entity or is a removed entity
    */
-  public void merge(Object entity) {
-    entityManager.merge(entity);
+  public void update(Object entity) {
+    entityManager.update(entity);
   }
 
   //

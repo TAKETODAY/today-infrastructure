@@ -27,12 +27,21 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.function.Consumer;
 
 import cn.taketoday.dao.DataAccessException;
 import cn.taketoday.jdbc.CannotGetJdbcConnectionException;
 import cn.taketoday.jdbc.GeneratedKeysException;
 import cn.taketoday.jdbc.PersistenceException;
 import cn.taketoday.jdbc.RepositoryManager;
+import cn.taketoday.jdbc.result.DefaultResultSetHandlerFactory;
+import cn.taketoday.jdbc.result.JdbcBeanMetadata;
+import cn.taketoday.jdbc.result.ResultSetHandlerIterator;
+import cn.taketoday.jdbc.sql.dialect.Dialect;
+import cn.taketoday.jdbc.sql.dialect.MySQLDialect;
+import cn.taketoday.jdbc.type.TypeHandler;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
@@ -51,6 +60,8 @@ public class EntityManager {
 
   private int maxBatchRecords = 0;
 
+  private Dialect dialect = new MySQLDialect();
+
   /**
    * a flag indicating whether auto-generated keys should be returned;
    */
@@ -58,6 +69,11 @@ public class EntityManager {
 
   public EntityManager(RepositoryManager repositoryManager) {
     this.repositoryManager = repositoryManager;
+  }
+
+  public void setDialect(Dialect dialect) {
+    Assert.notNull(dialect, "dialect is required");
+    this.dialect = dialect;
   }
 
   public void setEntityHolderFactory(EntityMetadataFactory entityMetadataFactory) {
@@ -319,19 +335,100 @@ public class EntityManager {
    */
   @Nullable
   public <T> T findById(Class<T> entityClass, Object id) throws DataAccessException {
-
     return null;
   }
 
-  public <T> T find(T entity) throws DataAccessException {
-
+  public <T> T findFirst(T entity) throws DataAccessException {
     return null;
   }
 
-  public <T> T find(Class<T> entityClass, Object exampleEntity) throws DataAccessException {
-    EntityMetadata entityMetadata = entityMetadataFactory.getEntityMetadata(entityClass);
-
+  public <T> List<T> findFirst(Class<T> entityClass, Object query) throws DataAccessException {
     return null;
+  }
+
+  public <T> List<T> find(T entity) throws DataAccessException {
+    return null;
+  }
+
+  public <T> List<T> find(Class<T> entityClass, Object params) throws DataAccessException {
+    ArrayList<T> entities = new ArrayList<>();
+    Iterator<T> iterator = iterate(entityClass, params);
+    while (iterator.hasNext()) {
+      entities.add(iterator.next());
+    }
+    return entities;
+  }
+
+  public <T> void iterate(Class<T> entityClass, Object params, Consumer<T> entityConsumer) throws DataAccessException {
+    Iterator<T> iterator = iterate(entityClass, params);
+    while (iterator.hasNext()) {
+      entityConsumer.accept(iterator.next());
+    }
+  }
+
+  public <T> Iterator<T> iterate(Class<T> entityClass, Object params) throws DataAccessException {
+    EntityMetadata metadata = entityMetadataFactory.getEntityMetadata(entityClass);
+    EntityMetadata queryMetadata = entityMetadataFactory.getEntityMetadata(params.getClass());
+
+    StringBuilder sql = new StringBuilder();
+    sql.append("SELECT * FROM ");
+    sql.append(metadata.tableName);
+    sql.append(" WHERE ");
+
+    StringBuilder columnNamesBuf = new StringBuilder();
+
+    class Condition {
+      final Object propertyValue;
+      final TypeHandler<Object> typeHandler;
+
+      Condition(TypeHandler<Object> typeHandler, Object propertyValue) {
+        this.typeHandler = typeHandler;
+        this.propertyValue = propertyValue;
+      }
+    }
+
+    List<Condition> conditions = new ArrayList<>();
+    for (EntityProperty entityProperty : queryMetadata.entityProperties) {
+      Object propertyValue = entityProperty.getValue(params);
+      if (propertyValue != null) {
+        // TODO 当前只实现了判断null条件，可以扩展出去让用户做选择
+        columnNamesBuf.append(", `")
+                .append(entityProperty.columnName)
+                .append('`')
+                .append(" = ?");
+
+        conditions.add(new Condition(entityProperty.typeHandler, propertyValue));
+      }
+    }
+
+    if (columnNamesBuf.length() > 0) {
+      sql.append(columnNamesBuf.substring(2));
+    }
+
+    if (logger.isDebugEnabled()) {
+      logger.debug("lookup entity using SQL: [{}] , queryObject: {}", sql, params);
+    }
+
+    Connection connection = getConnection();
+    PreparedStatement statement = prepareStatement(connection, sql.toString(), false);
+    try {
+      int idx = 1;
+      for (Condition condition : conditions) {
+        condition.typeHandler.setParameter(statement, idx++, condition.propertyValue);
+      }
+    }
+    catch (SQLException ex) {
+      throw new PersistenceException("Error in setParameter, " + ex.getMessage(), ex);
+    }
+    try {
+      ResultSet resultSet = statement.executeQuery();
+      return new ResultSetHandlerIterator<>(resultSet, new DefaultResultSetHandlerFactory<>(
+              new JdbcBeanMetadata(entityClass, repositoryManager.isDefaultCaseSensitive(), true, true),
+              repositoryManager, null));
+    }
+    catch (SQLException ex) {
+      throw new PersistenceException("Error in fetch entity, " + ex.getMessage(), ex);
+    }
   }
 
   //
