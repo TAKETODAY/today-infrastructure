@@ -28,11 +28,13 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import cn.taketoday.dao.DataAccessException;
 import cn.taketoday.jdbc.CannotGetJdbcConnectionException;
 import cn.taketoday.jdbc.GeneratedKeysException;
 import cn.taketoday.jdbc.PersistenceException;
 import cn.taketoday.jdbc.RepositoryManager;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 
@@ -43,7 +45,7 @@ import cn.taketoday.logging.LoggerFactory;
 public class EntityManager {
   private final Logger logger = LoggerFactory.getLogger(getClass());
 
-  private EntityHolderFactory entityHolderFactory = new DefaultEntityHolderFactory();
+  private EntityMetadataFactory entityMetadataFactory = new DefaultEntityMetadataFactory();
 
   private final RepositoryManager repositoryManager;
 
@@ -58,9 +60,9 @@ public class EntityManager {
     this.repositoryManager = repositoryManager;
   }
 
-  public void setEntityHolderFactory(EntityHolderFactory entityHolderFactory) {
-    Assert.notNull(entityHolderFactory, "entityHolderFactory is required");
-    this.entityHolderFactory = entityHolderFactory;
+  public void setEntityHolderFactory(EntityMetadataFactory entityMetadataFactory) {
+    Assert.notNull(entityMetadataFactory, "entityMetadataFactory is required");
+    this.entityMetadataFactory = entityMetadataFactory;
   }
 
   /**
@@ -103,7 +105,7 @@ public class EntityManager {
    * @param entity entity instance
    * @throws IllegalArgumentException if the instance is not an entity
    */
-  public void persist(Object entity) {
+  public void persist(Object entity) throws DataAccessException {
     persist(entity, returnGeneratedKeys);
   }
 
@@ -115,10 +117,10 @@ public class EntityManager {
    * @see PreparedStatement
    * @see Connection#prepareStatement(String, int)
    */
-  public void persist(Object entity, boolean returnGeneratedKeys) {
+  public void persist(Object entity, boolean returnGeneratedKeys) throws DataAccessException {
     Class<?> entityClass = entity.getClass();
-    EntityHolder entityHolder = entityHolderFactory.getEntityHolder(entityClass);
-    String sql = insert(entityHolder);
+    EntityMetadata entityMetadata = entityMetadataFactory.getEntityHolder(entityClass);
+    String sql = insert(entityMetadata);
 
     if (logger.isDebugEnabled()) {
       logger.debug("Persist entity: {} using SQL: [{}] , generatedKeys={}", entity, sql, returnGeneratedKeys);
@@ -128,7 +130,7 @@ public class EntityManager {
     PreparedStatement statement = prepareStatement(connection, sql, returnGeneratedKeys);
 
     try {
-      setPersistParameter(entity, statement, entityHolder);
+      setPersistParameter(entity, statement, entityMetadata);
 
       // execute
       int updateCount = statement.executeUpdate();
@@ -138,7 +140,7 @@ public class EntityManager {
         try {
           ResultSet generatedKeys = statement.getGeneratedKeys();
           if (generatedKeys.next()) {
-            entityHolder.idProperty.setProperty(entity, generatedKeys, 1);
+            entityMetadata.idProperty.setProperty(entity, generatedKeys, 1);
           }
         }
         catch (SQLException e) {
@@ -184,20 +186,20 @@ public class EntityManager {
    *
    * @param entities entities instances
    */
-  public void persist(Iterable<Object> entities) {
+  public void persist(Iterable<Object> entities) throws DataAccessException {
     persist(entities, returnGeneratedKeys);
   }
 
-  public void persist(Iterable<Object> entities, boolean returnGeneratedKeys) {
+  public void persist(Iterable<Object> entities, boolean returnGeneratedKeys) throws DataAccessException {
     Connection connection = getConnection();
     int maxBatchRecords = getMaxBatchRecords();
     var statements = new HashMap<Class<?>, PreparedBatch>();
 
     for (Object entity : entities) {
       PreparedBatch batch = statements.computeIfAbsent(entity.getClass(), entityClass -> {
-        EntityHolder entityHolder = entityHolderFactory.getEntityHolder(entityClass);
-        String sql = insert(entityHolder);
-        return new PreparedBatch(prepareStatement(connection, sql, returnGeneratedKeys), entityHolder, returnGeneratedKeys);
+        EntityMetadata entityMetadata = entityMetadataFactory.getEntityHolder(entityClass);
+        String sql = insert(entityMetadata);
+        return new PreparedBatch(prepareStatement(connection, sql, returnGeneratedKeys), entityMetadata, returnGeneratedKeys);
       });
 
       batch.addBatchUpdate(entity, maxBatchRecords);
@@ -209,24 +211,24 @@ public class EntityManager {
 
   }
 
-  private static void setPersistParameter(Object entity, PreparedStatement statement, EntityHolder entityHolder) throws SQLException {
+  private static void setPersistParameter(Object entity, PreparedStatement statement, EntityMetadata entityMetadata) throws SQLException {
     int idx = 1;
-    for (EntityProperty property : entityHolder.entityProperties) {
+    for (EntityProperty property : entityMetadata.entityProperties) {
       property.setTo(statement, idx++, entity);
     }
   }
 
   static class PreparedBatch {
     public int currentBatchRecords = 0;
-    public final EntityHolder entityHolder;
+    public final EntityMetadata entityMetadata;
     public final PreparedStatement statement;
     final ArrayList<Object> entities = new ArrayList<>();
 
     public final boolean returnGeneratedKeys;
 
-    PreparedBatch(PreparedStatement statement, EntityHolder entityHolder, boolean returnGeneratedKeys) {
+    PreparedBatch(PreparedStatement statement, EntityMetadata entityMetadata, boolean returnGeneratedKeys) {
       this.statement = statement;
-      this.entityHolder = entityHolder;
+      this.entityMetadata = entityMetadata;
       this.returnGeneratedKeys = returnGeneratedKeys;
     }
 
@@ -235,7 +237,7 @@ public class EntityManager {
       PreparedStatement statement = this.statement;
 
       try {
-        setPersistParameter(entity, statement, entityHolder);
+        setPersistParameter(entity, statement, entityMetadata);
 
         statement.addBatch();
         if (maxBatchRecords > 0 && ++currentBatchRecords % maxBatchRecords == 0) {
@@ -260,7 +262,7 @@ public class EntityManager {
           for (Object entity : entities) {
             try {
               if (generatedKeys.next()) {
-                entityHolder.idProperty.setProperty(entity, generatedKeys, 1);
+                entityMetadata.idProperty.setProperty(entity, generatedKeys, 1);
               }
             }
             catch (SQLException e) {
@@ -284,19 +286,63 @@ public class EntityManager {
    * @throws IllegalArgumentException if instance is not an
    * entity or is a removed entity
    */
-  public void merge(Object entity) {
+  public void update(Object entity) {
 
   }
 
+  public void updateById(Object entity) {
+
+  }
+
+  public void delete(Class<?> entityClass, Object id) {
+
+  }
+
+  public void delete(Object entity) {
+
+  }
+
+  /**
+   * Find by primary key.
+   * Search for an entity of the specified class and primary key.
+   * If the entity instance is contained in the underlying repository,
+   * it is returned from there.
+   *
+   * @param entityClass entity class
+   * @param id primary key
+   * @return the found entity instance or null if the entity does
+   * not exist
+   * @throws IllegalArgumentException if the first argument does
+   * not denote an entity type or the second argument is
+   * is not a valid type for that entity's primary key or
+   * is null
+   */
+  @Nullable
+  public <T> T findById(Class<T> entityClass, Object id) throws DataAccessException {
+
+    return null;
+  }
+
+  public <T> T find(T entity) throws DataAccessException {
+
+    return null;
+  }
+
+  public <T> T find(Class<T> entityClass, Object exampleEntity) throws DataAccessException {
+    EntityMetadata entityMetadata = entityMetadataFactory.getEntityHolder(entityClass);
+
+    return null;
+  }
+
   //
-  static String insert(EntityHolder entityHolder) {
+  static String insert(EntityMetadata entityMetadata) {
     StringBuilder sql = new StringBuilder();
-    sql.append("INSERT INTO ").append(entityHolder.tableName);
+    sql.append("INSERT INTO ").append(entityMetadata.tableName);
 
     StringBuilder columnNamesBuf = new StringBuilder();
     StringBuilder placeholderBuf = new StringBuilder();
 
-    for (String columName : entityHolder.columnNames) {
+    for (String columName : entityMetadata.columnNames) {
       columnNamesBuf.append(", `").append(columName).append('`');
       placeholderBuf.append(", ?");
     }

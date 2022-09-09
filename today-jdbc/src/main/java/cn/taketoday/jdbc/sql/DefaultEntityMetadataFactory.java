@@ -47,7 +47,7 @@ import cn.taketoday.util.StringUtils;
  * @see ColumnNameDiscover
  * @since 4.0 2022/9/5 11:38
  */
-public class DefaultEntityHolderFactory extends EntityHolderFactory {
+public class DefaultEntityMetadataFactory extends EntityMetadataFactory {
 
   private PropertyFilter propertyFilter = PropertyFilter.filteredNames(Set.of("class"));
 
@@ -113,7 +113,7 @@ public class DefaultEntityHolderFactory extends EntityHolderFactory {
   }
 
   @Override
-  public EntityHolder createEntityHolder(Class<?> entityClass) {
+  public EntityMetadata createEntityHolder(Class<?> entityClass) {
     String tableName = tableNameGenerator.generateTableName(entityClass);
     if (tableName == null) {
       throw new IllegalStateException("Cannot determine table name for entity: " + entityClass);
@@ -152,7 +152,7 @@ public class DefaultEntityHolderFactory extends EntityHolderFactory {
       throw new IllegalStateException("Cannot determine ID property for entity: " + entityClass);
     }
 
-    return new EntityHolder(entityClass,
+    return new EntityMetadata(entityClass,
             new EntityProperty(idProperty, typeHandlerRegistry.getTypeHandler(idProperty)),
             tableName, beanProperties.toArray(new BeanProperty[0]),
             StringUtils.toStringArray(columnNames), propertyHandlers.toArray(new EntityProperty[0]));

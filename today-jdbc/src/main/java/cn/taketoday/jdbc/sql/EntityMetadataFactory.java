@@ -25,23 +25,23 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.MapCache;
 
 /**
- * EntityHolder Factory
+ * {@link EntityMetadata} Factory
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/8/16 23:28
  */
-public abstract class EntityHolderFactory {
+public abstract class EntityMetadataFactory {
 
-  final MapCache<Class<?>, EntityHolder, EntityHolderFactory> entityCache = new MapCache<>() {
+  final MapCache<Class<?>, EntityMetadata, EntityMetadataFactory> entityCache = new MapCache<>() {
 
     @Override
-    protected EntityHolder createValue(Class<?> entityClass, @Nullable EntityHolderFactory entityHolderFactory) {
-      Assert.notNull(entityHolderFactory, "No EntityHolderFactory");
-      return entityHolderFactory.createEntityHolder(entityClass);
+    protected EntityMetadata createValue(Class<?> entityClass, @Nullable EntityMetadataFactory entityMetadataFactory) {
+      Assert.notNull(entityMetadataFactory, "No EntityHolderFactory");
+      return entityMetadataFactory.createEntityHolder(entityClass);
     }
   };
 
-  public EntityHolder getEntityHolder(Class<?> entityClass) {
+  public EntityMetadata getEntityHolder(Class<?> entityClass) {
     return entityCache.get(entityClass, this);
   }
 
@@ -51,6 +51,6 @@ public abstract class EntityHolderFactory {
    * @param entityClass entity class
    * @return a new EntityHolder
    */
-  public abstract EntityHolder createEntityHolder(Class<?> entityClass);
+  public abstract EntityMetadata createEntityHolder(Class<?> entityClass);
 
 }

@@ -35,13 +35,13 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/8/18 16:55
  */
-class DefaultEntityHolderFactoryTests {
-  DefaultEntityHolderFactory factory = new DefaultEntityHolderFactory();
+class DefaultEntityMetadataFactoryTests {
+  DefaultEntityMetadataFactory factory = new DefaultEntityMetadataFactory();
 
   @Test
   void defaultState() {
-    EntityHolder entityHolder = factory.createEntityHolder(UserModel.class);
-    assertThat(entityHolder).isNotNull();
+    EntityMetadata entityMetadata = factory.createEntityHolder(UserModel.class);
+    assertThat(entityMetadata).isNotNull();
     assertThatThrownBy(() ->
             factory.createEntityHolder(Object.class))
             .isInstanceOf(IllegalStateException.class)
@@ -95,8 +95,8 @@ class DefaultEntityHolderFactoryTests {
       private Long id;
     }
 
-    EntityHolder entityHolder = factory.createEntityHolder(OverrideId.class);
-    assertThat(entityHolder.idProperty)
+    EntityMetadata entityMetadata = factory.createEntityHolder(OverrideId.class);
+    assertThat(entityMetadata.idProperty)
             .isEqualTo(BeanProperty.valueOf(OverrideId.class, "id"));
 
   }
@@ -111,21 +111,21 @@ class DefaultEntityHolderFactoryTests {
 
     //default
 
-    EntityHolder entityHolder = factory.createEntityHolder(IdDiscover.class);
-    assertThat(entityHolder.idProperty)
+    EntityMetadata entityMetadata = factory.createEntityHolder(IdDiscover.class);
+    assertThat(entityMetadata.idProperty)
             .isEqualTo(BeanProperty.valueOf(IdDiscover.class, "id"));
 
     factory.setIdPropertyDiscover(IdPropertyDiscover.forPropertyName("id_"));
 
-    entityHolder = factory.createEntityHolder(IdDiscover.class);
-    assertThat(entityHolder.idProperty)
+    entityMetadata = factory.createEntityHolder(IdDiscover.class);
+    assertThat(entityMetadata.idProperty)
             .isEqualTo(BeanProperty.valueOf(IdDiscover.class, "id_"));
   }
 
   @Test
   void getEntityHolder() {
-    EntityHolder entityHolder = factory.getEntityHolder(UserModel.class);
-    assertThat(factory.entityCache.get(UserModel.class)).isEqualTo(entityHolder);
+    EntityMetadata entityMetadata = factory.getEntityHolder(UserModel.class);
+    assertThat(factory.entityCache.get(UserModel.class)).isEqualTo(entityMetadata);
 
   }
 

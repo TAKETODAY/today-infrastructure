@@ -30,7 +30,7 @@ import cn.taketoday.core.style.ToStringBuilder;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/8/16 22:43
  */
-public class EntityHolder {
+public class EntityMetadata {
   public final String tableName;
 
   public final Class<?> entityClass;
@@ -42,7 +42,7 @@ public class EntityHolder {
 
 //  TODO public final boolean autoGenerateKeys ;
 
-  EntityHolder(Class<?> entityClass, EntityProperty idProperty, String tableName,
+  EntityMetadata(Class<?> entityClass, EntityProperty idProperty, String tableName,
           BeanProperty[] beanProperties, String[] columnNames, EntityProperty[] entityProperties) {
     this.entityClass = entityClass;
     this.idProperty = idProperty;
@@ -68,7 +68,7 @@ public class EntityHolder {
   public boolean equals(Object o) {
     if (this == o)
       return true;
-    if (!(o instanceof EntityHolder that))
+    if (!(o instanceof EntityMetadata that))
       return false;
     return Objects.equals(tableName, that.tableName)
             && Objects.equals(idProperty, that.idProperty)
