@@ -22,10 +22,14 @@ package cn.taketoday.jdbc.sql.dialect;
 
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import cn.taketoday.beans.BeanProperty;
 import cn.taketoday.jdbc.result.JdbcBeanMetadata;
-import cn.taketoday.jdbc.sql.EntityHolder;
+import cn.taketoday.jdbc.sql.ANSICaseFragment;
+import cn.taketoday.jdbc.sql.ANSIJoinFragment;
+import cn.taketoday.jdbc.sql.CaseFragment;
+import cn.taketoday.jdbc.sql.JoinFragment;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.StringUtils;
 
@@ -36,6 +40,49 @@ import cn.taketoday.util.StringUtils;
  * @since 4.0
  */
 public abstract class Dialect {
+  /**
+   * Defines a default batch size constant
+   */
+  public static final String DEFAULT_BATCH_SIZE = "15";
+
+  /**
+   * Defines a "no batching" batch size constant
+   */
+  public static final String NO_BATCH = "0";
+
+  /**
+   * Characters used as opening for quoting SQL identifiers
+   */
+  public static final String QUOTE = "`\"[";
+
+  /**
+   * Characters used as closing for quoting SQL identifiers
+   */
+  public static final String CLOSED_QUOTE = "`\"]";
+  private static final Pattern SINGLE_QUOTE_PATTERN = Pattern.compile(
+          "'",
+          Pattern.LITERAL
+  );
+
+  private static final Pattern ESCAPE_CLOSING_COMMENT_PATTERN = Pattern.compile("\\*/");
+  private static final Pattern ESCAPE_OPENING_COMMENT_PATTERN = Pattern.compile("/\\*");
+
+  public static String escapeComment(String comment) {
+    if (StringUtils.isNotEmpty(comment)) {
+      final String escaped = ESCAPE_CLOSING_COMMENT_PATTERN.matcher(comment).replaceAll("*\\\\/");
+      return ESCAPE_OPENING_COMMENT_PATTERN.matcher(escaped).replaceAll("/\\\\*");
+    }
+    return comment;
+  }
+
+  /**
+   * determine the appropriate for update fragment to use.
+   *
+   * @return The appropriate for update fragment.
+   */
+  public String getForUpdateString() {
+    return " for update";
+  }
 
   public String select(SQLParams sqlParams) {
     StringBuilder sql = new StringBuilder();
@@ -73,25 +120,6 @@ public abstract class Dialect {
     sql.append("SELECT COUNT(*) FROM ").append(sqlParams.getTableName());
     if (sqlParams.getConditionSQL().length() > 0) {
       sql.append(" WHERE ").append(sqlParams.getConditionSQL().substring(5));
-    }
-    return sql.toString();
-  }
-
-  public String insert(EntityHolder entityHolder) {
-    StringBuilder sql = new StringBuilder();
-    sql.append("INSERT INTO ").append(entityHolder.tableName);
-
-    StringBuilder columnNames = new StringBuilder();
-    StringBuilder placeholder = new StringBuilder();
-
-    for (String columName : entityHolder.columnNames) {
-      columnNames.append(",").append(" `").append(columName).append('`');
-      placeholder.append(", ?");
-    }
-
-    if (columnNames.length() > 0 && placeholder.length() > 0) {
-      sql.append("(").append(columnNames.substring(2)).append(")");
-      sql.append(" VALUES (").append(placeholder.substring(2)).append(")");
     }
     return sql.toString();
   }
@@ -167,6 +195,37 @@ public abstract class Dialect {
       return sql.substring(0, sql.length() - 1);
     }
     return "*";
+  }
+
+  /**
+   * The fragment used to insert a row without specifying any column values.
+   * This is not possible on some databases.
+   *
+   * @return The appropriate empty values clause.
+   */
+  public String getNoColumnsInsertString() {
+    return "values ( )";
+  }
+
+  /**
+   * Create a {@link JoinFragment} strategy responsible
+   * for handling this dialect's variations in how joins are handled.
+   *
+   * @return This dialect's {@link JoinFragment} strategy.
+   */
+  public JoinFragment createOuterJoinFragment() {
+    return new ANSIJoinFragment();
+  }
+
+  /**
+   * Create a {@link CaseFragment} strategy responsible
+   * for handling this dialect's variations in how CASE statements are
+   * handled.
+   *
+   * @return This dialect's {@link CaseFragment} strategy.
+   */
+  public CaseFragment createCaseFragment() {
+    return new ANSICaseFragment();
   }
 
 }

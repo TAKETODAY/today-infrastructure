@@ -22,17 +22,27 @@ package cn.taketoday.jdbc.sql;
 
 import org.junit.jupiter.api.Test;
 
-import cn.taketoday.jdbc.sql.dialect.MySQLDialect;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @since 4.0 2022/8/16 21:24
+ * @since 4.0 2022/9/9 22:29
  */
-class SqlGeneratorTests {
-  SqlGenerator sqlGenerator = new SqlGenerator(new MySQLDialect());
+class UpdateTests {
 
   @Test
-  void generateInsert() {
+  void sql() {
+    Update update = new Update();
+    update.setTableName("t_user");
 
+    update.addColumn("name");
+    update.setVersionColumnName("version");
+    update.setPrimaryKeyColumnNames("id");
+
+    assertThat(update.toStatementString()).isEqualTo("update t_user set name=? where id=? and version=?");
+
+    update.addColumn("name", ":name");
+    assertThat(update.toStatementString()).isEqualTo("update t_user set name=:name where id=? and version=?");
   }
+
 }
