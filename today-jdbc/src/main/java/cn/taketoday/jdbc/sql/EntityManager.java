@@ -128,18 +128,18 @@ public class EntityManager {
     }
 
     Connection connection = getConnection();
-    PreparedStatement preparedStatement = prepareStatement(connection, sql, returnGeneratedKeys);
+    PreparedStatement statement = prepareStatement(connection, sql, returnGeneratedKeys);
 
-    setPersistParameter(entity, preparedStatement, entityHolder);
-
-    // execute
     try {
-      int updateCount = preparedStatement.executeUpdate();
+      setPersistParameter(entity, statement, entityHolder);
+
+      // execute
+      int updateCount = statement.executeUpdate();
       assertUpdateCount(updateCount, 1);
 
       if (returnGeneratedKeys) {
         try {
-          ResultSet generatedKeys = preparedStatement.getGeneratedKeys();
+          ResultSet generatedKeys = statement.getGeneratedKeys();
           if (generatedKeys.next()) {
             entityHolder.idProperty.setProperty(entity, generatedKeys, 1);
           }
@@ -212,15 +212,10 @@ public class EntityManager {
 
   }
 
-  private static void setPersistParameter(Object entity, PreparedStatement statement, EntityHolder entityHolder) {
+  private static void setPersistParameter(Object entity, PreparedStatement statement, EntityHolder entityHolder) throws SQLException {
     int idx = 1;
     for (EntityProperty property : entityHolder.entityProperties) {
-      try {
-        property.setTo(statement, idx++, entity);
-      }
-      catch (SQLException e) {
-        throw ExceptionUtils.sneakyThrow(e);
-      }
+      property.setTo(statement, idx++, entity);
     }
   }
 
@@ -241,9 +236,10 @@ public class EntityManager {
     public void addBatchUpdate(Object entity, int maxBatchRecords) {
       entities.add(entity);
       PreparedStatement statement = this.statement;
-      setPersistParameter(entity, statement, entityHolder);
 
       try {
+        setPersistParameter(entity, statement, entityHolder);
+
         statement.addBatch();
         if (maxBatchRecords > 0 && ++currentBatchRecords % maxBatchRecords == 0) {
           executeBatch(statement, returnGeneratedKeys);
