@@ -40,10 +40,10 @@ class DefaultEntityMetadataFactoryTests {
 
   @Test
   void defaultState() {
-    EntityMetadata entityMetadata = factory.createEntityHolder(UserModel.class);
+    EntityMetadata entityMetadata = factory.createEntityMetadata(UserModel.class);
     assertThat(entityMetadata).isNotNull();
     assertThatThrownBy(() ->
-            factory.createEntityHolder(Object.class))
+            factory.createEntityMetadata(Object.class))
             .isInstanceOf(IllegalStateException.class)
             .hasMessageStartingWith("Cannot determine ID property for entity: " + Object.class);
   }
@@ -57,7 +57,7 @@ class DefaultEntityMetadataFactoryTests {
 
     factory.setTableNameGenerator(TableNameGenerator.forTableAnnotation());
     assertThatThrownBy(() ->
-            factory.createEntityHolder(Object.class))
+            factory.createEntityMetadata(Object.class))
             .isInstanceOf(IllegalStateException.class)
             .hasMessage("Cannot determine table name for entity: " + Object.class);
 
@@ -69,7 +69,7 @@ class DefaultEntityMetadataFactoryTests {
     factory.setColumnNameDiscover(ColumnNameDiscover.forColumnAnnotation());
 
     assertThatThrownBy(() ->
-            factory.createEntityHolder(UserModel.class))
+            factory.createEntityMetadata(UserModel.class))
             .isInstanceOf(IllegalStateException.class)
             .hasMessageStartingWith("Cannot determine column name for property: UserModel#");
 
@@ -83,7 +83,7 @@ class DefaultEntityMetadataFactoryTests {
       private Long id_;
     }
     assertThatThrownBy(() ->
-            factory.createEntityHolder(MultipleId.class))
+            factory.createEntityMetadata(MultipleId.class))
             .isInstanceOf(IllegalStateException.class)
             .hasMessage("Only one Id property supported, entity: " + MultipleId.class);
   }
@@ -95,7 +95,7 @@ class DefaultEntityMetadataFactoryTests {
       private Long id;
     }
 
-    EntityMetadata entityMetadata = factory.createEntityHolder(OverrideId.class);
+    EntityMetadata entityMetadata = factory.createEntityMetadata(OverrideId.class);
     assertThat(entityMetadata.idProperty)
             .isEqualTo(BeanProperty.valueOf(OverrideId.class, "id"));
 
@@ -111,20 +111,20 @@ class DefaultEntityMetadataFactoryTests {
 
     //default
 
-    EntityMetadata entityMetadata = factory.createEntityHolder(IdDiscover.class);
+    EntityMetadata entityMetadata = factory.createEntityMetadata(IdDiscover.class);
     assertThat(entityMetadata.idProperty)
             .isEqualTo(BeanProperty.valueOf(IdDiscover.class, "id"));
 
     factory.setIdPropertyDiscover(IdPropertyDiscover.forPropertyName("id_"));
 
-    entityMetadata = factory.createEntityHolder(IdDiscover.class);
+    entityMetadata = factory.createEntityMetadata(IdDiscover.class);
     assertThat(entityMetadata.idProperty)
             .isEqualTo(BeanProperty.valueOf(IdDiscover.class, "id_"));
   }
 
   @Test
   void getEntityHolder() {
-    EntityMetadata entityMetadata = factory.getEntityHolder(UserModel.class);
+    EntityMetadata entityMetadata = factory.getEntityMetadata(UserModel.class);
     assertThat(factory.entityCache.get(UserModel.class)).isEqualTo(entityMetadata);
 
   }

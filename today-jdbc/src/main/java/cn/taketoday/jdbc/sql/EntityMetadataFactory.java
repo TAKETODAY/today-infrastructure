@@ -37,11 +37,11 @@ public abstract class EntityMetadataFactory {
     @Override
     protected EntityMetadata createValue(Class<?> entityClass, @Nullable EntityMetadataFactory entityMetadataFactory) {
       Assert.notNull(entityMetadataFactory, "No EntityHolderFactory");
-      return entityMetadataFactory.createEntityHolder(entityClass);
+      return entityMetadataFactory.createEntityMetadata(entityClass);
     }
   };
 
-  public EntityMetadata getEntityHolder(Class<?> entityClass) {
+  public EntityMetadata getEntityMetadata(Class<?> entityClass) {
     return entityCache.get(entityClass, this);
   }
 
@@ -51,6 +51,6 @@ public abstract class EntityMetadataFactory {
    * @param entityClass entity class
    * @return a new EntityHolder
    */
-  public abstract EntityMetadata createEntityHolder(Class<?> entityClass);
+  public abstract EntityMetadata createEntityMetadata(Class<?> entityClass);
 
 }

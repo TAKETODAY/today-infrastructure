@@ -113,7 +113,7 @@ public class DefaultEntityMetadataFactory extends EntityMetadataFactory {
   }
 
   @Override
-  public EntityMetadata createEntityHolder(Class<?> entityClass) {
+  public EntityMetadata createEntityMetadata(Class<?> entityClass) {
     String tableName = tableNameGenerator.generateTableName(entityClass);
     if (tableName == null) {
       throw new IllegalStateException("Cannot determine table name for entity: " + entityClass);

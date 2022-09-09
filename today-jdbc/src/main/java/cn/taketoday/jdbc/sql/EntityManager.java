@@ -119,7 +119,7 @@ public class EntityManager {
    */
   public void persist(Object entity, boolean returnGeneratedKeys) throws DataAccessException {
     Class<?> entityClass = entity.getClass();
-    EntityMetadata entityMetadata = entityMetadataFactory.getEntityHolder(entityClass);
+    EntityMetadata entityMetadata = entityMetadataFactory.getEntityMetadata(entityClass);
     String sql = insert(entityMetadata);
 
     if (logger.isDebugEnabled()) {
@@ -197,7 +197,7 @@ public class EntityManager {
 
     for (Object entity : entities) {
       PreparedBatch batch = statements.computeIfAbsent(entity.getClass(), entityClass -> {
-        EntityMetadata entityMetadata = entityMetadataFactory.getEntityHolder(entityClass);
+        EntityMetadata entityMetadata = entityMetadataFactory.getEntityMetadata(entityClass);
         String sql = insert(entityMetadata);
         return new PreparedBatch(prepareStatement(connection, sql, returnGeneratedKeys), entityMetadata, returnGeneratedKeys);
       });
@@ -329,7 +329,7 @@ public class EntityManager {
   }
 
   public <T> T find(Class<T> entityClass, Object exampleEntity) throws DataAccessException {
-    EntityMetadata entityMetadata = entityMetadataFactory.getEntityHolder(entityClass);
+    EntityMetadata entityMetadata = entityMetadataFactory.getEntityMetadata(entityClass);
 
     return null;
   }
