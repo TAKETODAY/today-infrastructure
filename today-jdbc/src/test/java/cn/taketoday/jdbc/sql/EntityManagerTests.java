@@ -20,7 +20,6 @@
 
 package cn.taketoday.jdbc.sql;
 
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 
 import java.lang.annotation.ElementType;
@@ -31,11 +30,9 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-import cn.taketoday.jdbc.Query;
 import cn.taketoday.jdbc.RepositoryManager;
 import cn.taketoday.jdbc.sql.model.Gender;
 import cn.taketoday.jdbc.sql.model.UserModel;
-import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
 
@@ -52,7 +49,8 @@ class EntityManagerTests extends AbstractRepositoryManagerTests {
   @Override
   protected void prepareTestsData(DbType dbType, RepositoryManager repositoryManager) {
     // language=MySQL
-    try (Query query = repositoryManager.createQuery("""
+    try (cn.taketoday.jdbc.Query query = repositoryManager.createQuery("""
+            drop table if exists t_user;
             create table t_user
             (
                 `id`               int auto_increment primary key,
@@ -74,7 +72,7 @@ class EntityManagerTests extends AbstractRepositoryManagerTests {
 
   @ParameterizedRepositoryManagerTest
   void exception(RepositoryManager repositoryManager) {
-    EntityManager entityManager = new EntityManager(repositoryManager);
+    DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
 
     assertThatThrownBy(() ->
             entityManager.persist(new Object()))
@@ -85,7 +83,7 @@ class EntityManagerTests extends AbstractRepositoryManagerTests {
 
   @ParameterizedRepositoryManagerTest
   void persist(RepositoryManager repositoryManager) {
-    EntityManager entityManager = new EntityManager(repositoryManager);
+    DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
 
     UserModel userModel = new UserModel();
     userModel.name = "TODAY";
@@ -97,7 +95,7 @@ class EntityManagerTests extends AbstractRepositoryManagerTests {
     assertThat(userModel.id).isNotNull();
 
     // language=MySQL
-    try (Query query = repositoryManager.createQuery("SELECT * from t_user where id=:id")) {
+    try (cn.taketoday.jdbc.Query query = repositoryManager.createQuery("SELECT * from t_user where id=:id")) {
       query.addParameter("id", userModel.id);
       query.setAutoDerivingColumns(true);
 
@@ -113,7 +111,7 @@ class EntityManagerTests extends AbstractRepositoryManagerTests {
 
   @ParameterizedRepositoryManagerTest
   void batchPersist(RepositoryManager repositoryManager) {
-    EntityManager entityManager = new EntityManager(repositoryManager);
+    DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
     entityManager.setMaxBatchRecords(10);
 
     UserModel userModel = UserModel.male("TODAY", 9);
@@ -128,7 +126,7 @@ class EntityManagerTests extends AbstractRepositoryManagerTests {
     entityManager.persist(entities);
 
     // language=MySQL
-    try (Query query = repositoryManager.createQuery("SELECT * from t_user")) {
+    try (cn.taketoday.jdbc.Query query = repositoryManager.createQuery("SELECT * from t_user")) {
       query.setAutoDerivingColumns(true);
 
       List<UserModel> userModels = query.fetch(UserModel.class);
@@ -159,24 +157,25 @@ class EntityManagerTests extends AbstractRepositoryManagerTests {
     Integer userId;
 
     @Nullable
-    @QueryCondition(expression = "#root.name != null", render = "like %#{name}%")
+    @Query(expression = "#root.name != null", render = "like %#{name}%")
     String name;
 
     @Nullable
-    @QueryCondition(expression = "#root.name != null", render = "=#{age}")
+    @Query(expression = "#root.name != null", render = "=#{age}")
     Integer age;
 
-    @QueryCondition(expression = "#root.name != null", render = "> #{birthdayBegin}")
+    @Query(expression = "#root.name != null", render = "> #{birthdayBegin}")
     LocalDate birthdayBegin;
 
-    @QueryCondition(expression = "#root.birthdayEnd != null", render = "< #{birthdayEnd}")
+    @Query(expression = "#root.birthdayEnd != null", render = "< #{birthdayEnd}")
     LocalDate birthdayEnd;
 
   }
 
   @ParameterizedRepositoryManagerTest
   void findByQuery(RepositoryManager repositoryManager) {
-    EntityManager entityManager = new EntityManager(repositoryManager);
+    DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
+
     UserForm userForm = new UserForm();
     userForm.age = 10;
 
@@ -206,4 +205,33 @@ class EntityManagerTests extends AbstractRepositoryManagerTests {
     entityManager.iterate(UserModel.class, userForm, System.out::println);
   }
 
+  @ParameterizedRepositoryManagerTest
+  void iterateListOfQueryConditions(RepositoryManager repositoryManager) {
+    DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
+    createData(entityManager);
+
+//    QueryCondition condition =
+//            QueryCondition.equalsTo("age", 10)
+//                    .and(QueryCondition.of("name", ConditionOperator.LIKE, "T"));
+
+    QueryCondition condition = QueryCondition.of("name", Operator.SUFFIX_LIKE, "T");
+    entityManager.iterate(UserModel.class, condition, System.out::println);
+
+  }
+
+  private static void createData(DefaultEntityManager entityManager) {
+    UserModel userModel = UserModel.male("TODAY", 9);
+
+    List<Object> entities = new ArrayList<>();
+    entities.add(userModel);
+
+    for (int i = 0; i < 10; i++) {
+      entities.add(UserModel.male("TODAY", 10 + i));
+    }
+
+    entityManager.persist(entities);
+  }
+
 }
+
+
