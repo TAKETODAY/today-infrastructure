@@ -22,98 +22,18 @@ package cn.taketoday.jdbc.sql;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.function.Consumer;
 
 import cn.taketoday.dao.DataAccessException;
-import cn.taketoday.jdbc.CannotGetJdbcConnectionException;
-import cn.taketoday.jdbc.GeneratedKeysException;
-import cn.taketoday.jdbc.PersistenceException;
-import cn.taketoday.jdbc.RepositoryManager;
-import cn.taketoday.jdbc.result.DefaultResultSetHandlerFactory;
-import cn.taketoday.jdbc.result.JdbcBeanMetadata;
-import cn.taketoday.jdbc.result.ResultSetHandlerIterator;
-import cn.taketoday.jdbc.sql.dialect.Dialect;
-import cn.taketoday.jdbc.sql.dialect.MySQLDialect;
-import cn.taketoday.jdbc.type.TypeHandler;
-import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.logging.Logger;
-import cn.taketoday.logging.LoggerFactory;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/8/16 22:47
  */
-public class EntityManager {
-  private final Logger logger = LoggerFactory.getLogger(getClass());
-
-  private EntityMetadataFactory entityMetadataFactory = new DefaultEntityMetadataFactory();
-
-  private final RepositoryManager repositoryManager;
-
-  private int maxBatchRecords = 0;
-
-  private Dialect dialect = new MySQLDialect();
-
-  /**
-   * a flag indicating whether auto-generated keys should be returned;
-   */
-  private boolean returnGeneratedKeys = true;
-
-  public EntityManager(RepositoryManager repositoryManager) {
-    this.repositoryManager = repositoryManager;
-  }
-
-  public void setDialect(Dialect dialect) {
-    Assert.notNull(dialect, "dialect is required");
-    this.dialect = dialect;
-  }
-
-  public void setEntityHolderFactory(EntityMetadataFactory entityMetadataFactory) {
-    Assert.notNull(entityMetadataFactory, "entityMetadataFactory is required");
-    this.entityMetadataFactory = entityMetadataFactory;
-  }
-
-  /**
-   * Set a flag indicating whether auto-generated keys should be returned;
-   *
-   * @param returnGeneratedKeys a flag indicating whether auto-generated keys should be returned;
-   */
-  public void setReturnGeneratedKeys(boolean returnGeneratedKeys) {
-    this.returnGeneratedKeys = returnGeneratedKeys;
-  }
-
-  /**
-   * Sets the number of batched commands this Query allows to be added before
-   * implicitly calling <code>executeBatch()</code> from
-   * <code>addToBatch()</code>. <br/>
-   *
-   * When set to 0, executeBatch is not called implicitly. This is the default
-   * behaviour. <br/>
-   *
-   * When using this, please take care about calling <code>executeBatch()</code>
-   * after finished adding all commands to the batch because commands may remain
-   * unexecuted after the last <code>addToBatch()</code> call. Additionally, if
-   * fetchGeneratedKeys is set, then previously generated keys will be lost after
-   * a batch is executed.
-   *
-   * @throws IllegalArgumentException Thrown if the value is negative.
-   */
-  public void setMaxBatchRecords(int maxBatchRecords) {
-    Assert.isTrue(maxBatchRecords >= 0, "maxBatchRecords should be a non-negative value");
-    this.maxBatchRecords = maxBatchRecords;
-  }
-
-  public int getMaxBatchRecords() {
-    return this.maxBatchRecords;
-  }
+public interface EntityManager {
 
   /**
    * persist an entity to underlying repository
@@ -121,9 +41,7 @@ public class EntityManager {
    * @param entity entity instance
    * @throws IllegalArgumentException if the instance is not an entity
    */
-  public void persist(Object entity) throws DataAccessException {
-    persist(entity, returnGeneratedKeys);
-  }
+  void persist(Object entity) throws DataAccessException;
 
   /**
    * persist an entity to underlying repository
@@ -133,167 +51,22 @@ public class EntityManager {
    * @see PreparedStatement
    * @see Connection#prepareStatement(String, int)
    */
-  public void persist(Object entity, boolean returnGeneratedKeys) throws DataAccessException {
-    Class<?> entityClass = entity.getClass();
-    EntityMetadata entityMetadata = entityMetadataFactory.getEntityMetadata(entityClass);
-    String sql = insert(entityMetadata);
-
-    if (logger.isDebugEnabled()) {
-      logger.debug("Persist entity: {} using SQL: [{}] , generatedKeys={}", entity, sql, returnGeneratedKeys);
-    }
-
-    Connection connection = getConnection();
-    PreparedStatement statement = prepareStatement(connection, sql, returnGeneratedKeys);
-
-    try {
-      setPersistParameter(entity, statement, entityMetadata);
-
-      // execute
-      int updateCount = statement.executeUpdate();
-      assertUpdateCount(updateCount, 1);
-
-      if (returnGeneratedKeys) {
-        try {
-          ResultSet generatedKeys = statement.getGeneratedKeys();
-          if (generatedKeys.next()) {
-            entityMetadata.idProperty.setProperty(entity, generatedKeys, 1);
-          }
-        }
-        catch (SQLException e) {
-          throw new GeneratedKeysException("Cannot get generated keys", e);
-        }
-      }
-    }
-    catch (SQLException ex) {
-      throw new PersistenceException("Error in executeUpdate, " + ex.getMessage(), ex);
-    }
-  }
-
-  private static void assertUpdateCount(int updateCount, int expectCount) {
-    if (updateCount != expectCount) {
-      throw new PersistenceException("update count '" + updateCount + "' is not equals to expected count '" + expectCount + "'");
-    }
-  }
-
-  protected Connection getConnection() {
-    try {
-      return repositoryManager.getConnectionSource().getConnection();
-    }
-    catch (SQLException ex) {
-      throw new CannotGetJdbcConnectionException(
-              "Could not acquire a connection from connection-source: " + repositoryManager.getConnectionSource(), ex);
-    }
-  }
-
-  protected PreparedStatement prepareStatement(Connection connection, String sql, boolean returnGeneratedKeys) {
-    try {
-      if (returnGeneratedKeys) {
-        return connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
-      }
-      return connection.prepareStatement(sql);
-    }
-    catch (SQLException ex) {
-      throw new PersistenceException("Error preparing statement - " + ex.getMessage(), ex);
-    }
-  }
+  void persist(Object entity, boolean returnGeneratedKeys) throws DataAccessException;
 
   /**
    * persist entities to underlying repository
    *
    * @param entities entities instances
    */
-  public void persist(Iterable<Object> entities) throws DataAccessException {
-    persist(entities, returnGeneratedKeys);
-  }
+  void persist(Iterable<Object> entities) throws DataAccessException;
 
-  public void persist(Iterable<Object> entities, boolean returnGeneratedKeys) throws DataAccessException {
-    Connection connection = getConnection();
-    int maxBatchRecords = getMaxBatchRecords();
-    var statements = new HashMap<Class<?>, PreparedBatch>();
-
-    for (Object entity : entities) {
-      PreparedBatch batch = statements.computeIfAbsent(entity.getClass(), entityClass -> {
-        EntityMetadata entityMetadata = entityMetadataFactory.getEntityMetadata(entityClass);
-        String sql = insert(entityMetadata);
-        return new PreparedBatch(prepareStatement(connection, sql, returnGeneratedKeys), entityMetadata, returnGeneratedKeys);
-      });
-
-      batch.addBatchUpdate(entity, maxBatchRecords);
-    }
-
-    for (PreparedBatch preparedBatch : statements.values()) {
-      preparedBatch.executeBatch(returnGeneratedKeys);
-    }
-
-  }
-
-  private static void setPersistParameter(Object entity, PreparedStatement statement, EntityMetadata entityMetadata) throws SQLException {
-    int idx = 1;
-    for (EntityProperty property : entityMetadata.entityProperties) {
-      property.setTo(statement, idx++, entity);
-    }
-  }
-
-  static class PreparedBatch {
-    public int currentBatchRecords = 0;
-    public final EntityMetadata entityMetadata;
-    public final PreparedStatement statement;
-    final ArrayList<Object> entities = new ArrayList<>();
-
-    public final boolean returnGeneratedKeys;
-
-    PreparedBatch(PreparedStatement statement, EntityMetadata entityMetadata, boolean returnGeneratedKeys) {
-      this.statement = statement;
-      this.entityMetadata = entityMetadata;
-      this.returnGeneratedKeys = returnGeneratedKeys;
-    }
-
-    public void addBatchUpdate(Object entity, int maxBatchRecords) {
-      entities.add(entity);
-      PreparedStatement statement = this.statement;
-
-      try {
-        setPersistParameter(entity, statement, entityMetadata);
-
-        statement.addBatch();
-        if (maxBatchRecords > 0 && ++currentBatchRecords % maxBatchRecords == 0) {
-          executeBatch(statement, returnGeneratedKeys);
-        }
-      }
-      catch (SQLException e) {
-        throw new PersistenceException("Error while adding statement to batch", e);
-      }
-    }
-
-    public void executeBatch(boolean returnGeneratedKeys) {
-      executeBatch(statement, returnGeneratedKeys);
-    }
-
-    public void executeBatch(PreparedStatement statement, boolean returnGeneratedKeys) {
-      try {
-        int[] updateCounts = statement.executeBatch();
-        assertUpdateCount(updateCounts.length, entities.size());
-        if (returnGeneratedKeys) {
-          ResultSet generatedKeys = statement.getGeneratedKeys();
-          for (Object entity : entities) {
-            try {
-              if (generatedKeys.next()) {
-                entityMetadata.idProperty.setProperty(entity, generatedKeys, 1);
-              }
-            }
-            catch (SQLException e) {
-              throw new GeneratedKeysException("Cannot get generated keys", e);
-            }
-          }
-        }
-        this.currentBatchRecords = 0;
-        this.entities.clear();
-      }
-      catch (Throwable e) {
-        throw new PersistenceException("Error while executing batch operation: " + e.getMessage(), e);
-      }
-    }
-  }
+  /**
+   * persist entities to underlying repository
+   *
+   * @param returnGeneratedKeys a flag indicating whether auto-generated keys should be returned;
+   * @param entities entities instances
+   */
+  void persist(Iterable<Object> entities, boolean returnGeneratedKeys) throws DataAccessException;
 
   /**
    * Merge the state of the given entity into underlying repository
@@ -302,153 +75,30 @@ public class EntityManager {
    * @throws IllegalArgumentException if instance is not an
    * entity or is a removed entity
    */
-  public void update(Object entity) {
+  void update(Object entity);
 
-  }
+  void updateById(Object entity);
 
-  public void updateById(Object entity) {
+  void delete(Class<?> entityClass, Object id);
 
-  }
+  void delete(Object entity);
 
-  public void delete(Class<?> entityClass, Object id) {
-
-  }
-
-  public void delete(Object entity) {
-
-  }
-
-  /**
-   * Find by primary key.
-   * Search for an entity of the specified class and primary key.
-   * If the entity instance is contained in the underlying repository,
-   * it is returned from there.
-   *
-   * @param entityClass entity class
-   * @param id primary key
-   * @return the found entity instance or null if the entity does
-   * not exist
-   * @throws IllegalArgumentException if the first argument does
-   * not denote an entity type or the second argument is
-   * is not a valid type for that entity's primary key or
-   * is null
-   */
   @Nullable
-  public <T> T findById(Class<T> entityClass, Object id) throws DataAccessException {
-    return null;
-  }
+  <T> T findById(Class<T> entityClass, Object id) throws DataAccessException;
 
-  public <T> T findFirst(T entity) throws DataAccessException {
-    return null;
-  }
+  <T> T findFirst(T entity) throws DataAccessException;
 
-  public <T> List<T> findFirst(Class<T> entityClass, Object query) throws DataAccessException {
-    return null;
-  }
+  <T> List<T> findFirst(Class<T> entityClass, Object query) throws DataAccessException;
 
-  public <T> List<T> find(T entity) throws DataAccessException {
-    return null;
-  }
+  <T> List<T> find(T entity) throws DataAccessException;
 
-  public <T> List<T> find(Class<T> entityClass, Object params) throws DataAccessException {
-    ArrayList<T> entities = new ArrayList<>();
-    Iterator<T> iterator = iterate(entityClass, params);
-    while (iterator.hasNext()) {
-      entities.add(iterator.next());
-    }
-    return entities;
-  }
+  <T> List<T> find(Class<T> entityClass, Object params) throws DataAccessException;
 
-  public <T> void iterate(Class<T> entityClass, Object params, Consumer<T> entityConsumer) throws DataAccessException {
-    Iterator<T> iterator = iterate(entityClass, params);
-    while (iterator.hasNext()) {
-      entityConsumer.accept(iterator.next());
-    }
-  }
+  <T> void iterate(Class<T> entityClass, Object params, Consumer<T> entityConsumer) throws DataAccessException;
 
-  public <T> Iterator<T> iterate(Class<T> entityClass, Object params) throws DataAccessException {
-    EntityMetadata metadata = entityMetadataFactory.getEntityMetadata(entityClass);
-    EntityMetadata queryMetadata = entityMetadataFactory.getEntityMetadata(params.getClass());
+  <T> Iterator<T> iterate(Class<T> entityClass, Object params) throws DataAccessException;
 
-    StringBuilder sql = new StringBuilder();
-    sql.append("SELECT * FROM ");
-    sql.append(metadata.tableName);
-    sql.append(" WHERE ");
+  <T> void iterate(Class<T> entityClass, @Nullable QueryCondition conditions, Consumer<T> entityConsumer) throws DataAccessException;
 
-    StringBuilder columnNamesBuf = new StringBuilder();
-
-    class Condition {
-      final Object propertyValue;
-      final TypeHandler<Object> typeHandler;
-
-      Condition(TypeHandler<Object> typeHandler, Object propertyValue) {
-        this.typeHandler = typeHandler;
-        this.propertyValue = propertyValue;
-      }
-    }
-
-    List<Condition> conditions = new ArrayList<>();
-    for (EntityProperty entityProperty : queryMetadata.entityProperties) {
-      Object propertyValue = entityProperty.getValue(params);
-      if (propertyValue != null) {
-        // TODO 当前只实现了判断null条件，可以扩展出去让用户做选择
-        columnNamesBuf.append(", `")
-                .append(entityProperty.columnName)
-                .append('`')
-                .append(" = ?");
-
-        conditions.add(new Condition(entityProperty.typeHandler, propertyValue));
-      }
-    }
-
-    if (columnNamesBuf.length() > 0) {
-      sql.append(columnNamesBuf.substring(2));
-    }
-
-    if (logger.isDebugEnabled()) {
-      logger.debug("lookup entity using SQL: [{}] , queryObject: {}", sql, params);
-    }
-
-    Connection connection = getConnection();
-    PreparedStatement statement = prepareStatement(connection, sql.toString(), false);
-    try {
-      int idx = 1;
-      for (Condition condition : conditions) {
-        condition.typeHandler.setParameter(statement, idx++, condition.propertyValue);
-      }
-    }
-    catch (SQLException ex) {
-      throw new PersistenceException("Error in setParameter, " + ex.getMessage(), ex);
-    }
-    try {
-      ResultSet resultSet = statement.executeQuery();
-      return new ResultSetHandlerIterator<>(resultSet, new DefaultResultSetHandlerFactory<>(
-              new JdbcBeanMetadata(entityClass, repositoryManager.isDefaultCaseSensitive(), true, true),
-              repositoryManager, null));
-    }
-    catch (SQLException ex) {
-      throw new PersistenceException("Error in fetch entity, " + ex.getMessage(), ex);
-    }
-  }
-
-  //
-  static String insert(EntityMetadata entityMetadata) {
-    StringBuilder sql = new StringBuilder();
-    sql.append("INSERT INTO ").append(entityMetadata.tableName);
-
-    StringBuilder columnNamesBuf = new StringBuilder();
-    StringBuilder placeholderBuf = new StringBuilder();
-
-    for (String columName : entityMetadata.columnNames) {
-      columnNamesBuf.append(", `").append(columName).append('`');
-      placeholderBuf.append(", ?");
-    }
-
-    if (columnNamesBuf.length() > 0) {
-      sql.append("(").append(columnNamesBuf.substring(2)).append(")");
-      sql.append(" VALUES (").append(placeholderBuf.substring(2)).append(")");
-    }
-    return sql.toString();
-  }
-
+  <T> Iterator<T> iterate(Class<T> entityClass, @Nullable QueryCondition conditions) throws DataAccessException;
 }
