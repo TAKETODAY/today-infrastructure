@@ -393,12 +393,7 @@ public final class JdbcConnection implements Closeable {
 
     if (!connectionIsClosed) {
       for (Statement statement : statements) {
-        try {
-          JdbcUtils.close(statement);
-        }
-        catch (SQLException e) {
-          log.warn("Could not close statement.", e);
-        }
+        JdbcUtils.closeQuietly(statement);
       }
       statements.clear();
 
