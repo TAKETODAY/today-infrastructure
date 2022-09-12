@@ -52,11 +52,13 @@ import cn.taketoday.jdbc.result.Row;
 import cn.taketoday.jdbc.result.Table;
 import cn.taketoday.jdbc.result.TableResultSetIterator;
 import cn.taketoday.jdbc.result.TypeHandlerResultSetHandler;
+import cn.taketoday.jdbc.sql.format.SqlStatementLogger;
 import cn.taketoday.jdbc.type.ObjectTypeHandler;
 import cn.taketoday.jdbc.type.TypeHandler;
 import cn.taketoday.jdbc.type.TypeHandlerRegistry;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.lang.TodayStrategies;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.CollectionUtils;
@@ -67,6 +69,12 @@ import cn.taketoday.util.ObjectUtils;
  */
 public final class Query implements AutoCloseable {
   private static final Logger log = LoggerFactory.getLogger(Query.class);
+  private static final SqlStatementLogger stmtLogger = new SqlStatementLogger(
+          TodayStrategies.getFlag("sql.logToStdout", false),
+          TodayStrategies.getFlag("sql.format", true),
+          TodayStrategies.getFlag("sql.highlight", true),
+          TodayStrategies.getLong("sql.logSlowQuery", 0)
+  );
 
   private final JdbcConnection connection;
 
@@ -864,8 +872,8 @@ public final class Query implements AutoCloseable {
   }
 
   private void logExecution() {
-    if (log.isDebugEnabled()) {
-      log.debug("Executing query:{}{}", System.lineSeparator(), parsedQuery);
+    if (stmtLogger.isDebugEnabled()) {
+      stmtLogger.logStatement(parsedQuery);
     }
   }
 
