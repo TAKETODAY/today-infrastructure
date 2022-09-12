@@ -101,7 +101,7 @@ public class DefaultQueryCondition extends QueryCondition {
     // column_name
     sql.append(" `");
     sql.append(columnName);
-    sql.append("`");
+    sql.append('`');
 
     // operator and value
 
