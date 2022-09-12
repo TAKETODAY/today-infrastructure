@@ -35,13 +35,13 @@ import cn.taketoday.jdbc.sql.dialect.Dialect;
  */
 public class QuerySelect {
 
-  private Dialect dialect;
+  private final Dialect dialect;
   private JoinFragment joins;
-  private StringBuilder select = new StringBuilder();
-  private StringBuilder where = new StringBuilder();
-  private StringBuilder groupBy = new StringBuilder();
-  private StringBuilder orderBy = new StringBuilder();
-  private StringBuilder having = new StringBuilder();
+  private final StringBuilder select = new StringBuilder();
+  private final StringBuilder where = new StringBuilder();
+  private final StringBuilder groupBy = new StringBuilder();
+  private final StringBuilder orderBy = new StringBuilder();
+  private final StringBuilder having = new StringBuilder();
   private String comment;
   private boolean distinct;
 
@@ -105,7 +105,7 @@ public class QuerySelect {
     this.distinct = distinct;
   }
 
-  public void setWhereTokens(Iterator tokens) {
+  public void setWhereTokens(Iterator<String> tokens) {
     //if ( conjunctiveWhere.length()>0 ) conjunctiveWhere.append(" and ");
     appendTokens(where, tokens);
   }
@@ -119,17 +119,17 @@ public class QuerySelect {
     }
   }
 
-  public void setGroupByTokens(Iterator tokens) {
+  public void setGroupByTokens(Iterator<String> tokens) {
     //if ( groupBy.length()>0 ) groupBy.append(" and ");
     appendTokens(groupBy, tokens);
   }
 
-  public void setOrderByTokens(Iterator tokens) {
+  public void setOrderByTokens(Iterator<String> tokens) {
     //if ( orderBy.length()>0 ) orderBy.append(" and ");
     appendTokens(orderBy, tokens);
   }
 
-  public void setHavingTokens(Iterator tokens) {
+  public void setHavingTokens(Iterator<String> tokens) {
     //if ( having.length()>0 ) having.append(" and ");
     appendTokens(having, tokens);
   }
@@ -158,7 +158,7 @@ public class QuerySelect {
       from = from.substring(11);
     }
 
-    buf.append(select.toString())
+    buf.append(select)
             .append(" from")
             .append(from);
 
@@ -183,23 +183,23 @@ public class QuerySelect {
     }
 
     if (groupBy.length() > 0) {
-      buf.append(" group by ").append(groupBy.toString());
+      buf.append(" group by ").append(groupBy);
     }
     if (having.length() > 0) {
-      buf.append(" having ").append(having.toString());
+      buf.append(" having ").append(having);
     }
     if (orderBy.length() > 0) {
-      buf.append(" order by ").append(orderBy.toString());
+      buf.append(" order by ").append(orderBy);
     }
 
     return buf.toString();
   }
 
-  private static void appendTokens(StringBuilder buf, Iterator iter) {
+  private static void appendTokens(StringBuilder buf, Iterator<String> iter) {
     boolean lastSpaceable = true;
     boolean lastQuoted = false;
     while (iter.hasNext()) {
-      String token = (String) iter.next();
+      String token = iter.next();
       boolean spaceable = !DONT_SPACE_TOKENS.contains(token);
       boolean quoted = token.startsWith("'");
       if (spaceable && lastSpaceable) {
@@ -220,11 +220,11 @@ public class QuerySelect {
   public QuerySelect copy() {
     QuerySelect copy = new QuerySelect(dialect);
     copy.joins = this.joins.copy();
-    copy.select.append(this.select.toString());
-    copy.where.append(this.where.toString());
-    copy.groupBy.append(this.groupBy.toString());
-    copy.orderBy.append(this.orderBy.toString());
-    copy.having.append(this.having.toString());
+    copy.select.append(this.select);
+    copy.where.append(this.where);
+    copy.groupBy.append(this.groupBy);
+    copy.orderBy.append(this.orderBy);
+    copy.having.append(this.having);
     copy.comment = this.comment;
     copy.distinct = this.distinct;
     return copy;

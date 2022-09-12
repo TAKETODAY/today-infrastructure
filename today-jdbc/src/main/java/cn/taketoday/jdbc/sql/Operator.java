@@ -29,16 +29,15 @@ import cn.taketoday.lang.Nullable;
  */
 public interface Operator {
 
-  Operator EQUALS = new ComparableOperator(" =");
-  Operator NOT_EQUALS = new ComparableOperator(" !=");
+  Operator EQUALS = plain(" = ?");
+  Operator NOT_EQUALS = plain(" <> ?");
+  Operator IS_NULL = plain(" is null");
+  Operator LIKE = plain(" like concat('%', ?, '%')");
+  Operator SUFFIX_LIKE = plain(" like concat('%', ?)");
+  Operator PREFIX_LIKE = plain(" like concat(?, '%')");
 
-  Operator IS_NULL = new ASISOperator(" is null");
-  Operator LIKE = new ASISOperator(" like concat('%', ?, '%')");
-  Operator SUFFIX_LIKE = new ASISOperator(" like concat('%', ?)");
-  Operator PREFIX_LIKE = new ASISOperator(" like concat(?, '%')");
-
-  Operator BETWEEN = (sql, value, valueLength) -> sql.append(" BETWEEN ? AND ?");
-  Operator NOT_BETWEEN = (sql, value, valueLength) -> sql.append(" NOT BETWEEN ? AND ?");
+  Operator BETWEEN = plain(" BETWEEN ? AND ?");
+  Operator NOT_BETWEEN = plain(" NOT BETWEEN ? AND ?");
 
   Operator IN = (sql, value, valueLength) -> {
     sql.append(" IN (");
@@ -53,42 +52,25 @@ public interface Operator {
     sql.append(')');
   };
 
+  /**
+   * Render this operator and value-placeholder to StringBuilder
+   *
+   * @param sql SQL appender
+   * @param value parameter to test
+   * @param valueLength parameter length
+   */
   void render(StringBuilder sql, @Nullable Object value, int valueLength);
 
-  static ComparableOperator comparable(String type) {
-    return new ComparableOperator(type);
+  // Static Factory Methods
+
+  static Operator plain(String placeholder) {
+    return new PlainOperator(placeholder);
   }
 
-  class ComparableOperator implements Operator {
-
-    private final String type;
-
-    public ComparableOperator(String type) {
-      this.type = type;
-    }
-
-    @Override
-    public void render(StringBuilder sql, Object value, int valueLength) {
-      sql.append(type);
-      sql.append(" ?");
-    }
-
-    @Override
-    public String toString() {
-      return ToStringBuilder.from(this)
-              .append("type", type)
-              .toString();
-    }
-
-  }
-
-  class ASISOperator implements Operator {
-
-    public final String placeholder;
-
-    public ASISOperator(String placeholder) {
-      this.placeholder = placeholder;
-    }
+  /**
+   * column_name operator value;
+   */
+  record PlainOperator(String placeholder) implements Operator {
 
     @Override
     public void render(StringBuilder sql, Object value, int valueLength) {
