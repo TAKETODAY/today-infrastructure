@@ -41,33 +41,21 @@ public class NestedQueryCondition extends QueryCondition {
   }
 
   @Override
-  protected void setParameter(PreparedStatement ps) throws SQLException {
-    chain.setParameter(ps);
-
+  protected int setParameter(PreparedStatement ps, int idx) throws SQLException {
+    int nextIdx = chain.setParameter(ps, idx);
     if (nextNode != null) {
-      nextNode.setParameter(ps);
+      nextIdx = nextNode.setParameter(ps, nextIdx);
     }
+    return nextIdx;
   }
 
   @Override
-  protected void setNextNodePosition(QueryCondition next) {
-    int basePosition = chain.getLastPosition();
-
-    if (next instanceof NestedQueryCondition nested) {
-      // 批量更新 position
-      nested.position = basePosition + 1;
-      nested.chain.updatePosition(basePosition);
+  protected int setParameterInternal(PreparedStatement ps, int idx) throws SQLException {
+    int nextIdx = chain.setParameterInternal(ps, idx);
+    if (nextNode != null) {
+      nextIdx = nextNode.setParameterInternal(ps, nextIdx);
     }
-    else {
-      next.updatePosition(basePosition);
-//      next.position = lastPosition + 1;
-//      chain.position = lastPosition;
-    }
-  }
-
-  @Override
-  protected void setParameterInternal(PreparedStatement ps) throws SQLException {
-    chain.setParameterInternal(ps);
+    return nextIdx;
   }
 
   @Override

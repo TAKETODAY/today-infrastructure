@@ -67,6 +67,7 @@ public class DefaultQueryCondition extends QueryCondition {
 
   /**
    * @param ps PreparedStatement
+   * @param idx current parameter-index
    * @throws SQLException if parameterIndex does not correspond to a parameter
    * marker in the SQL statement; if a database access error occurs;
    * this method is called on a closed {@code PreparedStatement}
@@ -74,24 +75,24 @@ public class DefaultQueryCondition extends QueryCondition {
    */
   @Override
   @SuppressWarnings("unchecked")
-  protected void setParameterInternal(PreparedStatement ps) throws SQLException {
+  protected int setParameterInternal(PreparedStatement ps, int idx) throws SQLException {
     if (valueLength != 1) {
-      final int position = this.position;
-      final Object parameterValue = this.parameterValue;
       if (parameterValue instanceof Object[] array) {
         for (int i = 0; i < valueLength; i++) {
-          typeHandler.setParameter(ps, position + i, array[i]);
+          typeHandler.setParameter(ps, idx + i, array[i]);
         }
       }
       else if (parameterValue != null) {
         int i = 0;
         for (Object parameter : (Iterable<Object>) parameterValue) {
-          typeHandler.setParameter(ps, position + i++, parameter);
+          typeHandler.setParameter(ps, idx + i++, parameter);
         }
       }
+      return idx + valueLength;
     }
     else {
-      typeHandler.setParameter(ps, position, parameterValue);
+      typeHandler.setParameter(ps, idx, parameterValue);
+      return idx + 1;
     }
   }
 
@@ -105,16 +106,6 @@ public class DefaultQueryCondition extends QueryCondition {
     // operator and value
 
     operator.render(sql, parameterValue, valueLength);
-  }
-
-  @Override
-  protected void setNextNodePosition(QueryCondition next) {
-    if (next instanceof DefaultQueryCondition nextCondition) {
-      nextCondition.updatePosition(valueLength);
-    }
-    else {
-      super.setNextNodePosition(next);
-    }
   }
 
   //

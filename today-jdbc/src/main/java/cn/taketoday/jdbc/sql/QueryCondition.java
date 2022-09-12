@@ -35,9 +35,6 @@ import cn.taketoday.util.ObjectUtils;
  */
 public abstract class QueryCondition {
 
-  // parameter start position
-  protected int position = 1;
-
   @Nullable
   protected String type;
 
@@ -51,20 +48,25 @@ public abstract class QueryCondition {
 
   /**
    * @param ps PreparedStatement
+   * @return nextIdx
    * @throws SQLException if parameterIndex does not correspond to a parameter
    * marker in the SQL statement; if a database access error occurs;
    * this method is called on a closed {@code PreparedStatement}
    * or the type of the given object is ambiguous
    */
-  protected void setParameter(PreparedStatement ps) throws SQLException {
-    setParameterInternal(ps);
-
-    if (nextNode != null) {
-      nextNode.setParameter(ps);
-    }
+  public int setParameter(PreparedStatement ps) throws SQLException {
+    return setParameter(ps, 1);
   }
 
-  protected abstract void setParameterInternal(PreparedStatement ps) throws SQLException;
+  protected int setParameter(PreparedStatement ps, int idx) throws SQLException {
+    int nextIdx = setParameterInternal(ps, idx);
+    if (nextNode != null) {
+      nextIdx = nextNode.setParameter(ps, nextIdx);
+    }
+    return nextIdx;
+  }
+
+  protected abstract int setParameterInternal(PreparedStatement ps, int idx) throws SQLException;
 
   /**
    * append sql
@@ -119,27 +121,8 @@ public abstract class QueryCondition {
   }
 
   protected void setNext(QueryCondition next) {
-    setNextNodePosition(next);
     this.nextNode = next;
     next.preNode = this;
-  }
-
-  protected void updatePosition(int basePosition) {
-    this.position = this.position + basePosition;
-    if (nextNode != null) {
-      nextNode.updatePosition(basePosition);
-    }
-  }
-
-  protected int getLastPosition() {
-    if (nextNode != null) {
-      return nextNode.getLastPosition();
-    }
-    return position;
-  }
-
-  protected void setNextNodePosition(QueryCondition next) {
-    next.position = position + 1;
   }
 
   // Static factory methods
