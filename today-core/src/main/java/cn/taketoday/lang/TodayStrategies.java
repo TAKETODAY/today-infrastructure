@@ -182,10 +182,9 @@ public final class TodayStrategies {
   /**
    * Determines the integer value of the property with the specified name.
    *
-   * <p>The first argument is treated as the name of a system property.
-   * System properties are accessible through the {@link
-   * java.lang.System#getProperty(java.lang.String)} method. The
-   * string value of this property is then interpreted as an integer
+   * <p>The first argument is treated as the name of a today.properties or
+   * system property. properties are accessible through the {@link #getProperty(java.lang.String)}
+   * method. The string value of this property is then interpreted as an integer
    * value using the grammar supported by {@link Integer#decode decode} and
    * an {@code Integer} object representing this value is returned.
    *
@@ -217,10 +216,9 @@ public final class TodayStrategies {
    * Determines the integer value of the system property with the
    * specified name.
    *
-   * <p>The first argument is treated as the name of a system
-   * property.  System properties are accessible through the {@link
-   * java.lang.System#getProperty(java.lang.String)} method. The
-   * string value of this property is then interpreted as an integer
+   * <p>The first argument is treated as the name of a today.properties or
+   * system property. properties are accessible through the {@link #getProperty(java.lang.String)}
+   * method. The string value of this property is then interpreted as an integer
    * value using the grammar supported by {@link Integer#decode decode} and
    * an {@code Integer} object representing this value is returned.
    *
@@ -262,13 +260,14 @@ public final class TodayStrategies {
 
   /**
    * Returns the integer value of the property with the
-   * specified name.  The first argument is treated as the name of a
-   * system property.  System properties are accessible through the
-   * {@link java.lang.System#getProperty(java.lang.String)} method.
-   * The string value of this property is then interpreted as an
-   * integer value, as per the {@link Integer#decode decode} method,
-   * and an {@code Integer} object representing this value is
-   * returned; in summary:
+   * specified name.
+   * <p>The first argument is treated as the name of a today.properties or
+   * system property. properties are accessible through the {@link #getProperty(java.lang.String)}
+   * method. The string value of this property is then interpreted as an integer
+   * value using the grammar supported by {@link Integer#decode decode} and
+   * an {@code Integer} object representing this value is returned.
+   *
+   * in summary:
    *
    * <ul><li>If the property value begins with the two ASCII characters
    *         {@code 0x} or the ASCII character {@code #}, not
@@ -299,17 +298,153 @@ public final class TodayStrategies {
    */
   @Nullable
   public static Integer getInteger(String key, @Nullable Integer val) {
-    String v = null;
     try {
-      v = getProperty(key);
+      String v = getProperty(key);
+      if (v != null) {
+        try {
+          return Integer.decode(v);
+        }
+        catch (NumberFormatException ignored) { }
+      }
     }
     catch (IllegalArgumentException | NullPointerException ignored) { }
-    if (v != null) {
-      try {
-        return Integer.decode(v);
+    return val;
+  }
+
+  /**
+   * Determines the {@code long} value of the system property
+   * with the specified name.
+   *
+   * <p>The first argument is treated as the name of a today.properties or
+   * system property. properties are accessible through the {@link #getProperty(java.lang.String)}
+   * method. The string value of this property is then interpreted as an integer
+   * value using the grammar supported by {@link Integer#decode decode} and
+   * an {@code Integer} object representing this value is returned.
+   *
+   * <p>If there is no property with the specified name, if the
+   * specified name is empty or {@code null}, or if the property
+   * does not have the correct numeric format, then {@code null} is
+   * returned.
+   *
+   * <p>In other words, this method returns a {@code Long} object
+   * equal to the value of:
+   *
+   * <blockquote>
+   * {@code getLong(nm, null)}
+   * </blockquote>
+   *
+   * @param nm property name.
+   * @return the {@code Long} value of the property.
+   * @throws SecurityException for the same reasons as
+   * {@link System#getProperty(String) System.getProperty}
+   * @see java.lang.System#getProperty(java.lang.String)
+   * @see java.lang.System#getProperty(java.lang.String, java.lang.String)
+   */
+  public static Long getLong(String nm) {
+    return getLong(nm, null);
+  }
+
+  /**
+   * Determines the {@code long} value of the system property
+   * with the specified name.
+   *
+   * <p>The first argument is treated as the name of a today.properties or
+   * system property. properties are accessible through the {@link #getProperty(java.lang.String)}
+   * method. The string value of this property is then interpreted as an integer
+   * value using the grammar supported by {@link Integer#decode decode} and
+   * an {@code Integer} object representing this value is returned.
+   *
+   * <p>The second argument is the default value. A {@code Long} object
+   * that represents the value of the second argument is returned if there
+   * is no property of the specified name, if the property does not have
+   * the correct numeric format, or if the specified name is empty or null.
+   *
+   * <p>In other words, this method returns a {@code Long} object equal
+   * to the value of:
+   *
+   * <blockquote>
+   * {@code getLong(nm, new Long(val))}
+   * </blockquote>
+   *
+   * but in practice it may be implemented in a manner such as:
+   *
+   * <blockquote><pre>
+   * Long result = getLong(nm, null);
+   * return (result == null) ? new Long(val) : result;
+   * </pre></blockquote>
+   *
+   * to avoid the unnecessary allocation of a {@code Long} object when
+   * the default value is not needed.
+   *
+   * @param nm property name.
+   * @param val default value.
+   * @return the {@code Long} value of the property.
+   * @throws SecurityException for the same reasons as
+   * {@link System#getProperty(String) System.getProperty}
+   * @see java.lang.System#getProperty(java.lang.String)
+   * @see java.lang.System#getProperty(java.lang.String, java.lang.String)
+   */
+  public static Long getLong(String nm, long val) {
+    Long result = Long.getLong(nm, null);
+    return (result == null) ? Long.valueOf(val) : result;
+  }
+
+  /**
+   * Returns the {@code long} value of the system property with the specified name.
+   * <p>The first argument is treated as the name of a today.properties or
+   * system property. properties are accessible through the {@link #getProperty(java.lang.String)}
+   * method. The string value of this property is then interpreted as an integer
+   * value using the grammar supported by {@link Integer#decode decode} and
+   * an {@code Integer} object representing this value is returned.
+   *
+   * in summary:
+   *
+   * <ul>
+   * <li>If the property value begins with the two ASCII characters
+   * {@code 0x} or the ASCII character {@code #}, not followed by
+   * a minus sign, then the rest of it is parsed as a hexadecimal integer
+   * exactly as for the method {@link Long#valueOf(java.lang.String, int)}
+   * with radix 16.
+   * <li>If the property value begins with the ASCII character
+   * {@code 0} followed by another character, it is parsed as
+   * an octal integer exactly as by the method {@link
+   * Long#valueOf(java.lang.String, int)} with radix 8.
+   * <li>Otherwise the property value is parsed as a decimal
+   * integer exactly as by the method
+   * {@link Long#valueOf(java.lang.String, int)} with radix 10.
+   * </ul>
+   *
+   * <p>Note that, in every case, neither {@code L}
+   * ({@code '\u005Cu004C'}) nor {@code l}
+   * ({@code '\u005Cu006C'}) is permitted to appear at the end
+   * of the property value as a type indicator, as would be
+   * permitted in Java programming language source code.
+   *
+   * <p>The second argument is the default value. The default value is
+   * returned if there is no property of the specified name, if the
+   * property does not have the correct numeric format, or if the
+   * specified name is empty or {@code null}.
+   *
+   * @param nm property name.
+   * @param val default value.
+   * @return the {@code Long} value of the property.
+   * @throws SecurityException for the same reasons as
+   * {@link System#getProperty(String) System.getProperty}
+   * @see System#getProperty(java.lang.String)
+   * @see System#getProperty(java.lang.String, java.lang.String)
+   */
+  public static Long getLong(String nm, Long val) {
+    try {
+      String v = System.getProperty(nm);
+      if (v != null) {
+        try {
+          return Long.decode(v);
+        }
+        catch (NumberFormatException ignored) { }
       }
-      catch (NumberFormatException ignored) { }
     }
+    catch (IllegalArgumentException | NullPointerException ignored) { }
+
     return val;
   }
 
