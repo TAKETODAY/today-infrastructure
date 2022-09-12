@@ -34,7 +34,7 @@ import cn.taketoday.logging.LoggerFactory;
  * @since 4.0 2022/9/12 19:19
  */
 public class SqlStatementLogger {
-  private static final Logger log = LoggerFactory.getLogger("today.infra.SQL");
+  private static final Logger sqlLogger = LoggerFactory.getLogger("today.infra.SQL");
   private static final Logger slowLogger = LoggerFactory.getLogger("today.infra.SQL_SLOW");
 
   private final boolean format;
@@ -90,6 +90,24 @@ public class SqlStatementLogger {
   }
 
   /**
+   * Is the logger instance enabled for the DEBUG level?
+   *
+   * @return True if this Logger is enabled for the DEBUG level, false otherwise.
+   */
+  public boolean isDebugEnabled() {
+    return sqlLogger.isDebugEnabled();
+  }
+
+  /**
+   * Is the logger instance enabled for the DEBUG level?
+   *
+   * @return True if this Logger is enabled for the DEBUG level, false otherwise.
+   */
+  public boolean isSlowDebugEnabled() {
+    return slowLogger.isDebugEnabled();
+  }
+
+  /**
    * Are we currently logging to stdout?
    *
    * @return True if we are currently logging to stdout; false otherwise.
@@ -123,7 +141,7 @@ public class SqlStatementLogger {
    * @param formatter The formatter to use.
    */
   public void logStatement(String statement, SQLFormatter formatter) {
-    if (logToStdout || log.isDebugEnabled()) {
+    if (logToStdout || sqlLogger.isDebugEnabled()) {
       if (format) {
         statement = formatter.format(statement);
       }
@@ -131,9 +149,9 @@ public class SqlStatementLogger {
         statement = FormatStyle.HIGHLIGHT.formatter.format(statement);
       }
     }
-    log.debug(statement);
+    sqlLogger.debug(statement);
     if (logToStdout) {
-      String prefix = highlight ? "\u001b[35m[Infra]\u001b[0m " : "Infra: ";
+      String prefix = highlight ? "\u001b[35m[today-infrastructure]\u001b[0m " : "today-infrastructure: ";
       System.out.println(prefix + statement);
     }
   }
