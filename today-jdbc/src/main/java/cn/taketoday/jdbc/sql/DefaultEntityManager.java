@@ -41,6 +41,7 @@ import cn.taketoday.jdbc.result.JdbcBeanMetadata;
 import cn.taketoday.jdbc.result.ResultSetHandlerIterator;
 import cn.taketoday.jdbc.sql.dialect.Dialect;
 import cn.taketoday.jdbc.sql.dialect.MySQLDialect;
+import cn.taketoday.jdbc.support.JdbcUtils;
 import cn.taketoday.jdbc.type.TypeHandler;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
@@ -52,7 +53,7 @@ import cn.taketoday.logging.LoggerFactory;
  * @since 4.0 2022/9/10 22:28
  */
 public class DefaultEntityManager implements EntityManager {
-  private final Logger logger = LoggerFactory.getLogger(getClass());
+  private static final Logger log = LoggerFactory.getLogger(DefaultEntityManager.class);
 
   private EntityMetadataFactory entityMetadataFactory = new DefaultEntityMetadataFactory();
 
@@ -126,14 +127,13 @@ public class DefaultEntityManager implements EntityManager {
     EntityMetadata entityMetadata = entityMetadataFactory.getEntityMetadata(entityClass);
     String sql = insert(entityMetadata);
 
-    if (logger.isDebugEnabled()) {
-      logger.debug("Persist entity: {} using SQL: [{}] , generatedKeys={}", entity, sql, returnGeneratedKeys);
+    if (log.isDebugEnabled()) {
+      log.debug("Persist entity: {} using SQL: [{}] , generatedKeys={}", entity, sql, returnGeneratedKeys);
     }
 
     Connection connection = getConnection();
-    PreparedStatement statement = prepareStatement(connection, sql, returnGeneratedKeys);
 
-    try {
+    try (PreparedStatement statement = prepareStatement(connection, sql, returnGeneratedKeys)) {
       setPersistParameter(entity, statement, entityMetadata);
 
       // execute
@@ -208,11 +208,13 @@ public class DefaultEntityManager implements EntityManager {
 
     for (PreparedBatch preparedBatch : statements.values()) {
       preparedBatch.executeBatch(returnGeneratedKeys);
+      preparedBatch.closeQuietly();
     }
 
   }
 
-  private static void setPersistParameter(Object entity, PreparedStatement statement, EntityMetadata entityMetadata) throws SQLException {
+  private static void setPersistParameter(
+          Object entity, PreparedStatement statement, EntityMetadata entityMetadata) throws SQLException {
     int idx = 1;
     for (EntityProperty property : entityMetadata.entityProperties) {
       property.setTo(statement, idx++, entity);
@@ -255,6 +257,10 @@ public class DefaultEntityManager implements EntityManager {
     }
 
     public void executeBatch(PreparedStatement statement, boolean returnGeneratedKeys) {
+      if (log.isDebugEnabled()) {
+        log.debug("Executing batch size: {}", entities.size());
+      }
+
       try {
         int[] updateCounts = statement.executeBatch();
         assertUpdateCount(updateCounts.length, entities.size());
@@ -277,6 +283,10 @@ public class DefaultEntityManager implements EntityManager {
       catch (Throwable e) {
         throw new PersistenceException("Error while executing batch operation: " + e.getMessage(), e);
       }
+    }
+
+    public void closeQuietly() {
+      JdbcUtils.closeQuietly(statement);
     }
   }
 
@@ -395,8 +405,8 @@ public class DefaultEntityManager implements EntityManager {
       sql.append(columnNamesBuf.substring(2));
     }
 
-    if (logger.isDebugEnabled()) {
-      logger.debug("lookup entity using SQL: [{}] , queryObject: {}", sql, params);
+    if (log.isDebugEnabled()) {
+      log.debug("lookup entity using SQL: [{}] , queryObject: {}", sql, params);
     }
 
     Connection connection = getConnection();
@@ -439,29 +449,9 @@ public class DefaultEntityManager implements EntityManager {
 
     if (conditions != null) {
       sql.append(" WHERE ");
+      // WHERE column_name operator value;
       conditions.render(sql);
     }
-
-//    int size = conditions.size();
-//    if (size != 0) {
-//      sql.append(" WHERE ");
-//      int idx = 1;
-//
-//      QueryCondition firstCondition = conditions.get(0);
-//      if (firstCondition.render(sql, true, idx)) {
-//        idx++;
-//      }
-//
-//      if (size > 1) {
-//        for (int i = 1; i < size; i++) {
-//          QueryCondition condition = conditions.get(i);
-//          if (condition.render(sql, false, idx)) {
-//            idx++;
-//          }
-//        }
-//      }
-//
-//    }
 
     Connection connection = getConnection();
     PreparedStatement statement = prepareStatement(connection, sql.toString(), false);
@@ -474,8 +464,8 @@ public class DefaultEntityManager implements EntityManager {
       throw new PersistenceException("Error in setParameter, " + ex.getMessage(), ex);
     }
 
-    if (logger.isDebugEnabled()) {
-      logger.debug("lookup entities using SQL: [{}] , matched conditions: {}", sql, conditions);
+    if (log.isDebugEnabled()) {
+      log.debug("lookup entities using SQL: [{}] , matched conditions: {}", sql, conditions);
     }
 
     try {
