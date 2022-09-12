@@ -600,7 +600,7 @@ public final class Query implements AutoCloseable {
     long start = System.currentTimeMillis();
     JdbcConnection connection = getConnection();
     try {
-      logExecution();
+      logStatement();
       PreparedStatement statement = buildPreparedStatement();
       connection.setResult(statement.executeUpdate());
       boolean generatedKeys = isReturnGeneratedKeys();
@@ -652,7 +652,7 @@ public final class Query implements AutoCloseable {
   }
 
   public <T> T fetchScalar(TypeHandler<T> typeHandler) {
-    logExecution();
+    logStatement();
     long start = System.currentTimeMillis();
     try (PreparedStatement ps = buildPreparedStatement();
             ResultSet rs = ps.executeQuery()) {
@@ -775,7 +775,7 @@ public final class Query implements AutoCloseable {
   }
 
   public JdbcConnection executeBatch() {
-    logExecution();
+    logStatement();
     long start = System.currentTimeMillis();
     JdbcConnection connection = this.connection;
     try {
@@ -871,7 +871,7 @@ public final class Query implements AutoCloseable {
     }
   }
 
-  private void logExecution() {
+  private void logStatement() {
     if (stmtLogger.isDebugEnabled()) {
       stmtLogger.logStatement(parsedQuery);
     }
@@ -944,7 +944,7 @@ public final class Query implements AutoCloseable {
     AbstractResultSetIterable() {
       try {
         start = System.currentTimeMillis();
-        logExecution();
+        logStatement();
         rs = buildPreparedStatement().executeQuery();
         afterExecQuery = System.currentTimeMillis();
       }
