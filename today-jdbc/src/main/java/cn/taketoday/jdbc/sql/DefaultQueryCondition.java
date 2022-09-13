@@ -77,6 +77,7 @@ public class DefaultQueryCondition extends QueryCondition {
   @SuppressWarnings("unchecked")
   protected int setParameterInternal(PreparedStatement ps, int idx) throws SQLException {
     if (valueLength != 1) {
+      final Object parameterValue = this.parameterValue;
       if (parameterValue instanceof Object[] array) {
         for (int i = 0; i < valueLength; i++) {
           typeHandler.setParameter(ps, idx + i, array[i]);

@@ -20,7 +20,6 @@
 
 package cn.taketoday.jdbc.sql;
 
-import cn.taketoday.core.style.ToStringBuilder;
 import cn.taketoday.lang.Nullable;
 
 /**
@@ -29,9 +28,17 @@ import cn.taketoday.lang.Nullable;
  */
 public interface Operator {
 
+  Operator GRATE_THAN = plain(" > ?");
+  Operator GRATE_EQUALS = plain(" >= ?");
+  Operator LESS_THAN = plain(" < ?");
+  Operator LESS_EQUALS = plain(" <= ?");
+
   Operator EQUALS = plain(" = ?");
   Operator NOT_EQUALS = plain(" <> ?");
+
   Operator IS_NULL = plain(" is null");
+  Operator IS_NOT_NULL = plain(" is not null");
+
   Operator LIKE = plain(" like concat('%', ?, '%')");
   Operator SUFFIX_LIKE = plain(" like concat('%', ?)");
   Operator PREFIX_LIKE = plain(" like concat(?, '%')");
@@ -39,21 +46,12 @@ public interface Operator {
   Operator BETWEEN = plain(" BETWEEN ? AND ?");
   Operator NOT_BETWEEN = plain(" NOT BETWEEN ? AND ?");
 
-  Operator IN = (sql, value, valueLength) -> {
-    sql.append(" IN (");
-    for (int i = 0; i < valueLength; i++) {
-      if (i == 0) {
-        sql.append('?');
-      }
-      else {
-        sql.append(",?");
-      }
-    }
-    sql.append(')');
-  };
+  Operator IN = new In(false);
+  Operator NOT_IN = new In(true);
 
   /**
    * Render this operator and value-placeholder to StringBuilder
+   * <p> sql snippet must start with a space
    *
    * @param sql SQL appender
    * @param value parameter to test
@@ -64,24 +62,48 @@ public interface Operator {
   // Static Factory Methods
 
   static Operator plain(String placeholder) {
-    return new PlainOperator(placeholder);
+    return new Plain(placeholder);
+  }
+
+  static Operator in(boolean notIn) {
+    return new In(notIn);
   }
 
   /**
    * column_name operator value;
    */
-  record PlainOperator(String placeholder) implements Operator {
+  record Plain(String placeholder) implements Operator {
 
     @Override
     public void render(StringBuilder sql, Object value, int valueLength) {
       sql.append(placeholder);
     }
 
+  }
+
+  class In implements Operator {
+
+    private final boolean notIn;
+
+    public In(boolean notIn) {
+      this.notIn = notIn;
+    }
+
     @Override
-    public String toString() {
-      return ToStringBuilder.from(this)
-              .append("placeholder", placeholder)
-              .toString();
+    public void render(StringBuilder sql, @Nullable Object value, int valueLength) {
+      if (notIn) {
+        sql.append(" NOT");
+      }
+      sql.append(" IN (");
+      for (int i = 0; i < valueLength; i++) {
+        if (i == 0) {
+          sql.append('?');
+        }
+        else {
+          sql.append(",?");
+        }
+      }
+      sql.append(')');
     }
 
   }
