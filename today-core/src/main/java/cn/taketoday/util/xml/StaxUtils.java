@@ -23,6 +23,7 @@ package cn.taketoday.util.xml;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.XMLReader;
 
+import java.io.InputStream;
 import java.util.List;
 import java.util.function.Supplier;
 
@@ -58,7 +59,7 @@ import cn.taketoday.util.StreamUtils;
 public abstract class StaxUtils {
 
   private static final XMLResolver NO_OP_XML_RESOLVER =
-          (publicID, systemID, base, ns) -> StreamUtils.emptyInput();
+          (publicID, systemID, base, ns) -> InputStream.nullInputStream();
 
   /**
    * Create an {@link XMLInputFactory} with Framework's defensive setup,

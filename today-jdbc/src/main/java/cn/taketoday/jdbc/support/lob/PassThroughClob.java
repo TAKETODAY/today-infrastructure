@@ -34,7 +34,6 @@ import java.sql.SQLException;
 
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.FileCopyUtils;
-import cn.taketoday.util.StreamUtils;
 
 /**
  * Simple JDBC {@link Clob} adapter that exposes a given String or character stream.
@@ -86,7 +85,7 @@ class PassThroughClob implements Clob {
     }
     else {
       return new InputStreamReader(
-              (this.asciiStream != null ? this.asciiStream : StreamUtils.emptyInput()),
+              (this.asciiStream != null ? this.asciiStream : InputStream.nullInputStream()),
               StandardCharsets.US_ASCII);
     }
   }
@@ -102,7 +101,7 @@ class PassThroughClob implements Clob {
         return new ByteArrayInputStream(tempContent.getBytes(StandardCharsets.US_ASCII));
       }
       else {
-        return (this.asciiStream != null ? this.asciiStream : StreamUtils.emptyInput());
+        return (this.asciiStream != null ? this.asciiStream : InputStream.nullInputStream());
       }
     }
     catch (IOException ex) {

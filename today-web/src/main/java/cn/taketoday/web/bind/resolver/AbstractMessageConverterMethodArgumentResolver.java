@@ -50,7 +50,6 @@ import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.LogFormatUtils;
 import cn.taketoday.util.MimeTypeUtils;
-import cn.taketoday.util.StreamUtils;
 import cn.taketoday.validation.BindingResult;
 import cn.taketoday.validation.Errors;
 import cn.taketoday.validation.annotation.ValidationAnnotationUtils;
@@ -365,7 +364,7 @@ public abstract class AbstractMessageConverterMethodArgumentResolver implements 
 
     @Override
     public InputStream getBody() {
-      return this.body != null ? this.body : StreamUtils.emptyInput();
+      return this.body != null ? this.body : InputStream.nullInputStream();
     }
 
     public boolean hasBody() {

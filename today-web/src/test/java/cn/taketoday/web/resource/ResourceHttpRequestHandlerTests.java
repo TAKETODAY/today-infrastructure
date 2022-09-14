@@ -70,6 +70,10 @@ import static org.mockito.Mockito.mock;
 @ExtendWith(GzipSupport.class)
 public class ResourceHttpRequestHandlerTests {
 
+  private final ClassPathResource testResource = new ClassPathResource("test/", getClass());
+  private final ClassPathResource testAlternatePathResource = new ClassPathResource("testalternatepath/", getClass());
+  private final ClassPathResource webjarsResource = new ClassPathResource("META-INF/resources/webjars/");
+
   private ResourceHttpRequestHandler handler;
 
   private MockHttpServletRequest request;
@@ -80,15 +84,16 @@ public class ResourceHttpRequestHandlerTests {
 
   @BeforeEach
   public void setup() throws Exception {
-    List<Resource> paths = new ArrayList<>(2);
-    paths.add(new ClassPathResource("test/", getClass()));
-    paths.add(new ClassPathResource("testalternatepath/", getClass()));
-    paths.add(new ClassPathResource("META-INF/resources/webjars/"));
+    List<Resource> locations = List.of(
+            this.testResource,
+            this.testAlternatePathResource,
+            this.webjarsResource
+    );
 
     TestServletContext servletContext = new TestServletContext();
 
     this.handler = new ResourceHttpRequestHandler();
-    this.handler.setLocations(paths);
+    this.handler.setLocations(locations);
     this.handler.setCacheSeconds(3600);
     this.handler.afterPropertiesSet();
 
@@ -440,10 +445,7 @@ public class ResourceHttpRequestHandlerTests {
     PathResourceResolver resolver = (PathResourceResolver) this.handler.getResourceResolvers().get(0);
     Resource[] locations = resolver.getAllowedLocations();
 
-    assertThat(locations.length).isEqualTo(3);
-    assertThat(((ClassPathResource) locations[0]).getPath()).isEqualTo("test/");
-    assertThat(((ClassPathResource) locations[1]).getPath()).isEqualTo("testalternatepath/");
-    assertThat(((ClassPathResource) locations[2]).getPath()).isEqualTo("META-INF/resources/webjars/");
+    assertThat(locations).containsExactly(this.testResource, this.testAlternatePathResource, this.webjarsResource);
   }
 
   @Test
@@ -460,9 +462,7 @@ public class ResourceHttpRequestHandlerTests {
     handler.setLocations(Arrays.asList(location1, location2));
     handler.afterPropertiesSet();
 
-    Resource[] locations = pathResolver.getAllowedLocations();
-    assertThat(locations.length).isEqualTo(1);
-    assertThat(((ClassPathResource) locations[0]).getPath()).isEqualTo("test/");
+    assertThat(pathResolver.getAllowedLocations()).containsExactly(location1);
   }
 
   @Test

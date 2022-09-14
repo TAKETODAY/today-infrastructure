@@ -31,7 +31,6 @@ import java.io.InputStream;
 
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.StreamUtils;
 
 /**
  * {@link ClientHttpResponse} implementation based on
@@ -79,7 +78,7 @@ final class HttpComponentsClientHttpResponse extends AbstractClientHttpResponse 
   @Override
   public InputStream getBody() throws IOException {
     HttpEntity entity = this.httpResponse.getEntity();
-    return (entity != null ? entity.getContent() : StreamUtils.emptyInput());
+    return (entity != null ? entity.getContent() : InputStream.nullInputStream());
   }
 
   @Override

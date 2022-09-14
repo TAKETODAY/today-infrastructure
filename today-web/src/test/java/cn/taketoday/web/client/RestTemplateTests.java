@@ -22,10 +22,10 @@ package cn.taketoday.web.client;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentMatchers;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
 import java.util.Arrays;
 import java.util.Collections;
@@ -53,7 +53,6 @@ import cn.taketoday.http.client.ClientHttpResponse;
 import cn.taketoday.http.client.SimpleClientHttpRequestFactory;
 import cn.taketoday.http.converter.GenericHttpMessageConverter;
 import cn.taketoday.http.converter.HttpMessageConverter;
-import cn.taketoday.util.StreamUtils;
 import cn.taketoday.web.util.DefaultUriBuilderFactory;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
@@ -278,7 +277,7 @@ class RestTemplateTests {
     mockSentRequest(GET, "https://example.com/hotels/1/pic/pics%2Flogo.png/size/150x150");
     mockResponseStatus(HttpStatus.OK);
     given(response.getHeaders()).willReturn(HttpHeaders.create());
-    given(response.getBody()).willReturn(StreamUtils.emptyInput());
+    given(response.getBody()).willReturn(InputStream.nullInputStream());
 
     Map<String, String> uriVariables = new HashMap<>(2);
     uriVariables.put("hotel", "1");
@@ -434,7 +433,7 @@ class RestTemplateTests {
     responseHeaders.setContentType(MediaType.TEXT_PLAIN);
     responseHeaders.setContentLength(10);
     given(response.getHeaders()).willReturn(responseHeaders);
-    given(response.getBody()).willReturn(StreamUtils.emptyInput());
+    given(response.getBody()).willReturn(InputStream.nullInputStream());
     given(converter.read(String.class, response)).willReturn(null);
 
     String result = template.postForObject("https://example.com", null, String.class);
@@ -454,7 +453,7 @@ class RestTemplateTests {
     responseHeaders.setContentType(MediaType.TEXT_PLAIN);
     responseHeaders.setContentLength(10);
     given(response.getHeaders()).willReturn(responseHeaders);
-    given(response.getBody()).willReturn(StreamUtils.emptyInput());
+    given(response.getBody()).willReturn(InputStream.nullInputStream());
     given(converter.read(String.class, response)).willReturn(null);
 
     ResponseEntity<String> result = template.postForEntity("https://example.com", null, String.class);
@@ -552,7 +551,7 @@ class RestTemplateTests {
     responseHeaders.setContentType(MediaType.TEXT_PLAIN);
     responseHeaders.setContentLength(10);
     given(response.getHeaders()).willReturn(responseHeaders);
-    given(response.getBody()).willReturn(StreamUtils.emptyInput());
+    given(response.getBody()).willReturn(InputStream.nullInputStream());
 
     String result = template.patchForObject("https://example.com", null, String.class);
     assertThat(result).as("Invalid POST result").isNull();

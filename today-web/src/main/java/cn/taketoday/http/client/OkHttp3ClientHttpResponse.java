@@ -26,7 +26,6 @@ import java.io.InputStream;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.StreamUtils;
 import kotlin.Pair;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
@@ -64,7 +63,7 @@ class OkHttp3ClientHttpResponse extends AbstractClientHttpResponse {
   @Override
   public InputStream getBody() throws IOException {
     ResponseBody body = this.response.body();
-    return body != null ? body.byteStream() : StreamUtils.emptyInput();
+    return body != null ? body.byteStream() : InputStream.nullInputStream();
   }
 
   @Override

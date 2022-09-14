@@ -20,12 +20,6 @@
 
 package cn.taketoday.util;
 
-import cn.taketoday.lang.Assert;
-import cn.taketoday.lang.Constant;
-import cn.taketoday.lang.NonNull;
-import cn.taketoday.lang.Nullable;
-
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.FilterInputStream;
 import java.io.FilterOutputStream;
@@ -37,6 +31,11 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+
+import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Constant;
+import cn.taketoday.lang.NonNull;
+import cn.taketoday.lang.Nullable;
 
 /**
  * Simple utility methods for dealing with streams. The copy methods of this class are
@@ -58,8 +57,6 @@ public abstract class StreamUtils {
    * The default buffer size used when copying bytes.
    */
   public static final int BUFFER_SIZE = 8192;
-
-  private static final byte[] EMPTY_CONTENT = Constant.EMPTY_BYTES;
 
   /**
    * Copy the contents of the given InputStream into a new byte array.
@@ -296,21 +293,12 @@ public abstract class StreamUtils {
   public static int drain(InputStream in, int bufferSize) throws IOException {
     Assert.notNull(in, "No InputStream specified");
     byte[] buffer = new byte[bufferSize];
-    int bytesRead = -1;
+    int bytesRead;
     int byteCount = 0;
-    while ((bytesRead = in.read(buffer)) != -1) {
+    while ((bytesRead = in.read(buffer, 0, buffer.length)) != -1) {
       byteCount += bytesRead;
     }
     return byteCount;
-  }
-
-  /**
-   * Return an efficient empty {@link InputStream}.
-   *
-   * @return a {@link ByteArrayInputStream} based on an empty byte array
-   */
-  public static InputStream emptyInput() {
-    return new ByteArrayInputStream(EMPTY_CONTENT);
   }
 
   /**

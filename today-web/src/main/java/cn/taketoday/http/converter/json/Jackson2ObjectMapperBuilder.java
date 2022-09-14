@@ -48,6 +48,7 @@ import com.fasterxml.jackson.dataformat.xml.JacksonXmlModule;
 import com.fasterxml.jackson.dataformat.xml.XmlFactory;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 
+import java.io.InputStream;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -64,8 +65,8 @@ import java.util.function.Supplier;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLResolver;
 
-import cn.taketoday.beans.BeansException;
 import cn.taketoday.beans.BeanUtils;
+import cn.taketoday.beans.BeansException;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.core.DefaultMultiValueMap;
 import cn.taketoday.core.MultiValueMap;
@@ -73,7 +74,6 @@ import cn.taketoday.http.ProblemDetail;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
-import cn.taketoday.util.StreamUtils;
 import cn.taketoday.util.StringUtils;
 
 /**
@@ -919,7 +919,7 @@ public class Jackson2ObjectMapperBuilder {
   private static class XmlObjectMapperInitializer {
 
     private static final XMLResolver NO_OP_XML_RESOLVER =
-            (publicID, systemID, base, ns) -> StreamUtils.emptyInput();
+            (publicID, systemID, base, ns) -> InputStream.nullInputStream();
 
     public ObjectMapper create(@Nullable JsonFactory factory) {
       if (factory != null) {
