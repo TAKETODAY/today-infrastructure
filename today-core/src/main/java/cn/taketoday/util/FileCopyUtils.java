@@ -114,12 +114,10 @@ public abstract class FileCopyUtils {
    * @throws IOException in case of I/O errors
    */
   public static int copy(InputStream in, OutputStream out) throws IOException {
-    try {
-      return StreamUtils.copy(in, out);
-    }
-    finally {
-      close(in);
-      close(out);
+    try (in; out) {
+      int count = (int) in.transferTo(out);
+      out.flush();
+      return count;
     }
   }
 

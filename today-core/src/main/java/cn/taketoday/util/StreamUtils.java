@@ -67,26 +67,10 @@ public abstract class StreamUtils {
    * @throws IOException in case of I/O errors
    */
   public static byte[] copyToByteArray(@Nullable InputStream in) throws IOException {
-    return copyToByteArray(in, BUFFER_SIZE);
-  }
-
-  /**
-   * Copy the contents of the given InputStream into a new byte array.
-   * <p>Leaves the stream open when done.
-   *
-   * @param in the stream to copy from (may be {@code null} or empty)
-   * @param bufferSize user specified buffer size
-   * @return the new byte array that has been copied to (possibly empty)
-   * @throws IOException in case of I/O errors
-   */
-  public static byte[] copyToByteArray(@Nullable InputStream in, int bufferSize) throws IOException {
     if (in == null) {
       return Constant.EMPTY_BYTES;
     }
-
-    ByteArrayOutputStream out = new ByteArrayOutputStream(bufferSize);
-    copy(in, out);
-    return out.toByteArray();
+    return in.readAllBytes();
   }
 
   /**

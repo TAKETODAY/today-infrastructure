@@ -23,6 +23,7 @@ package cn.taketoday.http.converter;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 
 import cn.taketoday.core.io.ByteArrayResource;
 import cn.taketoday.core.io.InputStreamResource;
@@ -142,14 +143,26 @@ public class ResourceHttpMessageConverter extends AbstractHttpMessageConverter<R
 
   protected void writeContent(Resource resource, HttpOutputMessage outputMessage)
           throws IOException, HttpMessageNotWritableException {
+    // We cannot use try-with-resources here for the InputStream, since we have
+    // custom handling of the close() method in a finally-block.
     try {
-      try (InputStream in = resource.getInputStream()) {
-        StreamUtils.copy(in, outputMessage.getBody());
+      InputStream in = resource.getInputStream();
+      try {
+        OutputStream out = outputMessage.getBody();
+        in.transferTo(out);
+        out.flush();
       }
       catch (NullPointerException ex) {
         // ignore, see SPR-13620
       }
-      // ignore, see SPR-12999
+      finally {
+        try {
+          in.close();
+        }
+        catch (Throwable ex) {
+          // ignore, see SPR-12999
+        }
+      }
     }
     catch (FileNotFoundException ex) {
       // ignore, see SPR-12999
