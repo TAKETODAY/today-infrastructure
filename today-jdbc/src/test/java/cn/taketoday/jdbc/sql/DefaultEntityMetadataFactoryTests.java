@@ -96,7 +96,7 @@ class DefaultEntityMetadataFactoryTests {
     }
 
     EntityMetadata entityMetadata = factory.createEntityMetadata(OverrideId.class);
-    assertThat(entityMetadata.idProperty)
+    assertThat(entityMetadata.idProperty.property)
             .isEqualTo(BeanProperty.valueOf(OverrideId.class, "id"));
 
   }
@@ -112,13 +112,13 @@ class DefaultEntityMetadataFactoryTests {
     //default
 
     EntityMetadata entityMetadata = factory.createEntityMetadata(IdDiscover.class);
-    assertThat(entityMetadata.idProperty)
+    assertThat(entityMetadata.idProperty.property)
             .isEqualTo(BeanProperty.valueOf(IdDiscover.class, "id"));
 
     factory.setIdPropertyDiscover(IdPropertyDiscover.forPropertyName("id_"));
 
     entityMetadata = factory.createEntityMetadata(IdDiscover.class);
-    assertThat(entityMetadata.idProperty)
+    assertThat(entityMetadata.idProperty.property)
             .isEqualTo(BeanProperty.valueOf(IdDiscover.class, "id_"));
   }
 
