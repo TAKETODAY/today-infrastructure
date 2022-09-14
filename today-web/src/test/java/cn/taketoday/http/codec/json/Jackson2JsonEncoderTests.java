@@ -141,8 +141,7 @@ public class Jackson2JsonEncoderTests extends AbstractEncoderTests<Jackson2JsonE
     );
 
     testEncode(input, Pojo.class, step -> step
-            .consumeNextWith(expectString("["))
-            .consumeNextWith(expectString("{\"foo\":\"foo\",\"bar\":\"bar\"}"))
+            .consumeNextWith(expectString("[{\"foo\":\"foo\",\"bar\":\"bar\"}"))
             .consumeNextWith(expectString(",{\"foo\":\"foofoo\",\"bar\":\"barbar\"}"))
             .consumeNextWith(expectString(",{\"foo\":\"foofoofoo\",\"bar\":\"barbarbar\"}"))
             .consumeNextWith(expectString("]"))
@@ -150,19 +149,29 @@ public class Jackson2JsonEncoderTests extends AbstractEncoderTests<Jackson2JsonE
   }
 
   @Test
+  void encodeNonStreamWithErrorAsFirstSignal() {
+    String message = "I'm a teapot";
+    Flux<Object> input = Flux.error(new IllegalStateException(message));
+
+    Flux<DataBuffer> output = this.encoder.encode(
+            input, this.bufferFactory, ResolvableType.fromClass(Pojo.class), null, null);
+
+    StepVerifier.create(output).expectErrorMessage(message).verify();
+  }
+
+  @Test
   public void encodeWithType() {
     Flux<ParentClass> input = Flux.just(new Foo(), new Bar());
 
     testEncode(input, ParentClass.class, step -> step
-            .consumeNextWith(expectString("["))
-            .consumeNextWith(expectString("{\"type\":\"foo\"}"))
+            .consumeNextWith(expectString("[{\"type\":\"foo\"}"))
             .consumeNextWith(expectString(",{\"type\":\"bar\"}"))
             .consumeNextWith(expectString("]"))
             .verifyComplete());
   }
 
   @Test  // SPR-15727
-  public void encodeAsStreamWithCustomStreamingType() {
+  public void encodeStreamWithCustomStreamingType() {
     MediaType fooMediaType = new MediaType("application", "foo");
     MediaType barMediaType = new MediaType("application", "bar");
     this.encoder.setStreamingMediaTypes(Arrays.asList(fooMediaType, barMediaType));

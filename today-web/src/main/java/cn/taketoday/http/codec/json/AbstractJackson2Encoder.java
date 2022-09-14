@@ -37,6 +37,7 @@ import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
@@ -48,6 +49,7 @@ import cn.taketoday.core.codec.EncodingException;
 import cn.taketoday.core.codec.Hints;
 import cn.taketoday.core.io.buffer.DataBuffer;
 import cn.taketoday.core.io.buffer.DataBufferFactory;
+import cn.taketoday.core.io.buffer.DefaultDataBufferFactory;
 import cn.taketoday.http.MediaType;
 import cn.taketoday.http.codec.HttpMessageEncoder;
 import cn.taketoday.http.converter.json.MappingJacksonValue;
@@ -77,6 +79,7 @@ public abstract class AbstractJackson2Encoder extends Jackson2CodecSupport imple
   private static final byte[] NEWLINE_SEPARATOR = { '\n' };
   private static final byte[] EMPTY_BYTES = Constant.EMPTY_BYTES;
   private static final Map<String, JsonEncoding> ENCODINGS;
+  private static final DataBuffer EMPTY_BUFFER = DefaultDataBufferFactory.sharedInstance.wrap(EMPTY_BYTES);
 
   static {
     ENCODINGS = CollectionUtils.newHashMap(JsonEncoding.values().length);
@@ -174,10 +177,23 @@ public abstract class AbstractJackson2Encoder extends Jackson2CodecSupport imple
       }
       else {
         JsonArrayJoinHelper helper = new JsonArrayJoinHelper();
-        return Flux.concat(
-                helper.getPrefix(bufferFactory, hints, logger),
-                Flux.from(inputStream).map(value -> encodeStreamingValue(value, bufferFactory, hints, sequenceWriter, byteBuilder, helper.getDelimiter(), EMPTY_BYTES)),
-                helper.getSuffix(bufferFactory, hints, logger));
+
+        // Do not prepend JSON array prefix until first signal is known, onNext vs onError
+        // Keeps response not committed for error handling
+
+        Flux<DataBuffer> flux1 = helper.getPrefix(bufferFactory, hints, logger)
+                .concatWith(Flux.just(EMPTY_BUFFER).repeat());
+
+        Flux<DataBuffer> flux2 = Flux.from(inputStream)
+                .map(value -> encodeStreamingValue(
+                        value, bufferFactory, hints, sequenceWriter, byteBuilder, helper.getDelimiter(), EMPTY_BYTES));
+
+        dataBufferFlux = Flux.zip(flux1, flux2, (buffer1, buffer2) ->
+                        buffer1 != EMPTY_BUFFER
+                        ? bufferFactory.join(Arrays.asList(buffer1, buffer2))
+                        : buffer2
+                )
+                .concatWith(helper.getSuffix(bufferFactory, hints, logger));
       }
 
       return dataBufferFlux.doAfterTerminate(() -> {
