@@ -22,6 +22,7 @@ package cn.taketoday.web.servlet.filter;
 
 import org.junit.jupiter.api.Test;
 import org.mockito.InOrder;
+import org.mockito.Mockito;
 
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpStatus;
@@ -44,44 +45,48 @@ class RelativeRedirectFilterTests {
 
   private RelativeRedirectFilter filter = new RelativeRedirectFilter();
 
-  private HttpServletResponse response = mock(HttpServletResponse.class);
+  private HttpServletResponse response = Mockito.mock(HttpServletResponse.class);
 
   @Test
-  public void sendRedirectHttpStatusWhenNullThenIllegalArgumentException() {
+  void sendRedirectHttpStatusWhenNullThenIllegalArgumentException() {
     assertThatIllegalArgumentException().isThrownBy(() ->
             this.filter.setRedirectStatus(null));
   }
 
   @Test
-  public void sendRedirectHttpStatusWhenNot3xxThenIllegalArgumentException() {
+  void sendRedirectHttpStatusWhenNot3xxThenIllegalArgumentException() {
     assertThatIllegalArgumentException().isThrownBy(() ->
             this.filter.setRedirectStatus(HttpStatus.OK));
   }
 
   @Test
-  public void doFilterSendRedirectWhenDefaultsThenLocationAnd303() throws Exception {
+  void doFilterSendRedirectWhenDefaultsThenLocationAnd303() throws Exception {
     String location = "/foo";
     sendRedirect(location);
 
-    InOrder inOrder = inOrder(this.response);
+    InOrder inOrder = Mockito.inOrder(this.response);
+    inOrder.verify(this.response).resetBuffer();
     inOrder.verify(this.response).setStatus(HttpStatus.SEE_OTHER.value());
     inOrder.verify(this.response).setHeader(HttpHeaders.LOCATION, location);
+    inOrder.verify(this.response).flushBuffer();
   }
 
   @Test
-  public void doFilterSendRedirectWhenCustomSendRedirectHttpStatusThenLocationAnd301() throws Exception {
+  void doFilterSendRedirectWhenCustomSendRedirectHttpStatusThenLocationAnd301() throws Exception {
     String location = "/foo";
     HttpStatus status = HttpStatus.MOVED_PERMANENTLY;
     this.filter.setRedirectStatus(status);
     sendRedirect(location);
 
-    InOrder inOrder = inOrder(this.response);
+    InOrder inOrder = Mockito.inOrder(this.response);
+    inOrder.verify(this.response).resetBuffer();
     inOrder.verify(this.response).setStatus(status.value());
     inOrder.verify(this.response).setHeader(HttpHeaders.LOCATION, location);
+    inOrder.verify(this.response).flushBuffer();
   }
 
   @Test
-  public void wrapOnceOnly() throws Exception {
+  void wrapOnceOnly() throws Exception {
     HttpServletResponse original = new MockHttpServletResponse();
 
     MockFilterChain chain = new MockFilterChain();
