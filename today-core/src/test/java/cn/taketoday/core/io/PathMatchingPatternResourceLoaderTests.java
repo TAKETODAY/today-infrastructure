@@ -100,7 +100,10 @@ class PathMatchingPatternResourceLoaderTests {
           "ResourceTests$UrlResourceTests",
           "ResourceTests$AbstractResourceTests",
           "ResourceTests$UrlResourceTests$CustomResource.class",
-          "ResourceTests$UrlResourceTests$ResourceDispatcher.class"
+          "ResourceTests$UrlResourceTests$ResourceDispatcher.class",
+          "ClassPathResourceTests$GetInputStream.class",
+          "ClassPathResourceTests$GetDescription.class",
+          "ClassPathResourceTests$GetPath.class"
   };
 
   private static final String[] CLASSES_IN_JUNIT_RUNNER = new String[] { //
