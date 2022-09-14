@@ -118,6 +118,7 @@ public class SettableListenableFuture<T> implements ListenableFuture<T> {
    * @return the value associated with this future
    */
   @Override
+  @Nullable
   public T get() throws InterruptedException, ExecutionException {
     return this.settableTask.get();
   }
