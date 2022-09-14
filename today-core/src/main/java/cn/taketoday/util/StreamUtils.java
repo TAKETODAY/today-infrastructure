@@ -41,7 +41,7 @@ import java.nio.charset.StandardCharsets;
 /**
  * Simple utility methods for dealing with streams. The copy methods of this class are
  * similar to those defined in {@link FileCopyUtils} except that all affected streams are
- * left open when done. All copy methods use a block size of 4096 bytes.
+ * left open when done. All copy methods use a block size of 8192 bytes.
  *
  * <p>Mainly for use within the framework, but also useful for application code.
  *
@@ -57,7 +57,7 @@ public abstract class StreamUtils {
   /**
    * The default buffer size used when copying bytes.
    */
-  public static final int BUFFER_SIZE = 4096;
+  public static final int BUFFER_SIZE = 8192;
 
   private static final byte[] EMPTY_CONTENT = Constant.EMPTY_BYTES;
 
