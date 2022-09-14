@@ -43,6 +43,7 @@ import cn.taketoday.util.ReflectionUtils;
  * @param <A> the annotation type
  * @author Sam Brannen
  * @author Phillip Webb
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see Annotation
  * @see AnnotationUtils#synthesizeAnnotation(Annotation, AnnotatedElement)
  * @since 4.0
@@ -202,7 +203,7 @@ final class SynthesizedMergedAnnotationInvocationHandler<A extends Annotation> i
     return String.valueOf(value);
   }
 
-  private Object getAttributeValue(Method method, boolean clone) {
+  private Object getAttributeValue(Method method, boolean cloneArray) {
     Object value = valueCache.get(method.getName());
     if (value == null) {
       synchronized(valueCache) {
@@ -221,7 +222,7 @@ final class SynthesizedMergedAnnotationInvocationHandler<A extends Annotation> i
     }
 
     // Clone non-empty arrays so that users cannot alter the contents of values in our cache.
-    if (clone && value.getClass().isArray() && Array.getLength(value) > 0) {
+    if (cloneArray && value.getClass().isArray() && Array.getLength(value) > 0) {
       value = cloneArray(value);
     }
     return value;
