@@ -41,10 +41,12 @@ import cn.taketoday.jdbc.result.JdbcBeanMetadata;
 import cn.taketoday.jdbc.result.ResultSetHandlerIterator;
 import cn.taketoday.jdbc.sql.dialect.Dialect;
 import cn.taketoday.jdbc.sql.dialect.MySQLDialect;
+import cn.taketoday.jdbc.sql.format.SqlStatementLogger;
 import cn.taketoday.jdbc.support.JdbcUtils;
 import cn.taketoday.jdbc.type.TypeHandler;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.logging.LogMessage;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 
@@ -54,6 +56,8 @@ import cn.taketoday.logging.LoggerFactory;
  */
 public class DefaultEntityManager implements EntityManager {
   private static final Logger log = LoggerFactory.getLogger(DefaultEntityManager.class);
+
+  private SqlStatementLogger stmtLogger = SqlStatementLogger.sharedInstance;
 
   private EntityMetadataFactory entityMetadataFactory = new DefaultEntityMetadataFactory();
 
@@ -116,6 +120,11 @@ public class DefaultEntityManager implements EntityManager {
     return this.maxBatchRecords;
   }
 
+  public void setStatementLogger(SqlStatementLogger statementLogger) {
+    Assert.notNull(statementLogger, "statementLogger is required");
+    this.stmtLogger = statementLogger;
+  }
+
   @Override
   public void persist(Object entity) throws DataAccessException {
     persist(entity, returnGeneratedKeys);
@@ -127,8 +136,9 @@ public class DefaultEntityManager implements EntityManager {
     EntityMetadata entityMetadata = entityMetadataFactory.getEntityMetadata(entityClass);
     String sql = insert(entityMetadata);
 
-    if (log.isDebugEnabled()) {
-      log.debug("Persist entity: {} using SQL: [{}] , generatedKeys={}", entity, sql, returnGeneratedKeys);
+    if (stmtLogger.isDebugEnabled()) {
+      stmtLogger.logStatement(
+              LogMessage.format("Persist entity: {}, generatedKeys={}", entity, returnGeneratedKeys), sql);
     }
 
     Connection connection = getConnection();
@@ -200,7 +210,7 @@ public class DefaultEntityManager implements EntityManager {
       PreparedBatch batch = statements.computeIfAbsent(entity.getClass(), entityClass -> {
         EntityMetadata entityMetadata = entityMetadataFactory.getEntityMetadata(entityClass);
         String sql = insert(entityMetadata);
-        return new PreparedBatch(prepareStatement(connection, sql, returnGeneratedKeys), entityMetadata, returnGeneratedKeys);
+        return new PreparedBatch(connection, sql, entityMetadata, returnGeneratedKeys);
       });
 
       batch.addBatchUpdate(entity, maxBatchRecords);
@@ -221,16 +231,17 @@ public class DefaultEntityManager implements EntityManager {
     }
   }
 
-  static class PreparedBatch {
+  class PreparedBatch {
+    public final String sql;
     public int currentBatchRecords = 0;
     public final EntityMetadata entityMetadata;
     public final PreparedStatement statement;
-    final ArrayList<Object> entities = new ArrayList<>();
-
     public final boolean returnGeneratedKeys;
+    public final ArrayList<Object> entities = new ArrayList<>();
 
-    PreparedBatch(PreparedStatement statement, EntityMetadata entityMetadata, boolean returnGeneratedKeys) {
-      this.statement = statement;
+    PreparedBatch(Connection connection, String sql, EntityMetadata entityMetadata, boolean returnGeneratedKeys) {
+      this.sql = sql;
+      this.statement = prepareStatement(connection, sql, returnGeneratedKeys);
       this.entityMetadata = entityMetadata;
       this.returnGeneratedKeys = returnGeneratedKeys;
     }
@@ -257,10 +268,9 @@ public class DefaultEntityManager implements EntityManager {
     }
 
     public void executeBatch(PreparedStatement statement, boolean returnGeneratedKeys) {
-      if (log.isDebugEnabled()) {
-        log.debug("Executing batch size: {}", entities.size());
+      if (stmtLogger.isDebugEnabled()) {
+        stmtLogger.logStatement(LogMessage.format("Executing batch size: {}", entities.size()), sql);
       }
-
       try {
         int[] updateCounts = statement.executeBatch();
         assertUpdateCount(updateCounts.length, entities.size());
@@ -405,8 +415,8 @@ public class DefaultEntityManager implements EntityManager {
       sql.append(columnNamesBuf.substring(2));
     }
 
-    if (log.isDebugEnabled()) {
-      log.debug("lookup entity using SQL: [{}] , queryObject: {}", sql, params);
+    if (stmtLogger.isDebugEnabled()) {
+      stmtLogger.logStatement(LogMessage.format("Lookup entity using queryObject: {}", params), sql.toString());
     }
 
     Connection connection = getConnection();
@@ -464,8 +474,8 @@ public class DefaultEntityManager implements EntityManager {
       throw new PersistenceException("Error in setParameter, " + ex.getMessage(), ex);
     }
 
-    if (log.isDebugEnabled()) {
-      log.debug("lookup entities using SQL: [{}] , matched conditions: {}", sql, conditions);
+    if (stmtLogger.isDebugEnabled()) {
+      stmtLogger.logStatement("Lookup entities", sql.toString());
     }
 
     try {
