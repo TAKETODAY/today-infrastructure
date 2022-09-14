@@ -31,7 +31,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Phillip Webb
  * @since 4.0
  */
-class AnnotationBackCompatibiltyTests {
+class AnnotationBackCompatibilityTests {
 
   @Test
   void multiplRoutesToMetaAnnotation() {
@@ -47,7 +47,7 @@ class AnnotationBackCompatibiltyTests {
   @Test
   void defaultValue() {
     DefaultValueAnnotation synthesized = MergedAnnotations.from(WithDefaultValue.class).get(DefaultValueAnnotation.class).synthesize();
-    assertThat(synthesized).isInstanceOf(SynthesizedAnnotation.class);
+    assertThat(AnnotationUtils.isSynthesizedAnnotation(synthesized)).as("synthesized annotation").isTrue();
     Object defaultValue = AnnotationUtils.getDefaultValue(synthesized, "enumValue");
     assertThat(defaultValue).isEqualTo(TestEnum.ONE);
   }

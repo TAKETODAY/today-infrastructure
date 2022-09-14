@@ -1511,6 +1511,23 @@ class MergedAnnotationsTests {
   }
 
   @Test
+  void synthesizedAnnotationShouldReuseJdkProxyClass() throws Exception {
+    Method method = WebController.class.getMethod("handleMappedWithValueAttribute");
+
+    RequestMapping jdkRequestMapping = method.getAnnotation(RequestMapping.class);
+    assertThat(jdkRequestMapping).isNotNull();
+    assertThat(jdkRequestMapping.value()).containsExactly("/test");
+    assertThat(jdkRequestMapping.path()).containsExactly("");
+
+    RequestMapping synthesizedRequestMapping = MergedAnnotation.from(jdkRequestMapping).synthesize();
+    assertSynthesized(synthesizedRequestMapping);
+    assertThat(synthesizedRequestMapping.value()).containsExactly("/test");
+    assertThat(synthesizedRequestMapping.path()).containsExactly("/test");
+
+    assertThat(jdkRequestMapping.getClass()).isSameAs(synthesizedRequestMapping.getClass());
+  }
+
+  @Test
   void synthesizeAlreadySynthesized() throws Exception {
     Method method = WebController.class.getMethod("handleMappedWithValueAttribute");
     RequestMapping webMapping = method.getAnnotation(RequestMapping.class);

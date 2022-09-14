@@ -353,6 +353,7 @@ final class TypeMappedAnnotation<A extends Annotation> extends AbstractMergedAnn
   protected A createSynthesizedAnnotation() {
     Class<A> type = getType();
     // Check root annotation
+    Object rootAttributes = this.rootAttributes;
     if (type.isInstance(rootAttributes) && isNotSynthesizable((Annotation) rootAttributes)) {
       return (A) rootAttributes;
     }
@@ -376,7 +377,7 @@ final class TypeMappedAnnotation<A extends Annotation> extends AbstractMergedAnn
    */
   private boolean isNotSynthesizable(Annotation annotation) {
     // Already synthesized?
-    if (annotation instanceof SynthesizedAnnotation) {
+    if (AnnotationUtils.isSynthesizedAnnotation(annotation)) {
       return true;
     }
     return !isSynthesizable();
@@ -636,7 +637,7 @@ final class TypeMappedAnnotation<A extends Annotation> extends AbstractMergedAnn
     return null;
   }
 
-  static <A extends Annotation> MergedAnnotation<A> from(@Nullable Object source, A annotation) {
+  static <A extends Annotation> TypeMappedAnnotation<A> from(@Nullable Object source, A annotation) {
     Assert.notNull(annotation, "Annotation must not be null");
     AnnotationTypeMappings mappings = AnnotationTypeMappings.forAnnotationType(annotation.annotationType());
     return new TypeMappedAnnotation<>(mappings.get(0), null, source, annotation, ReflectionUtils::invokeMethod, 0);

@@ -26,6 +26,7 @@ import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.lang.reflect.Proxy;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -1197,7 +1198,7 @@ public abstract class AnnotationUtils {
    */
   public static <A extends Annotation> A synthesizeAnnotation(
           A annotation, @Nullable AnnotatedElement annotatedElement) {
-    if (annotation instanceof SynthesizedAnnotation || AnnotationFilter.PLAIN.matches(annotation)) {
+    if (isSynthesizedAnnotation(annotation) || AnnotationFilter.PLAIN.matches(annotation)) {
       return annotation;
     }
     return MergedAnnotation.from(annotatedElement, annotation).synthesize();
@@ -1301,7 +1302,16 @@ public abstract class AnnotationUtils {
    * @return {@code true} if the supplied annotation is a synthesized annotation
    */
   public static boolean isSynthesizedAnnotation(@Nullable Annotation annotation) {
-    return annotation instanceof SynthesizedAnnotation;
+    try {
+      return annotation != null
+              && Proxy.isProxyClass(annotation.getClass())
+              && Proxy.getInvocationHandler(annotation) instanceof SynthesizedMergedAnnotationInvocationHandler;
+    }
+    catch (SecurityException ex) {
+      // Security settings disallow reflective access to the InvocationHandler:
+      // assume the annotation has not been synthesized by Spring.
+      return false;
+    }
   }
 
   /**

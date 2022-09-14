@@ -27,10 +27,9 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.NoSuchElementException;
-import java.util.concurrent.ConcurrentHashMap;
 
-import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.ObjectUtils;
@@ -52,19 +51,13 @@ final class SynthesizedMergedAnnotationInvocationHandler<A extends Annotation> i
 
   private final Class<A> type;
   private final AttributeMethods attributeMethods;
-  private final MergedAnnotation<?> annotation;
-  private final ConcurrentHashMap<String, Object> valueCache = new ConcurrentHashMap<>(8);
+  private final AbstractMergedAnnotation<?> annotation;
+  private final HashMap<String, Object> valueCache = new HashMap<>(8);
 
   @Nullable
-  private volatile Integer hashCode;
+  private volatile Integer hash;
 
-  @Nullable
-  private volatile String string;
-
-  private SynthesizedMergedAnnotationInvocationHandler(MergedAnnotation<A> annotation, Class<A> type) {
-    Assert.notNull(type, "Type must not be null");
-    Assert.notNull(annotation, "MergedAnnotation must not be null");
-    Assert.isTrue(type.isAnnotation(), "Type must be an annotation");
+  SynthesizedMergedAnnotationInvocationHandler(AbstractMergedAnnotation<A> annotation, Class<A> type) {
     this.type = type;
     this.annotation = annotation;
     this.attributeMethods = AttributeMethods.forAnnotationType(type);
@@ -72,27 +65,26 @@ final class SynthesizedMergedAnnotationInvocationHandler<A extends Annotation> i
 
   @Override
   public Object invoke(Object proxy, Method method, Object[] args) {
-    if (ReflectionUtils.isEqualsMethod(method)) {
-      return annotationEquals(args[0]);
+    String attribute = method.getName();
+    int parameterCount = method.getParameterCount();
+
+    // Handle Object and Annotation methods
+    if (parameterCount == 1
+            && attribute.equals("equals")
+            && method.getParameterTypes()[0] == Object.class) {
+      return annotationEquals(proxy, args[0]);
     }
-    if (ReflectionUtils.isHashCodeMethod(method)) {
-      return annotationHashCode();
-    }
-    if (ReflectionUtils.isToStringMethod(method)) {
-      return annotationToString();
-    }
-    if (isAnnotationTypeMethod(method)) {
-      return this.type;
-    }
-    if (this.attributeMethods.indexOf(method.getName()) != -1) {
-      return getAttributeValue(method);
+
+    if (parameterCount == 0) {
+      return switch (attribute) {
+        case "toString" -> annotationToString();
+        case "hashCode" -> annotationHashCode();
+        case "annotationType" -> type;
+        default -> getAttributeValue(method, true);
+      };
     }
     throw new AnnotationConfigurationException(String.format(
             "Method [%s] is unsupported for synthesized annotation type [%s]", method, this.type));
-  }
-
-  private boolean isAnnotationTypeMethod(Method method) {
-    return (method.getName().equals("annotationType") && method.getParameterCount() == 0);
   }
 
   /**
@@ -100,18 +92,17 @@ final class SynthesizedMergedAnnotationInvocationHandler<A extends Annotation> i
    *
    * @param other the other object to compare against
    */
-  private boolean annotationEquals(Object other) {
-    if (this == other) {
-      return true;
-    }
-    if (!this.type.isInstance(other)) {
-      return false;
-    }
-    for (Method attribute : attributeMethods.attributes) {
-      Object thisValue = getAttributeValue(attribute);
-      Object otherValue = ReflectionUtils.invokeMethod(attribute, other);
-      if (!ObjectUtils.nullSafeEquals(thisValue, otherValue)) {
+  private boolean annotationEquals(Object proxy, Object other) {
+    if (proxy != other) {
+      if (!type.isInstance(other)) {
         return false;
+      }
+      for (Method attribute : attributeMethods.attributes) {
+        Object thisValue = getAttributeValue(attribute, false);
+        Object otherValue = ReflectionUtils.invokeMethod(attribute, other);
+        if (!ObjectUtils.nullSafeEquals(thisValue, otherValue)) {
+          return false;
+        }
       }
     }
     return true;
@@ -121,18 +112,23 @@ final class SynthesizedMergedAnnotationInvocationHandler<A extends Annotation> i
    * See {@link Annotation#hashCode()} for a definition of the required algorithm.
    */
   private int annotationHashCode() {
-    Integer hashCode = this.hashCode;
-    if (hashCode == null) {
-      hashCode = computeHashCode();
-      this.hashCode = hashCode;
+    Integer hash = this.hash;
+    if (hash == null) {
+      synchronized(this) {
+        hash = this.hash;
+        if (hash == null) {
+          hash = computeHashCode();
+          this.hash = hash;
+        }
+      }
     }
-    return hashCode;
+    return hash;
   }
 
   private Integer computeHashCode() {
     int hashCode = 0;
     for (Method attribute : attributeMethods.attributes) {
-      Object value = getAttributeValue(attribute);
+      Object value = getAttributeValue(attribute, false);
       hashCode += (127 * attribute.getName().hashCode()) ^ getValueHashCode(value);
     }
     return hashCode;
@@ -172,24 +168,19 @@ final class SynthesizedMergedAnnotationInvocationHandler<A extends Annotation> i
   }
 
   private String annotationToString() {
-    String string = this.string;
-    if (string == null) {
-      StringBuilder builder = new StringBuilder("@").append(this.type.getName()).append('(');
-      Method[] attributes = this.attributeMethods.attributes;
-      for (int i = 0; i < attributes.length; i++) {
-        Method attribute = attributes[i];
-        if (i > 0) {
-          builder.append(", ");
-        }
-        builder.append(attribute.getName());
-        builder.append('=');
-        builder.append(toString(getAttributeValue(attribute)));
+    StringBuilder builder = new StringBuilder("@").append(this.type.getName()).append('(');
+    Method[] attributes = attributeMethods.attributes;
+    for (int i = 0; i < attributes.length; i++) {
+      Method attribute = attributes[i];
+      if (i > 0) {
+        builder.append(", ");
       }
-      builder.append(')');
-      string = builder.toString();
-      this.string = string;
+      builder.append(attribute.getName());
+      builder.append('=');
+      builder.append(toString(getAttributeValue(attribute, false)));
     }
-    return string;
+    builder.append(')');
+    return builder.toString();
   }
 
   private String toString(Object value) {
@@ -211,20 +202,28 @@ final class SynthesizedMergedAnnotationInvocationHandler<A extends Annotation> i
     return String.valueOf(value);
   }
 
-  private Object getAttributeValue(Method method) {
-    Object value = this.valueCache.computeIfAbsent(method.getName(), attributeName -> {
-      Class<?> type = ClassUtils.resolvePrimitiveIfNecessary(method.getReturnType());
-      return this.annotation.getValue(attributeName, type)
-              .orElseThrow(() -> new NoSuchElementException(
-                      "No value found for attribute named '" + attributeName +
-                              "' in merged annotation " + this.annotation.getType().getName()));
-    });
-
-    // Clone non-empty arrays so that users cannot alter the contents of values in our cache.
-    if (value.getClass().isArray() && Array.getLength(value) > 0) {
-      value = cloneArray(value);
+  private Object getAttributeValue(Method method, boolean clone) {
+    Object value = valueCache.get(method.getName());
+    if (value == null) {
+      synchronized(valueCache) {
+        value = valueCache.get(method.getName());
+        if (value == null) {
+          Class<?> type = ClassUtils.resolvePrimitiveIfNecessary(method.getReturnType());
+          value = annotation.getAttributeValue(method.getName(), type);
+          if (value == null) {
+            throw new NoSuchElementException(
+                    "No value found for attribute named '" + method.getName() +
+                            "' in merged annotation " + annotation.getType().getName());
+          }
+          valueCache.put(method.getName(), value);
+        }
+      }
     }
 
+    // Clone non-empty arrays so that users cannot alter the contents of values in our cache.
+    if (clone && value.getClass().isArray() && Array.getLength(value) > 0) {
+      value = cloneArray(value);
+    }
     return value;
   }
 
@@ -233,7 +232,7 @@ final class SynthesizedMergedAnnotationInvocationHandler<A extends Annotation> i
    *
    * @param array the array to clone
    */
-  private Object cloneArray(Object array) {
+  private static Object cloneArray(Object array) {
     if (array instanceof boolean[]) {
       return ((boolean[]) array).clone();
     }
@@ -264,24 +263,10 @@ final class SynthesizedMergedAnnotationInvocationHandler<A extends Annotation> i
   }
 
   @SuppressWarnings("unchecked")
-  static <A extends Annotation> A createProxy(MergedAnnotation<A> annotation, Class<A> type) {
+  static <A extends Annotation> A createProxy(AbstractMergedAnnotation<A> annotation, Class<A> type) {
     ClassLoader classLoader = type.getClassLoader();
     InvocationHandler handler = new SynthesizedMergedAnnotationInvocationHandler<>(annotation, type);
-    Class<?>[] interfaces = isVisible(classLoader, SynthesizedAnnotation.class) ?
-                            new Class<?>[] { type, SynthesizedAnnotation.class } : new Class<?>[] { type };
-    return (A) Proxy.newProxyInstance(classLoader, interfaces, handler);
-  }
-
-  private static boolean isVisible(ClassLoader classLoader, Class<?> interfaceClass) {
-    if (classLoader == interfaceClass.getClassLoader()) {
-      return true;
-    }
-    try {
-      return Class.forName(interfaceClass.getName(), false, classLoader) == interfaceClass;
-    }
-    catch (ClassNotFoundException ex) {
-      return false;
-    }
+    return (A) Proxy.newProxyInstance(classLoader, new Class<?>[] { type }, handler);
   }
 
 }
