@@ -319,9 +319,14 @@ public class HttpComponentsClientHttpRequestFactory implements ClientHttpRequest
    */
   @Override
   public void destroy() throws Exception {
+    close();
+  }
+
+  @Override
+  public void close() throws IOException {
     HttpClient httpClient = getHttpClient();
-    if (httpClient instanceof Closeable) {
-      ((Closeable) httpClient).close();
+    if (httpClient instanceof Closeable closeable) {
+      closeable.close();
     }
   }
 

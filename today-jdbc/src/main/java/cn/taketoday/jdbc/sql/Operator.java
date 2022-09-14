@@ -46,8 +46,8 @@ public interface Operator {
   Operator BETWEEN = plain(" BETWEEN ? AND ?");
   Operator NOT_BETWEEN = plain(" NOT BETWEEN ? AND ?");
 
-  Operator IN = new In(false);
-  Operator NOT_IN = new In(true);
+  Operator IN = in(false);
+  Operator NOT_IN = in(true);
 
   /**
    * Render this operator and value-placeholder to StringBuilder

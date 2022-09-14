@@ -109,6 +109,11 @@ public class OkHttp3ClientHttpRequestFactory implements ClientHttpRequestFactory
 
   @Override
   public void destroy() throws IOException {
+    close();
+  }
+
+  @Override
+  public void close() throws IOException {
     if (this.defaultClient) {
       // Clean up the client if we created it in the constructor
       Cache cache = this.client.cache();

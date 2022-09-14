@@ -19,6 +19,7 @@
  */
 package cn.taketoday.http.client;
 
+import java.io.Closeable;
 import java.io.IOException;
 import java.net.URI;
 
@@ -32,7 +33,7 @@ import cn.taketoday.http.HttpMethod;
  * @since 4.0
  */
 @FunctionalInterface
-public interface ClientHttpRequestFactory {
+public interface ClientHttpRequestFactory extends Closeable {
 
   /**
    * Create a new {@link ClientHttpRequest} for the specified URI and HTTP method.
@@ -45,5 +46,8 @@ public interface ClientHttpRequestFactory {
    * @throws IOException in case of I/O errors
    */
   ClientHttpRequest createRequest(URI uri, HttpMethod httpMethod) throws IOException;
+
+  @Override
+  default void close() throws IOException { }
 
 }

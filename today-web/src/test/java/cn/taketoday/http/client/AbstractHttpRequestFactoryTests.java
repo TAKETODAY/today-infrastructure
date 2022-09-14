@@ -58,9 +58,7 @@ abstract class AbstractHttpRequestFactoryTests extends AbstractMockWebServerTest
 
   @AfterEach
   final void destroyFactory() throws Exception {
-    if (factory instanceof DisposableBean) {
-      ((DisposableBean) factory).destroy();
-    }
+    this.factory.close();
   }
 
   protected abstract ClientHttpRequestFactory createRequestFactory();
