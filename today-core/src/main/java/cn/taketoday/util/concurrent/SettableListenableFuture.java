@@ -135,6 +135,7 @@ public class SettableListenableFuture<T> implements ListenableFuture<T> {
    * @return the value associated with this future
    */
   @Override
+  @Nullable
   public T get(long timeout, TimeUnit unit) throws InterruptedException, ExecutionException, TimeoutException {
     return this.settableTask.get(timeout, unit);
   }

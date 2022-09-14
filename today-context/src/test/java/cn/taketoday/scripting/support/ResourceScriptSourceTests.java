@@ -22,10 +22,10 @@ package cn.taketoday.scripting.support;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.io.InputStream;
 
 import cn.taketoday.core.io.ByteArrayResource;
 import cn.taketoday.core.io.Resource;
-import cn.taketoday.util.StreamUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
@@ -63,7 +63,7 @@ public class ResourceScriptSourceTests {
     // does not support File-based reading; delegates to InputStream-style reading...
     //resource.getFile();
     //mock.setThrowable(new FileNotFoundException());
-    given(resource.getInputStream()).willReturn(StreamUtils.emptyInput());
+    given(resource.getInputStream()).willReturn(InputStream.nullInputStream());
 
     ResourceScriptSource scriptSource = new ResourceScriptSource(resource);
     assertThat(scriptSource.isModified()).as("ResourceScriptSource must start off in the 'isModified' state (it obviously isn't).").isTrue();
