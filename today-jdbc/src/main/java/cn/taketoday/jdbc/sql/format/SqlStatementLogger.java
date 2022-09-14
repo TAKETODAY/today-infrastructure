@@ -23,6 +23,7 @@ package cn.taketoday.jdbc.sql.format;
 import java.sql.Statement;
 import java.util.concurrent.TimeUnit;
 
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.lang.TodayStrategies;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
@@ -138,8 +139,18 @@ public class SqlStatementLogger {
    * @param statement The SQL statement.
    */
   public void logStatement(String statement) {
+    logStatement(null, statement);
+  }
+
+  /**
+   * Log a SQL statement string.
+   *
+   * @param desc description of this SQL
+   * @param statement The SQL statement.
+   */
+  public void logStatement(@Nullable Object desc, String statement) {
     // for now just assume a DML log for formatting
-    logStatement(statement, FormatStyle.BASIC.formatter);
+    logStatement(desc, statement, FormatStyle.BASIC.formatter);
   }
 
   /**
@@ -149,15 +160,30 @@ public class SqlStatementLogger {
    * @param formatter The formatter to use.
    */
   public void logStatement(String statement, SQLFormatter formatter) {
-    if (logToStdout || sqlLogger.isDebugEnabled()) {
-      if (format) {
-        statement = formatter.format(statement);
-      }
-      if (highlight) {
-        statement = FormatStyle.HIGHLIGHT.formatter.format(statement);
-      }
+    logStatement(null, statement, formatter);
+  }
+
+  /**
+   * Log a SQL statement string using the specified formatter
+   *
+   * @param desc description of this SQL
+   * @param statement The SQL statement.
+   * @param formatter The formatter to use.
+   */
+  public void logStatement(@Nullable Object desc, String statement, SQLFormatter formatter) {
+    if (format) {
+      statement = formatter.format(statement);
     }
-    sqlLogger.debug(statement);
+    if (highlight) {
+      statement = HighlightingSQLFormatter.INSTANCE.format(statement);
+    }
+    if (desc != null) {
+      sqlLogger.debug(desc + ", SQL: " + statement);
+    }
+    else {
+      sqlLogger.debug(statement);
+    }
+
     if (logToStdout) {
       String prefix = highlight ? "\u001b[35m[today-infrastructure]\u001b[0m " : "today-infrastructure: ";
       System.out.println(prefix + statement);
