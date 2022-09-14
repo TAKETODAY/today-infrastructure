@@ -90,7 +90,7 @@ class TestPropertySourceAttributes {
             () -> "Detected @TestPropertySource declarations within an aggregate index "
                     + "with different sources: " + this.declaringClass.getName() + " and "
                     + attributes.declaringClass.getName());
-    logger.trace(LogMessage.format("Retrieved %s for declaring class [%s].",
+    logger.trace(LogMessage.format("Retrieved {} for declaring class [{}].",
             attributes, this.declaringClass.getName()));
     assertSameBooleanAttribute(this.inheritLocations, attributes.inheritLocations,
             "inheritLocations", attributes);
