@@ -20,6 +20,8 @@
 
 package cn.taketoday.web.servlet.filter;
 
+import java.io.IOException;
+
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpStatusCode;
 import cn.taketoday.lang.Assert;
@@ -45,9 +47,11 @@ final class RelativeRedirectResponseWrapper extends HttpServletResponseWrapper {
   }
 
   @Override
-  public void sendRedirect(String location) {
+  public void sendRedirect(String location) throws IOException {
+    resetBuffer();
     setStatus(this.redirectStatus.value());
     setHeader(HttpHeaders.LOCATION, location);
+    flushBuffer();
   }
 
   public static HttpServletResponse wrapIfNecessary(HttpServletResponse response,
