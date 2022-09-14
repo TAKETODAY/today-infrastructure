@@ -20,6 +20,8 @@
 
 package cn.taketoday.http;
 
+import java.io.Serializable;
+
 /**
  * Represents an HTTP response status code. Implemented by {@link HttpStatus},
  * but defined as an interface to allow for values not in that enumeration.
@@ -30,7 +32,7 @@ package cn.taketoday.http;
  * @see <a href="https://en.wikipedia.org/wiki/List_of_HTTP_status_codes">List of HTTP status codes - Wikipedia</a>
  * @since 4.0 2022/4/1 21:31
  */
-public interface HttpStatusCode {
+public interface HttpStatusCode extends Serializable {
 
   /**
    * Return the integer value of this status code.
