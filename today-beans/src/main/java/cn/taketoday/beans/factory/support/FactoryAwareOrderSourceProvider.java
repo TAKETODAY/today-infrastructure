@@ -26,6 +26,7 @@ import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 
+import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
 import cn.taketoday.core.OrderSourceProvider;
 import cn.taketoday.core.annotation.Order;
 import cn.taketoday.lang.Nullable;
@@ -57,19 +58,25 @@ final class FactoryAwareOrderSourceProvider implements OrderSourceProvider {
   @Nullable
   public Object getOrderSource(Object obj) {
     String beanName = this.instancesToBeanNames.get(obj);
-    if (beanName == null || !beanFactory.containsBeanDefinition(beanName)) {
+    if (beanName == null) {
       return null;
     }
-    RootBeanDefinition beanDefinition = beanFactory.getMergedLocalBeanDefinition(beanName);
-    List<Object> sources = new ArrayList<>(2);
-    Method factoryMethod = beanDefinition.getResolvedFactoryMethod();
-    if (factoryMethod != null) {
-      sources.add(factoryMethod);
+    try {
+      RootBeanDefinition beanDefinition = (RootBeanDefinition) beanFactory.getMergedBeanDefinition(beanName);
+      ArrayList<Object> sources = new ArrayList<>(2);
+      Method factoryMethod = beanDefinition.getResolvedFactoryMethod();
+      if (factoryMethod != null) {
+        sources.add(factoryMethod);
+      }
+      Class<?> targetType = beanDefinition.getTargetType();
+      if (targetType != null && targetType != obj.getClass()) {
+        sources.add(targetType);
+      }
+      return sources.toArray();
     }
-    Class<?> targetType = beanDefinition.getTargetType();
-    if (targetType != null && targetType != obj.getClass()) {
-      sources.add(targetType);
+    catch (NoSuchBeanDefinitionException ex) {
+      return null;
     }
-    return sources.toArray();
   }
+
 }

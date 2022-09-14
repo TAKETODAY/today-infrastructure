@@ -1992,6 +1992,21 @@ class StandardBeanFactoryTests {
   }
 
   @Test
+  void beanProviderWithParentBeanFactoryReuseOrder() {
+    StandardBeanFactory parentBf = new StandardBeanFactory();
+    parentBf.setDependencyComparator(AnnotationAwareOrderComparator.INSTANCE);
+    parentBf.registerBeanDefinition("regular", new RootBeanDefinition(TestBean.class));
+    parentBf.registerBeanDefinition("test", new RootBeanDefinition(HighPriorityTestBean.class));
+    lbf.setDependencyComparator(AnnotationAwareOrderComparator.INSTANCE);
+    lbf.setParentBeanFactory(parentBf);
+    lbf.registerBeanDefinition("low", new RootBeanDefinition(LowPriorityTestBean.class));
+    List<Class<?>> orderedTypes = lbf.getObjectSupplier(TestBean.class).orderedStream()
+            .map(Object::getClass).collect(Collectors.toList());
+    assertThat(orderedTypes).containsExactly(
+            HighPriorityTestBean.class, LowPriorityTestBean.class, TestBean.class);
+  }
+
+  @Test
   void autowireExistingBeanByName() {
     RootBeanDefinition bd = new RootBeanDefinition(TestBean.class);
     lbf.registerBeanDefinition("spouse", bd);
