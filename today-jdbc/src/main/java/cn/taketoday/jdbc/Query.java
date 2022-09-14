@@ -69,12 +69,7 @@ import cn.taketoday.util.ObjectUtils;
  */
 public final class Query implements AutoCloseable {
   private static final Logger log = LoggerFactory.getLogger(Query.class);
-  private static final SqlStatementLogger stmtLogger = new SqlStatementLogger(
-          TodayStrategies.getFlag("sql.logToStdout", false),
-          TodayStrategies.getFlag("sql.format", true),
-          TodayStrategies.getFlag("sql.highlight", true),
-          TodayStrategies.getLong("sql.logSlowQuery", 0)
-  );
+  private static final SqlStatementLogger stmtLogger = SqlStatementLogger.sharedInstance;
 
   private final JdbcConnection connection;
 

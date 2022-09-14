@@ -23,6 +23,7 @@ package cn.taketoday.jdbc.sql.format;
 import java.sql.Statement;
 import java.util.concurrent.TimeUnit;
 
+import cn.taketoday.lang.TodayStrategies;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 
@@ -36,6 +37,13 @@ import cn.taketoday.logging.LoggerFactory;
 public class SqlStatementLogger {
   private static final Logger sqlLogger = LoggerFactory.getLogger("today.infra.SQL");
   private static final Logger slowLogger = LoggerFactory.getLogger("today.infra.SQL_SLOW");
+
+  public static final SqlStatementLogger sharedInstance = new SqlStatementLogger(
+          TodayStrategies.getFlag("sql.logToStdout", false),
+          TodayStrategies.getFlag("sql.format", true),
+          TodayStrategies.getFlag("sql.highlight", true),
+          TodayStrategies.getLong("sql.logSlowQuery", 0)
+  );
 
   private final boolean format;
   private final boolean logToStdout;
