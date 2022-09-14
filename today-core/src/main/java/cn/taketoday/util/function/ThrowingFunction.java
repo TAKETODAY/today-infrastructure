@@ -50,7 +50,7 @@ public interface ThrowingFunction<T, R> extends Function<T, R> {
    * Default {@link Function#apply(Object)} that wraps any thrown checked
    * exceptions (by default in a {@link RuntimeException}).
    *
-   * @see Function#apply(Object)
+   * @see java.util.function.Function#apply(java.lang.Object)
    */
   @Override
   default R apply(T t) {
@@ -103,9 +103,17 @@ public interface ThrowingFunction<T, R> extends Function<T, R> {
   }
 
   /**
-   * Lambda friendly convenience method that can be used to create
+   * Lambda friendly convenience method that can be used to create a
    * {@link ThrowingFunction} where the {@link #apply(Object)} method wraps
-   * any thrown checked exceptions using the given {@code exceptionWrapper}.
+   * any checked exception thrown by the supplied lambda expression or method
+   * reference.
+   * <p>This method can be especially useful when working with method references.
+   * It allows you to easily convert a method that throws a checked exception
+   * into an instance compatible with a regular {@link Function}.
+   * <p>For example:
+   * <pre class="code">
+   * stream.map(ThrowingFunction.of(Example::methodThatCanThrowCheckedException));
+   * </pre>
    *
    * @param <T> the type of the input to the function
    * @param <R> the type of the result of the function
@@ -117,9 +125,16 @@ public interface ThrowingFunction<T, R> extends Function<T, R> {
   }
 
   /**
-   * Lambda friendly convenience method that can be used to create
+   * Lambda friendly convenience method that can be used to create a
    * {@link ThrowingFunction} where the {@link #apply(Object)} method wraps
    * any thrown checked exceptions using the given {@code exceptionWrapper}.
+   * <p>This method can be especially useful when working with method references.
+   * It allows you to easily convert a method that throws a checked exception
+   * into an instance compatible with a regular {@link Function}.
+   * <p>For example:
+   * <pre class="code">
+   * stream.map(ThrowingFunction.of(Example::methodThatCanThrowCheckedException, IllegalStateException::new));
+   * </pre>
    *
    * @param <T> the type of the input to the function
    * @param <R> the type of the result of the function

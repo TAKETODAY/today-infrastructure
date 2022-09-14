@@ -53,7 +53,7 @@ public interface ThrowingBiFunction<T, U, R> extends BiFunction<T, U, R> {
    * @param t the first function argument
    * @param u the second function argument
    * @return the function result
-   * @see BiFunction#apply(Object, Object)
+   * @see java.util.function.BiFunction#apply(Object, Object)
    */
   @Override
   default R apply(T t, U u) {
@@ -108,10 +108,17 @@ public interface ThrowingBiFunction<T, U, R> extends BiFunction<T, U, R> {
   }
 
   /**
-   * Lambda friendly convenience method that can be used to create
+   * Lambda friendly convenience method that can be used to create a
    * {@link ThrowingBiFunction} where the {@link #apply(Object, Object)}
-   * method wraps any thrown checked exceptions using the given
-   * {@code exceptionWrapper}.
+   * method wraps any checked exception thrown by the supplied lambda expression
+   * or method reference.
+   * <p>This method can be especially useful when working with method references.
+   * It allows you to easily convert a method that throws a checked exception
+   * into an instance compatible with a regular {@link BiFunction}.
+   * <p>For example:
+   * <pre class="code">
+   * map.replaceAll(ThrowingBiFunction.of(Example::methodThatCanThrowCheckedException));
+   * </pre>
    *
    * @param <T> the type of the first argument to the function
    * @param <U> the type of the second argument to the function
@@ -124,10 +131,17 @@ public interface ThrowingBiFunction<T, U, R> extends BiFunction<T, U, R> {
   }
 
   /**
-   * Lambda friendly convenience method that can be used to create
+   * Lambda friendly convenience method that can be used to create a
    * {@link ThrowingBiFunction} where the {@link #apply(Object, Object)}
    * method wraps any thrown checked exceptions using the given
    * {@code exceptionWrapper}.
+   * <p>This method can be especially useful when working with method references.
+   * It allows you to easily convert a method that throws a checked exception
+   * into an instance compatible with a regular {@link BiFunction}.
+   * <p>For example:
+   * <pre class="code">
+   * map.replaceAll(ThrowingBiFunction.of(Example::methodThatCanThrowCheckedException, IllegalStateException::new));
+   * </pre>
    *
    * @param <T> the type of the first argument to the function
    * @param <U> the type of the second argument to the function

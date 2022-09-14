@@ -46,7 +46,7 @@ public interface ThrowingSupplier<T> extends Supplier<T> {
    * Default {@link Supplier#get()} that wraps any thrown checked exceptions
    * (by default in a {@link RuntimeException}).
    *
-   * @see Supplier#get()
+   * @see java.util.function.Supplier#get()
    */
   @Override
   default T get() {
@@ -99,9 +99,16 @@ public interface ThrowingSupplier<T> extends Supplier<T> {
   }
 
   /**
-   * Lambda friendly convenience method that can be used to create
-   * {@link ThrowingSupplier} where the {@link #get()} method wraps any
-   * thrown checked exceptions.
+   * Lambda friendly convenience method that can be used to create a
+   * {@link ThrowingSupplier} where the {@link #get()} method wraps any checked
+   * exception thrown by the supplied lambda expression or method reference.
+   * <p>This method can be especially useful when working with method references.
+   * It allows you to easily convert a method that throws a checked exception
+   * into an instance compatible with a regular {@link Supplier}.
+   * <p>For example:
+   * <pre class="code">
+   * optional.orElseGet(ThrowingSupplier.of(Example::methodThatCanThrowCheckedException));
+   * </pre>
    *
    * @param <T> the type of results supplied by this supplier
    * @param supplier the source supplier
@@ -115,6 +122,13 @@ public interface ThrowingSupplier<T> extends Supplier<T> {
    * Lambda friendly convenience method that can be used to create
    * {@link ThrowingSupplier} where the {@link #get()} method wraps any
    * thrown checked exceptions using the given {@code exceptionWrapper}.
+   * <p>This method can be especially useful when working with method references.
+   * It allows you to easily convert a method that throws a checked exception
+   * into an instance compatible with a regular {@link Supplier}.
+   * <p>For example:
+   * <pre class="code">
+   * optional.orElseGet(ThrowingSupplier.of(Example::methodThatCanThrowCheckedException, IllegalStateException::new));
+   * </pre>
    *
    * @param <T> the type of results supplied by this supplier
    * @param supplier the source supplier
