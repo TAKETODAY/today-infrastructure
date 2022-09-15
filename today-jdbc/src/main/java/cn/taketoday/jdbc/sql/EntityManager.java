@@ -58,7 +58,7 @@ public interface EntityManager {
    *
    * @param entities entities instances
    */
-  void persist(Iterable<Object> entities) throws DataAccessException;
+  void persist(Iterable<?> entities) throws DataAccessException;
 
   /**
    * persist entities to underlying repository
@@ -66,7 +66,7 @@ public interface EntityManager {
    * @param returnGeneratedKeys a flag indicating whether auto-generated keys should be returned;
    * @param entities entities instances
    */
-  void persist(Iterable<Object> entities, boolean returnGeneratedKeys) throws DataAccessException;
+  void persist(Iterable<?> entities, boolean returnGeneratedKeys) throws DataAccessException;
 
   /**
    * Merge the state of the given entity into underlying repository

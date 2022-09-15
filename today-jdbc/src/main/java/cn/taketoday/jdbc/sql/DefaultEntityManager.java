@@ -191,17 +191,17 @@ public class DefaultEntityManager implements EntityManager {
       return connection.prepareStatement(sql);
     }
     catch (SQLException ex) {
-      throw new PersistenceException("Error preparing statement - " + ex.getMessage(), ex);
+      throw new PersistenceException("Error preparing statement '" + sql + "' - " + ex.getMessage(), ex);
     }
   }
 
   @Override
-  public void persist(Iterable<Object> entities) throws DataAccessException {
+  public void persist(Iterable<?> entities) throws DataAccessException {
     persist(entities, returnGeneratedKeys);
   }
 
   @Override
-  public void persist(Iterable<Object> entities, boolean returnGeneratedKeys) throws DataAccessException {
+  public void persist(Iterable<?> entities, boolean returnGeneratedKeys) throws DataAccessException {
     Connection connection = getConnection();
     int maxBatchRecords = getMaxBatchRecords();
     var statements = new HashMap<Class<?>, PreparedBatch>();
