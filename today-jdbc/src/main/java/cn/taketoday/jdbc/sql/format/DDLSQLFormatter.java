@@ -49,16 +49,17 @@ public class DDLSQLFormatter implements SQLFormatter {
       return sql;
     }
 
-    if (sql.toLowerCase(Locale.ROOT).startsWith("create table")) {
+    String lowerCase = sql.toLowerCase(Locale.ROOT);
+    if (lowerCase.startsWith("create table")) {
       return formatCreateTable(sql);
     }
-    else if (sql.toLowerCase(Locale.ROOT).startsWith("create")) {
+    else if (lowerCase.startsWith("create")) {
       return sql;
     }
-    else if (sql.toLowerCase(Locale.ROOT).startsWith("alter table")) {
+    else if (lowerCase.startsWith("alter table")) {
       return formatAlterTable(sql);
     }
-    else if (sql.toLowerCase(Locale.ROOT).startsWith("comment on")) {
+    else if (lowerCase.startsWith("comment on")) {
       return formatCommentOn(sql);
     }
     else {
@@ -66,7 +67,7 @@ public class DDLSQLFormatter implements SQLFormatter {
     }
   }
 
-  private String formatCommentOn(String sql) {
+  public static String formatCommentOn(String sql) {
     final StringBuilder result = new StringBuilder(60).append(INITIAL_LINE);
     final StringTokenizer tokens = new StringTokenizer(sql, " '[]\"", true);
 
@@ -87,7 +88,7 @@ public class DDLSQLFormatter implements SQLFormatter {
     return result.toString();
   }
 
-  private String formatAlterTable(String sql) {
+  public static String formatAlterTable(String sql) {
     final StringBuilder result = new StringBuilder(60).append(INITIAL_LINE);
     final StringTokenizer tokens = new StringTokenizer(sql, " (,)'[]\"", true);
 
@@ -108,7 +109,7 @@ public class DDLSQLFormatter implements SQLFormatter {
     return result.toString();
   }
 
-  private String formatCreateTable(String sql) {
+  public static String formatCreateTable(String sql) {
     final StringBuilder result = new StringBuilder(60).append(INITIAL_LINE);
     final StringTokenizer tokens = new StringTokenizer(sql, "(,)'[]\"", true);
 

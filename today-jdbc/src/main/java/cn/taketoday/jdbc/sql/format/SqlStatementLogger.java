@@ -150,7 +150,7 @@ public class SqlStatementLogger {
    */
   public void logStatement(@Nullable Object desc, String statement) {
     // for now just assume a DML log for formatting
-    logStatement(desc, statement, FormatStyle.BASIC.formatter);
+    logStatement(desc, statement, BasicSQLFormatter.INSTANCE);
   }
 
   /**

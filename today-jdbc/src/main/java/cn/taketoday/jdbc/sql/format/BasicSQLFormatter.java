@@ -25,6 +25,8 @@ import java.util.LinkedList;
 import java.util.Locale;
 import java.util.StringTokenizer;
 
+import cn.taketoday.lang.TodayStrategies;
+
 /**
  * Performs formatting of basic SQL statements (DML + query).
  *
@@ -34,6 +36,7 @@ import java.util.StringTokenizer;
  * @since 4.0 2022/9/12 19:20
  */
 public class BasicSQLFormatter implements SQLFormatter {
+  private static final boolean SKIP_DDL = TodayStrategies.getFlag("sql.BasicSQLFormatter.skip-ddl", true);
 
   private static final HashSet<String> BEGIN_CLAUSES = new HashSet<>();
   private static final HashSet<String> END_CLAUSES = new HashSet<>();
@@ -82,8 +85,29 @@ public class BasicSQLFormatter implements SQLFormatter {
   private static final String INDENT_STRING = "    ";
   private static final String INITIAL = System.lineSeparator() + INDENT_STRING;
 
+  public static final BasicSQLFormatter INSTANCE = new BasicSQLFormatter();
+
+  private final boolean skipDDL;
+
+  public BasicSQLFormatter() {
+    this(SKIP_DDL);
+  }
+
+  public BasicSQLFormatter(boolean skipDDL) {
+    this.skipDDL = skipDDL;
+  }
+
   @Override
   public String format(String source) {
+    if (skipDDL) {
+      String lowerCase = source.toLowerCase(Locale.ROOT);
+      if (lowerCase.startsWith("create")
+              || lowerCase.startsWith("alter table")
+              || lowerCase.startsWith("comment on")) {
+        return System.lineSeparator() + source;
+      }
+    }
+
     return new BasicInternalFormatter().format(source);
   }
 
