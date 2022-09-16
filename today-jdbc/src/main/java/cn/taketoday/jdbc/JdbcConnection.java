@@ -31,6 +31,7 @@ import java.util.List;
 
 import cn.taketoday.core.conversion.ConversionException;
 import cn.taketoday.core.conversion.ConversionService;
+import cn.taketoday.dao.DataAccessException;
 import cn.taketoday.jdbc.support.ConnectionSource;
 import cn.taketoday.jdbc.support.JdbcUtils;
 import cn.taketoday.lang.Assert;
@@ -131,7 +132,7 @@ public final class JdbcConnection implements Closeable {
       }
     }
     catch (SQLException e) {
-      throw new PersistenceException("Database access error occurs", e);
+      throw translateException("Retrieves Connection status is closed", e);
     }
   }
 
@@ -223,7 +224,7 @@ public final class JdbcConnection implements Closeable {
       root.commit();
     }
     catch (SQLException e) {
-      throw new PersistenceException("Commit error", e);
+      throw translateException("Committing JDBC connection", e);
     }
     finally {
       if (closeConnection) {
@@ -274,7 +275,7 @@ public final class JdbcConnection implements Closeable {
         this.keys = keys;
       }
       catch (SQLException e) {
-        throw new GeneratedKeysException("Cannot get generated keys", e);
+        throw translateException("Getting generated keys.", e);
       }
     }
 
@@ -387,8 +388,7 @@ public final class JdbcConnection implements Closeable {
       connectionIsClosed = root.isClosed();
     }
     catch (SQLException e) {
-      throw new PersistenceException(
-              "encountered a problem while trying to determine whether the connection is closed.", e);
+      throw translateException("trying to determine whether the connection is closed.", e);
     }
 
     if (!connectionIsClosed) {
@@ -427,6 +427,7 @@ public final class JdbcConnection implements Closeable {
       this.originalAutoCommit = root.getAutoCommit();
     }
     catch (SQLException ex) {
+      // TODO
       throw new CannotGetJdbcConnectionException(
               "Could not acquire a connection from connection-source: " + connectionSource, ex);
     }
@@ -470,6 +471,10 @@ public final class JdbcConnection implements Closeable {
 
   public RepositoryManager getManager() {
     return operations;
+  }
+
+  private DataAccessException translateException(String task, SQLException ex) {
+    return operations.translateException(task, null, ex);
   }
 
 }
