@@ -13,6 +13,7 @@ import java.sql.SQLException;
 import java.sql.SQLWarning;
 import java.sql.SQLXML;
 import java.sql.Savepoint;
+import java.sql.ShardingKey;
 import java.sql.Statement;
 import java.sql.Struct;
 import java.util.Map;
@@ -299,5 +300,35 @@ public class WrappedConnection implements Connection {
   @Override
   public boolean isWrapperFor(Class<?> iface) throws SQLException {
     return source.isWrapperFor(iface);
+  }
+
+  @Override
+  public void beginRequest() throws SQLException {
+    source.beginRequest();
+  }
+
+  @Override
+  public void endRequest() throws SQLException {
+    source.endRequest();
+  }
+
+  @Override
+  public boolean setShardingKeyIfValid(ShardingKey shardingKey, ShardingKey superShardingKey, int timeout) throws SQLException {
+    return source.setShardingKeyIfValid(shardingKey, superShardingKey, timeout);
+  }
+
+  @Override
+  public boolean setShardingKeyIfValid(ShardingKey shardingKey, int timeout) throws SQLException {
+    return source.setShardingKeyIfValid(shardingKey, timeout);
+  }
+
+  @Override
+  public void setShardingKey(ShardingKey shardingKey, ShardingKey superShardingKey) throws SQLException {
+    source.setShardingKey(shardingKey, superShardingKey);
+  }
+
+  @Override
+  public void setShardingKey(ShardingKey shardingKey) throws SQLException {
+    source.setShardingKey(shardingKey);
   }
 }
