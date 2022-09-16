@@ -23,14 +23,12 @@ package cn.taketoday.jdbc.core;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.lang.reflect.Proxy;
 import java.sql.BatchUpdateException;
 import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.SQLWarning;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -45,22 +43,21 @@ import java.util.stream.StreamSupport;
 
 import javax.sql.DataSource;
 
+import cn.taketoday.beans.factory.InitializingBean;
 import cn.taketoday.dao.DataAccessException;
 import cn.taketoday.dao.InvalidDataAccessApiUsageException;
 import cn.taketoday.dao.support.DataAccessUtils;
 import cn.taketoday.jdbc.InvalidResultSetAccessException;
-import cn.taketoday.jdbc.SQLWarningException;
-import cn.taketoday.jdbc.UncategorizedSQLException;
 import cn.taketoday.jdbc.datasource.ConnectionProxy;
 import cn.taketoday.jdbc.datasource.DataSourceUtils;
 import cn.taketoday.jdbc.support.JdbcAccessor;
 import cn.taketoday.jdbc.support.JdbcUtils;
 import cn.taketoday.jdbc.support.KeyHolder;
+import cn.taketoday.jdbc.support.WrappedConnection;
 import cn.taketoday.jdbc.support.rowset.SqlRowSet;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.logging.Logger;
-import cn.taketoday.logging.LoggerFactory;
+import cn.taketoday.logging.LogMessage;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.LinkedCaseInsensitiveMap;
 import cn.taketoday.util.StringUtils;
@@ -99,6 +96,7 @@ import cn.taketoday.util.StringUtils;
  * @author Rod Johnson
  * @author Juergen Hoeller
  * @author Thomas Risberg
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see PreparedStatementCreator
  * @see PreparedStatementSetter
  * @see CallableStatementCreator
@@ -110,14 +108,10 @@ import cn.taketoday.util.StringUtils;
  * @see cn.taketoday.jdbc.support.SQLExceptionTranslator
  * @since 4.0
  */
-public class JdbcTemplate extends JdbcAccessor implements JdbcOperations {
-  private static final Logger log = LoggerFactory.getLogger(JdbcTemplate.class);
+public class JdbcTemplate extends JdbcAccessor implements JdbcOperations, InitializingBean {
 
   private static final String RETURN_RESULT_SET_PREFIX = "#result-set-";
   private static final String RETURN_UPDATE_COUNT_PREFIX = "#update-count-";
-
-  /** If this variable is false, we will throw exceptions on SQL warnings. */
-  private boolean ignoreWarnings = true;
 
   /**
    * If this variable is set to a non-negative value, it will be used for setting the
@@ -158,6 +152,8 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations {
    */
   private boolean resultsMapCaseInsensitive = false;
 
+  private boolean lazyInit = true;
+
   /**
    * Construct a new JdbcTemplate for bean usage.
    * <p>Note: The DataSource has to be set before using the instance.
@@ -189,26 +185,6 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations {
     setDataSource(dataSource);
     setLazyInit(lazyInit);
     afterPropertiesSet();
-  }
-
-  /**
-   * Set whether or not we want to ignore SQLWarnings.
-   * <p>Default is "true", swallowing and logging all warnings. Switch this flag
-   * to "false" to make the JdbcTemplate throw an SQLWarningException instead.
-   *
-   * @see SQLWarning
-   * @see cn.taketoday.jdbc.SQLWarningException
-   * @see #handleWarnings
-   */
-  public void setIgnoreWarnings(boolean ignoreWarnings) {
-    this.ignoreWarnings = ignoreWarnings;
-  }
-
-  /**
-   * Return whether or not we ignore SQLWarnings.
-   */
-  public boolean isIgnoreWarnings() {
-    return this.ignoreWarnings;
   }
 
   /**
@@ -326,6 +302,41 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations {
     return this.resultsMapCaseInsensitive;
   }
 
+  /**
+   * Set whether to lazily initialize the SQLExceptionTranslator for this accessor,
+   * on first encounter of an SQLException. Default is "true"; can be switched to
+   * "false" for initialization on startup.
+   * <p>Early initialization just applies if {@code afterPropertiesSet()} is called.
+   *
+   * @see #getExceptionTranslator()
+   * @see #afterPropertiesSet()
+   */
+  public void setLazyInit(boolean lazyInit) {
+    this.lazyInit = lazyInit;
+  }
+
+  /**
+   * Return whether to lazily initialize the SQLExceptionTranslator for this accessor.
+   *
+   * @see #getExceptionTranslator()
+   */
+  public boolean isLazyInit() {
+    return this.lazyInit;
+  }
+
+  /**
+   * Eagerly initialize the exception translator, if demanded,
+   * creating a default one for the specified DataSource if none set.
+   */
+  @Override
+  public void afterPropertiesSet() {
+    if (getDataSource() == null) {
+      throw new IllegalArgumentException("Property 'dataSource' is required");
+    }
+    if (!isLazyInit()) {
+      getExceptionTranslator();
+    }
+  }
   //-------------------------------------------------------------------------
   // Methods dealing with a plain java.sql.Connection
   //-------------------------------------------------------------------------
@@ -335,7 +346,8 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations {
   public <T> T execute(ConnectionCallback<T> action) throws DataAccessException {
     Assert.notNull(action, "Callback object must not be null");
 
-    Connection con = DataSourceUtils.getConnection(obtainDataSource());
+    DataSource dataSource = obtainDataSource();
+    Connection con = DataSourceUtils.getConnection(dataSource);
     try {
       // Create close-suppressing Connection proxy, also preparing returned Statements.
       Connection conToUse = createConnectionProxy(con);
@@ -345,12 +357,12 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations {
       // Release Connection early, to avoid potential connection pool deadlock
       // in the case when the exception translator hasn't been initialized yet.
       String sql = getSql(action);
-      DataSourceUtils.releaseConnection(con, getDataSource());
+      DataSourceUtils.releaseConnection(con, dataSource);
       con = null;
       throw translateException("ConnectionCallback", sql, ex);
     }
     finally {
-      DataSourceUtils.releaseConnection(con, getDataSource());
+      DataSourceUtils.releaseConnection(con, dataSource);
     }
   }
 
@@ -367,10 +379,7 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations {
    * @see #applyStatementSettings
    */
   protected Connection createConnectionProxy(Connection con) {
-    return (Connection) Proxy.newProxyInstance( // TODO 优化
-            ConnectionProxy.class.getClassLoader(),
-            new Class<?>[] { ConnectionProxy.class },
-            new CloseSuppressingInvocationHandler(con));
+    return new CloseSuppressingConnectionProxy(con);
   }
 
   //-------------------------------------------------------------------------
@@ -416,8 +425,8 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations {
 
   @Override
   public void execute(final String sql) throws DataAccessException {
-    if (log.isDebugEnabled()) {
-      log.debug("Executing SQL statement [{}]", sql);
+    if (stmtLogger.isDebugEnabled()) {
+      stmtLogger.logStatement("Executing SQL statement", sql);
     }
 
     /*
@@ -445,8 +454,8 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations {
   public <T> T query(final String sql, final ResultSetExtractor<T> rse) throws DataAccessException {
     Assert.notNull(sql, "SQL must not be null");
     Assert.notNull(rse, "ResultSetExtractor must not be null");
-    if (log.isDebugEnabled()) {
-      log.debug("Executing SQL query [{}]", sql);
+    if (stmtLogger.isDebugEnabled()) {
+      stmtLogger.logStatement("Executing SQL query", sql);
     }
 
     /*
@@ -544,8 +553,8 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations {
   @Override
   public int update(final String sql) throws DataAccessException {
     Assert.notNull(sql, "SQL must not be null");
-    if (log.isDebugEnabled()) {
-      log.debug("Executing SQL update [{}]", sql);
+    if (stmtLogger.isDebugEnabled()) {
+      stmtLogger.logStatement("Executing SQL update", sql);
     }
 
     /*
@@ -555,8 +564,8 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations {
       @Override
       public Integer doInStatement(Statement stmt) throws SQLException {
         int rows = stmt.executeUpdate(sql);
-        if (log.isTraceEnabled()) {
-          log.trace("SQL update affected {} rows", rows);
+        if (logger.isTraceEnabled()) {
+          logger.trace("SQL update affected {} rows", rows);
         }
         return rows;
       }
@@ -573,8 +582,8 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations {
   @Override
   public int[] batchUpdate(final String... sql) throws DataAccessException {
     Assert.notEmpty(sql, "SQL array must not be empty");
-    if (log.isDebugEnabled()) {
-      log.debug("Executing SQL batch update of {} statements", sql.length);
+    if (logger.isDebugEnabled()) {
+      logger.debug("Executing SQL batch update of {} statements", sql.length);
     }
 
     /*
@@ -649,9 +658,9 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations {
 
     Assert.notNull(psc, "PreparedStatementCreator must not be null");
     Assert.notNull(action, "Callback object must not be null");
-    if (log.isDebugEnabled()) {
+    if (stmtLogger.isDebugEnabled()) {
       String sql = getSql(psc);
-      log.debug("Executing prepared SQL statement{}", (sql != null ? " [" + sql + "]" : ""));
+      stmtLogger.logStatement("Executing prepared SQL statement", (sql != null ? " [" + sql + "]" : ""));
     }
 
     Connection con = DataSourceUtils.getConnection(obtainDataSource());
@@ -720,7 +729,7 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations {
           throws DataAccessException {
 
     Assert.notNull(rse, "ResultSetExtractor must not be null");
-    log.debug("Executing prepared SQL query");
+    logger.debug("Executing prepared SQL query");
 
     return execute(psc, new PreparedStatementCallback<T>() {
       @Override
@@ -973,15 +982,15 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations {
 
   protected int update(final PreparedStatementCreator psc, @Nullable final PreparedStatementSetter pss)
           throws DataAccessException {
-    log.debug("Executing prepared SQL update");
+    logger.debug("Executing prepared SQL update");
     return updateCount(execute(psc, ps -> {
       try {
         if (pss != null) {
           pss.setValues(ps);
         }
         int rows = ps.executeUpdate();
-        if (log.isTraceEnabled()) {
-          log.trace("SQL update affected {} rows", rows);
+        if (logger.isTraceEnabled()) {
+          logger.trace("SQL update affected {} rows", rows);
         }
         return rows;
       }
@@ -1003,7 +1012,7 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations {
           throws DataAccessException {
 
     Assert.notNull(generatedKeyHolder, "KeyHolder must not be null");
-    log.debug("Executing SQL update and returning generated keys");
+    logger.debug("Executing SQL update and returning generated keys");
 
     return updateCount(execute(psc, ps -> {
       int rows = ps.executeUpdate();
@@ -1020,8 +1029,8 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations {
           JdbcUtils.closeResultSet(keys);
         }
       }
-      if (log.isTraceEnabled()) {
-        log.trace("SQL update affected {} rows and returned {} keys", rows, generatedKeys.size());
+      if (logger.isTraceEnabled()) {
+        logger.trace("SQL update affected {} rows and returned {} keys", rows, generatedKeys.size());
       }
       return rows;
     }, true));
@@ -1044,8 +1053,8 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations {
 
   @Override
   public int[] batchUpdate(String sql, final BatchPreparedStatementSetter pss) throws DataAccessException {
-    if (log.isDebugEnabled()) {
-      log.debug("Executing SQL batch update [{}]", sql);
+    if (stmtLogger.isDebugEnabled()) {
+      stmtLogger.logStatement("Executing SQL batch update", sql);
     }
 
     int[] result = execute(sql, (PreparedStatementCallback<int[]>) ps -> {
@@ -1139,8 +1148,9 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations {
           String sql, final Collection<T> batchArgs, final int batchSize,
           final ParameterizedPreparedStatementSetter<T> pss) throws DataAccessException {
 
-    if (log.isDebugEnabled()) {
-      log.debug("Executing SQL batch update [{}] with a batch size of {}", sql, batchSize);
+    if (stmtLogger.isDebugEnabled()) {
+      stmtLogger.logStatement(
+              LogMessage.format("Executing SQL batch update with a batch size of '{}'", batchSize), sql);
     }
     int[][] result = execute(sql, (PreparedStatementCallback<int[][]>) ps -> {
       List<int[]> rowsAffected = new ArrayList<>();
@@ -1153,10 +1163,10 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations {
           if (batchSupported) {
             ps.addBatch();
             if (n % batchSize == 0 || n == batchArgs.size()) {
-              if (log.isTraceEnabled()) {
+              if (logger.isTraceEnabled()) {
                 int batchIdx = (n % batchSize == 0) ? n / batchSize : (n / batchSize) + 1;
                 int items = n - ((n % batchSize == 0) ? n / batchSize - 1 : (n / batchSize)) * batchSize;
-                log.trace("Sending SQL batch update #{} with {} items", batchIdx, items);
+                logger.trace("Sending SQL batch update #{} with {} items", batchIdx, items);
               }
               rowsAffected.add(ps.executeBatch());
             }
@@ -1194,9 +1204,9 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations {
 
     Assert.notNull(csc, "CallableStatementCreator must not be null");
     Assert.notNull(action, "Callback object must not be null");
-    if (log.isDebugEnabled()) {
+    if (stmtLogger.isDebugEnabled()) {
       String sql = getSql(csc);
-      log.debug("Calling stored procedure{}", sql != null ? " [" + sql + "]" : "");
+      stmtLogger.logStatement("Calling stored procedure", sql != null ? " [" + sql + "]" : "");
     }
 
     Connection con = DataSourceUtils.getConnection(obtainDataSource());
@@ -1262,9 +1272,9 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations {
     Map<String, Object> result = execute(csc, cs -> {
       boolean retVal = cs.execute();
       int updateCount = cs.getUpdateCount();
-      if (log.isTraceEnabled()) {
-        log.trace("CallableStatement.execute() returned '{}'", retVal);
-        log.trace("CallableStatement.getUpdateCount() returned {}", updateCount);
+      if (logger.isTraceEnabled()) {
+        logger.trace("CallableStatement.execute() returned '{}'", retVal);
+        logger.trace("CallableStatement.getUpdateCount() returned {}", updateCount);
       }
       Map<String, Object> resultsMap = createResultsMap();
       if (retVal || updateCount != -1) {
@@ -1306,8 +1316,8 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations {
             if (!this.skipUndeclaredResults) {
               String rsName = RETURN_RESULT_SET_PREFIX + (rsIndex + 1);
               SqlReturnResultSet undeclaredRsParam = new SqlReturnResultSet(rsName, getColumnMapRowMapper());
-              if (log.isTraceEnabled()) {
-                log.trace("Added default SqlReturnResultSet parameter named '{}'", rsName);
+              if (logger.isTraceEnabled()) {
+                logger.trace("Added default SqlReturnResultSet parameter named '{}'", rsName);
               }
               results.putAll(processResultSet(cs.getResultSet(), undeclaredRsParam));
               rsIndex++;
@@ -1324,8 +1334,8 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations {
           else {
             if (!this.skipUndeclaredResults) {
               String undeclaredName = RETURN_UPDATE_COUNT_PREFIX + (updateIndex + 1);
-              if (log.isTraceEnabled()) {
-                log.trace("Added default SqlReturnUpdateCount parameter named '{}'", undeclaredName);
+              if (logger.isTraceEnabled()) {
+                logger.trace("Added default SqlReturnUpdateCount parameter named '{}'", undeclaredName);
               }
               results.put(undeclaredName, updateCount);
               updateIndex++;
@@ -1334,8 +1344,8 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations {
         }
         moreResults = cs.getMoreResults();
         updateCount = cs.getUpdateCount();
-        if (log.isTraceEnabled()) {
-          log.trace("CallableStatement.getUpdateCount() returned {}", updateCount);
+        if (logger.isTraceEnabled()) {
+          logger.trace("CallableStatement.getUpdateCount() returned {}", updateCount);
         }
       }
       while (moreResults || updateCount != -1);
@@ -1373,8 +1383,8 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations {
               String rsName = outParam.getName();
               SqlReturnResultSet rsParam = new SqlReturnResultSet(rsName, getColumnMapRowMapper());
               results.putAll(processResultSet((ResultSet) out, rsParam));
-              if (log.isTraceEnabled()) {
-                log.trace("Added default SqlReturnResultSet parameter named '{}'", rsName);
+              if (logger.isTraceEnabled()) {
+                logger.trace("Added default SqlReturnResultSet parameter named '{}'", rsName);
               }
             }
           }
@@ -1517,74 +1527,6 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations {
     return new ArgumentTypePreparedStatementSetter(args, argTypes);
   }
 
-  /**
-   * Throw an SQLWarningException if we're not ignoring warnings,
-   * otherwise log the warnings at debug level.
-   *
-   * @param stmt the current JDBC statement
-   * @throws SQLWarningException if not ignoring warnings
-   * @see cn.taketoday.jdbc.SQLWarningException
-   */
-  protected void handleWarnings(Statement stmt) throws SQLException {
-    if (isIgnoreWarnings()) {
-      if (log.isDebugEnabled()) {
-        SQLWarning warningToLog = stmt.getWarnings();
-        while (warningToLog != null) {
-          log.debug("SQLWarning ignored: SQL state '{}', error code '{}', message [{}]",
-                  warningToLog.getSQLState(), warningToLog.getErrorCode(), warningToLog.getMessage());
-          warningToLog = warningToLog.getNextWarning();
-        }
-      }
-    }
-    else {
-      handleWarnings(stmt.getWarnings());
-    }
-  }
-
-  /**
-   * Throw an SQLWarningException if encountering an actual warning.
-   *
-   * @param warning the warnings object from the current statement.
-   * May be {@code null}, in which case this method does nothing.
-   * @throws SQLWarningException in case of an actual warning to be raised
-   */
-  protected void handleWarnings(@Nullable SQLWarning warning) throws SQLWarningException {
-    if (warning != null) {
-      throw new SQLWarningException("Warning not ignored", warning);
-    }
-  }
-
-  /**
-   * Translate the given {@link SQLException} into a generic {@link DataAccessException}.
-   *
-   * @param task readable text describing the task being attempted
-   * @param sql the SQL query or update that caused the problem (may be {@code null})
-   * @param ex the offending {@code SQLException}
-   * @return a DataAccessException wrapping the {@code SQLException} (never {@code null})
-   * @see #getExceptionTranslator()
-   */
-  protected DataAccessException translateException(String task, @Nullable String sql, SQLException ex) {
-    DataAccessException dae = getExceptionTranslator().translate(task, sql, ex);
-    return (dae != null ? dae : new UncategorizedSQLException(task, sql, ex));
-  }
-
-  /**
-   * Determine SQL from potential provider object.
-   *
-   * @param sqlProvider object which is potentially an SqlProvider
-   * @return the SQL string, or {@code null} if not known
-   * @see SqlProvider
-   */
-  @Nullable
-  private static String getSql(Object sqlProvider) {
-    if (sqlProvider instanceof SqlProvider) {
-      return ((SqlProvider) sqlProvider).getSql();
-    }
-    else {
-      return null;
-    }
-  }
-
   private static <T> T result(@Nullable T result) {
     Assert.state(result != null, "No result");
     return result;
@@ -1596,61 +1538,132 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations {
   }
 
   /**
-   * Invocation handler that suppresses close calls on JDBC Connections.
+   * proxy that suppresses close calls on JDBC Connections.
    * Also prepares returned Statement (Prepared/CallbackStatement) objects.
    *
    * @see Connection#close()
    */
-  private class CloseSuppressingInvocationHandler implements InvocationHandler {
+  class CloseSuppressingConnectionProxy extends WrappedConnection implements ConnectionProxy {
 
-    private final Connection target;
-
-    public CloseSuppressingInvocationHandler(Connection target) {
-      this.target = target;
+    public CloseSuppressingConnectionProxy(Connection source) {
+      super(source);
     }
 
     @Override
-    @Nullable
-    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-      // Invocation on ConnectionProxy interface coming in...
-
-      switch (method.getName()) {
-        case "equals":
-          // Only consider equal when proxies are identical.
-          return (proxy == args[0]);
-        case "hashCode":
-          // Use hashCode of PersistenceManager proxy.
-          return System.identityHashCode(proxy);
-        case "close":
-          // Handle close method: suppress, not valid.
-          return null;
-        case "isClosed":
-          return false;
-        case "getTargetConnection":
-          // Handle getTargetConnection method: return underlying Connection.
-          return this.target;
-        case "unwrap":
-          return (((Class<?>) args[0]).isInstance(proxy) ? proxy : this.target.unwrap((Class<?>) args[0]));
-        case "isWrapperFor":
-          return (((Class<?>) args[0]).isInstance(proxy) || this.target.isWrapperFor((Class<?>) args[0]));
-      }
-
-      // Invoke method on target Connection.
-      try {
-        Object retVal = method.invoke(this.target, args);
-
-        // If return value is a JDBC Statement, apply statement settings
-        // (fetch size, max rows, transaction timeout).
-        if (retVal instanceof Statement) {
-          applyStatementSettings(((Statement) retVal));
-        }
-
-        return retVal;
-      }
-      catch (InvocationTargetException ex) {
-        throw ex.getTargetException();
-      }
+    public Connection getTargetConnection() {
+      return delegate;
     }
+
+    @Override
+    public void close() throws SQLException {
+      // noop
+    }
+
+    @Override
+    public boolean isClosed() throws SQLException {
+      return false;
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public <T> T unwrap(Class<T> iface) throws SQLException {
+      return iface.isInstance(this) ? (T) this : delegate.unwrap(iface);
+    }
+
+    @Override
+    public boolean isWrapperFor(Class<?> iface) throws SQLException {
+      return iface.isInstance(this) || delegate.isWrapperFor(iface);
+    }
+
+    //-------------------------------------------------------------------------
+    // If return value is a JDBC Statement, apply statement settings
+    // (fetch size, max rows, transaction timeout).
+    //-------------------------------------------------------------------------
+
+    @Override
+    public Statement createStatement() throws SQLException {
+      Statement statement = delegate.createStatement();
+      applyStatementSettings(statement);
+      return statement;
+    }
+
+    @Override
+    public Statement createStatement(int resultSetType, int resultSetConcurrency) throws SQLException {
+      Statement statement = delegate.createStatement(resultSetType, resultSetConcurrency);
+      applyStatementSettings(statement);
+      return statement;
+    }
+
+    @Override
+    public Statement createStatement(int resultSetType, int resultSetConcurrency, int resultSetHoldability) throws SQLException {
+      Statement statement = delegate.createStatement(resultSetType, resultSetConcurrency, resultSetHoldability);
+      applyStatementSettings(statement);
+      return statement;
+    }
+
+    @Override
+    public PreparedStatement prepareStatement(String sql, int autoGeneratedKeys) throws SQLException {
+      PreparedStatement statement = delegate.prepareStatement(sql, autoGeneratedKeys);
+      applyStatementSettings(statement);
+      return statement;
+    }
+
+    @Override
+    public PreparedStatement prepareStatement(String sql) throws SQLException {
+      PreparedStatement statement = delegate.prepareStatement(sql);
+      applyStatementSettings(statement);
+      return statement;
+    }
+
+    @Override
+    public PreparedStatement prepareStatement(String sql, int[] columnIndexes) throws SQLException {
+      PreparedStatement statement = delegate.prepareStatement(sql, columnIndexes);
+      applyStatementSettings(statement);
+      return statement;
+    }
+
+    @Override
+    public PreparedStatement prepareStatement(String sql, String[] columnNames) throws SQLException {
+      PreparedStatement statement = delegate.prepareStatement(sql, columnNames);
+      applyStatementSettings(statement);
+      return statement;
+    }
+
+    @Override
+    public PreparedStatement prepareStatement(String sql, int resultSetType, int resultSetConcurrency) throws SQLException {
+      PreparedStatement statement = delegate.prepareStatement(sql, resultSetType, resultSetConcurrency);
+      applyStatementSettings(statement);
+      return statement;
+    }
+
+    @Override
+    public PreparedStatement prepareStatement(String sql, int resultSetType, int resultSetConcurrency, int resultSetHoldability) throws SQLException {
+      PreparedStatement statement = delegate.prepareStatement(sql, resultSetType, resultSetConcurrency, resultSetHoldability);
+      applyStatementSettings(statement);
+      return statement;
+    }
+
+    @Override
+    public CallableStatement prepareCall(String sql) throws SQLException {
+      CallableStatement statement = delegate.prepareCall(sql);
+      applyStatementSettings(statement);
+      return statement;
+    }
+
+    @Override
+    public CallableStatement prepareCall(String sql, int resultSetType, int resultSetConcurrency) throws SQLException {
+      CallableStatement statement = delegate.prepareCall(sql, resultSetType, resultSetConcurrency);
+      applyStatementSettings(statement);
+      return statement;
+    }
+
+    @Override
+    public CallableStatement prepareCall(String sql, int resultSetType, int resultSetConcurrency, int resultSetHoldability) throws SQLException {
+      CallableStatement statement = delegate.prepareCall(sql, resultSetType, resultSetConcurrency, resultSetHoldability);
+      applyStatementSettings(statement);
+      return statement;
+    }
+
   }
 
   /**

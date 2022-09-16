@@ -20,11 +20,21 @@
 
 package cn.taketoday.jdbc.support;
 
+import java.sql.SQLException;
+import java.sql.SQLWarning;
+import java.sql.Statement;
+
 import javax.sql.DataSource;
 
-import cn.taketoday.beans.factory.InitializingBean;
+import cn.taketoday.dao.DataAccessException;
+import cn.taketoday.jdbc.SQLWarningException;
+import cn.taketoday.jdbc.UncategorizedSQLException;
+import cn.taketoday.jdbc.core.SqlProvider;
+import cn.taketoday.jdbc.sql.format.SqlStatementLogger;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.logging.Logger;
+import cn.taketoday.logging.LoggerFactory;
 
 /**
  * Base class for {@link cn.taketoday.jdbc.core.JdbcTemplate} and
@@ -36,10 +46,13 @@ import cn.taketoday.lang.Nullable;
  *
  * @author Juergen Hoeller
  * @author Sebastien Deleuze
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see cn.taketoday.jdbc.core.JdbcTemplate
  * @since 4.0
  */
-public abstract class JdbcAccessor implements InitializingBean {
+public abstract class JdbcAccessor {
+  protected final Logger logger = LoggerFactory.getLogger(getClass());
+  protected SqlStatementLogger stmtLogger = SqlStatementLogger.sharedInstance;
 
   @Nullable
   private DataSource dataSource;
@@ -47,7 +60,8 @@ public abstract class JdbcAccessor implements InitializingBean {
   @Nullable
   private volatile SQLExceptionTranslator exceptionTranslator;
 
-  private boolean lazyInit = true;
+  /** If this variable is false, we will throw exceptions on SQL warnings. */
+  private boolean ignoreWarnings = true;
 
   /**
    * Set the JDBC DataSource to obtain connections from.
@@ -136,38 +150,99 @@ public abstract class JdbcAccessor implements InitializingBean {
   }
 
   /**
-   * Set whether to lazily initialize the SQLExceptionTranslator for this accessor,
-   * on first encounter of an SQLException. Default is "true"; can be switched to
-   * "false" for initialization on startup.
-   * <p>Early initialization just applies if {@code afterPropertiesSet()} is called.
+   * Set whether or not we want to ignore SQLWarnings.
+   * <p>Default is "true", swallowing and logging all warnings. Switch this flag
+   * to "false" to make the JdbcTemplate throw an SQLWarningException instead.
    *
-   * @see #getExceptionTranslator()
-   * @see #afterPropertiesSet()
+   * @see SQLWarning
+   * @see cn.taketoday.jdbc.SQLWarningException
+   * @see #handleWarnings
    */
-  public void setLazyInit(boolean lazyInit) {
-    this.lazyInit = lazyInit;
+  public void setIgnoreWarnings(boolean ignoreWarnings) {
+    this.ignoreWarnings = ignoreWarnings;
   }
 
   /**
-   * Return whether to lazily initialize the SQLExceptionTranslator for this accessor.
-   *
-   * @see #getExceptionTranslator()
+   * Return whether or not we ignore SQLWarnings.
    */
-  public boolean isLazyInit() {
-    return this.lazyInit;
+  public boolean isIgnoreWarnings() {
+    return this.ignoreWarnings;
+  }
+
+  public void setStatementLogger(SqlStatementLogger statementLogger) {
+    Assert.notNull(statementLogger, "statementLogger is required");
+    this.stmtLogger = statementLogger;
+  }
+
+  public SqlStatementLogger getStatementLogger() {
+    return stmtLogger;
   }
 
   /**
-   * Eagerly initialize the exception translator, if demanded,
-   * creating a default one for the specified DataSource if none set.
+   * Throw an SQLWarningException if we're not ignoring warnings,
+   * otherwise log the warnings at debug level.
+   *
+   * @param stmt the current JDBC statement
+   * @throws SQLWarningException if not ignoring warnings
+   * @see cn.taketoday.jdbc.SQLWarningException
    */
-  @Override
-  public void afterPropertiesSet() {
-    if (getDataSource() == null) {
-      throw new IllegalArgumentException("Property 'dataSource' is required");
+  public void handleWarnings(Statement stmt) throws SQLException {
+    if (isIgnoreWarnings()) {
+      if (logger.isDebugEnabled()) {
+        SQLWarning warningToLog = stmt.getWarnings();
+        while (warningToLog != null) {
+          logger.debug("SQLWarning ignored: SQL state '{}', error code '{}', message [{}]",
+                  warningToLog.getSQLState(), warningToLog.getErrorCode(), warningToLog.getMessage());
+          warningToLog = warningToLog.getNextWarning();
+        }
+      }
     }
-    if (!isLazyInit()) {
-      getExceptionTranslator();
+    else {
+      handleWarnings(stmt.getWarnings());
+    }
+  }
+
+  /**
+   * Throw an SQLWarningException if encountering an actual warning.
+   *
+   * @param warning the warnings object from the current statement.
+   * May be {@code null}, in which case this method does nothing.
+   * @throws SQLWarningException in case of an actual warning to be raised
+   */
+  public void handleWarnings(@Nullable SQLWarning warning) throws SQLWarningException {
+    if (warning != null) {
+      throw new SQLWarningException("Warning not ignored", warning);
+    }
+  }
+
+  /**
+   * Translate the given {@link SQLException} into a generic {@link DataAccessException}.
+   *
+   * @param task readable text describing the task being attempted
+   * @param sql the SQL query or update that caused the problem (may be {@code null})
+   * @param ex the offending {@code SQLException}
+   * @return a DataAccessException wrapping the {@code SQLException} (never {@code null})
+   * @see #getExceptionTranslator()
+   */
+  public DataAccessException translateException(String task, @Nullable String sql, SQLException ex) {
+    DataAccessException dae = getExceptionTranslator().translate(task, sql, ex);
+    return dae != null ? dae : new UncategorizedSQLException(task, sql, ex);
+  }
+
+  /**
+   * Determine SQL from potential provider object.
+   *
+   * @param sqlProvider object which is potentially an SqlProvider
+   * @return the SQL string, or {@code null} if not known
+   * @see SqlProvider
+   */
+  @Nullable
+  protected static String getSql(Object sqlProvider) {
+    if (sqlProvider instanceof SqlProvider) {
+      return ((SqlProvider) sqlProvider).getSql();
+    }
+    else {
+      return null;
     }
   }
 
