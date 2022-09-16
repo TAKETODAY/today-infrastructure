@@ -40,6 +40,7 @@ import java.util.Map;
 import cn.taketoday.beans.BeanMetadata;
 import cn.taketoday.beans.BeanProperty;
 import cn.taketoday.core.conversion.ConversionService;
+import cn.taketoday.dao.DataAccessException;
 import cn.taketoday.jdbc.parsing.QueryParameter;
 import cn.taketoday.jdbc.result.DefaultResultSetHandlerFactory;
 import cn.taketoday.jdbc.result.JdbcBeanMetadata;
@@ -58,7 +59,6 @@ import cn.taketoday.jdbc.type.TypeHandler;
 import cn.taketoday.jdbc.type.TypeHandlerRegistry;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.lang.TodayStrategies;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.CollectionUtils;
@@ -448,7 +448,7 @@ public final class Query implements AutoCloseable {
       return connection.prepareStatement(parsedQuery);
     }
     catch (SQLException ex) {
-      throw new PersistenceException("Error preparing statement - " + ex.getMessage(), ex);
+      throw translateException("Preparing statement", ex);
     }
   }
 
@@ -604,7 +604,7 @@ public final class Query implements AutoCloseable {
     }
     catch (SQLException ex) {
       connection.onException();
-      throw new PersistenceException("Error in executeUpdate, " + ex.getMessage(), ex);
+      throw translateException("Execute update", ex);
     }
     finally {
       closeConnectionIfNecessary();
@@ -665,8 +665,7 @@ public final class Query implements AutoCloseable {
     }
     catch (SQLException e) {
       connection.onException();
-      throw new PersistenceException(
-              "Database error occurred while running executeScalar: " + e.getMessage(), e);
+      throw translateException("Execute scalar", e);
     }
     finally {
       closeConnectionIfNecessary();
@@ -743,7 +742,7 @@ public final class Query implements AutoCloseable {
       }
     }
     catch (SQLException e) {
-      throw new PersistenceException("Error while adding statement to batch", e);
+      throw translateException("Adding statement to batch", e);
     }
     return this;
   }
@@ -789,9 +788,9 @@ public final class Query implements AutoCloseable {
                         " the createQuery() method to 'false'", e);
       }
     }
-    catch (Throwable e) {
+    catch (SQLException e) {
       connection.onException();
-      throw new PersistenceException("Error while executing batch operation: " + e.getMessage(), e);
+      throw translateException("Executing batch operation", e);
     }
     finally {
       closeConnectionIfNecessary();
@@ -890,6 +889,10 @@ public final class Query implements AutoCloseable {
     return parsedQuery;
   }
 
+  private DataAccessException translateException(String task, SQLException ex) {
+    return this.connection.getManager().translateException(task, parsedQuery, ex);
+  }
+
   //---------------------------------------------------------------------
   // ParameterSetter
   //---------------------------------------------------------------------
@@ -944,7 +947,7 @@ public final class Query implements AutoCloseable {
         afterExecQuery = System.currentTimeMillis();
       }
       catch (SQLException ex) {
-        throw new PersistenceException("Database error: " + ex.getMessage(), ex);
+        throw translateException("Execute query", ex);
       }
     }
 
@@ -960,7 +963,7 @@ public final class Query implements AutoCloseable {
         }
       }
       catch (SQLException ex) {
-        throw new PersistenceException("Error closing ResultSet.", ex);
+        throw translateException("Closing ResultSet", ex);
       }
       finally {
         if (isAutoCloseConnection()) {
