@@ -51,10 +51,18 @@ import cn.taketoday.lang.Nullable;
 public class SQLStateSQLExceptionTranslator extends AbstractFallbackSQLExceptionTranslator {
 
   private static final Set<String> BAD_SQL_GRAMMAR_CODES = new HashSet<>(8);
-  private static final Set<String> CONCURRENCY_FAILURE_CODES = new HashSet<>(4);
+  private static final Set<String> CONCURRENCY_FAILURE_CODES = Set.of(
+          "40", // Transaction rollback
+          "61" // Oracle: deadlock
+  );
+
   private static final Set<String> DATA_INTEGRITY_VIOLATION_CODES = new HashSet<>(8);
   private static final Set<String> DATA_ACCESS_RESOURCE_FAILURE_CODES = new HashSet<>(8);
-  private static final Set<String> TRANSIENT_DATA_ACCESS_RESOURCE_CODES = new HashSet<>(8);
+  private static final Set<String> TRANSIENT_DATA_ACCESS_RESOURCE_CODES = Set.of(
+          "JW",  // Sybase: internal I/O error
+          "JZ",  // Sybase: unexpected I/O error
+          "S1"  // DB2: communication failure
+  );
 
   static {
     BAD_SQL_GRAMMAR_CODES.add("07");  // Dynamic SQL error
@@ -76,13 +84,6 @@ public class SQLStateSQLExceptionTranslator extends AbstractFallbackSQLException
     DATA_ACCESS_RESOURCE_FAILURE_CODES.add("54");  // PostgreSQL: program limit exceeded (e.g. statement too complex)
     DATA_ACCESS_RESOURCE_FAILURE_CODES.add("57");  // DB2: out-of-memory exception / database not started
     DATA_ACCESS_RESOURCE_FAILURE_CODES.add("58");  // DB2: unexpected system error
-
-    TRANSIENT_DATA_ACCESS_RESOURCE_CODES.add("JW");  // Sybase: internal I/O error
-    TRANSIENT_DATA_ACCESS_RESOURCE_CODES.add("JZ");  // Sybase: unexpected I/O error
-    TRANSIENT_DATA_ACCESS_RESOURCE_CODES.add("S1");  // DB2: communication failure
-
-    CONCURRENCY_FAILURE_CODES.add("40");  // Transaction rollback
-    CONCURRENCY_FAILURE_CODES.add("61");  // Oracle: deadlock
   }
 
   @Override
