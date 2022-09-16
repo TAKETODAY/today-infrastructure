@@ -22,11 +22,11 @@ package cn.taketoday.jdbc.sql;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
-import java.util.Iterator;
 import java.util.List;
 import java.util.function.Consumer;
 
 import cn.taketoday.dao.DataAccessException;
+import cn.taketoday.jdbc.result.ResultSetIterator;
 import cn.taketoday.lang.Nullable;
 
 /**
@@ -86,9 +86,11 @@ public interface EntityManager {
   @Nullable
   <T> T findById(Class<T> entityClass, Object id) throws DataAccessException;
 
+  @Nullable
   <T> T findFirst(T entity) throws DataAccessException;
 
-  <T> List<T> findFirst(Class<T> entityClass, Object query) throws DataAccessException;
+  @Nullable
+  <T> T findFirst(Class<T> entityClass, Object query) throws DataAccessException;
 
   <T> List<T> find(T entity) throws DataAccessException;
 
@@ -96,9 +98,9 @@ public interface EntityManager {
 
   <T> void iterate(Class<T> entityClass, Object params, Consumer<T> entityConsumer) throws DataAccessException;
 
-  <T> Iterator<T> iterate(Class<T> entityClass, Object params) throws DataAccessException;
+  <T> ResultSetIterator<T> iterate(Class<T> entityClass, Object params) throws DataAccessException;
 
   <T> void iterate(Class<T> entityClass, @Nullable QueryCondition conditions, Consumer<T> entityConsumer) throws DataAccessException;
 
-  <T> Iterator<T> iterate(Class<T> entityClass, @Nullable QueryCondition conditions) throws DataAccessException;
+  <T> ResultSetIterator<T> iterate(Class<T> entityClass, @Nullable QueryCondition conditions) throws DataAccessException;
 }
