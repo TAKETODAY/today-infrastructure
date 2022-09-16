@@ -34,10 +34,12 @@ import cn.taketoday.jdbc.datasource.DataSourceUtils;
 import cn.taketoday.jdbc.parsing.QueryParameter;
 import cn.taketoday.jdbc.parsing.SqlParameterParser;
 import cn.taketoday.jdbc.result.PrimitiveTypeNullHandler;
+import cn.taketoday.jdbc.sql.DefaultEntityManager;
 import cn.taketoday.jdbc.sql.EntityManager;
 import cn.taketoday.jdbc.support.ClobToStringConverter;
 import cn.taketoday.jdbc.support.ConnectionSource;
 import cn.taketoday.jdbc.support.DataSourceConnectionSource;
+import cn.taketoday.jdbc.support.JdbcAccessor;
 import cn.taketoday.jdbc.support.OffsetTimeToSQLTimeConverter;
 import cn.taketoday.jdbc.support.TimeToJodaLocalTimeConverter;
 import cn.taketoday.jdbc.type.TypeHandler;
@@ -64,7 +66,7 @@ import cn.taketoday.lang.Nullable;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-public class RepositoryManager {
+public class RepositoryManager extends JdbcAccessor {
 
   private TypeHandlerRegistry typeHandlerRegistry = TypeHandlerRegistry.getSharedInstance();
 
@@ -79,7 +81,7 @@ public class RepositoryManager {
   @Nullable
   private PrimitiveTypeNullHandler primitiveTypeNullHandler;
 
-  private EntityManager entityManager;
+  private EntityManager entityManager = new DefaultEntityManager(this);
 
   public RepositoryManager(String jndiLookup) {
     this(DataSourceUtils.getJndiDatasource(jndiLookup));
@@ -267,7 +269,11 @@ public class RepositoryManager {
     this.entityManager = entityManager;
   }
 
-  //
+  public EntityManager getEntityManager() {
+    return entityManager;
+  }
+
+//
 
   protected String parse(String sql, Map<String, QueryParameter> paramNameToIdxMap) {
     return sqlParameterParser.parse(sql, paramNameToIdxMap);
