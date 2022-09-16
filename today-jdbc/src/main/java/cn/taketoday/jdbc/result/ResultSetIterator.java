@@ -20,12 +20,14 @@
 
 package cn.taketoday.jdbc.result;
 
+import java.io.Closeable;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 import cn.taketoday.jdbc.PersistenceException;
+import cn.taketoday.jdbc.support.JdbcUtils;
 
 /**
  * Iterator for a {@link ResultSet}. Tricky part here is getting
@@ -33,12 +35,14 @@ import cn.taketoday.jdbc.PersistenceException;
  * without calling {@link #next()}.
  *
  * @author TODAY
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 4.0
  */
-public abstract class AbstractResultSetIterator<T> implements Iterator<T> {
+public abstract class ResultSetIterator<T> implements Iterator<T>, Closeable {
   // fields needed to read result set
   protected final ResultSet resultSet;
 
-  protected AbstractResultSetIterator(ResultSet rs) {
+  protected ResultSetIterator(ResultSet rs) {
     this.resultSet = rs;
   }
 
@@ -75,6 +79,12 @@ public abstract class AbstractResultSetIterator<T> implements Iterator<T> {
     final ResultSetValue<T> result = next;
     next = null;
     return result.value;
+  }
+
+  @Override
+  public void close() {
+    // TODO SQLException
+    JdbcUtils.closeQuietly(resultSet);
   }
 
   private ResultSetValue<T> safeReadNext() {

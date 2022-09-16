@@ -37,7 +37,7 @@ import cn.taketoday.lang.Nullable;
 /**
  * @author aldenquimby@gmail.com
  */
-public final class TableResultSetIterator extends AbstractResultSetIterator<Row> {
+public final class TableResultSetIterator extends ResultSetIterator<Row> {
   private final List<Column> columns;
   private final boolean isCaseSensitive;
   private final ConversionService conversionService;

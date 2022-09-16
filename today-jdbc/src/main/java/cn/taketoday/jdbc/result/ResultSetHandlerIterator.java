@@ -32,7 +32,7 @@ import cn.taketoday.jdbc.PersistenceException;
  * @author aldenquimby@gmail.com
  * @author TODAY
  */
-public final class ResultSetHandlerIterator<T> extends AbstractResultSetIterator<T> {
+public final class ResultSetHandlerIterator<T> extends ResultSetIterator<T> {
   private final ResultSetHandler<T> handler;
 
   public ResultSetHandlerIterator(ResultSet rs, ResultSetHandler<T> handler) {
