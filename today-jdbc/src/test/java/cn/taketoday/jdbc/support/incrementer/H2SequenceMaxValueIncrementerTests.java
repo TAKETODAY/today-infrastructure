@@ -50,17 +50,20 @@ class H2SequenceMaxValueIncrementerTests {
   @ParameterizedTest
   @EnumSource(Mode.ModeEnum.class)
   void incrementsSequenceWithExplicitH2CompatibilityMode(Mode.ModeEnum mode) {
-    String connectionUrl = String.format("jdbc:h2:mem:%s;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=false;MODE=%s", UUID.randomUUID().toString(), mode);
+    String connectionUrl = String.format("jdbc:h2:mem:%s;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=false;MODE=%s", UUID.randomUUID(), mode);
     DataSource dataSource = new SimpleDriverDataSource(new org.h2.Driver(), connectionUrl, "sa", "");
     JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+    // language=H2
     jdbcTemplate.execute("CREATE SEQUENCE SEQ");
 
     assertIncrements(dataSource);
 
-    jdbcTemplate.execute("SHUTDOWN");
+    // language=H2
+//    jdbcTemplate.execute("SHUTDOWN");
   }
 
   private void assertIncrements(DataSource dataSource) {
+    // language=H2
     assertThat(new JdbcTemplate(dataSource).queryForObject("values next value for SEQ", int.class)).isEqualTo(1);
 
     H2SequenceMaxValueIncrementer incrementer = new H2SequenceMaxValueIncrementer(dataSource, "SEQ");
