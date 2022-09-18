@@ -59,7 +59,7 @@
     <embedded-db-junit.version>1.0.0</embedded-db-junit.version>
     <guava.version>30.1-jre</guava.version>
     <h2.version>2.1.214</h2.version>
-    <hsqldb.version>2.2.8</hsqldb.version>
+    <hsqldb.version>2.7.0</hsqldb.version>
     <jdbi.version>2.78</jdbi.version>
     <joda-time.version>2.0</joda-time.version>
     <jooq.version>3.3.0</jooq.version>
