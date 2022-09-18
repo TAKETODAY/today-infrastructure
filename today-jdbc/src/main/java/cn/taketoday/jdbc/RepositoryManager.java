@@ -32,6 +32,7 @@ import cn.taketoday.core.conversion.support.DefaultConversionService;
 import cn.taketoday.format.support.ApplicationConversionService;
 import cn.taketoday.jdbc.datasource.DataSourceUtils;
 import cn.taketoday.jdbc.datasource.DriverManagerDataSource;
+import cn.taketoday.jdbc.datasource.SingleConnectionDataSource;
 import cn.taketoday.jdbc.parsing.QueryParameter;
 import cn.taketoday.jdbc.parsing.SqlParameterParser;
 import cn.taketoday.jdbc.result.PrimitiveTypeNullHandler;
@@ -321,7 +322,8 @@ public class RepositoryManager extends JdbcAccessor {
    * @return instance of the {@link JdbcConnection} class.
    */
   public JdbcConnection open(Connection connection) {
-    return new JdbcConnection(this, connection, false);
+    NestedConnection nested = new NestedConnection(connection);
+    return new JdbcConnection(this, new SingleConnectionDataSource(nested, false), false);
   }
 
   /**
@@ -426,7 +428,7 @@ public class RepositoryManager extends JdbcAccessor {
     JdbcConnection connection = new JdbcConnection(this, source, false);
     boolean success = false;
     try {
-      final Connection root = connection.getJdbcConnection();
+      Connection root = connection.getJdbcConnection();
       root.setAutoCommit(false);
       root.setTransactionIsolation(isolationLevel);
       success = true;
@@ -493,7 +495,7 @@ public class RepositoryManager extends JdbcAccessor {
    * transaction.
    */
   public JdbcConnection beginTransaction(Connection root) {
-    JdbcConnection connection = new JdbcConnection(this, root, false);
+    JdbcConnection connection = open(root);
     boolean success = false;
     try {
       root.setAutoCommit(false);

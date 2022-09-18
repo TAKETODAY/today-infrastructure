@@ -35,7 +35,6 @@ import cn.taketoday.core.conversion.ConversionException;
 import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.dao.DataAccessException;
 import cn.taketoday.jdbc.datasource.DataSourceUtils;
-import cn.taketoday.jdbc.datasource.SingleConnectionDataSource;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
@@ -81,13 +80,6 @@ public final class JdbcConnection implements Closeable {
     this.autoClose = autoClose;
     this.dataSource = dataSource;
     createConnection();
-  }
-
-  public JdbcConnection(RepositoryManager manager, Connection connection, boolean autoClose) {
-    this.manager = manager;
-    this.root = connection;
-    this.autoClose = autoClose;
-    this.dataSource = new SingleConnectionDataSource(connection, !autoClose);
   }
 
   void onException() {
@@ -439,7 +431,7 @@ public final class JdbcConnection implements Closeable {
       this.originalAutoCommit = root.getAutoCommit();
     }
     catch (SQLException ex) {
-      throw translateException("Reading auto-commit Status", ex);
+      throw translateException("Reading auto-commit status", ex);
     }
   }
 

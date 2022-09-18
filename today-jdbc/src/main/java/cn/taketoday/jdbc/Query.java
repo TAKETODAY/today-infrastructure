@@ -855,13 +855,8 @@ public final class Query implements AutoCloseable {
   //---------------------------------------------------------------------
 
   private void closeConnectionIfNecessary() {
-    try {
-      if (connection.autoClose) {
-        connection.close();
-      }
-    }
-    catch (Exception ex) {
-      throw new PersistenceException("Error while attempting to close connection", ex);
+    if (connection.autoClose) {
+      connection.close();
     }
   }
 
