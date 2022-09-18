@@ -31,17 +31,15 @@ import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.core.conversion.support.DefaultConversionService;
 import cn.taketoday.format.support.ApplicationConversionService;
 import cn.taketoday.jdbc.datasource.DataSourceUtils;
+import cn.taketoday.jdbc.datasource.DriverManagerDataSource;
 import cn.taketoday.jdbc.parsing.QueryParameter;
 import cn.taketoday.jdbc.parsing.SqlParameterParser;
 import cn.taketoday.jdbc.result.PrimitiveTypeNullHandler;
 import cn.taketoday.jdbc.sql.DefaultEntityManager;
 import cn.taketoday.jdbc.sql.EntityManager;
 import cn.taketoday.jdbc.support.ClobToStringConverter;
-import cn.taketoday.jdbc.support.ConnectionSource;
-import cn.taketoday.jdbc.support.DataSourceConnectionSource;
 import cn.taketoday.jdbc.support.JdbcAccessor;
 import cn.taketoday.jdbc.support.OffsetTimeToSQLTimeConverter;
-import cn.taketoday.jdbc.support.TimeToJodaLocalTimeConverter;
 import cn.taketoday.jdbc.type.TypeHandler;
 import cn.taketoday.jdbc.type.TypeHandlerRegistry;
 import cn.taketoday.lang.Assert;
@@ -72,7 +70,8 @@ public class RepositoryManager extends JdbcAccessor {
 
   private boolean defaultCaseSensitive;
   private boolean generatedKeys = true;
-  private ConnectionSource connectionSource;
+  private boolean catchResourceCloseErrors = true;
+
   private Map<String, String> defaultColumnMappings;
   private SqlParameterParser sqlParameterParser = new SqlParameterParser();
 
@@ -83,21 +82,29 @@ public class RepositoryManager extends JdbcAccessor {
 
   private EntityManager entityManager = new DefaultEntityManager(this);
 
+  {
+    // TODO Converter 问题
+    DefaultConversionService sharedInstance = DefaultConversionService.getSharedInstance();
+    sharedInstance.addConverter(new ClobToStringConverter());
+    sharedInstance.addConverter(new OffsetTimeToSQLTimeConverter());
+    this.conversionService = sharedInstance;
+  }
+
   public RepositoryManager(String jndiLookup) {
     this(DataSourceUtils.getJndiDatasource(jndiLookup));
   }
 
   /**
    * Creates a new instance of the RepositoryManager class.
-   * Internally this constructor will create a GenericConnectionSource
+   * Internally this constructor will create a DriverManagerDataSource
    *
    * @param url JDBC database url
    * @param user database username
    * @param pass database password
-   * @see cn.taketoday.jdbc.support.GenericConnectionSource
+   * @see DriverManagerDataSource
    */
   public RepositoryManager(String url, String user, String pass) {
-    this(ConnectionSource.from(url, user, pass));
+    this(new DriverManagerDataSource(url, user, pass));
   }
 
   /**
@@ -107,61 +114,12 @@ public class RepositoryManager extends JdbcAccessor {
    * @param dataSource The DataSource RepositoryManager uses to acquire connections to the database.
    */
   public RepositoryManager(DataSource dataSource) {
-    this(ConnectionSource.fromDataSource(dataSource));
+    setDataSource(dataSource);
   }
 
   public RepositoryManager(DataSource dataSource, boolean generatedKeys) {
-    this(ConnectionSource.fromDataSource(dataSource));
+    setDataSource(dataSource);
     this.generatedKeys = generatedKeys;
-  }
-
-  public RepositoryManager(ConnectionSource source) {
-    this.connectionSource = source;
-    final DefaultConversionService sharedInstance = DefaultConversionService.getSharedInstance();
-    sharedInstance.addConverter(new ClobToStringConverter());
-    sharedInstance.addConverter(new OffsetTimeToSQLTimeConverter());
-    if (FeatureDetector.isJodaTimeAvailable()) {
-      sharedInstance.addConverter(new TimeToJodaLocalTimeConverter());
-    }
-    this.conversionService = sharedInstance;
-  }
-
-  public RepositoryManager(ConnectionSource source, ConversionService conversionService) {
-    this.connectionSource = source;
-    this.conversionService = conversionService;
-  }
-
-  /**
-   * Gets the DataSource that RepositoryManager uses internally to acquire database
-   * connections.
-   *
-   * @return The DataSource instance
-   */
-  public DataSource getDataSource() {
-    if (connectionSource instanceof DataSourceConnectionSource)
-      return ((DataSourceConnectionSource) connectionSource).getDataSource();
-    else
-      return null;
-  }
-
-  /**
-   * Gets the {@link ConnectionSource} that RepositoryManager uses internally to acquire
-   * database connections.
-   *
-   * @return The ConnectionSource instance
-   */
-  public ConnectionSource getConnectionSource() {
-    return connectionSource;
-  }
-
-  /**
-   * Sets the {@link ConnectionSource} that RepositoryManager uses internally to acquire
-   * database connections.
-   *
-   * @param connectionSource the ConnectionSource instance to use
-   */
-  public void setConnectionSource(ConnectionSource connectionSource) {
-    this.connectionSource = connectionSource;
   }
 
   /**
@@ -273,7 +231,15 @@ public class RepositoryManager extends JdbcAccessor {
     return entityManager;
   }
 
-//
+  public void setCatchResourceCloseErrors(boolean catchResourceCloseErrors) {
+    this.catchResourceCloseErrors = catchResourceCloseErrors;
+  }
+
+  public boolean isCatchResourceCloseErrors() {
+    return catchResourceCloseErrors;
+  }
+
+  //
 
   protected String parse(String sql, Map<String, QueryParameter> paramNameToIdxMap) {
     return sqlParameterParser.parse(sql, paramNameToIdxMap);
@@ -342,7 +308,7 @@ public class RepositoryManager extends JdbcAccessor {
    * @throws CannotGetJdbcConnectionException Could not acquire a connection from connection-source
    */
   public JdbcConnection open(boolean autoClose) {
-    return new JdbcConnection(this, connectionSource, autoClose);
+    return new JdbcConnection(this, obtainDataSource(), autoClose);
   }
 
   /**
@@ -358,13 +324,13 @@ public class RepositoryManager extends JdbcAccessor {
   /**
    * Opens a connection to the database
    *
-   * @param connectionSource the {@link ConnectionSource} implementation substitution, that
+   * @param dataSource the {@link DataSource} implementation substitution, that
    * will be used instead of one from {@link RepositoryManager} instance.
    * @return instance of the {@link JdbcConnection} class.
    * @throws CannotGetJdbcConnectionException Could not acquire a connection from connection-source
    */
-  public JdbcConnection open(ConnectionSource connectionSource) {
-    return new JdbcConnection(this, connectionSource, false);
+  public JdbcConnection open(DataSource dataSource) {
+    return new JdbcConnection(this, dataSource, false);
   }
 
   /**
@@ -435,7 +401,7 @@ public class RepositoryManager extends JdbcAccessor {
    * @throws CannotGetJdbcConnectionException Could not acquire a connection from connection-source
    */
   public JdbcConnection beginTransaction(int isolationLevel) {
-    return beginTransaction(getConnectionSource(), isolationLevel);
+    return beginTransaction(obtainDataSource(), isolationLevel);
   }
 
   /**
@@ -446,14 +412,14 @@ public class RepositoryManager extends JdbcAccessor {
    * {@link JdbcConnection#rollback()} method to close the transaction. Use
    * proper try-catch logic.
    *
-   * @param source the {@link ConnectionSource} implementation substitution, that
+   * @param source the {@link DataSource} implementation substitution, that
    * will be used instead of one from {@link RepositoryManager} instance.
    * @param isolationLevel the isolation level of the transaction
    * @return the {@link JdbcConnection} instance to use to run statements in the
    * transaction.
    * @throws CannotGetJdbcConnectionException Could not acquire a connection from connection-source
    */
-  public JdbcConnection beginTransaction(ConnectionSource source, int isolationLevel) {
+  public JdbcConnection beginTransaction(DataSource source, int isolationLevel) {
     JdbcConnection connection = new JdbcConnection(this, source, false);
     boolean success = false;
     try {
@@ -463,7 +429,7 @@ public class RepositoryManager extends JdbcAccessor {
       success = true;
     }
     catch (SQLException e) {
-      throw new PersistenceException("Could not start the transaction - " + e.getMessage(), e);
+      throw translateException("Setting transaction options", null, e);
     }
     finally {
       if (!success) {
@@ -500,13 +466,13 @@ public class RepositoryManager extends JdbcAccessor {
    * {@link JdbcConnection#rollback()} method to close the transaction. Use
    * proper try-catch logic.
    *
-   * @param source the {@link ConnectionSource} implementation substitution, that
+   * @param source the {@link DataSource} implementation substitution, that
    * will be used instead of one from {@link RepositoryManager} instance.
    * @return the {@link JdbcConnection} instance to use to run statements in the
    * transaction.
    * @throws CannotGetJdbcConnectionException Could not acquire a connection from connection-source
    */
-  public JdbcConnection beginTransaction(ConnectionSource source) {
+  public JdbcConnection beginTransaction(DataSource source) {
     return beginTransaction(source, Connection.TRANSACTION_READ_COMMITTED);
   }
 
@@ -519,12 +485,28 @@ public class RepositoryManager extends JdbcAccessor {
    * {@link JdbcConnection#rollback()} method to close the transaction. Use
    * proper try-catch logic.
    *
-   * @param connection the {@link Connection}
+   * @param root the {@link Connection}
    * @return the {@link JdbcConnection} instance to use to run statements in the
    * transaction.
    */
-  public JdbcConnection beginTransaction(Connection connection) {
-    return beginTransaction(ConnectionSource.join(connection), Connection.TRANSACTION_READ_COMMITTED);
+  public JdbcConnection beginTransaction(Connection root) {
+    JdbcConnection connection = new JdbcConnection(this, root, false);
+    boolean success = false;
+    try {
+      root.setAutoCommit(false);
+      root.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);
+      success = true;
+    }
+    catch (SQLException e) {
+      throw translateException("Setting transaction options", null, e);
+    }
+    finally {
+      if (!success) {
+        connection.close();
+      }
+    }
+
+    return connection;
   }
 
   /**

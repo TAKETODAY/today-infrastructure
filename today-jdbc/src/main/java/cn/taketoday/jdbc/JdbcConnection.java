@@ -29,11 +29,13 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 
+import javax.sql.DataSource;
+
 import cn.taketoday.core.conversion.ConversionException;
 import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.dao.DataAccessException;
-import cn.taketoday.jdbc.support.ConnectionSource;
-import cn.taketoday.jdbc.support.JdbcUtils;
+import cn.taketoday.jdbc.datasource.DataSourceUtils;
+import cn.taketoday.jdbc.datasource.SingleConnectionDataSource;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
@@ -46,8 +48,8 @@ import cn.taketoday.util.CollectionUtils;
 public final class JdbcConnection implements Closeable {
   private static final Logger log = LoggerFactory.getLogger(JdbcConnection.class);
 
-  private final RepositoryManager operations;
-  private final ConnectionSource connectionSource;
+  private final RepositoryManager manager;
+  private final DataSource dataSource;
 
   private Connection root;
 
@@ -70,22 +72,22 @@ public final class JdbcConnection implements Closeable {
 
   private final HashSet<Statement> statements = new HashSet<>();
 
-  public JdbcConnection(RepositoryManager operations, boolean autoClose) {
-    this(operations, operations.getConnectionSource(), autoClose);
+  public JdbcConnection(RepositoryManager manager, boolean autoClose) {
+    this(manager, manager.getDataSource(), autoClose);
   }
 
-  public JdbcConnection(RepositoryManager operations, ConnectionSource connectionSource, boolean autoClose) {
+  public JdbcConnection(RepositoryManager manager, DataSource dataSource, boolean autoClose) {
+    this.manager = manager;
     this.autoClose = autoClose;
-    this.operations = operations;
-    this.connectionSource = connectionSource;
+    this.dataSource = dataSource;
     createConnection();
   }
 
-  public JdbcConnection(RepositoryManager operations, Connection connection, boolean autoClose) {
+  public JdbcConnection(RepositoryManager manager, Connection connection, boolean autoClose) {
+    this.manager = manager;
     this.root = connection;
     this.autoClose = autoClose;
-    this.operations = operations;
-    this.connectionSource = ConnectionSource.join(connection);
+    this.dataSource = new SingleConnectionDataSource(connection, !autoClose);
   }
 
   void onException() {
@@ -96,16 +98,16 @@ public final class JdbcConnection implements Closeable {
 
   /**
    * @throws PersistenceException Could not acquire a connection from connection-source
-   * @see ConnectionSource#getConnection()
+   * @see DataSource#getConnection()
    */
   public Query createQuery(String queryText) {
-    boolean returnGeneratedKeys = operations.isGeneratedKeys();
+    boolean returnGeneratedKeys = manager.isGeneratedKeys();
     return createQuery(queryText, returnGeneratedKeys);
   }
 
   /**
    * @throws PersistenceException Could not acquire a connection from connection-source
-   * @see ConnectionSource#getConnection()
+   * @see DataSource#getConnection()
    */
   public Query createQuery(String queryText, boolean returnGeneratedKeys) {
     createConnectionIfNecessary();
@@ -114,7 +116,7 @@ public final class JdbcConnection implements Closeable {
 
   /**
    * @throws PersistenceException Could not acquire a connection from connection-source
-   * @see ConnectionSource#getConnection()
+   * @see DataSource#getConnection()
    */
   public Query createQuery(String queryText, String... columnNames) {
     createConnectionIfNecessary();
@@ -123,7 +125,7 @@ public final class JdbcConnection implements Closeable {
 
   /**
    * @throws CannotGetJdbcConnectionException Could not acquire a connection from connection-source
-   * @see ConnectionSource#getConnection()
+   * @see DataSource#getConnection()
    */
   private void createConnectionIfNecessary() {
     try {
@@ -160,7 +162,7 @@ public final class JdbcConnection implements Closeable {
    */
   public RepositoryManager rollback() {
     rollback(true);
-    return operations;
+    return manager;
   }
 
   /**
@@ -203,7 +205,7 @@ public final class JdbcConnection implements Closeable {
    */
   public RepositoryManager commit() {
     commit(true);
-    return operations;
+    return manager;
   }
 
   /**
@@ -296,7 +298,7 @@ public final class JdbcConnection implements Closeable {
    * @throws IllegalArgumentException If conversionService is null
    */
   public <V> V getKey(Class<V> returnType) {
-    return getKey(returnType, operations.getConversionService());
+    return getKey(returnType, manager.getConversionService());
   }
 
   /**
@@ -330,7 +332,7 @@ public final class JdbcConnection implements Closeable {
    */
   @Nullable
   public <V> List<V> getKeys(Class<V> returnType) {
-    return getKeys(returnType, operations.getConversionService());
+    return getKeys(returnType, manager.getConversionService());
   }
 
   /**
@@ -393,7 +395,17 @@ public final class JdbcConnection implements Closeable {
 
     if (!connectionIsClosed) {
       for (Statement statement : statements) {
-        JdbcUtils.closeQuietly(statement);
+        try {
+          statement.close();
+        }
+        catch (SQLException ex) {
+          if (manager.isCatchResourceCloseErrors()) {
+            throw translateException("Trying to close statement", ex);
+          }
+          else {
+            log.warn("Could not close statement. statement: {}", statement, ex);
+          }
+        }
       }
       statements.clear();
 
@@ -421,15 +433,13 @@ public final class JdbcConnection implements Closeable {
    * @throws CannotGetJdbcConnectionException Could not acquire a connection from connection-source
    */
   private void createConnection() {
+    this.root = DataSourceUtils.getConnection(dataSource);
     try {
-      this.root = connectionSource.getConnection();
       // if a database access error occurs or this method is called on a closed connection
       this.originalAutoCommit = root.getAutoCommit();
     }
     catch (SQLException ex) {
-      // TODO
-      throw new CannotGetJdbcConnectionException(
-              "Could not acquire a connection from connection-source: " + connectionSource, ex);
+      throw translateException("Reading auto-commit Status", ex);
     }
   }
 
@@ -444,8 +454,7 @@ public final class JdbcConnection implements Closeable {
         log.warn("Could not reset autocommit state for connection to {}.", originalAutoCommit, e);
       }
     }
-
-    JdbcUtils.closeQuietly(root);
+    DataSourceUtils.releaseConnection(root, dataSource);
   }
 
   //
@@ -470,11 +479,11 @@ public final class JdbcConnection implements Closeable {
   }
 
   public RepositoryManager getManager() {
-    return operations;
+    return manager;
   }
 
   private DataAccessException translateException(String task, SQLException ex) {
-    return operations.translateException(task, null, ex);
+    return manager.translateException(task, null, ex);
   }
 
 }
