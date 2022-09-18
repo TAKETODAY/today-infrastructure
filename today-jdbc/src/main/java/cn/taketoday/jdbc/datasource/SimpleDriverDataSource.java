@@ -64,8 +64,7 @@ public class SimpleDriverDataSource extends AbstractDriverBasedDataSource {
   /**
    * Constructor for bean-style configuration.
    */
-  public SimpleDriverDataSource() {
-  }
+  public SimpleDriverDataSource() { }
 
   /**
    * Create a new DriverManagerDataSource with the given standard Driver parameters.

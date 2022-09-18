@@ -20,14 +20,11 @@
 
 package cn.taketoday.jdbc.datasource;
 
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.lang.reflect.Proxy;
 import java.sql.Connection;
 import java.sql.SQLException;
 
 import cn.taketoday.beans.factory.DisposableBean;
+import cn.taketoday.jdbc.support.WrappedConnection;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ObjectUtils;
@@ -228,7 +225,7 @@ public class SingleConnectionDataSource extends DriverManagerDataSource implemen
       this.target = getConnectionFromDriver(getUsername(), getPassword());
       prepareConnection(this.target);
       if (logger.isDebugEnabled()) {
-        logger.debug("Established shared JDBC Connection: " + this.target);
+        logger.debug("Established shared JDBC Connection: {}", this.target);
       }
       this.connection = (isSuppressClose() ? getCloseSuppressingConnectionProxy(this.target) : this.target);
     }
@@ -282,57 +279,39 @@ public class SingleConnectionDataSource extends DriverManagerDataSource implemen
    * @return the wrapped Connection
    */
   protected Connection getCloseSuppressingConnectionProxy(Connection target) {
-    return (Connection) Proxy.newProxyInstance(
-            ConnectionProxy.class.getClassLoader(),
-            new Class<?>[] { ConnectionProxy.class },
-            new CloseSuppressingInvocationHandler(target));
+    return new CloseSuppressingConnectionProxy(target);
   }
 
   /**
-   * Invocation handler that suppresses close calls on JDBC Connections.
+   * Proxy that suppresses close calls on JDBC Connections.
    */
-  private static class CloseSuppressingInvocationHandler implements InvocationHandler {
+  static class CloseSuppressingConnectionProxy extends WrappedConnection implements ConnectionProxy {
 
-    private final Connection target;
-
-    public CloseSuppressingInvocationHandler(Connection target) {
-      this.target = target;
+    public CloseSuppressingConnectionProxy(Connection delegate) {
+      super(delegate);
     }
 
     @Override
-    @Nullable
-    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-      // Invocation on ConnectionProxy interface coming in...
-
-      switch (method.getName()) {
-        case "equals":
-          // Only consider equal when proxies are identical.
-          return (proxy == args[0]);
-        case "hashCode":
-          // Use hashCode of Connection proxy.
-          return System.identityHashCode(proxy);
-        case "close":
-          // Handle close method: don't pass the call on.
-          return null;
-        case "isClosed":
-          return this.target.isClosed();
-        case "getTargetConnection":
-          // Handle getTargetConnection method: return underlying Connection.
-          return this.target;
-        case "unwrap":
-          return (((Class<?>) args[0]).isInstance(proxy) ? proxy : this.target.unwrap((Class<?>) args[0]));
-        case "isWrapperFor":
-          return (((Class<?>) args[0]).isInstance(proxy) || this.target.isWrapperFor((Class<?>) args[0]));
-      }
-
-      // Invoke method on target Connection.
-      try {
-        return method.invoke(this.target, args);
-      }
-      catch (InvocationTargetException ex) {
-        throw ex.getTargetException();
-      }
+    public Connection getTargetConnection() {
+      return delegate;
     }
+
+    @Override
+    public void close() throws SQLException {
+      // noop
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public <T> T unwrap(Class<T> iface) throws SQLException {
+      return iface.isInstance(this) ? (T) this : delegate.unwrap(iface);
+    }
+
+    @Override
+    public boolean isWrapperFor(Class<?> iface) throws SQLException {
+      return iface.isInstance(this) || delegate.isWrapperFor(iface);
+    }
+
   }
 
 }
