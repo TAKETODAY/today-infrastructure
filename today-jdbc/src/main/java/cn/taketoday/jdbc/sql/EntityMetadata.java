@@ -23,6 +23,7 @@ package cn.taketoday.jdbc.sql;
 import java.util.Arrays;
 import java.util.Objects;
 
+import cn.taketoday.beans.BeanMetadata;
 import cn.taketoday.beans.BeanProperty;
 import cn.taketoday.core.style.ToStringBuilder;
 
@@ -33,6 +34,7 @@ import cn.taketoday.core.style.ToStringBuilder;
 public class EntityMetadata {
   public final String tableName;
 
+  public final BeanMetadata root;
   public final Class<?> entityClass;
   public final String idColumnName;
   public final EntityProperty idProperty;
@@ -43,8 +45,10 @@ public class EntityMetadata {
 
 //  TODO public final boolean autoGenerateKeys ;
 
-  EntityMetadata(Class<?> entityClass, String idColumnName, EntityProperty idProperty, String tableName,
+  EntityMetadata(BeanMetadata root, Class<?> entityClass,
+          String idColumnName, EntityProperty idProperty, String tableName,
           BeanProperty[] beanProperties, String[] columnNames, EntityProperty[] entityProperties) {
+    this.root = root;
     this.entityClass = entityClass;
     this.idColumnName = idColumnName;
     this.idProperty = idProperty;

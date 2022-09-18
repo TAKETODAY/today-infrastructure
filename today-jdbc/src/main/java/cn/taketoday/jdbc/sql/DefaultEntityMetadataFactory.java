@@ -154,7 +154,7 @@ public class DefaultEntityMetadataFactory extends EntityMetadataFactory {
       throw new IllegalStateException("Cannot determine ID property for entity: " + entityClass);
     }
 
-    return new EntityMetadata(entityClass,
+    return new EntityMetadata(metadata, entityClass,
             idColumnName, new EntityProperty(idProperty, idColumnName, typeHandlerRegistry.getTypeHandler(idProperty)),
             tableName, beanProperties.toArray(new BeanProperty[0]),
             StringUtils.toStringArray(columnNames), propertyHandlers.toArray(new EntityProperty[0]));
