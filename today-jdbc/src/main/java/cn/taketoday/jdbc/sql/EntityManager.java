@@ -92,6 +92,12 @@ public interface EntityManager {
   @Nullable
   <T> T findFirst(Class<T> entityClass, Object query) throws DataAccessException;
 
+  @Nullable
+  <T> T findUniqueResult(T entity) throws DataAccessException;
+
+  @Nullable
+  <T> T findUniqueResult(Class<T> entityClass, Object query) throws DataAccessException;
+
   <T> List<T> find(T entity) throws DataAccessException;
 
   <T> List<T> find(Class<T> entityClass, Object params) throws DataAccessException;

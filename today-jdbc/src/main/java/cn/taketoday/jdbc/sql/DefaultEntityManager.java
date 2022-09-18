@@ -33,6 +33,7 @@ import java.util.function.Consumer;
 import javax.sql.DataSource;
 
 import cn.taketoday.dao.DataAccessException;
+import cn.taketoday.dao.IncorrectResultSizeDataAccessException;
 import cn.taketoday.jdbc.GeneratedKeysException;
 import cn.taketoday.jdbc.PersistenceException;
 import cn.taketoday.jdbc.RepositoryManager;
@@ -379,6 +380,37 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
       }
     }
     return null;
+  }
+
+  @Nullable
+  @Override
+  @SuppressWarnings("unchecked")
+  public <T> T findUniqueResult(T entity) throws DataAccessException {
+    try (ResultSetIterator<T> iterator = iterate((Class<T>) entity.getClass(), entity)) {
+      T returnValue = null;
+      while (iterator.hasNext()) {
+        if (returnValue != null) {
+          throw new IncorrectResultSizeDataAccessException(1);
+        }
+        returnValue = iterator.next();
+      }
+      return returnValue;
+    }
+  }
+
+  @Nullable
+  @Override
+  public <T> T findUniqueResult(Class<T> entityClass, Object query) throws DataAccessException {
+    try (ResultSetIterator<T> iterator = iterate(entityClass, query)) {
+      T returnValue = null;
+      while (iterator.hasNext()) {
+        if (returnValue != null) {
+          throw new IncorrectResultSizeDataAccessException(1);
+        }
+        returnValue = iterator.next();
+      }
+      return returnValue;
+    }
   }
 
   @Override
