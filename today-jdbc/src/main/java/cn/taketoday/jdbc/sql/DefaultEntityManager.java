@@ -28,10 +28,12 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Consumer;
 
 import javax.sql.DataSource;
 
+import cn.taketoday.beans.BeanProperty;
 import cn.taketoday.dao.DataAccessException;
 import cn.taketoday.dao.IncorrectResultSizeDataAccessException;
 import cn.taketoday.jdbc.GeneratedKeysException;
@@ -41,7 +43,7 @@ import cn.taketoday.jdbc.core.ConnectionCallback;
 import cn.taketoday.jdbc.datasource.DataSourceUtils;
 import cn.taketoday.jdbc.result.DefaultResultSetHandlerFactory;
 import cn.taketoday.jdbc.result.JdbcBeanMetadata;
-import cn.taketoday.jdbc.result.ResultSetHandlerIterator;
+import cn.taketoday.jdbc.result.ResultSetHandler;
 import cn.taketoday.jdbc.result.ResultSetIterator;
 import cn.taketoday.jdbc.sql.dialect.Dialect;
 import cn.taketoday.jdbc.sql.dialect.MySQLDialect;
@@ -341,11 +343,7 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
         metadata.idProperty.setParameter(statement, 1, id);
 
         ResultSet resultSet = statement.executeQuery();
-        var iterator = new ResultSetHandlerIterator<T>(
-                resultSet, new DefaultResultSetHandlerFactory<>(
-                new JdbcBeanMetadata(entityClass, repositoryManager.isDefaultCaseSensitive(), true, true),
-                repositoryManager, null)
-        );
+        var iterator = new EntityIterator<T>(resultSet, entityClass);
 
         return iterator.hasNext() ? iterator.next() : null;
       }
@@ -437,6 +435,22 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
   }
 
   @Override
+  @SuppressWarnings("unchecked")
+  public <K, T> Map<K, T> find(Class<T> entityClass, Object params, String mapKey) throws DataAccessException {
+    HashMap<K, T> entities = new HashMap<>();
+    try (ResultSetIterator<T> iterator = iterate(entityClass, params)) {
+      EntityMetadata entityMetadata = entityMetadataFactory.getEntityMetadata(entityClass);
+      BeanProperty beanProperty = entityMetadata.root.obtainBeanProperty(mapKey);
+      while (iterator.hasNext()) {
+        T entity = iterator.next();
+        Object propertyValue = beanProperty.getValue(entity);
+        entities.put((K) propertyValue, entity);
+      }
+    }
+    return entities;
+  }
+
+  @Override
   public <T> void iterate(Class<T> entityClass, Object params, Consumer<T> entityConsumer) throws DataAccessException {
     try (ResultSetIterator<T> iterator = iterate(entityClass, params)) {
       while (iterator.hasNext()) {
@@ -497,9 +511,7 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
         condition.typeHandler.setParameter(statement, idx++, condition.propertyValue);
       }
       ResultSet resultSet = statement.executeQuery();
-      return new ResultSetHandlerIterator<>(resultSet, new DefaultResultSetHandlerFactory<>(
-              new JdbcBeanMetadata(entityClass, repositoryManager.isDefaultCaseSensitive(), true, true),
-              repositoryManager, null));
+      return new EntityIterator<>(resultSet, entityClass);
     });
   }
 
@@ -537,9 +549,8 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
       }
 
       ResultSet resultSet = statement.executeQuery();
-      return new ResultSetHandlerIterator<>(resultSet, new DefaultResultSetHandlerFactory<>(
-              new JdbcBeanMetadata(entityClass, repositoryManager.isDefaultCaseSensitive(), true, true),
-              repositoryManager, null));
+
+      return new EntityIterator<>(resultSet, entityClass);
     });
   }
 
@@ -583,4 +594,43 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
     }
   }
 
+  final class EntityIterator<T> extends ResultSetIterator<T> {
+    private final ResultSetHandler<T> handler;
+
+    private EntityIterator(ResultSet rs, Class<?> entityClass) {
+      super(rs);
+      try {
+        var factory = new DefaultResultSetHandlerFactory<T>(
+                new JdbcBeanMetadata(entityClass, repositoryManager.isDefaultCaseSensitive(), true, true),
+                repositoryManager, null);
+        this.handler = factory.getResultSetHandler(rs.getMetaData());
+      }
+      catch (SQLException e) {
+        throw translateException("Get ResultSetHandler", null, e);
+      }
+    }
+
+    @Override
+    protected T readNext(ResultSet resultSet) throws SQLException {
+      return handler.handle(resultSet);
+    }
+
+    @Override
+    protected RuntimeException handleReadError(SQLException ex) {
+      return translateException("Read Entity", null, ex);
+    }
+
+    @Override
+    public void close() {
+      try {
+        resultSet.close();
+      }
+      catch (SQLException e) {
+        if (repositoryManager.isCatchResourceCloseErrors()) {
+          throw translateException("Closing ResultSet", null, e);
+        }
+      }
+    }
+
+  }
 }
