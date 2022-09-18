@@ -80,7 +80,7 @@ public class RepositoryManager extends JdbcAccessor {
   @Nullable
   private PrimitiveTypeNullHandler primitiveTypeNullHandler;
 
-  private EntityManager entityManager = new DefaultEntityManager(this);
+  private EntityManager entityManager;
 
   {
     // TODO Converter 问题
@@ -228,6 +228,9 @@ public class RepositoryManager extends JdbcAccessor {
   }
 
   public EntityManager getEntityManager() {
+    if (entityManager == null) {
+      entityManager = new DefaultEntityManager(this);
+    }
     return entityManager;
   }
 
