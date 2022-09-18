@@ -56,7 +56,6 @@ import org.teasoft.bee.osql.Suid;
 import org.teasoft.honey.osql.core.BeeFactory;
 
 import java.beans.PropertyDescriptor;
-import java.lang.reflect.Field;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -73,7 +72,6 @@ import javax.sql.DataSource;
 import cn.taketoday.context.annotation.Primary;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.support.StandardApplicationContext;
-import cn.taketoday.jdbc.FeatureDetector;
 import cn.taketoday.jdbc.JdbcConnection;
 import cn.taketoday.jdbc.RepositoryManager;
 import cn.taketoday.jdbc.Query;
@@ -89,7 +87,7 @@ import lombok.SneakyThrows;
 public class PojoPerformanceTest {
 
   private final static String DRIVER_CLASS = "org.h2.Driver";
-  private final static String DB_URL = "jdbc:h2:mem:test;DB_CLOSE_DELAY=-1";
+  private final static String DB_URL = "jdbc:h2:mem:test;DB_CLOSE_DELAY=-1;MODE=MySQL";
   private final static String DB_USER = "sa";
   private final static String DB_PASSWORD = "";
   private final static String HIBERNATE_DIALECT = "org.hibernate.dialect.H2Dialect";
@@ -107,8 +105,6 @@ public class PojoPerformanceTest {
 
     createPostTable();
 
-    // turn off oracle because ResultSetUtils slows down with oracle
-    setOracleAvailable(false);
   }
 
   private void createPostTable() {
@@ -153,20 +149,6 @@ public class PojoPerformanceTest {
               .addToBatch();
     }
     insQuery.executeBatch();
-  }
-
-  private void setOracleAvailable(boolean b) {
-    try {
-      Field f = FeatureDetector.class.getDeclaredField("oracleAvailable");
-      f.setAccessible(true);
-//      f.set(null, b);
-    }
-    catch (NoSuchFieldException e) {
-      e.printStackTrace();
-    }
-//    catch (IllegalAccessException e) {
-//      e.printStackTrace();
-//    }
   }
 
   @SuppressWarnings("MismatchedQueryAndUpdateOfCollection")
