@@ -281,7 +281,6 @@ public class LazyConnectionDataSourceProxy extends DelegatingDataSource {
     }
 
     public LazyConnectionInvocationHandler(String username, String password) {
-      this();
       this.username = username;
       this.password = password;
     }
@@ -402,7 +401,7 @@ public class LazyConnectionDataSourceProxy extends DelegatingDataSource {
       if (this.target == null) {
         // No target Connection held -> fetch one.
         if (logger.isTraceEnabled()) {
-          logger.trace("Connecting to database for operation '" + operation.getName() + "'");
+          logger.trace("Connecting to database for operation '{}'", operation.getName());
         }
 
         // Fetch physical Connection from DataSource.
@@ -435,7 +434,7 @@ public class LazyConnectionDataSourceProxy extends DelegatingDataSource {
       else {
         // Target Connection already held -> return it.
         if (logger.isTraceEnabled()) {
-          logger.trace("Using existing database connection for operation '" + operation.getName() + "'");
+          logger.trace("Using existing database connection for operation '{}'", operation.getName());
         }
       }
 
