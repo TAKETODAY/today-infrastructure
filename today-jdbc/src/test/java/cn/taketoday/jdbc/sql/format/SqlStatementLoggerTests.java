@@ -33,10 +33,14 @@ class SqlStatementLoggerTests {
 
   @Test
   void log() {
-    logger.logStatement("SELECT * FROM t_user where id = ?");
-    logger.logStatement("SELECT * FROM t_user where id = ?", FormatStyle.DDL.formatter);
 
+    logger.logStatement("SELECT * FROM t_user where id = ?");
+    logger.logStatement("SELECT * FROM t_user where id = ?", DDLSQLFormatter.INSTANCE);
     logger.logSlowQuery("SELECT * FROM t_user where id = ?", System.nanoTime() - TimeUnit.MINUTES.toNanos(2));
+
+    logger.logStatement(
+            "create table issue5table(id int identity primary key, val integer)", DDLSQLFormatter.INSTANCE);
+
   }
 
 }
