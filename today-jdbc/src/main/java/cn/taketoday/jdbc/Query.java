@@ -411,7 +411,7 @@ public final class Query implements AutoCloseable {
     PreparedStatement statement = this.preparedStatement;
     if (statement == null) {
       JdbcConnection connection = getConnection();
-      statement = getPreparedStatement(connection.getJdbcConnection());
+      statement = preparedStatement(connection.getJdbcConnection());
       this.preparedStatement = statement; // update
       connection.registerStatement(statement);
     }
@@ -437,7 +437,7 @@ public final class Query implements AutoCloseable {
     return statement;
   }
 
-  private PreparedStatement getPreparedStatement(Connection connection) {
+  private PreparedStatement preparedStatement(Connection connection) {
     try {
       if (ObjectUtils.isNotEmpty(columnNames)) {
         return connection.prepareStatement(parsedQuery, columnNames);
@@ -932,12 +932,10 @@ public final class Query implements AutoCloseable {
   /**
    * Iterable {@link ResultSet} that wraps {@link ResultSetHandlerIterator}.
    */
-  private abstract class AbstractResultSetIterable<T> implements ResultSetIterable<T> {
+  private abstract class AbstractResultSetIterable<T> extends ResultSetIterable<T> {
     private final long start;
     private final long afterExecQuery;
     protected final ResultSet rs;
-
-    boolean autoCloseConnection = false;
 
     AbstractResultSetIterable() {
       try {
@@ -963,7 +961,12 @@ public final class Query implements AutoCloseable {
         }
       }
       catch (SQLException ex) {
-        throw translateException("Closing ResultSet", ex);
+        if (connection.getManager().isCatchResourceCloseErrors()) {
+          throw translateException("Closing ResultSet", ex);
+        }
+        else {
+          log.error("ResultSet close failed", ex);
+        }
       }
       finally {
         if (isAutoCloseConnection()) {
@@ -975,15 +978,6 @@ public final class Query implements AutoCloseable {
       }
     }
 
-    @Override
-    public boolean isAutoCloseConnection() {
-      return this.autoCloseConnection;
-    }
-
-    @Override
-    public void setAutoCloseConnection(boolean autoCloseConnection) {
-      this.autoCloseConnection = autoCloseConnection;
-    }
   }
 
 }

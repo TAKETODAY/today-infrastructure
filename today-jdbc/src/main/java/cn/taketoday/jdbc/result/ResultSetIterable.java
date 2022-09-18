@@ -8,14 +8,21 @@ import java.io.Closeable;
  * and Connection.
  *
  * @author aldenquimby@gmail.com
- * @author TODAY
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  */
-public interface ResultSetIterable<T> extends Iterable<T>, Closeable, AutoCloseable {
+public abstract class ResultSetIterable<T> implements Iterable<T>, Closeable, AutoCloseable {
+  private boolean autoCloseConnection = false;
+
+  public boolean isAutoCloseConnection() {
+    return this.autoCloseConnection;
+  }
+
+  public void setAutoCloseConnection(boolean autoCloseConnection) {
+    this.autoCloseConnection = autoCloseConnection;
+  }
+
   // override close to not throw
   @Override
-  void close();
+  public abstract void close();
 
-  boolean isAutoCloseConnection();
-
-  void setAutoCloseConnection(boolean autoCloseConnection);
 }
