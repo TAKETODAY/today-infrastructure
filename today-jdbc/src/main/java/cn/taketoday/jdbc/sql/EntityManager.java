@@ -23,6 +23,7 @@ package cn.taketoday.jdbc.sql;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Consumer;
 
 import cn.taketoday.dao.DataAccessException;
@@ -101,6 +102,19 @@ public interface EntityManager {
   <T> List<T> find(T entity) throws DataAccessException;
 
   <T> List<T> find(Class<T> entityClass, Object params) throws DataAccessException;
+
+  /**
+   * The find Map is a special case in that it is designed to convert a list
+   * of results into a Map based on one of the properties in the resulting
+   * objects.
+   * Eg. Return a of Map[Integer,Author] for find(Author.class, params, "id")
+   *
+   * @param <K> the returned Map keys type
+   * @param <T> the returned Map values type
+   * @param mapKey The property to use as key for each value in the list.
+   * @return Map containing key pair data.
+   */
+  <K, T> Map<K, T> find(Class<T> entityClass, Object params, String mapKey) throws DataAccessException;
 
   <T> void iterate(Class<T> entityClass, Object params, Consumer<T> entityConsumer) throws DataAccessException;
 
