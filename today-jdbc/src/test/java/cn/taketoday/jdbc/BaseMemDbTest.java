@@ -52,7 +52,7 @@ public abstract class BaseMemDbTest {
 
     if (dbType == DbType.HyperSQL) {
       try (JdbcConnection con = repositoryManager.open()) {
-        con.createQuery("set database sql syntax MSS true").executeUpdate();
+        con.createQuery("set database sql syntax MYS true").executeUpdate();
       }
     }
   }
