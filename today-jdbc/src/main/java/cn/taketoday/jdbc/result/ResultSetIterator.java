@@ -42,6 +42,11 @@ public abstract class ResultSetIterator<T> implements Iterator<T>, Closeable {
   // fields needed to read result set
   protected final ResultSet resultSet;
 
+  /**
+   * Index of objects returned using next(), and as such, visible to users.
+   */
+  protected int iteratorIndex = -1;
+
   protected ResultSetIterator(ResultSet rs) {
     this.resultSet = rs;
   }
@@ -73,30 +78,48 @@ public abstract class ResultSetIterator<T> implements Iterator<T>, Closeable {
 
   @Override
   public T next() {
-    if (!hasNext()) {
-      throw new NoSuchElementException();
+    ResultSetValue<T> result = next;
+    if (result == null) {
+      if (!hasNext()) {
+        throw new NoSuchElementException();
+      }
+      result = next;
     }
-    final ResultSetValue<T> result = next;
+
     next = null;
+    iteratorIndex++;
     return result.value;
   }
 
   @Override
   public void close() {
-    // TODO SQLException
     JdbcUtils.closeQuietly(resultSet);
   }
 
+  /**
+   * Get the current item index. The first item has the index 0.
+   *
+   * @return -1 if the first item has not been retrieved. The index of the current item retrieved.
+   */
+  public int getCurrentIndex() {
+    return iteratorIndex;
+  }
+
   private ResultSetValue<T> safeReadNext() {
+    final ResultSet resultSet = this.resultSet;
     try {
-      return resultSet.next() ? new ResultSetValue<>(readNext()) : null;
+      return resultSet.next() ? new ResultSetValue<>(readNext(resultSet)) : null;
     }
     catch (SQLException ex) {
-      throw new PersistenceException("Database error: " + ex.getMessage(), ex);
+      throw handleReadError(ex);
     }
   }
 
-  protected abstract T readNext() throws SQLException;
+  protected RuntimeException handleReadError(SQLException ex) {
+    return new PersistenceException("Database error: " + ex.getMessage(), ex);
+  }
+
+  protected abstract T readNext(ResultSet resultSet) throws SQLException;
 
   static class ResultSetValue<T> {
     public final T value;

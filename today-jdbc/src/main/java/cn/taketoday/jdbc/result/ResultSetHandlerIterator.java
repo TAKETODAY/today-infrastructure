@@ -51,7 +51,7 @@ public final class ResultSetHandlerIterator<T> extends ResultSetIterator<T> {
   }
 
   @Override
-  protected T readNext() throws SQLException {
+  protected T readNext(ResultSet resultSet) throws SQLException {
     return handler.handle(resultSet);
   }
 

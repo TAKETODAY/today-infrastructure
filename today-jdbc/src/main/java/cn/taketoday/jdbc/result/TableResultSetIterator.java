@@ -79,8 +79,7 @@ public final class TableResultSetIterator extends ResultSetIterator<Row> {
   }
 
   @Override
-  protected Row readNext() throws SQLException {
-    final ResultSet resultSet = this.resultSet;
+  protected Row readNext(ResultSet resultSet) throws SQLException {
     final Row row = new Row(columnNameToIdxMap, columns.size(), isCaseSensitive, conversionService);
     for (Column column : columns) {
       final int index = column.getIndex();
