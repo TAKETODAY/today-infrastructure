@@ -351,11 +351,10 @@ public abstract class AbstractPlatformTransactionManager implements PlatformTran
     TransactionDefinition def = (definition != null ? definition : TransactionDefinition.withDefaults());
 
     Object transaction = doGetTransaction();
-    boolean debugEnabled = logger.isDebugEnabled();
 
     if (isExistingTransaction(transaction)) {
       // Existing transaction found -> check propagation behavior to find out how to behave.
-      return handleExistingTransaction(def, transaction, debugEnabled);
+      return handleExistingTransaction(def, transaction);
     }
 
     // Check definition settings for new transaction.
@@ -373,6 +372,8 @@ public abstract class AbstractPlatformTransactionManager implements PlatformTran
               TransactionDefinition.PROPAGATION_NESTED,
               TransactionDefinition.PROPAGATION_REQUIRES_NEW -> {
         SuspendedResourcesHolder suspendedResources = suspend(null);
+        boolean debugEnabled = logger.isDebugEnabled();
+
         if (debugEnabled) {
           logger.debug("Creating new transaction with name [{}]: ", def, def.getName());
         }
@@ -391,7 +392,7 @@ public abstract class AbstractPlatformTransactionManager implements PlatformTran
                   "isolation level will effectively be ignored: {}", def);
         }
         boolean newSynchronization = getTransactionSynchronization() == SYNCHRONIZATION_ALWAYS;
-        return prepareTransactionStatus(def, null, true, newSynchronization, debugEnabled, null);
+        return prepareTransactionStatus(def, null, true, newSynchronization, logger.isDebugEnabled(), null);
       }
     }
 
@@ -416,8 +417,9 @@ public abstract class AbstractPlatformTransactionManager implements PlatformTran
    * Create a TransactionStatus for an existing transaction.
    */
   private TransactionStatus handleExistingTransaction(
-          TransactionDefinition definition, Object transaction, boolean debugEnabled)
+          TransactionDefinition definition, Object transaction)
           throws TransactionException {
+    boolean debugEnabled = logger.isDebugEnabled();
 
     if (definition.getPropagationBehavior() == TransactionDefinition.PROPAGATION_NEVER) {
       throw new IllegalTransactionStateException(

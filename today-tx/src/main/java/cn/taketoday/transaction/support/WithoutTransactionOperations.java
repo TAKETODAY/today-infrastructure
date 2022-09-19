@@ -38,9 +38,6 @@ final class WithoutTransactionOperations implements TransactionOperations {
 
   static final WithoutTransactionOperations INSTANCE = new WithoutTransactionOperations();
 
-  private WithoutTransactionOperations() {
-  }
-
   @Override
   @Nullable
   public <T> T execute(TransactionCallback<T> action) throws TransactionException {
