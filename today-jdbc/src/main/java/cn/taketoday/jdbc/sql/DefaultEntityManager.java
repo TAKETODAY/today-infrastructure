@@ -334,7 +334,7 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
       stmtLogger.logStatement(LogMessage.format("Lookup entity using ID: '{}'", id), sql.toString());
     }
 
-    return execute("Fetch entity", new ConnectionCallback<>() {
+    return execute("Fetch entity By ID", new ConnectionCallback<>() {
 
       @Nullable
       @Override
@@ -343,7 +343,7 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
         metadata.idProperty.setParameter(statement, 1, id);
 
         ResultSet resultSet = statement.executeQuery();
-        var iterator = new EntityIterator<T>(resultSet, entityClass);
+        var iterator = new EntityIterator<T>(connection, resultSet, entityClass);
 
         return iterator.hasNext() ? iterator.next() : null;
       }
@@ -504,15 +504,23 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
       stmtLogger.logStatement(LogMessage.format("Lookup entity using queryObject: {}", params), sql.toString());
     }
 
-    return execute("Iterate entities with query-model", connection -> {
-      PreparedStatement statement = prepareStatement(connection, sql.toString(), false);
+    DataSource dataSource = obtainDataSource();
+    Connection con = DataSourceUtils.getConnection(dataSource);
+    try {
+      PreparedStatement statement = prepareStatement(con, sql.toString(), false);
       int idx = 1;
       for (Condition condition : conditions) {
         condition.typeHandler.setParameter(statement, idx++, condition.propertyValue);
       }
       ResultSet resultSet = statement.executeQuery();
-      return new EntityIterator<>(resultSet, entityClass);
-    });
+      return new EntityIterator<>(con, resultSet, entityClass);
+    }
+    catch (SQLException ex) {
+      // Release Connection early, to avoid potential connection pool deadlock
+      // in the case when the exception translator hasn't been initialized yet.
+      DataSourceUtils.releaseConnection(con, dataSource);
+      throw translateException("Iterate entities with query-model", sql.toString(), ex);
+    }
   }
 
   @Override
@@ -538,8 +546,10 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
       conditions.render(sql);
     }
 
-    return execute("Iterate entities with query-conditions", connection -> {
-      PreparedStatement statement = prepareStatement(connection, sql.toString(), false);
+    DataSource dataSource = obtainDataSource();
+    Connection con = DataSourceUtils.getConnection(dataSource);
+    try {
+      PreparedStatement statement = prepareStatement(con, sql.toString(), false);
       if (conditions != null) {
         conditions.setParameter(statement);
       }
@@ -549,9 +559,14 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
       }
 
       ResultSet resultSet = statement.executeQuery();
-
-      return new EntityIterator<>(resultSet, entityClass);
-    });
+      return new EntityIterator<>(con, resultSet, entityClass);
+    }
+    catch (SQLException ex) {
+      // Release Connection early, to avoid potential connection pool deadlock
+      // in the case when the exception translator hasn't been initialized yet.
+      DataSourceUtils.releaseConnection(con, dataSource);
+      throw translateException("Iterate entities with query-conditions", sql.toString(), ex);
+    }
   }
 
   //
@@ -596,9 +611,11 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
 
   final class EntityIterator<T> extends ResultSetIterator<T> {
     private final ResultSetHandler<T> handler;
+    private final Connection connection;
 
-    private EntityIterator(ResultSet rs, Class<?> entityClass) {
+    private EntityIterator(Connection connection, ResultSet rs, Class<?> entityClass) {
       super(rs);
+      this.connection = connection;
       try {
         var factory = new DefaultResultSetHandlerFactory<T>(
                 new JdbcBeanMetadata(entityClass, repositoryManager.isDefaultCaseSensitive(), true, true),
@@ -623,6 +640,18 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
     @Override
     public void close() {
       try {
+        DataSourceUtils.doReleaseConnection(connection, getDataSource());
+      }
+      catch (SQLException e) {
+        if (repositoryManager.isCatchResourceCloseErrors()) {
+          throw translateException("Closing ResultSet", null, e);
+        }
+        else {
+          logger.debug("Could not close JDBC Connection", e);
+        }
+      }
+
+      try {
         resultSet.close();
       }
       catch (SQLException e) {
@@ -633,4 +662,5 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
     }
 
   }
+
 }
