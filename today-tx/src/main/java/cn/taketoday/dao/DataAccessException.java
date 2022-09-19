@@ -45,6 +45,11 @@ public abstract class DataAccessException extends NestedRuntimeException {
 
   /**
    * Constructor for DataAccessException.
+   */
+  public DataAccessException() { }
+
+  /**
+   * Constructor for DataAccessException.
    *
    * @param msg the detail message
    */
@@ -61,6 +66,16 @@ public abstract class DataAccessException extends NestedRuntimeException {
    */
   public DataAccessException(@Nullable String msg, @Nullable Throwable cause) {
     super(msg, cause);
+  }
+
+  /**
+   * Constructor for DataAccessException.
+   *
+   * @param cause the root cause (usually from using a underlying
+   * data access API such as JDBC)
+   */
+  public DataAccessException(Throwable cause) {
+    super(cause);
   }
 
 }
