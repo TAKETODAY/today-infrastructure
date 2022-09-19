@@ -154,8 +154,9 @@ public abstract class AbstractTransactionStatus implements TransactionStatus {
       throw new TransactionUsageException(
               "Cannot roll back to savepoint - no savepoint associated with current transaction");
     }
-    getSavepointManager().rollbackToSavepoint(savepoint);
-    getSavepointManager().releaseSavepoint(savepoint);
+    SavepointManager savepointManager = getSavepointManager();
+    savepointManager.rollbackToSavepoint(savepoint);
+    savepointManager.releaseSavepoint(savepoint);
     setSavepoint(null);
   }
 
