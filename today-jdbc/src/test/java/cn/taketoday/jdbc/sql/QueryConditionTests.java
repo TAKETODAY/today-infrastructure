@@ -40,7 +40,7 @@ class QueryConditionTests {
 
   @Test
   void and() {
-    DefaultQueryCondition condition = DefaultQueryCondition.equalsTo("name", "T");
+    DefaultQueryCondition condition = DefaultQueryCondition.isEqualsTo("name", "T");
 
     StringBuilder sql = new StringBuilder();
     condition.render(sql);
@@ -67,8 +67,8 @@ class QueryConditionTests {
   @Test
   void composite() {
     NestedQueryCondition condition = QueryCondition.nested(
-            QueryCondition.equalsTo("name", "TODAY")
-                    .or(QueryCondition.equalsTo("age", 10))
+            QueryCondition.isEqualsTo("name", "TODAY")
+                    .or(QueryCondition.isEqualsTo("age", 10))
     );
 
     StringBuilder sql = new StringBuilder();
@@ -78,7 +78,7 @@ class QueryConditionTests {
 
     condition.and(
             QueryCondition.nested(
-                    QueryCondition.equalsTo("gender", Gender.MALE)
+                    QueryCondition.isEqualsTo("gender", Gender.MALE)
                             .and(QueryCondition.of("email", Operator.PREFIX_LIKE, "taketoday"))
             )
     );
@@ -91,11 +91,11 @@ class QueryConditionTests {
 
     condition.and(
             QueryCondition.nested(
-                    QueryCondition.equalsTo("gender", Gender.MALE)
+                    QueryCondition.isEqualsTo("gender", Gender.MALE)
                             .and(QueryCondition.of("email", Operator.PREFIX_LIKE, "taketoday")
                                     .and(QueryCondition.nested(
-                                                    QueryCondition.equalsTo("name", "TODAY")
-                                                            .or(QueryCondition.equalsTo("age", 10))
+                                                    QueryCondition.isEqualsTo("name", "TODAY")
+                                                            .or(QueryCondition.isEqualsTo("age", 10))
                                             )
                                     )
                             )
@@ -112,11 +112,11 @@ class QueryConditionTests {
 
   @Test
   void andExprShouldAssignOnce() {
-    var condition = QueryCondition.equalsTo("gender", Gender.MALE)
+    var condition = QueryCondition.isEqualsTo("gender", Gender.MALE)
             .and(QueryCondition.of("email", Operator.PREFIX_LIKE, "taketoday"))
             .and(QueryCondition.nested(
-                            QueryCondition.equalsTo("name", "TODAY")
-                                    .or(QueryCondition.equalsTo("age", 10))
+                            QueryCondition.isEqualsTo("name", "TODAY")
+                                    .or(QueryCondition.isEqualsTo("age", 10))
                     )
             );
 
@@ -130,19 +130,19 @@ class QueryConditionTests {
     PreparedStatement statement = Mockito.mock(PreparedStatement.class);
 
     QueryCondition condition = QueryCondition.nested(
-            QueryCondition.equalsTo("name", "TODAY").or(QueryCondition.equalsTo("age", 10))
+            QueryCondition.isEqualsTo("name", "TODAY").or(QueryCondition.isEqualsTo("age", 10))
     ).and(QueryCondition.nested(
-                    QueryCondition.equalsTo("gender", Gender.MALE)
+                    QueryCondition.isEqualsTo("gender", Gender.MALE)
                             .and(
                                     QueryCondition.of("email", Operator.PREFIX_LIKE, "taketoday")
                                             .and(
-                                                    QueryCondition.equalsTo("name", "TODAY")
-                                                            .or(QueryCondition.equalsTo("name", "TODAY"))
+                                                    QueryCondition.isEqualsTo("name", "TODAY")
+                                                            .or(QueryCondition.isEqualsTo("name", "TODAY"))
                                             )
                             )
             ).and(
-                    QueryCondition.equalsTo("name", "TODAY7")
-                            .or(QueryCondition.equalsTo("name", "TODAY8"))
+                    QueryCondition.isEqualsTo("name", "TODAY7")
+                            .or(QueryCondition.isEqualsTo("name", "TODAY8"))
             )
     );
 
