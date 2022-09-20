@@ -36,7 +36,7 @@ import cn.taketoday.util.ObjectUtils;
 public abstract class QueryCondition {
 
   @Nullable
-  protected String type;
+  protected String logic;
 
   @Nullable
   protected QueryCondition nextNode;
@@ -72,14 +72,15 @@ public abstract class QueryCondition {
    * append sql
    *
    * @param sql sql append to
+   * @return if rendered to sql StringBuilder
    */
   public boolean render(StringBuilder sql) {
     if (matches()) {
       // format: column_name operator value;
-      if (preNode != null && type != null) {
+      if (preNode != null && logic != null) {
         // not first condition
         sql.append(' ');
-        sql.append(type);
+        sql.append(logic);
       }
 
       renderInternal(sql);
@@ -102,7 +103,7 @@ public abstract class QueryCondition {
    * @return this
    */
   public QueryCondition and(QueryCondition next) {
-    next.type = "AND";
+    next.logic = "AND";
     setNext(next);
     return this;
   }
@@ -115,7 +116,7 @@ public abstract class QueryCondition {
    * @return this
    */
   public QueryCondition or(QueryCondition next) {
-    next.type = "OR";
+    next.logic = "OR";
     setNext(next);
     return this;
   }
@@ -131,7 +132,7 @@ public abstract class QueryCondition {
     return new DefaultQueryCondition(columnName, operator, value);
   }
 
-  public static DefaultQueryCondition equalsTo(String columnName, Object value) {
+  public static DefaultQueryCondition isEqualsTo(String columnName, Object value) {
     return new DefaultQueryCondition(columnName, Operator.EQUALS, value);
   }
 
@@ -153,29 +154,23 @@ public abstract class QueryCondition {
     return new DefaultQueryCondition(columnName, Operator.NOT_BETWEEN, new Object[] { left, right });
   }
 
+  public static DefaultQueryCondition isNotNull(String columnName) {
+    return new DefaultQueryCondition(columnName, Operator.IS_NOT_NULL, null);
+  }
+
   public static DefaultQueryCondition isNull(String columnName) {
-    return new DefaultQueryCondition(columnName, Operator.IS_NULL, null) {
-      @Override
-      public boolean matches() {
-        return true;
-      }
-    };
+    return new DefaultQueryCondition(columnName, Operator.IS_NULL, null, true);
   }
 
   public static DefaultQueryCondition nullable(String columnName, Object value) {
-    return new DefaultQueryCondition(columnName, Operator.EQUALS, value) {
-      @Override
-      public boolean matches() {
-        return true;
-      }
-    };
+    return new DefaultQueryCondition(columnName, Operator.EQUALS, value, true);
   }
 
-  public static DefaultQueryCondition notEmpty(String columnName, Object value) {
+  public static DefaultQueryCondition isNotEmpty(String columnName, Object value) {
     return new DefaultQueryCondition(columnName, Operator.EQUALS, value) {
       @Override
       public boolean matches() {
-        return ObjectUtils.isNotEmpty(value);
+        return ObjectUtils.isNotEmpty(parameterValue);
       }
     };
   }
@@ -219,4 +214,5 @@ public abstract class QueryCondition {
       return 1;
     }
   }
+
 }
