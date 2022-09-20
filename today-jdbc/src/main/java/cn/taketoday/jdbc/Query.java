@@ -781,7 +781,7 @@ public final class Query implements AutoCloseable {
         connection.setCanGetKeys(returnGeneratedKeys);
       }
       catch (SQLException e) {
-        throw new PersistenceException(
+        throw new GeneratedKeysException(
                 "Error while trying to fetch generated keys from database. " +
                         "If you are not expecting any generated keys, fix this" +
                         " error by setting the fetchGeneratedKeys parameter in" +
