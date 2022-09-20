@@ -29,6 +29,7 @@ import javax.sql.DataSource;
 import cn.taketoday.beans.BeanProperty;
 import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.core.conversion.support.DefaultConversionService;
+import cn.taketoday.dao.DataAccessException;
 import cn.taketoday.format.support.ApplicationConversionService;
 import cn.taketoday.jdbc.datasource.DataSourceUtils;
 import cn.taketoday.jdbc.datasource.DriverManagerDataSource;
@@ -349,6 +350,12 @@ public class RepositoryManager extends JdbcAccessor {
     try (JdbcConnection connection = open()) {
       return runnable.run(connection, argument);
     }
+    catch (DataAccessException e) {
+      throw e;
+    }
+    catch (SQLException e) {
+      throw translateException("Executing StatementRunnable", null, e);
+    }
     catch (Throwable t) {
       throw new PersistenceException("An error occurred while executing StatementRunnable", t);
     }
@@ -386,6 +393,12 @@ public class RepositoryManager extends JdbcAccessor {
   public void withConnection(StatementRunnable runnable, @Nullable Object argument) {
     try (JdbcConnection connection = open()) {
       runnable.run(connection, argument);
+    }
+    catch (DataAccessException e) {
+      throw e;
+    }
+    catch (SQLException e) {
+      throw translateException("Executing StatementRunnable", null, e);
     }
     catch (Throwable t) {
       throw new PersistenceException("An error occurred while executing StatementRunnable", t);
@@ -584,6 +597,12 @@ public class RepositoryManager extends JdbcAccessor {
     }
     catch (Throwable throwable) {
       connection.rollback();
+      if (throwable instanceof DataAccessException e) {
+        throw e;
+      }
+      else if (throwable instanceof SQLException e) {
+        throw translateException("Running in transaction", null, e);
+      }
       throw new PersistenceException("An error occurred while executing StatementRunnable. Transaction is rolled back.", throwable);
     }
     connection.commit();
@@ -612,10 +631,16 @@ public class RepositoryManager extends JdbcAccessor {
     try {
       result = runnable.run(connection, argument);
     }
-    catch (Throwable e) {
+    catch (Throwable ex) {
       connection.rollback();
+      if (ex instanceof DataAccessException e) {
+        throw e;
+      }
+      else if (ex instanceof SQLException e) {
+        throw translateException("Running in transaction", null, e);
+      }
       throw new PersistenceException(
-              "An error occurred while executing StatementRunnableWithResult. Transaction rolled back.", e);
+              "An error occurred while executing ResultStatementRunnable. Transaction rolled back.", ex);
     }
     connection.commit();
     return result;
