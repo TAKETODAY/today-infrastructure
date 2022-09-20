@@ -37,7 +37,7 @@ import cn.taketoday.util.ObjectUtils;
  * @author Colin Sampaleanu
  * @author Juergen Hoeller
  * @see cn.taketoday.transaction.interceptor.TransactionProxyFactoryBean
- * @see cn.taketoday.aop.proxy.BeanNameAutoProxyCreator
+ * @see cn.taketoday.aop.framework.autoproxy.BeanNameAutoProxyCreator
  * @since 4.0
  */
 @SuppressWarnings("serial")
