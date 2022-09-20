@@ -20,7 +20,6 @@
 
 package cn.taketoday.transaction.annotation;
 
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.util.Collection;
@@ -28,7 +27,6 @@ import java.util.Map;
 import java.util.Properties;
 
 import cn.taketoday.aop.support.AopUtils;
-import cn.taketoday.context.annotation.Primary;
 import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.context.annotation.AdviceMode;
@@ -38,6 +36,7 @@ import cn.taketoday.context.annotation.Conditional;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.ConfigurationCondition;
 import cn.taketoday.context.annotation.Import;
+import cn.taketoday.context.annotation.Primary;
 import cn.taketoday.context.support.PropertySourcesPlaceholderConfigurer;
 import cn.taketoday.context.support.StandardApplicationContext;
 import cn.taketoday.core.type.AnnotatedTypeMetadata;
@@ -207,7 +206,6 @@ public class EnableTransactionManagementTests {
    * get loaded -- or in this case, attempted to be loaded at which point the test fails.
    */
   @Test
-  @Disabled("Waiting for AspectJ")
   @SuppressWarnings("resource")
   public void proxyTypeAspectJCausesRegistrationOfAnnotationTransactionAspect() {
     // should throw CNFE when trying to load AnnotationTransactionAspect.
