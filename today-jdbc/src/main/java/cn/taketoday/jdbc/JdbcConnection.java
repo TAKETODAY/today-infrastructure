@@ -89,7 +89,7 @@ public final class JdbcConnection implements Closeable {
   }
 
   /**
-   * @throws PersistenceException Could not acquire a connection from connection-source
+   * @throws DataAccessException Could not acquire a connection from data-source
    * @see DataSource#getConnection()
    */
   public Query createQuery(String queryText) {
@@ -98,7 +98,7 @@ public final class JdbcConnection implements Closeable {
   }
 
   /**
-   * @throws PersistenceException Could not acquire a connection from connection-source
+   * @throws CannotGetJdbcConnectionException Could not acquire a connection from connection-source
    * @see DataSource#getConnection()
    */
   public Query createQuery(String queryText, boolean returnGeneratedKeys) {
@@ -107,7 +107,7 @@ public final class JdbcConnection implements Closeable {
   }
 
   /**
-   * @throws PersistenceException Could not acquire a connection from connection-source
+   * @throws CannotGetJdbcConnectionException Could not acquire a connection from connection-source
    * @see DataSource#getConnection()
    */
   public Query createQuery(String queryText, String... columnNames) {
@@ -147,7 +147,7 @@ public final class JdbcConnection implements Closeable {
    * by this <code>Connection</code> object. This method should be
    * used only when auto-commit mode has been disabled.
    *
-   * @throws PersistenceException if a database access error occurs,
+   * @throws DataAccessException if a database access error occurs,
    * this method is called while participating in a distributed transaction,
    * this method is called on a closed connection or this
    * <code>Connection</code> object is in auto-commit mode
@@ -163,7 +163,7 @@ public final class JdbcConnection implements Closeable {
    * by this <code>Connection</code> object. This method should be
    * used only when auto-commit mode has been disabled.
    *
-   * @throws PersistenceException if a database access error occurs,
+   * @throws DataAccessException if a database access error occurs,
    * this method is called while participating in a distributed transaction,
    * this method is called on a closed connection or this
    * <code>Connection</code> object is in auto-commit mode
@@ -190,7 +190,7 @@ public final class JdbcConnection implements Closeable {
    * This method should be
    * used only when auto-commit mode has been disabled.
    *
-   * @throws PersistenceException if a database access error occurs,
+   * @throws DataAccessException if a database access error occurs,
    * this method is called while participating in a distributed transaction,
    * if this method is called on a closed connection or this
    * <code>Connection</code> object is in auto-commit mode
@@ -208,7 +208,7 @@ public final class JdbcConnection implements Closeable {
    * used only when auto-commit mode has been disabled.
    *
    * @param closeConnection close connection
-   * @throws PersistenceException if a database access error occurs,
+   * @throws DataAccessException if a database access error occurs,
    * this method is called while participating in a distributed transaction,
    * if this method is called on a closed connection or this
    * <code>Connection</code> object is in auto-commit mode
