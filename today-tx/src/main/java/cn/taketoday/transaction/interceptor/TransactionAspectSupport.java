@@ -39,6 +39,7 @@ import cn.taketoday.transaction.NoTransactionException;
 import cn.taketoday.transaction.PlatformTransactionManager;
 import cn.taketoday.transaction.ReactiveTransaction;
 import cn.taketoday.transaction.ReactiveTransactionManager;
+import cn.taketoday.transaction.TransactionException;
 import cn.taketoday.transaction.TransactionManager;
 import cn.taketoday.transaction.TransactionStatus;
 import cn.taketoday.transaction.TransactionSystemException;
@@ -95,11 +96,12 @@ public abstract class TransactionAspectSupport implements BeanFactoryAware, Init
    */
   private static final Object DEFAULT_TRANSACTION_MANAGER_KEY = new Object();
 
-  /**
-   * Reactive Streams API present on the classpath?
-   */
-  private static final boolean reactiveStreamsPresent =
-          ClassUtils.isPresent("org.reactivestreams.Publisher", TransactionAspectSupport.class.getClassLoader());
+  @Nullable
+  private static final ReactiveAdapterRegistry reactiveAdapterRegistry
+          = ClassUtils.isPresent(
+          "org.reactivestreams.Publisher", TransactionAspectSupport.class.getClassLoader())
+            ? ReactiveAdapterRegistry.getSharedInstance()
+            : null;
 
   /**
    * Holder to support the {@code currentTransactionStatus()} method,
@@ -150,9 +152,6 @@ public abstract class TransactionAspectSupport implements BeanFactoryAware, Init
   }
 
   @Nullable
-  private final ReactiveAdapterRegistry reactiveAdapterRegistry;
-
-  @Nullable
   private String transactionManagerBeanName;
 
   @Nullable
@@ -164,20 +163,11 @@ public abstract class TransactionAspectSupport implements BeanFactoryAware, Init
   @Nullable
   private BeanFactory beanFactory;
 
-  private final ConcurrentMap<Object, TransactionManager> transactionManagerCache =
+  private final ConcurrentReferenceHashMap<Object, TransactionManager> transactionManagerCache =
           new ConcurrentReferenceHashMap<>(4);
 
-  private final ConcurrentMap<Method, ReactiveTransactionSupport> transactionSupportCache =
+  private final ConcurrentReferenceHashMap<Method, ReactiveTransactionSupport> transactionSupportCache =
           new ConcurrentReferenceHashMap<>(1024);
-
-  protected TransactionAspectSupport() {
-    if (reactiveStreamsPresent) {
-      this.reactiveAdapterRegistry = ReactiveAdapterRegistry.getSharedInstance();
-    }
-    else {
-      this.reactiveAdapterRegistry = null;
-    }
-  }
 
   /**
    * Specify the name of the default transaction manager bean.
@@ -331,13 +321,13 @@ public abstract class TransactionAspectSupport implements BeanFactoryAware, Init
 
     final TransactionManager tm = determineTransactionManager(txAttr);
 
-    if (this.reactiveAdapterRegistry != null && tm instanceof ReactiveTransactionManager) {
-      ReactiveTransactionSupport txSupport = this.transactionSupportCache.computeIfAbsent(method, key -> {
-        Class<?> reactiveType = method.getReturnType();
-        ReactiveAdapter adapter = this.reactiveAdapterRegistry.getAdapter(reactiveType);
+    if (reactiveAdapterRegistry != null && tm instanceof ReactiveTransactionManager) {
+      ReactiveTransactionSupport txSupport = transactionSupportCache.computeIfAbsent(method, key -> {
+        Class<?> reactiveType = key.getReturnType();
+        ReactiveAdapter adapter = reactiveAdapterRegistry.getAdapter(reactiveType);
         if (adapter == null) {
           throw new IllegalStateException(
-                  "Cannot apply reactive transaction to non-reactive return type: " + method.getReturnType());
+                  "Cannot apply reactive transaction to non-reactive return type: " + key.getReturnType());
         }
         return new ReactiveTransactionSupport(adapter);
       });
@@ -578,7 +568,7 @@ public abstract class TransactionAspectSupport implements BeanFactoryAware, Init
     if (txAttr != null) {
       // We need a transaction for this method...
       if (log.isDebugEnabled()) {
-        log.trace("Getting transaction for [{}]", txInfo.getJoinpointIdentification());
+        log.trace("Getting transaction for [{}]", txInfo.joinpointIdentification);
       }
       // The transaction manager will flag an error if an incompatible tx already exists.
       txInfo.newTransactionStatus(status);
@@ -606,11 +596,11 @@ public abstract class TransactionAspectSupport implements BeanFactoryAware, Init
    * @param txInfo information about the current transaction
    */
   protected void commitTransactionAfterReturning(@Nullable TransactionInfo txInfo) {
-    if (txInfo != null && txInfo.getTransactionStatus() != null) {
+    if (txInfo != null && txInfo.hasTransaction()) {
       if (log.isDebugEnabled()) {
-        log.trace("Completing transaction for [{}]", txInfo.getJoinpointIdentification());
+        log.trace("Completing transaction for [{}]", txInfo.joinpointIdentification);
       }
-      txInfo.getTransactionManager().commit(txInfo.getTransactionStatus());
+      txInfo.commit();
     }
   }
 
@@ -622,13 +612,13 @@ public abstract class TransactionAspectSupport implements BeanFactoryAware, Init
    * @param ex throwable encountered
    */
   protected void completeTransactionAfterThrowing(@Nullable TransactionInfo txInfo, Throwable ex) {
-    if (txInfo != null && txInfo.getTransactionStatus() != null) {
+    if (txInfo != null && txInfo.hasTransaction()) {
       if (log.isDebugEnabled()) {
-        log.trace("Completing transaction for [{}] after exception: {}", txInfo.getJoinpointIdentification(), ex);
+        log.trace("Completing transaction for [{}] after exception: {}", txInfo.joinpointIdentification, ex);
       }
       if (txInfo.transactionAttribute != null && txInfo.transactionAttribute.rollbackOn(ex)) {
         try {
-          txInfo.getTransactionManager().rollback(txInfo.getTransactionStatus());
+          txInfo.rollback();
         }
         catch (TransactionSystemException ex2) {
           log.error("Application exception overridden by rollback exception", ex);
@@ -644,7 +634,7 @@ public abstract class TransactionAspectSupport implements BeanFactoryAware, Init
         // We don't roll back on this exception.
         // Will still roll back if TransactionStatus.isRollbackOnly() is true.
         try {
-          txInfo.getTransactionManager().commit(txInfo.getTransactionStatus());
+          txInfo.commit();
         }
         catch (TransactionSystemException ex2) {
           log.error("Application exception overridden by commit exception", ex);
@@ -683,6 +673,10 @@ public abstract class TransactionAspectSupport implements BeanFactoryAware, Init
     @Nullable
     public final TransactionAttribute transactionAttribute;
 
+    /**
+     * a String representation of this joinpoint (usually a Method call)
+     * for use in logging.
+     */
     public final String joinpointIdentification;
 
     @Nullable
@@ -700,31 +694,25 @@ public abstract class TransactionAspectSupport implements BeanFactoryAware, Init
       this.joinpointIdentification = joinpointIdentification;
     }
 
-    public PlatformTransactionManager getTransactionManager() {
-      Assert.state(this.transactionManager != null, "No PlatformTransactionManager set");
-      return this.transactionManager;
-    }
-
     @Nullable
     public TransactionAttribute getTransactionAttribute() {
       return this.transactionAttribute;
-    }
-
-    /**
-     * Return a String representation of this joinpoint (usually a Method call)
-     * for use in logging.
-     */
-    public String getJoinpointIdentification() {
-      return this.joinpointIdentification;
     }
 
     public void newTransactionStatus(@Nullable TransactionStatus status) {
       this.transactionStatus = status;
     }
 
-    @Nullable
-    public TransactionStatus getTransactionStatus() {
-      return this.transactionStatus;
+    public void commit() throws TransactionException {
+      PlatformTransactionManager transactionManager = this.transactionManager;
+      Assert.state(transactionManager != null, "No PlatformTransactionManager set");
+      transactionManager.commit(transactionStatus);
+    }
+
+    public void rollback() throws TransactionException {
+      PlatformTransactionManager transactionManager = this.transactionManager;
+      Assert.state(transactionManager != null, "No PlatformTransactionManager set");
+      transactionManager.rollback(transactionStatus);
     }
 
     /**
@@ -732,7 +720,7 @@ public abstract class TransactionAspectSupport implements BeanFactoryAware, Init
      * or whether we just have a placeholder to keep ThreadLocal stack integrity.
      */
     public boolean hasTransaction() {
-      return (this.transactionStatus != null);
+      return transactionStatus != null;
     }
 
     private void bindToThread() {
@@ -903,7 +891,7 @@ public abstract class TransactionAspectSupport implements BeanFactoryAware, Init
       if (txAttr != null) {
         // We need a transaction for this method...
         if (log.isDebugEnabled()) {
-          log.trace("Getting transaction for [{}]", txInfo.getJoinpointIdentification());
+          log.trace("Getting transaction for [{}]", txInfo.joinpointIdentification);
         }
         // The transaction manager will flag an error if an incompatible tx already exists.
         txInfo.newReactiveTransaction(transaction);
@@ -920,56 +908,52 @@ public abstract class TransactionAspectSupport implements BeanFactoryAware, Init
     }
 
     private Mono<Void> commitTransactionAfterReturning(@Nullable ReactiveTransactionInfo txInfo) {
-      if (txInfo != null && txInfo.getReactiveTransaction() != null) {
+      if (txInfo != null && txInfo.reactiveTransaction != null) {
         if (log.isDebugEnabled()) {
-          log.trace("Completing transaction for [{}]", txInfo.getJoinpointIdentification());
+          log.trace("Completing transaction for [{}]", txInfo.joinpointIdentification);
         }
-        return txInfo.getTransactionManager().commit(txInfo.getReactiveTransaction());
+        return txInfo.commit();
       }
       return Mono.empty();
     }
 
     private Mono<Void> rollbackTransactionOnCancel(@Nullable ReactiveTransactionInfo txInfo) {
-      if (txInfo != null && txInfo.getReactiveTransaction() != null) {
+      if (txInfo != null && txInfo.reactiveTransaction != null) {
         if (log.isDebugEnabled()) {
-          log.trace("Rolling back transaction for [{}] after cancellation", txInfo.getJoinpointIdentification());
+          log.trace("Rolling back transaction for [{}] after cancellation", txInfo.joinpointIdentification);
         }
-        return txInfo.getTransactionManager().rollback(txInfo.getReactiveTransaction());
+        return txInfo.rollback();
       }
       return Mono.empty();
     }
 
     private Mono<Void> completeTransactionAfterThrowing(@Nullable ReactiveTransactionInfo txInfo, Throwable ex) {
-      if (txInfo != null && txInfo.getReactiveTransaction() != null) {
+      if (txInfo != null && txInfo.reactiveTransaction != null) {
         if (log.isDebugEnabled()) {
           log.trace("Completing transaction for [{}] after exception: {}",
-                  txInfo.getJoinpointIdentification(), ex.toString());
+                  txInfo.joinpointIdentification, ex.toString());
         }
         if (txInfo.transactionAttribute != null && txInfo.transactionAttribute.rollbackOn(ex)) {
-          return txInfo.getTransactionManager()
-                  .rollback(txInfo.getReactiveTransaction())
-                  .onErrorMap(ex2 -> {
-                            log.error("Application exception overridden by rollback exception", ex);
-                            if (ex2 instanceof TransactionSystemException) {
-                              ((TransactionSystemException) ex2).initApplicationException(ex);
-                            }
-                            return ex2;
-                          }
-                  );
+          return txInfo.rollback().onErrorMap(ex2 -> {
+                    log.error("Application exception overridden by rollback exception", ex);
+                    if (ex2 instanceof TransactionSystemException) {
+                      ((TransactionSystemException) ex2).initApplicationException(ex);
+                    }
+                    return ex2;
+                  }
+          );
         }
         else {
           // We don't roll back on this exception.
           // Will still roll back if TransactionStatus.isRollbackOnly() is true.
-          return txInfo.getTransactionManager()
-                  .commit(txInfo.getReactiveTransaction())
-                  .onErrorMap(ex2 -> {
-                            log.error("Application exception overridden by commit exception", ex);
-                            if (ex2 instanceof TransactionSystemException) {
-                              ((TransactionSystemException) ex2).initApplicationException(ex);
-                            }
-                            return ex2;
-                          }
-                  );
+          return txInfo.commit().onErrorMap(ex2 -> {
+                    log.error("Application exception overridden by commit exception", ex);
+                    if (ex2 instanceof TransactionSystemException) {
+                      ((TransactionSystemException) ex2).initApplicationException(ex);
+                    }
+                    return ex2;
+                  }
+          );
         }
       }
       return Mono.empty();
@@ -982,15 +966,19 @@ public abstract class TransactionAspectSupport implements BeanFactoryAware, Init
   private static final class ReactiveTransactionInfo {
 
     @Nullable
-    private final ReactiveTransactionManager transactionManager;
+    public final ReactiveTransactionManager transactionManager;
 
     @Nullable
-    private final TransactionAttribute transactionAttribute;
+    public final TransactionAttribute transactionAttribute;
 
-    private final String joinpointIdentification;
+    /**
+     * a String representation of this joinpoint (usually a Method call)
+     * for use in logging.
+     */
+    public final String joinpointIdentification;
 
     @Nullable
-    private ReactiveTransaction reactiveTransaction;
+    public ReactiveTransaction reactiveTransaction;
 
     public ReactiveTransactionInfo(
             @Nullable ReactiveTransactionManager transactionManager,
@@ -1001,31 +989,18 @@ public abstract class TransactionAspectSupport implements BeanFactoryAware, Init
       this.joinpointIdentification = joinpointIdentification;
     }
 
-    public ReactiveTransactionManager getTransactionManager() {
-      Assert.state(this.transactionManager != null, "No ReactiveTransactionManager set");
-      return this.transactionManager;
+    public Mono<Void> commit() {
+      Assert.state(transactionManager != null, "No ReactiveTransactionManager set");
+      return transactionManager.commit(reactiveTransaction);
     }
 
-    @Nullable
-    public TransactionAttribute getTransactionAttribute() {
-      return this.transactionAttribute;
-    }
-
-    /**
-     * Return a String representation of this joinpoint (usually a Method call)
-     * for use in logging.
-     */
-    public String getJoinpointIdentification() {
-      return this.joinpointIdentification;
+    public Mono<Void> rollback() {
+      Assert.state(transactionManager != null, "No ReactiveTransactionManager set");
+      return transactionManager.rollback(reactiveTransaction);
     }
 
     public void newReactiveTransaction(@Nullable ReactiveTransaction transaction) {
       this.reactiveTransaction = transaction;
-    }
-
-    @Nullable
-    public ReactiveTransaction getReactiveTransaction() {
-      return this.reactiveTransaction;
     }
 
     @Override
