@@ -22,7 +22,6 @@ package cn.taketoday.transaction.interceptor;
 
 import java.lang.reflect.Method;
 import java.util.Properties;
-import java.util.concurrent.ConcurrentMap;
 
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanFactoryAware;
@@ -529,12 +528,7 @@ public abstract class TransactionAspectSupport implements BeanFactoryAware, Init
 
     // If no name specified, apply method identification as transaction name.
     if (txAttr != null && txAttr.getName() == null) {
-      txAttr = new DelegatingTransactionAttribute(txAttr) {
-        @Override
-        public String getName() {
-          return joinpointIdentification;
-        }
-      };
+      txAttr = new JoinPointTransactionAttribute(txAttr, joinpointIdentification);
     }
 
     TransactionStatus status = null;
@@ -542,11 +536,9 @@ public abstract class TransactionAspectSupport implements BeanFactoryAware, Init
       if (tm != null) {
         status = tm.getTransaction(txAttr);
       }
-      else {
-        if (log.isDebugEnabled()) {
-          log.debug("Skipping transactional joinpoint [{}] because no transaction manager has been configured",
-                  joinpointIdentification);
-        }
+      else if (log.isDebugEnabled()) {
+        log.debug("Skipping transactional joinpoint [{}] because no transaction manager has been configured",
+                joinpointIdentification);
       }
     }
     return prepareTransactionInfo(tm, txAttr, joinpointIdentification, status);
@@ -870,12 +862,7 @@ public abstract class TransactionAspectSupport implements BeanFactoryAware, Init
 
       // If no name specified, apply method identification as transaction name.
       if (txAttr != null && txAttr.getName() == null) {
-        txAttr = new DelegatingTransactionAttribute(txAttr) {
-          @Override
-          public String getName() {
-            return joinpointIdentification;
-          }
-        };
+        txAttr = new JoinPointTransactionAttribute(txAttr, joinpointIdentification);
       }
 
       final TransactionAttribute attrToUse = txAttr;
@@ -1009,4 +996,20 @@ public abstract class TransactionAspectSupport implements BeanFactoryAware, Init
     }
   }
 
+  static class JoinPointTransactionAttribute extends DelegatingTransactionAttribute {
+
+    private final String joinpointIdentification;
+
+    public JoinPointTransactionAttribute(
+            TransactionAttribute targetAttribute, String joinpointIdentification) {
+      super(targetAttribute);
+      this.joinpointIdentification = joinpointIdentification;
+    }
+
+    @Override
+    public String getName() {
+      return joinpointIdentification;
+    }
+
+  }
 }
