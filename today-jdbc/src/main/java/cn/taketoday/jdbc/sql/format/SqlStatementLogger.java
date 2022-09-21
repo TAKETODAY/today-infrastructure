@@ -23,6 +23,7 @@ package cn.taketoday.jdbc.sql.format;
 import java.sql.Statement;
 import java.util.concurrent.TimeUnit;
 
+import cn.taketoday.core.style.ToStringBuilder;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.lang.TodayStrategies;
 import cn.taketoday.logging.Logger;
@@ -227,4 +228,15 @@ public class SqlStatementLogger {
       }
     }
   }
+
+  @Override
+  public String toString() {
+    return ToStringBuilder.from(this)
+            .append("format", format)
+            .append("logToStdout", logToStdout)
+            .append("highlight", highlight)
+            .append("logSlowQuery", logSlowQuery)
+            .toString();
+  }
+
 }
