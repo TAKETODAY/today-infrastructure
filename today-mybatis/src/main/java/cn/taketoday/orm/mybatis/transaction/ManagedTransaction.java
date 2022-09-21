@@ -35,11 +35,11 @@ import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.transaction.support.TransactionSynchronizationManager;
 
 /**
- * {@code TodayManagedTransaction} handles the lifecycle of a JDBC connection.
- * It retrieves a connection from Framework's transaction manager and returns
+ * {@code ManagedTransaction} handles the lifecycle of a JDBC connection.
+ * It retrieves a connection from Infra's transaction manager and returns
  * it back to it when it is no longer needed.
  * <p>
- * If Framework's transaction handling is active it will no-op all
+ * If Infra's transaction handling is active it will no-op all
  * commit/rollback/close calls assuming that the Framework transaction manager
  * will do the job.
  * <p>
@@ -90,7 +90,7 @@ public class ManagedTransaction implements Transaction {
     this.autoCommit = connection.getAutoCommit();
     this.isConnectionTransactional = DataSourceUtils.isConnectionTransactional(connection, dataSource);
     if (log.isDebugEnabled()) {
-      log.debug("JDBC Connection [{}] will{}be managed by Framework",
+      log.debug("JDBC Connection [{}] will{}be managed by Infra",
               connection, (isConnectionTransactional ? " " : " not "));
     }
   }
