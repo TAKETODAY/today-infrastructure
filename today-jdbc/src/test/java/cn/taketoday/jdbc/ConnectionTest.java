@@ -20,6 +20,7 @@
 
 package cn.taketoday.jdbc;
 
+import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
 
 import java.sql.Connection;
@@ -40,7 +41,7 @@ import static org.mockito.Mockito.when;
  * User: dimzon Date: 4/29/14 Time: 10:05 PM
  */
 public class ConnectionTest {
-
+  @Test
   public void test_createQueryWithParams() throws Throwable {
     DataSource dataSource = mock(DataSource.class);
     Connection jdbcConnection = mock(Connection.class);
@@ -67,6 +68,7 @@ public class ConnectionTest {
 
   public class MyException extends RuntimeException { }
 
+  @Test
   public void test_createQueryWithParamsThrowingException() throws Throwable {
     DataSource dataSource = mock(DataSource.class);
     Connection jdbcConnection = mock(Connection.class);
