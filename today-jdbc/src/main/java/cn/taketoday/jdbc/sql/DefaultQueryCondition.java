@@ -35,24 +35,34 @@ import cn.taketoday.lang.Nullable;
  */
 public class DefaultQueryCondition extends QueryCondition {
 
-  private ObjectTypeHandler typeHandler = ObjectTypeHandler.getSharedInstance();
+  protected final boolean nullable;
 
-  private final String columnName;
+  protected ObjectTypeHandler typeHandler = ObjectTypeHandler.getSharedInstance();
 
-  private final Operator operator;
+  protected final String columnName;
+
+  protected final Operator operator;
 
   @Nullable
-  private final Object parameterValue; // Object, array, list
+  protected final Object parameterValue; // Object, array, list
 
-  private final int valueLength;
+  protected final int valueLength;
 
   public DefaultQueryCondition(String columnName, Operator operator, @Nullable Object parameterValue) {
+    this(columnName, operator, parameterValue, false);
+  }
+
+  /**
+   * @param nullable parameter-value match null
+   */
+  public DefaultQueryCondition(String columnName, Operator operator, @Nullable Object parameterValue, boolean nullable) {
     Assert.notNull(operator, "operator is required");
     Assert.notNull(columnName, "columnName is required");
     this.parameterValue = parameterValue;
     this.operator = operator;
     this.columnName = columnName;
     this.valueLength = getLength(parameterValue);
+    this.nullable = nullable;
   }
 
   public void setTypeHandler(ObjectTypeHandler typeHandler) {
@@ -62,7 +72,7 @@ public class DefaultQueryCondition extends QueryCondition {
 
   @Override
   protected boolean matches() {
-    return parameterValue != null; // TODO
+    return nullable || parameterValue != null; // TODO
   }
 
   /**
@@ -76,8 +86,11 @@ public class DefaultQueryCondition extends QueryCondition {
   @Override
   @SuppressWarnings("unchecked")
   protected int setParameterInternal(PreparedStatement ps, int idx) throws SQLException {
+    int valueLength = this.valueLength;
     if (valueLength != 1) {
+      // array, collection
       final Object parameterValue = this.parameterValue;
+      final ObjectTypeHandler typeHandler = this.typeHandler;
       if (parameterValue instanceof Object[] array) {
         for (int i = 0; i < valueLength; i++) {
           typeHandler.setParameter(ps, idx + i, array[i]);
