@@ -114,7 +114,7 @@ public class SqlSessionTemplateTest extends AbstractMyBatisTest {
       // will synchronize the template with the current tx
       template.getConnection();
 
-      SqlSessionHolder holder = (SqlSessionHolder) TransactionSynchronizationManager.getResource(sqlSessionFactory);
+      SqlSessionHolder holder = TransactionSynchronizationManager.getResource(sqlSessionFactory);
 
       assertThat(holder.getExecutorType()).isEqualTo(ExecutorType.BATCH);
     }

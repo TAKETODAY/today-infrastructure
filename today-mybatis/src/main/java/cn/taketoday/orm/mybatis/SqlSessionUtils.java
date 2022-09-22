@@ -45,6 +45,7 @@ import cn.taketoday.transaction.support.TransactionSynchronizationManager;
  *
  * @author Hunter Presnall
  * @author Eduardo Macarron
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  */
 public abstract class SqlSessionUtils {
   private static final Logger log = LoggerFactory.getLogger(SqlSessionUtils.class);
@@ -85,47 +86,42 @@ public abstract class SqlSessionUtils {
           @Nullable PersistenceExceptionTranslator exceptionTranslator) {
     Assert.notNull(executorType, "No ExecutorType specified");
     Assert.notNull(sessionFactory, NO_SQL_SESSION_FACTORY_SPECIFIED);
-
-    SqlSessionHolder holder = (SqlSessionHolder) TransactionSynchronizationManager.getResource(sessionFactory);
-
-    SqlSession session = sessionHolder(executorType, holder);
-    if (session != null) {
-      return session;
-    }
-    if (log.isDebugEnabled()) {
-      log.debug("Creating a new SqlSession");
-    }
-    session = sessionFactory.openSession(executorType);
-
-    registerSessionHolder(sessionFactory, executorType, exceptionTranslator, session);
-
-    return session;
-  }
-
-  /**
-   * Register session holder if synchronization is active (i.e. a Framework TX is active).
-   *
-   * Note: The DataSource used by the Environment should be synchronized with the transaction either through
-   * DataSourceTxMgr or another tx synchronization. Further assume that if an exception is thrown, whatever started the
-   * transaction will handle closing / rolling back the Connection associated with the SqlSession.
-   *
-   * @param sessionFactory sqlSessionFactory used for registration.
-   * @param executorType executorType used for registration.
-   * @param exceptionTranslator persistenceExceptionTranslator used for registration.
-   * @param session sqlSession used for registration.
-   */
-  private static void registerSessionHolder(
-          SqlSessionFactory sessionFactory, ExecutorType executorType,
-          @Nullable PersistenceExceptionTranslator exceptionTranslator, SqlSession session) {
+    final boolean debugEnabled = log.isDebugEnabled();
 
     SynchronizationInfo info = TransactionSynchronizationManager.getSynchronizationInfo();
+    SqlSessionHolder holder = info.getResource(sessionFactory);
+    if (holder != null && holder.isSynchronizedWithTransaction()) {
+      if (holder.getExecutorType() != executorType) {
+        throw new TransientDataAccessResourceException(
+                "Cannot change the ExecutorType when there is an existing transaction");
+      }
+      holder.requested();
+      if (debugEnabled) {
+        log.debug("Fetched SqlSession [{}] from current transaction", holder.getSqlSession());
+      }
+      return holder.getSqlSession();
+    }
+
+    if (debugEnabled) {
+      log.debug("Creating a new SqlSession");
+    }
+
+    SqlSession session = sessionFactory.openSession(executorType);
+
+    /* Register session holder if synchronization is active (i.e. an Infra TX is active).
+     * Note: The DataSource used by the Environment should be synchronized with the
+     * transaction either through DataSourceTxMgr or another tx synchronization.
+     * Further, assume that if an exception is thrown, whatever started the transaction
+     * will handle closing / rolling back the Connection associated with the SqlSession.
+     */
+
     if (info.isSynchronizationActive()) {
       Environment environment = sessionFactory.getConfiguration().getEnvironment();
       if (environment.getTransactionFactory() instanceof ManagedTransactionFactory) {
-        if (log.isDebugEnabled()) {
+        if (debugEnabled) {
           log.debug("Registering transaction synchronization for SqlSession [{}]", session);
         }
-        SqlSessionHolder holder = new SqlSessionHolder(session, executorType, exceptionTranslator);
+        holder = new SqlSessionHolder(session, executorType, exceptionTranslator);
         info.bindResource(sessionFactory, holder);
         info.registerSynchronization(new SqlSessionSynchronization(holder, sessionFactory));
         holder.setSynchronizedWithTransaction(true);
@@ -133,7 +129,7 @@ public abstract class SqlSessionUtils {
       }
       else {
         if (info.getResource(environment.getDataSource()) == null) {
-          if (log.isDebugEnabled()) {
+          if (debugEnabled) {
             log.debug("SqlSession [{}] was not registered for synchronization because DataSource is not transactional", session);
           }
         }
@@ -143,26 +139,10 @@ public abstract class SqlSessionUtils {
         }
       }
     }
-    else if (log.isDebugEnabled()) {
+    else if (debugEnabled) {
       log.debug("SqlSession [{}] was not registered for synchronization because synchronization is not active", session);
     }
-  }
 
-  private static SqlSession sessionHolder(ExecutorType executorType, @Nullable SqlSessionHolder holder) {
-    SqlSession session = null;
-    if (holder != null && holder.isSynchronizedWithTransaction()) {
-      if (holder.getExecutorType() != executorType) {
-        throw new TransientDataAccessResourceException(
-                "Cannot change the ExecutorType when there is an existing transaction");
-      }
-
-      holder.requested();
-
-      if (log.isDebugEnabled()) {
-        log.debug("Fetched SqlSession [{}] from current transaction", holder.getSqlSession());
-      }
-      session = holder.getSqlSession();
-    }
     return session;
   }
 
@@ -178,7 +158,7 @@ public abstract class SqlSessionUtils {
     Assert.notNull(session, NO_SQL_SESSION_SPECIFIED);
     Assert.notNull(sessionFactory, NO_SQL_SESSION_FACTORY_SPECIFIED);
 
-    SqlSessionHolder holder = (SqlSessionHolder) TransactionSynchronizationManager.getResource(sessionFactory);
+    SqlSessionHolder holder = TransactionSynchronizationManager.getResource(sessionFactory);
     if ((holder != null) && (holder.getSqlSession() == session)) {
       if (log.isDebugEnabled()) {
         log.debug("Releasing transactional SqlSession [{}]", session);
@@ -204,7 +184,7 @@ public abstract class SqlSessionUtils {
     Assert.notNull(session, NO_SQL_SESSION_SPECIFIED);
     Assert.notNull(sessionFactory, NO_SQL_SESSION_FACTORY_SPECIFIED);
 
-    SqlSessionHolder holder = (SqlSessionHolder) TransactionSynchronizationManager.getResource(sessionFactory);
+    SqlSessionHolder holder = TransactionSynchronizationManager.getResource(sessionFactory);
     return holder != null && holder.getSqlSession() == session;
   }
 
