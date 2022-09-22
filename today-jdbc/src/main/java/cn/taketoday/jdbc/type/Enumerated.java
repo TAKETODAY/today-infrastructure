@@ -42,7 +42,7 @@ import java.lang.annotation.Target;
  *   public class Employee {
  *       public EmployeeStatus getStatus() {...}
  *       ...
- *       &#064;Enumerated(STRING)
+ *       &#064;Enumerated(NAME)
  *       public SalaryRate getPayScale() {...}
  *       ...
  *   }
