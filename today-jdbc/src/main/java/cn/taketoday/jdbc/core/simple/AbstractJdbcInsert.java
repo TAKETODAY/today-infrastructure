@@ -264,7 +264,7 @@ public abstract class AbstractJdbcInsert {
       compileInternal();
       this.compiled = true;
       if (logger.isDebugEnabled()) {
-        logger.debug("JdbcInsert for table [" + getTableName() + "] compiled");
+        logger.debug("JdbcInsert for table [{}] compiled", getTableName());
       }
     }
   }
@@ -281,7 +281,7 @@ public abstract class AbstractJdbcInsert {
     this.insertString = this.tableMetaDataContext.createInsertString(getGeneratedKeyNames());
     this.insertTypes = this.tableMetaDataContext.createInsertTypes();
     if (logger.isDebugEnabled()) {
-      logger.debug("Compiled insert object: insert string is [" + this.insertString + "]");
+      logger.debug("Compiled insert object: insert string is [{}]", insertString);
     }
     onCompileInternal();
   }
@@ -358,7 +358,7 @@ public abstract class AbstractJdbcInsert {
    */
   private int executeInsertInternal(List<?> values) {
     if (logger.isDebugEnabled()) {
-      logger.debug("The following parameters are used for insert " + getInsertString() + " with: " + values);
+      logger.debug("The following parameters are used for insert {} with: {}", getInsertString(), values);
     }
     return getJdbcTemplate().update(getInsertString(), values.toArray(), getInsertTypes());
   }
@@ -434,7 +434,7 @@ public abstract class AbstractJdbcInsert {
    */
   private KeyHolder executeInsertAndReturnKeyHolderInternal(final List<?> values) {
     if (logger.isDebugEnabled()) {
-      logger.debug("The following parameters are used for call " + getInsertString() + " with: " + values);
+      logger.debug("The following parameters are used for call {} with: {}", getInsertString(), values);
     }
     final KeyHolder keyHolder = new GeneratedKeyHolder();
 
@@ -579,7 +579,7 @@ public abstract class AbstractJdbcInsert {
    */
   private int[] executeBatchInternal(final List<List<Object>> batchValues) {
     if (logger.isDebugEnabled()) {
-      logger.debug("Executing statement " + getInsertString() + " with batch of size: " + batchValues.size());
+      logger.debug("Executing statement {} with batch of size: {}", getInsertString(), batchValues.size());
     }
     return getJdbcTemplate().batchUpdate(getInsertString(),
             new BatchPreparedStatementSetter() {
@@ -601,8 +601,8 @@ public abstract class AbstractJdbcInsert {
    * @param preparedStatement the PreparedStatement
    * @param values the values to be set
    */
-  private void setParameterValues(PreparedStatement preparedStatement, List<?> values, @Nullable int... columnTypes)
-          throws SQLException {
+  private void setParameterValues(PreparedStatement preparedStatement,
+          List<?> values, @Nullable int... columnTypes) throws SQLException {
 
     int colIndex = 0;
     for (Object value : values) {
