@@ -26,6 +26,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -37,10 +38,12 @@ import cn.taketoday.beans.BeanProperty;
 import cn.taketoday.dao.DataAccessException;
 import cn.taketoday.dao.IncorrectResultSizeDataAccessException;
 import cn.taketoday.jdbc.GeneratedKeysException;
+import cn.taketoday.jdbc.JdbcUpdateAffectedIncorrectNumberOfRowsException;
 import cn.taketoday.jdbc.PersistenceException;
 import cn.taketoday.jdbc.RepositoryManager;
 import cn.taketoday.jdbc.core.ConnectionCallback;
 import cn.taketoday.jdbc.datasource.DataSourceUtils;
+import cn.taketoday.jdbc.entity.BatchPersistListener;
 import cn.taketoday.jdbc.result.DefaultResultSetHandlerFactory;
 import cn.taketoday.jdbc.result.JdbcBeanMetadata;
 import cn.taketoday.jdbc.result.ResultSetHandler;
@@ -48,11 +51,13 @@ import cn.taketoday.jdbc.result.ResultSetIterator;
 import cn.taketoday.jdbc.sql.dialect.Dialect;
 import cn.taketoday.jdbc.sql.dialect.MySQLDialect;
 import cn.taketoday.jdbc.support.JdbcAccessor;
-import cn.taketoday.jdbc.support.JdbcUtils;
 import cn.taketoday.jdbc.type.TypeHandler;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.NonNull;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.LogMessage;
+import cn.taketoday.transaction.support.TransactionOperations;
+import cn.taketoday.util.CollectionUtils;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
@@ -69,10 +74,15 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
   // TODO Dialect static factory creation
   private Dialect dialect = new MySQLDialect();
 
+  @Nullable
+  private ArrayList<BatchPersistListener> batchPersistListeners;
+
   /**
    * a flag indicating whether auto-generated keys should be returned;
    */
   private boolean returnGeneratedKeys = true;
+
+  private TransactionOperations batchTransactionOperations = TransactionOperations.withoutTransaction();
 
   public DefaultEntityManager(RepositoryManager repositoryManager) {
     this.repositoryManager = repositoryManager;
@@ -85,7 +95,7 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
     this.dialect = dialect;
   }
 
-  public void setEntityHolderFactory(EntityMetadataFactory entityMetadataFactory) {
+  public void setEntityMetadataFactory(EntityMetadataFactory entityMetadataFactory) {
     Assert.notNull(entityMetadataFactory, "entityMetadataFactory is required");
     this.entityMetadataFactory = entityMetadataFactory;
   }
@@ -124,6 +134,43 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
     return this.maxBatchRecords;
   }
 
+  public void setBatchTransactionOperations(TransactionOperations batchTransactionOperations) {
+    this.batchTransactionOperations = batchTransactionOperations;
+  }
+
+  public void addBatchPersistListeners(BatchPersistListener... listeners) {
+    if (batchPersistListeners == null) {
+      batchPersistListeners = new ArrayList<>();
+    }
+    CollectionUtils.addAll(batchPersistListeners, listeners);
+  }
+
+  public void addBatchPersistListeners(Collection<BatchPersistListener> listeners) {
+    if (batchPersistListeners == null) {
+      batchPersistListeners = new ArrayList<>();
+    }
+    batchPersistListeners.addAll(listeners);
+  }
+
+  public void setBatchPersistListeners(@Nullable Collection<BatchPersistListener> listeners) {
+    if (listeners == null) {
+      this.batchPersistListeners = null;
+    }
+    else {
+      if (batchPersistListeners == null) {
+        batchPersistListeners = new ArrayList<>();
+      }
+      else {
+        batchPersistListeners.clear();
+      }
+      batchPersistListeners.addAll(listeners);
+    }
+  }
+
+  //---------------------------------------------------------------------
+  // Implementation of EntityManager
+  //---------------------------------------------------------------------
+
   @Override
   public void persist(Object entity) throws DataAccessException {
     persist(entity, returnGeneratedKeys);
@@ -144,12 +191,13 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
 
       @Nullable
       @Override
-      public Void doInConnection(Connection connection) throws SQLException, DataAccessException {
+      public Void doInConnection(@NonNull Connection connection) throws SQLException, DataAccessException {
         try (PreparedStatement statement = prepareStatement(connection, sql, returnGeneratedKeys)) {
           setPersistParameter(entity, statement, entityMetadata);
           // execute
           int updateCount = statement.executeUpdate();
-          assertUpdateCount(updateCount, 1);
+          assertUpdateCount(sql, updateCount, 1);
+
           if (returnGeneratedKeys) {
             try {
               ResultSet generatedKeys = statement.getGeneratedKeys();
@@ -167,9 +215,9 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
     });
   }
 
-  private static void assertUpdateCount(int updateCount, int expectCount) {
-    if (updateCount != expectCount) {
-      throw new PersistenceException("update count '" + updateCount + "' is not equals to expected count '" + expectCount + "'");
+  private static void assertUpdateCount(String sql, int actualCount, int expectCount) {
+    if (actualCount != expectCount) {
+      throw new JdbcUpdateAffectedIncorrectNumberOfRowsException(sql, expectCount, actualCount);
     }
   }
 
@@ -187,34 +235,75 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
 
   @Override
   public void persist(Iterable<?> entities, boolean returnGeneratedKeys) throws DataAccessException {
-    execute("Batch persist entities", new ConnectionCallback<Void>() {
-      @Nullable
-      @Override
-      public Void doInConnection(Connection connection) throws SQLException, DataAccessException {
-        int maxBatchRecords = getMaxBatchRecords();
-        var statements = new HashMap<Class<?>, PreparedBatch>();
-
+    repositoryManager.runInTransaction((connection, argument) -> {
+      int maxBatchRecords = getMaxBatchRecords();
+      var statements = new HashMap<Class<?>, PreparedBatch>();
+      try {
         for (Object entity : entities) {
           Class<?> entityClass = entity.getClass();
           PreparedBatch batch = statements.get(entityClass);
           if (batch == null) {
             EntityMetadata entityMetadata = entityMetadataFactory.getEntityMetadata(entityClass);
             String sql = insert(entityMetadata);
-            batch = new PreparedBatch(connection, sql, entityMetadata, returnGeneratedKeys);
+            batch = new PreparedBatch(connection.getJdbcConnection(), sql, entityMetadata, returnGeneratedKeys);
             statements.put(entityClass, batch);
           }
           batch.addBatchUpdate(entity, maxBatchRecords);
         }
 
         for (PreparedBatch preparedBatch : statements.values()) {
-          preparedBatch.executeBatch(returnGeneratedKeys);
-          preparedBatch.closeQuietly();
+          preparedBatch.explicitExecuteBatch(returnGeneratedKeys);
         }
-
-        return null;
+      }
+      catch (DataAccessException e) {
+        throw e;
+      }
+      catch (SQLException e) {
+        throw translateException("Running in transaction", null, e);
+      }
+      catch (Throwable ex) {
+        throw new PersistenceException("Batch persist entities failed", ex);
       }
     });
 
+//    execute("Batch persist entities", new ConnectionCallback<Void>() {
+//      @Nullable
+//      @Override
+//      public Void doInConnection(@NonNull Connection connection) throws DataAccessException {
+//        batchTransactionOperations.executeWithoutResult(status -> {
+//          int maxBatchRecords = getMaxBatchRecords();
+//          var statements = new HashMap<Class<?>, PreparedBatch>();
+//          try {
+//            for (Object entity : entities) {
+//              Class<?> entityClass = entity.getClass();
+//              PreparedBatch batch = statements.get(entityClass);
+//              if (batch == null) {
+//                EntityMetadata entityMetadata = entityMetadataFactory.getEntityMetadata(entityClass);
+//                String sql = insert(entityMetadata);
+//                batch = new PreparedBatch(connection, sql, entityMetadata, returnGeneratedKeys);
+//                statements.put(entityClass, batch);
+//              }
+//              batch.addBatchUpdate(entity, maxBatchRecords);
+//            }
+//
+//            for (PreparedBatch preparedBatch : statements.values()) {
+//              preparedBatch.explicitExecuteBatch(returnGeneratedKeys);
+//            }
+//          }
+//          catch (DataAccessException e) {
+//            throw e;
+//          }
+//          catch (SQLException e) {
+//            throw translateException("Running in transaction", null, e);
+//          }
+//          catch (Throwable ex) {
+//            throw new PersistenceException("Batch persist entities failed", ex);
+//          }
+//        });
+//
+//        return null;
+//      }
+//    });
   }
 
   private static void setPersistParameter(
@@ -247,19 +336,40 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
       statement.addBatch();
       if (maxBatchRecords > 0 && ++currentBatchRecords % maxBatchRecords == 0) {
         executeBatch(statement, returnGeneratedKeys);
+        fireBatchExecution(true);
       }
     }
 
-    public void executeBatch(boolean returnGeneratedKeys) throws SQLException {
+    public void explicitExecuteBatch(boolean returnGeneratedKeys) throws SQLException {
       executeBatch(statement, returnGeneratedKeys);
+      fireBatchExecution(false);
+      try {
+        statement.close();
+      }
+      catch (SQLException ex) {
+        if (repositoryManager.isCatchResourceCloseErrors()) {
+          throw translateException("Closing statement", sql, ex);
+        }
+        else {
+          logger.error("Closing statement: '{}' failed", statement, ex);
+        }
+      }
     }
 
-    public void executeBatch(PreparedStatement statement, boolean returnGeneratedKeys) throws SQLException {
+    private void fireBatchExecution(boolean implicitExecution) {
+      if (CollectionUtils.isNotEmpty(batchPersistListeners)) {
+        for (BatchPersistListener listener : batchPersistListeners) {
+          listener.executeBatch(entities, implicitExecution);
+        }
+      }
+    }
+
+    private void executeBatch(PreparedStatement statement, boolean returnGeneratedKeys) throws SQLException {
       if (stmtLogger.isDebugEnabled()) {
         stmtLogger.logStatement(LogMessage.format("Executing batch size: {}", entities.size()), sql);
       }
       int[] updateCounts = statement.executeBatch();
-      assertUpdateCount(updateCounts.length, entities.size());
+      assertUpdateCount(sql, updateCounts.length, entities.size());
       if (returnGeneratedKeys) {
         EntityProperty idProperty = entityMetadata.idProperty;
         ResultSet generatedKeys = statement.getGeneratedKeys();
@@ -278,9 +388,6 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
       this.entities.clear();
     }
 
-    public void closeQuietly() {
-      JdbcUtils.closeQuietly(statement);
-    }
   }
 
   @Override
@@ -334,21 +441,23 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
       stmtLogger.logStatement(LogMessage.format("Lookup entity using ID: '{}'", id), sql.toString());
     }
 
-    return execute("Fetch entity By ID", new ConnectionCallback<>() {
+    DataSource dataSource = obtainDataSource();
+    Connection con = DataSourceUtils.getConnection(dataSource);
+    try {
+      PreparedStatement statement = prepareStatement(con, sql.toString(), false);
+      metadata.idProperty.setParameter(statement, 1, id);
 
-      @Nullable
-      @Override
-      public T doInConnection(Connection connection) throws SQLException, DataAccessException {
-        PreparedStatement statement = prepareStatement(connection, sql.toString(), false);
-        metadata.idProperty.setParameter(statement, 1, id);
+      ResultSet resultSet = statement.executeQuery();
+      var iterator = new EntityIterator<T>(con, resultSet, entityClass);
 
-        ResultSet resultSet = statement.executeQuery();
-        var iterator = new EntityIterator<T>(connection, resultSet, entityClass);
-
-        return iterator.hasNext() ? iterator.next() : null;
-      }
-    });
-
+      return iterator.hasNext() ? iterator.next() : null;
+    }
+    catch (SQLException ex) {
+      // Release Connection early, to avoid potential connection pool deadlock
+      // in the case when the exception translator hasn't been initialized yet.
+      DataSourceUtils.releaseConnection(con, dataSource);
+      throw translateException("Fetch entity By ID", sql.toString(), ex);
+    }
   }
 
   @Nullable
@@ -501,7 +610,7 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
     }
 
     if (stmtLogger.isDebugEnabled()) {
-      stmtLogger.logStatement(LogMessage.format("Lookup entity using queryObject: {}", params), sql.toString());
+      stmtLogger.logStatement(LogMessage.format("Lookup entity using query-model: {}", params), sql.toString());
     }
 
     DataSource dataSource = obtainDataSource();
