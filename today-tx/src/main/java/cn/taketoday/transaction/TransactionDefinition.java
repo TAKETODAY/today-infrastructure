@@ -20,6 +20,7 @@
 package cn.taketoday.transaction;
 
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.transaction.support.DefaultTransactionDefinition;
 import cn.taketoday.transaction.support.SynchronizationInfo;
 import cn.taketoday.transaction.support.TransactionSynchronization;
 import cn.taketoday.transaction.support.TransactionSynchronizationManager;
@@ -289,6 +290,34 @@ public interface TransactionDefinition {
    */
   static TransactionDefinition withDefaults() {
     return StaticTransactionDefinition.INSTANCE;
+  }
+
+  /**
+   * Return an {@code DefaultTransactionDefinition}. init with {@code readonly}
+   *
+   * @since 4.0
+   */
+  static TransactionDefinition forReadOnly() {
+    DefaultTransactionDefinition definition = new DefaultTransactionDefinition();
+    definition.setReadOnly(true);
+    return definition;
+  }
+
+  /**
+   * Return an {@code DefaultTransactionDefinition}. init with {@code timeout}
+   *
+   * @since 4.0
+   */
+  static TransactionDefinition forTimeout(int timeout) {
+    DefaultTransactionDefinition definition = new DefaultTransactionDefinition();
+    definition.setTimeout(timeout);
+    return definition;
+  }
+
+  static TransactionDefinition forIsolationLevel(int isolationLevel) {
+    DefaultTransactionDefinition definition = new DefaultTransactionDefinition();
+    definition.setIsolationLevel(isolationLevel);
+    return definition;
   }
 
 }
