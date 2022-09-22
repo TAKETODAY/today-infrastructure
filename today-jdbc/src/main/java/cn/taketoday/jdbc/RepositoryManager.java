@@ -20,6 +20,7 @@
 
 package cn.taketoday.jdbc;
 
+import java.lang.reflect.UndeclaredThrowableException;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Map;
@@ -27,10 +28,12 @@ import java.util.Map;
 import javax.sql.DataSource;
 
 import cn.taketoday.beans.BeanProperty;
+import cn.taketoday.beans.factory.InitializingBean;
 import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.core.conversion.support.DefaultConversionService;
 import cn.taketoday.dao.DataAccessException;
 import cn.taketoday.format.support.ApplicationConversionService;
+import cn.taketoday.jdbc.datasource.DataSourceTransactionManager;
 import cn.taketoday.jdbc.datasource.DataSourceUtils;
 import cn.taketoday.jdbc.datasource.DriverManagerDataSource;
 import cn.taketoday.jdbc.datasource.SingleConnectionDataSource;
@@ -46,6 +49,13 @@ import cn.taketoday.jdbc.type.TypeHandler;
 import cn.taketoday.jdbc.type.TypeHandlerRegistry;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.transaction.PlatformTransactionManager;
+import cn.taketoday.transaction.TransactionDefinition;
+import cn.taketoday.transaction.TransactionException;
+import cn.taketoday.transaction.TransactionStatus;
+import cn.taketoday.transaction.TransactionSystemException;
+import cn.taketoday.transaction.support.CallbackPreferringPlatformTransactionManager;
+import cn.taketoday.transaction.support.TransactionCallback;
 
 /**
  * RepositoryManager is the main class for the today-jdbc library.
@@ -66,7 +76,7 @@ import cn.taketoday.lang.Nullable;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-public class RepositoryManager extends JdbcAccessor {
+public class RepositoryManager extends JdbcAccessor implements InitializingBean {
 
   private TypeHandlerRegistry typeHandlerRegistry = TypeHandlerRegistry.getSharedInstance();
 
@@ -83,6 +93,8 @@ public class RepositoryManager extends JdbcAccessor {
   private PrimitiveTypeNullHandler primitiveTypeNullHandler;
 
   private EntityManager entityManager;
+
+  private DataSourceTransactionManager transactionManager = new DataSourceTransactionManager();
 
   {
     // TODO Converter 问题
@@ -242,6 +254,34 @@ public class RepositoryManager extends JdbcAccessor {
 
   public boolean isCatchResourceCloseErrors() {
     return catchResourceCloseErrors;
+  }
+
+  /**
+   * Set the transaction management strategy to be used.
+   */
+  public void setTransactionManager(DataSourceTransactionManager transactionManager) {
+    Assert.notNull(transactionManager, "transactionManager is required");
+    this.transactionManager = transactionManager;
+  }
+
+  @Override
+  public void setDataSource(@Nullable DataSource dataSource) {
+    super.setDataSource(dataSource);
+    transactionManager.setDataSource(dataSource);
+  }
+
+  /**
+   * Return the transaction management strategy to be used.
+   */
+  public DataSourceTransactionManager getTransactionManager() {
+    return this.transactionManager;
+  }
+
+  @Override
+  public void afterPropertiesSet() {
+    if (this.transactionManager == null) {
+      throw new IllegalArgumentException("Property 'transactionManager' is required");
+    }
   }
 
   //
@@ -419,11 +459,28 @@ public class RepositoryManager extends JdbcAccessor {
    * @throws CannotGetJdbcConnectionException Could not acquire a connection from connection-source
    */
   public JdbcConnection beginTransaction(int isolationLevel) {
-    return beginTransaction(obtainDataSource(), isolationLevel);
+    return beginTransaction(obtainDataSource(), TransactionDefinition.forIsolationLevel(isolationLevel));
   }
 
   /**
-   * Begins a transaction with the given isolation level. Every statement executed
+   * Begins a transaction with the given {@link TransactionDefinition}.
+   * Every statement executed on the return {@link JdbcConnection} instance,
+   * will be executed in the transaction. It is very important to always
+   * call either the {@link JdbcConnection#commit()} method or the
+   * {@link JdbcConnection#rollback()} method to close the transaction. Use
+   * proper try-catch logic.
+   *
+   * @param definition the options of the transaction
+   * @return the {@link JdbcConnection} instance to use to run statements in the
+   * transaction.
+   * @throws CannotGetJdbcConnectionException Could not acquire a connection from connection-source
+   */
+  public JdbcConnection beginTransaction(@Nullable TransactionDefinition definition) {
+    return beginTransaction(obtainDataSource(), definition);
+  }
+
+  /**
+   * Begins a transaction with the {@link TransactionDefinition}. Every statement executed
    * on the return {@link JdbcConnection} instance, will be executed in the
    * transaction. It is very important to always call either the
    * {@link JdbcConnection#commit()} method or the
@@ -432,29 +489,15 @@ public class RepositoryManager extends JdbcAccessor {
    *
    * @param source the {@link DataSource} implementation substitution, that
    * will be used instead of one from {@link RepositoryManager} instance.
-   * @param isolationLevel the isolation level of the transaction
+   * @param definition the options of the transaction
    * @return the {@link JdbcConnection} instance to use to run statements in the
    * transaction.
    * @throws CannotGetJdbcConnectionException Could not acquire a connection from connection-source
    */
-  public JdbcConnection beginTransaction(DataSource source, int isolationLevel) {
-    JdbcConnection connection = new JdbcConnection(this, source, false);
-    boolean success = false;
-    try {
-      Connection root = connection.getJdbcConnection();
-      root.setAutoCommit(false);
-      root.setTransactionIsolation(isolationLevel);
-      success = true;
-    }
-    catch (SQLException e) {
-      throw translateException("Setting transaction options", null, e);
-    }
-    finally {
-      if (!success) {
-        connection.close();
-      }
-    }
-
+  public JdbcConnection beginTransaction(DataSource source, @Nullable TransactionDefinition definition) {
+    JdbcConnection connection = new JdbcConnection(this, source);
+    connection.beginTransaction(definition);
+    connection.createConnection();
     return connection;
   }
 
@@ -473,25 +516,6 @@ public class RepositoryManager extends JdbcAccessor {
    */
   public JdbcConnection beginTransaction() {
     return beginTransaction(Connection.TRANSACTION_READ_COMMITTED);
-  }
-
-  /**
-   * Begins a transaction with isolation level
-   * {@link Connection#TRANSACTION_READ_COMMITTED}. Every statement
-   * executed on the return {@link JdbcConnection} instance, will be executed in the
-   * transaction. It is very important to always call either the
-   * {@link JdbcConnection#commit()} method or the
-   * {@link JdbcConnection#rollback()} method to close the transaction. Use
-   * proper try-catch logic.
-   *
-   * @param source the {@link DataSource} implementation substitution, that
-   * will be used instead of one from {@link RepositoryManager} instance.
-   * @return the {@link JdbcConnection} instance to use to run statements in the
-   * transaction.
-   * @throws CannotGetJdbcConnectionException Could not acquire a connection from connection-source
-   */
-  public JdbcConnection beginTransaction(DataSource source) {
-    return beginTransaction(source, Connection.TRANSACTION_READ_COMMITTED);
   }
 
   /**
@@ -644,6 +668,59 @@ public class RepositoryManager extends JdbcAccessor {
     }
     connection.commit();
     return result;
+  }
+
+  public <T> T runInTransaction(TransactionCallback<T> action, @Nullable TransactionDefinition definition) throws TransactionException {
+    PlatformTransactionManager transactionManager = getTransactionManager();
+    Assert.state(transactionManager != null, "No PlatformTransactionManager set");
+
+    if (transactionManager instanceof CallbackPreferringPlatformTransactionManager) {
+      return ((CallbackPreferringPlatformTransactionManager) transactionManager).execute(definition, action);
+    }
+    else {
+      TransactionStatus status = transactionManager.getTransaction(definition);
+      T result;
+      try {
+        result = action.doInTransaction(status);
+      }
+      catch (RuntimeException | Error ex) {
+        // Transactional code threw application exception -> rollback
+        rollbackOnException(transactionManager, status, ex);
+        throw ex;
+      }
+      catch (Throwable ex) {
+        // Transactional code threw unexpected exception -> rollback
+        rollbackOnException(transactionManager, status, ex);
+        throw new UndeclaredThrowableException(ex, "TransactionCallback threw undeclared checked exception");
+      }
+      transactionManager.commit(status);
+      return result;
+    }
+  }
+
+  /**
+   * Perform a rollback, handling rollback exceptions properly.
+   *
+   * @param transactionManager PlatformTransactionManager
+   * @param status object representing the transaction
+   * @param ex the thrown application exception or error
+   * @throws TransactionException in case of a rollback error
+   */
+  private void rollbackOnException(
+          PlatformTransactionManager transactionManager, TransactionStatus status, Throwable ex) throws TransactionException {
+    logger.debug("Initiating transaction rollback on application exception", ex);
+    try {
+      transactionManager.rollback(status);
+    }
+    catch (TransactionSystemException ex2) {
+      logger.error("Application exception overridden by rollback exception", ex);
+      ex2.initApplicationException(ex);
+      throw ex2;
+    }
+    catch (RuntimeException | Error ex2) {
+      logger.error("Application exception overridden by rollback exception", ex);
+      throw ex2;
+    }
   }
 
   //

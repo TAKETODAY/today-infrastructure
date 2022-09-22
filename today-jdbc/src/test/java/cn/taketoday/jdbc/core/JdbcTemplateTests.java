@@ -20,6 +20,7 @@
 
 package cn.taketoday.jdbc.core;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -53,6 +54,7 @@ import cn.taketoday.jdbc.datasource.ConnectionProxy;
 import cn.taketoday.jdbc.datasource.SingleConnectionDataSource;
 import cn.taketoday.jdbc.support.SQLErrorCodeSQLExceptionTranslator;
 import cn.taketoday.jdbc.support.SQLStateSQLExceptionTranslator;
+import cn.taketoday.transaction.support.TransactionSynchronizationManager;
 import cn.taketoday.util.LinkedCaseInsensitiveMap;
 import cn.taketoday.util.StringUtils;
 
@@ -110,6 +112,11 @@ public class JdbcTemplateTests {
     given(this.statement.executeQuery(anyString())).willReturn(this.resultSet);
     given(this.connection.prepareCall(anyString())).willReturn(this.callableStatement);
     given(this.callableStatement.getResultSet()).willReturn(this.resultSet);
+  }
+
+  @AfterEach
+  void cleanup() {
+    TransactionSynchronizationManager.clear();
   }
 
   @Test

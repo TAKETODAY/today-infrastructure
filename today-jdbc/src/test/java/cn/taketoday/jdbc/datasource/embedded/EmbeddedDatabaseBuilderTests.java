@@ -20,6 +20,7 @@
 
 package cn.taketoday.jdbc.datasource.embedded;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.parallel.Execution;
 import org.junit.jupiter.api.parallel.ExecutionMode;
@@ -28,6 +29,7 @@ import cn.taketoday.core.io.ClassRelativeResourceLoader;
 import cn.taketoday.jdbc.core.JdbcTemplate;
 import cn.taketoday.jdbc.datasource.init.CannotReadScriptException;
 import cn.taketoday.jdbc.datasource.init.ScriptStatementFailedException;
+import cn.taketoday.transaction.support.TransactionSynchronizationManager;
 
 import static cn.taketoday.jdbc.datasource.embedded.EmbeddedDatabaseType.DERBY;
 import static cn.taketoday.jdbc.datasource.embedded.EmbeddedDatabaseType.H2;
@@ -45,6 +47,11 @@ public class EmbeddedDatabaseBuilderTests {
 
   private final EmbeddedDatabaseBuilder builder = new EmbeddedDatabaseBuilder(
           new ClassRelativeResourceLoader(getClass()));
+
+  @AfterEach
+  void cleanup() {
+    TransactionSynchronizationManager.clear();
+  }
 
   @Test
   public void addDefaultScripts() throws Exception {

@@ -27,7 +27,6 @@ import java.sql.Connection;
 
 import javax.sql.DataSource;
 
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -50,17 +49,13 @@ public class ConnectionTransactionTest {
     when(connectionMock.getAutoCommit()).thenReturn(true);
     when(connectionMock.isClosed()).thenReturn(false);
 
-    final RepositoryManager sql2o = new RepositoryManager(dataSource);
-    final JdbcConnection sql2oConnection = sql2o.beginTransaction();
-    sql2oConnection.close();
+    RepositoryManager manager = new RepositoryManager(dataSource);
+    JdbcConnection connection = manager.beginTransaction();
+    connection.close();
 
     // Verifications
     verify(dataSource).getConnection();
     verify(connectionMock, atLeastOnce()).getAutoCommit();
-    // called on beginTransaction
-    verify(connectionMock, times(1)).setAutoCommit(ArgumentMatchers.eq(false));
-    // called on closeConnection to reset autocommit state
-    verify(connectionMock, times(1)).setAutoCommit(ArgumentMatchers.eq(true));
     verify(connectionMock, atLeastOnce()).setTransactionIsolation(ArgumentMatchers.anyInt());
     verify(connectionMock, times(1)).isClosed();
     verify(connectionMock, times(1)).close();

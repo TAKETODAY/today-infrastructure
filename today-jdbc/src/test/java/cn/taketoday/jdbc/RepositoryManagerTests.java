@@ -34,6 +34,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigDecimal;
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Time;
 import java.sql.Timestamp;
@@ -61,7 +62,6 @@ import cn.taketoday.jdbc.type.BytesInputStreamTypeHandler;
 import cn.taketoday.jdbc.type.Enumerated;
 import cn.taketoday.jdbc.type.TypeHandlerRegistry;
 import cn.taketoday.jdbc.utils.IOUtils;
-import cn.taketoday.lang.NonNull;
 import cn.taketoday.util.StreamUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -758,7 +758,8 @@ public class RepositoryManagerTests extends BaseMemDbTest {
     try {
       repositoryManager.runInTransaction((StatementRunnable) (connection, argument) -> {
         connection.createQuery("insert into runinsidetransactiontable(value) values(:value)")
-                .addParameter("value", "test").executeUpdate();
+                .addParameter("value", "test")
+                .executeUpdate();
         throw new RuntimeException("ouch!");
       });
     }
@@ -770,11 +771,10 @@ public class RepositoryManagerTests extends BaseMemDbTest {
     long rowCount = (Long) repositoryManager.createQuery("select count(*) from runinsidetransactiontable").fetchScalar();
     assertEquals(0, rowCount);
 
-    repositoryManager.runInTransaction(new StatementRunnable() {
-      public void run(@NonNull JdbcConnection connection, Object argument) throws Throwable {
-        connection.createQuery("insert into runinsidetransactiontable(value) values(:value)")
-                .addParameter("value", "test").executeUpdate();
-      }
+    repositoryManager.runInTransaction((connection, argument) -> {
+      connection.createQuery("insert into runinsidetransactiontable(value) values(:value)")
+              .addParameter("value", "test")
+              .executeUpdate();
     });
 
     rowCount = (Long) repositoryManager.createQuery("select count(*) from runinsidetransactiontable").fetchScalar();
@@ -782,18 +782,16 @@ public class RepositoryManagerTests extends BaseMemDbTest {
 
     String argument = "argument test";
 
-    repositoryManager.runInTransaction(new StatementRunnable() {
-      public void run(@NonNull JdbcConnection connection, Object argument) {
-        Integer id = connection.createQuery("insert into runinsidetransactiontable(value) values(:value)")
-                .addParameter("value", argument)
-                .executeUpdate()
-                .getKey(Integer.class);
+    repositoryManager.runInTransaction((connection, argument1) -> {
+      Integer id = connection.createQuery("insert into runinsidetransactiontable(value) values(:value)")
+              .addParameter("value", argument1)
+              .executeUpdate()
+              .getKey(Integer.class);
 
-        String insertedValue = connection.createQuery("select value from runinsidetransactiontable where id = :id")
-                .addParameter("id", id)
-                .fetchScalar(String.class);
-        assertEquals("argument test", insertedValue);
-      }
+      String insertedValue = connection.createQuery("select value from runinsidetransactiontable where id = :id")
+              .addParameter("id", id)
+              .fetchScalar(String.class);
+      assertEquals("argument test", insertedValue);
     }, argument);
 
     rowCount = (Long) repositoryManager.createQuery("select count(*) from runinsidetransactiontable").fetchScalar();
@@ -1300,7 +1298,7 @@ public class RepositoryManagerTests extends BaseMemDbTest {
     }
 
     try (JdbcConnection globalConnection = repositoryManager.beginTransaction()) {
-      java.sql.Connection globalTransaction = globalConnection.getJdbcConnection();
+      Connection globalTransaction = globalConnection.getJdbcConnection();
 
       JdbcConnection connection = repositoryManager.beginTransaction(globalTransaction);
       String sql = "insert into testExternalTransactionCommit(id, val) values (:id, :val);";
@@ -1308,7 +1306,7 @@ public class RepositoryManagerTests extends BaseMemDbTest {
               .addParameter("id", 1)
               .addParameter("val", "foo")
               .executeUpdate();
-//      connection.commit();
+      connection.commit();
 
       int count = globalConnection.createQuery("select count(*) from testExternalTransactionCommit")
               .fetchFirst(Integer.class);
@@ -1347,7 +1345,7 @@ public class RepositoryManagerTests extends BaseMemDbTest {
     }
 
     try (JdbcConnection globalConnection = repositoryManager.beginTransaction()) {
-      java.sql.Connection globalTransaction = globalConnection.getJdbcConnection();
+      Connection globalTransaction = globalConnection.getJdbcConnection();
 
       JdbcConnection connection = repositoryManager.beginTransaction(globalTransaction);
       String sql = "insert into testExternalTransactionRollback(id, val) values (:id, :val);";
@@ -1375,7 +1373,8 @@ public class RepositoryManagerTests extends BaseMemDbTest {
     }
 
     try (JdbcConnection connection2 = repositoryManager.open()) {
-      int count = connection2.createQuery("select count(*) from testExternalTransactionRollback").fetchFirst(Integer.class);
+      int count = connection2.createQuery("select count(*) from testExternalTransactionRollback")
+              .fetchFirst(Integer.class);
 
       assertThat(count).isEqualTo(0);
     }

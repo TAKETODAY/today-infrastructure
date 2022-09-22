@@ -128,7 +128,7 @@ public abstract class DataSourceUtils {
           SynchronizationInfo info, DataSource dataSource) throws SQLException {
     Assert.notNull(dataSource, "No DataSource specified");
 
-    ConnectionHolder conHolder = (ConnectionHolder) info.getResource(dataSource);
+    ConnectionHolder conHolder = info.getResource(dataSource);
     if (conHolder != null && (conHolder.hasConnection() || conHolder.isSynchronizedWithTransaction())) {
       conHolder.requested();
       if (!conHolder.hasConnection()) {
@@ -300,7 +300,7 @@ public abstract class DataSourceUtils {
     if (dataSource == null) {
       return false;
     }
-    ConnectionHolder conHolder = (ConnectionHolder) TransactionSynchronizationManager.getResource(dataSource);
+    ConnectionHolder conHolder = TransactionSynchronizationManager.getResource(dataSource);
     return (conHolder != null && connectionEquals(conHolder, con));
   }
 
@@ -333,7 +333,7 @@ public abstract class DataSourceUtils {
     Assert.notNull(stmt, "No Statement specified");
     ConnectionHolder holder = null;
     if (dataSource != null) {
-      holder = (ConnectionHolder) TransactionSynchronizationManager.getResource(dataSource);
+      holder = TransactionSynchronizationManager.getResource(dataSource);
     }
     if (holder != null && holder.hasTimeout()) {
       // Remaining transaction timeout overrides specified value.
@@ -383,7 +383,7 @@ public abstract class DataSourceUtils {
   public static void doReleaseConnection(@Nullable Connection con, @Nullable DataSource dataSource) throws SQLException {
     if (con != null) {
       if (dataSource != null) {
-        ConnectionHolder conHolder = (ConnectionHolder) TransactionSynchronizationManager.getResource(dataSource);
+        ConnectionHolder conHolder = TransactionSynchronizationManager.getResource(dataSource);
         if (conHolder != null && connectionEquals(conHolder, con)) {
           // It's the transactional Connection: Don't close it.
           conHolder.released();

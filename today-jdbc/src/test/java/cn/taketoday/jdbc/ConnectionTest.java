@@ -53,7 +53,7 @@ public class ConnectionTest {
     RepositoryManager operations = new RepositoryManager(dataSource);
 
     operations.setGeneratedKeys(false);
-    JdbcConnection cn = new JdbcConnection(operations, false);
+    JdbcConnection cn = new JdbcConnection(operations, operations.getDataSource(), false);
     cn.createQueryWithParams("select :p1 name, :p2 age", "Dmitry Alexandrov", 35).buildPreparedStatement();
 
     verify(dataSource, times(1)).getConnection();
