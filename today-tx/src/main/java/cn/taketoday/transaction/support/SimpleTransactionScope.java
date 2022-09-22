@@ -53,7 +53,7 @@ public class SimpleTransactionScope implements Scope {
   public Object get(String name, Supplier<?> objectFactory) {
     SynchronizationInfo info = TransactionSynchronizationManager.getSynchronizationInfo();
 
-    ScopedObjectsHolder scopedObjects = (ScopedObjectsHolder) info.getResource(this);
+    ScopedObjectsHolder scopedObjects = info.getResource(this);
     if (scopedObjects == null) {
       scopedObjects = new ScopedObjectsHolder();
       info.registerSynchronization(new CleanupSynchronization(scopedObjects));
@@ -72,7 +72,7 @@ public class SimpleTransactionScope implements Scope {
   @Override
   @Nullable
   public Object remove(String name) {
-    ScopedObjectsHolder scopedObjects = (ScopedObjectsHolder) TransactionSynchronizationManager.getResource(this);
+    ScopedObjectsHolder scopedObjects = TransactionSynchronizationManager.getResource(this);
     if (scopedObjects != null) {
       scopedObjects.destructionCallbacks.remove(name);
       return scopedObjects.scopedInstances.remove(name);
@@ -84,7 +84,7 @@ public class SimpleTransactionScope implements Scope {
 
   @Override
   public void registerDestructionCallback(String name, Runnable callback) {
-    ScopedObjectsHolder scopedObjects = (ScopedObjectsHolder) TransactionSynchronizationManager.getResource(this);
+    ScopedObjectsHolder scopedObjects = TransactionSynchronizationManager.getResource(this);
     if (scopedObjects != null) {
       scopedObjects.destructionCallbacks.put(name, callback);
     }

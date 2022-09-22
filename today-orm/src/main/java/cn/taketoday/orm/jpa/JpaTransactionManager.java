@@ -373,7 +373,7 @@ public class JpaTransactionManager extends AbstractPlatformTransactionManager
     JpaTransactionObject txObject = new JpaTransactionObject();
     txObject.setSavepointAllowed(isNestedTransactionAllowed());
     SynchronizationInfo info = TransactionSynchronizationManager.getSynchronizationInfo();
-    EntityManagerHolder emHolder = (EntityManagerHolder) info.getResource(obtainEntityManagerFactory());
+    EntityManagerHolder emHolder = info.getResource(obtainEntityManagerFactory());
     if (emHolder != null) {
       if (logger.isDebugEnabled()) {
         logger.debug("Found thread-bound EntityManager [{}] for JPA transaction", emHolder.getEntityManager());
@@ -382,7 +382,7 @@ public class JpaTransactionManager extends AbstractPlatformTransactionManager
     }
 
     if (getDataSource() != null) {
-      ConnectionHolder conHolder = (ConnectionHolder) info.getResource(getDataSource());
+      ConnectionHolder conHolder = info.getResource(getDataSource());
       txObject.setConnectionHolder(conHolder);
     }
 

@@ -429,7 +429,7 @@ public class HibernateTransactionManager extends AbstractPlatformTransactionMana
     txObject.setSavepointAllowed(isNestedTransactionAllowed());
     SynchronizationInfo info = TransactionSynchronizationManager.getSynchronizationInfo();
     SessionFactory sessionFactory = obtainSessionFactory();
-    SessionHolder sessionHolder = (SessionHolder) info.getResource(sessionFactory);
+    SessionHolder sessionHolder = info.getResource(sessionFactory);
     if (sessionHolder != null) {
       if (logger.isDebugEnabled()) {
         logger.debug("Found thread-bound Session [{}] for Hibernate transaction", sessionHolder.getSession());
@@ -451,7 +451,7 @@ public class HibernateTransactionManager extends AbstractPlatformTransactionMana
     }
 
     if (getDataSource() != null) {
-      ConnectionHolder conHolder = (ConnectionHolder) info.getResource(getDataSource());
+      ConnectionHolder conHolder = info.getResource(getDataSource());
       txObject.setConnectionHolder(conHolder);
     }
 

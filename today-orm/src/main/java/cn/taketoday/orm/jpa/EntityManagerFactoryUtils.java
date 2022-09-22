@@ -207,7 +207,7 @@ public abstract class EntityManagerFactoryUtils {
     Assert.notNull(emf, "No EntityManagerFactory specified");
     SynchronizationInfo info = TransactionSynchronizationManager.getSynchronizationInfo();
     EntityManagerHolder emHolder =
-            (EntityManagerHolder) info.getResource(emf);
+            info.getResource(emf);
     if (emHolder != null) {
       if (synchronizedWithTransaction) {
         if (!emHolder.isSynchronizedWithTransaction()) {
@@ -346,7 +346,7 @@ public abstract class EntityManagerFactoryUtils {
    * @param emf the JPA EntityManagerFactory that the Query was created for
    */
   public static void applyTransactionTimeout(Query query, EntityManagerFactory emf) {
-    EntityManagerHolder emHolder = (EntityManagerHolder) TransactionSynchronizationManager.getResource(emf);
+    EntityManagerHolder emHolder = TransactionSynchronizationManager.getResource(emf);
     if (emHolder != null && emHolder.hasTimeout()) {
       int timeoutValue = (int) emHolder.getTimeToLiveInMillis();
       try {

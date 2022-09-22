@@ -115,7 +115,7 @@ public abstract class TransactionSynchronizationManager {
    * @see ResourceTransactionManager#getResourceFactory()
    */
   @Nullable
-  public static Object getResource(Object key) {
+  public static <T> T getResource(Object key) {
     return getSynchronizationInfo().getResource(key);
   }
 

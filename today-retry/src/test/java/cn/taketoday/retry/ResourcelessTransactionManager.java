@@ -48,7 +48,7 @@ public class ResourcelessTransactionManager extends AbstractPlatformTransactionM
     }
     else {
       @SuppressWarnings("unchecked")
-      Stack<Object> stack = (Stack<Object>) TransactionSynchronizationManager.getResource(this);
+      Stack<Object> stack = TransactionSynchronizationManager.getResource(this);
       resources = stack;
     }
     resources.push(transaction);
@@ -62,7 +62,7 @@ public class ResourcelessTransactionManager extends AbstractPlatformTransactionM
   protected boolean isExistingTransaction(Object transaction) throws TransactionException {
     if (TransactionSynchronizationManager.hasResource(this)) {
       @SuppressWarnings("unchecked")
-      Stack<Object> stack = (Stack<Object>) TransactionSynchronizationManager.getResource(this);
+      Stack<Object> stack = TransactionSynchronizationManager.getResource(this);
       return stack.size() > 1;
     }
     return ((ResourcelessTransaction) transaction).isActive();
@@ -73,7 +73,7 @@ public class ResourcelessTransactionManager extends AbstractPlatformTransactionM
 
   protected void doCleanupAfterCompletion(Object transaction) {
     @SuppressWarnings("unchecked")
-    Stack<Object> list = (Stack<Object>) TransactionSynchronizationManager.getResource(this);
+    Stack<Object> list = TransactionSynchronizationManager.getResource(this);
     Stack<Object> resources = list;
     resources.clear();
     TransactionSynchronizationManager.unbindResource(this);

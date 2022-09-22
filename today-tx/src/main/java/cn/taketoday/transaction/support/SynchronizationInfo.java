@@ -88,14 +88,15 @@ public class SynchronizationInfo implements Serializable {
    * @see ResourceTransactionManager#getResourceFactory()
    */
   @Nullable
-  public Object getResource(final Object key) {
+  @SuppressWarnings("unchecked")
+  public <T> T getResource(final Object key) {
     Object actualKey = TransactionSynchronizationUtils.unwrapResourceIfNecessary(key);
     final Object value = doGetResource(actualKey);
     if (value != null && log.isTraceEnabled()) {
       log.trace("Retrieved value [{}] for key [{}] bound to thread: [{}]",
               value, key, Thread.currentThread().getName());
     }
-    return value;
+    return (T) value;
   }
 
   /**

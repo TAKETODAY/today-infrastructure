@@ -829,7 +829,7 @@ public class HibernateTemplate implements HibernateOperations, InitializingBean 
           throws DataAccessException {
 
     Assert.notNull(criteria, "DetachedCriteria must not be null");
-    return nonNull(executeWithNativeSession((HibernateCallback<List<?>>) session -> {
+    return nonNull(executeWithNativeSession(session -> {
       Criteria executableCriteria = criteria.getExecutableCriteria(session);
       prepareCriteria(executableCriteria);
       if (firstResult >= 0) {
@@ -1075,7 +1075,7 @@ public class HibernateTemplate implements HibernateOperations, InitializingBean 
     }
 
     ResourceHolderSupport sessionHolder =
-            (ResourceHolderSupport) TransactionSynchronizationManager.getResource(obtainSessionFactory());
+            TransactionSynchronizationManager.getResource(obtainSessionFactory());
     if (sessionHolder != null && sessionHolder.hasTimeout()) {
       criteria.setTimeout(sessionHolder.getTimeToLiveInSeconds());
     }
@@ -1104,7 +1104,7 @@ public class HibernateTemplate implements HibernateOperations, InitializingBean 
     }
 
     ResourceHolderSupport sessionHolder =
-            (ResourceHolderSupport) TransactionSynchronizationManager.getResource(obtainSessionFactory());
+            TransactionSynchronizationManager.getResource(obtainSessionFactory());
     if (sessionHolder != null && sessionHolder.hasTimeout()) {
       queryObject.setTimeout(sessionHolder.getTimeToLiveInSeconds());
     }
