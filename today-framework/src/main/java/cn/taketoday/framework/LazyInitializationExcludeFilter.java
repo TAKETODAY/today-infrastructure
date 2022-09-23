@@ -21,6 +21,7 @@
 package cn.taketoday.framework;
 
 import cn.taketoday.beans.factory.config.BeanDefinition;
+import cn.taketoday.beans.factory.support.AbstractBeanDefinition;
 
 /**
  * Filter that can be used to exclude beans definitions from having their

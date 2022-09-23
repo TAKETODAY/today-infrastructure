@@ -1,7 +1,11 @@
 cn.taketoday.jdbc.config.DataSourceAutoConfiguration
-cn.taketoday.framework.annotation.config.LifecycleAutoConfiguration
-cn.taketoday.framework.annotation.config.MessageSourceAutoConfiguration
-cn.taketoday.framework.annotation.config.PropertyPlaceholderAutoConfiguration
+cn.taketoday.annotation.config.context.LifecycleAutoConfiguration
+cn.taketoday.annotation.config.context.MessageSourceAutoConfiguration
+cn.taketoday.annotation.config.context.PropertyPlaceholderAutoConfiguration
+cn.taketoday.annotation.config.task.TaskExecutionAutoConfiguration
+cn.taketoday.annotation.config.task.TaskSchedulingAutoConfiguration
+cn.taketoday.annotation.config.validation.ValidationAutoConfiguration
+
 cn.taketoday.framework.web.servlet.config.ServletWebServerFactoryAutoConfiguration
 cn.taketoday.framework.web.servlet.config.DispatcherServletAutoConfiguration
 cn.taketoday.framework.web.embedded.config.EmbeddedWebServerFactoryCustomizerAutoConfiguration

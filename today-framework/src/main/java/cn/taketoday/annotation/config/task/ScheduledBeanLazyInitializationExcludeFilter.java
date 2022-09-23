@@ -18,7 +18,7 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.framework;
+package cn.taketoday.annotation.config.task;
 
 import java.lang.reflect.Method;
 import java.util.Arrays;
@@ -33,6 +33,7 @@ import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.core.MethodIntrospector;
 import cn.taketoday.core.annotation.AnnotatedElementUtils;
 import cn.taketoday.core.annotation.AnnotationUtils;
+import cn.taketoday.framework.LazyInitializationExcludeFilter;
 import cn.taketoday.scheduling.TaskScheduler;
 import cn.taketoday.scheduling.annotation.Scheduled;
 import cn.taketoday.scheduling.annotation.Schedules;

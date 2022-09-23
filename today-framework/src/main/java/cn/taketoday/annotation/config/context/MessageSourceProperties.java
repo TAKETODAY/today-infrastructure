@@ -18,7 +18,7 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.framework.annotation.config;
+package cn.taketoday.annotation.config.context;
 
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
