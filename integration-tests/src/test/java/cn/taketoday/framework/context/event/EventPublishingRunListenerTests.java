@@ -20,22 +20,22 @@
 
 package cn.taketoday.framework.context.event;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
-import cn.taketoday.framework.ApplicationArguments;
-import cn.taketoday.framework.DefaultBootstrapContext;
-import cn.taketoday.framework.Application;
-import cn.taketoday.framework.availability.AvailabilityChangeEvent;
-import cn.taketoday.context.ApplicationEvent;
-import cn.taketoday.context.ApplicationListener;
-import cn.taketoday.context.support.StaticApplicationContext;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Deque;
 import java.util.List;
+
+import cn.taketoday.context.ApplicationEvent;
+import cn.taketoday.context.ApplicationListener;
+import cn.taketoday.context.support.StaticApplicationContext;
+import cn.taketoday.core.env.ConfigurableEnvironment;
+import cn.taketoday.core.env.StandardEnvironment;
+import cn.taketoday.framework.Application;
+import cn.taketoday.framework.DefaultBootstrapContext;
+import cn.taketoday.framework.availability.AvailabilityChangeEvent;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
@@ -48,62 +48,66 @@ import static org.mockito.Mockito.mock;
  */
 class EventPublishingRunListenerTests {
 
-	private DefaultBootstrapContext bootstrapContext = new DefaultBootstrapContext();
+  @Test
+  void shouldPublishLifecycleEvents() {
+    DefaultBootstrapContext bootstrapContext = new DefaultBootstrapContext();
+    StaticApplicationContext context = new StaticApplicationContext();
+    TestApplicationListener applicationListener = new TestApplicationListener();
+    Application application = mock(Application.class);
+    given(application.getListeners()).willReturn(Collections.singleton(applicationListener));
+    EventPublishingStartupListener publishingListener = new EventPublishingStartupListener(application, null);
+    applicationListener.assertReceivedNoEvents();
+    publishingListener.starting(bootstrapContext, null, null);
+    applicationListener.assertReceivedEvent(ApplicationStartingEvent.class);
+    publishingListener.environmentPrepared(bootstrapContext, null);
+    applicationListener.assertReceivedEvent(ApplicationEnvironmentPreparedEvent.class);
+    publishingListener.contextPrepared(context);
+    applicationListener.assertReceivedEvent(ApplicationContextInitializedEvent.class);
+    publishingListener.contextLoaded(context);
+    applicationListener.assertReceivedEvent(ApplicationPreparedEvent.class);
+    context.refresh();
+    publishingListener.started(context, null);
+    applicationListener.assertReceivedEvent(ApplicationStartedEvent.class, AvailabilityChangeEvent.class);
+    publishingListener.ready(context, null);
+    applicationListener.assertReceivedEvent(ApplicationReadyEvent.class, AvailabilityChangeEvent.class);
+  }
 
-	private Application application;
+  @Test
+  void initialEventListenerCanAddAdditionalListenersToApplication() {
+    Application application = new Application();
+    DefaultBootstrapContext bootstrapContext = new DefaultBootstrapContext();
+    ConfigurableEnvironment environment = new StandardEnvironment();
+    TestApplicationListener lateAddedApplicationListener = new TestApplicationListener();
+    ApplicationListener<ApplicationStartingEvent> listener = (event) -> event.getApplication()
+            .addListeners(lateAddedApplicationListener);
+    application.addListeners(listener);
+    EventPublishingStartupListener runListener = new EventPublishingStartupListener(application, null);
+    runListener.starting(bootstrapContext, null, null);
+    runListener.environmentPrepared(bootstrapContext, environment);
+    lateAddedApplicationListener.assertReceivedEvent(ApplicationEnvironmentPreparedEvent.class);
+  }
 
-	private EventPublishingStartupListener runListener;
+  static class TestApplicationListener implements ApplicationListener<ApplicationEvent> {
 
-	private TestApplicationListener eventListener;
+    private final Deque<ApplicationEvent> events = new ArrayDeque<>();
 
-	@BeforeEach
-	void setup() {
-		this.eventListener = new TestApplicationListener();
-		this.application = mock(Application.class);
-		given(this.application.getListeners()).willReturn(Collections.singleton(this.eventListener));
-		this.runListener = new EventPublishingStartupListener(this.application, null);
-	}
+    @Override
+    public void onApplicationEvent(ApplicationEvent event) {
+      this.events.add(event);
+    }
 
-	@Test
-	void shouldPublishLifecycleEvents() {
-		StaticApplicationContext context = new StaticApplicationContext();
-		assertThat(this.eventListener.receivedEvents()).isEmpty();
-		this.runListener.starting(this.bootstrapContext, getClass(), new ApplicationArguments());
-		checkApplicationEvents(ApplicationStartingEvent.class);
-		this.runListener.environmentPrepared(this.bootstrapContext, null);
-		checkApplicationEvents(ApplicationEnvironmentPreparedEvent.class);
-		this.runListener.contextPrepared(context);
-		checkApplicationEvents(ApplicationContextInitializedEvent.class);
-		this.runListener.contextLoaded(context);
-		checkApplicationEvents(ApplicationPreparedEvent.class);
-		context.refresh();
-		this.runListener.started(context, null);
-		checkApplicationEvents(ApplicationStartedEvent.class, AvailabilityChangeEvent.class);
-		this.runListener.ready(context, null);
-		checkApplicationEvents(ApplicationReadyEvent.class, AvailabilityChangeEvent.class);
-	}
+    void assertReceivedNoEvents() {
+      assertThat(this.events).isEmpty();
+    }
 
-	void checkApplicationEvents(Class<?>... eventClasses) {
-		assertThat(this.eventListener.receivedEvents()).extracting("class").contains((Object[]) eventClasses);
-	}
+    void assertReceivedEvent(Class<?>... eventClasses) {
+      List<ApplicationEvent> receivedEvents = new ArrayList<>();
+      while (!this.events.isEmpty()) {
+        receivedEvents.add(this.events.pollFirst());
+      }
+      assertThat(receivedEvents).extracting("class").contains(eventClasses);
+    }
 
-	static class TestApplicationListener implements ApplicationListener<ApplicationEvent> {
-
-		private Deque<ApplicationEvent> events = new ArrayDeque<>();
-
-		@Override
-		public void onApplicationEvent(ApplicationEvent event) {
-			this.events.add(event);
-		}
-
-		List<ApplicationEvent> receivedEvents() {
-			List<ApplicationEvent> receivedEvents = new ArrayList<>();
-			while (!this.events.isEmpty()) {
-				receivedEvents.add(this.events.pollFirst());
-			}
-			return receivedEvents;
-		}
-
-	}
+  }
 
 }

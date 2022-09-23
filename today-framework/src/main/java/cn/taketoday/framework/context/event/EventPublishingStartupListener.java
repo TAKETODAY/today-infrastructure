@@ -22,6 +22,7 @@ package cn.taketoday.framework.context.event;
 
 import java.time.Duration;
 
+import cn.taketoday.context.ApplicationEvent;
 import cn.taketoday.context.ApplicationListener;
 import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.context.aware.ApplicationContextAware;
@@ -78,18 +79,19 @@ public class EventPublishingStartupListener implements ApplicationStartupListene
 
   @Override
   public void starting(ConfigurableBootstrapContext bootstrapContext, Class<?> mainApplicationClass, ApplicationArguments arguments) {
-    initialMulticaster.multicastEvent(new ApplicationStartingEvent(bootstrapContext, application, args));
+    multicastInitialEvent(new ApplicationStartingEvent(bootstrapContext, application, args));
   }
 
   @Override
-  public void environmentPrepared(ConfigurableBootstrapContext bootstrapContext, ConfigurableEnvironment environment) {
-    initialMulticaster.multicastEvent(
+  public void environmentPrepared(ConfigurableBootstrapContext bootstrapContext,
+          ConfigurableEnvironment environment) {
+    multicastInitialEvent(
             new ApplicationEnvironmentPreparedEvent(bootstrapContext, application, args, environment));
   }
 
   @Override
   public void contextPrepared(ConfigurableApplicationContext context) {
-    initialMulticaster.multicastEvent(new ApplicationContextInitializedEvent(application, args, context));
+    multicastInitialEvent(new ApplicationContextInitializedEvent(application, args, context));
   }
 
   @Override
@@ -100,7 +102,7 @@ public class EventPublishingStartupListener implements ApplicationStartupListene
       }
       context.addApplicationListener(listener);
     }
-    initialMulticaster.multicastEvent(new ApplicationPreparedEvent(application, args, context));
+    multicastInitialEvent(new ApplicationPreparedEvent(application, args, context));
   }
 
   @Override
@@ -124,16 +126,25 @@ public class EventPublishingStartupListener implements ApplicationStartupListene
       context.publishEvent(event);
     }
     else {
-      // An inactive context may not have a multicaster, so we use our multicaster to
+      // An inactive context may not have a multicaster so we use our multicaster to
       // call all the context's listeners instead
-      if (context instanceof AbstractApplicationContext abstractContext) {
-        for (ApplicationListener<?> listener : abstractContext.getApplicationListeners()) {
+      if (context instanceof AbstractApplicationContext abstractApplicationContext) {
+        for (ApplicationListener<?> listener : abstractApplicationContext.getApplicationListeners()) {
           initialMulticaster.addApplicationListener(listener);
         }
       }
       initialMulticaster.setErrorHandler(new LoggingErrorHandler());
       initialMulticaster.multicastEvent(event);
     }
+  }
+
+  private void multicastInitialEvent(ApplicationEvent event) {
+    initialMulticaster.multicastEvent(event);
+    refreshApplicationListeners();
+  }
+
+  private void refreshApplicationListeners() {
+    application.getListeners().forEach(initialMulticaster::addApplicationListener);
   }
 
   private static class LoggingErrorHandler implements ErrorHandler {
