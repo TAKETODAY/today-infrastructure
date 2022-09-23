@@ -21,20 +21,23 @@
 package cn.taketoday.framework.web.servlet.server;
 
 import org.apache.catalina.webresources.TomcatURLStreamHandlerFactory;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.entity.InputStreamFactory;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.protocol.HttpClientContext;
-import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
-import org.apache.http.conn.ssl.TrustSelfSignedStrategy;
-import org.apache.http.impl.client.DefaultHttpRequestRetryHandler;
-import org.apache.http.impl.client.HttpClientBuilder;
-import org.apache.http.impl.client.HttpClients;
-import org.apache.http.impl.client.StandardHttpRequestRetryHandler;
-import org.apache.http.protocol.HttpContext;
-import org.apache.http.ssl.SSLContextBuilder;
-import org.apache.http.ssl.TrustStrategy;
+import org.apache.hc.client5.http.classic.HttpClient;
+import org.apache.hc.client5.http.classic.methods.HttpGet;
+import org.apache.hc.client5.http.entity.InputStreamFactory;
+import org.apache.hc.client5.http.impl.DefaultHttpRequestRetryStrategy;
+import org.apache.hc.client5.http.impl.classic.HttpClientBuilder;
+import org.apache.hc.client5.http.impl.classic.HttpClients;
+import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManagerBuilder;
+import org.apache.hc.client5.http.io.HttpClientConnectionManager;
+import org.apache.hc.client5.http.protocol.HttpClientContext;
+import org.apache.hc.client5.http.ssl.SSLConnectionSocketFactory;
+import org.apache.hc.client5.http.ssl.TrustSelfSignedStrategy;
+import org.apache.hc.core5.http.ClassicHttpResponse;
+import org.apache.hc.core5.http.HttpResponse;
+import org.apache.hc.core5.http.protocol.HttpContext;
+import org.apache.hc.core5.ssl.SSLContextBuilder;
+import org.apache.hc.core5.ssl.TrustStrategy;
+import org.apache.hc.core5.util.TimeValue;
 import org.apache.jasper.EmbeddedServletOptions;
 import org.apache.jasper.servlet.JspServlet;
 import org.assertj.core.api.ThrowableAssert.ThrowingCallable;
@@ -76,6 +79,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.EnumSet;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -118,12 +122,13 @@ import cn.taketoday.framework.web.server.WebServerException;
 import cn.taketoday.framework.web.servlet.FilterRegistrationBean;
 import cn.taketoday.framework.web.servlet.ServletContextInitializer;
 import cn.taketoday.framework.web.servlet.ServletRegistrationBean;
-import cn.taketoday.session.config.SameSite;
 import cn.taketoday.http.HttpMethod;
 import cn.taketoday.http.HttpStatus;
 import cn.taketoday.http.client.ClientHttpRequest;
 import cn.taketoday.http.client.ClientHttpResponse;
 import cn.taketoday.http.client.HttpComponentsClientHttpRequestFactory;
+import cn.taketoday.lang.Nullable;
+import cn.taketoday.session.config.SameSite;
 import cn.taketoday.session.config.SessionTrackingMode;
 import cn.taketoday.test.util.ReflectionTestUtils;
 import cn.taketoday.test.web.servlet.ExampleFilter;
@@ -183,11 +188,11 @@ public abstract class AbstractServletWebServerFactoryTests {
   private final HttpClientContext httpClientContext = HttpClientContext.create();
 
   private final Supplier<HttpClientBuilder> httpClientBuilder = () -> HttpClients.custom()
-          .setRetryHandler(new StandardHttpRequestRetryHandler(10, false) {
+          .setRetryStrategy(new DefaultHttpRequestRetryStrategy(10, TimeValue.ofSeconds(1)) {
 
             @Override
-            public boolean retryRequest(IOException exception, int executionCount, HttpContext context) {
-              boolean retry = super.retryRequest(exception, executionCount, context);
+            public boolean retryRequest(HttpResponse response, int execCount, HttpContext context) {
+              boolean retry = super.retryRequest(response, execCount, context);
               if (retry) {
                 try {
                   Thread.sleep(200);
@@ -451,7 +456,12 @@ public abstract class AbstractServletWebServerFactoryTests {
     this.webServer.start();
     SSLConnectionSocketFactory socketFactory = new SSLConnectionSocketFactory(
             new SSLContextBuilder().loadTrustMaterial(null, new TrustSelfSignedStrategy()).build());
-    HttpClient httpClient = HttpClients.custom().setSSLSocketFactory(socketFactory).build();
+
+    HttpClientConnectionManager cm = PoolingHttpClientConnectionManagerBuilder.create()
+            .setSSLSocketFactory(socketFactory)
+            .build();
+
+    HttpClient httpClient = HttpClients.custom().setConnectionManager(cm).build();
     HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory(httpClient);
     assertThatExceptionOfType(SSLException.class)
             .isThrownBy(() -> getResponse(getLocalUrl("https", "/hello"), requestFactory));
@@ -465,7 +475,12 @@ public abstract class AbstractServletWebServerFactoryTests {
     this.webServer.start();
     SSLConnectionSocketFactory socketFactory = new SSLConnectionSocketFactory(
             new SSLContextBuilder().loadTrustMaterial(null, new TrustSelfSignedStrategy()).build());
-    HttpClient httpClient = HttpClients.custom().setSSLSocketFactory(socketFactory).build();
+
+    HttpClientConnectionManager cm = PoolingHttpClientConnectionManagerBuilder.create()
+            .setSSLSocketFactory(socketFactory)
+            .build();
+
+    HttpClient httpClient = HttpClients.custom().setConnectionManager(cm).build();
     HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory(httpClient);
     assertThat(getResponse(getLocalUrl("https", "/hello"), requestFactory)).contains("scheme=https");
   }
@@ -481,8 +496,12 @@ public abstract class AbstractServletWebServerFactoryTests {
     this.webServer.start();
     TrustStrategy trustStrategy = new SerialNumberValidatingTrustSelfSignedStrategy("3a3aaec8");
     SSLContext sslContext = new SSLContextBuilder().loadTrustMaterial(null, trustStrategy).build();
-    HttpClient httpClient = HttpClients.custom().setSSLSocketFactory(new SSLConnectionSocketFactory(sslContext))
+
+    HttpClientConnectionManager cm = PoolingHttpClientConnectionManagerBuilder.create()
+            .setSSLSocketFactory(new SSLConnectionSocketFactory(sslContext))
             .build();
+
+    HttpClient httpClient = HttpClients.custom().setConnectionManager(cm).build();
     String response = getResponse(getLocalUrl("https", "/hello"),
             new HttpComponentsClientHttpRequestFactory(httpClient));
     assertThat(response).contains("scheme=https");
@@ -511,7 +530,12 @@ public abstract class AbstractServletWebServerFactoryTests {
     this.webServer.start();
     SSLConnectionSocketFactory socketFactory = new SSLConnectionSocketFactory(
             new SSLContextBuilder().loadTrustMaterial(null, new TrustSelfSignedStrategy()).build());
-    HttpClient httpClient = this.httpClientBuilder.get().setSSLSocketFactory(socketFactory).build();
+
+    HttpClientConnectionManager cm = PoolingHttpClientConnectionManagerBuilder.create()
+            .setSSLSocketFactory(socketFactory)
+            .build();
+
+    HttpClient httpClient = this.httpClientBuilder.get().setConnectionManager(cm).build();
     ClientHttpResponse response = getClientResponse(getLocalUrl("https", "/hello"), HttpMethod.GET,
             new HttpComponentsClientHttpRequestFactory(httpClient));
     assertThat(response.getHeaders().get("Server")).isNullOrEmpty();
@@ -526,8 +550,16 @@ public abstract class AbstractServletWebServerFactoryTests {
     this.webServer.start();
     SSLConnectionSocketFactory socketFactory = new SSLConnectionSocketFactory(
             new SSLContextBuilder().loadTrustMaterial(null, new TrustSelfSignedStrategy()).build());
-    HttpClient httpClient = this.httpClientBuilder.get().setSSLSocketFactory(socketFactory)
-            .setRetryHandler(new DefaultHttpRequestRetryHandler(10, false)).build();
+
+    HttpClientConnectionManager cm = PoolingHttpClientConnectionManagerBuilder.create()
+            .setSSLSocketFactory(socketFactory)
+            .build();
+
+    HttpClient httpClient = this.httpClientBuilder.get()
+            .setConnectionManager(cm)
+            .setRetryStrategy(new DefaultHttpRequestRetryStrategy(10, TimeValue.ofSeconds(1)))
+            .build();
+
     ClientHttpResponse response = getClientResponse(getLocalUrl("https", "/hello"), HttpMethod.GET,
             new HttpComponentsClientHttpRequestFactory(httpClient));
     assertThat(response.getHeaders().get("Server")).containsExactly("MyServer");
@@ -541,7 +573,11 @@ public abstract class AbstractServletWebServerFactoryTests {
     this.webServer.start();
     SSLConnectionSocketFactory socketFactory = new SSLConnectionSocketFactory(
             new SSLContextBuilder().loadTrustMaterial(null, new TrustSelfSignedStrategy()).build());
-    HttpClient httpClient = this.httpClientBuilder.get().setSSLSocketFactory(socketFactory).build();
+    HttpClientConnectionManager cm = PoolingHttpClientConnectionManagerBuilder.create()
+            .setSSLSocketFactory(socketFactory)
+            .build();
+
+    HttpClient httpClient = this.httpClientBuilder.get().setConnectionManager(cm).build();
     HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory(httpClient);
     assertThat(getResponse(getLocalUrl("https", "/test.txt"), requestFactory)).isEqualTo("test");
   }
@@ -558,7 +594,12 @@ public abstract class AbstractServletWebServerFactoryTests {
     SSLConnectionSocketFactory socketFactory = new SSLConnectionSocketFactory(
             new SSLContextBuilder().loadTrustMaterial(null, new TrustSelfSignedStrategy())
                     .loadKeyMaterial(keyStore, "secret".toCharArray()).build());
-    HttpClient httpClient = this.httpClientBuilder.get().setSSLSocketFactory(socketFactory).build();
+
+    HttpClientConnectionManager cm = PoolingHttpClientConnectionManagerBuilder.create()
+            .setSSLSocketFactory(socketFactory)
+            .build();
+
+    HttpClient httpClient = this.httpClientBuilder.get().setConnectionManager(cm).build();
     HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory(httpClient);
     assertThat(getResponse(getLocalUrl("https", "/test.txt"), requestFactory)).isEqualTo("test");
   }
@@ -575,7 +616,11 @@ public abstract class AbstractServletWebServerFactoryTests {
     SSLConnectionSocketFactory socketFactory = new SSLConnectionSocketFactory(
             new SSLContextBuilder().loadTrustMaterial(null, new TrustSelfSignedStrategy())
                     .loadKeyMaterial(keyStore, "secret".toCharArray()).build());
-    HttpClient httpClient = this.httpClientBuilder.get().setSSLSocketFactory(socketFactory).build();
+    HttpClientConnectionManager cm = PoolingHttpClientConnectionManagerBuilder.create()
+            .setSSLSocketFactory(socketFactory)
+            .build();
+
+    HttpClient httpClient = this.httpClientBuilder.get().setConnectionManager(cm).build();
     HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory(httpClient);
     assertThat(getResponse(getLocalUrl("https", "/test.txt"), requestFactory)).isEqualTo("test");
   }
@@ -593,7 +638,12 @@ public abstract class AbstractServletWebServerFactoryTests {
     SSLConnectionSocketFactory socketFactory = new SSLConnectionSocketFactory(
             new SSLContextBuilder().loadTrustMaterial(null, new TrustSelfSignedStrategy())
                     .loadKeyMaterial(keyStore, "password".toCharArray()).build());
-    HttpClient httpClient = this.httpClientBuilder.get().setSSLSocketFactory(socketFactory).build();
+
+    HttpClientConnectionManager cm = PoolingHttpClientConnectionManagerBuilder.create()
+            .setSSLSocketFactory(socketFactory)
+            .build();
+
+    HttpClient httpClient = this.httpClientBuilder.get().setConnectionManager(cm).build();
     HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory(httpClient);
     assertThat(getResponse(getLocalUrl("https", "/test.txt"), requestFactory)).isEqualTo("test");
   }
@@ -607,7 +657,11 @@ public abstract class AbstractServletWebServerFactoryTests {
     this.webServer.start();
     SSLConnectionSocketFactory socketFactory = new SSLConnectionSocketFactory(
             new SSLContextBuilder().loadTrustMaterial(null, new TrustSelfSignedStrategy()).build());
-    HttpClient httpClient = this.httpClientBuilder.get().setSSLSocketFactory(socketFactory).build();
+    HttpClientConnectionManager cm = PoolingHttpClientConnectionManagerBuilder.create()
+            .setSSLSocketFactory(socketFactory)
+            .build();
+
+    HttpClient httpClient = this.httpClientBuilder.get().setConnectionManager(cm).build();
     HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory(httpClient);
     String localUrl = getLocalUrl("https", "/test.txt");
     assertThatIOException().isThrownBy(() -> getResponse(localUrl, requestFactory));
@@ -626,7 +680,12 @@ public abstract class AbstractServletWebServerFactoryTests {
     SSLConnectionSocketFactory socketFactory = new SSLConnectionSocketFactory(
             new SSLContextBuilder().loadTrustMaterial(null, new TrustSelfSignedStrategy())
                     .loadKeyMaterial(keyStore, "password".toCharArray()).build());
-    HttpClient httpClient = this.httpClientBuilder.get().setSSLSocketFactory(socketFactory).build();
+
+    HttpClientConnectionManager cm = PoolingHttpClientConnectionManagerBuilder.create()
+            .setSSLSocketFactory(socketFactory)
+            .build();
+
+    HttpClient httpClient = this.httpClientBuilder.get().setConnectionManager(cm).build();
     HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory(httpClient);
     assertThat(getResponse(getLocalUrl("https", "/test.txt"), requestFactory)).isEqualTo("test");
   }
@@ -640,7 +699,12 @@ public abstract class AbstractServletWebServerFactoryTests {
     this.webServer.start();
     SSLConnectionSocketFactory socketFactory = new SSLConnectionSocketFactory(
             new SSLContextBuilder().loadTrustMaterial(null, new TrustSelfSignedStrategy()).build());
-    HttpClient httpClient = this.httpClientBuilder.get().setSSLSocketFactory(socketFactory).build();
+
+    HttpClientConnectionManager cm = PoolingHttpClientConnectionManagerBuilder.create()
+            .setSSLSocketFactory(socketFactory)
+            .build();
+
+    HttpClient httpClient = this.httpClientBuilder.get().setConnectionManager(cm).build();
     HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory(httpClient);
     assertThat(getResponse(getLocalUrl("https", "/test.txt"), requestFactory)).isEqualTo("test");
   }
@@ -664,7 +728,13 @@ public abstract class AbstractServletWebServerFactoryTests {
     SSLConnectionSocketFactory socketFactory = new SSLConnectionSocketFactory(
             new SSLContextBuilder().loadTrustMaterial(null, new TrustSelfSignedStrategy())
                     .loadKeyMaterial(keyStore, "password".toCharArray()).build());
-    HttpClient httpClient = this.httpClientBuilder.get().setSSLSocketFactory(socketFactory).build();
+
+    HttpClientConnectionManager cm = PoolingHttpClientConnectionManagerBuilder.create()
+            .setSSLSocketFactory(socketFactory)
+            .build();
+
+    HttpClient httpClient = this.httpClientBuilder.get().setConnectionManager(cm).build();
+
     HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory(httpClient);
     assertThat(getResponse(getLocalUrl("https", "/test.txt"), requestFactory)).isEqualTo("test");
     then(sslStoreProvider).should(atLeastOnce()).getKeyStore();
@@ -689,11 +759,11 @@ public abstract class AbstractServletWebServerFactoryTests {
     assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
   }
 
-  protected Ssl getSsl(ClientAuth clientAuth, String keyPassword, String keyStore) {
+  protected Ssl getSsl(@Nullable ClientAuth clientAuth, String keyPassword, String keyStore) {
     return getSsl(clientAuth, keyPassword, keyStore, null, null, null);
   }
 
-  protected Ssl getSsl(ClientAuth clientAuth, String keyPassword, String keyAlias, String keyStore) {
+  protected Ssl getSsl(@Nullable ClientAuth clientAuth, String keyPassword, String keyAlias, String keyStore) {
     return getSsl(clientAuth, keyPassword, keyAlias, keyStore, null, null, null);
   }
 
@@ -702,8 +772,9 @@ public abstract class AbstractServletWebServerFactoryTests {
     return getSsl(clientAuth, keyPassword, null, keyStore, trustStore, supportedProtocols, ciphers);
   }
 
-  private Ssl getSsl(ClientAuth clientAuth, String keyPassword, String keyAlias, String keyStore, String trustStore,
-          String[] supportedProtocols, String[] ciphers) {
+  private Ssl getSsl(@Nullable ClientAuth clientAuth, @Nullable String keyPassword,
+          @Nullable String keyAlias, @Nullable String keyStore, @Nullable String trustStore,
+          @Nullable String[] supportedProtocols, @Nullable String[] ciphers) {
     Ssl ssl = new Ssl();
     ssl.setClientAuth(clientAuth);
     if (keyPassword != null) {
@@ -748,7 +819,11 @@ public abstract class AbstractServletWebServerFactoryTests {
     this.webServer.start();
     SSLConnectionSocketFactory socketFactory = new SSLConnectionSocketFactory(
             new SSLContextBuilder().loadTrustMaterial(null, new TrustSelfSignedStrategy()).build());
-    HttpClient httpClient = this.httpClientBuilder.get().setSSLSocketFactory(socketFactory).build();
+    HttpClientConnectionManager cm = PoolingHttpClientConnectionManagerBuilder.create()
+            .setSSLSocketFactory(socketFactory)
+            .build();
+
+    HttpClient httpClient = this.httpClientBuilder.get().setConnectionManager(cm).build();
     HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory(httpClient);
     assertThat(getResponse(getLocalUrl("https", "/hello"), requestFactory)).contains("scheme=https");
   }
@@ -944,7 +1019,9 @@ public abstract class AbstractServletWebServerFactoryTests {
     this.webServer = factory.getWebServer(new ServletRegistrationBean<>(new ExampleServlet(false, true), "/hello"));
     this.webServer.start();
     TestGzipInputStreamFactory inputStreamFactory = new TestGzipInputStreamFactory();
-    Map<String, InputStreamFactory> contentDecoderMap = Collections.singletonMap("gzip", inputStreamFactory);
+
+    LinkedHashMap<String, InputStreamFactory> contentDecoderMap = new LinkedHashMap<>(Collections.singletonMap("gzip", inputStreamFactory));
+
     getResponse(getLocalUrl("/hello"), new HttpComponentsClientHttpRequestFactory(
             this.httpClientBuilder.get().setContentDecoderRegistry(contentDecoderMap).build()));
     assertThat(inputStreamFactory.wasCompressionUsed()).isTrue();
@@ -1275,7 +1352,8 @@ public abstract class AbstractServletWebServerFactoryTests {
   protected Future<Object> initiateGetRequest(HttpClient httpClient, int port, String path) {
     RunnableFuture<Object> getRequest = new FutureTask<>(() -> {
       try {
-        HttpResponse response = httpClient.execute(new HttpGet("http://localhost:" + port + path));
+        ClassicHttpResponse response = (ClassicHttpResponse) httpClient.execute(new HttpGet("http://localhost:" + port + path));
+
         response.getEntity().getContent().close();
         return response;
       }
@@ -1314,7 +1392,7 @@ public abstract class AbstractServletWebServerFactoryTests {
           HttpMethod method) throws Exception {
     String testContent = setUpFactoryForCompression(contentSize, mimeTypes, excludedUserAgents);
     TestGzipInputStreamFactory inputStreamFactory = new TestGzipInputStreamFactory();
-    Map<String, InputStreamFactory> contentDecoderMap = Collections.singletonMap("gzip", inputStreamFactory);
+    LinkedHashMap<String, InputStreamFactory> contentDecoderMap = new LinkedHashMap<>(Collections.singletonMap("gzip", inputStreamFactory));
     String response = getResponse(getLocalUrl("/test.txt"), method,
             new HttpComponentsClientHttpRequestFactory(HttpClientBuilder.create().setUserAgent("testUserAgent")
                     .setContentDecoderRegistry(contentDecoderMap).build()));

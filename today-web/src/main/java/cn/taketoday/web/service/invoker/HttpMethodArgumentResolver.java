@@ -20,13 +20,12 @@
 
 package cn.taketoday.web.service.invoker;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import cn.taketoday.core.MethodParameter;
 import cn.taketoday.http.HttpMethod;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.logging.Logger;
+import cn.taketoday.logging.LoggerFactory;
 
 /**
  * {@link HttpServiceArgumentResolver} that resolves the target
@@ -38,7 +37,7 @@ import cn.taketoday.lang.Nullable;
  */
 public class HttpMethodArgumentResolver implements HttpServiceArgumentResolver {
 
-  private static final Log logger = LogFactory.getLog(HttpMethodArgumentResolver.class);
+  private static final Logger logger = LoggerFactory.getLogger(HttpMethodArgumentResolver.class);
 
   @Override
   public boolean resolve(
@@ -52,7 +51,7 @@ public class HttpMethodArgumentResolver implements HttpServiceArgumentResolver {
     HttpMethod httpMethod = (HttpMethod) argument;
     requestValues.setHttpMethod(httpMethod);
     if (logger.isTraceEnabled()) {
-      logger.trace("Resolved HTTP method to: " + httpMethod.name());
+      logger.trace("Resolved HTTP method to: {}", httpMethod.name());
     }
 
     return true;

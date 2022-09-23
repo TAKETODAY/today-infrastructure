@@ -20,23 +20,27 @@
 
 package cn.taketoday.http.client;
 
-import org.apache.http.Header;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpEntityEnclosingRequest;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpUriRequest;
-import org.apache.http.message.BasicHeader;
-import org.apache.http.protocol.HttpContext;
+import org.apache.hc.client5.http.classic.HttpClient;
+import org.apache.hc.core5.function.Supplier;
+import org.apache.hc.core5.http.ClassicHttpRequest;
+import org.apache.hc.core5.http.ClassicHttpResponse;
+import org.apache.hc.core5.http.Header;
+import org.apache.hc.core5.http.HttpEntity;
+import org.apache.hc.core5.http.HttpResponse;
+import org.apache.hc.core5.http.protocol.HttpContext;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.List;
+import java.util.Set;
 
 import cn.taketoday.http.HttpHeaders;
-import cn.taketoday.http.MediaType;
+import cn.taketoday.http.HttpMethod;
 import cn.taketoday.http.StreamingHttpOutputMessage;
+import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 
 /**
@@ -53,26 +57,39 @@ final class HttpComponentsStreamingClientHttpRequest
         extends AbstractClientHttpRequest implements StreamingHttpOutputMessage {
 
   private final HttpClient httpClient;
+
+  private final ClassicHttpRequest httpRequest;
+
   private final HttpContext httpContext;
-  private final HttpUriRequest httpRequest;
 
   @Nullable
   private Body body;
 
-  HttpComponentsStreamingClientHttpRequest(HttpClient client, HttpUriRequest request, HttpContext context) {
+  HttpComponentsStreamingClientHttpRequest(HttpClient client, ClassicHttpRequest request, HttpContext context) {
     this.httpClient = client;
     this.httpRequest = request;
     this.httpContext = context;
   }
 
   @Override
+  public HttpMethod getMethod() {
+    return HttpMethod.valueOf(this.httpRequest.getMethod());
+  }
+
+  @Override
+  @Deprecated
   public String getMethodValue() {
     return this.httpRequest.getMethod();
   }
 
   @Override
   public URI getURI() {
-    return this.httpRequest.getURI();
+    try {
+      return this.httpRequest.getUri();
+    }
+    catch (URISyntaxException ex) {
+      throw new IllegalStateException(ex.getMessage(), ex);
+    }
   }
 
   @Override
@@ -82,22 +99,22 @@ final class HttpComponentsStreamingClientHttpRequest
   }
 
   @Override
-  protected OutputStream getBodyInternal(HttpHeaders headers) throws IOException {
+  protected OutputStream getBodyInternal(HttpHeaders headers) {
     throw new UnsupportedOperationException("getBody not supported");
   }
 
   @Override
   protected ClientHttpResponse executeInternal(HttpHeaders headers) throws IOException {
-    HttpComponentsClientHttpRequest.addHeaders(this.httpRequest, headers);
+    HttpComponentsClientHttpRequest.addHeaders(httpRequest, headers);
 
-    if (this.body != null
-            && this.httpRequest instanceof HttpEntityEnclosingRequest entityEnclosingRequest) {
+    if (this.body != null) {
       HttpEntity requestEntity = new StreamingHttpEntity(getHeaders(), this.body);
-      entityEnclosingRequest.setEntity(requestEntity);
+      httpRequest.setEntity(requestEntity);
     }
-
-    HttpResponse httpResponse = this.httpClient.execute(this.httpRequest, this.httpContext);
-    return new HttpComponentsClientHttpResponse(httpResponse);
+    HttpResponse httpResponse = httpClient.execute(this.httpRequest, this.httpContext);
+    Assert.isInstanceOf(ClassicHttpResponse.class, httpResponse,
+            "HttpResponse not an instance of ClassicHttpResponse");
+    return new HttpComponentsClientHttpResponse((ClassicHttpResponse) httpResponse);
   }
 
   private record StreamingHttpEntity(HttpHeaders headers, Body body) implements HttpEntity {
@@ -119,24 +136,18 @@ final class HttpComponentsStreamingClientHttpRequest
 
     @Override
     @Nullable
-    public Header getContentType() {
-      MediaType contentType = this.headers.getContentType();
-      return contentType != null
-             ? new BasicHeader(HttpHeaders.CONTENT_TYPE, contentType.toString())
-             : null;
+    public String getContentType() {
+      return this.headers.getFirst(HttpHeaders.CONTENT_TYPE);
     }
 
     @Override
     @Nullable
-    public Header getContentEncoding() {
-      String contentEncoding = this.headers.getFirst(HttpHeaders.CONTENT_ENCODING);
-      return contentEncoding != null
-             ? new BasicHeader(HttpHeaders.CONTENT_ENCODING, contentEncoding)
-             : null;
+    public String getContentEncoding() {
+      return this.headers.getFirst(HttpHeaders.CONTENT_ENCODING);
     }
 
     @Override
-    public InputStream getContent() throws IOException, IllegalStateException {
+    public InputStream getContent() throws IllegalStateException {
       throw new IllegalStateException("No content available");
     }
 
@@ -151,9 +162,19 @@ final class HttpComponentsStreamingClientHttpRequest
     }
 
     @Override
-    public void consumeContent() {
-      throw new UnsupportedOperationException();
+    @Nullable
+    public Supplier<List<? extends Header>> getTrailers() {
+      return null;
     }
+
+    @Override
+    @Nullable
+    public Set<String> getTrailerNames() {
+      return null;
+    }
+
+    @Override
+    public void close() throws IOException { }
   }
 
 }

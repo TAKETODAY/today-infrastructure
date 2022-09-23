@@ -20,22 +20,25 @@
 
 package cn.taketoday.http.client;
 
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpEntityEnclosingRequest;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpUriRequest;
-import org.apache.http.entity.ByteArrayEntity;
-import org.apache.http.protocol.HTTP;
-import org.apache.http.protocol.HttpContext;
+import org.apache.hc.client5.http.classic.HttpClient;
+import org.apache.hc.client5.http.classic.methods.HttpUriRequest;
+import org.apache.hc.core5.http.ClassicHttpRequest;
+import org.apache.hc.core5.http.ClassicHttpResponse;
+import org.apache.hc.core5.http.ContentType;
+import org.apache.hc.core5.http.HttpEntity;
+import org.apache.hc.core5.http.HttpResponse;
+import org.apache.hc.core5.http.io.entity.ByteArrayEntity;
+import org.apache.hc.core5.http.protocol.HttpContext;
 
 import java.io.IOException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Map;
 
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpMethod;
+import cn.taketoday.lang.Assert;
 import cn.taketoday.util.StringUtils;
 
 /**
@@ -54,9 +57,9 @@ final class HttpComponentsClientHttpRequest extends AbstractBufferingClientHttpR
 
   private final HttpClient httpClient;
   private final HttpContext httpContext;
-  private final HttpUriRequest httpRequest;
+  private final ClassicHttpRequest httpRequest;
 
-  HttpComponentsClientHttpRequest(HttpClient client, HttpUriRequest request, HttpContext context) {
+  HttpComponentsClientHttpRequest(HttpClient client, ClassicHttpRequest request, HttpContext context) {
     this.httpClient = client;
     this.httpRequest = request;
     this.httpContext = context;
@@ -69,7 +72,12 @@ final class HttpComponentsClientHttpRequest extends AbstractBufferingClientHttpR
 
   @Override
   public URI getURI() {
-    return this.httpRequest.getURI();
+    try {
+      return this.httpRequest.getUri();
+    }
+    catch (URISyntaxException ex) {
+      throw new IllegalStateException(ex.getMessage(), ex);
+    }
   }
 
   HttpContext getHttpContext() {
@@ -80,12 +88,13 @@ final class HttpComponentsClientHttpRequest extends AbstractBufferingClientHttpR
   protected ClientHttpResponse executeInternal(HttpHeaders headers, byte[] bufferedOutput) throws IOException {
     addHeaders(this.httpRequest, headers);
 
-    if (this.httpRequest instanceof HttpEntityEnclosingRequest entityEnclosingRequest) {
-      HttpEntity requestEntity = new ByteArrayEntity(bufferedOutput);
-      entityEnclosingRequest.setEntity(requestEntity);
-    }
+    ContentType contentType = ContentType.parse(headers.getFirst(HttpHeaders.CONTENT_TYPE));
+    HttpEntity requestEntity = new ByteArrayEntity(bufferedOutput, contentType);
+    this.httpRequest.setEntity(requestEntity);
     HttpResponse httpResponse = this.httpClient.execute(this.httpRequest, this.httpContext);
-    return new HttpComponentsClientHttpResponse(httpResponse);
+    Assert.isInstanceOf(ClassicHttpResponse.class, httpResponse,
+            "HttpResponse not an instance of ClassicHttpResponse");
+    return new HttpComponentsClientHttpResponse((ClassicHttpResponse) httpResponse);
   }
 
   /**
@@ -94,15 +103,15 @@ final class HttpComponentsClientHttpRequest extends AbstractBufferingClientHttpR
    * @param httpRequest the request to add the headers to
    * @param headers the headers to add
    */
-  static void addHeaders(HttpUriRequest httpRequest, HttpHeaders headers) {
+  static void addHeaders(ClassicHttpRequest httpRequest, HttpHeaders headers) {
     for (Map.Entry<String, List<String>> entry : headers.entrySet()) {
       String headerName = entry.getKey();
       if (HttpHeaders.COOKIE.equalsIgnoreCase(headerName)) {  // RFC 6265
         String headerValue = StringUtils.collectionToDelimitedString(entry.getValue(), "; ");
         httpRequest.addHeader(headerName, headerValue);
       }
-      else if (!HTTP.CONTENT_LEN.equalsIgnoreCase(headerName)
-              && !HTTP.TRANSFER_ENCODING.equalsIgnoreCase(headerName)) {
+      else if (!HttpHeaders.CONTENT_LENGTH.equalsIgnoreCase(headerName)
+              && !HttpHeaders.TRANSFER_ENCODING.equalsIgnoreCase(headerName)) {
         for (String headerValue : entry.getValue()) {
           httpRequest.addHeader(headerName, headerValue);
         }

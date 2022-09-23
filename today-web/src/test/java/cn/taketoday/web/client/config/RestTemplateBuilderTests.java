@@ -20,7 +20,7 @@
 
 package cn.taketoday.web.client.config;
 
-import org.apache.http.client.config.RequestConfig;
+import org.apache.hc.client5.http.config.RequestConfig;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -476,7 +476,8 @@ class RestTemplateBuilderTests {
     ClientHttpRequestFactory requestFactory = this.builder
             .requestFactory(HttpComponentsClientHttpRequestFactory.class).setReadTimeout(Duration.ofMillis(1234))
             .build().getRequestFactory();
-    assertThat(((RequestConfig) ReflectionTestUtils.getField(requestFactory, "requestConfig")).getSocketTimeout())
+    assertThat(((RequestConfig) ReflectionTestUtils.getField(requestFactory, "requestConfig"))
+            .getSocketTimeout())
             .isEqualTo(1234);
   }
 
@@ -525,7 +526,7 @@ class RestTemplateBuilderTests {
     ClientHttpRequestFactory requestFactory = this.builder.requestFactory(OkHttp3ClientHttpRequestFactory.class)
             .setConnectTimeout(Duration.ofMillis(1234)).build().getRequestFactory();
     assertThat(
-                    ReflectionTestUtils.getField(ReflectionTestUtils.getField(requestFactory, "client"), "connectTimeoutMillis"))
+            ReflectionTestUtils.getField(ReflectionTestUtils.getField(requestFactory, "client"), "connectTimeoutMillis"))
             .isEqualTo(1234);
   }
 

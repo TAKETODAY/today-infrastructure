@@ -20,16 +20,16 @@
 
 package cn.taketoday.http.client;
 
-import org.apache.http.Header;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.util.EntityUtils;
+import org.apache.hc.core5.http.ClassicHttpResponse;
+import org.apache.hc.core5.http.Header;
+import org.apache.hc.core5.http.HttpEntity;
+import org.apache.hc.core5.http.io.entity.EntityUtils;
 
-import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 
 import cn.taketoday.http.HttpHeaders;
+import cn.taketoday.http.HttpStatusCode;
 import cn.taketoday.lang.Nullable;
 
 /**
@@ -45,30 +45,36 @@ import cn.taketoday.lang.Nullable;
  */
 final class HttpComponentsClientHttpResponse extends AbstractClientHttpResponse {
 
-  private final HttpResponse httpResponse;
+  private final ClassicHttpResponse httpResponse;
 
   @Nullable
   private HttpHeaders headers;
 
-  HttpComponentsClientHttpResponse(HttpResponse httpResponse) {
+  HttpComponentsClientHttpResponse(ClassicHttpResponse httpResponse) {
     this.httpResponse = httpResponse;
   }
 
   @Override
-  public int getRawStatusCode() throws IOException {
-    return this.httpResponse.getStatusLine().getStatusCode();
+  public HttpStatusCode getStatusCode() {
+    return HttpStatusCode.valueOf(this.httpResponse.getCode());
   }
 
   @Override
-  public String getStatusText() throws IOException {
-    return this.httpResponse.getStatusLine().getReasonPhrase();
+  @Deprecated
+  public int getRawStatusCode() {
+    return this.httpResponse.getCode();
+  }
+
+  @Override
+  public String getStatusText() {
+    return this.httpResponse.getReasonPhrase();
   }
 
   @Override
   public HttpHeaders getHeaders() {
     if (this.headers == null) {
       this.headers = HttpHeaders.create();
-      for (Header header : this.httpResponse.getAllHeaders()) {
+      for (Header header : this.httpResponse.getHeaders()) {
         this.headers.add(header.getName(), header.getValue());
       }
     }
@@ -90,9 +96,7 @@ final class HttpComponentsClientHttpResponse extends AbstractClientHttpResponse 
         EntityUtils.consume(this.httpResponse.getEntity());
       }
       finally {
-        if (this.httpResponse instanceof Closeable) {
-          ((Closeable) this.httpResponse).close();
-        }
+        this.httpResponse.close();
       }
     }
     catch (IOException ex) {
