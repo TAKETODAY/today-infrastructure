@@ -25,7 +25,6 @@ import java.util.Collections;
 import java.util.Set;
 
 import cn.taketoday.context.MessageSource;
-import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.ConditionEvaluationContext;
 import cn.taketoday.context.annotation.Conditional;
 import cn.taketoday.context.annotation.config.AutoConfiguration;
@@ -45,6 +44,7 @@ import cn.taketoday.core.io.PathMatchingPatternResourceLoader;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.core.type.AnnotatedTypeMetadata;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.stereotype.Component;
 import cn.taketoday.util.ConcurrentReferenceHashMap;
 import cn.taketoday.util.StringUtils;
 
@@ -63,13 +63,13 @@ import cn.taketoday.util.StringUtils;
 @EnableConfigurationProperties
 public class MessageSourceAutoConfiguration {
 
-  @Bean
-  @ConfigurationProperties(prefix = "context.messages")
+  @Component
+  @ConfigurationProperties(prefix = "infra.messages")
   public MessageSourceProperties messageSourceProperties() {
     return new MessageSourceProperties();
   }
 
-  @Bean
+  @Component
   public MessageSource messageSource(MessageSourceProperties properties) {
     ResourceBundleMessageSource messageSource = new ResourceBundleMessageSource();
     if (StringUtils.hasText(properties.getBasename())) {

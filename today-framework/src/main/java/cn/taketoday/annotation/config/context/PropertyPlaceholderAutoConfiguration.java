@@ -19,7 +19,6 @@
  */
 package cn.taketoday.annotation.config.context;
 
-import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.config.AutoConfiguration;
 import cn.taketoday.context.annotation.config.AutoConfigureOrder;
 import cn.taketoday.context.annotation.config.EnableAutoConfiguration;
@@ -27,6 +26,7 @@ import cn.taketoday.context.condition.ConditionalOnMissingBean;
 import cn.taketoday.context.condition.SearchStrategy;
 import cn.taketoday.context.support.PropertySourcesPlaceholderConfigurer;
 import cn.taketoday.core.Ordered;
+import cn.taketoday.stereotype.Component;
 
 /**
  * {@link EnableAutoConfiguration Auto-configuration} for
@@ -40,7 +40,7 @@ import cn.taketoday.core.Ordered;
 @AutoConfigureOrder(Ordered.HIGHEST_PRECEDENCE)
 public class PropertyPlaceholderAutoConfiguration {
 
-  @Bean
+  @Component
   @ConditionalOnMissingBean(search = SearchStrategy.CURRENT)
   public static PropertySourcesPlaceholderConfigurer propertySourcesPlaceholderConfigurer() {
     return new PropertySourcesPlaceholderConfigurer();

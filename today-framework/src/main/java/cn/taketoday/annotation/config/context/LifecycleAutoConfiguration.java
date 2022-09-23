@@ -20,7 +20,6 @@
 
 package cn.taketoday.annotation.config.context;
 
-import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.config.AutoConfiguration;
 import cn.taketoday.context.annotation.config.EnableAutoConfiguration;
 import cn.taketoday.context.condition.ConditionalOnMissingBean;
@@ -28,6 +27,7 @@ import cn.taketoday.context.condition.SearchStrategy;
 import cn.taketoday.context.properties.EnableConfigurationProperties;
 import cn.taketoday.context.support.AbstractApplicationContext;
 import cn.taketoday.context.support.DefaultLifecycleProcessor;
+import cn.taketoday.stereotype.Component;
 
 /**
  * {@link EnableAutoConfiguration Auto-configuration} relating to the application
@@ -40,7 +40,7 @@ import cn.taketoday.context.support.DefaultLifecycleProcessor;
 @EnableConfigurationProperties(LifecycleProperties.class)
 public class LifecycleAutoConfiguration {
 
-  @Bean(name = AbstractApplicationContext.LIFECYCLE_PROCESSOR_BEAN_NAME)
+  @Component(name = AbstractApplicationContext.LIFECYCLE_PROCESSOR_BEAN_NAME)
   @ConditionalOnMissingBean(
           search = SearchStrategy.CURRENT,
           name = AbstractApplicationContext.LIFECYCLE_PROCESSOR_BEAN_NAME)
