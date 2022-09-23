@@ -51,7 +51,7 @@ import cn.taketoday.util.ObjectUtils;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/2/1 23:56
  */
-class ImportAutoConfigurationImportSelector extends AutoConfigurationImportSelector implements DeterminableImports {
+public class ImportAutoConfigurationImportSelector extends AutoConfigurationImportSelector implements DeterminableImports {
 
   @Override
   public Set<Object> determineImports(AnnotationMetadata metadata) {
