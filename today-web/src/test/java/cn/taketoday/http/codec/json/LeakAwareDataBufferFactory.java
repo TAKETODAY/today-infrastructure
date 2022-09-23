@@ -53,7 +53,7 @@ import io.netty.buffer.PooledByteBufAllocator;
  */
 public class LeakAwareDataBufferFactory implements DataBufferFactory {
 
-  private static final Log logger = LogFactory.getLog(LeakAwareDataBufferFactory.class);
+  private static final Logger logger = LoggerFactory.getLogger(LeakAwareDataBufferFactory.class);
 
   private final DataBufferFactory delegate;
 
