@@ -29,6 +29,7 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -37,6 +38,7 @@ import cn.taketoday.core.LinkedMultiValueMap;
 import cn.taketoday.core.MethodParameter;
 import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.core.annotation.AliasFor;
+import cn.taketoday.format.annotation.DateTimeFormat;
 import cn.taketoday.format.support.DefaultFormattingConversionService;
 import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Nullable;
@@ -73,6 +75,12 @@ class NamedValueArgumentResolverTests {
   void stringTestValue() {
     this.service.executeString("test");
     assertTestValue("value", "test");
+  }
+
+  @Test
+  void dateTestValue() {
+    this.service.executeDate(LocalDate.of(2022, 9, 16));
+    assertTestValue("value", "2022-09-16");
   }
 
   @Test
@@ -174,6 +182,9 @@ class NamedValueArgumentResolverTests {
 
     @GetExchange
     void executeString(@TestValue String value);
+
+    @GetExchange
+    void executeDate(@TestValue @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate value);
 
     @GetExchange
     void execute(@TestValue Object value);

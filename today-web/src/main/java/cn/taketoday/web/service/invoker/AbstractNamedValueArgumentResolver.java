@@ -27,6 +27,7 @@ import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 import cn.taketoday.core.MethodParameter;
+import cn.taketoday.core.TypeDescriptor;
 import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Constant;
@@ -43,6 +44,7 @@ import cn.taketoday.util.ObjectUtils;
  * @since 4.0
  */
 public abstract class AbstractNamedValueArgumentResolver implements HttpServiceArgumentResolver {
+  private static final TypeDescriptor STRING_TARGET_TYPE = TypeDescriptor.valueOf(String.class);
 
   protected final Logger logger = LoggerFactory.getLogger(getClass());
 
@@ -84,13 +86,13 @@ public abstract class AbstractNamedValueArgumentResolver implements HttpServiceA
       for (Map.Entry<String, ?> entry : ((Map<String, ?>) argument).entrySet()) {
         addSingleOrMultipleValues(
                 entry.getKey(), entry.getValue(), false, null, info.label, info.multiValued,
-                requestValues);
+                null, requestValues);
       }
     }
     else {
       addSingleOrMultipleValues(
               info.name, argument, info.required, info.defaultValue, info.label, info.multiValued,
-              requestValues);
+              parameter, requestValues);
     }
 
     return true;
@@ -127,15 +129,15 @@ public abstract class AbstractNamedValueArgumentResolver implements HttpServiceA
                         "not specified, and parameter name information not found in class file either.");
       }
     }
-
-    boolean required = info.required && !parameter.getParameterType().equals(Optional.class);
-    String defaultValue = Constant.DEFAULT_NONE.equals(info.defaultValue) ? null : info.defaultValue;
+    boolean required = (info.required && !parameter.getParameterType().equals(Optional.class));
+    String defaultValue = (Constant.DEFAULT_NONE.equals(info.defaultValue) ? null : info.defaultValue);
     return info.update(name, required, defaultValue);
   }
 
   private void addSingleOrMultipleValues(
           String name, @Nullable Object value, boolean required, @Nullable Object defaultValue,
-          String valueLabel, boolean supportsMultiValues, HttpRequestValues.Builder requestValues) {
+          String valueLabel, boolean supportsMultiValues, @Nullable MethodParameter parameter,
+          HttpRequestValues.Builder requestValues) {
 
     if (supportsMultiValues) {
       value = (ObjectUtils.isArray(value) ? Arrays.asList((Object[]) value) : value);
@@ -144,7 +146,7 @@ public abstract class AbstractNamedValueArgumentResolver implements HttpServiceA
         for (Object element : elements) {
           if (element != null) {
             hasValues = true;
-            addSingleValue(name, element, false, null, valueLabel, requestValues);
+            addSingleValue(name, element, false, null, valueLabel, null, requestValues);
           }
         }
         if (hasValues) {
@@ -154,12 +156,12 @@ public abstract class AbstractNamedValueArgumentResolver implements HttpServiceA
       }
     }
 
-    addSingleValue(name, value, required, defaultValue, valueLabel, requestValues);
+    addSingleValue(name, value, required, defaultValue, valueLabel, parameter, requestValues);
   }
 
   private void addSingleValue(
           String name, @Nullable Object value, boolean required, @Nullable Object defaultValue, String valueLabel,
-          HttpRequestValues.Builder requestValues) {
+          @Nullable MethodParameter parameter, HttpRequestValues.Builder requestValues) {
 
     if (value instanceof Optional<?> optionalValue) {
       value = optionalValue.orElse(null);
@@ -170,7 +172,13 @@ public abstract class AbstractNamedValueArgumentResolver implements HttpServiceA
     }
 
     if (this.conversionService != null && !(value instanceof String)) {
-      value = this.conversionService.convert(value, String.class);
+      parameter = (parameter != null ? parameter.nestedIfOptional() : null);
+      if (parameter != null && parameter.getNestedParameterType() != Object.class) {
+        value = this.conversionService.convert(value, new TypeDescriptor(parameter), STRING_TARGET_TYPE);
+      }
+      else {
+        value = this.conversionService.convert(value, String.class);
+      }
     }
 
     if (value == null) {
