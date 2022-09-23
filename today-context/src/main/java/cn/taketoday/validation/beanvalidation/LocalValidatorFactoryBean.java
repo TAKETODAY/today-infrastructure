@@ -84,7 +84,7 @@ import jakarta.validation.bootstrap.ProviderSpecificBootstrap;
  * @see ValidatorFactory#getValidator()
  * @since 4.0
  */
-public class LocalValidatorFactoryBean extends ValidatorAdapter
+public class LocalValidatorFactoryBean extends InfraValidatorAdapter
         implements ValidatorFactory, ApplicationContextAware, InitializingBean, DisposableBean {
 
   @SuppressWarnings("rawtypes")

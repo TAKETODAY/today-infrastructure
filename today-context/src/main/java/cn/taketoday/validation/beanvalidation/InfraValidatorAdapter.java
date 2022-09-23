@@ -67,7 +67,7 @@ import jakarta.validation.metadata.ConstraintDescriptor;
  * @see LocalValidatorFactoryBean
  * @since 4.0
  */
-public class ValidatorAdapter implements SmartValidator, jakarta.validation.Validator {
+public class InfraValidatorAdapter implements SmartValidator, jakarta.validation.Validator {
 
   private static final HashSet<String> internalAnnotationAttributes = new HashSet<>(4);
 
@@ -85,12 +85,12 @@ public class ValidatorAdapter implements SmartValidator, jakarta.validation.Vali
    *
    * @param targetValidator the JSR-303 Validator to wrap
    */
-  public ValidatorAdapter(jakarta.validation.Validator targetValidator) {
+  public InfraValidatorAdapter(jakarta.validation.Validator targetValidator) {
     Assert.notNull(targetValidator, "Target Validator must not be null");
     this.targetValidator = targetValidator;
   }
 
-  ValidatorAdapter() { }
+  InfraValidatorAdapter() { }
 
   void setTargetValidator(jakarta.validation.Validator targetValidator) {
     this.targetValidator = targetValidator;
@@ -444,14 +444,14 @@ public class ValidatorAdapter implements SmartValidator, jakarta.validation.Vali
   private static class ViolationObjectError extends ObjectError implements Serializable {
 
     @Nullable
-    private final transient ValidatorAdapter adapter;
+    private final transient InfraValidatorAdapter adapter;
 
     @Nullable
     private final transient ConstraintViolation<?> violation;
 
     public ViolationObjectError(
             String objectName, String[] codes, Object[] arguments,
-            ConstraintViolation<?> violation, ValidatorAdapter adapter) {
+            ConstraintViolation<?> violation, InfraValidatorAdapter adapter) {
 
       super(objectName, codes, arguments, violation.getMessage());
       this.adapter = adapter;
@@ -474,7 +474,7 @@ public class ValidatorAdapter implements SmartValidator, jakarta.validation.Vali
   private static class ViolationFieldError extends FieldError implements Serializable {
 
     @Nullable
-    private final transient ValidatorAdapter adapter;
+    private final transient InfraValidatorAdapter adapter;
 
     @Nullable
     private final transient ConstraintViolation<?> violation;
@@ -482,7 +482,7 @@ public class ValidatorAdapter implements SmartValidator, jakarta.validation.Vali
     public ViolationFieldError(
             String objectName, String field,
             @Nullable Object rejectedValue, String[] codes,
-            Object[] arguments, ConstraintViolation<?> violation, ValidatorAdapter adapter) {
+            Object[] arguments, ConstraintViolation<?> violation, InfraValidatorAdapter adapter) {
 
       super(objectName, field, rejectedValue, false, codes, arguments, violation.getMessage());
       this.adapter = adapter;
