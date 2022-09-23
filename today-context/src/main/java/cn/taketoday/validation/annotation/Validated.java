@@ -26,7 +26,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import cn.taketoday.validation.beanvalidation.ValidatorAdapter;
+import cn.taketoday.validation.beanvalidation.InfraValidatorAdapter;
 
 /**
  * Variant of JSR-303's {@link jakarta.validation.Valid}, supporting the
@@ -50,7 +50,7 @@ import cn.taketoday.validation.beanvalidation.ValidatorAdapter;
  * @author Juergen Hoeller
  * @see jakarta.validation.Validator#validate(Object, Class[])
  * @see cn.taketoday.validation.SmartValidator#validate(Object, cn.taketoday.validation.Errors, Object...)
- * @see ValidatorAdapter
+ * @see InfraValidatorAdapter
  * @see cn.taketoday.validation.beanvalidation.MethodValidationPostProcessor
  * @since 4.0
  */
@@ -64,7 +64,7 @@ public @interface Validated {
    * kicked off by this annotation.
    * <p>JSR-303 defines validation groups as custom annotations which an application declares
    * for the sole purpose of using them as type-safe group arguments, as implemented in
-   * {@link ValidatorAdapter}.
+   * {@link InfraValidatorAdapter}.
    * <p>Other {@link cn.taketoday.validation.SmartValidator} implementations may
    * support class arguments in other ways as well.
    */

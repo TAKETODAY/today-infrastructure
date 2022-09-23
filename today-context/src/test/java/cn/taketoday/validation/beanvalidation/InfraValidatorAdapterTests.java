@@ -65,11 +65,11 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Kazuki Shimizu
  * @author Juergen Hoeller
  */
-public class ValidatorAdapterTests {
+public class InfraValidatorAdapterTests {
 
   private final Validator nativeValidator = Validation.buildDefaultValidatorFactory().getValidator();
 
-  private final ValidatorAdapter validatorAdapter = new ValidatorAdapter(nativeValidator);
+  private final InfraValidatorAdapter validatorAdapter = new InfraValidatorAdapter(nativeValidator);
 
   private final StaticMessageSource messageSource = new StaticMessageSource();
 
