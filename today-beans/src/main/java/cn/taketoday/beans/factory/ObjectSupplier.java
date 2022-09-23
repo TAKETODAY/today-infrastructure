@@ -27,9 +27,9 @@ import java.util.stream.Stream;
 
 import cn.taketoday.beans.BeansException;
 import cn.taketoday.beans.factory.annotation.Autowired;
-import cn.taketoday.core.annotation.Order;
 import cn.taketoday.core.OrderComparator;
 import cn.taketoday.core.Ordered;
+import cn.taketoday.core.annotation.Order;
 import cn.taketoday.lang.Nullable;
 
 /**
@@ -110,14 +110,17 @@ public interface ObjectSupplier<T> extends Supplier<T>, Iterable<T> {
    *
    * @param dependencyConsumer a callback for processing the target object
    * if available (not called otherwise)
+   * @return if available status
    * @throws BeansException in case of creation errors
    * @see #getIfAvailable()
    */
-  default void ifAvailable(Consumer<T> dependencyConsumer) throws BeansException {
+  default boolean ifAvailable(Consumer<T> dependencyConsumer) throws BeansException {
     T dependency = getIfAvailable();
     if (dependency != null) {
       dependencyConsumer.accept(dependency);
+      return true;
     }
+    return false;
   }
 
   /**
@@ -156,14 +159,17 @@ public interface ObjectSupplier<T> extends Supplier<T>, Iterable<T> {
    *
    * @param dependencyConsumer a callback for processing the target object
    * if unique (not called otherwise)
+   * @return if Unique
    * @throws BeansException in case of creation errors
    * @see #getIfAvailable()
    */
-  default void ifUnique(Consumer<T> dependencyConsumer) throws BeansException {
+  default boolean ifUnique(Consumer<T> dependencyConsumer) throws BeansException {
     T dependency = getIfUnique();
     if (dependency != null) {
       dependencyConsumer.accept(dependency);
+      return true;
     }
+    return false;
   }
 
   /**

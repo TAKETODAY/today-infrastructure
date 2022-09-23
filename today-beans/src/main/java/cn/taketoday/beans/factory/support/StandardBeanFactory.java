@@ -828,16 +828,18 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
       }
 
       @Override
-      public void ifAvailable(Consumer<T> dependencyConsumer) throws BeansException {
+      public boolean ifAvailable(Consumer<T> dependencyConsumer) throws BeansException {
         T dependency = getIfAvailable();
         if (dependency != null) {
           try {
             dependencyConsumer.accept(dependency);
+            return true;
           }
           catch (ScopeNotActiveException ex) {
             // Ignore resolved bean in non-active scope, even on scoped proxy invocation
           }
         }
+        return false;
       }
 
       @Override
@@ -853,16 +855,18 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
       }
 
       @Override
-      public void ifUnique(Consumer<T> dependencyConsumer) throws BeansException {
+      public boolean ifUnique(Consumer<T> dependencyConsumer) throws BeansException {
         T dependency = getIfUnique();
         if (dependency != null) {
           try {
             dependencyConsumer.accept(dependency);
+            return true;
           }
           catch (ScopeNotActiveException ex) {
             // Ignore resolved bean in non-active scope, even on scoped proxy invocation
           }
         }
+        return false;
       }
 
       @SuppressWarnings("unchecked")
@@ -2099,16 +2103,18 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
     }
 
     @Override
-    public void ifAvailable(Consumer<Object> dependencyConsumer) throws BeansException {
+    public boolean ifAvailable(Consumer<Object> dependencyConsumer) throws BeansException {
       Object dependency = getIfAvailable();
       if (dependency != null) {
         try {
           dependencyConsumer.accept(dependency);
+          return true;
         }
         catch (ScopeNotActiveException ex) {
           // Ignore resolved bean in non-active scope, even on scoped proxy invocation
         }
       }
+      return false;
     }
 
     @Override
@@ -2141,16 +2147,18 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
     }
 
     @Override
-    public void ifUnique(Consumer<Object> dependencyConsumer) throws BeansException {
+    public boolean ifUnique(Consumer<Object> dependencyConsumer) throws BeansException {
       Object dependency = getIfUnique();
       if (dependency != null) {
         try {
           dependencyConsumer.accept(dependency);
+          return true;
         }
         catch (ScopeNotActiveException ex) {
           // Ignore resolved bean in non-active scope, even on scoped proxy invocation
         }
       }
+      return false;
     }
 
     @Nullable
