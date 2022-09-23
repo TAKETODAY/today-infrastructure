@@ -38,6 +38,7 @@ import java.lang.annotation.Annotation;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
@@ -77,9 +78,10 @@ import reactor.core.publisher.Mono;
 public abstract class AbstractJackson2Encoder extends Jackson2CodecSupport implements HttpMessageEncoder<Object> {
 
   private static final byte[] NEWLINE_SEPARATOR = { '\n' };
-  private static final byte[] EMPTY_BYTES = Constant.EMPTY_BYTES;
+
+  private static final byte[] EMPTY_BYTES = new byte[0];
+
   private static final Map<String, JsonEncoding> ENCODINGS;
-  private static final DataBuffer EMPTY_BUFFER = DefaultDataBufferFactory.sharedInstance.wrap(EMPTY_BYTES);
 
   static {
     ENCODINGS = CollectionUtils.newHashMap(JsonEncoding.values().length);
@@ -143,8 +145,7 @@ public abstract class AbstractJackson2Encoder extends Jackson2CodecSupport imple
   }
 
   @Override
-  public Flux<DataBuffer> encode(
-          Publisher<?> inputStream, DataBufferFactory bufferFactory,
+  public Flux<DataBuffer> encode(Publisher<?> inputStream, DataBufferFactory bufferFactory,
           ResolvableType elementType, @Nullable MimeType mimeType, @Nullable Map<String, Object> hints) {
 
     Assert.notNull(inputStream, "'inputStream' must not be null");
@@ -172,8 +173,8 @@ public abstract class AbstractJackson2Encoder extends Jackson2CodecSupport imple
       Flux<DataBuffer> dataBufferFlux;
 
       if (separator != null) {
-        dataBufferFlux = Flux.from(inputStream)
-                .map(value -> encodeStreamingValue(value, bufferFactory, hints, sequenceWriter, byteBuilder, EMPTY_BYTES, separator));
+        dataBufferFlux = Flux.from(inputStream).map(value -> encodeStreamingValue(
+                value, bufferFactory, hints, sequenceWriter, byteBuilder, EMPTY_BYTES, separator));
       }
       else {
         JsonArrayJoinHelper helper = new JsonArrayJoinHelper();
@@ -181,30 +182,32 @@ public abstract class AbstractJackson2Encoder extends Jackson2CodecSupport imple
         // Do not prepend JSON array prefix until first signal is known, onNext vs onError
         // Keeps response not committed for error handling
 
-        Flux<DataBuffer> flux1 = helper.getPrefix(bufferFactory, hints, logger)
-                .concatWith(Flux.just(EMPTY_BUFFER).repeat());
+        dataBufferFlux = Flux.from(inputStream)
+                .map(value -> {
+                  byte[] prefix = helper.getPrefix();
+                  byte[] delimiter = helper.getDelimiter();
 
-        Flux<DataBuffer> flux2 = Flux.from(inputStream)
-                .map(value -> encodeStreamingValue(
-                        value, bufferFactory, hints, sequenceWriter, byteBuilder, helper.getDelimiter(), EMPTY_BYTES));
+                  DataBuffer dataBuffer = encodeStreamingValue(
+                          value, bufferFactory, hints, sequenceWriter, byteBuilder, delimiter, EMPTY_BYTES);
 
-        dataBufferFlux = Flux.zip(flux1, flux2, (buffer1, buffer2) ->
-                        buffer1 != EMPTY_BUFFER
-                        ? bufferFactory.join(Arrays.asList(buffer1, buffer2))
-                        : buffer2
-                )
-                .concatWith(helper.getSuffix(bufferFactory, hints, logger));
+                  return (prefix.length > 0 ?
+                          bufferFactory.join(Arrays.asList(bufferFactory.wrap(prefix), dataBuffer)) :
+                          dataBuffer);
+                })
+                .concatWith(Mono.fromCallable(() -> bufferFactory.wrap(helper.getSuffix())));
       }
 
-      return dataBufferFlux.doAfterTerminate(() -> {
-        try {
-          byteBuilder.release();
-          generator.close();
-        }
-        catch (IOException ex) {
-          logger.error("Could not close Encoder resources", ex);
-        }
-      });
+      return dataBufferFlux
+              .doOnNext(dataBuffer -> Hints.touchDataBuffer(dataBuffer, hints, logger))
+              .doAfterTerminate(() -> {
+                try {
+                  byteBuilder.release();
+                  generator.close();
+                }
+                catch (IOException ex) {
+                  logger.error("Could not close Encoder resources", ex);
+                }
+              });
     }
     catch (IOException ex) {
       return Flux.error(ex);
@@ -212,17 +215,16 @@ public abstract class AbstractJackson2Encoder extends Jackson2CodecSupport imple
   }
 
   @Override
-  public DataBuffer encodeValue(
-          Object value, DataBufferFactory bufferFactory,
+  public DataBuffer encodeValue(Object value, DataBufferFactory bufferFactory,
           ResolvableType valueType, @Nullable MimeType mimeType, @Nullable Map<String, Object> hints) {
 
     Class<?> jsonView = null;
     FilterProvider filters = null;
-    if (value instanceof MappingJacksonValue container) {
-      value = container.getValue();
+    if (value instanceof MappingJacksonValue mappingJacksonValue) {
+      value = mappingJacksonValue.getValue();
       valueType = ResolvableType.fromInstance(value);
-      jsonView = container.getSerializationView();
-      filters = container.getFilters();
+      jsonView = mappingJacksonValue.getSerializationView();
+      filters = mappingJacksonValue.getFilters();
     }
 
     ObjectMapper mapper = selectObjectMapper(valueType, mimeType);
@@ -234,10 +236,13 @@ public abstract class AbstractJackson2Encoder extends Jackson2CodecSupport imple
     if (filters != null) {
       writer = writer.with(filters);
     }
+
     ByteArrayBuilder byteBuilder = new ByteArrayBuilder(writer.getFactory()._getBufferRecycler());
     try {
       JsonEncoding encoding = getJsonEncoding(mimeType);
+
       logValue(hints, value);
+
       try (JsonGenerator generator = mapper.getFactory().createGenerator(byteBuilder, encoding)) {
         writer.writeValue(generator, value);
         generator.flush();
@@ -266,7 +271,8 @@ public abstract class AbstractJackson2Encoder extends Jackson2CodecSupport imple
 
   private DataBuffer encodeStreamingValue(
           Object value, DataBufferFactory bufferFactory, @Nullable Map<String, Object> hints,
-          SequenceWriter sequenceWriter, ByteArrayBuilder byteArrayBuilder, byte[] prefix, byte[] suffix) {
+          SequenceWriter sequenceWriter, ByteArrayBuilder byteArrayBuilder,
+          byte[] prefix, byte[] suffix) {
 
     logValue(hints, value);
 
@@ -335,8 +341,7 @@ public abstract class AbstractJackson2Encoder extends Jackson2CodecSupport imple
     return customizeWriter(writer, mimeType, valueType, hints);
   }
 
-  protected ObjectWriter customizeWriter(
-          ObjectWriter writer, @Nullable MimeType mimeType,
+  protected ObjectWriter customizeWriter(ObjectWriter writer, @Nullable MimeType mimeType,
           ResolvableType elementType, @Nullable Map<String, Object> hints) {
 
     return writer;
@@ -347,6 +352,8 @@ public abstract class AbstractJackson2Encoder extends Jackson2CodecSupport imple
    * <p>By default, this method returns new line {@code "\n"} if the given
    * mime type is one of the configured {@link #setStreamingMediaTypes(List)
    * streaming} mime types.
+   *
+   * @since 5.3
    */
   @Nullable
   protected byte[] getStreamingMediaTypeSeparator(@Nullable MimeType mimeType) {
@@ -363,6 +370,7 @@ public abstract class AbstractJackson2Encoder extends Jackson2CodecSupport imple
    *
    * @param mimeType the mime type as requested by the caller
    * @return the JSON encoding to use (never {@code null})
+   * @since 5.0.5
    */
   protected JsonEncoding getJsonEncoding(@Nullable MimeType mimeType) {
     if (mimeType != null && mimeType.getCharset() != null) {
@@ -389,12 +397,11 @@ public abstract class AbstractJackson2Encoder extends Jackson2CodecSupport imple
 
   @Override
   public List<MediaType> getStreamingMediaTypes() {
-    return this.streamingMediaTypes;
+    return Collections.unmodifiableList(this.streamingMediaTypes);
   }
 
   @Override
-  public Map<String, Object> getEncodeHints(
-          @Nullable ResolvableType actualType, ResolvableType elementType,
+  public Map<String, Object> getEncodeHints(@Nullable ResolvableType actualType, ResolvableType elementType,
           @Nullable MediaType mediaType, ServerHttpRequest request, ServerHttpResponse response) {
 
     return (actualType != null ? getHints(actualType) : Hints.none());
@@ -415,32 +422,22 @@ public abstract class AbstractJackson2Encoder extends Jackson2CodecSupport imple
 
     private static final byte[] CLOSE_BRACKET = { ']' };
 
-    private boolean afterFirstItem = false;
+    private boolean firstItemEmitted;
 
     public byte[] getDelimiter() {
-      if (this.afterFirstItem) {
+      if (this.firstItemEmitted) {
         return COMMA_SEPARATOR;
       }
-      this.afterFirstItem = true;
+      this.firstItemEmitted = true;
       return EMPTY_BYTES;
     }
 
-    public Mono<DataBuffer> getPrefix(DataBufferFactory factory, @Nullable Map<String, Object> hints, Logger logger) {
-      return wrapBytes(OPEN_BRACKET, factory, hints, logger);
+    public byte[] getPrefix() {
+      return (this.firstItemEmitted ? EMPTY_BYTES : OPEN_BRACKET);
     }
 
-    public Mono<DataBuffer> getSuffix(DataBufferFactory factory, @Nullable Map<String, Object> hints, Logger logger) {
-      return wrapBytes(CLOSE_BRACKET, factory, hints, logger);
-    }
-
-    private Mono<DataBuffer> wrapBytes(
-            byte[] bytes, DataBufferFactory bufferFactory, @Nullable Map<String, Object> hints, Logger logger) {
-
-      return Mono.fromCallable(() -> {
-        DataBuffer buffer = bufferFactory.wrap(bytes);
-        Hints.touchDataBuffer(buffer, hints, logger);
-        return buffer;
-      });
+    public byte[] getSuffix() {
+      return CLOSE_BRACKET;
     }
   }
 

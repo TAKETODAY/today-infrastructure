@@ -274,8 +274,7 @@ public class Jackson2JsonEncoderTests extends AbstractEncoderTests<Jackson2JsonE
             ResolvableType.fromClass(Pojo.class), MimeTypeUtils.APPLICATION_JSON, Collections.emptyMap());
 
     StepVerifier.create(result)
-            .consumeNextWith(expectString("["))
-            .consumeNextWith(expectString("{\"foo\":\"foo\",\"bar\":\"bar\"}"))
+            .consumeNextWith(expectString("[{\"foo\":\"foo\",\"bar\":\"bar\"}"))
             .consumeNextWith(expectString("]"))
             .expectComplete()
             .verify(Duration.ofSeconds(5));
