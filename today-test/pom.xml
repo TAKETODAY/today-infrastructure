@@ -63,6 +63,7 @@
     <dependency>
       <groupId>cn.taketoday</groupId>
       <artifactId>today-framework</artifactId>
+      <scope>provided</scope>
     </dependency>
 
     <dependency>
