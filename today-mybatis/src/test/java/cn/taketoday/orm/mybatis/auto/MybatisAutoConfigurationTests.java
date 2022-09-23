@@ -41,7 +41,6 @@ import org.apache.ibatis.type.TypeHandlerRegistry;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 
 import java.math.BigInteger;
 import java.sql.CallableStatement;
@@ -70,7 +69,7 @@ import cn.taketoday.context.annotation.Primary;
 import cn.taketoday.context.annotation.config.EnableAutoConfiguration;
 import cn.taketoday.context.support.SimpleThreadScope;
 import cn.taketoday.core.annotation.Order;
-import cn.taketoday.framework.annotation.config.PropertyPlaceholderAutoConfiguration;
+import cn.taketoday.annotation.config.context.PropertyPlaceholderAutoConfiguration;
 import cn.taketoday.jdbc.config.EmbeddedDataSourceConfiguration;
 import cn.taketoday.orm.mybatis.SqlSessionFactoryBean;
 import cn.taketoday.orm.mybatis.SqlSessionTemplate;
