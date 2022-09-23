@@ -44,6 +44,7 @@ class StringToDurationConverterTests {
 
   @ConversionServiceTest
   void convertWhenIso8601ShouldReturnDuration(ConversionService conversionService) {
+    assertThat(convert(conversionService, "pt20.345s")).isEqualTo(Duration.parse("pt20.345s"));
     assertThat(convert(conversionService, "PT20.345S")).isEqualTo(Duration.parse("PT20.345S"));
     assertThat(convert(conversionService, "PT15M")).isEqualTo(Duration.parse("PT15M"));
     assertThat(convert(conversionService, "+PT15M")).isEqualTo(Duration.parse("PT15M"));
@@ -126,10 +127,8 @@ class StringToDurationConverterTests {
 
   @ConversionServiceTest
   void convertWhenBadFormatShouldThrowException(ConversionService conversionService) {
-    assertThatExceptionOfType(ConversionFailedException.class)
-            .isThrownBy(() -> convert(conversionService, "10foo"))
-            .havingCause()
-            .withMessage("'10foo' is not a valid duration");
+    assertThatExceptionOfType(ConversionFailedException.class).isThrownBy(() -> convert(conversionService, "10foo"))
+            .havingRootCause().withMessageContaining("'10foo' is not a valid duration");
   }
 
   @ConversionServiceTest

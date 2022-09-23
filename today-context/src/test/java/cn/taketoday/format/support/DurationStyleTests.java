@@ -45,6 +45,7 @@ class DurationStyleTests {
 
   @Test
   void detectAndParseWhenIso8601ShouldReturnDuration() {
+    assertThat(DurationStyle.detectAndParse("pt20.345s")).isEqualTo(Duration.parse("pt20.345s"));
     assertThat(DurationStyle.detectAndParse("PT20.345S")).isEqualTo(Duration.parse("PT20.345S"));
     assertThat(DurationStyle.detectAndParse("PT15M")).isEqualTo(Duration.parse("PT15M"));
     assertThat(DurationStyle.detectAndParse("+PT15M")).isEqualTo(Duration.parse("PT15M"));
@@ -167,6 +168,7 @@ class DurationStyleTests {
 
   @Test
   void parseIso8601ShouldParse() {
+    assertThat(DurationStyle.ISO8601.parse("pt20.345s")).isEqualTo(Duration.parse("pt20.345s"));
     assertThat(DurationStyle.ISO8601.parse("PT20.345S")).isEqualTo(Duration.parse("PT20.345S"));
     assertThat(DurationStyle.ISO8601.parse("PT15M")).isEqualTo(Duration.parse("PT15M"));
     assertThat(DurationStyle.ISO8601.parse("+PT15M")).isEqualTo(Duration.parse("PT15M"));
@@ -179,6 +181,7 @@ class DurationStyleTests {
 
   @Test
   void parseIso8601WithUnitShouldIgnoreUnit() {
+    assertThat(DurationStyle.ISO8601.parse("pt20.345s", ChronoUnit.SECONDS)).isEqualTo(Duration.parse("pt20.345s"));
     assertThat(DurationStyle.ISO8601.parse("PT20.345S", ChronoUnit.SECONDS)).isEqualTo(Duration.parse("PT20.345S"));
     assertThat(DurationStyle.ISO8601.parse("PT15M", ChronoUnit.SECONDS)).isEqualTo(Duration.parse("PT15M"));
     assertThat(DurationStyle.ISO8601.parse("+PT15M", ChronoUnit.SECONDS)).isEqualTo(Duration.parse("PT15M"));
