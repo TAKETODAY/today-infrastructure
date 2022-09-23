@@ -78,6 +78,11 @@ public class WebMvcProperties {
    */
   private String staticPathPattern = "/**";
 
+  /**
+   * Path pattern used for WebJar assets.
+   */
+  private String webjarsPathPattern = "/webjars/**";
+
   private final Async async = new Async();
 
   private final Servlet servlet = new Servlet();
@@ -136,6 +141,14 @@ public class WebMvcProperties {
 
   public void setStaticPathPattern(String staticPathPattern) {
     this.staticPathPattern = staticPathPattern;
+  }
+
+  public String getWebjarsPathPattern() {
+    return this.webjarsPathPattern;
+  }
+
+  public void setWebjarsPathPattern(String webjarsPathPattern) {
+    this.webjarsPathPattern = webjarsPathPattern;
   }
 
   public Async getAsync() {

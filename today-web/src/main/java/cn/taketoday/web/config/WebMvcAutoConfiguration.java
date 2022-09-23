@@ -309,7 +309,7 @@ public class WebMvcAutoConfiguration extends WebMvcConfigurationSupport {
       log.debug("Default resource handling disabled");
       return;
     }
-    addResourceHandler(registry, "/webjars/**", "classpath:/META-INF/resources/webjars/");
+    addResourceHandler(registry, this.mvcProperties.getWebjarsPathPattern(), "classpath:/META-INF/resources/webjars/");
     addResourceHandler(registry, this.mvcProperties.getStaticPathPattern(), (registration) -> {
       registration.addResourceLocations(resourceProperties.getStaticLocations());
     });
