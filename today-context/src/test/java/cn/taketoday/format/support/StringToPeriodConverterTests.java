@@ -42,6 +42,7 @@ class StringToPeriodConverterTests {
 
   @ConversionServiceTest
   void convertWhenIso8601ShouldReturnPeriod(ConversionService conversionService) {
+    assertThat(convert(conversionService, "p2y")).isEqualTo(Period.parse("p2y"));
     assertThat(convert(conversionService, "P2Y")).isEqualTo(Period.parse("P2Y"));
     assertThat(convert(conversionService, "P3M")).isEqualTo(Period.parse("P3M"));
     assertThat(convert(conversionService, "P4W")).isEqualTo(Period.parse("P4W"));

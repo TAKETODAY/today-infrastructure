@@ -110,7 +110,7 @@ public enum PeriodStyle {
   /**
    * ISO-8601 formatting.
    */
-  ISO8601("^[+-]?P.*$", 0) {
+  ISO8601("^[+-]?P.*$", Pattern.CASE_INSENSITIVE) {
     @Override
     public Period parse(String value, @Nullable ChronoUnit unit) {
       try {
@@ -258,7 +258,7 @@ public enum PeriodStyle {
     private final Function<Integer, Period> factory;
 
     Unit(ChronoUnit chronoUnit, String suffix, @Nullable Function<Period, Integer> intValue,
-         Function<Integer, Period> factory) {
+            Function<Integer, Period> factory) {
       this.chronoUnit = chronoUnit;
       this.suffix = suffix;
       this.intValue = intValue;
