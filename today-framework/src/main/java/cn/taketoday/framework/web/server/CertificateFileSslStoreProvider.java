@@ -27,6 +27,8 @@ import java.security.KeyStoreException;
 import java.security.PrivateKey;
 import java.security.cert.X509Certificate;
 
+import cn.taketoday.lang.Nullable;
+
 /**
  * An {@link SslStoreProvider} that creates key and trust stores from certificate and
  * private key PEM files.
@@ -113,6 +115,7 @@ public final class CertificateFileSslStoreProvider implements SslStoreProvider {
    * @param ssl the SSL properties
    * @return a {@code SslStoreProvider} or {@code null}
    */
+  @Nullable
   public static SslStoreProvider from(Ssl ssl) {
     if (ssl != null && ssl.isEnabled()) {
       if (ssl.getCertificate() != null && ssl.getCertificatePrivateKey() != null) {
