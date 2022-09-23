@@ -78,6 +78,7 @@ import cn.taketoday.util.Instantiator;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.util.StringUtils;
+import cn.taketoday.util.function.ThrowingSupplier;
 
 /**
  * Class that can be used to bootstrap and launch a application from a Java main
@@ -146,6 +147,8 @@ public class Application {
   protected final Logger log = LoggerFactory.getLogger(getClass());
 
   static final ApplicationShutdownHook shutdownHook = new ApplicationShutdownHook();
+
+  private static final ThreadLocal<ApplicationHook> applicationHook = new ThreadLocal<>();
 
   @Nullable
   private Class<?> mainApplicationClass;
@@ -330,6 +333,9 @@ public class Application {
       listeners.started(context, timeTakenToStartup);
       callRunners(context, arguments);
     }
+    catch (AbandonedRunException e) {
+      throw e;
+    }
     catch (Throwable e) {
       handleRunFailure(context, e, listeners);
       throw new IllegalStateException(e);
@@ -338,6 +344,9 @@ public class Application {
       Duration timeTakenToReady = Duration.ofNanos(System.nanoTime() - startTime);
       listeners.ready(context, timeTakenToReady);
       return context;
+    }
+    catch (AbandonedRunException e) {
+      throw e;
     }
     catch (Throwable ex) {
       handleRunFailure(context, ex, null);
@@ -390,6 +399,14 @@ public class Application {
 
     List<String> strategiesNames = TodayStrategies.getStrategiesNames(ApplicationStartupListener.class, getClassLoader());
     List<ApplicationStartupListener> strategies = instantiator.instantiate(strategiesNames);
+    ApplicationHook hook = applicationHook.get();
+    if (hook != null) {
+      ApplicationStartupListener hookListener = hook.getStartupListener(this);
+      if (hookListener != null) {
+        strategies = new ArrayList<>(strategies);
+        strategies.add(0, hookListener);
+      }
+    }
     return new ApplicationStartupListeners(log, strategies);
   }
 
@@ -1354,6 +1371,41 @@ public class Application {
     return exitCode;
   }
 
+  /**
+   * Perform the given action with the given {@link ApplicationHook} attached if
+   * the action triggers an {@link Application#run(String...) application run}.
+   *
+   * @param hook the hook to apply
+   * @param action the action to run
+   * @see #withHook(ApplicationHook, ThrowingSupplier)
+   */
+  public static void withHook(ApplicationHook hook, Runnable action) {
+    withHook(hook, () -> {
+      action.run();
+      return null;
+    });
+  }
+
+  /**
+   * Perform the given action with the given {@link ApplicationHook} attached if
+   * the action triggers an {@link Application#run(String...) application run}.
+   *
+   * @param <T> the result type
+   * @param hook the hook to apply
+   * @param action the action to run
+   * @return the result of the action
+   * @see #withHook(ApplicationHook, Runnable)
+   */
+  public static <T> T withHook(ApplicationHook hook, ThrowingSupplier<T> action) {
+    applicationHook.set(hook);
+    try {
+      return action.get();
+    }
+    finally {
+      applicationHook.set(null);
+    }
+  }
+
   private static void close(ApplicationContext context) {
     if (context instanceof ConfigurableApplicationContext closable) {
       closable.close();
@@ -1364,6 +1416,44 @@ public class Application {
     ArrayList<E> list = new ArrayList<>(elements);
     list.sort(AnnotationAwareOrderComparator.INSTANCE);
     return new LinkedHashSet<>(list);
+  }
+
+  /**
+   * Exception that can be thrown to silently exit a running {@link Application}
+   * without handling run failures.
+   */
+  public static class AbandonedRunException extends RuntimeException {
+
+    private final ConfigurableApplicationContext applicationContext;
+
+    /**
+     * Create a new {@link AbandonedRunException} instance.
+     */
+    public AbandonedRunException() {
+      this(null);
+    }
+
+    /**
+     * Create a new {@link AbandonedRunException} instance with the given application
+     * context.
+     *
+     * @param applicationContext the application context that was available when the
+     * run was abandoned
+     */
+    public AbandonedRunException(ConfigurableApplicationContext applicationContext) {
+      this.applicationContext = applicationContext;
+    }
+
+    /**
+     * Return the application context that was available when the run was abandoned or
+     * {@code null} if no context was available.
+     *
+     * @return the application context
+     */
+    public ConfigurableApplicationContext getApplicationContext() {
+      return this.applicationContext;
+    }
+
   }
 
 }

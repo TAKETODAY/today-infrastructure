@@ -122,6 +122,7 @@ import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isA;
 import static org.mockito.BDDMockito.then;
 import static org.mockito.BDDMockito.willThrow;
@@ -1201,6 +1202,59 @@ class ApplicationTests {
 
     assertThat(ApplicationShutdownHookInstance.get())
             .didNotRegisterApplicationContext(failure.getApplicationContext());
+  }
+
+  @Test
+  void withRunnableHookRunsWithHook() {
+    Application application = new Application(ExampleConfig.class);
+    application.setApplicationType(ApplicationType.NONE_WEB);
+    ApplicationStartupListener runListener = mock(ApplicationStartupListener.class);
+    ApplicationHook hook = (Application) -> runListener;
+    Application.withHook(hook, () -> this.context = application.run());
+    then(runListener).should().starting(any(), ExampleConfig.class, new ApplicationArguments());
+    then(runListener).should().contextPrepared(this.context);
+    then(runListener).should().ready(eq(this.context), any());
+    assertThat(this.context.isRunning()).isTrue();
+  }
+
+  @Test
+  void withCallableHookRunsWithHook() {
+    Application application = new Application(ExampleConfig.class);
+    application.setApplicationType(ApplicationType.NONE_WEB);
+    ApplicationStartupListener runListener = mock(ApplicationStartupListener.class);
+    ApplicationHook hook = (Application) -> runListener;
+    this.context = Application.withHook(hook, () -> application.run());
+
+    ApplicationArguments arguments = new ApplicationArguments();
+
+    then(runListener).should().starting(any(), ExampleConfig.class, arguments);
+    then(runListener).should().contextPrepared(this.context);
+    then(runListener).should().ready(eq(this.context), any());
+    assertThat(this.context.isRunning()).isTrue();
+  }
+
+  @Test
+  void withHookWhenHookThrowsAbandonedRunExceptionAbandonsRun() {
+    Application application = new Application(ExampleConfig.class);
+    application.setApplicationType(ApplicationType.NONE_WEB);
+    ApplicationStartupListener runListener = spy(new ApplicationStartupListener() {
+
+      @Override
+      public void contextLoaded(ConfigurableApplicationContext context) {
+        throw new Application.AbandonedRunException(context);
+      }
+
+    });
+    ApplicationHook hook = (Application) -> runListener;
+    assertThatExceptionOfType(Application.AbandonedRunException.class)
+            .isThrownBy(() -> Application.withHook(hook, () -> application.run()))
+            .satisfies((ex) -> assertThat(ex.getApplicationContext().isRunning()).isFalse());
+    ApplicationArguments arguments = new ApplicationArguments();
+
+    then(runListener).should().starting(any(), ExampleConfig.class, arguments);
+    then(runListener).should().contextPrepared(any());
+    then(runListener).should(never()).ready(any(), any());
+    then(runListener).should(never()).failed(any(), any());
   }
 
   private <S extends AvailabilityState> ArgumentMatcher<ApplicationEvent> isAvailabilityChangeEventWithState(
