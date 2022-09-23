@@ -66,6 +66,15 @@ public final class ImportCandidates implements Iterable<String> {
   }
 
   /**
+   * Returns the list of loaded import candidates.
+   *
+   * @return the list of import candidates
+   */
+  public List<String> getCandidates() {
+    return this.candidates;
+  }
+
+  /**
    * Loads the names of import candidates from the classpath.
    *
    * The names of the import candidates are stored in files named
