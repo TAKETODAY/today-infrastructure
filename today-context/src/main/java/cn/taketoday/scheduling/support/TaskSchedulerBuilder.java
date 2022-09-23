@@ -219,8 +219,11 @@ public class TaskSchedulerBuilder {
     map.from(this.awaitTermination).to(taskScheduler::setWaitForTasksToCompleteOnShutdown);
     map.from(this.awaitTerminationPeriod).asInt(Duration::getSeconds).to(taskScheduler::setAwaitTerminationSeconds);
     map.from(this.threadNamePrefix).to(taskScheduler::setThreadNamePrefix);
-    if (!CollectionUtils.isEmpty(this.customizers)) {
-      this.customizers.forEach((customizer) -> customizer.customize(taskScheduler));
+
+    if (CollectionUtils.isNotEmpty(customizers)) {
+      for (TaskSchedulerCustomizer customizer : customizers) {
+        customizer.customize(taskScheduler);
+      }
     }
     return taskScheduler;
   }
