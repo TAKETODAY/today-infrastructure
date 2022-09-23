@@ -18,7 +18,7 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.context.annotation.config;
+package cn.taketoday.annotation.config;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -32,6 +32,8 @@ import java.util.Set;
 
 import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
+import cn.taketoday.context.annotation.config.ImportAutoConfiguration;
+import cn.taketoday.context.annotation.config.ImportAutoConfigurationImportSelector;
 import cn.taketoday.core.annotation.AliasFor;
 import cn.taketoday.core.io.DefaultResourceLoader;
 import cn.taketoday.core.type.AnnotationMetadata;

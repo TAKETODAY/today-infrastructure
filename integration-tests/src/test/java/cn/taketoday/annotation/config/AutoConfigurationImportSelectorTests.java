@@ -18,8 +18,9 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.context.annotation.config;
+package cn.taketoday.annotation.config;
 
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -35,9 +36,15 @@ import cn.taketoday.beans.factory.BeanFactoryAware;
 import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.context.annotation.Configuration;
-import cn.taketoday.framework.annotation.config.LifecycleAutoConfiguration;
-import cn.taketoday.framework.annotation.config.MessageSourceAutoConfiguration;
-import cn.taketoday.framework.annotation.config.PropertyPlaceholderAutoConfiguration;
+import cn.taketoday.context.annotation.config.AutoConfiguration;
+import cn.taketoday.annotation.config.context.LifecycleAutoConfiguration;
+import cn.taketoday.context.annotation.config.AutoConfigurationImportEvent;
+import cn.taketoday.context.annotation.config.AutoConfigurationImportFilter;
+import cn.taketoday.context.annotation.config.AutoConfigurationImportListener;
+import cn.taketoday.context.annotation.config.AutoConfigurationImportSelector;
+import cn.taketoday.context.annotation.config.AutoConfigurationMetadata;
+import cn.taketoday.context.annotation.config.EnableAutoConfiguration;
+import cn.taketoday.context.annotation.config.ImportCandidates;
 import cn.taketoday.core.io.DefaultResourceLoader;
 import cn.taketoday.core.type.AnnotationMetadata;
 import cn.taketoday.mock.env.MockEnvironment;
@@ -70,14 +77,14 @@ class AutoConfigurationImportSelectorTests {
   void importsAreSelectedWhenUsingEnableAutoConfiguration() {
     String[] imports = selectImports(BasicEnableAutoConfiguration.class);
     assertThat(imports).hasSameSizeAs(getAutoConfigurationClassNames());
-    assertThat(this.importSelector.getLastEvent().getExclusions()).isEmpty();
+    Assertions.assertThat(this.importSelector.getLastEvent().getExclusions()).isEmpty();
   }
 
   @Test
   void classExclusionsAreApplied() {
     String[] imports = selectImports(EnableAutoConfigurationWithClassExclusions.class);
     assertThat(imports).hasSize(getAutoConfigurationClassNames().size() - 1);
-    assertThat(this.importSelector.getLastEvent().getExclusions())
+    Assertions.assertThat(this.importSelector.getLastEvent().getExclusions())
             .contains(LifecycleAutoConfiguration.class.getName());
   }
 
@@ -85,7 +92,7 @@ class AutoConfigurationImportSelectorTests {
   void classExclusionsAreAppliedWhenUsingSpringBootApplication() {
     String[] imports = selectImports(ApplicationWithClassExclusions.class);
     assertThat(imports).hasSize(getAutoConfigurationClassNames().size() - 1);
-    assertThat(this.importSelector.getLastEvent().getExclusions())
+    Assertions.assertThat(this.importSelector.getLastEvent().getExclusions())
             .contains(LifecycleAutoConfiguration.class.getName());
   }
 
@@ -93,7 +100,7 @@ class AutoConfigurationImportSelectorTests {
   void classNamesExclusionsAreApplied() {
     String[] imports = selectImports(EnableAutoConfigurationWithClassNameExclusions.class);
     assertThat(imports).hasSize(getAutoConfigurationClassNames().size() - 1);
-    assertThat(this.importSelector.getLastEvent().getExclusions())
+    Assertions.assertThat(this.importSelector.getLastEvent().getExclusions())
             .contains(PropertyPlaceholderAutoConfiguration.class.getName());
   }
 
@@ -101,7 +108,7 @@ class AutoConfigurationImportSelectorTests {
   void classNamesExclusionsAreAppliedWhenUsingSpringBootApplication() {
     String[] imports = selectImports(ApplicationWithClassNameExclusions.class);
     assertThat(imports).hasSize(getAutoConfigurationClassNames().size() - 1);
-    assertThat(this.importSelector.getLastEvent().getExclusions())
+    Assertions.assertThat(this.importSelector.getLastEvent().getExclusions())
             .contains(PropertyPlaceholderAutoConfiguration.class.getName());
   }
 
@@ -110,7 +117,7 @@ class AutoConfigurationImportSelectorTests {
     this.environment.setProperty("context.autoconfigure.exclude", LifecycleAutoConfiguration.class.getName());
     String[] imports = selectImports(BasicEnableAutoConfiguration.class);
     assertThat(imports).hasSize(getAutoConfigurationClassNames().size() - 1);
-    assertThat(this.importSelector.getLastEvent().getExclusions())
+    Assertions.assertThat(this.importSelector.getLastEvent().getExclusions())
             .contains(LifecycleAutoConfiguration.class.getName());
   }
 
@@ -138,7 +145,7 @@ class AutoConfigurationImportSelectorTests {
   private void testSeveralPropertyExclusionsAreApplied() {
     String[] imports = selectImports(BasicEnableAutoConfiguration.class);
     assertThat(imports).hasSize(getAutoConfigurationClassNames().size() - 2);
-    assertThat(this.importSelector.getLastEvent().getExclusions())
+    Assertions.assertThat(this.importSelector.getLastEvent().getExclusions())
             .contains(LifecycleAutoConfiguration.class.getName(), PropertyPlaceholderAutoConfiguration.class.getName());
   }
 
@@ -147,7 +154,7 @@ class AutoConfigurationImportSelectorTests {
     this.environment.setProperty("context.autoconfigure.exclude", MessageSourceAutoConfiguration.class.getName());
     String[] imports = selectImports(EnableAutoConfigurationWithClassAndClassNameExclusions.class);
     assertThat(imports).hasSize(getAutoConfigurationClassNames().size() - 3);
-    assertThat(this.importSelector.getLastEvent().getExclusions()).contains(
+    Assertions.assertThat(this.importSelector.getLastEvent().getExclusions()).contains(
             LifecycleAutoConfiguration.class.getName(), PropertyPlaceholderAutoConfiguration.class.getName(),
             MessageSourceAutoConfiguration.class.getName());
   }
@@ -168,7 +175,7 @@ class AutoConfigurationImportSelectorTests {
   void nonAutoConfigurationPropertyExclusionsWhenPresentOnClassPathShouldThrowException() {
 //    /AutoConfigurationImportSelectorTests.java:165
     this.environment.setProperty("context.autoconfigure.exclude",
-            "cn.taketoday.context.annotation.config.AutoConfigurationImportSelectorTests.TestConfiguration");
+            "cn.taketoday.annotation.config.AutoConfigurationImportSelectorTests.TestConfiguration");
     assertThatIllegalStateException().isThrownBy(() -> selectImports(BasicEnableAutoConfiguration.class));
   }
 
@@ -177,7 +184,7 @@ class AutoConfigurationImportSelectorTests {
     this.environment.setProperty("context.autoconfigure.exclude",
             "cn.taketoday.context.annotation.config.DoesNotExist2");
     selectImports(EnableAutoConfigurationWithAbsentClassNameExclude.class);
-    assertThat(this.importSelector.getLastEvent().getExclusions()).containsExactlyInAnyOrder(
+    Assertions.assertThat(this.importSelector.getLastEvent().getExclusions()).containsExactlyInAnyOrder(
             "cn.taketoday.context.annotation.config.DoesNotExist1",
             "cn.taketoday.context.annotation.config.DoesNotExist2");
   }
@@ -206,9 +213,9 @@ class AutoConfigurationImportSelectorTests {
     String[] allImports = new String[] { "com.example.A", "com.example.B", "com.example.C" };
     this.filters.add(new TestAutoConfigurationImportFilter(allImports, 0));
     this.filters.add(new TestAutoConfigurationImportFilter(allImports, 2));
-    assertThat(this.importSelector.getExclusionFilter().test("com.example.A")).isTrue();
-    assertThat(this.importSelector.getExclusionFilter().test("com.example.B")).isFalse();
-    assertThat(this.importSelector.getExclusionFilter().test("com.example.C")).isTrue();
+    Assertions.assertThat(this.importSelector.getExclusionFilter().test("com.example.A")).isTrue();
+    Assertions.assertThat(this.importSelector.getExclusionFilter().test("com.example.B")).isFalse();
+    Assertions.assertThat(this.importSelector.getExclusionFilter().test("com.example.C")).isTrue();
   }
 
   private String[] selectImports(Class<?> source) {
@@ -311,7 +318,7 @@ class AutoConfigurationImportSelectorTests {
   }
 
   @EnableAutoConfiguration(
-          excludeName = "cn.taketoday.context.annotation.config.AutoConfigurationImportSelectorTests.TestConfiguration")
+          excludeName = "cn.taketoday.annotation.config.AutoConfigurationImportSelectorTests.TestConfiguration")
   private class EnableAutoConfigurationWithFaultyClassNameExclude {
 
   }
