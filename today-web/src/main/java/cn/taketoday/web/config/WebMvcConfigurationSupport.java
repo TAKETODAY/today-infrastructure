@@ -573,7 +573,7 @@ public class WebMvcConfigurationSupport extends ApplicationContextSupport {
    * </ul>
    */
   protected final void addDefaultHandlerExceptionHandlers(List<HandlerExceptionHandler> handlers) {
-    ExceptionHandlerAnnotationExceptionHandler handler = createExceptionHandlerAnnotationExceptionHandler();
+    ExceptionHandlerAnnotationExceptionHandler handler = createAnnotationExceptionHandler();
 
     if (this.applicationContext != null) {
       handler.setApplicationContext(this.applicationContext);
@@ -592,7 +592,7 @@ public class WebMvcConfigurationSupport extends ApplicationContextSupport {
    * Protected method for plugging in a custom subclass of
    * {@link ExceptionHandlerAnnotationExceptionHandler}.
    */
-  protected ExceptionHandlerAnnotationExceptionHandler createExceptionHandlerAnnotationExceptionHandler() {
+  protected ExceptionHandlerAnnotationExceptionHandler createAnnotationExceptionHandler() {
     return new ExceptionHandlerAnnotationExceptionHandler();
   }
 
@@ -604,10 +604,8 @@ public class WebMvcConfigurationSupport extends ApplicationContextSupport {
   @Component
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
   @ConditionalOnMissingBean(RequestMappingHandlerMapping.class)
-  RequestMappingHandlerMapping requestMappingHandlerMapping(
-          ContentNegotiationManager contentNegotiationManager
-  ) {
-    RequestMappingHandlerMapping handlerMapping = new RequestMappingHandlerMapping();
+  RequestMappingHandlerMapping requestMappingHandlerMapping(ContentNegotiationManager contentNegotiationManager) {
+    RequestMappingHandlerMapping handlerMapping = createRequestMappingHandlerMapping();
 
     PathMatchConfigurer configurer = getPathMatchConfigurer();
 
@@ -625,6 +623,14 @@ public class WebMvcConfigurationSupport extends ApplicationContextSupport {
     handlerMapping.setOrder(Ordered.HIGHEST_PRECEDENCE);
     handlerMapping.setContentNegotiationManager(contentNegotiationManager);
     return handlerMapping;
+  }
+
+  /**
+   * Protected method for plugging in a custom subclass of
+   * {@link RequestMappingHandlerMapping}.
+   */
+  protected RequestMappingHandlerMapping createRequestMappingHandlerMapping() {
+    return new RequestMappingHandlerMapping();
   }
 
   /**

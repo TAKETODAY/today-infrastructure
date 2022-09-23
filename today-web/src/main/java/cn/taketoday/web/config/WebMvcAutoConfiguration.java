@@ -57,6 +57,9 @@ import cn.taketoday.web.config.WebProperties.Resources.Chain.Strategy;
 import cn.taketoday.web.config.jackson.JacksonAutoConfiguration;
 import cn.taketoday.web.context.support.RequestHandledEventPublisher;
 import cn.taketoday.web.handler.ReturnValueHandlerManager;
+import cn.taketoday.web.handler.method.ExceptionHandlerAnnotationExceptionHandler;
+import cn.taketoday.web.handler.method.RequestMappingHandlerAdapter;
+import cn.taketoday.web.handler.method.RequestMappingHandlerMapping;
 import cn.taketoday.web.i18n.AcceptHeaderLocaleResolver;
 import cn.taketoday.web.i18n.FixedLocaleResolver;
 import cn.taketoday.web.registry.FunctionHandlerMapping;
@@ -89,6 +92,7 @@ public class WebMvcAutoConfiguration extends WebMvcConfigurationSupport {
 
   private final CompositeWebMvcConfiguration mvcConfiguration = new CompositeWebMvcConfiguration();
 
+  private final WebMvcRegistrations mvcRegistrations;
   private final ObjectProvider<HttpMessageConverters> messageConvertersProvider;
   private final ObjectProvider<ResourceHandlerRegistrationCustomizer> registrationCustomizersProvider;
 
@@ -96,11 +100,13 @@ public class WebMvcAutoConfiguration extends WebMvcConfigurationSupport {
           BeanFactory beanFactory,
           WebProperties webProperties,
           WebMvcProperties mvcProperties,
+          ObjectProvider<WebMvcRegistrations> mvcRegistrations,
           ObjectProvider<ResourceHandlerRegistrationCustomizer> customizers,
           ObjectProvider<HttpMessageConverters> messageConvertersProvider) {
     this.beanFactory = beanFactory;
     this.mvcProperties = mvcProperties;
     this.webProperties = webProperties;
+    this.mvcRegistrations = mvcRegistrations.getIfUnique();
     this.messageConvertersProvider = messageConvertersProvider;
     this.registrationCustomizersProvider = customizers;
   }
@@ -108,6 +114,38 @@ public class WebMvcAutoConfiguration extends WebMvcConfigurationSupport {
   @Autowired(required = false)
   public void setMvcConfiguration(List<WebMvcConfiguration> mvcConfiguration) {
     this.mvcConfiguration.addWebMvcConfiguration(mvcConfiguration);
+  }
+
+  @Override
+  protected RequestMappingHandlerAdapter createRequestMappingHandlerAdapter() {
+    if (this.mvcRegistrations != null) {
+      RequestMappingHandlerAdapter adapter = this.mvcRegistrations.createRequestMappingHandlerAdapter();
+      if (adapter != null) {
+        return adapter;
+      }
+    }
+    return super.createRequestMappingHandlerAdapter();
+  }
+
+  @Override
+  protected RequestMappingHandlerMapping createRequestMappingHandlerMapping() {
+    if (mvcRegistrations != null) {
+      RequestMappingHandlerMapping mapping = mvcRegistrations.createRequestMappingHandlerMapping();
+      if (mapping != null) {
+        return mapping;
+      }
+    } return super.createRequestMappingHandlerMapping();
+  }
+
+  @Override
+  protected ExceptionHandlerAnnotationExceptionHandler createAnnotationExceptionHandler() {
+    if (mvcRegistrations != null) {
+      ExceptionHandlerAnnotationExceptionHandler handler = mvcRegistrations.createAnnotationExceptionHandler();
+      if (handler != null) {
+        return handler;
+      }
+    }
+    return super.createAnnotationExceptionHandler();
   }
 
   @Component
@@ -122,7 +160,8 @@ public class WebMvcAutoConfiguration extends WebMvcConfigurationSupport {
   @Component
   @ConditionalOnMissingBean
   @ConditionalOnProperty(prefix = "web.mvc", name = "publishRequestHandledEvents", havingValue = "true", matchIfMissing = true)
-  RequestHandledEventPublisher requestHandledEventPublisher(WebMvcProperties webMvcProperties, ApplicationEventPublisher eventPublisher) {
+  RequestHandledEventPublisher requestHandledEventPublisher(
+          WebMvcProperties webMvcProperties, ApplicationEventPublisher eventPublisher) {
     if (webMvcProperties.isPublishRequestHandledEvents()) {
       return new RequestHandledEventPublisher(eventPublisher);
     }
