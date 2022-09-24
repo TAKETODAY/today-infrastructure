@@ -31,13 +31,15 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import cn.taketoday.annotation.config.context.LifecycleAutoConfiguration;
+import cn.taketoday.annotation.config.context.MessageSourceAutoConfiguration;
+import cn.taketoday.annotation.config.context.PropertyPlaceholderAutoConfiguration;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanFactoryAware;
 import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.config.AutoConfiguration;
-import cn.taketoday.annotation.config.context.LifecycleAutoConfiguration;
 import cn.taketoday.context.annotation.config.AutoConfigurationImportEvent;
 import cn.taketoday.context.annotation.config.AutoConfigurationImportFilter;
 import cn.taketoday.context.annotation.config.AutoConfigurationImportListener;

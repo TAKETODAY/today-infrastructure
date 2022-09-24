@@ -1209,9 +1209,9 @@ class ApplicationTests {
     Application application = new Application(ExampleConfig.class);
     application.setApplicationType(ApplicationType.NONE_WEB);
     ApplicationStartupListener runListener = mock(ApplicationStartupListener.class);
-    ApplicationHook hook = (Application) -> runListener;
+    ApplicationHook hook = app -> runListener;
     Application.withHook(hook, () -> this.context = application.run());
-    then(runListener).should().starting(any(), ExampleConfig.class, new ApplicationArguments());
+    then(runListener).should().starting(any(), any(), any());
     then(runListener).should().contextPrepared(this.context);
     then(runListener).should().ready(eq(this.context), any());
     assertThat(this.context.isRunning()).isTrue();
@@ -1222,12 +1222,10 @@ class ApplicationTests {
     Application application = new Application(ExampleConfig.class);
     application.setApplicationType(ApplicationType.NONE_WEB);
     ApplicationStartupListener runListener = mock(ApplicationStartupListener.class);
-    ApplicationHook hook = (Application) -> runListener;
+    ApplicationHook hook = app -> runListener;
     this.context = Application.withHook(hook, () -> application.run());
 
-    ApplicationArguments arguments = new ApplicationArguments();
-
-    then(runListener).should().starting(any(), ExampleConfig.class, arguments);
+    then(runListener).should().starting(any(), any(), any());
     then(runListener).should().contextPrepared(this.context);
     then(runListener).should().ready(eq(this.context), any());
     assertThat(this.context.isRunning()).isTrue();
@@ -1245,13 +1243,12 @@ class ApplicationTests {
       }
 
     });
-    ApplicationHook hook = (Application) -> runListener;
+    ApplicationHook hook = app -> runListener;
     assertThatExceptionOfType(Application.AbandonedRunException.class)
             .isThrownBy(() -> Application.withHook(hook, () -> application.run()))
             .satisfies((ex) -> assertThat(ex.getApplicationContext().isRunning()).isFalse());
-    ApplicationArguments arguments = new ApplicationArguments();
 
-    then(runListener).should().starting(any(), ExampleConfig.class, arguments);
+    then(runListener).should().starting(any(), any(), any());
     then(runListener).should().contextPrepared(any());
     then(runListener).should(never()).ready(any(), any());
     then(runListener).should(never()).failed(any(), any());
