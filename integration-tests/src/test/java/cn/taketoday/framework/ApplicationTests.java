@@ -1234,6 +1234,8 @@ class ApplicationTests {
   @Test
   void withHookWhenHookThrowsAbandonedRunExceptionAbandonsRun() {
     Application application = new Application(ExampleConfig.class);
+    ApplicationListener listener = mock(ApplicationListener.class);
+    application.addListeners(listener);
     application.setApplicationType(ApplicationType.NONE_WEB);
     ApplicationStartupListener runListener = spy(new ApplicationStartupListener() {
 
@@ -1243,7 +1245,7 @@ class ApplicationTests {
       }
 
     });
-    ApplicationHook hook = app -> runListener;
+    ApplicationHook hook = (springApplication) -> runListener;
     assertThatExceptionOfType(Application.AbandonedRunException.class)
             .isThrownBy(() -> Application.withHook(hook, () -> application.run()))
             .satisfies((ex) -> assertThat(ex.getApplicationContext().isRunning()).isFalse());
@@ -1252,6 +1254,11 @@ class ApplicationTests {
     then(runListener).should().contextPrepared(any());
     then(runListener).should(never()).ready(any(), any());
     then(runListener).should(never()).failed(any(), any());
+    then(listener).should().onApplicationEvent(any(ApplicationStartingEvent.class));
+    then(listener).should().onApplicationEvent(any(ApplicationEnvironmentPreparedEvent.class));
+    then(listener).should().onApplicationEvent(any(ApplicationPreparedEvent.class));
+    then(listener).should(never()).onApplicationEvent(any(ApplicationReadyEvent.class));
+    then(listener).should(never()).onApplicationEvent(any(ApplicationFailedEvent.class));
   }
 
   private <S extends AvailabilityState> ArgumentMatcher<ApplicationEvent> isAvailabilityChangeEventWithState(

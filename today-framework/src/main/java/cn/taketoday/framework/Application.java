@@ -404,7 +404,7 @@ public class Application {
       ApplicationStartupListener hookListener = hook.getStartupListener(this);
       if (hookListener != null) {
         strategies = new ArrayList<>(strategies);
-        strategies.add(0, hookListener);
+        strategies.add(hookListener);
       }
     }
     return new ApplicationStartupListeners(log, strategies);
