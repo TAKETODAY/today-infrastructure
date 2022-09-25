@@ -376,7 +376,6 @@ public class ResponseEntityExceptionHandler {
    * @param request the current request
    * @return a {@code ResponseEntity} for the response to use, possibly
    * {@code null} when the response is already committed
-   * @since 4.2.8
    */
   @Nullable
   protected ResponseEntity<Object> handleAsyncRequestTimeoutException(

@@ -54,6 +54,7 @@ import cn.taketoday.util.LogFormatUtils;
 import cn.taketoday.util.MimeType;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.util.context.ContextView;
 
 /**
  * Abstract base class for Jackson 2.9 decoding, leveraging non-blocking parsing.
@@ -129,7 +130,7 @@ public abstract class AbstractJackson2Decoder
 
     ObjectMapper mapper = selectObjectMapper(elementType, mimeType);
     if (mapper == null) {
-      throw new IllegalStateException("No ObjectMapper for " + elementType);
+      return Flux.error(new IllegalStateException("No ObjectMapper for " + elementType));
     }
 
     boolean forceUseOfBigDecimal = mapper.isEnabled(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS);
@@ -141,18 +142,25 @@ public abstract class AbstractJackson2Decoder
     Flux<TokenBuffer> tokens = Jackson2Tokenizer.tokenize(
             processed, mapper.getFactory(), mapper, true, forceUseOfBigDecimal, getMaxInMemorySize());
 
-    ObjectReader reader = getObjectReader(mapper, elementType, hints);
-    return tokens.handle((tokenBuffer, sink) -> {
-      try {
-        Object value = reader.readValue(tokenBuffer.asParser(mapper));
-        logValue(value, hints);
-        if (value != null) {
-          sink.next(value);
+    return Flux.deferContextual(contextView -> {
+
+      Map<String, Object> hintsToUse = contextView.isEmpty() ? hints :
+                                       Hints.merge(hints, ContextView.class.getName(), contextView);
+
+      ObjectReader reader = createObjectReader(mapper, elementType, hintsToUse);
+
+      return tokens.handle((tokenBuffer, sink) -> {
+        try {
+          Object value = reader.readValue(tokenBuffer.asParser(mapper));
+          logValue(value, hints);
+          if (value != null) {
+            sink.next(value);
+          }
         }
-      }
-      catch (IOException ex) {
-        sink.error(processException(ex));
-      }
+        catch (IOException ex) {
+          sink.error(processException(ex));
+        }
+      });
     });
   }
 
@@ -178,8 +186,16 @@ public abstract class AbstractJackson2Decoder
   public Mono<Object> decodeToMono(
           Publisher<DataBuffer> input, ResolvableType elementType,
           @Nullable MimeType mimeType, @Nullable Map<String, Object> hints) {
-    return DataBufferUtils.join(input, this.maxInMemorySize)
-            .flatMap(dataBuffer -> Mono.justOrEmpty(decode(dataBuffer, elementType, mimeType, hints)));
+
+    return Mono.deferContextual(contextView -> {
+
+      Map<String, Object> hintsToUse =
+              contextView.isEmpty() ? hints :
+              Hints.merge(hints, ContextView.class.getName(), contextView);
+
+      return DataBufferUtils.join(input, this.maxInMemorySize).flatMap(dataBuffer ->
+              Mono.justOrEmpty(decode(dataBuffer, elementType, mimeType, hintsToUse)));
+    });
   }
 
   @Override
@@ -191,7 +207,7 @@ public abstract class AbstractJackson2Decoder
       throw new IllegalStateException("No ObjectMapper for " + targetType);
     }
     try {
-      ObjectReader objectReader = getObjectReader(mapper, targetType, hints);
+      ObjectReader objectReader = createObjectReader(mapper, targetType, hints);
       Object value = objectReader.readValue(dataBuffer.asInputStream());
       logValue(value, hints);
       return value;
@@ -204,7 +220,7 @@ public abstract class AbstractJackson2Decoder
     }
   }
 
-  private ObjectReader getObjectReader(
+  private ObjectReader createObjectReader(
           ObjectMapper mapper, ResolvableType elementType, @Nullable Map<String, Object> hints) {
     Assert.notNull(elementType, "'elementType' must not be null");
     Class<?> contextClass = getContextClass(elementType);
@@ -213,9 +229,29 @@ public abstract class AbstractJackson2Decoder
     }
     JavaType javaType = getJavaType(elementType.getType(), contextClass);
     Class<?> jsonView = (hints != null ? (Class<?>) hints.get(Jackson2CodecSupport.JSON_VIEW_HINT) : null);
-    return jsonView != null ?
-           mapper.readerWithView(jsonView).forType(javaType) :
-           mapper.readerFor(javaType);
+
+    ObjectReader objectReader = jsonView != null ?
+                                mapper.readerWithView(jsonView).forType(javaType) :
+                                mapper.readerFor(javaType);
+
+    return customizeReader(objectReader, elementType, hints);
+  }
+
+  /**
+   * Subclasses can use this method to customize {@link ObjectReader} used
+   * for reading values.
+   *
+   * @param reader the reader instance to customize
+   * @param elementType the target type of element values to read to
+   * @param hints a map with serialization hints;
+   * the Reactor Context, when available, may be accessed under the key
+   * {@code ContextView.class.getName()}
+   * @return the customized {@code ObjectReader} to use
+   */
+  protected ObjectReader customizeReader(
+          ObjectReader reader, ResolvableType elementType, @Nullable Map<String, Object> hints) {
+
+    return reader;
   }
 
   @Nullable
