@@ -18,12 +18,11 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.framework.web.servlet.filter;
+package cn.taketoday.web.servlet.filter;
 
 import java.io.IOException;
 
 import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.web.servlet.filter.OncePerRequestFilter;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

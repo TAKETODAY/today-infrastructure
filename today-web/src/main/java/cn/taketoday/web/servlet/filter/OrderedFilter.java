@@ -18,7 +18,7 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.framework.web.servlet.filter;
+package cn.taketoday.web.servlet.filter;
 
 import cn.taketoday.core.Ordered;
 import jakarta.servlet.Filter;
@@ -27,6 +27,7 @@ import jakarta.servlet.Filter;
  * An {@link Ordered} {@link Filter}.
  *
  * @author Phillip Webb
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public interface OrderedFilter extends Filter, Ordered {

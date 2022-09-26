@@ -18,10 +18,9 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.framework.web.servlet.filter;
+package cn.taketoday.web.servlet.filter;
 
 import cn.taketoday.core.Ordered;
-import cn.taketoday.web.servlet.filter.FormContentFilter;
 
 /**
  * {@link FormContentFilter} that also implements {@link Ordered}.
