@@ -32,12 +32,12 @@ import jakarta.servlet.ServletContextListener;
  * <p> {@code ContextLoaderListener} supports injecting the root web
  * application context via the {@link #ContextLoaderListener(WebApplicationContext)}
  * constructor, allowing for programmatic configuration in Servlet initializers.
- * See {@link cn.taketoday.web.config.WebApplicationInitializer} for usage examples.
+ * See {@link cn.taketoday.context.ApplicationContextInitializer} for usage examples.
  *
  * @author Juergen Hoeller
  * @author Chris Beams
  * @see #setContextInitializers
- * @see cn.taketoday.web.config.WebApplicationInitializer
+ * @see cn.taketoday.context.ApplicationContextInitializer
  * @since 4.0
  */
 public class ContextLoaderListener extends ContextLoader implements ServletContextListener {
@@ -87,7 +87,7 @@ public class ContextLoaderListener extends ContextLoader implements ServletConte
    * {@code ConfigurableWebApplicationContext}, none of the above will occur under the
    * assumption that the user has performed these actions (or not) per his or her
    * specific needs.
-   * <p>See {@link cn.taketoday.web.config.WebApplicationInitializer} for usage examples.
+   * <p>See {@link cn.taketoday.context.ApplicationContextInitializer} for usage examples.
    * <p>In any case, the given application context will be registered into the
    * ServletContext under the attribute name {@link
    * WebServletApplicationContext#ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE} and the Framework

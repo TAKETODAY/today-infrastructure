@@ -33,7 +33,6 @@ import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.ApplicationContextException;
 import cn.taketoday.context.ApplicationContextInitializer;
 import cn.taketoday.context.ConfigurableApplicationContext;
-import cn.taketoday.core.GenericTypeResolver;
 import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
 import cn.taketoday.core.annotation.Order;
 import cn.taketoday.core.env.ConfigurableEnvironment;
@@ -46,6 +45,7 @@ import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.WebApplicationContext;
+import cn.taketoday.web.handler.DispatcherHandler;
 import cn.taketoday.web.servlet.WebServletApplicationContext;
 import jakarta.servlet.ServletContext;
 
@@ -80,7 +80,7 @@ import jakarta.servlet.ServletContext;
  * <p>{@code ContextLoader} supports injecting the root web
  * application context via the {@link #ContextLoader(WebApplicationContext)}
  * constructor, allowing for programmatic configuration in Servlet initializers.
- * See {@link cn.taketoday.web.config.WebApplicationInitializer} for usage examples.
+ * See {@link cn.taketoday.context.ApplicationContextInitializer} for usage examples.
  *
  * @author Juergen Hoeller
  * @author Colin Sampaleanu
@@ -216,7 +216,7 @@ public class ContextLoader {
    * {@code ConfigurableWebApplicationContext}, none of the above will occur under the
    * assumption that the user has performed these actions (or not) per his or her
    * specific needs.
-   * <p>See {@link cn.taketoday.web.config.WebApplicationInitializer} for usage examples.
+   * <p>See {@link cn.taketoday.context.ApplicationContextInitializer} for usage examples.
    * <p>In any case, the given application context will be registered into the
    * ServletContext under the attribute name {@link
    * WebServletApplicationContext#ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE} and subclasses are
@@ -263,10 +263,10 @@ public class ContextLoader {
                       "check whether you have multiple ContextLoader* definitions in your web.xml!");
     }
 
-    servletContext.log("Initializing Framework root WebServletApplicationContext");
+    servletContext.log("Initializing Infra root WebApplicationContext");
     Logger logger = LoggerFactory.getLogger(ContextLoader.class);
     if (logger.isInfoEnabled()) {
-      logger.info("Root WebServletApplicationContext: initialization started");
+      logger.info("Root WebApplicationContext: initialization started");
     }
     long startTime = System.currentTimeMillis();
 
@@ -299,7 +299,7 @@ public class ContextLoader {
 
       if (logger.isInfoEnabled()) {
         long elapsedTime = System.currentTimeMillis() - startTime;
-        logger.info("Root WebServletApplicationContext initialized in {} ms", elapsedTime);
+        logger.info("Root WebApplicationContext initialized in {} ms", elapsedTime);
       }
 
       return this.context;
@@ -374,7 +374,7 @@ public class ContextLoader {
       }
       else {
         // Generate default id...
-        wac.setId(ConfigurableWebServletApplicationContext.APPLICATION_CONTEXT_ID_PREFIX +
+        wac.setId(DispatcherHandler.APPLICATION_CONTEXT_ID_PREFIX +
                 ObjectUtils.getDisplayString(sc.getContextPath()));
       }
     }
@@ -420,20 +420,11 @@ public class ContextLoader {
             determineContextInitializerClasses(sc);
 
     for (Class<ApplicationContextInitializer> initializerClass : initializerClasses) {
-      Class<?> initializerContextClass =
-              GenericTypeResolver.resolveTypeArgument(initializerClass, ApplicationContextInitializer.class);
-      if (initializerContextClass != null && !initializerContextClass.isInstance(wac)) {
-        throw new ApplicationContextException(String.format(
-                "Could not apply context initializer [%s] since its generic parameter [%s] " +
-                        "is not assignable from the type of application context used by this " +
-                        "context loader: [%s]", initializerClass.getName(), initializerContextClass.getName(),
-                wac.getClass().getName()));
-      }
-      this.contextInitializers.add(BeanUtils.newInstance(initializerClass));
+      contextInitializers.add(BeanUtils.newInstance(initializerClass));
     }
 
-    AnnotationAwareOrderComparator.sort(this.contextInitializers);
-    for (ApplicationContextInitializer initializer : this.contextInitializers) {
+    AnnotationAwareOrderComparator.sort(contextInitializers);
+    for (ApplicationContextInitializer initializer : contextInitializers) {
       initializer.initialize(wac);
     }
   }
