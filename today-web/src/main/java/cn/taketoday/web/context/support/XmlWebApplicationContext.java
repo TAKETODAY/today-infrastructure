@@ -143,10 +143,14 @@ public class XmlWebApplicationContext extends AbstractRefreshableWebApplicationC
   @Override
   protected String[] getDefaultConfigLocations() {
     if (getNamespace() != null) {
-      return new String[] { DEFAULT_CONFIG_LOCATION_PREFIX + getNamespace() + DEFAULT_CONFIG_LOCATION_SUFFIX };
+      return new String[] {
+              DEFAULT_CONFIG_LOCATION_PREFIX + getNamespace() + DEFAULT_CONFIG_LOCATION_SUFFIX
+      };
     }
     else {
-      return new String[] { DEFAULT_CONFIG_LOCATION };
+      return new String[] {
+              DEFAULT_CONFIG_LOCATION
+      };
     }
   }
 

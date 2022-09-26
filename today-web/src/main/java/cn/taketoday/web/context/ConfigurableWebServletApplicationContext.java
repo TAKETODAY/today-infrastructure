@@ -22,7 +22,6 @@ package cn.taketoday.web.context;
 
 import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.servlet.WebServletApplicationContext;
 import jakarta.servlet.ServletConfig;
 import jakarta.servlet.ServletContext;
@@ -44,11 +43,6 @@ import jakarta.servlet.ServletContext;
  */
 public interface ConfigurableWebServletApplicationContext
         extends WebServletApplicationContext, ConfigurableWebApplicationContext {
-
-  /**
-   * Prefix for ApplicationContext ids that refer to context path and/or servlet name.
-   */
-  String APPLICATION_CONTEXT_ID_PREFIX = WebApplicationContext.class.getName() + ":";
 
   /**
    * Name of the ServletConfig environment bean in the factory.

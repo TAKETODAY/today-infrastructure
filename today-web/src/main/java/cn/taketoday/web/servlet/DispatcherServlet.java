@@ -29,15 +29,27 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import cn.taketoday.context.ApplicationContext;
+import cn.taketoday.context.ApplicationContextInitializer;
+import cn.taketoday.context.ConfigurableApplicationContext;
+import cn.taketoday.core.env.ConfigurableEnvironment;
 import cn.taketoday.http.MediaType;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.RequestContextHolder;
+import cn.taketoday.web.WebApplicationContext;
+import cn.taketoday.web.context.ConfigurableWebEnvironment;
+import cn.taketoday.web.context.ConfigurableWebServletApplicationContext;
+import cn.taketoday.web.context.ContextLoader;
+import cn.taketoday.web.context.support.StandardServletEnvironment;
+import cn.taketoday.web.context.support.WebApplicationContextUtils;
 import cn.taketoday.web.handler.DispatcherHandler;
 import jakarta.servlet.DispatcherType;
 import jakarta.servlet.Servlet;
 import jakarta.servlet.ServletConfig;
+import jakarta.servlet.ServletContext;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
@@ -56,7 +68,20 @@ public class DispatcherServlet
   @Serial
   private static final long serialVersionUID = 1L;
 
+  /**
+   * Prefix for the ServletContext attribute for the ApplicationContext.
+   * The completion is the servlet name.
+   */
+  public static final String SERVLET_CONTEXT_PREFIX = DispatcherServlet.class.getName() + ".CONTEXT.";
+
   private transient ServletConfig servletConfig;
+
+  /** ServletContext attribute to find the WebApplicationContext in. */
+  @Nullable
+  private String contextAttribute;
+
+  /** Should we publish the context as a ServletContext attribute?. */
+  private boolean publishContext = true;
 
   public DispatcherServlet() { }
 
@@ -64,32 +89,157 @@ public class DispatcherServlet
     super(context);
   }
 
+  /**
+   * Set the name of the ServletContext attribute which should be used to retrieve the
+   * {@link WebApplicationContext} that this servlet is supposed to use.
+   *
+   * @since 4.0
+   */
+  public void setContextAttribute(@Nullable String contextAttribute) {
+    this.contextAttribute = contextAttribute;
+  }
+
+  /**
+   * Return the name of the ServletContext attribute which should be used to retrieve the
+   * {@link WebApplicationContext} that this servlet is supposed to use.
+   *
+   * @since 4.0
+   */
+  @Nullable
+  public String getContextAttribute() {
+    return this.contextAttribute;
+  }
+
+  /**
+   * Set whether to publish this servlet's context as a ServletContext attribute,
+   * available to all objects in the web container. Default is "true".
+   * <p>This is especially handy during testing, although it is debatable whether
+   * it's good practice to let other application objects access the context this way.
+   *
+   * @since 4.0
+   */
+  public void setPublishContext(boolean publishContext) {
+    this.publishContext = publishContext;
+  }
+
+  @Override
+  protected ConfigurableEnvironment createEnvironment() {
+    return new StandardServletEnvironment();
+  }
+
   @Override
   public void init(ServletConfig servletConfig) {
     this.servletConfig = servletConfig;
-    long startTime = System.currentTimeMillis();
-
     String servletName = servletConfig.getServletName();
     servletConfig.getServletContext().log(
-            "Initializing " + getClass().getSimpleName() + " '" + servletName + "'");
+            "Initializing Infra " + getClass().getSimpleName() + " '" + servletName + "'");
     log.info("Initializing Servlet '{}'", servletName);
-    try {
-      init();
+
+    init();
+  }
+
+  @Override
+  protected void initInternal() throws Exception {
+    if (this.publishContext) {
+      // Publish the context as a servlet context attribute.
+      String attrName = getServletContextAttributeName();
+      getServletContext().setAttribute(attrName, getApplicationContext());
     }
-    catch (Exception ex) {
-      log.error("Context initialization failed", ex);
-      throw ex;
+  }
+
+  @Override
+  protected void applyInitializers(ConfigurableApplicationContext context, List<ApplicationContextInitializer> initializers) {
+    String globalClassNames = getServletContext().getInitParameter(ContextLoader.GLOBAL_INITIALIZER_CLASSES_PARAM);
+    if (globalClassNames != null) {
+      for (String className : StringUtils.tokenizeToStringArray(globalClassNames, INIT_PARAM_DELIMITERS)) {
+        initializers.add(loadInitializer(className, context));
+      }
     }
 
-    if (log.isDebugEnabled()) {
-      String value = isEnableLoggingRequestDetails() ?
-                     "shown which may lead to unsafe logging of potentially sensitive data" :
-                     "masked to prevent unsafe logging of potentially sensitive data";
-      log.debug("enableLoggingRequestDetails='{}': request parameters and headers will be {}",
-              isEnableLoggingRequestDetails(), value);
+    super.applyInitializers(context, initializers);
+  }
+
+  @Override
+  protected void postProcessApplicationContext(ConfigurableApplicationContext context) {
+    super.postProcessApplicationContext(context);
+
+    if (context instanceof ConfigurableWebServletApplicationContext wac) {
+      wac.setServletContext(getServletContext());
+      wac.setServletConfig(getServletConfig());
     }
 
-    log.info("Completed initialization in {} ms", System.currentTimeMillis() - startTime);
+    // The wac environment's #initPropertySources will be called in any case when the context
+    // is refreshed; do it eagerly here to ensure servlet property sources are in place for
+    // use in any post-processing or initialization that occurs below prior to #refresh
+    ConfigurableEnvironment env = context.getEnvironment();
+    if (env instanceof ConfigurableWebEnvironment cwe) {
+      cwe.initPropertySources(getServletContext(), getServletConfig());
+    }
+  }
+
+  @Override
+  protected void applyDefaultContextId(ConfigurableApplicationContext context) {
+    // Generate default id...
+    context.setId(APPLICATION_CONTEXT_ID_PREFIX +
+            ObjectUtils.getDisplayString(getServletContext().getContextPath()) + '/' + getServletName());
+  }
+
+  @Override
+  protected WebApplicationContext getRootApplicationContext() {
+    return WebApplicationContextUtils.getWebApplicationContext(getServletContext());
+  }
+
+  /**
+   * Returns a reference to the {@link ServletContext} in which this
+   * servlet is running. See {@link ServletConfig#getServletContext}.
+   *
+   * <p>
+   * This method is supplied for convenience. It gets the context
+   * from the servlet's <code>ServletConfig</code> object.
+   *
+   * @return ServletContext the <code>ServletContext</code>
+   * object passed to this servlet by the <code>init</code> method
+   */
+  public ServletContext getServletContext() {
+    return getServletConfig().getServletContext();
+  }
+
+  /**
+   * Retrieve a {@code ApplicationContext} from the {@code ServletContext}
+   * attribute with the {@link #setContextAttribute configured name}. The
+   * {@code ApplicationContext} must have already been loaded and stored in the
+   * {@code ServletContext} before this servlet gets initialized (or invoked).
+   * <p>Subclasses may override this method to provide a different
+   * {@code ApplicationContext} retrieval strategy.
+   *
+   * @return the ApplicationContext for this servlet, or {@code null} if not found
+   * @see #getContextAttribute()
+   */
+  @Override
+  @Nullable
+  protected ApplicationContext findApplicationContext() {
+    String attrName = getContextAttribute();
+    if (attrName == null) {
+      return null;
+    }
+    WebApplicationContext wac =
+            WebApplicationContextUtils.getWebApplicationContext(getServletContext(), attrName);
+    if (wac == null) {
+      throw new IllegalStateException("No WebApplicationContext found: initializer not registered?");
+    }
+    return null;
+  }
+
+  /**
+   * Return the ServletContext attribute name for this servlet's WebApplicationContext.
+   * <p>The default implementation returns
+   * {@code SERVLET_CONTEXT_PREFIX + servlet name}.
+   *
+   * @see #SERVLET_CONTEXT_PREFIX
+   * @see #getServletName
+   */
+  public String getServletContextAttributeName() {
+    return SERVLET_CONTEXT_PREFIX + getServletName();
   }
 
   @Override
@@ -132,15 +282,19 @@ public class DispatcherServlet
     return "DispatcherServlet, Copyright © TODAY & 2017 - 2022 All Rights Reserved";
   }
 
-  @Override
-  public void destroy() {
-    super.destroy();
+  /**
+   * Returns the name of this servlet instance. See {@link ServletConfig#getServletName}.
+   *
+   * @return the name of this servlet instance
+   */
+  public String getServletName() {
+    return getServletConfig().getServletName();
   }
 
   @Override
   protected void log(String msg) {
     super.log(msg);
-    getServletConfig().getServletContext().log(msg);
+    getServletContext().log(msg);
   }
 
   // @since 4.0

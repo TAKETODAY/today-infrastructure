@@ -21,7 +21,6 @@
 package cn.taketoday.web.handler;
 
 import java.io.IOException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.stream.Collectors;
@@ -29,16 +28,11 @@ import java.util.stream.Collectors;
 import cn.taketoday.beans.factory.BeanFactoryUtils;
 import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
 import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.context.ApplicationContext.State;
-import cn.taketoday.context.aware.ApplicationContextAware;
 import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpStatus;
 import cn.taketoday.lang.Assert;
-import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.logging.Logger;
-import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ArrayHolder;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.web.HandlerAdapter;
@@ -60,11 +54,9 @@ import cn.taketoday.web.util.WebUtils;
  * @author TODAY 2019-11-16 19:05
  * @since 3.0
  */
-public class DispatcherHandler implements ApplicationContextAware {
+public class DispatcherHandler extends InfraHandler {
 
   public static final String BEAN_NAME = "cn.taketoday.web.handler.DispatcherHandler";
-
-  protected final Logger log = LoggerFactory.getLogger(getClass());
 
   /** Action mapping registry */
   private HandlerMapping handlerMapping;
@@ -80,9 +72,6 @@ public class DispatcherHandler implements ApplicationContextAware {
   /** Throw a NoHandlerFoundException if no Handler was found to process this request? @since 4.0 */
   private boolean throwExceptionIfNoHandlerFound = false;
 
-  /** Whether to log potentially sensitive info (request params at DEBUG + headers at TRACE). */
-  private boolean enableLoggingRequestDetails = false;
-
   /** Detect all HandlerMappings or just expect "HandlerRegistry" bean?. */
   private boolean detectAllHandlerMapping = true;
 
@@ -92,8 +81,6 @@ public class DispatcherHandler implements ApplicationContextAware {
   /** Detect all HandlerExceptionHandlers or just expect "HandlerExceptionHandler" bean?. */
   private boolean detectAllHandlerExceptionHandlers = true;
 
-  private ApplicationContext applicationContext;
-
   private HttpRequestHandler notFoundHandler;
 
   private final ArrayHolder<RequestHandledListener> requestHandledActions = ArrayHolder.forGenerator(RequestHandledListener[]::new);
@@ -101,12 +88,12 @@ public class DispatcherHandler implements ApplicationContextAware {
   public DispatcherHandler() { }
 
   public DispatcherHandler(ApplicationContext context) {
-    this.applicationContext = context;
+    super(context);
   }
 
-  // @since 4.0
-  public void init() {
-    initStrategies(applicationContext);
+  @Override
+  protected void onRefresh(ApplicationContext context) {
+    initStrategies(context);
   }
 
   /**
@@ -463,7 +450,7 @@ public class DispatcherHandler implements ApplicationContextAware {
       String headers = "";  // nothing below trace
       if (log.isTraceEnabled()) {
         HttpHeaders httpHeaders = request.responseHeaders();
-        if (enableLoggingRequestDetails) {
+        if (isEnableLoggingRequestDetails()) {
           headers = httpHeaders.entrySet().stream()
                   .map(entry -> entry.getKey() + ":" + entry.getValue())
                   .collect(Collectors.joining(", "));
@@ -486,42 +473,6 @@ public class DispatcherHandler implements ApplicationContextAware {
         action.requestHandled(request, startTime, failureCause);
       }
     }
-  }
-
-  /**
-   * Return this handler's WebApplicationContext.
-   *
-   * @since 4.0
-   */
-  public final ApplicationContext getApplicationContext() {
-    return this.applicationContext;
-  }
-
-  /**
-   * Destroy Application
-   */
-  public void destroy() {
-    var context = getApplicationContext();
-    if (context != null) {
-      State state = context.getState();
-      if (state != State.CLOSING && state != State.CLOSED) {
-        context.close();
-        var dateFormat = new SimpleDateFormat(Constant.DEFAULT_DATE_FORMAT);
-        log("Your application destroyed at: ["
-                + dateFormat.format(System.currentTimeMillis())
-                + "] on startup date: [" + dateFormat.format(context.getStartupDate()) + ']'
-        );
-      }
-    }
-  }
-
-  /**
-   * Log internal
-   *
-   * @param msg Log message
-   */
-  protected void log(final String msg) {
-    log.info(msg);
   }
 
   public HandlerMapping getHandlerMapping() {
@@ -560,28 +511,6 @@ public class DispatcherHandler implements ApplicationContextAware {
   }
 
   /**
-   * Whether to log request params at DEBUG level, and headers at TRACE level.
-   * Both may contain sensitive information.
-   * <p>By default set to {@code false} so that request details are not shown.
-   *
-   * @param enable whether to enable or not
-   * @since 4.0
-   */
-  public void setEnableLoggingRequestDetails(boolean enable) {
-    this.enableLoggingRequestDetails = enable;
-  }
-
-  /**
-   * Whether logging of potentially sensitive, request details at DEBUG and
-   * TRACE level is allowed.
-   *
-   * @since 4.0
-   */
-  public boolean isEnableLoggingRequestDetails() {
-    return this.enableLoggingRequestDetails;
-  }
-
-  /**
    * Set whether to detect all HandlerMapping beans in this handler's context. Otherwise,
    * just a single bean with name "HandlerMapping" will be expected.
    * <p>Default is "true". Turn this off if you want this servlet to use a single
@@ -615,17 +544,6 @@ public class DispatcherHandler implements ApplicationContextAware {
    */
   public void setDetectAllHandlerExceptionHandlers(boolean detectAllHandlerExceptionHandlers) {
     this.detectAllHandlerExceptionHandlers = detectAllHandlerExceptionHandlers;
-  }
-
-  /**
-   * Called by Framework via {@link ApplicationContextAware} to inject the current
-   * application context.
-   *
-   * @since 4.0
-   */
-  @Override
-  public void setApplicationContext(ApplicationContext applicationContext) {
-    this.applicationContext = applicationContext;
   }
 
   /**
