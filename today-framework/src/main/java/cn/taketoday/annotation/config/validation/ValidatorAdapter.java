@@ -37,7 +37,7 @@ import jakarta.validation.ValidationException;
 
 /**
  * {@link Validator} implementation that delegates calls to another {@link Validator}.
- * This {@link Validator} implements Spring's {@link SmartValidator} interface but does
+ * This {@link Validator} implements Infra {@link SmartValidator} interface but does
  * not implement the JSR-303 {@code javax.validator.Validator} interface.
  *
  * @author Stephane Nicoll
@@ -112,10 +112,7 @@ public class ValidatorAdapter implements SmartValidator, ApplicationContextAware
     if (validator != null) {
       return wrap(validator, false);
     }
-    return getExistingOrCreate(applicationContext);
-  }
 
-  private static Validator getExistingOrCreate(ApplicationContext applicationContext) {
     Validator existing = getExisting(applicationContext);
     if (existing != null) {
       return wrap(existing, true);
@@ -123,9 +120,9 @@ public class ValidatorAdapter implements SmartValidator, ApplicationContextAware
     return create(applicationContext);
   }
 
-  private static Validator getExisting(ApplicationContext applicationContext) {
+  private static Validator getExisting(ApplicationContext context) {
     try {
-      jakarta.validation.Validator validatorBean = applicationContext.getBean(jakarta.validation.Validator.class);
+      var validatorBean = context.getBean(jakarta.validation.Validator.class);
       if (validatorBean instanceof Validator validator) {
         return validator;
       }

@@ -99,7 +99,7 @@ public class MessageSourceAutoConfiguration {
 
     @Override
     public ConditionOutcome getMatchOutcome(ConditionEvaluationContext context, AnnotatedTypeMetadata metadata) {
-      String basename = context.getEnvironment().getProperty("context.messages.basename", "messages");
+      String basename = context.getEnvironment().getProperty("infra.messages.basename", "messages");
       ConditionOutcome outcome = cache.get(basename);
       if (outcome == null) {
         outcome = getMatchOutcomeForBasename(context, basename);

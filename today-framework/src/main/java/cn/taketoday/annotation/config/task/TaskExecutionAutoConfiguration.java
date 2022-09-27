@@ -57,10 +57,12 @@ public class TaskExecutionAutoConfiguration {
 
   @Component
   @ConditionalOnMissingBean
-  public TaskExecutorBuilder taskExecutorBuilder(TaskExecutionProperties properties,
-          ObjectProvider<TaskExecutorCustomizer> taskExecutorCustomizers,
-          ObjectProvider<TaskDecorator> taskDecorator) {
-    TaskExecutionProperties.Pool pool = properties.getPool();
+  public TaskExecutorBuilder taskExecutorBuilder(
+          TaskExecutionProperties properties,
+          ObjectProvider<TaskDecorator> taskDecorator,
+          ObjectProvider<TaskExecutorCustomizer> taskExecutorCustomizers) {
+
+    var pool = properties.getPool();
     TaskExecutorBuilder builder = new TaskExecutorBuilder();
     builder = builder.queueCapacity(pool.getQueueCapacity());
     builder = builder.corePoolSize(pool.getCoreSize());

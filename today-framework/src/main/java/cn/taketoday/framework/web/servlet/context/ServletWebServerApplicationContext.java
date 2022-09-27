@@ -285,17 +285,17 @@ public class ServletWebServerApplicationContext extends GenericWebServletApplica
       }
       return;
     }
-    servletContext.log("Initializing embedded WebServletApplicationContext");
+    servletContext.log("Initializing embedded WebApplicationContext");
     try {
       servletContext.setAttribute(WebServletApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE, this);
       if (log.isDebugEnabled()) {
-        log.debug("Published root WebServletApplicationContext as ServletContext attribute with name [{}]",
+        log.debug("Published root WebApplicationContext as ServletContext attribute with name [{}]",
                 WebServletApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE);
       }
       setServletContext(servletContext);
       if (log.isInfoEnabled()) {
         long elapsedTime = System.currentTimeMillis() - getStartupDate();
-        log.info("Root WebServletApplicationContext: initialization completed in {} ms", elapsedTime);
+        log.info("Root WebApplicationContext: initialization completed in {} ms", elapsedTime);
       }
     }
     catch (RuntimeException | Error ex) {
