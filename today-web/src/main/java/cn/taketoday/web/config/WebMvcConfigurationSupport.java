@@ -36,6 +36,7 @@ import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.annotation.Role;
 import cn.taketoday.context.aware.ApplicationContextSupport;
+import cn.taketoday.context.condition.ConditionalOnClass;
 import cn.taketoday.context.condition.ConditionalOnMissingBean;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.conversion.Converter;
@@ -60,7 +61,6 @@ import cn.taketoday.http.converter.json.Jackson2ObjectMapperBuilder;
 import cn.taketoday.http.converter.json.JsonbHttpMessageConverter;
 import cn.taketoday.http.converter.json.MappingJackson2HttpMessageConverter;
 import cn.taketoday.http.converter.smile.MappingJackson2SmileHttpMessageConverter;
-import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.lang.TodayStrategies;
 import cn.taketoday.stereotype.Component;
@@ -476,7 +476,7 @@ public class WebMvcConfigurationSupport extends ApplicationContextSupport {
   @Component
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
   @ConditionalOnMissingBean(ViewControllerHandlerMapping.class)
-  ViewControllerHandlerMapping viewControllerHandlerRegistry(
+  ViewControllerHandlerMapping viewControllerHandlerMapping(
           ParameterResolvingRegistry resolvingRegistry, Environment environment) throws Exception {
     if (TodayStrategies.getFlag(ENABLE_WEB_MVC_XML, true)) {
       // find the configure file
@@ -527,7 +527,7 @@ public class WebMvcConfigurationSupport extends ApplicationContextSupport {
   @Component
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
   public HandlerExceptionHandler handlerExceptionHandler() {
-    ArrayList<HandlerExceptionHandler> handlers = new ArrayList<>();
+    var handlers = new ArrayList<HandlerExceptionHandler>();
     configureExceptionHandlers(handlers);
     if (handlers.isEmpty()) {
       addDefaultHandlerExceptionHandlers(handlers);
@@ -605,7 +605,7 @@ public class WebMvcConfigurationSupport extends ApplicationContextSupport {
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
   @ConditionalOnMissingBean(RequestMappingHandlerMapping.class)
   RequestMappingHandlerMapping requestMappingHandlerMapping(ContentNegotiationManager contentNegotiationManager) {
-    RequestMappingHandlerMapping handlerMapping = createRequestMappingHandlerMapping();
+    var handlerMapping = createRequestMappingHandlerMapping();
 
     PathMatchConfigurer configurer = getPathMatchConfigurer();
 
@@ -641,7 +641,7 @@ public class WebMvcConfigurationSupport extends ApplicationContextSupport {
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
   public AnnotationHandlerFactory annotationHandlerFactory(
           BeanFactory beanFactory, ParameterResolvingRegistry registry, ReturnValueHandlerManager manager) {
-    AnnotationHandlerFactory handlerFactory = new AnnotationHandlerFactory(beanFactory);
+    var handlerFactory = new AnnotationHandlerFactory(beanFactory);
     handlerFactory.setReturnValueHandlerManager(manager);
     handlerFactory.setParameterResolvingRegistry(registry);
     return handlerFactory;
@@ -657,36 +657,35 @@ public class WebMvcConfigurationSupport extends ApplicationContextSupport {
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
   public HandlerMapping resourceHandlerMapping(
           @Nullable ContentNegotiationManager contentNegotiationManager) {
-
-    Assert.state(this.applicationContext != null, "No ApplicationContext set");
+    var context = obtainApplicationContext();
     PathMatchConfigurer pathConfig = getPathMatchConfigurer();
 
-    ResourceHandlerRegistry registry = new ResourceHandlerRegistry(this.applicationContext, contentNegotiationManager);
+    var registry = new ResourceHandlerRegistry(context, contentNegotiationManager);
     addResourceHandlers(registry);
 
-    SimpleUrlHandlerMapping handlerRegistry = registry.getHandlerMapping();
-    if (handlerRegistry == null) {
+    SimpleUrlHandlerMapping handlerMapping = registry.getHandlerMapping();
+    if (handlerMapping == null) {
       return null;
     }
 
-    handlerRegistry.setCorsConfigurations(getCorsConfigurations());
-    handlerRegistry.setInterceptors(getInterceptors());
-    handlerRegistry.setUseCaseSensitiveMatch(Boolean.TRUE.equals(pathConfig.isUseCaseSensitiveMatch()));
-    handlerRegistry.setUseTrailingSlashMatch(Boolean.TRUE.equals(pathConfig.isUseTrailingSlashMatch()));
+    handlerMapping.setCorsConfigurations(getCorsConfigurations());
+    handlerMapping.setInterceptors(getInterceptors());
+    handlerMapping.setUseCaseSensitiveMatch(Boolean.TRUE.equals(pathConfig.isUseCaseSensitiveMatch()));
+    handlerMapping.setUseTrailingSlashMatch(Boolean.TRUE.equals(pathConfig.isUseTrailingSlashMatch()));
 
-    return handlerRegistry;
+    return handlerMapping;
   }
 
   @Component
   @ConditionalOnMissingBean
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-  public HandlerMapping webFunctionHandlerRegistry() {
-    FunctionHandlerMapping functionHandlerRegistry = new FunctionHandlerMapping();
-    functionHandlerRegistry.setApplicationContext(getApplicationContext());
-    functionHandlerRegistry.setCorsConfigurations(getCorsConfigurations());
+  public HandlerMapping webFunctionHandlerMapping() {
+    FunctionHandlerMapping handlerMapping = new FunctionHandlerMapping();
+    handlerMapping.setApplicationContext(getApplicationContext());
+    handlerMapping.setCorsConfigurations(getCorsConfigurations());
 
-    configureFunctionHandler(functionHandlerRegistry);
-    return functionHandlerRegistry;
+    configureFunctionHandler(handlerMapping);
+    return handlerMapping;
   }
 
   protected void configureFunctionHandler(FunctionHandlerMapping functionHandlerRegistry) { }
@@ -699,7 +698,7 @@ public class WebMvcConfigurationSupport extends ApplicationContextSupport {
   @Component
   @Nullable
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-  public HandlerMapping viewControllerHandlerRegistry() {
+  public HandlerMapping viewControllerHandlerMapping() {
     ViewControllerRegistry registry = new ViewControllerRegistry(this.applicationContext);
     addViewControllers(registry);
 
@@ -729,15 +728,16 @@ public class WebMvcConfigurationSupport extends ApplicationContextSupport {
    * default servlet handler. To configure "default" Servlet handling,
    * override {@link #configureDefaultServletHandling}.
    */
-  @Component
   @Nullable
+  @Component
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
+  @ConditionalOnClass(name = ServletDetector.SERVLET_CLASS)
   public HandlerMapping defaultServletHandlerMapping() {
     if (ServletDetector.isPresent) {
       if (getApplicationContext() instanceof WebServletApplicationContext context) {
         ServletContext servletContext = context.getServletContext();
         if (servletContext != null) {
-          DefaultServletHandlerConfigurer configurer = new DefaultServletHandlerConfigurer(servletContext);
+          var configurer = new DefaultServletHandlerConfigurer(servletContext);
           configureDefaultServletHandling(configurer);
 
           return configurer.buildHandlerMapping();
@@ -829,7 +829,7 @@ public class WebMvcConfigurationSupport extends ApplicationContextSupport {
   @Component
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
   public FormattingConversionService mvcConversionService() {
-    FormattingConversionService conversionService = new DefaultFormattingConversionService();
+    var conversionService = new DefaultFormattingConversionService();
     addFormatters(conversionService);
     return conversionService;
   }
@@ -855,13 +855,14 @@ public class WebMvcConfigurationSupport extends ApplicationContextSupport {
   @Component
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
   public RequestMappingHandlerAdapter requestMappingHandlerAdapter(
-          @Qualifier("mvcConversionService") FormattingConversionService conversionService,
-          ParameterResolvingRegistry parameterResolvingRegistry,
+          @Qualifier("mvcValidator") Validator validator,
           ReturnValueHandlerManager returnValueHandlerManager,
-          @Qualifier("mvcValidator") Validator validator) {
+          ParameterResolvingRegistry parameterResolvingRegistry,
+          @Qualifier("mvcConversionService") FormattingConversionService conversionService) {
 
-    RequestMappingHandlerAdapter adapter = createRequestMappingHandlerAdapter();
-    adapter.setWebBindingInitializer(getConfigurableWebBindingInitializer(conversionService, validator));
+    var adapter = createRequestMappingHandlerAdapter();
+
+    adapter.setWebBindingInitializer(getWebBindingInitializer(conversionService, validator));
     adapter.setResolvingRegistry(parameterResolvingRegistry);
     adapter.setReturnValueHandlerManager(returnValueHandlerManager);
 
@@ -892,10 +893,10 @@ public class WebMvcConfigurationSupport extends ApplicationContextSupport {
    * Return the {@link ConfigurableWebBindingInitializer} to use for
    * initializing all {@link WebDataBinder} instances.
    */
-  protected ConfigurableWebBindingInitializer getConfigurableWebBindingInitializer(
+  protected ConfigurableWebBindingInitializer getWebBindingInitializer(
           FormattingConversionService mvcConversionService, Validator mvcValidator) {
 
-    ConfigurableWebBindingInitializer initializer = new ConfigurableWebBindingInitializer();
+    var initializer = new ConfigurableWebBindingInitializer();
     initializer.setConversionService(mvcConversionService);
     initializer.setValidator(mvcValidator);
     MessageCodesResolver messageCodesResolver = getMessageCodesResolver();
@@ -940,7 +941,9 @@ public class WebMvcConfigurationSupport extends ApplicationContextSupport {
   }
 
   /**
-   * Override this method to provide a custom {@link MessageCodesResolver}.
+   * Provide a custom {@link MessageCodesResolver} for building message codes
+   * from data binding and validation error codes. Leave the return value as
+   * {@code null} to keep the default.
    */
   @Nullable
   protected MessageCodesResolver getMessageCodesResolver() {

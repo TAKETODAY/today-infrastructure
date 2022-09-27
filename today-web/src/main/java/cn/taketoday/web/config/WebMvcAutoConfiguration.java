@@ -20,17 +20,22 @@
 
 package cn.taketoday.web.config;
 
+import java.lang.reflect.Method;
 import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 
 import cn.taketoday.beans.factory.BeanFactory;
+import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
 import cn.taketoday.beans.factory.ObjectProvider;
 import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.beans.factory.annotation.DisableAllDependencyInjection;
+import cn.taketoday.beans.factory.annotation.DisableDependencyInjection;
 import cn.taketoday.beans.factory.config.BeanDefinition;
+import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.ApplicationEventPublisher;
+import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Import;
 import cn.taketoday.context.annotation.Role;
@@ -39,6 +44,8 @@ import cn.taketoday.context.condition.ConditionalOnMissingBean;
 import cn.taketoday.context.condition.ConditionalOnProperty;
 import cn.taketoday.context.properties.EnableConfigurationProperties;
 import cn.taketoday.core.Ordered;
+import cn.taketoday.core.task.AsyncTaskExecutor;
+import cn.taketoday.core.task.TaskExecutor;
 import cn.taketoday.format.FormatterRegistry;
 import cn.taketoday.format.support.ApplicationConversionService;
 import cn.taketoday.format.support.FormattingConversionService;
@@ -48,11 +55,16 @@ import cn.taketoday.http.converter.HttpMessageConverter;
 import cn.taketoday.http.converter.HttpMessageConverters;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.stereotype.Component;
+import cn.taketoday.util.ClassUtils;
+import cn.taketoday.util.ReflectionUtils;
+import cn.taketoday.validation.DefaultMessageCodesResolver;
+import cn.taketoday.validation.MessageCodesResolver;
 import cn.taketoday.validation.Validator;
 import cn.taketoday.web.HandlerExceptionHandler;
 import cn.taketoday.web.LocaleResolver;
 import cn.taketoday.web.accept.ContentNegotiationManager;
 import cn.taketoday.web.bind.resolver.ParameterResolvingRegistry;
+import cn.taketoday.web.bind.support.ConfigurableWebBindingInitializer;
 import cn.taketoday.web.config.WebMvcProperties.Format;
 import cn.taketoday.web.config.WebProperties.Resources;
 import cn.taketoday.web.config.WebProperties.Resources.Chain.Strategy;
@@ -60,6 +72,7 @@ import cn.taketoday.web.config.format.DateTimeFormatters;
 import cn.taketoday.web.config.format.WebConversionService;
 import cn.taketoday.web.config.jackson.JacksonAutoConfiguration;
 import cn.taketoday.web.context.support.RequestHandledEventPublisher;
+import cn.taketoday.web.handler.AbstractHandlerExceptionHandler;
 import cn.taketoday.web.handler.ReturnValueHandlerManager;
 import cn.taketoday.web.handler.method.ExceptionHandlerAnnotationExceptionHandler;
 import cn.taketoday.web.handler.method.RequestMappingHandlerAdapter;
@@ -71,6 +84,10 @@ import cn.taketoday.web.registry.ViewControllerHandlerMapping;
 import cn.taketoday.web.resource.EncodedResourceResolver;
 import cn.taketoday.web.resource.ResourceResolver;
 import cn.taketoday.web.resource.VersionResourceResolver;
+import cn.taketoday.web.servlet.filter.FormContentFilter;
+import cn.taketoday.web.servlet.filter.HiddenHttpMethodFilter;
+import cn.taketoday.web.servlet.filter.OrderedFormContentFilter;
+import cn.taketoday.web.servlet.filter.OrderedHiddenHttpMethodFilter;
 import cn.taketoday.web.servlet.view.InternalResourceViewResolver;
 import cn.taketoday.web.view.BeanNameViewResolver;
 import cn.taketoday.web.view.ContentNegotiatingViewResolver;
@@ -83,12 +100,17 @@ import cn.taketoday.web.view.ViewResolver;
  * config framework
  * </p>
  */
+@DisableDependencyInjection
 @DisableAllDependencyInjection
 @Configuration(proxyBeanMethods = false)
 @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
 @EnableConfigurationProperties({ WebMvcProperties.class, WebProperties.class })
 @Import({ JacksonAutoConfiguration.class, HttpMessageConvertersAutoConfiguration.class })
 public class WebMvcAutoConfiguration extends WebMvcConfigurationSupport {
+  /**
+   * Bean name of the application {@link TaskExecutor}.
+   */
+  public static final String APPLICATION_TASK_EXECUTOR_BEAN_NAME = "applicationTaskExecutor";
 
   private final BeanFactory beanFactory;
   private final WebProperties webProperties;
@@ -210,13 +232,27 @@ public class WebMvcAutoConfiguration extends WebMvcConfigurationSupport {
 
   @Component
   @ConditionalOnMissingBean(name = LocaleResolver.BEAN_NAME)
-  public LocaleResolver localeResolver() {
+  public LocaleResolver webLocaleResolver() {
     if (this.webProperties.getLocaleResolver() == WebProperties.LocaleResolver.FIXED) {
       return new FixedLocaleResolver(this.webProperties.getLocale());
     }
     AcceptHeaderLocaleResolver localeResolver = new AcceptHeaderLocaleResolver();
     localeResolver.setDefaultLocale(this.webProperties.getLocale());
     return localeResolver;
+  }
+
+  @Bean
+  @ConditionalOnMissingBean(HiddenHttpMethodFilter.class)
+  @ConditionalOnProperty(prefix = "web.mvc.hiddenmethod.filter", name = "enabled")
+  public OrderedHiddenHttpMethodFilter hiddenHttpMethodFilter() {
+    return new OrderedHiddenHttpMethodFilter();
+  }
+
+  @Bean
+  @ConditionalOnMissingBean(FormContentFilter.class)
+  @ConditionalOnProperty(prefix = "web.mvc.formcontent.filter", name = "enabled", matchIfMissing = true)
+  public OrderedFormContentFilter formContentFilter() {
+    return new OrderedFormContentFilter();
   }
 
   @Override
@@ -270,6 +306,14 @@ public class WebMvcAutoConfiguration extends WebMvcConfigurationSupport {
   @Override
   protected void extendExceptionHandlers(List<HandlerExceptionHandler> handlers) {
     mvcConfiguration.extendExceptionHandlers(handlers);
+
+    if (mvcProperties.isLogResolvedException()) {
+      for (HandlerExceptionHandler handler : handlers) {
+        if (handler instanceof AbstractHandlerExceptionHandler abstractHandler) {
+          abstractHandler.setWarnLogCategory(handler.getClass().getName());
+        }
+      }
+    }
   }
 
   @Nullable
@@ -278,9 +322,55 @@ public class WebMvcAutoConfiguration extends WebMvcConfigurationSupport {
     return mvcConfiguration.getValidator();
   }
 
+  @Nullable
+  @Override
+  protected MessageCodesResolver getMessageCodesResolver() {
+    if (mvcProperties.getMessageCodesResolverFormat() != null) {
+      DefaultMessageCodesResolver resolver = new DefaultMessageCodesResolver();
+      resolver.setMessageCodeFormatter(mvcProperties.getMessageCodesResolverFormat());
+      return resolver;
+    }
+    return null;
+  }
+
+  @Override
+  protected ConfigurableWebBindingInitializer getWebBindingInitializer(
+          FormattingConversionService mvcConversionService, Validator mvcValidator) {
+    try {
+      return this.beanFactory.getBean(ConfigurableWebBindingInitializer.class);
+    }
+    catch (NoSuchBeanDefinitionException ex) {
+      return super.getWebBindingInitializer(mvcConversionService, mvcValidator);
+    }
+  }
+
+  @Override
+  public Validator mvcValidator() {
+    if (ClassUtils.isPresent("jakarta.validation.Validator", getClass().getClassLoader())) {
+      var validatorAdapter = ClassUtils.load(
+              "cn.taketoday.annotation.config.validation.ValidatorAdapter", getClass().getClassLoader());
+      if (validatorAdapter != null) {
+        Method method = ReflectionUtils.getMethod(validatorAdapter, "get", ApplicationContext.class, Validator.class);
+        return (Validator) ReflectionUtils.invokeMethod(method, null, getApplicationContext(), getValidator());
+      }
+    }
+
+    return super.mvcValidator();
+  }
+
   @Override
   protected void configureAsyncSupport(AsyncSupportConfigurer configurer) {
     mvcConfiguration.configureAsyncSupport(configurer);
+    if (beanFactory.containsBean(APPLICATION_TASK_EXECUTOR_BEAN_NAME)) {
+      Object taskExecutor = beanFactory.getBean(APPLICATION_TASK_EXECUTOR_BEAN_NAME);
+      if (taskExecutor instanceof AsyncTaskExecutor asyncTaskExecutor) {
+        configurer.setTaskExecutor(asyncTaskExecutor);
+      }
+    }
+    Duration timeout = mvcProperties.getAsync().getRequestTimeout();
+    if (timeout != null) {
+      configurer.setDefaultTimeout(timeout.toMillis());
+    }
   }
 
   @Override
@@ -291,7 +381,7 @@ public class WebMvcAutoConfiguration extends WebMvcConfigurationSupport {
       configurer.parameterName(contentnegotiation.getParameterName());
     }
     Map<String, MediaType> mediaTypes = mvcProperties.getContentnegotiation().getMediaTypes();
-    mediaTypes.forEach(configurer::mediaType);
+    configurer.mediaTypes(mediaTypes);
 
     mvcConfiguration.configureContentNegotiation(configurer);
   }
