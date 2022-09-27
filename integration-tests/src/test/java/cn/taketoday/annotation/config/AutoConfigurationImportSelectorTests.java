@@ -330,7 +330,7 @@ class AutoConfigurationImportSelectorTests {
 
   }
 
-  @EnableAutoConfiguration(excludeName = "cn.taketoday.framework.annotation.PropertyPlaceholderAutoConfiguration")
+  @EnableAutoConfiguration(excludeName = "cn.taketoday.annotation.config.context.PropertyPlaceholderAutoConfiguration")
   private class ApplicationWithClassNameExclusions {
 
   }

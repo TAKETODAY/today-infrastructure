@@ -64,7 +64,7 @@ import cn.taketoday.framework.web.server.WebServerFactoryCustomizerBeanPostProce
 import cn.taketoday.framework.web.servlet.ServletRegistrationBean;
 import cn.taketoday.framework.web.servlet.config.DispatcherServletAutoConfiguration;
 import cn.taketoday.framework.web.servlet.context.AnnotationConfigServletWebServerApplicationContext;
-import cn.taketoday.framework.web.servlet.filter.OrderedFormContentFilter;
+import cn.taketoday.web.servlet.filter.OrderedFormContentFilter;
 import cn.taketoday.framework.web.servlet.server.MockServletWebServerFactory;
 import cn.taketoday.framework.web.servlet.server.ServletWebServerFactory;
 import cn.taketoday.http.CacheControl;
@@ -109,7 +109,6 @@ import cn.taketoday.web.resource.VersionResourceResolver;
 import cn.taketoday.web.resource.VersionStrategy;
 import cn.taketoday.web.servlet.DispatcherServlet;
 import cn.taketoday.web.servlet.ServletRequestContext;
-import cn.taketoday.web.servlet.UrlPathHelper;
 import cn.taketoday.web.servlet.filter.FormContentFilter;
 import cn.taketoday.web.servlet.filter.HiddenHttpMethodFilter;
 import cn.taketoday.web.view.AbstractRedirectModelManager;
@@ -149,14 +148,14 @@ public class WebMvcAutoConfigurationTests {
 
   @Test
   void handlerMappingsCreated() {
-    this.contextRunner.run((context) -> assertThat(context).getBeans(HandlerMapping.class).hasSize(5));
+    this.contextRunner.run(context -> assertThat(context).getBeans(HandlerMapping.class).isNotEmpty());
   }
 
   @Test
   void resourceHandlerMapping() {
-    this.contextRunner.run((context) -> {
+    this.contextRunner.run(context -> {
       Map<String, List<Resource>> locations = getResourceMappingLocations(context);
-      assertThat(locations.get("/**")).hasSize(5);
+      assertThat(locations.get("/**")).hasSize(4);
       assertThat(locations.get("/webjars/**")).hasSize(1);
       assertThat(locations.get("/webjars/**").get(0))
               .isEqualTo(new ClassPathResource("/META-INF/resources/webjars/"));
@@ -171,7 +170,7 @@ public class WebMvcAutoConfigurationTests {
   void customResourceHandlerMapping() {
     this.contextRunner.withPropertyValues("web.mvc.static-path-pattern:/static/**").run((context) -> {
       Map<String, List<Resource>> locations = getResourceMappingLocations(context);
-      assertThat(locations.get("/static/**")).hasSize(5);
+      assertThat(locations.get("/static/**")).hasSize(4);
       assertThat(getResourceResolvers(context, "/static/**")).hasSize(1);
     });
   }
@@ -336,10 +335,10 @@ public class WebMvcAutoConfigurationTests {
 
   @Test
   void customLocaleResolverWithMatchingNameReplacesAutoConfiguredLocaleResolver() {
-    this.contextRunner.withBean("localeResolver", CustomLocaleResolver.class, CustomLocaleResolver::new)
+    this.contextRunner.withBean("webLocaleResolver", CustomLocaleResolver.class, CustomLocaleResolver::new)
             .run((context) -> {
               assertThat(context).hasSingleBean(LocaleResolver.class);
-              assertThat(context.getBean("localeResolver")).isInstanceOf(CustomLocaleResolver.class);
+              assertThat(context.getBean("webLocaleResolver")).isInstanceOf(CustomLocaleResolver.class);
             });
   }
 
@@ -348,13 +347,13 @@ public class WebMvcAutoConfigurationTests {
     this.contextRunner.withBean("customLocaleResolver", CustomLocaleResolver.class, CustomLocaleResolver::new)
             .run((context) -> {
               assertThat(context.getBean("customLocaleResolver")).isInstanceOf(CustomLocaleResolver.class);
-              assertThat(context.getBean("localeResolver")).isInstanceOf(AcceptHeaderLocaleResolver.class);
+              assertThat(context.getBean("webLocaleResolver")).isInstanceOf(AcceptHeaderLocaleResolver.class);
             });
   }
 
   @Test
   void customFlashMapManagerWithMatchingNameReplacesDefaultFlashMapManager() {
-    this.contextRunner.withBean("flashMapManager", CustomFlashMapManager.class, CustomFlashMapManager::new)
+    this.contextRunner.withBean("sessionRedirectModelManager", CustomFlashMapManager.class, CustomFlashMapManager::new)
             .run((context) -> {
               assertThat(context).hasSingleBean(RedirectModelManager.class);
               assertThat(context.getBean("sessionRedirectModelManager")).isInstanceOf(CustomFlashMapManager.class);
@@ -363,9 +362,9 @@ public class WebMvcAutoConfigurationTests {
 
   @Test
   void customFlashMapManagerWithDifferentNameDoesNotReplaceDefaultFlashMapManager() {
-    this.contextRunner.withBean("customFlashMapManager", CustomFlashMapManager.class, CustomFlashMapManager::new)
+    this.contextRunner.withBean("sessionRedirectModelManager", CustomFlashMapManager.class, CustomFlashMapManager::new)
             .run((context) -> {
-              assertThat(context.getBean("customFlashMapManager")).isInstanceOf(CustomFlashMapManager.class);
+              assertThat(context.getBean("sessionRedirectModelManager")).isInstanceOf(CustomFlashMapManager.class);
               assertThat(context.getBean("sessionRedirectModelManager")).isInstanceOf(RedirectModelManager.class);
             });
   }
@@ -383,15 +382,6 @@ public class WebMvcAutoConfigurationTests {
   @Test
   void customDateFormat() {
     this.contextRunner.withPropertyValues("web.mvc.format.date:dd*MM*yyyy").run((context) -> {
-      FormattingConversionService conversionService = context.getBean(FormattingConversionService.class);
-      Date date = Date.from(ZonedDateTime.of(1988, 6, 25, 20, 30, 0, 0, ZoneId.systemDefault()).toInstant());
-      assertThat(conversionService.convert(date, String.class)).isEqualTo("25*06*1988");
-    });
-  }
-
-  @Test
-  void customDateFormatWithDeprecatedProperty() {
-    this.contextRunner.withPropertyValues("web.mvc.date-format:dd*MM*yyyy").run((context) -> {
       FormattingConversionService conversionService = context.getBean(FormattingConversionService.class);
       Date date = Date.from(ZonedDateTime.of(1988, 6, 25, 20, 30, 0, 0, ZoneId.systemDefault()).toInstant());
       assertThat(conversionService.convert(date, String.class)).isEqualTo("25*06*1988");
@@ -445,22 +435,9 @@ public class WebMvcAutoConfigurationTests {
 
   @Test
   void overrideMessageCodesFormat() {
-    this.contextRunner.withPropertyValues("web.mvc.messageCodesResolverFormat:POSTFIX_ERROR_CODE").run(
-            (context) -> assertThat(context.getBean(WebMvcAutoConfiguration.class).getMessageCodesResolver())
+    this.contextRunner.withPropertyValues("web.mvc.messageCodesResolverFormat:POSTFIX_ERROR_CODE")
+            .run(context -> assertThat(context.getBean(WebMvcAutoConfiguration.class).getMessageCodesResolver())
                     .isNotNull());
-  }
-
-  @Test
-  void ignoreDefaultModelOnRedirectIsTrue() {
-    this.contextRunner.run((context) -> assertThat(context.getBean(RequestMappingHandlerAdapter.class))
-            .extracting("ignoreDefaultModelOnRedirect").isEqualTo(true));
-  }
-
-  @Test
-  void overrideIgnoreDefaultModelOnRedirect() {
-    this.contextRunner.withPropertyValues("web.mvc.ignore-default-model-on-redirect:false")
-            .run((context) -> assertThat(context.getBean(RequestMappingHandlerAdapter.class))
-                    .extracting("ignoreDefaultModelOnRedirect").isEqualTo(false));
   }
 
   @Test
@@ -529,18 +506,6 @@ public class WebMvcAutoConfigurationTests {
   }
 
   @Test
-  @Deprecated
-  void customMediaTypes() {
-    this.contextRunner.withPropertyValues("web.mvc.contentnegotiation.media-types.yaml:text/yaml",
-            "web.mvc.contentnegotiation.favor-path-extension:true").run((context) -> {
-      RequestMappingHandlerAdapter adapter = context.getBean(RequestMappingHandlerAdapter.class);
-      ContentNegotiationManager contentNegotiationManager = (ContentNegotiationManager) ReflectionTestUtils
-              .getField(adapter, "contentNegotiationManager");
-      assertThat(contentNegotiationManager.getAllFileExtensions()).contains("yaml");
-    });
-  }
-
-  @Test
   void formContentFilterIsAutoConfigured() {
     this.contextRunner.run((context) -> assertThat(context).hasSingleBean(OrderedFormContentFilter.class));
   }
@@ -572,9 +537,10 @@ public class WebMvcAutoConfigurationTests {
 
   @Test
   void customConfigurableWebBindingInitializer() {
-    this.contextRunner.withUserConfiguration(CustomConfigurableWebBindingInitializer.class).run(
-            (context) -> assertThat(context.getBean(RequestMappingHandlerAdapter.class).getWebBindingInitializer())
-                    .isInstanceOf(CustomWebBindingInitializer.class));
+    this.contextRunner.withUserConfiguration(CustomConfigurableWebBindingInitializer.class)
+            .run(context ->
+                    assertThat(context.getBean(RequestMappingHandlerAdapter.class).getWebBindingInitializer())
+                            .isInstanceOf(CustomWebBindingInitializer.class));
   }
 
   @Test
@@ -780,31 +746,12 @@ public class WebMvcAutoConfigurationTests {
   }
 
   @Test
-  void incompatiblePathMatchingConfiguration() {
-    this.contextRunner
-            .withPropertyValues("web.mvc.pathmatch.matching-strategy:path_pattern_parser",
-                    "web.mvc.pathmatch.use-suffix-pattern:true")
-            .run((context) -> assertThat(context.getStartupFailure()).rootCause()
-                    .isInstanceOf(IncompatibleConfigurationException.class));
-  }
-
-  @Test
   void defaultContentNegotiation() {
     this.contextRunner.run((context) -> {
       RequestMappingHandlerMapping handlerMapping = context.getBean(RequestMappingHandlerMapping.class);
       ContentNegotiationManager contentNegotiationManager = handlerMapping.getContentNegotiationManager();
       assertThat(contentNegotiationManager.getStrategies()).doesNotHaveAnyElementsOfTypes(
               ContentNegotiationManager.class);
-    });
-  }
-
-  @Test
-  void customConfigurerAppliedAfterAutoConfig() {
-    this.contextRunner.withUserConfiguration(CustomConfigurer.class).run((context) -> {
-      ContentNegotiationManager manager = context.getBean(ContentNegotiationManager.class);
-      assertThat(manager.getStrategies()).anyMatch(
-              (strategy) -> ContentNegotiationManager.class
-                      .isAssignableFrom(strategy.getClass()));
     });
   }
 
@@ -819,41 +766,6 @@ public class WebMvcAutoConfigurationTests {
   }
 
   @Test
-  void urlPathHelperUsesFullPathByDefaultWhenAntPathMatchingIsUsed() {
-    this.contextRunner.withPropertyValues("web.mvc.pathmatch.matching-strategy:ant-path-matcher")
-            .run((context) -> {
-              UrlPathHelper urlPathHelper = context.getBean(UrlPathHelper.class);
-              assertThat(urlPathHelper).extracting("alwaysUseFullPath").isEqualTo(true);
-            });
-  }
-
-  @Test
-  void urlPathHelperDoesNotUseFullPathWithServletMapping() {
-    this.contextRunner.withPropertyValues("web.mvc.pathmatch.matching-strategy:ant-path-matcher")
-            .withPropertyValues("web.mvc.servlet.path=/test/").run((context) -> {
-              UrlPathHelper urlPathHelper = context.getBean(UrlPathHelper.class);
-              assertThat(urlPathHelper).extracting("alwaysUseFullPath").isEqualTo(false);
-            });
-  }
-
-  @Test
-  void urlPathHelperDoesNotUseFullPathWithAdditionalDispatcherServlet() {
-    this.contextRunner.withUserConfiguration(AdditionalDispatcherServletConfiguration.class).run((context) -> {
-      UrlPathHelper urlPathHelper = context.getBean(UrlPathHelper.class);
-      assertThat(urlPathHelper).extracting("alwaysUseFullPath").isEqualTo(false);
-    });
-  }
-
-  @Test
-  void urlPathHelperDoesNotUseFullPathWithAdditionalUntypedDispatcherServlet() {
-    this.contextRunner.withUserConfiguration(AdditionalUntypedDispatcherServletConfiguration.class)
-            .run((context) -> {
-              UrlPathHelper urlPathHelper = context.getBean(UrlPathHelper.class);
-              assertThat(urlPathHelper).extracting("alwaysUseFullPath").isEqualTo(false);
-            });
-  }
-
-  @Test
   void lastModifiedNotUsedIfDisabled() {
     this.contextRunner.withPropertyValues("web.resources.cache.use-last-modified=false")
             .run((context) -> assertResourceHttpRequestHandler(context,
@@ -861,19 +773,21 @@ public class WebMvcAutoConfigurationTests {
   }
 
   @Test
-    // gh-25743
   void addResourceHandlersAppliesToChildAndParentContext() {
-    try (AnnotationConfigServletWebServerApplicationContext context = new AnnotationConfigServletWebServerApplicationContext()) {
-      context.register(WebMvcAutoConfiguration.class, DispatcherServletAutoConfiguration.class,
-              HttpMessageConvertersAutoConfiguration.class, PropertyPlaceholderAutoConfiguration.class,
-              ResourceHandlersWithChildAndParentContextConfiguration.class);
+    try (var context = new AnnotationConfigServletWebServerApplicationContext()) {
+      context.register(WebMvcAutoConfiguration.class,
+              DispatcherServletAutoConfiguration.class,
+              HttpMessageConvertersAutoConfiguration.class,
+              PropertyPlaceholderAutoConfiguration.class,
+              ResourceHandlersWithChildAndParentContextConfiguration.class
+      );
+
       context.refresh();
-      SimpleUrlHandlerMapping resourceHandlerMapping = context.getBean("resourceHandlerMapping",
-              SimpleUrlHandlerMapping.class);
-      DispatcherServlet extraDispatcherServlet = context.getBean("extraDispatcherServlet",
-              DispatcherServlet.class);
-      SimpleUrlHandlerMapping extraResourceHandlerMapping = extraDispatcherServlet.getApplicationContext()
-              .getBean("resourceHandlerMapping", SimpleUrlHandlerMapping.class);
+
+      var resourceHandlerMapping = context.getBean("resourceHandlerMapping", SimpleUrlHandlerMapping.class);
+      var extraDispatcherServlet = context.getBean("extraDispatcherServlet", DispatcherServlet.class);
+      var extraResourceHandlerMapping = extraDispatcherServlet.getApplicationContext().getBean("resourceHandlerMapping", SimpleUrlHandlerMapping.class);
+
       assertThat(resourceHandlerMapping).isNotSameAs(extraResourceHandlerMapping);
       assertThat(resourceHandlerMapping.getUrlMap()).containsKey("/**");
       assertThat(extraResourceHandlerMapping.getUrlMap()).containsKey("/**");
@@ -896,7 +810,7 @@ public class WebMvcAutoConfigurationTests {
     if (bean instanceof HandlerMapping handlerMapping) {
       return getMappingLocations(context, handlerMapping);
     }
-    assertThat(bean.toString()).isEqualTo("null");
+    assertThat(bean).isNull();
     return Collections.emptyMap();
   }
 
@@ -1169,16 +1083,6 @@ public class WebMvcAutoConfigurationTests {
     @Bean
     HttpMessageConverter<?> customHttpMessageConverter(ConversionService conversionService) {
       return mock(HttpMessageConverter.class);
-    }
-
-  }
-
-  @Configuration(proxyBeanMethods = false)
-  static class CustomConfigurer implements WebMvcConfiguration {
-
-    @Override
-    public void configureContentNegotiation(ContentNegotiationConfigurer configurer) {
-//      configurer.favorPathExtension(true);
     }
 
   }

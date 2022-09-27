@@ -109,8 +109,8 @@ class ValidationAutoConfigurationTests {
   }
 
   @Test
-  void validationAutoConfigurationWhenUserProvidesSpringValidatorShouldCreateJsrValidator() {
-    this.contextRunner.withUserConfiguration(UserDefinedSpringValidatorConfig.class).run((context) -> {
+  void validationAutoConfigurationWhenUserProvidesInfraValidatorShouldCreateJsrValidator() {
+    this.contextRunner.withUserConfiguration(UserDefinedInfraValidatorConfig.class).run((context) -> {
       assertThat(context.getBeanNamesForType(Validator.class)).containsExactly("defaultValidator");
       assertThat(context.getBeanNamesForType(cn.taketoday.validation.Validator.class))
               .containsExactly("customValidator", "anotherCustomValidator", "defaultValidator");
@@ -121,8 +121,8 @@ class ValidationAutoConfigurationTests {
   }
 
   @Test
-  void validationAutoConfigurationWhenUserProvidesPrimarySpringValidatorShouldRemovePrimaryFlag() {
-    this.contextRunner.withUserConfiguration(UserDefinedPrimarySpringValidatorConfig.class).run((context) -> {
+  void validationAutoConfigurationWhenUserProvidesPrimaryInfraValidatorShouldRemovePrimaryFlag() {
+    this.contextRunner.withUserConfiguration(UserDefinedPrimaryInfraValidatorConfig.class).run((context) -> {
       assertThat(context.getBeanNamesForType(Validator.class)).containsExactly("defaultValidator");
       assertThat(context.getBeanNamesForType(cn.taketoday.validation.Validator.class))
               .containsExactly("customValidator", "anotherCustomValidator", "defaultValidator");
@@ -134,8 +134,8 @@ class ValidationAutoConfigurationTests {
   }
 
   @Test
-  void whenUserProvidesSpringValidatorInParentContextThenAutoConfiguredValidatorIsPrimary() {
-    new ApplicationContextRunner().withUserConfiguration(UserDefinedSpringValidatorConfig.class).run((parent) -> {
+  void whenUserProvidesInfraValidatorInParentContextThenAutoConfiguredValidatorIsPrimary() {
+    new ApplicationContextRunner().withUserConfiguration(UserDefinedInfraValidatorConfig.class).run((parent) -> {
       this.contextRunner.withParent(parent).run((context) -> {
         assertThat(context.getBeanNamesForType(Validator.class)).containsExactly("defaultValidator");
         assertThat(context.getBeanNamesForType(cn.taketoday.validation.Validator.class))
@@ -149,8 +149,8 @@ class ValidationAutoConfigurationTests {
   }
 
   @Test
-  void whenUserProvidesPrimarySpringValidatorInParentContextThenAutoConfiguredValidatorIsPrimary() {
-    new ApplicationContextRunner().withUserConfiguration(UserDefinedPrimarySpringValidatorConfig.class)
+  void whenUserProvidesPrimaryInfraValidatorInParentContextThenAutoConfiguredValidatorIsPrimary() {
+    new ApplicationContextRunner().withUserConfiguration(UserDefinedPrimaryInfraValidatorConfig.class)
             .run((parent) -> {
               this.contextRunner.withParent(parent).run((context) -> {
                 assertThat(context.getBeanNamesForType(Validator.class)).containsExactly("defaultValidator");
@@ -197,7 +197,7 @@ class ValidationAutoConfigurationTests {
   @Test
   void validationCanBeConfiguredToUseJdkProxy() {
     this.contextRunner.withUserConfiguration(AnotherSampleServiceConfiguration.class)
-            .withPropertyValues("spring.aop.proxy-target-class=false").run((context) -> {
+            .withPropertyValues("infra.aop.proxy-target-class=false").run((context) -> {
               assertThat(context.getBeansOfType(Validator.class)).hasSize(1);
               assertThat(context.getBeansOfType(DefaultAnotherSampleService.class)).isEmpty();
               AnotherSampleService service = context.getBean(AnotherSampleService.class);
@@ -294,7 +294,7 @@ class ValidationAutoConfigurationTests {
   }
 
   @Configuration(proxyBeanMethods = false)
-  static class UserDefinedSpringValidatorConfig {
+  static class UserDefinedInfraValidatorConfig {
 
     @Bean
     cn.taketoday.validation.Validator customValidator() {
@@ -309,7 +309,7 @@ class ValidationAutoConfigurationTests {
   }
 
   @Configuration(proxyBeanMethods = false)
-  static class UserDefinedPrimarySpringValidatorConfig {
+  static class UserDefinedPrimaryInfraValidatorConfig {
 
     @Bean
     cn.taketoday.validation.Validator customValidator() {
