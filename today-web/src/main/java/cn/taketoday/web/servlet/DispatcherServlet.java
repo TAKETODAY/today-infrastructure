@@ -25,6 +25,7 @@ import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Enumeration;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -139,8 +140,8 @@ public class DispatcherServlet
   }
 
   @Override
-  protected void initInternal() throws Exception {
-    if (this.publishContext) {
+  protected void afterApplicationContextInit() {
+    if (publishContext) {
       // Publish the context as a servlet context attribute.
       String attrName = getServletContextAttributeName();
       getServletContext().setAttribute(attrName, getApplicationContext());
@@ -292,8 +293,8 @@ public class DispatcherServlet
   }
 
   @Override
-  protected void log(String msg) {
-    super.log(msg);
+  protected void logInfo(String msg) {
+    super.logInfo(msg);
     getServletContext().log(msg);
   }
 
@@ -324,12 +325,29 @@ public class DispatcherServlet
             request.getRequestURL() + queryClause + ", parameters={" + params + "}";
     message = URLDecoder.decode(message, StandardCharsets.UTF_8);
     if (log.isTraceEnabled()) {
-      List<String> values = Collections.list(request.getHeaderNames());
-      String headers = values.size() > 0 ? "masked" : "";
-      if (isEnableLoggingRequestDetails()) {
-        headers = values.stream().map(name -> name + ":" + Collections.list(request.getHeaders(name)))
-                .collect(Collectors.joining(", "));
+      StringBuilder headers = new StringBuilder();
+      Enumeration<String> headerNames = request.getHeaderNames();
+      if (headerNames.hasMoreElements()) {
+        if (isEnableLoggingRequestDetails()) {
+          // first
+          String name = headerNames.nextElement();
+          headers.append(name)
+                  .append(':')
+                  .append(Collections.list(request.getHeaders(name)));
+
+          while (headerNames.hasMoreElements()) {
+            name = headerNames.nextElement();
+            headers.append(", ");
+            headers.append(name);
+            headers.append(':');
+            headers.append(Collections.list(request.getHeaders(name)));
+          }
+        }
+        else {
+          headers.append("masked");
+        }
       }
+
       log.trace(message + ", headers={" + headers + "} in DispatcherServlet '" +
               getServletConfig().getServletName() + "'");
     }

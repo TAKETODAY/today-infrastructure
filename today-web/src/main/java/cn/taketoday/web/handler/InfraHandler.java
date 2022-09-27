@@ -48,7 +48,6 @@ import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.CollectionUtils;
-import cn.taketoday.util.ExceptionUtils;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.WebApplicationContext;
@@ -63,7 +62,7 @@ import jakarta.servlet.ServletContext;
 public abstract class InfraHandler implements ApplicationContextAware, EnvironmentCapable, EnvironmentAware {
 
   /**
-   * Default context class for FrameworkServlet.
+   * Default context class for InfraHandler.
    *
    * @see ClassPathXmlApplicationContext
    */
@@ -97,7 +96,7 @@ public abstract class InfraHandler implements ApplicationContextAware, Environme
   private String contextConfigLocation;
 
   /** Actual ApplicationContextInitializer instances to apply to the context. */
-  private final List<ApplicationContextInitializer> contextInitializers = new ArrayList<>();
+  private final ArrayList<ApplicationContextInitializer> contextInitializers = new ArrayList<>();
 
   /** Comma-delimited ApplicationContextInitializer class names set through init param. */
   @Nullable
@@ -117,7 +116,7 @@ public abstract class InfraHandler implements ApplicationContextAware, Environme
   /** Whether to log potentially sensitive info (request params at DEBUG + headers at TRACE). */
   private boolean enableLoggingRequestDetails = false;
 
-  public InfraHandler() { }
+  protected InfraHandler() { }
 
   /**
    * Create a new {@code InfraHandler} with the given application context. This
@@ -156,7 +155,7 @@ public abstract class InfraHandler implements ApplicationContextAware, Environme
    * @see #initApplicationContext
    * @see #configureAndRefreshApplicationContext
    */
-  public InfraHandler(ApplicationContext applicationContext) {
+  protected InfraHandler(ApplicationContext applicationContext) {
     this.applicationContext = applicationContext;
   }
 
@@ -200,11 +199,11 @@ public abstract class InfraHandler implements ApplicationContextAware, Environme
     long startTime = System.currentTimeMillis();
     try {
       this.applicationContext = initApplicationContext();
-      initInternal();
+      afterApplicationContextInit();
     }
     catch (Exception ex) {
       log.error("Context initialization failed", ex);
-      throw ExceptionUtils.sneakyThrow(ex);
+      throw ex;
     }
 
     if (log.isDebugEnabled()) {
@@ -223,7 +222,7 @@ public abstract class InfraHandler implements ApplicationContextAware, Environme
    * the ApplicationContext has been loaded. The default implementation is empty;
    * subclasses may override this method to perform any initialization they require.
    */
-  protected void initInternal() throws Exception { }
+  protected void afterApplicationContextInit() { }
 
   /**
    * Initialize and publish the ApplicationContext for this servlet.
@@ -454,7 +453,7 @@ public abstract class InfraHandler implements ApplicationContextAware, Environme
         if (state != ApplicationContext.State.CLOSING && state != ApplicationContext.State.CLOSED) {
           context.close();
           var dateFormat = new SimpleDateFormat(Constant.DEFAULT_DATE_FORMAT);
-          log("Your application destroyed at: ["
+          logInfo("Your application destroyed at: ["
                   + dateFormat.format(System.currentTimeMillis())
                   + "] on startup date: [" + dateFormat.format(context.getStartupDate()) + ']'
           );
@@ -468,7 +467,7 @@ public abstract class InfraHandler implements ApplicationContextAware, Environme
    *
    * @param msg Log message
    */
-  protected void log(final String msg) {
+  protected void logInfo(final String msg) {
     log.info(msg);
   }
 
@@ -496,16 +495,14 @@ public abstract class InfraHandler implements ApplicationContextAware, Environme
    */
   @Override
   public void setApplicationContext(ApplicationContext applicationContext) {
-    if (this.applicationContext == null && applicationContext instanceof WebApplicationContext wac) {
-      this.applicationContext = wac;
+    if (this.applicationContext == null) {
+      this.applicationContext = applicationContext;
       this.applicationContextInjected = true;
     }
   }
 
   /**
    * Return this handler's ApplicationContext.
-   *
-   * @since 4.0
    */
   public final ApplicationContext getApplicationContext() {
     return this.applicationContext;
@@ -519,7 +516,6 @@ public abstract class InfraHandler implements ApplicationContextAware, Environme
    * {@link ConfigurableApplicationContext} interface.
    *
    * @see #createApplicationContext
-   * @since 4.0
    */
   public void setContextClass(Class<?> contextClass) {
     this.contextClass = contextClass;
@@ -527,8 +523,6 @@ public abstract class InfraHandler implements ApplicationContextAware, Environme
 
   /**
    * Return the custom context class.
-   *
-   * @since 4.0
    */
   public Class<?> getContextClass() {
     return this.contextClass;
@@ -537,8 +531,6 @@ public abstract class InfraHandler implements ApplicationContextAware, Environme
   /**
    * Specify a custom ApplicationContext id,
    * to be used as serialization id for the underlying BeanFactory.
-   *
-   * @since 4.0
    */
   public void setContextId(@Nullable String contextId) {
     this.contextId = contextId;
@@ -546,8 +538,6 @@ public abstract class InfraHandler implements ApplicationContextAware, Environme
 
   /**
    * Return the custom ApplicationContext id, if any.
-   *
-   * @since 4.0
    */
   @Nullable
   public String getContextId() {
@@ -558,8 +548,6 @@ public abstract class InfraHandler implements ApplicationContextAware, Environme
    * Set the context config location explicitly, instead of relying on the default
    * location built from the namespace. This location string can consist of
    * multiple locations separated by any number of commas and spaces.
-   *
-   * @since 4.0
    */
   public void setContextConfigLocation(@Nullable String contextConfigLocation) {
     this.contextConfigLocation = contextConfigLocation;
@@ -567,8 +555,6 @@ public abstract class InfraHandler implements ApplicationContextAware, Environme
 
   /**
    * Return the explicit context config location, if any.
-   *
-   * @since 4.0
    */
   @Nullable
   public String getContextConfigLocation() {
@@ -577,14 +563,14 @@ public abstract class InfraHandler implements ApplicationContextAware, Environme
 
   /**
    * Specify which {@link ApplicationContextInitializer} instances should be used
-   * to initialize the application context used by this {@code FrameworkServlet}.
+   * to initialize the application context used by this {@code InfraHandler}.
    *
    * @see #configureAndRefreshApplicationContext
    * @see #applyInitializers
    */
   public void setContextInitializers(@Nullable ApplicationContextInitializer... initializers) {
     if (initializers != null) {
-      CollectionUtils.addAll(this.contextInitializers, initializers);
+      CollectionUtils.addAll(contextInitializers, initializers);
     }
   }
 
