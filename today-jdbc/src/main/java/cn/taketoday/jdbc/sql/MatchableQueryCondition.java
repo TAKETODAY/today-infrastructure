@@ -18,7 +18,27 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
+package cn.taketoday.jdbc.sql;
+
+import cn.taketoday.lang.Nullable;
+
 /**
- * Framework specific {@link jakarta.servlet.Filter} implementations.
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 4.0 2022/9/19 13:02
  */
-package cn.taketoday.framework.web.servlet.filter;
+public class MatchableQueryCondition extends DefaultQueryCondition {
+  private final ConditionMatcher conditionMatcher;
+
+  public MatchableQueryCondition(
+          String columnName, Operator operator,
+          @Nullable Object parameterValue, ConditionMatcher conditionMatcher) {
+    super(columnName, operator, parameterValue);
+    this.conditionMatcher = conditionMatcher;
+  }
+
+  @Override
+  protected boolean matches() {
+    return conditionMatcher.matches(parameterValue);
+  }
+
+}
