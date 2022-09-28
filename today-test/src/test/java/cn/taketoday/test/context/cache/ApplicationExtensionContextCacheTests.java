@@ -52,7 +52,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @see LruContextCacheTests
  * @since 4.0
  */
-@JUnitConfig(locations = "../junit4/SpringJUnit4ClassRunnerAppCtxTests-context.xml")
+@JUnitConfig(locations = "../junit4/JUnit4ClassRunnerAppCtxTests-context.xml")
 @TestExecutionListeners({ DependencyInjectionTestExecutionListener.class, DirtiesContextTestExecutionListener.class })
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class ApplicationExtensionContextCacheTests {

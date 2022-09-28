@@ -85,7 +85,7 @@ public class JUnit4ClassRunnerAppCtxTests implements ApplicationContextAware, Be
    * {@link JUnit4ClassRunnerAppCtxTests}: {@value #DEFAULT_CONTEXT_RESOURCE_PATH}
    */
   public static final String DEFAULT_CONTEXT_RESOURCE_PATH =
-          "/cn/taketoday/test/context/junit4/SpringJUnit4ClassRunnerAppCtxTests-context.xml";
+          "/cn/taketoday/test/context/junit4/JUnit4ClassRunnerAppCtxTests-context.xml";
 
   private Employee employee;
 
