@@ -109,8 +109,8 @@ public abstract class GenericTypeResolver {
   @SuppressWarnings("unchecked")
   private static <T> Class<T> getSingleGeneric(ResolvableType resolvableType) {
     Assert.isTrue(resolvableType.getGenerics().length == 1,
-                  () -> "Expected 1 type argument on generic interface [" + resolvableType +
-                          "] but found " + resolvableType.getGenerics().length);
+            () -> "Expected 1 type argument on generic interface [" + resolvableType +
+                    "] but found " + resolvableType.getGenerics().length);
     return (Class<T>) resolvableType.getGeneric().resolve();
   }
 
@@ -190,8 +190,12 @@ public abstract class GenericTypeResolver {
   private static ResolvableType resolveVariable(TypeVariable<?> typeVariable, ResolvableType contextType) {
     ResolvableType resolvedType;
     if (contextType.hasGenerics()) {
-      resolvedType = ResolvableType.fromType(typeVariable, contextType);
-      if (resolvedType.resolve() != null) {
+      ResolvableType.VariableResolver variableResolver = contextType.asVariableResolver();
+      if (variableResolver == null) {
+        return ResolvableType.NONE;
+      }
+      resolvedType = variableResolver.resolveVariable(typeVariable);
+      if (resolvedType != null) {
         return resolvedType;
       }
     }
@@ -199,13 +203,13 @@ public abstract class GenericTypeResolver {
     ResolvableType superType = contextType.getSuperType();
     if (superType != ResolvableType.NONE) {
       resolvedType = resolveVariable(typeVariable, superType);
-      if (resolvedType.resolve() != null) {
+      if (resolvedType != ResolvableType.NONE) {
         return resolvedType;
       }
     }
     for (ResolvableType ifc : contextType.getInterfaces()) {
       resolvedType = resolveVariable(typeVariable, ifc);
-      if (resolvedType.resolve() != null) {
+      if (resolvedType != ResolvableType.NONE) {
         return resolvedType;
       }
     }
