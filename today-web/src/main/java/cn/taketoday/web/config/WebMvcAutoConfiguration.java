@@ -305,8 +305,6 @@ public class WebMvcAutoConfiguration extends WebMvcConfigurationSupport {
 
   @Override
   protected void extendExceptionHandlers(List<HandlerExceptionHandler> handlers) {
-    mvcConfiguration.extendExceptionHandlers(handlers);
-
     if (mvcProperties.isLogResolvedException()) {
       for (HandlerExceptionHandler handler : handlers) {
         if (handler instanceof AbstractHandlerExceptionHandler abstractHandler) {
@@ -314,6 +312,8 @@ public class WebMvcAutoConfiguration extends WebMvcConfigurationSupport {
         }
       }
     }
+
+    mvcConfiguration.extendExceptionHandlers(handlers);
   }
 
   @Nullable
@@ -360,7 +360,6 @@ public class WebMvcAutoConfiguration extends WebMvcConfigurationSupport {
 
   @Override
   protected void configureAsyncSupport(AsyncSupportConfigurer configurer) {
-    mvcConfiguration.configureAsyncSupport(configurer);
     if (beanFactory.containsBean(APPLICATION_TASK_EXECUTOR_BEAN_NAME)) {
       Object taskExecutor = beanFactory.getBean(APPLICATION_TASK_EXECUTOR_BEAN_NAME);
       if (taskExecutor instanceof AsyncTaskExecutor asyncTaskExecutor) {
@@ -371,6 +370,9 @@ public class WebMvcAutoConfiguration extends WebMvcConfigurationSupport {
     if (timeout != null) {
       configurer.setDefaultTimeout(timeout.toMillis());
     }
+
+    // user config can override default config 'applicationTaskExecutor' and 'timeout'
+    mvcConfiguration.configureAsyncSupport(configurer);
   }
 
   @Override
@@ -459,7 +461,7 @@ public class WebMvcAutoConfiguration extends WebMvcConfigurationSupport {
   static class ResourceChainCustomizerConfiguration {
 
     @Component
-    ResourceChainResourceHandlerRegistrationCustomizer resourceHandlerRegistrationCustomizer(WebProperties webProperties) {
+    static ResourceChainResourceHandlerRegistrationCustomizer resourceHandlerRegistrationCustomizer(WebProperties webProperties) {
       return new ResourceChainResourceHandlerRegistrationCustomizer(webProperties.getResources());
     }
 

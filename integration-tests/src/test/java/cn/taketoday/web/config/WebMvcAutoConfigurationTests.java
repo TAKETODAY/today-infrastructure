@@ -490,9 +490,11 @@ public class WebMvcAutoConfigurationTests {
   void asyncTaskExecutorWithMvcConfigurerCanOverrideExecutor() {
     this.contextRunner.withUserConfiguration(CustomAsyncTaskExecutorConfigurer.class)
             .withConfiguration(AutoConfigurations.of(TaskExecutionAutoConfiguration.class))
-            .run((context) -> assertThat(context.getBean(RequestMappingHandlerAdapter.class))
-                    .extracting("taskExecutor")
-                    .isSameAs(context.getBean(CustomAsyncTaskExecutorConfigurer.class).taskExecutor));
+            .run((context) -> {
+              assertThat(context.getBean(RequestMappingHandlerAdapter.class))
+                      .extracting("taskExecutor")
+                      .isSameAs(context.getBean(CustomAsyncTaskExecutorConfigurer.class).taskExecutor);
+            });
   }
 
   @Test
