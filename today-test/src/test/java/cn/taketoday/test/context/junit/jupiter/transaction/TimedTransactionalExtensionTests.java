@@ -36,7 +36,7 @@ import cn.taketoday.jdbc.datasource.DataSourceTransactionManager;
 import cn.taketoday.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
 import cn.taketoday.test.context.junit.jupiter.FailingTestCase;
 import cn.taketoday.test.context.junit.jupiter.JUnitConfig;
-import cn.taketoday.test.context.junit4.TimedTransactionalSpringRunnerTests;
+import cn.taketoday.test.context.junit4.TimedTransactionalRunnerTests;
 import cn.taketoday.test.transaction.TransactionAssert;
 import cn.taketoday.transaction.PlatformTransactionManager;
 import cn.taketoday.transaction.annotation.Propagation;
@@ -55,10 +55,10 @@ import static org.junit.platform.testkit.engine.TestExecutionResultConditions.me
  * Jupiter's {@link Timeout @Timeout}.
  *
  * @author Sam Brannen
- * @see TimedTransactionalSpringRunnerTests
+ * @see TimedTransactionalRunnerTests
  * @since 4.0
  */
-class TimedTransactionalSpringExtensionTests {
+class TimedTransactionalExtensionTests {
 
   @Test
   void springTransactionsWorkWithJUnitJupiterTimeouts() {

@@ -43,7 +43,7 @@ import cn.taketoday.transaction.annotation.Transactional;
 @RunWith(InfraRunner.class)
 @ContextConfiguration("transactionalTests-context.xml")
 @Transactional
-public class TimedTransactionalSpringRunnerTests {
+public class TimedTransactionalRunnerTests {
 
   @Test
   @Timed(millis = 10000)

@@ -30,11 +30,11 @@ import org.junit.runners.JUnit4;
 import java.util.concurrent.TimeUnit;
 
 import cn.taketoday.test.annotation.Repeat;
-import cn.taketoday.test.context.junit4.TimedTransactionalSpringRunnerTests;
+import cn.taketoday.test.context.junit4.TimedTransactionalRunnerTests;
 import cn.taketoday.test.transaction.TransactionAssert;
 
 /**
- * This class is an extension of {@link TimedTransactionalSpringRunnerTests}
+ * This class is an extension of {@link TimedTransactionalRunnerTests}
  * that has been modified to use {@link ApplicationClassRule} and
  * {@link ApplicationMethodRule}.
  *
@@ -42,7 +42,7 @@ import cn.taketoday.test.transaction.TransactionAssert;
  * @since 4.0
  */
 @RunWith(JUnit4.class)
-public class TimedTransactionalSpringRuleTests extends TimedTransactionalSpringRunnerTests {
+public class TimedTransactionalRuleTests extends TimedTransactionalRunnerTests {
 
   @ClassRule
   public static final ApplicationClassRule applicationClassRule = new ApplicationClassRule();

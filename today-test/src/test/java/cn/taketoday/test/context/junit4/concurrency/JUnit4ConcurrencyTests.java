@@ -34,7 +34,7 @@ import cn.taketoday.test.context.junit4.JUnitTestingUtils;
 import cn.taketoday.test.context.junit4.MethodLevelTransactionalSpringRunnerTests;
 import cn.taketoday.test.context.junit4.InfraRunner;
 import cn.taketoday.test.context.junit4.SpringJUnit47ClassRunnerRuleTests;
-import cn.taketoday.test.context.junit4.TimedTransactionalSpringRunnerTests;
+import cn.taketoday.test.context.junit4.TimedTransactionalRunnerTests;
 import cn.taketoday.test.context.junit4.rules.ApplicationClassRule;
 import cn.taketoday.test.context.junit4.rules.ApplicationMethodRule;
 import cn.taketoday.test.context.junit4.rules.BaseAppCtxRuleTests;
@@ -80,7 +80,7 @@ public class JUnit4ConcurrencyTests {
           BaseAppCtxRuleTests.class,
           // Transactional
           MethodLevelTransactionalSpringRunnerTests.class,
-          TimedTransactionalSpringRunnerTests.class,
+          TimedTransactionalRunnerTests.class,
           // Web and Scopes
           BasicAnnotationConfigWacSpringRuleTests.class,
           // Spring MVC Test

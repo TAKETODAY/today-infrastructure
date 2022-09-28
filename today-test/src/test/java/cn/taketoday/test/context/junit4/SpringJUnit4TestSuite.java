@@ -108,7 +108,7 @@ import cn.taketoday.test.context.junit4.profile.xml.DevProfileXmlConfigTests;
         RollbackOverrideDefaultRollbackTrueTransactionalTests.class,//
         RollbackOverrideDefaultRollbackFalseTransactionalTests.class,//
         BeforeAndAfterTransactionAnnotationTests.class,//
-        TimedTransactionalSpringRunnerTests.class,//
+        TimedTransactionalRunnerTests.class,//
         HibernateSessionFlushingTests.class //
 })
 public class SpringJUnit4TestSuite {
