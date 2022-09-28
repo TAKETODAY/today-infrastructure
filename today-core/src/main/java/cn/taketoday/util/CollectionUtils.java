@@ -1113,7 +1113,7 @@ public abstract class CollectionUtils {
    * @since 4.0
    */
   public static <K, V> HashMap<K, V> newHashMap(int expectedSize) {
-    return new HashMap<>((int) (expectedSize / DEFAULT_LOAD_FACTOR), DEFAULT_LOAD_FACTOR);
+    return new HashMap<>(computeMapInitialCapacity(expectedSize), DEFAULT_LOAD_FACTOR);
   }
 
   /**
@@ -1127,7 +1127,11 @@ public abstract class CollectionUtils {
    * @since 4.0
    */
   public static <K, V> LinkedHashMap<K, V> newLinkedHashMap(int expectedSize) {
-    return new LinkedHashMap<>((int) (expectedSize / DEFAULT_LOAD_FACTOR), DEFAULT_LOAD_FACTOR);
+    return new LinkedHashMap<>(computeMapInitialCapacity(expectedSize), DEFAULT_LOAD_FACTOR);
+  }
+
+  private static int computeMapInitialCapacity(int expectedSize) {
+    return (int) Math.ceil(expectedSize / (double) DEFAULT_LOAD_FACTOR);
   }
 
   /**
