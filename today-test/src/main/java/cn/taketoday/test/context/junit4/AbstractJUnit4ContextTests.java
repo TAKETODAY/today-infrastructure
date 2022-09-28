@@ -73,10 +73,10 @@ import cn.taketoday.test.context.web.ServletTestExecutionListener;
  * <ul>
  * <li>If you do not wish for your test classes to be tied to a Spring-specific
  * class hierarchy, you may configure your own custom test classes by using
- * {@link Runner}, {@link ContextConfiguration @ContextConfiguration},
+ * {@link InfraRunner}, {@link ContextConfiguration @ContextConfiguration},
  * {@link TestExecutionListeners @TestExecutionListeners}, etc.</li>
  * <li>If you wish to extend this class and use a runner other than the
- * {@link Runner}, you can use
+ * {@link InfraRunner}, you can use
  * {@link ApplicationClassRule ApplicationClassRule} and
  * {@link ApplicationMethodRule ApplicationMethodRule}
  * and specify your runner of choice via {@link RunWith @RunWith(...)}.</li>
@@ -99,7 +99,7 @@ import cn.taketoday.test.context.web.ServletTestExecutionListener;
  * @see AbstractTestNGContextTests
  * @since 4.0
  */
-@RunWith(Runner.class)
+@RunWith(InfraRunner.class)
 @TestExecutionListeners({ ServletTestExecutionListener.class, DirtiesContextBeforeModesTestExecutionListener.class,
         ApplicationEventsTestExecutionListener.class, DependencyInjectionTestExecutionListener.class,
         DirtiesContextTestExecutionListener.class, EventPublishingTestExecutionListener.class })

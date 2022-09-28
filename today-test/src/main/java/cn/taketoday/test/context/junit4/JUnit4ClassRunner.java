@@ -95,7 +95,7 @@ import cn.taketoday.util.ReflectionUtils;
  *
  * @author Sam Brannen
  * @author Juergen Hoeller
- * @see Runner
+ * @see InfraRunner
  * @see TestContextManager
  * @see AbstractJUnit4ContextTests
  * @see AbstractTransactionalJUnit4ContextTests
@@ -122,7 +122,7 @@ public class JUnit4ClassRunner extends BlockJUnit4ClassRunner {
 
   private final TestContextManager testContextManager;
 
-  private static void ensureSpringRulesAreNotPresent(Class<?> testClass) {
+  private static void ensureInfraRulesAreNotPresent(Class<?> testClass) {
     for (Field field : testClass.getFields()) {
       Assert.state(!ApplicationClassRule.class.isAssignableFrom(field.getType()), () -> String.format(
               "Detected ApplicationClassRule field in test class [%s], " +
@@ -146,7 +146,7 @@ public class JUnit4ClassRunner extends BlockJUnit4ClassRunner {
     if (logger.isDebugEnabled()) {
       logger.debug("JUnit4ClassRunner constructor called with [" + clazz + "]");
     }
-    ensureSpringRulesAreNotPresent(clazz);
+    ensureInfraRulesAreNotPresent(clazz);
     this.testContextManager = createTestContextManager(clazz);
   }
 
@@ -379,7 +379,7 @@ public class JUnit4ClassRunner extends BlockJUnit4ClassRunner {
    *
    * @return either a {@link FailOnTimeout}, a {@link org.junit.internal.runners.statements.FailOnTimeout},
    * or the supplied {@link Statement} as appropriate
-   * @see #getSpringTimeout(FrameworkMethod)
+   * @see #getInfraTimeout(FrameworkMethod)
    * @see #getJUnitTimeout(FrameworkMethod)
    */
   @Override
@@ -389,7 +389,7 @@ public class JUnit4ClassRunner extends BlockJUnit4ClassRunner {
   @SuppressWarnings("deprecation")
   protected Statement withPotentialTimeout(FrameworkMethod frameworkMethod, Object testInstance, Statement next) {
     Statement statement = null;
-    long springTimeout = getSpringTimeout(frameworkMethod);
+    long springTimeout = getInfraTimeout(frameworkMethod);
     long junitTimeout = getJUnitTimeout(frameworkMethod);
     if (springTimeout > 0 && junitTimeout > 0) {
       String msg = String.format("Test method [%s] has been configured with Framework's @Timed(millis=%s) and " +
@@ -430,7 +430,7 @@ public class JUnit4ClassRunner extends BlockJUnit4ClassRunner {
    * @return the timeout, or {@code 0} if none was specified
    * @see TestAnnotationUtils#getTimeout(Method)
    */
-  protected long getSpringTimeout(FrameworkMethod frameworkMethod) {
+  protected long getInfraTimeout(FrameworkMethod frameworkMethod) {
     return TestAnnotationUtils.getTimeout(frameworkMethod.getMethod());
   }
 

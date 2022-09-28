@@ -32,7 +32,7 @@ import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.test.context.TestExecutionListeners;
 import cn.taketoday.test.context.junit4.JUnitTestingUtils;
-import cn.taketoday.test.context.junit4.Runner;
+import cn.taketoday.test.context.junit4.InfraRunner;
 import cn.taketoday.test.context.support.DependencyInjectionTestExecutionListener;
 import cn.taketoday.test.context.support.DirtiesContextBeforeModesTestExecutionListener;
 import cn.taketoday.test.context.support.DirtiesContextTestExecutionListener;
@@ -76,7 +76,7 @@ class DirtiesContextInterfaceTests {
     JUnitTestingUtils.runTestsAndAssertCounters(testClass, expectedTestCount, 0, expectedTestCount, 0, 0);
   }
 
-  @RunWith(Runner.class)
+  @RunWith(InfraRunner.class)
   // Ensure that we do not include the EventPublishingTestExecutionListener
   // since it will access the ApplicationContext for each method in the
   // TestExecutionListener API, thus distorting our cache hit/miss results.

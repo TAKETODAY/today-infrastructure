@@ -41,7 +41,7 @@ import static org.assertj.core.api.Assertions.fail;
  * Integration tests which verify that '<i>before</i>' and '<i>after</i>'
  * methods of {@link TestExecutionListener TestExecutionListeners} as well as
  * {@code @BeforeTransaction} and {@code @AfterTransaction} methods can fail
- * tests run via the {@link Runner} in a JUnit 4 environment.
+ * tests run via the {@link InfraRunner} in a JUnit 4 environment.
  *
  * <p>See: <a href="https://jira.spring.io/browse/SPR-3960" target="_blank">SPR-3960</a>.
  *
@@ -76,7 +76,7 @@ public class FailingBeforeAndAfterMethodsSpringRunnerTests {
   }
 
   protected Class<? extends org.junit.runner.Runner> getRunnerClass() {
-    return Runner.class;
+    return InfraRunner.class;
   }
 
   @Test
@@ -145,7 +145,7 @@ public class FailingBeforeAndAfterMethodsSpringRunnerTests {
     }
   }
 
-  @RunWith(Runner.class)
+  @RunWith(InfraRunner.class)
   public static abstract class BaseTestCase {
 
     @Test
@@ -189,7 +189,7 @@ public class FailingBeforeAndAfterMethodsSpringRunnerTests {
   }
 
   @Ignore("TestCase classes are run manually by the enclosing test class")
-  @RunWith(Runner.class)
+  @RunWith(InfraRunner.class)
   @ContextConfiguration("FailingBeforeAndAfterMethodsTests-context.xml")
   @Transactional
   public static class FailingBeforeTransactionTestCase {
@@ -205,7 +205,7 @@ public class FailingBeforeAndAfterMethodsSpringRunnerTests {
   }
 
   @Ignore("TestCase classes are run manually by the enclosing test class")
-  @RunWith(Runner.class)
+  @RunWith(InfraRunner.class)
   @ContextConfiguration("FailingBeforeAndAfterMethodsTests-context.xml")
   @Transactional
   public static class FailingAfterTransactionTestCase {

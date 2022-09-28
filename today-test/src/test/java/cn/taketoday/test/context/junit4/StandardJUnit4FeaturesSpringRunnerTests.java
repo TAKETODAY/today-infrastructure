@@ -26,7 +26,7 @@ import cn.taketoday.test.context.TestExecutionListeners;
 
 /**
  * <p>
- * Simple unit test to verify that {@link Runner} does not
+ * Simple unit test to verify that {@link InfraRunner} does not
  * hinder correct functionality of standard JUnit 4.4+ testing features.
  * </p>
  * <p>
@@ -39,7 +39,7 @@ import cn.taketoday.test.context.TestExecutionListeners;
  * @see StandardJUnit4FeaturesTests
  * @since 4.0
  */
-@RunWith(Runner.class)
+@RunWith(InfraRunner.class)
 @TestExecutionListeners({})
 public class StandardJUnit4FeaturesSpringRunnerTests extends StandardJUnit4FeaturesTests {
 

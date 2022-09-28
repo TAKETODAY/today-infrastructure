@@ -36,7 +36,7 @@ import cn.taketoday.context.annotation.AnnotatedBeanDefinitionReader;
 import cn.taketoday.context.support.GenericApplicationContext;
 import cn.taketoday.core.annotation.AliasFor;
 import cn.taketoday.test.context.ContextConfiguration;
-import cn.taketoday.test.context.junit4.Runner;
+import cn.taketoday.test.context.junit4.InfraRunner;
 import cn.taketoday.test.context.support.AnnotationConfigContextLoader;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -55,7 +55,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Sam Brannen
  * @since 4.0
  */
-@RunWith(Runner.class)
+@RunWith(InfraRunner.class)
 @InitializerConfiguredViaMetaAnnotationTests.ComposedContextConfiguration(BarConfig.class)
 public class InitializerConfiguredViaMetaAnnotationTests {
 

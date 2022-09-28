@@ -32,7 +32,7 @@ import cn.taketoday.test.annotation.ProfileValueSourceConfiguration;
  * &#064;IfProfileValue} and {@link ProfileValueSourceConfiguration
  * &#064;ProfileValueSourceConfiguration} (with an
  * <em>explicit, custom defined {@link ProfileValueSource}</em>) annotations in
- * conjunction with the {@link Runner}.
+ * conjunction with the {@link InfraRunner}.
  * </p>
  *
  * @author Sam Brannen

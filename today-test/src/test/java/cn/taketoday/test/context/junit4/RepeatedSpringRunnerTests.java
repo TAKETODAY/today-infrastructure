@@ -40,7 +40,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Verifies proper handling of the following in conjunction with the
- * {@link Runner}:
+ * {@link InfraRunner}:
  * <ul>
  * <li>Spring's {@link Repeat @Repeat}</li>
  * <li>Spring's {@link Timed @Timed}</li>
@@ -83,7 +83,7 @@ public class RepeatedSpringRunnerTests {
   }
 
   protected Class<? extends org.junit.runner.Runner> getRunnerClass() {
-    return Runner.class;
+    return InfraRunner.class;
   }
 
   @Test

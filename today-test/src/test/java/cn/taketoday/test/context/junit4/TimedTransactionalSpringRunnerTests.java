@@ -40,7 +40,7 @@ import cn.taketoday.transaction.annotation.Transactional;
  * @see cn.taketoday.test.context.junit.jupiter.transaction.TimedTransactionalSpringExtensionTests
  * @since 4.0
  */
-@RunWith(Runner.class)
+@RunWith(InfraRunner.class)
 @ContextConfiguration("transactionalTests-context.xml")
 @Transactional
 public class TimedTransactionalSpringRunnerTests {

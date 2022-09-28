@@ -205,7 +205,7 @@ class MockHttpServletResponseTests {
   void defaultCharacterEncoding() {
     assertThat(response.isCharset()).isFalse();
     assertThat(response.getContentType()).isNull();
-    assertThat(response.getCharacterEncoding()).isEqualTo("ISO-8859-1");
+    assertThat(response.getCharacterEncoding()).isEqualTo("UTF-8");
 
     response.setDefaultCharacterEncoding("UTF-8");
     assertThat(response.isCharset()).isFalse();
@@ -627,7 +627,7 @@ class MockHttpServletResponseTests {
     // gh-25501
   void resetResetsCharset() {
     assertThat(response.getContentType()).isNull();
-    assertThat(response.getCharacterEncoding()).isEqualTo("ISO-8859-1");
+    assertThat(response.getCharacterEncoding()).isEqualTo("UTF-8");
     assertThat(response.isCharset()).isFalse();
     response.setCharacterEncoding("UTF-8");
     assertThat(response.isCharset()).isTrue();

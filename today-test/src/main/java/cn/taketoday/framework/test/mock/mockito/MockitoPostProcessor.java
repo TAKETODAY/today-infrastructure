@@ -64,7 +64,7 @@ import cn.taketoday.core.PriorityOrdered;
 import cn.taketoday.core.ResolvableType;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.test.context.junit4.Runner;
+import cn.taketoday.test.context.junit4.InfraRunner;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.ReflectionUtils;
@@ -384,7 +384,7 @@ public class MockitoPostProcessor implements InstantiationAwareBeanPostProcessor
 
   /**
    * Register the processor with a {@link BeanDefinitionRegistry}. Not required when
-   * using the {@link Runner} as registration is automatic.
+   * using the {@link InfraRunner} as registration is automatic.
    *
    * @param registry the bean definition registry
    */
@@ -394,7 +394,7 @@ public class MockitoPostProcessor implements InstantiationAwareBeanPostProcessor
 
   /**
    * Register the processor with a {@link BeanDefinitionRegistry}. Not required when
-   * using the {@link Runner} as registration is automatic.
+   * using the {@link InfraRunner} as registration is automatic.
    *
    * @param registry the bean definition registry
    * @param definitions the initial mock/spy definitions
@@ -405,7 +405,7 @@ public class MockitoPostProcessor implements InstantiationAwareBeanPostProcessor
 
   /**
    * Register the processor with a {@link BeanDefinitionRegistry}. Not required when
-   * using the {@link Runner} as registration is automatic.
+   * using the {@link InfraRunner} as registration is automatic.
    *
    * @param registry the bean definition registry
    * @param postProcessor the post processor class to register

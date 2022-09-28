@@ -45,7 +45,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * {@link Transactional &#64;Transactional}, {@link TestExecutionListeners
  * &#64;TestExecutionListeners}, and {@link ContextConfiguration
  * &#64;ContextConfiguration} annotations in conjunction with the
- * {@link Runner} and the following
+ * {@link InfraRunner} and the following
  * {@link TestExecutionListener TestExecutionListeners}:
  *
  * <ul>

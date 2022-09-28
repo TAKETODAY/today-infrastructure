@@ -44,7 +44,7 @@ import cn.taketoday.test.context.junit4.rules.ApplicationMethodRule;
  * @see ApplicationMethodRule
  * @since 4.0
  */
-public final class Runner extends JUnit4ClassRunner {
+public final class InfraRunner extends JUnit4ClassRunner {
 
   /**
    * Construct a new {@code Runner} and initialize a
@@ -54,7 +54,7 @@ public final class Runner extends JUnit4ClassRunner {
    * @param clazz the test class to be run
    * @see #createTestContextManager(Class)
    */
-  public Runner(Class<?> clazz) throws InitializationError {
+  public InfraRunner(Class<?> clazz) throws InitializationError {
     super(clazz);
   }
 
