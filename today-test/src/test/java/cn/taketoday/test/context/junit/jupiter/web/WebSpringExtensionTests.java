@@ -24,13 +24,13 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import cn.taketoday.test.context.junit.jupiter.ApplicationExtension;
+import cn.taketoday.test.context.junit.jupiter.InfraExtension;
 import cn.taketoday.web.WebApplicationContext;
 
 /**
  * Integration tests which demonstrate use of the Spring MVC Test Framework and
  * the TestContext Framework with JUnit Jupiter and the
- * {@link ApplicationExtension} (via a custom
+ * {@link InfraExtension} (via a custom
  * {@link JUnitWebConfig @ApplicationJUnitWebConfig} composed annotation).
  *
  * <p>Note how the {@link #springMvcTest(WebApplicationContext)} test method
@@ -39,7 +39,7 @@ import cn.taketoday.web.WebApplicationContext;
  * test method without any fields in the test class.
  *
  * @author Sam Brannen
- * @see ApplicationExtension
+ * @see InfraExtension
  * @see JUnitWebConfig
  * @see MultipleWebRequestsSpringExtensionTests
  * @see cn.taketoday.test.context.junit.jupiter.SpringExtensionTests

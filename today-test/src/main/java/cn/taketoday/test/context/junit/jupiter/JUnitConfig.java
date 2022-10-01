@@ -42,7 +42,7 @@ import cn.taketoday.test.context.junit.jupiter.web.JUnitWebConfig;
  *
  * @author Sam Brannen
  * @see ExtendWith
- * @see ApplicationExtension
+ * @see InfraExtension
  * @see ContextConfiguration
  * @see JUnitWebConfig
  * @since 4.0
@@ -52,7 +52,7 @@ import cn.taketoday.test.context.junit.jupiter.web.JUnitWebConfig;
 @ContextConfiguration
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
-@ExtendWith(ApplicationExtension.class)
+@ExtendWith(InfraExtension.class)
 public @interface JUnitConfig {
 
   /**

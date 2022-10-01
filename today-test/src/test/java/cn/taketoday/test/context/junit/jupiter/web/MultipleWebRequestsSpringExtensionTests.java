@@ -24,17 +24,17 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
-import cn.taketoday.test.context.junit.jupiter.ApplicationExtension;
+import cn.taketoday.test.context.junit.jupiter.InfraExtension;
 import cn.taketoday.web.WebApplicationContext;
 
 /**
  * Integration tests which demonstrate how to set up a {@link MockMvc}
  * instance in an {@link BeforeEach @BeforeEach} method with the
- * {@link ApplicationExtension} (registered via a custom
+ * {@link InfraExtension} (registered via a custom
  * {@link JUnitWebConfig @ApplicationJUnitWebConfig} composed annotation).
  *
  * @author Sam Brannen
- * @see ApplicationExtension
+ * @see InfraExtension
  * @see JUnitWebConfig
  * @see WebSpringExtensionTests
  * @since 4.0

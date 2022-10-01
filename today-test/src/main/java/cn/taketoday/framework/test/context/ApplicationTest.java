@@ -43,7 +43,7 @@ import cn.taketoday.framework.web.servlet.context.ServletWebServerApplicationCon
 import cn.taketoday.test.context.BootstrapWith;
 import cn.taketoday.test.context.ContextConfiguration;
 import cn.taketoday.test.context.ContextLoader;
-import cn.taketoday.test.context.junit.jupiter.ApplicationExtension;
+import cn.taketoday.test.context.junit.jupiter.InfraExtension;
 import cn.taketoday.web.WebApplicationContext;
 
 /**
@@ -82,7 +82,7 @@ import cn.taketoday.web.WebApplicationContext;
 @Documented
 @Inherited
 @BootstrapWith(ApplicationTestContextBootstrapper.class)
-@ExtendWith(ApplicationExtension.class)
+@ExtendWith(InfraExtension.class)
 public @interface ApplicationTest {
 
   /**

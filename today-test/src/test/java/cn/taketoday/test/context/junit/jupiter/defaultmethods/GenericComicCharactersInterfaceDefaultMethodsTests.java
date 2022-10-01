@@ -25,7 +25,7 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 
 import cn.taketoday.beans.factory.annotation.Autowired;
-import cn.taketoday.test.context.junit.jupiter.ApplicationExtension;
+import cn.taketoday.test.context.junit.jupiter.InfraExtension;
 import cn.taketoday.test.context.junit.jupiter.JUnitConfig;
 import cn.taketoday.test.context.junit.jupiter.TestConfig;
 import cn.taketoday.test.context.junit.jupiter.comics.Character;
@@ -35,7 +35,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * Interface for integration tests that demonstrate support for interface default
  * methods and Java generics in JUnit Jupiter test classes when used with the Spring
- * TestContext Framework and the {@link ApplicationExtension}.
+ * TestContext Framework and the {@link InfraExtension}.
  *
  * @author Sam Brannen
  * @since 4.0

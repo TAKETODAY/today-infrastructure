@@ -30,7 +30,7 @@ import java.lang.annotation.Target;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
-import cn.taketoday.test.context.junit.jupiter.ApplicationExtension;
+import cn.taketoday.test.context.junit.jupiter.InfraExtension;
 import cn.taketoday.test.context.junit.jupiter.JUnitConfig;
 import cn.taketoday.test.context.junit.jupiter.web.JUnitWebConfig;
 
@@ -52,7 +52,7 @@ import cn.taketoday.test.context.junit.jupiter.web.JUnitWebConfig;
  * <em>composed annotations</em>.
  *
  * <p>this annotation is only supported in conjunction
- * with the {@link ApplicationExtension
+ * with the {@link InfraExtension
  * ApplicationExtension} for use with JUnit Jupiter. Note that the {@code ApplicationExtension} is
  * often automatically registered for you &mdash; for example, when using annotations such as
  * {@link JUnitConfig @ApplicationJUnitConfig} and
@@ -65,7 +65,7 @@ import cn.taketoday.test.context.junit.jupiter.web.JUnitWebConfig;
  *
  * @author Sam Brannen
  * @see cn.taketoday.beans.factory.annotation.Autowired @Autowired
- * @see ApplicationExtension
+ * @see InfraExtension
  * @see JUnitConfig @ApplicationJUnitConfig
  * @see JUnitWebConfig @ApplicationJUnitWebConfig
  * @see ContextConfiguration @ContextConfiguration

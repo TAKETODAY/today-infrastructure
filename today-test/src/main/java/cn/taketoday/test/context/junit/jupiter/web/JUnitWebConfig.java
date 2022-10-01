@@ -32,7 +32,7 @@ import java.lang.annotation.Target;
 import cn.taketoday.context.ApplicationContextInitializer;
 import cn.taketoday.core.annotation.AliasFor;
 import cn.taketoday.test.context.ContextConfiguration;
-import cn.taketoday.test.context.junit.jupiter.ApplicationExtension;
+import cn.taketoday.test.context.junit.jupiter.InfraExtension;
 import cn.taketoday.test.context.junit.jupiter.JUnitConfig;
 import cn.taketoday.test.context.web.WebAppConfiguration;
 
@@ -44,13 +44,13 @@ import cn.taketoday.test.context.web.WebAppConfiguration;
  *
  * @author Sam Brannen
  * @see ExtendWith
- * @see ApplicationExtension
+ * @see InfraExtension
  * @see ContextConfiguration
  * @see WebAppConfiguration
  * @see JUnitConfig
  * @since 4.0
  */
-@ExtendWith(ApplicationExtension.class)
+@ExtendWith(InfraExtension.class)
 @ContextConfiguration
 @WebAppConfiguration
 @Documented

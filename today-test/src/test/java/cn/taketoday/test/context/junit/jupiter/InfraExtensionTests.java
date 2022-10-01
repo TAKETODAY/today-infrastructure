@@ -23,7 +23,7 @@ package cn.taketoday.test.context.junit.jupiter;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
 import org.junit.jupiter.api.TestReporter;
-import org.junit.jupiter.api.extension.RegisterExtension;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.util.List;
 import java.util.Optional;
@@ -42,26 +42,18 @@ import cn.taketoday.test.context.junit.jupiter.comics.Person;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * Integration tests which demonstrate that the TestContext Framework can be used
- * with JUnit Jupiter by registering the {@link ApplicationExtension} via a static field.
- * Note, however, that this is not the recommended way to register the {@code ApplicationExtension}.
- *
- * <p>
- * To run these tests in an IDE that does not have built-in support for the JUnit
- * Platform, simply run {@link SpringJUnitJupiterTestSuite} as a JUnit 4 test.
+ * Integration tests which demonstrate that the TestContext Framework can
+ * be used with JUnit Jupiter via the {@link InfraExtension}.
  *
  * @author Sam Brannen
- * @see ApplicationExtensionTests
- * @see ApplicationExtension
- * @see RegisterExtension
+ * @see InfraExtension
+ * @see ComposedInfraExtensionTests
  * @since 4.0
  */
+@ExtendWith(InfraExtension.class)
 @ContextConfiguration(classes = TestConfig.class)
 @TestPropertySource(properties = "enigma = 42")
-class RegisterExtensionApplicationExtensionTests {
-
-  @RegisterExtension
-  static final ApplicationExtension springExtension = new ApplicationExtension();
+class InfraExtensionTests {
 
   @Autowired
   Person dilbert;
@@ -129,8 +121,8 @@ class RegisterExtensionApplicationExtensionTests {
   }
 
   /**
-   * NOTE: Test code must be compiled with "-g" (debug symbols) or "-parameters" in
-   * order for the parameter name to be used as the qualifier; otherwise, use
+   * NOTE: Test code must be compiled with "-g" (debug symbols) or "-parameters" in order
+   * for the parameter name to be used as the qualifier; otherwise, use
    * {@code @Qualifier("wally")}.
    */
   @Test
@@ -142,7 +134,7 @@ class RegisterExtensionApplicationExtensionTests {
   @Test
   void autowiredParameterAsJavaUtilOptional(@Autowired Optional<Dog> dog) {
     assertThat(dog).as("Optional dog should have been @Autowired by Spring").isNotNull();
-    assertThat(dog.isPresent()).as("Value of Optional should be 'present'").isTrue();
+    assertThat(dog).as("Value of Optional should be 'present'").isPresent();
     assertThat(dog.get().getName()).as("Dog's name").isEqualTo("Dogbert");
   }
 
@@ -182,8 +174,7 @@ class RegisterExtensionApplicationExtensionTests {
 
   @Test
   void valueParameterFromSpelExpression(@Value("#{@dilbert.name}") String name) {
-    assertThat(name).as(
-            "Dilbert's name should have been injected via SpEL expression in @Value by Spring").isNotNull();
+    assertThat(name).as("Dilbert's name should have been injected via SpEL expression in @Value by Spring").isNotNull();
     assertThat(name).as("name from SpEL expression").isEqualTo("Dilbert");
   }
 

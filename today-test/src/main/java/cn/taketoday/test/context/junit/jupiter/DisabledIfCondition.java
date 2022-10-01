@@ -35,7 +35,7 @@ import org.junit.jupiter.api.extension.ExtensionContext;
  * @author Sam Brannen
  * @see DisabledIf
  * @see EnabledIf
- * @see ApplicationExtension
+ * @see InfraExtension
  * @since 4.0
  */
 public class DisabledIfCondition extends AbstractExpressionEvaluatingCondition {

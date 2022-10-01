@@ -30,7 +30,7 @@ import cn.taketoday.beans.factory.annotation.Value;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.test.context.NestedTestConfiguration;
-import cn.taketoday.test.context.junit.jupiter.ApplicationExtension;
+import cn.taketoday.test.context.junit.jupiter.InfraExtension;
 import cn.taketoday.test.context.junit.jupiter.JUnitConfig;
 import cn.taketoday.test.context.junit4.nested.NestedTestsWithSpringRulesTests;
 
@@ -39,7 +39,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Integration tests that verify support for {@code @Nested} test classes in conjunction
- * with the {@link ApplicationExtension} in a JUnit Jupiter environment ... when using
+ * with the {@link InfraExtension} in a JUnit Jupiter environment ... when using
  * constructor injection as opposed to field injection (see SPR-16653).
  *
  * <p>

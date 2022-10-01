@@ -32,13 +32,13 @@ import static org.assertj.core.api.Assertions.fail;
 
 /**
  * Integration tests which verify support for {@link DisabledIf @DisabledIf}
- * in conjunction with the {@link ApplicationExtension} in a JUnit Jupiter environment.
+ * in conjunction with the {@link InfraExtension} in a JUnit Jupiter environment.
  *
  * @author Tadaya Tsuyukubo
  * @author Sam Brannen
  * @see DisabledIfConditionTests
  * @see DisabledIf
- * @see ApplicationExtension
+ * @see InfraExtension
  * @since 4.0
  */
 class DisabledIfTests {

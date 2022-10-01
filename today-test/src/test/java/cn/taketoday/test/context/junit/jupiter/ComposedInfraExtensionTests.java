@@ -42,14 +42,14 @@ import static org.assertj.core.api.Assertions.assertThat;
  * {@link ContextConfiguration @ContextConfiguration}.
  *
  * @author Sam Brannen
- * @see ApplicationExtension
+ * @see InfraExtension
  * @see JUnitConfig
- * @see ApplicationExtensionTests
+ * @see InfraExtensionTests
  * @since 4.0
  */
 @JUnitConfig(TestConfig.class)
 @DisplayName("@JUnitConfig Tests")
-class ComposedApplicationExtensionTests {
+class ComposedInfraExtensionTests {
 
   @Autowired
   Person dilbert;

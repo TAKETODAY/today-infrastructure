@@ -82,21 +82,21 @@ import cn.taketoday.util.ReflectionUtils.MethodFilter;
  * @see TestContextManager
  * @since 4.0
  */
-public class ApplicationExtension implements BeforeAllCallback, AfterAllCallback, TestInstancePostProcessor,
+public class InfraExtension implements BeforeAllCallback, AfterAllCallback, TestInstancePostProcessor,
         BeforeEachCallback, AfterEachCallback, BeforeTestExecutionCallback, AfterTestExecutionCallback, ParameterResolver {
 
   /**
    * {@link Namespace} in which {@code TestContextManagers} are stored, keyed
    * by test class.
    */
-  private static final Namespace TEST_CONTEXT_MANAGER_NAMESPACE = Namespace.create(ApplicationExtension.class);
+  private static final Namespace TEST_CONTEXT_MANAGER_NAMESPACE = Namespace.create(InfraExtension.class);
 
   /**
    * {@link Namespace} in which {@code @Autowired} validation error messages
    * are stored, keyed by test class.
    */
   private static final Namespace AUTOWIRED_VALIDATION_NAMESPACE =
-          Namespace.create(ApplicationExtension.class.getName() + "#autowired.validation");
+          Namespace.create(InfraExtension.class.getName() + "#autowired.validation");
 
   private static final String NO_AUTOWIRED_VIOLATIONS_DETECTED = "NO AUTOWIRED VIOLATIONS DETECTED";
 
@@ -108,7 +108,7 @@ public class ApplicationExtension implements BeforeAllCallback, AfterAllCallback
   private static final MethodFilter autowiredTestOrLifecycleMethodFilter =
           ReflectionUtils.USER_DECLARED_METHODS
                   .and(method -> !Modifier.isPrivate(method.getModifiers()))
-                  .and(ApplicationExtension::isAutowiredTestOrLifecycleMethod);
+                  .and(InfraExtension::isAutowiredTestOrLifecycleMethod);
 
   /**
    * Delegates to {@link TestContextManager#beforeTestClass}.

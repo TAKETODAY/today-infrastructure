@@ -31,7 +31,7 @@ import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.test.annotation.DirtiesContext;
 import cn.taketoday.test.context.TestExecutionListeners;
-import cn.taketoday.test.context.junit.jupiter.ApplicationExtension;
+import cn.taketoday.test.context.junit.jupiter.InfraExtension;
 import cn.taketoday.test.context.junit.jupiter.JUnitConfig;
 import cn.taketoday.test.context.support.DependencyInjectionTestExecutionListener;
 import cn.taketoday.test.context.support.DirtiesContextTestExecutionListener;
@@ -43,7 +43,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * Unit tests which verify correct {@link ContextCache
  * application context caching} in conjunction with the
- * {@link ApplicationExtension} and the {@link DirtiesContext
+ * {@link InfraExtension} and the {@link DirtiesContext
  * &#064;DirtiesContext} annotation at the method level.
  *
  * @author Sam Brannen
@@ -55,7 +55,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @JUnitConfig(locations = "../junit4/JUnit4ClassRunnerAppCtxTests-context.xml")
 @TestExecutionListeners({ DependencyInjectionTestExecutionListener.class, DirtiesContextTestExecutionListener.class })
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-class ApplicationExtensionContextCacheTests {
+class InfraExtensionContextCacheTests {
 
   private static ApplicationContext dirtiedApplicationContext;
 
@@ -80,7 +80,7 @@ class ApplicationExtensionContextCacheTests {
   void dirtyContext() {
     assertContextCacheStatistics("dirtyContext()", 1, 0, 1);
     assertThat(this.applicationContext).as("The application context should have been autowired.").isNotNull();
-    ApplicationExtensionContextCacheTests.dirtiedApplicationContext = this.applicationContext;
+    InfraExtensionContextCacheTests.dirtiedApplicationContext = this.applicationContext;
   }
 
   @Test
@@ -88,8 +88,8 @@ class ApplicationExtensionContextCacheTests {
   void verifyContextDirty() {
     assertContextCacheStatistics("verifyContextWasDirtied()", 1, 0, 2);
     assertThat(this.applicationContext).as("The application context should have been autowired.").isNotNull();
-    assertThat(this.applicationContext).as("The application context should have been 'dirtied'.").isNotSameAs(ApplicationExtensionContextCacheTests.dirtiedApplicationContext);
-    ApplicationExtensionContextCacheTests.dirtiedApplicationContext = this.applicationContext;
+    assertThat(this.applicationContext).as("The application context should have been 'dirtied'.").isNotSameAs(InfraExtensionContextCacheTests.dirtiedApplicationContext);
+    InfraExtensionContextCacheTests.dirtiedApplicationContext = this.applicationContext;
   }
 
   @Test
@@ -97,7 +97,7 @@ class ApplicationExtensionContextCacheTests {
   void verifyContextNotDirty() {
     assertContextCacheStatistics("verifyContextWasNotDirtied()", 1, 1, 2);
     assertThat(this.applicationContext).as("The application context should have been autowired.").isNotNull();
-    assertThat(this.applicationContext).as("The application context should NOT have been 'dirtied'.").isSameAs(ApplicationExtensionContextCacheTests.dirtiedApplicationContext);
+    assertThat(this.applicationContext).as("The application context should NOT have been 'dirtied'.").isSameAs(InfraExtensionContextCacheTests.dirtiedApplicationContext);
   }
 
 }

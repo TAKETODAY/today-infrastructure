@@ -28,7 +28,7 @@ import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.core.env.Environment;
 import cn.taketoday.test.context.NestedTestConfiguration;
 import cn.taketoday.test.context.TestPropertySource;
-import cn.taketoday.test.context.junit.jupiter.ApplicationExtension;
+import cn.taketoday.test.context.junit.jupiter.InfraExtension;
 import cn.taketoday.test.context.junit.jupiter.JUnitConfig;
 
 import static cn.taketoday.test.context.NestedTestConfiguration.EnclosingConfiguration.INHERIT;
@@ -38,7 +38,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * Integration tests that verify support for {@code @Nested} test classes using
  * {@link TestPropertySource @TestPropertySource} in conjunction with the
- * {@link ApplicationExtension} in a JUnit Jupiter environment.
+ * {@link InfraExtension} in a JUnit Jupiter environment.
  *
  * @author Sam Brannen
  * @since 4.0

@@ -26,7 +26,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import cn.taketoday.beans.factory.annotation.Value;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.test.context.TestPropertySource;
-import cn.taketoday.test.context.junit.jupiter.ApplicationExtension;
+import cn.taketoday.test.context.junit.jupiter.InfraExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -36,7 +36,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Anand Shah
  * @author Phillip Webb
  */
-@ExtendWith(ApplicationExtension.class)
+@ExtendWith(InfraExtension.class)
 @TestPropertySource(properties = "local.server.port=8181")
 class LocalServerPortTests {
 

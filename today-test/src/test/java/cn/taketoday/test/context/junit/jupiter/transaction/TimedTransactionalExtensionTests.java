@@ -20,6 +20,7 @@
 
 package cn.taketoday.test.context.junit.jupiter.transaction;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 import org.junit.platform.testkit.engine.EngineTestKit;
@@ -61,7 +62,7 @@ import static org.junit.platform.testkit.engine.TestExecutionResultConditions.me
 class TimedTransactionalExtensionTests {
 
   @Test
-  void springTransactionsWorkWithJUnitJupiterTimeouts() {
+  void infraTransactionsWorkWithJUnitJupiterTimeouts() {
     Events events = EngineTestKit.engine("junit-jupiter")
             .selectors(selectClass(TestCase.class))
             .execute()
@@ -78,6 +79,7 @@ class TimedTransactionalExtensionTests {
   @JUnitConfig
   @Transactional
   @FailingTestCase
+  @Disabled
   static class TestCase {
 
     @Test

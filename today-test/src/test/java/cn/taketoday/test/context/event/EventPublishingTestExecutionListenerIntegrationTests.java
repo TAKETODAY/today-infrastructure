@@ -50,7 +50,7 @@ import cn.taketoday.test.context.event.annotation.BeforeTestClass;
 import cn.taketoday.test.context.event.annotation.BeforeTestExecution;
 import cn.taketoday.test.context.event.annotation.BeforeTestMethod;
 import cn.taketoday.test.context.event.annotation.PrepareTestInstance;
-import cn.taketoday.test.context.junit.jupiter.ApplicationExtension;
+import cn.taketoday.test.context.junit.jupiter.InfraExtension;
 import cn.taketoday.util.ReflectionUtils;
 
 import static java.lang.annotation.ElementType.METHOD;
@@ -188,7 +188,7 @@ public class EventPublishingTestExecutionListenerIntegrationTests {
   @interface Traceable {
   }
 
-  @ExtendWith(ApplicationExtension.class)
+  @ExtendWith(InfraExtension.class)
   @ContextConfiguration(classes = TestEventListenerConfiguration.class)
   public static class ExampleTestCase {
 

@@ -37,18 +37,18 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * Integration tests which demonstrate that the TestContext Framework
  * can be used with JUnit Jupiter's {@link ParameterizedTest @ParameterizedTest}
- * support in conjunction with the {@link ApplicationExtension}.
+ * support in conjunction with the {@link InfraExtension}.
  *
  * <p>To run these tests in an IDE that does not have built-in support for the
  * JUnit Platform, simply run {@link SpringJUnitJupiterTestSuite} as a JUnit 4 test.
  *
  * @author Sam Brannen
- * @see ApplicationExtension
+ * @see InfraExtension
  * @see ParameterizedTest
  * @since 4.0
  */
 @JUnitConfig(TestConfig.class)
-class ApplicationExtensionParameterizedTests {
+class InfraExtensionParameterizedTests {
 
   @ParameterizedTest
   @ValueSource(strings = { "Dilbert", "Wally" })

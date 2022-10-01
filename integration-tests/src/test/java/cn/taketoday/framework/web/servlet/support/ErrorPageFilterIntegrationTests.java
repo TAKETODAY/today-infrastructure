@@ -40,7 +40,7 @@ import cn.taketoday.http.ResponseEntity;
 import cn.taketoday.test.annotation.DirtiesContext;
 import cn.taketoday.test.context.ContextConfiguration;
 import cn.taketoday.test.context.MergedContextConfiguration;
-import cn.taketoday.test.context.junit.jupiter.ApplicationExtension;
+import cn.taketoday.test.context.junit.jupiter.InfraExtension;
 import cn.taketoday.test.context.support.AbstractContextLoader;
 import cn.taketoday.web.HandlerInterceptor;
 import cn.taketoday.web.RequestContext;
@@ -62,7 +62,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Dave Syer
  * @author Phillip Webb
  */
-@ExtendWith(ApplicationExtension.class)
+@ExtendWith(InfraExtension.class)
 @DirtiesContext
 @ContextConfiguration(classes = ErrorPageFilterIntegrationTests.TomcatConfig.class,
                       loader = ErrorPageFilterIntegrationTests.EmbeddedWebContextLoader.class)

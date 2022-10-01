@@ -38,7 +38,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * and {@link Value @Value} with the TestContext Framework and JUnit Jupiter.
  *
  * @author Sam Brannen
- * @see ApplicationExtension
+ * @see InfraExtension
  * @see ApplicationJUnitJupiterAutowiredConstructorInjectionTests
  * @since 4.0
  */

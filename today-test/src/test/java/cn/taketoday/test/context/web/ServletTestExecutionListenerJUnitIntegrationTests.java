@@ -26,7 +26,6 @@ import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.mock.web.MockHttpServletRequest;
 import cn.taketoday.test.context.junit.jupiter.web.JUnitWebConfig;
-import cn.taketoday.test.context.testng.web.ServletTestExecutionListenerTestNGIntegrationTests;
 import cn.taketoday.web.RequestContextHolder;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -35,7 +34,6 @@ import static org.assertj.core.api.Assertions.assertThat;
  * JUnit-based integration tests for {@link ServletTestExecutionListener}.
  *
  * @author Sam Brannen
- * @see ServletTestExecutionListenerTestNGIntegrationTests
  * @since 4.0
  */
 @JUnitWebConfig

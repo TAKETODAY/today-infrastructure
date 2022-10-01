@@ -39,7 +39,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * {@link TestConstructor @TestConstructor} annotation
  *
  * @author Sam Brannen
- * @see ApplicationExtension
+ * @see InfraExtension
  * @see ApplicationJUnitJupiterAutowiredConstructorInjectionTests
  * @see JUnitJupiterConstructorInjectionTests
  * @since 4.0

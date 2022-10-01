@@ -20,13 +20,13 @@
 
 package cn.taketoday.test.context.junit.jupiter.defaultmethods;
 
-import cn.taketoday.test.context.junit.jupiter.ApplicationExtension;
+import cn.taketoday.test.context.junit.jupiter.InfraExtension;
 import cn.taketoday.test.context.junit.jupiter.comics.Cat;
 
 /**
  * Parameterized test class for integration tests that demonstrate support for
  * interface default methods and Java generics in JUnit Jupiter test classes when used
- * with the TestContext Framework and the {@link ApplicationExtension}.
+ * with the TestContext Framework and the {@link InfraExtension}.
  *
  * @author Sam Brannen
  * @since 4.0

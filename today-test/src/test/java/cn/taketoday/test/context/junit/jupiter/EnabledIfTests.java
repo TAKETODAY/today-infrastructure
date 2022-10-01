@@ -32,13 +32,13 @@ import static org.assertj.core.api.Assertions.fail;
 
 /**
  * Integration tests which verify support for {@link EnabledIf @EnabledIf}
- * in conjunction with the {@link ApplicationExtension} in a JUnit Jupiter environment.
+ * in conjunction with the {@link InfraExtension} in a JUnit Jupiter environment.
  *
  * @author Tadaya Tsuyukubo
  * @author Sam Brannen
  * @see EnabledIfConditionTests
  * @see EnabledIf
- * @see ApplicationExtension
+ * @see InfraExtension
  * @since 4.0
  */
 class EnabledIfTests {

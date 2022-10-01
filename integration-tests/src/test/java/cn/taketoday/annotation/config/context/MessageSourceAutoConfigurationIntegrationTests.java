@@ -38,9 +38,12 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  * @author Dave Syer
  */
-@ApplicationTest("spring.messages.basename:test/messages")
-@ImportAutoConfiguration({ MessageSourceAutoConfiguration.class, PropertyPlaceholderAutoConfiguration.class })
 @DirtiesContext
+@ApplicationTest("infra.messages.basename:test/messages")
+@ImportAutoConfiguration({
+        MessageSourceAutoConfiguration.class,
+        PropertyPlaceholderAutoConfiguration.class
+})
 class MessageSourceAutoConfigurationIntegrationTests {
 
   @Autowired
