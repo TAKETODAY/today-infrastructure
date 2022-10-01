@@ -39,7 +39,6 @@ import cn.taketoday.test.context.junit4.rules.ApplicationMethodRule;
 import cn.taketoday.test.context.support.DependencyInjectionTestExecutionListener;
 import cn.taketoday.test.context.support.DirtiesContextBeforeModesTestExecutionListener;
 import cn.taketoday.test.context.support.DirtiesContextTestExecutionListener;
-import cn.taketoday.test.context.testng.AbstractTestNGContextTests;
 import cn.taketoday.test.context.web.ServletTestExecutionListener;
 
 /**
@@ -96,7 +95,6 @@ import cn.taketoday.test.context.web.ServletTestExecutionListener;
  * @see DirtiesContextTestExecutionListener
  * @see EventPublishingTestExecutionListener
  * @see AbstractTransactionalJUnit4ContextTests
- * @see AbstractTestNGContextTests
  * @since 4.0
  */
 @RunWith(InfraRunner.class)

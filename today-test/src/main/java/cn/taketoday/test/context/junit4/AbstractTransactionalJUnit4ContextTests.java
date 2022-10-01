@@ -30,25 +30,24 @@ import cn.taketoday.jdbc.core.JdbcTemplate;
 import cn.taketoday.jdbc.datasource.init.ResourceDatabasePopulator;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.test.context.junit4.rules.ApplicationClassRule;
-import cn.taketoday.test.context.junit4.rules.ApplicationMethodRule;
-import cn.taketoday.test.context.ContextConfiguration;
-import cn.taketoday.test.context.TestExecutionListeners;
 import cn.taketoday.test.annotation.Commit;
 import cn.taketoday.test.annotation.Rollback;
+import cn.taketoday.test.context.ContextConfiguration;
 import cn.taketoday.test.context.TestExecutionListener;
+import cn.taketoday.test.context.TestExecutionListeners;
 import cn.taketoday.test.context.event.ApplicationEventsTestExecutionListener;
 import cn.taketoday.test.context.event.EventPublishingTestExecutionListener;
 import cn.taketoday.test.context.jdbc.SqlScriptsTestExecutionListener;
+import cn.taketoday.test.context.junit4.rules.ApplicationClassRule;
+import cn.taketoday.test.context.junit4.rules.ApplicationMethodRule;
 import cn.taketoday.test.context.support.DependencyInjectionTestExecutionListener;
 import cn.taketoday.test.context.support.DirtiesContextBeforeModesTestExecutionListener;
 import cn.taketoday.test.context.support.DirtiesContextTestExecutionListener;
-import cn.taketoday.test.context.testng.AbstractTransactionalTestNGContextTests;
 import cn.taketoday.test.context.transaction.AfterTransaction;
+import cn.taketoday.test.context.transaction.BeforeTransaction;
 import cn.taketoday.test.context.transaction.TransactionalTestExecutionListener;
 import cn.taketoday.test.context.web.ServletTestExecutionListener;
 import cn.taketoday.test.jdbc.JdbcTestUtils;
-import cn.taketoday.test.context.transaction.BeforeTransaction;
 import cn.taketoday.transaction.PlatformTransactionManager;
 import cn.taketoday.transaction.annotation.Transactional;
 
@@ -111,7 +110,6 @@ import cn.taketoday.transaction.annotation.Transactional;
  * @see BeforeTransaction
  * @see AfterTransaction
  * @see JdbcTestUtils
- * @see AbstractTransactionalTestNGContextTests
  * @since 4.0
  */
 @TestExecutionListeners(listeners = { ServletTestExecutionListener.class, DirtiesContextBeforeModesTestExecutionListener.class,
