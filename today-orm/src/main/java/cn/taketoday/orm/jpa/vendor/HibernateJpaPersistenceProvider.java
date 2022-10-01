@@ -47,17 +47,21 @@ class HibernateJpaPersistenceProvider extends HibernatePersistenceProvider {
 
   @Override
   public EntityManagerFactory createContainerEntityManagerFactory(PersistenceUnitInfo info, Map properties) {
-    ArrayList<String> mergedClassesAndPackages = new ArrayList<>(info.getManagedClassNames());
     if (info instanceof SmartPersistenceUnitInfo unitInfo) {
-      mergedClassesAndPackages.addAll(unitInfo.getManagedPackages());
+      List<String> managedPackages = unitInfo.getManagedPackages();
+      if (!managedPackages.isEmpty()) {
+        var mergedClassesAndPackages = new ArrayList<>(info.getManagedClassNames());
+        mergedClassesAndPackages.addAll(managedPackages);
+        return new EntityManagerFactoryBuilderImpl(
+                new PersistenceUnitInfoDescriptor(info) {
+                  @Override
+                  public List<String> getManagedClassNames() {
+                    return mergedClassesAndPackages;
+                  }
+                }, properties).build();
+      }
     }
-    return new EntityManagerFactoryBuilderImpl(
-            new PersistenceUnitInfoDescriptor(info) {
-              @Override
-              public List<String> getManagedClassNames() {
-                return mergedClassesAndPackages;
-              }
-            }, properties).build();
-  }
 
+    return super.createContainerEntityManagerFactory(info, properties);
+  }
 }
