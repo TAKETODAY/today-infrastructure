@@ -52,7 +52,7 @@ public class HibernatePersonRepository implements PersonRepository {
   @Override
   public Person findByName(String name) {
     return (Person) this.sessionFactory.getCurrentSession().createQuery(
-            "from JpaPerson person where person.name = :name").setParameter("name", name).getSingleResult();
+            "from Person person where person.name = :name").setParameter("name", name).getSingleResult();
   }
 
 }
