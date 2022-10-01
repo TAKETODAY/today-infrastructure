@@ -79,7 +79,6 @@ class TimedTransactionalExtensionTests {
   @JUnitConfig
   @Transactional
   @FailingTestCase
-  @Disabled
   static class TestCase {
 
     @Test

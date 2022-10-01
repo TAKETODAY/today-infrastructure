@@ -239,7 +239,6 @@
           <argLine>
             -DtestGroups=all ${add-opens}
           </argLine>
-          <excludedGroups>failing-test-case</excludedGroups>
         </configuration>
       </plugin>
 

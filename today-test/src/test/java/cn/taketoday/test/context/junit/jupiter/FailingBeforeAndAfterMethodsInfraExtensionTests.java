@@ -74,7 +74,6 @@ class FailingBeforeAndAfterMethodsInfraExtensionTests {
           AlwaysFailingAfterTestExecutionTestCase.class,
           AlwaysFailingAfterTestMethodTestCase.class,
   })
-  @Disabled
   void failingBeforeAndAfterCallbacks(Class<?> testClass) {
     Events events = EngineTestKit.engine("junit-jupiter")
             .selectors(selectClass(testClass))

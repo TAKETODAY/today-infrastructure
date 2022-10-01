@@ -51,7 +51,7 @@ class TestConstructorIntegrationTests {
   @BeforeEach
   @AfterEach
   void clearSpringProperty() {
-    setSpringProperty(null);
+    setProperty(null);
   }
 
   @Test
@@ -69,7 +69,7 @@ class TestConstructorIntegrationTests {
 
   @Test
   void autowireModeSetToAllViaTodayStrategies() {
-    setSpringProperty("all");
+    setProperty("all");
 
     EngineTestKit.engine("junit-jupiter")
             .selectors(selectClass(AutomaticallyAutowiredTestCase.class))
@@ -88,7 +88,7 @@ class TestConstructorIntegrationTests {
             .assertStatistics(stats -> stats.started(1).succeeded(1).failed(0));
   }
 
-  private void setSpringProperty(String flag) {
+  private void setProperty(String flag) {
     TodayStrategies.setProperty(TEST_CONSTRUCTOR_AUTOWIRE_MODE_PROPERTY_NAME, flag);
   }
 

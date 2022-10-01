@@ -640,7 +640,7 @@ class MockHttpServletResponseTests {
     response.reset();
 
     assertThat(response.getContentType()).isNull();
-    assertThat(response.getCharacterEncoding()).isEqualTo("ISO-8859-1");
+    assertThat(response.getCharacterEncoding()).isEqualTo("UTF-8");
     assertThat(response.isCharset()).isFalse();
     // Do not invoke setCharacterEncoding() since that sets the charset flag to true.
     // response.setCharacterEncoding("UTF-8");
