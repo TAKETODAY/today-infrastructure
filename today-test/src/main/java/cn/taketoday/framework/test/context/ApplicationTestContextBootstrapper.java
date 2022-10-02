@@ -113,11 +113,12 @@ public class ApplicationTestContextBootstrapper extends DefaultTestContextBootst
   }
 
   @Override
-  protected Set<Class<? extends TestExecutionListener>> getDefaultTestExecutionListenerClasses() {
-    Set<Class<? extends TestExecutionListener>> listeners = super.getDefaultTestExecutionListenerClasses();
-    List<DefaultTestExecutionListenersPostProcessor> postProcessors = TodayStrategies.get(DefaultTestExecutionListenersPostProcessor.class, getClass().getClassLoader());
-    for (DefaultTestExecutionListenersPostProcessor postProcessor : postProcessors) {
-      listeners = postProcessor.postProcessDefaultTestExecutionListeners(listeners);
+  protected List<TestExecutionListener> getDefaultTestExecutionListeners() {
+    List<TestExecutionListener> listeners = super.getDefaultTestExecutionListeners();
+    List<TestExecutionListenersPostProcessor> postProcessors = TodayStrategies.find(
+            TestExecutionListenersPostProcessor.class, getClass().getClassLoader());
+    for (TestExecutionListenersPostProcessor postProcessor : postProcessors) {
+      listeners = postProcessor.postProcessListeners(listeners);
     }
     return listeners;
   }

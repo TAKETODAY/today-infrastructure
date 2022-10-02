@@ -20,7 +20,7 @@
 
 package cn.taketoday.framework.test.context;
 
-import java.util.Set;
+import java.util.List;
 
 import cn.taketoday.test.context.TestExecutionListener;
 
@@ -34,7 +34,7 @@ import cn.taketoday.test.context.TestExecutionListener;
  * @since 4.0
  */
 @FunctionalInterface
-public interface DefaultTestExecutionListenersPostProcessor {
+public interface TestExecutionListenersPostProcessor {
 
   /**
    * Post process the list of default {@link TestExecutionListener} classes to be used.
@@ -42,7 +42,6 @@ public interface DefaultTestExecutionListenersPostProcessor {
    * @param listeners the source listeners
    * @return the actual listeners that should be used
    */
-  Set<Class<? extends TestExecutionListener>> postProcessDefaultTestExecutionListeners(
-          Set<Class<? extends TestExecutionListener>> listeners);
+  List<TestExecutionListener> postProcessListeners(List<TestExecutionListener> listeners);
 
 }

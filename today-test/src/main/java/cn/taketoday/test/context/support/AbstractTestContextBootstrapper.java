@@ -20,6 +20,7 @@
 
 package cn.taketoday.test.context.support;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -78,7 +79,7 @@ import cn.taketoday.util.StringUtils;
  * @author Phillip Webb
  * @since 4.0
  */
-public abstract class AbstractTestContextBootstrapper implements TestContextBootstrapper {
+public abstract class AbstractTestContextBootstrapper implements TestContextBootstrapper, TodayStrategies.FailureHandler {
   private static final Logger log = LoggerFactory.getLogger(AbstractTestContextBootstrapper.class);
 
   @Nullable
@@ -115,7 +116,7 @@ public abstract class AbstractTestContextBootstrapper implements TestContextBoot
   public final List<TestExecutionListener> getTestExecutionListeners() {
     Class<?> clazz = getBootstrapContext().getTestClass();
     Class<TestExecutionListeners> annotationType = TestExecutionListeners.class;
-    ArrayList<Class<? extends TestExecutionListener>> classesList = new ArrayList<>();
+    ArrayList<TestExecutionListener> listeners = new ArrayList<>();
     boolean usingDefaults = false;
 
     AnnotationDescriptor<TestExecutionListeners> descriptor =
@@ -125,7 +126,7 @@ public abstract class AbstractTestContextBootstrapper implements TestContextBoot
     if (descriptor == null) {
       log.debug("@TestExecutionListeners is not present for class [{}]: using defaults.", clazz.getName());
       usingDefaults = true;
-      classesList.addAll(getDefaultTestExecutionListenerClasses());
+      listeners.addAll(getDefaultTestExecutionListeners());
     }
     else {
       // Traverse the class hierarchy...
@@ -142,31 +143,32 @@ public abstract class AbstractTestContextBootstrapper implements TestContextBoot
 
         // If there are no listeners to inherit, we might need to merge the
         // locally declared listeners with the defaults.
-        if ((!inheritListeners || parentDescriptor == null) &&
-                testExecutionListeners.mergeMode() == MergeMode.MERGE_WITH_DEFAULTS) {
+        if ((!inheritListeners || parentDescriptor == null)
+                && testExecutionListeners.mergeMode() == MergeMode.MERGE_WITH_DEFAULTS) {
           if (log.isDebugEnabled()) {
             log.debug("Merging default listeners with listeners configured via " +
                     "@TestExecutionListeners for class [{}].", descriptor.getRootDeclaringClass().getName());
           }
           usingDefaults = true;
-          classesList.addAll(getDefaultTestExecutionListenerClasses());
+          listeners.addAll(getDefaultTestExecutionListeners());
         }
-
-        classesList.addAll(0, Arrays.asList(testExecutionListeners.listeners()));
-
-        descriptor = (inheritListeners ? parentDescriptor : null);
+        listeners.addAll(0, instantiateListeners(testExecutionListeners.listeners()));
+        descriptor = inheritListeners ? parentDescriptor : null;
       }
     }
 
-    Collection<Class<? extends TestExecutionListener>> classesToUse = classesList;
-    // Remove possible duplicates if we loaded default listeners.
     if (usingDefaults) {
-      classesToUse = new LinkedHashSet<>(classesList);
-    }
+      // Remove possible duplicates if we loaded default listeners.
+      ArrayList<TestExecutionListener> uniqueListeners = new ArrayList<>(listeners.size());
+      for (TestExecutionListener listener : listeners) {
+        Class<? extends TestExecutionListener> listenerClass = listener.getClass();
+        if (isUnique(uniqueListeners, listenerClass)) {
+          uniqueListeners.add(listener);
+        }
+      }
+      listeners = uniqueListeners;
 
-    List<TestExecutionListener> listeners = instantiateListeners(classesToUse);
-    // Sort by Ordered/@Order if we loaded default listeners.
-    if (usingDefaults) {
+      // Sort by Ordered/@Order if we loaded default listeners.
       AnnotationAwareOrderComparator.sort(listeners);
     }
 
@@ -174,19 +176,28 @@ public abstract class AbstractTestContextBootstrapper implements TestContextBoot
     return listeners;
   }
 
-  private List<TestExecutionListener> instantiateListeners(Collection<Class<? extends TestExecutionListener>> classes) {
-    List<TestExecutionListener> listeners = new ArrayList<>(classes.size());
+  private static boolean isUnique(
+          ArrayList<TestExecutionListener> uniqueListeners,
+          Class<? extends TestExecutionListener> listenerClass) {
+    for (TestExecutionListener uniqueListener : uniqueListeners) {
+      if (uniqueListener.getClass().equals(listenerClass)) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  @SuppressWarnings("unchecked")
+  private List<TestExecutionListener> instantiateListeners(Class<? extends TestExecutionListener>... classes) {
+    var listeners = new ArrayList<TestExecutionListener>(classes.length);
     for (Class<? extends TestExecutionListener> listenerClass : classes) {
       try {
         listeners.add(BeanUtils.newInstance(listenerClass));
       }
       catch (BeanInstantiationException ex) {
-        if (ex.getCause() instanceof NoClassDefFoundError) {
-          // TestExecutionListener not applicable due to a missing dependency
-          log.debug("Skipping candidate TestExecutionListener [{}] due to a missing dependency. " +
-                          "Specify custom listener classes or make the default listener classes " +
-                          "and their required dependencies available. Offending class: [{}]",
-                  listenerClass.getName(), ex.getCause().getMessage());
+        Throwable cause = ex.getCause();
+        if (cause instanceof ClassNotFoundException || cause instanceof NoClassDefFoundError) {
+          logSkippedComponent(TestExecutionListener.class, listenerClass.getName(), cause);
         }
         else {
           throw ex;
@@ -197,46 +208,29 @@ public abstract class AbstractTestContextBootstrapper implements TestContextBoot
   }
 
   /**
-   * Get the default {@link TestExecutionListener} classes for this bootstrapper.
-   * <p>This method is invoked by {@link #getTestExecutionListeners()} and
-   * delegates to {@link #getDefaultTestExecutionListenerClassNames()} to
-   * retrieve the class names.
-   * <p>If a particular class cannot be loaded, a {@code DEBUG} message will
-   * be logged, but the associated exception will not be rethrown.
-   */
-  protected Set<Class<? extends TestExecutionListener>> getDefaultTestExecutionListenerClasses() {
-    LinkedHashSet<Class<? extends TestExecutionListener>> defaultListenerClasses = new LinkedHashSet<>();
-    ClassLoader cl = getClass().getClassLoader();
-    for (String className : getDefaultTestExecutionListenerClassNames()) {
-      try {
-        defaultListenerClasses.add(ClassUtils.forName(className, cl));
-      }
-      catch (Throwable ex) {
-        log.debug("Could not load default TestExecutionListener class [{}]. Specify custom listener classes or make the default listener classes available.",
-                className, ex);
-      }
-    }
-    return defaultListenerClasses;
-  }
-
-  /**
-   * Get the names of the default {@link TestExecutionListener} classes for
+   * Get the default {@link TestExecutionListener TestExecutionListeners} for
    * this bootstrapper.
-   * <p>The default implementation looks up all
-   * {@code cn.taketoday.test.context.TestExecutionListener} entries
-   * configured in all {@code META-INF/today-strategies.properties} files on the classpath.
-   * <p>This method is invoked by {@link #getDefaultTestExecutionListenerClasses()}.
+   * <p>This method is invoked by {@link #getTestExecutionListeners()}.
+   * <p>The default implementation looks up and instantiates all
+   * {@code TestExecutionListener} entries
+   * configured in all {@code META-INF/spring.factories} files on the classpath.
+   * <p>If a particular listener cannot be loaded due to a {@link LinkageError}
+   * or {@link ClassNotFoundException}, a {@code DEBUG} message will be logged,
+   * but the associated exception will not be rethrown. A {@link RuntimeException}
+   * or any other {@link Error} will be rethrown. Any other exception will be
+   * thrown wrapped in an {@link IllegalStateException}.
    *
-   * @return an <em>unmodifiable</em> list of names of default {@code TestExecutionListener}
-   * classes
-   * @see TodayStrategies#getStrategiesNames
+   * @return an <em>unmodifiable</em> list of default {@code TestExecutionListener}
+   * instances
    */
-  protected List<String> getDefaultTestExecutionListenerClassNames() {
-    List<String> classNames = TodayStrategies.getStrategiesNames(
-            TestExecutionListener.class, getClass().getClassLoader());
-    log.info("Loaded default TestExecutionListener class names from location [{}]: {}",
-            TodayStrategies.STRATEGIES_LOCATION, classNames);
-    return Collections.unmodifiableList(classNames);
+  protected List<TestExecutionListener> getDefaultTestExecutionListeners() {
+    var listeners = TodayStrategies.forDefaultResourceLocation(getClass().getClassLoader())
+            .load(TestExecutionListener.class, this);
+    if (log.isDebugEnabled()) {
+      log.info("Loaded default TestExecutionListener implementations from location [{}]: {}",
+              TodayStrategies.STRATEGIES_LOCATION, classNames(listeners));
+    }
+    return listeners;
   }
 
   /**
@@ -401,10 +395,16 @@ public abstract class AbstractTestContextBootstrapper implements TestContextBoot
    * for loading factories configured in all {@code META-INF/today-strategies.properties}
    * files on the classpath.
    *
-   * @see TodayStrategies#get
+   * @see TodayStrategies#findNames
    */
   protected List<ContextCustomizerFactory> getContextCustomizerFactories() {
-    return TodayStrategies.get(ContextCustomizerFactory.class, getClass().getClassLoader());
+    TodayStrategies loader = TodayStrategies.forDefaultResourceLocation(getClass().getClassLoader());
+    var factories = loader.load(ContextCustomizerFactory.class, this);
+    if (log.isDebugEnabled()) {
+      log.debug("Loaded ContextCustomizerFactory implementations from location [%s]: %s"
+              .formatted(TodayStrategies.STRATEGIES_LOCATION, classNames(factories)));
+    }
+    return factories;
   }
 
   /**
@@ -527,6 +527,53 @@ public abstract class AbstractTestContextBootstrapper implements TestContextBoot
    */
   protected MergedContextConfiguration processMergedContextConfiguration(MergedContextConfiguration mergedConfig) {
     return mergedConfig;
+  }
+
+  @Override
+  public void handleFailure(Class<?> strategyType, String strategyImplementationName, Throwable failure) {
+    handleInstantiationFailure(strategyType, strategyImplementationName, failure);
+  }
+
+  private void handleInstantiationFailure(
+          Class<?> factoryType, String factoryImplementationName, Throwable failure) {
+
+    Throwable ex = (failure instanceof InvocationTargetException ite ?
+                    ite.getTargetException() : failure);
+    if (ex instanceof ClassNotFoundException || ex instanceof NoClassDefFoundError) {
+      logSkippedComponent(factoryType, factoryImplementationName, ex);
+    }
+    else if (ex instanceof LinkageError) {
+      if (log.isDebugEnabled()) {
+        log.debug("""
+                Could not load %1$s [%2$s]. Specify custom %1$s classes or make the default %1$s classes \
+                available.""".formatted(factoryType.getSimpleName(), factoryImplementationName), ex);
+      }
+    }
+    else {
+      if (ex instanceof RuntimeException runtimeException) {
+        throw runtimeException;
+      }
+      if (ex instanceof Error error) {
+        throw error;
+      }
+      throw new IllegalStateException(
+              "Failed to load %s [%s].".formatted(factoryType.getSimpleName(), factoryImplementationName), ex);
+    }
+  }
+
+  private void logSkippedComponent(Class<?> factoryType, String factoryImplementationName, Throwable ex) {
+    // TestExecutionListener/ContextCustomizerFactory not applicable due to a missing dependency
+    if (log.isDebugEnabled()) {
+      log.debug("""
+              Skipping candidate %1$s [%2$s] due to a missing dependency. \
+              Specify custom %1$s classes or make the default %1$s classes \
+              and their required dependencies available. Offending class: [%3$s]"""
+              .formatted(factoryType.getSimpleName(), factoryImplementationName, ex.getMessage()));
+    }
+  }
+
+  private static List<String> classNames(List<?> components) {
+    return components.stream().map(Object::getClass).map(Class::getName).toList();
   }
 
   private static boolean areAllEmpty(Collection<?>... collections) {
