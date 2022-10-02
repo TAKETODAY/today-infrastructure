@@ -310,7 +310,7 @@ public class UrlResource extends AbstractFileResolvingResource {
 
   @Override
   public String toString() {
-    return "UrlBasedResource: ".concat(url.toString());
+    return "URL [" + this.url + "]";
   }
 
   /**
