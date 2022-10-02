@@ -58,7 +58,7 @@ final class FailureAnalyzers implements ApplicationExceptionReporter {
   private final List<FailureAnalyzer> analyzers;
 
   FailureAnalyzers(@Nullable ConfigurableApplicationContext context) {
-    this(context, TodayStrategies.getStrategiesNames(FailureAnalyzer.class, getClassLoader(context)));
+    this(context, TodayStrategies.findNames(FailureAnalyzer.class, getClassLoader(context)));
   }
 
   FailureAnalyzers(@Nullable ConfigurableApplicationContext context, List<String> classNames) {
@@ -110,7 +110,7 @@ final class FailureAnalyzers implements ApplicationExceptionReporter {
     if (analysis == null) {
       return false;
     }
-    List<FailureAnalysisReporter> reporters = TodayStrategies.get(FailureAnalysisReporter.class, classLoader);
+    List<FailureAnalysisReporter> reporters = TodayStrategies.find(FailureAnalysisReporter.class, classLoader);
     if (reporters.isEmpty()) {
       return false;
     }

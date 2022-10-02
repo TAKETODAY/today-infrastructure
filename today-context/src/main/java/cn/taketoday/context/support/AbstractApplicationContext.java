@@ -645,7 +645,8 @@ public abstract class AbstractApplicationContext
   public void prepareBeanFactory(ConfigurableBeanFactory beanFactory) {
     log.debug("Preparing bean-factory: {}", beanFactory);
     // Tell the internal bean factory to use the context's class loader etc.
-    beanFactory.setBeanClassLoader(getClassLoader());
+    ClassLoader classLoader = getClassLoader();
+    beanFactory.setBeanClassLoader(classLoader);
     beanFactory.setBeanExpressionResolver(new StandardBeanExpressionResolver());
     beanFactory.addPropertyEditorRegistrar(new ResourceEditorRegistrar(this, getEnvironment()));
 
@@ -678,8 +679,8 @@ public abstract class AbstractApplicationContext
     beanFactory.registerDependency(ApplicationContext.class, this);
 
     // loading some outside beans
-    List<BeanDefinitionLoader> strategies = TodayStrategies.get(
-            BeanDefinitionLoader.class, BeanFactoryAwareInstantiator.forFunction(beanFactory));
+    var strategies = TodayStrategies.find(
+            BeanDefinitionLoader.class, classLoader, BeanFactoryAwareInstantiator.from(beanFactory));
 
     if (!strategies.isEmpty()) {
       BootstrapContext bootstrapContext = obtainBootstrapContext();

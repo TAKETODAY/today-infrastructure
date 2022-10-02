@@ -56,7 +56,7 @@ class ConfigDataLocationResolvers {
    */
   ConfigDataLocationResolvers(ConfigurableBootstrapContext bootstrapContext,
           Binder binder, ResourceLoader resourceLoader) {
-    this(bootstrapContext, binder, resourceLoader, TodayStrategies.getStrategiesNames(
+    this(bootstrapContext, binder, resourceLoader, TodayStrategies.findNames(
             ConfigDataLocationResolver.class, resourceLoader.getClassLoader()));
   }
 

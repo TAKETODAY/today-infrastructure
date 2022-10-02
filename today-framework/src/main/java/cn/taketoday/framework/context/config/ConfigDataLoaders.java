@@ -57,7 +57,7 @@ class ConfigDataLoaders {
    */
   ConfigDataLoaders(ConfigurableBootstrapContext bootstrapContext, @Nullable ClassLoader classLoader) {
     this(bootstrapContext, classLoader,
-            TodayStrategies.getStrategiesNames(ConfigDataLoader.class, classLoader));
+            TodayStrategies.findNames(ConfigDataLoader.class, classLoader));
   }
 
   /**

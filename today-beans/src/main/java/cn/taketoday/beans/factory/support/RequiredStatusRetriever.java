@@ -52,7 +52,7 @@ public class RequiredStatusRetriever {
 
   public RequiredStatusRetriever() {
     requiredAnnotationType.add(Autowired.class.getName());
-    List<String> types = TodayStrategies.get(RequiredStatusRetriever.class.getName());
+    List<String> types = TodayStrategies.findNames(RequiredStatusRetriever.class.getName());
     requiredAnnotationType.addAll(types);
   }
 

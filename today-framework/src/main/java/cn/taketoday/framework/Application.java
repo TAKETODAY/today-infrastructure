@@ -233,9 +233,9 @@ public class Application {
     this.primarySources = CollectionUtils.newLinkedHashSet(primarySources);
     this.mainApplicationClass = deduceMainApplicationClass();
     this.applicationType = ApplicationType.deduceFromClasspath();
-    this.bootstrapRegistryInitializers = TodayStrategies.get(BootstrapRegistryInitializer.class);
-    setInitializers(TodayStrategies.get(ApplicationContextInitializer.class));
-    setListeners(TodayStrategies.get(ApplicationListener.class));
+    this.bootstrapRegistryInitializers = TodayStrategies.find(BootstrapRegistryInitializer.class);
+    setInitializers(TodayStrategies.find(ApplicationContextInitializer.class));
+    setListeners(TodayStrategies.find(ApplicationListener.class));
   }
 
   private Class<?> deduceMainApplicationClass() {
@@ -397,7 +397,7 @@ public class Application {
               parameters.add(ConfigurableBootstrapContext.class, bootstrapContext);
             });
 
-    List<String> strategiesNames = TodayStrategies.getStrategiesNames(ApplicationStartupListener.class, getClassLoader());
+    List<String> strategiesNames = TodayStrategies.findNames(ApplicationStartupListener.class, getClassLoader());
     List<ApplicationStartupListener> strategies = instantiator.instantiate(strategiesNames);
     ApplicationHook hook = applicationHook.get();
     if (hook != null) {
@@ -1157,7 +1157,7 @@ public class Application {
       parameters.add(ConfigurableApplicationContext.class, context);
     });
 
-    List<String> strategiesNames = TodayStrategies.getStrategiesNames(ApplicationExceptionReporter.class, classLoader);
+    List<String> strategiesNames = TodayStrategies.findNames(ApplicationExceptionReporter.class, classLoader);
     return instantiator.instantiate(strategiesNames);
   }
 

@@ -77,7 +77,7 @@ public class EnvironmentPostProcessorApplicationStartupListener implements Appli
               parameters.add(ConfigurableBootstrapContext.class, bootstrapContext);
             });
 
-    List<String> strategiesNames = TodayStrategies.getStrategiesNames(EnvironmentPostProcessor.class, classLoader);
+    List<String> strategiesNames = TodayStrategies.findNames(EnvironmentPostProcessor.class, classLoader);
     return instantiator.instantiate(strategiesNames);
   }
 

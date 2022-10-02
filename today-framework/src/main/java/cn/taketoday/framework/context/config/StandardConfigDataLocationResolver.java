@@ -87,7 +87,7 @@ public class StandardConfigDataLocationResolver
    * @param resourceLoader a {@link ResourceLoader} used to load resources
    */
   public StandardConfigDataLocationResolver(Binder binder, ResourceLoader resourceLoader) {
-    this.propertySourceLoaders = TodayStrategies.get(PropertySourceLoader.class, getClass().getClassLoader());
+    this.propertySourceLoaders = TodayStrategies.find(PropertySourceLoader.class, getClass().getClassLoader());
     this.configNames = getConfigNames(binder);
     this.resourceLoader = new LocationResourceLoader(resourceLoader);
   }

@@ -21,7 +21,6 @@
 package cn.taketoday.beans.factory.support;
 
 import java.lang.reflect.Constructor;
-import java.util.function.Function;
 
 import cn.taketoday.beans.BeanInstantiationException;
 import cn.taketoday.beans.BeanUtils;
@@ -37,6 +36,7 @@ import cn.taketoday.core.ConstructorNotFoundException;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Experimental;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.lang.TodayStrategies;
 import cn.taketoday.util.function.SingletonSupplier;
 
 /**
@@ -47,7 +47,7 @@ import cn.taketoday.util.function.SingletonSupplier;
  * @since 4.0
  */
 @Experimental
-public class BeanFactoryAwareInstantiator {
+public class BeanFactoryAwareInstantiator implements TodayStrategies.Instantiator {
   public static final String BEAN_NAME = "beanFactoryAwareInstantiator";
 
   private final BeanFactory beanFactory;
@@ -58,6 +58,7 @@ public class BeanFactoryAwareInstantiator {
     this.beanFactory = beanFactory;
   }
 
+  @Override
   public <T> T instantiate(Class<T> beanClass) {
     return instantiate(beanClass, (Object[]) null);
   }
@@ -99,24 +100,6 @@ public class BeanFactoryAwareInstantiator {
   }
 
   // static factory-method
-
-  /**
-   * for {@code Function<Class<T>, T> }
-   */
-  public static <T> Function<Class<T>, T> forFunction(BeanFactory beanFactory) {
-    if (beanFactory instanceof AutowireCapableBeanFactory acb) {
-      return acb::createBean;
-    }
-    return forFunction(BeanFactoryAwareInstantiator.from(beanFactory));
-  }
-
-  /**
-   * for {@code Function<Class<T>, T> }
-   */
-  public static <T> Function<Class<T>, T> forFunction(BeanFactoryAwareInstantiator instantiator) {
-    Assert.notNull(instantiator, "instantiator is required");
-    return instantiator::instantiate;
-  }
 
   public static BeanFactoryAwareInstantiator from(BeanFactory beanFactory) {
     Assert.notNull(beanFactory, "beanFactory is required");

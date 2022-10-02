@@ -51,7 +51,7 @@ public class ScanningBeanDefinitionReader {
     this.componentProvider = new ClassPathScanningComponentProvider();
     componentProvider.setMetadataReaderFactory(loadingContext.getMetadataReaderFactory());
 
-    List<BeanDefinitionLoadingStrategy> strategies = TodayStrategies.get(
+    List<BeanDefinitionLoadingStrategy> strategies = TodayStrategies.find(
             BeanDefinitionLoadingStrategy.class);
     this.scanningStrategies = new BeanDefinitionLoadingStrategies(strategies);
   }
