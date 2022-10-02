@@ -51,7 +51,7 @@ class OnClassConditionAutoConfigurationImportFilterTests {
 
   @Test
   void shouldBeRegistered() {
-    assertThat(TodayStrategies.get(AutoConfigurationImportFilter.class))
+    assertThat(TodayStrategies.find(AutoConfigurationImportFilter.class))
             .hasAtLeastOneElementOfType(OnClassCondition.class);
   }
 

@@ -51,7 +51,7 @@ class MessageSourceAutoConfigurationIntegrationTests {
 
   @Test
   void testMessageSourceFromPropertySourceAnnotation() {
-    assertThat(this.context.getMessage("foo", null, "Foo message", Locale.UK)).isEqualTo("bar");
+    assertThat(context.getMessage("foo", null, "Foo message", Locale.UK)).isEqualTo("bar");
   }
 
   @Configuration(proxyBeanMethods = false)
