@@ -23,9 +23,7 @@ package cn.taketoday.context.annotation.config;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.type.classreading.SimpleMetadataReaderFactory;
@@ -40,8 +38,8 @@ import cn.taketoday.util.ClassUtils;
  */
 public class AutoConfigurations extends Configurations implements Ordered {
 
-  private static final AutoConfigurationSorter SORTER = new AutoConfigurationSorter(
-          new SimpleMetadataReaderFactory(), null);
+  private static final AutoConfigurationSorter SORTER =
+          new AutoConfigurationSorter(new SimpleMetadataReaderFactory(), null);
 
   private static final Ordered ORDER = new AutoConfigurationImportSelector();
 
@@ -51,10 +49,18 @@ public class AutoConfigurations extends Configurations implements Ordered {
 
   @Override
   protected Collection<Class<?>> sort(Collection<Class<?>> classes) {
-    List<String> names = classes.stream().map(Class::getName).collect(Collectors.toList());
-    List<String> sorted = SORTER.getInPriorityOrder(names);
-    return sorted.stream().map((className) -> ClassUtils.resolveClassName(className, null))
-            .collect(Collectors.toCollection(ArrayList::new));
+    var names = new ArrayList<String>();
+    for (Class<?> c : classes) {
+      names.add(c.getName());
+    }
+
+    var sorted = SORTER.getInPriorityOrder(names);
+    var configClasses = new ArrayList<Class<?>>();
+    for (String className : sorted) {
+      Class<?> configClass = ClassUtils.resolveClassName(className, null);
+      configClasses.add(configClass);
+    }
+    return configClasses;
   }
 
   @Override

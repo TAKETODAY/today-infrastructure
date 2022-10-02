@@ -63,7 +63,7 @@ public class AutoConfigurationExcludeFilter implements TypeFilter, BeanClassLoad
 
   protected List<String> getAutoConfigurations() {
     if (autoConfigurations == null) {
-      this.autoConfigurations = TodayStrategies.getStrategiesNames(EnableAutoConfiguration.class, beanClassLoader);
+      this.autoConfigurations = TodayStrategies.findNames(EnableAutoConfiguration.class, beanClassLoader);
       ImportCandidates.load(AutoConfiguration.class, beanClassLoader).forEach(autoConfigurations::add);
     }
     return this.autoConfigurations;

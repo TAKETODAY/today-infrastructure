@@ -31,7 +31,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 import cn.taketoday.beans.BeansException;
 import cn.taketoday.beans.factory.Aware;
@@ -53,6 +52,7 @@ import cn.taketoday.core.io.ResourceLoader;
 import cn.taketoday.core.type.AnnotationMetadata;
 import cn.taketoday.core.type.classreading.MetadataReaderFactory;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.lang.TodayStrategies;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
@@ -78,8 +78,6 @@ public class AutoConfigurationImportSelector
 
   private static final Logger log = LoggerFactory.getLogger(AutoConfigurationImportSelector.class);
 
-  private static final AutoConfigurationEntry EMPTY_ENTRY = new AutoConfigurationEntry();
-
   private static final String PROPERTY_NAME_AUTOCONFIGURE_EXCLUDE = "context.autoconfigure.exclude";
 
   private ConfigurableBeanFactory beanFactory;
@@ -94,11 +92,11 @@ public class AutoConfigurationImportSelector
 
   @Override
   public String[] selectImports(AnnotationMetadata annotationMetadata) {
-    if (!isEnabled(annotationMetadata)) {
-      return NO_IMPORTS;
+    if (isEnabled(annotationMetadata)) {
+      AutoConfigurationEntry autoConfigurationEntry = getAutoConfigurationEntry(annotationMetadata);
+      return StringUtils.toStringArray(autoConfigurationEntry.configurations);
     }
-    AutoConfigurationEntry autoConfigurationEntry = getAutoConfigurationEntry(annotationMetadata);
-    return StringUtils.toStringArray(autoConfigurationEntry.getConfigurations());
+    return NO_IMPORTS;
   }
 
   @Override
@@ -107,7 +105,9 @@ public class AutoConfigurationImportSelector
   }
 
   private boolean shouldExclude(String configurationClassName) {
-    return getConfigurationClassFilter().filter(Collections.singletonList(configurationClassName)).isEmpty();
+    return getConfigurationClassFilter()
+            .filter(Collections.singletonList(configurationClassName))
+            .isEmpty();
   }
 
   /**
@@ -118,18 +118,18 @@ public class AutoConfigurationImportSelector
    * @return the auto-configurations that should be imported
    */
   protected AutoConfigurationEntry getAutoConfigurationEntry(AnnotationMetadata annotationMetadata) {
-    if (!isEnabled(annotationMetadata)) {
-      return EMPTY_ENTRY;
+    if (isEnabled(annotationMetadata)) {
+      AnnotationAttributes attributes = getAttributes(annotationMetadata);
+      List<String> configurations = getCandidateConfigurations(annotationMetadata, attributes);
+      configurations = removeDuplicates(configurations);
+      Set<String> exclusions = getExclusions(annotationMetadata, attributes);
+      checkExcludedClasses(configurations, exclusions);
+      configurations.removeAll(exclusions);
+      configurations = getConfigurationClassFilter().filter(configurations);
+      fireAutoConfigurationImportEvents(configurations, exclusions);
+      return new AutoConfigurationEntry(configurations, exclusions);
     }
-    AnnotationAttributes attributes = getAttributes(annotationMetadata);
-    List<String> configurations = getCandidateConfigurations(annotationMetadata, attributes);
-    configurations = removeDuplicates(configurations);
-    Set<String> exclusions = getExclusions(annotationMetadata, attributes);
-    checkExcludedClasses(configurations, exclusions);
-    configurations.removeAll(exclusions);
-    configurations = getConfigurationClassFilter().filter(configurations);
-    fireAutoConfigurationImportEvents(configurations, exclusions);
-    return new AutoConfigurationEntry(configurations, exclusions);
+    return AutoConfigurationEntry.empty();
   }
 
   @Override
@@ -153,9 +153,11 @@ public class AutoConfigurationImportSelector
    * @param metadata the annotation metadata
    * @return annotation attributes
    */
+  @Nullable
   protected AnnotationAttributes getAttributes(AnnotationMetadata metadata) {
     String name = getAnnotationClass().getName();
-    AnnotationAttributes attributes = AnnotationAttributes.fromMap(metadata.getAnnotationAttributes(name, true));
+    AnnotationAttributes attributes = AnnotationAttributes.fromMap(
+            metadata.getAnnotationAttributes(name, true));
     if (attributes == null) {
       throw new IllegalArgumentException("No auto-configuration attributes found. Is " + metadata.getClassName()
               + " annotated with " + ClassUtils.getShortName(name) + "?");
@@ -181,10 +183,11 @@ public class AutoConfigurationImportSelector
    * @param attributes the {@link #getAttributes(AnnotationMetadata) annotation attributes}
    * @return a list of candidate configurations
    */
-  protected List<String> getCandidateConfigurations(AnnotationMetadata metadata, AnnotationAttributes attributes) {
-    List<String> configurations = TodayStrategies.getStrategiesNames(
-            getStrategyClass(), getBeanClassLoader());
-    ImportCandidates.load(AutoConfiguration.class, getBeanClassLoader()).forEach(configurations::add);
+  protected List<String> getCandidateConfigurations(
+          AnnotationMetadata metadata, @Nullable AnnotationAttributes attributes) {
+    var configurations = ImportCandidates.load(AutoConfiguration.class, getBeanClassLoader()).getCandidates();
+    configurations.addAll(TodayStrategies.findNames(getStrategyClass(), getBeanClassLoader()));
+
     Assert.notEmpty(configurations,
             "No auto configuration classes found in META-INF/today-strategies.properties " +
                     "nor in META-INF/config/cn.taketoday.context.annotation.config.AutoConfiguration.imports." +
@@ -238,7 +241,7 @@ public class AutoConfigurationImportSelector
    * attributes}
    * @return exclusions or an empty set
    */
-  protected Set<String> getExclusions(AnnotationMetadata metadata, AnnotationAttributes attributes) {
+  protected Set<String> getExclusions(AnnotationMetadata metadata, @Nullable AnnotationAttributes attributes) {
     LinkedHashSet<String> excluded = new LinkedHashSet<>();
     excluded.addAll(asList(attributes, "exclude"));
     excluded.addAll(asList(attributes, "excludeName"));
@@ -268,7 +271,7 @@ public class AutoConfigurationImportSelector
   }
 
   protected List<AutoConfigurationImportFilter> getAutoConfigurationImportFilters() {
-    return TodayStrategies.get(AutoConfigurationImportFilter.class, this.beanClassLoader);
+    return TodayStrategies.find(AutoConfigurationImportFilter.class, this.beanClassLoader);
   }
 
   private ConfigurationClassFilter getConfigurationClassFilter() {
@@ -303,7 +306,7 @@ public class AutoConfigurationImportSelector
   }
 
   protected List<AutoConfigurationImportListener> getAutoConfigurationImportListeners() {
-    return TodayStrategies.get(AutoConfigurationImportListener.class, this.beanClassLoader);
+    return TodayStrategies.find(AutoConfigurationImportListener.class, beanClassLoader);
   }
 
   private void invokeAwareMethods(Object instance) {
@@ -431,7 +434,7 @@ public class AutoConfigurationImportSelector
       if (selector instanceof AutoConfigurationImportSelector autoConfigSelector) {
         AutoConfigurationEntry entry = autoConfigSelector.getAutoConfigurationEntry(annotationMetadata);
         autoConfigurationEntries.add(entry);
-        for (String importClassName : entry.getConfigurations()) {
+        for (String importClassName : entry.configurations) {
           entries.putIfAbsent(importClassName, annotationMetadata);
         }
       }
@@ -448,21 +451,25 @@ public class AutoConfigurationImportSelector
       if (autoConfigurationEntries.isEmpty()) {
         return Collections.emptyList();
       }
-      var allExclusions = autoConfigurationEntries.stream()
-              .map(AutoConfigurationEntry::getExclusions)
-              .flatMap(Collection::stream)
-              .collect(Collectors.toSet());
 
-      var processedConfigurations = autoConfigurationEntries.stream()
-              .map(AutoConfigurationEntry::getConfigurations)
-              .flatMap(Collection::stream)
-              .collect(Collectors.toCollection(LinkedHashSet::new));
-      processedConfigurations.removeAll(allExclusions);
+      var processedConfigurations = new LinkedHashSet<String>();
+      for (AutoConfigurationEntry entry : autoConfigurationEntries) {
+        processedConfigurations.addAll(entry.configurations);
+      }
 
-      return sortAutoConfigurations(processedConfigurations, getAutoConfigurationMetadata())
-              .stream()
-              .map((importClassName) -> new Entry(this.entries.get(importClassName), importClassName))
-              .collect(Collectors.toList());
+      for (AutoConfigurationEntry entry : autoConfigurationEntries) {
+        processedConfigurations.removeAll(entry.exclusions);
+      }
+
+      List<String> sortedConfigurations = sortAutoConfigurations(
+              processedConfigurations, getAutoConfigurationMetadata());
+
+      var entries = new ArrayList<Entry>(sortedConfigurations.size());
+      for (String importClassName : sortedConfigurations) {
+        Entry entry = new Entry(this.entries.get(importClassName), importClassName);
+        entries.add(entry);
+      }
+      return entries;
     }
 
     private AutoConfigurationMetadata getAutoConfigurationMetadata() {
@@ -487,13 +494,8 @@ public class AutoConfigurationImportSelector
 
   protected static class AutoConfigurationEntry {
 
-    private final Set<String> exclusions;
-    private final List<String> configurations;
-
-    private AutoConfigurationEntry() {
-      this.configurations = Collections.emptyList();
-      this.exclusions = Collections.emptySet();
-    }
+    public final Set<String> exclusions;
+    public final List<String> configurations;
 
     /**
      * Create an entry with the configurations that were contributed and their
@@ -513,6 +515,10 @@ public class AutoConfigurationImportSelector
 
     public Set<String> getExclusions() {
       return this.exclusions;
+    }
+
+    static AutoConfigurationEntry empty() {
+      return new AutoConfigurationEntry(Collections.emptyList(), Collections.emptyList());
     }
 
   }

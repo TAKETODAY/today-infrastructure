@@ -47,20 +47,19 @@ import cn.taketoday.lang.Assert;
  */
 class AutoConfigurationSorter {
 
-  private final MetadataReaderFactory metadataReaderFactory;
+  private final MetadataReaderFactory readerFactory;
+  private final AutoConfigurationMetadata autoConfigMetadata;
 
-  private final AutoConfigurationMetadata autoConfigurationMetadata;
-
-  AutoConfigurationSorter(MetadataReaderFactory metadataReaderFactory,
-                          AutoConfigurationMetadata autoConfigurationMetadata) {
-    Assert.notNull(metadataReaderFactory, "MetadataReaderFactory must not be null");
-    this.metadataReaderFactory = metadataReaderFactory;
-    this.autoConfigurationMetadata = autoConfigurationMetadata;
+  AutoConfigurationSorter(
+          MetadataReaderFactory readerFactory,
+          AutoConfigurationMetadata autoConfigMetadata) {
+    Assert.notNull(readerFactory, "MetadataReaderFactory must not be null");
+    this.readerFactory = readerFactory;
+    this.autoConfigMetadata = autoConfigMetadata;
   }
 
   ArrayList<String> getInPriorityOrder(Collection<String> classNames) {
-    AutoConfigurationClasses classes = new AutoConfigurationClasses(this.metadataReaderFactory,
-            this.autoConfigurationMetadata, classNames);
+    var classes = new AutoConfigurationClasses(readerFactory, autoConfigMetadata, classNames);
     ArrayList<String> orderedClassNames = new ArrayList<>(classNames);
     // Initially sort alphabetically
     Collections.sort(orderedClassNames);
@@ -120,7 +119,7 @@ class AutoConfigurationSorter {
     }
 
     Set<String> getAllNames() {
-      return this.classes.keySet();
+      return classes.keySet();
     }
 
     private void addToClasses(
@@ -128,12 +127,12 @@ class AutoConfigurationSorter {
             AutoConfigurationMetadata autoConfigurationMetadata,
             Collection<String> classNames, boolean required) {
       for (String className : classNames) {
-        if (!this.classes.containsKey(className)) {
-          AutoConfigurationClass autoConfigurationClass = new AutoConfigurationClass(className,
-                  metadataReaderFactory, autoConfigurationMetadata);
+        if (!classes.containsKey(className)) {
+          var autoConfigurationClass = new AutoConfigurationClass(
+                  className, metadataReaderFactory, autoConfigurationMetadata);
           boolean available = autoConfigurationClass.isAvailable();
           if (required || available) {
-            this.classes.put(className, autoConfigurationClass);
+            classes.put(className, autoConfigurationClass);
           }
           if (available) {
             addToClasses(metadataReaderFactory, autoConfigurationMetadata,
@@ -146,7 +145,7 @@ class AutoConfigurationSorter {
     }
 
     AutoConfigurationClass get(String className) {
-      return this.classes.get(className);
+      return classes.get(className);
     }
 
     LinkedHashSet<String> getClassesRequestedAfter(String className) {
@@ -177,8 +176,9 @@ class AutoConfigurationSorter {
 
     private volatile Set<String> after;
 
-    AutoConfigurationClass(String className, MetadataReaderFactory metadataReaderFactory,
-                           AutoConfigurationMetadata autoConfigurationMetadata) {
+    AutoConfigurationClass(String className,
+            MetadataReaderFactory metadataReaderFactory,
+            AutoConfigurationMetadata autoConfigurationMetadata) {
       this.className = className;
       this.metadataReaderFactory = metadataReaderFactory;
       this.autoConfigurationMetadata = autoConfigurationMetadata;
@@ -223,11 +223,12 @@ class AutoConfigurationSorter {
     }
 
     private boolean wasProcessed() {
-      return this.autoConfigurationMetadata != null
-              && this.autoConfigurationMetadata.wasProcessed(this.className);
+      return autoConfigurationMetadata != null
+              && autoConfigurationMetadata.wasProcessed(className);
     }
 
     private Set<String> getAnnotationValue(Class<?> annotation) {
+      // TODO 换成 MergedAnnotation
       Map<String, Object> attributes = getAnnotationMetadata().getAnnotationAttributes(
               annotation.getName(), true);
       if (attributes == null) {
