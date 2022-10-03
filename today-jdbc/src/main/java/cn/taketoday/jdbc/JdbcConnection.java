@@ -512,7 +512,7 @@ public final class JdbcConnection implements Closeable {
   }
 
   private void closeConnection() {
-    if (DataSourceUtils.isConnectionTransactional(root, dataSource)) {
+    if (transaction != null || DataSourceUtils.isConnectionTransactional(root, dataSource)) {
       DataSourceUtils.releaseConnection(root, dataSource);
     }
     else {

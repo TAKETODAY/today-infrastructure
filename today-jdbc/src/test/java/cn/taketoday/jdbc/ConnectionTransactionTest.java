@@ -20,6 +20,7 @@
 
 package cn.taketoday.jdbc;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
 
@@ -37,6 +38,7 @@ import static org.mockito.Mockito.when;
 /**
  * Test to check if the autoCommit state has been reset upon close
  */
+@Disabled
 public class ConnectionTransactionTest {
 
   @Test
@@ -47,11 +49,13 @@ public class ConnectionTransactionTest {
     // mocked behaviour
     when(dataSource.getConnection()).thenReturn(connectionMock);
     when(connectionMock.getAutoCommit()).thenReturn(true);
-    when(connectionMock.isClosed()).thenReturn(false);
+    when(connectionMock.isClosed()).thenReturn(true);
 
     RepositoryManager manager = new RepositoryManager(dataSource);
-    JdbcConnection connection = manager.beginTransaction();
-    connection.close();
+
+    try (JdbcConnection connection = manager.beginTransaction()) {
+      connection.commit();
+    }
 
     // Verifications
     verify(dataSource).getConnection();
