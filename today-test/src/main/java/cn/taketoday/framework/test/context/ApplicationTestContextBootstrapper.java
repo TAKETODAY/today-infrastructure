@@ -63,7 +63,7 @@ import cn.taketoday.util.StringUtils;
 
 /**
  * {@link TestContextBootstrapper} for Spring Boot. Provides support for
- * {@link ApplicationTest @SpringBootTest} and may also be used directly or subclassed.
+ * {@link ApplicationTest @ApplicationTest} and may also be used directly or subclassed.
  * Provides the following features over and above {@link DefaultTestContextBootstrapper}:
  * <ul>
  * <li>Uses {@link ApplicationContextLoader} as the
@@ -234,7 +234,7 @@ public class ApplicationTestContextBootstrapper extends DefaultTestContextBootst
     Class<?> found = new AnnotatedClassFinder(ApplicationConfiguration.class)
             .findFromClass(mergedConfig.getTestClass());
     Assert.state(found != null, "Unable to find a @SpringBootConfiguration, you need to use "
-            + "@ContextConfiguration or @SpringBootTest(classes=...) with your test");
+            + "@ContextConfiguration or @ApplicationTest(classes=...) with your test");
     logger.info("Found @SpringBootConfiguration " + found.getName() + " for test " + mergedConfig.getTestClass());
     return merge(found, classes);
   }
@@ -286,8 +286,8 @@ public class ApplicationTestContextBootstrapper extends DefaultTestContextBootst
    * @param mergedConfig the merged context configuration
    * @param propertySourceProperties the property source properties to process
    */
-  protected void processPropertySourceProperties(MergedContextConfiguration mergedConfig,
-          List<String> propertySourceProperties) {
+  protected void processPropertySourceProperties(
+          MergedContextConfiguration mergedConfig, List<String> propertySourceProperties) {
     Class<?> testClass = mergedConfig.getTestClass();
     String[] properties = getProperties(testClass);
     if (ObjectUtils.isNotEmpty(properties)) {
@@ -330,8 +330,8 @@ public class ApplicationTestContextBootstrapper extends DefaultTestContextBootst
     if (applicationTest != null && isListeningOnPort(applicationTest.webEnvironment()) && MergedAnnotations
             .from(testClass, SearchStrategy.INHERITED_ANNOTATIONS).isPresent(WebAppConfiguration.class)) {
       throw new IllegalStateException("@WebAppConfiguration should only be used "
-              + "with @SpringBootTest when @SpringBootTest is configured with a "
-              + "mock web environment. Please remove @WebAppConfiguration or reconfigure @SpringBootTest.");
+              + "with @ApplicationTest when @ApplicationTest is configured with a "
+              + "mock web environment. Please remove @WebAppConfiguration or reconfigure @ApplicationTest.");
     }
   }
 
@@ -346,8 +346,8 @@ public class ApplicationTestContextBootstrapper extends DefaultTestContextBootst
    * @param classes the replacement classes
    * @return a new {@link MergedContextConfiguration}
    */
-  protected final MergedContextConfiguration createModifiedConfig(MergedContextConfiguration mergedConfig,
-          Class<?>[] classes) {
+  protected final MergedContextConfiguration createModifiedConfig(
+          MergedContextConfiguration mergedConfig, Class<?>[] classes) {
     return createModifiedConfig(mergedConfig, classes, mergedConfig.getPropertySourceProperties());
   }
 

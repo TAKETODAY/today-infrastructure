@@ -39,10 +39,13 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  * @author Dave Syer
  */
-@ApplicationTest
-@ImportAutoConfiguration({ MessageSourceAutoConfiguration.class, PropertyPlaceholderAutoConfiguration.class })
-@ActiveProfiles("switch-messages")
 @DirtiesContext
+@ApplicationTest
+@ActiveProfiles("switch-messages")
+@ImportAutoConfiguration({
+        MessageSourceAutoConfiguration.class,
+        PropertyPlaceholderAutoConfiguration.class
+})
 class MessageSourceAutoConfigurationProfileTests {
 
   @Autowired

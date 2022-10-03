@@ -64,7 +64,7 @@ import cn.taketoday.web.context.support.GenericWebApplicationContext;
  * A {@link ContextLoader} that can be used to test Spring Boot applications (those that
  * normally startup using {@link Application}). Although this loader can be used
  * directly, most test will instead want to use it with
- * {@link ApplicationTest @SpringBootTest}.
+ * {@link ApplicationTest @ApplicationTest}.
  * <p>
  * The loader supports both standard {@link MergedContextConfiguration} as well as
  * {@link WebMergedContextConfiguration}. If {@link WebMergedContextConfiguration} is used

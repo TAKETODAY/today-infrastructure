@@ -107,7 +107,7 @@ class AutoConfigurationImportSelectorTests {
   }
 
   @Test
-  void classNamesExclusionsAreAppliedWhenUsingSpringBootApplication() {
+  void classNamesExclusionsAreAppliedWhenUsingInfraApplication() {
     String[] imports = selectImports(ApplicationWithClassNameExclusions.class);
     assertThat(imports).hasSize(getAutoConfigurationClassNames().size() - 1);
     Assertions.assertThat(this.importSelector.getLastEvent().getExclusions())
@@ -303,13 +303,13 @@ class AutoConfigurationImportSelectorTests {
 
   }
 
-  @EnableAutoConfiguration(excludeName = "cn.taketoday.framework.annotation.PropertyPlaceholderAutoConfiguration")
+  @EnableAutoConfiguration(excludeName = "cn.taketoday.annotation.config.context.PropertyPlaceholderAutoConfiguration")
   private class EnableAutoConfigurationWithClassNameExclusions {
 
   }
 
   @EnableAutoConfiguration(exclude = PropertyPlaceholderAutoConfiguration.class,
-                           excludeName = "cn.taketoday.framework.annotation.LifecycleAutoConfiguration")
+                           excludeName = "cn.taketoday.annotation.config.context.LifecycleAutoConfiguration")
   private class EnableAutoConfigurationWithClassAndClassNameExclusions {
 
   }

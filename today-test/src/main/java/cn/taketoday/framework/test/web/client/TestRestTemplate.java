@@ -74,7 +74,7 @@ import cn.taketoday.web.util.UriTemplateHandler;
  * {@link #getRestTemplate()}.
  * <p>
  * If you are using the
- * {@link ApplicationTest @SpringBootTest} annotation
+ * {@link ApplicationTest @ApplicationTest} annotation
  * with an embedded server, a {@link TestRestTemplate} is automatically available and can
  * be {@code @Autowired} into your test. If you need customizations (for example to adding
  * additional message converters) use a {@link RestTemplateBuilder} {@code @Bean}.
