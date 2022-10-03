@@ -32,12 +32,13 @@ import cn.taketoday.lang.Nullable;
  * {@link MergedContextConfiguration} is created.
  *
  * <p>By default, the TestContext Framework will use the
- * {@link cn.taketoday.core.io.support.SpringFactoriesLoader SpringFactoriesLoader}
+ * {@link cn.taketoday.lang.TodayStrategies TodayStrategies}
  * mechanism for loading factories configured in all {@code META-INF/today-strategies.properties}
  * files on the classpath.
  *
  * @author Phillip Webb
  * @author Sam Brannen
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 @FunctionalInterface

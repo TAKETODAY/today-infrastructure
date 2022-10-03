@@ -76,10 +76,10 @@ public abstract class TestPropertySourceUtils {
    */
   public static final String INLINED_PROPERTIES_PROPERTY_SOURCE_NAME = "Inlined Test Properties";
 
-  private static final Logger logger = LoggerFactory.getLogger(TestPropertySourceUtils.class);
+  private static final Logger log = LoggerFactory.getLogger(TestPropertySourceUtils.class);
 
   static MergedTestPropertySources buildMergedTestPropertySources(Class<?> testClass) {
-    List<TestPropertySourceAttributes> attributesList = new ArrayList<>();
+    ArrayList<TestPropertySourceAttributes> attributesList = new ArrayList<>();
 
     TestPropertySourceAttributes previousAttributes = null;
     // Iterate over all aggregate levels, where each level is represented by
@@ -90,11 +90,12 @@ public abstract class TestPropertySourceUtils {
 
       // Convert all of the merged annotations for the current aggregate
       // level to a list of TestPropertySourceAttributes.
-      List<TestPropertySourceAttributes> aggregatedAttributesList =
-              aggregatedAnnotations.stream().map(TestPropertySourceAttributes::new).collect(Collectors.toList());
+      var aggregatedAttributes = aggregatedAnnotations.stream()
+              .map(TestPropertySourceAttributes::new)
+              .collect(Collectors.toList());
       // Merge all TestPropertySourceAttributes instances for the current
       // aggregate level into a single TestPropertySourceAttributes instance.
-      TestPropertySourceAttributes mergedAttributes = mergeTestPropertySourceAttributes(aggregatedAttributesList);
+      TestPropertySourceAttributes mergedAttributes = mergeTestPropertySourceAttributes(aggregatedAttributes);
       if (mergedAttributes != null) {
         if (!duplicationDetected(mergedAttributes, previousAttributes)) {
           attributesList.add(mergedAttributes);
@@ -132,10 +133,10 @@ public abstract class TestPropertySourceUtils {
           @Nullable TestPropertySourceAttributes previousAttributes) {
 
     boolean duplicationDetected =
-            (currentAttributes.equals(previousAttributes) && !currentAttributes.isEmpty());
+            currentAttributes.equals(previousAttributes) && !currentAttributes.isEmpty();
 
-    if (duplicationDetected && logger.isDebugEnabled()) {
-      logger.debug(String.format("Ignoring duplicate %s declaration on %s since it is also declared on %s",
+    if (duplicationDetected && log.isDebugEnabled()) {
+      log.debug(String.format("Ignoring duplicate %s declaration on %s since it is also declared on %s",
               currentAttributes, currentAttributes.getDeclaringClass().getName(),
               previousAttributes.getDeclaringClass().getName()));
     }
@@ -146,8 +147,8 @@ public abstract class TestPropertySourceUtils {
   private static String[] mergeLocations(List<TestPropertySourceAttributes> attributesList) {
     List<String> locations = new ArrayList<>();
     for (TestPropertySourceAttributes attrs : attributesList) {
-      if (logger.isTraceEnabled()) {
-        logger.trace(String.format("Processing locations for TestPropertySource attributes %s", attrs));
+      if (log.isTraceEnabled()) {
+        log.trace(String.format("Processing locations for TestPropertySource attributes %s", attrs));
       }
       String[] locationsArray = TestContextResourceUtils.convertToClasspathResourcePaths(
               attrs.getDeclaringClass(), true, attrs.getLocations());
@@ -160,10 +161,10 @@ public abstract class TestPropertySourceUtils {
   }
 
   private static String[] mergeProperties(List<TestPropertySourceAttributes> attributesList) {
-    List<String> properties = new ArrayList<>();
+    ArrayList<String> properties = new ArrayList<>();
     for (TestPropertySourceAttributes attrs : attributesList) {
-      if (logger.isTraceEnabled()) {
-        logger.trace(String.format("Processing inlined properties for TestPropertySource attributes %s", attrs));
+      if (log.isTraceEnabled()) {
+        log.trace(String.format("Processing inlined properties for TestPropertySource attributes %s", attrs));
       }
       String[] attrProps = attrs.getProperties();
       properties.addAll(0, Arrays.asList(attrProps));
@@ -217,8 +218,8 @@ public abstract class TestPropertySourceUtils {
    * @see #addPropertiesFilesToEnvironment(ConfigurableApplicationContext, String...)
    * @since 4.0
    */
-  public static void addPropertiesFilesToEnvironment(ConfigurableEnvironment environment,
-          ResourceLoader resourceLoader, String... locations) {
+  public static void addPropertiesFilesToEnvironment(
+          ConfigurableEnvironment environment, ResourceLoader resourceLoader, String... locations) {
 
     Assert.notNull(environment, "'environment' must not be null");
     Assert.notNull(resourceLoader, "'resourceLoader' must not be null");
@@ -275,8 +276,8 @@ public abstract class TestPropertySourceUtils {
     Assert.notNull(environment, "'environment' must not be null");
     Assert.notNull(inlinedProperties, "'inlinedProperties' must not be null");
     if (ObjectUtils.isNotEmpty(inlinedProperties)) {
-      if (logger.isDebugEnabled()) {
-        logger.debug("Adding inlined properties to environment: " +
+      if (log.isDebugEnabled()) {
+        log.debug("Adding inlined properties to environment: {}",
                 ObjectUtils.nullSafeToString(inlinedProperties));
       }
       MapPropertySource ps = (MapPropertySource)

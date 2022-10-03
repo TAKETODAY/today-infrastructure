@@ -22,7 +22,6 @@ package cn.taketoday.test.context.support;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 import cn.taketoday.beans.BeanUtils;
 import cn.taketoday.context.ApplicationContext;
@@ -144,8 +143,7 @@ public abstract class AbstractContextLoader implements SmartContextLoader {
   private void invokeApplicationContextInitializers(ConfigurableApplicationContext context,
           MergedContextConfiguration mergedConfig) {
 
-    Set<Class<? extends ApplicationContextInitializer>> initializerClasses =
-            mergedConfig.getContextInitializerClasses();
+    var initializerClasses = mergedConfig.getContextInitializerClasses();
     if (initializerClasses.isEmpty()) {
       // no ApplicationContextInitializers have been declared -> nothing to do
       return;
@@ -164,7 +162,7 @@ public abstract class AbstractContextLoader implements SmartContextLoader {
                         "context loader: [%s]", initializerClass.getName(), initializerContextClass.getName(),
                 contextClass.getName()));
       }
-      initializerInstances.add((ApplicationContextInitializer) BeanUtils.newInstance(initializerClass));
+      initializerInstances.add(BeanUtils.newInstance(initializerClass));
     }
 
     AnnotationAwareOrderComparator.sort(initializerInstances);
@@ -185,7 +183,8 @@ public abstract class AbstractContextLoader implements SmartContextLoader {
    * @param mergedConfig the merged context configuration
    * @since 4.0
    */
-  protected void customizeContext(ConfigurableApplicationContext context, MergedContextConfiguration mergedConfig) {
+  protected void customizeContext(
+          ConfigurableApplicationContext context, MergedContextConfiguration mergedConfig) {
     for (ContextCustomizer contextCustomizer : mergedConfig.getContextCustomizers()) {
       contextCustomizer.customizeContext(context, mergedConfig);
     }

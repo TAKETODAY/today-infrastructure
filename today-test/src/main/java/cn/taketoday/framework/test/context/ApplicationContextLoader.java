@@ -177,13 +177,9 @@ public class ApplicationContextLoader extends AbstractContextLoader {
   protected String[] getInlinedProperties(MergedContextConfiguration config) {
     ArrayList<String> properties = new ArrayList<>();
     // JMX bean names will clash if the same bean is used in multiple contexts
-    disableJmx(properties);
+    properties.add("infra.jmx.enabled=false");
     properties.addAll(Arrays.asList(config.getPropertySourceProperties()));
     return StringUtils.toStringArray(properties);
-  }
-
-  private void disableJmx(List<String> properties) {
-    properties.add("jmx.enabled=false");
   }
 
   /**
