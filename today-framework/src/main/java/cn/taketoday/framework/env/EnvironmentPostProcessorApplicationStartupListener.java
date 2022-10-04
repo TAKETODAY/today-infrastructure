@@ -45,12 +45,7 @@ import cn.taketoday.util.Instantiator;
  */
 public class EnvironmentPostProcessorApplicationStartupListener implements ApplicationStartupListener, Ordered {
 
-  /**
-   * The default order for the processor.
-   */
-  public static final int DEFAULT_ORDER = Ordered.HIGHEST_PRECEDENCE + 10;
-
-  private int order = DEFAULT_ORDER;
+  private int order = 10;
   private final Logger applicationLog;
 
   public EnvironmentPostProcessorApplicationStartupListener(Logger applicationLog) {
