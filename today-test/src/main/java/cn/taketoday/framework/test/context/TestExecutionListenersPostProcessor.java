@@ -25,7 +25,7 @@ import java.util.List;
 import cn.taketoday.test.context.TestExecutionListener;
 
 /**
- * Callback interface trigger from {@link ApplicationTestContextBootstrapper} that can be
+ * Callback interface trigger from {@link InfraApplicationTestContextBootstrapper} that can be
  * used to post-process the list of default {@link TestExecutionListener} classes to be
  * used by a test. Can be used to add or remove existing listener classes.
  *

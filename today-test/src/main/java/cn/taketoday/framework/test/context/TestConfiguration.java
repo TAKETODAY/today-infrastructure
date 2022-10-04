@@ -38,7 +38,7 @@ import cn.taketoday.framework.ApplicationConfiguration;
  * {@link ApplicationConfiguration @SpringBootConfiguration}.
  *
  * @author Phillip Webb
- * @see ApplicationTestContextBootstrapper
+ * @see InfraApplicationTestContextBootstrapper
  * @since 4.0
  */
 @Target(ElementType.TYPE)

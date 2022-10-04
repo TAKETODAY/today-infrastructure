@@ -51,7 +51,7 @@ import cn.taketoday.web.WebApplicationContext;
  * Provides the following features over and above the regular <em>Spring TestContext
  * Framework</em>:
  * <ul>
- * <li>Uses {@link ApplicationContextLoader} as the default {@link ContextLoader} when no
+ * <li>Uses {@link InfraApplicationContextLoader} as the default {@link ContextLoader} when no
  * specific {@link ContextConfiguration#loader() @ContextConfiguration(loader=...)} is
  * defined.</li>
  * <li>Automatically searches for a
@@ -81,7 +81,7 @@ import cn.taketoday.web.WebApplicationContext;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-@BootstrapWith(ApplicationTestContextBootstrapper.class)
+@BootstrapWith(InfraApplicationTestContextBootstrapper.class)
 @ExtendWith(InfraExtension.class)
 public @interface ApplicationTest {
 

@@ -66,7 +66,7 @@ import cn.taketoday.util.StringUtils;
  * {@link ApplicationTest @ApplicationTest} and may also be used directly or subclassed.
  * Provides the following features over and above {@link DefaultTestContextBootstrapper}:
  * <ul>
- * <li>Uses {@link ApplicationContextLoader} as the
+ * <li>Uses {@link InfraApplicationContextLoader} as the
  * {@link #getDefaultContextLoaderClass(Class) default context loader}.</li>
  * <li>Automatically searches for a
  * {@link ApplicationConfiguration @SpringBootConfiguration} when required.</li>
@@ -83,7 +83,7 @@ import cn.taketoday.util.StringUtils;
  * @see TestConfiguration
  * @since 4.0
  */
-public class ApplicationTestContextBootstrapper extends DefaultTestContextBootstrapper {
+public class InfraApplicationTestContextBootstrapper extends DefaultTestContextBootstrapper {
 
   private static final String[] WEB_ENVIRONMENT_CLASSES = { "jakarta.servlet.Servlet",
           "cn.taketoday.web.context.ConfigurableWebApplicationContext" };
@@ -96,7 +96,7 @@ public class ApplicationTestContextBootstrapper extends DefaultTestContextBootst
   private static final String ACTIVATE_SERVLET_LISTENER = "cn.taketoday.test."
           + "context.web.ServletTestExecutionListener.activateListener";
 
-  private static final Logger logger = LoggerFactory.getLogger(ApplicationTestContextBootstrapper.class);
+  private static final Logger logger = LoggerFactory.getLogger(InfraApplicationTestContextBootstrapper.class);
 
   @Override
   public TestContext buildTestContext() {
@@ -145,7 +145,7 @@ public class ApplicationTestContextBootstrapper extends DefaultTestContextBootst
 
   @Override
   protected Class<? extends ContextLoader> getDefaultContextLoaderClass(Class<?> testClass) {
-    return ApplicationContextLoader.class;
+    return InfraApplicationContextLoader.class;
   }
 
   @Override
