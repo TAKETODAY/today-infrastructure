@@ -35,6 +35,7 @@ import cn.taketoday.context.properties.scan.valid.b.BScanConfiguration.BProperti
 import cn.taketoday.context.properties.scan.valid.b.BScanConfiguration.BSecondProperties;
 import cn.taketoday.core.io.ByteArrayResource;
 import cn.taketoday.core.io.DefaultResourceLoader;
+import cn.taketoday.core.io.Resource;
 import cn.taketoday.core.type.classreading.MetadataReader;
 import cn.taketoday.core.type.classreading.MetadataReaderFactory;
 import cn.taketoday.core.type.filter.AssignableTypeFilter;
@@ -99,6 +100,12 @@ class ConfigurationPropertiesScanTests {
 
   @Test
   void scanImportBeanRegistrarShouldBeResourceLoaderAwareWithoutRequiredResource() {
+    DefaultResourceLoader resourceLoader = mock(DefaultResourceLoader.class);
+    this.context.setResourceLoader(resourceLoader);
+    willCallRealMethod().given(resourceLoader).getClassLoader();
+    Resource resource = mock(Resource.class);
+    given(resource.exists()).willReturn(false);
+    given(resourceLoader.getResource("test")).willReturn(resource);
     load(TestConfiguration.class);
     assertThat(this.context.containsBean(
             "resource-cn.taketoday.context.properties.scan.valid.a.AScanConfiguration$MyResourceProperties"))
