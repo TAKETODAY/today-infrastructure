@@ -91,11 +91,11 @@ class ConfigurationPropertiesBinder {
   @Nullable
   private volatile Binder binder;
 
-  ConfigurationPropertiesBinder(ApplicationContext applicationContext) {
-    this.applicationContext = applicationContext;
-    this.propertySources = new PropertySourcesDeducer(applicationContext).getPropertySources();
-    this.configurationPropertiesValidator = getConfigurationPropertiesValidator(applicationContext);
-    this.jsr303Present = ConfigurationPropertiesJsr303Validator.isJsr303Present(applicationContext);
+  ConfigurationPropertiesBinder(ApplicationContext context) {
+    this.applicationContext = context;
+    this.propertySources = new PropertySourcesDeducer(context).getPropertySources();
+    this.configurationPropertiesValidator = getConfigurationPropertiesValidator(context);
+    this.jsr303Present = ConfigurationPropertiesJsr303Validator.isJsr303Present(context);
   }
 
   BindResult<?> bind(ConfigurationPropertiesBean propertiesBean) {

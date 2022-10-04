@@ -37,7 +37,6 @@ import cn.taketoday.core.DefaultParameterNameDiscoverer;
 import cn.taketoday.core.MethodParameter;
 import cn.taketoday.core.ParameterNameDiscoverer;
 import cn.taketoday.core.ResolvableType;
-import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.core.annotation.MergedAnnotations;
 import cn.taketoday.core.conversion.ConversionException;
 import cn.taketoday.lang.Assert;
@@ -63,8 +62,8 @@ class ValueObjectBinder implements DataObjectBinder {
 
   @Override
   public <T> T bind(ConfigurationPropertyName name,
-                    Bindable<T> target, Context context,
-                    DataObjectPropertyBinder propertyBinder) {
+          Bindable<T> target, Context context,
+          DataObjectPropertyBinder propertyBinder) {
     ValueObject<T> valueObject = ValueObject.get(target, this.constructorProvider, context);
     if (valueObject == null) {
       return null;
@@ -171,8 +170,8 @@ class ValueObjectBinder implements DataObjectBinder {
 
     @SuppressWarnings("unchecked")
     @Nullable
-    static <T> ValueObject<T> get(Bindable<T> bindable, BindConstructorProvider constructorProvider,
-                                  Context context) {
+    static <T> ValueObject<T> get(
+            Bindable<T> bindable, BindConstructorProvider constructorProvider, Context context) {
       Class<T> type = (Class<T>) bindable.getType().resolve();
       if (type == null || type.isEnum() || Modifier.isAbstract(type.getModifiers())) {
         return null;
@@ -205,15 +204,18 @@ class ValueObjectBinder implements DataObjectBinder {
     private static List<ConstructorParameter> parseConstructorParameters(
             Constructor<?> constructor, ResolvableType type) {
       String[] names = PARAMETER_NAME_DISCOVERER.getParameterNames(constructor);
-      Assert.state(names != null, () -> "Failed to extract parameter names for " + constructor);
+      if (names == null) {
+        throw new IllegalStateException("Failed to extract parameter names for " + constructor);
+      }
       Parameter[] parameters = constructor.getParameters();
-      List<ConstructorParameter> result = new ArrayList<>(parameters.length);
+      var result = new ArrayList<ConstructorParameter>(parameters.length);
       for (int i = 0; i < parameters.length; i++) {
         String name = MergedAnnotations.from(parameters[i])
                 .get(Name.class)
-                .getValue(MergedAnnotation.VALUE, String.class).orElse(names[i]);
-        ResolvableType parameterType = ResolvableType.forMethodParameter(
-                new MethodParameter(constructor, i), type);
+                .getValue(String.class)
+                .orElse(names[i]);
+
+        var parameterType = ResolvableType.forMethodParameter(new MethodParameter(constructor, i), type);
         Annotation[] annotations = parameters[i].getDeclaredAnnotations();
         result.add(new ConstructorParameter(name, parameterType, annotations));
       }

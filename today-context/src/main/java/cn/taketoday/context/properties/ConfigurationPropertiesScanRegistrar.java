@@ -86,10 +86,11 @@ class ConfigurationPropertiesScanRegistrar implements ImportBeanDefinitionRegist
 
   private void scan(BootstrapContext context, Set<String> packages) {
     var registrar = new ConfigurationPropertiesBeanRegistrar(context);
-    ClassPathScanningCandidateComponentProvider scanner = getScanner(context);
+    var scanner = getScanner(context);
     for (String basePackage : packages) {
       try {
-        scanner.scanCandidateComponents(basePackage, (metadataReader, factory) -> register(registrar, metadataReader));
+        scanner.scanCandidateComponents(
+                basePackage, (metadataReader, factory) -> register(registrar, metadataReader));
       }
       catch (IOException e) {
         throw new IllegalStateException("ConfigurationProperties scanning failed", e);

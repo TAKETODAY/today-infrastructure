@@ -69,11 +69,6 @@ public class ConfigurationPropertiesBindConstructorProvider implements BindConst
    */
   private record Constructors(boolean hasAutowired, @Nullable Constructor<?> bind) {
 
-    Constructors(boolean hasAutowired, @Nullable Constructor<?> bind) {
-      this.hasAutowired = hasAutowired;
-      this.bind = bind;
-    }
-
     @Nullable
     Constructor<?> getBind() {
       return this.bind;
