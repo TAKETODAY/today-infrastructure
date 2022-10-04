@@ -39,7 +39,7 @@ import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
  *
  * @author Andy Wilkinson
  */
-@ClassPathOverrides("com.squareup.okhttp3:okhttp:3.14.9")
+//@ClassPathOverrides("com.squareup.okhttp3:okhttp:3.14.9")
 class RestTemplateBuilderTestsOkHttp3Tests {
 
   private RestTemplateBuilder builder = new RestTemplateBuilder();
