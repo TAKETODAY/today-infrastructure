@@ -34,6 +34,7 @@ import cn.taketoday.core.Ordered;
  * listeners that the context is available and has a parent.
  *
  * @author Dave Syer
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public class ParentContextApplicationContextInitializer
@@ -60,13 +61,11 @@ public class ParentContextApplicationContextInitializer
   public void initialize(ConfigurableApplicationContext applicationContext) {
     if (applicationContext != this.parent) {
       applicationContext.setParent(this.parent);
-      applicationContext.addApplicationListener(EventPublisher.INSTANCE);
+      applicationContext.addApplicationListener(new EventPublisher());
     }
   }
 
   private static class EventPublisher implements ApplicationListener<ContextRefreshedEvent>, Ordered {
-
-    private static final EventPublisher INSTANCE = new EventPublisher();
 
     @Override
     public int getOrder() {
@@ -75,9 +74,9 @@ public class ParentContextApplicationContextInitializer
 
     @Override
     public void onApplicationEvent(ContextRefreshedEvent event) {
-      ApplicationContext context = event.getApplicationContext();
-      if (context instanceof ConfigurableApplicationContext && context == event.getSource()) {
-        context.publishEvent(new ParentContextAvailableEvent((ConfigurableApplicationContext) context));
+      if (event.getApplicationContext()
+              instanceof ConfigurableApplicationContext context && context == event.getSource()) {
+        context.publishEvent(new ParentContextAvailableEvent(context));
       }
     }
 
