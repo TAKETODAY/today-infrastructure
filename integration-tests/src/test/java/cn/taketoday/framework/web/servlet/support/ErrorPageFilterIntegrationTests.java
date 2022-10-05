@@ -36,7 +36,7 @@ import cn.taketoday.framework.web.embedded.tomcat.TomcatServletWebServerFactory;
 import cn.taketoday.framework.web.servlet.context.AnnotationConfigServletWebServerApplicationContext;
 import cn.taketoday.framework.web.servlet.server.ServletWebServerFactory;
 import cn.taketoday.http.HttpStatus;
-import cn.taketoday.http.ResponseEntity;
+import cn.taketoday.stereotype.Controller;
 import cn.taketoday.test.annotation.DirtiesContext;
 import cn.taketoday.test.context.ContextConfiguration;
 import cn.taketoday.test.context.MergedContextConfiguration;
@@ -44,7 +44,6 @@ import cn.taketoday.test.context.junit.jupiter.InfraExtension;
 import cn.taketoday.test.context.support.AbstractContextLoader;
 import cn.taketoday.web.HandlerInterceptor;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.stereotype.Controller;
 import cn.taketoday.web.annotation.RequestMapping;
 import cn.taketoday.web.annotation.ResponseBody;
 import cn.taketoday.web.annotation.ResponseStatus;
@@ -94,11 +93,11 @@ class ErrorPageFilterIntegrationTests {
   private void doTest(AnnotationConfigServletWebServerApplicationContext context, String resourcePath,
           HttpStatus status) throws Exception {
     int port = context.getWebServer().getPort();
-    RestTemplate template = new RestTemplate();
-    ResponseEntity<String> entity = template.getForEntity(new URI("http://localhost:" + port + resourcePath),
-            String.class);
-    assertThat(entity.getBody()).isEqualTo("Hello World");
-    assertThat(entity.getStatusCode()).isEqualTo(status);
+    try (RestTemplate template = new RestTemplate()) {
+      var entity = template.getForEntity(new URI("http://localhost:" + port + resourcePath), String.class);
+      assertThat(entity.getBody()).isEqualTo("Hello World");
+      assertThat(entity.getStatusCode()).isEqualTo(status);
+    }
   }
 
   @Configuration(proxyBeanMethods = false)
@@ -153,10 +152,11 @@ class ErrorPageFilterIntegrationTests {
       registry.addInterceptor(new HandlerInterceptor() {
 
         @Override
-        public void afterProcess(RequestContext request, Object handler, Object result) throws Throwable {
-          HelloWorldController.this.setStatus(request.getStatus());
-          HelloWorldController.this.latch.countDown();
+        public void afterProcess(RequestContext request, Object handler, Object result) {
+          setStatus(request.getStatus());
+          latch.countDown();
         }
+
       });
     }
 
