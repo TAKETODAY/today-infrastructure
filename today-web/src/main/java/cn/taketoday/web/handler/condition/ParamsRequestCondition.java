@@ -31,15 +31,16 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.ServletDetector;
-import cn.taketoday.web.annotation.RequestMapping;
+import cn.taketoday.web.annotation.ActionMapping;
 import cn.taketoday.web.servlet.ServletUtils;
 
 /**
  * A logical conjunction ({@code ' && '}) request condition that matches a request against
- * a set parameter expressions with syntax defined in {@link RequestMapping#params()}.
+ * a set parameter expressions with syntax defined in {@link ActionMapping#params()}.
  *
  * @author Arjen Poutsma
  * @author Rossen Stoyanchev
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public final class ParamsRequestCondition extends AbstractRequestCondition<ParamsRequestCondition> {
@@ -49,7 +50,7 @@ public final class ParamsRequestCondition extends AbstractRequestCondition<Param
   /**
    * Create a new instance from the given param expressions.
    *
-   * @param params expressions with syntax defined in {@link RequestMapping#params()};
+   * @param params expressions with syntax defined in {@link ActionMapping#params()};
    * if 0, the condition will match to every request.
    */
   public ParamsRequestCondition(String... params) {
@@ -148,11 +149,11 @@ public final class ParamsRequestCondition extends AbstractRequestCondition<Param
     if (result != 0) {
       return result;
     }
-    return (int) (getValueMatchCount(other.expressions) - getValueMatchCount(this.expressions));
+    return getValueMatchCount(other.expressions) - getValueMatchCount(this.expressions);
   }
 
-  private long getValueMatchCount(Set<ParamExpression> expressions) {
-    long count = 0;
+  private static int getValueMatchCount(Set<ParamExpression> expressions) {
+    int count = 0;
     for (ParamExpression e : expressions) {
       if (e.getValue() != null && !e.isNegated()) {
         count++;

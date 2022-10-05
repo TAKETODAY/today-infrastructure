@@ -383,9 +383,10 @@ public final class RequestMappingInfo implements RequestCondition<RequestMapping
     if (!this.methodsCondition.isEmpty()) {
       Set<HttpMethod> httpMethods = this.methodsCondition.getMethods();
       builder.append(httpMethods.size() == 1 ? httpMethods.iterator().next() : httpMethods);
-      // Patterns conditions are never empty and have "" (empty path) at least.
-      builder.append(' ').append(getPathPatternsCondition());
     }
+
+    // Patterns conditions are never empty and have "" (empty path) at least.
+    builder.append(' ').append(getPathPatternsCondition());
 
     if (!this.paramsCondition.isEmpty()) {
       builder.append(", params ").append(this.paramsCondition);

@@ -47,12 +47,12 @@ abstract class AbstractNameValueExpression<T> implements NameValueExpression<T> 
     int separator = expression.indexOf('=');
     if (separator == -1) {
       this.isNegated = expression.startsWith("!");
-      this.name = (this.isNegated ? expression.substring(1) : expression);
+      this.name = isNegated ? expression.substring(1) : expression;
       this.value = null;
     }
     else {
       this.isNegated = (separator > 0) && (expression.charAt(separator - 1) == '!');
-      this.name = (this.isNegated ? expression.substring(0, separator - 1) : expression.substring(0, separator));
+      this.name = isNegated ? expression.substring(0, separator - 1) : expression.substring(0, separator);
       this.value = parseValue(expression.substring(separator + 1));
     }
   }

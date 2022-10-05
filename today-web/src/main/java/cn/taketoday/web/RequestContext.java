@@ -794,8 +794,10 @@ public abstract class RequestContext extends AttributeAccessorSupport
    * @since 3.0
    */
   public HttpHeaders requestHeaders() {
+    HttpHeaders requestHeaders = this.requestHeaders;
     if (requestHeaders == null) {
-      this.requestHeaders = createRequestHeaders();
+      requestHeaders = createRequestHeaders();
+      this.requestHeaders = requestHeaders;
     }
     return requestHeaders;
   }
@@ -1487,8 +1489,10 @@ public abstract class RequestContext extends AttributeAccessorSupport
    * @since 3.0
    */
   public HttpHeaders responseHeaders() {
+    HttpHeaders responseHeaders = this.responseHeaders;
     if (responseHeaders == null) {
-      this.responseHeaders = createResponseHeaders();
+      responseHeaders = createResponseHeaders();
+      this.responseHeaders = responseHeaders;
     }
     return responseHeaders;
   }
