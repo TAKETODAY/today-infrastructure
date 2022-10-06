@@ -36,6 +36,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.ByteBuffer;
@@ -203,39 +204,6 @@ class ResourceTests {
   }
 
   @Nested
-  class ClassPathResourceTests {
-
-    @Test
-    void equalsAndHashCode() {
-      Resource resource = new ClassPathResource("cn/taketoday/core/io/Resource.class");
-      Resource resource2 = new ClassPathResource("cn/taketoday/core/../core/io/./Resource.class");
-      Resource resource3 = new ClassPathResource("cn/taketoday/core/").createRelative("../core/io/./Resource.class");
-      assertThat(resource2).isEqualTo(resource);
-      assertThat(resource3).isEqualTo(resource);
-      // Check whether equal/hashCode works in a HashSet.
-      HashSet<Resource> resources = new HashSet<>();
-      resources.add(resource);
-      resources.add(resource2);
-      assertThat(resources.size()).isEqualTo(1);
-    }
-
-    @Test
-    void resourcesWithDifferentPathsAreEqual() {
-      Resource resource = new ClassPathResource("cn/taketoday/core/io/Resource.class", getClass().getClassLoader());
-      ClassPathResource sameResource = new ClassPathResource("cn/taketoday/core/../core/io/./Resource.class", getClass().getClassLoader());
-      assertThat(sameResource).isEqualTo(resource);
-    }
-
-    @Test
-    void relativeResourcesAreEqual() throws Exception {
-      Resource resource = new ClassPathResource("dir/");
-      Resource relative = resource.createRelative("subdir");
-      assertThat(relative).isEqualTo(new ClassPathResource("dir/subdir"));
-    }
-
-  }
-
-  @Nested
   class FileSystemResourceTests {
 
     @Test
@@ -301,6 +269,22 @@ class ResourceTests {
       assertThat(new UrlResource("file:/dir/test.txt?argh").getName()).isEqualTo("test.txt");
       assertThat(new UrlResource("file:\\dir\\test.txt?argh").getName()).isEqualTo("test.txt");
       assertThat(new UrlResource("file:\\dir/test.txt?argh").getName()).isEqualTo("test.txt");
+    }
+
+    @Test
+    void filenameContainingHashTagIsExtractedFromFilePathUnencoded() throws Exception {
+      String unencodedPath = "/dir/test#1.txt";
+      String encodedPath = "/dir/test%231.txt";
+
+      URI uri = new URI("file", unencodedPath, null);
+      URL url = uri.toURL();
+      assertThat(uri.getPath()).isEqualTo(unencodedPath);
+      assertThat(uri.getRawPath()).isEqualTo(encodedPath);
+      assertThat(url.getPath()).isEqualTo(encodedPath);
+
+      UrlResource urlResource = new UrlResource(url);
+      assertThat(urlResource.getURI().getPath()).isEqualTo(unencodedPath);
+      assertThat(urlResource.getName()).isEqualTo("test#1.txt");
     }
 
     @Test
