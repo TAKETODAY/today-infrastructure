@@ -38,12 +38,12 @@ import cn.taketoday.http.HttpLogging;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
-import cn.taketoday.util.ClassUtils;
 import io.netty.channel.Channel;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.cookie.Cookie;
 import io.netty.handler.ssl.SslHandler;
 import reactor.core.publisher.Flux;
+import reactor.netty.ChannelOperationsId;
 import reactor.netty.Connection;
 import reactor.netty.http.server.HttpServerRequest;
 
@@ -56,11 +56,8 @@ import reactor.netty.http.server.HttpServerRequest;
  */
 class ReactorServerHttpRequest extends AbstractServerHttpRequest {
 
-  /** Reactor Netty 1.0.5+. */
-  static final boolean reactorNettyRequestChannelOperationsIdPresent = ClassUtils.isPresent(
-          "reactor.netty.ChannelOperationsId", ReactorServerHttpRequest.class.getClassLoader());
-
   private static final Logger logger = HttpLogging.forLogName(ReactorServerHttpRequest.class);
+
   private static final AtomicLong logPrefixIndex = new AtomicLong();
 
   private final HttpServerRequest request;
@@ -204,30 +201,18 @@ class ReactorServerHttpRequest extends AbstractServerHttpRequest {
 
   @Override
   protected String initLogPrefix() {
-    if (reactorNettyRequestChannelOperationsIdPresent) {
-      String id = (ChannelOperationsIdHelper.getId(this.request));
-      if (id != null) {
-        return id;
-      }
+    String id = null;
+    if (request instanceof ChannelOperationsId operationsId) {
+      id = logger.isDebugEnabled() ? operationsId.asLongText() : operationsId.asShortText();
     }
-    if (this.request instanceof Connection) {
-      return ((Connection) this.request).channel().id().asShortText() +
+    if (id != null) {
+      return id;
+    }
+    if (request instanceof Connection) {
+      return ((Connection) request).channel().id().asShortText() +
               "-" + logPrefixIndex.incrementAndGet();
     }
     return getId();
-  }
-
-  private static class ChannelOperationsIdHelper {
-
-    @Nullable
-    public static String getId(HttpServerRequest request) {
-      if (request instanceof reactor.netty.ChannelOperationsId) {
-        return logger.isDebugEnabled()
-               ? ((reactor.netty.ChannelOperationsId) request).asLongText()
-               : ((reactor.netty.ChannelOperationsId) request).asShortText();
-      }
-      return null;
-    }
   }
 
 }
