@@ -40,6 +40,7 @@ import java.util.StringJoiner;
 import java.util.StringTokenizer;
 import java.util.TimeZone;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Constant;
@@ -1464,15 +1465,14 @@ else */
    * @since 3.0
    */
   public static Locale parseLocale(String localeValue) {
-    String[] tokens = tokenizeLocaleSource(localeValue);
-    if (tokens.length == 1) {
+    if (!localeValue.contains("_") && !localeValue.contains(" ")) {
       validateLocalePart(localeValue);
       Locale resolved = Locale.forLanguageTag(localeValue);
       if (resolved.getLanguage().length() > 0) {
         return resolved;
       }
     }
-    return parseLocaleTokens(localeValue, tokens);
+    return parseLocaleString(localeValue);
   }
 
   /**
@@ -1492,37 +1492,35 @@ else */
    * @since 3.0
    */
   public static Locale parseLocaleString(String localeString) {
-    return parseLocaleTokens(localeString, tokenizeLocaleSource(localeString));
-  }
-
-  private static String[] tokenizeLocaleSource(String localeSource) {
-    return tokenizeToStringArray(localeSource, "_ ", false, false);
-  }
-
-  private static Locale parseLocaleTokens(String localeString, String[] tokens) {
-    String language = (tokens.length > 0 ? tokens[0] : Constant.BLANK);
-    String country = (tokens.length > 1 ? tokens[1] : Constant.BLANK);
-    validateLocalePart(language);
-    validateLocalePart(country);
-
-    String variant = Constant.BLANK;
-    if (tokens.length > 2) {
-      // There is definitely a variant, and it is everything after the country
-      // code sans the separator between the country code and the variant.
-      int endIndexOfCountryCode = localeString.indexOf(country, language.length()) + country.length();
-      // Strip off any leading '_' and whitespace, what's left is the variant.
-      variant = trimLeadingWhitespace(localeString.substring(endIndexOfCountryCode));
-      if (matchesFirst(variant, '_')) {
-        variant = trimLeadingCharacter(variant, '_');
-      }
+    if (localeString.equals("")) {
+      return null;
     }
-
-    if (variant.isEmpty() && matchesFirst(country, '#')) {
-      variant = country;
-      country = Constant.BLANK;
+    String delimiter = "_";
+    if (!localeString.contains("_") && localeString.contains(" ")) {
+      delimiter = " ";
     }
-
-    return (language.length() > 0 ? new Locale(language, country, variant) : null);
+    final String[] tokens = localeString.split(delimiter, -1);
+    if (tokens.length == 1) {
+      final String language = tokens[0];
+      validateLocalePart(language);
+      return new Locale(language);
+    }
+    else if (tokens.length == 2) {
+      final String language = tokens[0];
+      validateLocalePart(language);
+      final String country = tokens[1];
+      validateLocalePart(country);
+      return new Locale(language, country);
+    }
+    else if (tokens.length > 2) {
+      final String language = tokens[0];
+      validateLocalePart(language);
+      final String country = tokens[1];
+      validateLocalePart(country);
+      final String variant = Arrays.stream(tokens).skip(2).collect(Collectors.joining(delimiter));
+      return new Locale(language, country, variant);
+    }
+    throw new IllegalArgumentException("Invalid locale format: '" + localeString + "'");
   }
 
   private static void validateLocalePart(String localePart) {

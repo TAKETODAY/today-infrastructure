@@ -649,24 +649,6 @@ class StringUtilsTests {
   }
 
   @Test
-    // SPR-3671
-  void parseLocaleWithMultiValuedVariantUsingSpacesAsSeparatorsWithLotsOfLeadingWhitespace() {
-    String variant = "proper northern";
-    String localeString = "en GB            " + variant;  // lots of whitespace
-    Locale locale = StringUtils.parseLocaleString(localeString);
-    assertThat(locale.getVariant()).as("Multi-valued variant portion of the Locale not extracted correctly.").isEqualTo(variant);
-  }
-
-  @Test
-    // SPR-3671
-  void parseLocaleWithMultiValuedVariantUsingUnderscoresAsSeparatorsWithLotsOfLeadingWhitespace() {
-    String variant = "proper_northern";
-    String localeString = "en_GB_____" + variant;  // lots of underscores
-    Locale locale = StringUtils.parseLocaleString(localeString);
-    assertThat(locale.getVariant()).as("Multi-valued variant portion of the Locale not extracted correctly.").isEqualTo(variant);
-  }
-
-  @Test
     // SPR-7779
   void parseLocaleWithInvalidCharacters() {
     assertThatIllegalArgumentException()
