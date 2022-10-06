@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import cn.taketoday.http.HttpHeaders;
+import cn.taketoday.http.HttpMethod;
 import cn.taketoday.http.HttpStatus;
 import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Nullable;
@@ -104,8 +105,8 @@ public class DefaultCorsProcessor implements CorsProcessor {
       return false;
     }
 
-    String requestMethod = getMethodToUse(context, preFlightRequest);
-    List<String> allowMethods = checkMethods(config, requestMethod);
+    HttpMethod requestMethod = getMethodToUse(context, preFlightRequest);
+    List<HttpMethod> allowMethods = checkMethods(config, requestMethod);
     if (allowMethods == null) {
       log.debug("Reject: HTTP '{}' is not allowed", requestMethod);
       rejectRequest(context);
@@ -163,13 +164,13 @@ public class DefaultCorsProcessor implements CorsProcessor {
    * {@link CorsConfiguration#checkOrigin(String)}.
    */
   @Nullable
-  protected List<String> checkMethods(CorsConfiguration config, @Nullable String method) {
+  protected List<HttpMethod> checkMethods(CorsConfiguration config, @Nullable HttpMethod method) {
     return config.checkHttpMethod(method);
   }
 
   @Nullable
-  private String getMethodToUse(RequestContext context, boolean isPreFlight) {
-    return isPreFlight ? context.requestHeaders().getFirst(HttpHeaders.ACCESS_CONTROL_REQUEST_METHOD) : context.getMethodValue();
+  private HttpMethod getMethodToUse(RequestContext request, boolean isPreFlight) {
+    return isPreFlight ? request.getHeaders().getAccessControlRequestMethod() : request.getMethod();
   }
 
   /**

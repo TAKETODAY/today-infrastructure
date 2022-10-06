@@ -41,7 +41,7 @@ import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException
 public class CorsConfigurationTests {
 
   @Test
-  public void setNullValues() {
+  void setNullValues() {
     CorsConfiguration config = new CorsConfiguration();
     config.setAllowedOrigins(null);
     assertThat(config.getAllowedOrigins()).isNull();
@@ -60,7 +60,7 @@ public class CorsConfigurationTests {
   }
 
   @Test
-  public void setValues() {
+  void setValues() {
     CorsConfiguration config = new CorsConfiguration();
     config.addAllowedOrigin("*");
     config.addAllowedOriginPattern("http://*.example.com");
@@ -80,7 +80,7 @@ public class CorsConfigurationTests {
   }
 
   @Test
-  public void combineWithNull() {
+  void combineWithNull() {
     CorsConfiguration config = new CorsConfiguration();
     config.setAllowedOrigins(Collections.singletonList("*"));
     config.combine(null);
@@ -89,7 +89,7 @@ public class CorsConfigurationTests {
   }
 
   @Test
-  public void combineWithNullProperties() {
+  void combineWithNullProperties() {
     CorsConfiguration config = new CorsConfiguration();
     config.addAllowedOrigin("*");
     config.setAllowedOriginPatterns(Collections.singletonList("http://*.example.com"));
@@ -112,8 +112,9 @@ public class CorsConfigurationTests {
     assertThat(config.getAllowCredentials()).isTrue();
   }
 
-  @Test  // SPR-15772
-  public void combineWithDefaultPermitValues() {
+  @Test
+    // SPR-15772
+  void combineWithDefaultPermitValues() {
     CorsConfiguration config = new CorsConfiguration().applyPermitDefaultValues();
     CorsConfiguration other = new CorsConfiguration();
     other.addAllowedOrigin("https://domain.com");
@@ -152,7 +153,7 @@ public class CorsConfigurationTests {
   }
 
   @Test
-  public void combinePatternWithDefaultPermitValues() {
+  void combinePatternWithDefaultPermitValues() {
     CorsConfiguration config = new CorsConfiguration().applyPermitDefaultValues();
     CorsConfiguration other = new CorsConfiguration();
     other.addAllowedOriginPattern("http://*.com");
@@ -169,7 +170,7 @@ public class CorsConfigurationTests {
   }
 
   @Test
-  public void combinePatternWithDefaultPermitValuesAndCustomOrigin() {
+  void combinePatternWithDefaultPermitValuesAndCustomOrigin() {
     CorsConfiguration config = new CorsConfiguration().applyPermitDefaultValues();
     config.setAllowedOrigins(Collections.singletonList("https://domain.com"));
 
@@ -188,7 +189,7 @@ public class CorsConfigurationTests {
   }
 
   @Test
-  public void combineWithAsteriskWildCard() {
+  void combineWithAsteriskWildCard() {
     CorsConfiguration config = new CorsConfiguration();
     config.addAllowedOrigin("*");
     config.addAllowedHeader("*");
@@ -223,8 +224,9 @@ public class CorsConfigurationTests {
     assertThat(combinedConfig.getAllowedHeaders()).containsExactly("*");
   }
 
-  @Test  // SPR-14792
-  public void combineWithDuplicatedElements() {
+  @Test
+    // SPR-14792
+  void combineWithDuplicatedElements() {
     CorsConfiguration config = new CorsConfiguration();
     config.addAllowedOrigin("https://domain1.com");
     config.addAllowedOrigin("https://domain2.com");
@@ -254,7 +256,7 @@ public class CorsConfigurationTests {
   }
 
   @Test
-  public void combine() {
+  void combine() {
     CorsConfiguration config = new CorsConfiguration();
     config.addAllowedOrigin("https://domain1.com");
     config.addAllowedOriginPattern("http://*.domain1.com");
@@ -286,7 +288,7 @@ public class CorsConfigurationTests {
   }
 
   @Test
-  public void checkOriginAllowed() {
+  void checkOriginAllowed() {
     // "*" matches
     CorsConfiguration config = new CorsConfiguration();
     config.addAllowedOrigin("*");
@@ -295,6 +297,11 @@ public class CorsConfigurationTests {
     // "*" does not match together with allowCredentials
     config.setAllowCredentials(true);
     assertThatIllegalArgumentException().isThrownBy(() -> config.checkOrigin("https://domain.com"));
+
+    // coma-delimited origins list
+    config.setAllowedOrigins(Collections.singletonList("https://a1.com,https://a2.com"));
+    assertThat(config.checkOrigin("https://a1.com")).isEqualTo("https://a1.com");
+    assertThat(config.checkOrigin("https://a2.com/")).isEqualTo("https://a2.com/");
 
     // specific origin matches Origin header with or without trailing "/"
     config.setAllowedOrigins(Collections.singletonList("https://domain.com"));
@@ -311,7 +318,7 @@ public class CorsConfigurationTests {
   }
 
   @Test
-  public void checkOriginNotAllowed() {
+  void checkOriginNotAllowed() {
     CorsConfiguration config = new CorsConfiguration();
     assertThat(config.checkOrigin(null)).isNull();
     assertThat(config.checkOrigin("https://domain.com")).isNull();
@@ -327,7 +334,7 @@ public class CorsConfigurationTests {
   }
 
   @Test
-  public void checkOriginPatternAllowed() {
+  void checkOriginPatternAllowed() {
     CorsConfiguration config = new CorsConfiguration();
     assertThat(config.checkOrigin("https://domain.com")).isNull();
 
@@ -340,12 +347,27 @@ public class CorsConfigurationTests {
     config.addAllowedOriginPattern("https://*.domain.com");
     assertThat(config.checkOrigin("https://example.domain.com")).isEqualTo("https://example.domain.com");
 
+    config.addAllowedOriginPattern("https://*.port.domain.com:[*]");
+    assertThat(config.checkOrigin("https://example.port.domain.com")).isEqualTo("https://example.port.domain.com");
+    assertThat(config.checkOrigin("https://example.port.domain.com:1234")).isEqualTo("https://example.port.domain.com:1234");
+
+    config.addAllowedOriginPattern("https://*.specific.port.com:[8080,8081]");
+    assertThat(config.checkOrigin("https://example.specific.port.com:8080")).isEqualTo("https://example.specific.port.com:8080");
+    assertThat(config.checkOrigin("https://example.specific.port.com:8081")).isEqualTo("https://example.specific.port.com:8081");
+    assertThat(config.checkOrigin("https://example.specific.port.com:1234")).isNull();
+
+    config.addAllowedOriginPattern("https://*.a1.com:[8080,8081],https://*.a2.com");
+    assertThat(config.checkOrigin("https://example.a1.com:8080")).isEqualTo("https://example.a1.com:8080");
+    assertThat(config.checkOrigin("https://example.a1.com:8081")).isEqualTo("https://example.a1.com:8081");
+    assertThat(config.checkOrigin("https://example.a1.com:8082")).isNull();
+    assertThat(config.checkOrigin("https://example.a2.com")).isEqualTo("https://example.a2.com");
+
     config.setAllowCredentials(false);
     assertThat(config.checkOrigin("https://example.domain.com")).isEqualTo("https://example.domain.com");
   }
 
   @Test
-  public void checkOriginPatternNotAllowed() {
+  void checkOriginPatternNotAllowed() {
     CorsConfiguration config = new CorsConfiguration();
     assertThat(config.checkOrigin(null)).isNull();
     assertThat(config.checkOrigin("https://domain.com")).isNull();
@@ -357,33 +379,36 @@ public class CorsConfigurationTests {
 
     config.setAllowedOriginPatterns(new ArrayList<>());
     assertThat(config.checkOrigin("https://domain.com")).isNull();
+
+    config.setAllowedOriginPatterns(Collections.singletonList("https://*.specific.port.com:[8080,8081]"));
+    assertThat(config.checkOrigin("https://example.specific.port.com:1234")).isNull();
   }
 
   @Test
-  public void checkMethodAllowed() {
+  void checkMethodAllowed() {
     CorsConfiguration config = new CorsConfiguration();
-    assertThat(config.checkHttpMethod(HttpMethod.GET.name())).containsExactly(HttpMethod.GET.name(), HttpMethod.HEAD.name());
+    assertThat(config.checkHttpMethod(HttpMethod.GET)).containsExactly(HttpMethod.GET, HttpMethod.HEAD);
 
     config.addAllowedMethod("GET");
-    assertThat(config.checkHttpMethod(HttpMethod.GET.name())).containsExactly(HttpMethod.GET.name());
+    assertThat(config.checkHttpMethod(HttpMethod.GET)).containsExactly(HttpMethod.GET);
 
     config.addAllowedMethod("POST");
-    assertThat(config.checkHttpMethod(HttpMethod.GET.name())).containsExactly(HttpMethod.GET.name(), HttpMethod.POST.name());
-    assertThat(config.checkHttpMethod(HttpMethod.POST.name())).containsExactly(HttpMethod.GET.name(), HttpMethod.POST.name());
+    assertThat(config.checkHttpMethod(HttpMethod.GET)).containsExactly(HttpMethod.GET, HttpMethod.POST);
+    assertThat(config.checkHttpMethod(HttpMethod.POST)).containsExactly(HttpMethod.GET, HttpMethod.POST);
   }
 
   @Test
-  public void checkMethodNotAllowed() {
+  void checkMethodNotAllowed() {
     CorsConfiguration config = new CorsConfiguration();
     assertThat(config.checkHttpMethod(null)).isNull();
-    assertThat(config.checkHttpMethod(HttpMethod.DELETE.name())).isNull();
+    assertThat(config.checkHttpMethod(HttpMethod.DELETE)).isNull();
 
     config.setAllowedMethods(new ArrayList<>());
-    assertThat(config.checkHttpMethod(HttpMethod.POST.name())).isNull();
+    assertThat(config.checkHttpMethod(HttpMethod.POST)).isNull();
   }
 
   @Test
-  public void checkHeadersAllowed() {
+  void checkHeadersAllowed() {
     CorsConfiguration config = new CorsConfiguration();
     assertThat(config.checkHeaders(Collections.emptyList())).isEqualTo(Collections.emptyList());
 
@@ -396,7 +421,7 @@ public class CorsConfigurationTests {
   }
 
   @Test
-  public void checkHeadersNotAllowed() {
+  void checkHeadersNotAllowed() {
     CorsConfiguration config = new CorsConfiguration();
     assertThat(config.checkHeaders(null)).isNull();
     assertThat(config.checkHeaders(Collections.singletonList("header1"))).isNull();
@@ -409,8 +434,8 @@ public class CorsConfigurationTests {
     assertThat(config.checkHeaders(Collections.singletonList("header1"))).isNull();
   }
 
-  @Test  // SPR-15772
-  public void changePermitDefaultValues() {
+  @Test
+  void changePermitDefaultValues() {
     CorsConfiguration config = new CorsConfiguration().applyPermitDefaultValues();
     config.addAllowedOrigin("https://domain.com");
     config.addAllowedHeader("header1");
@@ -422,7 +447,7 @@ public class CorsConfigurationTests {
   }
 
   @Test
-  public void permitDefaultDoesntSetOriginWhenPatternPresent() {
+  void permitDefaultDoesntSetOriginWhenPatternPresent() {
     CorsConfiguration config = new CorsConfiguration();
     config.addAllowedOriginPattern("http://*.com");
     config = config.applyPermitDefaultValues();

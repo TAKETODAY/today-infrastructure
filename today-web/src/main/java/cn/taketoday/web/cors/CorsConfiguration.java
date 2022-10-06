@@ -25,6 +25,7 @@ import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Consumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -57,7 +58,7 @@ public class CorsConfiguration {
 
   /** Wildcard representing <em>all</em> origins, methods, or headers. */
   public static final String ALL = "*";
-  private static final List<String> DEFAULT_METHODS = List.of("GET", "HEAD");
+  private static final List<HttpMethod> DEFAULT_METHODS = List.of(HttpMethod.GET, HttpMethod.HEAD);
   private static final List<String> DEFAULT_PERMIT_ALL = Collections.singletonList(ALL);
   private static final List<String> DEFAULT_PERMIT_METHODS = List.of("GET", "HEAD", "POST");
 
@@ -87,7 +88,7 @@ public class CorsConfiguration {
   private List<String> exposedHeaders;
 
   @Nullable
-  private List<String> resolvedMethods = DEFAULT_METHODS;
+  private List<HttpMethod> resolvedMethods = DEFAULT_METHODS;
 
   /** @since 3.0 */
   @Nullable
@@ -117,27 +118,37 @@ public class CorsConfiguration {
   }
 
   /**
-   * A list of origins for which cross-origin requests are allowed. Values may
-   * be a specific domain, e.g. {@code "https://domain1.com"}, or the CORS
-   * defined special value {@code "*"} for all origins.
+   * A list of origins for which cross-origin requests are allowed where each
+   * value may be one of the following:
+   * <ul>
+   * <li>a specific domain, e.g. {@code "https://domain1.com"}
+   * <li>coma-delimited list of specific domains, e.g.
+   * {@code "https://a1.com,https://a2.com"}; this is convenient when a value
+   * is resolved through a property placeholder, e.g. {@code "${origin}"};
+   * note that such placeholders must be resolved externally.
+   * <li>the CORS defined special value {@code "*"} for all origins
+   * </ul>
    * <p>For matched pre-flight and actual requests the
    * {@code Access-Control-Allow-Origin} response header is set either to the
    * matched domain value or to {@code "*"}. Keep in mind however that the
    * CORS spec does not allow {@code "*"} when {@link #setAllowCredentials
-   * allowCredentials} is set to {@code true} and that combination
+   * allowCredentials} is set to {@code true} and as of 5.3 that combination
    * is rejected in favor of using {@link #setAllowedOriginPatterns
    * allowedOriginPatterns} instead.
    * <p>By default this is not set which means that no origins are allowed.
-   * However an instance of this class is often initialized further, e.g. for
+   * However, an instance of this class is often initialized further, e.g. for
    * {@code @CrossOrigin}, via {@link #applyPermitDefaultValues()}.
    */
   public void setAllowedOrigins(@Nullable List<String> origins) {
-    this.allowedOrigins = origins == null
-                          ? null
-                          : origins.stream()
-                                  .filter(Objects::nonNull)
-                                  .map(this::trimTrailingSlash)
-                                  .collect(Collectors.toList());
+    if (origins == null) {
+      this.allowedOrigins = null;
+    }
+    else {
+      this.allowedOrigins = new ArrayList<>(origins.size());
+      for (String origin : origins) {
+        addAllowedOrigin(origin);
+      }
+    }
   }
 
   private String trimTrailingSlash(String origin) {
@@ -168,8 +179,10 @@ public class CorsConfiguration {
     else if (this.allowedOrigins == DEFAULT_PERMIT_ALL && CollectionUtils.isEmpty(this.allowedOriginPatterns)) {
       setAllowedOrigins(DEFAULT_PERMIT_ALL);
     }
-    origin = trimTrailingSlash(origin);
-    this.allowedOrigins.add(origin);
+    parseComaDelimitedOrigin(origin, value -> {
+      value = trimTrailingSlash(value);
+      this.allowedOrigins.add(value);
+    });
   }
 
   /**
@@ -182,12 +195,16 @@ public class CorsConfiguration {
    * domain1.com on port 8080 or port 8081
    * <li>{@literal https://*.domain1.com:[*]} -- domains ending with
    * domain1.com on any port, including the default port
+   * <li>coma-delimited list of patters, e.g.
+   * {@code "https://*.a1.com,https://*.a2.com"}; this is convenient when a
+   * value is resolved through a property placeholder, e.g. {@code "${origin}"};
+   * note that such placeholders must be resolved externally.
    * </ul>
    * <p>In contrast to {@link #setAllowedOrigins(List) allowedOrigins} which
    * only supports "*" and cannot be used with {@code allowCredentials}, when
    * an allowedOriginPattern is matched, the {@code Access-Control-Allow-Origin}
    * response header is set to the matched origin and not to {@code "*"} nor
-   * to the pattern. Therefore allowedOriginPatterns can be used in combination
+   * to the pattern. Therefore, allowedOriginPatterns can be used in combination
    * with {@link #setAllowCredentials} set to {@code true}.
    * <p>By default this is not set.
    *
@@ -233,10 +250,40 @@ public class CorsConfiguration {
     if (this.allowedOriginPatterns == null) {
       this.allowedOriginPatterns = new ArrayList<>(4);
     }
-    originPattern = trimTrailingSlash(originPattern);
-    this.allowedOriginPatterns.add(new OriginPattern(originPattern));
-    if (this.allowedOrigins == DEFAULT_PERMIT_ALL) {
-      this.allowedOrigins = null;
+    parseComaDelimitedOrigin(originPattern, value -> {
+      value = trimTrailingSlash(value);
+      this.allowedOriginPatterns.add(new OriginPattern(value));
+      if (this.allowedOrigins == DEFAULT_PERMIT_ALL) {
+        this.allowedOrigins = null;
+      }
+    });
+  }
+
+  private static void parseComaDelimitedOrigin(String rawValue, Consumer<String> valueConsumer) {
+    if (rawValue.indexOf(',') == -1) {
+      valueConsumer.accept(rawValue);
+      return;
+    }
+    int start = 0;
+    boolean withinPortRange = false;
+    for (int current = 0; current < rawValue.length(); current++) {
+      switch (rawValue.charAt(current)) {
+        case '[':
+          withinPortRange = true;
+          break;
+        case ']':
+          withinPortRange = false;
+          break;
+        case ',':
+          if (!withinPortRange) {
+            valueConsumer.accept(rawValue.substring(start, current).trim());
+            start = current + 1;
+          }
+          break;
+      }
+    }
+    if (start < rawValue.length()) {
+      valueConsumer.accept(rawValue.substring(start));
     }
   }
 
@@ -262,7 +309,7 @@ public class CorsConfiguration {
           this.resolvedMethods = null;
           break;
         }
-        this.resolvedMethods.add(method);
+        this.resolvedMethods.add(HttpMethod.valueOf(method));
       }
     }
     else {
@@ -307,7 +354,7 @@ public class CorsConfiguration {
         this.resolvedMethods = null;
       }
       else if (this.resolvedMethods != null) {
-        this.resolvedMethods.add(method);
+        this.resolvedMethods.add(HttpMethod.valueOf(method));
       }
     }
   }
@@ -461,7 +508,11 @@ public class CorsConfiguration {
     }
     if (this.allowedMethods == null) {
       this.allowedMethods = DEFAULT_PERMIT_METHODS;
-      this.resolvedMethods = DEFAULT_PERMIT_METHODS;
+      ArrayList<HttpMethod> resolvedMethods = new ArrayList<>();
+      for (String method : DEFAULT_PERMIT_METHODS) {
+        resolvedMethods.add(HttpMethod.valueOf(method));
+      }
+      this.resolvedMethods = resolvedMethods;
     }
     if (this.allowedHeaders == null) {
       this.allowedHeaders = DEFAULT_PERMIT_ALL;
@@ -670,14 +721,14 @@ public class CorsConfiguration {
    * allowed
    */
   @Nullable
-  public List<String> checkHttpMethod(@Nullable String method) {
+  public List<HttpMethod> checkHttpMethod(@Nullable HttpMethod method) {
     if (method == null) {
       return null;
     }
-    if (this.resolvedMethods == null) {
+    if (resolvedMethods == null) {
       return Collections.singletonList(method);
     }
-    return this.resolvedMethods.contains(method) ? this.resolvedMethods : null;
+    return resolvedMethods.contains(method) ? this.resolvedMethods : null;
   }
 
   /**
