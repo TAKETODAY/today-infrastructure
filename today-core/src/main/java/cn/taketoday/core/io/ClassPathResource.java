@@ -24,7 +24,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
-import java.util.Objects;
 
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
@@ -187,10 +186,12 @@ public class ClassPathResource extends AbstractFileResolvingResource {
   }
 
   /**
-   * This implementation opens an InputStream for the given class path resource.
+   * This implementation opens an {@link InputStream} for the underlying class
+   * path resource, if available.
    *
    * @see ClassLoader#getResourceAsStream(String)
    * @see Class#getResourceAsStream(String)
+   * @see ClassLoader#getSystemResourceAsStream(String)
    */
   @Override
   public InputStream getInputStream() throws IOException {
@@ -198,11 +199,11 @@ public class ClassPathResource extends AbstractFileResolvingResource {
     if (resourceClass != null) {
       is = resourceClass.getResourceAsStream(path);
     }
-    else if (this.classLoader != null) {
-      is = this.classLoader.getResourceAsStream(path);
+    else if (classLoader != null) {
+      is = classLoader.getResourceAsStream(absolutePath);
     }
     else {
-      is = ClassLoader.getSystemResourceAsStream(path);
+      is = ClassLoader.getSystemResourceAsStream(absolutePath);
     }
     if (is == null) {
       throw new FileNotFoundException(this + " cannot be opened because it does not exist");
@@ -211,7 +212,7 @@ public class ClassPathResource extends AbstractFileResolvingResource {
   }
 
   /**
-   * Resolves a URL for the underlying class path resource.
+   * Resolves a {@link URL} for the underlying class path resource.
    *
    * @return the resolved URL, or {@code null} if not resolvable
    */
@@ -222,10 +223,10 @@ public class ClassPathResource extends AbstractFileResolvingResource {
         return resourceClass.getResource(path);
       }
       else if (this.classLoader != null) {
-        return this.classLoader.getResource(path);
+        return this.classLoader.getResource(this.absolutePath);
       }
       else {
-        return ClassLoader.getSystemResource(path);
+        return ClassLoader.getSystemResource(this.absolutePath);
       }
     }
     catch (IllegalArgumentException ex) {
@@ -280,9 +281,14 @@ public class ClassPathResource extends AbstractFileResolvingResource {
             && ObjectUtils.nullSafeEquals(getClassLoader(), other.getClassLoader());
   }
 
+  /**
+   * This implementation returns the hash code of the underlying class path location.
+   *
+   * @see #getPath()
+   */
   @Override
   public int hashCode() {
-    return Objects.hash(path, resourceClass, classLoader);
+    return this.absolutePath.hashCode();
   }
 
   /**
