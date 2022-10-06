@@ -54,8 +54,11 @@ import cn.taketoday.util.ResourceUtils;
 public abstract class AbstractResource implements Resource {
 
   /**
-   * This implementation always returns {@code null},
-   * assuming that this resource type does not have a filename.
+   * Determine the filename for this resource &mdash; typically the last
+   * part of the path &mdash; for example, {@code "myfile.txt"}.
+   * <p>Returns {@code null} if this type of resource does not
+   * have a filename.
+   * <p>Implementations are encouraged to return the filename unencoded.
    */
   @Override
   @Nullable

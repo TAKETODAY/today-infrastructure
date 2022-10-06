@@ -29,6 +29,8 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
@@ -256,9 +258,17 @@ public class UrlResource extends AbstractFileResolvingResource {
     return cleanedUrl;
   }
 
+  /**
+   * This implementation returns the URL-decoded name of the file that this URL
+   * refers to.
+   *
+   * @see java.net.URL#getPath()
+   * @see java.net.URLDecoder#decode(String, java.nio.charset.Charset)
+   */
   @Override
   public String getName() {
-    return StringUtils.getFilename(getCleanedUrl().getPath());
+    String filename = StringUtils.getFilename(getCleanedUrl().getPath());
+    return URLDecoder.decode(filename, StandardCharsets.UTF_8);
   }
 
   /**
