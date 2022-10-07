@@ -20,21 +20,25 @@
 package cn.taketoday.core.io;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.UncheckedIOException;
 import java.lang.module.ModuleFinder;
 import java.lang.module.ModuleReader;
 import java.lang.module.ResolvedModule;
 import java.net.JarURLConnection;
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.util.Arrays;
-import java.util.Comparator;
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystemNotFoundException;
+import java.nio.file.FileSystems;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Enumeration;
+import java.util.Iterator;
 import java.util.LinkedHashSet;
-import java.util.Objects;
+import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.jar.JarEntry;
@@ -45,11 +49,11 @@ import java.util.stream.Stream;
 import cn.taketoday.core.AntPathMatcher;
 import cn.taketoday.core.PathMatcher;
 import cn.taketoday.lang.Assert;
-import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.NonNull;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
+import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.ResourceUtils;
 import cn.taketoday.util.StringUtils;
 
@@ -524,7 +528,6 @@ public class PathMatchingPatternResourceLoader implements PatternResourceLoader 
    *
    * @param location the location to check
    * @return the part of the location that denotes the root directory
-   * @see #retrieveMatchingFiles
    */
   protected String determineRootDir(String location) {
     int prefixEnd = location.indexOf(':') + 1;
@@ -593,141 +596,100 @@ public class PathMatchingPatternResourceLoader implements PatternResourceLoader 
   }
 
   /**
-   * Find all resources in the file system that match the given location pattern
-   * via the Ant-style PathMatcher.
+   * Find all resources in the file system of the supplied root directory that
+   * match the given location sub pattern via the Ant-style PathMatcher.
    *
-   * @param rootDirResource the root directory as Resource
+   * @param rootDirResource the root directory as a Resource
    * @param subPattern the sub pattern to match (below the root directory)
    * @param consumer Resource how to use
-   * @see #retrieveMatchingFiles
+   * @throws IOException in case of I/O errors
    * @see PathMatcher
    */
   protected void doFindPathMatchingFileResources(
           Resource rootDirResource, String subPattern, ResourceConsumer consumer) throws IOException {
-    File rootDir;
+
+    URI rootDirUri;
     try {
-      rootDir = rootDirResource.getFile().getAbsoluteFile();
-    }
-    catch (FileNotFoundException ex) {
-      log.error("Cannot search for matching files underneath {} in the file system: {}",
-              rootDirResource, ex.toString(), ex);
-      return;
+      rootDirUri = rootDirResource.getURI();
+      // If the URI is for a "resource" in the GraalVM native image file system, we have to
+      // ensure that the root directory does not end in a slash while simultaneously ensuring
+      // that the root directory is not an empty string (since Path#resolve throws an
+      // ArrayIndexOutOfBoundsException in a native image if the initial Path is created
+      // from an empty string).
+      String scheme = rootDirUri.getScheme();
+      String path = rootDirUri.getPath();
+      if ("resource".equals(scheme) && (path.length() > 1) && path.endsWith("/")) {
+        path = path.substring(0, path.length() - 1);
+        // Retain the fragment as well, since root folders in the native image
+        // file system are indexed via the fragment (e.g., resource:/#1).
+        rootDirUri = new URI(scheme, path, rootDirUri.getFragment());
+      }
     }
     catch (Exception ex) {
-      log.error("Failed to resolve {} in the file system: {}", rootDirResource, ex.toString(), ex);
+      log.info("Failed to resolve %s as URI: {}", rootDirResource, ex);
       return;
     }
-    doFindMatchingFileSystemResources(rootDir, subPattern, consumer);
-  }
 
-  /**
-   * Find all resources in the file system that match the given location pattern
-   * via the Ant-style PathMatcher.
-   *
-   * @param rootDir the root directory in the file system
-   * @param subPattern the sub pattern to match (below the root directory)
-   * @param consumer Resource how to use
-   * @see #retrieveMatchingFiles
-   * @see PathMatcher
-   */
-  protected void doFindMatchingFileSystemResources(
-          File rootDir, String subPattern, ResourceConsumer consumer) throws IOException {
-    if (log.isDebugEnabled()) {
-      log.trace("Looking for matching resources in directory tree [{}]", rootDir.getPath());
-    }
-    retrieveMatchingFiles(rootDir, subPattern, consumer);
-  }
+    FileSystem fileSystem = null;
+    try {
+      Path rootPath = null;
+      if (rootDirUri.isAbsolute() && !rootDirUri.isOpaque()) {
+        // Prefer Path resolution from URI if possible
+        try {
+          try {
+            rootPath = Path.of(rootDirUri);
+          }
+          catch (FileSystemNotFoundException ex) {
+            // If the file system was not found, assume it's a custom file system that needs to be installed.
+            fileSystem = FileSystems.newFileSystem(rootDirUri, Map.of(), ClassUtils.getDefaultClassLoader());
+            rootPath = Path.of(rootDirUri);
+          }
+        }
+        catch (Exception ex) {
+          log.debug("Failed to resolve {} in file system: {}", rootDirUri, ex);
+          // Fallback via Resource.getFile() below
+        }
+      }
+      if (rootPath == null) {
+        // Resource.getFile() resolution as a fallback -
+        // for custom URI formats and custom Resource implementations
+        rootPath = Path.of(rootDirResource.getFile().getAbsolutePath());
+      }
 
-  /**
-   * Retrieve files that match the given path pattern, checking the given
-   * directory and its subdirectories.
-   *
-   * @param rootDir the directory to start from
-   * @param pattern the pattern to match against, relative to the root directory
-   * @param consumer Resource consumer
-   */
-  protected void retrieveMatchingFiles(
-          File rootDir, String pattern, ResourceConsumer consumer) throws IOException {
-    if (!rootDir.exists()) {
-      // Silently skip non-existing directories.
+      String rootDir = StringUtils.cleanPath(rootPath.toString());
+      if (!rootDir.endsWith("/")) {
+        rootDir += "/";
+      }
+
+      String resourcePattern = rootDir + StringUtils.cleanPath(subPattern);
+
+      Predicate<Path> isMatchingFile = path -> Files.isRegularFile(path)
+              && getPathMatcher().match(resourcePattern, StringUtils.cleanPath(path.toString()));
+
       if (log.isDebugEnabled()) {
-        log.debug("Skipping [{}] because it does not exist", rootDir.getAbsolutePath());
+        log.trace("Searching directory [{}] for files matching pattern [{}]",
+                rootPath.toAbsolutePath(), subPattern);
       }
-      return;
-    }
-    if (!rootDir.isDirectory()) {
-      // Complain louder if it exists but is no directory.
-      if (log.isInfoEnabled()) {
-        log.info("Skipping [{}] because it does not denote a directory", rootDir.getAbsolutePath());
+
+      try (Stream<Path> files = Files.walk(rootPath)) {
+        files.filter(isMatchingFile).sorted().forEach(file -> {
+          try {
+            consumer.accept(new FileSystemResource(file));
+          }
+          catch (Exception ex) {
+            log.debug("Failed to convert file {} to an cn.taketoday.core.io.Resource: {}", file, ex);
+          }
+        });
       }
-      return;
-    }
-    if (!rootDir.canRead()) {
-      if (log.isInfoEnabled()) {
-        log.info("Skipping search for matching files underneath directory [{}] because the application is not allowed to read the directory",
-                rootDir.getAbsolutePath());
-      }
-      return;
-    }
-
-    String fullPattern = StringUtils.replace(rootDir.getAbsolutePath(), File.separator, "/");
-
-    if (!StringUtils.matchesFirst(pattern, '/')) {
-      fullPattern += '/';
-    }
-    fullPattern = fullPattern + StringUtils.replace(pattern, File.separator, "/");
-
-    doRetrieveMatchingFiles(fullPattern, rootDir, consumer);
-  }
-
-  /**
-   * Recursively retrieve files that match the given pattern, adding them to the
-   * given result list.
-   *
-   * @param fullPattern the pattern to match against, with prepended root directory path
-   * @param dir the current directory
-   * @param consumer matching File instances consumer
-   */
-  protected void doRetrieveMatchingFiles(
-          String fullPattern, File dir, ResourceConsumer consumer) throws IOException {
-    if (log.isDebugEnabled()) {
-      log.trace("Searching directory [{}] for files matching pattern [{}]", dir.getAbsolutePath(), fullPattern);
-    }
-
-    for (File content : listDirectory(dir)) {
-      String currPath = StringUtils.replace(content.getAbsolutePath(), File.separator, "/");
-      if (content.isDirectory() && pathMatcher.matchStart(fullPattern, currPath.concat("/"))) {
-        if (content.canRead()) {
-          doRetrieveMatchingFiles(fullPattern, content, consumer);
-        }
-        else if (log.isDebugEnabled()) {
-          log.debug("Skipping subdirectory [{}] because the application is not allowed to read the directory",
-                  dir.getAbsolutePath());
-        }
-      }
-      if (pathMatcher.match(fullPattern, currPath)) {
-        consumer.accept(new FileSystemResource(content));
+      catch (Exception ex) {
+        log.debug("Failed to complete search in directory [{}] for files matching pattern [{}]: {}", rootPath.toAbsolutePath(), subPattern, ex);
       }
     }
-  }
-
-  /**
-   * Determine a sorted list of files in the given directory.
-   *
-   * @param dir the directory to introspect
-   * @return the sorted list of files (by default in alphabetical order)
-   * @see File#listFiles()
-   */
-  protected File[] listDirectory(File dir) {
-    File[] files = dir.listFiles();
-    if (files == null) {
-      if (log.isInfoEnabled()) {
-        log.info("Could not retrieve contents of directory [{}]", dir.getAbsolutePath());
+    finally {
+      if (fileSystem != null) {
+        fileSystem.close();
       }
-      return Constant.EMPTY_FILES;
     }
-    Arrays.sort(files, Comparator.comparing(File::getName));
-    return files;
   }
 
   /**
@@ -750,41 +712,45 @@ public class PathMatchingPatternResourceLoader implements PatternResourceLoader 
    * @since 4.0
    */
   protected void findAllModulePathResources(String locationPattern, ResourceConsumer consumer) throws IOException {
-    LinkedHashSet<Resource> result = new LinkedHashSet<>(16);
-    String resourcePattern = stripLeadingSlash(locationPattern);
-    Predicate<String> resourcePatternMatches = getPathMatcher().isPattern(resourcePattern)
-                                               ? path -> getPathMatcher().match(resourcePattern, path)
-                                               : resourcePattern::equals;
-
-    try {
-      ModuleLayer.boot().configuration().modules().stream()
-              .filter(isNotSystemModule)
-              .forEach(resolvedModule -> {
-                // NOTE: a ModuleReader and a Stream returned from ModuleReader.list() must be closed.
-                try (ModuleReader moduleReader = resolvedModule.reference().open();
-                        Stream<String> names = moduleReader.list()) {
-                  names.filter(resourcePatternMatches)
-                          .map(name -> findResource(moduleReader, name))
-                          .filter(Objects::nonNull)
-                          .forEach(resource -> {
-                            try {
-                              result.add(resource);
-                              consumer.accept(resource);
-                            }
-                            catch (IOException e) {
-                              throw new UncheckedIOException(e);
-                            }
-                          });
-                }
-                catch (IOException ex) {
-                  log.debug("Failed to read contents of module [{}]", resolvedModule, ex);
-                  throw new UncheckedIOException(ex);
-                }
-              });
+    LinkedHashSet<Resource> result = null;
+    if (log.isDebugEnabled()) {
+      result = new LinkedHashSet<>(16);
+      consumer = consumer.andThen(result::add);
     }
-    catch (UncheckedIOException ex) {
-      // Unwrap IOException to conform to this method's contract.
-      throw ex.getCause();
+
+    String resourcePattern = stripLeadingSlash(locationPattern);
+    PathMatcher pathMatcher = getPathMatcher();
+    boolean pattern = pathMatcher.isPattern(resourcePattern);
+    var moduleIterator = ModuleLayer.boot().configuration()
+            .modules().stream().filter(isNotSystemModule).iterator();
+    while (moduleIterator.hasNext()) {
+      ResolvedModule resolvedModule = moduleIterator.next();
+      // NOTE: a ModuleReader and a Stream returned from ModuleReader.list() must be closed.
+      try (ModuleReader moduleReader = resolvedModule.reference().open();
+              Stream<String> names = moduleReader.list()) {
+        Iterator<String> iterator = names.iterator();
+        while (iterator.hasNext()) {
+          String name = iterator.next();
+          if (pattern) {
+            if (pathMatcher.match(resourcePattern, name)) {
+              Resource resource = findResource(moduleReader, name);
+              if (resource != null) {
+                consumer.accept(resource);
+              }
+            }
+          }
+          else if (resourcePattern.equals(name)) {
+            Resource resource = findResource(moduleReader, name);
+            if (resource != null) {
+              consumer.accept(resource);
+            }
+          }
+        }
+      }
+      catch (IOException ex) {
+        log.debug("Failed to read contents of module [{}]", resolvedModule, ex);
+        throw ex;
+      }
     }
 
     if (log.isDebugEnabled()) {
@@ -795,22 +761,24 @@ public class PathMatchingPatternResourceLoader implements PatternResourceLoader 
   @Nullable
   private static Resource findResource(ModuleReader moduleReader, String name) {
     try {
-      return moduleReader.find(name)
-              // If it's a "file:" URI, use FileSystemResource to avoid duplicates
-              // for the same path discovered via class-path scanning.
-              .map(uri -> ResourceUtils.URL_PROTOCOL_FILE.equals(uri.getScheme())
-                          ? new FileSystemResource(uri.getPath())
-                          : UrlResource.from(uri))
-              .orElse(null);
+      Optional<URI> uriOptional = moduleReader.find(name);
+      if (uriOptional.isPresent()) {
+        // If it's a "file:" URI, use FileSystemResource to avoid duplicates
+        // for the same path discovered via class-path scanning.
+        URI uri = uriOptional.get();
+        return ResourceUtils.URL_PROTOCOL_FILE.equals(uri.getScheme())
+               ? new FileSystemResource(uri.getPath())
+               : UrlResource.from(uri);
+      }
     }
     catch (Exception ex) {
       log.debug("Failed to find resource [{}] in module path", name, ex);
-      return null;
     }
+    return null;
   }
 
   private static String stripLeadingSlash(String path) {
-    return (path.startsWith("/") ? path.substring(1) : path);
+    return path.startsWith("/") ? path.substring(1) : path;
   }
 
 }

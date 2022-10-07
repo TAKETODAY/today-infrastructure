@@ -19,19 +19,21 @@
  */
 package cn.taketoday.core.io;
 
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
-import java.util.ArrayList;
+import java.io.UncheckedIOException;
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-import cn.taketoday.util.ResourceUtils;
+import cn.taketoday.util.StringUtils;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -42,148 +44,31 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class PathMatchingPatternResourceLoaderTests {
 
   private PathMatchingPatternResourceLoader resolver = new PathMatchingPatternResourceLoader();
-  private static final String[] CLASSES_IN_IO = new String[] { //
-          "AbstractResource.class", //
-          "ClassPathResource.class", //
-          "EncodedResource.class", //
-          "DescriptiveResource.class", //
-          "InputStreamResource.class", //
-          "ByteArrayResource.class", //
-          "FileSystemResource.class", //
-          "JarEntryResource.class", //
-          "JarResource.class", //
-          "PathMatchingPatternResourceLoader.class", //
-          "InputStreamSource.class", //
-          "Resource.class", //
-          "ResourceFilter.class", //
-          "ResourceLoader.class", //
-          "UrlBasedResource.class", //
-          "OutputStreamSource.class", //
-          "WritableResource.class", //
-          "PathMatchingPatternResourceLoaderTests.class", //
-          "ResourceTests.class", //
-          "ResourceTests$2.class", //
-          "ResourceTests$1.class", //
-          "EncodedResourceTests.class", //
-          "PropertiesUtils.class", //
-          "ProtocolResolver.class",
-          "DefaultResourceLoader.class",
-          "PatternResourceLoader.class",
-          "PropertiesUtilsTests.class",
-          "ResourcePropertySource.class",
+
+  private static final String[] CLASSES_IN_CORE_IO_SUPPORT = {
+          "EncodedResource.class",
+          "PathMatchingPatternResourceLoader.class",
           "PropertiesLoaderSupport.class",
-          "PropertySourceFactory.class",
-          "ResourceRegion.class",
-          "ResourceConsumer.class",
-          "FileUrlResource.class",
-          "ClassRelativeResourceLoader.class",
-          "DefaultResourceLoader$ClassPathContextResource.class",
-          "ClassRelativeResourceLoader$ClassRelativeContextResource.class",
-          "DefaultPropertySourceFactory.class",
-          "JarEntryResource$JarEntryInputStream.class", //
-          "ResourceEditor.class",
-          "FileSystemResourceLoader.class",
-          "ResourceArrayPropertyEditorTests.class",
-          "ContextResource.class",
-          "PathResource.class",
-          "PathResourceTests.class",
-          "AbstractFileResolvingResource.class",
-          "FileSystemResourceLoader$FileSystemContextResource.class",
+          "PropertiesUtils.class",
           "ResourceArrayPropertyEditor.class",
-          "ResourceDecorator.class",
-          "WritableResourceDecorator.class",
-          "ClassPathResourceTests.class",
-          "ResourceTests$ByteArrayResourceTests",
-          "ResourceTests$InputStreamResourceTests",
-          "ResourceTests$ClassPathResourceTests",
-          "ResourceTests$FileSystemResourceTests",
-          "ResourceTests$UrlResourceTests",
-          "ResourceTests$AbstractResourceTests",
-          "ResourceTests$UrlResourceTests$CustomResource.class",
-          "ResourceTests$UrlResourceTests$ResourceDispatcher.class",
-          "ClassPathResourceTests$GetInputStream.class",
-          "ClassPathResourceTests$GetDescription.class",
-          "ClassPathResourceTests$GetPath.class"
+          "PatternResourceLoader.class",
   };
 
-  private static final String[] CLASSES_IN_JUNIT_RUNNER = new String[] { //
-          "BaseTestRunner.class", //
-          "TestRunListener.class", //
-          "Version.class", //
+  private static final String[] TEST_CLASSES_IN_CORE_IO_SUPPORT = {
+          "PathMatchingPatternResourceLoaderTests.class"
   };
 
-//    @Test(expected = FileNotFoundException.class)
-//    public void invalidPrefixWithPatternElementInIt() throws IOException {
-//        resolver.getResources("xx**:**/*.xy");
-//    }
+  private static final String[] CLASSES_IN_REACTOR_UTIL_ANNOTATION = {
+          "NonNull.class", "NonNullApi.class", "Nullable.class"
+  };
+
+  // Fails in a native image -- https://github.com/oracle/graal/issues/5020
 
   @Test
-  public void singleResourceOnFileSystem() throws IOException {
-    Resource[] resources = resolver.getResourcesArray("cn/taketoday/core/io/PathMatchingPatternResourceLoaderTests.class");
-    assertEquals(1, resources.length);
-    assertTrue(resources[0].exists());
-    assertProtocolAndFilenames(resources, "file", "PathMatchingPatternResourceLoaderTests.class");
-
-    // ---------------------------------------
-
-    final Resource[] resources2 = ResourceUtils.getResources("cn/taketoday/core/io/PathMatchingPatternResourceLoaderTests.class");
-    assertEquals(1, resources2.length);
-    assertTrue(resources2[0].exists());
-    assertProtocolAndFilenames(resources2, "file", "PathMatchingPatternResourceLoaderTests.class");
-  }
-
-  @Test
-  public void singleResourceInJar() throws IOException {
-    Resource[] resources = resolver.getResourcesArray("org/junit/Assert.class");
-    assertEquals(1, resources.length);
-    assertProtocolAndFilenames(resources, "jar", "Assert.class");
-  }
-
-  @Test
-  public void classpathStarWithPatternOnFileSystem() throws IOException {
-    Resource[] resources = resolver.getResourcesArray("classpath*:cn/taketoday/core/io/*.class");
-    // Have to exclude Clover-generated class files here,
-    // as we might be running as part of a Clover test run.
-    List<Resource> noCloverResources = new ArrayList<>();
-    for (Resource resource : resources) {
-      if (!resource.getName().contains("$__CLOVER_")) {
-        noCloverResources.add(resource);
-      }
-    }
-
-    resources = noCloverResources.toArray(Resource.EMPTY_ARRAY);
-    assertProtocolAndFilenames(resources, "file", CLASSES_IN_IO);
-  }
-
-  @Test
-  public void classpathWithPatternInJar() throws IOException {
-    Resource[] resources = resolver.getResourcesArray("classpath:junit/runner/*.class");
-    assertProtocolAndFilenames(resources, "jar", CLASSES_IN_JUNIT_RUNNER);
-  }
-
-  @Test
-  public void classpathStarWithPatternInJar() throws IOException {
-    Resource[] resources = resolver.getResourcesArray("classpath*:junit/runner/*.class");
-    assertProtocolAndFilenames(resources, "jar", CLASSES_IN_JUNIT_RUNNER);
-  }
-
-  @Test
-  public void rootPatternRetrievalInJarFiles() throws IOException {
-    Resource[] resources = resolver.getResourcesArray("classpath*:**/pom.properties");
-    boolean found = false;
-    for (Resource resource : resources) {
-      if (resource.getName().endsWith("pom.properties")) {
-        found = true;
-      }
-    }
-    assertTrue(found, "Could not find pom.properties");
-
-    AtomicInteger times = new AtomicInteger();
-    resolver.scan("classpath*:**/pom.properties", resource -> {
-      times.getAndIncrement();
-    });
-    System.out.println(times);
-    System.out.println(resources.length);
+  void rootPatternRetrievalInJarFiles() throws IOException {
+    assertThat(resolver.getResources("classpath*:aspectj*.dtd")).extracting(Resource::getName)
+            .as("Could not find aspectj_1_5_0.dtd in the root of the aspectjweaver jar")
+            .containsExactly("aspectj_1_5_0.dtd");
   }
 
   private void assertProtocolAndFilenames(
@@ -214,10 +99,141 @@ class PathMatchingPatternResourceLoaderTests {
     }
   }
 
+  @Nested
+  class FileSystemResources {
+
+    @Test
+    void singleResourceOnFileSystem() {
+      String pattern = "cn/taketoday/core/io/PathMatchingPatternResourceLoaderTests.class";
+      assertExactFilenames(pattern, "PathMatchingPatternResourceLoaderTests.class");
+    }
+
+    @Test
+    void classpathStarWithPatternOnFileSystem() {
+      String pattern = "classpath*:cn/taketoday/core/i*/*.class";
+      String[] expectedFilenames = StringUtils.concatenateStringArrays(
+              CLASSES_IN_CORE_IO_SUPPORT, TEST_CLASSES_IN_CORE_IO_SUPPORT);
+      assertFilenames(pattern, expectedFilenames);
+    }
+
+    @Nested
+    class WithHashtagsInTheirFileNames {
+
+      @Test
+      void usingClasspathStarProtocol() {
+        String pattern = "classpath*:cn/taketoday/core/io/**/resource#test*.txt";
+        String pathPrefix = ".+cn/taketoday/core/io/";
+
+        assertExactFilenames(pattern, "resource#test1.txt", "resource#test2.txt");
+        assertExactSubPaths(pattern, pathPrefix, "resource#test1.txt", "resource#test2.txt");
+      }
+
+      @Test
+      void usingFileProtocol() {
+        Path testResourcesDir = Path.of("src/test/resources").toAbsolutePath();
+        String pattern = "file:%s/scanned-resources/**".formatted(testResourcesDir);
+        String pathPrefix = ".+scanned-resources/";
+
+        assertExactFilenames(pattern, "resource#test1.txt", "resource#test2.txt");
+        assertExactSubPaths(pattern, pathPrefix, "resource#test1.txt", "resource#test2.txt");
+      }
+    }
+  }
+
+  @Nested
+  class JarResources {
+
+    @Test
+    void singleResourceInJar() {
+      String pattern = "org/reactivestreams/Publisher.class";
+      assertExactFilenames(pattern, "Publisher.class");
+    }
+
+    @Test
+    void singleResourceInRootOfJar() {
+      String pattern = "aspectj_1_5_0.dtd";
+      assertExactFilenames(pattern, "aspectj_1_5_0.dtd");
+    }
+
+    @Test
+    void classpathWithPatternInJar() {
+      String pattern = "classpath:reactor/util/annotation/*.class";
+      assertExactFilenames(pattern, CLASSES_IN_REACTOR_UTIL_ANNOTATION);
+    }
+
+    @Test
+    void classpathStarWithPatternInJar() {
+      String pattern = "classpath*:reactor/util/annotation/*.class";
+      assertExactFilenames(pattern, CLASSES_IN_REACTOR_UTIL_ANNOTATION);
+    }
+
+  }
+
   private void assertFilenameIn(Resource resource, String... filenames) {
     String filename = resource.getName();
     assertTrue(Arrays.stream(filenames).anyMatch(filename::endsWith),
             resource + " does not have a filename that matches any of the specified names");
+  }
+
+  private void assertFilenames(String pattern, String... filenames) {
+    assertFilenames(pattern, false, filenames);
+  }
+
+  private void assertExactFilenames(String pattern, String... filenames) {
+    assertFilenames(pattern, true, filenames);
+  }
+
+  private void assertFilenames(String pattern, boolean exactly, String... filenames) {
+    try {
+      Resource[] resources = resolver.getResourcesArray(pattern);
+      List<String> actualNames = Arrays.stream(resources)
+              .map(Resource::getName)
+              .sorted()
+              .toList();
+
+      // Uncomment the following if you encounter problems with matching against the file system.
+      // List<String> expectedNames = Arrays.stream(filenames).sorted().toList();
+      // System.out.println("----------------------------------------------------------------------");
+      // System.out.println("Expected: " + expectedNames);
+      // System.out.println("Actual: " + actualNames);
+      // Arrays.stream(resources).forEach(System.out::println);
+
+      if (exactly) {
+        assertThat(actualNames).as("subset of files found").containsExactlyInAnyOrder(filenames);
+      }
+      else {
+        assertThat(actualNames).as("subset of files found").contains(filenames);
+      }
+    }
+    catch (IOException ex) {
+      throw new UncheckedIOException(ex);
+    }
+  }
+
+  private void assertExactSubPaths(String pattern, String pathPrefix, String... subPaths) {
+    try {
+      Resource[] resources = resolver.getResourcesArray(pattern);
+      List<String> actualSubPaths = Arrays.stream(resources)
+              .map(resource -> getPath(resource).replaceFirst(pathPrefix, ""))
+              .sorted()
+              .toList();
+      assertThat(actualSubPaths).containsExactlyInAnyOrder(subPaths);
+    }
+    catch (IOException ex) {
+      throw new UncheckedIOException(ex);
+    }
+  }
+
+  private String getPath(Resource resource) {
+    // Tests fail if we use resouce.getURL().getPath(). They would also fail on Mac OS when
+    // using resouce.getURI().getPath() if the resource paths are not Unicode normalized.
+    //
+    // On the JVM, all tests should pass when using resouce.getFile().getPath(); however,
+    // we use FileSystemResource#getPath since this test class is sometimes run within a
+    // GraalVM native image which cannot support Path#toFile.
+    //
+    // See: https://github.com/spring-projects/spring-framework/issues/29243
+    return ((FileSystemResource) resource).getPath();
   }
 
 }
