@@ -34,10 +34,10 @@ import java.nio.file.FileSystemNotFoundException;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
@@ -54,6 +54,7 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ClassUtils;
+import cn.taketoday.util.ExceptionUtils;
 import cn.taketoday.util.ResourceUtils;
 import cn.taketoday.util.StringUtils;
 
@@ -532,6 +533,7 @@ public class PathMatchingPatternResourceLoader implements PatternResourceLoader 
   protected String determineRootDir(String location) {
     int prefixEnd = location.indexOf(':') + 1;
     int rootDirEnd = location.length();
+    PathMatcher pathMatcher = getPathMatcher();
     while (rootDirEnd > prefixEnd && pathMatcher.isPattern(location.substring(prefixEnd, rootDirEnd))) {
       rootDirEnd = location.lastIndexOf('/', rootDirEnd - 2) + 1;
     }
@@ -576,6 +578,7 @@ public class PathMatchingPatternResourceLoader implements PatternResourceLoader 
         rootEntryPath = rootEntryPath.concat("/");
       }
 
+      PathMatcher pathMatcher = getPathMatcher();
       Enumeration<JarEntry> entries = jarFile.entries();
       while (entries.hasMoreElements()) {
         String entryPath = entries.nextElement().getName();
@@ -641,7 +644,7 @@ public class PathMatchingPatternResourceLoader implements PatternResourceLoader 
           }
           catch (FileSystemNotFoundException ex) {
             // If the file system was not found, assume it's a custom file system that needs to be installed.
-            fileSystem = FileSystems.newFileSystem(rootDirUri, Map.of(), ClassUtils.getDefaultClassLoader());
+            fileSystem = FileSystems.newFileSystem(rootDirUri, Collections.emptyMap(), ClassUtils.getDefaultClassLoader());
             rootPath = Path.of(rootDirUri);
           }
         }
@@ -664,7 +667,7 @@ public class PathMatchingPatternResourceLoader implements PatternResourceLoader 
       String resourcePattern = rootDir + StringUtils.cleanPath(subPattern);
 
       Predicate<Path> isMatchingFile = path -> Files.isRegularFile(path)
-              && getPathMatcher().match(resourcePattern, StringUtils.cleanPath(path.toString()));
+              && pathMatcher.match(resourcePattern, StringUtils.cleanPath(path.toString()));
 
       if (log.isDebugEnabled()) {
         log.trace("Searching directory [{}] for files matching pattern [{}]",
@@ -676,13 +679,14 @@ public class PathMatchingPatternResourceLoader implements PatternResourceLoader 
           try {
             consumer.accept(new FileSystemResource(file));
           }
-          catch (Exception ex) {
-            log.debug("Failed to convert file {} to an cn.taketoday.core.io.Resource: {}", file, ex);
+          catch (Exception e) {
+            throw ExceptionUtils.sneakyThrow(e);
           }
         });
       }
       catch (Exception ex) {
         log.debug("Failed to complete search in directory [{}] for files matching pattern [{}]: {}", rootPath.toAbsolutePath(), subPattern, ex);
+        throw ex;
       }
     }
     finally {
@@ -733,17 +737,11 @@ public class PathMatchingPatternResourceLoader implements PatternResourceLoader 
           String name = iterator.next();
           if (pattern) {
             if (pathMatcher.match(resourcePattern, name)) {
-              Resource resource = findResource(moduleReader, name);
-              if (resource != null) {
-                consumer.accept(resource);
-              }
+              acceptResource(moduleReader, name, consumer);
             }
           }
           else if (resourcePattern.equals(name)) {
-            Resource resource = findResource(moduleReader, name);
-            if (resource != null) {
-              consumer.accept(resource);
-            }
+            acceptResource(moduleReader, name, consumer);
           }
         }
       }
@@ -758,23 +756,28 @@ public class PathMatchingPatternResourceLoader implements PatternResourceLoader 
     }
   }
 
-  @Nullable
-  private static Resource findResource(ModuleReader moduleReader, String name) {
+  private static void acceptResource(
+          ModuleReader moduleReader, String name, ResourceConsumer consumer) throws IOException {
+    Resource resource;
     try {
       Optional<URI> uriOptional = moduleReader.find(name);
       if (uriOptional.isPresent()) {
         // If it's a "file:" URI, use FileSystemResource to avoid duplicates
         // for the same path discovered via class-path scanning.
         URI uri = uriOptional.get();
-        return ResourceUtils.URL_PROTOCOL_FILE.equals(uri.getScheme())
-               ? new FileSystemResource(uri.getPath())
-               : UrlResource.from(uri);
+        resource = ResourceUtils.URL_PROTOCOL_FILE.equals(uri.getScheme())
+                   ? new FileSystemResource(uri.getPath())
+                   : UrlResource.from(uri);
+      }
+      else {
+        return;
       }
     }
     catch (Exception ex) {
       log.debug("Failed to find resource [{}] in module path", name, ex);
+      return;
     }
-    return null;
+    consumer.accept(resource);
   }
 
   private static String stripLeadingSlash(String path) {
