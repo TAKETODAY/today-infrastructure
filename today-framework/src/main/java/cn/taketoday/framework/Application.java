@@ -144,7 +144,7 @@ import cn.taketoday.util.function.ThrowingSupplier;
 public class Application {
   public static final String PROPERTIES_BINDER_PREFIX = "app.main";
   private static final String SYSTEM_PROPERTY_JAVA_AWT_HEADLESS = "java.awt.headless";
-  protected final Logger log = LoggerFactory.getLogger(getClass());
+  protected final Logger logger = LoggerFactory.getLogger(getClass());
 
   static final ApplicationShutdownHook shutdownHook = new ApplicationShutdownHook();
 
@@ -407,7 +407,7 @@ public class Application {
         strategies.add(hookListener);
       }
     }
-    return new ApplicationStartupListeners(log, strategies);
+    return new ApplicationStartupListeners(logger, strategies);
   }
 
   private ConfigurableEnvironment prepareEnvironment(
@@ -472,7 +472,7 @@ public class Application {
 
     var bannerPrinter = new ApplicationBannerPrinter(resourceLoader, banner);
     if (this.bannerMode == Banner.Mode.LOG) {
-      return bannerPrinter.print(environment, mainApplicationClass, log);
+      return bannerPrinter.print(environment, mainApplicationClass, logger);
     }
     return bannerPrinter.print(environment, mainApplicationClass, System.out);
   }
@@ -545,8 +545,8 @@ public class Application {
    * @param sources the sources to load
    */
   protected void load(ApplicationContext context, Object[] sources) {
-    if (log.isDebugEnabled()) {
-      log.debug("Loading source {}", StringUtils.arrayToCommaDelimitedString(sources));
+    if (logger.isDebugEnabled()) {
+      logger.debug("Loading source {}", StringUtils.arrayToCommaDelimitedString(sources));
     }
     ApplicationBeanDefinitionLoader loader = createBeanDefinitionLoader(getBeanDefinitionRegistry(context), sources);
     if (this.beanNameGenerator != null) {
@@ -788,7 +788,7 @@ public class Application {
    */
   public Logger getApplicationLog() {
     if (this.mainApplicationClass == null) {
-      return log;
+      return logger;
     }
     return LoggerFactory.getLogger(this.mainApplicationClass);
   }
@@ -1146,7 +1146,7 @@ public class Application {
       }
     }
     catch (Exception ex) {
-      log.warn("Unable to close ApplicationContext", ex);
+      logger.warn("Unable to close ApplicationContext", ex);
     }
     ReflectionUtils.rethrowRuntimeException(exception);
   }
@@ -1173,8 +1173,8 @@ public class Application {
     catch (Throwable ex) {
       // Continue with normal handling of the original failure
     }
-    if (log.isErrorEnabled()) {
-      log.error("Application run failed", failure);
+    if (logger.isErrorEnabled()) {
+      logger.error("Application run failed", failure);
       registerLoggedException(failure);
     }
   }
