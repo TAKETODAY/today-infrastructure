@@ -93,11 +93,6 @@ final class CompositeLogger extends Logger {
   }
 
   @Override
-  protected void logInternal(Level level, Object msg) {
-    logger(level).logInternal(level, msg);
-  }
-
-  @Override
   protected void logInternal(Level level, Object msg, Throwable t) {
     logger(level).logInternal(level, msg, t);
   }

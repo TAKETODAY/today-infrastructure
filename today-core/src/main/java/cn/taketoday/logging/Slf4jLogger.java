@@ -66,13 +66,7 @@ class Slf4jLogger extends Logger {
   @Override
   protected void logInternal(Level level, Object msg, Throwable t) {
     String message = String.valueOf(msg);
-    switch (level) {
-      case DEBUG -> target.debug(message, t);
-      case ERROR -> target.error(message, t);
-      case TRACE -> target.trace(message, t);
-      case WARN -> target.warn(message, t);
-      default -> target.info(message, t);
-    }
+    logInternal(level, message, t, null);
   }
 
   @Override
