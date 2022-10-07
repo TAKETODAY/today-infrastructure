@@ -44,6 +44,7 @@ import cn.taketoday.bytecode.core.CodeGenerationException;
 import cn.taketoday.bytecode.core.EmitUtils;
 import cn.taketoday.bytecode.core.MethodInfo;
 import cn.taketoday.lang.Constant;
+import cn.taketoday.lang.Experimental;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ReflectionUtils;
@@ -57,6 +58,7 @@ import cn.taketoday.util.ReflectionUtils;
  * @author TODAY 2021/2/12 17:30
  * @since 3.0
  */
+@Experimental
 public class StandardAopProxy extends AbstractSubclassesAopProxy implements AopProxy {
   private static final Logger log = LoggerFactory.getLogger(StandardAopProxy.class);
 

@@ -23,10 +23,13 @@ package cn.taketoday.aop.framework;
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
 
+import cn.taketoday.lang.Experimental;
+
 /**
  * @author TODAY 2021/3/8 13:03
  * @since 3.0
  */
+@Experimental
 public final class DynamicStandardMethodInvocation
         extends StandardMethodInvocation implements MethodInvocation {
 
