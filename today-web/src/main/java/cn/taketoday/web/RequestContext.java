@@ -362,8 +362,10 @@ public abstract class RequestContext extends AttributeAccessorSupport
    * not decoded by the container.
    */
   public String getQueryString() {
+    String queryString = this.queryString;
     if (queryString == null) {
-      this.queryString = doGetQueryString();
+      queryString = doGetQueryString();
+      this.queryString = queryString;
     }
     return queryString;
   }
@@ -379,8 +381,10 @@ public abstract class RequestContext extends AttributeAccessorSupport
    * or {@link #EMPTY_COOKIES} if the request has no cookies
    */
   public HttpCookie[] getCookies() {
+    var cookies = this.cookies;
     if (cookies == null) {
-      this.cookies = doGetCookies();
+      cookies = doGetCookies();
+      this.cookies = cookies;
     }
     return cookies;
   }
@@ -421,8 +425,10 @@ public abstract class RequestContext extends AttributeAccessorSupport
   }
 
   public ArrayList<HttpCookie> responseCookies() {
+    var responseCookies = this.responseCookies;
     if (responseCookies == null) {
-      this.responseCookies = new ArrayList<>();
+      responseCookies = new ArrayList<>();
+      this.responseCookies = responseCookies;
     }
     return responseCookies;
   }
@@ -439,8 +445,10 @@ public abstract class RequestContext extends AttributeAccessorSupport
    * values in the parameter map are of type String array.
    */
   public Map<String, String[]> getParameters() {
+    var parameters = this.parameters;
     if (parameters == null) {
-      this.parameters = doGetParameters();
+      parameters = doGetParameters();
+      this.parameters = parameters;
     }
     return parameters;
   }
