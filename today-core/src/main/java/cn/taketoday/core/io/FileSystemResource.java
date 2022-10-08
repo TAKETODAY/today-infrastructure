@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.channels.FileChannel;
 import java.nio.channels.ReadableByteChannel;
@@ -206,8 +207,24 @@ public class FileSystemResource extends AbstractResource implements WritableReso
    * Return a URI handle for this resource.
    */
   @Override
-  public URI getURI() {
-    return file != null ? file.toURI() : filePath.toUri();
+  public URI getURI() throws IOException {
+    if (this.file != null) {
+      return this.file.toURI();
+    }
+    else {
+      URI uri = this.filePath.toUri();
+      // Normalize URI? See https://github.com/spring-projects/spring-framework/issues/29275
+      String scheme = uri.getScheme();
+      if (ResourceUtils.URL_PROTOCOL_FILE.equals(scheme)) {
+        try {
+          uri = new URI(scheme, uri.getPath(), null);
+        }
+        catch (URISyntaxException ex) {
+          throw new IOException("Failed to normalize URI: " + uri, ex);
+        }
+      }
+      return uri;
+    }
   }
 
   /**
