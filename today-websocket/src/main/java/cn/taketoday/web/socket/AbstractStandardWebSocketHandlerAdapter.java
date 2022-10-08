@@ -37,7 +37,7 @@ public abstract class AbstractStandardWebSocketHandlerAdapter extends AbstractWe
       return ((StandardWebSocketHandler) handler).getEndpointConfig();
     }
     final RequestContext context = RequestContextHolder.getRequired();
-    return new StandardServerEndpointConfig(context.getRequestPath(), configurator);
+    return new StandardServerEndpointConfig(context.getRequestURI(), configurator);
   }
 
   @Override

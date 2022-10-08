@@ -170,7 +170,7 @@ public class UndertowWebSocketHandlerAdapter
             () -> new ImmediateInstanceHandle<>(new StandardEndpoint((StandardWebSocketSession) session, handler));
     ConfiguredServerEndpoint configured = new ConfiguredServerEndpoint(
             endpointConfig, objectInstanceFactory,
-            PathTemplate.create(context.getRequestPath()), EncodingFactory.DEFAULT);
+            PathTemplate.create(context.getRequestURI()), EncodingFactory.DEFAULT);
 
     List<Handshake> handshakes = getHandshakes(configured);
     for (Handshake method : handshakes) {

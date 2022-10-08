@@ -23,7 +23,7 @@ package cn.taketoday.web.socket.annotation;
 import java.util.List;
 import java.util.Map;
 
-import cn.taketoday.http.server.RequestPath;
+import cn.taketoday.http.server.PathContainer;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.handler.method.ResolvableMethodParameter;
@@ -62,8 +62,8 @@ public class AnnotationWebSocketDispatcher extends WebSocketHandler {
     if (socketHandler.containsPathVariable) {
       // for path variables handling
       PathPattern pathPattern = socketHandler.pathPattern;
-      RequestPath parsedRequestPath = context.getLookupPath();
-      PathMatchInfo pathMatchInfo = pathPattern.matchAndExtract(parsedRequestPath);
+      PathContainer lookupPath = context.getLookupPath();
+      PathMatchInfo pathMatchInfo = pathPattern.matchAndExtract(lookupPath);
       Assert.state(pathMatchInfo != null, "Path match error");
       Map<String, String> uriVariables = pathMatchInfo.getUriVariables();
       session.setAttribute(WebSocketSession.URI_TEMPLATE_VARIABLES, uriVariables);

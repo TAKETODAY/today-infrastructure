@@ -33,12 +33,12 @@ import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.LoggerFactory;
+import cn.taketoday.session.WebSession;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.RequestContextDecorator;
 import cn.taketoday.web.multipart.MultipartFile;
-import cn.taketoday.session.WebSession;
 
 /**
  * Miscellaneous utilities for web applications.
@@ -205,15 +205,15 @@ public abstract class WebUtils {
   /**
    * Remove ";" (semicolon) content from the given request URI
    *
-   * @param requestUri the request URI string to remove ";" content from
+   * @param lookupPath the request URI string to remove ";" content from
    * @return the updated URI string
    */
-  public static String removeSemicolonContent(String requestUri) {
-    int semicolonIndex = requestUri.indexOf(';');
+  public static String removeSemicolonContent(String lookupPath) {
+    int semicolonIndex = lookupPath.indexOf(';');
     if (semicolonIndex == -1) {
-      return requestUri;
+      return lookupPath;
     }
-    StringBuilder sb = new StringBuilder(requestUri);
+    StringBuilder sb = new StringBuilder(lookupPath);
     while (semicolonIndex != -1) {
       int slashIndex = sb.indexOf("/", semicolonIndex + 1);
       if (slashIndex == -1) {

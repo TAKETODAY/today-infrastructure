@@ -43,7 +43,7 @@ public class HandlerNotFoundException extends FrameworkConfigurationException im
 
   private final String httpMethod;
 
-  private final String requestURL;
+  private final String requestURI;
 
   private final HttpHeaders headers;
 
@@ -53,13 +53,13 @@ public class HandlerNotFoundException extends FrameworkConfigurationException im
    * Constructor for NoHandlerFoundException.
    *
    * @param httpMethod the HTTP method
-   * @param requestURL the HTTP request URL
+   * @param requestURI the HTTP request URI
    * @param headers the HTTP request headers
    */
-  public HandlerNotFoundException(String httpMethod, String requestURL, HttpHeaders headers) {
-    super("No endpoint " + httpMethod + " " + requestURL + ".");
+  public HandlerNotFoundException(String httpMethod, String requestURI, HttpHeaders headers) {
+    super("No endpoint " + httpMethod + " " + requestURI + ".");
     this.httpMethod = httpMethod;
-    this.requestURL = requestURL;
+    this.requestURI = requestURI;
     this.headers = headers;
     this.body = ProblemDetail.forStatusAndDetail(getStatusCode(), getMessage());
   }
@@ -73,8 +73,8 @@ public class HandlerNotFoundException extends FrameworkConfigurationException im
     return this.httpMethod;
   }
 
-  public String getRequestURL() {
-    return this.requestURL;
+  public String getRequestURI() {
+    return this.requestURI;
   }
 
   public HttpHeaders getHeaders() {

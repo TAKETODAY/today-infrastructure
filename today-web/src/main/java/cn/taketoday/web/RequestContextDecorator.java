@@ -43,6 +43,8 @@ import cn.taketoday.http.HttpCookie;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpMethod;
 import cn.taketoday.http.HttpStatusCode;
+import cn.taketoday.http.server.PathContainer;
+import cn.taketoday.http.server.RequestPath;
 import cn.taketoday.http.server.ServerHttpResponse;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.NonNull;
@@ -124,13 +126,33 @@ public class RequestContextDecorator extends RequestContext {
   }
 
   @Override
-  public String getRequestPath() {
+  public String getRequestURI() {
+    return delegate.getRequestURI();
+  }
+
+  @Override
+  public PathContainer getLookupPath() {
+    return delegate.getLookupPath();
+  }
+
+  @Override
+  public boolean isPreFlightRequest() {
+    return delegate.isPreFlightRequest();
+  }
+
+  @Override
+  public boolean isCorsRequest() {
+    return delegate.isCorsRequest();
+  }
+
+  @Override
+  public RequestPath getRequestPath() {
     return delegate.getRequestPath();
   }
 
   @Override
-  public String doGetRequestPath() {
-    return delegate.doGetRequestPath();
+  public String doGetRequestURI() {
+    return delegate.doGetRequestURI();
   }
 
   @Override

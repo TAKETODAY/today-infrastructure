@@ -445,7 +445,7 @@ public abstract class AbstractMessageConverterMethodProcessor
     catch (Throwable ex) {
       // ignore
     }
-    String requestUri = request.getRequestPath();
+    String requestUri = request.getRequestURI();
 
     int index = requestUri.lastIndexOf('/') + 1;
     String filename = requestUri.substring(index);

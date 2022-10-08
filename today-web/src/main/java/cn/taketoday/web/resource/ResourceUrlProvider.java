@@ -170,8 +170,8 @@ public class ResourceUrlProvider implements ApplicationListener<ContextRefreshed
   }
 
   private int getLookupPathIndex(RequestContext request) {
-    String requestUri = request.getLookupPath().value();
-    String lookupPath = request.getLookupPath().pathWithinApplication().value();
+    String requestUri = request.getRequestURI();
+    String lookupPath = request.getLookupPath().value();
     return requestUri.indexOf(lookupPath);
   }
 

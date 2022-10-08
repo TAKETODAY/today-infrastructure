@@ -211,7 +211,7 @@ public class HttpEntityMethodProcessor
     Object body = httpEntity.getBody();
     if (body instanceof ProblemDetail detail) {
       if (detail.getInstance() == null) {
-        URI path = URI.create(context.getRequestPath());
+        URI path = URI.create(context.getRequestURI());
         detail.setInstance(path);
       }
     }

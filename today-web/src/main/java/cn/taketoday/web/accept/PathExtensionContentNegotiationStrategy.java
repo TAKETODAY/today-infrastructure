@@ -24,9 +24,9 @@ import java.util.Locale;
 import java.util.Map;
 
 import cn.taketoday.core.io.Resource;
+import cn.taketoday.http.MediaType;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.http.MediaType;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.util.UriUtils;
@@ -65,7 +65,7 @@ public class PathExtensionContentNegotiationStrategy extends AbstractMappingCont
   @Override
   @Nullable
   protected String getMediaTypeKey(RequestContext request) {
-    String extension = UriUtils.extractFileExtension(request.getRequestPath());
+    String extension = UriUtils.extractFileExtension(request.getRequestURI());
     return StringUtils.hasText(extension) ? extension.toLowerCase(Locale.ENGLISH) : null;
   }
 

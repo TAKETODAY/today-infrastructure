@@ -41,7 +41,7 @@ public class FunctionHandlerMapping extends MappedHandlerMapping {
 
   @Override
   protected String computeKey(final RequestContext context) {
-    return context.getMethodValue().concat(context.getRequestPath());
+    return context.getMethodValue().concat(context.getRequestURI());
   }
 
   // HEAD

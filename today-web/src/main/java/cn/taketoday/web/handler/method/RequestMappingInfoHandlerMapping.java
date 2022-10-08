@@ -98,14 +98,14 @@ public abstract class RequestMappingInfoHandlerMapping extends AbstractHandlerMe
    * Expose URI template variables, matrix variables, and producible media types in the request.
    */
   @Override
-  protected void handleMatch(Match bestMatch, String lookupPath, RequestContext request) {
-    super.handleMatch(bestMatch, lookupPath, request);
+  protected void handleMatch(Match bestMatch, String directLookupPath, RequestContext request) {
+    super.handleMatch(bestMatch, directLookupPath, request);
 
     RequestMappingInfo info = bestMatch.mapping;
     PathPatternsRequestCondition pathPatternsCondition = info.getPathPatternsCondition();
     HandlerMatchingMetadata matchingMetadata = new HandlerMatchingMetadata(
             bestMatch.getHandlerMethod(),
-            lookupPath, request.getLookupPath(),
+            directLookupPath, request.getLookupPath(),
             CollectionUtils.firstElement(pathPatternsCondition.getPatterns()), getPatternParser()
     );
     request.setMatchingMetadata(matchingMetadata);

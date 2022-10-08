@@ -74,7 +74,7 @@ public class WebSocketApplication {
   @GET("/hello")
   @ResponseBody
   public String hello() {
-    final String requestPath = context.getRequestPath();
+    final String requestPath = context.getRequestURI();
     System.out.println(requestPath);
     return "Hello";
   }

@@ -35,7 +35,7 @@ public interface StandardWebSocketHandler {
   default ServerEndpointConfig getEndpointConfig() {
     final RequestContext context = RequestContextHolder.getRequired();
     return ServerEndpointConfig.Builder
-            .create(StandardEndpoint.class, context.getRequestPath())
+            .create(StandardEndpoint.class, context.getRequestURI())
             .build();
   }
 

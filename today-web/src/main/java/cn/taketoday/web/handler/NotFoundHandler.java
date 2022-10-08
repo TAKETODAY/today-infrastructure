@@ -59,7 +59,7 @@ public class NotFoundHandler implements HttpRequestHandler {
 
   protected void logNotFound(RequestContext context) {
     if (log.isWarnEnabled()) {
-      log.debug("No mapping for {} {}", context.getMethodValue(), context.getRequestPath());
+      log.debug("No mapping for {} {}", context.getMethodValue(), context.getRequestURI());
     }
   }
 

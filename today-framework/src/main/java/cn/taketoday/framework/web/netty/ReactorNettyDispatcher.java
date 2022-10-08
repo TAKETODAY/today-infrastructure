@@ -137,7 +137,7 @@ public class ReactorNettyDispatcher extends NettyDispatcher {
   protected Mono<Void> noHandlerFound(RequestContext request) {
     return Mono.defer(() -> Mono.error(
             new HandlerNotFoundException(
-                    request.getMethodValue(), request.getRequestPath(), request.requestHeaders()))
+                    request.getMethodValue(), request.getRequestURI(), request.requestHeaders()))
     );
   }
 }

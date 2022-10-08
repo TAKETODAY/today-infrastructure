@@ -27,6 +27,7 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.Serial;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Iterator;
@@ -41,8 +42,11 @@ import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.InvalidMediaTypeException;
 import cn.taketoday.http.MediaType;
 import cn.taketoday.http.ResponseCookie;
+import cn.taketoday.http.server.PathContainer;
+import cn.taketoday.http.server.RequestPath;
 import cn.taketoday.http.server.ServerHttpResponse;
 import cn.taketoday.http.server.ServletServerHttpResponse;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.CompositeIterator;
 import cn.taketoday.util.LinkedCaseInsensitiveMap;
@@ -51,9 +55,12 @@ import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.multipart.MultipartRequest;
 import cn.taketoday.web.multipart.support.ServletMultipartRequest;
+import cn.taketoday.web.util.UriUtils;
 import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletMapping;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.MappingMatch;
 
 /**
  * Servlet environment implementation
@@ -101,6 +108,11 @@ public final class ServletRequestContext extends RequestContext {
     return request.getContextPath();
   }
 
+  @Override
+  protected RequestPath doGetRequestPath() {
+    return ServletRequestPath.parse(this);
+  }
+
   @SuppressWarnings("unchecked")
   public <T> T nativeRequest() {
     return (T) request;
@@ -142,7 +154,7 @@ public final class ServletRequestContext extends RequestContext {
   }
 
   @Override
-  public String doGetRequestPath() {
+  public String doGetRequestURI() {
     return request.getRequestURI();
   }
 
@@ -480,6 +492,91 @@ public final class ServletRequestContext extends RequestContext {
     }
     else {
       return request.getAttributeNames().asIterator();
+    }
+  }
+
+  /**
+   * Simple wrapper around the default {@link RequestPath} implementation that
+   * supports a servletPath as an additional prefix to be omitted from
+   * {@link #pathWithinApplication()}.
+   */
+  private static final class ServletRequestPath extends RequestPath {
+
+    private final RequestPath requestPath;
+    private final PathContainer contextPath;
+
+    private ServletRequestPath(String rawPath, @Nullable String contextPath, String servletPath) {
+      this.requestPath = RequestPath.parse(rawPath, contextPath + servletPath);
+      this.contextPath = PathContainer.parsePath(StringUtils.hasText(contextPath) ? contextPath : "");
+    }
+
+    @Override
+    public String value() {
+      return this.requestPath.value();
+    }
+
+    @Override
+    public List<Element> elements() {
+      return this.requestPath.elements();
+    }
+
+    @Override
+    public PathContainer contextPath() {
+      return this.contextPath;
+    }
+
+    @Override
+    public PathContainer pathWithinApplication() {
+      return this.requestPath.pathWithinApplication();
+    }
+
+    @Override
+    public RequestPath modifyContextPath(String contextPath) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public boolean equals(@Nullable Object other) {
+      if (this == other) {
+        return true;
+      }
+      if (other == null || getClass() != other.getClass()) {
+        return false;
+      }
+      return (this.requestPath.equals(((ServletRequestPath) other).requestPath));
+    }
+
+    @Override
+    public int hashCode() {
+      return this.requestPath.hashCode();
+    }
+
+    @Override
+    public String toString() {
+      return this.requestPath.toString();
+    }
+
+    public static RequestPath parse(ServletRequestContext request) {
+      String requestUri = request.getRequestURI();
+      String servletPath = getServletPath(request.getRequest());
+      if (StringUtils.hasText(servletPath)) {
+        if (servletPath.endsWith("/")) {
+          servletPath = servletPath.substring(0, servletPath.length() - 1);
+        }
+        return new ServletRequestPath(requestUri, request.getContextPath(), servletPath);
+      }
+
+      return RequestPath.parse(requestUri, request.getContextPath());
+    }
+
+    @Nullable
+    public static String getServletPath(HttpServletRequest request) {
+      HttpServletMapping mapping = request.getHttpServletMapping();
+      if (ObjectUtils.nullSafeEquals(mapping.getMappingMatch(), MappingMatch.PATH)) {
+        String servletPath = request.getServletPath();
+        return UriUtils.encodePath(servletPath, StandardCharsets.UTF_8);
+      }
+      return null;
     }
   }
 

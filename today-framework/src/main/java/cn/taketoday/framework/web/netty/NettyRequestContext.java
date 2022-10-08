@@ -160,7 +160,7 @@ public class NettyRequestContext extends RequestContext {
   }
 
   @Override
-  protected final String doGetRequestPath() {
+  protected final String doGetRequestURI() {
     int index = queryStringIndex;
     if (index == -1) {
       return uri;
@@ -184,7 +184,7 @@ public class NettyRequestContext extends RequestContext {
   @Override
   public String getRequestURL() {
     String host = request.headers().get(HttpHeaderNames.HOST);
-    return getScheme() + "://" + host + StringUtils.formatURL(getRequestPath());
+    return getScheme() + "://" + host + StringUtils.formatURL(getRequestURI());
   }
 
   @Override

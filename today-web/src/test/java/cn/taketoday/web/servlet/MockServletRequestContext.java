@@ -142,7 +142,7 @@ public class MockServletRequestContext extends RequestContext {
   }
 
   @Override
-  public String doGetRequestPath() {
+  public String doGetRequestURI() {
     return request.getRequestURI();
   }
 
@@ -435,7 +435,7 @@ public class MockServletRequestContext extends RequestContext {
   }
 
   public void setRequestPath(String requestPath) {
-    this.requestPath = requestPath;
+    this.requestURI = requestPath;
   }
 
   public void setParameters(Map<String, String[]> parameters) {

@@ -397,10 +397,10 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
   @Nullable
   @Override
   protected HandlerMethod getHandlerInternal(RequestContext context) {
-    String lookupPath = context.getLookupPath().value();
+    String directLookupPath = context.getLookupPath().value();
     this.mappingRegistry.acquireReadLock();
     try {
-      HandlerMethod handlerMethod = lookupHandlerMethod(lookupPath, context);
+      HandlerMethod handlerMethod = lookupHandlerMethod(directLookupPath, context);
       if (handlerMethod != null) {
         return handlerMethod.createWithResolvedBean();
       }
@@ -415,16 +415,16 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
    * Look up the best-matching handler method for the current request.
    * If multiple matches are found, the best match is selected.
    *
-   * @param lookupPath mapping lookup path within the current servlet mapping
+   * @param directLookupPath mapping lookup path within the current servlet mapping
    * @param request the current request
    * @return the best-matching handler method, or {@code null} if no match
    * @see #handleMatch(Match, String, RequestContext)
    * @see #handleNoMatch(Set, String, RequestContext)
    */
   @Nullable
-  protected HandlerMethod lookupHandlerMethod(String lookupPath, RequestContext request) {
+  protected HandlerMethod lookupHandlerMethod(String directLookupPath, RequestContext request) {
     ArrayList<Match> matches = new ArrayList<>();
-    List<T> directPathMatches = mappingRegistry.getMappingsByDirectPath(lookupPath);
+    List<T> directPathMatches = mappingRegistry.getMappingsByDirectPath(directLookupPath);
     if (directPathMatches != null) {
       addMatchingMappings(directPathMatches, matches, request);
     }
@@ -432,7 +432,7 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
       addMatchingMappings(mappingRegistry.getRegistrations().keySet(), matches, request);
     }
     if (matches.isEmpty()) {
-      return handleNoMatch(mappingRegistry.getRegistrations().keySet(), lookupPath, request);
+      return handleNoMatch(mappingRegistry.getRegistrations().keySet(), directLookupPath, request);
     }
     else {
       Match bestMatch;
@@ -455,7 +455,7 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
           if (comparator.compare(bestMatch, secondBestMatch) == 0) {
             Method m1 = bestMatch.getHandlerMethod().getMethod();
             Method m2 = secondBestMatch.getHandlerMethod().getMethod();
-            String uri = request.getRequestPath();
+            String uri = request.getRequestURI();
             throw new IllegalStateException(
                     "Ambiguous handler methods mapped for '" + uri + "': {" + m1 + ", " + m2 + "}");
           }
@@ -464,7 +464,7 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
       else {
         bestMatch = matches.get(0);
       }
-      handleMatch(bestMatch, lookupPath, request);
+      handleMatch(bestMatch, directLookupPath, request);
       return bestMatch.getHandlerMethod();
     }
   }
@@ -483,10 +483,10 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
    * Invoked when a matching mapping is found.
    *
    * @param bestMatch the best match metadata
-   * @param lookupPath mapping lookup path within the current servlet mapping
+   * @param directLookupPath mapping lookup path within the current servlet mapping
    * @param request the current request
    */
-  protected void handleMatch(Match bestMatch, String lookupPath, RequestContext request) {
+  protected void handleMatch(Match bestMatch, String directLookupPath, RequestContext request) {
 
   }
 

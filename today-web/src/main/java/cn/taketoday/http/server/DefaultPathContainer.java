@@ -26,11 +26,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import cn.taketoday.core.DefaultMultiValueMap;
 import cn.taketoday.core.MultiValueMap;
-import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.StringUtils;
 
@@ -41,7 +39,7 @@ import cn.taketoday.util.StringUtils;
  * @author Sam Brannen
  * @since 4.0
  */
-final class DefaultPathContainer implements PathContainer {
+final class DefaultPathContainer extends PathContainer {
 
   private static final PathContainer EMPTY_PATH = new DefaultPathContainer("", Collections.emptyList());
 
@@ -100,7 +98,7 @@ final class DefaultPathContainer implements PathContainer {
     if (separatorElement == null) {
       throw new IllegalArgumentException("Unexpected separator: '" + separator + "'");
     }
-    List<Element> elements = new ArrayList<>();
+    ArrayList<Element> elements = new ArrayList<>();
     int begin;
     if (path.charAt(0) == separator) {
       begin = 1;
@@ -187,12 +185,26 @@ final class DefaultPathContainer implements PathContainer {
       return EMPTY_PATH;
     }
 
-    Assert.isTrue(fromIndex >= 0 && fromIndex < elements.size(), () -> "Invalid fromIndex: " + fromIndex);
-    Assert.isTrue(toIndex >= 0 && toIndex <= elements.size(), () -> "Invalid toIndex: " + toIndex);
-    Assert.isTrue(fromIndex < toIndex, () -> "fromIndex: " + fromIndex + " should be < toIndex " + toIndex);
+    if (fromIndex < 0 || fromIndex >= elements.size()) {
+      throw new IllegalArgumentException("Invalid fromIndex: " + fromIndex);
+    }
+
+    if (toIndex < 0 || toIndex > elements.size()) {
+      throw new IllegalArgumentException("Invalid toIndex: " + toIndex);
+    }
+
+    if (fromIndex >= toIndex) {
+      throw new IllegalArgumentException("fromIndex: " + fromIndex + " should be < toIndex " + toIndex);
+    }
 
     List<Element> subList = elements.subList(fromIndex, toIndex);
-    String path = subList.stream().map(Element::value).collect(Collectors.joining(""));
+
+    StringBuilder pathBuilder = new StringBuilder();
+    for (Element element : subList) {
+      pathBuilder.append(element.value());
+    }
+
+    String path = pathBuilder.toString();
     return new DefaultPathContainer(path, subList);
   }
 

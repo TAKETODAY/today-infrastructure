@@ -65,7 +65,7 @@ public class RequestHandledEventPublisher implements RequestHandledListener {
   protected ApplicationEvent getRequestHandledEvent(
           RequestContext request, @Nullable Throwable failureCause, long processingTime) {
     return new RequestHandledEvent(this,
-            request.getRequestPath(), request.getRemoteAddress(),
+            request.getRequestURI(), request.getRemoteAddress(),
             request.getMethodValue(),
             RequestContextUtils.getSessionId(request), null,
             processingTime, failureCause, request.getStatus());

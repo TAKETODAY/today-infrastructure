@@ -146,7 +146,7 @@ public abstract class AbstractRedirectModelManager implements RedirectModelManag
   protected boolean isRedirectModelForRequest(RedirectModel RedirectModel, RequestContext request) {
     String expectedPath = RedirectModel.getTargetRequestPath();
     if (expectedPath != null) {
-      String requestUri = request.getRequestPath();
+      String requestUri = request.getRequestURI();
       if (!requestUri.equals(expectedPath) && !requestUri.equals(expectedPath + "/")) {
         return false;
       }
@@ -205,7 +205,7 @@ public abstract class AbstractRedirectModelManager implements RedirectModelManag
     if (path != null && !path.isEmpty()) {
       path = URLDecoder.decode(path, StandardCharsets.UTF_8);
       if (path.charAt(0) != '/') {
-        String requestUri = request.getRequestPath();
+        String requestUri = request.getRequestURI();
         path = requestUri.substring(0, requestUri.lastIndexOf('/') + 1) + path;
         path = StringUtils.cleanPath(path);
       }

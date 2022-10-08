@@ -25,7 +25,7 @@ import java.util.Map;
 
 import cn.taketoday.beans.BeansException;
 import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.http.server.RequestPath;
+import cn.taketoday.http.server.PathContainer;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.StringUtils;
@@ -110,7 +110,7 @@ public abstract class AbstractUrlHandlerMapping extends AbstractHandlerMapping {
     if (handler == null) {
       // We need to care for the default handler directly
       Object rawHandler = null;
-      String lookupPath = request.getRequestPath();
+      String lookupPath = request.getRequestURI();
       if (StringUtils.matchesCharacter(lookupPath, '/')) {
         rawHandler = getRootHandler();
       }
@@ -138,7 +138,7 @@ public abstract class AbstractUrlHandlerMapping extends AbstractHandlerMapping {
    */
   @Nullable
   protected Object lookupHandler(RequestContext request) {
-    String requestPath = request.getRequestPath();
+    String requestPath = request.getRequestURI();
     Object handler = getDirectMatch(requestPath, request);
     if (handler != null) {
       var matchingMetadata = new HandlerMatchingMetadata(
@@ -146,7 +146,7 @@ public abstract class AbstractUrlHandlerMapping extends AbstractHandlerMapping {
       request.setMatchingMetadata(matchingMetadata);
       return handler;
     }
-    RequestPath lookupPath = request.getLookupPath();
+    PathContainer lookupPath = request.getLookupPath();
 
     ArrayList<PathPattern> matches = null;
     for (PathPattern pattern : pathPatternHandlerMap.keySet()) {

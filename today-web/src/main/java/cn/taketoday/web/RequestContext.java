@@ -115,7 +115,9 @@ public abstract class RequestContext extends AttributeAccessorSupport
   /** @since 3.0 */
   protected String method;
   /** @since 3.0 */
-  protected String requestPath;
+  protected String requestURI;
+  /** @since 4.0 */
+  protected RequestPath requestPath;
   /** @since 3.0 */
   protected Map<String, String[]> parameters;
   /** @since 3.0 */
@@ -131,7 +133,7 @@ public abstract class RequestContext extends AttributeAccessorSupport
   protected HttpMethod httpMethod;
 
   /** @since 4.0 */
-  protected RequestPath lookupPath;
+  protected PathContainer lookupPath;
 
   /** @since 4.0 */
   protected PathContainer pathWithinApplication;
@@ -221,8 +223,10 @@ public abstract class RequestContext extends AttributeAccessorSupport
    * indicates the context of the request
    */
   public String getContextPath() {
+    String contextPath = this.contextPath;
     if (contextPath == null) {
-      this.contextPath = doGetContextPath();
+      contextPath = doGetContextPath();
+      this.contextPath = contextPath;
     }
     return contextPath;
   }
@@ -292,8 +296,20 @@ public abstract class RequestContext extends AttributeAccessorSupport
    * @return a <code>String</code> containing the part of the URL from the
    * protocol name up to the query string
    */
-  public String getRequestPath() {
-    String requestPath = this.requestPath;
+  public String getRequestURI() {
+    String requestURI = this.requestURI;
+    if (requestURI == null) {
+      requestURI = doGetRequestURI();
+      this.requestURI = requestURI;
+    }
+    return requestURI;
+  }
+
+  /**
+   * @see #getRequestURI()
+   */
+  public RequestPath getRequestPath() {
+    RequestPath requestPath = this.requestPath;
     if (requestPath == null) {
       requestPath = doGetRequestPath();
       this.requestPath = requestPath;
@@ -301,13 +317,17 @@ public abstract class RequestContext extends AttributeAccessorSupport
     return requestPath;
   }
 
+  protected RequestPath doGetRequestPath() {
+    return RequestPath.parse(getRequestURI(), getContextPath());
+  }
+
   /**
    * @since 4.0
    */
-  public final RequestPath getLookupPath() {
-    RequestPath lookupPath = this.lookupPath;
+  public PathContainer getLookupPath() {
+    PathContainer lookupPath = this.lookupPath;
     if (lookupPath == null) {
-      lookupPath = RequestPath.parse(getRequestPath(), getContextPath());
+      lookupPath = getRequestPath().pathWithinApplication();
       this.lookupPath = lookupPath;
     }
     return lookupPath;
@@ -322,7 +342,7 @@ public abstract class RequestContext extends AttributeAccessorSupport
     return this.matchingMetadata;
   }
 
-  protected abstract String doGetRequestPath();
+  protected abstract String doGetRequestURI();
 
   /**
    * The returned URL contains a protocol, server name, port number, and server

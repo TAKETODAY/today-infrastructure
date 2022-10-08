@@ -90,7 +90,7 @@ public class MappedHandlerMapping extends AbstractUrlHandlerMapping {
    * @return Handler key never be null
    */
   protected String computeKey(RequestContext context) {
-    return context.getRequestPath();
+    return context.getRequestURI();
   }
 
   protected Object lookupHandler(String handlerKey, RequestContext context) {

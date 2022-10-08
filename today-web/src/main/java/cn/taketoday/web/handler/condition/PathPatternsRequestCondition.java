@@ -190,16 +190,16 @@ public final class PathPatternsRequestCondition extends AbstractRequestCondition
   @Override
   @Nullable
   public PathPatternsRequestCondition getMatchingCondition(RequestContext request) {
-    PathContainer path = request.getLookupPath().pathWithinApplication();
-    SortedSet<PathPattern> matches = getMatchingPatterns(path);
+    PathContainer lookupPath = request.getLookupPath();
+    SortedSet<PathPattern> matches = getMatchingPatterns(lookupPath);
     return matches != null ? new PathPatternsRequestCondition(matches) : null;
   }
 
   @Nullable
-  private SortedSet<PathPattern> getMatchingPatterns(PathContainer path) {
+  private SortedSet<PathPattern> getMatchingPatterns(PathContainer lookupPath) {
     TreeSet<PathPattern> result = null;
     for (PathPattern pattern : this.patterns) {
-      if (pattern.matches(path)) {
+      if (pattern.matches(lookupPath)) {
         if (result == null) {
           result = new TreeSet<>();
         }

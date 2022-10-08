@@ -31,7 +31,7 @@ import cn.taketoday.util.StringUtils;
  * @author Rossen Stoyanchev
  * @since 4.0
  */
-class DefaultRequestPath implements RequestPath {
+class DefaultRequestPath extends RequestPath {
 
   private final PathContainer fullPath;
   private final PathContainer contextPath;

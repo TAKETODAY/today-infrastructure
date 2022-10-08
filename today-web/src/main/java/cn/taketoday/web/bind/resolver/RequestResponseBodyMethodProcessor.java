@@ -151,7 +151,7 @@ public class RequestResponseBodyMethodProcessor
     if (returnValue instanceof ProblemDetail detail) {
       context.setStatus(detail.getStatus());
       if (detail.getInstance() == null) {
-        URI path = URI.create(context.getRequestPath());
+        URI path = URI.create(context.getRequestURI());
         detail.setInstance(path);
       }
     }

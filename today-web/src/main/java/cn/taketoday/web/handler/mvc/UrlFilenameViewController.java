@@ -23,7 +23,7 @@ package cn.taketoday.web.handler.mvc;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import cn.taketoday.http.server.RequestPath;
+import cn.taketoday.http.server.PathContainer;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.util.WebUtils;
@@ -124,8 +124,8 @@ public class UrlFilenameViewController extends AbstractUrlViewController {
    * @return the URL to use for view name extraction
    */
   protected String extractOperableUrl(RequestContext request) {
-    RequestPath lookupPath = request.getLookupPath();
-    String path = lookupPath.pathWithinApplication().value();
+    PathContainer lookupPath = request.getLookupPath();
+    String path = lookupPath.value();
     path = removeSemicolonContent
            ? WebUtils.removeSemicolonContent(path)
            : path;

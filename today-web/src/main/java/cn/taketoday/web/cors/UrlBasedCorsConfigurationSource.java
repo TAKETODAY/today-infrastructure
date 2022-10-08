@@ -23,7 +23,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import cn.taketoday.core.AntPathMatcher;
-import cn.taketoday.http.server.RequestPath;
+import cn.taketoday.http.server.PathContainer;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.RequestContext;
@@ -106,7 +106,7 @@ public class UrlBasedCorsConfigurationSource implements CorsConfigurationSource 
 
   @Override
   public CorsConfiguration getCorsConfiguration(final RequestContext request) {
-    RequestPath lookupPath = request.getLookupPath();
+    PathContainer lookupPath = request.getLookupPath();
     for (Map.Entry<PathPattern, CorsConfiguration> entry : corsConfigurations.entrySet()) {
       if (entry.getKey().matches(lookupPath)) {
         return entry.getValue();
