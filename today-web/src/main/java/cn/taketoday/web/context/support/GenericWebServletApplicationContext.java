@@ -29,7 +29,6 @@ import cn.taketoday.core.io.PatternResourceLoader;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.web.context.ConfigurableWebApplicationContext;
 import cn.taketoday.web.context.ConfigurableWebEnvironment;
 import cn.taketoday.web.context.ConfigurableWebServletApplicationContext;
 import cn.taketoday.web.servlet.ServletContextAware;

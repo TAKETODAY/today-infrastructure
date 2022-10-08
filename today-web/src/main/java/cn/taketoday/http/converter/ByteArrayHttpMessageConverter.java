@@ -20,13 +20,12 @@
 
 package cn.taketoday.http.converter;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
 import cn.taketoday.http.HttpInputMessage;
 import cn.taketoday.http.HttpOutputMessage;
-import cn.taketoday.lang.Nullable;
 import cn.taketoday.http.MediaType;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.StreamUtils;
 
 /**

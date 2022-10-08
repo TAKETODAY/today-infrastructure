@@ -42,7 +42,6 @@ import javax.xml.transform.stax.StAXResult;
 import javax.xml.transform.stax.StAXSource;
 
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.StreamUtils;
 
 /**
  * Convenience methods for working with the StAX API. Partly historic due to JAXP 1.3

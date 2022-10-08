@@ -22,7 +22,6 @@ package cn.taketoday.retry.support;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;

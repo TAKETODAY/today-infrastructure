@@ -23,7 +23,6 @@ package cn.taketoday.beans.factory.support;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.IdentityHashMap;
-import java.util.List;
 import java.util.Map;
 
 import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
