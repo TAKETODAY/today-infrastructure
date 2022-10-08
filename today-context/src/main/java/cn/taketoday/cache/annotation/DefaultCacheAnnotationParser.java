@@ -26,7 +26,6 @@ import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.LinkedHashSet;
 import java.util.Set;
 
 import cn.taketoday.cache.interceptor.CacheEvictOperation;
@@ -53,14 +52,9 @@ import cn.taketoday.util.StringUtils;
 @SuppressWarnings("serial")
 public class DefaultCacheAnnotationParser implements CacheAnnotationParser, Serializable {
 
-  private static final Set<Class<? extends Annotation>> CACHE_OPERATION_ANNOTATIONS = new LinkedHashSet<>(8);
-
-  static {
-    CACHE_OPERATION_ANNOTATIONS.add(Cacheable.class);
-    CACHE_OPERATION_ANNOTATIONS.add(CacheEvict.class);
-    CACHE_OPERATION_ANNOTATIONS.add(CachePut.class);
-    CACHE_OPERATION_ANNOTATIONS.add(Caching.class);
-  }
+  private static final Set<Class<? extends Annotation>> CACHE_OPERATION_ANNOTATIONS = Set.of(
+          Cacheable.class, CacheEvict.class, CachePut.class, Caching.class
+  );
 
   @Override
   public boolean isCandidateClass(Class<?> targetClass) {
