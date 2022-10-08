@@ -37,6 +37,7 @@ import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.RequestContextUtils;
 import cn.taketoday.web.handler.method.HandlerMethod;
 import cn.taketoday.web.handler.result.HandlerMethodReturnValueHandler;
+import cn.taketoday.web.handler.result.SmartReturnValueHandler;
 
 /**
  * view-name or {@link View} and {@link ViewRef} ReturnValueHandler
@@ -45,9 +46,10 @@ import cn.taketoday.web.handler.result.HandlerMethodReturnValueHandler;
  * @see View
  * @see RedirectModel
  * @see RedirectModelManager
+ * @see HandlerMethod
  * @since 4.0 2022/2/9 20:34
  */
-public class ViewReturnValueHandler implements HandlerMethodReturnValueHandler {
+public class ViewReturnValueHandler implements SmartReturnValueHandler {
 
   private final ViewResolver viewResolver;
 
@@ -62,16 +64,23 @@ public class ViewReturnValueHandler implements HandlerMethodReturnValueHandler {
   }
 
   @Override
-  public boolean supportsReturnValue(@Nullable Object returnValue) {
-    return returnValue instanceof String || returnValue instanceof ViewRef || returnValue instanceof View;
+  public boolean supportsHandler(Object handler, @Nullable Object returnValue) {
+    HandlerMethod handlerMethod = HandlerMethod.unwrap(handler);
+    if (handlerMethod != null) {
+      if (handlerMethod.isReturn(String.class)) {
+        return !handlerMethod.isResponseBody();
+      }
+      return handlerMethod.isReturnTypeAssignableTo(ViewRef.class)
+              || handlerMethod.isReturnTypeAssignableTo(View.class);
+    }
+    else {
+      return supportsReturnValue(returnValue);
+    }
   }
 
   @Override
-  public boolean supportsHandlerMethod(HandlerMethod handler) {
-    if (handler.isReturn(String.class)) {
-      return !handler.isResponseBody();
-    }
-    return handler.isReturnTypeAssignableTo(View.class);
+  public boolean supportsReturnValue(@Nullable Object returnValue) {
+    return returnValue instanceof String || returnValue instanceof ViewRef || returnValue instanceof View;
   }
 
   @Experimental
