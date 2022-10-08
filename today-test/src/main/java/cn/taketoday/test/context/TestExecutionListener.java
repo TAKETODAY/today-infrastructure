@@ -56,8 +56,25 @@ import cn.taketoday.test.context.web.ServletTestExecutionListener;
  * {@link cn.taketoday.core.annotation.Order @Order} annotation. See
  * {@link TestContextBootstrapper#getTestExecutionListeners()} for details.
  *
- * <p>Spring provides the following out-of-the-box implementations (all of
- * which implement {@code Ordered}):
+ *
+ * <h3>Registering TestExecutionListener Implementations</h3>
+ *
+ * <p>A {@code TestExecutionListener} can be registered explicitly for a test class,
+ * its subclasses, and its nested classes by using the
+ * {@link TestExecutionListeners @TestExecutionListeners} annotation. Explicit
+ * registration is suitable for custom listeners that are used in limited testing
+ * scenarios. However, it can become cumbersome if a custom listener needs to be
+ * used across an entire test suite. This issue is addressed through support for
+ * automatic discovery of <em>default</em> {@code TestExecutionListener}
+ * implementations through the
+ * {@link cn.taketoday.lang.TodayStrategies TodayStrategies}
+ * mechanism. Specifically, default {@code TestExecutionListener} implementations
+ * can be registered under the {@code cn.taketoday.test.context.TestExecutionListener}
+ * key in a {@link cn.taketoday.lang.TodayStrategies#STRATEGIES_LOCATION} properties file.
+ *
+ * <p>Infra provides the following implementations. Each of these implements
+ * {@code Ordered} and is registered automatically by default.
+ *
  * <ul>
  * <li>{@link ServletTestExecutionListener
  * ServletTestExecutionListener}</li>
