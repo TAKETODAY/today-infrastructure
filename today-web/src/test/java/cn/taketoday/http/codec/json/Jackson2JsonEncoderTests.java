@@ -149,6 +149,14 @@ public class Jackson2JsonEncoderTests extends AbstractEncoderTests<Jackson2JsonE
   }
 
   @Test
+  public void encodeNonStreamEmpty() {
+    testEncode(Flux.empty(), Pojo.class, step -> step
+            .consumeNextWith(expectString("["))
+            .consumeNextWith(expectString("]"))
+            .verifyComplete());
+  }
+
+  @Test
   void encodeNonStreamWithErrorAsFirstSignal() {
     String message = "I'm a teapot";
     Flux<Object> input = Flux.error(new IllegalStateException(message));

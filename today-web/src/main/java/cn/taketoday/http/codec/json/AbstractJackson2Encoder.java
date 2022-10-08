@@ -196,10 +196,11 @@ public abstract class AbstractJackson2Encoder extends Jackson2CodecSupport imple
                             value, bufferFactory, hintsToUse, sequenceWriter, byteBuilder,
                             delimiter, EMPTY_BYTES);
 
-                    return (prefix.length > 0 ?
-                            bufferFactory.join(Arrays.asList(bufferFactory.wrap(prefix), dataBuffer)) :
-                            dataBuffer);
+                    return prefix.length > 0
+                           ? bufferFactory.join(List.of(bufferFactory.wrap(prefix), dataBuffer))
+                           : dataBuffer;
                   })
+                  .switchIfEmpty(Mono.fromCallable(() -> bufferFactory.wrap(helper.getPrefix())))
                   .concatWith(Mono.fromCallable(() -> bufferFactory.wrap(helper.getSuffix())));
         }
 
