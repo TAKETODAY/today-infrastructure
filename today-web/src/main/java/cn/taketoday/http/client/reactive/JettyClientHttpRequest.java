@@ -21,8 +21,6 @@
 package cn.taketoday.http.client.reactive;
 
 import org.eclipse.jetty.client.api.Request;
-import org.eclipse.jetty.http.HttpField;
-import org.eclipse.jetty.http.HttpFields;
 import org.eclipse.jetty.reactive.client.ContentChunk;
 import org.eclipse.jetty.reactive.client.ReactiveRequest;
 import org.eclipse.jetty.util.Callback;
