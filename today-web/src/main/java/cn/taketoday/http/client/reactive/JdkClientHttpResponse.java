@@ -80,22 +80,22 @@ class JdkClientHttpResponse implements ClientHttpResponse {
 
   @Override
   public HttpStatusCode getStatusCode() {
-    return HttpStatusCode.valueOf(this.response.statusCode());
+    return HttpStatusCode.valueOf(response.statusCode());
   }
 
   @Override
   public int getRawStatusCode() {
-    return this.response.statusCode();
+    return response.statusCode();
   }
 
   @Override
   public HttpHeaders getHeaders() {
-    return this.headers;
+    return headers;
   }
 
   @Override
   public MultiValueMap<String, ResponseCookie> getCookies() {
-    return this.response.headers().allValues(HttpHeaders.SET_COOKIE).stream()
+    return response.headers().allValues(HttpHeaders.SET_COOKIE).stream()
             .flatMap(header -> {
               Matcher matcher = SAME_SITE_PATTERN.matcher(header);
               String sameSite = (matcher.matches() ? matcher.group(1) : null);
@@ -119,9 +119,9 @@ class JdkClientHttpResponse implements ClientHttpResponse {
 
   @Override
   public Flux<DataBuffer> getBody() {
-    return JdkFlowAdapter.flowPublisherToFlux(this.response.body())
+    return JdkFlowAdapter.flowPublisherToFlux(response.body())
             .flatMapIterable(Function.identity())
-            .map(this.bufferFactory::wrap)
+            .map(bufferFactory::wrap)
             .doOnDiscard(DataBuffer.class, DataBufferUtils::release);
   }
 

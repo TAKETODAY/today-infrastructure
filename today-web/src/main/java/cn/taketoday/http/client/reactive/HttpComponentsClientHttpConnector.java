@@ -110,9 +110,7 @@ public class HttpComponentsClientHttpConnector implements ClientHttpConnector, C
       context.setCookieStore(new BasicCookieStore());
     }
 
-    HttpComponentsClientHttpRequest request = new HttpComponentsClientHttpRequest(
-            method, uri, context, this.dataBufferFactory);
-
+    var request = new HttpComponentsClientHttpRequest(method, uri, context, dataBufferFactory);
     return requestCallback.apply(request)
             .then(Mono.defer(() -> execute(request, context)));
   }
@@ -121,9 +119,9 @@ public class HttpComponentsClientHttpConnector implements ClientHttpConnector, C
     AsyncRequestProducer requestProducer = request.toRequestProducer();
 
     return Mono.create(sink -> {
-      ReactiveResponseConsumer reactiveResponseConsumer =
-              new ReactiveResponseConsumer(new MonoFutureCallbackAdapter(sink, this.dataBufferFactory, context));
-      this.client.execute(requestProducer, reactiveResponseConsumer, context, null);
+      var responseConsumer = new ReactiveResponseConsumer(
+              new MonoFutureCallbackAdapter(sink, this.dataBufferFactory, context));
+      this.client.execute(requestProducer, responseConsumer, context, null);
     });
   }
 
@@ -138,8 +136,7 @@ public class HttpComponentsClientHttpConnector implements ClientHttpConnector, C
 
     @Override
     public void completed(Message<HttpResponse, Publisher<ByteBuffer>> result) {
-      HttpComponentsClientHttpResponse response =
-              new HttpComponentsClientHttpResponse(this.dataBufferFactory, result, this.context);
+      var response = new HttpComponentsClientHttpResponse(this.dataBufferFactory, result, this.context);
       this.sink.success(response);
     }
 

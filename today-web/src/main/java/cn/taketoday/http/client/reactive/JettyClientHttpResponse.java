@@ -54,7 +54,7 @@ class JettyClientHttpResponse implements ClientHttpResponse {
     this.reactiveResponse = reactiveResponse;
     this.content = Flux.from(content);
 
-    MultiValueMap<String, String> headers = new JettyHeadersAdapter(reactiveResponse.getHeaders());
+    var headers = new JettyHeadersAdapter(reactiveResponse.getHeaders());
     this.headers = HttpHeaders.readOnlyHttpHeaders(headers);
   }
 

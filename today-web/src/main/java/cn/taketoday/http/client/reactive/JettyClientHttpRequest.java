@@ -21,6 +21,8 @@
 package cn.taketoday.http.client.reactive;
 
 import org.eclipse.jetty.client.api.Request;
+import org.eclipse.jetty.http.HttpField;
+import org.eclipse.jetty.http.HttpFields;
 import org.eclipse.jetty.reactive.client.ContentChunk;
 import org.eclipse.jetty.reactive.client.ReactiveRequest;
 import org.eclipse.jetty.util.Callback;
@@ -58,17 +60,17 @@ class JettyClientHttpRequest extends AbstractClientHttpRequest {
   public JettyClientHttpRequest(Request jettyRequest, DataBufferFactory bufferFactory) {
     this.jettyRequest = jettyRequest;
     this.bufferFactory = bufferFactory;
-    this.builder = ReactiveRequest.newBuilder(this.jettyRequest).abortOnCancel(true);
+    this.builder = ReactiveRequest.newBuilder(jettyRequest).abortOnCancel(true);
   }
 
   @Override
   public HttpMethod getMethod() {
-    return HttpMethod.valueOf(this.jettyRequest.getMethod());
+    return HttpMethod.valueOf(jettyRequest.getMethod());
   }
 
   @Override
   public URI getURI() {
-    return this.jettyRequest.getURI();
+    return jettyRequest.getURI();
   }
 
   @Override
@@ -78,13 +80,13 @@ class JettyClientHttpRequest extends AbstractClientHttpRequest {
 
   @Override
   public DataBufferFactory bufferFactory() {
-    return this.bufferFactory;
+    return bufferFactory;
   }
 
   @Override
   @SuppressWarnings("unchecked")
   public <T> T getNativeRequest() {
-    return (T) this.jettyRequest;
+    return (T) jettyRequest;
   }
 
   @Override
@@ -93,7 +95,7 @@ class JettyClientHttpRequest extends AbstractClientHttpRequest {
               ReactiveRequest.Content content = Flux.from(body)
                       .map(buffer -> toContentChunk(buffer, sink))
                       .as(chunks -> ReactiveRequest.Content.fromPublisher(chunks, getContentType()));
-              this.builder.content(content);
+              builder.content(content);
               sink.success();
             })
             .then(doCommit());
@@ -153,11 +155,11 @@ class JettyClientHttpRequest extends AbstractClientHttpRequest {
 
   @Override
   protected HttpHeaders initReadOnlyHeaders() {
-    return HttpHeaders.readOnlyHttpHeaders(new JettyHeadersAdapter(this.jettyRequest.getHeaders()));
+    return HttpHeaders.readOnlyHttpHeaders(new JettyHeadersAdapter(jettyRequest.getHeaders()));
   }
 
   public ReactiveRequest toReactiveRequest() {
-    return this.builder.build();
+    return builder.build();
   }
 
 }
