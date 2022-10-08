@@ -166,6 +166,9 @@ public class FileSystemResource extends AbstractResource implements WritableReso
 
   /**
    * This implementation returns whether the underlying file exists.
+   *
+   * @see java.io.File#exists()
+   * @see java.nio.file.Files#exists(Path, java.nio.file.LinkOption...)
    */
   @Override
   public boolean exists() {
@@ -173,7 +176,9 @@ public class FileSystemResource extends AbstractResource implements WritableReso
   }
 
   /**
-   * This implementation opens a NIO file stream for the underlying file.
+   * This implementation opens an NIO file stream for the underlying file.
+   *
+   * @see java.nio.file.Files#newInputStream(Path, java.nio.file.OpenOption...)
    */
   @Override
   public InputStream getInputStream() throws IOException {
@@ -374,6 +379,8 @@ public class FileSystemResource extends AbstractResource implements WritableReso
    *
    * @see java.io.File#canRead()
    * @see java.io.File#isDirectory()
+   * @see java.nio.file.Files#isReadable(Path)
+   * @see java.nio.file.Files#isDirectory(Path, java.nio.file.LinkOption...)
    */
   @Override
   public boolean isReadable() {
