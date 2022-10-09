@@ -54,7 +54,6 @@ import cn.taketoday.beans.factory.support.BeanNameGenerator;
 import cn.taketoday.beans.factory.support.DefaultBeanNameGenerator;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.ApplicationContextException;
-import cn.taketoday.context.ApplicationContextInitializer;
 import cn.taketoday.context.ApplicationEvent;
 import cn.taketoday.context.ApplicationListener;
 import cn.taketoday.context.ConfigurableApplicationContext;
@@ -214,7 +213,7 @@ class ApplicationTests {
   }
 
   @Test
-  @DisabledIfEnvironmentVariable(named = "CI", matches = "true", disabledReason = "file CRLF problem")
+  @DisabledIfEnvironmentVariable(named = "CI", matches = "true", disabledReason = "out stream problem")
   void logsActiveProfilesWithoutProfileAndSingleDefault(CapturedOutput output) {
     Application application = new Application(ExampleConfig.class);
     application.setApplicationType(ApplicationType.NONE_WEB);
@@ -223,7 +222,7 @@ class ApplicationTests {
   }
 
   @Test
-  @DisabledIfEnvironmentVariable(named = "CI", matches = "true", disabledReason = "file CRLF problem")
+  @DisabledIfEnvironmentVariable(named = "CI", matches = "true", disabledReason = "out stream problem")
   void logsActiveProfilesWithoutProfileAndMultipleDefaults(CapturedOutput output) {
     MockEnvironment environment = new MockEnvironment();
     environment.setDefaultProfiles("p0,p1", "default");
@@ -236,7 +235,7 @@ class ApplicationTests {
   }
 
   @Test
-  @DisabledIfEnvironmentVariable(named = "CI", matches = "true", disabledReason = "file CRLF problem")
+  @DisabledIfEnvironmentVariable(named = "CI", matches = "true", disabledReason = "out stream problem")
   void logsActiveProfilesWithSingleProfile(CapturedOutput output) {
     Application application = new Application(ExampleConfig.class);
     application.setApplicationType(ApplicationType.NONE_WEB);
@@ -245,7 +244,7 @@ class ApplicationTests {
   }
 
   @Test
-  @DisabledIfEnvironmentVariable(named = "CI", matches = "true", disabledReason = "file CRLF problem")
+  @DisabledIfEnvironmentVariable(named = "CI", matches = "true", disabledReason = "out stream problem")
   void logsActiveProfilesWithMultipleProfiles(CapturedOutput output) {
     Application application = new Application(ExampleConfig.class);
     application.setApplicationType(ApplicationType.NONE_WEB);
@@ -337,8 +336,7 @@ class ApplicationTests {
     Application application = new Application(ExampleConfig.class);
     application.setApplicationType(ApplicationType.NONE_WEB);
     final AtomicReference<ApplicationContext> reference = new AtomicReference<>();
-    application.setInitializers(Collections
-            .singletonList((ApplicationContextInitializer) reference::set));
+    application.setInitializers(Collections.singletonList(reference::set));
     this.context = application.run("--foo=bar");
     assertThat(this.context).isSameAs(reference.get());
     // Custom initializers do not switch off the defaults
@@ -629,7 +627,7 @@ class ApplicationTests {
 
   @Test
   @SuppressWarnings("unchecked")
-  @DisabledIfEnvironmentVariable(named = "CI", matches = "true", disabledReason = "file CRLF problem")
+  @DisabledIfEnvironmentVariable(named = "CI", matches = "true", disabledReason = "out stream problem")
   void runnersAreCalledAfterStartedIsLoggedAndBeforeApplicationReadyEventIsPublished(
           CapturedOutput output) throws Exception {
     Application application = new Application(ExampleConfig.class);
@@ -773,7 +771,7 @@ class ApplicationTests {
     application.setApplicationType(ApplicationType.NONE_WEB);
     this.context = application.run();
     assertThat(this.context).isNotNull();
-    assertThat(Application.exit(this.context, (ExitCodeGenerator) () -> 2)).isEqualTo(2);
+    assertThat(Application.exit(this.context, () -> 2)).isEqualTo(2);
     assertThat(listener.getExitCode()).isEqualTo(2);
   }
 
@@ -892,7 +890,7 @@ class ApplicationTests {
     Application application = new Application(ExampleConfig.class, ListenerConfig.class);
     application.setApplicationContextFactory(ApplicationContextFactory.fromClass(SpyApplicationContext.class));
     Set<ApplicationEvent> events = new LinkedHashSet<>();
-    application.addListeners((ApplicationListener<ApplicationEvent>) events::add);
+    application.addListeners(events::add);
     this.context = application.run();
     assertThat(events).hasAtLeastOneElementOfType(ApplicationPreparedEvent.class);
     assertThat(events).hasAtLeastOneElementOfType(ContextRefreshedEvent.class);
@@ -905,7 +903,7 @@ class ApplicationTests {
             Multicaster.class);
     application.setApplicationContextFactory(ApplicationContextFactory.fromClass(SpyApplicationContext.class));
     Set<ApplicationEvent> events = new LinkedHashSet<>();
-    application.addListeners((ApplicationListener<ApplicationEvent>) events::add);
+    application.addListeners(events::add);
     this.context = application.run();
     assertThat(events).hasAtLeastOneElementOfType(ApplicationPreparedEvent.class);
     assertThat(events).hasAtLeastOneElementOfType(ContextRefreshedEvent.class);
