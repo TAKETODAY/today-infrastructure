@@ -33,12 +33,12 @@ jobs:
           distribution: adopt
       - name: Report Coverage to Coveralls for Pull Requests
         if: github.event_name == 'pull_request'
-        run: mvn test -B jacoco:report coveralls:report -q -DrepoToken=$GITHUB_TOKEN -DserviceName=github -DpullRequest=$PR_NUMBER -Pcoverage -Dcoverage=true
+        run: mvn test -B jacoco:report coveralls:report -q -DrepoToken=$GITHUB_TOKEN -DserviceName=github -DpullRequest=$PR_NUMBER -Pcoverage -Dcoverage=true -DCI=true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PR_NUMBER: ${{ github.event.number }}
       - name: Report Coverage to Coveralls for General Push
         if: github.event_name == 'push'
-        run: mvn test -B jacoco:report coveralls:report -q -DrepoToken=$GITHUB_TOKEN -DserviceName=github -Pcoverage -Dcoverage=true
+        run: mvn test -B jacoco:report coveralls:report -q -DrepoToken=$GITHUB_TOKEN -DserviceName=github -Pcoverage -Dcoverage=true -DCI=true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
