@@ -23,7 +23,6 @@ package cn.taketoday.framework;
 import java.io.PrintStream;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -39,7 +38,6 @@ import cn.taketoday.framework.ansi.AnsiPropertySource;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.lang.Version;
-import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.StreamUtils;
 
@@ -53,8 +51,6 @@ import cn.taketoday.util.StreamUtils;
  * @since 4.0 2022/3/29 18:01
  */
 public class ResourceBanner implements Banner {
-
-  private static final Logger logger = LoggerFactory.getLogger(ResourceBanner.class);
 
   private final Resource resource;
 
@@ -76,35 +72,43 @@ public class ResourceBanner implements Banner {
       out.println(banner);
     }
     catch (Exception ex) {
-      logger.warn("Banner not printable: %s (%s: '%s')", this.resource, ex.getClass(),
-              ex.getMessage(), ex);
+      LoggerFactory.getLogger(ResourceBanner.class)
+              .warn("Banner not printable: {} ({}: '{}')", this.resource, ex.getClass(),
+                      ex.getMessage(), ex);
     }
   }
 
   protected List<PropertyResolver> getPropertyResolvers(Environment environment, Class<?> sourceClass) {
-    List<PropertyResolver> resolvers = new ArrayList<>();
-    resolvers.add(environment);
-    resolvers.add(getVersionResolver(sourceClass));
-    resolvers.add(getAnsiResolver());
-    resolvers.add(getTitleResolver(sourceClass));
-    return resolvers;
+    PropertySources propertySources = new PropertySources();
+
+    propertySources.addLast(getVersionPropertySource(sourceClass));
+    propertySources.addLast(getAnsiPropertySource());
+    propertySources.addLast(getTitlePropertySource(sourceClass));
+
+    var resolver = new PropertySourcesPropertyResolver(propertySources);
+    return List.of(environment, resolver);
   }
 
-  private PropertyResolver getVersionResolver(Class<?> sourceClass) {
-    PropertySources propertySources = new PropertySources();
-    propertySources.addLast(new MapPropertySource("version", getVersionsMap(sourceClass)));
-    return new PropertySourcesPropertyResolver(propertySources);
+  private MapPropertySource getVersionPropertySource(Class<?> sourceClass) {
+    return new MapPropertySource("version", getVersionsMap(sourceClass));
   }
 
   private Map<String, Object> getVersionsMap(Class<?> sourceClass) {
     String appVersion = getApplicationVersion(sourceClass);
     String version = getVersion();
-    Map<String, Object> versions = new HashMap<>();
+    HashMap<String, Object> versions = new HashMap<>();
     versions.put("app.version", getVersionString(appVersion, false));
-    versions.put("today.version", getVersionString(version, false));
+    versions.put("infra.version", getVersionString(version, false));
     versions.put("app.formatted-version", getVersionString(appVersion, true));
-    versions.put("today.formatted-version", getVersionString(version, true));
+    versions.put("infra.formatted-version", getVersionString(version, true));
     return versions;
+  }
+
+  private MapPropertySource getTitlePropertySource(Class<?> sourceClass) {
+    String applicationTitle = getApplicationTitle(sourceClass);
+    Map<String, Object> titleMap = Collections.singletonMap("app.title",
+            (applicationTitle != null) ? applicationTitle : "");
+    return new MapPropertySource("title", titleMap);
   }
 
   protected String getApplicationVersion(@Nullable Class<?> sourceClass) {
@@ -125,19 +129,8 @@ public class ResourceBanner implements Banner {
     return format ? " (v" + version + ")" : version;
   }
 
-  private PropertyResolver getAnsiResolver() {
-    PropertySources sources = new PropertySources();
-    sources.addFirst(new AnsiPropertySource("ansi", true));
-    return new PropertySourcesPropertyResolver(sources);
-  }
-
-  private PropertyResolver getTitleResolver(Class<?> sourceClass) {
-    PropertySources sources = new PropertySources();
-    String applicationTitle = getApplicationTitle(sourceClass);
-    Map<String, Object> titleMap = Collections.singletonMap("app.title",
-            (applicationTitle != null) ? applicationTitle : "");
-    sources.addFirst(new MapPropertySource("title", titleMap));
-    return new PropertySourcesPropertyResolver(sources);
+  private AnsiPropertySource getAnsiPropertySource() {
+    return new AnsiPropertySource("ansi", true);
   }
 
   protected String getApplicationTitle(@Nullable Class<?> sourceClass) {
