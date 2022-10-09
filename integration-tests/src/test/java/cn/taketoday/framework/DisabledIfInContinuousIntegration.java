@@ -20,16 +20,63 @@
 
 package cn.taketoday.framework;
 
-import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
-import org.junit.jupiter.api.condition.DisabledIfSystemProperty;
+import org.junit.jupiter.api.extension.ConditionEvaluationResult;
+import org.junit.jupiter.api.extension.ExtendWith;
+
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+
+import static org.junit.jupiter.api.extension.ConditionEvaluationResult.disabled;
+import static org.junit.jupiter.api.extension.ConditionEvaluationResult.enabled;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/10/9 23:19
  */
-@DisabledIfSystemProperty(named = "CI", matches = "true")
-@DisabledIfEnvironmentVariable(named = "CI", matches = "true")
+@Documented
+@Target({ ElementType.TYPE, ElementType.METHOD })
+@Retention(RetentionPolicy.RUNTIME)
+@ExtendWith(DisabledIfInContinuousIntegrationCondition.class)
 public @interface DisabledIfInContinuousIntegration {
 
   String disabledReason() default "";
 }
+
+class DisabledIfInContinuousIntegrationCondition
+        extends AbstractRepeatableAnnotationCondition<DisabledIfInContinuousIntegration> {
+
+  private static final ConditionEvaluationResult ENABLED = ConditionEvaluationResult.enabled(
+          "No @DisabledIfInContinuousIntegration conditions resulting in 'disabled' execution encountered");
+
+  public static final String KEY = "CI";
+  public static final String VALUE = "true";
+
+  DisabledIfInContinuousIntegrationCondition() {
+    super(DisabledIfInContinuousIntegration.class);
+  }
+
+  @Override
+  protected ConditionEvaluationResult getNoDisabledConditionsEncounteredResult() {
+    return ENABLED;
+  }
+
+  @Override
+  protected ConditionEvaluationResult evaluate(DisabledIfInContinuousIntegration annotation) {
+    String property = System.getProperty(KEY);
+    if (property != null) {
+      property = System.getenv(KEY);
+    }
+
+    if (VALUE.equals(property)) {
+      return disabled("Running in a CI Environment",
+              annotation.disabledReason());
+    }
+    // else
+    return enabled("Not In CI Environment");
+  }
+
+}
+
