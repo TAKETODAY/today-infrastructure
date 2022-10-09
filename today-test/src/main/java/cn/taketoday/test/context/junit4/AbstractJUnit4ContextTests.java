@@ -30,7 +30,6 @@ import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.test.context.ContextConfiguration;
 import cn.taketoday.test.context.TestContext;
 import cn.taketoday.test.context.TestContextManager;
-import cn.taketoday.test.context.TestExecutionListener;
 import cn.taketoday.test.context.TestExecutionListeners;
 import cn.taketoday.test.context.event.ApplicationEventsTestExecutionListener;
 import cn.taketoday.test.context.event.EventPublishingTestExecutionListener;
@@ -50,23 +49,7 @@ import cn.taketoday.test.context.web.ServletTestExecutionListener;
  * {@link ContextConfiguration @ContextConfiguration} annotation to
  * configure the {@linkplain ApplicationContext application context} {@linkplain
  * ContextConfiguration#locations() resource locations} or {@linkplain
- * ContextConfiguration#classes() component classes}. <em>If your test does not
- * need to load an application context, you may choose to omit the
- * {@link ContextConfiguration @ContextConfiguration} declaration and to configure
- * the appropriate {@link TestExecutionListener
- * TestExecutionListeners} manually.</em>
- *
- * <p>The following {@link TestExecutionListener
- * TestExecutionListeners} are configured by default:
- *
- * <ul>
- * <li>{@link ServletTestExecutionListener}
- * <li>{@link DirtiesContextBeforeModesTestExecutionListener}
- * <li>{@link ApplicationEventsTestExecutionListener}
- * <li>{@link DependencyInjectionTestExecutionListener}
- * <li>{@link DirtiesContextTestExecutionListener}
- * <li>{@link EventPublishingTestExecutionListener}
- * </ul>
+ * ContextConfiguration#classes() component classes}.
  *
  * <p>This class serves only as a convenience for extension.
  * <ul>

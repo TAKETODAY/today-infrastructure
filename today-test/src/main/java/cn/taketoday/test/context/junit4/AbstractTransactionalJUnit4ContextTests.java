@@ -33,7 +33,6 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.test.annotation.Commit;
 import cn.taketoday.test.annotation.Rollback;
 import cn.taketoday.test.context.ContextConfiguration;
-import cn.taketoday.test.context.TestExecutionListener;
 import cn.taketoday.test.context.TestExecutionListeners;
 import cn.taketoday.test.context.event.ApplicationEventsTestExecutionListener;
 import cn.taketoday.test.context.event.EventPublishingTestExecutionListener;
@@ -67,20 +66,6 @@ import cn.taketoday.transaction.annotation.Transactional;
  *
  * <p>Concrete subclasses must fulfill the same requirements outlined in
  * {@link AbstractJUnit4ContextTests}.
- *
- * <p>The following {@link TestExecutionListener
- * TestExecutionListeners} are configured by default:
- *
- * <ul>
- * <li>{@link ServletTestExecutionListener}
- * <li>{@link DirtiesContextBeforeModesTestExecutionListener}
- * <li>{@link ApplicationEventsTestExecutionListener}</li>
- * <li>{@link DependencyInjectionTestExecutionListener}
- * <li>{@link DirtiesContextTestExecutionListener}
- * <li>{@link TransactionalTestExecutionListener}
- * <li>{@link SqlScriptsTestExecutionListener}
- * <li>{@link EventPublishingTestExecutionListener}
- * </ul>
  *
  * <p>This class serves only as a convenience for extension.
  * <ul>
