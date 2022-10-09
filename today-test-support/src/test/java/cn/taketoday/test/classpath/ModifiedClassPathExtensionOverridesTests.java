@@ -23,7 +23,6 @@ package cn.taketoday.test.classpath;
 import org.junit.jupiter.api.Test;
 
 import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.util.StringUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -32,19 +31,13 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  * @author Christoph Dreis
  */
-@ClassPathOverrides("cn.taketoday:today-context:4.0.0-Draft.1")
+@ClassPathOverrides("cn.taketoday:today-context:3.0.5.RELEASE")
 class ModifiedClassPathExtensionOverridesTests {
 
   @Test
   void classesAreLoadedFromOverride() {
     assertThat(ApplicationContext.class.getProtectionDomain().getCodeSource().getLocation().toString())
-            .endsWith("today-context-4.0.0-Draft.1.jar");
-  }
-
-  @Test
-  void classesAreLoadedFromTransitiveDependencyOfOverride() {
-    assertThat(StringUtils.class.getProtectionDomain().getCodeSource().getLocation().toString())
-            .endsWith("today-core-4.0.0-Draft.1.jar");
+            .endsWith("today-context-3.0.5.RELEASE.jar");
   }
 
 }
