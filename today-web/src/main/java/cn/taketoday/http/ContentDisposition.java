@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -17,6 +17,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.http;
 
 import java.io.ByteArrayOutputStream;
@@ -27,6 +28,7 @@ import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -42,8 +44,6 @@ import static java.time.format.DateTimeFormatter.RFC_1123_DATE_TIME;
 
 /**
  * Represent the Content-Disposition type and parameters as defined in RFC 6266.
- * <p>
- * From Spring
  *
  * @author Sebastien Deleuze
  * @author Juergen Hoeller
@@ -108,21 +108,21 @@ public final class ContentDisposition {
    * Return whether the {@link #getType() type} is {@literal "attachment"}.
    */
   public boolean isAttachment() {
-    return (this.type != null && this.type.equalsIgnoreCase("attachment"));
+    return type != null && type.equalsIgnoreCase("attachment");
   }
 
   /**
    * Return whether the {@link #getType() type} is {@literal "form-data"}.
    */
   public boolean isFormData() {
-    return (this.type != null && this.type.equalsIgnoreCase("form-data"));
+    return type != null && type.equalsIgnoreCase("form-data");
   }
 
   /**
    * Return whether the {@link #getType() type} is {@literal "inline"}.
    */
   public boolean isInline() {
-    return (this.type != null && this.type.equalsIgnoreCase("inline"));
+    return type != null && type.equalsIgnoreCase("inline");
   }
 
   /**
@@ -165,12 +165,7 @@ public final class ContentDisposition {
 
   /**
    * Return the value of the {@literal size} parameter, or {@code null} if not defined.
-   *
-   * @deprecated since 5.2.3 as per
-   * <a href="https://tools.ietf.org/html/rfc6266#appendix-B">RFC 6266, Appendix B</a>,
-   * to be removed in a future release.
    */
-  @Deprecated
   @Nullable
   public Long getSize() {
     return this.size;
@@ -178,12 +173,7 @@ public final class ContentDisposition {
 
   /**
    * Return the value of the {@literal creation-date} parameter, or {@code null} if not defined.
-   *
-   * @deprecated since 5.2.3 as per
-   * <a href="https://tools.ietf.org/html/rfc6266#appendix-B">RFC 6266, Appendix B</a>,
-   * to be removed in a future release.
    */
-  @Deprecated
   @Nullable
   public ZonedDateTime getCreationDate() {
     return this.creationDate;
@@ -191,12 +181,7 @@ public final class ContentDisposition {
 
   /**
    * Return the value of the {@literal modification-date} parameter, or {@code null} if not defined.
-   *
-   * @deprecated since 5.2.3 as per
-   * <a href="https://tools.ietf.org/html/rfc6266#appendix-B">RFC 6266, Appendix B</a>,
-   * to be removed in a future release.
    */
-  @Deprecated
   @Nullable
   public ZonedDateTime getModificationDate() {
     return this.modificationDate;
@@ -204,12 +189,7 @@ public final class ContentDisposition {
 
   /**
    * Return the value of the {@literal read-date} parameter, or {@code null} if not defined.
-   *
-   * @deprecated since 5.2.3 as per
-   * <a href="https://tools.ietf.org/html/rfc6266#appendix-B">RFC 6266, Appendix B</a>,
-   * to be removed in a future release.
    */
-  @Deprecated
   @Nullable
   public ZonedDateTime getReadDate() {
     return this.readDate;
@@ -220,17 +200,17 @@ public final class ContentDisposition {
     if (this == other) {
       return true;
     }
-    if (!(other instanceof ContentDisposition otherCd)) {
-      return false;
+    if (other instanceof ContentDisposition otherCd) {
+      return Objects.equals(this.type, otherCd.type)
+              && Objects.equals(this.name, otherCd.name)
+              && Objects.equals(this.filename, otherCd.filename)
+              && Objects.equals(this.charset, otherCd.charset)
+              && Objects.equals(this.size, otherCd.size)
+              && Objects.equals(this.creationDate, otherCd.creationDate)
+              && Objects.equals(this.modificationDate, otherCd.modificationDate)
+              && Objects.equals(this.readDate, otherCd.readDate);
     }
-    return (ObjectUtils.nullSafeEquals(this.type, otherCd.type) &&
-            ObjectUtils.nullSafeEquals(this.name, otherCd.name) &&
-            ObjectUtils.nullSafeEquals(this.filename, otherCd.filename) &&
-            ObjectUtils.nullSafeEquals(this.charset, otherCd.charset) &&
-            ObjectUtils.nullSafeEquals(this.size, otherCd.size) &&
-            ObjectUtils.nullSafeEquals(this.creationDate, otherCd.creationDate) &&
-            ObjectUtils.nullSafeEquals(this.modificationDate, otherCd.modificationDate) &&
-            ObjectUtils.nullSafeEquals(this.readDate, otherCd.readDate));
+    return false;
   }
 
   @Override
@@ -322,7 +302,7 @@ public final class ContentDisposition {
    * @return the builder
    */
   public static Builder builder(String type) {
-    return new BuilderImpl(type);
+    return new Builder(type);
   }
 
   /**
@@ -354,13 +334,13 @@ public final class ContentDisposition {
       int eqIndex = part.indexOf('=');
       if (eqIndex != -1) {
         String attribute = part.substring(0, eqIndex);
-        String value = (part.startsWith("\"", eqIndex + 1) && part.endsWith("\"") ?
-                        part.substring(eqIndex + 2, part.length() - 1) :
-                        part.substring(eqIndex + 1));
-        if (attribute.equals("name")) {
+        String value = part.startsWith("\"", eqIndex + 1) && part.endsWith("\"")
+                       ? part.substring(eqIndex + 2, part.length() - 1)
+                       : part.substring(eqIndex + 1);
+        if ("name".equals(attribute)) {
           name = value;
         }
-        else if (attribute.equals("filename*")) {
+        else if ("filename*".equals(attribute)) {
           int idx1 = value.indexOf('\'');
           int idx2 = value.indexOf('\'', idx1 + 1);
           if (idx1 != -1 && idx2 != -1) {
@@ -374,7 +354,7 @@ public final class ContentDisposition {
             filename = decodeFilename(value, StandardCharsets.US_ASCII);
           }
         }
-        else if (attribute.equals("filename") && (filename == null)) {
+        else if ("filename".equals(attribute) && (filename == null)) {
           if (value.startsWith("=?")) {
             Matcher matcher = BASE64_ENCODED_PATTERN.matcher(value);
             if (matcher.find()) {
@@ -414,32 +394,17 @@ public final class ContentDisposition {
             filename = value;
           }
         }
-        else if (attribute.equals("size")) {
+        else if ("size".equals(attribute)) {
           size = Long.parseLong(value);
         }
-        else if (attribute.equals("creation-date")) {
-          try {
-            creationDate = ZonedDateTime.parse(value, RFC_1123_DATE_TIME);
-          }
-          catch (DateTimeParseException ex) {
-            // ignore
-          }
+        else if ("creation-date".equals(attribute)) {
+          creationDate = parseZonedDateTime(value);
         }
-        else if (attribute.equals("modification-date")) {
-          try {
-            modificationDate = ZonedDateTime.parse(value, RFC_1123_DATE_TIME);
-          }
-          catch (DateTimeParseException ex) {
-            // ignore
-          }
+        else if ("modification-date".equals(attribute)) {
+          modificationDate = parseZonedDateTime(value);
         }
-        else if (attribute.equals("read-date")) {
-          try {
-            readDate = ZonedDateTime.parse(value, RFC_1123_DATE_TIME);
-          }
-          catch (DateTimeParseException ex) {
-            // ignore
-          }
+        else if ("read-date".equals(attribute)) {
+          readDate = parseZonedDateTime(value);
         }
       }
       else {
@@ -449,20 +414,31 @@ public final class ContentDisposition {
     return new ContentDisposition(type, name, filename, charset, size, creationDate, modificationDate, readDate);
   }
 
+  private static ZonedDateTime parseZonedDateTime(String value) {
+    try {
+      return ZonedDateTime.parse(value, RFC_1123_DATE_TIME);
+    }
+    catch (DateTimeParseException ex) {
+      // ignore
+    }
+    return null;
+  }
+
   private static List<String> tokenize(String headerValue) {
     int index = headerValue.indexOf(';');
     String type = (index >= 0 ? headerValue.substring(0, index) : headerValue).trim();
     if (type.isEmpty()) {
       throw new IllegalArgumentException("Content-Disposition header must not be empty");
     }
-    List<String> parts = new ArrayList<>();
+    ArrayList<String> parts = new ArrayList<>();
     parts.add(type);
     if (index >= 0) {
+      int headerLength = headerValue.length();
       do {
         int nextIndex = index + 1;
         boolean quoted = false;
         boolean escaped = false;
-        while (nextIndex < headerValue.length()) {
+        while (nextIndex < headerLength) {
           char ch = headerValue.charAt(nextIndex);
           if (ch == ';') {
             if (!quoted) {
@@ -481,7 +457,7 @@ public final class ContentDisposition {
         }
         index = nextIndex;
       }
-      while (index < headerValue.length());
+      while (index < headerLength);
     }
     return parts;
   }
@@ -496,8 +472,6 @@ public final class ContentDisposition {
    * @see <a href="https://tools.ietf.org/html/rfc5987">RFC 5987</a>
    */
   private static String decodeFilename(String filename, Charset charset) {
-    Assert.notNull(filename, "'input' String` should not be null");
-    Assert.notNull(charset, "'charset' should not be null");
     byte[] value = filename.getBytes(charset);
     ByteArrayOutputStream baos = new ByteArrayOutputStream();
     int index = 0;
@@ -525,9 +499,21 @@ public final class ContentDisposition {
   }
 
   private static boolean isRFC5987AttrChar(byte c) {
-    return (c >= '0' && c <= '9') || (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') ||
-            c == '!' || c == '#' || c == '$' || c == '&' || c == '+' || c == '-' ||
-            c == '.' || c == '^' || c == '_' || c == '`' || c == '|' || c == '~';
+    return (c >= '0' && c <= '9')
+            || (c >= 'a' && c <= 'z')
+            || (c >= 'A' && c <= 'Z')
+            || c == '!'
+            || c == '#'
+            || c == '$'
+            || c == '&'
+            || c == '+'
+            || c == '-'
+            || c == '.'
+            || c == '^'
+            || c == '_'
+            || c == '`'
+            || c == '|'
+            || c == '~';
   }
 
   /**
@@ -539,9 +525,6 @@ public final class ContentDisposition {
    * @see <a href="https://tools.ietf.org/html/rfc2047">RFC 2047</a>
    */
   private static String decodeQuotedPrintableFilename(String filename, Charset charset) {
-    Assert.notNull(filename, "'input' String` should not be null");
-    Assert.notNull(charset, "'charset' should not be null");
-
     byte[] value = filename.getBytes(US_ASCII);
     ByteArrayOutputStream baos = new ByteArrayOutputStream();
     int index = 0;
@@ -573,7 +556,8 @@ public final class ContentDisposition {
       return filename;
     }
     StringBuilder sb = new StringBuilder();
-    for (int i = 0; i < filename.length(); i++) {
+    int length = filename.length();
+    for (int i = 0; i < length; i++) {
       char c = filename.charAt(i);
       if (c == '"' || c == '\\') {
         sb.append('\\');
@@ -588,7 +572,7 @@ public final class ContentDisposition {
     int length = filename.length();
     for (int i = 0; i < length; i++) {
       char c = filename.charAt(i);
-      if (filename.charAt(i) == '\\' && i + 1 < length) {
+      if (c == '\\' && i + 1 < length) {
         i++;
         sb.append(filename.charAt(i));
       }
@@ -609,13 +593,10 @@ public final class ContentDisposition {
    * @see <a href="https://tools.ietf.org/html/rfc5987">RFC 5987</a>
    */
   private static String encodeFilename(String input, Charset charset) {
-    Assert.notNull(input, "`input` is required");
-    Assert.notNull(charset, "`charset` is required");
     Assert.isTrue(!StandardCharsets.US_ASCII.equals(charset), "ASCII does not require encoding");
     Assert.isTrue(UTF_8.equals(charset) || ISO_8859_1.equals(charset), "Only UTF-8 and ISO-8859-1 supported.");
     byte[] source = input.getBytes(charset);
-    int len = source.length;
-    StringBuilder sb = new StringBuilder(len << 1);
+    StringBuilder sb = new StringBuilder(source.length << 1);
     sb.append(charset.name());
     sb.append("''");
     for (byte b : source) {
@@ -636,80 +617,7 @@ public final class ContentDisposition {
   /**
    * A mutable builder for {@code ContentDisposition}.
    */
-  public interface Builder {
-
-    /**
-     * Set the value of the {@literal name} parameter.
-     */
-    Builder name(String name);
-
-    /**
-     * Set the value of the {@literal filename} parameter. The given
-     * filename will be formatted as quoted-string, as defined in RFC 2616,
-     * section 2.2, and any quote characters within the filename value will
-     * be escaped with a backslash, e.g. {@code "foo\"bar.txt"} becomes
-     * {@code "foo\\\"bar.txt"}.
-     */
-    Builder filename(String filename);
-
-    /**
-     * Set the value of the {@code filename} that will be encoded as
-     * defined in RFC 5987. Only the US-ASCII, UTF-8, and ISO-8859-1
-     * charsets are supported.
-     * <p><strong>Note:</strong> Do not use this for a
-     * {@code "multipart/form-data"} request since
-     * <a href="https://tools.ietf.org/html/rfc7578#section-4.2">RFC 7578, Section 4.2</a>
-     * and also RFC 5987 mention it does not apply to multipart requests.
-     */
-    Builder filename(String filename, Charset charset);
-
-    /**
-     * Set the value of the {@literal size} parameter.
-     *
-     * @deprecated as per
-     * <a href="https://tools.ietf.org/html/rfc6266#appendix-B">RFC 6266, Appendix B</a>,
-     * to be removed in a future release.
-     */
-    @Deprecated
-    Builder size(Long size);
-
-    /**
-     * Set the value of the {@literal creation-date} parameter.
-     *
-     * @deprecated as per
-     * <a href="https://tools.ietf.org/html/rfc6266#appendix-B">RFC 6266, Appendix B</a>,
-     * to be removed in a future release.
-     */
-    @Deprecated
-    Builder creationDate(ZonedDateTime creationDate);
-
-    /**
-     * Set the value of the {@literal modification-date} parameter.
-     *
-     * @deprecated as per
-     * <a href="https://tools.ietf.org/html/rfc6266#appendix-B">RFC 6266, Appendix B</a>,
-     * to be removed in a future release.
-     */
-    @Deprecated
-    Builder modificationDate(ZonedDateTime modificationDate);
-
-    /**
-     * Set the value of the {@literal read-date} parameter.
-     *
-     * @deprecated as per
-     * <a href="https://tools.ietf.org/html/rfc6266#appendix-B">RFC 6266, Appendix B</a>,
-     * to be removed in a future release.
-     */
-    @Deprecated
-    Builder readDate(ZonedDateTime readDate);
-
-    /**
-     * Build the content disposition.
-     */
-    ContentDisposition build();
-  }
-
-  private static class BuilderImpl implements Builder {
+  public static class Builder {
 
     private final String type;
 
@@ -734,25 +642,41 @@ public final class ContentDisposition {
     @Nullable
     private ZonedDateTime readDate;
 
-    public BuilderImpl(String type) {
+    public Builder(String type) {
       Assert.hasText(type, "'type' must not be not empty");
       this.type = type;
     }
 
-    @Override
+    /**
+     * Set the value of the {@literal name} parameter.
+     */
     public Builder name(String name) {
       this.name = name;
       return this;
     }
 
-    @Override
+    /**
+     * Set the value of the {@literal filename} parameter. The given
+     * filename will be formatted as quoted-string, as defined in RFC 2616,
+     * section 2.2, and any quote characters within the filename value will
+     * be escaped with a backslash, e.g. {@code "foo\"bar.txt"} becomes
+     * {@code "foo\\\"bar.txt"}.
+     */
     public Builder filename(String filename) {
       Assert.hasText(filename, "No filename");
       this.filename = filename;
       return this;
     }
 
-    @Override
+    /**
+     * Set the value of the {@code filename} that will be encoded as
+     * defined in RFC 5987. Only the US-ASCII, UTF-8, and ISO-8859-1
+     * charsets are supported.
+     * <p><strong>Note:</strong> Do not use this for a
+     * {@code "multipart/form-data"} request since
+     * <a href="https://tools.ietf.org/html/rfc7578#section-4.2">RFC 7578, Section 4.2</a>
+     * and also RFC 5987 mention it does not apply to multipart requests.
+     */
     public Builder filename(String filename, Charset charset) {
       Assert.hasText(filename, "No filename");
       this.filename = filename;
@@ -760,39 +684,46 @@ public final class ContentDisposition {
       return this;
     }
 
-    @Override
-    @SuppressWarnings("deprecation")
+    /**
+     * Set the value of the {@literal size} parameter.
+     */
     public Builder size(Long size) {
       this.size = size;
       return this;
     }
 
-    @Override
-    @SuppressWarnings("deprecation")
+    /**
+     * Set the value of the {@literal creation-date} parameter.
+     */
     public Builder creationDate(ZonedDateTime creationDate) {
       this.creationDate = creationDate;
       return this;
     }
 
-    @Override
-    @SuppressWarnings("deprecation")
+    /**
+     * Set the value of the {@literal modification-date} parameter.
+     */
     public Builder modificationDate(ZonedDateTime modificationDate) {
       this.modificationDate = modificationDate;
       return this;
     }
 
-    @Override
-    @SuppressWarnings("deprecation")
+    /**
+     * Set the value of the {@literal read-date} parameter.
+     */
     public Builder readDate(ZonedDateTime readDate) {
       this.readDate = readDate;
       return this;
     }
 
-    @Override
+    /**
+     * Build the content disposition.
+     */
     public ContentDisposition build() {
       return new ContentDisposition(this.type, this.name, this.filename, this.charset,
               this.size, this.creationDate, this.modificationDate, this.readDate);
     }
+
   }
 
 }

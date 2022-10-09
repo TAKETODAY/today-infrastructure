@@ -43,7 +43,6 @@ public class ContentDispositionTests {
   private static final DateTimeFormatter formatter = DateTimeFormatter.RFC_1123_DATE_TIME;
 
   @Test
-  @SuppressWarnings("deprecation")
   void parse() {
     assertThat(parse("form-data; name=\"foo\"; filename=\"foo.txt\"; size=123"))
             .isEqualTo(ContentDisposition.formData()
@@ -178,7 +177,6 @@ public class ContentDispositionTests {
   }
 
   @Test
-  @SuppressWarnings("deprecation")
   void parseWithExtraSemicolons() {
     assertThat(parse("form-data; name=\"foo\";; ; filename=\"foo.txt\"; size=123"))
             .isEqualTo(ContentDisposition.formData()
@@ -189,7 +187,6 @@ public class ContentDispositionTests {
   }
 
   @Test
-  @SuppressWarnings("deprecation")
   void parseDates() {
     ZonedDateTime creationTime = ZonedDateTime.parse("Mon, 12 Feb 2007 10:15:30 -0500", formatter);
     ZonedDateTime modificationTime = ZonedDateTime.parse("Tue, 13 Feb 2007 10:15:30 -0500", formatter);
@@ -208,7 +205,6 @@ public class ContentDispositionTests {
   }
 
   @Test
-  @SuppressWarnings("deprecation")
   void parseIgnoresInvalidDates() {
     ZonedDateTime readTime = ZonedDateTime.parse("Wed, 14 Feb 2007 10:15:30 -0500", formatter);
 
@@ -242,7 +238,6 @@ public class ContentDispositionTests {
   }
 
   @Test
-  @SuppressWarnings("deprecation")
   void format() {
     assertThat(
             ContentDisposition.formData()
