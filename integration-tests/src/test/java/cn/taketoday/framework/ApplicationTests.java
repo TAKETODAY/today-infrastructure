@@ -24,7 +24,6 @@ import org.assertj.core.api.Condition;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.ArgumentMatcher;
@@ -213,7 +212,7 @@ class ApplicationTests {
   }
 
   @Test
-  @DisabledIfEnvironmentVariable(named = "CI", matches = "true", disabledReason = "out stream problem")
+  @DisabledIfInContinuousIntegration(disabledReason = "out stream problem")
   void logsActiveProfilesWithoutProfileAndSingleDefault(CapturedOutput output) {
     Application application = new Application(ExampleConfig.class);
     application.setApplicationType(ApplicationType.NONE_WEB);
@@ -222,7 +221,7 @@ class ApplicationTests {
   }
 
   @Test
-  @DisabledIfEnvironmentVariable(named = "CI", matches = "true", disabledReason = "out stream problem")
+  @DisabledIfInContinuousIntegration(disabledReason = "out stream problem")
   void logsActiveProfilesWithoutProfileAndMultipleDefaults(CapturedOutput output) {
     MockEnvironment environment = new MockEnvironment();
     environment.setDefaultProfiles("p0,p1", "default");
@@ -235,7 +234,7 @@ class ApplicationTests {
   }
 
   @Test
-  @DisabledIfEnvironmentVariable(named = "CI", matches = "true", disabledReason = "out stream problem")
+  @DisabledIfInContinuousIntegration(disabledReason = "out stream problem")
   void logsActiveProfilesWithSingleProfile(CapturedOutput output) {
     Application application = new Application(ExampleConfig.class);
     application.setApplicationType(ApplicationType.NONE_WEB);
@@ -244,7 +243,7 @@ class ApplicationTests {
   }
 
   @Test
-  @DisabledIfEnvironmentVariable(named = "CI", matches = "true", disabledReason = "out stream problem")
+  @DisabledIfInContinuousIntegration(disabledReason = "out stream problem")
   void logsActiveProfilesWithMultipleProfiles(CapturedOutput output) {
     Application application = new Application(ExampleConfig.class);
     application.setApplicationType(ApplicationType.NONE_WEB);
@@ -627,7 +626,7 @@ class ApplicationTests {
 
   @Test
   @SuppressWarnings("unchecked")
-  @DisabledIfEnvironmentVariable(named = "CI", matches = "true", disabledReason = "out stream problem")
+  @DisabledIfInContinuousIntegration(disabledReason = "out stream problem")
   void runnersAreCalledAfterStartedIsLoggedAndBeforeApplicationReadyEventIsPublished(
           CapturedOutput output) throws Exception {
     Application application = new Application(ExampleConfig.class);
