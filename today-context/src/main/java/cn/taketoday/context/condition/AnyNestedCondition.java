@@ -23,6 +23,7 @@ package cn.taketoday.context.condition;
 import java.util.ArrayList;
 import java.util.List;
 
+import cn.taketoday.context.annotation.Condition;
 import cn.taketoday.core.Ordered;
 
 /**

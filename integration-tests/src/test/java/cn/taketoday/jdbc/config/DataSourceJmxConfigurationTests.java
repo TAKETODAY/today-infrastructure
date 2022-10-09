@@ -26,6 +26,8 @@ import org.apache.tomcat.jdbc.pool.DataSource;
 import org.apache.tomcat.jdbc.pool.DataSourceProxy;
 import org.apache.tomcat.jdbc.pool.jmx.ConnectionPool;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ExecutionMode;
 
 import java.lang.management.ManagementFactory;
 import java.util.Set;
@@ -53,6 +55,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Stephane Nicoll
  * @author Tadaya Tsuyukubo
  */
+@Execution(ExecutionMode.SAME_THREAD)
 class DataSourceJmxConfigurationTests {
 
   private final ApplicationContextRunner contextRunner = new ApplicationContextRunner()
@@ -151,7 +154,8 @@ class DataSourceJmxConfigurationTests {
 
   @Test
   void tomcatAutoConfiguredCanExposeMBeanPool() {
-    this.contextRunner.withPropertyValues("datasource.type=" + DataSource.class.getName(),
+    this.contextRunner.withPropertyValues(
+            "datasource.type=" + DataSource.class.getName(),
             "datasource.tomcat.jmx-enabled=true").run((context) -> {
       assertThat(context).hasBean("dataSourceMBean");
       assertThat(context).hasSingleBean(ConnectionPool.class);
