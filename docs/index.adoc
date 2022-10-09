@@ -1,5 +1,5 @@
 :noheader:
-= TODAY Framework 文档
+= TODAY Infrastructure 文档
 
 [horizontal]
 <<overview.adoc#overview, Overview>> :: getting started.
