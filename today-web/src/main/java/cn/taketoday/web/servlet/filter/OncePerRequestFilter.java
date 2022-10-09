@@ -94,32 +94,31 @@ public abstract class OncePerRequestFilter extends GenericFilterBean {
       throw new ServletException("OncePerRequestFilter just supports HTTP requests");
     }
 
-    HttpServletResponse httpResponse = (HttpServletResponse) response;
-    String alreadyFilteredAttributeName = getAlreadyFilteredAttributeName();
-    boolean hasAlreadyFilteredAttribute = request.getAttribute(alreadyFilteredAttributeName) != null;
-
     if (skipDispatch(httpRequest) || shouldNotFilter(httpRequest)) {
       // Proceed without invoking this filter...
       filterChain.doFilter(request, response);
     }
-    else if (hasAlreadyFilteredAttribute) {
-      if (DispatcherType.ERROR.equals(request.getDispatcherType())) {
-        doFilterNestedErrorDispatch(httpRequest, httpResponse, filterChain);
-        return;
-      }
-
-      // Proceed without invoking this filter...
-      filterChain.doFilter(request, response);
-    }
     else {
-      // Do invoke this filter...
-      request.setAttribute(alreadyFilteredAttributeName, Boolean.TRUE);
-      try {
-        doFilterInternal(httpRequest, httpResponse, filterChain);
+      String alreadyFilteredAttributeName = getAlreadyFilteredAttributeName();
+      if (request.getAttribute(alreadyFilteredAttributeName) != null) {
+        if (DispatcherType.ERROR == request.getDispatcherType()) {
+          doFilterNestedErrorDispatch(httpRequest, (HttpServletResponse) response, filterChain);
+        }
+        else {
+          // Proceed without invoking this filter...
+          filterChain.doFilter(request, response);
+        }
       }
-      finally {
-        // Remove the "already filtered" request attribute for this request.
-        request.removeAttribute(alreadyFilteredAttributeName);
+      else {
+        // Do invoke this filter...
+        request.setAttribute(alreadyFilteredAttributeName, Boolean.TRUE);
+        try {
+          doFilterInternal(httpRequest, (HttpServletResponse) response, filterChain);
+        }
+        finally {
+          // Remove the "already filtered" request attribute for this request.
+          request.removeAttribute(alreadyFilteredAttributeName);
+        }
       }
     }
   }
@@ -228,9 +227,8 @@ public abstract class OncePerRequestFilter extends GenericFilterBean {
    * <p>Provides HttpServletRequest and HttpServletResponse arguments instead of the
    * default ServletRequest and ServletResponse ones.
    */
-  protected abstract void doFilterInternal(
-          HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
-          throws ServletException, IOException;
+  protected abstract void doFilterInternal(HttpServletRequest request,
+          HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException;
 
   /**
    * Typically an ERROR dispatch happens after the REQUEST dispatch completes,
@@ -244,10 +242,8 @@ public abstract class OncePerRequestFilter extends GenericFilterBean {
    * context, if any, should still be active as we are still nested within
    * the filter chain.
    */
-  protected void doFilterNestedErrorDispatch(
-          HttpServletRequest request,
-          HttpServletResponse response,
-          FilterChain filterChain) throws ServletException, IOException {
+  protected void doFilterNestedErrorDispatch(HttpServletRequest request,
+          HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
 
     filterChain.doFilter(request, response);
   }
