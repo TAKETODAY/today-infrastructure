@@ -22,7 +22,6 @@ package cn.taketoday.http.codec.multipart;
 
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
@@ -40,6 +39,7 @@ import cn.taketoday.http.ContentDisposition;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.MediaType;
 import cn.taketoday.http.server.reactive.MockServerHttpRequest;
+import cn.taketoday.web.DisabledIfInContinuousIntegration;
 import io.netty.buffer.PooledByteBufAllocator;
 import reactor.core.publisher.Flux;
 import reactor.test.StepVerifier;
@@ -54,7 +54,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/4/22 9:47
  */
-@DisabledIfEnvironmentVariable(named = "CI", matches = "true", disabledReason = "file CRLF problem")
+@DisabledIfInContinuousIntegration(disabledReason = "file CRLF problem")
 class PartEventHttpMessageReaderTests {
 
   private static final int BUFFER_SIZE = 64;
