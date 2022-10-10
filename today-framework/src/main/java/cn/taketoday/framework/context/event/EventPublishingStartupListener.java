@@ -128,8 +128,8 @@ public class EventPublishingStartupListener implements ApplicationStartupListene
     else {
       // An inactive context may not have a multicaster so we use our multicaster to
       // call all the context's listeners instead
-      if (context instanceof AbstractApplicationContext abstractApplicationContext) {
-        for (ApplicationListener<?> listener : abstractApplicationContext.getApplicationListeners()) {
+      if (context instanceof AbstractApplicationContext aaCtx) {
+        for (ApplicationListener<?> listener : aaCtx.getApplicationListeners()) {
           initialMulticaster.addApplicationListener(listener);
         }
       }
@@ -144,15 +144,26 @@ public class EventPublishingStartupListener implements ApplicationStartupListene
   }
 
   private void refreshApplicationListeners() {
-    application.getListeners().forEach(initialMulticaster::addApplicationListener);
+    for (ApplicationListener<?> listener : application.getListeners()) {
+      initialMulticaster.addApplicationListener(listener);
+    }
   }
 
   private static class LoggingErrorHandler implements ErrorHandler {
-
-    private static final Logger logger = LoggerFactory.getLogger(EventPublishingStartupListener.class);
+    private volatile Logger logger;
 
     @Override
     public void handleError(Throwable throwable) {
+      Logger logger = this.logger;
+      if (logger == null) {
+        synchronized(this) {
+          logger = this.logger;
+          if (logger == null) {
+            logger = LoggerFactory.getLogger(EventPublishingStartupListener.class);
+            this.logger = logger;
+          }
+        }
+      }
       logger.warn("Error calling ApplicationEventListener", throwable);
     }
 
