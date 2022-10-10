@@ -58,7 +58,7 @@ class DisabledIfInContinuousIntegrationCondition implements ExecutionCondition {
             .map(element -> element.getAnnotation(DisabledIfInContinuousIntegration.class))
             .map(annotation -> {
               String property = System.getProperty(KEY);
-              if (property != null) {
+              if (property == null) {
                 property = System.getenv(KEY);
               }
 
