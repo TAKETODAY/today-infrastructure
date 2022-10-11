@@ -46,7 +46,7 @@ import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 
 /**
- * Register a {@link InfraApplicationMBean} implementation to the platform
+ * Register a {@link InfraApplicationMXBean} implementation to the platform
  * {@link MBeanServer}.
  *
  * @author Stephane Nicoll
@@ -57,7 +57,7 @@ import cn.taketoday.logging.LoggerFactory;
 public class InfraApplicationMXBeanRegistrar implements ApplicationContextAware,
         GenericApplicationListener, EnvironmentAware, InitializingBean, DisposableBean {
 
-  private static final Logger logger = LoggerFactory.getLogger(InfraApplicationMXBeanRegistrar.class);
+  private final Logger logger = LoggerFactory.getLogger(getClass());
 
   private ConfigurableApplicationContext applicationContext;
 
@@ -130,7 +130,7 @@ public class InfraApplicationMXBeanRegistrar implements ApplicationContextAware,
   @Override
   public void afterPropertiesSet() throws Exception {
     MBeanServer server = ManagementFactory.getPlatformMBeanServer();
-    server.registerMBean(new ApplicationMBeanImpl(), this.objectName);
+    server.registerMBean(new ApplicationMXBeanImpl(), this.objectName);
     if (logger.isDebugEnabled()) {
       logger.debug("Application Admin MBean registered with name '{}'", objectName);
     }
@@ -141,7 +141,7 @@ public class InfraApplicationMXBeanRegistrar implements ApplicationContextAware,
     ManagementFactory.getPlatformMBeanServer().unregisterMBean(this.objectName);
   }
 
-  private class ApplicationMBeanImpl implements InfraApplicationMBean {
+  private class ApplicationMXBeanImpl implements InfraApplicationMXBean {
 
     @Override
     public boolean isReady() {

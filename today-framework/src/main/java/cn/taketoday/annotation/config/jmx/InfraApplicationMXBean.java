@@ -20,6 +20,8 @@
 
 package cn.taketoday.annotation.config.jmx;
 
+import javax.management.MXBean;
+
 import cn.taketoday.core.env.Environment;
 import cn.taketoday.framework.context.event.ApplicationReadyEvent;
 
@@ -31,7 +33,8 @@ import cn.taketoday.framework.context.event.ApplicationReadyEvent;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-public interface InfraApplicationMBean {
+@MXBean
+public interface InfraApplicationMXBean {
 
   /**
    * Specify if the application has fully started and is now ready.

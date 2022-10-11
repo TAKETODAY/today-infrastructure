@@ -35,12 +35,12 @@ import cn.taketoday.jmx.export.MBeanExporter;
  * @author Stephane Nicoll
  * @author Andy Wilkinson
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @see InfraApplicationMBean
+ * @see InfraApplicationMXBean
  * @since 4.0
  */
 @AutoConfiguration(after = JmxAutoConfiguration.class)
 @ConditionalOnProperty(
-        prefix = "application.admin",
+        prefix = "app.admin",
         value = "enabled", havingValue = "true", matchIfMissing = false)
 public class InfraApplicationJmxAutoConfiguration {
 
@@ -48,7 +48,7 @@ public class InfraApplicationJmxAutoConfiguration {
    * The property to use to customize the {@code ObjectName} of the application admin
    * mbean.
    */
-  private static final String JMX_NAME_PROPERTY = "application.admin.jmx-name";
+  private static final String JMX_NAME_PROPERTY = "app.admin.jmx-name";
 
   /**
    * The default {@code ObjectName} of the application admin mbean.
