@@ -74,7 +74,7 @@ public class SQLErrorCodesFactory {
   /**
    * Return the singleton instance.
    */
-  public static SQLErrorCodesFactory getInstance() {
+  public static SQLErrorCodesFactory of() {
     return instance;
   }
 
@@ -139,14 +139,14 @@ public class SQLErrorCodesFactory {
   /**
    * Load the given resource from the class path.
    * <p><b>Not to be overridden by application developers, who should obtain
-   * instances of this class from the static {@link #getInstance()} method.</b>
+   * instances of this class from the static {@link #of()} method.</b>
    * <p>Protected for testability.
    *
    * @param path resource path; either a custom path or one of either
    * {@link #SQL_ERROR_CODE_DEFAULT_PATH} or
    * {@link #SQL_ERROR_CODE_OVERRIDE_PATH}.
    * @return the resource, or {@code null} if the resource wasn't found
-   * @see #getInstance
+   * @see #of
    */
   @Nullable
   protected Resource loadResource(String path) {

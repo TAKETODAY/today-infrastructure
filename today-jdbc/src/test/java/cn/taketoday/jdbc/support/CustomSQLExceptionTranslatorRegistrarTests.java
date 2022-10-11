@@ -44,7 +44,7 @@ public class CustomSQLExceptionTranslatorRegistrarTests {
     new ClassPathXmlApplicationContext("test-custom-translators-context.xml",
             CustomSQLExceptionTranslatorRegistrarTests.class);
 
-    SQLErrorCodes codes = SQLErrorCodesFactory.getInstance().getErrorCodes("H2");
+    SQLErrorCodes codes = SQLErrorCodesFactory.of().getErrorCodes("H2");
     SQLErrorCodeSQLExceptionTranslator sext = new SQLErrorCodeSQLExceptionTranslator();
     sext.setSqlErrorCodes(codes);
 
