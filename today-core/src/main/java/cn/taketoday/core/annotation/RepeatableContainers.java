@@ -22,7 +22,9 @@ package cn.taketoday.core.annotation;
 
 import java.lang.annotation.Annotation;
 import java.lang.annotation.Repeatable;
+import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
 import java.util.Objects;
 
 import cn.taketoday.lang.Assert;
@@ -136,6 +138,19 @@ public abstract class RepeatableContainers {
     return NoRepeatableContainers.INSTANCE;
   }
 
+  private static Object invokeAnnotationMethod(Annotation annotation, Method method) {
+    if (Proxy.isProxyClass(annotation.getClass())) {
+      try {
+        InvocationHandler handler = Proxy.getInvocationHandler(annotation);
+        return handler.invoke(annotation, method, null);
+      }
+      catch (Throwable ex) {
+        // ignore and fall back to reflection below
+      }
+    }
+    return ReflectionUtils.invokeMethod(method, annotation);
+  }
+
   /**
    * Standard {@link RepeatableContainers} implementation that searches using
    * Java's {@link Repeatable @Repeatable} annotation.
@@ -156,7 +171,7 @@ public abstract class RepeatableContainers {
     Annotation[] findRepeatedAnnotations(Annotation annotation) {
       Method method = getRepeatedAnnotationsMethod(annotation.annotationType());
       if (method != null) {
-        return (Annotation[]) ReflectionUtils.invokeMethod(method, annotation);
+        return (Annotation[]) invokeAnnotationMethod(annotation, method);
       }
       return super.findRepeatedAnnotations(annotation);
     }
@@ -195,8 +210,8 @@ public abstract class RepeatableContainers {
 
     private final Method valueMethod;
 
-    ExplicitRepeatableContainer(
-            @Nullable RepeatableContainers parent, Class<? extends Annotation> repeatable, @Nullable Class<? extends Annotation> container) {
+    ExplicitRepeatableContainer(@Nullable RepeatableContainers parent,
+            Class<? extends Annotation> repeatable, @Nullable Class<? extends Annotation> container) {
       super(parent);
       Assert.notNull(repeatable, "Repeatable must not be null");
       if (container == null) {
@@ -240,7 +255,7 @@ public abstract class RepeatableContainers {
     @Nullable
     Annotation[] findRepeatedAnnotations(Annotation annotation) {
       if (this.container.isAssignableFrom(annotation.annotationType())) {
-        return (Annotation[]) ReflectionUtils.invokeMethod(this.valueMethod, annotation);
+        return (Annotation[]) invokeAnnotationMethod(annotation, valueMethod);
       }
       return super.findRepeatedAnnotations(annotation);
     }
