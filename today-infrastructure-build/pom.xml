@@ -413,7 +413,8 @@
               </dependency>
             </dependencies>
             <configuration>
-              <jacocoReports>${basedir}/target/coverage-reports/jacoco.xml</jacocoReports>
+<!--              <jacocoReports>${basedir}/target/coverage-reports/jacoco.xml</jacocoReports>-->
+              <jacocoReports>${project.reporting.outputDirectory}/jacoco-aggregate/jacoco.xml</jacocoReports>
             </configuration>
           </plugin>
 
@@ -426,7 +427,8 @@
                 <exclude>or.aopalliance.*</exclude>
                 <exclude>cn.taketoday.logging.*</exclude>
               </excludes>
-              <outputDirectory>${basedir}/target/coverage-reports</outputDirectory>
+<!--              <outputDirectory>${basedir}/target/coverage-reports</outputDirectory>-->
+              <outputDirectory>${project.reporting.outputDirectory}/jacoco-aggregate</outputDirectory>
               <destFile>${basedir}/target/coverage-reports/jacoco-unit.exec</destFile>
               <dataFile>${basedir}/target/coverage-reports/jacoco-unit.exec</dataFile>
               <formats>XML</formats>
@@ -443,7 +445,7 @@
                 <id>jacoco-report</id>
                 <phase>test</phase>
                 <goals>
-                  <goal>report</goal>
+                  <goal>report-aggregate</goal>
                 </goals>
               </execution>
 
