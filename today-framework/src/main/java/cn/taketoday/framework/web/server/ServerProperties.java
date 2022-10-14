@@ -37,6 +37,7 @@ import cn.taketoday.context.properties.NestedConfigurationProperty;
 import cn.taketoday.format.annotation.DurationUnit;
 import cn.taketoday.framework.web.error.ErrorProperties;
 import cn.taketoday.framework.web.servlet.server.JspProperties;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.session.config.CookieProperties;
 import cn.taketoday.session.config.SessionProperties;
 import cn.taketoday.util.DataSize;
@@ -75,11 +76,13 @@ public class ServerProperties {
   /**
    * Server HTTP port.
    */
+  @Nullable
   private Integer port;
 
   /**
    * Network address to which the server should bind.
    */
+  @Nullable
   private InetAddress address;
 
   @NestedConfigurationProperty
@@ -132,19 +135,21 @@ public class ServerProperties {
 
   private final Undertow undertow = new Undertow();
 
+  @Nullable
   public Integer getPort() {
     return this.port;
   }
 
-  public void setPort(Integer port) {
+  public void setPort(@Nullable Integer port) {
     this.port = port;
   }
 
+  @Nullable
   public InetAddress getAddress() {
     return this.address;
   }
 
-  public void setAddress(InetAddress address) {
+  public void setAddress(@Nullable InetAddress address) {
     this.address = address;
   }
 
