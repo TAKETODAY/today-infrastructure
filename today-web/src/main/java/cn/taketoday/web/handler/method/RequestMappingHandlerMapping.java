@@ -32,6 +32,8 @@ import cn.taketoday.core.StringValueResolver;
 import cn.taketoday.core.annotation.AnnotatedElementUtils;
 import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.core.annotation.MergedAnnotations;
+import cn.taketoday.core.annotation.MergedAnnotations.SearchStrategy;
+import cn.taketoday.core.annotation.RepeatableContainers;
 import cn.taketoday.http.HttpMethod;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
@@ -134,7 +136,10 @@ public class RequestMappingHandlerMapping extends RequestMappingInfoHandlerMappi
    */
   @Override
   protected boolean isHandler(Class<?> beanType) {
-    return AnnotatedElementUtils.hasAnnotation(beanType, Controller.class);
+    var annotations = MergedAnnotations.from(
+            beanType, SearchStrategy.TYPE_HIERARCHY, RepeatableContainers.none());
+    return annotations.isPresent(Controller.class)
+            || annotations.isPresent(ActionMapping.class);
   }
 
   /**
