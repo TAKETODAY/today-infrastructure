@@ -21,7 +21,6 @@
 package cn.taketoday.framework.web.servlet;
 
 import cn.taketoday.framework.web.servlet.mock.MockFilter;
-
 import cn.taketoday.test.classpath.ClassPathExclusions;
 import jakarta.servlet.Filter;
 
@@ -34,7 +33,7 @@ import static org.mockito.ArgumentMatchers.eq;
  * @author Andy Wilkinson
  */
 @ClassPathExclusions("today-web-*.jar")
-class NoSpringWebFilterRegistrationBeanTests extends AbstractFilterRegistrationBeanTests {
+class NoWebFilterRegistrationBeanTests extends AbstractFilterRegistrationBeanTests {
 
   private final MockFilter filter = new MockFilter();
 
