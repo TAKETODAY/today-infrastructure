@@ -28,7 +28,7 @@ import cn.taketoday.http.ResponseEntity;
 
 /**
  * Representation of a complete RFC 7807 error response including status,
- * headers, and an RFC 7808 formatted {@link ProblemDetail} body. Allows any
+ * headers, and an RFC 7807 formatted {@link ProblemDetail} body. Allows any
  * exception to expose HTTP error response information.
  *
  * <p>{@link ErrorResponseException} is a default implementation of this
