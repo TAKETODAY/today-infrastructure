@@ -72,11 +72,6 @@ public class CodeCoverageMojo extends AbstractReportMojo {
   }
 
   @Override
-  boolean canGenerateReportRegardingClassesDirectory() {
-    return new File(project.getBuild().getOutputDirectory()).exists();
-  }
-
-  @Override
   void loadExecutionData(ReportSupport support) throws IOException {
     support.loadExecutionData(dataFile);
   }

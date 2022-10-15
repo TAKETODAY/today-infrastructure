@@ -108,11 +108,6 @@ public class ReportAggregateMojo extends AbstractReportMojo {
   }
 
   @Override
-  boolean canGenerateReportRegardingClassesDirectory() {
-    return true;
-  }
-
-  @Override
   void loadExecutionData(ReportSupport support) throws IOException {
     // https://issues.apache.org/jira/browse/MNG-5440
     if (dataFileIncludes == null) {

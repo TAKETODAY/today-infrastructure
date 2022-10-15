@@ -145,17 +145,10 @@ public abstract class AbstractReportMojo extends AbstractMojo
               "Skipping JaCoCo execution due to missing execution data file.");
       return false;
     }
-    if (!canGenerateReportRegardingClassesDirectory()) {
-      getLog().info(
-              "Skipping JaCoCo execution due to missing classes directory.");
-      return false;
-    }
     return true;
   }
 
   abstract boolean canGenerateReportRegardingDataFiles();
-
-  abstract boolean canGenerateReportRegardingClassesDirectory();
 
   abstract File getOutputDirectory();
 
