@@ -66,12 +66,12 @@ public class CodeCoverageMojo extends AbstractReportMojo {
       if (!Objects.equals(rootProjectName, project.getName())) {
         MavenProject parent = project.getParent();
         if (parent != null) {
-          workDirectory = new File(parent.getBuild().getDirectory(), DATA_FILE);
+          workDirectory = new File(parent.getBuild().getDirectory());
         }
       }
 
       if (workDirectory == null) {
-        workDirectory = new File(project.getBuild().getDirectory(), DATA_FILE);
+        workDirectory = new File(project.getBuild().getDirectory());
       }
     }
     return workDirectory;
