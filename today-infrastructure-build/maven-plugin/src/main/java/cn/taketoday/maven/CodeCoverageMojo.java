@@ -20,32 +20,88 @@
 
 package cn.taketoday.maven;
 
-import org.apache.maven.plugin.AbstractMojo;
-import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.plugin.MojoFailureException;
-import org.apache.maven.plugins.annotations.Component;
-import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
-import org.apache.maven.project.MavenProject;
+import org.apache.maven.plugins.annotations.Parameter;
+import org.jacoco.report.IReportGroupVisitor;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.Locale;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/10/15 14:23
  */
-@Mojo(name = "code-coverage", defaultPhase = LifecyclePhase.TEST, threadSafe = true)
-public class CodeCoverageMojo extends AbstractMojo {
+@Mojo(name = "code-coverage", threadSafe = true, aggregator = true)
+public class CodeCoverageMojo extends AbstractReportMojo {
 
   /**
-   * Maven project.
+   * Output directory for the reports. Note that this parameter is only
+   * relevant if the goal is run from the command line or from the default
+   * build lifecycle. If the goal is run indirectly as part of a site
+   * generation, the output directory configured in the Maven Site Plugin is
+   * used instead.
    */
-  @Component
-  private MavenProject project;
+  @Parameter(defaultValue = "${project.reporting.outputDirectory}/jacoco")
+  private File outputDirectory;
+
+  /**
+   * File with execution data.
+   */
+  @Parameter(property = "jacoco.dataFile", defaultValue = "${project.build.directory}/jacoco.exec")
+  private File dataFile;
 
   @Override
-  public void execute() throws MojoExecutionException, MojoFailureException {
-    getLog().info("coverage project name: " + project.getName());
-    final ReportSupport support = new ReportSupport(getLog());
+  boolean canGenerateReportRegardingDataFiles() {
+    return dataFile.exists();
+  }
 
+  @Override
+  boolean canGenerateReportRegardingClassesDirectory() {
+    return new File(project.getBuild().getOutputDirectory()).exists();
+  }
+
+  @Override
+  void loadExecutionData(final ReportSupport support) throws IOException {
+    support.loadExecutionData(dataFile);
+  }
+
+  @Override
+  File getOutputDirectory() {
+    return outputDirectory;
+  }
+
+  @Override
+  void createReport(final IReportGroupVisitor visitor,
+          final ReportSupport support) throws IOException {
+    support.processProject(visitor, title, project, getIncludes(),
+            getExcludes(), sourceEncoding);
+  }
+
+  @Override
+  public File getReportOutputDirectory() {
+    return outputDirectory;
+  }
+
+  @Override
+  public void setReportOutputDirectory(final File reportOutputDirectory) {
+    if (reportOutputDirectory != null
+            && !reportOutputDirectory.getAbsolutePath().endsWith("jacoco")) {
+      outputDirectory = new File(reportOutputDirectory, "jacoco");
+    }
+    else {
+      outputDirectory = reportOutputDirectory;
+    }
+  }
+
+  @Override
+  public String getOutputName() {
+    return "jacoco/index";
+  }
+
+  @Override
+  public String getName(final Locale locale) {
+    return "JaCoCo";
   }
 
 }

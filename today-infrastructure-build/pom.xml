@@ -418,7 +418,7 @@
 
           <plugin>
             <groupId>cn.taketoday</groupId>
-            <artifactId>today-infrastructure-maven-plugin</artifactId>
+            <artifactId>today-infra-maven-plugin</artifactId>
             <version>${revision}</version>
             <configuration>
               <excludes>
