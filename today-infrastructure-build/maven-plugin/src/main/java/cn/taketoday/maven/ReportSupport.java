@@ -125,72 +125,36 @@ final class ReportSupport {
     return visitor;
   }
 
-  public void processAll(IReportGroupVisitor visitor,
-          MavenProject rootProject, List<MavenProject> reactorProjects) throws IOException {
-    CoverageBuilder builder = new CoverageBuilder();
-    File classesDir = new File(
-            rootProject.getBuild().getOutputDirectory());
-
-    if (classesDir.isDirectory()) {
-      Analyzer analyzer = new Analyzer(
-              loader.getExecutionDataStore(), builder);
-      FileFilter filter = new FileFilter(includes, excludes);
-      for (File file : filter.getFiles(classesDir)) {
-        analyzer.analyzeAll(file);
-      }
-    }
-
-    IBundleCoverage bundle = builder.getBundle(rootProject.getArtifactId());
-    logBundleInfo(bundle, builder.getNoMatchClasses());
-
-    visitor.visitBundle(bundle, new RootSourceFileCollection(reactorProjects));
-  }
-
-  /**
-   * Calculates coverage for the given project and emits it to the report
-   * group without source references
-   *
-   * @param visitor group visitor to emit the project's coverage to
-   * @param project the MavenProject
-   * @throws IOException if class files can't be read
-   */
-  public void processProject(IReportGroupVisitor visitor, MavenProject project) throws IOException {
-    processProject(visitor, project.getArtifactId(), project, new NoSourceLocator());
-  }
-
   /**
    * Calculates coverage for the given project and emits it to the report
    * group including source references
    *
    * @param visitor group visitor to emit the project's coverage to
-   * @param bundleName name for this project in the report
-   * @param project the MavenProject
-   * @param srcEncoding encoding of the source files within this project
    * @throws IOException if class files can't be read
    */
-  public void processProject(IReportGroupVisitor visitor, String bundleName, MavenProject project, String srcEncoding) throws IOException {
-    processProject(visitor, bundleName, project, new SourceFileCollection(project, srcEncoding));
-  }
-
-  private void processProject(IReportGroupVisitor visitor,
-          String bundleName, MavenProject rootProject, ISourceFileLocator locator) throws IOException {
+  public void processAll(IReportGroupVisitor visitor,
+          MavenProject rootProject, List<MavenProject> reactorProjects) throws IOException {
     CoverageBuilder builder = new CoverageBuilder();
-    File classesDir = new File(
-            rootProject.getBuild().getOutputDirectory());
+    RootSourceFileCollection locator = new RootSourceFileCollection(reactorProjects);
+    for (MavenProject reactorProject : reactorProjects) {
+      if ("jar".equals(reactorProject.getPackaging())) {
 
-    if (classesDir.isDirectory()) {
-      Analyzer analyzer = new Analyzer(
-              loader.getExecutionDataStore(), builder);
-      FileFilter filter = new FileFilter(includes, excludes);
-      for (File file : filter.getFiles(classesDir)) {
-        analyzer.analyzeAll(file);
+        File classesDir = new File(
+                reactorProject.getBuild().getOutputDirectory());
+        if (classesDir.isDirectory()) {
+          Analyzer analyzer = new Analyzer(
+                  loader.getExecutionDataStore(), builder);
+          FileFilter filter = new FileFilter(includes, excludes);
+          for (File file : filter.getFiles(classesDir)) {
+            analyzer.analyzeAll(file);
+          }
+        }
+
+        IBundleCoverage bundle = builder.getBundle(reactorProject.getArtifactId());
+        logBundleInfo(bundle, builder.getNoMatchClasses());
+        visitor.visitBundle(bundle, locator);
       }
     }
-
-    IBundleCoverage bundle = builder.getBundle(bundleName);
-    logBundleInfo(bundle, builder.getNoMatchClasses());
-
-    visitor.visitBundle(bundle, locator);
   }
 
   private void logBundleInfo(IBundleCoverage bundle,
@@ -212,52 +176,6 @@ final class ReportSupport {
             && bundle.getLineCounter().getTotalCount() == 0) {
       log.warn(
               "To enable source code annotation class files have to be compiled with debug information.");
-    }
-  }
-
-  private static class NoSourceLocator implements ISourceFileLocator {
-
-    public Reader getSourceFile(String packageName,
-            String fileName) {
-      return null;
-    }
-
-    public int getTabWidth() {
-      return 0;
-    }
-  }
-
-  private static class SourceFileCollection implements ISourceFileLocator {
-
-    private final List<File> sourceRoots;
-    private final String encoding;
-
-    public SourceFileCollection(MavenProject project,
-            String encoding) {
-      this.sourceRoots = getCompileSourceRoots(project);
-      this.encoding = encoding;
-    }
-
-    public Reader getSourceFile(String packageName,
-            String fileName) throws IOException {
-      String r;
-      if (packageName.length() > 0) {
-        r = packageName + '/' + fileName;
-      }
-      else {
-        r = fileName;
-      }
-      for (File sourceRoot : sourceRoots) {
-        File file = new File(sourceRoot, r);
-        if (file.exists() && file.isFile()) {
-          return new InputStreamReader(new FileInputStream(file), encoding);
-        }
-      }
-      return null;
-    }
-
-    public int getTabWidth() {
-      return 4;
     }
   }
 

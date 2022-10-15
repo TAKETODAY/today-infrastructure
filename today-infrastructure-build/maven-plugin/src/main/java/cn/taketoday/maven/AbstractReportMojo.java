@@ -93,12 +93,6 @@ public abstract class AbstractReportMojo extends AbstractMojo
   List<String> excludes;
 
   /**
-   * Flag used to suppress execution.
-   */
-  @Parameter(property = "jacoco.skip", defaultValue = "false")
-  boolean skip;
-
-  /**
    * Maven project.
    */
   @Parameter(property = "project", readonly = true)
@@ -134,21 +128,10 @@ public abstract class AbstractReportMojo extends AbstractMojo
     return excludes;
   }
 
+  @Override
   public boolean canGenerateReport() {
-    if (skip) {
-      getLog().info(
-              "Skipping JaCoCo execution because property jacoco.skip is set.");
-      return false;
-    }
-    if (!canGenerateReportRegardingDataFiles()) {
-      getLog().info(
-              "Skipping JaCoCo execution due to missing execution data file.");
-      return false;
-    }
     return true;
   }
-
-  abstract boolean canGenerateReportRegardingDataFiles();
 
   abstract File getOutputDirectory();
 
