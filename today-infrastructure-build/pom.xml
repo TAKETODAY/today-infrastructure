@@ -421,10 +421,6 @@
             <artifactId>today-infra-maven-plugin</artifactId>
             <version>${revision}</version>
             <configuration>
-              <excludes>
-                <exclude>or.aopalliance.*</exclude>
-                <exclude>cn.taketoday.logging.*</exclude>
-              </excludes>
               <!--put parent dir-->
               <destFile>${project.parent.build.directory}/jacoco/jacoco-unit.exec</destFile>
               <formats>XML,HTML</formats>
