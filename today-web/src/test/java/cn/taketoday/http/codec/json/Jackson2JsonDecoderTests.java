@@ -135,6 +135,18 @@ public class Jackson2JsonDecoderTests extends AbstractDecoderTests<Jackson2JsonD
             decoder.getMimeTypes().add(new MimeType("text", "ecmascript")));
   }
 
+  @Test
+  public void decodableMimeTypesWithObjectMapperRegistration() {
+    MimeType mimeType1 = MediaType.parseMediaType("application/hal+json");
+    MimeType mimeType2 = new MimeType("text", "javascript", StandardCharsets.UTF_8);
+
+    Jackson2JsonDecoder decoder = new Jackson2JsonDecoder(new ObjectMapper(), mimeType2);
+    decoder.registerObjectMappersForType(Pojo.class, map -> map.put(mimeType1, new ObjectMapper()));
+
+    assertThat(decoder.getDecodableMimeTypes(ResolvableType.fromClass(Pojo.class)))
+            .containsExactly(mimeType1);
+  }
+
   @Override
   @Test
   public void decode() {
