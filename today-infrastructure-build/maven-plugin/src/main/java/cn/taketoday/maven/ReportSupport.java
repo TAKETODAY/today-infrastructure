@@ -134,10 +134,10 @@ final class ReportSupport {
    */
   public void processAll(IReportGroupVisitor visitor,
           MavenProject rootProject, List<MavenProject> reactorProjects) throws IOException {
-    CoverageBuilder builder = new CoverageBuilder();
     RootSourceFileCollection locator = new RootSourceFileCollection(reactorProjects);
     for (MavenProject reactorProject : reactorProjects) {
       if ("jar".equals(reactorProject.getPackaging())) {
+        CoverageBuilder builder = new CoverageBuilder();
 
         File classesDir = new File(
                 reactorProject.getBuild().getOutputDirectory());
