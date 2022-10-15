@@ -404,7 +404,6 @@
           <plugin>
             <groupId>org.eluder.coveralls</groupId>
             <artifactId>coveralls-maven-plugin</artifactId>
-            <version>4.3.0</version>
             <dependencies>
               <dependency>
                 <groupId>jakarta.xml.bind</groupId>
@@ -413,25 +412,20 @@
               </dependency>
             </dependencies>
             <configuration>
-<!--              <jacocoReports>${basedir}/target/coverage-reports/jacoco.xml</jacocoReports>-->
-              <jacocoReports>${project.reporting.outputDirectory}/jacoco-aggregate/jacoco.xml</jacocoReports>
+              <jacocoReports>${project.build.directory}/jacoco/jacoco.xml</jacocoReports>
             </configuration>
           </plugin>
 
           <plugin>
-            <groupId>org.jacoco</groupId>
-            <artifactId>jacoco-maven-plugin</artifactId>
-            <version>0.8.7</version>
+            <groupId>cn.taketoday</groupId>
+            <artifactId>today-infrastructure-maven-plugin</artifactId>
+            <version>${revision}</version>
             <configuration>
-              <excludes>
-                <exclude>or.aopalliance.*</exclude>
-                <exclude>cn.taketoday.logging.*</exclude>
-              </excludes>
-<!--              <outputDirectory>${basedir}/target/coverage-reports</outputDirectory>-->
-              <outputDirectory>${project.reporting.outputDirectory}/jacoco-aggregate</outputDirectory>
-              <destFile>${basedir}/target/coverage-reports/jacoco-unit.exec</destFile>
-              <dataFile>${basedir}/target/coverage-reports/jacoco-unit.exec</dataFile>
+              <outputDirectory>${project.build.directory}/jacoco</outputDirectory>
+              <destFile>${project.build.directory}/jacoco/jacoco-unit.exec</destFile>
+              <dataFile>${project.build.directory}/jacoco/jacoco-unit.exec</dataFile>
               <formats>XML</formats>
+              <append>true</append>
             </configuration>
 
             <executions>
@@ -445,13 +439,13 @@
                 <id>jacoco-report</id>
                 <phase>test</phase>
                 <goals>
-                  <goal>report-aggregate</goal>
+                  <goal>code-coverage</goal>
                 </goals>
               </execution>
-
             </executions>
 
           </plugin>
+
         </plugins>
       </build>
 
