@@ -427,9 +427,6 @@
               </excludes>
               <!--put parent dir-->
               <destFile>${project.parent.build.directory}/jacoco/jacoco-unit.exec</destFile>
-              <outputDirectory>${project.build.directory}/jacoco</outputDirectory>
-              <!--today-infrastructure dir-->
-              <dataFile>${project.build.directory}/jacoco/jacoco-unit.exec</dataFile>
               <formats>XML,HTML</formats>
               <append>true</append>
             </configuration>

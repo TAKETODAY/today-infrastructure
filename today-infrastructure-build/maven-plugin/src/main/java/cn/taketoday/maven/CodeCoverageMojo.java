@@ -29,6 +29,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
@@ -37,21 +38,8 @@ import java.util.Locale;
 @Mojo(name = "code-coverage", threadSafe = true, aggregator = true)
 public class CodeCoverageMojo extends AbstractReportMojo {
 
-  /**
-   * Output directory for the reports. Note that this parameter is only
-   * relevant if the goal is run from the command line or from the default
-   * build lifecycle. If the goal is run indirectly as part of a site
-   * generation, the output directory configured in the Maven Site Plugin is
-   * used instead.
-   */
-  @Parameter(defaultValue = "${project.reporting.outputDirectory}/jacoco")
-  private File outputDirectory;
-
-  /**
-   * File with execution data.
-   */
-  @Parameter(property = "jacoco.dataFile", defaultValue = "${project.build.directory}/jacoco.exec")
-  private File dataFile;
+  public static final String DATA_FILE = "/jacoco/jacoco-unit.exec";
+  public static final String output_Directory = "/jacoco";
 
   /**
    * The projects in the reactor.
@@ -59,17 +47,47 @@ public class CodeCoverageMojo extends AbstractReportMojo {
   @Parameter(property = "reactorProjects", readonly = true)
   private List<MavenProject> reactorProjects;
 
+  @Parameter(defaultValue = "today-infrastructure")
+  private String rootProjectName;
+
+  /**
+   * Output directory for the reports. Note that this parameter is only
+   * relevant if the goal is run from the command line or from the default
+   * build lifecycle. If the goal is run indirectly as part of a site
+   * generation, the output directory configured in the Maven Site Plugin is
+   * used instead.
+   */
+  private File outputDirectory;
+
+  private File workDirectory;
+
+  public File getWorkDirectory() {
+    if (workDirectory == null) {
+      if (!Objects.equals(rootProjectName, project.getName())) {
+        MavenProject parent = project.getParent();
+        if (parent != null) {
+          workDirectory = new File(parent.getBuild().getDirectory(), DATA_FILE);
+        }
+      }
+
+      if (workDirectory == null) {
+        workDirectory = new File(project.getBuild().getDirectory(), DATA_FILE);
+      }
+    }
+    return workDirectory;
+  }
+
   @Override
   void loadExecutionData(ReportSupport support) throws IOException {
-    MavenProject parent = project.getParent();
-    if (parent != null) {
-      dataFile = new File(parent.getBuild().getDirectory(), "/jacoco/jacoco-unit.exec");
-    }
+    File dataFile = new File(getWorkDirectory(), DATA_FILE);
     support.loadExecutionData(dataFile);
   }
 
   @Override
   File getOutputDirectory() {
+    if (outputDirectory == null) {
+      this.outputDirectory = new File(getWorkDirectory(), output_Directory);
+    }
     return outputDirectory;
   }
 
@@ -81,7 +99,7 @@ public class CodeCoverageMojo extends AbstractReportMojo {
 
   @Override
   public File getReportOutputDirectory() {
-    return outputDirectory;
+    return getOutputDirectory();
   }
 
   @Override
