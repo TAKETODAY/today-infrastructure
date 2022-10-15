@@ -417,8 +417,9 @@
           </plugin>
 
           <plugin>
-            <groupId>org.jacoco</groupId>
-            <artifactId>jacoco-maven-plugin</artifactId>
+            <groupId>cn.taketoday</groupId>
+            <artifactId>today-infrastructure-maven-plugin</artifactId>
+            <version>${revision}</version>
             <configuration>
               <excludes>
                 <exclude>or.aopalliance.*</exclude>
