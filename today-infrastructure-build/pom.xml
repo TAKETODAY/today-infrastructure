@@ -417,17 +417,17 @@
           </plugin>
 
           <plugin>
-            <groupId>org.jacoco</groupId>
-            <artifactId>jacoco-maven-plugin</artifactId>
+            <groupId>cn.taketoday</groupId>
+            <artifactId>today-infra-maven-plugin</artifactId>
+            <version>${revision}</version>
             <configuration>
               <excludes>
                 <exclude>or.aopalliance.*</exclude>
                 <exclude>cn.taketoday.logging.*</exclude>
               </excludes>
-              <outputDirectory>${project.parent.build.directory}/jacoco</outputDirectory>
+              <!--put parent dir-->
               <destFile>${project.parent.build.directory}/jacoco/jacoco-unit.exec</destFile>
-              <dataFile>${project.parent.build.directory}/jacoco/jacoco-unit.exec</dataFile>
-              <formats>XML</formats>
+              <formats>XML,HTML</formats>
               <append>true</append>
             </configuration>
 
