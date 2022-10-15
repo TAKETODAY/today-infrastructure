@@ -142,8 +142,7 @@ final class ReportSupport {
         File classesDir = new File(
                 reactorProject.getBuild().getOutputDirectory());
         if (classesDir.isDirectory()) {
-          Analyzer analyzer = new Analyzer(
-                  loader.getExecutionDataStore(), builder);
+          Analyzer analyzer = new Analyzer(loader.getExecutionDataStore(), builder);
           FileFilter filter = new FileFilter(includes, excludes);
           for (File file : filter.getFiles(classesDir)) {
             analyzer.analyzeAll(file);
@@ -157,25 +156,18 @@ final class ReportSupport {
     }
   }
 
-  private void logBundleInfo(IBundleCoverage bundle,
-          Collection<IClassCoverage> nomatch) {
-    log.info(format("Analyzed bundle '%s' with %s classes",
-            bundle.getName(),
-            bundle.getClassCounter().getTotalCount()));
+  private void logBundleInfo(IBundleCoverage bundle, Collection<IClassCoverage> nomatch) {
+    log.info(format("Analyzed bundle '%s' with %s classes", bundle.getName(), bundle.getClassCounter().getTotalCount()));
     if (!nomatch.isEmpty()) {
-      log.warn(format(
-              "Classes in bundle '%s' do not match with execution data. "
-                      + "For report generation the same class files must be used as at runtime.",
+      log.warn(format("Classes in bundle '%s' do not match with execution data. For report generation the same class files must be used as at runtime.",
               bundle.getName()));
       for (IClassCoverage c : nomatch) {
-        log.warn(format("Execution data for class %s does not match.",
-                c.getName()));
+        log.warn(format("Execution data for class %s does not match.", c.getName()));
       }
     }
     if (bundle.containsCode()
             && bundle.getLineCounter().getTotalCount() == 0) {
-      log.warn(
-              "To enable source code annotation class files have to be compiled with debug information.");
+      log.warn("To enable source code annotation class files have to be compiled with debug information.");
     }
   }
 
@@ -227,7 +219,7 @@ final class ReportSupport {
 
     @Override
     public int getTabWidth() {
-      return 4;
+      return 2;
     }
   }
 
