@@ -425,10 +425,12 @@
                 <exclude>or.aopalliance.*</exclude>
                 <exclude>cn.taketoday.logging.*</exclude>
               </excludes>
-              <outputDirectory>${project.parent.build.directory}/jacoco</outputDirectory>
+              <!--put parent dir-->
               <destFile>${project.parent.build.directory}/jacoco/jacoco-unit.exec</destFile>
-              <dataFile>${project.parent.build.directory}/jacoco/jacoco-unit.exec</dataFile>
-              <formats>XML</formats>
+              <outputDirectory>${project.build.directory}/jacoco</outputDirectory>
+              <!--today-infrastructure dir-->
+              <dataFile>${project.build.directory}/jacoco/jacoco-unit.exec</dataFile>
+              <formats>XML,HTML</formats>
               <append>true</append>
             </configuration>
 

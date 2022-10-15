@@ -39,6 +39,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -65,6 +66,18 @@ final class ReportSupport {
   private final List<IReportVisitor> formatters;
 
   /**
+   * A list of class files to include in the report. May use wildcard
+   * characters (* and ?). When not specified everything will be included.
+   */
+  private List<String> includes;
+
+  /**
+   * A list of class files to exclude from the report. May use wildcard
+   * characters (* and ?). When not specified nothing will be excluded.
+   */
+  private List<String> excludes;
+
+  /**
    * Construct a new instance with the given log output.
    *
    * @param log for log output
@@ -73,6 +86,14 @@ final class ReportSupport {
     this.log = log;
     this.loader = new ExecFileLoader();
     this.formatters = new ArrayList<>();
+  }
+
+  public void setExcludes(List<String> excludes) {
+    this.excludes = excludes;
+  }
+
+  public void setIncludes(List<String> includes) {
+    this.includes = includes;
   }
 
   /**
@@ -104,21 +125,37 @@ final class ReportSupport {
     return visitor;
   }
 
+  public void processAll(IReportGroupVisitor visitor,
+          MavenProject rootProject, List<MavenProject> reactorProjects) throws IOException {
+    CoverageBuilder builder = new CoverageBuilder();
+    File classesDir = new File(
+            rootProject.getBuild().getOutputDirectory());
+
+    if (classesDir.isDirectory()) {
+      Analyzer analyzer = new Analyzer(
+              loader.getExecutionDataStore(), builder);
+      FileFilter filter = new FileFilter(includes, excludes);
+      for (File file : filter.getFiles(classesDir)) {
+        analyzer.analyzeAll(file);
+      }
+    }
+
+    IBundleCoverage bundle = builder.getBundle(rootProject.getArtifactId());
+    logBundleInfo(bundle, builder.getNoMatchClasses());
+
+    visitor.visitBundle(bundle, new RootSourceFileCollection(reactorProjects));
+  }
+
   /**
    * Calculates coverage for the given project and emits it to the report
    * group without source references
    *
    * @param visitor group visitor to emit the project's coverage to
    * @param project the MavenProject
-   * @param includes list of includes patterns
-   * @param excludes list of excludes patterns
    * @throws IOException if class files can't be read
    */
-  public void processProject(IReportGroupVisitor visitor,
-          MavenProject project, List<String> includes,
-          List<String> excludes) throws IOException {
-    processProject(visitor, project.getArtifactId(), project, includes,
-            excludes, new NoSourceLocator());
+  public void processProject(IReportGroupVisitor visitor, MavenProject project) throws IOException {
+    processProject(visitor, project.getArtifactId(), project, new NoSourceLocator());
   }
 
   /**
@@ -128,26 +165,18 @@ final class ReportSupport {
    * @param visitor group visitor to emit the project's coverage to
    * @param bundleName name for this project in the report
    * @param project the MavenProject
-   * @param includes list of includes patterns
-   * @param excludes list of excludes patterns
    * @param srcEncoding encoding of the source files within this project
    * @throws IOException if class files can't be read
    */
-  public void processProject(IReportGroupVisitor visitor,
-          String bundleName, MavenProject project,
-          List<String> includes, List<String> excludes,
-          String srcEncoding) throws IOException {
-    processProject(visitor, bundleName, project, includes, excludes,
-            new SourceFileCollection(project, srcEncoding));
+  public void processProject(IReportGroupVisitor visitor, String bundleName, MavenProject project, String srcEncoding) throws IOException {
+    processProject(visitor, bundleName, project, new SourceFileCollection(project, srcEncoding));
   }
 
   private void processProject(IReportGroupVisitor visitor,
-          String bundleName, MavenProject project,
-          List<String> includes, List<String> excludes,
-          ISourceFileLocator locator) throws IOException {
+          String bundleName, MavenProject rootProject, ISourceFileLocator locator) throws IOException {
     CoverageBuilder builder = new CoverageBuilder();
     File classesDir = new File(
-            project.getBuild().getOutputDirectory());
+            rootProject.getBuild().getOutputDirectory());
 
     if (classesDir.isDirectory()) {
       Analyzer analyzer = new Analyzer(
@@ -221,8 +250,7 @@ final class ReportSupport {
       for (File sourceRoot : sourceRoots) {
         File file = new File(sourceRoot, r);
         if (file.exists() && file.isFile()) {
-          return new InputStreamReader(new FileInputStream(file),
-                  encoding);
+          return new InputStreamReader(new FileInputStream(file), encoding);
         }
       }
       return null;
@@ -247,6 +275,42 @@ final class ReportSupport {
       file = new File(project.getBasedir(), path);
     }
     return file;
+  }
+
+  private static class RootSourceFileCollection implements ISourceFileLocator {
+
+    private final List<File> sourceRoots;
+
+    public RootSourceFileCollection(List<MavenProject> reactorProjects) {
+      var sourceRoots = new ArrayList<File>();
+      for (MavenProject reactorProject : reactorProjects) {
+        sourceRoots.addAll(getCompileSourceRoots(reactorProject));
+      }
+      this.sourceRoots = sourceRoots;
+    }
+
+    @Override
+    public Reader getSourceFile(String packageName, String fileName) throws IOException {
+      String r;
+      if (packageName.length() > 0) {
+        r = packageName + '/' + fileName;
+      }
+      else {
+        r = fileName;
+      }
+      for (File sourceRoot : sourceRoots) {
+        File file = new File(sourceRoot, r);
+        if (file.exists() && file.isFile()) {
+          return new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8);
+        }
+      }
+      return null;
+    }
+
+    @Override
+    public int getTabWidth() {
+      return 4;
+    }
   }
 
 }

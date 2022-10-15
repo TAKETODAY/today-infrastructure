@@ -80,8 +80,7 @@ public class ReportITMojo extends AbstractReportMojo {
   @Override
   void createReport(final IReportGroupVisitor visitor,
           final ReportSupport support) throws IOException {
-    support.processProject(visitor, title, project, getIncludes(),
-            getExcludes(), sourceEncoding);
+    support.processProject(visitor, title, project, sourceEncoding);
   }
 
   public File getReportOutputDirectory() {

@@ -194,6 +194,8 @@ public abstract class AbstractReportMojo extends AbstractMojo
   private void executeReport(final Locale locale) throws MavenReportException {
     try {
       final ReportSupport support = new ReportSupport(getLog());
+      support.setExcludes(getExcludes());
+      support.setIncludes(getIncludes());
       loadExecutionData(support);
       addFormatters(support, locale);
       final IReportVisitor visitor = support.initRootVisitor();

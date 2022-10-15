@@ -151,10 +151,9 @@ public class ReportAggregateMojo extends AbstractReportMojo {
     }
   }
 
-  private void processProject(ReportSupport support,
-          IReportGroupVisitor group, MavenProject project) throws IOException {
-    support.processProject(group, project.getArtifactId(),
-            project, getIncludes(), getExcludes(), sourceEncoding);
+  private void processProject(
+          ReportSupport support, IReportGroupVisitor group, MavenProject project) throws IOException {
+    support.processProject(group, project.getArtifactId(), project, sourceEncoding);
   }
 
   public File getReportOutputDirectory() {

@@ -20,12 +20,21 @@
 
 package cn.taketoday.maven;
 
+import org.apache.maven.artifact.Artifact;
+import org.apache.maven.artifact.versioning.DefaultArtifactVersion;
+import org.apache.maven.artifact.versioning.InvalidVersionSpecificationException;
+import org.apache.maven.artifact.versioning.VersionRange;
+import org.apache.maven.model.Dependency;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
+import org.apache.maven.project.MavenProject;
 import org.jacoco.report.IReportGroupVisitor;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Locale;
 
 /**
@@ -51,6 +60,12 @@ public class CodeCoverageMojo extends AbstractReportMojo {
   @Parameter(property = "jacoco.dataFile", defaultValue = "${project.build.directory}/jacoco.exec")
   private File dataFile;
 
+  /**
+   * The projects in the reactor.
+   */
+  @Parameter(property = "reactorProjects", readonly = true)
+  private List<MavenProject> reactorProjects;
+
   @Override
   boolean canGenerateReportRegardingDataFiles() {
     return dataFile.exists();
@@ -62,7 +77,7 @@ public class CodeCoverageMojo extends AbstractReportMojo {
   }
 
   @Override
-  void loadExecutionData(final ReportSupport support) throws IOException {
+  void loadExecutionData(ReportSupport support) throws IOException {
     support.loadExecutionData(dataFile);
   }
 
@@ -72,10 +87,17 @@ public class CodeCoverageMojo extends AbstractReportMojo {
   }
 
   @Override
-  void createReport(final IReportGroupVisitor visitor,
-          final ReportSupport support) throws IOException {
-    support.processProject(visitor, title, project, getIncludes(),
-            getExcludes(), sourceEncoding);
+  void createReport(IReportGroupVisitor visitor, ReportSupport support) throws IOException {
+    IReportGroupVisitor group = visitor.visitGroup(title);
+    for (MavenProject dependency : findDependencies(
+            Artifact.SCOPE_COMPILE, Artifact.SCOPE_RUNTIME, Artifact.SCOPE_PROVIDED)) {
+      processProject(support, group, dependency);
+    }
+  }
+
+  private void processProject(ReportSupport support,
+          IReportGroupVisitor group, MavenProject project) throws IOException {
+    support.processAll(group, project, reactorProjects);
   }
 
   @Override
@@ -84,7 +106,7 @@ public class CodeCoverageMojo extends AbstractReportMojo {
   }
 
   @Override
-  public void setReportOutputDirectory(final File reportOutputDirectory) {
+  public void setReportOutputDirectory(File reportOutputDirectory) {
     if (reportOutputDirectory != null
             && !reportOutputDirectory.getAbsolutePath().endsWith("jacoco")) {
       outputDirectory = new File(reportOutputDirectory, "jacoco");
@@ -100,8 +122,50 @@ public class CodeCoverageMojo extends AbstractReportMojo {
   }
 
   @Override
-  public String getName(final Locale locale) {
+  public String getName(Locale locale) {
     return "JaCoCo";
+  }
+
+  private List<MavenProject> findDependencies(String... scopes) {
+    var result = new ArrayList<MavenProject>();
+    List<String> scopeList = Arrays.asList(scopes);
+    for (Dependency dependency : project.getDependencies()) {
+      if (scopeList.contains(dependency.getScope())) {
+        MavenProject project = findProjectFromReactor(dependency);
+        if (project != null) {
+          result.add(project);
+        }
+      }
+    }
+    return result;
+  }
+
+  /**
+   * Note that if dependency specified using version range and reactor
+   * contains multiple modules with same artifactId and groupId but of
+   * different versions, then first dependency which matches range will be
+   * selected. For example in case of range <code>[0,2]</code> if version 1 is
+   * before version 2 in reactor, then version 1 will be selected.
+   */
+  private MavenProject findProjectFromReactor(Dependency d) {
+    VersionRange depVersionAsRange;
+    try {
+      depVersionAsRange = VersionRange
+              .createFromVersionSpec(d.getVersion());
+    }
+    catch (InvalidVersionSpecificationException e) {
+      throw new AssertionError(e);
+    }
+
+    for (MavenProject p : reactorProjects) {
+      DefaultArtifactVersion pv = new DefaultArtifactVersion(p.getVersion());
+      if (p.getGroupId().equals(d.getGroupId())
+              && p.getArtifactId().equals(d.getArtifactId())
+              && depVersionAsRange.containsVersion(pv)) {
+        return p;
+      }
+    }
+    return null;
   }
 
 }
