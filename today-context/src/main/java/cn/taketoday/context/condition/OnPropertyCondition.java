@@ -47,7 +47,7 @@ import cn.taketoday.util.StringUtils;
  * @see ConditionalOnProperty
  * @since 4.0 2022/1/16 17:52
  */
-class OnPropertyCondition extends ContextCondition implements Ordered {
+class OnPropertyCondition extends InfraCondition implements Ordered {
 
   @Override
   public int getOrder() {

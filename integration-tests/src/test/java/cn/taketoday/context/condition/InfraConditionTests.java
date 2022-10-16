@@ -32,12 +32,12 @@ import cn.taketoday.core.type.AnnotatedTypeMetadata;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 
 /**
- * Tests for {@link ContextCondition}.
+ * Tests for {@link InfraCondition}.
  *
  * @author Phillip Webb
  */
 @SuppressWarnings("resource")
-class ContextConditionTests {
+class InfraConditionTests {
 
   @Test
   void sensibleClassException() {
@@ -68,7 +68,7 @@ class ContextConditionTests {
 
   }
 
-  static class AlwaysThrowsCondition extends ContextCondition {
+  static class AlwaysThrowsCondition extends InfraCondition {
 
     @Override
     public ConditionOutcome getMatchOutcome(ConditionContext context, AnnotatedTypeMetadata metadata) {

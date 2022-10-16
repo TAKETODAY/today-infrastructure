@@ -47,7 +47,7 @@ import cn.taketoday.util.ClassUtils;
  * @since 4.0 2022/1/16 17:55
  */
 public abstract class AbstractNestedCondition
-        extends ContextCondition implements ConfigurationCondition {
+        extends InfraCondition implements ConfigurationCondition {
 
   private final ConfigurationPhase configurationPhase;
 
@@ -194,8 +194,8 @@ public abstract class AbstractNestedCondition
     }
 
     private ConditionOutcome getConditionOutcome(AnnotationMetadata metadata, Condition condition) {
-      if (condition instanceof ContextCondition) {
-        return ((ContextCondition) condition).getMatchOutcome(this.context, metadata);
+      if (condition instanceof InfraCondition) {
+        return ((InfraCondition) condition).getMatchOutcome(this.context, metadata);
       }
       return new ConditionOutcome(condition.matches(this.context, metadata), ConditionMessage.empty());
     }

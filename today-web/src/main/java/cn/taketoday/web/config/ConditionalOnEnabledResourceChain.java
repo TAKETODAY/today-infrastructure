@@ -31,7 +31,7 @@ import cn.taketoday.context.annotation.ConditionContext;
 import cn.taketoday.context.annotation.Conditional;
 import cn.taketoday.context.condition.ConditionMessage;
 import cn.taketoday.context.condition.ConditionOutcome;
-import cn.taketoday.context.condition.ContextCondition;
+import cn.taketoday.context.condition.InfraCondition;
 import cn.taketoday.core.env.ConfigurableEnvironment;
 import cn.taketoday.core.type.AnnotatedTypeMetadata;
 import cn.taketoday.util.ClassUtils;
@@ -64,7 +64,7 @@ public @interface ConditionalOnEnabledResourceChain {
  * @see ConditionalOnEnabledResourceChain
  * @since 4.0 2022/2/18 23:03
  */
-class OnEnabledResourceChainCondition extends ContextCondition {
+class OnEnabledResourceChainCondition extends InfraCondition {
 
   private static final String WEBJAR_ASSET_LOCATOR = "org.webjars.WebJarAssetLocator";
 

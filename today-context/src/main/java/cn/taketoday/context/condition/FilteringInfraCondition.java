@@ -35,14 +35,14 @@ import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.CollectionUtils;
 
 /**
- * Abstract base class for a {@link ContextCondition} that also implements
+ * Abstract base class for a {@link InfraCondition} that also implements
  * {@link AutoConfigurationImportFilter}.
  *
  * @author Phillip Webb
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/1/16 16:07
  */
-public abstract class FilteringContextCondition extends ContextCondition
+public abstract class FilteringInfraCondition extends InfraCondition
         implements AutoConfigurationImportFilter, BeanFactoryAware, BeanClassLoaderAware {
 
   private BeanFactory beanFactory;

@@ -281,7 +281,7 @@ class ConditionEvaluationReportTests {
 
   }
 
-  static class TestMatchCondition extends ContextCondition implements ConfigurationCondition {
+  static class TestMatchCondition extends InfraCondition implements ConfigurationCondition {
 
     private final ConfigurationPhase phase;
 

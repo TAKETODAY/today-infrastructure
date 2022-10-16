@@ -40,7 +40,7 @@ import cn.taketoday.core.type.AnnotatedTypeMetadata;
  * @since 4.0 2022/4/4 12:23
  */
 @Order(Ordered.HIGHEST_PRECEDENCE + 20)
-class OnJavaCondition extends ContextCondition {
+class OnJavaCondition extends InfraCondition {
 
   private static final JavaVersion JVM_VERSION = JavaVersion.getJavaVersion();
 

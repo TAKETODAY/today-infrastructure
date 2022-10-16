@@ -54,7 +54,7 @@ public @interface ConditionalOnResource {
 
 }
 
-final class OnResourceCondition extends ContextCondition {
+final class OnResourceCondition extends InfraCondition {
 
   @Override
   public ConditionOutcome getMatchOutcome(ConditionContext context, AnnotatedTypeMetadata metadata) {

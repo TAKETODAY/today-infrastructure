@@ -40,8 +40,8 @@ import cn.taketoday.util.StringUtils;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/1/16 15:46
  */
-public abstract class ContextCondition implements Condition {
-  private static final Logger log = LoggerFactory.getLogger(ContextCondition.class);
+public abstract class InfraCondition implements Condition {
+  private static final Logger log = LoggerFactory.getLogger(InfraCondition.class);
 
   @Override
   public boolean matches(ConditionContext context, AnnotatedTypeMetadata metadata) {
@@ -148,8 +148,8 @@ public abstract class ContextCondition implements Condition {
    */
   protected final boolean matches(
           ConditionContext context, AnnotatedTypeMetadata metadata, Condition condition) {
-    if (condition instanceof ContextCondition) {
-      return ((ContextCondition) condition).getMatchOutcome(context, metadata).isMatch();
+    if (condition instanceof InfraCondition) {
+      return ((InfraCondition) condition).getMatchOutcome(context, metadata).isMatch();
     }
     return condition.matches(context, metadata);
   }

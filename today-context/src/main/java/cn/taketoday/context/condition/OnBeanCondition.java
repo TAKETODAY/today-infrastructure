@@ -75,7 +75,7 @@ import cn.taketoday.util.StringUtils;
  * @see ConditionalOnMissingBean
  * @see ConditionalOnSingleCandidate
  */
-class OnBeanCondition extends FilteringContextCondition implements ConfigurationCondition, Ordered {
+class OnBeanCondition extends FilteringInfraCondition implements ConfigurationCondition, Ordered {
 
   @Override
   public ConfigurationPhase getConfigurationPhase() {

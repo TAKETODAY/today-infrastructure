@@ -39,7 +39,7 @@ import cn.taketoday.core.type.AnnotatedTypeMetadata;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/4/4 13:32
  */
-public class OnPropertyListCondition extends ContextCondition {
+public class OnPropertyListCondition extends InfraCondition {
 
   private static final Bindable<List<String>> STRING_LIST = Bindable.listOf(String.class);
 

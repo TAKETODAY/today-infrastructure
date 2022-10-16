@@ -32,7 +32,7 @@ import cn.taketoday.core.type.AnnotatedTypeMetadata;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/4/4 16:11
  */
-final class OnExpressionCondition extends ContextCondition implements Ordered {
+final class OnExpressionCondition extends InfraCondition implements Ordered {
 
   @Override
   public ConditionOutcome getMatchOutcome(ConditionContext context, AnnotatedTypeMetadata metadata) {

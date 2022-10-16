@@ -19,7 +19,7 @@ import cn.taketoday.util.StringUtils;
  * @see ConditionalOnJndi
  * @since 4.0 2022/1/17 14:52
  */
-class OnJndiCondition extends ContextCondition implements Ordered {
+class OnJndiCondition extends InfraCondition implements Ordered {
 
   @Override
   public ConditionOutcome getMatchOutcome(ConditionContext context, AnnotatedTypeMetadata metadata) {

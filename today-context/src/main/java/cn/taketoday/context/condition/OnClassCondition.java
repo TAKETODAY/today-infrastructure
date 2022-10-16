@@ -42,7 +42,7 @@ import cn.taketoday.util.StringUtils;
  * @see ConditionalOnMissingClass
  * @since 4.0 2022/1/16 16:09
  */
-final class OnClassCondition extends FilteringContextCondition implements Condition, Ordered {
+final class OnClassCondition extends FilteringInfraCondition implements Condition, Ordered {
 
   @Override
   protected ConditionOutcome[] getOutcomes(String[] autoConfigurationClasses,

@@ -35,7 +35,7 @@ import cn.taketoday.context.condition.ConditionOutcome;
 import cn.taketoday.context.condition.ConditionalOnClass;
 import cn.taketoday.context.condition.ConditionalOnMissingBean;
 import cn.taketoday.context.condition.ConditionalOnProperty;
-import cn.taketoday.context.condition.ContextCondition;
+import cn.taketoday.context.condition.InfraCondition;
 import cn.taketoday.context.properties.EnableConfigurationProperties;
 import cn.taketoday.core.env.Environment;
 import cn.taketoday.core.type.AnnotatedTypeMetadata;
@@ -100,7 +100,7 @@ public class DataSourceAutoConfiguration {
   /**
    * {@link Condition} to test if a supported connection pool is available.
    */
-  static class PooledDataSourceAvailableCondition extends ContextCondition {
+  static class PooledDataSourceAvailableCondition extends InfraCondition {
 
     @Override
     public ConditionOutcome getMatchOutcome(ConditionContext context, AnnotatedTypeMetadata metadata) {
@@ -118,11 +118,11 @@ public class DataSourceAutoConfiguration {
    * If a pooled {@link DataSource} is available, it will always be preferred to an
    * {@code EmbeddedDatabase}.
    */
-  static class EmbeddedDatabaseCondition extends ContextCondition {
+  static class EmbeddedDatabaseCondition extends InfraCondition {
 
     private static final String DATASOURCE_URL_PROPERTY = "datasource.url";
 
-    private final ContextCondition pooledCondition = new PooledDataSourceCondition();
+    private final InfraCondition pooledCondition = new PooledDataSourceCondition();
 
     @Override
     public ConditionOutcome getMatchOutcome(ConditionContext context, AnnotatedTypeMetadata metadata) {
