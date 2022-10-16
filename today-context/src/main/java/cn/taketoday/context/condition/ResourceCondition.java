@@ -22,7 +22,6 @@ package cn.taketoday.context.condition;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
 import cn.taketoday.context.annotation.ConditionContext;
 import cn.taketoday.context.condition.ConditionMessage.Style;
@@ -78,7 +77,7 @@ public abstract class ResourceCondition extends InfraCondition {
    */
   protected ConditionOutcome getResourceOutcome(
           ConditionContext context, AnnotatedTypeMetadata metadata) {
-    List<String> found = new ArrayList<>();
+    ArrayList<String> found = new ArrayList<>();
     for (String location : this.resourceLocations) {
       Resource resource = context.getResourceLoader().getResource(location);
       if (resource != null && resource.exists()) {
@@ -86,11 +85,14 @@ public abstract class ResourceCondition extends InfraCondition {
       }
     }
     if (found.isEmpty()) {
-      ConditionMessage message = startConditionMessage().didNotFind("resource", "resources").items(Style.QUOTE,
-              Arrays.asList(this.resourceLocations));
+      ConditionMessage message = startConditionMessage()
+              .didNotFind("resource", "resources")
+              .items(Style.QUOTE, Arrays.asList(this.resourceLocations));
       return ConditionOutcome.noMatch(message);
     }
-    ConditionMessage message = startConditionMessage().found("resource", "resources").items(Style.QUOTE, found);
+    ConditionMessage message = startConditionMessage()
+            .found("resource", "resources")
+            .items(Style.QUOTE, found);
     return ConditionOutcome.match(message);
   }
 

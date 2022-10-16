@@ -73,9 +73,9 @@ public abstract class AbstractNestedCondition
 
   protected static class MemberMatchOutcomes {
 
-    private final List<ConditionOutcome> all;
-    private final List<ConditionOutcome> matches;
-    private final List<ConditionOutcome> nonMatches;
+    public final List<ConditionOutcome> all;
+    public final List<ConditionOutcome> matches;
+    public final List<ConditionOutcome> nonMatches;
 
     public MemberMatchOutcomes(MemberConditions memberConditions) {
       this.all = memberConditions.getMatchOutcomes();
@@ -86,18 +86,6 @@ public abstract class AbstractNestedCondition
       }
       this.matches = Collections.unmodifiableList(matches);
       this.nonMatches = Collections.unmodifiableList(nonMatches);
-    }
-
-    public List<ConditionOutcome> getAll() {
-      return this.all;
-    }
-
-    public List<ConditionOutcome> getMatches() {
-      return this.matches;
-    }
-
-    public List<ConditionOutcome> getNonMatches() {
-      return this.nonMatches;
     }
 
   }
@@ -135,8 +123,8 @@ public abstract class AbstractNestedCondition
     private void validateMemberCondition(
             Condition condition, ConfigurationPhase nestedPhase, String nestedClassName) {
       if (nestedPhase == ConfigurationPhase.PARSE_CONFIGURATION
-              && condition instanceof ConfigurationCondition) {
-        ConfigurationPhase memberPhase = ((ConfigurationCondition) condition).getConfigurationPhase();
+              && condition instanceof ConfigurationCondition ccd) {
+        ConfigurationPhase memberPhase = ccd.getConfigurationPhase();
         if (memberPhase == ConfigurationPhase.REGISTER_BEAN) {
           throw new IllegalStateException("Nested condition " + nestedClassName + " uses a configuration "
                   + "phase that is inappropriate for " + condition.getClass());
@@ -155,15 +143,19 @@ public abstract class AbstractNestedCondition
 
     @SuppressWarnings("unchecked")
     private List<String[]> getConditionClasses(AnnotatedTypeMetadata metadata) {
-      MultiValueMap<String, Object> attributes =
-              metadata.getAllAnnotationAttributes(Conditional.class.getName(), true);
-      Object values = (attributes != null) ? attributes.get("value") : null;
-      return (List<String[]>) ((values != null) ? values : Collections.emptyList());
+      var attributes = metadata.getAllAnnotationAttributes(Conditional.class.getName(), true);
+      if (attributes != null) {
+        Object values = attributes.get("value");
+        if (values != null) {
+          return (List<String[]>) values;
+        }
+      }
+      return Collections.emptyList();
     }
 
-    private Condition getCondition(String conditionClassName) {
-      Class<?> conditionClass = ClassUtils.resolveClassName(conditionClassName, this.context.getClassLoader());
-      return (Condition) BeanUtils.newInstance(conditionClass);
+    private Condition getCondition(String className) {
+      var conditionClass = ClassUtils.<Condition>resolveClassName(className, context.getClassLoader());
+      return BeanUtils.newInstance(conditionClass);
     }
 
     List<ConditionOutcome> getMatchOutcomes() {
@@ -171,7 +163,7 @@ public abstract class AbstractNestedCondition
       for (Map.Entry<AnnotationMetadata, List<Condition>> entry : memberConditions.entrySet()) {
         AnnotationMetadata metadata = entry.getKey();
         List<Condition> conditions = entry.getValue();
-        outcomes.add(new MemberOutcomes(this.context, metadata, conditions).getUltimateOutcome());
+        outcomes.add(new MemberOutcomes(context, metadata, conditions).getUltimateOutcome());
       }
       return Collections.unmodifiableList(outcomes);
     }
@@ -195,21 +187,21 @@ public abstract class AbstractNestedCondition
 
     private ConditionOutcome getConditionOutcome(AnnotationMetadata metadata, Condition condition) {
       if (condition instanceof InfraCondition) {
-        return ((InfraCondition) condition).getMatchOutcome(this.context, metadata);
+        return ((InfraCondition) condition).getMatchOutcome(context, metadata);
       }
-      return new ConditionOutcome(condition.matches(this.context, metadata), ConditionMessage.empty());
+      return new ConditionOutcome(condition.matches(context, metadata), ConditionMessage.empty());
     }
 
     ConditionOutcome getUltimateOutcome() {
-      ConditionMessage.Builder message = ConditionMessage.forCondition(
-              "NestedCondition on " + ClassUtils.getShortName(this.metadata.getClassName()));
-      if (this.outcomes.size() == 1) {
-        ConditionOutcome outcome = this.outcomes.get(0);
+      var message = ConditionMessage.forCondition(
+              "NestedCondition on " + ClassUtils.getShortName(metadata.getClassName()));
+      if (outcomes.size() == 1) {
+        ConditionOutcome outcome = outcomes.get(0);
         return new ConditionOutcome(outcome.isMatch(), message.because(outcome.getMessage()));
       }
       ArrayList<ConditionOutcome> match = new ArrayList<>();
       ArrayList<ConditionOutcome> nonMatch = new ArrayList<>();
-      for (ConditionOutcome outcome : this.outcomes) {
+      for (ConditionOutcome outcome : outcomes) {
         (outcome.isMatch() ? match : nonMatch).add(outcome);
       }
       if (nonMatch.isEmpty()) {
