@@ -456,32 +456,21 @@ public class WebMvcAutoConfiguration extends WebMvcConfigurationSupport {
     registrationCustomizersProvider.ifAvailable(customizer -> customizer.customize(registration));
   }
 
-  @Configuration(proxyBeanMethods = false)
+  @Component
   @ConditionalOnEnabledResourceChain
-  static class ResourceChainCustomizerConfiguration {
-
-    @Component
-    static ResourceChainResourceHandlerRegistrationCustomizer resourceHandlerRegistrationCustomizer(WebProperties webProperties) {
-      return new ResourceChainResourceHandlerRegistrationCustomizer(webProperties.getResources());
-    }
-
+  static ResourceHandlerRegistrationCustomizer resourceHandlerRegistrationCustomizer(
+          WebProperties webProperties) {
+    return new ResourceHandlerRegistrationCustomizer(webProperties.getResources());
   }
 
-  interface ResourceHandlerRegistrationCustomizer {
-
-    void customize(ResourceHandlerRegistration registration);
-
-  }
-
-  static class ResourceChainResourceHandlerRegistrationCustomizer implements ResourceHandlerRegistrationCustomizer {
+  static class ResourceHandlerRegistrationCustomizer {
 
     private final Resources resources;
 
-    ResourceChainResourceHandlerRegistrationCustomizer(Resources resourceProperties) {
+    ResourceHandlerRegistrationCustomizer(Resources resourceProperties) {
       this.resources = resourceProperties;
     }
 
-    @Override
     public void customize(ResourceHandlerRegistration registration) {
       Resources.Chain properties = resources.getChain();
       configureResourceChain(properties, registration.resourceChain(properties.isCache()));
