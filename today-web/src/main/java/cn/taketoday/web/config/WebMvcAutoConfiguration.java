@@ -443,7 +443,7 @@ public class WebMvcAutoConfiguration extends WebMvcConfigurationSupport {
     ResourceHandlerRegistration registration = registry.addResourceHandler(pattern);
     customizer.accept(registration);
     registration.setCachePeriod(getSeconds(resourceProperties.getCache().getPeriod()));
-    registration.setCacheControl(resourceProperties.getCache().getCachecontrol().toHttpCacheControl());
+    registration.setCacheControl(resourceProperties.getCache().getHttpCacheControl());
     registration.setUseLastModified(resourceProperties.getCache().isUseLastModified());
     customizeResourceHandlerRegistration(registration);
   }

@@ -399,6 +399,40 @@ public class WebProperties {
         return this.customized || getCachecontrol().hasBeenCustomized();
       }
 
+      public CacheControl getHttpCacheControl() {
+        PropertyMapper map = PropertyMapper.get();
+        CacheControl control = createCacheControl();
+        map.from(cachecontrol::getMustRevalidate).whenTrue().toCall(control::mustRevalidate);
+        map.from(cachecontrol::getNoTransform).whenTrue().toCall(control::noTransform);
+        map.from(cachecontrol::getCachePublic).whenTrue().toCall(control::cachePublic);
+        map.from(cachecontrol::getCachePrivate).whenTrue().toCall(control::cachePrivate);
+        map.from(cachecontrol::getProxyRevalidate).whenTrue().toCall(control::proxyRevalidate);
+        map.from(cachecontrol::getStaleWhileRevalidate).whenNonNull()
+                .to((duration) -> control.staleWhileRevalidate(duration.getSeconds(), TimeUnit.SECONDS));
+        map.from(cachecontrol::getStaleIfError).whenNonNull()
+                .to((duration) -> control.staleIfError(duration.getSeconds(), TimeUnit.SECONDS));
+        map.from(cachecontrol::getSMaxAge).whenNonNull()
+                .to((duration) -> control.sMaxAge(duration.getSeconds(), TimeUnit.SECONDS));
+        // check if cacheControl remained untouched
+        if (control.getHeaderValue() == null) {
+          return null;
+        }
+        return control;
+      }
+
+      private CacheControl createCacheControl() {
+        if (Boolean.TRUE.equals(cachecontrol.noStore)) {
+          return CacheControl.noStore();
+        }
+        if (Boolean.TRUE.equals(cachecontrol.noCache)) {
+          return CacheControl.noCache();
+        }
+        if (cachecontrol.maxAge != null) {
+          return CacheControl.maxAge(cachecontrol.maxAge.getSeconds(), TimeUnit.SECONDS);
+        }
+        return CacheControl.empty();
+      }
+
       /**
        * Cache Control HTTP header configuration.
        */
@@ -571,40 +605,6 @@ public class WebProperties {
         public void setSMaxAge(Duration sMaxAge) {
           this.customized = true;
           this.sMaxAge = sMaxAge;
-        }
-
-        public CacheControl toHttpCacheControl() {
-          PropertyMapper map = PropertyMapper.get();
-          CacheControl control = createCacheControl();
-          map.from(this::getMustRevalidate).whenTrue().toCall(control::mustRevalidate);
-          map.from(this::getNoTransform).whenTrue().toCall(control::noTransform);
-          map.from(this::getCachePublic).whenTrue().toCall(control::cachePublic);
-          map.from(this::getCachePrivate).whenTrue().toCall(control::cachePrivate);
-          map.from(this::getProxyRevalidate).whenTrue().toCall(control::proxyRevalidate);
-          map.from(this::getStaleWhileRevalidate).whenNonNull()
-                  .to((duration) -> control.staleWhileRevalidate(duration.getSeconds(), TimeUnit.SECONDS));
-          map.from(this::getStaleIfError).whenNonNull()
-                  .to((duration) -> control.staleIfError(duration.getSeconds(), TimeUnit.SECONDS));
-          map.from(this::getSMaxAge).whenNonNull()
-                  .to((duration) -> control.sMaxAge(duration.getSeconds(), TimeUnit.SECONDS));
-          // check if cacheControl remained untouched
-          if (control.getHeaderValue() == null) {
-            return null;
-          }
-          return control;
-        }
-
-        private CacheControl createCacheControl() {
-          if (Boolean.TRUE.equals(this.noStore)) {
-            return CacheControl.noStore();
-          }
-          if (Boolean.TRUE.equals(this.noCache)) {
-            return CacheControl.noCache();
-          }
-          if (this.maxAge != null) {
-            return CacheControl.maxAge(this.maxAge.getSeconds(), TimeUnit.SECONDS);
-          }
-          return CacheControl.empty();
         }
 
         private boolean hasBeenCustomized() {
