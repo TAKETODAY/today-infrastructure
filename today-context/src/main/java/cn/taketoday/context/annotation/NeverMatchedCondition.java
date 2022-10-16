@@ -11,7 +11,7 @@ import cn.taketoday.core.type.AnnotatedTypeMetadata;
 public class NeverMatchedCondition implements Condition {
 
   @Override
-  public boolean matches(ConditionEvaluationContext context, AnnotatedTypeMetadata metadata) {
+  public boolean matches(ConditionContext context, AnnotatedTypeMetadata metadata) {
     return false;
   }
 

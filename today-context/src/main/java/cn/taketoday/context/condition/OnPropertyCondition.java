@@ -25,7 +25,7 @@ import java.util.List;
 import java.util.Map;
 
 import cn.taketoday.context.annotation.Condition;
-import cn.taketoday.context.annotation.ConditionEvaluationContext;
+import cn.taketoday.context.annotation.ConditionContext;
 import cn.taketoday.context.condition.ConditionMessage.Style;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.annotation.AnnotationAttributes;
@@ -56,7 +56,7 @@ class OnPropertyCondition extends ContextCondition implements Ordered {
 
   @Override
   public ConditionOutcome getMatchOutcome(
-          ConditionEvaluationContext context, AnnotatedTypeMetadata metadata) {
+          ConditionContext context, AnnotatedTypeMetadata metadata) {
     List<AnnotationAttributes> allAnnotationAttributes = metadata.getAnnotations()
             .stream(ConditionalOnProperty.class)
             .filter(MergedAnnotationPredicates.unique(MergedAnnotation::getMetaTypes))

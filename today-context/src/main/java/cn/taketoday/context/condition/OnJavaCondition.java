@@ -23,7 +23,7 @@ package cn.taketoday.context.condition;
 import java.util.Map;
 
 import cn.taketoday.context.annotation.Condition;
-import cn.taketoday.context.annotation.ConditionEvaluationContext;
+import cn.taketoday.context.annotation.ConditionContext;
 import cn.taketoday.context.condition.ConditionalOnJava.Range;
 import cn.taketoday.core.JavaVersion;
 import cn.taketoday.core.Ordered;
@@ -45,7 +45,7 @@ class OnJavaCondition extends ContextCondition {
   private static final JavaVersion JVM_VERSION = JavaVersion.getJavaVersion();
 
   @Override
-  public ConditionOutcome getMatchOutcome(ConditionEvaluationContext context, AnnotatedTypeMetadata metadata) {
+  public ConditionOutcome getMatchOutcome(ConditionContext context, AnnotatedTypeMetadata metadata) {
     Map<String, Object> attributes = metadata.getAnnotationAttributes(ConditionalOnJava.class.getName());
     Range range = (Range) attributes.get("range");
     JavaVersion version = (JavaVersion) attributes.get("value");

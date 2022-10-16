@@ -24,7 +24,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import cn.taketoday.context.annotation.ConditionEvaluationContext;
+import cn.taketoday.context.annotation.ConditionContext;
 import cn.taketoday.context.condition.ConditionMessage.Style;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.core.type.AnnotatedTypeMetadata;
@@ -62,7 +62,7 @@ public abstract class ResourceCondition extends ContextCondition {
   }
 
   @Override
-  public ConditionOutcome getMatchOutcome(ConditionEvaluationContext context, AnnotatedTypeMetadata metadata) {
+  public ConditionOutcome getMatchOutcome(ConditionContext context, AnnotatedTypeMetadata metadata) {
     if (context.getEnvironment().containsProperty(this.property)) {
       return ConditionOutcome.match(startConditionMessage().foundExactly("property " + this.property));
     }
@@ -77,7 +77,7 @@ public abstract class ResourceCondition extends ContextCondition {
    * @return the condition outcome
    */
   protected ConditionOutcome getResourceOutcome(
-          ConditionEvaluationContext context, AnnotatedTypeMetadata metadata) {
+          ConditionContext context, AnnotatedTypeMetadata metadata) {
     List<String> found = new ArrayList<>();
     for (String location : this.resourceLocations) {
       Resource resource = context.getResourceLoader().getResource(location);

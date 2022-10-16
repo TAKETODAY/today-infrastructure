@@ -25,7 +25,7 @@ import java.util.Collections;
 import java.util.List;
 
 import cn.taketoday.context.annotation.Condition;
-import cn.taketoday.context.annotation.ConditionEvaluationContext;
+import cn.taketoday.context.annotation.ConditionContext;
 import cn.taketoday.context.annotation.config.AutoConfigurationMetadata;
 import cn.taketoday.context.condition.ConditionMessage.Style;
 import cn.taketoday.core.MultiValueMap;
@@ -88,7 +88,7 @@ final class OnClassCondition extends FilteringContextCondition implements Condit
 
   @Override
   public ConditionOutcome getMatchOutcome(
-          ConditionEvaluationContext context, AnnotatedTypeMetadata metadata) {
+          ConditionContext context, AnnotatedTypeMetadata metadata) {
     ClassLoader classLoader = context.getClassLoader();
     ConditionMessage matchMessage = ConditionMessage.empty();
     List<String> onClasses = getCandidates(metadata, ConditionalOnClass.class);

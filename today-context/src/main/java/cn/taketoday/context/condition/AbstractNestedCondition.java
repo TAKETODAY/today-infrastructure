@@ -28,7 +28,7 @@ import java.util.Map;
 
 import cn.taketoday.beans.BeanUtils;
 import cn.taketoday.context.annotation.Condition;
-import cn.taketoday.context.annotation.ConditionEvaluationContext;
+import cn.taketoday.context.annotation.ConditionContext;
 import cn.taketoday.context.annotation.Conditional;
 import cn.taketoday.context.annotation.ConfigurationCondition;
 import cn.taketoday.core.MultiValueMap;
@@ -62,7 +62,7 @@ public abstract class AbstractNestedCondition
   }
 
   @Override
-  public ConditionOutcome getMatchOutcome(ConditionEvaluationContext context, AnnotatedTypeMetadata metadata) {
+  public ConditionOutcome getMatchOutcome(ConditionContext context, AnnotatedTypeMetadata metadata) {
     String className = getClass().getName();
     MemberConditions memberConditions = new MemberConditions(context, this.configurationPhase, className);
     MemberMatchOutcomes memberOutcomes = new MemberMatchOutcomes(memberConditions);
@@ -104,12 +104,12 @@ public abstract class AbstractNestedCondition
 
   private static class MemberConditions {
 
-    private final ConditionEvaluationContext context;
+    private final ConditionContext context;
     private final MetadataReaderFactory readerFactory;
 
     private final Map<AnnotationMetadata, List<Condition>> memberConditions;
 
-    MemberConditions(ConditionEvaluationContext context, ConfigurationPhase phase, String className) {
+    MemberConditions(ConditionContext context, ConfigurationPhase phase, String className) {
       this.context = context;
       this.readerFactory = new SimpleMetadataReaderFactory(context.getResourceLoader());
       String[] members = getMetadata(className).getMemberClassNames();
@@ -182,9 +182,9 @@ public abstract class AbstractNestedCondition
 
     private final AnnotationMetadata metadata;
     private final List<ConditionOutcome> outcomes;
-    private final ConditionEvaluationContext context;
+    private final ConditionContext context;
 
-    MemberOutcomes(ConditionEvaluationContext context, AnnotationMetadata metadata, List<Condition> conditions) {
+    MemberOutcomes(ConditionContext context, AnnotationMetadata metadata, List<Condition> conditions) {
       this.context = context;
       this.metadata = metadata;
       this.outcomes = new ArrayList<>(conditions.size());

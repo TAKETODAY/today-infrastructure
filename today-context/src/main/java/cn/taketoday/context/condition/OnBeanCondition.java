@@ -41,7 +41,7 @@ import cn.taketoday.beans.factory.HierarchicalBeanFactory;
 import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
 import cn.taketoday.context.annotation.Condition;
-import cn.taketoday.context.annotation.ConditionEvaluationContext;
+import cn.taketoday.context.annotation.ConditionContext;
 import cn.taketoday.context.annotation.ConfigurationCondition;
 import cn.taketoday.context.annotation.config.AutoConfigurationMetadata;
 import cn.taketoday.context.condition.ConditionMessage.Style;
@@ -56,8 +56,8 @@ import cn.taketoday.core.annotation.MergedAnnotations;
 import cn.taketoday.core.type.AnnotatedTypeMetadata;
 import cn.taketoday.core.type.MethodMetadata;
 import cn.taketoday.lang.Assert;
-import cn.taketoday.stereotype.Component;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.stereotype.Component;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ReflectionUtils;
@@ -113,7 +113,7 @@ class OnBeanCondition extends FilteringContextCondition implements Configuration
   }
 
   @Override
-  public ConditionOutcome getMatchOutcome(ConditionEvaluationContext context, AnnotatedTypeMetadata metadata) {
+  public ConditionOutcome getMatchOutcome(ConditionContext context, AnnotatedTypeMetadata metadata) {
     ConditionMessage matchMessage = ConditionMessage.empty();
     MergedAnnotations annotations = metadata.getAnnotations();
 
@@ -167,7 +167,7 @@ class OnBeanCondition extends FilteringContextCondition implements Configuration
     return ConditionOutcome.match(matchMessage);
   }
 
-  protected final MatchResult getMatchingBeans(ConditionEvaluationContext context, Spec<?> spec) {
+  protected final MatchResult getMatchingBeans(ConditionContext context, Spec<?> spec) {
     ClassLoader classLoader = context.getClassLoader();
     ConfigurableBeanFactory beanFactory = context.getRequiredBeanFactory();
     boolean considerHierarchy = spec.getStrategy() != SearchStrategy.CURRENT;
@@ -417,7 +417,7 @@ class OnBeanCondition extends FilteringContextCondition implements Configuration
     private final SearchStrategy strategy;
     private final Set<Class<?>> parameterizedContainers;
 
-    Spec(ConditionEvaluationContext context, AnnotatedTypeMetadata metadata, MergedAnnotations annotations, Class<A> annotationType) {
+    Spec(ConditionContext context, AnnotatedTypeMetadata metadata, MergedAnnotations annotations, Class<A> annotationType) {
       MultiValueMap<String, Object> attributes = annotations.stream(annotationType)
               .filter(MergedAnnotationPredicates.unique(MergedAnnotation::getMetaTypes))
               .collect(MergedAnnotationCollectors.toMultiValueMap(Adapt.CLASS_TO_STRING));
@@ -506,14 +506,14 @@ class OnBeanCondition extends FilteringContextCondition implements Configuration
       return "@" + ClassUtils.getShortName(this.annotationType);
     }
 
-    private Set<String> deducedBeanType(ConditionEvaluationContext context, AnnotatedTypeMetadata metadata) {
+    private Set<String> deducedBeanType(ConditionContext context, AnnotatedTypeMetadata metadata) {
       if (metadata instanceof MethodMetadata && metadata.isAnnotated(Component.class.getName())) {
         return deducedBeanTypeForBeanMethod(context, (MethodMetadata) metadata);
       }
       return Collections.emptySet();
     }
 
-    private Set<String> deducedBeanTypeForBeanMethod(ConditionEvaluationContext context, MethodMetadata metadata) {
+    private Set<String> deducedBeanTypeForBeanMethod(ConditionContext context, MethodMetadata metadata) {
       try {
         Class<?> returnType = getReturnType(context, metadata);
         return Collections.singleton(returnType.getName());
@@ -523,7 +523,7 @@ class OnBeanCondition extends FilteringContextCondition implements Configuration
       }
     }
 
-    private Class<?> getReturnType(ConditionEvaluationContext context, MethodMetadata metadata)
+    private Class<?> getReturnType(ConditionContext context, MethodMetadata metadata)
             throws ClassNotFoundException, LinkageError {
       // Safe to load at this point since we are in the REGISTER_BEAN phase
       ClassLoader classLoader = context.getClassLoader();
@@ -643,7 +643,7 @@ class OnBeanCondition extends FilteringContextCondition implements Configuration
 
     private static final Collection<String> FILTERED_TYPES = Arrays.asList("", Object.class.getName());
 
-    SingleCandidateSpec(ConditionEvaluationContext context, AnnotatedTypeMetadata metadata, MergedAnnotations annotations) {
+    SingleCandidateSpec(ConditionContext context, AnnotatedTypeMetadata metadata, MergedAnnotations annotations) {
       super(context, metadata, annotations, ConditionalOnSingleCandidate.class);
     }
 

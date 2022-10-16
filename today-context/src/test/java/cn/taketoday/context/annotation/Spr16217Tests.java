@@ -66,7 +66,7 @@ public class Spr16217Tests {
   public static class RegisterBeanPhaseCondition implements ConfigurationCondition {
 
     @Override
-    public boolean matches(ConditionEvaluationContext context, AnnotatedTypeMetadata metadata) {
+    public boolean matches(ConditionContext context, AnnotatedTypeMetadata metadata) {
       return false;
     }
 
@@ -79,7 +79,7 @@ public class Spr16217Tests {
   public static class ParseConfigurationPhaseCondition implements ConfigurationCondition {
 
     @Override
-    public boolean matches(ConditionEvaluationContext context, AnnotatedTypeMetadata metadata) {
+    public boolean matches(ConditionContext context, AnnotatedTypeMetadata metadata) {
       return false;
     }
 

@@ -24,7 +24,7 @@ import java.util.List;
 import java.util.function.Supplier;
 
 import cn.taketoday.context.annotation.Condition;
-import cn.taketoday.context.annotation.ConditionEvaluationContext;
+import cn.taketoday.context.annotation.ConditionContext;
 import cn.taketoday.context.properties.bind.BindResult;
 import cn.taketoday.context.properties.bind.Bindable;
 import cn.taketoday.context.properties.bind.Binder;
@@ -60,7 +60,7 @@ public class OnPropertyListCondition extends ContextCondition {
   }
 
   @Override
-  public ConditionOutcome getMatchOutcome(ConditionEvaluationContext context, AnnotatedTypeMetadata metadata) {
+  public ConditionOutcome getMatchOutcome(ConditionContext context, AnnotatedTypeMetadata metadata) {
     BindResult<?> property = Binder.get(context.getEnvironment()).bind(this.propertyName, STRING_LIST);
     ConditionMessage.Builder messageBuilder = this.messageBuilder.get();
     if (property.isBound()) {

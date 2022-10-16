@@ -21,7 +21,7 @@
 package cn.taketoday.context.condition;
 
 import cn.taketoday.context.annotation.Condition;
-import cn.taketoday.context.annotation.ConditionEvaluationContext;
+import cn.taketoday.context.annotation.ConditionContext;
 import cn.taketoday.core.type.AnnotatedTypeMetadata;
 import cn.taketoday.core.type.AnnotationMetadata;
 import cn.taketoday.core.type.ClassMetadata;
@@ -44,7 +44,7 @@ public abstract class ContextCondition implements Condition {
   private static final Logger log = LoggerFactory.getLogger(ContextCondition.class);
 
   @Override
-  public boolean matches(ConditionEvaluationContext context, AnnotatedTypeMetadata metadata) {
+  public boolean matches(ConditionContext context, AnnotatedTypeMetadata metadata) {
     String classOrMethodName = getClassOrMethodName(metadata);
     try {
       ConditionOutcome outcome = getMatchOutcome(context, metadata);
@@ -103,7 +103,7 @@ public abstract class ContextCondition implements Condition {
   }
 
   private void recordEvaluation(
-          ConditionEvaluationContext context, String classOrMethodName, ConditionOutcome outcome) {
+          ConditionContext context, String classOrMethodName, ConditionOutcome outcome) {
     if (context.getBeanFactory() != null) {
       ConditionEvaluationReport.get(context.getBeanFactory())
               .recordConditionEvaluation(classOrMethodName, this, outcome);
@@ -118,7 +118,7 @@ public abstract class ContextCondition implements Condition {
    * @return the condition outcome
    */
   public abstract ConditionOutcome getMatchOutcome(
-          ConditionEvaluationContext context, AnnotatedTypeMetadata metadata);
+          ConditionContext context, AnnotatedTypeMetadata metadata);
 
   /**
    * Return true if any of the specified conditions match.
@@ -129,7 +129,7 @@ public abstract class ContextCondition implements Condition {
    * @return {@code true} if any condition matches.
    */
   protected final boolean anyMatches(
-          ConditionEvaluationContext context, AnnotatedTypeMetadata metadata, Condition... conditions) {
+          ConditionContext context, AnnotatedTypeMetadata metadata, Condition... conditions) {
     for (Condition condition : conditions) {
       if (matches(context, metadata, condition)) {
         return true;
@@ -147,7 +147,7 @@ public abstract class ContextCondition implements Condition {
    * @return {@code true} if the condition matches.
    */
   protected final boolean matches(
-          ConditionEvaluationContext context, AnnotatedTypeMetadata metadata, Condition condition) {
+          ConditionContext context, AnnotatedTypeMetadata metadata, Condition condition) {
     if (condition instanceof ContextCondition) {
       return ((ContextCondition) condition).getMatchOutcome(context, metadata).isMatch();
     }

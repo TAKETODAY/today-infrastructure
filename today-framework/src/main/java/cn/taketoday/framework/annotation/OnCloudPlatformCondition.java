@@ -23,7 +23,7 @@ package cn.taketoday.framework.annotation;
 import java.util.Map;
 
 import cn.taketoday.context.annotation.Condition;
-import cn.taketoday.context.annotation.ConditionEvaluationContext;
+import cn.taketoday.context.annotation.ConditionContext;
 import cn.taketoday.context.condition.ConditionMessage;
 import cn.taketoday.context.condition.ConditionOutcome;
 import cn.taketoday.context.condition.ContextCondition;
@@ -42,7 +42,7 @@ import cn.taketoday.framework.cloud.CloudPlatform;
 class OnCloudPlatformCondition extends ContextCondition {
 
   @Override
-  public ConditionOutcome getMatchOutcome(ConditionEvaluationContext context, AnnotatedTypeMetadata metadata) {
+  public ConditionOutcome getMatchOutcome(ConditionContext context, AnnotatedTypeMetadata metadata) {
     Map<String, Object> attributes = metadata.getAnnotationAttributes(ConditionalOnCloudPlatform.class.getName());
     CloudPlatform cloudPlatform = (CloudPlatform) attributes.get("value");
     return getMatchOutcome(context.getEnvironment(), cloudPlatform);

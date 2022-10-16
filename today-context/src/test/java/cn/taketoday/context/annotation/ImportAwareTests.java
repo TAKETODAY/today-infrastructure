@@ -356,7 +356,7 @@ public class ImportAwareTests {
   private static final class OnMissingBeanCondition implements ConfigurationCondition {
 
     @Override
-    public boolean matches(ConditionEvaluationContext context, AnnotatedTypeMetadata metadata) {
+    public boolean matches(ConditionContext context, AnnotatedTypeMetadata metadata) {
       return (context.getBeanFactory().getBeanNamesForType(MetadataHolder.class, true, false).size() == 0);
     }
 

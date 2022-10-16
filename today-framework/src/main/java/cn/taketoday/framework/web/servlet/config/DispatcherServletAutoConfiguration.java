@@ -23,7 +23,7 @@ package cn.taketoday.framework.web.servlet.config;
 import java.util.Set;
 
 import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
-import cn.taketoday.context.annotation.ConditionEvaluationContext;
+import cn.taketoday.context.annotation.ConditionContext;
 import cn.taketoday.context.annotation.Conditional;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.config.AutoConfiguration;
@@ -131,7 +131,7 @@ public class DispatcherServletAutoConfiguration {
 
     @Override
     public ConditionOutcome getMatchOutcome(
-            ConditionEvaluationContext context, AnnotatedTypeMetadata metadata) {
+            ConditionContext context, AnnotatedTypeMetadata metadata) {
       var message = ConditionMessage.forCondition("Default DispatcherServlet");
       var beanFactory = context.getRequiredBeanFactory();
       var dispatchServletBeans = beanFactory.getBeanNamesForType(DispatcherServlet.class, false, false);
@@ -163,7 +163,7 @@ public class DispatcherServletAutoConfiguration {
   private static class DispatcherServletRegistrationCondition extends ContextCondition {
 
     @Override
-    public ConditionOutcome getMatchOutcome(ConditionEvaluationContext context, AnnotatedTypeMetadata metadata) {
+    public ConditionOutcome getMatchOutcome(ConditionContext context, AnnotatedTypeMetadata metadata) {
       ConfigurableBeanFactory beanFactory = context.getRequiredBeanFactory();
       ConditionOutcome outcome = checkDefaultDispatcherName(beanFactory);
       if (!outcome.isMatch()) {

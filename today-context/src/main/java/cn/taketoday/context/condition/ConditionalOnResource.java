@@ -26,7 +26,7 @@ import java.lang.annotation.Target;
 import java.util.ArrayList;
 import java.util.List;
 
-import cn.taketoday.context.annotation.ConditionEvaluationContext;
+import cn.taketoday.context.annotation.ConditionContext;
 import cn.taketoday.context.annotation.Conditional;
 import cn.taketoday.context.condition.ConditionMessage.Style;
 import cn.taketoday.core.MultiValueMap;
@@ -57,7 +57,7 @@ public @interface ConditionalOnResource {
 final class OnResourceCondition extends ContextCondition {
 
   @Override
-  public ConditionOutcome getMatchOutcome(ConditionEvaluationContext context, AnnotatedTypeMetadata metadata) {
+  public ConditionOutcome getMatchOutcome(ConditionContext context, AnnotatedTypeMetadata metadata) {
     MultiValueMap<String, Object> attributes = metadata.getAllAnnotationAttributes(ConditionalOnResource.class.getName(), true);
     ResourceLoader loader = context.getResourceLoader();
     List<String> locations = new ArrayList<>();

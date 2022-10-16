@@ -21,7 +21,7 @@
 package cn.taketoday.framework.annotation;
 
 import cn.taketoday.context.annotation.Condition;
-import cn.taketoday.context.annotation.ConditionEvaluationContext;
+import cn.taketoday.context.annotation.ConditionContext;
 import cn.taketoday.context.annotation.config.AutoConfigurationMetadata;
 import cn.taketoday.context.condition.ConditionMessage;
 import cn.taketoday.context.condition.ConditionOutcome;
@@ -96,7 +96,7 @@ class OnWebApplicationCondition extends FilteringContextCondition implements Ord
   }
 
   @Override
-  public ConditionOutcome getMatchOutcome(ConditionEvaluationContext context, AnnotatedTypeMetadata metadata) {
+  public ConditionOutcome getMatchOutcome(ConditionContext context, AnnotatedTypeMetadata metadata) {
     boolean required = metadata.isAnnotated(ConditionalOnWebApplication.class.getName());
     ConditionOutcome outcome = isWebApplication(context, metadata, required);
     if (required && !outcome.isMatch()) {
@@ -109,7 +109,7 @@ class OnWebApplicationCondition extends FilteringContextCondition implements Ord
   }
 
   private ConditionOutcome isWebApplication(
-          ConditionEvaluationContext context, AnnotatedTypeMetadata metadata, boolean required) {
+          ConditionContext context, AnnotatedTypeMetadata metadata, boolean required) {
     return switch (deduceType(metadata)) {
       case SERVLET -> isServletWebApplication(context);
       case REACTIVE -> isReactiveWebApplication(context);
@@ -117,7 +117,7 @@ class OnWebApplicationCondition extends FilteringContextCondition implements Ord
     };
   }
 
-  private ConditionOutcome isAnyApplication(ConditionEvaluationContext context, boolean required) {
+  private ConditionOutcome isAnyApplication(ConditionContext context, boolean required) {
     var message = ConditionMessage.forCondition(
             ConditionalOnWebApplication.class, required ? "(required)" : "");
     ConditionOutcome servletOutcome = isServletWebApplication(context);
@@ -132,7 +132,7 @@ class OnWebApplicationCondition extends FilteringContextCondition implements Ord
             message.because(servletOutcome.getMessage()).append("and").append(reactiveOutcome.getMessage()));
   }
 
-  private ConditionOutcome isServletWebApplication(ConditionEvaluationContext context) {
+  private ConditionOutcome isServletWebApplication(ConditionContext context) {
     var message = ConditionMessage.forCondition("");
     if (!ClassNameFilter.isPresent(ApplicationType.SERVLET_INDICATOR_CLASS, context.getClassLoader())) {
       return ConditionOutcome.noMatch(message.didNotFind("servlet web application classes").atAll());
@@ -152,7 +152,7 @@ class OnWebApplicationCondition extends FilteringContextCondition implements Ord
     return ConditionOutcome.noMatch(message.because("not a servlet web application"));
   }
 
-  private ConditionOutcome isReactiveWebApplication(ConditionEvaluationContext context) {
+  private ConditionOutcome isReactiveWebApplication(ConditionContext context) {
     var message = ConditionMessage.forCondition("");
     if (!ClassNameFilter.isPresent(ApplicationType.NETTY_INDICATOR_CLASS, context.getClassLoader())) {
       return ConditionOutcome.noMatch(message.didNotFind("reactive web application classes").atAll());

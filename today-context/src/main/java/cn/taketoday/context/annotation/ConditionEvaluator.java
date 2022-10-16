@@ -47,10 +47,10 @@ import cn.taketoday.util.ClassUtils;
  * @since 4.0
  */
 public class ConditionEvaluator {
-  private final ConditionEvaluationContext evaluationContext;
+  private final ConditionContext evaluationContext;
 
   public ConditionEvaluator(ApplicationContext context, BeanDefinitionRegistry registry) {
-    this.evaluationContext = new ConditionEvaluationContext(context, registry);
+    this.evaluationContext = new ConditionContext(context, registry);
   }
 
   /**
@@ -59,7 +59,7 @@ public class ConditionEvaluator {
   public ConditionEvaluator(@Nullable Environment environment,
                             @Nullable ResourceLoader resourceLoader,
                             @Nullable BeanDefinitionRegistry registry) {
-    this.evaluationContext = new ConditionEvaluationContext(registry, environment, resourceLoader);
+    this.evaluationContext = new ConditionContext(registry, environment, resourceLoader);
   }
 
   /**

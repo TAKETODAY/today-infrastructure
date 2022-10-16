@@ -27,7 +27,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 import cn.taketoday.context.annotation.Condition;
-import cn.taketoday.context.annotation.ConditionEvaluationContext;
+import cn.taketoday.context.annotation.ConditionContext;
 import cn.taketoday.context.annotation.Conditional;
 import cn.taketoday.context.condition.ConditionMessage;
 import cn.taketoday.context.condition.ConditionOutcome;
@@ -70,7 +70,7 @@ class OnEnabledResourceChainCondition extends ContextCondition {
 
   @Override
   public ConditionOutcome getMatchOutcome(
-          ConditionEvaluationContext context, AnnotatedTypeMetadata metadata) {
+          ConditionContext context, AnnotatedTypeMetadata metadata) {
     ConfigurableEnvironment environment = (ConfigurableEnvironment) context.getEnvironment();
     boolean fixed = getEnabledProperty(environment, "strategy.fixed.", false);
     boolean content = getEnabledProperty(environment, "strategy.content.", false);

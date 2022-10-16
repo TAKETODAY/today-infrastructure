@@ -39,7 +39,7 @@ import cn.taketoday.util.ClassUtils;
  * @author TODAY 2021/10/1 21:13
  * @since 4.0
  */
-public class ConditionEvaluationContext {
+public class ConditionContext {
 
   @Nullable
   private final BeanDefinitionRegistry registry;
@@ -53,7 +53,7 @@ public class ConditionEvaluationContext {
 
   private final ClassLoader classLoader;
 
-  public ConditionEvaluationContext(ApplicationContext context, @Nullable BeanDefinitionRegistry registry) {
+  public ConditionContext(ApplicationContext context, @Nullable BeanDefinitionRegistry registry) {
     this.registry = registry;
     this.resourceLoader = context;
     this.environment = context.getEnvironment();
@@ -61,7 +61,7 @@ public class ConditionEvaluationContext {
     this.classLoader = deduceClassLoader(resourceLoader, this.beanFactory);
   }
 
-  public ConditionEvaluationContext(
+  public ConditionContext(
           @Nullable BeanDefinitionRegistry registry,
           @Nullable Environment environment, @Nullable ResourceLoader resourceLoader) {
 

@@ -120,7 +120,7 @@ public @interface Profile {
 final class ProfileCondition implements Condition {
 
   @Override
-  public boolean matches(ConditionEvaluationContext context, AnnotatedTypeMetadata metadata) {
+  public boolean matches(ConditionContext context, AnnotatedTypeMetadata metadata) {
     MultiValueMap<String, Object> attrs = metadata.getAllAnnotationAttributes(Profile.class.getName());
     if (attrs != null) {
       Environment environment = context.getEnvironment();

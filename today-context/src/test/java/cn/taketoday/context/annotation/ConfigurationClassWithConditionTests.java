@@ -225,7 +225,7 @@ public class ConfigurationClassWithConditionTests {
   static class NoBeanOneCondition implements Condition {
 
     @Override
-    public boolean matches(ConditionEvaluationContext context, AnnotatedTypeMetadata metadata) {
+    public boolean matches(ConditionContext context, AnnotatedTypeMetadata metadata) {
       return !context.getBeanFactory().containsBeanDefinition("bean1");
     }
   }
@@ -238,7 +238,7 @@ public class ConfigurationClassWithConditionTests {
     }
 
     @Override
-    public boolean matches(ConditionEvaluationContext context, AnnotatedTypeMetadata metadata) {
+    public boolean matches(ConditionContext context, AnnotatedTypeMetadata metadata) {
       return context.getBeanFactory().containsBeanDefinition("bean1");
     }
   }
@@ -246,7 +246,7 @@ public class ConfigurationClassWithConditionTests {
   static class MetaConditionalFilter implements Condition {
 
     @Override
-    public boolean matches(ConditionEvaluationContext context, AnnotatedTypeMetadata metadata) {
+    public boolean matches(ConditionContext context, AnnotatedTypeMetadata metadata) {
       AnnotationAttributes attributes = AnnotationAttributes.fromMap(metadata.getAnnotationAttributes(MetaConditional.class.getName()));
       assertThat(attributes.getString("value")).isEqualTo("test");
       return true;
@@ -256,7 +256,7 @@ public class ConfigurationClassWithConditionTests {
   static class NeverCondition implements Condition {
 
     @Override
-    public boolean matches(ConditionEvaluationContext context, AnnotatedTypeMetadata metadata) {
+    public boolean matches(ConditionContext context, AnnotatedTypeMetadata metadata) {
       return false;
     }
   }
@@ -264,7 +264,7 @@ public class ConfigurationClassWithConditionTests {
   static class AlwaysCondition implements Condition {
 
     @Override
-    public boolean matches(ConditionEvaluationContext context, AnnotatedTypeMetadata metadata) {
+    public boolean matches(ConditionContext context, AnnotatedTypeMetadata metadata) {
       return true;
     }
   }

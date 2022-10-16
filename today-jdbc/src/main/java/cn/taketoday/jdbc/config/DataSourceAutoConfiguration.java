@@ -24,7 +24,7 @@ import javax.sql.DataSource;
 import javax.sql.XADataSource;
 
 import cn.taketoday.context.annotation.Condition;
-import cn.taketoday.context.annotation.ConditionEvaluationContext;
+import cn.taketoday.context.annotation.ConditionContext;
 import cn.taketoday.context.annotation.Conditional;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Import;
@@ -103,7 +103,7 @@ public class DataSourceAutoConfiguration {
   static class PooledDataSourceAvailableCondition extends ContextCondition {
 
     @Override
-    public ConditionOutcome getMatchOutcome(ConditionEvaluationContext context, AnnotatedTypeMetadata metadata) {
+    public ConditionOutcome getMatchOutcome(ConditionContext context, AnnotatedTypeMetadata metadata) {
       ConditionMessage.Builder message = ConditionMessage.forCondition("PooledDataSource");
       if (DataSourceBuilder.findType(context.getClassLoader()) != null) {
         return ConditionOutcome.match(message.foundExactly("supported DataSource"));
@@ -125,7 +125,7 @@ public class DataSourceAutoConfiguration {
     private final ContextCondition pooledCondition = new PooledDataSourceCondition();
 
     @Override
-    public ConditionOutcome getMatchOutcome(ConditionEvaluationContext context, AnnotatedTypeMetadata metadata) {
+    public ConditionOutcome getMatchOutcome(ConditionContext context, AnnotatedTypeMetadata metadata) {
       ConditionMessage.Builder message = ConditionMessage.forCondition("EmbeddedDataSource");
       if (hasDataSourceUrlProperty(context)) {
         return ConditionOutcome.noMatch(message.because(DATASOURCE_URL_PROPERTY + " is set"));
@@ -140,7 +140,7 @@ public class DataSourceAutoConfiguration {
       return ConditionOutcome.match(message.found("embedded database").items(type));
     }
 
-    private boolean hasDataSourceUrlProperty(ConditionEvaluationContext context) {
+    private boolean hasDataSourceUrlProperty(ConditionContext context) {
       Environment environment = context.getEnvironment();
       if (environment.containsProperty(DATASOURCE_URL_PROPERTY)) {
         try {

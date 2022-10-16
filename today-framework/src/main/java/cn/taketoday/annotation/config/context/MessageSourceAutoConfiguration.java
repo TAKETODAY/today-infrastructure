@@ -25,7 +25,7 @@ import java.util.Collections;
 import java.util.Set;
 
 import cn.taketoday.context.MessageSource;
-import cn.taketoday.context.annotation.ConditionEvaluationContext;
+import cn.taketoday.context.annotation.ConditionContext;
 import cn.taketoday.context.annotation.Conditional;
 import cn.taketoday.context.annotation.config.AutoConfiguration;
 import cn.taketoday.context.annotation.config.AutoConfigureOrder;
@@ -98,7 +98,7 @@ public class MessageSourceAutoConfiguration {
             cache = new ConcurrentReferenceHashMap<>();
 
     @Override
-    public ConditionOutcome getMatchOutcome(ConditionEvaluationContext context, AnnotatedTypeMetadata metadata) {
+    public ConditionOutcome getMatchOutcome(ConditionContext context, AnnotatedTypeMetadata metadata) {
       String basename = context.getEnvironment().getProperty("infra.messages.basename", "messages");
       ConditionOutcome outcome = cache.get(basename);
       if (outcome == null) {
@@ -108,7 +108,7 @@ public class MessageSourceAutoConfiguration {
       return outcome;
     }
 
-    private ConditionOutcome getMatchOutcomeForBasename(ConditionEvaluationContext context, String basename) {
+    private ConditionOutcome getMatchOutcomeForBasename(ConditionContext context, String basename) {
       ConditionMessage.Builder message = ConditionMessage.forCondition("ResourceBundle");
       for (String name : StringUtils.commaDelimitedListToStringArray(StringUtils.trimAllWhitespace(basename))) {
         for (Resource resource : getResources(context.getClassLoader(), name)) {

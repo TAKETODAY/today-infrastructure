@@ -94,7 +94,7 @@ public class Spr11202Tests {
   protected static class NoBarCondition implements Condition {
 
     @Override
-    public boolean matches(ConditionEvaluationContext context, AnnotatedTypeMetadata metadata) {
+    public boolean matches(ConditionContext context, AnnotatedTypeMetadata metadata) {
       if (context.getBeanFactory().getBeanNamesForAnnotation(Bar.class).size() > 0) {
         return false;
       }

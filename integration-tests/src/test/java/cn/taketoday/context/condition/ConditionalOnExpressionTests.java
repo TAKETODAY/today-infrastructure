@@ -25,7 +25,7 @@ import org.junit.jupiter.api.Test;
 import java.util.Collections;
 
 import cn.taketoday.context.annotation.Bean;
-import cn.taketoday.context.annotation.ConditionEvaluationContext;
+import cn.taketoday.context.annotation.ConditionContext;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.core.type.AnnotatedTypeMetadata;
@@ -68,7 +68,7 @@ class ConditionalOnExpressionTests {
   void expressionEvaluationWithNoBeanFactoryDoesNotMatch() {
     OnExpressionCondition condition = new OnExpressionCondition();
     MockEnvironment environment = new MockEnvironment();
-    ConditionEvaluationContext evaluationContext = mock(ConditionEvaluationContext.class);
+    ConditionContext evaluationContext = mock(ConditionContext.class);
     given(evaluationContext.getEnvironment()).willReturn(environment);
     ConditionOutcome outcome = condition.getMatchOutcome(evaluationContext, mockMetaData("invalid-spel"));
     assertThat(outcome.isMatch()).isFalse();

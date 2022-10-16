@@ -34,7 +34,7 @@ import java.util.TreeMap;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
 import cn.taketoday.context.annotation.Condition;
-import cn.taketoday.context.annotation.ConditionEvaluationContext;
+import cn.taketoday.context.annotation.ConditionContext;
 import cn.taketoday.core.type.AnnotatedTypeMetadata;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
@@ -322,7 +322,7 @@ public final class ConditionEvaluationReport {
   private static class AncestorsMatchedCondition implements Condition {
 
     @Override
-    public boolean matches(ConditionEvaluationContext context, AnnotatedTypeMetadata metadata) {
+    public boolean matches(ConditionContext context, AnnotatedTypeMetadata metadata) {
       throw new UnsupportedOperationException();
     }
 
