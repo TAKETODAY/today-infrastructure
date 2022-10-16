@@ -90,8 +90,8 @@ public interface FormatterRegistry extends ConverterRegistry {
   /**
    * Adds a Formatter to format fields annotated with a specific format annotation.
    *
-   * @param annotationFormatterFactory the annotation formatter factory to add
+   * @param factory the annotation formatter factory to add
    */
-  void addFormatterForFieldAnnotation(AnnotationFormatterFactory<? extends Annotation> annotationFormatterFactory);
+  <T extends Annotation> void addFormatterForFieldAnnotation(AnnotationFormatterFactory<T> factory);
 
 }

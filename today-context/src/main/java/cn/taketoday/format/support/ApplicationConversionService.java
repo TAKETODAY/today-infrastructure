@@ -27,13 +27,13 @@ import java.util.Set;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.core.StringValueResolver;
 import cn.taketoday.core.TypeDescriptor;
-import cn.taketoday.core.conversion.support.ConfigurableConversionService;
 import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.core.conversion.Converter;
 import cn.taketoday.core.conversion.ConverterFactory;
 import cn.taketoday.core.conversion.ConverterRegistry;
 import cn.taketoday.core.conversion.GenericConverter;
 import cn.taketoday.core.conversion.GenericConverter.ConvertiblePair;
+import cn.taketoday.core.conversion.support.ConfigurableConversionService;
 import cn.taketoday.core.conversion.support.DefaultConversionService;
 import cn.taketoday.format.AnnotationFormatterFactory;
 import cn.taketoday.format.Formatter;
@@ -115,10 +115,9 @@ public class ApplicationConversionService extends FormattingConversionService {
   }
 
   @Override
-  public void addFormatterForFieldAnnotation(
-          AnnotationFormatterFactory<? extends Annotation> annotationFormatterFactory) {
+  public <T extends Annotation> void addFormatterForFieldAnnotation(AnnotationFormatterFactory<T> factory) {
     assertModifiable();
-    super.addFormatterForFieldAnnotation(annotationFormatterFactory);
+    super.addFormatterForFieldAnnotation(factory);
   }
 
   @Override
