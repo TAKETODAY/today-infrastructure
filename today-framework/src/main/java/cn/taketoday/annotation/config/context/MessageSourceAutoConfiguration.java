@@ -33,7 +33,7 @@ import cn.taketoday.context.annotation.config.EnableAutoConfiguration;
 import cn.taketoday.context.condition.ConditionMessage;
 import cn.taketoday.context.condition.ConditionOutcome;
 import cn.taketoday.context.condition.ConditionalOnMissingBean;
-import cn.taketoday.context.condition.ContextCondition;
+import cn.taketoday.context.condition.InfraCondition;
 import cn.taketoday.context.condition.SearchStrategy;
 import cn.taketoday.context.properties.ConfigurationProperties;
 import cn.taketoday.context.properties.EnableConfigurationProperties;
@@ -92,7 +92,7 @@ public class MessageSourceAutoConfiguration {
     return messageSource;
   }
 
-  protected static class ResourceBundleCondition extends ContextCondition {
+  protected static class ResourceBundleCondition extends InfraCondition {
 
     private static final ConcurrentReferenceHashMap<String, ConditionOutcome>
             cache = new ConcurrentReferenceHashMap<>();

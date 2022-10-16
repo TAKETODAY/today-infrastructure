@@ -34,7 +34,7 @@ import cn.taketoday.context.condition.ConditionMessage.Style;
 import cn.taketoday.context.condition.ConditionOutcome;
 import cn.taketoday.context.condition.ConditionalOnBean;
 import cn.taketoday.context.condition.ConditionalOnClass;
-import cn.taketoday.context.condition.ContextCondition;
+import cn.taketoday.context.condition.InfraCondition;
 import cn.taketoday.context.properties.ConfigurationProperties;
 import cn.taketoday.context.properties.EnableConfigurationProperties;
 import cn.taketoday.core.Ordered;
@@ -127,7 +127,7 @@ public class DispatcherServletAutoConfiguration {
   }
 
   @Order(Ordered.LOWEST_PRECEDENCE - 10)
-  private static class DefaultDispatcherServletCondition extends ContextCondition {
+  private static class DefaultDispatcherServletCondition extends InfraCondition {
 
     @Override
     public ConditionOutcome getMatchOutcome(
@@ -160,7 +160,7 @@ public class DispatcherServletAutoConfiguration {
   }
 
   @Order(Ordered.LOWEST_PRECEDENCE - 10)
-  private static class DispatcherServletRegistrationCondition extends ContextCondition {
+  private static class DispatcherServletRegistrationCondition extends InfraCondition {
 
     @Override
     public ConditionOutcome getMatchOutcome(ConditionContext context, AnnotatedTypeMetadata metadata) {

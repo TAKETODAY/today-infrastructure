@@ -25,7 +25,7 @@ import cn.taketoday.context.annotation.ConditionContext;
 import cn.taketoday.context.annotation.config.AutoConfigurationMetadata;
 import cn.taketoday.context.condition.ConditionMessage;
 import cn.taketoday.context.condition.ConditionOutcome;
-import cn.taketoday.context.condition.FilteringContextCondition;
+import cn.taketoday.context.condition.FilteringInfraCondition;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.io.ResourceLoader;
 import cn.taketoday.core.type.AnnotatedTypeMetadata;
@@ -49,7 +49,7 @@ import cn.taketoday.web.servlet.WebServletApplicationContext;
  * @see ConditionalOnNotWebApplication
  * @since 4.0
  */
-class OnWebApplicationCondition extends FilteringContextCondition implements Ordered {
+class OnWebApplicationCondition extends FilteringInfraCondition implements Ordered {
 
   private static final String SERVLET_WEB_APPLICATION_CLASS = "cn.taketoday.web.context.support.GenericWebApplicationContext";
   private static final String REACTIVE_WEB_APPLICATION_CLASS = "cn.taketoday.web.reactive.HandlerResult";
