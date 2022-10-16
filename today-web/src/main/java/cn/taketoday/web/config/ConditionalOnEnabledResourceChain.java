@@ -61,6 +61,7 @@ public @interface ConditionalOnEnabledResourceChain {
  * @author Stephane Nicoll
  * @author Phillip Webb
  * @author Madhura Bhave
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see ConditionalOnEnabledResourceChain
  * @since 4.0 2022/2/18 23:03
  */
