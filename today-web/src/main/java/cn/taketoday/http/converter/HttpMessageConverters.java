@@ -141,8 +141,7 @@ public class HttpMessageConverters implements Iterable<HttpMessageConverter<?>> 
     return equivalentClass != null && ClassUtils.isAssignableValue(equivalentClass, candidate);
   }
 
-  private void configurePartConverters(
-          AllEncompassingFormHttpMessageConverter formConverter,
+  private void configurePartConverters(AllEncompassingFormHttpMessageConverter formConverter,
           Collection<HttpMessageConverter<?>> converters) {
     List<HttpMessageConverter<?>> partConverters = formConverter.getPartConverters();
     List<HttpMessageConverter<?>> combinedConverters = getCombinedConverters(converters, partConverters);

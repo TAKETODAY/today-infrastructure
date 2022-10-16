@@ -384,7 +384,8 @@ final class ConstructorResolver {
    * method, or {@code null} if none (-> use constructor argument values from bean definition)
    * @return a BeanWrapper for the new instance
    */
-  public BeanWrapper instantiateUsingFactoryMethod(String beanName, RootBeanDefinition merged, @Nullable Object[] explicitArgs) {
+  public BeanWrapper instantiateUsingFactoryMethod(
+          String beanName, RootBeanDefinition merged, @Nullable Object[] explicitArgs) {
     BeanWrapperImpl wrapper = new BeanWrapperImpl();
     beanFactory.initBeanWrapper(wrapper);
 
@@ -872,7 +873,7 @@ final class ConstructorResolver {
       return injectionPoint;
     }
     try {
-      DependencyResolvingContext context = new DependencyResolvingContext(param.getExecutable(), beanFactory, beanName);
+      var context = new DependencyResolvingContext(param.getExecutable(), beanFactory, beanName);
       context.setTypeConverter(typeConverter);
       context.setDependentBeans(autowiredBeanNames);
       return injector.resolveValue(new DependencyDescriptor(param, true), context);

@@ -1466,7 +1466,7 @@ public class ResolvableType implements Serializable {
    * @return a {@link ResolvableType} for the specified field
    * @see #fromField(Field)
    */
-  public static ResolvableType fromField(Field field, int nestingLevel, Class<?> implementationClass) {
+  public static ResolvableType fromField(Field field, int nestingLevel, @Nullable Class<?> implementationClass) {
     Assert.notNull(field, "Field is required");
     ResolvableType owner = fromType(implementationClass).as(field.getDeclaringClass());
     return valueOf(null, new SerializableTypeWrapper.FieldTypeProvider(field), owner.asVariableResolver()).getNested(nestingLevel);
