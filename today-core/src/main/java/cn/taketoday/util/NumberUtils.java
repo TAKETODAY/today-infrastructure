@@ -30,10 +30,17 @@ import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 
 /**
- * @author TODAY <br>
- * 2018-07-06 13:36:29
+ * Miscellaneous utility methods for number conversion and parsing.
+ * <p>Mainly for internal use within the framework; consider Apache's
+ * Commons Lang for a more comprehensive suite of number utilities.
+ *
+ * @author Juergen Hoeller
+ * @author Rob Harrop
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 2018-07-06 13:36:29
  */
 public abstract class NumberUtils {
+
   private static final BigInteger LONG_MIN = BigInteger.valueOf(Long.MIN_VALUE);
   private static final BigInteger LONG_MAX = BigInteger.valueOf(Long.MAX_VALUE);
 
@@ -41,14 +48,10 @@ public abstract class NumberUtils {
    * Standard number types (all immutable):
    * Byte, Short, Integer, Long, BigInteger, Float, Double, BigDecimal.
    */
-  public static final Set<Class<?>> STANDARD_NUMBER_TYPES;
-
-  static {
-    STANDARD_NUMBER_TYPES = Set.of(
-            Byte.class, Short.class, Integer.class, Long.class,
-            BigInteger.class, Float.class, Double.class, BigDecimal.class
-    );
-  }
+  public static final Set<Class<?>> STANDARD_NUMBER_TYPES = Set.of(
+          Byte.class, Short.class, Integer.class, Long.class,
+          BigInteger.class, Float.class, Double.class, BigDecimal.class
+  );
 
   /**
    * Is a number?
@@ -56,12 +59,12 @@ public abstract class NumberUtils {
    * @param targetClass the target class
    */
   public static boolean isNumber(Class<?> targetClass) {
-    return Number.class.isAssignableFrom(targetClass) //
-            || targetClass == int.class//
-            || targetClass == long.class//
-            || targetClass == float.class//
-            || targetClass == double.class//
-            || targetClass == short.class//
+    return Number.class.isAssignableFrom(targetClass)
+            || targetClass == int.class
+            || targetClass == long.class
+            || targetClass == float.class
+            || targetClass == double.class
+            || targetClass == short.class
             || targetClass == byte.class;
   }
 
