@@ -79,6 +79,7 @@ public abstract class GenericTypeResolver {
    * @return the resolved parameter type of the method return type, or {@code null}
    * if not resolvable or if the single argument is of type {@link WildcardType}.
    */
+  @Nullable
   public static Class<?> resolveReturnTypeArgument(Method method, Class<?> genericIfc) {
     Assert.notNull(method, "Method must not be null");
     ResolvableType resolvableType = ResolvableType.forReturnType(method).as(genericIfc);
@@ -107,6 +108,7 @@ public abstract class GenericTypeResolver {
   }
 
   @SuppressWarnings("unchecked")
+  @Nullable
   private static <T> Class<T> getSingleGeneric(ResolvableType resolvableType) {
     Assert.isTrue(resolvableType.getGenerics().length == 1,
             () -> "Expected 1 type argument on generic interface [" + resolvableType +
@@ -142,7 +144,7 @@ public abstract class GenericTypeResolver {
    * in which the target type appears in a method signature (can be {@code null})
    * @return the resolved type (possibly the given generic type as-is)
    */
-  public static Type resolveType(Type genericType, Class<?> contextClass) {
+  public static Type resolveType(Type genericType, @Nullable Class<?> contextClass) {
     if (contextClass != null) {
       if (genericType instanceof TypeVariable) {
         ResolvableType resolvedTypeVariable = resolveVariable(
