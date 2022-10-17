@@ -67,6 +67,11 @@ public class StaticWebApplicationContext
     setDisplayName("Root WebApplicationContext");
   }
 
+  public StaticWebApplicationContext(@Nullable ServletContext context) {
+    this();
+    setServletContext(context);
+  }
+
   /**
    * Set the ServletContext that this WebApplicationContext runs in.
    */

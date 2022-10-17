@@ -65,6 +65,7 @@ import cn.taketoday.web.servlet.support.StaticWebApplicationContext;
 import cn.taketoday.web.testfixture.servlet.MockHttpServletRequest;
 import cn.taketoday.web.testfixture.servlet.MockHttpServletResponse;
 import cn.taketoday.web.testfixture.servlet.MockServletConfig;
+import cn.taketoday.web.testfixture.servlet.MockServletContext;
 import jakarta.servlet.ServletException;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -228,6 +229,7 @@ class ResponseEntityExceptionHandlerTests {
     ctx.registerSingleton("parameterResolvingRegistry", ParameterResolvingRegistry.class);
     ctx.registerSingleton("returnValueHandlerManager", ReturnValueHandlerManager.class);
 
+    ctx.setServletContext(new MockServletContext());
     ctx.refresh();
 
     ReturnValueHandlerManager manager = ctx.getBean(ReturnValueHandlerManager.class);
@@ -251,6 +253,7 @@ class ResponseEntityExceptionHandlerTests {
     ctx.registerSingleton("exceptionHandler", ApplicationExceptionHandler.class);
     ctx.registerSingleton("parameterResolvingRegistry", ParameterResolvingRegistry.class);
     ctx.registerSingleton("returnValueHandlerManager", ReturnValueHandlerManager.class);
+    ctx.setServletContext(new MockServletContext());
     ctx.refresh();
 
     ExceptionHandlerAnnotationExceptionHandler resolver = new ExceptionHandlerAnnotationExceptionHandler();
@@ -270,6 +273,7 @@ class ResponseEntityExceptionHandlerTests {
 
     ctx.registerSingleton("parameterResolvingRegistry", ParameterResolvingRegistry.class);
     ctx.registerSingleton("returnValueHandlerManager", ReturnValueHandlerManager.class);
+    ctx.setServletContext(new MockServletContext());
 
     ctx.refresh();
 
@@ -292,6 +296,7 @@ class ResponseEntityExceptionHandlerTests {
     ctx.registerSingleton("exceptionHandler", ApplicationExceptionHandler.class);
     ctx.registerSingleton("parameterResolvingRegistry", ParameterResolvingRegistry.class);
     ctx.registerSingleton("returnValueHandlerManager", ReturnValueHandlerManager.class);
+    ctx.setServletContext(new MockServletContext());
 
     ctx.refresh();
 
