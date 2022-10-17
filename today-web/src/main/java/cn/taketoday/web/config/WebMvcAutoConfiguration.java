@@ -35,11 +35,11 @@ import cn.taketoday.beans.factory.annotation.DisableDependencyInjection;
 import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.ApplicationEventPublisher;
-import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Import;
 import cn.taketoday.context.annotation.Role;
 import cn.taketoday.context.condition.ConditionalOnBean;
+import cn.taketoday.context.condition.ConditionalOnClass;
 import cn.taketoday.context.condition.ConditionalOnMissingBean;
 import cn.taketoday.context.condition.ConditionalOnProperty;
 import cn.taketoday.context.properties.EnableConfigurationProperties;
@@ -62,6 +62,7 @@ import cn.taketoday.validation.MessageCodesResolver;
 import cn.taketoday.validation.Validator;
 import cn.taketoday.web.HandlerExceptionHandler;
 import cn.taketoday.web.LocaleResolver;
+import cn.taketoday.web.ServletDetector;
 import cn.taketoday.web.accept.ContentNegotiationManager;
 import cn.taketoday.web.bind.resolver.ParameterResolvingRegistry;
 import cn.taketoday.web.bind.support.ConfigurableWebBindingInitializer;
@@ -191,15 +192,6 @@ public class WebMvcAutoConfiguration extends WebMvcConfigurationSupport {
 
   @Component
   @ConditionalOnMissingBean
-  public InternalResourceViewResolver defaultViewResolver() {
-    InternalResourceViewResolver resolver = new InternalResourceViewResolver();
-    resolver.setPrefix(mvcProperties.getView().getPrefix());
-    resolver.setSuffix(mvcProperties.getView().getSuffix());
-    return resolver;
-  }
-
-  @Component
-  @ConditionalOnMissingBean
   @ConditionalOnProperty(prefix = "web.mvc", name = "publishRequestHandledEvents", havingValue = "true", matchIfMissing = true)
   RequestHandledEventPublisher requestHandledEventPublisher(
           WebMvcProperties webMvcProperties, ApplicationEventPublisher eventPublisher) {
@@ -239,20 +231,6 @@ public class WebMvcAutoConfiguration extends WebMvcConfigurationSupport {
     AcceptHeaderLocaleResolver localeResolver = new AcceptHeaderLocaleResolver();
     localeResolver.setDefaultLocale(this.webProperties.getLocale());
     return localeResolver;
-  }
-
-  @Bean
-  @ConditionalOnMissingBean(HiddenHttpMethodFilter.class)
-  @ConditionalOnProperty(prefix = "web.mvc.hiddenmethod.filter", name = "enabled")
-  public OrderedHiddenHttpMethodFilter hiddenHttpMethodFilter() {
-    return new OrderedHiddenHttpMethodFilter();
-  }
-
-  @Bean
-  @ConditionalOnMissingBean(FormContentFilter.class)
-  @ConditionalOnProperty(prefix = "web.mvc.formcontent.filter", name = "enabled", matchIfMissing = true)
-  public OrderedFormContentFilter formContentFilter() {
-    return new OrderedFormContentFilter();
   }
 
   @Override
@@ -461,6 +439,34 @@ public class WebMvcAutoConfiguration extends WebMvcConfigurationSupport {
   static ResourceHandlerRegistrationCustomizer resourceHandlerRegistrationCustomizer(
           WebProperties webProperties) {
     return new ResourceHandlerRegistrationCustomizer(webProperties.getResources());
+  }
+
+  @ConditionalOnClass(name = ServletDetector.SERVLET_CLASS)
+  @Configuration(proxyBeanMethods = false)
+  static class WebServletConfig {
+
+    @Component
+    @ConditionalOnMissingBean
+    static InternalResourceViewResolver defaultViewResolver(WebMvcProperties mvcProperties) {
+      InternalResourceViewResolver resolver = new InternalResourceViewResolver();
+      resolver.setPrefix(mvcProperties.getView().getPrefix());
+      resolver.setSuffix(mvcProperties.getView().getSuffix());
+      return resolver;
+    }
+
+    @Component
+    @ConditionalOnMissingBean(HiddenHttpMethodFilter.class)
+    @ConditionalOnProperty(prefix = "web.mvc.hiddenmethod.filter", name = "enabled")
+    static OrderedHiddenHttpMethodFilter hiddenHttpMethodFilter() {
+      return new OrderedHiddenHttpMethodFilter();
+    }
+
+    @Component
+    @ConditionalOnMissingBean(FormContentFilter.class)
+    @ConditionalOnProperty(prefix = "web.mvc.formcontent.filter", name = "enabled", matchIfMissing = true)
+    static OrderedFormContentFilter formContentFilter() {
+      return new OrderedFormContentFilter();
+    }
   }
 
   static class ResourceHandlerRegistrationCustomizer {
