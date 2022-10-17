@@ -131,6 +131,7 @@ public class DemoApplication {
 本项目的诞生离不开以下项目：
 
 * [Spring](https://github.com/spring-projects/spring-framework): Spring Framework
+* [Spring Boot](https://github.com/spring-projects/spring-boot): Spring Boot
 
 ## 📄 开源协议
 
