@@ -36,7 +36,6 @@ import com.fasterxml.jackson.databind.ser.SerializerFactory;
 import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
 import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.ContextFactory;
@@ -52,8 +51,8 @@ import java.util.Set;
 import cn.taketoday.beans.DirectFieldAccessor;
 import cn.taketoday.http.MediaType;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.context.support.StaticWebApplicationContext;
 import cn.taketoday.web.servlet.ServletRequestContext;
+import cn.taketoday.web.servlet.support.StaticWebApplicationContext;
 import cn.taketoday.web.testfixture.servlet.MockHttpServletRequest;
 import cn.taketoday.web.testfixture.servlet.MockHttpServletResponse;
 import cn.taketoday.web.testfixture.servlet.MockServletContext;

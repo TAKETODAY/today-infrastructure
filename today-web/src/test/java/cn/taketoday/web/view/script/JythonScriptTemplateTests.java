@@ -22,7 +22,6 @@ package cn.taketoday.web.view.script;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -32,7 +31,7 @@ import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.web.servlet.ServletRequestContext;
 import cn.taketoday.web.servlet.ServletUtils;
-import cn.taketoday.web.servlet.WebServletApplicationContext;
+import cn.taketoday.web.servlet.WebApplicationContext;
 import cn.taketoday.web.testfixture.servlet.MockHttpServletRequest;
 import cn.taketoday.web.testfixture.servlet.MockHttpServletResponse;
 import cn.taketoday.web.testfixture.servlet.MockServletContext;
@@ -48,13 +47,13 @@ import static org.mockito.Mockito.mock;
  */
 public class JythonScriptTemplateTests {
 
-  private WebServletApplicationContext webAppContext;
+  private WebApplicationContext webAppContext;
 
   private ServletContext servletContext;
 
   @BeforeEach
   public void setup() {
-    this.webAppContext = mock(WebServletApplicationContext.class);
+    this.webAppContext = mock(WebApplicationContext.class);
     this.servletContext = new MockServletContext();
     this.servletContext.setAttribute(ServletUtils.WEB_APPLICATION_CONTEXT_ATTRIBUTE, this.webAppContext);
   }

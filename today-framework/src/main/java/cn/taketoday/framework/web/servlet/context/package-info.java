@@ -20,7 +20,7 @@
 
 /**
  * Servlet based web integrations with Framework's
- * {@link cn.taketoday.web.WebApplicationContext WebApplicationContext}.
+ * {@link cn.taketoday.web.servlet.WebApplicationContext WebApplicationContext}.
  */
 @NonNullApi
 @NonNullFields

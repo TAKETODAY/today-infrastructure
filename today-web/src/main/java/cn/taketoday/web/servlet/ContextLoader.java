@@ -18,7 +18,7 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.web.context;
+package cn.taketoday.web.servlet;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -44,9 +44,8 @@ import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
-import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.handler.DispatcherHandler;
-import cn.taketoday.web.servlet.WebServletApplicationContext;
+import cn.taketoday.web.servlet.support.XmlWebApplicationContext;
 import jakarta.servlet.ServletContext;
 
 /**
@@ -55,9 +54,9 @@ import jakarta.servlet.ServletContext;
  *
  * <p>Looks for a {@link #CONTEXT_CLASS_PARAM "contextClass"} parameter at the
  * {@code web.xml} context-param level to specify the context class type, falling
- * back to {@link cn.taketoday.web.context.support.XmlWebApplicationContext}
+ * back to {@link XmlWebApplicationContext}
  * if not found. With the default ContextLoader implementation, any context class
- * specified needs to implement the {@link ConfigurableWebServletApplicationContext} interface.
+ * specified needs to implement the {@link ConfigurableWebApplicationContext} interface.
  *
  * <p>Processes a {@link #CONFIG_LOCATION_PARAM "contextConfigLocation"} context-param
  * and passes its value to the context instance, parsing it into potentially multiple
@@ -114,7 +113,7 @@ public class ContextLoader {
    * Config param for {@link ApplicationContextInitializer} classes to use
    * for initializing the root web application context: {@value}.
    *
-   * @see #customizeContext(ServletContext, ConfigurableWebServletApplicationContext)
+   * @see #customizeContext(ServletContext, ConfigurableWebApplicationContext)
    */
   public static final String CONTEXT_INITIALIZER_CLASSES_PARAM = "contextInitializerClasses";
 
@@ -122,7 +121,7 @@ public class ContextLoader {
    * Config param for global {@link ApplicationContextInitializer} classes to use
    * for initializing all web application contexts in the current application: {@value}.
    *
-   * @see #customizeContext(ServletContext, ConfigurableWebServletApplicationContext)
+   * @see #customizeContext(ServletContext, ConfigurableWebApplicationContext)
    */
   public static final String GLOBAL_INITIALIZER_CLASSES_PARAM = "globalInitializerClasses";
 
@@ -184,7 +183,7 @@ public class ContextLoader {
    * ContextLoaderListener} subclass as a {@code <listener>} within {@code web.xml}, as
    * a no-arg constructor is required.
    * <p>The created application context will be registered into the ServletContext under
-   * the attribute name {@link cn.taketoday.web.servlet.WebServletApplicationContext#ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE}
+   * the attribute name {@link WebApplicationContext#ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE}
    * and subclasses are free to call the {@link #closeWebApplicationContext} method on
    * container shutdown to close the application context.
    *
@@ -200,7 +199,7 @@ public class ContextLoader {
    * of listeners is possible through the {@link ServletContext#addListener} API.
    * <p>The context may or may not yet be {@linkplain
    * ConfigurableApplicationContext#refresh() refreshed}. If it (a) is an implementation
-   * of {@link ConfigurableWebServletApplicationContext} and (b) has <strong>not</strong>
+   * of {@link ConfigurableWebApplicationContext} and (b) has <strong>not</strong>
    * already been refreshed (the recommended approach), then the following will occur:
    * <ul>
    * <li>If the given context has not already been assigned an {@linkplain
@@ -219,7 +218,7 @@ public class ContextLoader {
    * <p>See {@link cn.taketoday.context.ApplicationContextInitializer} for usage examples.
    * <p>In any case, the given application context will be registered into the
    * ServletContext under the attribute name {@link
-   * WebServletApplicationContext#ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE} and subclasses are
+   * WebApplicationContext#ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE} and subclasses are
    * free to call the {@link #closeWebApplicationContext} method on container shutdown
    * to close the application context.
    *
@@ -257,7 +256,7 @@ public class ContextLoader {
    * @see #CONFIG_LOCATION_PARAM
    */
   public WebApplicationContext initWebApplicationContext(ServletContext servletContext) {
-    if (servletContext.getAttribute(WebServletApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE) != null) {
+    if (servletContext.getAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE) != null) {
       throw new IllegalStateException(
               "Cannot initialize context because there is already a root application context present - " +
                       "check whether you have multiple ContextLoader* definitions in your web.xml!");
@@ -276,7 +275,7 @@ public class ContextLoader {
       if (this.context == null) {
         this.context = createWebApplicationContext(servletContext);
       }
-      if (this.context instanceof ConfigurableWebServletApplicationContext cwac && !cwac.isActive()) {
+      if (this.context instanceof ConfigurableWebApplicationContext cwac && !cwac.isActive()) {
         // The context has not yet been refreshed -> provide services such as
         // setting the parent context, setting the application context id, etc
         if (cwac.getParent() == null) {
@@ -287,7 +286,7 @@ public class ContextLoader {
         }
         configureAndRefreshWebApplicationContext(cwac, servletContext);
       }
-      servletContext.setAttribute(WebServletApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE, this.context);
+      servletContext.setAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE, this.context);
 
       ClassLoader ccl = Thread.currentThread().getContextClassLoader();
       if (ccl == ContextLoader.class.getClassLoader()) {
@@ -306,7 +305,7 @@ public class ContextLoader {
     }
     catch (RuntimeException | Error ex) {
       logger.error("Context initialization failed", ex);
-      servletContext.setAttribute(WebServletApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE, ex);
+      servletContext.setAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE, ex);
       throw ex;
     }
   }
@@ -315,22 +314,22 @@ public class ContextLoader {
    * Instantiate the root WebApplicationContext for this loader, either the
    * default context class or a custom context class if specified.
    * <p>This implementation expects custom contexts to implement the
-   * {@link ConfigurableWebServletApplicationContext} interface.
+   * {@link ConfigurableWebApplicationContext} interface.
    * Can be overridden in subclasses.
    * <p>In addition, {@link #customizeContext} gets called prior to refreshing the
    * context, allowing subclasses to perform custom modifications to the context.
    *
    * @param sc current servlet context
    * @return the root WebApplicationContext
-   * @see ConfigurableWebServletApplicationContext
+   * @see ConfigurableWebApplicationContext
    */
   protected WebApplicationContext createWebApplicationContext(ServletContext sc) {
     Class<?> contextClass = determineContextClass(sc);
-    if (!ConfigurableWebServletApplicationContext.class.isAssignableFrom(contextClass)) {
+    if (!ConfigurableWebApplicationContext.class.isAssignableFrom(contextClass)) {
       throw new ApplicationContextException("Custom context class [" + contextClass.getName() +
-              "] is not of type [" + ConfigurableWebServletApplicationContext.class.getName() + "]");
+              "] is not of type [" + ConfigurableWebApplicationContext.class.getName() + "]");
     }
-    return (ConfigurableWebServletApplicationContext) BeanUtils.newInstance(contextClass);
+    return (ConfigurableWebApplicationContext) BeanUtils.newInstance(contextClass);
   }
 
   /**
@@ -364,7 +363,7 @@ public class ContextLoader {
     }
   }
 
-  protected void configureAndRefreshWebApplicationContext(ConfigurableWebServletApplicationContext wac, ServletContext sc) {
+  protected void configureAndRefreshWebApplicationContext(ConfigurableWebApplicationContext wac, ServletContext sc) {
     if (ObjectUtils.identityToString(wac).equals(wac.getId())) {
       // The application context id is still set to its original default value
       // -> assign a more useful id based on available information
@@ -398,7 +397,7 @@ public class ContextLoader {
   }
 
   /**
-   * Customize the {@link ConfigurableWebServletApplicationContext} created by this
+   * Customize the {@link ConfigurableWebApplicationContext} created by this
    * ContextLoader after config locations have been supplied to the context
    * but before the context is <em>refreshed</em>.
    * <p>The default implementation {@linkplain #determineContextInitializerClasses(ServletContext)
@@ -415,7 +414,7 @@ public class ContextLoader {
    * @see #CONTEXT_INITIALIZER_CLASSES_PARAM
    * @see ApplicationContextInitializer#initialize(ConfigurableApplicationContext)
    */
-  protected void customizeContext(ServletContext sc, ConfigurableWebServletApplicationContext wac) {
+  protected void customizeContext(ServletContext sc, ConfigurableWebApplicationContext wac) {
     List<Class<ApplicationContextInitializer>> initializerClasses =
             determineContextInitializerClasses(sc);
 
@@ -503,7 +502,7 @@ public class ContextLoader {
   public void closeWebApplicationContext(ServletContext servletContext) {
     servletContext.log("Closing Framework root WebApplicationContext");
     try {
-      if (this.context instanceof ConfigurableWebServletApplicationContext cwac) {
+      if (this.context instanceof ConfigurableWebApplicationContext cwac) {
         cwac.close();
       }
     }
@@ -515,7 +514,7 @@ public class ContextLoader {
       else if (ccl != null) {
         currentContextPerThread.remove(ccl);
       }
-      servletContext.removeAttribute(WebServletApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE);
+      servletContext.removeAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE);
     }
   }
 

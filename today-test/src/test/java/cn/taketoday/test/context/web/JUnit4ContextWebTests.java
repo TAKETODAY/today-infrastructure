@@ -35,14 +35,14 @@ import cn.taketoday.test.context.ContextConfiguration;
 import cn.taketoday.test.context.junit4.AbstractJUnit4ContextTests;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.servlet.ServletContextAware;
-import cn.taketoday.web.servlet.WebServletApplicationContext;
+import cn.taketoday.web.servlet.WebApplicationContext;
 import jakarta.servlet.ServletContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * JUnit-based integration tests that verify support for loading a
- * {@link cn.taketoday.web.servlet.WebServletApplicationContext} when extending {@link AbstractJUnit4ContextTests}.
+ * {@link WebApplicationContext} when extending {@link AbstractJUnit4ContextTests}.
  *
  * @author Sam Brannen
  * @since 4.0
@@ -63,7 +63,7 @@ public class JUnit4ContextWebTests extends AbstractJUnit4ContextTests implements
   protected ServletContext servletContext;
 
   @Autowired
-  protected WebServletApplicationContext wac;
+  protected WebApplicationContext wac;
 
   @Autowired
   protected MockServletContext mockServletContext;
@@ -101,9 +101,9 @@ public class JUnit4ContextWebTests extends AbstractJUnit4ContextTests implements
     assertThat(webRequest).as("RequestContext should have been autowired from the WAC.").isNotNull();
 
     Object rootWac = mockServletContext.getAttribute(
-            WebServletApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE);
+            WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE);
     assertThat(rootWac).as("Root WAC must be stored in the ServletContext as: "
-            + WebServletApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE).isNotNull();
+            + WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE).isNotNull();
     assertThat(rootWac).as("test WAC and Root WAC in ServletContext must be the same object.").isSameAs(wac);
     assertThat(wac.getServletContext()).as("ServletContext instances must be the same object.").isSameAs(mockServletContext);
     assertThat(request.getServletContext()).as("ServletContext in the WAC and in the mock request").isSameAs(mockServletContext);

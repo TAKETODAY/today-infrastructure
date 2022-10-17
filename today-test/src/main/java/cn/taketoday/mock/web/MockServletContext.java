@@ -48,6 +48,9 @@ import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.MimeType;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
+import cn.taketoday.web.servlet.support.AnnotationConfigWebApplicationContext;
+import cn.taketoday.web.servlet.support.GenericWebApplicationContext;
+import cn.taketoday.web.servlet.support.XmlWebApplicationContext;
 import jakarta.servlet.Filter;
 import jakarta.servlet.FilterRegistration;
 import jakarta.servlet.RequestDispatcher;
@@ -82,9 +85,9 @@ import jakarta.servlet.descriptor.JspConfigDescriptor;
  * @author Juergen Hoeller
  * @author Sam Brannen
  * @see #MockServletContext(cn.taketoday.core.io.ResourceLoader)
- * @see cn.taketoday.web.context.support.AnnotationConfigWebApplicationContext
- * @see cn.taketoday.web.context.support.XmlWebApplicationContext
- * @see cn.taketoday.web.context.support.GenericWebServletApplicationContext
+ * @see AnnotationConfigWebApplicationContext
+ * @see XmlWebApplicationContext
+ * @see GenericWebApplicationContext
  * @since 4.0
  */
 public class MockServletContext implements ServletContext {

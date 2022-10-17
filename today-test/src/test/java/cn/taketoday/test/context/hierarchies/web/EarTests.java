@@ -29,7 +29,7 @@ import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.test.context.ContextConfiguration;
 import cn.taketoday.test.context.junit.jupiter.InfraExtension;
-import cn.taketoday.web.servlet.WebServletApplicationContext;
+import cn.taketoday.web.servlet.WebApplicationContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -60,7 +60,7 @@ class EarTests {
 
   @Test
   void verifyEarConfig() {
-    boolean condition = context instanceof WebServletApplicationContext;
+    boolean condition = context instanceof WebApplicationContext;
     assertThat(condition).isFalse();
     assertThat(context.getParent()).isNull();
     assertThat(ear).isEqualTo("ear");

@@ -31,7 +31,7 @@ import cn.taketoday.test.context.ContextConfiguration;
 import cn.taketoday.test.context.ContextHierarchy;
 import cn.taketoday.test.context.junit.jupiter.InfraExtension;
 import cn.taketoday.test.context.web.WebAppConfiguration;
-import cn.taketoday.web.servlet.WebServletApplicationContext;
+import cn.taketoday.web.servlet.WebApplicationContext;
 import jakarta.servlet.ServletContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -70,7 +70,7 @@ class ControllerIntegrationTests {
   // -------------------------------------------------------------------------
 
   @Autowired
-  private WebServletApplicationContext wac;
+  private WebApplicationContext wac;
 
   @Autowired
   private String foo;
@@ -85,9 +85,9 @@ class ControllerIntegrationTests {
 
     ApplicationContext parent = wac.getParent();
     assertThat(parent).isNotNull();
-    boolean condition = parent instanceof WebServletApplicationContext;
+    boolean condition = parent instanceof WebApplicationContext;
     assertThat(condition).isTrue();
-    WebServletApplicationContext root = (WebServletApplicationContext) parent;
+    WebApplicationContext root = (WebApplicationContext) parent;
     assertThat(root.getBeansOfType(String.class).containsKey("bar")).isFalse();
 
     ServletContext childServletContext = wac.getServletContext();
@@ -96,8 +96,8 @@ class ControllerIntegrationTests {
     assertThat(rootServletContext).isNotNull();
     assertThat(rootServletContext).isSameAs(childServletContext);
 
-    assertThat(rootServletContext.getAttribute(WebServletApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE)).isSameAs(root);
-    assertThat(childServletContext.getAttribute(WebServletApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE)).isSameAs(root);
+    assertThat(rootServletContext.getAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE)).isSameAs(root);
+    assertThat(childServletContext.getAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE)).isSameAs(root);
   }
 
 }

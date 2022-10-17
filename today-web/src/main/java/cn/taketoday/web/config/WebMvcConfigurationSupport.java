@@ -104,7 +104,7 @@ import cn.taketoday.web.registry.SimpleUrlHandlerMapping;
 import cn.taketoday.web.registry.ViewControllerHandlerMapping;
 import cn.taketoday.web.resource.ResourceUrlProvider;
 import cn.taketoday.web.servlet.ServletViewResolverComposite;
-import cn.taketoday.web.servlet.WebServletApplicationContext;
+import cn.taketoday.web.servlet.WebApplicationContext;
 import cn.taketoday.web.servlet.view.InternalResourceViewResolver;
 import cn.taketoday.web.view.RedirectModelManager;
 import cn.taketoday.web.view.ViewResolver;
@@ -378,7 +378,7 @@ public class WebMvcConfigurationSupport extends ApplicationContextSupport {
       composite.setApplicationContext(applicationContext);
     }
 
-    if (ServletDetector.isPresent && applicationContext instanceof WebServletApplicationContext servletApp) {
+    if (ServletDetector.isPresent && applicationContext instanceof WebApplicationContext servletApp) {
       ServletViewResolverComposite viewResolverComposite = (ServletViewResolverComposite) composite;
       viewResolverComposite.setServletContext(servletApp.getServletContext());
     }
@@ -734,7 +734,7 @@ public class WebMvcConfigurationSupport extends ApplicationContextSupport {
   @ConditionalOnClass(name = ServletDetector.SERVLET_CLASS)
   public HandlerMapping defaultServletHandlerMapping() {
     if (ServletDetector.isPresent) {
-      if (getApplicationContext() instanceof WebServletApplicationContext context) {
+      if (getApplicationContext() instanceof WebApplicationContext context) {
         ServletContext servletContext = context.getServletContext();
         if (servletContext != null) {
           var configurer = new DefaultServletHandlerConfigurer(servletContext);

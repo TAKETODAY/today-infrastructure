@@ -28,16 +28,15 @@ import java.util.List;
 
 import cn.taketoday.context.annotation.AnnotationConfigApplicationContext;
 import cn.taketoday.context.annotation.Import;
-import cn.taketoday.context.annotation.ImportResource;
 import cn.taketoday.core.MethodParameter;
 import cn.taketoday.core.conversion.support.DefaultConversionService;
 import cn.taketoday.http.converter.StringHttpMessageConverter;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.config.EnableWebMvc;
-import cn.taketoday.web.context.support.AnnotationConfigWebApplicationContext;
 import cn.taketoday.web.handler.MockResolvableMethodParameter;
 import cn.taketoday.web.handler.method.ResolvableMethodParameter;
+import cn.taketoday.web.servlet.support.AnnotationConfigWebApplicationContext;
 import cn.taketoday.web.testfixture.servlet.MockServletContext;
 
 import static org.assertj.core.api.Assertions.assertThat;

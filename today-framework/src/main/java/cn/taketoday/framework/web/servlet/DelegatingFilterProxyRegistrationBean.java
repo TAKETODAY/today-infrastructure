@@ -24,7 +24,7 @@ import cn.taketoday.beans.BeansException;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.aware.ApplicationContextAware;
 import cn.taketoday.lang.Assert;
-import cn.taketoday.web.servlet.WebServletApplicationContext;
+import cn.taketoday.web.servlet.WebApplicationContext;
 import cn.taketoday.web.servlet.filter.DelegatingFilterProxy;
 import jakarta.servlet.Filter;
 import jakarta.servlet.ServletContext;
@@ -99,10 +99,10 @@ public class DelegatingFilterProxyRegistrationBean extends AbstractFilterRegistr
     };
   }
 
-  private WebServletApplicationContext getWebApplicationContext() {
+  private WebApplicationContext getWebApplicationContext() {
     Assert.notNull(this.applicationContext, "ApplicationContext be injected");
-    Assert.isInstanceOf(WebServletApplicationContext.class, this.applicationContext);
-    return (WebServletApplicationContext) this.applicationContext;
+    Assert.isInstanceOf(WebApplicationContext.class, this.applicationContext);
+    return (WebApplicationContext) this.applicationContext;
   }
 
 }

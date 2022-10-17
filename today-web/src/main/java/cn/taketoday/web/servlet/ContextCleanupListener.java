@@ -19,14 +19,13 @@
  */
 
 
-package cn.taketoday.web.context;
+package cn.taketoday.web.servlet;
 
 import java.util.Enumeration;
 
 import cn.taketoday.beans.factory.DisposableBean;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
-import cn.taketoday.web.context.support.ServletContextScope;
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.ServletContextEvent;
 import jakarta.servlet.ServletContextListener;
@@ -40,7 +39,6 @@ import jakarta.servlet.ServletContextListener;
  *
  * @author Juergen Hoeller
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @see ServletContextScope
  * @see ContextLoaderListener
  * @since 4.0 2022/2/20 17:20
  */

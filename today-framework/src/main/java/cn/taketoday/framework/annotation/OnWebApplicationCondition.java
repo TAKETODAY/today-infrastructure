@@ -34,9 +34,8 @@ import cn.taketoday.framework.annotation.ConditionalOnWebApplication.Type;
 import cn.taketoday.framework.web.reactive.context.ConfigurableReactiveWebEnvironment;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.ObjectUtils;
-import cn.taketoday.web.WebApplicationContext;
-import cn.taketoday.web.context.ConfigurableWebEnvironment;
-import cn.taketoday.web.servlet.WebServletApplicationContext;
+import cn.taketoday.web.servlet.ConfigurableWebEnvironment;
+import cn.taketoday.web.servlet.WebApplicationContext;
 
 /**
  * {@link Condition} that checks for the presence or absence of
@@ -51,7 +50,7 @@ import cn.taketoday.web.servlet.WebServletApplicationContext;
  */
 class OnWebApplicationCondition extends FilteringInfraCondition implements Ordered {
 
-  private static final String SERVLET_WEB_APPLICATION_CLASS = "cn.taketoday.web.context.support.GenericWebApplicationContext";
+  private static final String SERVLET_WEB_APPLICATION_CLASS = "cn.taketoday.web.servlet.support.GenericWebApplicationContext";
   private static final String REACTIVE_WEB_APPLICATION_CLASS = "cn.taketoday.web.reactive.HandlerResult";
 
   @Override
@@ -146,7 +145,7 @@ class OnWebApplicationCondition extends FilteringInfraCondition implements Order
     if (context.getEnvironment() instanceof ConfigurableWebEnvironment) {
       return ConditionOutcome.match(message.foundExactly("ConfigurableWebEnvironment"));
     }
-    if (context.getResourceLoader() instanceof WebServletApplicationContext) {
+    if (context.getResourceLoader() instanceof WebApplicationContext) {
       return ConditionOutcome.match(message.foundExactly("WebApplicationContext"));
     }
     return ConditionOutcome.noMatch(message.because("not a servlet web application"));
@@ -161,7 +160,7 @@ class OnWebApplicationCondition extends FilteringInfraCondition implements Order
       return ConditionOutcome.match(message.foundExactly("ConfigurableReactiveWebEnvironment"));
     }
     ResourceLoader resourceLoader = context.getResourceLoader();
-    if (resourceLoader instanceof WebApplicationContext && !(resourceLoader instanceof WebServletApplicationContext)) {
+    if (resourceLoader instanceof WebApplicationContext && !(resourceLoader instanceof WebApplicationContext)) {
       return ConditionOutcome.match(message.foundExactly("ReactiveWebApplicationContext"));
     }
     return ConditionOutcome.noMatch(message.because("not a reactive web application"));

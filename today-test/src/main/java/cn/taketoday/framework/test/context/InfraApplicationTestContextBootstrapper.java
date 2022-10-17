@@ -86,7 +86,7 @@ import cn.taketoday.util.StringUtils;
 public class InfraApplicationTestContextBootstrapper extends DefaultTestContextBootstrapper {
 
   private static final String[] WEB_ENVIRONMENT_CLASSES = { "jakarta.servlet.Servlet",
-          "cn.taketoday.web.context.ConfigurableWebApplicationContext" };
+          "cn.taketoday.web.servlet.ConfigurableWebApplicationContext" };
 
   private static final String REACTIVE_WEB_ENVIRONMENT_CLASS = "cn.taketoday."
           + "web.reactive.DispatcherHandler";

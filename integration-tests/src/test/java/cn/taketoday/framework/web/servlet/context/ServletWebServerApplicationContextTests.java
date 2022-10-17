@@ -65,10 +65,10 @@ import cn.taketoday.mock.web.MockFilterChain;
 import cn.taketoday.mock.web.MockFilterConfig;
 import cn.taketoday.mock.web.MockHttpServletRequest;
 import cn.taketoday.mock.web.MockHttpServletResponse;
-import cn.taketoday.web.WebApplicationContext;
+import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.context.support.SessionScope;
 import cn.taketoday.web.servlet.ServletContextAware;
-import cn.taketoday.web.servlet.WebServletApplicationContext;
+import cn.taketoday.web.servlet.WebApplicationContext;
 import cn.taketoday.web.servlet.filter.GenericFilterBean;
 import jakarta.servlet.DispatcherType;
 import jakarta.servlet.Filter;
@@ -118,12 +118,12 @@ class ServletWebServerApplicationContextTests {
     // Ensure that the context has been setup
     assertThat(this.context.getServletContext()).isEqualTo(factory.getServletContext());
     then(factory.getServletContext()).should()
-            .setAttribute(WebServletApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE, this.context);
+            .setAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE, this.context);
     // Ensure WebApplicationContextUtils.registerWebApplicationScopes was called
-    assertThat(this.context.getBeanFactory().getRegisteredScope(WebApplicationContext.SCOPE_SESSION))
+    assertThat(this.context.getBeanFactory().getRegisteredScope(RequestContext.SCOPE_SESSION))
             .isInstanceOf(SessionScope.class);
     // Ensure WebApplicationContextUtils.registerEnvironmentBeans was called
-    assertThat(this.context.containsBean(WebServletApplicationContext.SERVLET_CONTEXT_BEAN_NAME)).isTrue();
+    assertThat(this.context.containsBean(WebApplicationContext.SERVLET_CONTEXT_BEAN_NAME)).isTrue();
   }
 
   @Test
@@ -450,12 +450,12 @@ class ServletWebServerApplicationContextTests {
     // gh-2082
     Scope scope = mock(Scope.class);
     ConfigurableBeanFactory factory = this.context.getBeanFactory();
-    factory.registerScope(WebApplicationContext.SCOPE_REQUEST, scope);
-    factory.registerScope(WebApplicationContext.SCOPE_SESSION, scope);
+    factory.registerScope(RequestContext.SCOPE_REQUEST, scope);
+    factory.registerScope(RequestContext.SCOPE_SESSION, scope);
     addWebServerFactoryBean();
     this.context.refresh();
-    assertThat(factory.getRegisteredScope(WebApplicationContext.SCOPE_REQUEST)).isSameAs(scope);
-    assertThat(factory.getRegisteredScope(WebApplicationContext.SCOPE_SESSION)).isSameAs(scope);
+    assertThat(factory.getRegisteredScope(RequestContext.SCOPE_REQUEST)).isSameAs(scope);
+    assertThat(factory.getRegisteredScope(RequestContext.SCOPE_SESSION)).isSameAs(scope);
   }
 
   @Test
@@ -472,14 +472,6 @@ class ServletWebServerApplicationContextTests {
     });
     this.context.refresh();
     assertThat(output.toString().substring(initialOutputLength)).doesNotContain("Replacing scope");
-  }
-
-  @Test
-  void webApplicationScopeIsRegistered() {
-    addWebServerFactoryBean();
-    this.context.refresh();
-    assertThat(this.context.getBeanFactory().getRegisteredScope(WebApplicationContext.SCOPE_APPLICATION))
-            .isNotNull();
   }
 
   private void addWebServerFactoryBean() {

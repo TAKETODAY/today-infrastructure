@@ -23,6 +23,7 @@ import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.aware.ApplicationContextSupport;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.web.servlet.WebApplicationContext;
 
 /**
  * Convenient superclass for application objects running in a {@link WebApplicationContext}.

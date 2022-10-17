@@ -18,10 +18,8 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.web.context;
+package cn.taketoday.web.servlet;
 
-import cn.taketoday.web.WebApplicationContext;
-import cn.taketoday.web.servlet.WebServletApplicationContext;
 import jakarta.servlet.ServletContextEvent;
 import jakarta.servlet.ServletContextListener;
 
@@ -51,7 +49,7 @@ public class ContextLoaderListener extends ContextLoader implements ServletConte
    * as a {@code <listener>} within {@code web.xml}, where a no-arg constructor is
    * required.
    * <p>The created application context will be registered into the ServletContext under
-   * the attribute name {@link WebServletApplicationContext#ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE}
+   * the attribute name {@link WebApplicationContext#ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE}
    * and the Framework application context will be closed when the {@link #contextDestroyed}
    * lifecycle method is invoked on this listener.
    *
@@ -70,7 +68,7 @@ public class ContextLoaderListener extends ContextLoader implements ServletConte
    * listeners is possible through the {@link jakarta.servlet.ServletContext#addListener} API.
    * <p>The context may or may not yet be {@linkplain
    * cn.taketoday.context.ConfigurableApplicationContext#refresh() refreshed}. If it
-   * (a) is an implementation of {@link ConfigurableWebServletApplicationContext} and
+   * (a) is an implementation of {@link ConfigurableWebApplicationContext} and
    * (b) has <strong>not</strong> already been refreshed (the recommended approach),
    * then the following will occur:
    * <ul>
@@ -90,7 +88,7 @@ public class ContextLoaderListener extends ContextLoader implements ServletConte
    * <p>See {@link cn.taketoday.context.ApplicationContextInitializer} for usage examples.
    * <p>In any case, the given application context will be registered into the
    * ServletContext under the attribute name {@link
-   * WebServletApplicationContext#ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE} and the Framework
+   * WebApplicationContext#ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE} and the Framework
    * application context will be closed when the {@link #contextDestroyed} lifecycle
    * method is invoked on this listener.
    *

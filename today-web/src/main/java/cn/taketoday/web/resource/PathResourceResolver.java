@@ -38,7 +38,7 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.LogFormatUtils;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.context.support.ServletContextResource;
+import cn.taketoday.web.servlet.support.ServletContextResource;
 import cn.taketoday.web.util.UriUtils;
 
 /**

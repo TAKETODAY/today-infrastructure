@@ -32,8 +32,8 @@ import cn.taketoday.core.io.ClassPathResource;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.core.io.UrlResource;
 import cn.taketoday.lang.NonNull;
-import cn.taketoday.web.context.support.ServletContextResource;
 import cn.taketoday.web.servlet.ServletRequestContext;
+import cn.taketoday.web.servlet.support.ServletContextResource;
 import cn.taketoday.web.testfixture.servlet.MockHttpServletRequest;
 import cn.taketoday.web.testfixture.servlet.MockServletContext;
 

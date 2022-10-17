@@ -29,7 +29,7 @@ import cn.taketoday.core.conversion.support.ConfigurableConversionService;
 import cn.taketoday.core.env.AbstractEnvironment;
 import cn.taketoday.core.env.PropertySource;
 import cn.taketoday.core.env.StandardEnvironment;
-import cn.taketoday.web.context.support.StandardServletEnvironment;
+import cn.taketoday.web.servlet.support.StandardServletEnvironment;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;

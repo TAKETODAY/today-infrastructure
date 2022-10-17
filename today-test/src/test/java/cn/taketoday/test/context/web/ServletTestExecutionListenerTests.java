@@ -32,7 +32,7 @@ import cn.taketoday.test.context.TestContext;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.RequestContextHolder;
 import cn.taketoday.web.servlet.ServletRequestContext;
-import cn.taketoday.web.servlet.WebServletApplicationContext;
+import cn.taketoday.web.servlet.WebApplicationContext;
 
 import static cn.taketoday.test.context.web.ServletTestExecutionListener.POPULATED_REQUEST_CONTEXT_HOLDER_ATTRIBUTE;
 import static cn.taketoday.test.context.web.ServletTestExecutionListener.RESET_REQUEST_CONTEXT_HOLDER_ATTRIBUTE;
@@ -52,7 +52,7 @@ class ServletTestExecutionListenerTests {
 
   private static final String SET_UP_OUTSIDE_OF_STEL = "setUpOutsideOfStel";
 
-  private final WebServletApplicationContext wac = mock(WebServletApplicationContext.class);
+  private final WebApplicationContext wac = mock(WebApplicationContext.class);
   private final MockServletContext mockServletContext = new MockServletContext();
   private final TestContext testContext = mock(TestContext.class);
   private final ServletTestExecutionListener listener = new ServletTestExecutionListener();

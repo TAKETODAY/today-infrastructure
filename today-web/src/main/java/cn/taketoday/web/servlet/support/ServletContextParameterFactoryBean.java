@@ -18,12 +18,12 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.web.context.support;
+package cn.taketoday.web.servlet.support;
 
 import cn.taketoday.beans.factory.FactoryBean;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.servlet.ServletContextAware;
-import cn.taketoday.web.servlet.WebServletApplicationContext;
+import cn.taketoday.web.servlet.WebApplicationContext;
 import jakarta.servlet.ServletContext;
 
 /**
@@ -37,7 +37,7 @@ import jakarta.servlet.ServletContext;
  * expression to access a specific parameter by name.
  *
  * @author Juergen Hoeller
- * @see WebServletApplicationContext#CONTEXT_PARAMETERS_BEAN_NAME
+ * @see WebApplicationContext#CONTEXT_PARAMETERS_BEAN_NAME
  * @see ServletContextAttributeFactoryBean
  * @since 4.0
  */

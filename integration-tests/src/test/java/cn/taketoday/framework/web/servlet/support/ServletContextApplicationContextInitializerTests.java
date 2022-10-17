@@ -22,8 +22,8 @@ package cn.taketoday.framework.web.servlet.support;
 
 import org.junit.jupiter.api.Test;
 
-import cn.taketoday.web.context.ConfigurableWebServletApplicationContext;
-import cn.taketoday.web.servlet.WebServletApplicationContext;
+import cn.taketoday.web.servlet.ConfigurableWebApplicationContext;
+import cn.taketoday.web.servlet.WebApplicationContext;
 import jakarta.servlet.ServletContext;
 
 import static org.mockito.BDDMockito.then;
@@ -39,7 +39,7 @@ class ServletContextApplicationContextInitializerTests {
 
   private final ServletContext servletContext = mock(ServletContext.class);
 
-  private final ConfigurableWebServletApplicationContext applicationContext = mock(ConfigurableWebServletApplicationContext.class);
+  private final ConfigurableWebApplicationContext applicationContext = mock(ConfigurableWebApplicationContext.class);
 
   @Test
   void servletContextIsSetOnTheApplicationContext() {
@@ -51,13 +51,13 @@ class ServletContextApplicationContextInitializerTests {
   void applicationContextIsNotStoredInServletContextByDefault() {
     new ServletContextApplicationContextInitializer(this.servletContext).initialize(this.applicationContext);
     then(this.servletContext).should(never())
-            .setAttribute(WebServletApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE, this.applicationContext);
+            .setAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE, this.applicationContext);
   }
 
   @Test
   void applicationContextCanBeStoredInServletContext() {
     new ServletContextApplicationContextInitializer(this.servletContext, true).initialize(this.applicationContext);
-    then(this.servletContext).should().setAttribute(WebServletApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE,
+    then(this.servletContext).should().setAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE,
             this.applicationContext);
   }
 

@@ -31,7 +31,7 @@ import cn.taketoday.test.context.SmartContextLoader;
 import cn.taketoday.test.context.support.AbstractContextLoader;
 import cn.taketoday.test.context.support.AnnotationConfigContextLoaderUtils;
 import cn.taketoday.util.ObjectUtils;
-import cn.taketoday.web.context.support.GenericWebServletApplicationContext;
+import cn.taketoday.web.servlet.support.GenericWebApplicationContext;
 
 /**
  * Concrete implementation of {@link AbstractGenericWebContextLoader} that loads
@@ -56,7 +56,7 @@ import cn.taketoday.web.context.support.GenericWebServletApplicationContext;
  * @author Sam Brannen
  * @see #processContextConfiguration(ContextConfigurationAttributes)
  * @see #detectDefaultConfigurationClasses(Class)
- * @see #loadBeanDefinitions(GenericWebServletApplicationContext, WebMergedContextConfiguration)
+ * @see #loadBeanDefinitions(GenericWebApplicationContext, WebMergedContextConfiguration)
  * @see GenericXmlWebContextLoader
  * @since 4.0
  */
@@ -152,7 +152,7 @@ public class AnnotationConfigWebContextLoader extends AbstractGenericWebContextL
   // AbstractGenericWebContextLoader
 
   /**
-   * Register classes in the supplied {@linkplain GenericWebServletApplicationContext context}
+   * Register classes in the supplied {@linkplain GenericWebApplicationContext context}
    * from the classes in the supplied {@link WebMergedContextConfiguration}.
    * <p>Each class must represent an <em>annotated class</em>. An
    * {@link AnnotatedBeanDefinitionReader} is used to register the appropriate
@@ -164,7 +164,7 @@ public class AnnotationConfigWebContextLoader extends AbstractGenericWebContextL
    */
   @Override
   protected void loadBeanDefinitions(
-          GenericWebServletApplicationContext context, WebMergedContextConfiguration webMergedConfig) {
+          GenericWebApplicationContext context, WebMergedContextConfiguration webMergedConfig) {
 
     Class<?>[] annotatedClasses = webMergedConfig.getClasses();
     if (logger.isDebugEnabled()) {

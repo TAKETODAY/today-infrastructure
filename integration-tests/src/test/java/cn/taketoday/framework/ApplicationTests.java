@@ -108,9 +108,9 @@ import cn.taketoday.http.server.reactive.HttpHandler;
 import cn.taketoday.mock.env.MockEnvironment;
 import cn.taketoday.test.context.support.TestPropertySourceUtils;
 import cn.taketoday.util.StringUtils;
-import cn.taketoday.web.WebApplicationContext;
-import cn.taketoday.web.context.ConfigurableWebEnvironment;
-import cn.taketoday.web.context.support.StandardServletEnvironment;
+import cn.taketoday.web.servlet.ConfigurableWebEnvironment;
+import cn.taketoday.web.servlet.WebApplicationContext;
+import cn.taketoday.web.servlet.support.StandardServletEnvironment;
 import jakarta.annotation.PostConstruct;
 import reactor.core.publisher.Mono;
 

@@ -41,7 +41,7 @@ import cn.taketoday.origin.PropertySourceOrigin;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.StringUtils;
-import cn.taketoday.web.context.support.StandardServletEnvironment;
+import cn.taketoday.web.servlet.support.StandardServletEnvironment;
 
 /**
  * An {@link EnvironmentPostProcessor} that parses JSON from
@@ -67,7 +67,7 @@ public class ApplicationJsonEnvironmentPostProcessor implements EnvironmentPostP
    */
   public static final String APPLICATION_JSON_ENVIRONMENT_VARIABLE = "APPLICATION_JSON";
 
-  private static final String SERVLET_ENVIRONMENT_CLASS = "cn.taketoday.web.context.support.StandardServletEnvironment";
+  private static final String SERVLET_ENVIRONMENT_CLASS = "cn.taketoday.web.servlet.support.StandardServletEnvironment";
 
   private static final LinkedHashSet<String> SERVLET_ENVIRONMENT_PROPERTY_SOURCES = CollectionUtils.newLinkedHashSet(
           StandardServletEnvironment.JNDI_PROPERTY_SOURCE_NAME,

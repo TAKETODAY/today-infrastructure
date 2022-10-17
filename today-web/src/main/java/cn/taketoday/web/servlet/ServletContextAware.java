@@ -20,7 +20,6 @@
 package cn.taketoday.web.servlet;
 
 import cn.taketoday.beans.factory.Aware;
-import cn.taketoday.web.WebApplicationContext;
 import jakarta.servlet.ServletContext;
 
 /**

@@ -18,38 +18,34 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.web.context.support;
+package cn.taketoday.web.servlet;
 
-import cn.taketoday.core.env.EnumerablePropertySource;
-import cn.taketoday.core.env.PropertySource;
-import cn.taketoday.lang.Constant;
+import cn.taketoday.core.env.ConfigurableEnvironment;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.CollectionUtils;
+import jakarta.servlet.ServletConfig;
 import jakarta.servlet.ServletContext;
 
 /**
- * {@link PropertySource} that reads init parameters from a {@link ServletContext} object.
+ * Specialization of {@link ConfigurableEnvironment} allowing initialization of
+ * servlet-related {@link cn.taketoday.core.env.PropertySource} objects at the
+ * earliest moment that the {@link ServletContext} and (optionally) {@link ServletConfig}
+ * become available.
  *
  * @author Chris Beams
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @see ServletConfigPropertySource
- * @since 4.0 2022/2/20 17:10
+ * @since 4.0 2022/2/20 17:07
  */
-public class ServletContextPropertySource extends EnumerablePropertySource<ServletContext> {
+public interface ConfigurableWebEnvironment extends ConfigurableEnvironment {
 
-  public ServletContextPropertySource(String name, ServletContext servletContext) {
-    super(name, servletContext);
-  }
-
-  @Override
-  public String[] getPropertyNames() {
-    return CollectionUtils.toArray(source.getInitParameterNames(), Constant.EMPTY_STRING_ARRAY);
-  }
-
-  @Override
-  @Nullable
-  public String getProperty(String name) {
-    return this.source.getInitParameter(name);
-  }
+  /**
+   * Replace any {@linkplain
+   * cn.taketoday.core.env.PropertySource.StubPropertySource stub property source}
+   * instances acting as placeholders with real servlet context/config property sources
+   * using the given parameters.
+   *
+   * @param servletContext the {@link ServletContext} (may not be {@code null})
+   * @param servletConfig the {@link ServletConfig} ({@code null} if not available)
+   */
+  void initPropertySources(@Nullable ServletContext servletContext, @Nullable ServletConfig servletConfig);
 
 }

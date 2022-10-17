@@ -29,17 +29,17 @@ import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.annotation.AnnotatedBeanDefinitionReader;
 import cn.taketoday.context.annotation.ClassPathBeanDefinitionScanner;
 import cn.taketoday.context.annotation.ScopedProxyMode;
-import cn.taketoday.session.config.EnableWebSession;
-import cn.taketoday.stereotype.Component;
 import cn.taketoday.mock.web.MockHttpServletRequest;
 import cn.taketoday.mock.web.MockHttpServletResponse;
 import cn.taketoday.mock.web.MockHttpSession;
+import cn.taketoday.session.config.EnableWebSession;
+import cn.taketoday.stereotype.Component;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.RequestContextHolder;
 import cn.taketoday.web.context.annotation.RequestScope;
 import cn.taketoday.web.context.annotation.SessionScope;
-import cn.taketoday.web.context.support.GenericWebServletApplicationContext;
 import cn.taketoday.web.servlet.ServletRequestContext;
+import cn.taketoday.web.servlet.support.GenericWebApplicationContext;
 
 import static cn.taketoday.context.annotation.ScopedProxyMode.DEFAULT;
 import static cn.taketoday.context.annotation.ScopedProxyMode.INTERFACES;
@@ -291,7 +291,7 @@ class ClassPathBeanDefinitionScannerScopeIntegrationTests {
   }
 
   private ApplicationContext createContext(ScopedProxyMode scopedProxyMode) {
-    GenericWebServletApplicationContext context = new GenericWebServletApplicationContext();
+    GenericWebApplicationContext context = new GenericWebApplicationContext();
     ClassPathBeanDefinitionScanner scanner = new ClassPathBeanDefinitionScanner(context);
     scanner.setIncludeAnnotationConfig(false);
     scanner.setBeanNameGenerator((definition, registry) -> definition.getScope());

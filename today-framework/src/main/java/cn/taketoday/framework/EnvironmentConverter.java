@@ -29,7 +29,7 @@ import cn.taketoday.core.env.PropertySource;
 import cn.taketoday.core.env.PropertySources;
 import cn.taketoday.core.env.StandardEnvironment;
 import cn.taketoday.util.ClassUtils;
-import cn.taketoday.web.context.support.StandardServletEnvironment;
+import cn.taketoday.web.servlet.support.StandardServletEnvironment;
 
 /**
  * Utility class for converting one type of {@link Environment} to another.
@@ -42,7 +42,7 @@ import cn.taketoday.web.context.support.StandardServletEnvironment;
  */
 final class EnvironmentConverter {
 
-  private static final String CONFIGURABLE_WEB_ENVIRONMENT_CLASS = "cn.taketoday.web.context.ConfigurableWebEnvironment";
+  private static final String CONFIGURABLE_WEB_ENVIRONMENT_CLASS = "cn.taketoday.web.servlet.ConfigurableWebEnvironment";
 
   private static final Set<String> SERVLET_ENVIRONMENT_SOURCE_NAMES = Set.of(
           StandardServletEnvironment.SERVLET_CONTEXT_PROPERTY_SOURCE_NAME,

@@ -21,25 +21,26 @@
 package cn.taketoday.framework.web.servlet.context;
 
 import cn.taketoday.lang.Assert;
-import cn.taketoday.web.context.ConfigurableWebServletApplicationContext;
-import cn.taketoday.web.context.support.ServletContextAwareProcessor;
+import cn.taketoday.web.servlet.ConfigurableWebApplicationContext;
+import cn.taketoday.web.servlet.support.ServletContextAwareProcessor;
 import jakarta.servlet.ServletConfig;
 import jakarta.servlet.ServletContext;
 
 /**
  * Variant of {@link ServletContextAwareProcessor} for use with a
- * {@link ConfigurableWebServletApplicationContext}. Can be used when registering the processor
+ * {@link ConfigurableWebApplicationContext}. Can be used when registering the processor
  * can occur before the {@link ServletContext} or {@link ServletConfig} have been
  * initialized.
  *
  * @author Phillip Webb
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public class WebApplicationContextServletContextAwareProcessor extends ServletContextAwareProcessor {
 
-  private final ConfigurableWebServletApplicationContext webApplicationContext;
+  private final ConfigurableWebApplicationContext webApplicationContext;
 
-  public WebApplicationContextServletContextAwareProcessor(ConfigurableWebServletApplicationContext webApplicationContext) {
+  public WebApplicationContextServletContextAwareProcessor(ConfigurableWebApplicationContext webApplicationContext) {
     Assert.notNull(webApplicationContext, "WebApplicationContext must not be null");
     this.webApplicationContext = webApplicationContext;
   }

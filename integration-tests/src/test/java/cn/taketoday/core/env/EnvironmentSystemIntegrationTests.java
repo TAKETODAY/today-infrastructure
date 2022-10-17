@@ -49,13 +49,13 @@ import cn.taketoday.mock.env.MockEnvironment;
 import cn.taketoday.mock.web.MockServletConfig;
 import cn.taketoday.mock.web.MockServletContext;
 import cn.taketoday.util.FileCopyUtils;
-import cn.taketoday.web.context.support.AbstractRefreshableWebApplicationContext;
-import cn.taketoday.web.context.support.AnnotationConfigWebApplicationContext;
-import cn.taketoday.web.context.support.GenericWebServletApplicationContext;
-import cn.taketoday.web.context.support.StandardServletEnvironment;
-import cn.taketoday.web.context.support.StaticWebServletApplicationContext;
-import cn.taketoday.web.context.support.XmlWebApplicationContext;
-import cn.taketoday.web.servlet.WebServletApplicationContext;
+import cn.taketoday.web.servlet.WebApplicationContext;
+import cn.taketoday.web.servlet.support.AbstractRefreshableWebApplicationContext;
+import cn.taketoday.web.servlet.support.AnnotationConfigWebApplicationContext;
+import cn.taketoday.web.servlet.support.GenericWebApplicationContext;
+import cn.taketoday.web.servlet.support.StandardServletEnvironment;
+import cn.taketoday.web.servlet.support.StaticWebApplicationContext;
+import cn.taketoday.web.servlet.support.XmlWebApplicationContext;
 
 import static cn.taketoday.beans.factory.support.BeanDefinitionBuilder.rootBeanDefinition;
 import static cn.taketoday.core.env.Environment.ENVIRONMENT_BEAN_NAME;
@@ -336,7 +336,7 @@ public class EnvironmentSystemIntegrationTests {
 
   @Test
   void webApplicationContext() {
-    GenericWebServletApplicationContext ctx = new GenericWebServletApplicationContext(
+    GenericWebApplicationContext ctx = new GenericWebApplicationContext(
             newBeanFactoryWithEnvironmentAwareBean());
     assertHasStandardServletEnvironment(ctx);
     ctx.setEnvironment(prodWebEnv);
@@ -379,7 +379,7 @@ public class EnvironmentSystemIntegrationTests {
 
   @Test
   void staticWebApplicationContext() {
-    StaticWebServletApplicationContext ctx = new StaticWebServletApplicationContext();
+    StaticWebApplicationContext ctx = new StaticWebApplicationContext();
 
     assertHasStandardServletEnvironment(ctx);
 
@@ -456,7 +456,7 @@ public class EnvironmentSystemIntegrationTests {
     servletContext.addInitParameter("pCommon", "pCommonContextValue");
     servletContext.addInitParameter("pContext1", "pContext1Value");
 
-    GenericWebServletApplicationContext ctx = new GenericWebServletApplicationContext();
+    GenericWebApplicationContext ctx = new GenericWebApplicationContext();
     ctx.setServletContext(servletContext);
     ctx.refresh();
 
@@ -494,7 +494,7 @@ public class EnvironmentSystemIntegrationTests {
     servletConfig.addInitParameter("pCommon", "pCommonConfigValue");
     servletConfig.addInitParameter("pConfig1", "pConfig1Value");
 
-    StaticWebServletApplicationContext ctx = new StaticWebServletApplicationContext();
+    StaticWebApplicationContext ctx = new StaticWebApplicationContext();
     ctx.setServletConfig(servletConfig);
     ctx.refresh();
 
@@ -572,7 +572,7 @@ public class EnvironmentSystemIntegrationTests {
     assertThat(defaultEnv).isInstanceOf(StandardEnvironment.class);
   }
 
-  private void assertHasStandardServletEnvironment(WebServletApplicationContext ctx) {
+  private void assertHasStandardServletEnvironment(WebApplicationContext ctx) {
     // ensure a default servlet environment exists
     Environment defaultEnv = ctx.getEnvironment();
     assertThat(defaultEnv).isNotNull();

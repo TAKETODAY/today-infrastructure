@@ -28,7 +28,7 @@ import cn.taketoday.mock.web.MockHttpServletRequest;
 import cn.taketoday.session.WebSession;
 import cn.taketoday.session.config.EnableWebSession;
 import cn.taketoday.test.context.junit.jupiter.web.JUnitWebConfig;
-import cn.taketoday.web.servlet.WebServletApplicationContext;
+import cn.taketoday.web.servlet.WebApplicationContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -43,7 +43,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 class RequestAndSessionScopedBeansWacTests {
 
   @Autowired
-  WebServletApplicationContext wac;
+  WebApplicationContext wac;
 
   @Autowired
   MockHttpServletRequest request;

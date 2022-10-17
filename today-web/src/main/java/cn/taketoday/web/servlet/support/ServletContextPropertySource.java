@@ -18,53 +18,38 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.web.context.support;
+package cn.taketoday.web.servlet.support;
 
-import cn.taketoday.context.support.StaticApplicationContext;
+import cn.taketoday.core.env.EnumerablePropertySource;
+import cn.taketoday.core.env.PropertySource;
+import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.web.context.ConfigurableWebApplicationContext;
+import cn.taketoday.util.CollectionUtils;
+import jakarta.servlet.ServletContext;
 
 /**
+ * {@link PropertySource} that reads init parameters from a {@link ServletContext} object.
+ *
+ * @author Chris Beams
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @since 4.0 2022/2/7 13:52
+ * @see ServletConfigPropertySource
+ * @since 4.0 2022/2/20 17:10
  */
-public class StaticWebApplicationContext extends StaticApplicationContext implements ConfigurableWebApplicationContext {
+public class ServletContextPropertySource extends EnumerablePropertySource<ServletContext> {
 
-  @Nullable
-  private String namespace;
-  private String[] configLocations;
-
-  public StaticWebApplicationContext() { }
-
-  @Override
-  public String getContextPath() {
-    return namespace;
+  public ServletContextPropertySource(String name, ServletContext servletContext) {
+    super(name, servletContext);
   }
 
   @Override
-  public void setNamespace(@Nullable String namespace) {
-    this.namespace = namespace;
+  public String[] getPropertyNames() {
+    return CollectionUtils.toArray(source.getInitParameterNames(), Constant.EMPTY_STRING_ARRAY);
   }
 
   @Override
   @Nullable
-  public String getNamespace() {
-    return namespace;
-  }
-
-  @Override
-  public void setConfigLocation(String configLocation) {
-    this.configLocations = new String[] { configLocation };
-  }
-
-  @Override
-  public void setConfigLocations(String... configLocations) {
-    this.configLocations = configLocations;
-  }
-
-  @Override
-  public String[] getConfigLocations() {
-    return configLocations;
+  public String getProperty(String name) {
+    return this.source.getInitParameter(name);
   }
 
 }

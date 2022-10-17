@@ -18,74 +18,58 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.web.context.support;
+package cn.taketoday.web.servlet.support;
 
 import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
-import cn.taketoday.context.support.AbstractRefreshableConfigApplicationContext;
+import cn.taketoday.context.support.StaticApplicationContext;
 import cn.taketoday.core.env.ConfigurableEnvironment;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.web.context.ConfigurableWebApplicationContext;
-import cn.taketoday.web.context.ConfigurableWebEnvironment;
-import cn.taketoday.web.context.ConfigurableWebServletApplicationContext;
+import cn.taketoday.web.servlet.ConfigurableWebApplicationContext;
 import cn.taketoday.web.servlet.ServletConfigAware;
 import cn.taketoday.web.servlet.ServletContextAware;
+import cn.taketoday.web.servlet.WebApplicationContext;
 import jakarta.servlet.ServletConfig;
 import jakarta.servlet.ServletContext;
 
 /**
- * {@link cn.taketoday.context.support.AbstractRefreshableApplicationContext}
- * subclass which implements the
- * {@link cn.taketoday.web.context.ConfigurableWebApplicationContext}
- * interface for web environments. Provides a "configLocations" property,
- * to be populated through the ConfigurableWebApplicationContext interface
- * on web application startup.
+ * Static {@link WebApplicationContext}
+ * implementation for testing. Not intended for use in production applications.
  *
- * <p>This class is as easy to subclass as AbstractRefreshableApplicationContext:
- * All you need to implements is the {@link #loadBeanDefinitions} method;
- * see the superclass javadoc for details. Note that implementations are supposed
- * to load bean definitions from the files specified by the locations returned
- * by the {@link #getConfigLocations} method.
+ * <p>Implements the {@link ConfigurableWebApplicationContext}
+ * interface to allow for direct replacement of an {@link XmlWebApplicationContext},
+ * despite not actually supporting external configuration files.
  *
  * <p>Interprets resource paths as servlet context resources, i.e. as paths beneath
  * the web application root. Absolute paths, e.g. for files outside the web app root,
  * can be accessed via "file:" URLs, as implemented by
  * {@link cn.taketoday.core.io.DefaultResourceLoader}.
  *
- * <p><b>This is the web context to be subclassed for a different bean definition format.</b>
- *
- * <p>Note that WebApplicationContext implementations are generally supposed
- * to configure themselves based on the configuration received through the
- * {@link ConfigurableWebApplicationContext} interface. In contrast, a standalone
- * application context might allow for configuration in custom startup code
- * (for example, {@link cn.taketoday.context.support.GenericApplicationContext}).
- *
+ * @author Rod Johnson
  * @author Juergen Hoeller
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @see #loadBeanDefinitions
- * @see cn.taketoday.web.context.ConfigurableWebApplicationContext#setConfigLocations
- * @since 4.0 2022/2/20 17:36
+ * @since 4.0 2022/2/7 13:52
  */
-public abstract class AbstractRefreshableWebApplicationContext extends AbstractRefreshableConfigApplicationContext
-        implements ConfigurableWebServletApplicationContext {
+public class StaticWebApplicationContext
+        extends StaticApplicationContext implements ConfigurableWebApplicationContext {
 
-  /** Servlet context that this context runs in. */
   @Nullable
   private ServletContext servletContext;
 
-  /** Servlet config that this context runs in, if any. */
   @Nullable
   private ServletConfig servletConfig;
 
-  /** Namespace of this context, or {@code null} if root. */
   @Nullable
   private String namespace;
 
-  public AbstractRefreshableWebApplicationContext() {
+  public StaticWebApplicationContext() {
     setDisplayName("Root WebApplicationContext");
   }
 
+  /**
+   * Set the ServletContext that this WebApplicationContext runs in.
+   */
   @Override
   public void setServletContext(@Nullable ServletContext servletContext) {
     this.servletContext = servletContext;
@@ -101,7 +85,7 @@ public abstract class AbstractRefreshableWebApplicationContext extends AbstractR
   public void setServletConfig(@Nullable ServletConfig servletConfig) {
     this.servletConfig = servletConfig;
     if (servletConfig != null && this.servletContext == null) {
-      setServletContext(servletConfig.getServletContext());
+      this.servletContext = servletConfig.getServletContext();
     }
   }
 
@@ -125,29 +109,29 @@ public abstract class AbstractRefreshableWebApplicationContext extends AbstractR
     return this.namespace;
   }
 
+  /**
+   * The {@link StaticWebApplicationContext} class does not support this method.
+   *
+   * @throws UnsupportedOperationException <b>always</b>
+   */
   @Override
-  public String getContextPath() {
-    Assert.state(servletContext != null, "No servletContext.");
-    return servletContext.getContextPath();
+  public void setConfigLocation(String configLocation) {
+    throw new UnsupportedOperationException("StaticWebApplicationContext does not support config locations");
+  }
+
+  /**
+   * The {@link StaticWebApplicationContext} class does not support this method.
+   *
+   * @throws UnsupportedOperationException <b>always</b>
+   */
+  @Override
+  public void setConfigLocations(String... configLocations) {
+    throw new UnsupportedOperationException("StaticWebApplicationContext does not support config locations");
   }
 
   @Override
   public String[] getConfigLocations() {
-    return super.getConfigLocations();
-  }
-
-  @Override
-  public String getApplicationName() {
-    return (this.servletContext != null ? this.servletContext.getContextPath() : "");
-  }
-
-  /**
-   * Create and return a new {@link StandardServletEnvironment}. Subclasses may override
-   * in order to configure the environment or specialize the environment type returned.
-   */
-  @Override
-  protected ConfigurableEnvironment createEnvironment() {
-    return new StandardServletEnvironment();
+    return null;
   }
 
   /**
@@ -186,15 +170,17 @@ public abstract class AbstractRefreshableWebApplicationContext extends AbstractR
   }
 
   /**
-   * {@inheritDoc}
-   * <p>Replace {@code Servlet}-related property sources.
+   * Create and return a new {@link StandardServletEnvironment}.
    */
   @Override
+  protected ConfigurableEnvironment createEnvironment() {
+    return new StandardServletEnvironment();
+  }
+
+  @Override
   protected void initPropertySources() {
-    ConfigurableEnvironment env = getEnvironment();
-    if (env instanceof ConfigurableWebEnvironment) {
-      ((ConfigurableWebEnvironment) env).initPropertySources(this.servletContext, this.servletConfig);
-    }
+    WebApplicationContextUtils.initServletPropertySources(getEnvironment().getPropertySources(),
+            this.servletContext, this.servletConfig);
   }
 
 }

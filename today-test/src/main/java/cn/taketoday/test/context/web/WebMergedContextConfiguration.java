@@ -37,6 +37,7 @@ import cn.taketoday.test.context.SmartContextLoader;
 import cn.taketoday.test.context.TestContext;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
+import cn.taketoday.web.servlet.WebApplicationContext;
 
 /**
  * {@code WebMergedContextConfiguration} encapsulates the <em>merged</em>
@@ -50,7 +51,7 @@ import cn.taketoday.util.StringUtils;
  * #getResourceBasePath() resource base path} configured via {@code @WebAppConfiguration}.
  * This allows the {@link TestContext TestContext}
  * to properly cache the corresponding {@link
- * cn.taketoday.web.WebApplicationContext WebApplicationContext}
+ * WebApplicationContext WebApplicationContext}
  * that was loaded using properties of this {@code WebMergedContextConfiguration}.
  *
  * @author Sam Brannen

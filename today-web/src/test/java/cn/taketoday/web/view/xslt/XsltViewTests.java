@@ -20,7 +20,6 @@
 
 package cn.taketoday.web.view.xslt;
 
-import org.assertj.core.api.Assertions;
 import org.dom4j.Document;
 import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
@@ -42,8 +41,8 @@ import javax.xml.transform.stream.StreamSource;
 
 import cn.taketoday.core.io.ClassPathResource;
 import cn.taketoday.core.io.Resource;
-import cn.taketoday.web.context.support.StaticWebApplicationContext;
 import cn.taketoday.web.servlet.ServletUtils;
+import cn.taketoday.web.servlet.support.StaticWebApplicationContext;
 import cn.taketoday.web.testfixture.servlet.MockHttpServletRequest;
 import cn.taketoday.web.testfixture.servlet.MockHttpServletResponse;
 

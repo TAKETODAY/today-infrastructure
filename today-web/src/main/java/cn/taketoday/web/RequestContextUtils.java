@@ -428,9 +428,9 @@ public class RequestContextUtils {
 
     // @Autowired WebSession currentSession;
     beanFactory.registerDependency(WebSession.class, new WebSessionSupplier(beanFactory));
-    beanFactory.registerScope(WebApplicationContext.SCOPE_SESSION, new SessionScope(beanFactory));
+    beanFactory.registerScope(RequestContext.SCOPE_SESSION, new SessionScope(beanFactory));
 
-    beanFactory.registerScope(WebApplicationContext.SCOPE_REQUEST, new RequestScope());
+    beanFactory.registerScope(RequestContext.SCOPE_REQUEST, new RequestScope());
 
     // register RequestContext
     // @Autowired RequestContext currentRequest;

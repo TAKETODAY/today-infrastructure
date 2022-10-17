@@ -58,7 +58,7 @@ import cn.taketoday.test.util.TestPropertyValues;
 import cn.taketoday.test.util.TestPropertyValues.Type;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
-import cn.taketoday.web.context.support.GenericWebApplicationContext;
+import cn.taketoday.web.servlet.support.GenericWebApplicationContext;
 
 /**
  * A {@link ContextLoader} that can be used to test Spring Boot applications (those that

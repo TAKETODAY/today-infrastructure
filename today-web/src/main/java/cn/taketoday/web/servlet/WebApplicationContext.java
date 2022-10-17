@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -15,11 +15,13 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.web.servlet;
 
-import cn.taketoday.web.WebApplicationContext;
+import cn.taketoday.context.ApplicationContext;
+import cn.taketoday.web.servlet.support.WebApplicationContextUtils;
 import jakarta.servlet.ServletContext;
 
 /**
@@ -35,14 +37,14 @@ import jakarta.servlet.ServletContext;
  * (including a dispatcher servlet in the MVC framework) has its own child context.
  *
  * <p>In addition to standard application context lifecycle capabilities,
- * WebApplicationContext implementations need to detect {@link ServletContextAware}
+ * WebApplicationContext implementations need to detect {@link cn.taketoday.web.servlet.ServletContextAware}
  * beans and invoke the {@code setServletContext} method accordingly.
  *
- * @author TODAY
- * @see ServletContextAware#setServletContext
- * @since 2018-07-10 13:13:57
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @see cn.taketoday.web.servlet.ServletContextAware#setServletContext
+ * @since 2019-07-10 22:03
  */
-public interface WebServletApplicationContext extends WebApplicationContext {
+public interface WebApplicationContext extends ApplicationContext {
 
   /**
    * Context attribute to bind root WebApplicationContext to on successful startup.
@@ -50,8 +52,8 @@ public interface WebServletApplicationContext extends WebApplicationContext {
    * an exception or error as value. Use WebApplicationContextUtils for convenient
    * lookup of the root WebApplicationContext.
    *
-   * @see cn.taketoday.web.context.support.WebApplicationContextUtils#getWebApplicationContext
-   * @see cn.taketoday.web.context.support.WebApplicationContextUtils#getRequiredWebApplicationContext
+   * @see WebApplicationContextUtils#getWebApplicationContext
+   * @see WebApplicationContextUtils#getRequiredWebApplicationContext
    */
   String ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE = WebApplicationContext.class.getName() + ".ROOT";
 

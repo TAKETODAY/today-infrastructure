@@ -32,7 +32,7 @@ import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.aware.ApplicationContextAware;
 import cn.taketoday.context.loader.ClassPathScanningCandidateComponentProvider;
-import cn.taketoday.web.servlet.WebServletApplicationContext;
+import cn.taketoday.web.servlet.WebApplicationContext;
 
 /**
  * {@link BeanFactoryPostProcessor} that registers beans for Servlet components found via
@@ -81,7 +81,7 @@ class ServletComponentRegisteringPostProcessor implements BeanFactoryPostProcess
   }
 
   private boolean isRunningInEmbeddedWebServer() {
-    return applicationContext instanceof WebServletApplicationContext wsctx && wsctx.getServletContext() == null;
+    return applicationContext instanceof WebApplicationContext wsctx && wsctx.getServletContext() == null;
   }
 
   private ClassPathScanningCandidateComponentProvider createComponentProvider() {

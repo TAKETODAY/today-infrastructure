@@ -18,31 +18,25 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.web.context;
+package cn.taketoday.web.servlet;
 
 import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.web.servlet.WebServletApplicationContext;
 import jakarta.servlet.ServletConfig;
 import jakarta.servlet.ServletContext;
 
 /**
  * Interface to be implemented by configurable web application contexts.
- * Supported by {@link ContextLoader}
  *
  * <p>Note: The setters of this interface need to be called before an
  * invocation of the {@link #refresh} method inherited from
- * {@link ConfigurableApplicationContext}.
+ * {@link cn.taketoday.context.ConfigurableApplicationContext}.
  * They do not cause an initialization of the context on their own.
  *
- * @author Juergen Hoeller
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @see #refresh
- * @see ContextLoader#createWebApplicationContext
- * @since 4.0 2022/2/20 17:33
+ * @since 4.0 2022/2/20 17:52
  */
-public interface ConfigurableWebServletApplicationContext
-        extends WebServletApplicationContext, ConfigurableWebApplicationContext {
+public interface ConfigurableWebApplicationContext extends WebApplicationContext, ConfigurableApplicationContext {
 
   /**
    * Name of the ServletConfig environment bean in the factory.
@@ -50,6 +44,41 @@ public interface ConfigurableWebServletApplicationContext
    * @see jakarta.servlet.ServletConfig
    */
   String SERVLET_CONFIG_BEAN_NAME = "servletConfig";
+
+  /**
+   * Set the namespace for this web application context,
+   * to be used for building a default context config location.
+   * The root web application context does not have a namespace.
+   */
+  void setNamespace(@Nullable String namespace);
+
+  /**
+   * Return the namespace for this web application context, if any.
+   */
+  @Nullable
+  String getNamespace();
+
+  /**
+   * Set the config locations for this web application context in init-param style,
+   * i.e. with distinct locations separated by commas, semicolons or whitespace.
+   * <p>If not set, the implementation is supposed to use a default for the
+   * given namespace or the root web application context, as appropriate.
+   */
+  void setConfigLocation(String configLocation);
+
+  /**
+   * Set the config locations for this web application context.
+   * <p>If not set, the implementation is supposed to use a default for the
+   * given namespace or the root web application context, as appropriate.
+   */
+  void setConfigLocations(String... configLocations);
+
+  /**
+   * Return the config locations for this web application context,
+   * or {@code null} if none specified.
+   */
+  @Nullable
+  String[] getConfigLocations();
 
   /**
    * Set the ServletContext for this web application context.
@@ -73,18 +102,5 @@ public interface ConfigurableWebServletApplicationContext
    */
   @Nullable
   ServletConfig getServletConfig();
-
-  /**
-   * Set the namespace for this web application context,
-   * to be used for building a default context config location.
-   * The root web application context does not have a namespace.
-   */
-  void setNamespace(@Nullable String namespace);
-
-  /**
-   * Return the namespace for this web application context, if any.
-   */
-  @Nullable
-  String getNamespace();
 
 }

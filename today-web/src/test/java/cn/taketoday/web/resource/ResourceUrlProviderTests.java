@@ -23,7 +23,6 @@ package cn.taketoday.web.resource;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
-import org.mockito.BDDMockito;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -35,9 +34,9 @@ import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.core.io.ClassPathResource;
 import cn.taketoday.core.io.Resource;
-import cn.taketoday.web.context.support.AnnotationConfigWebApplicationContext;
 import cn.taketoday.web.registry.SimpleUrlHandlerMapping;
 import cn.taketoday.web.servlet.ServletRequestContext;
+import cn.taketoday.web.servlet.support.AnnotationConfigWebApplicationContext;
 import cn.taketoday.web.testfixture.servlet.MockHttpServletRequest;
 import cn.taketoday.web.testfixture.servlet.MockServletContext;
 

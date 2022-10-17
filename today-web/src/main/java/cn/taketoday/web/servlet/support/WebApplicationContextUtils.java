@@ -18,7 +18,7 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.web.context.support;
+package cn.taketoday.web.servlet.support;
 
 import java.io.Serializable;
 import java.util.Collections;
@@ -33,10 +33,10 @@ import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.RequestContextHolder;
 import cn.taketoday.web.RequestContextUtils;
-import cn.taketoday.web.WebApplicationContext;
-import cn.taketoday.web.context.ConfigurableWebServletApplicationContext;
+import cn.taketoday.web.servlet.ConfigurableWebApplicationContext;
+import cn.taketoday.web.servlet.ContextLoaderListener;
 import cn.taketoday.web.servlet.ServletUtils;
-import cn.taketoday.web.servlet.WebServletApplicationContext;
+import cn.taketoday.web.servlet.WebApplicationContext;
 import jakarta.servlet.ServletConfig;
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.ServletRequest;
@@ -44,7 +44,7 @@ import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpSession;
 
 /**
- * Convenience methods for retrieving the root {@link WebServletApplicationContext} for
+ * Convenience methods for retrieving the root {@link WebApplicationContext} for
  * a given {@link ServletContext}. This is useful for programmatically accessing
  * a application context from within custom web views or MVC actions.
  *
@@ -60,17 +60,17 @@ public class WebApplicationContextUtils {
 
   /**
    * Find the root {@code WebServletApplicationContext} for this web app, typically
-   * loaded via {@link cn.taketoday.web.context.ContextLoaderListener}.
+   * loaded via {@link ContextLoaderListener}.
    * <p>Will rethrow an exception that happened on root context startup,
    * to differentiate between a failed context startup and no context at all.
    *
    * @param sc the ServletContext to find the web application context for
    * @return the root WebServletApplicationContext for this web app
    * @throws IllegalStateException if the root WebServletApplicationContext could not be found
-   * @see cn.taketoday.web.servlet.WebServletApplicationContext#ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE
+   * @see WebApplicationContext#ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE
    */
-  public static WebServletApplicationContext getRequiredWebApplicationContext(ServletContext sc) throws IllegalStateException {
-    WebServletApplicationContext wac = getWebApplicationContext(sc);
+  public static WebApplicationContext getRequiredWebApplicationContext(ServletContext sc) throws IllegalStateException {
+    WebApplicationContext wac = getWebApplicationContext(sc);
     if (wac == null) {
       throw new IllegalStateException("No WebServletApplicationContext found: no ContextLoaderListener registered?");
     }
@@ -79,17 +79,17 @@ public class WebApplicationContextUtils {
 
   /**
    * Find the root {@code WebServletApplicationContext} for this web app, typically
-   * loaded via {@link cn.taketoday.web.context.ContextLoaderListener}.
+   * loaded via {@link ContextLoaderListener}.
    * <p>Will rethrow an exception that happened on root context startup,
    * to differentiate between a failed context startup and no context at all.
    *
    * @param sc the ServletContext to find the web application context for
    * @return the root WebServletApplicationContext for this web app, or {@code null} if none
-   * @see cn.taketoday.web.servlet.WebServletApplicationContext#ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE
+   * @see WebApplicationContext#ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE
    */
   @Nullable
-  public static WebServletApplicationContext getWebApplicationContext(ServletContext sc) {
-    return getWebApplicationContext(sc, WebServletApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE);
+  public static WebApplicationContext getWebApplicationContext(ServletContext sc) {
+    return getWebApplicationContext(sc, WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE);
   }
 
   /**
@@ -100,11 +100,11 @@ public class WebApplicationContextUtils {
    * @return the desired WebServletApplicationContext for this web app, or {@code null} if none
    */
   @Nullable
-  public static WebServletApplicationContext getWebApplicationContext(ServletContext sc, String attrName) {
+  public static WebApplicationContext getWebApplicationContext(ServletContext sc, String attrName) {
     Assert.notNull(sc, "ServletContext is required");
     Object attr = sc.getAttribute(attrName);
-    if (attr instanceof WebServletApplicationContext) {
-      return (WebServletApplicationContext) attr;
+    if (attr instanceof WebApplicationContext) {
+      return (WebApplicationContext) attr;
     }
     if (attr == null) {
       return null;
@@ -137,19 +137,19 @@ public class WebApplicationContextUtils {
    * @see ServletContext#getAttributeNames()
    */
   @Nullable
-  public static WebServletApplicationContext findWebApplicationContext(ServletContext sc) {
-    WebServletApplicationContext wac = getWebApplicationContext(sc);
+  public static WebApplicationContext findWebApplicationContext(ServletContext sc) {
+    WebApplicationContext wac = getWebApplicationContext(sc);
     if (wac == null) {
       Enumeration<String> attrNames = sc.getAttributeNames();
       while (attrNames.hasMoreElements()) {
         String attrName = attrNames.nextElement();
         Object attrValue = sc.getAttribute(attrName);
-        if (attrValue instanceof WebServletApplicationContext) {
+        if (attrValue instanceof WebApplicationContext) {
           if (wac != null) {
             throw new IllegalStateException("No unique WebServletApplicationContext found: more than one " +
                     "DispatcherServlet registered with publishContext=true?");
           }
-          wac = (WebServletApplicationContext) attrValue;
+          wac = (WebApplicationContext) attrValue;
         }
       }
     }
@@ -167,7 +167,7 @@ public class WebApplicationContextUtils {
   }
 
   /**
-   * Register web-specific scopes ("request", "session", "globalSession", "application")
+   * Register web-specific scopes ("request", "session")
    * with the given BeanFactory, as used by the WebServletApplicationContext.
    *
    * @param beanFactory the BeanFactory to configure
@@ -178,16 +178,13 @@ public class WebApplicationContextUtils {
     RequestContextUtils.registerScopes(beanFactory);
 
     if (sc != null) {
-      ServletContextScope appScope = new ServletContextScope(sc);
-      beanFactory.registerScope(WebApplicationContext.SCOPE_APPLICATION, appScope);
-      // Register as ServletContext attribute, for ContextCleanupListener to detect it.
-      sc.setAttribute(ServletContextScope.class.getName(), appScope);
+      beanFactory.registerDependency(ServletContext.class, sc);
     }
 
     beanFactory.registerDependency(HttpSession.class, new SessionObjectSupplier());
     beanFactory.registerDependency(ServletRequest.class, new RequestObjectSupplier());
     beanFactory.registerDependency(ServletResponse.class, new ResponseObjectSupplier());
-    beanFactory.registerDependency(ServletContext.class, sc);
+
   }
 
   /**
@@ -212,15 +209,15 @@ public class WebApplicationContextUtils {
   public static void registerEnvironmentBeans(ConfigurableBeanFactory bf,
           @Nullable ServletContext servletContext, @Nullable ServletConfig servletConfig) {
 
-    if (servletContext != null && !bf.containsBean(WebServletApplicationContext.SERVLET_CONTEXT_BEAN_NAME)) {
-      bf.registerSingleton(WebServletApplicationContext.SERVLET_CONTEXT_BEAN_NAME, servletContext);
+    if (servletContext != null && !bf.containsBean(WebApplicationContext.SERVLET_CONTEXT_BEAN_NAME)) {
+      bf.registerSingleton(WebApplicationContext.SERVLET_CONTEXT_BEAN_NAME, servletContext);
     }
 
-    if (servletConfig != null && !bf.containsBean(ConfigurableWebServletApplicationContext.SERVLET_CONFIG_BEAN_NAME)) {
-      bf.registerSingleton(ConfigurableWebServletApplicationContext.SERVLET_CONFIG_BEAN_NAME, servletConfig);
+    if (servletConfig != null && !bf.containsBean(ConfigurableWebApplicationContext.SERVLET_CONFIG_BEAN_NAME)) {
+      bf.registerSingleton(ConfigurableWebApplicationContext.SERVLET_CONFIG_BEAN_NAME, servletConfig);
     }
 
-    if (!bf.containsBean(WebServletApplicationContext.CONTEXT_PARAMETERS_BEAN_NAME)) {
+    if (!bf.containsBean(WebApplicationContext.CONTEXT_PARAMETERS_BEAN_NAME)) {
       HashMap<String, String> parameterMap = new HashMap<>();
       if (servletContext != null) {
         Enumeration<String> paramNameEnum = servletContext.getInitParameterNames();
@@ -236,11 +233,11 @@ public class WebApplicationContextUtils {
           parameterMap.put(paramName, servletConfig.getInitParameter(paramName));
         }
       }
-      bf.registerSingleton(WebServletApplicationContext.CONTEXT_PARAMETERS_BEAN_NAME,
+      bf.registerSingleton(WebApplicationContext.CONTEXT_PARAMETERS_BEAN_NAME,
               Collections.unmodifiableMap(parameterMap));
     }
 
-    if (!bf.containsBean(WebServletApplicationContext.CONTEXT_ATTRIBUTES_BEAN_NAME)) {
+    if (!bf.containsBean(WebApplicationContext.CONTEXT_ATTRIBUTES_BEAN_NAME)) {
       HashMap<String, Object> attributeMap = new HashMap<>();
       if (servletContext != null) {
         Enumeration<String> attrNameEnum = servletContext.getAttributeNames();
@@ -249,7 +246,7 @@ public class WebApplicationContextUtils {
           attributeMap.put(attrName, servletContext.getAttribute(attrName));
         }
       }
-      bf.registerSingleton(WebServletApplicationContext.CONTEXT_ATTRIBUTES_BEAN_NAME,
+      bf.registerSingleton(WebApplicationContext.CONTEXT_ATTRIBUTES_BEAN_NAME,
               Collections.unmodifiableMap(attributeMap));
     }
   }

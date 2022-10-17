@@ -40,13 +40,9 @@ import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.RequestContextHolder;
-import cn.taketoday.web.WebApplicationContext;
-import cn.taketoday.web.context.ConfigurableWebEnvironment;
-import cn.taketoday.web.context.ConfigurableWebServletApplicationContext;
-import cn.taketoday.web.context.ContextLoader;
-import cn.taketoday.web.context.support.StandardServletEnvironment;
-import cn.taketoday.web.context.support.WebApplicationContextUtils;
 import cn.taketoday.web.handler.DispatcherHandler;
+import cn.taketoday.web.servlet.support.StandardServletEnvironment;
+import cn.taketoday.web.servlet.support.WebApplicationContextUtils;
 import jakarta.servlet.DispatcherType;
 import jakarta.servlet.Servlet;
 import jakarta.servlet.ServletConfig;
@@ -201,7 +197,7 @@ public class DispatcherServlet
   protected void postProcessApplicationContext(ConfigurableApplicationContext context) {
     super.postProcessApplicationContext(context);
 
-    if (context instanceof ConfigurableWebServletApplicationContext wac) {
+    if (context instanceof ConfigurableWebApplicationContext wac) {
       wac.setServletContext(getServletContext());
       wac.setServletConfig(getServletConfig());
     }

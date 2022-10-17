@@ -20,7 +20,7 @@
 package cn.taketoday.framework.web.netty;
 
 import cn.taketoday.lang.Assert;
-import cn.taketoday.web.WebApplicationContext;
+import cn.taketoday.web.servlet.WebApplicationContext;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandler;

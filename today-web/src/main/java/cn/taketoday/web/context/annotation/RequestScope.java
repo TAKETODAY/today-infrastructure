@@ -29,7 +29,7 @@ import java.lang.annotation.Target;
 import cn.taketoday.context.annotation.Scope;
 import cn.taketoday.context.annotation.ScopedProxyMode;
 import cn.taketoday.core.annotation.AliasFor;
-import cn.taketoday.web.WebApplicationContext;
+import cn.taketoday.web.RequestContext;
 
 /**
  * {@code @RequestScope} is a specialization of {@link Scope @Scope} for a
@@ -40,9 +40,9 @@ import cn.taketoday.web.WebApplicationContext;
  *
  * @author Sam Brannen
  * @see SessionScope
- * @see ApplicationScope
- * @see Scope
- * @see WebApplicationContext#SCOPE_REQUEST
+ * @see
+ * Scope
+ * @see RequestContext#SCOPE_REQUEST
  * @see cn.taketoday.stereotype.Component
  * @see cn.taketoday.context.annotation.Bean
  * @since 4.0
@@ -50,7 +50,7 @@ import cn.taketoday.web.WebApplicationContext;
 @Target({ ElementType.TYPE, ElementType.METHOD })
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-@Scope(WebApplicationContext.SCOPE_REQUEST)
+@Scope(RequestContext.SCOPE_REQUEST)
 public @interface RequestScope {
 
   /**

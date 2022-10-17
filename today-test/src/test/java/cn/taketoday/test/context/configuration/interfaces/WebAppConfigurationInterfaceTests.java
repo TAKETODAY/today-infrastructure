@@ -25,7 +25,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 
 import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.test.context.junit.jupiter.InfraExtension;
-import cn.taketoday.web.WebApplicationContext;
+import cn.taketoday.web.servlet.WebApplicationContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

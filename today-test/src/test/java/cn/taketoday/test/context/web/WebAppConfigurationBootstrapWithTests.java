@@ -28,13 +28,13 @@ import cn.taketoday.core.io.Resource;
 import cn.taketoday.test.context.BootstrapWith;
 import cn.taketoday.test.context.MergedContextConfiguration;
 import cn.taketoday.test.context.junit.jupiter.web.JUnitWebConfig;
-import cn.taketoday.web.servlet.WebServletApplicationContext;
+import cn.taketoday.web.servlet.WebApplicationContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * JUnit-based integration tests that verify support for loading a
- * {@link WebServletApplicationContext} with a custom {@link WebTestContextBootstrapper}.
+ * {@link WebApplicationContext} with a custom {@link WebTestContextBootstrapper}.
  *
  * @author Sam Brannen
  * @author Phillip Webb
@@ -45,7 +45,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 class WebAppConfigurationBootstrapWithTests {
 
   @Autowired
-  WebServletApplicationContext wac;
+  WebApplicationContext wac;
 
   @Test
   void webApplicationContextIsLoaded() {

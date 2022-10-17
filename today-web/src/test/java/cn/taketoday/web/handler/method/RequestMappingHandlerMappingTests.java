@@ -20,10 +20,8 @@
 
 package cn.taketoday.web.handler.method;
 
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.provider.Arguments;
-import org.mockito.Mockito;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -38,9 +36,9 @@ import java.util.stream.Stream;
 import cn.taketoday.core.annotation.AliasFor;
 import cn.taketoday.http.HttpMethod;
 import cn.taketoday.http.MediaType;
+import cn.taketoday.stereotype.Controller;
 import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.web.annotation.ActionMapping;
-import cn.taketoday.stereotype.Controller;
 import cn.taketoday.web.annotation.DeleteMapping;
 import cn.taketoday.web.annotation.GetMapping;
 import cn.taketoday.web.annotation.PatchMapping;
@@ -49,9 +47,9 @@ import cn.taketoday.web.annotation.PutMapping;
 import cn.taketoday.web.annotation.RequestBody;
 import cn.taketoday.web.annotation.RequestMapping;
 import cn.taketoday.web.annotation.RestController;
-import cn.taketoday.web.context.support.StaticWebApplicationContext;
 import cn.taketoday.web.handler.condition.ConsumesRequestCondition;
 import cn.taketoday.web.servlet.ServletRequestContext;
+import cn.taketoday.web.servlet.support.StaticWebApplicationContext;
 import cn.taketoday.web.testfixture.servlet.MockHttpServletRequest;
 import cn.taketoday.web.view.PathPatternsParameterizedTest;
 

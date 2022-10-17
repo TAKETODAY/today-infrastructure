@@ -29,7 +29,7 @@ import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.mock.web.MockServletContext;
 import cn.taketoday.test.context.ContextConfiguration;
 import cn.taketoday.test.context.junit.jupiter.InfraExtension;
-import cn.taketoday.web.servlet.WebServletApplicationContext;
+import cn.taketoday.web.servlet.WebApplicationContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -46,7 +46,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 class MetaAnnotationConfigWacTests {
 
   @Autowired
-  WebServletApplicationContext wac;
+  WebApplicationContext wac;
 
   @Autowired
   MockServletContext mockServletContext;
@@ -65,9 +65,9 @@ class MetaAnnotationConfigWacTests {
 
     assertThat(mockServletContext).as("ServletContext should have been autowired from the WAC.").isNotNull();
 
-    Object rootWac = mockServletContext.getAttribute(WebServletApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE);
+    Object rootWac = mockServletContext.getAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE);
     assertThat(rootWac).as("Root WAC must be stored in the ServletContext as: "
-            + WebServletApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE).isNotNull();
+            + WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE).isNotNull();
     assertThat(rootWac).as("test WAC and Root WAC in ServletContext must be the same object.").isSameAs(wac);
     assertThat(wac.getServletContext()).as("ServletContext instances must be the same object.").isSameAs(mockServletContext);
 

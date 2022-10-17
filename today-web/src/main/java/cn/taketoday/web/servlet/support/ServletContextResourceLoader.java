@@ -18,10 +18,11 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.web.context.support;
+package cn.taketoday.web.servlet.support;
 
 import cn.taketoday.core.io.DefaultResourceLoader;
 import cn.taketoday.core.io.Resource;
+import cn.taketoday.web.servlet.WebApplicationContext;
 import jakarta.servlet.ServletContext;
 
 /**
@@ -36,7 +37,7 @@ import jakarta.servlet.ServletContext;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see #getResourceByPath
  * @see ServletContextResource
- * @see cn.taketoday.web.WebApplicationContext
+ * @see WebApplicationContext
  * @see cn.taketoday.web.servlet.filter.GenericFilterBean
  * @since 4.0 2022/2/20 16:16
  */

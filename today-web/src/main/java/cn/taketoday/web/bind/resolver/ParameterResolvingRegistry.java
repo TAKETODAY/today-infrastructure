@@ -52,7 +52,7 @@ import cn.taketoday.web.handler.method.RequestBodyAdvice;
 import cn.taketoday.web.handler.method.ResolvableMethodParameter;
 import cn.taketoday.web.handler.method.ResponseBodyAdvice;
 import cn.taketoday.web.multipart.MultipartConfig;
-import cn.taketoday.web.servlet.WebServletApplicationContext;
+import cn.taketoday.web.servlet.WebApplicationContext;
 import cn.taketoday.web.view.RedirectModelManager;
 import jakarta.servlet.ServletContext;
 
@@ -253,7 +253,7 @@ public class ParameterResolvingRegistry
     CookieParameterResolver.register(strategies, beanFactory);
 
     // type-based argument resolution
-    if (ServletDetector.isPresent && context instanceof WebServletApplicationContext servletApp) {
+    if (ServletDetector.isPresent && context instanceof WebApplicationContext servletApp) {
       // TODO getServletContext not available in WebApplicationContext ?
       ServletContext servletContext = servletApp.getServletContext();
       Assert.state(servletContext != null, "ServletContext is not available");

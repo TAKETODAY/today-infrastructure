@@ -24,9 +24,8 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Properties;
 
-import cn.taketoday.web.context.support.StaticWebApplicationContext;
-import cn.taketoday.web.context.support.StaticWebServletApplicationContext;
 import cn.taketoday.web.servlet.ServletRequestContext;
+import cn.taketoday.web.servlet.support.StaticWebApplicationContext;
 import cn.taketoday.web.testfixture.servlet.MockHttpServletRequest;
 import cn.taketoday.web.testfixture.servlet.MockHttpServletResponse;
 import cn.taketoday.web.view.ModelAndView;
@@ -103,7 +102,7 @@ class ControllerTests {
       given(request.getAttribute(RequestDispatcher.INCLUDE_REQUEST_URI)).willReturn(null);
     }
 
-    StaticWebServletApplicationContext sac = new StaticWebServletApplicationContext();
+    StaticWebApplicationContext sac = new StaticWebApplicationContext();
     sac.setServletContext(context);
     sfc.setApplicationContext(sac);
 

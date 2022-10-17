@@ -18,7 +18,7 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.web.context.support;
+package cn.taketoday.web.servlet.support;
 
 import java.io.IOException;
 
@@ -26,9 +26,11 @@ import cn.taketoday.beans.BeansException;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.beans.factory.xml.ResourceEntityResolver;
 import cn.taketoday.beans.factory.xml.XmlBeanDefinitionReader;
+import cn.taketoday.web.servlet.ContextLoader;
+import cn.taketoday.web.servlet.WebApplicationContext;
 
 /**
- * {@link cn.taketoday.web.WebApplicationContext} implementation
+ * {@link WebApplicationContext} implementation
  * which takes its configuration from XML documents, understood by an
  * {@link cn.taketoday.beans.factory.xml.XmlBeanDefinitionReader}.
  * This is essentially the equivalent of
@@ -40,7 +42,7 @@ import cn.taketoday.beans.factory.xml.XmlBeanDefinitionReader;
  * "test-servlet" (like for a DispatcherServlet instance with the servlet-name "test").
  *
  * <p>The config location defaults can be overridden via the "contextConfigLocation"
- * context-param of {@link cn.taketoday.web.context.ContextLoader} and servlet
+ * context-param of {@link ContextLoader} and servlet
  * init-param of {@link cn.taketoday.web.servlet.DispatcherServlet}. Config locations
  * can either denote concrete files like "/WEB-INF/context.xml" or Ant-style patterns
  * like "/WEB-INF/*-context.xml" (see {@link cn.taketoday.core.PathMatcher}
@@ -61,7 +63,7 @@ import cn.taketoday.beans.factory.xml.XmlBeanDefinitionReader;
  * @see #setNamespace
  * @see #setConfigLocations
  * @see cn.taketoday.beans.factory.xml.XmlBeanDefinitionReader
- * @see cn.taketoday.web.context.ContextLoader#initWebApplicationContext
+ * @see ContextLoader#initWebApplicationContext
  * @since 4.0 2022/3/6 22:17
  */
 public class XmlWebApplicationContext extends AbstractRefreshableWebApplicationContext {

@@ -31,7 +31,7 @@ import cn.taketoday.test.context.junit.jupiter.JUnitConfig;
 import cn.taketoday.test.context.junit.jupiter.web.JUnitWebConfig;
 import cn.taketoday.test.context.junit4.nested.NestedTestsWithSpringRulesTests;
 import cn.taketoday.test.context.web.WebAppConfiguration;
-import cn.taketoday.web.servlet.WebServletApplicationContext;
+import cn.taketoday.web.servlet.WebApplicationContext;
 
 import static cn.taketoday.test.context.NestedTestConfiguration.EnclosingConfiguration.INHERIT;
 import static cn.taketoday.test.context.NestedTestConfiguration.EnclosingConfiguration.OVERRIDE;
@@ -53,7 +53,7 @@ class WebAppConfigurationNestedTests {
 
   @Test
   void test(ApplicationContext context) {
-    assertThat(context).isInstanceOf(WebServletApplicationContext.class);
+    assertThat(context).isInstanceOf(WebApplicationContext.class);
   }
 
   @Nested
@@ -62,7 +62,7 @@ class WebAppConfigurationNestedTests {
 
     @Test
     void test(ApplicationContext context) {
-      assertThat(context).isNotInstanceOf(WebServletApplicationContext.class);
+      assertThat(context).isNotInstanceOf(WebApplicationContext.class);
     }
   }
 
@@ -72,7 +72,7 @@ class WebAppConfigurationNestedTests {
 
     @Test
     void test(ApplicationContext context) {
-      assertThat(context).isInstanceOf(WebServletApplicationContext.class);
+      assertThat(context).isInstanceOf(WebApplicationContext.class);
     }
   }
 
@@ -82,7 +82,7 @@ class WebAppConfigurationNestedTests {
 
     @Test
     void test(ApplicationContext context) {
-      assertThat(context).isInstanceOf(WebServletApplicationContext.class);
+      assertThat(context).isInstanceOf(WebApplicationContext.class);
     }
 
     @Nested
@@ -90,7 +90,7 @@ class WebAppConfigurationNestedTests {
 
       @Test
       void test(ApplicationContext context) {
-        assertThat(context).isInstanceOf(WebServletApplicationContext.class);
+        assertThat(context).isInstanceOf(WebApplicationContext.class);
       }
     }
 
@@ -101,7 +101,7 @@ class WebAppConfigurationNestedTests {
 
       @Test
       void test(ApplicationContext context) {
-        assertThat(context).isNotInstanceOf(WebServletApplicationContext.class);
+        assertThat(context).isNotInstanceOf(WebApplicationContext.class);
       }
 
       @Nested
@@ -110,7 +110,7 @@ class WebAppConfigurationNestedTests {
 
         @Test
         void test(ApplicationContext context) {
-          assertThat(context).isNotInstanceOf(WebServletApplicationContext.class);
+          assertThat(context).isNotInstanceOf(WebApplicationContext.class);
         }
       }
 
@@ -120,7 +120,7 @@ class WebAppConfigurationNestedTests {
 
         @Test
         void test(ApplicationContext context) {
-          assertThat(context).isInstanceOf(WebServletApplicationContext.class);
+          assertThat(context).isInstanceOf(WebApplicationContext.class);
         }
       }
     }

@@ -18,7 +18,7 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.web.context.support;
+package cn.taketoday.web.servlet.support;
 
 import cn.taketoday.core.env.EnumerablePropertySource;
 import cn.taketoday.core.env.PropertySource;

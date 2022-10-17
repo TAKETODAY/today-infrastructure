@@ -27,10 +27,11 @@ import java.io.InputStream;
 import cn.taketoday.core.io.AbstractResource;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.util.ResourceUtils;
+import cn.taketoday.web.servlet.support.ServletContextResource;
 
 /**
  * Resource implementation that replaces the
- * {@link cn.taketoday.web.context.support.ServletContextResource} in a reactive
+ * {@link ServletContextResource} in a reactive
  * web application.
  * <p>
  * {@link #exists()} always returns {@code false} in order to avoid exposing the whole

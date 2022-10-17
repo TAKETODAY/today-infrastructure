@@ -83,6 +83,18 @@ import static cn.taketoday.lang.Constant.DEFAULT_CHARSET;
 public abstract class RequestContext extends AttributeAccessorSupport
         implements InputStreamSource, OutputStreamSource, Flushable, HttpInputMessage, HttpRequest, AttributeAccessor {
 
+  /**
+   * Scope identifier for request scope: "request".
+   * Supported in addition to the standard scopes "singleton" and "prototype".
+   */
+  public static final String SCOPE_REQUEST = "request";
+
+  /**
+   * Scope identifier for session scope: "session".
+   * Supported in addition to the standard scopes "singleton" and "prototype".
+   */
+  public static final String SCOPE_SESSION = "session";
+
   private static final List<String> SAFE_METHODS = List.of("GET", "HEAD");
 
   /**

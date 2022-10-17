@@ -25,7 +25,7 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import cn.taketoday.test.context.junit.jupiter.InfraExtension;
-import cn.taketoday.web.WebApplicationContext;
+import cn.taketoday.web.servlet.WebApplicationContext;
 
 /**
  * Integration tests which demonstrate how to set up a {@link MockMvc}

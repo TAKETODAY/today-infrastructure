@@ -18,7 +18,7 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.web.context.support;
+package cn.taketoday.web.servlet.support;
 
 import java.util.Collections;
 import java.util.LinkedHashSet;
@@ -38,10 +38,11 @@ import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.StringUtils;
-import cn.taketoday.web.context.ContextLoader;
+import cn.taketoday.web.servlet.ContextLoader;
+import cn.taketoday.web.servlet.WebApplicationContext;
 
 /**
- * {@link cn.taketoday.web.WebApplicationContext WebApplicationContext}
+ * {@link WebApplicationContext WebApplicationContext}
  * implementation which accepts <em>component classes</em> as input &mdash; in particular
  * {@link cn.taketoday.context.annotation.Configuration @Configuration}
  * classes, but also plain {@link cn.taketoday.stereotype.Component @Component}
@@ -88,7 +89,7 @@ import cn.taketoday.web.context.ContextLoader;
  * @author Sam Brannen
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see cn.taketoday.context.annotation.AnnotationConfigApplicationContext
- * @see cn.taketoday.web.context.support.GenericWebApplicationContext
+ * @see GenericWebApplicationContext
  * @since 4.0 2022/2/20 17:55
  */
 public class AnnotationConfigWebApplicationContext

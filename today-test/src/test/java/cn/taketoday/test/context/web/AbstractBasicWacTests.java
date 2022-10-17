@@ -33,7 +33,7 @@ import cn.taketoday.mock.web.MockServletContext;
 import cn.taketoday.test.context.junit4.InfraRunner;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.servlet.ServletContextAware;
-import cn.taketoday.web.servlet.WebServletApplicationContext;
+import cn.taketoday.web.servlet.WebApplicationContext;
 import jakarta.servlet.ServletContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -49,7 +49,7 @@ public abstract class AbstractBasicWacTests implements ServletContextAware {
   protected ServletContext servletContext;
 
   @Autowired
-  protected WebServletApplicationContext wac;
+  protected WebApplicationContext wac;
 
   @Autowired
   protected MockServletContext mockServletContext;
@@ -86,9 +86,9 @@ public abstract class AbstractBasicWacTests implements ServletContextAware {
     assertThat(session).as("MockHttpSession should have been autowired from the WAC.").isNotNull();
     assertThat(webRequest).as("ServletWebRequest should have been autowired from the WAC.").isNotNull();
 
-    Object rootWac = mockServletContext.getAttribute(WebServletApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE);
+    Object rootWac = mockServletContext.getAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE);
     assertThat(rootWac).as("Root WAC must be stored in the ServletContext as: "
-            + WebServletApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE).isNotNull();
+            + WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE).isNotNull();
     assertThat(rootWac).as("test WAC and Root WAC in ServletContext must be the same object.").isSameAs(wac);
     assertThat(wac.getServletContext()).as("ServletContext instances must be the same object.").isSameAs(mockServletContext);
     assertThat(request.getServletContext()).as("ServletContext in the WAC and in the mock request").isSameAs(mockServletContext);

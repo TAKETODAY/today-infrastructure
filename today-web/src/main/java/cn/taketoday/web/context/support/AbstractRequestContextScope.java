@@ -28,7 +28,6 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.RequestContextHolder;
 import cn.taketoday.web.RequestContextUtils;
-import cn.taketoday.web.WebApplicationContext;
 
 /**
  * Abstract {@link Scope} implementation that reads from a particular scope
@@ -94,10 +93,10 @@ public abstract class AbstractRequestContextScope<T extends AttributeAccessor> i
   @Nullable
   @Override
   public Object resolveContextualObject(String key) {
-    if (WebApplicationContext.SCOPE_REQUEST.equals(key)) {
+    if (RequestContext.SCOPE_REQUEST.equals(key)) {
       return RequestContextHolder.get();
     }
-    else if (WebApplicationContext.SCOPE_SESSION.equals(key)) {
+    else if (RequestContext.SCOPE_SESSION.equals(key)) {
       RequestContext context = RequestContextHolder.get();
       if (context != null) {
         return RequestContextUtils.getSession(context, true);

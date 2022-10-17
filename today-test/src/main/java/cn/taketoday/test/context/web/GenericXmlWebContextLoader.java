@@ -23,7 +23,7 @@ package cn.taketoday.test.context.web;
 import cn.taketoday.beans.factory.xml.XmlBeanDefinitionReader;
 import cn.taketoday.test.context.MergedContextConfiguration;
 import cn.taketoday.util.ObjectUtils;
-import cn.taketoday.web.context.support.GenericWebServletApplicationContext;
+import cn.taketoday.web.servlet.support.GenericWebApplicationContext;
 
 /**
  * Concrete implementation of {@link AbstractGenericWebContextLoader} that loads
@@ -39,14 +39,14 @@ import cn.taketoday.web.context.support.GenericWebServletApplicationContext;
 public class GenericXmlWebContextLoader extends AbstractGenericWebContextLoader {
 
   /**
-   * Load bean definitions into the supplied {@link GenericWebServletApplicationContext context}
+   * Load bean definitions into the supplied {@link GenericWebApplicationContext context}
    * from the locations in the supplied {@code WebMergedContextConfiguration}, using an
    * {@link XmlBeanDefinitionReader}.
    *
    * @see AbstractGenericWebContextLoader#loadBeanDefinitions
    */
   @Override
-  protected void loadBeanDefinitions(GenericWebServletApplicationContext context,
+  protected void loadBeanDefinitions(GenericWebApplicationContext context,
           WebMergedContextConfiguration webMergedConfig) {
     new XmlBeanDefinitionReader(context).loadBeanDefinitions(webMergedConfig.getLocations());
   }

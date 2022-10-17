@@ -23,7 +23,7 @@ package cn.taketoday.framework.web.netty;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 
-import cn.taketoday.web.WebApplicationContext;
+import cn.taketoday.web.servlet.WebApplicationContext;
 import cn.taketoday.web.socket.BinaryMessage;
 import cn.taketoday.web.socket.CloseStatus;
 import cn.taketoday.web.socket.Message;

@@ -31,8 +31,8 @@ import cn.taketoday.framework.web.embedded.netty.NettyReactiveWebServerFactory;
 import cn.taketoday.framework.web.embedded.netty.NettyWebServer;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.stereotype.Singleton;
-import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.handler.DispatcherHandler;
+import cn.taketoday.web.servlet.WebApplicationContext;
 import cn.taketoday.web.socket.WebSocketHandlerMapping;
 
 /**

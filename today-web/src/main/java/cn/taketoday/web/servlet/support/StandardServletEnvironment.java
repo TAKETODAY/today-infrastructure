@@ -18,7 +18,7 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.web.context.support;
+package cn.taketoday.web.servlet.support;
 
 import cn.taketoday.core.env.Environment;
 import cn.taketoday.core.env.PropertySource;
@@ -29,7 +29,7 @@ import cn.taketoday.jndi.JndiLocatorDelegate;
 import cn.taketoday.jndi.JndiPropertySource;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
-import cn.taketoday.web.context.ConfigurableWebEnvironment;
+import cn.taketoday.web.servlet.ConfigurableWebEnvironment;
 import jakarta.servlet.ServletConfig;
 import jakarta.servlet.ServletContext;
 

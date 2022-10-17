@@ -37,12 +37,12 @@ import cn.taketoday.test.context.support.AbstractTestExecutionListener;
 import cn.taketoday.test.context.support.DependencyInjectionTestExecutionListener;
 import cn.taketoday.web.RequestContextHolder;
 import cn.taketoday.web.servlet.ServletRequestContext;
-import cn.taketoday.web.servlet.WebServletApplicationContext;
+import cn.taketoday.web.servlet.WebApplicationContext;
 import jakarta.servlet.ServletContext;
 
 /**
  * {@code TestExecutionListener} which provides mock Servlet API support to
- * {@link WebServletApplicationContext WebServletApplicationContext} loaded by the <em>Spring
+ * {@link WebApplicationContext WebServletApplicationContext} loaded by the <em>Spring
  * TestContext Framework</em>.
  *
  * <p>Specifically, {@code ServletTestExecutionListener} sets up thread-local
@@ -187,7 +187,7 @@ public class ServletTestExecutionListener extends AbstractTestExecutionListener 
 
     ApplicationContext context = testContext.getApplicationContext();
 
-    if (context instanceof WebServletApplicationContext wac) {
+    if (context instanceof WebApplicationContext wac) {
       ServletContext servletContext = wac.getServletContext();
       Assert.state(servletContext instanceof MockServletContext,
               () -> String.format(

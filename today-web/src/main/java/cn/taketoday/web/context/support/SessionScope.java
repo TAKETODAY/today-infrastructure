@@ -47,6 +47,7 @@ import cn.taketoday.web.util.WebUtils;
  * @since 4.0 2022/2/21 11:40
  */
 public class SessionScope extends AbstractRequestContextScope<WebSession> {
+
   private final ConfigurableBeanFactory beanFactory;
 
   @Nullable
