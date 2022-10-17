@@ -53,9 +53,9 @@ import cn.taketoday.util.MapCache;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.util.StringUtils;
-import cn.taketoday.web.FrameworkConfigurationException;
 import cn.taketoday.web.HandlerInterceptor;
 import cn.taketoday.web.HandlerMapping;
+import cn.taketoday.web.InfraConfigurationException;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.annotation.Interceptor;
 import cn.taketoday.web.cors.CorsConfiguration;
@@ -616,7 +616,7 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
       context.registerBean(interceptor);
     }
     catch (BeanDefinitionStoreException e) {
-      throw new FrameworkConfigurationException(
+      throw new InfraConfigurationException(
               "Interceptor: [" + interceptor.getName() + "] register error", e);
     }
   }

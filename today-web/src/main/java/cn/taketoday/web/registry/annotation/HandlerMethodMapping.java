@@ -45,10 +45,9 @@ import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.util.StringUtils;
-import cn.taketoday.web.FrameworkConfigurationException;
 import cn.taketoday.web.HandlerInterceptor;
 import cn.taketoday.web.HandlerMapping;
-import cn.taketoday.web.WebApplicationContext;
+import cn.taketoday.web.InfraConfigurationException;
 import cn.taketoday.web.annotation.ActionMapping;
 import cn.taketoday.web.annotation.Interceptor;
 import cn.taketoday.web.annotation.PathVariable;
@@ -250,12 +249,6 @@ public class HandlerMethodMapping
   }
 
   protected final PathPattern getRequestPathPattern(String path) {
-    if (getApplicationContext() instanceof WebApplicationContext webApp) {
-      String contextPath = webApp.getContextPath();
-      if (StringUtils.hasText(contextPath)) {
-        path = contextPath.concat(path);
-      }
-    }
     path = resolveEmbeddedVariables(path);
     path = WebUtils.getSanitizedPath(path);
     PathPatternParser patternParser = getPatternParser();
@@ -302,7 +295,7 @@ public class HandlerMethodMapping
     for (String variable : pathPattern.getVariableNames()) {
       ResolvableMethodParameter parameter = parameterMapping.get(variable);
       if (parameter == null) {
-        throw new FrameworkConfigurationException(
+        throw new InfraConfigurationException(
                 "There isn't a variable named: [" + variable +
                         "] in the parameter list at method: [" + handler.getMethod() + "]");
       }
@@ -361,7 +354,7 @@ public class HandlerMethodMapping
           registrar.registerBean(interceptor);
         }
         catch (BeanDefinitionStoreException e) {
-          throw new FrameworkConfigurationException("Interceptor: [" + interceptor.getName() + "] register error", e);
+          throw new InfraConfigurationException("Interceptor: [" + interceptor.getName() + "] register error", e);
         }
       }
       HandlerInterceptor instance = this.beanFactory.getBean(interceptor);

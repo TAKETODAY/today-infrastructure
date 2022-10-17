@@ -21,9 +21,9 @@
 package cn.taketoday.web.bind.resolver;
 
 import cn.taketoday.http.HttpStatus;
+import cn.taketoday.web.InfraConfigurationException;
 import cn.taketoday.web.annotation.ResponseStatus;
 import cn.taketoday.web.handler.method.ResolvableMethodParameter;
-import cn.taketoday.web.FrameworkConfigurationException;
 
 /**
  * For {@link ParameterResolvingStrategy} NotFound Exception
@@ -33,7 +33,7 @@ import cn.taketoday.web.FrameworkConfigurationException;
  * @since 4.0
  */
 @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-public class ParameterResolverNotFoundException extends FrameworkConfigurationException {
+public class ParameterResolverNotFoundException extends InfraConfigurationException {
   private static final long serialVersionUID = 1L;
 
   private final ResolvableMethodParameter parameter;

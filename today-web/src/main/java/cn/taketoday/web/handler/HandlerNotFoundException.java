@@ -24,7 +24,7 @@ import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpStatus;
 import cn.taketoday.http.ProblemDetail;
 import cn.taketoday.web.ErrorResponse;
-import cn.taketoday.web.FrameworkConfigurationException;
+import cn.taketoday.web.InfraConfigurationException;
 
 /**
  * By default when the DispatcherHandler can't find a handler for a request it
@@ -39,7 +39,7 @@ import cn.taketoday.web.FrameworkConfigurationException;
  * @since 4.0 2022/1/28 23:19
  */
 @SuppressWarnings("serial")
-public class HandlerNotFoundException extends FrameworkConfigurationException implements ErrorResponse {
+public class HandlerNotFoundException extends InfraConfigurationException implements ErrorResponse {
 
   private final String httpMethod;
 

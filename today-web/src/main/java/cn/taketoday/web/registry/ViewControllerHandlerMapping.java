@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -17,6 +17,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.web.registry;
 
 import org.w3c.dom.Element;
@@ -42,7 +43,7 @@ import cn.taketoday.lang.Version;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.util.StringUtils;
-import cn.taketoday.web.FrameworkConfigurationException;
+import cn.taketoday.web.InfraConfigurationException;
 import cn.taketoday.web.ReturnValueHandler;
 import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.handler.ViewController;
@@ -197,7 +198,7 @@ public class ViewControllerHandlerMapping extends AbstractUrlHandlerMapping impl
     for (String location : StringUtils.split(webMvcConfigLocation)) {
       Resource resource = context.getResource(location);
       if (!resource.exists()) {
-        throw new FrameworkConfigurationException(
+        throw new InfraConfigurationException(
                 "Your provided configuration location: [" + location + "], does not exist");
       }
       try (InputStream inputStream = resource.getInputStream()) {
@@ -316,7 +317,7 @@ public class ViewControllerHandlerMapping extends AbstractUrlHandlerMapping impl
     String status = action.getAttribute(ATTR_STATUS); // status
 
     if (StringUtils.isEmpty(name)) {
-      throw new FrameworkConfigurationException(
+      throw new InfraConfigurationException(
               "You must specify a 'name' attribute like this: [<action resource=\"https://taketoday.cn\" name=\"TODAY-BLOG\" type=\"redirect\"/>]");
     }
 
@@ -324,7 +325,7 @@ public class ViewControllerHandlerMapping extends AbstractUrlHandlerMapping impl
 
     if (StringUtils.isNotEmpty(method)) {
       if (controller == null) {
-        throw new FrameworkConfigurationException(
+        throw new InfraConfigurationException(
                 "You must specify a 'class' attribute like this: [<controller class=\"xxx.XMLController\" name=\"xmlController\" />]");
       }
       for (Method targetMethod : ReflectionUtils.getDeclaredMethods(controller.getClass())) {
@@ -334,7 +335,7 @@ public class ViewControllerHandlerMapping extends AbstractUrlHandlerMapping impl
         }
       }
       if (handlerMethod == null) {
-        throw new FrameworkConfigurationException(
+        throw new InfraConfigurationException(
                 "You must specify a method: [" + method + "] in class :[" + controller.getClass() + "]");
       }
     }
@@ -359,8 +360,8 @@ public class ViewControllerHandlerMapping extends AbstractUrlHandlerMapping impl
       mapping.setContentType(contentType);
     }
 
-    WebApplicationContext context = obtainApplicationContext().unwrap(WebApplicationContext.class);
-    name = resolveEmbeddedVariables(context.getContextPath().concat(StringUtils.formatURL(name)));
+    name = resolveEmbeddedVariables(name);
+    name = StringUtils.formatURL(name);
     register(name, mapping);
   }
 

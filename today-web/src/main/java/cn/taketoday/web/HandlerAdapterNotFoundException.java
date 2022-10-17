@@ -30,7 +30,7 @@ import cn.taketoday.web.annotation.ResponseStatus;
  * @since 3.0
  */
 @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-public class HandlerAdapterNotFoundException extends FrameworkConfigurationException {
+public class HandlerAdapterNotFoundException extends InfraConfigurationException {
   private final Object handler;
 
   public HandlerAdapterNotFoundException(Object handler) {

@@ -46,10 +46,6 @@ public class WebApplicationContextSupport extends ApplicationContextSupport {
     return true;
   }
 
-  public String getContextPath() {
-    return obtainApplicationContext().getContextPath();
-  }
-
   /**
    * Return the current application context as {@link WebApplicationContext}.
    *

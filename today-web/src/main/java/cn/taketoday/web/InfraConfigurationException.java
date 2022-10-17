@@ -33,23 +33,23 @@ import cn.taketoday.http.ProblemDetail;
  * @author TODAY 2021/4/26 22:20
  * @since 3.0
  */
-public class FrameworkConfigurationException extends NestedRuntimeException implements ErrorResponse {
+public class InfraConfigurationException extends NestedRuntimeException implements ErrorResponse {
   @Serial
   private static final long serialVersionUID = 1L;
 
-  public FrameworkConfigurationException() {
+  public InfraConfigurationException() {
     super();
   }
 
-  public FrameworkConfigurationException(String message) {
+  public InfraConfigurationException(String message) {
     super(message);
   }
 
-  public FrameworkConfigurationException(Throwable cause) {
+  public InfraConfigurationException(Throwable cause) {
     super(cause);
   }
 
-  public FrameworkConfigurationException(String message, Throwable cause) {
+  public InfraConfigurationException(String message, Throwable cause) {
     super(message, cause);
   }
 
