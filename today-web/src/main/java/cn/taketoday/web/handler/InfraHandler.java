@@ -50,10 +50,6 @@ import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
-import cn.taketoday.web.WebApplicationContext;
-import cn.taketoday.web.context.ConfigurableWebApplicationContext;
-import cn.taketoday.web.context.support.StandardServletEnvironment;
-import jakarta.servlet.ServletContext;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
@@ -119,9 +115,8 @@ public abstract class InfraHandler implements ApplicationContextAware, Environme
   protected InfraHandler() { }
 
   /**
-   * Create a new {@code InfraHandler} with the given application context. This
-   * constructor is useful in Servlet environments where instance-based registration
-   * of servlets is possible through the {@link ServletContext#addServlet} API.
+   * Create a new {@code InfraHandler} with the given application context.
+   *
    * <p>Using this constructor indicates that the following properties / init-params
    * will be ignored:
    * <ul>
@@ -130,7 +125,7 @@ public abstract class InfraHandler implements ApplicationContextAware, Environme
    * </ul>
    * <p>The given application context may or may not yet be {@linkplain
    * ConfigurableApplicationContext#refresh() refreshed}. If it (a) is an implementation
-   * of {@link ConfigurableWebApplicationContext} and (b) has <strong>not</strong>
+   * of {@link ConfigurableApplicationContext} and (b) has <strong>not</strong>
    * already been refreshed (the recommended approach), then the following will occur:
    * <ul>
    * <li>If the given context does not already have a {@linkplain
@@ -147,7 +142,7 @@ public abstract class InfraHandler implements ApplicationContextAware, Environme
    * <li>{@link ConfigurableApplicationContext#refresh refresh()} will be called</li>
    * </ul>
    * If the context has already been refreshed or does not implement
-   * {@code ConfigurableWebApplicationContext}, none of the above will occur under the
+   * {@code ConfigurableApplicationContext}, none of the above will occur under the
    * assumption that the user has performed these actions (or not) per his or her
    * specific needs.
    *
@@ -160,8 +155,8 @@ public abstract class InfraHandler implements ApplicationContextAware, Environme
   }
 
   /**
-   * Set the {@code Environment} that this servlet runs in.
-   * <p>Any environment set here overrides the {@link StandardServletEnvironment}
+   * Set the {@code Environment} that this handler runs in.
+   * <p>Any environment set here overrides the {@link StandardEnvironment}
    * provided by default.
    *
    * @throws IllegalArgumentException if environment is not assignable to
@@ -174,7 +169,7 @@ public abstract class InfraHandler implements ApplicationContextAware, Environme
   }
 
   /**
-   * Return the {@link Environment} associated with this servlet.
+   * Return the {@link Environment} associated with this handler.
    * <p>If none specified, a default environment will be initialized via
    * {@link #createEnvironment()}.
    */
@@ -187,7 +182,7 @@ public abstract class InfraHandler implements ApplicationContextAware, Environme
   }
 
   /**
-   * Create and return a new {@link StandardServletEnvironment}.
+   * Create and return a new {@link StandardEnvironment}.
    * <p>Subclasses may override this in order to configure the environment or
    * specialize the environment type returned.
    */
@@ -225,7 +220,7 @@ public abstract class InfraHandler implements ApplicationContextAware, Environme
   protected void afterApplicationContextInit() { }
 
   /**
-   * Initialize and publish the ApplicationContext for this servlet.
+   * Initialize and publish the ApplicationContext for this handler.
    * <p>Delegates to {@link #createApplicationContext} for actual creation
    * of the context. Can be overridden in subclasses.
    *
@@ -235,12 +230,12 @@ public abstract class InfraHandler implements ApplicationContextAware, Environme
    * @see #setContextConfigLocation
    */
   protected ApplicationContext initApplicationContext() {
-    WebApplicationContext rootContext = getRootApplicationContext();
+    ApplicationContext rootContext = getRootApplicationContext();
 
     ApplicationContext wac = applicationContext;
     if (wac != null) {
       // A context instance was injected at construction time -> use it
-      if (wac instanceof ConfigurableWebApplicationContext cwac && !cwac.isActive()) {
+      if (wac instanceof ConfigurableApplicationContext cwac && !cwac.isActive()) {
         // The context has not yet been refreshed -> provide services such as
         // setting the parent context, setting the application context id, etc
         if (cwac.getParent() == null) {
@@ -253,7 +248,7 @@ public abstract class InfraHandler implements ApplicationContextAware, Environme
     }
     if (wac == null) {
       // No context instance was injected at construction time -> see if one
-      // has been registered in the servlet context. If one exists, it is assumed
+      // has been registered in the 'servlet' context. If one exists, it is assumed
       // that the parent context (if any) has already been set and that the
       // user has performed any initialization such as setting the context id
       wac = findApplicationContext();
@@ -276,7 +271,7 @@ public abstract class InfraHandler implements ApplicationContextAware, Environme
   }
 
   @Nullable
-  protected WebApplicationContext getRootApplicationContext() {
+  protected ApplicationContext getRootApplicationContext() {
     return null;
   }
 
@@ -316,19 +311,19 @@ public abstract class InfraHandler implements ApplicationContextAware, Environme
   }
 
   /**
-   * Instantiate the ApplicationContext for this servlet, either a default
+   * Instantiate the ApplicationContext for this handler, either a default
    * {@link cn.taketoday.web.context.support.XmlWebApplicationContext}
    * or a {@link #setContextClass custom context class}, if set.
    * <p>This implementation expects custom contexts to implement the
    * {@link cn.taketoday.context.ConfigurableApplicationContext}
    * interface. Can be overridden in subclasses.
-   * <p>Do not forget to register this servlet instance as application listener on the
+   * <p>Do not forget to register this handler instance as application listener on the
    * created context (for triggering its {@link #onRefresh callback}), and to call
    * {@link cn.taketoday.context.ConfigurableApplicationContext#refresh()}
    * before returning the context instance.
    *
    * @param parent the parent ApplicationContext to use, or {@code null} if none
-   * @return the ApplicationContext for this servlet
+   * @return the ApplicationContext for this handler
    * @see cn.taketoday.web.context.support.XmlWebApplicationContext
    */
   protected ApplicationContext createApplicationContext(@Nullable ApplicationContext parent) {
@@ -356,7 +351,7 @@ public abstract class InfraHandler implements ApplicationContextAware, Environme
 
   /**
    * Post-process the given ApplicationContext before it is refreshed
-   * and activated as context for this servlet.
+   * and activated as context for this handler.
    * <p>The default implementation is empty. {@code refresh()} will
    * be called automatically after this method returns.
    * <p>Note that this method is designed to allow subclasses to modify the application
@@ -415,8 +410,8 @@ public abstract class InfraHandler implements ApplicationContextAware, Environme
   }
 
   /**
-   * Refresh this servlet's application context, as well as the
-   * dependent state of the servlet.
+   * Refresh this handler's application context, as well as the
+   * dependent state of the handler.
    *
    * @see #getApplicationContext()
    * @see cn.taketoday.context.ConfigurableApplicationContext#refresh()
@@ -472,9 +467,9 @@ public abstract class InfraHandler implements ApplicationContextAware, Environme
   }
 
   /**
-   * Callback that receives refresh events from this servlet's ApplicationContext.
+   * Callback that receives refresh events from this handler's ApplicationContext.
    * <p>The default implementation calls {@link #onRefresh},
-   * triggering a refresh of this servlet's context-dependent state.
+   * triggering a refresh of this handler's context-dependent state.
    *
    * @param event the incoming ApplicationContext event
    */
@@ -491,7 +486,7 @@ public abstract class InfraHandler implements ApplicationContextAware, Environme
    * Infra beans inside an existing {@link ApplicationContext} rather than
    * {@link #findApplicationContext() finding} a
    * {@link cn.taketoday.web.context.ContextLoaderListener bootstrapped} context.
-   * <p>Primarily added to support use in embedded servlet containers.
+   * <p>Primarily added to support use in embedded handler containers.
    */
   @Override
   public void setApplicationContext(ApplicationContext applicationContext) {
@@ -605,7 +600,7 @@ public abstract class InfraHandler implements ApplicationContextAware, Environme
   }
 
   /**
-   * ApplicationListener endpoint that receives events from this servlet's ApplicationContext
+   * ApplicationListener endpoint that receives events from this handler's ApplicationContext
    * only, delegating to {@code onApplicationEvent} on the DispatcherHandler instance.
    */
   private class ContextRefreshListener implements ApplicationListener<ContextRefreshedEvent> {
