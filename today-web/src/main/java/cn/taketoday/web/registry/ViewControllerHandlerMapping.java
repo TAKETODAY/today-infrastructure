@@ -47,7 +47,6 @@ import cn.taketoday.web.InfraConfigurationException;
 import cn.taketoday.web.ReturnValueHandler;
 import cn.taketoday.web.handler.ViewController;
 import cn.taketoday.web.handler.method.ResolvableParameterFactory;
-import cn.taketoday.web.servlet.WebApplicationContext;
 import cn.taketoday.web.util.pattern.PathPattern;
 import cn.taketoday.web.util.pattern.PathPatternParser;
 
@@ -194,7 +193,7 @@ public class ViewControllerHandlerMapping extends AbstractUrlHandlerMapping impl
       return null;
     });
 
-    WebApplicationContext context = obtainApplicationContext().unwrap(WebApplicationContext.class);
+    ApplicationContext context = obtainApplicationContext();
     for (String location : StringUtils.split(webMvcConfigLocation)) {
       Resource resource = context.getResource(location);
       if (!resource.exists()) {

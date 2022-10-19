@@ -60,7 +60,6 @@ import cn.taketoday.web.annotation.RequestMapping;
 import cn.taketoday.web.bind.resolver.PathVariableMethodArgumentResolver;
 import cn.taketoday.web.handler.method.support.CompositeUriComponentsContributor;
 import cn.taketoday.web.servlet.ServletUtils;
-import cn.taketoday.web.servlet.WebApplicationContext;
 import cn.taketoday.web.servlet.support.ServletUriComponentsBuilder;
 import cn.taketoday.web.util.UriComponentsBuilder;
 import jakarta.servlet.http.HttpServletRequest;
@@ -449,8 +448,8 @@ public class MvcUriComponentsBuilder {
    * if there is no unique match
    */
   public static MethodArgumentBuilder fromMappingName(@Nullable UriComponentsBuilder builder, String name) {
-    WebApplicationContext wac = getWebApplicationContext();
-    Assert.notNull(wac, "No WebApplicationContext. ");
+    ApplicationContext wac = getApplicationContext();
+    Assert.notNull(wac, "No ApplicationContext. ");
     Map<String, RequestMappingInfoHandlerMapping> map = wac.getBeansOfType(RequestMappingInfoHandlerMapping.class);
     List<HandlerMethod> handlerMethods = null;
     for (RequestMappingInfoHandlerMapping mapping : map.values()) {
@@ -552,7 +551,7 @@ public class MvcUriComponentsBuilder {
   }
 
   private static String getPathPrefix(Class<?> controllerType) {
-    WebApplicationContext wac = getWebApplicationContext();
+    ApplicationContext wac = getApplicationContext();
     if (wac != null) {
       Map<String, RequestMappingHandlerMapping> map = wac.getBeansOfType(RequestMappingHandlerMapping.class);
       for (RequestMappingHandlerMapping mapping : map.values()) {
@@ -641,7 +640,7 @@ public class MvcUriComponentsBuilder {
   }
 
   private static CompositeUriComponentsContributor getUriComponentsContributor() {
-    WebApplicationContext wac = getWebApplicationContext();
+    ApplicationContext wac = getApplicationContext();
     if (wac != null) {
       try {
         return wac.getBean(MVC_URI_COMPONENTS_CONTRIBUTOR_BEAN_NAME, CompositeUriComponentsContributor.class);
@@ -654,18 +653,18 @@ public class MvcUriComponentsBuilder {
   }
 
   @Nullable
-  private static WebApplicationContext getWebApplicationContext() {
+  private static ApplicationContext getApplicationContext() {
     RequestContext context = RequestContextHolder.get();
     if (context == null) {
       return null;
     }
     ApplicationContext applicationContext = context.getApplicationContext();
-    if (applicationContext instanceof WebApplicationContext wac) {
-      return wac;
+    if (applicationContext != null) {
+      return applicationContext;
     }
     HttpServletRequest request = ServletUtils.getServletRequest(context);
     String attributeName = ServletUtils.WEB_APPLICATION_CONTEXT_ATTRIBUTE;
-    return (WebApplicationContext) request.getAttribute(attributeName);
+    return (ApplicationContext) request.getAttribute(attributeName);
   }
 
   /**

@@ -26,7 +26,6 @@ import java.util.Set;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.web.servlet.WebApplicationContext;
 
 /**
  * RequestContext decorator that makes all beans in a
@@ -52,7 +51,7 @@ public class ContextExposingRequestContext extends RequestContextDecorator {
    * @param originalRequest the original RequestContext
    * @param context the WebApplicationContext that this request runs in
    */
-  public ContextExposingRequestContext(RequestContext originalRequest, WebApplicationContext context) {
+  public ContextExposingRequestContext(RequestContext originalRequest, ApplicationContext context) {
     this(originalRequest, context, null);
   }
 

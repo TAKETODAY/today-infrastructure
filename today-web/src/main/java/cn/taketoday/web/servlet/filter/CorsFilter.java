@@ -21,9 +21,11 @@ package cn.taketoday.web.servlet.filter;
 
 import java.io.IOException;
 
+import cn.taketoday.beans.BeansException;
+import cn.taketoday.context.ApplicationContext;
+import cn.taketoday.context.aware.ApplicationContextAware;
 import cn.taketoday.lang.Assert;
-import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.RequestContextHolder;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.cors.CorsConfiguration;
 import cn.taketoday.web.cors.CorsConfigurationSource;
 import cn.taketoday.web.cors.CorsProcessor;
@@ -31,7 +33,6 @@ import cn.taketoday.web.cors.DefaultCorsProcessor;
 import cn.taketoday.web.cors.UrlBasedCorsConfigurationSource;
 import cn.taketoday.web.servlet.ServletRequestContext;
 import cn.taketoday.web.servlet.ServletUtils;
-import cn.taketoday.web.servlet.WebApplicationContext;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -50,11 +51,14 @@ import jakarta.servlet.http.HttpServletResponse;
  * @see UrlBasedCorsConfigurationSource
  * @since 3.0
  */
-public class CorsFilter extends OncePerRequestFilter {
+public class CorsFilter extends OncePerRequestFilter implements ApplicationContextAware {
 
   private final CorsConfigurationSource configSource;
 
   private CorsProcessor processor = new DefaultCorsProcessor();
+
+  @Nullable
+  private ApplicationContext applicationContext;
 
   /**
    * Constructor accepting a {@link CorsConfigurationSource} used by the filter
@@ -76,27 +80,27 @@ public class CorsFilter extends OncePerRequestFilter {
   }
 
   @Override
-  protected void doFilterInternal(
-          HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
-          throws IOException, ServletException {
-    RequestContext context = RequestContextHolder.get();
-    if (context == null) {
-      WebApplicationContext webApplicationContext = ServletUtils.findWebApplicationContext(request);
-      context = new ServletRequestContext(webApplicationContext, request, response);
-      RequestContextHolder.set(context);
+  public void setApplicationContext(@Nullable ApplicationContext applicationContext) throws BeansException {
+    this.applicationContext = applicationContext;
+  }
+
+  @Override
+  protected void doFilterInternal(HttpServletRequest request,
+          HttpServletResponse response, FilterChain filterChain) throws IOException, ServletException {
+
+    ApplicationContext applicationContext = this.applicationContext;
+    if (applicationContext == null) {
+      applicationContext = ServletUtils.findWebApplicationContext(request);
     }
-    try {
-      CorsConfiguration corsConfiguration = this.configSource.getCorsConfiguration(context);
-      if (!processor.process(corsConfiguration, context)
-              || context.isPreFlightRequest()) {
-        return;
-      }
-      // handle next
-      filterChain.doFilter(request, response);
+
+    ServletRequestContext context = new ServletRequestContext(applicationContext, request, response);
+    CorsConfiguration corsConfiguration = configSource.getCorsConfiguration(context);
+    if (!processor.process(corsConfiguration, context)
+            || context.isPreFlightRequest()) {
+      return;
     }
-    finally {
-      RequestContextHolder.remove();
-    }
+    // handle next
+    filterChain.doFilter(request, response);
   }
 
 }

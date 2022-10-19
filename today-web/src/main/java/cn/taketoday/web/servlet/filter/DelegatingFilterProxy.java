@@ -22,10 +22,10 @@ package cn.taketoday.web.servlet.filter;
 
 import java.io.IOException;
 
+import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.web.servlet.ConfigurableWebApplicationContext;
 import cn.taketoday.web.servlet.WebApplicationContext;
 import cn.taketoday.web.servlet.support.WebApplicationContextUtils;
 import jakarta.servlet.Filter;
@@ -79,7 +79,7 @@ import jakarta.servlet.ServletResponse;
  * @see jakarta.servlet.Filter#destroy
  * @see #DelegatingFilterProxy(Filter)
  * @see #DelegatingFilterProxy(String)
- * @see #DelegatingFilterProxy(String, WebApplicationContext)
+ * @see #DelegatingFilterProxy(String, ApplicationContext)
  * @see jakarta.servlet.ServletContext#addFilter(String, Filter)
  * @since 4.0 2022/2/20 23:17
  */
@@ -89,7 +89,7 @@ public class DelegatingFilterProxy extends GenericFilterBean {
   private String contextAttribute;
 
   @Nullable
-  private WebApplicationContext webApplicationContext;
+  private ApplicationContext applicationContext;
 
   @Nullable
   private String targetBeanName;
@@ -136,7 +136,7 @@ public class DelegatingFilterProxy extends GenericFilterBean {
    *
    * @param targetBeanName name of the target filter bean to look up in the Framework
    * application context (must not be {@code null}).
-   * @see #findWebApplicationContext()
+   * @see #findApplicationContext()
    * @see #setEnvironment(cn.taketoday.core.env.Environment)
    */
   public DelegatingFilterProxy(String targetBeanName) {
@@ -160,13 +160,13 @@ public class DelegatingFilterProxy extends GenericFilterBean {
    * @param wac the application context from which the target filter will be retrieved;
    * if {@code null}, an application context will be looked up from {@code ServletContext}
    * as a fallback.
-   * @see #findWebApplicationContext()
+   * @see #findApplicationContext()
    * @see #setEnvironment(cn.taketoday.core.env.Environment)
    */
-  public DelegatingFilterProxy(String targetBeanName, @Nullable WebApplicationContext wac) {
+  public DelegatingFilterProxy(String targetBeanName, @Nullable ApplicationContext wac) {
     Assert.hasText(targetBeanName, "Target Filter bean name must not be null or empty");
     this.setTargetBeanName(targetBeanName);
-    this.webApplicationContext = wac;
+    this.applicationContext = wac;
     if (wac != null) {
       setEnvironment(wac.getEnvironment());
     }
@@ -238,7 +238,7 @@ public class DelegatingFilterProxy extends GenericFilterBean {
         // Fetch Framework root application context and initialize the delegate early,
         // if possible. If the root application context will be started after this
         // filter proxy, we'll have to resort to lazy initialization.
-        WebApplicationContext wac = findWebApplicationContext();
+        ApplicationContext wac = findApplicationContext();
         if (wac != null) {
           this.delegate = initDelegate(wac);
         }
@@ -256,7 +256,7 @@ public class DelegatingFilterProxy extends GenericFilterBean {
       synchronized(this.delegateMonitor) {
         delegateToUse = this.delegate;
         if (delegateToUse == null) {
-          WebApplicationContext wac = findWebApplicationContext();
+          ApplicationContext wac = findApplicationContext();
           if (wac == null) {
             throw new IllegalStateException("No WebApplicationContext found: " +
                     "no ContextLoaderListener or DispatcherServlet registered?");
@@ -291,20 +291,20 @@ public class DelegatingFilterProxy extends GenericFilterBean {
    * {@code WebApplicationContext} retrieval strategy.
    *
    * @return the {@code WebApplicationContext} for this proxy, or {@code null} if not found
-   * @see #DelegatingFilterProxy(String, WebApplicationContext)
+   * @see #DelegatingFilterProxy(String, ApplicationContext)
    * @see #getContextAttribute()
    * @see WebApplicationContextUtils#getWebApplicationContext(jakarta.servlet.ServletContext)
    * @see WebApplicationContext#ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE
    */
   @Nullable
-  protected WebApplicationContext findWebApplicationContext() {
-    if (webApplicationContext != null) {
+  protected ApplicationContext findApplicationContext() {
+    if (applicationContext != null) {
       // The user has injected a context at construction time -> use it...
-      if (webApplicationContext instanceof ConfigurableWebApplicationContext cac && !cac.isActive()) {
+      if (applicationContext instanceof ConfigurableApplicationContext cac && !cac.isActive()) {
         // The context has not yet been refreshed -> do so before returning it...
         cac.refresh();
       }
-      return webApplicationContext;
+      return applicationContext;
     }
     String attrName = getContextAttribute();
     if (attrName != null) {
@@ -330,7 +330,7 @@ public class DelegatingFilterProxy extends GenericFilterBean {
    * @see #getFilterConfig()
    * @see jakarta.servlet.Filter#init(jakarta.servlet.FilterConfig)
    */
-  protected Filter initDelegate(WebApplicationContext wac) throws ServletException {
+  protected Filter initDelegate(ApplicationContext wac) throws ServletException {
     String targetBeanName = getTargetBeanName();
     Assert.state(targetBeanName != null, "No target bean name set");
     Filter delegate = wac.getBean(targetBeanName, Filter.class);

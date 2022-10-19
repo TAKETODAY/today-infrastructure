@@ -406,8 +406,8 @@ public class WebMvcConfigurationSupport extends ApplicationContextSupport {
    * default {@link ReturnValueHandler} registry
    */
   @Component
-  @ConditionalOnMissingBean
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
+  @ConditionalOnMissingBean(ReturnValueHandlerManager.class)
   ReturnValueHandlerManager returnValueHandlerManager(
           @Nullable RedirectModelManager redirectModelManager,
           @Qualifier("webViewResolver") ViewResolver webViewResolver) {

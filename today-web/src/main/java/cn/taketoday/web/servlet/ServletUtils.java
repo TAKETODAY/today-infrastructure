@@ -38,6 +38,7 @@ import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.bind.MultipartException;
+import cn.taketoday.web.servlet.support.WebApplicationContextUtils;
 import cn.taketoday.web.util.WebUtils;
 import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.ServletContext;
@@ -279,7 +280,7 @@ public abstract class ServletUtils {
    * @return the request-specific WebApplicationContext, or the global one
    * if no request-specific context has been found, or {@code null} if none
    * @see #WEB_APPLICATION_CONTEXT_ATTRIBUTE
-   * @see #getWebApplicationContext(ServletContext)
+   * @see WebApplicationContextUtils#getWebApplicationContext(ServletContext)
    * @since 4.0
    */
   @Nullable
@@ -289,57 +290,10 @@ public abstract class ServletUtils {
             WEB_APPLICATION_CONTEXT_ATTRIBUTE);
     if (webApplicationContext == null) {
       if (servletContext != null) {
-        webApplicationContext = findWebApplicationContext(servletContext);
+        webApplicationContext = WebApplicationContextUtils.findWebApplicationContext(servletContext);
       }
     }
     return webApplicationContext;
-  }
-
-  /**
-   * Find a unique {@code WebApplicationContext} for this web app: either the
-   * root web app context (preferred) or a unique {@code WebApplicationContext}
-   * among the registered {@code ServletContext} attributes (typically coming
-   * from a single {@code DispatcherServlet} in the current web application).
-   * <p>Note that {@code DispatcherServlet}'s exposure of its context can be
-   * controlled through its {@code publishContext} property, which is {@code true}
-   * by default but can be selectively switched to only publish a single context
-   * despite multiple {@code DispatcherServlet} registrations in the web app.
-   *
-   * @param sc the ServletContext to find the web application context for
-   * @return the desired WebApplicationContext for this web app, or {@code null} if none
-   * @see #getWebApplicationContext(ServletContext)
-   * @see ServletContext#getAttributeNames()
-   * @since 4.0
-   */
-  @Nullable
-  public static WebApplicationContext findWebApplicationContext(ServletContext sc) {
-    WebApplicationContext wac = getWebApplicationContext(sc);
-    if (wac == null) {
-      Enumeration<String> attrNames = sc.getAttributeNames();
-      while (attrNames.hasMoreElements()) {
-        String attrName = attrNames.nextElement();
-        Object attrValue = sc.getAttribute(attrName);
-        if (attrValue instanceof WebApplicationContext) {
-          if (wac != null) {
-            throw new IllegalStateException("No unique WebApplicationContext found: more than one " +
-                    "DispatcherServlet registered with publishContext=true?");
-          }
-          wac = (WebApplicationContext) attrValue;
-        }
-      }
-    }
-    return wac;
-  }
-
-  /**
-   * Find the root {@code WebApplicationContext} for this web app,
-   *
-   * @param sc the ServletContext to find the web application context for
-   * @since 4.0
-   */
-  @Nullable
-  public static WebApplicationContext getWebApplicationContext(ServletContext sc) {
-    return (WebApplicationContext) sc.getAttribute(WEB_APPLICATION_CONTEXT_ATTRIBUTE);
   }
 
   //---------------------------------------------------------------------
