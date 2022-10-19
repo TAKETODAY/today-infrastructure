@@ -74,7 +74,7 @@ class DelegatingFilterProxyRegistrationBeanTests extends AbstractFilterRegistrat
     DelegatingFilterProxyRegistrationBean registrationBean = createFilterRegistrationBean();
     Filter filter = registrationBean.getFilter();
     assertThat(filter).isInstanceOf(DelegatingFilterProxy.class);
-    assertThat(filter).extracting("webApplicationContext").isEqualTo(this.applicationContext);
+    assertThat(filter).extracting("applicationContext").isEqualTo(this.applicationContext);
     assertThat(filter).extracting("targetBeanName").isEqualTo("mockFilter");
   }
 
