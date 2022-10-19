@@ -63,9 +63,7 @@ import reactor.netty.tcp.AbstractProtocolSslContextSpec;
  * @author Chris Bono
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
- * @deprecated this class is meant for internal use only.
  */
-@Deprecated
 public class SslServerCustomizer implements NettyServerCustomizer {
 
   private final Ssl ssl;
