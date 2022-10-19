@@ -32,6 +32,7 @@ import cn.taketoday.core.type.AnnotatedTypeMetadata;
 import cn.taketoday.framework.ApplicationType;
 import cn.taketoday.framework.annotation.ConditionalOnWebApplication.Type;
 import cn.taketoday.framework.web.reactive.context.ConfigurableReactiveWebEnvironment;
+import cn.taketoday.framework.web.reactive.context.ReactiveWebApplicationContext;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.web.servlet.ConfigurableWebEnvironment;
@@ -153,14 +154,13 @@ class OnWebApplicationCondition extends FilteringInfraCondition implements Order
 
   private ConditionOutcome isReactiveWebApplication(ConditionContext context) {
     var message = ConditionMessage.forCondition("");
-    if (!ClassNameFilter.isPresent(ApplicationType.NETTY_INDICATOR_CLASS, context.getClassLoader())) {
-      return ConditionOutcome.noMatch(message.didNotFind("reactive web application classes").atAll());
-    }
+
     if (context.getEnvironment() instanceof ConfigurableReactiveWebEnvironment) {
       return ConditionOutcome.match(message.foundExactly("ConfigurableReactiveWebEnvironment"));
     }
+
     ResourceLoader resourceLoader = context.getResourceLoader();
-    if (resourceLoader instanceof WebApplicationContext && !(resourceLoader instanceof WebApplicationContext)) {
+    if (resourceLoader instanceof ReactiveWebApplicationContext) {
       return ConditionOutcome.match(message.foundExactly("ReactiveWebApplicationContext"));
     }
     return ConditionOutcome.noMatch(message.because("not a reactive web application"));
