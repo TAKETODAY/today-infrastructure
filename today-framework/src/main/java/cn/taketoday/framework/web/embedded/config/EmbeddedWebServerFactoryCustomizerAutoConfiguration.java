@@ -27,7 +27,6 @@ import org.eclipse.jetty.util.Loader;
 import org.eclipse.jetty.webapp.WebAppContext;
 import org.xnio.SslClientAuthMode;
 
-import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.config.AutoConfiguration;
 import cn.taketoday.context.annotation.config.EnableAutoConfiguration;
@@ -36,6 +35,7 @@ import cn.taketoday.context.properties.EnableConfigurationProperties;
 import cn.taketoday.core.env.Environment;
 import cn.taketoday.framework.annotation.ConditionalOnWebApplication;
 import cn.taketoday.framework.web.server.ServerProperties;
+import cn.taketoday.stereotype.Component;
 import io.undertow.Undertow;
 import reactor.netty.http.server.HttpServer;
 
@@ -59,7 +59,7 @@ public class EmbeddedWebServerFactoryCustomizerAutoConfiguration {
   @ConditionalOnClass({ Tomcat.class, UpgradeProtocol.class })
   public static class TomcatWebServerFactoryCustomizerConfiguration {
 
-    @Bean
+    @Component
     public TomcatWebServerFactoryCustomizer tomcatWebServerFactoryCustomizer(Environment environment,
             ServerProperties serverProperties) {
       return new TomcatWebServerFactoryCustomizer(environment, serverProperties);
@@ -74,9 +74,9 @@ public class EmbeddedWebServerFactoryCustomizerAutoConfiguration {
   @ConditionalOnClass({ Server.class, Loader.class, WebAppContext.class })
   public static class JettyWebServerFactoryCustomizerConfiguration {
 
-    @Bean
-    public JettyWebServerFactoryCustomizer jettyWebServerFactoryCustomizer(Environment environment,
-            ServerProperties serverProperties) {
+    @Component
+    public JettyWebServerFactoryCustomizer jettyWebServerFactoryCustomizer(
+            Environment environment, ServerProperties serverProperties) {
       return new JettyWebServerFactoryCustomizer(environment, serverProperties);
     }
 
@@ -89,9 +89,9 @@ public class EmbeddedWebServerFactoryCustomizerAutoConfiguration {
   @ConditionalOnClass({ Undertow.class, SslClientAuthMode.class })
   public static class UndertowWebServerFactoryCustomizerConfiguration {
 
-    @Bean
-    public UndertowWebServerFactoryCustomizer undertowWebServerFactoryCustomizer(Environment environment,
-            ServerProperties serverProperties) {
+    @Component
+    public UndertowWebServerFactoryCustomizer undertowWebServerFactoryCustomizer(
+            Environment environment, ServerProperties serverProperties) {
       return new UndertowWebServerFactoryCustomizer(environment, serverProperties);
     }
 
@@ -104,9 +104,9 @@ public class EmbeddedWebServerFactoryCustomizerAutoConfiguration {
   @ConditionalOnClass(HttpServer.class)
   public static class NettyWebServerFactoryCustomizerConfiguration {
 
-    @Bean
-    public NettyWebServerFactoryCustomizer nettyWebServerFactoryCustomizer(Environment environment,
-            ServerProperties serverProperties) {
+    @Component
+    public NettyWebServerFactoryCustomizer nettyWebServerFactoryCustomizer(
+            Environment environment, ServerProperties serverProperties) {
       return new NettyWebServerFactoryCustomizer(environment, serverProperties);
     }
 

@@ -115,8 +115,8 @@ public class TomcatReactiveWebServerFactory extends AbstractReactiveWebServerFac
   }
 
   private static List<LifecycleListener> getDefaultServerLifecycleListeners() {
-    return AprLifecycleListener.isAprAvailable() ? CollectionUtils.newArrayList(new AprLifecycleListener())
-                                                 : new ArrayList<>();
+    return AprLifecycleListener.isAprAvailable()
+           ? CollectionUtils.newArrayList(new AprLifecycleListener()) : new ArrayList<>();
   }
 
   @Override
