@@ -62,8 +62,6 @@ public class NettyReactiveWebServerFactory extends AbstractReactiveWebServerFact
   @Nullable
   private ReactorResourceFactory resourceFactory;
 
-  private Shutdown shutdown = Shutdown.IMMEDIATE;
-
   public NettyReactiveWebServerFactory() { }
 
   public NettyReactiveWebServerFactory(int port) {
@@ -152,16 +150,6 @@ public class NettyReactiveWebServerFactory extends AbstractReactiveWebServerFact
    */
   public void setResourceFactory(ReactorResourceFactory resourceFactory) {
     this.resourceFactory = resourceFactory;
-  }
-
-  @Override
-  public void setShutdown(Shutdown shutdown) {
-    this.shutdown = shutdown;
-  }
-
-  @Override
-  public Shutdown getShutdown() {
-    return this.shutdown;
   }
 
   private HttpServer createHttpServer() {
