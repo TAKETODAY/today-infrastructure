@@ -27,8 +27,9 @@ import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.List;
 
-import cn.taketoday.core.TypeDescriptor;
 import cn.taketoday.bytecode.MethodVisitor;
+import cn.taketoday.bytecode.core.CodeFlow;
+import cn.taketoday.core.TypeDescriptor;
 import cn.taketoday.expression.AccessException;
 import cn.taketoday.expression.ConstructorExecutor;
 import cn.taketoday.expression.ConstructorResolver;
@@ -37,7 +38,6 @@ import cn.taketoday.expression.EvaluationException;
 import cn.taketoday.expression.TypeConverter;
 import cn.taketoday.expression.TypedValue;
 import cn.taketoday.expression.common.ExpressionUtils;
-import cn.taketoday.bytecode.core.CodeFlow;
 import cn.taketoday.expression.spel.ExpressionState;
 import cn.taketoday.expression.spel.SpelEvaluationException;
 import cn.taketoday.expression.spel.SpelMessage;
@@ -245,6 +245,12 @@ public class ConstructorReference extends SpelNodeImpl {
               SpelMessage.TYPE_NAME_EXPECTED_FOR_ARRAY_CONSTRUCTION,
               FormatHelper.formatClassNameForMessage(
                       intendedArrayType != null ? intendedArrayType.getClass() : null));
+    }
+
+    if (state.getEvaluationContext().getConstructorResolvers().isEmpty()) {
+      // No constructor resolver -> no array construction either (as of 6.0)
+      throw new SpelEvaluationException(getStartPosition(), SpelMessage.CONSTRUCTOR_NOT_FOUND,
+              type + "[]", "[]");
     }
 
     Class<?> componentType;
