@@ -20,18 +20,16 @@
 
 package cn.taketoday.framework.web.netty;
 
-import org.reactivestreams.Subscriber;
 import org.reactivestreams.Subscription;
 
-import java.util.function.Function;
-
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.HandlerAdapter;
 import cn.taketoday.web.HttpRequestHandler;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.RequestContextHolder;
 import cn.taketoday.web.handler.DispatcherHandler;
 import cn.taketoday.web.handler.HandlerNotFoundException;
 import io.netty.channel.ChannelHandlerContext;
+import reactor.core.CoreSubscriber;
 import reactor.core.publisher.Mono;
 
 /**
@@ -57,72 +55,42 @@ public class ReactorNettyDispatcher extends NettyDispatcher {
    */
   @Override
   public void dispatch(final ChannelHandlerContext ctx, final NettyRequestContext nettyContext) throws Throwable {
-    RequestContextHolder.set(nettyContext);
-    try {
-      doDispatch(nettyContext);
-    }
-    finally {
-      RequestContextHolder.remove();
-    }
-  }
-
-  private void doDispatch(NettyRequestContext nettyContext) {
     Mono.fromCallable(() -> dispatcherHandler.lookupHandler(nettyContext))
             .switchIfEmpty(noHandlerFound(nettyContext))
-            .flatMap(handler -> Mono.zip(invokeHandler(nettyContext, handler), Mono.just(handler)))
-            .flatMap(tuple -> {
-              Object handler = tuple.getT2();
-              Object returnValue = tuple.getT1();
-              return handleReturnValue(nettyContext, handler, returnValue);
-            })
-            .doOnNext(v -> nettyContext.sendIfNotCommitted())
-            .onErrorResume(new Function<Throwable, Mono<? extends Void>>() {
-              @Override
-              public Mono<? extends Void> apply(Throwable throwable) {
-//                dispatcherHandler.handleException();
-                return null;
-              }
-            })
-            .subscribe(new Subscriber<>() {
-              @Override
-              public void onSubscribe(Subscription s) {
-
-              }
-
-              @Override
-              public void onNext(Void unused) {
-
-              }
-
-              @Override
-              public void onError(Throwable t) {
-              }
-
-              @Override
-              public void onComplete() {
-
-              }
-            });
-
+            .flatMap(handler -> invokeHandler(nettyContext, handler))
+            .flatMap(result -> handleReturnValue(nettyContext, result.handler, result.returnValue))
+            .contextWrite(context -> context.put(RequestContext.class, nettyContext))
+            .subscribe(new NettySubscriber(nettyContext));
   }
 
-  private Mono<Void> handleReturnValue(NettyRequestContext nettyContext, Object handler, Object returnValue) {
-    if (returnValue != HttpRequestHandler.NONE_RETURN_VALUE) {
-      try {
-        dispatcherHandler.lookupReturnValueHandler(handler, returnValue)
-                .handleReturnValue(nettyContext, handler, returnValue);
+  private Mono<Void> handleReturnValue(NettyRequestContext nettyContext,
+          Object handler, @Nullable Object returnValue) {
+    return Mono.defer(() -> {
+      if (returnValue != HttpRequestHandler.NONE_RETURN_VALUE) {
+        try {
+          dispatcherHandler.lookupReturnValueHandler(handler, returnValue)
+                  .handleReturnValue(nettyContext, handler, returnValue);
+        }
+        catch (Exception e) {
+          return Mono.error(e);
+        }
       }
-      catch (Exception e) {
+      return Mono.<Void>empty();
+    }).onErrorResume(ex -> {
+      try {
+        dispatcherHandler.handleException(handler, ex, nettyContext);
+      }
+      catch (Throwable e) {
         return Mono.error(e);
       }
-    }
-    return Mono.empty();
+      return Mono.empty();
+    });
   }
 
-  private Mono<Object> invokeHandler(NettyRequestContext nettyContext, Object handler) {
+  private Mono<HandlerResult> invokeHandler(NettyRequestContext nettyContext, Object handler) {
     try {
       HandlerAdapter adapter = dispatcherHandler.lookupHandlerAdapter(handler);
-      return Mono.just(adapter.handle(nettyContext, handler));
+      return Mono.just(new HandlerResult(handler, adapter.handle(nettyContext, handler)));
     }
     catch (Throwable e) {
       return Mono.error(e);
@@ -139,5 +107,48 @@ public class ReactorNettyDispatcher extends NettyDispatcher {
             new HandlerNotFoundException(
                     request.getMethodValue(), request.getRequestURI(), request.requestHeaders()))
     );
+  }
+
+  static class HandlerResult {
+    public final Object handler;
+
+    @Nullable
+    public final Object returnValue;
+
+    HandlerResult(Object handler, @Nullable Object returnValue) {
+      this.handler = handler;
+      this.returnValue = returnValue;
+    }
+  }
+
+  static class NettySubscriber implements CoreSubscriber<Void> {
+
+    private final NettyRequestContext nettyContext;
+    private Subscription subscription;
+
+    public NettySubscriber(NettyRequestContext nettyContext) {
+      this.nettyContext = nettyContext;
+    }
+
+    @Override
+    public void onSubscribe(Subscription subscription) {
+      this.subscription = subscription;
+    }
+
+    @Override
+    public void onNext(Void unused) {
+      subscription.request(1);
+    }
+
+    @Override
+    public void onError(Throwable throwable) {
+      nettyContext.getChannelContext().fireExceptionCaught(throwable);
+    }
+
+    @Override
+    public void onComplete() {
+      nettyContext.sendIfNotCommitted();
+    }
+
   }
 }
