@@ -32,6 +32,7 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.function.Supplier;
 
+import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.http.DefaultHttpHeaders;
 import cn.taketoday.http.HttpCookie;
@@ -45,7 +46,6 @@ import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.bind.resolver.ParameterReadFailedException;
 import cn.taketoday.web.multipart.MultipartRequest;
-import cn.taketoday.web.servlet.WebApplicationContext;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufInputStream;
 import io.netty.buffer.ByteBufOutputStream;
@@ -114,7 +114,7 @@ public class NettyRequestContext extends RequestContext {
   private InetSocketAddress inetSocketAddress;
 
   public NettyRequestContext(
-          WebApplicationContext context, ChannelHandlerContext ctx,
+          ApplicationContext context, ChannelHandlerContext ctx,
           FullHttpRequest request, NettyRequestConfig config) {
     super(context);
     this.config = config;

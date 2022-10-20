@@ -19,8 +19,8 @@
  */
 package cn.taketoday.framework.web.netty;
 
+import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.lang.Assert;
-import cn.taketoday.web.servlet.WebApplicationContext;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandler;
@@ -39,15 +39,11 @@ public class ReactiveChannelHandler implements ChannelInboundHandler {
   private NettyDispatcher nettyDispatcher;
   private NettyRequestConfig contextConfig;
 
-  private final WebApplicationContext context;
-
-  public ReactiveChannelHandler(NettyDispatcher nettyDispatcher, WebApplicationContext context) {
-    this(nettyDispatcher, new NettyRequestConfig(), context);
-  }
+  private final ApplicationContext context;
 
   public ReactiveChannelHandler(
-          NettyDispatcher nettyDispatcher, NettyRequestConfig contextConfig, WebApplicationContext context) {
-    Assert.notNull(context, "WebApplicationContext is required");
+          NettyDispatcher nettyDispatcher, NettyRequestConfig contextConfig, ApplicationContext context) {
+    Assert.notNull(context, "ApplicationContext is required");
     this.context = context;
     setContextConfig(contextConfig);
     setNettyDispatcher(nettyDispatcher);
