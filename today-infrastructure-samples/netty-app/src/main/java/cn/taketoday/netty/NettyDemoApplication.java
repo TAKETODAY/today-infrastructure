@@ -18,23 +18,24 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.framework.web.netty;
+package cn.taketoday.netty;
 
-import cn.taketoday.http.server.reactive.HttpHandler;
-import cn.taketoday.http.server.reactive.ServerHttpRequest;
-import cn.taketoday.http.server.reactive.ServerHttpResponse;
-import reactor.core.publisher.Mono;
+import cn.taketoday.framework.Application;
+import cn.taketoday.framework.InfraApplication;
+import cn.taketoday.framework.web.netty.EnableNettyHandling;
+import cn.taketoday.web.config.EnableWebMvc;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @since 4.0 2022/10/19 20:36
+ * @since 4.0 2022/10/20 13:10
  */
-public class NettyHttpHandler implements HttpHandler {
+@EnableWebMvc
+@InfraApplication
+@EnableNettyHandling
+public class NettyDemoApplication {
 
-  @Override
-  public Mono<Void> handle(ServerHttpRequest request, ServerHttpResponse response) {
-
-    return null;
+  public static void main(String[] args) {
+    Application.run(NettyDemoApplication.class, args);
   }
 
 }
