@@ -25,6 +25,7 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
@@ -125,17 +126,99 @@ class PathMatchingPatternResourceLoaderTests {
         String pathPrefix = ".+cn/taketoday/core/io/";
 
         assertExactFilenames(pattern, "resource#test1.txt", "resource#test2.txt");
-        assertExactSubPaths(pattern, pathPrefix, "resource#test1.txt", "resource#test2.txt");
+        assertExactSubPaths(pattern, pathPrefix, "support/resource#test1.txt", "support/resource#test2.txt");
       }
 
       @Test
-      void usingFileProtocol() {
-        Path testResourcesDir = Path.of("src/test/resources").toAbsolutePath();
-        String pattern = "file:%s/scanned-resources/**".formatted(testResourcesDir);
-        String pathPrefix = ".+scanned-resources/";
+      void usingClasspathStarProtocolWithWildcardInPatternAndNotEndingInSlash() throws Exception {
+        String pattern = "classpath*:cn/taketoday/core/i*";
+        String pathPrefix = ".+cn/taketoday/core/io/";
 
+        List<String> actualSubPaths = getSubPathsIgnoringClassFilesEtc(pattern, pathPrefix);
+
+        // We DO find "support" if the pattern does NOT end with a slash.
+        assertThat(actualSubPaths).containsExactly("support");
+      }
+
+      @Test
+      void usingFileProtocolWithWildcardInPatternAndNotEndingInSlash() throws Exception {
+        Path testResourcesDir = Paths.get("src/test/resources").toAbsolutePath();
+        String pattern = String.format("file:%s/cn/taketoday/core/i*", testResourcesDir);
+        String pathPrefix = ".+cn/taketoday/core/io/";
+
+        List<String> actualSubPaths = getSubPathsIgnoringClassFilesEtc(pattern, pathPrefix);
+
+        // We DO find "support" if the pattern does NOT end with a slash.
+        assertThat(actualSubPaths).containsExactly("support");
+      }
+
+      @Test
+      void usingClasspathStarProtocolWithWildcardInPatternAndEndingInSlash() throws Exception {
+        String pattern = "classpath*:cn/taketoday/core/io/sup*/";
+        String pathPrefix = ".+cn/taketoday/core/io/";
+
+        List<String> actualSubPaths = getSubPathsIgnoringClassFilesEtc(pattern, pathPrefix);
+
+        // We do NOT find "support" if the pattern ENDS with a slash.
+        assertThat(actualSubPaths).isEmpty();
+      }
+
+      @Test
+      void usingFileProtocolWithWildcardInPatternAndEndingInSlash() throws Exception {
+        Path testResourcesDir = Paths.get("src/test/resources").toAbsolutePath();
+        String pattern = String.format("file:%s/cn/taketoday/core/io/sup*/", testResourcesDir);
+        String pathPrefix = ".+cn/taketoday/core/io/";
+
+        List<String> actualSubPaths = getSubPathsIgnoringClassFilesEtc(pattern, pathPrefix);
+
+        // We do NOT find "support" if the pattern ENDS with a slash.
+        assertThat(actualSubPaths).isEmpty();
+      }
+
+      @Test
+      void usingClasspathStarProtocolWithWildcardInPatternAndEndingWithSuffixPattern() throws Exception {
+        String pattern = "classpath*:cn/taketoday/core/i*/*.txt";
+        String pathPrefix = ".+cn/taketoday/core/io/";
+
+        List<String> actualSubPaths = getSubPathsIgnoringClassFilesEtc(pattern, pathPrefix);
+
+        assertThat(actualSubPaths)
+                .containsExactlyInAnyOrder("support/resource#test1.txt", "support/resource#test2.txt");
+      }
+
+      private List<String> getSubPathsIgnoringClassFilesEtc(String pattern, String pathPrefix) throws IOException {
+        return Arrays.stream(resolver.getResourcesArray(pattern))
+                .map(resource -> getPath(resource).replaceFirst(pathPrefix, ""))
+                .filter(name -> !name.endsWith(".class"))
+                .filter(name -> !name.endsWith(".kt"))
+                .filter(name -> !name.endsWith(".factories"))
+                .distinct()
+                .sorted()
+                .collect(Collectors.toList());
+      }
+
+      @Test
+      void usingFileProtocolWithoutWildcardInPatternAndEndingInSlashStarStar() {
+        Path testResourcesDir = Paths.get("src/test/resources").toAbsolutePath();
+        String pattern = String.format("file:%s/scanned-resources/**", testResourcesDir);
+        String pathPrefix = ".+?resources/";
+
+        // We do NOT find "scanned-resources" if the pattern ENDS with "/**" AND does NOT otherwise contain a wildcard.
         assertExactFilenames(pattern, "resource#test1.txt", "resource#test2.txt");
-        assertExactSubPaths(pattern, pathPrefix, "resource#test1.txt", "resource#test2.txt");
+        assertExactSubPaths(pattern, pathPrefix, "scanned-resources/resource#test1.txt",
+                "scanned-resources/resource#test2.txt");
+      }
+
+      @Test
+      void usingFileProtocolWithWildcardInPatternAndEndingInSlashStarStar() {
+        Path testResourcesDir = Paths.get("src/test/resources").toAbsolutePath();
+        String pattern = String.format("file:%s/scanned*resources/**", testResourcesDir);
+        String pathPrefix = ".+?resources/";
+
+        // We DO find "scanned-resources" if the pattern ENDS with "/**" AND DOES otherwise contain a wildcard.
+        assertExactFilenames(pattern, "scanned-resources", "resource#test1.txt", "resource#test2.txt");
+        assertExactSubPaths(pattern, pathPrefix, "scanned-resources", "scanned-resources/resource#test1.txt",
+                "scanned-resources/resource#test2.txt");
       }
 
       @Test

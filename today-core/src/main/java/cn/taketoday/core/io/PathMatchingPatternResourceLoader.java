@@ -651,10 +651,10 @@ public class PathMatchingPatternResourceLoader implements PatternResourceLoader 
         rootDir += "/";
       }
 
+      Path rootPathForPattern = rootPath;
       String resourcePattern = rootDir + StringUtils.cleanPath(subPattern);
-
-      Predicate<Path> isMatchingFile = path -> Files.isRegularFile(path)
-              && pathMatcher.match(resourcePattern, StringUtils.cleanPath(path.toString()));
+      Predicate<Path> isMatchingFile = path -> (!path.equals(rootPathForPattern) &&
+              pathMatcher.match(resourcePattern, StringUtils.cleanPath(path.toString())));
 
       if (log.isDebugEnabled()) {
         log.trace("Searching directory [{}] for files matching pattern [{}]",
