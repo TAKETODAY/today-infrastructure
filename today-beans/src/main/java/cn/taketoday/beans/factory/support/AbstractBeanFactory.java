@@ -815,33 +815,36 @@ public abstract class AbstractBeanFactory
     }
 
     RootBeanDefinition mergedDef = getMergedLocalBeanDefinition(beanName);
-
-    // Check decorated bean definition, if any: We assume it'll be easier
-    // to determine the decorated bean's type than the proxy's type.
-    BeanDefinitionHolder decorated = mergedDef.getDecoratedDefinition();
-    if (decorated != null && !BeanFactoryUtils.isFactoryDereference(name)) {
-      RootBeanDefinition tbd = getMergedBeanDefinition(decorated.getBeanName(), decorated.getBeanDefinition(), mergedDef);
-      Class<?> targetClass = predictBeanType(decorated.getBeanName(), tbd);
-      if (targetClass != null && !FactoryBean.class.isAssignableFrom(targetClass)) {
-        return targetClass;
-      }
-    }
-
     Class<?> beanClass = predictBeanType(beanName, mergedDef);
 
-    // Check bean class whether we're dealing with a FactoryBean.
-    if (beanClass != null && FactoryBean.class.isAssignableFrom(beanClass)) {
-      if (!BeanFactoryUtils.isFactoryDereference(name)) {
-        // If it's a FactoryBean, we want to look at what it creates, not at the factory class.
-        return getTypeForFactoryBean(beanName, mergedDef, allowFactoryBeanInit).resolve();
+    if (beanClass != null) {
+      // Check bean class whether we're dealing with a FactoryBean.
+      if (FactoryBean.class.isAssignableFrom(beanClass)) {
+        if (!BeanFactoryUtils.isFactoryDereference(name)) {
+          // If it's a FactoryBean, we want to look at what it creates, not at the factory class.
+          beanClass = getTypeForFactoryBean(beanName, mergedDef, allowFactoryBeanInit).resolve();
+        }
       }
-      else {
-        return beanClass;
+      else if (BeanFactoryUtils.isFactoryDereference(name)) {
+        return null;
       }
     }
-    else {
-      return (!BeanFactoryUtils.isFactoryDereference(name) ? beanClass : null);
+
+    if (beanClass == null) {
+      // Check decorated bean definition, if any: We assume it'll be easier
+      // to determine the decorated bean's type than the proxy's type.
+      BeanDefinitionHolder decorated = mergedDef.getDecoratedDefinition();
+      if (decorated != null && !BeanFactoryUtils.isFactoryDereference(name)) {
+        RootBeanDefinition tbd = getMergedBeanDefinition(
+                decorated.getBeanName(), decorated.getBeanDefinition(), mergedDef);
+        Class<?> targetClass = predictBeanType(decorated.getBeanName(), tbd);
+        if (targetClass != null && !FactoryBean.class.isAssignableFrom(targetClass)) {
+          return targetClass;
+        }
+      }
     }
+
+    return beanClass;
   }
 
   // FactoryBean
