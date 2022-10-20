@@ -20,33 +20,25 @@
 
 package cn.taketoday.framework.web.netty;
 
-import java.util.function.Supplier;
-
-import cn.taketoday.core.DefaultMultiValueMap;
 import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpMethod;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.multipart.MultipartFile;
 import cn.taketoday.web.multipart.support.AbstractMultipartRequest;
 import io.netty.handler.codec.http.multipart.FileUpload;
 import io.netty.handler.codec.http.multipart.InterfaceHttpData;
-import io.netty.handler.codec.http.multipart.InterfaceHttpPostRequestDecoder;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/4/28 21:39
  */
-public class NettyMultipartRequest extends AbstractMultipartRequest {
+final class NettyMultipartRequest extends AbstractMultipartRequest {
 
-  private final RequestContext context;
+  private final NettyRequestContext context;
 
-  final Supplier<InterfaceHttpPostRequestDecoder> decoderSupplier;
-
-  public NettyMultipartRequest(RequestContext context, Supplier<InterfaceHttpPostRequestDecoder> decoderSupplier) {
+  public NettyMultipartRequest(NettyRequestContext context) {
     this.context = context;
-    this.decoderSupplier = decoderSupplier;
   }
 
   @Nullable
@@ -65,12 +57,10 @@ public class NettyMultipartRequest extends AbstractMultipartRequest {
     return context.requestHeaders();
   }
 
-  @Nullable
   @Override
   public HttpHeaders getMultipartHeaders(String paramOrFileName) {
-    var decoder = decoderSupplier.get();
     HttpHeaders headers = HttpHeaders.create();
-    for (InterfaceHttpData bodyHttpData : decoder.getBodyHttpDatas(paramOrFileName)) {
+    for (InterfaceHttpData bodyHttpData : context.requestDecoder().getBodyHttpDatas(paramOrFileName)) {
       if (bodyHttpData instanceof FileUpload httpData) {
         String contentType = httpData.getContentType();
         headers.set(HttpHeaders.CONTENT_TYPE, contentType);
@@ -82,8 +72,8 @@ public class NettyMultipartRequest extends AbstractMultipartRequest {
 
   @Override
   protected MultiValueMap<String, MultipartFile> parseRequest() {
-    DefaultMultiValueMap<String, MultipartFile> multipartFiles = MultiValueMap.fromLinkedHashMap();
-    for (InterfaceHttpData data : decoderSupplier.get().getBodyHttpDatas()) {
+    var multipartFiles = MultiValueMap.<String, MultipartFile>fromLinkedHashMap();
+    for (InterfaceHttpData data : context.requestDecoder().getBodyHttpDatas()) {
       if (data instanceof FileUpload) {
         String name = data.getName();
         multipartFiles.add(name, new FileUploadMultipartFile((FileUpload) data));
