@@ -536,8 +536,10 @@ class DataBufferTests extends AbstractDataBufferAllocatingTests {
     ByteBuffer result = buffer.asByteBuffer(1, 2);
     assertThat(result.capacity()).isEqualTo(2);
 
-    assumeFalse(bufferFactory instanceof Netty5DataBufferFactory,
-            "Netty 5 does share the internal buffer");
+    assumeFalse(bufferFactory instanceof Netty5DataBufferFactory, () -> {
+      DataBufferUtils.release(buffer);
+      return "Netty 5 does share the internal buffer";
+    });
 
     buffer.write((byte) 'c');
     assertThat(result.remaining()).isEqualTo(2);

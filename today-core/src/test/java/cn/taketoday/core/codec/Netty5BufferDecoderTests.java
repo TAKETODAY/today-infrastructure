@@ -89,7 +89,11 @@ class Netty5BufferDecoderTests extends AbstractDecoderTests<Netty5BufferDecoder>
   }
 
   private Consumer<Buffer> expectByteBuffer(Buffer expected) {
-    return actual -> assertThat(actual).isEqualTo(expected);
+    return actual -> {
+      try (actual; expected) {
+        assertThat(actual).isEqualTo(expected);
+      }
+    };
   }
 
 }
