@@ -68,7 +68,7 @@ public class NettyRequestConfig {
   private int bodyInitialSize = 64;
 
   @Nullable
-  private Supplier<ByteBuf> responseBody;
+  private Supplier<ByteBuf> responseBodyFactory;
 
   /**
    * {@code contextPath} just like {@code HttpServletRequest.getContextPath()}
@@ -145,13 +145,13 @@ public class NettyRequestConfig {
     return cookieEncoder;
   }
 
-  public void setResponseBody(@Nullable Supplier<ByteBuf> responseBody) {
-    this.responseBody = responseBody;
+  public void setResponseBodyFactory(@Nullable Supplier<ByteBuf> factory) {
+    this.responseBodyFactory = factory;
   }
 
   @Nullable
-  public Supplier<ByteBuf> getResponseBody() {
-    return responseBody;
+  public Supplier<ByteBuf> getResponseBodyFactory() {
+    return responseBodyFactory;
   }
 
   /**

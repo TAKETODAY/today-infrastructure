@@ -313,7 +313,7 @@ public class NettyRequestContext extends RequestContext {
     }
   }
 
-  private InterfaceHttpPostRequestDecoder requestDecoder() {
+  InterfaceHttpPostRequestDecoder requestDecoder() {
     if (requestDecoder == null) {
       Charset charset = config.getPostRequestDecoderCharset();
       HttpDataFactory httpDataFactory = config.getHttpDataFactory();
@@ -343,9 +343,9 @@ public class NettyRequestContext extends RequestContext {
   public final ByteBuf responseBody() {
     ByteBuf responseBody = this.responseBody;
     if (responseBody == null) {
-      Supplier<ByteBuf> bufSupplier = config.getResponseBody();
-      if (bufSupplier != null) {
-        responseBody = bufSupplier.get(); // may null
+      Supplier<ByteBuf> bodyFactory = config.getResponseBodyFactory();
+      if (bodyFactory != null) {
+        responseBody = bodyFactory.get(); // may null
       }
       if (responseBody == null) {
         responseBody = Unpooled.buffer(config.getBodyInitialSize());
@@ -573,7 +573,7 @@ public class NettyRequestContext extends RequestContext {
 
   @Override
   protected MultipartRequest createMultipartRequest() {
-    return new NettyMultipartRequest(this, this::requestDecoder);
+    return new NettyMultipartRequest(this);
   }
 
   public void setCommitted(boolean committed) {
