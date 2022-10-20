@@ -59,7 +59,7 @@ public abstract class NamedParameterUtils {
    * Set of characters that qualify as parameter separators,
    * indicating that a parameter name in an SQL String has ended.
    */
-  private static final String PARAMETER_SEPARATORS = "\"':&,;()|=+-*%/\\<>^";
+  private static final String PARAMETER_SEPARATORS = "\"':&,;()|=+-*%/\\<>^]";
 
   /**
    * An index with separator flags per character code.
@@ -87,9 +87,9 @@ public abstract class NamedParameterUtils {
   public static ParsedSql parseSqlStatement(final String sql) {
     Assert.notNull(sql, "SQL must not be null");
 
-    HashSet<String> namedParameters = new HashSet<>();
+    Set<String> namedParameters = new HashSet<>();
     StringBuilder sqlToUse = new StringBuilder(sql);
-    ArrayList<ParameterHolder> parameterList = new ArrayList<>();
+    List<ParameterHolder> parameterList = new ArrayList<>();
 
     char[] statement = sql.toCharArray();
     int namedParameterCount = 0;
@@ -126,17 +126,20 @@ public abstract class NamedParameterUtils {
           while (statement[j] != '}') {
             j++;
             if (j >= statement.length) {
-              throw new InvalidDataAccessApiUsageException("Non-terminated named parameter declaration " +
-                      "at position " + i + " in statement: " + sql);
+              throw new InvalidDataAccessApiUsageException(
+                      "Non-terminated named parameter declaration at position " + i +
+                              " in statement: " + sql);
             }
             if (statement[j] == ':' || statement[j] == '{') {
-              throw new InvalidDataAccessApiUsageException("Parameter name contains invalid character '" +
-                      statement[j] + "' at position " + i + " in statement: " + sql);
+              throw new InvalidDataAccessApiUsageException(
+                      "Parameter name contains invalid character '" + statement[j] +
+                              "' at position " + i + " in statement: " + sql);
             }
           }
           if (j - i > 2) {
             parameter = sql.substring(i + 2, j);
-            namedParameterCount = addNewNamedParameter(namedParameters, namedParameterCount, parameter);
+            namedParameterCount = addNewNamedParameter(
+                    namedParameters, namedParameterCount, parameter);
             totalParameterCount = addNamedParameter(
                     parameterList, totalParameterCount, escapes, i, j + 1, parameter);
           }
@@ -148,7 +151,13 @@ public abstract class NamedParameterUtils {
           }
           if (j - i > 1) {
             parameter = sql.substring(i + 1, j);
-            namedParameterCount = addNewNamedParameter(namedParameters, namedParameterCount, parameter);
+            if (j < statement.length && statement[j] == ']' && parameter.contains("[")) {
+              // preserve end bracket for index/key
+              j++;
+              parameter = sql.substring(i + 1, j);
+            }
+            namedParameterCount = addNewNamedParameter(
+                    namedParameters, namedParameterCount, parameter);
             totalParameterCount = addNamedParameter(
                     parameterList, totalParameterCount, escapes, i, j, parameter);
           }

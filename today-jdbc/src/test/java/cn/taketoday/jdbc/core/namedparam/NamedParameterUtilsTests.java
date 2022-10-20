@@ -323,4 +323,46 @@ public class NamedParameterUtilsTests {
     assertThat(psql2.getParameterNames().get(0)).isEqualTo("xxx");
   }
 
+  @Test  // gh-27716
+  public void parseSqlStatementWithSquareBracket() {
+    String sql = "SELECT ARRAY[:ext]";
+    ParsedSql psql = NamedParameterUtils.parseSqlStatement(sql);
+    assertThat(psql.getNamedParameterCount()).isEqualTo(1);
+    assertThat(psql.getParameterNames()).containsExactly("ext");
+
+    String sqlToUse = NamedParameterUtils.substituteNamedParameters(psql, null);
+    assertThat(sqlToUse).isEqualTo("SELECT ARRAY[?]");
+  }
+
+  @Test
+    // gh-27925
+  void namedParamMapReference() {
+    String sql = "insert into foos (id) values (:headers[id])";
+    ParsedSql psql = NamedParameterUtils.parseSqlStatement(sql);
+    assertThat(psql.getNamedParameterCount()).isEqualTo(1);
+    assertThat(psql.getParameterNames()).containsExactly("headers[id]");
+
+    class Foo {
+      final Map<String, Object> headers = new HashMap<>();
+
+      public Foo() {
+        this.headers.put("id", 1);
+      }
+
+      public Map<String, Object> getHeaders() {
+        return this.headers;
+      }
+    }
+
+    Foo foo = new Foo();
+    SqlParameterSource paramSource = new BeanPropertySqlParameterSource(foo);
+    Object[] params = NamedParameterUtils.buildValueArray(psql, paramSource, null);
+
+    assertThat(params[0]).isInstanceOf(SqlParameterValue.class);
+    assertThat(((SqlParameterValue) params[0]).getValue()).isEqualTo(foo.getHeaders().get("id"));
+
+    String sqlToUse = NamedParameterUtils.substituteNamedParameters(psql, paramSource);
+    assertThat(sqlToUse).isEqualTo("insert into foos (id) values (?)");
+  }
+
 }
