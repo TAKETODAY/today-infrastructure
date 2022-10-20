@@ -71,6 +71,19 @@ public class LoggingCacheErrorHandler implements CacheErrorHandler {
     this(LoggerFactory.getLogger(LoggingCacheErrorHandler.class), logStackTraces);
   }
 
+  /**
+   * Create a {@code LoggingCacheErrorHandler} that uses the supplied
+   * {@code loggerName} and {@code logStackTraces} flag.
+   *
+   * @param loggerName the logger name to use
+   * @param logStackTraces whether to log stack traces
+   */
+  public LoggingCacheErrorHandler(String loggerName, boolean logStackTraces) {
+    Assert.notNull(loggerName, "'loggerName' is required");
+    this.logger = LoggerFactory.getLogger(loggerName);
+    this.logStackTraces = logStackTraces;
+  }
+
   @Override
   public void handleCacheGetError(RuntimeException exception, Cache cache, Object key) {
     if (logger.isWarnEnabled()) {
