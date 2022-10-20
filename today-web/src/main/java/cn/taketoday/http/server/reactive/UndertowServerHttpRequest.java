@@ -172,10 +172,10 @@ class UndertowServerHttpRequest extends AbstractServerHttpRequest {
     @Override
     @Nullable
     protected DataBuffer read() throws IOException {
-      PooledByteBuffer pooledByteBuffer = this.byteBufferPool.allocate();
+      PooledByteBuffer pooledByteBuffer = byteBufferPool.allocate();
       try (pooledByteBuffer) {
         ByteBuffer byteBuffer = pooledByteBuffer.getBuffer();
-        int read = this.channel.read(byteBuffer);
+        int read = channel.read(byteBuffer);
 
         if (rsReadLogger.isTraceEnabled()) {
           rsReadLogger.trace("{}Read {}{}", getLogPrefix(), read, (read != -1 ? " bytes" : ""));
@@ -183,7 +183,7 @@ class UndertowServerHttpRequest extends AbstractServerHttpRequest {
 
         if (read > 0) {
           byteBuffer.flip();
-          DataBuffer dataBuffer = this.bufferFactory.allocateBuffer(read);
+          DataBuffer dataBuffer = bufferFactory.allocateBuffer(read);
           dataBuffer.write(byteBuffer);
           return dataBuffer;
         }

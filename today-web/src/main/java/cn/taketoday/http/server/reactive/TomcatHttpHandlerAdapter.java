@@ -135,14 +135,14 @@ public class TomcatHttpHandlerAdapter extends ServletHttpHandlerAdapter {
         // It's possible InputStream can be wrapped, preventing use of CoyoteInputStream
         return super.readFromInputStream();
       }
-      ByteBuffer byteBuffer = this.factory.isDirect() ?
-                              ByteBuffer.allocateDirect(this.bufferSize) :
-                              ByteBuffer.allocate(this.bufferSize);
+      ByteBuffer byteBuffer = factory.isDirect() ?
+                              ByteBuffer.allocateDirect(bufferSize) :
+                              ByteBuffer.allocate(bufferSize);
 
       int read = coyoteInputStream.read(byteBuffer);
       logBytesRead(read);
       if (read > 0) {
-        return this.factory.wrap(byteBuffer);
+        return factory.wrap(byteBuffer);
       }
       else if (read == -1) {
         return EOF_BUFFER;
@@ -173,7 +173,7 @@ public class TomcatHttpHandlerAdapter extends ServletHttpHandlerAdapter {
 
     private static HttpHeaders createTomcatHttpHeaders(HttpServletResponse response) {
       ResponseFacade responseFacade = getResponseFacade(response);
-      org.apache.catalina.connector.Response connectorResponse = (org.apache.catalina.connector.Response)
+      var connectorResponse = (org.apache.catalina.connector.Response)
               ReflectionUtils.getField(COYOTE_RESPONSE_FIELD, responseFacade);
       Assert.state(connectorResponse != null, "No Tomcat connector response");
       Response tomcatResponse = connectorResponse.getCoyoteResponse();
