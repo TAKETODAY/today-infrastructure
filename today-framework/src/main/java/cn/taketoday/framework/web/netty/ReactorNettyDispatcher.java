@@ -31,6 +31,7 @@ import cn.taketoday.web.handler.HandlerNotFoundException;
 import io.netty.channel.ChannelHandlerContext;
 import reactor.core.CoreSubscriber;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 /**
  * Reactor Netty Dispatcher
@@ -60,6 +61,7 @@ public class ReactorNettyDispatcher extends NettyDispatcher {
             .flatMap(handler -> invokeHandler(nettyContext, handler))
             .flatMap(result -> handleReturnValue(nettyContext, result.handler, result.returnValue))
             .contextWrite(context -> context.put(RequestContext.class, nettyContext))
+            .publishOn(Schedulers.fromExecutor(ctx.executor()))
             .subscribe(new NettySubscriber(nettyContext));
   }
 
