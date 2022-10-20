@@ -33,7 +33,7 @@ import io.netty.handler.codec.http.HttpServerExpectContinueHandler;
  *
  * @author TODAY 2019-07-02 21:34
  */
-public class NettyServerInitializer
+public class NettyChannelInitializer
         extends ChannelInitializer<SocketChannel> implements ChannelHandler {
 
   private final ReactiveChannelHandler reactiveDispatcher;
@@ -90,7 +90,7 @@ public class NettyServerInitializer
    */
   private boolean validateHeaders = true;
 
-  public NettyServerInitializer(ReactiveChannelHandler reactiveDispatcher) {
+  public NettyChannelInitializer(ReactiveChannelHandler reactiveDispatcher) {
     Assert.notNull(reactiveDispatcher, "ReactiveDispatcher must not be null");
     this.reactiveDispatcher = reactiveDispatcher;
   }
@@ -105,6 +105,11 @@ public class NettyServerInitializer
             .addLast("HttpObjectAggregator", new HttpObjectAggregator(maxContentLength, closeOnExpectationFailed))
             .addLast("HttpServerExpectContinueHandler", new HttpServerExpectContinueHandler())
             .addLast("ReactiveChannelHandler", reactiveDispatcher);
+  }
+
+  @Override
+  public boolean isSharable() {
+    return false;
   }
 
   //

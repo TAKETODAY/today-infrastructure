@@ -27,6 +27,7 @@ package cn.taketoday.framework.web.server;
  *
  * @author Phillip Webb
  * @author Dave Syer
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public interface WebServer {

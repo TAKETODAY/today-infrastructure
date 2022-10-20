@@ -32,7 +32,6 @@ import cn.taketoday.beans.factory.annotation.DisableAllDependencyInjection;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Import;
 import cn.taketoday.context.annotation.MissingBean;
-import cn.taketoday.lang.NonNull;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.web.socket.annotation.AnnotationWebSocketHandlerBuilder;
 import cn.taketoday.web.socket.annotation.EndpointParameterResolver;
@@ -86,7 +85,6 @@ class WebSocketConfig {
     return registry;
   }
 
-  @NonNull
   private WebSocketHandlerMapping getRegistry(AnnotationWebSocketHandlerBuilder handlerBuilder) {
     if (ClassUtils.isPresent("jakarta.websocket.Session")) {
       return new StandardWebSocketHandlerMapping(handlerBuilder);

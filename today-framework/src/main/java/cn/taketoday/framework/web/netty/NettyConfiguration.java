@@ -23,16 +23,16 @@ package cn.taketoday.framework.web.netty;
 import cn.taketoday.beans.factory.annotation.DisableAllDependencyInjection;
 import cn.taketoday.beans.factory.annotation.EnableDependencyInjection;
 import cn.taketoday.beans.factory.config.BeanDefinition;
+import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.MissingBean;
 import cn.taketoday.context.annotation.Role;
-import cn.taketoday.context.properties.Props;
+import cn.taketoday.context.condition.ConditionalOnClass;
 import cn.taketoday.framework.web.embedded.netty.NettyReactiveWebServerFactory;
 import cn.taketoday.framework.web.embedded.netty.NettyWebServer;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.stereotype.Singleton;
 import cn.taketoday.web.handler.DispatcherHandler;
-import cn.taketoday.web.servlet.WebApplicationContext;
 import cn.taketoday.web.socket.WebSocketHandlerMapping;
 
 /**
@@ -46,27 +46,15 @@ public class NettyConfiguration {
 
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
   @MissingBean(value = ReactiveChannelHandler.class)
-  ReactiveChannelHandler reactiveChannelHandler(
-          WebApplicationContext context,
-          NettyDispatcher nettyDispatcher,
-          NettyRequestConfig contextConfig,
-          @Nullable WebSocketHandlerMapping registry) {
-    if (registry != null) {
-      return new WebSocketReactiveChannelHandler(nettyDispatcher, contextConfig, context);
-    }
+  ReactiveChannelHandler reactiveChannelHandler(ApplicationContext context,
+          NettyDispatcher nettyDispatcher, NettyRequestConfig contextConfig) {
     return new ReactiveChannelHandler(nettyDispatcher, contextConfig, context);
-  }
-
-  @Singleton
-  @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-  NettyWebSocketHandlerAdapter webSocketHandlerAdapter() {
-    return new NettyWebSocketHandlerAdapter();
   }
 
   @MissingBean(value = DispatcherHandler.class)
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-  DispatcherHandler dispatcherHandler(WebApplicationContext webApplicationContext) {
-    return new DispatcherHandler(webApplicationContext);
+  DispatcherHandler dispatcherHandler(ApplicationContext context) {
+    return new DispatcherHandler(context);
   }
 
   /**
@@ -80,7 +68,6 @@ public class NettyConfiguration {
   @MissingBean
   @EnableDependencyInjection
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-  @Props("server.netty")
   NettyReactiveWebServerFactory nettyWebServer() {
     return new NettyReactiveWebServerFactory();
   }
@@ -92,14 +79,38 @@ public class NettyConfiguration {
    */
   @MissingBean
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-  NettyServerInitializer nettyServerInitializer(ReactiveChannelHandler channelHandler) {
-    return new NettyServerInitializer(channelHandler);
+  NettyChannelInitializer nettyChannelInitializer(ReactiveChannelHandler channelHandler) {
+    return new NettyChannelInitializer(channelHandler);
   }
 
   @MissingBean
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
   NettyRequestConfig nettyRequestContextConfig() {
     return new NettyRequestConfig();
+  }
+
+  @DisableAllDependencyInjection
+  @ConditionalOnClass(WebSocketHandlerMapping.class)
+  @Configuration(proxyBeanMethods = false)
+  static class NettyWebSocketConfig {
+
+    @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
+    @MissingBean(value = ReactiveChannelHandler.class)
+    ReactiveChannelHandler webSocketReactiveChannelHandler(ApplicationContext context,
+            NettyDispatcher nettyDispatcher, NettyRequestConfig contextConfig,
+            @Nullable WebSocketHandlerMapping registry) {
+      if (registry != null) {
+        return new WebSocketReactiveChannelHandler(nettyDispatcher, contextConfig, context);
+      }
+      return new ReactiveChannelHandler(nettyDispatcher, contextConfig, context);
+    }
+
+    @Singleton
+    @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
+    NettyWebSocketHandlerAdapter webSocketHandlerAdapter() {
+      return new NettyWebSocketHandlerAdapter();
+    }
+
   }
 
 }
