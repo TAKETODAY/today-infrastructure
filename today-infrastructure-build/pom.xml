@@ -52,7 +52,7 @@
     <status>DRAFT</status>
     <revisiondate>${maven.build.timestamp}</revisiondate>
 
-    <add-opens>
+    <cmd-line>
       --add-opens java.base/java.io=ALL-UNNAMED
       --add-opens java.base/java.lang=ALL-UNNAMED
       --add-opens java.base/java.net=ALL-UNNAMED
@@ -64,7 +64,14 @@
       --add-opens java.base/java.lang.reflect=ALL-UNNAMED
       --add-opens java.sql/java.sql=ALL-UNNAMED
       --add-opens java.sql.rowset/javax.sql.rowset.serial=ALL-UNNAMED
-    </add-opens>
+
+      -Djava.awt.headless=true
+      -Dio.netty.leakDetection.level=paranoid
+      -Dio.netty5.leakDetectionLevel=paranoid
+      -Dio.netty5.leakDetection.targetRecords=32
+      -Dio.netty5.buffer.lifecycleTracingEnabled=true
+      -Dio.netty5.buffer.leakDetectionEnabled=true
+    </cmd-line>
 
   </properties>
 
@@ -266,7 +273,7 @@
         <artifactId>maven-surefire-plugin</artifactId>
         <configuration>
           <argLine>
-            -DtestGroups=all ${add-opens}
+            -DtestGroups=all ${cmd-line}
           </argLine>
         </configuration>
       </plugin>
@@ -395,7 +402,7 @@
             <version>2.22.2</version>
             <configuration>
               <argLine>
-                ${argLine} -Dcoverage=true -DtestGroups=all ${add-opens}
+                ${argLine} -Dcoverage=true -DtestGroups=all ${cmd-line}
               </argLine>
               <excludedGroups>failing-test-case</excludedGroups>
             </configuration>
