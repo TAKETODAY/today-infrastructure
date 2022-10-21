@@ -1,14 +1,14 @@
-This project provides declarative retry support for Spring applications. It is used in Spring Batch, Spring Integration, and others.
+This project provides declarative retry support for Infra applications. It is used in Infra Batch, Infra Integration, and others.
 Imperative retry is also supported for explicit usage.
 
 ## Quick Start
 
-This section provides a quick introduction to getting started with Spring Retry. It includes a declarative example and an imperative
+This section provides a quick introduction to getting started with Infra Retry. It includes a declarative example and an imperative
 example.
 
 ### Declarative Example
 
-The following example shows how to use Spring Retry in its declarative style:
+The following example shows how to use Infra Retry in its declarative style:
 
 ```java
 @Configuration
@@ -45,7 +45,7 @@ on AOP classes. For details on how to resolve this dependency in your project, s
 
 ### Imperative Example
 
-The following example shows how to use Spring Retry in its imperative style (available since version 1.3):
+The following example shows how to use Infra Retry in its imperative style (available since version 1.3):
 
 ```java
 RetryTemplate template = RetryTemplate.builder()
@@ -63,7 +63,7 @@ For versions prior to 1.3, see the examples in the [RetryTemplate](#retryTemplat
 
 ## Building
 
-Spring Retry requires Java 1.7 and Maven 3.0.5 (or greater). To build, run the following Maven command:
+Infra Retry requires Java 1.7 and Maven 3.0.5 (or greater). To build, run the following Maven command:
 
 ```
 $ mvn install
@@ -71,14 +71,14 @@ $ mvn install
 
 ## Features and API
 
-This section discusses the features of Spring Retry and shows how to use its API.
+This section discusses the features of Infra Retry and shows how to use its API.
 
 ### <a name="retryTemplate"></a> Using `RetryTemplate`
 
 To make processing more robust and less prone to failure, it sometimes helps to automatically retry a failed operation, in case it might
 succeed on a subsequent attempt. Errors that are susceptible to this kind of treatment are transient in nature. For example, a remote call
 to a web service or an RMI service that fails because of a network glitch or a `DeadLockLoserException` in a database update may resolve
-itself after a short wait. To automate the retry of such operations, Spring Retry has the
+itself after a short wait. To automate the retry of such operations, Infra Retry has the
 `RetryOperations` strategy. The `RetryOperations` interface definition follows:
 
 ```java
@@ -203,7 +203,7 @@ roll back and we can start a new (and valid) one.
 
 In these cases, a stateless retry is not good enough, because the re-throw and roll back necessarily involve leaving
 the `RetryOperations.execute()` method and potentially losing the context that was on the stack. To avoid losing the context, we have to
-introduce a storage strategy to lift it off the stack and put it (at a minimum) in heap storage. For this purpose, Spring Retry provides a
+introduce a storage strategy to lift it off the stack and put it (at a minimum) in heap storage. For this purpose, Infra Retry provides a
 storage strategy called `RetryContextCache`, which you can inject into the `RetryTemplate`. The default implementation of the
 `RetryContextCache` is in-memory, using a simple `Map`. It has a strictly enforced maximum capacity, to avoid memory leaks, but it does not
 have any advanced cache features (such as time to live). You should consider injecting a `Map` that has those features if you need them. For
@@ -212,7 +212,7 @@ cluster cache of some sort
 (though, even in a clustered environment, this might be overkill).
 
 Part of the responsibility of the `RetryOperations` is to recognize the failed operations when they come back in a new execution (and
-usually wrapped in a new transaction). To facilitate this, Spring Retry provides the `RetryState` abstraction. This works in conjunction
+usually wrapped in a new transaction). To facilitate this, Infra Retry provides the `RetryState` abstraction. This works in conjunction
 with special `execute` methods in the `RetryOperations`.
 
 The failed operations are recognized by identifying the state across multiple invocations of the retry. To identify the state, you can
@@ -245,7 +245,7 @@ In that case, it throws `RetryExhaustedException`. You can also set a flag in th
 > *Tip:*
 Failures are inherently either retryable or not -- if the same exception is always going to be thrown from the business logic, it does not help to retry it. So you should not retry on all exception types. Rather, try to focus on only those exceptions that you expect to be retryable. It is not usually harmful to the business logic to retry more aggressively, but it is wasteful, because, if a failure is deterministic, time is spent retrying something that you know in advance is fatal.
 
-Spring Retry provides some simple general-purpose implementations of stateless
+Infra Retry provides some simple general-purpose implementations of stateless
 `RetryPolicy` (for example, a `SimpleRetryPolicy`) and the `TimeoutRetryPolicy` used in the preceding example.
 
 The `SimpleRetryPolicy` allows a retry on any of a named list of exception types, up to a fixed number of times. The following example shows
@@ -292,15 +292,15 @@ public interface BackoffPolicy {
 }
 ```
 
-A `BackoffPolicy` is free to implement the backoff in any way it chooses. The policies provided by Spring Retry all use `Object.wait()`. A
+A `BackoffPolicy` is free to implement the backoff in any way it chooses. The policies provided by Infra Retry all use `Object.wait()`. A
 common use case is to back off with an exponentially increasing wait period, to avoid two retries getting into lock step and both failing (a
-lesson learned from Ethernet). For this purpose, Spring Retry provides `ExponentialBackoffPolicy`. Spring Retry also provides randomized
+lesson learned from Ethernet). For this purpose, Infra Retry provides `ExponentialBackoffPolicy`. Infra Retry also provides randomized
 versions of delay policies that are quite useful to avoid resonating between related failures in a complex system.
 
 ## Listeners
 
 It is often useful to be able to receive additional callbacks for cross cutting concerns across a number of different retries. For this
-purpose, Spring Retry provides the `RetryListener` interface. The `RetryTemplate` lets you register `RetryListener` instances, and they are
+purpose, Infra Retry provides the `RetryListener` interface. The `RetryTemplate` lets you register `RetryListener` instances, and they are
 given callbacks with the `RetryContext` and `Throwable` (where available during the iteration).
 
 The following listing shows the `RetryListener` interface:
@@ -325,7 +325,7 @@ while `onError` and `close` are called in reverse order.
 
 ### Listeners for Reflective Method Invocations
 
-When dealing with methods that are annotated with `@Retryable` or with Spring AOP intercepted methods, Spring Retry allows a detailed
+When dealing with methods that are annotated with `@Retryable` or with Infra AOP intercepted methods, Infra Retry allows a detailed
 inspection of the method invocation within the `RetryListener` implementation.
 
 Such a scenario could be particularly useful when there is a need to monitor how often a certain method call has been retried and expose it
@@ -354,7 +354,7 @@ template.registerListener(new MethodInvocationRetryListenerSupport() {
 
 ## Declarative Retry
 
-Sometimes, you want to retry some business processing every time it happens. The classic example of this is the remote service call. Spring
+Sometimes, you want to retry some business processing every time it happens. The classic example of this is the remote service call. Infra
 Retry provides an AOP interceptor that wraps a method call in a `RetryOperations` instance for exactly this purpose. The
 `RetryOperationsInterceptor` executes the intercepted method and retries on failure according to the `RetryPolicy` in the
 provided `RepeatTemplate`.
@@ -518,7 +518,7 @@ public void service3() {
 }
 ```
 
-Since Spring Retry 1.2.5, for `exceptionExpression`, templated expressions (`#{...}`) are deprecated in favor of simple expression strings
+Since Infra Retry 1.2.5, for `exceptionExpression`, templated expressions (`#{...}`) are deprecated in favor of simple expression strings
 (`message.contains('this can be retried')`).
 
 Expressions can contain property placeholders, such as `#{${max.delay}}` or
@@ -531,11 +531,11 @@ Expressions can contain property placeholders, such as `#{${max.delay}}` or
 #### <a name="Additional_Dependencies"></a> Additional Dependencies
 
 The declarative approach to applying retry handling by using the `@Retryable` annotation shown earlier has an additional runtime dependency
-on AOP classes that need to be declared in your project. If your application is implemented by using Spring Boot, this dependency is best
-resolved by using the Spring Boot starter for AOP. For example, for Gradle, add the following line to your `build.gradle` file:
+on AOP classes that need to be declared in your project. If your application is implemented by using Infra Boot, this dependency is best
+resolved by using the Infra starter for AOP. For example, for Gradle, add the following line to your `build.gradle` file:
 
 ```
-    runtime('cn.taketoday.framework:spring-boot-starter-aop')
+    runtime('cn.taketoday:today-aop')
 ```
 
 For non-Boot apps, you need to declare a runtime dependency on the latest version of AspectJ's `aspectjweaver` module. For example, for
@@ -547,7 +547,7 @@ Gradle, you should add the following line to your `build.gradle` file:
 
 ### XML Configuration
 
-The following example of declarative iteration uses Spring AOP to repeat a service call to a method called `remoteCall`:
+The following example of declarative iteration uses Infra AOP to repeat a service call to a method called `remoteCall`:
 
 ```xml
 
@@ -561,9 +561,6 @@ The following example of declarative iteration uses Spring AOP to repeat a servi
 <bean id="retryAdvice"
 class="cn.taketoday.retry.interceptor.RetryOperationsInterceptor" />
 ```
-
-For more detail on how to configure AOP interceptors, see
-the [Spring Framework Documentation](https://docs.spring.io/spring/docs/current/spring-framework-reference/index.html).
 
 The preceding example uses a default `RetryTemplate` inside the interceptor. To change the policies or listeners, you need only inject an
 instance of `RetryTemplate` into the interceptor.
