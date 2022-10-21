@@ -25,7 +25,7 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 import java.util.function.Supplier;
 
-import cn.taketoday.beans.factory.ObjectSupplier;
+import cn.taketoday.beans.factory.ObjectProvider;
 import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.context.support.StandardApplicationContext;
 import lombok.ToString;
@@ -35,7 +35,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * @author TODAY 2021/3/6 13:24
  */
-class ObjectSupplierTests {
+class ObjectProviderTests {
 
   @ToString
   static class Bean {
@@ -46,9 +46,9 @@ class ObjectSupplierTests {
   static class TEST {
 
     @Autowired
-    ObjectSupplier<Bean> beanObjectSupplier;
+    ObjectProvider<Bean> beanObjectProvider;
 
-    TEST(ObjectSupplier<Bean> beanObjectSupplier, Supplier<Bean> supplier) {
+    TEST(ObjectProvider<Bean> beanObjectProvider, Supplier<Bean> supplier) {
 
     }
 
@@ -58,10 +58,10 @@ class ObjectSupplierTests {
   static class ResolvableTypeTEST {
 
     @Autowired
-    ObjectSupplier<List<Bean>> beanObjectSupplier;
+    ObjectProvider<List<Bean>> beanObjectProvider;
 
     ResolvableTypeTEST(
-            ObjectSupplier<List<Bean>> beanObjectSupplier, Supplier<List<Bean>> supplier) {
+            ObjectProvider<List<Bean>> beanObjectProvider, Supplier<List<Bean>> supplier) {
 
     }
 
@@ -76,7 +76,7 @@ class ObjectSupplierTests {
       TEST test = context.getBean(TEST.class);
       Bean bean = context.getBean(Bean.class);
 
-      assertThat(test.beanObjectSupplier.get())
+      assertThat(test.beanObjectProvider.get())
               .isEqualTo(bean);
 
     }

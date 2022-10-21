@@ -20,10 +20,10 @@
 
 package cn.taketoday.context.annotation;
 
+import org.junit.jupiter.api.Test;
+
 import java.util.List;
 import java.util.stream.Collectors;
-
-import org.junit.jupiter.api.Test;
 
 import cn.taketoday.core.annotation.Order;
 
@@ -48,7 +48,7 @@ public class Gh29105Tests {
     child.register(DefaultConfiguration.class);
     child.refresh();
 
-    List<Class<?>> orderedTypes = child.getObjectSupplier(MyService.class)
+    List<Class<?>> orderedTypes = child.getBeanProvider(MyService.class)
             .orderedStream().map(Object::getClass).collect(Collectors.toList());
     assertThat(orderedTypes).containsExactly(CustomService.class, DefaultService.class);
   }

@@ -770,14 +770,14 @@ public interface BeanFactory extends DependencyInjectorProvider {
   /**
    * Return a provider for the specified bean, allowing for lazy on-demand retrieval
    * of instances, including availability and uniqueness options.
-   * <p>For matching a generic type, consider {@link #getObjectSupplier(ResolvableType)}.
+   * <p>For matching a generic type, consider {@link #getBeanProvider(ResolvableType)}.
    *
    * @param requiredType type the bean must match; can be an interface or superclass
    * @return a corresponding provider handle
-   * @see #getObjectSupplier(ResolvableType)
+   * @see #getBeanProvider(ResolvableType)
    * @since 3.0
    */
-  <T> ObjectSupplier<T> getObjectSupplier(Class<T> requiredType);
+  <T> ObjectProvider<T> getBeanProvider(Class<T> requiredType);
 
   /**
    * Return a provider for the specified bean, allowing for lazy on-demand retrieval
@@ -787,21 +787,21 @@ public interface BeanFactory extends DependencyInjectorProvider {
    * <p>Note that collections of beans are not supported here, in contrast to reflective
    * injection points. For programmatically retrieving a list of beans matching a
    * specific type, specify the actual bean type as an argument here and subsequently
-   * use {@link ObjectSupplier#orderedStream()} or its lazy streaming/iteration options.
+   * use {@link ObjectProvider#orderedStream()} or its lazy streaming/iteration options.
    * <p>Also, generics matching is strict here, as per the Java assignment rules.
    * For lenient fallback matching with unchecked semantics (similar to the ´unchecked´
-   * Java compiler warning), consider calling {@link #getObjectSupplier(Class)} with the
+   * Java compiler warning), consider calling {@link #getBeanProvider(Class)} with the
    * raw type as a second step if no full generic match is
-   * {@link ObjectSupplier#getIfAvailable() available} with this variant.
+   * {@link ObjectProvider#getIfAvailable() available} with this variant.
    *
    * @param requiredType type the bean must match; can be a generic type declaration
    * @return a corresponding provider handle
-   * @see ObjectSupplier#iterator()
-   * @see ObjectSupplier#stream()
-   * @see ObjectSupplier#orderedStream()
+   * @see ObjectProvider#iterator()
+   * @see ObjectProvider#stream()
+   * @see ObjectProvider#orderedStream()
    * @since 4.0
    */
-  <T> ObjectSupplier<T> getObjectSupplier(ResolvableType requiredType);
+  <T> ObjectProvider<T> getBeanProvider(ResolvableType requiredType);
 
   /**
    * Return a provider for the specified bean, allowing for lazy on-demand retrieval
@@ -812,13 +812,13 @@ public interface BeanFactory extends DependencyInjectorProvider {
    * singletons</i> and <i>objects created by FactoryBeans</i> (or by factory methods
    * with a "factory-bean" reference) for the type check
    * @return a corresponding provider handle
-   * @see #getObjectSupplier(ResolvableType, boolean)
-   * @see #getObjectSupplier(Class)
+   * @see #getBeanProvider(ResolvableType, boolean)
+   * @see #getBeanProvider(Class)
    * @see #getBeansOfType(Class, boolean, boolean)
    * @see #getBeanNamesForType(Class, boolean, boolean)
    * @since 4.0
    */
-  <T> ObjectSupplier<T> getObjectSupplier(Class<T> requiredType, boolean allowEagerInit);
+  <T> ObjectProvider<T> getBeanProvider(Class<T> requiredType, boolean allowEagerInit);
 
   /**
    * Return a provider for the specified bean, allowing for lazy on-demand retrieval
@@ -828,19 +828,19 @@ public interface BeanFactory extends DependencyInjectorProvider {
    * Note that collection types are not supported here, in contrast to reflective
    * injection points. For programmatically retrieving a list of beans matching a
    * specific type, specify the actual bean type as an argument here and subsequently
-   * use {@link ObjectSupplier#orderedStream()} or its lazy streaming/iteration options.
+   * use {@link ObjectProvider#orderedStream()} or its lazy streaming/iteration options.
    * @param allowEagerInit whether stream-based access may initialize <i>lazy-init
    * singletons</i> and <i>objects created by FactoryBeans</i> (or by factory methods
    * with a "factory-bean" reference) for the type check
    * @return a corresponding provider handle
-   * @see #getObjectSupplier(ResolvableType)
-   * @see ObjectSupplier#iterator()
-   * @see ObjectSupplier#stream()
-   * @see ObjectSupplier#orderedStream()
+   * @see #getBeanProvider(ResolvableType)
+   * @see ObjectProvider#iterator()
+   * @see ObjectProvider#stream()
+   * @see ObjectProvider#orderedStream()
    * @see #getBeanNamesForType(ResolvableType, boolean, boolean)
    * @since 4.0
    */
-  <T> ObjectSupplier<T> getObjectSupplier(ResolvableType requiredType, boolean allowEagerInit);
+  <T> ObjectProvider<T> getBeanProvider(ResolvableType requiredType, boolean allowEagerInit);
 
   //---------------------------------------------------------------------
   // bean-factory stat

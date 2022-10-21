@@ -171,7 +171,7 @@ class ConfigurationPropertiesBinder {
   }
 
   private List<ConfigurationPropertiesBindHandlerAdvisor> getBindHandlerAdvisors() {
-    return this.applicationContext.getObjectSupplier(
+    return this.applicationContext.getBeanProvider(
             ConfigurationPropertiesBindHandlerAdvisor.class).orderedStream().collect(Collectors.toList());
   }
 

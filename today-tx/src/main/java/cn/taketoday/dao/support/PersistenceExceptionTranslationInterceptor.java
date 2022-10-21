@@ -23,9 +23,9 @@ package cn.taketoday.dao.support;
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
 
+import cn.taketoday.beans.BeansException;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanFactoryAware;
-import cn.taketoday.beans.BeansException;
 import cn.taketoday.beans.factory.InitializingBean;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
@@ -164,7 +164,7 @@ public class PersistenceExceptionTranslationInterceptor
   protected PersistenceExceptionTranslator detectPersistenceExceptionTranslators(BeanFactory bf) {
     // Find all translators, being careful not to activate FactoryBeans.
     ChainedPersistenceExceptionTranslator cpet = new ChainedPersistenceExceptionTranslator();
-    bf.getObjectSupplier(PersistenceExceptionTranslator.class, false)
+    bf.getBeanProvider(PersistenceExceptionTranslator.class, false)
             .orderedStream()
             .forEach(cpet::addDelegate);
     return cpet;

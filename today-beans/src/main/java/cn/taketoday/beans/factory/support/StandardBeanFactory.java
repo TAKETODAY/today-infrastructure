@@ -62,7 +62,6 @@ import cn.taketoday.beans.factory.InjectionPoint;
 import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
 import cn.taketoday.beans.factory.NoUniqueBeanDefinitionException;
 import cn.taketoday.beans.factory.ObjectProvider;
-import cn.taketoday.beans.factory.ObjectSupplier;
 import cn.taketoday.beans.factory.annotation.AnnotatedBeanDefinition;
 import cn.taketoday.beans.factory.config.AutowireCapableBeanFactory;
 import cn.taketoday.beans.factory.config.BeanDefinition;
@@ -682,7 +681,7 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
       return ((StandardBeanFactory) parent).resolveBean(requiredType, args, nonUniqueAsNull);
     }
     else if (parent != null) {
-      ObjectSupplier<T> parentProvider = parent.getObjectSupplier(requiredType);
+      ObjectProvider<T> parentProvider = parent.getBeanProvider(requiredType);
       if (args != null) {
         return parentProvider.get(args);
       }
@@ -779,24 +778,24 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
   //---------------------------------------------------------------------
 
   @Override
-  public <T> ObjectSupplier<T> getObjectSupplier(Class<T> requiredType) {
-    return getObjectSupplier(requiredType, true);
+  public <T> ObjectProvider<T> getBeanProvider(Class<T> requiredType) {
+    return getBeanProvider(requiredType, true);
   }
 
   @Override
-  public <T> ObjectSupplier<T> getObjectSupplier(ResolvableType requiredType) {
-    return getObjectSupplier(requiredType, true);
+  public <T> ObjectProvider<T> getBeanProvider(ResolvableType requiredType) {
+    return getBeanProvider(requiredType, true);
   }
 
   @Override
-  public <T> ObjectSupplier<T> getObjectSupplier(Class<T> requiredType, boolean allowEagerInit) {
+  public <T> ObjectProvider<T> getBeanProvider(Class<T> requiredType, boolean allowEagerInit) {
     Assert.notNull(requiredType, "Required type must not be null");
-    return getObjectSupplier(ResolvableType.fromRawClass(requiredType), allowEagerInit);
+    return getBeanProvider(ResolvableType.fromRawClass(requiredType), allowEagerInit);
   }
 
   @Override
-  public <T> ObjectSupplier<T> getObjectSupplier(ResolvableType requiredType, boolean allowEagerInit) {
-    return new BeanObjectSupplier<>() {
+  public <T> ObjectProvider<T> getBeanProvider(ResolvableType requiredType, boolean allowEagerInit) {
+    return new BeanObjectProvider<>() {
       @Override
       public T get() throws BeansException {
         T resolved = resolveBean(requiredType, null, false);
@@ -1361,8 +1360,7 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
       return createOptionalDependency(descriptor, requestingBeanName);
     }
     else if (Supplier.class == dependencyType
-            || ObjectProvider.class == dependencyType
-            || ObjectSupplier.class == dependencyType) {
+            || ObjectProvider.class == dependencyType) {
       return new DependencyObjectProvider(descriptor, requestingBeanName);
     }
     else if (injectProviderClass == dependencyType) {
@@ -1989,7 +1987,7 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
     }
   }
 
-  private interface BeanObjectSupplier<T> extends ObjectProvider<T>, Serializable { }
+  private interface BeanObjectProvider<T> extends ObjectProvider<T>, Serializable { }
 
   /**
    * A dependency descriptor marker for nested elements.
@@ -2031,7 +2029,7 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
   /**
    * Serializable ObjectFactory/ObjectProvider for lazy resolution of a dependency.
    */
-  private class DependencyObjectProvider implements BeanObjectSupplier<Object> {
+  private class DependencyObjectProvider implements BeanObjectProvider<Object> {
 
     @Nullable
     private final String beanName;

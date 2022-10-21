@@ -36,7 +36,7 @@ import cn.taketoday.beans.BeansException;
 import cn.taketoday.beans.CachedIntrospectionResults;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
-import cn.taketoday.beans.factory.ObjectSupplier;
+import cn.taketoday.beans.factory.ObjectProvider;
 import cn.taketoday.beans.factory.config.AutowireCapableBeanFactory;
 import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.beans.factory.config.BeanFactoryPostProcessor;
@@ -1140,27 +1140,27 @@ public abstract class AbstractApplicationContext
   }
 
   @Override
-  public <T> ObjectSupplier<T> getObjectSupplier(Class<T> requiredType) {
+  public <T> ObjectProvider<T> getBeanProvider(Class<T> requiredType) {
     assertBeanFactoryActive();
-    return getBeanFactory().getObjectSupplier(requiredType);
+    return getBeanFactory().getBeanProvider(requiredType);
   }
 
   @Override
-  public <T> ObjectSupplier<T> getObjectSupplier(ResolvableType requiredType) {
+  public <T> ObjectProvider<T> getBeanProvider(ResolvableType requiredType) {
     assertBeanFactoryActive();
-    return getBeanFactory().getObjectSupplier(requiredType);
+    return getBeanFactory().getBeanProvider(requiredType);
   }
 
   @Override
-  public <T> ObjectSupplier<T> getObjectSupplier(Class<T> requiredType, boolean allowEagerInit) {
+  public <T> ObjectProvider<T> getBeanProvider(Class<T> requiredType, boolean allowEagerInit) {
     assertBeanFactoryActive();
-    return getBeanFactory().getObjectSupplier(requiredType, allowEagerInit);
+    return getBeanFactory().getBeanProvider(requiredType, allowEagerInit);
   }
 
   @Override
-  public <T> ObjectSupplier<T> getObjectSupplier(ResolvableType requiredType, boolean allowEagerInit) {
+  public <T> ObjectProvider<T> getBeanProvider(ResolvableType requiredType, boolean allowEagerInit) {
     assertBeanFactoryActive();
-    return getBeanFactory().getObjectSupplier(requiredType, allowEagerInit);
+    return getBeanFactory().getBeanProvider(requiredType, allowEagerInit);
   }
 
   @Override

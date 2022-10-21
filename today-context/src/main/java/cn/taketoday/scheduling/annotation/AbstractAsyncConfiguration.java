@@ -25,7 +25,7 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 import cn.taketoday.aop.interceptor.AsyncUncaughtExceptionHandler;
-import cn.taketoday.beans.factory.ObjectSupplier;
+import cn.taketoday.beans.factory.ObjectProvider;
 import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.ImportAware;
@@ -70,7 +70,7 @@ public abstract class AbstractAsyncConfiguration implements ImportAware {
    * Collect any {@link AsyncConfigurer} beans through autowiring.
    */
   @Autowired
-  void setConfigurers(ObjectSupplier<AsyncConfigurer> configurers) {
+  void setConfigurers(ObjectProvider<AsyncConfigurer> configurers) {
     Supplier<AsyncConfigurer> asyncConfigurer = SingletonSupplier.from(() -> {
       Object[] array = configurers.stream().toArray();
       if (ObjectUtils.isEmpty(array)) {

@@ -79,7 +79,7 @@ public class Car {
 . Collection<T> 所有的同类型 Bean
 . T 单个bean
 . T[] Bean 数组
-. ObjectSupplier<T>,Supplier<T>
+. ObjectProvider<T>,Supplier<T>
 
 == 扩展注入
 

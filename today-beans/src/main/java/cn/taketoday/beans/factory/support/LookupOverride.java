@@ -41,7 +41,7 @@ import cn.taketoday.lang.Nullable;
  * @see cn.taketoday.beans.factory.BeanFactory#getBean(Class)
  * @see cn.taketoday.beans.factory.BeanFactory#getBean(String, Object...)
  * @see cn.taketoday.beans.factory.BeanFactory#getBean(Class, Object...)
- * @see cn.taketoday.beans.factory.BeanFactory#getObjectSupplier(ResolvableType)
+ * @see cn.taketoday.beans.factory.BeanFactory#getBeanProvider(ResolvableType)
  * @since 4.0 2022/3/7 12:44
  */
 public class LookupOverride extends MethodOverride {

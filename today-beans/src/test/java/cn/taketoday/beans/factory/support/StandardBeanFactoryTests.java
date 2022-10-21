@@ -61,7 +61,7 @@ import cn.taketoday.beans.factory.InitializationBeanPostProcessor;
 import cn.taketoday.beans.factory.InitializingBean;
 import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
 import cn.taketoday.beans.factory.NoUniqueBeanDefinitionException;
-import cn.taketoday.beans.factory.ObjectSupplier;
+import cn.taketoday.beans.factory.ObjectProvider;
 import cn.taketoday.beans.factory.SmartFactoryBean;
 import cn.taketoday.beans.factory.UnsatisfiedDependencyException;
 import cn.taketoday.beans.factory.config.AutowireCapableBeanFactory;
@@ -100,8 +100,6 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 import static org.assertj.core.api.Assertions.assertThatNoException;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -1570,7 +1568,7 @@ class StandardBeanFactoryTests {
 
   @Test
   void getBeanProviderByTypeWithNullRequiredType() {
-    assertThatIllegalArgumentException().isThrownBy(() -> lbf.getObjectSupplier((Class<?>) null));
+    assertThatIllegalArgumentException().isThrownBy(() -> lbf.getBeanProvider((Class<?>) null));
   }
 
   @Test
@@ -1585,7 +1583,7 @@ class StandardBeanFactoryTests {
     assertThatExceptionOfType(NoSuchBeanDefinitionException.class).isThrownBy(() ->
             lbf.getBean(ConstructorDependency.class, 42));
 
-    ObjectSupplier<ConstructorDependency> provider = lbf.getObjectSupplier(ConstructorDependency.class);
+    ObjectProvider<ConstructorDependency> provider = lbf.getBeanProvider(ConstructorDependency.class);
     assertThatExceptionOfType(NoSuchBeanDefinitionException.class).isThrownBy(
             provider::get);
     assertThatExceptionOfType(NoSuchBeanDefinitionException.class).isThrownBy(() ->
@@ -1608,7 +1606,7 @@ class StandardBeanFactoryTests {
     assertThat(bean.beanName).isEqualTo("bd1");
     assertThat(bean.spouseAge).isEqualTo(42);
 
-    ObjectSupplier<ConstructorDependency> provider = lbf.getObjectSupplier(ConstructorDependency.class);
+    ObjectProvider<ConstructorDependency> provider = lbf.getBeanProvider(ConstructorDependency.class);
     bean = provider.get();
     assertThat(bean.beanName).isEqualTo("bd1");
     assertThat(bean.spouseAge).isEqualTo(99);
@@ -1635,7 +1633,7 @@ class StandardBeanFactoryTests {
             lbf.getBean(ConstructorDependency.class));
     assertThatExceptionOfType(NoUniqueBeanDefinitionException.class).isThrownBy(() ->
             lbf.getBean(ConstructorDependency.class, 42));
-    ObjectSupplier<ConstructorDependency> provider = lbf.getObjectSupplier(ConstructorDependency.class);
+    ObjectProvider<ConstructorDependency> provider = lbf.getBeanProvider(ConstructorDependency.class);
     assertThatExceptionOfType(NoUniqueBeanDefinitionException.class).isThrownBy(
             provider::get);
     assertThatExceptionOfType(NoUniqueBeanDefinitionException.class).isThrownBy(() ->
@@ -1679,7 +1677,7 @@ class StandardBeanFactoryTests {
     assertThat(bean.beanName).isEqualTo("bd2");
     assertThat(bean.spouseAge).isEqualTo(42);
 
-    ObjectSupplier<ConstructorDependency> provider = lbf.getObjectSupplier(ConstructorDependency.class);
+    ObjectProvider<ConstructorDependency> provider = lbf.getBeanProvider(ConstructorDependency.class);
     bean = provider.get();
     assertThat(bean.beanName).isEqualTo("bd2");
     assertThat(bean.spouseAge).isEqualTo(43);
@@ -1749,8 +1747,8 @@ class StandardBeanFactoryTests {
   void beanProviderSerialization() throws Exception {
     lbf.setSerializationId("test");
 
-    ObjectSupplier<ConstructorDependency> provider = lbf.getObjectSupplier(ConstructorDependency.class);
-    ObjectSupplier deserialized = SerializationTestUtils.serializeAndDeserialize(provider);
+    ObjectProvider<ConstructorDependency> provider = lbf.getBeanProvider(ConstructorDependency.class);
+    ObjectProvider deserialized = SerializationTestUtils.serializeAndDeserialize(provider);
     assertThatExceptionOfType(NoSuchBeanDefinitionException.class).isThrownBy(
             deserialized::get);
     assertThatExceptionOfType(NoSuchBeanDefinitionException.class).isThrownBy(() ->
@@ -2000,7 +1998,7 @@ class StandardBeanFactoryTests {
     lbf.setDependencyComparator(AnnotationAwareOrderComparator.INSTANCE);
     lbf.setParentBeanFactory(parentBf);
     lbf.registerBeanDefinition("low", new RootBeanDefinition(LowPriorityTestBean.class));
-    List<Class<?>> orderedTypes = lbf.getObjectSupplier(TestBean.class).orderedStream()
+    List<Class<?>> orderedTypes = lbf.getBeanProvider(TestBean.class).orderedStream()
             .map(Object::getClass).collect(Collectors.toList());
     assertThat(orderedTypes).containsExactly(
             HighPriorityTestBean.class, LowPriorityTestBean.class, TestBean.class);
