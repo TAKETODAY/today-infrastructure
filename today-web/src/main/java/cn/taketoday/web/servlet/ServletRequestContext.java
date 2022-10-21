@@ -53,6 +53,8 @@ import cn.taketoday.util.LinkedCaseInsensitiveMap;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.RequestContext;
+import cn.taketoday.web.context.async.AsyncWebRequest;
+import cn.taketoday.web.context.async.StandardServletAsyncWebRequest;
 import cn.taketoday.web.multipart.MultipartRequest;
 import cn.taketoday.web.multipart.support.ServletMultipartRequest;
 import cn.taketoday.web.util.UriUtils;
@@ -419,6 +421,11 @@ public final class ServletRequestContext extends RequestContext {
       return (MultipartRequest) request;
     }
     return new ServletMultipartRequest(request);
+  }
+
+  @Override
+  protected AsyncWebRequest createAsyncWebRequest() {
+    return new StandardServletAsyncWebRequest(request, response);
   }
 
   @Override

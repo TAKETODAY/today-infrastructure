@@ -55,8 +55,9 @@ public interface DeferredResultProcessingInterceptor {
    * @param deferredResult the DeferredResult for the current request
    * @throws Exception in case of errors
    */
-  default <T> void beforeConcurrentHandling(RequestContext request, DeferredResult<T> deferredResult)
-          throws Exception {
+  default <T> void beforeConcurrentHandling(
+          RequestContext request, DeferredResult<T> deferredResult) throws Exception {
+
   }
 
   /**
@@ -70,8 +71,9 @@ public interface DeferredResultProcessingInterceptor {
    * @param deferredResult the DeferredResult for the current request
    * @throws Exception in case of errors
    */
-  default <T> void preProcess(RequestContext request, DeferredResult<T> deferredResult)
-          throws Exception {
+  default <T> void preProcess(
+          RequestContext request, DeferredResult<T> deferredResult) throws Exception {
+
   }
 
   /**
@@ -88,8 +90,9 @@ public interface DeferredResultProcessingInterceptor {
    * @param concurrentResult the result to which the {@code DeferredResult}
    * @throws Exception in case of errors
    */
-  default <T> void postProcess(RequestContext request, DeferredResult<T> deferredResult,
-          Object concurrentResult) throws Exception {
+  default <T> void postProcess(RequestContext request,
+          DeferredResult<T> deferredResult, Object concurrentResult) throws Exception {
+
   }
 
   /**
@@ -106,8 +109,8 @@ public interface DeferredResultProcessingInterceptor {
    * other interceptors should not be invoked
    * @throws Exception in case of errors
    */
-  default <T> boolean handleTimeout(RequestContext request, DeferredResult<T> deferredResult)
-          throws Exception {
+  default <T> boolean handleTimeout(
+          RequestContext request, DeferredResult<T> deferredResult) throws Exception {
 
     return true;
   }
@@ -127,9 +130,8 @@ public interface DeferredResultProcessingInterceptor {
    * other interceptors should by bypassed and not be invoked
    * @throws Exception in case of errors
    */
-  default <T> boolean handleError(RequestContext request, DeferredResult<T> deferredResult,
-          Throwable t) throws Exception {
-
+  default <T> boolean handleError(
+          RequestContext request, DeferredResult<T> deferredResult, Throwable t) throws Exception {
     return true;
   }
 
@@ -142,8 +144,9 @@ public interface DeferredResultProcessingInterceptor {
    * @param deferredResult the DeferredResult for the current request
    * @throws Exception in case of errors
    */
-  default <T> void afterCompletion(RequestContext request, DeferredResult<T> deferredResult)
-          throws Exception {
+  default <T> void afterCompletion(
+          RequestContext request, DeferredResult<T> deferredResult) throws Exception {
+
   }
 
 }

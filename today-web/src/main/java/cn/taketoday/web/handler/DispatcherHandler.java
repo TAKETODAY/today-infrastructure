@@ -219,7 +219,7 @@ public class DispatcherHandler extends InfraHandler {
    * @return A {@link HandlerAdapter}
    * @throws HandlerAdapterNotFoundException If there isn't a {@link HandlerAdapter} for target handler
    */
-  public HandlerAdapter lookupHandlerAdapter(final Object handler) {
+  public HandlerAdapter lookupHandlerAdapter(@Nullable Object handler) {
     if (handler instanceof HandlerAdapter) {
       return (HandlerAdapter) handler;
     }
@@ -260,21 +260,40 @@ public class DispatcherHandler extends InfraHandler {
    * @param context Current HTTP request context
    * @throws Throwable If {@link Throwable} cannot handle
    */
-  @Deprecated
   public void handle(@Nullable Object handler, RequestContext context) throws Throwable {
+    long startTime = System.currentTimeMillis();
+
+    Object returnValue = null;
+    Throwable throwable = null;
     try {
-      Object returnValue = lookupHandlerAdapter(handler).handle(context, handler);
-      if (returnValue != HttpRequestHandler.NONE_RETURN_VALUE) {
-        lookupReturnValueHandler(handler, returnValue)
-                .handleReturnValue(context, handler, returnValue);
+      if (handler == null) {
+        returnValue = handlerNotFound(context);
+      }
+      else if (handler instanceof HttpRequestHandler requestHandler) {
+        // specially for RequestHandler
+        returnValue = requestHandler.handleRequest(context);
+      }
+      else {
+        // adaptation for handling this request
+        returnValue = lookupHandlerAdapter(handler).handle(context, handler);
       }
     }
     catch (Throwable e) {
-      handleException(handler, e, context);
+      throwable = e;
     }
     finally {
-      // @since 3.0 cleanup MultipartFiles
+      try {
+        processDispatchResult(context, handler, returnValue, throwable);
+        throwable = null; // handled
+      }
+      catch (Throwable ex) {
+        throwable = ex; // not handled
+      }
       context.requestCompleted();
+      if (log.isDebugEnabled()) {
+        logResult(context, throwable);
+      }
+      publishRequestHandledEvent(context, startTime, throwable);
     }
   }
 

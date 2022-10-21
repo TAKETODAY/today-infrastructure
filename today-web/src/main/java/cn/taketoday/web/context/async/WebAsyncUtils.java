@@ -21,8 +21,6 @@
 package cn.taketoday.web.context.async;
 
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.ServletDetector;
-import cn.taketoday.web.servlet.ServletRequestContext;
 
 /**
  * Utility methods related to processing asynchronous web requests.
@@ -78,20 +76,6 @@ public abstract class WebAsyncUtils {
       return asyncManager.isConcurrentHandlingStarted();
     }
     return false;
-  }
-
-  /**
-   * Create an AsyncWebRequest instance. By default, an instance of
-   * {@link StandardServletAsyncWebRequest} gets created.
-   *
-   * @param requestContext the current request context
-   * @return an AsyncWebRequest instance (never {@code null})
-   */
-  public static AsyncWebRequest createAsyncWebRequest(RequestContext requestContext) {
-    if (ServletDetector.runningInServlet(requestContext)) {
-      return new StandardServletAsyncWebRequest((ServletRequestContext) requestContext);
-    }
-    throw new UnsupportedOperationException("Not Unsupported yet");
   }
 
 }

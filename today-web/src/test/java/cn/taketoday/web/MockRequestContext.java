@@ -32,6 +32,7 @@ import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpStatus;
 import cn.taketoday.http.MediaType;
 import cn.taketoday.http.server.ServerHttpResponse;
+import cn.taketoday.web.context.async.AsyncWebRequest;
 import cn.taketoday.web.multipart.MultipartRequest;
 import cn.taketoday.web.servlet.WebApplicationContext;
 
@@ -118,6 +119,11 @@ public class MockRequestContext extends RequestContext {
 
   @Override
   protected MultipartRequest createMultipartRequest() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  protected AsyncWebRequest createAsyncWebRequest() {
     throw new UnsupportedOperationException();
   }
 

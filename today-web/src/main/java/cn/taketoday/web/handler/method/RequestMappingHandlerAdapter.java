@@ -516,7 +516,7 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
 
     modelFactory.initModel(request, bindingContext, invocableMethod);
 
-    AsyncWebRequest asyncWebRequest = WebAsyncUtils.createAsyncWebRequest(request);
+    AsyncWebRequest asyncWebRequest = request.getAsyncWebRequest();
     asyncWebRequest.setTimeout(asyncRequestTimeout);
 
     WebAsyncManager asyncManager = WebAsyncUtils.getAsyncManager(request);

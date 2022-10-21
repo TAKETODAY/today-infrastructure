@@ -47,6 +47,8 @@ import cn.taketoday.util.CompositeIterator;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.RequestContext;
+import cn.taketoday.web.context.async.AsyncWebRequest;
+import cn.taketoday.web.context.async.StandardServletAsyncWebRequest;
 import cn.taketoday.web.multipart.MultipartRequest;
 import cn.taketoday.web.multipart.support.ServletMultipartRequest;
 import jakarta.servlet.http.Cookie;
@@ -320,6 +322,11 @@ public class MockServletRequestContext extends RequestContext {
   @Override
   protected MultipartRequest createMultipartRequest() {
     return new ServletMultipartRequest(request);
+  }
+
+  @Override
+  protected AsyncWebRequest createAsyncWebRequest() {
+    return new StandardServletAsyncWebRequest(request, response);
   }
 
   @Override

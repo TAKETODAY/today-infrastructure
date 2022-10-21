@@ -49,6 +49,7 @@ import cn.taketoday.http.server.ServerHttpResponse;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.NonNull;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.web.context.async.AsyncWebRequest;
 import cn.taketoday.web.multipart.MultipartRequest;
 
 /**
@@ -514,6 +515,11 @@ public class RequestContextDecorator extends RequestContext {
   @Override
   protected MultipartRequest createMultipartRequest() {
     return delegate.createMultipartRequest();
+  }
+
+  @Override
+  protected AsyncWebRequest createAsyncWebRequest() {
+    return delegate.createAsyncWebRequest();
   }
 
   @Override

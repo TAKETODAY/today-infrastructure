@@ -469,8 +469,8 @@ public final class WebAsyncManager {
       }
     });
 
-    asyncRequest.addCompletionHandler(()
-            -> interceptorChain.triggerAfterCompletion(requestContext, deferredResult));
+    asyncRequest.addCompletionHandler(() ->
+            interceptorChain.triggerAfterCompletion(requestContext, deferredResult));
 
     interceptorChain.applyBeforeConcurrentHandling(requestContext, deferredResult);
     startAsyncProcessing(processingContext);

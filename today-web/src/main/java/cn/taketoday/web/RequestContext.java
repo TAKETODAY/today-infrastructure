@@ -68,6 +68,7 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
+import cn.taketoday.web.context.async.AsyncWebRequest;
 import cn.taketoday.web.multipart.MultipartRequest;
 import cn.taketoday.web.util.UriComponents;
 import cn.taketoday.web.util.UriComponentsBuilder;
@@ -161,6 +162,9 @@ public abstract class RequestContext extends AttributeAccessorSupport
 
   /** @since 4.0 */
   protected MultipartRequest multipartRequest;
+
+  /** @since 4.0 */
+  protected AsyncWebRequest asyncWebRequest;
 
   protected boolean notModified = false;
 
@@ -689,6 +693,17 @@ public abstract class RequestContext extends AttributeAccessorSupport
    * @since 4.0
    */
   protected abstract MultipartRequest createMultipartRequest();
+
+  public AsyncWebRequest getAsyncWebRequest() {
+    var asyncWebRequest = this.asyncWebRequest;
+    if (asyncWebRequest == null) {
+      asyncWebRequest = createAsyncWebRequest();
+      this.asyncWebRequest = asyncWebRequest;
+    }
+    return asyncWebRequest;
+  }
+
+  protected abstract AsyncWebRequest createAsyncWebRequest();
 
   // ---------------------------------------------------------------------
   // requestCompleted
