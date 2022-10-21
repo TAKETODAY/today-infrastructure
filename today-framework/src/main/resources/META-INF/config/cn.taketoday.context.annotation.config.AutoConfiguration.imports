@@ -6,6 +6,7 @@ cn.taketoday.annotation.config.task.TaskSchedulingAutoConfiguration
 cn.taketoday.annotation.config.validation.ValidationAutoConfiguration
 cn.taketoday.annotation.config.jmx.JmxAutoConfiguration
 cn.taketoday.annotation.config.jmx.InfraApplicationJmxAutoConfiguration
-cn.taketoday.annotation.config.web.servlet.ServletWebServerFactoryAutoConfiguration
 cn.taketoday.annotation.config.web.servlet.DispatcherServletAutoConfiguration
+cn.taketoday.annotation.config.web.servlet.ServletWebServerFactoryAutoConfiguration
+cn.taketoday.annotation.config.web.reactive.ReactiveWebServerFactoryAutoConfiguration
 cn.taketoday.annotation.config.web.embedded.EmbeddedWebServerFactoryCustomizerAutoConfiguration

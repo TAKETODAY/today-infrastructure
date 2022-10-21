@@ -20,6 +20,8 @@
 
 package cn.taketoday.netty;
 
+import java.io.PrintWriter;
+
 import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.context.ApplicationEventPublisher;
 import cn.taketoday.context.annotation.Configuration;
@@ -114,8 +116,9 @@ public class NettyDemoApplication {
   }
 
   @ExceptionHandler(Throwable.class)
-  public void throwable(Throwable throwable) {
-    throwable.printStackTrace();
+  public void throwable(Throwable throwable, PrintWriter writer) {
+    throwable.printStackTrace(writer);
+    writer.flush();
   }
 
 }
