@@ -30,7 +30,7 @@ import cn.taketoday.core.env.ConfigurableEnvironment;
 import cn.taketoday.util.StringUtils;
 
 /**
- * {@link ApplicationContextInitializer} that sets the Spring
+ * {@link ApplicationContextInitializer} that sets the Infra
  * {@link ApplicationContext#getId() ApplicationContext ID}. The
  * {@code app.name} property is used to create the ID. If the property is
  * not set {@code application} is used.

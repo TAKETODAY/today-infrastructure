@@ -39,7 +39,7 @@ import cn.taketoday.logging.LoggerFactory;
 
 /**
  * A {@link Runnable} to be used as a {@link Runtime#addShutdownHook(Thread) shutdown
- * hook} to perform graceful shutdown of Spring Boot applications. This hook tracks
+ * hook} to perform graceful shutdown of Infra applications. This hook tracks
  * registered application contexts as well as any actions registered via
  * {@link Application#getShutdownHandlers()}.
  *

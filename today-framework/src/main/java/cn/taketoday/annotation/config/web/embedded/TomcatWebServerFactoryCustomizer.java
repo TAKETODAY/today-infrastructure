@@ -18,7 +18,7 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.framework.web.embedded.config;
+package cn.taketoday.annotation.config.web.embedded;
 
 import org.apache.catalina.Lifecycle;
 import org.apache.catalina.valves.AccessLogValve;

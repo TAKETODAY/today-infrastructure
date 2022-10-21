@@ -23,7 +23,7 @@
  */
 @NonNullApi
 @NonNullFields
-package cn.taketoday.framework.web.embedded.config;
+package cn.taketoday.annotation.config.web.embedded;
 
 import cn.taketoday.lang.NonNullApi;
 import cn.taketoday.lang.NonNullFields;

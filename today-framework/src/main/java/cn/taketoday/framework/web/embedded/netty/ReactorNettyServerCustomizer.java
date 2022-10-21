@@ -28,10 +28,10 @@ import reactor.netty.http.server.HttpServer;
  * Mapping function that can be used to customize a Reactor Netty server instance.
  *
  * @author Brian Clozel
- * @see NettyReactiveWebServerFactory
+ * @see ReactorNettyReactiveWebServerFactory
  * @since 4.0
  */
 @FunctionalInterface
-public interface NettyServerCustomizer extends Function<HttpServer, HttpServer> {
+public interface ReactorNettyServerCustomizer extends Function<HttpServer, HttpServer> {
 
 }

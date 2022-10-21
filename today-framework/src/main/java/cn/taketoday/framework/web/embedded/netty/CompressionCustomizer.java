@@ -43,7 +43,7 @@ import reactor.netty.http.server.HttpServerResponse;
  * @author Phillip Webb
  * @author Brian Clozel
  */
-final class CompressionCustomizer implements NettyServerCustomizer {
+final class CompressionCustomizer implements ReactorNettyServerCustomizer {
 
   private static final CompressionPredicate ALWAYS_COMPRESS = (request, response) -> true;
 

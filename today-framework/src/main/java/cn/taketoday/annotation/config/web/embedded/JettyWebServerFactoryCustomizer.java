@@ -18,7 +18,7 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.framework.web.embedded.config;
+package cn.taketoday.annotation.config.web.embedded;
 
 import org.eclipse.jetty.server.AbstractConnector;
 import org.eclipse.jetty.server.ConnectionFactory;

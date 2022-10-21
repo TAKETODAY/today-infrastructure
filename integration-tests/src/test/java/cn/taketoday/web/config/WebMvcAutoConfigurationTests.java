@@ -43,6 +43,7 @@ import cn.taketoday.annotation.config.context.PropertyPlaceholderAutoConfigurati
 import cn.taketoday.annotation.config.task.TaskExecutionAutoConfiguration;
 import cn.taketoday.annotation.config.validation.ValidationAutoConfiguration;
 import cn.taketoday.annotation.config.validation.ValidatorAdapter;
+import cn.taketoday.annotation.config.web.servlet.DispatcherServletAutoConfiguration;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
@@ -61,7 +62,6 @@ import cn.taketoday.framework.test.context.runner.WebApplicationContextRunner;
 import cn.taketoday.framework.web.embedded.tomcat.TomcatServletWebServerFactory;
 import cn.taketoday.framework.web.server.WebServerFactoryCustomizerBeanPostProcessor;
 import cn.taketoday.framework.web.servlet.ServletRegistrationBean;
-import cn.taketoday.framework.web.servlet.config.DispatcherServletAutoConfiguration;
 import cn.taketoday.framework.web.servlet.context.AnnotationConfigServletWebServerApplicationContext;
 import cn.taketoday.framework.web.servlet.server.MockServletWebServerFactory;
 import cn.taketoday.framework.web.servlet.server.ServletWebServerFactory;

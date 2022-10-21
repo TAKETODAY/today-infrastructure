@@ -1758,9 +1758,9 @@ public class ServerProperties {
 
     public static class Options {
 
-      private Map<String, String> socket = new LinkedHashMap<>();
+      private final Map<String, String> socket = new LinkedHashMap<>();
 
-      private Map<String, String> server = new LinkedHashMap<>();
+      private final Map<String, String> server = new LinkedHashMap<>();
 
       public Map<String, String> getServer() {
         return this.server;
@@ -1785,7 +1785,7 @@ public class ServerProperties {
     NATIVE,
 
     /**
-     * Use Spring's support for handling forwarded headers.
+     * Use Infra support for handling forwarded headers.
      */
     FRAMEWORK,
 

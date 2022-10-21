@@ -47,7 +47,7 @@ import reactor.netty.http.server.HttpServerRoutes;
 
 /**
  * {@link WebServer} that can be used to control a Reactor Netty web server. Usually this
- * class should be created using the {@link NettyReactiveWebServerFactory} and not
+ * class should be created using the {@link ReactorNettyReactiveWebServerFactory} and not
  * directly.
  *
  * @author Brian Clozel
@@ -56,14 +56,14 @@ import reactor.netty.http.server.HttpServerRoutes;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-public class NettyWebServer implements WebServer {
+public class ReactorNettyWebServer implements WebServer {
 
   /**
    * Permission denied error code from {@code errno.h}.
    */
   private static final int ERROR_NO_EACCES = -13;
 
-  private static final Predicate<HttpServerRequest> ALWAYS = (request) -> true;
+  private static final Predicate<HttpServerRequest> ALWAYS = request -> true;
 
   private final HttpServer httpServer;
 
@@ -80,7 +80,7 @@ public class NettyWebServer implements WebServer {
   @Nullable
   private volatile DisposableServer disposableServer;
 
-  public NettyWebServer(
+  public ReactorNettyWebServer(
           HttpServer httpServer, ReactorHttpHandlerAdapter handlerAdapter,
           @Nullable Duration lifecycleTimeout, Shutdown shutdown) {
     Assert.notNull(httpServer, "HttpServer must not be null");
@@ -113,7 +113,7 @@ public class NettyWebServer implements WebServer {
         });
         throw new WebServerException("Unable to start Netty", ex);
       }
-      LoggerFactory.getLogger(NettyWebServer.class)
+      LoggerFactory.getLogger(ReactorNettyWebServer.class)
               .info("Netty started{}", getStartedOnMessage(disposableServer));
       startDaemonAwaitThread(disposableServer);
     }
@@ -123,7 +123,7 @@ public class NettyWebServer implements WebServer {
     StringBuilder message = new StringBuilder();
     tryAppend(message, "port %s", server::port);
     tryAppend(message, "path %s", server::path);
-    return (message.length() > 0) ? " on " + message : "";
+    return message.length() > 0 ? " on " + message : "";
   }
 
   private void tryAppend(StringBuilder message, String format, Supplier<Object> supplier) {

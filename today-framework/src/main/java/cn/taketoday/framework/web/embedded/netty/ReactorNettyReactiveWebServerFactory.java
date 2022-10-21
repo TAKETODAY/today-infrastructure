@@ -43,14 +43,14 @@ import reactor.netty.http.server.HttpServer;
 import reactor.netty.resources.LoopResources;
 
 /**
- * {@link ReactiveWebServerFactory} that can be used to create {@link NettyWebServer}s.
+ * {@link ReactiveWebServerFactory} that can be used to create {@link ReactorNettyWebServer}s.
  *
  * @author Brian Clozel
  * @since 4.0
  */
-public class NettyReactiveWebServerFactory extends AbstractReactiveWebServerFactory {
+public class ReactorNettyReactiveWebServerFactory extends AbstractReactiveWebServerFactory {
 
-  private Set<NettyServerCustomizer> serverCustomizers = new LinkedHashSet<>();
+  private Set<ReactorNettyServerCustomizer> serverCustomizers = new LinkedHashSet<>();
 
   private final List<NettyRouteProvider> routeProviders = new ArrayList<>();
 
@@ -62,9 +62,9 @@ public class NettyReactiveWebServerFactory extends AbstractReactiveWebServerFact
   @Nullable
   private ReactorResourceFactory resourceFactory;
 
-  public NettyReactiveWebServerFactory() { }
+  public ReactorNettyReactiveWebServerFactory() { }
 
-  public NettyReactiveWebServerFactory(int port) {
+  public ReactorNettyReactiveWebServerFactory(int port) {
     super(port);
   }
 
@@ -72,45 +72,45 @@ public class NettyReactiveWebServerFactory extends AbstractReactiveWebServerFact
   public WebServer getWebServer(HttpHandler httpHandler) {
     HttpServer httpServer = createHttpServer();
     var handlerAdapter = new ReactorHttpHandlerAdapter(httpHandler);
-    NettyWebServer webServer = createNettyWebServer(httpServer, handlerAdapter, lifecycleTimeout, getShutdown());
+    ReactorNettyWebServer webServer = createNettyWebServer(httpServer, handlerAdapter, lifecycleTimeout, getShutdown());
     webServer.setRouteProviders(this.routeProviders);
     return webServer;
   }
 
-  NettyWebServer createNettyWebServer(
+  ReactorNettyWebServer createNettyWebServer(
           HttpServer httpServer, ReactorHttpHandlerAdapter handlerAdapter,
           @Nullable Duration lifecycleTimeout, Shutdown shutdown) {
-    return new NettyWebServer(httpServer, handlerAdapter, lifecycleTimeout, shutdown);
+    return new ReactorNettyWebServer(httpServer, handlerAdapter, lifecycleTimeout, shutdown);
   }
 
   /**
-   * Returns a mutable collection of the {@link NettyServerCustomizer}s that will be
+   * Returns a mutable collection of the {@link ReactorNettyServerCustomizer}s that will be
    * applied to the Netty server builder.
    *
    * @return the customizers that will be applied
    */
-  public Collection<NettyServerCustomizer> getServerCustomizers() {
+  public Collection<ReactorNettyServerCustomizer> getServerCustomizers() {
     return this.serverCustomizers;
   }
 
   /**
-   * Set {@link NettyServerCustomizer}s that should be applied to the Netty server
+   * Set {@link ReactorNettyServerCustomizer}s that should be applied to the Netty server
    * builder. Calling this method will replace any existing customizers.
    *
    * @param serverCustomizers the customizers to set
    */
-  public void setServerCustomizers(Collection<? extends NettyServerCustomizer> serverCustomizers) {
+  public void setServerCustomizers(Collection<? extends ReactorNettyServerCustomizer> serverCustomizers) {
     Assert.notNull(serverCustomizers, "ServerCustomizers must not be null");
     this.serverCustomizers = new LinkedHashSet<>(serverCustomizers);
   }
 
   /**
-   * Add {@link NettyServerCustomizer}s that should be applied while building the
+   * Add {@link ReactorNettyServerCustomizer}s that should be applied while building the
    * server.
    *
    * @param serverCustomizers the customizers to add
    */
-  public void addServerCustomizers(NettyServerCustomizer... serverCustomizers) {
+  public void addServerCustomizers(ReactorNettyServerCustomizer... serverCustomizers) {
     CollectionUtils.addAll(this.serverCustomizers, serverCustomizers);
   }
 
@@ -201,7 +201,7 @@ public class NettyReactiveWebServerFactory extends AbstractReactiveWebServerFact
   }
 
   private HttpServer applyCustomizers(HttpServer server) {
-    for (NettyServerCustomizer customizer : this.serverCustomizers) {
+    for (ReactorNettyServerCustomizer customizer : this.serverCustomizers) {
       server = customizer.apply(server);
     }
     return server;

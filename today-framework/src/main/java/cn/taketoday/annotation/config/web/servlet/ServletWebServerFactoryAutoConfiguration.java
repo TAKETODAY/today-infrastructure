@@ -18,7 +18,7 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.framework.web.servlet.config;
+package cn.taketoday.annotation.config.web.servlet;
 
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -82,7 +82,8 @@ import jakarta.servlet.ServletRequest;
 public class ServletWebServerFactoryAutoConfiguration {
 
   @Component
-  public ServletWebServerFactoryCustomizer servletWebServerFactoryCustomizer(ServerProperties serverProperties,
+  public ServletWebServerFactoryCustomizer servletWebServerFactoryCustomizer(
+          ServerProperties serverProperties,
           ObjectProvider<WebListenerRegistrar> webListenerRegistrars,
           ObjectProvider<CookieSameSiteSupplier> cookieSameSiteSuppliers) {
     return new ServletWebServerFactoryCustomizer(serverProperties,

@@ -56,12 +56,12 @@ import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
 
 /**
- * Tests for {@link NettyReactiveWebServerFactory}.
+ * Tests for {@link ReactorNettyReactiveWebServerFactory}.
  *
  * @author Brian Clozel
  * @author Chris Bono
  */
-class NettyReactiveWebServerFactoryTests extends AbstractReactiveWebServerFactoryTests {
+class ReactorNettyReactiveWebServerFactoryTests extends AbstractReactiveWebServerFactoryTests {
 
   @Test
   void exceptionIsThrownWhenPortIsAlreadyInUse() {
@@ -76,7 +76,7 @@ class NettyReactiveWebServerFactoryTests extends AbstractReactiveWebServerFactor
 
   @Test
   void getPortWhenDisposableServerPortOperationIsUnsupportedReturnsMinusOne() {
-    NettyReactiveWebServerFactory factory = new NoPortNettyReactiveWebServerFactory(0);
+    ReactorNettyReactiveWebServerFactory factory = new NoPortNettyReactiveWebServerFactory(0);
     this.webServer = factory.getWebServer(new EchoHandler());
     this.webServer.start();
     assertThat(this.webServer.getPort()).isEqualTo(-1);
@@ -88,23 +88,23 @@ class NettyReactiveWebServerFactoryTests extends AbstractReactiveWebServerFactor
 
   @Test
   void nettyCustomizers() {
-    NettyReactiveWebServerFactory factory = getFactory();
-    NettyServerCustomizer[] customizers = new NettyServerCustomizer[2];
+    ReactorNettyReactiveWebServerFactory factory = getFactory();
+    ReactorNettyServerCustomizer[] customizers = new ReactorNettyServerCustomizer[2];
     for (int i = 0; i < customizers.length; i++) {
-      customizers[i] = mock(NettyServerCustomizer.class);
+      customizers[i] = mock(ReactorNettyServerCustomizer.class);
       given(customizers[i].apply(any(HttpServer.class))).will((invocation) -> invocation.getArgument(0));
     }
     factory.setServerCustomizers(Arrays.asList(customizers[0], customizers[1]));
     this.webServer = factory.getWebServer(new EchoHandler());
     InOrder ordered = inOrder((Object[]) customizers);
-    for (NettyServerCustomizer customizer : customizers) {
+    for (ReactorNettyServerCustomizer customizer : customizers) {
       ordered.verify(customizer).apply(any(HttpServer.class));
     }
   }
 
   @Test
   void useForwardedHeaders() {
-    NettyReactiveWebServerFactory factory = getFactory();
+    ReactorNettyReactiveWebServerFactory factory = getFactory();
     factory.setUseForwardHeaders(true);
     assertForwardHeaderIsUsed(factory);
   }
@@ -118,7 +118,7 @@ class NettyReactiveWebServerFactoryTests extends AbstractReactiveWebServerFactor
 
   @Test
   void whenServerIsShuttingDownGracefullyThenNewConnectionsCannotBeMade() {
-    NettyReactiveWebServerFactory factory = getFactory();
+    ReactorNettyReactiveWebServerFactory factory = getFactory();
     factory.setShutdown(Shutdown.GRACEFUL);
     BlockingHandler blockingHandler = new BlockingHandler();
     this.webServer = factory.getWebServer(blockingHandler);
@@ -142,7 +142,7 @@ class NettyReactiveWebServerFactoryTests extends AbstractReactiveWebServerFactor
   protected Mono<String> testSslWithAlias(String alias) {
     String keyStore = "classpath:test.jks";
     String keyPassword = "password";
-    NettyReactiveWebServerFactory factory = getFactory();
+    ReactorNettyReactiveWebServerFactory factory = getFactory();
     Ssl ssl = new Ssl();
     ssl.setKeyStore(keyStore);
     ssl.setKeyPassword(keyPassword);
@@ -158,25 +158,25 @@ class NettyReactiveWebServerFactoryTests extends AbstractReactiveWebServerFactor
   }
 
   @Override
-  protected NettyReactiveWebServerFactory getFactory() {
-    return new NettyReactiveWebServerFactory(0);
+  protected ReactorNettyReactiveWebServerFactory getFactory() {
+    return new ReactorNettyReactiveWebServerFactory(0);
   }
 
-  static class NoPortNettyReactiveWebServerFactory extends NettyReactiveWebServerFactory {
+  static class NoPortNettyReactiveWebServerFactory extends ReactorNettyReactiveWebServerFactory {
 
     NoPortNettyReactiveWebServerFactory(int port) {
       super(port);
     }
 
     @Override
-    NettyWebServer createNettyWebServer(HttpServer httpServer, ReactorHttpHandlerAdapter handlerAdapter,
+    ReactorNettyWebServer createNettyWebServer(HttpServer httpServer, ReactorHttpHandlerAdapter handlerAdapter,
             Duration lifecycleTimeout, Shutdown shutdown) {
       return new NoPortNettyWebServer(httpServer, handlerAdapter, lifecycleTimeout, shutdown);
     }
 
   }
 
-  static class NoPortNettyWebServer extends NettyWebServer {
+  static class NoPortNettyWebServer extends ReactorNettyWebServer {
 
     NoPortNettyWebServer(HttpServer httpServer, ReactorHttpHandlerAdapter handlerAdapter, Duration lifecycleTimeout,
             Shutdown shutdown) {

@@ -18,14 +18,14 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.framework.web.embedded.config;
+package cn.taketoday.annotation.config.web.embedded;
 
 import java.time.Duration;
 
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.env.Environment;
 import cn.taketoday.framework.cloud.CloudPlatform;
-import cn.taketoday.framework.web.embedded.netty.NettyReactiveWebServerFactory;
+import cn.taketoday.framework.web.embedded.netty.ReactorNettyReactiveWebServerFactory;
 import cn.taketoday.framework.web.server.ServerProperties;
 import cn.taketoday.framework.web.server.WebServerFactoryCustomizer;
 import cn.taketoday.util.PropertyMapper;
@@ -41,7 +41,7 @@ import io.netty.channel.ChannelOption;
  * @since 4.0
  */
 public class NettyWebServerFactoryCustomizer
-        implements WebServerFactoryCustomizer<NettyReactiveWebServerFactory>, Ordered {
+        implements WebServerFactoryCustomizer<ReactorNettyReactiveWebServerFactory>, Ordered {
 
   private final Environment environment;
 
@@ -58,7 +58,7 @@ public class NettyWebServerFactoryCustomizer
   }
 
   @Override
-  public void customize(NettyReactiveWebServerFactory factory) {
+  public void customize(ReactorNettyReactiveWebServerFactory factory) {
     factory.setUseForwardHeaders(getOrDeduceUseForwardHeaders());
     PropertyMapper propertyMapper = PropertyMapper.get().alwaysApplyingWhenNonNull();
     ServerProperties.Netty nettyProperties = serverProperties.getNetty();
@@ -77,11 +77,11 @@ public class NettyWebServerFactoryCustomizer
     return this.serverProperties.getForwardHeadersStrategy().equals(ServerProperties.ForwardHeadersStrategy.NATIVE);
   }
 
-  private void customizeConnectionTimeout(NettyReactiveWebServerFactory factory, Duration connectionTimeout) {
+  private void customizeConnectionTimeout(ReactorNettyReactiveWebServerFactory factory, Duration connectionTimeout) {
     factory.addServerCustomizers(httpServer -> httpServer.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, (int) connectionTimeout.toMillis()));
   }
 
-  private void customizeRequestDecoder(NettyReactiveWebServerFactory factory, PropertyMapper propertyMapper) {
+  private void customizeRequestDecoder(ReactorNettyReactiveWebServerFactory factory, PropertyMapper propertyMapper) {
     factory.addServerCustomizers((httpServer) -> httpServer.httpRequestDecoder((httpRequestDecoderSpec) -> {
       propertyMapper.from(this.serverProperties.getMaxHttpHeaderSize())
               .whenNonNull()
@@ -104,11 +104,11 @@ public class NettyWebServerFactoryCustomizer
     }));
   }
 
-  private void customizeIdleTimeout(NettyReactiveWebServerFactory factory, Duration idleTimeout) {
+  private void customizeIdleTimeout(ReactorNettyReactiveWebServerFactory factory, Duration idleTimeout) {
     factory.addServerCustomizers(httpServer -> httpServer.idleTimeout(idleTimeout));
   }
 
-  private void customizeMaxKeepAliveRequests(NettyReactiveWebServerFactory factory, int maxKeepAliveRequests) {
+  private void customizeMaxKeepAliveRequests(ReactorNettyReactiveWebServerFactory factory, int maxKeepAliveRequests) {
     factory.addServerCustomizers(httpServer -> httpServer.maxKeepAliveRequests(maxKeepAliveRequests));
   }
 

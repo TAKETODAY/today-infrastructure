@@ -28,7 +28,7 @@ import reactor.netty.http.server.HttpServerRoutes;
  * Function that can add new routes to an {@link HttpServerRoutes} instance.
  *
  * @author Brian Clozel
- * @see NettyReactiveWebServerFactory
+ * @see ReactorNettyReactiveWebServerFactory
  * @since 4.0
  */
 @FunctionalInterface

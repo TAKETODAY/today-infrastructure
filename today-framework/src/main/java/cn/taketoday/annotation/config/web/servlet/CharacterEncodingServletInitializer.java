@@ -18,7 +18,7 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.framework.web.servlet.config;
+package cn.taketoday.annotation.config.web.servlet;
 
 import cn.taketoday.framework.web.servlet.ServletContextInitializer;
 import cn.taketoday.lang.Constant;
@@ -33,6 +33,7 @@ import jakarta.servlet.ServletException;
  * @since 4.0 2022/4/16 23:01
  */
 public class CharacterEncodingServletInitializer implements ServletContextInitializer {
+
   @Nullable
   private String requestCharacterEncoding = Constant.DEFAULT_ENCODING;
 

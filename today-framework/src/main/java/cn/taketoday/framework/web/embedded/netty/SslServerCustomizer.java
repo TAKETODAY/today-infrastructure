@@ -55,7 +55,7 @@ import reactor.netty.http.server.HttpServer;
 import reactor.netty.tcp.AbstractProtocolSslContextSpec;
 
 /**
- * {@link NettyServerCustomizer} that configures SSL for the given Reactor Netty server
+ * {@link ReactorNettyServerCustomizer} that configures SSL for the given Reactor Netty server
  * instance.
  *
  * @author Brian Clozel
@@ -64,7 +64,7 @@ import reactor.netty.tcp.AbstractProtocolSslContextSpec;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-public class SslServerCustomizer implements NettyServerCustomizer {
+public class SslServerCustomizer implements ReactorNettyServerCustomizer {
 
   private final Ssl ssl;
 

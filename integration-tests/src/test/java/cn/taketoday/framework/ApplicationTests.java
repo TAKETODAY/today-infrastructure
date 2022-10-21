@@ -99,7 +99,7 @@ import cn.taketoday.framework.context.event.ApplicationStartedEvent;
 import cn.taketoday.framework.context.event.ApplicationStartingEvent;
 import cn.taketoday.framework.test.system.CapturedOutput;
 import cn.taketoday.framework.test.system.OutputCaptureExtension;
-import cn.taketoday.framework.web.embedded.netty.NettyReactiveWebServerFactory;
+import cn.taketoday.framework.web.embedded.netty.ReactorNettyReactiveWebServerFactory;
 import cn.taketoday.framework.web.embedded.tomcat.TomcatServletWebServerFactory;
 import cn.taketoday.framework.web.reactive.context.AnnotationConfigReactiveWebServerApplicationContext;
 import cn.taketoday.framework.web.reactive.context.ReactiveWebApplicationContext;
@@ -1479,8 +1479,8 @@ class ApplicationTests {
   static class ExampleReactiveWebConfig {
 
     @Bean
-    NettyReactiveWebServerFactory webServerFactory() {
-      return new NettyReactiveWebServerFactory(0);
+    ReactorNettyReactiveWebServerFactory webServerFactory() {
+      return new ReactorNettyReactiveWebServerFactory(0);
     }
 
     @Bean

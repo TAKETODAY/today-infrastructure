@@ -18,7 +18,7 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.framework.web.servlet.config;
+package cn.taketoday.annotation.config.web.servlet;
 
 import cn.taketoday.core.Ordered;
 import cn.taketoday.framework.web.embedded.tomcat.ConfigurableTomcatWebServerFactory;

@@ -127,7 +127,7 @@ public class TomcatReactiveWebServerFactory extends AbstractReactiveWebServerFac
     Tomcat tomcat = new Tomcat();
     File baseDir = baseDirectory != null ? baseDirectory : createTempDir("tomcat");
     tomcat.setBaseDir(baseDir.getAbsolutePath());
-    for (LifecycleListener listener : this.serverLifecycleListeners) {
+    for (LifecycleListener listener : serverLifecycleListeners) {
       tomcat.getServer().addLifecycleListener(listener);
     }
     Connector connector = new Connector(protocol);
@@ -196,7 +196,7 @@ public class TomcatReactiveWebServerFactory extends AbstractReactiveWebServerFac
     if (StringUtils.hasText(getServerHeader())) {
       connector.setProperty("server", getServerHeader());
     }
-    if (connector.getProtocolHandler() instanceof AbstractProtocol abstractProtocol) {
+    if (connector.getProtocolHandler() instanceof AbstractProtocol<?> abstractProtocol) {
       customizeProtocol(abstractProtocol);
     }
     invokeProtocolHandlerCustomizers(connector.getProtocolHandler());
