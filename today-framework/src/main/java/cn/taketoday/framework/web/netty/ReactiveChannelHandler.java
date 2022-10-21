@@ -36,17 +36,18 @@ import io.netty.handler.codec.http.HttpVersion;
  */
 public class ReactiveChannelHandler implements ChannelInboundHandler {
 
-  private NettyDispatcher nettyDispatcher;
-  private NettyRequestConfig contextConfig;
-
   private final ApplicationContext context;
+  private final NettyDispatcher nettyDispatcher;
+  private final NettyRequestConfig contextConfig;
 
   public ReactiveChannelHandler(
           NettyDispatcher nettyDispatcher, NettyRequestConfig contextConfig, ApplicationContext context) {
+    Assert.notNull(context, "NettyDispatcher is required");
+    Assert.notNull(context, "NettyRequestConfig is required");
     Assert.notNull(context, "ApplicationContext is required");
     this.context = context;
-    setContextConfig(contextConfig);
-    setNettyDispatcher(nettyDispatcher);
+    this.contextConfig = contextConfig;
+    this.nettyDispatcher = nettyDispatcher;
   }
 
   @Override
@@ -82,27 +83,6 @@ public class ReactiveChannelHandler implements ChannelInboundHandler {
     var response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.INTERNAL_SERVER_ERROR);
     ctx.writeAndFlush(response)
             .addListener(ChannelFutureListener.CLOSE_ON_FAILURE);
-  }
-
-  public void setContextConfig(NettyRequestConfig contextConfig) {
-    Assert.notNull(contextConfig, "NettyRequestContextConfig cannot be null");
-    this.contextConfig = contextConfig;
-  }
-
-  public void setNettyDispatcher(NettyDispatcher nettyDispatcher) {
-    Assert.notNull(nettyDispatcher, "NettyDispatcher cannot be null");
-    this.nettyDispatcher = nettyDispatcher;
-  }
-
-  public NettyDispatcher getNettyDispatcher() {
-    return nettyDispatcher;
-  }
-
-  /**
-   * Get Netty RequestContext config
-   */
-  public NettyRequestConfig getContextConfig() {
-    return contextConfig;
   }
 
   //

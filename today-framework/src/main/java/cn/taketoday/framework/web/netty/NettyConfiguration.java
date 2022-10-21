@@ -28,12 +28,14 @@ import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.MissingBean;
 import cn.taketoday.context.annotation.Role;
 import cn.taketoday.context.condition.ConditionalOnClass;
-import cn.taketoday.framework.web.embedded.netty.NettyReactiveWebServerFactory;
-import cn.taketoday.framework.web.embedded.netty.NettyWebServer;
+import cn.taketoday.framework.web.embedded.netty.ReactorNettyWebServer;
+import cn.taketoday.http.server.reactive.HttpHandler;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.stereotype.Component;
 import cn.taketoday.stereotype.Singleton;
 import cn.taketoday.web.handler.DispatcherHandler;
 import cn.taketoday.web.socket.WebSocketHandlerMapping;
+import reactor.core.publisher.Mono;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
@@ -58,18 +60,20 @@ public class NettyConfiguration {
   }
 
   /**
-   * Default {@link NettyWebServer} object
+   * Default {@link ReactorNettyWebServer} object
    * <p>
    * framework will auto inject properties start with 'server.' or 'server.netty.'
    * </p>
    *
-   * @return returns a default {@link NettyWebServer} object
+   * @return returns a default {@link ReactorNettyWebServer} object
    */
   @MissingBean
   @EnableDependencyInjection
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-  NettyReactiveWebServerFactory nettyWebServer() {
-    return new NettyReactiveWebServerFactory();
+  NettyWebServerFactory nettyWebServerFactory(NettyChannelInitializer nettyChannelInitializer) {
+    NettyWebServerFactory factory = new NettyWebServerFactory();
+    factory.setNettyChannelInitializer(nettyChannelInitializer);
+    return factory;
   }
 
   /**
@@ -87,6 +91,11 @@ public class NettyConfiguration {
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
   NettyRequestConfig nettyRequestContextConfig() {
     return new NettyRequestConfig();
+  }
+
+  @Component
+  HttpHandler httpHandler() {
+    return (request, response) -> Mono.empty();
   }
 
   @DisableAllDependencyInjection

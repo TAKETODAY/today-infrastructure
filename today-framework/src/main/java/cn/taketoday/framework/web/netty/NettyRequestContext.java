@@ -45,6 +45,7 @@ import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.bind.resolver.ParameterReadFailedException;
+import cn.taketoday.web.context.async.AsyncWebRequest;
 import cn.taketoday.web.multipart.MultipartRequest;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufInputStream;
@@ -360,8 +361,10 @@ public class NettyRequestContext extends RequestContext {
   }
 
   private boolean isKeepAlive() {
+    Boolean keepAlive = this.keepAlive;
     if (keepAlive == null) {
-      this.keepAlive = HttpUtil.isKeepAlive(request);
+      keepAlive = HttpUtil.isKeepAlive(request);
+      this.keepAlive = keepAlive;
     }
     return keepAlive;
   }
@@ -538,12 +541,14 @@ public class NettyRequestContext extends RequestContext {
   }
 
   public HttpHeaders originalResponseHeaders() {
-    if (originalResponseHeaders == null) {
-      this.originalResponseHeaders = config.isSingleFieldHeaders()
-                                     ? new io.netty.handler.codec.http.DefaultHttpHeaders(config.isValidateHeaders())
-                                     : new CombinedHttpHeaders(config.isValidateHeaders());
+    HttpHeaders headers = originalResponseHeaders;
+    if (headers == null) {
+      headers = config.isSingleFieldHeaders()
+                ? new io.netty.handler.codec.http.DefaultHttpHeaders(config.isValidateHeaders())
+                : new CombinedHttpHeaders(config.isValidateHeaders());
+      this.originalResponseHeaders = headers;
     }
-    return originalResponseHeaders;
+    return headers;
   }
 
   @Override
@@ -574,6 +579,11 @@ public class NettyRequestContext extends RequestContext {
   @Override
   protected MultipartRequest createMultipartRequest() {
     return new NettyMultipartRequest(this);
+  }
+
+  @Override
+  protected AsyncWebRequest createAsyncWebRequest() {
+    return new NettyAsyncWebRequest(this);
   }
 
   public void setCommitted(boolean committed) {

@@ -87,7 +87,12 @@ public final class AsyncNettyDispatcherHandler extends NettyDispatcher {
     CompletableFuture.completedFuture(nettyContext)
             .thenApplyAsync(new HandlerDetector(), executor)
             .thenApplyAsync(new AsyncHandler(), executor)
-            .thenAcceptAsync(new AsyncSender(), executor);
+            .exceptionallyAsync(new Function<Throwable, Void>() {
+              @Override
+              public Void apply(Throwable throwable) {
+                return null;
+              }
+            }, executor);
   }
 
 }

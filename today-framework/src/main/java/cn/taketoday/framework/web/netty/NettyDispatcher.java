@@ -39,8 +39,9 @@ public class NettyDispatcher {
   protected final DispatcherHandler dispatcherHandler;
 
   public NettyDispatcher(DispatcherHandler dispatcherHandler) {
-    Assert.notNull(dispatcherHandler, "DispatcherHandler must not be null");
+    Assert.notNull(dispatcherHandler, "DispatcherHandler is required");
     this.dispatcherHandler = dispatcherHandler;
+    dispatcherHandler.init();
   }
 
   /**
@@ -55,8 +56,8 @@ public class NettyDispatcher {
   public void dispatch(ChannelHandlerContext ctx, NettyRequestContext nettyContext) throws Throwable {
     RequestContextHolder.set(nettyContext);
     try {
+      nettyContext.registerRequestDestructionCallback(nettyContext::sendIfNotCommitted);
       dispatcherHandler.dispatch(nettyContext); // handling HTTP request
-      nettyContext.sendIfNotCommitted();
     }
     finally {
       RequestContextHolder.remove();

@@ -22,6 +22,9 @@ package cn.taketoday.framework.web.netty;
 
 import org.reactivestreams.Subscription;
 
+import cn.taketoday.http.server.reactive.HttpHandler;
+import cn.taketoday.http.server.reactive.ServerHttpRequest;
+import cn.taketoday.http.server.reactive.ServerHttpResponse;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.HandlerAdapter;
 import cn.taketoday.web.HttpRequestHandler;
@@ -39,10 +42,15 @@ import reactor.core.scheduler.Schedulers;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/1/29 22:45
  */
-public class ReactorNettyDispatcher extends NettyDispatcher {
+public class ReactorNettyDispatcher extends NettyDispatcher implements HttpHandler {
 
   public ReactorNettyDispatcher(DispatcherHandler dispatcherHandler) {
     super(dispatcherHandler);
+  }
+
+  @Override
+  public Mono<Void> handle(ServerHttpRequest request, ServerHttpResponse response) {
+    return null;
   }
 
   /**

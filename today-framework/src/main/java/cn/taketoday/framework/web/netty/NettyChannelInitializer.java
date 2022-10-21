@@ -109,7 +109,7 @@ public class NettyChannelInitializer
 
   @Override
   public boolean isSharable() {
-    return false;
+    return true;
   }
 
   //
