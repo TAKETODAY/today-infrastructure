@@ -126,30 +126,30 @@ class PathMatchingPatternResourceLoaderTests {
         String pathPrefix = ".+cn/taketoday/core/io/";
 
         assertExactFilenames(pattern, "resource#test1.txt", "resource#test2.txt");
-        assertExactSubPaths(pattern, pathPrefix, "support/resource#test1.txt", "support/resource#test2.txt");
+        assertExactSubPaths(pattern, pathPrefix, "resource#test1.txt", "resource#test2.txt");
       }
 
       @Test
       void usingClasspathStarProtocolWithWildcardInPatternAndNotEndingInSlash() throws Exception {
-        String pattern = "classpath*:cn/taketoday/core/i*";
+        String pattern = "classpath*:cn/taketoday/core/io/buff*";
         String pathPrefix = ".+cn/taketoday/core/io/";
 
         List<String> actualSubPaths = getSubPathsIgnoringClassFilesEtc(pattern, pathPrefix);
 
-        // We DO find "support" if the pattern does NOT end with a slash.
-        assertThat(actualSubPaths).containsExactly("support");
+        // We DO find "buffer" if the pattern does NOT end with a slash.
+        assertThat(actualSubPaths).containsExactly("buffer");
       }
 
       @Test
       void usingFileProtocolWithWildcardInPatternAndNotEndingInSlash() throws Exception {
         Path testResourcesDir = Paths.get("src/test/resources").toAbsolutePath();
-        String pattern = String.format("file:%s/cn/taketoday/core/i*", testResourcesDir);
+        String pattern = String.format("file:%s/cn/taketoday/core/io/buff*", testResourcesDir);
         String pathPrefix = ".+cn/taketoday/core/io/";
 
         List<String> actualSubPaths = getSubPathsIgnoringClassFilesEtc(pattern, pathPrefix);
 
-        // We DO find "support" if the pattern does NOT end with a slash.
-        assertThat(actualSubPaths).containsExactly("support");
+        // We DO find "buffer" if the pattern does NOT end with a slash.
+        assertThat(actualSubPaths).containsExactly("buffer");
       }
 
       @Test
@@ -183,7 +183,7 @@ class PathMatchingPatternResourceLoaderTests {
         List<String> actualSubPaths = getSubPathsIgnoringClassFilesEtc(pattern, pathPrefix);
 
         assertThat(actualSubPaths)
-                .containsExactlyInAnyOrder("support/resource#test1.txt", "support/resource#test2.txt");
+                .containsExactlyInAnyOrder("resource#test1.txt", "resource#test2.txt");
       }
 
       private List<String> getSubPathsIgnoringClassFilesEtc(String pattern, String pathPrefix) throws IOException {
