@@ -113,7 +113,7 @@ public final class WebAsyncManager {
    * more than once during a single request to accurately reflect the current
    * state of the request (e.g. following a forward, request/response
    * wrapping, etc). However, it should not be set while concurrent handling
-   * is in progress, i.e. while {@link #isConcurrentHandlingStarted()} is
+   * is in progress, i.e. while {@link RequestContext#isConcurrentHandlingStarted()} is
    * {@code true}.
    *
    * @param asyncRequest the web request to use
@@ -142,6 +142,7 @@ public final class WebAsyncManager {
    * that it has completed and the request was dispatched for further
    * processing of the concurrent result.
    */
+  @Deprecated
   public boolean isConcurrentHandlingStarted() {
     return asyncRequest != null && asyncRequest.isAsyncStarted();
   }

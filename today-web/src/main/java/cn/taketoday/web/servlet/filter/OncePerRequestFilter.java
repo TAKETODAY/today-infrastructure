@@ -24,8 +24,6 @@ import java.io.IOException;
 
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.RequestContextHolder;
-import cn.taketoday.web.context.async.WebAsyncManager;
-import cn.taketoday.web.context.async.WebAsyncUtils;
 import jakarta.servlet.DispatcherType;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.RequestDispatcher;
@@ -148,15 +146,15 @@ public abstract class OncePerRequestFilter extends GenericFilterBean {
    * response will not be committed after the current thread is exited.
    *
    * @param request the current request
-   * @see WebAsyncManager#isConcurrentHandlingStarted()
+   * @see RequestContext#isConcurrentHandlingStarted()
    */
   protected boolean isAsyncStarted(HttpServletRequest request) {
     RequestContext context = RequestContextHolder.get();
     if (context == null) {
       return request.isAsyncStarted();
     }
-    WebAsyncManager asyncManager = WebAsyncUtils.getAsyncManager(context);
-    return asyncManager.isConcurrentHandlingStarted();
+    // TODO maybe fail
+    return context.isConcurrentHandlingStarted();
   }
 
   /**

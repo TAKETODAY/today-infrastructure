@@ -30,20 +30,34 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import cn.taketoday.beans.BeanWrapper;
 import cn.taketoday.beans.BeansException;
 import cn.taketoday.beans.factory.BeanNameAware;
 import cn.taketoday.beans.factory.config.DestructionAwareBeanPostProcessor;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.beans.factory.xml.XmlBeanDefinitionReader;
+import cn.taketoday.context.annotation.AnnotatedBeanDefinitionReader;
+import cn.taketoday.context.annotation.AnnotationConfigApplicationContext;
 import cn.taketoday.core.io.ClassPathResource;
+import cn.taketoday.lang.Assert;
+import cn.taketoday.session.MapSession;
+import cn.taketoday.session.SessionRepository;
+import cn.taketoday.session.WebSession;
+import cn.taketoday.session.config.EnableWebSession;
 import cn.taketoday.web.RequestContextHolder;
+import cn.taketoday.web.RequestContextUtils;
 import cn.taketoday.web.context.support.SessionScope;
 import cn.taketoday.web.servlet.ServletRequestContext;
 import cn.taketoday.web.testfixture.beans.DerivedTestBean;
 import cn.taketoday.web.testfixture.beans.TestBean;
 import cn.taketoday.web.testfixture.servlet.MockHttpServletRequest;
+import cn.taketoday.web.testfixture.servlet.MockHttpServletResponse;
 import cn.taketoday.web.testfixture.servlet.MockHttpSession;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -58,11 +72,20 @@ public class SessionScopeTests {
 
   private final StandardBeanFactory beanFactory = new StandardBeanFactory();
 
+  AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(beanFactory);
+
   @BeforeEach
   public void setup() throws Exception {
+    AnnotatedBeanDefinitionReader annotatedReader = new AnnotatedBeanDefinitionReader(beanFactory);
+    annotatedReader.register(
+            SessionConfig.class
+    );
+
     this.beanFactory.registerScope("session", new SessionScope(beanFactory));
     XmlBeanDefinitionReader reader = new XmlBeanDefinitionReader(this.beanFactory);
     reader.loadBeanDefinitions(new ClassPathResource("sessionScopeTests.xml", getClass()));
+
+    context.refresh();
   }
 
   @AfterEach
@@ -80,11 +103,11 @@ public class SessionScopeTests {
         count.incrementAndGet();
       }
     };
+
     MockHttpServletRequest request = new MockHttpServletRequest();
     request.setSession(session);
-    ServletRequestContext requestAttributes = new ServletRequestContext(null, request, null);
 
-    RequestContextHolder.set(requestAttributes);
+    ServletRequestContext requestAttributes = getContext(request);
     String name = "sessionScopedObject";
     assertThat(session.getAttribute(name)).isNull();
     TestBean bean = (TestBean) this.beanFactory.getBean(name);
@@ -109,11 +132,10 @@ public class SessionScopeTests {
         count.incrementAndGet();
       }
     };
+
     MockHttpServletRequest request = new MockHttpServletRequest();
     request.setSession(session);
-    ServletRequestContext requestAttributes = new ServletRequestContext(null, request, null);
-
-    RequestContextHolder.set(requestAttributes);
+    ServletRequestContext requestAttributes = getContext(request);
     String name = "sessionScopedObject";
     assertThat(session.getAttribute(name)).isNull();
     TestBean bean = (TestBean) this.beanFactory.getBean(name);
@@ -127,12 +149,11 @@ public class SessionScopeTests {
 
   @Test
   public void destructionAtSessionTermination() throws Exception {
-    MockHttpSession session = new MockHttpSession();
-    MockHttpServletRequest request = new MockHttpServletRequest();
-    request.setSession(session);
-    ServletRequestContext requestAttributes = new ServletRequestContext(null, request, null);
 
-    RequestContextHolder.set(requestAttributes);
+    MockHttpServletRequest request = new MockHttpServletRequest();
+
+    ServletRequestContext requestAttributes = getContext(request);
+    WebSession session = RequestContextUtils.getSession(requestAttributes);
     String name = "sessionScopedDisposableObject";
     assertThat(session.getAttribute(name)).isNull();
     DerivedTestBean bean = (DerivedTestBean) this.beanFactory.getBean(name);
@@ -142,6 +163,13 @@ public class SessionScopeTests {
     requestAttributes.requestCompleted();
     session.invalidate();
     assertThat(bean.wasDestroyed()).isTrue();
+  }
+
+  private ServletRequestContext getContext(MockHttpServletRequest request) {
+    ServletRequestContext requestAttributes = new ServletRequestContext(
+            context, request, new MockHttpServletResponse());
+    RequestContextHolder.set(requestAttributes);
+    return requestAttributes;
   }
 
   @Test
@@ -163,13 +191,10 @@ public class SessionScopeTests {
 
   private void doTestDestructionWithSessionSerialization(boolean beanNameReset) throws Exception {
     Serializable serializedState = null;
-
-    MockHttpSession session = new MockHttpSession();
     MockHttpServletRequest request = new MockHttpServletRequest();
-    request.setSession(session);
-    ServletRequestContext requestAttributes = new ServletRequestContext(null, request, null);
 
-    RequestContextHolder.set(requestAttributes);
+    ServletRequestContext requestAttributes = getContext(request);
+    WebSession session = RequestContextUtils.getSession(requestAttributes);
     String name = "sessionScopedDisposableObject";
     assertThat(session.getAttribute(name)).isNull();
     DerivedTestBean bean = (DerivedTestBean) this.beanFactory.getBean(name);
@@ -177,18 +202,25 @@ public class SessionScopeTests {
     assertThat(this.beanFactory.getBean(name)).isSameAs(bean);
 
     requestAttributes.requestCompleted();
-    serializedState = session.serializeState();
+    serializedState = serializeState(session);
     assertThat(bean.wasDestroyed()).isFalse();
 
     serializedState = serializeAndDeserialize(serializedState);
 
-    session = new MockHttpSession();
-    session.deserializeState(serializedState);
-    request = new MockHttpServletRequest();
-    request.setSession(session);
-    requestAttributes = new ServletRequestContext(null, request, null);
+    SessionRepository repository = beanFactory.getBean(SessionRepository.class);
 
-    RequestContextHolder.set(requestAttributes);
+    BeanWrapper beanWrapper = BeanWrapper.forBeanPropertyAccess(repository);
+    ConcurrentHashMap<String, WebSession> sessions = (ConcurrentHashMap<String, WebSession>) beanWrapper.getPropertyValue("sessions");
+
+    session = new MapSession();
+    deserializeState(session, serializedState);
+
+    WebSession finalSession = session;
+    sessions.replaceAll((s, webSession) -> finalSession);
+    request = new MockHttpServletRequest();
+
+    requestAttributes = getContext(request);
+
     name = "sessionScopedDisposableObject";
     assertThat(session.getAttribute(name)).isNotNull();
     bean = (DerivedTestBean) this.beanFactory.getBean(name);
@@ -205,6 +237,25 @@ public class SessionScopeTests {
     else {
       assertThat(bean.getBeanName()).isNotNull();
     }
+  }
+
+  private void deserializeState(WebSession session, Serializable state) {
+    Assert.isTrue(state instanceof Map, "Serialized state needs to be of type [java.util.Map]");
+    session.getAttributes().putAll((Map<String, Object>) state);
+  }
+
+  private Serializable serializeState(WebSession session) {
+    HashMap<String, Serializable> state = new HashMap<>();
+    for (Iterator<Map.Entry<String, Object>> it = session.getAttributes().entrySet().iterator(); it.hasNext(); ) {
+      Map.Entry<String, Object> entry = it.next();
+      String name = entry.getKey();
+      Object value = entry.getValue();
+      it.remove();
+      if (value instanceof Serializable) {
+        state.put(name, (Serializable) value);
+      }
+    }
+    return state;
   }
 
   private static class CustomDestructionAwareBeanPostProcessor implements DestructionAwareBeanPostProcessor {
@@ -248,6 +299,11 @@ public class SessionScopeTests {
     try (ObjectInputStream ois = new ObjectInputStream(is)) {
       return (T) ois.readObject();
     }
+  }
+
+  @EnableWebSession
+  static class SessionConfig {
+
   }
 
 }

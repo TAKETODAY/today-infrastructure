@@ -44,7 +44,6 @@ import cn.taketoday.web.HttpRequestHandler;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.RequestHandledListener;
 import cn.taketoday.web.ReturnValueHandler;
-import cn.taketoday.web.context.async.WebAsyncUtils;
 import cn.taketoday.web.handler.method.ExceptionHandlerAnnotationExceptionHandler;
 import cn.taketoday.web.util.WebUtils;
 
@@ -460,8 +459,7 @@ public class DispatcherHandler extends InfraHandler {
       }
     }
     else {
-
-      if (WebAsyncUtils.isConcurrentHandlingStarted(request)) {
+      if (request.isConcurrentHandlingStarted()) {
         log.debug("Exiting but response remains open for further handling");
         return;
       }

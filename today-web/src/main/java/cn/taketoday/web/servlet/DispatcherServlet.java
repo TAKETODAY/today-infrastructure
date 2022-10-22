@@ -115,7 +115,7 @@ public class DispatcherServlet
    * assumption that the user has performed these actions (or not) per his or her
    * specific needs.
    *
-   * @param applicationContext the context to use
+   * @param context the context to use
    * @see #initApplicationContext
    * @see #configureAndRefreshApplicationContext
    */

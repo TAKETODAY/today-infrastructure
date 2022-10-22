@@ -24,12 +24,17 @@ import org.junit.jupiter.api.Test;
 
 import cn.taketoday.beans.factory.BeanCreationException;
 import cn.taketoday.beans.factory.support.RootBeanDefinition;
+import cn.taketoday.session.WebSession;
+import cn.taketoday.session.config.EnableWebSession;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.RequestContextHolder;
+import cn.taketoday.web.RequestContextUtils;
 import cn.taketoday.web.servlet.ServletRequestContext;
+import cn.taketoday.web.servlet.support.AnnotationConfigWebApplicationContext;
 import cn.taketoday.web.servlet.support.StaticWebApplicationContext;
 import cn.taketoday.web.testfixture.beans.TestBean;
 import cn.taketoday.web.testfixture.servlet.MockHttpServletRequest;
+import cn.taketoday.web.testfixture.servlet.MockHttpServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -81,22 +86,34 @@ public class RequestAndSessionScopedBeanTests {
   public void testPutBeanInSession() {
     String targetBeanName = "target";
     HttpServletRequest request = new MockHttpServletRequest();
-    RequestContextHolder.set(new ServletRequestContext(null, request, null));
 
-    StaticWebApplicationContext wac = new StaticWebApplicationContext();
+    AnnotationConfigWebApplicationContext wac = new AnnotationConfigWebApplicationContext();
+
+    ServletRequestContext context = new ServletRequestContext(wac, request, new MockHttpServletResponse());
+    RequestContextHolder.set(context);
+
     RootBeanDefinition bd = new RootBeanDefinition(TestBean.class);
     bd.setScope(RequestContext.SCOPE_SESSION);
     bd.getPropertyValues().add("name", "abc");
-    wac.registerBeanDefinition(targetBeanName, bd);
+
+    wac.register(Config.class);
     wac.refresh();
+    wac.registerBeanDefinition(targetBeanName, bd);
+
+    WebSession session = RequestContextUtils.getSession(context);
 
     TestBean target = (TestBean) wac.getBean(targetBeanName);
     assertThat(target.getName()).isEqualTo("abc");
-    assertThat(request.getSession().getAttribute(targetBeanName)).isSameAs(target);
+    assertThat(session.getAttribute(targetBeanName)).isSameAs(target);
 
     RequestContextHolder.set(null);
     assertThatExceptionOfType(BeanCreationException.class).isThrownBy(() ->
             wac.getBean(targetBeanName));
+  }
+
+  @EnableWebSession
+  static class Config {
+
   }
 
 }

@@ -30,7 +30,6 @@ import cn.taketoday.core.task.AsyncTaskExecutor;
 import cn.taketoday.core.task.SimpleAsyncTaskExecutor;
 import cn.taketoday.web.servlet.ServletRequestContext;
 import cn.taketoday.web.testfixture.servlet.MockHttpServletRequest;
-import jakarta.servlet.http.HttpServletRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatException;
@@ -85,12 +84,12 @@ class WebAsyncManagerTests {
   public void isConcurrentHandlingStarted() {
     given(this.asyncWebRequest.isAsyncStarted()).willReturn(false);
 
-    assertThat(this.asyncManager.isConcurrentHandlingStarted()).isFalse();
+    assertThat(this.request.isConcurrentHandlingStarted()).isFalse();
 
     reset(this.asyncWebRequest);
     given(this.asyncWebRequest.isAsyncStarted()).willReturn(true);
 
-    assertThat(this.asyncManager.isConcurrentHandlingStarted()).isTrue();
+    assertThat(this.request.isConcurrentHandlingStarted()).isTrue();
   }
 
   @Test
@@ -232,7 +231,7 @@ class WebAsyncManagerTests {
   @Test
   public void startCallableProcessingWithAsyncTask() throws Exception {
     AsyncTaskExecutor executor = mock(AsyncTaskExecutor.class);
-    given(this.request.unwrapRequest(HttpServletRequest.class)).willReturn(this.servletRequest);
+//    given(this.request.unwrapRequest(HttpServletRequest.class)).willReturn(this.servletRequest);
 
     WebAsyncTask<Object> asyncTask = new WebAsyncTask<>(1000L, executor, mock(Callable.class));
     this.asyncManager.startCallableProcessing(asyncTask);
@@ -344,7 +343,7 @@ class WebAsyncManagerTests {
   }
 
   private void setupDefaultAsyncScenario() {
-    given(this.request.unwrapRequest(HttpServletRequest.class)).willReturn(this.servletRequest);
+//    given(this.request.unwrapRequest(HttpServletRequest.class)).willReturn(this.servletRequest);
     given(this.asyncWebRequest.isAsyncComplete()).willReturn(false);
   }
 

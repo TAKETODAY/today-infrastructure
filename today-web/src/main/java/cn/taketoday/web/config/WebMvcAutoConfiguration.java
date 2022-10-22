@@ -31,7 +31,6 @@ import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
 import cn.taketoday.beans.factory.ObjectProvider;
 import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.beans.factory.annotation.DisableAllDependencyInjection;
-import cn.taketoday.beans.factory.annotation.DisableDependencyInjection;
 import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.ApplicationEventPublisher;
@@ -101,7 +100,6 @@ import cn.taketoday.web.view.ViewResolver;
  * config framework
  * </p>
  */
-@DisableDependencyInjection
 @DisableAllDependencyInjection
 @Configuration(proxyBeanMethods = false)
 @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
@@ -161,7 +159,8 @@ public class WebMvcAutoConfiguration extends WebMvcConfigurationSupport {
       if (mapping != null) {
         return mapping;
       }
-    } return super.createRequestMappingHandlerMapping();
+    }
+    return super.createRequestMappingHandlerMapping();
   }
 
   @Override

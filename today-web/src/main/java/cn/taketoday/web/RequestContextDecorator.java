@@ -523,6 +523,16 @@ public class RequestContextDecorator extends RequestContext {
   }
 
   @Override
+  public AsyncWebRequest getAsyncWebRequest() {
+    return delegate.getAsyncWebRequest();
+  }
+
+  @Override
+  public boolean isConcurrentHandlingStarted() {
+    return delegate.isConcurrentHandlingStarted();
+  }
+
+  @Override
   public MultipartRequest getMultipartRequest() {
     return delegate.getMultipartRequest();
   }

@@ -9,7 +9,7 @@
 
 	<bean id="requestScopedDisposableObject" class="cn.taketoday.web.testfixture.beans.DerivedTestBean" scope="request"/>
 
-	<bean id="requestScopedFactoryBean" class="cn.taketoday.web.testfixture.beans.factory.DummyFactory" scope="request"/>
+	<bean id="requestScopedFactoryBean" class="cn.taketoday.web.testfixture.beans.DummyFactory" scope="request"/>
 
 	<bean id="requestScopedUniqueBean" class="cn.taketoday.web.testfixture.beans.CountingTestBean" scope="request"/>
 
