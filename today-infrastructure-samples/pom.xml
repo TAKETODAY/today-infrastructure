@@ -36,6 +36,7 @@
 
   <modules>
     <module>netty-app</module>
+    <module>run-in-servlet-app</module>
 
   </modules>
 
