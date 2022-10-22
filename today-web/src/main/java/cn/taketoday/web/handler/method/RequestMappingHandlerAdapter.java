@@ -48,6 +48,7 @@ import cn.taketoday.session.WebSession;
 import cn.taketoday.util.LogFormatUtils;
 import cn.taketoday.util.ReflectionUtils.MethodFilter;
 import cn.taketoday.web.BindingContext;
+import cn.taketoday.web.HttpRequestHandler;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.RequestContextUtils;
 import cn.taketoday.web.ReturnValueHandler;
@@ -538,11 +539,10 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
 
     Object returnValue = invocableMethod.invokeAndHandle(request, bindingContext);
 
-    if (asyncManager.isConcurrentHandlingStarted()) {
-      return null;
+    if (request.isConcurrentHandlingStarted()) {
+      return HttpRequestHandler.NONE_RETURN_VALUE;
     }
 
-//    modelFactory.updateModel(request, bindingContext);
     return returnValue;
   }
 

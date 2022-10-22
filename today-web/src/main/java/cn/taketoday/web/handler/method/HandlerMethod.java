@@ -21,7 +21,6 @@
 package cn.taketoday.web.handler.method;
 
 import java.lang.annotation.Annotation;
-import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -374,22 +373,6 @@ public class HandlerMethod {
     return returnType == this.returnType;
   }
 
-  public boolean isDeclaringClassPresent(Class<? extends Annotation> annotationClass) {
-    return AnnotationUtils.isPresent(method.getDeclaringClass(), annotationClass);
-  }
-
-  public boolean isMethodPresent(Class<? extends Annotation> annotationClass) {
-    return AnnotationUtils.isPresent(method, annotationClass);
-  }
-
-  public <A extends Annotation> A getDeclaringClassAnnotation(Class<A> annotation) {
-    return getAnnotation(method.getDeclaringClass(), annotation);
-  }
-
-  public <A extends Annotation> A getAnnotation(AnnotatedElement element, Class<A> annotation) {
-    return AnnotationUtils.getAnnotation(element, annotation);
-  }
-
   // handleRequest
   // -----------------------------------------
 
@@ -406,10 +389,16 @@ public class HandlerMethod {
    * ResponseBody present?
    */
   public boolean isResponseBody() {
+    Boolean responseBody = this.responseBody;
     if (responseBody == null) {
-      responseBody = isResponseBody(method);
+      responseBody = computeResponseBody();
+      this.responseBody = responseBody;
     }
     return responseBody;
+  }
+
+  protected boolean computeResponseBody() {
+    return isResponseBody(method);
   }
 
   /**
@@ -638,29 +627,6 @@ public class HandlerMethod {
       return new DefaultResponseStatus(status);
     }
     return new DefaultResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR);
-  }
-
-  public static ResponseStatus getResponseStatus(HandlerMethod handler) {
-    Assert.notNull(handler, "handler method must not be null");
-    ResponseStatus status = handler.getMethodAnnotation(ResponseStatus.class);
-    if (status == null) {
-      status = handler.getDeclaringClassAnnotation(ResponseStatus.class);
-    }
-    return wrapStatus(status);
-  }
-
-  private static DefaultResponseStatus wrapStatus(ResponseStatus status) {
-    return status != null ? new DefaultResponseStatus(status) : null;
-  }
-
-  public static ResponseStatus getResponseStatus(AnnotatedElement handler) {
-    Assert.notNull(handler, "AnnotatedElement must not be null");
-    ResponseStatus status = handler.getDeclaredAnnotation(ResponseStatus.class);
-    if (status == null && handler instanceof Method) {
-      Class<?> declaringClass = ((Method) handler).getDeclaringClass();
-      status = declaringClass.getDeclaredAnnotation(ResponseStatus.class);
-    }
-    return wrapStatus(status);
   }
 
   // HandlerMethod

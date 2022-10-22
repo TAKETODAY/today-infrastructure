@@ -34,7 +34,6 @@ import cn.taketoday.http.HttpStatusCode;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ExceptionUtils;
-import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.BindingContext;
 import cn.taketoday.web.HttpRequestHandler;
@@ -69,8 +68,6 @@ import jakarta.servlet.http.HttpServletResponse;
  */
 public class ServletInvocableHandlerMethod extends InvocableHandlerMethod {
 
-  private static final Method CALLABLE_METHOD = ReflectionUtils.getMethod(Callable.class, "call");
-
   @Nullable
   private ReturnValueHandlerManager returnValueHandlerManager;
 
@@ -95,6 +92,9 @@ public class ServletInvocableHandlerMethod extends InvocableHandlerMethod {
    */
   public ServletInvocableHandlerMethod(HandlerMethod handlerMethod) {
     super(handlerMethod);
+    if (handlerMethod instanceof ServletInvocableHandlerMethod sihm) {
+      this.returnValueHandlerManager = sihm.returnValueHandlerManager;
+    }
   }
 
   /**
@@ -207,8 +207,8 @@ public class ServletInvocableHandlerMethod extends InvocableHandlerMethod {
    * actually invoking the controller method. This is useful when processing
    * async return values (e.g. Callable, DeferredResult, ListenableFuture).
    */
-  ServletInvocableHandlerMethod wrapConcurrentResult(Object result) {
-    return new ConcurrentResultHandlerMethod(result, new ConcurrentResultMethodParameter(result));
+  ConcurrentResultHandlerMethod wrapConcurrentResult(Object result) {
+    return new ConcurrentResultHandlerMethod(result, new ConcurrentResultMethodParameter(result), this);
   }
 
   /**
@@ -217,26 +217,26 @@ public class ServletInvocableHandlerMethod extends InvocableHandlerMethod {
    * order to return the fixed (concurrent) result value given to it. Effectively
    * "resumes" processing with the asynchronously produced return value.
    */
-  private class ConcurrentResultHandlerMethod extends ServletInvocableHandlerMethod {
+  private static class ConcurrentResultHandlerMethod extends ServletInvocableHandlerMethod {
 
+    private final Object asyncResult;
     private final MethodParameter returnType;
+    private final ServletInvocableHandlerMethod target;
 
-    public ConcurrentResultHandlerMethod(final Object result, ConcurrentResultMethodParameter returnType) {
-      super((Callable<Object>) () -> {
-//        if (result instanceof Exception) {
-//          throw (Exception) result;
-//        }
-        if (result instanceof Throwable) {
-          // throw new ServletException("Async processing failed: " + result, (Throwable) result);
-          throw ExceptionUtils.sneakyThrow((Throwable) result);
-        }
-        return result;
-      }, CALLABLE_METHOD);
-
-      if (ServletInvocableHandlerMethod.this.returnValueHandlerManager != null) {
-        setReturnValueHandlerManager(ServletInvocableHandlerMethod.this.returnValueHandlerManager);
-      }
+    public ConcurrentResultHandlerMethod(final Object asyncResult, ConcurrentResultMethodParameter returnType, ServletInvocableHandlerMethod target) {
+      super(target);
+      this.target = target;
       this.returnType = returnType;
+      this.asyncResult = asyncResult;
+    }
+
+    @Nullable
+    @Override
+    public Object invokeForRequest(RequestContext request, BindingContext bindingContext, Object... providedArgs) throws Throwable {
+      if (asyncResult instanceof Throwable) {
+        throw ExceptionUtils.sneakyThrow((Throwable) asyncResult);
+      }
+      return asyncResult;
     }
 
     /**
@@ -244,7 +244,7 @@ public class ServletInvocableHandlerMethod extends InvocableHandlerMethod {
      */
     @Override
     public Class<?> getBeanType() {
-      return ServletInvocableHandlerMethod.this.getBeanType();
+      return target.getBeanType();
     }
 
     /**
@@ -266,7 +266,7 @@ public class ServletInvocableHandlerMethod extends InvocableHandlerMethod {
      */
     @Override
     public <A extends Annotation> A getMethodAnnotation(Class<A> annotationType) {
-      return ServletInvocableHandlerMethod.this.getMethodAnnotation(annotationType);
+      return target.getMethodAnnotation(annotationType);
     }
 
     /**
@@ -274,7 +274,7 @@ public class ServletInvocableHandlerMethod extends InvocableHandlerMethod {
      */
     @Override
     public <A extends Annotation> boolean hasMethodAnnotation(Class<A> annotationType) {
-      return ServletInvocableHandlerMethod.this.hasMethodAnnotation(annotationType);
+      return target.hasMethodAnnotation(annotationType);
     }
 
     @Override
