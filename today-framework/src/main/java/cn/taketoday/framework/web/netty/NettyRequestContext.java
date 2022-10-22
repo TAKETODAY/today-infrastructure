@@ -376,6 +376,12 @@ public class NettyRequestContext extends RequestContext {
     return responseBody.readableBytes();
   }
 
+  @Override
+  public void requestCompleted() {
+    super.requestCompleted();
+    sendIfNotCommitted();
+  }
+
   /**
    * Send HTTP message to the client
    */

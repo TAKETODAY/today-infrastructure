@@ -22,20 +22,23 @@ package cn.taketoday.framework.web.netty;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.context.async.AsyncWebRequest;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.util.concurrent.EventExecutor;
-import io.netty.util.concurrent.Promise;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/10/21 13:47
  */
 public class NettyAsyncWebRequest implements AsyncWebRequest {
+
+  @Nullable
   private Long timeout;
 
   private final AtomicBoolean asyncCompleted = new AtomicBoolean();
@@ -49,6 +52,9 @@ public class NettyAsyncWebRequest implements AsyncWebRequest {
   private final NettyRequestContext request;
   private final ChannelHandlerContext channelContext;
 
+  private volatile boolean asyncComplete;
+  private volatile boolean asyncStarted;
+
   public NettyAsyncWebRequest(NettyRequestContext request) {
     this.request = request;
     this.channelContext = request.getChannelContext();
@@ -59,7 +65,7 @@ public class NettyAsyncWebRequest implements AsyncWebRequest {
    * container processing thread has exited.
    */
   @Override
-  public void setTimeout(Long timeout) {
+  public void setTimeout(@Nullable Long timeout) {
     Assert.state(!isAsyncStarted(), "Cannot change the timeout with concurrent handling in progress");
     this.timeout = timeout;
   }
@@ -82,25 +88,25 @@ public class NettyAsyncWebRequest implements AsyncWebRequest {
   @Override
   public void startAsync() {
     EventExecutor executor = channelContext.executor();
+    if (timeout != null) {
+      executor.schedule(this::checkTimeout, timeout, TimeUnit.MILLISECONDS);
+    }
 
-    Promise<Object> objectPromise = executor.newPromise();
+    this.asyncStarted = true;
+  }
 
-    objectPromise.addListener(future -> {
-
-    });
-
-    executor.execute(new Runnable() {
-      @Override
-      public void run() {
-
+  private void checkTimeout() {
+    if (!isAsyncComplete()) {
+      // timeout
+      for (Runnable timeoutHandler : timeoutHandlers) {
+        timeoutHandler.run();
       }
-    });
-
+    }
   }
 
   @Override
   public boolean isAsyncStarted() {
-    return false;
+    return asyncStarted;
   }
 
   @Override
@@ -110,6 +116,7 @@ public class NettyAsyncWebRequest implements AsyncWebRequest {
 
   @Override
   public boolean isAsyncComplete() {
-    return false;
+    return asyncComplete;
   }
+
 }
