@@ -486,7 +486,10 @@ public abstract class AbstractAutowireCapableBeanFactory
         ((BeanNameAware) bean).setBeanName(beanName);
       }
       if (bean instanceof BeanClassLoaderAware) {
-        ((BeanClassLoaderAware) bean).setBeanClassLoader(getBeanClassLoader());
+        ClassLoader bcl = getBeanClassLoader();
+        if (bcl != null) {
+          ((BeanClassLoaderAware) bean).setBeanClassLoader(bcl);
+        }
       }
       if (bean instanceof BeanFactoryAware) {
         ((BeanFactoryAware) bean).setBeanFactory(this);
