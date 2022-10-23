@@ -30,6 +30,8 @@
 
   <packaging>maven-plugin</packaging>
 
+  <name>today-infra-maven-plugin</name>
+
   <description>Maven plugin for Today Infra</description>
 
   <properties>
@@ -42,6 +44,34 @@
     <jacoco.version>0.8.8</jacoco.version>
 
   </properties>
+
+  <licenses>
+    <license>
+      <name>GNU GENERAL PUBLIC LICENSE Version 3, 29 June 2007</name>
+      <url>https://www.gnu.org/licenses/gpl.txt</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
+
+  <url>https://github.com/TAKETODAY/today-infrastructure</url>
+  <organization>
+    <name>TODAY Tech</name>
+    <url>https://taketoday.cn</url>
+  </organization>
+
+  <developers>
+    <developer>
+      <name>Harry Yang</name>
+      <url>https://taketoday.cn</url>
+      <email>taketoday@foxmail.com</email>
+    </developer>
+  </developers>
+
+  <scm>
+    <url>https://github.com/TAKETODAY/today-infrastructure.git</url>
+    <developerConnection>Harry Yang</developerConnection>
+    <tag>plugin, maven-plugin</tag>
+  </scm>
 
   <dependencies>
 
