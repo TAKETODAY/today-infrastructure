@@ -38,6 +38,7 @@ import cn.taketoday.logging.Logger;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.web.HandlerInterceptor;
 import cn.taketoday.web.HandlerMapping;
+import cn.taketoday.web.HandlerMatchingMetadata;
 import cn.taketoday.web.HttpRequestHandler;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.context.async.WebAsyncManager;
@@ -342,6 +343,10 @@ public abstract class AbstractHandlerMapping extends ApplicationContextSupport
         config.validateAllowCredentials();
       }
       executionChain = getCorsHandlerExecutionChain(request, executionChain, config);
+    }
+
+    if (!request.hasMatchingMetadata()) {
+      request.setMatchingMetadata(new HandlerMatchingMetadata(handler, request, patternParser));
     }
 
     return executionChain;

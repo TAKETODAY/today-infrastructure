@@ -358,6 +358,10 @@ public abstract class RequestContext extends AttributeAccessorSupport
     return this.matchingMetadata;
   }
 
+  public boolean hasMatchingMetadata() {
+    return matchingMetadata != null;
+  }
+
   protected abstract String doGetRequestURI();
 
   /**

@@ -468,6 +468,11 @@ public class RequestContextDecorator extends RequestContext {
   }
 
   @Override
+  public boolean hasMatchingMetadata() {
+    return delegate.hasMatchingMetadata();
+  }
+
+  @Override
   public Object getAttribute(String name) {
     return delegate.getAttribute(name);
   }
