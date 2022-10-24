@@ -288,7 +288,9 @@ public class DispatcherHandler extends InfraHandler {
       catch (Throwable ex) {
         throwable = ex; // not handled
       }
-      context.requestCompleted();
+      if (!context.isConcurrentHandlingStarted()) {
+        context.requestCompleted();
+      }
       if (log.isDebugEnabled()) {
         logResult(context, throwable);
       }
@@ -372,7 +374,10 @@ public class DispatcherHandler extends InfraHandler {
       catch (Throwable ex) {
         throwable = ex; // not handled
       }
-      context.requestCompleted();
+      // async
+      if (!context.isConcurrentHandlingStarted()) {
+        context.requestCompleted();
+      }
       if (log.isDebugEnabled()) {
         logResult(context, throwable);
       }
