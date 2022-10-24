@@ -17,11 +17,13 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.framework.web.netty;
 
 import java.net.InetSocketAddress;
 
 import cn.taketoday.framework.web.server.GracefulShutdownCallback;
+import cn.taketoday.framework.web.server.GracefulShutdownResult;
 import cn.taketoday.framework.web.server.WebServer;
 import cn.taketoday.framework.web.server.WebServerException;
 import cn.taketoday.logging.Logger;
@@ -80,9 +82,16 @@ public class NettyWebServer implements WebServer {
 
   @Override
   public void shutDownGracefully(GracefulShutdownCallback callback) {
-    log.info("Shutdown netty web server: [{}] gracefully", this);
-
-    shutdown();
+    log.info("Commencing graceful shutdown. Waiting for active requests to complete");
+    try {
+      shutdown();
+      callback.shutdownComplete(GracefulShutdownResult.IDLE);
+      log.info("Graceful shutdown complete");
+    }
+    catch (Exception ex) {
+      log.info("Graceful shutdown aborted with one or more requests still active");
+      callback.shutdownComplete(GracefulShutdownResult.REQUESTS_ACTIVE);
+    }
   }
 
   @Override
