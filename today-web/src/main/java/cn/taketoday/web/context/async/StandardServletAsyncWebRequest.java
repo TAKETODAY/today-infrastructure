@@ -21,10 +21,6 @@
 package cn.taketoday.web.context.async;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.function.Consumer;
 
 import cn.taketoday.lang.Assert;
 import cn.taketoday.web.servlet.ServletRequestContext;
@@ -43,24 +39,14 @@ import jakarta.servlet.http.HttpServletResponse;
  * declarations in {@code web.xml}.
  *
  * @author Rossen Stoyanchev
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-public class StandardServletAsyncWebRequest implements AsyncWebRequest, AsyncListener {
-
-  private Long timeout;
+public class StandardServletAsyncWebRequest extends AsyncWebRequest implements AsyncListener {
 
   private AsyncContext asyncContext;
 
-  private final AtomicBoolean asyncCompleted = new AtomicBoolean();
-
-  private final List<Runnable> timeoutHandlers = new ArrayList<>();
-
-  private final List<Consumer<Throwable>> exceptionHandlers = new ArrayList<>();
-
-  private final List<Runnable> completionHandlers = new ArrayList<>();
-
   private final HttpServletRequest servletRequest;
-
   private final HttpServletResponse servletResponse;
 
   StandardServletAsyncWebRequest(ServletRequestContext context) {
@@ -79,44 +65,9 @@ public class StandardServletAsyncWebRequest implements AsyncWebRequest, AsyncLis
     this.servletResponse = response;
   }
 
-  /**
-   * In Servlet 3 async processing, the timeout period begins after the
-   * container processing thread has exited.
-   */
-  @Override
-  public void setTimeout(Long timeout) {
-    Assert.state(!isAsyncStarted(), "Cannot change the timeout with concurrent handling in progress");
-    this.timeout = timeout;
-  }
-
-  @Override
-  public void addTimeoutHandler(Runnable timeoutHandler) {
-    this.timeoutHandlers.add(timeoutHandler);
-  }
-
-  @Override
-  public void addErrorHandler(Consumer<Throwable> exceptionHandler) {
-    this.exceptionHandlers.add(exceptionHandler);
-  }
-
-  @Override
-  public void addCompletionHandler(Runnable runnable) {
-    this.completionHandlers.add(runnable);
-  }
-
   @Override
   public boolean isAsyncStarted() {
     return asyncContext != null && servletRequest.isAsyncStarted();
-  }
-
-  /**
-   * Whether async request processing has completed.
-   * <p>It is important to avoid use of request and response objects after async
-   * processing has completed. Servlet containers often re-use them.
-   */
-  @Override
-  public boolean isAsyncComplete() {
-    return asyncCompleted.get();
   }
 
   @Override
@@ -139,8 +90,12 @@ public class StandardServletAsyncWebRequest implements AsyncWebRequest, AsyncLis
   }
 
   @Override
-  public void dispatch() {
+  public void dispatch(Object concurrentResult) {
     Assert.notNull(asyncContext, "Cannot dispatch without an AsyncContext");
+    // dispatch to client
+//    asyncContext.start(() -> {
+//      LoggerFactory.getLogger(getClass()).info("asyncContext.start(");
+//    });
     asyncContext.dispatch();
   }
 
@@ -160,12 +115,12 @@ public class StandardServletAsyncWebRequest implements AsyncWebRequest, AsyncLis
 
   @Override
   public void onTimeout(AsyncEvent event) throws IOException {
-    timeoutHandlers.forEach(Runnable::run);
+    dispatchEvent(timeoutHandlers);
   }
 
   @Override
   public void onComplete(AsyncEvent event) throws IOException {
-    completionHandlers.forEach(Runnable::run);
+    dispatchEvent(completionHandlers);
     this.asyncContext = null;
     asyncCompleted.set(true);
   }

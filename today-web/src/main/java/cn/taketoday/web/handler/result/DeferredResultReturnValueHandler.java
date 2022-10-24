@@ -28,6 +28,7 @@ import cn.taketoday.util.concurrent.ListenableFuture;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.context.async.DeferredResult;
 import cn.taketoday.web.context.async.WebAsyncUtils;
+import cn.taketoday.web.handler.ReturnValueHandlerManager;
 import cn.taketoday.web.handler.method.HandlerMethod;
 
 /**
@@ -38,6 +39,12 @@ import cn.taketoday.web.handler.method.HandlerMethod;
  * @since 4.0 2022/3/30 22:25
  */
 public class DeferredResultReturnValueHandler implements HandlerMethodReturnValueHandler {
+
+  private final ReturnValueHandlerManager manager;
+
+  public DeferredResultReturnValueHandler(ReturnValueHandlerManager manager) {
+    this.manager = manager;
+  }
 
   @Override
   public boolean supportsHandlerMethod(HandlerMethod handler) {
@@ -78,7 +85,7 @@ public class DeferredResultReturnValueHandler implements HandlerMethodReturnValu
     }
 
     WebAsyncUtils.getAsyncManager(context)
-            .startDeferredResultProcessing(result);
+            .startDeferredResultProcessing(result, manager);
   }
 
   private DeferredResult<Object> adaptListenableFuture(ListenableFuture<?> future) {

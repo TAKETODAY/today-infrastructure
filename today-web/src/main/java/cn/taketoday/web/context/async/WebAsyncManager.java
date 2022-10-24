@@ -38,8 +38,6 @@ import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.web.BindingContext;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.context.async.DeferredResult.DeferredResultHandler;
-import cn.taketoday.web.servlet.ServletUtils;
-import jakarta.servlet.http.HttpServletRequest;
 
 /**
  * The central class for managing asynchronous request processing, mainly intended
@@ -388,12 +386,11 @@ public final class WebAsyncManager {
   }
 
   private String formatRequestUri() {
-    HttpServletRequest request = ServletUtils.getServletRequest(requestContext);
-    return request != null ? request.getRequestURI() : "servlet container";
+    return requestContext.getRequestURI();
   }
 
   private void setConcurrentResultAndDispatch(Object result) {
-    synchronized(WebAsyncManager.this) {
+    synchronized(this) {
       if (concurrentResult != RESULT_NONE) {
         return;
       }
@@ -412,7 +409,7 @@ public final class WebAsyncManager {
       boolean isError = result instanceof Throwable;
       logger.debug("Async {}, dispatch to {}", (isError ? "error" : "result set"), formatRequestUri());
     }
-    asyncRequest.dispatch();
+    asyncRequest.dispatch(result);
   }
 
   /**

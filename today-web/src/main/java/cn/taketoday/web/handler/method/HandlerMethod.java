@@ -22,6 +22,7 @@ package cn.taketoday.web.handler.method;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -48,11 +49,14 @@ import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.CollectionUtils;
+import cn.taketoday.util.ExceptionUtils;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.util.StringUtils;
+import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.annotation.ResponseBody;
 import cn.taketoday.web.annotation.ResponseStatus;
+import cn.taketoday.web.handler.AsyncHandler;
 import cn.taketoday.web.handler.DefaultResponseStatus;
 
 /**
@@ -72,7 +76,7 @@ import cn.taketoday.web.handler.DefaultResponseStatus;
  * @author Sam Brannen
  * @author TODAY 2018-06-25 20:03:11
  */
-public class HandlerMethod {
+public class HandlerMethod implements AsyncHandler {
 
   /** @since 3.0 @Produce */
   @Nullable
@@ -445,6 +449,10 @@ public class HandlerMethod {
     return this.resolvedFromHandlerMethod;
   }
 
+  public ConcurrentResultHandlerMethod wrapConcurrentResult(Object result) {
+    return new ConcurrentResultHandlerMethod(result, new ConcurrentResultMethodParameter(result), this);
+  }
+
   /**
    * If the provided instance contains a bean name rather than an object instance,
    * the bean name is resolved before a {@link HandlerMethod} is created and returned.
@@ -640,6 +648,135 @@ public class HandlerMethod {
       return annotationHandler.getMethod();
     }
     return null;
+  }
+
+  protected static class ConcurrentResultHandlerMethod extends HandlerMethod {
+    private final HandlerMethod target;
+
+    private final Object asyncResult;
+    private final MethodParameter returnType;
+
+    public ConcurrentResultHandlerMethod(
+            final Object asyncResult, ConcurrentResultMethodParameter returnType, HandlerMethod target) {
+      super(target);
+      this.target = target;
+      this.returnType = returnType;
+      this.asyncResult = asyncResult;
+    }
+
+    @Nullable
+    public Object invokeForRequest(RequestContext request) {
+      if (asyncResult instanceof Throwable) {
+        throw ExceptionUtils.sneakyThrow((Throwable) asyncResult);
+      }
+      return asyncResult;
+    }
+
+    /**
+     * Bridge to actual controller type-level annotations.
+     */
+    @Override
+    public Class<?> getBeanType() {
+      return target.getBeanType();
+    }
+
+    /**
+     * Bridge to actual return value or generic type within the declared
+     * async return type, e.g. Foo instead of {@code DeferredResult<Foo>}.
+     */
+    @Override
+    public MethodParameter getReturnValueType(@Nullable Object returnValue) {
+      return this.returnType;
+    }
+
+    @Override
+    public MethodParameter getReturnType() {
+      return returnType;
+    }
+
+    /**
+     * Bridge to controller method-level annotations.
+     */
+    @Override
+    public <A extends Annotation> A getMethodAnnotation(Class<A> annotationType) {
+      return target.getMethodAnnotation(annotationType);
+    }
+
+    /**
+     * Bridge to controller method-level annotations.
+     */
+    @Override
+    public <A extends Annotation> boolean hasMethodAnnotation(Class<A> annotationType) {
+      return target.hasMethodAnnotation(annotationType);
+    }
+
+    @Override
+    public boolean isReturn(Class<?> returnType) {
+      return this.returnType.getParameterType() == returnType;
+    }
+
+    @Override
+    public boolean isReturnTypeAssignableTo(Class<?> superClass) {
+      return superClass.isAssignableFrom(returnType.getParameterType());
+    }
+
+  }
+
+  /**
+   * MethodParameter subclass based on the actual return value type or if
+   * that's null falling back on the generic type within the declared async
+   * return type, e.g. Foo instead of {@code DeferredResult<Foo>}.
+   */
+  private class ConcurrentResultMethodParameter extends HandlerMethodParameter {
+
+    @Nullable
+    private final Object returnValue;
+
+    private final ResolvableType returnType;
+
+    public ConcurrentResultMethodParameter(Object returnValue) {
+      super(-1);
+      this.returnValue = returnValue;
+      this.returnType = returnValue instanceof ReactiveTypeHandler.CollectedValuesList list
+                        ? list.getReturnType()
+                        : ResolvableType.fromType(super.getGenericParameterType()).getGeneric();
+    }
+
+    public ConcurrentResultMethodParameter(ConcurrentResultMethodParameter original) {
+      super(original);
+      this.returnValue = original.returnValue;
+      this.returnType = original.returnType;
+    }
+
+    @Override
+    public Class<?> getParameterType() {
+      if (this.returnValue != null) {
+        return this.returnValue.getClass();
+      }
+      if (!ResolvableType.NONE.equals(this.returnType)) {
+        return this.returnType.toClass();
+      }
+      return super.getParameterType();
+    }
+
+    @Override
+    public Type getGenericParameterType() {
+      return this.returnType.getType();
+    }
+
+    @Override
+    public <T extends Annotation> boolean hasMethodAnnotation(Class<T> annotationType) {
+      // Ensure @ResponseBody-style handling for values collected from a reactive type
+      // even if actual return type is ResponseEntity<Flux<T>>
+      return (super.hasMethodAnnotation(annotationType)
+              || (annotationType == ResponseBody.class &&
+              this.returnValue instanceof ReactiveTypeHandler.CollectedValuesList));
+    }
+
+    @Override
+    public ConcurrentResultMethodParameter clone() {
+      return new ConcurrentResultMethodParameter(this);
+    }
   }
 
   /**

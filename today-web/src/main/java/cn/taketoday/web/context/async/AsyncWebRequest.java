@@ -20,8 +20,11 @@
 
 package cn.taketoday.web.context.async;
 
+import java.util.ArrayList;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
+import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.RequestContext;
 
@@ -29,9 +32,19 @@ import cn.taketoday.web.RequestContext;
  * Extends {@link RequestContext} with methods for asynchronous request processing.
  *
  * @author Rossen Stoyanchev
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-public interface AsyncWebRequest {
+public abstract class AsyncWebRequest {
+
+  @Nullable
+  protected Long timeout;
+
+  protected final AtomicBoolean asyncCompleted = new AtomicBoolean();
+
+  protected final ArrayList<Runnable> timeoutHandlers = new ArrayList<>();
+  protected final ArrayList<Runnable> completionHandlers = new ArrayList<>();
+  protected final ArrayList<Consumer<Throwable>> exceptionHandlers = new ArrayList<>();
 
   /**
    * Set the time required for concurrent handling to complete.
@@ -41,23 +54,45 @@ public interface AsyncWebRequest {
    * @param timeout amount of time in milliseconds; {@code null} means no
    * timeout, i.e. rely on the default timeout of the container.
    */
-  void setTimeout(@Nullable Long timeout);
+  public void setTimeout(@Nullable Long timeout) {
+    Assert.state(!isAsyncStarted(), "Cannot change the timeout with concurrent handling in progress");
+    this.timeout = timeout;
+  }
 
   /**
    * Add a handler to invoke when concurrent handling has timed out.
    */
-  void addTimeoutHandler(Runnable runnable);
+  public void addTimeoutHandler(Runnable timeoutHandler) {
+    this.timeoutHandlers.add(timeoutHandler);
+  }
 
   /**
    * Add a handler to invoke when an error occurred while concurrent
    * handling of a request.
    */
-  void addErrorHandler(Consumer<Throwable> exceptionHandler);
+  public void addErrorHandler(Consumer<Throwable> exceptionHandler) {
+    this.exceptionHandlers.add(exceptionHandler);
+  }
 
   /**
    * Add a handler to invoke when request processing completes.
    */
-  void addCompletionHandler(Runnable runnable);
+  public void addCompletionHandler(Runnable runnable) {
+    this.completionHandlers.add(runnable);
+  }
+
+  /**
+   * Whether asynchronous processing has completed.
+   */
+  public boolean isAsyncComplete() {
+    return asyncCompleted.get();
+  }
+
+  protected final void dispatchEvent(ArrayList<Runnable> handler) {
+    for (Runnable runnable : handler) {
+      runnable.run();
+    }
+  }
 
   /**
    * Mark the start of asynchronous request processing so that when the main
@@ -66,24 +101,19 @@ public interface AsyncWebRequest {
    *
    * @throws IllegalStateException if async processing has completed or is not supported
    */
-  void startAsync();
+  public abstract void startAsync();
 
   /**
    * Whether the request is in async mode following a call to {@link #startAsync()}.
    * Returns "false" if asynchronous processing never started, has completed,
    * or the request was dispatched for further processing.
    */
-  boolean isAsyncStarted();
+  public abstract boolean isAsyncStarted();
 
   /**
    * Dispatch the request to the container in order to resume processing after
    * concurrent execution in an application thread.
    */
-  void dispatch();
-
-  /**
-   * Whether asynchronous processing has completed.
-   */
-  boolean isAsyncComplete();
+  public abstract void dispatch(Object concurrentResult);
 
 }

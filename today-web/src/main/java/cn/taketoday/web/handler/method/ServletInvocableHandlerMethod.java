@@ -21,33 +21,22 @@
 package cn.taketoday.web.handler.method;
 
 import java.io.IOException;
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
-import java.lang.reflect.Type;
-import java.util.concurrent.Callable;
 
 import cn.taketoday.context.MessageSource;
-import cn.taketoday.core.MethodParameter;
-import cn.taketoday.core.ResolvableType;
-import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpStatusCode;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.ExceptionUtils;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.BindingContext;
 import cn.taketoday.web.HttpRequestHandler;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.ReturnValueHandler;
-import cn.taketoday.web.annotation.ResponseBody;
 import cn.taketoday.web.annotation.ResponseStatus;
 import cn.taketoday.web.handler.ReturnValueHandlerManager;
 import cn.taketoday.web.handler.ReturnValueHandlerNotFoundException;
 import cn.taketoday.web.handler.result.HandlerMethodReturnValueHandler;
-import cn.taketoday.web.servlet.ServletUtils;
 import cn.taketoday.web.view.View;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 
 /**
  * Extends {@link InvocableHandlerMethod} with the ability to handle return
@@ -118,11 +107,10 @@ public class ServletInvocableHandlerMethod extends InvocableHandlerMethod {
     request.setBindingContext(bindingContext);
 
     Object returnValue = invokeForRequest(request, bindingContext, providedArgs);
-    setResponseStatus(request);
+    applyResponseStatus(request);
 
     if (returnValue == null) {
       if (isRequestNotModified(request) || getResponseStatus() != null) {
-        disableContentCachingIfNecessary(request);
         return HttpRequestHandler.NONE_RETURN_VALUE;
       }
     }
@@ -156,7 +144,7 @@ public class ServletInvocableHandlerMethod extends InvocableHandlerMethod {
   /**
    * Set the response status according to the {@link ResponseStatus} annotation.
    */
-  private void setResponseStatus(RequestContext response) throws IOException {
+  private void applyResponseStatus(RequestContext response) throws IOException {
     HttpStatusCode status = getResponseStatus();
     if (status == null) {
       return;
@@ -184,166 +172,10 @@ public class ServletInvocableHandlerMethod extends InvocableHandlerMethod {
     return webRequest.isNotModified();
   }
 
-  private void disableContentCachingIfNecessary(RequestContext webRequest) {
-    if (isRequestNotModified(webRequest)) {
-      HttpServletResponse response = ServletUtils.getServletResponse(webRequest);
-      Assert.notNull(response, "Expected HttpServletResponse");
-      if (StringUtils.hasText(response.getHeader(HttpHeaders.ETAG))) {
-        HttpServletRequest request = ServletUtils.getServletRequest(webRequest);
-        Assert.notNull(request, "Expected HttpServletRequest");
-      }
-    }
-  }
-
   private String formatErrorForReturnValue(@Nullable Object returnValue) {
     return "Error handling return value=[" + returnValue + "]" +
             (returnValue != null ? ", type=" + returnValue.getClass().getName() : "") +
             " in " + this;
-  }
-
-  /**
-   * Create a nested ServletInvocableHandlerMethod subclass that returns the
-   * given value (or raises an Exception if the value is one) rather than
-   * actually invoking the controller method. This is useful when processing
-   * async return values (e.g. Callable, DeferredResult, ListenableFuture).
-   */
-  ConcurrentResultHandlerMethod wrapConcurrentResult(Object result) {
-    return new ConcurrentResultHandlerMethod(result, new ConcurrentResultMethodParameter(result), this);
-  }
-
-  /**
-   * A nested subclass of {@code ServletInvocableHandlerMethod} that uses a
-   * simple {@link Callable} instead of the original controller as the handler in
-   * order to return the fixed (concurrent) result value given to it. Effectively
-   * "resumes" processing with the asynchronously produced return value.
-   */
-  private static class ConcurrentResultHandlerMethod extends ServletInvocableHandlerMethod {
-
-    private final Object asyncResult;
-    private final MethodParameter returnType;
-    private final ServletInvocableHandlerMethod target;
-
-    public ConcurrentResultHandlerMethod(final Object asyncResult, ConcurrentResultMethodParameter returnType, ServletInvocableHandlerMethod target) {
-      super(target);
-      this.target = target;
-      this.returnType = returnType;
-      this.asyncResult = asyncResult;
-    }
-
-    @Nullable
-    @Override
-    public Object invokeForRequest(RequestContext request, BindingContext bindingContext, Object... providedArgs) throws Throwable {
-      if (asyncResult instanceof Throwable) {
-        throw ExceptionUtils.sneakyThrow((Throwable) asyncResult);
-      }
-      return asyncResult;
-    }
-
-    /**
-     * Bridge to actual controller type-level annotations.
-     */
-    @Override
-    public Class<?> getBeanType() {
-      return target.getBeanType();
-    }
-
-    /**
-     * Bridge to actual return value or generic type within the declared
-     * async return type, e.g. Foo instead of {@code DeferredResult<Foo>}.
-     */
-    @Override
-    public MethodParameter getReturnValueType(@Nullable Object returnValue) {
-      return this.returnType;
-    }
-
-    @Override
-    public MethodParameter getReturnType() {
-      return returnType;
-    }
-
-    /**
-     * Bridge to controller method-level annotations.
-     */
-    @Override
-    public <A extends Annotation> A getMethodAnnotation(Class<A> annotationType) {
-      return target.getMethodAnnotation(annotationType);
-    }
-
-    /**
-     * Bridge to controller method-level annotations.
-     */
-    @Override
-    public <A extends Annotation> boolean hasMethodAnnotation(Class<A> annotationType) {
-      return target.hasMethodAnnotation(annotationType);
-    }
-
-    @Override
-    public boolean isReturn(Class<?> returnType) {
-      return this.returnType.getParameterType() == returnType;
-    }
-
-    @Override
-    public boolean isReturnTypeAssignableTo(Class<?> superClass) {
-      return superClass.isAssignableFrom(returnType.getParameterType());
-    }
-
-  }
-
-  /**
-   * MethodParameter subclass based on the actual return value type or if
-   * that's null falling back on the generic type within the declared async
-   * return type, e.g. Foo instead of {@code DeferredResult<Foo>}.
-   */
-  private class ConcurrentResultMethodParameter extends HandlerMethodParameter {
-
-    @Nullable
-    private final Object returnValue;
-
-    private final ResolvableType returnType;
-
-    public ConcurrentResultMethodParameter(Object returnValue) {
-      super(-1);
-      this.returnValue = returnValue;
-      this.returnType = returnValue instanceof ReactiveTypeHandler.CollectedValuesList list
-                        ? list.getReturnType()
-                        : ResolvableType.fromType(super.getGenericParameterType()).getGeneric();
-    }
-
-    public ConcurrentResultMethodParameter(ConcurrentResultMethodParameter original) {
-      super(original);
-      this.returnValue = original.returnValue;
-      this.returnType = original.returnType;
-    }
-
-    @Override
-    public Class<?> getParameterType() {
-      if (this.returnValue != null) {
-        return this.returnValue.getClass();
-      }
-      if (!ResolvableType.NONE.equals(this.returnType)) {
-        return this.returnType.toClass();
-      }
-      return super.getParameterType();
-    }
-
-    @Override
-    public Type getGenericParameterType() {
-      return this.returnType.getType();
-    }
-
-    @Override
-    public <T extends Annotation> boolean hasMethodAnnotation(Class<T> annotationType) {
-      // Ensure @ResponseBody-style handling for values collected from a reactive type
-      // even if actual return type is ResponseEntity<Flux<T>>
-      return (super.hasMethodAnnotation(annotationType)
-              || (annotationType == ResponseBody.class &&
-              this.returnValue instanceof ReactiveTypeHandler.CollectedValuesList));
-    }
-
-    @Override
-    public ConcurrentResultMethodParameter clone() {
-      return new ConcurrentResultMethodParameter(this);
-    }
   }
 
 }

@@ -45,7 +45,6 @@ import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.session.SessionManager;
 import cn.taketoday.session.WebSession;
-import cn.taketoday.util.LogFormatUtils;
 import cn.taketoday.util.ReflectionUtils.MethodFilter;
 import cn.taketoday.web.BindingContext;
 import cn.taketoday.web.HttpRequestHandler;
@@ -526,16 +525,16 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
     asyncManager.registerCallableInterceptors(callableInterceptors);
     asyncManager.registerDeferredResultInterceptors(deferredResultInterceptors);
 
-    if (asyncManager.hasConcurrentResult()) {
-      Object result = asyncManager.getConcurrentResult();
-      bindingContext = asyncManager.getBindingContext();
-      asyncManager.clearConcurrentResult();
-      LogFormatUtils.traceDebug(log, traceOn -> {
-        String formatted = LogFormatUtils.formatValue(result, !traceOn);
-        return "Resume with async result [" + formatted + "]";
-      });
-      invocableMethod = invocableMethod.wrapConcurrentResult(result);
-    }
+//    if (asyncManager.hasConcurrentResult()) {
+//      Object result = asyncManager.getConcurrentResult();
+//      bindingContext = asyncManager.getBindingContext();
+//      asyncManager.clearConcurrentResult();
+//      LogFormatUtils.traceDebug(log, traceOn -> {
+//        String formatted = LogFormatUtils.formatValue(result, !traceOn);
+//        return "Resume with async result [" + formatted + "]";
+//      });
+//      invocableMethod = invocableMethod.wrapConcurrentResult(result);
+//    }
 
     Object returnValue = invocableMethod.invokeAndHandle(request, bindingContext);
 

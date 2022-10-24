@@ -352,7 +352,7 @@ class WebAsyncManagerTests {
     verify(this.asyncWebRequest).addErrorHandler(notNull());
     verify(this.asyncWebRequest).addCompletionHandler(notNull());
     verify(this.asyncWebRequest).startAsync();
-    verify(this.asyncWebRequest).dispatch();
+    verify(this.asyncWebRequest).dispatch(null);
   }
 
   private final class StubCallable implements Callable<Object> {
