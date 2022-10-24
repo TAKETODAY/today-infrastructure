@@ -71,7 +71,7 @@ public class NettyWebServerFactory
    *
    * @see io.netty.util.concurrent.MultithreadEventExecutorGroup
    */
-  private int childThreadCount = 4;
+  private int workThreadCount = 4;
 
   /**
    * the number of threads that will be used by
@@ -81,13 +81,13 @@ public class NettyWebServerFactory
    *
    * @see io.netty.util.concurrent.MultithreadEventExecutorGroup
    */
-  private int parentThreadCount = 2;
+  private int bossThreadCount = 2;
 
   @Nullable
-  private EventLoopGroup childGroup;
+  private EventLoopGroup workGroup;
 
   @Nullable
-  private EventLoopGroup parentGroup;
+  private EventLoopGroup bossGroup;
 
   @Nullable
   private Class<? extends ServerSocketChannel> socketChannel;
@@ -102,13 +102,13 @@ public class NettyWebServerFactory
   private NettyChannelInitializer nettyChannelInitializer;
 
   @Nullable
-  public EventLoopGroup getChildGroup() {
-    return childGroup;
+  public EventLoopGroup getWorkGroup() {
+    return workGroup;
   }
 
   @Nullable
-  public EventLoopGroup getParentGroup() {
-    return parentGroup;
+  public EventLoopGroup getBossGroup() {
+    return bossGroup;
   }
 
   @Nullable
@@ -116,12 +116,12 @@ public class NettyWebServerFactory
     return socketChannel;
   }
 
-  public void setParentGroup(EventLoopGroup parentGroup) {
-    this.parentGroup = parentGroup;
+  public void setBossGroup(EventLoopGroup bossGroup) {
+    this.bossGroup = bossGroup;
   }
 
-  public void setChildGroup(EventLoopGroup childGroup) {
-    this.childGroup = childGroup;
+  public void setWorkGroup(EventLoopGroup workGroup) {
+    this.workGroup = workGroup;
   }
 
   public void setSocketChannel(Class<? extends ServerSocketChannel> socketChannel) {
@@ -136,8 +136,8 @@ public class NettyWebServerFactory
    *
    * @see io.netty.util.concurrent.MultithreadEventExecutorGroup
    */
-  public void setParentThreadCount(int parentThreadCount) {
-    this.parentThreadCount = parentThreadCount;
+  public void setBossThreadCount(int bossThreadCount) {
+    this.bossThreadCount = bossThreadCount;
   }
 
   /**
@@ -148,8 +148,8 @@ public class NettyWebServerFactory
    *
    * @see io.netty.util.concurrent.MultithreadEventExecutorGroup
    */
-  public int getParentThreadCount() {
-    return parentThreadCount;
+  public int getBossThreadCount() {
+    return bossThreadCount;
   }
 
   /**
@@ -160,8 +160,8 @@ public class NettyWebServerFactory
    *
    * @see io.netty.util.concurrent.MultithreadEventExecutorGroup
    */
-  public void setChildThreadCount(int childThreadCount) {
-    this.childThreadCount = childThreadCount;
+  public void setWorkThreadCount(int workThreadCount) {
+    this.workThreadCount = workThreadCount;
   }
 
   /**
@@ -172,8 +172,8 @@ public class NettyWebServerFactory
    *
    * @see io.netty.util.concurrent.MultithreadEventExecutorGroup
    */
-  public int getChildThreadCount() {
-    return childThreadCount;
+  public int getWorkThreadCount() {
+    return workThreadCount;
   }
 
   public void setNettyChannelInitializer(NettyChannelInitializer nettyChannelInitializer) {
@@ -235,18 +235,18 @@ public class NettyWebServerFactory
       KQueueDelegate.init(this);
     }
     else {
-      if (parentGroup == null) {
-        parentGroup = new NioEventLoopGroup(parentThreadCount, new DefaultThreadFactory("parent@"));
+      if (bossGroup == null) {
+        bossGroup = new NioEventLoopGroup(bossThreadCount, new DefaultThreadFactory("boss"));
       }
-      if (childGroup == null) {
-        childGroup = new NioEventLoopGroup(childThreadCount, new DefaultThreadFactory("child@"));
+      if (workGroup == null) {
+        workGroup = new NioEventLoopGroup(workThreadCount, new DefaultThreadFactory("workers"));
       }
       if (socketChannel == null) {
         socketChannel = NioServerSocketChannel.class;
       }
     }
 
-    bootstrap.group(parentGroup, childGroup);
+    bootstrap.group(bossGroup, workGroup);
     bootstrap.channel(socketChannel);
 
     NettyChannelInitializer channelInitializer = getNettyChannelInitializer();
@@ -256,9 +256,11 @@ public class NettyWebServerFactory
     bootstrap.childOption(ChannelOption.SO_KEEPALIVE, true);
 
     postBootstrap(bootstrap);
+    Assert.state(bossGroup != null, "No NettyChannelInitializer");
+    Assert.state(workGroup != null, "No NettyChannelInitializer");
 
     InetSocketAddress listenAddress = getListenAddress();
-    return new NettyWebServer(bootstrap, listenAddress, parentGroup, childGroup);
+    return new NettyWebServer(bootstrap, listenAddress, bossGroup, workGroup);
   }
 
   private InetSocketAddress getListenAddress() {
@@ -300,13 +302,13 @@ public class NettyWebServerFactory
       if (factory.socketChannel == null) {
         factory.setSocketChannel(EpollServerSocketChannel.class);
       }
-      if (factory.parentGroup == null) {
-        factory.setParentGroup(new EpollEventLoopGroup(
-                factory.getParentThreadCount(), new DefaultThreadFactory("epoll-parent@")));
+      if (factory.bossGroup == null) {
+        factory.setBossGroup(new EpollEventLoopGroup(
+                factory.getBossThreadCount(), new DefaultThreadFactory("epoll-boss")));
       }
-      if (factory.childGroup == null) {
-        factory.setChildGroup(new EpollEventLoopGroup(
-                factory.getChildThreadCount(), new DefaultThreadFactory("epoll-child@")));
+      if (factory.workGroup == null) {
+        factory.setWorkGroup(new EpollEventLoopGroup(
+                factory.getWorkThreadCount(), new DefaultThreadFactory("epoll-workers")));
       }
     }
   }
@@ -316,13 +318,13 @@ public class NettyWebServerFactory
       if (factory.socketChannel == null) {
         factory.setSocketChannel(KQueueServerSocketChannel.class);
       }
-      if (factory.parentGroup == null) {
-        factory.setParentGroup(new KQueueEventLoopGroup(
-                factory.getParentThreadCount(), new DefaultThreadFactory("kQueue-parent@")));
+      if (factory.bossGroup == null) {
+        factory.setBossGroup(new KQueueEventLoopGroup(
+                factory.getBossThreadCount(), new DefaultThreadFactory("kQueue-boss")));
       }
-      if (factory.childGroup == null) {
-        factory.setChildGroup(new KQueueEventLoopGroup(
-                factory.getChildThreadCount(), new DefaultThreadFactory("kQueue-child@")));
+      if (factory.workGroup == null) {
+        factory.setWorkGroup(new KQueueEventLoopGroup(
+                factory.getWorkThreadCount(), new DefaultThreadFactory("kQueue-workers")));
       }
     }
   }

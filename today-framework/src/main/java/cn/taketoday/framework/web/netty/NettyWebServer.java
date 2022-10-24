@@ -24,7 +24,6 @@ import java.net.InetSocketAddress;
 import cn.taketoday.framework.web.server.GracefulShutdownCallback;
 import cn.taketoday.framework.web.server.WebServer;
 import cn.taketoday.framework.web.server.WebServerException;
-import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import io.netty.bootstrap.ServerBootstrap;
@@ -42,12 +41,9 @@ public class NettyWebServer implements WebServer {
 
   private final InetSocketAddress listenAddress;
 
-  private final EventLoopGroup parentGroup;
   private final EventLoopGroup childGroup;
+  private final EventLoopGroup parentGroup;
   private final ServerBootstrap serverBootstrap;
-
-  @Nullable
-  private ChannelFuture channelFuture;
 
   public NettyWebServer(ServerBootstrap serverBootstrap, InetSocketAddress listenAddress,
           EventLoopGroup parentGroup, EventLoopGroup childGroup) {
@@ -59,7 +55,7 @@ public class NettyWebServer implements WebServer {
 
   @Override
   public void start() {
-    channelFuture = serverBootstrap.bind(listenAddress.getAddress(), getPort());
+    ChannelFuture channelFuture = serverBootstrap.bind(listenAddress.getAddress(), getPort());
     try {
       channelFuture.sync();
     }
@@ -78,14 +74,8 @@ public class NettyWebServer implements WebServer {
   }
 
   private void shutdown() {
-
     parentGroup.shutdownGracefully();
     childGroup.shutdownGracefully();
-
-    if (channelFuture != null) {
-      channelFuture.channel().close();
-    }
-
   }
 
   @Override

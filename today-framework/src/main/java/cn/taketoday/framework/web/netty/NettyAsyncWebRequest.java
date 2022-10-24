@@ -20,15 +20,12 @@
 
 package cn.taketoday.framework.web.netty;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.function.Consumer;
 
-import cn.taketoday.lang.Assert;
-import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.ExceptionUtils;
+import cn.taketoday.web.HandlerMatchingMetadata;
 import cn.taketoday.web.context.async.AsyncWebRequest;
+import cn.taketoday.web.handler.result.AsyncReturnValueHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.util.concurrent.EventExecutor;
 
@@ -36,53 +33,15 @@ import io.netty.util.concurrent.EventExecutor;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/10/21 13:47
  */
-public class NettyAsyncWebRequest implements AsyncWebRequest {
-
-  @Nullable
-  private Long timeout;
-
-  private final AtomicBoolean asyncCompleted = new AtomicBoolean();
-
-  private final List<Runnable> timeoutHandlers = new ArrayList<>();
-
-  private final List<Consumer<Throwable>> exceptionHandlers = new ArrayList<>();
-
-  private final List<Runnable> completionHandlers = new ArrayList<>();
-
+public class NettyAsyncWebRequest extends AsyncWebRequest {
   private final NettyRequestContext request;
   private final ChannelHandlerContext channelContext;
 
-  private volatile boolean asyncComplete;
   private volatile boolean asyncStarted;
 
   public NettyAsyncWebRequest(NettyRequestContext request) {
     this.request = request;
     this.channelContext = request.getChannelContext();
-  }
-
-  /**
-   * In async processing, the timeout period begins after the
-   * container processing thread has exited.
-   */
-  @Override
-  public void setTimeout(@Nullable Long timeout) {
-    Assert.state(!isAsyncStarted(), "Cannot change the timeout with concurrent handling in progress");
-    this.timeout = timeout;
-  }
-
-  @Override
-  public void addTimeoutHandler(Runnable timeoutHandler) {
-    this.timeoutHandlers.add(timeoutHandler);
-  }
-
-  @Override
-  public void addErrorHandler(Consumer<Throwable> exceptionHandler) {
-    this.exceptionHandlers.add(exceptionHandler);
-  }
-
-  @Override
-  public void addCompletionHandler(Runnable runnable) {
-    this.completionHandlers.add(runnable);
   }
 
   @Override
@@ -98,9 +57,7 @@ public class NettyAsyncWebRequest implements AsyncWebRequest {
   private void checkTimeout() {
     if (!isAsyncComplete()) {
       // timeout
-      for (Runnable timeoutHandler : timeoutHandlers) {
-        timeoutHandler.run();
-      }
+      dispatchEvent(timeoutHandlers);
     }
   }
 
@@ -110,13 +67,47 @@ public class NettyAsyncWebRequest implements AsyncWebRequest {
   }
 
   @Override
-  public void dispatch() {
-    request.requestCompleted();
+  public void dispatch(Object concurrentResult) {
+    this.asyncStarted = false;
+    if (asyncCompleted.compareAndSet(false, true)) {
+      EventExecutor executor = channelContext.executor();
+      executor.execute(() -> sendToClient(concurrentResult));
+    }
   }
 
-  @Override
-  public boolean isAsyncComplete() {
-    return asyncComplete;
+  private void sendToClient(Object concurrentResult) {
+    System.out.println(concurrentResult);
+    if (concurrentResult instanceof Throwable asyncError) {
+      // handle Exception
+      throw ExceptionUtils.sneakyThrow(asyncError);
+    }
+    else {
+      HandlerMatchingMetadata matchingMetadata = request.getMatchingMetadata();
+      if (matchingMetadata != null) {
+        Object handler = matchingMetadata.getHandler();
+        if (handler instanceof AsyncReturnValueHandler returnValueHandler) {
+          ExceptionUtils.sneakyThrow(() ->
+                  returnValueHandler.handleAsyncReturnValue(request, concurrentResult));
+        }
+        else {
+//          ReturnValueHandler returnValueHandler = manager.findHandler(handler, concurrentResult);
+//          if (returnValueHandler != null) {
+//            ExceptionUtils.sneakyThrow(() ->
+//                    returnValueHandler.handleReturnValue(request, handler, concurrentResult));
+//          }
+//          else {
+//            throw new ReturnValueHandlerNotFoundException(concurrentResult, handler);
+//          }
+        }
+      }
+      else {
+
+      }
+    }
+
+    dispatchEvent(completionHandlers);
+    // cleanup
+    request.requestCompleted();
   }
 
 }

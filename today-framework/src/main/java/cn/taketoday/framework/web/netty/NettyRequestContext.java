@@ -489,7 +489,7 @@ public class NettyRequestContext extends RequestContext {
     if (cookie instanceof ResponseCookie responseCookie) {
       nettyCookie.setPath(responseCookie.getPath());
       nettyCookie.setDomain(responseCookie.getDomain());
-      nettyCookie.setMaxAge(responseCookie.getMaxAge().toSeconds());
+      nettyCookie.setMaxAge(responseCookie.getMaxAge().getSeconds());
       nettyCookie.setSecure(responseCookie.isSecure());
       nettyCookie.setHttpOnly(responseCookie.isHttpOnly());
     }

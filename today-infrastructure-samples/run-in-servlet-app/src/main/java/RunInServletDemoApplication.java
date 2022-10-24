@@ -28,6 +28,7 @@ import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.event.EventListener;
 import cn.taketoday.framework.InfraApplication;
 import cn.taketoday.framework.builder.ApplicationBuilder;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ExceptionUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.annotation.ExceptionHandler;
@@ -90,8 +91,8 @@ public class RunInServletDemoApplication {
   }
 
   @GET("/deferred-result")
-  public DeferredResult<String> deferredResult() {
-    DeferredResult<String> result = new DeferredResult<>(2000L, "Timeout");
+  public DeferredResult<String> deferredResult(@Nullable Long timeout) {
+    DeferredResult<String> result = new DeferredResult<>(timeout, "Timeout");
     executor.execute(() -> {
       ExceptionUtils.sneakyThrow(() -> TimeUnit.SECONDS.sleep(2));
       result.setResult("result");
