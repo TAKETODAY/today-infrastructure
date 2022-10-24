@@ -21,6 +21,8 @@
 package cn.taketoday.netty;
 
 import java.io.PrintWriter;
+import java.util.concurrent.Executor;
+import java.util.concurrent.TimeUnit;
 
 import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.context.ApplicationEventPublisher;
@@ -29,12 +31,15 @@ import cn.taketoday.context.event.EventListener;
 import cn.taketoday.framework.InfraApplication;
 import cn.taketoday.framework.builder.ApplicationBuilder;
 import cn.taketoday.framework.web.netty.EnableNettyHandling;
+import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.ExceptionUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.annotation.ExceptionHandler;
 import cn.taketoday.web.annotation.GET;
 import cn.taketoday.web.annotation.RestController;
 import cn.taketoday.web.annotation.RestControllerAdvice;
 import cn.taketoday.web.config.EnableWebMvc;
+import cn.taketoday.web.context.async.DeferredResult;
 import lombok.Getter;
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
@@ -50,6 +55,9 @@ import lombok.extern.slf4j.Slf4j;
 @RestControllerAdvice
 @EnableNettyHandling(async = false)
 public class NettyDemoApplication {
+
+  @Autowired
+  private Executor executor;
 
   public static void main(String[] args) {
     ApplicationBuilder.from(NettyDemoApplication.class)
@@ -84,6 +92,28 @@ public class NettyDemoApplication {
     System.out.println(queryString);
 
     return queryString;
+  }
+
+  @GET("/deferred-result")
+  public DeferredResult<String> deferredResult(@Nullable Long timeout) {
+    DeferredResult<String> result = new DeferredResult<>(timeout, "Timeout");
+    executor.execute(() -> {
+      ExceptionUtils.sneakyThrow(() -> TimeUnit.SECONDS.sleep(2));
+      log.info("set result {}", Thread.currentThread().getName());
+      if (result.setResult("result")) {
+        log.info("result set succeed");
+      }
+      else {
+        log.info("result set failed");
+      }
+    });
+
+    result.onTimeout(() -> log.warn("timeout {}", Thread.currentThread().getName()));
+
+    result.onCompletion(() -> log.info("onCompletion {}", Thread.currentThread().getName()));
+
+    result.onError(throwable -> log.error("onError {}", Thread.currentThread().getName(), throwable));
+    return result;
   }
 
   @Getter
