@@ -350,18 +350,18 @@ public class DefaultLifecycleProcessor implements LifecycleProcessor, BeanFactor
     }
 
     public void stop() {
-      if (this.members.isEmpty()) {
+      if (members.isEmpty()) {
         return;
       }
-      log.debug("Stopping beans in phase {}", this.phase);
+      log.debug("Stopping beans in phase {}", phase);
 
-      this.members.sort(Collections.reverseOrder());
-      CountDownLatch latch = new CountDownLatch(this.smartMemberCount);
+      members.sort(Collections.reverseOrder());
+      CountDownLatch latch = new CountDownLatch(smartMemberCount);
       Set<String> countDownBeanNames = Collections.synchronizedSet(new LinkedHashSet<>());
-      Set<String> lifecycleBeanNames = new HashSet<>(this.lifecycleBeans.keySet());
-      for (LifecycleGroupMember member : this.members) {
+      Set<String> lifecycleBeanNames = new HashSet<>(lifecycleBeans.keySet());
+      for (LifecycleGroupMember member : members) {
         if (lifecycleBeanNames.contains(member.name)) {
-          doStop(this.lifecycleBeans, member.name, latch, countDownBeanNames);
+          doStop(lifecycleBeans, member.name, latch, countDownBeanNames);
         }
         else if (member.bean instanceof SmartLifecycle) {
           // Already removed: must have been a dependent bean from another phase
@@ -369,10 +369,10 @@ public class DefaultLifecycleProcessor implements LifecycleProcessor, BeanFactor
         }
       }
       try {
-        latch.await(this.timeout, TimeUnit.MILLISECONDS);
+        latch.await(timeout, TimeUnit.MILLISECONDS);
         if (latch.getCount() > 0 && !countDownBeanNames.isEmpty() && log.isInfoEnabled()) {
           log.info("Failed to shut down {} bean {} with phase value {} within timeout of {}ms: {}",
-                  countDownBeanNames.size(), (countDownBeanNames.size() > 1 ? "s" : ""), this.phase, this.timeout, countDownBeanNames);
+                  countDownBeanNames.size(), (countDownBeanNames.size() > 1 ? "s" : ""), phase, timeout, countDownBeanNames);
         }
       }
       catch (InterruptedException ex) {
