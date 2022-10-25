@@ -41,10 +41,11 @@ import cn.taketoday.web.HandlerAdapterProvider;
 import cn.taketoday.web.HandlerExceptionHandler;
 import cn.taketoday.web.HandlerMapping;
 import cn.taketoday.web.HttpRequestHandler;
+import cn.taketoday.web.RequestCompletedListener;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.RequestHandledListener;
 import cn.taketoday.web.ReturnValueHandler;
 import cn.taketoday.web.handler.method.ExceptionHandlerAnnotationExceptionHandler;
+import cn.taketoday.web.handler.result.AsyncReturnValueHandler;
 import cn.taketoday.web.util.WebUtils;
 
 /**
@@ -82,7 +83,7 @@ public class DispatcherHandler extends InfraHandler {
 
   private HttpRequestHandler notFoundHandler;
 
-  private final ArrayHolder<RequestHandledListener> requestHandledActions = ArrayHolder.forGenerator(RequestHandledListener[]::new);
+  private final ArrayHolder<RequestCompletedListener> requestCompletedActions = ArrayHolder.forGenerator(RequestCompletedListener[]::new);
 
   public DispatcherHandler() { }
 
@@ -185,11 +186,11 @@ public class DispatcherHandler extends InfraHandler {
   /**
    * Collect all the RequestHandledListener used by this class.
    *
-   * @see RequestHandledListener
+   * @see RequestCompletedListener
    */
   private void initRequestHandledListeners(ApplicationContext context) {
     var matchingBeans = BeanFactoryUtils.beansOfTypeIncludingAncestors(
-            context, RequestHandledListener.class, true, false);
+            context, RequestCompletedListener.class, true, false);
     var handlers = new ArrayList<>(matchingBeans.values());
     AnnotationAwareOrderComparator.sort(handlers);
 
@@ -260,8 +261,6 @@ public class DispatcherHandler extends InfraHandler {
    * @throws Throwable If {@link Throwable} cannot handle
    */
   public void handle(@Nullable Object handler, RequestContext context) throws Throwable {
-    long startTime = System.currentTimeMillis();
-
     Object returnValue = null;
     Throwable throwable = null;
     try {
@@ -289,12 +288,9 @@ public class DispatcherHandler extends InfraHandler {
         throwable = ex; // not handled
       }
       if (!context.isConcurrentHandlingStarted()) {
-        context.requestCompleted();
+        requestProcessingCompleted(context, throwable);
       }
-      if (log.isDebugEnabled()) {
-        logResult(context, throwable);
-      }
-      publishRequestHandledEvent(context, startTime, throwable);
+      logResult(context, throwable);
     }
   }
 
@@ -335,6 +331,32 @@ public class DispatcherHandler extends InfraHandler {
     this.throwExceptionIfNoHandlerFound = throwExceptionIfNoHandlerFound;
   }
 
+  public void handleConcurrentResult(RequestContext context,
+          @Nullable Object handler, Object concurrentResult) {
+    Throwable throwable = null;
+    try {
+      if (handler instanceof AsyncHandler asyncHandler) {
+        handler = asyncHandler.wrapConcurrentResult(concurrentResult);
+      }
+      if (handler instanceof AsyncReturnValueHandler valueHandler) {
+        valueHandler.handleAsyncReturnValue(context, concurrentResult);
+      }
+      else {
+        if (concurrentResult instanceof Throwable asyncError) {
+          throwable = asyncError;
+        }
+        processDispatchResult(context, handler, concurrentResult, throwable);
+      }
+    }
+    catch (Throwable ex) {
+      throwable = ex; // not handled
+    }
+
+    requestProcessingCompleted(context, throwable);
+
+    logResult(context, throwable);
+  }
+
   /**
    * Process the actual dispatching to the handler.
    *
@@ -343,7 +365,7 @@ public class DispatcherHandler extends InfraHandler {
    * @since 4.0
    */
   public void dispatch(RequestContext context) throws Throwable {
-    long startTime = System.currentTimeMillis();
+    context.setAttribute(BEAN_NAME, this);
 
     Object handler = null;
     Object returnValue = null;
@@ -376,12 +398,9 @@ public class DispatcherHandler extends InfraHandler {
       }
       // async
       if (!context.isConcurrentHandlingStarted()) {
-        context.requestCompleted();
+        requestProcessingCompleted(context, throwable);
       }
-      if (log.isDebugEnabled()) {
-        logResult(context, throwable);
-      }
-      publishRequestHandledEvent(context, startTime, throwable);
+      logResult(context, throwable);
     }
   }
 
@@ -455,44 +474,48 @@ public class DispatcherHandler extends InfraHandler {
   }
 
   private void logResult(RequestContext request, @Nullable Throwable failureCause) {
-    if (failureCause != null) {
-      if (log.isTraceEnabled()) {
-        log.trace("Failed to complete request", failureCause);
-      }
-      else {
-        log.debug("Failed to complete request: {}", failureCause.toString());
-      }
-    }
-    else {
-      if (request.isConcurrentHandlingStarted()) {
-        log.debug("Exiting but response remains open for further handling");
-        return;
-      }
-
-      String headers = "";  // nothing below trace
-      if (log.isTraceEnabled()) {
-        HttpHeaders httpHeaders = request.responseHeaders();
-        if (isEnableLoggingRequestDetails()) {
-          headers = httpHeaders.entrySet().stream()
-                  .map(entry -> entry.getKey() + ":" + entry.getValue())
-                  .collect(Collectors.joining(", "));
+    if (log.isDebugEnabled()) {
+      if (failureCause != null) {
+        if (log.isTraceEnabled()) {
+          log.trace("Failed to complete request", failureCause);
         }
         else {
-          headers = httpHeaders.isEmpty() ? "" : "masked";
+          log.debug("Failed to complete request: {}", failureCause.toString());
         }
-        headers = ", headers={" + headers + "}";
       }
-      HttpStatus httpStatus = HttpStatus.resolve(request.getStatus());
-      log.debug("{} Completed {}{}", request, httpStatus != null ? httpStatus : request.getStatus(), headers);
+      else {
+        if (request.isConcurrentHandlingStarted()) {
+          log.debug("Exiting but response remains open for further handling");
+          return;
+        }
+
+        String headers = "";  // nothing below trace
+        if (log.isTraceEnabled()) {
+          HttpHeaders httpHeaders = request.responseHeaders();
+          if (isEnableLoggingRequestDetails()) {
+            headers = httpHeaders.entrySet().stream()
+                    .map(entry -> entry.getKey() + ":" + entry.getValue())
+                    .collect(Collectors.joining(", "));
+          }
+          else {
+            headers = httpHeaders.isEmpty() ? "" : "masked";
+          }
+          headers = ", headers={" + headers + "}";
+        }
+        HttpStatus httpStatus = HttpStatus.resolve(request.getStatus());
+        log.debug("{} Completed {}{}", request, httpStatus != null ? httpStatus : request.getStatus(), headers);
+      }
     }
   }
 
-  protected void publishRequestHandledEvent(
-          RequestContext request, long startTime, @Nullable Throwable failureCause) {
-    RequestHandledListener[] requestHandledListeners = requestHandledActions.get();
-    if (ObjectUtils.isNotEmpty(requestHandledListeners)) {
-      for (RequestHandledListener action : requestHandledListeners) {
-        action.requestHandled(request, startTime, failureCause);
+  protected void requestProcessingCompleted(
+          RequestContext request, @Nullable Throwable failureCause) {
+    request.requestCompleted();
+
+    RequestCompletedListener[] requestCompletedListeners = requestCompletedActions.get();
+    if (ObjectUtils.isNotEmpty(requestCompletedListeners)) {
+      for (RequestCompletedListener action : requestCompletedListeners) {
+        action.requestCompleted(request, failureCause);
       }
     }
   }
@@ -584,8 +607,8 @@ public class DispatcherHandler extends InfraHandler {
    * @param array RequestHandledListener array
    * @since 4.0
    */
-  public void addRequestHandledActions(RequestHandledListener... array) {
-    requestHandledActions.add(array);
+  public void addRequestHandledActions(RequestCompletedListener... array) {
+    requestCompletedActions.add(array);
   }
 
   /**
@@ -594,8 +617,8 @@ public class DispatcherHandler extends InfraHandler {
    * @param list RequestHandledListener list
    * @since 4.0
    */
-  public void addRequestHandledActions(Collection<RequestHandledListener> list) {
-    requestHandledActions.addAll(list);
+  public void addRequestHandledActions(Collection<RequestCompletedListener> list) {
+    requestCompletedActions.addAll(list);
   }
 
 }

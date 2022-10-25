@@ -20,20 +20,16 @@
 
 package cn.taketoday.framework.web.netty;
 
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
+import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
-import cn.taketoday.util.ExceptionUtils;
 import cn.taketoday.web.HandlerMatchingMetadata;
-import cn.taketoday.web.ReturnValueHandler;
 import cn.taketoday.web.context.async.AsyncWebRequest;
 import cn.taketoday.web.context.async.WebAsyncUtils;
-import cn.taketoday.web.handler.AsyncHandler;
-import cn.taketoday.web.handler.ReturnValueHandlerManager;
-import cn.taketoday.web.handler.ReturnValueHandlerNotFoundException;
-import cn.taketoday.web.handler.result.AsyncReturnValueHandler;
+import cn.taketoday.web.handler.DispatcherHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.util.concurrent.EventExecutor;
 
@@ -48,8 +44,6 @@ public class NettyAsyncWebRequest extends AsyncWebRequest {
   private final ChannelHandlerContext channelContext;
 
   private volatile boolean asyncStarted;
-
-  final CountDownLatch latch = new CountDownLatch(1);
 
   public NettyAsyncWebRequest(NettyRequestContext request) {
     this.request = request;
@@ -89,45 +83,28 @@ public class NettyAsyncWebRequest extends AsyncWebRequest {
   }
 
   private void sendToClient(Object concurrentResult) {
-    if (concurrentResult instanceof Throwable asyncError) {
-      // handle Exception
-      throw ExceptionUtils.sneakyThrow(asyncError);
+    DispatcherHandler dispatcherHandler = (DispatcherHandler) request.getAttribute(DispatcherHandler.BEAN_NAME);
+    Assert.state(dispatcherHandler != null, "No DispatcherHandler");
+    Object handler = findHandler();
+    dispatcherHandler.handleConcurrentResult(request, handler, concurrentResult);
+
+    dispatchEvent(completionHandlers);
+  }
+
+  @Nullable
+  private Object findHandler() {
+    var asyncManager = WebAsyncUtils.getAsyncManager(request);
+    Object[] concurrentResultContext = asyncManager.getConcurrentResultContext();
+    if (concurrentResultContext != null && concurrentResultContext.length == 1) {
+      return concurrentResultContext[0];
     }
     else {
       HandlerMatchingMetadata matchingMetadata = request.getMatchingMetadata();
       if (matchingMetadata != null) {
-        Object handler = matchingMetadata.getHandler();
-        if (handler instanceof AsyncReturnValueHandler returnValueHandler) {
-          ExceptionUtils.sneakyThrow(() ->
-                  returnValueHandler.handleAsyncReturnValue(request, concurrentResult));
-        }
-        else {
-          if (handler instanceof AsyncHandler asyncHandler) {
-            handler = asyncHandler.wrapConcurrentResult(concurrentResult);
-          }
-
-          var asyncManager = WebAsyncUtils.getAsyncManager(request);
-          Object[] concurrentResultContext = asyncManager.getConcurrentResultContext();
-          ReturnValueHandlerManager manager = (ReturnValueHandlerManager) concurrentResultContext[0];
-          ReturnValueHandler returnValueHandler = manager.findHandler(handler, concurrentResult);
-          if (returnValueHandler != null) {
-            Object finalHandler = handler;
-            ExceptionUtils.sneakyThrow(() ->
-                    returnValueHandler.handleReturnValue(request, finalHandler, concurrentResult));
-          }
-          else {
-            throw new ReturnValueHandlerNotFoundException(concurrentResult, handler);
-          }
-        }
-      }
-      else {
-
+        return matchingMetadata.getHandler();
       }
     }
-
-    dispatchEvent(completionHandlers);
-    // cleanup
-    request.requestCompleted();
+    return null;
   }
 
 }

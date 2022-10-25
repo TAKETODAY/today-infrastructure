@@ -26,14 +26,14 @@ import cn.taketoday.lang.Nullable;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/5/11 10:29
  */
-public interface RequestHandledListener {
+public interface RequestCompletedListener {
 
   /**
    * invoke when request handled
    *
    * @param request current request
-   * @param startTime start time
    * @param failureCause failure cause
    */
-  void requestHandled(RequestContext request, long startTime, @Nullable Throwable failureCause);
+  void requestCompleted(RequestContext request, @Nullable Throwable failureCause);
+
 }

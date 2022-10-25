@@ -181,6 +181,8 @@ public abstract class RequestContext extends AttributeAccessorSupport
   /** Map from attribute name String to destruction callback Runnable.  @since 4.0 */
   protected LinkedHashMap<String, Runnable> requestDestructionCallbacks;
 
+  private Long requestCompletedTimeMillis;
+
   protected RequestContext(ApplicationContext context) {
     this.applicationContext = context;
   }
@@ -198,8 +200,23 @@ public abstract class RequestContext extends AttributeAccessorSupport
    * Get start handling this request time millis
    *
    * @return start handling this request time millis
+   * @since 4.0
    */
   public abstract long getRequestTimeMillis();
+
+  /**
+   * Get this request processing time millis
+   *
+   * @return this request processing time millis
+   * @since 4.0
+   */
+  public final long getRequestProcessingTime() {
+    Long requestCompletedTimeMillis = this.requestCompletedTimeMillis;
+    if (requestCompletedTimeMillis != null) {
+      return requestCompletedTimeMillis - getRequestTimeMillis();
+    }
+    return System.currentTimeMillis() - getRequestTimeMillis();
+  }
 
   // --- request
 
@@ -739,6 +756,8 @@ public abstract class RequestContext extends AttributeAccessorSupport
    * <p>Executes all request destruction callbacks and other resources cleanup
    */
   public void requestCompleted() {
+    requestCompletedTimeMillis = System.currentTimeMillis();
+
     if (multipartRequest != null) {
       // @since 3.0 cleanup MultipartFiles
       multipartRequest.cleanup();
@@ -750,7 +769,7 @@ public abstract class RequestContext extends AttributeAccessorSupport
         runnable.run();
       }
       callbacks.clear();
-      this.requestDestructionCallbacks = null;
+      requestDestructionCallbacks = null;
     }
   }
 

@@ -222,7 +222,7 @@ public class ReturnValueHandlerManager extends ApplicationContextSupport impleme
     internalHandlers.add(new HttpHeadersReturnValueHandler());
     internalHandlers.add(new CallableMethodReturnValueHandler());
     internalHandlers.add(new AsyncTaskMethodReturnValueHandler(getApplicationContext()));
-    internalHandlers.add(new DeferredResultReturnValueHandler(this));
+    internalHandlers.add(new DeferredResultReturnValueHandler());
 
     // Iterate ReturnValueHandler in runtime
     var compositeHandler = new SelectableReturnValueHandler(internalHandlers);
@@ -240,7 +240,7 @@ public class ReturnValueHandlerManager extends ApplicationContextSupport impleme
     handlers.add(new CallableMethodReturnValueHandler());
     handlers.add(new ModelAttributeMethodProcessor(false));
     handlers.add(new AsyncTaskMethodReturnValueHandler(getApplicationContext()));
-    handlers.add(new DeferredResultReturnValueHandler(this));
+    handlers.add(new DeferredResultReturnValueHandler());
     handlers.add(new StreamingResponseBodyReturnValueHandler());
 
     List<HttpMessageConverter<?>> messageConverters = getMessageConverters();
