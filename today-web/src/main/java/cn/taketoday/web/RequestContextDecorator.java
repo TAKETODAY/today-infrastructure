@@ -77,6 +77,11 @@ public class RequestContextDecorator extends RequestContext {
   // delegate
 
   @Override
+  public long getRequestTimeMillis() {
+    return delegate.getRequestTimeMillis();
+  }
+
+  @Override
   public ApplicationContext getApplicationContext() {
     return delegate.getApplicationContext();
   }

@@ -194,6 +194,13 @@ public abstract class RequestContext extends AttributeAccessorSupport
     return this.applicationContext;
   }
 
+  /**
+   * Get start handling this request time millis
+   *
+   * @return start handling this request time millis
+   */
+  public abstract long getRequestTimeMillis();
+
   // --- request
 
   /**

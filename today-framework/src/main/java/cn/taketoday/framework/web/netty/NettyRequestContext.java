@@ -114,6 +114,8 @@ public class NettyRequestContext extends RequestContext {
   @Nullable
   private InetSocketAddress inetSocketAddress;
 
+  private final long requestTimeMillis = System.currentTimeMillis();
+
   public NettyRequestContext(
           ApplicationContext context, ChannelHandlerContext ctx,
           FullHttpRequest request, NettyRequestConfig config) {
@@ -124,6 +126,11 @@ public class NettyRequestContext extends RequestContext {
     String uri = request.uri();
     this.uri = uri;
     this.queryStringIndex = uri.indexOf('?');
+  }
+
+  @Override
+  public long getRequestTimeMillis() {
+    return requestTimeMillis;
   }
 
   @Override

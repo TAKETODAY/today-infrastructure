@@ -74,6 +74,7 @@ public final class ServletRequestContext extends RequestContext {
 
   private final HttpServletRequest request;
   private final HttpServletResponse response;
+  private final long requestTimeMillis = System.currentTimeMillis();
 
   public ServletRequestContext(
           ApplicationContext context, HttpServletRequest request, HttpServletResponse response) {
@@ -88,6 +89,11 @@ public final class ServletRequestContext extends RequestContext {
 
   public HttpServletResponse getResponse() {
     return response;
+  }
+
+  @Override
+  public long getRequestTimeMillis() {
+    return requestTimeMillis;
   }
 
   @Override
