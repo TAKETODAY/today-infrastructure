@@ -122,7 +122,6 @@ public class ResolvableTypeTests {
   }
 
   @Test
-  @SuppressWarnings("deprecation")
   void resolveTypeVariableFromMethodParameterTypeWithImplementsClass() throws Exception {
     Method method = Methods.class.getMethod("typedParameter", Object.class);
     final Parameter[] parameters = method.getParameters();
@@ -314,10 +313,11 @@ public class ResolvableTypeTests {
     assertThat(typeVariable.isAssignableFrom(raw)).isTrue();
   }
 
-	@Test  // gh-28776
-	void forInstanceNull() throws Exception {
-		Assertions.assertThat(ResolvableType.fromInstance(null)).isEqualTo(ResolvableType.NONE);
-	}
+  @Test
+    // gh-28776
+  void forInstanceNull() throws Exception {
+    Assertions.assertThat(ResolvableType.fromInstance(null)).isEqualTo(ResolvableType.NONE);
+  }
 
   @Test
   void forInstanceNoProvider() throws Exception {
