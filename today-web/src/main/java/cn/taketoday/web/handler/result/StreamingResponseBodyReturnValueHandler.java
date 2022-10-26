@@ -86,7 +86,8 @@ public class StreamingResponseBodyReturnValueHandler implements HandlerMethodRet
         ShallowEtagHeaderFilter.disableContentCaching(context);
       }
       var callable = new StreamingResponseBodyTask(context.getOutputStream(), streamingBody);
-      WebAsyncUtils.getAsyncManager(context).startCallableProcessing(callable);
+      WebAsyncUtils.getAsyncManager(context)
+              .startCallableProcessing(callable, handler);
     }
     else {
       throw new IllegalArgumentException("StreamingResponseBody expected");

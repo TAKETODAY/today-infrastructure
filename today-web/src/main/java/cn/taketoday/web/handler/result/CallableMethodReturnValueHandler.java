@@ -50,7 +50,7 @@ public class CallableMethodReturnValueHandler implements HandlerMethodReturnValu
 
     if (returnValue instanceof Callable<?> callable) {
       WebAsyncUtils.getAsyncManager(context)
-              .startCallableProcessing(callable);
+              .startCallableProcessing(callable, handler);
     }
   }
 

@@ -59,7 +59,7 @@ public class AsyncTaskMethodReturnValueHandler implements HandlerMethodReturnVal
         task.setBeanFactory(this.beanFactory);
       }
       WebAsyncUtils.getAsyncManager(context)
-              .startCallableProcessing(task, context.getBindingContext());
+              .startCallableProcessing(task, handler);
     }
   }
 
