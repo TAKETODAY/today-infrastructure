@@ -54,7 +54,7 @@ class DeferredResultReturnValueHandlerTests {
 
   @BeforeEach
   public void setup() throws Exception {
-    this.handler = new DeferredResultReturnValueHandler(null);
+    this.handler = new DeferredResultReturnValueHandler();
     this.request = new MockHttpServletRequest();
     MockHttpServletResponse response = new MockHttpServletResponse();
     this.webRequest = new ServletRequestContext(null, this.request, response);

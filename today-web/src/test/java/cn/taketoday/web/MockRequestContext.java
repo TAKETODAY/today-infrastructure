@@ -40,12 +40,18 @@ import cn.taketoday.web.servlet.WebApplicationContext;
  * @author TODAY 2021/3/10 16:35
  */
 public class MockRequestContext extends RequestContext {
+  private final long requestTimeMillis = System.currentTimeMillis();
 
   public MockRequestContext() {
     super(null);
   }
 
   public MockRequestContext(WebApplicationContext context) { super(context); }
+
+  @Override
+  public long getRequestTimeMillis() {
+    return requestTimeMillis;
+  }
 
   @Override
   public String getScheme() {

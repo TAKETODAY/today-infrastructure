@@ -63,6 +63,7 @@ public class MockServletRequestContext extends RequestContext {
 
   private final HttpServletRequest request;
   private final HttpServletResponse response;
+  private final long requestTimeMillis = System.currentTimeMillis();
 
   public MockServletRequestContext(HttpServletRequest request, HttpServletResponse response) {
     this(null, request, response);
@@ -81,6 +82,11 @@ public class MockServletRequestContext extends RequestContext {
 
   public HttpServletResponse getResponse() {
     return response;
+  }
+
+  @Override
+  public long getRequestTimeMillis() {
+    return requestTimeMillis;
   }
 
   @Override
