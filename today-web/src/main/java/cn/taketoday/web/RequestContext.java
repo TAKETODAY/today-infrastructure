@@ -1053,12 +1053,12 @@ public abstract class RequestContext extends AttributeAccessorSupport
     // Evaluate conditions in order of precedence.
     // See https://datatracker.ietf.org/doc/html/rfc9110#section-13.2.2
     if (validateIfMatch(eTag)) {
-      updateResponseStateChanging();
+      updateResponseStateChanging(eTag, lastModifiedTimestamp);
       return this.notModified;
     }
     // 2) If-Unmodified-Since
     else if (validateIfUnmodifiedSince(lastModifiedTimestamp)) {
-      updateResponseStateChanging();
+      updateResponseStateChanging(eTag, lastModifiedTimestamp);
       return this.notModified;
     }
     // 3) If-None-Match
@@ -1150,9 +1150,12 @@ public abstract class RequestContext extends AttributeAccessorSupport
     return first.equals(second);
   }
 
-  private void updateResponseStateChanging() {
+  private void updateResponseStateChanging(String eTag, long lastModifiedTimestamp) {
     if (this.notModified) {
       setStatus(HttpStatus.PRECONDITION_FAILED.value());
+    }
+    else {
+      addCachingResponseHeaders(eTag, lastModifiedTimestamp);
     }
   }
 
@@ -1191,6 +1194,18 @@ public abstract class RequestContext extends AttributeAccessorSupport
       HttpHeaders httpHeaders = responseHeaders();
       if (lastModifiedTimestamp > 0 && parseDateValue(httpHeaders.getFirst(HttpHeaders.LAST_MODIFIED)) == -1) {
         httpHeaders.setDate(HttpHeaders.LAST_MODIFIED, lastModifiedTimestamp);
+      }
+      if (StringUtils.isNotEmpty(eTag) && httpHeaders.get(HttpHeaders.ETAG) == null) {
+        httpHeaders.set(HttpHeaders.ETAG, padEtagIfNecessary(eTag));
+      }
+    }
+  }
+
+  private void addCachingResponseHeaders(String eTag, long lastModifiedTimestamp) {
+    if (SAFE_METHODS.contains(getMethodValue())) {
+      HttpHeaders httpHeaders = responseHeaders();
+      if (lastModifiedTimestamp > 0 && parseDateValue(httpHeaders.getFirst(HttpHeaders.LAST_MODIFIED)) == -1) {
+        httpHeaders.setLastModified(lastModifiedTimestamp);
       }
       if (StringUtils.isNotEmpty(eTag) && httpHeaders.get(HttpHeaders.ETAG) == null) {
         httpHeaders.set(HttpHeaders.ETAG, padEtagIfNecessary(eTag));
