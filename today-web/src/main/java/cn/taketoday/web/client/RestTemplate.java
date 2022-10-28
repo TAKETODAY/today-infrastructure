@@ -80,6 +80,7 @@ import cn.taketoday.web.util.UriTemplateHandler;
  * @author Juergen Hoeller
  * @author Sam Brannen
  * @author Sebastien Deleuze
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see HttpMessageConverter
  * @see RequestCallback
  * @see ResponseExtractor
@@ -236,8 +237,8 @@ public class RestTemplate extends InterceptingHttpAccessor implements RestOperat
     if (this.uriTemplateHandler instanceof DefaultUriBuilderFactory) {
       ((DefaultUriBuilderFactory) this.uriTemplateHandler).setDefaultUriVariables(uriVars);
     }
-    else if (this.uriTemplateHandler instanceof AbstractUriTemplateHandler uriTemplateHandler) {
-      uriTemplateHandler.setDefaultUriVariables(uriVars);
+    else if (this.uriTemplateHandler instanceof AbstractUriTemplateHandler handler) {
+      handler.setDefaultUriVariables(uriVars);
     }
     else {
       throw new IllegalArgumentException(
@@ -910,8 +911,8 @@ public class RestTemplate extends InterceptingHttpAccessor implements RestOperat
       }
       else {
         Class<?> requestBodyClass = requestBody.getClass();
-        Type requestBodyType = this.requestEntity instanceof RequestEntity requestEntity
-                               ? requestEntity.getType() : requestBodyClass;
+        Type requestBodyType = this.requestEntity instanceof RequestEntity entity
+                               ? entity.getType() : requestBodyClass;
         HttpHeaders httpHeaders = httpRequest.getHeaders();
         HttpHeaders requestHeaders = this.requestEntity.getHeaders();
         MediaType requestContentType = requestHeaders.getContentType();

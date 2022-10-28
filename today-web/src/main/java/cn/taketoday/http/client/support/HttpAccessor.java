@@ -20,7 +20,6 @@
 
 package cn.taketoday.http.client.support;
 
-import java.io.Closeable;
 import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
@@ -48,11 +47,12 @@ import cn.taketoday.logging.LoggerFactory;
  * @author Arjen Poutsma
  * @author Juergen Hoeller
  * @author Phillip Webb
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see ClientHttpRequestFactory
  * @see cn.taketoday.web.client.RestTemplate
  * @since 4.0
  */
-public abstract class HttpAccessor implements Closeable {
+public abstract class HttpAccessor {
   /** Logger available to subclasses. */
   protected final Logger logger = LoggerFactory.getLogger(getClass());
 
@@ -136,15 +136,4 @@ public abstract class HttpAccessor implements Closeable {
     return request;
   }
 
-  /**
-   * Close the underlying {@link ClientHttpRequestFactory}.
-   * <p>This should not be called if the factory has been {@link #setRequestFactory(ClientHttpRequestFactory) set}
-   * and is externally managed.
-   *
-   * @throws IOException if the request factory cannot be closed properly
-   */
-  @Override
-  public void close() throws IOException {
-    this.requestFactory.close();
-  }
 }

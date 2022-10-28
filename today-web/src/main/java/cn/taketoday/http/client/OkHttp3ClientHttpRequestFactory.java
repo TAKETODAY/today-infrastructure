@@ -46,6 +46,7 @@ import okhttp3.RequestBody;
  * @author Luciano Leggieri
  * @author Arjen Poutsma
  * @author Roy Clarkson
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public class OkHttp3ClientHttpRequestFactory implements ClientHttpRequestFactory, DisposableBean {
@@ -109,11 +110,6 @@ public class OkHttp3ClientHttpRequestFactory implements ClientHttpRequestFactory
 
   @Override
   public void destroy() throws IOException {
-    close();
-  }
-
-  @Override
-  public void close() throws IOException {
     if (this.defaultClient) {
       // Clean up the client if we created it in the constructor
       Cache cache = this.client.cache();

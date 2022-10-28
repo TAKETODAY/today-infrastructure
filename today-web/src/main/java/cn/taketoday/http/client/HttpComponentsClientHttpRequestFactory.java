@@ -60,6 +60,7 @@ import cn.taketoday.lang.Nullable;
  * @author Arjen Poutsma
  * @author Stephane Nicoll
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public class HttpComponentsClientHttpRequestFactory implements ClientHttpRequestFactory, DisposableBean {
@@ -319,11 +320,6 @@ public class HttpComponentsClientHttpRequestFactory implements ClientHttpRequest
    */
   @Override
   public void destroy() throws Exception {
-    close();
-  }
-
-  @Override
-  public void close() throws IOException {
     HttpClient httpClient = getHttpClient();
     if (httpClient instanceof Closeable closeable) {
       closeable.close();

@@ -19,7 +19,6 @@
  */
 package cn.taketoday.http.client;
 
-import java.io.Closeable;
 import java.io.IOException;
 import java.net.URI;
 
@@ -30,10 +29,11 @@ import cn.taketoday.http.HttpMethod;
  * Requests are created by the {@link #createRequest(URI, HttpMethod)} method.
  *
  * @author Arjen Poutsma
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 @FunctionalInterface
-public interface ClientHttpRequestFactory extends Closeable {
+public interface ClientHttpRequestFactory {
 
   /**
    * Create a new {@link ClientHttpRequest} for the specified URI and HTTP method.
@@ -46,8 +46,5 @@ public interface ClientHttpRequestFactory extends Closeable {
    * @throws IOException in case of I/O errors
    */
   ClientHttpRequest createRequest(URI uri, HttpMethod httpMethod) throws IOException;
-
-  @Override
-  default void close() throws IOException { }
 
 }
