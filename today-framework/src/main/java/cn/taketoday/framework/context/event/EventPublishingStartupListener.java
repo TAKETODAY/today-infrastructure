@@ -67,9 +67,6 @@ public class EventPublishingStartupListener implements ApplicationStartupListene
     this.args = args;
     this.application = application;
     this.initialMulticaster = new SimpleApplicationEventMulticaster();
-    for (ApplicationListener<?> listener : application.getListeners()) {
-      initialMulticaster.addApplicationListener(listener);
-    }
   }
 
   @Override
@@ -139,8 +136,8 @@ public class EventPublishingStartupListener implements ApplicationStartupListene
   }
 
   private void multicastInitialEvent(ApplicationEvent event) {
-    initialMulticaster.multicastEvent(event);
     refreshApplicationListeners();
+    initialMulticaster.multicastEvent(event);
   }
 
   private void refreshApplicationListeners() {
