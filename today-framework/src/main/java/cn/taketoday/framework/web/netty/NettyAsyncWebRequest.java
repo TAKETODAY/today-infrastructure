@@ -21,12 +21,12 @@
 package cn.taketoday.framework.web.netty;
 
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 
 import cn.taketoday.lang.Assert;
-import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
-import cn.taketoday.web.HandlerMatchingMetadata;
+import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.context.async.AsyncWebRequest;
 import cn.taketoday.web.context.async.WebAsyncUtils;
 import cn.taketoday.web.handler.DispatcherHandler;
@@ -78,33 +78,33 @@ public class NettyAsyncWebRequest extends AsyncWebRequest {
     this.asyncStarted = false;
     if (asyncCompleted.compareAndSet(false, true)) {
       EventExecutor executor = channelContext.executor();
-      executor.execute(() -> sendToClient(concurrentResult));
+      executor.execute(() -> {
+        try {
+          dispatchToClient(request, concurrentResult);
+        }
+        catch (Exception e) {
+          // last exception handling
+          for (Consumer<Throwable> exceptionHandler : exceptionHandlers) {
+            exceptionHandler.accept(e);
+          }
+        }
+        dispatchEvent(completionHandlers);
+      });
     }
   }
 
-  private void sendToClient(Object concurrentResult) {
+  /**
+   * write result to client
+   *
+   * @param request current request
+   * @param concurrentResult async result
+   */
+  protected final void dispatchToClient(RequestContext request, Object concurrentResult) {
     DispatcherHandler dispatcherHandler = (DispatcherHandler) request.getAttribute(DispatcherHandler.BEAN_NAME);
     Assert.state(dispatcherHandler != null, "No DispatcherHandler");
-    Object handler = findHandler();
+
+    Object handler = WebAsyncUtils.findHttpRequestHandler(request);
     dispatcherHandler.handleConcurrentResult(request, handler, concurrentResult);
-
-    dispatchEvent(completionHandlers);
-  }
-
-  @Nullable
-  private Object findHandler() {
-    var asyncManager = WebAsyncUtils.getAsyncManager(request);
-    Object[] concurrentResultContext = asyncManager.getConcurrentResultContext();
-    if (concurrentResultContext != null && concurrentResultContext.length == 1) {
-      return concurrentResultContext[0];
-    }
-    else {
-      HandlerMatchingMetadata matchingMetadata = request.getMatchingMetadata();
-      if (matchingMetadata != null) {
-        return matchingMetadata.getHandler();
-      }
-    }
-    return null;
   }
 
 }
