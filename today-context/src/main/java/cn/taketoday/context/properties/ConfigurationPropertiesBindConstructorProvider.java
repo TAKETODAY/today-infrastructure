@@ -51,7 +51,7 @@ public class ConfigurationPropertiesBindConstructorProvider implements BindConst
   }
 
   @Nullable
-  Constructor<?> getBindConstructor(@Nullable Class<?> type, boolean isNestedConstructorBinding) {
+  public Constructor<?> getBindConstructor(@Nullable Class<?> type, boolean isNestedConstructorBinding) {
     if (type == null) {
       return null;
     }
