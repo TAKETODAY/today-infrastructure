@@ -44,7 +44,7 @@ import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
-import cn.taketoday.web.handler.DispatcherHandler;
+import cn.taketoday.web.handler.InfraHandler;
 import cn.taketoday.web.servlet.support.XmlWebApplicationContext;
 import jakarta.servlet.ServletContext;
 
@@ -373,7 +373,7 @@ public class ContextLoader {
       }
       else {
         // Generate default id...
-        wac.setId(DispatcherHandler.APPLICATION_CONTEXT_ID_PREFIX +
+        wac.setId(InfraHandler.APPLICATION_CONTEXT_ID_PREFIX +
                 ObjectUtils.getDisplayString(sc.getContextPath()));
       }
     }
