@@ -373,7 +373,6 @@ public class DispatcherHandler extends InfraHandler {
    * @since 4.0
    */
   public void dispatch(RequestContext context) throws Throwable {
-    context.setAttribute(BEAN_NAME, this);
 
     Object handler = null;
     Object returnValue = null;
