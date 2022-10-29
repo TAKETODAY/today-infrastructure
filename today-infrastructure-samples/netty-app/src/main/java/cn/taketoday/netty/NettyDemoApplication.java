@@ -21,6 +21,7 @@
 package cn.taketoday.netty;
 
 import java.io.PrintWriter;
+import java.util.concurrent.Callable;
 import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 
@@ -31,17 +32,19 @@ import cn.taketoday.context.event.EventListener;
 import cn.taketoday.framework.InfraApplication;
 import cn.taketoday.framework.builder.ApplicationBuilder;
 import cn.taketoday.framework.web.netty.EnableNettyHandling;
+import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ExceptionUtils;
 import cn.taketoday.web.RequestContext;
+import cn.taketoday.web.RequestContextHolder;
 import cn.taketoday.web.annotation.ExceptionHandler;
 import cn.taketoday.web.annotation.GET;
 import cn.taketoday.web.annotation.RestController;
 import cn.taketoday.web.annotation.RestControllerAdvice;
 import cn.taketoday.web.config.EnableWebMvc;
+import cn.taketoday.web.context.async.AsyncRequestTimeoutException;
 import cn.taketoday.web.context.async.DeferredResult;
-import lombok.Getter;
-import lombok.ToString;
+import cn.taketoday.web.context.async.WebAsyncTask;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -94,6 +97,30 @@ public class NettyDemoApplication {
     return queryString;
   }
 
+  @GET("/callable")
+  public Callable<String> callable() {
+    return () -> {
+      // 可以获取 RequestContext
+      RequestContext request = RequestContextHolder.getRequired();
+      log.info("异步任务开始执行");
+      try {
+        TimeUnit.SECONDS.sleep(2);
+      }
+      catch (InterruptedException e) {
+        e.printStackTrace();
+      }
+      HttpHeaders headers = request.getHeaders();
+      log.info(headers.toString());
+      log.info("异步任务执行结束，开始返回");
+      return "result from " + Thread.currentThread().getName();
+    };
+  }
+
+  @GET("/web-async-task")
+  public WebAsyncTask<String> webAsyncTask(@Nullable Long timeout) {
+    return new WebAsyncTask<>(timeout, callable());
+  }
+
   @GET("/deferred-result")
   public DeferredResult<String> deferredResult(@Nullable Long timeout) {
     DeferredResult<String> result = new DeferredResult<>(timeout, "Timeout");
@@ -116,15 +143,8 @@ public class NettyDemoApplication {
     return result;
   }
 
-  @Getter
-  static class Body {
-    final String name;
-    final int age;
+  record Body(String name, int age) {
 
-    Body(String name, int age) {
-      this.name = name;
-      this.age = age;
-    }
   }
 
   @Configuration
@@ -136,19 +156,19 @@ public class NettyDemoApplication {
     }
   }
 
-  @ToString
-  static class MyEvent {
-    final String name;
+  record MyEvent(String name) {
 
-    MyEvent(String name) {
-      this.name = name;
-    }
   }
 
   @ExceptionHandler(Throwable.class)
   public void throwable(Throwable throwable, PrintWriter writer) {
     throwable.printStackTrace(writer);
     writer.flush();
+  }
+
+  @ExceptionHandler(AsyncRequestTimeoutException.class)
+  public String asyncTimeout(AsyncRequestTimeoutException timeoutException) {
+    return "任务超时";
   }
 
 }

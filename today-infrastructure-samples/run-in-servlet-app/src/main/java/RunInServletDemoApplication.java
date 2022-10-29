@@ -19,6 +19,7 @@
  */
 
 import java.io.PrintWriter;
+import java.util.concurrent.Callable;
 import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 
@@ -28,16 +29,17 @@ import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.event.EventListener;
 import cn.taketoday.framework.InfraApplication;
 import cn.taketoday.framework.builder.ApplicationBuilder;
+import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ExceptionUtils;
 import cn.taketoday.web.RequestContext;
+import cn.taketoday.web.RequestContextHolder;
 import cn.taketoday.web.annotation.ExceptionHandler;
 import cn.taketoday.web.annotation.GET;
 import cn.taketoday.web.annotation.RestController;
 import cn.taketoday.web.annotation.RestControllerAdvice;
 import cn.taketoday.web.config.EnableWebMvc;
 import cn.taketoday.web.context.async.DeferredResult;
-import lombok.Getter;
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 
@@ -90,31 +92,50 @@ public class RunInServletDemoApplication {
     return queryString;
   }
 
+  @GET("/callable")
+  public Callable<String> callable(@Nullable Long timeout) {
+    return () -> {
+      // 可以获取 RequestContext
+      RequestContext request = RequestContextHolder.getRequired();
+      log.info("异步任务开始执行");
+      ExceptionUtils.sneakyThrow(() -> TimeUnit.SECONDS.sleep(2));
+
+      HttpHeaders headers = request.getHeaders();
+      log.info(headers.toString());
+      log.info("异步任务执行结束，开始返回");
+      return "result from " + Thread.currentThread().getName();
+    };
+  }
+
   @GET("/deferred-result")
   public DeferredResult<String> deferredResult(@Nullable Long timeout) {
     DeferredResult<String> result = new DeferredResult<>(timeout, "Timeout");
     executor.execute(() -> {
+      log.info("异步任务开始执行");
+
       ExceptionUtils.sneakyThrow(() -> TimeUnit.SECONDS.sleep(2));
-      result.setResult("result");
+
+      log.info("异步任务执行结束，开始返回");
+
+      result.setResult("result from " + Thread.currentThread().getName());
+
+      log.info("异步任务执行结束");
     });
 
-    result.onTimeout(() -> log.warn("timeout {}", Thread.currentThread().getName()));
+    result.onTimeout(() ->
+            log.warn("任务执行超时了"));
 
-    result.onCompletion(() -> log.info("onCompletion {}", Thread.currentThread().getName()));
+    result.onCompletion(() ->
+            log.info("结束回调"));
 
-    result.onError(throwable -> log.error("onError {}", Thread.currentThread().getName(), throwable));
+    result.onError(throwable ->
+            log.error("出现异常", throwable));
+
     return result;
   }
 
-  @Getter
-  static class Body {
-    final String name;
-    final int age;
+  record Body(String name, int age) {
 
-    Body(String name, int age) {
-      this.name = name;
-      this.age = age;
-    }
   }
 
   @Configuration
