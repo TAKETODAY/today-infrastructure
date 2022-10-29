@@ -93,11 +93,11 @@ class ErrorPageFilterIntegrationTests {
   private void doTest(AnnotationConfigServletWebServerApplicationContext context, String resourcePath,
           HttpStatus status) throws Exception {
     int port = context.getWebServer().getPort();
-    try (RestTemplate template = new RestTemplate()) {
-      var entity = template.getForEntity(new URI("http://localhost:" + port + resourcePath), String.class);
-      assertThat(entity.getBody()).isEqualTo("Hello World");
-      assertThat(entity.getStatusCode()).isEqualTo(status);
-    }
+
+    RestTemplate template = new RestTemplate();
+    var entity = template.getForEntity(new URI("http://localhost:" + port + resourcePath), String.class);
+    assertThat(entity.getBody()).isEqualTo("Hello World");
+    assertThat(entity.getStatusCode()).isEqualTo(status);
   }
 
   @Configuration(proxyBeanMethods = false)
