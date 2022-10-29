@@ -256,8 +256,8 @@ public class NettyWebServerFactory
     bootstrap.childOption(ChannelOption.SO_KEEPALIVE, true);
 
     postBootstrap(bootstrap);
-    Assert.state(bossGroup != null, "No NettyChannelInitializer");
-    Assert.state(workGroup != null, "No NettyChannelInitializer");
+    Assert.state(bossGroup != null, "No 'bossGroup'");
+    Assert.state(workGroup != null, "No 'workGroup'");
 
     InetSocketAddress listenAddress = getListenAddress();
     return new NettyWebServer(bootstrap, listenAddress, bossGroup, workGroup);

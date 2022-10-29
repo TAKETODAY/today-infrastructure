@@ -131,7 +131,7 @@ public class ServerProperties {
 
   private final Jetty jetty = new Jetty();
 
-  private final Netty netty = new Netty();
+  private final ReactorNetty reactorNetty = new ReactorNetty();
 
   private final Undertow undertow = new Undertow();
 
@@ -213,8 +213,8 @@ public class ServerProperties {
     return this.jetty;
   }
 
-  public Netty getNetty() {
-    return this.netty;
+  public ReactorNetty getNetty() {
+    return this.reactorNetty;
   }
 
   public Undertow getUndertow() {
@@ -1320,7 +1320,7 @@ public class ServerProperties {
   /**
    * Netty properties.
    */
-  public static class Netty {
+  public static class ReactorNetty {
 
     /**
      * Connection timeout of the Netty channel.

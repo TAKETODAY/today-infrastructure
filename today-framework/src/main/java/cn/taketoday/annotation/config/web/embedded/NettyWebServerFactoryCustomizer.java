@@ -61,7 +61,7 @@ public class NettyWebServerFactoryCustomizer
   public void customize(ReactorNettyReactiveWebServerFactory factory) {
     factory.setUseForwardHeaders(getOrDeduceUseForwardHeaders());
     PropertyMapper propertyMapper = PropertyMapper.get().alwaysApplyingWhenNonNull();
-    ServerProperties.Netty nettyProperties = serverProperties.getNetty();
+    ServerProperties.ReactorNetty nettyProperties = serverProperties.getNetty();
 
     propertyMapper.from(nettyProperties::getIdleTimeout).whenNonNull().to(idleTimeout -> customizeIdleTimeout(factory, idleTimeout));
     propertyMapper.from(nettyProperties::getConnectionTimeout).whenNonNull().to(connectionTimeout -> customizeConnectionTimeout(factory, connectionTimeout));
@@ -86,7 +86,7 @@ public class NettyWebServerFactoryCustomizer
       propertyMapper.from(this.serverProperties.getMaxHttpHeaderSize())
               .whenNonNull()
               .to(maxHttpRequestHeader -> httpRequestDecoderSpec.maxHeaderSize((int) maxHttpRequestHeader.toBytes()));
-      ServerProperties.Netty nettyProperties = this.serverProperties.getNetty();
+      ServerProperties.ReactorNetty nettyProperties = this.serverProperties.getNetty();
       propertyMapper.from(nettyProperties.getMaxChunkSize())
               .whenNonNull()
               .to(maxChunkSize -> httpRequestDecoderSpec.maxChunkSize((int) maxChunkSize.toBytes()));
