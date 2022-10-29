@@ -53,8 +53,8 @@ import io.netty.handler.codec.http.websocketx.WebSocketFrame;
 public class WebSocketReactiveChannelHandler extends ReactiveChannelHandler {
 
   public WebSocketReactiveChannelHandler(
-          NettyDispatcher nettyDispatcher, NettyRequestConfig contextConfig, ApplicationContext context) {
-    super(nettyDispatcher, contextConfig, context);
+          NettyRequestConfig contextConfig, ApplicationContext context) {
+    super(contextConfig, context);
   }
 
   @Override

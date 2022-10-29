@@ -20,6 +20,7 @@
 package cn.taketoday.framework.web;
 
 import cn.taketoday.framework.Application;
+import cn.taketoday.framework.ApplicationType;
 import cn.taketoday.framework.web.context.WebServerApplicationContext;
 import cn.taketoday.lang.Experimental;
 
@@ -42,7 +43,9 @@ public class WebApplication extends Application {
    */
   @Experimental
   public static WebServerApplicationContext runReactive(Class<?> config, String... args) {
-    return (WebServerApplicationContext) new WebApplication(config).run(args);
+    WebApplication application = new WebApplication(config);
+    application.setApplicationType(ApplicationType.REACTIVE_WEB);
+    return (WebServerApplicationContext) application.run(args);
   }
 
 }

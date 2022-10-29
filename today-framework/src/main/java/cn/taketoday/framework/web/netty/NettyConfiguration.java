@@ -47,16 +47,9 @@ import reactor.core.publisher.Mono;
 public class NettyConfiguration {
 
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-  @MissingBean(value = ReactiveChannelHandler.class)
-  ReactiveChannelHandler reactiveChannelHandler(ApplicationContext context,
-          NettyDispatcher nettyDispatcher, NettyRequestConfig contextConfig) {
-    return new ReactiveChannelHandler(nettyDispatcher, contextConfig, context);
-  }
-
-  @MissingBean(value = DispatcherHandler.class)
-  @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-  DispatcherHandler dispatcherHandler(ApplicationContext context) {
-    return new DispatcherHandler(context);
+  @MissingBean(value = { ReactiveChannelHandler.class, DispatcherHandler.class })
+  ReactiveChannelHandler reactiveChannelHandler(ApplicationContext context, NettyRequestConfig contextConfig) {
+    return new ReactiveChannelHandler(contextConfig, context);
   }
 
   /**
@@ -104,14 +97,13 @@ public class NettyConfiguration {
   static class NettyWebSocketConfig {
 
     @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-    @MissingBean(value = ReactiveChannelHandler.class)
+    @MissingBean(value = { ReactiveChannelHandler.class, DispatcherHandler.class })
     ReactiveChannelHandler webSocketReactiveChannelHandler(ApplicationContext context,
-            NettyDispatcher nettyDispatcher, NettyRequestConfig contextConfig,
-            @Nullable WebSocketHandlerMapping registry) {
+            NettyRequestConfig contextConfig, @Nullable WebSocketHandlerMapping registry) {
       if (registry != null) {
-        return new WebSocketReactiveChannelHandler(nettyDispatcher, contextConfig, context);
+        return new WebSocketReactiveChannelHandler(contextConfig, context);
       }
-      return new ReactiveChannelHandler(nettyDispatcher, contextConfig, context);
+      return new ReactiveChannelHandler(contextConfig, context);
     }
 
     @Singleton

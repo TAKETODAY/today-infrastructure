@@ -56,7 +56,7 @@ import lombok.extern.slf4j.Slf4j;
 @InfraApplication
 @RestController
 @RestControllerAdvice
-@EnableNettyHandling(async = false)
+@EnableNettyHandling
 public class NettyDemoApplication {
 
   @Autowired

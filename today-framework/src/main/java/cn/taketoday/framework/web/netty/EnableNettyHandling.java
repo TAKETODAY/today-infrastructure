@@ -45,13 +45,6 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 public @interface EnableNettyHandling {
 
   /**
-   * determine using which  {@link NettyDispatcher}
-   *
-   * @see AsyncNettyDispatcherHandler
-   */
-  boolean async() default true;
-
-  /**
    * Using {@link io.netty.util.concurrent.FastThreadLocal}
    * to hold {@link cn.taketoday.web.RequestContext}
    */
@@ -61,9 +54,6 @@ public @interface EnableNettyHandling {
 
 final class NettyConfigurationImportSelector implements AnnotationImportSelector<EnableNettyHandling> {
 
-  /**
-   * register a {@link NettyDispatcher} bean
-   */
   @Override
   public String[] selectImports(
           EnableNettyHandling target, AnnotationMetadata annotatedMetadata) {
@@ -72,18 +62,9 @@ final class NettyConfigurationImportSelector implements AnnotationImportSelector
       RequestContextHolder.replaceContextHolder(new FastRequestThreadLocal());
     }
 
-    if (target.async()) {
-      return new String[] {
-              AsyncNettyDispatcherHandler.class.getName(),
-              NettyConfiguration.class.getName()
-      };
-    }
-    else {
-      return new String[] {
-              NettyDispatcher.class.getName(),
-              NettyConfiguration.class.getName()
-      };
-    }
+    return new String[] {
+            NettyConfiguration.class.getName()
+    };
   }
 
 }

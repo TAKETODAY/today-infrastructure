@@ -21,6 +21,8 @@ package cn.taketoday.framework.web.netty;
 
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.web.RequestContextHolder;
+import cn.taketoday.web.handler.DispatcherHandler;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandler;
@@ -34,20 +36,20 @@ import io.netty.handler.codec.http.HttpVersion;
  *
  * @author TODAY 2019-07-04 21:50
  */
-public class ReactiveChannelHandler implements ChannelInboundHandler {
+public class ReactiveChannelHandler extends DispatcherHandler implements ChannelInboundHandler {
 
   private final ApplicationContext context;
-  private final NettyDispatcher nettyDispatcher;
   private final NettyRequestConfig contextConfig;
 
   public ReactiveChannelHandler(
-          NettyDispatcher nettyDispatcher, NettyRequestConfig contextConfig, ApplicationContext context) {
-    Assert.notNull(context, "NettyDispatcher is required");
+          NettyRequestConfig contextConfig, ApplicationContext context) {
+    super(context);
+    Assert.notNull(context, "DispatcherHandler is required");
     Assert.notNull(context, "NettyRequestConfig is required");
     Assert.notNull(context, "ApplicationContext is required");
     this.context = context;
     this.contextConfig = contextConfig;
-    this.nettyDispatcher = nettyDispatcher;
+    init();
   }
 
   @Override
@@ -59,11 +61,16 @@ public class ReactiveChannelHandler implements ChannelInboundHandler {
   public void channelRead(final ChannelHandlerContext ctx, final Object msg) {
     if (msg instanceof FullHttpRequest httpRequest) {
       var nettyContext = new NettyRequestContext(context, ctx, httpRequest, contextConfig);
+      RequestContextHolder.set(nettyContext);
       try {
-        nettyDispatcher.dispatch(ctx, nettyContext);
+        nettyContext.setAttribute(DispatcherHandler.BEAN_NAME, this);
+        dispatch(nettyContext); // handling HTTP request
       }
       catch (Throwable e) {
         ctx.fireExceptionCaught(e);
+      }
+      finally {
+        RequestContextHolder.remove();
       }
     }
     else {
