@@ -42,8 +42,7 @@ import java.util.Map;
 import java.util.TimeZone;
 
 import cn.taketoday.beans.BeanUtils;
-import cn.taketoday.beans.factory.BeanFactory;
-import cn.taketoday.beans.factory.BeanFactoryUtils;
+import cn.taketoday.beans.factory.ObjectProvider;
 import cn.taketoday.beans.factory.annotation.DisableAllDependencyInjection;
 import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.context.ApplicationContext;
@@ -136,20 +135,21 @@ public class JacksonAutoConfiguration {
 
   @Component
   StandardJackson2ObjectMapperBuilderCustomizer standardJacksonObjectMapperBuilderCustomizer(
-          ApplicationContext context, JacksonProperties jacksonProperties) {
-    return new StandardJackson2ObjectMapperBuilderCustomizer(context, jacksonProperties);
+          JacksonProperties jacksonProperties, ObjectProvider<Module> modules) {
+    return new StandardJackson2ObjectMapperBuilderCustomizer(jacksonProperties, modules.stream().toList());
   }
 
   static final class StandardJackson2ObjectMapperBuilderCustomizer
           implements Jackson2ObjectMapperBuilderCustomizer, Ordered {
 
     private final JacksonProperties jacksonProperties;
-    private final ApplicationContext applicationContext;
+
+    private final Collection<Module> modules;
 
     StandardJackson2ObjectMapperBuilderCustomizer(
-            ApplicationContext applicationContext, JacksonProperties jacksonProperties) {
-      this.applicationContext = applicationContext;
+            JacksonProperties jacksonProperties, Collection<Module> modules) {
       this.jacksonProperties = jacksonProperties;
+      this.modules = modules;
     }
 
     @Override
@@ -273,8 +273,7 @@ public class JacksonAutoConfiguration {
     }
 
     private void configureModules(Jackson2ObjectMapperBuilder builder) {
-      Collection<Module> moduleBeans = getBeans(applicationContext, Module.class);
-      builder.modulesToInstall(moduleBeans.toArray(new Module[0]));
+      builder.modulesToInstall(modules.toArray(new Module[0]));
     }
 
     private void configureLocale(Jackson2ObjectMapperBuilder builder) {
@@ -303,10 +302,6 @@ public class JacksonAutoConfiguration {
           }
         });
       }
-    }
-
-    private static <T> Collection<T> getBeans(BeanFactory beanFactory, Class<T> type) {
-      return BeanFactoryUtils.beansOfTypeIncludingAncestors(beanFactory, type).values();
     }
 
   }
