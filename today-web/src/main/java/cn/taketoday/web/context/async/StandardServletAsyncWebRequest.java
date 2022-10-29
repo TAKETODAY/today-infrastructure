@@ -21,6 +21,7 @@
 package cn.taketoday.web.context.async;
 
 import java.io.IOException;
+import java.util.function.Consumer;
 
 import cn.taketoday.lang.Assert;
 import cn.taketoday.web.servlet.ServletRequestContext;
@@ -46,10 +47,12 @@ public class StandardServletAsyncWebRequest extends AsyncWebRequest implements A
 
   private AsyncContext asyncContext;
 
+  private final ServletRequestContext request;
   private final HttpServletRequest servletRequest;
   private final HttpServletResponse servletResponse;
 
-  StandardServletAsyncWebRequest(ServletRequestContext context) {
+  public StandardServletAsyncWebRequest(ServletRequestContext context) {
+    this.request = context;
     this.servletRequest = context.getRequest();
     this.servletResponse = context.getResponse();
   }
@@ -61,6 +64,7 @@ public class StandardServletAsyncWebRequest extends AsyncWebRequest implements A
    * @param response current HTTP response
    */
   public StandardServletAsyncWebRequest(HttpServletRequest request, HttpServletResponse response) {
+    this.request = new ServletRequestContext(null, request, response);
     this.servletRequest = request;
     this.servletResponse = response;
   }
@@ -92,10 +96,10 @@ public class StandardServletAsyncWebRequest extends AsyncWebRequest implements A
   @Override
   public void dispatch(Object concurrentResult) {
     Assert.notNull(asyncContext, "Cannot dispatch without an AsyncContext");
-    // dispatch to client
-//    asyncContext.start(() -> {
-//      LoggerFactory.getLogger(getClass()).info("asyncContext.start(");
-//    });
+
+    servletRequest.setAttribute(WebAsyncUtils.WEB_ASYNC_REQUEST_ATTRIBUTE, request);
+    servletRequest.setAttribute(WebAsyncUtils.WEB_ASYNC_RESULT_ATTRIBUTE, concurrentResult);
+
     asyncContext.dispatch();
   }
 
@@ -104,13 +108,16 @@ public class StandardServletAsyncWebRequest extends AsyncWebRequest implements A
   // ---------------------------------------------------------------------
 
   @Override
-  public void onStartAsync(AsyncEvent event) throws IOException {
+  public void onStartAsync(AsyncEvent event) {
     // no-op
   }
 
   @Override
   public void onError(AsyncEvent event) throws IOException {
-    exceptionHandlers.forEach(consumer -> consumer.accept(event.getThrowable()));
+    Throwable throwable = event.getThrowable();
+    for (Consumer<Throwable> exceptionHandler : exceptionHandlers) {
+      exceptionHandler.accept(throwable);
+    }
   }
 
   @Override

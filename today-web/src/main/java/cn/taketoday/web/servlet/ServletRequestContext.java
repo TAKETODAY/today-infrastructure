@@ -431,7 +431,7 @@ public final class ServletRequestContext extends RequestContext {
 
   @Override
   protected AsyncWebRequest createAsyncWebRequest() {
-    return new StandardServletAsyncWebRequest(request, response);
+    return new StandardServletAsyncWebRequest(this);
   }
 
   @Override

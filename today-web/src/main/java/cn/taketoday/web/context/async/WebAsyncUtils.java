@@ -20,6 +20,8 @@
 
 package cn.taketoday.web.context.async;
 
+import cn.taketoday.lang.Nullable;
+import cn.taketoday.web.HandlerMatchingMetadata;
 import cn.taketoday.web.RequestContext;
 
 /**
@@ -27,9 +29,22 @@ import cn.taketoday.web.RequestContext;
  *
  * @author Rossen Stoyanchev
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public abstract class WebAsyncUtils {
+
+  /**
+   * The name attribute of the {@link RequestContext}.
+   */
+  public static final String WEB_ASYNC_REQUEST_ATTRIBUTE =
+          WebAsyncManager.class.getName() + ".WEB_REQUEST";
+
+  /**
+   * The name attribute containing the result.
+   */
+  public static final String WEB_ASYNC_RESULT_ATTRIBUTE =
+          WebAsyncManager.class.getName() + ".WEB_ASYNC_RESULT";
 
   /**
    * The name attribute containing the {@link WebAsyncManager}.
@@ -52,6 +67,22 @@ public abstract class WebAsyncUtils {
       context.setAttribute(WEB_ASYNC_MANAGER_ATTRIBUTE, asyncManager);
     }
     return asyncManager;
+  }
+
+  @Nullable
+  public static Object findHttpRequestHandler(RequestContext request) {
+    var asyncManager = WebAsyncUtils.getAsyncManager(request);
+    Object[] concurrentResultContext = asyncManager.getConcurrentResultContext();
+    if (concurrentResultContext != null && concurrentResultContext.length == 1) {
+      return concurrentResultContext[0];
+    }
+    else {
+      HandlerMatchingMetadata matchingMetadata = request.getMatchingMetadata();
+      if (matchingMetadata != null) {
+        return matchingMetadata.getHandler();
+      }
+    }
+    return null;
   }
 
   /**

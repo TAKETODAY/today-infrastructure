@@ -40,6 +40,7 @@ import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.RequestContextHolder;
+import cn.taketoday.web.context.async.WebAsyncUtils;
 import cn.taketoday.web.handler.DispatcherHandler;
 import cn.taketoday.web.servlet.support.StandardServletEnvironment;
 import cn.taketoday.web.servlet.support.WebApplicationContextUtils;
@@ -278,6 +279,15 @@ public class DispatcherServlet
 
   @Override
   public void service(ServletRequest request, ServletResponse response) throws ServletException {
+    if (request.getDispatcherType() == DispatcherType.ASYNC) {
+      // send async results
+      Object concurrentResult = request.getAttribute(WebAsyncUtils.WEB_ASYNC_RESULT_ATTRIBUTE);
+      RequestContext context = (RequestContext) request.getAttribute(WebAsyncUtils.WEB_ASYNC_REQUEST_ATTRIBUTE);
+      Object httpRequestHandler = WebAsyncUtils.findHttpRequestHandler(context);
+      handleConcurrentResult(context, httpRequestHandler, concurrentResult);
+      return;
+    }
+
     HttpServletRequest servletRequest = (HttpServletRequest) request;
     if (log.isDebugEnabled()) {
       logRequest(servletRequest);

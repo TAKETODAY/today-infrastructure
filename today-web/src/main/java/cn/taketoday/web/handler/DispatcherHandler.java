@@ -331,6 +331,13 @@ public class DispatcherHandler extends InfraHandler {
     this.throwExceptionIfNoHandlerFound = throwExceptionIfNoHandlerFound;
   }
 
+  /**
+   * handle async results
+   *
+   * @param context async request
+   * @param handler sync handler
+   * @param concurrentResult async result
+   */
   public void handleConcurrentResult(RequestContext context,
           @Nullable Object handler, Object concurrentResult) {
     Throwable throwable = null;
@@ -346,15 +353,16 @@ public class DispatcherHandler extends InfraHandler {
           throwable = asyncError;
         }
         processDispatchResult(context, handler, concurrentResult, throwable);
+        throwable = null;
       }
     }
     catch (Throwable ex) {
       throwable = ex; // not handled
     }
-
-    requestProcessingCompleted(context, throwable);
-
-    logResult(context, throwable);
+    finally {
+      requestProcessingCompleted(context, throwable);
+      logResult(context, throwable);
+    }
   }
 
   /**
@@ -480,7 +488,7 @@ public class DispatcherHandler extends InfraHandler {
           log.trace("Failed to complete request", failureCause);
         }
         else {
-          log.debug("Failed to complete request: {}", failureCause.toString());
+          log.debug("Failed to complete request", failureCause);
         }
       }
       else {

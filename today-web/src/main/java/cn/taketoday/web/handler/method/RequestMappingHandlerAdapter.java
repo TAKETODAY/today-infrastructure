@@ -525,17 +525,6 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
     asyncManager.registerCallableInterceptors(callableInterceptors);
     asyncManager.registerDeferredResultInterceptors(deferredResultInterceptors);
 
-//    if (asyncManager.hasConcurrentResult()) {
-//      Object result = asyncManager.getConcurrentResult();
-//      bindingContext = asyncManager.getBindingContext();
-//      asyncManager.clearConcurrentResult();
-//      LogFormatUtils.traceDebug(log, traceOn -> {
-//        String formatted = LogFormatUtils.formatValue(result, !traceOn);
-//        return "Resume with async result [" + formatted + "]";
-//      });
-//      invocableMethod = invocableMethod.wrapConcurrentResult(result);
-//    }
-
     Object returnValue = invocableMethod.invokeAndHandle(request, bindingContext);
 
     if (request.isConcurrentHandlingStarted()) {

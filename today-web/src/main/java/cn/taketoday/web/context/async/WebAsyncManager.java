@@ -37,6 +37,7 @@ import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.web.BindingContext;
 import cn.taketoday.web.RequestContext;
+import cn.taketoday.web.RequestContextHolder;
 import cn.taketoday.web.context.async.DeferredResult.DeferredResultHandler;
 
 /**
@@ -329,6 +330,8 @@ public final class WebAsyncManager {
     startAsyncProcessing(processingContext);
     try {
       Future<?> future = taskExecutor.submit(() -> {
+        // context aware
+        RequestContextHolder.set(requestContext);
         Object result = null;
         try {
           interceptorChain.applyPreProcess(requestContext, callable);
@@ -341,6 +344,7 @@ public final class WebAsyncManager {
           result = interceptorChain.applyPostProcess(requestContext, callable, result);
         }
         setConcurrentResultAndDispatch(result);
+        RequestContextHolder.remove();
       });
       interceptorChain.setTaskFuture(future);
     }
