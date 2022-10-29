@@ -35,6 +35,7 @@ import java.lang.reflect.Field;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -49,6 +50,7 @@ import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Primary;
 import cn.taketoday.context.annotation.Role;
+import cn.taketoday.context.annotation.config.AutoConfigurationPackages;
 import cn.taketoday.context.condition.ConditionalOnClass;
 import cn.taketoday.context.condition.ConditionalOnMissingBean;
 import cn.taketoday.context.properties.EnableConfigurationProperties;
@@ -94,6 +96,21 @@ public class JacksonAutoConfiguration {
   @Component
   public JsonComponentModule jsonComponentModule() {
     return new JsonComponentModule();
+  }
+
+  @Component
+  static JsonMixinModuleEntries jsonMixinModuleEntries(ApplicationContext context) {
+    List<String> packages = AutoConfigurationPackages.has(context)
+                            ? AutoConfigurationPackages.get(context)
+                            : Collections.emptyList();
+    return JsonMixinModuleEntries.scan(context, packages);
+  }
+
+  @Component
+  JsonMixinModule jsonMixinModule(ApplicationContext context, JsonMixinModuleEntries entries) {
+    JsonMixinModule jsonMixinModule = new JsonMixinModule();
+    jsonMixinModule.registerEntries(entries, context.getClassLoader());
+    return jsonMixinModule;
   }
 
   @Primary

@@ -18,12 +18,20 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.web.config.jackson;
+package cn.taketoday.web.config.jackson.scan.a;
 
-/**
- * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @since 4.0 2022/3/3 23:42
- */
-class JacksonAutoConfigurationTests {
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+import cn.taketoday.web.config.jackson.JsonMixin;
+import cn.taketoday.web.config.jackson.Name;
+import cn.taketoday.web.config.jackson.NameAndAge;
+
+@JsonMixin(type = { Name.class, NameAndAge.class })
+public class RenameMixInClass {
+
+  @JsonProperty("username")
+  String getName() {
+    return null;
+  }
 
 }
