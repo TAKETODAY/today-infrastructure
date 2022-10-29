@@ -23,6 +23,7 @@ package cn.taketoday.web.handler;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import cn.taketoday.beans.BeanUtils;
 import cn.taketoday.context.ApplicationContext;
@@ -114,6 +115,8 @@ public abstract class InfraHandler implements ApplicationContextAware, Environme
   /** Whether to log potentially sensitive info (request params at DEBUG + headers at TRACE). */
   private boolean enableLoggingRequestDetails = false;
 
+  protected final AtomicBoolean initialized = new AtomicBoolean(false);
+
   protected InfraHandler() { }
 
   /**
@@ -193,25 +196,27 @@ public abstract class InfraHandler implements ApplicationContextAware, Environme
   }
 
   public void init() {
-    long startTime = System.currentTimeMillis();
-    try {
-      this.applicationContext = initApplicationContext();
-      afterApplicationContextInit();
-    }
-    catch (Exception ex) {
-      log.error("Context initialization failed", ex);
-      throw ex;
-    }
+    if (initialized.compareAndSet(false, true)) {
+      long startTime = System.currentTimeMillis();
+      try {
+        this.applicationContext = initApplicationContext();
+        afterApplicationContextInit();
+      }
+      catch (Exception ex) {
+        log.error("Context initialization failed", ex);
+        throw ex;
+      }
 
-    if (log.isDebugEnabled()) {
-      String value = isEnableLoggingRequestDetails() ?
-                     "shown which may lead to unsafe logging of potentially sensitive data" :
-                     "masked to prevent unsafe logging of potentially sensitive data";
-      log.debug("enableLoggingRequestDetails='{}': request parameters and headers will be {}",
-              isEnableLoggingRequestDetails(), value);
-    }
+      if (log.isDebugEnabled()) {
+        String value = isEnableLoggingRequestDetails() ?
+                       "shown which may lead to unsafe logging of potentially sensitive data" :
+                       "masked to prevent unsafe logging of potentially sensitive data";
+        log.debug("enableLoggingRequestDetails='{}': request parameters and headers will be {}",
+                isEnableLoggingRequestDetails(), value);
+      }
 
-    log.info("Completed initialization in {} ms", System.currentTimeMillis() - startTime);
+      log.info("Completed initialization in {} ms", System.currentTimeMillis() - startTime);
+    }
   }
 
   /**
