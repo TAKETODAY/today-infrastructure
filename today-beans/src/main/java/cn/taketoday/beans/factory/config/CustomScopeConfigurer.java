@@ -17,6 +17,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.beans.factory.config;
 
 import java.util.LinkedHashMap;
@@ -46,10 +47,9 @@ import cn.taketoday.util.ClassUtils;
  *
  * @author Juergen Hoeller
  * @author Rick Evans
- * @author TODAY <br>
- * 2020-04-02 20:58
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see ConfigurableBeanFactory#registerScope
- * @since 2.1.7
+ * @since 2.1.7 2020-04-02 20:58
  */
 public class CustomScopeConfigurer
         extends OrderedSupport implements BeanFactoryPostProcessor, BeanClassLoaderAware, Ordered {
@@ -102,7 +102,7 @@ public class CustomScopeConfigurer
           beanFactory.registerScope(name, BeanUtils.newInstance(scopeClass));
         }
         else if (scope instanceof String) {
-          Class<Scope> scopeClass = ClassUtils.resolveClassName((String) scope, this.beanClassLoader);
+          Class<Scope> scopeClass = ClassUtils.resolveClassName((String) scope, beanClassLoader);
           Assert.isAssignable(Scope.class, scopeClass, "Invalid scope class");
           beanFactory.registerScope(name, BeanUtils.newInstance(scopeClass));
         }
