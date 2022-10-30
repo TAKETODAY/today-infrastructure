@@ -26,6 +26,7 @@ import org.junit.jupiter.api.Test;
 import java.util.concurrent.Callable;
 import java.util.function.Consumer;
 
+import cn.taketoday.beans.BeanWrapper;
 import cn.taketoday.core.task.AsyncTaskExecutor;
 import cn.taketoday.core.task.SimpleAsyncTaskExecutor;
 import cn.taketoday.web.servlet.ServletRequestContext;
@@ -63,21 +64,27 @@ class WebAsyncManagerTests {
     this.asyncManager.setTaskExecutor(new SyncTaskExecutor());
     this.asyncWebRequest = mock(AsyncWebRequest.class);
     this.asyncManager.setAsyncRequest(this.asyncWebRequest);
+
+    BeanWrapper.forDirectFieldAccess(request)
+            .setPropertyValue("asyncWebRequest", asyncWebRequest);
+
     verify(this.asyncWebRequest).addCompletionHandler(notNull());
     reset(this.asyncWebRequest);
   }
 
   @Test
   public void startAsyncProcessingWithoutAsyncWebRequest() throws Exception {
+    MockHttpServletRequest servletRequest = new MockHttpServletRequest();
+    ServletRequestContext request = new ServletRequestContext(null, servletRequest, null);
     WebAsyncManager manager = WebAsyncUtils.getAsyncManager(request);
 
     assertThatIllegalStateException()
             .isThrownBy(() -> manager.startCallableProcessing(new StubCallable(1)))
-            .withMessage("AsyncWebRequest must not be null");
+            .withMessage("AsyncWebRequest is required");
 
     assertThatIllegalStateException()
             .isThrownBy(() -> manager.startDeferredResultProcessing(new DeferredResult<String>()))
-            .withMessage("AsyncWebRequest must not be null");
+            .withMessage("AsyncWebRequest is required");
   }
 
   @Test
@@ -88,7 +95,7 @@ class WebAsyncManagerTests {
 
     reset(this.asyncWebRequest);
     given(this.asyncWebRequest.isAsyncStarted()).willReturn(true);
-
+    request.getAsyncWebRequest();
     assertThat(this.request.isConcurrentHandlingStarted()).isTrue();
   }
 
@@ -248,7 +255,7 @@ class WebAsyncManagerTests {
   public void startCallableProcessingNullInput() throws Exception {
     assertThatIllegalArgumentException()
             .isThrownBy(() -> this.asyncManager.startCallableProcessing((Callable<?>) null))
-            .withMessage("Callable must not be null");
+            .withMessage("Callable is required");
   }
 
   @Test
@@ -339,7 +346,7 @@ class WebAsyncManagerTests {
   public void startDeferredResultProcessingNullInput() throws Exception {
     assertThatIllegalArgumentException()
             .isThrownBy(() -> this.asyncManager.startDeferredResultProcessing(null))
-            .withMessage("DeferredResult must not be null");
+            .withMessage("DeferredResult is required");
   }
 
   private void setupDefaultAsyncScenario() {
@@ -352,7 +359,7 @@ class WebAsyncManagerTests {
     verify(this.asyncWebRequest).addErrorHandler(notNull());
     verify(this.asyncWebRequest).addCompletionHandler(notNull());
     verify(this.asyncWebRequest).startAsync();
-    verify(this.asyncWebRequest).dispatch(null);
+    verify(this.asyncWebRequest).dispatch(notNull());
   }
 
   private final class StubCallable implements Callable<Object> {
