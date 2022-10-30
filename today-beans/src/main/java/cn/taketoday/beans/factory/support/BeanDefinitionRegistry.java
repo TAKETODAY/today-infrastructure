@@ -21,6 +21,7 @@ package cn.taketoday.beans.factory.support;
 
 import java.util.Map;
 
+import cn.taketoday.beans.factory.BeanDefinitionStoreException;
 import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
 import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.core.AliasRegistry;
@@ -41,6 +42,9 @@ import cn.taketoday.lang.Nullable;
  * @author Juergen Hoeller
  * @author TODAY <br>
  * @see BeanDefinition
+ * @see AbstractBeanDefinition
+ * @see RootBeanDefinition
+ * @see ChildBeanDefinition
  * @since 2018-07-08 19:56:53 2018-08-06 11:07
  */
 public interface BeanDefinitionRegistry extends AliasRegistry {
@@ -51,21 +55,29 @@ public interface BeanDefinitionRegistry extends AliasRegistry {
   Map<String, BeanDefinition> getBeanDefinitions();
 
   /**
-   * register a bean with the given name and {@link BeanDefinition}
+   * Register a new bean definition with this registry.
+   * Must support RootBeanDefinition and ChildBeanDefinition.
    *
-   * @param def Bean definition
+   * @param beanName the name of the bean instance to register
+   * @param beanDefinition definition of the bean instance to register
+   * @throws BeanDefinitionStoreException if the BeanDefinition is invalid
    * @throws BeanDefinitionOverrideException if there is already a BeanDefinition
    * for the specified bean name and we are not allowed to override it
+   * @see GenericBeanDefinition
+   * @see RootBeanDefinition
+   * @see ChildBeanDefinition
    * @since 1.2.0
    */
-  void registerBeanDefinition(String name, BeanDefinition def);
+  void registerBeanDefinition(String beanName, BeanDefinition beanDefinition)
+          throws BeanDefinitionStoreException;
 
   /**
    * Remove the BeanDefinition for the given name.
    *
-   * @param beanName The name of the bean instance to register
+   * @param beanName the name of the bean instance to register
+   * @throws NoSuchBeanDefinitionException if there is no such bean definition
    */
-  void removeBeanDefinition(String beanName);
+  void removeBeanDefinition(String beanName) throws NoSuchBeanDefinitionException;
 
   /**
    * Return the BeanDefinition for the given bean name.
