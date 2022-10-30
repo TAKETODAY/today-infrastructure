@@ -22,6 +22,7 @@ package cn.taketoday.session;
 
 import java.util.Collection;
 
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ArrayHolder;
 
 /**
@@ -33,26 +34,99 @@ public class SessionEventDispatcher {
   private final ArrayHolder<WebSessionListener> sessionListeners =
           ArrayHolder.forGenerator(WebSessionListener[]::new);
 
-  public SessionEventDispatcher() { }
+  private final ArrayHolder<WebSessionAttributeListener> attributeListeners =
+          ArrayHolder.forGenerator(WebSessionAttributeListener[]::new);
 
-  public SessionEventDispatcher(Collection<WebSessionListener> webSessionListeners) {
-    addSessionListeners(webSessionListeners);
-  }
-
+  /**
+   * Receives notification that a session has been created.
+   */
   public void onSessionCreated(WebSession session) {
     var event = new WebSessionEvent(this, session);
-    for (WebSessionListener sessionListener : sessionListeners) {
-      sessionListener.sessionCreated(event);
+    for (WebSessionListener listener : sessionListeners) {
+      listener.sessionCreated(event);
     }
   }
 
+  /**
+   * Receives notification that a session is about to be invalidated.
+   */
   public void onSessionDestroyed(WebSession session) {
     var event = new WebSessionEvent(this, session);
-    for (WebSessionListener sessionListener : sessionListeners) {
-      sessionListener.sessionDestroyed(event);
+    for (WebSessionListener listener : sessionListeners) {
+      listener.sessionDestroyed(event);
     }
   }
 
+  /**
+   * Notification that an attribute has been added to a session. Called after
+   * the attribute is added.
+   *
+   * @param session web session to hold this attribute
+   * @param attributeName name of attribute
+   * @param value attribute value
+   */
+  public void attributeAdded(WebSession session, String attributeName, Object value) {
+    for (WebSessionAttributeListener listener : attributeListeners) {
+      listener.attributeAdded(session, attributeName, value);
+    }
+  }
+
+  /**
+   * Notification that an attribute has been removed from a session. Called
+   * after the attribute is removed.
+   *
+   * @param session web session to hold this attribute
+   * @param attributeName name of attribute
+   * @param value attribute value
+   */
+  public void attributeRemoved(WebSession session, String attributeName, @Nullable Object value) {
+    for (WebSessionAttributeListener listener : attributeListeners) {
+      listener.attributeRemoved(session, attributeName, value);
+    }
+  }
+
+  /**
+   * Notification that an attribute has been replaced in a session. Called
+   * after the attribute is replaced.
+   * The default implementation is a NO-OP.
+   *
+   * @param session web session to hold this attribute
+   * @param attributeName name of attribute
+   * @param oldValue attribute value
+   */
+  public void attributeReplaced(WebSession session,
+          String attributeName, Object oldValue, Object newValue) {
+    for (WebSessionAttributeListener listener : attributeListeners) {
+      listener.attributeReplaced(session, attributeName, oldValue, newValue);
+    }
+  }
+
+  /**
+   * add list of WebSessionAttributeListener
+   *
+   * @param array list to add
+   * @throws NullPointerException input list is null
+   */
+  public void addAttributeListeners(WebSessionAttributeListener... array) {
+    attributeListeners.add(array);
+  }
+
+  /**
+   * add list of WebSessionAttributeListener
+   *
+   * @param list list to add
+   * @throws NullPointerException input list is null
+   */
+  public void addAttributeListeners(Collection<WebSessionAttributeListener> list) {
+    attributeListeners.addAll(list);
+  }
+
+  /**
+   * add list of WebSessionListener
+   *
+   * @param array array to add
+   * @throws NullPointerException input list is null
+   */
   public void addSessionListeners(WebSessionListener... array) {
     sessionListeners.add(array);
   }
@@ -65,6 +139,10 @@ public class SessionEventDispatcher {
    */
   public void addSessionListeners(Collection<WebSessionListener> list) {
     sessionListeners.addAll(list);
+  }
+
+  public ArrayHolder<WebSessionAttributeListener> getAttributeListeners() {
+    return attributeListeners;
   }
 
   public ArrayHolder<WebSessionListener> getSessionListeners() {

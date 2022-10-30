@@ -41,7 +41,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
-import cn.taketoday.core.AttributeAccessor;
 import cn.taketoday.core.Conventions;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
@@ -84,7 +83,7 @@ public class RedissonSessionRepository implements SessionRepository, PatternMess
   @Nullable
   private Duration defaultMaxInactiveInterval;
 
-  private final SessionEventDispatcher sessionEventDispatcher;
+  private final SessionEventDispatcher eventDispatcher;
   private final SessionIdGenerator idGenerator;
 
   public RedissonSessionRepository(RedissonClient redissonClient) {
@@ -118,7 +117,7 @@ public class RedissonSessionRepository implements SessionRepository, PatternMess
     }
 
     this.idGenerator = idGenerator;
-    this.sessionEventDispatcher = eventDispatcher;
+    this.eventDispatcher = eventDispatcher;
   }
 
   @Nullable
@@ -156,7 +155,7 @@ public class RedissonSessionRepository implements SessionRepository, PatternMess
     if (createdTopic.getPatternNames().contains(patternString)) {
       RedissonSession session = retrieveSession(body);
       if (session != null) {
-        sessionEventDispatcher.onSessionCreated(session);
+        eventDispatcher.onSessionCreated(session);
       }
     }
     else if (expiredTopic.getPatternNames().contains(patternString)
@@ -168,7 +167,7 @@ public class RedissonSessionRepository implements SessionRepository, PatternMess
         if (mapSession != null) {
           RedissonSession session = new RedissonSession(mapSession);
           session.clearPrincipal();
-          sessionEventDispatcher.onSessionDestroyed(session);
+          eventDispatcher.onSessionDestroyed(session);
         }
       }
     }
@@ -478,16 +477,6 @@ public class RedissonSessionRepository implements SessionRepository, PatternMess
     @Override
     public Map<String, Object> getAttributes() {
       return delegate.getAttributes();
-    }
-
-    @Override
-    public void copyAttributesFrom(AttributeAccessor source) {
-      delegate.copyAttributesFrom(source);
-    }
-
-    @Override
-    public void clearAttributes() {
-      delegate.clearAttributes();
     }
 
     @Override

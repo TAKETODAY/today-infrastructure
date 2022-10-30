@@ -23,17 +23,12 @@ package cn.taketoday.web.context.support;
 import java.util.function.Supplier;
 
 import cn.taketoday.beans.factory.config.Scope;
-import cn.taketoday.core.AttributeAccessor;
-import cn.taketoday.lang.Nullable;
-import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.RequestContextHolder;
-import cn.taketoday.web.RequestContextUtils;
 
 /**
  * Abstract {@link Scope} implementation that reads from a particular scope
  * in the current thread-bound {@link cn.taketoday.core.AttributeAccessor} object.
  *
- * <p>Subclasses may wish to override the {@link #get} and {@link #remove}
+ * <p>Subclasses may wish to override the {@link #doGetBean} and {@link #remove}
  * methods to add synchronization around the call back into this super class.
  *
  * @author Rod Johnson
@@ -42,9 +37,9 @@ import cn.taketoday.web.RequestContextUtils;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/1/19 21:31
  */
-public abstract class AbstractRequestContextScope<T extends AttributeAccessor> implements Scope {
+public abstract class AbstractRequestContextScope<T> implements Scope {
 
-  public Object get(T context, String beanName, Supplier<?> objectFactory) {
+  public final Object doGetBean(T context, String beanName, Supplier<?> objectFactory) {
     Object scopedObject = getAttribute(beanName, context);
     if (scopedObject == null) {
       scopedObject = objectFactory.get();
@@ -61,14 +56,6 @@ public abstract class AbstractRequestContextScope<T extends AttributeAccessor> i
     return scopedObject;
   }
 
-  protected void setAttribute(T context, String beanName, Object scopedObject) {
-    context.setAttribute(beanName, scopedObject);
-  }
-
-  protected Object getAttribute(String beanName, T context) {
-    return context.getAttribute(beanName);
-  }
-
   protected Object remove(T context, String name) {
     Object scopedObject = getAttribute(name, context);
     if (scopedObject != null) {
@@ -80,29 +67,12 @@ public abstract class AbstractRequestContextScope<T extends AttributeAccessor> i
     }
   }
 
-  protected void removeAttribute(T context, String name) {
-    context.removeAttribute(name);
-  }
+  // Abstract stuff
 
-  @Override
-  public void registerDestructionCallback(String name, Runnable callback) {
-    RequestContext context = RequestContextHolder.getRequired();
-    context.registerRequestDestructionCallback(name, callback);
-  }
+  protected abstract void setAttribute(T context, String beanName, Object scopedObject);
 
-  @Nullable
-  @Override
-  public Object resolveContextualObject(String key) {
-    if (RequestContext.SCOPE_REQUEST.equals(key)) {
-      return RequestContextHolder.get();
-    }
-    else if (RequestContext.SCOPE_SESSION.equals(key)) {
-      RequestContext context = RequestContextHolder.get();
-      if (context != null) {
-        return RequestContextUtils.getSession(context, true);
-      }
-    }
-    return null;
-  }
+  protected abstract Object getAttribute(String beanName, T context);
+
+  protected abstract void removeAttribute(T context, String name);
 
 }

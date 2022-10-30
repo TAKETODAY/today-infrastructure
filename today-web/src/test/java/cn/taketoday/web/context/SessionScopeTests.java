@@ -34,18 +34,20 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import cn.taketoday.beans.BeanWrapper;
 import cn.taketoday.beans.BeansException;
+import cn.taketoday.beans.DirectFieldAccessor;
 import cn.taketoday.beans.factory.BeanNameAware;
 import cn.taketoday.beans.factory.config.DestructionAwareBeanPostProcessor;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.beans.factory.xml.XmlBeanDefinitionReader;
 import cn.taketoday.context.annotation.AnnotatedBeanDefinitionReader;
 import cn.taketoday.context.annotation.AnnotationConfigApplicationContext;
+import cn.taketoday.core.Conventions;
 import cn.taketoday.core.io.ClassPathResource;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.session.CookieSessionIdResolver;
 import cn.taketoday.session.MapSession;
 import cn.taketoday.session.SessionRepository;
 import cn.taketoday.session.WebSession;
@@ -58,7 +60,6 @@ import cn.taketoday.web.testfixture.beans.DerivedTestBean;
 import cn.taketoday.web.testfixture.beans.TestBean;
 import cn.taketoday.web.testfixture.servlet.MockHttpServletRequest;
 import cn.taketoday.web.testfixture.servlet.MockHttpServletResponse;
-import cn.taketoday.web.testfixture.servlet.MockHttpSession;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -95,56 +96,22 @@ public class SessionScopeTests {
 
   @Test
   public void getFromScope() throws Exception {
-    AtomicInteger count = new AtomicInteger();
-    MockHttpSession session = new MockHttpSession() {
-      @Override
-      public void setAttribute(String name, Object value) {
-        super.setAttribute(name, value);
-        count.incrementAndGet();
-      }
-    };
-
     MockHttpServletRequest request = new MockHttpServletRequest();
-    request.setSession(session);
-
     ServletRequestContext requestAttributes = getContext(request);
+    WebSession session = RequestContextUtils.getRequiredSession(requestAttributes);
+
     String name = "sessionScopedObject";
     assertThat(session.getAttribute(name)).isNull();
     TestBean bean = (TestBean) this.beanFactory.getBean(name);
-    assertThat(count.intValue()).isEqualTo(1);
+
+    assertThat(session.getAttributes().size()).isEqualTo(1);
     assertThat(bean).isEqualTo(session.getAttribute(name));
     assertThat(this.beanFactory.getBean(name)).isSameAs(bean);
-    assertThat(count.intValue()).isEqualTo(1);
+    assertThat(session.getAttributes().size()).isEqualTo(1);
 
     // should re-propagate updated attribute
     requestAttributes.requestCompleted();
     assertThat(bean).isEqualTo(session.getAttribute(name));
-    assertThat(count.intValue()).isEqualTo(2);
-  }
-
-  @Test
-  public void getFromScopeWithSingleAccess() throws Exception {
-    AtomicInteger count = new AtomicInteger();
-    MockHttpSession session = new MockHttpSession() {
-      @Override
-      public void setAttribute(String name, Object value) {
-        super.setAttribute(name, value);
-        count.incrementAndGet();
-      }
-    };
-
-    MockHttpServletRequest request = new MockHttpServletRequest();
-    request.setSession(session);
-    ServletRequestContext requestAttributes = getContext(request);
-    String name = "sessionScopedObject";
-    assertThat(session.getAttribute(name)).isNull();
-    TestBean bean = (TestBean) this.beanFactory.getBean(name);
-    assertThat(count.intValue()).isEqualTo(1);
-
-    // should re-propagate updated attribute
-    requestAttributes.requestCompleted();
-    assertThat(bean).isEqualTo(session.getAttribute(name));
-    assertThat(count.intValue()).isEqualTo(2);
   }
 
   @Test
@@ -194,7 +161,7 @@ public class SessionScopeTests {
     MockHttpServletRequest request = new MockHttpServletRequest();
 
     ServletRequestContext requestAttributes = getContext(request);
-    WebSession session = RequestContextUtils.getSession(requestAttributes);
+    WebSession session = RequestContextUtils.getRequiredSession(requestAttributes);
     String name = "sessionScopedDisposableObject";
     assertThat(session.getAttribute(name)).isNull();
     DerivedTestBean bean = (DerivedTestBean) this.beanFactory.getBean(name);
@@ -209,8 +176,9 @@ public class SessionScopeTests {
 
     SessionRepository repository = beanFactory.getBean(SessionRepository.class);
 
-    BeanWrapper beanWrapper = BeanWrapper.forBeanPropertyAccess(repository);
-    ConcurrentHashMap<String, WebSession> sessions = (ConcurrentHashMap<String, WebSession>) beanWrapper.getPropertyValue("sessions");
+    DirectFieldAccessor beanWrapper = BeanWrapper.forDirectFieldAccess(repository);
+    ConcurrentHashMap<String, WebSession> sessions = (ConcurrentHashMap<String, WebSession>)
+            beanWrapper.getPropertyValue("sessions");
 
     session = new MapSession();
     deserializeState(session, serializedState);
@@ -221,6 +189,9 @@ public class SessionScopeTests {
 
     requestAttributes = getContext(request);
 
+    requestAttributes.setAttribute(Conventions.getQualifiedAttributeName(
+            CookieSessionIdResolver.class, "WRITTEN_SESSION_ID_ATTR"), session.getId());
+
     name = "sessionScopedDisposableObject";
     assertThat(session.getAttribute(name)).isNotNull();
     bean = (DerivedTestBean) this.beanFactory.getBean(name);
@@ -228,7 +199,7 @@ public class SessionScopeTests {
     assertThat(this.beanFactory.getBean(name)).isSameAs(bean);
 
     requestAttributes.requestCompleted();
-    session.invalidate();
+    RequestContextUtils.getRequiredSession(requestAttributes).invalidate();
     assertThat(bean.wasDestroyed()).isTrue();
 
     if (beanNameReset) {

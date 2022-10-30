@@ -21,11 +21,11 @@
 package cn.taketoday.session;
 
 import java.io.Serial;
+import java.io.Serializable;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.UUID;
 
-import cn.taketoday.core.AttributeAccessorSupport;
 import cn.taketoday.lang.Assert;
 
 /**
@@ -48,7 +48,7 @@ import cn.taketoday.lang.Assert;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/5/10 15:52
  */
-public class MapSession extends AttributeAccessorSupport implements WebSession {
+public class MapSession extends AbstractWebSession implements WebSession, Serializable {
   @Serial
   private static final long serialVersionUID = 1L;
 
@@ -85,6 +85,12 @@ public class MapSession extends AttributeAccessorSupport implements WebSession {
    * @param id the identifier to use
    */
   public MapSession(String id) {
+    this(id, new SessionEventDispatcher());
+  }
+
+  public MapSession(String id, SessionEventDispatcher eventDispatcher) {
+    super(eventDispatcher);
+    Assert.notNull(id, "sessionId is required");
     this.id = id;
     this.originalId = id;
   }
@@ -96,14 +102,23 @@ public class MapSession extends AttributeAccessorSupport implements WebSession {
    * be null.
    */
   public MapSession(WebSession session) {
-    Assert.notNull(session, "session cannot be null");
+    super(getEventDispatcher(session));
     this.id = session.getId();
     this.originalId = this.id;
     this.maxIdleTime = session.getMaxIdleTime();
     this.creationTime = session.getCreationTime();
     this.lastAccessTime = session.getLastAccessTime();
-
     copyAttributesFrom(session);
+  }
+
+  static SessionEventDispatcher getEventDispatcher(WebSession session) {
+    Assert.notNull(session, "session is required");
+    if (session instanceof AbstractWebSession mapSession) {
+      return mapSession.eventDispatcher;
+    }
+    else {
+      return new SessionEventDispatcher();
+    }
   }
 
   @Override
@@ -123,7 +138,7 @@ public class MapSession extends AttributeAccessorSupport implements WebSession {
 
   @Override
   public void start() {
-
+    eventDispatcher.onSessionCreated(this);
   }
 
   @Override
@@ -142,8 +157,10 @@ public class MapSession extends AttributeAccessorSupport implements WebSession {
   }
 
   @Override
-  public void invalidate() {
-    clearAttributes();
+  protected void doInvalidate() {
+    if (attributes != null) {
+      attributes.clear();
+    }
   }
 
   @Override

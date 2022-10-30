@@ -18,39 +18,34 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.session;
+package cn.taketoday.web.context.support;
 
-import cn.taketoday.context.ApplicationEvent;
+import java.io.Serializable;
+
+import cn.taketoday.session.AttributeBindingListener;
+import cn.taketoday.session.WebSession;
 
 /**
- * This is the class representing event notifications for
- * changes to sessions within a web application.
- *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @since 4.0 2022/4/9 09:53
+ * @since 4.0 2022/10/30 21:31
  */
-public class WebSessionEvent extends ApplicationEvent {
-  final WebSession session;
+public class DestructionCallbackBindingListener implements AttributeBindingListener, Serializable {
 
-  public WebSessionEvent(Object source, WebSession session) {
-    super(source);
-    this.session = session;
-  }
+  private final Runnable destructionCallback;
 
   /**
-   * Return the session that changed.
+   * Create a new DestructionCallbackBindingListener for the given callback.
    *
-   * @return the {@link WebSession} for this event.
+   * @param destructionCallback the Runnable to execute when this listener
+   * object gets unbound from the session
    */
-  public WebSession getSession() {
-    return session;
+  public DestructionCallbackBindingListener(Runnable destructionCallback) {
+    this.destructionCallback = destructionCallback;
   }
 
-  /**
-   * returns session's id
-   */
-  public String getSessionId() {
-    return session.getId();
+  @Override
+  public void valueUnbound(WebSession session, String attributeName) {
+    destructionCallback.run();
   }
 
 }

@@ -22,8 +22,11 @@ package cn.taketoday.session;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.util.Iterator;
+import java.util.Map;
 
-import cn.taketoday.core.AttributeAccessor;
+import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.ArrayIterator;
 
 /**
  * Main contract for using a server-side session that provides access to session
@@ -34,10 +37,11 @@ import cn.taketoday.core.AttributeAccessor;
  * a cookie). A session starts implicitly when session attributes are added.
  * A session may also be created explicitly via {@link #start()}.
  *
- * @author TODAY <br>
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @see AttributeBindingListener
  * @since 2019-09-27 20:16
  */
-public interface WebSession extends AttributeAccessor {
+public interface WebSession {
 
   /**
    * returns this session's id
@@ -66,7 +70,7 @@ public interface WebSession extends AttributeAccessor {
   void changeSessionId();
 
   /**
-   * Save the session through the {@code WebSessionStore} as follows:
+   * Save the session through the {@code SessionRepository} as follows:
    * <ul>
    * <li>If the session is new (i.e. created but never persisted), it must have
    * been started explicitly via {@link #start()} or implicitly by adding
@@ -129,5 +133,97 @@ public interface WebSession extends AttributeAccessor {
    * session doesn't expire.
    */
   Duration getMaxIdleTime();
+
+  // attribute
+
+  /**
+   * Binds an object to this session, using the name specified.
+   * If an object of the same name is already bound to the session,
+   * the object is replaced.
+   *
+   * <p>
+   * After this method executes, and if the new object implements
+   * <code>AttributeBindingListener</code>, the container calls
+   * <code>AttributeBindingListener.valueBound</code>. The container
+   * then notifies any <code>HttpSessionAttributeListener</code>s
+   * in the web application.
+   *
+   * <p>
+   * If an object was already bound to this session of this name that
+   * implements <code>AttributeBindingListener</code>, its <code>
+   * AttributeBindingListener.valueUnbound</code> method is called.
+   *
+   * <p>
+   * If the value passed in is null, this has the same effect as calling
+   * <code>removeAttribute()</code>.
+   *
+   * @param name the name to which the object is bound; cannot be null
+   * @param value the object to be bound
+   */
+  void setAttribute(String name, @Nullable Object value);
+
+  /**
+   * Returns the object bound with the specified name in this session,
+   * or <code>null</code> if no object is bound under the name.
+   *
+   * @param name a string specifying the name of the object
+   * @return the object with the specified name
+   */
+  @Nullable
+  Object getAttribute(String name);
+
+  /**
+   * Removes the object bound with the specified name from this session.
+   * If the session does not have an object bound with the specified name,
+   * this method does nothing.
+   *
+   * <p>
+   * After this method executes, and if the object implements <code>
+   * AttributeBindingListener</code>, the container calls <code>
+   * AttributeBindingListener.valueUnbound </code>. The container
+   * then notifies any <code>WebSessionAttributeListener</code>s
+   * in the web application.
+   *
+   * @param name the name of the object to remove from this session
+   */
+  @Nullable
+  Object removeAttribute(String name);
+
+  /**
+   * Return {@code true} if the attribute identified by {@code name} exists.
+   * Otherwise return {@code false}.
+   *
+   * @param name the unique attribute key
+   */
+  boolean hasAttribute(String name);
+
+  /**
+   * Return the names of all attributes.
+   */
+  String[] getAttributeNames();
+
+  /**
+   * Return the names Iterator.
+   *
+   * @since 4.0
+   */
+  default Iterator<String> attributeNames() {
+    return new ArrayIterator<>(getAttributeNames());
+  }
+
+  /**
+   * Returns {@code true} if this map contains no key-value mappings.
+   *
+   * @return {@code true} if this map contains no key-value mappings
+   * @since 4.0
+   */
+  boolean hasAttributes();
+
+  /**
+   * Return attributes map
+   *
+   * @return attributes map
+   */
+  Map<String, Object> getAttributes();
 
 }

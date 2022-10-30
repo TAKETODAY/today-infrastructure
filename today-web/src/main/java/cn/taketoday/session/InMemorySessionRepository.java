@@ -33,8 +33,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.ReentrantLock;
 
-import cn.taketoday.core.AttributeAccessorSupport;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.StringUtils;
 
 /**
@@ -47,6 +47,26 @@ public class InMemorySessionRepository implements SessionRepository {
 
   private int maxSessions = 10000;
   private Clock clock = Clock.system(ZoneId.of("GMT"));
+
+  /**
+   * When an attribute that is already present in the session is added again
+   * under the same name and the attribute implements {@link
+   * AttributeBindingListener}, should
+   * {@link AttributeBindingListener#valueUnbound(WebSession, String)} )}
+   * be called followed by
+   * {@link AttributeBindingListener#valueBound(WebSession, String)}
+   * <p>
+   * The default value is {@code false}.
+   * <p>
+   * {@code true} if the listener will be notified, {@code false} if
+   * it will not
+   */
+  private boolean notifyBindingListenerOnUnchangedValue;
+
+  /**
+   * @see #setNotifyAttributeListenerOnUnchangedValue(boolean)
+   */
+  private boolean notifyAttributeListenerOnUnchangedValue = true;
 
   private final SessionIdGenerator idGenerator;
   private final SessionEventDispatcher eventDispatcher;
@@ -80,6 +100,43 @@ public class InMemorySessionRepository implements SessionRepository {
    */
   public int getMaxSessions() {
     return this.maxSessions;
+  }
+
+  /**
+   * When an attribute that is already present in the session is added again
+   * under the same name and the attribute implements {@link
+   * AttributeBindingListener}, should
+   * {@link AttributeBindingListener#valueUnbound(WebSession, String)}
+   * be called followed by
+   * {@link AttributeBindingListener#valueBound(WebSession, String)}
+   * <p>
+   * The default value is {@code false}.
+   * <p>
+   *
+   * @param notifyBindingListenerOnUnchangedValue {@code true} if the listener will be notified,
+   * {@code false} if it will not
+   * @since 4.0
+   */
+  public void setNotifyBindingListenerOnUnchangedValue(boolean notifyBindingListenerOnUnchangedValue) {
+    this.notifyBindingListenerOnUnchangedValue = notifyBindingListenerOnUnchangedValue;
+  }
+
+  /**
+   * When an attribute that is already present in the session is added again
+   * under the same name and a {@link
+   * WebSessionAttributeListener} is configured for the
+   * session should
+   * {@link WebSessionAttributeListener#attributeReplaced(WebSession, String, Object, Object)}
+   * be called?
+   * <p>
+   * The default value is {@code true}.
+   *
+   * @param notifyAttributeListenerOnUnchangedValue {@code true} if the listener will be
+   * notified, {@code false} if it will not
+   * @since 4.0
+   */
+  public void setNotifyAttributeListenerOnUnchangedValue(boolean notifyAttributeListenerOnUnchangedValue) {
+    this.notifyAttributeListenerOnUnchangedValue = notifyAttributeListenerOnUnchangedValue;
   }
 
   /**
@@ -181,7 +238,7 @@ public class InMemorySessionRepository implements SessionRepository {
     expiredSessionChecker.removeExpiredSessions(clock.instant());
   }
 
-  final class InMemoryWebSession extends AttributeAccessorSupport implements WebSession, Serializable {
+  final class InMemoryWebSession extends AbstractWebSession implements WebSession, Serializable {
 
     @Serial
     private static final long serialVersionUID = 1L;
@@ -197,6 +254,7 @@ public class InMemorySessionRepository implements SessionRepository {
     private final AtomicReference<State> state = new AtomicReference<>(State.NEW);
 
     InMemoryWebSession(String id, Instant creationTime) {
+      super(InMemorySessionRepository.this.eventDispatcher);
       this.id = new AtomicReference<>(id);
       this.creationTime = creationTime;
       this.lastAccessTime = this.creationTime;
@@ -231,10 +289,8 @@ public class InMemorySessionRepository implements SessionRepository {
     }
 
     @Override
-    public void invalidate() {
+    protected void doInvalidate() {
       state.set(State.EXPIRED);
-      clearAttributes();
-      eventDispatcher.onSessionDestroyed(this);
       sessions.remove(getId());
     }
 
@@ -287,6 +343,16 @@ public class InMemorySessionRepository implements SessionRepository {
     @Override
     public boolean isStarted() {
       return state.get().equals(State.STARTED) || attributes != null;
+    }
+
+    @Override
+    protected boolean attributeBinding(Object value, @Nullable Object oldValue) {
+      return oldValue != value || notifyBindingListenerOnUnchangedValue;
+    }
+
+    @Override
+    protected boolean allowAttributeReplaced(Object value, @Nullable Object oldValue) {
+      return value != oldValue || notifyAttributeListenerOnUnchangedValue;
     }
 
     private void checkMaxSessionsLimit() {
