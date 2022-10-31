@@ -24,6 +24,8 @@ import cn.taketoday.http.converter.json.GsonHttpMessageConverter;
 import cn.taketoday.http.converter.json.JsonbHttpMessageConverter;
 import cn.taketoday.http.converter.json.MappingJackson2HttpMessageConverter;
 import cn.taketoday.http.converter.smile.MappingJackson2SmileHttpMessageConverter;
+import cn.taketoday.http.converter.xml.MappingJackson2XmlHttpMessageConverter;
+import cn.taketoday.http.converter.xml.SourceHttpMessageConverter;
 import cn.taketoday.util.ClassUtils;
 
 /**
@@ -45,6 +47,8 @@ public class AllEncompassingFormHttpMessageConverter extends FormHttpMessageConv
 
   private static final boolean jsonbPresent;
 
+  private static final boolean jackson2XmlPresent;
+
   static {
     ClassLoader classLoader = AllEncompassingFormHttpMessageConverter.class.getClassLoader();
     jackson2Present = ClassUtils.isPresent("com.fasterxml.jackson.databind.ObjectMapper", classLoader) &&
@@ -52,9 +56,18 @@ public class AllEncompassingFormHttpMessageConverter extends FormHttpMessageConv
     jackson2SmilePresent = ClassUtils.isPresent("com.fasterxml.jackson.dataformat.smile.SmileFactory", classLoader);
     gsonPresent = ClassUtils.isPresent("com.google.gson.Gson", classLoader);
     jsonbPresent = ClassUtils.isPresent("jakarta.json.bind.Jsonb", classLoader);
+    jackson2XmlPresent = ClassUtils.isPresent("com.fasterxml.jackson.dataformat.xml.XmlMapper", classLoader);
   }
 
   public AllEncompassingFormHttpMessageConverter() {
+
+    try {
+      addPartConverter(new SourceHttpMessageConverter<>());
+    }
+    catch (Error err) {
+      // Ignore when no TransformerFactory implementation is available
+    }
+
     if (jackson2Present) {
       addPartConverter(new MappingJackson2HttpMessageConverter());
     }
@@ -63,6 +76,10 @@ public class AllEncompassingFormHttpMessageConverter extends FormHttpMessageConv
     }
     else if (jsonbPresent) {
       addPartConverter(new JsonbHttpMessageConverter());
+    }
+
+    if (jackson2XmlPresent) {
+      addPartConverter(new MappingJackson2XmlHttpMessageConverter());
     }
 
     if (jackson2SmilePresent) {

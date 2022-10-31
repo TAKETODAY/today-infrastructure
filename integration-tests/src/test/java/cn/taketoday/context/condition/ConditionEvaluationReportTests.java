@@ -29,6 +29,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.Iterator;
 import java.util.Map;
 
+import cn.taketoday.annotation.config.web.servlet.WebMvcAutoConfiguration;
 import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.context.annotation.AnnotationConfigApplicationContext;
@@ -44,7 +45,6 @@ import cn.taketoday.context.condition.ConditionEvaluationReport.ConditionAndOutc
 import cn.taketoday.core.type.AnnotatedTypeMetadata;
 import cn.taketoday.test.util.TestPropertyValues;
 import cn.taketoday.util.ClassUtils;
-import cn.taketoday.web.config.WebMvcAutoConfiguration;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

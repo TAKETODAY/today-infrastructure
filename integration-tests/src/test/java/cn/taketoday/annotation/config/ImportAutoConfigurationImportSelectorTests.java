@@ -30,6 +30,8 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Set;
 
+import cn.taketoday.annotation.config.jackson.JacksonAutoConfiguration;
+import cn.taketoday.annotation.config.web.servlet.WebMvcAutoConfiguration;
 import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.context.annotation.config.ImportAutoConfiguration;
@@ -40,8 +42,6 @@ import cn.taketoday.core.type.AnnotationMetadata;
 import cn.taketoday.core.type.classreading.SimpleMetadataReaderFactory;
 import cn.taketoday.mock.env.MockEnvironment;
 import cn.taketoday.util.ClassUtils;
-import cn.taketoday.web.config.WebMvcAutoConfiguration;
-import cn.taketoday.web.config.jackson.JacksonAutoConfiguration;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

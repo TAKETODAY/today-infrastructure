@@ -91,7 +91,7 @@ public class JettyWebServerFactoryCustomizer
     PropertyMapper propertyMapper = PropertyMapper.get();
     propertyMapper.from(threadProperties::getAcceptors).whenNonNull().to(factory::setAcceptors);
     propertyMapper.from(threadProperties::getSelectors).whenNonNull().to(factory::setSelectors);
-    propertyMapper.from(properties::getMaxHttpHeaderSize).whenNonNull().asInt(DataSize::toBytes).when(this::isPositive)
+    propertyMapper.from(properties::getMaxHttpRequestHeaderSize).whenNonNull().asInt(DataSize::toBytes).when(this::isPositive)
             .to(maxHttpHeaderSize -> factory.addServerCustomizers(new MaxHttpHeaderSizeCustomizer(maxHttpHeaderSize)));
     propertyMapper.from(jettyProperties::getMaxHttpFormPostSize).asInt(DataSize::toBytes).when(this::isPositive).to(maxHttpFormPostSize -> customizeMaxHttpFormPostSize(factory, maxHttpFormPostSize));
     propertyMapper.from(jettyProperties::getConnectionIdleTimeout).whenNonNull().to(idleTimeout -> customizeIdleTimeout(factory, idleTimeout));

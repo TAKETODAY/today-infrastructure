@@ -43,6 +43,8 @@ import cn.taketoday.http.MediaType;
 import cn.taketoday.http.converter.HttpMessageConverter;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.stereotype.Controller;
+import cn.taketoday.ui.Model;
+import cn.taketoday.ui.ModelMap;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.web.BindingContext;
 import cn.taketoday.web.HttpRequestHandler;
@@ -58,9 +60,7 @@ import cn.taketoday.web.servlet.MockServletRequestContext;
 import cn.taketoday.web.testfixture.servlet.MockHttpServletRequest;
 import cn.taketoday.web.testfixture.servlet.MockHttpServletResponse;
 import cn.taketoday.web.util.WebUtils;
-import cn.taketoday.ui.Model;
 import cn.taketoday.web.view.ModelAndView;
-import cn.taketoday.ui.ModelMap;
 import cn.taketoday.web.view.RedirectModel;
 import jakarta.servlet.ServletException;
 
@@ -122,11 +122,10 @@ class ExceptionHandlerAnnotationExceptionHandlerTests {
     this.handler.afterPropertiesSet();
 
     ModelAndView mav = handleException(ex, handlerMethod);// ViewRenderingException
-
-    assertThat(mav).isNull();
+    assertThat(mav.getViewName()).isNull();
 
 //    assertThat(mav.getViewName()).isEqualTo("errorView");
-//    assertThat(mav.getModel().asMap().get("detail")).isEqualTo("Bad argument");
+//    assertThat(mav.getModel().get("detail")).isEqualTo("Bad argument");
   }
 
   private ModelAndView handleException(Exception ex, HandlerMethod handlerMethod) throws Exception {

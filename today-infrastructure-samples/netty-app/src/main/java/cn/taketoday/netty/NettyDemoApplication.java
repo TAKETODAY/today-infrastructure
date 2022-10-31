@@ -41,7 +41,6 @@ import cn.taketoday.web.annotation.ExceptionHandler;
 import cn.taketoday.web.annotation.GET;
 import cn.taketoday.web.annotation.RestController;
 import cn.taketoday.web.annotation.RestControllerAdvice;
-import cn.taketoday.web.config.EnableWebMvc;
 import cn.taketoday.web.context.async.AsyncRequestTimeoutException;
 import cn.taketoday.web.context.async.DeferredResult;
 import cn.taketoday.web.context.async.WebAsyncTask;
@@ -52,7 +51,6 @@ import lombok.extern.slf4j.Slf4j;
  * @since 4.0 2022/10/20 13:10
  */
 @Slf4j
-@EnableWebMvc
 @InfraApplication
 @RestController
 @RestControllerAdvice

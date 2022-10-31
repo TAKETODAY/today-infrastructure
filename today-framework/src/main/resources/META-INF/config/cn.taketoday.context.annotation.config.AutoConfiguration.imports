@@ -10,3 +10,13 @@ cn.taketoday.annotation.config.web.servlet.DispatcherServletAutoConfiguration
 cn.taketoday.annotation.config.web.servlet.ServletWebServerFactoryAutoConfiguration
 cn.taketoday.annotation.config.web.reactive.ReactiveWebServerFactoryAutoConfiguration
 cn.taketoday.annotation.config.web.embedded.EmbeddedWebServerFactoryCustomizerAutoConfiguration
+cn.taketoday.annotation.config.jdbc.DataSourceAutoConfiguration
+cn.taketoday.annotation.config.jdbc.JdbcTemplateAutoConfiguration
+cn.taketoday.annotation.config.jdbc.DataSourceTransactionManagerAutoConfiguration
+cn.taketoday.annotation.config.jpa.HibernateJpaAutoConfiguration
+cn.taketoday.annotation.config.transaction.jta.JtaAutoConfiguration
+cn.taketoday.annotation.config.transaction.TransactionAutoConfiguration
+cn.taketoday.annotation.config.http.HttpMessageConvertersAutoConfiguration
+cn.taketoday.annotation.config.http.CodecsAutoConfiguration
+cn.taketoday.annotation.config.gson.GsonAutoConfiguration
+cn.taketoday.annotation.config.jsonb.JsonbAutoConfiguration

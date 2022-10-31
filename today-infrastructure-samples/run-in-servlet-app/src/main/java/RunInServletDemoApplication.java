@@ -38,7 +38,6 @@ import cn.taketoday.web.annotation.ExceptionHandler;
 import cn.taketoday.web.annotation.GET;
 import cn.taketoday.web.annotation.RestController;
 import cn.taketoday.web.annotation.RestControllerAdvice;
-import cn.taketoday.web.config.EnableWebMvc;
 import cn.taketoday.web.context.async.DeferredResult;
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
@@ -48,7 +47,6 @@ import lombok.extern.slf4j.Slf4j;
  * @since 4.0 2022/10/22 12:52
  */
 @Slf4j
-@EnableWebMvc
 @InfraApplication
 @RestController
 @RestControllerAdvice

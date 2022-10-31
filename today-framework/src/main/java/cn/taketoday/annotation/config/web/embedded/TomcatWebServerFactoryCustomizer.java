@@ -96,7 +96,7 @@ public class TomcatWebServerFactoryCustomizer
             .to((maxThreads) -> customizeMaxThreads(factory, threadProperties.getMax()));
     propertyMapper.from(threadProperties::getMinSpare).when(this::isPositive)
             .to((minSpareThreads) -> customizeMinThreads(factory, minSpareThreads));
-    propertyMapper.from(this.serverProperties.getMaxHttpHeaderSize()).whenNonNull().asInt(DataSize::toBytes)
+    propertyMapper.from(this.serverProperties.getMaxHttpRequestHeaderSize()).whenNonNull().asInt(DataSize::toBytes)
             .when(this::isPositive)
             .to((maxHttpHeaderSize) -> customizeMaxHttpHeaderSize(factory, maxHttpHeaderSize));
     propertyMapper.from(tomcatProperties::getMaxSwallowSize).whenNonNull().asInt(DataSize::toBytes)
@@ -219,6 +219,7 @@ public class TomcatWebServerFactoryCustomizer
       if (StringUtils.isNotEmpty(remoteIpHeader)) {
         valve.setRemoteIpHeader(remoteIpHeader);
       }
+      valve.setTrustedProxies(remoteIpProperties.getTrustedProxies());
       // The internal proxies default to a list of "safe" internal IP addresses
       valve.setInternalProxies(remoteIpProperties.getInternalProxies());
       try {

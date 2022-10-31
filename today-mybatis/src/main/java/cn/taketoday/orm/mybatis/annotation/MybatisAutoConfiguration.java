@@ -34,6 +34,7 @@ import java.util.Set;
 
 import javax.sql.DataSource;
 
+import cn.taketoday.annotation.config.jdbc.DataSourceAutoConfiguration;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.InitializingBean;
 import cn.taketoday.beans.factory.ObjectProvider;
@@ -53,7 +54,6 @@ import cn.taketoday.core.env.Environment;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.core.io.ResourceLoader;
 import cn.taketoday.core.type.AnnotationMetadata;
-import cn.taketoday.jdbc.config.DataSourceAutoConfiguration;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;

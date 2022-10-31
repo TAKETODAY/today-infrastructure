@@ -40,6 +40,7 @@ import cn.taketoday.http.converter.feed.RssChannelHttpMessageConverter;
 import cn.taketoday.http.converter.json.GsonHttpMessageConverter;
 import cn.taketoday.http.converter.json.MappingJackson2HttpMessageConverter;
 import cn.taketoday.http.converter.smile.MappingJackson2SmileHttpMessageConverter;
+import cn.taketoday.http.converter.xml.SourceHttpMessageConverter;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -61,6 +62,7 @@ class HttpMessageConvertersTests {
             ByteArrayHttpMessageConverter.class,
             StringHttpMessageConverter.class, ResourceHttpMessageConverter.class,
             ResourceRegionHttpMessageConverter.class,
+            SourceHttpMessageConverter.class,
             AllEncompassingFormHttpMessageConverter.class,
             AtomFeedHttpMessageConverter.class,
             RssChannelHttpMessageConverter.class,
@@ -135,6 +137,7 @@ class HttpMessageConvertersTests {
     assertThat(converterClasses).containsExactly(ByteArrayHttpMessageConverter.class,
             StringHttpMessageConverter.class, ResourceHttpMessageConverter.class,
             ResourceRegionHttpMessageConverter.class,
+            SourceHttpMessageConverter.class,
             AllEncompassingFormHttpMessageConverter.class,
 
             AtomFeedHttpMessageConverter.class,
@@ -161,6 +164,7 @@ class HttpMessageConvertersTests {
     }
     assertThat(converterClasses).containsExactly(ByteArrayHttpMessageConverter.class,
             StringHttpMessageConverter.class, ResourceHttpMessageConverter.class,
+            SourceHttpMessageConverter.class,
             MappingJackson2HttpMessageConverter.class, MappingJackson2SmileHttpMessageConverter.class);
   }
 

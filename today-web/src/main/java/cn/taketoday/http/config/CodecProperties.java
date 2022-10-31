@@ -27,6 +27,8 @@ import cn.taketoday.util.DataSize;
  * {@link ConfigurationProperties properties} for reactive codecs.
  *
  * @author Brian Clozel
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 4.0
  */
 @ConfigurationProperties(prefix = "http.codec")
 public class CodecProperties {

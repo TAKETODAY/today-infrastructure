@@ -1248,7 +1248,7 @@ class ApplicationTests {
       }
 
     });
-    ApplicationHook hook = (springApplication) -> runListener;
+    ApplicationHook hook = (app) -> runListener;
     assertThatExceptionOfType(Application.AbandonedRunException.class)
             .isThrownBy(() -> Application.withHook(hook, () -> application.run()))
             .satisfies((ex) -> assertThat(ex.getApplicationContext().isRunning()).isFalse());

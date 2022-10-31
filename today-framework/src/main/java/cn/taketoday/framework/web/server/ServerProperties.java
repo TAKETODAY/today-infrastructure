@@ -107,7 +107,7 @@ public class ServerProperties {
   /**
    * Maximum size of the HTTP message header.
    */
-  private DataSize maxHttpHeaderSize = DataSize.ofKilobytes(8);
+  private DataSize maxHttpRequestHeaderSize = DataSize.ofKilobytes(8);
 
   /**
    * Type of shutdown that the server will support.
@@ -161,12 +161,12 @@ public class ServerProperties {
     this.serverHeader = serverHeader;
   }
 
-  public DataSize getMaxHttpHeaderSize() {
-    return this.maxHttpHeaderSize;
+  public DataSize getMaxHttpRequestHeaderSize() {
+    return this.maxHttpRequestHeaderSize;
   }
 
-  public void setMaxHttpHeaderSize(DataSize maxHttpHeaderSize) {
-    this.maxHttpHeaderSize = maxHttpHeaderSize;
+  public void setMaxHttpRequestHeaderSize(DataSize maxHttpRequestHeaderSize) {
+    this.maxHttpRequestHeaderSize = maxHttpRequestHeaderSize;
   }
 
   public Shutdown getShutdown() {
@@ -996,6 +996,12 @@ public class ServerProperties {
        */
       private String remoteIpHeader;
 
+      /**
+       * Regular expression defining proxies that are trusted when they appear in
+       * the "remote-ip-header" header.
+       */
+      private String trustedProxies;
+
       public String getInternalProxies() {
         return this.internalProxies;
       }
@@ -1042,6 +1048,14 @@ public class ServerProperties {
 
       public void setRemoteIpHeader(String remoteIpHeader) {
         this.remoteIpHeader = remoteIpHeader;
+      }
+
+      public String getTrustedProxies() {
+        return this.trustedProxies;
+      }
+
+      public void setTrustedProxies(String trustedProxies) {
+        this.trustedProxies = trustedProxies;
       }
 
     }

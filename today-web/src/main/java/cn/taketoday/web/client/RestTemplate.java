@@ -56,6 +56,8 @@ import cn.taketoday.http.converter.json.GsonHttpMessageConverter;
 import cn.taketoday.http.converter.json.JsonbHttpMessageConverter;
 import cn.taketoday.http.converter.json.MappingJackson2HttpMessageConverter;
 import cn.taketoday.http.converter.smile.MappingJackson2SmileHttpMessageConverter;
+import cn.taketoday.http.converter.xml.MappingJackson2XmlHttpMessageConverter;
+import cn.taketoday.http.converter.xml.SourceHttpMessageConverter;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
@@ -95,6 +97,7 @@ public class RestTemplate extends InterceptingHttpAccessor implements RestOperat
           && isPresent("com.fasterxml.jackson.core.JsonGenerator");
   private static final boolean jackson2SmilePresent = isPresent("com.fasterxml.jackson.dataformat.smile.SmileFactory");
   private static final boolean jackson2CborPresent = isPresent("com.fasterxml.jackson.dataformat.cbor.CBORFactory");
+  private static final boolean jackson2XmlPresent = isPresent("com.fasterxml.jackson.dataformat.xml.XmlMapper");
 
   private final List<HttpMessageConverter<?>> messageConverters = new ArrayList<>();
 
@@ -112,11 +115,23 @@ public class RestTemplate extends InterceptingHttpAccessor implements RestOperat
     this.messageConverters.add(new ByteArrayHttpMessageConverter());
     this.messageConverters.add(new StringHttpMessageConverter());
     this.messageConverters.add(new ResourceHttpMessageConverter(false));
+
+    try {
+      this.messageConverters.add(new SourceHttpMessageConverter<>());
+    }
+    catch (Error err) {
+      // Ignore when no TransformerFactory implementation is available
+    }
+
     this.messageConverters.add(new AllEncompassingFormHttpMessageConverter());
 
     if (romePresent) {
       this.messageConverters.add(new AtomFeedHttpMessageConverter());
       this.messageConverters.add(new RssChannelHttpMessageConverter());
+    }
+
+    if (jackson2XmlPresent) {
+      this.messageConverters.add(new MappingJackson2XmlHttpMessageConverter());
     }
 
     if (jackson2Present) {

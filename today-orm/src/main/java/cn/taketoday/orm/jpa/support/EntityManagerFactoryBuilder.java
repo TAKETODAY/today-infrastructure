@@ -30,6 +30,7 @@ import java.util.Set;
 import javax.sql.DataSource;
 
 import cn.taketoday.core.task.AsyncTaskExecutor;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.orm.jpa.JpaVendorAdapter;
 import cn.taketoday.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import cn.taketoday.orm.jpa.persistenceunit.PersistenceManagedTypes;
@@ -57,14 +58,18 @@ public class EntityManagerFactoryBuilder {
 
   private final JpaVendorAdapter jpaVendorAdapter;
 
+  @Nullable
   private final PersistenceUnitManager persistenceUnitManager;
 
   private final Map<String, Object> jpaProperties;
 
+  @Nullable
   private final URL persistenceUnitRootLocation;
 
+  @Nullable
   private AsyncTaskExecutor bootstrapExecutor;
 
+  @Nullable
   private PersistenceUnitPostProcessor[] persistenceUnitPostProcessors;
 
   /**
@@ -77,7 +82,7 @@ public class EntityManagerFactoryBuilder {
    * be null)
    */
   public EntityManagerFactoryBuilder(JpaVendorAdapter jpaVendorAdapter, Map<String, ?> jpaProperties,
-          PersistenceUnitManager persistenceUnitManager) {
+          @Nullable PersistenceUnitManager persistenceUnitManager) {
     this(jpaVendorAdapter, jpaProperties, persistenceUnitManager, null);
   }
 
@@ -93,7 +98,7 @@ public class EntityManagerFactoryBuilder {
    * fallback (can be null)
    */
   public EntityManagerFactoryBuilder(JpaVendorAdapter jpaVendorAdapter, Map<String, ?> jpaProperties,
-          PersistenceUnitManager persistenceUnitManager, URL persistenceUnitRootLocation) {
+          @Nullable PersistenceUnitManager persistenceUnitManager, @Nullable URL persistenceUnitRootLocation) {
     this.jpaVendorAdapter = jpaVendorAdapter;
     this.persistenceUnitManager = persistenceUnitManager;
     this.jpaProperties = new LinkedHashMap<>(jpaProperties);
@@ -132,14 +137,17 @@ public class EntityManagerFactoryBuilder {
 
     private DataSource dataSource;
 
+    @Nullable
     private PersistenceManagedTypes managedTypes;
 
     private String[] packagesToScan;
 
+    @Nullable
     private String persistenceUnit;
 
     private Map<String, Object> properties = new HashMap<>();
 
+    @Nullable
     private String[] mappingResources;
 
     private boolean jta;
@@ -224,7 +232,7 @@ public class EntityManagerFactoryBuilder {
      * @param mappingResources the mapping resources to use
      * @return the builder for fluent usage
      */
-    public Builder mappingResources(String... mappingResources) {
+    public Builder mappingResources(@Nullable String... mappingResources) {
       this.mappingResources = mappingResources;
       return this;
     }
@@ -246,45 +254,44 @@ public class EntityManagerFactoryBuilder {
     }
 
     public LocalContainerEntityManagerFactoryBean build() {
-      LocalContainerEntityManagerFactoryBean entityManagerFactoryBean = new LocalContainerEntityManagerFactoryBean();
-      if (EntityManagerFactoryBuilder.this.persistenceUnitManager != null) {
-        entityManagerFactoryBean
-                .setPersistenceUnitManager(EntityManagerFactoryBuilder.this.persistenceUnitManager);
+      LocalContainerEntityManagerFactoryBean factoryBean = new LocalContainerEntityManagerFactoryBean();
+      if (persistenceUnitManager != null) {
+        factoryBean.setPersistenceUnitManager(persistenceUnitManager);
       }
       if (this.persistenceUnit != null) {
-        entityManagerFactoryBean.setPersistenceUnitName(this.persistenceUnit);
+        factoryBean.setPersistenceUnitName(this.persistenceUnit);
       }
-      entityManagerFactoryBean.setJpaVendorAdapter(EntityManagerFactoryBuilder.this.jpaVendorAdapter);
+      factoryBean.setJpaVendorAdapter(EntityManagerFactoryBuilder.this.jpaVendorAdapter);
 
       if (this.jta) {
-        entityManagerFactoryBean.setJtaDataSource(this.dataSource);
+        factoryBean.setJtaDataSource(this.dataSource);
       }
       else {
-        entityManagerFactoryBean.setDataSource(this.dataSource);
+        factoryBean.setDataSource(this.dataSource);
       }
       if (this.managedTypes != null) {
-        entityManagerFactoryBean.setManagedTypes(this.managedTypes);
+        factoryBean.setManagedTypes(this.managedTypes);
       }
       else {
-        entityManagerFactoryBean.setPackagesToScan(this.packagesToScan);
+        factoryBean.setPackagesToScan(this.packagesToScan);
       }
-      entityManagerFactoryBean.getJpaPropertyMap().putAll(EntityManagerFactoryBuilder.this.jpaProperties);
-      entityManagerFactoryBean.getJpaPropertyMap().putAll(this.properties);
-      if (!ObjectUtils.isEmpty(this.mappingResources)) {
-        entityManagerFactoryBean.setMappingResources(this.mappingResources);
+      factoryBean.getJpaPropertyMap().putAll(EntityManagerFactoryBuilder.this.jpaProperties);
+      factoryBean.getJpaPropertyMap().putAll(this.properties);
+      if (ObjectUtils.isNotEmpty(this.mappingResources)) {
+        factoryBean.setMappingResources(this.mappingResources);
       }
       URL rootLocation = EntityManagerFactoryBuilder.this.persistenceUnitRootLocation;
       if (rootLocation != null) {
-        entityManagerFactoryBean.setPersistenceUnitRootLocation(rootLocation.toString());
+        factoryBean.setPersistenceUnitRootLocation(rootLocation.toString());
       }
       if (EntityManagerFactoryBuilder.this.bootstrapExecutor != null) {
-        entityManagerFactoryBean.setBootstrapExecutor(EntityManagerFactoryBuilder.this.bootstrapExecutor);
+        factoryBean.setBootstrapExecutor(EntityManagerFactoryBuilder.this.bootstrapExecutor);
       }
       if (EntityManagerFactoryBuilder.this.persistenceUnitPostProcessors != null) {
-        entityManagerFactoryBean.setPersistenceUnitPostProcessors(
+        factoryBean.setPersistenceUnitPostProcessors(
                 EntityManagerFactoryBuilder.this.persistenceUnitPostProcessors);
       }
-      return entityManagerFactoryBean;
+      return factoryBean;
     }
 
   }
