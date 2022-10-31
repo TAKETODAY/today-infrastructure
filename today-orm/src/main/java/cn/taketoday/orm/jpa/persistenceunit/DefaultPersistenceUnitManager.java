@@ -20,13 +20,11 @@
 
 package cn.taketoday.orm.jpa.persistenceunit;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -36,20 +34,13 @@ import javax.sql.DataSource;
 import cn.taketoday.beans.factory.InitializingBean;
 import cn.taketoday.context.annotation.ClassPathBeanDefinitionScanner;
 import cn.taketoday.context.aware.ResourceLoaderAware;
-import cn.taketoday.instrument.InstrumentationLoadTimeWeaver;
-import cn.taketoday.instrument.LoadTimeWeaver;
-import cn.taketoday.context.loader.CandidateComponentsIndex;
-import cn.taketoday.context.loader.CandidateComponentsIndexLoader;
 import cn.taketoday.context.weaving.LoadTimeWeaverAware;
 import cn.taketoday.core.io.PathMatchingPatternResourceLoader;
 import cn.taketoday.core.io.PatternResourceLoader;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.core.io.ResourceLoader;
-import cn.taketoday.core.type.classreading.CachingMetadataReaderFactory;
-import cn.taketoday.core.type.classreading.MetadataReader;
-import cn.taketoday.core.type.classreading.MetadataReaderFactory;
-import cn.taketoday.core.type.filter.AnnotationTypeFilter;
-import cn.taketoday.core.type.filter.TypeFilter;
+import cn.taketoday.instrument.InstrumentationLoadTimeWeaver;
+import cn.taketoday.instrument.LoadTimeWeaver;
 import cn.taketoday.instrument.ReflectiveLoadTimeWeaver;
 import cn.taketoday.jdbc.datasource.lookup.DataSourceLookup;
 import cn.taketoday.jdbc.datasource.lookup.JndiDataSourceLookup;
@@ -57,13 +48,8 @@ import cn.taketoday.jdbc.datasource.lookup.MapDataSourceLookup;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
-import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.ResourceUtils;
-import jakarta.persistence.Converter;
-import jakarta.persistence.Embeddable;
-import jakarta.persistence.Entity;
-import jakarta.persistence.MappedSuperclass;
 import jakarta.persistence.PersistenceException;
 import jakarta.persistence.SharedCacheMode;
 import jakarta.persistence.ValidationMode;
@@ -76,6 +62,9 @@ import jakarta.persistence.spi.PersistenceUnitInfo;
  *
  * <p>Supports standard JPA scanning for {@code persistence.xml} files,
  * with configurable file locations, JDBC DataSource lookup and load-time weaving.
+ *
+ * <p>Builds a persistence unit based on the state of a {@link PersistenceManagedTypes},
+ * typically built using a {@link PersistenceManagedTypesScanner}.</p>
  *
  * <p>The default XML file location is {@code classpath*:META-INF/persistence.xml},
  * scanning for all matching files in the classpath (as defined in the JPA specification).
@@ -92,10 +81,6 @@ import jakarta.persistence.spi.PersistenceUnitInfo;
  */
 public class DefaultPersistenceUnitManager
         implements PersistenceUnitManager, ResourceLoaderAware, LoadTimeWeaverAware, InitializingBean {
-
-  private static final String CLASS_RESOURCE_PATTERN = "/**/*.class";
-
-  private static final String PACKAGE_INFO_SUFFIX = ".package-info";
 
   private static final String DEFAULT_ORM_XML_RESOURCE = "META-INF/orm.xml";
 
@@ -118,16 +103,6 @@ public class DefaultPersistenceUnitManager
    */
   public static final String ORIGINAL_DEFAULT_PERSISTENCE_UNIT_NAME = "default";
 
-  private static final Set<AnnotationTypeFilter> entityTypeFilters;
-
-  static {
-    entityTypeFilters = new LinkedHashSet<>(8);
-    entityTypeFilters.add(new AnnotationTypeFilter(Entity.class, false));
-    entityTypeFilters.add(new AnnotationTypeFilter(Embeddable.class, false));
-    entityTypeFilters.add(new AnnotationTypeFilter(MappedSuperclass.class, false));
-    entityTypeFilters.add(new AnnotationTypeFilter(Converter.class, false));
-  }
-
   protected final Logger logger = LoggerFactory.getLogger(getClass());
 
   private String[] persistenceXmlLocations = new String[] { DEFAULT_PERSISTENCE_XML_LOCATION };
@@ -137,6 +112,9 @@ public class DefaultPersistenceUnitManager
 
   @Nullable
   private String defaultPersistenceUnitName = ORIGINAL_DEFAULT_PERSISTENCE_UNIT_NAME;
+
+  @Nullable
+  private PersistenceManagedTypes managedTypes;
 
   @Nullable
   private String[] packagesToScan;
@@ -165,9 +143,6 @@ public class DefaultPersistenceUnitManager
   private LoadTimeWeaver loadTimeWeaver;
 
   private PatternResourceLoader patternResourceLoader = new PathMatchingPatternResourceLoader();
-
-  @Nullable
-  private CandidateComponentsIndex componentsIndex;
 
   private final Set<String> persistenceUnitInfoNames = new HashSet<>();
 
@@ -218,6 +193,16 @@ public class DefaultPersistenceUnitManager
   }
 
   /**
+   * Set the {@link PersistenceManagedTypes} to use to build the list of managed types
+   * as an alternative to entity scanning.
+   *
+   * @param managedTypes the managed types
+   */
+  public void setManagedTypes(PersistenceManagedTypes managedTypes) {
+    this.managedTypes = managedTypes;
+  }
+
+  /**
    * Set whether to use Framework-based scanning for entity classes in the classpath
    * instead of using JPA's standard scanning of jar files with {@code persistence.xml}
    * markers in them. In case of Framework-based scanning, no {@code persistence.xml}
@@ -225,6 +210,8 @@ public class DefaultPersistenceUnitManager
    * <p>Default is none. Specify packages to search for autodetection of your entity
    * classes in the classpath. This is analogous to Framework's component-scan feature
    * ({@link ClassPathBeanDefinitionScanner}).
+   * <p>Consider setting a {@link PersistenceManagedTypes} instead that allows the
+   * scanning logic to be optimized by AOT processing.
    * <p>Such package scanning defines a "default persistence unit" in Framework, which
    * may live next to regularly defined units originating from {@code persistence.xml}.
    * Its name is determined by {@link #setDefaultPersistenceUnitName}: by default,
@@ -241,6 +228,7 @@ public class DefaultPersistenceUnitManager
    * {@code persistence.xml} file (in which case we assume it is only meant to be
    * used with the persistence units defined there, like in standard JPA).
    *
+   * @see #setManagedTypes(PersistenceManagedTypes)
    * @see #setDefaultPersistenceUnitName
    * @see #setMappingResources
    */
@@ -443,7 +431,6 @@ public class DefaultPersistenceUnitManager
   @Override
   public void setResourceLoader(ResourceLoader resourceLoader) {
     this.patternResourceLoader = PatternResourceLoader.fromResourceLoader(resourceLoader);
-    this.componentsIndex = CandidateComponentsIndexLoader.loadIndex(resourceLoader.getClassLoader());
   }
 
   @Override
@@ -511,7 +498,7 @@ public class DefaultPersistenceUnitManager
   private List<JpaPersistenceUnitInfo> readPersistenceUnitInfos() {
     List<JpaPersistenceUnitInfo> infos = new ArrayList<>(1);
     String defaultName = this.defaultPersistenceUnitName;
-    boolean buildDefaultUnit = (this.packagesToScan != null || this.mappingResources != null);
+    boolean buildDefaultUnit = (this.managedTypes != null || this.packagesToScan != null || this.mappingResources != null);
     boolean foundDefaultUnit = false;
 
     PersistenceUnitReader reader = new PersistenceUnitReader(this.patternResourceLoader, this.dataSourceLookup);
@@ -526,8 +513,8 @@ public class DefaultPersistenceUnitManager
     if (buildDefaultUnit) {
       if (foundDefaultUnit) {
         if (logger.isWarnEnabled()) {
-          logger.warn("Found explicit default persistence unit with name '" + defaultName + "' in persistence.xml - " +
-                  "overriding local default persistence unit settings ('packagesToScan'/'mappingResources')");
+          logger.warn("Found explicit default persistence unit with name '{}' in persistence.xml - " +
+                  "overriding local default persistence unit settings ('managedTypes', 'packagesToScan' or 'mappingResources')", defaultName);
         }
       }
       else {
@@ -549,10 +536,12 @@ public class DefaultPersistenceUnitManager
     }
     scannedUnit.setExcludeUnlistedClasses(true);
 
-    if (this.packagesToScan != null) {
-      for (String pkg : this.packagesToScan) {
-        scanPackage(scannedUnit, pkg);
-      }
+    if (this.managedTypes != null) {
+      applyManagedTypes(scannedUnit, this.managedTypes);
+    }
+    else if (this.packagesToScan != null) {
+      applyManagedTypes(scannedUnit,
+              new PersistenceManagedTypesScanner(patternResourceLoader).scan(this.packagesToScan));
     }
 
     if (this.mappingResources != null) {
@@ -579,61 +568,13 @@ public class DefaultPersistenceUnitManager
     return scannedUnit;
   }
 
-  private void scanPackage(JpaPersistenceUnitInfo scannedUnit, String pkg) {
-    if (this.componentsIndex != null) {
-      Set<String> candidates = new HashSet<>();
-      for (AnnotationTypeFilter filter : entityTypeFilters) {
-        candidates.addAll(this.componentsIndex.getCandidateTypes(pkg, filter.getAnnotationType().getName()));
-      }
-      candidates.forEach(scannedUnit::addManagedClassName);
-      Set<String> managedPackages = this.componentsIndex.getCandidateTypes(pkg, "package-info");
-      managedPackages.forEach(scannedUnit::addManagedPackage);
-      return;
+  private void applyManagedTypes(JpaPersistenceUnitInfo scannedUnit, PersistenceManagedTypes managedTypes) {
+    managedTypes.getManagedClassNames().forEach(scannedUnit::addManagedClassName);
+    managedTypes.getManagedPackages().forEach(scannedUnit::addManagedPackage);
+    URL persistenceUnitRootUrl = managedTypes.getPersistenceUnitRootUrl();
+    if (scannedUnit.getPersistenceUnitRootUrl() == null && persistenceUnitRootUrl != null) {
+      scannedUnit.setPersistenceUnitRootUrl(persistenceUnitRootUrl);
     }
-
-    try {
-      String pattern = PatternResourceLoader.CLASSPATH_ALL_URL_PREFIX +
-              ClassUtils.convertClassNameToResourcePath(pkg) + CLASS_RESOURCE_PATTERN;
-      MetadataReaderFactory readerFactory = new CachingMetadataReaderFactory(this.patternResourceLoader);
-      for (Resource resource : patternResourceLoader.getResources(pattern)) {
-        try {
-          MetadataReader reader = readerFactory.getMetadataReader(resource);
-          String className = reader.getClassMetadata().getClassName();
-          if (matchesFilter(reader, readerFactory)) {
-            scannedUnit.addManagedClassName(className);
-            if (scannedUnit.getPersistenceUnitRootUrl() == null) {
-              URL url = resource.getURL();
-              if (ResourceUtils.isJarURL(url)) {
-                scannedUnit.setPersistenceUnitRootUrl(ResourceUtils.extractJarFileURL(url));
-              }
-            }
-          }
-          else if (className.endsWith(PACKAGE_INFO_SUFFIX)) {
-            scannedUnit.addManagedPackage(
-                    className.substring(0, className.length() - PACKAGE_INFO_SUFFIX.length()));
-          }
-        }
-        catch (FileNotFoundException ex) {
-          // Ignore non-readable resource
-        }
-      }
-    }
-    catch (IOException ex) {
-      throw new PersistenceException("Failed to scan classpath for unlisted entity classes", ex);
-    }
-  }
-
-  /**
-   * Check whether any of the configured entity type filters matches
-   * the current class descriptor contained in the metadata reader.
-   */
-  private boolean matchesFilter(MetadataReader reader, MetadataReaderFactory readerFactory) throws IOException {
-    for (TypeFilter filter : entityTypeFilters) {
-      if (filter.match(reader, readerFactory)) {
-        return true;
-      }
-    }
-    return false;
   }
 
   /**

@@ -24,15 +24,16 @@ import javax.sql.DataSource;
 
 import cn.taketoday.beans.BeanUtils;
 import cn.taketoday.context.aware.ResourceLoaderAware;
-import cn.taketoday.instrument.LoadTimeWeaver;
 import cn.taketoday.context.weaving.LoadTimeWeaverAware;
 import cn.taketoday.core.io.ResourceLoader;
 import cn.taketoday.instrument.InstrumentationLoadTimeWeaver;
+import cn.taketoday.instrument.LoadTimeWeaver;
 import cn.taketoday.instrument.ReflectiveLoadTimeWeaver;
 import cn.taketoday.jdbc.datasource.lookup.SingleDataSourceLookup;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.orm.jpa.persistenceunit.DefaultPersistenceUnitManager;
+import cn.taketoday.orm.jpa.persistenceunit.PersistenceManagedTypes;
 import cn.taketoday.orm.jpa.persistenceunit.PersistenceUnitManager;
 import cn.taketoday.orm.jpa.persistenceunit.PersistenceUnitPostProcessor;
 import cn.taketoday.orm.jpa.persistenceunit.SmartPersistenceUnitInfo;
@@ -165,20 +166,33 @@ public class LocalContainerEntityManagerFactoryBean extends AbstractEntityManage
   }
 
   /**
-   * Set whether to use Framework-based scanning for entity classes in the classpath
+   * Set the {@link PersistenceManagedTypes} to use to build the list of managed types
+   * as an alternative to entity scanning.
+   *
+   * @param managedTypes the managed types
+   * @see DefaultPersistenceUnitManager#setManagedTypes(PersistenceManagedTypes)
+   */
+  public void setManagedTypes(PersistenceManagedTypes managedTypes) {
+    this.internalPersistenceUnitManager.setManagedTypes(managedTypes);
+  }
+
+  /**
+   * Set whether to use Infra-based scanning for entity classes in the classpath
    * instead of using JPA's standard scanning of jar files with {@code persistence.xml}
-   * markers in them. In case of Framework-based scanning, no {@code persistence.xml}
+   * markers in them. In case of Infra-based scanning, no {@code persistence.xml}
    * is necessary; all you need to do is to specify base packages to search here.
    * <p>Default is none. Specify packages to search for autodetection of your entity
-   * classes in the classpath. This is analogous to Framework's component-scan feature
+   * classes in the classpath. This is analogous to Infra component-scan feature
    * ({@link cn.taketoday.context.annotation.ClassPathBeanDefinitionScanner}).
+   * <p>Consider setting a {@link PersistenceManagedTypes} instead that allows the
+   * scanning logic to be optimized by AOT processing.
    * <p><b>Note: There may be limitations in comparison to regular JPA scanning.</b>
    * In particular, JPA providers may pick up annotated packages for provider-specific
-   * annotations only when driven by {@code persistence.xml}. As of 4.1, Framework's
+   * annotations only when driven by {@code persistence.xml}. Infra
    * scan can detect annotated packages as well if supported by the given
    * {@link JpaVendorAdapter} (e.g. for Hibernate).
    * <p>If no explicit {@link #setMappingResources mapping resources} have been
-   * specified in addition to these packages, Framework's setup looks for a default
+   * specified in addition to these packages, Infra setup looks for a default
    * {@code META-INF/orm.xml} file in the classpath, registering it as a mapping
    * resource for the default unit if the mapping file is not co-located with a
    * {@code persistence.xml} file (in which case we assume it is only meant to be
@@ -186,7 +200,7 @@ public class LocalContainerEntityManagerFactoryBean extends AbstractEntityManage
    * <p><b>NOTE: Only applied if no external PersistenceUnitManager specified.</b>
    *
    * @param packagesToScan one or more base packages to search, analogous to
-   * Framework's component-scan configuration for regular Framework components
+   * Infra component-scan configuration for regular Infra components
    * @see #setPersistenceUnitManager
    * @see DefaultPersistenceUnitManager#setPackagesToScan
    */
