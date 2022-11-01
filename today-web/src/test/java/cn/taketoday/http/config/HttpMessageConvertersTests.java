@@ -40,6 +40,7 @@ import cn.taketoday.http.converter.feed.RssChannelHttpMessageConverter;
 import cn.taketoday.http.converter.json.GsonHttpMessageConverter;
 import cn.taketoday.http.converter.json.MappingJackson2HttpMessageConverter;
 import cn.taketoday.http.converter.smile.MappingJackson2SmileHttpMessageConverter;
+import cn.taketoday.http.converter.xml.MappingJackson2XmlHttpMessageConverter;
 import cn.taketoday.http.converter.xml.SourceHttpMessageConverter;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -66,7 +67,7 @@ class HttpMessageConvertersTests {
             AllEncompassingFormHttpMessageConverter.class,
             AtomFeedHttpMessageConverter.class,
             RssChannelHttpMessageConverter.class,
-
+            MappingJackson2XmlHttpMessageConverter.class,
             MappingJackson2HttpMessageConverter.class,
             MappingJackson2SmileHttpMessageConverter.class, MappingJackson2CborHttpMessageConverter.class);
   }
@@ -142,7 +143,7 @@ class HttpMessageConvertersTests {
 
             AtomFeedHttpMessageConverter.class,
             RssChannelHttpMessageConverter.class,
-
+            MappingJackson2XmlHttpMessageConverter.class,
             MappingJackson2HttpMessageConverter.class,
             MappingJackson2SmileHttpMessageConverter.class, MappingJackson2CborHttpMessageConverter.class);
   }
@@ -162,10 +163,16 @@ class HttpMessageConvertersTests {
     for (HttpMessageConverter<?> converter : extractFormPartConverters(converters.getConverters())) {
       converterClasses.add(converter.getClass());
     }
-    assertThat(converterClasses).containsExactly(ByteArrayHttpMessageConverter.class,
-            StringHttpMessageConverter.class, ResourceHttpMessageConverter.class,
-            SourceHttpMessageConverter.class,
-            MappingJackson2HttpMessageConverter.class, MappingJackson2SmileHttpMessageConverter.class);
+    assertThat(converterClasses)
+            .containsExactly(
+                    ByteArrayHttpMessageConverter.class,
+                    StringHttpMessageConverter.class,
+                    ResourceHttpMessageConverter.class,
+                    SourceHttpMessageConverter.class,
+                    MappingJackson2HttpMessageConverter.class,
+                    MappingJackson2XmlHttpMessageConverter.class,
+                    MappingJackson2SmileHttpMessageConverter.class
+            );
   }
 
   private List<HttpMessageConverter<?>> extractFormPartConverters(List<HttpMessageConverter<?>> converters) {
