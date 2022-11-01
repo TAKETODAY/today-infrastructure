@@ -30,6 +30,7 @@ import cn.taketoday.lang.Assert;
  * Abstract base class for {@link ClientHttpRequestFactory} implementations
  * that decorate another request factory.
  *
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @author Arjen Poutsma
  * @since 4.0
  */
@@ -71,6 +72,10 @@ public class ClientHttpRequestFactoryWrapper implements ClientHttpRequestFactory
   protected ClientHttpRequest createRequest(
           URI uri, HttpMethod httpMethod, ClientHttpRequestFactory requestFactory) throws IOException {
     return requestFactory.createRequest(uri, httpMethod);
+  }
+
+  public ClientHttpRequestFactory getRequestFactory() {
+    return requestFactory;
   }
 
 }

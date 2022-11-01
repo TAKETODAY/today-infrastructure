@@ -1,17 +1,21 @@
 /*
- * Copyright 2012-2022 the original author or authors.
+ * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
- *      https://www.apache.org/licenses/LICENSE-2.0
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.annotation.config.web.servlet;
@@ -100,15 +104,15 @@ class ServletWebServerFactoryCustomizerTests {
   @Test
   void customizeSessionProperties() {
     Map<String, String> map = new HashMap<>();
-    map.put("server.servlet.session.timeout", "123");
-    map.put("server.servlet.session.tracking-modes", "cookie,url");
-    map.put("server.servlet.session.cookie.name", "testname");
-    map.put("server.servlet.session.cookie.domain", "testdomain");
-    map.put("server.servlet.session.cookie.path", "/testpath");
-    map.put("server.servlet.session.cookie.comment", "testcomment");
-    map.put("server.servlet.session.cookie.http-only", "true");
-    map.put("server.servlet.session.cookie.secure", "true");
-    map.put("server.servlet.session.cookie.max-age", "60");
+    map.put("server.session.timeout", "123");
+    map.put("server.session.tracking-modes", "cookie,url");
+    map.put("server.session.cookie.name", "testname");
+    map.put("server.session.cookie.domain", "testdomain");
+    map.put("server.session.cookie.path", "/testpath");
+    map.put("server.session.cookie.comment", "testcomment");
+    map.put("server.session.cookie.http-only", "true");
+    map.put("server.session.cookie.secure", "true");
+    map.put("server.session.cookie.max-age", "60");
     bindProperties(map);
     ConfigurableServletWebServerFactory factory = mock(ConfigurableServletWebServerFactory.class);
     this.customizer.customize(factory);
@@ -153,7 +157,7 @@ class ServletWebServerFactoryCustomizerTests {
   @Test
   void sessionStoreDir() {
     Map<String, String> map = new HashMap<>();
-    map.put("server.servlet.session.store-dir", "mydirectory");
+    map.put("server.session.store-dir", "mydirectory");
     bindProperties(map);
     ConfigurableServletWebServerFactory factory = mock(ConfigurableServletWebServerFactory.class);
     this.customizer.customize(factory);

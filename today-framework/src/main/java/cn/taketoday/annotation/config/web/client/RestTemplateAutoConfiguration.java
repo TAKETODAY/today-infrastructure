@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -18,27 +18,36 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.web.client.config;
+package cn.taketoday.annotation.config.web.client;
 
 import java.util.stream.Collectors;
 
+import cn.taketoday.annotation.config.http.HttpMessageConvertersAutoConfiguration;
 import cn.taketoday.beans.factory.ObjectProvider;
 import cn.taketoday.beans.factory.annotation.DisableAllDependencyInjection;
-import cn.taketoday.context.annotation.Configuration;
+import cn.taketoday.context.annotation.Conditional;
 import cn.taketoday.context.annotation.Lazy;
+import cn.taketoday.context.annotation.config.AutoConfiguration;
 import cn.taketoday.context.condition.ConditionalOnClass;
 import cn.taketoday.context.condition.ConditionalOnMissingBean;
+import cn.taketoday.context.condition.NoneNestedConditions;
+import cn.taketoday.framework.annotation.ConditionalOnWebApplication;
+import cn.taketoday.framework.annotation.ConditionalOnWebApplication.Type;
 import cn.taketoday.http.converter.HttpMessageConverters;
 import cn.taketoday.stereotype.Component;
 import cn.taketoday.web.client.RestTemplate;
+import cn.taketoday.web.client.config.RestTemplateBuilder;
+import cn.taketoday.web.client.config.RestTemplateCustomizer;
+import cn.taketoday.web.client.config.RestTemplateRequestCustomizer;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/1/16 14:40
  */
 @DisableAllDependencyInjection
-@Configuration(proxyBeanMethods = false)
 @ConditionalOnClass(RestTemplate.class)
+@AutoConfiguration(after = HttpMessageConvertersAutoConfiguration.class)
+@Conditional(RestTemplateAutoConfiguration.NotReactiveWebApplicationCondition.class)
 public class RestTemplateAutoConfiguration {
 
   @Lazy
@@ -65,4 +74,16 @@ public class RestTemplateAutoConfiguration {
     return restTemplateBuilderConfigurer.configure(builder);
   }
 
+  static class NotReactiveWebApplicationCondition extends NoneNestedConditions {
+
+    NotReactiveWebApplicationCondition() {
+      super(ConfigurationPhase.PARSE_CONFIGURATION);
+    }
+
+    @ConditionalOnWebApplication(type = Type.REACTIVE)
+    private static class ReactiveWebApplication {
+
+    }
+
+  }
 }

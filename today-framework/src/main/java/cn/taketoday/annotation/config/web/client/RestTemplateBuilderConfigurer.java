@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -18,14 +18,15 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.web.client.config;
+package cn.taketoday.annotation.config.web.client;
 
-import java.util.Collection;
 import java.util.List;
-import java.util.function.BiFunction;
 
 import cn.taketoday.http.converter.HttpMessageConverters;
 import cn.taketoday.util.CollectionUtils;
+import cn.taketoday.web.client.config.RestTemplateBuilder;
+import cn.taketoday.web.client.config.RestTemplateCustomizer;
+import cn.taketoday.web.client.config.RestTemplateRequestCustomizer;
 
 /**
  * Configure {@link RestTemplateBuilder} with sensible defaults.
@@ -62,20 +63,18 @@ public final class RestTemplateBuilderConfigurer {
    * @return the configured builder
    */
   public RestTemplateBuilder configure(RestTemplateBuilder builder) {
-    if (this.httpMessageConverters != null) {
-      builder = builder.messageConverters(this.httpMessageConverters.getConverters());
+    if (httpMessageConverters != null) {
+      builder = builder.messageConverters(httpMessageConverters.getConverters());
     }
-    builder = addCustomizers(builder, this.restTemplateCustomizers, RestTemplateBuilder::customizers);
-    builder = addCustomizers(builder, this.restTemplateRequestCustomizers, RestTemplateBuilder::requestCustomizers);
-    return builder;
-  }
 
-  private <T> RestTemplateBuilder addCustomizers(
-          RestTemplateBuilder builder, List<T> customizers,
-          BiFunction<RestTemplateBuilder, Collection<T>, RestTemplateBuilder> method) {
-    if (CollectionUtils.isNotEmpty(customizers)) {
-      return method.apply(builder, customizers);
+    if (CollectionUtils.isNotEmpty(restTemplateCustomizers)) {
+      builder = builder.customizers(restTemplateCustomizers);
     }
+
+    if (CollectionUtils.isNotEmpty(restTemplateRequestCustomizers)) {
+      builder = builder.requestCustomizers(restTemplateRequestCustomizers);
+    }
+
     return builder;
   }
 
