@@ -258,7 +258,7 @@ class HttpMessageConvertersAutoConfigurationTests {
   void whenEncodingCharsetIsConfiguredThenStringMessageConverterUsesSpecificCharset() {
     new WebApplicationContextRunner()
             .withConfiguration(AutoConfigurations.of(HttpMessageConvertersAutoConfiguration.class))
-            .withPropertyValues("server.servlet.encoding.charset=UTF-16").run((context) -> {
+            .withPropertyValues("server.encoding.charset=UTF-16").run((context) -> {
               assertThat(context).hasSingleBean(StringHttpMessageConverter.class);
               assertThat(context.getBean(StringHttpMessageConverter.class).getDefaultCharset())
                       .isEqualTo(StandardCharsets.UTF_16);

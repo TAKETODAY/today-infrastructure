@@ -39,10 +39,14 @@ import cn.taketoday.context.condition.ConditionalOnClass;
 import cn.taketoday.context.condition.ConditionalOnMissingBean;
 import cn.taketoday.context.condition.ConditionalOnProperty;
 import cn.taketoday.context.condition.NoneNestedConditions;
+import cn.taketoday.context.properties.bind.Binder;
+import cn.taketoday.core.env.Environment;
 import cn.taketoday.framework.annotation.ConditionalOnWebApplication;
 import cn.taketoday.framework.annotation.ConditionalOnWebApplication.Type;
+import cn.taketoday.framework.web.server.EncodingProperties;
 import cn.taketoday.http.converter.HttpMessageConverter;
 import cn.taketoday.http.converter.HttpMessageConverters;
+import cn.taketoday.http.converter.StringHttpMessageConverter;
 import cn.taketoday.http.converter.json.Jackson2ObjectMapperBuilder;
 import cn.taketoday.http.converter.json.MappingJackson2HttpMessageConverter;
 import cn.taketoday.http.converter.xml.MappingJackson2XmlHttpMessageConverter;
@@ -81,6 +85,21 @@ public class HttpMessageConvertersAutoConfiguration {
   @ConditionalOnMissingBean
   public HttpMessageConverters messageConverters(ObjectProvider<HttpMessageConverter<?>> converters) {
     return new HttpMessageConverters(converters.orderedStream().collect(Collectors.toList()));
+  }
+
+  @Configuration(proxyBeanMethods = false)
+  @ConditionalOnClass(StringHttpMessageConverter.class)
+  protected static class StringHttpMessageConverterConfiguration {
+
+    @Bean
+    @ConditionalOnMissingBean
+    public StringHttpMessageConverter stringHttpMessageConverter(Environment environment) {
+      var encoding = Binder.get(environment).bindOrCreate("server.encoding", EncodingProperties.class);
+      StringHttpMessageConverter converter = new StringHttpMessageConverter(encoding.getCharset());
+      converter.setWriteAcceptCharset(false);
+      return converter;
+    }
+
   }
 
   @Configuration(proxyBeanMethods = false)
