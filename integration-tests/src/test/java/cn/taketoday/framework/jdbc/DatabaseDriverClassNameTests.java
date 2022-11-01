@@ -25,9 +25,9 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.sql.Driver;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
@@ -49,9 +49,15 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 class DatabaseDriverClassNameTests {
 
-  private static final Set<DatabaseDriver> EXCLUDED_DRIVERS = Collections
-          .unmodifiableSet(EnumSet.of(DatabaseDriver.UNKNOWN, DatabaseDriver.DB2_AS400, DatabaseDriver.INFORMIX,
-                  DatabaseDriver.HANA, DatabaseDriver.PHOENIX, DatabaseDriver.TERADATA, DatabaseDriver.REDSHIFT));
+  private static final Set<DatabaseDriver> EXCLUDED_DRIVERS = EnumSet.of(
+          DatabaseDriver.UNKNOWN,
+          DatabaseDriver.DB2_AS400,
+          DatabaseDriver.INFORMIX,
+          DatabaseDriver.HANA,
+          DatabaseDriver.PHOENIX,
+          DatabaseDriver.TERADATA,
+          DatabaseDriver.REDSHIFT
+  );
 
   @ParameterizedTest(name = "{0} {2}")
   @MethodSource
@@ -62,7 +68,8 @@ class DatabaseDriverClassNameTests {
 
   private List<String> getInterfaceNames(String className) throws IOException {
     // Use ASM to avoid unwanted side effects of loading JDBC drivers
-    ClassReader classReader = new ClassReader(getClass().getResourceAsStream("/" + className + ".class"));
+    InputStream resourceAsStream = getClass().getResourceAsStream("/" + className + ".class");
+    ClassReader classReader = new ClassReader(resourceAsStream);
     List<String> interfaceNames = new ArrayList<>();
     for (String name : classReader.getInterfaces()) {
       interfaceNames.add(name);
@@ -87,7 +94,8 @@ class DatabaseDriverClassNameTests {
     return argumentsForType(clazz, (databaseDriver) -> true, classNameExtractor);
   }
 
-  private static Stream<? extends Arguments> argumentsForType(Class<?> clazz, Predicate<DatabaseDriver> predicate,
+  private static Stream<? extends Arguments> argumentsForType(Class<?> clazz,
+          Predicate<DatabaseDriver> predicate,
           Function<DatabaseDriver, String> classNameExtractor) {
     return Stream.of(DatabaseDriver.values()).filter((databaseDriver) -> !EXCLUDED_DRIVERS.contains(databaseDriver))
             .filter(predicate)
