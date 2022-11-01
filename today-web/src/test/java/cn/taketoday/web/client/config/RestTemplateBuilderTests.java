@@ -27,7 +27,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentMatchers;
 import org.mockito.InOrder;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.net.URI;
@@ -262,7 +261,7 @@ class RestTemplateBuilderTests {
   void requestFactoryWhenSupplierIsNullShouldThrowException() {
     assertThatIllegalArgumentException()
             .isThrownBy(() -> this.builder.requestFactory((Supplier<ClientHttpRequestFactory>) null))
-            .withMessageContaining("RequestFactory Supplier must not be null");
+            .withMessageContaining("RequestFactory supplier is required");
   }
 
   @Test

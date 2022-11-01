@@ -340,7 +340,7 @@ public class RestTemplateBuilder {
    * @return a new builder instance
    */
   public RestTemplateBuilder requestFactory(Supplier<ClientHttpRequestFactory> requestFactory) {
-    Assert.notNull(requestFactory, "RequestFactorySupplier must not be null");
+    Assert.notNull(requestFactory, "RequestFactory supplier is required");
     return requestFactory(settings -> ClientHttpRequestFactories.get(requestFactory, settings));
   }
 
