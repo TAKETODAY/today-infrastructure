@@ -348,11 +348,11 @@ public class FormHttpMessageConverter implements HttpMessageConverter<MultiValue
     for (String pair : pairs) {
       int idx = pair.indexOf('=');
       if (idx == -1) {
-        result.add(URLDecoder.decode(pair, charset.name()), null);
+        result.add(URLDecoder.decode(pair, charset), null);
       }
       else {
-        String name = URLDecoder.decode(pair.substring(0, idx), charset.name());
-        String value = URLDecoder.decode(pair.substring(idx + 1), charset.name());
+        String name = URLDecoder.decode(pair.substring(0, idx), charset);
+        String value = URLDecoder.decode(pair.substring(idx + 1), charset);
         result.add(name, value);
       }
     }
