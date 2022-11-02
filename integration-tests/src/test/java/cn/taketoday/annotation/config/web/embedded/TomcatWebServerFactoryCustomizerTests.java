@@ -180,7 +180,7 @@ class TomcatWebServerFactoryCustomizerTests {
 
   @Test
   void customMaxHttpHeaderSize() {
-    bind("server.max-http-header-size=1KB");
+    bind("server.max-http-request-header-size=1KB");
     customizeAndRunServer((server) -> assertThat(
             ((AbstractHttp11Protocol<?>) server.getTomcat().getConnector().getProtocolHandler())
                     .getMaxHttpRequestHeaderSize()).isEqualTo(DataSize.ofKilobytes(1).toBytes()));
@@ -188,7 +188,7 @@ class TomcatWebServerFactoryCustomizerTests {
 
   @Test
   void customMaxHttpHeaderSizeWithHttp2() {
-    bind("server.max-http-header-size=1KB", "server.http2.enabled=true");
+    bind("server.max-http-request-header-size=1KB", "server.http2.enabled=true");
     customizeAndRunServer((server) -> {
       AbstractHttp11Protocol<?> protocolHandler = (AbstractHttp11Protocol<?>) server.getTomcat().getConnector()
               .getProtocolHandler();
@@ -201,7 +201,7 @@ class TomcatWebServerFactoryCustomizerTests {
 
   @Test
   void customMaxHttpHeaderSizeIgnoredIfNegative() {
-    bind("server.max-http-header-size=-1");
+    bind("server.max-http-request-header-size=-1");
     customizeAndRunServer((server) -> assertThat(
             ((AbstractHttp11Protocol<?>) server.getTomcat().getConnector().getProtocolHandler())
                     .getMaxHttpRequestHeaderSize()).isEqualTo(DataSize.ofKilobytes(8).toBytes()));
@@ -209,7 +209,7 @@ class TomcatWebServerFactoryCustomizerTests {
 
   @Test
   void customMaxHttpHeaderSizeIgnoredIfZero() {
-    bind("server.max-http-header-size=0");
+    bind("server.max-http-request-header-size=0");
     customizeAndRunServer((server) -> assertThat(
             ((AbstractHttp11Protocol<?>) server.getTomcat().getConnector().getProtocolHandler())
                     .getMaxHttpRequestHeaderSize()).isEqualTo(DataSize.ofKilobytes(8).toBytes()));

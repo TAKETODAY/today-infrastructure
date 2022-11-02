@@ -1245,7 +1245,7 @@ public class WebMvcAutoConfigurationTests {
 
     @Bean
     ServletRegistrationBean<?> additionalDispatcherServlet(DispatcherServlet extraDispatcherServlet) {
-      ServletRegistrationBean<?> registration = new ServletRegistrationBean<>(extraDispatcherServlet, "/extra/*");
+      var registration = new ServletRegistrationBean<>(extraDispatcherServlet, "/extra/*");
       registration.setName("additionalDispatcherServlet");
       registration.setLoadOnStartup(1);
       return registration;
@@ -1254,9 +1254,9 @@ public class WebMvcAutoConfigurationTests {
     @Bean
     private DispatcherServlet extraDispatcherServlet() {
       DispatcherServlet dispatcherServlet = new DispatcherServlet();
-      AnnotationConfigWebApplicationContext applicationContext = new AnnotationConfigWebApplicationContext();
-      applicationContext.register(ResourceHandlersWithChildAndParentContextChildConfiguration.class);
-      dispatcherServlet.setApplicationContext(applicationContext);
+      var context = new AnnotationConfigWebApplicationContext();
+      context.register(ResourceHandlersWithChildAndParentContextChildConfiguration.class);
+      dispatcherServlet.setApplicationContext(context);
       return dispatcherServlet;
     }
 

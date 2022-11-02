@@ -89,12 +89,34 @@ class DispatcherServletAutoConfigurationTests {
 
   @Test
   void servletPath() {
-    this.contextRunner.withPropertyValues("mvc.servlet.path:/spring").run((context) -> {
+    this.contextRunner.withPropertyValues("web.mvc.servlet.path:/infra").run((context) -> {
       assertThat(context.getBean(DispatcherServlet.class)).isNotNull();
       ServletRegistrationBean<?> registration = context.getBean(ServletRegistrationBean.class);
-      assertThat(registration.getUrlMappings()).containsExactly("/spring/*");
-      assertThat(registration.getMultipartConfig()).isNull();
+      assertThat(registration.getUrlMappings()).containsExactly("/infra/*");
+      assertThat(registration.getMultipartConfig()).isNotNull();
+      assertThat(context.getBean(DispatcherServletPath.class).getPath()).isEqualTo("/infra");
     });
+  }
+
+  @Test
+  void dispatcherServletPathWhenCustomDispatcherServletSameNameShouldReturnConfiguredServletPath() {
+    this.contextRunner.withUserConfiguration(CustomDispatcherServletSameName.class)
+            .withPropertyValues("web.mvc.servlet.path:/infra")
+            .run((context) -> assertThat(context.getBean(DispatcherServletPath.class).getPath())
+                    .isEqualTo("/infra"));
+  }
+
+  @Test
+  void dispatcherServletPathNotCreatedWhenDefaultDispatcherServletNotAvailable() {
+    this.contextRunner
+            .withUserConfiguration(CustomDispatcherServletDifferentName.class, NonServletConfiguration.class)
+            .run((context) -> assertThat(context).doesNotHaveBean(DispatcherServletPath.class));
+  }
+
+  @Test
+  void dispatcherServletPathNotCreatedWhenCustomRegistrationBeanPresent() {
+    this.contextRunner.withUserConfiguration(CustomDispatcherServletRegistration.class)
+            .run((context) -> assertThat(context).doesNotHaveBean(DispatcherServletPath.class));
   }
 
   @Test
@@ -110,27 +132,21 @@ class DispatcherServletAutoConfigurationTests {
     this.contextRunner.run((context) -> {
       DispatcherServlet dispatcherServlet = context.getBean(DispatcherServlet.class);
       assertThat(dispatcherServlet).extracting("throwExceptionIfNoHandlerFound").isEqualTo(false);
-      assertThat(dispatcherServlet).extracting("dispatchOptionsRequest").isEqualTo(true);
-      assertThat(dispatcherServlet).extracting("dispatchTraceRequest").isEqualTo(false);
       assertThat(dispatcherServlet).extracting("enableLoggingRequestDetails").isEqualTo(false);
-      assertThat(dispatcherServlet).extracting("publishEvents").isEqualTo(true);
-      assertThat(context.getBean("dispatcherServletRegistration")).hasFieldOrPropertyWithValue("loadOnStartup",
-              -1);
+      assertThat(context.getBean("dispatcherServletRegistration"))
+              .hasFieldOrPropertyWithValue("loadOnStartup", -1);
     });
   }
 
   @Test
   void dispatcherServletCustomConfig() {
     this.contextRunner
-            .withPropertyValues("mvc.throw-exception-if-no-handler-found:true",
-                    "mvc.dispatch-options-request:false", "mvc.dispatch-trace-request:true",
-                    "mvc.publish-request-handled-events:false", "mvc.servlet.load-on-startup=5")
+            .withPropertyValues("web.mvc.throw-exception-if-no-handler-found:true",
+                    "web.mvc.dispatch-options-request:false", "web.mvc.dispatch-trace-request:true",
+                    "web.mvc.publish-request-handled-events:false", "web.mvc.servlet.load-on-startup=5")
             .run((context) -> {
               DispatcherServlet dispatcherServlet = context.getBean(DispatcherServlet.class);
               assertThat(dispatcherServlet).extracting("throwExceptionIfNoHandlerFound").isEqualTo(true);
-              assertThat(dispatcherServlet).extracting("dispatchOptionsRequest").isEqualTo(false);
-              assertThat(dispatcherServlet).extracting("dispatchTraceRequest").isEqualTo(true);
-              assertThat(dispatcherServlet).extracting("publishEvents").isEqualTo(false);
               assertThat(context.getBean("dispatcherServletRegistration"))
                       .hasFieldOrPropertyWithValue("loadOnStartup", 5);
             });
@@ -164,8 +180,7 @@ class DispatcherServletAutoConfigurationTests {
 
     @Bean
     ServletRegistrationBean<?> dispatcherServletRegistration(DispatcherServlet dispatcherServlet) {
-      ServletRegistrationBean<DispatcherServlet> registration = new ServletRegistrationBean<>(dispatcherServlet,
-              "/foo");
+      var registration = new ServletRegistrationBean<>(dispatcherServlet, "/foo");
       registration.setName("customDispatcher");
       return registration;
     }

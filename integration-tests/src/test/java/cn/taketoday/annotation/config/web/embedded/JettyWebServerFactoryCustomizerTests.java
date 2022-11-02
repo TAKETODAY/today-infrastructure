@@ -263,7 +263,7 @@ class JettyWebServerFactoryCustomizerTests {
 
   @Test
   void customizeMaxHttpHeaderSize() {
-    bind("server.max-http-header-size=2048");
+    bind("server.max-http-request-header-size=2048");
     JettyWebServer server = customizeAndGetServer();
     List<Integer> requestHeaderSizes = getRequestHeaderSizes(server);
     assertThat(requestHeaderSizes).containsOnly(2048);
@@ -271,7 +271,7 @@ class JettyWebServerFactoryCustomizerTests {
 
   @Test
   void customMaxHttpHeaderSizeIgnoredIfNegative() {
-    bind("server.max-http-header-size=-1");
+    bind("server.max-http-request-header-size=-1");
     JettyWebServer server = customizeAndGetServer();
     List<Integer> requestHeaderSizes = getRequestHeaderSizes(server);
     assertThat(requestHeaderSizes).containsOnly(8192);
@@ -279,7 +279,7 @@ class JettyWebServerFactoryCustomizerTests {
 
   @Test
   void customMaxHttpHeaderSizeIgnoredIfZero() {
-    bind("server.max-http-header-size=0");
+    bind("server.max-http-request-header-size=0");
     JettyWebServer server = customizeAndGetServer();
     List<Integer> requestHeaderSizes = getRequestHeaderSizes(server);
     assertThat(requestHeaderSizes).containsOnly(8192);

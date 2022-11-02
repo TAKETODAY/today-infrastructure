@@ -29,7 +29,6 @@ import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.framework.test.context.runner.ApplicationContextRunner;
-import cn.taketoday.framework.web.servlet.ConditionalOnMissingFilterBean;
 import cn.taketoday.framework.web.servlet.FilterRegistrationBean;
 import cn.taketoday.util.StringUtils;
 import jakarta.servlet.Filter;
