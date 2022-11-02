@@ -75,7 +75,7 @@ import cn.taketoday.web.accept.ContentNegotiationManager;
 import cn.taketoday.web.bind.resolver.ParameterResolvingRegistry;
 import cn.taketoday.web.bind.support.ConfigurableWebBindingInitializer;
 import cn.taketoday.web.config.AsyncSupportConfigurer;
-import cn.taketoday.web.config.CompositeWebMvcConfiguration;
+import cn.taketoday.web.config.CompositeWebMvcConfigurer;
 import cn.taketoday.web.config.ContentNegotiationConfigurer;
 import cn.taketoday.web.config.CorsRegistry;
 import cn.taketoday.web.config.DefaultServletHandlerConfigurer;
@@ -86,8 +86,8 @@ import cn.taketoday.web.config.ResourceHandlerRegistration;
 import cn.taketoday.web.config.ResourceHandlerRegistry;
 import cn.taketoday.web.config.ViewControllerRegistry;
 import cn.taketoday.web.config.ViewResolverRegistry;
-import cn.taketoday.web.config.WebMvcConfiguration;
 import cn.taketoday.web.config.WebMvcConfigurationSupport;
+import cn.taketoday.web.config.WebMvcConfigurer;
 import cn.taketoday.web.config.format.DateTimeFormatters;
 import cn.taketoday.web.config.format.WebConversionService;
 import cn.taketoday.web.context.support.RequestHandledEventPublisher;
@@ -140,7 +140,7 @@ public class WebMvcAutoConfiguration extends WebMvcConfigurationSupport {
   private final WebProperties webProperties;
   private final WebMvcProperties mvcProperties;
 
-  private final CompositeWebMvcConfiguration mvcConfiguration = new CompositeWebMvcConfiguration();
+  private final CompositeWebMvcConfigurer mvcConfiguration = new CompositeWebMvcConfigurer();
 
   private final WebMvcRegistrations mvcRegistrations;
   private final ObjectProvider<HttpMessageConverters> messageConvertersProvider;
@@ -162,7 +162,7 @@ public class WebMvcAutoConfiguration extends WebMvcConfigurationSupport {
   }
 
   @Autowired(required = false)
-  public void setMvcConfiguration(List<WebMvcConfiguration> mvcConfiguration) {
+  public void setMvcConfiguration(List<WebMvcConfigurer> mvcConfiguration) {
     this.mvcConfiguration.addWebMvcConfiguration(mvcConfiguration);
   }
 

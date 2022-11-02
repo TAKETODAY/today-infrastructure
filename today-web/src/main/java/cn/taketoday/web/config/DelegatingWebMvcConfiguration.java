@@ -37,7 +37,7 @@ import cn.taketoday.web.registry.ViewControllerHandlerMapping;
 
 /**
  * A subclass of {@code WebMvcConfigurationSupport} that detects and delegates
- * to all beans of type {@link WebMvcConfiguration} allowing them to customize the
+ * to all beans of type {@link WebMvcConfigurer} allowing them to customize the
  * configuration provided by {@code WebMvcConfigurationSupport}. This is the
  * class actually imported by {@link EnableWebMvc @EnableWebMvc}.
  *
@@ -48,10 +48,10 @@ import cn.taketoday.web.registry.ViewControllerHandlerMapping;
 @Configuration(proxyBeanMethods = false)
 public class DelegatingWebMvcConfiguration extends WebMvcConfigurationSupport {
 
-  private final CompositeWebMvcConfiguration configurers = new CompositeWebMvcConfiguration();
+  private final CompositeWebMvcConfigurer configurers = new CompositeWebMvcConfigurer();
 
   @Autowired(required = false)
-  public void setConfigurers(List<WebMvcConfiguration> configurers) {
+  public void setConfigurers(List<WebMvcConfigurer> configurers) {
     if (!CollectionUtils.isEmpty(configurers)) {
       this.configurers.addWebMvcConfiguration(configurers);
     }

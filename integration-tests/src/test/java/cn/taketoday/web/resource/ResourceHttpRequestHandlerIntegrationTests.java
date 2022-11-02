@@ -39,7 +39,7 @@ import cn.taketoday.mock.web.MockServletConfig;
 import cn.taketoday.mock.web.MockServletContext;
 import cn.taketoday.web.config.EnableWebMvc;
 import cn.taketoday.web.config.ResourceHandlerRegistry;
-import cn.taketoday.web.config.WebMvcConfiguration;
+import cn.taketoday.web.config.WebMvcConfigurer;
 import cn.taketoday.web.servlet.DispatcherServlet;
 import cn.taketoday.web.util.UriUtils;
 
@@ -113,7 +113,7 @@ public class ResourceHttpRequestHandlerIntegrationTests {
   }
 
   @EnableWebMvc
-  static class WebConfig implements WebMvcConfiguration {
+  static class WebConfig implements WebMvcConfigurer {
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {

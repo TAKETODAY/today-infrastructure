@@ -40,7 +40,7 @@ import cn.taketoday.context.annotation.Import;
  * </pre>
  *
  * <p>To customize the imported configuration, implement the interface
- * {@link WebMvcConfiguration} and override individual methods, e.g.:
+ * {@link WebMvcConfigurer} and override individual methods, e.g.:
  *
  * <pre class="code">
  * &#064;Configuration
@@ -67,7 +67,7 @@ import cn.taketoday.context.annotation.Import;
  * implementing {@code WebMvcConfigurer} in order to customize the provided
  * configuration.
  *
- * <p>If {@link WebMvcConfiguration} does not expose some more advanced setting that
+ * <p>If {@link WebMvcConfigurer} does not expose some more advanced setting that
  * needs to be configured, consider removing the {@code @EnableWebMvc}
  * annotation and extending directly from {@link WebMvcConfigurationSupport}
  * or {@link DelegatingWebMvcConfiguration}, e.g.:
@@ -93,7 +93,7 @@ import cn.taketoday.context.annotation.Import;
  * @author Dave Syer
  * @author Rossen Stoyanchev
  * @author TODAY 2021/8/14 12:33
- * @see WebMvcConfiguration
+ * @see WebMvcConfigurer
  * @see WebMvcConfigurationSupport
  * @see DelegatingWebMvcConfiguration
  */

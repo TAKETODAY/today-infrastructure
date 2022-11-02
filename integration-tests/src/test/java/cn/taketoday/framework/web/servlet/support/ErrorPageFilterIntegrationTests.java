@@ -50,7 +50,7 @@ import cn.taketoday.web.annotation.ResponseStatus;
 import cn.taketoday.web.client.RestTemplate;
 import cn.taketoday.web.config.EnableWebMvc;
 import cn.taketoday.web.config.InterceptorRegistry;
-import cn.taketoday.web.config.WebMvcConfiguration;
+import cn.taketoday.web.config.WebMvcConfigurer;
 import cn.taketoday.web.servlet.DispatcherServlet;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -127,7 +127,7 @@ class ErrorPageFilterIntegrationTests {
   }
 
   @Controller
-  static class HelloWorldController implements WebMvcConfiguration {
+  static class HelloWorldController implements WebMvcConfigurer {
 
     private int status;
 

@@ -87,7 +87,7 @@ import cn.taketoday.web.config.AsyncSupportConfigurer;
 import cn.taketoday.web.config.CorsRegistry;
 import cn.taketoday.web.config.EnableWebMvc;
 import cn.taketoday.web.config.ResourceHandlerRegistry;
-import cn.taketoday.web.config.WebMvcConfiguration;
+import cn.taketoday.web.config.WebMvcConfigurer;
 import cn.taketoday.web.handler.AbstractHandlerExceptionHandler;
 import cn.taketoday.web.handler.CompositeHandlerExceptionHandler;
 import cn.taketoday.web.handler.SimpleHandlerExceptionHandler;
@@ -874,7 +874,7 @@ public class WebMvcAutoConfigurationTests {
   }
 
   @Configuration(proxyBeanMethods = false)
-  static class WebJars implements WebMvcConfiguration {
+  static class WebJars implements WebMvcConfigurer {
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
@@ -884,7 +884,7 @@ public class WebMvcAutoConfigurationTests {
   }
 
   @Configuration(proxyBeanMethods = false)
-  static class AllResources implements WebMvcConfiguration {
+  static class AllResources implements WebMvcConfigurer {
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
@@ -1040,7 +1040,7 @@ public class WebMvcAutoConfigurationTests {
   }
 
   @Configuration(proxyBeanMethods = false)
-  static class MvcValidator implements WebMvcConfiguration {
+  static class MvcValidator implements WebMvcConfigurer {
 
     private final Validator validator = mock(Validator.class);
 
@@ -1052,7 +1052,7 @@ public class WebMvcAutoConfigurationTests {
   }
 
   @Configuration(proxyBeanMethods = false)
-  static class MvcJsr303Validator implements WebMvcConfiguration {
+  static class MvcJsr303Validator implements WebMvcConfigurer {
 
     private final LocalValidatorFactoryBean validator = new LocalValidatorFactoryBean();
 
@@ -1114,7 +1114,7 @@ public class WebMvcAutoConfigurationTests {
   }
 
   @Configuration(proxyBeanMethods = false)
-  static class CustomAsyncTaskExecutorConfigurer implements WebMvcConfiguration {
+  static class CustomAsyncTaskExecutorConfigurer implements WebMvcConfigurer {
 
     private final AsyncTaskExecutor taskExecutor = mock(AsyncTaskExecutor.class);
 
@@ -1178,7 +1178,7 @@ public class WebMvcAutoConfigurationTests {
   }
 
   @Configuration
-  static class CorsConfigurer implements WebMvcConfiguration {
+  static class CorsConfigurer implements WebMvcConfigurer {
 
     @Override
     public void addCorsMappings(CorsRegistry registry) {
@@ -1267,8 +1267,8 @@ public class WebMvcAutoConfigurationTests {
   static class ResourceHandlersWithChildAndParentContextChildConfiguration {
 
     @Bean
-    WebMvcConfiguration myConfigurer() {
-      return new WebMvcConfiguration() {
+    WebMvcConfigurer myConfigurer() {
+      return new WebMvcConfigurer() {
 
         @Override
         public void addResourceHandlers(ResourceHandlerRegistry registry) {

@@ -55,7 +55,7 @@ import cn.taketoday.web.view.View;
  *
  * @author TODAY 2019-05-17 17:46
  */
-public interface WebMvcConfiguration {
+public interface WebMvcConfigurer {
 
   /**
    * Configure {@link ParameterResolvingStrategy}

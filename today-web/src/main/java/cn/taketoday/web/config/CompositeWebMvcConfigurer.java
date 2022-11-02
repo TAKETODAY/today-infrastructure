@@ -39,64 +39,64 @@ import cn.taketoday.web.registry.ViewControllerHandlerMapping;
  * @author TODAY <br>
  * 2019-05-17 17:46
  */
-public class CompositeWebMvcConfiguration implements WebMvcConfiguration {
+public class CompositeWebMvcConfigurer implements WebMvcConfigurer {
 
-  private final List<WebMvcConfiguration> webMvcConfigurations;
+  private final List<WebMvcConfigurer> webMvcConfigurers;
 
-  public CompositeWebMvcConfiguration() {
+  public CompositeWebMvcConfigurer() {
     this(new ArrayList<>());
   }
 
-  public CompositeWebMvcConfiguration(List<WebMvcConfiguration> webMvcConfigurations) {
-    this.webMvcConfigurations = webMvcConfigurations;
+  public CompositeWebMvcConfigurer(List<WebMvcConfigurer> webMvcConfigurers) {
+    this.webMvcConfigurers = webMvcConfigurers;
   }
 
-  public void addWebMvcConfiguration(List<WebMvcConfiguration> configurers) {
+  public void addWebMvcConfiguration(List<WebMvcConfigurer> configurers) {
     if (CollectionUtils.isNotEmpty(configurers)) {
-      webMvcConfigurations.addAll(configurers);
+      webMvcConfigurers.addAll(configurers);
     }
   }
 
   @Override
   public void addResourceHandlers(ResourceHandlerRegistry registry) {
-    for (WebMvcConfiguration webMvcConfiguration : getWebMvcConfigurations()) {
-      webMvcConfiguration.addResourceHandlers(registry);
+    for (WebMvcConfigurer webMvcConfigurer : getWebMvcConfigurations()) {
+      webMvcConfigurer.addResourceHandlers(registry);
     }
   }
 
   @Override
   public void configureParameterResolving(ParameterResolvingStrategies resolvingStrategies) {
-    for (WebMvcConfiguration webMvcConfiguration : getWebMvcConfigurations()) {
-      webMvcConfiguration.configureParameterResolving(resolvingStrategies);
+    for (WebMvcConfigurer webMvcConfigurer : getWebMvcConfigurations()) {
+      webMvcConfigurer.configureParameterResolving(resolvingStrategies);
     }
   }
 
   @Override
   public void configureParameterResolving(
           ParameterResolvingRegistry resolversRegistry, ParameterResolvingStrategies customizedStrategies) {
-    for (WebMvcConfiguration webMvcConfiguration : getWebMvcConfigurations()) {
-      webMvcConfiguration.configureParameterResolving(resolversRegistry, customizedStrategies);
+    for (WebMvcConfigurer webMvcConfigurer : getWebMvcConfigurations()) {
+      webMvcConfigurer.configureParameterResolving(resolversRegistry, customizedStrategies);
     }
   }
 
   @Override
   public void modifyReturnValueHandlerManager(ReturnValueHandlerManager manager) {
-    for (WebMvcConfiguration webMvcConfiguration : getWebMvcConfigurations()) {
-      webMvcConfiguration.modifyReturnValueHandlerManager(manager);
+    for (WebMvcConfigurer webMvcConfigurer : getWebMvcConfigurations()) {
+      webMvcConfigurer.modifyReturnValueHandlerManager(manager);
     }
   }
 
   @Override
   public void configureViewController(ViewControllerHandlerMapping viewControllerHandlerRegistry) {
-    for (WebMvcConfiguration webMvcConfiguration : getWebMvcConfigurations()) {
-      webMvcConfiguration.configureViewController(viewControllerHandlerRegistry);
+    for (WebMvcConfigurer webMvcConfigurer : getWebMvcConfigurations()) {
+      webMvcConfigurer.configureViewController(viewControllerHandlerRegistry);
     }
   }
 
   @Override
   public void configureFunctionHandler(FunctionHandlerMapping functionHandlerRegistry) {
-    for (WebMvcConfiguration webMvcConfiguration : getWebMvcConfigurations()) {
-      webMvcConfiguration.configureFunctionHandler(functionHandlerRegistry);
+    for (WebMvcConfigurer webMvcConfigurer : getWebMvcConfigurations()) {
+      webMvcConfigurer.configureFunctionHandler(functionHandlerRegistry);
     }
   }
 
@@ -107,85 +107,85 @@ public class CompositeWebMvcConfiguration implements WebMvcConfiguration {
    */
   @Override
   public void configureDefaultServletHandling(DefaultServletHandlerConfigurer configurer) {
-    for (WebMvcConfiguration webMvcConfiguration : getWebMvcConfigurations()) {
-      webMvcConfiguration.configureDefaultServletHandling(configurer);
+    for (WebMvcConfigurer webMvcConfigurer : getWebMvcConfigurations()) {
+      webMvcConfigurer.configureDefaultServletHandling(configurer);
     }
   }
 
   @Override
   public void configureHandlerRegistry(List<HandlerMapping> handlerRegistries) {
-    for (WebMvcConfiguration webMvcConfiguration : getWebMvcConfigurations()) {
-      webMvcConfiguration.configureHandlerRegistry(handlerRegistries);
+    for (WebMvcConfigurer webMvcConfigurer : getWebMvcConfigurations()) {
+      webMvcConfigurer.configureHandlerRegistry(handlerRegistries);
     }
   }
 
   @Override
   public void configureExceptionHandlers(final List<HandlerExceptionHandler> handlers) {
-    for (WebMvcConfiguration webMvcConfiguration : getWebMvcConfigurations()) {
-      webMvcConfiguration.configureExceptionHandlers(handlers);
+    for (WebMvcConfigurer webMvcConfigurer : getWebMvcConfigurations()) {
+      webMvcConfigurer.configureExceptionHandlers(handlers);
     }
   }
 
   @Override
   public void extendExceptionHandlers(List<HandlerExceptionHandler> handlers) {
-    for (WebMvcConfiguration webMvcConfiguration : getWebMvcConfigurations()) {
-      webMvcConfiguration.extendExceptionHandlers(handlers);
+    for (WebMvcConfigurer webMvcConfigurer : getWebMvcConfigurations()) {
+      webMvcConfigurer.extendExceptionHandlers(handlers);
     }
   }
 
   @Override
   public void configureContentNegotiation(ContentNegotiationConfigurer configurer) {
-    for (WebMvcConfiguration webMvcConfiguration : getWebMvcConfigurations()) {
-      webMvcConfiguration.configureContentNegotiation(configurer);
+    for (WebMvcConfigurer webMvcConfigurer : getWebMvcConfigurations()) {
+      webMvcConfigurer.configureContentNegotiation(configurer);
     }
   }
 
   @Override
   public void configureViewResolvers(ViewResolverRegistry registry) {
-    for (WebMvcConfiguration webMvcConfiguration : getWebMvcConfigurations()) {
-      webMvcConfiguration.configureViewResolvers(registry);
+    for (WebMvcConfigurer webMvcConfigurer : getWebMvcConfigurations()) {
+      webMvcConfigurer.configureViewResolvers(registry);
     }
   }
 
   @Override
   public void configureMessageConverters(List<HttpMessageConverter<?>> converters) {
-    for (WebMvcConfiguration webMvcConfiguration : getWebMvcConfigurations()) {
-      webMvcConfiguration.configureMessageConverters(converters);
+    for (WebMvcConfigurer webMvcConfigurer : getWebMvcConfigurations()) {
+      webMvcConfigurer.configureMessageConverters(converters);
     }
   }
 
   @Override
   public void extendMessageConverters(List<HttpMessageConverter<?>> converters) {
-    for (WebMvcConfiguration webMvcConfiguration : getWebMvcConfigurations()) {
-      webMvcConfiguration.extendMessageConverters(converters);
+    for (WebMvcConfigurer webMvcConfigurer : getWebMvcConfigurations()) {
+      webMvcConfigurer.extendMessageConverters(converters);
     }
   }
 
   @Override
   public void addFormatters(FormatterRegistry registry) {
-    for (WebMvcConfiguration webMvcConfiguration : getWebMvcConfigurations()) {
-      webMvcConfiguration.addFormatters(registry);
+    for (WebMvcConfigurer webMvcConfigurer : getWebMvcConfigurations()) {
+      webMvcConfigurer.addFormatters(registry);
     }
   }
 
   @Override
   public void addCorsMappings(CorsRegistry registry) {
-    for (WebMvcConfiguration webMvcConfiguration : getWebMvcConfigurations()) {
-      webMvcConfiguration.addCorsMappings(registry);
+    for (WebMvcConfigurer webMvcConfigurer : getWebMvcConfigurations()) {
+      webMvcConfigurer.addCorsMappings(registry);
     }
   }
 
   @Override
   public void addViewControllers(ViewControllerRegistry registry) {
-    for (WebMvcConfiguration webMvcConfiguration : getWebMvcConfigurations()) {
-      webMvcConfiguration.addViewControllers(registry);
+    for (WebMvcConfigurer webMvcConfigurer : getWebMvcConfigurations()) {
+      webMvcConfigurer.addViewControllers(registry);
     }
   }
 
   @Override
   public void addInterceptors(InterceptorRegistry registry) {
-    for (WebMvcConfiguration webMvcConfiguration : getWebMvcConfigurations()) {
-      webMvcConfiguration.addInterceptors(registry);
+    for (WebMvcConfigurer webMvcConfigurer : getWebMvcConfigurations()) {
+      webMvcConfigurer.addInterceptors(registry);
     }
   }
 
@@ -193,7 +193,7 @@ public class CompositeWebMvcConfiguration implements WebMvcConfiguration {
   @Override
   public Validator getValidator() {
     Validator selected = null;
-    for (WebMvcConfiguration configurer : getWebMvcConfigurations()) {
+    for (WebMvcConfigurer configurer : getWebMvcConfigurations()) {
       Validator validator = configurer.getValidator();
       if (validator != null) {
         if (selected != null) {
@@ -208,15 +208,15 @@ public class CompositeWebMvcConfiguration implements WebMvcConfiguration {
 
   @Override
   public void configureAsyncSupport(AsyncSupportConfigurer configurer) {
-    for (WebMvcConfiguration webMvcConfiguration : getWebMvcConfigurations()) {
-      webMvcConfiguration.configureAsyncSupport(configurer);
+    for (WebMvcConfigurer webMvcConfigurer : getWebMvcConfigurations()) {
+      webMvcConfigurer.configureAsyncSupport(configurer);
     }
   }
 
   /**
-   * Get all {@link WebMvcConfiguration} beans
+   * Get all {@link WebMvcConfigurer} beans
    */
-  public List<WebMvcConfiguration> getWebMvcConfigurations() {
-    return webMvcConfigurations;
+  public List<WebMvcConfigurer> getWebMvcConfigurations() {
+    return webMvcConfigurers;
   }
 }
