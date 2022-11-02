@@ -24,11 +24,12 @@ import com.zaxxer.hikari.HikariDataSource;
 
 import org.junit.jupiter.api.Test;
 
-import cn.taketoday.beans.factory.BeanCreationException;
 import cn.taketoday.context.annotation.AnnotationConfigApplicationContext;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.config.ImportAutoConfiguration;
 import cn.taketoday.framework.diagnostics.FailureAnalysis;
+import cn.taketoday.jdbc.CannotGetJdbcConnectionException;
+import cn.taketoday.jdbc.datasource.DataSourceUtils;
 import cn.taketoday.test.util.TestPropertyValues;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -57,12 +58,12 @@ class HikariDriverConfigurationFailureAnalyzerTests {
   }
 
   private FailureAnalysis performAnalysis(Class<?> configuration) {
-    BeanCreationException failure = createFailure(configuration);
+    CannotGetJdbcConnectionException failure = createFailure(configuration);
     assertThat(failure).isNotNull();
     return new HikariDriverConfigurationFailureAnalyzer().analyze(failure);
   }
 
-  private BeanCreationException createFailure(Class<?> configuration) {
+  private CannotGetJdbcConnectionException createFailure(Class<?> configuration) {
     AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
     TestPropertyValues.of("datasource.type=" + HikariDataSource.class.getName(),
                     "datasource.hikari.data-source-class-name=com.example.Foo")
@@ -70,10 +71,13 @@ class HikariDriverConfigurationFailureAnalyzerTests {
     context.register(configuration);
     try {
       context.refresh();
+
+      HikariDataSource bean = context.getBean(HikariDataSource.class);
+      DataSourceUtils.getConnection(bean);
       context.close();
       return null;
     }
-    catch (BeanCreationException ex) {
+    catch (CannotGetJdbcConnectionException ex) {
       return ex;
     }
   }

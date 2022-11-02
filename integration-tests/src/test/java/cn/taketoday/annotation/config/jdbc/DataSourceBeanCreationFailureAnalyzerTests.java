@@ -36,7 +36,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/10/31 14:02
  */
-@ClassPathExclusions({ "h2-*.jar", "hsqldb-*.jar" })
+@ClassPathExclusions({ "h2-*.jar", "hsqldb-*.jar", "derby-*.jar" })
 class DataSourceBeanCreationFailureAnalyzerTests {
 
   private final MockEnvironment environment = new MockEnvironment();

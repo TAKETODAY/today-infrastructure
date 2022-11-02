@@ -64,28 +64,24 @@
       <groupId>org.testcontainers</groupId>
       <artifactId>cassandra</artifactId>
       <version>1.16.2</version>
-      <scope>provided</scope>
     </dependency>
 
     <dependency>
       <groupId>org.testcontainers</groupId>
       <artifactId>testcontainers</artifactId>
       <version>1.16.2</version>
-      <scope>provided</scope>
     </dependency>
 
     <dependency>
       <groupId>org.apache.maven.resolver</groupId>
       <artifactId>maven-resolver-connector-basic</artifactId>
       <version>1.8.2</version>
-      <scope>provided</scope>
     </dependency>
 
     <dependency>
       <groupId>org.apache.maven.resolver</groupId>
       <artifactId>maven-resolver-impl</artifactId>
       <version>1.8.2</version>
-      <scope>provided</scope>
     </dependency>
 
     <dependency>

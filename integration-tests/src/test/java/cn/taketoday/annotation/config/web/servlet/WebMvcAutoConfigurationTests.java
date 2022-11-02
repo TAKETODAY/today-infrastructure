@@ -50,6 +50,7 @@ import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Import;
 import cn.taketoday.context.annotation.config.AutoConfigurations;
+import cn.taketoday.context.annotation.config.ImportAutoConfiguration;
 import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.core.io.ClassPathResource;
 import cn.taketoday.core.io.Resource;
@@ -85,7 +86,6 @@ import cn.taketoday.web.accept.ContentNegotiationManager;
 import cn.taketoday.web.bind.support.ConfigurableWebBindingInitializer;
 import cn.taketoday.web.config.AsyncSupportConfigurer;
 import cn.taketoday.web.config.CorsRegistry;
-import cn.taketoday.web.config.EnableWebMvc;
 import cn.taketoday.web.config.ResourceHandlerRegistry;
 import cn.taketoday.web.config.WebMvcConfigurer;
 import cn.taketoday.web.handler.AbstractHandlerExceptionHandler;
@@ -1263,7 +1263,8 @@ public class WebMvcAutoConfigurationTests {
   }
 
   @Configuration(proxyBeanMethods = false)
-  @EnableWebMvc
+//  @EnableWebMvc
+  @ImportAutoConfiguration(WebMvcAutoConfiguration.class)
   static class ResourceHandlersWithChildAndParentContextChildConfiguration {
 
     @Bean

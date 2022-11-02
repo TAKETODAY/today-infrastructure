@@ -33,6 +33,7 @@ import cn.taketoday.context.condition.ConditionalOnMissingBean;
 import cn.taketoday.context.condition.ConditionalOnProperty;
 import cn.taketoday.context.properties.ConfigurationProperties;
 import cn.taketoday.jdbc.config.DatabaseDriver;
+import cn.taketoday.stereotype.Component;
 import cn.taketoday.util.StringUtils;
 import oracle.jdbc.OracleConnection;
 import oracle.ucp.jdbc.PoolDataSourceImpl;
@@ -87,7 +88,7 @@ abstract class DataSourceConfiguration {
   @ConditionalOnProperty(name = "datasource.type", havingValue = "com.zaxxer.hikari.HikariDataSource", matchIfMissing = true)
   static class Hikari {
 
-    @Bean
+    @Component
     @ConfigurationProperties(prefix = "datasource.hikari")
     HikariDataSource dataSource(DataSourceProperties properties) {
       HikariDataSource dataSource = createDataSource(properties, HikariDataSource.class);
