@@ -156,7 +156,7 @@ public class ResponseEntityExceptionHandler {
         return handleMethodArgumentNotValid(subEx, subEx.getHeaders(), subEx.getStatusCode(), request);
       }
       else if (ex instanceof HandlerNotFoundException subEx) {
-        return handleNoHandlerFoundException(subEx, subEx.getHeaders(), subEx.getStatusCode(), request);
+        return handleHandlerNotFoundException(subEx, subEx.getHeaders(), subEx.getStatusCode(), request);
       }
       else if (ex instanceof AsyncRequestTimeoutException subEx) {
         return handleAsyncRequestTimeoutException(subEx, subEx.getHeaders(), subEx.getStatusCode(), request);
@@ -360,7 +360,7 @@ public class ResponseEntityExceptionHandler {
    * @since 4.0
    */
   @Nullable
-  protected ResponseEntity<Object> handleNoHandlerFoundException(
+  protected ResponseEntity<Object> handleHandlerNotFoundException(
           HandlerNotFoundException ex, HttpHeaders headers, HttpStatusCode status, RequestContext request) {
 
     return handleExceptionInternal(ex, null, headers, status, request);

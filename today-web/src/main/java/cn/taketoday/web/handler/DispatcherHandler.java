@@ -69,7 +69,7 @@ public class DispatcherHandler extends InfraHandler {
   /** @since 4.0 */
   private SelectableReturnValueHandler returnValueHandler;
 
-  /** Throw a NoHandlerFoundException if no Handler was found to process this request? @since 4.0 */
+  /** Throw a HandlerNotFoundException if no Handler was found to process this request? @since 4.0 */
   private boolean throwExceptionIfNoHandlerFound = false;
 
   /** Detect all HandlerMappings or just expect "HandlerRegistry" bean?. */
@@ -321,7 +321,7 @@ public class DispatcherHandler extends InfraHandler {
   }
 
   /**
-   * Set whether to throw a NoHandlerFoundException when no Handler was found for this request.
+   * Set whether to throw a HandlerNotFoundException when no Handler was found for this request.
    * This exception can then be caught with a HandlerExceptionHandler or an
    * {@code @ExceptionHandler} controller method.
    *

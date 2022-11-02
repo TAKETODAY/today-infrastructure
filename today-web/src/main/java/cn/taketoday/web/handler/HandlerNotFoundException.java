@@ -50,7 +50,7 @@ public class HandlerNotFoundException extends InfraConfigurationException implem
   private final ProblemDetail body;
 
   /**
-   * Constructor for NoHandlerFoundException.
+   * Constructor for HandlerNotFoundException.
    *
    * @param httpMethod the HTTP method
    * @param requestURI the HTTP request URI

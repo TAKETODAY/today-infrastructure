@@ -27,14 +27,12 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.RequestCompletedListener;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.RequestContextUtils;
-import cn.taketoday.web.config.WebMvcProperties;
 
 /**
  * publish {@link RequestHandledEvent}
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see RequestHandledEvent
- * @see WebMvcProperties#isPublishRequestHandledEvents()
  * @since 4.0 2022/5/11 10:44
  */
 public class RequestHandledEventPublisher implements RequestCompletedListener {
