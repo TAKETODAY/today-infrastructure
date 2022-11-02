@@ -24,9 +24,8 @@ import org.junit.jupiter.api.Test;
 
 import java.time.Duration;
 
+import cn.taketoday.annotation.config.web.WebProperties.Resources;
 import cn.taketoday.http.CacheControl;
-import cn.taketoday.web.config.WebProperties;
-import cn.taketoday.web.config.WebProperties.Resources;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

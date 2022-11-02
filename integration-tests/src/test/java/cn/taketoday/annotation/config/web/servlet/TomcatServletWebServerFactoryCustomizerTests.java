@@ -72,7 +72,7 @@ class TomcatServletWebServerFactoryCustomizerTests {
   private void testCustomTldSkip(String... expectedJars) {
     TomcatServletWebServerFactory factory = customizeAndGetFactory();
     assertThat(factory.getTldSkipPatterns()).contains(expectedJars);
-    assertThat(factory.getTldSkipPatterns()).contains("junit-*.jar", "spring-boot-*.jar");
+    assertThat(factory.getTldSkipPatterns()).contains("junit-*.jar", "today-framework-*.jar");
   }
 
   @Test

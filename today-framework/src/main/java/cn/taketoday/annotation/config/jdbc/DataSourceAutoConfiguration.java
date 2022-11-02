@@ -55,7 +55,7 @@ import cn.taketoday.util.StringUtils;
  * @since 4.0 2022/2/23 17:12
  */
 @AutoConfiguration
-@ConditionalOnClass({ EmbeddedDatabaseType.class })
+@ConditionalOnClass({ DataSource.class, EmbeddedDatabaseType.class })
 @EnableConfigurationProperties(DataSourceProperties.class)
 @Import(DataSourcePoolMetadataProvidersConfiguration.class)
 public class DataSourceAutoConfiguration {

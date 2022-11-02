@@ -26,6 +26,7 @@ import org.junit.jupiter.api.Test;
 import java.util.Collections;
 import java.util.Map;
 
+import cn.taketoday.annotation.config.web.WebMvcProperties;
 import cn.taketoday.context.properties.bind.BindException;
 import cn.taketoday.context.properties.bind.Bindable;
 import cn.taketoday.context.properties.bind.Binder;

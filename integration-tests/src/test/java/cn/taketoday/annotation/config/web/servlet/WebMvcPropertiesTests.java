@@ -26,12 +26,12 @@ import org.junit.jupiter.api.Test;
 import java.util.Collections;
 import java.util.Map;
 
+import cn.taketoday.annotation.config.web.WebMvcProperties;
 import cn.taketoday.context.properties.bind.BindException;
 import cn.taketoday.context.properties.bind.Bindable;
 import cn.taketoday.context.properties.bind.Binder;
 import cn.taketoday.context.properties.source.ConfigurationPropertySource;
 import cn.taketoday.context.properties.source.MapConfigurationPropertySource;
-import cn.taketoday.web.config.WebMvcProperties;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;

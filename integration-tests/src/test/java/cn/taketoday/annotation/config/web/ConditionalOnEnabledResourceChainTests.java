@@ -27,7 +27,6 @@ import cn.taketoday.context.annotation.AnnotationConfigApplicationContext;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.test.util.TestPropertyValues;
-import cn.taketoday.web.config.ConditionalOnEnabledResourceChain;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

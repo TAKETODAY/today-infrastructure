@@ -22,6 +22,7 @@ package cn.taketoday.annotation.config.web.servlet;
 
 import java.util.Set;
 
+import cn.taketoday.annotation.config.web.WebMvcProperties;
 import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
 import cn.taketoday.context.annotation.ConditionContext;
 import cn.taketoday.context.annotation.Conditional;
@@ -46,7 +47,6 @@ import cn.taketoday.framework.web.servlet.MultipartConfigFactory;
 import cn.taketoday.framework.web.servlet.ServletRegistrationBean;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.stereotype.Component;
-import cn.taketoday.web.config.WebMvcProperties;
 import cn.taketoday.web.servlet.DispatcherServlet;
 import jakarta.servlet.ServletRegistration;
 
@@ -65,6 +65,7 @@ import jakarta.servlet.ServletRegistration;
 @AutoConfigureOrder(Ordered.HIGHEST_PRECEDENCE)
 @ConditionalOnWebApplication(type = Type.SERVLET)
 @EnableConfigurationProperties(WebMvcProperties.class)
+@ConditionalOnClass(DispatcherServlet.class)
 @AutoConfiguration(after = ServletWebServerFactoryAutoConfiguration.class)
 public class DispatcherServletAutoConfiguration {
 

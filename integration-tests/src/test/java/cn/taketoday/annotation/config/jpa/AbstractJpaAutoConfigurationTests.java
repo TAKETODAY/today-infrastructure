@@ -148,15 +148,15 @@ abstract class AbstractJpaAutoConfigurationTests {
 
   @Test
   void customJpaProperties() {
-    this.contextRunner.withPropertyValues("spring.jpa.properties.a:b", "spring.jpa.properties.a.b:c",
-            "spring.jpa.properties.c:d").run((context) -> {
-      LocalContainerEntityManagerFactoryBean bean = context
-              .getBean(LocalContainerEntityManagerFactoryBean.class);
-      Map<String, Object> map = bean.getJpaPropertyMap();
-      assertThat(map.get("a")).isEqualTo("b");
-      assertThat(map.get("c")).isEqualTo("d");
-      assertThat(map.get("a.b")).isEqualTo("c");
-    });
+    contextRunner.withPropertyValues("jpa.properties.a:b", "jpa.properties.a.b:c", "jpa.properties.c:d")
+            .run((context) -> {
+              LocalContainerEntityManagerFactoryBean bean = context
+                      .getBean(LocalContainerEntityManagerFactoryBean.class);
+              Map<String, Object> map = bean.getJpaPropertyMap();
+              assertThat(map.get("a")).isEqualTo("b");
+              assertThat(map.get("c")).isEqualTo("d");
+              assertThat(map.get("a.b")).isEqualTo("c");
+            });
   }
 
   @Test

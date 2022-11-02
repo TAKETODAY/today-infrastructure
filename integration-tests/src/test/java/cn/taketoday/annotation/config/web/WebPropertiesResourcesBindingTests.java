@@ -24,13 +24,12 @@ import org.junit.jupiter.api.Test;
 
 import java.util.function.Consumer;
 
+import cn.taketoday.annotation.config.web.WebProperties.Resources;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.properties.EnableConfigurationProperties;
 import cn.taketoday.framework.test.context.assertj.AssertableApplicationContext;
 import cn.taketoday.framework.test.context.runner.ApplicationContextRunner;
 import cn.taketoday.framework.test.context.runner.ContextConsumer;
-import cn.taketoday.web.config.WebProperties;
-import cn.taketoday.web.config.WebProperties.Resources;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

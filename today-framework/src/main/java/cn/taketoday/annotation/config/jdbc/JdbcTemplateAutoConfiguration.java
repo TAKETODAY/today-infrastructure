@@ -22,9 +22,10 @@ package cn.taketoday.annotation.config.jdbc;
 
 import javax.sql.DataSource;
 
-import cn.taketoday.context.annotation.Configuration;
+import cn.taketoday.beans.factory.annotation.DisableAllDependencyInjection;
+import cn.taketoday.context.annotation.Lazy;
 import cn.taketoday.context.annotation.Primary;
-import cn.taketoday.context.annotation.config.AutoConfigureAfter;
+import cn.taketoday.context.annotation.config.AutoConfiguration;
 import cn.taketoday.context.annotation.config.EnableAutoConfiguration;
 import cn.taketoday.context.condition.ConditionalOnClass;
 import cn.taketoday.context.condition.ConditionalOnMissingBean;
@@ -47,25 +48,18 @@ import cn.taketoday.stereotype.Component;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/2/23 17:56
  */
-@Configuration(proxyBeanMethods = false)
+@Lazy
+@DisableAllDependencyInjection
 @ConditionalOnClass({ DataSource.class, JdbcTemplate.class })
 @ConditionalOnSingleCandidate(DataSource.class)
-@AutoConfigureAfter(DataSourceAutoConfiguration.class)
 @EnableConfigurationProperties(JdbcProperties.class)
+@AutoConfiguration(after = DataSourceAutoConfiguration.class)
 public class JdbcTemplateAutoConfiguration {
 
   @Primary
   @Component
-  @ConditionalOnSingleCandidate(JdbcTemplate.class)
-  @ConditionalOnMissingBean(NamedParameterJdbcOperations.class)
-  NamedParameterJdbcTemplate namedParameterJdbcTemplate(JdbcTemplate jdbcTemplate) {
-    return new NamedParameterJdbcTemplate(jdbcTemplate);
-  }
-
-  @Primary
-  @Component
   @ConditionalOnMissingBean(JdbcOperations.class)
-  JdbcTemplate jdbcTemplate(DataSource dataSource, JdbcProperties properties) {
+  static JdbcTemplate jdbcTemplate(DataSource dataSource, JdbcProperties properties) {
     JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
     JdbcProperties.Template template = properties.getTemplate();
     jdbcTemplate.setFetchSize(template.getFetchSize());
@@ -74,6 +68,14 @@ public class JdbcTemplateAutoConfiguration {
       jdbcTemplate.setQueryTimeout((int) template.getQueryTimeout().getSeconds());
     }
     return jdbcTemplate;
+  }
+
+  @Primary
+  @Component
+  @ConditionalOnSingleCandidate(JdbcTemplate.class)
+  @ConditionalOnMissingBean(NamedParameterJdbcOperations.class)
+  static NamedParameterJdbcTemplate namedParameterJdbcTemplate(JdbcTemplate jdbcTemplate) {
+    return new NamedParameterJdbcTemplate(jdbcTemplate);
   }
 
 }

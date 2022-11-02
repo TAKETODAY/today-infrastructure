@@ -44,6 +44,7 @@ import cn.taketoday.annotation.config.http.HttpMessageConvertersAutoConfiguratio
 import cn.taketoday.annotation.config.task.TaskExecutionAutoConfiguration;
 import cn.taketoday.annotation.config.validation.ValidationAutoConfiguration;
 import cn.taketoday.annotation.config.validation.ValidatorAdapter;
+import cn.taketoday.annotation.config.web.WebMvcRegistrations;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
@@ -87,7 +88,6 @@ import cn.taketoday.web.config.CorsRegistry;
 import cn.taketoday.web.config.EnableWebMvc;
 import cn.taketoday.web.config.ResourceHandlerRegistry;
 import cn.taketoday.web.config.WebMvcConfiguration;
-import cn.taketoday.web.config.WebMvcRegistrations;
 import cn.taketoday.web.handler.AbstractHandlerExceptionHandler;
 import cn.taketoday.web.handler.CompositeHandlerExceptionHandler;
 import cn.taketoday.web.handler.SimpleHandlerExceptionHandler;

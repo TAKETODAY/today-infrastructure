@@ -157,7 +157,7 @@ class TransactionAutoConfigurationTests {
   @Test
   void transactionManagerCanBeConfiguredToJdkProxy() {
     this.contextRunner.withUserConfiguration(PlatformTransactionManagersConfiguration.class)
-            .withPropertyValues("spring.aop.proxy-target-class=false").run((context) -> {
+            .withPropertyValues("infra.aop.proxy-target-class=false").run((context) -> {
               assertThat(context.getBean(AnotherService.class).isTransactionActive()).isTrue();
               assertThat(context).doesNotHaveBean(AnotherServiceImpl.class);
               assertThat(context).doesNotHaveBean(TransactionalServiceImpl.class);
@@ -169,7 +169,7 @@ class TransactionAutoConfigurationTests {
     this.contextRunner
             .withUserConfiguration(CustomTransactionManagementConfiguration.class,
                     PlatformTransactionManagersConfiguration.class)
-            .withPropertyValues("spring.aop.proxy-target-class=true").run((context) -> {
+            .withPropertyValues("infra.aop.proxy-target-class=true").run((context) -> {
               assertThat(context.getBean(AnotherService.class).isTransactionActive()).isTrue();
               assertThat(context).doesNotHaveBean(AnotherServiceImpl.class);
               assertThat(context).doesNotHaveBean(TransactionalServiceImpl.class);

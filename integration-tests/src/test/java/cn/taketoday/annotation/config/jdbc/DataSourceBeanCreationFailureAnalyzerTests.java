@@ -36,7 +36,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/10/31 14:02
  */
-@ClassPathExclusions({ "h2-*.jar", "hsqldb-*.jar" })
+@ClassPathExclusions({ "h2-*.jar", "hsqldb-*.jar", "hikari-*.jar" })
 class DataSourceBeanCreationFailureAnalyzerTests {
 
   private final MockEnvironment environment = new MockEnvironment();
@@ -62,8 +62,7 @@ class DataSourceBeanCreationFailureAnalyzerTests {
   private FailureAnalysis performAnalysis(Class<?> configuration) {
     BeanCreationException failure = createFailure(configuration);
     assertThat(failure).isNotNull();
-    DataSourceBeanCreationFailureAnalyzer failureAnalyzer = new DataSourceBeanCreationFailureAnalyzer(
-            this.environment);
+    var failureAnalyzer = new DataSourceBeanCreationFailureAnalyzer(this.environment);
     return failureAnalyzer.analyze(failure);
   }
 

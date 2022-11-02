@@ -18,7 +18,7 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.web.config;
+package cn.taketoday.annotation.config.web;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;

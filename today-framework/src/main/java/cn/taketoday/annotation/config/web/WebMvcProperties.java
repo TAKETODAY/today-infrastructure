@@ -18,7 +18,7 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.web.config;
+package cn.taketoday.annotation.config.web;
 
 import java.time.Duration;
 import java.util.LinkedHashMap;
@@ -52,11 +52,13 @@ public class WebMvcProperties {
 
   /**
    * Whether to publish a RequestHandledEvent at the end of each request.
+   *
+   * @see cn.taketoday.web.context.support.RequestHandledEventPublisher
    */
   private boolean publishRequestHandledEvents = true;
 
   /**
-   * Whether a "NoHandlerFoundException" should be thrown if no Handler was found to
+   * Whether a "HandlerNotFoundException" should be thrown if no Handler was found to
    * process a request.
    */
   private boolean throwExceptionIfNoHandlerFound = false;

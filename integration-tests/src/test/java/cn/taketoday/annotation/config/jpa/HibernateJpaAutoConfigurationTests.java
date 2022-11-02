@@ -52,7 +52,6 @@ import cn.taketoday.annotation.config.jdbc.DataSourceTransactionManagerAutoConfi
 import cn.taketoday.annotation.config.jpa.mapping.NonAnnotatedEntity;
 import cn.taketoday.annotation.config.jpa.test.City;
 import cn.taketoday.annotation.config.transaction.jta.JtaAutoConfiguration;
-import cn.taketoday.beans.factory.BeanCreationException;
 import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.context.ApplicationEvent;
 import cn.taketoday.context.ApplicationListener;
@@ -73,6 +72,8 @@ import cn.taketoday.scheduling.concurrent.ThreadPoolTaskExecutor;
 import cn.taketoday.transaction.jta.JtaTransactionManager;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
+import jakarta.persistence.EntityTransaction;
+import jakarta.persistence.Query;
 import jakarta.transaction.Synchronization;
 import jakarta.transaction.Transaction;
 import jakarta.transaction.TransactionManager;
@@ -97,35 +98,6 @@ class HibernateJpaAutoConfigurationTests extends AbstractJpaAutoConfigurationTes
 
   HibernateJpaAutoConfigurationTests() {
     super(HibernateJpaAutoConfiguration.class);
-  }
-
-  @Test
-  void testDmlScriptWithMissingDdl() {
-    contextRunner().withPropertyValues("sql.init.data-locations:classpath:/city.sql",
-            // Missing:
-            "sql.init.schema-locations:classpath:/ddl.sql").run((context) -> {
-      assertThat(context).hasFailed();
-      assertThat(context.getStartupFailure()).hasMessageContaining("ddl.sql");
-    });
-  }
-
-  @Test
-  void testDmlScript() {
-    // This can't succeed because the data SQL is executed immediately after the
-    // schema and Hibernate hasn't initialized yet at that point
-    contextRunner().withPropertyValues("sql.init.data-locations:/city.sql").run((context) -> {
-      assertThat(context).hasFailed();
-      assertThat(context.getStartupFailure()).isInstanceOf(BeanCreationException.class);
-    });
-  }
-
-  @Test
-  void testDmlScriptRunsEarly() {
-    contextRunner().withUserConfiguration(TestInitializedJpaConfiguration.class)
-            .withClassLoader(new HideDataScriptClassLoader())
-            .withPropertyValues("jpa.show-sql=true", "jpa.hibernate.ddl-auto:create-drop",
-                    "sql.init.data-locations:/city.sql", "jpa.defer-datasource-initialization=true")
-            .run((context) -> assertThat(context.getBean(TestInitializedJpaConfiguration.class).called).isTrue());
   }
 
   @Test
@@ -263,6 +235,11 @@ class HibernateJpaAutoConfigurationTests extends AbstractJpaAutoConfigurationTes
                     "jpa.defer-datasource-initialization=true")
             .run((context) -> {
               EntityManager em = context.getBean(EntityManagerFactory.class).createEntityManager();
+              EntityTransaction transaction = em.getTransaction();
+              transaction.begin();
+              Query nativeQuery = em.createNativeQuery("INSERT INTO NON_ANNOTATED (id, item) values (2000, 'Test')");
+              nativeQuery.executeUpdate();
+              transaction.commit();
               NonAnnotatedEntity found = em.find(NonAnnotatedEntity.class, 2000L);
               assertThat(found).isNotNull();
               assertThat(found.getItem()).isEqualTo("Test");
@@ -460,6 +437,13 @@ class HibernateJpaAutoConfigurationTests extends AbstractJpaAutoConfigurationTes
       // Inject the entity manager to validate it is initialized at the injection
       // point
       EntityManager entityManager = entityManagerFactory.createEntityManager();
+      EntityTransaction transaction = entityManager.getTransaction();
+      transaction.begin();
+
+      Query nativeQuery = entityManager.createNativeQuery("INSERT INTO CITY (ID, NAME, STATE, COUNTRY, MAP) values (2000, 'Washington', 'DC', 'US', 'Google')");
+      nativeQuery.executeUpdate();
+
+      transaction.commit();
       City city = entityManager.find(City.class, 2000L);
       assertThat(city).isNotNull();
       assertThat(city.getName()).isEqualTo("Washington");
