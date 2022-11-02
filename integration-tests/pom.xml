@@ -371,7 +371,7 @@
     </dependency>
 
     <dependency>
-      <groupId>com.oracle.ojdbc</groupId>
+      <groupId>com.oracle.database.jdbc</groupId>
       <artifactId>ucp</artifactId>
       <scope>test</scope>
     </dependency>
