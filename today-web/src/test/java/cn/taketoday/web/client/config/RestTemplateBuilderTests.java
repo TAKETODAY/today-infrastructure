@@ -242,7 +242,7 @@ class RestTemplateBuilderTests {
   void requestFactoryClassWhenFactoryIsNullShouldThrowException() {
     assertThatIllegalArgumentException()
             .isThrownBy(() -> this.builder.requestFactory((Class<ClientHttpRequestFactory>) null))
-            .withMessageContaining("RequestFactory must not be null");
+            .withMessageContaining("RequestFactoryType is required");
   }
 
   @Test
@@ -524,7 +524,7 @@ class RestTemplateBuilderTests {
     ClientHttpRequestFactory requestFactory = this.builder.requestFactory(OkHttp3ClientHttpRequestFactory.class)
             .setConnectTimeout(Duration.ofMillis(1234)).build().getRequestFactory();
     assertThat(
-                    ReflectionTestUtils.getField(ReflectionTestUtils.getField(requestFactory, "client"), "connectTimeoutMillis"))
+            ReflectionTestUtils.getField(ReflectionTestUtils.getField(requestFactory, "client"), "connectTimeoutMillis"))
             .isEqualTo(1234);
   }
 
@@ -542,7 +542,7 @@ class RestTemplateBuilderTests {
     assertThatIllegalStateException()
             .isThrownBy(() -> this.builder.requestFactory(OkHttp3ClientHttpRequestFactory.class)
                     .setBufferRequestBody(false).build().getRequestFactory())
-            .withMessageContaining(OkHttp3ClientHttpRequestFactory.class.getName());
+            .withMessageContaining(OkHttp3ClientHttpRequestFactory.class.getSimpleName());
   }
 
   @Test
