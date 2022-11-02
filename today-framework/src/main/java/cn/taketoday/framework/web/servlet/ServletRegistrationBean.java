@@ -25,6 +25,7 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
@@ -63,6 +64,7 @@ public class ServletRegistrationBean<T extends Servlet> extends DynamicRegistrat
 
   private int loadOnStartup = -1;
 
+  @Nullable
   private MultipartConfigElement multipartConfig;
 
   /**
@@ -164,7 +166,7 @@ public class ServletRegistrationBean<T extends Servlet> extends DynamicRegistrat
    *
    * @param multipartConfig the multi-part configuration to set or {@code null}
    */
-  public void setMultipartConfig(MultipartConfigElement multipartConfig) {
+  public void setMultipartConfig(@Nullable MultipartConfigElement multipartConfig) {
     this.multipartConfig = multipartConfig;
   }
 
@@ -174,6 +176,7 @@ public class ServletRegistrationBean<T extends Servlet> extends DynamicRegistrat
    *
    * @return the multipart config
    */
+  @Nullable
   public MultipartConfigElement getMultipartConfig() {
     return this.multipartConfig;
   }

@@ -47,7 +47,6 @@ import cn.taketoday.framework.annotation.ConditionalOnWebApplication.Type;
 import cn.taketoday.framework.web.server.ErrorPageRegistrarBeanPostProcessor;
 import cn.taketoday.framework.web.server.ServerProperties;
 import cn.taketoday.framework.web.server.WebServerFactoryCustomizerBeanPostProcessor;
-import cn.taketoday.framework.web.servlet.ConditionalOnMissingFilterBean;
 import cn.taketoday.framework.web.servlet.FilterRegistrationBean;
 import cn.taketoday.framework.web.servlet.WebListenerRegistrar;
 import cn.taketoday.framework.web.servlet.server.CookieSameSiteSupplier;
@@ -99,7 +98,7 @@ public class ServletWebServerFactoryAutoConfiguration {
   }
 
   @Configuration(proxyBeanMethods = false)
-  @ConditionalOnProperty(value = "server.forward-headers-strategy", havingValue = "today")
+  @ConditionalOnProperty(value = "server.forward-headers-strategy", havingValue = "framework")
   @ConditionalOnMissingFilterBean(ForwardedHeaderFilter.class)
   static class ForwardedHeaderFilterConfiguration {
 

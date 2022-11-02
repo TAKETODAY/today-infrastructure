@@ -23,10 +23,11 @@ package cn.taketoday.annotation.config.web.servlet;
 import java.util.Set;
 
 import cn.taketoday.annotation.config.web.WebMvcProperties;
+import cn.taketoday.beans.factory.annotation.DisableAllDependencyInjection;
 import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
 import cn.taketoday.context.annotation.ConditionContext;
 import cn.taketoday.context.annotation.Conditional;
-import cn.taketoday.context.annotation.Configuration;
+import cn.taketoday.context.annotation.Lazy;
 import cn.taketoday.context.annotation.config.AutoConfiguration;
 import cn.taketoday.context.annotation.config.AutoConfigureOrder;
 import cn.taketoday.context.annotation.config.EnableAutoConfiguration;
@@ -35,6 +36,7 @@ import cn.taketoday.context.condition.ConditionMessage.Style;
 import cn.taketoday.context.condition.ConditionOutcome;
 import cn.taketoday.context.condition.ConditionalOnBean;
 import cn.taketoday.context.condition.ConditionalOnClass;
+import cn.taketoday.context.condition.ConditionalOnProperty;
 import cn.taketoday.context.condition.InfraCondition;
 import cn.taketoday.context.properties.ConfigurationProperties;
 import cn.taketoday.context.properties.EnableConfigurationProperties;
@@ -62,10 +64,12 @@ import jakarta.servlet.ServletRegistration;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
+@Lazy
+@DisableAllDependencyInjection
 @AutoConfigureOrder(Ordered.HIGHEST_PRECEDENCE)
 @ConditionalOnWebApplication(type = Type.SERVLET)
 @EnableConfigurationProperties(WebMvcProperties.class)
-@ConditionalOnClass(DispatcherServlet.class)
+@ConditionalOnClass({ DispatcherServlet.class, ServletRegistration.class })
 @AutoConfiguration(after = ServletWebServerFactoryAutoConfiguration.class)
 public class DispatcherServletAutoConfiguration {
 
@@ -79,52 +83,46 @@ public class DispatcherServletAutoConfiguration {
    */
   public static final String DEFAULT_DISPATCHER_SERVLET_REGISTRATION_BEAN_NAME = "dispatcherServletRegistration";
 
-  @ConditionalOnClass(ServletRegistration.class)
   @Conditional(DefaultDispatcherServletCondition.class)
   @Component(name = DEFAULT_DISPATCHER_SERVLET_BEAN_NAME)
-  public DispatcherServlet dispatcherServlet(WebMvcProperties webMvcProperties) {
+  static DispatcherServlet dispatcherServlet(WebMvcProperties webMvcProperties) {
     DispatcherServlet dispatcherServlet = new DispatcherServlet();
     dispatcherServlet.setThrowExceptionIfNoHandlerFound(webMvcProperties.isThrowExceptionIfNoHandlerFound());
     dispatcherServlet.setEnableLoggingRequestDetails(webMvcProperties.isLogRequestDetails());
     return dispatcherServlet;
   }
 
-  @Configuration(proxyBeanMethods = false)
+  @Component
+  static CharacterEncodingServletInitializer characterEncodingInitializer(WebMvcProperties webMvcProperties) {
+    var initializer = new CharacterEncodingServletInitializer();
+    initializer.setRequestCharacterEncoding(webMvcProperties.getServlet().getRequestEncoding());
+    initializer.setResponseCharacterEncoding(webMvcProperties.getServlet().getResponseEncoding());
+    return initializer;
+  }
+
+  @Component
+  @ConditionalOnProperty(prefix = "server.multipart", name = "enabled", matchIfMissing = true)
+  @ConfigurationProperties(prefix = "server.multipart", ignoreUnknownFields = false)
+  static MultipartConfigFactory multipartConfigFactory() {
+    return new MultipartConfigFactory();
+  }
+
   @Conditional(DispatcherServletRegistrationCondition.class)
-  @ConditionalOnClass(ServletRegistration.class)
-  @EnableConfigurationProperties(WebMvcProperties.class)
-  protected static class DispatcherServletRegistrationConfiguration {
+  @Component(name = DEFAULT_DISPATCHER_SERVLET_REGISTRATION_BEAN_NAME)
+  @ConditionalOnBean(value = DispatcherServlet.class, name = DEFAULT_DISPATCHER_SERVLET_BEAN_NAME)
+  static DispatcherServletRegistrationBean dispatcherServletRegistration(
+          DispatcherServlet dispatcherServlet, WebMvcProperties webMvcProperties,
+          @Nullable MultipartConfigFactory multipartConfigFactory) {
 
-    @Component(name = DEFAULT_DISPATCHER_SERVLET_REGISTRATION_BEAN_NAME)
-    @ConditionalOnBean(value = DispatcherServlet.class, name = DEFAULT_DISPATCHER_SERVLET_BEAN_NAME)
-    public ServletRegistrationBean<DispatcherServlet> dispatcherServletRegistration(
-            DispatcherServlet dispatcherServlet, WebMvcProperties webMvcProperties,
-            @Nullable MultipartConfigFactory multipartConfigFactory) {
+    var servlet = webMvcProperties.getServlet();
+    var registration = new DispatcherServletRegistrationBean(dispatcherServlet, servlet.getPath());
+    registration.setName(DEFAULT_DISPATCHER_SERVLET_BEAN_NAME);
+    registration.setLoadOnStartup(servlet.getLoadOnStartup());
 
-      var registration = new ServletRegistrationBean<>(
-              dispatcherServlet, webMvcProperties.getServlet().getPath());
-      registration.setName(DEFAULT_DISPATCHER_SERVLET_BEAN_NAME);
-      registration.setLoadOnStartup(webMvcProperties.getServlet().getLoadOnStartup());
-      if (multipartConfigFactory != null) {
-        registration.setMultipartConfig(multipartConfigFactory.createMultipartConfig());
-      }
-      return registration;
+    if (multipartConfigFactory != null) {
+      registration.setMultipartConfig(multipartConfigFactory.createMultipartConfig());
     }
-
-    @Component
-    CharacterEncodingServletInitializer characterEncodingInitializer(WebMvcProperties webMvcProperties) {
-      var initializer = new CharacterEncodingServletInitializer();
-      initializer.setRequestCharacterEncoding(webMvcProperties.getServlet().getRequestEncoding());
-      initializer.setResponseCharacterEncoding(webMvcProperties.getServlet().getResponseEncoding());
-      return initializer;
-    }
-
-    @Component
-    @ConfigurationProperties(prefix = "server.multipart", ignoreUnknownFields = false)
-    MultipartConfigFactory multipartConfigFactory() {
-      return new MultipartConfigFactory();
-    }
-
+    return registration;
   }
 
   @Order(Ordered.LOWEST_PRECEDENCE - 10)
