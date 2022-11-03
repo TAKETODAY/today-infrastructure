@@ -190,7 +190,7 @@ public abstract class AbstractNamedValueArgumentResolver implements HttpServiceA
       logger.trace("Resolved {} value '{}:{}", valueLabel, name, value);
     }
 
-    addRequestValue(name, value, requestValues);
+    addRequestValue(name, value, parameter, requestValues);
   }
 
   /**
@@ -201,9 +201,10 @@ public abstract class AbstractNamedValueArgumentResolver implements HttpServiceA
    *
    * @param name the request value name
    * @param value the value
+   * @param parameter
    * @param requestValues builder to add the request value to
    */
-  protected abstract void addRequestValue(String name, Object value, HttpRequestValues.Builder requestValues);
+  protected abstract void addRequestValue(String name, Object value, MethodParameter parameter, HttpRequestValues.Builder requestValues);
 
   /**
    * Info about a request value, typically extracted from a method parameter annotation.

@@ -34,10 +34,12 @@ import java.util.function.Function;
 
 import cn.taketoday.core.LinkedMultiValueMap;
 import cn.taketoday.core.MultiValueMap;
+import cn.taketoday.core.ResolvableType;
 import cn.taketoday.core.TypeReference;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpMethod;
 import cn.taketoday.http.MediaType;
+import cn.taketoday.http.client.MultipartBodyBuilder;
 import cn.taketoday.http.codec.FormHttpMessageWriter;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
@@ -222,6 +224,9 @@ public final class HttpRequestValues {
     private MultiValueMap<String, String> requestParams;
 
     @Nullable
+    private MultipartBodyBuilder multipartBuilder;
+
+    @Nullable
     private Map<String, Object> attributes;
 
     @Nullable
@@ -331,6 +336,26 @@ public final class HttpRequestValues {
       for (String value : values) {
         this.requestParams.add(name, value);
       }
+      return this;
+    }
+
+    /**
+     * Add a part to a multipart request. The part value may be as described
+     * in {@link MultipartBodyBuilder#part(String, Object)}.
+     */
+    public Builder addRequestPart(String name, Object part) {
+      this.multipartBuilder = (this.multipartBuilder != null ? this.multipartBuilder : new MultipartBodyBuilder());
+      this.multipartBuilder.part(name, part);
+      return this;
+    }
+
+    /**
+     * Variant of {@link #addRequestPart(String, Object)} that allows the
+     * part value to be produced by a {@link Publisher}.
+     */
+    public <T, P extends Publisher<T>> Builder addRequestPart(String name, P publisher, ResolvableType type) {
+      this.multipartBuilder = (this.multipartBuilder != null ? this.multipartBuilder : new MultipartBodyBuilder());
+      this.multipartBuilder.asyncPart(name, publisher, TypeReference.fromType(type.getType()));
       return this;
     }
 
