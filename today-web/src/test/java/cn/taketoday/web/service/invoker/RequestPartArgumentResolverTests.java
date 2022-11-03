@@ -45,6 +45,7 @@ class RequestPartArgumentResolverTests {
   @BeforeEach
   void setUp() throws Exception {
     HttpServiceProxyFactory proxyFactory = new HttpServiceProxyFactory(this.client);
+    proxyFactory.afterPropertiesSet();
     this.service = proxyFactory.createClient(Service.class);
   }
 
