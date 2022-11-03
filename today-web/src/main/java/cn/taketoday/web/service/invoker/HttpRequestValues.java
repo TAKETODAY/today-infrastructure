@@ -424,6 +424,10 @@ public final class HttpRequestValues {
           uriTemplate = appendQueryParams(uriTemplate, uriVars, this.requestParams);
         }
       }
+      else if (this.multipartBuilder != null) {
+        Assert.isTrue(bodyValue == null && this.body == null, "Expected body or request parts, not both");
+        bodyValue = this.multipartBuilder.build();
+      }
 
       HttpHeaders headers = HttpHeaders.empty();
       if (this.headers != null) {
