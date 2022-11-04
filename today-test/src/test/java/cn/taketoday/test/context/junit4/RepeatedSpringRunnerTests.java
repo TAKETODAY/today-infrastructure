@@ -42,8 +42,8 @@ import static org.assertj.core.api.Assertions.assertThat;
  * Verifies proper handling of the following in conjunction with the
  * {@link InfraRunner}:
  * <ul>
- * <li>Spring's {@link Repeat @Repeat}</li>
- * <li>Spring's {@link Timed @Timed}</li>
+ * <li>Infra {@link Repeat @Repeat}</li>
+ * <li>Infra {@link Timed @Timed}</li>
  * </ul>
  *
  * @author Sam Brannen

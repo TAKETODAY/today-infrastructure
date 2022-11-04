@@ -26,8 +26,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import cn.taketoday.core.LinkedMultiValueMap;
 import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.web.multipart.Multipart;
 import cn.taketoday.web.multipart.MultipartFile;
 import cn.taketoday.web.multipart.MultipartRequest;
 import cn.taketoday.web.util.WebUtils;
@@ -40,6 +42,9 @@ import cn.taketoday.web.util.WebUtils;
  * @since 4.0 2022/4/28 17:16
  */
 public abstract class AbstractMultipartRequest implements MultipartRequest {
+
+  @Nullable
+  private MultiValueMap<String, Multipart> parts;
 
   @Nullable
   private MultiValueMap<String, MultipartFile> multipartFiles;
@@ -61,6 +66,12 @@ public abstract class AbstractMultipartRequest implements MultipartRequest {
   }
 
   @Override
+  public List<Multipart> multipartData(String name) {
+    List<Multipart> parts = multipartData().get(name);
+    return Objects.requireNonNullElse(parts, Collections.emptyList());
+  }
+
+  @Override
   public Map<String, MultipartFile> getFileMap() {
     return getMultipartFiles().toSingleValueMap();
   }
@@ -75,10 +86,27 @@ public abstract class AbstractMultipartRequest implements MultipartRequest {
   public MultiValueMap<String, MultipartFile> getMultipartFiles() {
     var multipartFiles = this.multipartFiles;
     if (multipartFiles == null) {
-      multipartFiles = parseRequest();
-      this.multipartFiles = multipartFiles;
+      MultiValueMap<String, MultipartFile> ret = new LinkedMultiValueMap<>();
+      for (Map.Entry<String, List<Multipart>> entry : multipartData().entrySet()) {
+        for (Multipart multipart : entry.getValue()) {
+          if (multipart instanceof MultipartFile file) {
+            ret.add(entry.getKey(), file);
+          }
+        }
+      }
+      this.multipartFiles = ret;
     }
     return multipartFiles;
+  }
+
+  @Override
+  public MultiValueMap<String, Multipart> multipartData() {
+    var parts = this.parts;
+    if (parts == null) {
+      parts = parseRequest();
+      this.parts = parts;
+    }
+    return parts;
   }
 
   /**
@@ -90,18 +118,18 @@ public abstract class AbstractMultipartRequest implements MultipartRequest {
    * @see #getMultipartFiles()
    */
   public boolean isResolved() {
-    return multipartFiles != null;
+    return parts != null;
   }
 
   @Override
   public void cleanup() {
-    WebUtils.cleanupMultipartRequest(multipartFiles);
+    WebUtils.cleanupMultipartRequest(parts);
   }
 
   /**
    * Lazily initialize the multipart request, if possible.
    * Only called if not already eagerly initialized.
    */
-  protected abstract MultiValueMap<String, MultipartFile> parseRequest();
+  protected abstract MultiValueMap<String, Multipart> parseRequest();
 
 }

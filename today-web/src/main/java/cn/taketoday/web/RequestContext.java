@@ -593,8 +593,10 @@ public abstract class RequestContext extends AttributeAccessorSupport
    * this request was made
    */
   public String getMethodValue() {
+    String method = this.method;
     if (method == null) {
-      this.method = doGetMethod();
+      method = doGetMethod();
+      this.method = method;
     }
     return method;
   }
@@ -602,8 +604,10 @@ public abstract class RequestContext extends AttributeAccessorSupport
   @NonNull
   @Override
   public HttpMethod getMethod() {
+    HttpMethod httpMethod = this.httpMethod;
     if (httpMethod == null) {
       httpMethod = HttpMethod.valueOf(getMethodValue());
+      this.httpMethod = httpMethod;
     }
     return httpMethod;
   }
@@ -650,8 +654,10 @@ public abstract class RequestContext extends AttributeAccessorSupport
    */
   @Override
   public InputStream getInputStream() throws IOException {
+    InputStream inputStream = this.inputStream;
     if (inputStream == null) {
-      this.inputStream = doGetInputStream();
+      inputStream = doGetInputStream();
+      this.inputStream = inputStream;
     }
     return inputStream;
   }
@@ -672,8 +678,10 @@ public abstract class RequestContext extends AttributeAccessorSupport
    */
   @Override
   public BufferedReader getReader() throws IOException {
+    BufferedReader reader = this.reader;
     if (reader == null) {
-      this.reader = doGetReader();
+      reader = doGetReader();
+      this.reader = reader;
     }
     return reader;
   }
@@ -771,6 +779,12 @@ public abstract class RequestContext extends AttributeAccessorSupport
       callbacks.clear();
       requestDestructionCallbacks = null;
     }
+
+    postRequestCompleted();
+  }
+
+  protected void postRequestCompleted() {
+
   }
 
   /**
@@ -1677,6 +1691,7 @@ public abstract class RequestContext extends AttributeAccessorSupport
   @Override
   public void flush() throws IOException {
     writeHeaders();
+    writeCookies();
 
     if (writer != null) {
       writer.flush();
@@ -1686,6 +1701,10 @@ public abstract class RequestContext extends AttributeAccessorSupport
         outputStream.flush();
       }
     }
+  }
+
+  protected void writeCookies() {
+
   }
 
   /**

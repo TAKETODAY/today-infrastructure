@@ -27,7 +27,7 @@ import cn.taketoday.test.context.ContextConfiguration;
 import cn.taketoday.transaction.annotation.Transactional;
 
 /**
- * Abstract base class for verifying support of Spring's {@link Transactional
+ * Abstract base class for verifying support of Infra {@link Transactional
  * &#64;Transactional} annotation.
  *
  * @author Sam Brannen

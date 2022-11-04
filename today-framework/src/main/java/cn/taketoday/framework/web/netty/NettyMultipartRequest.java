@@ -24,8 +24,9 @@ import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpMethod;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.web.multipart.MultipartFile;
+import cn.taketoday.web.multipart.Multipart;
 import cn.taketoday.web.multipart.support.AbstractMultipartRequest;
+import io.netty.handler.codec.http.multipart.Attribute;
 import io.netty.handler.codec.http.multipart.FileUpload;
 import io.netty.handler.codec.http.multipart.InterfaceHttpData;
 
@@ -71,14 +72,17 @@ final class NettyMultipartRequest extends AbstractMultipartRequest {
   }
 
   @Override
-  protected MultiValueMap<String, MultipartFile> parseRequest() {
-    var multipartFiles = MultiValueMap.<String, MultipartFile>fromLinkedHashMap();
+  protected MultiValueMap<String, Multipart> parseRequest() {
+    var map = MultiValueMap.<String, Multipart>fromLinkedHashMap();
     for (InterfaceHttpData data : context.requestDecoder().getBodyHttpDatas()) {
-      if (data instanceof FileUpload) {
-        String name = data.getName();
-        multipartFiles.add(name, new FileUploadMultipartFile((FileUpload) data));
+      if (data instanceof FileUpload fileUpload) {
+        map.add(data.getName(), new FileUploadMultipartFile(fileUpload));
+      }
+      else if (data instanceof Attribute attribute) {
+        NettyFormData nettyFormData = new NettyFormData(attribute);
+        map.add(attribute.getName(), nettyFormData);
       }
     }
-    return multipartFiles;
+    return map;
   }
 }

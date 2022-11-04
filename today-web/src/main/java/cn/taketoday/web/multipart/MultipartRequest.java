@@ -20,6 +20,7 @@
 
 package cn.taketoday.web.multipart;
 
+import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -28,6 +29,7 @@ import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpMethod;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.web.RequestContext;
 
 /**
  * This interface defines the multipart request access operations that are exposed
@@ -70,6 +72,14 @@ public interface MultipartRequest {
   List<MultipartFile> getFiles(String name);
 
   /**
+   * Return the contents in this request,
+   * or an empty list if it does not exist.
+   *
+   * @param name a String specifying the parameter name of the multipart
+   */
+  List<Multipart> multipartData(String name);
+
+  /**
    * Return a {@link java.util.Map} of the multipart files contained in this request.
    *
    * @return a map containing the parameter names as keys, and the
@@ -84,6 +94,18 @@ public interface MultipartRequest {
    * {@link MultipartFile} objects as values
    */
   MultiValueMap<String, MultipartFile> getMultipartFiles();
+
+  /**
+   * Get the parts of a multipart request, provided the Content-Type is
+   * {@code "multipart/form-data"}, or an exception otherwise.
+   *
+   * @return the multipart data, mapping from name to part(s)
+   * @throws IOException if an I/O error occurred during the retrieval
+   * @throws cn.taketoday.web.bind.NotMultipartRequestException if this request is not of type {@code "multipart/form-data"}
+   * @see RequestContext#getMultipartRequest()
+   * @see MultipartRequest#multipartData()
+   */
+  MultiValueMap<String, Multipart> multipartData() throws IOException;
 
   /**
    * Determine the content type of the specified request part.

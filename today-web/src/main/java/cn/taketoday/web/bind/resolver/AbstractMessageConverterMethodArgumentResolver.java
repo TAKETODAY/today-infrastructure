@@ -253,7 +253,7 @@ public abstract class AbstractMessageConverterMethodArgumentResolver implements 
   /**
    * Validate the binding target if applicable.
    * <p>The default implementation checks for {@code @jakarta.validation.Valid},
-   * Spring's {@link cn.taketoday.validation.annotation.Validated},
+   * Infra {@link cn.taketoday.validation.annotation.Validated},
    * and custom annotations whose name starts with "Valid".
    *
    * @param binder the DataBinder to be used

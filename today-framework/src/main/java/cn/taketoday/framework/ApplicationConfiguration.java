@@ -33,7 +33,7 @@ import cn.taketoday.stereotype.Indexed;
 
 /**
  * Indicates that a class provides Spring Boot application
- * {@link Configuration @Configuration}. Can be used as an alternative to the Spring's
+ * {@link Configuration @Configuration}. Can be used as an alternative to the Infra
  * standard {@code @Configuration} annotation so that configuration can be found
  * automatically (for example in tests).
  * <p>

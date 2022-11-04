@@ -20,7 +20,6 @@
 
 package cn.taketoday.test.context.junit.jupiter.transaction;
 
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 import org.junit.platform.testkit.engine.EngineTestKit;
@@ -51,7 +50,7 @@ import static org.junit.platform.testkit.engine.TestExecutionResultConditions.in
 import static org.junit.platform.testkit.engine.TestExecutionResultConditions.message;
 
 /**
- * JUnit Jupiter based integration tests which verify support for Spring's
+ * JUnit Jupiter based integration tests which verify support for Infra
  * {@link Transactional @Transactional} annotation in conjunction with JUnit
  * Jupiter's {@link Timeout @Timeout}.
  *

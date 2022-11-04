@@ -1367,7 +1367,6 @@ public class MockHttpServletRequest implements HttpServletRequest {
   }
 
   @Override
-
   public Part getPart(String name) throws IOException, ServletException {
     return this.parts.getFirst(name);
   }

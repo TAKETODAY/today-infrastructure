@@ -20,10 +20,23 @@
 
 package cn.taketoday.web.multipart;
 
+import java.io.IOException;
+
 import cn.taketoday.http.HttpHeaders;
 
 /**
+ * Representation for a part in a "multipart/form-data" request.
+ *
+ * <p>The origin of a multipart request may be a browser form in which case each
+ * part is either a {@link FormData} or a {@link MultipartFile}.
+ *
+ * <p>Multipart requests may also be used outside of a browser for data of any
+ * content type (e.g. JSON, PDF, etc).
+ *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @see <a href="https://tools.ietf.org/html/rfc7578">RFC 7578 (multipart/form-data)</a>
+ * @see <a href="https://tools.ietf.org/html/rfc2183">RFC 2183 (Content-Disposition)</a>
+ * @see <a href="https://www.w3.org/TR/html5/forms.html#multipart-form-data">HTML5 (multipart forms)</a>
  * @since 4.0 2022/4/28 22:04
  */
 public interface Multipart {
@@ -44,10 +57,11 @@ public interface Multipart {
   HttpHeaders getHeaders();
 
   /**
-   * Get upload file content type.
+   * Deletes the underlying storage for a file item, including deleting any
+   * associated temporary disk file.
    *
-   * @return upload file content type
+   * @throws IOException if an error occurs.
    */
-  String getContentType();
+  void delete() throws IOException;
 
 }

@@ -65,13 +65,13 @@ public final class ServletPartFormData extends AbstractMultipart implements Form
   }
 
   @Override
-  protected HttpHeaders createHttpHeaders() {
-    return createHeaders(part);
+  public void delete() throws IOException {
+    part.delete();
   }
 
   @Override
-  public String getContentType() {
-    return part.getContentType();
+  protected HttpHeaders createHttpHeaders() {
+    return createHeaders(part);
   }
 
   static DefaultHttpHeaders createHeaders(Part part) {

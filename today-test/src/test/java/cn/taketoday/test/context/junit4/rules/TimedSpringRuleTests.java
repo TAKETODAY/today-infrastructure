@@ -64,7 +64,7 @@ public class TimedSpringRuleTests extends TimedSpringRunnerTests {
     public final ApplicationMethodRule applicationMethodRule = new ApplicationMethodRule();
 
     /**
-     * Overridden to always throw an exception, since Spring's Rule-based
+     * Overridden to always throw an exception, since Infra Rule-based
      * JUnit integration does not fail a test for duplicate configuration
      * of timeouts.
      */

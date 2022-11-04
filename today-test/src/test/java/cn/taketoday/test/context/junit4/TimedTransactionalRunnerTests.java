@@ -31,7 +31,7 @@ import cn.taketoday.transaction.annotation.Propagation;
 import cn.taketoday.transaction.annotation.Transactional;
 
 /**
- * JUnit 4 based integration test which verifies support of Spring's
+ * JUnit 4 based integration test which verifies support of Infra
  * {@link Transactional &#64;Transactional} annotation in conjunction
  * with {@link Timed &#64;Timed} and JUnit 4's {@link Test#timeout()
  * timeout} attribute.
