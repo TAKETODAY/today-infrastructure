@@ -21,6 +21,7 @@
 package cn.taketoday.transaction.annotation;
 
 import org.junit.jupiter.api.Test;
+
 import cn.taketoday.aop.support.AopUtils;
 import cn.taketoday.context.annotation.AnnotationConfigApplicationContext;
 import cn.taketoday.context.annotation.Configuration;
@@ -31,7 +32,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * Tests proving that regardless the proxy strategy used (JDK interface-based vs. CGLIB
  * subclass-based), discovery of advice-oriented annotations is consistent.
  *
- * For example, Spring's @Transactional may be declared at the interface or class level,
+ * For example, Infra @Transactional may be declared at the interface or class level,
  * and whether interface or subclass proxies are used, the @Transactional annotation must
  * be discovered in a consistent fashion.
  *

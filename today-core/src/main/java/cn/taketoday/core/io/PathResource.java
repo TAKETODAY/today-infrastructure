@@ -47,7 +47,7 @@ import cn.taketoday.lang.Nullable;
  *
  * <p>{@link java.nio.file.Path} support is also available
  * in {@link FileSystemResource#FileSystemResource(Path) FileSystemResource},
- * applying Spring's standard String-based path transformations but
+ * applying Infra standard String-based path transformations but
  * performing all operations via the {@link java.nio.file.Files} API.
  * This {@code PathResource} is effectively a pure {@code java.nio.path.Path}
  * based alternative with different {@code createRelative} behavior.

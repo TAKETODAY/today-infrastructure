@@ -38,7 +38,7 @@ import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 
 /**
- * {@link EnvironmentPostProcessor} that loads and applies {@link ConfigData} to Spring's
+ * {@link EnvironmentPostProcessor} that loads and applies {@link ConfigData} to Infra
  * {@link Environment}.
  *
  * @author Phillip Webb

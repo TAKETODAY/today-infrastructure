@@ -19,7 +19,7 @@
  */
 
 /**
- * Classes and annotations related to configuring Spring's {@code ApplicationContext} for
+ * Classes and annotations related to configuring Infra {@code ApplicationContext} for
  * tests.
  */
 package cn.taketoday.framework.test.context;
