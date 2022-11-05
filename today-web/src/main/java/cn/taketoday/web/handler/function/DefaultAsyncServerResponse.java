@@ -54,7 +54,7 @@ import cn.taketoday.web.context.async.WebAsyncUtils;
  */
 final class DefaultAsyncServerResponse extends ErrorHandlingServerResponse implements AsyncServerResponse {
 
-  static final boolean reactiveStreamsPresent = ClassUtils.isPresent(
+  public static final boolean reactiveStreamsPresent = ClassUtils.isPresent(
           "org.reactivestreams.Publisher", DefaultAsyncServerResponse.class.getClassLoader());
 
   private final CompletableFuture<ServerResponse> futureResponse;
@@ -113,11 +113,10 @@ final class DefaultAsyncServerResponse extends ErrorHandlingServerResponse imple
     }
   }
 
-  @Nullable
   @Override
   public Object writeTo(RequestContext request, Context context) throws Exception {
     writeAsync(request, createDeferredResult(request));
-    return null;
+    return NONE_RETURN_VALUE;
   }
 
   static void writeAsync(RequestContext request, DeferredResult<?> deferredResult) throws Exception {

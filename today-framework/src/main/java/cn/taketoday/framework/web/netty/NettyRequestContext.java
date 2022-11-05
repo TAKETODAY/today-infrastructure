@@ -269,7 +269,7 @@ public class NettyRequestContext extends RequestContext {
 
   @Override
   protected NettyHttpHeaders createResponseHeaders() {
-    return new NettyHttpHeaders(originalResponseHeaders());
+    return new NettyHttpHeaders(nettyResponseHeaders());
   }
 
   @Override
@@ -343,7 +343,7 @@ public class NettyRequestContext extends RequestContext {
   @Override
   public void sendRedirect(String location) {
     this.status = HttpResponseStatus.FOUND;
-    originalResponseHeaders().set(HttpHeaderNames.LOCATION, location);
+    nettyResponseHeaders().set(HttpHeaderNames.LOCATION, location);
     send();
   }
 
@@ -380,13 +380,6 @@ public class NettyRequestContext extends RequestContext {
     return keepAlive;
   }
 
-  private int readableBytes() {
-    if (responseBody == null) {
-      return 0;
-    }
-    return responseBody.readableBytes();
-  }
-
   @Override
   protected void postRequestCompleted() {
     sendIfNotCommitted();
@@ -408,21 +401,18 @@ public class NettyRequestContext extends RequestContext {
    */
   private void send() {
     assertNotCommitted();
-    HttpHeaders responseHeaders = originalResponseHeaders(); // never null
-
+    FullHttpResponse response = this.response;
+    HttpHeaders responseHeaders = nettyResponseHeaders(); // never null
     // obtain response object
     if (response == null) {
       ByteBuf responseBody = this.responseBody;
       if (responseBody == null) {
         responseBody = Unpooled.EMPTY_BUFFER;
+        this.responseBody = responseBody;
       }
-      this.response = new DefaultFullHttpResponse(
-              config.getHttpVersion(),
-              status,
-              responseBody,
-              responseHeaders,
-              config.getTrailingHeaders().get()
-      );
+      response = new DefaultFullHttpResponse(config.getHttpVersion(),
+              status, responseBody, responseHeaders, config.getTrailingHeaders().get());
+      this.response = response;
     }
     else {
       // apply HTTP status
@@ -431,7 +421,13 @@ public class NettyRequestContext extends RequestContext {
 
     // set Content-Length header
     if (responseHeaders.get(HttpHeaderNames.CONTENT_LENGTH) == null) {
-      responseHeaders.setInt(HttpHeaderNames.CONTENT_LENGTH, readableBytes());
+      ByteBuf responseBody = this.responseBody;
+      if (responseBody == null) {
+        responseHeaders.setInt(HttpHeaderNames.CONTENT_LENGTH, 0);
+      }
+      else {
+        responseHeaders.setInt(HttpHeaderNames.CONTENT_LENGTH, responseBody.readableBytes());
+      }
     }
 
     // apply cookies
@@ -471,7 +467,7 @@ public class NettyRequestContext extends RequestContext {
 
   @Override
   public void setContentLength(long length) {
-    originalResponseHeaders().set(HttpHeaderNames.CONTENT_LENGTH, length);
+    nettyResponseHeaders().set(HttpHeaderNames.CONTENT_LENGTH, length);
   }
 
   @Override
@@ -523,6 +519,11 @@ public class NettyRequestContext extends RequestContext {
   }
 
   @Override
+  public void setStatus(HttpStatusCode status) {
+    this.status = HttpResponseStatus.valueOf(status.value());
+  }
+
+  @Override
   public int getStatus() {
     return status.code();
   }
@@ -553,14 +554,14 @@ public class NettyRequestContext extends RequestContext {
               config.getHttpVersion(),
               HttpResponseStatus.OK,
               responseBody(),
-              originalResponseHeaders(),
+              nettyResponseHeaders(),
               config.getTrailingHeaders().get()
       );
     }
     return response;
   }
 
-  public HttpHeaders originalResponseHeaders() {
+  public HttpHeaders nettyResponseHeaders() {
     HttpHeaders headers = originalResponseHeaders;
     if (headers == null) {
       headers = config.isSingleFieldHeaders()
@@ -617,11 +618,6 @@ public class NettyRequestContext extends RequestContext {
   @Override
   protected String doGetContextPath() {
     return config.getContextPath();
-  }
-
-  @Override
-  public String toString() {
-    return "Netty " + super.toString();
   }
 
 }

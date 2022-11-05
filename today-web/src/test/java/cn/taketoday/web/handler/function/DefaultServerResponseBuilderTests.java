@@ -290,8 +290,9 @@ class DefaultServerResponseBuilderTests {
     MockHttpServletRequest mockRequest = new MockHttpServletRequest("GET", "https://example.com");
     MockHttpServletResponse mockResponse = new MockHttpServletResponse();
     ServerResponse.Context context = () -> Collections.singletonList(new StringHttpMessageConverter());
+    ServletRequestContext requestContext = new ServletRequestContext(null, mockRequest, mockResponse);
 
-    Object mav = getObject(response, mockRequest, mockResponse);
+    Object mav = response.writeTo(requestContext, context);
 
     assertThat(mav).isEqualTo(EntityResponse.NONE_RETURN_VALUE);
     assertThat(mockResponse.getContentAsString()).isEqualTo(body);
@@ -311,7 +312,7 @@ class DefaultServerResponseBuilderTests {
     ServletRequestContext requestContext = new ServletRequestContext(null, mockRequest, mockResponse);
     Object mav = response.writeTo(requestContext, context);
 
-    assertThat(mav).isNull();
+    assertThat(mav).isEqualTo(ServerResponse.NONE_RETURN_VALUE);
 
     assertThat(mockResponse.getContentAsString()).isEqualTo("[\"foo\",\"bar\"]");
   }
@@ -331,7 +332,7 @@ class DefaultServerResponseBuilderTests {
     ServletRequestContext requestContext = new ServletRequestContext(null, mockRequest, mockResponse);
     Object mav = response.writeTo(requestContext, context);
 
-    assertThat(mav).isNull();
+    assertThat(mav).isEqualTo(ServerResponse.NONE_RETURN_VALUE);
 
     assertThat(mockResponse.getContentAsString()).isEqualTo(body);
   }
@@ -350,7 +351,7 @@ class DefaultServerResponseBuilderTests {
 
     ServletRequestContext requestContext = new ServletRequestContext(null, mockRequest, mockResponse);
     Object mav = response.writeTo(requestContext, context);
-    assertThat(mav).isNull();
+    assertThat(mav).isEqualTo(ServerResponse.NONE_RETURN_VALUE);
 
     assertThat(mockResponse.getContentAsString()).isEqualTo(body);
   }

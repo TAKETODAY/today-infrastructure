@@ -61,7 +61,7 @@ public interface EntityResponse<T> extends ServerResponse {
    * @return the created builder
    */
   static <T> Builder<T> fromObject(T t) {
-    return DefaultEntityResponseBuilder.fromObject(t);
+    return new DefaultEntityResponseBuilder<>(t, null);
   }
 
   /**
@@ -73,7 +73,7 @@ public interface EntityResponse<T> extends ServerResponse {
    * @return the created builder
    */
   static <T> Builder<T> fromObject(T t, TypeReference<T> entityType) {
-    return DefaultEntityResponseBuilder.fromObject(t, entityType);
+    return new DefaultEntityResponseBuilder<>(t, entityType.getType());
   }
 
   /**

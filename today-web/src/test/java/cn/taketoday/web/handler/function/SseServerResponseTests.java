@@ -65,8 +65,9 @@ class SseServerResponseTests {
 
     ServerResponse.Context context = Collections::emptyList;
 
-    MockHttpServletResponse servletResponse = new MockHttpServletResponse();
-    var requestContext = new ServletRequestContext(null, new MockHttpServletRequest(), servletResponse);
+    MockHttpServletRequest request = new MockHttpServletRequest();
+    request.setAsyncSupported(true);
+    var requestContext = new ServletRequestContext(null, request, mockResponse);
 
     Object mav = response.writeTo(requestContext, context);
     assertThat(mav).isEqualTo(EntityResponse.NONE_RETURN_VALUE);
@@ -87,8 +88,10 @@ class SseServerResponseTests {
     });
 
     ServerResponse.Context context = () -> Collections.singletonList(new MappingJackson2HttpMessageConverter());
-    MockHttpServletResponse servletResponse = new MockHttpServletResponse();
-    var requestContext = new ServletRequestContext(null, new MockHttpServletRequest(), servletResponse);
+
+    MockHttpServletRequest request = new MockHttpServletRequest();
+    request.setAsyncSupported(true);
+    var requestContext = new ServletRequestContext(null, request, mockResponse);
 
     Object mav = response.writeTo(requestContext, context);
     assertThat(mav).isEqualTo(EntityResponse.NONE_RETURN_VALUE);
@@ -113,8 +116,9 @@ class SseServerResponseTests {
 
     ServerResponse.Context context = Collections::emptyList;
 
-    MockHttpServletResponse servletResponse = new MockHttpServletResponse();
-    var requestContext = new ServletRequestContext(null, new MockHttpServletRequest(), servletResponse);
+    MockHttpServletRequest request = new MockHttpServletRequest();
+    request.setAsyncSupported(true);
+    var requestContext = new ServletRequestContext(null, request, mockResponse);
 
     Object mav = response.writeTo(requestContext, context);
     assertThat(mav).isEqualTo(EntityResponse.NONE_RETURN_VALUE);

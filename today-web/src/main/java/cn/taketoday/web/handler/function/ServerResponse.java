@@ -305,7 +305,7 @@ public interface ServerResponse {
    * @see <a href="https://www.w3.org/TR/eventsource/">Server-Sent Events</a>
    */
   static ServerResponse sse(Consumer<SseBuilder> consumer) {
-    return SseServerResponse.create(consumer, null);
+    return new SseServerResponse(consumer, null);
   }
 
   /**
@@ -335,7 +335,7 @@ public interface ServerResponse {
    * @see <a href="https://www.w3.org/TR/eventsource/">Server-Sent Events</a>
    */
   static ServerResponse sse(Consumer<SseBuilder> consumer, Duration timeout) {
-    return SseServerResponse.create(consumer, timeout);
+    return new SseServerResponse(consumer, timeout);
   }
 
   /**
@@ -618,6 +618,18 @@ public interface ServerResponse {
      * @throws IOException in case of I/O errors
      */
     void data(Object object) throws IOException;
+
+    /**
+     * Add an SSE "data" line for the given object and sends the built
+     * server-sent event to the client.
+     * Strings will be sent as UTF-8 encoded bytes, and other objects will
+     * be converted into your provided {@code mediaType} from
+     * {@linkplain HttpMessageConverter message converters}.
+     *
+     * @param object the object to send as data
+     * @throws IOException in case of I/O errors
+     */
+    void data(Object object, @Nullable MediaType mediaType) throws IOException;
 
     /**
      * Completes the event stream with the given error.

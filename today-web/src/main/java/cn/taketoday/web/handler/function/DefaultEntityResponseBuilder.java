@@ -62,7 +62,6 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.HttpMediaTypeNotAcceptableException;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.context.async.DeferredResult;
-import cn.taketoday.web.view.ModelAndView;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpServletResponseWrapper;
 
@@ -89,7 +88,7 @@ final class DefaultEntityResponseBuilder<T> implements EntityResponse.Builder<T>
 
   private final LinkedMultiValueMap<String, HttpCookie> cookies = new LinkedMultiValueMap<>();
 
-  private DefaultEntityResponseBuilder(T entity, @Nullable Type entityType) {
+  public DefaultEntityResponseBuilder(T entity, @Nullable Type entityType) {
     this.entity = entity;
     this.entityType = (entityType != null) ? entityType : entity.getClass();
   }
@@ -218,20 +217,6 @@ final class DefaultEntityResponseBuilder<T> implements EntityResponse.Builder<T>
   }
 
   /**
-   * Return a new {@link EntityResponse.Builder} from the given object.
-   */
-  public static <T> EntityResponse.Builder<T> fromObject(T t) {
-    return new DefaultEntityResponseBuilder<>(t, null);
-  }
-
-  /**
-   * Return a new {@link EntityResponse.Builder} from the given object and type reference.
-   */
-  public static <T> EntityResponse.Builder<T> fromObject(T t, TypeReference<?> bodyType) {
-    return new DefaultEntityResponseBuilder<>(t, bodyType.getType());
-  }
-
-  /**
    * Default {@link EntityResponse} implementation for synchronous bodies.
    */
   private static class DefaultEntityResponse<T> extends AbstractServerResponse implements EntityResponse<T> {
@@ -255,9 +240,9 @@ final class DefaultEntityResponseBuilder<T> implements EntityResponse.Builder<T>
 
     @Nullable
     @Override
-    protected ModelAndView writeToInternal(RequestContext request, Context context) throws Exception {
+    protected Object writeToInternal(RequestContext request, Context context) throws Exception {
       writeEntityWithMessageConverters(this.entity, request, context);
-      return null;
+      return NONE_RETURN_VALUE;
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
@@ -326,8 +311,7 @@ final class DefaultEntityResponseBuilder<T> implements EntityResponse.Builder<T>
     }
 
     private static List<MediaType> producibleMediaTypes(
-            List<HttpMessageConverter<?>> messageConverters,
-            Class<?> entityClass) {
+            List<HttpMessageConverter<?>> messageConverters, Class<?> entityClass) {
 
       return messageConverters.stream()
               .filter(messageConverter -> messageConverter.canWrite(entityClass, null))
@@ -350,11 +334,11 @@ final class DefaultEntityResponseBuilder<T> implements EntityResponse.Builder<T>
 
     @Nullable
     @Override
-    protected ModelAndView writeToInternal(RequestContext request, Context context) throws Exception {
+    protected Object writeToInternal(RequestContext request, Context context) throws Exception {
 
       DeferredResult<ServerResponse> deferredResult = createDeferredResult(request, context);
       DefaultAsyncServerResponse.writeAsync(request, deferredResult);
-      return null;
+      return NONE_RETURN_VALUE;
     }
 
     private DeferredResult<ServerResponse> createDeferredResult(
@@ -401,12 +385,12 @@ final class DefaultEntityResponseBuilder<T> implements EntityResponse.Builder<T>
 
     @Nullable
     @Override
-    protected ModelAndView writeToInternal(RequestContext request, Context context) throws Exception {
+    protected Object writeToInternal(RequestContext request, Context context) throws Exception {
       DeferredResult<?> deferredResult = new DeferredResult<>();
       DefaultAsyncServerResponse.writeAsync(request, deferredResult);
 
       entity().subscribe(new DeferredResultSubscriber(request, context, deferredResult));
-      return null;
+      return NONE_RETURN_VALUE;
     }
 
     private class DeferredResultSubscriber implements Subscriber<T> {

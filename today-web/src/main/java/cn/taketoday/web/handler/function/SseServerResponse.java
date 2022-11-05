@@ -24,13 +24,10 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
-import java.util.Collections;
 import java.util.List;
 import java.util.function.Consumer;
 
-import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.http.CacheControl;
-import cn.taketoday.http.HttpCookie;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpStatus;
 import cn.taketoday.http.MediaType;
@@ -57,8 +54,9 @@ final class SseServerResponse extends AbstractServerResponse {
   @Nullable
   private final Duration timeout;
 
-  private SseServerResponse(Consumer<SseBuilder> sseConsumer, @Nullable Duration timeout) {
-    super(HttpStatus.OK, createHeaders(), emptyCookies());
+  public SseServerResponse(Consumer<SseBuilder> sseConsumer, @Nullable Duration timeout) {
+    super(HttpStatus.OK, createHeaders(), null);
+    Assert.notNull(sseConsumer, "SseConsumer is required");
     this.sseConsumer = sseConsumer;
     this.timeout = timeout;
   }
@@ -70,14 +68,8 @@ final class SseServerResponse extends AbstractServerResponse {
     return headers;
   }
 
-  private static MultiValueMap<String, HttpCookie> emptyCookies() {
-    return MultiValueMap.from(Collections.emptyMap());
-  }
-
-  @Nullable
   @Override
   protected Object writeToInternal(RequestContext request, Context context) throws Exception {
-
     DeferredResult<?> result;
     if (this.timeout != null) {
       result = new DeferredResult<>(timeout.toMillis());
@@ -88,13 +80,7 @@ final class SseServerResponse extends AbstractServerResponse {
 
     DefaultAsyncServerResponse.writeAsync(request, result);
     this.sseConsumer.accept(new DefaultSseBuilder(request, context, result));
-    return null;
-  }
-
-  public static ServerResponse create(Consumer<SseBuilder> sseConsumer, @Nullable Duration timeout) {
-    Assert.notNull(sseConsumer, "SseConsumer is required");
-
-    return new SseServerResponse(sseConsumer, timeout);
+    return NONE_RETURN_VALUE;
   }
 
   private static final class DefaultSseBuilder implements SseBuilder {
@@ -114,8 +100,8 @@ final class SseServerResponse extends AbstractServerResponse {
 
     public DefaultSseBuilder(RequestContext request, Context context, DeferredResult<?> deferredResult) {
       this.request = request;
-      this.outputMessage = request.getServerHttpResponse();
       this.deferredResult = deferredResult;
+      this.outputMessage = request.getServerHttpResponse();
       this.messageConverters = context.messageConverters();
     }
 
@@ -160,13 +146,17 @@ final class SseServerResponse extends AbstractServerResponse {
 
     @Override
     public void data(Object object) throws IOException {
-      Assert.notNull(object, "Object is required");
+      data(object, MediaType.APPLICATION_JSON);
+    }
 
+    @Override
+    public void data(Object object, @Nullable MediaType mediaType) throws IOException {
+      Assert.notNull(object, "Object is required");
       if (object instanceof String) {
         writeString((String) object);
       }
       else {
-        writeObject(object);
+        writeObject(object, mediaType);
       }
     }
 
@@ -192,16 +182,16 @@ final class SseServerResponse extends AbstractServerResponse {
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
-    private void writeObject(Object data) throws IOException {
+    private void writeObject(Object data, @Nullable MediaType mediaType) throws IOException {
       builder.append("data:");
       try {
         outputMessage.getBody().write(builderBytes());
 
         Class<?> dataClass = data.getClass();
         for (HttpMessageConverter converter : messageConverters) {
-          if (converter.canWrite(dataClass, MediaType.APPLICATION_JSON)) {
+          if (converter.canWrite(dataClass, mediaType)) {
             ServerHttpResponse response = new MutableHeadersServerHttpResponse(outputMessage);
-            converter.write(data, MediaType.APPLICATION_JSON, response);
+            converter.write(data, mediaType, response);
             outputMessage.getBody().write(NL_NL);
             outputMessage.flush();
             return;

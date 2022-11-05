@@ -82,7 +82,7 @@ public class ResourceHandlerFunctionTests {
     assertThat(entityResponse.entity()).isEqualTo(this.resource);
 
     Object mav = response.writeTo(requestContext, this.context);
-    assertThat(mav).isNull();
+    assertThat(mav).isEqualTo(ServerResponse.NONE_RETURN_VALUE);
 
     assertThat(servletResponse.getStatus()).isEqualTo(200);
     byte[] expectedBytes = Files.readAllBytes(this.resource.getFile().toPath());
@@ -111,7 +111,7 @@ public class ResourceHandlerFunctionTests {
     assertThat(entityResponse.entity()).isEqualTo(this.resource);
 
     Object mav = response.writeTo(requestContext, this.context);
-    assertThat(mav).isNull();
+    assertThat(mav).isEqualTo(ServerResponse.NONE_RETURN_VALUE);
 
     assertThat(servletResponse.getStatus()).isEqualTo(206);
     byte[] expectedBytes = new byte[6];
@@ -144,7 +144,7 @@ public class ResourceHandlerFunctionTests {
     assertThat(entityResponse.entity()).isEqualTo(this.resource);
 
     Object mav = response.writeTo(requestContext, this.context);
-    assertThat(mav).isNull();
+    assertThat(mav).isEqualTo(ServerResponse.NONE_RETURN_VALUE);
 
     assertThat(servletResponse.getStatus()).isEqualTo(416);
     byte[] expectedBytes = Files.readAllBytes(this.resource.getFile().toPath());
@@ -173,7 +173,7 @@ public class ResourceHandlerFunctionTests {
     assertThat(entityResponse.entity().getName()).isEqualTo(this.resource.getName());
 
     Object mav = response.writeTo(requestContext, this.context);
-    assertThat(mav).isNull();
+    assertThat(mav).isEqualTo(ServerResponse.NONE_RETURN_VALUE);
 
     assertThat(servletResponse.getStatus()).isEqualTo(200);
     byte[] actualBytes = servletResponse.getContentAsByteArray();

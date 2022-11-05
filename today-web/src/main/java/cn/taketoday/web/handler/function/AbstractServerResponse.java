@@ -20,17 +20,18 @@
 
 package cn.taketoday.web.handler.function;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import cn.taketoday.core.LinkedMultiValueMap;
 import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.http.HttpCookie;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpMethod;
 import cn.taketoday.http.HttpStatusCode;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.web.RequestContext;
 
 /**
@@ -48,13 +49,14 @@ abstract class AbstractServerResponse extends ErrorHandlingServerResponse {
 
   private final HttpHeaders headers;
 
+  @Nullable
   private final MultiValueMap<String, HttpCookie> cookies;
 
   protected AbstractServerResponse(HttpStatusCode statusCode,
-          HttpHeaders headers, MultiValueMap<String, HttpCookie> cookies) {
+          HttpHeaders headers, @Nullable MultiValueMap<String, HttpCookie> cookies) {
     this.statusCode = statusCode;
     this.headers = HttpHeaders.readOnlyHttpHeaders(headers);
-    this.cookies = MultiValueMap.unmodifiable(new LinkedMultiValueMap<>(cookies));
+    this.cookies = cookies;
   }
 
   @Override
@@ -75,7 +77,10 @@ abstract class AbstractServerResponse extends ErrorHandlingServerResponse {
 
   @Override
   public MultiValueMap<String, HttpCookie> cookies() {
-    return this.cookies;
+    if (cookies != null) {
+      return this.cookies;
+    }
+    return MultiValueMap.from(Collections.emptyMap());
   }
 
   @Nullable
@@ -113,9 +118,11 @@ abstract class AbstractServerResponse extends ErrorHandlingServerResponse {
   }
 
   private void writeCookies(RequestContext context) {
-    for (Map.Entry<String, List<HttpCookie>> entry : cookies.entrySet()) {
-      for (HttpCookie cookie : entry.getValue()) {
-        context.addCookie(cookie);
+    if (CollectionUtils.isNotEmpty(cookies)) {
+      for (Map.Entry<String, List<HttpCookie>> entry : cookies.entrySet()) {
+        for (HttpCookie cookie : entry.getValue()) {
+          context.addCookie(cookie);
+        }
       }
     }
   }

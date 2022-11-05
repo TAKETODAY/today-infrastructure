@@ -270,8 +270,8 @@ class DefaultServerRequest implements ServerRequest {
     if (lastModified != null && lastModified.isAfter(Instant.EPOCH)) {
       lastModifiedTimestamp = lastModified.toEpochMilli();
     }
-    CheckNotModifiedResponse response = new CheckNotModifiedResponse();
-    if (context.checkNotModified(etag, lastModifiedTimestamp)) {
+    var response = new CheckNotModifiedResponse(context);
+    if (response.checkNotModified(etag, lastModifiedTimestamp)) {
       return Optional.of(
               ServerResponse.status(response.status)
                       .headers(headers -> headers.addAll(response.headers))
@@ -453,15 +453,38 @@ class DefaultServerRequest implements ServerRequest {
 
   static class CheckNotModifiedResponse extends RequestContext {
     private final HttpHeaders headers = HttpHeaders.create();
+    private final RequestContext context;
     private int status = 200;
 
-    protected CheckNotModifiedResponse() {
+    protected CheckNotModifiedResponse(RequestContext context) {
       super(null);
+      this.context = context;
     }
 
     @Override
     public HttpHeaders responseHeaders() {
       return headers;
+    }
+
+    @Override
+    public HttpMethod getMethod() {
+      return context.getMethod();
+    }
+
+    @Override
+    public String getMethodValue() {
+      return context.getMethodValue();
+    }
+
+    @Nullable
+    @Override
+    public HttpCookie getCookie(String name) {
+      return context.getCookie(name);
+    }
+
+    @Override
+    public HttpHeaders requestHeaders() {
+      return context.requestHeaders();
     }
 
     @Override

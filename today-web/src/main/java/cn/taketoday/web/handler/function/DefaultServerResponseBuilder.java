@@ -175,7 +175,7 @@ class DefaultServerResponseBuilder implements ServerResponse.BodyBuilder {
 
   @Override
   public ServerResponse body(Object body) {
-    return DefaultEntityResponseBuilder.fromObject(body)
+    return new DefaultEntityResponseBuilder<>(body, null)
             .status(this.statusCode)
             .headers(headers -> headers.putAll(this.headers))
             .cookies(cookies -> cookies.addAll(this.cookies))
@@ -184,7 +184,7 @@ class DefaultServerResponseBuilder implements ServerResponse.BodyBuilder {
 
   @Override
   public <T> ServerResponse body(T body, TypeReference<T> bodyType) {
-    return DefaultEntityResponseBuilder.fromObject(body, bodyType)
+    return new DefaultEntityResponseBuilder<>(body, bodyType.getType())
             .status(this.statusCode)
             .headers(headers -> headers.putAll(this.headers))
             .cookies(cookies -> cookies.addAll(this.cookies))

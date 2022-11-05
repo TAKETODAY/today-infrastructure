@@ -131,7 +131,9 @@ class RouterFunctionBuilderTests {
                     builder.path("/bar",
                             () -> RouterFunctions.route()
                                     .GET("/baz", request -> ServerResponse.ok().build())
-                                    .build()))
+                                    .build()
+                    )
+            )
             .build();
 
     ServerRequest fooRequest = initRequest("GET", "/foo/bar/baz");

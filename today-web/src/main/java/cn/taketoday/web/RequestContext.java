@@ -1645,6 +1645,7 @@ public abstract class RequestContext extends AttributeAccessorSupport
 
   // ----------------------
 
+  @Deprecated
   public abstract ServerHttpResponse getServerHttpResponse();
 
   /**

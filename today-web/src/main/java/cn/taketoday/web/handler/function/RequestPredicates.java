@@ -515,7 +515,7 @@ public abstract class RequestPredicates {
 
     @Override
     public boolean test(ServerRequest request) {
-      PathContainer lookupPath = request.requestContext().getLookupPath();
+      PathContainer lookupPath = request.requestPath().pathWithinApplication();
       PathMatchInfo info = pattern.matchAndExtract(lookupPath);
       traceMatch("Pattern", pattern.getPatternString(), lookupPath.value(), info != null);
       if (info != null) {

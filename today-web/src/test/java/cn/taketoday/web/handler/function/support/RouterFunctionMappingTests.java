@@ -148,9 +148,7 @@ class RouterFunctionMappingTests {
 
     RouterFunctionMapping mapping = new RouterFunctionMapping(routerFunction);
     mapping.setMessageConverters(this.messageConverters);
-//    PathPatternParser patternParser = new PathPatternParser();
-//    patternParser.setCaseSensitive(false);
-//    mapping.setPatternParser(patternParser);
+    mapping.setUseCaseSensitiveMatch(false);
     mapping.afterPropertiesSet();
 
     ServletRequestContext request = createTestRequest("/FOO");
