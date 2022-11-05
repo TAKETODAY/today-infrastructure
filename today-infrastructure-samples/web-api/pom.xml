@@ -23,8 +23,6 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
-  <modelVersion>4.0.0</modelVersion>
-
   <parent>
     <groupId>cn.taketoday.samples</groupId>
     <artifactId>today-infrastructure-samples</artifactId>
@@ -32,14 +30,16 @@
     <relativePath>../pom.xml</relativePath>
   </parent>
 
-  <artifactId>run-in-servlet-app</artifactId>
+  <modelVersion>4.0.0</modelVersion>
+
+  <artifactId>web-api</artifactId>
+
+  <properties>
+
+  </properties>
+
 
   <dependencies>
-
-    <dependency>
-      <groupId>cn.taketoday</groupId>
-      <artifactId>today-framework</artifactId>
-    </dependency>
 
     <dependency>
       <groupId>cn.taketoday</groupId>
@@ -56,38 +56,7 @@
       <artifactId>lombok</artifactId>
     </dependency>
 
-    <dependency>
-      <groupId>jakarta.servlet</groupId>
-      <artifactId>jakarta.servlet-api</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>org.apache.tomcat.embed</groupId>
-      <artifactId>tomcat-embed-core</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>cn.taketoday.samples</groupId>
-      <artifactId>web-api</artifactId>
-    </dependency>
-
-    <!--
-
-        <dependency>
-          <groupId>io.undertow</groupId>
-          <artifactId>undertow-core</artifactId>
-        </dependency>
-
-        <dependency>
-          <groupId>io.undertow</groupId>
-          <artifactId>undertow-servlet-jakartaee9</artifactId>
-        </dependency>
-    -->
-
-    <dependency>
-      <groupId>jakarta.annotation</groupId>
-      <artifactId>jakarta.annotation-api</artifactId>
-    </dependency>
-
   </dependencies>
+
+
 </project>

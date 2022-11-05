@@ -25,7 +25,7 @@
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <groupId>cn.taketoday</groupId>
+    <groupId>cn.taketoday.samples</groupId>
     <artifactId>today-infrastructure-samples</artifactId>
     <version>${revision}</version>
     <relativePath>../pom.xml</relativePath>
@@ -45,6 +45,11 @@
     </dependency>
 
     <dependency>
+      <groupId>cn.taketoday.samples</groupId>
+      <artifactId>web-api</artifactId>
+    </dependency>
+
+    <dependency>
       <groupId>io.netty</groupId>
       <artifactId>netty-codec-http</artifactId>
     </dependency>
@@ -58,6 +63,7 @@
       <groupId>ch.qos.logback</groupId>
       <artifactId>logback-classic</artifactId>
     </dependency>
+
     <dependency>
       <groupId>org.projectlombok</groupId>
       <artifactId>lombok</artifactId>

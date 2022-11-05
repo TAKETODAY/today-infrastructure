@@ -29,6 +29,7 @@
     <relativePath>../today-infrastructure-build/pom.xml</relativePath>
   </parent>
 
+  <groupId>cn.taketoday.samples</groupId>
   <artifactId>today-infrastructure-samples</artifactId>
   <packaging>pom</packaging>
 
@@ -37,6 +38,7 @@
   <modules>
     <module>netty-app</module>
     <module>run-in-servlet-app</module>
+    <module>web-api</module>
 
   </modules>
 
@@ -145,6 +147,25 @@
         <type>pom</type>
         <scope>import</scope>
       </dependency>
+
+      <dependency>
+        <groupId>cn.taketoday.samples</groupId>
+        <artifactId>netty-app</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>cn.taketoday.samples</groupId>
+        <artifactId>web-api</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>cn.taketoday.samples</groupId>
+        <artifactId>run-in-servlet-app</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+
     </dependencies>
   </dependencyManagement>
 
