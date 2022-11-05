@@ -36,7 +36,7 @@ import cn.taketoday.test.context.TestExecutionListeners;
  * {@link InfraRunner}:
  * <ul>
  * <li>JUnit's {@link Test#timeout() @Test(timeout=...)}</li>
- * <li>Spring's {@link Timed @Timed}</li>
+ * <li>Infra {@link Timed @Timed}</li>
  * </ul>
  *
  * @author Sam Brannen

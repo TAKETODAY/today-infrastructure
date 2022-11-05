@@ -38,7 +38,7 @@ import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.RequestContextDecorator;
-import cn.taketoday.web.multipart.MultipartFile;
+import cn.taketoday.web.multipart.Multipart;
 
 /**
  * Miscellaneous utilities for web applications.
@@ -296,11 +296,11 @@ public abstract class WebUtils {
     return port;
   }
 
-  public static void cleanupMultipartRequest(@Nullable MultiValueMap<String, MultipartFile> multipartFiles) {
+  public static void cleanupMultipartRequest(@Nullable MultiValueMap<String, Multipart> multipartFiles) {
     if (CollectionUtils.isNotEmpty(multipartFiles)) {
-      for (Map.Entry<String, List<MultipartFile>> entry : multipartFiles.entrySet()) {
-        List<MultipartFile> value = entry.getValue();
-        for (MultipartFile multipartFile : value) {
+      for (Map.Entry<String, List<Multipart>> entry : multipartFiles.entrySet()) {
+        List<Multipart> value = entry.getValue();
+        for (Multipart multipartFile : value) {
           try {
             multipartFile.delete();
           }

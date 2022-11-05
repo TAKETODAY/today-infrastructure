@@ -54,7 +54,7 @@ public class TimedTransactionalRuleTests extends TimedTransactionalRunnerTests {
   public Timeout timeout = Timeout.builder().withTimeout(10, TimeUnit.SECONDS).build();
 
   /**
-   * Overridden since Spring's Rule-based JUnit support cannot properly
+   * Overridden since Infra Rule-based JUnit support cannot properly
    * integrate with timed execution that is controlled by a third-party runner.
    */
   @Test(timeout = 10000)

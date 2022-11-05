@@ -36,6 +36,7 @@ import cn.taketoday.http.HttpMethod;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.bind.MultipartException;
+import cn.taketoday.web.multipart.Multipart;
 import cn.taketoday.web.multipart.MultipartFile;
 import cn.taketoday.web.multipart.MultipartRequest;
 import cn.taketoday.web.util.WebUtils;
@@ -50,17 +51,17 @@ import jakarta.servlet.http.Part;
  * <p>@since 4.0this set of mocks is designed on a Servlet 4.0 baseline.
  *
  * <p>Useful for testing application controllers that access multipart uploads.
- * {@link MockMultipartFile} can be used to populate these mock requests with files.
+ * {@link cn.taketoday.web.testfixture.servlet.MockMultipartFile} can be used to populate these mock requests with files.
  *
  * @author Juergen Hoeller
  * @author Eric Crampton
  * @author Arjen Poutsma
- * @see MockMultipartFile
+ * @see cn.taketoday.web.testfixture.servlet.MockMultipartFile
  * @since 4.0
  */
 public class MockMultipartHttpServletRequest extends MockHttpServletRequest implements MultipartRequest {
 
-  private final MultiValueMap<String, MultipartFile> multipartFiles = new LinkedMultiValueMap<>();
+  private final MultiValueMap<String, Multipart> multipartData = new LinkedMultiValueMap<>();
 
   /**
    * Create a new {@code MockMultipartHttpServletRequest} with a default
@@ -92,33 +93,55 @@ public class MockMultipartHttpServletRequest extends MockHttpServletRequest impl
    */
   public void addFile(MultipartFile file) {
     Assert.notNull(file, "MultipartFile must not be null");
-    this.multipartFiles.add(file.getName(), file);
+    this.multipartData.add(file.getName(), file);
   }
 
   @Override
   public Iterator<String> getFileNames() {
-    return this.multipartFiles.keySet().iterator();
+    return this.multipartData.keySet().iterator();
   }
 
   @Override
   public MultipartFile getFile(String name) {
-    return this.multipartFiles.getFirst(name);
+    return getMultipartFiles().getFirst(name);
   }
 
   @Override
   public List<MultipartFile> getFiles(String name) {
-    List<MultipartFile> multipartFiles = this.multipartFiles.get(name);
+    List<MultipartFile> multipartFiles = getMultipartFiles().get(name);
     return Objects.requireNonNullElse(multipartFiles, Collections.emptyList());
   }
 
   @Override
-  public Map<String, MultipartFile> getFileMap() {
-    return this.multipartFiles.toSingleValueMap();
+  public List<Multipart> multipartData(String name) {
+    return multipartData().get(name);
   }
 
   @Override
+  public Map<String, MultipartFile> getFileMap() {
+    return getMultipartFiles().toSingleValueMap();
+  }
+
+  /**
+   * Obtain the MultipartFile Map for retrieval,
+   * lazily initializing it if necessary.
+   */
+  @Override
   public MultiValueMap<String, MultipartFile> getMultipartFiles() {
-    return new LinkedMultiValueMap<>(this.multipartFiles);
+    MultiValueMap<String, MultipartFile> ret = new LinkedMultiValueMap<>();
+    for (Map.Entry<String, List<Multipart>> entry : multipartData().entrySet()) {
+      for (Multipart multipart : entry.getValue()) {
+        if (multipart instanceof MultipartFile file) {
+          ret.add(entry.getKey(), file);
+        }
+      }
+    }
+    return ret;
+  }
+
+  @Override
+  public MultiValueMap<String, Multipart> multipartData() {
+    return multipartData;
   }
 
   @Override
@@ -186,7 +209,7 @@ public class MockMultipartHttpServletRequest extends MockHttpServletRequest impl
 
   @Override
   public void cleanup() {
-    WebUtils.cleanupMultipartRequest(multipartFiles);
+    WebUtils.cleanupMultipartRequest(multipartData);
   }
 
 }

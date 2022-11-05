@@ -242,7 +242,7 @@ public abstract class AbstractApplicationContextRunner<
    * user configurations} in the order of registration.
    *
    * @param type the type of the bean
-   * @param constructorArgs custom argument values to be fed into Spring's constructor
+   * @param constructorArgs custom argument values to be fed into Infra constructor
    * resolution algorithm, resolving either all arguments or just specific ones, with
    * the rest to be resolved through regular autowiring (may be {@code null} or empty)
    * @param <T> the type of the bean
@@ -260,7 +260,7 @@ public abstract class AbstractApplicationContextRunner<
    *
    * @param name the bean name or {@code null} to use a generated name
    * @param type the type of the bean
-   * @param constructorArgs custom argument values to be fed into Spring's constructor
+   * @param constructorArgs custom argument values to be fed into Infra constructor
    * resolution algorithm, resolving either all arguments or just specific ones, with
    * the rest to be resolved through regular autowiring (may be {@code null} or empty)
    * @param <T> the type of the bean

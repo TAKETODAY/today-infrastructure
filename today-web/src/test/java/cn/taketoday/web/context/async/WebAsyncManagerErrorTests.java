@@ -44,7 +44,7 @@ import static org.mockito.Mockito.verify;
  * events are simulated.
  *
  * @author Violeta Georgieva
- * @since 5.0
+ * @since 4.0
  */
 public class WebAsyncManagerErrorTests {
 

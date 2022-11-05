@@ -523,6 +523,11 @@ public class RequestContextDecorator extends RequestContext {
   }
 
   @Override
+  protected void postRequestCompleted() {
+    delegate.postRequestCompleted();
+  }
+
+  @Override
   protected MultipartRequest createMultipartRequest() {
     return delegate.createMultipartRequest();
   }

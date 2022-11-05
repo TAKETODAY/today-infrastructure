@@ -35,7 +35,7 @@ import cn.taketoday.lang.Nullable;
 
 /**
  * Configuration data that has been loaded from a {@link ConfigDataResource} and may
- * ultimately contribute {@link PropertySource property sources} to Spring's
+ * ultimately contribute {@link PropertySource property sources} to Infra
  * {@link Environment}.
  *
  * @author Phillip Webb

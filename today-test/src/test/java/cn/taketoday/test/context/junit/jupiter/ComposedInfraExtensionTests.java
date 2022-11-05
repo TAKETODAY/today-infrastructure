@@ -38,7 +38,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * JUnit Jupiter and the TestContext Framework.
  *
  * <p>Note that {@link JUnitConfig @JUnitConfig} is meta-annotated
- * with JUnit Jupiter's {@link ExtendWith @ExtendWith} <b>and</b> Spring's
+ * with JUnit Jupiter's {@link ExtendWith @ExtendWith} <b>and</b> Infra
  * {@link ContextConfiguration @ContextConfiguration}.
  *
  * @author Sam Brannen

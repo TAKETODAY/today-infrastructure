@@ -28,11 +28,11 @@ import org.junit.experimental.ParallelComputer;
 import java.lang.annotation.Annotation;
 import java.util.Arrays;
 
+import cn.taketoday.test.context.junit4.InfraRunner;
 import cn.taketoday.test.context.junit4.InheritedConfigJUnit4ClassRunnerAppCtxTests;
 import cn.taketoday.test.context.junit4.JUnit4ClassRunnerAppCtxTests;
 import cn.taketoday.test.context.junit4.JUnitTestingUtils;
 import cn.taketoday.test.context.junit4.MethodLevelTransactionalSpringRunnerTests;
-import cn.taketoday.test.context.junit4.InfraRunner;
 import cn.taketoday.test.context.junit4.SpringJUnit47ClassRunnerRuleTests;
 import cn.taketoday.test.context.junit4.TimedTransactionalRunnerTests;
 import cn.taketoday.test.context.junit4.rules.ApplicationClassRule;
@@ -58,7 +58,7 @@ import static org.junit.Assume.assumeTrue;
  * fall under the following categories.
  *
  * <ul>
- * <li>tests that make use of Spring's {@code @DirtiesContext} support
+ * <li>tests that make use of Infra {@code @DirtiesContext} support
  * <li>tests that make use of JUnit 4's {@code @FixMethodOrder} support
  * <li>tests that commit changes to the state of a shared in-memory database
  * </ul>

@@ -32,6 +32,7 @@ import java.util.Map;
 import cn.taketoday.http.DefaultHttpHeaders;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpStatusCode;
+import cn.taketoday.http.MediaType;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
@@ -41,6 +42,7 @@ import jakarta.servlet.http.HttpServletResponse;
  * {@link ServerHttpResponse} implementation that is based on a {@link HttpServletResponse}.
  *
  * @author Arjen Poutsma
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @author Rossen Stoyanchev
  * @since 3.0
  */
@@ -124,13 +126,14 @@ public class ServletServerHttpResponse implements ServerHttpResponse {
       }
 
       // HttpServletResponse exposes some headers as properties: we should include those if not already present
-      if (servletResponse.getContentType() == null && headers.getContentType() != null) {
-        servletResponse.setContentType(headers.getContentType().toString());
+      MediaType contentType = headers.getContentType();
+      if (servletResponse.getContentType() == null && contentType != null) {
+        servletResponse.setContentType(contentType.toString());
       }
       if (servletResponse.getCharacterEncoding() == null
-              && headers.getContentType() != null
-              && headers.getContentType().getCharset() != null) {
-        servletResponse.setCharacterEncoding(headers.getContentType().getCharset().name());
+              && contentType != null
+              && contentType.getCharset() != null) {
+        servletResponse.setCharacterEncoding(contentType.getCharset().name());
       }
       long contentLength = headers.getContentLength();
       if (contentLength != -1) {

@@ -31,7 +31,7 @@ import cn.taketoday.http.HttpMethod;
 import cn.taketoday.web.bind.MultipartException;
 import cn.taketoday.web.bind.NotMultipartRequestException;
 import cn.taketoday.web.multipart.MaxUploadSizeExceededException;
-import cn.taketoday.web.multipart.MultipartFile;
+import cn.taketoday.web.multipart.Multipart;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.Part;
@@ -72,10 +72,10 @@ public class ServletMultipartRequest extends AbstractMultipartRequest {
     }
   }
 
-  private MultiValueMap<String, MultipartFile> parseRequest(HttpServletRequest request) {
+  private MultiValueMap<String, Multipart> parseRequest(HttpServletRequest request) {
     try {
       Collection<Part> parts = request.getParts();
-      LinkedMultiValueMap<String, MultipartFile> files = new LinkedMultiValueMap<>(parts.size());
+      LinkedMultiValueMap<String, Multipart> files = new LinkedMultiValueMap<>(parts.size());
 
       for (Part part : parts) {
         String headerValue = part.getHeader(HttpHeaders.CONTENT_DISPOSITION);
@@ -111,7 +111,7 @@ public class ServletMultipartRequest extends AbstractMultipartRequest {
   }
 
   @Override
-  protected MultiValueMap<String, MultipartFile> parseRequest() {
+  protected MultiValueMap<String, Multipart> parseRequest() {
     return parseRequest(request);
   }
 

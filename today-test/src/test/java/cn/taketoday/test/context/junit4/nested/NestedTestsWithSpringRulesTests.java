@@ -35,7 +35,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * JUnit 4 based integration tests for <em>nested</em> test classes that are
- * executed via a custom JUnit 4 {@link HierarchicalContextRunner} and Spring's
+ * executed via a custom JUnit 4 {@link HierarchicalContextRunner} and Infra
  * {@link ApplicationClassRule} and {@link ApplicationMethodRule} support.
  *
  * @author Sam Brannen

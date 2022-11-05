@@ -41,7 +41,7 @@ import cn.taketoday.transaction.annotation.Transactional;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * JUnit 4 based integration test which verifies support of Spring's
+ * JUnit 4 based integration test which verifies support of Infra
  * {@link Transactional &#64;Transactional}, {@link TestExecutionListeners
  * &#64;TestExecutionListeners}, and {@link ContextConfiguration
  * &#64;ContextConfiguration} annotations in conjunction with the

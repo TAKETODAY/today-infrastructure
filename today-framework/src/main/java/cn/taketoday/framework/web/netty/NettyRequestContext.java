@@ -26,6 +26,7 @@ import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -65,11 +66,13 @@ import io.netty.handler.codec.http.HttpUtil;
 import io.netty.handler.codec.http.cookie.Cookie;
 import io.netty.handler.codec.http.cookie.DefaultCookie;
 import io.netty.handler.codec.http.cookie.ServerCookieDecoder;
+import io.netty.handler.codec.http.cookie.ServerCookieEncoder;
 import io.netty.handler.codec.http.multipart.Attribute;
 import io.netty.handler.codec.http.multipart.HttpDataFactory;
 import io.netty.handler.codec.http.multipart.HttpPostRequestDecoder;
 import io.netty.handler.codec.http.multipart.InterfaceHttpData;
 import io.netty.handler.codec.http.multipart.InterfaceHttpPostRequestDecoder;
+import io.netty.util.AsciiString;
 
 /**
  * @author TODAY 2019-07-04 21:24
@@ -266,7 +269,7 @@ public class NettyRequestContext extends RequestContext {
 
   @Override
   protected NettyHttpHeaders createResponseHeaders() {
-    return new NettyHttpHeaders(originalResponseHeaders());
+    return new NettyHttpHeaders(nettyResponseHeaders());
   }
 
   @Override
@@ -307,15 +310,16 @@ public class NettyRequestContext extends RequestContext {
   protected void postGetParameters(MultiValueMap<String, String> parameters) {
     super.postGetParameters(parameters);
 
-    List<InterfaceHttpData> bodyHttpData = requestDecoder().getBodyHttpDatas();
-    for (InterfaceHttpData data : bodyHttpData) {
-      if (data instanceof Attribute) {
-        try {
-          String name = data.getName();
-          parameters.add(name, ((Attribute) data).getValue());
-        }
-        catch (IOException e) {
-          throw new ParameterReadFailedException("Netty http-data read failed", e);
+    if (isMultipart()) {
+      for (InterfaceHttpData data : requestDecoder().getBodyHttpDatas()) {
+        if (data instanceof Attribute) {
+          try {
+            String name = data.getName();
+            parameters.add(name, ((Attribute) data).getValue());
+          }
+          catch (IOException e) {
+            throw new ParameterReadFailedException("Netty http-data read failed", e);
+          }
         }
       }
     }
@@ -339,7 +343,7 @@ public class NettyRequestContext extends RequestContext {
   @Override
   public void sendRedirect(String location) {
     this.status = HttpResponseStatus.FOUND;
-    originalResponseHeaders().set(HttpHeaderNames.LOCATION, location);
+    nettyResponseHeaders().set(HttpHeaderNames.LOCATION, location);
     send();
   }
 
@@ -376,16 +380,8 @@ public class NettyRequestContext extends RequestContext {
     return keepAlive;
   }
 
-  private int readableBytes() {
-    if (responseBody == null) {
-      return 0;
-    }
-    return responseBody.readableBytes();
-  }
-
   @Override
-  public void requestCompleted() {
-    super.requestCompleted();
+  protected void postRequestCompleted() {
     sendIfNotCommitted();
   }
 
@@ -405,29 +401,54 @@ public class NettyRequestContext extends RequestContext {
    */
   private void send() {
     assertNotCommitted();
+    FullHttpResponse response = this.response;
+    HttpHeaders responseHeaders = nettyResponseHeaders(); // never null
     // obtain response object
     if (response == null) {
       ByteBuf responseBody = this.responseBody;
       if (responseBody == null) {
         responseBody = Unpooled.EMPTY_BUFFER;
+        this.responseBody = responseBody;
       }
-      this.response = new DefaultFullHttpResponse(
-              config.getHttpVersion(),
-              status,
-              responseBody,
-              originalResponseHeaders(),
-              config.getTrailingHeaders().get()
-      );
+      response = new DefaultFullHttpResponse(config.getHttpVersion(),
+              status, responseBody, responseHeaders, config.getTrailingHeaders().get());
+      this.response = response;
     }
     else {
       // apply HTTP status
       response.setStatus(status);
     }
+
     // set Content-Length header
-    HttpHeaders responseHeaders = originalResponseHeaders(); // never null
     if (responseHeaders.get(HttpHeaderNames.CONTENT_LENGTH) == null) {
-      responseHeaders.setInt(HttpHeaderNames.CONTENT_LENGTH, readableBytes());
+      ByteBuf responseBody = this.responseBody;
+      if (responseBody == null) {
+        responseHeaders.setInt(HttpHeaderNames.CONTENT_LENGTH, 0);
+      }
+      else {
+        responseHeaders.setInt(HttpHeaderNames.CONTENT_LENGTH, responseBody.readableBytes());
+      }
     }
+
+    // apply cookies
+    ArrayList<HttpCookie> responseCookies = this.responseCookies;
+    if (responseCookies != null) {
+      AsciiString setCookie = HttpHeaderNames.SET_COOKIE;
+      ServerCookieEncoder cookieEncoder = config.getCookieEncoder();
+      for (HttpCookie cookie : responseCookies) {
+        DefaultCookie nettyCookie = new DefaultCookie(cookie.getName(), cookie.getValue());
+        if (cookie instanceof ResponseCookie responseCookie) {
+          nettyCookie.setPath(responseCookie.getPath());
+          nettyCookie.setDomain(responseCookie.getDomain());
+          nettyCookie.setMaxAge(responseCookie.getMaxAge().getSeconds());
+          nettyCookie.setSecure(responseCookie.isSecure());
+          nettyCookie.setHttpOnly(responseCookie.isHttpOnly());
+        }
+
+        responseHeaders.add(setCookie, cookieEncoder.encode(nettyCookie));
+      }
+    }
+
     // write response
     if (isKeepAlive()) {
       responseHeaders.set(HttpHeaderNames.CONNECTION, HttpHeaderValues.KEEP_ALIVE);
@@ -446,7 +467,7 @@ public class NettyRequestContext extends RequestContext {
 
   @Override
   public void setContentLength(long length) {
-    originalResponseHeaders().set(HttpHeaderNames.CONTENT_LENGTH, length);
+    nettyResponseHeaders().set(HttpHeaderNames.CONTENT_LENGTH, length);
   }
 
   @Override
@@ -488,24 +509,6 @@ public class NettyRequestContext extends RequestContext {
   }
 
   @Override
-  public void addCookie(HttpCookie cookie) {
-    super.addCookie(cookie);
-
-    DefaultCookie nettyCookie = new DefaultCookie(cookie.getName(), cookie.getValue());
-
-    if (cookie instanceof ResponseCookie responseCookie) {
-      nettyCookie.setPath(responseCookie.getPath());
-      nettyCookie.setDomain(responseCookie.getDomain());
-      nettyCookie.setMaxAge(responseCookie.getMaxAge().getSeconds());
-      nettyCookie.setSecure(responseCookie.isSecure());
-      nettyCookie.setHttpOnly(responseCookie.isHttpOnly());
-    }
-
-    originalResponseHeaders().add(
-            HttpHeaderNames.SET_COOKIE, config.getCookieEncoder().encode(nettyCookie));
-  }
-
-  @Override
   public void setStatus(int sc) {
     this.status = HttpResponseStatus.valueOf(sc);
   }
@@ -513,6 +516,11 @@ public class NettyRequestContext extends RequestContext {
   @Override
   public void setStatus(int status, String message) {
     this.status = new HttpResponseStatus(status, message);
+  }
+
+  @Override
+  public void setStatus(HttpStatusCode status) {
+    this.status = HttpResponseStatus.valueOf(status.value());
   }
 
   @Override
@@ -546,14 +554,14 @@ public class NettyRequestContext extends RequestContext {
               config.getHttpVersion(),
               HttpResponseStatus.OK,
               responseBody(),
-              originalResponseHeaders(),
+              nettyResponseHeaders(),
               config.getTrailingHeaders().get()
       );
     }
     return response;
   }
 
-  public HttpHeaders originalResponseHeaders() {
+  public HttpHeaders nettyResponseHeaders() {
     HttpHeaders headers = originalResponseHeaders;
     if (headers == null) {
       headers = config.isSingleFieldHeaders()
@@ -610,11 +618,6 @@ public class NettyRequestContext extends RequestContext {
   @Override
   protected String doGetContextPath() {
     return config.getContextPath();
-  }
-
-  @Override
-  public String toString() {
-    return "Netty " + super.toString();
   }
 
 }

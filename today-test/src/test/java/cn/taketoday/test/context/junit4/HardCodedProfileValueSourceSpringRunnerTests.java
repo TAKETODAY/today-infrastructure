@@ -28,7 +28,7 @@ import cn.taketoday.test.annotation.ProfileValueSourceConfiguration;
 /**
  * <p>
  * Verifies proper handling of JUnit's {@link org.junit.Ignore &#064;Ignore} and
- * Spring's {@link cn.taketoday.test.annotation.IfProfileValue
+ * Infra {@link cn.taketoday.test.annotation.IfProfileValue
  * &#064;IfProfileValue} and {@link ProfileValueSourceConfiguration
  * &#064;ProfileValueSourceConfiguration} (with an
  * <em>explicit, custom defined {@link ProfileValueSource}</em>) annotations in

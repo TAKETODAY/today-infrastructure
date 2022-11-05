@@ -435,6 +435,17 @@ public final class ServletRequestContext extends RequestContext {
   }
 
   @Override
+  protected void postRequestCompleted() {
+    // apply cookies
+    ArrayList<HttpCookie> responseCookies = this.responseCookies;
+    if (responseCookies != null) {
+      for (HttpCookie cookie : responseCookies) {
+        addCookie(cookie);
+      }
+    }
+  }
+
+  @Override
   public void flush() throws IOException {
     super.flush();
     response.flushBuffer();

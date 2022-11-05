@@ -29,6 +29,8 @@ import cn.taketoday.core.ResolvableType;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.ServletDetector;
+import cn.taketoday.web.multipart.FormData;
+import cn.taketoday.web.multipart.Multipart;
 import cn.taketoday.web.multipart.MultipartFile;
 import cn.taketoday.web.multipart.MultipartRequest;
 import cn.taketoday.web.servlet.ServletUtils;
@@ -52,7 +54,9 @@ public final class MultipartResolutionDelegate {
 
   public static boolean isMultipartArgument(MethodParameter parameter) {
     Class<?> paramType = parameter.getNestedParameterType();
-    return MultipartFile.class == paramType
+    return Multipart.class == paramType
+            || FormData.class == paramType
+            || MultipartFile.class == paramType
             || isMultipartFileCollection(parameter)
             || isMultipartFileArray(parameter)
             || (

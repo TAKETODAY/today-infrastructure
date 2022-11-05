@@ -425,7 +425,7 @@ public class ModelAttributeMethodProcessor implements ParameterResolvingStrategy
   /**
    * Validate the model attribute if applicable.
    * <p>The default implementation checks for {@code @jakarta.validation.Valid},
-   * Spring's {@link cn.taketoday.validation.annotation.Validated},
+   * Infra {@link cn.taketoday.validation.annotation.Validated},
    * and custom annotations whose name starts with "Valid".
    *
    * @param binder the DataBinder to be used
@@ -446,7 +446,7 @@ public class ModelAttributeMethodProcessor implements ParameterResolvingStrategy
   /**
    * Validate the specified candidate value if applicable.
    * <p>The default implementation checks for {@code @jakarta.validation.Valid},
-   * Spring's {@link cn.taketoday.validation.annotation.Validated},
+   * Infra {@link cn.taketoday.validation.annotation.Validated},
    * and custom annotations whose name starts with "Valid".
    *
    * @param binder the DataBinder to be used

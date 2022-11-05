@@ -35,7 +35,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 
 /**
- * Verifies proper handling of JUnit's {@link Ignore &#064;Ignore} and Spring's
+ * Verifies proper handling of JUnit's {@link Ignore &#064;Ignore} and Infra
  * {@link IfProfileValue &#064;IfProfileValue} and
  * {@link ProfileValueSourceConfiguration &#064;ProfileValueSourceConfiguration}
  * (with the <em>implicit, default {@link ProfileValueSource}</em>) annotations in
