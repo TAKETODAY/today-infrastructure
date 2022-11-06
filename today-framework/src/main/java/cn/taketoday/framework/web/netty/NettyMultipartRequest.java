@@ -22,7 +22,6 @@ package cn.taketoday.framework.web.netty;
 
 import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.http.HttpHeaders;
-import cn.taketoday.http.HttpMethod;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.multipart.Multipart;
 import cn.taketoday.web.multipart.support.AbstractMultipartRequest;
@@ -46,16 +45,6 @@ final class NettyMultipartRequest extends AbstractMultipartRequest {
   @Override
   public String getMultipartContentType(String paramOrFileName) {
     return null;
-  }
-
-  @Override
-  public HttpMethod getRequestMethod() {
-    return context.getMethod();
-  }
-
-  @Override
-  public HttpHeaders getRequestHeaders() {
-    return context.requestHeaders();
   }
 
   @Override

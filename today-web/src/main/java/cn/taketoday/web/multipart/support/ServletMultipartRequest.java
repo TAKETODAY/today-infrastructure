@@ -27,7 +27,6 @@ import cn.taketoday.core.LinkedMultiValueMap;
 import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.http.ContentDisposition;
 import cn.taketoday.http.HttpHeaders;
-import cn.taketoday.http.HttpMethod;
 import cn.taketoday.web.bind.MultipartException;
 import cn.taketoday.web.bind.NotMultipartRequestException;
 import cn.taketoday.web.multipart.MaxUploadSizeExceededException;
@@ -47,7 +46,7 @@ public class ServletMultipartRequest extends AbstractMultipartRequest {
   private final HttpServletRequest request;
 
   /**
-   * Create a new StandardMultipartHttpServletRequest wrapper for the given request,
+   * Create a new ServletMultipartRequest wrapper for the given request,
    * immediately parsing the multipart content.
    *
    * @param request the servlet request to wrap
@@ -58,7 +57,7 @@ public class ServletMultipartRequest extends AbstractMultipartRequest {
   }
 
   /**
-   * Create a new StandardMultipartHttpServletRequest wrapper for the given request.
+   * Create a new ServletMultipartRequest wrapper for the given request.
    *
    * @param request the servlet request to wrap
    * @param lazyParsing whether multipart parsing should be triggered lazily on
@@ -98,16 +97,6 @@ public class ServletMultipartRequest extends AbstractMultipartRequest {
       }
       throw new MultipartException("Failed to parse multipart servlet request", ex);
     }
-  }
-
-  @Override
-  public HttpMethod getRequestMethod() {
-    return null;
-  }
-
-  @Override
-  public HttpHeaders getRequestHeaders() {
-    return null;
   }
 
   @Override

@@ -27,7 +27,6 @@ import java.util.Map;
 
 import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.http.HttpHeaders;
-import cn.taketoday.http.HttpMethod;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.RequestContext;
 
@@ -115,16 +114,6 @@ public interface MultipartRequest {
    */
   @Nullable
   String getMultipartContentType(String paramOrFileName);
-
-  /**
-   * Return this request's method as a convenient HttpMethod instance.
-   */
-  HttpMethod getRequestMethod();
-
-  /**
-   * Return this request's headers as a convenient HttpHeaders instance.
-   */
-  HttpHeaders getRequestHeaders();
 
   /**
    * Return the headers for the specified part of the multipart request.
