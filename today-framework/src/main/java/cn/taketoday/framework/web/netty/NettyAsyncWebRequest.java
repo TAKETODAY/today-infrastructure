@@ -88,7 +88,9 @@ public class NettyAsyncWebRequest extends AsyncWebRequest {
             exceptionHandler.accept(e);
           }
         }
-        dispatchEvent(completionHandlers);
+        finally {
+          dispatchEvent(completionHandlers);
+        }
       });
     }
   }
