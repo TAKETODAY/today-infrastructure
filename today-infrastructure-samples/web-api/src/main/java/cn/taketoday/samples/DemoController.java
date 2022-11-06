@@ -81,8 +81,4 @@ public class DemoController {
     }
   }
 
-  record Body(String name, int age) {
-
-  }
-
 }
