@@ -220,6 +220,7 @@ public class RedirectView extends AbstractUrlBasedView implements SmartView {
    * {@link #setHttp10Compatible(boolean) http10Compatible} flag.
    */
   public void setStatusCode(HttpStatusCode statusCode) {
+    Assert.isTrue(statusCode.is3xxRedirection(), () -> "Not a redirect status code: " + statusCode);
     this.statusCode = statusCode;
   }
 

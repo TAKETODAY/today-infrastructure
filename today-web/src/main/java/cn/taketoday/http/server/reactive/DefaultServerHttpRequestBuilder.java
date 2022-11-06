@@ -93,7 +93,9 @@ class DefaultServerHttpRequestBuilder implements ServerHttpRequest.Builder {
 
   @Override
   public ServerHttpRequest.Builder path(String path) {
-    Assert.isTrue(path.startsWith("/"), "The path does not have a leading slash.");
+    if (!path.startsWith("/")) {
+      throw new IllegalArgumentException("The path does not have a leading slash: " + path);
+    }
     this.uriPath = path;
     return this;
   }

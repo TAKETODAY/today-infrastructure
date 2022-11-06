@@ -184,8 +184,9 @@ public abstract class DataBufferUtils {
     Assert.isTrue(bufferSize > 0, "'bufferSize' must be > 0");
     if (options.length > 0) {
       for (OpenOption option : options) {
-        Assert.isTrue(!(option == StandardOpenOption.APPEND || option == StandardOpenOption.WRITE),
-                "'" + option + "' not allowed");
+        if (option == StandardOpenOption.APPEND || option == StandardOpenOption.WRITE) {
+          throw new IllegalArgumentException("'" + option + "' not allowed");
+        }
       }
     }
 

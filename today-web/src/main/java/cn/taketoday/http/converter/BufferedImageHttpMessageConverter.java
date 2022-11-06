@@ -44,10 +44,10 @@ import javax.imageio.stream.MemoryCacheImageOutputStream;
 
 import cn.taketoday.http.HttpInputMessage;
 import cn.taketoday.http.HttpOutputMessage;
+import cn.taketoday.http.MediaType;
 import cn.taketoday.http.StreamingHttpOutputMessage;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.http.MediaType;
 import cn.taketoday.util.StreamUtils;
 import cn.taketoday.util.StringUtils;
 
@@ -129,7 +129,9 @@ public class BufferedImageHttpMessageConverter implements HttpMessageConverter<B
    */
   public void setCacheDir(File cacheDir) {
     Assert.notNull(cacheDir, "'cacheDir' must not be null");
-    Assert.isTrue(cacheDir.isDirectory(), "'cacheDir' is not a directory");
+    if (!cacheDir.isDirectory()) {
+      throw new IllegalArgumentException("'cacheDir' is not a directory: " + cacheDir);
+    }
     this.cacheDir = cacheDir;
   }
 
