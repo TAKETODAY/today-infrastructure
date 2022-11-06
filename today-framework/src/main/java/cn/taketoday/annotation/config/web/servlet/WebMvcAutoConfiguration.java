@@ -54,7 +54,6 @@ import cn.taketoday.context.condition.ConditionalOnProperty;
 import cn.taketoday.context.properties.EnableConfigurationProperties;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.task.AsyncTaskExecutor;
-import cn.taketoday.core.task.TaskExecutor;
 import cn.taketoday.format.FormatterRegistry;
 import cn.taketoday.format.support.ApplicationConversionService;
 import cn.taketoday.format.support.FormattingConversionService;
@@ -113,6 +112,8 @@ import cn.taketoday.web.view.ContentNegotiatingViewResolver;
 import cn.taketoday.web.view.View;
 import cn.taketoday.web.view.ViewResolver;
 
+import static cn.taketoday.annotation.config.task.TaskExecutionAutoConfiguration.APPLICATION_TASK_EXECUTOR_BEAN_NAME;
+
 /**
  * Web MVC configuration
  * <p>
@@ -130,11 +131,6 @@ import cn.taketoday.web.view.ViewResolver;
 @AutoConfigureOrder(Ordered.HIGHEST_PRECEDENCE + 10)
 @EnableConfigurationProperties({ WebMvcProperties.class, WebProperties.class })
 public class WebMvcAutoConfiguration extends WebMvcConfigurationSupport {
-
-  /**
-   * Bean name of the application {@link TaskExecutor}.
-   */
-  public static final String APPLICATION_TASK_EXECUTOR_BEAN_NAME = "applicationTaskExecutor";
 
   private final BeanFactory beanFactory;
   private final WebProperties webProperties;

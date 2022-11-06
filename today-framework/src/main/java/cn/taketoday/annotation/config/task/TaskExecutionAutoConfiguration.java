@@ -57,8 +57,7 @@ public class TaskExecutionAutoConfiguration {
 
   @Component
   @ConditionalOnMissingBean
-  public TaskExecutorBuilder taskExecutorBuilder(
-          TaskExecutionProperties properties,
+  public TaskExecutorBuilder taskExecutorBuilder(TaskExecutionProperties properties,
           ObjectProvider<TaskDecorator> taskDecorator,
           ObjectProvider<TaskExecutorCustomizer> taskExecutorCustomizers) {
 

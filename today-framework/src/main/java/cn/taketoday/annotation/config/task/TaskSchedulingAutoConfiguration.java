@@ -64,8 +64,7 @@ public class TaskSchedulingAutoConfiguration {
 
   @Component
   @ConditionalOnMissingBean
-  public TaskSchedulerBuilder taskSchedulerBuilder(
-          TaskSchedulingProperties properties,
+  public TaskSchedulerBuilder taskSchedulerBuilder(TaskSchedulingProperties properties,
           ObjectProvider<TaskSchedulerCustomizer> taskSchedulerCustomizers) {
     TaskSchedulerBuilder builder = new TaskSchedulerBuilder();
     builder = builder.poolSize(properties.getPool().getSize());
