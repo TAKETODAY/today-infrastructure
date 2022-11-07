@@ -25,9 +25,7 @@ import java.lang.instrument.IllegalClassFormatException;
 import java.lang.instrument.Instrumentation;
 import java.security.ProtectionDomain;
 import java.util.ArrayList;
-import java.util.List;
 
-import cn.taketoday.instrument.InstrumentationSavingAgent;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
@@ -50,7 +48,7 @@ import cn.taketoday.util.ClassUtils;
 public class InstrumentationLoadTimeWeaver implements LoadTimeWeaver {
 
   private static final boolean AGENT_CLASS_PRESENT = ClassUtils.isPresent(
-          "cn.taketoday.context.InstrumentationSavingAgent",
+          "cn.taketoday.instrument.InstrumentationSavingAgent",
           InstrumentationLoadTimeWeaver.class.getClassLoader());
 
   @Nullable
@@ -59,7 +57,7 @@ public class InstrumentationLoadTimeWeaver implements LoadTimeWeaver {
   @Nullable
   private final Instrumentation instrumentation;
 
-  private final List<ClassFileTransformer> transformers = new ArrayList<>(4);
+  private final ArrayList<ClassFileTransformer> transformers = new ArrayList<>(4);
 
   /**
    * Create a new InstrumentationLoadTimeWeaver for the default ClassLoader.
