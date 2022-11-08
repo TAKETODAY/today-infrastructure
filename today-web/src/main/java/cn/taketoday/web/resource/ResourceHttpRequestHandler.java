@@ -57,7 +57,6 @@ import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.HandlerMatchingMetadata;
 import cn.taketoday.web.HttpRequestHandler;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.RequestContextHttpOutputMessage;
 import cn.taketoday.web.ServletDetector;
 import cn.taketoday.web.WebContentGenerator;
 import cn.taketoday.web.accept.ContentNegotiationManager;
@@ -521,24 +520,23 @@ public class ResourceHttpRequestHandler extends WebContentGenerator
     // Content phase
     HttpHeaders requestHeaders = request.requestHeaders();
     if (requestHeaders.get(HttpHeaders.RANGE) == null) {
-      Assert.state(this.resourceHttpMessageConverter != null, "Not initialized");
+      Assert.state(resourceHttpMessageConverter != null, "Not initialized");
 
       if (HttpMethod.HEAD == request.getMethod()) {
-        this.resourceHttpMessageConverter.addDefaultHeaders(requestHeaders, resource, mediaType);
+        resourceHttpMessageConverter.addDefaultHeaders(requestHeaders, resource, mediaType);
       }
       else {
-        var outputMessage = new RequestContextHttpOutputMessage(request);
-        this.resourceHttpMessageConverter.write(resource, mediaType, outputMessage);
+        resourceHttpMessageConverter.write(resource, mediaType, request.asHttpOutputMessage());
       }
     }
     else {
       ResourceRegionHttpMessageConverter converter = this.resourceRegionHttpMessageConverter;
       Assert.state(converter != null, "Not initialized");
-      var outputMessage = new RequestContextHttpOutputMessage(request);
       try {
         List<HttpRange> httpRanges = request.getHeaders().getRange();
         request.setStatus(HttpStatus.PARTIAL_CONTENT);
-        converter.write(HttpRange.toResourceRegions(httpRanges, resource), mediaType, outputMessage);
+        converter.write(HttpRange.toResourceRegions(httpRanges, resource),
+                mediaType, request.asHttpOutputMessage());
       }
       catch (IllegalArgumentException ex) {
         request.responseHeaders().set(HttpHeaders.CONTENT_RANGE, "bytes */" + resource.contentLength());

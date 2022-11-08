@@ -58,7 +58,6 @@ import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.HandlerMatchingMetadata;
 import cn.taketoday.web.HttpMediaTypeNotAcceptableException;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.RequestContextHttpOutputMessage;
 import cn.taketoday.web.ReturnValueHandler;
 import cn.taketoday.web.ServletDetector;
 import cn.taketoday.web.accept.ContentNegotiationManager;
@@ -281,12 +280,11 @@ public abstract class AbstractMessageConverterMethodProcessor
             }
             addContentDispositionHeader(context);
             if (generic != null) {
-              generic.write(
-                      body, targetType, selectedMediaType, new RequestContextHttpOutputMessage(context));
+              generic.write(body, targetType, selectedMediaType, context.asHttpOutputMessage());
             }
             else {
               ((HttpMessageConverter) converter).write(
-                      body, selectedMediaType, new RequestContextHttpOutputMessage(context));
+                      body, selectedMediaType, context.asHttpOutputMessage());
             }
           }
           else {
