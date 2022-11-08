@@ -634,7 +634,7 @@ public interface ServerResponse {
     /**
      * Completes the event stream with the given error.
      *
-     * <p>The throwable is dispatched back into Spring MVC, and passed to
+     * <p>The throwable is dispatched back into Web MVC, and passed to
      * its exception handling mechanism. Since the response has
      * been committed by this point, the response status can not change.
      *

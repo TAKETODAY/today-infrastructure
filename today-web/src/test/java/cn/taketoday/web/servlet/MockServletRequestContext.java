@@ -119,11 +119,6 @@ public class MockServletRequestContext extends RequestContext {
     return ServletUtils.getNativeRequest(request, requestClass);
   }
 
-  @Override
-  public <T> T unwrapResponse(Class<T> responseClass) {
-    return ServletUtils.getNativeResponse(response, responseClass);
-  }
-
   @SuppressWarnings("unchecked")
   public <T> T nativeResponse() {
     return (T) response;
@@ -300,13 +295,8 @@ public class MockServletRequestContext extends RequestContext {
   }
 
   @Override
-  public ServerHttpResponse getServerHttpResponse() {
+  public ServerHttpResponse asHttpOutputMessage() {
     return new ServletServerHttpResponse(response);
-  }
-
-  @Override
-  protected HttpHeaders createResponseHeaders() {
-    return new ServletRequestContext.ServletResponseHttpHeaders(response);
   }
 
   @Override

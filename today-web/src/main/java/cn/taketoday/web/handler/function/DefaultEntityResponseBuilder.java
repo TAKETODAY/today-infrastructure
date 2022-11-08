@@ -56,7 +56,6 @@ import cn.taketoday.http.InvalidMediaTypeException;
 import cn.taketoday.http.MediaType;
 import cn.taketoday.http.converter.GenericHttpMessageConverter;
 import cn.taketoday.http.converter.HttpMessageConverter;
-import cn.taketoday.http.server.ServerHttpResponse;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.HttpMediaTypeNotAcceptableException;
@@ -249,13 +248,12 @@ final class DefaultEntityResponseBuilder<T> implements EntityResponse.Builder<T>
     protected void writeEntityWithMessageConverters(Object entity,
             RequestContext request, ServerResponse.Context context) throws IOException {
 
-      ServerHttpResponse serverResponse = request.getServerHttpResponse();
       MediaType contentType = getContentType(request);
       Class<?> entityClass = entity.getClass();
       Type entityType = this.entityType;
 
       if (entityClass != InputStreamResource.class && Resource.class.isAssignableFrom(entityClass)) {
-        serverResponse.getHeaders().set(HttpHeaders.ACCEPT_RANGES, "bytes");
+        request.responseHeaders().set(HttpHeaders.ACCEPT_RANGES, "bytes");
         String rangeHeader = request.requestHeaders().getFirst(HttpHeaders.RANGE);
         if (rangeHeader != null) {
           Resource resource = (Resource) entity;
@@ -267,8 +265,8 @@ final class DefaultEntityResponseBuilder<T> implements EntityResponse.Builder<T>
             entityType = RESOURCE_REGION_LIST_TYPE;
           }
           catch (IllegalArgumentException ex) {
-            serverResponse.getHeaders().set(HttpHeaders.CONTENT_RANGE, "bytes */" + resource.contentLength());
-            serverResponse.setStatusCode(HttpStatus.REQUESTED_RANGE_NOT_SATISFIABLE);
+            request.responseHeaders().set(HttpHeaders.CONTENT_RANGE, "bytes */" + resource.contentLength());
+            request.setStatus(HttpStatus.REQUESTED_RANGE_NOT_SATISFIABLE);
           }
         }
       }
@@ -276,12 +274,14 @@ final class DefaultEntityResponseBuilder<T> implements EntityResponse.Builder<T>
       for (HttpMessageConverter<?> messageConverter : context.messageConverters()) {
         if (messageConverter instanceof GenericHttpMessageConverter genericMessageConverter) {
           if (genericMessageConverter.canWrite(entityType, entityClass, contentType)) {
-            genericMessageConverter.write(entity, entityType, contentType, serverResponse);
+            genericMessageConverter.write(
+                    entity, entityType, contentType, request.asHttpOutputMessage());
             return;
           }
         }
         if (messageConverter.canWrite(entityClass, contentType)) {
-          ((HttpMessageConverter<Object>) messageConverter).write(entity, contentType, serverResponse);
+          ((HttpMessageConverter<Object>) messageConverter).write(
+                  entity, contentType, request.asHttpOutputMessage());
           return;
         }
       }

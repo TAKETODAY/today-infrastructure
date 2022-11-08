@@ -28,7 +28,7 @@ import cn.taketoday.lang.Nullable;
 /**
  * Subclass of {@link ModelMap} that implements the {@link Model} interface.
  *
- * <p>This is an implementation class exposed to handler methods by Spring MVC, typically via
+ * <p>This is an implementation class exposed to handler methods by Web MVC, typically via
  * a declaration of the {@link cn.taketoday.ui.Model} interface. There is no need to
  * build it within user code; a plain {@link ModelMap} or even a just
  * a regular {@link Map} with String keys will be good enough to return a user model.

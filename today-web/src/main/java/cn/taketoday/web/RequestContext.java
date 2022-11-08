@@ -1320,7 +1320,9 @@ public abstract class RequestContext extends AttributeAccessorSupport
    * @throws IllegalStateException if the response has already been committed
    */
   public void reset() {
-    resetResponseHeader();
+    if (responseHeaders != null) {
+      responseHeaders.clear();
+    }
   }
 
   /**
@@ -1527,8 +1529,10 @@ public abstract class RequestContext extends AttributeAccessorSupport
    */
   @Override
   public OutputStream getOutputStream() throws IOException {
+    OutputStream outputStream = this.outputStream;
     if (outputStream == null) {
-      this.outputStream = doGetOutputStream();
+      outputStream = doGetOutputStream();
+      this.outputStream = outputStream;
     }
     return outputStream;
   }
@@ -1555,8 +1559,10 @@ public abstract class RequestContext extends AttributeAccessorSupport
    */
   @Override
   public PrintWriter getWriter() throws IOException {
+    PrintWriter writer = this.writer;
     if (writer == null) {
-      this.writer = doGetWriter();
+      writer = doGetWriter();
+      this.writer = writer;
     }
     return writer;
   }
@@ -1645,8 +1651,9 @@ public abstract class RequestContext extends AttributeAccessorSupport
 
   // ----------------------
 
-  @Deprecated
-  public abstract ServerHttpResponse getServerHttpResponse();
+  public ServerHttpResponse asHttpOutputMessage() {
+    return new RequestContextHttpOutputMessage();
+  }
 
   /**
    * Native request eg: HttpServletRequest
@@ -1660,25 +1667,7 @@ public abstract class RequestContext extends AttributeAccessorSupport
   @Nullable
   public abstract <T> T unwrapRequest(Class<T> requestClass);
 
-  /**
-   * @return this request-context underlying implementation
-   */
-  public abstract <T> T nativeResponse();
-
-  /**
-   * @param responseClass wrapped response class
-   * @return returns {@code null} indicated that not a responseClass
-   */
-  @Nullable
-  public abstract <T> T unwrapResponse(Class<T> responseClass);
-
   // ------------------
-
-  protected void resetResponseHeader() {
-    if (responseHeaders != null) {
-      responseHeaders.clear();
-    }
-  }
 
   /**
    * Forces any content in the buffer to be written to the client.  A call
@@ -1692,20 +1681,13 @@ public abstract class RequestContext extends AttributeAccessorSupport
   @Override
   public void flush() throws IOException {
     writeHeaders();
-    writeCookies();
 
     if (writer != null) {
       writer.flush();
     }
-    else {
-      if (outputStream != null) {
-        outputStream.flush();
-      }
+    else if (outputStream != null) {
+      outputStream.flush();
     }
-  }
-
-  protected void writeCookies() {
-
   }
 
   /**
@@ -1719,6 +1701,35 @@ public abstract class RequestContext extends AttributeAccessorSupport
   public String toString() {
     String url = URLDecoder.decode(getRequestURL(), StandardCharsets.UTF_8);
     return getMethodValue() + " " + url;
+  }
+
+  final class RequestContextHttpOutputMessage implements ServerHttpResponse {
+
+    @Override
+    public void setStatusCode(HttpStatusCode status) {
+      setStatus(status);
+    }
+
+    @Override
+    public void flush() throws IOException {
+      RequestContext.this.flush();
+    }
+
+    @Override
+    public void close() {
+      writeHeaders();
+    }
+
+    @Override
+    public OutputStream getBody() throws IOException {
+      return getOutputStream();
+    }
+
+    @Override
+    public HttpHeaders getHeaders() {
+      return responseHeaders();
+    }
+
   }
 
 }

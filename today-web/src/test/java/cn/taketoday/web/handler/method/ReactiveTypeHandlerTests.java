@@ -20,7 +20,6 @@
 
 package cn.taketoday.web.handler.method;
 
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -40,7 +39,6 @@ import cn.taketoday.core.ResolvableType;
 import cn.taketoday.core.task.SyncTaskExecutor;
 import cn.taketoday.http.MediaType;
 import cn.taketoday.http.codec.ServerSentEvent;
-import cn.taketoday.http.server.ServletServerHttpResponse;
 import cn.taketoday.web.BindingContext;
 import cn.taketoday.web.HandlerMatchingMetadata;
 import cn.taketoday.web.RequestContext;
@@ -245,8 +243,9 @@ class ReactiveTypeHandlerTests {
     EmitterHandler emitterHandler = new EmitterHandler();
     emitter.initialize(emitterHandler);
 
-    ServletServerHttpResponse message = new ServletServerHttpResponse(this.servletResponse);
-    emitter.extendResponse(message);
+    ServletRequestContext requestContext = new ServletRequestContext(null, null, servletResponse);
+//    ServletServerHttpResponse message = new ServletServerHttpResponse(this.servletResponse);
+    emitter.extendResponse(requestContext);
 
     Bar bar1 = new Bar("foo");
     Bar bar2 = new Bar("bar");
@@ -255,7 +254,7 @@ class ReactiveTypeHandlerTests {
     sink.tryEmitNext(bar2);
     sink.tryEmitComplete();
 
-    assertThat(message.getHeaders().getContentType().toString()).isEqualTo("application/x-ndjson");
+    assertThat(requestContext.responseHeaders().getContentType().toString()).isEqualTo("application/x-ndjson");
     assertThat(emitterHandler.getValues()).isEqualTo(Arrays.asList(bar1, "\n", bar2, "\n"));
   }
 
@@ -300,10 +299,10 @@ class ReactiveTypeHandlerTests {
   }
 
   private void testEmitterContentType(String expected) throws Exception {
-    ServletServerHttpResponse message = new ServletServerHttpResponse(this.servletResponse);
+//    ServletServerHttpResponse message = new ServletServerHttpResponse(this.servletResponse);
     ResponseBodyEmitter emitter = handleValue(Flux.empty(), Flux.class, ResolvableType.fromClass(String.class));
-    emitter.extendResponse(message);
-    assertThat(message.getHeaders().getContentType().toString()).isEqualTo(expected);
+    emitter.extendResponse(webRequest);
+    assertThat(webRequest.responseHeaders().getContentType().toString()).isEqualTo(expected);
     resetRequest();
   }
 

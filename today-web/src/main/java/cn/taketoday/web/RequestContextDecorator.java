@@ -436,8 +436,8 @@ public class RequestContextDecorator extends RequestContext {
   }
 
   @Override
-  public ServerHttpResponse getServerHttpResponse() {
-    return delegate.getServerHttpResponse();
+  public ServerHttpResponse asHttpOutputMessage() {
+    return delegate.asHttpOutputMessage();
   }
 
   @Override
@@ -449,17 +449,6 @@ public class RequestContextDecorator extends RequestContext {
   @Nullable
   public <T> T unwrapRequest(Class<T> requestClass) {
     return delegate.unwrapRequest(requestClass);
-  }
-
-  @Override
-  public <T> T nativeResponse() {
-    return delegate.nativeResponse();
-  }
-
-  @Override
-  @Nullable
-  public <T> T unwrapResponse(Class<T> responseClass) {
-    return delegate.unwrapResponse(responseClass);
   }
 
   @Override
@@ -500,11 +489,6 @@ public class RequestContextDecorator extends RequestContext {
   @Override
   public String[] getAttributeNames() {
     return delegate.getAttributeNames();
-  }
-
-  @Override
-  public void resetResponseHeader() {
-    delegate.resetResponseHeader();
   }
 
   @Override

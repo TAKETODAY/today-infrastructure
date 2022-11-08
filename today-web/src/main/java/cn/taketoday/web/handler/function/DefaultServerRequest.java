@@ -53,7 +53,6 @@ import cn.taketoday.http.MediaType;
 import cn.taketoday.http.converter.GenericHttpMessageConverter;
 import cn.taketoday.http.converter.HttpMessageConverter;
 import cn.taketoday.http.server.RequestPath;
-import cn.taketoday.http.server.ServerHttpResponse;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.MimeTypeUtils;
 import cn.taketoday.util.ObjectUtils;
@@ -488,11 +487,6 @@ class DefaultServerRequest implements ServerRequest {
     }
 
     @Override
-    public ServerHttpResponse getServerHttpResponse() {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
     public <T> T nativeRequest() {
       throw new UnsupportedOperationException();
     }
@@ -500,17 +494,6 @@ class DefaultServerRequest implements ServerRequest {
     @Nullable
     @Override
     public <T> T unwrapRequest(Class<T> requestClass) {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public <T> T nativeResponse() {
-      throw new UnsupportedOperationException();
-    }
-
-    @Nullable
-    @Override
-    public <T> T unwrapResponse(Class<T> responseClass) {
       throw new UnsupportedOperationException();
     }
 

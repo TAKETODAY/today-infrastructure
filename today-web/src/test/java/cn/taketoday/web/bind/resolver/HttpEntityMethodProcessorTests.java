@@ -23,7 +23,6 @@ package cn.taketoday.web.bind.resolver;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -190,7 +189,7 @@ class HttpEntityMethodProcessorTests {
     HttpEntityMethodProcessor processor = new HttpEntityMethodProcessor(converters, null);
     processor.handleReturnValue(webRequest, new HandlerMethod(this, method), returnValue);
 
-    assertThat(servletResponse.getHeader("Content-Type")).isEqualTo("text/plain;charset=UTF-8");
+    assertThat(webRequest.responseHeaders().getFirst("Content-Type")).isEqualTo("text/plain;charset=UTF-8");
     assertThat(servletResponse.getContentAsString()).isEqualTo("Foo");
   }
 
@@ -210,7 +209,7 @@ class HttpEntityMethodProcessorTests {
 
         new HttpEntityMethodProcessor(Collections.singletonList(new StringHttpMessageConverter()), null)
                 .handleReturnValue(requestToUse, new HandlerMethod(this, method), returnValue);
-
+        requestToUse.requestCompleted();
         assertThat(this.servletResponse.getContentAsString())
                 .as("Response body was cached? It should be written directly to the raw response")
                 .isEqualTo(content);

@@ -46,7 +46,7 @@ import jakarta.servlet.ServletContext;
  * TestContext Framework</em>.
  *
  * <p>Specifically, {@code ServletTestExecutionListener} sets up thread-local
- * state via Spring Web's {@link RequestContextHolder} during {@linkplain
+ * state via Infra Web's {@link RequestContextHolder} during {@linkplain
  * #prepareTestInstance(TestContext) test instance preparation} and {@linkplain
  * #beforeTestMethod(TestContext) before each test method} and creates a {@link
  * MockHttpServletRequest}, {@link MockHttpServletResponse}, and
@@ -70,7 +70,7 @@ public class ServletTestExecutionListener extends AbstractTestExecutionListener 
   /**
    * Attribute name for a {@link TestContext} attribute which indicates
    * whether or not the {@code ServletTestExecutionListener} should {@linkplain
-   * RequestContextHolder#remove() reset} Spring Web's
+   * RequestContextHolder#remove() reset} Infra Web's
    * {@code RequestContextHolder} in {@link #afterTestMethod(TestContext)}.
    * <p>Permissible values include {@link Boolean#TRUE} and {@link Boolean#FALSE}.
    */
@@ -79,7 +79,7 @@ public class ServletTestExecutionListener extends AbstractTestExecutionListener 
 
   /**
    * Attribute name for a {@link TestContext} attribute which indicates that
-   * {@code ServletTestExecutionListener} has already populated Spring Web's
+   * {@code ServletTestExecutionListener} has already populated Infra Web's
    * {@code RequestContextHolder}.
    * <p>Permissible values include {@link Boolean#TRUE} and {@link Boolean#FALSE}.
    */
@@ -89,7 +89,7 @@ public class ServletTestExecutionListener extends AbstractTestExecutionListener 
   /**
    * Attribute name for a request attribute which indicates that the
    * {@link MockHttpServletRequest} stored in the {@link cn.taketoday.web.RequestContext}
-   * in Spring Web's {@link RequestContextHolder} was created by the TestContext
+   * in Infra Web's {@link RequestContextHolder} was created by the TestContext
    * framework.
    * <p>Permissible values include {@link Boolean#TRUE} and {@link Boolean#FALSE}.
    */
@@ -118,7 +118,7 @@ public class ServletTestExecutionListener extends AbstractTestExecutionListener 
 
   /**
    * Sets up thread-local state during the <em>test instance preparation</em>
-   * callback phase via Spring Web's {@link RequestContextHolder}, but only if
+   * callback phase via Infra Web's {@link RequestContextHolder}, but only if
    * the {@linkplain TestContext#getTestClass() test class} is annotated with
    * {@link WebAppConfiguration @WebAppConfiguration}.
    *
@@ -131,7 +131,7 @@ public class ServletTestExecutionListener extends AbstractTestExecutionListener 
   }
 
   /**
-   * Sets up thread-local state before each test method via Spring Web's
+   * Sets up thread-local state before each test method via Infra Web's
    * {@link RequestContextHolder}, but only if the
    * {@linkplain TestContext#getTestClass() test class} is annotated with
    * {@link WebAppConfiguration @WebAppConfiguration}.
@@ -148,7 +148,7 @@ public class ServletTestExecutionListener extends AbstractTestExecutionListener 
    * If the {@link #RESET_REQUEST_CONTEXT_HOLDER_ATTRIBUTE} in the supplied
    * {@code TestContext} has a value of {@link Boolean#TRUE}, this method will
    * (1) clean up thread-local state after each test method by {@linkplain
-   * RequestContextHolder#remove() resetting} Spring Web's
+   * RequestContextHolder#remove() resetting} Infra Web's
    * {@code RequestContextHolder} and (2) ensure that new mocks are injected
    * into the test instance for subsequent tests by setting the
    * {@link DependencyInjectionTestExecutionListener#REINJECT_DEPENDENCIES_ATTRIBUTE}

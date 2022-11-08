@@ -40,6 +40,7 @@ import cn.taketoday.web.testfixture.beans.CountingTestBean;
 import cn.taketoday.web.testfixture.beans.DerivedTestBean;
 import cn.taketoday.web.testfixture.beans.TestBean;
 import cn.taketoday.web.testfixture.servlet.MockHttpServletRequest;
+import cn.taketoday.web.testfixture.servlet.MockHttpServletResponse;
 
 import static cn.taketoday.beans.factory.config.AutowireCapableBeanFactory.AUTOWIRE_CONSTRUCTOR;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -88,7 +89,7 @@ public class RequestScopeTests {
   @Test
   public void destructionAtRequestCompletion() {
     MockHttpServletRequest request = new MockHttpServletRequest();
-    ServletRequestContext requestAttributes = new ServletRequestContext(null, request, null);
+    ServletRequestContext requestAttributes = new ServletRequestContext(null, request, new MockHttpServletResponse());
     RequestContextHolder.set(requestAttributes);
 
     String name = "requestScopedDisposableObject";
@@ -131,8 +132,7 @@ public class RequestScopeTests {
   @Test
   public void innerBeanInheritsContainingBeanScopeByDefault() {
     MockHttpServletRequest request = new MockHttpServletRequest();
-    ServletRequestContext requestAttributes = new ServletRequestContext(null, request, null);
-    RequestContextHolder.set(requestAttributes);
+    ServletRequestContext requestAttributes = new ServletRequestContext(null, request, new MockHttpServletResponse()); RequestContextHolder.set(requestAttributes);
 
     String outerBeanName = "requestScopedOuterBean";
     assertThat(request.getAttribute(outerBeanName)).isNull();
@@ -154,8 +154,7 @@ public class RequestScopeTests {
   @Test
   public void requestScopedInnerBeanDestroyedWhileContainedBySingleton() {
     MockHttpServletRequest request = new MockHttpServletRequest();
-    ServletRequestContext requestAttributes = new ServletRequestContext(null, request, null);
-    RequestContextHolder.set(requestAttributes);
+    ServletRequestContext requestAttributes = new ServletRequestContext(null, request, new MockHttpServletResponse()); RequestContextHolder.set(requestAttributes);
 
     String outerBeanName = "singletonOuterBean";
     TestBean outer1 = (TestBean) this.beanFactory.getBean(outerBeanName);

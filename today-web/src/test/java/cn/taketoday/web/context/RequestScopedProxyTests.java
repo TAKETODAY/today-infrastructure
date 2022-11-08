@@ -40,6 +40,7 @@ import cn.taketoday.web.testfixture.beans.DummyFactory;
 import cn.taketoday.web.testfixture.beans.ITestBean;
 import cn.taketoday.web.testfixture.beans.TestBean;
 import cn.taketoday.web.testfixture.servlet.MockHttpServletRequest;
+import cn.taketoday.web.testfixture.servlet.MockHttpServletResponse;
 
 import static cn.taketoday.beans.factory.config.AutowireCapableBeanFactory.AUTOWIRE_CONSTRUCTOR;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -117,7 +118,7 @@ public class RequestScopedProxyTests {
     assertThat(AopUtils.isCglibProxy(bean)).isTrue();
 
     MockHttpServletRequest request = new MockHttpServletRequest();
-    ServletRequestContext requestAttributes = new ServletRequestContext(null, request, null);
+    ServletRequestContext requestAttributes = new ServletRequestContext(null, request, new MockHttpServletResponse());
     RequestContextHolder.set(requestAttributes);
 
     try {

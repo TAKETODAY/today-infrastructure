@@ -244,7 +244,7 @@ class ResponseEntityExceptionHandlerTests {
 
     assertThat(this.servletResponse.getStatus()).isEqualTo(400);
     assertThat(this.servletResponse.getContentAsString()).isEqualTo("error content");
-    assertThat(this.servletResponse.getHeader("someHeader")).isEqualTo("someHeaderValue");
+    assertThat(request.responseHeaders().getFirst("someHeader")).isEqualTo("someHeaderValue");
   }
 
   @Test

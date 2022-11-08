@@ -28,7 +28,7 @@ import cn.taketoday.test.context.junit.jupiter.InfraExtension;
 import cn.taketoday.web.servlet.WebApplicationContext;
 
 /**
- * Integration tests which demonstrate use of the Spring MVC Test Framework and
+ * Integration tests which demonstrate use of the Web MVC Test Framework and
  * the TestContext Framework with JUnit Jupiter and the
  * {@link InfraExtension} (via a custom
  * {@link JUnitWebConfig @ApplicationJUnitWebConfig} composed annotation).

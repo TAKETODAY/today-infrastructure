@@ -188,7 +188,7 @@ public class MockRequestContext extends RequestContext {
   }
 
   @Override
-  public ServerHttpResponse getServerHttpResponse() {
+  public ServerHttpResponse asHttpOutputMessage() {
     return null;
   }
 
@@ -199,16 +199,6 @@ public class MockRequestContext extends RequestContext {
 
   @Override
   public <T> T unwrapRequest(Class<T> requestClass) {
-    return null;
-  }
-
-  @Override
-  public <T> T nativeResponse() {
-    return null;
-  }
-
-  @Override
-  public <T> T unwrapResponse(Class<T> responseClass) {
     return null;
   }
 

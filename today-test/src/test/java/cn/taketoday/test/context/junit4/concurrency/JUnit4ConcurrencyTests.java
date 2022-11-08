@@ -83,7 +83,7 @@ public class JUnit4ConcurrencyTests {
           TimedTransactionalRunnerTests.class,
           // Web and Scopes
           BasicAnnotationConfigWacSpringRuleTests.class,
-          // Spring MVC Test
+          // Web MVC Test
   };
 
   @BeforeClass

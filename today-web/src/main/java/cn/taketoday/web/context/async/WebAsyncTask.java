@@ -122,7 +122,7 @@ public class WebAsyncTask<V> implements BeanFactoryAware {
   /**
    * A {@link BeanFactory} to use for resolving an executor name.
    * <p>This factory reference will automatically be set when
-   * {@code WebAsyncTask} is used within a Spring MVC controller.
+   * {@code WebAsyncTask} is used within a Web MVC controller.
    */
   @Override
   public void setBeanFactory(BeanFactory beanFactory) {

@@ -84,7 +84,7 @@ public class MappingJackson2XmlViewTests {
     view.setUpdateContentLength(true);
     view.render(model, context);
 
-    assertThat(response.getHeader("Cache-Control")).isEqualTo("no-store");
+    assertThat(context.responseHeaders().getFirst("Cache-Control")).isEqualTo("no-store");
 
     MediaType mediaType = MediaType.parseMediaType(response.getContentType());
     assertThat(mediaType.isCompatibleWith(MediaType.parseMediaType(MappingJackson2XmlView.DEFAULT_CONTENT_TYPE))).isTrue();

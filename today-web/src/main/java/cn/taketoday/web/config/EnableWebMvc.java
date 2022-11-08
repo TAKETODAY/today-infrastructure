@@ -28,7 +28,7 @@ import java.lang.annotation.Target;
 import cn.taketoday.context.annotation.Import;
 
 /**
- * Adding this annotation to an {@code @Configuration} class imports the Spring MVC
+ * Adding this annotation to an {@code @Configuration} class imports the Web MVC
  * configuration from {@link WebMvcConfigurationSupport}, e.g.:
  *
  * <pre class="code">
@@ -62,7 +62,7 @@ import cn.taketoday.context.annotation.Import;
  * </pre>
  *
  * <p><strong>Note:</strong> only one {@code @Configuration} class may have the
- * {@code @EnableWebMvc} annotation to import the Spring Web MVC
+ * {@code @EnableWebMvc} annotation to import the Infra Web MVC
  * configuration. There can however be multiple {@code @Configuration} classes
  * implementing {@code WebMvcConfigurer} in order to customize the provided
  * configuration.

@@ -43,7 +43,6 @@ import cn.taketoday.core.task.SyncTaskExecutor;
 import cn.taketoday.core.task.TaskExecutor;
 import cn.taketoday.http.MediaType;
 import cn.taketoday.http.codec.ServerSentEvent;
-import cn.taketoday.http.server.ServerHttpResponse;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
@@ -190,8 +189,8 @@ final class ReactiveTypeHandler {
   private ResponseBodyEmitter getEmitter(MediaType mediaType) {
     return new ResponseBodyEmitter(STREAMING_TIMEOUT_VALUE) {
       @Override
-      protected void extendResponse(ServerHttpResponse outputMessage) {
-        outputMessage.getHeaders().setContentType(mediaType);
+      protected void extendResponse(RequestContext outputMessage) {
+        outputMessage.responseHeaders().setContentType(mediaType);
       }
     };
   }

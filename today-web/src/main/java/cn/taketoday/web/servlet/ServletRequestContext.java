@@ -29,6 +29,8 @@ import java.io.Serial;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
@@ -44,11 +46,11 @@ import cn.taketoday.http.MediaType;
 import cn.taketoday.http.ResponseCookie;
 import cn.taketoday.http.server.PathContainer;
 import cn.taketoday.http.server.RequestPath;
-import cn.taketoday.http.server.ServerHttpResponse;
-import cn.taketoday.http.server.ServletServerHttpResponse;
+import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.CompositeIterator;
+import cn.taketoday.util.ExceptionUtils;
 import cn.taketoday.util.LinkedCaseInsensitiveMap;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
@@ -75,6 +77,9 @@ public final class ServletRequestContext extends RequestContext {
   private final HttpServletRequest request;
   private final HttpServletResponse response;
   private final long requestTimeMillis = System.currentTimeMillis();
+
+  private boolean bodyUsed = false;
+  private boolean headersWritten = false;
 
   public ServletRequestContext(
           ApplicationContext context, HttpServletRequest request, HttpServletResponse response) {
@@ -131,11 +136,6 @@ public final class ServletRequestContext extends RequestContext {
     return ServletUtils.getNativeRequest(request, requestClass);
   }
 
-  @Override
-  public <T> T unwrapResponse(Class<T> responseClass) {
-    return ServletUtils.getNativeResponse(response, responseClass);
-  }
-
   @SuppressWarnings("unchecked")
   public <T> T nativeResponse() {
     return (T) response;
@@ -143,6 +143,7 @@ public final class ServletRequestContext extends RequestContext {
 
   @Override
   protected OutputStream doGetOutputStream() throws IOException {
+    this.bodyUsed = true;
     return response.getOutputStream();
   }
 
@@ -266,24 +267,6 @@ public final class ServletRequestContext extends RequestContext {
   }
 
   @Override
-  public void addCookie(HttpCookie cookie) {
-    super.addCookie(cookie);
-
-    Cookie servletCookie = new Cookie(cookie.getName(), cookie.getValue());
-    if (cookie instanceof ResponseCookie responseCookie) {
-      servletCookie.setPath(responseCookie.getPath());
-      if (responseCookie.getDomain() != null) {
-        servletCookie.setDomain(responseCookie.getDomain());
-      }
-      servletCookie.setSecure(responseCookie.isSecure());
-      servletCookie.setHttpOnly(responseCookie.isHttpOnly());
-      servletCookie.setMaxAge((int) responseCookie.getMaxAge().toSeconds());
-    }
-
-    response.addCookie(servletCookie);
-  }
-
-  @Override
   public void sendRedirect(String location) throws IOException {
     response.sendRedirect(location);
   }
@@ -359,24 +342,28 @@ public final class ServletRequestContext extends RequestContext {
     return httpHeaders;
   }
 
-  @Override
-  public ServerHttpResponse getServerHttpResponse() {
-    return new ServletServerHttpResponse(response);
-  }
+//  @Override
+//  public ServerHttpResponse getServerHttpResponse() {
+//    return new ServletServerHttpResponse(response);
+//  }
+//
+//  @Override
+//  protected HttpHeaders createResponseHeaders() {
+//    return new ServletResponseHttpHeaders();
+//  }
 
-  @Override
-  protected HttpHeaders createResponseHeaders() {
-    return new ServletResponseHttpHeaders(response);
-  }
-
-  static final class ServletResponseHttpHeaders extends DefaultHttpHeaders {
+  /**
+   * Extends HttpHeaders with the ability to look up headers already present in
+   * the underlying HttpServletResponse.
+   *
+   * <p>The intent is merely to expose what is available through the HttpServletResponse
+   * i.e. the ability to look up specific header values by name. All other
+   * map-related operations (e.g. iteration, removal, etc) apply only to values
+   * added directly through HttpHeaders methods.
+   */
+  final class ServletResponseHttpHeaders extends DefaultHttpHeaders {
     @Serial
     private static final long serialVersionUID = 1L;
-    private final HttpServletResponse response;
-
-    ServletResponseHttpHeaders(HttpServletResponse response) {
-      this.response = response;
-    }
 
     @Override
     public void set(String headerName, String headerValue) {
@@ -394,6 +381,54 @@ public final class ServletRequestContext extends RequestContext {
     public List<String> put(String key, List<String> values) {
       doPut(key, values, response);
       return super.put(key, values);
+    }
+
+    @Override
+    public boolean containsKey(Object key) {
+      return super.containsKey(key) || (get(key) != null);
+    }
+
+    @Override
+    @Nullable
+    public String getFirst(String headerName) {
+      String value = super.getFirst(headerName);
+      if (value == null) {
+        value = response.getHeader(headerName);
+      }
+      return value;
+    }
+
+    @Override
+    public List<String> get(Object key) {
+      Assert.isInstanceOf(String.class, key, "Key must be a String-based header name");
+
+      String headerName = (String) key;
+      if (headerName.equalsIgnoreCase(CONTENT_TYPE)) {
+        // Content-Type is written as an override so don't merge
+        return Collections.singletonList(getFirst(headerName));
+      }
+
+      Collection<String> values1 = response.getHeaders(headerName);
+      if (headersWritten) {
+        return new ArrayList<>(values1);
+      }
+      boolean isEmpty1 = CollectionUtils.isEmpty(values1);
+
+      List<String> values2 = super.get(key);
+      boolean isEmpty2 = CollectionUtils.isEmpty(values2);
+
+      if (isEmpty1 && isEmpty2) {
+        return null;
+      }
+
+      ArrayList<String> values = new ArrayList<>();
+      if (!isEmpty1) {
+        values.addAll(values1);
+      }
+      if (!isEmpty2) {
+        values.addAll(values2);
+      }
+      return values;
     }
 
     private static void doPut(String key, List<String> values, HttpServletResponse response) {
@@ -436,19 +471,68 @@ public final class ServletRequestContext extends RequestContext {
 
   @Override
   protected void postRequestCompleted() {
-    // apply cookies
-    ArrayList<HttpCookie> responseCookies = this.responseCookies;
-    if (responseCookies != null) {
-      for (HttpCookie cookie : responseCookies) {
-        addCookie(cookie);
+    try {
+      flush();
+    }
+    catch (IOException e) {
+      throw ExceptionUtils.sneakyThrow(e);
+    }
+  }
+
+  @Override
+  public void writeHeaders() {
+    if (!headersWritten) {
+      HttpHeaders headers = responseHeaders();
+      for (Map.Entry<String, List<String>> entry : headers.entrySet()) {
+        String headerName = entry.getKey();
+        for (String headerValue : entry.getValue()) {
+          response.addHeader(headerName, headerValue);
+        }
       }
+
+      // HttpServletResponse exposes some headers as properties: we should include those if not already present
+      MediaType contentType = headers.getContentType();
+      if (response.getContentType() == null && contentType != null) {
+        response.setContentType(contentType.toString());
+      }
+
+      long contentLength = headers.getContentLength();
+      if (contentLength != -1) {
+        response.setContentLengthLong(contentLength);
+      }
+
+      // apply cookies
+      ArrayList<HttpCookie> responseCookies = this.responseCookies;
+      if (responseCookies != null) {
+        for (HttpCookie cookie : responseCookies) {
+          Cookie servletCookie = new Cookie(cookie.getName(), cookie.getValue());
+          if (cookie instanceof ResponseCookie responseCookie) {
+            servletCookie.setPath(responseCookie.getPath());
+            if (responseCookie.getDomain() != null) {
+              servletCookie.setDomain(responseCookie.getDomain());
+            }
+            servletCookie.setSecure(responseCookie.isSecure());
+            servletCookie.setHttpOnly(responseCookie.isHttpOnly());
+            servletCookie.setMaxAge((int) responseCookie.getMaxAge().toSeconds());
+          }
+
+          response.addCookie(servletCookie);
+        }
+      }
+
+      this.headersWritten = true;
     }
   }
 
   @Override
   public void flush() throws IOException {
-    super.flush();
-    response.flushBuffer();
+    if (!isCommitted()) {
+      writeHeaders();
+    }
+
+    if (bodyUsed) {
+      response.flushBuffer();
+    }
   }
 
   // attributes

@@ -32,8 +32,6 @@ import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpStatus;
 import cn.taketoday.http.MediaType;
 import cn.taketoday.http.converter.HttpMessageConverter;
-import cn.taketoday.http.server.DelegatingServerHttpResponse;
-import cn.taketoday.http.server.ServerHttpResponse;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.RequestContext;
@@ -71,7 +69,7 @@ final class SseServerResponse extends AbstractServerResponse {
   @Override
   protected Object writeToInternal(RequestContext request, Context context) throws Exception {
     DeferredResult<?> result;
-    if (this.timeout != null) {
+    if (timeout != null) {
       result = new DeferredResult<>(timeout.toMillis());
     }
     else {
@@ -79,15 +77,13 @@ final class SseServerResponse extends AbstractServerResponse {
     }
 
     DefaultAsyncServerResponse.writeAsync(request, result);
-    this.sseConsumer.accept(new DefaultSseBuilder(request, context, result));
+    sseConsumer.accept(new DefaultSseBuilder(request, context, result));
     return NONE_RETURN_VALUE;
   }
 
   private static final class DefaultSseBuilder implements SseBuilder {
 
     private static final byte[] NL_NL = new byte[] { '\n', '\n' };
-
-    private final ServerHttpResponse outputMessage;
 
     private final DeferredResult<?> deferredResult;
 
@@ -101,7 +97,6 @@ final class SseServerResponse extends AbstractServerResponse {
     public DefaultSseBuilder(RequestContext request, Context context, DeferredResult<?> deferredResult) {
       this.request = request;
       this.deferredResult = deferredResult;
-      this.outputMessage = request.getServerHttpResponse();
       this.messageConverters = context.messageConverters();
     }
 
@@ -140,7 +135,7 @@ final class SseServerResponse extends AbstractServerResponse {
     }
 
     private SseBuilder field(String name, String value) {
-      this.builder.append(name).append(':').append(value).append('\n');
+      builder.append(name).append(':').append(value).append('\n');
       return this;
     }
 
@@ -168,12 +163,12 @@ final class SseServerResponse extends AbstractServerResponse {
       builder.append('\n');
 
       try {
-        OutputStream body = this.outputMessage.getBody();
+        OutputStream body = request.getOutputStream();
         body.write(builderBytes());
         body.flush();
       }
       catch (IOException ex) {
-        this.sendFailed = true;
+        sendFailed = true;
         throw ex;
       }
       finally {
@@ -185,15 +180,15 @@ final class SseServerResponse extends AbstractServerResponse {
     private void writeObject(Object data, @Nullable MediaType mediaType) throws IOException {
       builder.append("data:");
       try {
-        outputMessage.getBody().write(builderBytes());
+        OutputStream body = request.getOutputStream();
+        body.write(builderBytes());
 
         Class<?> dataClass = data.getClass();
         for (HttpMessageConverter converter : messageConverters) {
           if (converter.canWrite(dataClass, mediaType)) {
-            ServerHttpResponse response = new MutableHeadersServerHttpResponse(outputMessage);
-            converter.write(data, mediaType, response);
-            outputMessage.getBody().write(NL_NL);
-            outputMessage.flush();
+            converter.write(data, mediaType, request.asHttpOutputMessage());
+            body.write(NL_NL);
+            request.flush();
             return;
           }
         }
@@ -213,62 +208,42 @@ final class SseServerResponse extends AbstractServerResponse {
 
     @Override
     public void error(Throwable t) {
-      if (this.sendFailed) {
+      if (sendFailed) {
         return;
       }
-      this.deferredResult.setErrorResult(t);
+      deferredResult.setErrorResult(t);
     }
 
     @Override
     public void complete() {
-      if (this.sendFailed) {
+      if (sendFailed) {
         return;
       }
       try {
-        this.outputMessage.flush();
-        this.deferredResult.setResult(null);
+        request.flush();
+        deferredResult.setResult(null);
       }
       catch (IOException ex) {
-        this.deferredResult.setErrorResult(ex);
+        deferredResult.setErrorResult(ex);
       }
     }
 
     @Override
     public SseBuilder onTimeout(Runnable onTimeout) {
-      this.deferredResult.onTimeout(onTimeout);
+      deferredResult.onTimeout(onTimeout);
       return this;
     }
 
     @Override
     public SseBuilder onError(Consumer<Throwable> onError) {
-      this.deferredResult.onError(onError);
+      deferredResult.onError(onError);
       return this;
     }
 
     @Override
     public SseBuilder onComplete(Runnable onCompletion) {
-      this.deferredResult.onCompletion(onCompletion);
+      deferredResult.onCompletion(onCompletion);
       return this;
-    }
-
-    /**
-     * Wrap to silently ignore header changes HttpMessageConverter's that would
-     * otherwise cause HttpHeaders to raise exceptions.
-     */
-    private static final class MutableHeadersServerHttpResponse extends DelegatingServerHttpResponse {
-
-      private final HttpHeaders mutableHeaders = HttpHeaders.create();
-
-      public MutableHeadersServerHttpResponse(ServerHttpResponse delegate) {
-        super(delegate);
-        this.mutableHeaders.putAll(delegate.getHeaders());
-      }
-
-      @Override
-      public HttpHeaders getHeaders() {
-        return this.mutableHeaders;
-      }
-
     }
 
   }
