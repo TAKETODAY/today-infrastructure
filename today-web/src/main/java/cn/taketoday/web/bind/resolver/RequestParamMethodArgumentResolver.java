@@ -36,6 +36,7 @@ import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.StringUtils;
+import cn.taketoday.web.HandlerMatchingMetadata;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.annotation.RequestParam;
 import cn.taketoday.web.annotation.RequestPart;
@@ -178,6 +179,13 @@ public class RequestParamMethodArgumentResolver extends AbstractNamedValueResolv
         arg = paramValues.length == 1 ? paramValues[0] : paramValues;
       }
     }
+
+    // fallback path-variable, can resolve a none-annotated param
+    HandlerMatchingMetadata matchingMetadata = request.getMatchingMetadata();
+    if (matchingMetadata != null) {
+      return matchingMetadata.getUriVariable(name);
+    }
+
     return arg;
   }
 
