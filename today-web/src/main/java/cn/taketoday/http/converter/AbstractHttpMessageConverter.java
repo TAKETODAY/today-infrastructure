@@ -212,6 +212,7 @@ public abstract class AbstractHttpMessageConverter<T> implements HttpMessageConv
     addDefaultHeaders(headers, t, contentType);
 
     if (outputMessage instanceof StreamingHttpOutputMessage streamingOutput) {
+      // FIXME SimpleHttpOutputMessage
       streamingOutput.setBody(outputStream -> writeInternal(t, new SimpleHttpOutputMessage(headers, outputStream)));
     }
     else {
@@ -228,7 +229,8 @@ public abstract class AbstractHttpMessageConverter<T> implements HttpMessageConv
    */
   public void addDefaultHeaders(
           HttpHeaders headers, T t, @Nullable MediaType contentType) throws IOException {
-    if (headers.getContentType() == null) {
+    String contentTypeString = headers.getFirst(HttpHeaders.CONTENT_TYPE);
+    if (contentTypeString == null) {
       MediaType contentTypeToUse = contentType;
       if (contentType == null || !contentType.isConcrete()) {
         contentTypeToUse = getDefaultContentType(t);
@@ -247,7 +249,9 @@ public abstract class AbstractHttpMessageConverter<T> implements HttpMessageConv
         headers.setContentType(contentTypeToUse);
       }
     }
-    if (headers.getContentLength() < 0 && !headers.containsKey(HttpHeaders.TRANSFER_ENCODING)) {
+    else if (!MediaType.TEXT_EVENT_STREAM_VALUE.equals(contentTypeString)
+            && !headers.containsKey(HttpHeaders.TRANSFER_ENCODING)
+            && headers.getContentLength() < 0) {
       Long contentLength = getContentLength(t, headers.getContentType());
       if (contentLength != null) {
         headers.setContentLength(contentLength);

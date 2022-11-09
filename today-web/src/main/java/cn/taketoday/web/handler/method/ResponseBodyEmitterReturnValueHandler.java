@@ -36,6 +36,9 @@ import cn.taketoday.http.converter.HttpMessageConverter;
 import cn.taketoday.http.converter.StringHttpMessageConverter;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.logging.Logger;
+import cn.taketoday.logging.LoggerFactory;
+import cn.taketoday.util.LogFormatUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.ServletDetector;
 import cn.taketoday.web.accept.ContentNegotiationManager;
@@ -222,6 +225,7 @@ public class ResponseBodyEmitterReturnValueHandler implements SmartReturnValueHa
    * ResponseBodyEmitter.Handler that writes with HttpMessageConverter's.
    */
   private class HttpMessageConvertingHandler implements ResponseBodyEmitter.Handler {
+    private static final Logger log = LoggerFactory.getLogger(HttpMessageConvertingHandler.class);
 
     private final RequestContext request;
     private final DeferredResult<?> deferredResult;
@@ -237,6 +241,8 @@ public class ResponseBodyEmitterReturnValueHandler implements SmartReturnValueHa
       Class<?> dataClass = data.getClass();
       for (HttpMessageConverter converter : sseMessageConverters) {
         if (converter.canWrite(dataClass, mediaType)) {
+          LogFormatUtils.traceDebug(log, traceOn ->
+                  "Writing [" + LogFormatUtils.formatValue(data, !traceOn) + "]");
           converter.write(data, mediaType, request.asHttpOutputMessage());
           request.flush();
           return;

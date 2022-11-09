@@ -26,7 +26,6 @@ import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.MediaType;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ObjectUtils;
@@ -70,9 +69,8 @@ public class SseEmitter extends ResponseBodyEmitter {
   protected void extendResponse(RequestContext outputMessage) {
     super.extendResponse(outputMessage);
 
-    HttpHeaders headers = outputMessage.responseHeaders();
-    if (headers.getContentType() == null) {
-      headers.setContentType(MediaType.TEXT_EVENT_STREAM);
+    if (outputMessage.getResponseContentType() == null) {
+      outputMessage.setContentType(MediaType.TEXT_EVENT_STREAM_VALUE);
     }
   }
 

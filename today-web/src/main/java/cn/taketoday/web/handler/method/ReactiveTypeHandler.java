@@ -190,7 +190,8 @@ final class ReactiveTypeHandler {
     return new ResponseBodyEmitter(STREAMING_TIMEOUT_VALUE) {
       @Override
       protected void extendResponse(RequestContext outputMessage) {
-        outputMessage.responseHeaders().setContentType(mediaType);
+        // FIXME 不使用继承方式
+        outputMessage.setContentType(mediaType.toString());
       }
     };
   }

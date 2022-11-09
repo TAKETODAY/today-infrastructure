@@ -144,6 +144,7 @@ public final class ServletRequestContext extends RequestContext {
   @Override
   protected OutputStream doGetOutputStream() throws IOException {
     this.bodyUsed = true;
+    writeHeaders();
     return response.getOutputStream();
   }
 
@@ -237,12 +238,17 @@ public final class ServletRequestContext extends RequestContext {
 
   @Override
   public void setContentType(String contentType) {
+    super.setContentType(contentType);
     response.setContentType(contentType);
   }
 
   @Override
   public String getResponseContentType() {
-    return response.getContentType();
+    String contentType = super.getResponseContentType();
+    if (contentType == null) {
+      return response.getContentType();
+    }
+    return contentType;
   }
 
   @Override
@@ -343,11 +349,6 @@ public final class ServletRequestContext extends RequestContext {
   }
 
 //  @Override
-//  public ServerHttpResponse getServerHttpResponse() {
-//    return new ServletServerHttpResponse(response);
-//  }
-//
-//  @Override
 //  protected HttpHeaders createResponseHeaders() {
 //    return new ServletResponseHttpHeaders();
 //  }
@@ -361,6 +362,7 @@ public final class ServletRequestContext extends RequestContext {
    * map-related operations (e.g. iteration, removal, etc) apply only to values
    * added directly through HttpHeaders methods.
    */
+  @Deprecated
   final class ServletResponseHttpHeaders extends DefaultHttpHeaders {
     @Serial
     private static final long serialVersionUID = 1L;
@@ -526,9 +528,7 @@ public final class ServletRequestContext extends RequestContext {
 
   @Override
   public void flush() throws IOException {
-    if (!isCommitted()) {
-      writeHeaders();
-    }
+    writeHeaders();
 
     if (bodyUsed) {
       response.flushBuffer();
