@@ -139,7 +139,6 @@ public final class Netty5DataBuffer implements CloseableDataBuffer,
   }
 
   @Override
-  @Deprecated
   public Netty5DataBuffer capacity(int capacity) {
     if (capacity <= 0) {
       throw new IllegalArgumentException(String.format("'newCapacity' %d must be higher than 0", capacity));
@@ -271,7 +270,6 @@ public final class Netty5DataBuffer implements CloseableDataBuffer,
    * does <strong>not</strong> share its contents with this buffer.
    */
   @Override
-  @Deprecated
   public DataBuffer slice(int index, int length) {
     Buffer copy = this.buffer.copy(index, length);
     return new Netty5DataBuffer(copy, this.dataBufferFactory);
@@ -284,19 +282,16 @@ public final class Netty5DataBuffer implements CloseableDataBuffer,
   }
 
   @Override
-  @Deprecated
   public ByteBuffer asByteBuffer() {
     return toByteBuffer();
   }
 
   @Override
-  @Deprecated
   public ByteBuffer asByteBuffer(int index, int length) {
     return toByteBuffer(index, length);
   }
 
   @Override
-  @Deprecated
   public ByteBuffer toByteBuffer(int index, int length) {
     ByteBuffer copy = this.buffer.isDirect() ?
                       ByteBuffer.allocateDirect(length) :

@@ -137,7 +137,6 @@ public class NettyDataBuffer implements PooledDataBuffer {
   }
 
   @Override
-  @Deprecated
   public NettyDataBuffer capacity(int capacity) {
     this.byteBuf.capacity(capacity);
     return this;
@@ -257,14 +256,12 @@ public class NettyDataBuffer implements PooledDataBuffer {
   }
 
   @Override
-  @Deprecated
   public NettyDataBuffer slice(int index, int length) {
     ByteBuf slice = this.byteBuf.slice(index, length);
     return new NettyDataBuffer(slice, this.dataBufferFactory);
   }
 
   @Override
-  @Deprecated
   public NettyDataBuffer retainedSlice(int index, int length) {
     ByteBuf slice = this.byteBuf.retainedSlice(index, length);
     return new NettyDataBuffer(slice, this.dataBufferFactory);
@@ -287,13 +284,11 @@ public class NettyDataBuffer implements PooledDataBuffer {
   }
 
   @Override
-  @Deprecated
   public ByteBuffer asByteBuffer() {
     return this.byteBuf.nioBuffer();
   }
 
   @Override
-  @Deprecated
   public ByteBuffer asByteBuffer(int index, int length) {
     return this.byteBuf.nioBuffer(index, length);
   }

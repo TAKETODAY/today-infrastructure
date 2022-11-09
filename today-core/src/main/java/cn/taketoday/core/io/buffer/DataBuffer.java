@@ -20,8 +20,6 @@
 
 package cn.taketoday.core.io.buffer;
 
-import cn.taketoday.lang.Assert;
-
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
@@ -31,6 +29,8 @@ import java.nio.charset.CharsetEncoder;
 import java.nio.charset.CoderResult;
 import java.nio.charset.CodingErrorAction;
 import java.util.function.IntPredicate;
+
+import cn.taketoday.lang.Assert;
 
 /**
  * Basic abstraction over byte buffers.
@@ -57,6 +57,7 @@ import java.util.function.IntPredicate;
  *
  * @author Arjen Poutsma
  * @author Brian Clozel
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see DataBufferFactory
  * @since 4.0
  */
@@ -120,25 +121,9 @@ public interface DataBuffer {
    *
    * @param capacity the new capacity
    * @return this buffer
-   * @deprecated in favor of {@link #ensureWritable(int)}, which
-   * has different semantics
+   * @see #ensureWritable(int) in favor of ensureWritable
    */
-  @Deprecated
   DataBuffer capacity(int capacity);
-
-  /**
-   * Ensure that the current buffer has enough {@link #writableByteCount()}
-   * to write the amount of data given as an argument. If not, the missing
-   * capacity will be added to the buffer.
-   *
-   * @param capacity the writable capacity to check for
-   * @return this buffer
-   * @deprecated in favor of {@link #ensureWritable(int)}
-   */
-  @Deprecated
-  default DataBuffer ensureCapacity(int capacity) {
-    return ensureWritable(capacity);
-  }
 
   /**
    * Ensure that the current buffer has enough {@link #writableByteCount()}
@@ -284,7 +269,7 @@ public interface DataBuffer {
               .onUnmappableCharacter(CodingErrorAction.REPLACE);
       CharBuffer inBuffer = CharBuffer.wrap(charSequence);
       int estimatedSize = (int) (inBuffer.remaining() * charsetEncoder.averageBytesPerChar());
-      ByteBuffer outBuffer = ensureCapacity(estimatedSize)
+      ByteBuffer outBuffer = ensureWritable(estimatedSize)
               .asByteBuffer(writePosition(), writableByteCount());
       while (true) {
         CoderResult cr = inBuffer.hasRemaining()
@@ -299,7 +284,7 @@ public interface DataBuffer {
         if (cr.isOverflow()) {
           writePosition(writePosition() + outBuffer.position());
           int maximumSize = (int) (inBuffer.remaining() * charsetEncoder.maxBytesPerChar());
-          ensureCapacity(maximumSize);
+          ensureWritable(maximumSize);
           outBuffer = asByteBuffer(writePosition(), writableByteCount());
         }
       }
@@ -320,10 +305,8 @@ public interface DataBuffer {
    * @param index the index at which to start the slice
    * @param length the length of the slice
    * @return the specified slice of this data buffer
-   * @deprecated in favor of {@link #split(int)}, which
-   * has different semantics
+   * @see #split(int) which has different semantics
    */
-  @Deprecated
   DataBuffer slice(int index, int length);
 
   /**
@@ -338,10 +321,8 @@ public interface DataBuffer {
    * @param index the index at which to start the slice
    * @param length the length of the slice
    * @return the specified, retained slice of this data buffer
-   * @deprecated in favor of {@link #split(int)}, which
-   * has different semantics
+   * @see #split(int) which has different semantics
    */
-  @Deprecated
   default DataBuffer retainedSlice(int index, int length) {
     return DataBufferUtils.retain(slice(index, length));
   }
@@ -372,11 +353,10 @@ public interface DataBuffer {
    * changes in the returned buffer's {@linkplain ByteBuffer#position() position}
    * will not be reflected in the reading nor writing position of this data buffer.
    *
+   * <p>{@link #toByteBuffer()}, which does <strong>not</strong> share data and returns a copy.
+   *
    * @return this data buffer as a byte buffer
-   * @deprecated as of 6.0, in favor of {@link #toByteBuffer()}, which does
-   * <strong>not</strong> share data and returns a copy.
    */
-  @Deprecated
   ByteBuffer asByteBuffer();
 
   /**
@@ -384,14 +364,14 @@ public interface DataBuffer {
    * this {@code DataBuffer} and the returned {@code ByteBuffer} is shared; though
    * changes in the returned buffer's {@linkplain ByteBuffer#position() position}
    * will not be reflected in the reading nor writing position of this data buffer.
+   * <p>
+   * in favor of {@link #toByteBuffer(int, int)}, which
+   * does <strong>not</strong> share data and returns a copy.
    *
    * @param index the index at which to start the byte buffer
    * @param length the length of the returned byte buffer
    * @return this data buffer as a byte buffer
-   * @deprecated in favor of {@link #toByteBuffer(int, int)}, which
-   * does <strong>not</strong> share data and returns a copy.
    */
-  @Deprecated
   ByteBuffer asByteBuffer(int index, int length);
 
   /**
