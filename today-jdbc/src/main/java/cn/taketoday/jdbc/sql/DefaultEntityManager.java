@@ -265,45 +265,6 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
         throw new PersistenceException("Batch persist entities failed", ex);
       }
     });
-
-//    execute("Batch persist entities", new ConnectionCallback<Void>() {
-//      @Nullable
-//      @Override
-//      public Void doInConnection(@NonNull Connection connection) throws DataAccessException {
-//        batchTransactionOperations.executeWithoutResult(status -> {
-//          int maxBatchRecords = getMaxBatchRecords();
-//          var statements = new HashMap<Class<?>, PreparedBatch>();
-//          try {
-//            for (Object entity : entities) {
-//              Class<?> entityClass = entity.getClass();
-//              PreparedBatch batch = statements.get(entityClass);
-//              if (batch == null) {
-//                EntityMetadata entityMetadata = entityMetadataFactory.getEntityMetadata(entityClass);
-//                String sql = insert(entityMetadata);
-//                batch = new PreparedBatch(connection, sql, entityMetadata, returnGeneratedKeys);
-//                statements.put(entityClass, batch);
-//              }
-//              batch.addBatchUpdate(entity, maxBatchRecords);
-//            }
-//
-//            for (PreparedBatch preparedBatch : statements.values()) {
-//              preparedBatch.explicitExecuteBatch(returnGeneratedKeys);
-//            }
-//          }
-//          catch (DataAccessException e) {
-//            throw e;
-//          }
-//          catch (SQLException e) {
-//            throw translateException("Running in transaction", null, e);
-//          }
-//          catch (Throwable ex) {
-//            throw new PersistenceException("Batch persist entities failed", ex);
-//          }
-//        });
-//
-//        return null;
-//      }
-//    });
   }
 
   private static void setPersistParameter(

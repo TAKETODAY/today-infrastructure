@@ -213,7 +213,8 @@ public abstract class AbstractHttpMessageConverter<T> implements HttpMessageConv
 
     if (outputMessage instanceof StreamingHttpOutputMessage streamingOutput) {
       // FIXME SimpleHttpOutputMessage
-      streamingOutput.setBody(outputStream -> writeInternal(t, new SimpleHttpOutputMessage(headers, outputStream)));
+      streamingOutput.setBody(outputStream ->
+              writeInternal(t, new SimpleHttpOutputMessage(headers, outputStream)));
     }
     else {
       writeInternal(t, outputMessage);
@@ -237,7 +238,9 @@ public abstract class AbstractHttpMessageConverter<T> implements HttpMessageConv
       }
       else if (MediaType.APPLICATION_OCTET_STREAM.equals(contentType)) {
         MediaType mediaType = getDefaultContentType(t);
-        contentTypeToUse = (mediaType != null ? mediaType : contentTypeToUse);
+        if (mediaType != null) {
+          contentTypeToUse = mediaType;
+        }
       }
       if (contentTypeToUse != null) {
         if (contentTypeToUse.getCharset() == null) {
