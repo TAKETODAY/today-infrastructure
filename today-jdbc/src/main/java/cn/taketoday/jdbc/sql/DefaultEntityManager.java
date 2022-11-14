@@ -358,6 +358,54 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
 
   @Override
   public void updateById(Object entity) {
+    Class<?> entityClass = entity.getClass();
+    EntityMetadata metadata = entityMetadataFactory.getEntityMetadata(entityClass);
+    Object id = metadata.idProperty.getValue(entity);
+    if (id == null) {
+      throw new IllegalArgumentException("Update an entity, ID property is required");
+    }
+
+    Update updateStmt = new Update();
+    updateStmt.setTableName(metadata.tableName);
+    updateStmt.addWhereColumn(metadata.idProperty.columnName);
+
+    for (EntityProperty property : metadata.entityProperties) {
+      Object propertyValue = property.getValue(entity);
+      if (propertyValue != null) {
+        updateStmt.addColumn(property.columnName);
+      }
+    }
+
+    String sql = updateStmt.toStatementString();
+
+    if (stmtLogger.isDebugEnabled()) {
+      stmtLogger.logStatement(LogMessage.format("Update entity using ID: '{}'", id), sql);
+    }
+
+    DataSource dataSource = obtainDataSource();
+    Connection con = DataSourceUtils.getConnection(dataSource);
+    try {
+      PreparedStatement statement = prepareStatement(con, sql, false);
+
+      int idx = 1;
+      for (EntityProperty property : metadata.entityProperties) {
+        Object propertyValue = property.getValue(entity);
+        if (propertyValue != null) {
+          property.setParameter(statement, idx++, propertyValue);
+        }
+      }
+
+      // last one is ID
+      metadata.idProperty.setParameter(statement, idx, id);
+      int updateCount = statement.executeUpdate();
+      assertUpdateCount(sql, updateCount, 1);
+    }
+    catch (SQLException ex) {
+      // Release Connection early, to avoid potential connection pool deadlock
+      // in the case when the exception translator hasn't been initialized yet.
+      DataSourceUtils.releaseConnection(con, dataSource);
+      throw translateException("Update entity By ID", sql, ex);
+    }
 
   }
 
