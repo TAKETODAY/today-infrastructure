@@ -44,7 +44,7 @@ class DefaultEntityMetadataFactoryTests {
     assertThat(entityMetadata).isNotNull();
     assertThatThrownBy(() ->
             factory.createEntityMetadata(Object.class))
-            .isInstanceOf(IllegalStateException.class)
+            .isInstanceOf(IllegalEntityException.class)
             .hasMessageStartingWith("Cannot determine ID property for entity: " + Object.class);
   }
 
@@ -58,7 +58,7 @@ class DefaultEntityMetadataFactoryTests {
     factory.setTableNameGenerator(TableNameGenerator.forTableAnnotation());
     assertThatThrownBy(() ->
             factory.createEntityMetadata(Object.class))
-            .isInstanceOf(IllegalStateException.class)
+            .isInstanceOf(IllegalEntityException.class)
             .hasMessage("Cannot determine table name for entity: " + Object.class);
 
     factory.setTableNameGenerator(
@@ -70,7 +70,7 @@ class DefaultEntityMetadataFactoryTests {
 
     assertThatThrownBy(() ->
             factory.createEntityMetadata(UserModel.class))
-            .isInstanceOf(IllegalStateException.class)
+            .isInstanceOf(IllegalEntityException.class)
             .hasMessageStartingWith("Cannot determine column name for property: UserModel#");
 
     factory.setPropertyFilter(PropertyFilter.acceptAny());
@@ -84,7 +84,7 @@ class DefaultEntityMetadataFactoryTests {
     }
     assertThatThrownBy(() ->
             factory.createEntityMetadata(MultipleId.class))
-            .isInstanceOf(IllegalStateException.class)
+            .isInstanceOf(IllegalEntityException.class)
             .hasMessage("Only one Id property supported, entity: " + MultipleId.class);
   }
 

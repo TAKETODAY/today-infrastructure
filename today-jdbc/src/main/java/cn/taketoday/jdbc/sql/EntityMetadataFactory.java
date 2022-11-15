@@ -41,16 +41,23 @@ public abstract class EntityMetadataFactory {
     }
   };
 
-  public EntityMetadata getEntityMetadata(Class<?> entityClass) {
+  /**
+   * Get a EntityMetadata instance
+   *
+   * @param entityClass entity Class
+   * @return EntityMetadata may be a cached instance
+   * @throws IllegalEntityException entity definition is not legal
+   */
+  public EntityMetadata getEntityMetadata(Class<?> entityClass) throws IllegalEntityException {
     return entityCache.get(entityClass, this);
   }
 
   /**
-   * create a new EntityHolder instance
+   * create a new EntityMetadata instance
    *
    * @param entityClass entity class
-   * @return a new EntityHolder
+   * @return a new EntityMetadata
    */
-  public abstract EntityMetadata createEntityMetadata(Class<?> entityClass);
+  public abstract EntityMetadata createEntityMetadata(Class<?> entityClass) throws IllegalEntityException;
 
 }

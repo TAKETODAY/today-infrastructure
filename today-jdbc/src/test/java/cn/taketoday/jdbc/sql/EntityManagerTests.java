@@ -76,7 +76,7 @@ class EntityManagerTests extends AbstractRepositoryManagerTests {
 
     assertThatThrownBy(() ->
             entityManager.persist(new Object()))
-            .isInstanceOf(IllegalStateException.class)
+            .isInstanceOf(IllegalEntityException.class)
             .hasMessageStartingWith("Cannot determine ID property");
 
   }
@@ -217,6 +217,59 @@ class EntityManagerTests extends AbstractRepositoryManagerTests {
     QueryCondition condition = QueryCondition.of("name", Operator.SUFFIX_LIKE, "T");
     entityManager.iterate(UserModel.class, condition, System.out::println);
 
+  }
+
+  @ParameterizedRepositoryManagerTest
+  void deleteById(RepositoryManager repositoryManager) {
+    DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
+    createData(entityManager);
+
+    UserModel byId = entityManager.findById(UserModel.class, 1);
+    assertThat(byId).isNotNull().extracting("id").isEqualTo(1);
+
+    entityManager.delete(UserModel.class, 1);
+
+    byId = entityManager.findById(UserModel.class, 1);
+    assertThat(byId).isNull();
+  }
+
+  @ParameterizedRepositoryManagerTest
+  void deleteByEntity(RepositoryManager repositoryManager) {
+    DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
+    createData(entityManager);
+
+    UserModel byId = entityManager.findById(UserModel.class, 1);
+    assertThat(byId).isNotNull().extracting("id").isEqualTo(1);
+
+    UserModel userModel = UserModel.forId(1);
+    entityManager.delete(userModel);
+
+    byId = entityManager.findById(UserModel.class, 1);
+    assertThat(byId).isNull();
+
+    for (int i = 1; i <= 10; i++) {
+      byId = entityManager.findById(UserModel.class, i + 1);
+      UserModel today = UserModel.male("TODAY", 10 + i - 1);
+      today.id = i + 1;
+      assertThat(byId).isEqualTo(today);
+    }
+
+    //
+
+    userModel = new UserModel();
+    userModel.age = 9;
+    userModel.name = "TODAY";
+    userModel.gender = Gender.MALE;
+
+    int deleteRows = entityManager.delete(userModel);
+    assertThat(deleteRows).isZero();
+
+    userModel.age = null;
+    userModel.name = "TODAY";
+    userModel.gender = Gender.MALE;
+
+    deleteRows = entityManager.delete(userModel);
+    assertThat(deleteRows).isEqualTo(10);
   }
 
   private static void createData(DefaultEntityManager entityManager) {

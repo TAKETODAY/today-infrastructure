@@ -116,7 +116,7 @@ public class DefaultEntityMetadataFactory extends EntityMetadataFactory {
   public EntityMetadata createEntityMetadata(Class<?> entityClass) {
     String tableName = tableNameGenerator.generateTableName(entityClass);
     if (tableName == null) {
-      throw new IllegalStateException("Cannot determine table name for entity: " + entityClass);
+      throw new IllegalEntityException("Cannot determine table name for entity: " + entityClass);
     }
 
     BeanMetadata metadata = BeanMetadata.from(entityClass);
@@ -133,7 +133,7 @@ public class DefaultEntityMetadataFactory extends EntityMetadataFactory {
 
       String columnName = columnNameDiscover.getColumnName(property);
       if (columnName == null) {
-        throw new IllegalStateException(
+        throw new IllegalEntityException(
                 "Cannot determine column name for property: " +
                         ClassUtils.getShortName(property.getDeclaringClass()) + "#" + property.getName());
       }
@@ -144,14 +144,14 @@ public class DefaultEntityMetadataFactory extends EntityMetadataFactory {
 
       if (idPropertyDiscover.isIdProperty(property)) {
         if (idProperty != null) {
-          throw new IllegalStateException("Only one Id property supported, entity: " + entityClass);
+          throw new IllegalEntityException("Only one Id property supported, entity: " + entityClass);
         }
         idProperty = property;
         idColumnName = columnName;
       }
     }
     if (idProperty == null) {
-      throw new IllegalStateException("Cannot determine ID property for entity: " + entityClass);
+      throw new IllegalEntityException("Cannot determine ID property for entity: " + entityClass);
     }
 
     return new EntityMetadata(metadata, entityClass,

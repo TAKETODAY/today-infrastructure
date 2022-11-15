@@ -735,17 +735,6 @@ public class RepositoryManager extends JdbcAccessor implements InitializingBean 
     entityManager.persist(entity);
   }
 
-  /**
-   * Merge the state of the given entity into underlying repository
-   *
-   * @param entity entity instance
-   * @throws IllegalArgumentException if instance is not an
-   * entity or is a removed entity
-   */
-  public void update(Object entity) {
-    entityManager.update(entity);
-  }
-
   //
 
   public <T> TypeHandler<T> getTypeHandler(BeanProperty property) {

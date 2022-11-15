@@ -36,7 +36,7 @@ public class UserModel {
   @Id
   public Integer id;
 
-  public int age;
+  public Integer age;
 
   public String name;
   public String avatar;
@@ -60,6 +60,12 @@ public class UserModel {
     userModel.name = name;
     userModel.gender = Gender.MALE;
     userModel.age = age;
+    return userModel;
+  }
+
+  public static UserModel forId(int id) {
+    UserModel userModel = new UserModel();
+    userModel.id = id;
     return userModel;
   }
 

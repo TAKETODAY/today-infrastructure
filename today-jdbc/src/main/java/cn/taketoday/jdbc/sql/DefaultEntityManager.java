@@ -28,6 +28,7 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
@@ -352,11 +353,6 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
   }
 
   @Override
-  public void update(Object entity) {
-
-  }
-
-  @Override
   public void updateById(Object entity) {
     Class<?> entityClass = entity.getClass();
     EntityMetadata metadata = entityMetadataFactory.getEntityMetadata(entityClass);
@@ -411,11 +407,94 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
 
   @Override
   public void delete(Class<?> entityClass, Object id) {
+    EntityMetadata metadata = entityMetadataFactory.getEntityMetadata(entityClass);
+    StringBuilder sql = new StringBuilder();
+
+    sql.append("DELETE FROM ");
+    sql.append(metadata.tableName);
+    sql.append(" WHERE `");
+    sql.append(metadata.idProperty.columnName);
+    sql.append("` = ? ");
+
+    if (stmtLogger.isDebugEnabled()) {
+      stmtLogger.logStatement(LogMessage.format("Delete entity using ID: {}", id), sql.toString());
+    }
+
+    DataSource dataSource = obtainDataSource();
+    Connection con = DataSourceUtils.getConnection(dataSource);
+    try {
+      PreparedStatement statement = prepareStatement(con, sql.toString(), false);
+      metadata.idProperty.setParameter(statement, 1, id);
+      statement.executeUpdate();
+    }
+    catch (SQLException ex) {
+      // Release Connection early, to avoid potential connection pool deadlock
+      // in the case when the exception translator hasn't been initialized yet.
+      DataSourceUtils.releaseConnection(con, dataSource);
+      throw translateException("Delete entity using ID", sql.toString(), ex);
+    }
 
   }
 
   @Override
-  public void delete(Object entity) {
+  public int delete(Object entity) {
+    Class<?> entityClass = entity.getClass();
+    EntityMetadata metadata = entityMetadataFactory.getEntityMetadata(entityClass);
+    Object id = metadata.idProperty.getValue(entity);
+
+    StringBuilder sql = new StringBuilder();
+    sql.append("DELETE FROM ");
+    sql.append(metadata.tableName);
+    if (id != null) {
+      // delete by id
+      sql.append(" WHERE `");
+      sql.append(metadata.idProperty.columnName);
+      sql.append("` = ? ");
+    }
+    else {
+      sql.append(" WHERE ");
+      String and = "";
+      for (EntityProperty property : metadata.entityProperties) {
+        Object propertyValue = property.getValue(entity);
+        if (propertyValue != null) {
+          sql.append(and);
+          sql.append(" `");
+          sql.append(property.columnName);
+          sql.append("` = ? ");
+          and = " AND";
+        }
+      }
+    }
+
+    if (stmtLogger.isDebugEnabled()) {
+      stmtLogger.logStatement(LogMessage.format("Delete entity"), sql.toString());
+    }
+
+    DataSource dataSource = obtainDataSource();
+    Connection con = DataSourceUtils.getConnection(dataSource);
+    try {
+      PreparedStatement statement = prepareStatement(con, sql.toString(), false);
+      if (id != null) {
+        metadata.idProperty.setParameter(statement, 1, id);
+      }
+      else {
+        int idx = 1;
+        for (EntityProperty property : metadata.entityProperties) {
+          Object propertyValue = property.getValue(entity);
+          if (propertyValue != null) {
+            property.setParameter(statement, idx++, propertyValue);
+          }
+        }
+      }
+
+      return statement.executeUpdate();
+    }
+    catch (SQLException ex) {
+      // Release Connection early, to avoid potential connection pool deadlock
+      // in the case when the exception translator hasn't been initialized yet.
+      DataSourceUtils.releaseConnection(con, dataSource);
+      throw translateException("Delete entity", sql.toString(), ex);
+    }
 
   }
 
@@ -473,15 +552,7 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
   @Override
   @SuppressWarnings("unchecked")
   public <T> T findFirst(T entity) throws DataAccessException {
-    try (ResultSetIterator<T> iterator = iterate((Class<T>) entity.getClass(), entity)) {
-      while (iterator.hasNext()) {
-        T returnValue = iterator.next();
-        if (returnValue != null) {
-          return returnValue;
-        }
-      }
-    }
-    return null;
+    return findFirst((Class<T>) entity.getClass(), entity);
   }
 
   @Nullable
@@ -555,7 +626,7 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
   @Override
   @SuppressWarnings("unchecked")
   public <K, T> Map<K, T> find(Class<T> entityClass, Object params, String mapKey) throws DataAccessException {
-    HashMap<K, T> entities = new HashMap<>();
+    LinkedHashMap<K, T> entities = new LinkedHashMap<>();
     try (ResultSetIterator<T> iterator = iterate(entityClass, params)) {
       EntityMetadata entityMetadata = entityMetadataFactory.getEntityMetadata(entityClass);
       BeanProperty beanProperty = entityMetadata.root.obtainBeanProperty(mapKey);
@@ -569,7 +640,36 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
   }
 
   @Override
-  public <T> void iterate(Class<T> entityClass, Object params, Consumer<T> entityConsumer) throws DataAccessException {
+  @SuppressWarnings("unchecked")
+  public <K, T> Map<K, T> find(Class<T> entityClass,
+          @Nullable QueryCondition conditions, String mapKey) throws DataAccessException {
+    var entities = new LinkedHashMap<K, T>();
+    try (ResultSetIterator<T> iterator = iterate(entityClass, conditions)) {
+      EntityMetadata entityMetadata = entityMetadataFactory.getEntityMetadata(entityClass);
+      BeanProperty beanProperty = entityMetadata.root.obtainBeanProperty(mapKey);
+      while (iterator.hasNext()) {
+        T entity = iterator.next();
+        Object propertyValue = beanProperty.getValue(entity);
+        entities.put((K) propertyValue, entity);
+      }
+    }
+    return entities;
+  }
+
+  @Override
+  public <T> List<T> find(Class<T> entityClass, @Nullable QueryCondition conditions) throws DataAccessException {
+    ArrayList<T> entities = new ArrayList<>();
+    try (ResultSetIterator<T> iterator = iterate(entityClass, conditions)) {
+      while (iterator.hasNext()) {
+        entities.add(iterator.next());
+      }
+    }
+    return entities;
+  }
+
+  @Override
+  public <T> void iterate(Class<T> entityClass,
+          Object params, Consumer<T> entityConsumer) throws DataAccessException {
     try (ResultSetIterator<T> iterator = iterate(entityClass, params)) {
       while (iterator.hasNext()) {
         entityConsumer.accept(iterator.next());
@@ -642,7 +742,8 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
   }
 
   @Override
-  public <T> void iterate(Class<T> entityClass, QueryCondition conditions, Consumer<T> entityConsumer) throws DataAccessException {
+  public <T> void iterate(Class<T> entityClass,
+          @Nullable QueryCondition conditions, Consumer<T> entityConsumer) throws DataAccessException {
     try (ResultSetIterator<T> iterator = iterate(entityClass, conditions)) {
       while (iterator.hasNext()) {
         entityConsumer.accept(iterator.next());
@@ -651,7 +752,8 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
   }
 
   @Override
-  public <T> ResultSetIterator<T> iterate(Class<T> entityClass, @Nullable QueryCondition conditions) throws DataAccessException {
+  public <T> ResultSetIterator<T> iterate(
+          Class<T> entityClass, @Nullable QueryCondition conditions) throws DataAccessException {
     EntityMetadata metadata = entityMetadataFactory.getEntityMetadata(entityClass);
 
     StringBuilder sql = new StringBuilder();
