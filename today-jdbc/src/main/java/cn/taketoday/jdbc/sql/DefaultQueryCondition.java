@@ -48,14 +48,16 @@ public class DefaultQueryCondition extends QueryCondition {
 
   protected final int valueLength;
 
-  public DefaultQueryCondition(String columnName, Operator operator, @Nullable Object parameterValue) {
+  public DefaultQueryCondition(String columnName,
+          Operator operator, @Nullable Object parameterValue) {
     this(columnName, operator, parameterValue, false);
   }
 
   /**
    * @param nullable parameter-value match null
    */
-  public DefaultQueryCondition(String columnName, Operator operator, @Nullable Object parameterValue, boolean nullable) {
+  public DefaultQueryCondition(String columnName,
+          Operator operator, @Nullable Object parameterValue, boolean nullable) {
     Assert.notNull(operator, "operator is required");
     Assert.notNull(columnName, "columnName is required");
     this.parameterValue = parameterValue;

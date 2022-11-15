@@ -155,11 +155,11 @@ public abstract class QueryCondition {
   }
 
   public static DefaultQueryCondition isNotNull(String columnName) {
-    return new DefaultQueryCondition(columnName, Operator.IS_NOT_NULL, null);
+    return new NullQueryCondition(columnName, Operator.IS_NOT_NULL);
   }
 
   public static DefaultQueryCondition isNull(String columnName) {
-    return new DefaultQueryCondition(columnName, Operator.IS_NULL, null, true);
+    return new NullQueryCondition(columnName, Operator.IS_NULL);
   }
 
   public static DefaultQueryCondition nullable(String columnName, Object value) {
@@ -213,6 +213,24 @@ public abstract class QueryCondition {
     else {
       return 1;
     }
+  }
+
+  static class NullQueryCondition extends DefaultQueryCondition {
+
+    public NullQueryCondition(String columnName, Operator operator) {
+      super(columnName, operator, null, true);
+    }
+
+    @Override
+    protected boolean matches() {
+      return true;
+    }
+
+    @Override
+    protected int setParameterInternal(PreparedStatement ps, int idx) {
+      return idx;
+    }
+
   }
 
 }

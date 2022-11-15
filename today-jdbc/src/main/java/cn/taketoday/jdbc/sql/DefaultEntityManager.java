@@ -569,10 +569,23 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
     return null;
   }
 
+  @Override
+  public <T> T findFirst(Class<T> entityClass, @Nullable QueryCondition conditions) throws DataAccessException {
+    try (ResultSetIterator<T> iterator = iterate(entityClass, conditions)) {
+      while (iterator.hasNext()) {
+        T returnValue = iterator.next();
+        if (returnValue != null) {
+          return returnValue;
+        }
+      }
+    }
+    return null;
+  }
+
   @Nullable
   @Override
   @SuppressWarnings("unchecked")
-  public <T> T findUniqueResult(T entity) throws DataAccessException {
+  public <T> T findUnique(T entity) throws DataAccessException {
     try (ResultSetIterator<T> iterator = iterate((Class<T>) entity.getClass(), entity)) {
       T returnValue = null;
       while (iterator.hasNext()) {
@@ -587,8 +600,22 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
 
   @Nullable
   @Override
-  public <T> T findUniqueResult(Class<T> entityClass, Object query) throws DataAccessException {
+  public <T> T findUnique(Class<T> entityClass, Object query) throws DataAccessException {
     try (ResultSetIterator<T> iterator = iterate(entityClass, query)) {
+      T returnValue = null;
+      while (iterator.hasNext()) {
+        if (returnValue != null) {
+          throw new IncorrectResultSizeDataAccessException(1);
+        }
+        returnValue = iterator.next();
+      }
+      return returnValue;
+    }
+  }
+
+  @Override
+  public <T> T findUnique(Class<T> entityClass, @Nullable QueryCondition conditions) throws DataAccessException {
+    try (ResultSetIterator<T> iterator = iterate(entityClass, conditions)) {
       T returnValue = null;
       while (iterator.hasNext()) {
         if (returnValue != null) {

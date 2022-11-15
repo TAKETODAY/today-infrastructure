@@ -126,14 +126,26 @@ public interface EntityManager {
   /**
    * @throws IllegalEntityException entityClass is legal entity
    */
-  @Nullable
-  <T> T findUniqueResult(T entity) throws DataAccessException;
+  <T> T findFirst(Class<T> entityClass, @Nullable QueryCondition conditions)
+          throws DataAccessException;
 
   /**
    * @throws IllegalEntityException entityClass is legal entity
    */
   @Nullable
-  <T> T findUniqueResult(Class<T> entityClass, Object query) throws DataAccessException;
+  <T> T findUnique(T entity) throws DataAccessException;
+
+  /**
+   * @throws IllegalEntityException entityClass is legal entity
+   */
+  @Nullable
+  <T> T findUnique(Class<T> entityClass, Object query) throws DataAccessException;
+
+  /**
+   * @throws IllegalEntityException entityClass is legal entity
+   */
+  <T> T findUnique(Class<T> entityClass, @Nullable QueryCondition conditions)
+          throws DataAccessException;
 
   /**
    * @throws IllegalEntityException entityClass is legal entity

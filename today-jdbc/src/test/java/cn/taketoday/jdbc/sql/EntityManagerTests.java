@@ -30,12 +30,17 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
+import cn.taketoday.dao.IncorrectResultSizeDataAccessException;
 import cn.taketoday.jdbc.RepositoryManager;
 import cn.taketoday.jdbc.sql.model.Gender;
 import cn.taketoday.jdbc.sql.model.UserModel;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
 
+import static cn.taketoday.jdbc.sql.QueryCondition.between;
+import static cn.taketoday.jdbc.sql.QueryCondition.isEqualsTo;
+import static cn.taketoday.jdbc.sql.QueryCondition.isNotNull;
+import static cn.taketoday.jdbc.sql.QueryCondition.nested;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -270,6 +275,38 @@ class EntityManagerTests extends AbstractRepositoryManagerTests {
 
     deleteRows = entityManager.delete(userModel);
     assertThat(deleteRows).isEqualTo(10);
+  }
+
+  @ParameterizedRepositoryManagerTest
+  void findUnique(RepositoryManager repositoryManager) {
+    DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
+    createData(entityManager);
+
+    assertThatThrownBy(() ->
+            entityManager.findUnique(UserModel.class,
+                    isNotNull("name")
+                            .or(nested(between("age", 1, 20))))
+    )
+            .isInstanceOf(IncorrectResultSizeDataAccessException.class);
+
+    UserModel unique = entityManager.findUnique(UserModel.class,
+            isNotNull("name")
+                    .and(nested(isEqualsTo("age", 9))));
+
+    assertThat(unique).isNotNull()
+            .extracting("id").isEqualTo(1);
+
+    assertThat(unique).extracting("name").isEqualTo("TODAY");
+    assertThat(unique).extracting("age").isEqualTo(9);
+
+    int deleteRows = entityManager.delete(unique);
+    assertThat(deleteRows).isEqualTo(1);
+
+    // null
+    unique = entityManager.findUnique(UserModel.class,
+            isNotNull("name")
+                    .and(nested(isEqualsTo("age", 9))));
+    assertThat(unique).isNull();
   }
 
   private static void createData(DefaultEntityManager entityManager) {
