@@ -106,7 +106,7 @@ public abstract class DataBufferUtils {
           Callable<ReadableByteChannel> channelSupplier, DataBufferFactory bufferFactory, int bufferSize) {
 
     Assert.notNull(channelSupplier, "'channelSupplier' must not be null");
-    Assert.notNull(bufferFactory, "'dataBufferFactory' must not be null");
+    Assert.notNull(bufferFactory, "'bufferFactory' must not be null");
     Assert.isTrue(bufferSize > 0, "'bufferSize' must be > 0");
 
     return Flux.using(channelSupplier,
@@ -148,7 +148,7 @@ public abstract class DataBufferUtils {
           DataBufferFactory bufferFactory, int bufferSize) {
 
     Assert.notNull(channelSupplier, "'channelSupplier' must not be null");
-    Assert.notNull(bufferFactory, "'dataBufferFactory' must not be null");
+    Assert.notNull(bufferFactory, "'bufferFactory' must not be null");
     Assert.isTrue(position >= 0, "'position' must be >= 0");
     Assert.isTrue(bufferSize > 0, "'bufferSize' must be > 0");
 
