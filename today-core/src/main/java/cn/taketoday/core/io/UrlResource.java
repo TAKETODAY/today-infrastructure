@@ -65,7 +65,7 @@ public class UrlResource extends AbstractFileResolvingResource {
   private volatile String cleanedUrl;
 
   /**
-   * Create a new {@code UrlBasedResource} based on the given URI object.
+   * Create a new {@code UrlResource} based on the given URI object.
    *
    * @param uri a URI
    * @throws MalformedURLException if the given URL path is not valid
@@ -78,7 +78,7 @@ public class UrlResource extends AbstractFileResolvingResource {
   }
 
   /**
-   * Create a new {@code UrlBasedResource} based on the given URL object.
+   * Create a new {@code UrlResource} based on the given URL object.
    *
    * @param url a URL
    */
@@ -89,7 +89,7 @@ public class UrlResource extends AbstractFileResolvingResource {
   }
 
   /**
-   * Create a new {@code UrlBasedResource} based on a URL path.
+   * Create a new {@code UrlResource} based on a URL path.
    * <p>Note: The given path needs to be pre-encoded if necessary.
    *
    * @param path a URL path
@@ -99,13 +99,29 @@ public class UrlResource extends AbstractFileResolvingResource {
    */
   public UrlResource(String path) throws MalformedURLException {
     Assert.notNull(path, "Path must not be null");
+
+    // Equivalent without java.net.URL constructor - for building on JDK 20+
+		/*
+		try {
+			String cleanedPath = StringUtils.cleanPath(path);
+			this.uri = ResourceUtils.toURI(cleanedPath);
+			this.url = this.uri.toURL();
+			this.cleanedUrl = cleanedPath;
+		}
+		catch (URISyntaxException | IllegalArgumentException ex) {
+			MalformedURLException exToThrow = new MalformedURLException(ex.getMessage());
+			exToThrow.initCause(ex);
+			throw exToThrow;
+		}
+		*/
+
     this.uri = null;
     this.url = ResourceUtils.toURL(path);
     this.cleanedUrl = StringUtils.cleanPath(path);
   }
 
   /**
-   * Create a new {@code UrlBasedResource} based on a URI specification.
+   * Create a new {@code UrlResource} based on a URI specification.
    * <p>The given parts will automatically get encoded if necessary.
    *
    * @param protocol the URL protocol to use (e.g. "jar" or "file" - without colon);
@@ -121,7 +137,7 @@ public class UrlResource extends AbstractFileResolvingResource {
   }
 
   /**
-   * Create a new {@code UrlBasedResource} based on a URI specification.
+   * Create a new {@code UrlResource} based on a URI specification.
    * <p>The given parts will automatically get encoded if necessary.
    *
    * @param protocol the URL protocol to use (e.g. "jar" or "file" - without colon);
@@ -294,7 +310,7 @@ public class UrlResource extends AbstractFileResolvingResource {
   }
 
   /**
-   * This implementation creates a {@code UrlBasedResource}, delegating to
+   * This implementation creates a {@code UrlResource}, delegating to
    * {@link #createRelativeURL(String)} for adapting the relative path.
    *
    * @see #createRelativeURL(String)

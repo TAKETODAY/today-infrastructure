@@ -434,7 +434,7 @@ public class ResourceHttpRequestHandler extends WebContentGenerator
         result.add(resource);
         if (charset != null) {
           if (!(resource instanceof UrlResource)) {
-            throw new IllegalArgumentException("Unexpected charset for non-UrlBasedResource: " + resource);
+            throw new IllegalArgumentException("Unexpected charset for non-UrlResource: " + resource);
           }
           this.locationCharsets.put(resource, charset);
         }
