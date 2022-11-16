@@ -59,7 +59,7 @@ import cn.taketoday.util.ResourceUtils;
  */
 public class ResourceEntityResolver extends DelegatingEntityResolver {
 
-  private static final Logger logger = LoggerFactory.getLogger(ResourceEntityResolver.class);
+  private static final Logger log = LoggerFactory.getLogger(ResourceEntityResolver.class);
 
   private final ResourceLoader resourceLoader;
 
@@ -95,22 +95,20 @@ public class ResourceEntityResolver extends DelegatingEntityResolver {
       }
       catch (Exception ex) {
         // Typically a MalformedURLException or AccessControlException.
-        if (logger.isDebugEnabled()) {
-          logger.debug("Could not resolve XML entity [" + systemId + "] against system root URL", ex);
-        }
+        log.debug("Could not resolve XML entity [{}] against system root URL", systemId, ex);
         // No URL (or no resolvable URL) -> try relative to resource base.
         resourcePath = systemId;
       }
       if (resourcePath != null) {
-        if (logger.isTraceEnabled()) {
-          logger.trace("Trying to locate XML entity [" + systemId + "] as resource [" + resourcePath + "]");
+        if (log.isTraceEnabled()) {
+          log.trace("Trying to locate XML entity [{}] as resource [{}]", systemId, resourcePath);
         }
         Resource resource = this.resourceLoader.getResource(resourcePath);
         source = new InputSource(resource.getInputStream());
         source.setPublicId(publicId);
         source.setSystemId(systemId);
-        if (logger.isDebugEnabled()) {
-          logger.debug("Found XML entity [" + systemId + "]: " + resource);
+        if (log.isDebugEnabled()) {
+          log.debug("Found XML entity [{}]: {}", systemId, resource);
         }
       }
       else if (systemId.endsWith(DTD_SUFFIX) || systemId.endsWith(XSD_SUFFIX)) {
@@ -125,9 +123,7 @@ public class ResourceEntityResolver extends DelegatingEntityResolver {
           source.setSystemId(systemId);
         }
         catch (IOException ex) {
-          if (logger.isDebugEnabled()) {
-            logger.debug("Could not resolve XML entity [" + systemId + "] through URL [" + url + "]", ex);
-          }
+          log.debug("Could not resolve XML entity [{}] through URL [{}]", systemId, url, ex);
           // Fall back to the parser's default behavior.
           source = null;
         }
