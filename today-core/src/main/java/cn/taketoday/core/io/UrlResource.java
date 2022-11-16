@@ -59,10 +59,10 @@ public class UrlResource extends AbstractFileResolvingResource {
   private final URL url;
 
   /**
-   * Cleaned URL (with normalized path), used for comparisons.
+   * Cleaned URL String (with normalized path), used for comparisons.
    */
   @Nullable
-  private volatile URL cleanedUrl;
+  private volatile String cleanedUrl;
 
   /**
    * Create a new {@code UrlBasedResource} based on the given URI object.
@@ -100,8 +100,8 @@ public class UrlResource extends AbstractFileResolvingResource {
   public UrlResource(String path) throws MalformedURLException {
     Assert.notNull(path, "Path must not be null");
     this.uri = null;
-    this.url = new URL(path);
-    this.cleanedUrl = getCleanedUrl(this.url, path);
+    this.url = ResourceUtils.toURL(path);
+    this.cleanedUrl = StringUtils.cleanPath(path);
   }
 
   /**
@@ -244,16 +244,14 @@ public class UrlResource extends AbstractFileResolvingResource {
 
   /**
    * Lazily determine a cleaned URL for the given original URL.
-   *
-   * @see #getCleanedUrl(URL, String)
-   * @since 4.0
    */
-  private URL getCleanedUrl() {
-    URL cleanedUrl = this.cleanedUrl;
+  private String getCleanedUrl() {
+    String cleanedUrl = this.cleanedUrl;
     if (cleanedUrl != null) {
       return cleanedUrl;
     }
-    cleanedUrl = getCleanedUrl(this.url, (this.uri != null ? this.uri : this.url).toString());
+    String originalPath = (this.uri != null ? this.uri : this.url).toString();
+    cleanedUrl = StringUtils.cleanPath(originalPath);
     this.cleanedUrl = cleanedUrl;
     return cleanedUrl;
   }
@@ -266,9 +264,10 @@ public class UrlResource extends AbstractFileResolvingResource {
    * @see java.net.URLDecoder#decode(String, java.nio.charset.Charset)
    */
   @Override
+  @Nullable
   public String getName() {
-    String filename = StringUtils.getFilename(getCleanedUrl().getPath());
-    return URLDecoder.decode(filename, StandardCharsets.UTF_8);
+    String filename = StringUtils.getFilename(this.uri != null ? this.uri.getPath() : this.url.getPath());
+    return (filename != null ? URLDecoder.decode(filename, StandardCharsets.UTF_8) : null);
   }
 
   /**
@@ -305,22 +304,21 @@ public class UrlResource extends AbstractFileResolvingResource {
    * leading slash will get dropped; a "#" symbol will get encoded.
    *
    * @see #createRelative(String)
-   * @see java.net.URL#URL(java.net.URL, String)
+   * @see ResourceUtils#toRelativeURL(URL, String)
    */
   protected URL createRelativeURL(String relativePath) throws MalformedURLException {
-    String relativePathToUse = relativePath;
-    if (StringUtils.matchesFirst(relativePathToUse, '/')) {
-      relativePathToUse = relativePathToUse.substring(1);
+    if (relativePath.startsWith("/")) {
+      relativePath = relativePath.substring(1);
     }
-    // # can appear in filenames, java.net.URL should not treat it as a fragment
-    relativePathToUse = StringUtils.replace(relativePathToUse, "#", "%23");
-    // Use the URL constructor for applying the relative path as a URL spec
-    return new URL(this.url, relativePathToUse);
+    return ResourceUtils.toRelativeURL(this.url, relativePath);
   }
 
+  /**
+   * This implementation returns a description that includes the URL.
+   */
   @Override
   public String toString() {
-    return "URL [" + this.url + "]";
+    return "URL [" + (this.uri != null ? this.uri : this.url) + "]";
   }
 
   /**

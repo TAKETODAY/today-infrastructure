@@ -34,6 +34,7 @@ import cn.taketoday.core.io.ResourceLoader;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
+import cn.taketoday.util.ResourceUtils;
 
 /**
  * {@code EntityResolver} implementation that tries to resolve entity references
@@ -85,7 +86,7 @@ public class ResourceEntityResolver extends DelegatingEntityResolver {
       String resourcePath = null;
       try {
         String decodedSystemId = URLDecoder.decode(systemId, StandardCharsets.UTF_8);
-        String givenUrl = new URL(decodedSystemId).toString();
+        String givenUrl = ResourceUtils.toURL(decodedSystemId).toString();
         String systemRootUrl = new File("").toURI().toURL().toString();
         // Try relative to resource base if currently in system root.
         if (givenUrl.startsWith(systemRootUrl)) {

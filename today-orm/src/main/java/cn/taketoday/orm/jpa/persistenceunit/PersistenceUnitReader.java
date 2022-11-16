@@ -312,7 +312,7 @@ final class PersistenceUnitReader {
           // relative to the persistence unit root, according to the JPA spec
           URL rootUrl = unitInfo.getPersistenceUnitRootUrl();
           if (rootUrl != null) {
-            unitInfo.addJarFileUrl(new URL(rootUrl, value));
+            unitInfo.addJarFileUrl(ResourceUtils.toRelativeURL(rootUrl, value));
           }
           else {
             logger.warn("Cannot resolve jar-file entry [{}] in persistence unit '{}' without root URL",
@@ -361,7 +361,7 @@ final class PersistenceUnitReader {
     if (persistenceUnitRoot.endsWith("/")) {
       persistenceUnitRoot = persistenceUnitRoot.substring(0, persistenceUnitRoot.length() - 1);
     }
-    return new URL(persistenceUnitRoot);
+    return ResourceUtils.toURL(persistenceUnitRoot);
   }
 
 }
