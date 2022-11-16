@@ -22,9 +22,9 @@ package cn.taketoday.expression.spel.ast;
 
 import cn.taketoday.bytecode.Label;
 import cn.taketoday.bytecode.MethodVisitor;
+import cn.taketoday.bytecode.core.CodeFlow;
 import cn.taketoday.expression.EvaluationException;
 import cn.taketoday.expression.TypedValue;
-import cn.taketoday.bytecode.core.CodeFlow;
 import cn.taketoday.expression.spel.ExpressionState;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.util.ObjectUtils;
@@ -67,7 +67,8 @@ public class Elvis extends SpelNodeImpl {
 
   @Override
   public String toStringAST() {
-    return getChild(0).toStringAST() + " ?: " + getChild(1).toStringAST();
+    return "(" + getChild(0).toStringAST() + " ?: "
+            + getChild(1).toStringAST() + ")";
   }
 
   @Override
