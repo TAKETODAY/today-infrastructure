@@ -48,6 +48,7 @@ import cn.taketoday.http.HttpStatusCode;
 import cn.taketoday.http.MediaType;
 import cn.taketoday.http.converter.HttpMessageConverter;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.web.ErrorResponse;
 import cn.taketoday.web.HttpRequestHandler;
 import cn.taketoday.web.RequestContext;
 import jakarta.servlet.http.HttpServletResponse;
@@ -113,6 +114,18 @@ public interface ServerResponse {
    */
   static BodyBuilder from(ServerResponse other) {
     return new DefaultServerResponseBuilder(other);
+  }
+
+  /**
+   * Create a {@code ServerResponse} from the given {@link ErrorResponse}.
+   *
+   * @param response the {@link ErrorResponse} to initialize from
+   * @return the built response
+   */
+  static ServerResponse from(ErrorResponse response) {
+    return status(response.getStatusCode())
+            .headers(headers -> headers.putAll(response.getHeaders()))
+            .body(response.getBody());
   }
 
   /**
