@@ -68,18 +68,17 @@ class ObjectProviderTests {
   }
 
   @Test
-  public void testProperty() throws Throwable {
-    try (StandardApplicationContext context = new StandardApplicationContext()) {
-      context.register(Bean.class, TEST.class);
-      context.refresh();
+  public void testProperty() {
+    StandardApplicationContext context = new StandardApplicationContext();
+    context.register(Bean.class, TEST.class);
+    context.refresh();
 
-      TEST test = context.getBean(TEST.class);
-      Bean bean = context.getBean(Bean.class);
+    TEST test = context.getBean(TEST.class);
+    Bean bean = context.getBean(Bean.class);
 
-      assertThat(test.beanObjectProvider.get())
-              .isEqualTo(bean);
+    assertThat(test.beanObjectProvider.get())
+            .isEqualTo(bean);
 
-    }
   }
 
 }

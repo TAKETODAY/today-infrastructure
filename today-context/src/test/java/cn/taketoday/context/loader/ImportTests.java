@@ -162,28 +162,28 @@ class ImportTests {
   @Test
   void importConfiguration() throws BeanDefinitionStoreException {
 
-    try (StandardApplicationContext context = new StandardApplicationContext()) {
-      context.scan("cn.taketoday.context.loader");
-      context.register(AopConfig.class);
-      context.refresh();
+    StandardApplicationContext context = new StandardApplicationContext();
+    context.scan("cn.taketoday.context.loader");
+    context.register(AopConfig.class);
+    context.refresh();
 
-      assertTrue(context.containsBeanDefinition("objTest"));
-      assertFalse(context.containsBeanDefinition(ErrorImportTESTBean.class));
-      assertTrue(context.containsBeanDefinition(ImportTESTBean.class));
-      assertTrue(context.containsBeanDefinition(TEST.class));
+    assertTrue(context.containsBeanDefinition("objTest"));
+    assertFalse(context.containsBeanDefinition(ErrorImportTESTBean.class));
+    assertTrue(context.containsBeanDefinition(ImportTESTBean.class));
+    assertTrue(context.containsBeanDefinition(TEST.class));
 
-      AopSelector bean = context.getBean(AopSelector.class);
-      BeanDefinitionRegistrar beanDefinitionRegistrar = context.getBean(BeanDefinitionRegistrar.class);
+    AopSelector bean = context.getBean(AopSelector.class);
+    BeanDefinitionRegistrar beanDefinitionRegistrar = context.getBean(BeanDefinitionRegistrar.class);
 
-      assertThat(bean.enableAop.proxyTargetClass())
-              .isEqualTo(beanDefinitionRegistrar.enableAop.proxyTargetClass())
-              .isTrue();
+    assertThat(bean.enableAop.proxyTargetClass())
+            .isEqualTo(beanDefinitionRegistrar.enableAop.proxyTargetClass())
+            .isTrue();
 
 //      BeanDefinition def = context.getBeanDefinition(AopConfig.class);
 //      Object attribute = def.getAttribute(ImportAware.ImportAnnotatedMetadata);
 //      assertThat(attribute).isEqualTo(bean.annotatedMetadata);
 
-    }
+    context.close();
   }
 
 }

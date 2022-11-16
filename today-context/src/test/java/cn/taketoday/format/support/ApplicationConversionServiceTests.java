@@ -55,48 +55,44 @@ class ApplicationConversionServiceTests {
 
   @Test
   void addBeansWhenHasGenericConverterBeanAddConverter() {
-    try (ConfigurableApplicationContext context = new StandardApplicationContext(
-            ExampleGenericConverter.class)) {
-      ApplicationConversionService.addBeans(this.registry, context);
-      verify(this.registry).addConverter(context.getBean(ExampleGenericConverter.class));
-      verifyNoMoreInteractions(this.registry);
-    }
+    var context = new StandardApplicationContext(ExampleGenericConverter.class);
+    ApplicationConversionService.addBeans(this.registry, context);
+    verify(this.registry).addConverter(context.getBean(ExampleGenericConverter.class));
+    verifyNoMoreInteractions(this.registry);
   }
 
   @Test
   void addBeansWhenHasConverterBeanAddConverter() {
-    try (ConfigurableApplicationContext context = new StandardApplicationContext(ExampleConverter.class)) {
-      ApplicationConversionService.addBeans(this.registry, context);
-      verify(this.registry).addConverter(context.getBean(ExampleConverter.class));
-      verifyNoMoreInteractions(this.registry);
-    }
+    var context = new StandardApplicationContext(ExampleConverter.class);
+    ApplicationConversionService.addBeans(this.registry, context);
+    verify(this.registry).addConverter(context.getBean(ExampleConverter.class));
+    verifyNoMoreInteractions(this.registry);
   }
 
   @Test
   void addBeansWhenHasFormatterBeanAddsOnlyFormatter() {
-    try (ConfigurableApplicationContext context = new StandardApplicationContext(ExampleFormatter.class)) {
-      ApplicationConversionService.addBeans(this.registry, context);
-      verify(this.registry).addFormatter(context.getBean(ExampleFormatter.class));
-      verifyNoMoreInteractions(this.registry);
-    }
+    var context = new StandardApplicationContext(ExampleFormatter.class);
+    ApplicationConversionService.addBeans(this.registry, context);
+    verify(this.registry).addFormatter(context.getBean(ExampleFormatter.class));
+    verifyNoMoreInteractions(this.registry);
+
   }
 
   @Test
   void addBeansWhenHasPrinterBeanAddPrinter() {
-    try (ConfigurableApplicationContext context = new StandardApplicationContext(ExamplePrinter.class)) {
-      ApplicationConversionService.addBeans(this.registry, context);
-      verify(this.registry).addPrinter(context.getBean(ExamplePrinter.class));
-      verifyNoMoreInteractions(this.registry);
-    }
+    var context = new StandardApplicationContext(ExamplePrinter.class);
+    ApplicationConversionService.addBeans(this.registry, context);
+    verify(this.registry).addPrinter(context.getBean(ExamplePrinter.class));
+    verifyNoMoreInteractions(this.registry);
   }
 
   @Test
   void addBeansWhenHasParserBeanAddParser() {
-    try (ConfigurableApplicationContext context = new StandardApplicationContext(ExampleParser.class)) {
-      ApplicationConversionService.addBeans(this.registry, context);
-      verify(this.registry).addParser(context.getBean(ExampleParser.class));
-      verifyNoMoreInteractions(this.registry);
-    }
+    ConfigurableApplicationContext context = new StandardApplicationContext(ExampleParser.class);
+    ApplicationConversionService.addBeans(this.registry, context);
+    verify(this.registry).addParser(context.getBean(ExampleParser.class));
+    verifyNoMoreInteractions(this.registry);
+
   }
 
   @Test

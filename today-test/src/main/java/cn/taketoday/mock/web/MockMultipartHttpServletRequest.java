@@ -163,14 +163,12 @@ public class MockMultipartHttpServletRequest extends MockHttpServletRequest impl
     return null;
   }
 
-  @Override
   public HttpMethod getRequestMethod() {
     String method = getMethod();
     Assert.state(method != null, "Method must not be null");
     return HttpMethod.valueOf(method);
   }
 
-  @Override
   public HttpHeaders getRequestHeaders() {
     HttpHeaders headers = HttpHeaders.create();
     Enumeration<String> headerNames = getHeaderNames();

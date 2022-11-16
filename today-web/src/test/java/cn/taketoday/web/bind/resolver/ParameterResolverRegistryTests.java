@@ -131,43 +131,40 @@ class ParameterResolverRegistryTests {
   @Test
   void registerDefaults() {
 
-    try (AnnotationConfigWebApplicationContext context = new AnnotationConfigWebApplicationContext()) {
-      context.refresh();
-      context.setServletContext(new MockServletContext());
+    var context = new AnnotationConfigWebApplicationContext();
+    context.refresh();
+    context.setServletContext(new MockServletContext());
 
-      ParameterResolvingRegistry registry = new ParameterResolvingRegistry();
-      registry.setApplicationContext(context);
-      ParameterResolvingStrategies defaultStrategies = registry.getDefaultStrategies();
+    ParameterResolvingRegistry registry = new ParameterResolvingRegistry();
+    registry.setApplicationContext(context);
+    ParameterResolvingStrategies defaultStrategies = registry.getDefaultStrategies();
 
-      assertThat(defaultStrategies).isEmpty();
+    assertThat(defaultStrategies).isEmpty();
 
-      registry.registerDefaultsStrategies(defaultStrategies);
-      assertThat(defaultStrategies).isNotEmpty();
+    registry.registerDefaultsStrategies(defaultStrategies);
+    assertThat(defaultStrategies).isNotEmpty();
 
-      // contains
+    // contains
 
-      assertThat(defaultStrategies.contains(ModelMethodProcessor.class)).isTrue();
-      assertThat(defaultStrategies.contains(ParameterResolvingStrategy.class)).isFalse();
-      assertThat(registry.contains(ModelMethodProcessor.class)).isTrue();
-      assertThat(registry.contains(DataBinderParameterResolver.AnnotationBinderParameter.class)).isFalse();
-    }
+    assertThat(defaultStrategies.contains(ModelMethodProcessor.class)).isTrue();
+    assertThat(defaultStrategies.contains(ParameterResolvingStrategy.class)).isFalse();
+    assertThat(registry.contains(ModelMethodProcessor.class)).isTrue();
+    assertThat(registry.contains(DataBinderParameterResolver.AnnotationBinderParameter.class)).isFalse();
 
   }
 
   @Test
   void lookupStrategy() {
 
-    try (AnnotationConfigWebApplicationContext context = new AnnotationConfigWebApplicationContext()) {
-      context.setServletContext(new MockServletContext());
-      context.refresh();
-      ParameterResolvingRegistry registry = new ParameterResolvingRegistry();
-      registry.setApplicationContext(context);
-      registry.registerDefaultStrategies(); // register defaults
+    var context = new AnnotationConfigWebApplicationContext();
+    context.setServletContext(new MockServletContext());
+    context.refresh();
+    ParameterResolvingRegistry registry = new ParameterResolvingRegistry();
+    registry.setApplicationContext(context);
+    registry.registerDefaultStrategies(); // register defaults
 
-      ParameterResolvingStrategy strategy = registry.findStrategy(testUser);
-      assertThat(strategy).isNotNull().isInstanceOf(ModelAttributeMethodProcessor.class);
-
-    }
+    ParameterResolvingStrategy strategy = registry.findStrategy(testUser);
+    assertThat(strategy).isNotNull().isInstanceOf(ModelAttributeMethodProcessor.class);
   }
 
   static ResolvableMethodParameter createParameter(int idx, Method method, String name) {

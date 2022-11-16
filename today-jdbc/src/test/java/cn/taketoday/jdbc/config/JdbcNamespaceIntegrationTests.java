@@ -107,41 +107,38 @@ class JdbcNamespaceIntegrationTests {
 
   @Test
   void createAndDestroy() throws Exception {
-    try (ClassPathXmlApplicationContext context = context("jdbc-destroy-config.xml")) {
-      DataSource dataSource = context.getBean(DataSource.class);
-      JdbcTemplate template = new JdbcTemplate(dataSource);
-      assertNumRowsInTestTable(template, 1);
-      context.getBean(DataSourceInitializer.class).destroy();
-      // Table has been dropped
-      assertThatExceptionOfType(BadSqlGrammarException.class).isThrownBy(() ->
-              assertNumRowsInTestTable(template, 1));
-    }
+    ClassPathXmlApplicationContext context = context("jdbc-destroy-config.xml");
+    DataSource dataSource = context.getBean(DataSource.class);
+    JdbcTemplate template = new JdbcTemplate(dataSource);
+    assertNumRowsInTestTable(template, 1);
+    context.getBean(DataSourceInitializer.class).destroy();
+    // Table has been dropped
+    assertThatExceptionOfType(BadSqlGrammarException.class).isThrownBy(() ->
+            assertNumRowsInTestTable(template, 1));
   }
 
   @Test
   void createAndDestroyNestedWithHsql() throws Exception {
-    try (ClassPathXmlApplicationContext context = context("jdbc-destroy-nested-config.xml")) {
-      DataSource dataSource = context.getBean(DataSource.class);
-      JdbcTemplate template = new JdbcTemplate(dataSource);
-      assertNumRowsInTestTable(template, 1);
-      context.getBean(EmbeddedDatabaseFactoryBean.class).destroy();
-      // Table has been dropped
-      assertThatExceptionOfType(BadSqlGrammarException.class).isThrownBy(() ->
-              assertNumRowsInTestTable(template, 1));
-    }
+    ClassPathXmlApplicationContext context = context("jdbc-destroy-nested-config.xml");
+    DataSource dataSource = context.getBean(DataSource.class);
+    JdbcTemplate template = new JdbcTemplate(dataSource);
+    assertNumRowsInTestTable(template, 1);
+    context.getBean(EmbeddedDatabaseFactoryBean.class).destroy();
+    // Table has been dropped
+    assertThatExceptionOfType(BadSqlGrammarException.class).isThrownBy(() ->
+            assertNumRowsInTestTable(template, 1));
   }
 
   @Test
   void createAndDestroyNestedWithH2() throws Exception {
-    try (ClassPathXmlApplicationContext context = context("jdbc-destroy-nested-config-h2.xml")) {
-      DataSource dataSource = context.getBean(DataSource.class);
-      JdbcTemplate template = new JdbcTemplate(dataSource);
-      assertNumRowsInTestTable(template, 1);
-      context.getBean(EmbeddedDatabaseFactoryBean.class).destroy();
-      // Table has been dropped
-      assertThatExceptionOfType(BadSqlGrammarException.class).isThrownBy(() ->
-              assertNumRowsInTestTable(template, 1));
-    }
+    ClassPathXmlApplicationContext context = context("jdbc-destroy-nested-config-h2.xml");
+    DataSource dataSource = context.getBean(DataSource.class);
+    JdbcTemplate template = new JdbcTemplate(dataSource);
+    assertNumRowsInTestTable(template, 1);
+    context.getBean(EmbeddedDatabaseFactoryBean.class).destroy();
+    // Table has been dropped
+    assertThatExceptionOfType(BadSqlGrammarException.class).isThrownBy(() ->
+            assertNumRowsInTestTable(template, 1));
   }
 
   @Test
@@ -183,25 +180,23 @@ class JdbcNamespaceIntegrationTests {
   }
 
   private void assertCorrectSetupAndCloseContext(String file, int count, String... dataSources) {
-    try (ConfigurableApplicationContext context = context(file)) {
-      for (String dataSourceName : dataSources) {
-        DataSource dataSource = context.getBean(dataSourceName, DataSource.class);
-        assertNumRowsInTestTable(new JdbcTemplate(dataSource), count);
-        assertThat(dataSource instanceof AbstractDriverBasedDataSource).isTrue();
-        AbstractDriverBasedDataSource adbDataSource = (AbstractDriverBasedDataSource) dataSource;
-        assertThat(adbDataSource.getUrl()).contains(dataSourceName);
-      }
+    ConfigurableApplicationContext context = context(file);
+    for (String dataSourceName : dataSources) {
+      DataSource dataSource = context.getBean(dataSourceName, DataSource.class);
+      assertNumRowsInTestTable(new JdbcTemplate(dataSource), count);
+      assertThat(dataSource instanceof AbstractDriverBasedDataSource).isTrue();
+      AbstractDriverBasedDataSource adbDataSource = (AbstractDriverBasedDataSource) dataSource;
+      assertThat(adbDataSource.getUrl()).contains(dataSourceName);
     }
   }
 
   private void assertCorrectSetupForSingleDataSource(String file, Predicate<String> urlPredicate) {
-    try (ConfigurableApplicationContext context = context(file)) {
-      DataSource dataSource = context.getBean(DataSource.class);
-      assertNumRowsInTestTable(new JdbcTemplate(dataSource), 1);
-      assertThat(dataSource instanceof AbstractDriverBasedDataSource).isTrue();
-      AbstractDriverBasedDataSource adbDataSource = (AbstractDriverBasedDataSource) dataSource;
-      assertThat(urlPredicate.test(adbDataSource.getUrl())).isTrue();
-    }
+    var context = context(file);
+    DataSource dataSource = context.getBean(DataSource.class);
+    assertNumRowsInTestTable(new JdbcTemplate(dataSource), 1);
+    assertThat(dataSource instanceof AbstractDriverBasedDataSource).isTrue();
+    AbstractDriverBasedDataSource adbDataSource = (AbstractDriverBasedDataSource) dataSource;
+    assertThat(urlPredicate.test(adbDataSource.getUrl())).isTrue();
   }
 
 }

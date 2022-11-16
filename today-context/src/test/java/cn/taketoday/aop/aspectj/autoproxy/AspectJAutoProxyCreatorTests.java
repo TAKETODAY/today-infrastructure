@@ -316,28 +316,27 @@ public class AspectJAutoProxyCreatorTests {
   @ParameterizedTest(name = "[{index}] {0}")
   @ValueSource(classes = { ProxyTargetClassFalseConfig.class, ProxyTargetClassTrueConfig.class })
   void lambdaIsAlwaysProxiedWithJdkProxy(Class<?> configClass) {
-    try (ConfigurableApplicationContext context = new AnnotationConfigApplicationContext(configClass)) {
-      @SuppressWarnings("unchecked")
-      Supplier<String> supplier = context.getBean(Supplier.class);
-      assertThat(AopUtils.isAopProxy(supplier)).as("AOP proxy").isTrue();
-      assertThat(AopUtils.isJdkDynamicProxy(supplier)).as("JDK Dynamic proxy").isTrue();
-      assertThat(supplier.getClass().getInterfaces())
-              .containsExactlyInAnyOrder(Supplier.class, StandardProxy.class, Advised.class, DecoratingProxy.class);
-      assertThat(supplier.get()).isEqualTo("advised: lambda");
-    }
+    ConfigurableApplicationContext context = new AnnotationConfigApplicationContext(configClass);
+    @SuppressWarnings("unchecked")
+    Supplier<String> supplier = context.getBean(Supplier.class);
+    assertThat(AopUtils.isAopProxy(supplier)).as("AOP proxy").isTrue();
+    assertThat(AopUtils.isJdkDynamicProxy(supplier)).as("JDK Dynamic proxy").isTrue();
+    assertThat(supplier.getClass().getInterfaces())
+            .containsExactlyInAnyOrder(Supplier.class, StandardProxy.class, Advised.class, DecoratingProxy.class);
+    assertThat(supplier.get()).isEqualTo("advised: lambda");
+
   }
 
   @ParameterizedTest(name = "[{index}] {0}")
   @ValueSource(classes = { MixinProxyTargetClassFalseConfig.class, MixinProxyTargetClassTrueConfig.class })
   void lambdaIsAlwaysProxiedWithJdkProxyWithIntroductions(Class<?> configClass) {
-    try (ConfigurableApplicationContext context = new AnnotationConfigApplicationContext(configClass)) {
-      MessageGenerator messageGenerator = context.getBean(MessageGenerator.class);
-      assertThat(AopUtils.isAopProxy(messageGenerator)).as("AOP proxy").isTrue();
-      assertThat(AopUtils.isJdkDynamicProxy(messageGenerator)).as("JDK Dynamic proxy").isTrue();
-      assertThat(messageGenerator.getClass().getInterfaces())
-              .containsExactlyInAnyOrder(MessageGenerator.class, Mixin.class, StandardProxy.class, Advised.class, DecoratingProxy.class);
-      assertThat(messageGenerator.generateMessage()).isEqualTo("mixin: lambda");
-    }
+    ConfigurableApplicationContext context = new AnnotationConfigApplicationContext(configClass);
+    MessageGenerator messageGenerator = context.getBean(MessageGenerator.class);
+    assertThat(AopUtils.isAopProxy(messageGenerator)).as("AOP proxy").isTrue();
+    assertThat(AopUtils.isJdkDynamicProxy(messageGenerator)).as("JDK Dynamic proxy").isTrue();
+    assertThat(messageGenerator.getClass().getInterfaces())
+            .containsExactlyInAnyOrder(MessageGenerator.class, Mixin.class, StandardProxy.class, Advised.class, DecoratingProxy.class);
+    assertThat(messageGenerator.generateMessage()).isEqualTo("mixin: lambda");
   }
 
   /**

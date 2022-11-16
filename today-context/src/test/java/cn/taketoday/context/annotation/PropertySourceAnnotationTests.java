@@ -195,12 +195,11 @@ class PropertySourceAnnotationTests {
 
   @Test
   void withRepeatedPropertySources() {
-    try (AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext(ConfigWithRepeatedPropertySourceAnnotations.class)) {
-      assertThat(ctx.getEnvironment().containsProperty("from.p1")).isTrue();
-      assertThat(ctx.getEnvironment().containsProperty("from.p2")).isTrue();
-      // p2 should 'win' as it was registered last
-      assertThat(ctx.getEnvironment().getProperty("testbean.name")).isEqualTo("p2TestBean");
-    }
+    var ctx = new AnnotationConfigApplicationContext(ConfigWithRepeatedPropertySourceAnnotations.class);
+    assertThat(ctx.getEnvironment().containsProperty("from.p1")).isTrue();
+    assertThat(ctx.getEnvironment().containsProperty("from.p2")).isTrue();
+    // p2 should 'win' as it was registered last
+    assertThat(ctx.getEnvironment().getProperty("testbean.name")).isEqualTo("p2TestBean");
   }
 
   @Test
@@ -209,15 +208,15 @@ class PropertySourceAnnotationTests {
     String key = "custom.config.package";
 
     System.clearProperty(key);
-    try (ConfigurableApplicationContext ctx = new AnnotationConfigApplicationContext(configClass)) {
-      assertThat(ctx.getEnvironment().containsProperty("from.p1")).isTrue();
-      assertThat(ctx.getEnvironment().containsProperty("from.p2")).isTrue();
-      // p2 should 'win' as it was registered last
-      assertThat(ctx.getEnvironment().getProperty("testbean.name")).isEqualTo("p2TestBean");
-    }
+    ConfigurableApplicationContext ctx = new AnnotationConfigApplicationContext(configClass);
+    assertThat(ctx.getEnvironment().containsProperty("from.p1")).isTrue();
+    assertThat(ctx.getEnvironment().containsProperty("from.p2")).isTrue();
+    // p2 should 'win' as it was registered last
+    assertThat(ctx.getEnvironment().getProperty("testbean.name")).isEqualTo("p2TestBean");
 
     System.setProperty(key, "cn/taketoday/context/annotation");
-    try (ConfigurableApplicationContext ctx = new AnnotationConfigApplicationContext(configClass)) {
+    try {
+      ctx = new AnnotationConfigApplicationContext(configClass);
       assertThat(ctx.getEnvironment().containsProperty("from.p1")).isTrue();
       assertThat(ctx.getEnvironment().containsProperty("from.p2")).isTrue();
       assertThat(ctx.getEnvironment().containsProperty("from.p3")).isTrue();

@@ -53,19 +53,17 @@ class DispatcherHandlerTests {
   @Test
   void init() {
 
-    try (var context = new AnnotationConfigApplicationContext(Config.class)) {
+    var context = new AnnotationConfigApplicationContext(Config.class);
 
-      DispatcherHandler handler = new DispatcherHandler(context);
-      assertThat(handler.getHandlerMapping()).isNull();
-      assertThat(handler.getReturnValueHandler()).isNull();
-      assertThat(handler.getExceptionHandler()).isNull();
-      handler.init();
+    DispatcherHandler handler = new DispatcherHandler(context);
+    assertThat(handler.getHandlerMapping()).isNull();
+    assertThat(handler.getReturnValueHandler()).isNull();
+    assertThat(handler.getExceptionHandler()).isNull();
+    handler.init();
 
-      assertThat(handler.getHandlerMapping()).isNotNull();
-      assertThat(handler.getExceptionHandler()).isNotNull();
-      assertThat(handler.getReturnValueHandler()).isNotNull();
-    }
-
+    assertThat(handler.getHandlerMapping()).isNotNull();
+    assertThat(handler.getExceptionHandler()).isNotNull();
+    assertThat(handler.getReturnValueHandler()).isNotNull();
   }
 
 }

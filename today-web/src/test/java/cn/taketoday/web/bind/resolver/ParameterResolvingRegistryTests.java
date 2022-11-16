@@ -156,10 +156,9 @@ class ParameterResolvingRegistryTests {
   @Test
   void autoRegister() {
 
-    try (var context = new AnnotationConfigApplicationContext(AppConfig.class)) {
-      ParameterResolvingRegistry registry = context.getBean(ParameterResolvingRegistry.class);
-      assertThat(registry.contains(ParameterResolvingStrategy0.class)).isTrue();
-    }
+    var context = new AnnotationConfigApplicationContext(AppConfig.class);
+    ParameterResolvingRegistry registry = context.getBean(ParameterResolvingRegistry.class);
+    assertThat(registry.contains(ParameterResolvingStrategy0.class)).isTrue();
 
   }
 

@@ -43,22 +43,21 @@ public class CacheProxyFactoryBeanTests {
 
   @Test
   public void configurationClassWithCacheProxyFactoryBean() {
-    try (AnnotationConfigApplicationContext applicationContext =
-            new AnnotationConfigApplicationContext(CacheProxyFactoryBeanConfiguration.class)) {
-      Greeter greeter = applicationContext.getBean("greeter", Greeter.class);
-      assertThat(greeter).isNotNull();
-      assertThat(greeter.isCacheMiss()).isFalse();
-      assertThat(greeter.greet("John")).isEqualTo("Hello John!");
-      assertThat(greeter.isCacheMiss()).isTrue();
-      assertThat(greeter.greet("Jon")).isEqualTo("Hello Jon!");
-      assertThat(greeter.isCacheMiss()).isTrue();
-      assertThat(greeter.greet("John")).isEqualTo("Hello John!");
-      assertThat(greeter.isCacheMiss()).isFalse();
-      assertThat(greeter.greet()).isEqualTo("Hello World!");
-      assertThat(greeter.isCacheMiss()).isTrue();
-      assertThat(greeter.greet()).isEqualTo("Hello World!");
-      assertThat(greeter.isCacheMiss()).isFalse();
-    }
+    var applicationContext =
+            new AnnotationConfigApplicationContext(CacheProxyFactoryBeanConfiguration.class);
+    Greeter greeter = applicationContext.getBean("greeter", Greeter.class);
+    assertThat(greeter).isNotNull();
+    assertThat(greeter.isCacheMiss()).isFalse();
+    assertThat(greeter.greet("John")).isEqualTo("Hello John!");
+    assertThat(greeter.isCacheMiss()).isTrue();
+    assertThat(greeter.greet("Jon")).isEqualTo("Hello Jon!");
+    assertThat(greeter.isCacheMiss()).isTrue();
+    assertThat(greeter.greet("John")).isEqualTo("Hello John!");
+    assertThat(greeter.isCacheMiss()).isFalse();
+    assertThat(greeter.greet()).isEqualTo("Hello World!");
+    assertThat(greeter.isCacheMiss()).isTrue();
+    assertThat(greeter.greet()).isEqualTo("Hello World!");
+    assertThat(greeter.isCacheMiss()).isFalse();
   }
 
   @Configuration

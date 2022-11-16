@@ -25,7 +25,6 @@ import org.junit.jupiter.api.Test;
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
 
-import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.context.support.ClassPathXmlApplicationContext;
 import cn.taketoday.jmx.support.ObjectNameManager;
 
@@ -39,19 +38,21 @@ class AnnotationLazyInitMBeanTests {
 
   @Test
   void lazyNaming() throws Exception {
-    try (ConfigurableApplicationContext ctx = new ClassPathXmlApplicationContext("cn/taketoday/jmx/export/annotation/lazyNaming.xml")) {
-      MBeanServer server = (MBeanServer) ctx.getBean("server");
-      ObjectName oname = ObjectNameManager.getInstance("bean:name=testBean4");
-      assertThat(server.getObjectInstance(oname)).isNotNull();
-      String name = (String) server.getAttribute(oname, "Name");
-      assertThat(name).as("Invalid name returned").isEqualTo("TEST");
-    }
+    var ctx = new ClassPathXmlApplicationContext(
+            "cn/taketoday/jmx/export/annotation/lazyNaming.xml");
+    MBeanServer server = (MBeanServer) ctx.getBean("server");
+    ObjectName oname = ObjectNameManager.getInstance("bean:name=testBean4");
+    assertThat(server.getObjectInstance(oname)).isNotNull();
+    String name = (String) server.getAttribute(oname, "Name");
+    assertThat(name).as("Invalid name returned").isEqualTo("TEST");
   }
 
   @Test
   void lazyAssembling() throws Exception {
-    System.setProperty("domain", "bean");
-    try (ConfigurableApplicationContext ctx = new ClassPathXmlApplicationContext("cn/taketoday/jmx/export/annotation/lazyAssembling.xml")) {
+    try {
+      System.setProperty("domain", "bean");
+      var ctx = new ClassPathXmlApplicationContext(
+              "cn/taketoday/jmx/export/annotation/lazyAssembling.xml");
       MBeanServer server = (MBeanServer) ctx.getBean("server");
 
       ObjectName oname = ObjectNameManager.getInstance("bean:name=testBean4");
@@ -81,13 +82,13 @@ class AnnotationLazyInitMBeanTests {
 
   @Test
   void componentScan() throws Exception {
-    try (ConfigurableApplicationContext ctx = new ClassPathXmlApplicationContext("cn/taketoday/jmx/export/annotation/componentScan.xml")) {
-      MBeanServer server = (MBeanServer) ctx.getBean("server");
-      ObjectName oname = ObjectNameManager.getInstance("bean:name=testBean4");
-      assertThat(server.getObjectInstance(oname)).isNotNull();
-      String name = (String) server.getAttribute(oname, "Name");
-      assertThat(name).isNull();
-    }
+    var ctx = new ClassPathXmlApplicationContext(
+            "cn/taketoday/jmx/export/annotation/componentScan.xml");
+    MBeanServer server = (MBeanServer) ctx.getBean("server");
+    ObjectName oname = ObjectNameManager.getInstance("bean:name=testBean4");
+    assertThat(server.getObjectInstance(oname)).isNotNull();
+    String name = (String) server.getAttribute(oname, "Name");
+    assertThat(name).isNull();
   }
 
 }

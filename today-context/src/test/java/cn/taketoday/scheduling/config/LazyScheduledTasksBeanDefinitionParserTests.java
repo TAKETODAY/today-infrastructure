@@ -23,7 +23,6 @@ package cn.taketoday.scheduling.config;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 
-import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.context.support.GenericXmlApplicationContext;
 
 /**
@@ -35,18 +34,17 @@ public class LazyScheduledTasksBeanDefinitionParserTests {
   @Test
   @Timeout(5)
   void checkTarget() {
-    try (ConfigurableApplicationContext applicationContext =
-            new GenericXmlApplicationContext(getClass(), "lazyScheduledTasksContext.xml")) {
+    var applicationContext =
+            new GenericXmlApplicationContext(getClass(), "lazyScheduledTasksContext.xml");
 
-      Task task = applicationContext.getBean(Task.class);
+    Task task = applicationContext.getBean(Task.class);
 
-      while (!task.executed) {
-        try {
-          Thread.sleep(10);
-        }
-        catch (Exception ex) {
-          /* Do Nothing */
-        }
+    while (!task.executed) {
+      try {
+        Thread.sleep(10);
+      }
+      catch (Exception ex) {
+        /* Do Nothing */
       }
     }
   }

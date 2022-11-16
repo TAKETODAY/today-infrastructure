@@ -35,18 +35,14 @@ public class Spr16217Tests {
   @Test
   @Disabled("TODO")
   public void baseConfigurationIsIncludedWhenFirstSuperclassReferenceIsSkippedInRegisterBeanPhase() {
-    try (StandardApplicationContext context =
-            new StandardApplicationContext(RegisterBeanPhaseImportingConfiguration.class)) {
-      context.getBean("someBean");
-    }
+    var context = new StandardApplicationContext(RegisterBeanPhaseImportingConfiguration.class);
+    context.getBean("someBean");
   }
 
   @Test
   public void baseConfigurationIsIncludedWhenFirstSuperclassReferenceIsSkippedInParseConfigurationPhase() {
-    try (StandardApplicationContext context =
-            new StandardApplicationContext(ParseConfigurationPhaseImportingConfiguration.class)) {
-      context.getBean("someBean");
-    }
+    var context = new StandardApplicationContext(ParseConfigurationPhaseImportingConfiguration.class);
+    context.getBean("someBean");
   }
 
   @Test

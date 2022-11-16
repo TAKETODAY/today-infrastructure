@@ -1271,7 +1271,7 @@ public class ResolvableType implements Serializable {
    * @see #fromClass(Class, Class)
    * @see #fromClassWithGenerics(Class, Class...)
    */
-  public static ResolvableType fromClass(Class<?> clazz) {
+  public static ResolvableType fromClass(@Nullable Class<?> clazz) {
     return new ResolvableType(clazz);
   }
 

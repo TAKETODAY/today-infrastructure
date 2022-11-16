@@ -33,23 +33,19 @@ import cn.taketoday.context.support.StandardApplicationContext;
 class AwareTests {
 
   @Test
-  void awareBean()
-          throws BeanDefinitionStoreException, NoSuchBeanDefinitionException {
+  void awareBean() throws BeanDefinitionStoreException, NoSuchBeanDefinitionException {
 
-    try (StandardApplicationContext applicationContext = new StandardApplicationContext()) {
+    StandardApplicationContext applicationContext = new StandardApplicationContext();
+    applicationContext.register(AwareBean.class);
+    applicationContext.refresh();
 
-      applicationContext.register(AwareBean.class);
-      applicationContext.refresh();
+    AwareBean bean = applicationContext.getBean(AwareBean.class);
+    assert bean.getApplicationContext() != null : "applicationContext == null";
+    assert bean.getBeanFactory() != null : "bean factory == null";
+    assert bean.getBeanName() != null : "bean name == null";
+    assert bean.getEnvironment() != null : "env == null";
 
-      AwareBean bean = applicationContext.getBean(AwareBean.class);
-      assert bean.getApplicationContext() != null : "applicationContext == null";
-      assert bean.getBeanFactory() != null : "bean factory == null";
-      assert bean.getBeanName() != null : "bean name == null";
-      assert bean.getEnvironment() != null : "env == null";
-
-      System.out.println(bean);
-
-    }
+    applicationContext.close();
 
   }
 
