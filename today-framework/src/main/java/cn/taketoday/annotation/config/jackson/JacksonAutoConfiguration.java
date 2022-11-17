@@ -304,12 +304,7 @@ public class JacksonAutoConfiguration {
       }
 
       private Field findPropertyNamingStrategyField(String fieldName) {
-        try {
-          return ReflectionUtils.findField(PropertyNamingStrategies.class, fieldName, PropertyNamingStrategy.class);
-        }
-        catch (NoClassDefFoundError ex) { // Fallback pre Jackson 2.12
-          return ReflectionUtils.findField(PropertyNamingStrategy.class, fieldName, PropertyNamingStrategy.class);
-        }
+        return ReflectionUtils.findField(PropertyNamingStrategies.class, fieldName, PropertyNamingStrategy.class);
       }
 
       private void configureModules(Jackson2ObjectMapperBuilder builder) {
