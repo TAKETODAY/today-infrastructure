@@ -28,7 +28,9 @@ import java.lang.reflect.Modifier;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -38,6 +40,7 @@ import cn.taketoday.context.properties.bind.Binder.Context;
 import cn.taketoday.context.properties.source.ConfigurationPropertyName;
 import cn.taketoday.context.properties.source.ConfigurationPropertySource;
 import cn.taketoday.context.properties.source.ConfigurationPropertyState;
+import cn.taketoday.core.BridgeMethodResolver;
 import cn.taketoday.core.MethodParameter;
 import cn.taketoday.core.ResolvableType;
 import cn.taketoday.lang.Nullable;
@@ -136,19 +139,28 @@ class JavaBeanBinder implements DataObjectBinder {
 
     private final Map<String, BeanProperty> properties = new LinkedHashMap<>();
 
-    Bean(ResolvableType type, Class<?> resolvedType) {
+    Bean(ResolvableType type, @Nullable Class<?> resolvedType) {
       this.type = type;
       this.resolvedType = resolvedType;
       addProperties(resolvedType);
     }
 
-    private void addProperties(Class<?> type) {
+    private void addProperties(@Nullable Class<?> type) {
       while (type != null && !Object.class.equals(type)) {
-        Method[] declaredMethods = getSorted(type, Class::getDeclaredMethods, Method::getName);
+        Method[] declaredMethods = getSorted(type, this::getDeclaredMethods, Method::getName);
         Field[] declaredFields = getSorted(type, Class::getDeclaredFields, Field::getName);
         addProperties(declaredMethods, declaredFields);
         type = type.getSuperclass();
       }
+    }
+
+    private Method[] getDeclaredMethods(Class<?> type) {
+      Method[] methods = type.getDeclaredMethods();
+      Set<Method> result = new LinkedHashSet<>(methods.length);
+      for (Method method : methods) {
+        result.add(BridgeMethodResolver.findBridgedMethod(method));
+      }
+      return result.toArray(new Method[0]);
     }
 
     private <S, E> E[] getSorted(S source, Function<S, E[]> elements, Function<E, String> name) {
@@ -186,7 +198,7 @@ class JavaBeanBinder implements DataObjectBinder {
     }
 
     private void addMethodIfPossible(Method method, String prefix, int parameterCount,
-                                     BiConsumer<BeanProperty, Method> consumer) {
+            BiConsumer<BeanProperty, Method> consumer) {
       if (method != null && method.getParameterCount() == parameterCount
               && method.getName().startsWith(prefix)
               && method.getName().length() > prefix.length()) {
