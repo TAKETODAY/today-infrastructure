@@ -35,7 +35,7 @@ import java.lang.annotation.Target;
  * @since 4.0
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.TYPE)
+@Target({ ElementType.TYPE, ElementType.METHOD })
 @Documented
 @ExtendWith(ModifiedClassPathExtension.class)
 public @interface ClassPathOverrides {

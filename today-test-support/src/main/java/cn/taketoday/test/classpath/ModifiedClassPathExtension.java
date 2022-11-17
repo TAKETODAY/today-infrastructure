@@ -36,9 +36,7 @@ import org.junit.platform.launcher.listeners.TestExecutionSummary;
 import java.lang.reflect.Method;
 import java.net.URLClassLoader;
 
-import cn.taketoday.lang.Assert;
 import cn.taketoday.util.CollectionUtils;
-import cn.taketoday.util.ReflectionUtils;
 
 /**
  * A custom {@link Extension} that runs tests using a modified class path. Entries are
@@ -79,57 +77,52 @@ class ModifiedClassPathExtension implements InvocationInterceptor {
   @Override
   public void interceptTestMethod(Invocation<Void> invocation, ReflectiveInvocationContext<Method> invocationContext,
           ExtensionContext extensionContext) throws Throwable {
+    interceptMethod(invocation, invocationContext, extensionContext);
+  }
+
+  @Override
+  public void interceptTestTemplateMethod(Invocation<Void> invocation,
+          ReflectiveInvocationContext<Method> invocationContext, ExtensionContext extensionContext) throws Throwable {
+    interceptMethod(invocation, invocationContext, extensionContext);
+  }
+
+  private void interceptMethod(Invocation<Void> invocation, ReflectiveInvocationContext<Method> invocationContext,
+          ExtensionContext extensionContext) throws Throwable {
     if (isModifiedClassPathClassLoader(extensionContext)) {
       invocation.proceed();
       return;
     }
-    invocation.skip();
-    runTestWithModifiedClassPath(invocationContext, extensionContext);
-  }
-
-  private void runTestWithModifiedClassPath(ReflectiveInvocationContext<Method> invocationContext,
-          ExtensionContext extensionContext) throws Throwable {
     Class<?> testClass = extensionContext.getRequiredTestClass();
     Method testMethod = invocationContext.getExecutable();
+    URLClassLoader modifiedClassLoader = ModifiedClassPathClassLoader.get(
+            testClass, testMethod, invocationContext.getArguments());
+    if (modifiedClassLoader == null) {
+      invocation.proceed();
+      return;
+    }
+    invocation.skip();
     ClassLoader originalClassLoader = Thread.currentThread().getContextClassLoader();
-    URLClassLoader modifiedClassLoader = ModifiedClassPathClassLoader.get(testClass);
     Thread.currentThread().setContextClassLoader(modifiedClassLoader);
     try {
-      runTest(modifiedClassLoader, testClass.getName(), testMethod.getName());
+      runTest(extensionContext.getUniqueId());
     }
     finally {
       Thread.currentThread().setContextClassLoader(originalClassLoader);
     }
   }
 
-  private void runTest(ClassLoader classLoader, String testClassName, String testMethodName) throws Throwable {
-    Class<?> testClass = classLoader.loadClass(testClassName);
-    Method testMethod = findMethod(testClass, testMethodName);
+  private void runTest(String testId) throws Throwable {
     LauncherDiscoveryRequest request = LauncherDiscoveryRequestBuilder.request()
-            .selectors(DiscoverySelectors.selectMethod(testClass, testMethod)).build();
+            .selectors(DiscoverySelectors.selectUniqueId(testId)).build();
     Launcher launcher = LauncherFactory.create();
     TestPlan testPlan = launcher.discover(request);
     SummaryGeneratingListener listener = new SummaryGeneratingListener();
     launcher.registerTestExecutionListeners(listener);
     launcher.execute(testPlan);
     TestExecutionSummary summary = listener.getSummary();
-    if (CollectionUtils.isNotEmpty(summary.getFailures())) {
+    if (!CollectionUtils.isEmpty(summary.getFailures())) {
       throw summary.getFailures().get(0).getException();
     }
-  }
-
-  private Method findMethod(Class<?> testClass, String testMethodName) {
-    Method method = ReflectionUtils.findMethod(testClass, testMethodName);
-    if (method == null) {
-      Method[] methods = ReflectionUtils.getUniqueDeclaredMethods(testClass);
-      for (Method candidate : methods) {
-        if (candidate.getName().equals(testMethodName)) {
-          return candidate;
-        }
-      }
-    }
-    Assert.state(method != null, () -> "Unable to find " + testClass + "." + testMethodName);
-    return method;
   }
 
   private void intercept(Invocation<Void> invocation, ExtensionContext extensionContext) throws Throwable {
