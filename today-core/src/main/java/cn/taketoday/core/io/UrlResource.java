@@ -237,28 +237,6 @@ public class UrlResource extends AbstractFileResolvingResource {
   }
 
   /**
-   * Determine a cleaned URL for the given original URL.
-   *
-   * @param originalUrl the original URL
-   * @param originalPath the original URL path
-   * @return the cleaned URL (possibly the original URL as-is)
-   * @see StringUtils#cleanPath
-   * @since 4.0
-   */
-  private static URL getCleanedUrl(URL originalUrl, String originalPath) {
-    String cleanedPath = StringUtils.cleanPath(originalPath);
-    if (!cleanedPath.equals(originalPath)) {
-      try {
-        return new URL(cleanedPath);
-      }
-      catch (MalformedURLException ex) {
-        // Cleaned URL path cannot be converted to URL -> take original URL.
-      }
-    }
-    return originalUrl;
-  }
-
-  /**
    * Lazily determine a cleaned URL for the given original URL.
    */
   private String getCleanedUrl() {
