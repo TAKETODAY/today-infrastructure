@@ -188,6 +188,7 @@ class JdbcNamespaceIntegrationTests {
       AbstractDriverBasedDataSource adbDataSource = (AbstractDriverBasedDataSource) dataSource;
       assertThat(adbDataSource.getUrl()).contains(dataSourceName);
     }
+    context.close();
   }
 
   private void assertCorrectSetupForSingleDataSource(String file, Predicate<String> urlPredicate) {
@@ -197,6 +198,7 @@ class JdbcNamespaceIntegrationTests {
     assertThat(dataSource instanceof AbstractDriverBasedDataSource).isTrue();
     AbstractDriverBasedDataSource adbDataSource = (AbstractDriverBasedDataSource) dataSource;
     assertThat(urlPredicate.test(adbDataSource.getUrl())).isTrue();
+    context.close();
   }
 
 }
