@@ -22,6 +22,7 @@ package cn.taketoday.annotation.config.jdbc;
 
 import javax.sql.DataSource;
 
+import cn.taketoday.annotation.config.transaction.TransactionAutoConfiguration;
 import cn.taketoday.annotation.config.transaction.TransactionManagerCustomizers;
 import cn.taketoday.beans.factory.ObjectProvider;
 import cn.taketoday.context.annotation.Bean;
@@ -50,7 +51,7 @@ import cn.taketoday.transaction.TransactionManager;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/10/31 11:51
  */
-@AutoConfiguration
+@AutoConfiguration(before = TransactionAutoConfiguration.class)
 @ConditionalOnClass({ JdbcTemplate.class, TransactionManager.class })
 @AutoConfigureOrder(Ordered.LOWEST_PRECEDENCE)
 @EnableConfigurationProperties(DataSourceProperties.class)

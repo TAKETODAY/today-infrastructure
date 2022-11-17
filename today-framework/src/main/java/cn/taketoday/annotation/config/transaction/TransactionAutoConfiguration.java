@@ -20,13 +20,9 @@
 
 package cn.taketoday.annotation.config.transaction;
 
-import cn.taketoday.annotation.config.jdbc.DataSourceTransactionManagerAutoConfiguration;
-import cn.taketoday.annotation.config.jpa.HibernateJpaAutoConfiguration;
-import cn.taketoday.annotation.config.transaction.jta.JtaAutoConfiguration;
 import cn.taketoday.beans.factory.ObjectProvider;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
-import cn.taketoday.context.annotation.config.AutoConfiguration;
 import cn.taketoday.context.annotation.config.EnableAutoConfiguration;
 import cn.taketoday.context.condition.ConditionalOnBean;
 import cn.taketoday.context.condition.ConditionalOnClass;
@@ -50,11 +46,6 @@ import cn.taketoday.transaction.support.TransactionTemplate;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-@AutoConfiguration(after = {
-        JtaAutoConfiguration.class,
-        HibernateJpaAutoConfiguration.class,
-        DataSourceTransactionManagerAutoConfiguration.class
-})
 @ConditionalOnClass(PlatformTransactionManager.class)
 @EnableConfigurationProperties(TransactionProperties.class)
 public class TransactionAutoConfiguration {

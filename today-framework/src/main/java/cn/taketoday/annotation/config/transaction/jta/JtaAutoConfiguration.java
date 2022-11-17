@@ -21,6 +21,7 @@
 package cn.taketoday.annotation.config.transaction.jta;
 
 import cn.taketoday.annotation.config.jpa.HibernateJpaAutoConfiguration;
+import cn.taketoday.annotation.config.transaction.TransactionAutoConfiguration;
 import cn.taketoday.context.annotation.Import;
 import cn.taketoday.context.annotation.config.AutoConfiguration;
 import cn.taketoday.context.annotation.config.EnableAutoConfiguration;
@@ -36,7 +37,7 @@ import cn.taketoday.context.condition.ConditionalOnProperty;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-@AutoConfiguration(before = { HibernateJpaAutoConfiguration.class })
+@AutoConfiguration(before = { HibernateJpaAutoConfiguration.class, TransactionAutoConfiguration.class })
 @ConditionalOnClass(jakarta.transaction.Transaction.class)
 @ConditionalOnProperty(prefix = "infra.jta", value = "enabled", matchIfMissing = true)
 @Import(JndiJtaConfiguration.class)

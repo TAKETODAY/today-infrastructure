@@ -23,6 +23,7 @@ package cn.taketoday.annotation.config.jpa;
 import org.hibernate.engine.spi.SessionImplementor;
 
 import cn.taketoday.annotation.config.jdbc.DataSourceAutoConfiguration;
+import cn.taketoday.annotation.config.transaction.TransactionAutoConfiguration;
 import cn.taketoday.context.annotation.Import;
 import cn.taketoday.context.annotation.config.AutoConfiguration;
 import cn.taketoday.context.annotation.config.EnableAutoConfiguration;
@@ -40,7 +41,7 @@ import jakarta.persistence.EntityManager;
  * @author Andy Wilkinson
  * @since 4.0
  */
-@AutoConfiguration(after = { DataSourceAutoConfiguration.class })
+@AutoConfiguration(after = DataSourceAutoConfiguration.class, before = TransactionAutoConfiguration.class)
 @ConditionalOnClass({ LocalContainerEntityManagerFactoryBean.class, EntityManager.class, SessionImplementor.class })
 @EnableConfigurationProperties(JpaProperties.class)
 @Import(HibernateJpaConfiguration.class)
