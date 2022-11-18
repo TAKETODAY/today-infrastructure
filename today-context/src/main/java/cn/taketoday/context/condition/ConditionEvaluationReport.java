@@ -82,11 +82,15 @@ public final class ConditionEvaluationReport {
     Assert.notNull(source, "Source must not be null");
     Assert.notNull(condition, "Condition must not be null");
     Assert.notNull(outcome, "Outcome must not be null");
-    this.unconditionalClasses.remove(source);
-    if (!this.outcomes.containsKey(source)) {
-      this.outcomes.put(source, new ConditionAndOutcomes());
+    unconditionalClasses.remove(source);
+
+    ConditionAndOutcomes outcomes = this.outcomes.get(source);
+    if (outcomes == null) {
+      outcomes = new ConditionAndOutcomes();
+      this.outcomes.put(source, outcomes);
     }
-    this.outcomes.get(source).add(condition, outcome);
+
+    outcomes.add(condition, outcome);
     this.addedAncestorOutcomes = false;
   }
 
@@ -117,7 +121,7 @@ public final class ConditionEvaluationReport {
    * @return the condition outcomes
    */
   public Map<String, ConditionAndOutcomes> getConditionAndOutcomesBySource() {
-    if (!this.addedAncestorOutcomes) {
+    if (!addedAncestorOutcomes) {
       for (Map.Entry<String, ConditionAndOutcomes> entry : outcomes.entrySet()) {
         String source = entry.getKey();
         ConditionAndOutcomes sourceOutcomes = entry.getValue();
@@ -126,9 +130,9 @@ public final class ConditionEvaluationReport {
         }
       }
 
-      this.addedAncestorOutcomes = true;
+      addedAncestorOutcomes = true;
     }
-    return Collections.unmodifiableMap(this.outcomes);
+    return Collections.unmodifiableMap(outcomes);
   }
 
   private void addNoMatchOutcomeToAncestors(String source) {
