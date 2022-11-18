@@ -21,19 +21,12 @@ package cn.taketoday.web.servlet;
 
 import java.io.Serial;
 import java.io.Serializable;
-import java.net.URLDecoder;
-import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Enumeration;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.ApplicationContextInitializer;
 import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.core.env.ConfigurableEnvironment;
-import cn.taketoday.http.MediaType;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ObjectUtils;
@@ -288,16 +281,12 @@ public class DispatcherServlet
       return;
     }
 
-    HttpServletRequest servletRequest = (HttpServletRequest) request;
-    if (log.isDebugEnabled()) {
-      logRequest(servletRequest);
-    }
     RequestContext context = RequestContextHolder.get();
 
     boolean reset = false;
     if (context == null) {
       ApplicationContext ctx = getApplicationContext();
-      context = new ServletRequestContext(ctx, servletRequest, (HttpServletResponse) response);
+      context = new ServletRequestContext(ctx, (HttpServletRequest) request, (HttpServletResponse) response);
       RequestContextHolder.set(context);
       reset = true;
     }
@@ -339,64 +328,6 @@ public class DispatcherServlet
   protected void logInfo(String msg) {
     super.logInfo(msg);
     getServletContext().log(msg);
-  }
-
-  // @since 4.0
-  private void logRequest(HttpServletRequest request) {
-    String params;
-    String contentType = request.getContentType();
-    if (StringUtils.startsWithIgnoreCase(contentType, "multipart/")) {
-      params = "multipart";
-    }
-    else if (isEnableLoggingRequestDetails()) {
-      params = request.getParameterMap().entrySet().stream()
-              .map(entry -> entry.getKey() + ":" + Arrays.toString(entry.getValue()))
-              .collect(Collectors.joining(", "));
-    }
-    else {
-      // Avoid request body parsing for form data
-      params = StringUtils.startsWithIgnoreCase(contentType, MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-                       || !request.getParameterMap().isEmpty() ? "masked" : "";
-    }
-
-    String queryString = request.getQueryString();
-    String queryClause = StringUtils.isNotEmpty(queryString) ? "?" + queryString : "";
-    String dispatchType = !DispatcherType.REQUEST.equals(request.getDispatcherType())
-                          ? "\"" + request.getDispatcherType() + "\" dispatch for "
-                          : "";
-    String message = dispatchType + request.getMethod() + " " +
-            request.getRequestURL() + queryClause + ", parameters={" + params + "}";
-    message = URLDecoder.decode(message, StandardCharsets.UTF_8);
-    if (log.isTraceEnabled()) {
-      StringBuilder headers = new StringBuilder();
-      Enumeration<String> headerNames = request.getHeaderNames();
-      if (headerNames.hasMoreElements()) {
-        if (isEnableLoggingRequestDetails()) {
-          // first
-          String name = headerNames.nextElement();
-          headers.append(name)
-                  .append(':')
-                  .append(Collections.list(request.getHeaders(name)));
-
-          while (headerNames.hasMoreElements()) {
-            name = headerNames.nextElement();
-            headers.append(", ");
-            headers.append(name);
-            headers.append(':');
-            headers.append(Collections.list(request.getHeaders(name)));
-          }
-        }
-        else {
-          headers.append("masked");
-        }
-      }
-
-      log.trace(message + ", headers={" + headers + "} in DispatcherServlet '" +
-              getServletConfig().getServletName() + "'");
-    }
-    else {
-      log.debug(message);
-    }
   }
 
 }

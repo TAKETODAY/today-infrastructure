@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import cn.taketoday.beans.BeanUtils;
+import cn.taketoday.beans.factory.BeanNameAware;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.ApplicationContextException;
 import cn.taketoday.context.ApplicationContextInitializer;
@@ -37,6 +38,7 @@ import cn.taketoday.context.event.ContextRefreshedEvent;
 import cn.taketoday.context.event.SourceFilteringListener;
 import cn.taketoday.context.support.AbstractRefreshableConfigApplicationContext;
 import cn.taketoday.context.support.ClassPathXmlApplicationContext;
+import cn.taketoday.core.Conventions;
 import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
 import cn.taketoday.core.env.ConfigurableEnvironment;
 import cn.taketoday.core.env.Environment;
@@ -58,7 +60,8 @@ import cn.taketoday.web.servlet.support.XmlWebApplicationContext;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/9/26 23:21
  */
-public abstract class InfraHandler implements ApplicationContextAware, EnvironmentCapable, EnvironmentAware {
+public abstract class InfraHandler
+        implements ApplicationContextAware, EnvironmentCapable, EnvironmentAware, BeanNameAware {
 
   /**
    * Default context class for InfraHandler.
@@ -106,6 +109,8 @@ public abstract class InfraHandler implements ApplicationContextAware, Environme
 
   /** Monitor for synchronized onRefresh execution. */
   private final Object onRefreshMonitor = new Object();
+
+  protected String beanName = Conventions.getVariableName(this);
 
   @Nullable
   private ConfigurableEnvironment environment;
@@ -157,6 +162,11 @@ public abstract class InfraHandler implements ApplicationContextAware, Environme
    */
   protected InfraHandler(ApplicationContext applicationContext) {
     this.applicationContext = applicationContext;
+  }
+
+  @Override
+  public void setBeanName(String name) {
+    this.beanName = name;
   }
 
   /**

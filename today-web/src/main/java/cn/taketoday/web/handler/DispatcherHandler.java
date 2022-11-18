@@ -21,8 +21,12 @@
 package cn.taketoday.web.handler;
 
 import java.io.IOException;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.stream.Collectors;
 
 import cn.taketoday.beans.factory.BeanFactoryUtils;
@@ -31,10 +35,12 @@ import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpStatus;
+import cn.taketoday.http.MediaType;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ArrayHolder;
 import cn.taketoday.util.ObjectUtils;
+import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.HandlerAdapter;
 import cn.taketoday.web.HandlerAdapterNotFoundException;
 import cn.taketoday.web.HandlerAdapterProvider;
@@ -373,7 +379,7 @@ public class DispatcherHandler extends InfraHandler {
    * @since 4.0
    */
   public void dispatch(RequestContext context) throws Throwable {
-
+    logRequest(context);
     Object handler = null;
     Object returnValue = null;
     Throwable throwable = null;
@@ -477,6 +483,65 @@ public class DispatcherHandler extends InfraHandler {
     }
     else {
       return notFoundHandler.handleRequest(request);
+    }
+  }
+
+  // @since 4.0
+  private void logRequest(RequestContext request) {
+    if (log.isDebugEnabled()) {
+      String params;
+      String contentType = request.getContentType();
+      if (StringUtils.startsWithIgnoreCase(contentType, "multipart/")) {
+        params = "multipart";
+      }
+      else if (isEnableLoggingRequestDetails()) {
+        params = request.getParameters().entrySet().stream()
+                .map(entry -> entry.getKey() + ":" + Arrays.toString(entry.getValue()))
+                .collect(Collectors.joining(", "));
+      }
+      else {
+        // Avoid request body parsing for form data
+        params = StringUtils.startsWithIgnoreCase(contentType, MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+                         || !request.getParameters().isEmpty() ? "masked" : "";
+      }
+
+      String queryString = request.getQueryString();
+      String queryClause = StringUtils.isNotEmpty(queryString) ? "?" + queryString : "";
+      String message = request.getMethod() + " " +
+              request.getRequestURL() + queryClause + ", parameters={" + params + "}";
+      message = URLDecoder.decode(message, StandardCharsets.UTF_8);
+      if (log.isTraceEnabled()) {
+        StringBuilder headers = new StringBuilder();
+        HttpHeaders httpHeaders = request.requestHeaders();
+        if (!httpHeaders.isEmpty()) {
+          if (isEnableLoggingRequestDetails()) {
+            // first
+            Iterator<String> headerNames = httpHeaders.keySet().iterator();
+            if (headerNames.hasNext()) {
+              String name = headerNames.next();
+              headers.append(name)
+                      .append(':')
+                      .append(httpHeaders.getValuesAsList(name));
+
+              while (headerNames.hasNext()) {
+                name = headerNames.next();
+                headers.append(", ");
+                headers.append(name);
+                headers.append(':');
+                headers.append(httpHeaders.get(name));
+              }
+            }
+          }
+          else {
+            headers.append("masked");
+          }
+        }
+
+        log.trace(message + ", headers={" + headers + "} in DispatcherHandler '" + beanName + "'");
+      }
+      else {
+        log.debug(message);
+      }
     }
   }
 
