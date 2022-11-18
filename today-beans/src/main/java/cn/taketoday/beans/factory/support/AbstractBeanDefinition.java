@@ -777,7 +777,9 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
    */
   public void copyQualifiersFrom(AbstractBeanDefinition source) {
     Assert.notNull(source, "Source must not be null");
-    qualifiers().putAll(source.qualifiers);
+    if (source.qualifiers != null) {
+      qualifiers().putAll(source.qualifiers);
+    }
   }
 
   private LinkedHashMap<String, AutowireCandidateQualifier> qualifiers() {
