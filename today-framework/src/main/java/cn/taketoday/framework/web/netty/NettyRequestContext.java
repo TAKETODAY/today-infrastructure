@@ -401,7 +401,7 @@ public class NettyRequestContext extends RequestContext {
   @Override
   protected void postRequestCompleted() {
     sendIfNotCommitted();
-    log.info("Request completed");
+    log.debug("Request completed");
 
     Consumer<? super HttpHeaders> trailerHeadersConsumer = config.getTrailerHeadersConsumer();
     LastHttpContent lastHttpContent = LastHttpContent.EMPTY_LAST_CONTENT;
@@ -440,6 +440,7 @@ public class NettyRequestContext extends RequestContext {
       future.addListener(ChannelFutureListener.CLOSE);
     }
 
+    channelContext.flush();
     if (requestDecoder != null) {
       requestDecoder.destroy();
     }
@@ -471,7 +472,6 @@ public class NettyRequestContext extends RequestContext {
       // apply Status code and headers
       // ---------------------------------------------
       HttpHeaders responseHeaders = nettyResponseHeaders;
-      log.info("Writing Headers: {}", responseHeaders);
       // set Content-Length header
       String contentType = getResponseContentType();
       if (MediaType.TEXT_EVENT_STREAM_VALUE.equals(contentType)) {

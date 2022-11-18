@@ -20,6 +20,7 @@
 
 package cn.taketoday.framework.web.netty;
 
+import cn.taketoday.annotation.config.web.WebMvcProperties;
 import cn.taketoday.beans.factory.annotation.DisableAllDependencyInjection;
 import cn.taketoday.beans.factory.annotation.EnableDependencyInjection;
 import cn.taketoday.beans.factory.config.BeanDefinition;
@@ -47,9 +48,13 @@ import reactor.core.publisher.Mono;
 public class NettyConfiguration {
 
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-  @MissingBean(value = { ReactiveChannelHandler.class, DispatcherHandler.class })
-  ReactiveChannelHandler reactiveChannelHandler(ApplicationContext context, NettyRequestConfig contextConfig) {
-    return new ReactiveChannelHandler(contextConfig, context);
+  @MissingBean(value = { NettyChannelHandler.class, DispatcherHandler.class })
+  NettyChannelHandler nettyChannelHandler(ApplicationContext context,
+          WebMvcProperties webMvcProperties, NettyRequestConfig contextConfig) {
+    NettyChannelHandler handler = new NettyChannelHandler(contextConfig, context);
+    handler.setThrowExceptionIfNoHandlerFound(webMvcProperties.isThrowExceptionIfNoHandlerFound());
+    handler.setEnableLoggingRequestDetails(webMvcProperties.isLogRequestDetails());
+    return handler;
   }
 
   /**
@@ -76,7 +81,7 @@ public class NettyConfiguration {
    */
   @MissingBean
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-  NettyChannelInitializer nettyChannelInitializer(ReactiveChannelHandler channelHandler) {
+  NettyChannelInitializer nettyChannelInitializer(NettyChannelHandler channelHandler) {
     return new NettyChannelInitializer(channelHandler);
   }
 
@@ -97,13 +102,13 @@ public class NettyConfiguration {
   static class NettyWebSocketConfig {
 
     @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-    @MissingBean(value = { ReactiveChannelHandler.class, DispatcherHandler.class })
-    ReactiveChannelHandler webSocketReactiveChannelHandler(ApplicationContext context,
+    @MissingBean(value = { NettyChannelHandler.class, DispatcherHandler.class })
+    NettyChannelHandler webSocketReactiveChannelHandler(ApplicationContext context,
             NettyRequestConfig contextConfig, @Nullable WebSocketHandlerMapping registry) {
       if (registry != null) {
-        return new WebSocketReactiveChannelHandler(contextConfig, context);
+        return new WebSocketNettyChannelHandler(contextConfig, context);
       }
-      return new ReactiveChannelHandler(contextConfig, context);
+      return new NettyChannelHandler(contextConfig, context);
     }
 
     @Singleton

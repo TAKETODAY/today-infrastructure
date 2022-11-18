@@ -36,12 +36,12 @@ import io.netty.handler.codec.http.HttpVersion;
  *
  * @author TODAY 2019-07-04 21:50
  */
-public class ReactiveChannelHandler extends DispatcherHandler implements ChannelInboundHandler {
+public class NettyChannelHandler extends DispatcherHandler implements ChannelInboundHandler {
 
   private final ApplicationContext context;
   private final NettyRequestConfig contextConfig;
 
-  public ReactiveChannelHandler(
+  public NettyChannelHandler(
           NettyRequestConfig contextConfig, ApplicationContext context) {
     super(context);
     Assert.notNull(context, "ApplicationContext is required");

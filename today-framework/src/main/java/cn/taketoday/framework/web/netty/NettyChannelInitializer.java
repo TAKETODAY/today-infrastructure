@@ -29,14 +29,14 @@ import io.netty.handler.codec.http.HttpServerCodec;
 import io.netty.handler.codec.http.HttpServerExpectContinueHandler;
 
 /**
- * Framework Channel Initializer
+ * Netty HTTP Channel Initializer
  *
  * @author TODAY 2019-07-02 21:34
  */
 public class NettyChannelInitializer
         extends ChannelInitializer<SocketChannel> implements ChannelHandler {
 
-  private final ReactiveChannelHandler reactiveDispatcher;
+  private final NettyChannelHandler nettyChannelHandler;
 
   /**
    * the maximum length of the aggregated content.
@@ -90,9 +90,9 @@ public class NettyChannelInitializer
    */
   private boolean validateHeaders = true;
 
-  public NettyChannelInitializer(ReactiveChannelHandler reactiveDispatcher) {
-    Assert.notNull(reactiveDispatcher, "ReactiveDispatcher must not be null");
-    this.reactiveDispatcher = reactiveDispatcher;
+  public NettyChannelInitializer(NettyChannelHandler channelHandler) {
+    Assert.notNull(channelHandler, "NettyChannelHandler is required");
+    this.nettyChannelHandler = channelHandler;
   }
 
   @Override
@@ -104,7 +104,7 @@ public class NettyChannelInitializer
             .addLast("HttpServerCodec", serverCodec)
             .addLast("HttpObjectAggregator", new HttpObjectAggregator(maxContentLength, closeOnExpectationFailed))
             .addLast("HttpServerExpectContinueHandler", new HttpServerExpectContinueHandler())
-            .addLast("ReactiveChannelHandler", reactiveDispatcher);
+            .addLast("ReactiveChannelHandler", nettyChannelHandler);
   }
 
   @Override
@@ -164,8 +164,8 @@ public class NettyChannelInitializer
    * Get Netty {@link cn.taketoday.web.handler} implementation
    * like {@link cn.taketoday.web.servlet.DispatcherServlet}
    */
-  public ReactiveChannelHandler getReactiveDispatcher() {
-    return reactiveDispatcher;
+  public NettyChannelHandler getNettyChannelHandler() {
+    return nettyChannelHandler;
   }
 
   // HttpServerCodec

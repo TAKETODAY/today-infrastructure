@@ -50,9 +50,9 @@ import io.netty.handler.codec.http.websocketx.WebSocketFrame;
  * @author TODAY 2021/5/24 21:22
  * @since 1.0.1
  */
-public class WebSocketReactiveChannelHandler extends ReactiveChannelHandler {
+public class WebSocketNettyChannelHandler extends NettyChannelHandler {
 
-  public WebSocketReactiveChannelHandler(
+  public WebSocketNettyChannelHandler(
           NettyRequestConfig contextConfig, ApplicationContext context) {
     super(contextConfig, context);
   }
