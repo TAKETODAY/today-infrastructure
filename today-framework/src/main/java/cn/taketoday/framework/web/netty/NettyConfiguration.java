@@ -29,13 +29,17 @@ import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.MissingBean;
 import cn.taketoday.context.annotation.Role;
 import cn.taketoday.context.condition.ConditionalOnClass;
+import cn.taketoday.context.condition.ConditionalOnProperty;
+import cn.taketoday.context.properties.ConfigurationProperties;
 import cn.taketoday.framework.web.embedded.netty.ReactorNettyWebServer;
 import cn.taketoday.http.server.reactive.HttpHandler;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.stereotype.Component;
 import cn.taketoday.stereotype.Singleton;
 import cn.taketoday.web.handler.DispatcherHandler;
+import cn.taketoday.web.multipart.MultipartConfig;
 import cn.taketoday.web.socket.WebSocketHandlerMapping;
+import io.netty.handler.codec.http.multipart.DefaultHttpDataFactory;
 import reactor.core.publisher.Mono;
 
 /**
@@ -87,8 +91,21 @@ public class NettyConfiguration {
 
   @MissingBean
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-  NettyRequestConfig nettyRequestContextConfig() {
-    return new NettyRequestConfig();
+  NettyRequestConfig nettyRequestConfig(MultipartConfig multipartConfig) {
+    String location = multipartConfig.getLocation();
+    DefaultHttpDataFactory factory = new DefaultHttpDataFactory(location != null);
+    factory.setMaxLimit(multipartConfig.getMaxRequestSize().toBytes());
+    if (location != null) {
+      factory.setBaseDir(location);
+    }
+    return new NettyRequestConfig(factory);
+  }
+
+  @Component
+  @ConditionalOnProperty(prefix = "server.multipart", name = "enabled", matchIfMissing = true)
+  @ConfigurationProperties(prefix = "server.multipart", ignoreUnknownFields = false)
+  static MultipartConfig multipartConfig() {
+    return new MultipartConfig();
   }
 
   @Component

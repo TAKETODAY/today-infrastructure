@@ -389,12 +389,10 @@ public class NettyRequestContext extends RequestContext {
   public void flush() {
     writeHeaders();
     if (responseBody != null) {
-//      ByteBufAllocator allocator = channelContext.alloc();
-//      ByteBuf byteBuf = allocator.directBuffer();
-      responseBody.retain();
+//      responseBody.retain();
       DefaultHttpContent httpContent = new DefaultHttpContent(responseBody);
       channelContext.write(httpContent);
-      responseBody.clear();
+//      responseBody.clear();
     }
   }
 
@@ -440,7 +438,6 @@ public class NettyRequestContext extends RequestContext {
       future.addListener(ChannelFutureListener.CLOSE);
     }
 
-    channelContext.flush();
     if (requestDecoder != null) {
       requestDecoder.destroy();
     }

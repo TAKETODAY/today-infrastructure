@@ -53,7 +53,8 @@ public class NettyChannelHandler extends DispatcherHandler implements ChannelInb
 
   @Override
   public void channelReadComplete(ChannelHandlerContext ctx) {
-    ctx.flush();
+//    ctx.flush();
+    ctx.fireChannelReadComplete();
   }
 
   @Override
