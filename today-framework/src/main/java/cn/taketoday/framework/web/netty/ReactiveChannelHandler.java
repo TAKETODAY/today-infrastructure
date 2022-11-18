@@ -44,9 +44,8 @@ public class ReactiveChannelHandler extends DispatcherHandler implements Channel
   public ReactiveChannelHandler(
           NettyRequestConfig contextConfig, ApplicationContext context) {
     super(context);
-    Assert.notNull(context, "DispatcherHandler is required");
-    Assert.notNull(context, "NettyRequestConfig is required");
     Assert.notNull(context, "ApplicationContext is required");
+    Assert.notNull(contextConfig, "NettyRequestConfig is required");
     this.context = context;
     this.contextConfig = contextConfig;
     init();
