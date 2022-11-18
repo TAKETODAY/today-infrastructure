@@ -780,24 +780,24 @@ public class WebMvcAutoConfigurationTests {
 
   @Test
   void addResourceHandlersAppliesToChildAndParentContext() {
-    try (var context = new AnnotationConfigServletWebServerApplicationContext()) {
-      context.register(WebMvcAutoConfiguration.class,
-              DispatcherServletAutoConfiguration.class,
-              HttpMessageConvertersAutoConfiguration.class,
-              PropertyPlaceholderAutoConfiguration.class,
-              ResourceHandlersWithChildAndParentContextConfiguration.class
-      );
+    var context = new AnnotationConfigServletWebServerApplicationContext();
+    context.register(WebMvcAutoConfiguration.class,
+            DispatcherServletAutoConfiguration.class,
+            HttpMessageConvertersAutoConfiguration.class,
+            PropertyPlaceholderAutoConfiguration.class,
+            ResourceHandlersWithChildAndParentContextConfiguration.class
+    );
 
-      context.refresh();
+    context.refresh();
 
-      var resourceHandlerMapping = context.getBean("resourceHandlerMapping", SimpleUrlHandlerMapping.class);
-      var extraDispatcherServlet = context.getBean("extraDispatcherServlet", DispatcherServlet.class);
-      var extraResourceHandlerMapping = extraDispatcherServlet.getApplicationContext().getBean("resourceHandlerMapping", SimpleUrlHandlerMapping.class);
+    var resourceHandlerMapping = context.getBean("resourceHandlerMapping", SimpleUrlHandlerMapping.class);
+    var extraDispatcherServlet = context.getBean("extraDispatcherServlet", DispatcherServlet.class);
+    var extraResourceHandlerMapping = extraDispatcherServlet.getApplicationContext().getBean("resourceHandlerMapping", SimpleUrlHandlerMapping.class);
 
-      assertThat(resourceHandlerMapping).isNotSameAs(extraResourceHandlerMapping);
-      assertThat(resourceHandlerMapping.getUrlMap()).containsKey("/**");
-      assertThat(extraResourceHandlerMapping.getUrlMap()).containsKey("/**");
-    }
+    assertThat(resourceHandlerMapping).isNotSameAs(extraResourceHandlerMapping);
+    assertThat(resourceHandlerMapping.getUrlMap()).containsKey("/**");
+    assertThat(extraResourceHandlerMapping.getUrlMap()).containsKey("/**");
+    context.close();
   }
 
   private void assertResourceHttpRequestHandler(AssertableWebApplicationContext context,

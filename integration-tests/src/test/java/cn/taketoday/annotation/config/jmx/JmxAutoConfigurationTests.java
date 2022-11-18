@@ -92,21 +92,22 @@ class JmxAutoConfigurationTests {
 
   @Test
   void testBasicParentContext() {
-    try (AnnotationConfigApplicationContext parent = new AnnotationConfigApplicationContext()) {
-      parent.register(JmxAutoConfiguration.class);
-      parent.refresh();
-      this.contextRunner.withParent(parent).run((context) -> assertThat(context.isRunning()));
-    }
+    AnnotationConfigApplicationContext parent = new AnnotationConfigApplicationContext();
+    parent.register(JmxAutoConfiguration.class);
+    parent.refresh();
+    this.contextRunner.withParent(parent).run((context) -> assertThat(context.isRunning()));
+
+    parent.close();
   }
 
   @Test
   void testParentContext() {
-    try (AnnotationConfigApplicationContext parent = new AnnotationConfigApplicationContext()) {
-      parent.register(JmxAutoConfiguration.class, TestConfiguration.class);
-      parent.refresh();
-      this.contextRunner.withParent(parent).withConfiguration(UserConfigurations.of(TestConfiguration.class))
-              .run((context) -> assertThat(context.isRunning()));
-    }
+    AnnotationConfigApplicationContext parent = new AnnotationConfigApplicationContext();
+    parent.register(JmxAutoConfiguration.class, TestConfiguration.class);
+    parent.refresh();
+    this.contextRunner.withParent(parent).withConfiguration(UserConfigurations.of(TestConfiguration.class))
+            .run((context) -> assertThat(context.isRunning()));
+    parent.close();
   }
 
   @Configuration(proxyBeanMethods = false)

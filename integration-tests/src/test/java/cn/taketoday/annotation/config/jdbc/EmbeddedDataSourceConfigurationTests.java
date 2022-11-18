@@ -60,11 +60,12 @@ class EmbeddedDataSourceConfigurationTests {
   @Test
   void generateUniqueName() throws Exception {
     this.context = load("datasource.generate-unique-name=true");
-    try (AnnotationConfigApplicationContext context2 = load("datasource.generate-unique-name=true")) {
-      DataSource dataSource = this.context.getBean(DataSource.class);
-      DataSource dataSource2 = context2.getBean(DataSource.class);
-      assertThat(getDatabaseName(dataSource)).isNotEqualTo(getDatabaseName(dataSource2));
-    }
+    var context2 = load("datasource.generate-unique-name=true");
+
+    DataSource dataSource = this.context.getBean(DataSource.class);
+    DataSource dataSource2 = context2.getBean(DataSource.class);
+    assertThat(getDatabaseName(dataSource)).isNotEqualTo(getDatabaseName(dataSource2));
+    context2.close();
   }
 
   private String getDatabaseName(DataSource dataSource) throws SQLException {

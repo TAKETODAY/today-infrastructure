@@ -57,49 +57,48 @@ class ConfigurationPropertiesBeanTests {
 
   @Test
   void getAllReturnsAll() {
-    try (AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(
+    AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(
             NonAnnotatedComponent.class, AnnotatedComponent.class, AnnotatedBeanConfiguration.class,
-            ValueObjectConfiguration.class)) {
-      Map<String, ConfigurationPropertiesBean> all = ConfigurationPropertiesBean.getAll(context);
-      assertThat(all).containsOnlyKeys("annotatedComponent", "annotatedBean", ValueObject.class.getName());
-      ConfigurationPropertiesBean component = all.get("annotatedComponent");
-      assertThat(component.getName()).isEqualTo("annotatedComponent");
-      assertThat(component.getInstance()).isInstanceOf(AnnotatedComponent.class);
-      assertThat(component.getAnnotation()).isNotNull();
-      assertThat(component.getType()).isEqualTo(AnnotatedComponent.class);
-      assertThat(component.getBindMethod()).isEqualTo(BindMethod.JAVA_BEAN);
-      ConfigurationPropertiesBean bean = all.get("annotatedBean");
-      assertThat(bean.getName()).isEqualTo("annotatedBean");
-      assertThat(bean.getInstance()).isInstanceOf(AnnotatedBean.class);
-      assertThat(bean.getType()).isEqualTo(AnnotatedBean.class);
-      assertThat(bean.getAnnotation()).isNotNull();
-      assertThat(bean.getBindMethod()).isEqualTo(BindMethod.JAVA_BEAN);
-      ConfigurationPropertiesBean valueObject = all.get(ValueObject.class.getName());
-      assertThat(valueObject.getName()).isEqualTo(ValueObject.class.getName());
-      assertThat(valueObject.getInstance()).isInstanceOf(ValueObject.class);
-      assertThat(valueObject.getType()).isEqualTo(ValueObject.class);
-      assertThat(valueObject.getAnnotation()).isNotNull();
-      assertThat(valueObject.getBindMethod()).isEqualTo(BindMethod.VALUE_OBJECT);
-    }
+            ValueObjectConfiguration.class);
+    Map<String, ConfigurationPropertiesBean> all = ConfigurationPropertiesBean.getAll(context);
+    assertThat(all).containsOnlyKeys("annotatedComponent", "annotatedBean", ValueObject.class.getName());
+    ConfigurationPropertiesBean component = all.get("annotatedComponent");
+    assertThat(component.getName()).isEqualTo("annotatedComponent");
+    assertThat(component.getInstance()).isInstanceOf(AnnotatedComponent.class);
+    assertThat(component.getAnnotation()).isNotNull();
+    assertThat(component.getType()).isEqualTo(AnnotatedComponent.class);
+    assertThat(component.getBindMethod()).isEqualTo(BindMethod.JAVA_BEAN);
+    ConfigurationPropertiesBean bean = all.get("annotatedBean");
+    assertThat(bean.getName()).isEqualTo("annotatedBean");
+    assertThat(bean.getInstance()).isInstanceOf(AnnotatedBean.class);
+    assertThat(bean.getType()).isEqualTo(AnnotatedBean.class);
+    assertThat(bean.getAnnotation()).isNotNull();
+    assertThat(bean.getBindMethod()).isEqualTo(BindMethod.JAVA_BEAN);
+    ConfigurationPropertiesBean valueObject = all.get(ValueObject.class.getName());
+    assertThat(valueObject.getName()).isEqualTo(ValueObject.class.getName());
+    assertThat(valueObject.getInstance()).isInstanceOf(ValueObject.class);
+    assertThat(valueObject.getType()).isEqualTo(ValueObject.class);
+    assertThat(valueObject.getAnnotation()).isNotNull();
+    assertThat(valueObject.getBindMethod()).isEqualTo(BindMethod.VALUE_OBJECT);
+    context.close();
   }
 
   @Test
   void getAllDoesNotFindABeanDeclaredInAStaticBeanMethodOnAConfigurationAndConfigurationPropertiesAnnotatedClass() {
-    try (AnnotationConfigApplicationContext context
-            = new AnnotationConfigApplicationContext(StaticBeanMethodConfiguration.class)) {
-      Map<String, ConfigurationPropertiesBean> all = ConfigurationPropertiesBean.getAll(context);
-      assertThat(all).containsOnlyKeys("configurationPropertiesBeanTests.StaticBeanMethodConfiguration");
-    }
+    var context = new AnnotationConfigApplicationContext(StaticBeanMethodConfiguration.class);
+    Map<String, ConfigurationPropertiesBean> all = ConfigurationPropertiesBean.getAll(context);
+    assertThat(all).containsOnlyKeys("configurationPropertiesBeanTests.StaticBeanMethodConfiguration");
+    context.close();
   }
 
   @Test
   void getAllWhenHasBadBeanDoesNotFail() {
-    try (AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(
+    var context = new AnnotationConfigApplicationContext(
             NonAnnotatedComponent.class, AnnotatedComponent.class, AnnotatedBeanConfiguration.class,
-            ValueObjectConfiguration.class, BadBeanConfiguration.class)) {
-      Map<String, ConfigurationPropertiesBean> all = ConfigurationPropertiesBean.getAll(context);
-      assertThat(all).isNotEmpty();
-    }
+            ValueObjectConfiguration.class, BadBeanConfiguration.class);
+    Map<String, ConfigurationPropertiesBean> all = ConfigurationPropertiesBean.getAll(context);
+    assertThat(all).isNotEmpty();
+    context.close();
   }
 
   @Test
@@ -346,13 +345,13 @@ class ConfigurationPropertiesBeanTests {
 
   private void get(Class<?> configuration, String beanName, boolean cacheBeanMetadata,
           ThrowingConsumer<ConfigurationPropertiesBean> consumer) throws Throwable {
-    try (AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext()) {
-      context.getBeanFactory().setCacheBeanMetadata(cacheBeanMetadata);
-      context.register(configuration);
-      context.refresh();
-      Object bean = context.getBean(beanName);
-      consumer.accept(ConfigurationPropertiesBean.get(context, bean, beanName));
-    }
+    AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
+    context.getBeanFactory().setCacheBeanMetadata(cacheBeanMetadata);
+    context.register(configuration);
+    context.refresh();
+    Object bean = context.getBean(beanName);
+    consumer.accept(ConfigurationPropertiesBean.get(context, bean, beanName));
+    context.close();
   }
 
   @Component("nonAnnotatedComponent")

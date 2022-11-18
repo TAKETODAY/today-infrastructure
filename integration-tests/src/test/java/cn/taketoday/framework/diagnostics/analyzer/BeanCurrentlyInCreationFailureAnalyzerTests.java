@@ -160,13 +160,15 @@ class BeanCurrentlyInCreationFailureAnalyzerTests {
   }
 
   private Exception createFailure(Class<?> configuration, boolean allowCircularReferences) {
-    try (AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext()) {
+    try {
+      AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
       context.register(configuration);
       AbstractAutowireCapableBeanFactory beanFactory = context.getBeanFactory();
       this.analyzer = new BeanCurrentlyInCreationFailureAnalyzer(beanFactory);
       beanFactory.setAllowCircularReferences(allowCircularReferences);
       context.refresh();
       fail("Expected failure did not occur");
+      context.close();
       return null;
     }
     catch (Exception ex) {

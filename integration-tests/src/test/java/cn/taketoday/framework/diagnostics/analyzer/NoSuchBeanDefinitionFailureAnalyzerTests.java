@@ -212,11 +212,13 @@ class NoSuchBeanDefinitionFailureAnalyzerTests {
   }
 
   private FatalBeanException createFailure(Class<?> config, String... environment) {
-    try (AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext()) {
+    try {
+      AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
       this.analyzer = new NoSuchBeanDefinitionFailureAnalyzer(context.getBeanFactory());
       TestPropertyValues.of(environment).applyTo(context);
       context.register(config);
       context.refresh();
+      context.close();
       return null;
     }
     catch (FatalBeanException ex) {

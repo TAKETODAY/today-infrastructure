@@ -51,14 +51,14 @@ class ConfigDataEnvironmentPostProcessorBootstrapContextIntegrationTests {
   @Test
   void bootstrapsApplicationContext() {
     String args = "--app.config.import=classpath:application-bootstrap-registry-integration-tests.properties";
-    try (ConfigurableApplicationContext context = application.run(args)) {
-      LoaderHelper bean = context.getBean(TestConfigDataBootstrap.LoaderHelper.class);
-      assertThat(bean).isNotNull();
-      assertThat(bean.getBound()).isEqualTo("igotbound");
-      assertThat(bean.getProfileBound()).isEqualTo("igotprofilebound");
-      assertThat(bean.getLocation().getResolverHelper().getLocation())
-              .isEqualTo(ConfigDataLocation.valueOf("testbootstrap:test"));
-    }
+    ConfigurableApplicationContext context = application.run(args);
+    LoaderHelper bean = context.getBean(TestConfigDataBootstrap.LoaderHelper.class);
+    assertThat(bean).isNotNull();
+    assertThat(bean.getBound()).isEqualTo("igotbound");
+    assertThat(bean.getProfileBound()).isEqualTo("igotprofilebound");
+    assertThat(bean.getLocation().getResolverHelper().getLocation())
+            .isEqualTo(ConfigDataLocation.valueOf("testbootstrap:test"));
+    context.close();
   }
 
   @Configuration
