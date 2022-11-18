@@ -172,7 +172,8 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
 
   private boolean primary = false;
 
-  private final LinkedHashMap<String, AutowireCandidateQualifier> qualifiers = new LinkedHashMap<>();
+  @Nullable
+  private LinkedHashMap<String, AutowireCandidateQualifier> qualifiers;
 
   @Nullable
   private Supplier<?> instanceSupplier;
@@ -193,7 +194,8 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
   @Nullable
   private PropertyValues propertyValues;
 
-  private MethodOverrides methodOverrides = new MethodOverrides();
+  @Nullable
+  private MethodOverrides methodOverrides;
 
   @Nullable
   private String[] initMethodNames;
@@ -738,14 +740,14 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
    * @see AutowireCandidateQualifier#getTypeName()
    */
   public void addQualifier(AutowireCandidateQualifier qualifier) {
-    this.qualifiers.put(qualifier.getTypeName(), qualifier);
+    qualifiers().put(qualifier.getTypeName(), qualifier);
   }
 
   /**
    * Return whether this bean has the specified qualifier.
    */
   public boolean hasQualifier(String typeName) {
-    return this.qualifiers.containsKey(typeName);
+    return qualifiers != null && qualifiers.containsKey(typeName);
   }
 
   /**
@@ -753,7 +755,7 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
    */
   @Nullable
   public AutowireCandidateQualifier getQualifier(String typeName) {
-    return this.qualifiers.get(typeName);
+    return qualifiers().get(typeName);
   }
 
   /**
@@ -762,6 +764,9 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
    * @return the Set of {@link AutowireCandidateQualifier} objects.
    */
   public Set<AutowireCandidateQualifier> getQualifiers() {
+    if (qualifiers == null) {
+      return new LinkedHashSet<>();
+    }
     return new LinkedHashSet<>(this.qualifiers.values());
   }
 
@@ -772,7 +777,14 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
    */
   public void copyQualifiersFrom(AbstractBeanDefinition source) {
     Assert.notNull(source, "Source must not be null");
-    this.qualifiers.putAll(source.qualifiers);
+    qualifiers().putAll(source.qualifiers);
+  }
+
+  private LinkedHashMap<String, AutowireCandidateQualifier> qualifiers() {
+    if (qualifiers == null) {
+      qualifiers = new LinkedHashMap<>();
+    }
+    return qualifiers;
   }
 
   /**
@@ -934,7 +946,7 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
   /**
    * Specify method overrides for the bean, if any.
    */
-  public void setMethodOverrides(MethodOverrides methodOverrides) {
+  public void setMethodOverrides(@Nullable MethodOverrides methodOverrides) {
     this.methodOverrides = methodOverrides;
   }
 
@@ -944,14 +956,17 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
    * <p>Never returns {@code null}.
    */
   public MethodOverrides getMethodOverrides() {
-    return this.methodOverrides;
+    if (methodOverrides == null) {
+      methodOverrides = new MethodOverrides();
+    }
+    return methodOverrides;
   }
 
   /**
    * Return if there are method overrides defined for this bean.
    */
   public boolean hasMethodOverrides() {
-    return !this.methodOverrides.isEmpty();
+    return methodOverrides != null && !methodOverrides.isEmpty();
   }
 
   /**
