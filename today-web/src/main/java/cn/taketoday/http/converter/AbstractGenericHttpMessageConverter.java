@@ -25,10 +25,10 @@ import java.lang.reflect.Type;
 
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpOutputMessage;
+import cn.taketoday.http.MediaType;
 import cn.taketoday.http.SimpleHttpOutputMessage;
 import cn.taketoday.http.StreamingHttpOutputMessage;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.http.MediaType;
 
 /**
  * Abstract base class for most {@link GenericHttpMessageConverter} implementations.
@@ -94,7 +94,8 @@ public abstract class AbstractGenericHttpMessageConverter<T>
     addDefaultHeaders(headers, t, contentType);
 
     if (outputMessage instanceof StreamingHttpOutputMessage streamingOutput) {
-      streamingOutput.setBody(outputStream -> writeInternal(t, type, new SimpleHttpOutputMessage(headers, outputStream)));
+      streamingOutput.setBody(outputStream ->
+              writeInternal(t, type, new SimpleHttpOutputMessage(headers, outputStream)));
     }
     else {
       writeInternal(t, type, outputMessage);

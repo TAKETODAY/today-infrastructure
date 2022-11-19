@@ -29,7 +29,6 @@ import java.io.OutputStream;
  * @author TODAY 2021/11/6 13:10
  * @since 4.0
  */
-@Deprecated
 public class SimpleHttpOutputMessage implements HttpOutputMessage {
 
   private final HttpHeaders headers;

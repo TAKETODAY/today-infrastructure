@@ -34,7 +34,6 @@ import java.nio.charset.StandardCharsets;
 
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Constant;
-import cn.taketoday.lang.NonNull;
 import cn.taketoday.lang.Nullable;
 
 /**
@@ -326,7 +325,7 @@ public abstract class StreamUtils {
     }
 
     @Override
-    public void write(@NonNull byte[] b, int off, int let) throws IOException {
+    public void write(byte[] b, int off, int let) throws IOException {
       // It is critical that we override this method for performance
       this.out.write(b, off, let);
     }

@@ -212,7 +212,6 @@ public abstract class AbstractHttpMessageConverter<T> implements HttpMessageConv
     addDefaultHeaders(headers, t, contentType);
 
     if (outputMessage instanceof StreamingHttpOutputMessage streamingOutput) {
-      // FIXME SimpleHttpOutputMessage
       streamingOutput.setBody(outputStream ->
               writeInternal(t, new SimpleHttpOutputMessage(headers, outputStream)));
     }
