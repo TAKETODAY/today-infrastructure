@@ -34,7 +34,7 @@ import io.netty.handler.codec.http.HttpServerExpectContinueHandler;
  * @author TODAY 2019-07-02 21:34
  */
 public class NettyChannelInitializer
-        extends ChannelInitializer<SocketChannel> implements ChannelHandler {
+    extends ChannelInitializer<SocketChannel> implements ChannelHandler {
 
   private final NettyChannelHandler nettyChannelHandler;
 
@@ -97,14 +97,12 @@ public class NettyChannelInitializer
 
   @Override
   protected void initChannel(final SocketChannel ch) {
-    final HttpServerCodec serverCodec
-            = new HttpServerCodec(maxInitialLineLength, maxHeaderSize, maxChunkSize, validateHeaders);
 
     ch.pipeline()
-            .addLast("HttpServerCodec", serverCodec)
-            .addLast("HttpObjectAggregator", new HttpObjectAggregator(maxContentLength, closeOnExpectationFailed))
-            .addLast("HttpServerExpectContinueHandler", new HttpServerExpectContinueHandler())
-            .addLast("ReactiveChannelHandler", nettyChannelHandler);
+        .addLast("HttpServerCodec", new HttpServerCodec(maxInitialLineLength, maxHeaderSize, maxChunkSize, validateHeaders))
+        .addLast("HttpObjectAggregator", new HttpObjectAggregator(maxContentLength, closeOnExpectationFailed))
+        .addLast("HttpServerExpectContinueHandler", new HttpServerExpectContinueHandler())
+        .addLast("ReactiveChannelHandler", nettyChannelHandler);
   }
 
   @Override

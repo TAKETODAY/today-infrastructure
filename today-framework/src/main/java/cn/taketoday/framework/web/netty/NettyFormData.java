@@ -23,7 +23,6 @@ package cn.taketoday.framework.web.netty;
 import java.io.IOException;
 
 import cn.taketoday.util.ExceptionUtils;
-import cn.taketoday.web.multipart.FormData;
 import cn.taketoday.web.multipart.support.AbstractMultipart;
 import io.netty.handler.codec.http.multipart.Attribute;
 
@@ -31,7 +30,7 @@ import io.netty.handler.codec.http.multipart.Attribute;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/11/3 22:50
  */
-public class NettyFormData extends AbstractMultipart implements FormData {
+public class NettyFormData extends AbstractMultipart {
 
   private final Attribute attribute;
 
@@ -47,6 +46,11 @@ public class NettyFormData extends AbstractMultipart implements FormData {
     catch (IOException e) {
       throw ExceptionUtils.sneakyThrow(e);
     }
+  }
+
+  @Override
+  public boolean isFormField() {
+    return true;
   }
 
   @Override

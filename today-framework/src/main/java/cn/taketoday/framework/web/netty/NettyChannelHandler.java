@@ -42,7 +42,7 @@ public class NettyChannelHandler extends DispatcherHandler implements ChannelInb
   private final NettyRequestConfig contextConfig;
 
   public NettyChannelHandler(
-          NettyRequestConfig contextConfig, ApplicationContext context) {
+      NettyRequestConfig contextConfig, ApplicationContext context) {
     super(context);
     Assert.notNull(context, "ApplicationContext is required");
     Assert.notNull(contextConfig, "NettyRequestConfig is required");
@@ -89,7 +89,7 @@ public class NettyChannelHandler extends DispatcherHandler implements ChannelInb
   public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
     var response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.INTERNAL_SERVER_ERROR);
     ctx.writeAndFlush(response)
-            .addListener(ChannelFutureListener.CLOSE_ON_FAILURE);
+        .addListener(ChannelFutureListener.CLOSE_ON_FAILURE);
   }
 
   //
