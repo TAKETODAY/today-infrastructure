@@ -22,7 +22,6 @@ package cn.taketoday.http.codec;
 
 import org.reactivestreams.Publisher;
 
-import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
@@ -35,11 +34,11 @@ import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.core.ResolvableType;
 import cn.taketoday.core.codec.Hints;
 import cn.taketoday.core.io.buffer.DataBuffer;
+import cn.taketoday.http.MediaType;
 import cn.taketoday.http.ReactiveHttpOutputMessage;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.LogFormatUtils;
-import cn.taketoday.http.MediaType;
 import reactor.core.publisher.Mono;
 
 /**
@@ -166,18 +165,13 @@ public class FormHttpMessageWriter extends LoggingCodecSupport
       String name = entry.getKey();
       List<String> values = entry.getValue();
       for (String value : values) {
-        try {
-          if (builder.length() != 0) {
-            builder.append('&');
-          }
-          builder.append(URLEncoder.encode(name, charset.name()));
-          if (value != null) {
-            builder.append('=');
-            builder.append(URLEncoder.encode(value, charset.name()));
-          }
+        if (builder.length() != 0) {
+          builder.append('&');
         }
-        catch (UnsupportedEncodingException ex) {
-          throw new IllegalStateException(ex);
+        builder.append(URLEncoder.encode(name, charset));
+        if (value != null) {
+          builder.append('=');
+          builder.append(URLEncoder.encode(value, charset));
         }
       }
     }
