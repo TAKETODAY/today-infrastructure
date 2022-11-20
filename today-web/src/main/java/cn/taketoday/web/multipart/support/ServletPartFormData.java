@@ -35,7 +35,7 @@ import jakarta.servlet.http.Part;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/5/13 11:05
  */
-public final class ServletPartFormData extends AbstractMultipart implements FormData {
+public final class ServletPartFormData extends AbstractMultipart {
   private final Part part;
 
   private String value;
@@ -57,6 +57,11 @@ public final class ServletPartFormData extends AbstractMultipart implements Form
       this.value = value;
     }
     return value;
+  }
+
+  @Override
+  public boolean isFormField() {
+    return true;
   }
 
   @Override

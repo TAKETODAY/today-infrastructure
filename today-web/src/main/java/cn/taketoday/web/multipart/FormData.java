@@ -26,10 +26,7 @@ package cn.taketoday.web.multipart;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/5/12 14:12
  */
+@Deprecated
 public interface FormData extends Multipart {
 
-  /**
-   * Return the form field value.
-   */
-  String getValue();
 }

@@ -87,7 +87,7 @@ public class MockMultipartFile implements MultipartFile {
    * @param content the content of the file
    */
   public MockMultipartFile(
-          String name, @Nullable String originalFilename, @Nullable String contentType, @Nullable byte[] content) {
+      String name, @Nullable String originalFilename, @Nullable String contentType, @Nullable byte[] content) {
 
     Assert.hasLength(name, "Name must not be empty");
     this.name = name;
@@ -106,8 +106,8 @@ public class MockMultipartFile implements MultipartFile {
    * @throws IOException if reading from the stream failed
    */
   public MockMultipartFile(
-          String name, @Nullable String originalFilename, @Nullable String contentType, InputStream contentStream)
-          throws IOException {
+      String name, @Nullable String originalFilename, @Nullable String contentType, InputStream contentStream)
+      throws IOException {
 
     this(name, originalFilename, contentType, FileCopyUtils.copyToByteArray(contentStream));
   }
@@ -115,6 +115,16 @@ public class MockMultipartFile implements MultipartFile {
   @Override
   public String getName() {
     return this.name;
+  }
+
+  @Override
+  public String getValue() {
+    return new String(content);
+  }
+
+  @Override
+  public boolean isFormField() {
+    return false;
   }
 
   public void setHeaders(HttpHeaders headers) {

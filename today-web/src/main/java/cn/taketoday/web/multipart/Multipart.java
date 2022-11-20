@@ -49,6 +49,20 @@ public interface Multipart {
   String getName();
 
   /**
+   * Return the form field value.
+   */
+  String getValue();
+
+  /**
+   * Determines whether or not a {@code Multipart} instance represents
+   * a simple form field.
+   *
+   * @return {@code true} if the instance represents a simple form
+   * field; {@code false} if it represents an uploaded file.
+   */
+  boolean isFormField();
+
+  /**
    * Return the headers for the specified part of the multipart request.
    * <p>If the underlying implementation supports access to part headers,
    * then all headers are returned. Otherwise, e.g. for a file upload, the
