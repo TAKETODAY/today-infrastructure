@@ -35,7 +35,6 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
@@ -58,7 +57,6 @@ import cn.taketoday.web.context.async.AsyncWebRequest;
 import cn.taketoday.web.multipart.MultipartRequest;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufInputStream;
-import io.netty.buffer.ByteBufOutputStream;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
@@ -230,38 +228,6 @@ public class NettyRequestContext extends RequestContext {
   }
 
   @Override
-  protected OutputStream doGetOutputStream() {
-    return new ReleasingInputStream(responseBody());
-  }
-
-  static final class ReleasingInputStream extends ByteBufOutputStream {
-
-    final ByteBuf bb;
-
-    volatile int closed;
-
-    static final AtomicIntegerFieldUpdater<ReleasingInputStream> CLOSE =
-            AtomicIntegerFieldUpdater.newUpdater(ReleasingInputStream.class, "closed");
-
-    ReleasingInputStream(ByteBuf bb) {
-      super(bb.retain());
-      this.bb = bb;
-    }
-
-    @Override
-    public void close() throws IOException {
-      if (CLOSE.compareAndSet(this, 0, 1)) {
-        try {
-          super.close();
-        }
-        finally {
-          bb.release();
-        }
-      }
-    }
-  }
-
-  @Override
   protected cn.taketoday.http.HttpHeaders createRequestHeaders() {
     HttpHeaders headers = request.headers();
     DefaultHttpHeaders ret = new DefaultHttpHeaders();
@@ -352,6 +318,19 @@ public class NettyRequestContext extends RequestContext {
     commit();
   }
 
+  public void setKeepAlive(boolean keepAlive) {
+    this.keepAlive = keepAlive;
+  }
+
+  private boolean isKeepAlive() {
+    Boolean keepAlive = this.keepAlive;
+    if (keepAlive == null) {
+      keepAlive = HttpUtil.isKeepAlive(request);
+      this.keepAlive = keepAlive;
+    }
+    return keepAlive;
+  }
+
   /**
    * HTTP response body
    *
@@ -372,34 +351,45 @@ public class NettyRequestContext extends RequestContext {
     return responseBody;
   }
 
-  public void setKeepAlive(boolean keepAlive) {
-    this.keepAlive = keepAlive;
-  }
-
-  private boolean isKeepAlive() {
-    Boolean keepAlive = this.keepAlive;
-    if (keepAlive == null) {
-      keepAlive = HttpUtil.isKeepAlive(request);
-      this.keepAlive = keepAlive;
-    }
-    return keepAlive;
-  }
-
   @Override
   public void flush() {
     writeHeaders();
     if (responseBody != null) {
-//      responseBody.retain();
       DefaultHttpContent httpContent = new DefaultHttpContent(responseBody);
-      channelContext.write(httpContent);
-//      responseBody.clear();
+      channelContext.writeAndFlush(httpContent);
+      responseBody = null;
     }
   }
 
   @Override
+  protected OutputStream doGetOutputStream() {
+    return new ByteBufOutputStream();
+  }
+
+  final class ByteBufOutputStream extends OutputStream {
+
+    @Override
+    public void write(int b) {
+      responseBody().writeByte(b);
+    }
+
+    @Override
+    public void write(byte[] b, int off, int len) {
+      if (len != 0) {
+        responseBody().writeBytes(b, off, len);
+      }
+    }
+
+    @Override
+    public void flush() {
+
+    }
+
+  }
+
+  @Override
   protected void postRequestCompleted() {
-    sendIfNotCommitted();
-    log.debug("Request completed");
+    flush();
 
     Consumer<? super HttpHeaders> trailerHeadersConsumer = config.getTrailerHeadersConsumer();
     LastHttpContent lastHttpContent = LastHttpContent.EMPTY_LAST_CONTENT;
@@ -440,15 +430,6 @@ public class NettyRequestContext extends RequestContext {
 
     if (requestDecoder != null) {
       requestDecoder.destroy();
-    }
-  }
-
-  /**
-   * Send HTTP message to the client
-   */
-  public void sendIfNotCommitted() {
-    if (!committed.get()) {
-      commit();
     }
   }
 
