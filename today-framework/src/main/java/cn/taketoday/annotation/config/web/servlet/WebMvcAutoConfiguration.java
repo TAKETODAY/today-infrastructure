@@ -212,7 +212,6 @@ public class WebMvcAutoConfiguration extends WebMvcConfigurationSupport {
 
   @Component
   @ConditionalOnMissingBean
-  @ConditionalOnProperty(prefix = "web.mvc", name = "publishRequestHandledEvents", havingValue = "true", matchIfMissing = true)
   RequestHandledEventPublisher requestHandledEventPublisher(
           WebMvcProperties webMvcProperties, ApplicationEventPublisher eventPublisher) {
     if (webMvcProperties.isPublishRequestHandledEvents()) {
