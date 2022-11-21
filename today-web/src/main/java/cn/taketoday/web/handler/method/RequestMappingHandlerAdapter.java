@@ -151,8 +151,8 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
   @Nullable
   private RedirectModelManager redirectModelManager;
 
-  public ParameterResolvingRegistry getResolvingRegistry() {
-    return resolvingRegistry;
+  public void setRedirectModelManager(@Nullable RedirectModelManager redirectModelManager) {
+    this.redirectModelManager = redirectModelManager;
   }
 
   public void setResolvingRegistry(ParameterResolvingRegistry resolvingRegistry) {

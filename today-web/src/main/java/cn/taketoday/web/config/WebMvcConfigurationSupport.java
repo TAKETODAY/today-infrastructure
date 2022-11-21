@@ -873,6 +873,9 @@ public class WebMvcConfigurationSupport extends ApplicationContextSupport {
   @Component
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
   public RequestMappingHandlerAdapter requestMappingHandlerAdapter(
+          @Nullable
+          @Qualifier(RedirectModelManager.BEAN_NAME)
+          RedirectModelManager redirectModelManager,
           @Qualifier("mvcValidator") Validator validator,
           ReturnValueHandlerManager returnValueHandlerManager,
           ParameterResolvingRegistry parameterResolvingRegistry,
@@ -880,9 +883,10 @@ public class WebMvcConfigurationSupport extends ApplicationContextSupport {
 
     var adapter = createRequestMappingHandlerAdapter();
 
-    adapter.setWebBindingInitializer(getWebBindingInitializer(conversionService, validator));
+    adapter.setRedirectModelManager(redirectModelManager);
     adapter.setResolvingRegistry(parameterResolvingRegistry);
     adapter.setReturnValueHandlerManager(returnValueHandlerManager);
+    adapter.setWebBindingInitializer(getWebBindingInitializer(conversionService, validator));
 
     AsyncSupportConfigurer configurer = getAsyncSupportConfigurer();
     if (configurer.getTaskExecutor() != null) {
