@@ -1,3 +1,7 @@
 web:
   mvc:
     logRequestDetails: true
+
+infra:
+  jmx:
+    enabled: true
