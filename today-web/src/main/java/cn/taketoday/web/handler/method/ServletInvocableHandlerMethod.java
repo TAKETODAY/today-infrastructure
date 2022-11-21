@@ -55,6 +55,7 @@ import cn.taketoday.web.view.View;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/4/8 23:50
  */
+@Deprecated
 public class ServletInvocableHandlerMethod extends InvocableHandlerMethod {
 
   @Nullable

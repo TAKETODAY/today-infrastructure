@@ -30,8 +30,6 @@ import cn.taketoday.web.BindingContext;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.bind.WebDataBinder;
 import cn.taketoday.web.bind.annotation.InitBinder;
-import cn.taketoday.web.bind.support.SessionStatus;
-import cn.taketoday.web.bind.support.SimpleSessionStatus;
 import cn.taketoday.web.bind.support.WebBindingInitializer;
 
 /**
@@ -45,7 +43,6 @@ public class InitBinderBindingContext extends BindingContext {
 
   private final BindingContext binderMethodContext;
   private final List<InvocableHandlerMethod> binderMethods;
-  private final SessionStatus sessionStatus = new SimpleSessionStatus();
 
   /**
    * Create a new InitBinderDataBinderFactory instance.
@@ -59,14 +56,6 @@ public class InitBinderBindingContext extends BindingContext {
     super(initializer);
     this.binderMethods = binderMethods != null ? binderMethods : Collections.emptyList();
     this.binderMethodContext = new BindingContext(initializer);
-  }
-
-  /**
-   * Return the {@link SessionStatus} instance to use that can be used to
-   * signal that session processing is complete.
-   */
-  public SessionStatus getSessionStatus() {
-    return this.sessionStatus;
   }
 
   /**
