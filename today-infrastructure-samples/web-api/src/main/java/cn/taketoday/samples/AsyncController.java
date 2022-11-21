@@ -23,6 +23,7 @@ package cn.taketoday.samples;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.LockSupport;
 
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.lang.Nullable;
@@ -87,12 +88,8 @@ public class AsyncController {
       // 可以获取 RequestContext
       RequestContext request = RequestContextHolder.getRequired();
       log.info("异步任务开始执行");
-      try {
-        TimeUnit.SECONDS.sleep(2);
-      }
-      catch (InterruptedException e) {
-        e.printStackTrace();
-      }
+//        TimeUnit.SECONDS.sleep(2);
+      LockSupport.parkNanos(TimeUnit.SECONDS.toNanos(2));
       HttpHeaders headers = request.getHeaders();
       log.info(headers.toString());
       log.info("异步任务执行结束，开始返回");
