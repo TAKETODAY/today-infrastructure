@@ -55,7 +55,7 @@ public class WebMvcProperties {
    *
    * @see cn.taketoday.web.context.support.RequestHandledEventPublisher
    */
-  private boolean publishRequestHandledEvents = true;
+  private boolean publishRequestHandledEvents = false;
 
   /**
    * Whether a "HandlerNotFoundException" should be thrown if no Handler was found to
