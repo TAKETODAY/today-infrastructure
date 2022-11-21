@@ -23,7 +23,7 @@ package cn.taketoday.annotation.config.jmx;
 import javax.management.MBeanServer;
 
 import cn.taketoday.beans.factory.BeanFactory;
-import cn.taketoday.context.annotation.Bean;
+import cn.taketoday.beans.factory.annotation.DisableAllDependencyInjection;
 import cn.taketoday.context.annotation.EnableMBeanExport;
 import cn.taketoday.context.annotation.Primary;
 import cn.taketoday.context.annotation.config.AutoConfiguration;
@@ -39,6 +39,7 @@ import cn.taketoday.jmx.export.annotation.AnnotationMBeanExporter;
 import cn.taketoday.jmx.export.naming.ObjectNamingStrategy;
 import cn.taketoday.jmx.support.MBeanServerFactoryBean;
 import cn.taketoday.jmx.support.RegistrationPolicy;
+import cn.taketoday.stereotype.Component;
 import cn.taketoday.util.StringUtils;
 
 /**
@@ -56,6 +57,7 @@ import cn.taketoday.util.StringUtils;
  * @since 4.0 2022/10/9 18:35
  */
 @AutoConfiguration
+@DisableAllDependencyInjection
 @ConditionalOnClass({ MBeanExporter.class })
 @EnableConfigurationProperties(JmxProperties.class)
 @ConditionalOnProperty(prefix = "infra.jmx", name = "enabled", havingValue = "true")
@@ -67,8 +69,8 @@ public class JmxAutoConfiguration {
     this.properties = properties;
   }
 
-  @Bean
   @Primary
+  @Component
   @ConditionalOnMissingBean(value = MBeanExporter.class, search = SearchStrategy.CURRENT)
   public AnnotationMBeanExporter mbeanExporter(ObjectNamingStrategy namingStrategy, BeanFactory beanFactory) {
     AnnotationMBeanExporter exporter = new AnnotationMBeanExporter();
@@ -82,7 +84,7 @@ public class JmxAutoConfiguration {
     return exporter;
   }
 
-  @Bean
+  @Component
   @ConditionalOnMissingBean(value = ObjectNamingStrategy.class, search = SearchStrategy.CURRENT)
   public ParentAwareNamingStrategy objectNamingStrategy() {
     var namingStrategy = new ParentAwareNamingStrategy(new AnnotationJmxAttributeSource());
@@ -94,7 +96,7 @@ public class JmxAutoConfiguration {
     return namingStrategy;
   }
 
-  @Bean
+  @Component
   @ConditionalOnMissingBean
   public MBeanServer mbeanServer() {
     MBeanServerFactoryBean factory = new MBeanServerFactoryBean();

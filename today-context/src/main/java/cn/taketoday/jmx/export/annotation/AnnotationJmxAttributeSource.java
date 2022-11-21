@@ -87,7 +87,7 @@ public class AnnotationJmxAttributeSource implements JmxAttributeSource, BeanFac
       throw new InvalidMetadataException("@ManagedResource class '" + target.getName() + "' must be public");
     }
 
-    cn.taketoday.jmx.export.metadata.ManagedResource bean = new cn.taketoday.jmx.export.metadata.ManagedResource();
+    var bean = new cn.taketoday.jmx.export.metadata.ManagedResource();
     Map<String, Object> map = ann.asMap();
     List<PropertyValue> list = new ArrayList<>(map.size());
     map.forEach((attrName, attrValue) -> {
@@ -112,7 +112,7 @@ public class AnnotationJmxAttributeSource implements JmxAttributeSource, BeanFac
       return null;
     }
 
-    cn.taketoday.jmx.export.metadata.ManagedAttribute bean = new cn.taketoday.jmx.export.metadata.ManagedAttribute();
+    var bean = new cn.taketoday.jmx.export.metadata.ManagedAttribute();
     Map<String, Object> map = ann.asMap();
     PropertyValues pvs = new PropertyValues(map);
     pvs.remove("defaultValue");
