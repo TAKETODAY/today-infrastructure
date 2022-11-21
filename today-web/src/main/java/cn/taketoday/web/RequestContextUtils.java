@@ -430,7 +430,7 @@ public class RequestContextUtils {
     beanFactory.registerDependency(WebSession.class, new WebSessionSupplier(beanFactory));
     beanFactory.registerScope(RequestContext.SCOPE_SESSION, new SessionScope(beanFactory));
 
-    beanFactory.registerScope(RequestContext.SCOPE_REQUEST, new RequestScope());
+    beanFactory.registerScope(RequestContext.SCOPE_REQUEST, RequestScope.instance);
 
     // register RequestContext
     // @Autowired RequestContext currentRequest;
