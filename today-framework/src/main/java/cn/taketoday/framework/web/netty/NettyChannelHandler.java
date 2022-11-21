@@ -26,10 +26,11 @@ import cn.taketoday.web.handler.DispatcherHandler;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandler;
-import io.netty.handler.codec.http.DefaultFullHttpResponse;
+import io.netty.handler.codec.http.DefaultHttpResponse;
 import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpVersion;
+import io.netty.util.ReferenceCountUtil;
 
 /**
  * ChannelInboundHandler
@@ -38,29 +39,28 @@ import io.netty.handler.codec.http.HttpVersion;
  */
 public class NettyChannelHandler extends DispatcherHandler implements ChannelInboundHandler {
 
-  private final ApplicationContext context;
-  private final NettyRequestConfig contextConfig;
+  protected final ApplicationContext context;
+  protected final NettyRequestConfig requestConfig;
 
   public NettyChannelHandler(
-      NettyRequestConfig contextConfig, ApplicationContext context) {
+          NettyRequestConfig requestConfig, ApplicationContext context) {
     super(context);
     Assert.notNull(context, "ApplicationContext is required");
-    Assert.notNull(contextConfig, "NettyRequestConfig is required");
+    Assert.notNull(requestConfig, "NettyRequestConfig is required");
     this.context = context;
-    this.contextConfig = contextConfig;
+    this.requestConfig = requestConfig;
     init();
   }
 
   @Override
   public void channelReadComplete(ChannelHandlerContext ctx) {
-//    ctx.flush();
-    ctx.fireChannelReadComplete();
+    ctx.flush();
   }
 
   @Override
   public void channelRead(final ChannelHandlerContext ctx, final Object msg) {
     if (msg instanceof FullHttpRequest httpRequest) {
-      var nettyContext = new NettyRequestContext(context, ctx, httpRequest, contextConfig);
+      var nettyContext = createContext(ctx, httpRequest);
       RequestContextHolder.set(nettyContext);
       try {
         nettyContext.setAttribute(DispatcherHandler.BEAN_NAME, this);
@@ -71,11 +71,16 @@ public class NettyChannelHandler extends DispatcherHandler implements ChannelInb
       }
       finally {
         RequestContextHolder.remove();
+        ReferenceCountUtil.safeRelease(httpRequest);
       }
     }
     else {
       readExceptHttp(ctx, msg);
     }
+  }
+
+  protected NettyRequestContext createContext(ChannelHandlerContext ctx, FullHttpRequest httpRequest) {
+    return new NettyRequestContext(context, ctx, httpRequest, requestConfig);
   }
 
   /**
@@ -87,9 +92,10 @@ public class NettyChannelHandler extends DispatcherHandler implements ChannelInb
 
   @Override
   public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
-    var response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.INTERNAL_SERVER_ERROR);
+    var response = new DefaultHttpResponse(HttpVersion.HTTP_1_1,
+            HttpResponseStatus.INTERNAL_SERVER_ERROR, false, false);
     ctx.writeAndFlush(response)
-        .addListener(ChannelFutureListener.CLOSE_ON_FAILURE);
+            .addListener(ChannelFutureListener.CLOSE_ON_FAILURE);
   }
 
   //

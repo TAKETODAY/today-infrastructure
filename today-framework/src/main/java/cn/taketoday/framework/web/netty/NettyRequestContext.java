@@ -31,7 +31,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -47,8 +46,6 @@ import cn.taketoday.http.MediaType;
 import cn.taketoday.http.ResponseCookie;
 import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.logging.Logger;
-import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.RequestContext;
@@ -62,7 +59,6 @@ import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.DefaultHeaders;
 import io.netty.handler.codec.http.CombinedHttpHeaders;
-import io.netty.handler.codec.http.DefaultHttpContent;
 import io.netty.handler.codec.http.DefaultHttpResponse;
 import io.netty.handler.codec.http.DefaultLastHttpContent;
 import io.netty.handler.codec.http.FullHttpRequest;
@@ -81,12 +77,12 @@ import io.netty.handler.codec.http.multipart.HttpDataFactory;
 import io.netty.handler.codec.http.multipart.HttpPostRequestDecoder;
 import io.netty.handler.codec.http.multipart.InterfaceHttpData;
 import io.netty.handler.codec.http.multipart.InterfaceHttpPostRequestDecoder;
+import io.netty.util.ReferenceCountUtil;
 
 /**
  * @author TODAY 2019-07-04 21:24
  */
 public class NettyRequestContext extends RequestContext {
-  private static final Logger log = LoggerFactory.getLogger(NettyRequestContext.class);
 
   @Nullable
   private String remoteAddress;
@@ -111,7 +107,7 @@ public class NettyRequestContext extends RequestContext {
   private HttpResponseStatus status = HttpResponseStatus.OK;
 
   @Nullable
-  private ByteBuf responseBody;
+  private /* volatile ?*/ ByteBuf responseBody;
 
   /**
    * response headers
@@ -344,20 +340,27 @@ public class NettyRequestContext extends RequestContext {
         responseBody = bodyFactory.get(); // may null
       }
       if (responseBody == null) {
-        responseBody = channelContext.alloc().ioBuffer(config.getBodyInitialSize());
+        // fallback
+        responseBody = createResponseBody(channelContext, config);
       }
       this.responseBody = responseBody;
     }
     return responseBody;
   }
 
+  protected ByteBuf createResponseBody(ChannelHandlerContext channelContext, NettyRequestConfig config) {
+    return channelContext.alloc().ioBuffer(config.getBodyInitialSize());
+  }
+
   @Override
   public void flush() {
     writeHeaders();
+
+    ByteBuf responseBody = this.responseBody;
     if (responseBody != null) {
-      DefaultHttpContent httpContent = new DefaultHttpContent(responseBody);
-      channelContext.writeAndFlush(httpContent);
-      responseBody = null;
+      this.responseBody = null;
+      // DefaultHttpContent
+      channelContext.writeAndFlush(responseBody);
     }
   }
 
@@ -494,7 +497,7 @@ public class NettyRequestContext extends RequestContext {
       }
 
       var noBody = new DefaultHttpResponse(httpVersion, status, responseHeaders);
-      channelContext.write(noBody);
+      channelContext.writeAndFlush(noBody);
     }
 
   }
@@ -524,12 +527,13 @@ public class NettyRequestContext extends RequestContext {
     assertNotCommitted();
     nettyResponseHeaders.clear();
 
+    ByteBuf responseBody = this.responseBody;
     if (responseBody != null) {
+      this.responseBody = null;
       if (writer != null) {
         writer.flush(); // flush to responseBody
       }
-      responseBody.release();
-      responseBody = null;
+      ReferenceCountUtil.safeRelease(responseBody);
     }
     status = HttpResponseStatus.OK;
   }
@@ -615,7 +619,7 @@ public class NettyRequestContext extends RequestContext {
     return config.getContextPath();
   }
 
-  static final class TrailerHeaders extends io.netty.handler.codec.http.DefaultHttpHeaders {
+  private static final class TrailerHeaders extends io.netty.handler.codec.http.DefaultHttpHeaders {
 
     static final HashSet<String> DISALLOWED_TRAILER_HEADER_NAMES = new HashSet<>(14);
 
@@ -649,7 +653,6 @@ public class NettyRequestContext extends RequestContext {
     }
 
     static Set<String> filterHeaderNames(String declaredHeaderNames) {
-      Objects.requireNonNull(declaredHeaderNames, "declaredHeaderNames");
       Set<String> result = new HashSet<>();
       String[] names = declaredHeaderNames.split(",", -1);
       for (String name : names) {
