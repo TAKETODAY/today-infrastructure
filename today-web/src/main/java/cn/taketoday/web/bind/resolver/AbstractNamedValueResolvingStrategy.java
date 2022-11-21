@@ -83,7 +83,7 @@ public abstract class AbstractNamedValueResolvingStrategy implements ParameterRe
   public AbstractNamedValueResolvingStrategy(@Nullable ConfigurableBeanFactory beanFactory) {
     this.configurableBeanFactory = beanFactory;
     this.expressionContext =
-            beanFactory != null ? new BeanExpressionContext(beanFactory, new RequestScope()) : null;
+            beanFactory != null ? new BeanExpressionContext(beanFactory, RequestScope.instance) : null;
   }
 
   @Nullable
