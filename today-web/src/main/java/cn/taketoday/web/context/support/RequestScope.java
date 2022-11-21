@@ -38,6 +38,8 @@ import cn.taketoday.web.RequestContextUtils;
  */
 public class RequestScope extends AbstractRequestContextScope<RequestContext> {
 
+  public static final RequestScope instance = new RequestScope();
+
   @Override
   public Object get(String beanName, Supplier<?> objectFactory) {
     RequestContext context = RequestContextHolder.getRequired();
