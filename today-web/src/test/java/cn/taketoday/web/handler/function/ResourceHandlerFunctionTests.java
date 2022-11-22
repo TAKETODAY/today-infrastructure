@@ -197,6 +197,7 @@ public class ResourceHandlerFunctionTests {
 
     Object mav = response.writeTo(requestContext, this.context);
     assertThat(mav).isNull();
+    requestContext.flush();
 
     assertThat(servletResponse.getStatus()).isEqualTo(200);
     String allowHeader = servletResponse.getHeader("Allow");

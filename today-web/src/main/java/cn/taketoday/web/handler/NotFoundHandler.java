@@ -53,7 +53,7 @@ public class NotFoundHandler implements HttpRequestHandler {
   protected Object handleNotFound(RequestContext request) throws IOException {
     logNotFound(request);
 
-    request.sendError(HttpStatus.NOT_FOUND.value());
+    request.sendError(HttpStatus.NOT_FOUND);
     return NONE_RETURN_VALUE;
   }
 

@@ -89,6 +89,7 @@ class ParameterizableViewControllerTests {
     this.request.setMethod(HttpMethod.OPTIONS.name());
     ModelAndView mav = this.controller.handleRequest(this.context);
 
+    context.flush();
     assertThat(mav).isNull();
     assertThat(response.getHeader("Allow")).isEqualTo("GET,HEAD,OPTIONS");
   }

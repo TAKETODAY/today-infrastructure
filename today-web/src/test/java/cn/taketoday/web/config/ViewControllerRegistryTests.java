@@ -106,8 +106,10 @@ class ViewControllerRegistryTests {
     RedirectView redirectView = getRedirectView("/path");
     this.request.setQueryString("a=b");
     this.request.setContextPath("/context");
-    redirectView.render(Collections.emptyMap(), new ServletRequestContext(null, this.request, this.response));
+    ServletRequestContext context = new ServletRequestContext(null, this.request, this.response);
+    redirectView.render(Collections.emptyMap(), context);
 
+    context.flush();
     assertThat(this.response.getStatus()).isEqualTo(308);
     assertThat(response.getRedirectedUrl()).isEqualTo("/redirectTo?a=b");
     assertThat(redirectView.getApplicationContext()).isNotNull();

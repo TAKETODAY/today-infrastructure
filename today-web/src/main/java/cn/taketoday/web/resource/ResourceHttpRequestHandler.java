@@ -45,6 +45,7 @@ import cn.taketoday.http.MediaType;
 import cn.taketoday.http.MediaTypeFactory;
 import cn.taketoday.http.converter.ResourceHttpMessageConverter;
 import cn.taketoday.http.converter.ResourceRegionHttpMessageConverter;
+import cn.taketoday.http.server.ServerHttpResponse;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
@@ -492,11 +493,11 @@ public class ResourceHttpRequestHandler extends WebContentGenerator
     Resource resource = getResource(request);
     if (resource == null) {
       log.debug("Resource not found");
-      request.sendError(HttpStatus.NOT_FOUND.value());
+      request.sendError(HttpStatus.NOT_FOUND);
       return NONE_RETURN_VALUE;
     }
 
-    if (HttpMethod.OPTIONS.matches(request.getMethodValue())) {
+    if (HttpMethod.OPTIONS == request.getMethod()) {
       request.responseHeaders().set(HttpHeaders.ALLOW, getAllowHeader());
       return NONE_RETURN_VALUE;
     }
@@ -518,15 +519,16 @@ public class ResourceHttpRequestHandler extends WebContentGenerator
     setHeaders(request, resource, mediaType);
 
     // Content phase
-    HttpHeaders requestHeaders = request.requestHeaders();
-    if (requestHeaders.get(HttpHeaders.RANGE) == null) {
+    ServerHttpResponse outputMessage = request.asHttpOutputMessage();
+    if (request.requestHeaders().get(HttpHeaders.RANGE) == null) {
       Assert.state(resourceHttpMessageConverter != null, "Not initialized");
 
       if (HttpMethod.HEAD == request.getMethod()) {
-        resourceHttpMessageConverter.addDefaultHeaders(requestHeaders, resource, mediaType);
+        resourceHttpMessageConverter.addDefaultHeaders(request.responseHeaders(), resource, mediaType);
+        outputMessage.flush();
       }
       else {
-        resourceHttpMessageConverter.write(resource, mediaType, request.asHttpOutputMessage());
+        resourceHttpMessageConverter.write(resource, mediaType, outputMessage);
       }
     }
     else {
@@ -536,11 +538,11 @@ public class ResourceHttpRequestHandler extends WebContentGenerator
         List<HttpRange> httpRanges = request.getHeaders().getRange();
         request.setStatus(HttpStatus.PARTIAL_CONTENT);
         converter.write(HttpRange.toResourceRegions(httpRanges, resource),
-                mediaType, request.asHttpOutputMessage());
+                mediaType, outputMessage);
       }
       catch (IllegalArgumentException ex) {
         request.responseHeaders().set(HttpHeaders.CONTENT_RANGE, "bytes */" + resource.contentLength());
-        request.sendError(HttpStatus.REQUESTED_RANGE_NOT_SATISFIABLE.value());
+        request.sendError(HttpStatus.REQUESTED_RANGE_NOT_SATISFIABLE);
       }
     }
 
@@ -733,7 +735,7 @@ public class ResourceHttpRequestHandler extends WebContentGenerator
       String filename = resource.getName();
       String ext = StringUtils.getFilenameExtension(filename);
       if (ext != null) {
-        mediaType = this.mediaTypes.get(ext.toLowerCase(Locale.ENGLISH));
+        mediaType = mediaTypes.get(ext.toLowerCase(Locale.ENGLISH));
       }
       if (mediaType == null) {
         List<MediaType> mediaTypes = MediaTypeFactory.getMediaTypes(filename);
@@ -767,8 +769,10 @@ public class ResourceHttpRequestHandler extends WebContentGenerator
     HttpHeaders responseHeaders = response.responseHeaders();
     if (resource instanceof HttpResource httpResource) {
       HttpHeaders resourceHeaders = httpResource.getResponseHeaders();
-      resourceHeaders.forEach((headerName, headerValues) -> {
+      for (Map.Entry<String, List<String>> entry : resourceHeaders.entrySet()) {
         boolean first = true;
+        String headerName = entry.getKey();
+        List<String> headerValues = entry.getValue();
         for (String headerValue : headerValues) {
           if (first) {
             responseHeaders.set(headerName, headerValue);
@@ -778,7 +782,7 @@ public class ResourceHttpRequestHandler extends WebContentGenerator
           }
           first = false;
         }
-      });
+      }
     }
 
     responseHeaders.set(HttpHeaders.ACCEPT_RANGES, "bytes");

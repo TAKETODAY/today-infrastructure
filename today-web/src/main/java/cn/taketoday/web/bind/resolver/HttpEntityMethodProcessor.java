@@ -239,10 +239,9 @@ public class HttpEntityMethodProcessor
       int returnStatus = responseEntity.getStatusCodeValue();
       context.setStatus(returnStatus);
       if (returnStatus == 200) {
-        String method = context.getMethodValue();
-        if ((HttpMethod.GET.matches(method)
-                || HttpMethod.HEAD.matches(method))
-                && isResourceNotModified(context)) {
+        HttpMethod method = context.getMethod();
+        if ((HttpMethod.GET == method || HttpMethod.HEAD == method)
+                && isResourceNotModified(context, method)) {
           context.flush();
           return;
         }
@@ -292,12 +291,11 @@ public class HttpEntityMethodProcessor
     return entityHeadersVary;
   }
 
-  private boolean isResourceNotModified(RequestContext context) {
-    String method = context.getMethodValue();
+  private boolean isResourceNotModified(RequestContext context, HttpMethod method) {
     HttpHeaders responseHeaders = context.responseHeaders();
     String etag = responseHeaders.getETag();
     long lastModifiedTimestamp = responseHeaders.getLastModified();
-    if (HttpMethod.GET.matches(method) || HttpMethod.HEAD.matches(method)) {
+    if (HttpMethod.GET == method || HttpMethod.HEAD == method) {
       responseHeaders.remove(HttpHeaders.ETAG);
       responseHeaders.remove(HttpHeaders.LAST_MODIFIED);
     }

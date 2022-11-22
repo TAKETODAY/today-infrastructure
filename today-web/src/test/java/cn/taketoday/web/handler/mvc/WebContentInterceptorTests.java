@@ -61,7 +61,7 @@ class WebContentInterceptorTests {
     interceptor.setCacheSeconds(10);
     interceptor.beforeProcess(context, handler);
 
-    Iterable<String> cacheControlHeaders = response.getHeaders("Cache-Control");
+    Iterable<String> cacheControlHeaders = context.responseHeaders().get("Cache-Control");
     assertThat(cacheControlHeaders).contains("max-age=10");
   }
 
@@ -76,22 +76,23 @@ class WebContentInterceptorTests {
     RequestContext request = requestFactory.apply("/example/adminhandle.vm");
     interceptor.beforeProcess(request, handler);
 
-    List<String> cacheControlHeaders = response.getHeaders("Cache-Control");
-    assertThat(cacheControlHeaders).isEmpty();
+    List<String> cacheControlHeaders = request.responseHeaders().get("Cache-Control");
+    assertThat(cacheControlHeaders).isNull();
 
     request = requestFactory.apply("/example/bingo.html");
     interceptor.beforeProcess(request, handler);
 
-    cacheControlHeaders = response.getHeaders("Cache-Control");
+    cacheControlHeaders = request.responseHeaders().get("Cache-Control");
     assertThat(cacheControlHeaders).contains("max-age=10");
   }
 
   @Test
   void preventCacheConfiguration() throws Exception {
     interceptor.setCacheSeconds(0);
-    interceptor.beforeProcess(requestFactory.apply("/"), handler);
+    RequestContext requestContext = requestFactory.apply("/");
+    interceptor.beforeProcess(requestContext, handler);
 
-    Iterable<String> cacheControlHeaders = response.getHeaders("Cache-Control");
+    Iterable<String> cacheControlHeaders = requestContext.responseHeaders().get("Cache-Control");
     assertThat(cacheControlHeaders).contains("no-store");
   }
 

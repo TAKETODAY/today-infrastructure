@@ -78,6 +78,7 @@ public class DefaultRenderingResponseTests {
           RenderingResponse result, MockHttpServletRequest request, MockHttpServletResponse response) throws Exception {
     ServletRequestContext servletRequestContext = new ServletRequestContext(null, request, response);
     Object write = result.writeTo(servletRequestContext, EMPTY_CONTEXT);
+    servletRequestContext.flush();
     if (write instanceof ModelAndView andView) {
       return andView;
     }

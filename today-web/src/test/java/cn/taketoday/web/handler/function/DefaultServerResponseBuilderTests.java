@@ -244,7 +244,12 @@ class DefaultServerResponseBuilderTests {
   private static Object getObject(
           ServerResponse response, MockHttpServletRequest mockRequest, MockHttpServletResponse mockResponse) throws Exception {
     ServletRequestContext context = new ServletRequestContext(null, mockRequest, mockResponse);
-    return response.writeTo(context, EMPTY_CONTEXT);
+    try {
+      return response.writeTo(context, EMPTY_CONTEXT);
+    }
+    finally {
+      context.flush();
+    }
   }
 
   @Test

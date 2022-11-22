@@ -23,10 +23,10 @@ package cn.taketoday.web.handler.mvc;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpMethod;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.session.WebSession;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.RequestContextUtils;
 import cn.taketoday.web.WebContentGenerator;
-import cn.taketoday.session.WebSession;
 import cn.taketoday.web.util.WebUtils;
 import cn.taketoday.web.view.ModelAndView;
 
@@ -155,8 +155,7 @@ public abstract class AbstractController extends WebContentGenerator implements 
   @Override
   @Nullable
   public ModelAndView handleRequest(RequestContext request) throws Exception {
-
-    if (HttpMethod.OPTIONS.matches(request.getMethodValue())) {
+    if (HttpMethod.OPTIONS == request.getMethod()) {
       request.responseHeaders().set(HttpHeaders.ALLOW, getAllowHeader());
       return null;
     }

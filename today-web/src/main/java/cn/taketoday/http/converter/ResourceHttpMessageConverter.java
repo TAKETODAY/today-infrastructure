@@ -146,22 +146,13 @@ public class ResourceHttpMessageConverter extends AbstractHttpMessageConverter<R
     // We cannot use try-with-resources here for the InputStream, since we have
     // custom handling of the close() method in a finally-block.
     try {
-      InputStream in = resource.getInputStream();
-      try {
+      try (InputStream in = resource.getInputStream()) {
         OutputStream out = outputMessage.getBody();
         in.transferTo(out);
         out.flush();
       }
       catch (NullPointerException ex) {
         // ignore, see SPR-13620
-      }
-      finally {
-        try {
-          in.close();
-        }
-        catch (Throwable ex) {
-          // ignore, see SPR-12999
-        }
       }
     }
     catch (FileNotFoundException ex) {

@@ -251,7 +251,7 @@ public abstract class AbstractHttpMessageConverter<T> implements HttpMessageConv
         headers.setContentType(contentTypeToUse);
       }
     }
-    else if (!MediaType.TEXT_EVENT_STREAM_VALUE.equals(contentTypeString)
+    if (!MediaType.TEXT_EVENT_STREAM_VALUE.equals(contentTypeString)
             && !headers.containsKey(HttpHeaders.TRANSFER_ENCODING)
             && headers.getContentLength() < 0) {
       Long contentLength = getContentLength(t, headers.getContentType());

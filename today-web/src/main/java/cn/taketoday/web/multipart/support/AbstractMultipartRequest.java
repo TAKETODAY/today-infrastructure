@@ -86,15 +86,15 @@ public abstract class AbstractMultipartRequest implements MultipartRequest {
   public MultiValueMap<String, MultipartFile> getMultipartFiles() {
     var multipartFiles = this.multipartFiles;
     if (multipartFiles == null) {
-      MultiValueMap<String, MultipartFile> ret = new LinkedMultiValueMap<>();
+      multipartFiles = new LinkedMultiValueMap<>();
       for (Map.Entry<String, List<Multipart>> entry : multipartData().entrySet()) {
         for (Multipart multipart : entry.getValue()) {
           if (multipart instanceof MultipartFile file) {
-            ret.add(entry.getKey(), file);
+            multipartFiles.add(entry.getKey(), file);
           }
         }
       }
-      this.multipartFiles = ret;
+      this.multipartFiles = multipartFiles;
     }
     return multipartFiles;
   }

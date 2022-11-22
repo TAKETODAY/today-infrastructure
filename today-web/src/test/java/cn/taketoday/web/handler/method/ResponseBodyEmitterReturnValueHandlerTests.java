@@ -48,7 +48,6 @@ import reactor.core.publisher.Sinks;
 import static cn.taketoday.core.ResolvableType.fromClassWithGenerics;
 import static cn.taketoday.web.ResolvableMethod.on;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -243,20 +242,15 @@ class ResponseBodyEmitterReturnValueHandlerTests {
   @Test // gh-21972
   public void responseBodyFluxWithError() throws Exception {
     this.request.addHeader("Accept", "text/event-stream");
-
+    IllegalStateException ex = new IllegalStateException("wah wah");
     HandlerMethod type = on(TestController.class).resolveHandlerMethod(Flux.class, String.class);
-    Sinks.Many<String> sink = Sinks.many().unicast().onBackpressureBuffer();
-    this.handler.handleReturnValue(webRequest, type, sink.asFlux());
+    this.handler.handleReturnValue(webRequest, type, Flux.error(ex));
 
     assertThat(this.request.isAsyncStarted()).isTrue();
 
-    IllegalStateException ex = new IllegalStateException("wah wah");
-    sink.tryEmitError(ex);
-    sink.tryEmitComplete();
-
     WebAsyncManager asyncManager = WebAsyncUtils.getAsyncManager(this.webRequest);
     assertThat(asyncManager.getConcurrentResult()).isSameAs(ex);
-    assertThat(this.response.getContentType()).isNull();
+    assertThat(this.response.getContentType()).isEqualTo("text/event-stream");
   }
 
   @Test
@@ -313,7 +307,7 @@ class ResponseBodyEmitterReturnValueHandlerTests {
     ResolvableType bodyType = fromClassWithGenerics(Flux.class, SimpleBean.class);
     HandlerMethod type = on(TestController.class).resolveHandlerMethod(ResponseEntity.class, bodyType);
     this.handler.handleReturnValue(webRequest, type, entity);
-
+    webRequest.flush();
     assertThat(this.request.isAsyncStarted()).isTrue();
     assertThat(this.response.getStatus()).isEqualTo(200);
     assertThat(this.response.getHeader("x-foo")).isEqualTo("bar");

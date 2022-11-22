@@ -120,7 +120,7 @@ public class ResourceHttpRequestHandlerTests {
     this.request.setMethod("HEAD");
     request.setRequestURI("foo.css");
     this.handler.handleRequest(requestContext);
-
+    requestContext.flush();
     assertThat(this.response.getStatus()).isEqualTo(200);
     assertThat(this.response.getContentType()).isEqualTo("text/css");
     assertThat(this.response.getContentLength()).isEqualTo(0);
@@ -137,7 +137,7 @@ public class ResourceHttpRequestHandlerTests {
     this.request.setMethod("OPTIONS");
     request.setRequestURI("foo.css");
     this.handler.handleRequest(requestContext);
-
+    requestContext.flush();
     assertThat(this.response.getStatus()).isEqualTo(200);
     assertThat(this.response.getHeader("Allow")).isEqualTo("GET,HEAD,OPTIONS");
   }
@@ -609,7 +609,7 @@ public class ResourceHttpRequestHandlerTests {
     this.request.addHeader("Range", "bytes= foo bar");
     request.setRequestURI("foo.txt");
     this.handler.handleRequest(requestContext);
-
+    requestContext.flush();
     assertThat(this.response.getStatus()).isEqualTo(416);
     assertThat(this.response.getHeader("Content-Range")).isEqualTo("bytes */10");
     assertThat(this.response.getHeader("Accept-Ranges")).isEqualTo("bytes");
@@ -687,16 +687,6 @@ public class ResourceHttpRequestHandlerTests {
     assertThat(this.response.getContentLength()).isEqualTo(2);
     assertThat(this.response.getHeader("Content-Range")).isEqualTo("bytes 0-1/10");
     assertThat(this.response.getHeaderValues("Accept-Ranges")).containsExactly("bytes");
-  }
-
-  @Test  // SPR-14005
-  public void doOverwriteExistingCacheControlHeaders() throws Exception {
-    request.setRequestURI("foo.css");
-    this.response.setHeader("Cache-Control", "no-store");
-
-    this.handler.handleRequest(requestContext);
-
-    assertThat(this.response.getHeader("Cache-Control")).isEqualTo("max-age=3600");
   }
 
   @Test
