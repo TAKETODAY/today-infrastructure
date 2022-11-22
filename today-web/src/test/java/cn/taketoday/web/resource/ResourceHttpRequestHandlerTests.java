@@ -123,7 +123,7 @@ public class ResourceHttpRequestHandlerTests {
     requestContext.flush();
     assertThat(this.response.getStatus()).isEqualTo(200);
     assertThat(this.response.getContentType()).isEqualTo("text/css");
-    assertThat(this.response.getContentLength()).isEqualTo(0);
+    assertThat(this.response.getContentLength()).isEqualTo(17);
     assertThat(this.response.getHeader("Cache-Control")).isEqualTo("max-age=3600");
     assertThat(this.response.containsHeader("Last-Modified")).isTrue();
     assertThat(this.response.getDateHeader("Last-Modified") / 1000).isEqualTo(resourceLastModified("test/foo.css") / 1000);

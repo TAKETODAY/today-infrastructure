@@ -35,6 +35,7 @@ import java.time.temporal.ChronoUnit;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpStatus;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.ExceptionUtils;
 import cn.taketoday.web.servlet.ServletRequestContext;
 import cn.taketoday.web.testfixture.servlet.MockHttpServletRequest;
 import cn.taketoday.web.testfixture.servlet.MockHttpServletResponse;
@@ -291,6 +292,7 @@ class ServletWebRequestHttpMethodsTests {
   }
 
   private void assertNotModified(@Nullable String eTag, @Nullable Instant lastModified) {
+    flush();
     assertThat(this.servletResponse.getStatus()).isEqualTo(HttpStatus.NOT_MODIFIED.value());
     if (eTag != null) {
       assertThat(servletResponse.getHeader(HttpHeaders.ETAG)).isEqualTo(eTag);
@@ -302,11 +304,22 @@ class ServletWebRequestHttpMethodsTests {
   }
 
   private void assertOkWithETag(String eTag) {
+    flush();
     assertThat(servletResponse.getStatus()).isEqualTo(200);
     assertThat(servletResponse.getHeader(HttpHeaders.ETAG)).isEqualTo(eTag);
   }
 
+  private void flush() {
+    try {
+      request.flush();
+    }
+    catch (Exception e) {
+      throw ExceptionUtils.sneakyThrow(e);
+    }
+  }
+
   private void assertOkWithLastModified(Instant lastModified) {
+    flush();
     assertThat(servletResponse.getStatus()).isEqualTo(200);
     assertThat(servletResponse.getDateHeader(HttpHeaders.LAST_MODIFIED) / 1000)
             .isEqualTo(lastModified.toEpochMilli() / 1000);
