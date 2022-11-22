@@ -32,9 +32,9 @@
 
   <logger name="org.apache" level="WARN" />
 
-  <!--  <root level="TRACE">-->
-    <root level="DEBUG">
-<!--  <root level="INFO">-->
+  <!--    <root level="TRACE">-->
+  <!--    <root level="DEBUG">-->
+  <root level="INFO">
     <appender-ref ref="STDOUT" />
   </root>
 
