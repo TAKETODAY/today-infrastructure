@@ -31,7 +31,6 @@ import cn.taketoday.http.converter.AllEncompassingFormHttpMessageConverter;
 import cn.taketoday.http.converter.ByteArrayHttpMessageConverter;
 import cn.taketoday.http.converter.HttpMessageConverter;
 import cn.taketoday.http.converter.StringHttpMessageConverter;
-import cn.taketoday.http.converter.xml.SourceHttpMessageConverter;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.web.RequestContext;
@@ -186,12 +185,6 @@ public class RouterFunctionMapping extends AbstractHandlerMapping implements Ini
     var messageConverters = new ArrayList<HttpMessageConverter<?>>(4);
     messageConverters.add(new ByteArrayHttpMessageConverter());
     messageConverters.add(new StringHttpMessageConverter());
-    try {
-      messageConverters.add(new SourceHttpMessageConverter<>());
-    }
-    catch (Error err) {
-      // Ignore when no TransformerFactory implementation is available
-    }
     messageConverters.add(new AllEncompassingFormHttpMessageConverter());
 
     this.messageConverters = messageConverters;

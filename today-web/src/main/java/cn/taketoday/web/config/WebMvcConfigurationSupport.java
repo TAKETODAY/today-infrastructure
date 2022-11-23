@@ -62,7 +62,6 @@ import cn.taketoday.http.converter.json.JsonbHttpMessageConverter;
 import cn.taketoday.http.converter.json.MappingJackson2HttpMessageConverter;
 import cn.taketoday.http.converter.smile.MappingJackson2SmileHttpMessageConverter;
 import cn.taketoday.http.converter.xml.MappingJackson2XmlHttpMessageConverter;
-import cn.taketoday.http.converter.xml.SourceHttpMessageConverter;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.lang.TodayStrategies;
 import cn.taketoday.stereotype.Component;
@@ -230,13 +229,6 @@ public class WebMvcConfigurationSupport extends ApplicationContextSupport {
     messageConverters.add(new StringHttpMessageConverter());
     messageConverters.add(new ResourceHttpMessageConverter());
     messageConverters.add(new ResourceRegionHttpMessageConverter());
-
-    try {
-      messageConverters.add(new SourceHttpMessageConverter<>());
-    }
-    catch (Throwable ex) {
-      // Ignore when no TransformerFactory implementation is available...
-    }
 
     messageConverters.add(new AllEncompassingFormHttpMessageConverter());
 

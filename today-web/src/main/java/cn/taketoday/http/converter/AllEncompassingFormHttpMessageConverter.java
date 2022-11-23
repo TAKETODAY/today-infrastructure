@@ -25,7 +25,6 @@ import cn.taketoday.http.converter.json.JsonbHttpMessageConverter;
 import cn.taketoday.http.converter.json.MappingJackson2HttpMessageConverter;
 import cn.taketoday.http.converter.smile.MappingJackson2SmileHttpMessageConverter;
 import cn.taketoday.http.converter.xml.MappingJackson2XmlHttpMessageConverter;
-import cn.taketoday.http.converter.xml.SourceHttpMessageConverter;
 import cn.taketoday.util.ClassUtils;
 
 /**
@@ -60,13 +59,6 @@ public class AllEncompassingFormHttpMessageConverter extends FormHttpMessageConv
   }
 
   public AllEncompassingFormHttpMessageConverter() {
-
-    try {
-      addPartConverter(new SourceHttpMessageConverter<>());
-    }
-    catch (Error err) {
-      // Ignore when no TransformerFactory implementation is available
-    }
 
     if (jackson2Present) {
       addPartConverter(new MappingJackson2HttpMessageConverter());

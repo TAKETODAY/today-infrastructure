@@ -31,13 +31,18 @@ import org.junit.jupiter.api.Test;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.StringReader;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.xml.transform.Source;
+import javax.xml.transform.stream.StreamSource;
+
 import cn.taketoday.core.DefaultMultiValueMap;
+import cn.taketoday.core.LinkedMultiValueMap;
 import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.core.io.ClassPathResource;
 import cn.taketoday.core.io.Resource;
@@ -46,11 +51,13 @@ import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.MediaType;
 import cn.taketoday.http.MockHttpInputMessage;
 import cn.taketoday.http.MockHttpOutputMessage;
+import cn.taketoday.http.converter.xml.SourceHttpMessageConverter;
 
 import static cn.taketoday.http.MediaType.APPLICATION_FORM_URLENCODED;
 import static cn.taketoday.http.MediaType.APPLICATION_JSON;
 import static cn.taketoday.http.MediaType.MULTIPART_FORM_DATA;
 import static cn.taketoday.http.MediaType.MULTIPART_MIXED;
+import static cn.taketoday.http.MediaType.TEXT_XML;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
@@ -151,6 +158,90 @@ public class FormHttpMessageConverterTests {
 
   @Test
   public void writeMultipart() throws Exception {
+
+    MultiValueMap<String, Object> parts = new LinkedMultiValueMap<>();
+    parts.add("name 1", "value 1");
+    parts.add("name 2", "value 2+1");
+    parts.add("name 2", "value 2+2");
+    parts.add("name 3", null);
+
+    Resource logo = new ClassPathResource("/cn/taketoday/http/converter/logo.jpg");
+    parts.add("logo", logo);
+
+    // SPR-12108
+    Resource utf8 = new ClassPathResource("/cn/taketoday/http/converter/logo.jpg") {
+      @Override
+      public String getName() {
+        return "Hall\u00F6le.jpg";
+      }
+    };
+    parts.add("utf8", utf8);
+
+    MyBean myBean = new MyBean();
+    myBean.setString("foo");
+    HttpHeaders entityHeaders = HttpHeaders.create();
+    entityHeaders.setContentType(APPLICATION_JSON);
+    HttpEntity<MyBean> entity = new HttpEntity<>(myBean, entityHeaders);
+    parts.add("json", entity);
+
+    Map<String, String> parameters = new LinkedHashMap<>(2);
+    parameters.put("charset", StandardCharsets.UTF_8.name());
+    parameters.put("foo", "bar");
+
+    MockHttpOutputMessage outputMessage = new MockHttpOutputMessage();
+    this.converter.write(parts, new MediaType("multipart", "form-data", parameters), outputMessage);
+
+    final MediaType contentType = outputMessage.getHeaders().getContentType();
+    assertThat(contentType.getParameters()).containsKeys("charset", "boundary", "foo"); // gh-21568, gh-25839
+
+    // see if Commons FileUpload can read what we wrote
+    FileUpload fileUpload = new FileUpload();
+    fileUpload.setFileItemFactory(new DiskFileItemFactory());
+    RequestContext requestContext = new MockHttpOutputMessageRequestContext(outputMessage);
+    List<FileItem> items = fileUpload.parseRequest(requestContext);
+    assertThat(items).hasSize(6);
+    FileItem item = items.get(0);
+    assertThat(item.isFormField()).isTrue();
+    assertThat(item.getFieldName()).isEqualTo("name 1");
+    assertThat(item.getString()).isEqualTo("value 1");
+
+    item = items.get(1);
+    assertThat(item.isFormField()).isTrue();
+    assertThat(item.getFieldName()).isEqualTo("name 2");
+    assertThat(item.getString()).isEqualTo("value 2+1");
+
+    item = items.get(2);
+    assertThat(item.isFormField()).isTrue();
+    assertThat(item.getFieldName()).isEqualTo("name 2");
+    assertThat(item.getString()).isEqualTo("value 2+2");
+
+    item = items.get(3);
+    assertThat(item.isFormField()).isFalse();
+    assertThat(item.getFieldName()).isEqualTo("logo");
+    assertThat(item.getName()).isEqualTo("logo.jpg");
+    assertThat(item.getContentType()).isEqualTo("image/jpeg");
+    assertThat(item.getSize()).isEqualTo(logo.getFile().length());
+
+    item = items.get(4);
+    assertThat(item.isFormField()).isFalse();
+    assertThat(item.getFieldName()).isEqualTo("utf8");
+    assertThat(item.getName()).isEqualTo("Hall\u00F6le.jpg");
+    assertThat(item.getContentType()).isEqualTo("image/jpeg");
+    assertThat(item.getSize()).isEqualTo(logo.getFile().length());
+
+    item = items.get(5);
+    assertThat(item.getFieldName()).isEqualTo("json");
+    assertThat(item.getContentType()).isEqualTo("application/json");
+  }
+
+  @Test
+  public void writeMultipartWithSourceHttpMessageConverter() throws Exception {
+
+    converter.setPartConverters(List.of(
+            new StringHttpMessageConverter(),
+            new ResourceHttpMessageConverter(),
+            new SourceHttpMessageConverter<>()));
+
     MultiValueMap<String, Object> parts = MultiValueMap.fromLinkedHashMap();
     parts.add("name 1", "value 1");
     parts.add("name 2", "value 2+1");
@@ -177,10 +268,10 @@ public class FormHttpMessageConverterTests {
       }
     };
 
-//    Source xml = new StreamSource(new StringReader("<root><child/></root>"));
+    Source xml = new StreamSource(new StringReader("<root><child/></root>"));
     HttpHeaders entityHeaders = HttpHeaders.create();
-    entityHeaders.setContentType(APPLICATION_JSON);
-    HttpEntity<Object> entity = new HttpEntity<>(obj, entityHeaders);
+    entityHeaders.setContentType(TEXT_XML);
+    HttpEntity<Source> entity = new HttpEntity<>(xml, entityHeaders);
     parts.add("xml", entity);
 
     Map<String, String> parameters = new LinkedHashMap<>(2);
@@ -188,17 +279,18 @@ public class FormHttpMessageConverterTests {
     parameters.put("foo", "bar");
 
     MockHttpOutputMessage outputMessage = new MockHttpOutputMessage();
-    this.converter.write(parts, new MediaType("multipart", "form-data", parameters), outputMessage);
+    this.converter.write(parts,
+            new MediaType("multipart", "form-data", parameters), outputMessage);
 
-//    MediaType contentType = outputMessage.getHeaders().getContentType();
-//    assertThat(contentType.getParameters()).containsKeys("charset", "boundary", "foo"); // gh-21568, gh-25839
+    MediaType contentType = outputMessage.getHeaders().getContentType();
+    assertThat(contentType.getParameters()).containsKeys("charset", "boundary", "foo"); // gh-21568, gh-25839
 
     // see if Commons FileUpload can read what we wrote
     FileItemFactory fileItemFactory = new DiskFileItemFactory();
     FileUpload fileUpload = new FileUpload(fileItemFactory);
     RequestContext requestContext = new MockHttpOutputMessageRequestContext(outputMessage);
     List<FileItem> items = fileUpload.parseRequest(requestContext);
-    assertThat(items.size()).isEqualTo(6);
+    assertThat(items).hasSize(6);
     FileItem item = items.get(0);
     assertThat(item.isFormField()).isTrue();
     assertThat(item.getFieldName()).isEqualTo("name 1");
@@ -230,7 +322,7 @@ public class FormHttpMessageConverterTests {
 
     item = items.get(5);
     assertThat(item.getFieldName()).isEqualTo("xml");
-    assertThat(item.getContentType()).isEqualTo("application/json");
+    assertThat(item.getContentType()).isEqualTo("text/xml");
   }
 
   @Test  // SPR-13309
