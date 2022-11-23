@@ -137,15 +137,17 @@ public class AspectJAdviceParameterNameDiscoverer extends ParameterNameDiscovere
   private static final int STEP_REFERENCE_PCUT_BINDING = 7;
   private static final int STEP_FINISHED = 8;
 
-  private static final Set<String> singleValuedAnnotationPcds = new HashSet<>();
+  private static final Set<String> singleValuedAnnotationPcds = Set.of(
+          "@this",
+          "@target",
+          "@within",
+          "@withincode",
+          "@annotation"
+  );
+
   private static final Set<String> nonReferencePointcutTokens = new HashSet<>();
 
   static {
-    singleValuedAnnotationPcds.add("@this");
-    singleValuedAnnotationPcds.add("@target");
-    singleValuedAnnotationPcds.add("@within");
-    singleValuedAnnotationPcds.add("@withincode");
-    singleValuedAnnotationPcds.add("@annotation");
 
     Set<PointcutPrimitive> pointcutPrimitives = PointcutParser.getAllSupportedPointcutPrimitives();
     for (PointcutPrimitive primitive : pointcutPrimitives) {

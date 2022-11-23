@@ -22,7 +22,6 @@ package cn.taketoday.validation.beanvalidation;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
@@ -69,13 +68,7 @@ import jakarta.validation.metadata.ConstraintDescriptor;
  */
 public class InfraValidatorAdapter implements SmartValidator, jakarta.validation.Validator {
 
-  private static final HashSet<String> internalAnnotationAttributes = new HashSet<>(4);
-
-  static {
-    internalAnnotationAttributes.add("message");
-    internalAnnotationAttributes.add("groups");
-    internalAnnotationAttributes.add("payload");
-  }
+  private static final Set<String> internalAnnotationAttributes = Set.of("message", "groups", "payload");
 
   @Nullable
   private Validator targetValidator;

@@ -28,9 +28,9 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Set;
 
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
@@ -74,26 +74,25 @@ public abstract class SharedEntityManagerCreator {
 
   private static final Class<?>[] NO_ENTITY_MANAGER_INTERFACES = new Class<?>[0];
 
-  private static final HashSet<String> queryTerminatingMethods = new HashSet<>(8);
-  private static final HashSet<String> transactionRequiringMethods = new HashSet<>(8);
   private static final ConcurrentReferenceHashMap<Class<?>, Class<?>[]>
           cachedQueryInterfaces = new ConcurrentReferenceHashMap<>(4);
 
-  static {
-    transactionRequiringMethods.add("joinTransaction");
-    transactionRequiringMethods.add("flush");
-    transactionRequiringMethods.add("persist");
-    transactionRequiringMethods.add("merge");
-    transactionRequiringMethods.add("remove");
-    transactionRequiringMethods.add("refresh");
+  private static final Set<String> transactionRequiringMethods = Set.of(
+          "joinTransaction",
+          "flush",
+          "persist",
+          "merge",
+          "remove",
+          "refresh");
 
-    queryTerminatingMethods.add("execute");  // JPA 2.1 StoredProcedureQuery
-    queryTerminatingMethods.add("executeUpdate");
-    queryTerminatingMethods.add("getSingleResult");
-    queryTerminatingMethods.add("getResultStream");
-    queryTerminatingMethods.add("getResultList");
-    queryTerminatingMethods.add("list");  // Hibernate Query.list() method
-  }
+  private static final Set<String> queryTerminatingMethods = Set.of(
+          "execute",  // JPA 2.1 StoredProcedureQuery
+          "executeUpdate",
+          "getSingleResult",
+          "getResultStream",
+          "getResultList",
+          "list"  // Hibernate Query.list() method
+  );
 
   /**
    * Create a transactional EntityManager proxy for the given EntityManagerFactory.
