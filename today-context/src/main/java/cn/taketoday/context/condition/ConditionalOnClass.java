@@ -30,12 +30,36 @@ import cn.taketoday.context.annotation.Conditional;
  * {@link Conditional @Conditional} that only matches when the specified classes are on
  * the classpath.
  * <p>
- * A {@link #value()} can be safely specified on {@code @Configuration} classes as the
- * annotation metadata is parsed by using ASM before the class is loaded. Extra care is
- * required when placed on {@code @Bean} methods, consider isolating the condition in a
- * separate {@code Configuration} class, in particular if the return type of the method
- * matches the {@link #value target of the condition}.
+ * A {@code Class} {@link #value() value} can be safely specified on
+ * {@code @Configuration} classes as the annotation metadata is parsed by using ASM before
+ * the class is loaded. If a class reference cannot be used then a {@link #name() name}
+ * {@code String} attribute can be used.
+ * <p>
+ * <b>Note:</b> Extra care must be taken when using {@code @ConditionalOnClass} on
+ * {@code @Bean} methods where typically the return type is the target of the condition.
+ * Before the condition on the method applies, the JVM will have loaded the class and
+ * potentially processed method references which will fail if the class is not present. To
+ * handle this scenario, a separate {@code @Configuration} class should be used to isolate
+ * the condition. For example:
+ * <pre>
+ * {@code
+ * @AutoConfiguration
+ * public class MyAutoConfiguration {
  *
+ *  @Configuration(proxyBeanMethods = false)
+ *  @ConditionalOnClass(SomeService.class)
+ *  public static class SomeServiceConfiguration {
+ *
+ *    @Bean
+ *    @ConditionalOnMissingBean
+ *    public SomeService someService() {
+ * 	    return new SomeService();
+ *    }
+ *
+ *  }
+ * }
+ * }
+ *</pre>
  * @author TODAY
  * @since 2019-06-18 15:00
  */
