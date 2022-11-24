@@ -66,6 +66,12 @@ class TaskSchedulingAutoConfigurationTests {
   }
 
   @Test
+  void noSchedulingDoesNotExposeScheduledBeanLazyInitializationExcludeFilter() {
+    this.contextRunner.run(context -> assertThat(context)
+            .doesNotHaveBean(ScheduledBeanLazyInitializationExcludeFilter.class));
+  }
+
+  @Test
   void enableSchedulingWithNoTaskExecutorAutoConfiguresOne() {
     this.contextRunner
             .withPropertyValues("infra.task.scheduling.shutdown.await-termination=true",

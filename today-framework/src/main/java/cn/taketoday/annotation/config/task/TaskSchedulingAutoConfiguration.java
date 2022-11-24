@@ -58,6 +58,7 @@ public class TaskSchedulingAutoConfiguration {
   }
 
   @Component
+  @ConditionalOnBean(name = TaskManagementConfigUtils.SCHEDULED_ANNOTATION_PROCESSOR_BEAN_NAME)
   public static LazyInitializationExcludeFilter scheduledBeanLazyInitializationExcludeFilter() {
     return new ScheduledBeanLazyInitializationExcludeFilter();
   }
