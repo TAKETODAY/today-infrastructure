@@ -82,14 +82,13 @@ class TransactionAutoConfigurationTests {
 
   @Test
   void whenThereAreBothReactiveAndPlatformTransactionManagersATemplateAndAnOperatorAreAutoConfigured() {
-    this.contextRunner
-            .withConfiguration(AutoConfigurations.of(DataSourceAutoConfiguration.class,
-                    DataSourceTransactionManagerAutoConfiguration.class))
+    contextRunner.withConfiguration(
+                    AutoConfigurations.of(DataSourceAutoConfiguration.class,
+                            DataSourceTransactionManagerAutoConfiguration.class))
             .withUserConfiguration(SinglePlatformTransactionManagerConfiguration.class,
                     SingleReactiveTransactionManagerConfiguration.class)
             .withPropertyValues("datasource.url:jdbc:h2:mem:" + UUID.randomUUID()).run((context) -> {
-              PlatformTransactionManager platformTransactionManager = context
-                      .getBean(PlatformTransactionManager.class);
+              var platformTransactionManager = context.getBean(PlatformTransactionManager.class);
               TransactionTemplate transactionTemplate = context.getBean(TransactionTemplate.class);
               assertThat(transactionTemplate.getTransactionManager()).isSameAs(platformTransactionManager);
               ReactiveTransactionManager reactiveTransactionManager = context
