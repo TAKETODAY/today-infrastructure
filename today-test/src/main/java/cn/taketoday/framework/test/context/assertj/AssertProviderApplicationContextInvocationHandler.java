@@ -138,7 +138,9 @@ class AssertProviderApplicationContextInvocationHandler implements InvocationHan
   }
 
   private Object invokeClose() {
-    applicationContext.close();
+    if (applicationContext != null) {
+      applicationContext.close();
+    }
     return null;
   }
 
