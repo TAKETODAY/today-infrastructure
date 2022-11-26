@@ -41,7 +41,7 @@ import cn.taketoday.web.util.WebUtils;
  * @since 4.0 2022/4/25 22:00
  */
 public class RequestMappingHandler extends InterceptableRequestHandler {
-  private final ServletInvocableHandlerMethod handlerMethod;
+  private final ResultableHandlerMethod handlerMethod;
 
   // handler fast invoker
   private /*volatile*/ MethodInvoker handlerInvoker;
@@ -52,7 +52,7 @@ public class RequestMappingHandler extends InterceptableRequestHandler {
   // target return-value handler
   private ReturnValueHandler returnValueHandler;
 
-  public RequestMappingHandler(ServletInvocableHandlerMethod handlerMethod, ReturnValueHandlerManager manager) {
+  public RequestMappingHandler(ResultableHandlerMethod handlerMethod, ReturnValueHandlerManager manager) {
     this.handlerMethod = handlerMethod;
     this.returnValueHandlerManager = manager;
   }

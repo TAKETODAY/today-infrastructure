@@ -51,6 +51,7 @@ import cn.taketoday.web.HttpRequestHandler;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.RequestContextUtils;
 import cn.taketoday.web.ReturnValueHandler;
+import cn.taketoday.web.annotation.ActionMapping;
 import cn.taketoday.web.annotation.RequestMapping;
 import cn.taketoday.web.bind.annotation.InitBinder;
 import cn.taketoday.web.bind.annotation.ModelAttribute;
@@ -97,7 +98,7 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
    * MethodFilter that matches {@link ModelAttribute @ModelAttribute} methods.
    */
   public static final MethodFilter MODEL_ATTRIBUTE_METHODS = method ->
-          !AnnotatedElementUtils.hasAnnotation(method, RequestMapping.class)
+          !AnnotatedElementUtils.hasAnnotation(method, ActionMapping.class)
                   && AnnotatedElementUtils.hasAnnotation(method, ModelAttribute.class);
 
   private ParameterResolvingRegistry resolvingRegistry;
@@ -143,7 +144,7 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
   private final Map<ControllerAdviceBean, Set<Method>> modelAttributeAdviceCache = new LinkedHashMap<>();
 
   private final Map<HandlerMethod, ActionMappingAnnotationHandler> annotationHandlerMap = new HashMap<>();
-  private final Map<HandlerMethod, ServletInvocableHandlerMethod> invocableHandlerMethodMap = new ConcurrentHashMap<>();
+  private final Map<HandlerMethod, ResultableHandlerMethod> invocableHandlerMethodMap = new ConcurrentHashMap<>();
 
   @Nullable
   private SessionManager sessionManager;
@@ -394,7 +395,7 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
       return;
     }
 
-    List<ControllerAdviceBean> adviceBeans = ControllerAdviceBean.findAnnotatedBeans(getApplicationContext());
+    var adviceBeans = ControllerAdviceBean.findAnnotatedBeans(getApplicationContext());
     for (ControllerAdviceBean adviceBean : adviceBeans) {
       Class<?> beanType = adviceBean.getBeanType();
       if (beanType == null) {
@@ -499,7 +500,7 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
    * Invoke the {@link RequestMapping} handler method preparing a {@link ModelAndView}
    * if view resolution is required.
    *
-   * @see #createInvocableHandlerMethod(RequestContext, HandlerMethod)
+   * @see #createInvocableHandlerMethod(HandlerMethod)
    */
   @Nullable
   protected Object invokeHandlerMethod(
@@ -507,9 +508,9 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
 
     BindingContext bindingContext = createBindingContext(handlerMethod);
 
-    ModelFactory modelFactory = getModelFactory(handlerMethod, bindingContext);
+    ModelFactory modelFactory = getModelFactory(handlerMethod);
 
-    ServletInvocableHandlerMethod invocableMethod = createInvocableHandlerMethod(request, handlerMethod);
+    ResultableHandlerMethod invocableMethod = createInvocableHandlerMethod(handlerMethod);
 
     RedirectModel inputRedirectModel = RequestContextUtils.getInputRedirectModel(request, redirectModelManager);
     bindingContext.addAllAttributes(inputRedirectModel);
@@ -540,35 +541,32 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
   }
 
   /**
-   * Create a {@link ServletInvocableHandlerMethod} from the given {@link HandlerMethod} definition.
+   * Create a {@link ResultableHandlerMethod} from the given {@link HandlerMethod} definition.
    *
-   * @param request current HTTP request
    * @param handlerMethod the {@link HandlerMethod} definition
-   * @return the corresponding {@link ServletInvocableHandlerMethod} (or custom subclass thereof)
+   * @return the corresponding {@link ResultableHandlerMethod} (or custom subclass thereof)
    */
-  protected ServletInvocableHandlerMethod createInvocableHandlerMethod(
-          RequestContext request, HandlerMethod handlerMethod) {
+  protected ResultableHandlerMethod createInvocableHandlerMethod(HandlerMethod handlerMethod) {
     return invocableHandlerMethodMap.computeIfAbsent(handlerMethod, handler -> {
-      ServletInvocableHandlerMethod invocableMethod = new ServletInvocableHandlerMethod(handler);
+      ResultableHandlerMethod invocableMethod = new ResultableHandlerMethod(handler);
       invocableMethod.setReturnValueHandlerManager(returnValueHandlerManager);
       invocableMethod.setResolvingRegistry(resolvingRegistry);
       return invocableMethod;
     });
   }
 
-  private ModelFactory getModelFactory(HandlerMethod handlerMethod, BindingContext bindingContext) {
+  private ModelFactory getModelFactory(HandlerMethod handlerMethod) {
     SessionAttributesHandler sessionAttrHandler = getSessionAttributesHandler(handlerMethod);
     Class<?> handlerType = handlerMethod.getBeanType();
 
     ArrayList<InvocableHandlerMethod> attrMethods = new ArrayList<>();
     // Global methods first
-    for (Map.Entry<ControllerAdviceBean, Set<Method>> entry : modelAttributeAdviceCache.entrySet()) {
-      Set<Method> methodSet = entry.getValue();
+    for (var entry : modelAttributeAdviceCache.entrySet()) {
       ControllerAdviceBean controllerAdviceBean = entry.getKey();
       if (controllerAdviceBean.isApplicableToBeanType(handlerType)) {
         Object bean = controllerAdviceBean.resolveBean();
-        for (Method method : methodSet) {
-          attrMethods.add(createModelAttributeMethod(bindingContext, bean, method));
+        for (Method method : entry.getValue()) {
+          attrMethods.add(createModelAttributeMethod(bean, method));
         }
       }
     }
@@ -580,12 +578,12 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
     }
     for (Method method : methods) {
       Object bean = handlerMethod.getBean();
-      attrMethods.add(createModelAttributeMethod(bindingContext, bean, method));
+      attrMethods.add(createModelAttributeMethod(bean, method));
     }
-    return new ModelFactory(attrMethods, bindingContext, sessionAttrHandler);
+    return new ModelFactory(attrMethods, sessionAttrHandler);
   }
 
-  private InvocableHandlerMethod createModelAttributeMethod(BindingContext bindingContext, Object bean, Method method) {
+  private InvocableHandlerMethod createModelAttributeMethod(Object bean, Method method) {
     InvocableHandlerMethod attrMethod = new InvocableHandlerMethod(bean, method);
     attrMethod.setResolvingRegistry(resolvingRegistry);
     return attrMethod;
@@ -601,7 +599,7 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
 
     var initBinderMethods = new ArrayList<InvocableHandlerMethod>();
     // Global methods first
-    for (Map.Entry<ControllerAdviceBean, Set<Method>> entry : initBinderAdviceCache.entrySet()) {
+    for (var entry : initBinderAdviceCache.entrySet()) {
       Set<Method> methodSet = entry.getValue();
       ControllerAdviceBean controllerAdviceBean = entry.getKey();
       if (controllerAdviceBean.isApplicableToBeanType(handlerType)) {

@@ -90,10 +90,10 @@ public class InvocableHandlerMethod extends HandlerMethod {
   }
 
   /**
-   * Set {@link ParameterResolvingStrategies ParameterResolvingStrategies}
-   * to use for resolving method argument values.
+   * Create an instance from a bean instance and a method.
    */
-  public void setResolvingRegistry(ParameterResolvingRegistry resolvingRegistry) {
+  public InvocableHandlerMethod(Object bean, Method method, ParameterResolvingRegistry resolvingRegistry) {
+    super(bean, method);
     var parameterFactory = new ParameterResolvingRegistryResolvableParameterFactory(resolvingRegistry);
     parameterFactory.fillArray(this);
   }

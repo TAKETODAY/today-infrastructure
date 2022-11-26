@@ -35,14 +35,14 @@ import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
+import cn.taketoday.session.WebSessionRequiredException;
+import cn.taketoday.ui.Model;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.validation.BindingResult;
+import cn.taketoday.web.BindingContext;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.bind.WebDataBinder;
 import cn.taketoday.web.bind.annotation.ModelAttribute;
-import cn.taketoday.web.BindingContext;
-import cn.taketoday.session.WebSessionRequiredException;
-import cn.taketoday.ui.Model;
 
 /**
  * Assist with initialization of the {@link Model} before controller method
@@ -62,9 +62,8 @@ public final class ModelFactory {
 
   private static final Logger logger = LoggerFactory.getLogger(ModelFactory.class);
 
-  private final List<ModelMethod> modelMethods = new ArrayList<>();
-
-  private final BindingContext bindingContext;
+  @Nullable
+  private ArrayList<ModelMethod> modelMethods;
 
   private final SessionAttributesHandler sessionAttributesHandler;
 
@@ -72,18 +71,17 @@ public final class ModelFactory {
    * Create a new instance with the given {@code @ModelAttribute} methods.
    *
    * @param handlerMethods the {@code @ModelAttribute} methods to invoke
-   * @param bindingContext for preparation of {@link BindingResult} attributes
    * @param attributeHandler for access to session attributes
    */
   public ModelFactory(@Nullable List<InvocableHandlerMethod> handlerMethods,
-          BindingContext bindingContext, SessionAttributesHandler attributeHandler) {
-
+          SessionAttributesHandler attributeHandler) {
     if (handlerMethods != null) {
+      ArrayList<ModelMethod> modelMethods = new ArrayList<>();
       for (InvocableHandlerMethod handlerMethod : handlerMethods) {
-        this.modelMethods.add(new ModelMethod(handlerMethod));
+        modelMethods.add(new ModelMethod(handlerMethod));
       }
+      this.modelMethods = modelMethods;
     }
-    this.bindingContext = bindingContext;
     this.sessionAttributesHandler = attributeHandler;
   }
 
@@ -126,8 +124,12 @@ public final class ModelFactory {
    */
   private void invokeModelAttributeMethods(
           RequestContext request, BindingContext container) throws Throwable {
+    ArrayList<ModelMethod> modelMethods = this.modelMethods;
+    if (modelMethods == null) {
+      return;
+    }
     while (!modelMethods.isEmpty()) {
-      InvocableHandlerMethod modelMethod = getNextModelMethod(container).getHandlerMethod();
+      InvocableHandlerMethod modelMethod = getNextModelMethod(container, modelMethods).handlerMethod;
       ModelAttribute ann = modelMethod.getMethodAnnotation(ModelAttribute.class);
       Assert.state(ann != null, "No ModelAttribute annotation");
       if (container.containsAttribute(ann.name())) {
@@ -158,7 +160,7 @@ public final class ModelFactory {
     }
   }
 
-  private ModelMethod getNextModelMethod(BindingContext container) {
+  private ModelMethod getNextModelMethod(BindingContext container, ArrayList<ModelMethod> modelMethods) {
     for (ModelMethod modelMethod : modelMethods) {
       if (modelMethod.checkDependencies(container)) {
         modelMethods.remove(modelMethod);
@@ -204,13 +206,14 @@ public final class ModelFactory {
       sessionAttributesHandler.storeAttributes(request, model.asMap());
     }
 
-    updateBindingResult(request, model.asMap());
+    updateBindingResult(request, container, model.asMap());
   }
 
   /**
    * Add {@link BindingResult} attributes to the model for attributes that require it.
    */
-  private void updateBindingResult(RequestContext request, Map<String, Object> model) throws Throwable {
+  private void updateBindingResult(RequestContext request,
+          BindingContext bindingContext, Map<String, Object> model) throws Throwable {
     ArrayList<String> keyNames = new ArrayList<>(model.keySet());
     for (String name : keyNames) {
       Object value = model.get(name);
@@ -275,7 +278,6 @@ public final class ModelFactory {
     }
     else {
       Method method = handler.getMethod();
-      Assert.state(method != null, "No handler method");
       Class<?> containingClass = method.getDeclaringClass();
       Class<?> resolvedType = GenericTypeResolver.resolveReturnType(method, containingClass);
       return Conventions.getVariableNameForReturnType(method, resolvedType, returnValue);
@@ -284,9 +286,8 @@ public final class ModelFactory {
 
   private static class ModelMethod {
 
-    private final InvocableHandlerMethod handlerMethod;
-
-    private final HashSet<String> dependencies = new HashSet<>();
+    public final InvocableHandlerMethod handlerMethod;
+    public final HashSet<String> dependencies = new HashSet<>();
 
     public ModelMethod(InvocableHandlerMethod handlerMethod) {
       this.handlerMethod = handlerMethod;
@@ -295,10 +296,6 @@ public final class ModelFactory {
           dependencies.add(getNameForParameter(parameter));
         }
       }
-    }
-
-    public InvocableHandlerMethod getHandlerMethod() {
-      return this.handlerMethod;
     }
 
     public boolean checkDependencies(BindingContext mavContainer) {

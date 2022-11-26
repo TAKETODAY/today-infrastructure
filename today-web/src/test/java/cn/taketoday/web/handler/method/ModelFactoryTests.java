@@ -30,6 +30,7 @@ import cn.taketoday.context.annotation.AnnotationConfigApplicationContext;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.session.WebSessionRequiredException;
 import cn.taketoday.session.config.EnableWebSession;
+import cn.taketoday.ui.Model;
 import cn.taketoday.validation.BindingResult;
 import cn.taketoday.web.BindingContext;
 import cn.taketoday.web.RequestContext;
@@ -43,7 +44,6 @@ import cn.taketoday.web.bind.support.SessionAttributeStore;
 import cn.taketoday.web.servlet.ServletRequestContext;
 import cn.taketoday.web.testfixture.servlet.MockHttpServletRequest;
 import cn.taketoday.web.testfixture.servlet.MockHttpServletResponse;
-import cn.taketoday.ui.Model;
 import cn.taketoday.web.view.RedirectModel;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -169,7 +169,7 @@ class ModelFactoryTests {
 
   @Test
   public void sessionAttributeNotPresent() throws Throwable {
-    ModelFactory modelFactory = new ModelFactory(null, null, this.attributeHandler);
+    ModelFactory modelFactory = new ModelFactory(null, this.attributeHandler);
     HandlerMethod handlerMethod = createHandlerMethod("handleSessionAttr", String.class);
     assertThatExceptionOfType(WebSessionRequiredException.class)
             .isThrownBy(() -> modelFactory.initModel(this.webRequest, bindingContext, handlerMethod));
@@ -189,7 +189,7 @@ class ModelFactoryTests {
     BindingContext container = new BindingContext0(dataBinder);
     container.addAttribute(commandName, command);
 
-    ModelFactory modelFactory = new ModelFactory(null, container, this.attributeHandler);
+    ModelFactory modelFactory = new ModelFactory(null, this.attributeHandler);
     modelFactory.updateModel(this.webRequest, container);
 
     assertThat(container.getModel().get(commandName)).isEqualTo(command);
@@ -219,7 +219,7 @@ class ModelFactoryTests {
     BindingContext container = new BindingContext0(dataBinder);
     container.addAttribute(attributeName, attribute);
 
-    ModelFactory modelFactory = new ModelFactory(null, container, this.attributeHandler);
+    ModelFactory modelFactory = new ModelFactory(null, this.attributeHandler);
     modelFactory.updateModel(this.webRequest, container);
 
     assertThat(container.getModel().get(attributeName)).isEqualTo(attribute);
@@ -238,7 +238,7 @@ class ModelFactoryTests {
 
     container.getSessionStatus().setComplete();
 
-    ModelFactory modelFactory = new ModelFactory(null, container, this.attributeHandler);
+    ModelFactory modelFactory = new ModelFactory(null, this.attributeHandler);
     modelFactory.updateModel(this.webRequest, container);
 
     assertThat(container.getModel().get(attributeName)).isEqualTo(attribute);
@@ -258,7 +258,7 @@ class ModelFactoryTests {
     String queryParamName = "q";
     container.setRedirectModel(new RedirectModel(queryParamName, queryParam));
 
-    ModelFactory modelFactory = new ModelFactory(null, container, this.attributeHandler);
+    ModelFactory modelFactory = new ModelFactory(null, this.attributeHandler);
     modelFactory.updateModel(this.webRequest, container);
 
     assertThat(container.getRedirectModel().get(queryParamName)).isEqualTo(queryParam);
@@ -273,7 +273,7 @@ class ModelFactoryTests {
     registry.getCustomizedStrategies().add(new ModelMethodProcessor());
 
     modelMethod.setResolvingRegistry(registry);
-    return new ModelFactory(Collections.singletonList(modelMethod), null, this.attributeHandler);
+    return new ModelFactory(Collections.singletonList(modelMethod), this.attributeHandler);
   }
 
   private InvocableHandlerMethod createHandlerMethod(String methodName, Class<?>... paramTypes) throws Throwable {

@@ -34,6 +34,7 @@ import cn.taketoday.core.MethodIntrospector;
 import cn.taketoday.core.annotation.AnnotationUtils;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
+import cn.taketoday.ui.Model;
 import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.web.BindingContext;
 import cn.taketoday.web.annotation.RequestMapping;
@@ -45,7 +46,6 @@ import cn.taketoday.web.bind.support.SessionAttributeStore;
 import cn.taketoday.web.servlet.ServletRequestContext;
 import cn.taketoday.web.testfixture.servlet.MockHttpServletRequest;
 import cn.taketoday.web.testfixture.servlet.MockHttpServletResponse;
-import cn.taketoday.ui.Model;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -125,7 +125,7 @@ class ModelFactoryOrderingTests {
     Collections.shuffle(modelMethods);
 
     SessionAttributesHandler sessionHandler = new SessionAttributesHandler(type, this.sessionAttributeStore);
-    ModelFactory factory = new ModelFactory(modelMethods, dataBinderFactory, sessionHandler);
+    ModelFactory factory = new ModelFactory(modelMethods, sessionHandler);
     factory.initModel(this.webRequest, this.mavContainer, new HandlerMethod(controller, "handle"));
     if (logger.isDebugEnabled()) {
       logger.debug(String.join(" >> ", getInvokedMethods()));

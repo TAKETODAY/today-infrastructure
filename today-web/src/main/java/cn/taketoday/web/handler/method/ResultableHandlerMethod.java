@@ -55,8 +55,7 @@ import cn.taketoday.web.view.View;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/4/8 23:50
  */
-@Deprecated
-public class ServletInvocableHandlerMethod extends InvocableHandlerMethod {
+public class ResultableHandlerMethod extends InvocableHandlerMethod {
 
   @Nullable
   private ReturnValueHandlerManager returnValueHandlerManager;
@@ -64,25 +63,25 @@ public class ServletInvocableHandlerMethod extends InvocableHandlerMethod {
   /**
    * Creates an instance from the given handler and method.
    */
-  public ServletInvocableHandlerMethod(Object handler, Method method) {
+  public ResultableHandlerMethod(Object handler, Method method) {
     super(handler, method);
   }
 
   /**
-   * Variant of {@link #ServletInvocableHandlerMethod(Object, Method)} that
+   * Variant of {@link #ResultableHandlerMethod(Object, Method)} that
    * also accepts a {@link MessageSource}, e.g. to resolve
    * {@code @ResponseStatus} messages with.
    */
-  public ServletInvocableHandlerMethod(Object handler, Method method, @Nullable MessageSource messageSource) {
+  public ResultableHandlerMethod(Object handler, Method method, @Nullable MessageSource messageSource) {
     super(handler, method, messageSource);
   }
 
   /**
    * Create an instance from a {@code HandlerMethod}.
    */
-  public ServletInvocableHandlerMethod(HandlerMethod handlerMethod) {
+  public ResultableHandlerMethod(HandlerMethod handlerMethod) {
     super(handlerMethod);
-    if (handlerMethod instanceof ServletInvocableHandlerMethod sihm) {
+    if (handlerMethod instanceof ResultableHandlerMethod sihm) {
       this.returnValueHandlerManager = sihm.returnValueHandlerManager;
     }
   }

@@ -36,7 +36,6 @@ import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.core.OrderComparator;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.annotation.AnnotatedElementUtils;
-import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.core.annotation.OrderUtils;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
@@ -303,7 +302,7 @@ public class ControllerAdviceBean implements Ordered {
     }
     ArrayList<ControllerAdviceBean> adviceBeans = new ArrayList<>();
     for (String name : BeanFactoryUtils.beanNamesForTypeIncludingAncestors(beanFactory, Object.class)) {
-      MergedAnnotation<ControllerAdvice> controllerAdvice = beanFactory.findAnnotationOnBean(name, ControllerAdvice.class);
+      var controllerAdvice = beanFactory.findAnnotationOnBean(name, ControllerAdvice.class);
       if (controllerAdvice.isPresent()) {
         // Use the @ControllerAdvice annotation found by findAnnotationOnBean()
         // in order to avoid a subsequent lookup of the same annotation.
