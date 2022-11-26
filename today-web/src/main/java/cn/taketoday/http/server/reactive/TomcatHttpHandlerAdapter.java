@@ -42,8 +42,6 @@ import cn.taketoday.http.MediaType;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.util.ReflectionUtils;
 import jakarta.servlet.AsyncContext;
-import jakarta.servlet.ServletInputStream;
-import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletRequestWrapper;
@@ -130,11 +128,11 @@ public class TomcatHttpHandlerAdapter extends ServletHttpHandlerAdapter {
 
     @Override
     protected DataBuffer readFromInputStream() throws IOException {
-      ServletInputStream inputStream = ((ServletRequest) getNativeRequest()).getInputStream();
-      if (!(inputStream instanceof CoyoteInputStream coyoteInputStream)) {
+      if (!(getInputStream() instanceof CoyoteInputStream coyoteInputStream)) {
         // It's possible InputStream can be wrapped, preventing use of CoyoteInputStream
         return super.readFromInputStream();
       }
+
       ByteBuffer byteBuffer = factory.isDirect() ?
                               ByteBuffer.allocateDirect(bufferSize) :
                               ByteBuffer.allocate(bufferSize);

@@ -37,12 +37,12 @@ import cn.taketoday.core.io.buffer.DefaultDataBufferFactory;
 import cn.taketoday.http.DefaultHttpHeaders;
 import cn.taketoday.http.HttpCookie;
 import cn.taketoday.http.HttpHeaders;
+import cn.taketoday.http.MediaType;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.NonNull;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.util.LinkedCaseInsensitiveMap;
-import cn.taketoday.http.MediaType;
 import cn.taketoday.util.StringUtils;
 import jakarta.servlet.AsyncContext;
 import jakarta.servlet.AsyncEvent;
@@ -67,6 +67,7 @@ class ServletServerHttpRequest extends AbstractServerHttpRequest {
   private final byte[] buffer;
   private final HttpServletRequest request;
   private final AsyncListener asyncListener;
+  private final ServletInputStream inputStream;
   private final DataBufferFactory bufferFactory;
   private final RequestBodyPublisher bodyPublisher;
 
@@ -94,7 +95,7 @@ class ServletServerHttpRequest extends AbstractServerHttpRequest {
     this.asyncListener = new RequestAsyncListener();
 
     // Tomcat expects ReadListener registration on initial thread
-    ServletInputStream inputStream = request.getInputStream();
+    this.inputStream = request.getInputStream();
     this.bodyPublisher = new RequestBodyPublisher(inputStream);
     this.bodyPublisher.registerReadListener();
   }
@@ -224,6 +225,13 @@ class ServletServerHttpRequest extends AbstractServerHttpRequest {
   }
 
   /**
+   * Return the {@link ServletInputStream} for the current response.
+   */
+  protected final ServletInputStream getInputStream() {
+    return this.inputStream;
+  }
+
+  /**
    * Read from the request body InputStream and return a DataBuffer.
    * Invoked only when {@link ServletInputStream#isReady()} returns "true".
    *
@@ -232,7 +240,7 @@ class ServletServerHttpRequest extends AbstractServerHttpRequest {
    */
   @Nullable
   DataBuffer readFromInputStream() throws IOException {
-    int read = this.request.getInputStream().read(this.buffer);
+    int read = inputStream.read(this.buffer);
     logBytesRead(read);
 
     if (read > 0) {

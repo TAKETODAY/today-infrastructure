@@ -34,10 +34,10 @@ import cn.taketoday.core.io.buffer.DataBufferFactory;
 import cn.taketoday.core.io.buffer.DataBufferUtils;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpStatus;
+import cn.taketoday.http.MediaType;
 import cn.taketoday.http.ResponseCookie;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.http.MediaType;
 import jakarta.servlet.AsyncContext;
 import jakarta.servlet.AsyncEvent;
 import jakarta.servlet.AsyncListener;
@@ -184,6 +184,13 @@ class ServletServerHttpResponse extends AbstractListenerServerHttpResponse {
     ResponseBodyFlushProcessor processor = new ResponseBodyFlushProcessor();
     this.bodyFlushProcessor = processor;
     return processor;
+  }
+
+  /**
+   * Return the {@link ServletOutputStream} for the current response.
+   */
+  protected final ServletOutputStream getOutputStream() {
+    return this.outputStream;
   }
 
   /**
