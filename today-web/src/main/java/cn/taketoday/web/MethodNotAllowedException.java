@@ -60,9 +60,10 @@ public class MethodNotAllowedException extends ResponseStatusException {
     this.method = method;
     this.supportedMethods = Collections.unmodifiableSet(new LinkedHashSet<>(supportedMethods));
 
-    getBody().setDetail(this.supportedMethods.isEmpty() ? getReason() :
-                        "Supported methods: " + this.supportedMethods.stream()
-                                .map(HttpMethod::toString).collect(Collectors.joining("', '", "'", "'")));
+    setDetail(this.supportedMethods.isEmpty() ? getReason() :
+              "Supported methods: " + this.supportedMethods.stream()
+                      .map(HttpMethod::toString)
+                      .collect(Collectors.joining("', '", "'", "'")));
   }
 
   /**

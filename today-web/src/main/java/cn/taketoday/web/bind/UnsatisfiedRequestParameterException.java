@@ -71,7 +71,7 @@ public class UnsatisfiedRequestParameterException extends RequestBindingExceptio
     Assert.notEmpty(paramConditions, "Parameter conditions must not be empty");
     this.paramConditions = paramConditions;
     this.actualParams = actualParams;
-    getBody().setDetail("Invalid request parameters.");
+    setDetail("Invalid request parameters.");
   }
 
   @Override

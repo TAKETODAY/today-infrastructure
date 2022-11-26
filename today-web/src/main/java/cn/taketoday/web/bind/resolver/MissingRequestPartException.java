@@ -52,7 +52,7 @@ public class MissingRequestPartException extends MissingRequestValueException im
   public MissingRequestPartException(String requestPartName) {
     super("Required part '" + requestPartName + "' is not present.");
     this.requestPartName = requestPartName;
-    getBody().setDetail(getMessage());
+    setDetail(getMessage());
   }
 
   /**

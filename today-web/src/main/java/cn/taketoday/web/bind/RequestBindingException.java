@@ -21,11 +21,13 @@
 package cn.taketoday.web.bind;
 
 import java.io.Serial;
+import java.net.URI;
 
 import cn.taketoday.core.NestedRuntimeException;
 import cn.taketoday.http.HttpStatus;
 import cn.taketoday.http.HttpStatusCode;
 import cn.taketoday.http.ProblemDetail;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.ErrorResponse;
 
 /**
@@ -75,6 +77,42 @@ public class RequestBindingException extends NestedRuntimeException implements E
   @Override
   public ProblemDetail getBody() {
     return this.body;
+  }
+
+  /**
+   * Set the {@link ProblemDetail#setType(URI) type} field of the response body.
+   *
+   * @param type the problem type
+   */
+  public void setType(URI type) {
+    this.body.setType(type);
+  }
+
+  /**
+   * Set the {@link ProblemDetail#setTitle(String) title} field of the response body.
+   *
+   * @param title the problem title
+   */
+  public void setTitle(@Nullable String title) {
+    this.body.setTitle(title);
+  }
+
+  /**
+   * Set the {@link ProblemDetail#setDetail(String) detail} field of the response body.
+   *
+   * @param detail the problem detail
+   */
+  public void setDetail(@Nullable String detail) {
+    this.body.setDetail(detail);
+  }
+
+  /**
+   * Set the {@link ProblemDetail#setInstance(URI) instance} field of the response body.
+   *
+   * @param instance the problem instance
+   */
+  public void setInstance(@Nullable URI instance) {
+    this.body.setInstance(instance);
   }
 
 }

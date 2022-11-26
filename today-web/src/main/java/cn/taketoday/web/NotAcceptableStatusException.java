@@ -20,6 +20,7 @@
 
 package cn.taketoday.web;
 
+import java.io.Serial;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -36,8 +37,9 @@ import cn.taketoday.util.CollectionUtils;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/3/2 16:20
  */
-@SuppressWarnings("serial")
 public class NotAcceptableStatusException extends ResponseStatusException {
+  @Serial
+  private static final long serialVersionUID = 1L;
 
   private final List<MediaType> supportedMediaTypes;
 
@@ -47,7 +49,7 @@ public class NotAcceptableStatusException extends ResponseStatusException {
   public NotAcceptableStatusException(String reason) {
     super(HttpStatus.NOT_ACCEPTABLE, reason);
     this.supportedMediaTypes = Collections.emptyList();
-    getBody().setDetail("Could not parse Accept header.");
+    setDetail("Could not parse Accept header.");
   }
 
   /**
@@ -56,8 +58,9 @@ public class NotAcceptableStatusException extends ResponseStatusException {
   public NotAcceptableStatusException(List<MediaType> mediaTypes) {
     super(HttpStatus.NOT_ACCEPTABLE, "Could not find acceptable representation");
     this.supportedMediaTypes = Collections.unmodifiableList(mediaTypes);
-    getBody().setDetail("Acceptable representations: " +
-            mediaTypes.stream().map(MediaType::toString).collect(Collectors.joining(", ", "'", "'")) + ".");
+    setDetail("Acceptable representations: " +
+            mediaTypes.stream().map(MediaType::toString)
+                    .collect(Collectors.joining(", ", "'", "'")) + ".");
   }
 
   /**
