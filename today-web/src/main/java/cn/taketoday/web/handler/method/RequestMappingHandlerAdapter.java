@@ -102,6 +102,7 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
                   && AnnotatedElementUtils.hasAnnotation(method, ModelAttribute.class);
 
   private ParameterResolvingRegistry resolvingRegistry;
+  private ResolvableParameterFactory resolvableParameterFactory;
 
   private ReturnValueHandlerManager returnValueHandlerManager;
 
@@ -158,6 +159,8 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
 
   public void setResolvingRegistry(ParameterResolvingRegistry resolvingRegistry) {
     this.resolvingRegistry = resolvingRegistry;
+    this.resolvableParameterFactory =
+            new ParameterResolvingRegistryResolvableParameterFactory(resolvingRegistry);
   }
 
   /**
@@ -382,9 +385,10 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
     // Do this first, it may add ResponseBody advice beans
     initControllerAdviceCache();
     if (resolvingRegistry == null) {
-      this.resolvingRegistry = new ParameterResolvingRegistry();
+      ParameterResolvingRegistry resolvingRegistry = new ParameterResolvingRegistry();
       resolvingRegistry.setApplicationContext(getApplicationContext());
       resolvingRegistry.registerDefaultStrategies();
+      setResolvingRegistry(resolvingRegistry);
     }
     // prepare returnValueHandlerManager
     setReturnValueHandlerManager(returnValueHandlerManager);
@@ -510,7 +514,7 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
 
     ModelFactory modelFactory = getModelFactory(handlerMethod);
 
-    ResultableHandlerMethod invocableMethod = createInvocableHandlerMethod(handlerMethod);
+    var invocableMethod = createInvocableHandlerMethod(handlerMethod);
 
     RedirectModel inputRedirectModel = RequestContextUtils.getInputRedirectModel(request, redirectModelManager);
     bindingContext.addAllAttributes(inputRedirectModel);
@@ -547,12 +551,9 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
    * @return the corresponding {@link ResultableHandlerMethod} (or custom subclass thereof)
    */
   protected ResultableHandlerMethod createInvocableHandlerMethod(HandlerMethod handlerMethod) {
-    return invocableHandlerMethodMap.computeIfAbsent(handlerMethod, handler -> {
-      ResultableHandlerMethod invocableMethod = new ResultableHandlerMethod(handler);
-      invocableMethod.setReturnValueHandlerManager(returnValueHandlerManager);
-      invocableMethod.setResolvingRegistry(resolvingRegistry);
-      return invocableMethod;
-    });
+    return invocableHandlerMethodMap.computeIfAbsent(handlerMethod,
+            handler -> new ResultableHandlerMethod(
+                    handler, returnValueHandlerManager, resolvableParameterFactory));
   }
 
   private ModelFactory getModelFactory(HandlerMethod handlerMethod) {
@@ -584,9 +585,7 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
   }
 
   private InvocableHandlerMethod createModelAttributeMethod(Object bean, Method method) {
-    InvocableHandlerMethod attrMethod = new InvocableHandlerMethod(bean, method);
-    attrMethod.setResolvingRegistry(resolvingRegistry);
-    return attrMethod;
+    return new InvocableHandlerMethod(bean, method, resolvableParameterFactory);
   }
 
   private List<InvocableHandlerMethod> getBinderMethods(HandlerMethod handlerMethod) {
@@ -618,9 +617,7 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
   }
 
   private InvocableHandlerMethod createInitBinderMethod(Object bean, Method method) {
-    InvocableHandlerMethod binderMethod = new InvocableHandlerMethod(bean, method);
-    binderMethod.setResolvingRegistry(resolvingRegistry);
-    return binderMethod;
+    return new InvocableHandlerMethod(bean, method, resolvableParameterFactory);
   }
 
 }

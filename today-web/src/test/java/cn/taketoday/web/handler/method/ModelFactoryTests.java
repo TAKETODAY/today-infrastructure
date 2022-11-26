@@ -267,18 +267,24 @@ class ModelFactoryTests {
   }
 
   private ModelFactory createModelFactory(String methodName, Class<?>... parameterTypes) throws Throwable {
-
-    InvocableHandlerMethod modelMethod = createHandlerMethod(methodName, parameterTypes);
     ParameterResolvingRegistry registry = new ParameterResolvingRegistry();
+    var parameterFactory = new ParameterResolvingRegistryResolvableParameterFactory(registry);
     registry.getCustomizedStrategies().add(new ModelMethodProcessor());
-
-    modelMethod.setResolvingRegistry(registry);
+    InvocableHandlerMethod modelMethod = createHandlerMethod(parameterFactory, methodName, parameterTypes);
     return new ModelFactory(Collections.singletonList(modelMethod), this.attributeHandler);
+  }
+
+  private InvocableHandlerMethod createHandlerMethod(
+          ResolvableParameterFactory factory, String methodName, Class<?>... paramTypes) throws Throwable {
+    Method method = this.controller.getClass().getMethod(methodName, paramTypes);
+    return new InvocableHandlerMethod(this.controller, method, factory);
   }
 
   private InvocableHandlerMethod createHandlerMethod(String methodName, Class<?>... paramTypes) throws Throwable {
     Method method = this.controller.getClass().getMethod(methodName, paramTypes);
-    return new InvocableHandlerMethod(this.controller, method);
+    ParameterResolvingRegistry registry = new ParameterResolvingRegistry();
+    var parameterFactory = new ParameterResolvingRegistryResolvableParameterFactory(registry);
+    return new InvocableHandlerMethod(this.controller, method, parameterFactory);
   }
 
   @SessionAttributes({ "sessionAttr", "foo" })

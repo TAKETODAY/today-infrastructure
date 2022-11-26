@@ -23,9 +23,7 @@ package cn.taketoday.web.handler.method;
 import java.io.IOException;
 import java.lang.reflect.Method;
 
-import cn.taketoday.context.MessageSource;
 import cn.taketoday.http.HttpStatusCode;
-import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.BindingContext;
@@ -57,40 +55,24 @@ import cn.taketoday.web.view.View;
  */
 public class ResultableHandlerMethod extends InvocableHandlerMethod {
 
-  @Nullable
-  private ReturnValueHandlerManager returnValueHandlerManager;
+  private final ReturnValueHandlerManager returnValueHandlerManager;
 
   /**
    * Creates an instance from the given handler and method.
    */
-  public ResultableHandlerMethod(Object handler, Method method) {
-    super(handler, method);
-  }
-
-  /**
-   * Variant of {@link #ResultableHandlerMethod(Object, Method)} that
-   * also accepts a {@link MessageSource}, e.g. to resolve
-   * {@code @ResponseStatus} messages with.
-   */
-  public ResultableHandlerMethod(Object handler, Method method, @Nullable MessageSource messageSource) {
-    super(handler, method, messageSource);
+  public ResultableHandlerMethod(Object handler,
+          Method method, ResolvableParameterFactory factory,
+          ReturnValueHandlerManager returnValueHandlerManager) {
+    super(handler, method, factory);
+    this.returnValueHandlerManager = returnValueHandlerManager;
   }
 
   /**
    * Create an instance from a {@code HandlerMethod}.
    */
-  public ResultableHandlerMethod(HandlerMethod handlerMethod) {
-    super(handlerMethod);
-    if (handlerMethod instanceof ResultableHandlerMethod sihm) {
-      this.returnValueHandlerManager = sihm.returnValueHandlerManager;
-    }
-  }
-
-  /**
-   * Register {@link HandlerMethodReturnValueHandler} instances to use to
-   * handle return values.
-   */
-  public void setReturnValueHandlerManager(ReturnValueHandlerManager manager) {
+  public ResultableHandlerMethod(HandlerMethod handlerMethod,
+          ReturnValueHandlerManager manager, ResolvableParameterFactory factory) {
+    super(handlerMethod, factory);
     this.returnValueHandlerManager = manager;
   }
 
@@ -117,8 +99,6 @@ public class ResultableHandlerMethod extends InvocableHandlerMethod {
     else if (StringUtils.hasText(getResponseStatusReason())) {
       return HttpRequestHandler.NONE_RETURN_VALUE;
     }
-
-    Assert.state(returnValueHandlerManager != null, "No return value handlers");
 
     ReturnValueHandler returnValueHandler = returnValueHandlerManager.findHandler(this, returnValue);
     if (returnValueHandler == null) {

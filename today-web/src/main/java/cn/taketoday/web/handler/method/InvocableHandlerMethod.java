@@ -24,14 +24,12 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 
-import cn.taketoday.context.MessageSource;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.web.BindingContext;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.bind.WebDataBinder;
-import cn.taketoday.web.bind.resolver.ParameterResolvingRegistry;
 import cn.taketoday.web.bind.resolver.ParameterResolvingStrategies;
 import cn.taketoday.web.bind.support.SessionStatus;
 
@@ -52,50 +50,22 @@ public class InvocableHandlerMethod extends HandlerMethod {
 
   private static final Object[] EMPTY_ARGS = new Object[0];
 
-  protected final ResolvableMethodParameter[] resolvableParameters =
-          new ResolvableMethodParameter[getParameterCount()];
+  protected final ResolvableMethodParameter[] resolvableParameters;
 
   /**
    * Create an instance from a {@code HandlerMethod}.
    */
-  public InvocableHandlerMethod(HandlerMethod handlerMethod) {
+  public InvocableHandlerMethod(HandlerMethod handlerMethod, ResolvableParameterFactory factory) {
     super(handlerMethod);
+    this.resolvableParameters = factory.getParameters(this);
   }
 
   /**
    * Create an instance from a bean instance and a method.
    */
-  public InvocableHandlerMethod(Object bean, Method method) {
+  public InvocableHandlerMethod(Object bean, Method method, ResolvableParameterFactory factory) {
     super(bean, method);
-  }
-
-  /**
-   * Variant of {@link #InvocableHandlerMethod(Object, Method)} that
-   * also accepts a {@link MessageSource}, for use in sub-classes.
-   */
-  protected InvocableHandlerMethod(Object bean, Method method, @Nullable MessageSource messageSource) {
-    super(bean, method, messageSource);
-  }
-
-  /**
-   * Construct a new handler method with the given bean instance, method name and parameters.
-   *
-   * @param bean the object bean
-   * @param methodName the method name
-   * @param parameterTypes the method parameter types
-   * @throws NoSuchMethodException when the method cannot be found
-   */
-  public InvocableHandlerMethod(Object bean, String methodName, Class<?>... parameterTypes) throws NoSuchMethodException {
-    super(bean, methodName, parameterTypes);
-  }
-
-  /**
-   * Create an instance from a bean instance and a method.
-   */
-  public InvocableHandlerMethod(Object bean, Method method, ParameterResolvingRegistry resolvingRegistry) {
-    super(bean, method);
-    var parameterFactory = new ParameterResolvingRegistryResolvableParameterFactory(resolvingRegistry);
-    parameterFactory.fillArray(this);
+    this.resolvableParameters = factory.getParameters(this);
   }
 
   /**

@@ -111,15 +111,13 @@ class ModelFactoryOrderingTests {
     ParameterResolvingRegistry resolvers = new ParameterResolvingRegistry();
     resolvers.addCustomizedStrategies(new ModelAttributeMethodProcessor(false));
     resolvers.addCustomizedStrategies(new ModelMethodProcessor());
-
-    BindingContext dataBinderFactory = new BindingContext(null);
+    var parameterFactory = new ParameterResolvingRegistryResolvableParameterFactory(resolvers);
 
     Class<?> type = controller.getClass();
     Set<Method> methods = MethodIntrospector.filterMethods(type, METHOD_FILTER);
     List<InvocableHandlerMethod> modelMethods = new ArrayList<>();
     for (Method method : methods) {
-      InvocableHandlerMethod modelMethod = new InvocableHandlerMethod(controller, method);
-      modelMethod.setResolvingRegistry(resolvers);
+      InvocableHandlerMethod modelMethod = new InvocableHandlerMethod(controller, method, parameterFactory);
       modelMethods.add(modelMethod);
     }
     Collections.shuffle(modelMethods);
