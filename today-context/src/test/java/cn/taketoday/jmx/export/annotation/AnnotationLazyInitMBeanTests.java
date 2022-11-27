@@ -21,6 +21,8 @@
 package cn.taketoday.jmx.export.annotation;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ExecutionMode;
 
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
@@ -34,6 +36,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Rob Harrop
  * @author Juergen Hoeller
  */
+@Execution(ExecutionMode.SAME_THREAD)
 class AnnotationLazyInitMBeanTests {
 
   @Test

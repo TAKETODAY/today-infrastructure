@@ -20,6 +20,7 @@
 
 package cn.taketoday.beans.factory.xml;
 
+import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.xml.sax.InputSource;
 
@@ -85,6 +86,7 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/3/6 22:35
  */
+@Order(Integer.MAX_VALUE - 10)
 class XmlBeanFactoryTests {
 
   private static final Class<?> CLASS = XmlBeanFactoryTests.class;
