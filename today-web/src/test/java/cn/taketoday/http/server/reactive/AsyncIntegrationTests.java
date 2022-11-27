@@ -20,8 +20,7 @@
 
 package cn.taketoday.http.server.reactive;
 
-import org.junit.jupiter.api.parallel.Execution;
-import org.junit.jupiter.api.parallel.ExecutionMode;
+import org.junit.jupiter.api.Order;
 
 import java.net.URI;
 import java.time.Duration;
@@ -44,7 +43,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Stephane Maldini
  * @since 4.0
  */
-@Execution(ExecutionMode.SAME_THREAD)
+@Order(Integer.MAX_VALUE)
 @DisabledIfInContinuousIntegration(disabledReason = "server port error")
 class AsyncIntegrationTests extends AbstractHttpHandlerIntegrationTests {
 
