@@ -1270,6 +1270,7 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
     }
   }
 
+  @Override
   public boolean isAutowireCandidate(String beanName, DependencyDescriptor descriptor)
           throws NoSuchBeanDefinitionException {
 
