@@ -26,6 +26,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.api.extension.LifecycleMethodExecutionExceptionHandler;
 import org.junit.jupiter.api.extension.TestExecutionExceptionHandler;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ExecutionMode;
 import org.opentest4j.TestAbortedException;
 
 import java.net.BindException;
@@ -60,6 +62,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Chris Beams
  * @author Stephane Nicoll
  */
+@Execution(ExecutionMode.SAME_THREAD)
 @ExtendWith(AbstractMBeanServerTests.BindExceptionHandler.class)
 public abstract class AbstractMBeanServerTests {
 

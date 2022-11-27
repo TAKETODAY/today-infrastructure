@@ -49,7 +49,6 @@ import jakarta.mail.internet.MimeMessage;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-import static org.assertj.core.api.Assertions.entry;
 
 /**
  * @author Juergen Hoeller
@@ -427,7 +426,6 @@ public class JavaMailSenderTests {
       sender.send(simpleMessage1, simpleMessage2);
     }
     catch (MailSendException ex) {
-      ex.printStackTrace();
       assertThat(sender.transport.getConnectedHost()).isEqualTo("host");
       assertThat(sender.transport.getConnectedUsername()).isEqualTo("username");
       assertThat(sender.transport.getConnectedPassword()).isEqualTo("password");
@@ -460,7 +458,6 @@ public class JavaMailSenderTests {
       sender.send(mimeMessage1, mimeMessage2);
     }
     catch (MailSendException ex) {
-      ex.printStackTrace();
       assertThat(sender.transport.getConnectedHost()).isEqualTo("host");
       assertThat(sender.transport.getConnectedUsername()).isEqualTo("username");
       assertThat(sender.transport.getConnectedPassword()).isEqualTo("password");

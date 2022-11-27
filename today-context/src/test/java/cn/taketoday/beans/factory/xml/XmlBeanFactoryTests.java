@@ -292,7 +292,6 @@ class XmlBeanFactoryTests {
     }
     catch (BeanCreationException ex) {
       // Check whether message contains outer bean name.
-      ex.printStackTrace();
       assertThat(ex.getMessage().contains("failsOnInnerBean")).isTrue();
       assertThat(ex.getMessage().contains("someMap")).isTrue();
     }
@@ -302,7 +301,6 @@ class XmlBeanFactoryTests {
     }
     catch (BeanCreationException ex) {
       // Check whether message contains outer bean name.
-      ex.printStackTrace();
       assertThat(ex.getMessage().contains("failsOnInnerBeanForConstructor")).isTrue();
       assertThat(ex.getMessage().contains("constructor argument")).isTrue();
     }

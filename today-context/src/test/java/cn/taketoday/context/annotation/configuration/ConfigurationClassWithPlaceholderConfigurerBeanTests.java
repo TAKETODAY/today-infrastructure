@@ -21,6 +21,8 @@
 package cn.taketoday.context.annotation.configuration;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ExecutionMode;
 
 import cn.taketoday.beans.factory.annotation.Value;
 import cn.taketoday.beans.testfixture.beans.ITestBean;
@@ -48,6 +50,7 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
  * @author Juergen Hoeller
  * @author Sam Brannen
  */
+@Execution(ExecutionMode.SAME_THREAD)
 public class ConfigurationClassWithPlaceholderConfigurerBeanTests {
 
   /**
@@ -63,7 +66,6 @@ public class ConfigurationClassWithPlaceholderConfigurerBeanTests {
    * {@link #valueFieldsAreProcessedWhenStaticPlaceholderConfigurerIsIntegrated()}.
    */
   @Test
-  @SuppressWarnings("resource")
   public void valueFieldsAreNotProcessedWhenPlaceholderConfigurerIsIntegrated() {
     StandardApplicationContext ctx = new StandardApplicationContext();
     ctx.register(ConfigWithValueFieldAndPlaceholderConfigurer.class);
@@ -77,7 +79,6 @@ public class ConfigurationClassWithPlaceholderConfigurerBeanTests {
   }
 
   @Test
-  @SuppressWarnings("resource")
   public void valueFieldsAreProcessedWhenStaticPlaceholderConfigurerIsIntegrated() {
     StandardApplicationContext ctx = new StandardApplicationContext();
     ctx.register(ConfigWithValueFieldAndStaticPlaceholderConfigurer.class);
@@ -90,7 +91,6 @@ public class ConfigurationClassWithPlaceholderConfigurerBeanTests {
   }
 
   @Test
-  @SuppressWarnings("resource")
   public void valueFieldsAreProcessedWhenPlaceholderConfigurerIsSegregated() {
     StandardApplicationContext ctx = new StandardApplicationContext();
     ctx.register(ConfigWithValueField.class);
@@ -104,7 +104,6 @@ public class ConfigurationClassWithPlaceholderConfigurerBeanTests {
   }
 
   @Test
-  @SuppressWarnings("resource")
   public void valueFieldsResolveToPlaceholderSpecifiedDefaultValuesWithPlaceholderConfigurer() {
     StandardApplicationContext ctx = new StandardApplicationContext();
     ctx.register(ConfigWithValueField.class);
@@ -116,7 +115,6 @@ public class ConfigurationClassWithPlaceholderConfigurerBeanTests {
   }
 
   @Test
-  @SuppressWarnings("resource")
   public void valueFieldsResolveToPlaceholderSpecifiedDefaultValuesWithoutPlaceholderConfigurer() {
     StandardApplicationContext ctx = new StandardApplicationContext();
     ctx.register(ConfigWithValueField.class);

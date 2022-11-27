@@ -21,6 +21,8 @@
 package cn.taketoday.jmx.export.annotation;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ExecutionMode;
 
 import javax.management.modelmbean.ModelMBeanAttributeInfo;
 import javax.management.modelmbean.ModelMBeanInfo;
@@ -36,6 +38,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Rob Harrop
  * @author Chris Beams
  */
+@Execution(ExecutionMode.SAME_THREAD)
 public class AnnotationMetadataAssemblerTests extends AbstractMetadataAssemblerTests {
 
   private static final String OBJECT_NAME = "bean:name=testBean4";
