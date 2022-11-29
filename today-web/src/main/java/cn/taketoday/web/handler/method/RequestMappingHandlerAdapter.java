@@ -536,6 +536,7 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
       return HttpRequestHandler.NONE_RETURN_VALUE;
     }
 
+    modelFactory.updateModel(request, bindingContext);
     return returnValue;
   }
 
@@ -557,7 +558,6 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
   }
 
   private ModelFactory getModelFactory(HandlerMethod handlerMethod) {
-    SessionAttributesHandler sessionAttrHandler = getSessionAttributesHandler(handlerMethod);
     Class<?> handlerType = handlerMethod.getBeanType();
 
     ArrayList<InvocableHandlerMethod> attrMethods = new ArrayList<>();
@@ -581,6 +581,8 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
       Object bean = handlerMethod.getBean();
       attrMethods.add(createModelAttributeMethod(bean, method));
     }
+
+    SessionAttributesHandler sessionAttrHandler = getSessionAttributesHandler(handlerMethod);
     return new ModelFactory(attrMethods, sessionAttrHandler);
   }
 
