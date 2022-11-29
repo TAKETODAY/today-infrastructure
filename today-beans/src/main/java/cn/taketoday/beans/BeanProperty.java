@@ -81,10 +81,16 @@ public sealed class BeanProperty extends Property
     }
   }
 
+  /**
+   * instantiate property value
+   */
   public Object instantiate() {
     return instantiate(null);
   }
 
+  /**
+   * instantiate property value
+   */
   public Object instantiate(@Nullable Object[] args) {
     BeanInstantiator constructor = this.instantiator;
     if (constructor == null) {

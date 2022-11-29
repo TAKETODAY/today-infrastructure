@@ -140,7 +140,7 @@ public abstract class AbstractPropertyAccessor extends TypeConverterSupport impl
 
     // If we encountered individual exceptions, throw the composite exception.
     if (propertyAccessExceptions != null) {
-      PropertyAccessException[] paeArray = propertyAccessExceptions.toArray(new PropertyAccessException[0]);
+      var paeArray = propertyAccessExceptions.toArray(new PropertyAccessException[0]);
       throw new PropertyBatchUpdateException(paeArray);
     }
   }
@@ -156,7 +156,7 @@ public abstract class AbstractPropertyAccessor extends TypeConverterSupport impl
       for (PropertyValue pv : pvs) {
         // setPropertyValue may throw any BeansException, which won't be caught
         // here, if there is a critical failure such as no matching field.
-        // We can attempt to deal only with less serious exceptions.
+        // We can attempt to deal ony with less serious exceptions.
         try {
           setPropertyValue(pv);
         }
@@ -188,7 +188,7 @@ public abstract class AbstractPropertyAccessor extends TypeConverterSupport impl
 
     // If we encountered individual exceptions, throw the composite exception.
     if (propertyAccessExceptions != null) {
-      PropertyAccessException[] paeArray = propertyAccessExceptions.toArray(new PropertyAccessException[0]);
+      var paeArray = propertyAccessExceptions.toArray(new PropertyAccessException[0]);
       throw new PropertyBatchUpdateException(paeArray);
     }
   }
