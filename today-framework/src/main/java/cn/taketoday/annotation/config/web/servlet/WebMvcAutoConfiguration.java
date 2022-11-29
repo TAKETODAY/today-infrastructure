@@ -97,7 +97,6 @@ import cn.taketoday.web.handler.method.RequestMappingHandlerAdapter;
 import cn.taketoday.web.handler.method.RequestMappingHandlerMapping;
 import cn.taketoday.web.i18n.AcceptHeaderLocaleResolver;
 import cn.taketoday.web.i18n.FixedLocaleResolver;
-import cn.taketoday.web.registry.FunctionHandlerMapping;
 import cn.taketoday.web.registry.ViewControllerHandlerMapping;
 import cn.taketoday.web.resource.EncodedResourceResolver;
 import cn.taketoday.web.resource.ResourceResolver;
@@ -273,11 +272,6 @@ public class WebMvcAutoConfiguration extends WebMvcConfigurationSupport {
   @Override
   protected void addCorsMappings(CorsRegistry registry) {
     mvcConfiguration.addCorsMappings(registry);
-  }
-
-  @Override
-  protected void configureFunctionHandler(FunctionHandlerMapping functionHandlerRegistry) {
-    mvcConfiguration.configureFunctionHandler(functionHandlerRegistry);
   }
 
   @Override

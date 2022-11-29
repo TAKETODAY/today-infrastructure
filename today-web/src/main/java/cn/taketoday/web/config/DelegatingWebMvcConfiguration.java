@@ -32,7 +32,6 @@ import cn.taketoday.validation.Validator;
 import cn.taketoday.web.HandlerExceptionHandler;
 import cn.taketoday.web.bind.resolver.ParameterResolvingRegistry;
 import cn.taketoday.web.handler.ReturnValueHandlerManager;
-import cn.taketoday.web.registry.FunctionHandlerMapping;
 import cn.taketoday.web.registry.ViewControllerHandlerMapping;
 
 /**
@@ -136,11 +135,6 @@ public class DelegatingWebMvcConfiguration extends WebMvcConfigurationSupport {
   @Nullable
   protected Validator getValidator() {
     return this.configurers.getValidator();
-  }
-
-  @Override
-  protected void configureFunctionHandler(FunctionHandlerMapping functionHandlerRegistry) {
-    configurers.configureFunctionHandler(functionHandlerRegistry);
   }
 
   @Override

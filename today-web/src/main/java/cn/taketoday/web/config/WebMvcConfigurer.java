@@ -38,7 +38,6 @@ import cn.taketoday.web.bind.resolver.ParameterResolvingStrategy;
 import cn.taketoday.web.cors.CorsConfiguration;
 import cn.taketoday.web.handler.ReturnValueHandlerManager;
 import cn.taketoday.web.handler.ViewController;
-import cn.taketoday.web.registry.FunctionHandlerMapping;
 import cn.taketoday.web.registry.ViewControllerHandlerMapping;
 import cn.taketoday.web.view.View;
 
@@ -104,14 +103,6 @@ public interface WebMvcConfigurer {
    * @since 2.3.7
    */
   default void configureViewController(ViewControllerHandlerMapping registry) { }
-
-  /**
-   * Configure Function Handler
-   *
-   * @param registry {@link FunctionHandlerMapping}
-   * @since 2.3.7
-   */
-  default void configureFunctionHandler(FunctionHandlerMapping registry) { }
 
   /**
    * Configure {@link HandlerMapping}

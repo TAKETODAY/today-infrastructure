@@ -32,7 +32,6 @@ import cn.taketoday.web.HandlerMapping;
 import cn.taketoday.web.bind.resolver.ParameterResolvingRegistry;
 import cn.taketoday.web.bind.resolver.ParameterResolvingStrategies;
 import cn.taketoday.web.handler.ReturnValueHandlerManager;
-import cn.taketoday.web.registry.FunctionHandlerMapping;
 import cn.taketoday.web.registry.ViewControllerHandlerMapping;
 
 /**
@@ -90,13 +89,6 @@ public class CompositeWebMvcConfigurer implements WebMvcConfigurer {
   public void configureViewController(ViewControllerHandlerMapping viewControllerHandlerRegistry) {
     for (WebMvcConfigurer webMvcConfigurer : getWebMvcConfigurations()) {
       webMvcConfigurer.configureViewController(viewControllerHandlerRegistry);
-    }
-  }
-
-  @Override
-  public void configureFunctionHandler(FunctionHandlerMapping functionHandlerRegistry) {
-    for (WebMvcConfigurer webMvcConfigurer : getWebMvcConfigurations()) {
-      webMvcConfigurer.configureFunctionHandler(functionHandlerRegistry);
     }
   }
 

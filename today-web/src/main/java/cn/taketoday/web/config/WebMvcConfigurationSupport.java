@@ -34,6 +34,8 @@ import cn.taketoday.beans.factory.annotation.DisableAllDependencyInjection;
 import cn.taketoday.beans.factory.annotation.Qualifier;
 import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.context.ApplicationContext;
+import cn.taketoday.context.annotation.Bean;
+import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Role;
 import cn.taketoday.context.aware.ApplicationContextSupport;
 import cn.taketoday.context.condition.ConditionalOnClass;
@@ -71,6 +73,7 @@ import cn.taketoday.validation.Errors;
 import cn.taketoday.validation.MessageCodesResolver;
 import cn.taketoday.validation.Validator;
 import cn.taketoday.validation.beanvalidation.OptionalValidatorFactoryBean;
+import cn.taketoday.web.HandlerAdapter;
 import cn.taketoday.web.HandlerExceptionHandler;
 import cn.taketoday.web.HandlerMapping;
 import cn.taketoday.web.ReturnValueHandler;
@@ -82,13 +85,14 @@ import cn.taketoday.web.bind.resolver.ParameterResolvingStrategy;
 import cn.taketoday.web.bind.support.ConfigurableWebBindingInitializer;
 import cn.taketoday.web.cors.CorsConfiguration;
 import cn.taketoday.web.handler.CompositeHandlerExceptionHandler;
-import cn.taketoday.web.handler.FunctionRequestAdapter;
 import cn.taketoday.web.handler.HandlerExecutionChainHandlerAdapter;
 import cn.taketoday.web.handler.NotFoundHandler;
 import cn.taketoday.web.handler.ResponseStatusExceptionHandler;
 import cn.taketoday.web.handler.ReturnValueHandlerManager;
 import cn.taketoday.web.handler.SimpleHandlerExceptionHandler;
 import cn.taketoday.web.handler.ViewControllerHandlerAdapter;
+import cn.taketoday.web.handler.function.support.HandlerFunctionAdapter;
+import cn.taketoday.web.handler.function.support.RouterFunctionMapping;
 import cn.taketoday.web.handler.method.AnnotationHandlerFactory;
 import cn.taketoday.web.handler.method.ControllerAdviceBean;
 import cn.taketoday.web.handler.method.ExceptionHandlerAnnotationExceptionHandler;
@@ -100,13 +104,14 @@ import cn.taketoday.web.handler.method.RequestMappingHandlerAdapter;
 import cn.taketoday.web.handler.method.RequestMappingHandlerMapping;
 import cn.taketoday.web.handler.method.ResponseBodyAdvice;
 import cn.taketoday.web.registry.AbstractHandlerMapping;
-import cn.taketoday.web.registry.FunctionHandlerMapping;
+import cn.taketoday.web.registry.BeanNameUrlHandlerMapping;
 import cn.taketoday.web.registry.SimpleUrlHandlerMapping;
 import cn.taketoday.web.registry.ViewControllerHandlerMapping;
 import cn.taketoday.web.resource.ResourceUrlProvider;
 import cn.taketoday.web.servlet.ServletViewResolverComposite;
 import cn.taketoday.web.servlet.WebApplicationContext;
 import cn.taketoday.web.servlet.view.InternalResourceViewResolver;
+import cn.taketoday.web.util.pattern.PathPatternParser;
 import cn.taketoday.web.view.RedirectModelManager;
 import cn.taketoday.web.view.ViewResolver;
 import cn.taketoday.web.view.ViewResolverComposite;
@@ -114,7 +119,72 @@ import cn.taketoday.web.view.ViewReturnValueHandler;
 import jakarta.servlet.ServletContext;
 
 /**
+ * This is the main class providing the configuration behind the MVC Java config.
+ * It is typically imported by adding {@link EnableWebMvc @EnableWebMvc} to an
+ * application {@link Configuration @Configuration} class. An alternative more
+ * advanced option is to extend directly from this class and override methods as
+ * necessary, remembering to add {@link Configuration @Configuration} to the
+ * subclass and {@link Bean @Bean} to overridden {@link Bean @Bean} methods.
+ * For more details see the javadoc of {@link EnableWebMvc @EnableWebMvc}.
+ *
+ * <p>This class registers the following {@link HandlerMapping HandlerMappings}:</p>
+ * <ul>
+ * <li>{@link RequestMappingHandlerMapping}
+ * ordered at 0 for mapping requests to annotated controller methods.
+ * <li>{@link HandlerMapping}
+ * ordered at 1 to map URL paths directly to view names.
+ * <li>{@link BeanNameUrlHandlerMapping}
+ * ordered at 2 to map URL paths to controller bean names.
+ * <li>{@link RouterFunctionMapping}
+ * ordered at 3 to map {@linkplain cn.taketoday.web.handler.function.RouterFunction router functions}.
+ * <li>{@link HandlerMapping}
+ * ordered at {@code Integer.MAX_VALUE-1} to serve static resource requests.
+ * <li>{@link HandlerMapping}
+ * ordered at {@code Integer.MAX_VALUE} to forward requests to the default servlet.
+ * </ul>
+ *
+ * <p>Registers these {@link HandlerAdapter HandlerAdapters}:
+ * <ul>
+ * <li>{@link RequestMappingHandlerAdapter}
+ * for processing requests with annotated controller methods.
+ * <li>{@link HandlerFunctionAdapter}
+ * for processing requests with {@linkplain
+ * cn.taketoday.web.handler.function.RouterFunction router functions}.
+ * </ul>
+ *
+ * <p>
+ *   HttpRequestHandler is default handler to handle HTTP request
+ *
+ * <p>Registers a {@link CompositeHandlerExceptionHandler} with this chain of
+ * exception handlers:
+ * <ul>
+ * <li>{@link ExceptionHandlerAnnotationExceptionHandler} for handling exceptions through
+ * {@link cn.taketoday.web.annotation.ExceptionHandler} methods.
+ * <li>{@link ResponseStatusExceptionHandler} for exceptions annotated with
+ * {@link cn.taketoday.web.annotation.ResponseStatus}.
+ * <li>{@link SimpleHandlerExceptionHandler} for resolving known Spring
+ * exception types
+ * </ul>
+ *
+ * Note that those beans can be configured with a {@link PathMatchConfigurer}.
+ *
+ * <p>Both the {@link RequestMappingHandlerAdapter} and the
+ * {@link ExceptionHandlerAnnotationExceptionHandler} are configured with default
+ * instances of the following by default:
+ * <ul>
+ * <li>a {@link ContentNegotiationManager}
+ * <li>a {@link DefaultFormattingConversionService}
+ * <li>an {@link OptionalValidatorFactoryBean}
+ * if a JSR-303 implementation is available on the classpath
+ * <li>a range of {@link HttpMessageConverter HttpMessageConverters} depending on the third-party
+ * libraries available on the classpath.
+ * </ul>
+ *
+ * @author Rossen Stoyanchev
+ * @author Brian Clozel
+ * @author Sebastien Deleuze
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @see WebMvcConfigurer
  * @since 4.0 2022/1/27 23:43
  */
 @DisableAllDependencyInjection
@@ -158,7 +228,7 @@ public class WebMvcConfigurationSupport extends ApplicationContextSupport {
 
   private void initControllerAdviceCache() {
     List<ControllerAdviceBean> adviceBeans = ControllerAdviceBean.findAnnotatedBeans(
-            getApplicationContext(), RequestBodyAdvice.class, ResponseBodyAdvice.class);
+            obtainApplicationContext(), RequestBodyAdvice.class, ResponseBodyAdvice.class);
 
     if (!adviceBeans.isEmpty()) {
       requestResponseBodyAdvice.addAll(0, adviceBeans);
@@ -583,7 +653,7 @@ public class WebMvcConfigurationSupport extends ApplicationContextSupport {
    * </ul>
    */
   protected final void addDefaultHandlerExceptionHandlers(List<HandlerExceptionHandler> handlers) {
-    ExceptionHandlerAnnotationExceptionHandler handler = createAnnotationExceptionHandler();
+    var handler = createAnnotationExceptionHandler();
 
     if (this.applicationContext != null) {
       handler.setApplicationContext(this.applicationContext);
@@ -615,23 +685,12 @@ public class WebMvcConfigurationSupport extends ApplicationContextSupport {
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
   @ConditionalOnMissingBean(RequestMappingHandlerMapping.class)
   RequestMappingHandlerMapping requestMappingHandlerMapping(ContentNegotiationManager contentNegotiationManager) {
+
     var handlerMapping = createRequestMappingHandlerMapping();
-
-    PathMatchConfigurer configurer = getPathMatchConfigurer();
-
-    Boolean useTrailingSlashMatch = configurer.isUseTrailingSlashMatch();
-    if (useTrailingSlashMatch != null) {
-      handlerMapping.setUseTrailingSlashMatch(useTrailingSlashMatch);
-    }
-
-    Boolean useCaseSensitiveMatch = configurer.isUseCaseSensitiveMatch();
-    if (useCaseSensitiveMatch != null) {
-      handlerMapping.setUseCaseSensitiveMatch(useCaseSensitiveMatch);
-    }
-    handlerMapping.setInterceptors(getInterceptors());
-
-    handlerMapping.setOrder(Ordered.HIGHEST_PRECEDENCE);
+    handlerMapping.setOrder(0);
     handlerMapping.setContentNegotiationManager(contentNegotiationManager);
+
+    initHandlerMapping(handlerMapping);
     return handlerMapping;
   }
 
@@ -658,6 +717,62 @@ public class WebMvcConfigurationSupport extends ApplicationContextSupport {
   }
 
   /**
+   * Return a {@link BeanNameUrlHandlerMapping} ordered at 2 to map URL
+   * paths to controller bean names.
+   */
+  @Component
+  @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
+  public BeanNameUrlHandlerMapping beanNameHandlerMapping() {
+    BeanNameUrlHandlerMapping mapping = new BeanNameUrlHandlerMapping();
+    mapping.setOrder(2);
+
+    initHandlerMapping(mapping);
+    return mapping;
+  }
+
+  /**
+   * Return a {@link RouterFunctionMapping} ordered at 3 to map
+   * {@linkplain cn.taketoday.web.handler.function.RouterFunction router functions}.
+   * Consider overriding one of these other more fine-grained methods:
+   * <ul>
+   * <li>{@link #addInterceptors} for adding handler interceptors.
+   * <li>{@link #addCorsMappings} to configure cross origin requests processing.
+   * <li>{@link #configureMessageConverters} for adding custom message converters.
+   * <li>{@link #configurePathMatch(PathMatchConfigurer)} for customizing the {@link PathPatternParser}.
+   * </ul>
+   */
+  @Component
+  @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
+  public RouterFunctionMapping routerFunctionMapping() {
+
+    RouterFunctionMapping mapping = new RouterFunctionMapping();
+    mapping.setOrder(3);
+    mapping.setMessageConverters(getMessageConverters());
+
+    initHandlerMapping(mapping);
+    return mapping;
+  }
+
+  private void initHandlerMapping(@Nullable AbstractHandlerMapping mapping) {
+    if (mapping != null) {
+      mapping.setInterceptors(getInterceptors());
+      mapping.setCorsConfigurations(getCorsConfigurations());
+
+      PathMatchConfigurer configurer = getPathMatchConfigurer();
+
+      Boolean useTrailingSlashMatch = configurer.isUseTrailingSlashMatch();
+      if (useTrailingSlashMatch != null) {
+        mapping.setUseTrailingSlashMatch(useTrailingSlashMatch);
+      }
+
+      Boolean useCaseSensitiveMatch = configurer.isUseCaseSensitiveMatch();
+      if (useCaseSensitiveMatch != null) {
+        mapping.setUseCaseSensitiveMatch(useCaseSensitiveMatch);
+      }
+    }
+  }
+
+  /**
    * Return a handler mapping ordered at Integer.MAX_VALUE-1 with mapped
    * resource handlers. To configure resource handling, override
    * {@link #addResourceHandlers}.
@@ -668,37 +783,13 @@ public class WebMvcConfigurationSupport extends ApplicationContextSupport {
   public HandlerMapping resourceHandlerMapping(
           @Nullable ContentNegotiationManager contentNegotiationManager) {
     var context = obtainApplicationContext();
-    PathMatchConfigurer pathConfig = getPathMatchConfigurer();
-
     var registry = new ResourceHandlerRegistry(context, contentNegotiationManager);
     addResourceHandlers(registry);
 
     SimpleUrlHandlerMapping handlerMapping = registry.getHandlerMapping();
-    if (handlerMapping == null) {
-      return null;
-    }
-
-    handlerMapping.setCorsConfigurations(getCorsConfigurations());
-    handlerMapping.setInterceptors(getInterceptors());
-    handlerMapping.setUseCaseSensitiveMatch(Boolean.TRUE.equals(pathConfig.isUseCaseSensitiveMatch()));
-    handlerMapping.setUseTrailingSlashMatch(Boolean.TRUE.equals(pathConfig.isUseTrailingSlashMatch()));
-
+    initHandlerMapping(handlerMapping);
     return handlerMapping;
   }
-
-  @Component
-  @ConditionalOnMissingBean
-  @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-  public HandlerMapping webFunctionHandlerMapping() {
-    FunctionHandlerMapping handlerMapping = new FunctionHandlerMapping();
-    handlerMapping.setApplicationContext(getApplicationContext());
-    handlerMapping.setCorsConfigurations(getCorsConfigurations());
-
-    configureFunctionHandler(handlerMapping);
-    return handlerMapping;
-  }
-
-  protected void configureFunctionHandler(FunctionHandlerMapping functionHandlerRegistry) { }
 
   /**
    * Return a handler mapping ordered at 1 to map URL paths directly to
@@ -709,20 +800,11 @@ public class WebMvcConfigurationSupport extends ApplicationContextSupport {
   @Nullable
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
   public HandlerMapping viewControllerHandlerMapping() {
-    ViewControllerRegistry registry = new ViewControllerRegistry(this.applicationContext);
+    ViewControllerRegistry registry = new ViewControllerRegistry(applicationContext);
     addViewControllers(registry);
 
     AbstractHandlerMapping mapping = registry.buildHandlerMapping();
-    if (mapping == null) {
-      return null;
-    }
-    PathMatchConfigurer pathConfig = getPathMatchConfigurer();
-
-    mapping.setUseCaseSensitiveMatch(Boolean.TRUE.equals(pathConfig.isUseCaseSensitiveMatch()));
-    mapping.setUseTrailingSlashMatch(Boolean.TRUE.equals(pathConfig.isUseTrailingSlashMatch()));
-
-    mapping.setInterceptors(getInterceptors());
-    mapping.setCorsConfigurations(getCorsConfigurations());
+    initHandlerMapping(mapping);
     return mapping;
   }
 
@@ -764,13 +846,6 @@ public class WebMvcConfigurationSupport extends ApplicationContextSupport {
    */
   protected void configureDefaultServletHandling(DefaultServletHandlerConfigurer configurer) {
 
-  }
-
-  @Component
-  @ConditionalOnMissingBean
-  @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-  FunctionRequestAdapter functionRequestAdapter() {
-    return new FunctionRequestAdapter(Ordered.HIGHEST_PRECEDENCE + 1);
   }
 
   /**
@@ -901,6 +976,22 @@ public class WebMvcConfigurationSupport extends ApplicationContextSupport {
    */
   protected RequestMappingHandlerAdapter createRequestMappingHandlerAdapter() {
     return new RequestMappingHandlerAdapter();
+  }
+
+  /**
+   * Returns a {@link HandlerFunctionAdapter} for processing requests through
+   * {@linkplain cn.taketoday.web.handler.function.HandlerFunction handler functions}.
+   */
+  @Component
+  @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
+  public HandlerFunctionAdapter handlerFunctionAdapter() {
+    HandlerFunctionAdapter adapter = new HandlerFunctionAdapter();
+
+    AsyncSupportConfigurer configurer = getAsyncSupportConfigurer();
+    if (configurer.getTimeout() != null) {
+      adapter.setAsyncRequestTimeout(configurer.getTimeout());
+    }
+    return adapter;
   }
 
   /**

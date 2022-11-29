@@ -28,11 +28,11 @@ import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.handler.DispatcherHandler;
-import cn.taketoday.web.handler.FunctionRequestAdapter;
 import cn.taketoday.web.handler.HandlerAdapters;
 import cn.taketoday.web.handler.HandlerExecutionChainHandlerAdapter;
 import cn.taketoday.web.handler.NotFoundHandler;
 import cn.taketoday.web.handler.ViewControllerHandlerAdapter;
+import cn.taketoday.web.handler.function.support.HandlerFunctionAdapter;
 import cn.taketoday.web.handler.method.RequestMappingHandlerAdapter;
 
 /**
@@ -165,14 +165,14 @@ public interface HandlerAdapter {
             new HandlerAdapter[] {
                     handlerAdapter,
                     new ViewControllerHandlerAdapter(),
-                    new FunctionRequestAdapter(),
+                    new HandlerFunctionAdapter(),
             }
     );
     return new HandlerAdapters(
             new HandlerAdapter[] {
                     handlerAdapter,
                     new ViewControllerHandlerAdapter(),
-                    new FunctionRequestAdapter(),
+                    new HandlerFunctionAdapter(),
                     new HandlerExecutionChainHandlerAdapter(handlerAdapters)
             }
     );

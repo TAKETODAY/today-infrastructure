@@ -29,6 +29,7 @@ import cn.taketoday.core.Ordered;
 import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.handler.HandlerExecutionChain;
+import cn.taketoday.web.handler.function.support.RouterFunctionMapping;
 import cn.taketoday.web.handler.method.RequestMappingHandlerMapping;
 import cn.taketoday.web.registry.AbstractHandlerMapping;
 import cn.taketoday.web.registry.BeanNameUrlHandlerMapping;
@@ -127,6 +128,7 @@ public interface HandlerMapping {
     AutowireCapableBeanFactory factory = context.getAutowireCapableBeanFactory();
     return new HandlerRegistries(
             factory.createBean(RequestMappingHandlerMapping.class),
+            factory.createBean(RouterFunctionMapping.class),
             factory.createBean(BeanNameUrlHandlerMapping.class)
     );
   }
