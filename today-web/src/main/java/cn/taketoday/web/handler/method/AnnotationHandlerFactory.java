@@ -61,7 +61,7 @@ public class AnnotationHandlerFactory {
   public void initDefaults() {
     ParameterResolvingRegistry registry = beanFactory.getBean(ParameterResolvingRegistry.class);
     setReturnValueHandlerManager(beanFactory.getBean(ReturnValueHandlerManager.class));
-    setParameterFactory(new ParameterResolvingRegistryResolvableParameterFactory(registry));
+    setParameterFactory(new RegistryResolvableParameterFactory(registry));
   }
 
   /**
@@ -130,7 +130,7 @@ public class AnnotationHandlerFactory {
   }
 
   public void setParameterResolvingRegistry(@Nullable ParameterResolvingRegistry registry) {
-    this.parameterFactory = new ParameterResolvingRegistryResolvableParameterFactory(registry);
+    this.parameterFactory = new RegistryResolvableParameterFactory(registry);
   }
 
 }

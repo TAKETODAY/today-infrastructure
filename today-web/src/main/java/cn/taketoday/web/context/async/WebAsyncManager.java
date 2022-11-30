@@ -294,7 +294,7 @@ public final class WebAsyncManager {
       logExecutorWarning();
     }
 
-    ArrayList<CallableProcessingInterceptor> interceptors = new ArrayList<>();
+    var interceptors = new ArrayList<CallableProcessingInterceptor>();
     interceptors.add(webAsyncTask.getInterceptor());
     interceptors.addAll(callableInterceptors.values());
     interceptors.add(timeoutCallableInterceptor);

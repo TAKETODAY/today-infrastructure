@@ -26,7 +26,6 @@ import java.lang.reflect.Method;
 import cn.taketoday.http.HttpStatusCode;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.StringUtils;
-import cn.taketoday.web.BindingContext;
 import cn.taketoday.web.HttpRequestHandler;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.ReturnValueHandler;
@@ -81,14 +80,12 @@ public class ResultableHandlerMethod extends InvocableHandlerMethod {
    * configured {@link HandlerMethodReturnValueHandler HandlerMethodReturnValueHandlers}.
    *
    * @param request the current request
-   * @param bindingContext the binding context to use
    * @param providedArgs "given" arguments matched by type (not resolved)
    */
   public Object invokeAndHandle(
-          RequestContext request, BindingContext bindingContext, Object... providedArgs) throws Throwable {
-    request.setBindingContext(bindingContext);
+          RequestContext request, Object... providedArgs) throws Throwable {
 
-    Object returnValue = invokeForRequest(request, bindingContext, providedArgs);
+    Object returnValue = invokeForRequest(request, providedArgs);
     applyResponseStatus(request);
 
     if (returnValue == null) {

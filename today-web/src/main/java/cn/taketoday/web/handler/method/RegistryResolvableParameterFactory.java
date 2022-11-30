@@ -20,7 +20,10 @@
 
 package cn.taketoday.web.handler.method;
 
+import cn.taketoday.core.DefaultParameterNameDiscoverer;
 import cn.taketoday.core.MethodParameter;
+import cn.taketoday.core.ParameterNameDiscoverer;
+import cn.taketoday.lang.Assert;
 import cn.taketoday.web.bind.resolver.ParameterResolvingRegistry;
 
 /**
@@ -29,28 +32,28 @@ import cn.taketoday.web.bind.resolver.ParameterResolvingRegistry;
  * @author TODAY 2021/5/9 23:28
  * @since 3.0.1
  */
-public class ParameterResolvingRegistryResolvableParameterFactory extends ResolvableParameterFactory {
-  private ParameterResolvingRegistry resolvingRegistry;
+public class RegistryResolvableParameterFactory extends ResolvableParameterFactory {
+  private final ParameterResolvingRegistry resolvingRegistry;
 
-  public ParameterResolvingRegistryResolvableParameterFactory() {
-    this(new ParameterResolvingRegistry());
+  public RegistryResolvableParameterFactory() {
+    this(new ParameterResolvingRegistry(), new DefaultParameterNameDiscoverer());
   }
 
-  public ParameterResolvingRegistryResolvableParameterFactory(ParameterResolvingRegistry resolvingRegistry) {
+  public RegistryResolvableParameterFactory(ParameterResolvingRegistry resolvingRegistry) {
+    Assert.notNull(resolvingRegistry, "ParameterResolvingRegistry is required");
+    this.resolvingRegistry = resolvingRegistry;
+  }
+
+  public RegistryResolvableParameterFactory(
+          ParameterResolvingRegistry resolvingRegistry, ParameterNameDiscoverer parameterNameDiscoverer) {
+    super(parameterNameDiscoverer);
+    Assert.notNull(resolvingRegistry, "ParameterResolvingRegistry is required");
     this.resolvingRegistry = resolvingRegistry;
   }
 
   @Override
   public ResolvableMethodParameter createParameter(MethodParameter parameter) {
     return new ParameterResolverMethodParameter(parameter, resolvingRegistry);
-  }
-
-  public void setResolvingRegistry(ParameterResolvingRegistry resolvingRegistry) {
-    this.resolvingRegistry = resolvingRegistry;
-  }
-
-  public ParameterResolvingRegistry getResolvingRegistry() {
-    return resolvingRegistry;
   }
 
 }

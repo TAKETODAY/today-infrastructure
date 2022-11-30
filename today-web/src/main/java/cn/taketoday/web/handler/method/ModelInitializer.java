@@ -58,9 +58,9 @@ import cn.taketoday.web.bind.annotation.ModelAttribute;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/4/8 23:00
  */
-public final class ModelFactory {
+public final class ModelInitializer {
 
-  private static final Logger logger = LoggerFactory.getLogger(ModelFactory.class);
+  private static final Logger logger = LoggerFactory.getLogger(ModelInitializer.class);
 
   @Nullable
   private ArrayList<ModelMethod> modelMethods;
@@ -73,7 +73,7 @@ public final class ModelFactory {
    * @param handlerMethods the {@code @ModelAttribute} methods to invoke
    * @param attributeHandler for access to session attributes
    */
-  public ModelFactory(@Nullable List<InvocableHandlerMethod> handlerMethods,
+  public ModelInitializer(@Nullable List<InvocableHandlerMethod> handlerMethods,
           SessionAttributesHandler attributeHandler) {
     if (handlerMethods != null) {
       ArrayList<ModelMethod> modelMethods = new ArrayList<>();
@@ -103,7 +103,7 @@ public final class ModelFactory {
   public void initModel(RequestContext request, BindingContext container, HandlerMethod handlerMethod)
           throws Throwable {
 
-    Map<String, ?> sessionAttributes = sessionAttributesHandler.retrieveAttributes(request);
+    var sessionAttributes = sessionAttributesHandler.retrieveAttributes(request);
     container.mergeAttributes(sessionAttributes);
     invokeModelAttributeMethods(request, container);
 
@@ -139,7 +139,7 @@ public final class ModelFactory {
         continue;
       }
 
-      Object returnValue = modelMethod.invokeForRequest(request, container);
+      Object returnValue = modelMethod.invokeForRequest(request);
       if (modelMethod.isVoid()) {
         if (StringUtils.hasText(ann.value())) {
           if (logger.isDebugEnabled()) {

@@ -98,7 +98,7 @@ import cn.taketoday.web.handler.method.ControllerAdviceBean;
 import cn.taketoday.web.handler.method.ExceptionHandlerAnnotationExceptionHandler;
 import cn.taketoday.web.handler.method.JsonViewRequestBodyAdvice;
 import cn.taketoday.web.handler.method.JsonViewResponseBodyAdvice;
-import cn.taketoday.web.handler.method.ParameterResolvingRegistryResolvableParameterFactory;
+import cn.taketoday.web.handler.method.RegistryResolvableParameterFactory;
 import cn.taketoday.web.handler.method.RequestBodyAdvice;
 import cn.taketoday.web.handler.method.RequestMappingHandlerAdapter;
 import cn.taketoday.web.handler.method.RequestMappingHandlerMapping;
@@ -562,7 +562,7 @@ public class WebMvcConfigurationSupport extends ApplicationContextSupport {
       // find the configure file
       log.info("Framework is looking for ViewController configuration file");
       var registry = new ViewControllerHandlerMapping(
-              new ParameterResolvingRegistryResolvableParameterFactory(resolvingRegistry));
+              new RegistryResolvableParameterFactory(resolvingRegistry));
 
       String webMvcConfigLocation = environment.getProperty(WEB_MVC_CONFIG_LOCATION);
       if (StringUtils.isEmpty(webMvcConfigLocation)) {

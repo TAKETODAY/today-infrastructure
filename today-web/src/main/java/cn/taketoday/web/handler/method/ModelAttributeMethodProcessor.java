@@ -124,7 +124,7 @@ public class ModelAttributeMethodProcessor implements ParameterResolvingStrategy
     Assert.state(bindingContext != null, "No binding context");
 
     MethodParameter parameter = resolvable.getParameter();
-    String name = ModelFactory.getNameForParameter(parameter);
+    String name = ModelInitializer.getNameForParameter(parameter);
 
     ModelAttribute ann = parameter.getParameterAnnotation(ModelAttribute.class);
     if (ann != null) {
@@ -526,7 +526,7 @@ public class ModelAttributeMethodProcessor implements ParameterResolvingStrategy
           RequestContext context, HandlerMethod handler, @Nullable Object returnValue) {
     if (returnValue != null) {
       BindingContext bindingContext = context.getBindingContext();
-      String name = ModelFactory.getNameForReturnValue(returnValue, handler);
+      String name = ModelInitializer.getNameForReturnValue(returnValue, handler);
       bindingContext.addAttribute(name, returnValue);
     }
   }

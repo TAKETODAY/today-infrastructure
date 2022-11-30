@@ -126,7 +126,7 @@ class InitBinderDataBinderFactoryTests {
     Object handler = new InitBinderHandler();
     Method method = handler.getClass().getMethod(methodName, parameterTypes);
 
-    var parameterFactory = new ParameterResolvingRegistryResolvableParameterFactory(argumentResolvers);
+    var parameterFactory = new RegistryResolvableParameterFactory(argumentResolvers);
     InvocableHandlerMethod handlerMethod = new InvocableHandlerMethod(handler, method, parameterFactory);
     return new InitBinderBindingContext(
             this.bindingInitializer, Collections.singletonList(handlerMethod));

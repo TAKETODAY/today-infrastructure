@@ -103,6 +103,8 @@ public class ReturnValueHandlerManager extends ApplicationContextSupport impleme
 
   private String imageFormatName = RenderedImageReturnValueHandler.IMAGE_PNG;
 
+  private ReactiveAdapterRegistry reactiveAdapterRegistry = ReactiveAdapterRegistry.getSharedInstance();
+
   public ReturnValueHandlerManager() {
     this.messageConverters = new ArrayList<>(4);
     this.messageConverters.add(new ByteArrayHttpMessageConverter());
@@ -112,6 +114,23 @@ public class ReturnValueHandlerManager extends ApplicationContextSupport impleme
 
   public ReturnValueHandlerManager(List<HttpMessageConverter<?>> messageConverters) {
     setMessageConverters(messageConverters);
+  }
+
+  /**
+   * Configure the registry for reactive library types to be supported as
+   * return values from controller methods.
+   */
+  public void setReactiveAdapterRegistry(@Nullable ReactiveAdapterRegistry reactiveAdapterRegistry) {
+    this.reactiveAdapterRegistry =
+            reactiveAdapterRegistry == null
+            ? ReactiveAdapterRegistry.getSharedInstance() : reactiveAdapterRegistry;
+  }
+
+  /**
+   * Return the configured reactive type registry of adapters.
+   */
+  public ReactiveAdapterRegistry getReactiveAdapterRegistry() {
+    return this.reactiveAdapterRegistry;
   }
 
   public void addHandlers(ReturnValueHandler... handlers) {
@@ -246,9 +265,8 @@ public class ReturnValueHandlerManager extends ApplicationContextSupport impleme
     List<HttpMessageConverter<?>> messageConverters = getMessageConverters();
 
     if (taskExecutor != null) {
-      ReactiveAdapterRegistry registry = ReactiveAdapterRegistry.getSharedInstance();
       handlers.add(new ResponseBodyEmitterReturnValueHandler(
-              messageConverters, registry, taskExecutor, contentNegotiationManager));
+              messageConverters, reactiveAdapterRegistry, taskExecutor, contentNegotiationManager));
     }
     else {
       handlers.add(new ResponseBodyEmitterReturnValueHandler(messageConverters, contentNegotiationManager));

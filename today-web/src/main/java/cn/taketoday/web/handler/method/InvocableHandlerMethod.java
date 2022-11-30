@@ -27,7 +27,6 @@ import java.util.Arrays;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
-import cn.taketoday.web.BindingContext;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.bind.WebDataBinder;
 import cn.taketoday.web.bind.resolver.ParameterResolvingStrategies;
@@ -80,7 +79,6 @@ public class InvocableHandlerMethod extends HandlerMethod {
    * resolved arguments.
    *
    * @param request the current request
-   * @param bindingContext the binding context to use
    * @param providedArgs "given" arguments matched by type, not resolved
    * @return the raw value returned by the invoked method
    * @throws Exception raised if no suitable argument resolver can be found,
@@ -89,8 +87,7 @@ public class InvocableHandlerMethod extends HandlerMethod {
    * @see #doInvoke
    */
   @Nullable
-  public Object invokeForRequest(RequestContext request, BindingContext bindingContext, Object... providedArgs) throws Throwable {
-    request.setBindingContext(bindingContext);
+  public Object invokeForRequest(RequestContext request, Object... providedArgs) throws Throwable {
     Object[] args = getMethodArgumentValues(request, providedArgs);
     if (log.isTraceEnabled()) {
       log.trace("Arguments: {}", Arrays.toString(args));

@@ -53,8 +53,8 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/5/20 9:36
  */
-class ModelFactoryOrderingTests {
-  private static final Logger logger = LoggerFactory.getLogger(ModelFactoryOrderingTests.class);
+class ModelInitializerOrderingTests {
+  private static final Logger logger = LoggerFactory.getLogger(ModelInitializerOrderingTests.class);
 
   private final ServletRequestContext webRequest = new ServletRequestContext(
           null, new MockHttpServletRequest(), new MockHttpServletResponse());
@@ -111,7 +111,7 @@ class ModelFactoryOrderingTests {
     ParameterResolvingRegistry resolvers = new ParameterResolvingRegistry();
     resolvers.addCustomizedStrategies(new ModelAttributeMethodProcessor(false));
     resolvers.addCustomizedStrategies(new ModelMethodProcessor());
-    var parameterFactory = new ParameterResolvingRegistryResolvableParameterFactory(resolvers);
+    var parameterFactory = new RegistryResolvableParameterFactory(resolvers);
 
     Class<?> type = controller.getClass();
     Set<Method> methods = MethodIntrospector.filterMethods(type, METHOD_FILTER);
@@ -123,7 +123,7 @@ class ModelFactoryOrderingTests {
     Collections.shuffle(modelMethods);
 
     SessionAttributesHandler sessionHandler = new SessionAttributesHandler(type, this.sessionAttributeStore);
-    ModelFactory factory = new ModelFactory(modelMethods, sessionHandler);
+    ModelInitializer factory = new ModelInitializer(modelMethods, sessionHandler);
     factory.initModel(this.webRequest, this.mavContainer, new HandlerMethod(controller, "handle"));
     if (logger.isDebugEnabled()) {
       logger.debug(String.join(" >> ", getInvokedMethods()));

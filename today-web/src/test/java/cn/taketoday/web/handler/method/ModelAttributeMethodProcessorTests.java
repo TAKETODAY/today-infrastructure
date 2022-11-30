@@ -20,12 +20,9 @@
 
 package cn.taketoday.web.handler.method;
 
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
-import org.mockito.BDDMockito;
-import org.mockito.Mockito;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
@@ -53,9 +50,6 @@ import static java.lang.annotation.ElementType.PARAMETER;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.ArgumentMatchers.notNull;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -195,7 +189,7 @@ class ModelAttributeMethodProcessorTests {
     Object target = new TestBean();
 
     StubRequestDataBinder dataBinder = new StubRequestDataBinder(target, name);
-    BindingContext factory = new ModelFactoryTests.BindingContext0(dataBinder);
+    BindingContext factory = new ModelInitializerTests.BindingContext0(dataBinder);
 
     factory.addAttribute(name, target);
 
@@ -215,7 +209,7 @@ class ModelAttributeMethodProcessorTests {
     String name = "noBindAttr";
     Object target = new TestBean();
     StubRequestDataBinder dataBinder = new StubRequestDataBinder(target, name);
-    BindingContext factory = new ModelFactoryTests.BindingContext0(dataBinder);
+    BindingContext factory = new ModelInitializerTests.BindingContext0(dataBinder);
     factory.addAttribute(name, target);
 
     request.setBindingContext(factory);
@@ -249,7 +243,7 @@ class ModelAttributeMethodProcessorTests {
     Object testBean = new TestBean(name);
     StubRequestDataBinder dataBinder = new StubRequestDataBinder(testBean, name);
 
-    BindingContext factory = new ModelFactoryTests.BindingContext0(dataBinder);
+    BindingContext factory = new ModelInitializerTests.BindingContext0(dataBinder);
 
     factory.addAttribute(name, testBean);
     factory.addAttribute(BindingResult.MODEL_KEY_PREFIX + name, testBean);

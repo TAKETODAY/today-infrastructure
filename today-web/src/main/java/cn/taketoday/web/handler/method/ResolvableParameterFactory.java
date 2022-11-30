@@ -27,7 +27,6 @@ import cn.taketoday.core.DefaultParameterNameDiscoverer;
 import cn.taketoday.core.MethodParameter;
 import cn.taketoday.core.ParameterNameDiscoverer;
 import cn.taketoday.core.annotation.SynthesizingMethodParameter;
-import cn.taketoday.lang.Assert;
 import cn.taketoday.util.ObjectUtils;
 
 /**
@@ -39,8 +38,16 @@ import cn.taketoday.util.ObjectUtils;
 public class ResolvableParameterFactory {
   private static final ResolvableMethodParameter[] EMPTY = new ResolvableMethodParameter[0];
 
-  private ParameterNameDiscoverer parameterNameDiscoverer = new DefaultParameterNameDiscoverer();
+  private final ParameterNameDiscoverer parameterNameDiscoverer;
   private final HashMap<Method, ResolvableMethodParameter[]> cache = new HashMap<>();
+
+  public ResolvableParameterFactory() {
+    this(new DefaultParameterNameDiscoverer());
+  }
+
+  public ResolvableParameterFactory(ParameterNameDiscoverer parameterNameDiscoverer) {
+    this.parameterNameDiscoverer = parameterNameDiscoverer;
+  }
 
   public ResolvableMethodParameter[] createArray(Method method) {
     final int length = method.getParameterCount();
@@ -88,12 +95,4 @@ public class ResolvableParameterFactory {
     return new ResolvableMethodParameter(parameter);
   }
 
-  public void setParameterNameDiscoverer(ParameterNameDiscoverer parameterNameDiscoverer) {
-    Assert.notNull(parameterNameDiscoverer, "parameterNameDiscoverer must not be null");
-    this.parameterNameDiscoverer = parameterNameDiscoverer;
-  }
-
-  public ParameterNameDiscoverer getParameterNameDiscoverer() {
-    return parameterNameDiscoverer;
-  }
 }

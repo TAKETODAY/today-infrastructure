@@ -297,7 +297,7 @@ public class BindingContext {
    * A shortcut for {@code getModel().addAttribute(String, Object)}.
    */
   public BindingContext addAttribute(String name, @Nullable Object value) {
-    getModel().setAttribute(name, value);
+    getModel().addAttribute(name, value);
     return this;
   }
 
@@ -315,7 +315,9 @@ public class BindingContext {
    * A shortcut for {@code getModel().addAllAttributes(Map)}.
    */
   public BindingContext addAllAttributes(@Nullable Map<String, ?> attributes) {
-    getModel().addAllAttributes(attributes);
+    if (attributes != null) {
+      getModel().addAllAttributes(attributes);
+    }
     return this;
   }
 
@@ -325,7 +327,9 @@ public class BindingContext {
    * A shortcut for {@code getModel().mergeAttributes(Map<String, ?>)}.
    */
   public BindingContext mergeAttributes(@Nullable Map<String, ?> attributes) {
-    getModel().mergeAttributes(attributes);
+    if (attributes != null) {
+      getModel().mergeAttributes(attributes);
+    }
     return this;
   }
 
