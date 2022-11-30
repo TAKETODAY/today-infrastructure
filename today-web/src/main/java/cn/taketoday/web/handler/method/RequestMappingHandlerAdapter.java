@@ -107,9 +107,6 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
   private ReturnValueHandlerManager returnValueHandlerManager;
 
   @Nullable
-  private List<ModelAndViewResolver> modelAndViewResolvers;
-
-  @Nullable
   private WebBindingInitializer webBindingInitializer;
 
   private AsyncTaskExecutor taskExecutor = new SimpleAsyncTaskExecutor("MvcAsync");
@@ -191,32 +188,6 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
    */
   public ReturnValueHandlerManager getReturnValueHandlerManager() {
     return this.returnValueHandlerManager;
-  }
-
-  /**
-   * Provide custom {@link ModelAndViewResolver ModelAndViewResolvers}.
-   * <p><strong>Note:</strong> This method is available for backwards
-   * compatibility only. However, it is recommended to re-write a
-   * {@code ModelAndViewResolver} as {@link HandlerMethodReturnValueHandler}.
-   * An adapter between the two interfaces is not possible since the
-   * {@link HandlerMethodReturnValueHandler#supportsHandlerMethod(HandlerMethod)} method
-   * cannot be implemented. Hence {@code ModelAndViewResolver}s are limited
-   * to always being invoked at the end after all other return value
-   * handlers have been given a chance.
-   * <p>A {@code HandlerMethodReturnValueHandler} provides better access to
-   * the return type and controller method information and can be ordered
-   * freely relative to other return value handlers.
-   */
-  public void setModelAndViewResolvers(@Nullable List<ModelAndViewResolver> modelAndViewResolvers) {
-    this.modelAndViewResolvers = modelAndViewResolvers;
-  }
-
-  /**
-   * Return the configured {@link ModelAndViewResolver ModelAndViewResolvers}, or {@code null}.
-   */
-  @Nullable
-  public List<ModelAndViewResolver> getModelAndViewResolvers() {
-    return this.modelAndViewResolvers;
   }
 
   /**
