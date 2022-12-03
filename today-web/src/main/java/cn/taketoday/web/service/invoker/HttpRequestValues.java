@@ -254,8 +254,6 @@ public final class HttpRequestValues {
      */
     public Builder setUri(URI uri) {
       this.uri = uri;
-      this.uriTemplate = null;
-      this.uriVars = null;
       return this;
     }
 
