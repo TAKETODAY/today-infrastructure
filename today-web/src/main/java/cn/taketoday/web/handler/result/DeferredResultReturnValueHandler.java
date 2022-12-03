@@ -27,7 +27,6 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.concurrent.ListenableFuture;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.context.async.DeferredResult;
-import cn.taketoday.web.context.async.WebAsyncUtils;
 import cn.taketoday.web.handler.method.HandlerMethod;
 
 /**
@@ -62,7 +61,6 @@ public class DeferredResultReturnValueHandler implements HandlerMethodReturnValu
     }
 
     DeferredResult<?> result;
-
     if (returnValue instanceof DeferredResult) {
       result = (DeferredResult<?>) returnValue;
     }
@@ -77,7 +75,7 @@ public class DeferredResultReturnValueHandler implements HandlerMethodReturnValu
       throw new IllegalStateException("Unexpected return value type: " + returnValue);
     }
 
-    WebAsyncUtils.getAsyncManager(context)
+    context.getAsyncManager()
             .startDeferredResultProcessing(result, handler);
   }
 

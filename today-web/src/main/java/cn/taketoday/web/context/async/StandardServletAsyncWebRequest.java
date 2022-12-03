@@ -97,8 +97,8 @@ public class StandardServletAsyncWebRequest extends AsyncWebRequest implements A
   public void dispatch(Object concurrentResult) {
     Assert.notNull(asyncContext, "Cannot dispatch without an AsyncContext");
 
-    servletRequest.setAttribute(WebAsyncUtils.WEB_ASYNC_REQUEST_ATTRIBUTE, request);
-    servletRequest.setAttribute(WebAsyncUtils.WEB_ASYNC_RESULT_ATTRIBUTE, concurrentResult);
+    servletRequest.setAttribute(WebAsyncManager.WEB_ASYNC_REQUEST_ATTRIBUTE, request);
+    servletRequest.setAttribute(WebAsyncManager.WEB_ASYNC_RESULT_ATTRIBUTE, concurrentResult);
 
     asyncContext.dispatch();
   }

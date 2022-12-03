@@ -37,7 +37,6 @@ import cn.taketoday.http.converter.json.MappingJackson2HttpMessageConverter;
 import cn.taketoday.web.context.async.AsyncWebRequest;
 import cn.taketoday.web.context.async.StandardServletAsyncWebRequest;
 import cn.taketoday.web.context.async.WebAsyncManager;
-import cn.taketoday.web.context.async.WebAsyncUtils;
 import cn.taketoday.web.servlet.ServletRequestContext;
 import cn.taketoday.web.testfixture.servlet.MockAsyncContext;
 import cn.taketoday.web.testfixture.servlet.MockHttpServletRequest;
@@ -78,7 +77,7 @@ class ResponseBodyEmitterReturnValueHandlerTests {
     this.webRequest = new ServletRequestContext(null, this.request, this.response);
 
     AsyncWebRequest asyncWebRequest = new StandardServletAsyncWebRequest(this.request, this.response);
-    WebAsyncUtils.getAsyncManager(this.webRequest).setAsyncRequest(asyncWebRequest);
+    webRequest.getAsyncManager().setAsyncRequest(asyncWebRequest);
     this.request.setAsyncSupported(true);
   }
 
@@ -154,7 +153,7 @@ class ResponseBodyEmitterReturnValueHandlerTests {
   @Test
   public void responseBodyEmitterWithTimeoutValue() throws Exception {
     AsyncWebRequest asyncWebRequest = mock(AsyncWebRequest.class);
-    WebAsyncUtils.getAsyncManager(this.webRequest).setAsyncRequest(asyncWebRequest);
+    webRequest.getAsyncManager().setAsyncRequest(asyncWebRequest);
 
     ResponseBodyEmitter emitter = new ResponseBodyEmitter(19000L);
     emitter.onTimeout(Mockito.mock(Runnable.class));
@@ -165,7 +164,7 @@ class ResponseBodyEmitterReturnValueHandlerTests {
 
     verify(asyncWebRequest).setTimeout(19000L);
     verify(asyncWebRequest).addTimeoutHandler(ArgumentMatchers.any(Runnable.class));
-    verify(asyncWebRequest, times(2)).addCompletionHandler(ArgumentMatchers.any(Runnable.class));
+    verify(asyncWebRequest, times(1)).addCompletionHandler(ArgumentMatchers.any(Runnable.class));
     verify(asyncWebRequest).startAsync();
   }
 
@@ -174,7 +173,7 @@ class ResponseBodyEmitterReturnValueHandlerTests {
   public void responseBodyEmitterWithErrorValue() throws Exception {
 
     AsyncWebRequest asyncWebRequest = mock(AsyncWebRequest.class);
-    WebAsyncUtils.getAsyncManager(this.webRequest).setAsyncRequest(asyncWebRequest);
+    webRequest.getAsyncManager().setAsyncRequest(asyncWebRequest);
 
     ResponseBodyEmitter emitter = new ResponseBodyEmitter(19000L);
     emitter.onError(Mockito.mock(Consumer.class));
@@ -184,7 +183,7 @@ class ResponseBodyEmitterReturnValueHandlerTests {
     this.handler.handleReturnValue(webRequest, type, emitter);
 
     verify(asyncWebRequest).addErrorHandler(ArgumentMatchers.any(Consumer.class));
-    verify(asyncWebRequest, times(2)).addCompletionHandler(ArgumentMatchers.any(Runnable.class));
+    verify(asyncWebRequest, times(1)).addCompletionHandler(ArgumentMatchers.any(Runnable.class));
     verify(asyncWebRequest).startAsync();
   }
 
@@ -248,7 +247,7 @@ class ResponseBodyEmitterReturnValueHandlerTests {
 
     assertThat(this.request.isAsyncStarted()).isTrue();
 
-    WebAsyncManager asyncManager = WebAsyncUtils.getAsyncManager(this.webRequest);
+    WebAsyncManager asyncManager = webRequest.getAsyncManager();
     assertThat(asyncManager.getConcurrentResult()).isSameAs(ex);
     assertThat(this.response.getContentType()).isEqualTo("text/event-stream");
   }

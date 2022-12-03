@@ -88,6 +88,7 @@ import cn.taketoday.web.config.AsyncSupportConfigurer;
 import cn.taketoday.web.config.CorsRegistry;
 import cn.taketoday.web.config.ResourceHandlerRegistry;
 import cn.taketoday.web.config.WebMvcConfigurer;
+import cn.taketoday.web.context.async.WebAsyncManagerFactory;
 import cn.taketoday.web.handler.AbstractHandlerExceptionHandler;
 import cn.taketoday.web.handler.CompositeHandlerExceptionHandler;
 import cn.taketoday.web.handler.SimpleHandlerExceptionHandler;
@@ -459,14 +460,14 @@ public class WebMvcAutoConfigurationTests {
 
   @Test
   void defaultAsyncRequestTimeout() {
-    this.contextRunner.run((context) -> assertThat(context.getBean(RequestMappingHandlerAdapter.class))
+    this.contextRunner.run((context) -> assertThat(context.getBean(WebAsyncManagerFactory.class))
             .extracting("asyncRequestTimeout").isNull());
   }
 
   @Test
   void customAsyncRequestTimeout() {
     this.contextRunner.withPropertyValues("web.mvc.async.request-timeout:12345")
-            .run((context) -> assertThat(context.getBean(RequestMappingHandlerAdapter.class))
+            .run((context) -> assertThat(context.getBean(WebAsyncManagerFactory.class))
                     .extracting("asyncRequestTimeout").isEqualTo(12345L));
   }
 
@@ -475,7 +476,7 @@ public class WebMvcAutoConfigurationTests {
     this.contextRunner.withConfiguration(AutoConfigurations.of(TaskExecutionAutoConfiguration.class))
             .run((context) -> {
               assertThat(context).hasSingleBean(AsyncTaskExecutor.class);
-              assertThat(context.getBean(RequestMappingHandlerAdapter.class)).extracting("taskExecutor")
+              assertThat(context.getBean(WebAsyncManagerFactory.class)).extracting("taskExecutor")
                       .isSameAs(context.getBean("applicationTaskExecutor"));
             });
   }
@@ -485,7 +486,7 @@ public class WebMvcAutoConfigurationTests {
     this.contextRunner.withUserConfiguration(CustomApplicationTaskExecutorConfig.class)
             .withConfiguration(AutoConfigurations.of(TaskExecutionAutoConfiguration.class)).run((context) -> {
               assertThat(context).doesNotHaveBean(AsyncTaskExecutor.class);
-              assertThat(context.getBean(RequestMappingHandlerAdapter.class)).extracting("taskExecutor")
+              assertThat(context.getBean(WebAsyncManagerFactory.class)).extracting("taskExecutor")
                       .isNotSameAs(context.getBean("applicationTaskExecutor"));
             });
   }
@@ -495,7 +496,7 @@ public class WebMvcAutoConfigurationTests {
     this.contextRunner.withUserConfiguration(CustomAsyncTaskExecutorConfigurer.class)
             .withConfiguration(AutoConfigurations.of(TaskExecutionAutoConfiguration.class))
             .run((context) -> {
-              assertThat(context.getBean(RequestMappingHandlerAdapter.class))
+              assertThat(context.getBean(WebAsyncManagerFactory.class))
                       .extracting("taskExecutor")
                       .isSameAs(context.getBean(CustomAsyncTaskExecutorConfigurer.class).taskExecutor);
             });
@@ -506,7 +507,7 @@ public class WebMvcAutoConfigurationTests {
     this.contextRunner.withUserConfiguration(CustomAsyncTaskExecutorConfig.class)
             .withConfiguration(AutoConfigurations.of(TaskExecutionAutoConfiguration.class)).run((context) -> {
               assertThat(context).hasSingleBean(AsyncTaskExecutor.class);
-              assertThat(context.getBean(RequestMappingHandlerAdapter.class)).extracting("taskExecutor")
+              assertThat(context.getBean(WebAsyncManagerFactory.class)).extracting("taskExecutor")
                       .isNotSameAs(context.getBean("customTaskExecutor"));
             });
   }

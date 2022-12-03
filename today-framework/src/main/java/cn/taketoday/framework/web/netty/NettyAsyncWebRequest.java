@@ -28,7 +28,7 @@ import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.context.async.AsyncWebRequest;
-import cn.taketoday.web.context.async.WebAsyncUtils;
+import cn.taketoday.web.context.async.WebAsyncManager;
 import cn.taketoday.web.handler.DispatcherHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.util.concurrent.EventExecutor;
@@ -105,7 +105,7 @@ public class NettyAsyncWebRequest extends AsyncWebRequest {
     DispatcherHandler dispatcherHandler = (DispatcherHandler) request.getAttribute(DispatcherHandler.BEAN_NAME);
     Assert.state(dispatcherHandler != null, "No DispatcherHandler");
 
-    Object handler = WebAsyncUtils.findHttpRequestHandler(request);
+    Object handler = WebAsyncManager.findHttpRequestHandler(request);
     dispatcherHandler.handleConcurrentResult(request, handler, concurrentResult);
   }
 

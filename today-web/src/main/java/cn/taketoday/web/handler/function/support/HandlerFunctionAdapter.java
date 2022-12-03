@@ -30,9 +30,7 @@ import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.LogFormatUtils;
 import cn.taketoday.web.HandlerAdapter;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.context.async.AsyncWebRequest;
 import cn.taketoday.web.context.async.WebAsyncManager;
-import cn.taketoday.web.context.async.WebAsyncUtils;
 import cn.taketoday.web.handler.function.HandlerFunction;
 import cn.taketoday.web.handler.function.ServerRequest;
 import cn.taketoday.web.handler.function.ServerResponse;
@@ -50,9 +48,6 @@ public class HandlerFunctionAdapter implements HandlerAdapter, Ordered {
 
   private int order = Ordered.LOWEST_PRECEDENCE;
 
-  @Nullable
-  private Long asyncRequestTimeout;
-
   /**
    * Specify the order value for this HandlerAdapter bean.
    * <p>The default value is {@code Ordered.LOWEST_PRECEDENCE}, meaning non-ordered.
@@ -68,20 +63,6 @@ public class HandlerFunctionAdapter implements HandlerAdapter, Ordered {
     return this.order;
   }
 
-  /**
-   * Specify the amount of time, in milliseconds, before concurrent handling
-   * should time out. In Servlet 3, the timeout begins after the main request
-   * processing thread has exited and ends when the request is dispatched again
-   * for further processing of the concurrently produced result.
-   * <p>If this value is not set, the default timeout of the underlying
-   * implementation is used.
-   *
-   * @param timeout the timeout value in milliseconds
-   */
-  public void setAsyncRequestTimeout(long timeout) {
-    this.asyncRequestTimeout = timeout;
-  }
-
   @Override
   public boolean supports(Object handler) {
     return handler instanceof HandlerFunction;
@@ -90,7 +71,7 @@ public class HandlerFunctionAdapter implements HandlerAdapter, Ordered {
   @Nullable
   @Override
   public Object handle(RequestContext context, Object handler) throws Throwable {
-    WebAsyncManager asyncManager = getWebAsyncManager(context);
+    WebAsyncManager asyncManager = context.getAsyncManager();
 
     ServerRequest serverRequest = ServerRequest.findRequired(context);
     ServerResponse serverResponse;
@@ -109,15 +90,6 @@ public class HandlerFunctionAdapter implements HandlerAdapter, Ordered {
     else {
       return NONE_RETURN_VALUE;
     }
-  }
-
-  private WebAsyncManager getWebAsyncManager(RequestContext context) {
-    AsyncWebRequest asyncWebRequest = context.getAsyncWebRequest();
-    asyncWebRequest.setTimeout(asyncRequestTimeout);
-
-    WebAsyncManager asyncManager = WebAsyncUtils.getAsyncManager(context);
-    asyncManager.setAsyncRequest(asyncWebRequest);
-    return asyncManager;
   }
 
   @Nullable

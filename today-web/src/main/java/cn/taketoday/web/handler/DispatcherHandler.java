@@ -50,6 +50,7 @@ import cn.taketoday.web.HttpRequestHandler;
 import cn.taketoday.web.RequestCompletedListener;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.ReturnValueHandler;
+import cn.taketoday.web.context.async.WebAsyncManagerFactory;
 import cn.taketoday.web.handler.method.ExceptionHandlerAnnotationExceptionHandler;
 import cn.taketoday.web.handler.result.AsyncReturnValueHandler;
 import cn.taketoday.web.util.WebUtils;
@@ -91,6 +92,8 @@ public class DispatcherHandler extends InfraHandler {
 
   private final ArrayHolder<RequestCompletedListener> requestCompletedActions = ArrayHolder.forGenerator(RequestCompletedListener[]::new);
 
+  private WebAsyncManagerFactory webAsyncManagerFactory;
+
   public DispatcherHandler() { }
 
   public DispatcherHandler(ApplicationContext context) {
@@ -113,6 +116,7 @@ public class DispatcherHandler extends InfraHandler {
     initExceptionHandler(context);
     initNotFoundHandler(context);
     initRequestHandledListeners(context);
+    initWebAsyncManagerFactory(context);
   }
 
   /**
@@ -201,6 +205,17 @@ public class DispatcherHandler extends InfraHandler {
     AnnotationAwareOrderComparator.sort(handlers);
 
     addRequestHandledActions(handlers);
+  }
+
+  /**
+   * Initialize the WebAsyncManagerFactory used by this class.
+   *
+   * @see WebAsyncManagerFactory
+   */
+  private void initWebAsyncManagerFactory(ApplicationContext context) {
+    if (webAsyncManagerFactory == null) {
+      webAsyncManagerFactory = WebAsyncManagerFactory.find(context);
+    }
   }
 
   // Handler
@@ -379,6 +394,7 @@ public class DispatcherHandler extends InfraHandler {
    * @since 4.0
    */
   public void dispatch(RequestContext context) throws Throwable {
+    context.setWebAsyncManagerFactory(webAsyncManagerFactory); // TODO 构造注入
     logRequest(context);
     Object handler = null;
     Object returnValue = null;

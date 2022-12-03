@@ -44,9 +44,6 @@ import cn.taketoday.web.HandlerMatchingMetadata;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.accept.ContentNegotiationManager;
 import cn.taketoday.web.accept.ContentNegotiationManagerFactoryBean;
-import cn.taketoday.web.context.async.AsyncWebRequest;
-import cn.taketoday.web.context.async.StandardServletAsyncWebRequest;
-import cn.taketoday.web.context.async.WebAsyncUtils;
 import cn.taketoday.web.servlet.ServletRequestContext;
 import cn.taketoday.web.testfixture.servlet.MockHttpServletRequest;
 import cn.taketoday.web.testfixture.servlet.MockHttpServletResponse;
@@ -88,8 +85,6 @@ class ReactiveTypeHandlerTests {
     this.servletResponse = new MockHttpServletResponse();
     this.webRequest = new ServletRequestContext(null, this.servletRequest, this.servletResponse);
 
-    AsyncWebRequest webRequest = new StandardServletAsyncWebRequest(this.servletRequest, this.servletResponse);
-    WebAsyncUtils.getAsyncManager(this.webRequest).setAsyncRequest(webRequest);
     this.servletRequest.setAsyncSupported(true);
   }
 
@@ -313,12 +308,12 @@ class ReactiveTypeHandlerTests {
     assertThat(emitter).isNull();
 
     assertThat(this.servletRequest.isAsyncStarted()).isTrue();
-    assertThat(WebAsyncUtils.getAsyncManager(this.webRequest).hasConcurrentResult()).isFalse();
+    assertThat(webRequest.getAsyncManager().hasConcurrentResult()).isFalse();
 
     produceTask.run();
 
-    assertThat(WebAsyncUtils.getAsyncManager(this.webRequest).hasConcurrentResult()).isTrue();
-    assertThat(WebAsyncUtils.getAsyncManager(this.webRequest).getConcurrentResult()).isEqualTo(expected);
+    assertThat(webRequest.getAsyncManager().hasConcurrentResult()).isTrue();
+    assertThat(webRequest.getAsyncManager().getConcurrentResult()).isEqualTo(expected);
 
     resetRequest();
   }

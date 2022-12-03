@@ -20,9 +20,6 @@
 
 package cn.taketoday.web.handler.method;
 
-import java.util.List;
-import java.util.concurrent.Callable;
-
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanFactoryAware;
 import cn.taketoday.beans.factory.InitializingBean;
@@ -30,8 +27,6 @@ import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.core.DefaultParameterNameDiscoverer;
 import cn.taketoday.core.ParameterNameDiscoverer;
-import cn.taketoday.core.task.AsyncTaskExecutor;
-import cn.taketoday.core.task.SimpleAsyncTaskExecutor;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.session.SessionManager;
@@ -46,12 +41,6 @@ import cn.taketoday.web.bind.resolver.ParameterResolvingStrategy;
 import cn.taketoday.web.bind.support.DefaultSessionAttributeStore;
 import cn.taketoday.web.bind.support.SessionAttributeStore;
 import cn.taketoday.web.bind.support.WebBindingInitializer;
-import cn.taketoday.web.context.async.AsyncWebRequest;
-import cn.taketoday.web.context.async.CallableProcessingInterceptor;
-import cn.taketoday.web.context.async.DeferredResultProcessingInterceptor;
-import cn.taketoday.web.context.async.WebAsyncManager;
-import cn.taketoday.web.context.async.WebAsyncTask;
-import cn.taketoday.web.context.async.WebAsyncUtils;
 import cn.taketoday.web.handler.ReturnValueHandlerManager;
 import cn.taketoday.web.handler.result.HandlerMethodReturnValueHandler;
 import cn.taketoday.web.util.WebUtils;
@@ -79,15 +68,6 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
 
   @Nullable
   private WebBindingInitializer webBindingInitializer;
-
-  private AsyncTaskExecutor taskExecutor = new SimpleAsyncTaskExecutor("MvcAsync");
-
-  @Nullable
-  private Long asyncRequestTimeout;
-
-  private CallableProcessingInterceptor[] callableInterceptors = new CallableProcessingInterceptor[0];
-
-  private DeferredResultProcessingInterceptor[] deferredResultInterceptors = new DeferredResultProcessingInterceptor[0];
 
   private int cacheSecondsForSessionAttributeHandlers = 0;
 
@@ -153,50 +133,6 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
   @Nullable
   public WebBindingInitializer getWebBindingInitializer() {
     return this.webBindingInitializer;
-  }
-
-  /**
-   * Set the default {@link AsyncTaskExecutor} to use when a controller method
-   * return a {@link Callable}. Controller methods can override this default on
-   * a per-request basis by returning an {@link WebAsyncTask}.
-   * <p>By default a {@link SimpleAsyncTaskExecutor} instance is used.
-   * It's recommended to change that default in production as the simple executor
-   * does not re-use threads.
-   */
-  public void setTaskExecutor(AsyncTaskExecutor taskExecutor) {
-    this.taskExecutor = taskExecutor;
-  }
-
-  /**
-   * Specify the amount of time, in milliseconds, before concurrent handling
-   * should time out. In Servlet 3, the timeout begins after the main request
-   * processing thread has exited and ends when the request is dispatched again
-   * for further processing of the concurrently produced result.
-   * <p>If this value is not set, the default timeout of the underlying
-   * implementation is used.
-   *
-   * @param timeout the timeout value in milliseconds
-   */
-  public void setAsyncRequestTimeout(long timeout) {
-    this.asyncRequestTimeout = timeout;
-  }
-
-  /**
-   * Configure {@code CallableProcessingInterceptor}'s to register on async requests.
-   *
-   * @param interceptors the interceptors to register
-   */
-  public void setCallableInterceptors(List<CallableProcessingInterceptor> interceptors) {
-    this.callableInterceptors = interceptors.toArray(new CallableProcessingInterceptor[0]);
-  }
-
-  /**
-   * Configure {@code DeferredResultProcessingInterceptor}'s to register on async requests.
-   *
-   * @param interceptors the interceptors to register
-   */
-  public void setDeferredResultInterceptors(List<DeferredResultProcessingInterceptor> interceptors) {
-    this.deferredResultInterceptors = interceptors.toArray(new DeferredResultProcessingInterceptor[0]);
   }
 
   /**
@@ -391,15 +327,6 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
     }
 
     modelHandler.initModel(request, bindingContext, handlerMethod);
-
-    AsyncWebRequest asyncWebRequest = request.getAsyncWebRequest();
-    asyncWebRequest.setTimeout(asyncRequestTimeout);
-
-    WebAsyncManager asyncManager = WebAsyncUtils.getAsyncManager(request);
-    asyncManager.setTaskExecutor(taskExecutor);
-    asyncManager.setAsyncRequest(asyncWebRequest);
-    asyncManager.registerCallableInterceptors(callableInterceptors);
-    asyncManager.registerDeferredResultInterceptors(deferredResultInterceptors);
 
     var invocableMethod = methodResolver.createInvocableHandlerMethod(handlerMethod);
     Object returnValue = invocableMethod.invokeAndHandle(request, bindingContext);

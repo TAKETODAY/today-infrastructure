@@ -36,6 +36,7 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.web.BindingContext;
+import cn.taketoday.web.HandlerMatchingMetadata;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.RequestContextHolder;
 import cn.taketoday.web.context.async.DeferredResult.DeferredResultHandler;
@@ -61,6 +62,17 @@ import cn.taketoday.web.context.async.DeferredResult.DeferredResultHandler;
  * @since 4.0
  */
 public final class WebAsyncManager {
+  /**
+   * The name attribute of the {@link RequestContext}.
+   */
+  public static final String WEB_ASYNC_REQUEST_ATTRIBUTE =
+          WebAsyncManager.class.getName() + ".WEB_REQUEST";
+
+  /**
+   * The name attribute containing the result.
+   */
+  public static final String WEB_ASYNC_RESULT_ATTRIBUTE =
+          WebAsyncManager.class.getName() + ".WEB_ASYNC_RESULT";
 
   private static final Object RESULT_NONE = new Object();
 
@@ -98,12 +110,7 @@ public final class WebAsyncManager {
 
   private final RequestContext requestContext;
 
-  /**
-   * Package-private constructor.
-   *
-   * @see WebAsyncUtils#getAsyncManager(cn.taketoday.web.RequestContext)
-   */
-  WebAsyncManager(RequestContext requestContext) {
+  public WebAsyncManager(RequestContext requestContext) {
     this.requestContext = requestContext;
   }
 
@@ -120,8 +127,6 @@ public final class WebAsyncManager {
   public void setAsyncRequest(AsyncWebRequest asyncRequest) {
     Assert.notNull(asyncRequest, "AsyncWebRequest is required");
     this.asyncRequest = asyncRequest;
-    this.asyncRequest.addCompletionHandler(
-            () -> requestContext.removeAttribute(WebAsyncUtils.WEB_ASYNC_MANAGER_ATTRIBUTE));
   }
 
   /**
@@ -491,6 +496,24 @@ public final class WebAsyncManager {
 
   public BindingContext getBindingContext() {
     return requestContext.getBindingContext();
+  }
+
+  //
+
+  @Nullable
+  public static Object findHttpRequestHandler(RequestContext request) {
+    var asyncManager = request.getAsyncManager();
+    Object[] concurrentResultContext = asyncManager.getConcurrentResultContext();
+    if (concurrentResultContext != null && concurrentResultContext.length == 1) {
+      return concurrentResultContext[0];
+    }
+    else {
+      HandlerMatchingMetadata matchingMetadata = request.getMatchingMetadata();
+      if (matchingMetadata != null) {
+        return matchingMetadata.getHandler();
+      }
+    }
+    return null;
   }
 
 }

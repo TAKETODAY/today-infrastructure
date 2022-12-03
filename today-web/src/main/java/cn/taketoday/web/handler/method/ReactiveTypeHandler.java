@@ -54,7 +54,6 @@ import cn.taketoday.web.HttpMediaTypeNotAcceptableException;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.accept.ContentNegotiationManager;
 import cn.taketoday.web.context.async.DeferredResult;
-import cn.taketoday.web.context.async.WebAsyncUtils;
 
 /**
  * Private helper class to assist with handling "reactive" return values types
@@ -168,7 +167,7 @@ final class ReactiveTypeHandler {
     new DeferredResultSubscriber(result, adapter, elementType)
             .connect(adapter, returnValue);
 
-    WebAsyncUtils.getAsyncManager(request)
+    request.getAsyncManager()
             .startDeferredResultProcessing(result);
 
     return null;

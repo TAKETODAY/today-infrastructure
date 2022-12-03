@@ -83,6 +83,7 @@ import cn.taketoday.web.bind.WebDataBinder;
 import cn.taketoday.web.bind.resolver.ParameterResolvingRegistry;
 import cn.taketoday.web.bind.resolver.ParameterResolvingStrategy;
 import cn.taketoday.web.bind.support.ConfigurableWebBindingInitializer;
+import cn.taketoday.web.context.async.WebAsyncManagerFactory;
 import cn.taketoday.web.cors.CorsConfiguration;
 import cn.taketoday.web.handler.CompositeHandlerExceptionHandler;
 import cn.taketoday.web.handler.HandlerExecutionChainHandlerAdapter;
@@ -344,6 +345,30 @@ public class WebMvcConfigurationSupport extends ApplicationContextSupport {
       }
       messageConverters.add(new MappingJackson2CborHttpMessageConverter(builder.build()));
     }
+  }
+
+  // Async
+
+  /**
+   * WebAsyncManager Factory
+   */
+  @Component
+  @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
+  public WebAsyncManagerFactory webAsyncManagerFactory() {
+    WebAsyncManagerFactory factory = new WebAsyncManagerFactory();
+    AsyncSupportConfigurer configurer = getAsyncSupportConfigurer();
+    if (configurer.getTaskExecutor() != null) {
+      factory.setTaskExecutor(configurer.getTaskExecutor());
+    }
+
+    if (configurer.getTimeout() != null) {
+      factory.setAsyncRequestTimeout(configurer.getTimeout());
+    }
+
+    factory.setCallableInterceptors(configurer.getCallableInterceptors());
+    factory.setDeferredResultInterceptors(configurer.getDeferredResultInterceptors());
+
+    return factory;
   }
 
   //---------------------------------------------------------------------
@@ -955,18 +980,6 @@ public class WebMvcConfigurationSupport extends ApplicationContextSupport {
     adapter.setReturnValueHandlerManager(returnValueHandlerManager);
     adapter.setWebBindingInitializer(getWebBindingInitializer(conversionService, validator));
 
-    AsyncSupportConfigurer configurer = getAsyncSupportConfigurer();
-    if (configurer.getTaskExecutor() != null) {
-      adapter.setTaskExecutor(configurer.getTaskExecutor());
-    }
-
-    if (configurer.getTimeout() != null) {
-      adapter.setAsyncRequestTimeout(configurer.getTimeout());
-    }
-
-    adapter.setCallableInterceptors(configurer.getCallableInterceptors());
-    adapter.setDeferredResultInterceptors(configurer.getDeferredResultInterceptors());
-
     return adapter;
   }
 
@@ -985,13 +998,7 @@ public class WebMvcConfigurationSupport extends ApplicationContextSupport {
   @Component
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
   public HandlerFunctionAdapter handlerFunctionAdapter() {
-    HandlerFunctionAdapter adapter = new HandlerFunctionAdapter();
-
-    AsyncSupportConfigurer configurer = getAsyncSupportConfigurer();
-    if (configurer.getTimeout() != null) {
-      adapter.setAsyncRequestTimeout(configurer.getTimeout());
-    }
-    return adapter;
+    return new HandlerFunctionAdapter();
   }
 
   /**

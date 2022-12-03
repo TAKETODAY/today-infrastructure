@@ -30,6 +30,7 @@ import cn.taketoday.beans.BeanWrapper;
 import cn.taketoday.core.task.AsyncTaskExecutor;
 import cn.taketoday.core.task.SimpleAsyncTaskExecutor;
 import cn.taketoday.web.servlet.ServletRequestContext;
+import cn.taketoday.web.testfixture.ReflectionTestUtils;
 import cn.taketoday.web.testfixture.servlet.MockHttpServletRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -60,7 +61,7 @@ class WebAsyncManagerTests {
 
   @BeforeEach
   public void setup() {
-    this.asyncManager = WebAsyncUtils.getAsyncManager(request);
+    this.asyncManager = request.getAsyncManager();
     this.asyncManager.setTaskExecutor(new SyncTaskExecutor());
     this.asyncWebRequest = mock(AsyncWebRequest.class);
     this.asyncManager.setAsyncRequest(this.asyncWebRequest);
@@ -68,7 +69,6 @@ class WebAsyncManagerTests {
     BeanWrapper.forDirectFieldAccess(request)
             .setPropertyValue("asyncWebRequest", asyncWebRequest);
 
-    verify(this.asyncWebRequest).addCompletionHandler(notNull());
     reset(this.asyncWebRequest);
   }
 
@@ -76,7 +76,9 @@ class WebAsyncManagerTests {
   public void startAsyncProcessingWithoutAsyncWebRequest() throws Exception {
     MockHttpServletRequest servletRequest = new MockHttpServletRequest();
     ServletRequestContext request = new ServletRequestContext(null, servletRequest, null);
-    WebAsyncManager manager = WebAsyncUtils.getAsyncManager(request);
+    WebAsyncManager manager = request.getAsyncManager();
+
+    ReflectionTestUtils.setField(manager, "asyncRequest", null);
 
     assertThatIllegalStateException()
             .isThrownBy(() -> manager.startCallableProcessing(new StubCallable(1)))

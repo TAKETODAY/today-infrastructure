@@ -43,7 +43,6 @@ import cn.taketoday.web.bind.MissingRequestParameterException;
 import cn.taketoday.web.context.async.DeferredResult;
 import cn.taketoday.web.context.async.StandardServletAsyncWebRequest;
 import cn.taketoday.web.context.async.WebAsyncManager;
-import cn.taketoday.web.context.async.WebAsyncUtils;
 import cn.taketoday.web.servlet.ServletRequestContext;
 import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.ServletException;
@@ -430,7 +429,7 @@ class ErrorPageFilterTests {
     this.request.setAsyncStarted(true);
     DeferredResult<String> result = new DeferredResult<>();
     ServletRequestContext context = new ServletRequestContext(null, request, response);
-    WebAsyncManager asyncManager = WebAsyncUtils.getAsyncManager(context);
+    WebAsyncManager asyncManager = context.getAsyncManager();
     asyncManager.setAsyncRequest(new StandardServletAsyncWebRequest(request, response));
     asyncManager.startDeferredResultProcessing(result);
   }

@@ -40,10 +40,8 @@ import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.context.async.AsyncWebRequest;
 import cn.taketoday.web.context.async.DeferredResult;
 import cn.taketoday.web.context.async.WebAsyncManager;
-import cn.taketoday.web.context.async.WebAsyncUtils;
 
 /**
  * Default {@link AsyncServerResponse} implementation.
@@ -120,10 +118,7 @@ final class DefaultAsyncServerResponse extends ErrorHandlingServerResponse imple
   }
 
   static void writeAsync(RequestContext request, DeferredResult<?> deferredResult) throws Exception {
-    WebAsyncManager asyncManager = WebAsyncUtils.getAsyncManager(request);
-    AsyncWebRequest asyncWebRequest = request.getAsyncWebRequest();
-    asyncManager.setAsyncRequest(asyncWebRequest);
-
+    WebAsyncManager asyncManager = request.getAsyncManager();
     asyncManager.startDeferredResultProcessing(deferredResult);
   }
 

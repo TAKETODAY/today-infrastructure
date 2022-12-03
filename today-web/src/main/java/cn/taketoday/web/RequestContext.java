@@ -69,6 +69,8 @@ import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.context.async.AsyncWebRequest;
+import cn.taketoday.web.context.async.WebAsyncManager;
+import cn.taketoday.web.context.async.WebAsyncManagerFactory;
 import cn.taketoday.web.multipart.MultipartRequest;
 import cn.taketoday.web.util.UriComponents;
 import cn.taketoday.web.util.UriComponentsBuilder;
@@ -165,6 +167,8 @@ public abstract class RequestContext extends AttributeAccessorSupport
 
   /** @since 4.0 */
   protected AsyncWebRequest asyncWebRequest;
+
+  protected WebAsyncManager webAsyncManager;
 
   protected boolean notModified = false;
 
@@ -730,6 +734,10 @@ public abstract class RequestContext extends AttributeAccessorSupport
    */
   protected abstract MultipartRequest createMultipartRequest();
 
+  // ---------------------------------------------------------------------
+  // Async
+  // ---------------------------------------------------------------------
+
   /**
    * Whether the selected handler for the current request chose to handle the
    * request asynchronously. A return value of "true" indicates concurrent
@@ -754,6 +762,26 @@ public abstract class RequestContext extends AttributeAccessorSupport
   }
 
   protected abstract AsyncWebRequest createAsyncWebRequest();
+
+  public WebAsyncManager getAsyncManager() {
+    WebAsyncManager webAsyncManager = this.webAsyncManager;
+    if (webAsyncManager == null) {
+      webAsyncManager = createWebAsyncManager();
+      this.webAsyncManager = webAsyncManager;
+    }
+    return webAsyncManager;
+  }
+
+  private WebAsyncManagerFactory webAsyncManagerFactory;
+
+  public void setWebAsyncManagerFactory(WebAsyncManagerFactory webAsyncManagerFactory) {
+    this.webAsyncManagerFactory = webAsyncManagerFactory;
+  }
+
+  private WebAsyncManager createWebAsyncManager() {
+    return Objects.requireNonNullElseGet(webAsyncManagerFactory, WebAsyncManagerFactory::new)
+            .getWebAsyncManager(this);
+  }
 
   // ---------------------------------------------------------------------
   // requestCompleted

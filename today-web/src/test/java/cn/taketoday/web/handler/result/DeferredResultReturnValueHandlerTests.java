@@ -29,10 +29,7 @@ import cn.taketoday.core.MethodParameter;
 import cn.taketoday.util.concurrent.ListenableFuture;
 import cn.taketoday.util.concurrent.SettableListenableFuture;
 import cn.taketoday.web.BindingContext;
-import cn.taketoday.web.context.async.AsyncWebRequest;
 import cn.taketoday.web.context.async.DeferredResult;
-import cn.taketoday.web.context.async.StandardServletAsyncWebRequest;
-import cn.taketoday.web.context.async.WebAsyncUtils;
 import cn.taketoday.web.servlet.ServletRequestContext;
 import cn.taketoday.web.testfixture.servlet.MockHttpServletRequest;
 import cn.taketoday.web.testfixture.servlet.MockHttpServletResponse;
@@ -59,8 +56,6 @@ class DeferredResultReturnValueHandlerTests {
     MockHttpServletResponse response = new MockHttpServletResponse();
     this.webRequest = new ServletRequestContext(null, this.request, response);
 
-    AsyncWebRequest asyncWebRequest = new StandardServletAsyncWebRequest(this.request, response);
-    WebAsyncUtils.getAsyncManager(this.webRequest).setAsyncRequest(asyncWebRequest);
     this.request.setAsyncSupported(true);
   }
 
@@ -133,12 +128,12 @@ class DeferredResultReturnValueHandlerTests {
     this.handler.handleReturnValue(webRequest, returnType, returnValue);
 
     assertThat(this.request.isAsyncStarted()).isTrue();
-    assertThat(WebAsyncUtils.getAsyncManager(this.webRequest).hasConcurrentResult()).isFalse();
+    assertThat(webRequest.getAsyncManager().hasConcurrentResult()).isFalse();
 
     setResultTask.run();
 
-    assertThat(WebAsyncUtils.getAsyncManager(this.webRequest).hasConcurrentResult()).isTrue();
-    assertThat(WebAsyncUtils.getAsyncManager(this.webRequest).getConcurrentResult()).isEqualTo(expectedValue);
+    assertThat(webRequest.getAsyncManager().hasConcurrentResult()).isTrue();
+    assertThat(webRequest.getAsyncManager().getConcurrentResult()).isEqualTo(expectedValue);
   }
 
   @SuppressWarnings("unused")

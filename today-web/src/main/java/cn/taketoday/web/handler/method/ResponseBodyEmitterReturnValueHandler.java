@@ -43,7 +43,6 @@ import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.ServletDetector;
 import cn.taketoday.web.accept.ContentNegotiationManager;
 import cn.taketoday.web.context.async.DeferredResult;
-import cn.taketoday.web.context.async.WebAsyncUtils;
 import cn.taketoday.web.handler.result.SmartReturnValueHandler;
 import cn.taketoday.web.servlet.filter.ShallowEtagHeaderFilter;
 
@@ -208,7 +207,7 @@ public class ResponseBodyEmitterReturnValueHandler implements SmartReturnValueHa
     try {
       DeferredResult<?> deferredResult = new DeferredResult<>(emitter.getTimeout());
 
-      WebAsyncUtils.getAsyncManager(request)
+      request.getAsyncManager()
               .startDeferredResultProcessing(deferredResult, handler);
 
       responseBodyEmitter = new HttpMessageConvertingHandler(request, deferredResult);

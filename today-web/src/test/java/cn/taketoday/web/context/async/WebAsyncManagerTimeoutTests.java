@@ -71,7 +71,7 @@ public class WebAsyncManagerTimeoutTests {
 
     AsyncTaskExecutor executor = mock(AsyncTaskExecutor.class);
     request = new ServletRequestContext(null, servletRequest, servletResponse);
-    this.asyncManager = WebAsyncUtils.getAsyncManager(request);
+    this.asyncManager = request.getAsyncManager();
     this.asyncManager.setTaskExecutor(executor);
     this.asyncManager.setAsyncRequest(this.asyncWebRequest);
   }
