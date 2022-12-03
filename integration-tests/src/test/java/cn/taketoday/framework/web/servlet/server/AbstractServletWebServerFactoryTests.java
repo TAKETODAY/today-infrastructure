@@ -20,7 +20,6 @@
 
 package cn.taketoday.framework.web.servlet.server;
 
-import org.apache.catalina.webresources.TomcatURLStreamHandlerFactory;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.entity.InputStreamFactory;
@@ -128,9 +127,9 @@ import cn.taketoday.http.client.HttpComponentsClientHttpRequestFactory;
 import cn.taketoday.session.config.SameSite;
 import cn.taketoday.session.config.SessionTrackingMode;
 import cn.taketoday.test.util.ReflectionTestUtils;
+import cn.taketoday.test.web.servlet.DirtiesUrlFactories;
 import cn.taketoday.test.web.servlet.ExampleFilter;
 import cn.taketoday.test.web.servlet.ExampleServlet;
-import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.FileCopyUtils;
 import cn.taketoday.util.StreamUtils;
 import jakarta.servlet.AsyncContext;
@@ -174,6 +173,7 @@ import static org.mockito.Mockito.mock;
  * @author Andy Wilkinson
  * @author Raja Kolli
  */
+@DirtiesUrlFactories
 @Execution(ExecutionMode.SAME_THREAD)
 @ExtendWith(OutputCaptureExtension.class)
 public abstract class AbstractServletWebServerFactoryTests {
@@ -213,20 +213,6 @@ public abstract class AbstractServletWebServerFactoryTests {
       catch (Exception ex) {
         // Ignore
       }
-    }
-    if (ClassUtils.isPresent("org.apache.catalina.webresources.TomcatURLStreamHandlerFactory",
-            getClass().getClassLoader())) {
-      ReflectionTestUtils.setField(TomcatURLStreamHandlerFactory.class, "instance", null);
-    }
-    ReflectionTestUtils.setField(URL.class, "factory", null);
-  }
-
-  @AfterEach
-  void clearUrlStreamHandlerFactory() {
-    if (ClassUtils.isPresent("org.apache.catalina.webresources.TomcatURLStreamHandlerFactory",
-            getClass().getClassLoader())) {
-      ReflectionTestUtils.setField(TomcatURLStreamHandlerFactory.class, "instance", null);
-      ReflectionTestUtils.setField(URL.class, "factory", null);
     }
   }
 

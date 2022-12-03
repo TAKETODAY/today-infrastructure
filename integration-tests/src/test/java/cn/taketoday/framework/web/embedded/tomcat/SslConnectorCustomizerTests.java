@@ -23,7 +23,6 @@ package cn.taketoday.framework.web.embedded.tomcat;
 import org.apache.catalina.LifecycleState;
 import org.apache.catalina.connector.Connector;
 import org.apache.catalina.startup.Tomcat;
-import org.apache.catalina.webresources.TomcatURLStreamHandlerFactory;
 import org.apache.tomcat.util.net.SSLHostConfig;
 import org.apache.tomcat.util.net.SSLHostConfigCertificate;
 import org.junit.jupiter.api.AfterEach;
@@ -33,7 +32,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URL;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
@@ -48,7 +46,7 @@ import cn.taketoday.framework.test.system.OutputCaptureExtension;
 import cn.taketoday.framework.web.server.Ssl;
 import cn.taketoday.framework.web.server.SslStoreProvider;
 import cn.taketoday.framework.web.server.WebServerException;
-import cn.taketoday.test.util.ReflectionTestUtils;
+import cn.taketoday.test.web.servlet.DirtiesUrlFactories;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -60,6 +58,7 @@ import static org.mockito.Mockito.mock;
  *
  * @author Brian Clozel
  */
+@DirtiesUrlFactories
 @ExtendWith(OutputCaptureExtension.class)
 class SslConnectorCustomizerTests {
 
@@ -78,8 +77,6 @@ class SslConnectorCustomizerTests {
   @AfterEach
   void stop() throws Exception {
     System.clearProperty("javax.net.ssl.trustStorePassword");
-    ReflectionTestUtils.setField(TomcatURLStreamHandlerFactory.class, "instance", null);
-    ReflectionTestUtils.setField(URL.class, "factory", null);
     this.tomcat.stop();
   }
 
