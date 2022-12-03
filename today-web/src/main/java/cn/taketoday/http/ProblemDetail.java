@@ -23,6 +23,7 @@ package cn.taketoday.http;
 import java.net.URI;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Objects;
 
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
@@ -316,6 +317,33 @@ public class ProblemDetail {
   }
 
   @Override
+  public boolean equals(@Nullable Object other) {
+    if (this == other) {
+      return true;
+    }
+    if (other instanceof ProblemDetail otherDetail) {
+      return status == otherDetail.status
+              && Objects.equals(type, otherDetail.type)
+              && Objects.equals(title, otherDetail.title)
+              && Objects.equals(detail, otherDetail.detail)
+              && Objects.equals(instance, otherDetail.instance)
+              && Objects.equals(properties, otherDetail.properties);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int result = type.hashCode();
+    result = 31 * result + Objects.hashCode(title);
+    result = 31 * result + status;
+    result = 31 * result + Objects.hashCode(detail);
+    result = 31 * result + Objects.hashCode(instance);
+    result = 31 * result + Objects.hashCode(properties);
+    return result;
+  }
+
+  @Override
   public String toString() {
     return getClass().getSimpleName() + "[" + initToStringContent() + "]";
   }
@@ -325,7 +353,7 @@ public class ProblemDetail {
    * Subclasses can override this to append additional fields.
    */
   protected String initToStringContent() {
-    return "type='" + this.type + "'" +
+    return "type='" + getType() + "'" +
             ", title='" + getTitle() + "'" +
             ", status=" + getStatus() +
             ", detail='" + getDetail() + "'" +
