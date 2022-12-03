@@ -209,7 +209,7 @@ public class ResponseBodyEmitterReturnValueHandler implements SmartReturnValueHa
       DeferredResult<?> deferredResult = new DeferredResult<>(emitter.getTimeout());
 
       WebAsyncUtils.getAsyncManager(request)
-              .startDeferredResultProcessing(deferredResult);
+              .startDeferredResultProcessing(deferredResult, handler);
 
       responseBodyEmitter = new HttpMessageConvertingHandler(request, deferredResult);
     }

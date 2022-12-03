@@ -465,10 +465,9 @@ public abstract class InfraHandler
         if (state != ApplicationContext.State.CLOSING && state != ApplicationContext.State.CLOSED) {
           context.close();
           var dateFormat = new SimpleDateFormat(Constant.DEFAULT_DATE_FORMAT);
-          logInfo("Your application destroyed at: ["
-                  + dateFormat.format(System.currentTimeMillis())
-                  + "] on startup date: [" + dateFormat.format(context.getStartupDate()) + ']'
-          );
+          logInfo(String.format("Your application destroyed at: [%s] on startup date: [%s]",
+                  dateFormat.format(System.currentTimeMillis()),
+                  dateFormat.format(context.getStartupDate())));
         }
       }
     }

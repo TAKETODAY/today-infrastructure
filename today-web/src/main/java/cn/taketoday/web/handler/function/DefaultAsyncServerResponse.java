@@ -125,7 +125,6 @@ final class DefaultAsyncServerResponse extends ErrorHandlingServerResponse imple
     asyncManager.setAsyncRequest(asyncWebRequest);
 
     asyncManager.startDeferredResultProcessing(deferredResult);
-
   }
 
   private DeferredResult<ServerResponse> createDeferredResult(RequestContext request) {

@@ -1373,7 +1373,7 @@ public abstract class RequestContext extends AttributeAccessorSupport
    * @param status the status code
    * @param message the status message
    */
-  @Deprecated
+  @Deprecated(forRemoval = true)
   public abstract void setStatus(int status, String message);
 
   /**
