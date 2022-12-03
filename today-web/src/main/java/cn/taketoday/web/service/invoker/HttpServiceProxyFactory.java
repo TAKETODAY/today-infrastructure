@@ -150,11 +150,9 @@ public final class HttpServiceProxyFactory implements InitializingBean, Embedded
   }
 
   @Override
-  public void afterPropertiesSet() throws Exception {
-
+  public void afterPropertiesSet() {
     this.conversionService = (this.conversionService != null ?
                               this.conversionService : new DefaultFormattingConversionService());
-
     this.argumentResolvers = initArgumentResolvers(this.conversionService);
   }
 
