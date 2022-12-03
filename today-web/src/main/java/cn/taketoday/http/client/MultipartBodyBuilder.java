@@ -23,6 +23,7 @@ package cn.taketoday.http.client;
 import org.reactivestreams.Publisher;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
@@ -35,11 +36,11 @@ import cn.taketoday.core.TypeReference;
 import cn.taketoday.core.io.buffer.DataBuffer;
 import cn.taketoday.http.HttpEntity;
 import cn.taketoday.http.HttpHeaders;
+import cn.taketoday.http.MediaType;
 import cn.taketoday.http.codec.multipart.Part;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.NonNull;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.http.MediaType;
 
 /**
  * Prepare the body of a multipart request, resulting in a
@@ -251,7 +252,7 @@ public final class MultipartBodyBuilder {
      * @param headerName the part header name
      * @param headerValues the part header value(s)
      * @return this builder
-     * @see HttpHeaders#addAll(String, List)
+     * @see HttpHeaders#addAll(String, Collection)
      */
     PartBuilder header(String headerName, String... headerValues);
 

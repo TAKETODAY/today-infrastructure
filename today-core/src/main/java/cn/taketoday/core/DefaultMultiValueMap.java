@@ -119,14 +119,6 @@ public class DefaultMultiValueMap<K, V>
   }
 
   @Override
-  public void addAll(K key, @Nullable List<? extends V> values) {
-    if (values != null) {
-      List<V> currentValues = this.map.computeIfAbsent(key, mappingFunction);
-      currentValues.addAll(values);
-    }
-  }
-
-  @Override
   public void addAll(K key, @Nullable Collection<? extends V> values) {
     if (values != null) {
       List<V> currentValues = this.map.computeIfAbsent(key, mappingFunction);

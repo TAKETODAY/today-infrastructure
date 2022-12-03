@@ -105,11 +105,6 @@ class ReadOnlyHttpHeaders extends DefaultHttpHeaders {
   }
 
   @Override
-  public void addAll(String key, List<? extends String> values) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
   public void addAll(String key, @Nullable Collection<? extends String> values) {
     throw new UnsupportedOperationException();
   }

@@ -72,21 +72,6 @@ public interface MultiValueMap<K, V> extends Map<K, List<V>> {
    *
    * @param key they key
    * @param values the values to be added
-   */
-  default void addAll(K key, @Nullable List<? extends V> values) {
-    if (values != null) {
-      for (V element : values) {
-        add(key, element);
-      }
-    }
-  }
-
-  /**
-   * Add all the values of the given list to the current list of values for the
-   * given key.
-   *
-   * @param key they key
-   * @param values the values to be added
    * @since 4.0
    */
   default void addAll(K key, @Nullable Collection<? extends V> values) {

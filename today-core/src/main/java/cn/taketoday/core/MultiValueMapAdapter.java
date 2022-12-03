@@ -72,9 +72,11 @@ public class MultiValueMapAdapter<K, V> implements MultiValueMap<K, V>, Serializ
   }
 
   @Override
-  public void addAll(K key, List<? extends V> values) {
-    List<V> currentValues = this.targetMap.computeIfAbsent(key, k -> new ArrayList<>(1));
-    currentValues.addAll(values);
+  public void addAll(K key, @Nullable Collection<? extends V> values) {
+    if (values != null) {
+      List<V> currentValues = this.targetMap.computeIfAbsent(key, k -> new ArrayList<>(1));
+      currentValues.addAll(values);
+    }
   }
 
   @Override
