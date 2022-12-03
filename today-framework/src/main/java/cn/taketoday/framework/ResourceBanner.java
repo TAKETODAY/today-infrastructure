@@ -95,7 +95,7 @@ public class ResourceBanner implements Banner {
 
   private Map<String, Object> getVersionsMap(Class<?> sourceClass) {
     String appVersion = getApplicationVersion(sourceClass);
-    String version = getVersion();
+    String version = getInfraVersion();
     HashMap<String, Object> versions = new HashMap<>();
     versions.put("app.version", getVersionString(appVersion, false));
     versions.put("infra.version", getVersionString(version, false));
@@ -118,8 +118,8 @@ public class ResourceBanner implements Banner {
     return null;
   }
 
-  protected String getVersion() {
-    return Version.instance.toString();
+  protected String getInfraVersion() {
+    return Version.instance.implementationVersion();
   }
 
   private String getVersionString(String version, boolean format) {

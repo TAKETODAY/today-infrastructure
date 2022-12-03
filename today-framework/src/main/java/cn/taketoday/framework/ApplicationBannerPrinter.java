@@ -31,7 +31,6 @@ import cn.taketoday.core.io.Resource;
 import cn.taketoday.core.io.ResourceLoader;
 import cn.taketoday.framework.ansi.AnsiColor;
 import cn.taketoday.framework.ansi.AnsiOutput;
-import cn.taketoday.framework.ansi.AnsiStyle;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.lang.Version;
 import cn.taketoday.logging.Logger;
@@ -116,25 +115,15 @@ class ApplicationBannerPrinter {
              ______  ____    ___    ___  __  __        ____   _  __   ____   ___    ___\s
             /_  __/ / __ \\  / _ \\  / _ | \\ \\/ /       /  _/  / |/ /  / __/  / _ \\  / _ |
              / /   / /_/ / / // / / __ |  \\  /       _/ /   /    /  / _/   / , _/ / __ |
-            /_/    \\____/ /____/ /_/ |_|  /_/       /___/  /_/|_/  /_/    /_/|_| /_/ |_|
+            /_/    \\____/ /____/ /_/ |_|  /_/       /___/  /_/|_/  /_/    /_/|_| /_/ |_|\
             """;
 
-    private static final String infrastructure = "today-infrastructure";
-
-    private static final int STRAP_LINE_SIZE = 34;
-
     @Override
-    public void printBanner(Environment environment, Class<?> sourceClass, PrintStream out) {
-      out.println(BANNER);
+    public void printBanner(Environment environment, @Nullable Class<?> sourceClass, PrintStream out) {
+      out.print(BANNER);
 
-      String version = Version.instance.toString();
-      StringBuilder padding = new StringBuilder();
-      while (padding.length() < STRAP_LINE_SIZE - (version.length() + infrastructure.length())) {
-        padding.append(" ");
-      }
-
-      out.println(AnsiOutput.toString(AnsiColor.GREEN, infrastructure,
-              AnsiColor.DEFAULT, padding.toString(), AnsiStyle.FAINT, version));
+      String version = Version.instance.implementationVersion();
+      out.println(AnsiOutput.toString(AnsiColor.CYAN, " (v", version, ")"));
       out.println();
     }
   }
