@@ -41,8 +41,6 @@ import cn.taketoday.web.HandlerMapping;
 import cn.taketoday.web.HandlerMatchingMetadata;
 import cn.taketoday.web.HttpRequestHandler;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.context.async.WebAsyncManager;
-import cn.taketoday.web.context.async.WebAsyncUtils;
 import cn.taketoday.web.cors.CorsConfiguration;
 import cn.taketoday.web.cors.CorsConfigurationSource;
 import cn.taketoday.web.cors.CorsProcessor;
@@ -510,12 +508,6 @@ public abstract class AbstractHandlerMapping extends ApplicationContextSupport
 
     @Override
     public boolean beforeProcess(RequestContext request, Object handler) throws Throwable {
-      // Consistent with CorsFilter, ignore ASYNC dispatches
-      WebAsyncManager asyncManager = WebAsyncUtils.getAsyncManager(request);
-      if (asyncManager.hasConcurrentResult()) {
-        return true;
-      }
-
       return corsProcessor.process(config, request);
     }
 
