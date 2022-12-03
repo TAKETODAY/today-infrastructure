@@ -58,31 +58,16 @@ import cn.taketoday.web.bind.annotation.ModelAttribute;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/4/8 23:00
  */
-public final class ModelInitializer {
+final class ModelHandler {
+  private static final Logger log = LoggerFactory.getLogger(ModelHandler.class);
 
-  private static final Logger logger = LoggerFactory.getLogger(ModelInitializer.class);
-
-  @Nullable
-  private ArrayList<ModelMethod> modelMethods;
-
-  private final SessionAttributesHandler sessionAttributesHandler;
+  final ControllerMethodResolver methodResolver;
 
   /**
    * Create a new instance with the given {@code @ModelAttribute} methods.
-   *
-   * @param handlerMethods the {@code @ModelAttribute} methods to invoke
-   * @param attributeHandler for access to session attributes
    */
-  public ModelInitializer(@Nullable List<InvocableHandlerMethod> handlerMethods,
-          SessionAttributesHandler attributeHandler) {
-    if (handlerMethods != null) {
-      ArrayList<ModelMethod> modelMethods = new ArrayList<>();
-      for (InvocableHandlerMethod handlerMethod : handlerMethods) {
-        modelMethods.add(new ModelMethod(handlerMethod));
-      }
-      this.modelMethods = modelMethods;
-    }
-    this.sessionAttributesHandler = attributeHandler;
+  public ModelHandler(ControllerMethodResolver methodResolver) {
+    this.methodResolver = methodResolver;
   }
 
   /**
@@ -103,13 +88,17 @@ public final class ModelInitializer {
   public void initModel(RequestContext request, BindingContext container, HandlerMethod handlerMethod)
           throws Throwable {
 
-    var sessionAttributes = sessionAttributesHandler.retrieveAttributes(request);
+    var sessionAttrHandler = methodResolver.getSessionAttributesHandler(handlerMethod);
+    var sessionAttributes = sessionAttrHandler.retrieveAttributes(request);
     container.mergeAttributes(sessionAttributes);
-    invokeModelAttributeMethods(request, container);
 
-    for (String name : findSessionAttributeArguments(handlerMethod)) {
+    ArrayList<ModelMethod> modelMethods = getModelMethods(handlerMethod);
+    if (modelMethods != null) {
+      invokeModelAttributeMethods(request, container, modelMethods);
+    }
+    for (String name : findSessionAttributeArguments(sessionAttrHandler, handlerMethod)) {
       if (!container.containsAttribute(name)) {
-        Object value = sessionAttributesHandler.retrieveAttribute(request, name);
+        Object value = sessionAttrHandler.retrieveAttribute(request, name);
         if (value == null) {
           throw new WebSessionRequiredException("Expected session attribute '" + name + "'", name);
         }
@@ -118,16 +107,26 @@ public final class ModelInitializer {
     }
   }
 
+  @Nullable
+  private ArrayList<ModelMethod> getModelMethods(HandlerMethod handlerMethod) {
+    List<InvocableHandlerMethod> handlerMethods = methodResolver.getModelAttributeMethods(handlerMethod);
+    if (!handlerMethods.isEmpty()) {
+      ArrayList<ModelMethod> modelMethods = new ArrayList<>();
+      for (InvocableHandlerMethod method : handlerMethods) {
+        modelMethods.add(new ModelMethod(method));
+      }
+      return modelMethods;
+    }
+    return null;
+  }
+
   /**
    * Invoke model attribute methods to populate the model.
    * Attributes are added only if not already present in the model.
    */
-  private void invokeModelAttributeMethods(
-          RequestContext request, BindingContext container) throws Throwable {
-    ArrayList<ModelMethod> modelMethods = this.modelMethods;
-    if (modelMethods == null) {
-      return;
-    }
+  private void invokeModelAttributeMethods(RequestContext request,
+          BindingContext container, ArrayList<ModelMethod> modelMethods) throws Throwable {
+
     while (!modelMethods.isEmpty()) {
       InvocableHandlerMethod modelMethod = getNextModelMethod(container, modelMethods).handlerMethod;
       ModelAttribute ann = modelMethod.getMethodAnnotation(ModelAttribute.class);
@@ -142,8 +141,8 @@ public final class ModelInitializer {
       Object returnValue = modelMethod.invokeForRequest(request);
       if (modelMethod.isVoid()) {
         if (StringUtils.hasText(ann.value())) {
-          if (logger.isDebugEnabled()) {
-            logger.debug("Name in @ModelAttribute is ignored because method returns void: {}",
+          if (log.isDebugEnabled()) {
+            log.debug("Name in @ModelAttribute is ignored because method returns void: {}",
                     modelMethod.getShortLogMessage());
           }
         }
@@ -175,13 +174,15 @@ public final class ModelInitializer {
   /**
    * Find {@code @ModelAttribute} arguments also listed as {@code @SessionAttributes}.
    */
-  private List<String> findSessionAttributeArguments(HandlerMethod handlerMethod) {
+  private List<String> findSessionAttributeArguments(
+          SessionAttributesHandler sessionAttrHandler, HandlerMethod handlerMethod) {
     ArrayList<String> result = new ArrayList<>();
+
     for (MethodParameter parameter : handlerMethod.getMethodParameters()) {
       if (parameter.hasParameterAnnotation(ModelAttribute.class)) {
         String name = getNameForParameter(parameter);
         Class<?> paramType = parameter.getParameterType();
-        if (this.sessionAttributesHandler.isHandlerSessionAttribute(name, paramType)) {
+        if (sessionAttrHandler.isHandlerSessionAttribute(name, paramType)) {
           result.add(name);
         }
       }
@@ -197,27 +198,30 @@ public final class ModelInitializer {
    * @param container contains the model to update
    * @throws Exception if creating BindingResult attributes fails
    */
-  public void updateModel(RequestContext request, BindingContext container) throws Throwable {
+  public void updateModel(RequestContext request, BindingContext container, Class<?> handlerMethod)
+          throws Throwable {
     Model model = container.getModel();
+    var sessionAttrHandler = methodResolver.getSessionAttributesHandler(handlerMethod);
     if (container.getSessionStatus().isComplete()) {
-      sessionAttributesHandler.cleanupAttributes(request);
+      sessionAttrHandler.cleanupAttributes(request);
     }
     else {
-      sessionAttributesHandler.storeAttributes(request, model.asMap());
+      sessionAttrHandler.storeAttributes(request, model.asMap());
     }
 
-    updateBindingResult(request, container, model.asMap());
+    updateBindingResult(request, container, model.asMap(), sessionAttrHandler);
   }
 
   /**
    * Add {@link BindingResult} attributes to the model for attributes that require it.
    */
   private void updateBindingResult(RequestContext request,
-          BindingContext bindingContext, Map<String, Object> model) throws Throwable {
+          BindingContext bindingContext, Map<String, Object> model,
+          SessionAttributesHandler sessionAttributesHandler) throws Throwable {
     ArrayList<String> keyNames = new ArrayList<>(model.keySet());
     for (String name : keyNames) {
       Object value = model.get(name);
-      if (value != null && isBindingCandidate(name, value)) {
+      if (value != null && isBindingCandidate(name, value, sessionAttributesHandler)) {
         String bindingResultKey = BindingResult.MODEL_KEY_PREFIX + name;
         if (!model.containsKey(bindingResultKey)) {
           WebDataBinder dataBinder = bindingContext.createBinder(request, value, name);
@@ -230,12 +234,13 @@ public final class ModelInitializer {
   /**
    * Whether the given attribute requires a {@link BindingResult} in the model.
    */
-  private boolean isBindingCandidate(String attributeName, Object value) {
+  private boolean isBindingCandidate(String attributeName,
+          Object value, SessionAttributesHandler sessionAttrHandler) {
     if (attributeName.startsWith(BindingResult.MODEL_KEY_PREFIX)) {
       return false;
     }
 
-    if (sessionAttributesHandler.isHandlerSessionAttribute(attributeName, value.getClass())) {
+    if (sessionAttrHandler.isHandlerSessionAttribute(attributeName, value.getClass())) {
       return true;
     }
 

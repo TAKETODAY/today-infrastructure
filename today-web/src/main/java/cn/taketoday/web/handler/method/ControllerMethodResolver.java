@@ -31,6 +31,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.core.MethodIntrospector;
 import cn.taketoday.core.annotation.AnnotatedElementUtils;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ReflectionUtils;
@@ -73,14 +74,17 @@ class ControllerMethodResolver {
   private final ResolvableParameterFactory resolvableParameterFactory;
   private final ReturnValueHandlerManager returnValueHandlerManager;
 
-  ControllerMethodResolver(ApplicationContext context,
+  ControllerMethodResolver(@Nullable ApplicationContext context,
           SessionAttributeStore sessionAttributeStore,
-          ResolvableParameterFactory resolvableParameterFactory,
+          ResolvableParameterFactory parameterFactory,
           ReturnValueHandlerManager returnValueHandlerManager) {
     this.sessionAttributeStore = sessionAttributeStore;
-    this.resolvableParameterFactory = resolvableParameterFactory;
+    this.resolvableParameterFactory = parameterFactory;
     this.returnValueHandlerManager = returnValueHandlerManager;
-    initControllerAdviceCache(context);
+
+    if (context != null) {
+      initControllerAdviceCache(context);
+    }
   }
 
   private void initControllerAdviceCache(ApplicationContext context) {
@@ -117,12 +121,16 @@ class ControllerMethodResolver {
    * (never {@code null}).
    */
   public SessionAttributesHandler getSessionAttributesHandler(HandlerMethod handlerMethod) {
-    return this.sessionAttributesHandlerCache.computeIfAbsent(
-            handlerMethod.getBeanType(),
-            type -> new SessionAttributesHandler(type, this.sessionAttributeStore));
+    return sessionAttributesHandlerCache.computeIfAbsent(
+            handlerMethod.getBeanType(), type -> new SessionAttributesHandler(type, this.sessionAttributeStore));
   }
 
-  public ModelInitializer getModelInitializer(HandlerMethod handlerMethod) {
+  public SessionAttributesHandler getSessionAttributesHandler(Class<?> handler) {
+    return sessionAttributesHandlerCache.computeIfAbsent(
+            handler, type -> new SessionAttributesHandler(type, this.sessionAttributeStore));
+  }
+
+  public List<InvocableHandlerMethod> getModelAttributeMethods(HandlerMethod handlerMethod) {
     Class<?> handlerType = handlerMethod.getBeanType();
 
     ArrayList<InvocableHandlerMethod> attrMethods = new ArrayList<>();
@@ -147,8 +155,7 @@ class ControllerMethodResolver {
       attrMethods.add(createModelAttributeMethod(bean, method));
     }
 
-    SessionAttributesHandler sessionAttrHandler = getSessionAttributesHandler(handlerMethod);
-    return new ModelInitializer(attrMethods, sessionAttrHandler);
+    return attrMethods;
   }
 
   public List<InvocableHandlerMethod> getBinderMethods(HandlerMethod handlerMethod) {

@@ -24,7 +24,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Method;
-import java.util.Collections;
+import java.util.List;
 
 import cn.taketoday.context.annotation.AnnotationConfigApplicationContext;
 import cn.taketoday.lang.Nullable;
@@ -41,6 +41,7 @@ import cn.taketoday.web.bind.resolver.ModelMethodProcessor;
 import cn.taketoday.web.bind.resolver.ParameterResolvingRegistry;
 import cn.taketoday.web.bind.support.DefaultSessionAttributeStore;
 import cn.taketoday.web.bind.support.SessionAttributeStore;
+import cn.taketoday.web.handler.ReturnValueHandlerManager;
 import cn.taketoday.web.servlet.ServletRequestContext;
 import cn.taketoday.web.testfixture.servlet.MockHttpServletRequest;
 import cn.taketoday.web.testfixture.servlet.MockHttpServletResponse;
@@ -48,12 +49,14 @@ import cn.taketoday.web.view.RedirectModel;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/5/18 17:48
  */
-class ModelInitializerTests {
+class ModelHandlerTests {
 
   private ServletRequestContext webRequest;
 
@@ -66,6 +69,9 @@ class ModelInitializerTests {
   private BindingContext bindingContext;
 
   AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(SessionAttributesHandlerTests.SessionConfig.class);
+  ControllerMethodResolver methodResolver;
+
+  ReturnValueHandlerManager returnValueHandlerManager;
 
   @EnableWebSession
   static class SessionConfig {
@@ -78,19 +84,28 @@ class ModelInitializerTests {
             context, new MockHttpServletRequest(), new MockHttpServletResponse());
 
     this.attributeStore = new DefaultSessionAttributeStore();
-    this.attributeHandler = new SessionAttributesHandler(TestController.class, this.attributeStore);
+
     webRequest.setBindingContext(new BindingContext());
     bindingContext = webRequest.getBindingContext();
+    returnValueHandlerManager = new ReturnValueHandlerManager();
+    returnValueHandlerManager.setApplicationContext(context);
+    returnValueHandlerManager.registerDefaultHandlers();
+    ResolvableParameterFactory resolvableParameterFactory = new ResolvableParameterFactory();
 
+    this.attributeHandler = new SessionAttributesHandler(TestController.class, attributeStore);
+    this.methodResolver = new ControllerMethodResolver(
+            context, attributeStore, resolvableParameterFactory, returnValueHandlerManager);
     this.controller = new TestController();
   }
 
   @Test
   public void modelAttributeMethod() throws Throwable {
     BindingContext container = webRequest.getBindingContext();
-    ModelInitializer modelInitializer = createModelFactory("modelAttr", Model.class);
+
     HandlerMethod handlerMethod = createHandlerMethod("handle");
-    modelInitializer.initModel(this.webRequest, container, handlerMethod);
+    ModelHandler modelHandler = createModelFactory(handlerMethod, "modelAttr", Model.class);
+
+    modelHandler.initModel(this.webRequest, container, handlerMethod);
 
     assertThat(container.getModel().get("modelAttr")).isEqualTo(Boolean.TRUE);
   }
@@ -98,10 +113,10 @@ class ModelInitializerTests {
   @Test
   public void modelAttributeMethodWithExplicitName() throws Throwable {
     BindingContext mavContainer = webRequest.getBindingContext();
-
-    ModelInitializer modelInitializer = createModelFactory("modelAttrWithName");
     HandlerMethod handlerMethod = createHandlerMethod("handle");
-    modelInitializer.initModel(this.webRequest, mavContainer, handlerMethod);
+
+    ModelHandler modelHandler = createModelFactory(handlerMethod, "modelAttrWithName");
+    modelHandler.initModel(this.webRequest, mavContainer, handlerMethod);
 
     assertThat(mavContainer.getModel().get("name")).isEqualTo(Boolean.TRUE);
   }
@@ -110,9 +125,9 @@ class ModelInitializerTests {
   public void modelAttributeMethodWithNameByConvention() throws Throwable {
     BindingContext bindingContext = webRequest.getBindingContext();
 
-    ModelInitializer modelInitializer = createModelFactory("modelAttrConvention");
     HandlerMethod handlerMethod = createHandlerMethod("handle");
-    modelInitializer.initModel(this.webRequest, bindingContext, handlerMethod);
+    ModelHandler modelHandler = createModelFactory(handlerMethod, "modelAttrConvention");
+    modelHandler.initModel(this.webRequest, bindingContext, handlerMethod);
 
     assertThat(bindingContext.getModel().get("boolean")).isEqualTo(Boolean.TRUE);
   }
@@ -121,9 +136,9 @@ class ModelInitializerTests {
   public void modelAttributeMethodWithNullReturnValue() throws Throwable {
     BindingContext bindingContext = webRequest.getBindingContext();
 
-    ModelInitializer modelInitializer = createModelFactory("nullModelAttr");
     HandlerMethod handlerMethod = createHandlerMethod("handle");
-    modelInitializer.initModel(this.webRequest, bindingContext, handlerMethod);
+    ModelHandler modelHandler = createModelFactory(handlerMethod, "nullModelAttr");
+    modelHandler.initModel(this.webRequest, bindingContext, handlerMethod);
 
     assertThat(bindingContext.containsAttribute("name")).isTrue();
     assertThat(bindingContext.getModel().get("name")).isNull();
@@ -133,9 +148,9 @@ class ModelInitializerTests {
   public void modelAttributeWithBindingDisabled() throws Throwable {
     BindingContext bindingContext = webRequest.getBindingContext();
 
-    ModelInitializer modelInitializer = createModelFactory("modelAttrWithBindingDisabled");
     HandlerMethod handlerMethod = createHandlerMethod("handle");
-    modelInitializer.initModel(this.webRequest, bindingContext, handlerMethod);
+    ModelHandler modelHandler = createModelFactory(handlerMethod, "modelAttrWithBindingDisabled");
+    modelHandler.initModel(this.webRequest, bindingContext, handlerMethod);
 
     assertThat(bindingContext.containsAttribute("foo")).isTrue();
     assertThat(bindingContext.isBindingDisabled("foo")).isTrue();
@@ -147,9 +162,10 @@ class ModelInitializerTests {
     Foo foo = new Foo();
     this.attributeStore.storeAttribute(this.webRequest, "foo", foo);
 
-    ModelInitializer modelInitializer = createModelFactory("modelAttrWithBindingDisabled");
     HandlerMethod handlerMethod = createHandlerMethod("handle");
-    modelInitializer.initModel(this.webRequest, bindingContext, handlerMethod);
+    ModelHandler modelHandler = createModelFactory(
+            handlerMethod, "modelAttrWithBindingDisabled");
+    modelHandler.initModel(this.webRequest, bindingContext, handlerMethod);
 
     assertThat(bindingContext.containsAttribute("foo")).isTrue();
     assertThat(bindingContext.getModel().get("foo")).isSameAs(foo);
@@ -160,24 +176,25 @@ class ModelInitializerTests {
   public void sessionAttribute() throws Throwable {
     this.attributeStore.storeAttribute(this.webRequest, "sessionAttr", "sessionAttrValue");
 
-    ModelInitializer modelInitializer = createModelFactory("modelAttr", Model.class);
     HandlerMethod handlerMethod = createHandlerMethod("handle");
-    modelInitializer.initModel(this.webRequest, bindingContext, handlerMethod);
+    ModelHandler modelHandler = createModelFactory(handlerMethod, "modelAttr", Model.class);
+    modelHandler.initModel(this.webRequest, bindingContext, handlerMethod);
 
     assertThat(bindingContext.getModel().get("sessionAttr")).isEqualTo("sessionAttrValue");
   }
 
   @Test
   public void sessionAttributeNotPresent() throws Throwable {
-    ModelInitializer modelInitializer = new ModelInitializer(null, this.attributeHandler);
     HandlerMethod handlerMethod = createHandlerMethod("handleSessionAttr", String.class);
+    ModelHandler modelHandler = createModelFactory(handlerMethod, "modelAttr", Model.class);
+
     assertThatExceptionOfType(WebSessionRequiredException.class)
-            .isThrownBy(() -> modelInitializer.initModel(this.webRequest, bindingContext, handlerMethod));
+            .isThrownBy(() -> modelHandler.initModel(this.webRequest, bindingContext, handlerMethod));
 
     // Now add attribute and try again
     this.attributeStore.storeAttribute(this.webRequest, "sessionAttr", "sessionAttrValue");
 
-    modelInitializer.initModel(this.webRequest, bindingContext, handlerMethod);
+    modelHandler.initModel(this.webRequest, bindingContext, handlerMethod);
     assertThat(bindingContext.getModel().get("sessionAttr")).isEqualTo("sessionAttrValue");
   }
 
@@ -189,8 +206,8 @@ class ModelInitializerTests {
     BindingContext container = new BindingContext0(dataBinder);
     container.addAttribute(commandName, command);
 
-    ModelInitializer modelInitializer = new ModelInitializer(null, this.attributeHandler);
-    modelInitializer.updateModel(this.webRequest, container);
+    ModelHandler modelHandler = new ModelHandler(methodResolver);
+    modelHandler.updateModel(this.webRequest, container, TestController.class);
 
     assertThat(container.getModel().get(commandName)).isEqualTo(command);
     String bindingResultKey = BindingResult.MODEL_KEY_PREFIX + commandName;
@@ -219,8 +236,8 @@ class ModelInitializerTests {
     BindingContext container = new BindingContext0(dataBinder);
     container.addAttribute(attributeName, attribute);
 
-    ModelInitializer modelInitializer = new ModelInitializer(null, this.attributeHandler);
-    modelInitializer.updateModel(this.webRequest, container);
+    ModelHandler modelHandler = new ModelHandler(methodResolver);
+    modelHandler.updateModel(this.webRequest, container, TestController.class);
 
     assertThat(container.getModel().get(attributeName)).isEqualTo(attribute);
     assertThat(this.attributeStore.retrieveAttribute(this.webRequest, attributeName)).isEqualTo(attribute);
@@ -238,8 +255,8 @@ class ModelInitializerTests {
 
     container.getSessionStatus().setComplete();
 
-    ModelInitializer modelInitializer = new ModelInitializer(null, this.attributeHandler);
-    modelInitializer.updateModel(this.webRequest, container);
+    ModelHandler modelHandler = new ModelHandler(methodResolver);
+    modelHandler.updateModel(this.webRequest, container, TestController.class);
 
     assertThat(container.getModel().get(attributeName)).isEqualTo(attribute);
     assertThat(this.attributeStore.retrieveAttribute(this.webRequest, attributeName)).isNull();
@@ -258,32 +275,33 @@ class ModelInitializerTests {
     String queryParamName = "q";
     container.setRedirectModel(new RedirectModel(queryParamName, queryParam));
 
-    ModelInitializer modelInitializer = new ModelInitializer(null, this.attributeHandler);
-    modelInitializer.updateModel(this.webRequest, container);
+    ModelHandler modelHandler = new ModelHandler(methodResolver);
+    modelHandler.updateModel(this.webRequest, container, TestController.class);
 
     assertThat(container.getRedirectModel().get(queryParamName)).isEqualTo(queryParam);
     assertThat(container.getRedirectModel().size()).isEqualTo(1);
     assertThat(this.attributeStore.retrieveAttribute(this.webRequest, attributeName)).isEqualTo(attribute);
   }
 
-  private ModelInitializer createModelFactory(String methodName, Class<?>... parameterTypes) throws Throwable {
-    ParameterResolvingRegistry registry = new ParameterResolvingRegistry();
-    var parameterFactory = new RegistryResolvableParameterFactory(registry);
-    registry.getCustomizedStrategies().add(new ModelMethodProcessor());
-    InvocableHandlerMethod modelMethod = createHandlerMethod(parameterFactory, methodName, parameterTypes);
-    return new ModelInitializer(Collections.singletonList(modelMethod), this.attributeHandler);
-  }
+  private ModelHandler createModelFactory(
+          HandlerMethod handlerMethod, String methodName, Class<?>... parameterTypes) throws Throwable {
+    ControllerMethodResolver methodResolver = mock(ControllerMethodResolver.class);
 
-  private InvocableHandlerMethod createHandlerMethod(
-          ResolvableParameterFactory factory, String methodName, Class<?>... paramTypes) throws Throwable {
-    Method method = this.controller.getClass().getMethod(methodName, paramTypes);
-    return new InvocableHandlerMethod(this.controller, method, factory);
+    given(methodResolver.getSessionAttributesHandler(handlerMethod)).willReturn(attributeHandler);
+    given(methodResolver.getModelAttributeMethods(handlerMethod))
+            .willReturn(List.of(createHandlerMethod(methodName, parameterTypes)));
+
+    ParameterResolvingRegistry registry = new ParameterResolvingRegistry();
+    registry.getCustomizedStrategies().add(new ModelMethodProcessor());
+    return new ModelHandler(methodResolver);
   }
 
   private InvocableHandlerMethod createHandlerMethod(String methodName, Class<?>... paramTypes) throws Throwable {
     Method method = this.controller.getClass().getMethod(methodName, paramTypes);
     ParameterResolvingRegistry registry = new ParameterResolvingRegistry();
     var parameterFactory = new RegistryResolvableParameterFactory(registry);
+    registry.getCustomizedStrategies().add(new ModelMethodProcessor());
+
     return new InvocableHandlerMethod(this.controller, method, parameterFactory);
   }
 

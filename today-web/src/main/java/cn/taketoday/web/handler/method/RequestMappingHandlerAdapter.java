@@ -108,6 +108,8 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
 
   private ControllerMethodResolver methodResolver;
 
+  private ModelHandler modelHandler;
+
   public void setRedirectModelManager(@Nullable RedirectModelManager redirectModelManager) {
     this.redirectModelManager = redirectModelManager;
   }
@@ -300,6 +302,8 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
     this.methodResolver = new ControllerMethodResolver(context, sessionAttributeStore,
             new RegistryResolvableParameterFactory(resolvingRegistry, parameterNameDiscoverer),
             returnValueHandlerManager);
+
+    this.modelHandler = new ModelHandler(methodResolver);
   }
 
   /**
@@ -386,8 +390,7 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
       bindingContext.addAllAttributes(inputRedirectModel);
     }
 
-    ModelInitializer modelInitializer = methodResolver.getModelInitializer(handlerMethod);
-    modelInitializer.initModel(request, bindingContext, handlerMethod);
+    modelHandler.initModel(request, bindingContext, handlerMethod);
 
     AsyncWebRequest asyncWebRequest = request.getAsyncWebRequest();
     asyncWebRequest.setTimeout(asyncRequestTimeout);
@@ -405,7 +408,7 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
       return HttpRequestHandler.NONE_RETURN_VALUE;
     }
 
-    modelInitializer.updateModel(request, bindingContext);
+    modelHandler.updateModel(request, bindingContext, handlerMethod.getBeanType());
     return returnValue;
   }
 

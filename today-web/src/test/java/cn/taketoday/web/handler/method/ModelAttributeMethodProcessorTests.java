@@ -189,7 +189,7 @@ class ModelAttributeMethodProcessorTests {
     Object target = new TestBean();
 
     StubRequestDataBinder dataBinder = new StubRequestDataBinder(target, name);
-    BindingContext factory = new ModelInitializerTests.BindingContext0(dataBinder);
+    BindingContext factory = new ModelHandlerTests.BindingContext0(dataBinder);
 
     factory.addAttribute(name, target);
 
@@ -209,7 +209,7 @@ class ModelAttributeMethodProcessorTests {
     String name = "noBindAttr";
     Object target = new TestBean();
     StubRequestDataBinder dataBinder = new StubRequestDataBinder(target, name);
-    BindingContext factory = new ModelInitializerTests.BindingContext0(dataBinder);
+    BindingContext factory = new ModelHandlerTests.BindingContext0(dataBinder);
     factory.addAttribute(name, target);
 
     request.setBindingContext(factory);
@@ -243,7 +243,7 @@ class ModelAttributeMethodProcessorTests {
     Object testBean = new TestBean(name);
     StubRequestDataBinder dataBinder = new StubRequestDataBinder(testBean, name);
 
-    BindingContext factory = new ModelInitializerTests.BindingContext0(dataBinder);
+    BindingContext factory = new ModelHandlerTests.BindingContext0(dataBinder);
 
     factory.addAttribute(name, testBean);
     factory.addAttribute(BindingResult.MODEL_KEY_PREFIX + name, testBean);

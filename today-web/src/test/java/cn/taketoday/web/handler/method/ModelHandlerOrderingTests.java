@@ -43,6 +43,7 @@ import cn.taketoday.web.bind.resolver.ModelMethodProcessor;
 import cn.taketoday.web.bind.resolver.ParameterResolvingRegistry;
 import cn.taketoday.web.bind.support.DefaultSessionAttributeStore;
 import cn.taketoday.web.bind.support.SessionAttributeStore;
+import cn.taketoday.web.handler.ReturnValueHandlerManager;
 import cn.taketoday.web.servlet.ServletRequestContext;
 import cn.taketoday.web.testfixture.servlet.MockHttpServletRequest;
 import cn.taketoday.web.testfixture.servlet.MockHttpServletResponse;
@@ -53,8 +54,8 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/5/20 9:36
  */
-class ModelInitializerOrderingTests {
-  private static final Logger logger = LoggerFactory.getLogger(ModelInitializerOrderingTests.class);
+class ModelHandlerOrderingTests {
+  private static final Logger logger = LoggerFactory.getLogger(ModelHandlerOrderingTests.class);
 
   private final ServletRequestContext webRequest = new ServletRequestContext(
           null, new MockHttpServletRequest(), new MockHttpServletResponse());
@@ -123,8 +124,10 @@ class ModelInitializerOrderingTests {
     }
     Collections.shuffle(modelMethods);
 
-    SessionAttributesHandler sessionHandler = new SessionAttributesHandler(type, this.sessionAttributeStore);
-    ModelInitializer factory = new ModelInitializer(modelMethods, sessionHandler);
+    ControllerMethodResolver methodResolver = new ControllerMethodResolver(
+            null, sessionAttributeStore, parameterFactory, new ReturnValueHandlerManager());
+
+    ModelHandler factory = new ModelHandler(methodResolver);
     factory.initModel(this.webRequest, this.mavContainer, new HandlerMethod(controller, "handle"));
     if (logger.isDebugEnabled()) {
       logger.debug(String.join(" >> ", getInvokedMethods()));
