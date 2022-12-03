@@ -47,6 +47,8 @@ import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.io.TempDir;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ExecutionMode;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.mockito.InOrder;
@@ -118,12 +120,12 @@ import cn.taketoday.framework.web.server.WebServerException;
 import cn.taketoday.framework.web.servlet.FilterRegistrationBean;
 import cn.taketoday.framework.web.servlet.ServletContextInitializer;
 import cn.taketoday.framework.web.servlet.ServletRegistrationBean;
-import cn.taketoday.session.config.SameSite;
 import cn.taketoday.http.HttpMethod;
 import cn.taketoday.http.HttpStatus;
 import cn.taketoday.http.client.ClientHttpRequest;
 import cn.taketoday.http.client.ClientHttpResponse;
 import cn.taketoday.http.client.HttpComponentsClientHttpRequestFactory;
+import cn.taketoday.session.config.SameSite;
 import cn.taketoday.session.config.SessionTrackingMode;
 import cn.taketoday.test.util.ReflectionTestUtils;
 import cn.taketoday.test.web.servlet.ExampleFilter;
@@ -172,6 +174,7 @@ import static org.mockito.Mockito.mock;
  * @author Andy Wilkinson
  * @author Raja Kolli
  */
+@Execution(ExecutionMode.SAME_THREAD)
 @ExtendWith(OutputCaptureExtension.class)
 public abstract class AbstractServletWebServerFactoryTests {
 

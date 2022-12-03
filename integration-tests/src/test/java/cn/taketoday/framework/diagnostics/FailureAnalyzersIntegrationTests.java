@@ -22,6 +22,8 @@ package cn.taketoday.framework.diagnostics;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ExecutionMode;
 
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.framework.ApplicationType;
@@ -39,6 +41,7 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
  *
  * @author Andy Wilkinson
  */
+@Execution(ExecutionMode.SAME_THREAD)
 @ExtendWith(OutputCaptureExtension.class)
 class FailureAnalyzersIntegrationTests {
 
