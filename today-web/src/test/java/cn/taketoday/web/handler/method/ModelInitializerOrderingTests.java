@@ -65,6 +65,7 @@ class ModelInitializerOrderingTests {
 
   @BeforeEach
   void setup() {
+    webRequest.setBindingContext(mavContainer);
     this.mavContainer.addAttribute("methods", new ArrayList<String>());
   }
 
