@@ -386,6 +386,25 @@ public class ConstructorArgumentValues {
   }
 
   /**
+   * Determine whether at least one argument value refers to a name.
+   *
+   * @see ValueHolder#getName()
+   */
+  public boolean containsNamedArgument() {
+    for (ValueHolder valueHolder : indexedArgumentValues.values()) {
+      if (valueHolder.getName() != null) {
+        return true;
+      }
+    }
+    for (ValueHolder valueHolder : genericArgumentValues) {
+      if (valueHolder.getName() != null) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /**
    * Return the number of argument values held in this instance,
    * counting both indexed and generic argument values.
    */
