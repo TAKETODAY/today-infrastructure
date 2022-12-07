@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -22,9 +22,9 @@ package example.scannable;
 
 import java.util.concurrent.Future;
 
-import cn.taketoday.context.annotation.Lazy;
 import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.beans.factory.annotation.Qualifier;
+import cn.taketoday.context.annotation.Lazy;
 import cn.taketoday.scheduling.annotation.AsyncResult;
 import jakarta.annotation.PostConstruct;
 

@@ -18,11 +18,11 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package example.profilescan;
+package example.scannable;
 
-import cn.taketoday.stereotype.Component;
-
-@Component
-public abstract class SomeAbstractClass {
-
+/**
+ * @author Sam Brannen
+ */
+@jakarta.annotation.ManagedBean
+public class JakartaManagedBeanComponent {
 }
