@@ -53,6 +53,21 @@ public class PartHttpMessageWriter extends MultipartWriterSupport implements Htt
   }
 
   @Override
+  public boolean canWrite(ResolvableType elementType, @Nullable MediaType mediaType) {
+    if (Part.class.isAssignableFrom(elementType.toClass())) {
+      if (mediaType == null) {
+        return true;
+      }
+      for (MediaType supportedMediaType : getWritableMediaTypes()) {
+        if (supportedMediaType.isCompatibleWith(mediaType)) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  @Override
   public Mono<Void> write(
           Publisher<? extends Part> parts, ResolvableType elementType, @Nullable MediaType mediaType,
           ReactiveHttpOutputMessage outputMessage, Map<String, Object> hints) {
