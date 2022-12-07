@@ -80,8 +80,8 @@ public class EventPublishingStartupListener implements ApplicationStartupListene
   }
 
   @Override
-  public void environmentPrepared(ConfigurableBootstrapContext bootstrapContext,
-          ConfigurableEnvironment environment) {
+  public void environmentPrepared(
+          ConfigurableBootstrapContext bootstrapContext, ConfigurableEnvironment environment) {
     multicastInitialEvent(
             new ApplicationEnvironmentPreparedEvent(bootstrapContext, application, args, environment));
   }
