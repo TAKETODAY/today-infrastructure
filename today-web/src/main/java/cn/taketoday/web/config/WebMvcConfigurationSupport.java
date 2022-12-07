@@ -66,6 +66,7 @@ import cn.taketoday.http.converter.smile.MappingJackson2SmileHttpMessageConverte
 import cn.taketoday.http.converter.xml.MappingJackson2XmlHttpMessageConverter;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.lang.TodayStrategies;
+import cn.taketoday.session.SessionManager;
 import cn.taketoday.stereotype.Component;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.StringUtils;
@@ -965,9 +966,8 @@ public class WebMvcConfigurationSupport extends ApplicationContextSupport {
   @Component
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
   public RequestMappingHandlerAdapter requestMappingHandlerAdapter(
-          @Nullable
-          @Qualifier(RedirectModelManager.BEAN_NAME)
-          RedirectModelManager redirectModelManager,
+          @Nullable SessionManager sessionManager,
+          @Nullable RedirectModelManager redirectModelManager,
           @Qualifier("mvcValidator") Validator validator,
           ReturnValueHandlerManager returnValueHandlerManager,
           ParameterResolvingRegistry parameterResolvingRegistry,
@@ -975,6 +975,7 @@ public class WebMvcConfigurationSupport extends ApplicationContextSupport {
 
     var adapter = createRequestMappingHandlerAdapter();
 
+    adapter.setSessionManager(sessionManager);
     adapter.setRedirectModelManager(redirectModelManager);
     adapter.setResolvingRegistry(parameterResolvingRegistry);
     adapter.setReturnValueHandlerManager(returnValueHandlerManager);

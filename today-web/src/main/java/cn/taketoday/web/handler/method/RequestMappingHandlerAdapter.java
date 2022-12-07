@@ -62,8 +62,10 @@ import cn.taketoday.web.view.RedirectModelManager;
 public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
         implements BeanFactoryAware, InitializingBean {
 
+  @Nullable
   private ParameterResolvingRegistry resolvingRegistry;
 
+  @Nullable
   private ReturnValueHandlerManager returnValueHandlerManager;
 
   @Nullable
@@ -94,7 +96,7 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
     this.redirectModelManager = redirectModelManager;
   }
 
-  public void setResolvingRegistry(ParameterResolvingRegistry resolvingRegistry) {
+  public void setResolvingRegistry(@Nullable ParameterResolvingRegistry resolvingRegistry) {
     this.resolvingRegistry = resolvingRegistry;
   }
 
@@ -103,11 +105,6 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
    * overriding handlers that would otherwise be configured by default.
    */
   public void setReturnValueHandlerManager(@Nullable ReturnValueHandlerManager manager) {
-    if (manager == null) {
-      manager = new ReturnValueHandlerManager();
-      manager.setApplicationContext(getApplicationContext());
-      manager.registerDefaultHandlers();
-    }
     this.returnValueHandlerManager = manager;
   }
 
@@ -115,6 +112,7 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
    * Return the configured handlers, or possibly {@code null} if not
    * initialized yet via {@link #afterPropertiesSet()}.
    */
+  @Nullable
   public ReturnValueHandlerManager getReturnValueHandlerManager() {
     return this.returnValueHandlerManager;
   }
@@ -223,23 +221,31 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
 
   @Override
   public void afterPropertiesSet() {
-    // Do this first, it may add ResponseBody advice beans
+    ApplicationContext context = obtainApplicationContext();
     if (resolvingRegistry == null) {
-      ParameterResolvingRegistry resolvingRegistry = new ParameterResolvingRegistry();
-      resolvingRegistry.setApplicationContext(getApplicationContext());
+      var resolvingRegistry = new ParameterResolvingRegistry();
+      resolvingRegistry.setApplicationContext(context);
       resolvingRegistry.registerDefaultStrategies();
       setResolvingRegistry(resolvingRegistry);
     }
-    // prepare returnValueHandlerManager
-    setReturnValueHandlerManager(returnValueHandlerManager);
 
-    ApplicationContext context = obtainApplicationContext();
+    if (returnValueHandlerManager == null) {
+      var manager = new ReturnValueHandlerManager();
+      manager.setApplicationContext(context);
+      manager.registerDefaultHandlers();
+      setReturnValueHandlerManager(manager);
+    }
 
     this.methodResolver = new ControllerMethodResolver(context, sessionAttributeStore,
             new RegistryResolvableParameterFactory(resolvingRegistry, parameterNameDiscoverer),
             returnValueHandlerManager);
 
     this.modelHandler = new ModelHandler(methodResolver);
+
+    if (sessionManager != null
+            && sessionAttributeStore instanceof DefaultSessionAttributeStore attributeStore) {
+      attributeStore.setSessionManager(sessionManager);
+    }
   }
 
   /**

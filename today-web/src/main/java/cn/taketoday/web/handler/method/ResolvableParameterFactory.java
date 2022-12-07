@@ -27,6 +27,7 @@ import cn.taketoday.core.DefaultParameterNameDiscoverer;
 import cn.taketoday.core.MethodParameter;
 import cn.taketoday.core.ParameterNameDiscoverer;
 import cn.taketoday.core.annotation.SynthesizingMethodParameter;
+import cn.taketoday.lang.Assert;
 import cn.taketoday.util.ObjectUtils;
 
 /**
@@ -46,6 +47,7 @@ public class ResolvableParameterFactory {
   }
 
   public ResolvableParameterFactory(ParameterNameDiscoverer parameterNameDiscoverer) {
+    Assert.notNull(parameterNameDiscoverer, "parameterNameDiscoverer is required");
     this.parameterNameDiscoverer = parameterNameDiscoverer;
   }
 
