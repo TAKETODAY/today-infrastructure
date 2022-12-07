@@ -208,11 +208,15 @@ class ResponseEntityExceptionHandlerTests {
 
   @Test
   public void noHandlerFoundException() {
-    ServletServerHttpRequest req = new ServletServerHttpRequest(
-            new MockHttpServletRequest("GET", "/resource"));
-    Exception ex = new HandlerNotFoundException(req.getMethod().toString(),
-            req.getServletRequest().getRequestURI(), req.getHeaders());
-    testException(ex);
+    HttpHeaders requestHeaders = HttpHeaders.create();
+    requestHeaders.setContentType(MediaType.APPLICATION_FORM_URLENCODED); // gh-29626
+
+    var req = new ServletServerHttpRequest(new MockHttpServletRequest("GET", "/resource"));
+
+    Exception ex = new HandlerNotFoundException(req.getMethodValue(),
+            req.getServletRequest().getRequestURI(), requestHeaders);
+    ResponseEntity<Object> responseEntity = testException(ex);
+    assertThat(responseEntity.getHeaders()).isEmpty();
   }
 
   @Test

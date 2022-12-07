@@ -20,6 +20,8 @@
 
 package cn.taketoday.web.handler;
 
+import java.io.Serial;
+
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpStatus;
 import cn.taketoday.http.ProblemDetail;
@@ -38,14 +40,15 @@ import cn.taketoday.web.InfraConfigurationException;
  * @see DispatcherHandler#handlerNotFound(cn.taketoday.web.RequestContext)
  * @since 4.0 2022/1/28 23:19
  */
-@SuppressWarnings("serial")
 public class HandlerNotFoundException extends InfraConfigurationException implements ErrorResponse {
+  @Serial
+  private static final long serialVersionUID = 1L;
 
   private final String httpMethod;
 
   private final String requestURI;
 
-  private final HttpHeaders headers;
+  private final HttpHeaders requestHeaders;
 
   private final ProblemDetail body;
 
@@ -60,7 +63,7 @@ public class HandlerNotFoundException extends InfraConfigurationException implem
     super("No endpoint " + httpMethod + " " + requestURI + ".");
     this.httpMethod = httpMethod;
     this.requestURI = requestURI;
-    this.headers = headers;
+    this.requestHeaders = headers;
     this.body = ProblemDetail.forStatusAndDetail(getStatusCode(), getMessage());
   }
 
@@ -77,8 +80,11 @@ public class HandlerNotFoundException extends InfraConfigurationException implem
     return this.requestURI;
   }
 
-  public HttpHeaders getHeaders() {
-    return this.headers;
+  /**
+   * Return the headers of the request.
+   */
+  public HttpHeaders getRequestHeaders() {
+    return this.requestHeaders;
   }
 
   @Override
