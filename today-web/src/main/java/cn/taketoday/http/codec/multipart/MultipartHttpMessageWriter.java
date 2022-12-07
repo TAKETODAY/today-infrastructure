@@ -146,6 +146,21 @@ public class MultipartHttpMessageWriter
   }
 
   @Override
+  public boolean canWrite(ResolvableType elementType, @Nullable MediaType mediaType) {
+    if (MultiValueMap.class.isAssignableFrom(elementType.toClass())) {
+      if (mediaType == null) {
+        return true;
+      }
+      for (MediaType supportedMediaType : getWritableMediaTypes()) {
+        if (supportedMediaType.isCompatibleWith(mediaType)) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  @Override
   public Mono<Void> write(
           Publisher<? extends MultiValueMap<String, ?>> inputStream,
           ResolvableType elementType, @Nullable MediaType mediaType, ReactiveHttpOutputMessage outputMessage,
