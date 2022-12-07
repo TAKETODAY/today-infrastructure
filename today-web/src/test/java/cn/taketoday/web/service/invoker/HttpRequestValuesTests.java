@@ -25,12 +25,13 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
 import java.net.URI;
+import java.util.List;
 
+import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.http.HttpMethod;
 import cn.taketoday.http.MediaType;
 import cn.taketoday.web.util.UriComponentsBuilder;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
@@ -50,6 +51,7 @@ public class HttpRequestValuesTests {
 
   @ParameterizedTest
   @ValueSource(strings = { "POST", "PUT", "PATCH" })
+  @SuppressWarnings("unchecked")
   void requestParamAsFormData(String httpMethod) {
 
     HttpRequestValues requestValues = HttpRequestValues.builder().setHttpMethod(HttpMethod.valueOf(httpMethod))
@@ -59,8 +61,9 @@ public class HttpRequestValuesTests {
             .build();
 
     Object body = requestValues.getBodyValue();
-    assertThat(body).isNotNull().isInstanceOf(byte[].class);
-    assertThat(new String((byte[]) body, UTF_8)).isEqualTo("param1=1st+value&param2=2nd+value+A&param2=2nd+value+B");
+    assertThat((MultiValueMap<String, String>) body).hasSize(2)
+            .containsEntry("param1", List.of("1st value"))
+            .containsEntry("param2", List.of("2nd value A", "2nd value B"));
   }
 
   @Test

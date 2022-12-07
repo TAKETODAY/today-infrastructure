@@ -1096,7 +1096,7 @@ public abstract class HttpHeaders
    * Return the {@linkplain MediaType media type} of the body, as specified by the
    * {@code Content-Type} header.
    * <p>
-   * Returns {@code null} when the content-type is unknown.
+   * Returns {@code null} when the {@code Content-Type} header is not set.
    *
    * @throws InvalidMediaTypeException if the media type value cannot be parsed
    */
