@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -508,6 +508,7 @@ public final class TodayStrategies {
    * implementation type will be instantiated.
    *
    * @param strategyType the interface or abstract class representing the strategy
+   * @return Returns strategy object list that can be modified
    * @throws IllegalArgumentException if any strategy implementation class cannot
    * be loaded or if an error occurs while instantiating any strategy
    */
@@ -526,6 +527,7 @@ public final class TodayStrategies {
    *
    * @param strategyType the interface or abstract class representing the strategy
    * @param argumentResolver strategy used to resolve constructor arguments by their type
+   * @return Returns strategy object list that can be modified
    * @throws IllegalArgumentException if any strategy implementation class cannot
    * be loaded or if an error occurs while instantiating any strategy
    */
@@ -544,6 +546,7 @@ public final class TodayStrategies {
    *
    * @param strategyType the interface or abstract class representing the strategy
    * @param instantiator strategy used it to instantiate instance
+   * @return Returns strategy object list that can be modified
    * @throws IllegalArgumentException if any strategy implementation class cannot
    * be loaded or if an error occurs while instantiating any strategy
    */
@@ -564,6 +567,7 @@ public final class TodayStrategies {
    *
    * @param strategyType the interface or abstract class representing the strategy
    * @param failureHandler strategy used to handle strategy instantiation failures
+   * @return Returns strategy object list that can be modified
    */
   public <T> List<T> load(Class<T> strategyType, @Nullable FailureHandler failureHandler) {
     return load(strategyType, (ArgumentResolver) null, failureHandler);
@@ -584,6 +588,7 @@ public final class TodayStrategies {
    * @param strategyType the interface or abstract class representing the strategy
    * @param argumentResolver strategy used to resolve constructor arguments by their type
    * @param failureHandler strategy used to handle strategy instantiation failures
+   * @return Returns strategy object list that can be modified
    */
   public <T> List<T> load(Class<T> strategyType,
           @Nullable ArgumentResolver argumentResolver, @Nullable FailureHandler failureHandler) {
@@ -606,6 +611,7 @@ public final class TodayStrategies {
    * @param strategyType the interface or abstract class representing the strategy
    * @param instantiator strategy used it to instantiate instance
    * @param failureHandler strategy used to handle strategy instantiation failures
+   * @return Returns strategy object list that can be modified
    */
   public <T> List<T> load(Class<T> strategyType,
           Instantiator instantiator, @Nullable FailureHandler failureHandler) {
