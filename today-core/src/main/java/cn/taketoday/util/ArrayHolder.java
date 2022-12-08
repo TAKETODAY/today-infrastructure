@@ -81,11 +81,47 @@ public final class ArrayHolder<E> implements Supplier<E[]>, Iterable<E>, RandomA
     }
   }
 
+  @SuppressWarnings("unchecked")
+  public void add(E element) {
+    E[] array = this.array;
+    if (array == null) {
+      array = (E[]) Array.newInstance(element.getClass(), 1);
+      array[0] = element;
+    }
+    else {
+      Class<E> elementClass = this.elementClass;
+      if (elementClass == null) {
+        E first = array[0];
+        elementClass = (Class<E>) first.getClass();
+      }
+      int length = array.length;
+      array = (E[]) Array.newInstance(elementClass, length + 1);
+      array[length] = element;
+    }
+    this.array = array;
+  }
+
   @SafeVarargs
-  public final void add(E... array) {
-    ArrayList<E> objects = new ArrayList<>(array.length);
-    CollectionUtils.addAll(objects, this.array);
+  public final void add(@Nullable E... array) {
+    if (ObjectUtils.isNotEmpty(array)) {
+      ArrayList<E> objects = new ArrayList<>(array.length + size());
+      CollectionUtils.addAll(objects, this.array);
+      CollectionUtils.addAll(objects, array);
+      set(objects);
+    }
+  }
+
+  public void set(int index, E element) {
+    ArrayList<E> objects = new ArrayList<>(size());
     CollectionUtils.addAll(objects, array);
+    objects.set(index, element);
+    set(objects);
+  }
+
+  public void add(int index, E element) {
+    ArrayList<E> objects = new ArrayList<>(size() + 1);
+    CollectionUtils.addAll(objects, array);
+    objects.add(index, element);
     set(objects);
   }
 
@@ -95,11 +131,13 @@ public final class ArrayHolder<E> implements Supplier<E[]>, Iterable<E>, RandomA
    * @param list list to add
    * @throws NullPointerException input list is null
    */
-  public void addAll(Collection<E> list) {
-    ArrayList<E> objects = new ArrayList<>(list.size());
-    CollectionUtils.addAll(objects, this.array);
-    CollectionUtils.addAll(objects, list);
-    set(objects);
+  public void addAll(@Nullable Collection<E> list) {
+    if (CollectionUtils.isNotEmpty(list)) {
+      ArrayList<E> objects = new ArrayList<>(list.size());
+      CollectionUtils.addAll(objects, this.array);
+      CollectionUtils.addAll(objects, list);
+      set(objects);
+    }
   }
 
   @SuppressWarnings("unchecked")
@@ -338,6 +376,11 @@ public final class ArrayHolder<E> implements Supplier<E[]>, Iterable<E>, RandomA
   public boolean isEmpty() {
     final E[] array = this.array;
     return array == null || array.length == 0;
+  }
+
+  public int size() {
+    final E[] array = this.array;
+    return array == null ? 0 : array.length;
   }
 
   /**
