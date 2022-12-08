@@ -20,7 +20,6 @@
 
 package cn.taketoday.expression.spel;
 
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.parallel.Execution;
 import org.junit.jupiter.api.parallel.ExecutionMode;
@@ -217,7 +216,7 @@ class SpelReproTests extends AbstractExpressionTests {
     checkTemplateParsingError("abc${ } }", "No expression defined within delimiter '${}' at character 3");
     checkTemplateParsingError("abc$[ } ]", DOLLARSQUARE_TEMPLATE_PARSER_CONTEXT, "Found closing '}' at position 6 without an opening '{'");
 
-    checkTemplateParsing("abc ${\"def''g}hi\"} jkl", "abc def'g}hi jkl");
+    checkTemplateParsing("abc ${\"def''g}hi\"} jkl", "abc def''g}hi jkl");
     checkTemplateParsing("abc ${'def''g}hi'} jkl", "abc def'g}hi jkl");
     checkTemplateParsing("}", "}");
     checkTemplateParsing("${'hello'} world", "hello world");
