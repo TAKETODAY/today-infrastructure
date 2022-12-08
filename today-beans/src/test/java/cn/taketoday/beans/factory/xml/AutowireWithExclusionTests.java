@@ -21,6 +21,8 @@
 package cn.taketoday.beans.factory.xml;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ExecutionMode;
 
 import cn.taketoday.beans.factory.config.PropertiesFactoryBean;
 import cn.taketoday.beans.factory.config.RuntimeBeanReference;
@@ -35,6 +37,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Rob Harrop
  * @author Juergen Hoeller
  */
+@Execution(ExecutionMode.SAME_THREAD)
 public class AutowireWithExclusionTests {
 
   @Test
