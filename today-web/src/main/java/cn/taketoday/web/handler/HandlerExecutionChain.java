@@ -20,15 +20,11 @@
 
 package cn.taketoday.web.handler;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.CollectionUtils;
+import cn.taketoday.web.HandlerAdapter;
 import cn.taketoday.web.HandlerInterceptor;
 import cn.taketoday.web.HandlerMapping;
+import cn.taketoday.web.RequestContext;
 
 /**
  * Handler execution chain, consisting of handler object and any handler interceptors.
@@ -39,11 +35,12 @@ import cn.taketoday.web.HandlerMapping;
  * @see HandlerInterceptor
  * @since 4.0 2022/5/22 22:42
  */
-public class HandlerExecutionChain {
+public class HandlerExecutionChain
+        extends InterceptableRequestHandler implements HandlerWrapper, HandlerAdapterAware {
 
   private final Object handler;
 
-  private final ArrayList<HandlerInterceptor> interceptorList = new ArrayList<>();
+  private HandlerAdapter handlerAdapter;
 
   /**
    * Create a new HandlerExecutionChain.
@@ -62,30 +59,20 @@ public class HandlerExecutionChain {
    * (in the given order) before the handler itself executes
    */
   public HandlerExecutionChain(Object handler, @Nullable HandlerInterceptor... interceptors) {
-    this(handler, (interceptors != null ? Arrays.asList(interceptors) : Collections.emptyList()));
-  }
-
-  /**
-   * Create a new HandlerExecutionChain.
-   *
-   * @param handler the handler object to execute
-   * @param interceptorList the list of interceptors to apply
-   * (in the given order) before the handler itself executes
-   */
-  public HandlerExecutionChain(Object handler, List<HandlerInterceptor> interceptorList) {
     if (handler instanceof HandlerExecutionChain originalChain) {
       this.handler = originalChain.getHandler();
-      this.interceptorList.addAll(originalChain.interceptorList);
+      addInterceptors(originalChain.getInterceptors());
     }
     else {
       this.handler = handler;
     }
-    this.interceptorList.addAll(interceptorList);
+    addInterceptors(interceptors);
   }
 
   /**
    * Return the handler object to execute.
    */
+  @Override
   public Object getHandler() {
     return this.handler;
   }
@@ -94,41 +81,14 @@ public class HandlerExecutionChain {
    * Add the given interceptor to the end of this chain.
    */
   public void addInterceptor(HandlerInterceptor interceptor) {
-    this.interceptorList.add(interceptor);
+    interceptors.add(interceptor);
   }
 
   /**
    * Add the given interceptor at the specified index of this chain.
    */
   public void addInterceptor(int index, HandlerInterceptor interceptor) {
-    this.interceptorList.add(index, interceptor);
-  }
-
-  /**
-   * Add the given interceptors to the end of this chain.
-   */
-  public void addInterceptors(@Nullable HandlerInterceptor... interceptors) {
-    CollectionUtils.addAll(this.interceptorList, interceptors);
-  }
-
-  /**
-   * Return the array of interceptors to apply (in the given order).
-   *
-   * @return the array of HandlerInterceptors instances (may be {@code null})
-   */
-  @Nullable
-  public HandlerInterceptor[] getInterceptors() {
-    return (!this.interceptorList.isEmpty() ? this.interceptorList.toArray(HandlerInterceptor.EMPTY_ARRAY) : null);
-  }
-
-  /**
-   * Return the list of interceptors to apply (in the given order).
-   *
-   * @return the list of HandlerInterceptors instances (potentially empty)
-   */
-  public List<HandlerInterceptor> getInterceptorList() {
-    return (!this.interceptorList.isEmpty() ? Collections.unmodifiableList(this.interceptorList) :
-            Collections.emptyList());
+    interceptors.add(index, interceptor);
   }
 
   /**
@@ -136,7 +96,18 @@ public class HandlerExecutionChain {
    */
   @Override
   public String toString() {
-    return "HandlerExecutionChain with [" + getHandler() + "] and " + this.interceptorList.size() + " interceptors";
+    return "HandlerExecutionChain with [" + getHandler() + "] and " + interceptorSize() + " interceptors";
+  }
+
+  @Nullable
+  @Override
+  protected Object handleInternal(RequestContext context) throws Throwable {
+    return handlerAdapter.handle(context, handler);
+  }
+
+  @Override
+  public void setHandlerAdapter(HandlerAdapter handlerAdapter) {
+    this.handlerAdapter = handlerAdapter;
   }
 
 }

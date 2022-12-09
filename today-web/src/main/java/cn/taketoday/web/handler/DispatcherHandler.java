@@ -405,13 +405,18 @@ public class DispatcherHandler extends InfraHandler {
       if (handler == null) {
         returnValue = handlerNotFound(context);
       }
-      else if (handler instanceof HttpRequestHandler requestHandler) {
-        // specially for RequestHandler
-        returnValue = requestHandler.handleRequest(context);
-      }
       else {
-        // adaptation for handling this request
-        returnValue = lookupHandlerAdapter(handler).handle(context, handler);
+        if (handler instanceof HandlerAdapterAware aware) {
+          aware.setHandlerAdapter(handlerAdapter);
+        }
+        if (handler instanceof HttpRequestHandler requestHandler) {
+          // specially for HttpRequestHandler
+          returnValue = requestHandler.handleRequest(context);
+        }
+        else {
+          // adaptation for handling this request
+          returnValue = lookupHandlerAdapter(handler).handle(context, handler);
+        }
       }
     }
     catch (Throwable ex) {
