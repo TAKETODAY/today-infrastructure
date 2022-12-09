@@ -220,7 +220,7 @@ public abstract class AbstractTestContextBootstrapper implements TestContextBoot
    * or any other {@link Error} will be rethrown. Any other exception will be
    * thrown wrapped in an {@link IllegalStateException}.
    *
-   * @return an <em>unmodifiable</em> list of default {@code TestExecutionListener}
+   * @return an <em>modifiable</em> list of default {@code TestExecutionListener}
    * instances
    */
   protected List<TestExecutionListener> getDefaultTestExecutionListeners() {
