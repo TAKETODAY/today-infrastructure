@@ -218,7 +218,7 @@ public class HandlerMethodMappingTests {
 
     // Direct URL lookup
 
-    List<String> directUrlMatches = this.mapping.getMappingRegistry().getMappingsByDirectPath(key1);
+    List<String> directUrlMatches = this.mapping.mappingRegistry.getMappingsByDirectPath(key1);
     assertThat(directUrlMatches).isNotNull();
     assertThat(directUrlMatches.size()).isEqualTo(1);
     assertThat(directUrlMatches.get(0)).isEqualTo(key1);
@@ -229,13 +229,13 @@ public class HandlerMethodMappingTests {
     HandlerMethod handlerMethod2 = new HandlerMethod(this.handler, this.method2);
 
     String name1 = this.method1.getName();
-    List<HandlerMethod> handlerMethods = this.mapping.getMappingRegistry().getHandlerMethodsByMappingName(name1);
+    List<HandlerMethod> handlerMethods = this.mapping.mappingRegistry.getHandlerMethodsByMappingName(name1);
     assertThat(handlerMethods).isNotNull();
     assertThat(handlerMethods.size()).isEqualTo(1);
     assertThat(handlerMethods.get(0)).isEqualTo(handlerMethod1);
 
     String name2 = this.method2.getName();
-    handlerMethods = this.mapping.getMappingRegistry().getHandlerMethodsByMappingName(name2);
+    handlerMethods = this.mapping.mappingRegistry.getHandlerMethodsByMappingName(name2);
     assertThat(handlerMethods).isNotNull();
     assertThat(handlerMethods.size()).isEqualTo(1);
     assertThat(handlerMethods.get(0)).isEqualTo(handlerMethod2);
@@ -257,7 +257,7 @@ public class HandlerMethodMappingTests {
 
     // Direct URL lookup
 
-    List<String> directUrlMatches = this.mapping.getMappingRegistry().getMappingsByDirectPath(key1);
+    List<String> directUrlMatches = this.mapping.mappingRegistry.getMappingsByDirectPath(key1);
     assertThat(directUrlMatches).isNotNull();
     assertThat(directUrlMatches.size()).isEqualTo(1);
     assertThat(directUrlMatches.get(0)).isEqualTo(key1);
@@ -265,7 +265,7 @@ public class HandlerMethodMappingTests {
     // Mapping name lookup
 
     String name = this.method1.getName();
-    List<HandlerMethod> handlerMethods = this.mapping.getMappingRegistry().getHandlerMethodsByMappingName(name);
+    List<HandlerMethod> handlerMethods = this.mapping.mappingRegistry.getHandlerMethodsByMappingName(name);
     assertThat(handlerMethods).isNotNull();
     assertThat(handlerMethods.size()).isEqualTo(2);
     assertThat(handlerMethods.get(0)).isEqualTo(handlerMethod1);
@@ -282,9 +282,9 @@ public class HandlerMethodMappingTests {
 
     this.mapping.unregisterMapping(key);
     assertThat(mapping.getHandlerInternal(new ServletRequestContext(null, new MockHttpServletRequest("GET", key), null))).isNull();
-    assertThat(this.mapping.getMappingRegistry().getMappingsByDirectPath(key)).isNull();
-    assertThat(this.mapping.getMappingRegistry().getHandlerMethodsByMappingName(this.method1.getName())).isNull();
-    assertThat(this.mapping.getMappingRegistry().getCorsConfiguration(handlerMethod)).isNull();
+    assertThat(this.mapping.mappingRegistry.getMappingsByDirectPath(key)).isNull();
+    assertThat(this.mapping.mappingRegistry.getHandlerMethodsByMappingName(this.method1.getName())).isNull();
+    assertThat(this.mapping.mappingRegistry.getCorsConfiguration(handlerMethod)).isNull();
   }
 
   @Test

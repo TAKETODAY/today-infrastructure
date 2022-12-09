@@ -113,7 +113,10 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
 
   private boolean useInheritedInterceptor = true;
 
-  private final MappingRegistry mappingRegistry = new MappingRegistry();
+  /**
+   * Provided for testing purposes.
+   */
+  final MappingRegistry mappingRegistry = new MappingRegistry();
 
   /**
    * Whether to detect handler methods in beans in ancestor ApplicationContexts.
@@ -155,7 +158,7 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
     this.mappingRegistry.acquireReadLock();
     try {
       return Collections.unmodifiableMap(
-              this.mappingRegistry.getRegistrations().entrySet().stream()
+              this.mappingRegistry.registrations.entrySet().stream()
                       .collect(Collectors.toMap(Map.Entry::getKey, entry -> entry.getValue().handlerMethod)));
     }
     finally {
@@ -174,13 +177,6 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
   @Nullable
   public List<HandlerMethod> getHandlerMethodsForMappingName(String mappingName) {
     return this.mappingRegistry.getHandlerMethodsByMappingName(mappingName);
-  }
-
-  /**
-   * Return the internal mapping registry. Provided for testing purposes.
-   */
-  MappingRegistry getMappingRegistry() {
-    return this.mappingRegistry;
   }
 
   /**
@@ -423,19 +419,19 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
    */
   @Nullable
   protected HandlerMethod lookupHandlerMethod(String directLookupPath, RequestContext request) {
-    ArrayList<Match> matches = new ArrayList<>();
+    ArrayList<Match<T>> matches = new ArrayList<>();
     List<T> directPathMatches = mappingRegistry.getMappingsByDirectPath(directLookupPath);
     if (directPathMatches != null) {
       addMatchingMappings(directPathMatches, matches, request);
     }
     if (matches.isEmpty()) {
-      addMatchingMappings(mappingRegistry.getRegistrations().keySet(), matches, request);
+      addMatchingMappings(mappingRegistry.registrations.keySet(), matches, request);
     }
     if (matches.isEmpty()) {
-      return handleNoMatch(mappingRegistry.getRegistrations().keySet(), directLookupPath, request);
+      return handleNoMatch(mappingRegistry.registrations.keySet(), directLookupPath, request);
     }
     else {
-      Match bestMatch;
+      Match<T> bestMatch;
       if (matches.size() > 1) {
         var comparator = new MatchComparator(getMappingComparator(request));
         matches.sort(comparator);
@@ -444,14 +440,14 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
           log.trace("{} matching mappings: {}", matches.size(), matches);
         }
         if (request.isPreFlightRequest()) {
-          for (Match match : matches) {
+          for (Match<T> match : matches) {
             if (match.hasCorsConfig()) {
               return PREFLIGHT_AMBIGUOUS_MATCH;
             }
           }
         }
         else {
-          Match secondBestMatch = matches.get(1);
+          Match<T> secondBestMatch = matches.get(1);
           if (comparator.compare(bestMatch, secondBestMatch) == 0) {
             Method m1 = bestMatch.getHandlerMethod().getMethod();
             Method m2 = secondBestMatch.getHandlerMethod().getMethod();
@@ -469,12 +465,13 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
     }
   }
 
-  private void addMatchingMappings(Collection<T> mappings, List<Match> matches, RequestContext request) {
-    Map<T, MappingRegistration<T>> registrations = mappingRegistry.getRegistrations();
+  private void addMatchingMappings(Collection<T> mappings,
+          ArrayList<Match<T>> matches, RequestContext request) {
+    var registrations = mappingRegistry.registrations;
     for (T mapping : mappings) {
       T match = getMatchingMapping(mapping, request);
       if (match != null) {
-        matches.add(new Match(match, registrations.get(mapping)));
+        matches.add(new Match<>(match, registrations.get(mapping)));
       }
     }
   }
@@ -486,7 +483,7 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
    * @param directLookupPath mapping lookup path within the current servlet mapping
    * @param request the current request
    */
-  protected void handleMatch(Match bestMatch, String directLookupPath, RequestContext request) {
+  protected void handleMatch(Match<T> bestMatch, String directLookupPath, RequestContext request) {
 
   }
 
@@ -552,9 +549,7 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
     // get interceptor on class
     MergedAnnotations.from(controllerClass, SearchStrategy.TYPE_HIERARCHY)
             .stream(Interceptor.class)
-            .forEach(interceptor -> {
-              addInterceptors(ret, interceptor);
-            });
+            .forEach(interceptor -> addInterceptors(ret, interceptor));
 
     // HandlerInterceptor on a method
     MergedAnnotations.from(action, SearchStrategy.TYPE_HIERARCHY)
@@ -675,18 +670,11 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
    */
   final class MappingRegistry extends MapCache<Method, HandlerInterceptor[], HandlerMethod> {
 
-    private final HashMap<T, MappingRegistration<T>> registry = new HashMap<>();
+    public final HashMap<T, MappingRegistration<T>> registrations = new HashMap<>();
     private final ReentrantReadWriteLock readWriteLock = new ReentrantReadWriteLock();
     private final LinkedMultiValueMap<String, T> pathLookup = new LinkedMultiValueMap<>();
     private final ConcurrentHashMap<String, List<HandlerMethod>> nameLookup = new ConcurrentHashMap<>();
     private final ConcurrentHashMap<HandlerMethod, CorsConfiguration> corsLookup = new ConcurrentHashMap<>();
-
-    /**
-     * Return all registrations.
-     */
-    public Map<T, MappingRegistration<T>> getRegistrations() {
-      return this.registry;
-    }
 
     /**
      * Return matches for the given URL path. Not thread-safe.
@@ -752,7 +740,7 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
           corsLookup.put(handlerMethod, corsConfig);
         }
 
-        registry.put(mapping, new MappingRegistration<>(
+        registrations.put(mapping, new MappingRegistration<>(
                 mapping, handlerMethod, directPaths, name, corsConfig != null));
       }
       finally {
@@ -761,7 +749,7 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
     }
 
     private void validateMethodMapping(HandlerMethod handlerMethod, T mapping) {
-      MappingRegistration<T> registration = registry.get(mapping);
+      MappingRegistration<T> registration = registrations.get(mapping);
       HandlerMethod existingHandlerMethod = registration != null ? registration.handlerMethod() : null;
       if (existingHandlerMethod != null && !existingHandlerMethod.equals(handlerMethod)) {
         throw new IllegalStateException(
@@ -792,7 +780,7 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
     public void unregister(T mapping) {
       readWriteLock.writeLock().lock();
       try {
-        MappingRegistration<T> registration = registry.remove(mapping);
+        MappingRegistration<T> registration = registrations.remove(mapping);
         if (registration == null) {
           return;
         }
@@ -873,10 +861,9 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
    * A thin wrapper around a matched HandlerMethod and its mapping, for the purpose of
    * comparing the best match with a comparator in the context of the current request.
    */
-  protected final class Match {
+  protected static final class Match<T> {
 
     public final T mapping;
-
     public final MappingRegistration<T> registration;
 
     public Match(T mapping, MappingRegistration<T> registration) {
@@ -898,7 +885,7 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
     }
   }
 
-  private class MatchComparator implements Comparator<Match> {
+  private class MatchComparator implements Comparator<Match<T>> {
 
     private final Comparator<T> comparator;
 
@@ -907,7 +894,7 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
     }
 
     @Override
-    public int compare(Match match1, Match match2) {
+    public int compare(Match<T> match1, Match<T> match2) {
       return this.comparator.compare(match1.mapping, match2.mapping);
     }
   }

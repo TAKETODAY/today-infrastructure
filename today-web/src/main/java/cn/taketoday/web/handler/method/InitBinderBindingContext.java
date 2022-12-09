@@ -20,7 +20,6 @@
 
 package cn.taketoday.web.handler.method;
 
-import java.util.Collections;
 import java.util.List;
 
 import cn.taketoday.lang.Assert;
@@ -42,6 +41,7 @@ import cn.taketoday.web.bind.support.WebBindingInitializer;
 public class InitBinderBindingContext extends BindingContext {
 
   private final BindingContext binderMethodContext;
+  @Nullable
   private final List<InvocableHandlerMethod> binderMethods;
 
   /**
@@ -54,7 +54,7 @@ public class InitBinderBindingContext extends BindingContext {
           @Nullable List<InvocableHandlerMethod> binderMethods) {
 
     super(initializer);
-    this.binderMethods = binderMethods != null ? binderMethods : Collections.emptyList();
+    this.binderMethods = binderMethods;
     this.binderMethodContext = new BindingContext(initializer);
   }
 
@@ -68,23 +68,25 @@ public class InitBinderBindingContext extends BindingContext {
    */
   @Override
   public void initBinder(WebDataBinder dataBinder, RequestContext request) throws Throwable {
-    BindingContext bindingContext = request.getBindingContext();
-    request.setBindingContext(binderMethodContext);
-    for (InvocableHandlerMethod binderMethod : binderMethods) {
-      if (isBinderMethodApplicable(binderMethod, dataBinder)) {
-        Object returnValue = binderMethod.invokeForRequest(request, dataBinder);
-        if (returnValue != null) {
-          throw new IllegalStateException(
-                  "@InitBinder methods must not return a value (should be void): " + binderMethod);
-        }
-        // Should not happen (no Model argument resolution) ...
-        if (!binderMethodContext.getModel().isEmpty()) {
-          throw new IllegalStateException(
-                  "@InitBinder methods are not allowed to add model attributes: " + binderMethod);
+    if (binderMethods != null) {
+      BindingContext bindingContext = request.getBindingContext();
+      request.setBindingContext(binderMethodContext);
+      for (InvocableHandlerMethod binderMethod : binderMethods) {
+        if (isBinderMethodApplicable(binderMethod, dataBinder)) {
+          Object returnValue = binderMethod.invokeForRequest(request, dataBinder);
+          if (returnValue != null) {
+            throw new IllegalStateException(
+                    "@InitBinder methods must not return a value (should be void): " + binderMethod);
+          }
+          // Should not happen (no Model argument resolution) ...
+          if (!binderMethodContext.getModel().isEmpty()) {
+            throw new IllegalStateException(
+                    "@InitBinder methods are not allowed to add model attributes: " + binderMethod);
+          }
         }
       }
+      request.setBindingContext(bindingContext);
     }
-    request.setBindingContext(bindingContext);
   }
 
   /**

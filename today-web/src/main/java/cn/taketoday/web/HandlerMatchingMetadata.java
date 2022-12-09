@@ -135,6 +135,10 @@ public class HandlerMatchingMetadata {
     return getPathMatchInfo().getMatrixVariables();
   }
 
+  public MultiValueMap<String, String> getMatrixVariable(String name) {
+    return getPathMatchInfo().getMatrixVariables().get(name);
+  }
+
   public PathPattern getBestMatchingPattern() {
     PathPattern bestMatchingPattern = this.bestMatchingPattern;
     if (bestMatchingPattern == null) {

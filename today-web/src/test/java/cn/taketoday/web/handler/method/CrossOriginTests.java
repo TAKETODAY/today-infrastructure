@@ -401,10 +401,13 @@ class CrossOriginTests {
       return (CorsConfiguration) accessor.getPropertyValue("config");
     }
     else {
-      for (HandlerInterceptor interceptor : chain.getInterceptorList()) {
-        if (interceptor.getClass().getSimpleName().equals("CorsInterceptor")) {
-          DirectFieldAccessor accessor = new DirectFieldAccessor(interceptor);
-          return (CorsConfiguration) accessor.getPropertyValue("config");
+      HandlerInterceptor[] interceptors = chain.getInterceptors();
+      if (interceptors != null) {
+        for (HandlerInterceptor interceptor : interceptors) {
+          if (interceptor.getClass().getSimpleName().equals("CorsInterceptor")) {
+            DirectFieldAccessor accessor = new DirectFieldAccessor(interceptor);
+            return (CorsConfiguration) accessor.getPropertyValue("config");
+          }
         }
       }
     }

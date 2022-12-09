@@ -315,7 +315,7 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
    * Invoke the {@link RequestMapping} handler method preparing a {@link ModelAndView}
    * if view resolution is required.
    *
-   * @see ControllerMethodResolver#createInvocableHandlerMethod(HandlerMethod)
+   * @see ControllerMethodResolver#createHandlerMethod(HandlerMethod)
    */
   @Nullable
   protected Object invokeHandlerMethod(
@@ -334,7 +334,7 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
 
     modelHandler.initModel(request, bindingContext, handlerMethod);
 
-    var invocableMethod = methodResolver.createInvocableHandlerMethod(handlerMethod);
+    var invocableMethod = methodResolver.createHandlerMethod(handlerMethod);
     Object returnValue = invocableMethod.invokeAndHandle(request, bindingContext);
 
     if (request.isConcurrentHandlingStarted()) {

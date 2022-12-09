@@ -84,7 +84,7 @@ public final class RequestMappingInfo implements RequestCondition<RequestMapping
 
   private final boolean combine;
 
-  private RequestMappingInfo(@Nullable String name,
+  RequestMappingInfo(@Nullable String name,
           PathPatternsRequestCondition pathPatternsCondition,
           RequestMethodsRequestCondition methodsCondition,
           ParamsRequestCondition paramsCondition,
@@ -630,9 +630,10 @@ public final class RequestMappingInfo implements RequestCondition<RequestMapping
 
     @Override
     public Builder paths(String... paths) {
-      this.pathPatternsCondition = ObjectUtils.isEmpty(paths)
-                                   ? EMPTY_PATH_PATTERNS
-                                   : new PathPatternsRequestCondition(this.options.getPatternParser(), paths);
+      this.pathPatternsCondition
+              = ObjectUtils.isEmpty(paths)
+                ? EMPTY_PATH_PATTERNS
+                : new PathPatternsRequestCondition(this.options.getPatternParser(), paths);
       return this;
     }
 

@@ -140,7 +140,7 @@ class ControllerMethodResolver {
       if (controllerAdviceBean.isApplicableToBeanType(handlerType)) {
         Object bean = controllerAdviceBean.resolveBean();
         for (Method method : entry.getValue()) {
-          attrMethods.add(createModelAttributeMethod(bean, method));
+          attrMethods.add(createHandlerMethod(bean, method));
         }
       }
     }
@@ -152,12 +152,16 @@ class ControllerMethodResolver {
     }
     for (Method method : methods) {
       Object bean = handlerMethod.getBean();
-      attrMethods.add(createModelAttributeMethod(bean, method));
+      attrMethods.add(createHandlerMethod(bean, method));
     }
 
     return attrMethods;
   }
 
+  /**
+   * @return {@code null} or non-null InvocableHandlerMethods
+   */
+  @Nullable
   public List<InvocableHandlerMethod> getBinderMethods(HandlerMethod handlerMethod) {
     Class<?> handlerType = handlerMethod.getBeanType();
     Set<Method> methods = initBinderCache.get(handlerType);
@@ -174,16 +178,16 @@ class ControllerMethodResolver {
       if (controllerAdviceBean.isApplicableToBeanType(handlerType)) {
         Object bean = controllerAdviceBean.resolveBean();
         for (Method method : methodSet) {
-          initBinderMethods.add(createInitBinderMethod(bean, method));
+          initBinderMethods.add(createHandlerMethod(bean, method));
         }
       }
     }
 
     for (Method method : methods) {
       Object bean = handlerMethod.getBean();
-      initBinderMethods.add(createInitBinderMethod(bean, method));
+      initBinderMethods.add(createHandlerMethod(bean, method));
     }
-    return initBinderMethods;
+    return initBinderMethods.isEmpty() ? null : initBinderMethods;
   }
 
   /**
@@ -192,17 +196,13 @@ class ControllerMethodResolver {
    * @param handlerMethod the {@link HandlerMethod} definition
    * @return the corresponding {@link ResultableHandlerMethod} (or custom subclass thereof)
    */
-  public ResultableHandlerMethod createInvocableHandlerMethod(HandlerMethod handlerMethod) {
+  public ResultableHandlerMethod createHandlerMethod(HandlerMethod handlerMethod) {
     return invocableHandlerMethodMap.computeIfAbsent(handlerMethod,
             handler -> new ResultableHandlerMethod(
                     handler, returnValueHandlerManager, resolvableParameterFactory));
   }
 
-  private InvocableHandlerMethod createModelAttributeMethod(Object bean, Method method) {
-    return new InvocableHandlerMethod(bean, method, resolvableParameterFactory);
-  }
-
-  private InvocableHandlerMethod createInitBinderMethod(Object bean, Method method) {
+  private InvocableHandlerMethod createHandlerMethod(Object bean, Method method) {
     return new InvocableHandlerMethod(bean, method, resolvableParameterFactory);
   }
 
