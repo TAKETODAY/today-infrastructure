@@ -81,6 +81,10 @@ public final class ArrayHolder<E> implements Supplier<E[]>, Iterable<E>, RandomA
     }
   }
 
+  /**
+   * @param element element to add
+   * @throws NullPointerException element is null
+   */
   @SuppressWarnings("unchecked")
   public void add(E element) {
     E[] array = this.array;
