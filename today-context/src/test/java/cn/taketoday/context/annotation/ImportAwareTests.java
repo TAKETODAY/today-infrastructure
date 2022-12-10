@@ -22,6 +22,8 @@ package cn.taketoday.context.annotation;
 
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ExecutionMode;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -52,6 +54,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Juergen Hoeller
  * @since 4.0
  */
+@Execution(ExecutionMode.SAME_THREAD)
 public class ImportAwareTests {
 
   @Test
