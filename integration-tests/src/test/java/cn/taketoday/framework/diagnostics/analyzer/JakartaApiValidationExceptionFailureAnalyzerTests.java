@@ -20,12 +20,12 @@
 
 package cn.taketoday.framework.diagnostics.analyzer;
 
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import cn.taketoday.context.annotation.AnnotationConfigApplicationContext;
 import cn.taketoday.context.properties.ConfigurationProperties;
 import cn.taketoday.context.properties.EnableConfigurationProperties;
+import cn.taketoday.test.classpath.ClassPathExclusions;
 import cn.taketoday.validation.annotation.Validated;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -36,11 +36,10 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
  *
  * @author Andy Wilkinson
  */
-//@ClassPathExclusions("hibernate-validator-*.jar")
+@ClassPathExclusions("hibernate-validator-*.jar")
 class JakartaApiValidationExceptionFailureAnalyzerTests {
 
   @Test
-  @Disabled("TODO")
   void validatedPropertiesTest() {
     assertThatExceptionOfType(Exception.class)
             .isThrownBy(() -> new AnnotationConfigApplicationContext(TestConfiguration.class).close())
