@@ -145,7 +145,7 @@ public class WebMvcAutoConfigurationTests {
   @Test
   void handlerAdaptersCreated() {
     this.contextRunner.run((context) -> {
-      assertThat(context).getBeans(HandlerAdapter.class).hasSize(4);
+      assertThat(context).getBeans(HandlerAdapter.class).hasSize(3);
       assertThat(context.getBean(RequestMappingHandlerAdapter.class).getReturnValueHandlerManager().getMessageConverters()).isNotEmpty()
               .isEqualTo(context.getBean(HttpMessageConverters.class).getConverters());
     });
