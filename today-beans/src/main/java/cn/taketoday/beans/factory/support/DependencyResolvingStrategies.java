@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -93,8 +93,8 @@ public class DependencyResolvingStrategies implements DependencyResolvingStrateg
       strategies = TodayStrategies.find(DependencyResolvingStrategy.class);
     }
 
+    strategies.add(new BeanFactoryDependencyResolver());
     resolvingStrategies.addAll(strategies); // @since 4.0
-    resolvingStrategies.add(new BeanFactoryDependencyResolver());
   }
 
   public ArrayHolder<DependencyResolvingStrategy> getStrategies() {
