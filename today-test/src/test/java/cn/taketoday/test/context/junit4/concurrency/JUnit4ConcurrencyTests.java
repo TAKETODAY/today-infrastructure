@@ -35,9 +35,9 @@ import cn.taketoday.test.context.junit4.JUnitTestingUtils;
 import cn.taketoday.test.context.junit4.MethodLevelTransactionalSpringRunnerTests;
 import cn.taketoday.test.context.junit4.SpringJUnit47ClassRunnerRuleTests;
 import cn.taketoday.test.context.junit4.TimedTransactionalRunnerTests;
-import cn.taketoday.test.context.junit4.rules.ApplicationClassRule;
 import cn.taketoday.test.context.junit4.rules.BaseAppCtxRuleTests;
 import cn.taketoday.test.context.junit4.rules.BasicAnnotationConfigWacSpringRuleTests;
+import cn.taketoday.test.context.junit4.rules.InfraClassRule;
 import cn.taketoday.test.context.junit4.rules.InfraMethodRule;
 import cn.taketoday.testfixture.TestGroup;
 import cn.taketoday.util.ReflectionUtils;
@@ -46,7 +46,7 @@ import static cn.taketoday.core.annotation.AnnotatedElementUtils.hasAnnotation;
 import static org.junit.Assume.assumeTrue;
 
 /**
- * Concurrency tests for the {@link InfraRunner}, {@link ApplicationClassRule}, and
+ * Concurrency tests for the {@link InfraRunner}, {@link InfraClassRule}, and
  * {@link InfraMethodRule} that use JUnit 4's experimental {@link ParallelComputer}
  * to execute tests in parallel.
  *

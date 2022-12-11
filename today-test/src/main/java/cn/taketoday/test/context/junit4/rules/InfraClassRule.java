@@ -91,9 +91,9 @@ import cn.taketoday.test.context.junit4.statements.RunBeforeTestClassCallbacks;
  * @see JUnit4ClassRunner
  * @since 4.0
  */
-public class ApplicationClassRule implements TestRule {
+public class InfraClassRule implements TestRule {
 
-  private static final Logger logger = LoggerFactory.getLogger(ApplicationClassRule.class);
+  private static final Logger logger = LoggerFactory.getLogger(InfraClassRule.class);
 
   /**
    * Cache of {@code TestContextManagers} keyed by test class.

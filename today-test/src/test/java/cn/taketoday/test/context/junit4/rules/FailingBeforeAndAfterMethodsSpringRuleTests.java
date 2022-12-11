@@ -40,7 +40,7 @@ import static org.assertj.core.api.Assertions.fail;
 
 /**
  * This class is an extension of {@link FailingBeforeAndAfterMethodsSpringRunnerTests}
- * that has been modified to use {@link ApplicationClassRule} and
+ * that has been modified to use {@link InfraClassRule} and
  * {@link InfraMethodRule}.
  *
  * @author Sam Brannen
@@ -76,7 +76,7 @@ public class FailingBeforeAndAfterMethodsSpringRuleTests extends FailingBeforeAn
   public static abstract class BaseSpringRuleTestCase {
 
     @ClassRule
-    public static final ApplicationClassRule applicationClassRule = new ApplicationClassRule();
+    public static final InfraClassRule applicationClassRule = new InfraClassRule();
 
     @Rule
     public final InfraMethodRule infraMethodRule = new InfraMethodRule();
@@ -118,7 +118,7 @@ public class FailingBeforeAndAfterMethodsSpringRuleTests extends FailingBeforeAn
   public static class FailingBeforeTransactionSpringRuleTestCase {
 
     @ClassRule
-    public static final ApplicationClassRule applicationClassRule = new ApplicationClassRule();
+    public static final InfraClassRule applicationClassRule = new InfraClassRule();
 
     @Rule
     public final InfraMethodRule infraMethodRule = new InfraMethodRule();
@@ -140,7 +140,7 @@ public class FailingBeforeAndAfterMethodsSpringRuleTests extends FailingBeforeAn
   public static class FailingAfterTransactionSpringRuleTestCase {
 
     @ClassRule
-    public static final ApplicationClassRule applicationClassRule = new ApplicationClassRule();
+    public static final InfraClassRule applicationClassRule = new InfraClassRule();
 
     @Rule
     public final InfraMethodRule infraMethodRule = new InfraMethodRule();

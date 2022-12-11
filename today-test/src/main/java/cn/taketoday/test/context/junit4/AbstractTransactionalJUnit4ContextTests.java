@@ -37,7 +37,7 @@ import cn.taketoday.test.context.TestExecutionListeners;
 import cn.taketoday.test.context.event.ApplicationEventsTestExecutionListener;
 import cn.taketoday.test.context.event.EventPublishingTestExecutionListener;
 import cn.taketoday.test.context.jdbc.SqlScriptsTestExecutionListener;
-import cn.taketoday.test.context.junit4.rules.ApplicationClassRule;
+import cn.taketoday.test.context.junit4.rules.InfraClassRule;
 import cn.taketoday.test.context.junit4.rules.InfraMethodRule;
 import cn.taketoday.test.context.support.DependencyInjectionTestExecutionListener;
 import cn.taketoday.test.context.support.DirtiesContextBeforeModesTestExecutionListener;
@@ -75,7 +75,7 @@ import cn.taketoday.transaction.annotation.Transactional;
  * {@link TestExecutionListeners @TestExecutionListeners}, etc.</li>
  * <li>If you wish to extend this class and use a runner other than the
  * {@link InfraRunner}, you can use
- * {@link ApplicationClassRule ApplicationClassRule} and
+ * {@link InfraClassRule ApplicationClassRule} and
  * {@link InfraMethodRule ApplicationMethodRule}
  * and specify your runner of choice via {@link org.junit.runner.RunWith @RunWith(...)}.</li>
  * </ul>

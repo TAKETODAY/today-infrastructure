@@ -23,11 +23,11 @@ package cn.taketoday.test.context.junit4.nested;
 import org.junit.ClassRule;
 import org.junit.Rule;
 
-import cn.taketoday.test.context.junit4.rules.ApplicationClassRule;
+import cn.taketoday.test.context.junit4.rules.InfraClassRule;
 import cn.taketoday.test.context.junit4.rules.InfraMethodRule;
 
 /**
- * Abstract base test class that preconfigures the {@link ApplicationClassRule} and
+ * Abstract base test class that preconfigures the {@link InfraClassRule} and
  * {@link InfraMethodRule}.
  *
  * @author Sam Brannen
@@ -36,7 +36,7 @@ import cn.taketoday.test.context.junit4.rules.InfraMethodRule;
 public abstract class SpringRuleConfigurer {
 
   @ClassRule
-  public static final ApplicationClassRule applicationClassRule = new ApplicationClassRule();
+  public static final InfraClassRule applicationClassRule = new InfraClassRule();
 
   @Rule
   public final InfraMethodRule infraMethodRule = new InfraMethodRule();

@@ -57,7 +57,7 @@ import cn.taketoday.test.context.junit4.statements.RunPrepareTestInstanceCallbac
  * {@code Parameterized} or third-party runners such as the {@code MockitoJUnitRunner}.
  *
  * <p>In order to achieve the same functionality as the {@code SpringJUnit4ClassRunner},
- * however, a {@code ApplicationMethodRule} must be combined with a {@link ApplicationClassRule},
+ * however, a {@code ApplicationMethodRule} must be combined with a {@link InfraClassRule},
  * since {@code ApplicationMethodRule} only supports the instance-level and method-level
  * features of the {@code SpringJUnit4ClassRunner}.
  *
@@ -102,7 +102,7 @@ import cn.taketoday.test.context.junit4.statements.RunPrepareTestInstanceCallbac
  * @author Sam Brannen
  * @author Philippe Marschall
  * @see #apply(Statement, FrameworkMethod, Object)
- * @see ApplicationClassRule
+ * @see InfraClassRule
  * @see TestContextManager
  * @see JUnit4ClassRunner
  * @since 4.0
@@ -146,7 +146,7 @@ public class InfraMethodRule implements MethodRule {
       logger.debug("Applying ApplicationMethodRule to test method [{}]", testMethod);
     }
     Class<?> testClass = testInstance.getClass();
-    TestContextManager testContextManager = ApplicationClassRule.getTestContextManager(testClass);
+    TestContextManager testContextManager = InfraClassRule.getTestContextManager(testClass);
 
     Statement statement = base;
     statement = withBeforeTestMethodCallbacks(statement, testMethod, testInstance, testContextManager);

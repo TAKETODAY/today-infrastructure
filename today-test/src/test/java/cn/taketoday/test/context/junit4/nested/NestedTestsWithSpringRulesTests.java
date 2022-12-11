@@ -27,7 +27,7 @@ import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.test.context.ContextConfiguration;
-import cn.taketoday.test.context.junit4.rules.ApplicationClassRule;
+import cn.taketoday.test.context.junit4.rules.InfraClassRule;
 import cn.taketoday.test.context.junit4.rules.InfraMethodRule;
 import de.bechte.junit.runners.context.HierarchicalContextRunner;
 
@@ -36,7 +36,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * JUnit 4 based integration tests for <em>nested</em> test classes that are
  * executed via a custom JUnit 4 {@link HierarchicalContextRunner} and Infra
- * {@link ApplicationClassRule} and {@link InfraMethodRule} support.
+ * {@link InfraClassRule} and {@link InfraMethodRule} support.
  *
  * @author Sam Brannen
  * @since 4.0

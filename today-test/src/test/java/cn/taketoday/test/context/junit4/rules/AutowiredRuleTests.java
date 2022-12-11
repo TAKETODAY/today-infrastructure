@@ -42,7 +42,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class AutowiredRuleTests {
 
   @ClassRule
-  public static final ApplicationClassRule applicationClassRule = new ApplicationClassRule();
+  public static final InfraClassRule applicationClassRule = new InfraClassRule();
 
   @Rule
   public final InfraMethodRule infraMethodRule = new InfraMethodRule();

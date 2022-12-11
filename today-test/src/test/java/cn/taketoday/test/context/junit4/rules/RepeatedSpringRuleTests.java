@@ -39,7 +39,7 @@ import cn.taketoday.test.context.junit4.RepeatedSpringRunnerTests;
 
 /**
  * This class is an extension of {@link RepeatedSpringRunnerTests}
- * that has been modified to use {@link ApplicationClassRule} and
+ * that has been modified to use {@link InfraClassRule} and
  * {@link InfraMethodRule}.
  *
  * @author Sam Brannen
@@ -77,7 +77,7 @@ public class RepeatedSpringRuleTests extends RepeatedSpringRunnerTests {
   public abstract static class AbstractRepeatedTestCase {
 
     @ClassRule
-    public static final ApplicationClassRule applicationClassRule = new ApplicationClassRule();
+    public static final InfraClassRule applicationClassRule = new InfraClassRule();
 
     @Rule
     public final InfraMethodRule infraMethodRule = new InfraMethodRule();

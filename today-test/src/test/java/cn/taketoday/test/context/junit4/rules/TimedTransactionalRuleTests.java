@@ -35,7 +35,7 @@ import cn.taketoday.test.transaction.TransactionAssert;
 
 /**
  * This class is an extension of {@link TimedTransactionalRunnerTests}
- * that has been modified to use {@link ApplicationClassRule} and
+ * that has been modified to use {@link InfraClassRule} and
  * {@link InfraMethodRule}.
  *
  * @author Sam Brannen
@@ -45,7 +45,7 @@ import cn.taketoday.test.transaction.TransactionAssert;
 public class TimedTransactionalRuleTests extends TimedTransactionalRunnerTests {
 
   @ClassRule
-  public static final ApplicationClassRule applicationClassRule = new ApplicationClassRule();
+  public static final InfraClassRule applicationClassRule = new InfraClassRule();
 
   @Rule
   public final InfraMethodRule infraMethodRule = new InfraMethodRule();

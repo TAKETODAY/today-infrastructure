@@ -23,7 +23,7 @@ package cn.taketoday.test.context.junit4;
 import org.junit.runners.model.InitializationError;
 
 import cn.taketoday.test.context.TestContextManager;
-import cn.taketoday.test.context.junit4.rules.ApplicationClassRule;
+import cn.taketoday.test.context.junit4.rules.InfraClassRule;
 import cn.taketoday.test.context.junit4.rules.InfraMethodRule;
 
 /**
@@ -33,14 +33,14 @@ import cn.taketoday.test.context.junit4.rules.InfraMethodRule;
  * {@code @RunWith(Runner.class)}.
  *
  * <p>If you would like to use the TestContext Framework with a runner other than
- * this one, use {@link ApplicationClassRule}
+ * this one, use {@link InfraClassRule}
  * and {@link InfraMethodRule}.
  *
  * <p><strong>NOTE:</strong> This class requires JUnit 4.12 or higher.
  *
  * @author Sam Brannen
  * @see JUnit4ClassRunner
- * @see ApplicationClassRule
+ * @see InfraClassRule
  * @see InfraMethodRule
  * @since 4.0
  */
