@@ -48,83 +48,83 @@ import static org.mockito.Mockito.mock;
 @TestMethodOrder(MethodOrderer.MethodName.class)
 class ResetMocksTestExecutionListenerTests {
 
-	@Autowired
-	private ApplicationContext context;
+  @Autowired
+  private ApplicationContext context;
 
-	@Test
-	void test001() {
-		given(getMock("none").greeting()).willReturn("none");
-		given(getMock("before").greeting()).willReturn("before");
-		given(getMock("after").greeting()).willReturn("after");
-	}
+  @Test
+  void test001() {
+    given(getMock("none").greeting()).willReturn("none");
+    given(getMock("before").greeting()).willReturn("before");
+    given(getMock("after").greeting()).willReturn("after");
+  }
 
-	@Test
-	void test002() {
-		assertThat(getMock("none").greeting()).isEqualTo("none");
-		assertThat(getMock("before").greeting()).isNull();
-		assertThat(getMock("after").greeting()).isNull();
-	}
+  @Test
+  void test002() {
+    assertThat(getMock("none").greeting()).isEqualTo("none");
+    assertThat(getMock("before").greeting()).isNull();
+    assertThat(getMock("after").greeting()).isNull();
+  }
 
-	ExampleService getMock(String name) {
-		return this.context.getBean(name, ExampleService.class);
-	}
+  ExampleService getMock(String name) {
+    return this.context.getBean(name, ExampleService.class);
+  }
 
-	@Configuration(proxyBeanMethods = false)
-	static class Config {
+  @Configuration(proxyBeanMethods = false)
+  static class Config {
 
-		@Bean
-		ExampleService before(MockitoBeans mockedBeans) {
-			ExampleService mock = mock(ExampleService.class, MockReset.before());
-			mockedBeans.add(mock);
-			return mock;
-		}
+    @Bean
+    ExampleService before(MockitoBeans mockedBeans) {
+      ExampleService mock = mock(ExampleService.class, MockReset.before());
+      mockedBeans.add(mock);
+      return mock;
+    }
 
-		@Bean
-		ExampleService after(MockitoBeans mockedBeans) {
-			ExampleService mock = mock(ExampleService.class, MockReset.after());
-			mockedBeans.add(mock);
-			return mock;
-		}
+    @Bean
+    ExampleService after(MockitoBeans mockedBeans) {
+      ExampleService mock = mock(ExampleService.class, MockReset.after());
+      mockedBeans.add(mock);
+      return mock;
+    }
 
-		@Bean
-		ExampleService none(MockitoBeans mockedBeans) {
-			ExampleService mock = mock(ExampleService.class);
-			mockedBeans.add(mock);
-			return mock;
-		}
+    @Bean
+    ExampleService none(MockitoBeans mockedBeans) {
+      ExampleService mock = mock(ExampleService.class);
+      mockedBeans.add(mock);
+      return mock;
+    }
 
-		@Bean
-		@Lazy
-		ExampleService fail() {
-			// gh-5870
-			throw new RuntimeException();
-		}
+    @Bean
+    @Lazy
+    ExampleService fail() {
+      // gh-5870
+      throw new RuntimeException();
+    }
 
-		@Bean
-		BrokenFactoryBean brokenFactoryBean() {
-			// gh-7270
-			return new BrokenFactoryBean();
-		}
+    @Bean
+    BrokenFactoryBean brokenFactoryBean() {
+      // gh-7270
+      return new BrokenFactoryBean();
+    }
 
-	}
+  }
 
-	static class BrokenFactoryBean implements FactoryBean<String> {
+  static class BrokenFactoryBean implements FactoryBean<String> {
 
-		@Override
-		public String getObject() {
-			throw new IllegalStateException();
-		}
+    @Override
+    public String getObject() {
+      throw new IllegalStateException();
+    }
 
-		@Override
-		public Class<?> getObjectType() {
-			return String.class;
-		}
+    @Override
+    public Class<?> getObjectType() {
+      return String.class;
+    }
 
-		@Override
-		public boolean isSingleton() {
-			return true;
-		}
+    @Override
+    public boolean isSingleton() {
+      return true;
+    }
 
-	}
+  }
 
 }

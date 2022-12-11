@@ -27,9 +27,9 @@ package cn.taketoday.framework.test.mock.mockito.example;
  */
 public class SimpleExampleIntegerGenericService implements ExampleGenericService<Integer> {
 
-	@Override
-	public Integer greeting() {
-		return 123;
-	}
+  @Override
+  public Integer greeting() {
+    return 123;
+  }
 
 }

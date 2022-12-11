@@ -28,6 +28,6 @@ package cn.taketoday.framework.test.mock.mockito.example;
  */
 public interface ExampleGenericService<T> {
 
-	T greeting();
+  T greeting();
 
 }

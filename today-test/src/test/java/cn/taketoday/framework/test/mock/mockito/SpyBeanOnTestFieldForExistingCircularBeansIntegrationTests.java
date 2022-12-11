@@ -40,44 +40,44 @@ import static org.mockito.BDDMockito.then;
 @ContextConfiguration(classes = SpyBeanOnTestFieldForExistingCircularBeansIntegrationTests.SpyBeanOnTestFieldForExistingCircularBeansConfig.class)
 class SpyBeanOnTestFieldForExistingCircularBeansIntegrationTests {
 
-	@SpyBean
-	private One one;
+  @SpyBean
+  private One one;
 
-	@Autowired
-	private Two two;
+  @Autowired
+  private Two two;
 
-	@Test
-	void beanWithCircularDependenciesCanBeSpied() {
-		this.two.callOne();
-		then(this.one).should().someMethod();
-	}
+  @Test
+  void beanWithCircularDependenciesCanBeSpied() {
+    this.two.callOne();
+    then(this.one).should().someMethod();
+  }
 
-	@Import({ One.class, Two.class })
-	static class SpyBeanOnTestFieldForExistingCircularBeansConfig {
+  @Import({ One.class, Two.class })
+  static class SpyBeanOnTestFieldForExistingCircularBeansConfig {
 
-	}
+  }
 
-	static class One {
+  static class One {
 
-		@Autowired
-		@SuppressWarnings("unused")
-		private Two two;
+    @Autowired
+    @SuppressWarnings("unused")
+    private Two two;
 
-		void someMethod() {
+    void someMethod() {
 
-		}
+    }
 
-	}
+  }
 
-	static class Two {
+  static class Two {
 
-		@Autowired
-		private One one;
+    @Autowired
+    private One one;
 
-		void callOne() {
-			this.one.someMethod();
-		}
+    void callOne() {
+      this.one.someMethod();
+    }
 
-	}
+  }
 
 }

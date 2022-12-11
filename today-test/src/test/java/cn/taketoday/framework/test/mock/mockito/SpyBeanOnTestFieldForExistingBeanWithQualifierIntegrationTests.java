@@ -46,47 +46,47 @@ import static org.mockito.BDDMockito.then;
 @ExtendWith(InfraExtension.class)
 class SpyBeanOnTestFieldForExistingBeanWithQualifierIntegrationTests {
 
-	@SpyBean
-	@CustomQualifier
-	private ExampleService service;
+  @SpyBean
+  @CustomQualifier
+  private ExampleService service;
 
-	@Autowired
-	private ExampleServiceCaller caller;
+  @Autowired
+  private ExampleServiceCaller caller;
 
-	@Autowired
-	private ApplicationContext applicationContext;
+  @Autowired
+  private ApplicationContext applicationContext;
 
-	@Test
-	void testMocking() {
-		this.caller.sayGreeting();
-		then(this.service).should().greeting();
-	}
+  @Test
+  void testMocking() {
+    this.caller.sayGreeting();
+    then(this.service).should().greeting();
+  }
 
-	@Test
-	void onlyQualifiedBeanIsReplaced() {
-		assertThat(this.applicationContext.getBean("service")).isSameAs(this.service);
-		ExampleService anotherService = this.applicationContext.getBean("anotherService", ExampleService.class);
-		assertThat(anotherService.greeting()).isEqualTo("Another");
-	}
+  @Test
+  void onlyQualifiedBeanIsReplaced() {
+    assertThat(this.applicationContext.getBean("service")).isSameAs(this.service);
+    ExampleService anotherService = this.applicationContext.getBean("anotherService", ExampleService.class);
+    assertThat(anotherService.greeting()).isEqualTo("Another");
+  }
 
-	@Configuration(proxyBeanMethods = false)
-	static class TestConfig {
+  @Configuration(proxyBeanMethods = false)
+  static class TestConfig {
 
-		@Bean
-		CustomQualifierExampleService service() {
-			return new CustomQualifierExampleService();
-		}
+    @Bean
+    CustomQualifierExampleService service() {
+      return new CustomQualifierExampleService();
+    }
 
-		@Bean
-		ExampleService anotherService() {
-			return new RealExampleService("Another");
-		}
+    @Bean
+    ExampleService anotherService() {
+      return new RealExampleService("Another");
+    }
 
-		@Bean
-		ExampleServiceCaller controller(@CustomQualifier ExampleService service) {
-			return new ExampleServiceCaller(service);
-		}
+    @Bean
+    ExampleServiceCaller controller(@CustomQualifier ExampleService service) {
+      return new ExampleServiceCaller(service);
+    }
 
-	}
+  }
 
 }

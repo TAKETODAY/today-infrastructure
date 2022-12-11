@@ -42,26 +42,26 @@ import static org.mockito.BDDMockito.given;
 @ExtendWith(InfraExtension.class)
 class MockBeanWithGenericsOnTestFieldForNewBeanIntegrationTests {
 
-	@MockBean
-	private ExampleGenericService<Integer> exampleIntegerService;
+  @MockBean
+  private ExampleGenericService<Integer> exampleIntegerService;
 
-	@MockBean
-	private ExampleGenericService<String> exampleStringService;
+  @MockBean
+  private ExampleGenericService<String> exampleStringService;
 
-	@Autowired
-	private ExampleGenericServiceCaller caller;
+  @Autowired
+  private ExampleGenericServiceCaller caller;
 
-	@Test
-	void testMocking() {
-		given(this.exampleIntegerService.greeting()).willReturn(200);
-		given(this.exampleStringService.greeting()).willReturn("Boot");
-		assertThat(this.caller.sayGreeting()).isEqualTo("I say 200 Boot");
-	}
+  @Test
+  void testMocking() {
+    given(this.exampleIntegerService.greeting()).willReturn(200);
+    given(this.exampleStringService.greeting()).willReturn("Boot");
+    assertThat(this.caller.sayGreeting()).isEqualTo("I say 200 Boot");
+  }
 
-	@Configuration(proxyBeanMethods = false)
-	@Import(ExampleGenericServiceCaller.class)
-	static class Config {
+  @Configuration(proxyBeanMethods = false)
+  @Import(ExampleGenericServiceCaller.class)
+  static class Config {
 
-	}
+  }
 
 }

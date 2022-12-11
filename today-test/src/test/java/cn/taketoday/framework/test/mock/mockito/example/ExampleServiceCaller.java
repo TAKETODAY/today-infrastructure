@@ -27,18 +27,18 @@ package cn.taketoday.framework.test.mock.mockito.example;
  */
 public class ExampleServiceCaller {
 
-	private final ExampleService service;
+  private final ExampleService service;
 
-	public ExampleServiceCaller(ExampleService service) {
-		this.service = service;
-	}
+  public ExampleServiceCaller(ExampleService service) {
+    this.service = service;
+  }
 
-	public ExampleService getService() {
-		return this.service;
-	}
+  public ExampleService getService() {
+    return this.service;
+  }
 
-	public String sayGreeting() {
-		return "I say " + this.service.greeting();
-	}
+  public String sayGreeting() {
+    return "I say " + this.service.greeting();
+  }
 
 }

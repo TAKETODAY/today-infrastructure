@@ -53,51 +53,51 @@ import static org.mockito.Mockito.times;
 @ExtendWith(InfraExtension.class)
 class MockBeanWithAopProxyTests {
 
-	@MockBean
-	private DateService dateService;
+  @MockBean
+  private DateService dateService;
 
-	@Test
-	void verifyShouldUseProxyTarget() {
-		given(this.dateService.getDate(false)).willReturn(1L);
-		Long d1 = this.dateService.getDate(false);
-		assertThat(d1).isEqualTo(1L);
-		given(this.dateService.getDate(false)).willReturn(2L);
-		Long d2 = this.dateService.getDate(false);
-		assertThat(d2).isEqualTo(2L);
-		then(this.dateService).should(times(2)).getDate(false);
-		then(this.dateService).should(times(2)).getDate(eq(false));
-		then(this.dateService).should(times(2)).getDate(anyBoolean());
-	}
+  @Test
+  void verifyShouldUseProxyTarget() {
+    given(this.dateService.getDate(false)).willReturn(1L);
+    Long d1 = this.dateService.getDate(false);
+    assertThat(d1).isEqualTo(1L);
+    given(this.dateService.getDate(false)).willReturn(2L);
+    Long d2 = this.dateService.getDate(false);
+    assertThat(d2).isEqualTo(2L);
+    then(this.dateService).should(times(2)).getDate(false);
+    then(this.dateService).should(times(2)).getDate(eq(false));
+    then(this.dateService).should(times(2)).getDate(anyBoolean());
+  }
 
-	@Configuration(proxyBeanMethods = false)
-	@EnableCaching(proxyTargetClass = true)
-	@Import(DateService.class)
-	static class Config {
+  @Configuration(proxyBeanMethods = false)
+  @EnableCaching(proxyTargetClass = true)
+  @Import(DateService.class)
+  static class Config {
 
-		@Bean
-		CacheResolver cacheResolver(CacheManager cacheManager) {
-			SimpleCacheResolver resolver = new SimpleCacheResolver();
-			resolver.setCacheManager(cacheManager);
-			return resolver;
-		}
+    @Bean
+    CacheResolver cacheResolver(CacheManager cacheManager) {
+      SimpleCacheResolver resolver = new SimpleCacheResolver();
+      resolver.setCacheManager(cacheManager);
+      return resolver;
+    }
 
-		@Bean
-		ConcurrentMapCacheManager cacheManager() {
-			ConcurrentMapCacheManager cacheManager = new ConcurrentMapCacheManager();
-			cacheManager.setCacheNames(Arrays.asList("test"));
-			return cacheManager;
-		}
+    @Bean
+    ConcurrentMapCacheManager cacheManager() {
+      ConcurrentMapCacheManager cacheManager = new ConcurrentMapCacheManager();
+      cacheManager.setCacheNames(Arrays.asList("test"));
+      return cacheManager;
+    }
 
-	}
+  }
 
-	@Service
-	static class DateService {
+  @Service
+  static class DateService {
 
-		@Cacheable(cacheNames = "test")
-		Long getDate(boolean argument) {
-			return System.nanoTime();
-		}
+    @Cacheable(cacheNames = "test")
+    Long getDate(boolean argument) {
+      return System.nanoTime();
+    }
 
-	}
+  }
 
 }

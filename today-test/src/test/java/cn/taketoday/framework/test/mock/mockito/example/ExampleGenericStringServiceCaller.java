@@ -27,18 +27,18 @@ package cn.taketoday.framework.test.mock.mockito.example;
  */
 public class ExampleGenericStringServiceCaller {
 
-	private final ExampleGenericService<String> stringService;
+  private final ExampleGenericService<String> stringService;
 
-	public ExampleGenericStringServiceCaller(ExampleGenericService<String> stringService) {
-		this.stringService = stringService;
-	}
+  public ExampleGenericStringServiceCaller(ExampleGenericService<String> stringService) {
+    this.stringService = stringService;
+  }
 
-	public ExampleGenericService<String> getStringService() {
-		return this.stringService;
-	}
+  public ExampleGenericService<String> getStringService() {
+    return this.stringService;
+  }
 
-	public String sayGreeting() {
-		return "I say " + this.stringService.greeting();
-	}
+  public String sayGreeting() {
+    return "I say " + this.stringService.greeting();
+  }
 
 }

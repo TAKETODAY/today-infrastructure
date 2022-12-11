@@ -42,29 +42,29 @@ import static org.assertj.core.api.Assertions.assertThat;
 @ExtendWith(InfraExtension.class)
 class SpyBeanWithNameOnTestFieldForMultipleExistingBeansTests {
 
-	@SpyBean(name = "two")
-	private SimpleExampleStringGenericService spy;
+  @SpyBean(name = "two")
+  private SimpleExampleStringGenericService spy;
 
-	@Test
-	void testSpying() {
-		MockingDetails mockingDetails = Mockito.mockingDetails(this.spy);
-		assertThat(mockingDetails.isSpy()).isTrue();
-		assertThat(mockingDetails.getMockCreationSettings().getMockName().toString()).isEqualTo("two");
-	}
+  @Test
+  void testSpying() {
+    MockingDetails mockingDetails = Mockito.mockingDetails(this.spy);
+    assertThat(mockingDetails.isSpy()).isTrue();
+    assertThat(mockingDetails.getMockCreationSettings().getMockName().toString()).isEqualTo("two");
+  }
 
-	@Configuration(proxyBeanMethods = false)
-	static class Config {
+  @Configuration(proxyBeanMethods = false)
+  static class Config {
 
-		@Bean
-		SimpleExampleStringGenericService one() {
-			return new SimpleExampleStringGenericService("one");
-		}
+    @Bean
+    SimpleExampleStringGenericService one() {
+      return new SimpleExampleStringGenericService("one");
+    }
 
-		@Bean
-		SimpleExampleStringGenericService two() {
-			return new SimpleExampleStringGenericService("two");
-		}
+    @Bean
+    SimpleExampleStringGenericService two() {
+      return new SimpleExampleStringGenericService("two");
+    }
 
-	}
+  }
 
 }

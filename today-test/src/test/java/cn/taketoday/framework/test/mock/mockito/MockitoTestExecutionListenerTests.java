@@ -49,78 +49,78 @@ import static org.mockito.Mockito.mock;
 @ExtendWith(MockitoExtension.class)
 class MockitoTestExecutionListenerTests {
 
-	private MockitoTestExecutionListener listener = new MockitoTestExecutionListener();
+  private MockitoTestExecutionListener listener = new MockitoTestExecutionListener();
 
-	@Mock
-	private ApplicationContext applicationContext;
+  @Mock
+  private ApplicationContext applicationContext;
 
-	@Mock
-	private MockitoPostProcessor postProcessor;
+  @Mock
+  private MockitoPostProcessor postProcessor;
 
-	@Captor
-	private ArgumentCaptor<Field> fieldCaptor;
+  @Captor
+  private ArgumentCaptor<Field> fieldCaptor;
 
-	@Test
-	void prepareTestInstanceShouldInitMockitoAnnotations() throws Exception {
-		WithMockitoAnnotations instance = new WithMockitoAnnotations();
-		this.listener.prepareTestInstance(mockTestContext(instance));
-		assertThat(instance.mock).isNotNull();
-		assertThat(instance.captor).isNotNull();
-	}
+  @Test
+  void prepareTestInstanceShouldInitMockitoAnnotations() throws Exception {
+    WithMockitoAnnotations instance = new WithMockitoAnnotations();
+    this.listener.prepareTestInstance(mockTestContext(instance));
+    assertThat(instance.mock).isNotNull();
+    assertThat(instance.captor).isNotNull();
+  }
 
-	@Test
-	void prepareTestInstanceShouldInjectMockBean() throws Exception {
-		given(this.applicationContext.getBean(MockitoPostProcessor.class)).willReturn(this.postProcessor);
-		WithMockBean instance = new WithMockBean();
-		TestContext testContext = mockTestContext(instance);
-		given(testContext.getApplicationContext()).willReturn(this.applicationContext);
-		this.listener.prepareTestInstance(testContext);
-		then(this.postProcessor).should().inject(this.fieldCaptor.capture(), eq(instance), any(MockDefinition.class));
-		assertThat(this.fieldCaptor.getValue().getName()).isEqualTo("mockBean");
-	}
+  @Test
+  void prepareTestInstanceShouldInjectMockBean() throws Exception {
+    given(this.applicationContext.getBean(MockitoPostProcessor.class)).willReturn(this.postProcessor);
+    WithMockBean instance = new WithMockBean();
+    TestContext testContext = mockTestContext(instance);
+    given(testContext.getApplicationContext()).willReturn(this.applicationContext);
+    this.listener.prepareTestInstance(testContext);
+    then(this.postProcessor).should().inject(this.fieldCaptor.capture(), eq(instance), any(MockDefinition.class));
+    assertThat(this.fieldCaptor.getValue().getName()).isEqualTo("mockBean");
+  }
 
-	@Test
-	void beforeTestMethodShouldDoNothingWhenDirtiesContextAttributeIsNotSet() throws Exception {
-		this.listener.beforeTestMethod(mock(TestContext.class));
-		then(this.postProcessor).shouldHaveNoMoreInteractions();
-	}
+  @Test
+  void beforeTestMethodShouldDoNothingWhenDirtiesContextAttributeIsNotSet() throws Exception {
+    this.listener.beforeTestMethod(mock(TestContext.class));
+    then(this.postProcessor).shouldHaveNoMoreInteractions();
+  }
 
-	@Test
-	void beforeTestMethodShouldInjectMockBeanWhenDirtiesContextAttributeIsSet() throws Exception {
-		given(this.applicationContext.getBean(MockitoPostProcessor.class)).willReturn(this.postProcessor);
-		WithMockBean instance = new WithMockBean();
-		TestContext mockTestContext = mockTestContext(instance);
-		given(mockTestContext.getApplicationContext()).willReturn(this.applicationContext);
-		given(mockTestContext.getAttribute(DependencyInjectionTestExecutionListener.REINJECT_DEPENDENCIES_ATTRIBUTE))
-				.willReturn(Boolean.TRUE);
-		this.listener.beforeTestMethod(mockTestContext);
-		then(this.postProcessor).should().inject(this.fieldCaptor.capture(), eq(instance), any(MockDefinition.class));
-		assertThat(this.fieldCaptor.getValue().getName()).isEqualTo("mockBean");
-	}
+  @Test
+  void beforeTestMethodShouldInjectMockBeanWhenDirtiesContextAttributeIsSet() throws Exception {
+    given(this.applicationContext.getBean(MockitoPostProcessor.class)).willReturn(this.postProcessor);
+    WithMockBean instance = new WithMockBean();
+    TestContext mockTestContext = mockTestContext(instance);
+    given(mockTestContext.getApplicationContext()).willReturn(this.applicationContext);
+    given(mockTestContext.getAttribute(DependencyInjectionTestExecutionListener.REINJECT_DEPENDENCIES_ATTRIBUTE))
+            .willReturn(Boolean.TRUE);
+    this.listener.beforeTestMethod(mockTestContext);
+    then(this.postProcessor).should().inject(this.fieldCaptor.capture(), eq(instance), any(MockDefinition.class));
+    assertThat(this.fieldCaptor.getValue().getName()).isEqualTo("mockBean");
+  }
 
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-	private TestContext mockTestContext(Object instance) {
-		TestContext testContext = mock(TestContext.class);
-		given(testContext.getTestInstance()).willReturn(instance);
-		given(testContext.getTestClass()).willReturn((Class) instance.getClass());
-		return testContext;
-	}
+  @SuppressWarnings({ "unchecked", "rawtypes" })
+  private TestContext mockTestContext(Object instance) {
+    TestContext testContext = mock(TestContext.class);
+    given(testContext.getTestInstance()).willReturn(instance);
+    given(testContext.getTestClass()).willReturn((Class) instance.getClass());
+    return testContext;
+  }
 
-	static class WithMockitoAnnotations {
+  static class WithMockitoAnnotations {
 
-		@Mock
-		InputStream mock;
+    @Mock
+    InputStream mock;
 
-		@Captor
-		ArgumentCaptor<InputStream> captor;
+    @Captor
+    ArgumentCaptor<InputStream> captor;
 
-	}
+  }
 
-	static class WithMockBean {
+  static class WithMockBean {
 
-		@MockBean
-		InputStream mockBean;
+    @MockBean
+    InputStream mockBean;
 
-	}
+  }
 
 }

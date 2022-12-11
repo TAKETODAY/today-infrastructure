@@ -39,53 +39,53 @@ import static org.assertj.core.api.Assertions.assertThat;
 @ApplicationTest(classes = AbstractMockBeanOnGenericTests.TestConfiguration.class)
 abstract class AbstractMockBeanOnGenericTests<T extends AbstractMockBeanOnGenericTests.Thing<U>, U extends AbstractMockBeanOnGenericTests.Something> {
 
-	@Autowired
-	@SuppressWarnings("unused")
-	private T thing;
+  @Autowired
+  @SuppressWarnings("unused")
+  private T thing;
 
-	@MockBean
-	private U something;
+  @MockBean
+  private U something;
 
-	@Test
-	void mockBeanShouldResolveConcreteType() {
-		assertThat(this.something).isInstanceOf(SomethingImpl.class);
-	}
+  @Test
+  void mockBeanShouldResolveConcreteType() {
+    assertThat(this.something).isInstanceOf(SomethingImpl.class);
+  }
 
-	abstract static class Thing<T extends Something> {
+  abstract static class Thing<T extends Something> {
 
-		@Autowired
-		private T something;
+    @Autowired
+    private T something;
 
-		T getSomething() {
-			return this.something;
-		}
+    T getSomething() {
+      return this.something;
+    }
 
-		void setSomething(T something) {
-			this.something = something;
-		}
+    void setSomething(T something) {
+      this.something = something;
+    }
 
-	}
+  }
 
-	static class SomethingImpl extends Something {
+  static class SomethingImpl extends Something {
 
-	}
+  }
 
-	static class ThingImpl extends Thing<SomethingImpl> {
+  static class ThingImpl extends Thing<SomethingImpl> {
 
-	}
+  }
 
-	static class Something {
+  static class Something {
 
-	}
+  }
 
-	@Configuration
-	static class TestConfiguration {
+  @Configuration
+  static class TestConfiguration {
 
-		@Bean
-		ThingImpl thing() {
-			return new ThingImpl();
-		}
+    @Bean
+    ThingImpl thing() {
+      return new ThingImpl();
+    }
 
-	}
+  }
 
 }

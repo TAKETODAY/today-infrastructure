@@ -45,35 +45,35 @@ import static org.mockito.BDDMockito.then;
 @ExtendWith(InfraExtension.class)
 class SpyBeanOnTestFieldForMultipleExistingBeansWithOnePrimaryIntegrationTests {
 
-	@SpyBean
-	private SimpleExampleStringGenericService spy;
+  @SpyBean
+  private SimpleExampleStringGenericService spy;
 
-	@Autowired
-	private ExampleGenericStringServiceCaller caller;
+  @Autowired
+  private ExampleGenericStringServiceCaller caller;
 
-	@Test
-	void testSpying() {
-		assertThat(this.caller.sayGreeting()).isEqualTo("I say two");
-		assertThat(Mockito.mockingDetails(this.spy).getMockCreationSettings().getMockName().toString())
-				.isEqualTo("two");
-		then(this.spy).should().greeting();
-	}
+  @Test
+  void testSpying() {
+    assertThat(this.caller.sayGreeting()).isEqualTo("I say two");
+    assertThat(Mockito.mockingDetails(this.spy).getMockCreationSettings().getMockName().toString())
+            .isEqualTo("two");
+    then(this.spy).should().greeting();
+  }
 
-	@Configuration(proxyBeanMethods = false)
-	@Import(ExampleGenericStringServiceCaller.class)
-	static class Config {
+  @Configuration(proxyBeanMethods = false)
+  @Import(ExampleGenericStringServiceCaller.class)
+  static class Config {
 
-		@Bean
-		SimpleExampleStringGenericService one() {
-			return new SimpleExampleStringGenericService("one");
-		}
+    @Bean
+    SimpleExampleStringGenericService one() {
+      return new SimpleExampleStringGenericService("one");
+    }
 
-		@Bean
-		@Primary
-		SimpleExampleStringGenericService two() {
-			return new SimpleExampleStringGenericService("two");
-		}
+    @Bean
+    @Primary
+    SimpleExampleStringGenericService two() {
+      return new SimpleExampleStringGenericService("two");
+    }
 
-	}
+  }
 
 }

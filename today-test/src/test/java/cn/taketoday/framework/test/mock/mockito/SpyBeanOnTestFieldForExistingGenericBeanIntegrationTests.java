@@ -46,31 +46,31 @@ import static org.mockito.BDDMockito.then;
 @ExtendWith(InfraExtension.class)
 class SpyBeanOnTestFieldForExistingGenericBeanIntegrationTests {
 
-	// gh-7625
+  // gh-7625
 
-	@SpyBean
-	private ExampleGenericService<String> exampleService;
+  @SpyBean
+  private ExampleGenericService<String> exampleService;
 
-	@Autowired
-	private ExampleGenericServiceCaller caller;
+  @Autowired
+  private ExampleGenericServiceCaller caller;
 
-	@Test
-	void testSpying() {
-		assertThat(this.caller.sayGreeting()).isEqualTo("I say 123 simple");
-		then(this.exampleService).should().greeting();
-	}
+  @Test
+  void testSpying() {
+    assertThat(this.caller.sayGreeting()).isEqualTo("I say 123 simple");
+    then(this.exampleService).should().greeting();
+  }
 
-	@Configuration(proxyBeanMethods = false)
-	@Import({ ExampleGenericServiceCaller.class, SimpleExampleIntegerGenericService.class })
-	static class SpyBeanOnTestFieldForExistingBeanConfig {
+  @Configuration(proxyBeanMethods = false)
+  @Import({ ExampleGenericServiceCaller.class, SimpleExampleIntegerGenericService.class })
+  static class SpyBeanOnTestFieldForExistingBeanConfig {
 
-		@Bean
-		ExampleGenericService<String> simpleExampleStringGenericService() {
-			// In order to trigger issue we need a method signature that returns the
-			// generic type not the actual implementation class
-			return new SimpleExampleStringGenericService();
-		}
+    @Bean
+    ExampleGenericService<String> simpleExampleStringGenericService() {
+      // In order to trigger issue we need a method signature that returns the
+      // generic type not the actual implementation class
+      return new SimpleExampleStringGenericService();
+    }
 
-	}
+  }
 
 }

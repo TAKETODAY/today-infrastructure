@@ -28,9 +28,9 @@ package cn.taketoday.framework.test.mock.mockito.example;
 @CustomQualifier
 public class CustomQualifierExampleService implements ExampleService {
 
-	@Override
-	public String greeting() {
-		return "CustomQualifier";
-	}
+  @Override
+  public String greeting() {
+    return "CustomQualifier";
+  }
 
 }

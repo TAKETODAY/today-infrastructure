@@ -44,45 +44,45 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 @ExtendWith(InfraExtension.class)
 @ContextHierarchy({ @ContextConfiguration(classes = SpyBeanOnContextHierarchyIntegrationTests.ParentConfig.class),
-		@ContextConfiguration(classes = SpyBeanOnContextHierarchyIntegrationTests.ChildConfig.class) })
+        @ContextConfiguration(classes = SpyBeanOnContextHierarchyIntegrationTests.ChildConfig.class) })
 class SpyBeanOnContextHierarchyIntegrationTests {
 
-	@Autowired
-	private ChildConfig childConfig;
+  @Autowired
+  private ChildConfig childConfig;
 
-	@Test
-	void testSpying() {
-		ApplicationContext context = this.childConfig.getContext();
-		ApplicationContext parentContext = context.getParent();
-		assertThat(parentContext.getBeanNamesForType(ExampleService.class)).hasSize(1);
-		assertThat(parentContext.getBeanNamesForType(ExampleServiceCaller.class)).hasSize(0);
-		assertThat(context.getBeanNamesForType(ExampleService.class)).hasSize(0);
-		assertThat(context.getBeanNamesForType(ExampleServiceCaller.class)).hasSize(1);
-		assertThat(context.getBean(ExampleService.class)).isNotNull();
-		assertThat(context.getBean(ExampleServiceCaller.class)).isNotNull();
-	}
+  @Test
+  void testSpying() {
+    ApplicationContext context = this.childConfig.getContext();
+    ApplicationContext parentContext = context.getParent();
+    assertThat(parentContext.getBeanNamesForType(ExampleService.class)).hasSize(1);
+    assertThat(parentContext.getBeanNamesForType(ExampleServiceCaller.class)).hasSize(0);
+    assertThat(context.getBeanNamesForType(ExampleService.class)).hasSize(0);
+    assertThat(context.getBeanNamesForType(ExampleServiceCaller.class)).hasSize(1);
+    assertThat(context.getBean(ExampleService.class)).isNotNull();
+    assertThat(context.getBean(ExampleServiceCaller.class)).isNotNull();
+  }
 
-	@Configuration(proxyBeanMethods = false)
-	@SpyBean(SimpleExampleService.class)
-	static class ParentConfig {
+  @Configuration(proxyBeanMethods = false)
+  @SpyBean(SimpleExampleService.class)
+  static class ParentConfig {
 
-	}
+  }
 
-	@Configuration(proxyBeanMethods = false)
-	@SpyBean(ExampleServiceCaller.class)
-	static class ChildConfig implements ApplicationContextAware {
+  @Configuration(proxyBeanMethods = false)
+  @SpyBean(ExampleServiceCaller.class)
+  static class ChildConfig implements ApplicationContextAware {
 
-		private ApplicationContext context;
+    private ApplicationContext context;
 
-		@Override
-		public void setApplicationContext(ApplicationContext applicationContext) {
-			this.context = applicationContext;
-		}
+    @Override
+    public void setApplicationContext(ApplicationContext applicationContext) {
+      this.context = applicationContext;
+    }
 
-		ApplicationContext getContext() {
-			return this.context;
-		}
+    ApplicationContext getContext() {
+      return this.context;
+    }
 
-	}
+  }
 
 }

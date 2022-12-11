@@ -41,48 +41,48 @@ import static org.mockito.BDDMockito.given;
 @ExtendWith(InfraExtension.class)
 class MockBeanWithAsyncInterfaceMethodIntegrationTests {
 
-	@MockBean
-	private Transformer transformer;
+  @MockBean
+  private Transformer transformer;
 
-	@Autowired
-	private MyService service;
+  @Autowired
+  private MyService service;
 
-	@Test
-	void mockedMethodsAreNotAsync() {
-		given(this.transformer.transform("foo")).willReturn("bar");
-		assertThat(this.service.transform("foo")).isEqualTo("bar");
-	}
+  @Test
+  void mockedMethodsAreNotAsync() {
+    given(this.transformer.transform("foo")).willReturn("bar");
+    assertThat(this.service.transform("foo")).isEqualTo("bar");
+  }
 
-	interface Transformer {
+  interface Transformer {
 
-		@Async
-		String transform(String input);
+    @Async
+    String transform(String input);
 
-	}
+  }
 
-	static class MyService {
+  static class MyService {
 
-		private final Transformer transformer;
+    private final Transformer transformer;
 
-		MyService(Transformer transformer) {
-			this.transformer = transformer;
-		}
+    MyService(Transformer transformer) {
+      this.transformer = transformer;
+    }
 
-		String transform(String input) {
-			return this.transformer.transform(input);
-		}
+    String transform(String input) {
+      return this.transformer.transform(input);
+    }
 
-	}
+  }
 
-	@Configuration(proxyBeanMethods = false)
-	@EnableAsync
-	static class MyConfiguration {
+  @Configuration(proxyBeanMethods = false)
+  @EnableAsync
+  static class MyConfiguration {
 
-		@Bean
-		MyService myService(Transformer transformer) {
-			return new MyService(transformer);
-		}
+    @Bean
+    MyService myService(Transformer transformer) {
+      return new MyService(transformer);
+    }
 
-	}
+  }
 
 }

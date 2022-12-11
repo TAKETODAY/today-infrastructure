@@ -51,45 +51,45 @@ import static org.mockito.Mockito.reset;
 @ExtendWith(InfraExtension.class)
 class SpyBeanWithAopProxyAndNotProxyTargetAwareTests {
 
-	@SpyBean(proxyTargetAware = false)
-	private DateService dateService;
+  @SpyBean(proxyTargetAware = false)
+  private DateService dateService;
 
-	@Test
-	void verifyShouldUseProxyTarget() {
-		this.dateService.getDate(false);
-		then(this.dateService).should().getDate(false);
-		assertThatExceptionOfType(UnfinishedVerificationException.class).isThrownBy(() -> reset(this.dateService));
-	}
+  @Test
+  void verifyShouldUseProxyTarget() {
+    this.dateService.getDate(false);
+    then(this.dateService).should().getDate(false);
+    assertThatExceptionOfType(UnfinishedVerificationException.class).isThrownBy(() -> reset(this.dateService));
+  }
 
-	@Configuration(proxyBeanMethods = false)
-	@EnableCaching(proxyTargetClass = true)
-	@Import(DateService.class)
-	static class Config {
+  @Configuration(proxyBeanMethods = false)
+  @EnableCaching(proxyTargetClass = true)
+  @Import(DateService.class)
+  static class Config {
 
-		@Bean
-		CacheResolver cacheResolver(CacheManager cacheManager) {
-			SimpleCacheResolver resolver = new SimpleCacheResolver();
-			resolver.setCacheManager(cacheManager);
-			return resolver;
-		}
+    @Bean
+    CacheResolver cacheResolver(CacheManager cacheManager) {
+      SimpleCacheResolver resolver = new SimpleCacheResolver();
+      resolver.setCacheManager(cacheManager);
+      return resolver;
+    }
 
-		@Bean
-		ConcurrentMapCacheManager cacheManager() {
-			ConcurrentMapCacheManager cacheManager = new ConcurrentMapCacheManager();
-			cacheManager.setCacheNames(Arrays.asList("test"));
-			return cacheManager;
-		}
+    @Bean
+    ConcurrentMapCacheManager cacheManager() {
+      ConcurrentMapCacheManager cacheManager = new ConcurrentMapCacheManager();
+      cacheManager.setCacheNames(Arrays.asList("test"));
+      return cacheManager;
+    }
 
-	}
+  }
 
-	@Service
-	public static class DateService {
+  @Service
+  public static class DateService {
 
-		@Cacheable(cacheNames = "test")
-		public Long getDate(boolean arg) {
-			return System.nanoTime();
-		}
+    @Cacheable(cacheNames = "test")
+    public Long getDate(boolean arg) {
+      return System.nanoTime();
+    }
 
-	}
+  }
 
 }

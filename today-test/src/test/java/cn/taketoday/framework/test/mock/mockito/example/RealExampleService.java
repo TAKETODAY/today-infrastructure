@@ -27,15 +27,15 @@ package cn.taketoday.framework.test.mock.mockito.example;
  */
 public class RealExampleService implements ExampleService {
 
-	private final String greeting;
+  private final String greeting;
 
-	public RealExampleService(String greeting) {
-		this.greeting = greeting;
-	}
+  public RealExampleService(String greeting) {
+    this.greeting = greeting;
+  }
 
-	@Override
-	public String greeting() {
-		return this.greeting;
-	}
+  @Override
+  public String greeting() {
+    return this.greeting;
+  }
 
 }

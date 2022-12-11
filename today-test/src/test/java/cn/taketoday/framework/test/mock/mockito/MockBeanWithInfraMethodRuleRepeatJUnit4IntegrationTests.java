@@ -37,29 +37,29 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 public class MockBeanWithInfraMethodRuleRepeatJUnit4IntegrationTests {
 
-	@Rule
-	public final InfraMethodRule InfraMethodRule = new InfraMethodRule();
+  @Rule
+  public final InfraMethodRule InfraMethodRule = new InfraMethodRule();
 
-	@MockBean
-	private FirstService first;
+  @MockBean
+  private FirstService first;
 
-	private static int invocations;
+  private static int invocations;
 
-	@AfterClass
-	public static void afterClass() {
-		assertThat(invocations).isEqualTo(2);
-	}
+  @AfterClass
+  public static void afterClass() {
+    assertThat(invocations).isEqualTo(2);
+  }
 
-	@Test
-	@Repeat(2)
-	public void repeatedTest() {
-		invocations++;
-	}
+  @Test
+  @Repeat(2)
+  public void repeatedTest() {
+    invocations++;
+  }
 
-	interface FirstService {
+  interface FirstService {
 
-		String greeting();
+    String greeting();
 
-	}
+  }
 
 }

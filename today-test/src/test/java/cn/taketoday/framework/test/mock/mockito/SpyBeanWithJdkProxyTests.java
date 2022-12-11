@@ -44,66 +44,66 @@ import static org.mockito.BDDMockito.then;
 @ExtendWith(InfraExtension.class)
 class SpyBeanWithJdkProxyTests {
 
-	@Autowired
-	private ExampleService service;
+  @Autowired
+  private ExampleService service;
 
-	@SpyBean
-	private ExampleRepository repository;
+  @SpyBean
+  private ExampleRepository repository;
 
-	@Test
-	void jdkProxyCanBeSpied() {
-		Example example = this.service.find("id");
-		assertThat(example.id).isEqualTo("id");
-		then(this.repository).should().find("id");
-	}
+  @Test
+  void jdkProxyCanBeSpied() {
+    Example example = this.service.find("id");
+    assertThat(example.id).isEqualTo("id");
+    then(this.repository).should().find("id");
+  }
 
-	@Configuration(proxyBeanMethods = false)
-	@Import(ExampleService.class)
-	static class Config {
+  @Configuration(proxyBeanMethods = false)
+  @Import(ExampleService.class)
+  static class Config {
 
-		@Bean
-		ExampleRepository dateService() {
-			return (ExampleRepository) Proxy.newProxyInstance(getClass().getClassLoader(),
-					new Class<?>[] { ExampleRepository.class }, new InvocationHandler() {
+    @Bean
+    ExampleRepository dateService() {
+      return (ExampleRepository) Proxy.newProxyInstance(getClass().getClassLoader(),
+              new Class<?>[] { ExampleRepository.class }, new InvocationHandler() {
 
-						@Override
-						public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-							return new Example((String) args[0]);
-						}
+                @Override
+                public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+                  return new Example((String) args[0]);
+                }
 
-					});
-		}
+              });
+    }
 
-	}
+  }
 
-	static class ExampleService {
+  static class ExampleService {
 
-		private final ExampleRepository repository;
+    private final ExampleRepository repository;
 
-		ExampleService(ExampleRepository repository) {
-			this.repository = repository;
-		}
+    ExampleService(ExampleRepository repository) {
+      this.repository = repository;
+    }
 
-		Example find(String id) {
-			return this.repository.find(id);
-		}
+    Example find(String id) {
+      return this.repository.find(id);
+    }
 
-	}
+  }
 
-	interface ExampleRepository {
+  interface ExampleRepository {
 
-		Example find(String id);
+    Example find(String id);
 
-	}
+  }
 
-	static class Example {
+  static class Example {
 
-		private final String id;
+    private final String id;
 
-		Example(String id) {
-			this.id = id;
-		}
+    Example(String id) {
+      this.id = id;
+    }
 
-	}
+  }
 
 }

@@ -27,19 +27,19 @@ package cn.taketoday.framework.test.mock.mockito.example;
  */
 public class SimpleExampleStringGenericService implements ExampleGenericService<String> {
 
-	private final String greeting;
+  private final String greeting;
 
-	public SimpleExampleStringGenericService() {
-		this("simple");
-	}
+  public SimpleExampleStringGenericService() {
+    this("simple");
+  }
 
-	public SimpleExampleStringGenericService(String greeting) {
-		this.greeting = greeting;
-	}
+  public SimpleExampleStringGenericService(String greeting) {
+    this.greeting = greeting;
+  }
 
-	@Override
-	public String greeting() {
-		return this.greeting;
-	}
+  @Override
+  public String greeting() {
+    return this.greeting;
+  }
 
 }

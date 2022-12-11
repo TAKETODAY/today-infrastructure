@@ -39,30 +39,30 @@ import static org.mockito.BDDMockito.given;
 @ExtendWith(InfraExtension.class)
 class MockBeanWithInjectedFieldIntegrationTests {
 
-	@MockBean
-	private MyService myService;
+  @MockBean
+  private MyService myService;
 
-	@Test
-	void fieldInjectionIntoMyServiceMockIsNotAttempted() {
-		given(this.myService.getCount()).willReturn(5);
-		assertThat(this.myService.getCount()).isEqualTo(5);
-	}
+  @Test
+  void fieldInjectionIntoMyServiceMockIsNotAttempted() {
+    given(this.myService.getCount()).willReturn(5);
+    assertThat(this.myService.getCount()).isEqualTo(5);
+  }
 
-	static class MyService {
+  static class MyService {
 
-		@Autowired
-		private MyRepository repository;
+    @Autowired
+    private MyRepository repository;
 
-		int getCount() {
-			return this.repository.findAll().size();
-		}
+    int getCount() {
+      return this.repository.findAll().size();
+    }
 
-	}
+  }
 
-	interface MyRepository {
+  interface MyRepository {
 
-		List<Object> findAll();
+    List<Object> findAll();
 
-	}
+  }
 
 }

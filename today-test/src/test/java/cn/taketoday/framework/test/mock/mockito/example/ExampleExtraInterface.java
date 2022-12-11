@@ -27,6 +27,6 @@ package cn.taketoday.framework.test.mock.mockito.example;
  */
 public interface ExampleExtraInterface {
 
-	String doExtra();
+  String doExtra();
 
 }

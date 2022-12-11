@@ -44,22 +44,22 @@ import static org.mockito.BDDMockito.then;
 @DirtiesContext(classMode = ClassMode.BEFORE_EACH_TEST_METHOD)
 class SpyBeanWithDirtiesContextClassModeBeforeMethodIntegrationTests {
 
-	@SpyBean
-	private SimpleExampleService exampleService;
+  @SpyBean
+  private SimpleExampleService exampleService;
 
-	@Autowired
-	private ExampleServiceCaller caller;
+  @Autowired
+  private ExampleServiceCaller caller;
 
-	@Test
-	void testSpying() {
-		this.caller.sayGreeting();
-		then(this.exampleService).should().greeting();
-	}
+  @Test
+  void testSpying() {
+    this.caller.sayGreeting();
+    then(this.exampleService).should().greeting();
+  }
 
-	@Configuration(proxyBeanMethods = false)
-	@Import(ExampleServiceCaller.class)
-	static class Config {
+  @Configuration(proxyBeanMethods = false)
+  @Import(ExampleServiceCaller.class)
+  static class Config {
 
-	}
+  }
 
 }

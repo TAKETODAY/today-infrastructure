@@ -42,19 +42,19 @@ import static org.mockito.BDDMockito.then;
 @SpyBean(SimpleExampleService.class)
 class SpyBeanOnTestClassForExistingBeanIntegrationTests {
 
-	@Autowired
-	private ExampleServiceCaller caller;
+  @Autowired
+  private ExampleServiceCaller caller;
 
-	@Test
-	void testSpying() {
-		assertThat(this.caller.sayGreeting()).isEqualTo("I say simple");
-		then(this.caller.getService()).should().greeting();
-	}
+  @Test
+  void testSpying() {
+    assertThat(this.caller.sayGreeting()).isEqualTo("I say simple");
+    then(this.caller.getService()).should().greeting();
+  }
 
-	@Configuration(proxyBeanMethods = false)
-	@Import({ ExampleServiceCaller.class, SimpleExampleService.class })
-	static class Config {
+  @Configuration(proxyBeanMethods = false)
+  @Import({ ExampleServiceCaller.class, SimpleExampleService.class })
+  static class Config {
 
-	}
+  }
 
 }

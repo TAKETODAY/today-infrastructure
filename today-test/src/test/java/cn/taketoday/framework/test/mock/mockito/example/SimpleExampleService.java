@@ -27,8 +27,8 @@ package cn.taketoday.framework.test.mock.mockito.example;
  */
 public class SimpleExampleService extends RealExampleService {
 
-	public SimpleExampleService() {
-		super("simple");
-	}
+  public SimpleExampleService() {
+    super("simple");
+  }
 
 }

@@ -27,6 +27,6 @@ package cn.taketoday.framework.test.mock.mockito.example;
  */
 public interface ExampleService {
 
-	String greeting();
+  String greeting();
 
 }

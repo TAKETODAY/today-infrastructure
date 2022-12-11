@@ -43,16 +43,16 @@ import static org.mockito.BDDMockito.given;
 @ContextConfiguration(classes = MockBeanOnTestFieldForExistingBeanConfig.class)
 class MockBeanOnTestFieldForExistingBeanIntegrationTests {
 
-	@MockBean
-	private ExampleService exampleService;
+  @MockBean
+  private ExampleService exampleService;
 
-	@Autowired
-	private ExampleServiceCaller caller;
+  @Autowired
+  private ExampleServiceCaller caller;
 
-	@Test
-	void testMocking() {
-		given(this.exampleService.greeting()).willReturn("Boot");
-		assertThat(this.caller.sayGreeting()).isEqualTo("I say Boot");
-	}
+  @Test
+  void testMocking() {
+    given(this.exampleService.greeting()).willReturn("Boot");
+    assertThat(this.caller.sayGreeting()).isEqualTo("I say Boot");
+  }
 
 }

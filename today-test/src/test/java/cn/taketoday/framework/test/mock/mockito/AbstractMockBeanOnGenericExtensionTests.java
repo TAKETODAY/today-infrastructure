@@ -26,6 +26,6 @@ package cn.taketoday.framework.test.mock.mockito;
  * @author Madhura Bhave
  */
 class AbstractMockBeanOnGenericExtensionTests extends
-		AbstractMockBeanOnGenericTests<AbstractMockBeanOnGenericTests.ThingImpl, AbstractMockBeanOnGenericTests.SomethingImpl> {
+        AbstractMockBeanOnGenericTests<AbstractMockBeanOnGenericTests.ThingImpl, AbstractMockBeanOnGenericTests.SomethingImpl> {
 
 }

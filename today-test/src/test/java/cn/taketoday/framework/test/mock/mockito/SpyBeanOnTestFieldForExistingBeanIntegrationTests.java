@@ -43,16 +43,16 @@ import static org.mockito.BDDMockito.then;
 @ContextConfiguration(classes = SpyBeanOnTestFieldForExistingBeanConfig.class)
 class SpyBeanOnTestFieldForExistingBeanIntegrationTests {
 
-	@SpyBean
-	private ExampleService exampleService;
+  @SpyBean
+  private ExampleService exampleService;
 
-	@Autowired
-	private ExampleServiceCaller caller;
+  @Autowired
+  private ExampleServiceCaller caller;
 
-	@Test
-	void testSpying() {
-		assertThat(this.caller.sayGreeting()).isEqualTo("I say simple");
-		then(this.caller.getService()).should().greeting();
-	}
+  @Test
+  void testSpying() {
+    assertThat(this.caller.sayGreeting()).isEqualTo("I say simple");
+    then(this.caller.getService()).should().greeting();
+  }
 
 }

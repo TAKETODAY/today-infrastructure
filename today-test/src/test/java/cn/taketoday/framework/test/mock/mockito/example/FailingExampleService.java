@@ -30,9 +30,9 @@ import cn.taketoday.stereotype.Service;
 @Service
 public class FailingExampleService implements ExampleService {
 
-	@Override
-	public String greeting() {
-		throw new IllegalStateException("Failed");
-	}
+  @Override
+  public String greeting() {
+    throw new IllegalStateException("Failed");
+  }
 
 }

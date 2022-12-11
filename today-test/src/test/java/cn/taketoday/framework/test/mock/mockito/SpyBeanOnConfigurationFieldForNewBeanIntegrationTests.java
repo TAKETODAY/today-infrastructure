@@ -42,25 +42,25 @@ import static org.mockito.BDDMockito.then;
 @ExtendWith(InfraExtension.class)
 class SpyBeanOnConfigurationFieldForNewBeanIntegrationTests {
 
-	@Autowired
-	private Config config;
+  @Autowired
+  private Config config;
 
-	@Autowired
-	private ExampleServiceCaller caller;
+  @Autowired
+  private ExampleServiceCaller caller;
 
-	@Test
-	void testSpying() {
-		assertThat(this.caller.sayGreeting()).isEqualTo("I say simple");
-		then(this.config.exampleService).should().greeting();
-	}
+  @Test
+  void testSpying() {
+    assertThat(this.caller.sayGreeting()).isEqualTo("I say simple");
+    then(this.config.exampleService).should().greeting();
+  }
 
-	@Configuration(proxyBeanMethods = false)
-	@Import(ExampleServiceCaller.class)
-	static class Config {
+  @Configuration(proxyBeanMethods = false)
+  @Import(ExampleServiceCaller.class)
+  static class Config {
 
-		@SpyBean
-		private SimpleExampleService exampleService;
+    @SpyBean
+    private SimpleExampleService exampleService;
 
-	}
+  }
 
 }
