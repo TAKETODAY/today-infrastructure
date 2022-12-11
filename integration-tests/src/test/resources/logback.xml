@@ -31,8 +31,7 @@
   </appender>
 
   <logger name="org.apache" level="WARN" />
-
-  <logger name="org.osjava.sj.jndi" level="none" />
+  <logger name="org.osjava.sj.jndi" level="OFF" />
 
   <!--  <root level="TRACE">-->
   <!--  <root level="DEBUG">-->
