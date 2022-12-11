@@ -61,7 +61,7 @@ import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.servlet.support.GenericWebApplicationContext;
 
 /**
- * A {@link ContextLoader} that can be used to test Spring Boot applications (those that
+ * A {@link ContextLoader} that can be used to test Infra applications (those that
  * normally startup using {@link Application}). Although this loader can be used
  * directly, most test will instead want to use it with
  * {@link ApplicationTest @ApplicationTest}.

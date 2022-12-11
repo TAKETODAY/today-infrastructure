@@ -32,7 +32,7 @@ import cn.taketoday.core.io.ResourceLoader;
 import cn.taketoday.mock.web.MockServletContext;
 
 /**
- * {@link MockServletContext} implementation for Spring Boot. Respects well-known Spring
+ * {@link MockServletContext} implementation for Infra. Respects well-known Spring
  * Boot resource locations and uses an empty directory for "/" if no locations can be
  * found.
  *

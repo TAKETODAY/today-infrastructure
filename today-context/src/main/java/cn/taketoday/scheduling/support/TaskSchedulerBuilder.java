@@ -38,7 +38,7 @@ import cn.taketoday.util.PropertyMapper;
  * convenience methods to set common {@link ThreadPoolTaskScheduler} settings. For
  * advanced configuration, consider using {@link TaskSchedulerCustomizer}.
  * <p>
- * In a typical auto-configured Spring Boot application this builder is available as a
+ * In a typical auto-configured Infra application this builder is available as a
  * bean and can be injected whenever a {@link TaskScheduler} is needed.
  *
  * @author Stephane Nicoll

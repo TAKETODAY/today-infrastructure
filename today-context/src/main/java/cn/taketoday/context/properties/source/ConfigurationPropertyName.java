@@ -15,7 +15,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.context.properties.source;
@@ -44,9 +44,9 @@ import cn.taketoday.util.StringUtils;
  * <p>
  * Here are some typical examples:
  * <ul>
- * <li>{@code today.main.banner-mode}</li>
+ * <li>{@code app.main.banner-mode}</li>
  * <li>{@code server.hosts[0].name}</li>
- * <li>{@code log[org.springboot].level}</li>
+ * <li>{@code log[cn.taketoday].level}</li>
  * </ul>
  *
  * @author Phillip Webb

@@ -41,7 +41,7 @@ import cn.taketoday.util.PropertyMapper;
  * {@link #taskDecorator(TaskDecorator)}). For advanced configuration, consider using
  * {@link TaskExecutorCustomizer}.
  * <p>
- * In a typical auto-configured Spring Boot application this builder is available as a
+ * In a typical auto-configured Infra application this builder is available as a
  * bean and can be injected whenever a {@link TaskExecutor} is needed.
  *
  * @author Stephane Nicoll

@@ -35,8 +35,8 @@ import cn.taketoday.core.annotation.AliasFor;
 import cn.taketoday.core.env.Environment;
 import cn.taketoday.framework.Application;
 import cn.taketoday.framework.ApplicationArguments;
-import cn.taketoday.framework.ApplicationConfiguration;
 import cn.taketoday.framework.ApplicationType;
+import cn.taketoday.framework.InfraConfiguration;
 import cn.taketoday.framework.web.reactive.context.ReactiveWebApplicationContext;
 import cn.taketoday.framework.web.server.LocalServerPort;
 import cn.taketoday.framework.web.servlet.context.ServletWebServerApplicationContext;
@@ -47,7 +47,7 @@ import cn.taketoday.test.context.junit.jupiter.InfraExtension;
 import cn.taketoday.web.servlet.WebApplicationContext;
 
 /**
- * Annotation that can be specified on a test class that runs Spring Boot based tests.
+ * Annotation that can be specified on a test class that runs Infra based tests.
  * Provides the following features over and above the regular <em>Spring TestContext
  * Framework</em>:
  * <ul>
@@ -55,7 +55,7 @@ import cn.taketoday.web.servlet.WebApplicationContext;
  * specific {@link ContextConfiguration#loader() @ContextConfiguration(loader=...)} is
  * defined.</li>
  * <li>Automatically searches for a
- * {@link ApplicationConfiguration @SpringBootConfiguration} when nested
+ * {@link InfraConfiguration @InfraConfiguration} when nested
  * {@code @Configuration} is not used, and no explicit {@link #classes() classes} are
  * specified.</li>
  * <li>Allows custom {@link Environment} properties to be defined using the
@@ -118,7 +118,7 @@ public @interface ApplicationTest {
    * {@link ContextConfiguration#classes() @ContextConfiguration(classes=...)}. If no
    * explicit classes are defined the test will look for nested
    * {@link Configuration @Configuration} classes, before falling back to a
-   * {@link ApplicationConfiguration @SpringBootConfiguration} search.
+   * {@link InfraConfiguration @InfraConfiguration} search.
    *
    * @return the component classes used to load the application context
    * @see ContextConfiguration#classes()

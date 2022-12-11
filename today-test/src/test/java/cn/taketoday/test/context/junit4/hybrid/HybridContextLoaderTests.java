@@ -35,7 +35,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * Integration tests for hybrid {@link SmartContextLoader} implementations that
  * support path-based and class-based resources simultaneously, as is done in
- * Spring Boot.
+ * Infra.
  *
  * @author Sam Brannen
  * @see HybridContextLoader

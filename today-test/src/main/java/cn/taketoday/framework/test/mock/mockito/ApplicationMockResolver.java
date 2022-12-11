@@ -25,7 +25,7 @@ import org.mockito.plugins.MockResolver;
 import cn.taketoday.test.util.AopTestUtils;
 
 /**
- * A {@link MockResolver} for testing Spring Boot applications with  Resolves
+ * A {@link MockResolver} for testing Infra applications with  Resolves
  * mocks by returning the {@link AopTestUtils#getUltimateTargetObject(Object) ultimate
  * target object} of the instance.
  *

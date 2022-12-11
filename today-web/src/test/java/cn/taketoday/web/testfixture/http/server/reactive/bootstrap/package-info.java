@@ -21,6 +21,6 @@
 /**
  * This package contains temporary interfaces and classes for running embedded servers.
  *
- * <p>They are expected to be replaced by upcoming Spring Boot support.
+ * <p>They are expected to be replaced by upcoming Infra support.
  */
 package cn.taketoday.web.testfixture.http.server.reactive.bootstrap;

@@ -32,14 +32,14 @@ import cn.taketoday.core.annotation.AliasFor;
 import cn.taketoday.stereotype.Indexed;
 
 /**
- * Indicates that a class provides Spring Boot application
+ * Indicates that a class provides Infra application
  * {@link Configuration @Configuration}. Can be used as an alternative to the Infra
  * standard {@code @Configuration} annotation so that configuration can be found
  * automatically (for example in tests).
  * <p>
- * Application should only ever include <em>one</em> {@code @SpringBootConfiguration} and
- * most idiomatic Spring Boot applications will inherit it from
- * {@code @SpringBootApplication}.
+ * Application should only ever include <em>one</em> {@code @InfraConfiguration} and
+ * most idiomatic Infra applications will inherit it from
+ * {@code @InfraApplication}.
  *
  * @author Phillip Webb
  * @author Andy Wilkinson
@@ -51,7 +51,7 @@ import cn.taketoday.stereotype.Indexed;
 @Documented
 @Configuration
 @Indexed
-public @interface ApplicationConfiguration {
+public @interface InfraConfiguration {
 
   /**
    * Specify whether {@link Bean @Bean} methods should get proxied in order to enforce

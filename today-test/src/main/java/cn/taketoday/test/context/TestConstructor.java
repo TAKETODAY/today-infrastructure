@@ -57,7 +57,7 @@ import cn.taketoday.test.context.junit.jupiter.web.JUnitWebConfig;
  * often automatically registered for you &mdash; for example, when using annotations such as
  * {@link JUnitConfig @ApplicationJUnitConfig} and
  * {@link JUnitWebConfig @ApplicationJUnitWebConfig}
- * or various test-related annotations from Spring Boot Test.
+ * or various test-related annotations from Infra Test.
  *
  * <p> this annotation will be inherited from an
  * enclosing test class by default. See

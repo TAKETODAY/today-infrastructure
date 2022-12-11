@@ -29,13 +29,13 @@ import java.lang.annotation.Target;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.core.annotation.AliasFor;
-import cn.taketoday.framework.ApplicationConfiguration;
+import cn.taketoday.framework.InfraConfiguration;
 
 /**
  * {@link Configuration @Configuration} that can be used to define additional beans or
  * customizations for a test. Unlike regular {@code @Configuration} classes the use of
  * {@code @TestConfiguration} does not prevent auto-detection of
- * {@link ApplicationConfiguration @SpringBootConfiguration}.
+ * {@link InfraConfiguration @InfraConfiguration}.
  *
  * @author Phillip Webb
  * @see InfraApplicationTestContextBootstrapper

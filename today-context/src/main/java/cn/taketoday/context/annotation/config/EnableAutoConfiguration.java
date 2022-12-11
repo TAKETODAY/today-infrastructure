@@ -55,10 +55,10 @@ import cn.taketoday.context.condition.ConditionalOnMissingBean;
  * after user-defined beans have been registered.
  * <p>
  * The package of the class that is annotated with {@code @EnableAutoConfiguration},
- * usually via {@code @SpringBootApplication}, has specific significance and is often used
+ * usually via {@code @InfraApplication}, has specific significance and is often used
  * as a 'default'. For example, it will be used when scanning for {@code @Entity} classes.
  * It is generally recommended that you place {@code @EnableAutoConfiguration} (if you're
- * not using {@code @SpringBootApplication}) in a root package so that all sub-packages
+ * not using {@code @InfraApplication}) in a root package so that all sub-packages
  * and classes can be searched.
  * <p>
  * Auto-configuration classes are regular Framework {@link Configuration @Configuration}

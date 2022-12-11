@@ -33,10 +33,10 @@ import cn.taketoday.stereotype.Component;
 
 /**
  * {@link Component @Component} that can be used when a bean is intended only for tests,
- * and should be excluded from Spring Boot's component scanning.
+ * and should be excluded from Infra's component scanning.
  * <p>
  * Note that if you directly use {@link ComponentScan @ComponentScan} rather than relying
- * on {@code @SpringBootApplication} you should ensure that a {@link TypeExcludeFilter} is
+ * on {@code @InfraApplication} you should ensure that a {@link TypeExcludeFilter} is
  * declared as an {@link ComponentScan#excludeFilters() excludeFilter}.
  *
  * @author Phillip Webb

@@ -36,8 +36,8 @@ import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.core.annotation.MergedAnnotations;
 import cn.taketoday.core.annotation.MergedAnnotations.SearchStrategy;
 import cn.taketoday.core.env.Environment;
-import cn.taketoday.framework.ApplicationConfiguration;
 import cn.taketoday.framework.ApplicationType;
+import cn.taketoday.framework.InfraConfiguration;
 import cn.taketoday.framework.test.context.ApplicationTest.WebEnvironment;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.TodayStrategies;
@@ -62,14 +62,14 @@ import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
 
 /**
- * {@link TestContextBootstrapper} for Spring Boot. Provides support for
+ * {@link TestContextBootstrapper} for Infra. Provides support for
  * {@link ApplicationTest @ApplicationTest} and may also be used directly or subclassed.
  * Provides the following features over and above {@link DefaultTestContextBootstrapper}:
  * <ul>
  * <li>Uses {@link InfraApplicationContextLoader} as the
  * {@link #getDefaultContextLoaderClass(Class) default context loader}.</li>
  * <li>Automatically searches for a
- * {@link ApplicationConfiguration @SpringBootConfiguration} when required.</li>
+ * {@link InfraConfiguration @InfraConfiguration} when required.</li>
  * <li>Allows custom {@link Environment} {@link #getProperties(Class)} to be defined.</li>
  * <li>Provides support for different {@link WebEnvironment webEnvironment} modes.</li>
  * </ul>
@@ -231,11 +231,11 @@ public class InfraApplicationTestContextBootstrapper extends DefaultTestContextB
     if (containsNonTestComponent(classes) || mergedConfig.hasLocations()) {
       return classes;
     }
-    Class<?> found = new AnnotatedClassFinder(ApplicationConfiguration.class)
-            .findFromClass(mergedConfig.getTestClass());
-    Assert.state(found != null, "Unable to find a @SpringBootConfiguration, you need to use "
+    Class<?> found = new AnnotatedClassFinder(
+            InfraConfiguration.class).findFromClass(mergedConfig.getTestClass());
+    Assert.state(found != null, "Unable to find a @InfraConfiguration, you need to use "
             + "@ContextConfiguration or @ApplicationTest(classes=...) with your test");
-    logger.info("Found @SpringBootConfiguration " + found.getName() + " for test " + mergedConfig.getTestClass());
+    logger.info("Found @InfraConfiguration {} for test {}", found.getName(), mergedConfig.getTestClass());
     return merge(found, classes);
   }
 
