@@ -27,7 +27,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 import cn.taketoday.test.context.junit4.JUnit4ClassRunner;
-import cn.taketoday.test.context.junit4.rules.ApplicationMethodRule;
+import cn.taketoday.test.context.junit4.rules.InfraMethodRule;
 import cn.taketoday.test.context.junit4.statements.FailOnTimeout;
 
 /**
@@ -48,7 +48,7 @@ import cn.taketoday.test.context.junit4.statements.FailOnTimeout;
  * @author Sam Brannen
  * @see Repeat
  * @see JUnit4ClassRunner
- * @see ApplicationMethodRule
+ * @see InfraMethodRule
  * @see FailOnTimeout
  * @since 4.0
  */

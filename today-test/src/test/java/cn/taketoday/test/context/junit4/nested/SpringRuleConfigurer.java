@@ -24,11 +24,11 @@ import org.junit.ClassRule;
 import org.junit.Rule;
 
 import cn.taketoday.test.context.junit4.rules.ApplicationClassRule;
-import cn.taketoday.test.context.junit4.rules.ApplicationMethodRule;
+import cn.taketoday.test.context.junit4.rules.InfraMethodRule;
 
 /**
  * Abstract base test class that preconfigures the {@link ApplicationClassRule} and
- * {@link ApplicationMethodRule}.
+ * {@link InfraMethodRule}.
  *
  * @author Sam Brannen
  * @since 4.0
@@ -39,6 +39,6 @@ public abstract class SpringRuleConfigurer {
   public static final ApplicationClassRule applicationClassRule = new ApplicationClassRule();
 
   @Rule
-  public final ApplicationMethodRule applicationMethodRule = new ApplicationMethodRule();
+  public final InfraMethodRule infraMethodRule = new InfraMethodRule();
 
 }

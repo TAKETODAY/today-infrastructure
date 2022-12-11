@@ -50,15 +50,15 @@ import cn.taketoday.test.context.TestContextBootstrapper;
 import cn.taketoday.test.context.TestContextManager;
 import cn.taketoday.test.context.TestExecutionListener;
 import cn.taketoday.test.context.junit4.rules.ApplicationClassRule;
-import cn.taketoday.test.context.junit4.rules.ApplicationMethodRule;
+import cn.taketoday.test.context.junit4.rules.InfraMethodRule;
+import cn.taketoday.test.context.junit4.statements.FailOnTimeout;
+import cn.taketoday.test.context.junit4.statements.RepeatTest;
 import cn.taketoday.test.context.junit4.statements.RunAfterTestClassCallbacks;
 import cn.taketoday.test.context.junit4.statements.RunAfterTestExecutionCallbacks;
 import cn.taketoday.test.context.junit4.statements.RunAfterTestMethodCallbacks;
 import cn.taketoday.test.context.junit4.statements.RunBeforeTestClassCallbacks;
 import cn.taketoday.test.context.junit4.statements.RunBeforeTestExecutionCallbacks;
 import cn.taketoday.test.context.junit4.statements.RunBeforeTestMethodCallbacks;
-import cn.taketoday.test.context.junit4.statements.FailOnTimeout;
-import cn.taketoday.test.context.junit4.statements.RepeatTest;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.ReflectionUtils;
 
@@ -89,7 +89,7 @@ import cn.taketoday.util.ReflectionUtils;
  * </ul>
  *
  * <p>If you would like to use the TestContext Framework with a runner
- * other than this one, use {@link ApplicationClassRule} and {@link ApplicationMethodRule}.
+ * other than this one, use {@link ApplicationClassRule} and {@link InfraMethodRule}.
  *
  * <p><strong>NOTE:</strong> this class requires JUnit 4.12 or higher.
  *
@@ -100,7 +100,7 @@ import cn.taketoday.util.ReflectionUtils;
  * @see AbstractJUnit4ContextTests
  * @see AbstractTransactionalJUnit4ContextTests
  * @see ApplicationClassRule
- * @see ApplicationMethodRule
+ * @see InfraMethodRule
  * @since 4.0
  */
 public class JUnit4ClassRunner extends BlockJUnit4ClassRunner {
@@ -127,7 +127,7 @@ public class JUnit4ClassRunner extends BlockJUnit4ClassRunner {
       Assert.state(!ApplicationClassRule.class.isAssignableFrom(field.getType()), () -> String.format(
               "Detected ApplicationClassRule field in test class [%s], " +
                       "but ApplicationClassRule cannot be used with the JUnit4ClassRunner.", testClass.getName()));
-      Assert.state(!ApplicationMethodRule.class.isAssignableFrom(field.getType()), () -> String.format(
+      Assert.state(!InfraMethodRule.class.isAssignableFrom(field.getType()), () -> String.format(
               "Detected ApplicationMethodRule field in test class [%s], " +
                       "but ApplicationMethodRule cannot be used with the JUnit4ClassRunner.", testClass.getName()));
     }

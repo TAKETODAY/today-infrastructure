@@ -45,7 +45,7 @@ public class AutowiredRuleTests {
   public static final ApplicationClassRule applicationClassRule = new ApplicationClassRule();
 
   @Rule
-  public final ApplicationMethodRule applicationMethodRule = new ApplicationMethodRule();
+  public final InfraMethodRule infraMethodRule = new InfraMethodRule();
 
   @Autowired
   @Rule

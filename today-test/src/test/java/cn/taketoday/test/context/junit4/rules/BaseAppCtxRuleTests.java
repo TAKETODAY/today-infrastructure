@@ -33,11 +33,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Base class for integration tests involving Spring {@code ApplicationContexts}
- * in conjunction with {@link ApplicationClassRule} and {@link ApplicationMethodRule}.
+ * in conjunction with {@link ApplicationClassRule} and {@link InfraMethodRule}.
  *
  * <p>The goal of this class and its subclasses is to ensure that Rule-based
  * configuration can be inherited without requiring {@link ApplicationClassRule}
- * or {@link ApplicationMethodRule} to be redeclared on subclasses.
+ * or {@link InfraMethodRule} to be redeclared on subclasses.
  *
  * @author Sam Brannen
  * @see Subclass1AppCtxRuleTests
@@ -51,7 +51,7 @@ public class BaseAppCtxRuleTests {
   public static final ApplicationClassRule applicationClassRule = new ApplicationClassRule();
 
   @Rule
-  public final ApplicationMethodRule applicationMethodRule = new ApplicationMethodRule();
+  public final InfraMethodRule infraMethodRule = new InfraMethodRule();
 
   @Autowired
   private String foo;

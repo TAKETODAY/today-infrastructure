@@ -25,7 +25,7 @@ import org.junit.Rule;
 import org.junit.Test;
 
 import cn.taketoday.test.annotation.Repeat;
-import cn.taketoday.test.context.junit4.rules.ApplicationMethodRule;
+import cn.taketoday.test.context.junit4.rules.InfraMethodRule;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -38,7 +38,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class MockBeanWithInfraMethodRuleRepeatJUnit4IntegrationTests {
 
 	@Rule
-	public final ApplicationMethodRule ApplicationMethodRule = new ApplicationMethodRule();
+	public final InfraMethodRule InfraMethodRule = new InfraMethodRule();
 
 	@MockBean
 	private FirstService first;

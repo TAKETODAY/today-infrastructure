@@ -53,7 +53,7 @@ import cn.taketoday.test.context.junit4.statements.RunBeforeTestClassCallbacks;
  * {@code Parameterized} or third-party runners such as the {@code MockitoJUnitRunner}.
  *
  * <p>In order to achieve the same functionality as the {@code SpringJUnit4ClassRunner},
- * however, a {@code ApplicationClassRule} must be combined with a {@link ApplicationMethodRule},
+ * however, a {@code ApplicationClassRule} must be combined with a {@link InfraMethodRule},
  * since {@code ApplicationClassRule} only supports the class-level features of the
  * {@code SpringJUnit4ClassRunner}.
  *
@@ -86,7 +86,7 @@ import cn.taketoday.test.context.junit4.statements.RunBeforeTestClassCallbacks;
  * @author Sam Brannen
  * @author Philippe Marschall
  * @see #apply(Statement, Description)
- * @see ApplicationMethodRule
+ * @see InfraMethodRule
  * @see TestContextManager
  * @see JUnit4ClassRunner
  * @since 4.0
@@ -104,7 +104,7 @@ public class ApplicationClassRule implements TestRule {
    * Apply <em>class-level</em> features of the <em>Spring TestContext
    * Framework</em> to the supplied {@code base} statement.
    * <p>Specifically, this method retrieves the {@link TestContextManager}
-   * used by this rule and its associated {@link ApplicationMethodRule} and
+   * used by this rule and its associated {@link InfraMethodRule} and
    * invokes the {@link TestContextManager#beforeTestClass() beforeTestClass()}
    * and {@link TestContextManager#afterTestClass() afterTestClass()} methods
    * on the {@code TestContextManager}.

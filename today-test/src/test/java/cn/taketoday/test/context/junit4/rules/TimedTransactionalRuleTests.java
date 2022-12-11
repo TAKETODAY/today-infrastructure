@@ -36,7 +36,7 @@ import cn.taketoday.test.transaction.TransactionAssert;
 /**
  * This class is an extension of {@link TimedTransactionalRunnerTests}
  * that has been modified to use {@link ApplicationClassRule} and
- * {@link ApplicationMethodRule}.
+ * {@link InfraMethodRule}.
  *
  * @author Sam Brannen
  * @since 4.0
@@ -48,7 +48,7 @@ public class TimedTransactionalRuleTests extends TimedTransactionalRunnerTests {
   public static final ApplicationClassRule applicationClassRule = new ApplicationClassRule();
 
   @Rule
-  public final ApplicationMethodRule applicationMethodRule = new ApplicationMethodRule();
+  public final InfraMethodRule infraMethodRule = new InfraMethodRule();
 
   @Rule
   public Timeout timeout = Timeout.builder().withTimeout(10, TimeUnit.SECONDS).build();

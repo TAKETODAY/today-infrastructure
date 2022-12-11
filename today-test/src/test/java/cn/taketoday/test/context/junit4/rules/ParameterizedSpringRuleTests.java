@@ -43,7 +43,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Integration test which demonstrates how to use JUnit's {@link Parameterized}
- * runner in conjunction with {@link ApplicationClassRule} and {@link ApplicationMethodRule}
+ * runner in conjunction with {@link ApplicationClassRule} and {@link InfraMethodRule}
  * to provide dependency injection to a <em>parameterized test instance</em>.
  *
  * @author Sam Brannen
@@ -60,7 +60,7 @@ public class ParameterizedSpringRuleTests {
   public static final ApplicationClassRule applicationClassRule = new ApplicationClassRule();
 
   @Rule
-  public final ApplicationMethodRule applicationMethodRule = new ApplicationMethodRule();
+  public final InfraMethodRule infraMethodRule = new InfraMethodRule();
 
   @Autowired
   private ApplicationContext applicationContext;

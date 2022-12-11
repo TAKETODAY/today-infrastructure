@@ -24,7 +24,7 @@ import org.junit.runners.model.InitializationError;
 
 import cn.taketoday.test.context.TestContextManager;
 import cn.taketoday.test.context.junit4.rules.ApplicationClassRule;
-import cn.taketoday.test.context.junit4.rules.ApplicationMethodRule;
+import cn.taketoday.test.context.junit4.rules.InfraMethodRule;
 
 /**
  * {@code Runner} is an <em>alias</em> for the {@link JUnit4ClassRunner}.
@@ -34,14 +34,14 @@ import cn.taketoday.test.context.junit4.rules.ApplicationMethodRule;
  *
  * <p>If you would like to use the TestContext Framework with a runner other than
  * this one, use {@link ApplicationClassRule}
- * and {@link ApplicationMethodRule}.
+ * and {@link InfraMethodRule}.
  *
  * <p><strong>NOTE:</strong> This class requires JUnit 4.12 or higher.
  *
  * @author Sam Brannen
  * @see JUnit4ClassRunner
  * @see ApplicationClassRule
- * @see ApplicationMethodRule
+ * @see InfraMethodRule
  * @since 4.0
  */
 public final class InfraRunner extends JUnit4ClassRunner {

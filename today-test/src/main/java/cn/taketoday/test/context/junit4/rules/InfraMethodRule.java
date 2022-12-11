@@ -38,10 +38,10 @@ import cn.taketoday.test.context.TestExecutionListener;
 import cn.taketoday.test.context.junit4.JUnit4ClassRunner;
 import cn.taketoday.test.context.junit4.statements.FailOnTimeout;
 import cn.taketoday.test.context.junit4.statements.ProfileValueChecker;
+import cn.taketoday.test.context.junit4.statements.RepeatTest;
 import cn.taketoday.test.context.junit4.statements.RunAfterTestMethodCallbacks;
 import cn.taketoday.test.context.junit4.statements.RunBeforeTestMethodCallbacks;
 import cn.taketoday.test.context.junit4.statements.RunPrepareTestInstanceCallbacks;
-import cn.taketoday.test.context.junit4.statements.RepeatTest;
 
 /**
  * {@code ApplicationMethodRule} is a custom JUnit 4 {@link MethodRule} that
@@ -107,9 +107,9 @@ import cn.taketoday.test.context.junit4.statements.RepeatTest;
  * @see JUnit4ClassRunner
  * @since 4.0
  */
-public class ApplicationMethodRule implements MethodRule {
+public class InfraMethodRule implements MethodRule {
 
-  private static final Logger logger = LoggerFactory.getLogger(ApplicationMethodRule.class);
+  private static final Logger logger = LoggerFactory.getLogger(InfraMethodRule.class);
 
   /**
    * Apply <em>instance-level</em> and <em>method-level</em> features of

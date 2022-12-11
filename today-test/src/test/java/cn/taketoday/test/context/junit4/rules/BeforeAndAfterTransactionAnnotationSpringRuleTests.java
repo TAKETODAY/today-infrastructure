@@ -30,7 +30,7 @@ import cn.taketoday.test.context.junit4.BeforeAndAfterTransactionAnnotationTests
 /**
  * This class is an extension of {@link BeforeAndAfterTransactionAnnotationTests}
  * that has been modified to use {@link ApplicationClassRule} and
- * {@link ApplicationMethodRule}.
+ * {@link InfraMethodRule}.
  *
  * @author Sam Brannen
  * @since 4.0
@@ -42,7 +42,7 @@ public class BeforeAndAfterTransactionAnnotationSpringRuleTests extends BeforeAn
   public static final ApplicationClassRule applicationClassRule = new ApplicationClassRule();
 
   @Rule
-  public final ApplicationMethodRule applicationMethodRule = new ApplicationMethodRule();
+  public final InfraMethodRule infraMethodRule = new InfraMethodRule();
 
   // All tests are in superclass.
 

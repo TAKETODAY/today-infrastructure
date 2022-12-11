@@ -61,7 +61,7 @@ import static org.assertj.core.api.Assertions.fail;
 /**
  * This class is a copy of
  * {@link cn.taketoday.test.context.transaction.programmatic.ProgrammaticTxMgmtTests}
- * that has been modified to use {@link ApplicationClassRule} and {@link ApplicationMethodRule}.
+ * that has been modified to use {@link ApplicationClassRule} and {@link InfraMethodRule}.
  *
  * @author Sam Brannen
  * @since 4.0
@@ -75,7 +75,7 @@ public class ProgrammaticTxMgmtSpringRuleTests {
   public static final ApplicationClassRule applicationClassRule = new ApplicationClassRule();
 
   @Rule
-  public final ApplicationMethodRule applicationMethodRule = new ApplicationMethodRule();
+  public final InfraMethodRule infraMethodRule = new InfraMethodRule();
 
   @Rule
   public TestName testName = new TestName();
