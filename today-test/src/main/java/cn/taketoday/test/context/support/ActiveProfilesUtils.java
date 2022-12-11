@@ -53,7 +53,7 @@ import static cn.taketoday.test.context.TestContextAnnotationUtils.findAnnotatio
  */
 abstract class ActiveProfilesUtils {
 
-  private static final Logger logger = LoggerFactory.getLogger(ActiveProfilesUtils.class);
+  private static final Logger log = LoggerFactory.getLogger(ActiveProfilesUtils.class);
 
   private static final DefaultActiveProfilesResolver defaultActiveProfilesResolver = new DefaultActiveProfilesResolver();
 
@@ -78,19 +78,18 @@ abstract class ActiveProfilesUtils {
     AnnotationDescriptor<ActiveProfiles> descriptor = findAnnotationDescriptor(testClass, ActiveProfiles.class);
     List<String[]> profileArrays = new ArrayList<>();
 
-    if (descriptor == null && logger.isDebugEnabled()) {
-      logger.debug(String.format(
-              "Could not find an 'annotation declaring class' for annotation type [%s] and class [%s]",
-              ActiveProfiles.class.getName(), testClass.getName()));
+    if (descriptor == null && log.isDebugEnabled()) {
+      log.debug("Could not find an 'annotation declaring class' for annotation type [{}] and class [{}]",
+              ActiveProfiles.class.getName(), testClass.getName());
     }
 
     while (descriptor != null) {
       Class<?> rootDeclaringClass = descriptor.getRootDeclaringClass();
       ActiveProfiles annotation = descriptor.getAnnotation();
 
-      if (logger.isTraceEnabled()) {
-        logger.trace(String.format("Retrieved @ActiveProfiles [%s] for declaring class [%s]",
-                annotation, descriptor.getDeclaringClass().getName()));
+      if (log.isTraceEnabled()) {
+        log.trace("Retrieved @ActiveProfiles [{}] for declaring class [{}]",
+                annotation, descriptor.getDeclaringClass().getName());
       }
 
       ActiveProfilesResolver resolver;
@@ -105,7 +104,7 @@ abstract class ActiveProfilesUtils {
         catch (Exception ex) {
           String msg = String.format("Could not instantiate ActiveProfilesResolver of type [%s] " +
                   "for test class [%s]", resolverClass.getName(), rootDeclaringClass.getName());
-          logger.error(msg);
+          log.error(msg);
           throw new IllegalStateException(msg, ex);
         }
       }

@@ -32,7 +32,7 @@ import cn.taketoday.test.util.AopTestUtils;
  * @author Andy Wilkinson
  * @since 4.0
  */
-public class ApplicationMockResolver implements MockResolver {
+public class InfraMockResolver implements MockResolver {
 
   @Override
   public Object resolve(Object instance) {

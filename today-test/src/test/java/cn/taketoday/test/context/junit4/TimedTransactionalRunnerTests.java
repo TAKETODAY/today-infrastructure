@@ -37,7 +37,6 @@ import cn.taketoday.transaction.annotation.Transactional;
  * timeout} attribute.
  *
  * @author Sam Brannen
- * @see cn.taketoday.test.context.junit.jupiter.transaction.TimedTransactionalSpringExtensionTests
  * @since 4.0
  */
 @RunWith(InfraRunner.class)

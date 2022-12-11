@@ -39,7 +39,7 @@ import cn.taketoday.mock.web.MockServletContext;
  * @author Phillip Webb
  * @since 4.0
  */
-public class ApplicationMockServletContext extends MockServletContext {
+public class InfraMockServletContext extends MockServletContext {
 
   private static final String[] RESOURCE_LOCATIONS = new String[] {
           "classpath:META-INF/resources",
@@ -50,11 +50,11 @@ public class ApplicationMockServletContext extends MockServletContext {
 
   private File emptyRootDirectory;
 
-  public ApplicationMockServletContext(String resourceBasePath) {
+  public InfraMockServletContext(String resourceBasePath) {
     this(resourceBasePath, new FileSystemResourceLoader());
   }
 
-  public ApplicationMockServletContext(String resourceBasePath, ResourceLoader resourceLoader) {
+  public InfraMockServletContext(String resourceBasePath, ResourceLoader resourceLoader) {
     super(resourceBasePath, resourceLoader);
     this.resourceLoader = resourceLoader;
   }

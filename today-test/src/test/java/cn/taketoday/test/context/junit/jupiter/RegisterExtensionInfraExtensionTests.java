@@ -61,7 +61,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 class RegisterExtensionInfraExtensionTests {
 
   @RegisterExtension
-  static final InfraExtension springExtension = new InfraExtension();
+  static final InfraExtension InfraExtension = new InfraExtension();
 
   @Autowired
   Person dilbert;
