@@ -73,6 +73,11 @@ class InstantiatorTests {
     assertThat(instances).hasSize(2);
     assertThat(instances.get(0)).isInstanceOf(WithAdditionalConstructor.class);
     assertThat(instances.get(1)).isInstanceOf(WithMultipleConstructors.class);
+
+    Object e = new Object();
+    instances.add(e);
+    assertThat(instances).hasSize(3);
+    assertThat(instances.get(2)).isSameAs(e);
   }
 
   @Test

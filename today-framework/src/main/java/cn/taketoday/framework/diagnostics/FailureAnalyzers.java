@@ -126,7 +126,6 @@ final class FailureAnalyzers implements ApplicationExceptionReporter {
     public void handleFailure(Class<?> type, String implementationName, Throwable failure) {
       logger.trace("Skipping {}: {}", implementationName, failure.getMessage());
     }
-
   }
 
 }

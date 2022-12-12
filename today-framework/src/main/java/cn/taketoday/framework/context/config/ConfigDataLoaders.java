@@ -69,7 +69,7 @@ class ConfigDataLoaders {
    */
   ConfigDataLoaders(ConfigurableBootstrapContext bootstrapContext,
           @Nullable ClassLoader classLoader, List<String> names) {
-    Instantiator<ConfigDataLoader<?>> instantiator = new Instantiator<>(ConfigDataLoader.class,
+    var instantiator = new Instantiator<ConfigDataLoader<?>>(ConfigDataLoader.class,
             parameters -> {
               parameters.add(BootstrapContext.class, bootstrapContext);
               parameters.add(BootstrapRegistry.class, bootstrapContext);

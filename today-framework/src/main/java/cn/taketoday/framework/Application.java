@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -182,6 +182,9 @@ public class Application {
   private String environmentPrefix;
 
   private List<ApplicationListener<?>> listeners;
+
+  @Nullable
+  private List<ApplicationStartupListener> startupListeners;
 
   @Nullable
   private Banner banner;
@@ -386,7 +389,8 @@ public class Application {
    */
   protected void afterRefresh(ConfigurableApplicationContext context, ApplicationArguments args) { }
 
-  private ApplicationStartupListeners getStartupListeners(DefaultBootstrapContext bootstrapContext, ApplicationArguments arguments) {
+  private ApplicationStartupListeners getStartupListeners(
+          DefaultBootstrapContext bootstrapContext, ApplicationArguments arguments) {
     var instantiator = new Instantiator<ApplicationStartupListener>(ApplicationStartupListener.class,
             parameters -> {
               parameters.add(Application.class, this);
@@ -399,14 +403,21 @@ public class Application {
 
     List<String> strategiesNames = TodayStrategies.findNames(ApplicationStartupListener.class, getClassLoader());
     List<ApplicationStartupListener> strategies = instantiator.instantiate(strategiesNames);
+
+    // user defined
+    if (CollectionUtils.isNotEmpty(startupListeners)) {
+      strategies.addAll(startupListeners);
+      AnnotationAwareOrderComparator.sort(strategies);
+    }
+
     ApplicationHook hook = applicationHook.get();
     if (hook != null) {
       ApplicationStartupListener hookListener = hook.getStartupListener(this);
       if (hookListener != null) {
-        strategies = new ArrayList<>(strategies);
         strategies.add(hookListener);
       }
     }
+
     return new ApplicationStartupListeners(logger, strategies);
   }
 
@@ -982,7 +993,27 @@ public class Application {
    * @return the listeners
    */
   public Set<ApplicationListener<?>> getListeners() {
-    return asUnmodifiableOrderedSet(this.listeners);
+    return asUnmodifiableOrderedSet(listeners);
+  }
+
+  /**
+   * Sets the {@link ApplicationStartupListener}s that will be applied to the
+   * {@link #getStartupListeners(DefaultBootstrapContext, ApplicationArguments)}
+   *
+   * @param listeners the listeners to add
+   */
+  public void addStartupListeners(ApplicationStartupListener... listeners) {
+    CollectionUtils.addAll(startupListeners, listeners);
+  }
+
+  /**
+   * Sets the {@link ApplicationStartupListener}s that will be applied to the
+   * {@link #getStartupListeners(DefaultBootstrapContext, ApplicationArguments)}
+   *
+   * @param listeners the startup listeners to set
+   */
+  public void setStartupListeners(Collection<ApplicationStartupListener> listeners) {
+    this.startupListeners = new ArrayList<>(listeners);
   }
 
   /**

@@ -22,12 +22,10 @@ package cn.taketoday.framework.context;
 
 import cn.taketoday.context.ApplicationListener;
 import cn.taketoday.context.properties.bind.Binder;
-import cn.taketoday.core.Ordered;
 import cn.taketoday.core.env.ConfigurableEnvironment;
 import cn.taketoday.framework.ansi.AnsiOutput;
 import cn.taketoday.framework.ansi.AnsiOutput.Enabled;
 import cn.taketoday.framework.context.event.ApplicationEnvironmentPreparedEvent;
-import cn.taketoday.framework.env.EnvironmentPostProcessorApplicationStartupListener;
 
 /**
  * An {@link ApplicationListener} that configures {@link AnsiOutput} depending on the
@@ -40,7 +38,7 @@ import cn.taketoday.framework.env.EnvironmentPostProcessorApplicationStartupList
  * @since 4.0 2022/12/7 22:25
  */
 public class AnsiOutputApplicationListener
-        implements ApplicationListener<ApplicationEnvironmentPreparedEvent>, Ordered {
+        implements ApplicationListener<ApplicationEnvironmentPreparedEvent> {
 
   @Override
   public void onApplicationEvent(ApplicationEnvironmentPreparedEvent event) {
@@ -50,12 +48,6 @@ public class AnsiOutputApplicationListener
             .ifBound(AnsiOutput::setEnabled);
     AnsiOutput.setConsoleAvailable(
             environment.getProperty("infra.output.ansi.console-available", Boolean.class));
-  }
-
-  @Override
-  public int getOrder() {
-    // Apply after EnvironmentPostProcessorApplicationStartupListener
-    return EnvironmentPostProcessorApplicationStartupListener.DEFAULT_ORDER + 1;
   }
 
 }
