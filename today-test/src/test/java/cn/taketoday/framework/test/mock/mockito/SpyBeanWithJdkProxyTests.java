@@ -23,8 +23,7 @@ package cn.taketoday.framework.test.mock.mockito;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.Method;
+import java.lang.reflect.Array;
 import java.lang.reflect.Proxy;
 
 import cn.taketoday.beans.factory.annotation.Autowired;
@@ -40,6 +39,7 @@ import static org.mockito.BDDMockito.then;
  * Tests for {@link SpyBean @SpyBean} with a JDK proxy.
  *
  * @author Andy Wilkinson
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  */
 @ExtendWith(InfraExtension.class)
 class SpyBeanWithJdkProxyTests {
@@ -63,14 +63,17 @@ class SpyBeanWithJdkProxyTests {
 
     @Bean
     ExampleRepository dateService() {
-      return (ExampleRepository) Proxy.newProxyInstance(getClass().getClassLoader(),
-              new Class<?>[] { ExampleRepository.class }, new InvocationHandler() {
+      ExampleRepositoryImpl impl = new ExampleRepositoryImpl();
+      return (ExampleRepository) Proxy.newProxyInstance(
+              getClass().getClassLoader(), new Class<?>[] { ExampleRepository.class },
+              (proxy, method, args) -> {
 
-                @Override
-                public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-                  return new Example((String) args[0]);
+                if (method.getName().equals("find")
+                        && Array.getLength(args) == 1 && args[0] instanceof String id) {
+                  return new Example(id);
                 }
 
+                return method.invoke(impl, args);
               });
     }
 
@@ -93,6 +96,15 @@ class SpyBeanWithJdkProxyTests {
   interface ExampleRepository {
 
     Example find(String id);
+
+  }
+
+  public static class ExampleRepositoryImpl implements ExampleRepository {
+
+    @Override
+    public Example find(String id) {
+      throw new UnsupportedOperationException();
+    }
 
   }
 
