@@ -28,6 +28,8 @@ import java.util.List;
 
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.annotation.AnnotationConfigurationException;
+import cn.taketoday.framework.test.mock.mockito.MockitoTestExecutionListener;
+import cn.taketoday.framework.test.mock.mockito.ResetMocksTestExecutionListener;
 import cn.taketoday.test.context.event.ApplicationEventsTestExecutionListener;
 import cn.taketoday.test.context.event.EventPublishingTestExecutionListener;
 import cn.taketoday.test.context.jdbc.SqlScriptsTestExecutionListener;
@@ -68,7 +70,9 @@ class TestExecutionListenersTests {
             DirtiesContextTestExecutionListener.class,//
             TransactionalTestExecutionListener.class,//
             SqlScriptsTestExecutionListener.class,//
-            EventPublishingTestExecutionListener.class
+            EventPublishingTestExecutionListener.class,
+            MockitoTestExecutionListener.class,
+            ResetMocksTestExecutionListener.class
     );
     assertRegisteredListeners(DefaultListenersTestCase.class, expected);
   }
@@ -86,7 +90,10 @@ class TestExecutionListenersTests {
             DirtiesContextTestExecutionListener.class,//
             TransactionalTestExecutionListener.class,//
             SqlScriptsTestExecutionListener.class,//
-            EventPublishingTestExecutionListener.class
+            EventPublishingTestExecutionListener.class,
+            MockitoTestExecutionListener.class,
+            ResetMocksTestExecutionListener.class
+
     );
     assertRegisteredListeners(MergedDefaultListenersWithCustomListenerPrependedTestCase.class, expected);
   }
@@ -104,7 +111,9 @@ class TestExecutionListenersTests {
             TransactionalTestExecutionListener.class,
             SqlScriptsTestExecutionListener.class,//
             EventPublishingTestExecutionListener.class,//
-            BazTestExecutionListener.class
+            BazTestExecutionListener.class,
+            MockitoTestExecutionListener.class,
+            ResetMocksTestExecutionListener.class
     );
     assertRegisteredListeners(MergedDefaultListenersWithCustomListenerAppendedTestCase.class, expected);
   }
@@ -122,20 +131,22 @@ class TestExecutionListenersTests {
             DirtiesContextTestExecutionListener.class,//
             TransactionalTestExecutionListener.class,//
             SqlScriptsTestExecutionListener.class,//
-            EventPublishingTestExecutionListener.class
+            EventPublishingTestExecutionListener.class,
+            MockitoTestExecutionListener.class,
+            ResetMocksTestExecutionListener.class
     );
     assertRegisteredListeners(MergedDefaultListenersWithCustomListenerInsertedTestCase.class, expected);
   }
 
   @Test
   void nonInheritedDefaultListeners() {
-    assertRegisteredListeners(NonInheritedDefaultListenersTestCase.class, asList(QuuxTestExecutionListener.class));
+    assertRegisteredListeners(NonInheritedDefaultListenersTestCase.class, List.of(QuuxTestExecutionListener.class));
   }
 
   @Test
   void inheritedDefaultListeners() {
-    assertRegisteredListeners(InheritedDefaultListenersTestCase.class, asList(QuuxTestExecutionListener.class));
-    assertRegisteredListeners(SubInheritedDefaultListenersTestCase.class, asList(QuuxTestExecutionListener.class));
+    assertRegisteredListeners(InheritedDefaultListenersTestCase.class, List.of(QuuxTestExecutionListener.class));
+    assertRegisteredListeners(SubInheritedDefaultListenersTestCase.class, List.of(QuuxTestExecutionListener.class));
     assertRegisteredListeners(SubSubInheritedDefaultListenersTestCase.class,
             asList(QuuxTestExecutionListener.class, EnigmaTestExecutionListener.class));
   }

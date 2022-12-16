@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -20,10 +20,7 @@
 
 package cn.taketoday.http.codec.support;
 
-import java.util.ArrayList;
-
 import cn.taketoday.http.codec.ClientCodecConfigurer;
-import cn.taketoday.http.codec.HttpMessageWriter;
 
 /**
  * Default implementation of {@link ClientCodecConfigurer}.
@@ -35,12 +32,10 @@ public class DefaultClientCodecConfigurer extends BaseCodecConfigurer implements
 
   public DefaultClientCodecConfigurer() {
     super(new ClientDefaultCodecsImpl());
-    ((ClientDefaultCodecsImpl) defaultCodecs()).setPartWritersSupplier(this::getPartWriters);
   }
 
   private DefaultClientCodecConfigurer(DefaultClientCodecConfigurer other) {
     super(other);
-    ((ClientDefaultCodecsImpl) defaultCodecs()).setPartWritersSupplier(this::getPartWriters);
   }
 
   @Override
@@ -56,16 +51,6 @@ public class DefaultClientCodecConfigurer extends BaseCodecConfigurer implements
   @Override
   protected BaseDefaultCodecs cloneDefaultCodecs() {
     return new ClientDefaultCodecsImpl((ClientDefaultCodecsImpl) defaultCodecs());
-  }
-
-  private ArrayList<HttpMessageWriter<?>> getPartWriters() {
-    ArrayList<HttpMessageWriter<?>> result = new ArrayList<>();
-    result.addAll(this.customCodecs.getTypedWriters().keySet());
-    result.addAll(this.defaultCodecs.getBaseTypedWriters());
-    result.addAll(this.customCodecs.getObjectWriters().keySet());
-    result.addAll(this.defaultCodecs.getBaseObjectWriters());
-    result.addAll(this.defaultCodecs.getCatchAllWriters());
-    return result;
   }
 
 }

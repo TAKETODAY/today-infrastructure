@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -81,7 +81,7 @@ public class MultipartHttpMessageWriter
   /** Suppress logging from individual part writers (full map logged at this level). */
   private static final Map<String, Object> DEFAULT_HINTS = Hints.from(Hints.SUPPRESS_LOGGING_HINT, true);
 
-  private final List<HttpMessageWriter<?>> partWriters;
+  private final Supplier<List<HttpMessageWriter<?>>> partWritersSupplier;
 
   @Nullable
   private final HttpMessageWriter<MultiValueMap<String, String>> formWriter;
@@ -114,9 +114,23 @@ public class MultipartHttpMessageWriter
   public MultipartHttpMessageWriter(
           List<HttpMessageWriter<?>> partWriters,
           @Nullable HttpMessageWriter<MultiValueMap<String, String>> formWriter) {
+    this(() -> partWriters, formWriter);
+  }
+
+  /**
+   * Constructor with a supplier for an explicit list of writers for
+   * serializing parts and a writer for plain form data to fall back when
+   * no media type is specified and the actual map consists of String
+   * values only.
+   *
+   * @param partWritersSupplier the supplier for writers for serializing parts
+   * @param formWriter the fallback writer for form data, {@code null} by default
+   */
+  public MultipartHttpMessageWriter(Supplier<List<HttpMessageWriter<?>>> partWritersSupplier,
+          @Nullable HttpMessageWriter<MultiValueMap<String, String>> formWriter) {
 
     super(initMediaTypes(formWriter));
-    this.partWriters = partWriters;
+    this.partWritersSupplier = partWritersSupplier;
     this.formWriter = formWriter;
   }
 
@@ -134,7 +148,7 @@ public class MultipartHttpMessageWriter
    * @since 4.0
    */
   public List<HttpMessageWriter<?>> getPartWriters() {
-    return this.partWriters;
+    return Collections.unmodifiableList(this.partWritersSupplier.get());
   }
 
   /**
@@ -268,7 +282,7 @@ public class MultipartHttpMessageWriter
     MediaType contentType = headers.getContentType();
 
     final ResolvableType finalBodyType = resolvableType;
-    for (HttpMessageWriter<?> partWriter : partWriters) {
+    for (HttpMessageWriter<?> partWriter : partWritersSupplier.get()) {
       if (partWriter.canWrite(finalBodyType, contentType)) {
         // The writer will call MultipartHttpOutputMessage#write which doesn't actually write
         // but only stores the body Flux and returns Mono.empty().

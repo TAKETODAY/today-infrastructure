@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -21,7 +21,6 @@
 package cn.taketoday.http.codec;
 
 import cn.taketoday.core.codec.Decoder;
-import cn.taketoday.core.codec.Encoder;
 
 /**
  * Extension of {@link CodecConfigurer} for HTTP message reader and writer
@@ -86,13 +85,6 @@ public interface ClientCodecConfigurer extends CodecConfigurer {
   interface ClientDefaultCodecs extends DefaultCodecs {
 
     /**
-     * Configure encoders or writers for use with
-     * {@link cn.taketoday.http.codec.multipart.MultipartHttpMessageWriter
-     * MultipartHttpMessageWriter}.
-     */
-    MultipartCodecs multipartCodecs();
-
-    /**
      * Configure the {@code Decoder} to use for Server-Sent Events.
      * <p>By default if this is not set, and Jackson is available, the
      * {@link #jackson2JsonDecoder} override is used instead. Use this property
@@ -103,29 +95,6 @@ public interface ClientCodecConfigurer extends CodecConfigurer {
      * @param decoder the decoder to use
      */
     void serverSentEventDecoder(Decoder<?> decoder);
-  }
-
-  /**
-   * Registry and container for multipart HTTP message writers.
-   */
-  interface MultipartCodecs {
-
-    /**
-     * Add a Part {@code Encoder}, internally wrapped with
-     * {@link EncoderHttpMessageWriter}.
-     *
-     * @param encoder the encoder to add
-     */
-    MultipartCodecs encoder(Encoder<?> encoder);
-
-    /**
-     * Add a Part {@link HttpMessageWriter}. For writers of type
-     * {@link EncoderHttpMessageWriter} consider using the shortcut
-     * {@link #encoder(Encoder)} instead.
-     *
-     * @param writer the writer to add
-     */
-    MultipartCodecs writer(HttpMessageWriter<?> writer);
   }
 
 }

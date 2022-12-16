@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -83,16 +83,6 @@ public interface ServerCodecConfigurer extends CodecConfigurer {
    * {@link DefaultCodecs} extension with extra client-side options.
    */
   interface ServerDefaultCodecs extends DefaultCodecs {
-
-    /**
-     * Configure the {@code HttpMessageReader} to use for multipart requests.
-     * <p>Note that {@link #maxInMemorySize(int)} and/or
-     * {@link #enableLoggingRequestDetails(boolean)}, if configured, will be
-     * applied to the given reader, if applicable.
-     *
-     * @param reader the message reader to use for multipart requests.
-     */
-    void multipartReader(HttpMessageReader<?> reader);
 
     /**
      * Configure the {@code Encoder} to use for Server-Sent Events.

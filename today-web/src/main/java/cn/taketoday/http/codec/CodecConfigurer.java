@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -25,6 +25,7 @@ import java.util.function.Consumer;
 
 import cn.taketoday.core.codec.Decoder;
 import cn.taketoday.core.codec.Encoder;
+import cn.taketoday.http.codec.multipart.MultipartHttpMessageWriter;
 import cn.taketoday.lang.Nullable;
 
 /**
@@ -198,6 +199,23 @@ public interface CodecConfigurer {
      * @param enable whether to enable or not
      */
     void enableLoggingRequestDetails(boolean enable);
+
+    /**
+     * Configure encoders or writers for use with
+     * {@link MultipartHttpMessageWriter
+     * MultipartHttpMessageWriter}.
+     */
+    MultipartCodecs multipartCodecs();
+
+    /**
+     * Configure the {@code HttpMessageReader} to use for multipart requests.
+     * <p>Note that {@link #maxInMemorySize(int)} and/or
+     * {@link #enableLoggingRequestDetails(boolean)}, if configured, will be
+     * applied to the given reader, if applicable.
+     *
+     * @param reader the message reader to use for multipart requests.
+     */
+    void multipartReader(HttpMessageReader<?> reader);
   }
 
   /**
@@ -283,6 +301,29 @@ public interface CodecConfigurer {
      */
     @Nullable
     Boolean isEnableLoggingRequestDetails();
+  }
+
+  /**
+   * Registry and container for multipart HTTP message writers.
+   */
+  interface MultipartCodecs {
+
+    /**
+     * Add a Part {@code Encoder}, internally wrapped with
+     * {@link EncoderHttpMessageWriter}.
+     *
+     * @param encoder the encoder to add
+     */
+    MultipartCodecs encoder(Encoder<?> encoder);
+
+    /**
+     * Add a Part {@link HttpMessageWriter}. For writers of type
+     * {@link EncoderHttpMessageWriter} consider using the shortcut
+     * {@link #encoder(Encoder)} instead.
+     *
+     * @param writer the writer to add
+     */
+    MultipartCodecs writer(HttpMessageWriter<?> writer);
   }
 
 }

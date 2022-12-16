@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -57,6 +57,7 @@ abstract class BaseCodecConfigurer implements CodecConfigurer {
     Assert.notNull(defaultCodecs, "'defaultCodecs' is required");
     this.defaultCodecs = defaultCodecs;
     this.customCodecs = new DefaultCustomCodecs();
+    this.defaultCodecs.setPartWritersSupplier(this::getWriters);
   }
 
   /**
@@ -65,6 +66,8 @@ abstract class BaseCodecConfigurer implements CodecConfigurer {
   protected BaseCodecConfigurer(BaseCodecConfigurer other) {
     this.defaultCodecs = other.cloneDefaultCodecs();
     this.customCodecs = new DefaultCustomCodecs(other.customCodecs);
+    this.defaultCodecs.setPartWritersSupplier(this::getWriters);
+
   }
 
   /**
