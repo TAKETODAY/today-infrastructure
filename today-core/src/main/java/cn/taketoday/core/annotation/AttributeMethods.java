@@ -97,16 +97,6 @@ final class AttributeMethods {
   }
 
   /**
-   * Determine if this instance only contains a single attribute named
-   * {@code value}.
-   *
-   * @return {@code true} if there is only a value attribute
-   */
-  boolean hasOnlyValueAttribute() {
-    return attributes.length == 1 && MergedAnnotation.VALUE.equals(attributes[0].getName());
-  }
-
-  /**
    * Determine if values from the given annotation can be safely accessed without
    * causing any {@link TypeNotPresentException TypeNotPresentExceptions}.
    *

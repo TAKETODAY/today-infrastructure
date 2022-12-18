@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -60,24 +60,6 @@ class AttributeMethodsTests {
     assertThat(methods.get("value").getName()).isEqualTo("value");
     assertThat(methods.get("intValue").getName()).isEqualTo("intValue");
     assertThat(getAll(methods)).flatExtracting(Method::getName).containsExactly("intValue", "value");
-  }
-
-  @Test
-  void hasOnlyValueAttributeWhenHasOnlyValueAttributeReturnsTrue() {
-    AttributeMethods methods = AttributeMethods.forAnnotationType(ValueOnly.class);
-    assertThat(methods.hasOnlyValueAttribute()).isTrue();
-  }
-
-  @Test
-  void hasOnlyValueAttributeWhenHasOnlySingleNonValueAttributeReturnsFalse() {
-    AttributeMethods methods = AttributeMethods.forAnnotationType(NonValueOnly.class);
-    assertThat(methods.hasOnlyValueAttribute()).isFalse();
-  }
-
-  @Test
-  void hasOnlyValueAttributeWhenHasOnlyMultipleAttributesIncludingValueReturnsFalse() {
-    AttributeMethods methods = AttributeMethods.forAnnotationType(MultipleAttributes.class);
-    assertThat(methods.hasOnlyValueAttribute()).isFalse();
   }
 
   @Test
