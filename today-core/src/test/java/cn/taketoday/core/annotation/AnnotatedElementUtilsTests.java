@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -27,6 +27,7 @@ import java.lang.annotation.Annotation;
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Inherited;
+import java.lang.annotation.Repeatable;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
@@ -47,8 +48,8 @@ import cn.taketoday.core.annotation.AnnotationUtilsTests.ExtendsBaseClassWithGen
 import cn.taketoday.core.annotation.AnnotationUtilsTests.ImplementsInterfaceWithGenericAnnotatedMethod;
 import cn.taketoday.core.annotation.AnnotationUtilsTests.WebController;
 import cn.taketoday.core.annotation.AnnotationUtilsTests.WebMapping;
-import cn.taketoday.core.testfixture.stereotype.Indexed;
 import cn.taketoday.core.testfixture.stereotype.Component;
+import cn.taketoday.core.testfixture.stereotype.Indexed;
 import cn.taketoday.lang.NonNullApi;
 import cn.taketoday.lang.Nullable;
 
@@ -909,6 +910,28 @@ class AnnotatedElementUtilsTests {
     assertThat(annotation.value()).containsExactly("FromValueAttributeMeta");
   }
 
+  @Test
+    // gh-29685
+  void getMergedRepeatableAnnotationsWithContainerWithMultipleAttributes() {
+    Set<StandardRepeatableWithContainerWithMultipleAttributes> repeatableAnnotations =
+            AnnotatedElementUtils.getMergedRepeatableAnnotations(
+                    StandardRepeatablesWithContainerWithMultipleAttributesTestCase.class,
+                    StandardRepeatableWithContainerWithMultipleAttributes.class);
+    assertThat(repeatableAnnotations).map(StandardRepeatableWithContainerWithMultipleAttributes::value)
+            .containsExactly("a", "b");
+  }
+
+  @Test
+    // gh-29685
+  void findMergedRepeatableAnnotationsWithContainerWithMultipleAttributes() {
+    Set<StandardRepeatableWithContainerWithMultipleAttributes> repeatableAnnotations =
+            AnnotatedElementUtils.findMergedRepeatableAnnotations(
+                    StandardRepeatablesWithContainerWithMultipleAttributesTestCase.class,
+                    StandardRepeatableWithContainerWithMultipleAttributes.class);
+    assertThat(repeatableAnnotations).map(StandardRepeatableWithContainerWithMultipleAttributes::value)
+            .containsExactly("a", "b");
+  }
+
   // -------------------------------------------------------------------------
 
   @MetaCycle3
@@ -1555,6 +1578,26 @@ class AnnotatedElementUtilsTests {
 
   @ValueAttributeMetaMeta
   static class ValueAttributeMetaMetaClass {
+  }
+
+  @Retention(RetentionPolicy.RUNTIME)
+  @interface StandardContainerWithMultipleAttributes {
+
+    StandardRepeatableWithContainerWithMultipleAttributes[] value();
+
+    String name() default "";
+  }
+
+  @Retention(RetentionPolicy.RUNTIME)
+  @Repeatable(StandardContainerWithMultipleAttributes.class)
+  @interface StandardRepeatableWithContainerWithMultipleAttributes {
+
+    String value() default "";
+  }
+
+  @StandardRepeatableWithContainerWithMultipleAttributes("a")
+  @StandardRepeatableWithContainerWithMultipleAttributes("b")
+  static class StandardRepeatablesWithContainerWithMultipleAttributesTestCase {
   }
 
 }
