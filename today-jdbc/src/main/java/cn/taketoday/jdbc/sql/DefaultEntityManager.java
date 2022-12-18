@@ -31,6 +31,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.Consumer;
 
 import javax.sql.DataSource;
@@ -354,20 +355,26 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
 
   @Override
   public void updateById(Object entity) {
+    updateById(entity, PropertyUpdateStrategy.updateNoneNull());
+  }
+
+  @Override
+  public void updateById(Object entity, PropertyUpdateStrategy strategy) {
     Class<?> entityClass = entity.getClass();
     EntityMetadata metadata = entityMetadataFactory.getEntityMetadata(entityClass);
-    Object id = metadata.idProperty.getValue(entity);
+    EntityProperty idProperty = metadata.idProperty;
+    Object id = idProperty.getValue(entity);
     if (id == null) {
       throw new IllegalArgumentException("Update an entity, ID property is required");
     }
 
     Update updateStmt = new Update();
     updateStmt.setTableName(metadata.tableName);
-    updateStmt.addWhereColumn(metadata.idProperty.columnName);
+    updateStmt.addWhereColumn(idProperty.columnName);
 
     for (EntityProperty property : metadata.entityProperties) {
-      Object propertyValue = property.getValue(entity);
-      if (propertyValue != null) {
+      if (property.property != idProperty.property
+              && strategy.shouldUpdate(entity, property)) {
         updateStmt.addColumn(property.columnName);
       }
     }
@@ -385,14 +392,15 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
 
       int idx = 1;
       for (EntityProperty property : metadata.entityProperties) {
-        Object propertyValue = property.getValue(entity);
-        if (propertyValue != null) {
+        if (property.property != idProperty.property
+                && strategy.shouldUpdate(entity, property)) {
+          Object propertyValue = property.getValue(entity);
           property.setParameter(statement, idx++, propertyValue);
         }
       }
 
       // last one is ID
-      metadata.idProperty.setParameter(statement, idx, id);
+      idProperty.setParameter(statement, idx, id);
       int updateCount = statement.executeUpdate();
       assertUpdateCount(sql, updateCount, 1);
     }
@@ -401,6 +409,68 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
       // in the case when the exception translator hasn't been initialized yet.
       DataSourceUtils.releaseConnection(con, dataSource);
       throw translateException("Update entity By ID", sql, ex);
+    }
+
+  }
+
+  @Override
+  public void updateBy(Object entity, String where, PropertyUpdateStrategy strategy) {
+    Class<?> entityClass = entity.getClass();
+    EntityMetadata metadata = entityMetadataFactory.getEntityMetadata(entityClass);
+
+    Update updateStmt = new Update();
+    updateStmt.setTableName(metadata.tableName);
+    updateStmt.addWhereColumn(metadata.idProperty.columnName);
+
+    EntityProperty updateBy = null;
+    for (EntityProperty property : metadata.entityProperties) {
+      // columnName or property name
+      if (Objects.equals(where, property.columnName)
+              || Objects.equals(where, property.property.getName())) {
+        updateBy = property;
+      }
+      else if (strategy.shouldUpdate(entity, property)) {
+        updateStmt.addColumn(property.columnName);
+      }
+    }
+
+    if (updateBy == null) {
+      throw new IllegalArgumentException("Update an entity, 'where' property '" + where + "' is not found");
+    }
+
+    Object updateByValue = updateBy.getValue(entity);
+    if (updateByValue == null) {
+      throw new IllegalArgumentException("Update an entity, 'where' property '" + where + "' is required");
+    }
+
+    String sql = updateStmt.toStatementString();
+    if (stmtLogger.isDebugEnabled()) {
+      stmtLogger.logStatement(LogMessage.format("Update entity using {} : '{}'", where, updateByValue), sql);
+    }
+
+    DataSource dataSource = obtainDataSource();
+    Connection con = DataSourceUtils.getConnection(dataSource);
+    try {
+      PreparedStatement statement = prepareStatement(con, sql, false);
+
+      int idx = 1;
+      for (EntityProperty property : metadata.entityProperties) {
+        if (strategy.shouldUpdate(entity, property)) {
+          Object propertyValue = property.getValue(entity);
+          property.setParameter(statement, idx++, propertyValue);
+        }
+      }
+
+      // last one is where
+      updateBy.setParameter(statement, idx, updateByValue);
+      int updateCount = statement.executeUpdate();
+      assertUpdateCount(sql, updateCount, 1);
+    }
+    catch (SQLException ex) {
+      // Release Connection early, to avoid potential connection pool deadlock
+      // in the case when the exception translator hasn't been initialized yet.
+      DataSourceUtils.releaseConnection(con, dataSource);
+      throw translateException("Update entity By " + where, sql, ex);
     }
 
   }

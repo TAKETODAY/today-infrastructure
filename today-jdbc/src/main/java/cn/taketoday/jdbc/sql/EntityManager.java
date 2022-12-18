@@ -83,6 +83,23 @@ public interface EntityManager {
   void updateById(Object entity);
 
   /**
+   * Merge the state of the given entity into underlying repository
+   *
+   * @param entity entity instance
+   * @throws IllegalEntityException entityClass is legal entity
+   */
+  void updateById(Object entity, PropertyUpdateStrategy strategy);
+
+  /**
+   * Merge the state of the given entity into underlying repository
+   *
+   * @param entity entity instance
+   * @param where columnName or property name
+   * @throws IllegalEntityException entityClass is legal entity
+   */
+  void updateBy(Object entity, String where, PropertyUpdateStrategy strategy);
+
+  /**
    * Delete an entity.
    * <p>
    * No transaction

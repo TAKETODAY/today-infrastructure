@@ -114,7 +114,7 @@ public class EntityProperty {
    * this method is called on a closed {@code PreparedStatement}
    * or the type of the given object is ambiguous
    */
-  public void setParameter(PreparedStatement ps, int parameterIndex, Object parameter) throws SQLException {
+  public void setParameter(PreparedStatement ps, int parameterIndex, @Nullable Object parameter) throws SQLException {
     typeHandler.setParameter(ps, parameterIndex, parameter);
   }
 

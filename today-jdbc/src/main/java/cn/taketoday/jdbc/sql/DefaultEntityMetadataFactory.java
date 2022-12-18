@@ -140,7 +140,7 @@ public class DefaultEntityMetadataFactory extends EntityMetadataFactory {
 
       columnNames.add(columnName);
       beanProperties.add(property);
-      propertyHandlers.add(new EntityProperty(property, columnName, typeHandlerRegistry.getTypeHandler(property)));
+      propertyHandlers.add(createEntityProperty(property, columnName));
 
       if (idPropertyDiscover.isIdProperty(property)) {
         if (idProperty != null) {
@@ -151,13 +151,18 @@ public class DefaultEntityMetadataFactory extends EntityMetadataFactory {
       }
     }
     if (idProperty == null) {
+      // TODO id can be null
       throw new IllegalEntityException("Cannot determine ID property for entity: " + entityClass);
     }
 
     return new EntityMetadata(metadata, entityClass,
-            idColumnName, new EntityProperty(idProperty, idColumnName, typeHandlerRegistry.getTypeHandler(idProperty)),
+            idColumnName, createEntityProperty(idProperty, idColumnName),
             tableName, beanProperties.toArray(new BeanProperty[0]),
             StringUtils.toStringArray(columnNames), propertyHandlers.toArray(new EntityProperty[0]));
+  }
+
+  private EntityProperty createEntityProperty(BeanProperty property, String columnName) {
+    return new EntityProperty(property, columnName, typeHandlerRegistry.getTypeHandler(property));
   }
 
   private boolean isFiltered(BeanProperty property) {
