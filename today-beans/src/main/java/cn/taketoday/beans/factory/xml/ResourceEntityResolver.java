@@ -25,7 +25,6 @@ import org.xml.sax.SAXException;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URL;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 
@@ -112,24 +111,54 @@ public class ResourceEntityResolver extends DelegatingEntityResolver {
         }
       }
       else if (systemId.endsWith(DTD_SUFFIX) || systemId.endsWith(XSD_SUFFIX)) {
-        // External dtd/xsd lookup via https even for canonical http declaration
-        String url = systemId;
-        if (url.startsWith("http:")) {
-          url = "https:" + url.substring(5);
-        }
-        try {
-          source = new InputSource(new URL(url).openStream());
-          source.setPublicId(publicId);
-          source.setSystemId(systemId);
-        }
-        catch (IOException ex) {
-          log.debug("Could not resolve XML entity [{}] through URL [{}]", systemId, url, ex);
-          // Fall back to the parser's default behavior.
-          source = null;
-        }
+        source = resolveSchemaEntity(publicId, systemId);
       }
     }
 
+    return source;
+  }
+
+  /**
+   * A fallback method for {@link #resolveEntity(String, String)} that is used when a
+   * "schema" entity (DTD or XSD) cannot be resolved as a local resource. The default
+   * behavior is to perform remote resolution over HTTPS.
+   * <p>Subclasses can override this method to change the default behavior.
+   * <ul>
+   * <li>Return {@code null} to fall back to the parser's
+   * {@linkplain org.xml.sax.EntityResolver#resolveEntity(String, String) default behavior}.</li>
+   * <li>Throw an exception to prevent remote resolution of the DTD or XSD.</li>
+   * </ul>
+   *
+   * @param publicId the public identifier of the external entity being referenced,
+   * or null if none was supplied
+   * @param systemId the system identifier of the external entity being referenced,
+   * representing the URL of the DTD or XSD
+   * @return an InputSource object describing the new input source, or null to request
+   * that the parser open a regular URI connection to the system identifier
+   */
+  @Nullable
+  protected InputSource resolveSchemaEntity(@Nullable String publicId, String systemId) {
+    InputSource source;
+    // External dtd/xsd lookup via https even for canonical http declaration
+    String url = systemId;
+    if (url.startsWith("http:")) {
+      url = "https:" + url.substring(5);
+    }
+    if (log.isWarnEnabled()) {
+      log.warn("DTD/XSD XML entity [{}] not found, falling back to remote https resolution", systemId);
+    }
+    try {
+      source = new InputSource(ResourceUtils.toURL(url).openStream());
+      source.setPublicId(publicId);
+      source.setSystemId(systemId);
+    }
+    catch (IOException ex) {
+      if (log.isDebugEnabled()) {
+        log.debug("Could not resolve XML entity [{}] through URL [{}]", systemId, url, ex);
+      }
+      // Fall back to the parser's default behavior.
+      source = null;
+    }
     return source;
   }
 
