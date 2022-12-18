@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -23,6 +23,9 @@ package cn.taketoday.dao;
 /**
  * Exception thrown on failure to acquire a lock during an update,
  * for example during a "select for update" statement.
+ *
+ * <p>Consider handling the general {@link PessimisticLockingFailureException}
+ * instead, semantically including a wider range of locking-related failures.
  *
  * @author Rod Johnson
  */

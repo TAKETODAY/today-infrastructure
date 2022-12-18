@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -22,9 +22,12 @@ package cn.taketoday.dao;
 
 /**
  * Exception thrown when an attempt to insert or update data
- * results in violation of an primary key or unique constraint.
+ * results in violation of a primary key or unique constraint.
  * Note that this is not necessarily a purely relational concept;
  * unique primary keys are required by most database types.
+ *
+ * <p>Consider handling the general {@link DataIntegrityViolationException}
+ * instead, semantically including a wider range of constraint violations.
  *
  * @author Thomas Risberg
  */

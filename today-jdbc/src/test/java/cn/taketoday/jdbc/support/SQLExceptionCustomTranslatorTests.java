@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -22,6 +22,7 @@ package cn.taketoday.jdbc.support;
 
 import org.junit.jupiter.api.Test;
 
+import java.sql.SQLDataException;
 import java.sql.SQLException;
 
 import cn.taketoday.dao.DataAccessException;
@@ -50,7 +51,7 @@ public class SQLExceptionCustomTranslatorTests {
 
   @Test
   public void badSqlGrammarException() {
-    SQLException badSqlGrammarExceptionEx = SQLExceptionSubclassFactory.newSQLDataException("", "", 1);
+    SQLException badSqlGrammarExceptionEx = new SQLDataException("", "", 1);
     DataAccessException dae = sext.translate("task", "SQL", badSqlGrammarExceptionEx);
     assertThat(dae.getCause()).isEqualTo(badSqlGrammarExceptionEx);
     assertThat(dae).isInstanceOf(BadSqlGrammarException.class);
@@ -58,7 +59,7 @@ public class SQLExceptionCustomTranslatorTests {
 
   @Test
   public void dataAccessResourceException() {
-    SQLException dataAccessResourceEx = SQLExceptionSubclassFactory.newSQLDataException("", "", 2);
+    SQLException dataAccessResourceEx = new SQLDataException("", "", 2);
     DataAccessException dae = sext.translate("task", "SQL", dataAccessResourceEx);
     assertThat(dae.getCause()).isEqualTo(dataAccessResourceEx);
     assertThat(dae).isInstanceOf(TransientDataAccessResourceException.class);

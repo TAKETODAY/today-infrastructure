@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -23,8 +23,13 @@ package cn.taketoday.dao;
 /**
  * Exception thrown when an attempt to insert or update data
  * results in violation of an integrity constraint. Note that this
- * is not purely a relational concept; unique primary keys are
- * required by most database types.
+ * is not purely a relational concept; integrity constraints such
+ * as unique primary keys are required by most database types.
+ *
+ * <p>Serves as a superclass for more specific exceptions, e.g.
+ * {@link DuplicateKeyException}. However, it is generally
+ * recommended to handle {@code DataIntegrityViolationException}
+ * itself instead of relying on specific exception subclasses.
  *
  * @author Rod Johnson
  */

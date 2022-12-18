@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -25,8 +25,10 @@ package cn.taketoday.dao;
  * Thrown by  SQLException translation mechanism
  * if a corresponding database error is encountered.
  *
- * <p>Serves as superclass for more specific exceptions, like
- * CannotAcquireLockException and DeadlockLoserDataAccessException.
+ * <p>Serves as a superclass for more specific exceptions, e.g.
+ * {@link CannotAcquireLockException}. However, it is generally
+ * recommended to handle {@code PessimisticLockingFailureException}
+ * itself instead of relying on specific exception subclasses.
  *
  * @author Thomas Risberg
  * @see CannotAcquireLockException

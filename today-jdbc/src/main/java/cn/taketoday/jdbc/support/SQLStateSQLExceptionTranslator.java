@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -24,10 +24,12 @@ import java.sql.SQLException;
 import java.util.HashSet;
 import java.util.Set;
 
-import cn.taketoday.dao.ConcurrencyFailureException;
+import cn.taketoday.dao.CannotAcquireLockException;
 import cn.taketoday.dao.DataAccessException;
 import cn.taketoday.dao.DataAccessResourceFailureException;
 import cn.taketoday.dao.DataIntegrityViolationException;
+import cn.taketoday.dao.DuplicateKeyException;
+import cn.taketoday.dao.PessimisticLockingFailureException;
 import cn.taketoday.dao.QueryTimeoutException;
 import cn.taketoday.dao.TransientDataAccessResourceException;
 import cn.taketoday.jdbc.BadSqlGrammarException;
@@ -51,7 +53,7 @@ import cn.taketoday.lang.Nullable;
 public class SQLStateSQLExceptionTranslator extends AbstractFallbackSQLExceptionTranslator {
 
   private static final Set<String> BAD_SQL_GRAMMAR_CODES = new HashSet<>(8);
-  private static final Set<String> CONCURRENCY_FAILURE_CODES = Set.of(
+  private static final Set<String> PESSIMISTIC_LOCKING_FAILURE_CODES = Set.of(
           "40", // Transaction rollback
           "61" // Oracle: deadlock
   );
@@ -94,12 +96,15 @@ public class SQLStateSQLExceptionTranslator extends AbstractFallbackSQLException
     if (sqlState != null && sqlState.length() >= 2) {
       String classCode = sqlState.substring(0, 2);
       if (logger.isDebugEnabled()) {
-        logger.debug("Extracted SQL state class '{}' from value '{}'", classCode, sqlState);
+        logger.debug("Extracted SQL state class '" + classCode + "' from value '" + sqlState + "'");
       }
       if (BAD_SQL_GRAMMAR_CODES.contains(classCode)) {
         return new BadSqlGrammarException(task, (sql != null ? sql : ""), ex);
       }
       else if (DATA_INTEGRITY_VIOLATION_CODES.contains(classCode)) {
+        if ("23505".equals(sqlState)) {
+          return new DuplicateKeyException(buildMessage(task, sql, ex), ex);
+        }
         return new DataIntegrityViolationException(buildMessage(task, sql, ex), ex);
       }
       else if (DATA_ACCESS_RESOURCE_FAILURE_CODES.contains(classCode)) {
@@ -108,8 +113,11 @@ public class SQLStateSQLExceptionTranslator extends AbstractFallbackSQLException
       else if (TRANSIENT_DATA_ACCESS_RESOURCE_CODES.contains(classCode)) {
         return new TransientDataAccessResourceException(buildMessage(task, sql, ex), ex);
       }
-      else if (CONCURRENCY_FAILURE_CODES.contains(classCode)) {
-        return new ConcurrencyFailureException(buildMessage(task, sql, ex), ex);
+      else if (PESSIMISTIC_LOCKING_FAILURE_CODES.contains(classCode)) {
+        if ("40001".equals(sqlState)) {
+          return new CannotAcquireLockException(buildMessage(task, sql, ex), ex);
+        }
+        return new PessimisticLockingFailureException(buildMessage(task, sql, ex), ex);
       }
     }
 
