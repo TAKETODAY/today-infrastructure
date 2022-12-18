@@ -58,11 +58,13 @@ public abstract class RepeatableContainers {
   }
 
   /**
-   * Add an additional explicit relationship between a contained and
+   * Add an additional explicit relationship between a container and
    * repeatable annotation.
+   * <p>WARNING: the arguments supplied to this method are in the reverse order
+   * of those supplied to {@link #valueOf(Class, Class)}
    *
-   * @param container the container type
-   * @param repeatable the contained repeatable type
+   * @param container the container annotation type
+   * @param repeatable the repeatable annotation type
    * @return a new {@link RepeatableContainers} instance
    */
   public RepeatableContainers and(
