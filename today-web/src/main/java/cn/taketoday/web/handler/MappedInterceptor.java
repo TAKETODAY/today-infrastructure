@@ -204,9 +204,13 @@ public final class MappedInterceptor implements HandlerInterceptor {
     interceptor.afterProcess(request, handler, result);
   }
 
+  @Nullable
   @Override
   public Object intercept(RequestContext request, InterceptorChain chain) throws Throwable {
-    return interceptor.intercept(request, chain);
+    if (matches(request)) {
+      return interceptor.intercept(request, chain);
+    }
+    return chain.proceed(request);
   }
 
   /**

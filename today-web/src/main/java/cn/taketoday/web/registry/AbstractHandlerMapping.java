@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -396,18 +396,11 @@ public abstract class AbstractHandlerMapping extends ApplicationContextSupport
                 ? executionChain : new HandlerExecutionChain(handler);
 
     HandlerInterceptor[] interceptors = getHandlerInterceptors(handler);
-    chain.addInterceptors(interceptors);
-
-    for (HandlerInterceptor interceptor : this.interceptors) {
-      if (interceptor instanceof MappedInterceptor mappedInterceptor) {
-        if (mappedInterceptor.matches(request)) {
-          chain.addInterceptor(mappedInterceptor.getInterceptor());
-        }
-      }
-      else {
-        chain.addInterceptor(interceptor);
-      }
+    if (interceptors != null) {
+      chain.addInterceptors(interceptors);
     }
+
+    chain.addInterceptors(this.interceptors);
     return chain;
   }
 
