@@ -261,7 +261,7 @@ class RequestMappingInfoHandlerMappingTests {
             .isInstanceOf(HandlerExecutionChain.class);
 
     HandlerExecutionChain chain = (HandlerExecutionChain) handler;
-    assertThat(chain.getInterceptors()).isNotEmpty().containsExactly(interceptor);
+    assertThat(chain.getInterceptors()).isNotEmpty().containsExactly(mappedInterceptor);
 
     request = new MockHttpServletRequest("GET", "/invalid");
     context = new ServletRequestContext(null, request, new MockHttpServletResponse());
