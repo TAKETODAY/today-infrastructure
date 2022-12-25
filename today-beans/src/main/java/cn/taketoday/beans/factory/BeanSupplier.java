@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -45,7 +45,7 @@ public class BeanSupplier<T> implements Supplier<T>, Serializable {
 
   private final BeanFactory beanFactory;
 
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings({ "unchecked", "rawtypes" })
   protected BeanSupplier(BeanFactory beanFactory, String beanName, @Nullable Class beanType) {
     Assert.notNull(beanName, "'beanName' is required");
     Assert.notNull(beanFactory, "'beanFactory' is required");
