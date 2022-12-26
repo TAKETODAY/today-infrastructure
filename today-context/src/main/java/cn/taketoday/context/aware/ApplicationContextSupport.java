@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -148,7 +148,7 @@ public abstract class ApplicationContextSupport implements ApplicationContextAwa
    * @throws IllegalArgumentException not a requiredType
    * @since 4.0
    */
-  public <T> T unwrap(Class<T> requiredType) {
+  public <T> T unwrapContext(Class<T> requiredType) {
     return obtainApplicationContext().unwrap(requiredType);
   }
 

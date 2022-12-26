@@ -30,7 +30,7 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 
 import cn.taketoday.lang.Assert;
-import cn.taketoday.util.StringUtils;
+import cn.taketoday.lang.Nullable;
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.http.HttpSession;
 import jakarta.servlet.http.HttpSessionBindingEvent;
@@ -86,7 +86,7 @@ public class MockHttpSession implements HttpSession {
    *
    * @param servletContext the ServletContext that the session runs in
    */
-  public MockHttpSession(ServletContext servletContext) {
+  public MockHttpSession(@Nullable ServletContext servletContext) {
     this(servletContext, null);
   }
 
@@ -96,7 +96,7 @@ public class MockHttpSession implements HttpSession {
    * @param servletContext the ServletContext that the session runs in
    * @param id a unique identifier for this session
    */
-  public MockHttpSession(ServletContext servletContext, String id) {
+  public MockHttpSession(@Nullable ServletContext servletContext, @Nullable String id) {
     this.servletContext = (servletContext != null ? servletContext : new MockServletContext());
     this.id = (id != null ? id : Integer.toString(nextId++));
   }
@@ -116,7 +116,7 @@ public class MockHttpSession implements HttpSession {
    * As of Servlet 3.1, the id of a session can be changed.
    *
    * @return the new session id
-   * @since 4.0
+   * @since 4.0.3
    */
   public String changeSessionId() {
     this.id = Integer.toString(nextId++);
@@ -150,20 +150,10 @@ public class MockHttpSession implements HttpSession {
   }
 
   @Override
-  public jakarta.servlet.http.HttpSessionContext getSessionContext() {
-    throw new UnsupportedOperationException("getSessionContext");
-  }
-
-  @Override
   public Object getAttribute(String name) {
     assertIsValid();
     Assert.notNull(name, "Attribute name must not be null");
     return this.attributes.get(name);
-  }
-
-  @Override
-  public Object getValue(String name) {
-    return getAttribute(name);
   }
 
   @Override
@@ -173,23 +163,17 @@ public class MockHttpSession implements HttpSession {
   }
 
   @Override
-  public String[] getValueNames() {
-    assertIsValid();
-    return StringUtils.toStringArray(this.attributes.keySet());
-  }
-
-  @Override
-  public void setAttribute(String name, Object value) {
+  public void setAttribute(String name, @Nullable Object value) {
     assertIsValid();
     Assert.notNull(name, "Attribute name must not be null");
     if (value != null) {
       Object oldValue = this.attributes.put(name, value);
       if (value != oldValue) {
-        if (oldValue instanceof HttpSessionBindingListener) {
-          ((HttpSessionBindingListener) oldValue).valueUnbound(new HttpSessionBindingEvent(this, name, oldValue));
+        if (oldValue instanceof HttpSessionBindingListener listener) {
+          listener.valueUnbound(new HttpSessionBindingEvent(this, name, oldValue));
         }
-        if (value instanceof HttpSessionBindingListener) {
-          ((HttpSessionBindingListener) value).valueBound(new HttpSessionBindingEvent(this, name, value));
+        if (value instanceof HttpSessionBindingListener listener) {
+          listener.valueBound(new HttpSessionBindingEvent(this, name, value));
         }
       }
     }
@@ -199,23 +183,13 @@ public class MockHttpSession implements HttpSession {
   }
 
   @Override
-  public void putValue(String name, Object value) {
-    setAttribute(name, value);
-  }
-
-  @Override
   public void removeAttribute(String name) {
     assertIsValid();
     Assert.notNull(name, "Attribute name must not be null");
     Object value = this.attributes.remove(name);
-    if (value instanceof HttpSessionBindingListener) {
-      ((HttpSessionBindingListener) value).valueUnbound(new HttpSessionBindingEvent(this, name, value));
+    if (value instanceof HttpSessionBindingListener listener) {
+      listener.valueUnbound(new HttpSessionBindingEvent(this, name, value));
     }
-  }
-
-  @Override
-  public void removeValue(String name) {
-    removeAttribute(name);
   }
 
   /**
@@ -227,8 +201,8 @@ public class MockHttpSession implements HttpSession {
       String name = entry.getKey();
       Object value = entry.getValue();
       it.remove();
-      if (value instanceof HttpSessionBindingListener) {
-        ((HttpSessionBindingListener) value).valueUnbound(new HttpSessionBindingEvent(this, name, value));
+      if (value instanceof HttpSessionBindingListener listener) {
+        listener.valueUnbound(new HttpSessionBindingEvent(this, name, value));
       }
     }
   }
@@ -282,14 +256,14 @@ public class MockHttpSession implements HttpSession {
       String name = entry.getKey();
       Object value = entry.getValue();
       it.remove();
-      if (value instanceof Serializable) {
-        state.put(name, (Serializable) value);
+      if (value instanceof Serializable serializable) {
+        state.put(name, serializable);
       }
       else {
         // Not serializable... Servlet containers usually automatically
         // unbind the attribute in this case.
-        if (value instanceof HttpSessionBindingListener) {
-          ((HttpSessionBindingListener) value).valueUnbound(new HttpSessionBindingEvent(this, name, value));
+        if (value instanceof HttpSessionBindingListener listener) {
+          listener.valueUnbound(new HttpSessionBindingEvent(this, name, value));
         }
       }
     }

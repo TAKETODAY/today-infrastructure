@@ -45,7 +45,6 @@ import java.util.TimeZone;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.MediaType;
 import cn.taketoday.lang.Assert;
-import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.LinkedCaseInsensitiveMap;
 import cn.taketoday.util.StringUtils;
@@ -82,7 +81,7 @@ public class MockHttpServletResponse implements HttpServletResponse {
 
   private boolean writerAccessAllowed = true;
 
-  private String defaultCharacterEncoding = Constant.DEFAULT_ENCODING;
+  private String defaultCharacterEncoding = "ISO-8859-1";
 
   private String characterEncoding = this.defaultCharacterEncoding;
 
@@ -179,7 +178,7 @@ public class MockHttpServletResponse implements HttpServletResponse {
    * @param characterEncoding the default character encoding
    * @see #setCharacterEncoding(String)
    * @see #setContentType(String)
-   * @since 4.0
+   * @since 5.3.10
    */
   public void setDefaultCharacterEncoding(String characterEncoding) {
     Assert.notNull(characterEncoding, "'characterEncoding' must not be null");
@@ -278,7 +277,7 @@ public class MockHttpServletResponse implements HttpServletResponse {
    * @see #getContentAsString()
    * @see #setCharacterEncoding(String)
    * @see #setContentType(String)
-   * @since 4.0
+   * @since 5.2
    */
   public String getContentAsString(Charset fallbackCharset) throws UnsupportedEncodingException {
     if (this.characterEncodingSet) {
@@ -414,6 +413,7 @@ public class MockHttpServletResponse implements HttpServletResponse {
     doAddHeaderValue(HttpHeaders.SET_COOKIE, getCookieHeader(cookie), false);
   }
 
+  @SuppressWarnings("removal")
   private String getCookieHeader(Cookie cookie) {
     StringBuilder buf = new StringBuilder();
     buf.append(cookie.getName()).append('=').append(cookie.getValue() == null ? "" : cookie.getValue());
@@ -424,7 +424,7 @@ public class MockHttpServletResponse implements HttpServletResponse {
       buf.append("; Domain=").append(cookie.getDomain());
     }
     int maxAge = cookie.getMaxAge();
-    ZonedDateTime expires = (cookie instanceof MockCookie ? ((MockCookie) cookie).getExpires() : null);
+    ZonedDateTime expires = (cookie instanceof MockCookie mockCookie ? mockCookie.getExpires() : null);
     if (maxAge >= 0) {
       buf.append("; Max-Age=").append(maxAge);
       buf.append("; Expires=");
@@ -510,7 +510,7 @@ public class MockHttpServletResponse implements HttpServletResponse {
   /**
    * Return all values for the given header as a List of Strings.
    * <p>As of Servlet 3.0, this method is also defined in {@link HttpServletResponse}.
-   * it returns a List of stringified values for Servlet 3.0 compatibility.
+   * As of Spring 3.1, it returns a List of stringified values for Servlet 3.0 compatibility.
    * Consider using {@link #getHeaderValues(String)} for raw Object access.
    *
    * @param name the name of the header
@@ -576,18 +576,6 @@ public class MockHttpServletResponse implements HttpServletResponse {
   @Override
   public String encodeRedirectURL(String url) {
     return encodeURL(url);
-  }
-
-  @Override
-  @Deprecated
-  public String encodeUrl(String url) {
-    return encodeURL(url);
-  }
-
-  @Override
-  @Deprecated
-  public String encodeRedirectUrl(String url) {
-    return encodeRedirectURL(url);
   }
 
   @Override
@@ -701,7 +689,7 @@ public class MockHttpServletResponse implements HttpServletResponse {
       return true;
     }
     else if (HttpHeaders.CONTENT_LENGTH.equalsIgnoreCase(name)) {
-      setContentLength(value instanceof Number ? ((Number) value).intValue() :
+      setContentLength(value instanceof Number number ? number.intValue() :
                        Integer.parseInt(value.toString()));
       return true;
     }
@@ -761,15 +749,6 @@ public class MockHttpServletResponse implements HttpServletResponse {
   public void setStatus(int status) {
     if (!this.isCommitted()) {
       this.status = status;
-    }
-  }
-
-  @Override
-  @Deprecated
-  public void setStatus(int status, String errorMessage) {
-    if (!this.isCommitted()) {
-      this.status = status;
-      this.errorMessage = errorMessage;
     }
   }
 
