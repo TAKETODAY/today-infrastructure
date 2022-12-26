@@ -35,10 +35,9 @@ import cn.taketoday.framework.web.embedded.netty.ReactorNettyWebServer;
 import cn.taketoday.http.server.reactive.HttpHandler;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.stereotype.Component;
-import cn.taketoday.stereotype.Singleton;
 import cn.taketoday.web.handler.DispatcherHandler;
 import cn.taketoday.web.multipart.MultipartConfig;
-import cn.taketoday.web.socket.WebSocketHandlerMapping;
+import cn.taketoday.web.socket.server.support.WebSocketHandlerMapping;
 import io.netty.handler.codec.http.multipart.DefaultHttpDataFactory;
 import reactor.core.publisher.Mono;
 
@@ -128,10 +127,10 @@ public class NettyConfiguration {
       return new NettyChannelHandler(contextConfig, context);
     }
 
-    @Singleton
+    @Component
     @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-    NettyWebSocketHandlerAdapter webSocketHandlerAdapter() {
-      return new NettyWebSocketHandlerAdapter();
+    NettyRequestUpgradeStrategy nettyRequestUpgradeStrategy() {
+      return new NettyRequestUpgradeStrategy();
     }
 
   }

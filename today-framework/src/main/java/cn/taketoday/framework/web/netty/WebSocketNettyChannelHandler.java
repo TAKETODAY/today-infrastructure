@@ -76,8 +76,8 @@ public class WebSocketNettyChannelHandler extends NettyChannelHandler {
   private void handleWebSocketFrame(ChannelHandlerContext ctx, WebSocketFrame frame) {
     Channel channel = ctx.channel();
 
-    WebSocketHandler socketHandler = channel.attr(NettyWebSocketHandlerAdapter.SOCKET_HANDLER_KEY).get();
-    WebSocketSession webSocketSession = channel.attr(NettyWebSocketHandlerAdapter.SOCKET_SESSION_KEY).get();
+    WebSocketHandler socketHandler = channel.attr(NettyRequestUpgradeStrategy.SOCKET_HANDLER_KEY).get();
+    WebSocketSession webSocketSession = channel.attr(NettyRequestUpgradeStrategy.SOCKET_SESSION_KEY).get();
     if (frame instanceof CloseWebSocketFrame closeFrame) {
       int statusCode = closeFrame.statusCode();
       String reasonText = closeFrame.reasonText();
@@ -127,8 +127,8 @@ public class WebSocketNettyChannelHandler extends NettyChannelHandler {
   @Override
   public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
     Channel channel = ctx.channel();
-    var socketHandler = channel.attr(NettyWebSocketHandlerAdapter.SOCKET_HANDLER_KEY).get();
-    var webSocketSession = channel.attr(NettyWebSocketHandlerAdapter.SOCKET_SESSION_KEY).get();
+    var socketHandler = channel.attr(NettyRequestUpgradeStrategy.SOCKET_HANDLER_KEY).get();
+    var webSocketSession = channel.attr(NettyRequestUpgradeStrategy.SOCKET_SESSION_KEY).get();
     if (socketHandler != null && webSocketSession != null) {
       socketHandler.onError(webSocketSession, cause);
     }
