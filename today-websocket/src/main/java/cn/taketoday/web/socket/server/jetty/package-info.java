@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -18,29 +18,12 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.web.socket;
-
-import cn.taketoday.core.NestedRuntimeException;
-
 /**
- * @author TODAY 2021/4/5 23:05
- * @since 3.0
+ * Server-side support for the Jetty 9+ WebSocket API.
  */
-public class HandshakeFailedException extends NestedRuntimeException {
+@NonNullApi
+@NonNullFields
+package cn.taketoday.web.socket.server.jetty;
 
-  public HandshakeFailedException() {
-    super();
-  }
-
-  public HandshakeFailedException(String message) {
-    super(message);
-  }
-
-  public HandshakeFailedException(Throwable cause) {
-    super(cause);
-  }
-
-  public HandshakeFailedException(String message, Throwable cause) {
-    super(message, cause);
-  }
-}
+import cn.taketoday.lang.NonNullApi;
+import cn.taketoday.lang.NonNullFields;

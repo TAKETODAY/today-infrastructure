@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -137,7 +137,8 @@ public class JettyWebSocketClient extends AbstractWebSocketClient implements Lif
 
   @Override
   public ListenableFuture<WebSocketSession> doHandshakeInternal(
-          WebSocketHandler wsHandler, HttpHeaders headers, URI uri, List<String> protocols, List<WebSocketExtension> extensions) {
+          WebSocketHandler wsHandler, HttpHeaders headers,
+          URI uri, List<String> protocols, List<WebSocketExtension> extensions) {
 
     ClientUpgradeRequest request = new ClientUpgradeRequest();
     request.setSubProtocols(protocols);
@@ -148,7 +149,7 @@ public class JettyWebSocketClient extends AbstractWebSocketClient implements Lif
 
     request.setHeaders(headers);
 
-    JettyWebSocketSession wsSession = new JettyWebSocketSession();
+    JettyWebSocketSession wsSession = new JettyWebSocketSession(headers);
 
     Callable<WebSocketSession> connectTask = () -> {
       JettyWebSocketHandler adapter = new JettyWebSocketHandler(wsHandler, wsSession);

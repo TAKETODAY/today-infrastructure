@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -22,11 +22,10 @@ package cn.taketoday.web.socket.annotation;
 
 import java.util.List;
 
-import jakarta.websocket.server.ServerEndpointConfig;
-
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.socket.StandardWebSocketHandler;
 import cn.taketoday.web.socket.WebSocketSession;
+import jakarta.websocket.server.ServerEndpointConfig;
 
 /**
  * @author TODAY 2021/5/8 22:18

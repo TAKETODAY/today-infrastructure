@@ -18,25 +18,22 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.web.socket.annotation;
+package cn.taketoday.web.socket.config;
 
-import cn.taketoday.web.handler.method.ResolvableMethodParameter;
-import cn.taketoday.web.socket.WebSocketSession;
-import jakarta.websocket.EndpointConfig;
+import cn.taketoday.web.socket.WebSocketHandler;
 
 /**
- * @author TODAY 2021/5/10 0:02
- * @since 3.0.1
+ * Provides methods for configuring {@link WebSocketHandler} request mappings.
+ *
+ * @author Rossen Stoyanchev
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 4.0 2022/12/22 22:41
  */
-public class EndpointConfigEndpointParameterResolver implements EndpointParameterResolver {
+public interface WebSocketHandlerRegistry {
 
-  @Override
-  public boolean supports(ResolvableMethodParameter parameter) {
-    return parameter.is(EndpointConfig.class);
-  }
+  /**
+   * Configure a WebSocketHandler at the specified URL paths.
+   */
+  WebSocketHandlerRegistration addHandler(WebSocketHandler webSocketHandler, String... paths);
 
-  @Override
-  public Object resolve(WebSocketSession session, ResolvableMethodParameter parameter) {
-    return session.getAttribute(WebSocketSession.JAVAX_ENDPOINT_CONFIG_KEY);
-  }
 }

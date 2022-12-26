@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -23,9 +23,11 @@ package cn.taketoday.web.socket.annotation;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import cn.taketoday.beans.BeanUtils;
 import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.core.ArraySizeTrimmer;
@@ -36,8 +38,12 @@ import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.CollectionUtils;
+import cn.taketoday.web.ServletDetector;
 import cn.taketoday.web.socket.Message;
+import cn.taketoday.web.socket.StandardEndpoint;
 import cn.taketoday.web.socket.WebSocketHandler;
+import jakarta.websocket.server.ServerEndpoint;
+import jakarta.websocket.server.ServerEndpointConfig;
 
 /**
  * @author TODAY 2021/5/12 23:30
@@ -63,6 +69,12 @@ public class AnnotationWebSocketHandlerBuilder implements ArraySizeTrimmer {
     resolvers.add(new MessageEndpointParameterResolver(ByteBuffer.class, conversionService));
     resolvers.add(new PathVariableEndpointParameterResolver(conversionService));
     resolvers.add(new WebSocketSessionEndpointParameterResolver());
+
+    if (ServletDetector.isWebSocketPresent) {
+      resolvers.add(new PathParamEndpointParameterResolver(conversionService));
+      resolvers.add(new EndpointConfigEndpointParameterResolver());
+      resolvers.add(new StandardSessionEndpointParameterResolver());
+    }
   }
 
   public void addResolvers(EndpointParameterResolver... resolvers) {
@@ -93,8 +105,30 @@ public class AnnotationWebSocketHandlerBuilder implements ArraySizeTrimmer {
     CollectionUtils.trimToSize(resolvers);
   }
 
-  public WebSocketHandler build(
-          String beanName, BeanDefinition definition, ApplicationContext context, WebSocketHandlerDelegate annotationHandler) {
+  public WebSocketHandler build(String beanName, BeanDefinition definition,
+          ApplicationContext context, WebSocketHandlerDelegate annotationHandler) {
+    if (ServletDetector.isWebSocketPresent) {
+      var socketDispatcher = new StandardAnnotationWebSocketDispatcher(
+              annotationHandler, resolvers, supportPartialMessage);
+      var serverEndpoint = context.findAnnotationOnBean(beanName, ServerEndpoint.class);
+      if (serverEndpoint.isPresent()) {
+        ServerEndpointConfig.Configurator configuratorObject = null;
+        var configurator = serverEndpoint.<ServerEndpointConfig.Configurator>getClass("configurator");
+        if (!configurator.equals(ServerEndpointConfig.Configurator.class)) {
+          configuratorObject = BeanUtils.newInstance(configurator);
+        }
+        ServerEndpointConfig endpointConfig = ServerEndpointConfig.Builder
+                .create(StandardEndpoint.class, serverEndpoint.getStringValue())
+                .decoders(Arrays.asList(serverEndpoint.getClassArray("decoders")))
+                .encoders(Arrays.asList(serverEndpoint.getClassArray("encoders")))
+                .subprotocols(Arrays.asList(serverEndpoint.getStringArray("subprotocols")))
+                .configurator(configuratorObject)
+                .build();
+
+        socketDispatcher.setEndpointConfig(endpointConfig);
+      }
+      return socketDispatcher;
+    }
     return new AnnotationWebSocketDispatcher(annotationHandler, resolvers, supportPartialMessage);
   }
 

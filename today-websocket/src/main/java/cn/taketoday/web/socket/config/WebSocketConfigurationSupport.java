@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -18,68 +18,128 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.web.socket;
+package cn.taketoday.web.socket.config;
 
 import java.lang.reflect.Method;
+import java.util.List;
 
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanSupplier;
-import cn.taketoday.beans.factory.SmartInitializingSingleton;
 import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.support.RootBeanDefinition;
 import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.lang.Assert;
+import cn.taketoday.context.annotation.MissingBean;
+import cn.taketoday.http.converter.HttpMessageConverter;
+import cn.taketoday.lang.Nullable;
+import cn.taketoday.stereotype.Component;
+import cn.taketoday.util.ReflectionUtils;
+import cn.taketoday.web.HandlerMapping;
+import cn.taketoday.web.config.WebMvcConfigurationSupport;
+import cn.taketoday.web.handler.AbstractHandlerMapping;
 import cn.taketoday.web.handler.method.ActionMappingAnnotationHandler;
 import cn.taketoday.web.handler.method.AnnotationHandlerFactory;
 import cn.taketoday.web.handler.method.ResolvableParameterFactory;
-import cn.taketoday.web.registry.AbstractUrlHandlerMapping;
-import cn.taketoday.web.registry.annotation.HandlerMethodMapping;
+import cn.taketoday.web.socket.WebSocketHandler;
 import cn.taketoday.web.socket.annotation.AfterHandshake;
 import cn.taketoday.web.socket.annotation.AnnotationWebSocketHandlerBuilder;
 import cn.taketoday.web.socket.annotation.EndpointMapping;
+import cn.taketoday.web.socket.annotation.EndpointParameterResolver;
+import cn.taketoday.web.socket.annotation.MessageBodyEndpointParameterResolver;
 import cn.taketoday.web.socket.annotation.OnClose;
 import cn.taketoday.web.socket.annotation.OnError;
 import cn.taketoday.web.socket.annotation.OnMessage;
 import cn.taketoday.web.socket.annotation.OnOpen;
 import cn.taketoday.web.socket.annotation.WebSocketHandlerDelegate;
 import cn.taketoday.web.socket.annotation.WebSocketHandlerMethod;
+import cn.taketoday.web.socket.annotation.WebSocketSessionParameterResolver;
 import cn.taketoday.web.util.pattern.PathPattern;
 import cn.taketoday.web.util.pattern.PathPatternParser;
 
 /**
- * {@link WebSocketHandler} registry
+ * Configuration support for WebSocket request handling.
  *
- * @author TODAY 2021/4/5 12:12
- * @since 3.0
+ * @author Rossen Stoyanchev
+ * @author Sebastien Deleuze
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 4.0
  */
-public class WebSocketHandlerMapping extends AbstractUrlHandlerMapping implements SmartInitializingSingleton {
-  protected AnnotationWebSocketHandlerBuilder annotationHandlerBuilder;
+public class WebSocketConfigurationSupport {
 
-  public WebSocketHandlerMapping() { }
+  @Nullable
+  private DefaultWebSocketHandlerRegistry handlerRegistry;
 
-  public WebSocketHandlerMapping(AnnotationWebSocketHandlerBuilder annotationHandlerBuilder) {
-    this.annotationHandlerBuilder = annotationHandlerBuilder;
-  }
-
-  @Override
-  public void afterSingletonsInstantiated() {
-    onStartup(obtainApplicationContext());
-  }
-
-  public void onStartup(ApplicationContext context) {
-    if (annotationHandlerBuilder == null) {
-      annotationHandlerBuilder = context.getBean(AnnotationWebSocketHandlerBuilder.class);
+  @Component
+  public HandlerMapping webSocketHandlerMapping(
+          @Nullable WebMvcConfigurationSupport support,
+          AnnotationWebSocketHandlerBuilder annotationWebSocketHandlerBuilder,
+          ApplicationContext context) {
+    DefaultWebSocketHandlerRegistry registry = getRegistry();
+    onStartup(context, registry, annotationWebSocketHandlerBuilder);
+    AbstractHandlerMapping handlerMapping = registry.getHandlerMapping();
+    if (support != null) {
+      support.initHandlerMapping(handlerMapping);
     }
+    return handlerMapping;
+  }
+
+  private DefaultWebSocketHandlerRegistry getRegistry() {
+    if (this.handlerRegistry == null) {
+      this.handlerRegistry = new DefaultWebSocketHandlerRegistry();
+      registerWebSocketHandlers(this.handlerRegistry);
+    }
+    return this.handlerRegistry;
+  }
+
+  protected void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
+
+  }
+
+  @MissingBean
+  WebSocketSessionParameterResolver webSocketSessionParameterResolver() {
+    return new WebSocketSessionParameterResolver();
+  }
+
+  @MissingBean(value = AnnotationWebSocketHandlerBuilder.class)
+  AnnotationWebSocketHandlerBuilder annotationWebSocketHandlerBuilder(
+          List<EndpointParameterResolver> resolvers) {
+
+    var handlerBuilder = new AnnotationWebSocketHandlerBuilder();
+
+    registerEndpointParameterStrategies(resolvers);
+
+    handlerBuilder.registerDefaultResolvers();
+    handlerBuilder.addResolvers(resolvers);
+    handlerBuilder.trimToSize(); // @since 4.0 trimToSize
+    return handlerBuilder;
+  }
+
+  protected void registerEndpointParameterStrategies(
+          List<EndpointParameterResolver> resolvers) { }
+
+  @MissingBean
+  MessageBodyEndpointParameterResolver messageBodyEndpointParameterResolver(
+          @Nullable WebMvcConfigurationSupport support) {
+    if (support == null) {
+      support = new WebMvcConfigurationSupport();
+    }
+
+    List<HttpMessageConverter<?>> messageConverters = support.getMessageConverters();
+    return new MessageBodyEndpointParameterResolver(messageConverters);
+  }
+
+  protected void onStartup(ApplicationContext context,
+          WebSocketHandlerRegistry handlerRegistry,
+          AnnotationWebSocketHandlerBuilder annotationHandlerBuilder) {
     AnnotationHandlerFactory factory = context.getBean(AnnotationHandlerFactory.class);
 
-    ConfigurableBeanFactory beanFactory = context.getBeanFactory().unwrap(ConfigurableBeanFactory.class);
+    ConfigurableBeanFactory beanFactory = context.unwrapFactory(ConfigurableBeanFactory.class);
     String[] definitionNames = context.getBeanDefinitionNames();
     for (String beanName : definitionNames) {
       BeanDefinition merged = beanFactory.getMergedBeanDefinition(beanName);
       if (!merged.isAbstract() && merged instanceof RootBeanDefinition root) {
         if (isEndpoint(context, root, beanName)) {
-          registerEndpoint(beanName, root, context, factory);
+          registerEndpoint(beanName, root, context, factory, annotationHandlerBuilder, handlerRegistry);
         }
       }
     }
@@ -103,14 +163,13 @@ public class WebSocketHandlerMapping extends AbstractUrlHandlerMapping implement
 
   protected void registerEndpoint(
           String beanName, RootBeanDefinition definition, ApplicationContext context,
-          AnnotationHandlerFactory factory) {
+          AnnotationHandlerFactory factory, AnnotationWebSocketHandlerBuilder handlerBuilder,
+          WebSocketHandlerRegistry registry) {
     BeanSupplier<Object> handlerBean = createHandler(beanName, context);
 
     Class<?> endpointClass = definition.getBeanClass();
-
-    String[] path = getPath(beanName, definition, context);
-
-    Method[] declaredMethods = endpointClass.getDeclaredMethods();
+    String[] pathPatterns = getPath(beanName, definition, context);
+    Method[] declaredMethods = ReflectionUtils.getDeclaredMethods(endpointClass);
 
     ActionMappingAnnotationHandler afterHandshake = null;
     WebSocketHandlerMethod onOpen = null;
@@ -136,16 +195,17 @@ public class WebSocketHandlerMapping extends AbstractUrlHandlerMapping implement
         onMessage = new WebSocketHandlerMethod(handlerBean, declaredMethod, parameterFactory);
       }
     }
-    AnnotationWebSocketHandlerBuilder handlerBuilder = getAnnotationHandlerBuilder();
-    Assert.state(handlerBuilder != null, "No annotationHandlerBuilder in this registry");
-    PathPatternParser patternParser = getPatternParser();
-    for (String pattern : path) {
+
+    // TODO make PathPatternParser configurable
+    PathPatternParser patternParser = PathPatternParser.defaultInstance;
+    for (String pattern : pathPatterns) {
       PathPattern pathPattern = patternParser.parse(pattern);
-      boolean containsPathVariable = HandlerMethodMapping.containsPathVariable(pattern);
-      WebSocketHandlerDelegate annotationHandler = new WebSocketHandlerDelegate(
+
+      boolean containsPathVariable = !pathPattern.getVariableNames().isEmpty();
+      var annotationHandler = new WebSocketHandlerDelegate(
               pathPattern, containsPathVariable, onOpen, onClose, onError, onMessage, afterHandshake);
       WebSocketHandler handler = handlerBuilder.build(beanName, definition, context, annotationHandler);
-      registerHandler(pattern, handler);
+      registry.addHandler(handler, pattern);
     }
   }
 
@@ -171,16 +231,6 @@ public class WebSocketHandlerMapping extends AbstractUrlHandlerMapping implement
 
   protected boolean isOnOpenHandler(Method declaredMethod, BeanDefinition definition) {
     return declaredMethod.isAnnotationPresent(OnOpen.class);
-  }
-
-  //
-
-  public void setAnnotationHandlerBuilder(AnnotationWebSocketHandlerBuilder annotationHandlerBuilder) {
-    this.annotationHandlerBuilder = annotationHandlerBuilder;
-  }
-
-  public AnnotationWebSocketHandlerBuilder getAnnotationHandlerBuilder() {
-    return annotationHandlerBuilder;
   }
 
 }

@@ -1,7 +1,6 @@
-
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -20,8 +19,11 @@
  */
 
 /**
- * System {@link cn.taketoday.web.HandlerMapping}
- *
- * @author TODAY 2021/9/23 21:55
+ * Server-side abstractions for WebSocket interactions.
  */
-package cn.taketoday.web.registry;
+@NonNullApi
+@NonNullFields
+package cn.taketoday.web.socket.server;
+
+import cn.taketoday.lang.NonNullApi;
+import cn.taketoday.lang.NonNullFields;

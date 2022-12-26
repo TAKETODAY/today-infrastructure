@@ -18,25 +18,13 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.web.socket.annotation;
-
-import cn.taketoday.web.handler.method.ResolvableMethodParameter;
-import cn.taketoday.web.socket.WebSocketSession;
-import jakarta.websocket.EndpointConfig;
-
 /**
- * @author TODAY 2021/5/10 0:02
- * @since 3.0.1
+ * Server-side support classes including container-specific strategies
+ * for upgrading a request.
  */
-public class EndpointConfigEndpointParameterResolver implements EndpointParameterResolver {
+@NonNullApi
+@NonNullFields
+package cn.taketoday.web.socket.server.support;
 
-  @Override
-  public boolean supports(ResolvableMethodParameter parameter) {
-    return parameter.is(EndpointConfig.class);
-  }
-
-  @Override
-  public Object resolve(WebSocketSession session, ResolvableMethodParameter parameter) {
-    return session.getAttribute(WebSocketSession.JAVAX_ENDPOINT_CONFIG_KEY);
-  }
-}
+import cn.taketoday.lang.NonNullApi;
+import cn.taketoday.lang.NonNullFields;

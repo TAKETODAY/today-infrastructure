@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -52,7 +52,7 @@ import cn.taketoday.web.socket.WebSocketSession;
  */
 @WebSocket
 public class JettyWebSocketHandler {
-  private static final Logger logger = LoggerFactory.getLogger(JettyWebSocketHandlerAdapter.class);
+  private static final Logger logger = LoggerFactory.getLogger(JettyWebSocketHandler.class);
   private static final ByteBuffer EMPTY_PAYLOAD = ByteBuffer.wrap(Constant.EMPTY_BYTES);
 
   private final JettyWebSocketSession wsSession;

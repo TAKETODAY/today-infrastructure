@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -18,23 +18,32 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.web.socket;
+package cn.taketoday.web.socket.config;
 
 import java.util.List;
 
+import cn.taketoday.web.socket.WebSocketHandler;
 import cn.taketoday.web.socket.annotation.EndpointParameterResolver;
 
 /**
- * @author TODAY 2021/4/5 19:44
- * @since 3.0
+ * Defines callback methods to configure the WebSocket request handling
+ * via {@link EnableWebSocket @EnableWebSocket}.
+ *
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @author Rossen Stoyanchev
+ * @since 4.0
  */
-public interface WebSocketConfiguration {
+public interface WebSocketConfigurer {
 
-  default void configureWebSocketHandlers(WebSocketHandlerMapping registry) {
-    // no-op
-  }
+  /**
+   * Register {@link WebSocketHandler WebSocketHandlers}.
+   */
+  void registerWebSocketHandlers(WebSocketHandlerRegistry registry);
 
-  default void configureEndpointParameterResolvers(List<EndpointParameterResolver> resolvers) {
+  /**
+   * Register {@link EndpointParameterResolver}
+   */
+  default void registerEndpointParameterStrategies(List<EndpointParameterResolver> resolvers) {
     // no-op
   }
 

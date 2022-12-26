@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -46,6 +46,12 @@ public abstract class WebSocketSession
   public static final AlternativeJdkIdGenerator idGenerator = new AlternativeJdkIdGenerator();
 
   private final String id = idGenerator.generateId().toString();
+
+  private final HttpHeaders handshakeHeaders;
+
+  protected WebSocketSession(HttpHeaders handshakeHeaders) {
+    this.handshakeHeaders = handshakeHeaders;
+  }
 
   /**
    * Session Id
@@ -269,7 +275,7 @@ public abstract class WebSocketSession
    * @since 4.0
    */
   public HttpHeaders getHandshakeHeaders() {
-    return null;
+    return handshakeHeaders;
   }
 
 }

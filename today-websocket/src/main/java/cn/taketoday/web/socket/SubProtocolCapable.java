@@ -18,25 +18,23 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.web.socket.annotation;
+package cn.taketoday.web.socket;
 
-import cn.taketoday.web.handler.method.ResolvableMethodParameter;
-import cn.taketoday.web.socket.WebSocketSession;
-import jakarta.websocket.EndpointConfig;
+import java.util.List;
 
 /**
- * @author TODAY 2021/5/10 0:02
- * @since 3.0.1
+ * An interface for WebSocket handlers that support sub-protocols as defined in RFC 6455.
+ *
+ * @author Rossen Stoyanchev
+ * @see WebSocketHandler
+ * @see <a href="https://tools.ietf.org/html/rfc6455#section-1.9">RFC-6455 section 1.9</a>
+ * @since 4.0
  */
-public class EndpointConfigEndpointParameterResolver implements EndpointParameterResolver {
+public interface SubProtocolCapable {
 
-  @Override
-  public boolean supports(ResolvableMethodParameter parameter) {
-    return parameter.is(EndpointConfig.class);
-  }
+  /**
+   * Return the list of supported sub-protocols.
+   */
+  List<String> getSubProtocols();
 
-  @Override
-  public Object resolve(WebSocketSession session, ResolvableMethodParameter parameter) {
-    return session.getAttribute(WebSocketSession.JAVAX_ENDPOINT_CONFIG_KEY);
-  }
 }

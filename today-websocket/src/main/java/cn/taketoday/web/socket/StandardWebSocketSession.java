@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -20,15 +20,15 @@
 
 package cn.taketoday.web.socket;
 
+import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.nio.ByteBuffer;
+
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.lang.Nullable;
 import jakarta.websocket.CloseReason;
 import jakarta.websocket.CloseReason.CloseCodes;
 import jakarta.websocket.Session;
-
-import java.io.IOException;
-import java.net.InetSocketAddress;
-import java.nio.ByteBuffer;
 
 /**
  * Standard jakarta.websocket.Session WebSocketSession
@@ -38,17 +38,15 @@ import java.nio.ByteBuffer;
  */
 public class StandardWebSocketSession extends NativeWebSocketSession<Session> {
 
-  private final HttpHeaders handshakeHeaders;
-
   @Nullable
   private final InetSocketAddress localAddress;
 
   @Nullable
   private final InetSocketAddress remoteAddress;
 
-  public StandardWebSocketSession(
-          HttpHeaders handshakeHeaders, @Nullable InetSocketAddress localAddress, @Nullable InetSocketAddress remoteAddress) {
-    this.handshakeHeaders = handshakeHeaders;
+  public StandardWebSocketSession(HttpHeaders handshakeHeaders,
+          @Nullable InetSocketAddress localAddress, @Nullable InetSocketAddress remoteAddress) {
+    super(handshakeHeaders);
     this.localAddress = localAddress;
     this.remoteAddress = remoteAddress;
   }
@@ -63,11 +61,6 @@ public class StandardWebSocketSession extends NativeWebSocketSession<Session> {
   @Nullable
   public InetSocketAddress getRemoteAddress() {
     return remoteAddress;
-  }
-
-  @Override
-  public HttpHeaders getHandshakeHeaders() {
-    return handshakeHeaders;
   }
 
   @Override

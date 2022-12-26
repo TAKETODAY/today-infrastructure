@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.time.Duration;
 
+import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.web.socket.BinaryMessage;
 import cn.taketoday.web.socket.CloseStatus;
 import cn.taketoday.web.socket.NativeWebSocketSession;
@@ -39,6 +40,10 @@ import cn.taketoday.web.socket.PongMessage;
  * @since 3.0.1
  */
 public class JettyWebSocketSession extends NativeWebSocketSession<Session> {
+
+  public JettyWebSocketSession(HttpHeaders handshakeHeaders) {
+    super(handshakeHeaders);
+  }
 
   @Override
   public void sendText(String text) throws IOException {
