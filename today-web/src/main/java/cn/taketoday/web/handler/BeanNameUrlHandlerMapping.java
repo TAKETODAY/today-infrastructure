@@ -18,14 +18,13 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.web.registry;
+package cn.taketoday.web.handler;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.HandlerMapping;
-import cn.taketoday.web.registry.annotation.HandlerMethodMapping;
 
 /**
  * Implementation of the {@link HandlerMapping} interface that maps from URLs
@@ -34,7 +33,8 @@ import cn.taketoday.web.registry.annotation.HandlerMethodMapping;
  *
  * <p>This is the default implementation used by the
  * {@link cn.taketoday.web.handler.DispatcherHandler}, along with
- * {@link HandlerMethodMapping}. Alternatively, {@link SimpleUrlHandlerMapping}
+ * {@link cn.taketoday.web.handler.method.RequestMappingHandlerMapping}.
+ * Alternatively, {@link SimpleUrlHandlerMapping}
  * allows for customizing a handler mapping declaratively.
  *
  * <p>The mapping is from URL to bean name. Thus an incoming URL "/foo" would map

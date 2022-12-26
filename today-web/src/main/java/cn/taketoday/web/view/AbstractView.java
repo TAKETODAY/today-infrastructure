@@ -41,7 +41,7 @@ import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.web.ContextExposingRequestContext;
 import cn.taketoday.web.HandlerMatchingMetadata;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.WebApplicationContextSupport;
+import cn.taketoday.web.servlet.WebApplicationContextSupport;
 
 /**
  * Abstract base class for {@link View}

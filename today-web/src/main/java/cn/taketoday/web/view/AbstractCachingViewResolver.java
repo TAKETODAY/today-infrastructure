@@ -25,9 +25,9 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import cn.taketoday.context.aware.ApplicationContextSupport;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.web.WebApplicationContextSupport;
 
 /**
  * Convenient base class for {@link ViewResolver}
@@ -42,7 +42,7 @@ import cn.taketoday.web.WebApplicationContextSupport;
  * @author Juergen Hoeller
  * @see #loadView
  */
-public abstract class AbstractCachingViewResolver extends WebApplicationContextSupport implements ViewResolver {
+public abstract class AbstractCachingViewResolver extends ApplicationContextSupport implements ViewResolver {
 
   /** Default maximum number of entries for the view cache: 1024. */
   public static final int DEFAULT_CACHE_LIMIT = 1024;

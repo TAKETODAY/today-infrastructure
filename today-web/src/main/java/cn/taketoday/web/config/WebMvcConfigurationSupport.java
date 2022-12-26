@@ -86,12 +86,16 @@ import cn.taketoday.web.bind.resolver.ParameterResolvingStrategy;
 import cn.taketoday.web.bind.support.ConfigurableWebBindingInitializer;
 import cn.taketoday.web.context.async.WebAsyncManagerFactory;
 import cn.taketoday.web.cors.CorsConfiguration;
+import cn.taketoday.web.handler.AbstractHandlerMapping;
+import cn.taketoday.web.handler.BeanNameUrlHandlerMapping;
 import cn.taketoday.web.handler.CompositeHandlerExceptionHandler;
 import cn.taketoday.web.handler.NotFoundHandler;
 import cn.taketoday.web.handler.ResponseStatusExceptionHandler;
 import cn.taketoday.web.handler.ReturnValueHandlerManager;
 import cn.taketoday.web.handler.SimpleHandlerExceptionHandler;
+import cn.taketoday.web.handler.SimpleUrlHandlerMapping;
 import cn.taketoday.web.handler.ViewControllerHandlerAdapter;
+import cn.taketoday.web.handler.ViewControllerHandlerMapping;
 import cn.taketoday.web.handler.function.support.HandlerFunctionAdapter;
 import cn.taketoday.web.handler.function.support.RouterFunctionMapping;
 import cn.taketoday.web.handler.method.AnnotationHandlerFactory;
@@ -104,10 +108,6 @@ import cn.taketoday.web.handler.method.RequestBodyAdvice;
 import cn.taketoday.web.handler.method.RequestMappingHandlerAdapter;
 import cn.taketoday.web.handler.method.RequestMappingHandlerMapping;
 import cn.taketoday.web.handler.method.ResponseBodyAdvice;
-import cn.taketoday.web.registry.AbstractHandlerMapping;
-import cn.taketoday.web.registry.BeanNameUrlHandlerMapping;
-import cn.taketoday.web.registry.SimpleUrlHandlerMapping;
-import cn.taketoday.web.registry.ViewControllerHandlerMapping;
 import cn.taketoday.web.resource.ResourceUrlProvider;
 import cn.taketoday.web.servlet.ServletViewResolverComposite;
 import cn.taketoday.web.servlet.WebApplicationContext;
@@ -778,7 +778,7 @@ public class WebMvcConfigurationSupport extends ApplicationContextSupport {
     return mapping;
   }
 
-  private void initHandlerMapping(@Nullable AbstractHandlerMapping mapping) {
+  public void initHandlerMapping(@Nullable AbstractHandlerMapping mapping) {
     if (mapping != null) {
       mapping.setInterceptors(getInterceptors());
       mapping.setCorsConfigurations(getCorsConfigurations());

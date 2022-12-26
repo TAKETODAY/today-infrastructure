@@ -18,7 +18,7 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.web.registry;
+package cn.taketoday.web.handler;
 
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -45,7 +45,6 @@ import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.InfraConfigurationException;
 import cn.taketoday.web.ReturnValueHandler;
-import cn.taketoday.web.handler.ViewController;
 import cn.taketoday.web.handler.method.ResolvableParameterFactory;
 import cn.taketoday.web.util.pattern.PathPattern;
 import cn.taketoday.web.util.pattern.PathPatternParser;

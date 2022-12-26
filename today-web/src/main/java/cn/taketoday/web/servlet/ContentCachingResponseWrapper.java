@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -79,7 +79,6 @@ public class ContentCachingResponseWrapper extends HttpServletResponseWrapper {
   }
 
   @Override
-  @SuppressWarnings("deprecation")
   public void sendError(int sc, String msg) throws IOException {
     copyBodyToResponse(false);
     try {
@@ -87,7 +86,7 @@ public class ContentCachingResponseWrapper extends HttpServletResponseWrapper {
     }
     catch (IllegalStateException ex) {
       // Possibly on Tomcat when called too late: fall back to silent setStatus
-      super.setStatus(sc, msg);
+      super.setStatus(sc);
     }
   }
 

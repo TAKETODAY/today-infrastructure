@@ -20,6 +20,8 @@
 
 package cn.taketoday.web.handler.method;
 
+import java.io.IOException;
+
 import cn.taketoday.context.MessageSource;
 import cn.taketoday.core.i18n.LocaleContextHolder;
 import cn.taketoday.http.HttpStatusCode;
@@ -135,18 +137,18 @@ public class RequestMappingHandler extends InterceptableRequestHandler {
   /**
    * Set the response status according to the {@link ResponseStatus} annotation.
    */
-  protected void applyResponseStatus(RequestContext context) {
+  protected void applyResponseStatus(RequestContext context) throws IOException {
     applyResponseStatus(context, handlerMethod.getResponseStatus());
   }
 
-  protected void applyResponseStatus(RequestContext context, HttpStatusCode status) {
+  protected void applyResponseStatus(RequestContext context, HttpStatusCode status) throws IOException {
     if (status != null) {
       String reason = handlerMethod.getResponseStatusReason();
       int httpStatus = status.value();
       if (StringUtils.hasText(reason)) {
         MessageSource messageSource = context.getApplicationContext();
         String message = messageSource.getMessage(reason, null, reason, LocaleContextHolder.getLocale());
-        context.setStatus(httpStatus, message);
+        context.sendError(httpStatus, message);
       }
       else {
         context.setStatus(httpStatus);

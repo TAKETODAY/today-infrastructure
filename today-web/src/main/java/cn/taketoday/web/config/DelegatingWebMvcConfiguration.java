@@ -32,7 +32,7 @@ import cn.taketoday.validation.Validator;
 import cn.taketoday.web.HandlerExceptionHandler;
 import cn.taketoday.web.bind.resolver.ParameterResolvingRegistry;
 import cn.taketoday.web.handler.ReturnValueHandlerManager;
-import cn.taketoday.web.registry.ViewControllerHandlerMapping;
+import cn.taketoday.web.handler.ViewControllerHandlerMapping;
 
 /**
  * A subclass of {@code WebMvcConfigurationSupport} that detects and delegates

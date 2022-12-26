@@ -38,7 +38,7 @@ import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.registry.SimpleUrlHandlerMapping;
+import cn.taketoday.web.handler.SimpleUrlHandlerMapping;
 
 /**
  * A central component to use to obtain the public URL path that clients should

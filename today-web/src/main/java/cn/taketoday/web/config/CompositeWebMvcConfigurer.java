@@ -32,7 +32,7 @@ import cn.taketoday.web.HandlerMapping;
 import cn.taketoday.web.bind.resolver.ParameterResolvingRegistry;
 import cn.taketoday.web.bind.resolver.ParameterResolvingStrategies;
 import cn.taketoday.web.handler.ReturnValueHandlerManager;
-import cn.taketoday.web.registry.ViewControllerHandlerMapping;
+import cn.taketoday.web.handler.ViewControllerHandlerMapping;
 
 /**
  * @author TODAY <br>

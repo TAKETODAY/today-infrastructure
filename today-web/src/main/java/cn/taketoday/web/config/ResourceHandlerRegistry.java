@@ -34,7 +34,7 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.HandlerMapping;
 import cn.taketoday.web.HttpRequestHandler;
 import cn.taketoday.web.accept.ContentNegotiationManager;
-import cn.taketoday.web.registry.SimpleUrlHandlerMapping;
+import cn.taketoday.web.handler.SimpleUrlHandlerMapping;
 import cn.taketoday.web.resource.ResourceHttpRequestHandler;
 
 /**

@@ -20,8 +20,9 @@
 
 package cn.taketoday.web;
 
-import cn.taketoday.util.ClassUtils;
 import cn.taketoday.web.servlet.ServletRequestContext;
+
+import static cn.taketoday.util.ClassUtils.isPresent;
 
 /**
  * A common delegate for detecting Servlet's presence AND its features
@@ -31,8 +32,11 @@ import cn.taketoday.web.servlet.ServletRequestContext;
  */
 public abstract class ServletDetector {
   public static final String SERVLET_CLASS = "jakarta.servlet.Servlet";
+  public static final String SERVLET_WEBSOCKET_CLASS = "jakarta.websocket.Session";
 
-  public static final boolean isPresent = ClassUtils.isPresent(SERVLET_CLASS, ServletDetector.class.getClassLoader());
+  public static final boolean isPresent = isPresent(SERVLET_CLASS, ServletDetector.class.getClassLoader());
+  public static final boolean isWebSocketPresent = isPresent(
+          SERVLET_WEBSOCKET_CLASS, ServletDetector.class.getClassLoader());
 
   public static boolean runningInServlet(RequestContext context) {
     return isPresent && context instanceof ServletRequestContext;

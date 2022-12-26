@@ -28,12 +28,12 @@ import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.web.handler.AbstractHandlerMapping;
+import cn.taketoday.web.handler.BeanNameUrlHandlerMapping;
 import cn.taketoday.web.handler.HandlerExecutionChain;
+import cn.taketoday.web.handler.HandlerRegistries;
 import cn.taketoday.web.handler.function.support.RouterFunctionMapping;
 import cn.taketoday.web.handler.method.RequestMappingHandlerMapping;
-import cn.taketoday.web.registry.AbstractHandlerMapping;
-import cn.taketoday.web.registry.BeanNameUrlHandlerMapping;
-import cn.taketoday.web.registry.HandlerRegistries;
 
 /**
  * Interface to be implemented by objects that define a mapping between

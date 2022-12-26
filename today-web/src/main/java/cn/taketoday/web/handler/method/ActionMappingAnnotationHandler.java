@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -20,6 +20,7 @@
 
 package cn.taketoday.web.handler.method;
 
+import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.Objects;
 import java.util.function.Supplier;
@@ -193,18 +194,18 @@ public abstract class ActionMappingAnnotationHandler extends InterceptableReques
   /**
    * Set the response status according to the {@link ResponseStatus} annotation.
    */
-  protected void applyResponseStatus(RequestContext context) {
+  protected void applyResponseStatus(RequestContext context) throws IOException {
     applyResponseStatus(context, handlerMethod.getResponseStatus());
   }
 
-  protected void applyResponseStatus(RequestContext context, @Nullable HttpStatusCode status) {
+  protected void applyResponseStatus(RequestContext context, @Nullable HttpStatusCode status) throws IOException {
     if (status != null) {
       String reason = handlerMethod.getResponseStatusReason();
       int httpStatus = status.value();
       if (StringUtils.hasText(reason)) {
         MessageSource messageSource = context.getApplicationContext();
         String message = messageSource.getMessage(reason, null, reason, LocaleContextHolder.getLocale());
-        context.setStatus(httpStatus, message);
+        context.sendError(httpStatus, message);
       }
       else {
         context.setStatus(httpStatus);

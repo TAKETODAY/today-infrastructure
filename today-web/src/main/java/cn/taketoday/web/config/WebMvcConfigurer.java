@@ -38,7 +38,7 @@ import cn.taketoday.web.bind.resolver.ParameterResolvingStrategy;
 import cn.taketoday.web.cors.CorsConfiguration;
 import cn.taketoday.web.handler.ReturnValueHandlerManager;
 import cn.taketoday.web.handler.ViewController;
-import cn.taketoday.web.registry.ViewControllerHandlerMapping;
+import cn.taketoday.web.handler.ViewControllerHandlerMapping;
 import cn.taketoday.web.view.View;
 
 /**

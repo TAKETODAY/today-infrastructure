@@ -27,7 +27,7 @@ import java.util.List;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.http.HttpStatusCode;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.web.registry.SimpleUrlHandlerMapping;
+import cn.taketoday.web.handler.SimpleUrlHandlerMapping;
 
 /**
  * Assists with the registration of simple automated controllers pre-configured

@@ -39,7 +39,6 @@ import cn.taketoday.aop.support.AopUtils;
 import cn.taketoday.beans.factory.BeanDefinitionStoreException;
 import cn.taketoday.beans.factory.BeanFactoryUtils;
 import cn.taketoday.beans.factory.InitializingBean;
-import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.support.GenericApplicationContext;
 import cn.taketoday.core.LinkedMultiValueMap;
 import cn.taketoday.core.MethodIntrospector;
@@ -59,8 +58,8 @@ import cn.taketoday.web.InfraConfigurationException;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.annotation.Interceptor;
 import cn.taketoday.web.cors.CorsConfiguration;
+import cn.taketoday.web.handler.AbstractHandlerMapping;
 import cn.taketoday.web.handler.HandlerMethodMappingNamingStrategy;
-import cn.taketoday.web.registry.AbstractHandlerMapping;
 
 /**
  * Abstract base class for {@link HandlerMapping} implementations that define
@@ -216,8 +215,7 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
    */
   @Override
   public void afterPropertiesSet() {
-    ApplicationContext context = obtainApplicationContext();
-    this.context = context.unwrap(GenericApplicationContext.class);
+    this.context = unwrapContext(GenericApplicationContext.class);
     initHandlerMethods();
   }
 

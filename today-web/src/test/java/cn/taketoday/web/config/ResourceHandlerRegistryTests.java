@@ -32,7 +32,7 @@ import cn.taketoday.cache.concurrent.ConcurrentMapCache;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.http.CacheControl;
 import cn.taketoday.web.accept.ContentNegotiationManager;
-import cn.taketoday.web.registry.SimpleUrlHandlerMapping;
+import cn.taketoday.web.handler.SimpleUrlHandlerMapping;
 import cn.taketoday.web.resource.CachingResourceResolver;
 import cn.taketoday.web.resource.CachingResourceTransformer;
 import cn.taketoday.web.resource.CssLinkResourceTransformer;

@@ -28,8 +28,8 @@ import java.util.Map;
 
 import cn.taketoday.context.support.StaticApplicationContext;
 import cn.taketoday.http.HttpStatus;
+import cn.taketoday.web.handler.SimpleUrlHandlerMapping;
 import cn.taketoday.web.handler.mvc.ParameterizableViewController;
-import cn.taketoday.web.registry.SimpleUrlHandlerMapping;
 import cn.taketoday.web.servlet.ServletRequestContext;
 import cn.taketoday.web.testfixture.servlet.MockHttpServletRequest;
 import cn.taketoday.web.testfixture.servlet.MockHttpServletResponse;

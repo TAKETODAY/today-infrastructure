@@ -287,7 +287,7 @@ public class FormHttpMessageConverterTests {
 
     // see if Commons FileUpload can read what we wrote
     FileItemFactory fileItemFactory = new DiskFileItemFactory();
-    FileUpload fileUpload = new FileUpload(fileItemFactory);
+    FileUpload fileUpload = new FileUpload();
     RequestContext requestContext = new MockHttpOutputMessageRequestContext(outputMessage);
     List<FileItem> items = fileUpload.parseRequest(requestContext);
     assertThat(items).hasSize(6);
@@ -347,7 +347,7 @@ public class FormHttpMessageConverterTests {
 
     // see if Commons FileUpload can read what we wrote
     FileItemFactory fileItemFactory = new DiskFileItemFactory();
-    FileUpload fileUpload = new FileUpload(fileItemFactory);
+    FileUpload fileUpload = new FileUpload();
     RequestContext requestContext = new MockHttpOutputMessageRequestContext(outputMessage);
     List<FileItem> items = fileUpload.parseRequest(requestContext);
     assertThat(items.size()).isEqualTo(2);

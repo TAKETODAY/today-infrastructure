@@ -18,7 +18,7 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.web.registry;
+package cn.taketoday.web.handler;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -46,8 +46,6 @@ import cn.taketoday.web.cors.CorsConfigurationSource;
 import cn.taketoday.web.cors.CorsProcessor;
 import cn.taketoday.web.cors.DefaultCorsProcessor;
 import cn.taketoday.web.cors.UrlBasedCorsConfigurationSource;
-import cn.taketoday.web.handler.HandlerExecutionChain;
-import cn.taketoday.web.handler.MappedInterceptor;
 import cn.taketoday.web.util.pattern.PathPatternParser;
 
 /**
