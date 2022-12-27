@@ -45,9 +45,9 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ClassUtils;
-import cn.taketoday.util.MimeType;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
+import cn.taketoday.web.servlet.ServletUtils;
 import cn.taketoday.web.servlet.support.AnnotationConfigWebApplicationContext;
 import cn.taketoday.web.servlet.support.GenericWebApplicationContext;
 import cn.taketoday.web.servlet.support.XmlWebApplicationContext;
@@ -98,11 +98,6 @@ public class MockServletContext implements ServletContext {
   private static final String TEMP_DIR_SYSTEM_PROPERTY = "java.io.tmpdir";
 
   private static final Set<SessionTrackingMode> DEFAULT_SESSION_TRACKING_MODES = new LinkedHashSet<>(4);
-  /**
-   * Standard Servlet spec context attribute that specifies a temporary
-   * directory for the current web application, of type {@code java.io.File}.
-   */
-  public static final String TEMP_DIR_CONTEXT_ATTRIBUTE = "jakarta.servlet.context.tempdir";
 
   static {
     DEFAULT_SESSION_TRACKING_MODES.add(SessionTrackingMode.COOKIE);
@@ -158,8 +153,6 @@ public class MockServletContext implements ServletContext {
   /**
    * Create a new {@code MockServletContext}, using no base path and a
    * {@link DefaultResourceLoader} (i.e. the classpath root as WAR root).
-   *
-   * @see cn.taketoday.core.io.DefaultResourceLoader
    */
   public MockServletContext() {
     this("", null);
@@ -169,7 +162,6 @@ public class MockServletContext implements ServletContext {
    * Create a new {@code MockServletContext}, using a {@link DefaultResourceLoader}.
    *
    * @param resourceBasePath the root directory of the WAR (should not end with a slash)
-   * @see cn.taketoday.core.io.DefaultResourceLoader
    */
   public MockServletContext(String resourceBasePath) {
     this(resourceBasePath, null);
@@ -198,13 +190,11 @@ public class MockServletContext implements ServletContext {
   public MockServletContext(String resourceBasePath, @Nullable ResourceLoader resourceLoader) {
     this.resourceLoader = (resourceLoader != null ? resourceLoader : new DefaultResourceLoader());
     this.resourceBasePath = resourceBasePath;
-
     // Use JVM temp dir as ServletContext temp dir.
     String tempDir = System.getProperty(TEMP_DIR_SYSTEM_PROPERTY);
     if (tempDir != null) {
-      this.attributes.put(TEMP_DIR_CONTEXT_ATTRIBUTE, new File(tempDir));
+      this.attributes.put(ServletUtils.TEMP_DIR_CONTEXT_ATTRIBUTE, new File(tempDir));
     }
-
     registerNamedDispatcher(this.defaultServletName, new MockRequestDispatcher(this.defaultServletName));
   }
 
@@ -288,7 +278,7 @@ public class MockServletContext implements ServletContext {
     }
     else {
       return MediaTypeFactory.getMediaType(filePath).
-              map(MimeType::toString)
+              map(cn.taketoday.util.MimeType::toString)
               .orElse(null);
     }
   }
@@ -448,34 +438,9 @@ public class MockServletContext implements ServletContext {
     registerNamedDispatcher(this.defaultServletName, new MockRequestDispatcher(this.defaultServletName));
   }
 
-  @Deprecated
-  @Override
-  @Nullable
-  public Servlet getServlet(String name) {
-    return null;
-  }
-
-  @Override
-  @Deprecated
-  public Enumeration<Servlet> getServlets() {
-    return Collections.enumeration(Collections.emptySet());
-  }
-
-  @Override
-  @Deprecated
-  public Enumeration<String> getServletNames() {
-    return Collections.enumeration(Collections.emptySet());
-  }
-
   @Override
   public void log(String message) {
     logger.info(message);
-  }
-
-  @Override
-  @Deprecated
-  public void log(Exception ex, String message) {
-    logger.info(message, ex);
   }
 
   @Override
@@ -680,7 +645,7 @@ public class MockServletContext implements ServletContext {
   /**
    * This method always returns {@code null}.
    *
-   * @see ServletContext#getServletRegistration(String)
+   * @see jakarta.servlet.ServletContext#getServletRegistration(java.lang.String)
    */
   @Override
   @Nullable
@@ -691,7 +656,7 @@ public class MockServletContext implements ServletContext {
   /**
    * This method always returns an {@linkplain Collections#emptyMap empty map}.
    *
-   * @see ServletContext#getServletRegistrations()
+   * @see jakarta.servlet.ServletContext#getServletRegistrations()
    */
   @Override
   public Map<String, ? extends ServletRegistration> getServletRegistrations() {
@@ -721,7 +686,7 @@ public class MockServletContext implements ServletContext {
   /**
    * This method always returns {@code null}.
    *
-   * @see ServletContext#getFilterRegistration(String)
+   * @see jakarta.servlet.ServletContext#getFilterRegistration(java.lang.String)
    */
   @Override
   @Nullable
@@ -732,7 +697,7 @@ public class MockServletContext implements ServletContext {
   /**
    * This method always returns an {@linkplain Collections#emptyMap empty map}.
    *
-   * @see ServletContext#getFilterRegistrations()
+   * @see jakarta.servlet.ServletContext#getFilterRegistrations()
    */
   @Override
   public Map<String, ? extends FilterRegistration> getFilterRegistrations() {

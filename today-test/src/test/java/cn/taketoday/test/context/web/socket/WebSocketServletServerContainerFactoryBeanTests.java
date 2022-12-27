@@ -30,6 +30,8 @@ import cn.taketoday.test.context.web.WebAppConfiguration;
 import cn.taketoday.web.socket.server.standard.ServletServerContainerFactoryBean;
 import jakarta.websocket.server.ServerContainer;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 /**
  * Integration tests that validate support for {@link ServletServerContainerFactoryBean}
  * in conjunction with {@link WebAppConfiguration @WebAppConfiguration} and the

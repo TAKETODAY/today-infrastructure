@@ -24,8 +24,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
-import cn.taketoday.lang.Constant;
-
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.time.ZonedDateTime;
@@ -34,18 +32,19 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Locale;
 
+import cn.taketoday.lang.Constant;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.assertj.core.api.SoftAssertions.assertSoftly;
 import static cn.taketoday.http.HttpHeaders.CONTENT_LANGUAGE;
 import static cn.taketoday.http.HttpHeaders.CONTENT_LENGTH;
 import static cn.taketoday.http.HttpHeaders.CONTENT_TYPE;
 import static cn.taketoday.http.HttpHeaders.LAST_MODIFIED;
 import static cn.taketoday.http.HttpHeaders.LOCATION;
 import static cn.taketoday.http.HttpHeaders.SET_COOKIE;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.api.SoftAssertions.assertSoftly;
 
 /**
  * Unit tests for {@link MockHttpServletResponse}.
@@ -431,10 +430,9 @@ class MockHttpServletResponseTests {
   }
 
   @Test  // SPR-10414
-  @SuppressWarnings("deprecation")
   void modifyStatusMessageAfterSendError() throws IOException {
     response.sendError(HttpServletResponse.SC_NOT_FOUND);
-    response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Server Error");
+    response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
     assertThat(response.getStatus()).isEqualTo(HttpServletResponse.SC_NOT_FOUND);
   }
 

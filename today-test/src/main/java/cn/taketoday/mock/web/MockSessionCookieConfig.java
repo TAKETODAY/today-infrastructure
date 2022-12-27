@@ -20,6 +20,10 @@
 
 package cn.taketoday.mock.web;
 
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.Map;
+
 import cn.taketoday.lang.Nullable;
 import jakarta.servlet.SessionCookieConfig;
 
@@ -49,6 +53,8 @@ public class MockSessionCookieConfig implements SessionCookieConfig {
   private boolean secure;
 
   private int maxAge = -1;
+
+  private Map<String, String> attributes = new LinkedHashMap<>();
 
   @Override
   public void setName(@Nullable String name) {
@@ -83,11 +89,13 @@ public class MockSessionCookieConfig implements SessionCookieConfig {
     return this.path;
   }
 
+  @SuppressWarnings("removal")
   @Override
   public void setComment(@Nullable String comment) {
     this.comment = comment;
   }
 
+  @SuppressWarnings("removal")
   @Override
   @Nullable
   public String getComment() {
@@ -122,6 +130,21 @@ public class MockSessionCookieConfig implements SessionCookieConfig {
   @Override
   public int getMaxAge() {
     return this.maxAge;
+  }
+
+  @Override
+  public void setAttribute(String name, String value) {
+    this.attributes.put(name, value);
+  }
+
+  @Override
+  public String getAttribute(String name) {
+    return this.attributes.get(name);
+  }
+
+  @Override
+  public Map<String, String> getAttributes() {
+    return Collections.unmodifiableMap(this.attributes);
   }
 
 }

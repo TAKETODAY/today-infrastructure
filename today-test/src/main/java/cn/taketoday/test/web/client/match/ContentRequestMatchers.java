@@ -361,7 +361,8 @@ public class ContentRequestMatchers {
 
     public static MultiValueMap<String, ?> parse(MockClientHttpRequest request) {
       try {
-        FileUpload fileUpload = new FileUpload(new DiskFileItemFactory());
+        FileUpload fileUpload = new FileUpload();
+        fileUpload.setFileItemFactory(new DiskFileItemFactory());
 
         List<FileItem> fileItems = fileUpload.parseRequest(new UploadContext() {
           private final byte[] body = request.getBodyAsBytes();
