@@ -81,7 +81,7 @@ public class MockHttpServletResponse implements HttpServletResponse {
 
   private boolean writerAccessAllowed = true;
 
-  private String defaultCharacterEncoding = "ISO-8859-1";
+  private String defaultCharacterEncoding = "UTF-8";
 
   private String characterEncoding = this.defaultCharacterEncoding;
 
