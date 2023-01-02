@@ -93,7 +93,7 @@ public class SQLExceptionSubclassTranslator extends AbstractFallbackSQLException
         return new DataIntegrityViolationException(buildMessage(task, sql, ex), ex);
       }
       if (ex instanceof SQLIntegrityConstraintViolationException) {
-        if ("23505".equals(ex.getSQLState())) {
+        if (SQLStateSQLExceptionTranslator.indicatesDuplicateKey(ex.getSQLState(), ex.getErrorCode())) {
           return new DuplicateKeyException(buildMessage(task, sql, ex), ex);
         }
         return new DataIntegrityViolationException(buildMessage(task, sql, ex), ex);
