@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -116,6 +116,7 @@ final class TldPatterns {
     skipPatterns.add("tomcat-websocket.jar");
     skipPatterns.add("tools.jar");
     skipPatterns.add("websocket-api.jar");
+    skipPatterns.add("websocket-client-api.jar");
     skipPatterns.add("wsdl4j*.jar");
     skipPatterns.add("xercesImpl.jar");
     skipPatterns.add("xml-apis.jar");
