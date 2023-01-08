@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -75,9 +75,9 @@ import cn.taketoday.framework.web.servlet.ServletContextInitializer;
 import cn.taketoday.framework.web.servlet.server.AbstractServletWebServerFactory;
 import cn.taketoday.framework.web.servlet.server.CookieSameSiteSupplier;
 import cn.taketoday.framework.web.servlet.server.ServletWebServerFactory;
-import cn.taketoday.session.config.SameSite;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.session.config.SameSite;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.StringUtils;
 import jakarta.servlet.ServletException;
@@ -626,6 +626,7 @@ public class JettyServletWebServerFactory extends AbstractServletWebServerFactor
       }
 
       @Override
+      @SuppressWarnings("removal")
       public void addCookie(Cookie cookie) {
         SameSite sameSite = getSameSite(cookie);
         if (sameSite != null) {

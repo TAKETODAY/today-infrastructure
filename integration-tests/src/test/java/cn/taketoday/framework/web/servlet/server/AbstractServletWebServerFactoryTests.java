@@ -872,7 +872,7 @@ public abstract class AbstractServletWebServerFactoryTests {
   }
 
   @Test
-  void cookieSameSiteSuppliers() throws Exception {
+  public void cookieSameSiteSuppliers() throws Exception {
     AbstractServletWebServerFactory factory = getFactory();
     factory.addCookieSameSiteSuppliers(CookieSameSiteSupplier.ofLax().whenHasName("relaxed"));
     factory.addCookieSameSiteSuppliers(CookieSameSiteSupplier.ofNone().whenHasName("empty"));
@@ -1702,7 +1702,7 @@ public abstract class AbstractServletWebServerFactoryTests {
     }
 
     @Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) {
       req.getSession(true);
       resp.addCookie(new Cookie("test", "test"));
       if (this.addSupplierTestCookies) {

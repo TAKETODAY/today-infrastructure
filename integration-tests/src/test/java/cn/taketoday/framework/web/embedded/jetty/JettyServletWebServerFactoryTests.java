@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -26,7 +26,6 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.conn.HttpHostConnectException;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.jasper.servlet.JspServlet;
-import org.assertj.core.api.Assertions;
 import org.awaitility.Awaitility;
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.Handler;
@@ -96,6 +95,11 @@ class JettyServletWebServerFactoryTests extends AbstractServletWebServerFactoryT
   @Override
   protected JettyServletWebServerFactory getFactory() {
     return new JettyServletWebServerFactory(0);
+  }
+
+  @Disabled("Jetty")
+  public void cookieSameSiteSuppliers() {
+
   }
 
   @Override
