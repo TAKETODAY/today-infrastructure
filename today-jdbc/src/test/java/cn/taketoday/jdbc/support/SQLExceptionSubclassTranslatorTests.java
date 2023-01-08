@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -62,7 +62,7 @@ public class SQLExceptionSubclassTranslatorTests {
     doTest(new SQLIntegrityConstraintViolationException("", "23505", 0), DuplicateKeyException.class);
     doTest(new SQLIntegrityConstraintViolationException("", "23000", 1), DuplicateKeyException.class);
     doTest(new SQLIntegrityConstraintViolationException("", "23000", 1062), DuplicateKeyException.class);
-    doTest(new SQLIntegrityConstraintViolationException("", "23505", 2627), DuplicateKeyException.class);
+    doTest(new SQLIntegrityConstraintViolationException("", "23000", 2627), DuplicateKeyException.class);
     doTest(new SQLInvalidAuthorizationSpecException("", "", 0), PermissionDeniedDataAccessException.class);
     doTest(new SQLNonTransientConnectionException("", "", 0), DataAccessResourceFailureException.class);
     doTest(new SQLRecoverableException("", "", 0), RecoverableDataAccessException.class);
