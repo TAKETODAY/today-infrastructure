@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -20,11 +20,12 @@
 
 package cn.taketoday.orm.jpa.persistenceunit;
 
+import cn.taketoday.core.DecoratingClassLoader;
 import cn.taketoday.instrument.LoadTimeWeaver;
 import cn.taketoday.instrument.SimpleThrowawayClassLoader;
-import cn.taketoday.core.DecoratingClassLoader;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.logging.LoggerFactory;
 import jakarta.persistence.spi.ClassTransformer;
 
 /**
@@ -80,10 +81,13 @@ class JpaPersistenceUnitInfo extends MutablePersistenceUnitInfo {
    */
   @Override
   public void addTransformer(ClassTransformer classTransformer) {
-    if (this.loadTimeWeaver == null) {
-      throw new IllegalStateException("Cannot apply class transformer without LoadTimeWeaver specified");
+    if (this.loadTimeWeaver != null) {
+      this.loadTimeWeaver.addTransformer(new ClassFileTransformerAdapter(classTransformer));
     }
-    this.loadTimeWeaver.addTransformer(new ClassFileTransformerAdapter(classTransformer));
+    else {
+      LoggerFactory.getLogger(getClass())
+              .info("No LoadTimeWeaver setup: ignoring JPA class transformer");
+    }
   }
 
   /**
