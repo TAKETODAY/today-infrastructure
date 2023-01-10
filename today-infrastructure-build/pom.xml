@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
   ~ Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
-  ~ Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+  ~ Copyright © TODAY & 2017 - 2023 All Rights Reserved.
   ~
   ~ DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
   ~
@@ -34,7 +34,7 @@
   <description>TODAY Infrastructure build</description>
 
   <properties>
-    <revision>4.0.0-Draft.1</revision>
+    <revision>4.0.0-Draft.2</revision>
 
     <java.version>17</java.version>
     <maven.compiler.source>${java.version}</maven.compiler.source>
