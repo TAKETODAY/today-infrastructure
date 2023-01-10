@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -85,8 +85,8 @@ public @interface Scope {
    *
    * @see BeanDefinition#SCOPE_PROTOTYPE
    * @see BeanDefinition#SCOPE_SINGLETON
-   * @see cn.taketoday.web.WebApplicationContext#SCOPE_REQUEST
-   * @see cn.taketoday.web.WebApplicationContext#SCOPE_SESSION
+   * @see cn.taketoday.web.RequestContext#SCOPE_REQUEST
+   * @see cn.taketoday.web.RequestContext#SCOPE_SESSION
    * @see #value
    * @since 4.0
    */
@@ -99,7 +99,7 @@ public @interface Scope {
    * <p>Defaults to {@link ScopedProxyMode#DEFAULT}, which typically indicates
    * that no scoped proxy should be created unless a different default
    * has been configured at the component-scan instruction level.
-   * <p>Analogous to {@code <aop:scoped-proxy/>} support in Framework XML.
+   * <p>Analogous to {@code <aop:scoped-proxy/>} support in Infra XML.
    *
    * @see ScopedProxyMode
    */

@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -17,6 +17,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.stereotype;
 
 import java.lang.annotation.ElementType;
@@ -30,11 +31,22 @@ import cn.taketoday.beans.factory.support.AbstractBeanDefinition;
 import cn.taketoday.core.annotation.AliasFor;
 
 /**
- * Indicates that an annotated class is a "Service"
+ * Indicates that an annotated class is a "Service", originally defined by Domain-Driven
+ * Design (Evans, 2003) as "an operation offered as an interface that stands alone in the
+ * model, with no encapsulated state."
  *
- * @author TODAY 2018-7-2 20:45:21
+ * <p>May also indicate that a class is a "Business Service Facade" (in the Core J2EE
+ * patterns sense), or something similar. This annotation is a general-purpose stereotype
+ * and individual teams may narrow their semantics and use as appropriate.
+ *
+ * <p>This annotation serves as a specialization of {@link Component @Component},
+ * allowing for implementation classes to be autodetected through classpath scanning.
+ *
+ * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see Component
  * @see Repository
+ * @since 2018-7-2 20:45:21
  */
 @Component
 @Retention(RetentionPolicy.RUNTIME)
