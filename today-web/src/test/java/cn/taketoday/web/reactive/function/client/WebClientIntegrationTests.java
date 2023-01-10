@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -728,8 +728,8 @@ class WebClientIntegrationTests {
       ByteArrayOutputStream bos = new ByteArrayOutputStream();
       try {
         request.getBody().copyTo(bos);
-        String actual = bos.toString("UTF-8");
-        String expected = new String(Files.readAllBytes(resource.getFile().toPath()), StandardCharsets.UTF_8);
+        String actual = bos.toString(StandardCharsets.UTF_8);
+        String expected = Files.readString(resource.getFile().toPath());
         assertThat(actual).isEqualTo(expected);
       }
       catch (IOException ex) {
