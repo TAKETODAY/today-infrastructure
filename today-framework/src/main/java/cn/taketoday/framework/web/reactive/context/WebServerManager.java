@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -47,8 +47,8 @@ class WebServerManager {
 
   private final WebServer webServer;
 
-  WebServerManager(ReactiveWebServerApplicationContext applicationContext, ReactiveWebServerFactory factory,
-                   Supplier<HttpHandler> handlerSupplier, boolean lazyInit) {
+  WebServerManager(ReactiveWebServerApplicationContext applicationContext,
+          ReactiveWebServerFactory factory, Supplier<HttpHandler> handlerSupplier, boolean lazyInit) {
     this.applicationContext = applicationContext;
     Assert.notNull(factory, "Factory must not be null");
     this.handler = new DelayedInitializationHttpHandler(handlerSupplier, lazyInit);
@@ -87,7 +87,7 @@ class WebServerManager {
 
     private final boolean lazyInit;
 
-    private volatile HttpHandler delegate = this::handleUninitialized;
+    volatile HttpHandler delegate = this::handleUninitialized;
 
     private DelayedInitializationHttpHandler(Supplier<HttpHandler> handlerSupplier, boolean lazyInit) {
       this.handlerSupplier = handlerSupplier;
@@ -105,10 +105,6 @@ class WebServerManager {
 
     void initializeHandler() {
       this.delegate = this.lazyInit ? new LazyHttpHandler(this.handlerSupplier) : this.handlerSupplier.get();
-    }
-
-    HttpHandler getHandler() {
-      return this.delegate;
     }
 
   }
