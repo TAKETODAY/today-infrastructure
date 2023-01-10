@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -89,6 +89,15 @@ public interface EntityManager {
    * @throws IllegalEntityException entityClass is legal entity
    */
   void updateById(Object entity, PropertyUpdateStrategy strategy);
+
+  /**
+   * Merge the state of the given entity into underlying repository
+   *
+   * @param entity entity instance
+   * @param where columnName or property name
+   * @throws IllegalEntityException entityClass is legal entity
+   */
+  void updateBy(Object entity, String where);
 
   /**
    * Merge the state of the given entity into underlying repository

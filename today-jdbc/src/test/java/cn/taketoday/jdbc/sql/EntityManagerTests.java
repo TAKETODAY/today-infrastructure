@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -307,6 +307,32 @@ class EntityManagerTests extends AbstractRepositoryManagerTests {
             isNotNull("name")
                     .and(nested(isEqualsTo("age", 9))));
     assertThat(unique).isNull();
+  }
+
+  @ParameterizedRepositoryManagerTest
+  void updateBy(RepositoryManager repositoryManager) {
+    DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
+    createData(entityManager);
+
+    UserModel userModel = UserModel.forId(1);
+    String name = "TEST-UPDATE";
+    userModel.setName(name);
+    entityManager.updateBy(userModel, "id");
+
+    UserModel model = entityManager.findById(UserModel.class, 1);
+    assertThat(model).isNotNull();
+    assertThat(model.getName()).isEqualTo(name);
+
+    // throw
+
+    assertThatThrownBy(() -> entityManager.updateBy(userModel, "id_"))
+            .isInstanceOf(IllegalArgumentException.class)
+            .hasMessage("Update an entity, 'where' property 'id_' not found");
+
+    userModel.setId(null);
+    assertThatThrownBy(() -> entityManager.updateBy(userModel, "id"))
+            .isInstanceOf(IllegalArgumentException.class)
+            .hasMessageStartingWith("Update an entity, 'where' property value 'id' is required");
   }
 
   private static void createData(DefaultEntityManager entityManager) {

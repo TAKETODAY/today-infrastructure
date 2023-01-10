@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -414,13 +414,17 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
   }
 
   @Override
+  public void updateBy(Object entity, String where) {
+    updateBy(entity, where, PropertyUpdateStrategy.updateNoneNull());
+  }
+
+  @Override
   public void updateBy(Object entity, String where, PropertyUpdateStrategy strategy) {
     Class<?> entityClass = entity.getClass();
     EntityMetadata metadata = entityMetadataFactory.getEntityMetadata(entityClass);
 
     Update updateStmt = new Update();
     updateStmt.setTableName(metadata.tableName);
-    updateStmt.addWhereColumn(metadata.idProperty.columnName);
 
     EntityProperty updateBy = null;
     for (EntityProperty property : metadata.entityProperties) {
@@ -435,12 +439,15 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
     }
 
     if (updateBy == null) {
-      throw new IllegalArgumentException("Update an entity, 'where' property '" + where + "' is not found");
+      throw new IllegalArgumentException("Update an entity, 'where' property '" + where + "' not found");
     }
+
+    updateStmt.addWhereColumn(updateBy.columnName);
 
     Object updateByValue = updateBy.getValue(entity);
     if (updateByValue == null) {
-      throw new IllegalArgumentException("Update an entity, 'where' property '" + where + "' is required");
+      throw new IllegalArgumentException(
+              "Update an entity, 'where' property value '" + where + "' is required");
     }
 
     String sql = updateStmt.toStatementString();
@@ -455,7 +462,9 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
 
       int idx = 1;
       for (EntityProperty property : metadata.entityProperties) {
-        if (strategy.shouldUpdate(entity, property)) {
+        if ((!Objects.equals(where, property.columnName)
+                && !Objects.equals(where, property.property.getName()))
+                && strategy.shouldUpdate(entity, property)) {
           Object propertyValue = property.getValue(entity);
           property.setParameter(statement, idx++, propertyValue);
         }

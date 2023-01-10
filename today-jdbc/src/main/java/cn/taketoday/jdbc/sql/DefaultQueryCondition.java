@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -26,6 +26,7 @@ import java.util.Objects;
 
 import cn.taketoday.core.style.ToStringBuilder;
 import cn.taketoday.jdbc.type.ObjectTypeHandler;
+import cn.taketoday.jdbc.type.TypeHandler;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 
@@ -37,7 +38,8 @@ public class DefaultQueryCondition extends QueryCondition {
 
   protected final boolean nullable;
 
-  protected ObjectTypeHandler typeHandler = ObjectTypeHandler.getSharedInstance();
+  @SuppressWarnings({ "rawtypes" })
+  protected TypeHandler typeHandler = ObjectTypeHandler.getSharedInstance();
 
   protected final String columnName;
 
@@ -67,7 +69,7 @@ public class DefaultQueryCondition extends QueryCondition {
     this.nullable = nullable;
   }
 
-  public void setTypeHandler(ObjectTypeHandler typeHandler) {
+  public void setTypeHandler(TypeHandler typeHandler) {
     Assert.notNull(typeHandler, "typeHandler is required");
     this.typeHandler = typeHandler;
   }
@@ -86,13 +88,13 @@ public class DefaultQueryCondition extends QueryCondition {
    * or the type of the given object is ambiguous
    */
   @Override
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings({ "unchecked", "rawtypes" })
   protected int setParameterInternal(PreparedStatement ps, int idx) throws SQLException {
     int valueLength = this.valueLength;
     if (valueLength != 1) {
       // array, collection
       final Object parameterValue = this.parameterValue;
-      final ObjectTypeHandler typeHandler = this.typeHandler;
+      final TypeHandler typeHandler = this.typeHandler;
       if (parameterValue instanceof Object[] array) {
         for (int i = 0; i < valueLength; i++) {
           typeHandler.setParameter(ps, idx + i, array[i]);
