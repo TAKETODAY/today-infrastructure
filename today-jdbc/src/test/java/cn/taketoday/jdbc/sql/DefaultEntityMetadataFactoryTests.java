@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -26,6 +26,7 @@ import java.util.function.Consumer;
 
 import cn.taketoday.beans.BeanProperty;
 import cn.taketoday.jdbc.sql.model.UserModel;
+import lombok.Data;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
@@ -90,9 +91,10 @@ class DefaultEntityMetadataFactoryTests {
 
   @Test
   void overrideId() {
+    @Data
     class OverrideId extends UserModel {
       @Id
-      private Long id;
+      public Integer id;
     }
 
     EntityMetadata entityMetadata = factory.createEntityMetadata(OverrideId.class);

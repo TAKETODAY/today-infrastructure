@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -27,6 +27,7 @@ import java.net.URL;
 import java.util.Collections;
 import java.util.Enumeration;
 
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 
@@ -38,6 +39,7 @@ import cn.taketoday.logging.LoggerFactory;
  *
  * @author Phillip Webb
  * @author Andy Clement
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public class TomcatEmbeddedWebappClassLoader extends ParallelWebappClassLoader {
@@ -50,13 +52,13 @@ public class TomcatEmbeddedWebappClassLoader extends ParallelWebappClassLoader {
     }
   }
 
-  public TomcatEmbeddedWebappClassLoader() {
-  }
+  public TomcatEmbeddedWebappClassLoader() { }
 
   public TomcatEmbeddedWebappClassLoader(ClassLoader parent) {
     super(parent);
   }
 
+  @Nullable
   @Override
   public URL findResource(String name) {
     return null;
@@ -71,7 +73,9 @@ public class TomcatEmbeddedWebappClassLoader extends ParallelWebappClassLoader {
   public Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException {
     synchronized(JreCompat.isGraalAvailable() ? this : getClassLoadingLock(name)) {
       Class<?> result = findExistingLoadedClass(name);
-      result = (result != null) ? result : doLoadClass(name);
+      if (result == null) {
+        result = doLoadClass(name);
+      }
       if (result == null) {
         throw new ClassNotFoundException(name);
       }
@@ -79,26 +83,36 @@ public class TomcatEmbeddedWebappClassLoader extends ParallelWebappClassLoader {
     }
   }
 
+  @Nullable
   private Class<?> findExistingLoadedClass(String name) {
     Class<?> resultClass = findLoadedClass0(name);
-    resultClass = (resultClass != null || JreCompat.isGraalAvailable()) ? resultClass : findLoadedClass(name);
-    return resultClass;
+    if (resultClass != null || JreCompat.isGraalAvailable()) {
+      return resultClass;
+    }
+    return findLoadedClass(name);
   }
 
+  @Nullable
   private Class<?> doLoadClass(String name) {
     if ((this.delegate || filter(name, true))) {
       Class<?> result = loadFromParent(name);
-      return (result != null) ? result : findClassIgnoringNotFound(name);
+      if (result != null) {
+        return result;
+      }
+      return findClassIgnoringNotFound(name);
     }
     Class<?> result = findClassIgnoringNotFound(name);
-    return (result != null) ? result : loadFromParent(name);
+    if (result != null) {
+      return result;
+    }
+    return loadFromParent(name);
   }
 
   private Class<?> resolveIfNecessary(Class<?> resultClass, boolean resolve) {
     if (resolve) {
       resolveClass(resultClass);
     }
-    return (resultClass);
+    return resultClass;
   }
 
   @Override
@@ -109,6 +123,7 @@ public class TomcatEmbeddedWebappClassLoader extends ParallelWebappClassLoader {
     }
   }
 
+  @Nullable
   private Class<?> loadFromParent(String name) {
     if (this.parent == null) {
       return null;
@@ -121,6 +136,7 @@ public class TomcatEmbeddedWebappClassLoader extends ParallelWebappClassLoader {
     }
   }
 
+  @Nullable
   private Class<?> findClassIgnoringNotFound(String name) {
     try {
       return findClass(name);

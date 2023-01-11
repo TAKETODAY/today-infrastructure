@@ -77,7 +77,7 @@ public class UserModel {
       return true;
     if (!(o instanceof UserModel userModel))
       return false;
-    return age == userModel.age
+    return Objects.equals(age, userModel.age)
             && gender == userModel.gender
             && Objects.equals(id, userModel.id)
             && Objects.equals(name, userModel.name)

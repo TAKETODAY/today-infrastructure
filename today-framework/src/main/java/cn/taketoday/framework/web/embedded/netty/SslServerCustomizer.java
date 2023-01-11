@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -153,6 +153,7 @@ public class SslServerCustomizer implements ReactorNettyServerCustomizer {
     }
   }
 
+  @Nullable
   private KeyStore getTrustStore(Ssl ssl, @Nullable SslStoreProvider sslStoreProvider) throws Exception {
     if (sslStoreProvider != null) {
       return sslStoreProvider.getTrustStore();
@@ -166,6 +167,7 @@ public class SslServerCustomizer implements ReactorNettyServerCustomizer {
     return loadStore(type, provider, resource, password);
   }
 
+  @Nullable
   private KeyStore loadTrustStore(String type, String provider, @Nullable String resource, String password) throws Exception {
     if (resource == null) {
       return null;

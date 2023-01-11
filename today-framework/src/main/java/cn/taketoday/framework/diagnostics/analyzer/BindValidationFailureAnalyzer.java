@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -26,6 +26,7 @@ import cn.taketoday.context.properties.bind.BindException;
 import cn.taketoday.context.properties.bind.validation.BindValidationException;
 import cn.taketoday.framework.diagnostics.AbstractFailureAnalyzer;
 import cn.taketoday.framework.diagnostics.FailureAnalysis;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.origin.Origin;
 import cn.taketoday.validation.FieldError;
 import cn.taketoday.validation.ObjectError;
@@ -50,6 +51,7 @@ class BindValidationFailureAnalyzer extends AbstractFailureAnalyzer<Throwable> {
     return analyzeBindValidationException(details);
   }
 
+  @Nullable
   private ExceptionDetails getBindValidationExceptionDetails(Throwable rootFailure) {
     BindValidationException validationException = findCause(rootFailure, BindValidationException.class);
     if (validationException != null) {

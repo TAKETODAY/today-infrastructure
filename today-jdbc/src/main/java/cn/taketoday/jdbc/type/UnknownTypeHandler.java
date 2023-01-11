@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -25,6 +25,7 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
 
 /**
@@ -107,6 +108,7 @@ public class UnknownTypeHandler extends BaseTypeHandler<Object> {
     }
   }
 
+  @Nullable
   protected TypeHandler<?> resolveTypeHandler(ResultSetMetaData rsmd, Integer columnIndex) {
     Class<?> javaType = safeGetClassForColumn(rsmd, columnIndex);
     if (javaType != null) {
@@ -115,6 +117,7 @@ public class UnknownTypeHandler extends BaseTypeHandler<Object> {
     return null;
   }
 
+  @Nullable
   private Class<?> safeGetClassForColumn(ResultSetMetaData rsmd, Integer columnIndex) {
     try {
       return ClassUtils.load(rsmd.getColumnClassName(columnIndex));

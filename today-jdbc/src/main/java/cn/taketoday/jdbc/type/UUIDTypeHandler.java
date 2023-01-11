@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -25,6 +25,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.UUID;
 
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.StringUtils;
 
 /**
@@ -52,7 +53,9 @@ public class UUIDTypeHandler extends BaseTypeHandler<UUID> {
     return fromString(cs.getString(columnIndex));
   }
 
+  @Nullable
   protected UUID fromString(String val) {
     return StringUtils.isEmpty(val) ? null : UUID.fromString(val);
   }
+
 }
