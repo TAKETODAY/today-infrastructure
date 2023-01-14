@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -18,7 +18,7 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.context.properties;
+package cn.taketoday.context.properties.bind;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
@@ -31,18 +31,9 @@ import java.lang.annotation.Target;
  * configuration properties using constructor arguments rather than by calling setters. A
  * single parameterized constructor implicitly indicates that constructor binding should
  * be used unless the constructor is annotated with `@Autowired`.
- * <p>
- * Note: To use constructor binding the class must be enabled using
- * {@link EnableConfigurationProperties @EnableConfigurationProperties} or configuration
- * property scanning. Constructor binding cannot be used with beans that are created by
- * the regular Framework mechanisms (e.g.
- * {@link cn.taketoday.stereotype.Component @Component} beans, beans created via
- * {@link cn.taketoday.context.annotation.Bean @Bean} methods or beans loaded using
- * {@link cn.taketoday.context.annotation.Import @Import}).
  *
  * @author Phillip Webb
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @see ConfigurationProperties
  * @since 4.0
  */
 @Documented

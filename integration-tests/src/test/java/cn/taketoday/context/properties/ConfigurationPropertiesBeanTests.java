@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -39,6 +39,7 @@ import cn.taketoday.context.annotation.Lazy;
 import cn.taketoday.context.loader.ImportSelector;
 import cn.taketoday.context.properties.ConfigurationPropertiesBean.BindMethod;
 import cn.taketoday.context.properties.bind.Bindable;
+import cn.taketoday.context.properties.bind.ConstructorBinding;
 import cn.taketoday.core.ResolvableType;
 import cn.taketoday.core.type.AnnotationMetadata;
 import cn.taketoday.stereotype.Component;

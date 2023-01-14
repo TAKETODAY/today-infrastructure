@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -38,6 +38,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 
 import cn.taketoday.context.properties.source.ConfigurationPropertyName;
 import cn.taketoday.context.properties.source.ConfigurationPropertySource;
@@ -173,9 +174,9 @@ class ValueObjectBinderTests {
     source.put("foo.string-value", "foo");
     this.sources.add(source);
     ExampleValueBean bean = this.binder.bind("foo", Bindable.of(ExampleValueBean.class)).get();
-    assertThat(bean.getIntValue()).isEqualTo(0);
-    assertThat(bean.getLongValue()).isEqualTo(0);
-    assertThat(bean.isBooleanValue()).isEqualTo(false);
+    assertThat(bean.getIntValue()).isZero();
+    assertThat(bean.getLongValue()).isZero();
+    assertThat(bean.isBooleanValue()).isFalse();
     assertThat(bean.getStringValue()).isEqualTo("foo");
   }
 
@@ -203,7 +204,7 @@ class ValueObjectBinderTests {
     this.sources.add(source);
     ConverterAnnotatedExampleBean bean = this.binder.bind("foo", Bindable.of(ConverterAnnotatedExampleBean.class))
             .get();
-    assertThat(bean.getDate().toString()).isEqualTo("2014-04-01");
+    assertThat(bean.getDate()).hasToString("2014-04-01");
   }
 
   @Test
@@ -213,7 +214,7 @@ class ValueObjectBinderTests {
     this.sources.add(source);
     ConverterAnnotatedExampleBean bean = this.binder.bind("foo", Bindable.of(ConverterAnnotatedExampleBean.class))
             .get();
-    assertThat(bean.getDate().toString()).isEqualTo("2019-05-10");
+    assertThat(bean.getDate()).hasToString("2019-05-10");
   }
 
   @Test
@@ -229,9 +230,9 @@ class ValueObjectBinderTests {
   @Test
   void createShouldReturnCreatedValue() {
     ExampleValueBean value = this.binder.bindOrCreate("foo", Bindable.of(ExampleValueBean.class));
-    assertThat(value.getIntValue()).isEqualTo(0);
-    assertThat(value.getLongValue()).isEqualTo(0);
-    assertThat(value.isBooleanValue()).isEqualTo(false);
+    assertThat(value.getIntValue()).isZero();
+    assertThat(value.getLongValue()).isZero();
+    assertThat(value.isBooleanValue()).isFalse();
     assertThat(value.getStringValue()).isNull();
     assertThat(value.getEnumValue()).isNull();
   }
@@ -239,7 +240,7 @@ class ValueObjectBinderTests {
   @Test
   void createWithNestedShouldReturnCreatedValue() {
     ExampleNestedBean value = this.binder.bindOrCreate("foo", Bindable.of(ExampleNestedBean.class));
-    assertThat(value.getValueBean()).isEqualTo(null);
+    assertThat(value.getValueBean()).isNull();
   }
 
   @Test
@@ -254,7 +255,7 @@ class ValueObjectBinderTests {
   void createWithDefaultValuesAndAnnotationsShouldReturnCreatedWithDefaultValues() {
     ConverterAnnotatedExampleBean bean = this.binder.bindOrCreate("foo",
             Bindable.of(ConverterAnnotatedExampleBean.class));
-    assertThat(bean.getDate().toString()).isEqualTo("2019-05-10");
+    assertThat(bean.getDate()).hasToString("2019-05-10");
   }
 
   @Test
@@ -274,10 +275,9 @@ class ValueObjectBinderTests {
     MockConfigurationPropertySource source = new MockConfigurationPropertySource();
     source.put("foo.value.bar", "baz");
     this.sources.add(source);
-    GenericValue<Map<String, String>> bean = this.binder.bind("foo", Bindable
-                    .<GenericValue<Map<String, String>>>of(ResolvableType.fromClassWithGenerics(GenericValue.class, type)))
-            .get();
-    assertThat(bean.getValue().get("bar")).isEqualTo("baz");
+    var bean = this.binder.bind("foo", Bindable.<GenericValue<Map<String, String>>>of(
+            ResolvableType.fromClassWithGenerics(GenericValue.class, type))).get();
+    assertThat(bean.getValue()).containsEntry("bar", "baz");
   }
 
   @Test
@@ -297,29 +297,31 @@ class ValueObjectBinderTests {
   }
 
   @Test
-  void bindWhenCollectionParameterWithEmptyDefaultValueShouldThrowException() {
-    assertThatExceptionOfType(BindException.class)
-            .isThrownBy(() -> this.binder.bindOrCreate("foo",
-                    Bindable.of(NestedConstructorBeanWithEmptyDefaultValueForCollectionTypes.class)))
-            .withStackTraceContaining(
-                    "Parameter of type java.util.List<java.lang.String> must have a non-empty default value.");
+  void bindWhenCollectionParameterWithEmptyDefaultValueShouldReturnEmptyInstance() {
+    NestedConstructorBeanWithEmptyDefaultValueForCollectionTypes bound = this.binder.bindOrCreate("foo",
+            Bindable.of(NestedConstructorBeanWithEmptyDefaultValueForCollectionTypes.class));
+    assertThat(bound.getListValue()).isEmpty();
   }
 
   @Test
-  void bindWhenMapParametersWithEmptyDefaultValueShouldThrowException() {
-    assertThatExceptionOfType(BindException.class)
-            .isThrownBy(() -> this.binder.bindOrCreate("foo",
-                    Bindable.of(NestedConstructorBeanWithEmptyDefaultValueForMapTypes.class)))
-            .withStackTraceContaining(
-                    "Parameter of type java.util.Map<java.lang.String, java.lang.String> must have a non-empty default value.");
+  void bindWhenMapParametersWithEmptyDefaultValueShouldReturnEmptyInstance() {
+    NestedConstructorBeanWithEmptyDefaultValueForMapTypes bound = this.binder.bindOrCreate("foo",
+            Bindable.of(NestedConstructorBeanWithEmptyDefaultValueForMapTypes.class));
+    assertThat(bound.getMapValue()).isEmpty();
   }
 
   @Test
-  void bindWhenArrayParameterWithEmptyDefaultValueShouldThrowException() {
-    assertThatExceptionOfType(BindException.class)
-            .isThrownBy(() -> this.binder.bindOrCreate("foo",
-                    Bindable.of(NestedConstructorBeanWithEmptyDefaultValueForArrayTypes.class)))
-            .withStackTraceContaining("Parameter of type java.lang.String[] must have a non-empty default value.");
+  void bindWhenArrayParameterWithEmptyDefaultValueShouldReturnEmptyInstance() {
+    NestedConstructorBeanWithEmptyDefaultValueForArrayTypes bound = this.binder.bindOrCreate("foo",
+            Bindable.of(NestedConstructorBeanWithEmptyDefaultValueForArrayTypes.class));
+    assertThat(bound.getArrayValue()).isEmpty();
+  }
+
+  @Test
+  void bindWhenOptionalParameterWithEmptyDefaultValueShouldReturnEmptyInstance() {
+    NestedConstructorBeanWithEmptyDefaultValueForOptionalTypes bound = this.binder.bindOrCreate("foo",
+            Bindable.of(NestedConstructorBeanWithEmptyDefaultValueForOptionalTypes.class));
+    assertThat(bound.getOptionalValue()).isEmpty();
   }
 
   @Test
@@ -394,6 +396,31 @@ class ValueObjectBinderTests {
     assertThat(ReflectionTestUtils.getField(bean, "property1")).isEqualTo("value-from-config-1");
     assertThat(ReflectionTestUtils.getField(bean, "property2")).isEqualTo("default-value-2");
   }
+
+//
+//  @Test
+//  void bindToRecordWithDefaultValue() {
+//    MockConfigurationPropertySource source = new MockConfigurationPropertySource();
+//    source.put("test.record.property1", "value-from-config-1");
+//    this.sources.add(source);
+//    String recordProperties = """
+//            public record RecordProperties(
+//            	@cn.taketoday.context.properties.bind.DefaultValue("default-value-1") String property1,
+//            	@cn.taketoday.context.properties.bind.DefaultValue("default-value-2") String property2) {
+//            }
+//            """;
+//    TestCompiler.forSystem().withSources(SourceFile.of(recordProperties)).compile((compiled) -> {
+//      try {
+//        ClassLoader cl = compiled.getClassLoader();
+//        Object bean = this.binder.bind("test.record", Class.forName("RecordProperties", true, cl)).get();
+//        assertThat(bean).hasFieldOrPropertyWithValue("property1", "value-from-config-1")
+//                .hasFieldOrPropertyWithValue("property2", "default-value-2");
+//      }
+//      catch (ClassNotFoundException ex) {
+//        fail("Expected generated class 'RecordProperties' not found", ex);
+//      }
+//    });
+//  }
 
   private void noConfigurationProperty(BindException ex) {
     assertThat(ex.getProperty()).isNull();
@@ -756,8 +783,7 @@ class ValueObjectBinderTests {
 
     private final String[] arrayValue;
 
-    NestedConstructorBeanWithEmptyDefaultValueForArrayTypes(@DefaultValue String[] arrayValue,
-            @DefaultValue Integer intValue) {
+    NestedConstructorBeanWithEmptyDefaultValueForArrayTypes(@DefaultValue String[] arrayValue) {
       this.arrayValue = arrayValue;
     }
 
@@ -767,9 +793,23 @@ class ValueObjectBinderTests {
 
   }
 
+  static class NestedConstructorBeanWithEmptyDefaultValueForOptionalTypes {
+
+    private final Optional<String> optionalValue;
+
+    NestedConstructorBeanWithEmptyDefaultValueForOptionalTypes(@DefaultValue Optional<String> optionalValue) {
+      this.optionalValue = optionalValue;
+    }
+
+    Optional<String> getOptionalValue() {
+      return this.optionalValue;
+    }
+
+  }
+
   static class NestedConstructorBeanWithEmptyDefaultValueForEnumTypes {
 
-    private Foo foo;
+    private final Foo foo;
 
     NestedConstructorBeanWithEmptyDefaultValueForEnumTypes(@DefaultValue Foo foo) {
       this.foo = foo;
@@ -789,7 +829,7 @@ class ValueObjectBinderTests {
 
   static class NestedConstructorBeanWithEmptyDefaultValueForPrimitiveTypes {
 
-    private int intValue;
+    private final int intValue;
 
     NestedConstructorBeanWithEmptyDefaultValueForPrimitiveTypes(@DefaultValue int intValue) {
       this.intValue = intValue;
