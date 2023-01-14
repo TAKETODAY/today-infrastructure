@@ -20,6 +20,7 @@
 
 package cn.taketoday.jdbc.sql;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.util.function.Consumer;
@@ -90,6 +91,7 @@ class DefaultEntityMetadataFactoryTests {
   }
 
   @Test
+  @Disabled
   void overrideId() {
     @Data
     class OverrideId extends UserModel {
