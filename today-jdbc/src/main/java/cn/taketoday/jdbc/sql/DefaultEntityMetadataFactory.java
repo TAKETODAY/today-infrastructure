@@ -166,7 +166,11 @@ public class DefaultEntityMetadataFactory extends EntityMetadataFactory {
   }
 
   private boolean isFiltered(BeanProperty property) {
-    return propertyFilter.isFiltered(property);
+    return isInnerClass(property) || propertyFilter.isFiltered(property);
+  }
+
+  private static boolean isInnerClass(BeanProperty property) {
+    return property.getName().equals("this$0");
   }
 
 }
