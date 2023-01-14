@@ -1,0 +1,92 @@
+/*
+ * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ *
+ * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ */
+
+package cn.taketoday.annotation.config.freemarker;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import cn.taketoday.context.properties.ConfigurationProperties;
+import cn.taketoday.framework.template.AbstractTemplateViewResolverProperties;
+
+/**
+ * {@link ConfigurationProperties @ConfigurationProperties} for configuring FreeMarker.
+ *
+ * @author Dave Syer
+ * @author Andy Wilkinson
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 4.0
+ */
+@ConfigurationProperties(prefix = "infra.freemarker")
+public class FreeMarkerProperties extends AbstractTemplateViewResolverProperties {
+
+  public static final String DEFAULT_TEMPLATE_LOADER_PATH = "classpath:/templates/";
+
+  public static final String DEFAULT_PREFIX = "";
+
+  public static final String DEFAULT_SUFFIX = ".ftlh";
+
+  /**
+   * Well-known FreeMarker keys which are passed to FreeMarker's Configuration.
+   */
+  private Map<String, String> settings = new HashMap<>();
+
+  /**
+   * Comma-separated list of template paths.
+   */
+  private String[] templateLoaderPath = new String[] { DEFAULT_TEMPLATE_LOADER_PATH };
+
+  /**
+   * Whether to prefer file system access for template loading to enable hot detection
+   * of template changes. When a template path is detected as a directory, templates are
+   * loaded from the directory only and other matching classpath locations will not be
+   * considered.
+   */
+  private boolean preferFileSystemAccess;
+
+  public FreeMarkerProperties() {
+    super(DEFAULT_PREFIX, DEFAULT_SUFFIX);
+  }
+
+  public Map<String, String> getSettings() {
+    return this.settings;
+  }
+
+  public void setSettings(Map<String, String> settings) {
+    this.settings = settings;
+  }
+
+  public String[] getTemplateLoaderPath() {
+    return this.templateLoaderPath;
+  }
+
+  public boolean isPreferFileSystemAccess() {
+    return this.preferFileSystemAccess;
+  }
+
+  public void setPreferFileSystemAccess(boolean preferFileSystemAccess) {
+    this.preferFileSystemAccess = preferFileSystemAccess;
+  }
+
+  public void setTemplateLoaderPath(String... templateLoaderPaths) {
+    this.templateLoaderPath = templateLoaderPaths;
+  }
+
+}

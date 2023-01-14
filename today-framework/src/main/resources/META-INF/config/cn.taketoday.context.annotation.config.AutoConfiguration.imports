@@ -23,3 +23,4 @@ cn.taketoday.annotation.config.http.CodecsAutoConfiguration
 cn.taketoday.annotation.config.gson.GsonAutoConfiguration
 cn.taketoday.annotation.config.jsonb.JsonbAutoConfiguration
 cn.taketoday.annotation.config.jackson.JacksonAutoConfiguration
+cn.taketoday.annotation.config.freemarker.FreeMarkerAutoConfiguration

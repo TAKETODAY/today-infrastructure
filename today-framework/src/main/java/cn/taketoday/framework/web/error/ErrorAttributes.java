@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -18,12 +18,11 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.framework.web.servlet.error;
+package cn.taketoday.framework.web.error;
 
 import java.util.Collections;
 import java.util.Map;
 
-import cn.taketoday.framework.web.error.ErrorAttributeOptions;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.annotation.ResponseBody;
@@ -34,15 +33,15 @@ import cn.taketoday.web.view.ModelAndView;
  *
  * @author Phillip Webb
  * @author Scott Frederick
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see DefaultErrorAttributes
  * @since 4.0
  */
 public interface ErrorAttributes {
 
   /**
-   * Name of the {@link jakarta.servlet.http.HttpServletRequest#getAttribute(String)
-   * request attribute} holding the error resolved by the {@code ErrorAttributes}
-   * implementation.
+   * Name of the {@link RequestContext#getAttribute(String) request attribute}
+   * holding the error resolved by the {@code ErrorAttributes} implementation.
    */
   String ERROR_ATTRIBUTE = ErrorAttributes.class.getName() + ".error";
 

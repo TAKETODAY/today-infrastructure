@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -18,18 +18,32 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.framework.web.servlet.error;
+package cn.taketoday.framework.web.error;
 
-import cn.taketoday.stereotype.Controller;
+import java.util.Map;
+
+import cn.taketoday.http.HttpStatus;
+import cn.taketoday.web.RequestContext;
+import cn.taketoday.web.view.ModelAndView;
 
 /**
- * Marker interface used to identify a {@link Controller @Controller} that should be used
- * to render errors.
+ * Interface that can be implemented by beans that resolve error views.
  *
  * @author Phillip Webb
- * @author Scott Frederick
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-public interface ErrorController {
+@FunctionalInterface
+public interface ErrorViewResolver {
+
+  /**
+   * Resolve an error view for the specified details.
+   *
+   * @param request the source request
+   * @param status the http status of the error
+   * @param model the suggested model to be used with the view
+   * @return a resolved {@link ModelAndView} or {@code null}
+   */
+  Object resolveErrorView(RequestContext request, HttpStatus status, Map<String, Object> model);
 
 }

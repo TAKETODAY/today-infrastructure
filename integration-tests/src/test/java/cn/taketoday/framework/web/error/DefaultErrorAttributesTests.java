@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -18,7 +18,7 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.framework.web.servlet.error;
+package cn.taketoday.framework.web.error;
 
 import org.junit.jupiter.api.Test;
 
@@ -28,7 +28,6 @@ import java.util.Date;
 import java.util.Map;
 
 import cn.taketoday.core.MethodParameter;
-import cn.taketoday.framework.web.error.ErrorAttributeOptions;
 import cn.taketoday.framework.web.error.ErrorAttributeOptions.Include;
 import cn.taketoday.http.HttpStatus;
 import cn.taketoday.mock.web.MockHttpServletRequest;

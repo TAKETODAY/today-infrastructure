@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -411,8 +411,8 @@ public class WebMvcAutoConfiguration extends WebMvcConfigurationSupport {
       log.debug("Default resource handling disabled");
       return;
     }
-    addResourceHandler(registry, this.mvcProperties.getWebjarsPathPattern(), "classpath:/META-INF/resources/webjars/");
-    addResourceHandler(registry, this.mvcProperties.getStaticPathPattern(), (registration) -> {
+    addResourceHandler(registry, mvcProperties.getWebjarsPathPattern(), "classpath:/META-INF/resources/webjars/");
+    addResourceHandler(registry, mvcProperties.getStaticPathPattern(), (registration) -> {
       registration.addResourceLocations(resourceProperties.getStaticLocations());
     });
 
@@ -420,12 +420,11 @@ public class WebMvcAutoConfiguration extends WebMvcConfigurationSupport {
   }
 
   private void addResourceHandler(ResourceHandlerRegistry registry, String pattern, String... locations) {
-    addResourceHandler(registry, pattern, (registration) -> registration.addResourceLocations(locations));
+    addResourceHandler(registry, pattern, registration -> registration.addResourceLocations(locations));
   }
 
-  private void addResourceHandler(
-          ResourceHandlerRegistry registry, String pattern,
-          Consumer<ResourceHandlerRegistration> customizer) {
+  private void addResourceHandler(ResourceHandlerRegistry registry,
+          String pattern, Consumer<ResourceHandlerRegistration> customizer) {
     if (registry.hasMappingForPattern(pattern)) {
       return;
     }
@@ -440,7 +439,7 @@ public class WebMvcAutoConfiguration extends WebMvcConfigurationSupport {
   }
 
   private Integer getSeconds(Duration cachePeriod) {
-    return (cachePeriod != null) ? (int) cachePeriod.getSeconds() : null;
+    return cachePeriod != null ? (int) cachePeriod.getSeconds() : null;
   }
 
   private void customizeResourceHandlerRegistration(ResourceHandlerRegistration registration) {

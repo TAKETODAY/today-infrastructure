@@ -52,30 +52,30 @@ class WebServerManager {
     this.applicationContext = applicationContext;
     Assert.notNull(factory, "Factory must not be null");
     this.handler = new DelayedInitializationHttpHandler(handlerSupplier, lazyInit);
-    this.webServer = factory.getWebServer(this.handler);
+    this.webServer = factory.getWebServer(handler);
   }
 
   void start() {
-    this.handler.initializeHandler();
-    this.webServer.start();
-    this.applicationContext
-            .publishEvent(new ReactiveWebServerInitializedEvent(this.webServer, this.applicationContext));
+    handler.initializeHandler();
+    webServer.start();
+    applicationContext.publishEvent(
+            new ReactiveWebServerInitializedEvent(webServer, applicationContext));
   }
 
   void shutDownGracefully(GracefulShutdownCallback callback) {
-    this.webServer.shutDownGracefully(callback);
+    webServer.shutDownGracefully(callback);
   }
 
   void stop() {
-    this.webServer.stop();
+    webServer.stop();
   }
 
   WebServer getWebServer() {
-    return this.webServer;
+    return webServer;
   }
 
   HttpHandler getHandler() {
-    return this.handler;
+    return handler;
   }
 
   /**
@@ -100,11 +100,11 @@ class WebServerManager {
 
     @Override
     public Mono<Void> handle(ServerHttpRequest request, ServerHttpResponse response) {
-      return this.delegate.handle(request, response);
+      return delegate.handle(request, response);
     }
 
     void initializeHandler() {
-      this.delegate = this.lazyInit ? new LazyHttpHandler(this.handlerSupplier) : this.handlerSupplier.get();
+      this.delegate = lazyInit ? new LazyHttpHandler(handlerSupplier) : handlerSupplier.get();
     }
 
   }
@@ -122,7 +122,7 @@ class WebServerManager {
 
     @Override
     public Mono<Void> handle(ServerHttpRequest request, ServerHttpResponse response) {
-      return this.delegate.flatMap((handler) -> handler.handle(request, response));
+      return delegate.flatMap((handler) -> handler.handle(request, response));
     }
 
   }
