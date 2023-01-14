@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -77,7 +77,7 @@ class RequestMappingInfoTests {
     assertThat(info.getCustomCondition()).isSameAs(anotherInfo.getCustomCondition());
 
     RequestMappingInfo result = info.combine(anotherInfo);
-    assertThat(info.getMethodsCondition()).isSameAs(result.getMethodsCondition());
+    assertThat(result.getPatternValues()).containsExactly("", "/");
     assertThat(info.getParamsCondition()).isSameAs(result.getParamsCondition());
     assertThat(info.getHeadersCondition()).isSameAs(result.getHeadersCondition());
     assertThat(info.getConsumesCondition()).isSameAs(result.getConsumesCondition());
