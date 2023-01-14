@@ -26,6 +26,7 @@ import org.mockito.Mockito;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.function.Supplier;
 
 import cn.taketoday.beans.factory.BeanFactoryUtils;
 import cn.taketoday.beans.factory.InitializationBeanPostProcessor;
@@ -215,8 +216,9 @@ class ValidationAutoConfigurationTests {
       assertThat(context.getBean(MethodValidationPostProcessor.class))
               .isSameAs(userMethodValidationPostProcessor);
       assertThat(context.getBeansOfType(MethodValidationPostProcessor.class)).hasSize(1);
-      assertThat(context.getBean(Validator.class))
-              .isNotSameAs(ReflectionTestUtils.getField(userMethodValidationPostProcessor, "validator"));
+      Object validator = ReflectionTestUtils.getField(userMethodValidationPostProcessor, "validator");
+      assertThat(validator).isNotNull().isInstanceOf(Supplier.class);
+      assertThat(context.getBean(Validator.class)).isNotSameAs(((Supplier<Validator>) validator).get());
     });
   }
 
