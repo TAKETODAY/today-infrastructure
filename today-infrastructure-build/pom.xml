@@ -286,6 +286,18 @@
     </plugins>
   </build>
 
+
+  <distributionManagement>
+    <snapshotRepository>
+      <id>snapshots</id>
+      <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
+    </snapshotRepository>
+    <repository>
+      <id>release</id>
+      <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+    </repository>
+  </distributionManagement>
+
   <profiles>
     <profile>
       <id>docs</id>
