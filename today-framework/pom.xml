@@ -495,10 +495,6 @@
       <artifactId>awaitility</artifactId>
       <scope>test</scope>
     </dependency>
-    <dependency>
-      <groupId>cn.taketoday</groupId>
-      <artifactId>today-web</artifactId>
-    </dependency>
 
   </dependencies>
 
