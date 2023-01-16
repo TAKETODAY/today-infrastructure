@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -36,6 +36,7 @@ public record Version(
   public static final String Alpha = "Alpha";
   public static final String Beta = "Beta";
   public static final String RELEASE = "RELEASE";
+  public static final String SNAPSHOT = "SNAPSHOT";
 
   public static final Version instance;
 

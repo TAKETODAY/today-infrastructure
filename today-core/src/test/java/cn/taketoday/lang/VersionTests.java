@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -73,6 +73,12 @@ class VersionTests {
     assertThat(version.step()).isEqualTo(3);
     assertThat(version.type()).isEqualTo(Version.Alpha);
     assertThat(version.extension()).isEqualTo("jdk8");
+
+    // extension
+    version = Version.parse("4.0.0-Alpha.3-SNAPSHOT");
+    assertThat(version.step()).isEqualTo(3);
+    assertThat(version.type()).isEqualTo(Version.Alpha);
+    assertThat(version.extension()).isEqualTo(Version.SNAPSHOT);
 
   }
 }
