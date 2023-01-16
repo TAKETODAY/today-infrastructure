@@ -34,7 +34,7 @@
   <description>TODAY Infrastructure build</description>
 
   <properties>
-    <revision>4.0.0-Draft.2</revision>
+    <revision>4.0.0-Draft.3-SNAPSHOT</revision>
 
     <java.version>17</java.version>
     <maven.compiler.source>${java.version}</maven.compiler.source>
