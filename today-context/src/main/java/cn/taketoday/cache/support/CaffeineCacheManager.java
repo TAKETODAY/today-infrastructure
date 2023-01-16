@@ -95,8 +95,8 @@ public class CaffeineCacheManager implements CacheManager {
    * managing caches for the specified cache names only.
    */
   public CaffeineCacheManager(String... cacheNames) {
-    setCacheNames(Arrays.asList(cacheNames));
     this.cacheBuilder = Caffeine.newBuilder();
+    setCacheNames(Arrays.asList(cacheNames));
   }
 
   /**
