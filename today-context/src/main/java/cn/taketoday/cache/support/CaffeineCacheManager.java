@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -17,6 +17,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.cache.support;
 
 import com.github.benmanes.caffeine.cache.CacheLoader;
@@ -60,7 +61,7 @@ import cn.taketoday.util.ObjectUtils;
  */
 public class CaffeineCacheManager implements CacheManager {
 
-  private Caffeine<Object, Object> cacheBuilder = Caffeine.newBuilder();
+  private Caffeine<Object, Object> cacheBuilder;
 
   @Nullable
   private CacheLoader<Object, Object> cacheLoader;
@@ -78,6 +79,15 @@ public class CaffeineCacheManager implements CacheManager {
    * lazily creating cache instances as they are being requested.
    */
   public CaffeineCacheManager() {
+    this.cacheBuilder = Caffeine.newBuilder();
+  }
+
+  /**
+   * @since 4.0
+   */
+  public CaffeineCacheManager(Caffeine<Object, Object> cacheBuilder) {
+    Assert.notNull(cacheBuilder, "cacheBuilder is required");
+    this.cacheBuilder = cacheBuilder;
   }
 
   /**
