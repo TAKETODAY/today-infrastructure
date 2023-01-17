@@ -39,12 +39,16 @@ jobs:
           java-version: 17
           distribution: adopt
           server-id: snapshots
-          server-username: ${{ secrets.SNAPSHOTS_USERNAME }}
-          server-password: ${{ secrets.SNAPSHOTS_TOKEN }}
-          gpg-passphrase: ${{ secrets.MAVEN_GPG_PASSPHRASE }} # gpg短密码环境变量
-          gpg-private-key: ${{ secrets.MAVEN_GPG_PRIVATE_KEY }} # gpg私钥
+          server-username: SNAPSHOTS_USERNAME
+          server-password: SNAPSHOTS_TOKEN
+          gpg-passphrase: MAVEN_GPG_PASSPHRASE
+          gpg-private-key: ${{ secrets.MAVEN_GPG_PRIVATE_KEY }}
       - name: Set argLine command line option
         run: echo 'ARG_LINE=-D"argLine=--illegal-access=permit"' >> $GITHUB_ENV
 
-      - name: Publish SNAPSHOT
+      - name: Deploy snapshots
         run: mvn --batch-mode deploy -P release -B -D"license.skip=true" -D"jacoco.skip=true" $ARG_LINE
+        env:
+          SNAPSHOTS_TOKEN: ${{ secrets.SNAPSHOTS_TOKEN }}
+          SNAPSHOTS_USERNAME: ${{ secrets.SNAPSHOTS_USERNAME }}
+          MAVEN_GPG_PASSPHRASE: ${{ secrets.MAVEN_GPG_PASSPHRASE }}
