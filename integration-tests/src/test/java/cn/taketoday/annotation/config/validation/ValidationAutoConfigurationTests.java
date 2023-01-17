@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -26,7 +26,6 @@ import org.mockito.Mockito;
 
 import java.util.HashSet;
 import java.util.Set;
-import java.util.function.Supplier;
 
 import cn.taketoday.beans.factory.BeanFactoryUtils;
 import cn.taketoday.beans.factory.InitializationBeanPostProcessor;
@@ -217,8 +216,7 @@ class ValidationAutoConfigurationTests {
               .isSameAs(userMethodValidationPostProcessor);
       assertThat(context.getBeansOfType(MethodValidationPostProcessor.class)).hasSize(1);
       Object validator = ReflectionTestUtils.getField(userMethodValidationPostProcessor, "validator");
-      assertThat(validator).isNotNull().isInstanceOf(Supplier.class);
-      assertThat(context.getBean(Validator.class)).isNotSameAs(((Supplier<Validator>) validator).get());
+      assertThat(validator).isNull();
     });
   }
 
