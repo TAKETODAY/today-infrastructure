@@ -47,7 +47,7 @@ jobs:
         run: echo 'ARG_LINE=-D"argLine=--illegal-access=permit"' >> $GITHUB_ENV
 
       - name: Deploy snapshots
-        run: mvn --batch-mode deploy -P release -B -D"license.skip=true" -D"jacoco.skip=true" $ARG_LINE
+        run: mvn deploy -P release -D"license.skip=true" -D"jacoco.skip=true" $ARG_LINE
         env:
           SNAPSHOTS_TOKEN: ${{ secrets.SNAPSHOTS_TOKEN }}
           SNAPSHOTS_USERNAME: ${{ secrets.SNAPSHOTS_USERNAME }}
