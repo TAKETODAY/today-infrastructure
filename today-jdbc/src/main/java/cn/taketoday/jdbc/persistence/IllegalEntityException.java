@@ -18,30 +18,34 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.jdbc;
+package cn.taketoday.jdbc.persistence;
 
-import cn.taketoday.jdbc.persistence.Column;
+import java.io.Serial;
 
-public class ColumnEntity {
+import cn.taketoday.jdbc.PersistenceException;
 
-  private int id;
-  @Column("text_col")
-  private String text;
+/**
+ * Entity definition is not legal
+ *
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 4.0 2022/11/15 15:50
+ */
+public class IllegalEntityException extends PersistenceException {
+  @Serial
+  private static final long serialVersionUID = 1L;
 
-  public int getId() {
-    return id;
+  public IllegalEntityException() { }
+
+  public IllegalEntityException(String message) {
+    super(message);
   }
 
-  public void setId(int id) {
-    this.id = id;
+  public IllegalEntityException(String message, Throwable cause) {
+    super(message, cause);
   }
 
-  public String getText() {
-    return text;
-  }
-
-  public void setText(String text) {
-    this.text = text;
+  public IllegalEntityException(Throwable cause) {
+    super(cause);
   }
 
 }

@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -39,9 +39,9 @@ import cn.taketoday.jdbc.datasource.DriverManagerDataSource;
 import cn.taketoday.jdbc.datasource.SingleConnectionDataSource;
 import cn.taketoday.jdbc.parsing.QueryParameter;
 import cn.taketoday.jdbc.parsing.SqlParameterParser;
+import cn.taketoday.jdbc.persistence.DefaultEntityManager;
+import cn.taketoday.jdbc.persistence.EntityManager;
 import cn.taketoday.jdbc.result.PrimitiveTypeNullHandler;
-import cn.taketoday.jdbc.sql.DefaultEntityManager;
-import cn.taketoday.jdbc.sql.EntityManager;
 import cn.taketoday.jdbc.support.ClobToStringConverter;
 import cn.taketoday.jdbc.support.JdbcAccessor;
 import cn.taketoday.jdbc.support.OffsetTimeToSQLTimeConverter;

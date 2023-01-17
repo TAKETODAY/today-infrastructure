@@ -18,30 +18,40 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.jdbc;
+package cn.taketoday.jdbc.persistence;
 
-import cn.taketoday.jdbc.persistence.Column;
+import java.util.Set;
 
-public class ColumnEntity {
+import cn.taketoday.beans.BeanProperty;
+import cn.taketoday.lang.Assert;
 
-  private int id;
-  @Column("text_col")
-  private String text;
+/**
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 4.0 2022/8/16 22:29
+ */
+public interface PropertyFilter {
 
-  public int getId() {
-    return id;
+  /**
+   * @param property bean property
+   * @return is property not map to a column
+   */
+  boolean isFiltered(BeanProperty property);
+
+  /**
+   * filter property names
+   *
+   * @param filteredNames property names not mapping to database column
+   */
+  static PropertyFilter filteredNames(Set<String> filteredNames) {
+    Assert.notEmpty(filteredNames, "filteredNames is empty");
+    return property -> filteredNames.contains(property.getName());
   }
 
-  public void setId(int id) {
-    this.id = id;
-  }
-
-  public String getText() {
-    return text;
-  }
-
-  public void setText(String text) {
-    this.text = text;
+  /**
+   * Accept any property
+   */
+  static PropertyFilter acceptAny() {
+    return property -> false;
   }
 
 }

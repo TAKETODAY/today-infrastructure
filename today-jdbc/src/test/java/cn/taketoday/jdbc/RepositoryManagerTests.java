@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -28,7 +28,6 @@ import org.joda.time.LocalTime;
 import org.joda.time.Period;
 import org.junit.Ignore;
 import org.junit.Test;
-import org.junit.jupiter.api.Disabled;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
@@ -439,13 +438,22 @@ public class RepositoryManagerTests extends BaseMemDbTest {
   @Test
   public void testUpdateNoTransaction() throws SQLException {
     String ddlQuery = "create table testUpdateNoTransaction(id int primary key, value varchar(50))";
-    JdbcConnection connection = repositoryManager.createQuery(ddlQuery).executeUpdate();
+    JdbcConnection connection =
+            repositoryManager.createQuery(ddlQuery)
+                    .executeUpdate()
+                    .getConnection();
 
     assertTrue(connection.getJdbcConnection().isClosed());
 
     String insQuery = "insert into testUpdateNoTransaction(id, value) values (:id, :value)";
-    repositoryManager.createQuery(insQuery).addParameter("id", 1).addParameter("value", "test1").executeUpdate()
-            .createQuery(insQuery).addParameter("id", 2).addParameter("value", "val2").executeUpdate();
+    repositoryManager.createQuery(insQuery)
+            .addParameter("id", 1)
+            .addParameter("value", "test1")
+            .executeUpdate()
+            .createQuery(insQuery)
+            .addParameter("id", 2)
+            .addParameter("value", "val2")
+            .executeUpdate();
 
     assertTrue(connection.getJdbcConnection().isClosed());
   }
@@ -472,7 +480,7 @@ public class RepositoryManagerTests extends BaseMemDbTest {
             "select 2, 'hello2' from (values(0)) union " +
             "select 3, 'hello3' from (values(0))";
 
-    int result = repositoryManager.createQuery(insertSql).executeUpdate().getResult();
+    int result = repositoryManager.createQuery(insertSql).executeUpdate().getAffectedRows();
 
     assertEquals(3, result);
   }
@@ -562,15 +570,17 @@ public class RepositoryManagerTests extends BaseMemDbTest {
             .createQuery("insert into test_rollback_table(value) values (:val)")
             .addParameter("val", "something")
             .executeUpdate()
-            .commit()
+            .commit();
 
-            // insert something else, and roll it back.
-            .beginTransaction()
+    // insert something else, and roll it back.
+    repositoryManager.beginTransaction()
             .createQuery("insert into test_rollback_table(value) values (:val)")
             .addParameter("val", "something to rollback")
             .executeUpdate()
             .rollback();
-    long rowCount = (Long) repositoryManager.createQuery("select count(*) from test_rollback_table").fetchScalar();
+
+    long rowCount = (Long) repositoryManager.createQuery(
+            "select count(*) from test_rollback_table").fetchScalar();
 
     assertEquals(1, rowCount);
   }
@@ -813,10 +823,12 @@ public class RepositoryManagerTests extends BaseMemDbTest {
       String[] vals = (String[]) argument;
       List<Integer> keys = new ArrayList<>();
       for (String val : vals) {
-        Integer key = connection.createQuery("insert into testRunInsideTransactionWithResultTable(value) values(:val)",
+        Integer key = connection.createQuery(
+                        "insert into testRunInsideTransactionWithResultTable(value) values(:val)",
                         "runnerWithResultTester")
                 .addParameter("val", val)
-                .executeUpdate().getKey(Integer.class);
+                .executeUpdate()
+                .getKey(Integer.class);
         keys.add(key);
       }
 

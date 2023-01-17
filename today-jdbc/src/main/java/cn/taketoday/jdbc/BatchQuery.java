@@ -20,28 +20,15 @@
 
 package cn.taketoday.jdbc;
 
-import cn.taketoday.jdbc.persistence.Column;
+/**
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 4.0 2023/1/17 11:43
+ */
+public final class BatchQuery extends Query {
 
-public class ColumnEntity {
-
-  private int id;
-  @Column("text_col")
-  private String text;
-
-  public int getId() {
-    return id;
-  }
-
-  public void setId(int id) {
-    this.id = id;
-  }
-
-  public String getText() {
-    return text;
-  }
-
-  public void setText(String text) {
-    this.text = text;
+  BatchQuery(Query query) {
+    super(query);
+    this.hasArrayParameter = false;
   }
 
 }

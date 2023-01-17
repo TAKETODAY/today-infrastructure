@@ -18,30 +18,25 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.jdbc;
+package cn.taketoday.jdbc.persistence;
 
-import cn.taketoday.jdbc.persistence.Column;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-public class ColumnEntity {
+import cn.taketoday.lang.Constant;
 
-  private int id;
-  @Column("text_col")
-  private String text;
+/**
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 4.0 2022/9/10 00:08
+ */
+@Retention(RetentionPolicy.RUNTIME)
+@Target({ ElementType.METHOD, ElementType.FIELD })
+public @interface Query {
 
-  public int getId() {
-    return id;
-  }
+  String expression() default Constant.DEFAULT_NONE;
 
-  public void setId(int id) {
-    this.id = id;
-  }
-
-  public String getText() {
-    return text;
-  }
-
-  public void setText(String text) {
-    this.text = text;
-  }
+  String render() default Constant.DEFAULT_NONE;
 
 }

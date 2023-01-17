@@ -18,30 +18,29 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.jdbc;
+package cn.taketoday.jdbc.format;
 
-import cn.taketoday.jdbc.persistence.Column;
+import org.junit.jupiter.api.Test;
 
-public class ColumnEntity {
+import java.util.concurrent.TimeUnit;
 
-  private int id;
-  @Column("text_col")
-  private String text;
+/**
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 4.0 2022/9/12 19:38
+ */
+class SqlStatementLoggerTests {
+  SqlStatementLogger logger = new SqlStatementLogger(true, true, true, 20);
 
-  public int getId() {
-    return id;
-  }
+  @Test
+  void log() {
 
-  public void setId(int id) {
-    this.id = id;
-  }
+    logger.logStatement("SELECT * FROM t_user where id = ?");
+    logger.logStatement("SELECT * FROM t_user where id = ?", DDLSQLFormatter.INSTANCE);
+    logger.logSlowQuery("SELECT * FROM t_user where id = ?", System.nanoTime() - TimeUnit.MINUTES.toNanos(2));
 
-  public String getText() {
-    return text;
-  }
+    logger.logStatement(
+            "create table issue5table(id int identity primary key, val integer)", DDLSQLFormatter.INSTANCE);
 
-  public void setText(String text) {
-    this.text = text;
   }
 
 }

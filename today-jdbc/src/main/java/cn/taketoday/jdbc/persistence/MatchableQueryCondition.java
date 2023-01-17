@@ -18,30 +18,27 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.jdbc;
+package cn.taketoday.jdbc.persistence;
 
-import cn.taketoday.jdbc.persistence.Column;
+import cn.taketoday.lang.Nullable;
 
-public class ColumnEntity {
+/**
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 4.0 2022/9/19 13:02
+ */
+public class MatchableQueryCondition extends DefaultQueryCondition {
+  private final ConditionMatcher conditionMatcher;
 
-  private int id;
-  @Column("text_col")
-  private String text;
-
-  public int getId() {
-    return id;
+  public MatchableQueryCondition(
+          String columnName, Operator operator,
+          @Nullable Object parameterValue, ConditionMatcher conditionMatcher) {
+    super(columnName, operator, parameterValue);
+    this.conditionMatcher = conditionMatcher;
   }
 
-  public void setId(int id) {
-    this.id = id;
-  }
-
-  public String getText() {
-    return text;
-  }
-
-  public void setText(String text) {
-    this.text = text;
+  @Override
+  protected boolean matches() {
+    return conditionMatcher.matches(parameterValue);
   }
 
 }

@@ -18,30 +18,22 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.jdbc;
+package cn.taketoday.jdbc.persistence.dialect;
 
-import cn.taketoday.jdbc.persistence.Column;
+/**
+ * @author TODAY 2021/10/10 13:12
+ * @since 4.0
+ */
+public class MySQLDialect extends Dialect {
 
-public class ColumnEntity {
+  @Override
+  public String pagination(SQLParams sqlParams) {
+    PageRow pageRow = sqlParams.getPageRow();
+    int limit = pageRow.getPageSize();
+    int offset = limit * (pageRow.getPageNum() - 1);
+    String limitSQL = " LIMIT " + offset + "," + limit;
 
-  private int id;
-  @Column("text_col")
-  private String text;
-
-  public int getId() {
-    return id;
-  }
-
-  public void setId(int id) {
-    this.id = id;
-  }
-
-  public String getText() {
-    return text;
-  }
-
-  public void setText(String text) {
-    this.text = text;
+    return select(sqlParams) + limitSQL;
   }
 
 }

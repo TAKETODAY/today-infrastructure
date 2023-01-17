@@ -18,30 +18,28 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.jdbc;
+package cn.taketoday.jdbc.persistence.dialect;
 
-import cn.taketoday.jdbc.persistence.Column;
+/**
+ * @author TODAY 2021/10/10 13:12
+ * @since 4.0
+ */
+public class OracleDialect extends Dialect {
 
-public class ColumnEntity {
+  @Override
+  public String pagination(SQLParams sqlParams) {
+    PageRow pageRow = sqlParams.getPageRow();
+    int limit = pageRow.getPageSize();
+    int pageNum = pageRow.getPageNum();
 
-  private int id;
-  @Column("text_col")
-  private String text;
-
-  public int getId() {
-    return id;
-  }
-
-  public void setId(int id) {
-    this.id = id;
-  }
-
-  public String getText() {
-    return text;
-  }
-
-  public void setText(String text) {
-    this.text = text;
+    int start = (pageNum - 1) * limit + 1;
+    int end = pageNum * limit;
+    StringBuilder sql = new StringBuilder();
+    sql.append("SELECT * FROM ( SELECT row_.*, rownum rownum_ FROM (  ");
+    sql.append(select(sqlParams));
+    sql.append(" ) row_ where rownum <= ").append(end).append(") table_alias");
+    sql.append(" WHERE table_alias.rownum_ >= ").append(start);
+    return sql.toString();
   }
 
 }

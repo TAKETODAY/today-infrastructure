@@ -18,30 +18,31 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.jdbc;
+package cn.taketoday.jdbc.persistence;
 
-import cn.taketoday.jdbc.persistence.Column;
+import org.junit.jupiter.api.Test;
 
-public class ColumnEntity {
+import static org.assertj.core.api.Assertions.assertThat;
 
-  private int id;
-  @Column("text_col")
-  private String text;
+/**
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 4.0 2022/9/9 22:29
+ */
+class UpdateTests {
 
-  public int getId() {
-    return id;
-  }
+  @Test
+  void sql() {
+    Update update = new Update();
+    update.setTableName("t_user");
 
-  public void setId(int id) {
-    this.id = id;
-  }
+    update.addColumn("name");
+    update.setVersionColumnName("version");
+    update.setPrimaryKeyColumnNames("id");
 
-  public String getText() {
-    return text;
-  }
+    assertThat(update.toStatementString()).isEqualTo("update t_user set name=? where id=? and version=?");
 
-  public void setText(String text) {
-    this.text = text;
+    update.addColumn("name", ":name");
+    assertThat(update.toStatementString()).isEqualTo("update t_user set name=:name where id=? and version=?");
   }
 
 }

@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -31,7 +31,6 @@ import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -41,6 +40,7 @@ import cn.taketoday.beans.BeanMetadata;
 import cn.taketoday.beans.BeanProperty;
 import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.dao.DataAccessException;
+import cn.taketoday.jdbc.format.SqlStatementLogger;
 import cn.taketoday.jdbc.parsing.QueryParameter;
 import cn.taketoday.jdbc.result.DefaultResultSetHandlerFactory;
 import cn.taketoday.jdbc.result.JdbcBeanMetadata;
@@ -53,7 +53,6 @@ import cn.taketoday.jdbc.result.Row;
 import cn.taketoday.jdbc.result.Table;
 import cn.taketoday.jdbc.result.TableResultSetIterator;
 import cn.taketoday.jdbc.result.TypeHandlerResultSetHandler;
-import cn.taketoday.jdbc.sql.format.SqlStatementLogger;
 import cn.taketoday.jdbc.type.ObjectTypeHandler;
 import cn.taketoday.jdbc.type.TypeHandler;
 import cn.taketoday.jdbc.type.TypeHandlerRegistry;
@@ -67,7 +66,7 @@ import cn.taketoday.util.ObjectUtils;
 /**
  * Represents a sql statement.
  */
-public final class Query implements AutoCloseable {
+public sealed class Query implements AutoCloseable permits BatchQuery {
   private static final Logger log = LoggerFactory.getLogger(Query.class);
   private static final SqlStatementLogger stmtLogger = SqlStatementLogger.sharedInstance;
 
@@ -94,7 +93,7 @@ public final class Query implements AutoCloseable {
   private Map<String, String> columnMappings;
   private Map<String, String> caseSensitiveColumnMappings;
 
-  private boolean hasArrayParameter = false;
+  protected boolean hasArrayParameter = false;
 
   @Nullable
   private StatementCallback statementCallback;
@@ -115,6 +114,23 @@ public final class Query implements AutoCloseable {
     setColumnMappings(manager.getDefaultColumnMappings());
     this.caseSensitive = manager.isDefaultCaseSensitive();
     this.parsedQuery = manager.parse(queryText, queryParameters);
+  }
+
+  Query(Query other) {
+    this.name = other.name;
+    this.parsedQuery = other.parsedQuery;
+    this.caseSensitive = other.caseSensitive;
+    this.columnMappings = other.columnMappings;
+    this.statementCallback = other.statementCallback;
+    this.preparedStatement = other.preparedStatement;
+    this.autoDerivingColumns = other.autoDerivingColumns;
+    this.typeHandlerRegistry = other.typeHandlerRegistry;
+    this.throwOnMappingFailure = other.throwOnMappingFailure;
+    this.caseSensitiveColumnMappings = other.caseSensitiveColumnMappings;
+    this.connection = other.connection;
+    this.columnNames = other.columnNames;
+    this.hasArrayParameter = other.hasArrayParameter;
+    this.returnGeneratedKeys = other.returnGeneratedKeys;
   }
 
   //---------------------------------------------------------------------
@@ -364,8 +380,12 @@ public final class Query implements AutoCloseable {
     return this;
   }
 
-  public void processStatement(StatementCallback callback) {
+  /**
+   * add a Statement processor when {@link  #buildPreparedStatement() build a PreparedStatement}
+   */
+  public Query processStatement(StatementCallback callback) {
     statementCallback = callback;
+    return this;
   }
 
   @Override
@@ -591,16 +611,30 @@ public final class Query implements AutoCloseable {
     }
   }
 
-  public JdbcConnection executeUpdate() {
+  /**
+   * @see PreparedStatement#executeUpdate()
+   */
+  public UpdateResult executeUpdate() {
+    return executeUpdate(returnGeneratedKeys);
+  }
+
+  /**
+   * @see PreparedStatement#executeUpdate()
+   */
+  public UpdateResult executeUpdate(boolean generatedKeys) {
     long start = System.currentTimeMillis();
-    JdbcConnection connection = getConnection();
     try {
       logStatement();
       PreparedStatement statement = buildPreparedStatement();
-      connection.setResult(statement.executeUpdate());
-      boolean generatedKeys = isReturnGeneratedKeys();
-      connection.setKeys(generatedKeys ? statement.getGeneratedKeys() : null);
-      connection.setCanGetKeys(generatedKeys);
+      UpdateResult ret = new UpdateResult(statement.executeUpdate(), connection);
+
+      ret.setKeys(generatedKeys ? statement.getGeneratedKeys() : null);
+      ret.setCanGetKeys(generatedKeys);
+
+      if (log.isDebugEnabled()) {
+        log.debug("total: {} ms; executed update [{}]", System.currentTimeMillis() - start, obtainName());
+      }
+      return ret;
     }
     catch (SQLException ex) {
       connection.onException();
@@ -609,11 +643,6 @@ public final class Query implements AutoCloseable {
     finally {
       closeConnectionIfNecessary();
     }
-
-    if (log.isDebugEnabled()) {
-      log.debug("total: {} ms; executed update [{}]", System.currentTimeMillis() - start, obtainName());
-    }
-    return connection;
   }
 
   public TypeHandlerRegistry getTypeHandlerRegistry() {
@@ -748,37 +777,31 @@ public final class Query implements AutoCloseable {
   }
 
   /**
-   * Adds a set of parameters to this <code>Query</code> object's batch of
-   * commands and returns any generated keys. <br/>
-   *
-   * If maxBatchRecords is more than 0, executeBatch is called upon adding that
-   * many commands to the batch. This method will return any generated keys if
-   * <code>fetchGeneratedKeys</code> is set. <br/>
-   *
-   * The current number of batched commands is accessible via the
-   * <code>getCurrentBatchRecords()</code> method.
+   * @see PreparedStatement#executeBatch()
    */
-  public <A> List<A> addToBatchGetKeys(Class<A> klass) {
-    addToBatch();
-    if (this.currentBatchRecords == 0) {
-      return connection.getKeys(klass);
-    }
-    else {
-      return Collections.emptyList();
-    }
+  public BatchResult executeBatch() {
+    return executeBatch(returnGeneratedKeys);
   }
 
-  public JdbcConnection executeBatch() {
+  /**
+   * @see PreparedStatement#executeBatch()
+   */
+  public BatchResult executeBatch(boolean generatedKeys) {
     logStatement();
     long start = System.currentTimeMillis();
     JdbcConnection connection = this.connection;
     try {
       PreparedStatement statement = buildPreparedStatement();
-      connection.setBatchResult(statement.executeBatch());
+
+      BatchResult batchResult = new BatchResult(statement.executeBatch(), connection);
       this.currentBatchRecords = 0;
       try {
-        connection.setKeys(returnGeneratedKeys ? statement.getGeneratedKeys() : null);
-        connection.setCanGetKeys(returnGeneratedKeys);
+        batchResult.setKeys(generatedKeys ? statement.getGeneratedKeys() : null);
+        batchResult.setCanGetKeys(generatedKeys);
+        if (log.isDebugEnabled()) {
+          log.debug("total: {} ms; executed batch [{}]", System.currentTimeMillis() - start, obtainName());
+        }
+        return batchResult;
       }
       catch (SQLException e) {
         throw new GeneratedKeysException(
@@ -795,10 +818,6 @@ public final class Query implements AutoCloseable {
     finally {
       closeConnectionIfNecessary();
     }
-    if (log.isDebugEnabled()) {
-      log.debug("total: {} ms; executed batch [{}]", System.currentTimeMillis() - start, obtainName());
-    }
-    return connection;
   }
 
   //---------------------------------------------------------------------

@@ -18,30 +18,36 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.jdbc;
+package cn.taketoday.jdbc.persistence.model;
 
-import cn.taketoday.jdbc.persistence.Column;
+import cn.taketoday.lang.Enumerable;
 
-public class ColumnEntity {
+/**
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 4.0 2022/9/7 20:05
+ */
+public enum Gender implements Enumerable<Integer> {
 
-  private int id;
-  @Column("text_col")
-  private String text;
+  UNKNOWN(-1, "未知"),
+  MALE(1, "男"),
+  FEMALE(0, "女");
 
-  public int getId() {
-    return id;
+  private final int value;
+  private final String desc;
+
+  Gender(int value, String desc) {
+    this.value = value;
+    this.desc = desc;
   }
 
-  public void setId(int id) {
-    this.id = id;
+  @Override
+  public Integer getValue() {
+    return value;
   }
 
-  public String getText() {
-    return text;
-  }
-
-  public void setText(String text) {
-    this.text = text;
+  @Override
+  public String getDescription() {
+    return desc;
   }
 
 }

@@ -18,30 +18,23 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.jdbc;
+package cn.taketoday.jdbc.format;
 
-import cn.taketoday.jdbc.persistence.Column;
+/**
+ * Formatter contract
+ *
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @author Steve Ebersole
+ * @since 4.0 2022/9/12 19:20
+ */
+public interface SQLFormatter {
+  String WHITESPACE = " \n\r\f\t";
 
-public class ColumnEntity {
-
-  private int id;
-  @Column("text_col")
-  private String text;
-
-  public int getId() {
-    return id;
-  }
-
-  public void setId(int id) {
-    this.id = id;
-  }
-
-  public String getText() {
-    return text;
-  }
-
-  public void setText(String text) {
-    this.text = text;
-  }
-
+  /**
+   * Format the source SQL string.
+   *
+   * @param source The original SQL string
+   * @return The formatted version
+   */
+  String format(String source);
 }

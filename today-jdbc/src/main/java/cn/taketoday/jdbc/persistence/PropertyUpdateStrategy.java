@@ -18,30 +18,31 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.jdbc;
+package cn.taketoday.jdbc.persistence;
 
-import cn.taketoday.jdbc.persistence.Column;
+/**
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 4.0 2022/12/18 22:20
+ */
+public interface PropertyUpdateStrategy {
 
-public class ColumnEntity {
+  /**
+   * Test input property should be updated?
+   */
+  boolean shouldUpdate(Object entity, EntityProperty property);
 
-  private int id;
-  @Column("text_col")
-  private String text;
-
-  public int getId() {
-    return id;
+  /**
+   * Update the none null property
+   */
+  static PropertyUpdateStrategy updateNoneNull() {
+    return (entity, property) -> property.getValue(entity) != null;
   }
 
-  public void setId(int id) {
-    this.id = id;
-  }
-
-  public String getText() {
-    return text;
-  }
-
-  public void setText(String text) {
-    this.text = text;
+  /**
+   * Always update
+   */
+  static PropertyUpdateStrategy always() {
+    return (entity, property) -> true;
   }
 
 }
