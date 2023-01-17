@@ -66,8 +66,8 @@ import cn.taketoday.util.ObjectUtils;
 /**
  * Represents a sql statement.
  */
-public sealed class Query implements AutoCloseable permits BatchQuery {
-  private static final Logger log = LoggerFactory.getLogger(Query.class);
+public class NamedQuery implements AutoCloseable {
+  private static final Logger log = LoggerFactory.getLogger(NamedQuery.class);
   private static final SqlStatementLogger stmtLogger = SqlStatementLogger.sharedInstance;
 
   private final JdbcConnection connection;
@@ -98,15 +98,15 @@ public sealed class Query implements AutoCloseable permits BatchQuery {
   @Nullable
   private StatementCallback statementCallback;
 
-  public Query(JdbcConnection connection, String queryText, boolean generatedKeys) {
+  public NamedQuery(JdbcConnection connection, String queryText, boolean generatedKeys) {
     this(connection, queryText, generatedKeys, null);
   }
 
-  public Query(JdbcConnection connection, String queryText, String[] columnNames) {
+  public NamedQuery(JdbcConnection connection, String queryText, String[] columnNames) {
     this(connection, queryText, false, columnNames);
   }
 
-  private Query(JdbcConnection connection, String queryText, boolean generatedKeys, String[] columnNames) {
+  private NamedQuery(JdbcConnection connection, String queryText, boolean generatedKeys, String[] columnNames) {
     this.connection = connection;
     this.columnNames = columnNames;
     this.returnGeneratedKeys = generatedKeys;
@@ -114,23 +114,6 @@ public sealed class Query implements AutoCloseable permits BatchQuery {
     setColumnMappings(manager.getDefaultColumnMappings());
     this.caseSensitive = manager.isDefaultCaseSensitive();
     this.parsedQuery = manager.parse(queryText, queryParameters);
-  }
-
-  Query(Query other) {
-    this.name = other.name;
-    this.parsedQuery = other.parsedQuery;
-    this.caseSensitive = other.caseSensitive;
-    this.columnMappings = other.columnMappings;
-    this.statementCallback = other.statementCallback;
-    this.preparedStatement = other.preparedStatement;
-    this.autoDerivingColumns = other.autoDerivingColumns;
-    this.typeHandlerRegistry = other.typeHandlerRegistry;
-    this.throwOnMappingFailure = other.throwOnMappingFailure;
-    this.caseSensitiveColumnMappings = other.caseSensitiveColumnMappings;
-    this.connection = other.connection;
-    this.columnNames = other.columnNames;
-    this.hasArrayParameter = other.hasArrayParameter;
-    this.returnGeneratedKeys = other.returnGeneratedKeys;
   }
 
   //---------------------------------------------------------------------
@@ -141,7 +124,7 @@ public sealed class Query implements AutoCloseable permits BatchQuery {
     return caseSensitive;
   }
 
-  public Query setCaseSensitive(boolean caseSensitive) {
+  public NamedQuery setCaseSensitive(boolean caseSensitive) {
     this.caseSensitive = caseSensitive;
     return this;
   }
@@ -150,12 +133,12 @@ public sealed class Query implements AutoCloseable permits BatchQuery {
     return autoDerivingColumns;
   }
 
-  public Query setAutoDerivingColumns(boolean autoDerivingColumns) {
+  public NamedQuery setAutoDerivingColumns(boolean autoDerivingColumns) {
     this.autoDerivingColumns = autoDerivingColumns;
     return this;
   }
 
-  public Query throwOnMappingFailure(boolean throwOnMappingFailure) {
+  public NamedQuery throwOnMappingFailure(boolean throwOnMappingFailure) {
     this.throwOnMappingFailure = throwOnMappingFailure;
     return this;
   }
@@ -172,7 +155,7 @@ public sealed class Query implements AutoCloseable permits BatchQuery {
     return name;
   }
 
-  public Query setName(String name) {
+  public NamedQuery setName(String name) {
     this.name = name;
     return this;
   }
@@ -195,7 +178,7 @@ public sealed class Query implements AutoCloseable permits BatchQuery {
     queryParameter.setSetter(parameterBinder);
   }
 
-  public <T> Query addParameter(String name, Class<T> parameterClass, T value) {
+  public <T> NamedQuery addParameter(String name, Class<T> parameterClass, T value) {
     if (parameterClass.isArray()
             // byte[] is used for blob already
             && parameterClass != byte[].class) {
@@ -216,7 +199,7 @@ public sealed class Query implements AutoCloseable permits BatchQuery {
     return this;
   }
 
-  public Query withParams(Object... paramValues) {
+  public NamedQuery withParams(Object... paramValues) {
     int i = 0;
     for (Object paramValue : paramValues) {
       addParameter("p" + (++i), paramValue);
@@ -225,18 +208,18 @@ public sealed class Query implements AutoCloseable permits BatchQuery {
   }
 
   @SuppressWarnings("unchecked")
-  public Query addParameter(String name, @Nullable Object value) {
+  public NamedQuery addParameter(String name, @Nullable Object value) {
     return value == null
            ? addNullParameter(name)
            : addParameter(name, (Class<Object>) value.getClass(), value);
   }
 
-  public Query addNullParameter(String name) {
+  public NamedQuery addNullParameter(String name) {
     addParameter(name, ParameterBinder.null_binder);
     return this;
   }
 
-  public Query addParameter(String name, InputStream value) {
+  public NamedQuery addParameter(String name, InputStream value) {
     final class BinaryStreamParameterBinder extends ParameterBinder {
       @Override
       public void bind(PreparedStatement statement, int paramIdx) throws SQLException {
@@ -247,7 +230,7 @@ public sealed class Query implements AutoCloseable permits BatchQuery {
     return this;
   }
 
-  public Query addParameter(String name, int value) {
+  public NamedQuery addParameter(String name, int value) {
     final class IntegerParameterBinder extends ParameterBinder {
       @Override
       public void bind(PreparedStatement statement, int paramIdx) throws SQLException {
@@ -258,7 +241,7 @@ public sealed class Query implements AutoCloseable permits BatchQuery {
     return this;
   }
 
-  public Query addParameter(String name, long value) {
+  public NamedQuery addParameter(String name, long value) {
     final class LongParameterBinder extends ParameterBinder {
       @Override
       public void bind(PreparedStatement statement, int paramIdx) throws SQLException {
@@ -269,7 +252,7 @@ public sealed class Query implements AutoCloseable permits BatchQuery {
     return this;
   }
 
-  public Query addParameter(String name, String value) {
+  public NamedQuery addParameter(String name, String value) {
     final class StringParameterBinder extends ParameterBinder {
       @Override
       public void bind(PreparedStatement statement, int paramIdx) throws SQLException {
@@ -280,7 +263,7 @@ public sealed class Query implements AutoCloseable permits BatchQuery {
     return this;
   }
 
-  public Query addParameter(String name, Timestamp value) {
+  public NamedQuery addParameter(String name, Timestamp value) {
     final class TimestampParameterBinder extends ParameterBinder {
       @Override
       public void bind(PreparedStatement statement, int paramIdx) throws SQLException {
@@ -291,7 +274,7 @@ public sealed class Query implements AutoCloseable permits BatchQuery {
     return this;
   }
 
-  public Query addParameter(String name, Time value) {
+  public NamedQuery addParameter(String name, Time value) {
     final class TimeParameterBinder extends ParameterBinder {
       @Override
       public void bind(PreparedStatement statement, int paramIdx) throws SQLException {
@@ -303,7 +286,7 @@ public sealed class Query implements AutoCloseable permits BatchQuery {
     return this;
   }
 
-  public Query addParameter(String name, boolean value) {
+  public NamedQuery addParameter(String name, boolean value) {
     final class BooleanParameterBinder extends ParameterBinder {
 
       @Override
@@ -334,7 +317,7 @@ public sealed class Query implements AutoCloseable permits BatchQuery {
    *
    * @throws IllegalArgumentException if values parameter is null
    */
-  public Query addParameters(String name, Object... values) {
+  public NamedQuery addParameters(String name, Object... values) {
     addParameter(name, new ArrayParameterBinder(values));
     this.hasArrayParameter = true;
     return this;
@@ -346,7 +329,7 @@ public sealed class Query implements AutoCloseable permits BatchQuery {
    * @param parameters map of parameters
    * @see #addParameter(String, Object)
    */
-  public Query addParameters(Map<String, Object> parameters) {
+  public NamedQuery addParameters(Map<String, Object> parameters) {
     for (Map.Entry<String, Object> entry : parameters.entrySet()) {
       addParameter(entry.getKey(), entry.getValue());
     }
@@ -357,14 +340,14 @@ public sealed class Query implements AutoCloseable permits BatchQuery {
    * Set an array parameter.<br>
    * See {@link #addParameters(String, Object...)} for details
    */
-  public Query addParameter(String name, Collection<?> values) {
+  public NamedQuery addParameter(String name, Collection<?> values) {
     addParameter(name, new ArrayParameterBinder(values));
     this.hasArrayParameter = true;
     return this;
   }
 
   @SuppressWarnings("unchecked")
-  public Query bind(Object pojo) {
+  public NamedQuery bind(Object pojo) {
     HashMap<String, QueryParameter> queryParameters = getQueryParameters();
     for (BeanProperty property : BeanMetadata.from(pojo)) {
       String name = property.getName();
@@ -383,7 +366,7 @@ public sealed class Query implements AutoCloseable permits BatchQuery {
   /**
    * add a Statement processor when {@link  #buildPreparedStatement() build a PreparedStatement}
    */
-  public Query processStatement(StatementCallback callback) {
+  public NamedQuery processStatement(StatementCallback callback) {
     statementCallback = callback;
     return this;
   }
@@ -725,7 +708,7 @@ public sealed class Query implements AutoCloseable permits BatchQuery {
    *
    * @throws IllegalArgumentException Thrown if the value is negative.
    */
-  public Query setMaxBatchRecords(int maxBatchRecords) {
+  public NamedQuery setMaxBatchRecords(int maxBatchRecords) {
     if (maxBatchRecords < 0) {
       throw new IllegalArgumentException("maxBatchRecords should be a nonnegative value");
     }
@@ -762,7 +745,7 @@ public sealed class Query implements AutoCloseable permits BatchQuery {
    * The current number of batched commands is accessible via the
    * <code>getCurrentBatchRecords()</code> method.
    */
-  public Query addToBatch() {
+  public NamedQuery addToBatch() {
     try {
       buildPreparedStatement(false).addBatch();
       if (this.maxBatchRecords > 0
@@ -859,7 +842,7 @@ public sealed class Query implements AutoCloseable permits BatchQuery {
     }
   }
 
-  public Query addColumnMapping(String columnName, String propertyName) {
+  public NamedQuery addColumnMapping(String columnName, String propertyName) {
     if (columnMappings == null) {
       this.columnMappings = new HashMap<>();
       this.caseSensitiveColumnMappings = new HashMap<>();

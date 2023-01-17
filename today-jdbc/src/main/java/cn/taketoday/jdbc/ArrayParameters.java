@@ -27,7 +27,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Objects;
 
-import cn.taketoday.jdbc.Query.ArrayParameterBinder;
+import cn.taketoday.jdbc.NamedQuery.ArrayParameterBinder;
 import cn.taketoday.jdbc.parsing.ParameterIndexHolder;
 import cn.taketoday.jdbc.parsing.QueryParameter;
 

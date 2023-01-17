@@ -152,7 +152,7 @@ public class RepositoryManagerTests extends BaseMemDbTest {
       con.createQuery(sql, "testExecuteAndFetchWithNulls").executeUpdate();
 
       JdbcConnection connection = repositoryManager.beginTransaction();
-      Query insQuery = connection.createQuery(
+      NamedQuery insQuery = connection.createQuery(
               "insert into testExecWithNullsTbl (text, aNumber, aLongNumber) values(:text, :number, :lnum)");
       insQuery.addParameter("text", "some text").addParameter("number", 2).addParameter("lnum", 10L).executeUpdate();
       insQuery.addParameter("text", "some text")
@@ -274,7 +274,7 @@ public class RepositoryManagerTests extends BaseMemDbTest {
             .createQuery("create table testCI(id2 int primary key, value2 varchar(20), sometext varchar(20), valwithgetter varchar(20))")
             .executeUpdate();
 
-    Query query = repositoryManager.createQuery(
+    NamedQuery query = repositoryManager.createQuery(
             "insert into testCI(id2, value2, sometext, valwithgetter) values(:id, :value, :someText, :valwithgetter)");
     for (int i = 0; i < 20; i++) {
       query.addParameter("id", i).addParameter("value", "some text " + i).addParameter("someText", "whatever " + i).addParameter(
@@ -297,7 +297,7 @@ public class RepositoryManagerTests extends BaseMemDbTest {
   @Test(expected = IllegalArgumentException.class)
   public void testSetMaxBatchRecords() {
     try (JdbcConnection conn = this.repositoryManager.open()) {
-      Query q = conn.createQuery("select 'test'");
+      NamedQuery q = conn.createQuery("select 'test'");
       q.setMaxBatchRecords(20);
       assertEquals(20, q.getMaxBatchRecords());
 
@@ -385,8 +385,14 @@ public class RepositoryManagerTests extends BaseMemDbTest {
       connection.createQuery("create table test_column_annotation(id int primary key, text_col varchar(20))").executeUpdate();
 
       connection.createQuery("insert into test_column_annotation(id, text_col) values(:id, :text)")
-              .addParameter("id", 1).addParameter("text", "test1").addToBatch()
-              .addParameter("id", 2).addParameter("text", "test2").addToBatch()
+              .addParameter("id", 1)
+              .addParameter("text", "test1")
+              .addToBatch()
+
+              .addParameter("id", 2)
+              .addParameter("text", "test2")
+              .addToBatch()
+
               .executeBatch();
 
       List<ColumnEntity> result = connection.createQuery("select * from test_column_annotation")
@@ -534,7 +540,7 @@ public class RepositoryManagerTests extends BaseMemDbTest {
       }
     };
 
-    Query query = repositoryManager.createQuery(insertSql, true);
+    NamedQuery query = repositoryManager.createQuery(insertSql, true);
 
     for (String val : vals) {
       query.addParameter("val", val);
@@ -1250,7 +1256,7 @@ public class RepositoryManagerTests extends BaseMemDbTest {
   public void testLazyTable() throws SQLException {
     createAndFillUserTable();
 
-    Query q = repositoryManager.createQuery("select * from User");
+    NamedQuery q = repositoryManager.createQuery("select * from User");
     try (LazyTable lt = q.fetchLazyTable()) {
       for (Row r : lt.rows()) {
         String name = r.getString("name");
@@ -1686,7 +1692,7 @@ public class RepositoryManagerTests extends BaseMemDbTest {
                     email varchar(255),
                     text varchar(100))""").executeUpdate();
 
-    Query insQuery = connection.createQuery("insert into User(name, email, text) values (:name, :email, :text)");
+    NamedQuery insQuery = connection.createQuery("insert into User(name, email, text) values (:name, :email, :text)");
     insQuery.setMaxBatchRecords(maxBatchRecords);
     UserInserter inserter = UserInserterFactory.buildUserInserter(useBind);
 

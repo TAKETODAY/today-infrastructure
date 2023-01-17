@@ -34,7 +34,7 @@ public interface StatementCallback {
    * User defined operations when build a PreparedStatement
    *
    * @param statement PreparedStatement
-   * @see Query#buildPreparedStatement
+   * @see NamedQuery#buildPreparedStatement
    */
   void doWith(PreparedStatement statement);
 }

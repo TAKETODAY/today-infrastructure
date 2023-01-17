@@ -28,8 +28,8 @@ import java.util.UUID;
 import javax.sql.DataSource;
 
 import cn.taketoday.jdbc.JdbcConnection;
+import cn.taketoday.jdbc.NamedQuery;
 import cn.taketoday.jdbc.RepositoryManager;
-import cn.taketoday.jdbc.Query;
 import cn.taketoday.jdbc.result.Table;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -86,7 +86,7 @@ class H2Tests {
       UUID uuid3 = UUID.randomUUID();
       UUID uuid4 = null;
 
-      Query insQuery = connection.createQuery("insert into uuidtest(id, val) values (:id, :val)");
+      NamedQuery insQuery = connection.createQuery("insert into uuidtest(id, val) values (:id, :val)");
       insQuery.addParameter("id", uuid1).addParameter("val", uuid2).executeUpdate();
       insQuery.addParameter("id", uuid3).addParameter("val", uuid4).executeUpdate();
 

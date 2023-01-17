@@ -30,7 +30,7 @@ import java.util.Comparator;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class QueryFilterStaticFieldsTest {
+public class NamedQueryFilterStaticFieldsTest {
 
   @Rule
   public EmbeddedDatabaseRule databaseRule = EmbeddedDatabaseRule.builder()
@@ -52,7 +52,7 @@ public class QueryFilterStaticFieldsTest {
   public void dontTouchTheStaticFieldTest() throws Exception {
     final RepositoryManager dataBase = new RepositoryManager(databaseRule.getDataSource());
     try (final JdbcConnection connection = dataBase.open();
-            final Query query = connection.createQuery("SELECT * FROM TEST WHERE ver=1")) {
+            final NamedQuery query = connection.createQuery("SELECT * FROM TEST WHERE ver=1")) {
       final Entity entity = query.fetchFirst(Entity.class);
       assertThat(entity.ver).isEqualTo(1L);
     }

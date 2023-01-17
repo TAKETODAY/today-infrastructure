@@ -293,7 +293,7 @@ public class RepositoryManager extends JdbcAccessor implements InitializingBean 
   // Query
 
   /**
-   * Creates a {@link Query}
+   * Creates a {@link NamedQuery}
    * <p>
    * better to use :
    * create queries with {@link JdbcConnection} class instead,
@@ -309,14 +309,14 @@ public class RepositoryManager extends JdbcAccessor implements InitializingBean 
    * @param query the sql query string
    * @param returnGeneratedKeys boolean value indicating if the database should return any
    * generated keys.
-   * @return the {@link Query} instance
+   * @return the {@link NamedQuery} instance
    */
-  public Query createQuery(String query, boolean returnGeneratedKeys) {
+  public NamedQuery createQuery(String query, boolean returnGeneratedKeys) {
     return open(true).createQuery(query, returnGeneratedKeys);
   }
 
   /**
-   * Creates a {@link Query}
+   * Creates a {@link NamedQuery}
    *
    * better to use :
    * create queries with {@link JdbcConnection} class instead,
@@ -329,9 +329,9 @@ public class RepositoryManager extends JdbcAccessor implements InitializingBean 
    *  </pre>
    *
    * @param query the sql query string
-   * @return the {@link Query} instance
+   * @return the {@link NamedQuery} instance
    */
-  public Query createQuery(String query) {
+  public NamedQuery createQuery(String query) {
     return open(true).createQuery(query);
   }
 

@@ -61,7 +61,7 @@ public class RepositoryManagerDataSourceTests {
     manager.createQuery(sql).setName("testExecuteAndFetchWithNulls").executeUpdate();
 
     manager.runInTransaction((connection, argument) -> {
-      Query insQuery = connection.createQuery(
+      NamedQuery insQuery = connection.createQuery(
               "insert into testExecWithNullsTbl (text, aNumber, aLongNumber) values(:text, :number, :lnum)");
       insQuery.addParameter("text", "some text").addParameter("number", 2).addParameter("lnum", 10L).executeUpdate();
       insQuery.addParameter("text", "some text").addParameter("number", (Integer) null).addParameter("lnum", 10L).executeUpdate();

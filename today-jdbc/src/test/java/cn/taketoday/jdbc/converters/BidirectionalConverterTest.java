@@ -29,9 +29,9 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 
-import cn.taketoday.jdbc.RepositoryManager;
+import cn.taketoday.jdbc.NamedQuery;
 import cn.taketoday.jdbc.PersistenceException;
-import cn.taketoday.jdbc.Query;
+import cn.taketoday.jdbc.RepositoryManager;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -97,7 +97,7 @@ public class BidirectionalConverterTest {
     sql2o.createQuery("create table uuid_wrapper(\n" +
             "text varchar(100) primary key)").executeUpdate();
 
-    Query insQuery = sql2o.createQuery("insert into uuid_wrapper(text) values (:text)");
+    NamedQuery insQuery = sql2o.createQuery("insert into uuid_wrapper(text) values (:text)");
     for (UUIDWrapper wrapper : wrappers) {
       insQuery.addParameter("text", wrapper.getText()).addToBatch();
     }

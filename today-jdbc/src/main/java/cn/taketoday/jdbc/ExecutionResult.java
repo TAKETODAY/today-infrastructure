@@ -46,7 +46,7 @@ public class ExecutionResult {
    * @throws DataAccessException Could not acquire a connection from data-source
    * @see DataSource#getConnection()
    */
-  public Query createQuery(String queryText) {
+  public NamedQuery createQuery(String queryText) {
     return connection.createQuery(queryText);
   }
 
@@ -54,7 +54,7 @@ public class ExecutionResult {
    * @throws CannotGetJdbcConnectionException Could not acquire a connection from connection-source
    * @see DataSource#getConnection()
    */
-  public Query createQuery(String queryText, boolean returnGeneratedKeys) {
+  public NamedQuery createQuery(String queryText, boolean returnGeneratedKeys) {
     return connection.createQuery(queryText, returnGeneratedKeys);
   }
 
@@ -62,7 +62,7 @@ public class ExecutionResult {
    * @throws CannotGetJdbcConnectionException Could not acquire a connection from connection-source
    * @see DataSource#getConnection()
    */
-  public Query createQuery(String queryText, String... columnNames) {
+  public NamedQuery createQuery(String queryText, String... columnNames) {
     return connection.createQuery(queryText, columnNames);
   }
 

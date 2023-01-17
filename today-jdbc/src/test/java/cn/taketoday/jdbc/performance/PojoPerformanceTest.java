@@ -69,12 +69,12 @@ import java.util.logging.Logger;
 
 import javax.sql.DataSource;
 
-import cn.taketoday.context.annotation.Primary;
 import cn.taketoday.context.annotation.Configuration;
+import cn.taketoday.context.annotation.Primary;
 import cn.taketoday.context.support.StandardApplicationContext;
 import cn.taketoday.jdbc.JdbcConnection;
+import cn.taketoday.jdbc.NamedQuery;
 import cn.taketoday.jdbc.RepositoryManager;
-import cn.taketoday.jdbc.Query;
 import cn.taketoday.stereotype.Singleton;
 import lombok.SneakyThrows;
 
@@ -131,7 +131,7 @@ public class PojoPerformanceTest {
 
     Random r = new Random();
 
-    Query insQuery = operations.createQuery( // language=MySQL
+    NamedQuery insQuery = operations.createQuery( // language=MySQL
             "insert into post (text, creation_date, last_change_date, counter1, counter2, counter3, counter4, counter5, counter6, counter7, counter8, counter9) values (:text, :creation_date, :last_change_date, :counter1, :counter2, :counter3, :counter4, :counter5, :counter6, :counter7, :counter8, :counter9)");
     for (int idx = 0; idx < ITERATIONS; idx++) {
       insQuery.addParameter("text", "a name " + idx)
@@ -201,7 +201,7 @@ public class PojoPerformanceTest {
    */
   class TODAYOptimizedSelect extends PerformanceTestBase {
     private JdbcConnection conn;
-    private Query query;
+    private NamedQuery query;
 
     @Override
     public void init() {
@@ -225,7 +225,7 @@ public class PojoPerformanceTest {
 
   class TODAYTypicalSelect extends PerformanceTestBase {
     private JdbcConnection conn;
-    private Query query;
+    private NamedQuery query;
 
     @Override
     public void init() {
