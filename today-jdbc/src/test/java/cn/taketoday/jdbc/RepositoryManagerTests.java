@@ -211,7 +211,7 @@ public class RepositoryManagerTests extends BaseMemDbTest {
             .addToBatch()
 
             .executeBatch()
-            .getBatchResult();
+            .getLastBatchResult();
     con.commit();
 
     assertEquals(3, inserted.length);
@@ -505,7 +505,7 @@ public class RepositoryManagerTests extends BaseMemDbTest {
 //            assertTrue(ex.getMessage().contains("executeUpdate(true)"));
 //        }
 
-    Integer key = (Integer) repositoryManager.createQuery(insertSql).addParameter("val", "something").executeUpdate().getKey();
+    Integer key = (Integer) repositoryManager.createQuery(insertSql).addParameter("val", "something").executeUpdate().getFirstKey();
 
     assertNotNull(key);
     assertTrue(key >= 0);
@@ -804,7 +804,7 @@ public class RepositoryManagerTests extends BaseMemDbTest {
       Integer id = connection.createQuery("insert into runinsidetransactiontable(value) values(:value)")
               .addParameter("value", argument1)
               .executeUpdate()
-              .getKey(Integer.class);
+              .getFirstKey(Integer.class);
 
       String insertedValue = connection.createQuery("select value from runinsidetransactiontable where id = :id")
               .addParameter("id", id)
@@ -834,7 +834,7 @@ public class RepositoryManagerTests extends BaseMemDbTest {
                         "runnerWithResultTester")
                 .addParameter("val", val)
                 .executeUpdate()
-                .getKey(Integer.class);
+                .getFirstKey(Integer.class);
         keys.add(key);
       }
 
@@ -1654,6 +1654,23 @@ public class RepositoryManagerTests extends BaseMemDbTest {
 
       assertEquals(3, result.size());
     }
+  }
+
+  @Test
+  public void testExecuteUpdate() {
+    try (JdbcConnection connection = repositoryManager.open()) {
+      connection.createQuery("create table test_(id int identity primary key,  val int)")
+              .executeUpdate();
+
+      UpdateResult<Integer> updateResult = connection.createQuery("insert into test_ (val) values (:val)")
+              .addParameter("val", 2)
+              .executeUpdate();
+
+      Integer id = updateResult.getFirstKey();
+      assertThat(id).isNotNull();
+
+    }
+
   }
 
   /************** Helper stuff ******************/

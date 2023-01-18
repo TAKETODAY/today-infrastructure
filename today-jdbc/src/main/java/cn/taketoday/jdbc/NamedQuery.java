@@ -31,6 +31,7 @@ import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -97,6 +98,9 @@ public class NamedQuery implements AutoCloseable {
 
   @Nullable
   private StatementCallback statementCallback;
+
+  @Nullable
+  private BatchResult batchResult;
 
   public NamedQuery(JdbcConnection connection, String queryText, boolean generatedKeys) {
     this(connection, queryText, generatedKeys, null);
@@ -597,22 +601,32 @@ public class NamedQuery implements AutoCloseable {
   /**
    * @see PreparedStatement#executeUpdate()
    */
-  public UpdateResult executeUpdate() {
+  public <T> UpdateResult<T> executeUpdate() {
     return executeUpdate(returnGeneratedKeys);
   }
 
   /**
    * @see PreparedStatement#executeUpdate()
    */
-  public UpdateResult executeUpdate(boolean generatedKeys) {
+  @SuppressWarnings("unchecked")
+  public <T> UpdateResult<T> executeUpdate(boolean generatedKeys) {
+    return (UpdateResult<T>) executeUpdate(generatedKeys ? ObjectTypeHandler.getSharedInstance() : null);
+  }
+
+  /**
+   * @param generatedKeyHandler {@link PreparedStatement#getGeneratedKeys()} value getter
+   * @see PreparedStatement#executeUpdate()
+   */
+  public <T> UpdateResult<T> executeUpdate(@Nullable TypeHandler<T> generatedKeyHandler) {
     long start = System.currentTimeMillis();
     try {
       logStatement();
       PreparedStatement statement = buildPreparedStatement();
-      UpdateResult ret = new UpdateResult(statement.executeUpdate(), connection);
+      var ret = new UpdateResult<T>(statement.executeUpdate(), connection);
 
-      ret.setKeys(generatedKeys ? statement.getGeneratedKeys() : null);
-      ret.setCanGetKeys(generatedKeys);
+      if (generatedKeyHandler != null) {
+        ret.setKeys(statement.getGeneratedKeys(), generatedKeyHandler);
+      }
 
       if (log.isDebugEnabled()) {
         log.debug("total: {} ms; executed update [{}]", System.currentTimeMillis() - start, obtainName());
@@ -760,6 +774,28 @@ public class NamedQuery implements AutoCloseable {
   }
 
   /**
+   * Adds a set of parameters to this <code>Query</code> object's batch of
+   * commands and returns any generated keys. <br/>
+   *
+   * If maxBatchRecords is more than 0, executeBatch is called upon adding that
+   * many commands to the batch. This method will return any generated keys if
+   * <code>fetchGeneratedKeys</code> is set. <br/>
+   *
+   * The current number of batched commands is accessible via the
+   * <code>getCurrentBatchRecords()</code> method.
+   */
+  public <A> List<A> addToBatchGetKeys(Class<A> klass) {
+    addToBatch();
+    BatchResult batchResult = this.batchResult;
+    if (batchResult != null) {
+      return batchResult.getKeys(klass);
+    }
+    else {
+      return Collections.emptyList();
+    }
+  }
+
+  /**
    * @see PreparedStatement#executeBatch()
    */
   public BatchResult executeBatch() {
@@ -772,18 +808,66 @@ public class NamedQuery implements AutoCloseable {
   public BatchResult executeBatch(boolean generatedKeys) {
     logStatement();
     long start = System.currentTimeMillis();
-    JdbcConnection connection = this.connection;
     try {
       PreparedStatement statement = buildPreparedStatement();
 
-      BatchResult batchResult = new BatchResult(statement.executeBatch(), connection);
-      this.currentBatchRecords = 0;
+      BatchResult batchResult = this.batchResult;
+      if (batchResult == null) {
+        batchResult = new BatchResult(connection);
+        this.batchResult = batchResult;
+      }
+      batchResult.setBatchResult(statement.executeBatch());
       try {
-        batchResult.setKeys(generatedKeys ? statement.getGeneratedKeys() : null);
-        batchResult.setCanGetKeys(generatedKeys);
+        if (generatedKeys) {
+          batchResult.addKeys(statement.getGeneratedKeys());
+        }
+
         if (log.isDebugEnabled()) {
           log.debug("total: {} ms; executed batch [{}]", System.currentTimeMillis() - start, obtainName());
         }
+        // reset currentBatchRecords to 0
+        this.currentBatchRecords = 0;
+        return batchResult;
+      }
+      catch (SQLException e) {
+        throw new GeneratedKeysException(
+                "Error while trying to fetch generated keys from database. " +
+                        "If you are not expecting any generated keys, fix this" +
+                        " error by setting the fetchGeneratedKeys parameter in" +
+                        " the createQuery() method to 'false'", e);
+      }
+    }
+    catch (SQLException e) {
+      connection.onException();
+      throw translateException("Executing batch operation", e);
+    }
+    finally {
+      closeConnectionIfNecessary();
+    }
+  }
+
+  public <T> BatchResult executeBatch(@Nullable TypeHandler<T> handler) {
+    logStatement();
+    long start = System.currentTimeMillis();
+    try {
+      PreparedStatement statement = buildPreparedStatement();
+
+      BatchResult batchResult = this.batchResult;
+      if (batchResult == null) {
+        batchResult = new BatchResult(connection);
+        this.batchResult = batchResult;
+      }
+      batchResult.setBatchResult(statement.executeBatch());
+      try {
+        if (handler != null) {
+          batchResult.addKeys(statement.getGeneratedKeys(), handler);
+        }
+
+        if (log.isDebugEnabled()) {
+          log.debug("total: {} ms; executed batch [{}]", System.currentTimeMillis() - start, obtainName());
+        }
+        // reset currentBatchRecords to 0
+        this.currentBatchRecords = 0;
         return batchResult;
       }
       catch (SQLException e) {

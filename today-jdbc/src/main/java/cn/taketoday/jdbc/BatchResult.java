@@ -20,6 +20,7 @@
 
 package cn.taketoday.jdbc;
 
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -27,61 +28,109 @@ import java.util.List;
 
 import cn.taketoday.core.conversion.ConversionException;
 import cn.taketoday.core.conversion.ConversionService;
+import cn.taketoday.jdbc.type.TypeHandler;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
 
 /**
+ * Batch execution result
+ *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2023/1/17 11:25
  */
 public class BatchResult extends ExecutionResult {
-  private final int[] batchResult;
+  private int[] batchResult;
+
   @Nullable
-  private List<Object> keys;
+  private ArrayList<Object> generatedKeys;
 
-  private boolean canGetKeys;
+  @Nullable
+  private Integer affectedRows;
 
-  public BatchResult(int[] batchResult, JdbcConnection connection) {
+  public BatchResult(JdbcConnection connection) {
     super(connection);
-    this.batchResult = batchResult;
   }
 
-  public int[] getBatchResult() {
+  /**
+   * Get last batch execution result
+   * <p>
+   *
+   * Maybe explicitly execution
+   *
+   * @see NamedQuery#addToBatch()
+   * @see PreparedStatement#executeBatch()
+   */
+  public int[] getLastBatchResult() {
     if (batchResult == null) {
       throw new PersistenceException(
-              "It is required to call executeBatch() method before calling getBatchResult().");
+              "It is required to call executeBatch() method before calling getLastBatchResult().");
     }
     return batchResult;
+  }
+
+  void setBatchResult(int[] batchResult) {
+    this.batchResult = batchResult;
+    if (this.affectedRows == null) {
+      this.affectedRows = batchResult.length;
+    }
+    else {
+      this.affectedRows += batchResult.length;
+    }
+  }
+
+  /**
+   * @return the number of rows updated or deleted
+   */
+  public int getAffectedRows() {
+    if (affectedRows == null) {
+      throw new PersistenceException(
+              "It is required to call executeBatch() method before calling getAffectedRows().");
+    }
+    return affectedRows;
   }
 
   // ------------------------------------------------
   // -------------------- Keys ----------------------
   // ------------------------------------------------
 
-  void setKeys(@Nullable ResultSet rs) {
-    if (rs == null) {
-      this.keys = null;
+  <T> void addKeys(ResultSet rs, TypeHandler<T> handler) {
+    ArrayList<Object> keys = this.generatedKeys;
+    if (keys == null) {
+      keys = new ArrayList<>();
+      this.generatedKeys = keys;
     }
-    else {
-      try {
-        ArrayList<Object> keys = new ArrayList<>();
-        while (rs.next()) {
-          keys.add(rs.getObject(1));
-        }
-        this.keys = keys;
-      }
-      catch (SQLException e) {
-        throw translateException("Getting generated keys.", e);
+    try {
+      while (rs.next()) {
+        T generatedKey = handler.getResult(rs, 1);
+        keys.add(generatedKey);
       }
     }
+    catch (SQLException e) {
+      throw translateException("Getting generated keys.", e);
+    }
+  }
 
+  void addKeys(ResultSet rs) {
+    ArrayList<Object> keys = this.generatedKeys;
+    if (keys == null) {
+      keys = new ArrayList<>();
+      this.generatedKeys = keys;
+    }
+    try {
+      while (rs.next()) {
+        keys.add(rs.getObject(1));
+      }
+    }
+    catch (SQLException e) {
+      throw translateException("Getting generated keys.", e);
+    }
   }
 
   @Nullable
   public Object getKey() {
     assertCanGetKeys();
-    List<Object> keys = this.keys;
+    List<Object> keys = this.generatedKeys;
     if (CollectionUtils.isNotEmpty(keys)) {
       return keys.get(0);
     }
@@ -114,9 +163,8 @@ public class BatchResult extends ExecutionResult {
 
   public Object[] getKeys() {
     assertCanGetKeys();
-    List<Object> keys = this.keys;
-    if (keys != null) {
-      return keys.toArray();
+    if (generatedKeys != null) {
+      return generatedKeys.toArray();
     }
     return null;
   }
@@ -137,11 +185,11 @@ public class BatchResult extends ExecutionResult {
   @Nullable
   public <V> List<V> getKeys(Class<V> returnType, ConversionService conversionService) {
     assertCanGetKeys();
-    if (keys != null) {
+    if (generatedKeys != null) {
       Assert.notNull(conversionService, "conversionService is required");
       try {
-        ArrayList<V> convertedKeys = new ArrayList<>(keys.size());
-        for (Object key : keys) {
+        ArrayList<V> convertedKeys = new ArrayList<>(generatedKeys.size());
+        for (Object key : generatedKeys) {
           convertedKeys.add(conversionService.convert(key, returnType));
         }
         return convertedKeys;
@@ -155,7 +203,7 @@ public class BatchResult extends ExecutionResult {
   }
 
   private void assertCanGetKeys() {
-    if (!canGetKeys) {
+    if (generatedKeys == null) {
       throw new GeneratedKeysException(
               "Keys where not fetched from database." +
                       " Please set the returnGeneratedKeys parameter " +
@@ -164,7 +212,4 @@ public class BatchResult extends ExecutionResult {
 
   }
 
-  void setCanGetKeys(boolean canGetKeys) {
-    this.canGetKeys = canGetKeys;
-  }
 }

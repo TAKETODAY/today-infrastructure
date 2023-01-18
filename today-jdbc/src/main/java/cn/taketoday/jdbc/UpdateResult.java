@@ -20,6 +20,7 @@
 
 package cn.taketoday.jdbc;
 
+import java.lang.reflect.Array;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -27,23 +28,25 @@ import java.util.List;
 
 import cn.taketoday.core.conversion.ConversionException;
 import cn.taketoday.core.conversion.ConversionService;
+import cn.taketoday.jdbc.type.TypeHandler;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
 
 /**
+ * Update execution result
+ *
+ * @param <T> generatedKey type
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2023/1/17 10:28
  */
-public class UpdateResult extends ExecutionResult {
+public class UpdateResult<T> extends ExecutionResult {
 
   @Nullable
   private final Integer affectedRows;
 
   @Nullable
-  private List<Object> keys;
-
-  private boolean canGetKeys;
+  private ArrayList<T> generatedKeys;
 
   public UpdateResult(@Nullable Integer affectedRows, JdbcConnection connection) {
     super(connection);
@@ -56,7 +59,7 @@ public class UpdateResult extends ExecutionResult {
   public int getAffectedRows() {
     if (affectedRows == null) {
       throw new PersistenceException(
-              "It is required to call executeUpdate() method before calling getResult().");
+              "It is required to call executeUpdate() method before calling getAffectedRows().");
     }
     return affectedRows;
   }
@@ -65,50 +68,44 @@ public class UpdateResult extends ExecutionResult {
   // -------------------- Keys ----------------------
   // ------------------------------------------------
 
-  void setKeys(@Nullable ResultSet rs) {
-    if (rs == null) {
-      this.keys = null;
-    }
-    else {
-      try {
-        ArrayList<Object> keys = new ArrayList<>();
-        while (rs.next()) {
-          keys.add(rs.getObject(1));
-        }
-        this.keys = keys;
+  void setKeys(ResultSet rs, TypeHandler<T> generatedKeyHandler) {
+    try {
+      ArrayList<T> keys = new ArrayList<>();
+      while (rs.next()) {
+        keys.add(generatedKeyHandler.getResult(rs, 1));
       }
-      catch (SQLException e) {
-        throw translateException("Getting generated keys.", e);
-      }
+      this.generatedKeys = keys;
     }
-
+    catch (SQLException e) {
+      throw translateException("Getting generated keys.", e);
+    }
   }
 
+  /**
+   * Get first generated-key
+   *
+   * @return first generated-key
+   */
   @Nullable
-  public Object getKey() {
-    assertCanGetKeys();
-    List<Object> keys = this.keys;
-    if (CollectionUtils.isNotEmpty(keys)) {
-      return keys.get(0);
-    }
-    return null;
+  public T getFirstKey() {
+    return CollectionUtils.firstElement(generatedKeys());
   }
 
   /**
    * @throws GeneratedKeysConversionException Generated Keys conversion failed
    * @throws IllegalArgumentException If conversionService is null
    */
-  public <V> V getKey(Class<V> returnType) {
-    return getKey(returnType, getManager().getConversionService());
+  public <V> V getFirstKey(Class<V> returnType) {
+    return getFirstKey(returnType, getManager().getConversionService());
   }
 
   /**
    * @throws GeneratedKeysConversionException Generated Keys conversion failed
    * @throws IllegalArgumentException If conversionService is null
    */
-  public <V> V getKey(Class<V> returnType, ConversionService conversionService) {
+  public <V> V getFirstKey(Class<V> returnType, ConversionService conversionService) {
     Assert.notNull(conversionService, "conversionService is required");
-    Object key = getKey();
+    Object key = getFirstKey();
     try {
       return conversionService.convert(key, returnType);
     }
@@ -119,10 +116,19 @@ public class UpdateResult extends ExecutionResult {
   }
 
   public Object[] getKeys() {
-    assertCanGetKeys();
-    List<Object> keys = this.keys;
-    if (keys != null) {
-      return keys.toArray();
+    ArrayList<T> generatedKeys = generatedKeys();
+    if (generatedKeys != null) {
+      return generatedKeys.toArray();
+    }
+    return null;
+  }
+
+  @SuppressWarnings("unchecked")
+  public <V> V[] getKeysArray(Class<V> componentType) {
+    ArrayList<T> generatedKeys = generatedKeys();
+    if (generatedKeys != null) {
+      V[] o = (V[]) Array.newInstance(componentType, generatedKeys.size());
+      return generatedKeys.toArray(o);
     }
     return null;
   }
@@ -142,12 +148,12 @@ public class UpdateResult extends ExecutionResult {
    */
   @Nullable
   public <V> List<V> getKeys(Class<V> returnType, ConversionService conversionService) {
-    assertCanGetKeys();
-    if (keys != null) {
+    ArrayList<T> generatedKeys = generatedKeys();
+    if (generatedKeys != null) {
       Assert.notNull(conversionService, "conversionService is required");
       try {
-        ArrayList<V> convertedKeys = new ArrayList<>(keys.size());
-        for (Object key : keys) {
+        ArrayList<V> convertedKeys = new ArrayList<>(generatedKeys.size());
+        for (Object key : generatedKeys) {
           convertedKeys.add(conversionService.convert(key, returnType));
         }
         return convertedKeys;
@@ -160,18 +166,14 @@ public class UpdateResult extends ExecutionResult {
     return null;
   }
 
-  private void assertCanGetKeys() {
-    if (!canGetKeys) {
+  private ArrayList<T> generatedKeys() {
+    if (generatedKeys == null) {
       throw new GeneratedKeysException(
               "Keys where not fetched from database." +
                       " Please set the returnGeneratedKeys parameter " +
                       "in the createQuery() method to enable fetching of generated keys.");
     }
-
-  }
-
-  void setCanGetKeys(boolean canGetKeys) {
-    this.canGetKeys = canGetKeys;
+    return generatedKeys;
   }
 
 }
