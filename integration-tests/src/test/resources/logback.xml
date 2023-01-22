@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?><!--
   ~ Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
-  ~ Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+  ~ Copyright © TODAY & 2017 - 2023 All Rights Reserved.
   ~
   ~ DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
   ~
@@ -32,6 +32,7 @@
 
   <logger name="org.apache" level="WARN" />
   <logger name="org.osjava.sj.jndi" level="OFF" />
+  <logger name="cn.taketoday.context.annotation" level="OFF" />
 
   <!--  <root level="TRACE">-->
   <!--  <root level="DEBUG">-->
