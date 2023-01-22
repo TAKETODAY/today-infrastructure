@@ -76,7 +76,7 @@ import cn.taketoday.transaction.support.TransactionCallback;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-public class RepositoryManager extends JdbcAccessor implements InitializingBean {
+public class RepositoryManager extends JdbcAccessor implements InitializingBean, QueryProducer {
 
   private TypeHandlerRegistry typeHandlerRegistry = TypeHandlerRegistry.getSharedInstance();
 
@@ -293,7 +293,7 @@ public class RepositoryManager extends JdbcAccessor implements InitializingBean 
   // Query
 
   /**
-   * Creates a {@link NamedQuery}
+   * Creates a {@link Query}
    * <p>
    * better to use :
    * create queries with {@link JdbcConnection} class instead,
@@ -311,12 +311,13 @@ public class RepositoryManager extends JdbcAccessor implements InitializingBean 
    * generated keys.
    * @return the {@link NamedQuery} instance
    */
-  public NamedQuery createQuery(String query, boolean returnGeneratedKeys) {
+  @Override
+  public Query createQuery(String query, boolean returnGeneratedKeys) {
     return open(true).createQuery(query, returnGeneratedKeys);
   }
 
   /**
-   * Creates a {@link NamedQuery}
+   * Creates a {@link Query}
    *
    * better to use :
    * create queries with {@link JdbcConnection} class instead,
@@ -331,8 +332,54 @@ public class RepositoryManager extends JdbcAccessor implements InitializingBean 
    * @param query the sql query string
    * @return the {@link NamedQuery} instance
    */
-  public NamedQuery createQuery(String query) {
+  @Override
+  public Query createQuery(String query) {
     return open(true).createQuery(query);
+  }
+
+  /**
+   * Creates a {@link NamedQuery}
+   * <p>
+   * better to use :
+   * create queries with {@link JdbcConnection} class instead,
+   * using try-with-resource blocks
+   * <pre>
+   * try (Connection con = repositoryManager.open()) {
+   *    return repositoryManager.createNamedQuery(query, name, returnGeneratedKeys)
+   *                .fetch(Pojo.class);
+   * }
+   * </pre>
+   * </p>
+   *
+   * @param query the sql query string
+   * @param returnGeneratedKeys boolean value indicating if the database should return any
+   * generated keys.
+   * @return the {@link NamedQuery} instance
+   */
+  @Override
+  public NamedQuery createNamedQuery(String query, boolean returnGeneratedKeys) {
+    return open(true).createNamedQuery(query, returnGeneratedKeys);
+  }
+
+  /**
+   * Creates a {@link NamedQuery}
+   *
+   * better to use :
+   * create queries with {@link JdbcConnection} class instead,
+   * using try-with-resource blocks
+   * <pre>
+   *     try (Connection con = repositoryManager.open()) {
+   *         return repositoryManager.createNamedQuery(query, name)
+   *                      .fetch(Pojo.class);
+   *     }
+   *  </pre>
+   *
+   * @param query the sql query string
+   * @return the {@link NamedQuery} instance
+   */
+  @Override
+  public NamedQuery createNamedQuery(String query) {
+    return open(true).createNamedQuery(query);
   }
 
   // JdbcConnection

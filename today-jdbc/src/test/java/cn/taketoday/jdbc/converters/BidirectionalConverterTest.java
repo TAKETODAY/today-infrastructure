@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -67,7 +67,7 @@ public class BidirectionalConverterTest {
 
   @Test
   public void toDatabase_fromDatabase_doExecute() {
-    List<String> notConverted = sql2o.createQuery("select text from uuid_wrapper")
+    List<String> notConverted = sql2o.createNamedQuery("select text from uuid_wrapper")
             .fetchScalars(String.class);
 
     // if conversion to database worked, all "-" from UUID were replaced with "!"
@@ -75,7 +75,7 @@ public class BidirectionalConverterTest {
       assertNotNull(UUID.fromString(s.replace('!', '-')));
     }
 
-    List<UUIDWrapper> converted = sql2o.createQuery("select * from uuid_wrapper")
+    List<UUIDWrapper> converted = sql2o.createNamedQuery("select * from uuid_wrapper")
             .fetch(UUIDWrapper.class);
 
     converted.sort(comparator);
@@ -94,10 +94,10 @@ public class BidirectionalConverterTest {
   }
 
   private void createAndFillTable(List<UUIDWrapper> wrappers) {
-    sql2o.createQuery("create table uuid_wrapper(\n" +
+    sql2o.createNamedQuery("create table uuid_wrapper(\n" +
             "text varchar(100) primary key)").executeUpdate();
 
-    NamedQuery insQuery = sql2o.createQuery("insert into uuid_wrapper(text) values (:text)");
+    NamedQuery insQuery = sql2o.createNamedQuery("insert into uuid_wrapper(text) values (:text)");
     for (UUIDWrapper wrapper : wrappers) {
       insQuery.addParameter("text", wrapper.getText()).addToBatch();
     }
@@ -106,7 +106,7 @@ public class BidirectionalConverterTest {
 
   private void deleteTable() {
     try {
-      sql2o.createQuery("drop table uuid_wrapper").executeUpdate();
+      sql2o.createNamedQuery("drop table uuid_wrapper").executeUpdate();
     }
     catch (PersistenceException e) {
       // if it fails, its because the User table doesn't exists. Just ignore this.

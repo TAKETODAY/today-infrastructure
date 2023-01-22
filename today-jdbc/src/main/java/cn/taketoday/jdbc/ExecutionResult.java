@@ -35,7 +35,7 @@ import cn.taketoday.transaction.UnexpectedRollbackException;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2023/1/17 11:26
  */
-public class ExecutionResult {
+public class ExecutionResult implements QueryProducer {
   private final JdbcConnection connection;
 
   public ExecutionResult(JdbcConnection connection) {
@@ -46,24 +46,34 @@ public class ExecutionResult {
    * @throws DataAccessException Could not acquire a connection from data-source
    * @see DataSource#getConnection()
    */
-  public NamedQuery createQuery(String queryText) {
-    return connection.createQuery(queryText);
+  public NamedQuery createNamedQuery(String queryText) {
+    return connection.createNamedQuery(queryText);
+  }
+
+  @Override
+  public Query createQuery(String query, boolean returnGeneratedKeys) {
+    return connection.createQuery(query, returnGeneratedKeys);
+  }
+
+  @Override
+  public Query createQuery(String query) {
+    return connection.createQuery(query);
   }
 
   /**
    * @throws CannotGetJdbcConnectionException Could not acquire a connection from connection-source
    * @see DataSource#getConnection()
    */
-  public NamedQuery createQuery(String queryText, boolean returnGeneratedKeys) {
-    return connection.createQuery(queryText, returnGeneratedKeys);
+  public NamedQuery createNamedQuery(String queryText, boolean returnGeneratedKeys) {
+    return connection.createNamedQuery(queryText, returnGeneratedKeys);
   }
 
   /**
    * @throws CannotGetJdbcConnectionException Could not acquire a connection from connection-source
    * @see DataSource#getConnection()
    */
-  public NamedQuery createQuery(String queryText, String... columnNames) {
-    return connection.createQuery(queryText, columnNames);
+  public NamedQuery createNamedQuery(String queryText, String... columnNames) {
+    return connection.createNamedQuery(queryText, columnNames);
   }
 
   /**

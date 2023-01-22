@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -34,7 +34,7 @@ public interface StatementCallback {
    * User defined operations when build a PreparedStatement
    *
    * @param statement PreparedStatement
-   * @see NamedQuery#buildPreparedStatement
+   * @see NamedQuery#buildStatement
    */
   void doWith(PreparedStatement statement);
 }

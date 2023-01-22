@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -109,9 +109,9 @@ public class PojoPerformanceTest {
 
   private void createPostTable() {
     // language=MySQL
-    operations.createQuery("DROP TABLE IF EXISTS post").executeUpdate();
+    operations.createNamedQuery("DROP TABLE IF EXISTS post").executeUpdate();
     // language=MySQL
-    operations.createQuery("\n CREATE TABLE post" +
+    operations.createNamedQuery("\n CREATE TABLE post" +
             "\n (" +
             "\n     id INT NOT NULL IDENTITY PRIMARY KEY" +
             "\n   , text VARCHAR(255)" +
@@ -131,7 +131,7 @@ public class PojoPerformanceTest {
 
     Random r = new Random();
 
-    NamedQuery insQuery = operations.createQuery( // language=MySQL
+    NamedQuery insQuery = operations.createNamedQuery( // language=MySQL
             "insert into post (text, creation_date, last_change_date, counter1, counter2, counter3, counter4, counter5, counter6, counter7, counter8, counter9) values (:text, :creation_date, :last_change_date, :counter1, :counter2, :counter3, :counter4, :counter5, :counter6, :counter7, :counter8, :counter9)");
     for (int idx = 0; idx < ITERATIONS; idx++) {
       insQuery.addParameter("text", "a name " + idx)
@@ -207,7 +207,7 @@ public class PojoPerformanceTest {
     public void init() {
       conn = operations.open();
       // language=MySQL
-      query = conn.createQuery(SELECT_OPTIMAL + " WHERE id = :id");
+      query = conn.createNamedQuery(SELECT_OPTIMAL + " WHERE id = :id");
       query.setAutoDerivingColumns(true);
     }
 
@@ -231,7 +231,7 @@ public class PojoPerformanceTest {
     public void init() {
       conn = operations.open();
       // language=MySQL
-      query = conn.createQuery(SELECT_TYPICAL + " WHERE id = :id")
+      query = conn.createNamedQuery(SELECT_TYPICAL + " WHERE id = :id")
               .setAutoDerivingColumns(true);
     }
 

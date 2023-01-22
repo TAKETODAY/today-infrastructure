@@ -43,7 +43,7 @@ public abstract class AbstractRepositoryManagerTests {
   @Target(ElementType.METHOD)
   @ParameterizedTest(name = "[{index}] {0}")
   @MethodSource("cn.taketoday.jdbc.persistence.AbstractRepositoryManagerTests#data")
-  @interface ParameterizedRepositoryManagerTest {
+  public @interface ParameterizedRepositoryManagerTest {
 
   }
 
@@ -58,7 +58,7 @@ public abstract class AbstractRepositoryManagerTests {
     RepositoryManager repositoryManager = new RepositoryManager(dbType.url, dbType.user, dbType.pass);
     if (dbType == DbType.HyperSQL) {
       try (JdbcConnection con = repositoryManager.open()) {
-        con.createQuery("set database sql syntax MSS true")
+        con.createNamedQuery("set database sql syntax MSS true")
                 .executeUpdate();
       }
     }
