@@ -28,7 +28,6 @@ import java.util.Map;
 import javax.sql.DataSource;
 
 import cn.taketoday.beans.BeanProperty;
-import cn.taketoday.beans.factory.InitializingBean;
 import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.core.conversion.support.DefaultConversionService;
 import cn.taketoday.dao.DataAccessException;
@@ -76,7 +75,7 @@ import cn.taketoday.transaction.support.TransactionCallback;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-public class RepositoryManager extends JdbcAccessor implements InitializingBean, QueryProducer {
+public class RepositoryManager extends JdbcAccessor implements QueryProducer {
 
   private TypeHandlerRegistry typeHandlerRegistry = TypeHandlerRegistry.getSharedInstance();
 
@@ -92,6 +91,7 @@ public class RepositoryManager extends JdbcAccessor implements InitializingBean,
   @Nullable
   private PrimitiveTypeNullHandler primitiveTypeNullHandler;
 
+  @Nullable
   private EntityManager entityManager;
 
   private DataSourceTransactionManager transactionManager = new DataSourceTransactionManager();
@@ -275,13 +275,6 @@ public class RepositoryManager extends JdbcAccessor implements InitializingBean,
    */
   public DataSourceTransactionManager getTransactionManager() {
     return this.transactionManager;
-  }
-
-  @Override
-  public void afterPropertiesSet() {
-    if (this.transactionManager == null) {
-      throw new IllegalArgumentException("Property 'transactionManager' is required");
-    }
   }
 
   //

@@ -51,6 +51,7 @@ public final class JdbcConnection implements Closeable, QueryProducer {
   private final RepositoryManager manager;
   private final DataSource dataSource;
 
+  @Nullable
   private Connection root;
 
   final boolean autoClose;
@@ -340,7 +341,7 @@ public final class JdbcConnection implements Closeable, QueryProducer {
   public void close() {
     boolean connectionIsClosed;
     try {
-      connectionIsClosed = root.isClosed();
+      connectionIsClosed = root != null && root.isClosed();
     }
     catch (SQLException e) {
       throw translateException("trying to determine whether the connection is closed.", e);

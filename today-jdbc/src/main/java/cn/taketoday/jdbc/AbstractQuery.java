@@ -76,7 +76,9 @@ public sealed abstract class AbstractQuery implements AutoCloseable permits Name
   private boolean caseSensitive;
   private boolean autoDerivingColumns;
   private boolean throwOnMappingFailure = true;
-  private PreparedStatement preparedStatement = null;
+
+  @Nullable
+  private PreparedStatement preparedStatement;
 
   private TypeHandlerRegistry typeHandlerRegistry;
 
@@ -318,22 +320,26 @@ public sealed abstract class AbstractQuery implements AutoCloseable permits Name
     return list;
   }
 
+  @Nullable
   public <T> T fetchFirst(Class<T> returnType) {
     return fetchFirst(createHandlerFactory(returnType));
   }
 
+  @Nullable
   public <T> T fetchFirst(ResultSetHandler<T> handler) {
     try (ResultSetIterable<T> iterable = fetchIterable(handler)) {
       return fetchFirst(iterable);
     }
   }
 
+  @Nullable
   public <T> T fetchFirst(ResultSetHandlerFactory<T> factory) {
     try (ResultSetIterable<T> iterable = fetchIterable(factory)) {
       return fetchFirst(iterable);
     }
   }
 
+  @Nullable
   public <T> T fetchFirst(ResultSetIterable<T> iterable) {
     Iterator<T> iterator = iterable.iterator();
     return iterator.hasNext() ? iterator.next() : null;

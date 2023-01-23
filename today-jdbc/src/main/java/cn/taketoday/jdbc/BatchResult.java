@@ -40,6 +40,8 @@ import cn.taketoday.util.CollectionUtils;
  * @since 4.0 2023/1/17 11:25
  */
 public class BatchResult extends ExecutionResult {
+
+  @Nullable
   private int[] batchResult;
 
   @Nullable
