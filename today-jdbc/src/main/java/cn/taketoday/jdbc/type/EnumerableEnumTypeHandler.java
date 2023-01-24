@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -34,16 +34,18 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ReflectionUtils;
 
 /**
+ * TypeHandler for Enumerable
+ *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/8/1 22:15
  */
 public class EnumerableEnumTypeHandler<V> implements TypeHandler<Enumerable<V>> {
 
-  private final Class<Enumerable<V>> type;
+  private final Class<? extends Enumerable<V>> type;
 
   private final TypeHandler<V> delegate;
 
-  public EnumerableEnumTypeHandler(Class<Enumerable<V>> type, TypeHandlerRegistry registry) {
+  public EnumerableEnumTypeHandler(Class<? extends Enumerable<V>> type, TypeHandlerRegistry registry) {
     Assert.notNull(type, "Type argument is required");
     this.type = type;
     Class<V> valueType = getValueType(type);
@@ -68,8 +70,14 @@ public class EnumerableEnumTypeHandler<V> implements TypeHandler<Enumerable<V>> 
   }
 
   @Override
-  public void setParameter(PreparedStatement ps, int parameterIndex, Enumerable<V> parameter) throws SQLException {
-    delegate.setParameter(ps, parameterIndex, parameter.getValue());
+  public void setParameter(PreparedStatement ps,
+          int parameterIndex, @Nullable Enumerable<V> parameter) throws SQLException {
+    if (parameter == null) {
+      delegate.setParameter(ps, parameterIndex, null);
+    }
+    else {
+      delegate.setParameter(ps, parameterIndex, parameter.getValue());
+    }
   }
 
   @Nullable

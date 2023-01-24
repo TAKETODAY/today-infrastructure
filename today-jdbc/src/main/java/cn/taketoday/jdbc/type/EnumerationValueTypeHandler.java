@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -85,9 +85,15 @@ public class EnumerationValueTypeHandler<T extends Enum<T>> implements TypeHandl
   }
 
   @Override
-  public void setParameter(PreparedStatement ps, int parameterIndex, T parameter) throws SQLException {
-    Object propertyValue = valueSupplier.apply(parameter); // todo null check?
-    delegate.setParameter(ps, parameterIndex, propertyValue);
+  public void setParameter(PreparedStatement ps,
+          int parameterIndex, @Nullable T parameter) throws SQLException {
+    if (parameter != null) {
+      Object propertyValue = valueSupplier.apply(parameter);
+      delegate.setParameter(ps, parameterIndex, propertyValue);
+    }
+    else {
+      delegate.setParameter(ps, parameterIndex, null);
+    }
   }
 
   @Nullable
@@ -95,7 +101,7 @@ public class EnumerationValueTypeHandler<T extends Enum<T>> implements TypeHandl
   public T getResult(ResultSet rs, String columnName) throws SQLException {
     // get value in DB
     Object propertyValueInDb = delegate.getResult(rs, columnName);
-    if (propertyValueInDb == null && rs.wasNull()) {
+    if (propertyValueInDb == null) {
       return null;
     }
 
@@ -108,7 +114,7 @@ public class EnumerationValueTypeHandler<T extends Enum<T>> implements TypeHandl
   public T getResult(ResultSet rs, int columnIndex) throws SQLException {
     // get value in DB
     Object propertyValueInDb = delegate.getResult(rs, columnIndex);
-    if (propertyValueInDb == null && rs.wasNull()) {
+    if (propertyValueInDb == null) {
       return null;
     }
 
@@ -121,7 +127,7 @@ public class EnumerationValueTypeHandler<T extends Enum<T>> implements TypeHandl
   public T getResult(CallableStatement cs, int columnIndex) throws SQLException {
     // get value in DB
     Object propertyValueInDb = delegate.getResult(cs, columnIndex);
-    if (propertyValueInDb == null && cs.wasNull()) {
+    if (propertyValueInDb == null) {
       return null;
     }
 

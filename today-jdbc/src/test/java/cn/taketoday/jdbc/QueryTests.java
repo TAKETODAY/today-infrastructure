@@ -80,6 +80,27 @@ class QueryTests extends AbstractRepositoryManagerTests {
     }
   }
 
+  @ParameterizedRepositoryManagerTest
+  void addParameter(RepositoryManager repositoryManager) {
+    DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
+    createData(entityManager);
+
+    try (JdbcConnection connection = repositoryManager.open()) {
+      // language=MySQL
+      Query query = connection.createQuery("select * from t_user where id=? and name=?")
+              .addParameter(1)
+              .addParameter("TODAY");
+
+      query.setAutoDerivingColumns(true);
+
+      assertThat(query.fetchFirst(UserModel.class))
+              .isNotNull()
+              .extracting("id", "name")
+              .containsExactly(1, "TODAY");
+
+    }
+  }
+
   public static void createData(DefaultEntityManager entityManager) {
     UserModel userModel = UserModel.male("TODAY", 9);
 
