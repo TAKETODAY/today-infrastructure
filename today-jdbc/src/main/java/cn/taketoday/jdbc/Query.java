@@ -159,6 +159,13 @@ public final class Query extends AbstractQuery {
     return queryParameters;
   }
 
+  /**
+   * clear parameter
+   */
+  public void clearParameters() {
+    queryParameters.clear();
+  }
+
   //
 
   @Override
