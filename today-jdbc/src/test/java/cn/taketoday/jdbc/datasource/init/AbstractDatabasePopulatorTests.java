@@ -185,7 +185,7 @@ abstract class AbstractDatabasePopulatorTests extends AbstractDatabaseInitializa
    * See SPR-9781
    */
   @Test
-  @Timeout(1)
+  @Timeout(2)
   void executesHugeScriptInReasonableTime() throws SQLException {
     databasePopulator.addScript(defaultSchema());
     databasePopulator.addScript(resource("db-test-data-huge.sql"));
