@@ -102,7 +102,7 @@ public class BatchResult extends ExecutionResult {
       keys = new ArrayList<>();
       this.generatedKeys = keys;
     }
-    try {
+    try (rs) {
       while (rs.next()) {
         T generatedKey = handler.getResult(rs, 1);
         keys.add(generatedKey);

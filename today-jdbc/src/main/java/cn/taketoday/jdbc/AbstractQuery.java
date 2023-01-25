@@ -65,10 +65,13 @@ public sealed abstract class AbstractQuery implements AutoCloseable permits Name
 
   private final JdbcConnection connection;
 
+  @Nullable
   private final String[] columnNames;
   private final boolean returnGeneratedKeys;
 
+  @Nullable
   private String name;
+
   private final String querySQL;
   private int maxBatchRecords = 0;
   private int currentBatchRecords = 0;
@@ -80,9 +83,13 @@ public sealed abstract class AbstractQuery implements AutoCloseable permits Name
   @Nullable
   private PreparedStatement preparedStatement;
 
+  @Nullable
   private TypeHandlerRegistry typeHandlerRegistry;
 
+  @Nullable
   private Map<String, String> columnMappings;
+
+  @Nullable
   private Map<String, String> caseSensitiveColumnMappings;
 
   @Nullable
@@ -95,11 +102,11 @@ public sealed abstract class AbstractQuery implements AutoCloseable permits Name
     this(connection, querySQL, generatedKeys, null);
   }
 
-  public AbstractQuery(JdbcConnection connection, String querySQL, String[] columnNames) {
+  public AbstractQuery(JdbcConnection connection, String querySQL, @Nullable String[] columnNames) {
     this(connection, querySQL, false, columnNames);
   }
 
-  protected AbstractQuery(JdbcConnection connection, String querySQL, boolean generatedKeys, String[] columnNames) {
+  protected AbstractQuery(JdbcConnection connection, String querySQL, boolean generatedKeys, @Nullable String[] columnNames) {
     this.connection = connection;
     this.columnNames = columnNames;
     this.returnGeneratedKeys = generatedKeys;
@@ -433,7 +440,7 @@ public sealed abstract class AbstractQuery implements AutoCloseable permits Name
     return returnGeneratedKeys;
   }
 
-  public void setTypeHandlerRegistry(TypeHandlerRegistry typeHandlerRegistry) {
+  public void setTypeHandlerRegistry(@Nullable TypeHandlerRegistry typeHandlerRegistry) {
     this.typeHandlerRegistry = typeHandlerRegistry;
   }
 
@@ -707,10 +714,12 @@ public sealed abstract class AbstractQuery implements AutoCloseable permits Name
   public AbstractQuery addColumnMapping(String columnName, String propertyName) {
     if (columnMappings == null) {
       this.columnMappings = new HashMap<>();
+    }
+    if (caseSensitiveColumnMappings == null) {
       this.caseSensitiveColumnMappings = new HashMap<>();
     }
-    this.caseSensitiveColumnMappings.put(columnName, propertyName);
-    this.columnMappings.put(columnName.toLowerCase(), propertyName.toLowerCase());
+    caseSensitiveColumnMappings.put(columnName, propertyName);
+    columnMappings.put(columnName.toLowerCase(), propertyName.toLowerCase());
     return this;
   }
 

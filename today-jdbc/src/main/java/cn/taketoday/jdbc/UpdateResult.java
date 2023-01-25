@@ -69,7 +69,7 @@ public class UpdateResult<T> extends ExecutionResult {
   // ------------------------------------------------
 
   void setKeys(ResultSet rs, TypeHandler<T> generatedKeyHandler) {
-    try {
+    try (rs) {
       ArrayList<T> keys = new ArrayList<>();
       while (rs.next()) {
         keys.add(generatedKeyHandler.getResult(rs, 1));

@@ -31,6 +31,8 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
 
+import cn.taketoday.lang.Nullable;
+
 /**
  * <p>
  * better to use :
@@ -55,11 +57,11 @@ public final class Query extends AbstractQuery {
     super(connection, querySQL, generatedKeys);
   }
 
-  public Query(JdbcConnection connection, String querySQL, String[] columnNames) {
+  public Query(JdbcConnection connection, String querySQL, @Nullable String[] columnNames) {
     super(connection, querySQL, columnNames);
   }
 
-  protected Query(JdbcConnection connection, String querySQL, boolean generatedKeys, String[] columnNames) {
+  protected Query(JdbcConnection connection, String querySQL, boolean generatedKeys, @Nullable String[] columnNames) {
     super(connection, querySQL, generatedKeys, columnNames);
   }
 
