@@ -18,17 +18,11 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.jdbc;
-
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @since 4.0 2023/1/17 11:43
+ * @since 4.0 2023/1/23 09:14
  */
-public final class BatchQuery extends Query {
+@NonNullFields
+package cn.taketoday.jdbc;
 
-  BatchQuery(Query query) {
-    super(query);
-    this.hasArrayParameter = false;
-  }
-
-}
+import cn.taketoday.lang.NonNullFields;

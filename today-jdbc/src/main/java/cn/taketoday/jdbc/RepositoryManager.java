@@ -28,7 +28,6 @@ import java.util.Map;
 import javax.sql.DataSource;
 
 import cn.taketoday.beans.BeanProperty;
-import cn.taketoday.beans.factory.InitializingBean;
 import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.core.conversion.support.DefaultConversionService;
 import cn.taketoday.dao.DataAccessException;
@@ -76,7 +75,7 @@ import cn.taketoday.transaction.support.TransactionCallback;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-public class RepositoryManager extends JdbcAccessor implements InitializingBean {
+public class RepositoryManager extends JdbcAccessor implements QueryProducer {
 
   private TypeHandlerRegistry typeHandlerRegistry = TypeHandlerRegistry.getSharedInstance();
 
@@ -92,6 +91,7 @@ public class RepositoryManager extends JdbcAccessor implements InitializingBean 
   @Nullable
   private PrimitiveTypeNullHandler primitiveTypeNullHandler;
 
+  @Nullable
   private EntityManager entityManager;
 
   private DataSourceTransactionManager transactionManager = new DataSourceTransactionManager();
@@ -277,13 +277,6 @@ public class RepositoryManager extends JdbcAccessor implements InitializingBean 
     return this.transactionManager;
   }
 
-  @Override
-  public void afterPropertiesSet() {
-    if (this.transactionManager == null) {
-      throw new IllegalArgumentException("Property 'transactionManager' is required");
-    }
-  }
-
   //
 
   protected String parse(String sql, Map<String, QueryParameter> paramNameToIdxMap) {
@@ -309,8 +302,9 @@ public class RepositoryManager extends JdbcAccessor implements InitializingBean 
    * @param query the sql query string
    * @param returnGeneratedKeys boolean value indicating if the database should return any
    * generated keys.
-   * @return the {@link Query} instance
+   * @return the {@link NamedQuery} instance
    */
+  @Override
   public Query createQuery(String query, boolean returnGeneratedKeys) {
     return open(true).createQuery(query, returnGeneratedKeys);
   }
@@ -329,10 +323,56 @@ public class RepositoryManager extends JdbcAccessor implements InitializingBean 
    *  </pre>
    *
    * @param query the sql query string
-   * @return the {@link Query} instance
+   * @return the {@link NamedQuery} instance
    */
+  @Override
   public Query createQuery(String query) {
     return open(true).createQuery(query);
+  }
+
+  /**
+   * Creates a {@link NamedQuery}
+   * <p>
+   * better to use :
+   * create queries with {@link JdbcConnection} class instead,
+   * using try-with-resource blocks
+   * <pre>
+   * try (Connection con = repositoryManager.open()) {
+   *    return repositoryManager.createNamedQuery(query, name, returnGeneratedKeys)
+   *                .fetch(Pojo.class);
+   * }
+   * </pre>
+   * </p>
+   *
+   * @param query the sql query string
+   * @param returnGeneratedKeys boolean value indicating if the database should return any
+   * generated keys.
+   * @return the {@link NamedQuery} instance
+   */
+  @Override
+  public NamedQuery createNamedQuery(String query, boolean returnGeneratedKeys) {
+    return open(true).createNamedQuery(query, returnGeneratedKeys);
+  }
+
+  /**
+   * Creates a {@link NamedQuery}
+   *
+   * better to use :
+   * create queries with {@link JdbcConnection} class instead,
+   * using try-with-resource blocks
+   * <pre>
+   *     try (Connection con = repositoryManager.open()) {
+   *         return repositoryManager.createNamedQuery(query, name)
+   *                      .fetch(Pojo.class);
+   *     }
+   *  </pre>
+   *
+   * @param query the sql query string
+   * @return the {@link NamedQuery} instance
+   */
+  @Override
+  public NamedQuery createNamedQuery(String query) {
+    return open(true).createNamedQuery(query);
   }
 
   // JdbcConnection

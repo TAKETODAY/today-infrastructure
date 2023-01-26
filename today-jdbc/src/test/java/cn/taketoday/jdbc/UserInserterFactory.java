@@ -17,7 +17,7 @@ public class UserInserterFactory {
   private static class BindUserInserter implements UserInserter {
 
     @Override
-    public void insertUser(Query insertQuery, int idx) {
+    public void insertUser(NamedQuery insertQuery, int idx) {
       User user = new User();
       user.name = "a name " + idx;
       user.setEmail(String.format("test%s@email.com", idx));
@@ -29,7 +29,7 @@ public class UserInserterFactory {
   private static class PlainUserInserter implements UserInserter {
 
     @Override
-    public void insertUser(Query insertQuery, int idx) {
+    public void insertUser(NamedQuery insertQuery, int idx) {
       insertQuery.addParameter("name", "a name " + idx)
               .addParameter("email", String.format("test%s@email.com", idx))
               .addParameter("text", "some text").addToBatch();

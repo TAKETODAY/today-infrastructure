@@ -45,12 +45,13 @@ import cn.taketoday.transaction.UnexpectedRollbackException;
 /**
  * Represents a connection to the database with a transaction.
  */
-public final class JdbcConnection implements Closeable {
+public final class JdbcConnection implements Closeable, QueryProducer {
   private static final Logger log = LoggerFactory.getLogger(JdbcConnection.class);
 
   private final RepositoryManager manager;
   private final DataSource dataSource;
 
+  @Nullable
   private Connection root;
 
   final boolean autoClose;
@@ -85,7 +86,9 @@ public final class JdbcConnection implements Closeable {
   /**
    * @throws DataAccessException Could not acquire a connection from data-source
    * @see DataSource#getConnection()
+   * @since 4.0
    */
+  @Override
   public Query createQuery(String queryText) {
     boolean returnGeneratedKeys = manager.isGeneratedKeys();
     return createQuery(queryText, returnGeneratedKeys);
@@ -94,7 +97,9 @@ public final class JdbcConnection implements Closeable {
   /**
    * @throws CannotGetJdbcConnectionException Could not acquire a connection from connection-source
    * @see DataSource#getConnection()
+   * @since 4.0
    */
+  @Override
   public Query createQuery(String queryText, boolean returnGeneratedKeys) {
     createConnectionIfNecessary();
     return new Query(this, queryText, returnGeneratedKeys);
@@ -103,10 +108,40 @@ public final class JdbcConnection implements Closeable {
   /**
    * @throws CannotGetJdbcConnectionException Could not acquire a connection from connection-source
    * @see DataSource#getConnection()
+   * @since 4.0
    */
   public Query createQuery(String queryText, String... columnNames) {
     createConnectionIfNecessary();
     return new Query(this, queryText, columnNames);
+  }
+
+  /**
+   * @throws DataAccessException Could not acquire a connection from data-source
+   * @see DataSource#getConnection()
+   */
+  @Override
+  public NamedQuery createNamedQuery(String queryText) {
+    boolean returnGeneratedKeys = manager.isGeneratedKeys();
+    return createNamedQuery(queryText, returnGeneratedKeys);
+  }
+
+  /**
+   * @throws CannotGetJdbcConnectionException Could not acquire a connection from connection-source
+   * @see DataSource#getConnection()
+   */
+  @Override
+  public NamedQuery createNamedQuery(String queryText, boolean returnGeneratedKeys) {
+    createConnectionIfNecessary();
+    return new NamedQuery(this, queryText, returnGeneratedKeys);
+  }
+
+  /**
+   * @throws CannotGetJdbcConnectionException Could not acquire a connection from connection-source
+   * @see DataSource#getConnection()
+   */
+  public NamedQuery createNamedQuery(String queryText, String... columnNames) {
+    createConnectionIfNecessary();
+    return new NamedQuery(this, queryText, columnNames);
   }
 
   /**
@@ -127,11 +162,11 @@ public final class JdbcConnection implements Closeable {
   /**
    * use :p1, :p2, :p3 as the parameter name
    */
-  public Query createQueryWithParams(String queryText, Object... paramValues) {
+  public NamedQuery createNamedQueryWithParams(String queryText, Object... paramValues) {
     // due to #146, creating a query will not create a statement anymore
     // the PreparedStatement will only be created once the query needs to be executed
     // => there is no need to handle the query closing here anymore since there is nothing to close
-    return createQuery(queryText)
+    return createNamedQuery(queryText)
             .withParams(paramValues);
   }
 
@@ -306,7 +341,7 @@ public final class JdbcConnection implements Closeable {
   public void close() {
     boolean connectionIsClosed;
     try {
-      connectionIsClosed = root.isClosed();
+      connectionIsClosed = root != null && root.isClosed();
     }
     catch (SQLException e) {
       throw translateException("trying to determine whether the connection is closed.", e);

@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -31,7 +31,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * @author zapodot
  */
-public class QueryArrayTest {
+public class NamedQueryArrayTest {
 
   private static class Foo {
     private int bar;
@@ -47,7 +47,7 @@ public class QueryArrayTest {
   public void arrayTest() throws Exception {
     final RepositoryManager database = new RepositoryManager(databaseRule.getDataSource());
     try (final JdbcConnection connection = database.open();
-            final Query query = connection.createQuery("SELECT * FROM FOO WHERE BAR IN (:bars)")) {
+            final NamedQuery query = connection.createNamedQuery("SELECT * FROM FOO WHERE BAR IN (:bars)")) {
 
       final List<Foo> foos = query.addParameters("bars", 1, 2)
               .fetch(Foo.class);
@@ -61,7 +61,7 @@ public class QueryArrayTest {
     final RepositoryManager database = new RepositoryManager(databaseRule.getDataSource());
 
     try (final JdbcConnection connection = database.open();
-            final Query query = connection.createQuery("SELECT * FROM FOO WHERE BAR IN (:bars)")) {
+            final NamedQuery query = connection.createNamedQuery("SELECT * FROM FOO WHERE BAR IN (:bars)")) {
 
       final List<Foo> noFoos = query.addParameters("bars", new Integer[] {})
               .fetch(Foo.class);

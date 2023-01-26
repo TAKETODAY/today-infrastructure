@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -29,6 +29,7 @@ import cn.taketoday.web.service.annotation.HttpExchange;
  * to one or more HTTP request values.
  *
  * @author Rossen Stoyanchev
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public interface HttpServiceArgumentResolver {
@@ -41,6 +42,7 @@ public interface HttpServiceArgumentResolver {
    * @param requestValues builder to add HTTP request values to
    * @return {@code true} if the argument was resolved, {@code false} otherwise
    */
-  boolean resolve(@Nullable Object argument, MethodParameter parameter, HttpRequestValues.Builder requestValues);
+  boolean resolve(@Nullable Object argument,
+          MethodParameter parameter, HttpRequestValues.Builder requestValues);
 
 }

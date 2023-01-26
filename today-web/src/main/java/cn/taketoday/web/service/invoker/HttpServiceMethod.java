@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -55,6 +55,7 @@ import reactor.core.publisher.Mono;
  * by delegating to an {@link HttpClientAdapter} to perform actual requests.
  *
  * @author Rossen Stoyanchev
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 final class HttpServiceMethod {
@@ -75,10 +76,10 @@ final class HttpServiceMethod {
           ReactiveAdapterRegistry reactiveRegistry, Duration blockTimeout) {
 
     this.method = method;
-    this.parameters = initMethodParameters(method);
     this.argumentResolvers = argumentResolvers;
-    this.requestValuesInitializer = HttpRequestValuesInitializer.create(method, containingClass, embeddedValueResolver);
+    this.parameters = initMethodParameters(method);
     this.responseFunction = ResponseFunction.create(client, method, reactiveRegistry, blockTimeout);
+    this.requestValuesInitializer = HttpRequestValuesInitializer.create(method, containingClass, embeddedValueResolver);
   }
 
   private static MethodParameter[] initMethodParameters(Method method) {
@@ -89,8 +90,9 @@ final class HttpServiceMethod {
     DefaultParameterNameDiscoverer nameDiscoverer = new DefaultParameterNameDiscoverer();
     MethodParameter[] parameters = new MethodParameter[count];
     for (int i = 0; i < count; i++) {
-      parameters[i] = new SynthesizingMethodParameter(method, i);
-      parameters[i].initParameterNameDiscovery(nameDiscoverer);
+      var parameter = new SynthesizingMethodParameter(method, i);
+      parameter.initParameterNameDiscovery(nameDiscoverer);
+      parameters[i] = parameter;
     }
     return parameters;
   }
@@ -101,23 +103,24 @@ final class HttpServiceMethod {
 
   @Nullable
   public Object invoke(Object[] arguments) {
-    HttpRequestValues.Builder requestValues = this.requestValuesInitializer.initializeRequestValuesBuilder();
+    var requestValues = requestValuesInitializer.initializeRequestValuesBuilder();
     applyArguments(requestValues, arguments);
-    return this.responseFunction.execute(requestValues.build());
+    return responseFunction.execute(requestValues.build());
   }
 
   private void applyArguments(HttpRequestValues.Builder requestValues, Object[] arguments) {
-    Assert.isTrue(arguments.length == this.parameters.length, "Method argument mismatch");
+    MethodParameter[] parameters = this.parameters;
+    Assert.isTrue(arguments.length == parameters.length, "Method argument mismatch");
     for (int i = 0; i < arguments.length; i++) {
       Object value = arguments[i];
       boolean resolved = false;
       for (HttpServiceArgumentResolver resolver : this.argumentResolvers) {
-        if (resolver.resolve(value, this.parameters[i], requestValues)) {
+        if (resolver.resolve(value, parameters[i], requestValues)) {
           resolved = true;
           break;
         }
       }
-      Assert.state(resolved, formatArgumentError(this.parameters[i], "No suitable resolver"));
+      Assert.state(resolved, formatArgumentError(parameters[i], "No suitable resolver"));
     }
   }
 
@@ -133,16 +136,6 @@ final class HttpServiceMethod {
   private record HttpRequestValuesInitializer(
           @Nullable HttpMethod httpMethod, @Nullable String url,
           @Nullable MediaType contentType, @Nullable List<MediaType> acceptMediaTypes) {
-
-    private HttpRequestValuesInitializer(
-            HttpMethod httpMethod, @Nullable String url,
-            @Nullable MediaType contentType, @Nullable List<MediaType> acceptMediaTypes) {
-
-      this.url = url;
-      this.httpMethod = httpMethod;
-      this.contentType = contentType;
-      this.acceptMediaTypes = acceptMediaTypes;
-    }
 
     public HttpRequestValues.Builder initializeRequestValuesBuilder() {
       HttpRequestValues.Builder requestValues = HttpRequestValues.builder();
@@ -164,8 +157,8 @@ final class HttpServiceMethod {
     /**
      * Introspect the method and create the request factory for it.
      */
-    public static HttpRequestValuesInitializer create(
-            Method method, Class<?> containingClass, @Nullable StringValueResolver embeddedValueResolver) {
+    public static HttpRequestValuesInitializer create(Method method,
+            Class<?> containingClass, @Nullable StringValueResolver embeddedValueResolver) {
 
       HttpExchange annot1 = AnnotatedElementUtils.findMergedAnnotation(containingClass, HttpExchange.class);
       HttpExchange annot2 = AnnotatedElementUtils.findMergedAnnotation(method, HttpExchange.class);
@@ -198,8 +191,8 @@ final class HttpServiceMethod {
     }
 
     @Nullable
-    private static String initUrl(
-            @Nullable HttpExchange typeAnnot, HttpExchange annot, @Nullable StringValueResolver embeddedValueResolver) {
+    private static String initUrl(@Nullable HttpExchange typeAnnot,
+            HttpExchange annot, @Nullable StringValueResolver embeddedValueResolver) {
 
       String url1 = (typeAnnot != null ? typeAnnot.url() : null);
       String url2 = annot.url();
@@ -268,37 +261,23 @@ final class HttpServiceMethod {
           @Nullable ReactiveAdapter returnTypeAdapter,
           boolean blockForOptional, Duration blockTimeout) {
 
-    private ResponseFunction(
-            Function<HttpRequestValues, Publisher<?>> responseFunction,
-            @Nullable ReactiveAdapter returnTypeAdapter,
-            boolean blockForOptional, Duration blockTimeout) {
-
-      this.responseFunction = responseFunction;
-      this.returnTypeAdapter = returnTypeAdapter;
-      this.blockForOptional = blockForOptional;
-      this.blockTimeout = blockTimeout;
-    }
-
     @Nullable
     public Object execute(HttpRequestValues requestValues) {
-
       Publisher<?> responsePublisher = this.responseFunction.apply(requestValues);
-
-      if (this.returnTypeAdapter != null) {
-        return this.returnTypeAdapter.fromPublisher(responsePublisher);
+      if (returnTypeAdapter != null) {
+        return returnTypeAdapter.fromPublisher(responsePublisher);
       }
 
-      return (this.blockForOptional ?
-              ((Mono<?>) responsePublisher).blockOptional(this.blockTimeout) :
-              ((Mono<?>) responsePublisher).block(this.blockTimeout));
+      return blockForOptional ?
+             ((Mono<?>) responsePublisher).blockOptional(blockTimeout) :
+             ((Mono<?>) responsePublisher).block(blockTimeout);
     }
 
     /**
      * Create the {@code ResponseFunction} that matches the method's return type.
      */
-    public static ResponseFunction create(
-            HttpClientAdapter client, Method method, ReactiveAdapterRegistry reactiveRegistry,
-            Duration blockTimeout) {
+    public static ResponseFunction create(HttpClientAdapter client,
+            Method method, ReactiveAdapterRegistry reactiveRegistry, Duration blockTimeout) {
 
       MethodParameter returnParam = new MethodParameter(method, -1);
       Class<?> returnType = returnParam.getParameterType();
@@ -369,9 +348,9 @@ final class HttpServiceMethod {
       TypeReference<?> bodyType =
               TypeReference.fromType(methodParam.getNestedGenericParameterType());
 
-      return (reactiveAdapter != null && reactiveAdapter.isMultiValue() ?
-              request -> client.requestToBodyFlux(request, bodyType) :
-              request -> client.requestToBody(request, bodyType));
+      return reactiveAdapter != null && reactiveAdapter.isMultiValue()
+             ? request -> client.requestToBodyFlux(request, bodyType)
+             : request -> client.requestToBody(request, bodyType);
     }
 
   }

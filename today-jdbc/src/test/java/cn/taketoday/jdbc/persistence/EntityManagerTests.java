@@ -32,6 +32,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import cn.taketoday.dao.IncorrectResultSizeDataAccessException;
+import cn.taketoday.jdbc.NamedQuery;
 import cn.taketoday.jdbc.RepositoryManager;
 import cn.taketoday.jdbc.persistence.model.Gender;
 import cn.taketoday.jdbc.persistence.model.UserModel;
@@ -55,7 +56,7 @@ class EntityManagerTests extends AbstractRepositoryManagerTests {
   @Override
   protected void prepareTestsData(DbType dbType, RepositoryManager repositoryManager) {
     // language=MySQL
-    try (cn.taketoday.jdbc.Query query = repositoryManager.createQuery("""
+    try (NamedQuery query = repositoryManager.createNamedQuery("""
             drop table if exists t_user;
             create table t_user
             (
@@ -101,7 +102,7 @@ class EntityManagerTests extends AbstractRepositoryManagerTests {
     Assertions.assertThat(userModel.id).isNotNull();
 
     // language=MySQL
-    try (cn.taketoday.jdbc.Query query = repositoryManager.createQuery("SELECT * from t_user where id=:id")) {
+    try (NamedQuery query = repositoryManager.createNamedQuery("SELECT * from t_user where id=:id")) {
       query.addParameter("id", userModel.id);
       query.setAutoDerivingColumns(true);
 
@@ -132,7 +133,7 @@ class EntityManagerTests extends AbstractRepositoryManagerTests {
     entityManager.persist(entities);
 
     // language=MySQL
-    try (cn.taketoday.jdbc.Query query = repositoryManager.createQuery("SELECT * from t_user")) {
+    try (NamedQuery query = repositoryManager.createNamedQuery("SELECT * from t_user")) {
       query.setAutoDerivingColumns(true);
 
       List<UserModel> userModels = query.fetch(UserModel.class);
@@ -336,7 +337,7 @@ class EntityManagerTests extends AbstractRepositoryManagerTests {
             .hasMessageStartingWith("Update an entity, 'where' property value 'id' is required");
   }
 
-  private static void createData(DefaultEntityManager entityManager) {
+  public static void createData(DefaultEntityManager entityManager) {
     UserModel userModel = UserModel.male("TODAY", 9);
 
     List<Object> entities = new ArrayList<>();

@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -379,7 +379,7 @@ public final class TodayStrategies {
    * to avoid the unnecessary allocation of a {@code Long} object when
    * the default value is not needed.
    *
-   * @param nm property name.
+   * @param key property name.
    * @param val default value.
    * @return the {@code Long} value of the property.
    * @throws SecurityException for the same reasons as
@@ -387,8 +387,8 @@ public final class TodayStrategies {
    * @see java.lang.System#getProperty(java.lang.String)
    * @see java.lang.System#getProperty(java.lang.String, java.lang.String)
    */
-  public static Long getLong(String nm, long val) {
-    Long result = Long.getLong(nm, null);
+  public static Long getLong(String key, long val) {
+    Long result = Long.getLong(key, null);
     return (result == null) ? Long.valueOf(val) : result;
   }
 

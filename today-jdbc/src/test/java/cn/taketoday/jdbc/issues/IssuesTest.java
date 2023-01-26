@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -35,8 +35,8 @@ import java.util.Collection;
 import java.util.List;
 
 import cn.taketoday.jdbc.JdbcConnection;
-import cn.taketoday.jdbc.RepositoryManager;
 import cn.taketoday.jdbc.PersistenceException;
+import cn.taketoday.jdbc.RepositoryManager;
 import cn.taketoday.jdbc.issues.pojos.Issue1Pojo;
 import cn.taketoday.jdbc.issues.pojos.KeyValueEntity;
 import cn.taketoday.jdbc.result.Row;
@@ -44,9 +44,6 @@ import cn.taketoday.jdbc.result.Table;
 import lombok.Setter;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 /**
  * Created by IntelliJ IDEA. User: lars Date: 10/17/11 Time: 9:02 PM This class
@@ -86,7 +83,7 @@ public class IssuesTest {
     this.pass = pass;
 
     if ("HyperSQL DB test".equals(testName)) {
-      sql2o.createQuery("set database sql syntax MSS true").executeUpdate();
+      sql2o.createNamedQuery("set database sql syntax MSS true").executeUpdate();
     }
   }
 
@@ -104,7 +101,7 @@ public class IssuesTest {
   @Test
   public void testSetterPriority() {
     RepositoryManager sql2o = new RepositoryManager(url, user, pass);
-    Issue1Pojo pojo = sql2o.createQuery("select 1 val from (values(0))")
+    Issue1Pojo pojo = sql2o.createNamedQuery("select 1 val from (values(0))")
             .fetchFirst(Issue1Pojo.class);
 
     assertEquals(2, pojo.val);
@@ -120,7 +117,7 @@ public class IssuesTest {
     RepositoryManager sql2o = new RepositoryManager(url, user, pass);
 
     try {
-      KeyValueEntity pojo = sql2o.createQuery("select 1 id, 'something' foo from (values(0))").fetchFirst(
+      KeyValueEntity pojo = sql2o.createNamedQuery("select 1 id, 'something' foo from (values(0))").fetchFirst(
               KeyValueEntity.class);
     }
     catch (PersistenceException ex) {
@@ -136,15 +133,15 @@ public class IssuesTest {
    */
   @Test
   public void testForNpeInRowGet() {
-    sql2o.createQuery("create table issue4table(id integer identity primary key, val varchar(20))").executeUpdate();
+    sql2o.createNamedQuery("create table issue4table(id integer identity primary key, val varchar(20))").executeUpdate();
 
-    sql2o.createQuery("insert into issue4table (val) values (:val)")
+    sql2o.createNamedQuery("insert into issue4table (val) values (:val)")
             .addParameter("val", "something").addToBatch()
             .addParameter("val", "something else").addToBatch()
             .addParameter("val", "hello").addToBatch()
             .executeBatch();
 
-    Table table = sql2o.createQuery("select * from issue4table").fetchTable();
+    Table table = sql2o.createNamedQuery("select * from issue4table").fetchTable();
 
     Row row0 = table.rows().get(0);
     String row0Val = row0.getString("vAl");
@@ -192,15 +189,15 @@ public class IssuesTest {
    */
   @Test
   public void testForNullToSimpeType() {
-    sql2o.createQuery("create table issue5table(id int identity primary key, val integer)").executeUpdate();
+    sql2o.createNamedQuery("create table issue5table(id int identity primary key, val integer)").executeUpdate();
 
-    sql2o.createQuery("insert into issue5table(val) values (:val)")
+    sql2o.createNamedQuery("insert into issue5table(val) values (:val)")
             .addParameter("val", (Object) null).executeUpdate();
 
-    List<Issue5POJO> list1 = sql2o.createQuery("select * from issue5table")
+    List<Issue5POJO> list1 = sql2o.createNamedQuery("select * from issue5table")
             .fetch(Issue5POJO.class);
 
-    List<Issue5POJO2> list2 = sql2o.createQuery("select * from issue5table")
+    List<Issue5POJO2> list2 = sql2o.createNamedQuery("select * from issue5table")
             .fetch(Issue5POJO2.class);
 
     Assert.assertEquals(1, list1.size());
@@ -225,14 +222,14 @@ public class IssuesTest {
    */
   @Test
   public void testForLabelErrorInHsqlDb() {
-    sql2o.createQuery("create table issue9test (id integer identity primary key, val varchar(50))").executeUpdate();
+    sql2o.createNamedQuery("create table issue9test (id integer identity primary key, val varchar(50))").executeUpdate();
 
     String insertSql = "insert into issue9test(val) values (:val)";
-    sql2o.createQuery(insertSql).addParameter("val", "something").executeUpdate();
-    sql2o.createQuery(insertSql).addParameter("val", "something else").executeUpdate();
-    sql2o.createQuery(insertSql).addParameter("val", "something third").executeUpdate();
+    sql2o.createNamedQuery(insertSql).addParameter("val", "something").executeUpdate();
+    sql2o.createNamedQuery(insertSql).addParameter("val", "something else").executeUpdate();
+    sql2o.createNamedQuery(insertSql).addParameter("val", "something third").executeUpdate();
 
-    List<Issue9Pojo> pojos = sql2o.createQuery("select id, val theVal from issue9Test").fetch(Issue9Pojo.class);
+    List<Issue9Pojo> pojos = sql2o.createNamedQuery("select id, val theVal from issue9Test").fetch(Issue9Pojo.class);
 
     Assert.assertEquals(3, pojos.size());
     Assert.assertEquals("something", pojos.get(0).theVal);
@@ -245,18 +242,18 @@ public class IssuesTest {
 
   @Test
   public void testForNullPointerExceptionInAddParameterMethod() {
-    sql2o.createQuery("create table issue11test (id integer identity primary key, val varchar(50), adate datetime)")
+    sql2o.createNamedQuery("create table issue11test (id integer identity primary key, val varchar(50), adate datetime)")
             .executeUpdate();
 
     String insertSql = "insert into issue11test (val, adate) values (:val, :date)";
-    sql2o.createQuery(insertSql)
+    sql2o.createNamedQuery(insertSql)
             .addParameter("val", WhatEverEnum.VAL)
             .addParameter("date", new DateTime())
             .executeUpdate();
     DateTime dtNull = null;
     WhatEverEnum enumNull = null;
 
-    sql2o.createQuery(insertSql).addParameter("val", enumNull).addParameter("date", dtNull).executeUpdate();
+    sql2o.createNamedQuery(insertSql).addParameter("val", enumNull).addParameter("date", dtNull).executeUpdate();
   }
 
   /**
@@ -286,10 +283,10 @@ public class IssuesTest {
     String createQuery = "create table testErrorWhenFieldDoesntExist(id_val integer primary key, str_val varchar(100))";
 
     try (JdbcConnection connection = sql2o.open()) {
-      connection.createQuery(createQuery).executeUpdate();
+      connection.createNamedQuery(createQuery).executeUpdate();
 
       String insertSql = "insert into testErrorWhenFieldDoesntExist(id_val, str_val) values (:val1, :val2)";
-      connection.createQuery(insertSql)
+      connection.createNamedQuery(insertSql)
               .addParameter("val1", 1)
               .addParameter("val2", "test")
               .executeUpdate();
@@ -297,7 +294,7 @@ public class IssuesTest {
       Exception ex = null;
       try {
         // This is expected to fail to map columns and throw an exception.
-        LocalPojo p = connection.createQuery("select * from testErrorWhenFieldDoesntExist")
+        LocalPojo p = connection.createNamedQuery("select * from testErrorWhenFieldDoesntExist")
                 .fetchFirst(LocalPojo.class);
       }
       catch (Exception e) {
@@ -332,9 +329,9 @@ public class IssuesTest {
     ThePojo p;
     Table t;
     try (JdbcConnection connection = sql2o.open()) {
-      p = connection.createQuery(sql).fetchFirst(ThePojo.class);
+      p = connection.createNamedQuery(sql).fetchFirst(ThePojo.class);
 
-      t = connection.createQuery(sql).fetchTable();
+      t = connection.createNamedQuery(sql).fetchTable();
     }
 
     Assert.assertEquals(11, p.id);
@@ -369,18 +366,18 @@ public class IssuesTest {
             "where intval = :param";
 
     try (JdbcConnection connection = sql2o.open()) {
-      connection.createQuery(createSql).executeUpdate();
+      connection.createNamedQuery(createSql).executeUpdate();
 
       for (int idx = 0; idx < 100; idx++) {
         int intval = idx % 10;
-        connection.createQuery(insertQuery)
+        connection.createNamedQuery(insertQuery)
                 .addParameter("id", idx)
                 .addParameter("intval", intval)
                 .addParameter("strval", "teststring" + idx)
                 .executeUpdate();
       }
 
-      List<TheIgnoreSqlCommentPojo> resultList = connection.createQuery(fetchQuery)
+      List<TheIgnoreSqlCommentPojo> resultList = connection.createNamedQuery(fetchQuery)
               .addParameter("param", 5)
               .fetch(TheIgnoreSqlCommentPojo.class);
 
@@ -396,16 +393,16 @@ public class IssuesTest {
   @Test
   public void testIssue166OneCharacterParameterFail() {
     try (JdbcConnection connection = sql2o.open()) {
-      connection.createQuery("create table testIssue166OneCharacterParameterFail(id integer, val varchar(10))")
+      connection.createNamedQuery("create table testIssue166OneCharacterParameterFail(id integer, val varchar(10))")
               .executeUpdate();
 
       // This because of the :v parameter.
-      connection.createQuery("insert into testIssue166OneCharacterParameterFail(id, val) values(:id, :v)")
+      connection.createNamedQuery("insert into testIssue166OneCharacterParameterFail(id, val) values(:id, :v)")
               .addParameter("id", 1)
               .addParameter("v", "foobar")
               .executeUpdate();
 
-      int cnt = connection.createQuery("select count(*) from testIssue166OneCharacterParameterFail where id = :p")
+      int cnt = connection.createNamedQuery("select count(*) from testIssue166OneCharacterParameterFail where id = :p")
               .addParameter("p", 1)
               .fetchScalar(Integer.class);
 
@@ -417,8 +414,8 @@ public class IssuesTest {
   public void testIssue149NullPointerWhenUsingWrongParameterName() {
 
     try (JdbcConnection connection = sql2o.open()) {
-      connection.createQuery("create table issue149 (id integer primary key, val varchar(20))").executeUpdate();
-      connection.createQuery("insert into issue149(id, val) values (:id, :val)")
+      connection.createNamedQuery("create table issue149 (id integer primary key, val varchar(20))").executeUpdate();
+      connection.createNamedQuery("insert into issue149(id, val) values (:id, :val)")
               .addParameter("id", 1)
               .addParameter("asdsa", "something") // spell-error in parameter name
               .executeUpdate();

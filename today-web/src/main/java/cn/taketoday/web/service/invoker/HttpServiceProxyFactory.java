@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -29,8 +29,6 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 import cn.taketoday.aop.ProxyMethodInvocation;
 import cn.taketoday.aop.framework.ProxyFactory;
@@ -189,13 +187,7 @@ public final class HttpServiceProxyFactory implements InitializingBean, Embedded
    * @return the created proxy
    */
   public <S> S createClient(Class<S> serviceType) {
-
-    List<HttpServiceMethod> httpServiceMethods =
-            MethodIntrospector.filterMethods(serviceType, this::isExchangeMethod).stream()
-                    .map(method -> createHttpServiceMethod(serviceType, method))
-                    .toList();
-
-    return ProxyFactory.getProxy(serviceType, new HttpServiceMethodInterceptor(httpServiceMethods));
+    return ProxyFactory.getProxy(serviceType, new HttpServiceMethodInterceptor(serviceType));
   }
 
   private boolean isExchangeMethod(Method method) {
@@ -214,13 +206,16 @@ public final class HttpServiceProxyFactory implements InitializingBean, Embedded
   /**
    * {@link MethodInterceptor} that invokes an {@link HttpServiceMethod}.
    */
-  private static final class HttpServiceMethodInterceptor implements MethodInterceptor {
-
+  private final class HttpServiceMethodInterceptor implements MethodInterceptor {
     private final Map<Method, HttpServiceMethod> httpServiceMethods;
 
-    private HttpServiceMethodInterceptor(List<HttpServiceMethod> methods) {
-      this.httpServiceMethods = methods.stream()
-              .collect(Collectors.toMap(HttpServiceMethod::getMethod, Function.identity()));
+    private HttpServiceMethodInterceptor(Class<?> serviceType) {
+      this.httpServiceMethods = MethodIntrospector.selectMethods(serviceType, method -> {
+        if (isExchangeMethod(method)) {
+          return createHttpServiceMethod(serviceType, method);
+        }
+        return null;
+      });
     }
 
     @Override

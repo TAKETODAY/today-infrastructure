@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -28,8 +28,8 @@ import java.util.UUID;
 import javax.sql.DataSource;
 
 import cn.taketoday.jdbc.JdbcConnection;
+import cn.taketoday.jdbc.NamedQuery;
 import cn.taketoday.jdbc.RepositoryManager;
-import cn.taketoday.jdbc.Query;
 import cn.taketoday.jdbc.result.Table;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -66,7 +66,7 @@ class H2Tests {
     RepositoryManager sql2o = new RepositoryManager(ds);
 
     try (JdbcConnection connection = sql2o.open()) {
-      int val = connection.createQuery("select 42").fetchScalar(Integer.class);
+      int val = connection.createNamedQuery("select 42").fetchScalar(Integer.class);
 
       assertThat(val).isEqualTo(42);
     }
@@ -79,18 +79,18 @@ class H2Tests {
   void testUUID() {
 
     try (JdbcConnection connection = new RepositoryManager(ds).beginTransaction()) {
-      connection.createQuery("create table uuidtest(id uuid primary key, val uuid null)").executeUpdate();
+      connection.createNamedQuery("create table uuidtest(id uuid primary key, val uuid null)").executeUpdate();
 
       UUID uuid1 = UUID.randomUUID();
       UUID uuid2 = UUID.randomUUID();
       UUID uuid3 = UUID.randomUUID();
       UUID uuid4 = null;
 
-      Query insQuery = connection.createQuery("insert into uuidtest(id, val) values (:id, :val)");
+      NamedQuery insQuery = connection.createNamedQuery("insert into uuidtest(id, val) values (:id, :val)");
       insQuery.addParameter("id", uuid1).addParameter("val", uuid2).executeUpdate();
       insQuery.addParameter("id", uuid3).addParameter("val", uuid4).executeUpdate();
 
-      Table table = connection.createQuery("select * from uuidtest").fetchTable();
+      Table table = connection.createNamedQuery("select * from uuidtest").fetchTable();
 
       assertThat((UUID) table.rows().get(0).getObject("id")).isEqualTo(uuid1);
       assertThat((UUID) table.rows().get(0).getObject("val")).isEqualTo(uuid2);

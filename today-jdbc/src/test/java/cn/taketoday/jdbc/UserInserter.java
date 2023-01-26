@@ -5,5 +5,5 @@ package cn.taketoday.jdbc;
  */
 public interface UserInserter {
 
-  public void insertUser(Query insertQuery, int idx);
+  public void insertUser(NamedQuery insertQuery, int idx);
 }

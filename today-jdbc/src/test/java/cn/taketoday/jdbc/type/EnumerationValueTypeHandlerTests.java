@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -22,10 +22,17 @@ package cn.taketoday.jdbc.type;
 
 import org.junit.jupiter.api.Test;
 
+import java.sql.CallableStatement;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
 import cn.taketoday.beans.BeanProperty;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
@@ -90,6 +97,48 @@ class EnumerationValueTypeHandlerTests {
     assertThat(annotatedProperty.getType()).isEqualTo(int.class);
 
     assertThat(EnumerationValueTypeHandler.getAnnotatedProperty(StringValueNotFound.class)).isNull();
+
+  }
+
+  @Test
+  void setParameter() throws SQLException {
+    TypeHandler<Integer> delegate = mock(TypeHandler.class);
+    PreparedStatement statement = mock(PreparedStatement.class);
+
+    TypeHandlerRegistry registry = new TypeHandlerRegistry();
+    registry.register(int.class, delegate);
+
+    var handler = new EnumerationValueTypeHandler<>(StringCode.class, registry);
+
+    handler.setParameter(statement, 1, null);
+    handler.setParameter(statement, 1, StringCode.TEST1);
+
+    verify(delegate).setParameter(statement, 1, null);
+    verify(delegate).setParameter(statement, 1, StringCode.TEST1.code);
+  }
+
+  @Test
+  void getResult() throws SQLException {
+    TypeHandler<Integer> delegate = mock(TypeHandler.class);
+    ResultSet resultSet = mock(ResultSet.class);
+    CallableStatement callableStatement = mock(CallableStatement.class);
+
+    given(delegate.getResult(resultSet, 1)).willReturn(StringCode.TEST1.code);
+    given(delegate.getResult(resultSet, "test")).willReturn(StringCode.TEST2.code);
+    given(delegate.getResult(callableStatement, 1)).willReturn(StringCode.TEST2.code);
+
+    TypeHandlerRegistry registry = new TypeHandlerRegistry();
+    registry.register(int.class, delegate);
+
+    var handler = new EnumerationValueTypeHandler<>(StringCode.class, registry);
+
+    assertThat(handler.getResult(resultSet, 1)).isEqualTo(StringCode.TEST1);
+    assertThat(handler.getResult(resultSet, "test")).isEqualTo(StringCode.TEST2);
+    assertThat(handler.getResult(callableStatement, 1)).isEqualTo(StringCode.TEST2);
+
+    verify(delegate).getResult(resultSet, 1);
+    verify(delegate).getResult(resultSet, "test");
+    verify(delegate).getResult(callableStatement, 1);
 
   }
 
