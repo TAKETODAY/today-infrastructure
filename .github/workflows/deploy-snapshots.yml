@@ -25,13 +25,7 @@ on:
 jobs:
   deploy-snapshot:
     if: github.repository_owner == 'TAKETODAY'
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        # os: [ macOS-latest, windows-latest, ubuntu-latest ]
-        # os: [ macOS-latest, ubuntu-latest ]
-        os: [ ubuntu-latest ]
-
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
       - name: Set up JDK 17 and Maven Central Repository
