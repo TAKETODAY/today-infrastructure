@@ -25,7 +25,7 @@ on:
     branches: master
 
 jobs:
-  build:
+  code-coverage:
     if: github.repository_owner == 'TAKETODAY'
     runs-on: ubuntu-latest
     steps:
