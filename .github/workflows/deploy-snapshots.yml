@@ -44,11 +44,9 @@ jobs:
           server-password: SNAPSHOTS_TOKEN
           gpg-passphrase: MAVEN_GPG_PASSPHRASE
           gpg-private-key: ${{ secrets.MAVEN_GPG_PRIVATE_KEY }}
-      - name: Set argLine command line option
-        run: echo 'ARG_LINE=-D"argLine=--illegal-access=permit"' >> $GITHUB_ENV
 
       - name: Deploy snapshots
-        run: mvn deploy -P release $ARG_LINE -DCI=true
+        run: mvn deploy -P release -DCI=true
         env:
           SNAPSHOTS_TOKEN: ${{ secrets.SNAPSHOTS_TOKEN }}
           SNAPSHOTS_USERNAME: ${{ secrets.SNAPSHOTS_USERNAME }}
