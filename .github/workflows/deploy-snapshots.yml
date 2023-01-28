@@ -23,7 +23,8 @@ on:
     branches: master
 
 jobs:
-  build:
+  deploy-snapshot:
+    if: github.repository_owner == 'TAKETODAY'
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -47,7 +48,7 @@ jobs:
         run: echo 'ARG_LINE=-D"argLine=--illegal-access=permit"' >> $GITHUB_ENV
 
       - name: Deploy snapshots
-        run: mvn deploy -P release $ARG_LINE
+        run: mvn deploy -P release $ARG_LINE -DCI=true
         env:
           SNAPSHOTS_TOKEN: ${{ secrets.SNAPSHOTS_TOKEN }}
           SNAPSHOTS_USERNAME: ${{ secrets.SNAPSHOTS_USERNAME }}
