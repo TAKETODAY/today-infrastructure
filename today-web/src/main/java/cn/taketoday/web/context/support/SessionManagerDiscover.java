@@ -64,9 +64,6 @@ public class SessionManagerDiscover {
                   beanFactory, SessionManager.BEAN_NAME, SessionManager.class);
           if (sessionManager == null) {
             sessionManager = BeanFactoryUtils.find(beanFactory, SessionManager.class);
-            if (sessionManager == null) {
-              throw new IllegalStateException("No SessionManager in context");
-            }
           }
           this.sessionManager = sessionManager;
           this.managerLoaded = true;
