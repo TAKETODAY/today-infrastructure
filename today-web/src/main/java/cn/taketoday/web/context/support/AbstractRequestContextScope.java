@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -39,14 +39,14 @@ import cn.taketoday.beans.factory.config.Scope;
  */
 public abstract class AbstractRequestContextScope<T> implements Scope {
 
-  public final Object doGetBean(T context, String beanName, Supplier<?> objectFactory) {
-    Object scopedObject = getAttribute(beanName, context);
+  protected final Object doGetBean(T context, String beanName, Supplier<?> objectFactory) {
+    Object scopedObject = getAttribute(context, beanName);
     if (scopedObject == null) {
       scopedObject = objectFactory.get();
       setAttribute(context, beanName, scopedObject);
       // Retrieve object again, registering it for implicit session attribute updates.
       // As a bonus, we also allow for potential decoration at the getAttribute level.
-      Object retrievedObject = getAttribute(beanName, context);
+      Object retrievedObject = getAttribute(context, beanName);
       if (retrievedObject != null) {
         // Only proceed with retrieved object if still present (the expected case).
         // If it disappeared concurrently, we return our locally created instance.
@@ -57,7 +57,7 @@ public abstract class AbstractRequestContextScope<T> implements Scope {
   }
 
   protected Object remove(T context, String name) {
-    Object scopedObject = getAttribute(name, context);
+    Object scopedObject = getAttribute(context, name);
     if (scopedObject != null) {
       removeAttribute(context, name);
       return scopedObject;
@@ -71,7 +71,7 @@ public abstract class AbstractRequestContextScope<T> implements Scope {
 
   protected abstract void setAttribute(T context, String beanName, Object scopedObject);
 
-  protected abstract Object getAttribute(String beanName, T context);
+  protected abstract Object getAttribute(T context, String beanName);
 
   protected abstract void removeAttribute(T context, String name);
 
