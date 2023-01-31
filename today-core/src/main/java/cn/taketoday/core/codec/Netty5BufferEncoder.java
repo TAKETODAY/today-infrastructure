@@ -31,7 +31,7 @@ import cn.taketoday.core.io.buffer.Netty5DataBufferFactory;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.MimeType;
 import cn.taketoday.util.MimeTypeUtils;
-import io.netty5.buffer.api.Buffer;
+import io.netty5.buffer.Buffer;
 import reactor.core.publisher.Flux;
 
 /**

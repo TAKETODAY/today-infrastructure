@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -28,7 +28,7 @@ import java.util.function.IntPredicate;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ObjectUtils;
-import io.netty5.buffer.api.Buffer;
+import io.netty5.buffer.Buffer;
 import io.netty5.util.AsciiString;
 
 /**
@@ -39,8 +39,8 @@ import io.netty5.util.AsciiString;
  * @author Arjen Poutsma
  * @since 4.0
  */
-public final class Netty5DataBuffer implements CloseableDataBuffer,
-        TouchableDataBuffer {
+public final class Netty5DataBuffer
+        implements CloseableDataBuffer, TouchableDataBuffer {
 
   private final Buffer buffer;
 

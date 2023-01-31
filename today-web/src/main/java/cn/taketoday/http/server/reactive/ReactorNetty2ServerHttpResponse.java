@@ -28,37 +28,38 @@ import java.util.List;
 import cn.taketoday.core.io.buffer.DataBuffer;
 import cn.taketoday.core.io.buffer.DataBufferFactory;
 import cn.taketoday.core.io.buffer.DataBufferUtils;
-import cn.taketoday.core.io.buffer.NettyDataBufferFactory;
-import cn.taketoday.http.DefaultHttpHeaders;
+import cn.taketoday.core.io.buffer.Netty5DataBufferFactory;
 import cn.taketoday.http.HttpHeaders;
-import cn.taketoday.http.HttpStatus;
 import cn.taketoday.http.HttpStatusCode;
 import cn.taketoday.http.ResponseCookie;
 import cn.taketoday.http.ZeroCopyHttpOutputMessage;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
-import io.netty.buffer.ByteBuf;
-import io.netty.channel.ChannelId;
+import io.netty5.buffer.Buffer;
+import io.netty5.channel.ChannelId;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import reactor.netty.ChannelOperationsId;
-import reactor.netty.http.server.HttpServerResponse;
+import reactor.netty5.ChannelOperationsId;
+import reactor.netty5.http.server.HttpServerResponse;
 
 /**
  * Adapt {@link ServerHttpResponse} to the {@link HttpServerResponse}.
  *
- * @author Stephane Maldini
- * @author Rossen Stoyanchev
+ * <p>This class is based on {@link ReactorServerHttpResponse}.
+ *
+ * @author Violeta Georgieva
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-class ReactorServerHttpResponse extends AbstractServerHttpResponse implements ZeroCopyHttpOutputMessage {
-  private static final Logger logger = LoggerFactory.getLogger(ReactorServerHttpResponse.class);
+class ReactorNetty2ServerHttpResponse extends AbstractServerHttpResponse implements ZeroCopyHttpOutputMessage {
+
+  private static final Logger logger = LoggerFactory.getLogger(ReactorNetty2ServerHttpResponse.class);
 
   private final HttpServerResponse response;
 
-  public ReactorServerHttpResponse(HttpServerResponse response, DataBufferFactory bufferFactory) {
-    super(bufferFactory, new DefaultHttpHeaders(new NettyHeadersAdapter(response.responseHeaders())));
+  public ReactorNetty2ServerHttpResponse(HttpServerResponse response, DataBufferFactory bufferFactory) {
+    super(bufferFactory, HttpHeaders.from(new Netty5HeadersAdapter(response.responseHeaders())));
     Assert.notNull(response, "HttpServerResponse must not be null");
     this.response = response;
   }
@@ -72,10 +73,11 @@ class ReactorServerHttpResponse extends AbstractServerHttpResponse implements Ze
   @Override
   public HttpStatusCode getStatusCode() {
     HttpStatusCode status = super.getStatusCode();
-    return (status != null ? status : HttpStatus.resolve(this.response.status().code()));
+    return (status != null ? status : HttpStatusCode.valueOf(this.response.status().code()));
   }
 
   @Override
+  @Deprecated
   public Integer getRawStatusCode() {
     Integer status = super.getRawStatusCode();
     return (status != null ? status : this.response.status().code());
@@ -83,24 +85,25 @@ class ReactorServerHttpResponse extends AbstractServerHttpResponse implements Ze
 
   @Override
   protected void applyStatusCode() {
-    Integer status = super.getRawStatusCode();
+    HttpStatusCode status = super.getStatusCode();
     if (status != null) {
-      this.response.status(status);
+      this.response.status(status.value());
     }
   }
 
   @Override
   protected Mono<Void> writeWithInternal(Publisher<? extends DataBuffer> publisher) {
-    return this.response.send(toByteBuf(publisher)).then();
+    return this.response.send(toByteBufs(publisher)).then();
   }
 
   @Override
   protected Mono<Void> writeAndFlushWithInternal(Publisher<? extends Publisher<? extends DataBuffer>> publisher) {
-    return this.response.sendGroups(Flux.from(publisher).map(this::toByteBuf)).then();
+    return this.response.sendGroups(Flux.from(publisher).map(this::toByteBufs)).then();
   }
 
   @Override
-  protected void applyHeaders() { }
+  protected void applyHeaders() {
+  }
 
   @Override
   protected void applyCookies() {
@@ -118,20 +121,20 @@ class ReactorServerHttpResponse extends AbstractServerHttpResponse implements Ze
     return doCommit(() -> this.response.sendFile(file, position, count).then());
   }
 
-  private Publisher<ByteBuf> toByteBuf(Publisher<? extends DataBuffer> dataBuffers) {
-    return dataBuffers instanceof Mono
-           ? Mono.from(dataBuffers).map(NettyDataBufferFactory::toByteBuf)
-           : Flux.from(dataBuffers).map(NettyDataBufferFactory::toByteBuf);
+  private Publisher<Buffer> toByteBufs(Publisher<? extends DataBuffer> dataBuffers) {
+    return dataBuffers instanceof Mono ?
+           Mono.from(dataBuffers).map(Netty5DataBufferFactory::toBuffer) :
+           Flux.from(dataBuffers).map(Netty5DataBufferFactory::toBuffer);
   }
 
   @Override
   protected void touchDataBuffer(DataBuffer buffer) {
     if (logger.isDebugEnabled()) {
-      if (response instanceof ChannelOperationsId operationsId) {
+      if (this.response instanceof ChannelOperationsId operationsId) {
         DataBufferUtils.touch(buffer, "Channel id: " + operationsId.asLongText());
       }
       else {
-        response.withConnection(connection -> {
+        this.response.withConnection(connection -> {
           ChannelId id = connection.channel().id();
           DataBufferUtils.touch(buffer, "Channel id: " + id.asShortText());
         });

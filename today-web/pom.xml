@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
   ~ Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
-  ~ Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+  ~ Copyright © TODAY & 2017 - 2023 All Rights Reserved.
   ~
   ~ DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
   ~
@@ -291,6 +291,18 @@
     </dependency>
 
     <dependency>
+      <groupId>io.projectreactor.netty</groupId>
+      <artifactId>reactor-netty5-http</artifactId>
+      <scope>provided</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>io.netty</groupId>
+      <artifactId>netty5-codec-http</artifactId>
+      <scope>provided</scope>
+    </dependency>
+
+    <dependency>
       <groupId>org.eclipse.jetty</groupId>
       <artifactId>jetty-reactive-httpclient</artifactId>
       <scope>provided</scope>
@@ -438,5 +450,12 @@
     </dependency>
 
   </dependencies>
+
+  <repositories>
+    <repository>
+      <id>Spring Milestone</id>
+      <url>https://repo.spring.io/milestone</url>
+    </repository>
+  </repositories>
 
 </project>

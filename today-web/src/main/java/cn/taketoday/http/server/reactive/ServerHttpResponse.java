@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -22,6 +22,7 @@ package cn.taketoday.http.server.reactive;
 
 import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.http.HttpStatus;
+import cn.taketoday.http.HttpStatusCode;
 import cn.taketoday.http.ReactiveHttpOutputMessage;
 import cn.taketoday.http.ResponseCookie;
 import cn.taketoday.lang.Nullable;
@@ -53,7 +54,7 @@ public interface ServerHttpResponse extends ReactiveHttpOutputMessage {
    * underlying server.
    */
   @Nullable
-  HttpStatus getStatusCode();
+  HttpStatusCode getStatusCode();
 
   /**
    * Set the HTTP status code to the given value (potentially non-standard and
@@ -84,7 +85,7 @@ public interface ServerHttpResponse extends ReactiveHttpOutputMessage {
    */
   @Nullable
   default Integer getRawStatusCode() {
-    HttpStatus httpStatus = getStatusCode();
+    HttpStatusCode httpStatus = getStatusCode();
     return httpStatus != null ? httpStatus.value() : null;
   }
 

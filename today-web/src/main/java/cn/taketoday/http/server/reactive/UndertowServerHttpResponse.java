@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -38,6 +38,7 @@ import cn.taketoday.core.io.buffer.DataBufferUtils;
 import cn.taketoday.http.DefaultHttpHeaders;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpStatus;
+import cn.taketoday.http.HttpStatusCode;
 import cn.taketoday.http.ResponseCookie;
 import cn.taketoday.http.ZeroCopyHttpOutputMessage;
 import cn.taketoday.lang.Assert;
@@ -84,8 +85,8 @@ class UndertowServerHttpResponse extends AbstractListenerServerHttpResponse impl
   }
 
   @Override
-  public HttpStatus getStatusCode() {
-    HttpStatus status = super.getStatusCode();
+  public HttpStatusCode getStatusCode() {
+    HttpStatusCode status = super.getStatusCode();
     return (status != null ? status : HttpStatus.resolve(this.exchange.getStatusCode()));
   }
 

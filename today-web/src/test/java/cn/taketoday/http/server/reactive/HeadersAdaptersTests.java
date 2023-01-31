@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -42,6 +42,7 @@ import io.undertow.util.HeaderMap;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Named.named;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 
 /**
@@ -137,6 +138,7 @@ class HeadersAdaptersTests {
     return Stream.of(
             Arguments.arguments("Map", MultiValueMap.from(new LinkedCaseInsensitiveMap<>(8, Locale.ENGLISH))),
             Arguments.arguments("Netty", new NettyHeadersAdapter(new DefaultHttpHeaders())),
+            arguments(named("Netty", new Netty5HeadersAdapter(io.netty5.handler.codec.http.headers.HttpHeaders.newHeaders()))),
             Arguments.arguments("Tomcat", new TomcatHeadersAdapter(new MimeHeaders())),
             Arguments.arguments("Undertow", new UndertowHeadersAdapter(new HeaderMap())),
             Arguments.arguments("Jetty", new JettyHeadersAdapter(HttpFields.build()))
