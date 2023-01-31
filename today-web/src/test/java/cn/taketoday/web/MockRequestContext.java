@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.http.HttpCookie;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpStatus;
@@ -34,7 +35,6 @@ import cn.taketoday.http.MediaType;
 import cn.taketoday.http.server.ServerHttpResponse;
 import cn.taketoday.web.context.async.AsyncWebRequest;
 import cn.taketoday.web.multipart.MultipartRequest;
-import cn.taketoday.web.servlet.WebApplicationContext;
 
 /**
  * @author TODAY 2021/3/10 16:35
@@ -46,7 +46,7 @@ public class MockRequestContext extends RequestContext {
     super(null);
   }
 
-  public MockRequestContext(WebApplicationContext context) { super(context); }
+  public MockRequestContext(ApplicationContext context) { super(context); }
 
   @Override
   public long getRequestTimeMillis() {
