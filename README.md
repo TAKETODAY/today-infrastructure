@@ -39,28 +39,23 @@
 ## 🛠️ 安装
 
 ```xml
-
 <dependency>
   <groupId>cn.taketoday</groupId>
   <artifactId>today-framework</artifactId>
-  <version>4.0.0-Draft.1</version>
+  <version>4.0.0-Draft.3-SNAPSHOT</version>
 </dependency>
 ```
-
-> 新版本正在加紧开发中
 
 ## 开始
 
 ```java
-
 @Slf4j
-@RestController // rest 控制器
-@RestControllerAdvice
-@Import(DemoApplication.AppConfig.class) // 导入配置
+@RestController
+@InfraApplication
 public class DemoApplication {
 
   public static void main(String[] args) {
-    WebApplication.run(NettyApplication.class, args);
+    Application.run(DemoApplication.class, args);
   }
 
   @GET("/index")
@@ -123,7 +118,6 @@ public class DemoApplication {
   }
 
 }
-
 ```
 
 ## 🙏 鸣谢
@@ -132,8 +126,9 @@ public class DemoApplication {
 
 * [Spring](https://github.com/spring-projects/spring-framework): Spring Framework
 * [Spring Boot](https://github.com/spring-projects/spring-boot): Spring Boot
+* [Jetbrains](https://www.jetbrains.com/?from=https://github.com/TAKETODAY/today-infrastructure): 感谢 Jetbrains 提供免费开源授权
 
 ## 📄 开源协议
 
-使用 [GNU GENERAL PUBLIC LICENSE](https://github.com/TAKETODAY/today-infrastructure/blob/master/LICENSE) 开源协议
+使用 [GPLv3](https://github.com/TAKETODAY/today-infrastructure/blob/master/LICENSE) 开源协议
 
