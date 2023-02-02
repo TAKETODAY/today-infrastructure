@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -22,9 +22,7 @@ package cn.taketoday.session;
 
 import java.util.ArrayList;
 
-import cn.taketoday.core.Conventions;
 import cn.taketoday.http.HttpCookie;
-import cn.taketoday.http.ResponseCookie;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.session.config.CookieProperties;
@@ -55,28 +53,27 @@ import cn.taketoday.web.RequestContext;
  * Set-Cookie: SESSION=; Expires=Thur, 1 Jan 1970 00:00:00 GMT; Secure; HttpOnly
  * </pre>
  *
- * @author TODAY <br>
- * 2019-10-03 10:56
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 2019-10-03 10:56
  */
 public class CookieSessionIdResolver implements SessionIdResolver {
-  private static final String WRITTEN_SESSION_ID_ATTR = Conventions.getQualifiedAttributeName(
-          CookieSessionIdResolver.class, "WRITTEN_SESSION_ID_ATTR");
 
   private final String cookieName;
   private final CookieProperties config;
 
   public CookieSessionIdResolver() {
-    this(CookieProperties.DEFAULT_COOKIE_NAME);
+    this(new CookieProperties());
   }
 
   public CookieSessionIdResolver(String cookieName) {
+    Assert.notNull(cookieName, "Cookie name is required");
     this.config = new CookieProperties();
     this.cookieName = cookieName;
     config.setName(cookieName);
   }
 
   public CookieSessionIdResolver(CookieProperties config) {
-    Assert.notNull(config, "Cookie is required");
+    Assert.notNull(config, "Cookie config is required");
     Assert.notNull(config.getName(), "Cookie name is required");
     this.config = config;
     this.cookieName = config.getName();
@@ -117,11 +114,8 @@ public class CookieSessionIdResolver implements SessionIdResolver {
 
   @Override
   public void expireSession(RequestContext exchange) {
-    exchange.addCookie(
-            ResponseCookie.from(cookieName, "")
-                    .maxAge(0)
-                    .build()
-    );
+    exchange.removeCookie(cookieName);
+    exchange.removeAttribute(WRITTEN_SESSION_ID_ATTR);
   }
 
   public String getCookieName() {

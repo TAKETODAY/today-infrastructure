@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -57,7 +57,7 @@ import cn.taketoday.web.RequestContext;
  * </pre>
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * 2019-10-03 10:56
+ * @since 2019-10-03 10:56
  */
 public class HeaderSessionIdResolver implements SessionIdResolver {
   public static final String HEADER_X_AUTH_TOKEN = "X-Auth-Token";
@@ -78,6 +78,11 @@ public class HeaderSessionIdResolver implements SessionIdResolver {
   @Nullable
   @Override
   public String getSessionId(RequestContext context) {
+    // find in request attribute
+    Object attribute = context.getAttribute(WRITTEN_SESSION_ID_ATTR);
+    if (attribute instanceof String sessionId) {
+      return sessionId;
+    }
     return context.requestHeaders().getFirst(headerName);
   }
 
@@ -85,11 +90,13 @@ public class HeaderSessionIdResolver implements SessionIdResolver {
   public void setSessionId(RequestContext context, String sessionId) {
     Assert.notNull(sessionId, "'sessionId' is required.");
     context.responseHeaders().set(headerName, sessionId);
+    context.setAttribute(WRITTEN_SESSION_ID_ATTR, sessionId);
   }
 
   @Override
   public void expireSession(RequestContext exchange) {
-    setSessionId(exchange, "");
+    exchange.responseHeaders().remove(headerName);
+    exchange.removeAttribute(WRITTEN_SESSION_ID_ATTR);
   }
 
   /**

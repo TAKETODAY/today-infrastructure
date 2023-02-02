@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -19,6 +19,7 @@
  */
 package cn.taketoday.session;
 
+import cn.taketoday.core.Conventions;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.RequestContext;
 
@@ -31,7 +32,17 @@ import cn.taketoday.web.RequestContext;
  * @since 2019-10-03 10:56
  */
 public interface SessionIdResolver {
+  String WRITTEN_SESSION_ID_ATTR = Conventions.getQualifiedAttributeName(
+          CookieSessionIdResolver.class, "WRITTEN_SESSION_ID_ATTR");
 
+  /**
+   * Resolving session id from RequestContext
+   * <p>
+   * session id including {@link #setSessionId applied session id}
+   *
+   * @param context request context
+   * @return session id
+   */
   @Nullable
   String getSessionId(RequestContext context);
 

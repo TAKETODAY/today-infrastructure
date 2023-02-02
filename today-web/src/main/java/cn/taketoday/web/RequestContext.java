@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -15,7 +15,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 package cn.taketoday.web;
 
@@ -398,7 +398,10 @@ public abstract class RequestContext extends AttributeAccessorSupport
    *
    * @return A URL
    */
-  public abstract String getRequestURL();
+  public String getRequestURL() {
+    String host = requestHeaders().getFirst(HttpHeaders.HOST);
+    return getScheme() + "://" + host + StringUtils.formatURL(getRequestURI());
+  }
 
   /**
    * Returns the query string that is contained in the request URL after the path.
@@ -470,6 +473,37 @@ public abstract class RequestContext extends AttributeAccessorSupport
    */
   public void addCookie(HttpCookie cookie) {
     responseCookies().add(cookie);
+  }
+
+  /**
+   * Adds the specified cookie to the response. This method can be called multiple
+   * times to set more than one cookie.
+   *
+   * @param name the Cookie name to return to the client
+   * @param value the Cookie value to return to the client
+   */
+  public void addCookie(String name, @Nullable String value) {
+    addCookie(new HttpCookie(name, value));
+  }
+
+  /**
+   * remove the specified cookie from response
+   *
+   * @param name cookie name
+   * @return removed cookie
+   */
+  public List<HttpCookie> removeCookie(String name) {
+    if (responseCookies != null) {
+      ArrayList<HttpCookie> toRemove = new ArrayList<>(2);
+      for (HttpCookie responseCookie : responseCookies) {
+        if (Objects.equals(name, responseCookie.getName())) {
+          toRemove.add(responseCookie);
+        }
+      }
+      responseCookies.removeAll(toRemove);
+      return toRemove;
+    }
+    return null;
   }
 
   public ArrayList<HttpCookie> responseCookies() {
