@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -141,27 +141,29 @@ public abstract class AbstractMessageConverterMethodArgumentResolver implements 
    */
   @Nullable
   @SuppressWarnings({ "unchecked", "rawtypes" })
-  protected Object readWithMessageConverters(HttpInputMessage inputMessage, MethodParameter parameter, Type targetType)
+  protected <T> Object readWithMessageConverters(HttpInputMessage inputMessage, MethodParameter parameter, Type targetType)
           throws IOException, HttpMediaTypeNotSupportedException, HttpMessageNotReadableException //
   {
+
+    Class<?> contextClass = parameter.getContainingClass();
+    Class<T> targetClass = (targetType instanceof Class ? (Class<T>) targetType : null);
+    if (targetClass == null) {
+      ResolvableType resolvableType = ResolvableType.forMethodParameter(parameter);
+      targetClass = (Class<T>) resolvableType.resolve();
+    }
+
     MediaType contentType;
     boolean noContentType = false;
     try {
       contentType = inputMessage.getHeaders().getContentType();
     }
     catch (InvalidMediaTypeException ex) {
-      throw new HttpMediaTypeNotSupportedException(ex.getMessage());
+      throw new HttpMediaTypeNotSupportedException(
+              ex.getMessage(), getSupportedMediaTypes(targetClass != null ? targetClass : Object.class));
     }
     if (contentType == null) {
       noContentType = true;
       contentType = MediaType.APPLICATION_OCTET_STREAM;
-    }
-
-    Class<?> contextClass = parameter.getContainingClass();
-    Class targetClass = targetType instanceof Class ? (Class) targetType : null;
-    if (targetClass == null) {
-      ResolvableType resolvableType = ResolvableType.forMethodParameter(parameter);
-      targetClass = resolvableType.resolve();
     }
 
     Object body = NO_VALUE;

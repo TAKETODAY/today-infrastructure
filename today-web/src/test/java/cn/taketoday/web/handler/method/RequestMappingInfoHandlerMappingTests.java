@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -172,6 +172,18 @@ class RequestMappingInfoHandlerMappingTests {
   void getHandlerMediaTypeNotSupported(TestRequestMappingInfoHandlerMapping mapping) {
     testHttpMediaTypeNotSupportedException(mapping, "/person/1");
     testHttpMediaTypeNotSupportedException(mapping, "/person/1.json");
+  }
+
+  // gh-28062
+  @PathPatternsParameterizedTest
+  void getHandlerMethodTypeNotSupportedWithParseError(TestRequestMappingInfoHandlerMapping mapping) {
+    MockHttpServletRequest request = new MockHttpServletRequest("PUT", "/person/1");
+    request.setContentType("This string");
+    var context = new ServletRequestContext(null, request, new MockHttpServletResponse());
+
+    assertThatExceptionOfType(HttpMediaTypeNotSupportedException.class)
+            .isThrownBy(() -> mapping.getHandler(context))
+            .satisfies(ex -> assertThat(ex.getSupportedMediaTypes()).containsExactly(MediaType.APPLICATION_XML));
   }
 
   @PathPatternsParameterizedTest
