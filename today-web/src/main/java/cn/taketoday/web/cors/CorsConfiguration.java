@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -689,7 +689,9 @@ public class CorsConfiguration {
     if (CollectionUtils.isEmpty(allowedHeaders)) {
       return null;
     }
-    boolean allowAnyHeader = allowedHeaders.contains(ALL);
+    boolean allowAnyHeader = this.allowedHeaders.contains(ALL);
+    int maxResultSize = allowAnyHeader ? requestHeaders.size()
+                                       : Math.min(requestHeaders.size(), this.allowedHeaders.size());
     List<String> result = new ArrayList<>(requestHeaders.size());
     for (String requestHeader : requestHeaders) {
       if (StringUtils.isNotEmpty(requestHeader)) {
