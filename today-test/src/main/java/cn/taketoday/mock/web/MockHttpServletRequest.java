@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -103,9 +103,6 @@ public class MockHttpServletRequest implements HttpServletRequest {
   private static final String CHARSET_PREFIX = "charset=";
 
   private static final TimeZone GMT = TimeZone.getTimeZone("GMT");
-
-  private static final ServletInputStream EMPTY_SERVLET_INPUT_STREAM =
-          new DelegatingServletInputStream(InputStream.nullInputStream());
 
   private static final BufferedReader EMPTY_BUFFERED_READER =
           new BufferedReader(new StringReader(""));
@@ -524,7 +521,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
 
     this.inputStream = (this.content != null ?
                         new DelegatingServletInputStream(new ByteArrayInputStream(this.content)) :
-                        EMPTY_SERVLET_INPUT_STREAM);
+                        new DelegatingServletInputStream(InputStream.nullInputStream()));
     return this.inputStream;
   }
 

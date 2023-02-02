@@ -103,9 +103,6 @@ public class MockHttpServletRequest implements HttpServletRequest {
 
   private static final TimeZone GMT = TimeZone.getTimeZone("GMT");
 
-  private static final ServletInputStream EMPTY_SERVLET_INPUT_STREAM =
-          new DelegatingServletInputStream(InputStream.nullInputStream());
-
   private static final BufferedReader EMPTY_BUFFERED_READER =
           new BufferedReader(new StringReader(""));
 
@@ -523,7 +520,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
 
     this.inputStream = (this.content != null ?
                         new DelegatingServletInputStream(new ByteArrayInputStream(this.content)) :
-                        EMPTY_SERVLET_INPUT_STREAM);
+                        new DelegatingServletInputStream(InputStream.nullInputStream()));
     return this.inputStream;
   }
 
