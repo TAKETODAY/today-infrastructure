@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -22,11 +22,13 @@ package cn.taketoday.session;
 import cn.taketoday.web.HandlerInterceptor;
 
 /**
- * @author TODAY <br>
- * 2020-04-20 20:58
+ * SessionManager supported HandlerInterceptor
+ *
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 2020-04-20 20:58
  */
 public abstract class SessionHandlerInterceptor
-        extends SessionManagerSupport implements HandlerInterceptor {
+        extends SessionManagerOperations implements HandlerInterceptor {
 
   public SessionHandlerInterceptor(SessionManager sessionManager) {
     super(sessionManager);

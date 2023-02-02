@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -25,13 +25,15 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.RequestContext;
 
 /**
- * @author TODAY 2021/4/30 23:01
- * @since 3.0
+ * SessionManager
+ *
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 2021/4/30 23:01
  */
-public class SessionManagerSupport {
+public class SessionManagerOperations {
   private final SessionManager sessionManager;
 
-  public SessionManagerSupport(SessionManager sessionManager) {
+  public SessionManagerOperations(SessionManager sessionManager) {
     Assert.notNull(sessionManager, "SessionManager is required");
     this.sessionManager = sessionManager;
   }

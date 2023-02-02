@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -57,7 +57,7 @@ import cn.taketoday.web.handler.method.ResolvableMethodParameter;
  * @since 2019-09-27 22:36
  */
 public class SessionMethodArgumentResolver
-        extends SessionManagerSupport implements ParameterResolvingStrategy {
+        extends SessionManagerOperations implements ParameterResolvingStrategy {
 
   public SessionMethodArgumentResolver(SessionManager sessionManager) {
     super(sessionManager);
