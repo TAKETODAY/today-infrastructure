@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -95,7 +95,10 @@ public class ASMifier extends Printer {
             Map.entry(Opcodes.V15, "V15"),
             Map.entry(Opcodes.V16, "V16"),
             Map.entry(Opcodes.V17, "V17"),
-            Map.entry(Opcodes.V18, "V18")
+            Map.entry(Opcodes.V18, "V18"),
+            Map.entry(Opcodes.V19, "V19"),
+            Map.entry(Opcodes.V20, "V20"),
+            Map.entry(Opcodes.V21, "V21")
     );
   }
 
