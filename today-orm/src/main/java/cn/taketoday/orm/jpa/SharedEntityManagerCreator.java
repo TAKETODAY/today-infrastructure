@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -86,12 +86,15 @@ public abstract class SharedEntityManagerCreator {
           "refresh");
 
   private static final Set<String> queryTerminatingMethods = Set.of(
-          "execute",  // JPA 2.1 StoredProcedureQuery
-          "executeUpdate",
-          "getSingleResult",
-          "getResultStream",
-          "getResultList",
-          "list"  // Hibernate Query.list() method
+          "execute",  // jakarta.persistence.StoredProcedureQuery.execute()
+          "executeUpdate", // jakarta.persistence.Query.executeUpdate()
+          "getSingleResult",  // jakarta.persistence.Query.getSingleResult()
+          "getResultStream",  // jakarta.persistence.Query.getResultStream()
+          "getResultList",  // jakarta.persistence.Query.getResultList()
+          "list",  // org.hibernate.query.Query.list()
+          "stream",  // org.hibernate.query.Query.stream()
+          "uniqueResult",  // org.hibernate.query.Query.uniqueResult()
+          "uniqueResultOptional"  // org.hibernate.query.Query.uniqueResultOptional()
   );
 
   /**
