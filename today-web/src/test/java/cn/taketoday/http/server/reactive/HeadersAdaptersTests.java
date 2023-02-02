@@ -54,38 +54,38 @@ import static org.junit.jupiter.params.provider.Arguments.arguments;
 class HeadersAdaptersTests {
 
   @ParameterizedHeadersTest
-  void getWithUnknownHeaderShouldReturnNull(String displayName, MultiValueMap<String, String> headers) {
+  void getWithUnknownHeaderShouldReturnNull(MultiValueMap<String, String> headers) {
     assertThat(headers.get("Unknown")).isNull();
   }
 
   @ParameterizedHeadersTest
-  void getFirstWithUnknownHeaderShouldReturnNull(String displayName, MultiValueMap<String, String> headers) {
+  void getFirstWithUnknownHeaderShouldReturnNull(MultiValueMap<String, String> headers) {
     assertThat(headers.getFirst("Unknown")).isNull();
   }
 
   @ParameterizedHeadersTest
-  void sizeWithMultipleValuesForHeaderShouldCountHeaders(String displayName, MultiValueMap<String, String> headers) {
+  void sizeWithMultipleValuesForHeaderShouldCountHeaders(MultiValueMap<String, String> headers) {
     headers.add("TestHeader", "first");
     headers.add("TestHeader", "second");
-    assertThat(headers.size()).isEqualTo(1);
+    assertThat(headers).hasSize(1);
   }
 
   @ParameterizedHeadersTest
-  void keySetShouldNotDuplicateHeaderNames(String displayName, MultiValueMap<String, String> headers) {
+  void keySetShouldNotDuplicateHeaderNames(MultiValueMap<String, String> headers) {
     headers.add("TestHeader", "first");
     headers.add("OtherHeader", "test");
     headers.add("TestHeader", "second");
-    assertThat(headers.keySet().size()).isEqualTo(2);
+    assertThat(headers.keySet()).hasSize(2);
   }
 
   @ParameterizedHeadersTest
-  void containsKeyShouldBeCaseInsensitive(String displayName, MultiValueMap<String, String> headers) {
+  void containsKeyShouldBeCaseInsensitive(MultiValueMap<String, String> headers) {
     headers.add("TestHeader", "first");
     assertThat(headers.containsKey("testheader")).isTrue();
   }
 
   @ParameterizedHeadersTest
-  void addShouldKeepOrdering(String displayName, MultiValueMap<String, String> headers) {
+  void addShouldKeepOrdering(MultiValueMap<String, String> headers) {
     headers.add("TestHeader", "first");
     headers.add("TestHeader", "second");
     assertThat(headers.getFirst("TestHeader")).isEqualTo("first");
@@ -93,15 +93,15 @@ class HeadersAdaptersTests {
   }
 
   @ParameterizedHeadersTest
-  void putShouldOverrideExisting(String displayName, MultiValueMap<String, String> headers) {
+  void putShouldOverrideExisting(MultiValueMap<String, String> headers) {
     headers.add("TestHeader", "first");
     headers.put("TestHeader", Arrays.asList("override"));
     assertThat(headers.getFirst("TestHeader")).isEqualTo("override");
-    assertThat(headers.get("TestHeader").size()).isEqualTo(1);
+    assertThat(headers.get("TestHeader")).hasSize(1);
   }
 
   @ParameterizedHeadersTest
-  void nullValuesShouldNotFail(String displayName, MultiValueMap<String, String> headers) {
+  void nullValuesShouldNotFail(MultiValueMap<String, String> headers) {
     headers.add("TestHeader", null);
     assertThat(headers.getFirst("TestHeader")).isNull();
     headers.set("TestHeader", null);
@@ -109,15 +109,15 @@ class HeadersAdaptersTests {
   }
 
   @ParameterizedHeadersTest
-  void shouldReflectChangesOnKeyset(String displayName, MultiValueMap<String, String> headers) {
+  void shouldReflectChangesOnKeyset(MultiValueMap<String, String> headers) {
     headers.add("TestHeader", "first");
     assertThat(headers.keySet()).hasSize(1);
     headers.keySet().removeIf("TestHeader"::equals);
-    assertThat(headers.keySet()).hasSize(0);
+    assertThat(headers.keySet()).isEmpty();
   }
 
   @ParameterizedHeadersTest
-  void shouldFailIfHeaderRemovedFromKeyset(String displayName, MultiValueMap<String, String> headers) {
+  void shouldFailIfHeaderRemovedFromKeyset(MultiValueMap<String, String> headers) {
     headers.add("TestHeader", "first");
     assertThat(headers.keySet()).hasSize(1);
     Iterator<String> names = headers.keySet().iterator();
@@ -136,12 +136,12 @@ class HeadersAdaptersTests {
 
   static Stream<Arguments> headers() {
     return Stream.of(
-            Arguments.arguments("Map", MultiValueMap.from(new LinkedCaseInsensitiveMap<>(8, Locale.ENGLISH))),
-            Arguments.arguments("Netty", new NettyHeadersAdapter(new DefaultHttpHeaders())),
+            arguments(named("Map", MultiValueMap.from(new LinkedCaseInsensitiveMap<>(8, Locale.ENGLISH)))),
+            arguments(named("Netty", new NettyHeadersAdapter(new DefaultHttpHeaders()))),
             arguments(named("Netty", new Netty5HeadersAdapter(io.netty5.handler.codec.http.headers.HttpHeaders.newHeaders()))),
-            Arguments.arguments("Tomcat", new TomcatHeadersAdapter(new MimeHeaders())),
-            Arguments.arguments("Undertow", new UndertowHeadersAdapter(new HeaderMap())),
-            Arguments.arguments("Jetty", new JettyHeadersAdapter(HttpFields.build()))
+            arguments(named("Tomcat", new TomcatHeadersAdapter(new MimeHeaders()))),
+            arguments(named("Undertow", new UndertowHeadersAdapter(new HeaderMap()))),
+            arguments(named("Jetty", new JettyHeadersAdapter(HttpFields.build())))
     );
   }
 

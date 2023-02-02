@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -97,7 +97,7 @@ class BaseDefaultCodecs implements CodecConfigurer.DefaultCodecs, CodecConfigure
     protobufPresent = ClassUtils.isPresent("com.google.protobuf.Message", classLoader);
     synchronossMultipartPresent = ClassUtils.isPresent("org.synchronoss.cloud.nio.multipart.NioMultipartParser", classLoader);
     nettyByteBufPresent = ClassUtils.isPresent("io.netty.buffer.ByteBuf", classLoader);
-    netty5BufferPresent = ClassUtils.isPresent("io.netty5.buffer.api.Buffer", classLoader);
+    netty5BufferPresent = ClassUtils.isPresent("io.netty5.buffer.Buffer", classLoader);
   }
 
   @Nullable
