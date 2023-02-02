@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -771,7 +771,7 @@ public class RestTemplate extends InterceptingHttpAccessor implements RestOperat
         logger.debug("{} Response {}", url, status);
       }
       catch (IOException ex) {
-        // ignore
+        logger.debug("Failed to get response status code", ex);
       }
     }
     if (hasError) {
