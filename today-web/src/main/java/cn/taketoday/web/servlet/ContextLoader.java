@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -137,20 +137,8 @@ public class ContextLoader {
    */
   private static final String DEFAULT_STRATEGIES_PATH = "ContextLoader.properties";
 
-  private static final Properties defaultStrategies;
-
-  static {
-    // Load default strategy implementations from properties file.
-    // This is currently strictly internal and not meant to be customized
-    // by application developers.
-    try {
-      ClassPathResource resource = new ClassPathResource(DEFAULT_STRATEGIES_PATH, ContextLoader.class);
-      defaultStrategies = PropertiesUtils.loadProperties(resource);
-    }
-    catch (IOException ex) {
-      throw new IllegalStateException("Could not load 'ContextLoader.properties': " + ex.getMessage());
-    }
-  }
+  @Nullable
+  private static Properties defaultStrategies;
 
   /**
    * Map from (thread context) ClassLoader to corresponding 'current' WebApplicationContext.
@@ -352,6 +340,18 @@ public class ContextLoader {
       }
     }
     else {
+      if (defaultStrategies == null) {
+        // Load default strategy implementations from properties file.
+        // This is currently strictly internal and not meant to be customized
+        // by application developers.
+        try {
+          ClassPathResource resource = new ClassPathResource(DEFAULT_STRATEGIES_PATH, ContextLoader.class);
+          defaultStrategies = PropertiesUtils.loadProperties(resource);
+        }
+        catch (IOException ex) {
+          throw new IllegalStateException("Could not load 'ContextLoader.properties': " + ex.getMessage());
+        }
+      }
       contextClassName = defaultStrategies.getProperty(WebApplicationContext.class.getName());
       try {
         return ClassUtils.forName(contextClassName, ContextLoader.class.getClassLoader());
