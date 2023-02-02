@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -83,6 +83,7 @@ import cn.taketoday.lang.Nullable;
  *
  * @author Rossen Stoyanchev
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see #forPropertyAccessors
  * @see #forReadOnlyDataBinding()
  * @see #forReadWriteDataBinding()
@@ -105,9 +106,9 @@ public final class SimpleEvaluationContext implements EvaluationContext {
 
   private final TypeConverter typeConverter;
 
-  private final TypeComparator typeComparator = new StandardTypeComparator();
+  private final TypeComparator typeComparator = TypeComparator.STANDARD;
 
-  private final OperatorOverloader operatorOverloader = new StandardOperatorOverloader();
+  private final OperatorOverloader operatorOverloader = OperatorOverloader.STANDARD;
 
   private final Map<String, Object> variables = new HashMap<>();
 
