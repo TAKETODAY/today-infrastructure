@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -50,6 +50,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
@@ -478,7 +479,7 @@ public abstract class AbstractJackson2HttpMessageConverter extends AbstractGener
       if (filters != null) {
         objectWriter = objectWriter.with(filters);
       }
-      if (javaType != null && javaType.isContainerType()) {
+      if (javaType != null && (javaType.isContainerType() || javaType.isTypeOrSubTypeOf(Optional.class))) {
         objectWriter = objectWriter.forType(javaType);
       }
       SerializationConfig config = objectWriter.getConfig();
