@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -21,6 +21,8 @@
 package cn.taketoday.http.converter.json;
 
 import com.fasterxml.jackson.annotation.JsonFilter;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JavaType;
@@ -44,6 +46,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import cn.taketoday.core.TypeReference;
 import cn.taketoday.http.MediaType;
@@ -55,8 +58,6 @@ import cn.taketoday.lang.Nullable;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-import static org.assertj.core.api.Assertions.entry;
-import static org.assertj.core.api.Assertions.within;
 
 /**
  * Jackson 2.x converter tests.
@@ -346,6 +347,18 @@ public class MappingJackson2HttpMessageConverterTests {
     MockHttpOutputMessage outputMessage = new MockHttpOutputMessage();
     converter.write(results, baseList.getType(), new MediaType("application", "json"), outputMessage);
     JSONAssert.assertEquals(body, outputMessage.getBodyAsString(StandardCharsets.UTF_8), true);
+  }
+
+  // gh-24498
+  @Test
+  public void writeOptional() throws IOException {
+    TypeReference<Optional<MyParent>> optionalParent = new TypeReference<>() { };
+    Optional<MyParent> result = Optional.of(new Impl1());
+    MockHttpOutputMessage outputMessage = new MockHttpOutputMessage();
+    converter.write(result, optionalParent.getType(), MediaType.APPLICATION_JSON, outputMessage);
+
+    assertThat(outputMessage.getBodyAsString(StandardCharsets.UTF_8))
+            .contains("@type");
   }
 
   @Test
@@ -766,6 +779,18 @@ public class MappingJackson2HttpMessageConverterTests {
     public String toString() {
       return this == VAL1 ? "Value1" : "Value2";
     }
+  }
+
+  @JsonTypeInfo(use = JsonTypeInfo.Id.NAME)
+  @JsonSubTypes(value = { @JsonSubTypes.Type(value = Impl1.class),
+          @JsonSubTypes.Type(value = Impl2.class) })
+  public static interface MyParent {
+  }
+
+  public static class Impl1 implements MyParent {
+  }
+
+  public static class Impl2 implements MyParent {
   }
 
   private static class MappingJackson2HttpMessageConverterWithCustomization extends MappingJackson2HttpMessageConverter {
