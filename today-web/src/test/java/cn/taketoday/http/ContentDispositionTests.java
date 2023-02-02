@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -255,7 +255,9 @@ public class ContentDispositionTests {
                     .name("name")
                     .filename("中文.txt", StandardCharsets.UTF_8)
                     .build().toString())
-            .isEqualTo("form-data; name=\"name\"; filename*=UTF-8''%E4%B8%AD%E6%96%87.txt");
+            .isEqualTo("form-data; name=\"name\"; " +
+                    "filename=\"=?UTF-8?Q?=E4=B8=AD=E6=96=87.txt?=\"; " +
+                    "filename*=UTF-8''%E4%B8%AD%E6%96%87.txt");
   }
 
   @Test
