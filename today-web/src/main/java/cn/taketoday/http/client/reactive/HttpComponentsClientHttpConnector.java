@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -36,6 +36,7 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.ByteBuffer;
+import java.util.concurrent.CancellationException;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
@@ -120,8 +121,9 @@ public class HttpComponentsClientHttpConnector implements ClientHttpConnector, C
 
     return Mono.create(sink -> {
       var responseConsumer = new ReactiveResponseConsumer(
-              new MonoFutureCallbackAdapter(sink, this.dataBufferFactory, context));
-      this.client.execute(requestProducer, responseConsumer, context, null);
+              new ResponseCallback(sink, this.dataBufferFactory, context));
+
+      client.execute(requestProducer, responseConsumer, context, new ResultCallback(sink));
     });
   }
 
@@ -130,7 +132,10 @@ public class HttpComponentsClientHttpConnector implements ClientHttpConnector, C
     this.client.close();
   }
 
-  private record MonoFutureCallbackAdapter(
+  /**
+   * Callback that invoked when a response is received.
+   */
+  private record ResponseCallback(
           MonoSink<ClientHttpResponse> sink, DataBufferFactory dataBufferFactory, HttpClientContext context)
           implements FutureCallback<Message<HttpResponse, Publisher<ByteBuffer>>> {
 
@@ -151,7 +156,37 @@ public class HttpComponentsClientHttpConnector implements ClientHttpConnector, C
     }
 
     @Override
-    public void cancelled() { }
+    public void cancelled() {
+      this.sink.error(new CancellationException());
+    }
+  }
+
+  /**
+   * Callback that invoked when a request is executed.
+   */
+  private static class ResultCallback implements FutureCallback<Void> {
+
+    private final MonoSink<?> sink;
+
+    public ResultCallback(MonoSink<?> sink) {
+      this.sink = sink;
+    }
+
+    @Override
+    public void completed(Void result) {
+      this.sink.success();
+    }
+
+    @Override
+    public void failed(Exception ex) {
+      Throwable t = (ex instanceof HttpStreamResetException hsre ? hsre.getCause() : ex);
+      this.sink.error(t);
+    }
+
+    @Override
+    public void cancelled() {
+      this.sink.error(new CancellationException());
+    }
   }
 
 }
