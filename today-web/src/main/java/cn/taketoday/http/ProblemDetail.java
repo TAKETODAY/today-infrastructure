@@ -247,7 +247,7 @@ public class ProblemDetail {
    * @param value the property value
    * @see cn.taketoday.http.converter.json.ProblemDetailJacksonMixin
    */
-  public void setProperty(String name, Object value) {
+  public void setProperty(String name, @Nullable Object value) {
     if (properties == null) {
       properties = new LinkedHashMap<>();
     }
