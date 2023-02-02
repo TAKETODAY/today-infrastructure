@@ -21,7 +21,6 @@
 package cn.taketoday.http.codec;
 
 import java.net.URLDecoder;
-import java.nio.CharBuffer;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
@@ -127,8 +126,7 @@ public class FormHttpMessageReader extends LoggingCodecSupport
 
     return DataBufferUtils.join(message.getBody(), this.maxInMemorySize)
             .map(buffer -> {
-              CharBuffer charBuffer = charset.decode(buffer.toByteBuffer());
-              String body = charBuffer.toString();
+              String body = buffer.toString(charset);
               DataBufferUtils.release(buffer);
               MultiValueMap<String, String> formData = parseFormData(charset, body);
               if (logger.isDebugEnabled()) {

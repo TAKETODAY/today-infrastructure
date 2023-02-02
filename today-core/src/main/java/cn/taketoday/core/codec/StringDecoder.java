@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -22,7 +22,6 @@ package cn.taketoday.core.codec;
 
 import org.reactivestreams.Publisher;
 
-import java.nio.CharBuffer;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -187,9 +186,8 @@ public final class StringDecoder extends AbstractDataBufferDecoder<String> {
           @Nullable MimeType mimeType, @Nullable Map<String, Object> hints) {
 
     Charset charset = getCharset(mimeType);
-    CharBuffer charBuffer = charset.decode(dataBuffer.toByteBuffer());
+    String value = dataBuffer.toString(charset);
     DataBufferUtils.release(dataBuffer);
-    String value = charBuffer.toString();
     LogFormatUtils.traceDebug(logger, traceOn -> {
       String formatted = LogFormatUtils.formatValue(value, !traceOn);
       return Hints.getLogPrefix(hints) + "Decoded " + formatted;
