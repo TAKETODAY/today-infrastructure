@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -28,7 +28,7 @@ import cn.taketoday.http.HttpHeaders;
  * Representation for a part in a "multipart/form-data" request.
  *
  * <p>The origin of a multipart request may be a browser form in which case each
- * part is either a {@link FormData} or a {@link MultipartFile}.
+ * part is either a FormField or a {@link MultipartFile}.
  *
  * <p>Multipart requests may also be used outside of a browser for data of any
  * content type (e.g. JSON, PDF, etc).
