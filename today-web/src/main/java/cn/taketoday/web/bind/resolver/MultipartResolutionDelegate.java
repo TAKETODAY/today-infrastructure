@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -29,7 +29,6 @@ import cn.taketoday.core.ResolvableType;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.ServletDetector;
-import cn.taketoday.web.multipart.FormData;
 import cn.taketoday.web.multipart.Multipart;
 import cn.taketoday.web.multipart.MultipartFile;
 import cn.taketoday.web.multipart.MultipartRequest;
@@ -55,18 +54,16 @@ public final class MultipartResolutionDelegate {
   public static boolean isMultipartArgument(MethodParameter parameter) {
     Class<?> paramType = parameter.getNestedParameterType();
     return Multipart.class == paramType
-            || FormData.class == paramType
             || MultipartFile.class == paramType
             || isMultipartFileCollection(parameter)
             || isMultipartFileArray(parameter)
             || (
             ServletDetector.isPresent
                     && (
-                    Part.class == paramType
-                            || ServletDelegate.isPartCollection(parameter)
+                    ServletDelegate.isPart(paramType)
                             || ServletDelegate.isPartArray(parameter)
-            )
-    );
+                            || ServletDelegate.isPartCollection(parameter)
+            ));
   }
 
   @Nullable
@@ -147,12 +144,16 @@ public final class MultipartResolutionDelegate {
       return result;
     }
 
+    static boolean isPart(Class<?> paramType) {
+      return Part.class == paramType;
+    }
+
     static boolean isPartCollection(MethodParameter methodParam) {
-      return (Part.class == getCollectionParameterType(methodParam));
+      return Part.class == getCollectionParameterType(methodParam);
     }
 
     static boolean isPartArray(MethodParameter methodParam) {
-      return (Part.class == methodParam.getNestedParameterType().getComponentType());
+      return Part.class == methodParam.getNestedParameterType().getComponentType();
     }
 
   }
