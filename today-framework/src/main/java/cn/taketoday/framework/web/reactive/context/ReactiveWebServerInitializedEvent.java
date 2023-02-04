@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -29,21 +29,14 @@ import cn.taketoday.framework.web.server.WebServer;
  *
  * @author Brian Clozel
  * @author Stephane Nicoll
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public class ReactiveWebServerInitializedEvent extends WebServerInitializedEvent {
 
-  private final ReactiveWebServerApplicationContext applicationContext;
-
   public ReactiveWebServerInitializedEvent(
           WebServer webServer, ReactiveWebServerApplicationContext applicationContext) {
-    super(webServer);
-    this.applicationContext = applicationContext;
-  }
-
-  @Override
-  public ReactiveWebServerApplicationContext getApplicationContext() {
-    return this.applicationContext;
+    super(webServer, applicationContext);
   }
 
 }

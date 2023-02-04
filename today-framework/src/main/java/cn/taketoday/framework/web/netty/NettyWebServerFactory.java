@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -23,10 +23,9 @@ package cn.taketoday.framework.web.netty;
 import java.net.InetSocketAddress;
 import java.util.Locale;
 
-import cn.taketoday.framework.web.reactive.server.AbstractReactiveWebServerFactory;
-import cn.taketoday.framework.web.reactive.server.ReactiveWebServerFactory;
+import cn.taketoday.framework.web.server.AbstractConfigurableWebServerFactory;
 import cn.taketoday.framework.web.server.WebServer;
-import cn.taketoday.http.server.reactive.HttpHandler;
+import cn.taketoday.framework.web.server.WebServerFactory;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
@@ -53,7 +52,7 @@ import io.netty.util.concurrent.DefaultThreadFactory;
  * @since 4.0 2022/10/20 13:44
  */
 public class NettyWebServerFactory
-        extends AbstractReactiveWebServerFactory implements ReactiveWebServerFactory {
+        extends AbstractConfigurableWebServerFactory implements WebServerFactory {
 
   private static final Logger log = LoggerFactory.getLogger(NettyWebServer.class);
 
@@ -223,7 +222,7 @@ public class NettyWebServerFactory
   }
 
   @Override
-  public WebServer getWebServer(HttpHandler httpHandler) {
+  public WebServer getWebServer() {
     ServerBootstrap bootstrap = new ServerBootstrap();
     preBootstrap(bootstrap);
 

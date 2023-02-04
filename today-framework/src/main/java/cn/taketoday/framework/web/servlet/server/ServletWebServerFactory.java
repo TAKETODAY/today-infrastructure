@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -46,5 +46,10 @@ public interface ServletWebServerFactory extends WebServerFactory {
    * @see WebServer#stop()
    */
   WebServer getWebServer(ServletContextInitializer... initializers);
+
+  @Override
+  default WebServer getWebServer() {
+    return getWebServer(new ServletContextInitializer[0]);
+  }
 
 }

@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -305,21 +305,23 @@ public class ServletWebServerApplicationContext extends GenericWebApplicationCon
     return new ServletContextResource(getServletContext(), path);
   }
 
+  @Nullable
   @Override
   public String getServerNamespace() {
     return this.serverNamespace;
   }
 
   @Override
-  public void setServerNamespace(String serverNamespace) {
+  public void setServerNamespace(@Nullable String serverNamespace) {
     this.serverNamespace = serverNamespace;
   }
 
   @Override
-  public void setServletConfig(ServletConfig servletConfig) {
+  public void setServletConfig(@Nullable ServletConfig servletConfig) {
     this.servletConfig = servletConfig;
   }
 
+  @Nullable
   @Override
   public ServletConfig getServletConfig() {
     return this.servletConfig;
@@ -331,6 +333,7 @@ public class ServletWebServerApplicationContext extends GenericWebApplicationCon
    *
    * @return the embedded web server
    */
+  @Nullable
   @Override
   public WebServer getWebServer() {
     return this.webServer;

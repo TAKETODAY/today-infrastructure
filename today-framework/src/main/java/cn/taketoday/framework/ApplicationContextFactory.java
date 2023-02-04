@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -25,6 +25,7 @@ import java.util.function.Supplier;
 import cn.taketoday.beans.BeanUtils;
 import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.context.annotation.AnnotationConfigApplicationContext;
+import cn.taketoday.framework.web.context.AnnotationConfigWebServerApplicationContext;
 import cn.taketoday.framework.web.reactive.context.AnnotationConfigReactiveWebServerApplicationContext;
 import cn.taketoday.framework.web.servlet.context.AnnotationConfigServletWebServerApplicationContext;
 
@@ -46,6 +47,7 @@ public interface ApplicationContextFactory {
   ApplicationContextFactory DEFAULT = (applicationType) -> {
     try {
       return switch (applicationType) {
+        case NETTY_WEB -> new AnnotationConfigWebServerApplicationContext();
         case SERVLET_WEB -> new AnnotationConfigServletWebServerApplicationContext();
         case REACTIVE_WEB -> new AnnotationConfigReactiveWebServerApplicationContext();
         default -> new AnnotationConfigApplicationContext();

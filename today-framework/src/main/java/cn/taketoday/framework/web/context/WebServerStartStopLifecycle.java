@@ -20,54 +20,48 @@
 
 package cn.taketoday.framework.web.context;
 
-import cn.taketoday.context.ApplicationEvent;
+import cn.taketoday.context.SmartLifecycle;
 import cn.taketoday.framework.web.server.WebServer;
 
 /**
- * Event to be published when the {@link WebServer} is ready. Useful for obtaining the
- * local port of a running server.
+ * {@link SmartLifecycle} to start and stop the {@link WebServer} in a
+ * {@link GenericWebServerApplicationContext}.
  *
- * @author Brian Clozel
- * @author Stephane Nicoll
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @since 4.0
+ * @since 4.0 2023/2/3 17:30
  */
-public class WebServerInitializedEvent extends ApplicationEvent {
+public class WebServerStartStopLifecycle implements SmartLifecycle {
+
+  private volatile boolean running;
+  private final WebServer webServer;
   private final WebServerApplicationContext applicationContext;
 
-  public WebServerInitializedEvent(WebServer webServer, WebServerApplicationContext applicationContext) {
-    super(webServer);
+  public WebServerStartStopLifecycle(WebServerApplicationContext applicationContext, WebServer webServer) {
     this.applicationContext = applicationContext;
+    this.webServer = webServer;
   }
 
-  /**
-   * Access the {@link WebServer}.
-   *
-   * @return the embedded web server
-   */
-  public WebServer getWebServer() {
-    return getSource();
-  }
-
-  /**
-   * Access the application context that the server was created in. Sometimes it is
-   * prudent to check that this matches expectations (like being equal to the current
-   * context) before acting on the server itself.
-   *
-   * @return the applicationContext that the server was created from
-   */
-  public WebServerApplicationContext getApplicationContext() {
-    return applicationContext;
-  }
-
-  /**
-   * Access the source of the event (an {@link WebServer}).
-   *
-   * @return the embedded web server
-   */
   @Override
-  public WebServer getSource() {
-    return (WebServer) super.getSource();
+  public void start() {
+    webServer.start();
+    this.running = true;
+    applicationContext.publishEvent(
+            new WebServerInitializedEvent(webServer, applicationContext));
+  }
+
+  @Override
+  public void stop() {
+    this.webServer.stop();
+  }
+
+  @Override
+  public boolean isRunning() {
+    return this.running;
+  }
+
+  @Override
+  public int getPhase() {
+    return Integer.MAX_VALUE - 1;
   }
 
 }

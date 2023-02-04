@@ -18,7 +18,7 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.framework.web.reactive.context;
+package cn.taketoday.framework.web.context;
 
 import java.util.Arrays;
 import java.util.LinkedHashSet;
@@ -30,7 +30,6 @@ import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.context.AnnotationConfigRegistry;
 import cn.taketoday.context.annotation.AnnotatedBeanDefinitionReader;
 import cn.taketoday.context.annotation.AnnotationBeanNameGenerator;
-import cn.taketoday.context.annotation.AnnotationConfigApplicationContext;
 import cn.taketoday.context.annotation.AnnotationConfigUtils;
 import cn.taketoday.context.annotation.AnnotationScopeMetadataResolver;
 import cn.taketoday.context.annotation.ClassPathBeanDefinitionScanner;
@@ -42,7 +41,7 @@ import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.ObjectUtils;
 
 /**
- * {@link ReactiveWebServerApplicationContext} that accepts annotated classes as input -
+ * {@link WebServerApplicationContext} that accepts annotated classes as input -
  * in particular
  * {@link cn.taketoday.context.annotation.Configuration @Configuration}-annotated
  * classes, but also plain {@link Component @Component} classes and JSR-330 compliant
@@ -54,15 +53,13 @@ import cn.taketoday.util.ObjectUtils;
  * definitions will override ones defined in earlier loaded files. This can be leveraged
  * to deliberately override certain bean definitions via an extra Configuration class.
  *
- * @author Phillip Webb
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see #register(Class...)
  * @see #scan(String...)
- * @see ReactiveWebServerApplicationContext
- * @see AnnotationConfigApplicationContext
- * @since 4.0
+ * @since 4.0 2023/2/3 16:46
  */
-public class AnnotationConfigReactiveWebServerApplicationContext
-        extends ReactiveWebServerApplicationContext implements AnnotationConfigRegistry {
+public class AnnotationConfigWebServerApplicationContext
+        extends GenericWebServerApplicationContext implements AnnotationConfigRegistry {
 
   private final AnnotatedBeanDefinitionReader reader;
 
@@ -73,50 +70,50 @@ public class AnnotationConfigReactiveWebServerApplicationContext
   private String[] basePackages;
 
   /**
-   * Create a new {@link AnnotationConfigReactiveWebServerApplicationContext} that needs
+   * Create a new {@link AnnotationConfigWebServerApplicationContext} that needs
    * to be populated through {@link #register} calls and then manually
    * {@linkplain #refresh refreshed}.
    */
-  public AnnotationConfigReactiveWebServerApplicationContext() {
+  public AnnotationConfigWebServerApplicationContext() {
     this.reader = new AnnotatedBeanDefinitionReader(this);
     this.scanner = new ClassPathBeanDefinitionScanner(this);
   }
 
   /**
-   * Create a new {@link AnnotationConfigReactiveWebServerApplicationContext} with the
+   * Create a new {@link AnnotationConfigWebServerApplicationContext} with the
    * given {@code StandardBeanFactory}. The context needs to be populated through
    * {@link #register} calls and then manually {@linkplain #refresh refreshed}.
    *
    * @param beanFactory the StandardBeanFactory instance to use for this context
    */
-  public AnnotationConfigReactiveWebServerApplicationContext(StandardBeanFactory beanFactory) {
+  public AnnotationConfigWebServerApplicationContext(StandardBeanFactory beanFactory) {
     super(beanFactory);
     this.reader = new AnnotatedBeanDefinitionReader(this);
     this.scanner = new ClassPathBeanDefinitionScanner(this);
   }
 
   /**
-   * Create a new {@link AnnotationConfigReactiveWebServerApplicationContext}, deriving
+   * Create a new {@link AnnotationConfigWebServerApplicationContext}, deriving
    * bean definitions from the given annotated classes and automatically refreshing the
    * context.
    *
    * @param annotatedClasses one or more annotated classes, e.g. {@code @Configuration}
    * classes
    */
-  public AnnotationConfigReactiveWebServerApplicationContext(Class<?>... annotatedClasses) {
+  public AnnotationConfigWebServerApplicationContext(Class<?>... annotatedClasses) {
     this();
     register(annotatedClasses);
     refresh();
   }
 
   /**
-   * Create a new {@link AnnotationConfigReactiveWebServerApplicationContext}, scanning
+   * Create a new {@link AnnotationConfigWebServerApplicationContext}, scanning
    * for bean definitions in the given packages and automatically refreshing the
    * context.
    *
    * @param basePackages the packages to check for annotated classes
    */
-  public AnnotationConfigReactiveWebServerApplicationContext(String... basePackages) {
+  public AnnotationConfigWebServerApplicationContext(String... basePackages) {
     this();
     scan(basePackages);
     refresh();

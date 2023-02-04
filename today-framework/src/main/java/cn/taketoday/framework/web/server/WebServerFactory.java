@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -31,5 +31,18 @@ package cn.taketoday.framework.web.server;
  * @since 4.0
  */
 public interface WebServerFactory {
+
+  /**
+   * Gets a new fully configured but paused {@link WebServer} instance. Clients should
+   * not be able to connect to the returned server until {@link WebServer#start()} is
+   * called (which happens when the {@code ApplicationContext} has been fully
+   * refreshed).
+   *
+   * @return a fully configured and started {@link WebServer}
+   * @see WebServer#stop()
+   */
+  default WebServer getWebServer() {
+    throw new UnsupportedOperationException();
+  }
 
 }
