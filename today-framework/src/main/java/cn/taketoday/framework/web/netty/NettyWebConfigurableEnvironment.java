@@ -18,29 +18,14 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.framework.web.context;
+package cn.taketoday.framework.web.netty;
 
-import cn.taketoday.context.ConfigurableApplicationContext;
-import cn.taketoday.lang.Nullable;
+import cn.taketoday.core.env.ConfigurableEnvironment;
 
 /**
- * SPI interface to be implemented by most if not all {@link WebServerApplicationContext
- * web server application contexts}. Provides facilities to configure the context, in
- * addition to the methods in the {WebServerApplicationContext} interface.
- *
- * @author Phillip Webb
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @since 4.0
+ * @since 4.0 2023/2/4 23:57
  */
-public interface ConfigurableWebServerApplicationContext
-        extends ConfigurableApplicationContext, WebServerApplicationContext {
-
-  /**
-   * Set the server namespace of the context.
-   *
-   * @param serverNamespace the server namespace
-   * @see #getServerNamespace()
-   */
-  void setServerNamespace(@Nullable String serverNamespace);
+public interface NettyWebConfigurableEnvironment extends ConfigurableEnvironment {
 
 }

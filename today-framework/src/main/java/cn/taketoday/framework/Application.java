@@ -144,11 +144,12 @@ import cn.taketoday.util.function.ThrowingSupplier;
 public class Application {
   public static final String PROPERTIES_BINDER_PREFIX = "app.main";
   private static final String SYSTEM_PROPERTY_JAVA_AWT_HEADLESS = "java.awt.headless";
-  protected final Logger logger = LoggerFactory.getLogger(getClass());
 
   static final ApplicationShutdownHook shutdownHook = new ApplicationShutdownHook();
 
   private static final ThreadLocal<ApplicationHook> applicationHook = new ThreadLocal<>();
+
+  protected final Logger logger = LoggerFactory.getLogger(getClass());
 
   @Nullable
   private Class<?> mainApplicationClass;
@@ -241,11 +242,13 @@ public class Application {
     setListeners(TodayStrategies.find(ApplicationListener.class));
   }
 
+  @Nullable
   private Class<?> deduceMainApplicationClass() {
     return StackWalker.getInstance(StackWalker.Option.RETAIN_CLASS_REFERENCE)
             .walk(this::getMainApplicationClass);
   }
 
+  @Nullable
   private Class<?> getMainApplicationClass(Stream<StackFrame> stackFrame) {
     return stackFrame.filter(s -> "main".equals(s.getMethodName()))
             .map(StackFrame::getDeclaringClass)
@@ -389,6 +392,11 @@ public class Application {
    */
   protected void afterRefresh(ConfigurableApplicationContext context, ApplicationArguments args) { }
 
+  /**
+   * find all ApplicationStartupListeners
+   * <p>
+   * from TodayStrategies, {@link #startupListeners} ,{@link ApplicationHook}
+   */
   private ApplicationStartupListeners getStartupListeners(
           DefaultBootstrapContext bootstrapContext, ApplicationArguments arguments) {
     var instantiator = new Instantiator<ApplicationStartupListener>(ApplicationStartupListener.class,
@@ -421,8 +429,7 @@ public class Application {
     return new ApplicationStartupListeners(logger, strategies);
   }
 
-  private ConfigurableEnvironment prepareEnvironment(
-          ConfigurableBootstrapContext context,
+  private ConfigurableEnvironment prepareEnvironment(ConfigurableBootstrapContext context,
           ApplicationStartupListeners listeners, ApplicationArguments applicationArguments) {
     // Create and configure the environment
     ConfigurableEnvironment environment = getOrCreateEnvironment();
@@ -439,6 +446,7 @@ public class Application {
 
     if (!this.isCustomEnvironment) {
       environment = EnvironmentConverter.convertIfNecessary(getClassLoader(), environment, switch (applicationType) {
+        case NETTY_WEB -> ApplicationNettyWebEnvironment.class;
         case SERVLET_WEB -> ApplicationServletEnvironment.class;
         case REACTIVE_WEB -> ApplicationReactiveWebEnvironment.class;
         default -> ApplicationEnvironment.class;
@@ -504,20 +512,17 @@ public class Application {
     configureHeadlessProperty();
   }
 
-  private void prepareContext(
-          DefaultBootstrapContext bootstrapContext,
-          ConfigurableApplicationContext context,
-          ApplicationStartupListeners listeners,
-          ApplicationArguments arguments,
-          ConfigurableEnvironment environment, @Nullable Banner printedBanner) {
-
+  private void prepareContext(DefaultBootstrapContext bootstrapContext,
+          ConfigurableApplicationContext context, ApplicationStartupListeners listeners,
+          ApplicationArguments arguments, ConfigurableEnvironment environment, @Nullable Banner printedBanner) //
+  {
     context.setEnvironment(environment);
     postProcessApplicationContext(context);
     applyInitializers(context);
     listeners.contextPrepared(context);
     bootstrapContext.close(context);
 
-    if (this.logStartupInfo) {
+    if (logStartupInfo) {
       logStartupInfo(context.getParent() == null);
       logStartupProfileInfo(context);
     }
@@ -538,7 +543,7 @@ public class Application {
       }
     }
 
-    if (this.lazyInitialization) {
+    if (lazyInitialization) {
       context.addBeanFactoryPostProcessor(new LazyInitializationBeanFactoryPostProcessor());
     }
 
@@ -628,6 +633,7 @@ public class Application {
       return this.environment;
     }
     return switch (applicationType) {
+      case NETTY_WEB -> new ApplicationNettyWebEnvironment();
       case SERVLET_WEB -> new ApplicationServletEnvironment();
       case REACTIVE_WEB -> new ApplicationReactiveWebEnvironment();
       default -> new ApplicationEnvironment();
