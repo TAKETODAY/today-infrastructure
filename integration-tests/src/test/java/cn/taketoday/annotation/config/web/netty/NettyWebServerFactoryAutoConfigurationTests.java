@@ -30,6 +30,7 @@ import cn.taketoday.framework.web.context.AnnotationConfigWebServerApplicationCo
 import cn.taketoday.framework.web.netty.NettyChannelInitializer;
 import cn.taketoday.framework.web.netty.NettyWebServerFactory;
 import cn.taketoday.framework.web.netty.StandardNettyWebEnvironment;
+import cn.taketoday.framework.web.server.WebServerFactory;
 import cn.taketoday.stereotype.Component;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -63,7 +64,7 @@ class NettyWebServerFactoryAutoConfigurationTests {
   static class WebServerConfiguration {
 
     @Component
-    NettyWebServerFactory webServerFactory(NettyChannelInitializer nettyChannelInitializer) {
+    WebServerFactory webServerFactory(NettyChannelInitializer nettyChannelInitializer) {
       NettyWebServerFactory factory = new NettyWebServerFactory();
       factory.setWorkThreadCount(100);
       factory.setNettyChannelInitializer(nettyChannelInitializer);
