@@ -48,6 +48,8 @@ import io.netty.util.ResourceLeakDetector;
 import io.netty.util.concurrent.DefaultThreadFactory;
 
 /**
+ * Factory for {@link NettyWebServer}
+ *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/10/20 13:44
  */
@@ -57,10 +59,10 @@ public class NettyWebServerFactory
   private static final Logger log = LoggerFactory.getLogger(NettyWebServer.class);
 
   static boolean epollPresent = ClassUtils.isPresent(
-          "io.netty.channel.epoll.EpollServerSocketChannel", NettyWebServer.class.getClassLoader());
+          "io.netty.channel.epoll.EpollServerSocketChannel");
 
   static boolean kQueuePresent = ClassUtils.isPresent(
-          "io.netty.channel.kqueue.KQueueServerSocketChannel", NettyWebServer.class.getClassLoader());
+          "io.netty.channel.kqueue.KQueueServerSocketChannel");
 
   /**
    * the number of threads that will be used by

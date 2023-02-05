@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -48,20 +48,20 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 
 /**
- * Tests for {@link NettyWebServerFactoryCustomizer}.
+ * Tests for {@link ReactorNettyWebServerFactoryCustomizer}.
  *
  * @author Brian Clozel
  * @author Artsiom Yudovin
  * @author Leo Li
  */
 @ExtendWith(MockitoExtension.class)
-class NettyWebServerFactoryCustomizerTests {
+class ReactorNettyWebServerFactoryCustomizerTests {
 
   private MockEnvironment environment;
 
   private ServerProperties serverProperties;
 
-  private NettyWebServerFactoryCustomizer customizer;
+  private ReactorNettyWebServerFactoryCustomizer customizer;
 
   @Captor
   private ArgumentCaptor<ReactorNettyServerCustomizer> customizerCaptor;
@@ -71,7 +71,7 @@ class NettyWebServerFactoryCustomizerTests {
     this.environment = new MockEnvironment();
     this.serverProperties = new ServerProperties();
     ConfigurationPropertySources.attach(this.environment);
-    this.customizer = new NettyWebServerFactoryCustomizer(this.environment, this.serverProperties);
+    this.customizer = new ReactorNettyWebServerFactoryCustomizer(this.environment, this.serverProperties);
   }
 
   @Test
@@ -108,7 +108,7 @@ class NettyWebServerFactoryCustomizerTests {
 
   @Test
   void setConnectionTimeout() {
-    this.serverProperties.getNetty().setConnectionTimeout(Duration.ofSeconds(1));
+    this.serverProperties.getReactorNetty().setConnectionTimeout(Duration.ofSeconds(1));
     ReactorNettyReactiveWebServerFactory factory = mock(ReactorNettyReactiveWebServerFactory.class);
     this.customizer.customize(factory);
     verifyConnectionTimeout(factory, 1000);
@@ -116,7 +116,7 @@ class NettyWebServerFactoryCustomizerTests {
 
   @Test
   void setIdleTimeout() {
-    this.serverProperties.getNetty().setIdleTimeout(Duration.ofSeconds(1));
+    this.serverProperties.getReactorNetty().setIdleTimeout(Duration.ofSeconds(1));
     ReactorNettyReactiveWebServerFactory factory = mock(ReactorNettyReactiveWebServerFactory.class);
     this.customizer.customize(factory);
     verifyIdleTimeout(factory, Duration.ofSeconds(1));
@@ -124,7 +124,7 @@ class NettyWebServerFactoryCustomizerTests {
 
   @Test
   void setMaxKeepAliveRequests() {
-    this.serverProperties.getNetty().setMaxKeepAliveRequests(100);
+    this.serverProperties.getReactorNetty().setMaxKeepAliveRequests(100);
     ReactorNettyReactiveWebServerFactory factory = mock(ReactorNettyReactiveWebServerFactory.class);
     this.customizer.customize(factory);
     verifyMaxKeepAliveRequests(factory, 100);
@@ -132,7 +132,7 @@ class NettyWebServerFactoryCustomizerTests {
 
   @Test
   void configureHttpRequestDecoder() {
-    ServerProperties.ReactorNetty nettyProperties = this.serverProperties.getNetty();
+    ServerProperties.ReactorNetty nettyProperties = this.serverProperties.getReactorNetty();
     nettyProperties.setValidateHeaders(false);
     nettyProperties.setInitialBufferSize(DataSize.ofBytes(512));
     nettyProperties.setH2cMaxContentLength(DataSize.ofKilobytes(1));

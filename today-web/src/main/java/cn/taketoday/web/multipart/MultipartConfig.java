@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -17,16 +17,16 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.web.multipart;
 
 import java.util.Objects;
 
 import cn.taketoday.core.style.ToStringBuilder;
 import cn.taketoday.util.DataSize;
-import jakarta.servlet.MultipartConfigElement;
 
 /**
- * Properties to be used in configuring a {@link MultipartConfigElement}.
+ * Properties to be used in configuring a {@link jakarta.servlet.MultipartConfigElement}.
  * <ul>
  * <li>{@link #getLocation() location} specifies the directory where uploaded files will
  * be stored. When not specified, a temporary directory will be used.</li>

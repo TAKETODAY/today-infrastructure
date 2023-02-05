@@ -20,12 +20,27 @@
 
 package cn.taketoday.framework.web.netty;
 
-import cn.taketoday.core.env.ConfigurableEnvironment;
+import cn.taketoday.core.env.Environment;
+import cn.taketoday.core.env.PropertySources;
+import cn.taketoday.core.env.StandardEnvironment;
 
 /**
+ * {@link Environment} implementation to be used by {@code netty}-based web
+ * applications. All web-related (netty-based) {@code ApplicationContext} classes
+ * initialize an instance by default.
+ *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @since 4.0 2023/2/4 23:57
+ * @since 4.0
  */
-public interface NettyWebConfigurableEnvironment extends ConfigurableEnvironment {
+public class StandardNettyWebEnvironment
+        extends StandardEnvironment implements ConfigurableNettyWebEnvironment {
+
+  public StandardNettyWebEnvironment() {
+    super();
+  }
+
+  protected StandardNettyWebEnvironment(PropertySources propertySources) {
+    super(propertySources);
+  }
 
 }

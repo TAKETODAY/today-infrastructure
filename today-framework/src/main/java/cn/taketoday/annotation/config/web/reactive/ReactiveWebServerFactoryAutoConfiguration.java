@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -114,8 +114,8 @@ public class ReactiveWebServerFactoryAutoConfiguration {
               WebServerFactoryCustomizerBeanPostProcessor::new);
     }
 
-    private <T> void registerSyntheticBeanIfMissing(BeanDefinitionRegistry registry, String name,
-            Class<T> beanClass, Supplier<T> instanceSupplier) {
+    private <T> void registerSyntheticBeanIfMissing(BeanDefinitionRegistry registry,
+            String name, Class<T> beanClass, Supplier<T> instanceSupplier) {
       if (ObjectUtils.isEmpty(beanFactory.getBeanNamesForType(beanClass, true, false))) {
         RootBeanDefinition beanDefinition = new RootBeanDefinition(beanClass, instanceSupplier);
         beanDefinition.setSynthetic(true);

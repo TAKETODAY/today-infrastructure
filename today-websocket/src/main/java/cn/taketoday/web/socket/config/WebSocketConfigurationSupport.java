@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -34,9 +34,7 @@ import cn.taketoday.http.converter.HttpMessageConverter;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.stereotype.Component;
 import cn.taketoday.util.ReflectionUtils;
-import cn.taketoday.web.HandlerMapping;
 import cn.taketoday.web.config.WebMvcConfigurationSupport;
-import cn.taketoday.web.handler.AbstractHandlerMapping;
 import cn.taketoday.web.handler.method.ActionMappingAnnotationHandler;
 import cn.taketoday.web.handler.method.AnnotationHandlerFactory;
 import cn.taketoday.web.handler.method.ResolvableParameterFactory;
@@ -53,6 +51,7 @@ import cn.taketoday.web.socket.annotation.OnOpen;
 import cn.taketoday.web.socket.annotation.WebSocketHandlerDelegate;
 import cn.taketoday.web.socket.annotation.WebSocketHandlerMethod;
 import cn.taketoday.web.socket.annotation.WebSocketSessionParameterResolver;
+import cn.taketoday.web.socket.server.support.WebSocketHandlerMapping;
 import cn.taketoday.web.util.pattern.PathPattern;
 import cn.taketoday.web.util.pattern.PathPatternParser;
 
@@ -70,13 +69,13 @@ public class WebSocketConfigurationSupport {
   private DefaultWebSocketHandlerRegistry handlerRegistry;
 
   @Component
-  public HandlerMapping webSocketHandlerMapping(
+  public WebSocketHandlerMapping webSocketHandlerMapping(
           @Nullable WebMvcConfigurationSupport support,
           AnnotationWebSocketHandlerBuilder annotationWebSocketHandlerBuilder,
           ApplicationContext context) {
     DefaultWebSocketHandlerRegistry registry = getRegistry();
     onStartup(context, registry, annotationWebSocketHandlerBuilder);
-    AbstractHandlerMapping handlerMapping = registry.getHandlerMapping();
+    WebSocketHandlerMapping handlerMapping = registry.getHandlerMapping();
     if (support != null) {
       support.initHandlerMapping(handlerMapping);
     }
@@ -114,8 +113,7 @@ public class WebSocketConfigurationSupport {
     return handlerBuilder;
   }
 
-  protected void registerEndpointParameterStrategies(
-          List<EndpointParameterResolver> resolvers) { }
+  protected void registerEndpointParameterStrategies(List<EndpointParameterResolver> resolvers) { }
 
   @MissingBean
   MessageBodyEndpointParameterResolver messageBodyEndpointParameterResolver(
@@ -129,8 +127,7 @@ public class WebSocketConfigurationSupport {
   }
 
   protected void onStartup(ApplicationContext context,
-          WebSocketHandlerRegistry handlerRegistry,
-          AnnotationWebSocketHandlerBuilder annotationHandlerBuilder) {
+          WebSocketHandlerRegistry handlerRegistry, AnnotationWebSocketHandlerBuilder annotationHandlerBuilder) {
     AnnotationHandlerFactory factory = context.getBean(AnnotationHandlerFactory.class);
 
     ConfigurableBeanFactory beanFactory = context.unwrapFactory(ConfigurableBeanFactory.class);

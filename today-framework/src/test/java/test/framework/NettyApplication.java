@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -32,7 +32,6 @@ import cn.taketoday.context.event.EventListener;
 import cn.taketoday.core.io.ClassPathResource;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.framework.web.WebApplication;
-import cn.taketoday.framework.web.netty.EnableNettyHandling;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.MediaType;
 import cn.taketoday.util.ResourceUtils;
@@ -133,7 +132,6 @@ public class NettyApplication {
   }
 
   @Configuration
-  @EnableNettyHandling
   static class AppConfig implements WebSocketConfigurer {
 
     @Override

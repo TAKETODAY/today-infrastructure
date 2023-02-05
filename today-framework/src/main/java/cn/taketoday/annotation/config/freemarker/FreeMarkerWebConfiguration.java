@@ -20,7 +20,7 @@
 
 package cn.taketoday.annotation.config.freemarker;
 
-import cn.taketoday.annotation.config.web.servlet.WebMvcAutoConfiguration;
+import cn.taketoday.annotation.config.web.WebMvcAutoConfiguration;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.config.AutoConfigureAfter;
 import cn.taketoday.context.condition.ConditionalOnClass;

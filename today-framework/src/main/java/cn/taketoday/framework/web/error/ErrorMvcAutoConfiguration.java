@@ -23,10 +23,10 @@ package cn.taketoday.framework.web.error;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
+import cn.taketoday.annotation.config.web.WebMvcAutoConfiguration;
 import cn.taketoday.annotation.config.web.WebMvcProperties;
 import cn.taketoday.annotation.config.web.WebProperties;
 import cn.taketoday.annotation.config.web.servlet.DispatcherServletPath;
-import cn.taketoday.annotation.config.web.servlet.WebMvcAutoConfiguration;
 import cn.taketoday.aop.framework.autoproxy.AutoProxyUtils;
 import cn.taketoday.beans.BeansException;
 import cn.taketoday.beans.factory.ObjectProvider;

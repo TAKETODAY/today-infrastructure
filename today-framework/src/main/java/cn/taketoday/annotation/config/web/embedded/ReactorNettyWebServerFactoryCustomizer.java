@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -40,14 +40,14 @@ import io.netty.channel.ChannelOption;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-public class NettyWebServerFactoryCustomizer
+public class ReactorNettyWebServerFactoryCustomizer
         implements WebServerFactoryCustomizer<ReactorNettyReactiveWebServerFactory>, Ordered {
 
   private final Environment environment;
 
   private final ServerProperties serverProperties;
 
-  public NettyWebServerFactoryCustomizer(Environment environment, ServerProperties serverProperties) {
+  public ReactorNettyWebServerFactoryCustomizer(Environment environment, ServerProperties serverProperties) {
     this.environment = environment;
     this.serverProperties = serverProperties;
   }
@@ -61,7 +61,7 @@ public class NettyWebServerFactoryCustomizer
   public void customize(ReactorNettyReactiveWebServerFactory factory) {
     factory.setUseForwardHeaders(getOrDeduceUseForwardHeaders());
     PropertyMapper propertyMapper = PropertyMapper.get().alwaysApplyingWhenNonNull();
-    ServerProperties.ReactorNetty nettyProperties = serverProperties.getNetty();
+    ServerProperties.ReactorNetty nettyProperties = serverProperties.getReactorNetty();
 
     propertyMapper.from(nettyProperties::getIdleTimeout).whenNonNull().to(idleTimeout -> customizeIdleTimeout(factory, idleTimeout));
     propertyMapper.from(nettyProperties::getConnectionTimeout).whenNonNull().to(connectionTimeout -> customizeConnectionTimeout(factory, connectionTimeout));
@@ -86,7 +86,7 @@ public class NettyWebServerFactoryCustomizer
       propertyMapper.from(this.serverProperties.getMaxHttpRequestHeaderSize())
               .whenNonNull()
               .to(maxHttpRequestHeader -> httpRequestDecoderSpec.maxHeaderSize((int) maxHttpRequestHeader.toBytes()));
-      ServerProperties.ReactorNetty nettyProperties = this.serverProperties.getNetty();
+      ServerProperties.ReactorNetty nettyProperties = this.serverProperties.getReactorNetty();
       propertyMapper.from(nettyProperties.getMaxChunkSize())
               .whenNonNull()
               .to(maxChunkSize -> httpRequestDecoderSpec.maxChunkSize((int) maxChunkSize.toBytes()));
