@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -63,6 +63,8 @@ import cn.taketoday.test.util.ReflectionTestUtils;
 import cn.taketoday.util.DataSize;
 import cn.taketoday.web.client.ResponseErrorHandler;
 import cn.taketoday.web.client.RestTemplate;
+import io.netty.channel.socket.nio.NioServerSocketChannel;
+import io.netty.handler.logging.LogLevel;
 import io.undertow.UndertowOptions;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
@@ -353,14 +355,14 @@ class ServerPropertiesTests {
 
   @Test
   void testCustomizeNettyIdleTimeout() {
-    bind("server.netty.idle-timeout", "10s");
-    assertThat(this.properties.getNetty().getIdleTimeout()).isEqualTo(Duration.ofSeconds(10));
+    bind("server.reactor-netty.idle-timeout", "10s");
+    assertThat(this.properties.getReactorNetty().getIdleTimeout()).isEqualTo(Duration.ofSeconds(10));
   }
 
   @Test
   void testCustomizeNettyMaxKeepAliveRequests() {
-    bind("server.netty.max-keep-alive-requests", "100");
-    assertThat(this.properties.getNetty().getMaxKeepAliveRequests()).isEqualTo(100);
+    bind("server.reactor-netty.max-keep-alive-requests", "100");
+    assertThat(this.properties.getReactorNetty().getMaxKeepAliveRequests()).isEqualTo(100);
   }
 
   @Test
@@ -533,34 +535,84 @@ class ServerPropertiesTests {
   }
 
   @Test
-  @Deprecated(since = "3.0.0", forRemoval = true)
-  @SuppressWarnings("removal")
   void nettyMaxChunkSizeMatchesHttpDecoderSpecDefault() {
-    assertThat(this.properties.getNetty().getMaxChunkSize().toBytes())
+    assertThat(this.properties.getReactorNetty().getMaxChunkSize().toBytes())
             .isEqualTo(HttpDecoderSpec.DEFAULT_MAX_CHUNK_SIZE);
   }
 
   @Test
   void nettyMaxInitialLineLengthMatchesHttpDecoderSpecDefault() {
-    assertThat(this.properties.getNetty().getMaxInitialLineLength().toBytes())
+    assertThat(this.properties.getReactorNetty().getMaxInitialLineLength().toBytes())
             .isEqualTo(HttpDecoderSpec.DEFAULT_MAX_INITIAL_LINE_LENGTH);
   }
 
   @Test
   void nettyValidateHeadersMatchesHttpDecoderSpecDefault() {
-    assertThat(this.properties.getNetty().isValidateHeaders()).isEqualTo(HttpDecoderSpec.DEFAULT_VALIDATE_HEADERS);
+    assertThat(this.properties.getReactorNetty().isValidateHeaders()).isEqualTo(HttpDecoderSpec.DEFAULT_VALIDATE_HEADERS);
   }
 
   @Test
   void nettyH2cMaxContentLengthMatchesHttpDecoderSpecDefault() {
-    assertThat(this.properties.getNetty().getH2cMaxContentLength().toBytes())
+    assertThat(this.properties.getReactorNetty().getH2cMaxContentLength().toBytes())
             .isEqualTo(HttpRequestDecoderSpec.DEFAULT_H2C_MAX_CONTENT_LENGTH);
   }
 
   @Test
   void nettyInitialBufferSizeMatchesHttpDecoderSpecDefault() {
-    assertThat(this.properties.getNetty().getInitialBufferSize().toBytes())
+    assertThat(this.properties.getReactorNetty().getInitialBufferSize().toBytes())
             .isEqualTo(HttpDecoderSpec.DEFAULT_INITIAL_BUFFER_SIZE);
+  }
+
+  @Test
+  void nettyWorkThreadCount() {
+    assertThat(this.properties.getNetty().getWorkThreadCount()).isNull();
+
+    bind("server.netty.workThreadCount", "10");
+    assertThat(this.properties.getNetty().getWorkThreadCount()).isEqualTo(10);
+
+    bind("server.netty.work-thread-count", "100");
+    assertThat(this.properties.getNetty().getWorkThreadCount()).isEqualTo(100);
+  }
+
+  @Test
+  void nettyBossThreadCount() {
+    assertThat(this.properties.getNetty().getBossThreadCount()).isNull();
+    bind("server.netty.bossThreadCount", "10");
+    assertThat(this.properties.getNetty().getBossThreadCount()).isEqualTo(10);
+
+    bind("server.netty.boss-thread-count", "100");
+    assertThat(this.properties.getNetty().getBossThreadCount()).isEqualTo(100);
+  }
+
+  @Test
+  void nettyLoggingLevel() {
+    assertThat(this.properties.getNetty().getLoggingLevel()).isNull();
+
+    bind("server.netty.loggingLevel", "INFO");
+    assertThat(this.properties.getNetty().getLoggingLevel()).isEqualTo(LogLevel.INFO);
+
+    bind("server.netty.logging-level", "DEBUG");
+    assertThat(this.properties.getNetty().getLoggingLevel()).isEqualTo(LogLevel.DEBUG);
+  }
+
+  @Test
+  void nettySocketChannel() {
+    assertThat(this.properties.getNetty().getSocketChannel()).isNull();
+
+    bind("server.netty.socketChannel", "io.netty.channel.socket.nio.NioServerSocketChannel");
+    assertThat(this.properties.getNetty().getSocketChannel()).isEqualTo(NioServerSocketChannel.class);
+
+    bind("server.netty.socket-channel", "io.netty.channel.socket.nio.NioServerSocketChannel");
+    assertThat(this.properties.getNetty().getSocketChannel()).isEqualTo(NioServerSocketChannel.class);
+  }
+
+  @Test
+  void nettyFastThreadLocal() {
+    bind("server.netty.fastThreadLocal", "false");
+    assertThat(this.properties.getNetty().isFastThreadLocal()).isEqualTo(false);
+
+    bind("server.netty.fast-thread-local", "true");
+    assertThat(this.properties.getNetty().isFastThreadLocal()).isEqualTo(true);
   }
 
   private Connector getDefaultConnector() {

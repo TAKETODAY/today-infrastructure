@@ -59,7 +59,7 @@ public enum ApplicationType {
   public static final String REACTOR_INDICATOR_CLASS = "reactor.core.publisher.Flux";
   public static final String NETTY_INDICATOR_CLASS = "io.netty.bootstrap.ServerBootstrap";
 
-  static ApplicationType deduceFromClasspath() {
+  static ApplicationType fromClasspath() {
     if (ServletDetector.isPresent) {
       return ApplicationType.SERVLET_WEB;
     }

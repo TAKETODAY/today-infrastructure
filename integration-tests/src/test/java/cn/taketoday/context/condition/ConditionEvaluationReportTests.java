@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -29,7 +29,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.Iterator;
 import java.util.Map;
 
-import cn.taketoday.annotation.config.web.servlet.WebMvcAutoConfiguration;
+import cn.taketoday.annotation.config.web.WebMvcAutoConfiguration;
 import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.context.annotation.AnnotationConfigApplicationContext;

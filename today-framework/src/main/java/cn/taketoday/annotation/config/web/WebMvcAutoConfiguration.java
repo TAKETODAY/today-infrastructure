@@ -18,7 +18,7 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.annotation.config.web.servlet;
+package cn.taketoday.annotation.config.web;
 
 import java.lang.reflect.Method;
 import java.time.Duration;
@@ -28,13 +28,10 @@ import java.util.function.Consumer;
 
 import cn.taketoday.annotation.config.task.TaskExecutionAutoConfiguration;
 import cn.taketoday.annotation.config.validation.ValidationAutoConfiguration;
-import cn.taketoday.annotation.config.web.ConditionalOnEnabledResourceChain;
-import cn.taketoday.annotation.config.web.WebMvcProperties;
 import cn.taketoday.annotation.config.web.WebMvcProperties.Format;
-import cn.taketoday.annotation.config.web.WebMvcRegistrations;
-import cn.taketoday.annotation.config.web.WebProperties;
 import cn.taketoday.annotation.config.web.WebProperties.Resources;
 import cn.taketoday.annotation.config.web.WebProperties.Resources.Chain.Strategy;
+import cn.taketoday.annotation.config.web.servlet.DispatcherServletAutoConfiguration;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
 import cn.taketoday.beans.factory.ObjectProvider;

@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -139,7 +139,7 @@ public class TomcatWebServerFactoryCustomizer
 
   private void customizeProcessorCache(ConfigurableTomcatWebServerFactory factory, int processorCache) {
     factory.addConnectorCustomizers(connector -> {
-      if (connector.getProtocolHandler() instanceof AbstractProtocol protocol) {
+      if (connector.getProtocolHandler() instanceof AbstractProtocol<?> protocol) {
         protocol.setProcessorCache(processorCache);
       }
     });
@@ -247,7 +247,7 @@ public class TomcatWebServerFactoryCustomizer
   private void customizeMaxThreads(ConfigurableTomcatWebServerFactory factory, int maxThreads) {
     factory.addConnectorCustomizers(connector -> {
       ProtocolHandler handler = connector.getProtocolHandler();
-      if (handler instanceof AbstractProtocol protocol) {
+      if (handler instanceof AbstractProtocol<?> protocol) {
         protocol.setMaxThreads(maxThreads);
       }
     });
@@ -256,7 +256,7 @@ public class TomcatWebServerFactoryCustomizer
   private void customizeMinThreads(ConfigurableTomcatWebServerFactory factory, int minSpareThreads) {
     factory.addConnectorCustomizers(connector -> {
       ProtocolHandler handler = connector.getProtocolHandler();
-      if (handler instanceof AbstractProtocol protocol) {
+      if (handler instanceof AbstractProtocol<?> protocol) {
         protocol.setMinSpareThreads(minSpareThreads);
       }
     });
@@ -265,7 +265,7 @@ public class TomcatWebServerFactoryCustomizer
   private void customizeMaxHttpHeaderSize(ConfigurableTomcatWebServerFactory factory, int maxHttpHeaderSize) {
     factory.addConnectorCustomizers(connector -> {
       ProtocolHandler handler = connector.getProtocolHandler();
-      if (handler instanceof AbstractHttp11Protocol protocol) {
+      if (handler instanceof AbstractHttp11Protocol<?> protocol) {
         protocol.setMaxHttpHeaderSize(maxHttpHeaderSize);
       }
     });

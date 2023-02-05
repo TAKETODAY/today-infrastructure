@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -27,7 +27,6 @@ import java.util.Map;
 
 import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.web.HttpRequestHandler;
-import cn.taketoday.web.handler.AbstractHandlerMapping;
 import cn.taketoday.web.handler.SimpleUrlHandlerMapping;
 import cn.taketoday.web.socket.WebSocketHandler;
 import cn.taketoday.web.socket.server.support.WebSocketHandlerMapping;
@@ -69,7 +68,7 @@ public class DefaultWebSocketHandlerRegistry implements WebSocketHandlerRegistry
     return this.order;
   }
 
-  public AbstractHandlerMapping getHandlerMapping() {
+  public WebSocketHandlerMapping getHandlerMapping() {
     LinkedHashMap<String, Object> urlMap = new LinkedHashMap<>();
     for (DefaultWebSocketHandlerRegistration registration : this.registrations) {
       MultiValueMap<HttpRequestHandler, String> mappings = registration.getMappings();

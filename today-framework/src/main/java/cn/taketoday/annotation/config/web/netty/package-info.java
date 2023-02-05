@@ -18,21 +18,12 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.samples;
-
-import cn.taketoday.framework.InfraApplication;
-import cn.taketoday.framework.builder.ApplicationBuilder;
-
 /**
- * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @since 4.0 2022/10/20 13:10
+ * Configuration for netty web server.
  */
-@InfraApplication
-public class NettyDemoApplication {
+@NonNullApi
+@NonNullFields
+package cn.taketoday.annotation.config.web.netty;
 
-  public static void main(String[] args) {
-    ApplicationBuilder.from(NettyDemoApplication.class)
-            .run(args);
-  }
-
-}
+import cn.taketoday.lang.NonNullApi;
+import cn.taketoday.lang.NonNullFields;

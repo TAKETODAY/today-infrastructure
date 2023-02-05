@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -18,7 +18,7 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.annotation.config.web.servlet;
+package cn.taketoday.annotation.config.web;
 
 import org.junit.jupiter.api.Test;
 
@@ -44,7 +44,7 @@ import cn.taketoday.annotation.config.http.HttpMessageConvertersAutoConfiguratio
 import cn.taketoday.annotation.config.task.TaskExecutionAutoConfiguration;
 import cn.taketoday.annotation.config.validation.ValidationAutoConfiguration;
 import cn.taketoday.annotation.config.validation.ValidatorAdapter;
-import cn.taketoday.annotation.config.web.WebMvcRegistrations;
+import cn.taketoday.annotation.config.web.servlet.DispatcherServletAutoConfiguration;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;

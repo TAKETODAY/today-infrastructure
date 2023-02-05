@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -26,7 +26,6 @@ import cn.taketoday.cache.support.CaffeineCacheManager;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.framework.test.context.runner.ApplicationContextRunner;
-import cn.taketoday.test.classpath.ClassPathExclusions;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -37,7 +36,6 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Stephane Nicoll
  * @author Andy Wilkinson
  */
-@ClassPathExclusions("spring-context-support-*.jar")
 class ConditionalOnMissingBeanWithFilteredClasspathTests {
 
   private final ApplicationContextRunner contextRunner = new ApplicationContextRunner()

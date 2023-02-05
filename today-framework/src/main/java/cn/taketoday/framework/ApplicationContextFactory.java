@@ -89,7 +89,7 @@ public interface ApplicationContextFactory {
    * @return the factory that will instantiate the context class
    */
   static ApplicationContextFactory from(Supplier<ConfigurableApplicationContext> supplier) {
-    return (ApplicationType) -> supplier.get();
+    return (applicationType) -> supplier.get();
   }
 
 }

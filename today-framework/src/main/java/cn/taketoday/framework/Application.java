@@ -235,8 +235,8 @@ public class Application {
     Assert.notNull(primarySources, "PrimarySources is required");
     this.resourceLoader = resourceLoader;
     this.primarySources = CollectionUtils.newLinkedHashSet(primarySources);
+    this.applicationType = ApplicationType.fromClasspath();
     this.mainApplicationClass = deduceMainApplicationClass();
-    this.applicationType = ApplicationType.deduceFromClasspath();
     this.bootstrapRegistryInitializers = TodayStrategies.find(BootstrapRegistryInitializer.class);
     setInitializers(TodayStrategies.find(ApplicationContextInitializer.class));
     setListeners(TodayStrategies.find(ApplicationListener.class));
@@ -505,7 +505,7 @@ public class Application {
    * @see #setApplicationContextFactory(ApplicationContextFactory)
    */
   protected ConfigurableApplicationContext createApplicationContext() {
-    return this.applicationContextFactory.create(this.applicationType);
+    return applicationContextFactory.create(this.applicationType);
   }
 
   protected void prepareStartup(ApplicationArguments arguments) {

@@ -18,21 +18,16 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.samples;
+package cn.taketoday.framework.web.netty;
 
-import cn.taketoday.framework.InfraApplication;
-import cn.taketoday.framework.builder.ApplicationBuilder;
+import cn.taketoday.core.env.ConfigurableEnvironment;
 
 /**
+ * Specialization of {@link ConfigurableEnvironment} for netty application contexts.
+ *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @since 4.0 2022/10/20 13:10
+ * @since 4.0 2023/2/4 23:57
  */
-@InfraApplication
-public class NettyDemoApplication {
-
-  public static void main(String[] args) {
-    ApplicationBuilder.from(NettyDemoApplication.class)
-            .run(args);
-  }
+public interface ConfigurableNettyWebEnvironment extends ConfigurableEnvironment {
 
 }

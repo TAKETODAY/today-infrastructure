@@ -32,7 +32,7 @@ import cn.taketoday.core.type.AnnotatedTypeMetadata;
 import cn.taketoday.framework.ApplicationType;
 import cn.taketoday.framework.annotation.ConditionalOnWebApplication.Type;
 import cn.taketoday.framework.web.context.GenericWebServerApplicationContext;
-import cn.taketoday.framework.web.netty.NettyWebConfigurableEnvironment;
+import cn.taketoday.framework.web.netty.ConfigurableNettyWebEnvironment;
 import cn.taketoday.framework.web.reactive.context.ConfigurableReactiveWebEnvironment;
 import cn.taketoday.framework.web.reactive.context.ReactiveWebApplicationContext;
 import cn.taketoday.util.ClassUtils;
@@ -148,7 +148,7 @@ class OnWebApplicationCondition extends FilteringInfraCondition implements Order
   private ConditionOutcome isServletWebApplication(ConditionContext context) {
     var message = ConditionMessage.forCondition("");
     if (!ClassUtils.isPresent(ApplicationType.SERVLET_INDICATOR_CLASS, context.getClassLoader())) {
-      return ConditionOutcome.noMatch(message.didNotFind("reactor classes").atAll());
+      return ConditionOutcome.noMatch(message.didNotFind("servlet web application classes").atAll());
     }
     if (context.getEnvironment() instanceof ConfigurableWebEnvironment) {
       return ConditionOutcome.match(message.foundExactly("ConfigurableWebEnvironment"));
@@ -177,15 +177,18 @@ class OnWebApplicationCondition extends FilteringInfraCondition implements Order
     return ConditionOutcome.noMatch(message.because("not a reactive web application"));
   }
 
+  /**
+   * no Servlet classes
+   */
   private ConditionOutcome isNettyWebApplication(ConditionContext context) {
     var message = ConditionMessage.forCondition("");
 
-    if (ClassUtils.isPresent(ApplicationType.SERVLET_INDICATOR_CLASS, context.getClassLoader())) {
-      return ConditionOutcome.noMatch(message.foundExactly("servlet web application classes"));
+    if (context.getEnvironment() instanceof ConfigurableNettyWebEnvironment) {
+      return ConditionOutcome.match(message.foundExactly("NettyWebConfigurableEnvironment"));
     }
 
-    if (context.getEnvironment() instanceof NettyWebConfigurableEnvironment) {
-      return ConditionOutcome.match(message.foundExactly("NettyWebConfigurableEnvironment"));
+    if (ClassUtils.isPresent(ApplicationType.SERVLET_INDICATOR_CLASS, context.getClassLoader())) {
+      return ConditionOutcome.noMatch(message.foundExactly("servlet web application classes"));
     }
 
     ResourceLoader resourceLoader = context.getResourceLoader();

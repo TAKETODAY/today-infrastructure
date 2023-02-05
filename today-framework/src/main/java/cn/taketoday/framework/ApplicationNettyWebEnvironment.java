@@ -24,8 +24,7 @@ import cn.taketoday.context.properties.source.ConfigurationPropertySources;
 import cn.taketoday.core.env.ConfigurableEnvironment;
 import cn.taketoday.core.env.ConfigurablePropertyResolver;
 import cn.taketoday.core.env.PropertySources;
-import cn.taketoday.core.env.StandardEnvironment;
-import cn.taketoday.framework.web.netty.NettyWebConfigurableEnvironment;
+import cn.taketoday.framework.web.netty.StandardNettyWebEnvironment;
 
 /**
  * Specialization of {@link ConfigurableEnvironment} for netty web application contexts.
@@ -33,7 +32,7 @@ import cn.taketoday.framework.web.netty.NettyWebConfigurableEnvironment;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2023/2/4 23:38
  */
-class ApplicationNettyWebEnvironment extends StandardEnvironment implements NettyWebConfigurableEnvironment {
+class ApplicationNettyWebEnvironment extends StandardNettyWebEnvironment {
 
   @Override
   protected String doGetActiveProfilesProperty() {

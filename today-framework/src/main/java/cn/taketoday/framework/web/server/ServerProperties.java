@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -42,6 +42,9 @@ import cn.taketoday.session.config.CookieProperties;
 import cn.taketoday.session.config.SessionProperties;
 import cn.taketoday.util.DataSize;
 import cn.taketoday.util.StringUtils;
+import io.netty.channel.EventLoopGroup;
+import io.netty.channel.socket.ServerSocketChannel;
+import io.netty.handler.logging.LogLevel;
 import io.undertow.UndertowOptions;
 
 /**
@@ -131,6 +134,8 @@ public class ServerProperties {
 
   private final Jetty jetty = new Jetty();
 
+  private final Netty netty = new Netty();
+
   private final ReactorNetty reactorNetty = new ReactorNetty();
 
   private final Undertow undertow = new Undertow();
@@ -213,7 +218,11 @@ public class ServerProperties {
     return this.jetty;
   }
 
-  public ReactorNetty getNetty() {
+  public Netty getNetty() {
+    return netty;
+  }
+
+  public ReactorNetty getReactorNetty() {
     return this.reactorNetty;
   }
 
@@ -1333,6 +1342,87 @@ public class ServerProperties {
 
   /**
    * Netty properties.
+   */
+  public static class Netty {
+
+    /**
+     * the number of threads that will be used by
+     * {@link io.netty.util.concurrent.MultithreadEventExecutorGroup}
+     *
+     * For child {@link EventLoopGroup}
+     *
+     * @see io.netty.util.concurrent.MultithreadEventExecutorGroup
+     */
+    @Nullable
+    private Integer workThreadCount;
+
+    /**
+     * the number of threads that will be used by
+     * {@link io.netty.util.concurrent.MultithreadEventExecutorGroup}
+     *
+     * For parent {@link EventLoopGroup}
+     *
+     * @see io.netty.util.concurrent.MultithreadEventExecutorGroup
+     */
+    @Nullable
+    private Integer bossThreadCount;
+
+    @Nullable
+    private Class<? extends ServerSocketChannel> socketChannel;
+
+    @Nullable
+    private LogLevel loggingLevel;
+
+    private boolean fastThreadLocal = true;
+
+    public void setBossThreadCount(@Nullable Integer bossThreadCount) {
+      this.bossThreadCount = bossThreadCount;
+    }
+
+    public void setLoggingLevel(@Nullable LogLevel loggingLevel) {
+      this.loggingLevel = loggingLevel;
+    }
+
+    public void setSocketChannel(@Nullable Class<? extends ServerSocketChannel> socketChannel) {
+      this.socketChannel = socketChannel;
+    }
+
+    public void setWorkThreadCount(@Nullable Integer workThreadCount) {
+      this.workThreadCount = workThreadCount;
+    }
+
+    public void setFastThreadLocal(boolean fastThreadLocal) {
+      this.fastThreadLocal = fastThreadLocal;
+    }
+
+    @Nullable
+    public Class<? extends ServerSocketChannel> getSocketChannel() {
+      return socketChannel;
+    }
+
+    @Nullable
+    public Integer getBossThreadCount() {
+      return bossThreadCount;
+    }
+
+    @Nullable
+    public Integer getWorkThreadCount() {
+      return workThreadCount;
+    }
+
+    @Nullable
+    public LogLevel getLoggingLevel() {
+      return loggingLevel;
+    }
+
+    public boolean isFastThreadLocal() {
+      return fastThreadLocal;
+    }
+
+  }
+
+  /**
+   * ReactorNetty properties.
    */
   public static class ReactorNetty {
 
