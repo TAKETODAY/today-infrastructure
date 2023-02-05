@@ -40,6 +40,7 @@ import cn.taketoday.framework.web.netty.NettyChannelInitializer;
 import cn.taketoday.framework.web.netty.NettyRequestConfig;
 import cn.taketoday.framework.web.netty.NettyWebServerFactory;
 import cn.taketoday.framework.web.server.ServerProperties;
+import cn.taketoday.framework.web.server.WebServerFactory;
 import cn.taketoday.stereotype.Component;
 import cn.taketoday.util.PropertyMapper;
 import cn.taketoday.web.RequestContextHolder;
@@ -74,7 +75,7 @@ public class NettyWebServerFactoryAutoConfiguration {
    */
   @Component
   @ConditionalOnMissingBean
-  static NettyWebServerFactory nettyWebServerFactory(ServerProperties serverProperties,
+  static WebServerFactory nettyWebServerFactory(ServerProperties serverProperties,
           NettyChannelInitializer nettyChannelInitializer) {
     NettyWebServerFactory factory = new NettyWebServerFactory();
     factory.setNettyChannelInitializer(nettyChannelInitializer);
