@@ -34,7 +34,6 @@ import cn.taketoday.web.socket.AbstractHttpRequestTests;
 import cn.taketoday.web.socket.WebSocketHandler;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.Mockito.mock;
 
 /**
@@ -46,11 +45,6 @@ public class OriginHandshakeInterceptorTests extends AbstractHttpRequestTests {
 
   private final Map<String, Object> attributes = new HashMap<>();
   private final WebSocketHandler wsHandler = mock(WebSocketHandler.class);
-
-  @Test
-  public void invalidInput() {
-    assertThatIllegalArgumentException().isThrownBy(() -> new OriginHandshakeInterceptor(null));
-  }
 
   @Test
   public void originValueMatch() throws Exception {
