@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -20,7 +20,15 @@
 
 package cn.taketoday.web.socket;
 
+import java.io.IOException;
+
 /**
+ * A convenient base class for {@link WebSocketHandler} implementations
+ * that process text messages only.
+ *
+ * <p>Binary messages are rejected with {@link CloseStatus#NOT_ACCEPTABLE}.
+ * All other methods have empty implementations.
+ *
  * @author TODAY 2021/5/6 18:07
  * @since 3.0.1
  */
@@ -28,7 +36,12 @@ public class TextWebSocketHandler extends WebSocketHandler {
 
   @Override
   protected final void handleBinaryMessage(WebSocketSession session, BinaryMessage message) {
-    throwNotSupportMessage(message);
+    try {
+      session.close(CloseStatus.NOT_ACCEPTABLE.withReason("Binary messages not supported"));
+    }
+    catch (IOException ex) {
+      // ignore
+    }
   }
 
 }

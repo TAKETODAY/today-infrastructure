@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -28,11 +28,11 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import cn.taketoday.context.Lifecycle;
 import cn.taketoday.http.HttpMethod;
 import cn.taketoday.http.HttpStatus;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.lang.TodayStrategies;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.LogFormatUtils;
@@ -55,7 +55,7 @@ import cn.taketoday.web.socket.server.standard.WebSphereRequestUpgradeStrategy;
 import static cn.taketoday.util.ClassUtils.isPresent;
 
 /**
- * A base class for {@link HandshakeHandler} implementations, independent of the Servlet API.
+ * A base class for {@link HandshakeHandler} implementations.
  *
  * <p>Performs initial validation of the WebSocket handshake request - possibly rejecting it
  * through the appropriate HTTP status code - while also allowing its subclasses to override
@@ -69,12 +69,13 @@ import static cn.taketoday.util.ClassUtils.isPresent;
  *
  * @author Rossen Stoyanchev
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see JettyRequestUpgradeStrategy
  * @see TomcatRequestUpgradeStrategy
  * @see UndertowRequestUpgradeStrategy
  * @since 4.0
  */
-public abstract class AbstractHandshakeHandler implements HandshakeHandler, Lifecycle {
+public abstract class AbstractHandshakeHandler implements HandshakeHandler {
 
   private static final boolean tomcatWsPresent;
 
@@ -97,8 +98,6 @@ public abstract class AbstractHandshakeHandler implements HandshakeHandler, Life
   private final RequestUpgradeStrategy requestUpgradeStrategy;
 
   private final List<String> supportedProtocols = new ArrayList<>();
-
-  private volatile boolean running;
 
   /**
    * Default constructor that auto-detects and instantiates a
@@ -150,39 +149,6 @@ public abstract class AbstractHandshakeHandler implements HandshakeHandler, Life
    */
   public String[] getSupportedProtocols() {
     return StringUtils.toStringArray(this.supportedProtocols);
-  }
-
-  @Override
-  public void start() {
-    if (!isRunning()) {
-      this.running = true;
-      doStart();
-    }
-  }
-
-  protected void doStart() {
-    if (this.requestUpgradeStrategy instanceof Lifecycle) {
-      ((Lifecycle) this.requestUpgradeStrategy).start();
-    }
-  }
-
-  @Override
-  public void stop() {
-    if (isRunning()) {
-      this.running = false;
-      doStop();
-    }
-  }
-
-  protected void doStop() {
-    if (this.requestUpgradeStrategy instanceof Lifecycle) {
-      ((Lifecycle) this.requestUpgradeStrategy).stop();
-    }
-  }
-
-  @Override
-  public boolean isRunning() {
-    return this.running;
   }
 
   @Override
@@ -366,6 +332,10 @@ public abstract class AbstractHandshakeHandler implements HandshakeHandler, Life
   }
 
   private static RequestUpgradeStrategy initRequestUpgradeStrategy() {
+    var upgradeStrategy = TodayStrategies.getFirst(RequestUpgradeStrategy.class, null);
+    if (upgradeStrategy != null) {
+      return upgradeStrategy;
+    }
     if (tomcatWsPresent) {
       return new TomcatRequestUpgradeStrategy();
     }

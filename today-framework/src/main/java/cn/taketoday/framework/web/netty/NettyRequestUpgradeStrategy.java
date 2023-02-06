@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -50,7 +50,7 @@ public class NettyRequestUpgradeStrategy implements RequestUpgradeStrategy {
 
   private static final String[] SUPPORTED_VERSIONS = new String[] { "13" };
 
-  protected WebSocketSession createSession(RequestContext context, WebSocketHandler handler) {
+  protected WebSocketSession createSession(RequestContext context) {
     if (!(context instanceof NettyRequestContext nettyContext)) {
       throw new IllegalStateException("not running in netty");
     }
@@ -75,12 +75,12 @@ public class NettyRequestUpgradeStrategy implements RequestUpgradeStrategy {
           List<WebSocketExtension> selectedExtensions, WebSocketHandler wsHandler,
           Map<String, Object> attributes) throws HandshakeFailureException {
 
-    WebSocketSession session = createSession(context, wsHandler);
+    WebSocketSession session = createSession(context);
 
     NettyRequestContext nettyContext = (NettyRequestContext) context; // just cast
     FullHttpRequest request = nettyContext.nativeRequest();
     ChannelHandlerContext channelContext = nettyContext.getChannelContext();
-    var wsFactory = new WebSocketServerHandshakerFactory(request.uri(), null, true); // TODO subprotocols
+    var wsFactory = new WebSocketServerHandshakerFactory(request.uri(), null, true);
     WebSocketServerHandshaker handShaker = wsFactory.newHandshaker(request);
     Channel channel = channelContext.channel();
     if (handShaker == null) {

@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -163,7 +163,7 @@ public class ApplicationJsonEnvironmentPostProcessor implements EnvironmentPostP
   }
 
   private String findPropertySource(PropertySources sources) {
-    if (ClassUtils.isPresent(SERVLET_ENVIRONMENT_CLASS)) {
+    if (ClassUtils.isPresent(SERVLET_ENVIRONMENT_CLASS, getClass().getClassLoader())) {
       PropertySource<?> servletPropertySource = sources.stream()
               .filter(source -> SERVLET_ENVIRONMENT_PROPERTY_SOURCES.contains(source.getName()))
               .findFirst()

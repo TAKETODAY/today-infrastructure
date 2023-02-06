@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -20,7 +20,6 @@
 
 package cn.taketoday.web.socket.server.support;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashSet;
@@ -28,7 +27,6 @@ import java.util.List;
 import java.util.Map;
 
 import cn.taketoday.http.HttpStatus;
-import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
@@ -61,9 +59,9 @@ public class OriginHandshakeInterceptor implements HandshakeInterceptor {
   /**
    * Constructor using the specified allowed origin values.
    *
-   * @see #setAllowedOrigins(Collection)
+   * @see #setAllowedOrigins(List)
    */
-  public OriginHandshakeInterceptor(Collection<String> allowedOrigins) {
+  public OriginHandshakeInterceptor(@Nullable List<String> allowedOrigins) {
     setAllowedOrigins(allowedOrigins);
   }
 
@@ -76,24 +74,18 @@ public class OriginHandshakeInterceptor implements HandshakeInterceptor {
    * instead.
    *
    * <p>By default, no origins are allowed. When
-   * {@link #setAllowedOriginPatterns(Collection) allowedOriginPatterns} is also
+   * {@link #setAllowedOriginPatterns(List) allowedOriginPatterns} is also
    * set, then that takes precedence over this property.
    *
-   * <p>Note when SockJS is enabled and origins are restricted, transport types
-   * that do not allow to check request origin (Iframe based transports) are
-   * disabled. As a consequence, IE 6 to 9 are not supported when origins are
-   * restricted.
-   *
-   * @see #setAllowedOriginPatterns(Collection)
+   * @see #setAllowedOriginPatterns(List)
    * @see <a href="https://tools.ietf.org/html/rfc6454">RFC 6454: The Web Origin Concept</a>
    */
-  public void setAllowedOrigins(Collection<String> allowedOrigins) {
-    Assert.notNull(allowedOrigins, "Allowed origins Collection must not be null");
-    this.corsConfiguration.setAllowedOrigins(new ArrayList<>(allowedOrigins));
+  public void setAllowedOrigins(@Nullable List<String> allowedOrigins) {
+    corsConfiguration.setAllowedOrigins(allowedOrigins);
   }
 
   /**
-   * Return the {@link #setAllowedOriginPatterns(Collection) configured} allowed origins.
+   * Return the {@link #setAllowedOriginPatterns(List) configured} allowed origins.
    */
   public Collection<String> getAllowedOrigins() {
     List<String> allowedOrigins = this.corsConfiguration.getAllowedOrigins();
@@ -102,33 +94,33 @@ public class OriginHandshakeInterceptor implements HandshakeInterceptor {
   }
 
   /**
-   * Alternative to {@link #setAllowedOrigins(Collection)} that supports more
+   * Alternative to {@link #setAllowedOrigins(List)} that supports more
    * flexible patterns for specifying the origins for which cross-origin
    * requests are allowed from a browser. Please, refer to
    * {@link CorsConfiguration#setAllowedOriginPatterns(List)} for format
    * details and other considerations.
    * <p>By default this is not set.
    */
-  public void setAllowedOriginPatterns(Collection<String> allowedOriginPatterns) {
-    Assert.notNull(allowedOriginPatterns, "Allowed origin patterns Collection must not be null");
-    this.corsConfiguration.setAllowedOriginPatterns(new ArrayList<>(allowedOriginPatterns));
+  public void setAllowedOriginPatterns(@Nullable List<String> allowedOriginPatterns) {
+    this.corsConfiguration.setAllowedOriginPatterns(allowedOriginPatterns);
   }
 
   /**
-   * Return the {@link #setAllowedOriginPatterns(Collection) configured} allowed origin patterns.
+   * Return the {@link #setAllowedOriginPatterns(List) configured} allowed origin patterns.
    */
   public Collection<String> getAllowedOriginPatterns() {
     List<String> allowedOriginPatterns = this.corsConfiguration.getAllowedOriginPatterns();
-    return (CollectionUtils.isEmpty(allowedOriginPatterns) ? Collections.emptySet() :
-            Collections.unmodifiableSet(new LinkedHashSet<>(allowedOriginPatterns)));
+    return CollectionUtils.isEmpty(allowedOriginPatterns)
+           ? Collections.emptySet()
+           : Collections.unmodifiableSet(new LinkedHashSet<>(allowedOriginPatterns));
   }
 
   @Override
   public boolean beforeHandshake(RequestContext request,
-          WebSocketHandler wsHandler, Map<String, Object> attributes) throws Exception {
+          WebSocketHandler wsHandler, Map<String, Object> attributes) {
 
-    if (!WebUtils.isSameOrigin(request) &&
-            this.corsConfiguration.checkOrigin(request.getHeaders().getOrigin()) == null) {
+    if (!WebUtils.isSameOrigin(request)
+            && corsConfiguration.checkOrigin(request.getHeaders().getOrigin()) == null) {
       request.setStatus(HttpStatus.FORBIDDEN);
       if (logger.isDebugEnabled()) {
         logger.debug("Handshake request rejected, Origin header value {} not allowed", request.getHeaders().getOrigin());

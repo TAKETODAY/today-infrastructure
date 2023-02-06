@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -36,7 +36,6 @@ import cn.taketoday.core.conversion.support.DefaultConversionService;
 import cn.taketoday.format.support.ApplicationConversionService;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.web.ServletDetector;
 import cn.taketoday.web.socket.Message;
@@ -45,12 +44,15 @@ import cn.taketoday.web.socket.WebSocketHandler;
 import jakarta.websocket.server.ServerEndpoint;
 import jakarta.websocket.server.ServerEndpointConfig;
 
+import static cn.taketoday.util.ClassUtils.isPresent;
+
 /**
  * @author TODAY 2021/5/12 23:30
  * @since 3.0.1
  */
 public class AnnotationWebSocketHandlerBuilder implements ArraySizeTrimmer {
-  protected static boolean isJettyPresent = ClassUtils.isPresent("org.eclipse.jetty.websocket.api.Session");
+  protected static boolean isJettyPresent = isPresent("org.eclipse.jetty.websocket.api.Session",
+          AnnotationWebSocketHandlerBuilder.class.getClassLoader());
   protected final ArrayList<EndpointParameterResolver> resolvers = new ArrayList<>(16);
   protected boolean supportPartialMessage;
 

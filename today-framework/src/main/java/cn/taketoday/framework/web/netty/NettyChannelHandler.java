@@ -17,6 +17,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.framework.web.netty;
 
 import java.nio.ByteBuffer;
@@ -60,17 +61,14 @@ import io.netty.util.ReferenceCountUtil;
  */
 public class NettyChannelHandler extends DispatcherHandler implements ChannelInboundHandler {
   private static final boolean websocketPresent = ClassUtils.isPresent(
-          "cn.taketoday.web.socket.Message");
+          "cn.taketoday.web.socket.Message", NettyChannelHandler.class.getClassLoader());
 
-  protected final ApplicationContext context;
   protected final NettyRequestConfig requestConfig;
 
-  public NettyChannelHandler(
-          NettyRequestConfig requestConfig, ApplicationContext context) {
+  public NettyChannelHandler(NettyRequestConfig requestConfig, ApplicationContext context) {
     super(context);
     Assert.notNull(context, "ApplicationContext is required");
     Assert.notNull(requestConfig, "NettyRequestConfig is required");
-    this.context = context;
     this.requestConfig = requestConfig;
     init();
   }
@@ -108,7 +106,7 @@ public class NettyChannelHandler extends DispatcherHandler implements ChannelInb
   }
 
   protected NettyRequestContext createContext(ChannelHandlerContext ctx, FullHttpRequest httpRequest) {
-    return new NettyRequestContext(context, ctx, httpRequest, requestConfig);
+    return new NettyRequestContext(getApplicationContext(), ctx, httpRequest, requestConfig);
   }
 
   @Override

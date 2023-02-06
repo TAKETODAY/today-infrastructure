@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -20,33 +20,24 @@
 
 package cn.taketoday.web.socket.server.support;
 
-import cn.taketoday.web.servlet.ServletContextAware;
 import cn.taketoday.web.socket.server.RequestUpgradeStrategy;
-import jakarta.servlet.ServletContext;
 
 /**
  * A default {@link cn.taketoday.web.socket.server.HandshakeHandler} implementation,
- * extending {@link AbstractHandshakeHandler} with Servlet-specific initialization support.
+ * extending {@link AbstractHandshakeHandler} support.
  * See {@link AbstractHandshakeHandler}'s javadoc for details on supported servers etc.
  *
  * @author Rossen Stoyanchev
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-public class DefaultHandshakeHandler extends AbstractHandshakeHandler implements ServletContextAware {
+public class DefaultHandshakeHandler extends AbstractHandshakeHandler {
 
   public DefaultHandshakeHandler() { }
 
   public DefaultHandshakeHandler(RequestUpgradeStrategy requestUpgradeStrategy) {
     super(requestUpgradeStrategy);
-  }
-
-  @Override
-  public void setServletContext(ServletContext servletContext) {
-    RequestUpgradeStrategy strategy = getRequestUpgradeStrategy();
-    if (strategy instanceof ServletContextAware) {
-      ((ServletContextAware) strategy).setServletContext(servletContext);
-    }
   }
 
 }

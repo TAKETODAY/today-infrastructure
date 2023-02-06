@@ -51,6 +51,8 @@ import cn.taketoday.web.socket.annotation.OnOpen;
 import cn.taketoday.web.socket.annotation.WebSocketHandlerDelegate;
 import cn.taketoday.web.socket.annotation.WebSocketHandlerMethod;
 import cn.taketoday.web.socket.annotation.WebSocketSessionParameterResolver;
+import cn.taketoday.web.socket.server.RequestUpgradeStrategy;
+import cn.taketoday.web.socket.server.support.DefaultHandshakeHandler;
 import cn.taketoday.web.socket.server.support.WebSocketHandlerMapping;
 import cn.taketoday.web.util.pattern.PathPattern;
 import cn.taketoday.web.util.pattern.PathPatternParser;
@@ -65,29 +67,24 @@ import cn.taketoday.web.util.pattern.PathPatternParser;
  */
 public class WebSocketConfigurationSupport {
 
-  @Nullable
-  private DefaultWebSocketHandlerRegistry handlerRegistry;
-
   @Component
-  public WebSocketHandlerMapping webSocketHandlerMapping(
+  public WebSocketHandlerMapping webSocketHandlerMapping(ApplicationContext context,
           @Nullable WebMvcConfigurationSupport support,
-          AnnotationWebSocketHandlerBuilder annotationWebSocketHandlerBuilder,
-          ApplicationContext context) {
-    DefaultWebSocketHandlerRegistry registry = getRegistry();
-    onStartup(context, registry, annotationWebSocketHandlerBuilder);
+          AnnotationWebSocketHandlerBuilder handlerBuilder,
+          @Nullable RequestUpgradeStrategy requestUpgradeStrategy) {
+
+    DefaultWebSocketHandlerRegistry registry = new DefaultWebSocketHandlerRegistry();
+    if (requestUpgradeStrategy != null) {
+      registry.setHandshakeHandler(new DefaultHandshakeHandler(requestUpgradeStrategy));
+    }
+
+    registerWebSocketHandlers(registry);
+    onStartup(context, registry, handlerBuilder);
     WebSocketHandlerMapping handlerMapping = registry.getHandlerMapping();
     if (support != null) {
       support.initHandlerMapping(handlerMapping);
     }
     return handlerMapping;
-  }
-
-  private DefaultWebSocketHandlerRegistry getRegistry() {
-    if (this.handlerRegistry == null) {
-      this.handlerRegistry = new DefaultWebSocketHandlerRegistry();
-      registerWebSocketHandlers(this.handlerRegistry);
-    }
-    return this.handlerRegistry;
   }
 
   protected void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
@@ -127,7 +124,7 @@ public class WebSocketConfigurationSupport {
   }
 
   protected void onStartup(ApplicationContext context,
-          WebSocketHandlerRegistry handlerRegistry, AnnotationWebSocketHandlerBuilder annotationHandlerBuilder) {
+          WebSocketHandlerRegistry handlerRegistry, AnnotationWebSocketHandlerBuilder handlerBuilder) {
     AnnotationHandlerFactory factory = context.getBean(AnnotationHandlerFactory.class);
 
     ConfigurableBeanFactory beanFactory = context.unwrapFactory(ConfigurableBeanFactory.class);
@@ -136,7 +133,7 @@ public class WebSocketConfigurationSupport {
       BeanDefinition merged = beanFactory.getMergedBeanDefinition(beanName);
       if (!merged.isAbstract() && merged instanceof RootBeanDefinition root) {
         if (isEndpoint(context, root, beanName)) {
-          registerEndpoint(beanName, root, context, factory, annotationHandlerBuilder, handlerRegistry);
+          registerEndpoint(beanName, root, context, factory, handlerBuilder, handlerRegistry);
         }
       }
     }
