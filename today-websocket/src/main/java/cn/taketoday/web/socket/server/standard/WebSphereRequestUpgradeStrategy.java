@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -34,7 +34,7 @@ import jakarta.websocket.server.ServerEndpointConfig;
  * {@link ServerContainer} you can use
  * {@link ServletServerContainerFactoryBean} in XML configuration or, when using
  * Java configuration, access the container instance through the
- * "javax.websocket.server.ServerContainer" ServletContext attribute.
+ * "jakarta.websocket.server.ServerContainer" ServletContext attribute.
  *
  * @author Rossen Stoyanchev
  * @author Juergen Hoeller

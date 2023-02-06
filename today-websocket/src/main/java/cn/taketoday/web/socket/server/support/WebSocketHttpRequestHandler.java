@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -25,46 +25,33 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import cn.taketoday.context.Lifecycle;
-import cn.taketoday.http.server.ServerHttpRequest;
-import cn.taketoday.http.server.ServerHttpResponse;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.web.HttpRequestHandler;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.servlet.ServletContextAware;
 import cn.taketoday.web.socket.WebSocketHandler;
 import cn.taketoday.web.socket.server.HandshakeFailureException;
 import cn.taketoday.web.socket.server.HandshakeHandler;
 import cn.taketoday.web.socket.server.HandshakeInterceptor;
-import jakarta.servlet.ServletContext;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 
 /**
  * A {@link HttpRequestHandler} for processing WebSocket handshake requests.
  *
  * <p>This is the main class to use when configuring a server WebSocket at a specific URL.
- * It is a very thin wrapper around a {@link WebSocketHandler} and a {@link HandshakeHandler},
- * also adapting the {@link HttpServletRequest} and {@link HttpServletResponse} to
- * {@link ServerHttpRequest} and {@link ServerHttpResponse}, respectively.
+ * It is a very thin wrapper around a {@link WebSocketHandler} and a {@link HandshakeHandler}.
  *
  * @author Rossen Stoyanchev
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-public class WebSocketHttpRequestHandler implements HttpRequestHandler, Lifecycle, ServletContextAware {
-
+public class WebSocketHttpRequestHandler implements HttpRequestHandler {
   private static final Logger logger = LoggerFactory.getLogger(WebSocketHttpRequestHandler.class);
 
   private final WebSocketHandler wsHandler;
-
   private final HandshakeHandler handshakeHandler;
-
-  private final List<HandshakeInterceptor> interceptors = new ArrayList<>();
-
-  private volatile boolean running;
+  private final ArrayList<HandshakeInterceptor> interceptors = new ArrayList<>();
 
   public WebSocketHttpRequestHandler(WebSocketHandler wsHandler) {
     this(wsHandler, new DefaultHandshakeHandler());
@@ -108,42 +95,10 @@ public class WebSocketHttpRequestHandler implements HttpRequestHandler, Lifecycl
     return this.interceptors;
   }
 
-  @Override
-  public void setServletContext(ServletContext servletContext) {
-    if (this.handshakeHandler instanceof ServletContextAware) {
-      ((ServletContextAware) this.handshakeHandler).setServletContext(servletContext);
-    }
-  }
-
-  @Override
-  public void start() {
-    if (!isRunning()) {
-      this.running = true;
-      if (this.handshakeHandler instanceof Lifecycle) {
-        ((Lifecycle) this.handshakeHandler).start();
-      }
-    }
-  }
-
-  @Override
-  public void stop() {
-    if (isRunning()) {
-      this.running = false;
-      if (this.handshakeHandler instanceof Lifecycle) {
-        ((Lifecycle) this.handshakeHandler).stop();
-      }
-    }
-  }
-
-  @Override
-  public boolean isRunning() {
-    return this.running;
-  }
-
   @Nullable
   @Override
   public Object handleRequest(RequestContext request) {
-    HandshakeInterceptorChain chain = new HandshakeInterceptorChain(this.interceptors, this.wsHandler);
+    HandshakeInterceptorChain chain = new HandshakeInterceptorChain(interceptors, wsHandler);
     HandshakeFailureException failure = null;
 
     try {
@@ -154,7 +109,7 @@ public class WebSocketHttpRequestHandler implements HttpRequestHandler, Lifecycl
       if (!chain.applyBeforeHandshake(request, attributes)) {
         return NONE_RETURN_VALUE;
       }
-      this.handshakeHandler.doHandshake(request, this.wsHandler, attributes);
+      handshakeHandler.doHandshake(request, wsHandler, attributes);
       chain.applyAfterHandshake(request, null);
     }
     catch (HandshakeFailureException ex) {

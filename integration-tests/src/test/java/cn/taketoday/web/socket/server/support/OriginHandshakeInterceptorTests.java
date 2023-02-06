@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -27,8 +27,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ConcurrentSkipListSet;
 
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpStatus;
@@ -94,9 +92,7 @@ public class OriginHandshakeInterceptorTests extends AbstractHttpRequestTests {
   public void originNoMatchWithNullHostileCollection() throws Exception {
     this.servletRequest.addHeader(HttpHeaders.ORIGIN, "http://www.mydomain4.example/");
     OriginHandshakeInterceptor interceptor = new OriginHandshakeInterceptor();
-    Set<String> allowedOrigins = new ConcurrentSkipListSet<>();
-    allowedOrigins.add("https://mydomain1.example");
-    interceptor.setAllowedOrigins(allowedOrigins);
+    interceptor.setAllowedOrigins(List.of("https://mydomain1.example"));
     assertThat(interceptor.beforeHandshake(request, wsHandler, attributes)).isFalse();
     assertThat(HttpStatus.FORBIDDEN.value()).isEqualTo(servletResponse.getStatus());
   }

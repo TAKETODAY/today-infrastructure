@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -32,33 +32,33 @@ import cn.taketoday.context.annotation.Import;
  * Add this annotation to an {@code @Configuration} class to configure
  * processing WebSocket requests. A typical configuration would look like this:
  *
- * <pre class="code">
- * &#064;Configuration
- * &#064;EnableWebSocket
- * public class MyWebSocketConfig {
+ * <pre>{@code
+ * @Configuration
+ * @EnableWebSocket
+ * public class AppConfig {
  *
  * }
- * </pre>
+ * }</pre>
  *
  * <p>Customize the imported configuration by implementing the
  * {@link WebSocketConfigurer} interface:
  *
- * <pre class="code">
- * &#064;Configuration
- * &#064;EnableWebSocket
- * public class MyConfiguration implements WebSocketConfigurer {
+ * <pre>{@code
  *
- * 	   &#064;Override
- * 	   public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
- *         registry.addHandler(echoWebSocketHandler(), "/echo").withSockJS();
+ * @Configuration
+ * @EnableWebSocket
+ * public class AppConfig implements WebSocketConfigurer {
+ *
+ *     @Override
+ *     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
+ *         registry.addHandler(echoWebSocketHandler(), "/echo");
  *     }
  *
- * 	   &#064;Override
- * 	   public WebSocketHandler echoWebSocketHandler() {
+ *     public WebSocketHandler echoWebSocketHandler() {
  *         return new EchoWebSocketHandler();
  *     }
  * }
- * </pre>
+ * }</pre>
  *
  * @author Rossen Stoyanchev
  * @since 4.0

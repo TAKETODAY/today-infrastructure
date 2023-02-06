@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -48,6 +48,7 @@ import cn.taketoday.web.multipart.Multipart;
  * @author Juergen Hoeller
  * @author Sebastien Deleuze
  * @author Sam Brannen
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  */
 public abstract class WebUtils {
   public static final String ERROR_EXCEPTION_ATTRIBUTE = WebUtils.class.getName() + "-context-throwable";

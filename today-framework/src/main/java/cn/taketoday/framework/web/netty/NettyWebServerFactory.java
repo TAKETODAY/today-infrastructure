@@ -59,10 +59,10 @@ public class NettyWebServerFactory
   private static final Logger log = LoggerFactory.getLogger(NettyWebServer.class);
 
   static boolean epollPresent = ClassUtils.isPresent(
-          "io.netty.channel.epoll.EpollServerSocketChannel");
+          "io.netty.channel.epoll.EpollServerSocketChannel", NettyWebServerFactory.class.getClassLoader());
 
   static boolean kQueuePresent = ClassUtils.isPresent(
-          "io.netty.channel.kqueue.KQueueServerSocketChannel");
+          "io.netty.channel.kqueue.KQueueServerSocketChannel", NettyWebServerFactory.class.getClassLoader());
 
   /**
    * the number of threads that will be used by

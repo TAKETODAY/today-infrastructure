@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -23,6 +23,7 @@ package cn.taketoday.web.socket.config;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 import cn.taketoday.core.LinkedMultiValueMap;
 import cn.taketoday.core.MultiValueMap;
@@ -107,7 +108,7 @@ public abstract class AbstractWebSocketHandlerRegistration<M> implements WebSock
   protected HandshakeInterceptor[] getInterceptors() {
     List<HandshakeInterceptor> interceptors = new ArrayList<>(this.interceptors.size() + 1);
     interceptors.addAll(this.interceptors);
-    OriginHandshakeInterceptor interceptor = new OriginHandshakeInterceptor(this.allowedOrigins);
+    OriginHandshakeInterceptor interceptor = new OriginHandshakeInterceptor(allowedOrigins);
     if (!ObjectUtils.isEmpty(this.allowedOriginPatterns)) {
       interceptor.setAllowedOriginPatterns(this.allowedOriginPatterns);
     }
@@ -119,17 +120,20 @@ public abstract class AbstractWebSocketHandlerRegistration<M> implements WebSock
     M mappings = createMappings();
     HandshakeHandler handshakeHandler = getOrCreateHandshakeHandler();
     HandshakeInterceptor[] interceptors = getInterceptors();
-    this.handlerMap.forEach((wsHandler, paths) -> {
+
+    for (Map.Entry<WebSocketHandler, List<String>> entry : handlerMap.entrySet()) {
+      List<String> paths = entry.getValue();
+      WebSocketHandler wsHandler = entry.getKey();
       for (String path : paths) {
         addWebSocketHandlerMapping(mappings, wsHandler, handshakeHandler, interceptors, path);
       }
-    });
+    }
 
     return mappings;
   }
 
   private HandshakeHandler getOrCreateHandshakeHandler() {
-    return (this.handshakeHandler != null ? this.handshakeHandler : new DefaultHandshakeHandler());
+    return handshakeHandler != null ? handshakeHandler : new DefaultHandshakeHandler();
   }
 
   protected abstract M createMappings();

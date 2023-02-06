@@ -26,9 +26,11 @@ import java.util.List;
 import java.util.Map;
 
 import cn.taketoday.core.MultiValueMap;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.HttpRequestHandler;
 import cn.taketoday.web.handler.SimpleUrlHandlerMapping;
 import cn.taketoday.web.socket.WebSocketHandler;
+import cn.taketoday.web.socket.server.HandshakeHandler;
 import cn.taketoday.web.socket.server.support.WebSocketHandlerMapping;
 
 /**
@@ -45,12 +47,16 @@ public class DefaultWebSocketHandlerRegistry implements WebSocketHandlerRegistry
 
   private int order = 1;
 
+  @Nullable
+  private HandshakeHandler handshakeHandler;
+
   public DefaultWebSocketHandlerRegistry() { }
 
   @Override
   public WebSocketHandlerRegistration addHandler(WebSocketHandler handler, String... paths) {
     DefaultWebSocketHandlerRegistration registration = new DefaultWebSocketHandlerRegistration();
     registration.addHandler(handler, paths);
+    registration.setHandshakeHandler(handshakeHandler);
     this.registrations.add(registration);
     return registration;
   }
@@ -66,6 +72,10 @@ public class DefaultWebSocketHandlerRegistry implements WebSocketHandlerRegistry
 
   public int getOrder() {
     return this.order;
+  }
+
+  public void setHandshakeHandler(@Nullable HandshakeHandler handshakeHandler) {
+    this.handshakeHandler = handshakeHandler;
   }
 
   public WebSocketHandlerMapping getHandlerMapping() {

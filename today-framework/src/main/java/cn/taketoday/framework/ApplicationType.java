@@ -55,20 +55,24 @@ public enum ApplicationType {
    */
   NETTY_WEB;
 
+  public static final String WEB_INDICATOR_CLASS = "cn.taketoday.web.RequestContext";
   public static final String SERVLET_INDICATOR_CLASS = ServletDetector.SERVLET_CLASS;
   public static final String REACTOR_INDICATOR_CLASS = "reactor.core.publisher.Flux";
   public static final String NETTY_INDICATOR_CLASS = "io.netty.bootstrap.ServerBootstrap";
 
   static ApplicationType fromClasspath() {
-    if (ServletDetector.isPresent) {
-      return ApplicationType.SERVLET_WEB;
-    }
-
-    if (ClassUtils.isPresent(NETTY_INDICATOR_CLASS)) {
-      if (ClassUtils.isPresent(REACTOR_INDICATOR_CLASS)) {
-        return ApplicationType.REACTIVE_WEB;
+    ClassLoader classLoader = ApplicationType.class.getClassLoader();
+    if (ClassUtils.isPresent(WEB_INDICATOR_CLASS, classLoader)) {
+      if (ServletDetector.isPresent) {
+        return ApplicationType.SERVLET_WEB;
       }
-      return ApplicationType.NETTY_WEB;
+
+      if (ClassUtils.isPresent(NETTY_INDICATOR_CLASS, classLoader)) {
+        if (ClassUtils.isPresent(REACTOR_INDICATOR_CLASS, classLoader)) {
+          return ApplicationType.REACTIVE_WEB;
+        }
+        return ApplicationType.NETTY_WEB;
+      }
     }
     return ApplicationType.NONE_WEB;
   }

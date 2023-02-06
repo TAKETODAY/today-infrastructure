@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -43,14 +43,15 @@ import jakarta.websocket.server.ServerEndpointConfig.Configurator;
  * {@link ServerEndpoint}-annotated classes through Spring.
  *
  * <p>
- * <pre class="code">
- * &#064;ServerEndpoint(value = "/echo", configurator = InfraConfigurator.class)
+ * <pre>{@code
+ * @ServerEndpoint(value = "/echo", configurator = InfraConfigurator.class)
  * public class EchoEndpoint {
  *     // ...
  * }
- * </pre>
+ * }</pre>
  *
  * @author Rossen Stoyanchev
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see ServerEndpointExporter
  * @since 4.0
  */
@@ -65,7 +66,7 @@ public class InfraConfigurator extends Configurator {
 
   @SuppressWarnings("unchecked")
   @Override
-  public <T> T getEndpointInstance(Class<T> endpointClass) throws InstantiationException {
+  public <T> T getEndpointInstance(Class<T> endpointClass) {
     WebApplicationContext wac = ContextLoader.getCurrentWebApplicationContext();
     if (wac == null) {
       String message = "Failed to find the root WebApplicationContext. Was ContextLoaderListener not used?";
