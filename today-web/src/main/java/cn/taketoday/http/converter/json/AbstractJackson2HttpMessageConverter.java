@@ -82,6 +82,7 @@ import cn.taketoday.util.TypeUtils;
  * @author Juergen Hoeller
  * @author Sebastien Deleuze
  * @author Sam Brannen
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see MappingJackson2HttpMessageConverter
  * @since 4.0
  */
@@ -96,7 +97,8 @@ public abstract class AbstractJackson2HttpMessageConverter extends AbstractGener
     ENCODINGS.put("US-ASCII", JsonEncoding.UTF8);
   }
 
-  private List<MediaType> problemDetailMediaTypes = Collections.singletonList(MediaType.APPLICATION_PROBLEM_JSON);
+  private static final List<MediaType> problemDetailMediaTypes =
+          Collections.singletonList(MediaType.APPLICATION_PROBLEM_JSON);
 
   protected ObjectMapper defaultObjectMapper;
 
@@ -124,19 +126,6 @@ public abstract class AbstractJackson2HttpMessageConverter extends AbstractGener
   protected AbstractJackson2HttpMessageConverter(ObjectMapper objectMapper, MediaType... supportedMediaTypes) {
     this(objectMapper);
     setSupportedMediaTypes(List.of(supportedMediaTypes));
-  }
-
-  @Override
-  public void setSupportedMediaTypes(List<MediaType> supportedMediaTypes) {
-    this.problemDetailMediaTypes = initProblemDetailMediaTypes(supportedMediaTypes);
-    super.setSupportedMediaTypes(supportedMediaTypes);
-  }
-
-  private List<MediaType> initProblemDetailMediaTypes(List<MediaType> supportedMediaTypes) {
-    ArrayList<MediaType> mediaTypes = new ArrayList<>();
-    mediaTypes.add(MediaType.APPLICATION_PROBLEM_JSON);
-    mediaTypes.addAll(supportedMediaTypes);
-    return Collections.unmodifiableList(mediaTypes);
   }
 
   /**

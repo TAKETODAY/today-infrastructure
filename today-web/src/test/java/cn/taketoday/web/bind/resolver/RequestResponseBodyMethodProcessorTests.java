@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -396,7 +396,14 @@ class RequestResponseBodyMethodProcessorTests {
   @Test
   void problemDetailWhenJsonRequested() throws Throwable {
     this.servletRequest.addHeader("Accept", MediaType.APPLICATION_JSON_VALUE);
-    testProblemDetailMediaType(MediaType.APPLICATION_JSON_VALUE);
+    testProblemDetailMediaType(MediaType.APPLICATION_PROBLEM_JSON_VALUE);
+  }
+
+  @Test
+    // gh-29588
+  void problemDetailWhenJsonAndProblemJsonRequested() throws Throwable {
+    this.servletRequest.addHeader("Accept", MediaType.APPLICATION_JSON_VALUE + "," + MediaType.APPLICATION_PROBLEM_JSON_VALUE);
+    testProblemDetailMediaType(MediaType.APPLICATION_PROBLEM_JSON_VALUE);
   }
 
   @Test
