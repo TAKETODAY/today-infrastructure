@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -20,23 +20,23 @@
 
 package cn.taketoday.web.socket.client;
 
-
 import org.junit.jupiter.api.Test;
 
 import java.net.URI;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 import cn.taketoday.context.Lifecycle;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.util.concurrent.ListenableFuture;
 import cn.taketoday.util.concurrent.ListenableFutureTask;
-import cn.taketoday.web.socket.LoggingWebSocketHandlerDecorator;
-import cn.taketoday.web.socket.TextWebSocketHandler;
 import cn.taketoday.web.socket.WebSocketHandler;
 import cn.taketoday.web.socket.WebSocketHandlerDecorator;
 import cn.taketoday.web.socket.WebSocketHttpHeaders;
 import cn.taketoday.web.socket.WebSocketSession;
+import cn.taketoday.web.socket.handler.LoggingWebSocketHandlerDecorator;
+import cn.taketoday.web.socket.handler.TextWebSocketHandler;
 import cn.taketoday.web.util.UriComponentsBuilder;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -130,6 +130,25 @@ public class WebSocketConnectionManagerTests {
       this.uri = uri;
       return new ListenableFutureTask<>(() -> null);
     }
+
+    @Override
+    public CompletableFuture<WebSocketSession> execute(WebSocketHandler handler,
+            String uriTemplate, Object... uriVars) {
+
+      URI uri = UriComponentsBuilder.fromUriString(uriTemplate).buildAndExpand(uriVars).encode().toUri();
+      return execute(handler, null, uri);
+    }
+
+    @Override
+    public CompletableFuture<WebSocketSession> execute(WebSocketHandler handler,
+            WebSocketHttpHeaders headers, URI uri) {
+
+      this.webSocketHandler = handler;
+      this.headers = headers;
+      this.uri = uri;
+      return CompletableFuture.supplyAsync(() -> null);
+    }
+
   }
 
 }

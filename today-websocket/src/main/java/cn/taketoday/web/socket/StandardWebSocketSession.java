@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -44,6 +44,9 @@ public class StandardWebSocketSession extends NativeWebSocketSession<Session> {
   @Nullable
   private final InetSocketAddress remoteAddress;
 
+  @Nullable
+  private String acceptedProtocol;
+
   public StandardWebSocketSession(HttpHeaders handshakeHeaders,
           @Nullable InetSocketAddress localAddress, @Nullable InetSocketAddress remoteAddress) {
     super(handshakeHeaders);
@@ -61,6 +64,12 @@ public class StandardWebSocketSession extends NativeWebSocketSession<Session> {
   @Nullable
   public InetSocketAddress getRemoteAddress() {
     return remoteAddress;
+  }
+
+  @Nullable
+  @Override
+  public String getAcceptedProtocol() {
+    return acceptedProtocol;
   }
 
   @Override
@@ -143,6 +152,12 @@ public class StandardWebSocketSession extends NativeWebSocketSession<Session> {
     final CloseReason closeReason = new CloseReason(
             CloseCodes.getCloseCode(status.getCode()), status.getReason());
     obtainNativeSession().close(closeReason);
+  }
+
+  @Override
+  public void initializeNativeSession(Session session) {
+    super.initializeNativeSession(session);
+    this.acceptedProtocol = session.getNegotiatedSubprotocol();
   }
 
 }

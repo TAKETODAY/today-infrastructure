@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -20,14 +20,17 @@
 
 package cn.taketoday.web.socket.client.standard;
 
+import java.util.Arrays;
+import java.util.List;
+
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanFactoryAware;
 import cn.taketoday.core.task.SimpleAsyncTaskExecutor;
 import cn.taketoday.core.task.TaskExecutor;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.web.socket.BeanCreatingHandlerProvider;
 import cn.taketoday.web.socket.client.ConnectionManagerSupport;
+import cn.taketoday.web.socket.handler.BeanCreatingHandlerProvider;
 import jakarta.websocket.ClientEndpointConfig;
 import jakarta.websocket.ClientEndpointConfig.Configurator;
 import jakarta.websocket.ContainerProvider;
@@ -37,9 +40,6 @@ import jakarta.websocket.Endpoint;
 import jakarta.websocket.Extension;
 import jakarta.websocket.Session;
 import jakarta.websocket.WebSocketContainer;
-
-import java.util.Arrays;
-import java.util.List;
 
 /**
  * A WebSocket connection manager that is given a URI, an {@link Endpoint}, connects to a

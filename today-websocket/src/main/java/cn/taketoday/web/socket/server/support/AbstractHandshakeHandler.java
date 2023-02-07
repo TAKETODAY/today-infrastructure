@@ -311,7 +311,7 @@ public abstract class AbstractHandshakeHandler implements HandshakeHandler {
 
   /**
    * Filter the list of requested WebSocket extensions.
-   * <p>As of 4.1, the default implementation of this method filters the list to
+   * <p>the default implementation of this method filters the list to
    * leave only extensions that are both requested and supported.
    *
    * @param request the current request

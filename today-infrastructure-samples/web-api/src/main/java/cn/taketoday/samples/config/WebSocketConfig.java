@@ -24,12 +24,12 @@ import java.io.IOException;
 
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.web.socket.TextMessage;
-import cn.taketoday.web.socket.TextWebSocketHandler;
 import cn.taketoday.web.socket.WebSocketHandler;
 import cn.taketoday.web.socket.WebSocketSession;
 import cn.taketoday.web.socket.config.EnableWebSocket;
 import cn.taketoday.web.socket.config.WebSocketConfigurer;
 import cn.taketoday.web.socket.config.WebSocketHandlerRegistry;
+import cn.taketoday.web.socket.handler.TextWebSocketHandler;
 import lombok.extern.slf4j.Slf4j;
 
 /**

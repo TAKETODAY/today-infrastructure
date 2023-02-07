@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -26,7 +26,9 @@ import org.eclipse.jetty.websocket.client.WebSocketClient;
 
 import java.net.URI;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Callable;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
@@ -36,6 +38,7 @@ import cn.taketoday.core.task.SimpleAsyncTaskExecutor;
 import cn.taketoday.core.task.TaskExecutor;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.concurrent.FutureUtils;
 import cn.taketoday.util.concurrent.ListenableFuture;
 import cn.taketoday.util.concurrent.ListenableFutureTask;
 import cn.taketoday.web.socket.WebSocketExtension;
@@ -165,6 +168,37 @@ public class JettyWebSocketClient extends AbstractWebSocketClient implements Lif
       ListenableFutureTask<WebSocketSession> task = new ListenableFutureTask<>(connectTask);
       task.run();
       return task;
+    }
+  }
+
+  @Override
+  public CompletableFuture<WebSocketSession> executeInternal(WebSocketHandler wsHandler,
+          HttpHeaders headers, final URI uri, List<String> protocols,
+          List<WebSocketExtension> extensions, Map<String, Object> attributes) {
+
+    final ClientUpgradeRequest request = new ClientUpgradeRequest();
+    request.setSubProtocols(protocols);
+
+    for (WebSocketExtension extension : extensions) {
+      request.addExtensions(new WebSocketToJettyExtensionConfigAdapter(extension));
+    }
+
+    request.setHeaders(headers);
+
+    JettyWebSocketSession wsSession = new JettyWebSocketSession(headers);
+
+    Callable<WebSocketSession> connectTask = () -> {
+      JettyWebSocketHandler adapter = new JettyWebSocketHandler(wsHandler, wsSession);
+      Future<Session> future = this.client.connect(adapter, uri, request);
+      future.get(this.client.getConnectTimeout() + 2000, TimeUnit.MILLISECONDS);
+      return wsSession;
+    };
+
+    if (this.taskExecutor != null) {
+      return FutureUtils.callAsync(connectTask, this.taskExecutor);
+    }
+    else {
+      return FutureUtils.callAsync(connectTask);
     }
   }
 

@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -20,6 +20,7 @@
 package cn.taketoday.web.socket.client;
 
 import java.net.URI;
+import java.util.concurrent.CompletableFuture;
 
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.concurrent.ListenableFuture;
@@ -44,4 +45,28 @@ public interface WebSocketClient {
 
   ListenableFuture<WebSocketSession> doHandshake(
           WebSocketHandler webSocketHandler, @Nullable WebSocketHttpHeaders headers, URI uri);
+
+  /**
+   * Execute a handshake request to the given url and handle the resulting
+   * WebSocket session with the given handler.
+   *
+   * @param webSocketHandler the session handler
+   * @param uriTemplate the url template
+   * @param uriVariables the variables to expand the template
+   * @return a future that completes when the session is available
+   */
+  CompletableFuture<WebSocketSession> execute(WebSocketHandler webSocketHandler,
+          String uriTemplate, Object... uriVariables);
+
+  /**
+   * Execute a handshake request to the given url and handle the resulting
+   * WebSocket session with the given handler.
+   *
+   * @param webSocketHandler the session handler
+   * @param uri the url
+   * @return a future that completes when the session is available
+   */
+  CompletableFuture<WebSocketSession> execute(WebSocketHandler webSocketHandler,
+          @Nullable WebSocketHttpHeaders headers, URI uri);
+
 }

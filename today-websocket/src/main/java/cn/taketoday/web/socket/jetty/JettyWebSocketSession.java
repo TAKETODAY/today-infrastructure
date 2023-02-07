@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -27,6 +27,7 @@ import java.nio.ByteBuffer;
 import java.time.Duration;
 
 import cn.taketoday.http.HttpHeaders;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.socket.BinaryMessage;
 import cn.taketoday.web.socket.CloseStatus;
 import cn.taketoday.web.socket.NativeWebSocketSession;
@@ -40,6 +41,9 @@ import cn.taketoday.web.socket.PongMessage;
  * @since 3.0.1
  */
 public class JettyWebSocketSession extends NativeWebSocketSession<Session> {
+
+  @Nullable
+  private String acceptedProtocol;
 
   public JettyWebSocketSession(HttpHeaders handshakeHeaders) {
     super(handshakeHeaders);
@@ -85,6 +89,12 @@ public class JettyWebSocketSession extends NativeWebSocketSession<Session> {
     return obtainNativeSession().isOpen();
   }
 
+  @Nullable
+  @Override
+  public String getAcceptedProtocol() {
+    return acceptedProtocol;
+  }
+
   @Override
   public long getMaxIdleTimeout() {
     return obtainNativeSession().getPolicy().getIdleTimeout().toMillis();
@@ -118,6 +128,12 @@ public class JettyWebSocketSession extends NativeWebSocketSession<Session> {
   @Override
   public void close(CloseStatus status) throws IOException {
     obtainNativeSession().close(status.getCode(), status.getReason());
+  }
+
+  @Override
+  public void initializeNativeSession(Session session) {
+    super.initializeNativeSession(session);
+    this.acceptedProtocol = session.getUpgradeResponse().getAcceptedSubProtocol();
   }
 
 }

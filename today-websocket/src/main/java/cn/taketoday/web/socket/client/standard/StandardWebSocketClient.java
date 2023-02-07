@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -20,12 +20,25 @@
 
 package cn.taketoday.web.socket.client.standard;
 
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.net.URI;
+import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.concurrent.Callable;
+import java.util.concurrent.CompletableFuture;
+
 import cn.taketoday.core.task.AsyncListenableTaskExecutor;
 import cn.taketoday.core.task.SimpleAsyncTaskExecutor;
 import cn.taketoday.core.task.TaskExecutor;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.concurrent.FutureUtils;
 import cn.taketoday.util.concurrent.ListenableFuture;
 import cn.taketoday.util.concurrent.ListenableFutureTask;
 import cn.taketoday.web.socket.StandardEndpoint;
@@ -43,17 +56,6 @@ import jakarta.websocket.Extension;
 import jakarta.websocket.HandshakeResponse;
 import jakarta.websocket.WebSocketContainer;
 
-import java.net.InetAddress;
-import java.net.InetSocketAddress;
-import java.net.URI;
-import java.net.UnknownHostException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.concurrent.Callable;
-
 /**
  * A WebSocketClient based on standard Java WebSocket API.
  *
@@ -68,7 +70,6 @@ public class StandardWebSocketClient extends AbstractWebSocketClient {
 
   @Nullable
   private AsyncListenableTaskExecutor taskExecutor = new SimpleAsyncTaskExecutor();
-
 
   /**
    * Default constructor that calls {@code ContainerProvider.getWebSocketContainer()}
@@ -89,7 +90,6 @@ public class StandardWebSocketClient extends AbstractWebSocketClient {
     Assert.notNull(webSocketContainer, "WebSocketContainer must not be null");
     this.webSocketContainer = webSocketContainer;
   }
-
 
   /**
    * The standard Java WebSocket API allows passing "user properties" to the
@@ -129,8 +129,8 @@ public class StandardWebSocketClient extends AbstractWebSocketClient {
   }
 
   @Override
-  protected ListenableFuture<WebSocketSession> doHandshakeInternal(
-          WebSocketHandler webSocketHandler, HttpHeaders headers, URI uri, List<String> protocols,List<WebSocketExtension> extensions) {
+  protected ListenableFuture<WebSocketSession> doHandshakeInternal(WebSocketHandler webSocketHandler,
+          HttpHeaders headers, URI uri, List<String> protocols, List<WebSocketExtension> extensions) {
 
     int port = getPort(uri);
     InetSocketAddress localAddress = new InetSocketAddress(getLocalHost(), port);
@@ -159,6 +159,39 @@ public class StandardWebSocketClient extends AbstractWebSocketClient {
       ListenableFutureTask<WebSocketSession> task = new ListenableFutureTask<>(connectTask);
       task.run();
       return task;
+    }
+  }
+
+  @Override
+  protected CompletableFuture<WebSocketSession> executeInternal(WebSocketHandler webSocketHandler,
+          HttpHeaders headers, final URI uri, List<String> protocols,
+          List<WebSocketExtension> extensions, Map<String, Object> attributes) {
+
+    int port = getPort(uri);
+    InetSocketAddress localAddress = new InetSocketAddress(getLocalHost(), port);
+    InetSocketAddress remoteAddress = new InetSocketAddress(uri.getHost(), port);
+
+    final StandardWebSocketSession session = new StandardWebSocketSession(headers, localAddress, remoteAddress);
+
+    final ClientEndpointConfig endpointConfig = ClientEndpointConfig.Builder.create()
+            .configurator(new StandardWebSocketClientConfigurator(headers))
+            .preferredSubprotocols(protocols)
+            .extensions(adaptExtensions(extensions)).build();
+
+    endpointConfig.getUserProperties().putAll(getUserProperties());
+
+    final Endpoint endpoint = new StandardEndpoint(session, webSocketHandler);
+
+    Callable<WebSocketSession> connectTask = () -> {
+      this.webSocketContainer.connectToServer(endpoint, endpointConfig, uri);
+      return session;
+    };
+
+    if (this.taskExecutor != null) {
+      return FutureUtils.callAsync(connectTask, this.taskExecutor);
+    }
+    else {
+      return FutureUtils.callAsync(connectTask);
     }
   }
 
