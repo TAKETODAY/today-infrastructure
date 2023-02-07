@@ -66,12 +66,12 @@ public abstract class AbstractWebSocketIntegrationTests {
           TomcatWebSocketTestServer.class, TomcatUpgradeStrategyConfig.class, //
           UndertowTestServer.class, UndertowUpgradeStrategyConfig.class);
 
-  @SuppressWarnings("removal")
   static Stream<Arguments> argumentsFactory() {
     return Stream.of(
             arguments(named("Jetty", new JettyWebSocketTestServer()), named("Jetty", new JettyWebSocketClient())),
             arguments(named("Tomcat", new TomcatWebSocketTestServer()), named("Standard", new StandardWebSocketClient())),
-            arguments(named("Undertow", new UndertowTestServer()), named("Standard", new StandardWebSocketClient())));
+            arguments(named("Undertow", new UndertowTestServer()), named("Standard", new StandardWebSocketClient()))
+    );
   }
 
   @Retention(RetentionPolicy.RUNTIME)
@@ -102,6 +102,7 @@ public abstract class AbstractWebSocketIntegrationTests {
     wac.register(AnnotationHandlerFactory.class);
     wac.register(ParameterResolvingRegistry.class);
     wac.register(ReturnValueHandlerManager.class);
+
     this.wac.register(upgradeStrategyConfigTypes.get(this.server.getClass()));
 
     if (this.webSocketClient instanceof Lifecycle) {
