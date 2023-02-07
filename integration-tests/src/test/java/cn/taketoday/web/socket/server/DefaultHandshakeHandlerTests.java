@@ -30,10 +30,10 @@ import java.util.Map;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.web.socket.AbstractHttpRequestTests;
 import cn.taketoday.web.socket.SubProtocolCapable;
-import cn.taketoday.web.socket.TextWebSocketHandler;
 import cn.taketoday.web.socket.WebSocketExtension;
 import cn.taketoday.web.socket.WebSocketHandler;
 import cn.taketoday.web.socket.WebSocketHttpHeaders;
+import cn.taketoday.web.socket.handler.TextWebSocketHandler;
 import cn.taketoday.web.socket.server.support.DefaultHandshakeHandler;
 
 import static org.mockito.BDDMockito.given;

@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -20,8 +20,6 @@
 
 package cn.taketoday.http.codec.json;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 import java.nio.ByteBuffer;
 import java.time.Duration;

@@ -543,6 +543,25 @@
       <artifactId>yasson</artifactId>
     </dependency>
 
+    <dependency>
+      <groupId>org.eclipse.jetty.websocket</groupId>
+      <artifactId>websocket-jetty-client</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+
+    <dependency>
+      <groupId>org.eclipse.jetty.websocket</groupId>
+      <artifactId>websocket-jetty-server</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>io.undertow</groupId>
+      <artifactId>undertow-websockets-jsr-jakartaee9</artifactId>
+      <scope>test</scope>
+    </dependency>
+
   </dependencies>
 
 
