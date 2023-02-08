@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -1903,7 +1903,7 @@ class AutowiredAnnotationBeanPostProcessorTests {
     rbd.getConstructorArgumentValues().addGenericArgumentValue(Repository.class);
     bf.registerBeanDefinition("repo", rbd);
 
-    RepositoryFieldInjectionBeanWithSimpleMatch bean = (RepositoryFieldInjectionBeanWithSimpleMatch) bf.getBean("annotatedBean");
+    var bean = bf.getBean("annotatedBean", RepositoryFieldInjectionBeanWithSimpleMatch.class);
     Repository<?> repo = bf.getBean("repo", Repository.class);
     assertThat(bean.repository).isSameAs(repo);
     assertThat(bean.stringRepository).isSameAs(repo);
@@ -1928,8 +1928,8 @@ class AutowiredAnnotationBeanPostProcessorTests {
     bf.registerBeanDefinition("annotatedBean", bd);
 
     RootBeanDefinition rbd = new RootBeanDefinition();
-    rbd.setBeanClassName(Mockito.class.getName());
-    rbd.setFactoryMethodName("mock");
+    rbd.setBeanClassName(getClass().getName());
+    rbd.setFactoryMethodName("createMockitoMock");
     // TypedStringValue used to be equivalent to an XML-defined argument String
     rbd.getConstructorArgumentValues().addGenericArgumentValue(new TypedStringValue(Repository.class.getName()));
     bf.registerBeanDefinition("repo", rbd);
@@ -1938,18 +1938,27 @@ class AutowiredAnnotationBeanPostProcessorTests {
     Repository<?> repo = bf.getBean("repo", Repository.class);
     assertThat(bean.repository).isSameAs(repo);
     assertThat(bean.stringRepository).isSameAs(repo);
-    assertThat(bean.repositoryArray.length).isSameAs(1);
-    assertThat(bean.stringRepositoryArray.length).isSameAs(1);
+    assertThat(bean.repositoryArray).hasSize(1);
+    assertThat(bean.stringRepositoryArray).hasSize(1);
     assertThat(bean.repositoryArray[0]).isSameAs(repo);
     assertThat(bean.stringRepositoryArray[0]).isSameAs(repo);
-    assertThat(bean.repositoryList.size()).isSameAs(1);
-    assertThat(bean.stringRepositoryList.size()).isSameAs(1);
+    assertThat(bean.repositoryList).hasSize(1);
+    assertThat(bean.stringRepositoryList).hasSize(1);
     assertThat(bean.repositoryList.get(0)).isSameAs(repo);
     assertThat(bean.stringRepositoryList.get(0)).isSameAs(repo);
-    assertThat(bean.repositoryMap.size()).isSameAs(1);
-    assertThat(bean.stringRepositoryMap.size()).isSameAs(1);
+    assertThat(bean.repositoryMap).hasSize(1);
+    assertThat(bean.stringRepositoryMap).hasSize(1);
     assertThat(bean.repositoryMap.get("repo")).isSameAs(repo);
     assertThat(bean.stringRepositoryMap.get("repo")).isSameAs(repo);
+  }
+
+  /**
+   * Mimics and delegates to {@link Mockito#mock(Class)} -- created here to avoid factory
+   * method resolution issues caused by the introduction of {@code Mockito.mock(T...)}
+   * in Mockito 4.10.
+   */
+  public static <T> T createMockitoMock(Class<T> classToMock) {
+    return Mockito.mock(classToMock);
   }
 
   @Test
@@ -1969,30 +1978,30 @@ class AutowiredAnnotationBeanPostProcessorTests {
     RepositoryMethodInjectionBean bean = (RepositoryMethodInjectionBean) bf.getBean("annotatedBean");
     assertThat(bean.string).isSameAs(sv);
     assertThat(bean.integer).isSameAs(iv);
-    assertThat(bean.stringArray.length).isSameAs(1);
-    assertThat(bean.integerArray.length).isSameAs(1);
+    assertThat(bean.stringArray).hasSize(1);
+    assertThat(bean.integerArray).hasSize(1);
     assertThat(bean.stringArray[0]).isSameAs(sv);
     assertThat(bean.integerArray[0]).isSameAs(iv);
-    assertThat(bean.stringList.size()).isSameAs(1);
-    assertThat(bean.integerList.size()).isSameAs(1);
+    assertThat(bean.stringList).hasSize(1);
+    assertThat(bean.integerList).hasSize(1);
     assertThat(bean.stringList.get(0)).isSameAs(sv);
     assertThat(bean.integerList.get(0)).isSameAs(iv);
-    assertThat(bean.stringMap.size()).isSameAs(1);
-    assertThat(bean.integerMap.size()).isSameAs(1);
+    assertThat(bean.stringMap).hasSize(1);
+    assertThat(bean.integerMap).hasSize(1);
     assertThat(bean.stringMap.get("stringValue")).isSameAs(sv);
     assertThat(bean.integerMap.get("integerValue")).isSameAs(iv);
     assertThat(bean.stringRepository).isSameAs(sr);
     assertThat(bean.integerRepository).isSameAs(ir);
-    assertThat(bean.stringRepositoryArray.length).isSameAs(1);
-    assertThat(bean.integerRepositoryArray.length).isSameAs(1);
+    assertThat(bean.stringRepositoryArray).hasSize(1);
+    assertThat(bean.integerRepositoryArray).hasSize(1);
     assertThat(bean.stringRepositoryArray[0]).isSameAs(sr);
     assertThat(bean.integerRepositoryArray[0]).isSameAs(ir);
-    assertThat(bean.stringRepositoryList.size()).isSameAs(1);
-    assertThat(bean.integerRepositoryList.size()).isSameAs(1);
+    assertThat(bean.stringRepositoryList).hasSize(1);
+    assertThat(bean.integerRepositoryList).hasSize(1);
     assertThat(bean.stringRepositoryList.get(0)).isSameAs(sr);
     assertThat(bean.integerRepositoryList.get(0)).isSameAs(ir);
-    assertThat(bean.stringRepositoryMap.size()).isSameAs(1);
-    assertThat(bean.integerRepositoryMap.size()).isSameAs(1);
+    assertThat(bean.stringRepositoryMap).hasSize(1);
+    assertThat(bean.integerRepositoryMap).hasSize(1);
     assertThat(bean.stringRepositoryMap.get("stringRepo")).isSameAs(sr);
     assertThat(bean.integerRepositoryMap.get("integerRepo")).isSameAs(ir);
   }
