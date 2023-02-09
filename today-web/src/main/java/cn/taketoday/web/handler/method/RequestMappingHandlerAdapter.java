@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -22,6 +22,7 @@ package cn.taketoday.web.handler.method;
 
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanFactoryAware;
+import cn.taketoday.beans.factory.BeanFactoryUtils;
 import cn.taketoday.beans.factory.InitializingBean;
 import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
 import cn.taketoday.context.ApplicationContext;
@@ -223,17 +224,23 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
   public void afterPropertiesSet() {
     ApplicationContext context = obtainApplicationContext();
     if (resolvingRegistry == null) {
-      var resolvingRegistry = new ParameterResolvingRegistry();
-      resolvingRegistry.setApplicationContext(context);
-      resolvingRegistry.registerDefaultStrategies();
-      setResolvingRegistry(resolvingRegistry);
+      var resolvingRegistry = BeanFactoryUtils.find(context, ParameterResolvingRegistry.class);
+      if (resolvingRegistry == null) {
+        resolvingRegistry = new ParameterResolvingRegistry();
+        resolvingRegistry.setApplicationContext(context);
+        resolvingRegistry.registerDefaultStrategies();
+      }
+      this.resolvingRegistry = resolvingRegistry;
     }
 
     if (returnValueHandlerManager == null) {
-      var manager = new ReturnValueHandlerManager();
-      manager.setApplicationContext(context);
-      manager.registerDefaultHandlers();
-      setReturnValueHandlerManager(manager);
+      var manager = BeanFactoryUtils.find(context, ReturnValueHandlerManager.class);
+      if (manager == null) {
+        manager = new ReturnValueHandlerManager();
+        manager.setApplicationContext(context);
+        manager.registerDefaultHandlers();
+      }
+      this.returnValueHandlerManager = manager;
     }
 
     this.methodResolver = new ControllerMethodResolver(context, sessionAttributeStore,

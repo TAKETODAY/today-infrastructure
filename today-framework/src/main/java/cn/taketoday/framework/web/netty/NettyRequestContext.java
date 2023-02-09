@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -54,7 +54,6 @@ import cn.taketoday.web.context.async.AsyncWebRequest;
 import cn.taketoday.web.multipart.MultipartRequest;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufInputStream;
-import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.DefaultHeaders;
@@ -426,9 +425,12 @@ public class NettyRequestContext extends RequestContext {
       }
     }
 
-    ChannelFuture future = channelContext.writeAndFlush(lastHttpContent);
-    if (!isKeepAlive()) {
-      future.addListener(ChannelFutureListener.CLOSE);
+    if (isKeepAlive()) {
+      channelContext.writeAndFlush(lastHttpContent);
+    }
+    else {
+      channelContext.writeAndFlush(lastHttpContent)
+              .addListener(ChannelFutureListener.CLOSE);
     }
 
     if (requestDecoder != null) {
@@ -552,11 +554,6 @@ public class NettyRequestContext extends RequestContext {
   @Override
   public void setStatus(int sc) {
     this.status = HttpResponseStatus.valueOf(sc);
-  }
-
-  @Override
-  public void setStatus(int status, String message) {
-    this.status = new HttpResponseStatus(status, message);
   }
 
   @Override

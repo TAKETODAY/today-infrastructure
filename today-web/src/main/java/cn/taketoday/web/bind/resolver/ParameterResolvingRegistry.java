@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -213,13 +213,13 @@ public class ParameterResolvingRegistry
   }
 
   public void registerDefaultStrategies() {
-    registerDefaultsStrategies(defaultStrategies);
+    registerDefaultStrategies(defaultStrategies);
   }
 
   /**
    * register default {@link ParameterResolvingStrategy}s
    */
-  public void registerDefaultsStrategies(ParameterResolvingStrategies strategies) {
+  public void registerDefaultStrategies(ParameterResolvingStrategies strategies) {
     log.info("Registering default parameter-resolvers to {}", strategies);
 
     // For some useful context annotations

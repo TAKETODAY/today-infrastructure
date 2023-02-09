@@ -24,8 +24,10 @@ import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 
 import cn.taketoday.context.ApplicationContext;
+import cn.taketoday.core.env.ConfigurableEnvironment;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.logging.Logger;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.web.RequestContextHolder;
 import cn.taketoday.web.handler.DispatcherHandler;
@@ -37,6 +39,7 @@ import cn.taketoday.web.socket.PongMessage;
 import cn.taketoday.web.socket.TextMessage;
 import cn.taketoday.web.socket.WebSocketHandler;
 import cn.taketoday.web.socket.WebSocketSession;
+import cn.taketoday.web.socket.handler.ExceptionWebSocketHandlerDecorator;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFutureListener;
@@ -74,6 +77,11 @@ public class NettyChannelHandler extends DispatcherHandler implements ChannelInb
   }
 
   @Override
+  protected ConfigurableEnvironment createEnvironment() {
+    return new StandardNettyWebEnvironment();
+  }
+
+  @Override
   public void channelReadComplete(ChannelHandlerContext ctx) {
     ctx.flush();
   }
@@ -97,7 +105,7 @@ public class NettyChannelHandler extends DispatcherHandler implements ChannelInb
     }
     else {
       if (websocketPresent && msg instanceof WebSocketFrame) {
-        WebSocketDelegate.handleWebSocketFrame(ctx, (WebSocketFrame) msg);
+        WebSocketDelegate.handleWebSocketFrame(ctx, (WebSocketFrame) msg, log);
       }
       else {
         ctx.fireChannelRead(msg);
@@ -111,7 +119,7 @@ public class NettyChannelHandler extends DispatcherHandler implements ChannelInb
 
   @Override
   public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
-    if (!websocketPresent || !WebSocketDelegate.isErrorHandled(ctx, cause)) {
+    if (!websocketPresent || !WebSocketDelegate.isErrorHandled(ctx, cause, log)) {
       var response = new DefaultHttpResponse(HttpVersion.HTTP_1_1,
               HttpResponseStatus.INTERNAL_SERVER_ERROR, false, false);
       ctx.writeAndFlush(response)
@@ -163,12 +171,17 @@ public class NettyChannelHandler extends DispatcherHandler implements ChannelInb
 
   static class WebSocketDelegate {
 
-    static boolean isErrorHandled(ChannelHandlerContext ctx, Throwable cause) {
+    static boolean isErrorHandled(ChannelHandlerContext ctx, Throwable cause, Logger logger) {
       Channel channel = ctx.channel();
       var socketHandler = channel.attr(NettyRequestUpgradeStrategy.SOCKET_HANDLER_KEY).get();
       var webSocketSession = channel.attr(NettyRequestUpgradeStrategy.SOCKET_SESSION_KEY).get();
       if (socketHandler != null && webSocketSession != null) {
-        socketHandler.onError(webSocketSession, cause);
+        try {
+          socketHandler.onError(webSocketSession, cause);
+        }
+        catch (Exception e) {
+          ExceptionWebSocketHandlerDecorator.tryCloseWithError(webSocketSession, e, logger);
+        }
         return true;
       }
       return false;
@@ -180,7 +193,7 @@ public class NettyChannelHandler extends DispatcherHandler implements ChannelInb
      * @param ctx ChannelHandlerContext
      * @param frame WebSocket Request
      */
-    static void handleWebSocketFrame(ChannelHandlerContext ctx, WebSocketFrame frame) {
+    static void handleWebSocketFrame(ChannelHandlerContext ctx, WebSocketFrame frame, Logger logger) {
       Channel channel = ctx.channel();
 
       WebSocketHandler socketHandler = channel.attr(NettyRequestUpgradeStrategy.SOCKET_HANDLER_KEY).get();
@@ -189,14 +202,24 @@ public class NettyChannelHandler extends DispatcherHandler implements ChannelInb
         int statusCode = closeFrame.statusCode();
         String reasonText = closeFrame.reasonText();
         CloseStatus closeStatus = new CloseStatus(statusCode, reasonText);
-        socketHandler.onClose(webSocketSession, closeStatus);
+        try {
+          socketHandler.onClose(webSocketSession, closeStatus);
+        }
+        catch (Exception ex) {
+          logger.warn("Unhandled on-close exception for {}", webSocketSession, ex);
+        }
         channel.writeAndFlush(frame)
                 .addListener(ChannelFutureListener.CLOSE);
       }
       else {
         Message<?> message = getMessage(frame);
         if (message != null) {
-          socketHandler.handleMessage(webSocketSession, message);
+          try {
+            socketHandler.handleMessage(webSocketSession, message);
+          }
+          catch (Exception e) {
+            ExceptionWebSocketHandlerDecorator.tryCloseWithError(webSocketSession, e, logger);
+          }
         }
       }
     }

@@ -308,11 +308,6 @@ public class MockRequestContext extends RequestContext {
   }
 
   @Override
-  public void setStatus(int status, String message) {
-    this.status = HttpStatus.valueOf(status);
-  }
-
-  @Override
   public int getStatus() {
     return status.value();
   }

@@ -185,7 +185,7 @@ public abstract class RequestContext extends AttributeAccessorSupport
   /** Map from attribute name String to destruction callback Runnable.  @since 4.0 */
   protected LinkedHashMap<String, Runnable> requestDestructionCallbacks;
 
-  private Long requestCompletedTimeMillis;
+  private long requestCompletedTimeMillis;
 
   protected RequestContext(ApplicationContext context) {
     this.applicationContext = context;
@@ -215,8 +215,8 @@ public abstract class RequestContext extends AttributeAccessorSupport
    * @since 4.0
    */
   public final long getRequestProcessingTime() {
-    Long requestCompletedTimeMillis = this.requestCompletedTimeMillis;
-    if (requestCompletedTimeMillis != null) {
+    long requestCompletedTimeMillis = this.requestCompletedTimeMillis;
+    if (requestCompletedTimeMillis > 0) {
       return requestCompletedTimeMillis - getRequestTimeMillis();
     }
     return System.currentTimeMillis() - getRequestTimeMillis();
@@ -1226,7 +1226,7 @@ public abstract class RequestContext extends AttributeAccessorSupport
     return first.equals(second);
   }
 
-  private void updateResponseStateChanging(String eTag, long lastModifiedTimestamp) {
+  private void updateResponseStateChanging(@Nullable String eTag, long lastModifiedTimestamp) {
     if (this.notModified) {
       setStatus(HttpStatus.PRECONDITION_FAILED.value());
     }
@@ -1247,17 +1247,15 @@ public abstract class RequestContext extends AttributeAccessorSupport
     return true;
   }
 
-  private boolean validateIfModifiedSince(long lastModifiedTimestamp) {
+  private void validateIfModifiedSince(long lastModifiedTimestamp) {
     if (lastModifiedTimestamp < 0) {
-      return false;
+      return;
     }
     long ifModifiedSince = parseDateHeader(HttpHeaders.IF_MODIFIED_SINCE);
-    if (ifModifiedSince == -1) {
-      return false;
+    if (ifModifiedSince != -1) {
+      // We will perform this validation...
+      this.notModified = ifModifiedSince >= (lastModifiedTimestamp / 1000 * 1000);
     }
-    // We will perform this validation...
-    this.notModified = ifModifiedSince >= (lastModifiedTimestamp / 1000 * 1000);
-    return true;
   }
 
   private void updateResponseIdempotent(String eTag, long lastModifiedTimestamp) {
@@ -1277,7 +1275,7 @@ public abstract class RequestContext extends AttributeAccessorSupport
     }
   }
 
-  private void addCachingResponseHeaders(String eTag, long lastModifiedTimestamp) {
+  private void addCachingResponseHeaders(@Nullable String eTag, long lastModifiedTimestamp) {
     if (SAFE_METHODS.contains(getMethodValue())) {
       HttpHeaders httpHeaders = responseHeaders();
       if (lastModifiedTimestamp > 0 && parseDateValue(httpHeaders.getFirst(HttpHeaders.LAST_MODIFIED)) == -1) {
@@ -1432,24 +1430,10 @@ public abstract class RequestContext extends AttributeAccessorSupport
   /**
    * Sets the status code and message for this response.
    *
-   * @param status the status code
-   * @param message the status message
-   */
-  @Deprecated(forRemoval = true)
-  public abstract void setStatus(int status, String message);
-
-  /**
-   * Sets the status code and message for this response.
-   *
    * @param status the status
    */
   public void setStatus(HttpStatusCode status) {
-    if (status instanceof HttpStatus httpStatus) {
-      setStatus(httpStatus.value(), httpStatus.getReasonPhrase());
-    }
-    else {
-      setStatus(status.value());
-    }
+    setStatus(status.value());
   }
 
   /**

@@ -366,11 +366,6 @@ public class RequestContextDecorator extends RequestContext {
   }
 
   @Override
-  public void setStatus(int status, String message) {
-    delegate.setStatus(status, message);
-  }
-
-  @Override
   public void setStatus(HttpStatusCode status) {
     delegate.setStatus(status);
   }

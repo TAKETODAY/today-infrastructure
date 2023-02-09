@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -29,7 +29,6 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.ReturnValueHandler;
-import cn.taketoday.web.handler.result.SmartReturnValueHandler;
 
 /**
  * select {@link ReturnValueHandler} handler in list
@@ -51,7 +50,7 @@ public class SelectableReturnValueHandler implements ReturnValueHandler, ArraySi
   }
 
   @Override
-  public boolean supportsReturnValue(Object returnValue) {
+  public boolean supportsReturnValue(@Nullable Object returnValue) {
     return selectHandler(null, returnValue) != null;
   }
 
@@ -61,42 +60,7 @@ public class SelectableReturnValueHandler implements ReturnValueHandler, ArraySi
    */
   @Nullable
   public final ReturnValueHandler selectHandler(@Nullable Object handler, @Nullable Object returnValue) {
-    if (returnValue != NONE_RETURN_VALUE) {
-      if (handler != null) {
-        // match handler and return-value
-        for (ReturnValueHandler returnValueHandler : internalHandlers) {
-          if (returnValueHandler instanceof SmartReturnValueHandler smartHandler) {
-            // smart handler
-            if (smartHandler.supportsHandler(handler, returnValue)) {
-              return returnValueHandler;
-            }
-          }
-          else {
-            if (returnValueHandler.supportsHandler(handler)
-                    || returnValueHandler.supportsReturnValue(returnValue)) {
-              return returnValueHandler;
-            }
-          }
-        }
-      }
-      else {
-        // match return-value only
-        for (ReturnValueHandler returnValueHandler : internalHandlers) {
-          if (returnValueHandler.supportsReturnValue(returnValue)) {
-            return returnValueHandler;
-          }
-        }
-      }
-    }
-    else if (handler != null) {
-      // match handler only
-      for (ReturnValueHandler returnValueHandler : internalHandlers) {
-        if (returnValueHandler.supportsHandler(handler)) {
-          return returnValueHandler;
-        }
-      }
-    }
-    return null;
+    return ReturnValueHandler.select(internalHandlers, handler, returnValue);
   }
 
   /**
@@ -107,7 +71,7 @@ public class SelectableReturnValueHandler implements ReturnValueHandler, ArraySi
    * @throws Exception throws when write data to response
    */
   @Override
-  public void handleReturnValue(RequestContext context, @Nullable Object handler, Object returnValue) throws Exception {
+  public void handleReturnValue(RequestContext context, @Nullable Object handler, @Nullable Object returnValue) throws Exception {
     if (handleSelectively(context, handler, returnValue) == null) {
       throw new ReturnValueHandlerNotFoundException(returnValue, handler);
     }

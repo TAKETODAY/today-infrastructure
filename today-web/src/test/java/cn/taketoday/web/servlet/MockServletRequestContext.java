@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -264,11 +264,6 @@ public class MockServletRequestContext extends RequestContext {
   @Override
   public void setStatus(int sc) {
     response.setStatus(sc);
-  }
-
-  @Override
-  public void setStatus(int status, String message) {
-    response.setStatus(status);
   }
 
   @Override

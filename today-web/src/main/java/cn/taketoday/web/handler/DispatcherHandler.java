@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -74,7 +74,7 @@ public class DispatcherHandler extends InfraHandler {
   private HandlerExceptionHandler exceptionHandler;
 
   /** @since 4.0 */
-  private SelectableReturnValueHandler returnValueHandler;
+  private ReturnValueHandlerManager returnValueHandler;
 
   /** Throw a HandlerNotFoundException if no Handler was found to process this request? @since 4.0 */
   private boolean throwExceptionIfNoHandlerFound = false;
@@ -160,7 +160,7 @@ public class DispatcherHandler extends InfraHandler {
         manager.setApplicationContext(context);
         manager.registerDefaultHandlers();
       }
-      this.returnValueHandler = manager.asSelectable();
+      this.returnValueHandler = manager;
     }
   }
 
@@ -613,14 +613,6 @@ public class DispatcherHandler extends InfraHandler {
     }
   }
 
-  public HandlerMapping getHandlerMapping() {
-    return handlerMapping;
-  }
-
-  public HandlerExceptionHandler getExceptionHandler() {
-    return exceptionHandler;
-  }
-
   public void setHandlerMapping(HandlerMapping handlerMapping) {
     Assert.notNull(handlerMapping, "HandlerMapping is required");
     this.handlerMapping = handlerMapping;
@@ -631,6 +623,7 @@ public class DispatcherHandler extends InfraHandler {
   }
 
   public void setHandlerAdapter(HandlerAdapter handlerAdapter) {
+    Assert.notNull(handlerAdapter, "HandlerAdapter is required");
     this.handlerAdapter = handlerAdapter;
   }
 
@@ -639,12 +632,13 @@ public class DispatcherHandler extends InfraHandler {
     this.exceptionHandler = exceptionHandler;
   }
 
-  public SelectableReturnValueHandler getReturnValueHandler() {
-    return returnValueHandler;
-  }
-
-  public void setReturnValueHandler(SelectableReturnValueHandler returnValueHandler) {
-    Assert.notNull(returnValueHandler, "returnValueHandler is required");
+  /**
+   * Set ReturnValueHandlerManager
+   *
+   * @param returnValueHandler ReturnValueHandlerManager
+   */
+  public void setReturnValueHandler(ReturnValueHandlerManager returnValueHandler) {
+    Assert.notNull(returnValueHandler, "ReturnValueHandlerManager is required");
     this.returnValueHandler = returnValueHandler;
   }
 
@@ -685,13 +679,25 @@ public class DispatcherHandler extends InfraHandler {
   }
 
   /**
-   * not found handler
+   * Set not found handler
    *
    * @param notFoundHandler HttpRequestHandler
    * @since 4.0
    */
   public void setNotFoundHandler(HttpRequestHandler notFoundHandler) {
+    Assert.notNull(notFoundHandler, "notFoundHandler is required");
     this.notFoundHandler = notFoundHandler;
+  }
+
+  /**
+   * Set WebAsyncManagerFactory
+   *
+   * @param factory WebAsyncManagerFactory
+   * @since 4.0
+   */
+  public void setWebAsyncManagerFactory(WebAsyncManagerFactory factory) {
+    Assert.notNull(factory, "WebAsyncManagerFactory is required");
+    this.webAsyncManagerFactory = factory;
   }
 
   /**
@@ -700,7 +706,7 @@ public class DispatcherHandler extends InfraHandler {
    * @param array RequestHandledListener array
    * @since 4.0
    */
-  public void addRequestHandledActions(RequestCompletedListener... array) {
+  public void addRequestHandledActions(@Nullable RequestCompletedListener... array) {
     requestCompletedActions.add(array);
   }
 
@@ -710,8 +716,18 @@ public class DispatcherHandler extends InfraHandler {
    * @param list RequestHandledListener list
    * @since 4.0
    */
-  public void addRequestHandledActions(Collection<RequestCompletedListener> list) {
+  public void addRequestHandledActions(@Nullable Collection<RequestCompletedListener> list) {
     requestCompletedActions.addAll(list);
+  }
+
+  /**
+   * Set RequestHandledListener list to the list of listeners to be notified when a request is handled.
+   *
+   * @param list RequestHandledListener list
+   * @since 4.0
+   */
+  public void setRequestHandledActions(@Nullable Collection<RequestCompletedListener> list) {
+    requestCompletedActions.set(list);
   }
 
 }
