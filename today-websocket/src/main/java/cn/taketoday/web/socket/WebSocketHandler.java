@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -69,7 +69,7 @@ public abstract class WebSocketHandler {
    *
    * @param session the session that has just been activated.
    */
-  public void onOpen(WebSocketSession session) {
+  public void onOpen(WebSocketSession session) throws Exception {
     // no-op
   }
 
@@ -78,7 +78,7 @@ public abstract class WebSocketHandler {
    *
    * @param message the message data.
    */
-  public void handleMessage(WebSocketSession session, Message<?> message) {
+  public void handleMessage(WebSocketSession session, Message<?> message) throws Exception {
     if (message instanceof TextMessage) {
       handleTextMessage(session, (TextMessage) message);
     }
@@ -96,7 +96,7 @@ public abstract class WebSocketHandler {
     }
   }
 
-  public void onClose(WebSocketSession session) {
+  public void onClose(WebSocketSession session) throws Exception {
     onClose(session, CloseStatus.NORMAL);
   }
 
@@ -115,7 +115,7 @@ public abstract class WebSocketHandler {
    * @param session the session about to be closed.
    * @param status the reason the session was closed.
    */
-  public void onClose(WebSocketSession session, CloseStatus status) {
+  public void onClose(WebSocketSession session, CloseStatus status) throws Exception {
     // no-op
   }
 
@@ -129,7 +129,7 @@ public abstract class WebSocketHandler {
    * @param session the session in use when the error occurs.
    * @param throwable the throwable representing the problem.
    */
-  public void onError(WebSocketSession session, Throwable throwable) {
+  public void onError(WebSocketSession session, Throwable throwable) throws Exception {
     // no-op
   }
 

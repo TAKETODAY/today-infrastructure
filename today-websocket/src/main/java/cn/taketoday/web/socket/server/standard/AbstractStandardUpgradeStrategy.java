@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -80,7 +80,7 @@ public abstract class AbstractStandardUpgradeStrategy implements RequestUpgradeS
   }
 
   protected List<WebSocketExtension> getInstalledExtensions(WebSocketContainer container) {
-    List<WebSocketExtension> result = new ArrayList<>();
+    ArrayList<WebSocketExtension> result = new ArrayList<>();
     for (Extension extension : container.getInstalledExtensions()) {
       result.add(new StandardToWebSocketExtensionAdapter(extension));
     }
@@ -100,7 +100,7 @@ public abstract class AbstractStandardUpgradeStrategy implements RequestUpgradeS
     }
     StandardEndpoint endpoint = new StandardEndpoint(session, wsHandler);
 
-    List<Extension> extensions = new ArrayList<>();
+    ArrayList<Extension> extensions = new ArrayList<>();
     for (WebSocketExtension extension : selectedExtensions) {
       extensions.add(new WebSocketToStandardExtensionAdapter(extension));
     }

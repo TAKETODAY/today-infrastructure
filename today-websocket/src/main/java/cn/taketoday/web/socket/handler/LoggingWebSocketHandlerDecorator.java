@@ -42,7 +42,7 @@ public class LoggingWebSocketHandlerDecorator extends WebSocketHandlerDecorator 
   }
 
   @Override
-  public void onOpen(WebSocketSession session) {
+  public void onOpen(WebSocketSession session) throws Exception {
     if (logger.isDebugEnabled()) {
       logger.debug("New {}", session);
     }
@@ -50,7 +50,7 @@ public class LoggingWebSocketHandlerDecorator extends WebSocketHandlerDecorator 
   }
 
   @Override
-  public void handleMessage(WebSocketSession session, Message<?> message) {
+  public void handleMessage(WebSocketSession session, Message<?> message) throws Exception {
     if (logger.isTraceEnabled()) {
       logger.trace("Handling {} in {}", message, session);
     }
@@ -58,7 +58,7 @@ public class LoggingWebSocketHandlerDecorator extends WebSocketHandlerDecorator 
   }
 
   @Override
-  public void onError(WebSocketSession session, Throwable throwable) {
+  public void onError(WebSocketSession session, Throwable throwable) throws Exception {
     if (logger.isDebugEnabled()) {
       logger.debug("Transport error in {}", session, throwable);
     }
@@ -66,7 +66,7 @@ public class LoggingWebSocketHandlerDecorator extends WebSocketHandlerDecorator 
   }
 
   @Override
-  public void onClose(WebSocketSession session, CloseStatus status) {
+  public void onClose(WebSocketSession session, CloseStatus status) throws Exception {
     if (logger.isDebugEnabled()) {
       logger.debug("{} closed with {}", session, status);
     }

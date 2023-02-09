@@ -75,24 +75,24 @@ public class PerConnectionWebSocketHandler extends WebSocketHandler implements B
   }
 
   @Override
-  public void onOpen(WebSocketSession session) {
+  public void onOpen(WebSocketSession session) throws Exception {
     WebSocketHandler handler = this.provider.getHandler();
     this.handlers.put(session, handler);
     handler.onOpen(session);
   }
 
   @Override
-  public void handleMessage(WebSocketSession session, Message<?> message) {
+  public void handleMessage(WebSocketSession session, Message<?> message) throws Exception {
     getHandler(session).handleMessage(session, message);
   }
 
   @Override
-  public void onError(WebSocketSession session, Throwable exception) {
+  public void onError(WebSocketSession session, Throwable exception) throws Exception {
     getHandler(session).onError(session, exception);
   }
 
   @Override
-  public void onClose(WebSocketSession session, CloseStatus status) {
+  public void onClose(WebSocketSession session, CloseStatus status) throws Exception {
     try {
       getHandler(session).onClose(session, status);
     }

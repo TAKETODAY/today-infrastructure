@@ -73,27 +73,27 @@ public class WebSocketHandlerDecorator extends WebSocketHandler {
   }
 
   @Override
-  public void onOpen(WebSocketSession session) {
+  public void onOpen(WebSocketSession session) throws Exception {
     delegate.onOpen(session);
   }
 
   @Override
-  public void handleMessage(WebSocketSession session, Message<?> message) {
+  public void handleMessage(WebSocketSession session, Message<?> message) throws Exception {
     delegate.handleMessage(session, message);
   }
 
   @Override
-  public void onClose(WebSocketSession session) {
+  public void onClose(WebSocketSession session) throws Exception {
     delegate.onClose(session);
   }
 
   @Override
-  public void onClose(WebSocketSession session, CloseStatus status) {
+  public void onClose(WebSocketSession session, CloseStatus status) throws Exception {
     delegate.onClose(session, status);
   }
 
   @Override
-  public void onError(WebSocketSession session, Throwable throwable) {
+  public void onError(WebSocketSession session, Throwable throwable) throws Exception {
     delegate.onError(session, throwable);
   }
 

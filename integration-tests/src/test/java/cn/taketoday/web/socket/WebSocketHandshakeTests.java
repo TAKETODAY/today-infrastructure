@@ -31,12 +31,16 @@ import java.util.concurrent.TimeUnit;
 import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
+import cn.taketoday.lang.Nullable;
+import cn.taketoday.web.HandlerExceptionHandler;
+import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.socket.client.WebSocketClient;
 import cn.taketoday.web.socket.config.EnableWebSocket;
 import cn.taketoday.web.socket.config.WebSocketConfigurer;
 import cn.taketoday.web.socket.config.WebSocketHandlerRegistry;
 import cn.taketoday.web.socket.handler.TextWebSocketHandler;
 import cn.taketoday.web.socket.server.support.DefaultHandshakeHandler;
+import lombok.extern.slf4j.Slf4j;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -47,6 +51,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Juergen Hoeller
  * @author Sam Brannen
  */
+@Slf4j
 class WebSocketHandshakeTests extends AbstractWebSocketIntegrationTests {
 
   @Override
@@ -67,7 +72,8 @@ class WebSocketHandshakeTests extends AbstractWebSocketIntegrationTests {
   }
 
   @ParameterizedWebSocketTest
-  void unsolicitedPongWithEmptyPayload(WebSocketTestServer server, WebSocketClient webSocketClient, TestInfo testInfo) throws Exception {
+  void unsolicitedPongWithEmptyPayload(WebSocketTestServer server,
+          WebSocketClient webSocketClient, TestInfo testInfo) throws Exception {
     super.setup(server, webSocketClient, testInfo);
 
     String url = getWsBaseUrl() + "/ws";
@@ -93,8 +99,11 @@ class WebSocketHandshakeTests extends AbstractWebSocketIntegrationTests {
 
     @Override
     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
-      this.handshakeHandler.setSupportedProtocols("foo", "bar", "baz");
-      registry.addHandler(handler(), "/ws").setHandshakeHandler(this.handshakeHandler);
+      handshakeHandler.setSupportedProtocols("foo", "bar", "baz");
+      TestWebSocketHandler handler = handler();
+      log.error("handler: {}", handler);
+      registry.addHandler(handler, "/ws")
+              .setHandshakeHandler(handshakeHandler);
     }
 
     @Bean
@@ -102,12 +111,25 @@ class WebSocketHandshakeTests extends AbstractWebSocketIntegrationTests {
       return new TestWebSocketHandler();
     }
 
+    @Bean
+    public HandlerExceptionHandler handlerExceptionHandler() {
+      return new HandlerExceptionHandler() {
+        @Nullable
+        @Override
+        public Object handleException(RequestContext context,
+                Throwable exception, @Nullable Object handler) throws Exception {
+          log.error("出错啦", exception);
+          return NONE_RETURN_VALUE;
+        }
+      };
+    }
+
   }
 
   @SuppressWarnings("rawtypes")
   private static class TestWebSocketHandler extends WebSocketHandler {
 
-    private List<Message> receivedMessages = new ArrayList<>();
+    private final List<Message> receivedMessages = new ArrayList<>();
 
     private int waitMessageCount;
 
@@ -142,7 +164,7 @@ class WebSocketHandshakeTests extends AbstractWebSocketIntegrationTests {
     }
 
     public void await() throws InterruptedException {
-      this.latch.await(5, TimeUnit.SECONDS);
+      this.latch.await(2, TimeUnit.SECONDS);
     }
   }
 

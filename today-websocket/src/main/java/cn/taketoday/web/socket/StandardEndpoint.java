@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -22,6 +22,9 @@ package cn.taketoday.web.socket;
 
 import java.nio.ByteBuffer;
 
+import cn.taketoday.logging.Logger;
+import cn.taketoday.logging.LoggerFactory;
+import cn.taketoday.web.socket.handler.ExceptionWebSocketHandlerDecorator;
 import jakarta.websocket.CloseReason;
 import jakarta.websocket.Endpoint;
 import jakarta.websocket.EndpointConfig;
@@ -35,6 +38,8 @@ import jakarta.websocket.Session;
  * @since 3.0.1
  */
 public class StandardEndpoint extends Endpoint {
+  private static final Logger logger = LoggerFactory.getLogger(StandardEndpoint.class);
+
   private final WebSocketHandler socketHandler;
   private final StandardWebSocketSession session;
 
@@ -47,57 +52,79 @@ public class StandardEndpoint extends Endpoint {
   public void onOpen(Session stdSession, EndpointConfig config) {
     session.initializeNativeSession(stdSession);
 
-    WebSocketHandler socketHandler = this.socketHandler;
-    socketHandler.onOpen(session);
+    // The following inner classes need to remain since lambdas would not retain their
+    // declared generic types (which need to be seen by the underlying WebSocket engine)
 
     if (socketHandler.supportPartialMessage()) {
-      final class StringPartialHandler implements MessageHandler.Partial<String> {
+      stdSession.addMessageHandler(new MessageHandler.Partial<String>() {
         @Override
-        public void onMessage(final String partialMessage, final boolean last) {
-          final TextMessage textMessage = new TextMessage(partialMessage, last);
-          socketHandler.handleMessage(session, textMessage);
+        public void onMessage(String partialMessage, boolean last) {
+          handleMessage(new TextMessage(partialMessage, last));
         }
-      }
-      final class ByteBufferPartialHandler implements MessageHandler.Partial<ByteBuffer> {
+      });
+      stdSession.addMessageHandler(new MessageHandler.Partial<ByteBuffer>() {
         @Override
-        public void onMessage(final ByteBuffer partialMessage, final boolean last) {
-          final BinaryMessage textMessage = new BinaryMessage(partialMessage, last);
-          socketHandler.handleMessage(session, textMessage);
+        public void onMessage(ByteBuffer partialMessage, boolean last) {
+          handleMessage(new BinaryMessage(partialMessage, last));
         }
-      }
-      stdSession.addMessageHandler(new StringPartialHandler());
-      stdSession.addMessageHandler(new ByteBufferPartialHandler());
+      });
     }
     else {
-      final class StringWholeHandler implements MessageHandler.Whole<String> {
+      stdSession.addMessageHandler(new MessageHandler.Whole<String>() {
         @Override
-        public void onMessage(final String message) {
-          final TextMessage textMessage = new TextMessage(message);
-          socketHandler.handleMessage(session, textMessage);
+        public void onMessage(String message) {
+          handleMessage(new TextMessage(message));
         }
-      }
-      final class ByteBufferWholeHandler implements MessageHandler.Whole<ByteBuffer> {
+      });
+      stdSession.addMessageHandler(new MessageHandler.Whole<ByteBuffer>() {
         @Override
-        public void onMessage(final ByteBuffer message) {
-          final BinaryMessage textMessage = new BinaryMessage(message);
-          socketHandler.handleMessage(session, textMessage);
+        public void onMessage(ByteBuffer message) {
+          handleMessage(new BinaryMessage(message));
         }
-      }
-
-      stdSession.addMessageHandler(new StringWholeHandler());
-      stdSession.addMessageHandler(new ByteBufferWholeHandler());
+      });
     }
 
-    // TODO PING PONG
+    stdSession.addMessageHandler(new MessageHandler.Whole<jakarta.websocket.PongMessage>() {
+      @Override
+      public void onMessage(jakarta.websocket.PongMessage message) {
+        handleMessage(new PongMessage(message.getApplicationData()));
+      }
+    });
+
+    try {
+      socketHandler.onOpen(session);
+    }
+    catch (Exception e) {
+      ExceptionWebSocketHandlerDecorator.tryCloseWithError(session, e, logger);
+    }
+  }
+
+  private void handleMessage(Message<?> message) {
+    try {
+      socketHandler.handleMessage(session, message);
+    }
+    catch (Exception e) {
+      ExceptionWebSocketHandlerDecorator.tryCloseWithError(session, e, logger);
+    }
   }
 
   @Override
   public void onClose(Session stdSession, CloseReason closeReason) {
-    socketHandler.onClose(session);
+    try {
+      socketHandler.onClose(session);
+    }
+    catch (Exception ex) {
+      logger.warn("Unhandled on-close exception for {}", session, ex);
+    }
   }
 
   @Override
   public void onError(Session stdSession, Throwable thr) {
-    socketHandler.onError(session, thr);
+    try {
+      socketHandler.onError(session, thr);
+    }
+    catch (Exception ex) {
+      ExceptionWebSocketHandlerDecorator.tryCloseWithError(session, ex, logger);
+    }
   }
 }

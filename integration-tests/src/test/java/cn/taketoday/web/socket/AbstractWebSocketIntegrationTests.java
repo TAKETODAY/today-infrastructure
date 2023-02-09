@@ -61,7 +61,7 @@ import static org.junit.jupiter.params.provider.Arguments.arguments;
  */
 public abstract class AbstractWebSocketIntegrationTests {
 
-  private static Map<Class<?>, Class<?>> upgradeStrategyConfigTypes = Map.of(
+  private static final Map<Class<?>, Class<?>> upgradeStrategyConfigTypes = Map.of(
           JettyWebSocketTestServer.class, JettyUpgradeStrategyConfig.class, //
           TomcatWebSocketTestServer.class, TomcatUpgradeStrategyConfig.class, //
           UndertowTestServer.class, UndertowUpgradeStrategyConfig.class);
@@ -111,10 +111,11 @@ public abstract class AbstractWebSocketIntegrationTests {
 
     this.server.setup();
     this.server.deployConfig(this.wac);
-    this.server.start();
 
     this.wac.setServletContext(this.server.getServletContext());
     this.wac.refresh();
+
+    this.server.start();
   }
 
   protected abstract Class<?>[] getAnnotatedConfigClasses();
