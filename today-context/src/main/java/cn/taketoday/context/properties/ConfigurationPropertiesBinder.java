@@ -55,6 +55,7 @@ import cn.taketoday.context.properties.source.UnboundElementsSourceFilter;
 import cn.taketoday.core.annotation.MergedAnnotations;
 import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.core.env.PropertySources;
+import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.validation.Validator;
 import cn.taketoday.validation.annotation.Validated;
@@ -71,8 +72,6 @@ import cn.taketoday.validation.annotation.Validated;
 class ConfigurationPropertiesBinder {
 
   private static final String BEAN_NAME = "cn.taketoday.context.internalConfigurationPropertiesBinder";
-
-  private static final String FACTORY_BEAN_NAME = "cn.taketoday.context.internalConfigurationPropertiesBinderFactory";
 
   private static final String VALIDATOR_BEAN_NAME = EnableConfigurationProperties.VALIDATOR_BEAN_NAME;
 
@@ -208,45 +207,16 @@ class ConfigurationPropertiesBinder {
   }
 
   static void register(BeanDefinitionRegistry registry) {
-    if (!registry.containsBeanDefinition(FACTORY_BEAN_NAME)) {
-      BeanDefinition definition = BeanDefinitionBuilder.rootBeanDefinition(ConfigurationPropertiesBinder.Factory.class)
-              .setRole(BeanDefinition.ROLE_INFRASTRUCTURE)
-              .getBeanDefinition();
-      registry.registerBeanDefinition(ConfigurationPropertiesBinder.FACTORY_BEAN_NAME, definition);
-    }
     if (!registry.containsBeanDefinition(BEAN_NAME)) {
-      BeanDefinition definition = BeanDefinitionBuilder.rootBeanDefinition(ConfigurationPropertiesBinder.class,
-                      () -> ((BeanFactory) registry).getBean(FACTORY_BEAN_NAME, ConfigurationPropertiesBinder.Factory.class).create())
-              .setRole(BeanDefinition.ROLE_INFRASTRUCTURE)
-              .getBeanDefinition();
-
+      var definition = BeanDefinitionBuilder.rootBeanDefinition(
+              ConfigurationPropertiesBinderFactory.class).getBeanDefinition();
+      definition.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
       registry.registerBeanDefinition(ConfigurationPropertiesBinder.BEAN_NAME, definition);
     }
   }
 
   static ConfigurationPropertiesBinder get(BeanFactory beanFactory) {
     return beanFactory.getBean(BEAN_NAME, ConfigurationPropertiesBinder.class);
-  }
-
-  /**
-   * Factory bean used to create the {@link ConfigurationPropertiesBinder}. The bean
-   * needs to be {@link ApplicationContextAware} since we can't directly inject an
-   * {@link ApplicationContext} into the constructor without causing eager
-   * {@link FactoryBean} initialization.
-   */
-  static class Factory implements ApplicationContextAware {
-
-    private ApplicationContext applicationContext;
-
-    @Override
-    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-      this.applicationContext = applicationContext;
-    }
-
-    ConfigurationPropertiesBinder create() {
-      return new ConfigurationPropertiesBinder(this.applicationContext);
-    }
-
   }
 
   /**
@@ -267,6 +237,35 @@ class ConfigurationPropertiesBinder {
 
     private boolean isConfigurationProperties(@Nullable Class<?> target) {
       return target != null && MergedAnnotations.from(target).isPresent(ConfigurationProperties.class);
+    }
+
+  }
+
+  /**
+   * {@link FactoryBean} to create the {@link ConfigurationPropertiesBinder}.
+   */
+  static class ConfigurationPropertiesBinderFactory
+          implements FactoryBean<ConfigurationPropertiesBinder>, ApplicationContextAware {
+
+    @Nullable
+    private ConfigurationPropertiesBinder binder;
+
+    @Override
+    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+      if (binder == null) {
+        binder = new ConfigurationPropertiesBinder(applicationContext);
+      }
+    }
+
+    @Override
+    public Class<?> getObjectType() {
+      return ConfigurationPropertiesBinder.class;
+    }
+
+    @Override
+    public ConfigurationPropertiesBinder getObject() throws Exception {
+      Assert.state(this.binder != null, "Binder was not created due to missing setApplicationContext call");
+      return this.binder;
     }
 
   }

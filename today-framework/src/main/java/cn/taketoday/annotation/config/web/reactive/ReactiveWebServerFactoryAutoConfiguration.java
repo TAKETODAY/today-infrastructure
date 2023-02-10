@@ -20,8 +20,6 @@
 
 package cn.taketoday.annotation.config.web.reactive;
 
-import java.util.function.Supplier;
-
 import cn.taketoday.beans.BeansException;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanFactoryAware;
@@ -110,14 +108,13 @@ public class ReactiveWebServerFactoryAutoConfiguration {
       }
       registerSyntheticBeanIfMissing(context.getRegistry(),
               "webServerFactoryCustomizerBeanPostProcessor",
-              WebServerFactoryCustomizerBeanPostProcessor.class,
-              WebServerFactoryCustomizerBeanPostProcessor::new);
+              WebServerFactoryCustomizerBeanPostProcessor.class);
     }
 
-    private <T> void registerSyntheticBeanIfMissing(BeanDefinitionRegistry registry,
-            String name, Class<T> beanClass, Supplier<T> instanceSupplier) {
-      if (ObjectUtils.isEmpty(beanFactory.getBeanNamesForType(beanClass, true, false))) {
-        RootBeanDefinition beanDefinition = new RootBeanDefinition(beanClass, instanceSupplier);
+    private <T> void registerSyntheticBeanIfMissing(
+            BeanDefinitionRegistry registry, String name, Class<T> beanClass) {
+      if (ObjectUtils.isEmpty(this.beanFactory.getBeanNamesForType(beanClass, true, false))) {
+        RootBeanDefinition beanDefinition = new RootBeanDefinition(beanClass);
         beanDefinition.setSynthetic(true);
         registry.registerBeanDefinition(name, beanDefinition);
       }

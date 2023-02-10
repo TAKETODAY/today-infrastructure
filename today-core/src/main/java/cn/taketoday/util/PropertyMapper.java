@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -22,6 +22,7 @@ package cn.taketoday.util;
 
 import java.util.NoSuchElementException;
 import java.util.Objects;
+import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -301,7 +302,7 @@ public final class PropertyMapper {
 
     /**
      * Complete the mapping by passing any non-filtered value to the specified
-     * consumer.
+     * consumer. The method is designed to be used with mutable objects.
      *
      * @param consumer the consumer that should accept the value if it's not been
      * filtered
@@ -312,6 +313,24 @@ public final class PropertyMapper {
       if (this.predicate.test(value)) {
         consumer.accept(value);
       }
+    }
+
+    /**
+     * Complete the mapping for any non-filtered value by applying the given function
+     * to an existing instance and returning a new one. For filtered values, the
+     * {@code instance} parameter is returned unchanged. The method is designed to be
+     * used with immutable objects.
+     *
+     * @param <R> the result type
+     * @param instance the current instance
+     * @param mapper the mapping function
+     * @return a new mapped instance or the original instance
+     */
+    public <R> R to(R instance, BiFunction<R, T, R> mapper) {
+      Assert.notNull(instance, "Instance must not be null");
+      Assert.notNull(mapper, "Mapper must not be null");
+      T value = supplier.get();
+      return predicate.test(value) ? mapper.apply(instance, value) : instance;
     }
 
     /**

@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -20,7 +20,6 @@
 
 package cn.taketoday.annotation.config.web.servlet;
 
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import cn.taketoday.beans.BeansException;
@@ -51,7 +50,7 @@ import cn.taketoday.framework.web.servlet.FilterRegistrationBean;
 import cn.taketoday.framework.web.servlet.WebListenerRegistrar;
 import cn.taketoday.framework.web.servlet.server.CookieSameSiteSupplier;
 import cn.taketoday.stereotype.Component;
-import cn.taketoday.util.CollectionUtils;
+import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.web.servlet.filter.ForwardedHeaderFilter;
 import jakarta.servlet.DispatcherType;
 import jakarta.servlet.ServletRequest;
@@ -148,15 +147,15 @@ public class ServletWebServerFactoryAutoConfiguration {
         return;
       }
       registerSyntheticBeanIfMissing(context.getRegistry(), "webServerFactoryCustomizerBeanPostProcessor",
-              WebServerFactoryCustomizerBeanPostProcessor.class, WebServerFactoryCustomizerBeanPostProcessor::new);
+              WebServerFactoryCustomizerBeanPostProcessor.class);
       registerSyntheticBeanIfMissing(context.getRegistry(), "errorPageRegistrarBeanPostProcessor",
-              ErrorPageRegistrarBeanPostProcessor.class, ErrorPageRegistrarBeanPostProcessor::new);
+              ErrorPageRegistrarBeanPostProcessor.class);
     }
 
     private <T> void registerSyntheticBeanIfMissing(
-            BeanDefinitionRegistry registry, String name, Class<T> beanClass, Supplier<T> instanceSupplier) {
-      if (CollectionUtils.isEmpty(beanFactory.getBeanNamesForType(beanClass, true, false))) {
-        RootBeanDefinition beanDefinition = new RootBeanDefinition(beanClass, instanceSupplier);
+            BeanDefinitionRegistry registry, String name, Class<T> beanClass) {
+      if (ObjectUtils.isEmpty(beanFactory.getBeanNamesForType(beanClass, true, false))) {
+        RootBeanDefinition beanDefinition = new RootBeanDefinition(beanClass);
         beanDefinition.setSynthetic(true);
         registry.registerBeanDefinition(name, beanDefinition);
       }
