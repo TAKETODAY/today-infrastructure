@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -21,6 +21,7 @@
 package cn.taketoday.annotation.config.jmx;
 
 import cn.taketoday.context.properties.ConfigurationProperties;
+import cn.taketoday.jmx.support.RegistrationPolicy;
 
 /**
  * Configuration properties for JMX.
@@ -52,6 +53,11 @@ public class JmxProperties {
    */
   private String defaultDomain;
 
+  /**
+   * JMX Registration policy.
+   */
+  private RegistrationPolicy registrationPolicy = RegistrationPolicy.FAIL_ON_EXISTING;
+
   public boolean getEnabled() {
     return this.enabled;
   }
@@ -82,6 +88,14 @@ public class JmxProperties {
 
   public void setDefaultDomain(String defaultDomain) {
     this.defaultDomain = defaultDomain;
+  }
+
+  public RegistrationPolicy getRegistrationPolicy() {
+    return this.registrationPolicy;
+  }
+
+  public void setRegistrationPolicy(RegistrationPolicy registrationPolicy) {
+    this.registrationPolicy = registrationPolicy;
   }
 
 }

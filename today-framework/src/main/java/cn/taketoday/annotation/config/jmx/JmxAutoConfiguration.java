@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -38,7 +38,6 @@ import cn.taketoday.jmx.export.annotation.AnnotationJmxAttributeSource;
 import cn.taketoday.jmx.export.annotation.AnnotationMBeanExporter;
 import cn.taketoday.jmx.export.naming.ObjectNamingStrategy;
 import cn.taketoday.jmx.support.MBeanServerFactoryBean;
-import cn.taketoday.jmx.support.RegistrationPolicy;
 import cn.taketoday.stereotype.Component;
 import cn.taketoday.util.StringUtils;
 
@@ -74,7 +73,7 @@ public class JmxAutoConfiguration {
   @ConditionalOnMissingBean(value = MBeanExporter.class, search = SearchStrategy.CURRENT)
   public AnnotationMBeanExporter mbeanExporter(ObjectNamingStrategy namingStrategy, BeanFactory beanFactory) {
     AnnotationMBeanExporter exporter = new AnnotationMBeanExporter();
-    exporter.setRegistrationPolicy(RegistrationPolicy.FAIL_ON_EXISTING);
+    exporter.setRegistrationPolicy(properties.getRegistrationPolicy());
     exporter.setNamingStrategy(namingStrategy);
     String serverBean = properties.getServer();
     if (StringUtils.isNotEmpty(serverBean)) {

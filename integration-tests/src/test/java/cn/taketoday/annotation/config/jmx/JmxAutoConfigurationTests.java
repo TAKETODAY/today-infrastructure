@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -34,6 +34,7 @@ import cn.taketoday.jmx.export.annotation.ManagedOperation;
 import cn.taketoday.jmx.export.annotation.ManagedResource;
 import cn.taketoday.jmx.export.naming.MetadataNamingStrategy;
 import cn.taketoday.jmx.export.naming.ObjectNamingStrategy;
+import cn.taketoday.jmx.support.RegistrationPolicy;
 import cn.taketoday.test.util.ReflectionTestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -70,6 +71,8 @@ class JmxAutoConfigurationTests {
       assertThat(context).hasSingleBean(ParentAwareNamingStrategy.class);
       MBeanExporter exporter = context.getBean(MBeanExporter.class);
       assertThat(exporter).hasFieldOrPropertyWithValue("ensureUniqueRuntimeObjectNames", false);
+      assertThat(exporter).hasFieldOrPropertyWithValue("registrationPolicy", RegistrationPolicy.FAIL_ON_EXISTING);
+
       MetadataNamingStrategy naming = (MetadataNamingStrategy) ReflectionTestUtils.getField(exporter,
               "namingStrategy");
       assertThat(naming).hasFieldOrPropertyWithValue("ensureUniqueRuntimeObjectNames", false);
@@ -78,11 +81,15 @@ class JmxAutoConfigurationTests {
 
   @Test
   void testDefaultDomainConfiguredOnMBeanExport() {
-    this.contextRunner.withPropertyValues("infra.jmx.enabled=true", "infra.jmx.default-domain=my-test-domain",
-            "infra.jmx.unique-names=true").run((context) -> {
+    this.contextRunner.withPropertyValues(
+            "infra.jmx.enabled=true", "infra.jmx.default-domain=my-test-domain",
+            "infra.jmx.unique-names=true", "infra.jmx.registration-policy=IGNORE_EXISTING").run((context) -> {
       assertThat(context).hasSingleBean(MBeanExporter.class);
       MBeanExporter exporter = context.getBean(MBeanExporter.class);
-      assertThat(exporter).hasFieldOrPropertyWithValue("ensureUniqueRuntimeObjectNames", true);
+      assertThat(exporter).hasFieldOrPropertyWithValue(
+              "ensureUniqueRuntimeObjectNames", true);
+      assertThat(exporter).hasFieldOrPropertyWithValue(
+              "registrationPolicy", RegistrationPolicy.IGNORE_EXISTING);
       MetadataNamingStrategy naming = (MetadataNamingStrategy) ReflectionTestUtils.getField(exporter,
               "namingStrategy");
       assertThat(naming).hasFieldOrPropertyWithValue("defaultDomain", "my-test-domain");
