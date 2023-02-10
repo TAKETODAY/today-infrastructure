@@ -85,7 +85,6 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.RunnableFuture;
@@ -1134,7 +1133,7 @@ public abstract class AbstractServletWebServerFactoryTests {
   }
 
   @Test
-  void whenThereAreNoInFlightRequestsShutDownGracefullyInvokesCallbackWithIdle() throws Exception {
+  void whenThereAreNoInFlightRequestsShutDownGracefullyInvokesCallbackWithIdle() {
     AbstractServletWebServerFactory factory = getFactory();
     factory.setShutdown(Shutdown.GRACEFUL);
     this.webServer = factory.getWebServer();
@@ -1191,7 +1190,7 @@ public abstract class AbstractServletWebServerFactoryTests {
   }
 
   @Test
-  void whenARequestIsActiveThenStopWillComplete() throws InterruptedException, BrokenBarrierException {
+  void whenARequestIsActiveThenStopWillComplete() throws InterruptedException {
     AbstractServletWebServerFactory factory = getFactory();
     BlockingServlet blockingServlet = new BlockingServlet();
     this.webServer = factory
@@ -1232,7 +1231,7 @@ public abstract class AbstractServletWebServerFactoryTests {
 
   @Test
   protected void whenHttp2IsEnabledAndSslIsDisabledThenHttp11CanStillBeUsed()
-          throws InterruptedException, ExecutionException, IOException, URISyntaxException {
+          throws IOException, URISyntaxException {
     AbstractServletWebServerFactory factory = getFactory();
     Http2 http2 = new Http2();
     http2.setEnabled(true);
@@ -1440,9 +1439,8 @@ public abstract class AbstractServletWebServerFactoryTests {
     return new ServletRegistrationBean<>(new ExampleServlet(), "/hello");
   }
 
-  @SuppressWarnings("serial")
   private ServletContextInitializer errorServletRegistration() {
-    ServletRegistrationBean<ExampleServlet> bean = new ServletRegistrationBean<>(new ExampleServlet() {
+    var bean = new ServletRegistrationBean<>(new ExampleServlet() {
 
       @Override
       public void service(ServletRequest request, ServletResponse response) {
@@ -1455,7 +1453,7 @@ public abstract class AbstractServletWebServerFactoryTests {
   }
 
   protected final ServletContextInitializer sessionServletRegistration() {
-    ServletRegistrationBean<ExampleServlet> bean = new ServletRegistrationBean<>(new ExampleServlet() {
+    var bean = new ServletRegistrationBean<>(new ExampleServlet() {
 
       @Override
       public void service(ServletRequest request, ServletResponse response) throws IOException {
@@ -1486,16 +1484,12 @@ public abstract class AbstractServletWebServerFactoryTests {
   }
 
   protected final void doWithBlockedPort(BlockedPortAction action) throws Exception {
-    ServerSocket serverSocket = new ServerSocket();
-    int blockedPort = doWithRetry(() -> {
-      serverSocket.bind(null);
-      return serverSocket.getLocalPort();
-    });
-    try {
+    try (ServerSocket serverSocket = new ServerSocket()) {
+      int blockedPort = doWithRetry(() -> {
+        serverSocket.bind(null);
+        return serverSocket.getLocalPort();
+      });
       action.run(blockedPort);
-    }
-    finally {
-      serverSocket.close();
     }
   }
 
@@ -1532,7 +1526,6 @@ public abstract class AbstractServletWebServerFactoryTests {
 
   }
 
-  @SuppressWarnings("serial")
   static class InitCountingServlet extends GenericServlet {
 
     private int initCount;
@@ -1613,7 +1606,7 @@ public abstract class AbstractServletWebServerFactoryTests {
     }
 
     @Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) {
       Blocker blocker = new Blocker();
       this.blockers.add(blocker);
       blocker.await();
@@ -1642,7 +1635,7 @@ public abstract class AbstractServletWebServerFactoryTests {
     private final BlockingQueue<Blocker> blockers = new ArrayBlockingQueue<>(10);
 
     @Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) {
       Blocker blocker = new Blocker();
       this.blockers.add(blocker);
       AsyncContext async = req.startAsync();
