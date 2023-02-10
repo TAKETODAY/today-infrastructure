@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -58,6 +58,8 @@ import cn.taketoday.util.PropertyMapper;
  * @author Phillip Webb
  * @author HaiTao Zhang
  * @author Rafiullah Hamedy
+ * @author Florian Storz
+ * @author Michael Weidmann
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
@@ -96,7 +98,13 @@ public class JettyWebServerFactoryCustomizer
             .whenNonNull()
             .asInt(DataSize::toBytes)
             .when(this::isPositive)
-            .to(maxHttpHeaderSize -> factory.addServerCustomizers(new MaxHttpHeaderSizeCustomizer(maxHttpHeaderSize)));
+            .to(size -> factory.addServerCustomizers(new MaxHttpRequestHeaderSizeCustomizer(size)));
+
+    propertyMapper.from(jettyProperties::getMaxHttpResponseHeaderSize)
+            .whenNonNull()
+            .asInt(DataSize::toBytes)
+            .when(this::isPositive)
+            .to(size -> factory.addServerCustomizers(new MaxHttpResponseHeaderSizeCustomizer(size)));
 
     propertyMapper.from(jettyProperties::getMaxHttpFormPostSize)
             .asInt(DataSize::toBytes)
@@ -209,7 +217,7 @@ public class JettyWebServerFactoryCustomizer
     return CustomRequestLog.NCSA_FORMAT;
   }
 
-  private record MaxHttpHeaderSizeCustomizer(int maxHttpHeaderSize) implements JettyServerCustomizer {
+  private record MaxHttpRequestHeaderSizeCustomizer(int maxHttpHeaderSize) implements JettyServerCustomizer {
 
     @Override
     public void customize(Server server) {
@@ -224,6 +232,32 @@ public class JettyWebServerFactoryCustomizer
       if (factory instanceof HttpConfiguration.ConnectionFactory connectionFactory) {
         connectionFactory.getHttpConfiguration()
                 .setRequestHeaderSize(this.maxHttpHeaderSize);
+      }
+    }
+
+  }
+
+  private static class MaxHttpResponseHeaderSizeCustomizer implements JettyServerCustomizer {
+
+    private final int maxResponseHeaderSize;
+
+    MaxHttpResponseHeaderSizeCustomizer(int maxResponseHeaderSize) {
+      this.maxResponseHeaderSize = maxResponseHeaderSize;
+    }
+
+    @Override
+    public void customize(Server server) {
+      Arrays.stream(server.getConnectors()).forEach(this::customize);
+    }
+
+    private void customize(org.eclipse.jetty.server.Connector connector) {
+      connector.getConnectionFactories().forEach(this::customize);
+    }
+
+    private void customize(ConnectionFactory factory) {
+      if (factory instanceof HttpConfiguration.ConnectionFactory) {
+        ((HttpConfiguration.ConnectionFactory) factory).getHttpConfiguration()
+                .setResponseHeaderSize(this.maxResponseHeaderSize);
       }
     }
 

@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -42,6 +42,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.SynchronousQueue;
+import java.util.function.Function;
 
 import cn.taketoday.context.properties.bind.Bindable;
 import cn.taketoday.context.properties.bind.Binder;
@@ -286,6 +287,61 @@ class JettyWebServerFactoryCustomizerTests {
   }
 
   @Test
+  void customizeMaxRequestHttpHeaderSize() {
+    bind("server.max-http-request-header-size=2048");
+    JettyWebServer server = customizeAndGetServer();
+    List<Integer> requestHeaderSizes = getRequestHeaderSizes(server);
+    assertThat(requestHeaderSizes).containsOnly(2048);
+  }
+
+  @Test
+  void customMaxHttpRequestHeaderSizeIgnoredIfNegative() {
+    bind("server.max-http-request-header-size=-1");
+    JettyWebServer server = customizeAndGetServer();
+    List<Integer> requestHeaderSizes = getRequestHeaderSizes(server);
+    assertThat(requestHeaderSizes).containsOnly(8192);
+  }
+
+  @Test
+  void customMaxHttpRequestHeaderSizeIgnoredIfZero() {
+    bind("server.max-http-request-header-size=0");
+    JettyWebServer server = customizeAndGetServer();
+    List<Integer> requestHeaderSizes = getRequestHeaderSizes(server);
+    assertThat(requestHeaderSizes).containsOnly(8192);
+  }
+
+  @Test
+  void defaultMaxHttpResponseHeaderSize() {
+    JettyWebServer server = customizeAndGetServer();
+    List<Integer> responseHeaderSizes = getResponseHeaderSizes(server);
+    assertThat(responseHeaderSizes).containsOnly(8192);
+  }
+
+  @Test
+  void customizeMaxHttpResponseHeaderSize() {
+    bind("server.jetty.max-http-response-header-size=2KB");
+    JettyWebServer server = customizeAndGetServer();
+    List<Integer> responseHeaderSizes = getResponseHeaderSizes(server);
+    assertThat(responseHeaderSizes).containsOnly(2048);
+  }
+
+  @Test
+  void customMaxHttpResponseHeaderSizeIgnoredIfNegative() {
+    bind("server.jetty.max-http-response-header-size=-1");
+    JettyWebServer server = customizeAndGetServer();
+    List<Integer> responseHeaderSizes = getResponseHeaderSizes(server);
+    assertThat(responseHeaderSizes).containsOnly(8192);
+  }
+
+  @Test
+  void customMaxHttpResponseHeaderSizeIgnoredIfZero() {
+    bind("server.jetty.max-http-response-header-size=0");
+    JettyWebServer server = customizeAndGetServer();
+    List<Integer> responseHeaderSizes = getResponseHeaderSizes(server);
+    assertThat(responseHeaderSizes).containsOnly(8192);
+  }
+
+  @Test
   void customIdleTimeout() {
     bind("server.jetty.connection-idle-timeout=60s");
     JettyWebServer server = customizeAndGetServer();
@@ -302,17 +358,27 @@ class JettyWebServerFactoryCustomizerTests {
   }
 
   private List<Integer> getRequestHeaderSizes(JettyWebServer server) {
+    return getHeaderSizes(server, HttpConfiguration::getRequestHeaderSize);
+  }
+
+  private List<Integer> getResponseHeaderSizes(JettyWebServer server) {
+    return getHeaderSizes(server, HttpConfiguration::getResponseHeaderSize);
+  }
+
+  private List<Integer> getHeaderSizes(JettyWebServer server, Function<HttpConfiguration, Integer> provider) {
     List<Integer> requestHeaderSizes = new ArrayList<>();
     // Start (and directly stop) server to have connectors available
     server.start();
     server.stop();
     Connector[] connectors = server.getServer().getConnectors();
     for (Connector connector : connectors) {
-      connector.getConnectionFactories().stream().filter((factory) -> factory instanceof ConnectionFactory)
-              .forEach((cf) -> {
+      connector.getConnectionFactories()
+              .stream()
+              .filter(factory -> factory instanceof ConnectionFactory)
+              .forEach(cf -> {
                 ConnectionFactory factory = (ConnectionFactory) cf;
                 HttpConfiguration configuration = factory.getHttpConfiguration();
-                requestHeaderSizes.add(configuration.getRequestHeaderSize());
+                requestHeaderSizes.add(provider.apply(configuration));
               });
     }
     return requestHeaderSizes;
