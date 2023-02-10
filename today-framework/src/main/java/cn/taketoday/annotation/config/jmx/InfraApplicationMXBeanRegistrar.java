@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -131,9 +131,7 @@ public class InfraApplicationMXBeanRegistrar implements ApplicationContextAware,
   public void afterPropertiesSet() throws Exception {
     MBeanServer server = ManagementFactory.getPlatformMBeanServer();
     server.registerMBean(new ApplicationMXBeanImpl(), this.objectName);
-    if (logger.isDebugEnabled()) {
-      logger.debug("Application Admin MBean registered with name '{}'", objectName);
-    }
+    logger.debug("Application Admin MBean registered with name '{}'", objectName);
   }
 
   @Override
