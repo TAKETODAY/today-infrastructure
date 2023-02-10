@@ -33,6 +33,7 @@
   <logger name="org.apache" level="WARN" />
   <logger name="org.osjava.sj.jndi" level="OFF" />
   <logger name="cn.taketoday.context.annotation" level="OFF" />
+  <logger name="org.apache.tomcat.util.scan" level="OFF" />
 
   <!--  <root level="TRACE">-->
   <!--  <root level="DEBUG">-->

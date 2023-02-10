@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -48,7 +48,8 @@ import cn.taketoday.util.StringUtils;
  * @since 4.0 2022/2/20 23:28
  */
 public class ApplicationTemp {
-  private static final String TEMP_SUB_DIR = TodayStrategies.getProperty("app.temp-prefix", "today-");
+  private static final String TEMP_SUB_DIR = TodayStrategies.getProperty(
+          "app.temp-prefix", "today-");
 
   private static final FileAttribute<?>[] NO_FILE_ATTRIBUTES = {};
 
