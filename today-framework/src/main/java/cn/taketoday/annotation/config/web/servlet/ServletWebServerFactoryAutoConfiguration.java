@@ -26,6 +26,7 @@ import cn.taketoday.beans.BeansException;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanFactoryAware;
 import cn.taketoday.beans.factory.ObjectProvider;
+import cn.taketoday.beans.factory.annotation.DisableAllDependencyInjection;
 import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.support.RootBeanDefinition;
@@ -67,8 +68,9 @@ import jakarta.servlet.ServletRequest;
  * @since 4.0 2022/3/27 21:51
  */
 @AutoConfiguration
-@AutoConfigureOrder(Ordered.HIGHEST_PRECEDENCE)
+@DisableAllDependencyInjection
 @ConditionalOnClass(ServletRequest.class)
+@AutoConfigureOrder(Ordered.HIGHEST_PRECEDENCE)
 @ConditionalOnWebApplication(type = Type.SERVLET)
 @EnableConfigurationProperties(ServerProperties.class)
 @Import({

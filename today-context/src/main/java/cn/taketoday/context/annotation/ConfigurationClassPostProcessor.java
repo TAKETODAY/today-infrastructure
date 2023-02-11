@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -30,7 +30,6 @@ import java.util.Set;
 import cn.taketoday.aop.framework.autoproxy.AutoProxyUtils;
 import cn.taketoday.beans.PropertyValues;
 import cn.taketoday.beans.factory.BeanClassLoaderAware;
-import cn.taketoday.beans.factory.support.BeanDefinitionRegistryPostProcessor;
 import cn.taketoday.beans.factory.BeanDefinitionStoreException;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.DependenciesBeanPostProcessor;
@@ -45,6 +44,7 @@ import cn.taketoday.beans.factory.parsing.FailFastProblemReporter;
 import cn.taketoday.beans.factory.parsing.ProblemReporter;
 import cn.taketoday.beans.factory.support.AbstractBeanDefinition;
 import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
+import cn.taketoday.beans.factory.support.BeanDefinitionRegistryPostProcessor;
 import cn.taketoday.beans.factory.support.BeanNameGenerator;
 import cn.taketoday.context.annotation.ConfigurationClassEnhancer.EnhancedConfiguration;
 import cn.taketoday.context.aware.BootstrapContextAware;
@@ -56,10 +56,10 @@ import cn.taketoday.core.type.AnnotationMetadata;
 import cn.taketoday.core.type.MethodMetadata;
 import cn.taketoday.core.type.classreading.MetadataReaderFactory;
 import cn.taketoday.lang.Assert;
-import cn.taketoday.stereotype.Component;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
+import cn.taketoday.stereotype.Component;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.CollectionUtils;
 
@@ -285,7 +285,7 @@ public class ConfigurationClassPostProcessor
         HashSet<String> oldCandidateNames = CollectionUtils.newHashSet(candidateNames);
         HashSet<String> alreadyParsedClasses = new HashSet<>();
         for (ConfigurationClass configurationClass : alreadyParsed) {
-          alreadyParsedClasses.add(configurationClass.getMetadata().getClassName());
+          alreadyParsedClasses.add(configurationClass.metadata.getClassName());
         }
         for (String candidateName : newCandidateNames) {
           if (!oldCandidateNames.contains(candidateName)) {

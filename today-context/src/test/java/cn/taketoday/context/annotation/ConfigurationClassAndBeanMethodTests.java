@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -81,7 +81,7 @@ class ConfigurationClassAndBeanMethodTests {
     assertThat(beanMethod_1_1.equals(beanMethod_2_1)).isTrue();
     assertThat(beanMethod_1_2.equals(beanMethod_2_2)).isTrue();
 
-    assertThat(beanMethod_1_0.getMetadata().getMethodName()).isEqualTo(beanMethod_3_0.getMetadata().getMethodName());
+    assertThat(beanMethod_1_0.metadata.getMethodName()).isEqualTo(beanMethod_3_0.metadata.getMethodName());
     assertThat(beanMethod_1_0.equals(beanMethod_3_0)).isFalse();
     assertThat(beanMethod_1_1.equals(beanMethod_3_1)).isFalse();
     assertThat(beanMethod_1_2.equals(beanMethod_3_2)).isFalse();
@@ -149,8 +149,8 @@ class ConfigurationClassAndBeanMethodTests {
   }
 
   private static List<ComponentMethod> getBeanMethods(ConfigurationClass configurationClass) {
-    List<ComponentMethod> beanMethods = configurationClass.getMethods().stream()
-            .sorted(Comparator.comparing(beanMethod -> beanMethod.getMetadata().getMethodName()))
+    List<ComponentMethod> beanMethods = configurationClass.componentMethods.stream()
+            .sorted(Comparator.comparing(beanMethod -> beanMethod.metadata.getMethodName()))
             .collect(Collectors.toList());
     assertThat(beanMethods).hasSize(3);
     return beanMethods;

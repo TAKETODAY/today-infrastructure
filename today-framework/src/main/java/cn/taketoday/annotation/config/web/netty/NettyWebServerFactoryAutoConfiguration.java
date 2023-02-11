@@ -75,6 +75,7 @@ public class NettyWebServerFactoryAutoConfiguration {
    */
   @Component
   @ConditionalOnMissingBean
+  @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
   static WebServerFactory nettyWebServerFactory(ServerProperties serverProperties,
           NettyChannelInitializer nettyChannelInitializer) {
     NettyWebServerFactory factory = new NettyWebServerFactory();
@@ -118,7 +119,7 @@ public class NettyWebServerFactoryAutoConfiguration {
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
   static NettyRequestConfig nettyRequestConfig(MultipartConfig multipartConfig) {
     String location = multipartConfig.getLocation();
-    DefaultHttpDataFactory factory = new DefaultHttpDataFactory(location != null);
+    var factory = new DefaultHttpDataFactory(location != null);
     factory.setMaxLimit(multipartConfig.getMaxRequestSize().toBytes());
     if (location != null) {
       factory.setBaseDir(location);
