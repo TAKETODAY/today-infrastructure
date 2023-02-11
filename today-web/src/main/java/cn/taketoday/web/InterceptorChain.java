@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -21,6 +21,7 @@
 package cn.taketoday.web;
 
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.web.handler.method.HandlerMethod;
 
 /**
  * HandlerInterceptor execution chain
@@ -82,7 +83,10 @@ public abstract class InterceptorChain {
   }
 
   /**
-   * target handler
+   * target handler, maybe a
+   * {@link cn.taketoday.web.handler.method.HandlerMethod#unwrap(Object) HandlerMethod}
+   *
+   * @see HandlerMethod#unwrap(Object)
    */
   public Object getHandler() {
     return handler;
