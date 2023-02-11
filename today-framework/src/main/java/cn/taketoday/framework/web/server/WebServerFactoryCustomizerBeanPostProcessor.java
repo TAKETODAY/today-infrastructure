@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -28,8 +28,8 @@ import java.util.List;
 import cn.taketoday.beans.BeansException;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanFactoryAware;
-import cn.taketoday.beans.factory.config.BeanPostProcessor;
 import cn.taketoday.beans.factory.InitializationBeanPostProcessor;
+import cn.taketoday.beans.factory.config.BeanPostProcessor;
 import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
 import cn.taketoday.util.LambdaSafe;
 
@@ -71,7 +71,7 @@ public class WebServerFactoryCustomizerBeanPostProcessor
   private void postProcessBeforeInitialization(WebServerFactory webServerFactory) {
     LambdaSafe.callbacks(WebServerFactoryCustomizer.class, getCustomizers(), webServerFactory)
             .withLogger(WebServerFactoryCustomizerBeanPostProcessor.class)
-            .invoke((customizer) -> customizer.customize(webServerFactory));
+            .invoke(customizer -> customizer.customize(webServerFactory));
   }
 
   private Collection<WebServerFactoryCustomizer<?>> getCustomizers() {
@@ -86,7 +86,8 @@ public class WebServerFactoryCustomizerBeanPostProcessor
 
   @SuppressWarnings({ "unchecked", "rawtypes" })
   private Collection<WebServerFactoryCustomizer<?>> getWebServerFactoryCustomizerBeans() {
-    return (Collection) this.beanFactory.getBeansOfType(WebServerFactoryCustomizer.class, false, false).values();
+    return (Collection) this.beanFactory.getBeansOfType(
+            WebServerFactoryCustomizer.class, false, false).values();
   }
 
 }

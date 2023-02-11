@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -29,6 +29,7 @@ import cn.taketoday.framework.web.server.WebServerFactoryCustomizer;
 import cn.taketoday.framework.web.servlet.WebListenerRegistrar;
 import cn.taketoday.framework.web.servlet.server.ConfigurableServletWebServerFactory;
 import cn.taketoday.framework.web.servlet.server.CookieSameSiteSupplier;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.PropertyMapper;
 
@@ -50,6 +51,7 @@ public class ServletWebServerFactoryCustomizer
 
   private final List<WebListenerRegistrar> webListenerRegistrars;
 
+  @Nullable
   private final List<CookieSameSiteSupplier> cookieSameSiteSuppliers;
 
   public ServletWebServerFactoryCustomizer(ServerProperties serverProperties) {
@@ -62,7 +64,8 @@ public class ServletWebServerFactoryCustomizer
   }
 
   ServletWebServerFactoryCustomizer(ServerProperties serverProperties,
-          List<WebListenerRegistrar> webListenerRegistrars, List<CookieSameSiteSupplier> cookieSameSiteSuppliers) {
+          List<WebListenerRegistrar> webListenerRegistrars,
+          @Nullable List<CookieSameSiteSupplier> cookieSameSiteSuppliers) {
     this.serverProperties = serverProperties;
     this.webListenerRegistrars = webListenerRegistrars;
     this.cookieSameSiteSuppliers = cookieSameSiteSuppliers;
@@ -91,9 +94,11 @@ public class ServletWebServerFactoryCustomizer
     map.from(serverProperties::getHttp2).to(factory::setHttp2);
     map.from(serverProperties::getServerHeader).to(factory::setServerHeader);
     map.from(serverProperties.getShutdown()).to(factory::setShutdown);
+
     for (WebListenerRegistrar registrar : webListenerRegistrars) {
       registrar.register(factory);
     }
+
     if (CollectionUtils.isNotEmpty(cookieSameSiteSuppliers)) {
       factory.setCookieSameSiteSuppliers(cookieSameSiteSuppliers);
     }
