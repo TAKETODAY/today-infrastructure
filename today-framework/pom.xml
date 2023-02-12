@@ -68,6 +68,12 @@
     </dependency>
 
     <dependency>
+      <groupId>org.aspectj</groupId>
+      <artifactId>aspectjweaver</artifactId>
+      <scope>provided</scope>
+    </dependency>
+
+    <dependency>
       <groupId>cn.taketoday</groupId>
       <artifactId>today-websocket</artifactId>
       <scope>provided</scope>
