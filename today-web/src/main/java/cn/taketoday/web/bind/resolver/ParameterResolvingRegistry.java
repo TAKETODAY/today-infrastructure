@@ -222,10 +222,6 @@ public class ParameterResolvingRegistry
   public void registerDefaultStrategies(ParameterResolvingStrategies strategies) {
     log.info("Registering default parameter-resolvers to {}", strategies);
 
-    // For some useful context annotations
-    // --------------------------------------------
-    strategies.add(new OptionalTypeParameterResolvingStrategy(this));
-
     ApplicationContext context = obtainApplicationContext();
     ConfigurableBeanFactory beanFactory = context.unwrapFactory(ConfigurableBeanFactory.class);
     RedirectModelManager modelManager = getRedirectModelManager();
@@ -254,7 +250,6 @@ public class ParameterResolvingRegistry
 
     // type-based argument resolution
     if (ServletDetector.isPresent && context instanceof WebApplicationContext servletApp) {
-      // TODO getServletContext not available in WebApplicationContext ?
       ServletContext servletContext = servletApp.getServletContext();
       Assert.state(servletContext != null, "ServletContext is not available");
       ServletParameterResolvers.register(strategies, servletContext);

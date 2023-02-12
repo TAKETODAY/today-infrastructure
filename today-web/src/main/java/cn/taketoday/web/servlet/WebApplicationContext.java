@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -21,6 +21,7 @@
 package cn.taketoday.web.servlet;
 
 import cn.taketoday.context.ApplicationContext;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.servlet.support.WebApplicationContextUtils;
 import jakarta.servlet.ServletContext;
 
@@ -87,6 +88,7 @@ public interface WebApplicationContext extends ApplicationContext {
   /**
    * Return the standard Servlet API ServletContext for this application.
    */
+  @Nullable
   ServletContext getServletContext();
 
 }

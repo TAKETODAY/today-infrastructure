@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -20,6 +20,7 @@
 
 package cn.taketoday.web.handler;
 
+import cn.taketoday.lang.Experimental;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.HandlerInterceptor;
 import cn.taketoday.web.HandlerInterceptorsProvider;
@@ -30,6 +31,7 @@ import cn.taketoday.web.RequestContext;
 /**
  * @author TODAY 2019-12-25 16:19
  */
+@Experimental
 public abstract class InterceptableRequestHandler
         extends HandlerInterceptorHolder implements HttpRequestHandler, HandlerInterceptorsProvider {
 
