@@ -60,7 +60,6 @@
     <module>today-instrument</module>
     <module>today-test-support</module>
     <module>today-context-indexer</module>
-    <module>today-annotation-config</module>
     <module>integration-tests</module>
   </modules>
 

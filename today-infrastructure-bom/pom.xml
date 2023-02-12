@@ -149,12 +149,6 @@
 
       <dependency>
         <groupId>cn.taketoday</groupId>
-        <artifactId>today-annotation-config</artifactId>
-        <version>${project.version}</version>
-      </dependency>
-
-      <dependency>
-        <groupId>cn.taketoday</groupId>
         <artifactId>today-aspects</artifactId>
         <version>${project.version}</version>
       </dependency>
