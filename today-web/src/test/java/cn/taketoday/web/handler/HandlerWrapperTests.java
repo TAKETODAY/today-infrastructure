@@ -20,28 +20,21 @@
 
 package cn.taketoday.web.handler;
 
-import cn.taketoday.lang.Nullable;
+import org.junit.jupiter.api.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @since 4.0 2022/12/7 23:06
+ * @since 4.0 2023/2/12 15:18
  */
-public interface HandlerWrapper {
+class HandlerWrapperTests {
 
-  Object getHandler();
-
-  /**
-   * unwrap handler
-   *
-   * @param handler maybe a wrapped handler
-   * @return unwrapped handler
-   */
-  @Nullable
-  static Object unwrap(@Nullable Object handler) {
-    if (handler instanceof HandlerWrapper wrapper) {
-      return wrapper.getHandler();
-    }
-    return handler;
+  @Test
+  void unwrap() {
+    assertThat(HandlerWrapper.unwrap(null)).isEqualTo(null);
+    Object handler = new Object();
+    assertThat(HandlerWrapper.unwrap(handler)).isSameAs(handler);
   }
 
 }

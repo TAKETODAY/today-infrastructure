@@ -103,10 +103,7 @@ public abstract class InterceptorChain {
    * @see HandlerWrapper
    */
   public Object unwrapHandler() {
-    if (handler instanceof HandlerWrapper wrapper) {
-      return wrapper.getHandler();
-    }
-    return handler;
+    return HandlerWrapper.unwrap(handler);
   }
 
 }
