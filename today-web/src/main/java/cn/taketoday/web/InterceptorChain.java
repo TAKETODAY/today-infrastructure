@@ -21,6 +21,7 @@
 package cn.taketoday.web;
 
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.web.handler.HandlerWrapper;
 import cn.taketoday.web.handler.method.HandlerMethod;
 
 /**
@@ -87,8 +88,24 @@ public abstract class InterceptorChain {
    * {@link cn.taketoday.web.handler.method.HandlerMethod#unwrap(Object) HandlerMethod}
    *
    * @see HandlerMethod#unwrap(Object)
+   * @see HandlerWrapper
    */
   public Object getHandler() {
+    return handler;
+  }
+
+  /**
+   * Handler maybe a
+   * {@link cn.taketoday.web.handler.method.HandlerMethod#unwrap(Object) HandlerMethod}
+   * or {@link HandlerWrapper}
+   *
+   * @see HandlerMethod#unwrap(Object)
+   * @see HandlerWrapper
+   */
+  public Object unwrapHandler() {
+    if (handler instanceof HandlerWrapper wrapper) {
+      return wrapper.getHandler();
+    }
     return handler;
   }
 
