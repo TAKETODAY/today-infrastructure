@@ -340,7 +340,8 @@
                 <configuration>
                   <backend>html5</backend>
                   <sourceDirectory>${basedir}/docs</sourceDirectory>
-                  <outputFile>${project.build.directory}/generated-docs/today-infrastructure-${project.version}.html
+                  <outputFile>
+                    ${project.build.directory}/generated-docs/index.html
                   </outputFile>
                   <attributes>
                     <source-highlighter>coderay</source-highlighter>
@@ -368,7 +369,8 @@
                 <configuration>
                   <backend>pdf</backend>
                   <sourceDirectory>${basedir}/docs</sourceDirectory>
-                  <outputFile>${project.build.directory}/generated-docs/today-infrastructure-${project.version}.pdf
+                  <outputFile>
+                    ${project.build.directory}/generated-docs/today-infrastructure-${project.version}.pdf
                   </outputFile>
                   <attributes>
                     <source-highlighter>coderay</source-highlighter>
