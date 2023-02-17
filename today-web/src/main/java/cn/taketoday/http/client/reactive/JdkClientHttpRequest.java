@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -126,15 +126,22 @@ class JdkClientHttpRequest extends AbstractClientHttpRequest {
   }
 
   private HttpRequest.BodyPublisher toBodyPublisher(Publisher<? extends DataBuffer> body) {
-    Publisher<ByteBuffer> byteBufferBody = (body instanceof Mono ?
-                                            Mono.from(body).map(DataBuffer::toByteBuffer) :
-                                            Flux.from(body).map(DataBuffer::toByteBuffer));
+    Publisher<ByteBuffer> byteBufferBody =
+            body instanceof Mono
+            ? Mono.from(body).map(this::toByteBuffer)
+            : Flux.from(body).map(this::toByteBuffer);
 
     Flow.Publisher<ByteBuffer> bodyFlow = JdkFlowAdapter.publisherToFlowPublisher(byteBufferBody);
 
     return (getHeaders().getContentLength() > 0 ?
             HttpRequest.BodyPublishers.fromPublisher(bodyFlow, getHeaders().getContentLength()) :
             HttpRequest.BodyPublishers.fromPublisher(bodyFlow));
+  }
+
+  private ByteBuffer toByteBuffer(DataBuffer dataBuffer) {
+    ByteBuffer byteBuffer = ByteBuffer.allocate(dataBuffer.readableByteCount());
+    dataBuffer.toByteBuffer(byteBuffer);
+    return byteBuffer;
   }
 
   @Override

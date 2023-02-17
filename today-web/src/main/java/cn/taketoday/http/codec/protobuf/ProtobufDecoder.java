@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -155,8 +155,9 @@ public class ProtobufDecoder extends ProtobufCodecSupport implements Decoder<Mes
 
     try {
       Message.Builder builder = getMessageBuilder(targetType.toClass());
-      ByteBuffer buffer = dataBuffer.toByteBuffer();
-      builder.mergeFrom(CodedInputStream.newInstance(buffer), this.extensionRegistry);
+      ByteBuffer byteBuffer = ByteBuffer.allocate(dataBuffer.readableByteCount());
+      dataBuffer.toByteBuffer(byteBuffer);
+      builder.mergeFrom(CodedInputStream.newInstance(byteBuffer), this.extensionRegistry);
       return builder.build();
     }
     catch (IOException ex) {
@@ -236,7 +237,9 @@ public class ProtobufDecoder extends ProtobufCodecSupport implements Decoder<Mes
           this.messageBytesToRead -= chunkBytesToRead;
 
           if (this.messageBytesToRead == 0) {
-            CodedInputStream stream = CodedInputStream.newInstance(this.output.toByteBuffer());
+            ByteBuffer byteBuffer = ByteBuffer.allocate(this.output.readableByteCount());
+            this.output.toByteBuffer(byteBuffer);
+            CodedInputStream stream = CodedInputStream.newInstance(byteBuffer);
             DataBufferUtils.release(this.output);
             this.output = null;
             Message message = getMessageBuilder(this.elementType.toClass())

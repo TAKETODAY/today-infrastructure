@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -108,7 +108,11 @@ class HttpComponentsClientHttpRequest extends AbstractClientHttpRequest {
   @Override
   public Mono<Void> writeWith(Publisher<? extends DataBuffer> body) {
     return doCommit(() -> {
-      this.byteBufferFlux = Flux.from(body).map(DataBuffer::toByteBuffer);
+      this.byteBufferFlux = Flux.from(body).map(dataBuffer -> {
+        ByteBuffer byteBuffer = ByteBuffer.allocate(dataBuffer.readableByteCount());
+        dataBuffer.toByteBuffer(byteBuffer);
+        return byteBuffer;
+      });
       return Mono.empty();
     });
   }

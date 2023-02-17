@@ -20,6 +20,8 @@
 
 package cn.taketoday.core.io.buffer;
 
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.extension.AfterEachCallback;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -61,6 +63,22 @@ import static org.junit.jupiter.params.provider.Arguments.arguments;
  * @author Sam Brannen
  */
 public abstract class AbstractDataBufferAllocatingTests {
+
+  private static BufferAllocator netty5OnHeapUnpooled;
+
+  private static BufferAllocator netty5OffHeapUnpooled;
+
+  private static BufferAllocator netty5OffHeapPooled;
+
+  private static BufferAllocator netty5OnHeapPooled;
+
+  private static UnpooledByteBufAllocator netty4OffHeapUnpooled;
+
+  private static UnpooledByteBufAllocator netty4OnHeapUnpooled;
+
+  private static PooledByteBufAllocator netty4OffHeapPooled;
+
+  private static PooledByteBufAllocator netty4OnHeapPooled;
 
   @RegisterExtension
   AfterEachCallback leakDetector = context -> waitForDataBufferRelease(Duration.ofSeconds(2));
@@ -150,6 +168,28 @@ public abstract class AbstractDataBufferAllocatingTests {
     return metrics.stream().mapToLong(PoolArenaMetric::numActiveAllocations).sum();
   }
 
+  @BeforeAll
+  @SuppressWarnings("deprecation") // PooledByteBufAllocator no longer supports tinyCacheSize.
+  public static void createAllocators() {
+    netty4OnHeapUnpooled = new UnpooledByteBufAllocator(false);
+    netty4OffHeapUnpooled = new UnpooledByteBufAllocator(true);
+    netty4OnHeapPooled = new PooledByteBufAllocator(false, 1, 1, 4096, 4, 0, 0, 0, true);
+    netty4OffHeapPooled = new PooledByteBufAllocator(true, 1, 1, 4096, 4, 0, 0, 0, true);
+
+    netty5OnHeapUnpooled = BufferAllocator.onHeapUnpooled();
+    netty5OffHeapUnpooled = BufferAllocator.offHeapUnpooled();
+    netty5OnHeapPooled = BufferAllocator.onHeapPooled();
+    netty5OffHeapPooled = BufferAllocator.offHeapPooled();
+  }
+
+  @AfterAll
+  public static void closeAllocators() {
+    netty5OnHeapUnpooled.close();
+    netty5OffHeapUnpooled.close();
+    netty5OnHeapPooled.close();
+    netty5OffHeapPooled.close();
+  }
+
   @Retention(RetentionPolicy.RUNTIME)
   @Target(ElementType.METHOD)
   @ParameterizedTest(name = "[{index}] {0}")
@@ -157,29 +197,26 @@ public abstract class AbstractDataBufferAllocatingTests {
   public @interface ParameterizedDataBufferAllocatingTest {
   }
 
-  @SuppressWarnings("deprecation") // PooledByteBufAllocator no longer supports tinyCacheSize.
   public static Stream<Arguments> dataBufferFactories() {
     return Stream.of(
             // Netty 4
             arguments(named("NettyDataBufferFactory - UnpooledByteBufAllocator - preferDirect = true",
-                    new NettyDataBufferFactory(new UnpooledByteBufAllocator(true)))),
+                    new NettyDataBufferFactory(netty4OffHeapUnpooled))),
             arguments(named("NettyDataBufferFactory - UnpooledByteBufAllocator - preferDirect = false",
-                    new NettyDataBufferFactory(new UnpooledByteBufAllocator(false)))),
-            // 1) Disable caching for reliable leak detection, see https://github.com/netty/netty/issues/5275
-            // 2) maxOrder is 4 (vs default 11) but can be increased if necessary
+                    new NettyDataBufferFactory(netty4OnHeapUnpooled))),
             arguments(named("NettyDataBufferFactory - PooledByteBufAllocator - preferDirect = true",
-                    new NettyDataBufferFactory(new PooledByteBufAllocator(true, 1, 1, 4096, 4, 0, 0, 0, true)))),
+                    new NettyDataBufferFactory(netty4OffHeapPooled))),
             arguments(named("NettyDataBufferFactory - PooledByteBufAllocator - preferDirect = false",
-                    new NettyDataBufferFactory(new PooledByteBufAllocator(false, 1, 1, 4096, 4, 0, 0, 0, true)))),
+                    new NettyDataBufferFactory(netty4OnHeapPooled))),
             // Netty 5
             arguments(named("Netty5DataBufferFactory - BufferAllocator.onHeapUnpooled()",
-                    new Netty5DataBufferFactory(BufferAllocator.onHeapUnpooled()))),
+                    new Netty5DataBufferFactory(netty5OnHeapUnpooled))),
             arguments(named("Netty5DataBufferFactory - BufferAllocator.offHeapUnpooled()",
-                    new Netty5DataBufferFactory(BufferAllocator.offHeapUnpooled()))),
+                    new Netty5DataBufferFactory(netty5OffHeapUnpooled))),
             arguments(named("Netty5DataBufferFactory - BufferAllocator.onHeapPooled()",
-                    new Netty5DataBufferFactory(BufferAllocator.onHeapPooled()))),
+                    new Netty5DataBufferFactory(netty5OnHeapPooled))),
             arguments(named("Netty5DataBufferFactory - BufferAllocator.offHeapPooled()",
-                    new Netty5DataBufferFactory(BufferAllocator.offHeapPooled()))),
+                    new Netty5DataBufferFactory(netty5OffHeapPooled))),
             // Default
             arguments(named("DefaultDataBufferFactory - preferDirect = true",
                     new DefaultDataBufferFactory(true))),

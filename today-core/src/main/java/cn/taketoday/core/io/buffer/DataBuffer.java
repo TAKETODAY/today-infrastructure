@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -20,6 +20,7 @@
 
 package cn.taketoday.core.io.buffer;
 
+import java.io.Closeable;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
@@ -28,6 +29,7 @@ import java.nio.charset.Charset;
 import java.nio.charset.CharsetEncoder;
 import java.nio.charset.CoderResult;
 import java.nio.charset.CodingErrorAction;
+import java.util.Iterator;
 import java.util.function.IntPredicate;
 
 import cn.taketoday.lang.Assert;
@@ -395,6 +397,55 @@ public interface DataBuffer {
   ByteBuffer toByteBuffer(int index, int length);
 
   /**
+   * Copies this entire data buffer into the given destination
+   * {@code ByteBuffer}, beginning at the current
+   * {@linkplain #readPosition() reading position}, and the current
+   * {@linkplain ByteBuffer#position() position} of destination byte buffer.
+   *
+   * @param dest the destination byte buffer
+   */
+  default void toByteBuffer(ByteBuffer dest) {
+    toByteBuffer(readPosition(), dest, dest.position(), readableByteCount());
+  }
+
+  /**
+   * Copies the given length from this data buffer into the given destination
+   * {@code ByteBuffer}, beginning at the given source position, and the
+   * given destination position in the destination byte buffer.
+   *
+   * @param srcPos the position of this data buffer from where copying should start
+   * @param dest the destination byte buffer
+   * @param destPos the position in {@code dest} to where copying should start
+   * @param length the amount of data to copy
+   */
+  void toByteBuffer(int srcPos, ByteBuffer dest, int destPos, int length);
+
+  /**
+   * Returns a closeable iterator over each {@link ByteBuffer} in this data
+   * buffer that can be read. Calling this method is more efficient than
+   * {@link #toByteBuffer()}, as no data is copied. However, the byte buffers
+   * provided can only be used during the iteration.
+   * <p><b>Note</b> that the returned iterator must be used in a
+   * try-with-resources clause or explicitly
+   * {@linkplain ByteBufferIterator#close() closed}.
+   *
+   * @return a closeable iterator over the readable byte buffers contained in this data buffer
+   */
+  ByteBufferIterator readableByteBuffers();
+
+  /**
+   * Returns a closeable iterator over each {@link ByteBuffer} in this data
+   * buffer that can be written to. The byte buffers provided can only be used
+   * during the iteration.
+   * <p><b>Note</b> that the returned iterator must be used in a
+   * try-with-resources clause or explicitly
+   * {@linkplain ByteBufferIterator#close() closed}.
+   *
+   * @return a closeable iterator over the writable byte buffers contained in this data buffer
+   */
+  ByteBufferIterator writableByteBuffers();
+
+  /**
    * Expose this buffer's data as an {@link InputStream}. Both data and read position are
    * shared between the returned stream and this data buffer. The underlying buffer will
    * <strong>not</strong> be {@linkplain DataBufferUtils#release(DataBuffer) released}
@@ -451,5 +502,19 @@ public interface DataBuffer {
    * @return a string representation of a part of this buffers data
    */
   String toString(int index, int length, Charset charset);
+
+  /**
+   * A dedicated iterator type that ensures the lifecycle of iterated
+   * {@link ByteBuffer} elements. This iterator must be used in a
+   * try-with-resources clause or explicitly {@linkplain #close() closed}.
+   *
+   * @see DataBuffer#readableByteBuffers()
+   * @see DataBuffer#writableByteBuffers()
+   */
+  interface ByteBufferIterator extends Iterator<ByteBuffer>, Closeable {
+
+    @Override
+    void close();
+  }
 
 }

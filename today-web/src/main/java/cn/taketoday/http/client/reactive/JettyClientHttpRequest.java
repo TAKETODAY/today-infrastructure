@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -28,6 +28,7 @@ import org.reactivestreams.Publisher;
 
 import java.net.HttpCookie;
 import java.net.URI;
+import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -111,16 +112,18 @@ class JettyClientHttpRequest extends AbstractClientHttpRequest {
     return contentType != null ? contentType.toString() : MediaType.APPLICATION_OCTET_STREAM_VALUE;
   }
 
-  private ContentChunk toContentChunk(DataBuffer buffer, MonoSink<Void> sink) {
-    return new ContentChunk(buffer.toByteBuffer(), new Callback() {
+  private ContentChunk toContentChunk(DataBuffer dataBuffer, MonoSink<Void> sink) {
+    ByteBuffer byteBuffer = ByteBuffer.allocate(dataBuffer.readableByteCount());
+    dataBuffer.toByteBuffer(byteBuffer);
+    return new ContentChunk(byteBuffer, new Callback() {
       @Override
       public void succeeded() {
-        DataBufferUtils.release(buffer);
+        DataBufferUtils.release(dataBuffer);
       }
 
       @Override
       public void failed(Throwable t) {
-        DataBufferUtils.release(buffer);
+        DataBufferUtils.release(dataBuffer);
         sink.error(t);
       }
     });

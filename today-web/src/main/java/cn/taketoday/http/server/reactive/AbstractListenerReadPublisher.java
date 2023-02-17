@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -28,6 +28,8 @@ import java.io.IOException;
 import java.util.concurrent.atomic.AtomicLongFieldUpdater;
 import java.util.concurrent.atomic.AtomicReference;
 
+import cn.taketoday.core.io.buffer.DataBuffer;
+import cn.taketoday.core.io.buffer.DefaultDataBufferFactory;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.LogDelegateFactory;
@@ -60,6 +62,8 @@ public abstract class AbstractListenerReadPublisher<T> implements Publisher<T> {
    * @see WriteResultPublisher#rsWriteResultLogger
    */
   protected static Logger rsReadLogger = LogDelegateFactory.getHiddenLog(AbstractListenerReadPublisher.class);
+
+  final static DataBuffer EMPTY_BUFFER = DefaultDataBufferFactory.sharedInstance.allocateBuffer(0);
 
   private final AtomicReference<State> state = new AtomicReference<>(State.UNSUBSCRIBED);
 
@@ -184,7 +188,12 @@ public abstract class AbstractListenerReadPublisher<T> implements Publisher<T> {
     long r;
     while ((r = this.demand) > 0 && (this.state.get() != State.COMPLETED)) {
       T data = read();
-      if (data != null) {
+      if (data == EMPTY_BUFFER) {
+        if (rsReadLogger.isTraceEnabled()) {
+          rsReadLogger.trace("{}0 bytes read, trying again", getLogPrefix());
+        }
+      }
+      else if (data != null) {
         if (r != Long.MAX_VALUE) {
           DEMAND_FIELD_UPDATER.addAndGet(this, -1L);
         }

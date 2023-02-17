@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -23,6 +23,7 @@ package cn.taketoday.core.io.buffer;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.util.Arrays;
+import java.util.NoSuchElementException;
 import java.util.function.IntPredicate;
 
 import cn.taketoday.lang.Assert;
@@ -304,9 +305,14 @@ public class DefaultDataBuffer implements DataBuffer {
   }
 
   @Override
-  public DefaultDataBuffer write(DataBuffer... buffers) {
-    if (!ObjectUtils.isEmpty(buffers)) {
-      write(Arrays.stream(buffers).map(DataBuffer::toByteBuffer).toArray(ByteBuffer[]::new));
+  public DefaultDataBuffer write(DataBuffer... dataBuffers) {
+    if (!ObjectUtils.isEmpty(dataBuffers)) {
+      ByteBuffer[] byteBuffers = new ByteBuffer[dataBuffers.length];
+      for (int i = 0; i < dataBuffers.length; i++) {
+        byteBuffers[i] = ByteBuffer.allocate(dataBuffers[i].readableByteCount());
+        dataBuffers[i].toByteBuffer(byteBuffers[i]);
+      }
+      write(byteBuffers);
     }
     return this;
   }
@@ -393,6 +399,29 @@ public class DefaultDataBuffer implements DataBuffer {
     readOnly.clear().position(index).limit(index + length);
     copy.put(readOnly);
     return copy.flip();
+  }
+
+  @Override
+  public void toByteBuffer(int srcPos, ByteBuffer dest, int destPos, int length) {
+    checkIndex(srcPos, length);
+    Assert.notNull(dest, "Dest must not be null");
+
+    dest = dest.duplicate().clear();
+    dest.put(destPos, this.byteBuffer, srcPos, length);
+  }
+
+  @Override
+  public DataBuffer.ByteBufferIterator readableByteBuffers() {
+    ByteBuffer readOnly = byteBuffer.asReadOnlyBuffer();
+    readOnly.clear().position(readPosition).limit(writePosition - readPosition);
+    return new ByteBufferIterator(readOnly);
+  }
+
+  @Override
+  public DataBuffer.ByteBufferIterator writableByteBuffers() {
+    ByteBuffer duplicate = byteBuffer.duplicate();
+    duplicate.clear().position(writePosition).limit(capacity - writePosition);
+    return new ByteBufferIterator(duplicate);
   }
 
   @Override
@@ -504,6 +533,36 @@ public class DefaultDataBuffer implements DataBuffer {
     public DefaultDataBuffer capacity(int newCapacity) {
       throw new UnsupportedOperationException("Changing the capacity of a sliced buffer is not supported");
     }
+  }
+
+  private static final class ByteBufferIterator implements DataBuffer.ByteBufferIterator {
+
+    private final ByteBuffer buffer;
+
+    private boolean hasNext = true;
+
+    public ByteBufferIterator(ByteBuffer buffer) {
+      this.buffer = buffer;
+    }
+
+    @Override
+    public boolean hasNext() {
+      return this.hasNext;
+    }
+
+    @Override
+    public ByteBuffer next() {
+      if (!this.hasNext) {
+        throw new NoSuchElementException();
+      }
+      else {
+        this.hasNext = false;
+        return this.buffer;
+      }
+    }
+
+    @Override
+    public void close() { }
   }
 
 }

@@ -69,10 +69,10 @@ public class ServerHttpResponseTests {
     assertThat(response.headersWritten).isTrue();
     assertThat(response.cookiesWritten).isTrue();
 
-    assertThat(response.body.size()).isEqualTo(3);
-    assertThat(new String(response.body.get(0).asByteBuffer().array(), StandardCharsets.UTF_8)).isEqualTo("a");
-    assertThat(new String(response.body.get(1).asByteBuffer().array(), StandardCharsets.UTF_8)).isEqualTo("b");
-    assertThat(new String(response.body.get(2).asByteBuffer().array(), StandardCharsets.UTF_8)).isEqualTo("c");
+    assertThat(response.body).hasSize(3);
+    assertThat(response.body.get(0).toString(StandardCharsets.UTF_8)).isEqualTo("a");
+    assertThat(response.body.get(1).toString(StandardCharsets.UTF_8)).isEqualTo("b");
+    assertThat(response.body.get(2).toString(StandardCharsets.UTF_8)).isEqualTo("c");
   }
 
   @Test
@@ -86,8 +86,8 @@ public class ServerHttpResponseTests {
     assertThat(response.headersWritten).isTrue();
     assertThat(response.cookiesWritten).isTrue();
 
-    assertThat(response.body.size()).isEqualTo(1);
-    assertThat(new String(response.body.get(0).asByteBuffer().array(), StandardCharsets.UTF_8)).isEqualTo("foo");
+    assertThat(response.body).hasSize(1);
+    assertThat(response.body.get(0).toString(StandardCharsets.UTF_8)).isEqualTo("foo");
   }
 
   @Test
@@ -141,10 +141,10 @@ public class ServerHttpResponseTests {
     assertThat(response.cookiesWritten).isTrue();
     assertThat(response.getCookies().getFirst("ID")).isSameAs(cookie);
 
-    assertThat(response.body.size()).isEqualTo(3);
-    assertThat(new String(response.body.get(0).asByteBuffer().array(), StandardCharsets.UTF_8)).isEqualTo("a");
-    assertThat(new String(response.body.get(1).asByteBuffer().array(), StandardCharsets.UTF_8)).isEqualTo("b");
-    assertThat(new String(response.body.get(2).asByteBuffer().array(), StandardCharsets.UTF_8)).isEqualTo("c");
+    assertThat(response.body).hasSize(3);
+    assertThat(response.body.get(0).toString(StandardCharsets.UTF_8)).isEqualTo("a");
+    assertThat(response.body.get(1).toString(StandardCharsets.UTF_8)).isEqualTo("b");
+    assertThat(response.body.get(2).toString(StandardCharsets.UTF_8)).isEqualTo("c");
   }
 
   @Test
