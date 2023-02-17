@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -105,7 +105,7 @@ public class ReactorClientHttpConnector implements ClientHttpConnector {
     AtomicReference<ReactorClientHttpResponse> responseRef = new AtomicReference<>();
     return this.httpClient
             .request(io.netty.handler.codec.http.HttpMethod.valueOf(method.name()))
-            .uri(uri.toString())
+            .uri(uri)
             .send((request, outbound) -> requestCallback.apply(adaptRequest(method, uri, request, outbound)))
             .responseConnection((response, connection) -> {
               ReactorClientHttpResponse newValue = new ReactorClientHttpResponse(response, connection);
