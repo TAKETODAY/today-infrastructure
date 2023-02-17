@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -85,6 +85,8 @@ public class CacheControl {
   private Duration staleIfError;
 
   private Duration sMaxAge;
+
+  private boolean immutable = false;
 
   /**
    * Create an empty CacheControl instance.
@@ -339,6 +341,22 @@ public class CacheControl {
   }
 
   /**
+   * Add an "immutable" directive.
+   * <p>This directive indicates that the origin server will not update the
+   * representation of that resource during the freshness lifetime of the response.
+   * Adding a {@link #maxAge(Duration) max-age} directive is strongly advised
+   * to enforce the actual freshness lifetime.
+   *
+   * @return {@code this}, to facilitate method chaining
+   * @see <a href="https://tools.ietf.org/html/rfc8246">rfc8246</a>
+   * @since 4.0
+   */
+  public CacheControl immutable() {
+    this.immutable = true;
+    return this;
+  }
+
+  /**
    * Return the "Cache-Control" header value, if any.
    *
    * @return the header value, or {@code null} if no directive was added
@@ -387,6 +405,9 @@ public class CacheControl {
     }
     if (this.staleWhileRevalidate != null) {
       appendDirective(headerValue, "stale-while-revalidate=" + this.staleWhileRevalidate.getSeconds());
+    }
+    if (this.immutable) {
+      appendDirective(headerValue, "immutable");
     }
     return headerValue.toString();
   }
