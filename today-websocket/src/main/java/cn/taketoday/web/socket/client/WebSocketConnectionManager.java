@@ -19,6 +19,7 @@
  */
 package cn.taketoday.web.socket.client;
 
+import java.net.URI;
 import java.util.List;
 
 import cn.taketoday.context.Lifecycle;
@@ -51,10 +52,23 @@ public class WebSocketConnectionManager extends ConnectionManagerSupport {
 
   private final WebSocketHttpHeaders headers = new WebSocketHttpHeaders();
 
+  /**
+   * Constructor with the client to use and a handler to handle messages with.
+   */
   public WebSocketConnectionManager(
           WebSocketClient client, WebSocketHandler webSocketHandler, String uriTemplate, Object... uriVariables) {
 
     super(uriTemplate, uriVariables);
+    this.client = client;
+    this.webSocketHandler = decorateWebSocketHandler(webSocketHandler);
+  }
+
+  /**
+   * Variant of {@link #WebSocketConnectionManager(WebSocketClient, WebSocketHandler, String, Object...)}
+   * with a prepared {@link URI}.
+   */
+  public WebSocketConnectionManager(WebSocketClient client, WebSocketHandler webSocketHandler, URI uri) {
+    super(uri);
     this.client = client;
     this.webSocketHandler = decorateWebSocketHandler(webSocketHandler);
   }
