@@ -78,6 +78,12 @@ class ReactorServerHttpRequest extends AbstractServerHttpRequest {
 
   private static URI resolveBaseUrl(HttpServerRequest request) throws URISyntaxException {
     String scheme = getScheme(request);
+
+    InetSocketAddress hostAddress = request.hostAddress();
+    if (hostAddress != null) {
+      return new URI(scheme, null, hostAddress.getHostString(), hostAddress.getPort(), null, null, null);
+    }
+
     String header = request.requestHeaders().get(HttpHeaderNames.HOST);
     if (header != null) {
       final int portIndex;
@@ -90,7 +96,7 @@ class ReactorServerHttpRequest extends AbstractServerHttpRequest {
       if (portIndex != -1) {
         try {
           return new URI(scheme, null, header.substring(0, portIndex),
-                  Integer.parseInt(header.substring(portIndex + 1)), null, null, null);
+                  Integer.parseInt(header, portIndex + 1, header.length(), 10), null, null, null);
         }
         catch (NumberFormatException ex) {
           throw new URISyntaxException(header, "Unable to parse port", portIndex);
@@ -100,12 +106,8 @@ class ReactorServerHttpRequest extends AbstractServerHttpRequest {
         return new URI(scheme, header, null, null);
       }
     }
-    else {
-      InetSocketAddress localAddress = request.hostAddress();
-      Assert.state(localAddress != null, "No host address available");
-      return new URI(scheme, null, localAddress.getHostString(),
-              localAddress.getPort(), null, null, null);
-    }
+
+    throw new IllegalStateException("Neither local hostAddress nor HOST header available");
   }
 
   private static String getScheme(HttpServerRequest request) {
