@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -22,7 +22,6 @@ package cn.taketoday.http.codec;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import org.assertj.core.api.Assertions;
 import org.reactivestreams.Publisher;
 
 import java.nio.charset.Charset;
@@ -62,7 +61,7 @@ class ServerSentEventHttpMessageWriterTests extends AbstractDataBufferAllocating
           new ServerSentEventHttpMessageWriter(new Jackson2JsonEncoder());
 
   @ParameterizedDataBufferAllocatingTest
-  void canWrite(String displayName, DataBufferFactory bufferFactory) {
+  void canWrite(DataBufferFactory bufferFactory) {
     super.bufferFactory = bufferFactory;
 
     assertThat(this.messageWriter.canWrite(fromClass(Object.class), null)).isTrue();
@@ -77,7 +76,7 @@ class ServerSentEventHttpMessageWriterTests extends AbstractDataBufferAllocating
   }
 
   @ParameterizedDataBufferAllocatingTest
-  void writeServerSentEvent(String displayName, DataBufferFactory bufferFactory) {
+  void writeServerSentEvent(DataBufferFactory bufferFactory) {
     super.bufferFactory = bufferFactory;
 
     ServerSentEvent<?> event = ServerSentEvent.builder().data("bar").id("c42").event("foo")
@@ -95,7 +94,7 @@ class ServerSentEventHttpMessageWriterTests extends AbstractDataBufferAllocating
   }
 
   @ParameterizedDataBufferAllocatingTest
-  void writeString(String displayName, DataBufferFactory bufferFactory) {
+  void writeString(DataBufferFactory bufferFactory) {
     super.bufferFactory = bufferFactory;
 
     MockServerHttpResponse outputMessage = new MockServerHttpResponse(super.bufferFactory);
@@ -110,7 +109,7 @@ class ServerSentEventHttpMessageWriterTests extends AbstractDataBufferAllocating
   }
 
   @ParameterizedDataBufferAllocatingTest
-  void writeMultiLineString(String displayName, DataBufferFactory bufferFactory) {
+  void writeMultiLineString(DataBufferFactory bufferFactory) {
     super.bufferFactory = bufferFactory;
 
     MockServerHttpResponse outputMessage = new MockServerHttpResponse(super.bufferFactory);
@@ -126,7 +125,7 @@ class ServerSentEventHttpMessageWriterTests extends AbstractDataBufferAllocating
 
   @ParameterizedDataBufferAllocatingTest
     // SPR-16516
-  void writeStringWithCustomCharset(String displayName, DataBufferFactory bufferFactory) {
+  void writeStringWithCustomCharset(DataBufferFactory bufferFactory) {
     super.bufferFactory = bufferFactory;
 
     MockServerHttpResponse outputMessage = new MockServerHttpResponse(super.bufferFactory);
@@ -147,7 +146,7 @@ class ServerSentEventHttpMessageWriterTests extends AbstractDataBufferAllocating
   }
 
   @ParameterizedDataBufferAllocatingTest
-  void writePojo(String displayName, DataBufferFactory bufferFactory) {
+  void writePojo(DataBufferFactory bufferFactory) {
     super.bufferFactory = bufferFactory;
 
     MockServerHttpResponse outputMessage = new MockServerHttpResponse(super.bufferFactory);
@@ -167,7 +166,7 @@ class ServerSentEventHttpMessageWriterTests extends AbstractDataBufferAllocating
 
   @ParameterizedDataBufferAllocatingTest
     // SPR-14899
-  void writePojoWithPrettyPrint(String displayName, DataBufferFactory bufferFactory) {
+  void writePojoWithPrettyPrint(DataBufferFactory bufferFactory) {
     super.bufferFactory = bufferFactory;
 
     ObjectMapper mapper = Jackson2ObjectMapperBuilder.json().indentOutput(true).build();
@@ -194,7 +193,7 @@ class ServerSentEventHttpMessageWriterTests extends AbstractDataBufferAllocating
 
   @ParameterizedDataBufferAllocatingTest
     // SPR-16516, SPR-16539
-  void writePojoWithCustomEncoding(String displayName, DataBufferFactory bufferFactory) {
+  void writePojoWithCustomEncoding(DataBufferFactory bufferFactory) {
     super.bufferFactory = bufferFactory;
 
     MockServerHttpResponse outputMessage = new MockServerHttpResponse(super.bufferFactory);
