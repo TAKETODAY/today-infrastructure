@@ -401,7 +401,6 @@ class DataBufferTests extends AbstractDataBufferAllocatingTests {
   }
 
   @ParameterizedDataBufferAllocatingTest
-  @SuppressWarnings("deprecation")
   void increaseCapacity(DataBufferFactory bufferFactory) {
     super.bufferFactory = bufferFactory;
 
@@ -415,7 +414,6 @@ class DataBufferTests extends AbstractDataBufferAllocatingTests {
   }
 
   @ParameterizedDataBufferAllocatingTest
-  @SuppressWarnings("deprecation")
   void decreaseCapacityLowReadPosition(DataBufferFactory bufferFactory) {
     assumeFalse(bufferFactory instanceof Netty5DataBufferFactory,
             "Netty 5 does not support decreasing the capacity");
@@ -431,7 +429,6 @@ class DataBufferTests extends AbstractDataBufferAllocatingTests {
   }
 
   @ParameterizedDataBufferAllocatingTest
-  @SuppressWarnings("deprecation")
   void decreaseCapacityHighReadPosition(DataBufferFactory bufferFactory) {
     assumeFalse(bufferFactory instanceof Netty5DataBufferFactory,
             "Netty 5 does not support decreasing the capacity");
@@ -448,7 +445,6 @@ class DataBufferTests extends AbstractDataBufferAllocatingTests {
   }
 
   @ParameterizedDataBufferAllocatingTest
-  @SuppressWarnings("deprecation")
   void capacityLessThanZero(DataBufferFactory bufferFactory) {
     super.bufferFactory = bufferFactory;
 
@@ -514,7 +510,6 @@ class DataBufferTests extends AbstractDataBufferAllocatingTests {
   }
 
   @ParameterizedDataBufferAllocatingTest
-  @SuppressWarnings("deprecation")
   void asByteBuffer(DataBufferFactory bufferFactory) {
     super.bufferFactory = bufferFactory;
 
@@ -536,7 +531,6 @@ class DataBufferTests extends AbstractDataBufferAllocatingTests {
   }
 
   @ParameterizedDataBufferAllocatingTest
-  @SuppressWarnings("deprecation")
   void asByteBufferIndexLength(DataBufferFactory bufferFactory) {
     super.bufferFactory = bufferFactory;
 
@@ -562,7 +556,6 @@ class DataBufferTests extends AbstractDataBufferAllocatingTests {
   }
 
   @ParameterizedDataBufferAllocatingTest
-  @SuppressWarnings("deprecation")
   void byteBufferContainsDataBufferChanges(DataBufferFactory bufferFactory) {
     assumeFalse(bufferFactory instanceof Netty5DataBufferFactory,
             "Netty 5 does not support sharing data between buffers");
@@ -582,7 +575,6 @@ class DataBufferTests extends AbstractDataBufferAllocatingTests {
   }
 
   @ParameterizedDataBufferAllocatingTest
-  @SuppressWarnings("deprecation")
   void dataBufferContainsByteBufferChanges(DataBufferFactory bufferFactory) {
     assumeFalse(bufferFactory instanceof Netty5DataBufferFactory,
             "Netty 5 does not support sharing data between buffers");
@@ -602,7 +594,6 @@ class DataBufferTests extends AbstractDataBufferAllocatingTests {
   }
 
   @ParameterizedDataBufferAllocatingTest
-  @SuppressWarnings("deprecation")
   void emptyAsByteBuffer(DataBufferFactory bufferFactory) {
     super.bufferFactory = bufferFactory;
 
@@ -771,7 +762,6 @@ class DataBufferTests extends AbstractDataBufferAllocatingTests {
   }
 
   @ParameterizedDataBufferAllocatingTest
-  @SuppressWarnings("deprecation")
   void slice(DataBufferFactory bufferFactory) {
     super.bufferFactory = bufferFactory;
 
@@ -832,7 +822,6 @@ class DataBufferTests extends AbstractDataBufferAllocatingTests {
   }
 
   @ParameterizedDataBufferAllocatingTest
-  @SuppressWarnings("deprecation")
   void spr16351(DataBufferFactory bufferFactory) {
     super.bufferFactory = bufferFactory;
 
@@ -849,6 +838,9 @@ class DataBufferTests extends AbstractDataBufferAllocatingTests {
 
     assertThat(result).isEqualTo(bytes);
 
+    if (bufferFactory instanceof Netty5DataBufferFactory) {
+      release(slice);
+    }
     release(buffer);
   }
 

@@ -42,7 +42,7 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
     <!--server-->
-    <netty.version>4.1.77.Final</netty.version>
+    <netty.version>4.1.89.Final</netty.version>
     <netty5.version>5.0.0.Alpha5</netty5.version>
     <jetty.version>11.0.13</jetty.version>
     <undertow.version>2.3.3.Final</undertow.version>
@@ -230,7 +230,7 @@
       <dependency>
         <groupId>io.projectreactor</groupId>
         <artifactId>reactor-bom</artifactId>
-        <version>2020.0.21</version>
+        <version>2022.0.3</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
