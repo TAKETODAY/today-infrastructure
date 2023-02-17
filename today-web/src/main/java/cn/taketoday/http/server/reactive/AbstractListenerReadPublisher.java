@@ -179,7 +179,7 @@ public abstract class AbstractListenerReadPublisher<T> implements Publisher<T> {
 
   /**
    * Read and publish data one at a time until there is no more data, no more
-   * demand, or perhaps we completed in the mean time.
+   * demand, or perhaps we completed meanwhile.
    *
    * @return {@code true} if there is more demand; {@code false} if there is
    * no more demand or we have completed.
