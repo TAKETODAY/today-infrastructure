@@ -265,32 +265,31 @@ public interface DataBuffer {
   default DataBuffer write(CharSequence charSequence, Charset charset) {
     Assert.notNull(charSequence, "CharSequence must not be null");
     Assert.notNull(charset, "Charset must not be null");
-    if (charSequence.length() != 0) {
-      CharsetEncoder charsetEncoder = charset.newEncoder()
+    if (charSequence.length() > 0) {
+      CharsetEncoder encoder = charset.newEncoder()
               .onMalformedInput(CodingErrorAction.REPLACE)
               .onUnmappableCharacter(CodingErrorAction.REPLACE);
-      CharBuffer inBuffer = CharBuffer.wrap(charSequence);
-      int estimatedSize = (int) (inBuffer.remaining() * charsetEncoder.averageBytesPerChar());
-      ByteBuffer outBuffer = ensureWritable(estimatedSize)
-              .asByteBuffer(writePosition(), writableByteCount());
+      CharBuffer src = CharBuffer.wrap(charSequence);
+      int cap = (int) (src.remaining() * encoder.averageBytesPerChar());
       while (true) {
-        CoderResult cr = inBuffer.hasRemaining()
-                         ? charsetEncoder.encode(inBuffer, outBuffer, true)
-                         : CoderResult.UNDERFLOW;
-        if (cr.isUnderflow()) {
-          cr = charsetEncoder.flush(outBuffer);
+        ensureWritable(cap);
+        CoderResult cr;
+        try (ByteBufferIterator iterator = writableByteBuffers()) {
+          Assert.state(iterator.hasNext(), "No ByteBuffer available");
+          ByteBuffer dest = iterator.next();
+          cr = encoder.encode(src, dest, true);
+          if (cr.isUnderflow()) {
+            cr = encoder.flush(dest);
+          }
+          writePosition(dest.position());
         }
         if (cr.isUnderflow()) {
           break;
         }
         if (cr.isOverflow()) {
-          writePosition(writePosition() + outBuffer.position());
-          int maximumSize = (int) (inBuffer.remaining() * charsetEncoder.maxBytesPerChar());
-          ensureWritable(maximumSize);
-          outBuffer = asByteBuffer(writePosition(), writableByteCount());
+          cap = 2 * cap + 1;
         }
       }
-      writePosition(writePosition() + outBuffer.position());
     }
     return this;
   }
