@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -34,6 +34,7 @@ import cn.taketoday.context.ApplicationContextException;
 import cn.taketoday.web.LocaleResolver;
 import cn.taketoday.web.i18n.AcceptHeaderLocaleResolver;
 import cn.taketoday.web.servlet.ServletRequestContext;
+import cn.taketoday.web.servlet.ServletUtils;
 import cn.taketoday.web.servlet.WebApplicationContext;
 import cn.taketoday.web.servlet.support.StaticWebApplicationContext;
 import cn.taketoday.web.servlet.view.InternalResourceView;
@@ -148,6 +149,32 @@ public class FreeMarkerViewTests {
     fv.render(model, context);
 
     assertThat(response.getContentType()).isEqualTo("myContentType");
+  }
+
+  @Test
+  public void requestAttributeVisible() throws Exception {
+    FreeMarkerView fv = new FreeMarkerView();
+
+    WebApplicationContext wac = mock();
+    MockServletContext sc = new MockServletContext();
+
+    Map<String, FreeMarkerConfig> configs = new HashMap<>();
+    FreeMarkerConfigurer configurer = new FreeMarkerConfigurer();
+    configurer.setConfiguration(new TestConfiguration());
+    configs.put("configurer", configurer);
+    given(wac.getBeansOfType(FreeMarkerConfig.class, true, false)).willReturn(configs);
+    given(wac.getServletContext()).willReturn(sc);
+
+    fv.setUrl("templateName");
+    fv.setApplicationContext(wac);
+
+    MockHttpServletRequest request = new MockHttpServletRequest();
+    request.addPreferredLocale(Locale.US);
+    request.setAttribute(ServletUtils.WEB_APPLICATION_CONTEXT_ATTRIBUTE, wac);
+    HttpServletResponse response = new MockHttpServletResponse();
+
+    request.setAttribute("myattr", "myvalue");
+    fv.render(null, new ServletRequestContext(wac, request, response));
   }
 
   @Test

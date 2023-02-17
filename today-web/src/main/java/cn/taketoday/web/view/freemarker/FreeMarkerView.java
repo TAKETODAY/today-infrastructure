@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -41,6 +41,8 @@ import freemarker.template.ObjectWrapper;
 import freemarker.template.SimpleHash;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
+import freemarker.template.TemplateModel;
+import freemarker.template.TemplateModelException;
 
 /**
  * View using the FreeMarker template engine.
@@ -59,7 +61,10 @@ import freemarker.template.TemplateException;
  * bean property. See {@link #setConfiguration} for more details on the impacts
  * of this approach.
  *
- * <p>Note: Framework's FreeMarker support requires FreeMarker 2.3 or higher.
+ * <p>Note: Infra FreeMarker support requires FreeMarker 2.3 or higher.
+ *  FreeMarker templates are rendered in a minimal
+ * fashion without JSP support, just exposing request attributes in addition
+ * to the MVC-provided model map for alignment with common Servlet resources.
  *
  * @author Darren Davison
  * @author Juergen Hoeller
@@ -254,7 +259,7 @@ public class FreeMarkerView extends AbstractTemplateView {
   protected void doRender(Map<String, Object> model, RequestContext context) throws Exception {
     // Expose model to JSP tags (as request attributes).
     exposeModelAsRequestAttributes(model, context);
-    // Expose all standard FreeMarker hash models.
+    // Expose FreeMarker hash model.
     SimpleHash fmModel = buildTemplateModel(model, context);
 
     // Grab the locale-specific version of the template.
@@ -264,15 +269,16 @@ public class FreeMarkerView extends AbstractTemplateView {
 
   /**
    * Build a FreeMarker template model for the given model Map.
-   * <p>The default implementation builds a {@link SimpleHash}.
+   * <p>The default implementation builds a {@link SimpleHash} for the
+   * given MVC model with an additional fallback to request attributes.
    *
    * @param model the model to use for rendering
-   * @param request current HTTP request context
+   * @param request current HTTP request
    * @return the FreeMarker template model, as a {@link SimpleHash} or subclass thereof
    */
   protected SimpleHash buildTemplateModel(Map<String, Object> model, RequestContext request) {
 
-    SimpleHash fmModel = new SimpleHash(getObjectWrapper());
+    SimpleHash fmModel = new RequestHashModel(getObjectWrapper(), request);
     fmModel.putAll(model);
     return fmModel;
   }
@@ -329,4 +335,31 @@ public class FreeMarkerView extends AbstractTemplateView {
     template.process(model, response.getWriter());
   }
 
+  /**
+   * Extension of FreeMarker {@link SimpleHash}, adding a fallback to request attributes.
+   * Similar to the formerly used {@link freemarker.ext.servlet.AllHttpScopesHashModel},
+   * just limited to common request attribute exposure.
+   */
+  private static class RequestHashModel extends SimpleHash {
+
+    private final RequestContext request;
+
+    public RequestHashModel(ObjectWrapper wrapper, RequestContext request) {
+      super(wrapper);
+      this.request = request;
+    }
+
+    @Override
+    public TemplateModel get(String key) throws TemplateModelException {
+      TemplateModel model = super.get(key);
+      if (model != null) {
+        return model;
+      }
+      Object obj = this.request.getAttribute(key);
+      if (obj != null) {
+        return wrap(obj);
+      }
+      return wrap(null);
+    }
+  }
 }

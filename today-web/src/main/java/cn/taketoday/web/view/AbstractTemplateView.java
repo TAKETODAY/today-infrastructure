@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -24,10 +24,10 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.RequestContextUtils;
 import cn.taketoday.session.SessionManager;
 import cn.taketoday.session.WebSession;
+import cn.taketoday.web.RequestContext;
+import cn.taketoday.web.RequestContextUtils;
 
 /**
  * Adapter base class for template-based view technologies such as FreeMarker,
@@ -57,14 +57,16 @@ public abstract class AbstractTemplateView extends AbstractUrlBasedView {
   /**
    * Set whether all request attributes should be added to the
    * model prior to merging with the template. Default is "false".
+   * <p>Note that some templates may make request attributes visible
+   * on their own, e.g. FreeMarker, without exposure in the MVC model.
    */
   public void setExposeRequestAttributes(boolean exposeRequestAttributes) {
     this.exposeRequestAttributes = exposeRequestAttributes;
   }
 
   /**
-   * Set whether HttpServletRequest attributes are allowed to override (hide)
-   * controller generated model attributes of the same name. Default is "false",
+   * Set whether Request attributes are allowed to override (hide)
+   * controller generated model attributes of the same name. Default is "false"
    * which causes an exception to be thrown if request attributes of the same
    * name as model attributes are found.
    */
