@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -21,7 +21,6 @@
 package cn.taketoday.http.converter;
 
 import org.apache.tomcat.util.http.fileupload.FileItem;
-import org.apache.tomcat.util.http.fileupload.FileItemFactory;
 import org.apache.tomcat.util.http.fileupload.FileUpload;
 import org.apache.tomcat.util.http.fileupload.RequestContext;
 import org.apache.tomcat.util.http.fileupload.UploadContext;
@@ -33,7 +32,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -41,7 +39,6 @@ import java.util.Map;
 import javax.xml.transform.Source;
 import javax.xml.transform.stream.StreamSource;
 
-import cn.taketoday.core.DefaultMultiValueMap;
 import cn.taketoday.core.LinkedMultiValueMap;
 import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.core.io.ClassPathResource;
@@ -57,6 +54,7 @@ import static cn.taketoday.http.MediaType.APPLICATION_FORM_URLENCODED;
 import static cn.taketoday.http.MediaType.APPLICATION_JSON;
 import static cn.taketoday.http.MediaType.MULTIPART_FORM_DATA;
 import static cn.taketoday.http.MediaType.MULTIPART_MIXED;
+import static cn.taketoday.http.MediaType.MULTIPART_RELATED;
 import static cn.taketoday.http.MediaType.TEXT_XML;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -69,8 +67,6 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Sam Brannen
  */
 public class FormHttpMessageConverterTests {
-
-  private static final MediaType MULTIPART_RELATED = new MediaType("multipart", "related");
 
   private final FormHttpMessageConverter converter = new AllEncompassingFormHttpMessageConverter();
 
@@ -88,8 +84,6 @@ public class FormHttpMessageConverterTests {
     // Without custom multipart types supported
     asssertCannotReadMultipart();
 
-    this.converter.addSupportedMediaTypes(MULTIPART_RELATED);
-
     // Should still be the case with custom multipart types supported
     asssertCannotReadMultipart();
   }
@@ -99,6 +93,7 @@ public class FormHttpMessageConverterTests {
     assertCanWrite(APPLICATION_FORM_URLENCODED);
     assertCanWrite(MULTIPART_FORM_DATA);
     assertCanWrite(MULTIPART_MIXED);
+    assertCanWrite(MULTIPART_RELATED);
     assertCanWrite(new MediaType("multipart", "form-data", StandardCharsets.UTF_8));
     assertCanWrite(MediaType.ALL);
     assertCanWrite(null);
@@ -106,21 +101,19 @@ public class FormHttpMessageConverterTests {
 
   @Test
   public void setSupportedMediaTypes() {
-    assertCannotWrite(MULTIPART_RELATED);
+    this.converter.setSupportedMediaTypes(List.of(MULTIPART_FORM_DATA));
+    assertCannotWrite(MULTIPART_MIXED);
 
-    List<MediaType> supportedMediaTypes = new ArrayList<>(this.converter.getSupportedMediaTypes());
-    supportedMediaTypes.add(MULTIPART_RELATED);
-    this.converter.setSupportedMediaTypes(supportedMediaTypes);
-
-    assertCanWrite(MULTIPART_RELATED);
+    this.converter.setSupportedMediaTypes(List.of(MULTIPART_MIXED));
+    assertCanWrite(MULTIPART_MIXED);
   }
 
   @Test
   public void addSupportedMediaTypes() {
-    assertCannotWrite(MULTIPART_RELATED);
+    this.converter.setSupportedMediaTypes(List.of(MULTIPART_FORM_DATA));
+    assertCannotWrite(MULTIPART_MIXED);
 
     this.converter.addSupportedMediaTypes(MULTIPART_RELATED);
-
     assertCanWrite(MULTIPART_RELATED);
   }
 
@@ -143,7 +136,7 @@ public class FormHttpMessageConverterTests {
 
   @Test
   public void writeForm() throws IOException {
-    MultiValueMap<String, String> body = MultiValueMap.fromLinkedHashMap();
+    MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
     body.set("name 1", "value 1");
     body.add("name 2", "value 2+1");
     body.add("name 2", "value 2+2");
@@ -151,9 +144,12 @@ public class FormHttpMessageConverterTests {
     MockHttpOutputMessage outputMessage = new MockHttpOutputMessage();
     this.converter.write(body, APPLICATION_FORM_URLENCODED, outputMessage);
 
-    assertThat(outputMessage.getBodyAsString(StandardCharsets.UTF_8)).as("Invalid result").isEqualTo("name+1=value+1&name+2=value+2%2B1&name+2=value+2%2B2&name+3");
-    assertThat(outputMessage.getHeaders().getContentType().toString()).as("Invalid content-type").isEqualTo("application/x-www-form-urlencoded;charset=UTF-8");
-    assertThat(outputMessage.getHeaders().getContentLength()).as("Invalid content-length").isEqualTo(outputMessage.getBodyAsBytes().length);
+    assertThat(outputMessage.getBodyAsString(StandardCharsets.UTF_8))
+            .as("Invalid result").isEqualTo("name+1=value+1&name+2=value+2%2B1&name+2=value+2%2B2&name+3");
+    assertThat(outputMessage.getHeaders().getContentType().toString())
+            .as("Invalid content-type").isEqualTo("application/x-www-form-urlencoded;charset=UTF-8");
+    assertThat(outputMessage.getHeaders().getContentLength())
+            .as("Invalid content-length").isEqualTo(outputMessage.getBodyAsBytes().length);
   }
 
   @Test
@@ -242,7 +238,7 @@ public class FormHttpMessageConverterTests {
             new ResourceHttpMessageConverter(),
             new SourceHttpMessageConverter<>()));
 
-    MultiValueMap<String, Object> parts = MultiValueMap.fromLinkedHashMap();
+    MultiValueMap<String, Object> parts = new LinkedMultiValueMap<>();
     parts.add("name 1", "value 1");
     parts.add("name 2", "value 2+1");
     parts.add("name 2", "value 2+2");
@@ -260,14 +256,6 @@ public class FormHttpMessageConverterTests {
     };
     parts.add("utf8", utf8);
 
-    Object obj = new Object() {
-      private String name;
-
-      public String getName() {
-        return name;
-      }
-    };
-
     Source xml = new StreamSource(new StringReader("<root><child/></root>"));
     HttpHeaders entityHeaders = HttpHeaders.create();
     entityHeaders.setContentType(TEXT_XML);
@@ -282,13 +270,12 @@ public class FormHttpMessageConverterTests {
     this.converter.write(parts,
             new MediaType("multipart", "form-data", parameters), outputMessage);
 
-    MediaType contentType = outputMessage.getHeaders().getContentType();
+    final MediaType contentType = outputMessage.getHeaders().getContentType();
     assertThat(contentType.getParameters()).containsKeys("charset", "boundary", "foo"); // gh-21568, gh-25839
 
     // see if Commons FileUpload can read what we wrote
-    FileItemFactory fileItemFactory = new DiskFileItemFactory();
     FileUpload fileUpload = new FileUpload();
-    fileUpload.setFileItemFactory(fileItemFactory);
+    fileUpload.setFileItemFactory(new DiskFileItemFactory());
     RequestContext requestContext = new MockHttpOutputMessageRequestContext(outputMessage);
     List<FileItem> items = fileUpload.parseRequest(requestContext);
     assertThat(items).hasSize(6);
@@ -331,11 +318,11 @@ public class FormHttpMessageConverterTests {
     MyBean myBean = new MyBean();
     myBean.setString("foo");
 
-    MultiValueMap<String, Object> parts = new DefaultMultiValueMap<>();
+    MultiValueMap<String, Object> parts = new LinkedMultiValueMap<>();
     parts.add("part1", myBean);
 
     HttpHeaders entityHeaders = HttpHeaders.create();
-    entityHeaders.setContentType(APPLICATION_JSON);
+    entityHeaders.setContentType(TEXT_XML);
     HttpEntity<MyBean> entity = new HttpEntity<>(myBean, entityHeaders);
     parts.add("part2", entity);
 
@@ -343,27 +330,36 @@ public class FormHttpMessageConverterTests {
     this.converter.setMultipartCharset(StandardCharsets.UTF_8);
     this.converter.write(parts, new MediaType("multipart", "form-data", StandardCharsets.UTF_8), outputMessage);
 
-    MediaType contentType = outputMessage.getHeaders().getContentType();
+    final MediaType contentType = outputMessage.getHeaders().getContentType();
     assertThat(contentType.getParameter("boundary")).as("No boundary found").isNotNull();
 
     // see if Commons FileUpload can read what we wrote
-    FileItemFactory fileItemFactory = new DiskFileItemFactory();
     FileUpload fileUpload = new FileUpload();
-    fileUpload.setFileItemFactory(fileItemFactory);
+    fileUpload.setFileItemFactory(new DiskFileItemFactory());
     RequestContext requestContext = new MockHttpOutputMessageRequestContext(outputMessage);
     List<FileItem> items = fileUpload.parseRequest(requestContext);
-    assertThat(items.size()).isEqualTo(2);
+    assertThat(items).hasSize(2);
 
     FileItem item = items.get(0);
     assertThat(item.isFormField()).isTrue();
     assertThat(item.getFieldName()).isEqualTo("part1");
     assertThat(item.getString()).isEqualTo("{\"string\":\"foo\"}");
 
+    item = items.get(1);
+    assertThat(item.isFormField()).isTrue();
+    assertThat(item.getFieldName()).isEqualTo("part2");
+
+    // With developer builds we get: <MyBean><string>foo</string></MyBean>
+    // But on CI server we get: <MyBean xmlns=""><string>foo</string></MyBean>
+    // So... we make a compromise:
+    assertThat(item.getString())
+            .startsWith("<MyBean")
+            .endsWith("><string>foo</string></MyBean>");
   }
 
   @Test
   public void writeMultipartCharset() throws Exception {
-    MultiValueMap<String, Object> parts = new DefaultMultiValueMap<>();
+    MultiValueMap<String, Object> parts = new LinkedMultiValueMap<>();
     Resource logo = new ClassPathResource("/cn/taketoday/http/converter/logo.jpg");
     parts.add("logo", logo);
 
