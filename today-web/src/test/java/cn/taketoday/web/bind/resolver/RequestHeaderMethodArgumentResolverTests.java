@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -50,6 +50,7 @@ import cn.taketoday.web.testfixture.servlet.MockHttpServletResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
@@ -258,8 +259,10 @@ class RequestHeaderMethodArgumentResolverTests {
     bindingInitializer.setConversionService(new DefaultFormattingConversionService());
     webRequest.setBindingContext(new BindingContext(bindingInitializer));
 
-    assertThatExceptionOfType(MethodArgumentTypeMismatchException.class).isThrownBy(
-            () -> resolver.resolveArgument(webRequest, paramUuid));
+    assertThatThrownBy(
+            () -> resolver.resolveArgument(webRequest, paramUuid))
+            .isInstanceOf(MethodArgumentTypeMismatchException.class)
+            .extracting("propertyName").isEqualTo("name");
   }
 
   @Test
