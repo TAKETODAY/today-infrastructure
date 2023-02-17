@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URL;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -302,6 +303,16 @@ public class VersionResourceResolver extends AbstractResourceResolver {
     @Override
     public InputStream getInputStream() throws IOException {
       return this.original.getInputStream();
+    }
+
+    @Override
+    public byte[] getContentAsByteArray() throws IOException {
+      return this.original.getContentAsByteArray();
+    }
+
+    @Override
+    public String getContentAsString(Charset charset) throws IOException {
+      return this.original.getContentAsString(charset);
     }
 
     @Override

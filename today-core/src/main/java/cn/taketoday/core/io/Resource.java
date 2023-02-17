@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -15,19 +15,22 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 package cn.taketoday.core.io;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.URI;
 import java.net.URL;
+import java.nio.charset.Charset;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
 
 import cn.taketoday.lang.Experimental;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.FileCopyUtils;
 
 /**
  * Interface for a resource descriptor that abstracts from the actual type of
@@ -96,6 +99,34 @@ public interface Resource extends InputStreamSource {
    * @see #getInputStream()
    */
   File getFile() throws IOException;
+
+  /**
+   * Return the contents of this resource as a byte array.
+   *
+   * @return the contents of this resource as byte array
+   * @throws java.io.FileNotFoundException if the resource cannot be resolved as
+   * absolute file path, i.e. if the resource is not available in a file system
+   * @throws IOException in case of general resolution/reading failures
+   * @since 4.0
+   */
+  default byte[] getContentAsByteArray() throws IOException {
+    return FileCopyUtils.copyToByteArray(getInputStream());
+  }
+
+  /**
+   * Returns the contents of this resource as a string, using the specified
+   * charset.
+   *
+   * @param charset the charset to use for decoding
+   * @return the contents of this resource as a {@code String}
+   * @throws java.io.FileNotFoundException if the resource cannot be resolved as
+   * absolute file path, i.e. if the resource is not available in a file system
+   * @throws IOException in case of general resolution/reading failures
+   * @since 4.0
+   */
+  default String getContentAsString(Charset charset) throws IOException {
+    return FileCopyUtils.copyToString(new InputStreamReader(getInputStream(), charset));
+  }
 
   /**
    * Determine whether this resource actually exists in physical form.

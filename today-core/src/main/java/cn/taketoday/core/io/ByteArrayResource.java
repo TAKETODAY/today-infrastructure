@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -23,6 +23,7 @@ package cn.taketoday.core.io;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.Charset;
 import java.util.Arrays;
 
 import cn.taketoday.lang.Assert;
@@ -107,6 +108,19 @@ public class ByteArrayResource extends AbstractResource {
   @Override
   public InputStream getInputStream() throws IOException {
     return new ByteArrayInputStream(this.byteArray);
+  }
+
+  @Override
+  public byte[] getContentAsByteArray() throws IOException {
+    int length = this.byteArray.length;
+    byte[] result = new byte[length];
+    System.arraycopy(this.byteArray, 0, result, 0, length);
+    return result;
+  }
+
+  @Override
+  public String getContentAsString(Charset charset) throws IOException {
+    return new String(this.byteArray, charset);
   }
 
   /**

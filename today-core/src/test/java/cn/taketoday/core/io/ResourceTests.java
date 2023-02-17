@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -41,9 +41,9 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.ByteBuffer;
 import java.nio.channels.ReadableByteChannel;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.HashSet;
 import java.util.stream.Stream;
 
 import cn.taketoday.util.FileCopyUtils;
@@ -54,6 +54,7 @@ import okhttp3.mockwebserver.RecordedRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 
 /**
  * @author TODAY 2021/3/9 20:14
@@ -113,24 +114,13 @@ class ResourceTests {
     Resource relative4 = resource.createRelative("X.class");
     assertThat(relative4.exists()).isFalse();
     assertThat(relative4.isReadable()).isFalse();
+    assertThatExceptionOfType(FileNotFoundException.class).isThrownBy(relative4::contentLength);
+    assertThatExceptionOfType(FileNotFoundException.class).isThrownBy(relative4::lastModified);
+    assertThatExceptionOfType(FileNotFoundException.class).isThrownBy(relative4::getInputStream);
+    assertThatExceptionOfType(FileNotFoundException.class).isThrownBy(relative4::readableChannel);
+    assertThatExceptionOfType(FileNotFoundException.class).isThrownBy(relative4::getContentAsByteArray);
     assertThatExceptionOfType(FileNotFoundException.class).isThrownBy(
-            relative4::contentLength);
-    assertThatExceptionOfType(FileNotFoundException.class).isThrownBy(
-            relative4::lastModified);
-  }
-
-  @ParameterizedTest(name = "{index}: {0}")
-  @MethodSource("resource")
-  void loadingMissingResourceFails(Resource resource) {
-    assertThatExceptionOfType(FileNotFoundException.class).isThrownBy(() ->
-            resource.createRelative("X").getInputStream());
-  }
-
-  @ParameterizedTest(name = "{index}: {0}")
-  @MethodSource("resource")
-  void readingMissingResourceFails(Resource resource) {
-    assertThatExceptionOfType(FileNotFoundException.class).isThrownBy(() ->
-            resource.createRelative("X").readableChannel());
+            () -> relative4.getContentAsString(StandardCharsets.UTF_8));
   }
 
   private static Stream<Arguments> resource() throws URISyntaxException {
@@ -152,12 +142,18 @@ class ResourceTests {
 
     @Test
     void hasContent() throws Exception {
-      Resource resource = new ByteArrayResource("testString".getBytes());
+      String testString = "testString";
+      byte[] testBytes = testString.getBytes();
+      Resource resource = new ByteArrayResource(testBytes);
       assertThat(resource.exists()).isTrue();
       assertThat(resource.isOpen()).isFalse();
-      String content = FileCopyUtils.copyToString(new InputStreamReader(resource.getInputStream()));
-      assertThat(content).isEqualTo("testString");
-      assertThat(new ByteArrayResource("testString".getBytes())).isEqualTo(resource);
+      byte[] contentBytes = resource.getContentAsByteArray();
+      assertThat(contentBytes).containsExactly(testBytes);
+      String contentString = resource.getContentAsString(StandardCharsets.US_ASCII);
+      assertThat(contentString).isEqualTo(testString);
+      contentString = FileCopyUtils.copyToString(new InputStreamReader(resource.getInputStream()));
+      assertThat(contentString).isEqualTo(testString);
+      assertThat(new ByteArrayResource(testBytes)).isEqualTo(resource);
     }
 
     @Test
@@ -180,11 +176,22 @@ class ResourceTests {
 
     @Test
     void hasContent() throws Exception {
-      InputStream is = new ByteArrayInputStream("testString".getBytes());
-      Resource resource = new InputStreamResource(is);
-      String content = FileCopyUtils.copyToString(new InputStreamReader(resource.getInputStream()));
-      assertThat(content).isEqualTo("testString");
-      assertThat(new InputStreamResource(is)).isEqualTo(resource);
+      String testString = "testString";
+      byte[] testBytes = testString.getBytes();
+      InputStream is = new ByteArrayInputStream(testBytes);
+      Resource resource1 = new InputStreamResource(is);
+      String content = FileCopyUtils.copyToString(new InputStreamReader(resource1.getInputStream()));
+      assertThat(content).isEqualTo(testString);
+      assertThat(new InputStreamResource(is)).isEqualTo(resource1);
+      assertThatIllegalStateException().isThrownBy(resource1::getInputStream);
+
+      Resource resource2 = new InputStreamResource(new ByteArrayInputStream(testBytes));
+      assertThat(resource2.getContentAsByteArray()).containsExactly(testBytes);
+      assertThatIllegalStateException().isThrownBy(resource2::getContentAsByteArray);
+
+      Resource resource3 = new InputStreamResource(new ByteArrayInputStream(testBytes));
+      assertThat(resource3.getContentAsString(StandardCharsets.US_ASCII)).isEqualTo(testString);
+      assertThatIllegalStateException().isThrownBy(() -> resource3.getContentAsString(StandardCharsets.US_ASCII));
     }
 
     @Test

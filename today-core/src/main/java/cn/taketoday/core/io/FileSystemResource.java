@@ -1,19 +1,19 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- * <p>
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
- * <p>
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * <p>
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * <p>
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
@@ -30,6 +30,7 @@ import java.net.URL;
 import java.nio.channels.FileChannel;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.WritableByteChannel;
+import java.nio.charset.Charset;
 import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
@@ -184,6 +185,26 @@ public class FileSystemResource extends AbstractResource implements WritableReso
   public InputStream getInputStream() throws IOException {
     try {
       return Files.newInputStream(filePath);
+    }
+    catch (NoSuchFileException ex) {
+      throw new FileNotFoundException(ex.getMessage());
+    }
+  }
+
+  @Override
+  public byte[] getContentAsByteArray() throws IOException {
+    try {
+      return Files.readAllBytes(this.filePath);
+    }
+    catch (NoSuchFileException ex) {
+      throw new FileNotFoundException(ex.getMessage());
+    }
+  }
+
+  @Override
+  public String getContentAsString(Charset charset) throws IOException {
+    try {
+      return Files.readString(this.filePath, charset);
     }
     catch (NoSuchFileException ex) {
       throw new FileNotFoundException(ex.getMessage());
