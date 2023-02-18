@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -253,6 +253,8 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
     setSource(original.getSource());
     copyAttributesFrom(original);
 
+    setEnableDependencyInjection(original.isEnableDependencyInjection());
+
     if (original instanceof AbstractBeanDefinition originalAbd) {
       if (originalAbd.hasBeanClass()) {
         setBeanClass(originalAbd.getBeanClass());
@@ -327,6 +329,8 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
     setRole(other.getRole());
     setSource(other.getSource());
     copyAttributesFrom(other);
+
+    setEnableDependencyInjection(other.isEnableDependencyInjection());
 
     if (other instanceof AbstractBeanDefinition otherAbd) {
       if (otherAbd.hasBeanClass()) {
