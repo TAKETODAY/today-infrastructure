@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -594,7 +594,7 @@ final class AnnotationTypeMapping {
   final class MirrorSets {
 
     public MirrorSet[] mirrorSets;
-    private final MirrorSet[] assigned;
+    public final MirrorSet[] assigned;
 
     MirrorSets() {
       this.assigned = new MirrorSet[methods.size()];

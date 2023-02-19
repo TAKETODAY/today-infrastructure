@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -40,6 +40,7 @@ import cn.taketoday.util.ObjectUtils;
  * {@link MergedAnnotation} instances that represent direct annotations.
  *
  * @author Phillip Webb
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see MergedAnnotations#valueOf(Collection)
  * @since 4.0
  */
@@ -130,8 +131,7 @@ final class MergedAnnotationsCollection implements MergedAnnotations {
   }
 
   @Override
-  public <A extends Annotation> MergedAnnotation<A> get(
-          Class<A> annotationType,
+  public <A extends Annotation> MergedAnnotation<A> get(Class<A> annotationType,
           @Nullable Predicate<? super MergedAnnotation<A>> predicate,
           @Nullable MergedAnnotationSelector<A> selector) {
 

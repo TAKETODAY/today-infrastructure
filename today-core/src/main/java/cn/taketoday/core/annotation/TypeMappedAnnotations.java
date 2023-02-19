@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -142,8 +142,7 @@ final class TypeMappedAnnotations implements MergedAnnotations {
   }
 
   @Override
-  public <A extends Annotation> MergedAnnotation<A> get(
-          Class<A> annotationType,
+  public <A extends Annotation> MergedAnnotation<A> get(Class<A> annotationType,
           @Nullable Predicate<? super MergedAnnotation<A>> predicate,
           @Nullable MergedAnnotationSelector<A> selector) {
 
@@ -168,8 +167,7 @@ final class TypeMappedAnnotations implements MergedAnnotations {
   }
 
   @Override
-  public <A extends Annotation> MergedAnnotation<A> get(
-          String annotationType,
+  public <A extends Annotation> MergedAnnotation<A> get(String annotationType,
           @Nullable Predicate<? super MergedAnnotation<A>> predicate,
           @Nullable MergedAnnotationSelector<A> selector) {
 
@@ -283,8 +281,10 @@ final class TypeMappedAnnotations implements MergedAnnotations {
           AnnotationTypeMapping mapping, AnnotationFilter filter, @Nullable Object requiredType) {
 
     Class<? extends Annotation> actualType = mapping.annotationType;
-    return (!filter.matches(actualType) &&
-            (requiredType == null || actualType == requiredType || actualType.getName().equals(requiredType)));
+    return !filter.matches(actualType) &&
+            (requiredType == null
+                    || actualType == requiredType
+                    || actualType.getName().equals(requiredType));
   }
 
   /**
@@ -297,23 +297,18 @@ final class TypeMappedAnnotations implements MergedAnnotations {
      * Shared instances that save us needing to create a new processor for
      * the common combinations.
      */
-    private static final IsPresent[] SHARED;
-
-    static {
-      SHARED = new IsPresent[4];
-      SHARED[0] = new IsPresent(RepeatableContainers.none(), AnnotationFilter.PLAIN, true);
-      SHARED[1] = new IsPresent(RepeatableContainers.none(), AnnotationFilter.PLAIN, false);
-      SHARED[2] = new IsPresent(RepeatableContainers.standard(), AnnotationFilter.PLAIN, true);
-      SHARED[3] = new IsPresent(RepeatableContainers.standard(), AnnotationFilter.PLAIN, false);
-    }
+    private static final IsPresent[] SHARED = {
+            new IsPresent(RepeatableContainers.none(), AnnotationFilter.PLAIN, true),
+            new IsPresent(RepeatableContainers.none(), AnnotationFilter.PLAIN, false),
+            new IsPresent(RepeatableContainers.standard(), AnnotationFilter.PLAIN, true),
+            new IsPresent(RepeatableContainers.standard(), AnnotationFilter.PLAIN, false)
+    };
 
     private final boolean directOnly;
     private final AnnotationFilter annotationFilter;
     private final RepeatableContainers repeatableContainers;
 
-    private IsPresent(
-            RepeatableContainers repeatableContainers, AnnotationFilter filter, boolean directOnly) {
-
+    IsPresent(RepeatableContainers repeatableContainers, AnnotationFilter filter, boolean directOnly) {
       this.directOnly = directOnly;
       this.annotationFilter = filter;
       this.repeatableContainers = repeatableContainers;
@@ -321,13 +316,12 @@ final class TypeMappedAnnotations implements MergedAnnotations {
 
     @Override
     @Nullable
-    public Boolean doWithAnnotations(
-            Object requiredType, int aggregateIndex,
-            @Nullable Object source, Annotation[] annotations) {
+    public Boolean doWithAnnotations(Object requiredType,
+            int aggregateIndex, @Nullable Object source, Annotation[] annotations) {
 
       for (Annotation annotation : annotations) {
         if (annotation != null) {
-          Class<? extends Annotation> type = annotation.annotationType();
+          var type = annotation.annotationType();
           if (type != null && !annotationFilter.matches(type)) {
             if (type == requiredType || type.getName().equals(requiredType)) {
               return Boolean.TRUE;
@@ -341,9 +335,7 @@ final class TypeMappedAnnotations implements MergedAnnotations {
               }
             }
             if (!directOnly) {
-              AnnotationTypeMappings mappings = AnnotationTypeMappings.forAnnotationType(type);
-              for (int i = 0; i < mappings.size(); i++) {
-                AnnotationTypeMapping mapping = mappings.get(i);
+              for (var mapping : AnnotationTypeMappings.forAnnotationType(type)) {
                 if (isMappingForType(mapping, annotationFilter, requiredType)) {
                   return Boolean.TRUE;
                 }
@@ -355,12 +347,11 @@ final class TypeMappedAnnotations implements MergedAnnotations {
       return null;
     }
 
-    static IsPresent get(
-            RepeatableContainers repeatableContainers,
+    static IsPresent get(RepeatableContainers repeatableContainers,
             AnnotationFilter annotationFilter, boolean directOnly) {
       // Use a single shared instance for common combinations
       if (annotationFilter == AnnotationFilter.PLAIN) {
-        if (repeatableContainers == RepeatableContainers.none()) {
+        if (repeatableContainers == RepeatableContainers.NONE) {
           return SHARED[directOnly ? 0 : 1];
         }
         if (repeatableContainers == RepeatableContainers.standard()) {
@@ -385,8 +376,7 @@ final class TypeMappedAnnotations implements MergedAnnotations {
     @Nullable
     private MergedAnnotation<A> result;
 
-    MergedAnnotationFinder(
-            Object requiredType,
+    MergedAnnotationFinder(Object requiredType,
             @Nullable Predicate<? super MergedAnnotation<A>> predicate,
             @Nullable MergedAnnotationSelector<A> selector) {
       this.predicate = predicate;
@@ -426,8 +416,8 @@ final class TypeMappedAnnotations implements MergedAnnotations {
       }
       AnnotationTypeMappings mappings = AnnotationTypeMappings.forAnnotationType(
               annotation.annotationType(), repeatableContainers, annotationFilter);
-      for (int i = 0; i < mappings.size(); i++) {
-        AnnotationTypeMapping mapping = mappings.get(i);
+
+      for (AnnotationTypeMapping mapping : mappings) {
         if (isMappingForType(mapping, annotationFilter, requiredType)) {
           MergedAnnotation<A> candidate = TypeMappedAnnotation.createIfPossible(
                   mapping, source, annotation, aggregateIndex, IntrospectionFailureLogger.INFO);

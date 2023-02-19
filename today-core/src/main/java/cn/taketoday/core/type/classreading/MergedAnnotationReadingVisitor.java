@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -27,10 +27,10 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.function.Consumer;
 
-import cn.taketoday.core.annotation.AnnotationFilter;
-import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.bytecode.AnnotationVisitor;
 import cn.taketoday.bytecode.Type;
+import cn.taketoday.core.annotation.AnnotationFilter;
+import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
 
@@ -40,6 +40,7 @@ import cn.taketoday.util.ClassUtils;
  *
  * @param <A> the annotation type
  * @author Phillip Webb
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 class MergedAnnotationReadingVisitor<A extends Annotation> extends AnnotationVisitor {
@@ -56,14 +57,13 @@ class MergedAnnotationReadingVisitor<A extends Annotation> extends AnnotationVis
 
   private final LinkedHashMap<String, Object> attributes = new LinkedHashMap<>(4);
 
-  public MergedAnnotationReadingVisitor
-          (@Nullable ClassLoader classLoader, @Nullable Object source,
-           Class<A> annotationType, Consumer<MergedAnnotation<A>> consumer) {
+  public MergedAnnotationReadingVisitor(@Nullable ClassLoader classLoader,
+          @Nullable Object source, Class<A> annotationType, Consumer<MergedAnnotation<A>> consumer) {
 
-    this.classLoader = classLoader;
     this.source = source;
-    this.annotationType = annotationType;
     this.consumer = consumer;
+    this.classLoader = classLoader;
+    this.annotationType = annotationType;
   }
 
   @Override
@@ -115,12 +115,9 @@ class MergedAnnotationReadingVisitor<A extends Annotation> extends AnnotationVis
     return new MergedAnnotationReadingVisitor<>(this.classLoader, this.source, type, consumer);
   }
 
-  @SuppressWarnings("unchecked")
   @Nullable
-  static <A extends Annotation> AnnotationVisitor get(
-          @Nullable ClassLoader classLoader,
-          @Nullable Object source, String descriptor, boolean visible,
-          Consumer<MergedAnnotation<A>> consumer) {
+  static <A extends Annotation> AnnotationVisitor get(@Nullable ClassLoader classLoader,
+          @Nullable Object source, String descriptor, boolean visible, Consumer<MergedAnnotation<A>> consumer) {
 
     if (!visible) {
       return null;

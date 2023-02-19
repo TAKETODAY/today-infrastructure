@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -20,12 +20,14 @@
 
 package cn.taketoday.cache.annotation;
 
-import java.util.List;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-import cn.taketoday.beans.factory.ObjectProvider;
-import cn.taketoday.beans.factory.annotation.Autowired;
+import cn.taketoday.beans.BeansException;
+import cn.taketoday.beans.factory.BeanFactory;
+import cn.taketoday.beans.factory.BeanFactoryAware;
+import cn.taketoday.beans.factory.annotation.DisableDependencyInjection;
 import cn.taketoday.cache.CacheManager;
 import cn.taketoday.cache.interceptor.CacheErrorHandler;
 import cn.taketoday.cache.interceptor.CacheResolver;
@@ -40,16 +42,18 @@ import cn.taketoday.util.function.SingletonSupplier;
 
 /**
  * Abstract base {@code @Configuration} class providing common structure
- * for enabling Framework's annotation-driven cache management capability.
+ * for enabling Infra annotation-driven cache management capability.
  *
  * @author Chris Beams
  * @author Stephane Nicoll
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see EnableCaching
  * @since 4.0
  */
+@DisableDependencyInjection
 @Configuration(proxyBeanMethods = false)
-public abstract class AbstractCachingConfiguration implements ImportAware {
+public abstract class AbstractCachingConfiguration implements ImportAware, BeanFactoryAware {
 
   @Nullable
   protected AnnotationAttributes enableCaching;
@@ -76,10 +80,10 @@ public abstract class AbstractCachingConfiguration implements ImportAware {
     }
   }
 
-  @Autowired
-  void setConfigurers(ObjectProvider<CachingConfigurer> configurers) {
-    Supplier<CachingConfigurer> configurer = () -> {
-      List<CachingConfigurer> candidates = configurers.stream().toList();
+  @Override
+  public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
+    useCachingConfigurer(new CachingConfigurerSupplier(() -> {
+      Set<String> candidates = beanFactory.getBeanNamesForType(CachingConfigurer.class);
       if (CollectionUtils.isEmpty(candidates)) {
         return null;
       }
@@ -89,9 +93,8 @@ public abstract class AbstractCachingConfiguration implements ImportAware {
                 "Refactor the configuration such that CachingConfigurer is " +
                 "implemented only once or not at all.");
       }
-      return candidates.get(0);
-    };
-    useCachingConfigurer(new CachingConfigurerSupplier(configurer));
+      return beanFactory.getBean(CollectionUtils.firstElement(candidates), CachingConfigurer.class);
+    }));
   }
 
   /**

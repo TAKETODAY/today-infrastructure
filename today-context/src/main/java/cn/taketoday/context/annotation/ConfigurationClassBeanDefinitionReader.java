@@ -137,8 +137,7 @@ class ConfigurationClassBeanDefinitionReader {
    * Register the {@link Configuration} class itself as a bean definition.
    */
   private void registerBeanDefinitionForImportedConfigurationClass(ConfigurationClass configClass) {
-    AnnotationMetadata metadata = configClass.metadata;
-    AnnotatedGenericBeanDefinition configBeanDef = new AnnotatedGenericBeanDefinition(metadata);
+    var configBeanDef = new AnnotatedGenericBeanDefinition(configClass.metadata);
 
     ScopeMetadata scopeMetadata = scopeMetadataResolver.resolveScopeMetadata(configBeanDef);
     configBeanDef.setScope(scopeMetadata.getScopeName());

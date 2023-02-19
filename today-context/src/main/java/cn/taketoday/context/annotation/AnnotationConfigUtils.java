@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -25,6 +25,7 @@ import java.util.function.Consumer;
 import cn.taketoday.beans.factory.annotation.AnnotatedBeanDefinition;
 import cn.taketoday.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor;
 import cn.taketoday.beans.factory.annotation.DisableDependencyInjection;
+import cn.taketoday.beans.factory.annotation.EnableDependencyInjection;
 import cn.taketoday.beans.factory.annotation.InitDestroyAnnotationBeanPostProcessor;
 import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.beans.factory.config.BeanDefinitionHolder;
@@ -41,8 +42,8 @@ import cn.taketoday.context.support.StandardApplicationContext;
 import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
 import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.core.annotation.MergedAnnotations;
+import cn.taketoday.core.type.AnnotatedTypeMetadata;
 import cn.taketoday.core.type.AnnotationMetadata;
-import cn.taketoday.core.type.MethodMetadata;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
 
@@ -57,6 +58,7 @@ import cn.taketoday.util.ClassUtils;
  * @author Chris Beams
  * @author Phillip Webb
  * @author Stephane Nicoll
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see ConfigurationClassPostProcessor
  * @since 4.0
  */
@@ -250,15 +252,11 @@ public abstract class AnnotationConfigUtils {
   }
 
   public static void applyAnnotationMetadata(AnnotatedBeanDefinition definition) {
-    MergedAnnotations annotations;
-    MethodMetadata factoryMethodMetadata = definition.getFactoryMethodMetadata();
-    if (factoryMethodMetadata != null) {
-      annotations = factoryMethodMetadata.getAnnotations();
+    AnnotatedTypeMetadata metadata = definition.getFactoryMethodMetadata();
+    if (metadata == null) {
+      metadata = definition.getMetadata();
     }
-    else {
-      AnnotationMetadata metadata = definition.getMetadata();
-      annotations = metadata.getAnnotations();
-    }
+    MergedAnnotations annotations = metadata.getAnnotations();
     applyAnnotationMetadata(annotations, definition);
   }
 
@@ -295,10 +293,13 @@ public abstract class AnnotationConfigUtils {
       definition.setDescription(description.getStringValue());
     }
 
-    // DisableDependencyInjection
-    if (annotations.isPresent(DisableDependencyInjection.class)) {
+    if (annotations.isPresent(EnableDependencyInjection.class)) {
+      definition.setEnableDependencyInjection(true);
+    }
+    else if (annotations.isPresent(DisableDependencyInjection.class)) {
       definition.setEnableDependencyInjection(false);
     }
+
   }
 
 }

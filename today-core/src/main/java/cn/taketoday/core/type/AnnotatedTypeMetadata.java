@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -48,6 +48,7 @@ import cn.taketoday.lang.Nullable;
  * @author Chris Beams
  * @author Phillip Webb
  * @author Sam Brannen
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see AnnotationMetadata
  * @see MethodMetadata
  * @since 4.0
@@ -109,7 +110,7 @@ public interface AnnotatedTypeMetadata {
    * @return the meta-annotation type names, or an empty set if none found
    */
   default Set<String> getMetaAnnotationTypes(String annotationName) {
-    MergedAnnotation<?> annotation = getAnnotations().get(annotationName, MergedAnnotation::isDirectlyPresent);
+    var annotation = getAnnotations().get(annotationName, MergedAnnotation::isDirectlyPresent);
     if (annotation.isPresent()) {
       return MergedAnnotations.from(annotation.getType(), SearchStrategy.INHERITED_ANNOTATIONS)
               .stream()
@@ -190,11 +191,9 @@ public interface AnnotatedTypeMetadata {
    * {@code null} if no matching annotation is defined.
    */
   @Nullable
-  default Map<String, Object> getAnnotationAttributes(
-          String annotationName, boolean classValuesAsString) {
-
-    MergedAnnotation<Annotation> annotation = getAnnotations()
-            .get(annotationName, null, MergedAnnotationSelectors.firstDirectlyDeclared());
+  default Map<String, Object> getAnnotationAttributes(String annotationName, boolean classValuesAsString) {
+    MergedAnnotation<Annotation> annotation = getAnnotations().get(
+            annotationName, null, MergedAnnotationSelectors.firstDirectlyDeclared());
     if (!annotation.isPresent()) {
       return null;
     }

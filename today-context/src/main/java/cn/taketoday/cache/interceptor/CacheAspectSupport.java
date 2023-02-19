@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -53,8 +53,8 @@ import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.ReflectionUtils;
-import cn.taketoday.util.function.SingletonSupplier;
 import cn.taketoday.util.StringUtils;
+import cn.taketoday.util.function.SingletonSupplier;
 import cn.taketoday.util.function.SupplierUtils;
 
 /**
@@ -559,7 +559,7 @@ public abstract class CacheAspectSupport extends AbstractCacheInvoker
    * @param putRequests the collection to update
    */
   private void collectPutRequests(Collection<CacheOperationContext> contexts,
-          @Nullable Object result, Collection<CachePutRequest> putRequests) {
+          @Nullable Object result, ArrayList<CachePutRequest> putRequests) {
 
     for (CacheOperationContext context : contexts) {
       if (isConditionPassing(context, result)) {

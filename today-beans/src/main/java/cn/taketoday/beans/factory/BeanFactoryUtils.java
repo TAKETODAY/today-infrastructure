@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -142,7 +142,7 @@ public abstract class BeanFactoryUtils {
    * Return all bean names in the factory, including ancestor factories.
    *
    * @param factory the bean factory
-   * @return the array of matching bean names, or an empty array if none
+   * @return the set of matching bean names, or an empty array if none
    * @see #beanNamesForTypeIncludingAncestors
    */
   public static Set<String> beanNamesIncludingAncestors(BeanFactory factory) {
@@ -160,7 +160,7 @@ public abstract class BeanFactoryUtils {
    *
    * @param factory the bean factory
    * @param type the type that beans must match (as a {@code ResolvableType})
-   * @return the array of matching bean names, or an empty array if none
+   * @return the set of matching bean names, or an empty array if none
    * @see BeanFactory#getBeansOfType(ResolvableType, boolean, boolean)
    */
   public static Set<String> beanNamesForTypeIncludingAncestors(BeanFactory factory, ResolvableType type) {
@@ -195,7 +195,7 @@ public abstract class BeanFactoryUtils {
    * "factory-bean" reference) for the type check. Note that FactoryBeans need to be
    * eagerly initialized to determine their type: So be aware that passing in "true"
    * for this flag will initialize FactoryBeans and "factory-bean" references.
-   * @return the array of matching bean names, or an empty array if none
+   * @return the set of matching bean names, or an empty array if none
    * @see BeanFactory#getBeanNamesForType(ResolvableType, boolean, boolean)
    */
   public static Set<String> beanNamesForTypeIncludingAncestors(
@@ -224,7 +224,7 @@ public abstract class BeanFactoryUtils {
    *
    * @param factory the bean factory
    * @param type the type that beans must match (as a {@code Class})
-   * @return the array of matching bean names, or an empty array if none
+   * @return the set of matching bean names, or an empty array if none
    * @see BeanFactory#getBeanNamesForType(Class)
    */
   public static Set<String> beanNamesForTypeIncludingAncestors(BeanFactory factory, Class<?> type) {
@@ -259,7 +259,7 @@ public abstract class BeanFactoryUtils {
    * eagerly initialized to determine their type: So be aware that passing in "true"
    * for this flag will initialize FactoryBeans and "factory-bean" references.
    * @param type the type that beans must match
-   * @return the array of matching bean names, or an empty array if none
+   * @return the set of matching bean names, or an empty array if none
    * @see BeanFactory#getBeanNamesForType(Class, boolean, boolean)
    */
   public static Set<String> beanNamesForTypeIncludingAncestors(
@@ -284,7 +284,7 @@ public abstract class BeanFactoryUtils {
    *
    * @param factory the bean factory
    * @param annotationType the type of annotation to look for
-   * @return the array of matching bean names, or an empty array if none
+   * @return the set of matching bean names, or an empty array if none
    * @see BeanFactory#getBeanNamesForAnnotation(Class)
    */
   public static Set<String> beanNamesForAnnotationIncludingAncestors(

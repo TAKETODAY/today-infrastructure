@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -111,20 +111,15 @@ final class TypeMappedAnnotation<A extends Annotation> extends AbstractMergedAnn
 
   private final int[] resolvedMirrors;
 
-  private TypeMappedAnnotation(
-          AnnotationTypeMapping mapping,
-          @Nullable ClassLoader classLoader,
-          @Nullable Object source, @Nullable Object rootAttributes,
-          ValueExtractor valueExtractor, int aggregateIndex) {
-
+  private TypeMappedAnnotation(AnnotationTypeMapping mapping, @Nullable ClassLoader classLoader,
+          @Nullable Object source, @Nullable Object rootAttributes, ValueExtractor valueExtractor,
+          int aggregateIndex) {
     this(mapping, classLoader, source, rootAttributes, valueExtractor, aggregateIndex, null);
   }
 
-  private TypeMappedAnnotation(
-          AnnotationTypeMapping mapping,
-          @Nullable ClassLoader classLoader,
-          @Nullable Object source, @Nullable Object rootAttributes,
-          ValueExtractor valueExtractor, int aggregateIndex, @Nullable int[] resolvedRootMirrors) {
+  private TypeMappedAnnotation(AnnotationTypeMapping mapping, @Nullable ClassLoader classLoader,
+          @Nullable Object source, @Nullable Object rootAttributes, ValueExtractor valueExtractor,
+          int aggregateIndex, @Nullable int[] resolvedRootMirrors) {
 
     this.mapping = mapping;
     this.classLoader = classLoader;
@@ -142,8 +137,7 @@ final class TypeMappedAnnotation<A extends Annotation> extends AbstractMergedAnn
             ? resolvedRootMirrors : mapping.mirrorSets.resolve(source, this, this::getValueForMirrorResolution);
   }
 
-  private TypeMappedAnnotation(
-          AnnotationTypeMapping mapping, @Nullable ClassLoader classLoader,
+  private TypeMappedAnnotation(AnnotationTypeMapping mapping, @Nullable ClassLoader classLoader,
           @Nullable Object source, @Nullable Object rootAnnotation, ValueExtractor valueExtractor,
           int aggregateIndex, boolean useMergedValues, @Nullable Predicate<String> attributeFilter,
           int[] resolvedRootMirrors, int[] resolvedMirrors) {

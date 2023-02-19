@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -20,18 +20,22 @@
 
 package cn.taketoday.scheduling.annotation;
 
+import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
 import cn.taketoday.aop.interceptor.AsyncUncaughtExceptionHandler;
-import cn.taketoday.beans.factory.ObjectProvider;
-import cn.taketoday.beans.factory.annotation.Autowired;
+import cn.taketoday.beans.BeansException;
+import cn.taketoday.beans.factory.BeanFactory;
+import cn.taketoday.beans.factory.BeanFactoryAware;
+import cn.taketoday.beans.factory.annotation.DisableDependencyInjection;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.ImportAware;
 import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.core.type.AnnotationMetadata;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.function.SingletonSupplier;
 
@@ -40,13 +44,15 @@ import cn.taketoday.util.function.SingletonSupplier;
  * asynchronous method execution capability.
  *
  * @author Chris Beams
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @author Juergen Hoeller
  * @author Stephane Nicoll
  * @see EnableAsync
  * @since 4.0
  */
+@DisableDependencyInjection
 @Configuration(proxyBeanMethods = false)
-public abstract class AbstractAsyncConfiguration implements ImportAware {
+public abstract class AbstractAsyncConfiguration implements ImportAware, BeanFactoryAware {
 
   @Nullable
   protected MergedAnnotation<EnableAsync> enableAsync;
@@ -69,18 +75,19 @@ public abstract class AbstractAsyncConfiguration implements ImportAware {
   /**
    * Collect any {@link AsyncConfigurer} beans through autowiring.
    */
-  @Autowired
-  void setConfigurers(ObjectProvider<AsyncConfigurer> configurers) {
-    Supplier<AsyncConfigurer> asyncConfigurer = SingletonSupplier.from(() -> {
-      Object[] array = configurers.stream().toArray();
-      if (ObjectUtils.isEmpty(array)) {
+  @Override
+  public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
+    var asyncConfigurer = SingletonSupplier.from(() -> {
+      Set<String> configurers = beanFactory.getBeanNamesForType(AsyncConfigurer.class);
+      if (ObjectUtils.isEmpty(configurers)) {
         return null;
       }
-      if (array.length > 1) {
+      if (configurers.size() > 1) {
         throw new IllegalStateException("Only one AsyncConfigurer may exist");
       }
-      return (AsyncConfigurer) array[0];
+      return beanFactory.getBean(CollectionUtils.firstElement(configurers), AsyncConfigurer.class);
     });
+
     this.executor = adapt(asyncConfigurer, AsyncConfigurer::getAsyncExecutor);
     this.exceptionHandler = adapt(asyncConfigurer, AsyncConfigurer::getAsyncUncaughtExceptionHandler);
   }

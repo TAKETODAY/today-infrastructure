@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -22,12 +22,13 @@ package cn.taketoday.scheduling.annotation;
 
 import java.lang.annotation.Annotation;
 
+import cn.taketoday.beans.factory.annotation.DisableDependencyInjection;
 import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Role;
 import cn.taketoday.lang.Assert;
-import cn.taketoday.stereotype.Component;
 import cn.taketoday.scheduling.config.TaskManagementConfigUtils;
+import cn.taketoday.stereotype.Component;
 
 /**
  * {@code @Configuration} class that registers the Framework infrastructure beans necessary
@@ -36,6 +37,7 @@ import cn.taketoday.scheduling.config.TaskManagementConfigUtils;
  * @author Chris Beams
  * @author Stephane Nicoll
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see EnableAsync
  * @see AsyncConfigurationSelector
  * @since 4.0
@@ -44,6 +46,7 @@ import cn.taketoday.scheduling.config.TaskManagementConfigUtils;
 @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
 public class ProxyAsyncConfiguration extends AbstractAsyncConfiguration {
 
+  @DisableDependencyInjection
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
   @Component(TaskManagementConfigUtils.ASYNC_ANNOTATION_PROCESSOR_BEAN_NAME)
   public AsyncAnnotationBeanPostProcessor asyncAdvisor() {
