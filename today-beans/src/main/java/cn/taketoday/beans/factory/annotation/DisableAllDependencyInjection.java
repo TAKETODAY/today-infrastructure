@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -29,29 +29,30 @@ import cn.taketoday.beans.factory.support.DependencyResolvingStrategy;
 
 /**
  * Disable dependency-injection for all the factory method bean
- * <pre>
- * &#064;Configuration
- * &#064;DisableDependencyInjection
- * &#064;DisableAllDependencyInjection
+ * <pre>{@code
+ * @Configuration
+ * @DisableDependencyInjection
+ * @DisableAllDependencyInjection
  * class Config {
  *
- *   &#064;Singleton
+ *   @Singleton
  *   Bean bean() {
  *     return new Bean();
  *   }
  *
- *   &#064;Singleton
- *   &#064;DisableDependencyInjection
+ *   @Singleton
+ *   @DisableDependencyInjection
  *   Bean bean() {
  *     return new Bean();
  *   }
  *
- *   &#064;Autowired
- *   void bean(Bean bean) { // Autowired ignored
+ *   @Autowired
+ *   void bean(Bean bean) {
+ *    // Autowired ignored because @DisableDependencyInjection on class
  *    // all DependencyResolvingStrategy disabled
  *   }
  * }
- * </pre>
+ * }</pre>
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang 2021/11/23 22:06</a>
  * @see DependencyResolvingStrategy
