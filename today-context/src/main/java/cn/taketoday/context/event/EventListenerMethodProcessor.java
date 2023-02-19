@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -72,8 +72,6 @@ public class EventListenerMethodProcessor
   @Nullable
   private List<EventListenerFactory> eventListenerFactories;
 
-  private ConfigurableBeanFactory beanFactory;
-
   private final EventExpressionEvaluator evaluator = new EventExpressionEvaluator();
 
   private final Set<Class<?>> nonAnnotatedClasses = Collections.newSetFromMap(new ConcurrentHashMap<>(64));
@@ -90,8 +88,6 @@ public class EventListenerMethodProcessor
 
   @Override
   public void postProcessBeanFactory(ConfigurableBeanFactory beanFactory) {
-    this.beanFactory = beanFactory;
-
     Map<String, EventListenerFactory> beans = beanFactory.getBeansOfType(EventListenerFactory.class, false, false);
     List<EventListenerFactory> factories = new ArrayList<>(beans.values());
     AnnotationAwareOrderComparator.sort(factories);
@@ -99,9 +95,7 @@ public class EventListenerMethodProcessor
   }
 
   @Override
-  public void afterSingletonsInstantiated() {
-    ConfigurableBeanFactory beanFactory = this.beanFactory;
-    Assert.state(beanFactory != null, "No ConfigurableBeanFactory set");
+  public void afterSingletonsInstantiated(ConfigurableBeanFactory beanFactory) {
     Set<String> beanNames = beanFactory.getBeanNamesForType(Object.class);
     for (String beanName : beanNames) {
       if (ScopedProxyUtils.isScopedTarget(beanName)) {
@@ -113,9 +107,7 @@ public class EventListenerMethodProcessor
       }
       catch (Throwable ex) {
         // An unresolvable bean type, probably from a lazy bean - let's ignore it.
-        if (logger.isDebugEnabled()) {
-          logger.debug("Could not resolve target class for bean with name '{}'", beanName, ex);
-        }
+        logger.debug("Could not resolve target class for bean with name '{}'", beanName, ex);
       }
       if (type != null) {
         if (ScopedObject.class.isAssignableFrom(type)) {
@@ -128,9 +120,7 @@ public class EventListenerMethodProcessor
           }
           catch (Throwable ex) {
             // An invalid scoped proxy arrangement - let's ignore it.
-            if (logger.isDebugEnabled()) {
-              logger.debug("Could not resolve target bean for scoped proxy '{}'", beanName, ex);
-            }
+            logger.debug("Could not resolve target bean for scoped proxy '{}'", beanName, ex);
           }
         }
         try {
@@ -154,16 +144,12 @@ public class EventListenerMethodProcessor
       }
       catch (Throwable ex) {
         // An unresolvable type in a method signature, probably from a lazy bean - let's ignore it.
-        if (logger.isDebugEnabled()) {
-          logger.debug("Could not resolve methods for bean with name '{}'", beanName, ex);
-        }
+        logger.debug("Could not resolve methods for bean with name '{}'", beanName, ex);
       }
 
       if (CollectionUtils.isEmpty(annotatedMethods)) {
         nonAnnotatedClasses.add(targetType);
-        if (logger.isTraceEnabled()) {
-          logger.trace("No @EventListener annotations found on bean class: {}", targetType.getName());
-        }
+        logger.trace("No @EventListener annotations found on bean class: {}", targetType.getName());
       }
       else {
         // Non-empty set of methods
