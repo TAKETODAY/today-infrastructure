@@ -1259,7 +1259,7 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
    * @see Object#clone()
    */
   @Override
-  public Object clone() {
+  public AbstractBeanDefinition clone() {
     return cloneBeanDefinition();
   }
 
@@ -1289,6 +1289,7 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
             && this.enforceInitMethod == that.enforceInitMethod
             && this.autowireCandidate == that.autowireCandidate
             && this.nonPublicAccessAllowed == that.nonPublicAccessAllowed
+            && this.enableDependencyInjection == that.enableDependencyInjection
             && this.lenientConstructorResolution == that.lenientConstructorResolution
             && this.enforceDestroyMethod == that.enforceDestroyMethod
             && Objects.equals(this.scope, that.scope)
@@ -1351,6 +1352,7 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
     sb.append("; factoryMethodName=").append(factoryMethodName);
     sb.append("; initMethodNames=").append(Arrays.toString(initMethodNames));
     sb.append("; destroyMethodNames=").append(Arrays.toString(destroyMethodNames));
+    sb.append("; enableDependencyInjection=").append(isEnableDependencyInjection());
     if (resource != null) {
       sb.append("; defined in ").append(resource);
     }
