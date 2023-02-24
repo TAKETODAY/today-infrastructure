@@ -119,17 +119,15 @@ public abstract class AnnotationConfigUtils {
   public static final String COMMON_ANNOTATION_PROCESSOR_BEAN_NAME =
           "cn.taketoday.context.annotation.internalCommonAnnotationProcessor";
 
-  private static final ClassLoader classLoader = AnnotationConfigUtils.class.getClassLoader();
+  private static final boolean jsr250Present = isPresent("javax.annotation.PostConstruct");
+  private static final boolean jakartaAnnotationsPresent = isPresent("jakarta.annotation.PostConstruct");
+  private static final boolean jpaPresent = isPresent("jakarta.persistence.EntityManagerFactory")
+          && isPresent(PERSISTENCE_ANNOTATION_PROCESSOR_CLASS_NAME);
 
-  private static final boolean jsr250Present =
-          ClassUtils.isPresent("javax.annotation.PostConstruct", classLoader);
-
-  private static final boolean jakartaAnnotationsPresent =
-          ClassUtils.isPresent("jakarta.annotation.PostConstruct", classLoader);
-
-  private static final boolean jpaPresent =
-          ClassUtils.isPresent("jakarta.persistence.EntityManagerFactory", classLoader) &&
-                  ClassUtils.isPresent(PERSISTENCE_ANNOTATION_PROCESSOR_CLASS_NAME, classLoader);
+  private static boolean isPresent(String className) {
+    ClassLoader classLoader = AnnotationConfigUtils.class.getClassLoader();
+    return ClassUtils.isPresent(className, classLoader);
+  }
 
   public static void registerAnnotationConfigProcessors(BeanDefinitionRegistry registry) {
     registerAnnotationConfigProcessors(registry, null);
@@ -175,8 +173,10 @@ public abstract class AnnotationConfigUtils {
     if (jsr250Present && !registry.containsBeanDefinition(JSR250_ANNOTATION_PROCESSOR_BEAN_NAME)) {
       try {
         RootBeanDefinition def = new RootBeanDefinition(InitDestroyAnnotationBeanPostProcessor.class);
-        def.getPropertyValues().add("initAnnotationType", classLoader.loadClass("javax.annotation.PostConstruct"));
-        def.getPropertyValues().add("destroyAnnotationType", classLoader.loadClass("javax.annotation.PreDestroy"));
+        def.getPropertyValues().add("initAnnotationType",
+                AnnotationConfigUtils.class.getClassLoader().loadClass("javax.annotation.PostConstruct"));
+        def.getPropertyValues().add("destroyAnnotationType",
+                AnnotationConfigUtils.class.getClassLoader().loadClass("javax.annotation.PreDestroy"));
         registerPostProcessor(registry, def, JSR250_ANNOTATION_PROCESSOR_BEAN_NAME, consumer);
       }
       catch (ClassNotFoundException ex) {
@@ -190,7 +190,6 @@ public abstract class AnnotationConfigUtils {
       try {
         def.setBeanClass(ClassUtils.forName(PERSISTENCE_ANNOTATION_PROCESSOR_CLASS_NAME,
                 AnnotationConfigUtils.class.getClassLoader()));
-
       }
       catch (ClassNotFoundException ex) {
         throw new IllegalStateException(

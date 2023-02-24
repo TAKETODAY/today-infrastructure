@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -262,7 +262,7 @@ public class AnnotatedBeanDefinitionReader extends BeanDefinitionCustomizers {
           @Nullable Class<? extends Annotation>[] qualifiers, @Nullable Supplier<T> supplier,
           @Nullable BeanDefinitionCustomizer[] customizers) {
 
-    AnnotatedGenericBeanDefinition definition = new AnnotatedGenericBeanDefinition(beanClass);
+    var definition = new AnnotatedGenericBeanDefinition(beanClass);
     if (this.conditionEvaluator.shouldSkip(definition.getMetadata())) {
       return;
     }
@@ -274,7 +274,7 @@ public class AnnotatedBeanDefinitionReader extends BeanDefinitionCustomizers {
 
     AnnotationConfigUtils.processCommonDefinitionAnnotations(definition);
     if (qualifiers != null) {
-      for (Class<? extends Annotation> qualifier : qualifiers) {
+      for (var qualifier : qualifiers) {
         if (Primary.class == qualifier) {
           definition.setPrimary(true);
         }
@@ -290,7 +290,8 @@ public class AnnotatedBeanDefinitionReader extends BeanDefinitionCustomizers {
     applyDynamicCustomizers(definition, customizers);
 
     BeanDefinitionHolder definitionHolder = new BeanDefinitionHolder(definition, beanName);
-    definitionHolder = AnnotationConfigUtils.applyScopedProxyMode(scopeMetadata, definitionHolder, this.registry);
+    definitionHolder = AnnotationConfigUtils.applyScopedProxyMode(
+            scopeMetadata, definitionHolder, this.registry);
     BeanDefinitionReaderUtils.registerBeanDefinition(definitionHolder, this.registry);
   }
 
