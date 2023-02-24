@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -18,10 +18,9 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.context.aware;
+package cn.taketoday.context;
 
 import cn.taketoday.beans.factory.Aware;
-import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.core.io.PathMatchingPatternResourceLoader;
 import cn.taketoday.core.io.PatternResourceLoader;
 import cn.taketoday.core.io.ResourceLoader;
@@ -30,7 +29,7 @@ import cn.taketoday.core.io.ResourceLoader;
  * Interface to be implemented by any object that wishes to be notified of the
  * {@link ResourceLoader} (typically the ApplicationContext) that it runs in.
  * This is an alternative to a full {@link ApplicationContext} dependency via
- * the {@link cn.taketoday.context.aware.ApplicationContextAware} interface.
+ * the {@link ApplicationContextAware} interface.
  *
  * <p>Note that {@link cn.taketoday.core.io.Resource} dependencies can also
  * be exposed as bean properties of type {@code Resource} or {@code Resource[]},

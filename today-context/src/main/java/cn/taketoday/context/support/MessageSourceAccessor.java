@@ -25,7 +25,6 @@ import java.util.Locale;
 import cn.taketoday.context.MessageSource;
 import cn.taketoday.context.MessageSourceResolvable;
 import cn.taketoday.context.NoSuchMessageException;
-import cn.taketoday.context.aware.ApplicationContextSupport;
 import cn.taketoday.core.i18n.LocaleContextHolder;
 import cn.taketoday.lang.Nullable;
 

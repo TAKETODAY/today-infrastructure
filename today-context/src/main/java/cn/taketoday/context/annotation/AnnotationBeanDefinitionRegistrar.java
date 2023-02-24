@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -18,27 +18,29 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.context.loader;
+package cn.taketoday.context.annotation;
 
 import java.lang.annotation.Annotation;
 
+import cn.taketoday.context.BootstrapContext;
 import cn.taketoday.core.annotation.AnnotationProvider;
 import cn.taketoday.core.type.AnnotationMetadata;
-import cn.taketoday.lang.Nullable;
 
 /**
- * @author TODAY 2021/3/8 16:19
+ * @author TODAY 2021/3/8 16:48
  * @since 3.0
  */
-public interface AnnotationImportSelector<A extends Annotation> extends AnnotationProvider<A>, ImportSelector {
+public interface AnnotationBeanDefinitionRegistrar<A extends Annotation>
+        extends AnnotationProvider<A>, ImportBeanDefinitionRegistrar {
 
   @Override
-  default String[] selectImports(AnnotationMetadata importingClassMetadata) {
-    final A target = getAnnotation(importingClassMetadata);
-    return selectImports(target, importingClassMetadata);
+  default void registerBeanDefinitions(
+          AnnotationMetadata importMetadata, BootstrapContext context) {
+    final A target = getAnnotation(importMetadata);
+    registerBeanDefinitions(target, importMetadata, context);
   }
 
-  @Nullable
-  String[] selectImports(A target, AnnotationMetadata annotatedMetadata);
+  void registerBeanDefinitions(
+          A target, AnnotationMetadata annotatedMetadata, BootstrapContext context);
 
 }

@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -32,8 +32,8 @@ import java.util.concurrent.CountDownLatch;
 import cn.taketoday.beans.factory.BeanCreationException;
 import cn.taketoday.beans.factory.InitializingBean;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
+import cn.taketoday.context.BootstrapContext;
 import cn.taketoday.context.ConfigurableApplicationContext;
-import cn.taketoday.context.loader.BootstrapContext;
 import cn.taketoday.context.support.AbstractApplicationContext;
 import cn.taketoday.context.support.GenericApplicationContext;
 

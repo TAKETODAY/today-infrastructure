@@ -32,8 +32,8 @@ import java.util.Set;
 import javax.sql.DataSource;
 
 import cn.taketoday.beans.factory.InitializingBean;
+import cn.taketoday.context.ResourceLoaderAware;
 import cn.taketoday.context.annotation.ClassPathBeanDefinitionScanner;
-import cn.taketoday.context.aware.ResourceLoaderAware;
 import cn.taketoday.context.weaving.LoadTimeWeaverAware;
 import cn.taketoday.core.io.PathMatchingPatternResourceLoader;
 import cn.taketoday.core.io.PatternResourceLoader;

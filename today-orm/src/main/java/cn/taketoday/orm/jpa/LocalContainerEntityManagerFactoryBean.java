@@ -23,7 +23,7 @@ package cn.taketoday.orm.jpa;
 import javax.sql.DataSource;
 
 import cn.taketoday.beans.BeanUtils;
-import cn.taketoday.context.aware.ResourceLoaderAware;
+import cn.taketoday.context.ResourceLoaderAware;
 import cn.taketoday.context.weaving.LoadTimeWeaverAware;
 import cn.taketoday.core.io.ResourceLoader;
 import cn.taketoday.instrument.InstrumentationLoadTimeWeaver;

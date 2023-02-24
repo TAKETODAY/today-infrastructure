@@ -20,7 +20,6 @@
 
 package cn.taketoday.context.annotation;
 
-import cn.taketoday.context.loader.ImportSelector;
 import cn.taketoday.core.annotation.Order;
 import cn.taketoday.core.type.AnnotationMetadata;
 import cn.taketoday.lang.Nullable;

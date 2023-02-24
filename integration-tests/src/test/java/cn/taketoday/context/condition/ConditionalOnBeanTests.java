@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -33,6 +33,7 @@ import java.util.function.Consumer;
 
 import cn.taketoday.beans.factory.FactoryBean;
 import cn.taketoday.beans.factory.support.RootBeanDefinition;
+import cn.taketoday.context.BootstrapContext;
 import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
@@ -40,7 +41,6 @@ import cn.taketoday.context.annotation.Import;
 import cn.taketoday.context.annotation.ImportBeanDefinitionRegistrar;
 import cn.taketoday.context.annotation.ImportResource;
 import cn.taketoday.context.condition.ConditionEvaluationReport.ConditionAndOutcomes;
-import cn.taketoday.context.loader.BootstrapContext;
 import cn.taketoday.context.support.PropertySourcesPlaceholderConfigurer;
 import cn.taketoday.core.type.AnnotationMetadata;
 import cn.taketoday.framework.test.context.assertj.AssertableApplicationContext;

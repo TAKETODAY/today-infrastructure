@@ -23,8 +23,8 @@ package cn.taketoday.context.annotation.config;
 import cn.taketoday.beans.factory.Aware;
 import cn.taketoday.beans.factory.BeanClassLoaderAware;
 import cn.taketoday.beans.factory.BeanFactoryAware;
-import cn.taketoday.context.aware.EnvironmentAware;
-import cn.taketoday.context.aware.ResourceLoaderAware;
+import cn.taketoday.context.EnvironmentAware;
+import cn.taketoday.context.ResourceLoaderAware;
 
 /**
  * Filter that can be registered in {@code today-strategies.properties} to limit the

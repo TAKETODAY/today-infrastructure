@@ -21,6 +21,7 @@
 package cn.taketoday.context.weaving;
 
 import cn.taketoday.beans.factory.Aware;
+import cn.taketoday.context.ApplicationContextAware;
 import cn.taketoday.instrument.LoadTimeWeaver;
 
 /**
@@ -42,8 +43,8 @@ public interface LoadTimeWeaverAware extends Aware {
    * {@link cn.taketoday.beans.factory.InitializingBean InitializingBean's}
    * {@link cn.taketoday.beans.factory.InitializingBean#afterPropertiesSet() afterPropertiesSet()}
    * or a custom init-method. Invoked after
-   * {@link cn.taketoday.context.aware.ApplicationContextAware ApplicationContextAware's}
-   * {@link cn.taketoday.context.aware.ApplicationContextAware#setApplicationContext setApplicationContext(..)}.
+   * {@link ApplicationContextAware ApplicationContextAware's}
+   * {@link ApplicationContextAware#setApplicationContext setApplicationContext(..)}.
    * <p><b>NOTE:</b> This method will only be called if there actually is a
    * {@code LoadTimeWeaver} available in the application context. If
    * there is none, the method will simply not get invoked, assuming that the
@@ -51,7 +52,7 @@ public interface LoadTimeWeaverAware extends Aware {
    *
    * @param loadTimeWeaver the {@code LoadTimeWeaver} instance (never {@code null})
    * @see cn.taketoday.beans.factory.InitializingBean#afterPropertiesSet
-   * @see cn.taketoday.context.aware.ApplicationContextAware#setApplicationContext
+   * @see ApplicationContextAware#setApplicationContext
    */
   void setLoadTimeWeaver(LoadTimeWeaver loadTimeWeaver);
 

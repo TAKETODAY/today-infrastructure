@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -18,20 +18,15 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.context.loader;
+package cn.taketoday.context;
 
-import cn.taketoday.core.type.classreading.MetadataReader;
+import cn.taketoday.beans.factory.Aware;
 
 /**
- * scanning BeanDefinition loading strategy
- *
- * @author TODAY 2021/10/10 22:04
- * @since 4.0
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 4.0 2022/3/1 23:38
  */
-@FunctionalInterface
-public interface BeanDefinitionLoadingStrategy {
+public interface BootstrapContextAware extends Aware {
 
-  void loadBeanDefinitions(
-          MetadataReader metadata, BootstrapContext loadingContext);
-
+  void setBootstrapContext(BootstrapContext context);
 }

@@ -23,6 +23,8 @@ import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanFactoryAware;
 import cn.taketoday.beans.factory.BeanNameAware;
 import cn.taketoday.context.ApplicationContext;
+import cn.taketoday.context.ApplicationContextAware;
+import cn.taketoday.context.EnvironmentAware;
 import cn.taketoday.core.env.Environment;
 import cn.taketoday.stereotype.Singleton;
 import lombok.Getter;

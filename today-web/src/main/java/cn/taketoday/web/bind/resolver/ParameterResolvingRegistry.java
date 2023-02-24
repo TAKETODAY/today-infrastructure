@@ -25,7 +25,7 @@ import java.util.List;
 import cn.taketoday.beans.factory.InitializingBean;
 import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
 import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.context.aware.ApplicationContextSupport;
+import cn.taketoday.context.support.ApplicationContextSupport;
 import cn.taketoday.core.ArraySizeTrimmer;
 import cn.taketoday.core.MethodParameter;
 import cn.taketoday.core.conversion.ConversionService;

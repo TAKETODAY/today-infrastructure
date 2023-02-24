@@ -31,7 +31,7 @@ import cn.taketoday.beans.PropertyValues;
 import cn.taketoday.beans.factory.BeanNameAware;
 import cn.taketoday.beans.factory.DisposableBean;
 import cn.taketoday.beans.factory.InitializingBean;
-import cn.taketoday.context.aware.EnvironmentAware;
+import cn.taketoday.context.EnvironmentAware;
 import cn.taketoday.core.env.Environment;
 import cn.taketoday.core.env.EnvironmentCapable;
 import cn.taketoday.core.io.Resource;

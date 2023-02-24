@@ -22,7 +22,7 @@ package cn.taketoday.web.servlet;
 
 import cn.taketoday.beans.factory.Aware;
 import cn.taketoday.beans.factory.InitializingBean;
-import cn.taketoday.context.aware.ApplicationContextAware;
+import cn.taketoday.context.ApplicationContextAware;
 import jakarta.servlet.ServletConfig;
 
 /**

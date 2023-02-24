@@ -33,7 +33,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.locks.ReentrantLock;
 
-import cn.taketoday.context.aware.ResourceLoaderAware;
+import cn.taketoday.context.ResourceLoaderAware;
 import cn.taketoday.core.io.DefaultResourceLoader;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.core.io.ResourceLoader;
@@ -160,7 +160,7 @@ public class ReloadableResourceBundleMessageSource
    * running outside of an ApplicationContext.
    *
    * @see cn.taketoday.core.io.DefaultResourceLoader
-   * @see cn.taketoday.context.aware.ResourceLoaderAware
+   * @see ResourceLoaderAware
    */
   @Override
   public void setResourceLoader(@Nullable ResourceLoader resourceLoader) {

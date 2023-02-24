@@ -24,7 +24,7 @@ import java.util.Locale;
 
 import cn.taketoday.beans.BeansException;
 import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.context.aware.ApplicationContextSupport;
+import cn.taketoday.context.support.ApplicationContextSupport;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.lang.Nullable;
 

@@ -20,6 +20,7 @@
 package cn.taketoday.web.servlet;
 
 import cn.taketoday.beans.factory.Aware;
+import cn.taketoday.context.ApplicationContextAware;
 import jakarta.servlet.ServletContext;
 
 /**
@@ -41,7 +42,7 @@ public interface ServletContextAware extends Aware {
    *
    * @param servletContext the ServletContext object to be used by this object
    * @see cn.taketoday.beans.factory.InitializingBean#afterPropertiesSet
-   * @see cn.taketoday.context.aware.ApplicationContextAware#setApplicationContext
+   * @see ApplicationContextAware#setApplicationContext
    */
   void setServletContext(ServletContext servletContext);
 }

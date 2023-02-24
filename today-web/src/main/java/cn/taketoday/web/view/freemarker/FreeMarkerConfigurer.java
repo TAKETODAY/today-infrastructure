@@ -24,7 +24,7 @@ import java.io.IOException;
 import java.util.List;
 
 import cn.taketoday.beans.factory.InitializingBean;
-import cn.taketoday.context.aware.ResourceLoaderAware;
+import cn.taketoday.context.ResourceLoaderAware;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import freemarker.cache.ClassTemplateLoader;

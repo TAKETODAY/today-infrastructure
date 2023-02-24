@@ -23,7 +23,7 @@ package cn.taketoday.web.servlet;
 import java.io.File;
 
 import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.context.aware.ApplicationContextSupport;
+import cn.taketoday.context.support.ApplicationContextSupport;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import jakarta.servlet.ServletContext;

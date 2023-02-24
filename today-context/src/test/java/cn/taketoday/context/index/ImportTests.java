@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -17,7 +17,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.context.loader;
+package cn.taketoday.context.index;
 
 import org.junit.jupiter.api.Test;
 
@@ -31,9 +31,13 @@ import cn.taketoday.beans.factory.BeanDefinitionStoreException;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanFactoryAware;
 import cn.taketoday.beans.factory.config.SingletonBeanRegistry;
+import cn.taketoday.context.BootstrapContext;
 import cn.taketoday.context.ConfigurableApplicationContext;
+import cn.taketoday.context.annotation.AnnotationBeanDefinitionRegistrar;
+import cn.taketoday.context.annotation.AnnotationImportSelector;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Import;
+import cn.taketoday.context.annotation.ImportSelector;
 import cn.taketoday.context.support.StandardApplicationContext;
 import cn.taketoday.core.type.AnnotationMetadata;
 import cn.taketoday.lang.Nullable;
@@ -163,7 +167,7 @@ class ImportTests {
   void importConfiguration() throws BeanDefinitionStoreException {
 
     StandardApplicationContext context = new StandardApplicationContext();
-    context.scan("cn.taketoday.context.loader");
+    context.scan("cn.taketoday.context.index");
     context.register(AopConfig.class);
     context.refresh();
 

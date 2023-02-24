@@ -25,8 +25,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 
 import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.context.ApplicationContext;
+import cn.taketoday.context.ApplicationContextAware;
 import cn.taketoday.context.annotation.Configuration;
-import cn.taketoday.context.aware.ApplicationContextAware;
 import cn.taketoday.framework.test.mock.mockito.example.ExampleService;
 import cn.taketoday.framework.test.mock.mockito.example.ExampleServiceCaller;
 import cn.taketoday.framework.test.mock.mockito.example.SimpleExampleService;

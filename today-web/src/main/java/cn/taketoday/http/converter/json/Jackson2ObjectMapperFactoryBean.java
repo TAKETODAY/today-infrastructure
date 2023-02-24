@@ -45,11 +45,11 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.TimeZone;
 
+import cn.taketoday.beans.factory.BeanClassLoaderAware;
 import cn.taketoday.beans.factory.FactoryBean;
 import cn.taketoday.beans.factory.InitializingBean;
-import cn.taketoday.beans.factory.BeanClassLoaderAware;
 import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.context.aware.ApplicationContextAware;
+import cn.taketoday.context.ApplicationContextAware;
 import cn.taketoday.lang.Nullable;
 
 /**

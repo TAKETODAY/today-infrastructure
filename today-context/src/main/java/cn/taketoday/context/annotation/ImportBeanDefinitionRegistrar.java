@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -17,11 +17,13 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.context.annotation;
 
 import cn.taketoday.beans.factory.support.BeanDefinitionRegistryPostProcessor;
-import cn.taketoday.context.loader.BootstrapContext;
-import cn.taketoday.context.loader.ImportSelector;
+import cn.taketoday.context.BootstrapContext;
+import cn.taketoday.context.EnvironmentAware;
+import cn.taketoday.context.ResourceLoaderAware;
 import cn.taketoday.core.type.AnnotationMetadata;
 
 /**
@@ -37,10 +39,10 @@ import cn.taketoday.core.type.AnnotationMetadata;
  * {@link cn.taketoday.beans.factory.Aware Aware} interfaces, and their respective
  * methods will be called prior to {@link #registerBeanDefinitions}:
  * <ul>
- * <li>{@link cn.taketoday.context.aware.EnvironmentAware EnvironmentAware}</li>
+ * <li>{@link EnvironmentAware EnvironmentAware}</li>
  * <li>{@link cn.taketoday.beans.factory.BeanFactoryAware BeanFactoryAware}
  * <li>{@link cn.taketoday.beans.factory.BeanClassLoaderAware BeanClassLoaderAware}
- * <li>{@link cn.taketoday.context.aware.ResourceLoaderAware ResourceLoaderAware}
+ * <li>{@link ResourceLoaderAware ResourceLoaderAware}
  * </ul>
  *
  * <p>Alternatively, the class may provide a single constructor with one or more of

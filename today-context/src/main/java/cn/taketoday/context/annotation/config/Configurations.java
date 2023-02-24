@@ -34,7 +34,7 @@ import java.util.stream.Stream;
 
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.annotation.Configuration;
-import cn.taketoday.context.loader.ImportSelector;
+import cn.taketoday.context.annotation.ImportSelector;
 import cn.taketoday.core.OrderComparator;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.lang.Assert;

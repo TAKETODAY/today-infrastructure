@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -31,9 +31,11 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.function.Consumer;
 
+import cn.taketoday.annotation.config.context.PropertyPlaceholderAutoConfiguration;
 import cn.taketoday.beans.factory.FactoryBean;
 import cn.taketoday.beans.factory.annotation.Value;
 import cn.taketoday.beans.factory.support.BeanDefinitionBuilder;
+import cn.taketoday.context.BootstrapContext;
 import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.ComponentScan;
@@ -46,9 +48,7 @@ import cn.taketoday.context.annotation.ImportResource;
 import cn.taketoday.context.condition.scan.ScanBean;
 import cn.taketoday.context.condition.scan.ScannedFactoryBeanConfiguration;
 import cn.taketoday.context.condition.scan.ScannedFactoryBeanWithBeanMethodArgumentsConfiguration;
-import cn.taketoday.context.loader.BootstrapContext;
 import cn.taketoday.core.type.AnnotationMetadata;
-import cn.taketoday.annotation.config.context.PropertyPlaceholderAutoConfiguration;
 import cn.taketoday.framework.test.context.runner.ApplicationContextRunner;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.scheduling.annotation.EnableScheduling;

@@ -23,9 +23,9 @@ package cn.taketoday.context.testfixture.beans;
 import java.util.Locale;
 
 import cn.taketoday.context.ApplicationContext;
+import cn.taketoday.context.ApplicationContextAware;
 import cn.taketoday.context.ApplicationContextException;
 import cn.taketoday.context.NoSuchMessageException;
-import cn.taketoday.context.aware.ApplicationContextAware;
 
 public class ACATester implements ApplicationContextAware {
 

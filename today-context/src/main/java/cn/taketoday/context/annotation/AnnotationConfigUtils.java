@@ -36,7 +36,6 @@ import cn.taketoday.beans.factory.support.RootBeanDefinition;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.context.event.DefaultEventListenerFactory;
 import cn.taketoday.context.event.EventListenerMethodProcessor;
-import cn.taketoday.context.loader.ScopeMetadata;
 import cn.taketoday.context.support.GenericApplicationContext;
 import cn.taketoday.context.support.StandardApplicationContext;
 import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;

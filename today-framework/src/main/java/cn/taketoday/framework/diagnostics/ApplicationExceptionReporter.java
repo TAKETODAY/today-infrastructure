@@ -20,8 +20,8 @@
 
 package cn.taketoday.framework.diagnostics;
 
+import cn.taketoday.context.ApplicationContextAware;
 import cn.taketoday.context.ConfigurableApplicationContext;
-import cn.taketoday.context.aware.ApplicationContextAware;
 import cn.taketoday.framework.Application;
 
 /**

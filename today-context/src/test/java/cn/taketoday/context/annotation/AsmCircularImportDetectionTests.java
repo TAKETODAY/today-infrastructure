@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -23,7 +23,7 @@ package cn.taketoday.context.annotation;
 import org.junit.jupiter.api.BeforeEach;
 
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
-import cn.taketoday.context.loader.BootstrapContext;
+import cn.taketoday.context.BootstrapContext;
 import cn.taketoday.context.support.StandardApplicationContext;
 
 /**

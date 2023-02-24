@@ -65,7 +65,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
-import cn.taketoday.context.aware.ResourceLoaderAware;
+import cn.taketoday.context.ResourceLoaderAware;
 import cn.taketoday.core.io.ResourceLoader;
 import cn.taketoday.framework.web.server.ErrorPage;
 import cn.taketoday.framework.web.server.MimeMappings;

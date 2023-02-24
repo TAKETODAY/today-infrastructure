@@ -20,6 +20,8 @@
 
 package cn.taketoday.web.handler.mvc;
 
+import cn.taketoday.context.ApplicationContextAware;
+import cn.taketoday.context.ResourceLoaderAware;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.HandlerMapping;
 import cn.taketoday.web.HttpRequestHandler;
@@ -84,8 +86,8 @@ import cn.taketoday.web.view.ModelAndView;
  * choose to implement specific awareness interfaces, just like any other bean in a
  * Framework (web) application context can do, for example:
  * <ul>
- * <li>{@code cn.taketoday.context.aware.ApplicationContextAware}</li>
- * <li>{@code cn.taketoday.context.aware.ResourceLoaderAware}</li>
+ * <li>{@code cn.taketoday.context.ApplicationContextAware}</li>
+ * <li>{@code cn.taketoday.context.ResourceLoaderAware}</li>
  * <li>{@code cn.taketoday.web.servlet.ServletContextAware}</li>
  * </ul>
  *
@@ -104,8 +106,8 @@ import cn.taketoday.web.view.ModelAndView;
  * @author Rod Johnson
  * @author Juergen Hoeller
  * @see AbstractController
- * @see cn.taketoday.context.aware.ApplicationContextAware
- * @see cn.taketoday.context.aware.ResourceLoaderAware
+ * @see ApplicationContextAware
+ * @see ResourceLoaderAware
  * @see cn.taketoday.web.servlet.ServletContextAware
  */
 @FunctionalInterface

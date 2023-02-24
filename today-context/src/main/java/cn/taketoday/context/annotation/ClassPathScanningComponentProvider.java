@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -18,13 +18,14 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.context.loader;
+package cn.taketoday.context.annotation;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
-import cn.taketoday.context.aware.ResourceLoaderAware;
 import cn.taketoday.bytecode.ClassReader;
+import cn.taketoday.context.ResourceLoaderAware;
+import cn.taketoday.context.index.CandidateComponentsIndex;
 import cn.taketoday.core.io.PathMatchingPatternResourceLoader;
 import cn.taketoday.core.io.PatternResourceLoader;
 import cn.taketoday.core.io.ResourceLoader;

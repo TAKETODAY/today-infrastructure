@@ -24,9 +24,9 @@ import java.lang.ref.WeakReference;
 
 import cn.taketoday.beans.BeansException;
 import cn.taketoday.context.ApplicationContext;
+import cn.taketoday.context.ApplicationContextAware;
 import cn.taketoday.context.ApplicationListener;
 import cn.taketoday.context.ConfigurableApplicationContext;
-import cn.taketoday.context.aware.ApplicationContextAware;
 import cn.taketoday.context.event.ContextClosedEvent;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.framework.builder.ParentContextApplicationContextInitializer.ParentContextAvailableEvent;

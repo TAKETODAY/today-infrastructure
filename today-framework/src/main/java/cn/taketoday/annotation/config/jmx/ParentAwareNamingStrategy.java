@@ -27,7 +27,7 @@ import javax.management.ObjectName;
 
 import cn.taketoday.beans.BeansException;
 import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.context.aware.ApplicationContextAware;
+import cn.taketoday.context.ApplicationContextAware;
 import cn.taketoday.jmx.export.metadata.JmxAttributeSource;
 import cn.taketoday.jmx.export.naming.MetadataNamingStrategy;
 import cn.taketoday.jmx.support.JmxUtils;

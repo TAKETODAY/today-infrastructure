@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -38,7 +38,8 @@ import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.support.RootBeanDefinition;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.context.loader.BootstrapContext;
+import cn.taketoday.context.ApplicationContextAware;
+import cn.taketoday.context.BootstrapContext;
 import cn.taketoday.core.io.DefaultResourceLoader;
 import cn.taketoday.core.io.PatternResourceLoader;
 import cn.taketoday.core.io.ProtocolResolver;
@@ -60,7 +61,7 @@ import cn.taketoday.util.CollectionUtils;
  * {@link cn.taketoday.beans.factory.support.BeanDefinitionRegistry}
  * interface and then call {@link #refresh()} to initialize those beans
  * with application context semantics (handling
- * {@link cn.taketoday.context.aware.ApplicationContextAware}, auto-detecting
+ * {@link ApplicationContextAware}, auto-detecting
  * {@link BeanFactoryPostProcessor BeanFactoryPostProcessors},
  * etc).
  *

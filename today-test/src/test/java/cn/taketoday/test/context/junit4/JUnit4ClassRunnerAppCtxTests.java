@@ -31,7 +31,7 @@ import cn.taketoday.beans.factory.annotation.Value;
 import cn.taketoday.beans.testfixture.beans.Employee;
 import cn.taketoday.beans.testfixture.beans.Pet;
 import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.context.aware.ApplicationContextAware;
+import cn.taketoday.context.ApplicationContextAware;
 import cn.taketoday.test.context.ContextConfiguration;
 import cn.taketoday.test.context.TestExecutionListeners;
 import cn.taketoday.test.context.support.DependencyInjectionTestExecutionListener;

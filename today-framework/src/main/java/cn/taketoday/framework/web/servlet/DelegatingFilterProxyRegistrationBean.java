@@ -22,7 +22,7 @@ package cn.taketoday.framework.web.servlet;
 
 import cn.taketoday.beans.BeansException;
 import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.context.aware.ApplicationContextAware;
+import cn.taketoday.context.ApplicationContextAware;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.web.servlet.filter.DelegatingFilterProxy;
 import jakarta.servlet.Filter;
