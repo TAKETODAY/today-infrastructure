@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -28,7 +28,6 @@ import cn.taketoday.expression.Expression;
 import cn.taketoday.expression.spel.standard.SpelExpressionParser;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.ObjectUtils;
 
 /**
  * Shared utility class used to evaluate and cache EL expressions that
@@ -39,17 +38,12 @@ import cn.taketoday.util.ObjectUtils;
  */
 public abstract class CachedExpressionEvaluator {
 
-  private final SpelExpressionParser parser;
-
-  private final ParameterNameDiscoverer parameterNameDiscoverer = new DefaultParameterNameDiscoverer();
+  protected final SpelExpressionParser parser;
 
   /**
-   * Create a new instance with the specified {@link SpelExpressionParser}.
+   * a shared parameter name discoverer which caches data internally.
    */
-  protected CachedExpressionEvaluator(SpelExpressionParser parser) {
-    Assert.notNull(parser, "SpelExpressionParser must not be null");
-    this.parser = parser;
-  }
+  protected final ParameterNameDiscoverer parameterNameDiscoverer;
 
   /**
    * Create a new instance with a default {@link SpelExpressionParser}.
@@ -59,17 +53,21 @@ public abstract class CachedExpressionEvaluator {
   }
 
   /**
-   * Return the {@link SpelExpressionParser} to use.
+   * Create a new instance with the specified {@link SpelExpressionParser}.
    */
-  protected SpelExpressionParser getParser() {
-    return this.parser;
+  protected CachedExpressionEvaluator(SpelExpressionParser parser) {
+    this(parser, new DefaultParameterNameDiscoverer());
   }
 
   /**
-   * Return a shared parameter name discoverer which caches data internally.
+   * Create a new instance with the specified {@link SpelExpressionParser}.
    */
-  protected ParameterNameDiscoverer getParameterNameDiscoverer() {
-    return this.parameterNameDiscoverer;
+  protected CachedExpressionEvaluator(SpelExpressionParser parser,
+          ParameterNameDiscoverer parameterNameDiscoverer) {
+    Assert.notNull(parser, "SpelExpressionParser is required");
+    Assert.notNull(parameterNameDiscoverer, "ParameterNameDiscoverer is required");
+    this.parser = parser;
+    this.parameterNameDiscoverer = parameterNameDiscoverer;
   }
 
   /**
@@ -97,7 +95,7 @@ public abstract class CachedExpressionEvaluator {
    * @param expression the expression to parse
    */
   protected Expression parseExpression(String expression) {
-    return getParser().parseExpression(expression);
+    return parser.parseExpression(expression);
   }
 
   private ExpressionKey createKey(AnnotatedElementKey elementKey, String expression) {
@@ -109,13 +107,12 @@ public abstract class CachedExpressionEvaluator {
    */
   protected static class ExpressionKey implements Comparable<ExpressionKey> {
 
+    private final String expression;
     private final AnnotatedElementKey element;
 
-    private final String expression;
-
     protected ExpressionKey(AnnotatedElementKey element, String expression) {
-      Assert.notNull(element, "AnnotatedElementKey must not be null");
-      Assert.notNull(expression, "Expression must not be null");
+      Assert.notNull(element, "AnnotatedElementKey is required");
+      Assert.notNull(expression, "Expression is required");
       this.element = element;
       this.expression = expression;
     }
@@ -128,8 +125,8 @@ public abstract class CachedExpressionEvaluator {
       if (!(other instanceof ExpressionKey otherKey)) {
         return false;
       }
-      return (this.element.equals(otherKey.element) &&
-              ObjectUtils.nullSafeEquals(this.expression, otherKey.expression));
+      return element.equals(otherKey.element)
+              && expression.equals(otherKey.expression);
     }
 
     @Override
