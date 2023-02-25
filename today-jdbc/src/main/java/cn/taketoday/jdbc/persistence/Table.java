@@ -36,7 +36,7 @@ import cn.taketoday.core.annotation.AliasFor;
  * <pre> {@code
  *    Example:
  *
- *    @Table(name="t_user", schema="RECORDS")
+ *    @Table(name="t_user")
  *    public class User { ... }
  * }</pre>
  *
