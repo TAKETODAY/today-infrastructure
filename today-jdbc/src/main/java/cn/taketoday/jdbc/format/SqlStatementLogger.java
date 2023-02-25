@@ -44,11 +44,13 @@ public class SqlStatementLogger {
           TodayStrategies.getFlag("sql.logToStdout", false),
           TodayStrategies.getFlag("sql.format", true),
           TodayStrategies.getFlag("sql.highlight", true),
+          TodayStrategies.getFlag("sql.stdoutOnly", false),
           TodayStrategies.getLong("sql.logSlowQuery", 0)
   );
 
   private final boolean format;
   private final boolean logToStdout;
+  private final boolean stdoutOnly;
   private final boolean highlight;
 
   /**
@@ -93,9 +95,24 @@ public class SqlStatementLogger {
    * @param logSlowQuery Should we logs query which executed slower than specified milliseconds. 0 - disabled.
    */
   public SqlStatementLogger(boolean logToStdout, boolean format, boolean highlight, long logSlowQuery) {
+    this(logToStdout, format, highlight, false, 0);
+  }
+
+  /**
+   * Constructs a new SqlStatementLogger instance.
+   *
+   * @param logToStdout Should we log to STDOUT in addition to our internal logger.
+   * @param format Should we format the statements in the console and log
+   * @param highlight Should we highlight the statements in the console
+   * @param stdoutOnly just log to std out
+   * @param logSlowQuery Should we logs query which executed slower than specified milliseconds. 0 - disabled.
+   */
+  public SqlStatementLogger(boolean logToStdout, boolean format,
+          boolean highlight, boolean stdoutOnly, long logSlowQuery) {
     this.logToStdout = logToStdout;
     this.format = format;
     this.highlight = highlight;
+    this.stdoutOnly = stdoutOnly;
     this.logSlowQuery = logSlowQuery;
   }
 
@@ -115,23 +132,6 @@ public class SqlStatementLogger {
    */
   public boolean isSlowDebugEnabled() {
     return slowLogger.isDebugEnabled();
-  }
-
-  /**
-   * Are we currently logging to stdout?
-   *
-   * @return True if we are currently logging to stdout; false otherwise.
-   */
-  public boolean isLogToStdout() {
-    return logToStdout;
-  }
-
-  public boolean isFormat() {
-    return format;
-  }
-
-  public long getLogSlowQuery() {
-    return logSlowQuery;
   }
 
   /**
@@ -178,14 +178,17 @@ public class SqlStatementLogger {
     if (highlight) {
       statement = HighlightingSQLFormatter.INSTANCE.format(statement);
     }
-    if (desc != null) {
-      sqlLogger.debug(desc + ", SQL: " + statement);
-    }
-    else {
-      sqlLogger.debug(statement);
+
+    if (!stdoutOnly) {
+      if (desc != null) {
+        sqlLogger.debug("{}, SQL: {}", desc, statement);
+      }
+      else {
+        sqlLogger.debug(statement);
+      }
     }
 
-    if (logToStdout) {
+    if (stdoutOnly || logToStdout) {
       String prefix = highlight ? "\u001b[35m[today-infrastructure]\u001b[0m " : "today-infrastructure: ";
       System.out.println(prefix + statement);
     }
