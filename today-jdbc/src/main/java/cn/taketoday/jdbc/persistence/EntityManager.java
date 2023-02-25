@@ -174,6 +174,13 @@ public interface EntityManager {
           throws DataAccessException;
 
   /**
+   * Find all entities
+   *
+   * @throws IllegalEntityException entityClass is legal entity
+   */
+  <T> List<T> find(Class<T> entityClass) throws DataAccessException;
+
+  /**
    * @throws IllegalEntityException entityClass is legal entity
    */
   <T> List<T> find(T entity) throws DataAccessException;

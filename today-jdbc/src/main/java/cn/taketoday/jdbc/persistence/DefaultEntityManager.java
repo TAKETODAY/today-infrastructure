@@ -706,6 +706,11 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
   }
 
   @Override
+  public <T> List<T> find(Class<T> entityClass) throws DataAccessException {
+    return find(entityClass, null);
+  }
+
+  @Override
   @SuppressWarnings("unchecked")
   public <T> List<T> find(T entity) throws DataAccessException {
     ArrayList<T> entities = new ArrayList<>();
