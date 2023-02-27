@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -19,14 +19,21 @@
  */
 package cn.taketoday.session;
 
+import java.io.IOException;
+import java.io.NotSerializableException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.Serial;
 import java.io.Serializable;
+import java.io.WriteAbortedException;
 import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -35,6 +42,8 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.logging.Logger;
+import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.StringUtils;
 
 /**
@@ -44,6 +53,7 @@ import cn.taketoday.util.StringUtils;
  * @since 2019-09-28 10:31
  */
 public class InMemorySessionRepository implements SessionRepository {
+  private static final Logger log = LoggerFactory.getLogger(InMemorySessionRepository.class);
 
   private int maxSessions = 10000;
   private Clock clock = Clock.system(ZoneId.of("GMT"));
@@ -186,10 +196,15 @@ public class InMemorySessionRepository implements SessionRepository {
 
   @Override
   public WebSession createSession() {
+    return createSession(idGenerator.generateId());
+  }
+
+  @Override
+  public WebSession createSession(String id) {
     // Opportunity to clean expired sessions
     Instant now = clock.instant();
     expiredSessionChecker.checkIfNecessary(now);
-    return new InMemoryWebSession(idGenerator.generateId(), now);
+    return new InMemoryWebSession(id, now);
   }
 
   @Override
@@ -238,14 +253,15 @@ public class InMemorySessionRepository implements SessionRepository {
     expiredSessionChecker.removeExpiredSessions(clock.instant());
   }
 
-  final class InMemoryWebSession extends AbstractWebSession implements WebSession, Serializable {
+  final class InMemoryWebSession extends AbstractWebSession
+          implements WebSession, Serializable, SerializableSession {
 
     @Serial
     private static final long serialVersionUID = 1L;
 
     private final AtomicReference<String> id;
 
-    private final Instant creationTime;
+    private Instant creationTime;
 
     private volatile Instant lastAccessTime;
 
@@ -390,6 +406,102 @@ public class InMemorySessionRepository implements SessionRepository {
       this.lastAccessTime = currentTime;
     }
 
+    // Serializable
+
+    @Override
+    public void writeObjectData(ObjectOutputStream stream) throws IOException {
+      stream.writeObject(creationTime);
+      stream.writeObject(lastAccessTime);
+      stream.writeObject(maxIdleTime);
+      stream.writeObject(state.get());
+
+      if (attributes != null) {
+        // Accumulate the names of serializable and non-serializable attributes
+        String[] keys = getIdentifiers();
+        ArrayList<String> saveNames = new ArrayList<>();
+        ArrayList<Object> saveValues = new ArrayList<>();
+        for (String key : keys) {
+          Object value = attributes.get(key);
+          if (value == null) {
+            continue;
+          }
+          else if (value instanceof Serializable) {
+            saveNames.add(key);
+            saveValues.add(value);
+          }
+          else {
+            removeAttribute(key);
+          }
+        }
+
+        // Serialize the attribute count and the Serializable attributes
+        int n = saveNames.size();
+        stream.writeInt(n);
+        for (int i = 0; i < n; i++) {
+          stream.writeObject(saveNames.get(i));
+          try {
+            stream.writeObject(saveValues.get(i));
+            if (log.isDebugEnabled()) {
+              log.debug("Storing attribute '{}' with value '{}'",
+                      saveNames.get(i), saveValues.get(i));
+            }
+          }
+          catch (NotSerializableException e) {
+            log.warn("Cannot serialize session attribute [{}] for session [{}]",
+                    saveNames.get(i), id, e);
+          }
+        }
+      }
+      else {
+        // size
+        stream.writeInt(0);
+      }
+    }
+
+    @Override
+    public void readObjectData(ObjectInputStream stream) throws ClassNotFoundException, IOException {
+      creationTime = (Instant) stream.readObject();
+      lastAccessTime = (Instant) stream.readObject();
+      maxIdleTime = (Duration) stream.readObject();
+      state.set((State) stream.readObject());
+
+      if (log.isDebugEnabled()) {
+        log.debug("readObject() loading session {}", id);
+      }
+
+      int size = stream.readInt();
+      if (size > 0) {
+        // Deserialize the attribute count and attribute values
+        if (attributes == null) {
+          attributes = new HashMap<>();
+        }
+        for (int i = 0; i < size; i++) {
+          String name = (String) stream.readObject();
+          final Object value;
+          try {
+            value = stream.readObject();
+          }
+          catch (WriteAbortedException wae) {
+            if (wae.getCause() instanceof NotSerializableException) {
+              if (log.isDebugEnabled()) {
+                log.debug("Cannot deserialize session attribute [{}] for session [{}]", name, id, wae);
+              }
+              else {
+                log.warn("Cannot deserialize session attribute [{}] for session [{}]", name, id);
+              }
+              // Skip non serializable attributes
+              continue;
+            }
+            throw wae;
+          }
+          if (log.isDebugEnabled()) {
+            log.debug("  loading attribute '{}' with value '{}'", name, value);
+          }
+
+          attributes.put(name, value);
+        }
+      }
+    }
   }
 
   private final class ExpiredSessionChecker {

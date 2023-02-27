@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -46,7 +46,7 @@ public abstract class AbstractWebSession implements WebSession {
   @Nullable
   protected Map<String, Object> attributes;
 
-  protected final SessionEventDispatcher eventDispatcher;
+  protected transient final SessionEventDispatcher eventDispatcher;
 
   protected AbstractWebSession(SessionEventDispatcher eventDispatcher) {
     this.eventDispatcher = eventDispatcher;
