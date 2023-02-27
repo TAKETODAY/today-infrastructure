@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -20,11 +20,6 @@
 
 package cn.taketoday.core;
 
-/**
- * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @since 4.0 2022/2/20 00:29
- */
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.NotSerializableException;
@@ -39,8 +34,9 @@ import cn.taketoday.util.ClassUtils;
  * against a specific {@link ClassLoader}.
  *
  * @author Juergen Hoeller
- * @since 4.0
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see cn.taketoday.core.serializer.DefaultDeserializer
+ * @since 4.0 2022/2/20 00:29
  */
 public class ConfigurableObjectInputStream extends ObjectInputStream {
 
@@ -49,9 +45,9 @@ public class ConfigurableObjectInputStream extends ObjectInputStream {
 
   private final boolean acceptProxyClasses;
 
-
   /**
    * Create a new ConfigurableObjectInputStream for the given InputStream and ClassLoader.
+   *
    * @param in the InputStream to read from
    * @param classLoader the ClassLoader to use for loading local classes
    * @see java.io.ObjectInputStream#ObjectInputStream(java.io.InputStream)
@@ -62,6 +58,7 @@ public class ConfigurableObjectInputStream extends ObjectInputStream {
 
   /**
    * Create a new ConfigurableObjectInputStream for the given InputStream and ClassLoader.
+   *
    * @param in the InputStream to read from
    * @param classLoader the ClassLoader to use for loading local classes
    * @param acceptProxyClasses whether to accept deserialization of proxy classes
@@ -75,7 +72,6 @@ public class ConfigurableObjectInputStream extends ObjectInputStream {
     this.classLoader = classLoader;
     this.acceptProxyClasses = acceptProxyClasses;
   }
-
 
   @Override
   protected Class<?> resolveClass(ObjectStreamClass classDesc) throws IOException, ClassNotFoundException {
@@ -132,17 +128,17 @@ public class ConfigurableObjectInputStream extends ObjectInputStream {
     }
   }
 
-
   /**
    * Resolve the given class name against a fallback class loader.
    * <p>The default implementation simply rethrows the original exception,
    * since there is no fallback available.
+   *
    * @param className the class name to resolve
    * @param ex the original exception thrown when attempting to load the class
    * @return the newly resolved class (never {@code null})
    */
   protected Class<?> resolveFallbackIfPossible(String className, ClassNotFoundException ex)
-          throws IOException, ClassNotFoundException{
+          throws IOException, ClassNotFoundException {
 
     throw ex;
   }
