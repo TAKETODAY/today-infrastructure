@@ -286,7 +286,7 @@ public class RedissonSessionRepository implements SessionRepository, PatternMess
 
     RedissonSession() {
       String id = idGenerator.generateId();
-      this.delegate = new MapSession(id);
+      this.delegate = new MapSession(id, RedissonSessionRepository.this.eventDispatcher);
       map = redisson.getMap(keyPrefix + delegate.getId(),
               new CompositeCodec(StringCodec.INSTANCE, redisson.getConfig().getCodec()));
 
