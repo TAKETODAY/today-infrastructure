@@ -18,7 +18,7 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.framework;
+package cn.taketoday.core;
 
 import java.io.File;
 import java.io.IOException;
@@ -31,7 +31,7 @@ import java.nio.file.attribute.PosixFilePermission;
 import java.nio.file.attribute.PosixFilePermissions;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.EnumSet;
+import java.util.Set;
 
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
@@ -50,11 +50,6 @@ import cn.taketoday.util.StringUtils;
 public class ApplicationTemp {
   private static final String TEMP_SUB_DIR = TodayStrategies.getProperty(
           "app.temp-prefix", "today-");
-
-  private static final FileAttribute<?>[] NO_FILE_ATTRIBUTES = {};
-
-  private static final EnumSet<PosixFilePermission> DIRECTORY_PERMISSIONS = EnumSet.of(PosixFilePermission.OWNER_READ,
-          PosixFilePermission.OWNER_WRITE, PosixFilePermission.OWNER_EXECUTE);
 
   private final Class<?> sourceClass;
 
@@ -139,7 +134,7 @@ public class ApplicationTemp {
   private Path createDirectory(Path path) {
     try {
       if (!Files.exists(path)) {
-        Files.createDirectory(path, getFileAttributes(path.getFileSystem(), DIRECTORY_PERMISSIONS));
+        Files.createDirectory(path, getFileAttributes(path.getFileSystem()));
       }
       return path;
     }
@@ -148,11 +143,17 @@ public class ApplicationTemp {
     }
   }
 
-  private FileAttribute<?>[] getFileAttributes(FileSystem fileSystem, EnumSet<PosixFilePermission> ownerReadWrite) {
+  private FileAttribute<?>[] getFileAttributes(FileSystem fileSystem) {
     if (!fileSystem.supportedFileAttributeViews().contains("posix")) {
-      return NO_FILE_ATTRIBUTES;
+      return new FileAttribute<?>[0];
     }
-    return new FileAttribute<?>[] { PosixFilePermissions.asFileAttribute(ownerReadWrite) };
+    return new FileAttribute<?>[] {
+            PosixFilePermissions.asFileAttribute(Set.of(
+                    PosixFilePermission.OWNER_READ,
+                    PosixFilePermission.OWNER_WRITE,
+                    PosixFilePermission.OWNER_EXECUTE
+            ))
+    };
   }
 
   private Path getTempDirectory() {

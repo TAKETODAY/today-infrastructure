@@ -96,11 +96,11 @@ import java.util.zip.GZIPInputStream;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLException;
 
+import cn.taketoday.core.ApplicationHome;
+import cn.taketoday.core.ApplicationTemp;
 import cn.taketoday.core.io.ClassPathResource;
 import cn.taketoday.core.io.FileSystemResource;
 import cn.taketoday.core.io.Resource;
-import cn.taketoday.framework.ApplicationHome;
-import cn.taketoday.framework.ApplicationTemp;
 import cn.taketoday.framework.test.system.CapturedOutput;
 import cn.taketoday.framework.test.system.OutputCaptureExtension;
 import cn.taketoday.framework.web.server.Compression;

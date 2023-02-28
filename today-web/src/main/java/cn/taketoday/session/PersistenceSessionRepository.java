@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.HashSet;
 
+import cn.taketoday.beans.factory.DisposableBean;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
@@ -34,7 +35,7 @@ import cn.taketoday.util.StringUtils;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2023/2/27 21:35
  */
-public class PersistenceSessionRepository implements SessionRepository {
+public class PersistenceSessionRepository implements SessionRepository, DisposableBean {
   private static final Logger log = LoggerFactory.getLogger(PersistenceSessionRepository.class);
 
   private final SessionRepository delegate;
@@ -110,13 +111,24 @@ public class PersistenceSessionRepository implements SessionRepository {
   public String[] getIdentifiers() {
     HashSet<String> identifiers = new HashSet<>();
     Collections.addAll(identifiers, delegate.getIdentifiers());
-    try {
-      Collections.addAll(identifiers, sessionPersister.keys());
-    }
-    catch (IOException e) {
-      log.error("Unable to get session identifiers from SessionPersister: {}", sessionPersister, e);
-    }
+    Collections.addAll(identifiers, sessionPersister.keys());
     return StringUtils.toStringArray(identifiers);
+  }
+
+  @Override
+  public void destroy() throws Exception {
+    for (String identifier : delegate.getIdentifiers()) {
+      WebSession session = delegate.retrieveSession(identifier);
+      if (session != null) {
+        try {
+          sessionPersister.save(session);
+        }
+        catch (IOException e) {
+          log.error("Unable to persist session: '{}' from SessionPersister: {}",
+                  session, sessionPersister, e);
+        }
+      }
+    }
   }
 
 }

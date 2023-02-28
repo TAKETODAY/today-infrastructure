@@ -375,7 +375,8 @@ public class InMemorySessionRepository implements SessionRepository {
       if (sessions.size() >= maxSessions) {
         expiredSessionChecker.removeExpiredSessions(clock.instant());
         if (sessions.size() >= maxSessions) {
-          throw new IllegalStateException("Max sessions limit reached: " + sessions.size());
+          throw new TooManyActiveSessionsException(
+                  "Max sessions limit reached: " + sessions.size(), maxSessions);
         }
       }
     }
