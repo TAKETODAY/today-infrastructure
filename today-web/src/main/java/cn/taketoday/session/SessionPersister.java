@@ -56,9 +56,8 @@ public interface SessionPersister {
    * @return an array containing the session identifiers of all Sessions
    * currently saved in this Store.  If there are no such Sessions, a
    * zero-length array is returned.
-   * @throws IOException if an input/output error occurred
    */
-  String[] keys() throws IOException;
+  String[] keys();
 
   /**
    * Load and return the Session associated with the specified session

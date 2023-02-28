@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -186,6 +186,15 @@ public class RedissonSessionRepository implements SessionRepository, PatternMess
     return session;
   }
 
+  @Override
+  public WebSession createSession(String id) {
+    RedissonSession session = new RedissonSession(id);
+    if (defaultMaxInactiveInterval != null) {
+      session.setMaxIdleTime(defaultMaxInactiveInterval);
+    }
+    return session;
+  }
+
   @Nullable
   @Override
   public RedissonSession retrieveSession(String sessionId) {
@@ -285,7 +294,10 @@ public class RedissonSessionRepository implements SessionRepository, PatternMess
     private RMap<String, Object> map;
 
     RedissonSession() {
-      String id = idGenerator.generateId();
+      this(idGenerator.generateId());
+    }
+
+    RedissonSession(String id) {
       this.delegate = new MapSession(id, RedissonSessionRepository.this.eventDispatcher);
       map = redisson.getMap(keyPrefix + delegate.getId(),
               new CompositeCodec(StringCodec.INSTANCE, redisson.getConfig().getCodec()));

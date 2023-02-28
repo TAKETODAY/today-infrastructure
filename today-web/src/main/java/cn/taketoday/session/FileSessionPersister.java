@@ -43,6 +43,11 @@ import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
 
 /**
+ * Concrete implementation of the <b>SessionPersister</b> interface that utilizes
+ * a file per saved Session in a configured directory. Sessions that are
+ * saved are still subject to being expired based on inactivity.
+ *
+ * @author Craig R. McClanahan
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2023/2/27 21:43
  */
@@ -55,55 +60,33 @@ public class FileSessionPersister implements SessionPersister {
   private static final String FILE_EXT = ".session";
 
   /**
-   * The pathname of the directory in which Sessions are stored.
-   * This may be an absolute pathname, or a relative path that is
-   * resolved against the temporary work directory for this application.
+   * The directory in which Sessions are stored.
    */
   @Nullable
-  private String directory = ".";
+  private File directory;
 
-  /**
-   * A File representing the directory in which Sessions are stored.
-   */
-  @Nullable
-  private File directoryFile = null;
-
-  private File tempDirectory = initDefaultTemp();
-
-  private File initDefaultTemp() {
-    try {
-      return Files.createTempDirectory("sessions").toFile();
-    }
-    catch (IOException e) {
-      throw new RuntimeException(e);
-    }
-  }
+  private final File tempDirectory = initDefaultTemp();
 
   private final SessionRepository repository;
-
-  /**
-   * Name to register for this Store, used for logging.
-   */
-  private static final String storeName = "fileStore";
-
-  /**
-   * Name to register for the background thread.
-   */
-  private static final String threadName = "FileStore";
 
   public FileSessionPersister(SessionRepository repository) {
     Assert.notNull(repository, "SessionRepository is required");
     this.repository = repository;
   }
 
-  public void setTempDirectory(@Nullable File tempDirectory) {
-    this.tempDirectory = tempDirectory == null ? initDefaultTemp() : tempDirectory;
+  /**
+   * Set the store directory for this SessionPersister.
+   *
+   * @param directory The store directory
+   */
+  public void setDirectory(@Nullable File directory) {
+    this.directory = directory;
   }
 
   /**
    * Remove the Session with the specified session identifier from
-   * this Store, if present.  If no such Session is present, this method
-   * takes no action.
+   * this SessionPersister, if present.  If no such Session is present,
+   * this method takes no action.
    *
    * @param id Session identifier of the Session to be removed
    */
@@ -139,11 +122,9 @@ public class FileSessionPersister implements SessionPersister {
    * Return an array containing the session identifiers of all Sessions
    * currently saved in this Store.  If there are no such Sessions, a
    * zero-length array is returned.
-   *
-   * @throws IOException if an input/output error occurred
    */
   @Override
-  public String[] keys() throws IOException {
+  public String[] keys() {
     // Acquire the list of files in our storage directory
     File dir = directory();
     if (dir == null) {
@@ -187,8 +168,7 @@ public class FileSessionPersister implements SessionPersister {
       log.debug("Loading Session [{}] from file [{}]", id, file.getAbsolutePath());
     }
 
-    try (FileInputStream fis = new FileInputStream(file.getAbsolutePath());
-            ObjectInputStream ois = getObjectInputStream(fis)) {
+    try (ObjectInputStream ois = getObjectInputStream(new FileInputStream(file))) {
       WebSession session = repository.createSession(id);
       if (session instanceof SerializableSession serialized) {
         serialized.readObjectData(ois);
@@ -256,30 +236,11 @@ public class FileSessionPersister implements SessionPersister {
    * created if it does not already exist.
    */
   @Nullable
-  private File directory() throws IOException {
+  private File directory() {
     if (this.directory == null) {
       return null;
     }
-    if (this.directoryFile != null) {
-      // NOTE:  Race condition is harmless, so do not synchronize
-      return this.directoryFile;
-    }
-    File file = new File(this.directory);
-    if (!file.isAbsolute()) {
-      file = new File(tempDirectory, this.directory);
-    }
-    if (!file.exists() || !file.isDirectory()) {
-      if (!file.delete() && file.exists()) {
-        throw new IOException("Unable to delete file [" +
-                file + "] which is preventing the creation of the session storage location");
-      }
-      if (!file.mkdirs() && !file.isDirectory()) {
-        throw new IOException("Unable to create directory [" +
-                file + "] for the storage of session data");
-      }
-    }
-    this.directoryFile = file;
-    return file;
+    return tempDirectory;
   }
 
   /**
@@ -290,22 +251,23 @@ public class FileSessionPersister implements SessionPersister {
    * used in the file naming.
    */
   @Nullable
-  private File file(String id) throws IOException {
+  private File file(String id) {
     File storageDir = directory();
     if (storageDir == null) {
       return null;
     }
 
     String filename = id + FILE_EXT;
-    File file = new File(storageDir, filename);
-    File canonicalFile = file.getCanonicalFile();
-
-    // Check the file is within the storage directory
-    if (!canonicalFile.toPath().startsWith(storageDir.getCanonicalFile().toPath())) {
-      log.warn("Invalid persistence file [{}] for session ID [{}]", file.getPath(), id);
-      return null;
-    }
-
-    return canonicalFile;
+    return new File(storageDir, filename);
   }
+
+  private File initDefaultTemp() {
+    try {
+      return Files.createTempDirectory("sessions").toFile();
+    }
+    catch (IOException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
 }

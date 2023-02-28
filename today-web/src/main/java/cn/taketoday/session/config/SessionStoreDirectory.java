@@ -18,12 +18,12 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.framework.web.servlet.server;
+package cn.taketoday.session.config;
 
 import java.io.File;
 
-import cn.taketoday.framework.ApplicationHome;
-import cn.taketoday.framework.ApplicationTemp;
+import cn.taketoday.core.ApplicationHome;
+import cn.taketoday.core.ApplicationTemp;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.lang.TodayStrategies;
 
@@ -35,11 +35,15 @@ import cn.taketoday.lang.TodayStrategies;
  * @see cn.taketoday.framework.web.servlet.server.AbstractServletWebServerFactory
  * @since 4.0
  */
-class SessionStoreDirectory {
+public class SessionStoreDirectory {
   private static final String SESSION_TEMP_DIR = TodayStrategies.getProperty(
           "server.session.temp-dir", "server-sessions");
 
-  static File getValidDirectory(@Nullable File dir, boolean mkdirs) {
+  public static File getValid(@Nullable File dir) {
+    return getValid(dir, true);
+  }
+
+  public static File getValid(@Nullable File dir, boolean mkdirs) {
     if (dir == null) {
       return ApplicationTemp.getTemporalDirectory(null, SESSION_TEMP_DIR);
     }

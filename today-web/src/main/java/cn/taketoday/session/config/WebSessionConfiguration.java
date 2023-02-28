@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -20,8 +20,11 @@
 
 package cn.taketoday.session.config;
 
+import java.io.File;
+
 import cn.taketoday.beans.factory.ObjectProvider;
 import cn.taketoday.beans.factory.annotation.DisableAllDependencyInjection;
+import cn.taketoday.beans.factory.annotation.DisableDependencyInjection;
 import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.support.MergedBeanDefinitionPostProcessor;
@@ -31,15 +34,19 @@ import cn.taketoday.context.annotation.MissingBean;
 import cn.taketoday.context.annotation.Role;
 import cn.taketoday.context.condition.ConditionalOnMissingBean;
 import cn.taketoday.context.properties.EnableConfigurationProperties;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.session.CookieSessionIdResolver;
 import cn.taketoday.session.DefaultSessionManager;
+import cn.taketoday.session.FileSessionPersister;
 import cn.taketoday.session.InMemorySessionRepository;
+import cn.taketoday.session.PersistenceSessionRepository;
 import cn.taketoday.session.SecureRandomSessionIdGenerator;
 import cn.taketoday.session.SessionEventDispatcher;
 import cn.taketoday.session.SessionIdGenerator;
 import cn.taketoday.session.SessionIdResolver;
 import cn.taketoday.session.SessionManager;
 import cn.taketoday.session.SessionMethodArgumentResolver;
+import cn.taketoday.session.SessionPersister;
 import cn.taketoday.session.SessionRepository;
 import cn.taketoday.session.WebSessionAttributeListener;
 import cn.taketoday.session.WebSessionAttributeParameterResolver;
@@ -54,6 +61,7 @@ import cn.taketoday.web.view.SessionRedirectModelManager;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/10/30 22:54
  */
+@DisableDependencyInjection
 @DisableAllDependencyInjection
 @Configuration(proxyBeanMethods = false)
 @EnableConfigurationProperties(SessionProperties.class)
@@ -138,10 +146,21 @@ class WebSessionConfiguration implements MergedBeanDefinitionPostProcessor {
   @Component
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
   @ConditionalOnMissingBean(SessionRepository.class)
-  static InMemorySessionRepository memorySessionRepository(SessionProperties properties,
-          SessionEventDispatcher eventDispatcher, SessionIdGenerator idGenerator) {
+  static SessionRepository memorySessionRepository(SessionProperties properties,
+          SessionEventDispatcher eventDispatcher, SessionIdGenerator idGenerator,
+          @Nullable SessionPersister sessionPersister) {
     var repository = new InMemorySessionRepository(eventDispatcher, idGenerator);
     repository.setMaxSessions(properties.getMaxSessions());
+
+    if (properties.isPersistent() || sessionPersister != null) {
+      if (sessionPersister == null) {
+        var filePersister = new FileSessionPersister(repository);
+        File validDirectory = SessionStoreDirectory.getValid(properties.getStoreDir());
+        filePersister.setDirectory(validDirectory);
+        sessionPersister = filePersister;
+      }
+      return new PersistenceSessionRepository(sessionPersister, repository);
+    }
     return repository;
   }
 
