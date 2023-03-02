@@ -20,8 +20,6 @@
 
 package cn.taketoday.session;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -150,7 +148,7 @@ public class FileSessionPersister implements SessionPersister {
   public WebSession load(String id) throws ClassNotFoundException, IOException {
     // Open an input stream to the specified pathname, if any
     File file = file(id);
-    if (file == null || !file.exists()) {
+    if (!file.exists()) {
       return null;
     }
 
@@ -158,10 +156,11 @@ public class FileSessionPersister implements SessionPersister {
       log.debug("Loading Session [{}] from file [{}]", id, file.getAbsolutePath());
     }
 
-    try (ObjectInputStream ois = getObjectInputStream(new FileInputStream(file))) {
+    try (var ois = getObjectInputStream(new FileInputStream(file))) {
       WebSession session = repository.createSession(id);
       if (session instanceof SerializableSession serialized) {
         serialized.readObjectData(ois);
+        session.save();
       }
       else if (ois.readObject() instanceof WebSession ret) {
         return new MapSession(ret);
@@ -185,15 +184,12 @@ public class FileSessionPersister implements SessionPersister {
   public void save(WebSession session) throws IOException {
     // Open an output stream to the specified pathname, if any
     File file = file(session.getId());
-    if (file == null) {
-      return;
-    }
+
     if (log.isDebugEnabled()) {
       log.debug("Saving Session [{}] to file [{}]", session.getId(), file.getAbsolutePath());
     }
 
-    try (FileOutputStream fos = new FileOutputStream(file.getAbsolutePath());
-            ObjectOutputStream oos = new ObjectOutputStream(new BufferedOutputStream(fos))) {
+    try (var oos = new ObjectOutputStream(new FileOutputStream(file))) {
       if (session instanceof SerializableSession serialized) {
         serialized.writeObjectData(oos);
       }
@@ -215,9 +211,8 @@ public class FileSessionPersister implements SessionPersister {
    * @throws IOException if a problem occurs creating the ObjectInputStream
    */
   protected ObjectInputStream getObjectInputStream(InputStream is) throws IOException {
-    BufferedInputStream bis = new BufferedInputStream(is);
     ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-    return new ConfigurableObjectInputStream(bis, classLoader);
+    return new ConfigurableObjectInputStream(is, classLoader);
   }
 
   /**

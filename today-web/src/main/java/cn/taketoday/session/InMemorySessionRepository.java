@@ -417,6 +417,9 @@ public class InMemorySessionRepository implements SessionRepository {
       stream.writeObject(state.get());
 
       if (attributes != null) {
+        if (log.isDebugEnabled()) {
+          log.debug("writeObject() [{}]", attributes);
+        }
         // Accumulate the names of serializable and non-serializable attributes
         String[] keys = getIdentifiers();
         ArrayList<String> saveNames = new ArrayList<>();
