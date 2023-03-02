@@ -30,7 +30,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.nio.file.Files;
 import java.util.ArrayList;
 
 import cn.taketoday.core.ConfigurableObjectInputStream;
@@ -39,6 +38,7 @@ import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
+import cn.taketoday.session.config.SessionStoreDirectory;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
 
@@ -64,8 +64,6 @@ public class FileSessionPersister implements SessionPersister {
    */
   @Nullable
   private File directory;
-
-  private final File tempDirectory = initDefaultTemp();
 
   private final SessionRepository repository;
 
@@ -93,9 +91,6 @@ public class FileSessionPersister implements SessionPersister {
   @Override
   public void remove(String id) throws IOException {
     File file = file(id);
-    if (file == null) {
-      return;
-    }
     if (log.isDebugEnabled()) {
       log.debug("Removing Session [{}] at file [{}]", id, file.getAbsolutePath());
     }
@@ -126,12 +121,7 @@ public class FileSessionPersister implements SessionPersister {
   @Override
   public String[] keys() {
     // Acquire the list of files in our storage directory
-    File dir = directory();
-    if (dir == null) {
-      return Constant.EMPTY_STRING_ARRAY;
-    }
-
-    String[] files = dir.list();
+    String[] files = directory().list();
     if (ObjectUtils.isEmpty(files)) {
       return Constant.EMPTY_STRING_ARRAY;
     }
@@ -235,12 +225,13 @@ public class FileSessionPersister implements SessionPersister {
    * session persistence directory, if any.  The directory will be
    * created if it does not already exist.
    */
-  @Nullable
   private File directory() {
-    if (this.directory == null) {
-      return null;
+    File directory = this.directory;
+    if (directory == null) {
+      directory = SessionStoreDirectory.getValid(null);
+      this.directory = directory;
     }
-    return tempDirectory;
+    return directory;
   }
 
   /**
@@ -250,24 +241,9 @@ public class FileSessionPersister implements SessionPersister {
    * @param id The ID of the Session to be retrieved. This is
    * used in the file naming.
    */
-  @Nullable
   private File file(String id) {
-    File storageDir = directory();
-    if (storageDir == null) {
-      return null;
-    }
-
     String filename = id + FILE_EXT;
-    return new File(storageDir, filename);
-  }
-
-  private File initDefaultTemp() {
-    try {
-      return Files.createTempDirectory("sessions").toFile();
-    }
-    catch (IOException e) {
-      throw new RuntimeException(e);
-    }
+    return new File(directory(), filename);
   }
 
 }
