@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -138,7 +138,14 @@ public abstract class ResourceUtils {
   public static Resource getResource(URL url) {
     String protocol = url.getProtocol();
     if (URL_PROTOCOL_FILE.equals(protocol)) {
-      return new FileSystemResource(URLDecoder.decode(url.getPath(), StandardCharsets.UTF_8));
+      try {
+        // URI decoding for special characters such as spaces.
+        return new FileSystemResource(ResourceUtils.toURI(url).getSchemeSpecificPart());
+      }
+      catch (URISyntaxException ex) {
+        // Fallback for URLs that are not valid URIs (should hardly ever happen).
+        return new FileSystemResource(url.getFile());
+      }
     }
     if (URL_PROTOCOL_JAR.equals(protocol)) {
       return new JarEntryResource(url);
