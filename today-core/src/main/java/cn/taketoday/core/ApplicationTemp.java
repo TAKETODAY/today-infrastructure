@@ -51,8 +51,10 @@ public class ApplicationTemp {
   private static final String TEMP_SUB_DIR = TodayStrategies.getProperty(
           "app.temp-prefix", "today-");
 
+  @Nullable
   private final Class<?> sourceClass;
 
+  @Nullable
   private volatile Path path;
 
   /**
@@ -67,7 +69,7 @@ public class ApplicationTemp {
    *
    * @param sourceClass the source class or {@code null}
    */
-  public ApplicationTemp(Class<?> sourceClass) {
+  public ApplicationTemp(@Nullable Class<?> sourceClass) {
     this.sourceClass = sourceClass;
   }
 
@@ -115,16 +117,21 @@ public class ApplicationTemp {
   }
 
   private Path getPath() {
-    if (this.path == null) {
+    Path path = this.path;
+    if (path == null) {
       synchronized(this) {
-        String tempSubDir = getTempSubDir(sourceClass);
-        this.path = createDirectory(getTempDirectory().resolve(tempSubDir));
+        path = this.path;
+        if (path == null) {
+          String tempSubDir = getTempSubDir(sourceClass);
+          path = createDirectory(getTempDirectory().resolve(tempSubDir));
+          this.path = path;
+        }
       }
     }
-    return this.path;
+    return path;
   }
 
-  private static String getTempSubDir(Class<?> sourceClass) {
+  private static String getTempSubDir(@Nullable Class<?> sourceClass) {
     if (sourceClass != null) {
       return sourceClass.getName();
     }
