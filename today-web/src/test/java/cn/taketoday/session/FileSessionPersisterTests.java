@@ -22,6 +22,14 @@ package cn.taketoday.session;
 
 import org.junit.jupiter.api.Test;
 
+import java.util.Map;
+
+import cn.taketoday.context.annotation.AnnotationConfigApplicationContext;
+import cn.taketoday.context.annotation.Configuration;
+import cn.taketoday.core.env.MapPropertySource;
+import cn.taketoday.session.config.EnableWebSession;
+
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
@@ -36,6 +44,25 @@ class FileSessionPersisterTests {
             new FileSessionPersister(null))
             .isInstanceOf(IllegalArgumentException.class)
             .hasMessage("SessionRepository is required");
+
+  }
+
+  @Test
+  void test() {
+    var context = new AnnotationConfigApplicationContext();
+    context.getEnvironment().getPropertySources().addFirst(
+            new MapPropertySource("server.session", Map.of("server.session.persistent", true))
+    );
+    context.register(Config.class);
+    context.refresh();
+
+    assertThat(context.containsBeanDefinition(PersistenceSessionRepository.class)).isTrue();
+    context.close();
+  }
+
+  @Configuration
+  @EnableWebSession
+  static class Config {
 
   }
 
