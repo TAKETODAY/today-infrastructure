@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -54,8 +54,11 @@ public class ByteArrayHttpMessageConverter extends AbstractHttpMessageConverter<
   }
 
   @Override
-  public byte[] readInternal(Class<? extends byte[]> clazz, HttpInputMessage inputMessage) throws IOException {
-    return inputMessage.getBody().readAllBytes();
+  public byte[] readInternal(Class<? extends byte[]> clazz, HttpInputMessage message) throws IOException {
+    long length = message.getHeaders().getContentLength();
+    return length >= 0 && length < Integer.MAX_VALUE
+           ? message.getBody().readNBytes((int) length)
+           : message.getBody().readAllBytes();
   }
 
   @Override

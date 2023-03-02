@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -57,6 +57,16 @@ public class ByteArrayHttpMessageConverterTests {
     byte[] body = new byte[] { 0x1, 0x2 };
     MockHttpInputMessage inputMessage = new MockHttpInputMessage(body);
     inputMessage.getHeaders().setContentType(new MediaType("application", "octet-stream"));
+    byte[] result = converter.read(byte[].class, inputMessage);
+    assertThat(result).as("Invalid result").isEqualTo(body);
+  }
+
+  @Test
+  public void readWithContentLengthHeaderSet() throws IOException {
+    byte[] body = new byte[] { 0x1, 0x2, 0x3, 0x4, 0x5 };
+    MockHttpInputMessage inputMessage = new MockHttpInputMessage(body);
+    inputMessage.getHeaders().setContentType(new MediaType("application", "octet-stream"));
+    inputMessage.getHeaders().setContentLength(body.length);
     byte[] result = converter.read(byte[].class, inputMessage);
     assertThat(result).as("Invalid result").isEqualTo(body);
   }
