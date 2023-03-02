@@ -103,10 +103,10 @@ public class ReactorClientHttpConnector implements ClientHttpConnector {
   public Mono<ClientHttpResponse> connect(
           HttpMethod method, URI uri, Function<? super ClientHttpRequest, Mono<Void>> requestCallback) {
     AtomicReference<ReactorClientHttpResponse> responseRef = new AtomicReference<>();
-    return this.httpClient
-            .request(io.netty.handler.codec.http.HttpMethod.valueOf(method.name()))
-            .uri(uri)
-            .send((request, outbound) -> requestCallback.apply(adaptRequest(method, uri, request, outbound)))
+    HttpClient.RequestSender requestSender = this.httpClient
+            .request(io.netty.handler.codec.http.HttpMethod.valueOf(method.name()));
+    requestSender = (uri.isAbsolute() ? requestSender.uri(uri) : requestSender.uri(uri.toString()));
+    return requestSender.send((request, outbound) -> requestCallback.apply(adaptRequest(method, uri, request, outbound)))
             .responseConnection((response, connection) -> {
               ReactorClientHttpResponse newValue = new ReactorClientHttpResponse(response, connection);
               responseRef.set(newValue);

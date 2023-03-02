@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -27,11 +27,8 @@ import cn.taketoday.lang.Nullable;
  * Subinterface of {@link AspectInstanceFactory}
  * that returns {@link AspectMetadata} associated with AspectJ-annotated classes.
  *
- * <p>Ideally, AspectInstanceFactory would include this method itself, but because
- * AspectMetadata uses Java-5-only {@link org.aspectj.lang.reflect.AjType},
- * we need to split out this subinterface.
- *
  * @author Rod Johnson
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see AspectMetadata
  * @see org.aspectj.lang.reflect.AjType
  * @since 4.0

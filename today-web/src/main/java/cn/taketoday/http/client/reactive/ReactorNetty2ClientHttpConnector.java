@@ -103,12 +103,11 @@ public class ReactorNetty2ClientHttpConnector implements ClientHttpConnector {
   @Override
   public Mono<ClientHttpResponse> connect(HttpMethod method, URI uri,
           Function<? super ClientHttpRequest, Mono<Void>> requestCallback) {
-
     AtomicReference<ReactorNetty2ClientHttpResponse> responseRef = new AtomicReference<>();
-
-    return this.httpClient
-            .request(io.netty5.handler.codec.http.HttpMethod.valueOf(method.name()))
-            .uri(uri)
+    HttpClient.RequestSender requestSender = this.httpClient
+            .request(io.netty5.handler.codec.http.HttpMethod.valueOf(method.name()));
+    requestSender = (uri.isAbsolute() ? requestSender.uri(uri) : requestSender.uri(uri.toString()));
+    return requestSender
             .send((request, outbound) -> requestCallback.apply(adaptRequest(method, uri, request, outbound)))
             .responseConnection((response, connection) -> {
               responseRef.set(new ReactorNetty2ClientHttpResponse(response, connection));
@@ -123,9 +122,8 @@ public class ReactorNetty2ClientHttpConnector implements ClientHttpConnector {
             });
   }
 
-  private ReactorNetty2ClientHttpRequest adaptRequest(HttpMethod method, URI uri, HttpClientRequest request,
-          NettyOutbound nettyOutbound) {
-
+  private ReactorNetty2ClientHttpRequest adaptRequest(HttpMethod method,
+          URI uri, HttpClientRequest request, NettyOutbound nettyOutbound) {
     return new ReactorNetty2ClientHttpRequest(method, uri, request, nettyOutbound);
   }
 
