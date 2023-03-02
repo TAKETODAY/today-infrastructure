@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -24,6 +24,8 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
@@ -115,6 +117,14 @@ class PathMatchingPatternResourceLoaderTests {
       String[] expectedFilenames = StringUtils.concatenateStringArrays(
               CLASSES_IN_CORE_IO_SUPPORT, TEST_CLASSES_IN_CORE_IO_SUPPORT);
       assertFilenames(pattern, expectedFilenames);
+    }
+
+    @Test
+    void encodedHashtagInPath() throws IOException {
+      Path rootDir = Paths.get("src/test/resources/custom%23root").toAbsolutePath();
+      URL root = new URL("file:" + rootDir + "/");
+      resolver = new PathMatchingPatternResourceLoader(new DefaultResourceLoader(new URLClassLoader(new URL[] { root })));
+      assertExactFilenames("classpath*:scanned/*.txt", "resource#test1.txt", "resource#test2.txt");
     }
 
     @Nested
