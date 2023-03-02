@@ -229,11 +229,14 @@ public class AutowiredConfigurationTests {
 
   @Test
   void testValueInjectionWithRecord() {
-    System.setProperty("recordBeanName", "recordBean");
+    System.setProperty("recordBeanName", "enigma");
     GenericApplicationContext context = new AnnotationConfigApplicationContext(RecordBean.class);
-    context.refresh();
-    RecordBean recordBean = context.getBean(RecordBean.class);
-    assertThat(recordBean.name()).isEqualTo("recordBean");
+    try {
+      assertThat(context.getBean(RecordBean.class).name()).isEqualTo("enigma");
+    }
+    finally {
+      System.clearProperty("recordBeanName");
+    }
   }
 
   private int contentLength() throws IOException {
@@ -507,7 +510,7 @@ public class AutowiredConfigurationTests {
   }
 
   @Component
-  static record RecordBean(@Value("recordBeanName") String name) {
+  record RecordBean(@Value("${recordBeanName}") String name) {
 
   }
 
