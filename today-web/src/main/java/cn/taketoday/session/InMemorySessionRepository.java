@@ -442,7 +442,7 @@ public class InMemorySessionRepository implements SessionRepository {
           try {
             stream.writeObject(saveValues.get(i));
             if (log.isDebugEnabled()) {
-              log.debug("Storing attribute '{}' with value '{}'",
+              log.debug("  storing attribute '{}' with value '{}'",
                       saveNames.get(i), saveValues.get(i));
             }
           }
