@@ -160,7 +160,6 @@ public class FileSessionPersister implements SessionPersister {
       WebSession session = repository.createSession(id);
       if (session instanceof SerializableSession serialized) {
         serialized.readObjectData(ois);
-        session.save();
       }
       else if (ois.readObject() instanceof WebSession ret) {
         return new MapSession(ret);

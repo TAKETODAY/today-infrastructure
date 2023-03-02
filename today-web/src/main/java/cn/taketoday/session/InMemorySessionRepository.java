@@ -420,21 +420,17 @@ public class InMemorySessionRepository implements SessionRepository {
         if (log.isDebugEnabled()) {
           log.debug("writeObject() [{}]", attributes);
         }
+
         // Accumulate the names of serializable and non-serializable attributes
-        String[] keys = getIdentifiers();
         ArrayList<String> saveNames = new ArrayList<>();
         ArrayList<Object> saveValues = new ArrayList<>();
-        for (String key : keys) {
-          Object value = attributes.get(key);
-          if (value == null) {
-            continue;
-          }
-          else if (value instanceof Serializable) {
+
+        for (Map.Entry<String, Object> entry : attributes.entrySet()) {
+          String key = entry.getKey();
+          Object value = entry.getValue();
+          if (value instanceof Serializable) {
             saveNames.add(key);
             saveValues.add(value);
-          }
-          else {
-            removeAttribute(key);
           }
         }
 
@@ -505,6 +501,9 @@ public class InMemorySessionRepository implements SessionRepository {
           attributes.put(name, value);
         }
       }
+
+      // Save
+      sessions.put(getId(), this);
     }
   }
 
