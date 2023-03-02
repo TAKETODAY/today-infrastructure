@@ -43,6 +43,14 @@ import cn.taketoday.util.StringUtils;
  * for an advice method from the pointcut expression, returning, and throwing clauses.
  * If an unambiguous interpretation is not available, it returns {@code null}.
  *
+ * <h3>Algorithm Summary</h3>
+ * <p>If an unambiguous binding can be deduced, then it is.
+ * If the advice requirements cannot possibly be satisfied, then {@code null}
+ * is returned. By setting the {@link #setRaiseExceptions(boolean) raiseExceptions}
+ * property to {@code true}, descriptive exceptions will be thrown instead of
+ * returning {@code null} in the case that the parameter names cannot be discovered.
+ *
+ * <h3>Algorithm Details</h3>
  * <p>This class interprets arguments in the following way:
  * <ol>
  * <li>If the first parameter of the method is of type {@link JoinPoint}
