@@ -979,6 +979,10 @@ public abstract class AbstractAutowireCapableBeanFactory
   }
 
   public void populateBean(String beanName, RootBeanDefinition merged, BeanWrapper beanWrapper) {
+    // record has not set methods
+    if (merged.getBeanClass().isRecord()) {
+      return;
+    }
     if (beanWrapper == null) {
       if (merged.hasPropertyValues()) {
         throw new BeanCreationException(

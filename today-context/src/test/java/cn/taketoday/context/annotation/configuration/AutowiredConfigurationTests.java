@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -39,6 +39,7 @@ import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.beans.factory.xml.XmlBeanDefinitionReader;
 import cn.taketoday.beans.testfixture.beans.Colour;
 import cn.taketoday.beans.testfixture.beans.TestBean;
+import cn.taketoday.context.annotation.AnnotationConfigApplicationContext;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Scope;
@@ -48,6 +49,7 @@ import cn.taketoday.context.support.StandardApplicationContext;
 import cn.taketoday.core.annotation.AliasFor;
 import cn.taketoday.core.io.ClassPathResource;
 import cn.taketoday.core.io.Resource;
+import cn.taketoday.stereotype.Component;
 import jakarta.inject.Provider;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -223,6 +225,15 @@ public class AutowiredConfigurationTests {
     TestBean testBean = context.getBean("testBean", TestBean.class);
     assertThat(testBean.getName()).isEqualTo("localhost");
     assertThat(testBean.getAge()).isEqualTo(contentLength());
+  }
+
+  @Test
+  void testValueInjectionWithRecord() {
+    System.setProperty("recordBeanName", "recordBean");
+    GenericApplicationContext context = new AnnotationConfigApplicationContext(RecordBean.class);
+    context.refresh();
+    RecordBean recordBean = context.getBean(RecordBean.class);
+    assertThat(recordBean.name()).isEqualTo("recordBean");
   }
 
   private int contentLength() throws IOException {
@@ -493,6 +504,11 @@ public class AutowiredConfigurationTests {
     public TestBean testBean() throws IOException {
       return new TestBean(hostname, (int) resource.contentLength());
     }
+  }
+
+  @Component
+  static record RecordBean(@Value("recordBeanName") String name) {
+
   }
 
 }
