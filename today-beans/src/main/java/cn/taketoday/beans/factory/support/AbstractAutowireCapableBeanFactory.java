@@ -979,10 +979,6 @@ public abstract class AbstractAutowireCapableBeanFactory
   }
 
   public void populateBean(String beanName, RootBeanDefinition merged, BeanWrapper beanWrapper) {
-    // record has not set methods
-    if (merged.getBeanClass().isRecord()) {
-      return;
-    }
     if (beanWrapper == null) {
       if (merged.hasPropertyValues()) {
         throw new BeanCreationException(
@@ -990,6 +986,17 @@ public abstract class AbstractAutowireCapableBeanFactory
       }
       else {
         // Skip property population phase for null instance.
+        return;
+      }
+    }
+
+    if (beanWrapper.getWrappedClass().isRecord()) {
+      if (merged.hasPropertyValues()) {
+        throw new BeanCreationException(
+                merged.getResourceDescription(), beanName, "Cannot apply property values to a record");
+      }
+      else {
+        // Skip property population phase for records since they are immutable.
         return;
       }
     }
