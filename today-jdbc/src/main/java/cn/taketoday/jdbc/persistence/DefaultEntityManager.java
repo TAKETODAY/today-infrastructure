@@ -605,22 +605,17 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
 
     DataSource dataSource = obtainDataSource();
     Connection con = DataSourceUtils.getConnection(dataSource);
-    PreparedStatement statement = null;
     try {
-      statement = prepareStatement(con, sql.toString(), false);
+      PreparedStatement statement = prepareStatement(con, sql.toString(), false);
       metadata.idProperty.setParameter(statement, 1, id);
 
-      ResultSet resultSet = statement.executeQuery();
-      var iterator = new EntityIterator<T>(con, resultSet, entityClass);
+      var iterator = new EntityIterator<T>(con, statement, entityClass);
 
       return iterator.hasNext() ? iterator.next() : null;
     }
     catch (SQLException ex) {
-      throw translateException("Fetch entity By ID", sql.toString(), ex);
-    }
-    finally {
-      JdbcUtils.closeStatement(statement);
       DataSourceUtils.releaseConnection(con, dataSource);
+      throw translateException("Fetch entity By ID", sql.toString(), ex);
     }
   }
 
@@ -839,15 +834,11 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
       for (Condition condition : conditions) {
         condition.typeHandler.setParameter(statement, idx++, condition.propertyValue);
       }
-      ResultSet resultSet = statement.executeQuery();
-      return new EntityIterator<>(con, resultSet, entityClass);
+      return new EntityIterator<>(con, statement, entityClass);
     }
     catch (SQLException ex) {
-      throw translateException("Iterate entities with query-model", sql.toString(), ex);
-    }
-    finally {
-      JdbcUtils.closeStatement(statement);
       DataSourceUtils.releaseConnection(con, dataSource);
+      throw translateException("Iterate entities with query-model", sql.toString(), ex);
     }
   }
 
@@ -889,15 +880,11 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
         stmtLogger.logStatement("Lookup entities", sql.toString());
       }
 
-      ResultSet resultSet = statement.executeQuery();
-      return new EntityIterator<>(con, resultSet, entityClass);
+      return new EntityIterator<>(con, statement, entityClass);
     }
     catch (SQLException ex) {
-      throw translateException("Iterate entities with query-conditions", sql.toString(), ex);
-    }
-    finally {
-      JdbcUtils.closeStatement(statement);
       DataSourceUtils.releaseConnection(con, dataSource);
+      throw translateException("Iterate entities with query-conditions", sql.toString(), ex);
     }
   }
 
@@ -938,17 +925,20 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
   }
 
   final class EntityIterator<T> extends ResultSetIterator<T> {
-    private final ResultSetHandler<T> handler;
     private final Connection connection;
+    private final PreparedStatement statement;
+    private final ResultSetHandler<T> handler;
 
-    private EntityIterator(Connection connection, ResultSet rs, Class<?> entityClass) {
-      super(rs);
+    private EntityIterator(Connection connection,
+            PreparedStatement statement, Class<?> entityClass) throws SQLException {
+      super(statement.executeQuery());
+      this.statement = statement;
       this.connection = connection;
       try {
         var factory = new DefaultResultSetHandlerFactory<T>(
                 new JdbcBeanMetadata(entityClass, repositoryManager.isDefaultCaseSensitive(), true, true),
                 repositoryManager, null);
-        this.handler = factory.getResultSetHandler(rs.getMetaData());
+        this.handler = factory.getResultSetHandler(resultSet.getMetaData());
       }
       catch (SQLException e) {
         throw translateException("Get ResultSetHandler", null, e);
@@ -980,11 +970,26 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
       }
 
       try {
+        statement.close();
+      }
+      catch (SQLException e) {
+        if (repositoryManager.isCatchResourceCloseErrors()) {
+          throw translateException("Closing Statement", null, e);
+        }
+        else {
+          logger.trace("Could not close JDBC Statement", e);
+        }
+      }
+
+      try {
         resultSet.close();
       }
       catch (SQLException e) {
         if (repositoryManager.isCatchResourceCloseErrors()) {
           throw translateException("Closing ResultSet", null, e);
+        }
+        else {
+          logger.trace("Could not close JDBC ResultSet", e);
         }
       }
     }
