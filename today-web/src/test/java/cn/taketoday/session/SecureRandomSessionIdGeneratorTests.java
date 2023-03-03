@@ -20,10 +20,21 @@
 
 package cn.taketoday.session;
 
+import org.junit.jupiter.api.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2023/3/3 16:46
  */
 class SecureRandomSessionIdGeneratorTests {
+
+  @Test
+  void test() {
+    var generator = new SecureRandomSessionIdGenerator();
+    generator.setSessionIdLength(16);
+    assertThat(generator.generateId()).hasSize(16);
+  }
 
 }

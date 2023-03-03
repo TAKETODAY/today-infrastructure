@@ -57,7 +57,7 @@ public class SessionProperties {
 
   private final CookieProperties cookie = new CookieProperties();
 
-  private int sessionIdLength = 30;
+  private int sessionIdLength = 32;
 
   private int maxSessions = 10000;
 

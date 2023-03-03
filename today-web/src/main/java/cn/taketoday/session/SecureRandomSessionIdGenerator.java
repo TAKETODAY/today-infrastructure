@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -39,7 +39,7 @@ public class SecureRandomSessionIdGenerator implements SessionIdGenerator {
 
   private final SecureRandom random = new SecureRandom();
 
-  private volatile int length = 30;
+  private int length = 15;
 
   private static final char[] SESSION_ID_ALPHABET;
   private static final String ALPHABET_PROPERTY = "secureRandomSessionIdGenerator.ALPHABET";
@@ -58,13 +58,12 @@ public class SecureRandomSessionIdGenerator implements SessionIdGenerator {
     return new String(encode(bytes));
   }
 
-  public int getLength() {
-    return length;
-  }
-
-  public void setLength(final int length) {
+  /**
+   * set session id length
+   */
+  public void setSessionIdLength(int length) {
     Assert.isTrue(length > 0, "length must be greater than 0");
-    this.length = length;
+    this.length = length / 4 * 3; // 3 bytes encode to 4 chars.
   }
 
   /**

@@ -172,7 +172,7 @@ class WebSessionConfiguration implements MergedBeanDefinitionPostProcessor {
   @ConditionalOnMissingBean(SessionIdGenerator.class)
   static SessionIdGenerator sessionIdGenerator(SessionProperties sessionProperties) {
     SecureRandomSessionIdGenerator generator = new SecureRandomSessionIdGenerator();
-    generator.setLength(sessionProperties.getSessionIdLength());
+    generator.setSessionIdLength(sessionProperties.getSessionIdLength());
     return generator;
   }
 
