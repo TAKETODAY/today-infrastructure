@@ -58,7 +58,6 @@ import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.NonNull;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.LogMessage;
-import cn.taketoday.transaction.support.TransactionOperations;
 import cn.taketoday.util.CollectionUtils;
 
 /**
@@ -83,8 +82,6 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
    * a flag indicating whether auto-generated keys should be returned;
    */
   private boolean returnGeneratedKeys = true;
-
-  private TransactionOperations batchTransactionOperations = TransactionOperations.withoutTransaction();
 
   public DefaultEntityManager(RepositoryManager repositoryManager) {
     this.repositoryManager = repositoryManager;
@@ -134,10 +131,6 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
 
   public int getMaxBatchRecords() {
     return this.maxBatchRecords;
-  }
-
-  public void setBatchTransactionOperations(TransactionOperations batchTransactionOperations) {
-    this.batchTransactionOperations = batchTransactionOperations;
   }
 
   public void addBatchPersistListeners(BatchPersistListener... listeners) {
@@ -885,8 +878,9 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
 
     DataSource dataSource = obtainDataSource();
     Connection con = DataSourceUtils.getConnection(dataSource);
+    PreparedStatement statement = null;
     try {
-      PreparedStatement statement = prepareStatement(con, sql.toString(), false);
+      statement = prepareStatement(con, sql.toString(), false);
       if (conditions != null) {
         conditions.setParameter(statement);
       }
@@ -902,6 +896,7 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
       throw translateException("Iterate entities with query-conditions", sql.toString(), ex);
     }
     finally {
+      JdbcUtils.closeStatement(statement);
       DataSourceUtils.releaseConnection(con, dataSource);
     }
   }

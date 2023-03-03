@@ -79,6 +79,8 @@ public class InMemorySessionRepository implements SessionRepository {
    */
   private boolean notifyAttributeListenerOnUnchangedValue = true;
 
+  private Duration maxIdleTime = Duration.ofMinutes(30);
+
   private final SessionIdGenerator idGenerator;
   private final SessionEventDispatcher eventDispatcher;
   private final ExpiredSessionChecker expiredSessionChecker = new ExpiredSessionChecker();
@@ -111,6 +113,16 @@ public class InMemorySessionRepository implements SessionRepository {
    */
   public int getMaxSessions() {
     return this.maxSessions;
+  }
+
+  /**
+   * Set the duration of session idle timeout
+   *
+   * @param timeout the duration of session idle timeout
+   * @since 4.0
+   */
+  public void setSessionMaxIdleTime(@Nullable Duration timeout) {
+    this.maxIdleTime = timeout == null ? Duration.ofMinutes(30) : timeout;
   }
 
   /**
@@ -205,7 +217,7 @@ public class InMemorySessionRepository implements SessionRepository {
     // Opportunity to clean expired sessions
     Instant now = clock.instant();
     expiredSessionChecker.checkIfNecessary(now);
-    return new InMemoryWebSession(id, now);
+    return new InMemoryWebSession(id, now, maxIdleTime);
   }
 
   @Override
@@ -260,19 +272,17 @@ public class InMemorySessionRepository implements SessionRepository {
     @Serial
     private static final long serialVersionUID = 1L;
 
-    private final AtomicReference<String> id;
-
     private Instant creationTime;
-
+    private volatile Duration maxIdleTime;
     private volatile Instant lastAccessTime;
 
-    private volatile Duration maxIdleTime = Duration.ofMinutes(30);
-
+    private final AtomicReference<String> id;
     private final AtomicReference<State> state = new AtomicReference<>(State.NEW);
 
-    InMemoryWebSession(String id, Instant creationTime) {
+    InMemoryWebSession(String id, Instant creationTime, Duration maxIdleTime) {
       super(InMemorySessionRepository.this.eventDispatcher);
       this.id = new AtomicReference<>(id);
+      this.maxIdleTime = maxIdleTime;
       this.creationTime = creationTime;
       this.lastAccessTime = this.creationTime;
     }

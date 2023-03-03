@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -26,8 +26,8 @@ import java.util.Map;
 
 import cn.taketoday.beans.BeanProperty;
 import cn.taketoday.beans.BeanUtils;
-import cn.taketoday.jdbc.RepositoryManager;
 import cn.taketoday.jdbc.PersistenceException;
+import cn.taketoday.jdbc.RepositoryManager;
 import cn.taketoday.jdbc.support.JdbcUtils;
 import cn.taketoday.jdbc.type.TypeHandler;
 import cn.taketoday.lang.Nullable;
@@ -43,8 +43,8 @@ public class DefaultResultSetHandlerFactory<T> implements ResultSetHandlerFactor
   @Nullable
   private final Map<String, String> columnMappings;
 
-  public DefaultResultSetHandlerFactory(
-          JdbcBeanMetadata pojoMetadata, RepositoryManager operations, @Nullable Map<String, String> columnMappings) {
+  public DefaultResultSetHandlerFactory(JdbcBeanMetadata pojoMetadata,
+          RepositoryManager operations, @Nullable Map<String, String> columnMappings) {
     this.metadata = pojoMetadata;
     this.repositoryManager = operations;
     this.columnMappings = columnMappings;
@@ -77,10 +77,10 @@ public class DefaultResultSetHandlerFactory<T> implements ResultSetHandlerFactor
       return new TypeHandlerResultSetHandler<>(typeHandler);
     }
 
-    ObjectPropertySetter[] accessors = new ObjectPropertySetter[columnCount];
+    var accessors = new ObjectPropertySetter[columnCount];
     for (int i = 1; i <= columnCount; i++) {
       String colName = JdbcUtils.lookupColumnName(meta, i);
-      ObjectPropertySetter accessor = getAccessor(colName, metadata);
+      var accessor = getAccessor(colName, metadata);
       // If more than 1 column is fetched (we cannot fall back to executeScalar),
       // and the setter doesn't exist, throw exception.
       if (accessor == null && columnCount > 1 && metadata.throwOnMappingFailure) {

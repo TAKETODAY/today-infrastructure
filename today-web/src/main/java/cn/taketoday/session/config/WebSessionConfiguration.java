@@ -151,6 +151,7 @@ class WebSessionConfiguration implements MergedBeanDefinitionPostProcessor {
           @Nullable SessionPersister sessionPersister) {
     var repository = new InMemorySessionRepository(eventDispatcher, idGenerator);
     repository.setMaxSessions(properties.getMaxSessions());
+    repository.setSessionMaxIdleTime(properties.getTimeout());
 
     if (properties.isPersistent() || sessionPersister != null) {
       if (sessionPersister == null) {
