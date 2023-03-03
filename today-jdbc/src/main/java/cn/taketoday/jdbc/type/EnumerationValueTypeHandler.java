@@ -42,7 +42,7 @@ import cn.taketoday.lang.TodayStrategies;
  */
 @SuppressWarnings({ "rawtypes", "unchecked" })
 public class EnumerationValueTypeHandler<T extends Enum<T>> implements TypeHandler<T> {
-  public static final String fallbackValueBeanPropertyKey = "type-handler.enum-value-property-name";
+  public static final String fallbackValueBeanPropertyKey = "jdbc.type-handler.enum-value-property-name";
 
   private static final String fallbackValueBeanProperty = TodayStrategies.getProperty(
           fallbackValueBeanPropertyKey, "value");
