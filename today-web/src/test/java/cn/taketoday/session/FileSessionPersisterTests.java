@@ -21,7 +21,10 @@
 package cn.taketoday.session;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.Map;
 
 import cn.taketoday.context.annotation.AnnotationConfigApplicationContext;
@@ -38,17 +41,19 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
  */
 class FileSessionPersisterTests {
 
+  @TempDir
+  File tempDir;
+
   @Test
   void illegalArgument() {
     assertThatThrownBy(() ->
             new FileSessionPersister(null))
             .isInstanceOf(IllegalArgumentException.class)
             .hasMessage("SessionRepository is required");
-
   }
 
   @Test
-  void test() {
+  void enableWebSession() {
     var context = new AnnotationConfigApplicationContext();
     context.getEnvironment().getPropertySources().addFirst(
             new MapPropertySource("server.session", Map.of("server.session.persistent", true))
@@ -58,6 +63,50 @@ class FileSessionPersisterTests {
 
     assertThat(context.containsBeanDefinition(PersistenceSessionRepository.class)).isTrue();
     context.close();
+  }
+
+  @Test
+  void keys() throws IOException {
+    var idGenerator = new SecureRandomSessionIdGenerator();
+    var repository = new InMemorySessionRepository(new SessionEventDispatcher(), idGenerator);
+    FileSessionPersister persister = new FileSessionPersister(repository);
+
+    String id = idGenerator.generateId();
+    File idSession = new File(tempDir, id + ".session");
+    idSession.createNewFile();
+
+    persister.setDirectory(tempDir);
+    assertThat(persister.keys()).hasSize(1).containsExactly(id);
+
+    persister.remove(id);
+    assertThat(persister.keys()).hasSize(0);
+  }
+
+  @Test
+  void saveAndLoad() throws IOException, ClassNotFoundException {
+    var idGenerator = new SecureRandomSessionIdGenerator();
+    var repository = new InMemorySessionRepository(new SessionEventDispatcher(), idGenerator);
+    FileSessionPersister persister = new FileSessionPersister(repository);
+    persister.setDirectory(tempDir);
+
+    String id = idGenerator.generateId();
+
+    WebSession session = repository.createSession(id);
+    session.setAttribute("name", "value");
+    persister.save(session);
+
+    assertThat(persister.keys()).hasSize(1).containsExactly(id);
+
+    WebSession sessionFromPersister = persister.load(id);
+    assertThat(sessionFromPersister).isNotNull();
+    assertThat(sessionFromPersister.getAttributes()).isNotNull().containsEntry("name", "value");
+
+    persister.clear();
+
+    assertThat(persister.keys()).hasSize(0);
+
+    sessionFromPersister = persister.load(id);
+    assertThat(sessionFromPersister).isNull();
   }
 
   @Configuration
