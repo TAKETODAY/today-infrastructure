@@ -49,7 +49,8 @@ import cn.taketoday.util.StringUtils;
  */
 public class DefaultEntityMetadataFactory extends EntityMetadataFactory {
 
-  private PropertyFilter propertyFilter = PropertyFilter.filteredNames(Set.of("class"));
+  private PropertyFilter propertyFilter = PropertyFilter.filteredNames(Set.of("class"))
+          .and(PropertyFilter.forTransientAnnotation());
 
   private TableNameGenerator tableNameGenerator = TableNameGenerator.forTableAnnotation()
           .and(TableNameGenerator.defaultStrategy());

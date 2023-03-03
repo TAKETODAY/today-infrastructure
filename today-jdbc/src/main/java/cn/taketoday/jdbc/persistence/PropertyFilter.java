@@ -20,12 +20,18 @@
 
 package cn.taketoday.jdbc.persistence;
 
+import java.lang.annotation.Annotation;
 import java.util.Set;
 
 import cn.taketoday.beans.BeanProperty;
+import cn.taketoday.core.annotation.MergedAnnotation;
+import cn.taketoday.core.annotation.MergedAnnotations;
 import cn.taketoday.lang.Assert;
 
 /**
+ * PropertyFilter is to determine witch property not included in
+ * an entity
+ *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/8/16 22:29
  */
@@ -36,6 +42,16 @@ public interface PropertyFilter {
    * @return is property not map to a column
    */
   boolean isFiltered(BeanProperty property);
+
+  /**
+   * returns a new resolving chain
+   *
+   * @param next next resolver
+   * @return returns a new resolving chain
+   */
+  default PropertyFilter and(PropertyFilter next) {
+    return beanProperty -> isFiltered(beanProperty) || next.isFiltered(beanProperty);
+  }
 
   /**
    * filter property names
@@ -52,6 +68,29 @@ public interface PropertyFilter {
    */
   static PropertyFilter acceptAny() {
     return property -> false;
+  }
+
+  /**
+   * use {@link Transient}
+   */
+  static PropertyFilter forTransientAnnotation() {
+    return forAnnotation(Transient.class);
+  }
+
+  /**
+   * Use input {@code annotationType} to filter
+   *
+   * @param annotationType Annotation type
+   * @return Annotation based {@link PropertyFilter}
+   * @see MergedAnnotation#getString(String)
+   */
+  static PropertyFilter forAnnotation(Class<? extends Annotation> annotationType) {
+    Assert.notNull(annotationType, "annotationType is required");
+    return property -> {
+      var annotation = MergedAnnotations.from(
+              property, property.getAnnotations()).get(annotationType);
+      return annotation.isPresent();
+    };
   }
 
 }
