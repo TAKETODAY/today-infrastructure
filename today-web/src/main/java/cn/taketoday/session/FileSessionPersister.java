@@ -88,7 +88,7 @@ public class FileSessionPersister implements SessionPersister {
    */
   @Override
   public void remove(String id) throws IOException {
-    File file = file(id);
+    File file = sessionFile(id);
     if (log.isDebugEnabled()) {
       log.debug("Removing Session [{}] at file [{}]", id, file.getAbsolutePath());
     }
@@ -96,6 +96,12 @@ public class FileSessionPersister implements SessionPersister {
     if (file.exists() && !file.delete()) {
       throw new IOException("Unable to delete file [" + file + "] which is no longer required");
     }
+  }
+
+  @Override
+  public boolean contains(String id) {
+    File file = sessionFile(id);
+    return file.exists();
   }
 
   /**
@@ -144,10 +150,11 @@ public class FileSessionPersister implements SessionPersister {
    * @throws ClassNotFoundException if a deserialization error occurs
    * @throws IOException if an input/output error occurs
    */
+  @Nullable
   @Override
   public WebSession load(String id) throws ClassNotFoundException, IOException {
     // Open an input stream to the specified pathname, if any
-    File file = file(id);
+    File file = sessionFile(id);
     if (!file.exists()) {
       return null;
     }
@@ -182,7 +189,7 @@ public class FileSessionPersister implements SessionPersister {
   @Override
   public void save(WebSession session) throws IOException {
     // Open an output stream to the specified pathname, if any
-    File file = file(session.getId());
+    File file = sessionFile(session.getId());
 
     if (log.isDebugEnabled()) {
       log.debug("Saving Session [{}] to file [{}]", session.getId(), file.getAbsolutePath());
@@ -235,7 +242,7 @@ public class FileSessionPersister implements SessionPersister {
    * @param id The ID of the Session to be retrieved. This is
    * used in the file naming.
    */
-  private File file(String id) {
+  private File sessionFile(String id) {
     String filename = id + FILE_EXT;
     return new File(directory(), filename);
   }

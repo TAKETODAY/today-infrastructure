@@ -32,6 +32,8 @@ import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.StringUtils;
 
 /**
+ * SessionRepository implementation for session persistence
+ *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2023/2/27 21:35
  */
@@ -76,7 +78,7 @@ public class PersistenceSessionRepository implements SessionRepository, Disposab
 
   @Override
   public void removeSession(WebSession session) {
-    delegate.removeSession(session);
+    removeSession(session.getId());
   }
 
   @Nullable
@@ -99,12 +101,12 @@ public class PersistenceSessionRepository implements SessionRepository, Disposab
 
   @Override
   public boolean contains(String id) {
-    return delegate.contains(id);
+    return delegate.contains(id) || sessionPersister.contains(id);
   }
 
   @Override
   public int getSessionCount() {
-    return delegate.getSessionCount();
+    return getIdentifiers().length;
   }
 
   @Override
@@ -115,8 +117,11 @@ public class PersistenceSessionRepository implements SessionRepository, Disposab
     return StringUtils.toStringArray(identifiers);
   }
 
+  /**
+   * Application shutdown
+   */
   @Override
-  public void destroy() throws Exception {
+  public void destroy() {
     for (String identifier : delegate.getIdentifiers()) {
       WebSession session = delegate.retrieveSession(identifier);
       if (session != null) {

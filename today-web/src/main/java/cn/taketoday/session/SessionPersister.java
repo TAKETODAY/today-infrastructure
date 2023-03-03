@@ -53,6 +53,11 @@ public interface SessionPersister {
   void remove(String id) throws IOException;
 
   /**
+   * contains session with given id
+   */
+  boolean contains(String id);
+
+  /**
    * @return an array containing the session identifiers of all Sessions
    * currently saved in this Store.  If there are no such Sessions, a
    * zero-length array is returned.

@@ -36,6 +36,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.ReentrantLock;
@@ -504,6 +505,24 @@ public class InMemorySessionRepository implements SessionRepository {
 
       // Save
       sessions.put(getId(), this);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+      if (this == o)
+        return true;
+      if (!(o instanceof InMemoryWebSession that))
+        return false;
+      return id.equals(that.id)
+              && creationTime.equals(that.creationTime)
+              && lastAccessTime.equals(that.lastAccessTime)
+              && maxIdleTime.equals(that.maxIdleTime)
+              && state.equals(that.state);
+    }
+
+    @Override
+    public int hashCode() {
+      return Objects.hash(super.hashCode(), id, creationTime, lastAccessTime, maxIdleTime, state);
     }
   }
 
