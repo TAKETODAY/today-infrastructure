@@ -52,6 +52,7 @@ import cn.taketoday.jdbc.result.JdbcBeanMetadata;
 import cn.taketoday.jdbc.result.ResultSetHandler;
 import cn.taketoday.jdbc.result.ResultSetIterator;
 import cn.taketoday.jdbc.support.JdbcAccessor;
+import cn.taketoday.jdbc.support.JdbcUtils;
 import cn.taketoday.jdbc.type.TypeHandler;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.NonNull;
@@ -386,9 +387,9 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
 
     DataSource dataSource = obtainDataSource();
     Connection con = DataSourceUtils.getConnection(dataSource);
+    PreparedStatement statement = null;
     try {
-      PreparedStatement statement = prepareStatement(con, sql, false);
-
+      statement = prepareStatement(con, sql, false);
       int idx = 1;
       for (EntityProperty property : metadata.entityProperties) {
         if (property.property != idProperty.property
@@ -404,12 +405,12 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
       assertUpdateCount(sql, updateCount, 1);
     }
     catch (SQLException ex) {
-      // Release Connection early, to avoid potential connection pool deadlock
-      // in the case when the exception translator hasn't been initialized yet.
-      DataSourceUtils.releaseConnection(con, dataSource);
       throw translateException("Update entity By ID", sql, ex);
     }
-
+    finally {
+      JdbcUtils.closeStatement(statement);
+      DataSourceUtils.releaseConnection(con, dataSource);
+    }
   }
 
   @Override
@@ -456,9 +457,9 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
 
     DataSource dataSource = obtainDataSource();
     Connection con = DataSourceUtils.getConnection(dataSource);
+    PreparedStatement statement = null;
     try {
-      PreparedStatement statement = prepareStatement(con, sql, false);
-
+      statement = prepareStatement(con, sql, false);
       int idx = 1;
       for (EntityProperty property : metadata.entityProperties) {
         if ((!Objects.equals(where, property.columnName)
@@ -475,12 +476,12 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
       assertUpdateCount(sql, updateCount, 1);
     }
     catch (SQLException ex) {
-      // Release Connection early, to avoid potential connection pool deadlock
-      // in the case when the exception translator hasn't been initialized yet.
-      DataSourceUtils.releaseConnection(con, dataSource);
       throw translateException("Update entity By " + where, sql, ex);
     }
-
+    finally {
+      JdbcUtils.closeStatement(statement);
+      DataSourceUtils.releaseConnection(con, dataSource);
+    }
   }
 
   @Override
@@ -500,18 +501,19 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
 
     DataSource dataSource = obtainDataSource();
     Connection con = DataSourceUtils.getConnection(dataSource);
+    PreparedStatement statement = null;
     try {
-      PreparedStatement statement = prepareStatement(con, sql.toString(), false);
+      statement = prepareStatement(con, sql.toString(), false);
       metadata.idProperty.setParameter(statement, 1, id);
       statement.executeUpdate();
     }
     catch (SQLException ex) {
-      // Release Connection early, to avoid potential connection pool deadlock
-      // in the case when the exception translator hasn't been initialized yet.
-      DataSourceUtils.releaseConnection(con, dataSource);
       throw translateException("Delete entity using ID", sql.toString(), ex);
     }
-
+    finally {
+      JdbcUtils.closeStatement(statement);
+      DataSourceUtils.releaseConnection(con, dataSource);
+    }
   }
 
   @Override
@@ -550,8 +552,9 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
 
     DataSource dataSource = obtainDataSource();
     Connection con = DataSourceUtils.getConnection(dataSource);
+    PreparedStatement statement = null;
     try {
-      PreparedStatement statement = prepareStatement(con, sql.toString(), false);
+      statement = prepareStatement(con, sql.toString(), false);
       if (id != null) {
         metadata.idProperty.setParameter(statement, 1, id);
       }
@@ -568,12 +571,12 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
       return statement.executeUpdate();
     }
     catch (SQLException ex) {
-      // Release Connection early, to avoid potential connection pool deadlock
-      // in the case when the exception translator hasn't been initialized yet.
-      DataSourceUtils.releaseConnection(con, dataSource);
       throw translateException("Delete entity", sql.toString(), ex);
     }
-
+    finally {
+      JdbcUtils.closeStatement(statement);
+      DataSourceUtils.releaseConnection(con, dataSource);
+    }
   }
 
   /**
@@ -609,8 +612,9 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
 
     DataSource dataSource = obtainDataSource();
     Connection con = DataSourceUtils.getConnection(dataSource);
+    PreparedStatement statement = null;
     try {
-      PreparedStatement statement = prepareStatement(con, sql.toString(), false);
+      statement = prepareStatement(con, sql.toString(), false);
       metadata.idProperty.setParameter(statement, 1, id);
 
       ResultSet resultSet = statement.executeQuery();
@@ -619,10 +623,11 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
       return iterator.hasNext() ? iterator.next() : null;
     }
     catch (SQLException ex) {
-      // Release Connection early, to avoid potential connection pool deadlock
-      // in the case when the exception translator hasn't been initialized yet.
-      DataSourceUtils.releaseConnection(con, dataSource);
       throw translateException("Fetch entity By ID", sql.toString(), ex);
+    }
+    finally {
+      JdbcUtils.closeStatement(statement);
+      DataSourceUtils.releaseConnection(con, dataSource);
     }
   }
 
@@ -834,8 +839,9 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
 
     DataSource dataSource = obtainDataSource();
     Connection con = DataSourceUtils.getConnection(dataSource);
+    PreparedStatement statement = null;
     try {
-      PreparedStatement statement = prepareStatement(con, sql.toString(), false);
+      statement = prepareStatement(con, sql.toString(), false);
       int idx = 1;
       for (Condition condition : conditions) {
         condition.typeHandler.setParameter(statement, idx++, condition.propertyValue);
@@ -844,10 +850,11 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
       return new EntityIterator<>(con, resultSet, entityClass);
     }
     catch (SQLException ex) {
-      // Release Connection early, to avoid potential connection pool deadlock
-      // in the case when the exception translator hasn't been initialized yet.
-      DataSourceUtils.releaseConnection(con, dataSource);
       throw translateException("Iterate entities with query-model", sql.toString(), ex);
+    }
+    finally {
+      JdbcUtils.closeStatement(statement);
+      DataSourceUtils.releaseConnection(con, dataSource);
     }
   }
 
@@ -892,10 +899,10 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
       return new EntityIterator<>(con, resultSet, entityClass);
     }
     catch (SQLException ex) {
-      // Release Connection early, to avoid potential connection pool deadlock
-      // in the case when the exception translator hasn't been initialized yet.
-      DataSourceUtils.releaseConnection(con, dataSource);
       throw translateException("Iterate entities with query-conditions", sql.toString(), ex);
+    }
+    finally {
+      DataSourceUtils.releaseConnection(con, dataSource);
     }
   }
 
@@ -927,11 +934,7 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
       return action.doInConnection(con);
     }
     catch (SQLException ex) {
-      // Release Connection early, to avoid potential connection pool deadlock
-      // in the case when the exception translator hasn't been initialized yet.
       String sql = getSql(action);
-      DataSourceUtils.releaseConnection(con, dataSource);
-      con = null;
       throw translateException(task, sql, ex);
     }
     finally {
