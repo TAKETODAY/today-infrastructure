@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -45,9 +45,12 @@ public class BuildOutput {
   public File getTestClassesLocation() {
     try {
       File location = new File(this.testClass.getProtectionDomain().getCodeSource().getLocation().toURI());
-      if (location.getPath().endsWith(path("bin", "test")) || location.getPath().endsWith(path("bin", "intTest"))
-              || location.getPath().endsWith(path("build", "classes", "java", "test"))
-              || location.getPath().endsWith(path("build", "classes", "java", "intTest"))) {
+      String path = location.getPath();
+      if (path.endsWith(path("target", "test-classes"))
+              || path.endsWith(path("bin", "test"))
+              || path.endsWith(path("bin", "intTest"))
+              || path.endsWith(path("build", "classes", "java", "test"))
+              || path.endsWith(path("build", "classes", "java", "intTest"))) {
         return location;
       }
       throw new IllegalStateException("Unexpected test classes location '" + location + "'");
@@ -64,14 +67,16 @@ public class BuildOutput {
    */
   public File getTestResourcesLocation() {
     File testClassesLocation = getTestClassesLocation();
-    if (testClassesLocation.getPath().endsWith(path("bin", "test"))
-            || testClassesLocation.getPath().endsWith(path("bin", "intTest"))) {
+    String path = testClassesLocation.getPath();
+    if (path.endsWith(path("target", "test-classes"))
+            || path.endsWith(path("bin", "test"))
+            || path.endsWith(path("bin", "intTest"))) {
       return testClassesLocation;
     }
-    if (testClassesLocation.getPath().endsWith(path("build", "classes", "java", "test"))) {
+    if (path.endsWith(path("build", "classes", "java", "test"))) {
       return new File(testClassesLocation.getParentFile().getParentFile().getParentFile(), "resources/test");
     }
-    if (testClassesLocation.getPath().endsWith(path("build", "classes", "java", "intTest"))) {
+    if (path.endsWith(path("build", "classes", "java", "intTest"))) {
       return new File(testClassesLocation.getParentFile().getParentFile().getParentFile(), "resources/intTest");
     }
     throw new IllegalStateException(

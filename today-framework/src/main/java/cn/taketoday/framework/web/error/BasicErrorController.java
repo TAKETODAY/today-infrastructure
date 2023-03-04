@@ -99,7 +99,7 @@ public class BasicErrorController extends AbstractErrorController {
     if (status == HttpStatus.NO_CONTENT) {
       return new ResponseEntity<>(status);
     }
-    Map<String, Object> body = getErrorAttributes(request, getErrorAttributeOptions(request, MediaType.ALL));
+    var body = getErrorAttributes(request, getErrorAttributeOptions(request, MediaType.ALL));
     return new ResponseEntity<>(body, status);
   }
 

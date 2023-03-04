@@ -27,6 +27,7 @@ import java.util.Map;
 import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
 import cn.taketoday.http.HttpStatus;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.stereotype.Controller;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.view.ModelAndView;
@@ -111,9 +112,10 @@ public abstract class AbstractErrorController implements ErrorController {
    * @return a specific {@link ModelAndView} or {@code null} if the default should be
    * used
    */
+  @Nullable
   protected Object resolveErrorView(RequestContext request,
           HttpStatus status, Map<String, Object> model) {
-    for (ErrorViewResolver resolver : this.errorViewResolvers) {
+    for (ErrorViewResolver resolver : errorViewResolvers) {
       Object view = resolver.resolveErrorView(request, status, model);
       if (view != null) {
         return view;

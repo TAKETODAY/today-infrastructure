@@ -568,6 +568,12 @@
       <scope>test</scope>
     </dependency>
 
+    <dependency>
+      <groupId>org.freemarker</groupId>
+      <artifactId>freemarker</artifactId>
+      <scope>test</scope>
+    </dependency>
+
   </dependencies>
 
 

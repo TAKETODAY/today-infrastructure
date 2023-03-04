@@ -41,7 +41,7 @@ public class FreeMarkerProperties extends AbstractTemplateViewResolverProperties
 
   public static final String DEFAULT_PREFIX = "";
 
-  public static final String DEFAULT_SUFFIX = ".ftlh";
+  public static final String DEFAULT_SUFFIX = ".ftl";
 
   /**
    * Well-known FreeMarker keys which are passed to FreeMarker's Configuration.
