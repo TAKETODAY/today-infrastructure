@@ -37,6 +37,7 @@ import cn.taketoday.validation.BindingResult;
 import cn.taketoday.validation.ObjectError;
 import cn.taketoday.web.HandlerExceptionHandler;
 import cn.taketoday.web.RequestContext;
+import cn.taketoday.web.util.WebUtils;
 import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.ServletException;
 
@@ -78,7 +79,7 @@ public class DefaultErrorAttributes implements ErrorAttributes, HandlerException
   @Override
   public Object handleException(RequestContext context, Throwable ex, @Nullable Object handler) {
     storeErrorAttributes(context, ex);
-    return NONE_RETURN_VALUE;
+    return null;
   }
 
   private void storeErrorAttributes(RequestContext request, Throwable ex) {
@@ -87,7 +88,7 @@ public class DefaultErrorAttributes implements ErrorAttributes, HandlerException
 
   @Override
   public Map<String, Object> getErrorAttributes(RequestContext webRequest, ErrorAttributeOptions options) {
-    Map<String, Object> errorAttributes = getErrorAttributes(webRequest, options.isIncluded(Include.STACK_TRACE));
+    var errorAttributes = getErrorAttributes(webRequest, options.isIncluded(Include.STACK_TRACE));
     if (!options.isIncluded(Include.EXCEPTION)) {
       errorAttributes.remove("exception");
     }
@@ -129,8 +130,8 @@ public class DefaultErrorAttributes implements ErrorAttributes, HandlerException
     }
   }
 
-  private void addErrorDetails(Map<String, Object> errorAttributes, RequestContext webRequest,
-          boolean includeStackTrace) {
+  private void addErrorDetails(Map<String, Object> errorAttributes,
+          RequestContext webRequest, boolean includeStackTrace) {
     Throwable error = getError(webRequest);
     if (error != null) {
       while (error instanceof ServletException && error.getCause() != null) {
@@ -144,7 +145,8 @@ public class DefaultErrorAttributes implements ErrorAttributes, HandlerException
     addErrorMessage(errorAttributes, webRequest, error);
   }
 
-  private void addErrorMessage(Map<String, Object> errorAttributes, RequestContext webRequest, Throwable error) {
+  private void addErrorMessage(Map<String, Object> errorAttributes,
+          RequestContext webRequest, Throwable error) {
     BindingResult result = extractBindingResult(error);
     if (result == null) {
       addExceptionErrorMessage(errorAttributes, webRequest, error);
@@ -217,7 +219,11 @@ public class DefaultErrorAttributes implements ErrorAttributes, HandlerException
     Throwable exception = getAttribute(webRequest, ERROR_INTERNAL_ATTRIBUTE);
     if (exception == null) {
       exception = getAttribute(webRequest, RequestDispatcher.ERROR_EXCEPTION);
+      if (exception == null) {
+        exception = getAttribute(webRequest, WebUtils.ERROR_EXCEPTION_ATTRIBUTE);
+      }
     }
+
     // store the exception in a well-known attribute to make it available to metrics
     // instrumentation.
     webRequest.setAttribute(ErrorAttributes.ERROR_ATTRIBUTE, exception);

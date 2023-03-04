@@ -86,7 +86,7 @@ public class BasicErrorController extends AbstractErrorController {
   @RequestMapping(produces = MediaType.TEXT_HTML_VALUE)
   public Object errorHtml(RequestContext request) {
     HttpStatus status = getStatus(request);
-    Map<String, Object> model = Collections.unmodifiableMap(
+    var model = Collections.unmodifiableMap(
             getErrorAttributes(request, getErrorAttributeOptions(request, MediaType.TEXT_HTML)));
     request.setStatus(status.value());
     Object view = resolveErrorView(request, status, model);

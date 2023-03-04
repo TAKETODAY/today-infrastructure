@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -29,7 +29,7 @@ import cn.taketoday.framework.context.event.ApplicationEnvironmentPreparedEvent;
 
 /**
  * An {@link ApplicationListener} that configures {@link AnsiOutput} depending on the
- * value of the property {@code spring.output.ansi.enabled}. See {@link Enabled} for valid
+ * value of the property {@code infra.output.ansi.enabled}. See {@link Enabled} for valid
  * values.
  *
  * @author Raphael von der Grün

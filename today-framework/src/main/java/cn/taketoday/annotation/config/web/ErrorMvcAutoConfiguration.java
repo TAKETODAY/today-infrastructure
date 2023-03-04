@@ -18,14 +18,10 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.framework.web.error;
+package cn.taketoday.annotation.config.web;
 
-import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
-import cn.taketoday.annotation.config.web.WebMvcAutoConfiguration;
-import cn.taketoday.annotation.config.web.WebMvcProperties;
-import cn.taketoday.annotation.config.web.WebProperties;
 import cn.taketoday.annotation.config.web.servlet.DispatcherServletPath;
 import cn.taketoday.aop.framework.autoproxy.AutoProxyUtils;
 import cn.taketoday.beans.BeansException;
@@ -52,6 +48,12 @@ import cn.taketoday.core.type.AnnotatedTypeMetadata;
 import cn.taketoday.framework.annotation.ConditionalOnWebApplication;
 import cn.taketoday.framework.template.TemplateAvailabilityProvider;
 import cn.taketoday.framework.template.TemplateAvailabilityProviders;
+import cn.taketoday.framework.web.error.BasicErrorController;
+import cn.taketoday.framework.web.error.DefaultErrorAttributes;
+import cn.taketoday.framework.web.error.DefaultErrorViewResolver;
+import cn.taketoday.framework.web.error.ErrorAttributes;
+import cn.taketoday.framework.web.error.ErrorController;
+import cn.taketoday.framework.web.error.ErrorViewResolver;
 import cn.taketoday.framework.web.server.ErrorPage;
 import cn.taketoday.framework.web.server.ErrorPageRegistrar;
 import cn.taketoday.framework.web.server.ErrorPageRegistry;
@@ -59,7 +61,6 @@ import cn.taketoday.framework.web.server.ServerProperties;
 import cn.taketoday.framework.web.server.WebServerFactoryCustomizer;
 import cn.taketoday.http.MediaType;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.stereotype.Component;
 import cn.taketoday.web.RequestContext;
@@ -137,19 +138,17 @@ public class ErrorMvcAutoConfiguration {
   @Conditional(ErrorTemplateMissingCondition.class)
   protected static class WhitelabelErrorViewConfiguration {
 
-    private final StaticView defaultErrorView = new StaticView();
-
     @Component(name = "error")
     @ConditionalOnMissingBean(name = "error")
-    public View defaultErrorView() {
-      return this.defaultErrorView;
+    static View defaultErrorView() {
+      return new StaticView();
     }
 
     // If the user adds @EnableWebMvc then the bean name view resolver from
     // WebMvcAutoConfiguration disappears, so add it back in to avoid disappointment.
     @Component
     @ConditionalOnMissingBean
-    public BeanNameViewResolver beanNameViewResolver() {
+    static BeanNameViewResolver beanNameViewResolver() {
       BeanNameViewResolver resolver = new BeanNameViewResolver();
       resolver.setOrder(Ordered.LOWEST_PRECEDENCE - 10);
       return resolver;
@@ -181,19 +180,14 @@ public class ErrorMvcAutoConfiguration {
    */
   private static class StaticView implements View {
 
-    private static final MediaType TEXT_HTML_UTF8 = new MediaType(
-            "text", "html", StandardCharsets.UTF_8);
-
-    private static final Logger logger = LoggerFactory.getLogger(StaticView.class);
-
     @Override
     public void render(Map<String, ?> model, RequestContext request) throws Exception {
       if (request.isCommitted()) {
         String message = getMessage(model);
-        logger.error(message);
+        LoggerFactory.getLogger(StaticView.class).error(message);
         return;
       }
-      request.setContentType(TEXT_HTML_UTF8.toString());
+      request.setContentType(MediaType.TEXT_HTML.toString());
       StringBuilder builder = new StringBuilder();
       Object timestamp = model.get("timestamp");
       Object message = model.get("message");
@@ -203,8 +197,8 @@ public class ErrorMvcAutoConfiguration {
         request.setContentType(getContentType());
       }
 
-      builder.append("<html><body><h1>Whitelabel Error Page</h1>").append(
-                      "<p>This application has no explicit mapping for /error, so you are seeing this as a fallback.</p>")
+      builder.append("<html><body><h1>Whitelabel Error Page</h1>")
+              .append("<p>This application has no explicit mapping for /error, so you are seeing this as a fallback.</p>")
               .append("<div id='created'>").append(timestamp).append("</div>")
               .append("<div>There was an unexpected error (type=").append(htmlEscape(model.get("error")))
               .append(", status=").append(htmlEscape(model.get("status"))).append(").</div>");
@@ -257,7 +251,7 @@ public class ErrorMvcAutoConfiguration {
     @Override
     public void registerErrorPages(ErrorPageRegistry errorPageRegistry) {
       ErrorPage errorPage = new ErrorPage(
-              this.dispatcherServletPath.getRelativePath(this.properties.getError().getPath()));
+              dispatcherServletPath.getRelativePath(properties.getError().getPath()));
       errorPageRegistry.addErrorPages(errorPage);
     }
 

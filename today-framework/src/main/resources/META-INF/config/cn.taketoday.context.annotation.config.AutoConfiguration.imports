@@ -9,6 +9,7 @@ cn.taketoday.annotation.config.jmx.JmxAutoConfiguration
 cn.taketoday.annotation.config.jmx.InfraApplicationJmxAutoConfiguration
 cn.taketoday.annotation.config.web.client.RestTemplateAutoConfiguration
 cn.taketoday.annotation.config.web.WebMvcAutoConfiguration
+cn.taketoday.annotation.config.web.ErrorMvcAutoConfiguration
 cn.taketoday.annotation.config.web.servlet.DispatcherServletAutoConfiguration
 cn.taketoday.annotation.config.web.servlet.ServletWebServerFactoryAutoConfiguration
 cn.taketoday.annotation.config.web.netty.NettyWebServerFactoryAutoConfiguration

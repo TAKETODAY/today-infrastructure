@@ -23,6 +23,7 @@ package cn.taketoday.framework.web.error;
 import java.util.Map;
 
 import cn.taketoday.http.HttpStatus;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.view.ModelAndView;
 
@@ -44,6 +45,7 @@ public interface ErrorViewResolver {
    * @param model the suggested model to be used with the view
    * @return a resolved {@link ModelAndView} or {@code null}
    */
+  @Nullable
   Object resolveErrorView(RequestContext request, HttpStatus status, Map<String, Object> model);
 
 }

@@ -45,7 +45,7 @@ import cn.taketoday.web.servlet.support.StandardServletEnvironment;
 
 /**
  * An {@link EnvironmentPostProcessor} that parses JSON from
- * {@code spring.application.json} or equivalently {@code APPLICATION_JSON} and
+ * {@code application.json} or equivalently {@code APPLICATION_JSON} and
  * adds it as a map property source to the {@link Environment}. The new properties are
  * added with higher priority than the system properties.
  *

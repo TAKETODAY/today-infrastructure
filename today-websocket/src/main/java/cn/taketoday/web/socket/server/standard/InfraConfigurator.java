@@ -40,7 +40,7 @@ import jakarta.websocket.server.ServerEndpointConfig.Configurator;
 
 /**
  * A {@link Configurator} for initializing
- * {@link ServerEndpoint}-annotated classes through Spring.
+ * {@link ServerEndpoint}-annotated classes through Infra.
  *
  * <p>
  * <pre>{@code

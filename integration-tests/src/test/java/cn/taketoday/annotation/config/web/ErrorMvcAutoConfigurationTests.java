@@ -18,7 +18,7 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.framework.web.error;
+package cn.taketoday.annotation.config.web;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -31,7 +31,9 @@ import cn.taketoday.context.annotation.config.AutoConfigurations;
 import cn.taketoday.framework.test.context.runner.WebApplicationContextRunner;
 import cn.taketoday.framework.test.system.CapturedOutput;
 import cn.taketoday.framework.test.system.OutputCaptureExtension;
+import cn.taketoday.framework.web.error.ErrorAttributeOptions;
 import cn.taketoday.framework.web.error.ErrorAttributeOptions.Include;
+import cn.taketoday.framework.web.error.ErrorAttributes;
 import cn.taketoday.mock.web.MockHttpServletRequest;
 import cn.taketoday.mock.web.MockHttpServletResponse;
 import cn.taketoday.web.servlet.ServletRequestContext;

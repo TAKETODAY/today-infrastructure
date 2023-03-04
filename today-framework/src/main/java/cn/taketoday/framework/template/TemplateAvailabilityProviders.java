@@ -36,7 +36,7 @@ import cn.taketoday.lang.TodayStrategies;
 /**
  * Collection of {@link TemplateAvailabilityProvider} beans that can be used to check
  * which (if any) templating engine supports a given view. Caches responses unless the
- * {@code spring.template.provider.cache} property is set to {@code false}.
+ * {@code infra.template.provider.cache} property is set to {@code false}.
  *
  * @author Phillip Webb
  * @author Madhura Bhave
