@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -41,6 +41,7 @@ import cn.taketoday.lang.Nullable;
  * a {@link UrlBasedViewResolver}.
  *
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see UrlBasedViewResolver
  * @since 4.0
  */
@@ -71,15 +72,17 @@ public class BeanNameViewResolver extends ApplicationContextSupport implements V
       // Allow for ViewResolver chaining...
       return null;
     }
-    if (!context.isTypeMatch(viewName, View.class)) {
-      if (log.isDebugEnabled()) {
-        log.debug("Found bean named '{}' but it does not implement View", viewName);
-      }
-      // Since we're looking into the general ApplicationContext here,
-      // let's accept this as a non-match and allow for chaining as well...
-      return null;
+
+    if (context.isTypeMatch(viewName, View.class)) {
+      return context.getBean(viewName, View.class);
     }
-    return context.getBean(viewName, View.class);
+
+    if (log.isDebugEnabled()) {
+      log.debug("Found bean named '{}' but it does not implement View", viewName);
+    }
+    // Since we're looking into the general ApplicationContext here,
+    // let's accept this as a non-match and allow for chaining as well...
+    return null;
   }
 
 }
