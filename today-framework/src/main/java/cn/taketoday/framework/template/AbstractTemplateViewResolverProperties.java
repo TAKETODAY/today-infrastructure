@@ -22,13 +22,13 @@ package cn.taketoday.framework.template;
 
 import cn.taketoday.context.properties.ConfigurationProperties;
 import cn.taketoday.core.Ordered;
-import cn.taketoday.lang.Assert;
 import cn.taketoday.web.view.AbstractTemplateViewResolver;
 
 /**
  * Base class for {@link ConfigurationProperties @ConfigurationProperties} of a
  * {@link AbstractTemplateViewResolver}.
  *
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @author Andy Wilkinson
  * @since 4.0
  */
@@ -142,9 +142,10 @@ public abstract class AbstractTemplateViewResolverProperties extends AbstractVie
    * @param viewResolver the resolver to apply the properties to.
    */
   public void applyToMvcViewResolver(Object viewResolver) {
-    Assert.isInstanceOf(AbstractTemplateViewResolver.class, viewResolver,
-            () -> "ViewResolver is not an instance of AbstractTemplateViewResolver :" + viewResolver);
-    AbstractTemplateViewResolver resolver = (AbstractTemplateViewResolver) viewResolver;
+    if (!(viewResolver instanceof AbstractTemplateViewResolver resolver)) {
+      throw new IllegalArgumentException(
+              "ViewResolver is not an instance of AbstractTemplateViewResolver :" + viewResolver);
+    }
     resolver.setPrefix(getPrefix());
     resolver.setSuffix(getSuffix());
     resolver.setCache(isCache());

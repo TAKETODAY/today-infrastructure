@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -60,6 +60,7 @@ import freemarker.template.TemplateException;
  *
  * @author Darren Davison
  * @author Rob Harrop
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see #setConfigLocation
  * @see #setFreemarkerSettings
  * @see #setTemplateLoaderPath

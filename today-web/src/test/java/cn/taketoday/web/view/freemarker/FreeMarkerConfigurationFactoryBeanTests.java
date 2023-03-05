@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -60,7 +60,7 @@ class FreeMarkerConfigurationFactoryBeanTests {
     fcfb.setTemplateLoaderPath("file:/mydir");
     fcfb.afterPropertiesSet();
     Configuration cfg = fcfb.getObject();
-    assertThat(cfg.getTemplateLoader()).isInstanceOf(ContextTemplateLoader.class);
+    assertThat(cfg.getTemplateLoader()).isInstanceOf(InfraTemplateLoader.class);
   }
 
   @Test
@@ -94,7 +94,7 @@ class FreeMarkerConfigurationFactoryBeanTests {
   @Test  // SPR-12448
   public void freeMarkerConfigurationAsBean() {
     StandardBeanFactory beanFactory = new StandardBeanFactory();
-    RootBeanDefinition loaderDef = new RootBeanDefinition(ContextTemplateLoader.class);
+    RootBeanDefinition loaderDef = new RootBeanDefinition(InfraTemplateLoader.class);
     loaderDef.getConstructorArgumentValues().addGenericArgumentValue(new DefaultResourceLoader());
     loaderDef.getConstructorArgumentValues().addGenericArgumentValue("/freemarker");
     RootBeanDefinition configDef = new RootBeanDefinition(Configuration.class);

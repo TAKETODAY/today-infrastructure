@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -200,8 +200,8 @@ public class FreeMarkerConfigurationFactory {
    * relative paths when running in an ApplicationContext.
    * <p>Will define a path for the default FreeMarker template loader.
    * If a specified resource cannot be resolved to a {@code java.io.File},
-   * a generic ContextTemplateLoader will be used, without modification detection.
-   * <p>To enforce the use of ContextTemplateLoader, i.e. to not resolve a path
+   * a generic InfraTemplateLoader will be used, without modification detection.
+   * <p>To enforce the use of InfraTemplateLoader, i.e. to not resolve a path
    * as file system resource in any case, turn off the "preferFileSystemAccess"
    * flag. See the latter's javadoc for details.
    * <p>If you wish to specify your own list of TemplateLoaders, do not set this
@@ -209,7 +209,7 @@ public class FreeMarkerConfigurationFactory {
    *
    * @see cn.taketoday.context.ApplicationContext#getResource
    * @see freemarker.template.Configuration#setDirectoryForTemplateLoading
-   * @see ContextTemplateLoader
+   * @see InfraTemplateLoader
    */
   public void setTemplateLoaderPaths(String... templateLoaderPaths) {
     this.templateLoaderPaths = templateLoaderPaths;
@@ -239,7 +239,7 @@ public class FreeMarkerConfigurationFactory {
    * <p>If this is enabled, FreeMarkerConfigurationFactory will try to resolve
    * the specified "templateLoaderPath" as file system resource (which will work
    * for expanded class path resources and ServletContext resources too).
-   * <p>Default is "true". Turn this off to always load via ContextTemplateLoader
+   * <p>Default is "true". Turn this off to always load via InfraTemplateLoader
    * (i.e. as stream, without hot detection of template changes), which might
    * be necessary if some of your templates reside in an expanded classes
    * directory while others reside in jar files.
@@ -271,7 +271,7 @@ public class FreeMarkerConfigurationFactory {
     // Load config file if specified.
     if (this.configLocation != null) {
       if (log.isDebugEnabled()) {
-        log.debug("Loading FreeMarker configuration from " + this.configLocation);
+        log.debug("Loading FreeMarker configuration from {}", configLocation);
       }
       PropertiesUtils.fillProperties(props, this.configLocation);
     }
@@ -342,38 +342,37 @@ public class FreeMarkerConfigurationFactory {
   /**
    * Determine a FreeMarker TemplateLoader for the given path.
    * <p>Default implementation creates either a FileTemplateLoader or
-   * a ContextTemplateLoader.
+   * a InfraTemplateLoader.
    *
    * @param templateLoaderPath the path to load templates from
    * @return an appropriate TemplateLoader
    * @see freemarker.cache.FileTemplateLoader
-   * @see ContextTemplateLoader
+   * @see InfraTemplateLoader
    */
   protected TemplateLoader getTemplateLoaderForPath(String templateLoaderPath) {
     if (isPreferFileSystemAccess()) {
-      // Try to load via the file system, fall back to ContextTemplateLoader
+      // Try to load via the file system, fall back to InfraTemplateLoader
       // (for hot detection of template changes, if possible).
       try {
         Resource path = getResourceLoader().getResource(templateLoaderPath);
         File file = path.getFile();  // will fail if not resolvable in the file system
         if (log.isDebugEnabled()) {
-          log.debug(
-                  "Template loader path [" + path + "] resolved to file path [" + file.getAbsolutePath() + "]");
+          log.debug("Template loader path [{}] resolved to file path [{}]", path, file.getAbsolutePath());
         }
         return new FileTemplateLoader(file);
       }
       catch (Exception ex) {
         if (log.isDebugEnabled()) {
-          log.debug("Cannot resolve template loader path [" + templateLoaderPath +
-                  "] to [java.io.File]: using ContextTemplateLoader as fallback", ex);
+          log.debug("Cannot resolve template loader path [{}] to [java.io.File]: using InfraTemplateLoader as fallback",
+                  templateLoaderPath, ex);
         }
-        return new ContextTemplateLoader(getResourceLoader(), templateLoaderPath);
+        return new InfraTemplateLoader(getResourceLoader(), templateLoaderPath);
       }
     }
     else {
-      // Always load via ContextTemplateLoader (without hot detection of template changes).
-      log.debug("File system access not preferred: using ContextTemplateLoader");
-      return new ContextTemplateLoader(getResourceLoader(), templateLoaderPath);
+      // Always load via InfraTemplateLoader (without hot detection of template changes).
+      log.debug("File system access not preferred: using InfraTemplateLoader");
+      return new InfraTemplateLoader(getResourceLoader(), templateLoaderPath);
     }
   }
 
@@ -392,6 +391,7 @@ public class FreeMarkerConfigurationFactory {
    * @see #setPostTemplateLoaders
    */
   protected void postProcessTemplateLoaders(List<TemplateLoader> templateLoaders) {
+
   }
 
   /**
@@ -405,14 +405,17 @@ public class FreeMarkerConfigurationFactory {
   @Nullable
   protected TemplateLoader getAggregateTemplateLoader(List<TemplateLoader> templateLoaders) {
     switch (templateLoaders.size()) {
-      case 0:
+      case 0 -> {
         log.debug("No FreeMarker TemplateLoaders specified");
         return null;
-      case 1:
+      }
+      case 1 -> {
         return templateLoaders.get(0);
-      default:
+      }
+      default -> {
         TemplateLoader[] loaders = templateLoaders.toArray(new TemplateLoader[0]);
         return new MultiTemplateLoader(loaders);
+      }
     }
   }
 
@@ -428,6 +431,7 @@ public class FreeMarkerConfigurationFactory {
    * @see #createConfiguration()
    */
   protected void postProcessConfiguration(Configuration config) throws IOException, TemplateException {
+
   }
 
 }

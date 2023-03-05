@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -62,7 +62,7 @@ public class FreeMarkerConfigurerTests {
     Configuration cfg = freeMarkerConfigurer.getConfiguration();
     assertThat(cfg.getTemplateLoader()).isInstanceOf(MultiTemplateLoader.class);
     MultiTemplateLoader multiTemplateLoader = (MultiTemplateLoader) cfg.getTemplateLoader();
-    assertThat(multiTemplateLoader.getTemplateLoader(0)).isInstanceOf(ContextTemplateLoader.class);
+    assertThat(multiTemplateLoader.getTemplateLoader(0)).isInstanceOf(InfraTemplateLoader.class);
     assertThat(multiTemplateLoader.getTemplateLoader(1)).isInstanceOf(ClassTemplateLoader.class);
   }
 

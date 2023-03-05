@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -74,8 +74,8 @@ public class ViewResolverRegistry {
   /**
    * Class constructor with {@link ContentNegotiationManager} and {@link ApplicationContext}.
    */
-  public ViewResolverRegistry(
-          @Nullable ContentNegotiationManager contentNegotiationManager, @Nullable ApplicationContext context) {
+  public ViewResolverRegistry(@Nullable ContentNegotiationManager contentNegotiationManager,
+          @Nullable ApplicationContext context) {
     this.applicationContext = context;
     this.contentNegotiationManager = contentNegotiationManager;
   }
@@ -272,6 +272,15 @@ public class ViewResolverRegistry {
     else {
       return this.viewResolvers;
     }
+  }
+
+  boolean contains(Class<?> viewResolver) {
+    for (ViewResolver resolver : getViewResolvers()) {
+      if (viewResolver.isInstance(resolver)) {
+        return true;
+      }
+    }
+    return false;
   }
 
   private static class FreeMarkerRegistration extends UrlBasedViewResolverRegistration {

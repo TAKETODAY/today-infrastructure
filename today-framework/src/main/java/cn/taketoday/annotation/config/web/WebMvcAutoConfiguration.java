@@ -67,7 +67,6 @@ import cn.taketoday.validation.Validator;
 import cn.taketoday.web.HandlerExceptionHandler;
 import cn.taketoday.web.LocaleResolver;
 import cn.taketoday.web.ServletDetector;
-import cn.taketoday.web.accept.ContentNegotiationManager;
 import cn.taketoday.web.bind.resolver.ParameterResolvingRegistry;
 import cn.taketoday.web.bind.support.ConfigurableWebBindingInitializer;
 import cn.taketoday.web.config.AsyncSupportConfigurer;
@@ -104,9 +103,7 @@ import cn.taketoday.web.servlet.filter.OrderedFormContentFilter;
 import cn.taketoday.web.servlet.filter.OrderedHiddenHttpMethodFilter;
 import cn.taketoday.web.servlet.view.InternalResourceViewResolver;
 import cn.taketoday.web.view.BeanNameViewResolver;
-import cn.taketoday.web.view.ContentNegotiatingViewResolver;
 import cn.taketoday.web.view.View;
-import cn.taketoday.web.view.ViewResolver;
 
 import static cn.taketoday.annotation.config.task.TaskExecutionAutoConfiguration.APPLICATION_TASK_EXECUTOR_BEAN_NAME;
 
@@ -222,18 +219,6 @@ public class WebMvcAutoConfiguration extends WebMvcConfigurationSupport {
   public BeanNameViewResolver beanNameViewResolver() {
     BeanNameViewResolver resolver = new BeanNameViewResolver();
     resolver.setOrder(Ordered.LOWEST_PRECEDENCE - 10);
-    return resolver;
-  }
-
-  @Component
-  @ConditionalOnBean(ViewResolver.class)
-  @ConditionalOnMissingBean(name = "viewResolver", value = ContentNegotiatingViewResolver.class)
-  public ContentNegotiatingViewResolver viewResolver(@Nullable ContentNegotiationManager contentNegotiationManager) {
-    ContentNegotiatingViewResolver resolver = new ContentNegotiatingViewResolver();
-    resolver.setContentNegotiationManager(contentNegotiationManager);
-    // ContentNegotiatingViewResolver uses all the other view resolvers to locate
-    // a view so it should have a high precedence
-    resolver.setOrder(Ordered.HIGHEST_PRECEDENCE);
     return resolver;
   }
 

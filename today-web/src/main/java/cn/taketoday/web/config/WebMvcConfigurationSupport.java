@@ -451,15 +451,21 @@ public class WebMvcConfigurationSupport extends ApplicationContextSupport {
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
   public ViewResolver mvcViewResolver(
           @Qualifier("mvcContentNegotiationManager") ContentNegotiationManager contentNegotiationManager) {
-    ViewResolverRegistry registry =
-            new ViewResolverRegistry(contentNegotiationManager, applicationContext);
+    var registry = new ViewResolverRegistry(contentNegotiationManager, applicationContext);
     configureViewResolvers(registry);
-
-    List<ViewResolver> viewResolvers = registry.getViewResolvers();
-    if (viewResolvers.isEmpty() && applicationContext != null) {
+    var viewResolvers = new ArrayList<>(registry.getViewResolvers());
+    if (applicationContext != null) {
       Set<String> names = BeanFactoryUtils.beanNamesForTypeIncludingAncestors(
               applicationContext, ViewResolver.class, true, false);
-      if (names.size() == 1) {
+      if (names.size() > 1) {
+        for (String name : names) {
+          if (!"mvcViewResolver".equals(name)) {
+            var viewResolver = applicationContext.getBean(name, ViewResolver.class);
+            viewResolvers.add(viewResolver);
+          }
+        }
+      }
+      else {
         if (ServletDetector.isPresent) {
           viewResolvers.add(new InternalResourceViewResolver());
         }
@@ -480,15 +486,6 @@ public class WebMvcConfigurationSupport extends ApplicationContextSupport {
 
     composite.setOrder(registry.getOrder());
     composite.setViewResolvers(viewResolvers);
-    if (applicationContext != null) {
-      composite.setApplicationContext(applicationContext);
-    }
-
-    if (ServletDetector.isPresent && applicationContext instanceof WebApplicationContext servletApp) {
-      ServletViewResolverComposite viewResolverComposite = (ServletViewResolverComposite) composite;
-      viewResolverComposite.setServletContext(servletApp.getServletContext());
-    }
-
     return composite;
   }
 

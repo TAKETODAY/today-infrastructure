@@ -26,6 +26,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import cn.taketoday.context.properties.ConfigurationProperties;
+import cn.taketoday.http.MediaType;
 import cn.taketoday.util.MimeType;
 import cn.taketoday.web.view.ViewResolver;
 
@@ -35,12 +36,13 @@ import cn.taketoday.web.view.ViewResolver;
  *
  * @author Andy Wilkinson
  * @author Stephane Nicoll
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see AbstractTemplateViewResolverProperties
  * @since 4.0
  */
 public abstract class AbstractViewResolverProperties {
 
-  private static final MimeType DEFAULT_CONTENT_TYPE = MimeType.valueOf("text/html");
+  private static final MimeType DEFAULT_CONTENT_TYPE = MediaType.TEXT_HTML;
 
   private static final Charset DEFAULT_CHARSET = StandardCharsets.UTF_8;
 
