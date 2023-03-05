@@ -489,7 +489,7 @@ public class Application {
       resourceLoader = new DefaultResourceLoader(null);
     }
 
-    var bannerPrinter = new ApplicationBannerPrinter(resourceLoader, banner);
+    var bannerPrinter = new InfraBannerPrinter(resourceLoader, banner);
     if (this.bannerMode == Banner.Mode.LOG) {
       return bannerPrinter.print(environment, mainApplicationClass, logger);
     }
