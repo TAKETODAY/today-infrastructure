@@ -158,9 +158,7 @@ public abstract class AbstractTemplateViewResolverProperties extends AbstractVie
     resolver.setAllowSessionOverride(isAllowSessionOverride());
     resolver.setExposeSessionAttributes(isExposeSessionAttributes());
     resolver.setRequestContextAttribute(getRequestContextAttribute());
-    // The resolver usually acts as a fallback resolver (e.g. like a
-    // InternalResourceViewResolver) so it needs to have low precedence
-    resolver.setOrder(Ordered.LOWEST_PRECEDENCE - 5);
+    resolver.setOrder(Ordered.HIGHEST_PRECEDENCE + 100);
   }
 
 }

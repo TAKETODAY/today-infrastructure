@@ -457,15 +457,7 @@ public class WebMvcConfigurationSupport extends ApplicationContextSupport {
     if (applicationContext != null) {
       Set<String> names = BeanFactoryUtils.beanNamesForTypeIncludingAncestors(
               applicationContext, ViewResolver.class, true, false);
-      if (names.size() > 1) {
-        for (String name : names) {
-          if (!"mvcViewResolver".equals(name)) {
-            var viewResolver = applicationContext.getBean(name, ViewResolver.class);
-            viewResolvers.add(viewResolver);
-          }
-        }
-      }
-      else {
+      if (names.size() == 1) {
         if (ServletDetector.isPresent) {
           viewResolvers.add(new InternalResourceViewResolver());
         }
@@ -512,16 +504,18 @@ public class WebMvcConfigurationSupport extends ApplicationContextSupport {
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
   @ConditionalOnMissingBean(ReturnValueHandlerManager.class)
   ReturnValueHandlerManager returnValueHandlerManager(
-          @Nullable RedirectModelManager redirectModelManager,
-          @Qualifier("mvcViewResolver") ViewResolver mvcViewResolver) {
+          @Nullable RedirectModelManager redirectModelManager, List<ViewResolver> viewResolvers) {
 
     ReturnValueHandlerManager manager = new ReturnValueHandlerManager(getMessageConverters());
 
     manager.setApplicationContext(applicationContext);
     manager.setRedirectModelManager(redirectModelManager);
-    manager.setViewResolver(mvcViewResolver);
 
-    ViewReturnValueHandler handler = new ViewReturnValueHandler(mvcViewResolver);
+    ViewResolverComposite composite = new ViewResolverComposite();
+    composite.setViewResolvers(viewResolvers);
+
+    manager.setViewResolver(composite);
+    ViewReturnValueHandler handler = new ViewReturnValueHandler(composite);
     handler.setModelManager(redirectModelManager);
 
     AsyncSupportConfigurer configurer = getAsyncSupportConfigurer();
