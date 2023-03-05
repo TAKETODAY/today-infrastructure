@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -38,6 +38,7 @@ import cn.taketoday.lang.Nullable;
  * <p>Subclasses need to implement the {@link #loadView} template method,
  * building the View object for a specific view name and locale.
  *
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @author Rod Johnson
  * @author Juergen Hoeller
  * @see #loadView
@@ -48,10 +49,10 @@ public abstract class AbstractCachingViewResolver extends ApplicationContextSupp
   public static final int DEFAULT_CACHE_LIMIT = 1024;
 
   /** Dummy marker object for unresolved views in the cache Maps. */
-  private static final View UNRESOLVED_VIEW = (model, context) -> { };
+  public static final View UNRESOLVED_VIEW = (model, context) -> { };
 
   /** Default cache filter that always caches. */
-  private static final CacheFilter DEFAULT_CACHE_FILTER = (view, viewName, locale) -> true;
+  public static final CacheFilter DEFAULT_CACHE_FILTER = (view, viewName, locale) -> true;
 
   /** The maximum number of entries in the cache. */
   private volatile int cacheLimit = DEFAULT_CACHE_LIMIT;
@@ -63,11 +64,10 @@ public abstract class AbstractCachingViewResolver extends ApplicationContextSupp
   private CacheFilter cacheFilter = DEFAULT_CACHE_FILTER;
 
   /** Fast access cache for Views, returning already cached instances without a global lock. */
-  private final Map<Object, View> viewAccessCache = new ConcurrentHashMap<>(DEFAULT_CACHE_LIMIT);
+  private final ConcurrentHashMap<Object, View> viewAccessCache = new ConcurrentHashMap<>(DEFAULT_CACHE_LIMIT);
 
   /** Map from view key to View instance, synchronized for View creation. */
-  @SuppressWarnings("serial")
-  private final Map<Object, View> viewCreationCache =
+  private final LinkedHashMap<Object, View> viewCreationCache =
           new LinkedHashMap<>(DEFAULT_CACHE_LIMIT, 0.75f, true) {
             @Override
             protected boolean removeEldestEntry(Map.Entry<Object, View> eldest) {
@@ -104,7 +104,7 @@ public abstract class AbstractCachingViewResolver extends ApplicationContextSupp
    * Disable this only for debugging and development.
    */
   public void setCache(boolean cache) {
-    this.cacheLimit = (cache ? DEFAULT_CACHE_LIMIT : 0);
+    this.cacheLimit = cache ? DEFAULT_CACHE_LIMIT : 0;
   }
 
   /**
@@ -168,7 +168,7 @@ public abstract class AbstractCachingViewResolver extends ApplicationContextSupp
             if (view == null && cacheUnresolved) {
               view = UNRESOLVED_VIEW;
             }
-            if (view != null && cacheFilter.filter(view, viewName, locale)) {
+            if (view != null && cacheFilter.shouldCaching(view, viewName, locale)) {
               viewAccessCache.put(cacheKey, view);
               viewCreationCache.put(cacheKey, view);
             }
@@ -181,7 +181,6 @@ public abstract class AbstractCachingViewResolver extends ApplicationContextSupp
         }
       }
       return view != UNRESOLVED_VIEW ? view : null;
-
     }
     else {
       return createView(viewName, locale);
@@ -298,7 +297,7 @@ public abstract class AbstractCachingViewResolver extends ApplicationContextSupp
      * @param locale the locale used to resolve the {@code view}
      * @return {@code true} if the view should be cached; {@code false} otherwise
      */
-    boolean filter(View view, String viewName, Locale locale);
+    boolean shouldCaching(View view, String viewName, Locale locale);
   }
 
 }

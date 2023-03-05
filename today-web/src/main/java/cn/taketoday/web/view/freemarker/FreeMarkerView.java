@@ -68,6 +68,7 @@ import freemarker.template.TemplateModelException;
  *
  * @author Darren Davison
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see #setUrl
  * @see #setEncoding
  * @see #setConfiguration
