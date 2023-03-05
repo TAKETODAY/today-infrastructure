@@ -552,6 +552,11 @@ public class RequestContextDecorator extends RequestContext {
     return delegate.getBindingContext();
   }
 
+  @Override
+  public boolean hasBindingContext() {
+    return delegate.hasBindingContext();
+  }
+
   // AttributeAccessorSupport
 
   @Override

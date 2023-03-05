@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -30,7 +30,6 @@ import cn.taketoday.lang.Experimental;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.ReflectionUtils;
-import cn.taketoday.web.BindingContext;
 import cn.taketoday.web.HandlerExceptionHandler;
 import cn.taketoday.web.HandlerMatchingMetadata;
 import cn.taketoday.web.RequestContext;
@@ -185,10 +184,9 @@ public class ViewReturnValueHandler implements SmartReturnValueHandler {
       }
     }
 
-    BindingContext bindingContext = context.getBindingContext();
-    if (bindingContext != null) {
+    if (context.hasBindingContext()) {
       // injected arguments Model
-      model.putAll(bindingContext.getModel());
+      model.putAll(context.getBindingContext().getModel());
     }
 
     // do rendering

@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -17,6 +17,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.web.handler.result;
 
 import cn.taketoday.lang.Assert;
@@ -66,7 +67,7 @@ public class VoidReturnValueHandler implements HandlerMethodReturnValueHandler {
     if (bindingContext != null && bindingContext.hasModelAndView()) {
       ModelAndView modelAndView = bindingContext.getModelAndView();
       // user constructed a ModelAndView hold in context
-      returnValueHandler.handleModelAndView(context, null, modelAndView);
+      returnValueHandler.handleModelAndView(context, modelAndView);
     }
   }
 

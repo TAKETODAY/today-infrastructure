@@ -47,6 +47,7 @@ import cn.taketoday.web.bind.resolver.date.DateParameterResolver;
 import cn.taketoday.web.bind.resolver.date.LocalDateParameterResolver;
 import cn.taketoday.web.bind.resolver.date.LocalDateTimeParameterResolver;
 import cn.taketoday.web.bind.resolver.date.LocalTimeParameterResolver;
+import cn.taketoday.web.handler.method.ModelAndViewMethodArgumentResolver;
 import cn.taketoday.web.handler.method.ModelAttributeMethodProcessor;
 import cn.taketoday.web.handler.method.RequestBodyAdvice;
 import cn.taketoday.web.handler.method.ResolvableMethodParameter;
@@ -256,6 +257,7 @@ public class ParameterResolvingRegistry
     }
 
     strategies.add(new RequestContextMethodArgumentResolver());
+    strategies.add(new ModelAndViewMethodArgumentResolver());
     strategies.add(new ModelMethodProcessor());
     strategies.add(new MapMethodProcessor());
     strategies.add(new ErrorsMethodArgumentResolver());

@@ -1339,10 +1339,17 @@ public abstract class RequestContext extends AttributeAccessorSupport
     return -1;
   }
 
+  /** @since 4.0 */
   public void setBindingContext(BindingContext bindingContext) {
     this.bindingContext = bindingContext;
   }
 
+  /** @since 4.0 */
+  public boolean hasBindingContext() {
+    return bindingContext != null;
+  }
+
+  /** @since 4.0 */
   public BindingContext getBindingContext() {
     return bindingContext;
   }

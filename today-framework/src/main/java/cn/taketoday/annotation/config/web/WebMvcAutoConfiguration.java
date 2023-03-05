@@ -456,7 +456,7 @@ public class WebMvcAutoConfiguration extends WebMvcConfigurationSupport {
 
     @Component
     @ConditionalOnMissingBean
-    static InternalResourceViewResolver defaultViewResolver(WebMvcProperties mvcProperties) {
+    static InternalResourceViewResolver internalResourceViewResolver(WebMvcProperties mvcProperties) {
       InternalResourceViewResolver resolver = new InternalResourceViewResolver();
       resolver.setPrefix(mvcProperties.getView().getPrefix());
       resolver.setSuffix(mvcProperties.getView().getSuffix());

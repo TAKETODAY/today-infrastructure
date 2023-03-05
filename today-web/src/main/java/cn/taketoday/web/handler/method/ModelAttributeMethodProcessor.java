@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -38,7 +38,6 @@ import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.core.TypeDescriptor;
 import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.core.conversion.Converter;
-import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.StringUtils;
@@ -121,7 +120,6 @@ public class ModelAttributeMethodProcessor implements ParameterResolvingStrategy
   @Override
   public Object resolveArgument(RequestContext context, ResolvableMethodParameter resolvable) throws Throwable {
     BindingContext bindingContext = context.getBindingContext();
-    Assert.state(bindingContext != null, "No binding context");
 
     MethodParameter parameter = resolvable.getParameter();
     String name = ModelHandler.getNameForParameter(parameter);
@@ -510,7 +508,6 @@ public class ModelAttributeMethodProcessor implements ParameterResolvingStrategy
    * or, in default resolution mode, for any return value type that is not
    * a simple type.
    */
-
   @Override
   public boolean supportsHandlerMethod(HandlerMethod handler) {
     MethodParameter returnType = handler.getReturnType();

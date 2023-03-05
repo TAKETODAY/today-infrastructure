@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -381,7 +381,7 @@ public class WebMvcConfigurationSupport extends ApplicationContextSupport {
    */
   @Component
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-  public ContentNegotiationManager contentNegotiationManager() {
+  public ContentNegotiationManager mvcContentNegotiationManager() {
     if (this.contentNegotiationManager == null) {
       ContentNegotiationConfigurer configurer = new ContentNegotiationConfigurer();
       configurer.mediaTypes(getDefaultMediaTypes());
@@ -449,7 +449,8 @@ public class WebMvcConfigurationSupport extends ApplicationContextSupport {
    */
   @Component
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-  public ViewResolver webViewResolver(ContentNegotiationManager contentNegotiationManager) {
+  public ViewResolver mvcViewResolver(
+          @Qualifier("mvcContentNegotiationManager") ContentNegotiationManager contentNegotiationManager) {
     ViewResolverRegistry registry =
             new ViewResolverRegistry(contentNegotiationManager, applicationContext);
     configureViewResolvers(registry);
@@ -515,15 +516,15 @@ public class WebMvcConfigurationSupport extends ApplicationContextSupport {
   @ConditionalOnMissingBean(ReturnValueHandlerManager.class)
   ReturnValueHandlerManager returnValueHandlerManager(
           @Nullable RedirectModelManager redirectModelManager,
-          @Qualifier("webViewResolver") ViewResolver webViewResolver) {
+          @Qualifier("mvcViewResolver") ViewResolver mvcViewResolver) {
 
     ReturnValueHandlerManager manager = new ReturnValueHandlerManager(getMessageConverters());
 
     manager.setApplicationContext(applicationContext);
     manager.setRedirectModelManager(redirectModelManager);
-    manager.setViewResolver(webViewResolver);
+    manager.setViewResolver(mvcViewResolver);
 
-    ViewReturnValueHandler handler = new ViewReturnValueHandler(webViewResolver);
+    ViewReturnValueHandler handler = new ViewReturnValueHandler(mvcViewResolver);
     handler.setModelManager(redirectModelManager);
 
     AsyncSupportConfigurer configurer = getAsyncSupportConfigurer();
@@ -709,7 +710,8 @@ public class WebMvcConfigurationSupport extends ApplicationContextSupport {
   @Component
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
   @ConditionalOnMissingBean(RequestMappingHandlerMapping.class)
-  RequestMappingHandlerMapping requestMappingHandlerMapping(ContentNegotiationManager contentNegotiationManager) {
+  RequestMappingHandlerMapping requestMappingHandlerMapping(
+          @Qualifier("mvcContentNegotiationManager") ContentNegotiationManager contentNegotiationManager) {
 
     var handlerMapping = createRequestMappingHandlerMapping();
     handlerMapping.setOrder(0);
@@ -806,7 +808,7 @@ public class WebMvcConfigurationSupport extends ApplicationContextSupport {
   @Component
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
   public HandlerMapping resourceHandlerMapping(
-          @Nullable ContentNegotiationManager contentNegotiationManager) {
+          @Qualifier("mvcContentNegotiationManager") ContentNegotiationManager contentNegotiationManager) {
     var context = obtainApplicationContext();
     var registry = new ResourceHandlerRegistry(context, contentNegotiationManager);
     addResourceHandlers(registry);

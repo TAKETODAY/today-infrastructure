@@ -18,32 +18,38 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.framework.template;
+package cn.taketoday.web.handler.method;
 
-import cn.taketoday.core.env.Environment;
-import cn.taketoday.core.io.ResourceLoader;
+import cn.taketoday.lang.Nullable;
+import cn.taketoday.web.RequestContext;
+import cn.taketoday.web.bind.resolver.ParameterResolvingStrategy;
+import cn.taketoday.web.view.ModelAndView;
 
 /**
- * Indicates the availability of view templates for a particular templating engine such as
- * FreeMarker.
+ * for ModelAndView
+ * <pre> {@code
+ *  @GET
+ *  void handle(ModelAndView view) {
+ *    // ...
+ *    view.setViewName("/page/view.html");
+ *  }
+ * }
+ * </pre>
  *
- * @author Andy Wilkinson
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @since 4.0
+ * @since 4.0 2023/3/5 14:22
  */
-@FunctionalInterface
-public interface TemplateAvailabilityProvider {
+public class ModelAndViewMethodArgumentResolver implements ParameterResolvingStrategy {
 
-  /**
-   * Returns {@code true} if a template is available for the given {@code view}.
-   *
-   * @param view the view name
-   * @param environment the environment
-   * @param classLoader the class loader
-   * @param resourceLoader the resource loader
-   * @return if the template is available
-   */
-  boolean isTemplateAvailable(String view,
-          Environment environment, ClassLoader classLoader, ResourceLoader resourceLoader);
+  @Override
+  public boolean supportsParameter(ResolvableMethodParameter resolvable) {
+    return resolvable.is(ModelAndView.class);
+  }
+
+  @Nullable
+  @Override
+  public Object resolveArgument(RequestContext context, ResolvableMethodParameter resolvable) throws Throwable {
+    return context.getBindingContext().getModelAndView();
+  }
 
 }
