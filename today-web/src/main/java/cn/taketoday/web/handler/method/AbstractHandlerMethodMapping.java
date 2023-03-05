@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -32,7 +32,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import cn.taketoday.aop.support.AopUtils;
@@ -51,7 +50,6 @@ import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.MapCache;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.ReflectionUtils;
-import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.HandlerInterceptor;
 import cn.taketoday.web.HandlerMapping;
 import cn.taketoday.web.InfraConfigurationException;
@@ -140,6 +138,16 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
    */
   public void setHandlerMethodMappingNamingStrategy(HandlerMethodMappingNamingStrategy<T> namingStrategy) {
     this.namingStrategy = namingStrategy;
+  }
+
+  /**
+   * Configure the {@code HandlerInterceptor} lookup strategy
+   *
+   * @see cn.taketoday.beans.factory.support.BeanDefinitionRegistry#containsBeanDefinition(Class, boolean)
+   * @see #addInterceptors(ArrayList, MergedAnnotation)
+   */
+  public void setUseInheritedInterceptor(boolean useInheritedInterceptor) {
+    this.useInheritedInterceptor = useInheritedInterceptor;
   }
 
   /**
@@ -314,21 +322,15 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
   }
 
   private String formatMappings(Class<?> userType, Map<Method, T> methods) {
-    String packageName = ClassUtils.getPackageName(userType);
-    String formattedType = (StringUtils.hasText(packageName) ?
-                            Arrays.stream(packageName.split("\\."))
-                                    .map(packageSegment -> packageSegment.substring(0, 1))
-                                    .collect(Collectors.joining(".", "", "." + userType.getSimpleName())) :
-                            userType.getSimpleName());
-    Function<Method, String> methodFormatter = method -> Arrays.stream(method.getParameterTypes())
-            .map(Class::getSimpleName)
-            .collect(Collectors.joining(",", "(", ")"));
     return methods.entrySet().stream()
             .map(e -> {
               Method method = e.getKey();
-              return e.getValue() + ": " + method.getName() + methodFormatter.apply(method);
+              return e.getValue() + ": " + method.getName() + Arrays.stream(method.getParameterTypes())
+                      .map(Class::getSimpleName)
+                      .collect(Collectors.joining(",", "(", ")"));
             })
-            .collect(Collectors.joining("\n\t", "\n\t" + formattedType + ":" + "\n\t", ""));
+            .collect(Collectors.joining("\n\t",
+                    "\n\t" + userType.getName() + ":" + "\n\t", ""));
   }
 
   /**
