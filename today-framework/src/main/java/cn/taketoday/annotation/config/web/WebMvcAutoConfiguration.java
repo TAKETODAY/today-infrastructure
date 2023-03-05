@@ -445,6 +445,7 @@ public class WebMvcAutoConfiguration extends WebMvcConfigurationSupport {
       InternalResourceViewResolver resolver = new InternalResourceViewResolver();
       resolver.setPrefix(mvcProperties.getView().getPrefix());
       resolver.setSuffix(mvcProperties.getView().getSuffix());
+      resolver.setOrder(Ordered.LOWEST_PRECEDENCE);
       return resolver;
     }
 

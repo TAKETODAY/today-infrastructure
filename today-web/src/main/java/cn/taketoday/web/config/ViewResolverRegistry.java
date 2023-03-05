@@ -274,15 +274,6 @@ public class ViewResolverRegistry {
     }
   }
 
-  boolean contains(Class<?> viewResolver) {
-    for (ViewResolver resolver : getViewResolvers()) {
-      if (viewResolver.isInstance(resolver)) {
-        return true;
-      }
-    }
-    return false;
-  }
-
   private static class FreeMarkerRegistration extends UrlBasedViewResolverRegistration {
 
     public FreeMarkerRegistration() {
