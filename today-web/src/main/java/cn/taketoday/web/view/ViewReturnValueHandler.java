@@ -20,16 +20,11 @@
 
 package cn.taketoday.web.view;
 
-import java.lang.invoke.SerializedLambda;
-import java.lang.reflect.Method;
 import java.util.LinkedHashMap;
 import java.util.Locale;
 
 import cn.taketoday.lang.Assert;
-import cn.taketoday.lang.Experimental;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.ClassUtils;
-import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.web.HandlerExceptionHandler;
 import cn.taketoday.web.HandlerMatchingMetadata;
 import cn.taketoday.web.RequestContext;
@@ -79,29 +74,6 @@ public class ViewReturnValueHandler implements SmartReturnValueHandler {
   @Override
   public boolean supportsReturnValue(@Nullable Object returnValue) {
     return returnValue instanceof String || returnValue instanceof ViewRef || returnValue instanceof View;
-  }
-
-  @Experimental
-  public static boolean supportsLambda(@Nullable Object handler) {
-    if (handler != null) {
-      Class<?> handlerClass = handler.getClass();
-      Method method = ReflectionUtils.findMethod(handlerClass, "writeReplace");
-      if (method != null) {
-        ReflectionUtils.makeAccessible(method);
-
-        Object returnValue = ReflectionUtils.invokeMethod(method, handler);
-        if (returnValue instanceof SerializedLambda lambda) {
-          Class<?> implClass = ClassUtils.load(lambda.getImplClass().replace('/', '.'));
-          if (implClass != null) {
-            Method declaredMethod = ReflectionUtils.findMethod(implClass, lambda.getImplMethodName(), RequestContext.class);
-            if (declaredMethod != null) {
-              return HandlerMethod.isResponseBody(declaredMethod);
-            }
-          }
-        }
-      }
-    }
-    return false;
   }
 
   /**
@@ -163,6 +135,9 @@ public class ViewReturnValueHandler implements SmartReturnValueHandler {
         throw new ViewRenderingException(
                 "Could not resolve view with name '" + viewName + "'");
       }
+    }
+    else {
+      renderView(context, view);
     }
   }
 
