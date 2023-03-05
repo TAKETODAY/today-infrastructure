@@ -62,7 +62,7 @@ class ErrorMvcAutoConfigurationTests {
       ServletRequestContext webRequest = createWebRequest(
               new IllegalStateException("Exception message"), false);
       errorView.render(errorAttributes.getErrorAttributes(webRequest, withAllOptions()), webRequest);
-      assertThat(webRequest.getResponse().getContentType()).isEqualTo("text/html;charset=UTF-8");
+      assertThat(webRequest.getResponse().getContentType()).isEqualTo("text/html");
       String responseString = ((MockHttpServletResponse) webRequest.getResponse()).getContentAsString();
       assertThat(responseString).contains(
                       "<p>This application has no explicit mapping for /error, so you are seeing this as a fallback.</p>")
@@ -81,7 +81,7 @@ class ErrorMvcAutoConfigurationTests {
       Map<String, Object> attributes = errorAttributes.getErrorAttributes(webRequest, withAllOptions());
       attributes.put("timestamp", Clock.systemUTC().instant());
       errorView.render(attributes, webRequest);
-      assertThat(webRequest.getResponse().getContentType()).isEqualTo("text/html;charset=UTF-8");
+      assertThat(webRequest.getResponse().getContentType()).isEqualTo("text/html");
       String responseString = ((MockHttpServletResponse) webRequest.getResponse()).getContentAsString();
       assertThat(responseString).contains("This application has no explicit mapping for /error");
     });

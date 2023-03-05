@@ -37,7 +37,6 @@ import cn.taketoday.validation.BindException;
 import cn.taketoday.validation.BindingResult;
 import cn.taketoday.validation.MapBindingResult;
 import cn.taketoday.validation.ObjectError;
-import cn.taketoday.web.HttpRequestHandler;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.bind.MethodArgumentNotValidException;
 import cn.taketoday.web.servlet.ServletRequestContext;
@@ -95,7 +94,7 @@ class DefaultErrorAttributesTests {
     assertThat(this.errorAttributes.getError(this.webRequest)).isSameAs(ex);
     assertThat(this.webRequest.getAttribute(ErrorAttributes.ERROR_ATTRIBUTE))
             .isSameAs(ex);
-    assertThat(modelAndView).isEqualTo(HttpRequestHandler.NONE_RETURN_VALUE);
+    assertThat(modelAndView).isNull();
     assertThat(attributes).doesNotContainKey("exception");
     assertThat(attributes.get("message")).isEqualTo("Test");
   }
