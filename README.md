@@ -13,7 +13,7 @@
 
 ## 主要目的
 
-主要为了学习技术，顺便给自己的博客网站 https://taketoday.cn 提供基础框架（其实写的博客网站也是为了学习练习技术）。
+主要为了学习技术，顺便给自己的博客网站 https://taketoday.cn 提供基础框架（其实写的博客网站也是为了学习练习技术）。博客也开源了：https://github.com/TAKETODAY/today-blog
 
 ## 背景
 
