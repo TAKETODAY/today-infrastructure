@@ -20,24 +20,20 @@
 
 package cn.taketoday.web;
 
-import static cn.taketoday.util.ClassUtils.isPresent;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 /**
- * A common delegate for detecting Servlet's presence AND its features
+ * Interface to indicate {@link RequestContext} running in servlet
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @since 4.0 2022/2/8 11:39
+ * @see RequestContext
+ * @since 4.0 2023/3/6 17:27
  */
-public abstract class ServletDetector {
-  public static final String SERVLET_CLASS = "jakarta.servlet.Servlet";
-  public static final String SERVLET_WEBSOCKET_CLASS = "jakarta.websocket.Session";
+public interface ServletIndicator {
 
-  public static final boolean isPresent = isPresent(SERVLET_CLASS, ServletDetector.class.getClassLoader());
-  public static final boolean isWebSocketPresent = isPresent(
-          SERVLET_WEBSOCKET_CLASS, ServletDetector.class.getClassLoader());
+  HttpServletRequest getRequest();
 
-  public static boolean runningInServlet(RequestContext context) {
-    return isPresent && context instanceof ServletIndicator;
-  }
+  HttpServletResponse getResponse();
 
 }

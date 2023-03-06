@@ -47,6 +47,7 @@ import cn.taketoday.util.CompositeIterator;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.RequestContext;
+import cn.taketoday.web.ServletIndicator;
 import cn.taketoday.web.context.async.AsyncWebRequest;
 import cn.taketoday.web.context.async.StandardServletAsyncWebRequest;
 import cn.taketoday.web.multipart.MultipartRequest;
@@ -59,7 +60,7 @@ import jakarta.servlet.http.HttpServletResponse;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/1/27 16:36
  */
-public class MockServletRequestContext extends RequestContext {
+public class MockServletRequestContext extends RequestContext implements ServletIndicator {
 
   private final HttpServletRequest request;
   private final HttpServletResponse response;
@@ -76,10 +77,12 @@ public class MockServletRequestContext extends RequestContext {
     this.response = response;
   }
 
+  @Override
   public HttpServletRequest getRequest() {
     return request;
   }
 
+  @Override
   public HttpServletResponse getResponse() {
     return response;
   }

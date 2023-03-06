@@ -55,6 +55,7 @@ import cn.taketoday.util.LinkedCaseInsensitiveMap;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.RequestContext;
+import cn.taketoday.web.ServletIndicator;
 import cn.taketoday.web.context.async.AsyncWebRequest;
 import cn.taketoday.web.context.async.StandardServletAsyncWebRequest;
 import cn.taketoday.web.multipart.MultipartRequest;
@@ -72,7 +73,7 @@ import jakarta.servlet.http.MappingMatch;
  * @author TODAY 2019-07-07 22:27
  * @since 2.3.7
  */
-public final class ServletRequestContext extends RequestContext {
+public final class ServletRequestContext extends RequestContext implements ServletIndicator {
 
   private final HttpServletRequest request;
   private final HttpServletResponse response;
@@ -88,10 +89,12 @@ public final class ServletRequestContext extends RequestContext {
     this.response = response;
   }
 
+  @Override
   public HttpServletRequest getRequest() {
     return request;
   }
 
+  @Override
   public HttpServletResponse getResponse() {
     return response;
   }

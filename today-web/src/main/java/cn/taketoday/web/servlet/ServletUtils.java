@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -17,6 +17,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.web.servlet;
 
 import java.io.File;
@@ -37,6 +38,7 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.RequestContext;
+import cn.taketoday.web.ServletIndicator;
 import cn.taketoday.web.bind.MultipartException;
 import cn.taketoday.web.servlet.support.WebApplicationContextUtils;
 import cn.taketoday.web.util.WebUtils;
@@ -159,12 +161,9 @@ public abstract class ServletUtils {
    * @throws IllegalStateException Not run in servlet
    * @see #getHttpSession(RequestContext)
    */
-  public static HttpSession getHttpSession(final RequestContext context, boolean create) {
-    if (context instanceof ServletRequestContext) {
-      final HttpServletRequest request = ((ServletRequestContext) context).getRequest();
-      return request.getSession(create);
-    }
-    throw new IllegalStateException("Not run in servlet");
+  public static HttpSession getHttpSession(RequestContext context, boolean create) {
+    HttpServletRequest request = getServletRequest(context);
+    return request.getSession(create);
   }
 
   /**
@@ -221,7 +220,10 @@ public abstract class ServletUtils {
    * @see WebUtils#getNativeContext(RequestContext, Class)
    */
   public static HttpServletRequest getServletRequest(RequestContext context) {
-    ServletRequestContext nativeContext = WebUtils.getNativeContext(context, ServletRequestContext.class);
+    if (context instanceof ServletIndicator servletIndicator) {
+      return servletIndicator.getRequest();
+    }
+    ServletIndicator nativeContext = WebUtils.getNativeContext(context, ServletIndicator.class);
     Assert.state(nativeContext != null, "Not run in servlet");
     return nativeContext.getRequest();
   }
@@ -244,7 +246,10 @@ public abstract class ServletUtils {
    * @see WebUtils#getNativeContext(RequestContext, Class)
    */
   public static HttpServletResponse getServletResponse(RequestContext context) {
-    ServletRequestContext nativeContext = WebUtils.getNativeContext(context, ServletRequestContext.class);
+    if (context instanceof ServletIndicator servletIndicator) {
+      return servletIndicator.getResponse();
+    }
+    ServletIndicator nativeContext = WebUtils.getNativeContext(context, ServletIndicator.class);
     Assert.state(nativeContext != null, "Not run in servlet");
     return nativeContext.getResponse();
   }
