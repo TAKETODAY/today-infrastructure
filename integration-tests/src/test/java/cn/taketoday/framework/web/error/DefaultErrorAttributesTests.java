@@ -275,7 +275,7 @@ class DefaultErrorAttributesTests {
     Map<String, Object> attributes = new DefaultErrorAttributes() {
 
       @Override
-      protected String getMessage(RequestContext webRequest, Throwable error) {
+      protected String getMessage(RequestContext request, Throwable error) {
         return "custom message";
       }
 

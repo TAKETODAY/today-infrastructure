@@ -184,6 +184,7 @@ public class SqlSessionFactoryBean
    *
    * @return a specified DatabaseIdProvider
    */
+  @Nullable
   public DatabaseIdProvider getDatabaseIdProvider() {
     return databaseIdProvider;
   }

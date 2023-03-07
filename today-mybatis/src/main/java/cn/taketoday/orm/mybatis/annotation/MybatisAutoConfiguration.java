@@ -90,13 +90,15 @@ public class MybatisAutoConfiguration implements InitializingBean {
   private final MybatisProperties properties;
   private final ResourceLoader resourceLoader;
 
-  private final ObjectProvider<Interceptor[]> interceptors;
+  @SuppressWarnings("rawtypes")
   private final ObjectProvider<TypeHandler[]> typeHandlers;
+  private final ObjectProvider<Interceptor[]> interceptors;
   private final ObjectProvider<LanguageDriver[]> languageDrivers;
   private final ObjectProvider<DatabaseIdProvider> databaseIdProvider;
   private final ObjectProvider<ConfigurationCustomizer> configurationCustomizers;
   private final ObjectProvider<SqlSessionFactoryBeanCustomizer> sqlSessionFactoryBeanCustomizers;
 
+  @SuppressWarnings("rawtypes")
   public MybatisAutoConfiguration(
           MybatisProperties properties,
           ResourceLoader resourceLoader,
@@ -107,10 +109,10 @@ public class MybatisAutoConfiguration implements InitializingBean {
           ObjectProvider<ConfigurationCustomizer> configurationCustomizersProvider,
           ObjectProvider<SqlSessionFactoryBeanCustomizer> sqlSessionFactoryBeanCustomizers) {
     this.properties = properties;
+    this.resourceLoader = resourceLoader;
     this.interceptors = interceptorsProvider;
     this.typeHandlers = typeHandlersProvider;
     this.languageDrivers = languageDriversProvider;
-    this.resourceLoader = resourceLoader;
     this.databaseIdProvider = databaseIdProvider;
     this.configurationCustomizers = configurationCustomizersProvider;
     this.sqlSessionFactoryBeanCustomizers = sqlSessionFactoryBeanCustomizers;
@@ -274,8 +276,7 @@ public class MybatisAutoConfiguration implements InitializingBean {
 
     @Override
     public void afterPropertiesSet() {
-      log.debug(
-              "Not found configuration for registering mapper bean using @MapperScan, MapperFactoryBean and MapperScannerConfigurer.");
+      log.debug("Not found configuration for registering mapper bean using @MapperScan, MapperFactoryBean and MapperScannerConfigurer.");
     }
 
   }

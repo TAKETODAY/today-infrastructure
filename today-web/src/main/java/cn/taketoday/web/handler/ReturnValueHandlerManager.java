@@ -267,7 +267,7 @@ public class ReturnValueHandlerManager
    * register default return-value handlers
    */
   public void registerDefaultHandlers() {
-    log.info("Registering default return-value handlers");
+    log.debug("Registering default return-value handlers to {}", this);
     ViewReturnValueHandler viewHandler = obtainViewHandler();
 
     ArrayList<ReturnValueHandler> internalHandlers = new ArrayList<>();

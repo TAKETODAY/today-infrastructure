@@ -221,7 +221,7 @@ public class ParameterResolvingRegistry
    * register default {@link ParameterResolvingStrategy}s
    */
   public void registerDefaultStrategies(ParameterResolvingStrategies strategies) {
-    log.info("Registering default parameter-resolvers to {}", strategies);
+    log.debug("Registering default parameter-resolvers to {}", strategies);
 
     ApplicationContext context = obtainApplicationContext();
     ConfigurableBeanFactory beanFactory = context.unwrapFactory(ConfigurableBeanFactory.class);
