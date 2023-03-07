@@ -23,11 +23,10 @@ package cn.taketoday.framework.web.error;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Date;
-import java.util.LinkedHashMap;
+import java.util.HashMap;
 import java.util.Map;
 
 import cn.taketoday.core.Ordered;
-import cn.taketoday.core.annotation.Order;
 import cn.taketoday.framework.web.error.ErrorAttributeOptions.Include;
 import cn.taketoday.http.HttpStatus;
 import cn.taketoday.lang.Nullable;
@@ -37,6 +36,7 @@ import cn.taketoday.validation.BindingResult;
 import cn.taketoday.validation.ObjectError;
 import cn.taketoday.web.HandlerExceptionHandler;
 import cn.taketoday.web.RequestContext;
+import cn.taketoday.web.ServletDetector;
 import cn.taketoday.web.util.WebUtils;
 import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.ServletException;
@@ -65,7 +65,6 @@ import jakarta.servlet.ServletException;
  * @see ErrorAttributes
  * @since 4.0
  */
-@Order(Ordered.HIGHEST_PRECEDENCE)
 public class DefaultErrorAttributes implements ErrorAttributes, HandlerExceptionHandler, Ordered {
 
   private static final String ERROR_INTERNAL_ATTRIBUTE = DefaultErrorAttributes.class.getName() + ".ERROR";
@@ -87,78 +86,88 @@ public class DefaultErrorAttributes implements ErrorAttributes, HandlerException
   }
 
   @Override
-  public Map<String, Object> getErrorAttributes(RequestContext webRequest, ErrorAttributeOptions options) {
-    var errorAttributes = getErrorAttributes(webRequest, options.isIncluded(Include.STACK_TRACE));
-    if (!options.isIncluded(Include.EXCEPTION)) {
-      errorAttributes.remove("exception");
-    }
-    if (!options.isIncluded(Include.STACK_TRACE)) {
-      errorAttributes.remove("trace");
-    }
-    if (!options.isIncluded(Include.MESSAGE) && errorAttributes.get("message") != null) {
-      errorAttributes.remove("message");
-    }
-    if (!options.isIncluded(Include.BINDING_ERRORS)) {
-      errorAttributes.remove("errors");
-    }
-    return errorAttributes;
-  }
-
-  private Map<String, Object> getErrorAttributes(RequestContext context, boolean includeStackTrace) {
-    Map<String, Object> errorAttributes = new LinkedHashMap<>();
+  public Map<String, Object> getErrorAttributes(RequestContext context, ErrorAttributeOptions options) {
+    HashMap<String, Object> errorAttributes = new HashMap<>();
     errorAttributes.put("timestamp", new Date());
+    addPath(context, errorAttributes);
     addStatus(errorAttributes, context);
-    addErrorDetails(errorAttributes, context, includeStackTrace);
-    addPath(errorAttributes, context);
+
+    addErrorDetails(errorAttributes, context, options);
+
     return errorAttributes;
   }
 
-  private void addStatus(Map<String, Object> errorAttributes, RequestContext requestAttributes) {
-    Integer status = getAttribute(requestAttributes, RequestDispatcher.ERROR_STATUS_CODE);
+  private void addPath(RequestContext request, HashMap<String, Object> attributes) {
+    if (ServletDetector.runningInServlet(request)) {
+      String path = getAttribute(request, RequestDispatcher.ERROR_REQUEST_URI);
+      if (path == null) {
+        path = request.getRequestURI();
+      }
+      attributes.put("path", path);
+    }
+    else {
+      attributes.put("path", request.getRequestURI());
+    }
+  }
+
+  private void addStatus(Map<String, Object> attributes, RequestContext request) {
+    Integer status;
+    if (ServletDetector.runningInServlet(request)) {
+      status = getAttribute(request, RequestDispatcher.ERROR_STATUS_CODE);
+    }
+    else {
+      status = request.getStatus();
+    }
+
     if (status == null) {
-      errorAttributes.put("status", 999);
-      errorAttributes.put("error", "None");
+      attributes.put("status", 999);
+      attributes.put("error", "None");
       return;
     }
-    errorAttributes.put("status", status);
+
+    attributes.put("status", status);
     try {
-      errorAttributes.put("error", HttpStatus.valueOf(status).getReasonPhrase());
+      attributes.put("error", HttpStatus.valueOf(status).getReasonPhrase());
     }
     catch (Exception ex) {
       // Unable to obtain a reason
-      errorAttributes.put("error", "Http Status " + status);
+      attributes.put("error", "Http Status " + status);
     }
   }
 
-  private void addErrorDetails(Map<String, Object> errorAttributes,
-          RequestContext webRequest, boolean includeStackTrace) {
-    Throwable error = getError(webRequest);
+  private void addErrorDetails(Map<String, Object> attributes, RequestContext request, ErrorAttributeOptions options) {
+    Throwable error = getError(request);
     if (error != null) {
-      while (error instanceof ServletException && error.getCause() != null) {
-        error = error.getCause();
+      if (ServletDetector.runningInServlet(request)) {
+        while (error instanceof ServletException && error.getCause() != null) {
+          error = error.getCause();
+        }
       }
-      errorAttributes.put("exception", error.getClass().getName());
-      if (includeStackTrace) {
-        addStackTrace(errorAttributes, error);
+
+      if (options.isIncluded(Include.EXCEPTION)) {
+        attributes.put("exception", error.getClass().getName());
+      }
+
+      if (options.isIncluded(Include.STACK_TRACE)) {
+        StringWriter stackTrace = new StringWriter();
+        error.printStackTrace(new PrintWriter(stackTrace));
+        stackTrace.flush();
+        attributes.put("trace", stackTrace.toString());
       }
     }
-    addErrorMessage(errorAttributes, webRequest, error);
-  }
 
-  private void addErrorMessage(Map<String, Object> errorAttributes,
-          RequestContext webRequest, Throwable error) {
-    BindingResult result = extractBindingResult(error);
-    if (result == null) {
-      addExceptionErrorMessage(errorAttributes, webRequest, error);
+    if (error instanceof BindingResult result) {
+      if (options.isIncluded(Include.BINDING_ERRORS)) {
+        attributes.put("errors", result.getAllErrors());
+      }
+      if (options.isIncluded(Include.MESSAGE)) {
+        attributes.put("message", "Validation failed for object='" +
+                result.getObjectName() + "'. " + "Error count: " + result.getErrorCount());
+      }
     }
-    else {
-      addBindingResultErrorMessage(errorAttributes, result);
+    else if (options.isIncluded(Include.MESSAGE)) {
+      attributes.put("message", getMessage(request, error));
     }
-  }
-
-  private void addExceptionErrorMessage(
-          Map<String, Object> errorAttributes, RequestContext webRequest, Throwable error) {
-    errorAttributes.put("message", getMessage(webRequest, error));
   }
 
   /**
@@ -171,14 +180,16 @@ public class DefaultErrorAttributes implements ErrorAttributes, HandlerException
    * <li>{@code No message available}.
    * </ol>
    *
-   * @param webRequest current request
+   * @param request current request
    * @param error current error, if any
    * @return message to include in the error attributes
    */
-  protected String getMessage(RequestContext webRequest, Throwable error) {
-    Object message = getAttribute(webRequest, RequestDispatcher.ERROR_MESSAGE);
-    if (ObjectUtils.isNotEmpty(message)) {
-      return message.toString();
+  protected String getMessage(RequestContext request, Throwable error) {
+    if (ServletDetector.runningInServlet(request)) {
+      Object message = getAttribute(request, RequestDispatcher.ERROR_MESSAGE);
+      if (ObjectUtils.isNotEmpty(message)) {
+        return message.toString();
+      }
     }
     if (error != null && StringUtils.isNotEmpty(error.getMessage())) {
       return error.getMessage();
@@ -186,47 +197,22 @@ public class DefaultErrorAttributes implements ErrorAttributes, HandlerException
     return "No message available";
   }
 
-  private void addBindingResultErrorMessage(Map<String, Object> errorAttributes, BindingResult result) {
-    errorAttributes.put("message", "Validation failed for object='" + result.getObjectName() + "'. "
-            + "Error count: " + result.getErrorCount());
-    errorAttributes.put("errors", result.getAllErrors());
-  }
-
-  private BindingResult extractBindingResult(Throwable error) {
-    if (error instanceof BindingResult) {
-      return (BindingResult) error;
-    }
-    return null;
-  }
-
-  private void addStackTrace(Map<String, Object> errorAttributes, Throwable error) {
-    StringWriter stackTrace = new StringWriter();
-    error.printStackTrace(new PrintWriter(stackTrace));
-    stackTrace.flush();
-    errorAttributes.put("trace", stackTrace.toString());
-  }
-
-  private void addPath(Map<String, Object> errorAttributes, RequestContext requestAttributes) {
-    String path = getAttribute(requestAttributes, RequestDispatcher.ERROR_REQUEST_URI);
-    if (path != null) {
-      errorAttributes.put("path", path);
-    }
-  }
-
   @Override
   @Nullable
-  public Throwable getError(RequestContext webRequest) {
-    Throwable exception = getAttribute(webRequest, ERROR_INTERNAL_ATTRIBUTE);
+  public Throwable getError(RequestContext request) {
+    Throwable exception = getAttribute(request, ERROR_INTERNAL_ATTRIBUTE);
     if (exception == null) {
-      exception = getAttribute(webRequest, RequestDispatcher.ERROR_EXCEPTION);
+      if (ServletDetector.runningInServlet(request)) {
+        exception = getAttribute(request, RequestDispatcher.ERROR_EXCEPTION);
+      }
       if (exception == null) {
-        exception = getAttribute(webRequest, WebUtils.ERROR_EXCEPTION_ATTRIBUTE);
+        exception = getAttribute(request, WebUtils.ERROR_EXCEPTION_ATTRIBUTE);
       }
     }
 
     // store the exception in a well-known attribute to make it available to metrics
     // instrumentation.
-    webRequest.setAttribute(ErrorAttributes.ERROR_ATTRIBUTE, exception);
+    request.setAttribute(ErrorAttributes.ERROR_ATTRIBUTE, exception);
     return exception;
   }
 
