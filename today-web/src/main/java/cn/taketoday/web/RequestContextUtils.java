@@ -414,8 +414,14 @@ public class RequestContextUtils {
         valueStart = valueEnd + 1;
       }
       String name = s.substring(nameStart, valueStart - 1);
-      String value = s.substring(valueStart, valueEnd);
-      params.add(name, value);
+      if (valueStart >= valueEnd) {
+        // ?name&name1=
+        params.add(name, "");
+      }
+      else {
+        String value = s.substring(valueStart, valueEnd);
+        params.add(name, value);
+      }
     }
   }
 
