@@ -71,6 +71,7 @@ public class JdbcBeanMetadata implements Iterable<BeanProperty> {
     this.autoDeriveColumnNames = autoDeriveColumnNames;
   }
 
+  @Nullable
   public BeanProperty getBeanProperty(String colName, @Nullable Map<String, String> columnMappings) {
     if (columnMappings != null) {
       // find in columnMappings

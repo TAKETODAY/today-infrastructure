@@ -77,7 +77,7 @@ public sealed abstract class AbstractQuery implements AutoCloseable permits Name
   private int currentBatchRecords = 0;
 
   private boolean caseSensitive;
-  private boolean autoDerivingColumns;
+  private boolean autoDerivingColumns = true;
   private boolean throwOnMappingFailure = true;
 
   @Nullable

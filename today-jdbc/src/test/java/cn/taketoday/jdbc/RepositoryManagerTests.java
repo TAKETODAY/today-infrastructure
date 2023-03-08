@@ -1512,7 +1512,9 @@ public class RepositoryManagerTests extends BaseMemDbTest {
       Exception ex = null;
       try {
         // expected to fail, as autoDeriveColumnNames are not set
-        con.createNamedQuery(selectSql).fetchFirst(LocalPojo.class);
+        con.createNamedQuery(selectSql)
+                .setAutoDerivingColumns(false)
+                .fetchFirst(LocalPojo.class);
       }
       catch (Exception e) {
         ex = e;
