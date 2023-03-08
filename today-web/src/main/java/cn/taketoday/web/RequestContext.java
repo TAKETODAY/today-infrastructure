@@ -17,10 +17,10 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.web;
 
 import java.io.BufferedReader;
-import java.io.Flushable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -84,7 +84,7 @@ import static cn.taketoday.lang.Constant.DEFAULT_CHARSET;
  * @since 2.3.7
  */
 public abstract class RequestContext extends AttributeAccessorSupport
-        implements InputStreamSource, OutputStreamSource, Flushable, HttpInputMessage, HttpRequest, AttributeAccessor {
+        implements InputStreamSource, OutputStreamSource, HttpInputMessage, HttpRequest, AttributeAccessor {
 
   /**
    * Scope identifier for request scope: "request".
@@ -1736,7 +1736,6 @@ public abstract class RequestContext extends AttributeAccessorSupport
    * @see #isCommitted
    * @see #reset
    */
-  @Override
   public void flush() throws IOException {
     writeHeaders();
 
