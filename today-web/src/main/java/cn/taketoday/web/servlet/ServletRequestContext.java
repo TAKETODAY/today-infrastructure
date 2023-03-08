@@ -25,12 +25,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
-import java.io.Serial;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
@@ -46,7 +43,6 @@ import cn.taketoday.http.MediaType;
 import cn.taketoday.http.ResponseCookie;
 import cn.taketoday.http.server.PathContainer;
 import cn.taketoday.http.server.RequestPath;
-import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.CompositeIterator;
@@ -273,6 +269,7 @@ public final class ServletRequestContext extends RequestContext implements Servl
   public void reset() {
     super.reset();
     response.reset();
+    this.headersWritten = false;
   }
 
   @Override
@@ -343,106 +340,6 @@ public final class ServletRequestContext extends RequestContext implements Servl
     }
 
     return httpHeaders;
-  }
-
-//  @Override
-//  protected HttpHeaders createResponseHeaders() {
-//    return new ServletResponseHttpHeaders();
-//  }
-
-  /**
-   * Extends HttpHeaders with the ability to look up headers already present in
-   * the underlying HttpServletResponse.
-   *
-   * <p>The intent is merely to expose what is available through the HttpServletResponse
-   * i.e. the ability to look up specific header values by name. All other
-   * map-related operations (e.g. iteration, removal, etc) apply only to values
-   * added directly through HttpHeaders methods.
-   */
-  @Deprecated
-  final class ServletResponseHttpHeaders extends DefaultHttpHeaders {
-    @Serial
-    private static final long serialVersionUID = 1L;
-
-    @Override
-    public void set(String headerName, String headerValue) {
-      super.set(headerName, headerValue);
-      response.setHeader(headerName, headerValue);
-    }
-
-    @Override
-    public void add(String headerName, String headerValue) {
-      super.add(headerName, headerValue);
-      response.addHeader(headerName, headerValue);
-    }
-
-    @Override
-    public List<String> put(String key, List<String> values) {
-      doPut(key, values, response);
-      return super.put(key, values);
-    }
-
-    @Override
-    public boolean containsKey(Object key) {
-      return super.containsKey(key) || (get(key) != null);
-    }
-
-    @Override
-    @Nullable
-    public String getFirst(String headerName) {
-      String value = super.getFirst(headerName);
-      if (value == null) {
-        value = response.getHeader(headerName);
-      }
-      return value;
-    }
-
-    @Override
-    public List<String> get(Object key) {
-      Assert.isInstanceOf(String.class, key, "Key must be a String-based header name");
-
-      String headerName = (String) key;
-      if (headerName.equalsIgnoreCase(CONTENT_TYPE)) {
-        // Content-Type is written as an override so don't merge
-        return Collections.singletonList(getFirst(headerName));
-      }
-
-      Collection<String> values1 = response.getHeaders(headerName);
-      if (headersWritten) {
-        return new ArrayList<>(values1);
-      }
-      boolean isEmpty1 = CollectionUtils.isEmpty(values1);
-
-      List<String> values2 = super.get(key);
-      boolean isEmpty2 = CollectionUtils.isEmpty(values2);
-
-      if (isEmpty1 && isEmpty2) {
-        return null;
-      }
-
-      ArrayList<String> values = new ArrayList<>();
-      if (!isEmpty1) {
-        values.addAll(values1);
-      }
-      if (!isEmpty2) {
-        values.addAll(values2);
-      }
-      return values;
-    }
-
-    private static void doPut(String key, List<String> values, HttpServletResponse response) {
-      for (final String value : values) {
-        response.addHeader(key, value);
-      }
-    }
-
-    @Override
-    public void putAll(Map<? extends String, ? extends List<String>> map) {
-      super.putAll(map);
-      for (final Entry<? extends String, ? extends List<String>> entry : map.entrySet()) {
-        doPut(entry.getKey(), entry.getValue(), response);
-      }
-    }
   }
 
   @Override
