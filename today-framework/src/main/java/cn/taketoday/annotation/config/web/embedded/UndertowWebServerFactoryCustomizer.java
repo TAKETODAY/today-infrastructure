@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -98,7 +98,9 @@ public class UndertowWebServerFactoryCustomizer
     map.from(properties::getMaxParameters).to(serverOptions.option(UndertowOptions.MAX_PARAMETERS));
     map.from(properties::getMaxHeaders).to(serverOptions.option(UndertowOptions.MAX_HEADERS));
     map.from(properties::getMaxCookies).to(serverOptions.option(UndertowOptions.MAX_COOKIES));
-    map.from(properties::isAllowEncodedSlash).to(serverOptions.option(UndertowOptions.ALLOW_ENCODED_SLASH));
+
+    mapSlashProperties(properties, serverOptions);
+
     map.from(properties::isDecodeUrl).to(serverOptions.option(UndertowOptions.DECODE_URL));
     map.from(properties::getUrlCharset).as(Charset::name).to(serverOptions.option(UndertowOptions.URL_CHARSET));
     map.from(properties::isAlwaysSetKeepAlive).to(serverOptions.option(UndertowOptions.ALWAYS_SET_KEEP_ALIVE));
@@ -107,6 +109,13 @@ public class UndertowWebServerFactoryCustomizer
 
     SocketOptions socketOptions = new SocketOptions(factory);
     map.from(properties.getOptions()::getSocket).to(socketOptions.forEach(socketOptions::option));
+  }
+
+  @SuppressWarnings("deprecation")
+  private void mapSlashProperties(ServerProperties.Undertow properties, ServerOptions serverOptions) {
+    PropertyMapper map = PropertyMapper.get().alwaysApplyingWhenNonNull();
+    map.from(properties::isAllowEncodedSlash).to(serverOptions.option(UndertowOptions.ALLOW_ENCODED_SLASH));
+    map.from(properties::getDecodeSlash).to(serverOptions.option(UndertowOptions.DECODE_SLASH));
   }
 
   private boolean isPositive(Number value) {

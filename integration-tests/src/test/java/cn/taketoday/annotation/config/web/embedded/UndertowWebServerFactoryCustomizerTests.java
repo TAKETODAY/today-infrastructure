@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -154,9 +154,9 @@ class UndertowWebServerFactoryCustomizerTests {
   }
 
   @Test
-  void allowEncodedSlashes() {
-    bind("server.undertow.allow-encoded-slash=true");
-    assertThat(boundServerOption(UndertowOptions.ALLOW_ENCODED_SLASH)).isTrue();
+  void enableSlashDecoding() {
+    bind("server.undertow.decode-slash=true");
+    assertThat(boundServerOption(UndertowOptions.DECODE_SLASH)).isTrue();
   }
 
   @Test

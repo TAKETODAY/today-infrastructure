@@ -1613,9 +1613,18 @@ public class ServerProperties {
      * Whether the server should decode percent encoded slash characters. Enabling
      * encoded slashes can have security implications due to different servers
      * interpreting the slash differently. Only enable this if you have a legacy
-     * application that requires it.
+     * application that requires it. Has no effect when server.undertow.decode-slash
+     * is set.
      */
     private boolean allowEncodedSlash = false;
+
+    /**
+     * Whether encoded slash characters (%2F) should be decoded. Decoding can cause
+     * security problems if a front-end proxy does not perform the same decoding. Only
+     * enable this if you have a legacy application that requires it. When set,
+     * server.undertow.allow-encoded-slash has no effect.
+     */
+    private Boolean decodeSlash;
 
     /**
      * Whether the URL should be decoded. When disabled, percent-encoded characters in
@@ -1716,6 +1725,14 @@ public class ServerProperties {
 
     public void setAllowEncodedSlash(boolean allowEncodedSlash) {
       this.allowEncodedSlash = allowEncodedSlash;
+    }
+
+    public Boolean getDecodeSlash() {
+      return this.decodeSlash;
+    }
+
+    public void setDecodeSlash(Boolean decodeSlash) {
+      this.decodeSlash = decodeSlash;
     }
 
     public boolean isDecodeUrl() {
