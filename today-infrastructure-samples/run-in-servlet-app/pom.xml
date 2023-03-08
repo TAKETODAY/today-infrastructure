@@ -101,7 +101,7 @@
 
         <dependency>
           <groupId>io.undertow</groupId>
-          <artifactId>undertow-servlet-jakartaee9</artifactId>
+          <artifactId>undertow-servlet</artifactId>
         </dependency>
     -->
 

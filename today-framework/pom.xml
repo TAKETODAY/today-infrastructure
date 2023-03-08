@@ -229,7 +229,7 @@
 
     <dependency>
       <groupId>io.undertow</groupId>
-      <artifactId>undertow-servlet-jakartaee9</artifactId>
+      <artifactId>undertow-servlet</artifactId>
       <scope>provided</scope>
     </dependency>
 
@@ -280,7 +280,7 @@
 
     <dependency>
       <groupId>io.undertow</groupId>
-      <artifactId>undertow-websockets-jsr-jakartaee9</artifactId>
+      <artifactId>undertow-websockets-jsr</artifactId>
       <scope>provided</scope>
     </dependency>
 

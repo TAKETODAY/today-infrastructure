@@ -45,8 +45,7 @@
     <netty.version>4.1.89.Final</netty.version>
     <netty5.version>5.0.0.Alpha5</netty5.version>
     <jetty.version>11.0.13</jetty.version>
-    <undertow.version>2.3.3.Final</undertow.version>
-    <undertow-jakartaee9.version>2.2.13.Final</undertow-jakartaee9.version>
+    <undertow.version>2.3.4.Final</undertow.version>
     <embed.tomcat.version>10.1.5</embed.tomcat.version>
     <servlet.version>6.0.0</servlet.version>
 
@@ -580,14 +579,14 @@
 
       <dependency>
         <groupId>io.undertow</groupId>
-        <artifactId>undertow-websockets-jsr-jakartaee9</artifactId>
-        <version>${undertow-jakartaee9.version}</version>
+        <artifactId>undertow-websockets-jsr</artifactId>
+        <version>${undertow.version}</version>
       </dependency>
 
       <dependency>
         <groupId>io.undertow</groupId>
-        <artifactId>undertow-servlet-jakartaee9</artifactId>
-        <version>${undertow-jakartaee9.version}</version>
+        <artifactId>undertow-servlet</artifactId>
+        <version>${undertow.version}</version>
       </dependency>
 
       <!--
