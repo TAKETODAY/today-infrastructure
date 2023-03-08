@@ -438,11 +438,14 @@ public abstract class AbstractJackson2HttpMessageConverter extends AbstractGener
     MediaType contentType = outputMessage.getHeaders().getContentType();
     JsonEncoding encoding = getJsonEncoding(contentType);
 
-    Class<?> clazz = object instanceof MappingJacksonValue mappingJacksonValue
-                     ? mappingJacksonValue.getValue().getClass() : object.getClass();
-    ObjectMapper objectMapper = selectObjectMapper(clazz, contentType);
-    if (objectMapper == null) {
-      throw new IllegalStateException("No ObjectMapper for " + clazz.getName());
+    ObjectMapper objectMapper = this.defaultObjectMapper;
+    if (objectMapperRegistrations != null) {
+      Class<?> clazz = object instanceof MappingJacksonValue mappingJacksonValue
+                       ? mappingJacksonValue.getValue().getClass() : object.getClass();
+      objectMapper = selectObjectMapper(clazz, contentType);
+      if (objectMapper == null) {
+        throw new IllegalStateException("No ObjectMapper for " + clazz.getName());
+      }
     }
 
     OutputStream outputStream = StreamUtils.nonClosing(outputMessage.getBody());

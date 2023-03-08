@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -36,6 +36,7 @@ import cn.taketoday.lang.Nullable;
  * @param <T> the converted object type
  * @author Sebastien Deleuze
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public abstract class AbstractGenericHttpMessageConverter<T>
@@ -86,11 +87,10 @@ public abstract class AbstractGenericHttpMessageConverter<T>
    * and then calls {@link #writeInternal}.
    */
   @Override
-  public final void write(
-          final T t, @Nullable final Type type, @Nullable MediaType contentType,
+  public final void write(final T t, @Nullable final Type type, @Nullable MediaType contentType,
           HttpOutputMessage outputMessage) throws IOException, HttpMessageNotWritableException {
 
-    final HttpHeaders headers = outputMessage.getHeaders();
+    HttpHeaders headers = outputMessage.getHeaders();
     addDefaultHeaders(headers, t, contentType);
 
     if (outputMessage instanceof StreamingHttpOutputMessage streamingOutput) {
