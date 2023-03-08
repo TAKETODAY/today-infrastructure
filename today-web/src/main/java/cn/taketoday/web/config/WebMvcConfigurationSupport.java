@@ -544,11 +544,10 @@ public class WebMvcConfigurationSupport extends ApplicationContextSupport {
           ParameterResolvingStrategy[] resolvingStrategies,
           @Nullable RedirectModelManager redirectModelManager) {
 
-    ParameterResolvingRegistry registry = new ParameterResolvingRegistry();
+    var registry = new ParameterResolvingRegistry(getMessageConverters());
     registry.setApplicationContext(getApplicationContext());
     registry.setRedirectModelManager(redirectModelManager);
 
-    registry.setMessageConverters(getMessageConverters());
     registry.addRequestResponseBodyAdvice(requestResponseBodyAdvice);
 
     registry.registerDefaultStrategies();

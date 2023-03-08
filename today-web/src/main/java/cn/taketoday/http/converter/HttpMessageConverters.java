@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -31,6 +31,7 @@ import java.util.Map;
 
 import cn.taketoday.http.converter.json.GsonHttpMessageConverter;
 import cn.taketoday.http.converter.json.MappingJackson2HttpMessageConverter;
+import cn.taketoday.http.converter.xml.MappingJackson2XmlHttpMessageConverter;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.web.config.WebMvcConfigurationSupport;
 
@@ -124,8 +125,8 @@ public class HttpMessageConverters implements Iterable<HttpMessageConverter<?>> 
         }
       }
       combined.add(defaultConverter);
-      if (defaultConverter instanceof AllEncompassingFormHttpMessageConverter allEncompassingConverters) {
-        configurePartConverters(allEncompassingConverters, converters);
+      if (defaultConverter instanceof AllEncompassingFormHttpMessageConverter converter) {
+        configurePartConverters(converter, converters);
       }
     }
     combined.addAll(0, processing);
@@ -173,7 +174,21 @@ public class HttpMessageConverters implements Iterable<HttpMessageConverter<?>> 
   }
 
   private List<HttpMessageConverter<?>> getDefaultConverters() {
-    return new ArrayList<>(new WebMvcConfigurationSupport().getMessageConverters());
+    var converters = new ArrayList<>(new WebMvcConfigurationSupport().getMessageConverters());
+    reorderXmlConvertersToEnd(converters);
+    return converters;
+  }
+
+  private void reorderXmlConvertersToEnd(ArrayList<HttpMessageConverter<?>> converters) {
+    ArrayList<HttpMessageConverter<?>> xml = new ArrayList<>();
+    for (Iterator<HttpMessageConverter<?>> iterator = converters.iterator(); iterator.hasNext(); ) {
+      HttpMessageConverter<?> converter = iterator.next();
+      if (converter instanceof MappingJackson2XmlHttpMessageConverter) {
+        xml.add(converter);
+        iterator.remove();
+      }
+    }
+    converters.addAll(xml);
   }
 
   @Override
