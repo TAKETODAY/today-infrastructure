@@ -47,6 +47,7 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandler;
 import io.netty.handler.codec.http.DefaultHttpResponse;
 import io.netty.handler.codec.http.FullHttpRequest;
+import io.netty.handler.codec.http.HttpResponse;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpVersion;
 import io.netty.handler.codec.http.websocketx.BinaryWebSocketFrame;
@@ -96,7 +97,7 @@ public class NettyChannelHandler extends DispatcherHandler implements ChannelInb
         dispatch(nettyContext); // handling HTTP request
       }
       catch (Throwable e) {
-        ctx.fireExceptionCaught(e);
+        exceptionCaught(ctx, e);
       }
       finally {
         RequestContextHolder.remove();
@@ -120,11 +121,15 @@ public class NettyChannelHandler extends DispatcherHandler implements ChannelInb
   @Override
   public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
     if (!websocketPresent || !WebSocketDelegate.isErrorHandled(ctx, cause, log)) {
-      var response = new DefaultHttpResponse(HttpVersion.HTTP_1_1,
-              HttpResponseStatus.INTERNAL_SERVER_ERROR, false, false);
+      HttpResponse response = getErrorResponse(ctx, cause);
       ctx.writeAndFlush(response)
-              .addListener(ChannelFutureListener.CLOSE_ON_FAILURE);
+              .addListener(ChannelFutureListener.CLOSE);
     }
+  }
+
+  protected HttpResponse getErrorResponse(ChannelHandlerContext ctx, Throwable cause) {
+    return new DefaultHttpResponse(HttpVersion.HTTP_1_1,
+            HttpResponseStatus.INTERNAL_SERVER_ERROR, false, false);
   }
 
   //
