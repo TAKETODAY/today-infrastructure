@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -74,7 +74,9 @@ public interface TransactionalOperator {
    * @throws TransactionException in case of initialization, rollback, or system errors
    * @throws RuntimeException if thrown by the TransactionCallback
    */
-  <T> Mono<T> transactional(Mono<T> mono);
+  default <T> Mono<T> transactional(Mono<T> mono) {
+    return execute(it -> mono).singleOrEmpty();
+  }
 
   /**
    * Execute the action specified by the given callback object within a transaction.
