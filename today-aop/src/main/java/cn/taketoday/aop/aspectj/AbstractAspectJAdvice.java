@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -262,6 +262,13 @@ public abstract class AbstractAspectJAdvice implements Advice, AspectJPrecedence
     setArgumentNamesFromStringArray(tokens);
   }
 
+  /**
+   * Set by the creator of this advice object if the argument names are known.
+   * <p>This could be for example because they have been explicitly specified in XML
+   * or in an advice annotation.
+   *
+   * @param args list of argument names
+   */
   public void setArgumentNamesFromStringArray(String... args) {
     this.argumentNames = new String[args.length];
     for (int i = 0; i < args.length; i++) {
@@ -272,18 +279,17 @@ public abstract class AbstractAspectJAdvice implements Advice, AspectJPrecedence
                         argumentNames[i] + "' that is not a valid Java identifier");
       }
     }
-    if (argumentNames != null) {
-      if (aspectJAdviceMethod.getParameterCount() == argumentNames.length + 1) {
-        // May need to add implicit join point arg name...
-        Class<?> firstArgType = aspectJAdviceMethod.getParameterTypes()[0];
-        if (firstArgType == JoinPoint.class
-                || firstArgType == ProceedingJoinPoint.class
-                || firstArgType == JoinPoint.StaticPart.class) {
-          String[] oldNames = argumentNames;
-          this.argumentNames = new String[oldNames.length + 1];
-          this.argumentNames[0] = "THIS_JOIN_POINT";
-          System.arraycopy(oldNames, 0, argumentNames, 1, oldNames.length);
-        }
+
+    if (aspectJAdviceMethod.getParameterCount() == argumentNames.length + 1) {
+      // May need to add implicit join point arg name...
+      Class<?> firstArgType = aspectJAdviceMethod.getParameterTypes()[0];
+      if (firstArgType == JoinPoint.class
+              || firstArgType == ProceedingJoinPoint.class
+              || firstArgType == JoinPoint.StaticPart.class) {
+        String[] oldNames = argumentNames;
+        this.argumentNames = new String[oldNames.length + 1];
+        this.argumentNames[0] = "THIS_JOIN_POINT";
+        System.arraycopy(oldNames, 0, argumentNames, 1, oldNames.length);
       }
     }
   }
