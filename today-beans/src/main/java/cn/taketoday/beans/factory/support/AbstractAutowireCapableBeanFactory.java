@@ -763,7 +763,7 @@ public abstract class AbstractAutowireCapableBeanFactory
    * @since 4.0
    */
   protected BeanWrapper obtainFromSupplier(RootBeanDefinition merged, Supplier<?> instanceSupplier, String beanName) {
-    Object instance = obtainInstanceFromSupplier(instanceSupplier, beanName);
+    Object instance = obtainInstanceFromSupplier(instanceSupplier, beanName, merged);
     if (instance == null) {
       instance = NullValue.INSTANCE;
     }
@@ -771,12 +771,12 @@ public abstract class AbstractAutowireCapableBeanFactory
     return createBeanWrapper(merged, instance);
   }
 
-  private Object obtainInstanceFromSupplier(Supplier<?> supplier, String beanName) {
+  private Object obtainInstanceFromSupplier(Supplier<?> supplier, String beanName, RootBeanDefinition merged) {
     String outerBean = currentlyCreatedBean.get();
     currentlyCreatedBean.set(beanName);
     try {
       if (supplier instanceof InstanceSupplier<?> instanceSupplier) {
-        return instanceSupplier.get(RegisteredBean.of(this, beanName));
+        return instanceSupplier.get(RegisteredBean.of(this, beanName, merged));
       }
       if (supplier instanceof ThrowingSupplier<?> throwableSupplier) {
         return throwableSupplier.getWithException();

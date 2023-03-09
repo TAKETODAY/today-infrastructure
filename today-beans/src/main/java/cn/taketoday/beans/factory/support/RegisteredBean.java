@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -83,6 +83,18 @@ public final class RegisteredBean {
     return new RegisteredBean(beanFactory, () -> beanName, false,
             () -> (RootBeanDefinition) beanFactory.getMergedBeanDefinition(beanName),
             null);
+  }
+
+  /**
+   * Create a new {@link RegisteredBean} instance for a regular bean.
+   *
+   * @param beanFactory the source bean factory
+   * @param beanName the bean name
+   * @param mbd the pre-determined merged bean definition
+   * @return a new {@link RegisteredBean} instance
+   */
+  public static RegisteredBean of(ConfigurableBeanFactory beanFactory, String beanName, RootBeanDefinition mbd) {
+    return new RegisteredBean(beanFactory, () -> beanName, false, () -> mbd, null);
   }
 
   /**
