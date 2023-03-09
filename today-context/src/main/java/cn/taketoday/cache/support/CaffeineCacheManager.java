@@ -204,8 +204,12 @@ public class CaffeineCacheManager implements CacheManager {
   @Override
   @Nullable
   public Cache getCache(String name) {
-    return this.cacheMap.computeIfAbsent(name, cacheName ->
-            this.dynamic ? createCaffeineCache(cacheName) : null);
+    if (this.dynamic) {
+      return cacheMap.computeIfAbsent(name, this::createCaffeineCache);
+    }
+    else {
+      return this.cacheMap.get(name);
+    }
   }
 
   /**
