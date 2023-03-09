@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -355,20 +355,20 @@ public class ReflectivePropertyAccessor implements PropertyAccessor {
 
   @Nullable
   private Method findGetterForProperty(String propertyName, Class<?> clazz, Object target) {
-    Method method = findGetterForProperty(propertyName, clazz, target instanceof Class);
-    if (method == null && target instanceof Class) {
-      method = findGetterForProperty(propertyName, target.getClass(), false);
+    boolean targetIsaClass = target instanceof Class;
+    Method method = findGetterForProperty(propertyName, clazz, targetIsaClass);
+    if (method == null && targetIsaClass) {
+      // Fallback for getter instance methods in java.lang.Class.
+      method = findGetterForProperty(propertyName, Class.class, false);
     }
     return method;
   }
 
   @Nullable
   private Method findSetterForProperty(String propertyName, Class<?> clazz, Object target) {
-    Method method = findSetterForProperty(propertyName, clazz, target instanceof Class);
-    if (method == null && target instanceof Class) {
-      method = findSetterForProperty(propertyName, target.getClass(), false);
-    }
-    return method;
+    // In contrast to findGetterForProperty(), we do not look for setters in
+    // java.lang.Class as a fallback, since Class doesn't have any public setters.
+    return findSetterForProperty(propertyName, clazz, target instanceof Class);
   }
 
   /**
