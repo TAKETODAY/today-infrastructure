@@ -1993,7 +1993,7 @@ public abstract class AbstractAutowireCapableBeanFactory
    * For further types to ignore, invoke this method for each type.
    *
    * @see BeanFactoryAware
-   * @see cn.taketoday.context.aware.ApplicationContextAware
+   * @see cn.taketoday.context.ApplicationContextAware
    * @since 4.0
    */
   @Override

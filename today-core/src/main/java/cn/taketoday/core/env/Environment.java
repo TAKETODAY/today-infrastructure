@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -45,7 +45,7 @@ import cn.taketoday.lang.Constant;
  * and resolving properties from them.
  *
  * <p>Beans managed within an {@code ApplicationContext} may register to be {@link
- * cn.taketoday.context.aware.EnvironmentAware EnvironmentAware} or {@code @Inject} the
+ * cn.taketoday.context.EnvironmentAware EnvironmentAware} or {@code @Inject} the
  * {@code Environment} in order to query profile state or resolve properties directly.
  *
  *
@@ -61,7 +61,7 @@ import cn.taketoday.lang.Constant;
  * @see ConfigurableEnvironment
  * @see AbstractEnvironment
  * @see StandardEnvironment
- * @see cn.taketoday.context.aware.EnvironmentAware
+ * @see cn.taketoday.context.EnvironmentAware
  * @see cn.taketoday.context.ConfigurableApplicationContext#getEnvironment
  * @see cn.taketoday.context.ConfigurableApplicationContext#setEnvironment
  * @see cn.taketoday.context.support.AbstractApplicationContext#createEnvironment

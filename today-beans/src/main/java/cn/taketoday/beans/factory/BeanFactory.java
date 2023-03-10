@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -15,7 +15,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 package cn.taketoday.beans.factory;
 
@@ -117,10 +117,10 @@ import cn.taketoday.lang.Nullable;
  * @see BeanNameAware#setBeanName
  * @see BeanClassLoaderAware#setBeanClassLoader
  * @see BeanFactoryAware#setBeanFactory
- * @see cn.taketoday.context.aware.EnvironmentAware#setEnvironment
- * @see cn.taketoday.context.aware.ResourceLoaderAware#setResourceLoader
- * @see cn.taketoday.context.aware.ApplicationEventPublisherAware#setApplicationEventPublisher
- * @see cn.taketoday.context.aware.ApplicationContextAware#setApplicationContext
+ * @see cn.taketoday.context.EnvironmentAware#setEnvironment
+ * @see cn.taketoday.context.ResourceLoaderAware#setResourceLoader
+ * @see cn.taketoday.context.ApplicationEventPublisherAware#setApplicationEventPublisher
+ * @see cn.taketoday.context.ApplicationContextAware#setApplicationContext
  * @see cn.taketoday.web.servlet.ServletContextAware#setServletContext
  * @see InitializationBeanPostProcessor#postProcessBeforeInitialization
  * @see InitializingBean#afterPropertiesSet
