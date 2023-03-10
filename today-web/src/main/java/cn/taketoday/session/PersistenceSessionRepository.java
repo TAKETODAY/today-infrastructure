@@ -66,11 +66,16 @@ public class PersistenceSessionRepository implements SessionRepository, Disposab
   public WebSession retrieveSession(String sessionId) {
     WebSession session = delegate.retrieveSession(sessionId);
     if (session == null) {
-      try {
-        session = sessionPersister.load(sessionId);
-      }
-      catch (ClassNotFoundException | IOException e) {
-        log.error("Unable to get session from SessionPersister: {}", sessionPersister, e);
+      synchronized(sessionId.intern()) {
+        session = delegate.retrieveSession(sessionId);
+        if (session == null) {
+          try {
+            session = sessionPersister.load(sessionId);
+          }
+          catch (ClassNotFoundException | IOException e) {
+            log.error("Unable to get session from SessionPersister: {}", sessionPersister, e);
+          }
+        }
       }
     }
     return session;
