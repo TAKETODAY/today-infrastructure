@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -202,6 +202,21 @@ public class ReactiveTransactionSupportTests {
 
     assertHasBegan(tm);
     assertHasNotCommitted(tm);
+    assertHasRolledBack(tm);
+    assertHasNotSetRollbackOnly(tm);
+    assertHasCleanedUp(tm);
+  }
+
+  @Test
+  void errorInCommitDoesInitiateRollbackAfterCommit() {
+    ReactiveTestTransactionManager tm = new ReactiveTestTransactionManager(false, true, true);
+    TransactionalOperator rxtx = TransactionalOperator.create(tm);
+
+    StepVerifier.create(rxtx.transactional(Mono.just("bar")))
+            .verifyErrorMessage("Forced failure on commit");
+
+    assertHasBegan(tm);
+    assertHasCommitted(tm);
     assertHasRolledBack(tm);
     assertHasNotSetRollbackOnly(tm);
     assertHasCleanedUp(tm);
