@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -25,6 +25,7 @@ import org.mockito.ArgumentMatchers;
 
 import java.io.Closeable;
 import java.io.Serializable;
+import java.lang.reflect.Executable;
 import java.lang.reflect.Field;
 import java.net.MalformedURLException;
 import java.text.NumberFormat;
@@ -84,7 +85,9 @@ import cn.taketoday.beans.testfixture.beans.NestedTestBean;
 import cn.taketoday.beans.testfixture.beans.SideEffectBean;
 import cn.taketoday.beans.testfixture.beans.TestBean;
 import cn.taketoday.beans.testfixture.beans.factory.DummyFactory;
+import cn.taketoday.core.DefaultParameterNameDiscoverer;
 import cn.taketoday.core.MethodParameter;
+import cn.taketoday.core.ParameterNameDiscoverer;
 import cn.taketoday.core.ResolvableType;
 import cn.taketoday.core.StringValueResolver;
 import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
@@ -112,6 +115,18 @@ import static org.mockito.Mockito.verify;
 class StandardBeanFactoryTests {
 
   private StandardBeanFactory lbf = new StandardBeanFactory();
+
+  {
+    // No parameter name discovery expected unless named arguments are used
+    lbf.setParameterNameDiscoverer(new ParameterNameDiscoverer() {
+
+      @Nullable
+      @Override
+      public String[] getParameterNames(@Nullable Executable executable) {
+        throw new UnsupportedOperationException();
+      }
+    });
+  }
 
   @Test
   void unreferencedSingletonWasInstantiated() {
@@ -430,7 +445,6 @@ class StandardBeanFactoryTests {
 
   @Test
   void empty() {
-    BeanFactory lbf = new StandardBeanFactory();
     assertThat(lbf.getBeanDefinitionNames() != null).as("No beans defined --> array != null").isTrue();
     assertThat(lbf.getBeanDefinitionNames().length == 0).as("No beans defined after no arg constructor").isTrue();
     assertThat(lbf.getBeanDefinitionCount() == 0).as("No beans defined after no arg constructor").isTrue();
@@ -459,8 +473,9 @@ class StandardBeanFactoryTests {
     p.setProperty("test.name", "Tony");
     p.setProperty("test.age", "48");
     int count = registerBeanDefinitions(p);
+
     assertThat(count == 1).as("1 beans registered, not " + count).isTrue();
-    singleTestBean(lbf);
+    testPropertiesPopulation(lbf);
   }
 
   @Test
@@ -471,8 +486,22 @@ class StandardBeanFactoryTests {
     p.setProperty(PREFIX + "test.name", "Tony");
     p.setProperty(PREFIX + "test.age", "0x30");
     int count = registerBeanDefinitions(p, PREFIX);
+
     assertThat(count == 1).as("1 beans registered, not " + count).isTrue();
-    singleTestBean(lbf);
+    testPropertiesPopulation(lbf);
+  }
+
+  private void testPropertiesPopulation(BeanFactory lbf) {
+    assertThat(lbf.getBeanDefinitionCount() == 1).as("1 beans defined").isTrue();
+    String[] names = lbf.getBeanDefinitionNames();
+    assertThat(names != lbf.getBeanDefinitionNames()).isTrue();
+    assertThat(names.length == 1).as("Array length == 1").isTrue();
+    assertThat(names[0].equals("test")).as("0th element == test").isTrue();
+
+    TestBean tb = (TestBean) lbf.getBean("test");
+    assertThat(tb != null).as("Test is non null").isTrue();
+    assertThat("Tony".equals(tb.getName())).as("Test bean name is Tony").isTrue();
+    assertThat(tb.getAge() == 48).as("Test bean age is 48").isTrue();
   }
 
   @Test
@@ -649,7 +678,6 @@ class StandardBeanFactoryTests {
     assertThat(kerry1 != null).as("Non null").isTrue();
     assertThat(kerry1 == kerry2).as("Singletons equal").isTrue();
 
-    lbf = new StandardBeanFactory();
     p = new Properties();
     p.setProperty("kerry.(class)", TestBean.class.getName());
     p.setProperty("kerry.(scope)", BeanDefinition.SCOPE_PROTOTYPE);
@@ -660,7 +688,6 @@ class StandardBeanFactoryTests {
     assertThat(kerry1 != null).as("Non null").isTrue();
     assertThat(kerry1 != kerry2).as("Prototypes NOT equal").isTrue();
 
-    lbf = new StandardBeanFactory();
     p = new Properties();
     p.setProperty("kerry.(class)", TestBean.class.getName());
     p.setProperty("kerry.(scope)", "singleton");
@@ -705,7 +732,6 @@ class StandardBeanFactoryTests {
     assertThat(kerry1).as("Non null").isNotNull();
     assertThat(kerry1 == kerry2).as("Singletons equal").isTrue();
 
-    lbf = new StandardBeanFactory();
     p = new Properties();
     p.setProperty("wife.(class)", TestBean.class.getName());
     p.setProperty("wife.name", "kerry");
@@ -720,7 +746,6 @@ class StandardBeanFactoryTests {
     assertThat(kerry1 != null).as("Non null").isTrue();
     assertThat(kerry1 != kerry2).as("Prototypes NOT equal").isTrue();
 
-    lbf = new StandardBeanFactory();
     p = new Properties();
     p.setProperty("kerry.(class)", TestBean.class.getName());
     p.setProperty("kerry.(singleton)", "true");
@@ -1293,6 +1318,8 @@ class StandardBeanFactoryTests {
     lbf.registerBeanDefinition("rod", bd);
     RootBeanDefinition bd2 = new RootBeanDefinition(TestBean.class);
     lbf.registerBeanDefinition("rod2", bd2);
+    lbf.setParameterNameDiscoverer(new DefaultParameterNameDiscoverer());
+
     assertThatExceptionOfType(UnsatisfiedDependencyException.class).isThrownBy(() ->
                     lbf.autowire(ConstructorDependency.class, AutowireCapableBeanFactory.AUTOWIRE_CONSTRUCTOR, false))
             .withMessageContaining("rod")
@@ -1385,14 +1412,12 @@ class StandardBeanFactoryTests {
 
   @Test
   void getBeanByTypeWithNoneFound() {
-    StandardBeanFactory lbf = new StandardBeanFactory();
     assertThatExceptionOfType(NoSuchBeanDefinitionException.class).isThrownBy(() ->
             lbf.getBean(TestBean.class));
   }
 
   @Test
   void getBeanByTypeWithLateRegistration() {
-    StandardBeanFactory lbf = new StandardBeanFactory();
     assertThatExceptionOfType(NoSuchBeanDefinitionException.class).isThrownBy(() ->
             lbf.getBean(TestBean.class));
     RootBeanDefinition bd1 = new RootBeanDefinition(TestBean.class);
@@ -1403,7 +1428,6 @@ class StandardBeanFactoryTests {
 
   @Test
   void getBeanByTypeWithLateRegistrationAgainstFrozen() {
-    StandardBeanFactory lbf = new StandardBeanFactory();
     lbf.freezeConfiguration();
     assertThatExceptionOfType(NoSuchBeanDefinitionException.class).isThrownBy(() ->
             lbf.getBean(TestBean.class));
@@ -1418,7 +1442,8 @@ class StandardBeanFactoryTests {
     StandardBeanFactory parent = new StandardBeanFactory();
     RootBeanDefinition bd1 = new RootBeanDefinition(TestBean.class);
     parent.registerBeanDefinition("bd1", bd1);
-    StandardBeanFactory lbf = new StandardBeanFactory(parent);
+    lbf.setParentBeanFactory(parent);
+
     TestBean bean = lbf.getBean(TestBean.class);
     assertThat(bean.getBeanName()).isEqualTo("bd1");
   }
@@ -1449,7 +1474,6 @@ class StandardBeanFactoryTests {
   @Test
   @SuppressWarnings("rawtypes")
   void getFactoryBeanByTypeWithPrimary() {
-    StandardBeanFactory lbf = new StandardBeanFactory();
     RootBeanDefinition bd1 = new RootBeanDefinition(NullTestBeanFactoryBean.class);
     RootBeanDefinition bd2 = new RootBeanDefinition(NullTestBeanFactoryBean.class);
     bd2.setPrimary(true);
@@ -1597,7 +1621,7 @@ class StandardBeanFactoryTests {
     StandardBeanFactory parent = new StandardBeanFactory();
     RootBeanDefinition bd1 = createConstructorDependencyBeanDefinition(99);
     parent.registerBeanDefinition("bd1", bd1);
-    StandardBeanFactory lbf = new StandardBeanFactory(parent);
+    lbf.setParentBeanFactory(parent);
 
     ConstructorDependency bean = lbf.getBean(ConstructorDependency.class);
     assertThat(bean.beanName).isEqualTo("bd1");
@@ -1814,7 +1838,6 @@ class StandardBeanFactoryTests {
 
   @Test
   void autowireBeanWithFactoryBeanByTypeWithPrimary() {
-    StandardBeanFactory lbf = new StandardBeanFactory();
     RootBeanDefinition bd1 = new RootBeanDefinition(LazyInitFactory.class);
     RootBeanDefinition bd2 = new RootBeanDefinition(LazyInitFactory.class);
     bd2.setPrimary(true);
@@ -2642,10 +2665,13 @@ class StandardBeanFactoryTests {
   }
 
   private int registerBeanDefinitions(Properties p) {
-    return new PropertiesBeanDefinitionReader(lbf).registerBeanDefinitions(p);
+    return registerBeanDefinitions(p, null);
   }
 
-  private int registerBeanDefinitions(Properties p, String prefix) {
+  private int registerBeanDefinitions(Properties p, @Nullable String prefix) {
+    for (String beanName : lbf.getBeanDefinitionNames()) {
+      lbf.removeBeanDefinition(beanName);
+    }
     return new PropertiesBeanDefinitionReader(lbf).registerBeanDefinitions(p, prefix);
   }
 

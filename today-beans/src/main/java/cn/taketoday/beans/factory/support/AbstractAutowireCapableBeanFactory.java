@@ -1532,16 +1532,19 @@ public abstract class AbstractAutowireCapableBeanFactory
           if (candidate.getTypeParameters().length > 0) {
             try {
               // Fully resolve parameter names and argument values.
+              ConstructorArgumentValues cav = merged.getConstructorArgumentValues();
+
               Class<?>[] paramTypes = candidate.getParameterTypes();
               String[] paramNames = null;
 
-              ParameterNameDiscoverer pnd = getParameterNameDiscoverer();
-              if (pnd != null) {
-                paramNames = pnd.getParameterNames(candidate);
+              if (cav.containsNamedArgument()) {
+                ParameterNameDiscoverer pnd = getParameterNameDiscoverer();
+                if (pnd != null) {
+                  paramNames = pnd.getParameterNames(candidate);
+                }
               }
 
-              ConstructorArgumentValues cav = merged.getConstructorArgumentValues();
-              HashSet<ConstructorArgumentValues.ValueHolder> usedValueHolders = new HashSet<>(paramTypes.length);
+              var usedValueHolders = new HashSet<ConstructorArgumentValues.ValueHolder>(paramTypes.length);
               Object[] args = new Object[paramTypes.length];
               for (int i = 0; i < args.length; i++) {
                 String requiredName = paramNames != null ? paramNames[i] : null;
