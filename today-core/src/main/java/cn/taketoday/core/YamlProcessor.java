@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -188,10 +188,10 @@ public class YamlProcessor {
   protected Yaml createYaml() {
     LoaderOptions loaderOptions = new LoaderOptions();
     loaderOptions.setAllowDuplicateKeys(false);
+    DumperOptions dumperOptions = new DumperOptions();
+
     return new Yaml(new FilteringConstructor(loaderOptions),
-                    new Representer(),
-                    new DumperOptions(),
-                    loaderOptions);
+            new Representer(dumperOptions), dumperOptions, loaderOptions);
   }
 
   private boolean process(MatchCallback callback, Yaml yaml, Resource resource) {
@@ -454,7 +454,7 @@ public class YamlProcessor {
     @Override
     protected Class<?> getClassForName(String name) throws ClassNotFoundException {
       Assert.state(YamlProcessor.this.supportedTypes.contains(name),
-                   () -> "Unsupported type encountered in YAML document: " + name);
+              () -> "Unsupported type encountered in YAML document: " + name);
       return super.getClassForName(name);
     }
   }
