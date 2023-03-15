@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -31,11 +31,11 @@ import java.util.List;
 
 import cn.taketoday.core.annotation.SynthesizingMethodParameter;
 import cn.taketoday.format.support.DefaultFormattingConversionService;
-import cn.taketoday.validation.BindException;
 import cn.taketoday.validation.BindingResult;
 import cn.taketoday.validation.Errors;
 import cn.taketoday.web.BindingContext;
 import cn.taketoday.web.RequestContext;
+import cn.taketoday.web.bind.MethodArgumentNotValidException;
 import cn.taketoday.web.bind.RequestContextDataBinder;
 import cn.taketoday.web.bind.annotation.ModelAttribute;
 import cn.taketoday.web.bind.annotation.SessionAttributes;
@@ -232,7 +232,7 @@ class ModelAttributeMethodProcessorTests {
 
     given(binderFactory.createBinder(this.request, target, name)).willReturn(dataBinder);
 
-    assertThatExceptionOfType(BindException.class)
+    assertThatExceptionOfType(MethodArgumentNotValidException.class)
             .isThrownBy(() -> processor.resolveArgument(request, this.paramNonSimpleType));
     verify(binderFactory).createBinder(this.request, target, name);
   }

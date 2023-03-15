@@ -51,6 +51,7 @@ import cn.taketoday.validation.annotation.ValidationAnnotationUtils;
 import cn.taketoday.web.BindingContext;
 import cn.taketoday.web.HandlerMatchingMetadata;
 import cn.taketoday.web.RequestContext;
+import cn.taketoday.web.bind.MethodArgumentNotValidException;
 import cn.taketoday.web.bind.RequestContextDataBinder;
 import cn.taketoday.web.bind.WebDataBinder;
 import cn.taketoday.web.bind.annotation.ModelAttribute;
@@ -166,7 +167,7 @@ public class ModelAttributeMethodProcessor implements ParameterResolvingStrategy
         }
         validateIfApplicable(binder, parameter);
         if (binder.getBindingResult().hasErrors() && isBindExceptionRequired(binder, parameter)) {
-          throw new BindException(binder.getBindingResult());
+          throw new MethodArgumentNotValidException(parameter, binder.getBindingResult());
         }
       }
       // Value type adaptation, also covering java.util.Optional

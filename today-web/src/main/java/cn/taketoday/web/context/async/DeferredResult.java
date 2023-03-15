@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -52,6 +52,7 @@ import cn.taketoday.web.RequestContext;
  * @author Rossen Stoyanchev
  * @author Juergen Hoeller
  * @author Rob Winch
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public class DeferredResult<T> {
@@ -81,7 +82,7 @@ public class DeferredResult<T> {
    * Create a DeferredResult.
    */
   public DeferredResult() {
-    this(null, () -> RESULT_NONE);
+    this(null);
   }
 
   /**
@@ -92,7 +93,7 @@ public class DeferredResult<T> {
    *
    * @param timeoutValue timeout value in milliseconds
    */
-  public DeferredResult(Long timeoutValue) {
+  public DeferredResult(@Nullable Long timeoutValue) {
     this(timeoutValue, () -> RESULT_NONE);
   }
 
@@ -104,8 +105,8 @@ public class DeferredResult<T> {
    * @param timeoutResult the result to use
    */
   public DeferredResult(@Nullable Long timeoutValue, Object timeoutResult) {
-    this.timeoutValue = timeoutValue;
-    this.timeoutResult = () -> timeoutResult;
+    this(timeoutValue, () -> timeoutResult);
+
   }
 
   /**
@@ -129,14 +130,14 @@ public class DeferredResult<T> {
    * expire due to a timeout or network error.
    */
   public final boolean isSetOrExpired() {
-    return (this.result != RESULT_NONE || this.expired);
+    return result != RESULT_NONE || this.expired;
   }
 
   /**
    * Return {@code true} if the DeferredResult has been set.
    */
   public boolean hasResult() {
-    return (this.result != RESULT_NONE);
+    return result != RESULT_NONE;
   }
 
   /**

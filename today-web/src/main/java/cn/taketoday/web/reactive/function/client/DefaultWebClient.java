@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -385,7 +385,6 @@ class DefaultWebClient implements WebClient {
     private HttpRequest createRequest() {
       return new HttpRequest() {
         private final URI uri = initUri();
-        private final HttpHeaders headers = initHeaders();
 
         @Override
         public HttpMethod getMethod() {
@@ -405,7 +404,9 @@ class DefaultWebClient implements WebClient {
 
         @Override
         public HttpHeaders getHeaders() {
-          return this.headers;
+          HttpHeaders headers = HttpHeaders.create();
+          initHeaders(headers);
+          return headers;
         }
       };
     }
@@ -464,8 +465,8 @@ class DefaultWebClient implements WebClient {
         defaultRequest.accept(this);
       }
       ClientRequest.Builder builder = ClientRequest.create(this.httpMethod, initUri())
-              .headers(headers -> headers.addAll(initHeaders()))
-              .cookies(cookies -> cookies.addAll(initCookies()))
+              .headers(this::initHeaders)
+              .cookies(this::initCookies)
               .attributes(attributes -> attributes.putAll(this.attributes));
       if (this.httpRequestConsumer != null) {
         builder.httpRequest(this.httpRequestConsumer);
@@ -492,20 +493,24 @@ class DefaultWebClient implements WebClient {
       }
     }
 
-    private MultiValueMap<String, String> initCookies() {
-      if (CollectionUtils.isEmpty(this.cookies)) {
-        return (defaultCookies != null ? defaultCookies : new LinkedMultiValueMap<>());
+    private void initHeaders(HttpHeaders out) {
+      if (!CollectionUtils.isEmpty(defaultHeaders)) {
+        out.putAll(defaultHeaders);
       }
-      else if (CollectionUtils.isEmpty(defaultCookies)) {
-        return this.cookies;
-      }
-      else {
-        MultiValueMap<String, String> result = new LinkedMultiValueMap<>();
-        result.putAll(defaultCookies);
-        result.putAll(this.cookies);
-        return result;
+      if (!CollectionUtils.isEmpty(this.headers)) {
+        out.putAll(this.headers);
       }
     }
+
+    private void initCookies(MultiValueMap<String, String> out) {
+      if (!CollectionUtils.isEmpty(defaultCookies)) {
+        out.putAll(defaultCookies);
+      }
+      if (!CollectionUtils.isEmpty(this.cookies)) {
+        out.putAll(this.cookies);
+      }
+    }
+
   }
 
   private static class DefaultResponseSpec implements ResponseSpec {
