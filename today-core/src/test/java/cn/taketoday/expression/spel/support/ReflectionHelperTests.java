@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -25,11 +25,14 @@ import org.junit.jupiter.api.Test;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.List;
 
 import cn.taketoday.core.TypeDescriptor;
 import cn.taketoday.expression.EvaluationContext;
+import cn.taketoday.expression.MethodExecutor;
+import cn.taketoday.expression.MethodResolver;
 import cn.taketoday.expression.ParseException;
 import cn.taketoday.expression.PropertyAccessor;
 import cn.taketoday.expression.TypedValue;
@@ -366,6 +369,21 @@ public class ReflectionHelperTests extends AbstractExpressionTests {
     assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(field::getSpecificTargetClasses);
     assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(() ->
             field.write(ctx, tester, "field", null));
+  }
+
+  @Test
+  void reflectiveMethodResolverForJdkProxies() throws Exception {
+    Object proxy = Proxy.newProxyInstance(getClass().getClassLoader(), new Class<?>[] { Runnable.class }, (p, m, args) -> null);
+
+    MethodResolver resolver = new ReflectiveMethodResolver();
+    StandardEvaluationContext evaluationContext = new StandardEvaluationContext();
+
+    MethodExecutor bogus = resolver.resolve(evaluationContext, proxy, "bogus", List.of());
+    assertThat(bogus).as("MethodExecutor for bogus()").isNull();
+    MethodExecutor toString = resolver.resolve(evaluationContext, proxy, "toString", List.of());
+    assertThat(toString).as("MethodExecutor for toString()").isNotNull();
+    MethodExecutor hashCode = resolver.resolve(evaluationContext, proxy, "hashCode", List.of());
+    assertThat(hashCode).as("MethodExecutor for hashCode()").isNotNull();
   }
 
   /**
