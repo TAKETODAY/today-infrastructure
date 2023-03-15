@@ -613,7 +613,11 @@ public final class ContentDisposition {
       char c = filename.charAt(i);
       if (c == '\\' && i + 1 < length) {
         i++;
-        sb.append(filename.charAt(i));
+        char next = filename.charAt(i);
+        if (next != '"' && next != '\\') {
+          sb.append(c);
+        }
+        sb.append(next);
       }
       else {
         sb.append(c);

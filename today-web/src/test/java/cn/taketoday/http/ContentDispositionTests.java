@@ -177,6 +177,14 @@ public class ContentDispositionTests {
   }
 
   @Test
+  void parseWindowsPath() {
+    ContentDisposition cd = ContentDisposition.parse("form-data; name=\"foo\"; filename=\"D:\\foo\\bar.txt\"");
+    assertThat(cd.getName()).isEqualTo("foo");
+    assertThat(cd.getFilename()).isEqualTo("D:\\foo\\bar.txt");
+    assertThat(cd.toString()).isEqualTo("form-data; name=\"foo\"; filename=\"D:\\\\foo\\\\bar.txt\"");
+  }
+
+  @Test
   void parseWithExtraSemicolons() {
     assertThat(parse("form-data; name=\"foo\";; ; filename=\"foo.txt\"; size=123"))
             .isEqualTo(ContentDisposition.formData()
