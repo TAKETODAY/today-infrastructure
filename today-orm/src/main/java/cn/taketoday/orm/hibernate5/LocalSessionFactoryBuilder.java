@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -91,6 +91,7 @@ import jakarta.transaction.TransactionManager;
  * standard JPA bootstrap contract.
  *
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see HibernateTransactionManager
  * @see LocalSessionFactoryBean
  * @see #setBeanContainer
@@ -323,7 +324,7 @@ public class LocalSessionFactoryBuilder extends Configuration {
       for (String pkg : packagesToScan) {
         String pattern = PatternResourceLoader.CLASSPATH_ALL_URL_PREFIX +
                 ClassUtils.convertClassNameToResourcePath(pkg) + RESOURCE_PATTERN;
-        MetadataReaderFactory readerFactory = new CachingMetadataReaderFactory(patternResourceLoader);
+        var readerFactory = new CachingMetadataReaderFactory(patternResourceLoader);
         for (Resource resource : patternResourceLoader.getResources(pattern)) {
           try {
             MetadataReader reader = readerFactory.getMetadataReader(resource);
@@ -418,17 +419,21 @@ public class LocalSessionFactoryBuilder extends Configuration {
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
       switch (method.getName()) {
-        case "equals":
+        case "equals" -> {
           // Only consider equal when proxies are identical.
           return (proxy == args[0]);
-        case "hashCode":
+        }
+        case "hashCode" -> {
           // Use hashCode of EntityManagerFactory proxy.
           return System.identityHashCode(proxy);
-        case "getProperties":
+        }
+        case "getProperties" -> {
           return getProperties();
-        case "getWrappedObject":
+        }
+        case "getWrappedObject" -> {
           // Call coming in through InfrastructureProxy interface...
           return getSessionFactory();
+        }
       }
 
       // Regular delegation to the target SessionFactory,
