@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -20,6 +20,7 @@
 package cn.taketoday.transaction;
 
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.transaction.annotation.Isolation;
 import cn.taketoday.transaction.support.DefaultTransactionDefinition;
 import cn.taketoday.transaction.support.SynchronizationInfo;
 import cn.taketoday.transaction.support.TransactionSynchronization;
@@ -317,6 +318,12 @@ public interface TransactionDefinition {
   static TransactionDefinition forIsolationLevel(int isolationLevel) {
     DefaultTransactionDefinition definition = new DefaultTransactionDefinition();
     definition.setIsolationLevel(isolationLevel);
+    return definition;
+  }
+
+  static TransactionDefinition forIsolationLevel(Isolation isolation) {
+    DefaultTransactionDefinition definition = new DefaultTransactionDefinition();
+    definition.setIsolationLevel(isolation.value());
     return definition;
   }
 

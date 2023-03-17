@@ -53,6 +53,7 @@ import cn.taketoday.transaction.TransactionDefinition;
 import cn.taketoday.transaction.TransactionException;
 import cn.taketoday.transaction.TransactionStatus;
 import cn.taketoday.transaction.TransactionSystemException;
+import cn.taketoday.transaction.annotation.Isolation;
 import cn.taketoday.transaction.support.CallbackPreferringPlatformTransactionManager;
 import cn.taketoday.transaction.support.TransactionCallback;
 
@@ -499,6 +500,23 @@ public class RepositoryManager extends JdbcAccessor implements QueryProducer {
    * @throws CannotGetJdbcConnectionException Could not acquire a connection from connection-source
    */
   public JdbcConnection beginTransaction(int isolationLevel) {
+    return beginTransaction(obtainDataSource(), TransactionDefinition.forIsolationLevel(isolationLevel));
+  }
+
+  /**
+   * Begins a transaction with the given isolation level. Every statement executed
+   * on the return {@link JdbcConnection} instance, will be executed in the
+   * transaction. It is very important to always call either the
+   * {@link JdbcConnection#commit()} method or the
+   * {@link JdbcConnection#rollback()} method to close the transaction. Use
+   * proper try-catch logic.
+   *
+   * @param isolationLevel the isolation level of the transaction
+   * @return the {@link JdbcConnection} instance to use to run statements in the
+   * transaction.
+   * @throws CannotGetJdbcConnectionException Could not acquire a connection from connection-source
+   */
+  public JdbcConnection beginTransaction(Isolation isolationLevel) {
     return beginTransaction(obtainDataSource(), TransactionDefinition.forIsolationLevel(isolationLevel));
   }
 
