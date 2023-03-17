@@ -728,6 +728,17 @@ public class RepositoryManager extends JdbcAccessor implements QueryProducer {
     return result;
   }
 
+  public <T> T runInTransaction(TransactionCallback<T> action) throws TransactionException {
+    return runInTransaction(action, (TransactionDefinition) null);
+  }
+
+  public <T> T runInTransaction(TransactionCallback<T> action, @Nullable Isolation isolation) throws TransactionException {
+    if (isolation != null) {
+      return runInTransaction(action, TransactionDefinition.forIsolationLevel(isolation));
+    }
+    return runInTransaction(action, (TransactionDefinition) null);
+  }
+
   public <T> T runInTransaction(TransactionCallback<T> action, @Nullable TransactionDefinition definition) throws TransactionException {
     PlatformTransactionManager transactionManager = getTransactionManager();
     Assert.state(transactionManager != null, "No PlatformTransactionManager set");
