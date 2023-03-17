@@ -353,8 +353,11 @@ public class NettyRequestContext extends RequestContext {
 
   @Override
   public void flush() {
-    writeHeaders();
+    if (writer != null) {
+      writer.flush();
+    }
 
+    writeHeaders();
     ByteBuf responseBody = this.responseBody;
     if (responseBody != null) {
       this.responseBody = null;
