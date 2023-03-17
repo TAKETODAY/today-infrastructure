@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -23,7 +23,6 @@ package cn.taketoday.annotation.config.jpa;
 import org.hibernate.boot.model.naming.CamelCaseToUnderscoresNamingStrategy;
 import org.hibernate.cfg.AvailableSettings;
 
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Supplier;
@@ -40,6 +39,7 @@ import cn.taketoday.util.StringUtils;
  *
  * @author Stephane Nicoll
  * @author Chris Bono
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see JpaProperties
  * @since 4.0
  */
@@ -71,8 +71,7 @@ public class HibernateProperties {
 
   /**
    * Determine the configuration properties for the initialization of the main Hibernate
-   * EntityManagerFactory based on standard JPA properties and
-   * {@link HibernateSettings}.
+   * EntityManagerFactory based on standard JPA properties and {@link HibernateSettings}.
    *
    * @param jpaProperties standard JPA properties
    * @param settings the settings to apply when determining the configuration properties
@@ -96,9 +95,11 @@ public class HibernateProperties {
     else {
       result.remove(AvailableSettings.HBM2DDL_AUTO);
     }
-    Collection<HibernatePropertiesCustomizer> customizers = settings.getHibernatePropertiesCustomizers();
-    if (!ObjectUtils.isEmpty(customizers)) {
-      customizers.forEach((customizer) -> customizer.customize(result));
+    var customizers = settings.getHibernatePropertiesCustomizers();
+    if (ObjectUtils.isNotEmpty(customizers)) {
+      for (HibernatePropertiesCustomizer customizer : customizers) {
+        customizer.customize(result);
+      }
     }
     return result;
   }

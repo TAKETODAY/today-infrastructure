@@ -27,6 +27,7 @@ import java.io.PrintStream;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import cn.taketoday.core.TypeDescriptor;
@@ -47,12 +48,13 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 /**
  * Tests for reflection helper code.
  *
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @author Andy Clement
  */
 public class ReflectionHelperTests extends AbstractExpressionTests {
 
   @Test
-  public void testUtilities() throws ParseException {
+  void utilities() throws ParseException {
     SpelExpression expr = (SpelExpression) parser.parseExpression("3+4+5+6+7-2");
     ByteArrayOutputStream baos = new ByteArrayOutputStream();
     PrintStream ps = new PrintStream(baos);
@@ -78,12 +80,12 @@ public class ReflectionHelperTests extends AbstractExpressionTests {
 //		  CompoundExpression  value:2
 //		    IntLiteral  value:2
 //		===> Expression '3+4+5+6+7-2' - AST end
-    assertThat(s.contains("===> Expression '3+4+5+6+7-2' - AST start")).isTrue();
-    assertThat(s.contains(" OpPlus  value:((((3 + 4) + 5) + 6) + 7)  #children:2")).isTrue();
+    assertThat(s).contains("===> Expression '3+4+5+6+7-2' - AST start");
+    assertThat(s).contains(" OpPlus  value:((((3 + 4) + 5) + 6) + 7)  #children:2");
   }
 
   @Test
-  public void testTypedValue() {
+  void typedValue() {
     TypedValue tv1 = new TypedValue("hello");
     TypedValue tv2 = new TypedValue("hello");
     TypedValue tv3 = new TypedValue("bye");
@@ -95,13 +97,13 @@ public class ReflectionHelperTests extends AbstractExpressionTests {
     assertThat(tv3).isNotEqualTo(tv2);
     assertThat(tv1).isNotEqualTo(tv3);
     assertThat(tv2).isNotEqualTo(tv3);
-    assertThat(tv2.hashCode()).isEqualTo(tv1.hashCode());
-    assertThat(tv3.hashCode()).isNotEqualTo(tv1.hashCode());
-    assertThat(tv3.hashCode()).isNotEqualTo(tv2.hashCode());
+    assertThat(tv2).hasSameHashCodeAs(tv1);
+    assertThat(tv3).doesNotHaveSameHashCodeAs(tv1);
+    assertThat(tv3).doesNotHaveSameHashCodeAs(tv2);
   }
 
   @Test
-  public void testReflectionHelperCompareArguments_ExactMatching() {
+  void reflectionHelperCompareArguments_ExactMatching() {
     StandardTypeConverter tc = new StandardTypeConverter();
 
     // Calling foo(String) with (String) is exact match
@@ -112,7 +114,7 @@ public class ReflectionHelperTests extends AbstractExpressionTests {
   }
 
   @Test
-  public void testReflectionHelperCompareArguments_CloseMatching() {
+  void reflectionHelperCompareArguments_CloseMatching() {
     StandardTypeConverter tc = new StandardTypeConverter();
 
     // Calling foo(List) with (ArrayList) is close match (no conversion required)
@@ -126,7 +128,7 @@ public class ReflectionHelperTests extends AbstractExpressionTests {
   }
 
   @Test
-  public void testReflectionHelperCompareArguments_RequiresConversionMatching() {
+  void reflectionHelperCompareArguments_RequiresConversionMatching() {
     StandardTypeConverter tc = new StandardTypeConverter();
 
     // Calling foo(String,int) with (String,Integer) requires boxing conversion of argument one
@@ -143,7 +145,7 @@ public class ReflectionHelperTests extends AbstractExpressionTests {
   }
 
   @Test
-  public void testReflectionHelperCompareArguments_NotAMatch() {
+  void reflectionHelperCompareArguments_NotAMatch() {
     StandardTypeConverter typeConverter = new StandardTypeConverter();
 
     // Passing (Super,String) on call to foo(Sub,String) is not a match
@@ -151,7 +153,7 @@ public class ReflectionHelperTests extends AbstractExpressionTests {
   }
 
   @Test
-  public void testReflectionHelperCompareArguments_Varargs_ExactMatching() {
+  void reflectionHelperCompareArguments_Varargs_ExactMatching() {
     StandardTypeConverter tc = new StandardTypeConverter();
 
     // Passing (String[]) on call to (String[]) is exact match
@@ -202,7 +204,7 @@ public class ReflectionHelperTests extends AbstractExpressionTests {
   }
 
   @Test
-  public void testConvertArguments() throws Exception {
+  void convertArguments() throws Exception {
     StandardTypeConverter tc = new StandardTypeConverter();
     Method oneArg = TestInterface.class.getMethod("oneArg", String.class);
     Method twoArg = TestInterface.class.getMethod("twoArg", String.class, String[].class);
@@ -229,7 +231,7 @@ public class ReflectionHelperTests extends AbstractExpressionTests {
   }
 
   @Test
-  public void testConvertArguments2() throws Exception {
+  void convertArguments2() throws Exception {
     StandardTypeConverter tc = new StandardTypeConverter();
     Method oneArg = TestInterface.class.getMethod("oneArg", String.class);
     Method twoArg = TestInterface.class.getMethod("twoArg", String.class, String[].class);
@@ -256,22 +258,19 @@ public class ReflectionHelperTests extends AbstractExpressionTests {
   }
 
   @Test
-  public void testSetupArguments() {
+  void setupArguments() {
     Object[] newArray = ReflectionHelper.setupArgumentsForVarargsInvocation(
             new Class<?>[] { String[].class }, "a", "b", "c");
 
-    assertThat(newArray.length).isEqualTo(1);
+    assertThat(newArray).hasSize(1);
     Object firstParam = newArray[0];
     assertThat(firstParam.getClass().getComponentType()).isEqualTo(String.class);
     Object[] firstParamArray = (Object[]) firstParam;
-    assertThat(firstParamArray.length).isEqualTo(3);
-    assertThat(firstParamArray[0]).isEqualTo("a");
-    assertThat(firstParamArray[1]).isEqualTo("b");
-    assertThat(firstParamArray[2]).isEqualTo("c");
+    assertThat(firstParamArray).containsExactly("a", "b", "c");
   }
 
   @Test
-  public void testReflectivePropertyAccessor() throws Exception {
+  void reflectivePropertyAccessor() throws Exception {
     ReflectivePropertyAccessor rpa = new ReflectivePropertyAccessor();
     Tester t = new Tester();
     t.setProperty("hello");
@@ -332,7 +331,7 @@ public class ReflectionHelperTests extends AbstractExpressionTests {
   }
 
   @Test
-  public void testOptimalReflectivePropertyAccessor() throws Exception {
+  void optimalReflectivePropertyAccessor() throws Exception {
     ReflectivePropertyAccessor reflective = new ReflectivePropertyAccessor();
     Tester tester = new Tester();
     tester.setProperty("hello");
@@ -378,19 +377,28 @@ public class ReflectionHelperTests extends AbstractExpressionTests {
     MethodResolver resolver = new ReflectiveMethodResolver();
     StandardEvaluationContext evaluationContext = new StandardEvaluationContext();
 
+    // Nonexistent method
     MethodExecutor bogus = resolver.resolve(evaluationContext, proxy, "bogus", List.of());
     assertThat(bogus).as("MethodExecutor for bogus()").isNull();
+
+    // Method in interface
+    MethodExecutor run = resolver.resolve(evaluationContext, proxy, "run", List.of());
+    assertThat(run).as("MethodExecutor for run()").isNotNull();
+
+    // Methods in Object
     MethodExecutor toString = resolver.resolve(evaluationContext, proxy, "toString", List.of());
     assertThat(toString).as("MethodExecutor for toString()").isNotNull();
     MethodExecutor hashCode = resolver.resolve(evaluationContext, proxy, "hashCode", List.of());
     assertThat(hashCode).as("MethodExecutor for hashCode()").isNotNull();
+    MethodExecutor equals = resolver.resolve(evaluationContext, proxy, "equals", typeDescriptors(Object.class));
+    assertThat(equals).as("MethodExecutor for equals()").isNotNull();
   }
 
   /**
    * Used to validate the match returned from a compareArguments call.
    */
   private void checkMatch(Class<?>[] inputTypes, Class<?>[] expectedTypes, StandardTypeConverter typeConverter, ArgumentsMatchKind expectedMatchKind) {
-    ReflectionHelper.ArgumentsMatchInfo matchInfo = ReflectionHelper.compareArguments(getTypeDescriptors(expectedTypes), getTypeDescriptors(inputTypes), typeConverter);
+    ReflectionHelper.ArgumentsMatchInfo matchInfo = ReflectionHelper.compareArguments(typeDescriptors(expectedTypes), typeDescriptors(inputTypes), typeConverter);
     if (expectedMatchKind == null) {
       assertThat(matchInfo).as("Did not expect them to match in any way").isNull();
     }
@@ -412,46 +420,41 @@ public class ReflectionHelperTests extends AbstractExpressionTests {
   /**
    * Used to validate the match returned from a compareArguments call.
    */
-  private void checkMatch2(Class<?>[] inputTypes, Class<?>[] expectedTypes, StandardTypeConverter typeConverter, ArgumentsMatchKind expectedMatchKind) {
-    ReflectionHelper.ArgumentsMatchInfo matchInfo = ReflectionHelper.compareArgumentsVarargs(getTypeDescriptors(expectedTypes), getTypeDescriptors(inputTypes), typeConverter);
+  private static void checkMatch2(Class<?>[] inputTypes, Class<?>[] expectedTypes,
+          StandardTypeConverter typeConverter, ArgumentsMatchKind expectedMatchKind) {
+
+    ReflectionHelper.ArgumentsMatchInfo matchInfo =
+            ReflectionHelper.compareArgumentsVarargs(typeDescriptors(expectedTypes), typeDescriptors(inputTypes), typeConverter);
     if (expectedMatchKind == null) {
       assertThat(matchInfo).as("Did not expect them to match in any way: " + matchInfo).isNull();
     }
     else {
       assertThat(matchInfo).as("Should not be a null match").isNotNull();
-    }
-
-    if (expectedMatchKind == ArgumentsMatchKind.EXACT) {
-      assertThat(matchInfo.isExactMatch()).isTrue();
-    }
-    else if (expectedMatchKind == ArgumentsMatchKind.CLOSE) {
-      assertThat(matchInfo.isCloseMatch()).isTrue();
-    }
-    else if (expectedMatchKind == ArgumentsMatchKind.REQUIRES_CONVERSION) {
-      assertThat(matchInfo.isMatchRequiringConversion()).as("expected to be a match requiring conversion, but was " + matchInfo).isTrue();
+      switch (expectedMatchKind) {
+        case EXACT -> assertThat(matchInfo.isExactMatch()).isTrue();
+        case CLOSE -> assertThat(matchInfo.isCloseMatch()).isTrue();
+        case REQUIRES_CONVERSION -> assertThat(matchInfo.isMatchRequiringConversion())
+                .as("expected to be a match requiring conversion, but was " + matchInfo).isTrue();
+      }
     }
   }
 
-  private void checkArguments(Object[] args, Object... expected) {
-    assertThat(args.length).isEqualTo(expected.length);
+  private static void checkArguments(Object[] args, Object... expected) {
+    assertThat(args).hasSize(expected.length);
     for (int i = 0; i < expected.length; i++) {
       checkArgument(expected[i], args[i]);
     }
   }
 
-  private void checkArgument(Object expected, Object actual) {
+  private static void checkArgument(Object expected, Object actual) {
     assertThat(actual).isEqualTo(expected);
   }
 
-  private List<TypeDescriptor> getTypeDescriptors(Class<?>... types) {
-    List<TypeDescriptor> typeDescriptors = new ArrayList<>(types.length);
-    for (Class<?> type : types) {
-      typeDescriptors.add(TypeDescriptor.valueOf(type));
-    }
-    return typeDescriptors;
+  private static List<TypeDescriptor> typeDescriptors(Class<?>... types) {
+    return Arrays.stream(types).map(TypeDescriptor::valueOf).toList();
   }
 
-  public interface TestInterface {
+  interface TestInterface {
 
     void oneArg(String arg1);
 
