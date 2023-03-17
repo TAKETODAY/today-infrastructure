@@ -31,6 +31,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
 
+import cn.taketoday.jdbc.type.TypeHandler;
 import cn.taketoday.lang.Nullable;
 
 /**
@@ -105,6 +106,13 @@ public final class Query extends AbstractQuery {
     return this;
   }
 
+  @SuppressWarnings({ "rawtypes", "unchecked" })
+  public Query addParameter(Object value) {
+    TypeHandler typeHandler = getTypeHandlerRegistry().getTypeHandler(value.getClass());
+    addParameter(ParameterBinder.forTypeHandler(typeHandler, value));
+    return this;
+  }
+
   public Query addParameter(ParameterBinder binder) {
     queryParameters.add(binder);
     return this;
@@ -149,6 +157,13 @@ public final class Query extends AbstractQuery {
 
   public Query setParameter(int pos, LocalDateTime value) {
     setParameter(pos, ParameterBinder.forTimestamp(Timestamp.valueOf(value)));
+    return this;
+  }
+
+  @SuppressWarnings({ "rawtypes", "unchecked" })
+  public Query setParameter(int pos, Object value) {
+    TypeHandler typeHandler = getTypeHandlerRegistry().getTypeHandler(value.getClass());
+    setParameter(pos, ParameterBinder.forTypeHandler(typeHandler, value));
     return this;
   }
 

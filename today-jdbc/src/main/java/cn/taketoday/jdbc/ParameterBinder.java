@@ -27,6 +27,8 @@ import java.sql.SQLException;
 import java.sql.Time;
 import java.sql.Timestamp;
 
+import cn.taketoday.jdbc.type.TypeHandler;
+
 /**
  * Parameter Setter
  *
@@ -195,4 +197,20 @@ public abstract class ParameterBinder {
     return new BinaryStreamParameterBinder();
   }
 
+  /**
+   * Bind Object to {@link PreparedStatement} using TypeHandler
+   *
+   * @param value Object value
+   * @return InputStream ParameterBinder
+   * @see PreparedStatement#setBinaryStream(int, InputStream)
+   */
+  public static <T> ParameterBinder forTypeHandler(TypeHandler<T> typeHandler, T value) {
+    final class TypeHandlerParameterBinder extends ParameterBinder {
+      @Override
+      public void bind(PreparedStatement statement, int paramIdx) throws SQLException {
+        typeHandler.setParameter(statement, paramIdx, value);
+      }
+    }
+    return new TypeHandlerParameterBinder();
+  }
 }
