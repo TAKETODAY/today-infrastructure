@@ -909,10 +909,12 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
    */
   @Override
   public ConstructorArgumentValues getConstructorArgumentValues() {
-    if (this.constructorArgumentValues == null) {
-      this.constructorArgumentValues = new ConstructorArgumentValues();
+    ConstructorArgumentValues cav = this.constructorArgumentValues;
+    if (cav == null) {
+      cav = new ConstructorArgumentValues();
+      this.constructorArgumentValues = cav;
     }
-    return this.constructorArgumentValues;
+    return cav;
   }
 
   /**
