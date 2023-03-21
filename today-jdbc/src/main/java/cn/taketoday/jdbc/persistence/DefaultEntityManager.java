@@ -168,27 +168,41 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
 
   @Override
   public void persist(Object entity) throws DataAccessException {
-    persist(entity, returnGeneratedKeys);
+    persist(entity, PropertyUpdateStrategy.always(), returnGeneratedKeys);
   }
 
   @Override
   public void persist(Object entity, boolean returnGeneratedKeys) throws DataAccessException {
+    persist(entity, PropertyUpdateStrategy.always(), returnGeneratedKeys);
+  }
+
+  @Override
+  public void persist(Object entity, @Nullable PropertyUpdateStrategy strategy) throws DataAccessException {
+    persist(entity, strategy, returnGeneratedKeys);
+  }
+
+  @Override
+  public void persist(Object entity, @Nullable PropertyUpdateStrategy strategy, boolean returnGeneratedKeys) throws DataAccessException {
+    if (strategy == null) {
+      strategy = PropertyUpdateStrategy.always();
+    }
     Class<?> entityClass = entity.getClass();
     EntityMetadata entityMetadata = entityMetadataFactory.getEntityMetadata(entityClass);
-    String sql = insert(entityMetadata);
+    String sql = insert(entityMetadata, entity, strategy);
 
     if (stmtLogger.isDebugEnabled()) {
       stmtLogger.logStatement(
               LogMessage.format("Persist entity: {}, generatedKeys={}", entity, returnGeneratedKeys), sql);
     }
 
+    PropertyUpdateStrategy finalStrategy = strategy;
     execute("Persist entity", new ConnectionCallback<Void>() {
 
       @Nullable
       @Override
       public Void doInConnection(@NonNull Connection connection) throws SQLException, DataAccessException {
         try (PreparedStatement statement = prepareStatement(connection, sql, returnGeneratedKeys)) {
-          setPersistParameter(entity, statement, entityMetadata);
+          setPersistParameter(entity, statement, finalStrategy, entityMetadata);
           // execute
           int updateCount = statement.executeUpdate();
           assertUpdateCount(sql, updateCount, 1);
@@ -225,12 +239,25 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
 
   @Override
   public void persist(Iterable<?> entities) throws DataAccessException {
-    persist(entities, returnGeneratedKeys);
+    persist(entities, PropertyUpdateStrategy.always(), returnGeneratedKeys);
   }
 
   @Override
   public void persist(Iterable<?> entities, boolean returnGeneratedKeys) throws DataAccessException {
-    repositoryManager.runInTransaction((connection, argument) -> {
+    persist(entities, PropertyUpdateStrategy.always(), returnGeneratedKeys);
+  }
+
+  @Override
+  public void persist(Iterable<?> entities, @Nullable PropertyUpdateStrategy strategy) throws DataAccessException {
+    persist(entities, strategy, returnGeneratedKeys);
+  }
+
+  @Override
+  public void persist(Iterable<?> entities, @Nullable PropertyUpdateStrategy strategy, boolean returnGeneratedKeys) throws DataAccessException {
+    if (strategy == null) {
+      strategy = PropertyUpdateStrategy.always();
+    }
+    repositoryManager.runInTransaction((connection, arg) -> {
       int maxBatchRecords = getMaxBatchRecords();
       var statements = new HashMap<Class<?>, PreparedBatch>();
       try {
@@ -239,8 +266,8 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
           PreparedBatch batch = statements.get(entityClass);
           if (batch == null) {
             EntityMetadata entityMetadata = entityMetadataFactory.getEntityMetadata(entityClass);
-            String sql = insert(entityMetadata);
-            batch = new PreparedBatch(connection.getJdbcConnection(), sql, entityMetadata, returnGeneratedKeys);
+            String sql = insert(entityMetadata, entity, arg);
+            batch = new PreparedBatch(connection.getJdbcConnection(), sql, arg, entityMetadata, returnGeneratedKeys);
             statements.put(entityClass, batch);
           }
           batch.addBatchUpdate(entity, maxBatchRecords);
@@ -259,14 +286,17 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
       catch (Throwable ex) {
         throw new PersistenceException("Batch persist entities failed", ex);
       }
-    });
+    }, strategy);
   }
 
   private static void setPersistParameter(
-          Object entity, PreparedStatement statement, EntityMetadata entityMetadata) throws SQLException {
+          Object entity, PreparedStatement statement,
+          PropertyUpdateStrategy strategy, EntityMetadata entityMetadata) throws SQLException {
     int idx = 1;
     for (EntityProperty property : entityMetadata.entityProperties) {
-      property.setTo(statement, idx++, entity);
+      if (strategy.shouldUpdate(entity, property)) {
+        property.setTo(statement, idx++, entity);
+      }
     }
   }
 
@@ -276,10 +306,13 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
     public final EntityMetadata entityMetadata;
     public final PreparedStatement statement;
     public final boolean returnGeneratedKeys;
+    public final PropertyUpdateStrategy strategy;
     public final ArrayList<Object> entities = new ArrayList<>();
 
-    PreparedBatch(Connection connection, String sql, EntityMetadata entityMetadata, boolean returnGeneratedKeys) throws SQLException {
+    PreparedBatch(Connection connection, String sql, PropertyUpdateStrategy strategy,
+            EntityMetadata entityMetadata, boolean returnGeneratedKeys) throws SQLException {
       this.sql = sql;
+      this.strategy = strategy;
       this.statement = prepareStatement(connection, sql, returnGeneratedKeys);
       this.entityMetadata = entityMetadata;
       this.returnGeneratedKeys = returnGeneratedKeys;
@@ -288,7 +321,7 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
     public void addBatchUpdate(Object entity, int maxBatchRecords) throws SQLException {
       entities.add(entity);
       PreparedStatement statement = this.statement;
-      setPersistParameter(entity, statement, entityMetadata);
+      setPersistParameter(entity, statement, strategy, entityMetadata);
       statement.addBatch();
       if (maxBatchRecords > 0 && ++currentBatchRecords % maxBatchRecords == 0) {
         executeBatch(statement, returnGeneratedKeys);
@@ -889,16 +922,18 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
   }
 
   //
-  static String insert(EntityMetadata entityMetadata) {
+  static String insert(EntityMetadata entityMetadata, Object entity, PropertyUpdateStrategy strategy) {
     StringBuilder sql = new StringBuilder();
     sql.append("INSERT INTO ").append(entityMetadata.tableName);
 
     StringBuilder columnNamesBuf = new StringBuilder();
     StringBuilder placeholderBuf = new StringBuilder();
 
-    for (String columName : entityMetadata.columnNames) {
-      columnNamesBuf.append(", `").append(columName).append('`');
-      placeholderBuf.append(", ?");
+    for (EntityProperty property : entityMetadata.entityProperties) {
+      if (strategy.shouldUpdate(entity, property)) {
+        columnNamesBuf.append(", `").append(property.columnName).append('`');
+        placeholderBuf.append(", ?");
+      }
     }
 
     if (columnNamesBuf.length() > 0) {

@@ -53,6 +53,7 @@ public class EntityProperty {
    * @param entity entity object
    * @return property value
    */
+  @Nullable
   public Object getValue(Object entity) {
     return property.getValue(entity);
   }

@@ -50,12 +50,34 @@ public interface EntityManager {
    * persist an entity to underlying repository
    *
    * @param entity entity instance
+   * @param strategy property persist strategy
+   * @throws IllegalEntityException entityClass is legal entity
+   */
+  void persist(Object entity, @Nullable PropertyUpdateStrategy strategy) throws DataAccessException;
+
+  /**
+   * persist an entity to underlying repository
+   *
+   * @param entity entity instance
    * @param returnGeneratedKeys a flag indicating whether auto-generated keys should be returned;
    * @throws IllegalEntityException entityClass is legal entity
    * @see PreparedStatement
    * @see Connection#prepareStatement(String, int)
    */
   void persist(Object entity, boolean returnGeneratedKeys) throws DataAccessException;
+
+  /**
+   * persist an entity to underlying repository
+   *
+   * @param entity entity instance
+   * @param strategy property persist strategy
+   * @param returnGeneratedKeys a flag indicating whether auto-generated
+   * keys should be returned
+   * @throws IllegalEntityException entityClass is legal entity
+   * @see PreparedStatement
+   * @see Connection#prepareStatement(String, int)
+   */
+  void persist(Object entity, @Nullable PropertyUpdateStrategy strategy, boolean returnGeneratedKeys) throws DataAccessException;
 
   /**
    * persist entities to underlying repository
@@ -73,6 +95,27 @@ public interface EntityManager {
    * @throws IllegalEntityException entityClass is legal entity
    */
   void persist(Iterable<?> entities, boolean returnGeneratedKeys) throws DataAccessException;
+
+  /**
+   * persist entities to underlying repository
+   *
+   * @param entities entities instances
+   * @param strategy property persist strategy
+   * @throws IllegalEntityException entityClass is legal entity
+   */
+  void persist(Iterable<?> entities, @Nullable PropertyUpdateStrategy strategy) throws DataAccessException;
+
+  /**
+   * persist entities to underlying repository
+   *
+   * @param returnGeneratedKeys a flag indicating whether
+   * auto-generated keys should be returned;
+   * @param entities entities instances
+   * @param strategy property persist strategy
+   * @throws IllegalEntityException entityClass is legal entity
+   */
+  void persist(Iterable<?> entities,
+          @Nullable PropertyUpdateStrategy strategy, boolean returnGeneratedKeys) throws DataAccessException;
 
   /**
    * Merge the state of the given entity into underlying repository

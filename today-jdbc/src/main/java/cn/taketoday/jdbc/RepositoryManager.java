@@ -427,7 +427,7 @@ public class RepositoryManager extends JdbcAccessor implements QueryProducer {
    *
    * @throws CannotGetJdbcConnectionException Could not acquire a connection from connection-source
    */
-  public <V> V withConnection(ResultStatementRunnable<V> runnable, @Nullable Object argument) {
+  public <V, P> V withConnection(ResultStatementRunnable<V, P> runnable, @Nullable P argument) {
     try (JdbcConnection connection = open()) {
       return runnable.run(connection, argument);
     }
@@ -449,7 +449,7 @@ public class RepositoryManager extends JdbcAccessor implements QueryProducer {
    *
    * @throws CannotGetJdbcConnectionException Could not acquire a connection from connection-source
    */
-  public <V> V withConnection(ResultStatementRunnable<V> runnable) {
+  public <V, P> V withConnection(ResultStatementRunnable<V, P> runnable) {
     return withConnection(runnable, null);
   }
 
@@ -626,7 +626,7 @@ public class RepositoryManager extends JdbcAccessor implements QueryProducer {
    * @param runnable The {@link StatementRunnable} instance.
    * @throws CannotGetJdbcConnectionException Could not acquire a connection from connection-source
    */
-  public void runInTransaction(StatementRunnable runnable) {
+  public <T> void runInTransaction(StatementRunnable<T> runnable) {
     runInTransaction(runnable, null);
   }
 
@@ -649,7 +649,7 @@ public class RepositoryManager extends JdbcAccessor implements QueryProducer {
    * {@link StatementRunnable#run(JdbcConnection, Object) run} method
    * @throws CannotGetJdbcConnectionException Could not acquire a connection from connection-source
    */
-  public void runInTransaction(StatementRunnable runnable, Object argument) {
+  public <T> void runInTransaction(StatementRunnable<T> runnable, @Nullable T argument) {
     runInTransaction(runnable, argument, Connection.TRANSACTION_READ_COMMITTED);
   }
 
@@ -670,7 +670,7 @@ public class RepositoryManager extends JdbcAccessor implements QueryProducer {
    * @param isolationLevel The isolation level of the transaction
    * @throws CannotGetJdbcConnectionException Could not acquire a connection from connection-source
    */
-  public void runInTransaction(StatementRunnable runnable, Object argument, int isolationLevel) {
+  public <T> void runInTransaction(StatementRunnable<T> runnable, @Nullable T argument, int isolationLevel) {
     JdbcConnection connection = beginTransaction(isolationLevel);
     connection.setRollbackOnException(false);
 
@@ -693,22 +693,37 @@ public class RepositoryManager extends JdbcAccessor implements QueryProducer {
   /**
    * @throws CannotGetJdbcConnectionException Could not acquire a connection from connection-source
    */
-  public <V> V runInTransaction(ResultStatementRunnable<V> runnable) {
+  public <V, P> V runInTransaction(ResultStatementRunnable<V, P> runnable) {
     return runInTransaction(runnable, null);
   }
 
   /**
    * @throws CannotGetJdbcConnectionException Could not acquire a connection from connection-source
    */
-  public <V> V runInTransaction(ResultStatementRunnable<V> runnable, Object argument) {
+  public <V, P> V runInTransaction(ResultStatementRunnable<V, P> runnable, @Nullable P argument) {
     return runInTransaction(runnable, argument, Connection.TRANSACTION_READ_COMMITTED);
   }
 
   /**
    * @throws CannotGetJdbcConnectionException Could not acquire a connection from connection-source
    */
-  public <V> V runInTransaction(ResultStatementRunnable<V> runnable, Object argument, int isolationLevel) {
-    JdbcConnection connection = beginTransaction(isolationLevel);
+  public <V, P> V runInTransaction(ResultStatementRunnable<V, P> runnable, @Nullable P argument, int isolationLevel) {
+    return runInTransaction(runnable, argument, TransactionDefinition.forIsolationLevel(isolationLevel));
+  }
+
+  /**
+   * @throws CannotGetJdbcConnectionException Could not acquire a connection from connection-source
+   */
+  public <V, P> V runInTransaction(ResultStatementRunnable<V, P> runnable, @Nullable P argument, Isolation isolation) {
+    return runInTransaction(runnable, argument, TransactionDefinition.forIsolationLevel(isolation));
+  }
+
+  /**
+   * @throws CannotGetJdbcConnectionException Could not acquire a connection from connection-source
+   */
+  public <V, P> V runInTransaction(ResultStatementRunnable<V, P> runnable,
+          @Nullable P argument, @Nullable TransactionDefinition definition) {
+    JdbcConnection connection = beginTransaction(definition);
     V result;
     try {
       result = runnable.run(connection, argument);

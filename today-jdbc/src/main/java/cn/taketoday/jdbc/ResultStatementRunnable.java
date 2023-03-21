@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -25,10 +25,10 @@ import cn.taketoday.lang.Nullable;
 /**
  * Represents a method with a {@link JdbcConnection} and an optional argument.
  * Implementations of this interface be used as a parameter to one of the
- * {@link RepositoryManager#runInTransaction(ResultStatementRunnable<V>)}
+ * {@link RepositoryManager#runInTransaction(ResultStatementRunnable<V,P>)}
  * RepositoryManager.runInTransaction} overloads, to run code safely in a transaction.
  */
-public interface ResultStatementRunnable<V> {
+public interface ResultStatementRunnable<V, P> {
 
-  V run(JdbcConnection connection, @Nullable Object argument) throws Throwable;
+  V run(JdbcConnection connection, @Nullable P argument) throws Throwable;
 }

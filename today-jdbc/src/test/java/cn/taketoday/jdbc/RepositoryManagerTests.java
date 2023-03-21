@@ -827,12 +827,11 @@ public class RepositoryManagerTests extends BaseMemDbTest {
 
   }
 
-  private static class runnerWithResultTester implements ResultStatementRunnable<List<Integer>> {
+  private static class runnerWithResultTester implements ResultStatementRunnable<List<Integer>, String[]> {
 
-    public List<Integer> run(JdbcConnection connection, Object argument) throws Throwable {
-      String[] vals = (String[]) argument;
+    public List<Integer> run(JdbcConnection connection, String[] argument) throws Throwable {
       List<Integer> keys = new ArrayList<>();
-      for (String val : vals) {
+      for (String val : argument) {
         Integer key = connection.createNamedQuery(
                         "insert into testRunInsideTransactionWithResultTable(value) values(:val)",
                         "runnerWithResultTester")
