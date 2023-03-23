@@ -1,0 +1,42 @@
+<!--
+  - Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
+  - Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+  -
+  - DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+  -
+  - This program is free software: you can redistribute it and/or modify
+  - it under the terms of the GNU General Public License as published by
+  - the Free Software Foundation, either version 3 of the License, or
+  - (at your option) any later version.
+  -
+  - This program is distributed in the hope that it will be useful,
+  - but WITHOUT ANY WARRANTY; without even the implied warranty of
+  - MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  - GNU General Public License for more details.
+  -
+  - You should have received a copy of the GNU General Public License
+  - along with this program.  If not, see [http://www.gnu.org/licenses/]
+  -->
+
+<!--
+<!DOCTYPE Web-Configuration PUBLIC
+		"-//TODAY BLOG//Web-View Configuration DTD 4.0//CN"
+			"https://taketoday.cn/framework/web/dtd/web-configuration-4.0.dtd">
+-->
+
+<!ELEMENT Web-Configuration (#PCDATA|controller)*>
+
+<!ELEMENT controller (action)*>
+	<!ATTLIST controller
+		prefix CDATA "/WEB-INF/ftl"
+		suffix CDATA ".ftl"
+	>
+
+<!ELEMENT action (#PCDATA)>
+	<!ATTLIST action
+		name CDATA #REQUIRED
+		status CDATA #IMPLIED
+		resource CDATA #IMPLIED
+		content-type CDATA "text/html;charset=UTF-8"
+		type (forward|redirect) #IMPLIED
+	>

@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -58,7 +58,7 @@ class ControllerTests {
     StaticWebApplicationContext wac = new StaticWebApplicationContext();
     wac.refresh();
     ServletRequestContext context = new ServletRequestContext(wac, new MockHttpServletRequest("GET", "foo.html"), new MockHttpServletResponse());
-    ModelAndView mv = pvc.handleRequest(context);
+    ModelAndView mv = (ModelAndView) pvc.handleRequest(context);
     assertThat(mv.getModel().size() == 0).as("model has no data").isTrue();
     assertThat(mv.getViewName().equals(viewName)).as("model has correct viewname").isTrue();
     assertThat(pvc.getViewName().equals(viewName)).as("getViewName matches").isTrue();

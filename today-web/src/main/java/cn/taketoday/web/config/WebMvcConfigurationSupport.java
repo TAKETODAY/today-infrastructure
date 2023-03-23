@@ -40,10 +40,7 @@ import cn.taketoday.context.annotation.Role;
 import cn.taketoday.context.condition.ConditionalOnClass;
 import cn.taketoday.context.condition.ConditionalOnMissingBean;
 import cn.taketoday.context.support.ApplicationContextSupport;
-import cn.taketoday.core.Ordered;
 import cn.taketoday.core.conversion.Converter;
-import cn.taketoday.core.env.Environment;
-import cn.taketoday.core.io.ClassPathResource;
 import cn.taketoday.format.Formatter;
 import cn.taketoday.format.FormatterRegistry;
 import cn.taketoday.format.support.DefaultFormattingConversionService;
@@ -65,11 +62,9 @@ import cn.taketoday.http.converter.json.MappingJackson2HttpMessageConverter;
 import cn.taketoday.http.converter.smile.MappingJackson2SmileHttpMessageConverter;
 import cn.taketoday.http.converter.xml.MappingJackson2XmlHttpMessageConverter;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.lang.TodayStrategies;
 import cn.taketoday.session.SessionManager;
 import cn.taketoday.stereotype.Component;
 import cn.taketoday.util.ClassUtils;
-import cn.taketoday.util.StringUtils;
 import cn.taketoday.validation.Errors;
 import cn.taketoday.validation.MessageCodesResolver;
 import cn.taketoday.validation.Validator;
@@ -94,8 +89,6 @@ import cn.taketoday.web.handler.ResponseStatusExceptionHandler;
 import cn.taketoday.web.handler.ReturnValueHandlerManager;
 import cn.taketoday.web.handler.SimpleHandlerExceptionHandler;
 import cn.taketoday.web.handler.SimpleUrlHandlerMapping;
-import cn.taketoday.web.handler.ViewControllerHandlerAdapter;
-import cn.taketoday.web.handler.ViewControllerHandlerMapping;
 import cn.taketoday.web.handler.function.support.HandlerFunctionAdapter;
 import cn.taketoday.web.handler.function.support.RouterFunctionMapping;
 import cn.taketoday.web.handler.method.AnnotationHandlerFactory;
@@ -103,7 +96,6 @@ import cn.taketoday.web.handler.method.ControllerAdviceBean;
 import cn.taketoday.web.handler.method.ExceptionHandlerAnnotationExceptionHandler;
 import cn.taketoday.web.handler.method.JsonViewRequestBodyAdvice;
 import cn.taketoday.web.handler.method.JsonViewResponseBodyAdvice;
-import cn.taketoday.web.handler.method.RegistryResolvableParameterFactory;
 import cn.taketoday.web.handler.method.RequestBodyAdvice;
 import cn.taketoday.web.handler.method.RequestMappingHandlerAdapter;
 import cn.taketoday.web.handler.method.RequestMappingHandlerMapping;
@@ -190,7 +182,6 @@ import jakarta.servlet.ServletContext;
  */
 @DisableAllDependencyInjection
 public class WebMvcConfigurationSupport extends ApplicationContextSupport {
-  static final String ENABLE_WEB_MVC_XML = "enable.webmvc.xml";
   static final String WEB_MVC_CONFIG_LOCATION = "WebMvcConfigLocation";
 
   private static final boolean gsonPresent = isPresent("com.google.gson.Gson");
@@ -567,47 +558,6 @@ public class WebMvcConfigurationSupport extends ApplicationContextSupport {
   @ConditionalOnMissingBean(NotFoundHandler.class)
   NotFoundHandler notFoundHandler() {
     return new NotFoundHandler();
-  }
-
-  @Component
-  @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-  @ConditionalOnMissingBean(ViewControllerHandlerMapping.class)
-  ViewControllerHandlerMapping viewControllerHandlerMapping(
-          ParameterResolvingRegistry resolvingRegistry, Environment environment) throws Exception {
-    if (TodayStrategies.getFlag(ENABLE_WEB_MVC_XML, true)) {
-      // find the configure file
-      log.info("Framework is looking for ViewController configuration file");
-      var registry = new ViewControllerHandlerMapping(
-              new RegistryResolvableParameterFactory(resolvingRegistry));
-
-      String webMvcConfigLocation = environment.getProperty(WEB_MVC_CONFIG_LOCATION);
-      if (StringUtils.isEmpty(webMvcConfigLocation)) {
-        webMvcConfigLocation = "classpath:web-mvc.xml";
-        if (new ClassPathResource(webMvcConfigLocation).exists()) {
-          log.info("web mvc configuration file does not exist, using default '{}'", webMvcConfigLocation);
-        }
-        else {
-          webMvcConfigLocation = null;
-        }
-      }
-
-      if (webMvcConfigLocation != null) {
-        registry.configure(webMvcConfigLocation);
-        registry.setInterceptors(getInterceptors());
-
-        configureViewController(registry);
-        return registry;
-      }
-    }
-    return null;
-  }
-
-  protected void configureViewController(ViewControllerHandlerMapping registry) { }
-
-  @Component
-  @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-  ViewControllerHandlerAdapter viewControllerHandlerAdapter() {
-    return new ViewControllerHandlerAdapter(Ordered.HIGHEST_PRECEDENCE + 2);
   }
 
   // HandlerExceptionHandler

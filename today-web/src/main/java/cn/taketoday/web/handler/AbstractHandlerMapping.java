@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -72,6 +72,7 @@ public abstract class AbstractHandlerMapping extends ApplicationContextSupport
   protected final Logger mappingsLogger =
           LogDelegateFactory.getHiddenLog(HandlerMapping.class.getName() + ".Mappings");
 
+  @Nullable
   private Object defaultHandler;
 
   private int order = Ordered.LOWEST_PRECEDENCE;
@@ -79,7 +80,10 @@ public abstract class AbstractHandlerMapping extends ApplicationContextSupport
   @Nullable
   private String beanName;
 
-  /** @since 4.0 */
+  /**
+   * @since 4.0
+   */
+  @Nullable
   protected StringValueResolver embeddedValueResolver;
 
   private final PathPatternParser patternParser = new PathPatternParser();
@@ -229,13 +233,14 @@ public abstract class AbstractHandlerMapping extends ApplicationContextSupport
    * <p>
    * Default is {@code null}, indicating no default handler.
    */
-  public void setDefaultHandler(Object defaultHandler) {
+  public void setDefaultHandler(@Nullable Object defaultHandler) {
     this.defaultHandler = defaultHandler;
   }
 
   /**
    * Return the default handler for this handler mapping, or {@code null} if none.
    */
+  @Nullable
   public Object getDefaultHandler() {
     return this.defaultHandler;
   }
@@ -284,7 +289,9 @@ public abstract class AbstractHandlerMapping extends ApplicationContextSupport
    * to add further interceptors before as well as after the existing interceptors
    * @since 4.0
    */
-  protected void extendInterceptors(List<HandlerInterceptor> interceptors) { }
+  protected void extendInterceptors(List<HandlerInterceptor> interceptors) {
+
+  }
 
   /**
    * Detect beans of type {@link MappedInterceptor} and add them to the list
@@ -310,6 +317,7 @@ public abstract class AbstractHandlerMapping extends ApplicationContextSupport
    * @return the corresponding handler instance, or the default handler
    * @see #getHandlerInternal
    */
+  @Nullable
   @Override
   public final Object getHandler(final RequestContext request) throws Exception {
     Object handler = getHandlerInternal(request);

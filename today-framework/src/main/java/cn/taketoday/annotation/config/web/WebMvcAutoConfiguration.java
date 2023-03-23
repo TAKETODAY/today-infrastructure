@@ -88,7 +88,6 @@ import cn.taketoday.web.config.format.WebConversionService;
 import cn.taketoday.web.context.support.RequestHandledEventPublisher;
 import cn.taketoday.web.handler.AbstractHandlerExceptionHandler;
 import cn.taketoday.web.handler.ReturnValueHandlerManager;
-import cn.taketoday.web.handler.ViewControllerHandlerMapping;
 import cn.taketoday.web.handler.method.ExceptionHandlerAnnotationExceptionHandler;
 import cn.taketoday.web.handler.method.RequestMappingHandlerAdapter;
 import cn.taketoday.web.handler.method.RequestMappingHandlerMapping;
@@ -374,11 +373,6 @@ public class WebMvcAutoConfiguration extends WebMvcConfigurationSupport {
   @Override
   protected void modifyParameterResolvingRegistry(ParameterResolvingRegistry registry) {
     mvcConfiguration.configureParameterResolving(registry, registry.getCustomizedStrategies());
-  }
-
-  @Override
-  protected void configureViewController(ViewControllerHandlerMapping registry) {
-    mvcConfiguration.configureViewController(registry);
   }
 
   @Override

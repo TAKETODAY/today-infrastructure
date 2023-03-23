@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -28,7 +28,6 @@ import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.RequestContextUtils;
 import cn.taketoday.web.WebContentGenerator;
 import cn.taketoday.web.util.WebUtils;
-import cn.taketoday.web.view.ModelAndView;
 
 /**
  * Convenient superclass for controller implementations, using the Template Method
@@ -38,10 +37,9 @@ import cn.taketoday.web.view.ModelAndView;
  * (<a href="Controller.html#workflow">and that defined by interface</a>):</b><br>
  * <ol>
  * <li>{@link #handleRequest(RequestContext) handleRequest()}
- * will be called by the DispatcherServlet</li>
- * <li>Inspection of supported methods (ServletException if request method
- * is not support)</li>
- * <li>If session is required, try to get it (ServletException if not found)</li>
+ * will be called by the DispatcherHandler</li>
+ * <li>Inspection of supported methods</li>
+ * <li>If session is required, try to get it</li>
  * <li>Set caching headers if needed according to the cacheSeconds property</li>
  * <li>Call abstract method
  * {@link #handleRequestInternal(RequestContext) handleRequestInternal()}
@@ -71,7 +69,7 @@ import cn.taketoday.web.view.ModelAndView;
  * be handled by this controller. This ensures that derived controller
  * can - without fear of null pointers - call request.getSession() to
  * retrieve a session. If no session can be found while processing
- * the request, a ServletException will be thrown</td>
+ * the request, a RuntimeException will be thrown</td>
  * </tr>
  * <tr>
  * <td>cacheSeconds</td>
@@ -86,8 +84,8 @@ import cn.taketoday.web.view.ModelAndView;
  * <td>synchronizeOnSession</td>
  * <td>false</td>
  * <td>whether the call to {@code handleRequestInternal} should be
- * synchronized around the HttpSession, to serialize invocations
- * from the same client. No effect if there is no HttpSession.
+ * synchronized around the WebSession, to serialize invocations
+ * from the same client. No effect if there is no WebSession.
  * </td>
  * </tr>
  * </table>
@@ -128,12 +126,12 @@ public abstract class AbstractController extends WebContentGenerator implements 
    * <p>More specifically, the execution of the {@code handleRequestInternal}
    * method will get synchronized if this flag is "true". The best available
    * session mutex will be used for the synchronization; ideally, this will
-   * be a mutex exposed by HttpSessionMutexListener.
+   * be a mutex exposed by WebSessionMutexListener.
    * <p>The session mutex is guaranteed to be the same object during
    * the entire lifetime of the session, available under the key defined
    * by the {@code SESSION_MUTEX_ATTRIBUTE} constant. It serves as a
    * safe reference to synchronize on for locking on the current session.
-   * <p>In many cases, the HttpSession reference itself is a safe mutex
+   * <p>In many cases, the WebSession reference itself is a safe mutex
    * as well, since it will always be the same object reference for the
    * same active logical session. However, this is not guaranteed across
    * different servlet containers; the only 100% safe way is a session mutex.
@@ -154,10 +152,10 @@ public abstract class AbstractController extends WebContentGenerator implements 
 
   @Override
   @Nullable
-  public ModelAndView handleRequest(RequestContext request) throws Exception {
+  public Object handleRequest(RequestContext request) throws Exception {
     if (HttpMethod.OPTIONS == request.getMethod()) {
       request.responseHeaders().set(HttpHeaders.ALLOW, getAllowHeader());
-      return null;
+      return NONE_RETURN_VALUE;
     }
 
     // Delegate to WebContentGenerator for checking and preparing.
@@ -185,7 +183,7 @@ public abstract class AbstractController extends WebContentGenerator implements 
    * @see #handleRequest
    */
   @Nullable
-  protected abstract ModelAndView handleRequestInternal(RequestContext request)
+  protected abstract Object handleRequestInternal(RequestContext request)
           throws Exception;
 
 }

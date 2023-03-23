@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -159,14 +159,14 @@ public class RouterFunctionMapping extends AbstractHandlerMapping implements Ini
   @SuppressWarnings({ "rawtypes" })
   private void logRouterFunctions(List<RouterFunction> routerFunctions) {
     if (mappingsLogger.isDebugEnabled()) {
-      routerFunctions.forEach(function -> mappingsLogger.debug("Mapped " + function));
+      routerFunctions.forEach(function -> mappingsLogger.debug("Mapped {}", function));
     }
     else if (log.isDebugEnabled()) {
       int total = routerFunctions.size();
       String message = total + " RouterFunction(s) in " + formatMappingName();
       if (log.isTraceEnabled()) {
         if (total > 0) {
-          routerFunctions.forEach(function -> log.trace("Mapped " + function));
+          routerFunctions.forEach(function -> log.trace("Mapped {}", function));
         }
         else {
           log.trace(message);

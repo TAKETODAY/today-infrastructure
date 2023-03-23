@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -29,7 +29,7 @@ import cn.taketoday.core.StringValueResolver;
  * Interface to be implemented by any object that wishes to be notified of a
  * {@code StringValueResolver} for the resolution of embedded definition values.
  *
- * @author Harry Yang
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see ConfigurableBeanFactory#resolveEmbeddedValue(String)
  * @see ConfigurableBeanFactory#getBeanExpressionResolver()
  * @see EmbeddedValueResolver

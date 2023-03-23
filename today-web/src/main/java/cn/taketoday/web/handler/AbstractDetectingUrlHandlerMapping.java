@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -19,8 +19,6 @@
  */
 
 package cn.taketoday.web.handler;
-
-import java.util.Set;
 
 import cn.taketoday.beans.BeansException;
 import cn.taketoday.beans.factory.BeanFactoryUtils;
@@ -76,9 +74,9 @@ public abstract class AbstractDetectingUrlHandlerMapping extends AbstractUrlHand
    */
   protected void detectHandlers() throws BeansException {
     ApplicationContext applicationContext = obtainApplicationContext();
-    Set<String> beanNames = this.detectHandlersInAncestorContexts
-                            ? BeanFactoryUtils.beanNamesForTypeIncludingAncestors(applicationContext, Object.class)
-                            : applicationContext.getBeanNamesForType(Object.class);
+    var beanNames = detectHandlersInAncestorContexts
+                    ? BeanFactoryUtils.beanNamesForTypeIncludingAncestors(applicationContext, Object.class)
+                    : applicationContext.getBeanNamesForType(Object.class);
 
     // Take any bean name that we can determine URLs for.
     for (String beanName : beanNames) {

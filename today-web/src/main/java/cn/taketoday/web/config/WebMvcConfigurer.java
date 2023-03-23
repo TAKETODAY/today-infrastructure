@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -17,6 +17,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.web.config;
 
 import java.util.List;
@@ -37,8 +38,6 @@ import cn.taketoday.web.bind.resolver.ParameterResolvingStrategies;
 import cn.taketoday.web.bind.resolver.ParameterResolvingStrategy;
 import cn.taketoday.web.cors.CorsConfiguration;
 import cn.taketoday.web.handler.ReturnValueHandlerManager;
-import cn.taketoday.web.handler.ViewController;
-import cn.taketoday.web.handler.ViewControllerHandlerMapping;
 import cn.taketoday.web.view.View;
 
 /**
@@ -49,10 +48,8 @@ import cn.taketoday.web.view.View;
  * this interface to be called back and given a chance to customize the
  * default configuration.
  *
- * <p>
- * Like Framework's WebMvcConfigurer
- *
- * @author TODAY 2019-05-17 17:46
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 2019-05-17 17:46
  */
 public interface WebMvcConfigurer {
 
@@ -95,14 +92,6 @@ public interface WebMvcConfigurer {
    * @param registry {@link ResourceHandlerRegistry}
    */
   default void addResourceHandlers(ResourceHandlerRegistry registry) { }
-
-  /**
-   * Configure {@link ViewController} s
-   *
-   * @param registry {@link ViewControllerHandlerMapping}
-   * @since 2.3.7
-   */
-  default void configureViewController(ViewControllerHandlerMapping registry) { }
 
   /**
    * Configure {@link HandlerMapping}

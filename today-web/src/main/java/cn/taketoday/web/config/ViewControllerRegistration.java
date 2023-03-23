@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -65,8 +65,25 @@ public class ViewControllerRegistration {
    *
    * @see DefaultRequestToViewNameTranslator
    */
-  public void setViewName(String viewName) {
+  public ViewControllerRegistration setViewName(String viewName) {
     this.controller.setViewName(viewName);
+    return this;
+  }
+
+  /**
+   * Set the content-type to return. Optional.
+   */
+  public ViewControllerRegistration setContentType(String contentType) {
+    this.controller.setContentType(contentType);
+    return this;
+  }
+
+  /**
+   * Set the result
+   */
+  public ViewControllerRegistration setReturnValue(Object returnValue) {
+    this.controller.setResult(returnValue);
+    return this;
   }
 
   protected void setApplicationContext(@Nullable ApplicationContext applicationContext) {

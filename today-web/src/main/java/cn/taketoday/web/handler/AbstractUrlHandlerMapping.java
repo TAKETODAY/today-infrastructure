@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -46,11 +46,12 @@ import cn.taketoday.web.util.pattern.PathPattern;
  *
  * @author Juergen Hoeller
  * @author Arjen Poutsma
- * @author TODAY 2020/12/23 15:56
- * @since 3.0
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 3.0 2020/12/23 15:56
  */
 public abstract class AbstractUrlHandlerMapping extends AbstractHandlerMapping {
 
+  @Nullable
   private Object rootHandler;
 
   // @since 4.0
@@ -67,7 +68,7 @@ public abstract class AbstractUrlHandlerMapping extends AbstractHandlerMapping {
    * the handler to be registered for the root path ("/").
    * <p>Default is {@code null}, indicating no root handler.
    */
-  public void setRootHandler(Object rootHandler) {
+  public void setRootHandler(@Nullable Object rootHandler) {
     this.rootHandler = rootHandler;
   }
 

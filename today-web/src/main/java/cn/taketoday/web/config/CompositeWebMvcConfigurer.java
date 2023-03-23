@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -17,6 +17,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.web.config;
 
 import java.util.ArrayList;
@@ -32,7 +33,6 @@ import cn.taketoday.web.HandlerMapping;
 import cn.taketoday.web.bind.resolver.ParameterResolvingRegistry;
 import cn.taketoday.web.bind.resolver.ParameterResolvingStrategies;
 import cn.taketoday.web.handler.ReturnValueHandlerManager;
-import cn.taketoday.web.handler.ViewControllerHandlerMapping;
 
 /**
  * @author TODAY <br>
@@ -82,13 +82,6 @@ public class CompositeWebMvcConfigurer implements WebMvcConfigurer {
   public void modifyReturnValueHandlerManager(ReturnValueHandlerManager manager) {
     for (WebMvcConfigurer webMvcConfigurer : getWebMvcConfigurations()) {
       webMvcConfigurer.modifyReturnValueHandlerManager(manager);
-    }
-  }
-
-  @Override
-  public void configureViewController(ViewControllerHandlerMapping viewControllerHandlerRegistry) {
-    for (WebMvcConfigurer webMvcConfigurer : getWebMvcConfigurations()) {
-      webMvcConfigurer.configureViewController(viewControllerHandlerRegistry);
     }
   }
 

@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -32,7 +32,6 @@ import cn.taketoday.validation.Validator;
 import cn.taketoday.web.HandlerExceptionHandler;
 import cn.taketoday.web.bind.resolver.ParameterResolvingRegistry;
 import cn.taketoday.web.handler.ReturnValueHandlerManager;
-import cn.taketoday.web.handler.ViewControllerHandlerMapping;
 
 /**
  * A subclass of {@code WebMvcConfigurationSupport} that detects and delegates
@@ -124,11 +123,6 @@ public class DelegatingWebMvcConfiguration extends WebMvcConfigurationSupport {
   @Override
   protected void extendMessageConverters(List<HttpMessageConverter<?>> converters) {
     this.configurers.extendMessageConverters(converters);
-  }
-
-  @Override
-  protected void configureViewController(ViewControllerHandlerMapping registry) {
-    configurers.configureViewController(registry);
   }
 
   @Override
