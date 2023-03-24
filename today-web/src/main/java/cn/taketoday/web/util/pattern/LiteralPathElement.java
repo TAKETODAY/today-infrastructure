@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -20,7 +20,6 @@
 
 package cn.taketoday.web.util.pattern;
 
-import cn.taketoday.http.server.PathContainer;
 import cn.taketoday.http.server.PathContainer.Element;
 import cn.taketoday.http.server.PathContainer.PathSegment;
 import cn.taketoday.web.util.pattern.PathPattern.MatchingContext;
@@ -30,28 +29,20 @@ import cn.taketoday.web.util.pattern.PathPattern.MatchingContext;
  * literal path elements 'foo', 'bar' and 'goo'.
  *
  * @author Andy Clement
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 class LiteralPathElement extends PathElement {
 
   private final int len;
-  private final char[] text;
+  private final String text;
   private final boolean caseSensitive;
 
   public LiteralPathElement(int pos, char[] literalText, boolean caseSensitive, char separator) {
     super(pos, separator);
     this.len = literalText.length;
     this.caseSensitive = caseSensitive;
-    if (caseSensitive) {
-      this.text = literalText;
-    }
-    else {
-      // Force all the text lower case to make matching faster
-      this.text = new char[literalText.length];
-      for (int i = 0; i < this.len; i++) {
-        this.text[i] = Character.toLowerCase(literalText[i]);
-      }
-    }
+    this.text = new String(literalText);
   }
 
   @Override
@@ -61,28 +52,23 @@ class LiteralPathElement extends PathElement {
       return false;
     }
     Element element = matchingContext.pathElements.get(pathIndex);
-    if (!(element instanceof PathContainer.PathSegment)) {
+    if (!(element instanceof PathSegment pathSegment)) {
       return false;
     }
-    String value = ((PathSegment) element).valueToMatch();
+    String value = pathSegment.valueToMatch();
     if (value.length() != this.len) {
       // Not enough data to match this path element
       return false;
     }
 
     if (this.caseSensitive) {
-      for (int i = 0; i < this.len; i++) {
-        if (value.charAt(i) != this.text[i]) {
-          return false;
-        }
+      if (!this.text.equals(value)) {
+        return false;
       }
     }
     else {
-      for (int i = 0; i < this.len; i++) {
-        // TODO revisit performance if doing a lot of case insensitive matching
-        if (Character.toLowerCase(value.charAt(i)) != this.text[i]) {
-          return false;
-        }
+      if (!this.text.equalsIgnoreCase(value)) {
+        return false;
       }
     }
 
@@ -115,7 +101,7 @@ class LiteralPathElement extends PathElement {
 
   @Override
   public char[] getChars() {
-    return this.text;
+    return this.text.toCharArray();
   }
 
   @Override
@@ -125,7 +111,7 @@ class LiteralPathElement extends PathElement {
 
   @Override
   public String toString() {
-    return "Literal(" + String.valueOf(this.text) + ")";
+    return "Literal(" + this.text + ")";
   }
 
 }
