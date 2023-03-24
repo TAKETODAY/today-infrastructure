@@ -434,7 +434,7 @@ public abstract class SharedEntityManagerCreator {
                   entry.setValue(storedProc.getOutputParameterValue(key.toString()));
                 }
               }
-              catch (IllegalArgumentException ex) {
+              catch (RuntimeException ex) {
                 entry.setValue(ex);
               }
             }
