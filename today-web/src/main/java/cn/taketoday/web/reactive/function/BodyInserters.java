@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -381,8 +381,8 @@ public abstract class BodyInserters {
           M outputMessage, BodyInserter.Context context, Object body, ResolvableType bodyType, @Nullable ReactiveAdapter adapter) {
 
     Publisher<?> publisher;
-    if (body instanceof Publisher) {
-      publisher = (Publisher<?>) body;
+    if (body instanceof Publisher<?> publisherBody) {
+      publisher = publisherBody;
     }
     else if (adapter != null) {
       publisher = adapter.toPublisher(body);
@@ -391,12 +391,13 @@ public abstract class BodyInserters {
       publisher = Mono.just(body);
     }
     MediaType mediaType = outputMessage.getHeaders().getContentType();
-    return context.messageWriters().stream()
-            .filter(messageWriter -> messageWriter.canWrite(bodyType, mediaType))
-            .findFirst()
-            .map(BodyInserters::cast)
-            .map(writer -> write(publisher, bodyType, mediaType, outputMessage, context, writer))
-            .orElseGet(() -> Mono.error(unsupportedError(bodyType, context, mediaType)));
+    for (HttpMessageWriter<?> messageWriter : context.messageWriters()) {
+      if (messageWriter.canWrite(bodyType, mediaType)) {
+        return write(publisher, bodyType, mediaType, outputMessage, context, cast(messageWriter));
+      }
+    }
+
+    return Mono.error(unsupportedError(bodyType, context, mediaType));
   }
 
   private static UnsupportedMediaTypeException unsupportedError(ResolvableType bodyType,
@@ -424,12 +425,13 @@ public abstract class BodyInserters {
   private static <T> HttpMessageWriter<T> findWriter(
           BodyInserter.Context context, ResolvableType elementType, @Nullable MediaType mediaType) {
 
-    return context.messageWriters().stream()
-            .filter(messageWriter -> messageWriter.canWrite(elementType, mediaType))
-            .findFirst()
-            .map(BodyInserters::<T>cast)
-            .orElseThrow(() -> new IllegalStateException(
-                    "No HttpMessageWriter for \"" + mediaType + "\" and \"" + elementType + "\""));
+    for (HttpMessageWriter<?> messageWriter : context.messageWriters()) {
+      if (messageWriter.canWrite(elementType, mediaType)) {
+        return cast(messageWriter);
+      }
+    }
+    throw new IllegalStateException(
+            "No HttpMessageWriter for \"" + mediaType + "\" and \"" + elementType + "\"");
   }
 
   @SuppressWarnings("unchecked")
