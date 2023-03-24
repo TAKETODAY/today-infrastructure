@@ -20,7 +20,6 @@
 
 package cn.taketoday.expression.spel.ast;
 
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -53,15 +52,6 @@ public class OperatorMatches extends Operator {
   private static final int MAX_REGEX_LENGTH = 256;
 
   private final ConcurrentMap<String, Pattern> patternCache;
-
-  /**
-   * Create a new {@link OperatorMatches} instance.
-   *
-   * with a shared pattern cache instead
-   */
-  public OperatorMatches(int startPos, int endPos, SpelNodeImpl... operands) {
-    this(new ConcurrentHashMap<>(), startPos, endPos, operands);
-  }
 
   /**
    * Create a new {@link OperatorMatches} instance with a shared pattern cache.
