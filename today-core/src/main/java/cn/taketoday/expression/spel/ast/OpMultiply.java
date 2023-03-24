@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -24,11 +24,13 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 
 import cn.taketoday.bytecode.MethodVisitor;
+import cn.taketoday.bytecode.core.CodeFlow;
 import cn.taketoday.expression.EvaluationException;
 import cn.taketoday.expression.Operation;
 import cn.taketoday.expression.TypedValue;
-import cn.taketoday.bytecode.core.CodeFlow;
 import cn.taketoday.expression.spel.ExpressionState;
+import cn.taketoday.expression.spel.SpelEvaluationException;
+import cn.taketoday.expression.spel.SpelMessage;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.util.NumberUtils;
 
@@ -55,6 +57,11 @@ import cn.taketoday.util.NumberUtils;
  * @since 4.0
  */
 public class OpMultiply extends Operator {
+
+  /**
+   * Maximum number of characters permitted in repeated text.
+   */
+  private static final int MAX_REPEATED_TEXT_SIZE = 256;
 
   public OpMultiply(int startPos, int endPos, SpelNodeImpl... operands) {
     super("*", startPos, endPos, operands);
@@ -108,11 +115,19 @@ public class OpMultiply extends Operator {
       }
     }
 
-    if (leftOperand instanceof String text && rightOperand instanceof Integer repeats) {
-      return new TypedValue(text.repeat(repeats));
+    if (leftOperand instanceof String text && rightOperand instanceof Integer count) {
+      checkRepeatedTextSize(text, count);
+      return new TypedValue(text.repeat(count));
     }
 
     return state.operate(Operation.MULTIPLY, leftOperand, rightOperand);
+  }
+
+  private void checkRepeatedTextSize(String text, int count) {
+    if (text.length() * count > MAX_REPEATED_TEXT_SIZE) {
+      throw new SpelEvaluationException(getStartPosition(),
+              SpelMessage.MAX_REPEATED_TEXT_SIZE_EXCEEDED, MAX_REPEATED_TEXT_SIZE);
+    }
   }
 
   @Override

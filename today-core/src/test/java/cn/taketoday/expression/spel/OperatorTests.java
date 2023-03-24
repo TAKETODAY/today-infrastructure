@@ -25,9 +25,11 @@ import org.junit.jupiter.api.Test;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
+import cn.taketoday.expression.Expression;
 import cn.taketoday.expression.spel.ast.Operator;
 import cn.taketoday.expression.spel.standard.SpelExpression;
 
+import static cn.taketoday.expression.spel.SpelMessage.MAX_REPEATED_TEXT_SIZE_EXCEEDED;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
@@ -40,7 +42,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 class OperatorTests extends AbstractExpressionTests {
 
   @Test
-  void testEqual() {
+  void equal() {
     evaluate("3 == 5", false, Boolean.class);
     evaluate("5 == 3", false, Boolean.class);
     evaluate("6 == 6", true, Boolean.class);
@@ -62,9 +64,9 @@ class OperatorTests extends AbstractExpressionTests {
     evaluate("'abc' == new java.lang.StringBuilder('abc')", true, Boolean.class);
     evaluate("'abc' == 'def'", false, Boolean.class);
     evaluate("'abc' == null", false, Boolean.class);
-    evaluate("new cn.taketoday.expression.spel.OperatorTests$SubComparable(0) == new cn.taketoday.expression.spel.OperatorTests$OtherSubComparable(0)", true, Boolean.class);
-    evaluate("new cn.taketoday.expression.spel.OperatorTests$SubComparable(1) < new cn.taketoday.expression.spel.OperatorTests$OtherSubComparable(2)", true, Boolean.class);
-    evaluate("new cn.taketoday.expression.spel.OperatorTests$SubComparable(2) > new cn.taketoday.expression.spel.OperatorTests$OtherSubComparable(1)", true, Boolean.class);
+    evaluate("new org.springframework.expression.spel.OperatorTests$SubComparable(0) == new org.springframework.expression.spel.OperatorTests$OtherSubComparable(0)", true, Boolean.class);
+    evaluate("new org.springframework.expression.spel.OperatorTests$SubComparable(1) < new org.springframework.expression.spel.OperatorTests$OtherSubComparable(2)", true, Boolean.class);
+    evaluate("new org.springframework.expression.spel.OperatorTests$SubComparable(2) > new org.springframework.expression.spel.OperatorTests$OtherSubComparable(1)", true, Boolean.class);
 
     evaluate("3 eq 5", false, Boolean.class);
     evaluate("5 eQ 3", false, Boolean.class);
@@ -87,11 +89,11 @@ class OperatorTests extends AbstractExpressionTests {
     evaluate("'abc' eq new java.lang.StringBuilder('abc')", true, Boolean.class);
     evaluate("'abc' eq 'def'", false, Boolean.class);
     evaluate("'abc' eq null", false, Boolean.class);
-    evaluate("new cn.taketoday.expression.spel.OperatorTests$SubComparable() eq new cn.taketoday.expression.spel.OperatorTests$OtherSubComparable()", true, Boolean.class);
+    evaluate("new org.springframework.expression.spel.OperatorTests$SubComparable() eq new org.springframework.expression.spel.OperatorTests$OtherSubComparable()", true, Boolean.class);
   }
 
   @Test
-  void testNotEqual() {
+  void notEqual() {
     evaluate("3 != 5", true, Boolean.class);
     evaluate("5 != 3", true, Boolean.class);
     evaluate("6 != 6", false, Boolean.class);
@@ -113,7 +115,7 @@ class OperatorTests extends AbstractExpressionTests {
     evaluate("'abc' != new java.lang.StringBuilder('abc')", false, Boolean.class);
     evaluate("'abc' != 'def'", true, Boolean.class);
     evaluate("'abc' != null", true, Boolean.class);
-    evaluate("new cn.taketoday.expression.spel.OperatorTests$SubComparable() != new cn.taketoday.expression.spel.OperatorTests$OtherSubComparable()", false, Boolean.class);
+    evaluate("new org.springframework.expression.spel.OperatorTests$SubComparable() != new org.springframework.expression.spel.OperatorTests$OtherSubComparable()", false, Boolean.class);
 
     evaluate("3 ne 5", true, Boolean.class);
     evaluate("5 nE 3", true, Boolean.class);
@@ -136,11 +138,11 @@ class OperatorTests extends AbstractExpressionTests {
     evaluate("'abc' ne new java.lang.StringBuilder('abc')", false, Boolean.class);
     evaluate("'abc' ne 'def'", true, Boolean.class);
     evaluate("'abc' ne null", true, Boolean.class);
-    evaluate("new cn.taketoday.expression.spel.OperatorTests$SubComparable() ne new cn.taketoday.expression.spel.OperatorTests$OtherSubComparable()", false, Boolean.class);
+    evaluate("new org.springframework.expression.spel.OperatorTests$SubComparable() ne new org.springframework.expression.spel.OperatorTests$OtherSubComparable()", false, Boolean.class);
   }
 
   @Test
-  void testLessThan() {
+  void lessThan() {
     evaluate("5 < 5", false, Boolean.class);
     evaluate("3 < 5", true, Boolean.class);
     evaluate("5 < 3", false, Boolean.class);
@@ -182,7 +184,7 @@ class OperatorTests extends AbstractExpressionTests {
   }
 
   @Test
-  void testLessThanOrEqual() {
+  void lessThanOrEqual() {
     evaluate("3 <= 5", true, Boolean.class);
     evaluate("5 <= 3", false, Boolean.class);
     evaluate("6 <= 6", true, Boolean.class);
@@ -231,7 +233,7 @@ class OperatorTests extends AbstractExpressionTests {
   }
 
   @Test
-  void testGreaterThan() {
+  void greaterThan() {
     evaluate("3 > 5", false, Boolean.class);
     evaluate("5 > 3", true, Boolean.class);
     evaluate("3L > 5L", false, Boolean.class);
@@ -272,7 +274,7 @@ class OperatorTests extends AbstractExpressionTests {
   }
 
   @Test
-  void testGreaterThanOrEqual() {
+  void greaterThanOrEqual() {
     evaluate("3 >= 5", false, Boolean.class);
     evaluate("5 >= 3", true, Boolean.class);
     evaluate("6 >= 6", true, Boolean.class);
@@ -321,27 +323,22 @@ class OperatorTests extends AbstractExpressionTests {
   }
 
   @Test
-  void testIntegerLiteral() {
+  void integerLiteral() {
     evaluate("3", 3, Integer.class);
   }
 
   @Test
-  void testRealLiteral() {
+  void realLiteral() {
     evaluate("3.5", 3.5d, Double.class);
   }
 
   @Test
-  void testMultiplyStringInt() {
-    evaluate("'a' * 5", "aaaaa", String.class);
-  }
-
-  @Test
-  void testMultiplyDoubleDoubleGivesDouble() {
+  void multiplyDoubleDoubleGivesDouble() {
     evaluate("3.0d * 5.0d", 15.0d, Double.class);
   }
 
   @Test
-  void testMixedOperandsBigDecimal() {
+  void mixedOperandsBigDecimal() {
     evaluate("3 * new java.math.BigDecimal('5')", new BigDecimal("15"), BigDecimal.class);
     evaluate("3L * new java.math.BigDecimal('5')", new BigDecimal("15"), BigDecimal.class);
     evaluate("3.0d * new java.math.BigDecimal('5')", new BigDecimal("15.0"), BigDecimal.class);
@@ -367,19 +364,19 @@ class OperatorTests extends AbstractExpressionTests {
   }
 
   @Test
-  void testMathOperatorAdd02() {
+  void mathOperatorAdd02() {
     evaluate("'hello' + ' ' + 'world'", "hello world", String.class);
   }
 
   @Test
-  void testMathOperatorsInChains() {
+  void mathOperatorsInChains() {
     evaluate("1+2+3", 6, Integer.class);
     evaluate("2*3*4", 24, Integer.class);
     evaluate("12-1-2", 9, Integer.class);
   }
 
   @Test
-  void testIntegerArithmetic() {
+  void integerArithmetic() {
     evaluate("2 + 4", "6", Integer.class);
     evaluate("5 - 4", "1", Integer.class);
     evaluate("3 * 5", 15, Integer.class);
@@ -394,7 +391,7 @@ class OperatorTests extends AbstractExpressionTests {
   }
 
   @Test
-  void testPlus() {
+  void plus() {
     evaluate("7 + 2", "9", Integer.class);
     evaluate("3.0f + 5.0f", 8.0f, Float.class);
     evaluate("3.0d + 5.0d", 8.0d, Double.class);
@@ -425,7 +422,7 @@ class OperatorTests extends AbstractExpressionTests {
   }
 
   @Test
-  void testMinus() {
+  void minus() {
     evaluate("'c' - 2", "a", String.class);
     evaluate("3.0f - 5.0f", -2.0f, Float.class);
     evaluateAndCheckError("'ab' - 2", SpelMessage.OPERATOR_NOT_SUPPORTED_BETWEEN_TYPES);
@@ -443,7 +440,7 @@ class OperatorTests extends AbstractExpressionTests {
   }
 
   @Test
-  void testModulus() {
+  void modulus() {
     evaluate("3%2", 1, Integer.class);
     evaluate("3L%2L", 1L, Long.class);
     evaluate("3.0f%2.0f", 1f, Float.class);
@@ -454,7 +451,7 @@ class OperatorTests extends AbstractExpressionTests {
   }
 
   @Test
-  void testDivide() {
+  void divide() {
     evaluate("3.0f / 5.0f", 0.6f, Float.class);
     evaluate("4L/2L", 2L, Long.class);
     evaluate("3.0f div 5.0f", 0.6f, Float.class);
@@ -467,17 +464,17 @@ class OperatorTests extends AbstractExpressionTests {
   }
 
   @Test
-  void testMathOperatorDivide_ConvertToDouble() {
+  void mathOperatorDivide_ConvertToDouble() {
     evaluateAndAskForReturnType("8/4", 2.0, Double.class);
   }
 
   @Test
-  void testMathOperatorDivide04_ConvertToFloat() {
+  void mathOperatorDivide04_ConvertToFloat() {
     evaluateAndAskForReturnType("8/4", 2.0F, Float.class);
   }
 
   @Test
-  void testDoubles() {
+  void doubles() {
     evaluate("3.0d == 5.0d", false, Boolean.class);
     evaluate("3.0d == 3.0d", true, Boolean.class);
     evaluate("3.0d != 5.0d", true, Boolean.class);
@@ -490,7 +487,7 @@ class OperatorTests extends AbstractExpressionTests {
   }
 
   @Test
-  void testBigDecimals() {
+  void bigDecimals() {
     evaluate("3 + new java.math.BigDecimal('5')", new BigDecimal("8"), BigDecimal.class);
     evaluate("3 - new java.math.BigDecimal('5')", new BigDecimal("-2"), BigDecimal.class);
     evaluate("3 * new java.math.BigDecimal('5')", new BigDecimal("15"), BigDecimal.class);
@@ -501,7 +498,7 @@ class OperatorTests extends AbstractExpressionTests {
   }
 
   @Test
-  void testOperatorNames() {
+  void operatorNames() {
     Operator node = getOperatorNode((SpelExpression) parser.parseExpression("1==3"));
     assertThat(node.getOperatorName()).isEqualTo("==");
 
@@ -540,13 +537,13 @@ class OperatorTests extends AbstractExpressionTests {
   }
 
   @Test
-  void testOperatorOverloading() {
+  void operatorOverloading() {
     evaluateAndCheckError("'a' * '2'", SpelMessage.OPERATOR_NOT_SUPPORTED_BETWEEN_TYPES);
     evaluateAndCheckError("'a' ^ '2'", SpelMessage.OPERATOR_NOT_SUPPORTED_BETWEEN_TYPES);
   }
 
   @Test
-  void testPower() {
+  void power() {
     evaluate("3^2", 9, Integer.class);
     evaluate("3.0d^2.0d", 9.0d, Double.class);
     evaluate("3L^2L", 9L, Long.class);
@@ -555,7 +552,7 @@ class OperatorTests extends AbstractExpressionTests {
   }
 
   @Test
-  void testMixedOperands_FloatsAndDoubles() {
+  void mixedOperands_FloatsAndDoubles() {
     evaluate("3.0d + 5.0f", 8.0d, Double.class);
     evaluate("3.0D - 5.0f", -2.0d, Double.class);
     evaluate("3.0f * 5.0d", 15.0d, Double.class);
@@ -564,7 +561,7 @@ class OperatorTests extends AbstractExpressionTests {
   }
 
   @Test
-  void testMixedOperands_DoublesAndInts() {
+  void mixedOperands_DoublesAndInts() {
     evaluate("3.0d + 5", 8.0d, Double.class);
     evaluate("3.0D - 5", -2.0d, Double.class);
     evaluate("3.0f * 5", 15.0f, Float.class);
@@ -575,7 +572,7 @@ class OperatorTests extends AbstractExpressionTests {
   }
 
   @Test
-  void testStrings() {
+  void strings() {
     evaluate("'abc' == 'abc'", true, Boolean.class);
     evaluate("'abc' == 'def'", false, Boolean.class);
     evaluate("'abc' != 'abc'", false, Boolean.class);
@@ -583,7 +580,20 @@ class OperatorTests extends AbstractExpressionTests {
   }
 
   @Test
-  void testLongs() {
+  void stringRepeat() {
+    evaluate("'abc' * 0", "", String.class);
+    evaluate("'abc' * 1", "abc", String.class);
+    evaluate("'abc' * 2", "abcabc", String.class);
+
+    Expression expr = parser.parseExpression("'a' * 256");
+    assertThat(expr.getValue(context, String.class)).hasSize(256);
+
+    // 4 is the position of the '*' (repeat operator)
+    evaluateAndCheckError("'a' * 257", String.class, MAX_REPEATED_TEXT_SIZE_EXCEEDED, 4);
+  }
+
+  @Test
+  void longs() {
     evaluate("3L == 4L", false, Boolean.class);
     evaluate("3L == 3L", true, Boolean.class);
     evaluate("3L != 4L", true, Boolean.class);
@@ -594,7 +604,7 @@ class OperatorTests extends AbstractExpressionTests {
   }
 
   @Test
-  void testBigIntegers() {
+  void bigIntegers() {
     evaluate("3 + new java.math.BigInteger('5')", new BigInteger("8"), BigInteger.class);
     evaluate("3 - new java.math.BigInteger('5')", new BigInteger("-2"), BigInteger.class);
     evaluate("3 * new java.math.BigInteger('5')", new BigInteger("15"), BigInteger.class);
@@ -610,8 +620,8 @@ class OperatorTests extends AbstractExpressionTests {
   }
 
   private Operator findOperator(SpelNode node) {
-    if (node instanceof Operator) {
-      return (Operator) node;
+    if (node instanceof Operator operator) {
+      return operator;
     }
     int childCount = node.getChildCount();
     for (int i = 0; i < childCount; i++) {
@@ -623,9 +633,9 @@ class OperatorTests extends AbstractExpressionTests {
     return null;
   }
 
-  public static class BaseComparable implements Comparable<BaseComparable> {
+  static class BaseComparable implements Comparable<BaseComparable> {
 
-    private final int id;
+    private int id;
 
     public BaseComparable() {
       this.id = 0;
@@ -641,7 +651,7 @@ class OperatorTests extends AbstractExpressionTests {
     }
   }
 
-  public static class SubComparable extends BaseComparable {
+  static class SubComparable extends BaseComparable {
     public SubComparable() {
     }
 
@@ -650,7 +660,7 @@ class OperatorTests extends AbstractExpressionTests {
     }
   }
 
-  public static class OtherSubComparable extends BaseComparable {
+  static class OtherSubComparable extends BaseComparable {
     public OtherSubComparable() {
     }
 
