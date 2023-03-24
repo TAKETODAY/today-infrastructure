@@ -70,7 +70,11 @@ class ParameterizableViewControllerTests {
   }
 
   private ModelAndView handleRequest() throws Exception {
-    return (ModelAndView) this.controller.handleRequest(context);
+    Object result = this.controller.handleRequest(context);
+    if (result instanceof ModelAndView modelAndView) {
+      return modelAndView;
+    }
+    return null;
   }
 
   @Test
@@ -97,7 +101,6 @@ class ParameterizableViewControllerTests {
     assertThat(mav).isNull();
     assertThat(response.getHeader("Allow")).isEqualTo("GET,HEAD,OPTIONS");
   }
-//
 
   @Test
   public void defaultViewName() throws Exception {
@@ -167,4 +170,5 @@ class ParameterizableViewControllerTests {
     assertThat(modelAndView).isNull();
     assertThat(this.response.getStatus()).isEqualTo(404);
   }
+
 }
