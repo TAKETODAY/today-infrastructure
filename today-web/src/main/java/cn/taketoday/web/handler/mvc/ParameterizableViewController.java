@@ -203,7 +203,7 @@ public class ParameterizableViewController extends AbstractController {
     }
 
     Object result = getReturnValue();
-    if (viewName == null && !(result instanceof View)) {
+    if (viewName == null && !(result instanceof View) && result != null) {
       return result;
     }
 
