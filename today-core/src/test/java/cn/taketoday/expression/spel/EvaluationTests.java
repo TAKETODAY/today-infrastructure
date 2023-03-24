@@ -74,14 +74,14 @@ class EvaluationTests extends AbstractExpressionTests {
       assertThat(o).isEqualTo("");
       o = parser.parseExpression("list[3]").getValue(new StandardEvaluationContext(testClass));
       assertThat(o).isEqualTo("");
-      assertThat(testClass.list.size()).isEqualTo(4);
+      assertThat(testClass.list).hasSize(4);
 
       assertThatExceptionOfType(EvaluationException.class).isThrownBy(() ->
               parser.parseExpression("list2[3]").getValue(new StandardEvaluationContext(testClass)));
 
       o = parser.parseExpression("foo[3]").getValue(new StandardEvaluationContext(testClass));
       assertThat(o).isEqualTo("");
-      assertThat(testClass.getFoo().size()).isEqualTo(4);
+      assertThat(testClass.getFoo()).hasSize(4);
     }
 
     @Test
@@ -129,18 +129,6 @@ class EvaluationTests extends AbstractExpressionTests {
     @Test
     void safeNavigation() {
       evaluate("null?.null?.null", null, null);
-    }
-
-    @Test
-      // SPR-16731
-    void matchesWithPatternAccessThreshold() {
-      String pattern = "^(?=[a-z0-9-]{1,47})([a-z0-9]+[-]{0,1}){1,47}[a-z0-9]{1}$";
-      String expression = "'abcde-fghijklmn-o42pasdfasdfasdf.qrstuvwxyz10x.xx.yyy.zasdfasfd' matches '" + pattern + "'";
-      Expression expr = parser.parseExpression(expression);
-      assertThatExceptionOfType(SpelEvaluationException.class)
-              .isThrownBy(expr::getValue)
-              .withCauseInstanceOf(IllegalStateException.class)
-              .satisfies(ex -> assertThat(ex.getMessageCode()).isEqualTo(SpelMessage.FLAWED_PATTERN));
     }
 
     // mixing operators
@@ -191,7 +179,7 @@ class EvaluationTests extends AbstractExpressionTests {
 
     @Test
     void indexerError() {
-      evaluateAndCheckError("new cn.taketoday.expression.spel.testresources.Inventor().inventions[1]",
+      evaluateAndCheckError("new org.springframework.expression.spel.testresources.Inventor().inventions[1]",
               SpelMessage.CANNOT_INDEX_INTO_NULL_VALUE);
     }
 
@@ -324,7 +312,7 @@ class EvaluationTests extends AbstractExpressionTests {
       ExpressionParser parser = new SpelExpressionParser(new SpelParserConfiguration(true, true));
       Expression e = parser.parseExpression("listOfStrings[++index3]='def'");
       e.getValue(ctx);
-      assertThat(instance.listOfStrings.size()).isEqualTo(2);
+      assertThat(instance.listOfStrings).hasSize(2);
       assertThat(instance.listOfStrings.get(1)).isEqualTo("def");
 
       // Check reference beyond end of collection
@@ -356,14 +344,14 @@ class EvaluationTests extends AbstractExpressionTests {
       SpelExpressionParser parser = new SpelExpressionParser(new SpelParserConfiguration(true, true, 3));
       Expression e = parser.parseExpression("foo[2]");
       e.setValue(ctx, "2");
-      assertThat(instance.getFoo().size()).isEqualTo(3);
+      assertThat(instance.getFoo()).hasSize(3);
       e = parser.parseExpression("foo[3]");
       try {
         e.setValue(ctx, "3");
       }
       catch (SpelEvaluationException see) {
         assertThat(see.getMessageCode()).isEqualTo(SpelMessage.UNABLE_TO_GROW_COLLECTION);
-        assertThat(instance.getFoo().size()).isEqualTo(3);
+        assertThat(instance.getFoo()).hasSize(3);
       }
     }
 
@@ -467,28 +455,50 @@ class EvaluationTests extends AbstractExpressionTests {
     }
 
     @Test
-    void relOperatorsMatches01() {
-      evaluate("'5.0067' matches '^-?\\d+(\\.\\d{2})?$'", "false", Boolean.class);
-    }
-
-    @Test
-    void relOperatorsMatches02() {
+    void matchesTrue() {
       evaluate("'5.00' matches '^-?\\d+(\\.\\d{2})?$'", "true", Boolean.class);
     }
 
     @Test
-    void relOperatorsMatches03() {
+    void matchesFalse() {
+      evaluate("'5.0067' matches '^-?\\d+(\\.\\d{2})?$'", "false", Boolean.class);
+    }
+
+    @Test
+    void matchesWithInputConversion() {
+      evaluate("27 matches '^.*2.*$'", true, Boolean.class);  // conversion int --> string
+    }
+
+    @Test
+    void matchesWithNullInput() {
       evaluateAndCheckError("null matches '^.*$'", SpelMessage.INVALID_FIRST_OPERAND_FOR_MATCHES_OPERATOR, 0, null);
     }
 
     @Test
-    void relOperatorsMatches04() {
+    void matchesWithNullPattern() {
       evaluateAndCheckError("'abc' matches null", SpelMessage.INVALID_SECOND_OPERAND_FOR_MATCHES_OPERATOR, 14, null);
     }
 
     @Test
-    void relOperatorsMatches05() {
-      evaluate("27 matches '^.*2.*$'", true, Boolean.class);  // conversion int>string
+      // SPR-16731
+    void matchesWithPatternAccessThreshold() {
+      String pattern = "^(?=[a-z0-9-]{1,47})([a-z0-9]+[-]{0,1}){1,47}[a-z0-9]{1}$";
+      String expression = "'abcde-fghijklmn-o42pasdfasdfasdf.qrstuvwxyz10x.xx.yyy.zasdfasfd' matches '" + pattern + "'";
+      evaluateAndCheckError(expression, SpelMessage.FLAWED_PATTERN);
+    }
+
+    @Test
+    void matchesWithPatternLengthThreshold() {
+      String pattern = "(0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789" +
+              "0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789" +
+              "01234567890123456789012345678901234567890123456789|abc)";
+      assertThat(pattern).hasSize(256);
+      Expression expr = parser.parseExpression("'abc' matches '" + pattern + "'");
+      assertThat(expr.getValue(context, Boolean.class)).isTrue();
+
+      pattern += "?";
+      assertThat(pattern).hasSize(257);
+      evaluateAndCheckError("'abc' matches '" + pattern + "'", Boolean.class, SpelMessage.MAX_REGEX_LENGTH_EXCEEDED);
     }
 
   }
@@ -501,7 +511,7 @@ class EvaluationTests extends AbstractExpressionTests {
       evaluate("name", "Nikola Tesla", String.class, false);
       // not writable because (1) name is private (2) there is no setter, only a getter
       evaluateAndCheckError("madeup", SpelMessage.PROPERTY_OR_FIELD_NOT_READABLE, 0, "madeup",
-              "cn.taketoday.expression.spel.testresources.Inventor");
+              "org.springframework.expression.spel.testresources.Inventor");
     }
 
     @Test
@@ -718,7 +728,7 @@ class EvaluationTests extends AbstractExpressionTests {
 
     @Test
     void ctorCallWithRootReferenceThroughParameter() {
-      evaluate("new cn.taketoday.expression.spel.testresources.PlaceOfBirth(inventions[0].toString()).city",
+      evaluate("new org.springframework.expression.spel.testresources.PlaceOfBirth(inventions[0].toString()).city",
               "Telephone repeater", String.class);
     }
 

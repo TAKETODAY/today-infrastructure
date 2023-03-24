@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -25,6 +25,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Deque;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.regex.Pattern;
 
 import cn.taketoday.expression.ParseException;
@@ -97,6 +99,9 @@ final class InternalSpelExpressionParser extends TemplateAwareExpressionParser {
 
   // For rules that build nodes, they are stacked here for return
   private final Deque<SpelNodeImpl> constructedNodes = new ArrayDeque<>();
+
+  // Shared cache for compiled regex patterns
+  private final ConcurrentMap<String, Pattern> patternCache = new ConcurrentHashMap<>();
 
   // The expression being parsed
   private String expressionString = "";
@@ -250,7 +255,7 @@ final class InternalSpelExpressionParser extends TemplateAwareExpressionParser {
       }
 
       if (tk == TokenKind.MATCHES) {
-        return new OperatorMatches(t.startPos, t.endPos, expr, rhExpr);
+        return new OperatorMatches(patternCache, t.startPos, t.endPos, expr, rhExpr);
       }
 
       Assert.isTrue(tk == TokenKind.BETWEEN, "Between token expected");
