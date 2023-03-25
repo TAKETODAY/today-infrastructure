@@ -179,7 +179,7 @@ class EvaluationTests extends AbstractExpressionTests {
 
     @Test
     void indexerError() {
-      evaluateAndCheckError("new org.springframework.expression.spel.testresources.Inventor().inventions[1]",
+      evaluateAndCheckError("new cn.taketoday.expression.spel.testresources.Inventor().inventions[1]",
               SpelMessage.CANNOT_INDEX_INTO_NULL_VALUE);
     }
 
@@ -511,7 +511,7 @@ class EvaluationTests extends AbstractExpressionTests {
       evaluate("name", "Nikola Tesla", String.class, false);
       // not writable because (1) name is private (2) there is no setter, only a getter
       evaluateAndCheckError("madeup", SpelMessage.PROPERTY_OR_FIELD_NOT_READABLE, 0, "madeup",
-              "org.springframework.expression.spel.testresources.Inventor");
+              "cn.taketoday.expression.spel.testresources.Inventor");
     }
 
     @Test
@@ -728,7 +728,7 @@ class EvaluationTests extends AbstractExpressionTests {
 
     @Test
     void ctorCallWithRootReferenceThroughParameter() {
-      evaluate("new org.springframework.expression.spel.testresources.PlaceOfBirth(inventions[0].toString()).city",
+      evaluate("new cn.taketoday.expression.spel.testresources.PlaceOfBirth(inventions[0].toString()).city",
               "Telephone repeater", String.class);
     }
 

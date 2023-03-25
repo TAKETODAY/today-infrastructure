@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -64,9 +64,9 @@ class OperatorTests extends AbstractExpressionTests {
     evaluate("'abc' == new java.lang.StringBuilder('abc')", true, Boolean.class);
     evaluate("'abc' == 'def'", false, Boolean.class);
     evaluate("'abc' == null", false, Boolean.class);
-    evaluate("new org.springframework.expression.spel.OperatorTests$SubComparable(0) == new org.springframework.expression.spel.OperatorTests$OtherSubComparable(0)", true, Boolean.class);
-    evaluate("new org.springframework.expression.spel.OperatorTests$SubComparable(1) < new org.springframework.expression.spel.OperatorTests$OtherSubComparable(2)", true, Boolean.class);
-    evaluate("new org.springframework.expression.spel.OperatorTests$SubComparable(2) > new org.springframework.expression.spel.OperatorTests$OtherSubComparable(1)", true, Boolean.class);
+    evaluate("new cn.taketoday.expression.spel.OperatorTests$SubComparable(0) == new cn.taketoday.expression.spel.OperatorTests$OtherSubComparable(0)", true, Boolean.class);
+    evaluate("new cn.taketoday.expression.spel.OperatorTests$SubComparable(1) < new cn.taketoday.expression.spel.OperatorTests$OtherSubComparable(2)", true, Boolean.class);
+    evaluate("new cn.taketoday.expression.spel.OperatorTests$SubComparable(2) > new cn.taketoday.expression.spel.OperatorTests$OtherSubComparable(1)", true, Boolean.class);
 
     evaluate("3 eq 5", false, Boolean.class);
     evaluate("5 eQ 3", false, Boolean.class);
@@ -89,7 +89,7 @@ class OperatorTests extends AbstractExpressionTests {
     evaluate("'abc' eq new java.lang.StringBuilder('abc')", true, Boolean.class);
     evaluate("'abc' eq 'def'", false, Boolean.class);
     evaluate("'abc' eq null", false, Boolean.class);
-    evaluate("new org.springframework.expression.spel.OperatorTests$SubComparable() eq new org.springframework.expression.spel.OperatorTests$OtherSubComparable()", true, Boolean.class);
+    evaluate("new cn.taketoday.expression.spel.OperatorTests$SubComparable() eq new cn.taketoday.expression.spel.OperatorTests$OtherSubComparable()", true, Boolean.class);
   }
 
   @Test
@@ -115,7 +115,7 @@ class OperatorTests extends AbstractExpressionTests {
     evaluate("'abc' != new java.lang.StringBuilder('abc')", false, Boolean.class);
     evaluate("'abc' != 'def'", true, Boolean.class);
     evaluate("'abc' != null", true, Boolean.class);
-    evaluate("new org.springframework.expression.spel.OperatorTests$SubComparable() != new org.springframework.expression.spel.OperatorTests$OtherSubComparable()", false, Boolean.class);
+    evaluate("new cn.taketoday.expression.spel.OperatorTests$SubComparable() != new cn.taketoday.expression.spel.OperatorTests$OtherSubComparable()", false, Boolean.class);
 
     evaluate("3 ne 5", true, Boolean.class);
     evaluate("5 nE 3", true, Boolean.class);
@@ -138,7 +138,7 @@ class OperatorTests extends AbstractExpressionTests {
     evaluate("'abc' ne new java.lang.StringBuilder('abc')", false, Boolean.class);
     evaluate("'abc' ne 'def'", true, Boolean.class);
     evaluate("'abc' ne null", true, Boolean.class);
-    evaluate("new org.springframework.expression.spel.OperatorTests$SubComparable() ne new org.springframework.expression.spel.OperatorTests$OtherSubComparable()", false, Boolean.class);
+    evaluate("new cn.taketoday.expression.spel.OperatorTests$SubComparable() ne new cn.taketoday.expression.spel.OperatorTests$OtherSubComparable()", false, Boolean.class);
   }
 
   @Test
