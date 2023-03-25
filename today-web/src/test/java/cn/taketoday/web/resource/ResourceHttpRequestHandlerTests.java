@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -81,7 +81,7 @@ public class ResourceHttpRequestHandlerTests {
   ServletRequestContext requestContext;
 
   @BeforeEach
-  public void setup() throws Exception {
+  public void setup() throws Throwable {
     List<Resource> locations = List.of(
             this.testResource,
             this.testAlternatePathResource,
@@ -101,7 +101,7 @@ public class ResourceHttpRequestHandlerTests {
   }
 
   @Test
-  public void getResource() throws Exception {
+  public void getResource() throws Throwable {
     request.setRequestURI("foo.css");
     this.handler.handleRequest(requestContext);
 
@@ -116,7 +116,7 @@ public class ResourceHttpRequestHandlerTests {
   }
 
   @Test
-  public void getResourceHttpHeader() throws Exception {
+  public void getResourceHttpHeader() throws Throwable {
     this.request.setMethod("HEAD");
     request.setRequestURI("foo.css");
     this.handler.handleRequest(requestContext);
@@ -133,7 +133,7 @@ public class ResourceHttpRequestHandlerTests {
   }
 
   @Test
-  public void getResourceHttpOptions() throws Exception {
+  public void getResourceHttpOptions() throws Throwable {
     this.request.setMethod("OPTIONS");
     request.setRequestURI("foo.css");
     this.handler.handleRequest(requestContext);
@@ -143,7 +143,7 @@ public class ResourceHttpRequestHandlerTests {
   }
 
   @Test
-  public void getResourceNoCache() throws Exception {
+  public void getResourceNoCache() throws Throwable {
     request.setRequestURI("foo.css");
     this.handler.setCacheSeconds(0);
     this.handler.handleRequest(requestContext);
@@ -156,7 +156,7 @@ public class ResourceHttpRequestHandlerTests {
   }
 
   @Test
-  public void getVersionedResource() throws Exception {
+  public void getVersionedResource() throws Throwable {
     VersionResourceResolver versionResolver = new VersionResourceResolver()
             .addFixedVersionStrategy("versionString", "/**");
     this.handler.setResourceResolvers(Arrays.asList(versionResolver, new PathResourceResolver()));
@@ -184,7 +184,7 @@ public class ResourceHttpRequestHandlerTests {
   }
 
   @Test
-  public void getResourceFromAlternatePath() throws Exception {
+  public void getResourceFromAlternatePath() throws Throwable {
     request.setRequestURI("baz.css");
     this.handler.handleRequest(requestContext);
 
@@ -199,7 +199,7 @@ public class ResourceHttpRequestHandlerTests {
   }
 
   @Test
-  public void getResourceFromSubDirectory() throws Exception {
+  public void getResourceFromSubDirectory() throws Throwable {
     request.setRequestURI("js/foo.js");
     this.handler.handleRequest(requestContext);
 
@@ -208,7 +208,7 @@ public class ResourceHttpRequestHandlerTests {
   }
 
   @Test
-  public void getResourceFromSubDirectoryOfAlternatePath() throws Exception {
+  public void getResourceFromSubDirectoryOfAlternatePath() throws Throwable {
     request.setRequestURI("js/baz.js");
     this.handler.handleRequest(requestContext);
 
@@ -217,7 +217,7 @@ public class ResourceHttpRequestHandlerTests {
   }
 
   @Test  // SPR-13658
-  public void getResourceWithRegisteredMediaType() throws Exception {
+  public void getResourceWithRegisteredMediaType() throws Throwable {
     ContentNegotiationManagerFactoryBean factory = new ContentNegotiationManagerFactoryBean();
     factory.addMediaType("bar", new MediaType("foo", "bar"));
     factory.afterPropertiesSet();
@@ -238,7 +238,7 @@ public class ResourceHttpRequestHandlerTests {
   }
 
   @Test  // SPR-14577
-  public void getMediaTypeWithFavorPathExtensionOff() throws Exception {
+  public void getMediaTypeWithFavorPathExtensionOff() throws Throwable {
     ContentNegotiationManagerFactoryBean factory = new ContentNegotiationManagerFactoryBean();
     factory.afterPropertiesSet();
     ContentNegotiationManager manager = factory.getObject();
@@ -258,7 +258,7 @@ public class ResourceHttpRequestHandlerTests {
   }
 
   @Test  // SPR-14368
-  public void getResourceWithMediaTypeResolvedThroughServletContext() throws Exception {
+  public void getResourceWithMediaTypeResolvedThroughServletContext() throws Throwable {
     MockServletContext servletContext = new MockServletContext() {
       @Override
       public String getMimeType(String filePath) {
@@ -280,7 +280,7 @@ public class ResourceHttpRequestHandlerTests {
   }
 
   @Test  // gh-27538, gh-27624
-  public void filterNonExistingLocations() throws Exception {
+  public void filterNonExistingLocations() throws Throwable {
     List<Resource> inputLocations = Arrays.asList(
             new ClassPathResource("test/", getClass()),
             new ClassPathResource("testalternatepath/", getClass()),
@@ -299,7 +299,7 @@ public class ResourceHttpRequestHandlerTests {
   }
 
   @Test
-  public void testInvalidPath() throws Exception {
+  public void testInvalidPath() throws Throwable {
     // Use mock ResourceResolver: i.e. we're only testing upfront validations...
 
     Resource resource = mock(Resource.class);
@@ -332,7 +332,7 @@ public class ResourceHttpRequestHandlerTests {
     testInvalidPath("%2F%2F%2E%2E%2F%2F%2E%2E" + secretPath, handler);
   }
 
-  private void testInvalidPath(String requestPath, ResourceHttpRequestHandler handler) throws Exception {
+  private void testInvalidPath(String requestPath, ResourceHttpRequestHandler handler) throws Throwable {
     request.setRequestURI(requestPath);
     this.response = new MockHttpServletResponse();
     requestContext = new ServletRequestContext(null, request, response);
@@ -343,7 +343,7 @@ public class ResourceHttpRequestHandlerTests {
 
   @Test
   @DisabledOnOs(OS.WINDOWS)
-  public void resolvePathWithTraversal() throws Exception {
+  public void resolvePathWithTraversal() throws Throwable {
     for (HttpMethod method : HttpMethod.values()) {
       this.request = new MockHttpServletRequest("GET", "");
       this.response = new MockHttpServletResponse();
@@ -353,7 +353,7 @@ public class ResourceHttpRequestHandlerTests {
     }
   }
 
-  private void testResolvePathWithTraversal(HttpMethod httpMethod) throws Exception {
+  private void testResolvePathWithTraversal(HttpMethod httpMethod) throws Throwable {
     this.request.setMethod(httpMethod.name());
 
     Resource location = new ClassPathResource("test/", getClass());
@@ -379,7 +379,7 @@ public class ResourceHttpRequestHandlerTests {
     testResolvePathWithTraversal(location, "/  " + secretPath);
   }
 
-  private void testResolvePathWithTraversal(Resource location, String requestPath) throws Exception {
+  private void testResolvePathWithTraversal(Resource location, String requestPath) throws Throwable {
     request.setRequestURI(requestPath);
     this.response = new MockHttpServletResponse();
     requestContext = new ServletRequestContext(null, request, response);
@@ -392,7 +392,7 @@ public class ResourceHttpRequestHandlerTests {
   }
 
 //  @Test
-//  public void ignoreInvalidEscapeSequence() throws Exception {
+//  public void ignoreInvalidEscapeSequence() throws Throwable {
 //    request.setRequestURI("/%foo%/bar.txt");
 //    this.response = new MockHttpServletResponse();
 //    requestContext = new ServletRequestContext(null, request, response);
@@ -447,7 +447,7 @@ public class ResourceHttpRequestHandlerTests {
   }
 
   @Test
-  public void initAllowedLocationsWithExplicitConfiguration() throws Exception {
+  public void initAllowedLocationsWithExplicitConfiguration() throws Throwable {
     ClassPathResource location1 = new ClassPathResource("test/", getClass());
     ClassPathResource location2 = new ClassPathResource("testalternatepath/", getClass());
 
@@ -464,7 +464,7 @@ public class ResourceHttpRequestHandlerTests {
   }
 
   @Test
-  public void notModified() throws Exception {
+  public void notModified() throws Throwable {
     request.setRequestURI("foo.css");
     this.request.addHeader("If-Modified-Since", resourceLastModified("test/foo.css"));
     requestContext = new ServletRequestContext(null, request, response);
@@ -474,7 +474,7 @@ public class ResourceHttpRequestHandlerTests {
   }
 
   @Test
-  public void modified() throws Exception {
+  public void modified() throws Throwable {
     request.setRequestURI("foo.css");
     this.request.addHeader("If-Modified-Since", resourceLastModified("test/foo.css") / 1000 * 1000 - 1);
     this.handler.handleRequest(requestContext);
@@ -483,28 +483,28 @@ public class ResourceHttpRequestHandlerTests {
   }
 
   @Test
-  public void directory() throws Exception {
+  public void directory() throws Throwable {
     request.setRequestURI("js/");
     this.handler.handleRequest(requestContext);
     assertThat(this.response.getStatus()).isEqualTo(404);
   }
 
   @Test
-  public void directoryInJarFile() throws Exception {
+  public void directoryInJarFile() throws Throwable {
     request.setRequestURI("underscorejs/");
     this.handler.handleRequest(requestContext);
     assertThat(this.response.getStatus()).isEqualTo(404);
   }
 
   @Test
-  public void missingResourcePath() throws Exception {
+  public void missingResourcePath() throws Throwable {
     request.setRequestURI("");
     this.handler.handleRequest(requestContext);
     assertThat(this.response.getStatus()).isEqualTo(404);
   }
 
   @Test
-  public void unsupportedHttpMethod() throws Exception {
+  public void unsupportedHttpMethod() throws Throwable {
     request.setRequestURI("foo.css");
     this.request.setMethod("POST");
     assertThatExceptionOfType(HttpRequestMethodNotSupportedException.class).isThrownBy(() ->
@@ -512,7 +512,7 @@ public class ResourceHttpRequestHandlerTests {
   }
 
   @Test
-  public void resourceNotFound() throws Exception {
+  public void resourceNotFound() throws Throwable {
     for (HttpMethod method : HttpMethod.values()) {
       this.request = new MockHttpServletRequest("GET", "");
       this.response = new MockHttpServletResponse();
@@ -520,7 +520,7 @@ public class ResourceHttpRequestHandlerTests {
     }
   }
 
-  private void resourceNotFound(HttpMethod httpMethod) throws Exception {
+  private void resourceNotFound(HttpMethod httpMethod) throws Throwable {
     this.request.setMethod(httpMethod.name());
     request.setRequestURI("not-there.css");
     requestContext = new ServletRequestContext(null, request, response);
@@ -530,7 +530,7 @@ public class ResourceHttpRequestHandlerTests {
   }
 
   @Test
-  public void partialContentByteRange() throws Exception {
+  public void partialContentByteRange() throws Throwable {
     this.request.addHeader("Range", "bytes=0-1");
     request.setRequestURI("foo.txt");
     this.handler.handleRequest(requestContext);
@@ -545,7 +545,7 @@ public class ResourceHttpRequestHandlerTests {
   }
 
   @Test
-  public void partialContentByteRangeNoEnd() throws Exception {
+  public void partialContentByteRangeNoEnd() throws Throwable {
     this.request.addHeader("Range", "bytes=9-");
     request.setRequestURI("foo.txt");
     this.handler.handleRequest(requestContext);
@@ -560,7 +560,7 @@ public class ResourceHttpRequestHandlerTests {
   }
 
   @Test
-  public void partialContentByteRangeLargeEnd() throws Exception {
+  public void partialContentByteRangeLargeEnd() throws Throwable {
     this.request.addHeader("Range", "bytes=9-10000");
     request.setRequestURI("foo.txt");
     this.handler.handleRequest(requestContext);
@@ -575,7 +575,7 @@ public class ResourceHttpRequestHandlerTests {
   }
 
   @Test
-  public void partialContentSuffixRange() throws Exception {
+  public void partialContentSuffixRange() throws Throwable {
     this.request.addHeader("Range", "bytes=-1");
     request.setRequestURI("foo.txt");
     this.handler.handleRequest(requestContext);
@@ -590,7 +590,7 @@ public class ResourceHttpRequestHandlerTests {
   }
 
   @Test
-  public void partialContentSuffixRangeLargeSuffix() throws Exception {
+  public void partialContentSuffixRangeLargeSuffix() throws Throwable {
     this.request.addHeader("Range", "bytes=-11");
     request.setRequestURI("foo.txt");
     this.handler.handleRequest(requestContext);
@@ -605,7 +605,7 @@ public class ResourceHttpRequestHandlerTests {
   }
 
   @Test
-  public void partialContentInvalidRangeHeader() throws Exception {
+  public void partialContentInvalidRangeHeader() throws Throwable {
     this.request.addHeader("Range", "bytes= foo bar");
     request.setRequestURI("foo.txt");
     this.handler.handleRequest(requestContext);
@@ -617,7 +617,7 @@ public class ResourceHttpRequestHandlerTests {
   }
 
   @Test
-  public void partialContentMultipleByteRanges() throws Exception {
+  public void partialContentMultipleByteRanges() throws Throwable {
     this.request.addHeader("Range", "bytes=0-1, 4-5, 8-9");
     request.setRequestURI("foo.txt");
     this.handler.handleRequest(requestContext);
@@ -647,7 +647,7 @@ public class ResourceHttpRequestHandlerTests {
   }
 
   @Test  // gh-25976
-  public void partialContentByteRangeWithEncodedResource(GzipSupport.GzippedFiles gzippedFiles) throws Exception {
+  public void partialContentByteRangeWithEncodedResource(GzipSupport.GzippedFiles gzippedFiles) throws Throwable {
     String path = "js/foo.js";
     gzippedFiles.create(path);
 
@@ -676,7 +676,7 @@ public class ResourceHttpRequestHandlerTests {
   }
 
   @Test  // gh-25976
-  public void partialContentWithHttpHead() throws Exception {
+  public void partialContentWithHttpHead() throws Throwable {
     this.request.setMethod("HEAD");
     this.request.addHeader("Range", "bytes=0-1");
     request.setRequestURI("foo.txt");
@@ -690,7 +690,7 @@ public class ResourceHttpRequestHandlerTests {
   }
 
   @Test
-  public void ignoreLastModified() throws Exception {
+  public void ignoreLastModified() throws Throwable {
     request.setRequestURI("foo.css");
     this.handler.setUseLastModified(false);
     this.handler.handleRequest(requestContext);

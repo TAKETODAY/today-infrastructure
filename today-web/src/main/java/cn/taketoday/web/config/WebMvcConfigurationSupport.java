@@ -556,7 +556,7 @@ public class WebMvcConfigurationSupport extends ApplicationContextSupport {
   @Component
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
   @ConditionalOnMissingBean(NotFoundHandler.class)
-  NotFoundHandler notFoundHandler() {
+  public NotFoundHandler notFoundHandler() {
     return new NotFoundHandler();
   }
 
@@ -747,10 +747,12 @@ public class WebMvcConfigurationSupport extends ApplicationContextSupport {
   @Nullable
   @Component
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-  public HandlerMapping resourceHandlerMapping(
+  public HandlerMapping resourceHandlerMapping(NotFoundHandler notFoundHandler,
           @Qualifier("mvcContentNegotiationManager") ContentNegotiationManager contentNegotiationManager) {
     var context = obtainApplicationContext();
     var registry = new ResourceHandlerRegistry(context, contentNegotiationManager);
+
+    registry.setNotFoundHandler(notFoundHandler);
     addResourceHandlers(registry);
 
     SimpleUrlHandlerMapping handlerMapping = registry.getHandlerMapping();

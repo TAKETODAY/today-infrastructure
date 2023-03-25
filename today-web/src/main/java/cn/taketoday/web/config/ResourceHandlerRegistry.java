@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -24,7 +24,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
 import cn.taketoday.beans.factory.BeanInitializationException;
 import cn.taketoday.context.ApplicationContext;
@@ -70,25 +69,28 @@ public class ResourceHandlerRegistry {
 
   private int order = Ordered.LOWEST_PRECEDENCE - 1;
 
+  @Nullable
+  private HttpRequestHandler notFoundHandler;
+
   /**
    * Create a new resource handler registry for the given application context.
    *
-   * @param applicationContext the application context
+   * @param context the application context
    */
-  public ResourceHandlerRegistry(ApplicationContext applicationContext) {
-    this(applicationContext, null);
+  public ResourceHandlerRegistry(ApplicationContext context) {
+    this(context, null);
   }
 
   /**
    * Create a new resource handler registry for the given application context.
    *
-   * @param applicationContext the application context
+   * @param context the application context
    * @param contentNegotiationManager the content negotiation manager to use
    */
-  public ResourceHandlerRegistry(
-          ApplicationContext applicationContext, @Nullable ContentNegotiationManager contentNegotiationManager) {
-    Assert.notNull(applicationContext, "ApplicationContext is required");
-    this.applicationContext = applicationContext;
+  public ResourceHandlerRegistry(ApplicationContext context,
+          @Nullable ContentNegotiationManager contentNegotiationManager) {
+    Assert.notNull(context, "ApplicationContext is required");
+    this.applicationContext = context;
     this.contentNegotiationManager = contentNegotiationManager;
   }
 
@@ -127,16 +129,28 @@ public class ResourceHandlerRegistry {
   }
 
   /**
+   * Set not found handler
+   * <p>
+   * handle resource not found
+   *
+   * @param notFoundHandler HttpRequestHandler
+   */
+  public ResourceHandlerRegistry setNotFoundHandler(@Nullable HttpRequestHandler notFoundHandler) {
+    this.notFoundHandler = notFoundHandler;
+    return this;
+  }
+
+  /**
    * Return a handler mapping with the mapped resource handlers; or {@code null} in case
    * of no registrations.
    */
   @Nullable
   protected SimpleUrlHandlerMapping getHandlerMapping() {
-    if (this.registrations.isEmpty()) {
+    if (registrations.isEmpty()) {
       return null;
     }
-    Map<String, HttpRequestHandler> urlMap = new LinkedHashMap<>();
-    for (ResourceHandlerRegistration registration : this.registrations) {
+    var urlMap = new LinkedHashMap<String, HttpRequestHandler>();
+    for (ResourceHandlerRegistration registration : registrations) {
       ResourceHttpRequestHandler handler = getRequestHandler(registration);
       for (String pathPattern : registration.getPathPatterns()) {
         urlMap.put(pathPattern, handler);
@@ -147,10 +161,13 @@ public class ResourceHandlerRegistry {
 
   private ResourceHttpRequestHandler getRequestHandler(ResourceHandlerRegistration registration) {
     ResourceHttpRequestHandler handler = registration.getRequestHandler();
-    if (this.contentNegotiationManager != null) {
-      handler.setContentNegotiationManager(this.contentNegotiationManager);
+    if (contentNegotiationManager != null) {
+      handler.setContentNegotiationManager(contentNegotiationManager);
     }
-    handler.setApplicationContext(this.applicationContext);
+    if (notFoundHandler != null && handler.getNotFoundHandler() == null) {
+      handler.setNotFoundHandler(notFoundHandler);
+    }
+    handler.setApplicationContext(applicationContext);
     try {
       handler.afterPropertiesSet();
     }

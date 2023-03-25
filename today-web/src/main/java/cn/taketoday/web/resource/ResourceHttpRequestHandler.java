@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -143,6 +143,9 @@ public class ResourceHttpRequestHandler extends WebContentGenerator
 
   @Nullable
   private StringValueResolver embeddedValueResolver;
+
+  @Nullable
+  private HttpRequestHandler notFoundHandler;
 
   public ResourceHttpRequestHandler() {
     super(HttpMethod.GET.name(), HttpMethod.HEAD.name());
@@ -300,8 +303,9 @@ public class ResourceHttpRequestHandler extends WebContentGenerator
    * @param mediaTypes media type mappings
    */
   public void setMediaTypes(Map<String, MediaType> mediaTypes) {
-    mediaTypes.forEach((ext, mediaType) ->
-            this.mediaTypes.put(ext.toLowerCase(Locale.ENGLISH), mediaType));
+    for (Map.Entry<String, MediaType> entry : mediaTypes.entrySet()) {
+      this.mediaTypes.put(entry.getKey().toLowerCase(Locale.ENGLISH), entry.getValue());
+    }
   }
 
   /**
@@ -372,6 +376,22 @@ public class ResourceHttpRequestHandler extends WebContentGenerator
   @Override
   public void setEmbeddedValueResolver(@Nullable StringValueResolver resolver) {
     this.embeddedValueResolver = resolver;
+  }
+
+  /**
+   * Set not found handler
+   * <p>
+   * handle resource not found
+   *
+   * @param notFoundHandler HttpRequestHandler
+   */
+  public void setNotFoundHandler(@Nullable HttpRequestHandler notFoundHandler) {
+    this.notFoundHandler = notFoundHandler;
+  }
+
+  @Nullable
+  public HttpRequestHandler getNotFoundHandler() {
+    return notFoundHandler;
   }
 
   @Override
@@ -488,10 +508,13 @@ public class ResourceHttpRequestHandler extends WebContentGenerator
    * set to expire one year in the future.
    */
   @Override
-  public Object handleRequest(RequestContext request) throws Exception {
+  public Object handleRequest(RequestContext request) throws Throwable {
     // For very general mappings (e.g. "/") we need to check 404 first
     Resource resource = getResource(request);
     if (resource == null) {
+      if (notFoundHandler != null) {
+        return notFoundHandler.handleRequest(request);
+      }
       log.debug("Resource not found");
       request.sendError(HttpStatus.NOT_FOUND);
       return NONE_RETURN_VALUE;

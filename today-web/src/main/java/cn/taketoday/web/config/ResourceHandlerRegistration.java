@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -31,6 +31,7 @@ import cn.taketoday.core.io.UrlResource;
 import cn.taketoday.http.CacheControl;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.web.HttpRequestHandler;
 import cn.taketoday.web.resource.PathResourceResolver;
 import cn.taketoday.web.resource.ResourceHttpRequestHandler;
 
@@ -63,6 +64,9 @@ public class ResourceHandlerRegistration {
   private boolean useLastModified = true;
 
   private boolean optimizeLocations = false;
+
+  @Nullable
+  private HttpRequestHandler notFoundHandler;
 
   /**
    * Create a {@link ResourceHandlerRegistration} instance.
@@ -207,6 +211,18 @@ public class ResourceHandlerRegistration {
   }
 
   /**
+   * Set not found handler
+   * <p>
+   * handle resource not found
+   *
+   * @param notFoundHandler HttpRequestHandler
+   */
+  public ResourceHandlerRegistration setNotFoundHandler(@Nullable HttpRequestHandler notFoundHandler) {
+    this.notFoundHandler = notFoundHandler;
+    return this;
+  }
+
+  /**
    * Return the URL path patterns for the resource handler.
    */
   protected String[] getPathPatterns() {
@@ -218,20 +234,21 @@ public class ResourceHandlerRegistration {
    */
   protected ResourceHttpRequestHandler getRequestHandler() {
     ResourceHttpRequestHandler handler = new ResourceHttpRequestHandler();
-    if (this.resourceChainRegistration != null) {
-      handler.setResourceResolvers(this.resourceChainRegistration.getResourceResolvers());
-      handler.setResourceTransformers(this.resourceChainRegistration.getResourceTransformers());
+    if (resourceChainRegistration != null) {
+      handler.setResourceResolvers(resourceChainRegistration.getResourceResolvers());
+      handler.setResourceTransformers(resourceChainRegistration.getResourceTransformers());
     }
-    handler.setLocationValues(this.locationValues);
-    handler.setLocations(this.locationsResources);
-    if (this.cacheControl != null) {
-      handler.setCacheControl(this.cacheControl);
+    handler.setLocationValues(locationValues);
+    handler.setLocations(locationsResources);
+    if (cacheControl != null) {
+      handler.setCacheControl(cacheControl);
     }
-    else if (this.cachePeriod != null) {
-      handler.setCacheSeconds(this.cachePeriod);
+    else if (cachePeriod != null) {
+      handler.setCacheSeconds(cachePeriod);
     }
-    handler.setUseLastModified(this.useLastModified);
-    handler.setOptimizeLocations(this.optimizeLocations);
+    handler.setNotFoundHandler(notFoundHandler);
+    handler.setUseLastModified(useLastModified);
+    handler.setOptimizeLocations(optimizeLocations);
     return handler;
   }
 
