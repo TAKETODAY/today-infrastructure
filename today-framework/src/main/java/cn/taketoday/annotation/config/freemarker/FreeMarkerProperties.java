@@ -34,7 +34,7 @@ import cn.taketoday.framework.template.AbstractTemplateViewResolverProperties;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-@ConfigurationProperties(prefix = "infra.freemarker")
+@ConfigurationProperties(prefix = "freemarker")
 public class FreeMarkerProperties extends AbstractTemplateViewResolverProperties {
 
   public static final String DEFAULT_TEMPLATE_LOADER_PATH = "classpath:/templates/";

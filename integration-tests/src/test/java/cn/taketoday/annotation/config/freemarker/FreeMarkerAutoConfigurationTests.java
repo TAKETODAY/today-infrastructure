@@ -61,7 +61,7 @@ class FreeMarkerAutoConfigurationTests {
   @Test
   void nonExistentTemplateLocation(CapturedOutput output) {
     this.contextRunner
-            .withPropertyValues("infra.freemarker.templateLoaderPath:"
+            .withPropertyValues("freemarker.templateLoaderPath:"
                     + "classpath:/does-not-exist/,classpath:/also-does-not-exist")
             .run((context) -> assertThat(output).contains("Cannot find template location"));
   }
@@ -71,7 +71,7 @@ class FreeMarkerAutoConfigurationTests {
     File emptyDirectory = new File(this.buildOutput.getTestResourcesLocation(), "empty-templates/empty-directory");
     emptyDirectory.mkdirs();
     this.contextRunner
-            .withPropertyValues("infra.freemarker.templateLoaderPath:classpath:/empty-templates/empty-directory/")
+            .withPropertyValues("freemarker.templateLoaderPath:classpath:/empty-templates/empty-directory/")
             .run((context) -> assertThat(output).doesNotContain("Cannot find template location"));
   }
 
@@ -79,7 +79,7 @@ class FreeMarkerAutoConfigurationTests {
   void nonExistentLocationAndEmptyLocation(CapturedOutput output) {
     new File(this.buildOutput.getTestResourcesLocation(), "empty-templates/empty-directory").mkdirs();
     this.contextRunner
-            .withPropertyValues("infra.freemarker.templateLoaderPath:"
+            .withPropertyValues("freemarker.templateLoaderPath:"
                     + "classpath:/does-not-exist/,classpath:/empty-templates/empty-directory/")
             .run((context) -> assertThat(output).doesNotContain("Cannot find template location"));
   }

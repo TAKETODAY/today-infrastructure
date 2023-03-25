@@ -67,7 +67,7 @@ public class FreeMarkerAutoConfiguration {
       if (locations.stream().noneMatch(this::locationExists)) {
         logger.warn("Cannot find template location(s): {} (please add some templates, "
                 + "check your FreeMarker configuration, or set "
-                + "infra.freemarker.check-template-location=false)", locations);
+                + "freemarker.check-template-location=false)", locations);
       }
     }
   }

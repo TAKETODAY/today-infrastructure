@@ -84,7 +84,7 @@ class FreeMarkerAutoConfigurationServletIntegrationTests {
 
   @Test
   void customContentType() throws Exception {
-    load("infra.freemarker.contentType:application/json");
+    load("freemarker.contentType:application/json");
     MockHttpServletResponse response = render("home");
     String result = response.getContentAsString();
     assertThat(result).contains("home");
@@ -93,7 +93,7 @@ class FreeMarkerAutoConfigurationServletIntegrationTests {
 
   @Test
   void customPrefix() throws Exception {
-    load("infra.freemarker.prefix:prefix/");
+    load("freemarker.prefix:prefix/");
     MockHttpServletResponse response = render("prefixed");
     String result = response.getContentAsString();
     assertThat(result).contains("prefixed");
@@ -101,7 +101,7 @@ class FreeMarkerAutoConfigurationServletIntegrationTests {
 
   @Test
   void customSuffix() throws Exception {
-    load("infra.freemarker.suffix:.freemarker");
+    load("freemarker.suffix:.freemarker");
     MockHttpServletResponse response = render("suffixed");
     String result = response.getContentAsString();
     assertThat(result).contains("suffixed");
@@ -109,7 +109,7 @@ class FreeMarkerAutoConfigurationServletIntegrationTests {
 
   @Test
   void customTemplateLoaderPath() throws Exception {
-    load("infra.freemarker.templateLoaderPath:classpath:/custom-templates/");
+    load("freemarker.templateLoaderPath:classpath:/custom-templates/");
     MockHttpServletResponse response = render("custom");
     String result = response.getContentAsString();
     assertThat(result).contains("custom");
@@ -117,13 +117,13 @@ class FreeMarkerAutoConfigurationServletIntegrationTests {
 
   @Test
   void disableCache() {
-    load("infra.freemarker.cache:false");
+    load("freemarker.cache:false");
     assertThat(this.context.getBean(FreeMarkerViewResolver.class).getCacheLimit()).isZero();
   }
 
   @Test
   void allowSessionOverride() {
-    load("infra.freemarker.allow-session-override:true");
+    load("freemarker.allow-session-override:true");
     AbstractTemplateViewResolver viewResolver = this.context.getBean(FreeMarkerViewResolver.class);
     assertThat(viewResolver).hasFieldOrPropertyWithValue("allowSessionOverride", true);
   }
@@ -131,7 +131,7 @@ class FreeMarkerAutoConfigurationServletIntegrationTests {
   @SuppressWarnings("deprecation")
   @Test
   void customFreeMarkerSettings() {
-    load("infra.freemarker.settings.boolean_format:yup,nope");
+    load("freemarker.settings.boolean_format:yup,nope");
     assertThat(this.context.getBean(FreeMarkerConfigurer.class).getConfiguration().getSetting("boolean_format"))
             .isEqualTo("yup,nope");
   }

@@ -56,28 +56,28 @@ class FreeMarkerTemplateAvailabilityProviderTests {
 
   @Test
   void availabilityOfTemplateWithCustomLoaderPath() {
-    this.environment.setProperty("infra.freemarker.template-loader-path", "classpath:/custom-templates/");
+    this.environment.setProperty("freemarker.template-loader-path", "classpath:/custom-templates/");
     assertThat(this.provider.isTemplateAvailable("custom", this.environment, getClass().getClassLoader(),
             this.resourceLoader)).isTrue();
   }
 
   @Test
   void availabilityOfTemplateWithCustomLoaderPathConfiguredAsAList() {
-    this.environment.setProperty("infra.freemarker.template-loader-path[0]", "classpath:/custom-templates/");
+    this.environment.setProperty("freemarker.template-loader-path[0]", "classpath:/custom-templates/");
     assertThat(this.provider.isTemplateAvailable("custom", this.environment, getClass().getClassLoader(),
             this.resourceLoader)).isTrue();
   }
 
   @Test
   void availabilityOfTemplateWithCustomPrefix() {
-    this.environment.setProperty("infra.freemarker.prefix", "prefix/");
+    this.environment.setProperty("freemarker.prefix", "prefix/");
     assertThat(this.provider.isTemplateAvailable("prefixed", this.environment, getClass().getClassLoader(),
             this.resourceLoader)).isTrue();
   }
 
   @Test
   void availabilityOfTemplateWithCustomSuffix() {
-    this.environment.setProperty("infra.freemarker.suffix", ".freemarker");
+    this.environment.setProperty("freemarker.suffix", ".freemarker");
     assertThat(this.provider.isTemplateAvailable("suffixed", this.environment, getClass().getClassLoader(),
             this.resourceLoader)).isTrue();
   }

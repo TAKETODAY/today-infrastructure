@@ -66,7 +66,7 @@ class FreeMarkerWebConfiguration extends AbstractFreeMarkerConfiguration {
 
   @Component
   @ConditionalOnMissingBean(name = "freeMarkerViewResolver")
-  @ConditionalOnProperty(name = "infra.freemarker.enabled", matchIfMissing = true)
+  @ConditionalOnProperty(name = "freemarker.enabled", matchIfMissing = true)
   FreeMarkerViewResolver freeMarkerViewResolver() {
     FreeMarkerViewResolver resolver = new FreeMarkerViewResolver();
     properties.applyToMvcViewResolver(resolver);

@@ -37,7 +37,7 @@ import cn.taketoday.framework.template.TemplateAvailabilityProvider;
 public class FreeMarkerTemplateAvailabilityProvider extends PathBasedTemplateAvailabilityProvider {
 
   public FreeMarkerTemplateAvailabilityProvider() {
-    super("freemarker.template.Configuration", FreeMarkerTemplateAvailabilityProperties.class, "infra.freemarker");
+    super("freemarker.template.Configuration", FreeMarkerTemplateAvailabilityProperties.class, "freemarker");
   }
 
   protected static final class FreeMarkerTemplateAvailabilityProperties extends TemplateAvailabilityProperties {
