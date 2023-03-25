@@ -50,7 +50,7 @@ public class CompositeWebMvcConfigurer implements WebMvcConfigurer {
     this.webMvcConfigurers = webMvcConfigurers;
   }
 
-  public void addWebMvcConfiguration(List<WebMvcConfigurer> configurers) {
+  public void addWebMvcConfigurers(List<WebMvcConfigurer> configurers) {
     if (CollectionUtils.isNotEmpty(configurers)) {
       webMvcConfigurers.addAll(configurers);
     }

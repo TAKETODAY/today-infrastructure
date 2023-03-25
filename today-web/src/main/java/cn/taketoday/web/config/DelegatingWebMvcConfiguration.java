@@ -22,7 +22,8 @@ package cn.taketoday.web.config;
 
 import java.util.List;
 
-import cn.taketoday.beans.factory.annotation.Autowired;
+import cn.taketoday.beans.factory.annotation.DisableAllDependencyInjection;
+import cn.taketoday.beans.factory.annotation.DisableDependencyInjection;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.format.FormatterRegistry;
 import cn.taketoday.http.converter.HttpMessageConverter;
@@ -43,15 +44,16 @@ import cn.taketoday.web.handler.ReturnValueHandlerManager;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/10/31 15:33
  */
+@DisableDependencyInjection
+@DisableAllDependencyInjection
 @Configuration(proxyBeanMethods = false)
 public class DelegatingWebMvcConfiguration extends WebMvcConfigurationSupport {
 
   private final CompositeWebMvcConfigurer configurers = new CompositeWebMvcConfigurer();
 
-  @Autowired(required = false)
-  public void setConfigurers(List<WebMvcConfigurer> configurers) {
-    if (!CollectionUtils.isEmpty(configurers)) {
-      this.configurers.addWebMvcConfiguration(configurers);
+  public DelegatingWebMvcConfiguration(List<WebMvcConfigurer> configurers) {
+    if (CollectionUtils.isNotEmpty(configurers)) {
+      this.configurers.addWebMvcConfigurers(configurers);
     }
   }
 

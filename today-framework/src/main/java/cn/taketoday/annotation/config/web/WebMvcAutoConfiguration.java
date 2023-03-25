@@ -35,8 +35,8 @@ import cn.taketoday.annotation.config.web.servlet.DispatcherServletAutoConfigura
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
 import cn.taketoday.beans.factory.ObjectProvider;
-import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.beans.factory.annotation.DisableAllDependencyInjection;
+import cn.taketoday.beans.factory.annotation.DisableDependencyInjection;
 import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.ApplicationEventPublisher;
@@ -112,12 +112,13 @@ import static cn.taketoday.annotation.config.task.TaskExecutionAutoConfiguration
  * config framework
  * </p>
  */
-@DisableAllDependencyInjection
 @AutoConfiguration(after = {
         DispatcherServletAutoConfiguration.class,
         TaskExecutionAutoConfiguration.class,
         ValidationAutoConfiguration.class
 })
+@DisableDependencyInjection
+@DisableAllDependencyInjection
 @Configuration(proxyBeanMethods = false)
 @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
 @AutoConfigureOrder(Ordered.HIGHEST_PRECEDENCE + 10)
@@ -128,9 +129,8 @@ public class WebMvcAutoConfiguration extends WebMvcConfigurationSupport {
   private final WebProperties webProperties;
   private final WebMvcProperties mvcProperties;
 
-  private final CompositeWebMvcConfigurer mvcConfiguration = new CompositeWebMvcConfigurer();
-
   private final WebMvcRegistrations mvcRegistrations;
+  private final CompositeWebMvcConfigurer webMvcConfigurers;
   private final ObjectProvider<HttpMessageConverters> messageConvertersProvider;
   private final ObjectProvider<ResourceHandlerRegistrationCustomizer> registrationCustomizersProvider;
 
@@ -138,6 +138,7 @@ public class WebMvcAutoConfiguration extends WebMvcConfigurationSupport {
           BeanFactory beanFactory,
           WebProperties webProperties,
           WebMvcProperties mvcProperties,
+          List<WebMvcConfigurer> mvcConfigurers,
           ObjectProvider<WebMvcRegistrations> mvcRegistrations,
           ObjectProvider<ResourceHandlerRegistrationCustomizer> customizers,
           ObjectProvider<HttpMessageConverters> messageConvertersProvider) {
@@ -145,13 +146,9 @@ public class WebMvcAutoConfiguration extends WebMvcConfigurationSupport {
     this.mvcProperties = mvcProperties;
     this.webProperties = webProperties;
     this.mvcRegistrations = mvcRegistrations.getIfUnique();
+    this.webMvcConfigurers = new CompositeWebMvcConfigurer(mvcConfigurers);
     this.messageConvertersProvider = messageConvertersProvider;
     this.registrationCustomizersProvider = customizers;
-  }
-
-  @Autowired(required = false)
-  public void setMvcConfiguration(List<WebMvcConfigurer> mvcConfiguration) {
-    this.mvcConfiguration.addWebMvcConfiguration(mvcConfiguration);
   }
 
   @Override
@@ -202,9 +199,10 @@ public class WebMvcAutoConfiguration extends WebMvcConfigurationSupport {
     return conversionService;
   }
 
+  @Nullable
   @Component
   @ConditionalOnMissingBean
-  RequestHandledEventPublisher requestHandledEventPublisher(
+  static RequestHandledEventPublisher requestHandledEventPublisher(
           WebMvcProperties webMvcProperties, ApplicationEventPublisher eventPublisher) {
     if (webMvcProperties.isPublishRequestHandledEvents()) {
       return new RequestHandledEventPublisher(eventPublisher);
@@ -215,7 +213,7 @@ public class WebMvcAutoConfiguration extends WebMvcConfigurationSupport {
   @Component
   @ConditionalOnBean(View.class)
   @ConditionalOnMissingBean
-  public BeanNameViewResolver beanNameViewResolver() {
+  static BeanNameViewResolver beanNameViewResolver() {
     BeanNameViewResolver resolver = new BeanNameViewResolver();
     resolver.setOrder(Ordered.LOWEST_PRECEDENCE - 10);
     return resolver;
@@ -236,43 +234,43 @@ public class WebMvcAutoConfiguration extends WebMvcConfigurationSupport {
   public void configureMessageConverters(List<HttpMessageConverter<?>> converters) {
     messageConvertersProvider.ifAvailable(
             customConverters -> converters.addAll(customConverters.getConverters()));
-    mvcConfiguration.configureMessageConverters(converters);
+    webMvcConfigurers.configureMessageConverters(converters);
   }
 
   @Override
   protected void addFormatters(FormatterRegistry registry) {
     ApplicationConversionService.addBeans(registry, this.beanFactory);
-    mvcConfiguration.addFormatters(registry);
+    webMvcConfigurers.addFormatters(registry);
   }
 
   @Override
   protected void addInterceptors(InterceptorRegistry registry) {
-    mvcConfiguration.addInterceptors(registry);
+    webMvcConfigurers.addInterceptors(registry);
   }
 
   @Override
   protected void addCorsMappings(CorsRegistry registry) {
-    mvcConfiguration.addCorsMappings(registry);
+    webMvcConfigurers.addCorsMappings(registry);
   }
 
   @Override
   protected void configureDefaultServletHandling(DefaultServletHandlerConfigurer configurer) {
-    mvcConfiguration.configureDefaultServletHandling(configurer);
+    webMvcConfigurers.configureDefaultServletHandling(configurer);
   }
 
   @Override
   protected void extendMessageConverters(List<HttpMessageConverter<?>> converters) {
-    mvcConfiguration.extendMessageConverters(converters);
+    webMvcConfigurers.extendMessageConverters(converters);
   }
 
   @Override
   protected void addViewControllers(ViewControllerRegistry registry) {
-    mvcConfiguration.addViewControllers(registry);
+    webMvcConfigurers.addViewControllers(registry);
   }
 
   @Override
   protected void configureExceptionHandlers(List<HandlerExceptionHandler> handlers) {
-    mvcConfiguration.configureExceptionHandlers(handlers);
+    webMvcConfigurers.configureExceptionHandlers(handlers);
   }
 
   @Override
@@ -285,13 +283,13 @@ public class WebMvcAutoConfiguration extends WebMvcConfigurationSupport {
       }
     }
 
-    mvcConfiguration.extendExceptionHandlers(handlers);
+    webMvcConfigurers.extendExceptionHandlers(handlers);
   }
 
   @Nullable
   @Override
   protected Validator getValidator() {
-    return mvcConfiguration.getValidator();
+    return webMvcConfigurers.getValidator();
   }
 
   @Nullable
@@ -344,7 +342,7 @@ public class WebMvcAutoConfiguration extends WebMvcConfigurationSupport {
     }
 
     // user config can override default config 'applicationTaskExecutor' and 'timeout'
-    mvcConfiguration.configureAsyncSupport(configurer);
+    webMvcConfigurers.configureAsyncSupport(configurer);
   }
 
   @Override
@@ -357,27 +355,27 @@ public class WebMvcAutoConfiguration extends WebMvcConfigurationSupport {
     Map<String, MediaType> mediaTypes = mvcProperties.getContentnegotiation().getMediaTypes();
     configurer.mediaTypes(mediaTypes);
 
-    mvcConfiguration.configureContentNegotiation(configurer);
+    webMvcConfigurers.configureContentNegotiation(configurer);
   }
 
   @Override
   protected void configurePathMatch(PathMatchConfigurer configurer) {
-    mvcConfiguration.configurePathMatch(configurer);
+    webMvcConfigurers.configurePathMatch(configurer);
   }
 
   @Override
   protected void configureViewResolvers(ViewResolverRegistry registry) {
-    mvcConfiguration.configureViewResolvers(registry);
+    webMvcConfigurers.configureViewResolvers(registry);
   }
 
   @Override
   protected void modifyParameterResolvingRegistry(ParameterResolvingRegistry registry) {
-    mvcConfiguration.configureParameterResolving(registry, registry.getCustomizedStrategies());
+    webMvcConfigurers.configureParameterResolving(registry, registry.getCustomizedStrategies());
   }
 
   @Override
   protected void modifyReturnValueHandlerManager(ReturnValueHandlerManager manager) {
-    mvcConfiguration.modifyReturnValueHandlerManager(manager);
+    webMvcConfigurers.modifyReturnValueHandlerManager(manager);
   }
 
   @Override
@@ -392,7 +390,7 @@ public class WebMvcAutoConfiguration extends WebMvcConfigurationSupport {
       registration.addResourceLocations(resourceProperties.getStaticLocations());
     });
 
-    mvcConfiguration.addResourceHandlers(registry);
+    webMvcConfigurers.addResourceHandlers(registry);
   }
 
   private void addResourceHandler(ResourceHandlerRegistry registry, String pattern, String... locations) {

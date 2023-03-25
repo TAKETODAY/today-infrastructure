@@ -61,10 +61,12 @@ import cn.taketoday.http.converter.json.JsonbHttpMessageConverter;
 import cn.taketoday.http.converter.json.MappingJackson2HttpMessageConverter;
 import cn.taketoday.http.converter.smile.MappingJackson2SmileHttpMessageConverter;
 import cn.taketoday.http.converter.xml.MappingJackson2XmlHttpMessageConverter;
+import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.session.SessionManager;
 import cn.taketoday.stereotype.Component;
 import cn.taketoday.util.ClassUtils;
+import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.validation.Errors;
 import cn.taketoday.validation.MessageCodesResolver;
 import cn.taketoday.validation.Validator;
@@ -182,7 +184,6 @@ import jakarta.servlet.ServletContext;
  */
 @DisableAllDependencyInjection
 public class WebMvcConfigurationSupport extends ApplicationContextSupport {
-  static final String WEB_MVC_CONFIG_LOCATION = "WebMvcConfigLocation";
 
   private static final boolean gsonPresent = isPresent("com.google.gson.Gson");
   private static final boolean jsonbPresent = isPresent("jakarta.json.bind.Jsonb");
@@ -344,6 +345,7 @@ public class WebMvcConfigurationSupport extends ApplicationContextSupport {
    * WebAsyncManager Factory
    */
   @Component
+  @ConditionalOnMissingBean
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
   public WebAsyncManagerFactory webAsyncManagerFactory() {
     WebAsyncManagerFactory factory = new WebAsyncManagerFactory();
@@ -371,6 +373,7 @@ public class WebMvcConfigurationSupport extends ApplicationContextSupport {
    * requested {@linkplain MediaType media types} in a given request.
    */
   @Component
+  @ConditionalOnMissingBean
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
   public ContentNegotiationManager mvcContentNegotiationManager() {
     if (this.contentNegotiationManager == null) {
@@ -438,6 +441,7 @@ public class WebMvcConfigurationSupport extends ApplicationContextSupport {
    * {@link ViewResolverComposite#resolveViewName(String, Locale)} returns null in order
    * to allow other potential {@link ViewResolver} beans to resolve views.
    */
+  @Nullable
   @Component
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
   public ViewResolver mvcViewResolver(
@@ -457,6 +461,10 @@ public class WebMvcConfigurationSupport extends ApplicationContextSupport {
           configureDefaultViewResolvers(viewResolvers);
         }
       }
+    }
+
+    if (viewResolvers.isEmpty()) {
+      return null;
     }
 
     ViewResolverComposite composite;
@@ -497,16 +505,24 @@ public class WebMvcConfigurationSupport extends ApplicationContextSupport {
   ReturnValueHandlerManager returnValueHandlerManager(
           @Nullable RedirectModelManager redirectModelManager, List<ViewResolver> viewResolvers) {
 
-    ReturnValueHandlerManager manager = new ReturnValueHandlerManager(getMessageConverters());
+    var manager = new ReturnValueHandlerManager(getMessageConverters());
 
     manager.setApplicationContext(applicationContext);
     manager.setRedirectModelManager(redirectModelManager);
 
-    ViewResolverComposite composite = new ViewResolverComposite();
-    composite.setViewResolvers(viewResolvers);
+    ViewResolver viewResolver;
+    if (viewResolvers.size() == 1) {
+      viewResolver = CollectionUtils.firstElement(viewResolvers);
+      Assert.state(viewResolver != null, "No ViewResolver");
+    }
+    else {
+      ViewResolverComposite composite = new ViewResolverComposite();
+      composite.setViewResolvers(viewResolvers);
+      viewResolver = composite;
+    }
 
-    manager.setViewResolver(composite);
-    ViewReturnValueHandler handler = new ViewReturnValueHandler(composite);
+    manager.setViewResolver(viewResolver);
+    ViewReturnValueHandler handler = new ViewReturnValueHandler(viewResolver);
     handler.setModelManager(redirectModelManager);
 
     AsyncSupportConfigurer configurer = getAsyncSupportConfigurer();
@@ -523,7 +539,9 @@ public class WebMvcConfigurationSupport extends ApplicationContextSupport {
     return manager;
   }
 
-  protected void modifyReturnValueHandlerManager(ReturnValueHandlerManager manager) { }
+  protected void modifyReturnValueHandlerManager(ReturnValueHandlerManager manager) {
+
+  }
 
   /**
    * default {@link ParameterResolvingStrategy} registry

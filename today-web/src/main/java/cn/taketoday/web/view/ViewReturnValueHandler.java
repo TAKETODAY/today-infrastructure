@@ -85,7 +85,7 @@ public class ViewReturnValueHandler implements SmartReturnValueHandler {
    */
   @Override
   public void handleReturnValue(
-          RequestContext context, Object handler, @Nullable Object returnValue) throws Exception {
+          RequestContext context, @Nullable Object handler, @Nullable Object returnValue) throws Exception {
     if (returnValue instanceof String viewName) {
       renderView(context, viewName);
     }
