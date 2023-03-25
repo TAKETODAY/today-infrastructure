@@ -49,40 +49,32 @@ import cn.taketoday.web.view.freemarker.FreeMarkerConfigurationFactory;
 @Import({ FreeMarkerWebConfiguration.class, FreeMarkerNonWebConfiguration.class })
 public class FreeMarkerAutoConfiguration {
 
-  private static final Logger logger = LoggerFactory.getLogger(FreeMarkerAutoConfiguration.class);
-
-  private final ApplicationContext applicationContext;
-
-  private final FreeMarkerProperties properties;
-
-  public FreeMarkerAutoConfiguration(ApplicationContext applicationContext, FreeMarkerProperties properties) {
-    this.applicationContext = applicationContext;
-    this.properties = properties;
-    checkTemplateLocationExists();
+  public FreeMarkerAutoConfiguration(ApplicationContext context, FreeMarkerProperties properties) {
+    checkTemplateLocationExists(properties, context);
   }
 
-  public void checkTemplateLocationExists() {
-    if (logger.isWarnEnabled() && this.properties.isCheckTemplateLocation()) {
-      List<TemplateLocation> locations = getLocations();
-      if (locations.stream().noneMatch(this::locationExists)) {
-        logger.warn("Cannot find template location(s): {} (please add some templates, "
-                + "check your FreeMarker configuration, or set "
-                + "freemarker.check-template-location=false)", locations);
+  public void checkTemplateLocationExists(FreeMarkerProperties properties, ApplicationContext context) {
+    Logger logger = LoggerFactory.getLogger(FreeMarkerAutoConfiguration.class);
+    if (logger.isWarnEnabled() && properties.isCheckTemplateLocation()) {
+      List<TemplateLocation> locations = getLocations(properties);
+      for (TemplateLocation location : locations) {
+        if (location.exists(context)) {
+          return;
+        }
       }
+      logger.warn("Cannot find template location(s): {} (please add some templates, "
+              + "check your FreeMarker configuration, or set "
+              + "freemarker.check-template-location=false)", locations);
     }
   }
 
-  private List<TemplateLocation> getLocations() {
-    ArrayList<TemplateLocation> locations = new ArrayList<>();
-    for (String templateLoaderPath : this.properties.getTemplateLoaderPath()) {
+  private List<TemplateLocation> getLocations(FreeMarkerProperties properties) {
+    var locations = new ArrayList<TemplateLocation>();
+    for (String templateLoaderPath : properties.getTemplateLoaderPath()) {
       TemplateLocation location = new TemplateLocation(templateLoaderPath);
       locations.add(location);
     }
     return locations;
-  }
-
-  private boolean locationExists(TemplateLocation location) {
-    return location.exists(this.applicationContext);
   }
 
 }

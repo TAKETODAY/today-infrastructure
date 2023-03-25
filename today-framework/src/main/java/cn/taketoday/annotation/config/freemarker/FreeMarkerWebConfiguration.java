@@ -27,7 +27,6 @@ import cn.taketoday.context.condition.ConditionalOnClass;
 import cn.taketoday.context.condition.ConditionalOnMissingBean;
 import cn.taketoday.context.condition.ConditionalOnProperty;
 import cn.taketoday.framework.annotation.ConditionalOnWebApplication;
-import cn.taketoday.framework.annotation.ConditionalOnWebApplication.Type;
 import cn.taketoday.stereotype.Component;
 import cn.taketoday.web.view.freemarker.FreeMarkerConfig;
 import cn.taketoday.web.view.freemarker.FreeMarkerConfigurer;
@@ -41,9 +40,9 @@ import cn.taketoday.web.view.freemarker.FreeMarkerViewResolver;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
+@ConditionalOnWebApplication
 @Configuration(proxyBeanMethods = false)
 @AutoConfigureAfter(WebMvcAutoConfiguration.class)
-@ConditionalOnWebApplication(type = Type.SERVLET)
 @ConditionalOnClass({ FreeMarkerConfigurer.class })
 class FreeMarkerWebConfiguration extends AbstractFreeMarkerConfiguration {
 
