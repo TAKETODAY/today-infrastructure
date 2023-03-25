@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -51,7 +51,7 @@ class LifecycleAutoConfigurationTests {
 
   @Test
   void lifecycleProcessorIsConfiguredWithCustomTimeout() {
-    this.contextRunner.withPropertyValues("context.lifecycle.timeout-per-shutdown-phase=15s").run((context) -> {
+    this.contextRunner.withPropertyValues("infra.lifecycle.timeout-per-shutdown-phase=15s").run((context) -> {
       assertThat(context).hasBean(AbstractApplicationContext.LIFECYCLE_PROCESSOR_BEAN_NAME);
       Object processor = context.getBean(AbstractApplicationContext.LIFECYCLE_PROCESSOR_BEAN_NAME);
       assertThat(processor).extracting("timeoutPerShutdownPhase").isEqualTo(15000L);
@@ -61,7 +61,7 @@ class LifecycleAutoConfigurationTests {
   @Test
   void lifecycleProcessorIsConfiguredWithCustomTimeoutInAChildContext() {
     new ApplicationContextRunner().run((parent) -> {
-      this.contextRunner.withParent(parent).withPropertyValues("context.lifecycle.timeout-per-shutdown-phase=15s")
+      this.contextRunner.withParent(parent).withPropertyValues("infra.lifecycle.timeout-per-shutdown-phase=15s")
               .run((child) -> {
                 assertThat(child).hasBean(AbstractApplicationContext.LIFECYCLE_PROCESSOR_BEAN_NAME);
                 Object processor = child.getBean(AbstractApplicationContext.LIFECYCLE_PROCESSOR_BEAN_NAME);
