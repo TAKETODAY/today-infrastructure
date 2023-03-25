@@ -63,6 +63,7 @@ import cn.taketoday.web.WebContentGenerator;
 import cn.taketoday.web.accept.ContentNegotiationManager;
 import cn.taketoday.web.cors.CorsConfiguration;
 import cn.taketoday.web.cors.CorsConfigurationSource;
+import cn.taketoday.web.handler.NotFoundHandler;
 import cn.taketoday.web.servlet.ServletUtils;
 
 /**
@@ -105,6 +106,8 @@ public class ResourceHttpRequestHandler extends WebContentGenerator
 
   private static final String URL_RESOURCE_CHARSET_PREFIX = "[charset=";
 
+  protected static final NotFoundHandler defaultNotFoundHandler = new NotFoundHandler();
+
   private final ArrayList<String> locationValues = new ArrayList<>(4);
 
   private final ArrayList<Resource> locationResources = new ArrayList<>(4);
@@ -144,8 +147,7 @@ public class ResourceHttpRequestHandler extends WebContentGenerator
   @Nullable
   private StringValueResolver embeddedValueResolver;
 
-  @Nullable
-  private HttpRequestHandler notFoundHandler;
+  private HttpRequestHandler notFoundHandler = defaultNotFoundHandler;
 
   public ResourceHttpRequestHandler() {
     super(HttpMethod.GET.name(), HttpMethod.HEAD.name());
@@ -386,12 +388,7 @@ public class ResourceHttpRequestHandler extends WebContentGenerator
    * @param notFoundHandler HttpRequestHandler
    */
   public void setNotFoundHandler(@Nullable HttpRequestHandler notFoundHandler) {
-    this.notFoundHandler = notFoundHandler;
-  }
-
-  @Nullable
-  public HttpRequestHandler getNotFoundHandler() {
-    return notFoundHandler;
+    this.notFoundHandler = notFoundHandler == null ? defaultNotFoundHandler : notFoundHandler;
   }
 
   @Override
@@ -512,12 +509,7 @@ public class ResourceHttpRequestHandler extends WebContentGenerator
     // For very general mappings (e.g. "/") we need to check 404 first
     Resource resource = getResource(request);
     if (resource == null) {
-      if (notFoundHandler != null) {
-        return notFoundHandler.handleRequest(request);
-      }
-      log.debug("Resource not found");
-      request.sendError(HttpStatus.NOT_FOUND);
-      return NONE_RETURN_VALUE;
+      return notFoundHandler.handleRequest(request);
     }
 
     if (HttpMethod.OPTIONS == request.getMethod()) {

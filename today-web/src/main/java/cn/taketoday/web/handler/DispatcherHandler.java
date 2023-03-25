@@ -507,100 +507,6 @@ public class DispatcherHandler extends InfraHandler {
     }
   }
 
-  // @since 4.0
-  private void logRequest(RequestContext request) {
-    if (log.isDebugEnabled()) {
-      String params;
-      String contentType = request.getContentType();
-      if (StringUtils.startsWithIgnoreCase(contentType, "multipart/")) {
-        params = "multipart";
-      }
-      else if (isEnableLoggingRequestDetails()) {
-        params = request.getParameters().entrySet().stream()
-                .map(entry -> entry.getKey() + ":" + Arrays.toString(entry.getValue()))
-                .collect(Collectors.joining(", "));
-      }
-      else {
-        // Avoid request body parsing for form data
-        params = StringUtils.startsWithIgnoreCase(contentType, MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-                         || !request.getParameters().isEmpty() ? "masked" : "";
-      }
-
-      String queryString = request.getQueryString();
-      String queryClause = StringUtils.isNotEmpty(queryString) ? "?" + queryString : "";
-      String message = request.getMethod() + " " +
-              request.getRequestURL() + queryClause + ", parameters={" + params + "}";
-      message = URLDecoder.decode(message, StandardCharsets.UTF_8);
-      if (log.isTraceEnabled()) {
-        StringBuilder headers = new StringBuilder();
-        HttpHeaders httpHeaders = request.requestHeaders();
-        if (!httpHeaders.isEmpty()) {
-          if (isEnableLoggingRequestDetails()) {
-            // first
-            Iterator<String> headerNames = httpHeaders.keySet().iterator();
-            if (headerNames.hasNext()) {
-              String name = headerNames.next();
-              headers.append(name)
-                      .append(':')
-                      .append(httpHeaders.getValuesAsList(name));
-
-              while (headerNames.hasNext()) {
-                name = headerNames.next();
-                headers.append(", ");
-                headers.append(name);
-                headers.append(':');
-                headers.append(httpHeaders.get(name));
-              }
-            }
-          }
-          else {
-            headers.append("masked");
-          }
-        }
-
-        log.trace(message + ", headers={" + headers + "} in DispatcherHandler '" + beanName + "'");
-      }
-      else {
-        log.debug(message);
-      }
-    }
-  }
-
-  private void logResult(RequestContext request, @Nullable Throwable failureCause) {
-    if (log.isDebugEnabled()) {
-      if (failureCause != null) {
-        if (log.isTraceEnabled()) {
-          log.trace("Failed to complete request", failureCause);
-        }
-        else {
-          log.debug("Failed to complete request", failureCause);
-        }
-      }
-      else {
-        if (request.isConcurrentHandlingStarted()) {
-          log.debug("Exiting but response remains open for further handling");
-          return;
-        }
-
-        String headers = "";  // nothing below trace
-        if (log.isTraceEnabled()) {
-          HttpHeaders httpHeaders = request.responseHeaders();
-          if (isEnableLoggingRequestDetails()) {
-            headers = httpHeaders.entrySet().stream()
-                    .map(entry -> entry.getKey() + ":" + entry.getValue())
-                    .collect(Collectors.joining(", "));
-          }
-          else {
-            headers = httpHeaders.isEmpty() ? "" : "masked";
-          }
-          headers = ", headers={" + headers + "}";
-        }
-        HttpStatus httpStatus = HttpStatus.resolve(request.getStatus());
-        log.debug("{} Completed {}{}", request, httpStatus != null ? httpStatus : request.getStatus(), headers);
-      }
-    }
-  }
-
   protected void requestProcessingCompleted(
           RequestContext request, @Nullable Throwable failureCause) {
     request.requestCompleted();
@@ -728,6 +634,104 @@ public class DispatcherHandler extends InfraHandler {
    */
   public void setRequestHandledActions(@Nullable Collection<RequestCompletedListener> list) {
     requestCompletedActions.set(list);
+  }
+
+  // @since 4.0
+  private void logRequest(RequestContext request) {
+    if (log.isDebugEnabled()) {
+      String params;
+      String contentType = request.getContentType();
+      if (StringUtils.startsWithIgnoreCase(contentType, "multipart/")) {
+        params = "multipart";
+      }
+      else if (isEnableLoggingRequestDetails()) {
+        params = request.getParameters().entrySet().stream()
+                .map(entry -> entry.getKey() + ":" + Arrays.toString(entry.getValue()))
+                .collect(Collectors.joining(", "));
+      }
+      else {
+        // Avoid request body parsing for form data
+        params = StringUtils.startsWithIgnoreCase(contentType, MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+                         || !request.getParameters().isEmpty() ? "masked" : "";
+      }
+
+      String queryString = request.getQueryString();
+      String queryClause = StringUtils.isNotEmpty(queryString) ? "?" + queryString : "";
+      String message = request.getMethod() + " " + request.getRequestURL() + queryClause;
+
+      if (!params.isEmpty()) {
+        message += ", parameters={" + params + "}";
+      }
+
+      message = URLDecoder.decode(message, StandardCharsets.UTF_8);
+      if (log.isTraceEnabled()) {
+        StringBuilder headers = new StringBuilder();
+        HttpHeaders httpHeaders = request.requestHeaders();
+        if (!httpHeaders.isEmpty()) {
+          if (isEnableLoggingRequestDetails()) {
+            // first
+            Iterator<String> headerNames = httpHeaders.keySet().iterator();
+            if (headerNames.hasNext()) {
+              String name = headerNames.next();
+              headers.append(name)
+                      .append(':')
+                      .append(httpHeaders.getValuesAsList(name));
+
+              while (headerNames.hasNext()) {
+                name = headerNames.next();
+                headers.append(", ");
+                headers.append(name);
+                headers.append(':');
+                headers.append(httpHeaders.get(name));
+              }
+            }
+          }
+          else {
+            headers.append("masked");
+          }
+        }
+
+        log.trace(message + ", headers={" + headers + "} in DispatcherHandler '" + beanName + "'");
+      }
+      else {
+        log.debug(message);
+      }
+    }
+  }
+
+  private void logResult(RequestContext request, @Nullable Throwable failureCause) {
+    if (log.isDebugEnabled()) {
+      if (failureCause != null) {
+        if (log.isTraceEnabled()) {
+          log.trace("Failed to complete request", failureCause);
+        }
+        else {
+          log.debug("Failed to complete request", failureCause);
+        }
+      }
+      else {
+        if (request.isConcurrentHandlingStarted()) {
+          log.debug("Exiting but response remains open for further handling");
+          return;
+        }
+
+        String headers = "";  // nothing below trace
+        if (log.isTraceEnabled()) {
+          HttpHeaders httpHeaders = request.responseHeaders();
+          if (isEnableLoggingRequestDetails()) {
+            headers = httpHeaders.entrySet().stream()
+                    .map(entry -> entry.getKey() + ":" + entry.getValue())
+                    .collect(Collectors.joining(", "));
+          }
+          else {
+            headers = httpHeaders.isEmpty() ? "" : "masked";
+          }
+          headers = ", headers={" + headers + "}";
+        }
+        HttpStatus httpStatus = HttpStatus.resolve(request.getStatus());
+        log.debug("{} Completed {}{}", request, httpStatus != null ? httpStatus : request.getStatus(), headers);
+      }
+    }
   }
 
 }

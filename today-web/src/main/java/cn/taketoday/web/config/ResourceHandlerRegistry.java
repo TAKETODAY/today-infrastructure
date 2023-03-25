@@ -164,7 +164,7 @@ public class ResourceHandlerRegistry {
     if (contentNegotiationManager != null) {
       handler.setContentNegotiationManager(contentNegotiationManager);
     }
-    if (notFoundHandler != null && handler.getNotFoundHandler() == null) {
+    if (notFoundHandler != null && registration.notFoundHandler == null) {
       handler.setNotFoundHandler(notFoundHandler);
     }
     handler.setApplicationContext(applicationContext);

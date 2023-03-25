@@ -66,7 +66,7 @@ public class ResourceHandlerRegistration {
   private boolean optimizeLocations = false;
 
   @Nullable
-  private HttpRequestHandler notFoundHandler;
+  HttpRequestHandler notFoundHandler;
 
   /**
    * Create a {@link ResourceHandlerRegistration} instance.
@@ -246,7 +246,9 @@ public class ResourceHandlerRegistration {
     else if (cachePeriod != null) {
       handler.setCacheSeconds(cachePeriod);
     }
-    handler.setNotFoundHandler(notFoundHandler);
+    if (notFoundHandler != null) {
+      handler.setNotFoundHandler(notFoundHandler);
+    }
     handler.setUseLastModified(useLastModified);
     handler.setOptimizeLocations(optimizeLocations);
     return handler;
