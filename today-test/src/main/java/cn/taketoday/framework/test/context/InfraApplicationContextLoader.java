@@ -148,7 +148,7 @@ public class InfraApplicationContextLoader extends AbstractContextLoader {
     }
     String[] pairs = new String[profiles.length];
     for (int i = 0; i < profiles.length; i++) {
-      pairs[i] = "context.profiles.active[" + i + "]=" + profiles[i];
+      pairs[i] = "infra.profiles.active[" + i + "]=" + profiles[i];
     }
     TestPropertyValues.of(pairs).applyTo(environment, Type.MAP, "active-test-profiles");
   }

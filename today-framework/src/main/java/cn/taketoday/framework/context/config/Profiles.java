@@ -59,7 +59,7 @@ public class Profiles implements Iterable<String> {
   /**
    * Name of property to set to specify additionally included active profiles.
    */
-  public static final String INCLUDE_PROFILES_PROPERTY_NAME = "context.profiles.include";
+  public static final String INCLUDE_PROFILES_PROPERTY_NAME = "infra.profiles.include";
 
   static final ConfigurationPropertyName INCLUDE_PROFILES = ConfigurationPropertyName
           .of(Profiles.INCLUDE_PROFILES_PROPERTY_NAME);
@@ -84,7 +84,7 @@ public class Profiles implements Iterable<String> {
    * @param additionalProfiles any additional active profiles
    */
   Profiles(Environment environment, Binder binder, Collection<String> additionalProfiles) {
-    this.groups = binder.bind("context.profiles.group", STRING_STRINGS_MAP).orElseGet(LinkedMultiValueMap::new);
+    this.groups = binder.bind("infra.profiles.group", STRING_STRINGS_MAP).orElseGet(LinkedMultiValueMap::new);
     this.activeProfiles = expandProfiles(getActivatedProfiles(environment, binder, additionalProfiles));
     this.defaultProfiles = expandProfiles(getDefaultProfiles(environment, binder));
   }

@@ -1,11 +1,11 @@
 ---
 ---
-context.profiles: A
+infra.profiles: A
 version: A
 ---
-context.profiles: B
+infra.profiles: B
 version: B
 ---
-context.profiles: C
+infra.profiles: C
 version: C
 ---

@@ -5,7 +5,7 @@ context:
       - B
 
 ---
-context.profiles: A
+infra.profiles: A
 
 context:
   profiles:
@@ -15,7 +15,7 @@ context:
 version: A
 
 ---
-context.profiles: B
+infra.profiles: B
 
 context:
   profiles:
@@ -25,43 +25,43 @@ context:
 version: B
 
 ---
-context.profiles: C
+infra.profiles: C
 
 version: C
 
 
 ---
-context.profiles: D
+infra.profiles: D
 
 version: D
 
 
 ---
-context.profiles: E
+infra.profiles: E
 
 version: E
 
 ---
-context.profiles: "!A"
+infra.profiles: "!A"
 
 not-a: true
 
 ---
-context.profiles: "!B"
+infra.profiles: "!B"
 
 not-b: true
 
 ---
-context.profiles: "!C"
+infra.profiles: "!C"
 
 not-c: true
 
 ---
-context.profiles: "!D"
+infra.profiles: "!D"
 
 not-d: true
 
 ---
-context.profiles: "!E"
+infra.profiles: "!E"
 
 not-e: true

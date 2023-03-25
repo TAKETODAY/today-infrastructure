@@ -56,7 +56,7 @@ class ProfilesTests {
   void getActiveWhenNoEnvironmentProfilesAndBinderProperty() {
     Environment environment = new MockEnvironment();
     Binder binder = new Binder(
-            new MapConfigurationPropertySource(Collections.singletonMap("context.profiles.active", "a,b,c")));
+            new MapConfigurationPropertySource(Collections.singletonMap("infra.profiles.active", "a,b,c")));
     Profiles profiles = new Profiles(environment, binder, null);
     assertThat(profiles.getActive()).containsExactly("a", "b", "c");
   }
@@ -64,7 +64,7 @@ class ProfilesTests {
   @Test
   void getActiveWhenNoEnvironmentProfilesAndEnvironmentProperty() {
     MockEnvironment environment = new MockEnvironment();
-    environment.setProperty("context.profiles.active", "a,b,c");
+    environment.setProperty("infra.profiles.active", "a,b,c");
     Binder binder = Binder.get(environment);
     Profiles profiles = new Profiles(environment, binder, null);
     assertThat(profiles.getActive()).containsExactly("a", "b", "c");
@@ -75,7 +75,7 @@ class ProfilesTests {
     MockEnvironment environment = new MockEnvironment();
     environment.setActiveProfiles("a", "b", "c");
     Binder binder = new Binder(
-            new MapConfigurationPropertySource(Collections.singletonMap("context.profiles.active", "d,e,f")));
+            new MapConfigurationPropertySource(Collections.singletonMap("infra.profiles.active", "d,e,f")));
     Profiles profiles = new Profiles(environment, binder, null);
     assertThat(profiles.getActive()).containsExactly("a", "b", "c", "d", "e", "f");
   }
@@ -83,10 +83,10 @@ class ProfilesTests {
   @Test
   void getActiveWhenEnvironmentProfilesAndBinderPropertyShouldReturnEnvironmentProperty() {
     MockEnvironment environment = new MockEnvironment();
-    environment.setProperty("context.profiles.active", "a,b,c");
+    environment.setProperty("infra.profiles.active", "a,b,c");
     List<ConfigurationPropertySource> sources = new ArrayList<>();
     ConfigurationPropertySources.get(environment).forEach(sources::add);
-    sources.add(new MapConfigurationPropertySource(Collections.singletonMap("context.profiles.active", "d,e,f")));
+    sources.add(new MapConfigurationPropertySource(Collections.singletonMap("infra.profiles.active", "d,e,f")));
     Binder binder = new Binder(sources);
     Profiles profiles = new Profiles(environment, binder, null);
     assertThat(profiles.getActive()).containsExactly("a", "b", "c");
@@ -96,7 +96,7 @@ class ProfilesTests {
   void getActiveWhenEnvironmentProfilesAndEnvironmentProperty() {
     MockEnvironment environment = new MockEnvironment();
     environment.setActiveProfiles("a", "b", "c");
-    environment.setProperty("context.profiles.active", "d,e,f");
+    environment.setProperty("infra.profiles.active", "d,e,f");
     Binder binder = Binder.get(environment);
     Profiles profiles = new Profiles(environment, binder, null);
     assertThat(profiles.getActive()).containsExactly("a", "b", "c", "d", "e", "f");
@@ -105,8 +105,8 @@ class ProfilesTests {
   @Test
   void getActiveWhenNoEnvironmentProfilesAndEnvironmentPropertyInBindNotation() {
     MockEnvironment environment = new MockEnvironment();
-    environment.setProperty("context.profiles.active[0]", "a");
-    environment.setProperty("context.profiles.active[1]", "b");
+    environment.setProperty("infra.profiles.active[0]", "a");
+    environment.setProperty("infra.profiles.active[1]", "b");
     environment.setProperty("context.profiles.active[2]", "c");
     Binder binder = Binder.get(environment);
     Profiles profiles = new Profiles(environment, binder, null);

@@ -1,4 +1,4 @@
-context.profiles.active: test, another-test
+infra.profiles.active: test, another-test
 message: default
 ---
 context:

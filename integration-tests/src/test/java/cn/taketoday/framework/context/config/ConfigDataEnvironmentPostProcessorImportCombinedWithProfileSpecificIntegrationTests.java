@@ -73,7 +73,7 @@ class ConfigDataEnvironmentPostProcessorImportCombinedWithProfileSpecificIntegra
   @Test
   void testWithProfile() {
     ConfigurableApplicationContext context = this.application
-            .run("--app.config.name=configimportwithprofilespecific", "--context.profiles.active=prod");
+            .run("--app.config.name=configimportwithprofilespecific", "--infra.profiles.active=prod");
     String value = context.getEnvironment().getProperty("prop");
     assertThat(value).isEqualTo("fromicwps2");
   }

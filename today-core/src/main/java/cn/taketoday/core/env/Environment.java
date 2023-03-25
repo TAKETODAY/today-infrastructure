@@ -118,7 +118,7 @@ public interface Environment extends PropertyResolver {
    *
    * @see ConfigurableEnvironment#setActiveProfiles
    */
-  String KEY_ACTIVE_PROFILES = "context.profiles.active";
+  String KEY_ACTIVE_PROFILES = "infra.profiles.active";
 
   /**
    * Name of property to set to specify profiles active by default: {@value}. Value may
@@ -130,7 +130,7 @@ public interface Environment extends PropertyResolver {
    *
    * @see ConfigurableEnvironment#setDefaultProfiles
    */
-  String KEY_DEFAULT_PROFILES = "context.profiles.default";
+  String KEY_DEFAULT_PROFILES = "infra.profiles.default";
 
   /**
    * Name of reserved default profile name: {@value}. If no default profile names are
@@ -149,7 +149,7 @@ public interface Environment extends PropertyResolver {
    * are used for creating logical groupings of bean definitions to be registered
    * conditionally, for example based on deployment environment. Profiles can be
    * activated by setting {@linkplain AbstractEnvironment#KEY_ACTIVE_PROFILES
-   * "context.profiles.active"} as a system property or by calling
+   * "infra.profiles.active"} as a system property or by calling
    * {@link ConfigurableEnvironment#setActiveProfiles(String...)}.
    * <p>If no profiles have explicitly been specified as active, then any
    * {@linkplain #getDefaultProfiles() default profiles} will automatically be activated.

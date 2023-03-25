@@ -1,4 +1,4 @@
 ---
-context.profiles: activeprofilewithdifferentsubdoc2
+infra.profiles: activeprofilewithdifferentsubdoc2
 foobar: baz
 ---

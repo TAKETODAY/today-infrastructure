@@ -197,8 +197,8 @@ class ConfigDataEnvironmentTests {
       protected ConfigDataEnvironmentContributors createContributors(
               List<ConfigDataEnvironmentContributor> contributors) {
         Map<String, Object> source = new LinkedHashMap<>();
-        source.put("context.profiles.active", "ignore1");
-        source.put("context.profiles.include", "ignore2");
+        source.put("infra.profiles.active", "ignore1");
+        source.put("infra.profiles.include", "ignore2");
         ConfigData data = new ConfigData(Collections.singleton(new MapPropertySource("test", source)),
                 ConfigData.Option.IGNORE_PROFILES);
         contributors.add(ConfigDataEnvironmentContributor.ofUnboundImport(ConfigDataLocation.valueOf("test"),
@@ -223,7 +223,7 @@ class ConfigDataEnvironmentTests {
               List<ConfigDataEnvironmentContributor> contributors) {
         Map<String, Object> source = new LinkedHashMap<>();
         source.put("app.config.activate.on-profile", "activate");
-        source.put("context.profiles." + property, "include");
+        source.put("infra.profiles." + property, "include");
         ConfigData data = new ConfigData(Collections.singleton(new MapPropertySource("test", source)));
         contributors.add(ConfigDataEnvironmentContributor.ofUnboundImport(ConfigDataLocation.valueOf("test"),
                 mock(ConfigDataResource.class), false, data, 0));
@@ -236,7 +236,7 @@ class ConfigDataEnvironmentTests {
   }
 
   @ParameterizedTest
-  @CsvSource({ "context.profiles.include", "context.profiles.include[0]" })
+  @CsvSource({ "infra.profiles.include", "infra.profiles.include[0]" })
   void processAndApplyIncludesProfilesFromSpringProfilesInclude(String property, TestInfo info) {
     this.environment.setProperty("app.config.location", getConfigLocation(info));
     ConfigDataEnvironment configDataEnvironment = new ConfigDataEnvironment(this.bootstrapContext,
@@ -268,8 +268,8 @@ class ConfigDataEnvironmentTests {
       protected ConfigDataEnvironmentContributors createContributors(
               List<ConfigDataEnvironmentContributor> contributors) {
         Map<String, Object> source = new LinkedHashMap<>();
-        source.put("context.profiles.active", "ignore1");
-        source.put("context.profiles.include", "ignore2");
+        source.put("infra.profiles.active", "ignore1");
+        source.put("infra.profiles.include", "ignore2");
         ConfigData data = new ConfigData(Collections.singleton(new MapPropertySource("test", source)),
                 ConfigData.Option.IGNORE_PROFILES);
         contributors.add(ConfigDataEnvironmentContributor.ofUnboundImport(ConfigDataLocation.valueOf("test"),
@@ -284,7 +284,7 @@ class ConfigDataEnvironmentTests {
   }
 
   @Test
-  @Disabled("Disabled until context.profiles support is dropped")
+  @Disabled("Disabled until infra.profiles support is dropped")
   void processAndApplyWhenHasInvalidPropertyThrowsException() {
     this.environment.setProperty("context.profile", "a");
     ConfigDataEnvironment configDataEnvironment = new ConfigDataEnvironment(this.bootstrapContext,

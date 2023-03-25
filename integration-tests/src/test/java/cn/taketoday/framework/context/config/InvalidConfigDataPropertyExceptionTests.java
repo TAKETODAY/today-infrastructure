@@ -106,25 +106,25 @@ class InvalidConfigDataPropertyExceptionTests {
   @Test
   void throwOrWarnWhenHasInvalidPropertyThrowsException() {
     MockPropertySource propertySource = new MockPropertySource();
-    propertySource.setProperty("context.profiles", "a");
+    propertySource.setProperty("infra.profiles", "a");
     ConfigDataEnvironmentContributor contributor = ConfigDataEnvironmentContributor.ofExisting(propertySource);
     assertThatExceptionOfType(InvalidConfigDataPropertyException.class)
             .isThrownBy(() -> InvalidConfigDataPropertyException.throwIfPropertyFound(contributor))
-            .withMessageStartingWith("Property 'context.profiles' is invalid and should be replaced with "
+            .withMessageStartingWith("Property 'infra.profiles' is invalid and should be replaced with "
                     + "'app.config.activate.on-profile'");
   }
 
   @Test
   void throwOrWarnWhenWhenHasInvalidProfileSpecificPropertyThrowsException() {
-    throwOrWarnWhenWhenHasInvalidProfileSpecificPropertyThrowsException("context.profiles.include");
-    throwOrWarnWhenWhenHasInvalidProfileSpecificPropertyThrowsException("context.profiles.active");
-    throwOrWarnWhenWhenHasInvalidProfileSpecificPropertyThrowsException("context.profiles.default");
+    throwOrWarnWhenWhenHasInvalidProfileSpecificPropertyThrowsException("infra.profiles.include");
+    throwOrWarnWhenWhenHasInvalidProfileSpecificPropertyThrowsException("infra.profiles.active");
+    throwOrWarnWhenWhenHasInvalidProfileSpecificPropertyThrowsException("infra.profiles.default");
   }
 
   @Test
   void throwOrWarnWhenWhenHasInvalidProfileSpecificPropertyOnIgnoringProfilesContributorDoesNotThrowException() {
     ConfigDataEnvironmentContributor contributor = createInvalidProfileSpecificPropertyContributor(
-            "context.profiles.active", ConfigData.Option.IGNORE_PROFILES);
+            "infra.profiles.active", ConfigData.Option.IGNORE_PROFILES);
     assertThatNoException().isThrownBy(() -> InvalidConfigDataPropertyException.throwIfPropertyFound(contributor));
   }
 

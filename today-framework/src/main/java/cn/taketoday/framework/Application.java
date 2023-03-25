@@ -663,7 +663,7 @@ public class Application {
   /**
    * Configure which profiles are active (or active by default) for this application
    * environment. Additional profiles may be activated during configuration file
-   * processing via the {@code context.profiles.active} property.
+   * processing via the {@code infra.profiles.active} property.
    *
    * @param environment this application's environment
    * @param args arguments passed to the {@code run} method

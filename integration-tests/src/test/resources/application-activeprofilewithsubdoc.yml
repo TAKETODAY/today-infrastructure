@@ -1,2 +1,2 @@
-context.profiles: activeprofilewithsubdoc
+infra.profiles: activeprofilewithsubdoc
 foobar: baz

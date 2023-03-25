@@ -50,7 +50,7 @@ import cn.taketoday.logging.LoggerFactory;
  * <p>This feature is particularly useful when specifying active or default profiles as
  * environment variables. The following is not allowable under Bash:
  *
- * <pre class="code">context.profiles.active=p1 java -classpath ... MyApp</pre>
+ * <pre class="code">infra.profiles.active=p1 java -classpath ... MyApp</pre>
  *
  * However, the following syntax is permitted and is also more conventional:
  *

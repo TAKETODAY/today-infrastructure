@@ -40,7 +40,7 @@ import cn.taketoday.stereotype.Component;
  * <p>A <em>profile</em> is a named logical grouping that may be activated
  * programmatically via {@link ConfigurableEnvironment#setActiveProfiles} or declaratively
  * by setting the {@link AbstractEnvironment#KEY_ACTIVE_PROFILES
- * context.profiles.active} property as a JVM system property, as an
+ * infra.profiles.active} property as a JVM system property, as an
  * environment variable, or as a Servlet context parameter in {@code web.xml}
  * for web applications. Profiles may also be activated declaratively in
  * integration tests via the {@code @ActiveProfiles} annotation.

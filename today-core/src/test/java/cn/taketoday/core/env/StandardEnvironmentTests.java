@@ -210,7 +210,7 @@ public class StandardEnvironmentTests {
   @Test
   void defaultProfileWithCircularPlaceholder() {
     try {
-      System.setProperty(KEY_DEFAULT_PROFILES, "${context.profiles.default}");
+      System.setProperty(KEY_DEFAULT_PROFILES, "${infra.profiles.default}");
       assertThatIllegalArgumentException().isThrownBy(environment::getDefaultProfiles);
     }
     finally {
