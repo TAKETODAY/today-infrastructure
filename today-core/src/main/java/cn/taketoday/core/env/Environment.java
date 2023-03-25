@@ -92,10 +92,6 @@ public interface Environment extends PropertyResolver {
    */
   String SYSTEM_ENVIRONMENT_BEAN_NAME = "systemEnvironment";
 
-  String DEFAULT_YML_FILE = "classpath:application.yml"; // @since 1.0.2
-  String DEFAULT_YAML_FILE = "classpath:application.yaml";
-  String DEFAULT_PROPERTIES_FILE = "classpath:application.properties";
-
   /**
    * System property that instructs to ignore system environment variables,
    * i.e. to never attempt to retrieve such a variable via {@link System#getenv()}.
@@ -106,7 +102,7 @@ public interface Environment extends PropertyResolver {
    *
    * @see AbstractEnvironment#suppressGetenvAccess()
    */
-  String KEY_IGNORE_GETENV = "context.getenv.ignore";
+  String KEY_IGNORE_GETENV = "infra.getenv.ignore";
 
   /**
    * Name of property to set to specify active profiles: {@value}. Value may be comma

@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -360,23 +360,23 @@ public class StandardEnvironmentTests {
 
   @Test
   void suppressGetenvAccessThroughSystemProperty() {
-    System.setProperty("context.getenv.ignore", "true");
+    System.setProperty("infra.getenv.ignore", "true");
     assertThat(environment.getSystemEnvironment()).isEmpty();
-    System.clearProperty("context.getenv.ignore");
+    System.clearProperty("infra.getenv.ignore");
   }
 
   @Test
   void suppressGetenvAccessThroughSpringProperty() {
-    TodayStrategies.setProperty("context.getenv.ignore", "true");
+    TodayStrategies.setProperty("infra.getenv.ignore", "true");
     assertThat(environment.getSystemEnvironment()).isEmpty();
-    TodayStrategies.setProperty("context.getenv.ignore", null);
+    TodayStrategies.setProperty("infra.getenv.ignore", null);
   }
 
   @Test
   void suppressGetenvAccessThroughSpringFlag() {
-    TodayStrategies.setFlag("context.getenv.ignore");
+    TodayStrategies.setFlag("infra.getenv.ignore");
     assertThat(environment.getSystemEnvironment()).isEmpty();
-    TodayStrategies.setProperty("context.getenv.ignore", null);
+    TodayStrategies.setProperty("infra.getenv.ignore", null);
   }
 
   @Test
